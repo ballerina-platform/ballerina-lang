@@ -19,6 +19,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.ballerinalang.jvm.util.BLangConstants;
+import org.ballerinalang.langserver.codeaction.CodeActionNodeType;
 import org.ballerinalang.langserver.command.executors.AddAllDocumentationExecutor;
 import org.ballerinalang.langserver.command.executors.AddDocumentationExecutor;
 import org.ballerinalang.langserver.command.executors.ChangeAbstractTypeObjExecutor;
@@ -138,13 +139,9 @@ public class CommandUtil {
      * @param line             Node line
      * @return {@link List}    List of commands for the line
      */
-    public static List<CodeAction> getCommandForNodeType(String topLevelNodeType, String docUri,
-                                                         int line) {
+    public static List<CodeAction> getCommandForNodeType(CodeActionNodeType topLevelNodeType, String docUri, int line) {
         List<CodeAction> actions = new ArrayList<>();
-//        if (CommonKeys.OBJECT_KEYWORD_KEY.equals(topLevelNodeType)) {
-//            actions.add(getInitializerGenerationCommand(docUri, line));
-//        }
-        actions.add(getDocGenerationCommand(topLevelNodeType, docUri, line));
+        actions.add(getDocGenerationCommand(topLevelNodeType.name(), docUri, line));
         actions.add(getAllDocGenerationCommand(docUri));
         return actions;
     }
@@ -438,7 +435,7 @@ public class CommandUtil {
                     String content = getContentOfRange(documentManager, uri, range);
                     // Add `untaint` keyword
                     matcher = CommandConstants.NO_CONCAT_PATTERN.matcher(content);
-                    String editText = matcher.find() ? "untaint " + content : "untaint (" + content + ")";
+                    String editText = matcher.find() ? "<@untained>  " + content : "<@untained> (" + content + ")";
                     // Create text-edit
                     List<TextEdit> edits = new ArrayList<>();
                     edits.add(new TextEdit(range, editText));
@@ -985,7 +982,7 @@ public class CommandUtil {
         TextDocumentIdentifier identifier = new TextDocumentIdentifier(uri);
         context.put(DocumentServiceKeys.POSITION_KEY, new TextDocumentPositionParams(identifier, position));
         List<BLangPackage> bLangPackages = LSModuleCompiler.getBLangPackages(context, documentManager,
-                LSCustomErrorStrategy.class, true, false, false);
+                LSCustomErrorStrategy.class, true, false, true);
         context.put(DocumentServiceKeys.BLANG_PACKAGES_CONTEXT_KEY, bLangPackages);
         // Get the current package.
         BLangPackage currentBLangPackage = context.get(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY);

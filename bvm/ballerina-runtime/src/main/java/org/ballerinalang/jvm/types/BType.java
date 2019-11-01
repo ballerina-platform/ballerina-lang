@@ -91,10 +91,15 @@ public abstract class BType {
                 return namesEqual;
             }
 
-            if (this.pkg.getName() == null && other.pkg.getName() == null) {
-                return namesEqual;
-            } else if (this.pkg.getName() != null && other.pkg.getName() != null) {
-                return this.pkg.getName().equals(other.pkg.getName()) && namesEqual;
+            String thisPkgName = this.pkg.getName();
+            String otherPkgName = other.pkg.getName();
+
+            if (otherPkgName == null) {
+                if (thisPkgName == null) {
+                    return namesEqual;
+                }
+            } else if (thisPkgName != null) {
+                return namesEqual && thisPkgName.equals(otherPkgName);
             }
         }
         return false;
@@ -126,5 +131,13 @@ public abstract class BType {
 
     public boolean isNative() {
         return false;
+    }
+
+    public boolean isAnydata() {
+        return this.getTag() <= TypeTags.ANYDATA_TAG;
+    }
+
+    public boolean isPureType() {
+        return this.getTag() == TypeTags.ERROR_TAG || this.isAnydata();
     }
 }

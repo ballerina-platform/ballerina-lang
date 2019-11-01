@@ -130,7 +130,7 @@
       "kind": "Snippet",
       "detail": "Statement",
       "sortText": "240",
-      "insertText": "transaction with retries = ${1:0} {\n\t${2}\n} onretry {\n\t${3}\n}",
+      "insertText": "transaction with retries = ${1:0} {\n\t${2}\n} onretry {\n\t${3}\n} committed {\n\t${4}\n} aborted {\n\t${5}\n}",
       "insertTextFormat": "Snippet"
     },
     {
@@ -297,7 +297,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n"
+          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `int` a  \n- `string` b"
         }
       },
       "sortText": "120",
@@ -429,6 +429,14 @@
       "detail": "Service",
       "sortText": "230",
       "insertText": "service",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "self",
+      "kind": "Variable",
+      "detail": "serviceName",
+      "sortText": "130",
+      "insertText": "self",
       "insertTextFormat": "Snippet"
     },
     {

@@ -533,7 +533,8 @@ function generateClassNameMappings(bir:Package module, string pkgName, string in
 }
 
 function getFunctionWrapper(bir:Function currentFunc, string orgName ,string moduleName, 
-                            string versionValue,  string  moduleClass) returns BIRFunctionWrapper {
+                            string versionValue,  string  moduleClass) 
+                                returns BIRFunctionWrapper {
 
     bir:BInvokableType functionTypeDesc = currentFunc.typeValue;
     bir:VariableDcl? receiver = currentFunc.receiver;

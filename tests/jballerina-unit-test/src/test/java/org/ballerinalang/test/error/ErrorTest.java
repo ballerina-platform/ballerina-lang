@@ -237,7 +237,7 @@ public class ErrorTest {
 
     @Test
     public void testErrorNegative() {
-        Assert.assertEquals(negativeCompileResult.getErrorCount(), 17);
+        Assert.assertEquals(negativeCompileResult.getErrorCount(), 18);
         int i = 0;
         BAssertUtil.validateError(negativeCompileResult, i++,
                                   "incompatible types: expected 'reason one|reason two', found 'string'", 26, 31);
@@ -245,10 +245,10 @@ public class ErrorTest {
                                   "incompatible types: expected 'reason one', found 'reason two'", 31, 31);
         BAssertUtil.validateError(negativeCompileResult, i++,
                                   "invalid error reason type 'int', expected a subtype of 'string'", 41, 28);
-        BAssertUtil.validateError(negativeCompileResult, i++, "invalid error detail type 'map', expected a subtype of "
-                + "'record {| string message?; $error0 cause?; (anydata|error)...; |}'", 41, 33);
+        BAssertUtil.validateError(negativeCompileResult, i++, "invalid error detail type 'map<any>', "
+                + "expected a subtype of 'record {| string message?; error cause?; (anydata|error)...; |}'", 41, 33);
         BAssertUtil.validateError(negativeCompileResult, i++, "invalid error detail type 'boolean', expected a subtype "
-                + "of 'record {| string message?; $error0 cause?; (anydata|error)...; |}'", 42, 36);
+                + "of 'record {| string message?; error cause?; (anydata|error)...; |}'", 42, 36);
         BAssertUtil.validateError(negativeCompileResult, i++,
                                   "invalid error reason type '1.0f', expected a subtype of 'string'", 45, 7);
         BAssertUtil.validateError(negativeCompileResult, i++,
@@ -270,6 +270,9 @@ public class ErrorTest {
                 "error reason is mandatory for direct error constructor", 112, 28);
         BAssertUtil.validateError(negativeCompileResult, i++,
                 "incompatible types: expected 'error', found '(error|int)'", 118, 11);
+        BAssertUtil.validateError(negativeCompileResult, i,
+                "incompatible types: expected 'error<string, " +
+                        "record {| string message?; error cause?; int i; anydata...; |}>', found 'int'", 122, 73);
     }
     @DataProvider(name = "userDefTypeAsReasonTests")
     public Object[][] userDefTypeAsReasonTests() {
@@ -365,6 +368,19 @@ public class ErrorTest {
     }
 
     @Test
+    public void testStackOverFlow() {
+        BValue[] result = BRunUtil.invoke(errorTestResult, "testStackOverFlow");
+        String expected1 = "{callableName:\"bar\", moduleName:\"error_test\", fileName:\"error_test.bal\", " +
+                "lineNumber:343}";
+        String expected2 = "{callableName:\"bar2\", moduleName:\"error_test\", fileName:\"error_test.bal\", " +
+                "lineNumber:347}";
+        String resultStack = ((BValueArray) result[0]).getRefValue(0).toString();
+        Assert.assertTrue(resultStack.equals(expected1) || resultStack.equals(expected2), "Received unexpected " +
+                "stacktrace element: " + resultStack);
+        Assert.assertEquals(result[1].stringValue(), "{ballerina}StackOverflow");
+    }
+
+    @Test
     public void testNonModuleQualifiedReasons() {
         CompileResult compileResult = BCompileUtil.compile(
                 "test-src/error/non_module_qualified_error_reasons_negative.bal");
@@ -391,5 +407,14 @@ public class ErrorTest {
                                     23, 21);
         BAssertUtil.validateWarning(compileResult, index, "error reason '{test/string}identifier' is not module " +
                 "qualified", 23, 21);
+    }
+
+    @Test
+    public void testErrorTrapVarReuse() {
+        BValue[] returns = BRunUtil.invoke(errorTestResult, "testErrorTrapVarReuse");
+        Assert.assertTrue(returns[0] instanceof BError);
+        Assert.assertNull(returns[1]);
+        BError bError = (BError) returns[0];
+        Assert.assertEquals(bError.getReason(), "panic now");
     }
 }

@@ -31,6 +31,8 @@ import org.ballerinalang.packerina.task.CreateBirTask;
 import org.ballerinalang.packerina.task.CreateExecutableTask;
 import org.ballerinalang.packerina.task.CreateJarTask;
 import org.ballerinalang.packerina.task.CreateTargetDirTask;
+import org.ballerinalang.packerina.task.PrintExecutablePathTask;
+import org.ballerinalang.packerina.task.PrintRunningExecutableTask;
 import org.ballerinalang.packerina.task.RunExecutableTask;
 import org.ballerinalang.tool.BLauncherCmd;
 import org.ballerinalang.tool.BallerinaCliCommands;
@@ -58,7 +60,6 @@ import static org.ballerinalang.compiler.CompilerOptionName.SKIP_TESTS;
 import static org.ballerinalang.compiler.CompilerOptionName.TEST_ENABLED;
 import static org.ballerinalang.jvm.runtime.RuntimeConstants.SYSTEM_PROP_BAL_DEBUG;
 import static org.ballerinalang.packerina.buildcontext.sourcecontext.SourceType.SINGLE_BAL_FILE;
-import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_COMPILED_JAR_EXT;
 
 /**
  * This class represents the "run" command and it holds arguments and flags specified by the user.
@@ -68,6 +69,7 @@ import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_COM
 @CommandLine.Command(name = "run", description = "Build and execute a Ballerina program.")
 public class RunCommand implements BLauncherCmd {
     
+    private final PrintStream outStream;
     private final PrintStream errStream;
 
     @CommandLine.Parameters(description = "Program arguments")
@@ -91,10 +93,12 @@ public class RunCommand implements BLauncherCmd {
     private boolean experimentalFlag;
 
     public RunCommand() {
+        this.outStream = System.err;
         this.errStream = System.err;
     }
 
-    public RunCommand(PrintStream errStream) {
+    public RunCommand(PrintStream outStream, PrintStream errStream) {
+        this.outStream = outStream;
         this.errStream = errStream;
     }
 
@@ -129,33 +133,7 @@ public class RunCommand implements BLauncherCmd {
         Path sourcePath;
         Path targetPath;
     
-        if (this.argList.get(0).endsWith(BLANG_COMPILED_JAR_EXT)) {
-            // jar file given to directly run
-            if (Paths.get(this.argList.get(0)).isAbsolute()) {
-                sourcePath = Paths.get(this.argList.get(0));
-                sourceRootPath = sourcePath.getParent();
-            } else {
-                sourcePath = sourceRootPath.resolve(this.argList.get(0));
-            }
-            
-            if (Files.notExists(sourcePath)) {
-                CommandUtil.printError(this.errStream,
-                        "'" + sourcePath + "' Ballerina file does not exist.",
-                        null,
-                        false);
-                Runtime.getRuntime().exit(1);
-                return;
-            }
-            BuildContext buildContext = new BuildContext(sourceRootPath.normalize());
-    
-            TaskExecutor taskExecutor = new TaskExecutor.TaskBuilder()
-                    .addTask(new RunExecutableTask(sourcePath.normalize(), programArgs))
-                    .build();
-    
-            taskExecutor.executeTasks(buildContext);
-            Runtime.getRuntime().exit(0);
-            return;
-        } else if (this.argList.get(0).endsWith(BLangConstants.BLANG_SRC_FILE_SUFFIX)) {
+        if (this.argList.get(0).endsWith(BLangConstants.BLANG_SRC_FILE_SUFFIX)) {
             // when a single bal file is provided.
             //// check if path given is an absolute path. update source root accordingly.
             if (Paths.get(this.argList.get(0)).isAbsolute()) {
@@ -266,6 +244,8 @@ public class RunCommand implements BLauncherCmd {
 
         // create builder context
         BuildContext buildContext = new BuildContext(sourceRootPath, targetPath, sourcePath, compilerContext);
+        buildContext.setOut(this.outStream);
+        buildContext.setErr(this.errStream);
         
         boolean isSingleFileBuild = buildContext.getSourceType().equals(SINGLE_BAL_FILE);
     
@@ -279,6 +259,8 @@ public class RunCommand implements BLauncherCmd {
                 .addTask(new CreateJarTask(false))  // create the jar
                 .addTask(new CopyModuleJarTask())
                 .addTask(new CreateExecutableTask())  // create the executable .jar file
+                .addTask(new PrintExecutablePathTask(), isSingleFileBuild)   // print the location of the executable
+                .addTask(new PrintRunningExecutableTask(!isSingleFileBuild))   // print running executables
                 .addTask(new RunExecutableTask(programArgs))
                 .build();
     
@@ -320,7 +302,7 @@ public class RunCommand implements BLauncherCmd {
     public void printUsage(StringBuilder out) {
         out.append("  ballerina run [--offline]\n" +
                            "                [--sourceroot]\n" +
-                           "                {<balfile> | module-name | executable-jar} [configs (--key=value)...] " 
+                           "                {<balfile> | module-name | executable-jar} [(--key=value)...] "
                            + "[--] [args...] \n");
     }
 

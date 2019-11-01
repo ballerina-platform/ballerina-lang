@@ -130,7 +130,7 @@
       "kind": "Snippet",
       "detail": "Statement",
       "sortText": "240",
-      "insertText": "transaction with retries = ${1:0} {\n\t${2}\n} onretry {\n\t${3}\n}",
+      "insertText": "transaction with retries = ${1:0} {\n\t${2}\n} onretry {\n\t${3}\n} committed {\n\t${4}\n} aborted {\n\t${5}\n}",
       "insertTextFormat": "Snippet"
     },
     {
@@ -241,7 +241,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n  \n  \n**Returns** `float`   \n  \n"
+          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `int` x  \n- `function (int,string) returns (float)` bar  \n  \n**Returns** `float`   \n  \n"
         }
       },
       "sortText": "120",

@@ -89,7 +89,7 @@ public class AssignmentStatementContextProvider extends LSCompletionProvider {
         }
 
         List<SymbolInfo> filteredList = new ArrayList<>(ctx.get(CommonKeys.VISIBLE_SYMBOLS_KEY));
-        filteredList.removeIf(this.attachedOrSelfKeywordFilter());
+        filteredList.removeIf(this.attachedSymbolFilter());
         filteredList.removeIf(symbolInfo -> symbolInfo.getScopeEntry().symbol instanceof BTypeSymbol);
         completionItems.addAll(this.getCompletionItemList(filteredList, ctx));
         completionItems.addAll(this.getPackagesCompletionItems(ctx));

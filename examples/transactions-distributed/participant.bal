@@ -33,10 +33,9 @@ service ParticipantService on new http:Listener(8889) {
         var updateReq = <@untainted> req.getJsonPayload();
         if (updateReq is json) {
             string msg =
-                io:sprintf("Update stock quote request received.
-                            symbol:%s, price:%s",
-                            updateReq.symbol,
-                            updateReq.price);
+                io:sprintf("Update stock quote request received. " +
+                            "symbol:%s, price:%s",
+                            updateReq.symbol, updateReq.price);
             log:printInfo(msg);
 
             json jsonRes = { "message": "updating stock" };

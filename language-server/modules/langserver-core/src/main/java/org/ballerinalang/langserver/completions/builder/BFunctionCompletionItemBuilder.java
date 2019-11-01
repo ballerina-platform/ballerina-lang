@@ -33,8 +33,8 @@ import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -114,31 +114,36 @@ public final class BFunctionCompletionItemBuilder {
 
         MarkdownDocAttachment docAttachment = bInvokableSymbol.getMarkdownDocAttachment();
         String description = docAttachment.description == null ? "" : docAttachment.description;
-        List<MarkdownDocAttachment.Parameter> parameters = docAttachment.parameters;
+        Map<String, String> docParamsMap = new HashMap<>();
+        for (MarkdownDocAttachment.Parameter parameter : docAttachment.parameters) {
+            docParamsMap.put(parameter.name, parameter.description);
+        }
         List<BVarSymbol> defaultParams = bInvokableSymbol.getParameters().stream()
                 .filter(varSymbol -> varSymbol.defaultableParam).collect(Collectors.toList());
-
-        Map<String, BType> types = new HashMap<>();
-        for (BVarSymbol param : bInvokableSymbol.params) {
-            types.put(param.name.value, param.type);
-        }
 
         MarkupContent docMarkupContent = new MarkupContent();
         docMarkupContent.setKind(CommonUtil.MARKDOWN_MARKUP_KIND);
         String documentation = "**Package:** " + "_" + pkgID + "_" + CommonUtil.MD_LINE_SEPARATOR
                 + CommonUtil.MD_LINE_SEPARATOR + description + CommonUtil.MD_LINE_SEPARATOR;
         StringJoiner joiner = new StringJoiner(CommonUtil.MD_LINE_SEPARATOR);
-        for (int i = 0; i < parameters.size(); i++) {
-            MarkdownDocAttachment.Parameter parameter = parameters.get(i);
+        List<BVarSymbol> functionParameters = new ArrayList<>(bInvokableSymbol.params);
+        if (bInvokableSymbol.restParam != null) {
+            functionParameters.add(bInvokableSymbol.restParam);
+        }
+        for (int i = 0; i < functionParameters.size(); i++) {
+            BVarSymbol paramSymbol = functionParameters.get(i);
+            String paramType = CommonUtil.getBTypeName(paramSymbol.type, ctx, false);
             if (i == 0 && skipFirstParam) {
                 continue;
             }
+
             Optional<BVarSymbol> defaultVal = defaultParams.stream()
-                    .filter(bVarSymbol -> bVarSymbol.getName().getValue().equals(parameter.getName()))
+                    .filter(bVarSymbol -> bVarSymbol.getName().getValue().equals(paramSymbol.name.value))
                     .findFirst();
-            String type = (!types.isEmpty() && types.get(parameter.name) != null) ?
-                    "`" + CommonUtil.getBTypeName(types.get(parameter.name), ctx, false) + "` " : "";
-            String paramDescription = "- " + type + parameter.getName() + ": " + parameter.getDescription();
+            String paramDescription = "- " + "`" + paramType + "` " + paramSymbol.getName().getValue();
+            if (docParamsMap.containsKey(paramSymbol.name.value)) {
+                paramDescription += ": " + docParamsMap.get(paramSymbol.name.value);
+            }
             if (defaultVal.isPresent()) {
                 joiner.add(paramDescription + "(Defaultable)");
             } else {

@@ -9,7 +9,7 @@
       "label": "grpc:ResourceConfig",
       "kind": "Property",
       "detail": "Annotation",
-      "sortText": "120",
+      "sortText": "110",
       "insertText": "grpc:ResourceConfig {\n\t${1}\n}",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
@@ -32,7 +32,7 @@
       "label": "transactions:Participant",
       "kind": "Property",
       "detail": "Annotation",
-      "sortText": "120",
+      "sortText": "110",
       "insertText": "transactions:Participant {\n\t${1}\n}",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
@@ -55,7 +55,7 @@
       "label": "test:Config",
       "kind": "Property",
       "detail": "Annotation",
-      "sortText": "120",
+      "sortText": "110",
       "insertText": "test:Config {\n\t${1}\n}",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
@@ -78,7 +78,7 @@
       "label": "test:Mock",
       "kind": "Property",
       "detail": "Annotation",
-      "sortText": "120",
+      "sortText": "110",
       "insertText": "test:Mock {\n\t${1}\n}",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
@@ -101,7 +101,7 @@
       "label": "test:BeforeSuite",
       "kind": "Property",
       "detail": "Annotation",
-      "sortText": "120",
+      "sortText": "110",
       "insertText": "test:BeforeSuite",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
@@ -124,7 +124,7 @@
       "label": "test:AfterSuite",
       "kind": "Property",
       "detail": "Annotation",
-      "sortText": "120",
+      "sortText": "110",
       "insertText": "test:AfterSuite",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
@@ -147,7 +147,7 @@
       "label": "test:BeforeEach",
       "kind": "Property",
       "detail": "Annotation",
-      "sortText": "120",
+      "sortText": "110",
       "insertText": "test:BeforeEach",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
@@ -170,7 +170,7 @@
       "label": "test:AfterEach",
       "kind": "Property",
       "detail": "Annotation",
-      "sortText": "120",
+      "sortText": "110",
       "insertText": "test:AfterEach",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
@@ -190,19 +190,19 @@
       ]
     },
     {
-      "label": "http:ResourceConfig",
+      "label": "httpAlias:ResourceConfig",
       "kind": "Property",
       "detail": "Annotation",
-      "sortText": "120",
-      "insertText": "http:ResourceConfig {\n\t${1}\n}",
+      "sortText": "110",
+      "insertText": "httpAlias:ResourceConfig {\n\t${1}\n}",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "http:ParamOrderConfig",
+      "label": "httpAlias:ParamOrderConfig",
       "kind": "Property",
       "detail": "Annotation",
-      "sortText": "120",
-      "insertText": "http:ParamOrderConfig {\n\t${1}\n}",
+      "sortText": "110",
+      "insertText": "httpAlias:ParamOrderConfig {\n\t${1}\n}",
       "insertTextFormat": "Snippet"
     }
   ]

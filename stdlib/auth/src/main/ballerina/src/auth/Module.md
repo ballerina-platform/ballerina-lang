@@ -24,6 +24,7 @@ A user is denoted by a section in the configuration file. The password and the s
  password="<password>"
  scopes="<comma_separated_scopes>"
  ```
+ 
 ### Outbound Authentication Provider
 
 An outbound authentication provider defines an authentication scheme that could be used to authenticate external endpoints. The `auth:OutboundAuthProvider` acts as the interface for all the outbound authentication providers. Any type of implementation such as JDBC, JWT, OAuth2, and file-based should be object-equivalent.

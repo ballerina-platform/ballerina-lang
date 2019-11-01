@@ -47,7 +47,7 @@ public class ConfigProcessor {
      * (environment vars, etcd or something similar), 3. ballerina.conf file
      *
      * @param runtimeParams             The -B params passed to the BVM as CLI parameters
-     * @param userProvidedConfigFile    The config file provided through the --config CLI parameter
+     * @param userProvidedConfigFile    The config file provided through the --b7a.config.file property
      * @param ballerinaConfDefaultPath  The default config file (ballerina.conf) located at the source root
      * @return The parsed and resolved set of configurations
      * @throws IOException  Thrown if there was an error while attempting to process the config file

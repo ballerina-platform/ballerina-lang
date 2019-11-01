@@ -418,18 +418,18 @@ function errorResultWithMultipleWorkers() returns error? {
         return res;
     }
 
-    worker w2 returns error? {
+    worker w2 returns int|error {
         int x = 0;
         x = <- w1;
         if(true) {
             error err = error("err returned from w2"); // Already errored
             return err;
         }
-        error? res = <- w1;
+        int res = <- w1;
         return res;
     }
 
-    error? eor = wait w2 | w1;
+    error? eor = wait w1;
     return eor;
 }
 
@@ -456,4 +456,55 @@ public function testComplexType() returns Rec {
     }
 
     return wait w2;
+}
+
+public function multipleSendsToErroredChannel() returns error? {
+    worker w1 returns error? {
+        error? a = 5 ->> w2;
+
+        error? b = "foo" ->> w2;
+
+        return b;
+    }
+
+    worker w2 returns error? {
+        boolean b = true;
+        if (b) {
+            error e1 = error("error one");
+            return e1;
+        }
+
+        int x = <- w1;
+
+        if (!b) {
+            error e2 = error("error two");
+            return e2;
+        }
+
+        string y = <- w1;
+    }
+
+    error? res = wait w1;
+    return res;
+}
+
+public function testSyncSendAfterSend() returns error? {
+    worker w1 returns error? {
+        5 -> w2;
+
+        error? x = "foo" ->> w2;
+        return x;
+    }
+
+    worker w2 returns error? {
+        if (true) {
+            error e = error("w2 error");
+            return e;
+        }
+
+        int x = <- w1;
+        string s = <- w1;
+    }
+
+    return wait w1;
 }

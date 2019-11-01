@@ -19,21 +19,20 @@ public function main () {
     // Create an Appointment using the configurations.
     task:Scheduler appointment = new({ appointmentDetails: appointmentData });
 
-    // Attach the service to the Scheduler.
+    // Attach the service to the scheduler and exit if there is an error.
     var attachResult = appointment.attach(appointmentService);
     if (attachResult is error) {
         io:println("Error attaching the service.");
         return;
     }
 
-    // Start the scheduler.
+    // Start the scheduler and exit if there is an error.
     var startResult = appointment.start();
     if (startResult is error) {
         io:println("Starting the task is failed.");
         return;
     }
 
-    // Wait for 10000 milliseconds
     runtime:sleep(10000);
 
     // Cancel the appointment.

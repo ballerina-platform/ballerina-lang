@@ -61,7 +61,7 @@ public type OutboundBasicAuthProvider object {
     }
 };
 
-# The `Credential` record can be used to configure Basic authentication, which is used by the HTTP endpoint.
+# The `Credential` record can be used to configure Basic Authentication, which is used by the HTTP endpoint.
 #
 # + username - The username for Basic authentication.
 # + password - The password for Basic authentication.

@@ -56,6 +56,7 @@ import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
 import static org.ballerinalang.compiler.CompilerOptionName.EXPERIMENTAL_FEATURES_ENABLED;
 import static org.ballerinalang.compiler.CompilerOptionName.LOCK_ENABLED;
 import static org.ballerinalang.compiler.CompilerOptionName.OFFLINE;
+import static org.ballerinalang.compiler.CompilerOptionName.PRESERVE_WHITESPACE;
 import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
 import static org.ballerinalang.compiler.CompilerOptionName.SKIP_TESTS;
 import static org.ballerinalang.compiler.CompilerOptionName.TEST_ENABLED;
@@ -149,11 +150,8 @@ public class BuildCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--experimental", description = "Enable experimental language features.")
     private boolean experimentalFlag;
 
-    @CommandLine.Option(names = {"--config"}, description = "Path to the configuration file when running tests.")
-    private String configFilePath;
-
     private static final String buildCmd = "ballerina build [-o <output>] [--sourceroot] [--offline] [--skip-tests]\n" +
-            "                    [--skip-lock] {<ballerina-file | module-name> | -a | --all}";
+            "                    [--skip-lock] {<ballerina-file | module-name> | -a | --all} [--] [(--key=value)...]";
 
     public void execute() {
         if (this.helpFlag) {
@@ -362,6 +360,7 @@ public class BuildCommand implements BLauncherCmd {
         options.put(SKIP_TESTS, Boolean.toString(this.skipTests));
         options.put(TEST_ENABLED, "true");
         options.put(EXPERIMENTAL_FEATURES_ENABLED, Boolean.toString(this.experimentalFlag));
+        options.put(PRESERVE_WHITESPACE, "true");
         // create builder context
         BuildContext buildContext = new BuildContext(this.sourceRootPath, targetPath, sourcePath, compilerContext);
         buildContext.setOut(outStream);
@@ -423,7 +422,7 @@ public class BuildCommand implements BLauncherCmd {
     @Override
     public void printUsage(StringBuilder out) {
         out.append("  ballerina build [-o <output-file>] [--offline] [--skip-tests] [--skip-lock] " +
-                   "{<ballerina-file | module-name> | -a | --all} \n");
+                   "{<ballerina-file | module-name> | -a | --all} [--] [(--key=value)...]\n");
     }
 
     @Override

@@ -3,7 +3,9 @@
 This module provides the functionality to configure and manage Task Listeners and Task Schedulers.
 Task Listeners and Task Schedulers can be used to perform tasks periodically.
 
-### Task Listeners
+### Examples
+
+#### Task Listeners
 
 A Task `Listener` can be used to create a service listener, which will be triggered at specified times.
 
@@ -12,7 +14,7 @@ Below are the two types of configurations that can be used to configure a Task L
 - `TimerConfiguration`
 - `AppointmentConfiguration`
 
-#### The Timer configuration for a Listener 
+##### Task Listener as a Timer
 
 The `TimerConfiguration` can be used to configure a task that needs to be executed periodically.
 
@@ -46,23 +48,19 @@ service timerService on timer {
 }
 ```
 
-#### The Appointment configuration for a Listener
+##### Task Listener as an Appointment
 
 The `AppointmentConfiguration` can be used to schedule an appointment.
   
-The following example creates a task appointment, which registers a service using a CRON expression to execute the task every 5 seconds for 11 times. The `count` variable is incremented by the task.
+The following example creates a task appointment, which registers a service using a CRON expression to execute the task every second for 10 times. The `count` variable is incremented by the task.
 
 ```ballerina
 import ballerina/log;
 import ballerina/task;
 
 // Task Appointment configuration record to task Listener.
-// Task Appointment can have either a a cronExpression (`string`)
-// or a `AppointmentData` record the `appointmentData` field.
-// Optionally a `noOfRecurrences` can be provided to limit the number of runs
-// an appointment should run.
 task:AppointmentConfiguration appointmentConfiguration = {
-    // This cron expression will schedule the appointment once every 2 seconds.
+    // This cron expression will schedule the appointment once every second.
     appointmentDetails: "* * * * * ?",
     // Number of recurrences will limit the number of times the timer runs.
     noOfRecurrences: 10
@@ -84,7 +82,7 @@ service appointmentService on appointment {
 }
 ```
 
-### Task Schedulers
+#### Task Schedulers
 
 A Task `Scheduler` can be used to create timers/appointments dynamically. Service(s) can be attached to the `Scheduler`, so that they can be invoked when the Scheduler is triggered. 
 
@@ -93,14 +91,22 @@ Similar to Task Listeners, below are the two types of configurations that an be 
 - `TimerConfiguration`
 - `AppointmentConfiguration`
 
-#### The Timer configuration for a Scheduler
+##### Task Scheduler as a Timer
 
 A `Scheduler` can be used to create timers via its `TimerConfiguration`.
 
 The following example creates a `task:Scheduler` as a timer. The `createTimer()` function uses its input values to create a Task Scheduler dynamically. It attaches the `timerService` to the `timer` Scheduler it created. Calling the `timer.start()` function starts the `timer` Scheduler.
 
 ```ballerina
-public function createTimer(int interval, int delay, int recurrences) {
+import ballerina/io;
+import ballerina/log;
+import ballerina/task;
+
+public function main() {
+    createTimer(1000, 0, 10);
+}
+
+function createTimer(int interval, int delay, int recurrences) {
     task:TimerConfiguration timerConfiguration = {
             intervalInMillis: interval,
             initialDelayInMillis: delay,
@@ -122,19 +128,27 @@ public function createTimer(int interval, int delay, int recurrences) {
 
 service timerService = service {
     resource function onTrigger() {
-        // Task to run when the timer triggers.
+        io:println("Task Triggered");
     }
 };
 ```
 
-#### The Appointment configuration for a Scheduler
+#### Task Scheduler as an Appointment
 
 A `Scheduler` can also be used to create appointments via its `AppointmentConfiguration`. 
 
 The following example creates a Task Scheduler as an appointment. The `createAppointment()` function creates an appointment using the CRON expression provided as the input parameter. A service can be attached to the Scheduler using the `attach()` function. Calling the `appointment.start()` function starts the `appointment` Scheduler.
 
 ```ballerina
-public function createAppointment(string cronExpression, int recurrences) {
+import ballerina/io;
+import ballerina/log;
+import ballerina/task;
+
+public function main() {
+    createAppointment("* * * * * ?", 10);
+}
+
+function createAppointment(string cronExpression, int recurrences) {
     task:AppointmentConfiguration appointmentConfiguration = {
             appointmentDetails: cronExpression,
             noOfRecurrences: recurrences
@@ -155,7 +169,7 @@ public function createAppointment(string cronExpression, int recurrences) {
 
 service appointmentService = service {
     resource function onTrigger() {
-        // Task to run when the appointment triggers.
+        io:println("Appointment Triggered");
     }
 };
 ```

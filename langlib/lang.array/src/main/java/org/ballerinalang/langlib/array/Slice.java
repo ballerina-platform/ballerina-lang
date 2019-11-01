@@ -81,7 +81,8 @@ public class Slice {
                 getFn = ArrayValue::get;
                 break;
             case TypeTags.TUPLE_TAG:
-                BUnionType unionType = new BUnionType(((BTupleType) arrType).getTupleTypes());
+                BTupleType tupleType = (BTupleType) arrType;
+                BUnionType unionType = new BUnionType(tupleType.getTupleTypes(), tupleType.getTypeFlags());
                 BArrayType slicedArrType = new BArrayType(unionType, (int) (endIndex - startIndex));
                 slicedArr = new ArrayValue(slicedArrType);
                 elemTypeTag = -1; // To ensure additions go to ref value array in ArrayValue

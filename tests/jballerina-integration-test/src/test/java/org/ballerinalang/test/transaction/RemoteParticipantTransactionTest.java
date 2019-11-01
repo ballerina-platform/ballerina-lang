@@ -209,4 +209,16 @@ public class RemoteParticipantTransactionTest extends BaseTest {
                 "initiator-abort-block";
         assertEquals(response.getData(), target, "payload mismatched");
     }
+
+    @Test
+    public void participantMultipleExecution() throws IOException {
+        String url = serverInstance.getServiceURLHttp(initiatorServicePort,
+                "participantMultipleExecution");
+        HttpResponse response = HttpClientRequest.doPost(url, "", new HashMap<>());
+        assertEquals(response.getResponseCode(), 200, "Response code mismatched");
+        String target = " in-remote <payload-from-remote> from-init-local-participant in-remote <payload-from-remote>" +
+                " from-init-local-participant in-remote <payload-from-remote> from-init-local-participant in-remote " +
+                "<payload-from-remote> from-init-local-participant in-trx-lastline in-baz[oncommittedFunc]";
+        assertEquals(response.getData(), target);
+    }
 }

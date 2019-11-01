@@ -199,4 +199,44 @@ public class MatchStructuredErrorPatternsTest {
         BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 80, 13);
         BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 85, 13);
     }
+
+    @Test(description = "Test unsupported error match pattern")
+    public void testErrorMatchPatternNotSupportedErrors() {
+        CompileResult result = BCompileUtil.compile(
+                "test-src/statements/matchstmt/structured_error_match_patterns_negative2.bal");
+        int i = 0;
+        BAssertUtil.validateError(result, i++,
+                "error match pattern with a constant reference as the reason is not yet supported", 33, 15);
+        BAssertUtil.validateError(result, i++,
+                "invalid error reason binding pattern, error reason should be 'var reason'", 36, 15);
+        BAssertUtil.validateWarning(result, i++,
+                "invalid error reason binding pattern, error reason should be 'var r' according to " +
+                        "Ballerina specification version 2019R3. This is currently allowed due to a bug in the " +
+                        "compiler (https://git.io/JeRS5) and will be prohibited in a future release.", 45, 15);
+        BAssertUtil.validateError(result, i++,
+                "invalid error detail type 'ErrorDataABC', expected a subtype of " +
+                        "'record {| string message?; error cause?; (anydata|error)...; |}'", 52, 24);
+        BAssertUtil.validateError(result, i++, "unknown type 'ErrorDataABC'", 52, 24);
+        BAssertUtil.validateError(result, i++, "undefined symbol 'm'", 57, 62);
+        Assert.assertEquals(result.getErrorCount(), i - 1); // i = errors + warning
+        Assert.assertEquals(result.getWarnCount(), 1);
+
+    }
+
+    @Test
+    public void testErrorMatchPatternWarning() {
+        CompileResult resultWithWarning =
+                BCompileUtil.compile("test-src/statements/matchstmt/error_match_pattern_warning_test.bal");
+        Assert.assertEquals(resultWithWarning.getWarnCount(), 1);
+        Assert.assertEquals(resultWithWarning.getErrorCount(), 0);
+
+        BValue[] returns = BRunUtil.invoke(resultWithWarning, "noVarReasonErrorMatch");
+        Assert.assertEquals(returns[0].stringValue(), "error-reason");
+    }
+
+    @Test()
+    public void testErrorMatchWihtoutReason() {
+        BValue[] returns = BRunUtil.invoke(result, "testErrorMatchWihtoutReason");
+        Assert.assertEquals(returns[0].stringValue(), "error detail message");
+    }
 }

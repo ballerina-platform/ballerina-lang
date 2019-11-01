@@ -44,7 +44,8 @@ const string EXP = "exp";
 const string NBF = "nbf";
 const string IAT = "iat";
 
-# Represents a JWT header.
+# Represents JWT header.
+#
 # + alg - Signing algorithm
 # + typ - Media type of the JWT
 # + cty - Content type, convey structural information about the JWT
@@ -56,7 +57,8 @@ public type JwtHeader record {|
     string kid?;
 |};
 
-# Represents a JWT payload.
+# Represents JWT payload.
+#
 # + iss - Issuer, identifies the principal that issued the JWT
 # + sub - Subject, identifies the principal that is the subject of the JWT
 # + aud - Audience, identifies the recipients that the JWT is intended for
