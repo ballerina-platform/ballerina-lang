@@ -20,10 +20,12 @@ import ballerina/bir;
 // TODO: make non-global
 llvm:LLVMValueRef? printfRef = ();
 
-function genPackage(bir:Package pkg, string targetObjectFilePath, boolean dumpLLVMIR) {
+function genPackage(bir:Package pkg, string targetObjectFilePath, boolean dumpLLVMIR, boolean noOptimize) {
     var mod = createModule(pkg.org, pkg.name, pkg.versionValue);
     genFunctions(mod, pkg.functions);
-    //optimize(mod);
+    if (!noOptimize) { // Don't optimize for debugging usage.
+        optimize(mod);
+    }
     if(dumpLLVMIR) {
         llvm:llvmDumpModule(mod);
     }
@@ -152,7 +154,7 @@ function localVarName(bir:VariableDcl? localVar) returns string {
     if (temp is string) {
         return localVarNameFromId(temp);
     }
-    error err = error( "Not a string");
+    error err = error("Local Variable name is not a string");
     panic err;
 }
 

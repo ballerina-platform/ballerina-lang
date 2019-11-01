@@ -28,7 +28,7 @@ import org.ballerinalang.packerina.task.CopyModuleJarTask;
 import org.ballerinalang.packerina.task.CopyNativeLibTask;
 import org.ballerinalang.packerina.task.CreateBaloTask;
 import org.ballerinalang.packerina.task.CreateBirTask;
-import org.ballerinalang.packerina.task.CreateJarTask;
+import org.ballerinalang.packerina.task.CreateBinariesTask;
 import org.ballerinalang.packerina.task.CreateTargetDirTask;
 import org.ballerinalang.packerina.task.RunTestsTask;
 import org.ballerinalang.tool.BLauncherCmd;
@@ -111,6 +111,9 @@ public class TestCommand implements BLauncherCmd {
 
     @CommandLine.Option(names = "--dump-llvm-ir", hidden = true)
     private boolean dumpLLVMIR;
+
+    @CommandLine.Option(names = "--no-optimize-llvm", hidden = true)
+    private boolean noOptimizeLLVM;
 
     @CommandLine.Option(names = {"--help", "-h"}, hidden = true)
     private boolean helpFlag;
@@ -272,7 +275,7 @@ public class TestCommand implements BLauncherCmd {
                 .addTask(new CreateBaloTask(), isSingleFileBuild)   // create the balos for modules(projects only)
                 .addTask(new CreateBirTask())   // create the bir
                 .addTask(new CopyNativeLibTask(skipCopyLibsFromDist))    // copy the native libs(projects only)
-                .addTask(new CreateJarTask(this.dumpBIR, this.nativeBinary, this.dumpLLVMIR))    // create the jar
+                .addTask(new CreateBinariesTask(this.dumpBIR, this.nativeBinary, this.dumpLLVMIR, this.noOptimizeLLVM))    // create the jar
                 .addTask(new CopyModuleJarTask(skipCopyLibsFromDist))
                 .addTask(new RunTestsTask()) // run tests
                 .build();

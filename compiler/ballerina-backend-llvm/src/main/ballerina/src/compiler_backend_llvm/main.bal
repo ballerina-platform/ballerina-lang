@@ -21,11 +21,12 @@ import ballerina/stringutils;
 public function main(string... args) {
     string pathToEntryBir = <@untainted> args[0];
     string targetPath = args[1];
-    boolean dumpBir = stringutils:equalsIgnoreCase(args[2], "true");
-    generateObjFile(pathToEntryBir, targetPath, dumpBir);
+    boolean dumpLLVM = stringutils:equalsIgnoreCase(args[2], "true");
+    boolean noOptimize = stringutils:equalsIgnoreCase(args[3], "true");
+    generateObjFile(pathToEntryBir, targetPath, dumpLLVM, noOptimize);
 }
 
-function generateObjFile(string pathToEntryBir, string targetPath, boolean dumpLLVM) {
+function generateObjFile(string pathToEntryBir, string targetPath, boolean dumpLLVM, boolean noOptimize) {
     byte[] birBinary = readFileFully(pathToEntryBir);
     io:ReadableByteChannel byteChannel = checkpanic io:createReadableChannel(birBinary);
     bir:ChannelReader reader = new(byteChannel);
@@ -33,7 +34,7 @@ function generateObjFile(string pathToEntryBir, string targetPath, boolean dumpL
     bir:ConstPoolParser cpParser = new(reader);
     bir:BirChannelReader birReader = new(reader, cpParser.parse());
     bir:PackageParser pkgParser = new(birReader, false);
-    genPackage(pkgParser.parsePackage(), targetPath, dumpLLVM);
+    genPackage(pkgParser.parsePackage(), targetPath, dumpLLVM, noOptimize);
 }
 
 function checkValidBirChannel(bir:ChannelReader reader) {

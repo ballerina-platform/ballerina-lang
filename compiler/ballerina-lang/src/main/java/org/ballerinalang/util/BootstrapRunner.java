@@ -137,20 +137,21 @@ public class BootstrapRunner {
         loadTargetAndGenerateJarBinary(tmpDir, entryBir, jarOutputPath, dumpBir, false, birCachePaths);
     }
 
-    public static void genNativeCode(String entryBir, boolean dumpLLVM) {
+    public static void genNativeCode(String entryBir, boolean dumpLLVM, boolean noOptimizeLLVM) {
         Path osTempDirPath = Paths.get(System.getProperty("java.io.tmpdir"));
         Path objectFilePath = osTempDirPath.resolve(TMP_OBJECT_FILE_NAME);
-        genObjectFile(entryBir, objectFilePath.toString(), dumpLLVM);
+        genObjectFile(entryBir, objectFilePath.toString(), dumpLLVM, noOptimizeLLVM);
         genExecutable(objectFilePath, "add");
 
         Runtime.getRuntime().exit(0);
     }
 
-    private static void genObjectFile(String entryBir, String objFileOutputPath, boolean dumpLLVM) {
+    private static void genObjectFile(String entryBir, String objFileOutputPath, boolean dumpLLVM,
+            boolean noOptimizeLLVM) {
         try {
             Class<?> backendMain = Class.forName("ballerina.compiler_backend_llvm.___init");
             Method backendMainMethod = backendMain.getMethod("main", String[].class);
-            List<String> params = createArgsForCompilerBackend(entryBir, objFileOutputPath, dumpLLVM);
+            List<String> params = createArgsForCompilerBackend(entryBir, objFileOutputPath, dumpLLVM, noOptimizeLLVM);
             backendMainMethod.invoke(null, new Object[]{params.toArray(new String[0])});
         } catch (InvocationTargetException e) {
             throw new BLangCompilerException(e.getTargetException().getMessage(), e);
@@ -224,11 +225,12 @@ public class BootstrapRunner {
     }
 
     private static List<String> createArgsForCompilerBackend(String entryBir, String objFileOutputPath,
-            boolean dumpLLVM) {
+            boolean dumpLLVM, boolean noOptimizeLLVM) {
         List<String> commands = new ArrayList<>();
         commands.add(entryBir);
         commands.add(objFileOutputPath);
         commands.add(dumpLLVM ? "true" : "false"); // dump LLVM-IR
+        commands.add(noOptimizeLLVM ? "true" : "false"); // Don't optimize LLVM-IR
         return commands;
     }
 

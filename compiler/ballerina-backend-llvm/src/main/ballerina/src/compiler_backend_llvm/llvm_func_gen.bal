@@ -141,7 +141,8 @@ type FuncGenrator object {
             return tempVarRef;
         }
         else {
-            panic error("SimpleErrorType", message = "Local var by name '" + id + "' dosn't exist in " + self.func.name.value);
+            panic error("SimpleErrorType", message = "Local var by name '" + id + "' dosn't exist in " +
+                self.func.name.value);
         }
     }
 
@@ -159,5 +160,3 @@ type FuncGenrator object {
         return !(self.func.typeValue["retType"] is ());
     }
 };
-        //BType? tempRetType = self.func["typeValue"].retType;
-        //return !(tempRetType is ());
