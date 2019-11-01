@@ -481,9 +481,9 @@ public function startHub(http:Listener hubServiceListener,
                          public string basePath = "/",
                          public string subscriptionResourcePath = "/",
                          public string publishResourcePath = "/publish",
-                         public http:ServiceResourceAuth serviceAuth = {enabled:false},
-                         public http:ServiceResourceAuth subscriptionResourceAuth = {enabled:false},
-                         public http:ServiceResourceAuth publisherResourceAuth = {enabled:false},
+                         public http:ServiceAuth serviceAuth = {enabled:false},
+                         public http:ResourceAuth subscriptionResourceAuth = {enabled:false},
+                         public http:ResourceAuth publisherResourceAuth = {enabled:false},
                          public string? publicUrl = (),
                          public HubConfiguration hubConfiguration = {})
                             returns Hub|HubStartedUpError|HubStartupError {
