@@ -548,7 +548,7 @@ public type Hub object {
     #
     # + return - `boolean` indicating whether the internal Ballerina Hub was stopped
     public function stop() returns error? {
-        var stopResult = self.hubHttpListener.__immediateStop();
+        var stopResult = self.hubHttpListener.__gracefulStop();
         var stopHubServiceResult = stopHubService(self);
 
         if (stopResult is () && stopHubServiceResult is ()) {
