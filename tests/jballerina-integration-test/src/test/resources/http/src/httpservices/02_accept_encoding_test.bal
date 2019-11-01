@@ -22,15 +22,18 @@ final string ACCEPT_ENCODING = "accept-encoding";
 listener http:Listener passthroughEP2 = new(9091, {server: "Mysql"});
 
 http:Client acceptEncodingAutoEP = new("http://localhost:9091/hello", {
-    compression:http:COMPRESSION_AUTO
+    compression:http:COMPRESSION_AUTO,
+    httpVersion: "1.1"
 });
 
 http:Client acceptEncodingEnableEP = new("http://localhost:9091/hello", {
-    compression:http:COMPRESSION_ALWAYS
+    compression:http:COMPRESSION_ALWAYS,
+    httpVersion: "1.1"
 });
 
 http:Client acceptEncodingDisableEP = new("http://localhost:9091/hello", {
-    compression:http:COMPRESSION_NEVER
+    compression:http:COMPRESSION_NEVER,
+    httpVersion: "1.1"
 });
 
 service passthrough on passthroughEP2 {

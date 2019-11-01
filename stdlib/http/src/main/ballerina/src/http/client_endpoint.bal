@@ -230,7 +230,7 @@ public type TargetService record {|
 # + circuitBreaker - Configurations associated with Circuit Breaker behaviour
 # + retryConfig - Configurations associated with Retry
 public type ClientConfiguration record {|
-    string httpVersion = HTTP_1_1;
+    string httpVersion = HTTP_2_0;
     ClientHttp1Settings http1Settings = {};
     ClientHttp2Settings http2Settings = {};
     int timeoutInMillis = 60000;
