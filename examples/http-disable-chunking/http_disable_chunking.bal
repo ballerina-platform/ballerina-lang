@@ -2,7 +2,7 @@ import ballerina/http;
 import ballerina/log;
 
 //The HTTP client's chunking behaviour can be configured as auto, always, or never.
-//In this example, it is set to never, which means that chunking never happens irrespective of how it is specified
+//In this example, it is set to `CHUNKING_NEVER`, which means that chunking never happens irrespective of how it is specified
 //in the request. When chunking is set to auto, chunking is done as specified in the request.
 
 http:Client clientEndpoint = new("http://localhost:9090",
