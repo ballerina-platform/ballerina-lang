@@ -18,7 +18,7 @@ $ curl -v http://localhost:9092/infoService -H "Accept:application/xml" -H "Cont
 <
 * Connection #0 to host localhost left intact
 
-# To invoke the service with a media type that is not acceptable, execute the following client. The media type mentioned
+# To invoke the service with a media type that is not acceptable, execute the following cURL request. The media type mentioned
 # in the Accept header is not listed under the `produces` resource configuration.
 $ curl -v http://localhost:9092/infoService -H "Accept:text/html" -H "Content-Type:application/json" -d '{"name":"Ballerina"}'
 # The server response.
