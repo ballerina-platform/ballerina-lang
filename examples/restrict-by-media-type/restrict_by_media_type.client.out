@@ -1,4 +1,4 @@
-# To invoke the service, execute the following client.
+# To invoke the service, execute the following cURL request.
 $ curl -v http://localhost:9092/infoService -H "Accept:application/xml" -H "Content-Type:application/json" -d '{"name":"Ballerina"}'
 # The server response.
 < HTTP/1.1 200 OK
@@ -8,7 +8,7 @@ $ curl -v http://localhost:9092/infoService -H "Accept:application/xml" -H "Cont
 * Connection #0 to host localhost left intact
 <name>Ballerina</name>
 
-# To invoke the service using unsupported media type, execute the following client. The Content type of the
+# To invoke the service using unsupported media type, execute the following cURL request. The content type of the
 # request is not listed under the `consumes` resource configuration.
 $ curl -v http://localhost:9092/infoService -H "Accept:application/xml" -H "Content-Type:text/plain" -d "Hello ballerina"
 # The server response.

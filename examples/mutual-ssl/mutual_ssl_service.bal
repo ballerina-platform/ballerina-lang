@@ -13,7 +13,7 @@ http:ListenerConfiguration helloWorldEPConfig = {
             path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
             password: "ballerina"
         },
-         // Configure the preferred SSL protocol and the versions to enable the HTTP Listener.
+         // Enable the preferred SSL protocol and its versions.
         protocol: {
             name: "TLS",
             versions: ["TLSv1.2", "TLSv1.1"]
