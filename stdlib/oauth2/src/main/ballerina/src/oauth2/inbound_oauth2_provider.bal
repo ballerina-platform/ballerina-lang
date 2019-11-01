@@ -50,14 +50,17 @@ public type InboundOAuth2Provider object {
             return false;
         }
 
-        if (self.introspectionServerConfig.oauth2Cache.hasKey(credential)) {
-            var cachedOAuth2Info = authenticateFromCache(self.introspectionServerConfig, credential);
-            if (cachedOAuth2Info is CachedOAuth2Info) {
-                auth:setAuthenticationContext("oauth2", credential);
-                auth:setPrincipal(cachedOAuth2Info.username, cachedOAuth2Info.username, getScopes(cachedOAuth2Info.scopes));
-                return true;
-            } else {
-                return false;
+        var oauth2Cache = self.introspectionServerConfig?.oauth2Cache;
+        if (oauth2Cache is cache:Cache) {
+            if (oauth2Cache.hasKey(credential)) {
+                var cachedOAuth2Info = authenticateFromCache(oauth2Cache, credential);
+                if (cachedOAuth2Info is CachedOAuth2Info) {
+                    auth:setAuthenticationContext("oauth2", credential);
+                    auth:setPrincipal(cachedOAuth2Info.username, cachedOAuth2Info.username, getScopes(cachedOAuth2Info.scopes));
+                    return true;
+                } else {
+                    return false;
+                }
             }
         }
 
@@ -92,10 +95,12 @@ public type InboundOAuth2Provider object {
                 if (payload.exp is int) {
                     exp = <@untainted> <int>payload.exp;
                 } else {
-                    exp = time:currentTime().time / 1000;
+                    exp = self.introspectionServerConfig.expTimeInSeconds +  (time:currentTime().time / 1000);
                 }
 
-                addToAuthenticationCache(self.introspectionServerConfig, credential, username, scopes, exp);
+                if (oauth2Cache is cache:Cache) {
+                    addToAuthenticationCache(oauth2Cache, credential, username, scopes, exp);
+                }
                 auth:setAuthenticationContext("oauth2", credential);
                 auth:setPrincipal(username, username, getScopes(scopes));
                 return true;
@@ -107,21 +112,20 @@ public type InboundOAuth2Provider object {
     }
 };
 
-function authenticateFromCache(IntrospectionServerConfig introspectionServerConfig, string token) returns CachedOAuth2Info? {
-    var cachedOAuth2Info = trap <CachedOAuth2Info>introspectionServerConfig.oauth2Cache.get(token);
+function authenticateFromCache(cache:Cache oauth2Cache, string token) returns CachedOAuth2Info? {
+    var cachedOAuth2Info = trap <CachedOAuth2Info>oauth2Cache.get(token);
     if (cachedOAuth2Info is CachedOAuth2Info) {
         if (cachedOAuth2Info.expiryTime > (time:currentTime().time / 1000)) {
             return cachedOAuth2Info;
         } else {
-            introspectionServerConfig.oauth2Cache.remove(token);
+            oauth2Cache.remove(token);
         }
     }
 }
 
-function addToAuthenticationCache(IntrospectionServerConfig introspectionServerConfig, string token, string username,
-                                  string scopes, int exp) {
+function addToAuthenticationCache(cache:Cache oauth2Cache, string token, string username, string scopes, int exp) {
     CachedOAuth2Info cachedOAuth2Info = {username: username, scopes: scopes, expiryTime: exp};
-    introspectionServerConfig.oauth2Cache.put(token, cachedOAuth2Info);
+    oauth2Cache.put(token, cachedOAuth2Info);
     log:printDebug(function() returns string {
         return "Add authenticated user :" + username + " to the cache.";
     });
@@ -160,7 +164,7 @@ public function getScopes(string scopes) returns string[] {
 public type IntrospectionServerConfig record {|
     string url;
     string tokenTypeHint?;
-    cache:Cache oauth2Cache = new(900000, 1000, 0.25);
+    cache:Cache oauth2Cache?;
     int expTimeInSeconds = 3600;
     http:ClientConfiguration clientConfig = {};
 |};
