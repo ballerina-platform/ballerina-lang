@@ -53,6 +53,7 @@ public class WebSubSubscriberConstants {
     public static final String ANN_WEBSUB_ATTR_LEASE_SECONDS = "leaseSeconds";
     public static final String ANN_WEBSUB_ATTR_SECRET = "secret";
     public static final String ANN_WEBSUB_ATTR_CALLBACK = "callback";
+    public static final String ANN_WEBSUB_ATTR_EXPECT_INTENT_VERIFICATION = "expectIntentVerification";
     public static final String ANN_WEBSUB_ATTR_SUBSCRIPTION_PUBLISHER_CLIENT_CONFIG = "publisherClientConfig";
     public static final String ANN_WEBSUB_ATTR_SUBSCRIPTION_HUB_CLIENT_CONFIG = "hubClientConfig";
 

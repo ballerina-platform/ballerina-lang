@@ -75,6 +75,7 @@ const ANNOT_FIELD_CALLBACK = "callback";
 const ANNOT_FIELD_LEASE_SECONDS = "leaseSeconds";
 const ANNOT_FIELD_SECRET = "secret";
 const ANNOT_FIELD_SUBSCRIBE_ON_STARTUP = "subscribeOnStartUp";
+const ANNOT_FIELD_EXPECT_INTENT_VERIFICATION = "expectIntentVerification";
 const ANNOT_FIELD_HUB_CLIENT_CONFIG = "hubClientConfig";
 const ANNOT_FIELD_PUBLISHER_CLIENT_CONFIG = "publisherClientConfig";
 
