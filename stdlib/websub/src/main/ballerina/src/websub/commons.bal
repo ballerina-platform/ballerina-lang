@@ -627,6 +627,18 @@ public type Hub object {
         return unregisterTopic(topic);
     }
 
+    # Removes a subscription from the Ballerina Hub, without verifying intent.
+    #
+    # + topic - The topic for which the subscription should be removed
+    # + callback - The callback for which the subscription should be removed
+    # + return - `error` if an error occurred with removal
+    public function removeSubscription(string topic, string callback) returns error? {
+        removeNativeSubscription(topic, callback);
+        if (hubPersistenceEnabled) {
+            return persistSubscriptionChange(MODE_UNSUBSCRIBE, {topic: topic, callback: callback});
+        }
+    }
+
     # Retrieves topics currently recognized by the Hub.
     #
     # + return - An array of available topics
