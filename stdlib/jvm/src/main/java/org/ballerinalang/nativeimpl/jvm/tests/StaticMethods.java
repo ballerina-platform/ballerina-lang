@@ -246,4 +246,12 @@ public class StaticMethods {
             throw new BallerinaException("Error occurred while creating ArrayValue.", e);
         }
     }
+
+    public static long funcWithAsyncDefaultParamExpression(long a, long b) {
+        return a + (b * 2);
+    }
+
+    public static long usingParamValues(long a, long b) {
+        return a + (b * 3);
+    }
 }

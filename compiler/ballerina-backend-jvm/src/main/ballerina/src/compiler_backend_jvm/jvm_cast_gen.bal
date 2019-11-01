@@ -177,7 +177,7 @@ function generateCheckCastBToJDouble(jvm:MethodVisitor mv, bir:BType sourceType)
 function generateCheckCastBToJRef(jvm:MethodVisitor mv, bir:BType sourceType, jvm:JRefType | jvm:JArrayType targetType) {
     if (sourceType is bir:BTypeHandle) {
         mv.visitMethodInsn(INVOKEVIRTUAL, HANDLE_VALUE, "getValue", "()Ljava/lang/Object;", false);
-        string classSig = getSignatureForJType(targetType);
+        string classSig = getJTypeSignature(targetType);
         mv.visitTypeInsn(CHECKCAST, classSig);
     } else {
     	if (targetType is jvm:JRefType) {

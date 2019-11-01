@@ -20,6 +20,7 @@ package org.ballerinalang.test.javainterop.basic;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BHandleValue;
+import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
@@ -118,5 +119,19 @@ public class StaticMethodTest {
         BValue[] returns = BRunUtil.invoke(result, "testErrorOrTupleReturn");
         Assert.assertEquals(returns.length, 2);
         Assert.assertNull(returns[0]);
+    }
+
+    @Test
+    public void testFuncWithAsyncDefaultParamExpression() {
+        BValue[] returns = BRunUtil.invoke(result, "testFuncWithAsyncDefaultParamExpression");
+        Assert.assertTrue(returns[0] instanceof BInteger);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 145);
+    }
+
+    @Test
+    public void testUsingParamValues() {
+        BValue[] returns = BRunUtil.invoke(result, "testUsingParamValues");
+        Assert.assertTrue(returns[0] instanceof BInteger);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 290);
     }
 }

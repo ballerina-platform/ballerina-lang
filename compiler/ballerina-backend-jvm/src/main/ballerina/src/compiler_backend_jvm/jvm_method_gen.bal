@@ -2141,12 +2141,6 @@ function generateFrameClassForFunction (bir:Package pkg, bir:Function? func, map
                                         bir:BType? attachedType = ()) {
     string pkgName = getPackageName(pkg.org.value, pkg.name.value);
     bir:Function currentFunc = getFunction(<@untainted> func);
-    if (isExternFunc(currentFunc)) {
-        var extFuncWrapper = getExternalFunctionWrapper(pkg, currentFunc, attachedType = attachedType);
-        if (!(extFuncWrapper is OldStyleExternalFunctionWrapper)) {
-            return;
-        }
-    }
     string frameClassName = getFrameClassName(pkgName, currentFunc.name.value, attachedType);
     jvm:ClassWriter cw = new(COMPUTE_FRAMES);
     cw.visitSource(currentFunc.pos.sourceFileName);
@@ -2249,6 +2243,8 @@ function generateField(jvm:ClassWriter cw, bir:BType bType, string fieldName, bo
         typeSig = io:sprintf("L%s;", FUNCTION_POINTER);
     } else if (bType is bir:BTypeHandle) {
         typeSig = io:sprintf("L%s;", HANDLE_VALUE);
+    } else if (bType is jvm:JType) {
+    	typeSig = getJTypeSignature(bType);
     } else {
         error err = error( "JVM generation is not supported for type " +
                                     io:sprintf("%s", bType));

@@ -93,6 +93,7 @@ dependencies {
     implementation 'commons-io:commons-io'
 
     baloImplementation project(path: ':ballerina-auth', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-bir', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-lang:annotations', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-cache', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-config-api', configuration: 'baloImplementation')

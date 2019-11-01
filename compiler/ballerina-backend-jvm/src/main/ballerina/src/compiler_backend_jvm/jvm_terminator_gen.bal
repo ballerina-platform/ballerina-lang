@@ -269,45 +269,11 @@ type TerminatorGenerator object {
     function genCallTerm(bir:Call callIns, string funcName, int localVarOffset) {
         string orgName = callIns.pkgID.org;
         string moduleName = callIns.pkgID.name;
+        // invoke the function
+        self.genCall(callIns, orgName, moduleName, localVarOffset);
 
-        // check for native blocking call
-        if (isInteropFuncCall(callIns)) { //TODO should be able to remove this after interop desugar
-            jvm:Label blockedOnExternLabel = new;
-            jvm:Label notBlockedOnExternLabel = new;
-
-            self.mv.visitVarInsn(ALOAD, localVarOffset);
-            self.mv.visitMethodInsn(INVOKEVIRTUAL, STRAND, "isBlockedOnExtern", "()Z", false);
-            self.mv.visitJumpInsn(IFEQ, blockedOnExternLabel);
-
-            self.mv.visitVarInsn(ALOAD, localVarOffset);
-            self.mv.visitInsn(ICONST_0);
-            self.mv.visitFieldInsn(PUTFIELD, "org/ballerinalang/jvm/scheduling/Strand", "blockedOnExtern", "Z");
-
-            if (callIns.lhsOp?.variableDcl is bir:VariableDcl) {
-                self.mv.visitVarInsn(ALOAD, localVarOffset);
-                self.mv.visitFieldInsn(GETFIELD, "org/ballerinalang/jvm/scheduling/Strand", "returnValue", "Ljava/lang/Object;");
-                addUnboxInsn(self.mv, callIns.lhsOp?.typeValue);
-                // store return
-                self.storeReturnFromCallIns(callIns);
-            }
-
-            self.mv.visitJumpInsn(GOTO, notBlockedOnExternLabel);
-
-            self.mv.visitLabel(blockedOnExternLabel);
-            // invoke the function
-            self.genCall(callIns, orgName, moduleName, localVarOffset);
-
-            // store return
-            self.storeReturnFromCallIns(callIns);
-
-            self.mv.visitLabel(notBlockedOnExternLabel);
-        } else {
-            // invoke the function
-            self.genCall(callIns, orgName, moduleName, localVarOffset);
-
-            // store return
-            self.storeReturnFromCallIns(callIns);
-        }
+        // store return
+        self.storeReturnFromCallIns(callIns);
     }
 
     function genJCallTerm(JavaMethodCall callIns, string funcName, bir:BType? attachedType, int localVarOffset) {
@@ -1041,36 +1007,3 @@ function isExternStaticFunctionCall(bir:Call|bir:AsyncCall|bir:FPLoad callIns) r
     return false;
 }
 
-function isInteropFuncCall(bir:Call|bir:AsyncCall|bir:FPLoad callIns) returns boolean {
-    string methodName;
-    string orgName;
-    string moduleName;
-
-    if (callIns is bir:Call) {
-        if (callIns.isVirtual) {
-            return false;
-        }
-        methodName = callIns.name.value;
-        orgName = callIns.pkgID.org;
-        moduleName = callIns.pkgID.name;
-    } else if (callIns is bir:AsyncCall) {
-        methodName = callIns.name.value;
-        orgName = callIns.pkgID.org;
-        moduleName = callIns.pkgID.name;
-    } else {
-        methodName = callIns.name.value;
-        orgName = callIns.pkgID.org;
-        moduleName = callIns.pkgID.name;
-    }
-
-    string key = getPackageName(orgName, moduleName) + methodName;
-
-    if (birFunctionMap.hasKey(key)) {
-        BIRFunctionWrapper functionWrapper = getBIRFunctionWrapper(birFunctionMap[key]);
-        if (functionWrapper is JMethodFunctionWrapper) {
-            return true;
-        }
-    }
-
-    return false;
-}

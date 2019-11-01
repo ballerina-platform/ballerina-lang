@@ -503,41 +503,71 @@ function loadMethodParamToStackInInteropFunction(jvm:MethodVisitor mv,
     }
 }
 
-function getSignatureForJType(jvm:JRefType|jvm:JArrayType jType) returns string {
+function getJTypeSignature(jvm:JType jType) returns string {
     if (jType is jvm:JRefType) {
         return jType.typeValue;
-    } else {
+    } else if (jType is jvm:JArrayType) {
         jvm:JType eType = jType.elementType;
-        string sig = "[";
-        while (eType is jvm:JArrayType) {
-            eType = eType.elementType;
-            sig += "[";
-        }
-
-        if (eType is jvm:JRefType) {
-            return sig + "L" + getSignatureForJType(eType) + ";";
-        } else if (eType is jvm:JByte) {
-            return sig + "B";
-        } else if (eType is jvm:JChar) {
-            return sig + "C";
-        } else if (eType is jvm:JShort) {
-            return sig + "S";
-        } else if (eType is jvm:JInt) {
-            return sig + "I";
-        } else if (eType is jvm:JLong) {
-            return sig + "J";
-        } else if (eType is jvm:JFloat) {
-            return sig + "F";
-        } else if (eType is jvm:JDouble) {
-            return sig + "D";
-        } else if (eType is jvm:JBoolean ) {
-            return sig + "Z";
+	return "[" + getJTypeSignature(eType); 
+    } else {
+        if (jType is jvm:JByte) {
+            return "B";
+        } else if (jType is jvm:JChar) {
+            return "C";
+        } else if (jType is jvm:JShort) {
+            return "S";
+        } else if (jType is jvm:JInt) {
+            return "I";
+        } else if (jType is jvm:JLong) {
+            return "J";
+        } else if (jType is jvm:JFloat) {
+            return "F";
+        } else if (jType is jvm:JDouble) {
+            return "D";
+        } else if (jType is jvm:JBoolean ) {
+            return "Z";
         } else {
-            error e = error(io:sprintf("invalid element type: %s", eType));
+            error e = error(io:sprintf("invalid element type: %s", jType));
             panic e;
         }
     }
 }
+
+//function getSignatureForJType(jvm:JRefType|jvm:JArrayType jType) returns string {
+//    if (jType is jvm:JRefType) {
+//        return jType.typeValue;
+//    } else {
+//        jvm:JType eType = jType.elementType;
+//        string sig = "[";
+//        while (eType is jvm:JArrayType) {
+//            eType = eType.elementType;
+//            sig += "[";
+//        }
+//
+//        if (eType is jvm:JRefType) {
+//            return sig + "L" + getSignatureForJType(eType) + ";";
+//        } else if (eType is jvm:JByte) {
+//            return sig + "B";
+//        } else if (eType is jvm:JChar) {
+//            return sig + "C";
+//        } else if (eType is jvm:JShort) {
+//            return sig + "S";
+//        } else if (eType is jvm:JInt) {
+//            return sig + "I";
+//        } else if (eType is jvm:JLong) {
+//            return sig + "J";
+//        } else if (eType is jvm:JFloat) {
+//            return sig + "F";
+//        } else if (eType is jvm:JDouble) {
+//            return sig + "D";
+//        } else if (eType is jvm:JBoolean ) {
+//            return sig + "Z";
+//        } else {
+//            error e = error(io:sprintf("invalid element type: %s", eType));
+//            panic e;
+//        }
+//    }
+//}
 
 function genVarArg(jvm:MethodVisitor mv, BalToJVMIndexMap indexMap, bir:BType bType, jvm:JType jvmType,
                    int varArgIndex) {
@@ -663,7 +693,7 @@ function genArrayNew(jvm:MethodVisitor mv, jvm:JType elementType) {
     } else if elementType is jvm:JFloat {
         mv.visitIntInsn(NEWARRAY, T_FLOAT);
     } else if elementType is jvm:JRefType | jvm:JArrayType {
-        mv.visitTypeInsn(ANEWARRAY, getSignatureForJType(elementType));
+        mv.visitTypeInsn(ANEWARRAY, getJTypeSignature(elementType));
     } else {
         error e = error(io:sprintf("invalid type for var-arg: %s", elementType));
         panic e;

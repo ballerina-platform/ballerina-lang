@@ -1,3 +1,4 @@
+import ballerina/runtime;
 import ballerinax/java;
 
 function testAcceptNothingAndReturnNothing() {
@@ -27,6 +28,24 @@ function testAcceptThreeParamsAndReturnSomething(handle h1, handle h2, handle h3
 function testErrorOrTupleReturn() returns error|[string,string] {
    [string,string] ret = check getArrayValue();
    return ret;
+}
+
+function testFuncWithAsyncDefaultParamExpression() returns int {
+    return funcWithAsyncDefaultParamExpression() + funcWithAsyncDefaultParamExpression(5) + funcWithAsyncDefaultParamExpression(50, 20);
+}
+
+function asyncRet() returns int {
+    runtime:sleep(50);
+    return 10;
+}
+
+function asyncRetWithVal(int a = 30) returns int {
+    runtime:sleep(50);
+    return a + 20;
+}
+
+function testUsingParamValues() returns int {
+    return usingParamValues() + usingParamValues(5) + usingParamValues(50, 20);
 }
 
 // Interop functions
@@ -118,3 +137,12 @@ public function getObjectOrError() returns Person|error = @java:Method {
 function getArrayValue() returns [string, string] | error = @java:Method {
     class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
 } external;
+
+function funcWithAsyncDefaultParamExpression(int a1 = asyncRet(), int a2 = asyncRet()) returns int = @java:Method {
+    class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
+} external;
+
+function usingParamValues(int a1 = asyncRet(), int a2 = asyncRetWithVal(a1)) returns int = @java:Method {
+    class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
+} external;
+
