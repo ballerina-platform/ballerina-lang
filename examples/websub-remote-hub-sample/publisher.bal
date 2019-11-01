@@ -5,7 +5,7 @@ import ballerina/websub;
 
 // This is the remote WebSub Hub Endpoint to which registration and publish requests are sent.
 websub:PublisherClient websubHubClientEP =
-                    new ("http://localhost:9191/websub/hub");
+                    new ("http://localhost:9191/websub/publish");
 
 public function main() {
 
