@@ -1,4 +1,4 @@
-// Copyright (c) 2018 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+// Copyright (c) 2019 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 //
 // WSO2 Inc. licenses this file to you under the Apache License,
 // Version 2.0 (the "License"); you may not use this file except
@@ -28,6 +28,11 @@ import static org.ballerinalang.model.types.TypeKind.INT;
 import static org.ballerinalang.model.types.TypeKind.RECORD;
 import static org.bytedeco.javacpp.LLVM.LLVMRunPassManager;
 
+/**
+ * Auto generated class.
+ *
+ * @since 1.0.3
+ */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "llvm",
         functionName = "llvmRunPassManager",
@@ -40,7 +45,9 @@ import static org.bytedeco.javacpp.LLVM.LLVMRunPassManager;
         }
 )
 public class LLVMRunPassManager {
+
     public static long llvmRunPassManager(Strand strand, MapValue<String, Object> arg0, MapValue<String, Object> arg1) {
+
         LLVM.LLVMPassManagerRef pm = (LLVM.LLVMPassManagerRef) FFIUtil.getRecodeArgumentNative(arg0);
         LLVM.LLVMModuleRef m = (LLVM.LLVMModuleRef) FFIUtil.getRecodeArgumentNative(arg1);
         return LLVMRunPassManager(pm, m);

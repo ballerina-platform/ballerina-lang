@@ -26,6 +26,11 @@ import org.bytedeco.javacpp.LLVM;
 import static org.ballerinalang.model.types.TypeKind.RECORD;
 import static org.bytedeco.javacpp.LLVM.LLVMInt32Type;
 
+/**
+ * Auto generated class.
+ *
+ * @since 1.0.3
+ */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "llvm",
         functionName = "llvmInt32Type",

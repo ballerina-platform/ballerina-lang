@@ -1,4 +1,4 @@
-// Copyright (c) 2018 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+// Copyright (c) 2019 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 //
 // WSO2 Inc. licenses this file to you under the Apache License,
 // Version 2.0 (the "License"); you may not use this file except
@@ -27,6 +27,11 @@ import static org.ballerinalang.model.types.TypeKind.INT;
 import static org.ballerinalang.model.types.TypeKind.RECORD;
 import static org.bytedeco.javacpp.LLVM.LLVMPassManagerBuilderSetOptLevel;
 
+/**
+ * Auto generated class.
+ *
+ * @since 1.0.3
+ */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "llvm",
         functionName = "llvmPassManagerBuilderSetOptLevel",
@@ -35,7 +40,9 @@ import static org.bytedeco.javacpp.LLVM.LLVMPassManagerBuilderSetOptLevel;
                 @Argument(name = "optLevel", type = INT),
         })
 public class LLVMPassManagerBuilderSetOptLevel {
+
     public static void llvmPassManagerBuilderSetOptLevel(Strand strand, MapValue<String, Object> m, long optLevel) {
+
         LLVM.LLVMPassManagerBuilderRef pmb = (LLVM.LLVMPassManagerBuilderRef) FFIUtil.getRecodeArgumentNative(m);
         LLVMPassManagerBuilderSetOptLevel(pmb, (int) optLevel);
     }

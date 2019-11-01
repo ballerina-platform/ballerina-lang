@@ -30,6 +30,11 @@ import static org.ballerinalang.model.types.TypeKind.INT;
 import static org.ballerinalang.model.types.TypeKind.RECORD;
 import static org.bytedeco.javacpp.LLVM.LLVMPointerType;
 
+/**
+ * Auto generated class.
+ *
+ * @since 1.0.3
+ */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "llvm",
         functionName = "llvmPointerType",

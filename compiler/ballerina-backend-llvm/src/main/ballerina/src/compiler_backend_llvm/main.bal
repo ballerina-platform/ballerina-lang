@@ -20,8 +20,6 @@ import ballerina/stringutils;
 
 public function main(string... args) {
     string pathToEntryBir = <@untainted> args[0];
-    //string mapPath = <@untainted> args[1];
-    //io:println("mapPath : " + mapPath);
     string targetPath = args[1];
     boolean dumpBir = stringutils:equalsIgnoreCase(args[2], "true");
     generateObjFile(pathToEntryBir, targetPath, dumpBir);

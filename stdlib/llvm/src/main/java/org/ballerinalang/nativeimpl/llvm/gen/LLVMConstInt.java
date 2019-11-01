@@ -1,4 +1,4 @@
-// Copyright (c) 2018 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+// Copyright (c) 2019 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 //
 // WSO2 Inc. licenses this file to you under the Apache License,
 // Version 2.0 (the "License"); you may not use this file except
@@ -32,6 +32,8 @@ import static org.bytedeco.javacpp.LLVM.LLVMConstInt;
 
 /**
  * Auto generated class.
+ *
+ * @since 1.0.3
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "llvm",
@@ -48,7 +50,8 @@ import static org.bytedeco.javacpp.LLVM.LLVMConstInt;
 public class LLVMConstInt {
 
     public static MapValue<String, Object> llvmConstInt(Strand strand, MapValue<String, Object> intTy,
-            long n, long signExtend) {
+                                                        long n, long signExtend) {
+
         LLVM.LLVMTypeRef intTyRef = (LLVM.LLVMTypeRef) FFIUtil.getRecodeArgumentNative(intTy);
         int signExtendRef = (int) signExtend;
         LLVMValueRef returnValue = LLVMConstInt(intTyRef, n, signExtendRef);

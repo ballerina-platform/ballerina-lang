@@ -1,4 +1,4 @@
-// Copyright (c) 2018 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+// Copyright (c) 2019 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 //
 // WSO2 Inc. licenses this file to you under the Apache License,
 // Version 2.0 (the "License"); you may not use this file except
@@ -29,10 +29,11 @@ import org.bytedeco.javacpp.LLVM.LLVMValueRef;
 
 import static org.ballerinalang.model.types.TypeKind.INT;
 import static org.ballerinalang.model.types.TypeKind.RECORD;
-import static org.bytedeco.javacpp.LLVM.LLVMGetParam;
 
 /**
  * Auto generated class.
+ *
+ * @since 1.0.3
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "llvm",
@@ -48,6 +49,7 @@ import static org.bytedeco.javacpp.LLVM.LLVMGetParam;
 public class LLVMGetParam {
 
     public static MapValue<String, Object> llvmGetParam(Strand strand, MapValue<String, Object> fn, long index) {
+
         LLVM.LLVMValueRef fnRef = (LLVM.LLVMValueRef) FFIUtil.getRecodeArgumentNative(fn);
         int indexRef = (int) index;
         LLVMValueRef returnValue = LLVM.LLVMGetParam(fnRef, indexRef);

@@ -31,6 +31,8 @@ import static org.bytedeco.javacpp.LLVM.LLVMBuildBr;
 
 /**
  * Auto generated class.
+ *
+ * @since 1.0.3
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "llvm",
@@ -45,7 +47,9 @@ import static org.bytedeco.javacpp.LLVM.LLVMBuildBr;
 )
 public class LLVMBuildBr {
 
-    public static MapValue<String, Object> llvmBuildBr(Strand strand, MapValue<String, Object> arg0, MapValue<String, Object> dest) {
+    public static MapValue<String, Object> llvmBuildBr(Strand strand, MapValue<String, Object> arg0, MapValue<String,
+            Object> dest) {
+
         LLVM.LLVMBuilderRef arg0Ref = (LLVM.LLVMBuilderRef) FFIUtil.getRecodeArgumentNative(arg0);
         LLVM.LLVMBasicBlockRef destRef = (LLVM.LLVMBasicBlockRef) FFIUtil.getRecodeArgumentNative(dest);
         LLVMValueRef returnValue = LLVMBuildBr(arg0Ref, destRef);

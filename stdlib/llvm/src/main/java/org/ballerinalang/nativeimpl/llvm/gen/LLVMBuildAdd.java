@@ -32,6 +32,8 @@ import static org.bytedeco.javacpp.LLVM.LLVMBuildAdd;
 
 /**
  * Auto generated class.
+ *
+ * @since 1.0.3
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "llvm",
@@ -48,8 +50,9 @@ import static org.bytedeco.javacpp.LLVM.LLVMBuildAdd;
 )
 public class LLVMBuildAdd {
 
-    public static MapValue<String, Object> llvmBuildAdd(Strand strand, MapValue<String, Object> arg0, MapValue<String, Object> lhs,
-                                      MapValue<String, Object> rhs, String name) {
+    public static MapValue<String, Object> llvmBuildAdd(Strand strand, MapValue<String, Object> arg0,
+                                            MapValue<String, Object> lhs, MapValue<String, Object> rhs, String name) {
+
         LLVM.LLVMBuilderRef arg0Ref = (LLVM.LLVMBuilderRef) FFIUtil.getRecodeArgumentNative(arg0);
         LLVMValueRef lhsRef = (LLVMValueRef) FFIUtil.getRecodeArgumentNative(lhs);
         LLVMValueRef rhsRef = (LLVMValueRef) FFIUtil.getRecodeArgumentNative(rhs);

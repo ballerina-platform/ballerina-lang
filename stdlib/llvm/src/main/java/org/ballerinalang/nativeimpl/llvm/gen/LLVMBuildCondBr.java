@@ -1,4 +1,4 @@
-// Copyright (c) 2018 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+// Copyright (c) 2019 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 //
 // WSO2 Inc. licenses this file to you under the Apache License,
 // Version 2.0 (the "License"); you may not use this file except
@@ -31,6 +31,8 @@ import static org.bytedeco.javacpp.LLVM.LLVMBuildCondBr;
 
 /**
  * Auto generated class.
+ *
+ * @since 1.0.3
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "llvm",
@@ -45,10 +47,13 @@ import static org.bytedeco.javacpp.LLVM.LLVMBuildCondBr;
                 @ReturnType(type = RECORD, structType = "LLVMValueRef", structPackage = "ballerina/llvm"),
         }
 )
-public class LLVMBuildCondBr{
+public class LLVMBuildCondBr {
 
     public static MapValue<String, Object> llvmBuildCondBr(Strand strand, MapValue<String, Object> arg0,
-            MapValue<String, Object> ifValue, MapValue<String, Object>  then, MapValue<String, Object>  elseValue) {
+                                                           MapValue<String, Object> ifValue,
+                                                           MapValue<String, Object> then,
+                                                           MapValue<String, Object> elseValue) {
+
         LLVM.LLVMBuilderRef arg0Ref = (LLVM.LLVMBuilderRef) FFIUtil.getRecodeArgumentNative(arg0);
         LLVM.LLVMValueRef ifValueRef = (LLVMValueRef) FFIUtil.getRecodeArgumentNative(ifValue);
         LLVM.LLVMBasicBlockRef thenRef = (LLVM.LLVMBasicBlockRef) FFIUtil.getRecodeArgumentNative(then);

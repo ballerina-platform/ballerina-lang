@@ -1,4 +1,4 @@
-// Copyright (c) 2018 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+// Copyright (c) 2019 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 //
 // WSO2 Inc. licenses this file to you under the Apache License,
 // Version 2.0 (the "License"); you may not use this file except
@@ -26,6 +26,11 @@ import org.bytedeco.javacpp.LLVM;
 import static org.ballerinalang.model.types.TypeKind.RECORD;
 import static org.bytedeco.javacpp.LLVM.LLVMDisposePassManager;
 
+/**
+ * Auto generated class.
+ *
+ * @since 1.0.3
+ */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "llvm",
         functionName = "llvmDisposePassManager",
@@ -33,7 +38,9 @@ import static org.bytedeco.javacpp.LLVM.LLVMDisposePassManager;
                 @Argument(name = "pm", type = RECORD, structType = "LLVMPassManagerRef"),
         })
 public class LLVMDisposePassManager {
+
     public static void llvmDisposePassManager(Strand strand, MapValue<String, Object> arg0) {
+
         LLVM.LLVMPassManagerRef pm = (LLVM.LLVMPassManagerRef) FFIUtil.getRecodeArgumentNative(arg0);
         LLVMDisposePassManager(pm);
     }

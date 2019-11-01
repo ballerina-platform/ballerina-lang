@@ -1,6 +1,5 @@
 import ballerina/llvm;
 import ballerina/bir;
-import ballerina/io;
 
 type BbBodyGenrator object {
 
@@ -16,7 +15,7 @@ type BbBodyGenrator object {
 
     function genBasicBlockBody() returns BbTermGenrator {
         if (self.parent.funcRef is ()) {
-            error funcRefErr =  error("funcRefIsNullError", message = "funcref doesnt exist in" + self.parent.func.name.value);
+            error funcRefErr =  error("funcRefIsNullError", message = "function reference doesnt exist for" + self.parent.func.name.value);
             panic funcRefErr;
         }
         llvm:LLVMBasicBlockRef bbRef = llvm:llvmAppendBasicBlock(<llvm:LLVMValueRef>self.parent.funcRef, self.bb.id.value);
@@ -41,12 +40,10 @@ type BbBodyGenrator object {
     }
 
     function genMoveIns(bir:Move moveIns) {
-        llvm:LLVMValueRef|error lhsRef = self.parent.getLocalVarRefById(moveIns.lhsOp.variableDcl.name.value);
+        llvm:LLVMValueRef lhsRef = self.parent.getLocalVarRefById(moveIns.lhsOp.variableDcl.name.value);
         var rhsVarOp = moveIns.rhsOp;
         llvm:LLVMValueRef rhsVarOpRef = self.parent.genLoadLocalToTempVar(rhsVarOp);
-        if (lhsRef is llvm:LLVMValueRef) {
-            var loaded = <llvm:LLVMValueRef> llvm:llvmBuildStore(self.builder, rhsVarOpRef, lhsRef);
-        }
+        var loaded = <llvm:LLVMValueRef> llvm:llvmBuildStore(self.builder, rhsVarOpRef, lhsRef);
     }
 
     function genBinaryOpIns(bir:BinaryOp binaryIns) {
@@ -85,40 +82,32 @@ type BbBodyGenrator object {
             error err = error("NotIntErr", message = "invalid value in constLoad");
             panic err;
         }
-        llvm:LLVMValueRef|error lhsRef = self.parent.getLocalVarRefById(constLoad.lhsOp.variableDcl.name.value);
-        if (lhsRef is error) {
-            io:println("Error: ", lhsRef.reason(),
-                            ", Message: ", lhsRef.detail()?.message);
-            error err = error("NotLLVMValueRefErr", message = "invalid value in constLoad");
-            panic err;
-        }
+        llvm:LLVMValueRef lhsRef = self.parent.getLocalVarRefById(constLoad.lhsOp.variableDcl.name.value);
         var constRef = llvm:llvmConstInt(llvm:llvmInt64Type(), <int>constLoad.value, 0);
         var loaded = llvm:llvmBuildStore(self.builder, constRef, <llvm:LLVMValueRef>lhsRef);
     }
 };
 
 function findBbRefById(map<BbTermGenrator> bbGenrators, string id) returns llvm:LLVMBasicBlockRef {
-    if (bbGenrators[id] is BbTermGenrator) {
-        BbTermGenrator genrator = <BbTermGenrator>bbGenrators[id];
-        return genrator.bbRef;
-    } else {
-            error err = error("NotBbTermGenratorError", message = "bb '" + id + "' dosn't exist");
-            panic err;
+    if !(bbGenrators[id] is BbTermGenrator) {
+        error err = error("NotBbTermGenratorError", message = "bb '" + id + "' doesn't exist");
+        panic err;
     }
+    BbTermGenrator genrator = <BbTermGenrator>bbGenrators[id];
+    return genrator.bbRef;
 }
 
 function findFuncRefByName(map<FuncGenrator> funcGenrators, bir:Name name) returns llvm:LLVMValueRef {
-    if (funcGenrators[name.value] is FuncGenrator) {
-        FuncGenrator genrator = <FuncGenrator> funcGenrators[name.value];
-        if (genrator.funcRef is ()) {
-            error err = error("FuncRefIsNull", message = "Func genrator does not have funcRef");
-            panic err;
-        }
-        return <llvm:LLVMValueRef>genrator.funcRef;
-    } else {
-            error err = error("NotFuncGenratorTypeError", message = "function '" + name.value + "' dosn't exist");
-            panic err;
+    if !(funcGenrators[name.value] is FuncGenrator) {
+        error err = error("NotFuncGenratorTypeError", message = "function '" + name.value + "' doesn't exist");
+        panic err;
     }
+    FuncGenrator genrator = <FuncGenrator> funcGenrators[name.value];
+    if (genrator.funcRef is ()) {
+        error err = error("FuncRefIsNull", message = "function genrator doesn't have funcion reference");
+        panic err;
+    }
+    return <llvm:LLVMValueRef>genrator.funcRef;
 }
 
 

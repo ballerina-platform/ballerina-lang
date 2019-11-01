@@ -1,4 +1,4 @@
-// Copyright (c) 2018 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+// Copyright (c) 2019 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 //
 // WSO2 Inc. licenses this file to you under the Apache License,
 // Version 2.0 (the "License"); you may not use this file except
@@ -30,6 +30,11 @@ import static org.ballerinalang.model.types.TypeKind.RECORD;
 import static org.ballerinalang.model.types.TypeKind.STRING;
 import static org.bytedeco.javacpp.LLVM.LLVMModuleCreateWithName;
 
+/**
+ * Auto generated class.
+ *
+ * @since 1.0.3
+ */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "llvm",
         functionName = "llvmModuleCreateWithName",
@@ -42,7 +47,9 @@ import static org.bytedeco.javacpp.LLVM.LLVMModuleCreateWithName;
 )
 
 public class LLVMModuleCreateWithName {
+
     public static MapValue<String, Object> llvmModuleCreateWithName(Strand strand, String moduleID) {
+
         LLVM.LLVMModuleRef returnValue = LLVMModuleCreateWithName(moduleID);
         MapValue<String, Object> returnWrappedRecord = BallerinaValues.createRecordValue(new BPackage("ballerina",
                 "llvm"), "LLVMModuleRef");

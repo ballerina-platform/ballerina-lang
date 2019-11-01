@@ -28,10 +28,11 @@ import org.bytedeco.javacpp.LLVM.LLVMBasicBlockRef;
 
 import static org.ballerinalang.model.types.TypeKind.RECORD;
 import static org.ballerinalang.model.types.TypeKind.STRING;
-import static org.bytedeco.javacpp.LLVM.LLVMAppendBasicBlock;
 
 /**
  * Auto generated class.
+ *
+ * @since 1.0.3
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "llvm",
@@ -46,7 +47,9 @@ import static org.bytedeco.javacpp.LLVM.LLVMAppendBasicBlock;
 )
 public class LLVMAppendBasicBlock {
 
-    public static MapValue<String, Object> llvmAppendBasicBlock(Strand strand, MapValue<String, Object> fn, String name) {
+    public static MapValue<String, Object> llvmAppendBasicBlock(Strand strand, MapValue<String, Object> fn,
+                                                                String name) {
+
         LLVM.LLVMValueRef fnRef = (LLVM.LLVMValueRef) FFIUtil.getRecodeArgumentNative(fn);
         LLVMBasicBlockRef returnValue = LLVM.LLVMAppendBasicBlock(fnRef, name);
         MapValue<String, Object> returnWrappedRecord = FFIUtil.newRecord(new BPackage("ballerina",

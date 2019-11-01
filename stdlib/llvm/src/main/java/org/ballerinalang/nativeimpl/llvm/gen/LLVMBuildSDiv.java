@@ -1,4 +1,4 @@
-// Copyright (c) 2018 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+// Copyright (c) 2019 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 //
 // WSO2 Inc. licenses this file to you under the Apache License,
 // Version 2.0 (the "License"); you may not use this file except
@@ -32,6 +32,8 @@ import static org.bytedeco.javacpp.LLVM.LLVMBuildSDiv;
 
 /**
  * Auto generated class.
+ *
+ * @since 1.0.3
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "llvm",
@@ -48,8 +50,10 @@ import static org.bytedeco.javacpp.LLVM.LLVMBuildSDiv;
 )
 public class LLVMBuildSDiv {
 
-    public static MapValue<String, Object> llvmBuildSDiv(Strand strand, MapValue<String, Object> arg0, MapValue<String, Object> lhs,
-            MapValue<String, Object> rhs, String name) {
+    public static MapValue<String, Object> llvmBuildSDiv(Strand strand, MapValue<String, Object> arg0,
+                                                         MapValue<String, Object> lhs,
+                                                         MapValue<String, Object> rhs, String name) {
+
         LLVM.LLVMBuilderRef arg0Ref = (LLVM.LLVMBuilderRef) FFIUtil.getRecodeArgumentNative(arg0);
         LLVMValueRef lhsRef = (LLVMValueRef) FFIUtil.getRecodeArgumentNative(lhs);
         LLVMValueRef rhsRef = (LLVMValueRef) FFIUtil.getRecodeArgumentNative(rhs);

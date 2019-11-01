@@ -28,6 +28,11 @@ import org.bytedeco.javacpp.LLVM;
 import static org.ballerinalang.model.types.TypeKind.RECORD;
 import static org.bytedeco.javacpp.LLVM.LLVMCreateBuilder;
 
+/**
+ * Auto generated class.
+ *
+ * @since 1.0.3
+ */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "llvm",
         functionName = "llvmCreateBuilder",
@@ -37,7 +42,9 @@ import static org.bytedeco.javacpp.LLVM.LLVMCreateBuilder;
 )
 
 public class LLVMCreateBuilder {
+
     public static MapValue<String, Object> llvmCreateBuilder(Strand strand) {
+
         LLVM.LLVMBuilderRef returnValue = LLVMCreateBuilder();
         MapValue<String, Object> returnWrappedRecord = BallerinaValues.createRecordValue(new BPackage("ballerina",
                 "llvm"), "LLVMTypeRef");

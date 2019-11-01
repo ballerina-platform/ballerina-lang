@@ -31,6 +31,8 @@ import static org.ballerinalang.model.types.TypeKind.STRING;
 
 /**
  * Auto generated class.
+ *
+ * @since 1.0.3
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "llvm",
@@ -46,10 +48,12 @@ import static org.ballerinalang.model.types.TypeKind.STRING;
 )
 public class LLVMAddFunction {
 
-    public static MapValue<String, Object> llvmAddFunction(Strand strand, MapValue<String, Object> m, String name, MapValue<String, Object> functionTy) {
+    public static MapValue<String, Object> llvmAddFunction(Strand strand, MapValue<String, Object> m, String name,
+                                                           MapValue<String, Object> functionTy) {
+
         LLVM.LLVMModuleRef mRef = (LLVM.LLVMModuleRef) FFIUtil.getRecodeArgumentNative(m);
         LLVM.LLVMTypeRef functionTyRef = (LLVM.LLVMTypeRef) FFIUtil.getRecodeArgumentNative(functionTy);
-        LLVMValueRef returnValue =  LLVM.LLVMAddFunction(mRef, name, functionTyRef);
+        LLVMValueRef returnValue = LLVM.LLVMAddFunction(mRef, name, functionTyRef);
         MapValue<String, Object> returnWrappedRecord = FFIUtil.newRecord(new BPackage("ballerina",
                 "llvm"), "LLVMValueRef");
         FFIUtil.addNativeToRecode(returnValue, returnWrappedRecord);
