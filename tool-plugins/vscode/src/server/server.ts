@@ -24,23 +24,15 @@ import { ServerOptions, ExecutableOptions } from 'vscode-languageclient';
 export function getServerOptions(ballerinaHome: string, experimental: boolean, debugLogsEnabled: boolean, traceLogsEnabled: boolean) : ServerOptions {
     debug(`Using Ballerina installation at ${ballerinaHome} for Language server.`);
 
-    let cmd;
     const cwd = path.join(ballerinaHome, 'bin');
     let args = [];
-    if (process.platform === 'win32') {
-        cmd = path.join(cwd, 'ballerina.bat');
-    } else {
-        cmd = 'sh';
-        args.push(path.join(cwd, 'ballerina'));
-    }
+    let cmd = (process.platform === 'win32') ? path.join(cwd, 'ballerina.bat') : path.join(cwd, 'ballerina');
 
     args.push("start-language-server");
 
     let opt: ExecutableOptions = {cwd: cwd};
     opt.env = Object.assign({}, process.env);
-    if (process.platform === "darwin") {
-        opt.env.BALLERINA_HOME = ballerinaHome;
-    }
+    opt.env.BALLERINA_HOME = ballerinaHome;
     if (process.env.LSDEBUG === "true") {
         debug('Language Server is starting in debug mode.');
         args.push('--debug');

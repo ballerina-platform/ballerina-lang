@@ -28,6 +28,7 @@ import * as child_process from "child_process";
 import { DebugClientEx } from './debugClient';
 
 import { getBallerinaHome } from '../test-util';
+import { ExecutableOptions } from 'vscode-languageclient';
 
 // const ballerinaHome = getBallerinaHome();
 
@@ -46,17 +47,20 @@ suite('Ballerina Debug Adapter', () => {
         this.timeout(60000);
         const cwd = path.join(ballerinaHome, "bin");
         
-        let cmd = 'sh';
+        let opt: ExecutableOptions = {cwd: cwd};
+        opt.env = Object.assign({}, process.env);
+        opt.env.BALLERINA_HOME = this.ballerinaExtInstance.getBallerinaHome();
+        
+        let cmd = '';
         let args : string[] = [];
         if (process.platform === 'win32') {
             cmd = path.join(cwd, 'ballerina.bat');
         } else {
-            cmd = 'sh';
-            args.push(path.join(cwd, 'ballerina'));
+            cmd = path.join(cwd, 'ballerina');
         }
         args.push('start-debugger-adapter');
         args.push(DEBUG_PORT.toString());
-        serverProcess = child_process.spawn(cmd, args);
+        serverProcess = child_process.spawn(cmd, args, opt);
         dc = new DebugClientEx("", "", 'ballerina', { cwd: PROJECT_ROOT });
         dc.defaultTimeout = 60000;
 

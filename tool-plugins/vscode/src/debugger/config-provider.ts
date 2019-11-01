@@ -15,6 +15,7 @@ import { BALLERINA_HOME } from '../core/preferences';
 import { isUnix } from "./osUtils";
 import { TM_EVENT_START_DEBUG_SESSION } from '../telemetry';
 import { log, debug as debugLog} from "../utils";
+import { ExecutableOptions } from 'vscode-languageclient';
 
 const BALLERINA_COMMAND = "ballerina.command";
 
@@ -126,7 +127,11 @@ class BallerinaDebugAdapterDescriptorFactory implements DebugAdapterDescriptorFa
 
         args.push(port.toString());
 
-        const serverProcess = child_process.spawn(cmd, args, { cwd });
+        let opt: ExecutableOptions = {cwd: cwd};
+        opt.env = Object.assign({}, process.env);
+        opt.env.BALLERINA_HOME = this.ballerinaExtInstance.getBallerinaHome();
+        
+        const serverProcess = child_process.spawn(cmd, args, opt);
 
         if (this.ballerinaExtInstance.isNewCLICmdSupported) {
             log("Starting debug adapter: 'ballerina start-debugger-adapter " + port.toString() + "'");
