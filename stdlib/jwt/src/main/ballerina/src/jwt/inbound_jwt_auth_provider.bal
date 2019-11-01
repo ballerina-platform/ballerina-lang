@@ -15,6 +15,7 @@
 // under the License.
 
 import ballerina/auth;
+import ballerina/cache;
 import ballerina/log;
 import ballerina/stringutils;
 import ballerina/time;
@@ -45,8 +46,9 @@ public type InboundJwtAuthProvider object {
             return false;
         }
 
-        if (self.jwtValidatorConfig.jwtCache.hasKey(credential)) {
-            var payload = authenticateFromCache(self.jwtValidatorConfig, credential);
+        cache:Cache jwtCache = self.jwtValidatorConfig.jwtCache;
+        if (jwtCache.hasKey(credential)) {
+            var payload = authenticateFromCache(jwtCache, credential);
             if (payload is JwtPayload) {
                 auth:setAuthenticationContext("jwt", credential);
                 setPrincipal(payload);
@@ -60,7 +62,7 @@ public type InboundJwtAuthProvider object {
         if (validationResult is JwtPayload) {
             auth:setAuthenticationContext("jwt", credential);
             setPrincipal(validationResult);
-            addToAuthenticationCache(self.jwtValidatorConfig, credential, <@untainted> validationResult?.exp,
+            addToAuthenticationCache(jwtCache, credential, <@untainted> validationResult?.exp,
                 <@untainted> validationResult);
             return true;
         } else {
@@ -69,8 +71,8 @@ public type InboundJwtAuthProvider object {
     }
 };
 
-function authenticateFromCache(JwtValidatorConfig jwtValidatorConfig, string jwtToken) returns JwtPayload? {
-    var cachedJwtInfo = trap <CachedJwtInfo>jwtValidatorConfig.jwtCache.get(jwtToken);
+function authenticateFromCache(cache:Cache jwtCache, string jwtToken) returns JwtPayload? {
+    var cachedJwtInfo = trap <CachedJwtInfo>jwtCache.get(jwtToken);
     if (cachedJwtInfo is CachedJwtInfo) {
         // convert to current time and check the expiry time
         if (cachedJwtInfo.expiryTime > (time:currentTime().time / 1000)) {
@@ -84,14 +86,14 @@ function authenticateFromCache(JwtValidatorConfig jwtValidatorConfig, string jwt
             }
             return payload;
         } else {
-            jwtValidatorConfig.jwtCache.remove(jwtToken);
+            jwtCache.remove(jwtToken);
         }
     }
 }
 
-function addToAuthenticationCache(JwtValidatorConfig jwtValidatorConfig, string jwtToken, int? exp, JwtPayload payload) {
+function addToAuthenticationCache(cache:Cache jwtCache, string jwtToken, int? exp, JwtPayload payload) {
     CachedJwtInfo cachedJwtInfo = {jwtPayload : payload, expiryTime : exp is () ? 0 : exp};
-    jwtValidatorConfig.jwtCache.put(jwtToken, cachedJwtInfo);
+    jwtCache.put(jwtToken, cachedJwtInfo);
     string? sub = payload?.sub;
     if (sub is string) {
         string printMsg = sub;
