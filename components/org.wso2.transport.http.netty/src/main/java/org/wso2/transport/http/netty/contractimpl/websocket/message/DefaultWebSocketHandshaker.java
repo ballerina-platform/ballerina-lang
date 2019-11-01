@@ -27,8 +27,8 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelPipeline;
 import io.netty.handler.codec.http.DefaultFullHttpResponse;
 import io.netty.handler.codec.http.FullHttpRequest;
+import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpHeaders;
-import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpVersion;
 import io.netty.handler.codec.http.websocketx.WebSocketServerHandshaker;
@@ -63,16 +63,14 @@ public class DefaultWebSocketHandshaker implements WebSocketHandshaker {
     private boolean cancelled = false;
     private boolean handshakeStarted = false;
     private HttpCarbonRequest request;
-    private boolean allowExtensions;
 
     public DefaultWebSocketHandshaker(ChannelHandlerContext ctx, ServerConnectorFuture connectorFuture,
-                                      FullHttpRequest httpRequest, String target, boolean allowExtensions) {
+                                      FullHttpRequest httpRequest) {
         this.ctx = ctx;
         this.connectorFuture = connectorFuture;
         this.secureConnection = ctx.channel().pipeline().get(Constants.SSL_HANDLER) != null;
         this.httpRequest = httpRequest;
-        this.target = target;
-        this.allowExtensions = allowExtensions;
+        this.target = httpRequest.uri();
     }
 
     @Override
@@ -82,60 +80,50 @@ public class DefaultWebSocketHandshaker implements WebSocketHandshaker {
 
     @Override
     public ServerHandshakeFuture handshake() {
-        WebSocketServerHandshakerFactory wsFactory =
-                new WebSocketServerHandshakerFactory(getWebSocketURL(httpRequest), null, allowExtensions);
-        WebSocketServerHandshaker handshaker = wsFactory.newHandshaker(httpRequest);
-        return handleHandshake(handshaker, 0, null);
+        return handshake(null);
     }
 
     @Override
     public ServerHandshakeFuture handshake(String[] subProtocols) {
-        WebSocketServerHandshakerFactory wsFactory =
-                new WebSocketServerHandshakerFactory(getWebSocketURL(httpRequest), getSubProtocolsCSV(subProtocols),
-                                                     allowExtensions);
-        WebSocketServerHandshaker handshaker = wsFactory.newHandshaker(httpRequest);
-        return handleHandshake(handshaker, 0, null);
+        return handshake(subProtocols, 0);
     }
 
     @Override
     public ServerHandshakeFuture handshake(String[] subProtocols, int idleTimeout) {
-        WebSocketServerHandshakerFactory wsFactory =
-                new WebSocketServerHandshakerFactory(getWebSocketURL(httpRequest),
-                                                     getSubProtocolsCSV(subProtocols), allowExtensions);
-        WebSocketServerHandshaker handshaker = wsFactory.newHandshaker(httpRequest);
-        return handleHandshake(handshaker, idleTimeout, null);
+        return handshake(subProtocols, idleTimeout, null);
     }
 
     @Override
     public ServerHandshakeFuture handshake(String[] subProtocols, int idleTimeout,
                                            HttpHeaders responseHeaders) {
-        WebSocketServerHandshakerFactory wsFactory =
-                new WebSocketServerHandshakerFactory(getWebSocketURL(httpRequest),
-                                                     getSubProtocolsCSV(subProtocols), allowExtensions);
-        WebSocketServerHandshaker handshaker = wsFactory.newHandshaker(httpRequest);
-        return handleHandshake(handshaker, idleTimeout, responseHeaders);
+        return handshake(subProtocols, idleTimeout, responseHeaders, Constants.WEBSOCKET_DEFAULT_FRAME_SIZE);
     }
 
     @Override
     public ServerHandshakeFuture handshake(String[] subProtocols, int idleTimeout,
                                            HttpHeaders responseHeaders, int maxFramePayloadLength) {
+        boolean allowExtensions = httpRequest.headers().getAsString(HttpHeaderNames.SEC_WEBSOCKET_EXTENSIONS) != null;
+
+        String subProtocolsStr = subProtocols != null ? String.join(",", subProtocols) : null;
         WebSocketServerHandshakerFactory wsFactory =
-                new WebSocketServerHandshakerFactory(getWebSocketURL(httpRequest), getSubProtocolsCSV(subProtocols),
-                                                     allowExtensions, maxFramePayloadLength);
+                new WebSocketServerHandshakerFactory(getWebSocketURL(), subProtocolsStr, allowExtensions,
+                                                     maxFramePayloadLength);
         WebSocketServerHandshaker handshaker = wsFactory.newHandshaker(httpRequest);
         return handleHandshake(handshaker, idleTimeout, responseHeaders);
     }
 
+    /* Get the URL of the given connection */
+    private String getWebSocketURL() {
+        String scheme = Constants.WS_SCHEME;
+        if (secureConnection) {
+            scheme = Constants.WSS_SCHEME;
+        }
+        return scheme + "://" + httpRequest.headers().get("Host") + target;
+    }
+
     @Override
     public ChannelFuture cancelHandshake(int statusCode, String closeReason) {
-        if (cancelled) {
-            throw new IllegalStateException("Cannot cancel the handshake: handshake already cancelled");
-        }
-
-        if (handshakeStarted) {
-            throw new IllegalStateException("Cannot cancel the handshake: handshake already started");
-        }
-
+        handleIllegalStates();
         try {
             int responseStatusCode = statusCode >= 400 && statusCode < 600 ? statusCode : 400;
             ChannelFuture responseFuture;
@@ -151,6 +139,16 @@ public class DefaultWebSocketHandshaker implements WebSocketHandshaker {
             return responseFuture;
         } finally {
             cancelled = true;
+        }
+    }
+
+    private void handleIllegalStates() {
+        if (cancelled) {
+            throw new IllegalStateException("Cannot cancel the handshake: handshake already cancelled");
+        }
+
+        if (handshakeStarted) {
+            throw new IllegalStateException("Cannot cancel the handshake: handshake already started");
         }
     }
 
@@ -176,7 +174,7 @@ public class DefaultWebSocketHandshaker implements WebSocketHandshaker {
 
     @Override
     public WebSocketConnection getWebSocketConnection() {
-        throw new IllegalStateException("Cannot get WebSocket connection without handshake completion");
+        throw new IllegalStateException("Cannot get WebSocket connection before handshake is completed");
     }
 
     @Override
@@ -233,28 +231,6 @@ public class DefaultWebSocketHandshaker implements WebSocketHandshaker {
         pipeline.addLast(Constants.WEBSOCKET_FRAME_HANDLER, frameHandler);
         frameHandler.getWebSocketConnection().stopReadingFrames();
         pipeline.fireChannelActive();
-    }
-
-    /* Get the URL of the given connection */
-    private String getWebSocketURL(HttpRequest req) {
-        String protocol = Constants.WS_SCHEME;
-        if (secureConnection) {
-            protocol = Constants.WSS_SCHEME;
-        }
-        return protocol + "://" + req.headers().get("Host") + req.uri();
-    }
-
-    private String getSubProtocolsCSV(String[] subProtocols) {
-        if (subProtocols == null || subProtocols.length == 0) {
-            return null;
-        }
-
-        String subProtocolsStr = "";
-        for (String subProtocol : subProtocols) {
-            subProtocolsStr = subProtocolsStr.concat(subProtocol + ",");
-        }
-        subProtocolsStr = subProtocolsStr.substring(0, subProtocolsStr.length() - 1);
-        return subProtocolsStr;
     }
 
     public HttpCarbonRequest getHttpCarbonRequest() {

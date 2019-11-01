@@ -33,19 +33,15 @@ import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpRequestDecoder;
 import io.netty.handler.codec.http.HttpResponseStatus;
-import io.netty.handler.codec.http.HttpVersion;
 import io.netty.handler.codec.http.websocketx.Utf8FrameValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.Constants;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketConnectorException;
+import org.wso2.transport.http.netty.contractimpl.common.Util;
 import org.wso2.transport.http.netty.contractimpl.websocket.message.DefaultWebSocketHandshaker;
-import org.wso2.transport.http.netty.message.DefaultListener;
 import org.wso2.transport.http.netty.message.HttpCarbonRequest;
-import org.wso2.transport.http.netty.message.PooledDataStreamerFactory;
-
-import java.net.InetSocketAddress;
 
 import static org.wso2.transport.http.netty.contract.Constants.HTTP_OBJECT_AGGREGATOR;
 import static org.wso2.transport.http.netty.contract.Constants.WEBSOCKET_COMPRESSION_HANDLER;
@@ -58,13 +54,12 @@ public class WebSocketServerHandshakeHandler extends ChannelInboundHandlerAdapte
     private static final Logger LOG = LoggerFactory.getLogger(WebSocketServerHandshakeHandler.class);
 
     private final ServerConnectorFuture serverConnectorFuture;
-    private final String interfaceId;
     private boolean webSocketCompressionEnabled;
+    private SourceHandler sourceHandler;
 
-    public WebSocketServerHandshakeHandler(ServerConnectorFuture serverConnectorFuture, String interfaceId,
+    public WebSocketServerHandshakeHandler(ServerConnectorFuture serverConnectorFuture,
                                            boolean webSocketCompressionEnabled) {
         this.serverConnectorFuture = serverConnectorFuture;
-        this.interfaceId = interfaceId;
         this.webSocketCompressionEnabled = webSocketCompressionEnabled;
     }
 
@@ -80,45 +75,7 @@ public class WebSocketServerHandshakeHandler extends ChannelInboundHandlerAdapte
                     if (LOG.isDebugEnabled()) {
                         LOG.debug("Upgrading the connection from Http to WebSocket for channel : {}", ctx.channel());
                     }
-                    ChannelPipeline pipeline = ctx.pipeline();
-                    if (pipeline.get(Constants.BACK_PRESSURE_HANDLER) != null) {
-                        pipeline.remove(Constants.BACK_PRESSURE_HANDLER);
-                    }
-                    pipeline.remove(Constants.HTTP_SOURCE_HANDLER);
-                    ChannelHandlerContext decoderCtx = pipeline.context(HttpRequestDecoder.class);
-                    pipeline.addAfter(decoderCtx.name(), HTTP_OBJECT_AGGREGATOR,
-                                      new HttpObjectAggregator(Constants.WEBSOCKET_REQUEST_SIZE));
-                    if (webSocketCompressionEnabled) {
-                        pipeline.addAfter(HTTP_OBJECT_AGGREGATOR, WEBSOCKET_COMPRESSION_HANDLER,
-                                          new WebSocketServerCompressionHandler());
-                        pipeline.addAfter(WEBSOCKET_COMPRESSION_HANDLER, Utf8FrameValidator.class.getName(),
-                                          new Utf8FrameValidator());
-                    } else {
-                        pipeline.addAfter(HTTP_OBJECT_AGGREGATOR, Utf8FrameValidator.class.getName(),
-                                          new Utf8FrameValidator());
-                    }
-                    pipeline.addAfter(Utf8FrameValidator.class.getName(), "handshake",
-                                      new SimpleChannelInboundHandler<FullHttpRequest>() {
-                                          @Override
-                                          protected void channelRead0(ChannelHandlerContext ctx, FullHttpRequest msg)
-                                                  throws Exception {
-                                              // Remove ourselves and do the actual handshake
-                                              ctx.pipeline().remove(this);
-                                              handleWebSocketHandshake(msg, ctx);
-                                          }
-
-                                          @Override
-                                          public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
-                                              // Remove ourselves and fail the handshake
-                                              ctx.pipeline().remove(this);
-                                              ctx.fireExceptionCaught(cause);
-                                          }
-
-                                          @Override
-                                          public void channelInactive(ChannelHandlerContext ctx) {
-                                              ctx.fireChannelInactive();
-                                          }
-                                      });
+                    ChannelHandlerContext decoderCtx = modifyPipelineForUpgrade(ctx);
                     decoderCtx.fireChannelRead(msg);
                 } else {
                     // According to spec since client must send a request with "GET" method, if method is not "GET"
@@ -146,55 +103,72 @@ public class WebSocketServerHandshakeHandler extends ChannelInboundHandlerAdapte
     }
 
     /**
-     * Handle the WebSocket handshake.
+     * Modifies the pipeline and returns the context at the http decoder.
      *
-     * @param fullHttpRequest {@link HttpRequest} of the request.
+     * @param ctx the current context
+     * @return The context at the HttpRequestDecoder
      */
-    private void handleWebSocketHandshake(FullHttpRequest fullHttpRequest, ChannelHandlerContext ctx)
-            throws WebSocketConnectorException {
-        String extensionsHeader = fullHttpRequest.headers().getAsString(HttpHeaderNames.SEC_WEBSOCKET_EXTENSIONS);
-        DefaultWebSocketHandshaker webSocketHandshaker =
-                new DefaultWebSocketHandshaker(ctx, serverConnectorFuture, fullHttpRequest, fullHttpRequest.uri(),
-                                               extensionsHeader != null);
+    private ChannelHandlerContext modifyPipelineForUpgrade(ChannelHandlerContext ctx) {
+        ChannelPipeline pipeline = ctx.pipeline();
+        if (pipeline.get(Constants.BACK_PRESSURE_HANDLER) != null) {
+            pipeline.remove(Constants.BACK_PRESSURE_HANDLER);
+        }
+        // Retain a reference for the sourceHandler to create a carbon message
+        sourceHandler = (SourceHandler) pipeline.remove(Constants.HTTP_SOURCE_HANDLER);
+        ChannelHandlerContext decoderCtx = pipeline.context(HttpRequestDecoder.class);
+        pipeline.addAfter(decoderCtx.name(), HTTP_OBJECT_AGGREGATOR,
+                          new HttpObjectAggregator(Constants.WEBSOCKET_REQUEST_SIZE));
+        if (webSocketCompressionEnabled) {
+            pipeline.addAfter(HTTP_OBJECT_AGGREGATOR, WEBSOCKET_COMPRESSION_HANDLER,
+                              new WebSocketServerCompressionHandler());
+            pipeline.addAfter(WEBSOCKET_COMPRESSION_HANDLER, Utf8FrameValidator.class.getName(),
+                              new Utf8FrameValidator());
+        } else {
+            pipeline.addAfter(HTTP_OBJECT_AGGREGATOR, Utf8FrameValidator.class.getName(),
+                              new Utf8FrameValidator());
+        }
+        pipeline.addAfter(Utf8FrameValidator.class.getName(), "handshake", new HandShakeHandler());
+        return decoderCtx;
+    }
+
+    private class HandShakeHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
+
+        @Override
+        protected void channelRead0(ChannelHandlerContext ctx, FullHttpRequest msg)
+                throws Exception {
+            // Remove ourselves and do the actual handshake
+            ctx.pipeline().remove(this);
+            handleWebSocketHandshake(msg, ctx);
+        }
+
+        @Override
+        public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
+            // Remove ourselves and fail the handshake
+            ctx.pipeline().remove(this);
+            ctx.fireExceptionCaught(cause);
+        }
+
+        @Override
+        public void channelInactive(ChannelHandlerContext ctx) {
+            ctx.fireChannelInactive();
+        }
+
+        /**
+         * Handle the WebSocket handshake.
+         *
+         * @param fullHttpRequest {@link HttpRequest} of the request.
+         */
+        private void handleWebSocketHandshake(FullHttpRequest fullHttpRequest, ChannelHandlerContext ctx)
+                throws WebSocketConnectorException {
+            DefaultWebSocketHandshaker webSocketHandshaker =
+                    new DefaultWebSocketHandshaker(ctx, serverConnectorFuture, fullHttpRequest);
 
         // Setting common properties to handshaker
-        webSocketHandshaker.setHttpCarbonRequest(setupHttpCarbonRequest(fullHttpRequest, ctx));
+            webSocketHandshaker.setHttpCarbonRequest(
+                    (HttpCarbonRequest) Util.createInboundReqCarbonMsg(fullHttpRequest, ctx, sourceHandler));
 
         ctx.channel().config().setAutoRead(false);
         serverConnectorFuture.notifyWebSocketListener(webSocketHandshaker);
     }
-
-    private HttpCarbonRequest setupHttpCarbonRequest(HttpRequest httpRequest, ChannelHandlerContext ctx) {
-
-        HttpCarbonRequest sourceReqCmsg = new HttpCarbonRequest(httpRequest, new DefaultListener(ctx));
-        sourceReqCmsg.setProperty(Constants.POOLED_BYTE_BUFFER_FACTORY, new PooledDataStreamerFactory(ctx.alloc()));
-
-        sourceReqCmsg.setProperty(Constants.CHNL_HNDLR_CTX, ctx);
-        sourceReqCmsg.setProperty(Constants.SRC_HANDLER, this);
-        HttpVersion protocolVersion = httpRequest.protocolVersion();
-        sourceReqCmsg.setHttpVersion(protocolVersion.majorVersion() + "." + protocolVersion.minorVersion());
-        sourceReqCmsg.setHttpMethod(httpRequest.method().name());
-        InetSocketAddress localAddress = null;
-
-        //This check was added because in case of netty embedded channel, this could be of type 'EmbeddedSocketAddress'.
-        if (ctx.channel().localAddress() instanceof InetSocketAddress) {
-            localAddress = (InetSocketAddress) ctx.channel().localAddress();
-        }
-        sourceReqCmsg.setProperty(Constants.LISTENER_PORT, localAddress != null ? localAddress.getPort() : null);
-        sourceReqCmsg.setProperty(Constants.LISTENER_INTERFACE_ID, interfaceId);
-        sourceReqCmsg.setProperty(Constants.PROTOCOL, Constants.HTTP_SCHEME);
-
-        boolean isSecuredConnection = false;
-        if (ctx.channel().pipeline().get(Constants.SSL_HANDLER) != null) {
-            isSecuredConnection = true;
-        }
-        sourceReqCmsg.setProperty(Constants.IS_SECURED_CONNECTION, isSecuredConnection);
-
-        sourceReqCmsg.setProperty(Constants.LOCAL_ADDRESS, ctx.channel().localAddress());
-        sourceReqCmsg.setProperty(Constants.REMOTE_ADDRESS, ctx.channel().remoteAddress());
-        sourceReqCmsg.setRequestUrl(httpRequest.uri());
-        sourceReqCmsg.setProperty(Constants.TO, httpRequest.uri());
-
-        return sourceReqCmsg;
     }
 }

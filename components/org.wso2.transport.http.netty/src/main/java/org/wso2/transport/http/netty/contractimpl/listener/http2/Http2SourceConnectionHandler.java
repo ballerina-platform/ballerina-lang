@@ -26,6 +26,9 @@ import io.netty.handler.codec.http2.Http2EventAdapter;
 import io.netty.handler.codec.http2.Http2FrameListener;
 import io.netty.handler.codec.http2.Http2Headers;
 import io.netty.handler.codec.http2.Http2Settings;
+import io.netty.handler.codec.http2.Http2Stream;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.Constants;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.transport.http.netty.contractimpl.common.http2.Http2ExceptionHandler;
@@ -41,6 +44,7 @@ import static org.wso2.transport.http.netty.contractimpl.common.Util.safelyRemov
  * {@code Http2SourceConnectionHandler} takes care of handling HTTP/2 source connections.
  */
 public class Http2SourceConnectionHandler extends Http2ConnectionHandler {
+    private static final Logger LOG = LoggerFactory.getLogger(Http2SourceConnectionHandler.class);
 
     private Http2FrameListener http2FrameListener;
     private Http2ConnectionEncoder encoder;
@@ -79,7 +83,9 @@ public class Http2SourceConnectionHandler extends Http2ConnectionHandler {
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) {
-        ctx.close();
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Channel inactive event received in Http2SourceConnectionHandler");
+        }
         if (HttpTransportContextHolder.getInstance().getHandlerExecutor() != null) {
             HttpTransportContextHolder.getInstance().getHandlerExecutor()
                     .executeAtSourceConnectionTermination(Integer.toString(ctx.hashCode()));
@@ -100,6 +106,7 @@ public class Http2SourceConnectionHandler extends Http2ConnectionHandler {
      * {@code ServerFrameListener} listens to HTTP/2 Events received from the frontend and constructs HTTP/2 frames.
      */
     private static class ServerFrameListener extends Http2EventAdapter {
+        private static final Logger LOG = LoggerFactory.getLogger(ServerFrameListener.class);
 
         @Override
         public void onHeadersRead(ChannelHandlerContext ctx, int streamId,
@@ -122,6 +129,29 @@ public class Http2SourceConnectionHandler extends Http2ConnectionHandler {
             Http2DataFrame dataFrame = new Http2DataFrame(streamId, forwardedData, endOfStream);
             ctx.fireChannelRead(dataFrame);
             return ZERO_READABLE_BYTES;
+        }
+
+        @Override
+        public void onGoAwayReceived(int lastStreamId, long errorCode, ByteBuf debugData) {
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("GoAwayReceived event in server frame listener. Stream id : {} Error code : {}", lastStreamId,
+                          errorCode);
+            }
+        }
+
+        @Override
+        public void onStreamClosed(Http2Stream stream) {
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("StreamClosed event in server frame listener. Stream id : {}", stream.id());
+            }
+        }
+
+        @Override
+        public void onRstStreamRead(ChannelHandlerContext ctx, int streamId, long errorCode) {
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("RstStreamRead event in server frame listener. Stream id : {} Error code : {}", streamId,
+                          errorCode);
+            }
         }
     }
 }

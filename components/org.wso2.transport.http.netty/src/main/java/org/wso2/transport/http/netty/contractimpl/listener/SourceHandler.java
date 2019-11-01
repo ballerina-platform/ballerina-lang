@@ -155,8 +155,6 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) {
-        closeChannel(ctx);
-
         if (!idleTimeout) {
             if (!requestSet.isEmpty()) {
                 requestSet.forEach((key, inboundMsg) -> inboundMsg.listenerReqRespStateManager

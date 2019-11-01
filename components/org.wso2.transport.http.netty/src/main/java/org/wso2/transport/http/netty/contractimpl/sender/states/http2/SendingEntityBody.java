@@ -44,6 +44,8 @@ import org.wso2.transport.http.netty.message.Http2DataFrame;
 import org.wso2.transport.http.netty.message.Http2HeadersFrame;
 import org.wso2.transport.http.netty.message.Http2PushPromise;
 
+import java.io.IOException;
+
 import static org.wso2.transport.http.netty.contract.Constants.IDLE_TIMEOUT_TRIGGERED_WHILE_WRITING_OUTBOUND_REQUEST_BODY;
 import static org.wso2.transport.http.netty.contract.Constants.REMOTE_SERVER_CLOSED_WHILE_WRITING_OUTBOUND_REQUEST_BODY;
 import static org.wso2.transport.http.netty.contractimpl.common.states.Http2StateUtil.onPushPromiseRead;
@@ -126,6 +128,8 @@ public class SendingEntityBody implements SenderState {
 
     @Override
     public void handleConnectionClose(OutboundMsgHolder outboundMsgHolder) {
+        outboundMsgHolder.getRequest().setIoException(
+                new IOException(REMOTE_SERVER_CLOSED_WHILE_WRITING_OUTBOUND_REQUEST_BODY));
         outboundMsgHolder.getResponseFuture().notifyHttpListener(new EndpointTimeOutException(
                 REMOTE_SERVER_CLOSED_WHILE_WRITING_OUTBOUND_REQUEST_BODY,
                 HttpResponseStatus.GATEWAY_TIMEOUT.code()));
