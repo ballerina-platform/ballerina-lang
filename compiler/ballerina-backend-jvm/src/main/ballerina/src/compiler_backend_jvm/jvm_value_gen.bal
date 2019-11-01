@@ -71,8 +71,8 @@ public type ObjectGenerator object {
 
         self.createObjectInit(cw, fields, className);
         self.createCallMethod(cw, attachedFuncs, className, objectType.name.value, isService);
-        self.createGetMethod(cw, fields, className);
-        self.createSetMethod(cw, fields, className);
+        self.createObjectGetMethod(cw, fields, className);
+        self.createObjectSetMethod(cw, fields, className);
         self.createLambdas(cw);
 
         cw.visitEnd();
@@ -219,7 +219,7 @@ public type ObjectGenerator object {
         mv.visitEnd();
     }
 
-    private function createGetMethod(jvm:ClassWriter cw, bir:BObjectField?[] fields, string className) {
+    private function createObjectGetMethod(jvm:ClassWriter cw, bir:BObjectField?[] fields, string className) {
         jvm:MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "get",
                 io:sprintf("(L%s;)L%s;", STRING_VALUE, OBJECT), (), ());
         mv.visitCode();
@@ -253,7 +253,7 @@ public type ObjectGenerator object {
         mv.visitEnd();
     }
 
-    private function createSetMethod(jvm:ClassWriter cw, bir:BObjectField?[] fields, string className) {
+    private function createObjectSetMethod(jvm:ClassWriter cw, bir:BObjectField?[] fields, string className) {
         jvm:MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "set",
                 io:sprintf("(L%s;L%s;)V", STRING_VALUE, OBJECT), (), ());
         mv.visitCode();
@@ -310,12 +310,19 @@ public type ObjectGenerator object {
         jvm:ClassWriter cw = new(COMPUTE_FRAMES);
         cw.visitSource(typeDef.pos.sourceFileName);
         currentClass = <@untainted> className;
-        cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, className, (), MAP_VALUE_IMPL, [MAP_VALUE]);
+        cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, className,
+                io:sprintf("<K:L%s;V:L%s;>L%s<TK;TV;>;L%s<TK;TV;>;", OBJECT, OBJECT, MAP_VALUE_IMPL, MAP_VALUE),
+                MAP_VALUE_IMPL, [MAP_VALUE]);
 
         bir:Function?[]? attachedFuncs = typeDef.attachedFuncs;
         if (attachedFuncs is bir:Function?[]) {
             self.createRecordMethods(cw, attachedFuncs);
         }
+
+        bir:BRecordField?[] fields = recordType.fields;
+        self.createRecordFields(cw, fields);
+        self.createRecordGetMethod(cw, fields, className);
+        self.createRecordSetMethod(cw, fields, className);
 
         self.createRecordConstructor(cw, className);
         self.createRecordInitWrapper(cw, className, typeDef);
@@ -394,6 +401,160 @@ public type ObjectGenerator object {
         mv.visitInsn(RETURN);
         mv.visitMaxs(0, 0);
         mv.visitEnd();
+    }
+
+    private function createRecordFields(jvm:ClassWriter cw, bir:BRecordField?[] fields) {
+        foreach var field in fields {
+            if (field is bir:BRecordField) {
+                jvm:FieldVisitor fv = cw.visitField(0, field.name.value, getTypeDesc(field.typeValue));
+                fv.visitEnd();
+
+                if (self.isOptionalRecordField(field)) {
+                    fv = cw.visitField(0, self.getFieldIsPresentFlagName(field.name.value), 
+                            getTypeDesc(bir:TYPE_BOOLEAN));
+                    fv.visitEnd();
+                }
+            }
+        }
+    }
+
+    private function getFieldIsPresentFlagName(string fieldName) returns string {
+        return io:sprintf("%s$isPresent", fieldName);
+    }
+
+    private function isOptionalRecordField(bir:BRecordField field) returns boolean {
+        return (field.flags & BAL_OPTIONAL) == BAL_OPTIONAL;
+    }
+
+    private function createRecordGetMethod(jvm:ClassWriter cw, bir:BRecordField?[] fields, string className) {
+        jvm:MethodVisitor mv = cw.visitMethod(ACC_PROTECTED, "getValue",
+                io:sprintf("(L%s;)L%s;", OBJECT, OBJECT), io:sprintf("(L%s;)TV;", OBJECT), ());
+        mv.visitCode();
+
+        int fieldNameRegIndex = 1;
+        int strKeyVarIndex = 2;
+        jvm:Label defaultCaseLabel = new jvm:Label();
+        bir:VariableDcl strKeyVar = { typeValue: "string",
+                                    name: { value: "strKey" },
+                                    kind: "TEMP" };
+        mv.visitVarInsn(ALOAD, fieldNameRegIndex);
+        mv.visitTypeInsn(CHECKCAST, STRING_VALUE);
+        mv.visitVarInsn(ASTORE, strKeyVarIndex);
+
+        // sort the fields before generating switch case
+        NodeSorter sorter = new();
+        bir:BRecordField?[] sortedFields = fields.clone();
+        sorter.sortByHash(sortedFields);
+
+        jvm:Label[] labels = createLabelsforSwitch(mv, strKeyVarIndex, sortedFields, defaultCaseLabel);
+        jvm:Label[] targetLabels = createLabelsForEqualCheck(mv, strKeyVarIndex, sortedFields, labels,
+                defaultCaseLabel);
+
+        int i = 0;
+        foreach var optionalField in sortedFields {
+            bir:BRecordField field = getRecordField(optionalField);
+            jvm:Label targetLabel = targetLabels[i];
+            mv.visitLabel(targetLabel);
+
+            // if the field is an optional-field, first check the 'isPresent' flag of that field.
+            jvm:Label ifPresentLabel = new;
+            string fieldName = field.name.value;
+            if (self.isOptionalRecordField(field)) {
+                mv.visitVarInsn(ALOAD, 0);
+                mv.visitFieldInsn(GETFIELD, className, self.getFieldIsPresentFlagName(fieldName),
+                                    getTypeDesc(bir:TYPE_BOOLEAN));
+                mv.visitJumpInsn(IFNE, ifPresentLabel);
+                mv.visitInsn(ACONST_NULL);
+                mv.visitInsn(ARETURN);
+            }
+
+            mv.visitLabel(ifPresentLabel);
+            // return the value of the field
+            mv.visitVarInsn(ALOAD, 0);
+            mv.visitFieldInsn(GETFIELD, className, fieldName, getTypeDesc(field.typeValue));
+            addBoxInsn(mv, field.typeValue);
+            mv.visitInsn(ARETURN);
+            i += 1;
+        }
+
+        self.createRecordGetDefaultCase(mv, defaultCaseLabel, strKeyVarIndex);
+        mv.visitMaxs(sortedFields.length() + 10, sortedFields.length() + 10);
+        mv.visitEnd();
+    }
+
+    private function createRecordSetMethod(jvm:ClassWriter cw, bir:BRecordField?[] fields, string className) {
+        jvm:MethodVisitor mv = cw.visitMethod(ACC_PROTECTED, "putValue",
+                io:sprintf("(L%s;L%s;)L%s;", OBJECT, OBJECT, OBJECT), "(TK;TV;)TV;", ());
+
+        mv.visitCode();
+        int fieldNameRegIndex = 1;
+        int valueRegIndex = 2;
+        int strKeyVarIndex = 3;
+        jvm:Label defaultCaseLabel = new jvm:Label();
+
+        bir:VariableDcl strKeyVar = { typeValue: "string",
+                                    name: { value: "strKey" },
+                                    kind: "TEMP" };
+        mv.visitVarInsn(ALOAD, fieldNameRegIndex);
+        mv.visitTypeInsn(CHECKCAST, STRING_VALUE);
+        mv.visitVarInsn(ASTORE, strKeyVarIndex);
+
+        // sort the fields before generating switch case
+        NodeSorter sorter = new();
+        bir:BRecordField?[] sortedFields = fields.clone();
+        sorter.sortByHash(sortedFields);
+
+        jvm:Label[] labels = createLabelsforSwitch(mv, strKeyVarIndex, sortedFields, defaultCaseLabel);
+        jvm:Label[] targetLabels = createLabelsForEqualCheck(mv, strKeyVarIndex, sortedFields, labels,
+                defaultCaseLabel);
+
+        // case body
+        int i = 0;
+        foreach var optionalField in sortedFields {
+            bir:BRecordField field = getRecordField(optionalField);
+            jvm:Label targetLabel = targetLabels[i];
+            mv.visitLabel(targetLabel);
+            mv.visitVarInsn(ALOAD, 0);
+            mv.visitVarInsn(ALOAD, valueRegIndex);
+            addUnboxInsn(mv, field.typeValue);
+
+            string fieldName = field.name.value;
+            mv.visitFieldInsn(PUTFIELD, className, fieldName, getTypeDesc(field.typeValue));
+
+            // if the field is an optional-field, then also set the isPresent flag of that field to true.
+            if (self.isOptionalRecordField(field)) {
+                mv.visitVarInsn(ALOAD, 0);
+                mv.visitInsn(ICONST_1);
+                mv.visitFieldInsn(PUTFIELD, className, self.getFieldIsPresentFlagName(fieldName), 
+                                    getTypeDesc(bir:TYPE_BOOLEAN));
+            }
+
+            mv.visitVarInsn(ALOAD, valueRegIndex);
+            mv.visitInsn(ARETURN);
+            i += 1;
+        }
+
+        self.createRecordPutDefaultCase(mv, defaultCaseLabel, strKeyVarIndex, valueRegIndex);
+        mv.visitMaxs(sortedFields.length() + 10, sortedFields.length() + 10);
+        mv.visitEnd();
+    }
+
+    private function createRecordPutDefaultCase(jvm:MethodVisitor mv, jvm:Label defaultCaseLabel, int nameRegIndex,
+                                                int valueRegIndex) {
+        mv.visitLabel(defaultCaseLabel);
+        mv.visitVarInsn(ALOAD, 0);
+        mv.visitVarInsn(ALOAD, nameRegIndex);
+        mv.visitVarInsn(ALOAD, valueRegIndex);
+        mv.visitMethodInsn(INVOKESPECIAL, LINKED_HASH_MAP, "put", io:sprintf("(L%s;L%s;)L%s;", OBJECT, OBJECT, OBJECT), false);
+        mv.visitInsn(ARETURN);
+    }
+
+    private function createRecordGetDefaultCase(jvm:MethodVisitor mv, jvm:Label defaultCaseLabel, int nameRegIndex) {
+        mv.visitLabel(defaultCaseLabel);
+        mv.visitVarInsn(ALOAD, 0);
+        mv.visitVarInsn(ALOAD, nameRegIndex);
+        mv.visitMethodInsn(INVOKESPECIAL, LINKED_HASH_MAP, "get", io:sprintf("(L%s;)L%s;", OBJECT, OBJECT), false);
+        mv.visitInsn(ARETURN);
     }
 };
 

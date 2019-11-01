@@ -116,7 +116,7 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
     public V get(Object key) {
         readLock.lock();
         try {
-            return super.get(key);
+            return getValue(key);
         } finally {
             readLock.unlock();
         }
@@ -170,7 +170,7 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
             if (!containsKey(key)) {
                 throw BallerinaErrors.createError(MAP_KEY_NOT_FOUND_ERROR, "cannot find key '" + key + "'");
             }
-            return super.get(key);
+            return getValue(key);
         } finally {
             readLock.unlock();
         }
@@ -188,7 +188,7 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
         writeLock.lock();
         try {
             if (containsKey(key)) {
-                return super.get(key);
+                return getValue(key);
             }
 
             BType expectedType = null;
@@ -275,26 +275,58 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
     public V put(K key, V value) {
         writeLock.lock();
         try {
-            try {
-                if (freezeStatus.getState() != State.UNFROZEN) {
-                    handleInvalidUpdate(freezeStatus.getState(), MAP_LANG_LIB);
-                }
-                return super.put(key, value);
-            } catch (BLangFreezeException e) {
-                // we would only reach here for record or map, not for object
-                String errMessage = "";
-                switch (getType().getTag()) {
-                    case TypeTags.RECORD_TYPE_TAG:
-                        errMessage = "Invalid update of record field: ";
-                        break;
-                    case TypeTags.MAP_TAG:
-                        errMessage = "Invalid map insertion: ";
-                        break;
-                }
-                throw BallerinaErrors.createError(e.getMessage(), errMessage + e.getDetail());
-            }
+            checkFreezeStatus();
+            return putValue(key, value);
         } finally {
             writeLock.unlock();
+        }
+    }
+
+    /**
+     * @param key key with which the specified value is to be associated
+     * @param value value to be associated with the specified key
+     * @return the previous value associated with <tt>key</tt>, or
+     *         <tt>null</tt> if there was no mapping for <tt>key</tt>.
+     *         (A <tt>null</tt> return can also indicate that the map
+     *         previously associated <tt>null</tt> with <tt>key</tt>.)
+     */
+    protected V putValue(K key, V value) {
+        return super.put(key, value);
+    }
+
+    /**
+     * Retrieve the value for the given key from map.
+     * A null will be returned if the key does not exists.
+     *
+     * @param key key used to get the value
+     * @return value associated with the key
+     */
+    protected V getValue(Object key) {
+        return super.get(key);
+    }
+
+    /**
+     * Check the freeze status of the current map value for updates. If its frozen,
+     * then a {@link ErrorValue} will be thrown.
+     */
+    protected void checkFreezeStatus() {
+        try {
+            if (freezeStatus.getState() == State.UNFROZEN) {
+                return;
+            }
+            handleInvalidUpdate(freezeStatus.getState(), MAP_LANG_LIB);
+        } catch (BLangFreezeException e) {
+            // we would only reach here for record or map, not for object
+            String errMessage = "";
+            switch (getType().getTag()) {
+                case TypeTags.RECORD_TYPE_TAG:
+                    errMessage = "Invalid update of record field: ";
+                    break;
+                case TypeTags.MAP_TAG:
+                    errMessage = "Invalid map insertion: ";
+                    break;
+            }
+            throw BallerinaErrors.createError(e.getMessage(), errMessage + e.getDetail());
         }
     }
 

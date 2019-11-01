@@ -54,7 +54,7 @@ public class Visit {
 
         BallerinaClassWriter cw = ASMUtil.getRefArgumentNativeData(oCw);
         String[] interfaces = ASMUtil.fromNilableStringArray(optInterfaces);
-        cw.visitClass(((int) versionNumber), ((int) access), name, null, superName, interfaces);
+        cw.visitClass(((int) versionNumber), ((int) access), name, (String) signature, superName, interfaces);
     }
 
 }
