@@ -18,10 +18,12 @@
 import { BallerinaExtension } from '../core';
 import { commands, ExtensionContext } from 'vscode';
 import { setEditorDecorations } from './highlighter';
+import { SemanticHighlightingInformation } from './model';
 
 export function activate(ballerinaExtInstance: BallerinaExtension) {
     const context = <ExtensionContext>ballerinaExtInstance.context;
-    const highlightingInfo: { line: number, token: string }[] =
+    
+    const highlightingInfo: SemanticHighlightingInformation[] =
         [{ line: 0, token: "WzAsIDMsIDAsIDUsMiwgMSwgMTAsIDUsIDBd" }, //[0, 3, 0, 5,2, 1, 10, 5, 0]
         { line: 1, token: "WzE2LCAyLCAxLCAyMCwgMywgMCwgMjUsIDIsIDFd" }]; //[16, 2, 1, 20, 3, 0, 25, 2, 1]
 

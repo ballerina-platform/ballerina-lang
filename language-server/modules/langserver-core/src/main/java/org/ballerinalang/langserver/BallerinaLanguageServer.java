@@ -62,6 +62,7 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 import static org.ballerinalang.langserver.BallerinaWorkspaceService.Experimental.INTROSPECTION;
+import static org.ballerinalang.langserver.BallerinaWorkspaceService.Experimental.SEMANTIC_SYNTAX_HIGHLIGHTER;
 
 /**
  * Language server implementation for Ballerina.
@@ -157,6 +158,9 @@ public class BallerinaLanguageServer implements ExtendedLanguageServer, Extended
         if (experimentalClientCapabilities != null && experimentalClientCapabilities.get(INTROSPECTION.getValue())) {
             int port = ballerinaTraceListener.startListener();
             experimentalServerCapabilities.put("introspection", new ProviderOptions(port));
+        }
+        if (experimentalClientCapabilities != null && experimentalClientCapabilities.get(SEMANTIC_SYNTAX_HIGHLIGHTER.getValue())) {
+            experimentalServerCapabilities.put("semanticSyntaxHighlighter", true);
         }
         res.getCapabilities().setExperimental(experimentalServerCapabilities);
 

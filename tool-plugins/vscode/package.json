@@ -328,6 +328,7 @@
         "vscode-debugprotocol": "^1.34.0",
         "vscode-extension-telemetry": "^0.1.2",
         "vscode-languageclient": "5.1.1",
+        "vscode-languageserver-types": "^3.14.0",
         "ws": "^6.2.1"
     },
     "devDependencies": {

@@ -1,8 +1,8 @@
 import { Base64 } from 'js-base64';
-import { HighlightToken } from './highlight-token';
+import { HighlightToken, SemanticHighlightingInformation } from './model';
 import { Range, window, TextEditorDecorationType } from 'vscode';
 
-function decodeTokens(element: { line: number, token: string }): HighlightToken[] {
+function decodeTokens(element: SemanticHighlightingInformation): HighlightToken[] {
     const tokenArray: HighlightToken[] = [];
     let decodedText = Base64.atob(element.token);
     let decodedArray: number[] = JSON.parse(decodedText);
@@ -15,14 +15,14 @@ function decodeTokens(element: { line: number, token: string }): HighlightToken[
     return tokenArray;
 }
 
-function highlightLines(highlightingInfo: { line: number, token: string }[]): { [scope: number]: Range[]; } {
+function highlightLines(highlightingInfo: SemanticHighlightingInformation[]): { [scope: number]: Range[]; } {
     let highlights: HighlightToken[] = [];
     let highlightByScope: { [scope: number]: Range[]; } = {};
 
     highlightingInfo.forEach(element => {
         highlights.push(...decodeTokens(element));
     });
-
+    console.log(highlights);
     highlights.forEach(element => {
         if (!highlightByScope[element.scope]) { highlightByScope[element.scope] = [element.range]; }
         else { highlightByScope[element.scope].push(element.range); }
