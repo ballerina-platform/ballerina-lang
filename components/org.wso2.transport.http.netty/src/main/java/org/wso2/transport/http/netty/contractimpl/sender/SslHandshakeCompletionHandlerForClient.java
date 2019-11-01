@@ -57,13 +57,15 @@ public class SslHandshakeCompletionHandlerForClient extends ChannelInboundHandle
             SslHandshakeCompletionEvent event = (SslHandshakeCompletionEvent) evt;
 
             if (event.isSuccess()) {
-                try {
-                    X509Certificate endUserCert = (X509Certificate) sslEngine.getSession().getPeerCertificates()[0];
-                    endUserCert.checkValidity(new Date());
-                } catch (CertificateExpiredException e) {
-                    connectionAvailabilityFuture
-                            .notifyFailure(new SSLException("Certificate expired : " + e.getMessage()));
-                    ctx.close();
+                if (!httpClientChannelInitializer.getSslConfig().isDisableSsl()) {
+                    try {
+                        X509Certificate endUserCert = (X509Certificate) sslEngine.getSession().getPeerCertificates()[0];
+                        endUserCert.checkValidity(new Date());
+                    } catch (CertificateExpiredException e) {
+                        connectionAvailabilityFuture
+                                .notifyFailure(new SSLException("Certificate expired : " + e.getMessage()));
+                        ctx.close();
+                    }
                 }
                 this.httpClientChannelInitializer.configureHttpPipeline(ctx.pipeline(), targetHandler);
                 connectionAvailabilityFuture.notifySuccess(Constants.HTTP_SCHEME);

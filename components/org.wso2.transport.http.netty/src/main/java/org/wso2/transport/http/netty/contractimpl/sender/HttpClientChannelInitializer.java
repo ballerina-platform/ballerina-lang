@@ -211,6 +211,10 @@ public class HttpClientChannelInitializer extends ChannelInitializer<SocketChann
         return http2ConnectionManager;
     }
 
+    public SSLConfig getSslConfig() {
+        return sslConfig;
+    }
+
     /**
      * Creates the pipeline for handing http2 upgrade.
      *
