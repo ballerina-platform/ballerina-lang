@@ -29,7 +29,8 @@ public function main(string... args) {
                 password: "ballerina"
             },
             ciphers: ["TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA"]
-        }
+        },
+        httpVersion: "1.1"
     });
     http:Request req = new;
     var resp = clientEP->get("/echo/");

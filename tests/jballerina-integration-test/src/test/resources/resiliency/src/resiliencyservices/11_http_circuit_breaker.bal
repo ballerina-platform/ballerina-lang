@@ -31,7 +31,8 @@ http:ClientConfiguration conf04 = {
         resetTimeInMillis: 10000,
         statusCodes: [500, 502, 503]
     },
-    timeoutInMillis: 2000
+    timeoutInMillis: 2000,
+    httpVersion: "1.1"
 };
 
 http:Client errornousClientEP = new("http://localhost:8090", conf04);

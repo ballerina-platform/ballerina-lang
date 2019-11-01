@@ -31,7 +31,8 @@ http:ClientConfiguration conf05 = {
         resetTimeInMillis: 1000,
         statusCodes: [501, 502, 503]
     },
-    timeoutInMillis: 2000
+    timeoutInMillis: 2000,
+    httpVersion: "1.1"
 };
 
 http:Client backendClientEP05 = new("http://localhost:8091", conf05);

@@ -37,7 +37,8 @@ http:FailoverClient foBackendEP02 = new({
         { url: "http://localhost:8080/echo" },
         { url: "http://localhost:8080/mock" },
         { url: "http://localhost:8080/mock" }
-    ]
+    ],
+    httpVersion: "1.1"
 });
 
 http:FailoverClient foBackendFailureEP02 = new({
@@ -49,7 +50,8 @@ http:FailoverClient foBackendFailureEP02 = new({
         { url: "http://localhost:3467/inavalidEP" },
         { url: "http://localhost:8080/echo" },
         { url: "http://localhost:8080/echo" }
-    ]
+    ],
+    httpVersion: "1.1"
 });
 
 http:FailoverClient foStatusCodesEP02 = new({
@@ -61,7 +63,8 @@ http:FailoverClient foStatusCodesEP02 = new({
         { url: "http://localhost:8080/statuscodes" },
         { url: "http://localhost:8080/statuscodes" },
         { url: "http://localhost:8080/statuscodes" }
-    ]
+    ],
+    httpVersion: "1.1"
 });
 
 @http:ServiceConfig {

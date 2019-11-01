@@ -34,7 +34,8 @@ http:ClientConfiguration conf02 = {
         resetTimeInMillis: 1000,
         statusCodes: [501, 502, 503]
     },
-    timeoutInMillis: 2000
+    timeoutInMillis: 2000,
+    httpVersion: "1.1"
 };
 
 http:Client unhealthyClientEP = new("http://localhost:8088", conf02);
