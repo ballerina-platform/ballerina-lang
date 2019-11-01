@@ -78,9 +78,18 @@ public type Field record {|
     JType fType;
 |};
 
-public function validateAndGetJMethod(MethodValidationRequest methodValidationReq) returns Method | error = external;
+public type InteropValidator object {
 
-public function validateAndGetJField(FieldValidationRequest fieldValidationReq) returns Field | error = external;
+    public function __init(string[] jarUrls, boolean useSystemClassLoader) {
+        self.init(jarUrls, useSystemClassLoader);
+    }
+
+    function init(string[] jarUrls, boolean useSystemClassLoader) = external;
+
+    public function validateAndGetJMethod(MethodValidationRequest methodValidationReq) returns Method | error = external;
+
+    public function validateAndGetJField(FieldValidationRequest fieldValidationReq) returns Field | error = external;
+};
 
 public function getMethodKindFromAnnotTag(MethodAnnotTag annotTagRef) returns MethodKind {
     if annotTagRef is CONSTRUCTOR_ANNOT_TAG {

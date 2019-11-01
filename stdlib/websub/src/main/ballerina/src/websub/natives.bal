@@ -22,23 +22,26 @@ import ballerina/io;
 ///////////////////////////////////////////////////////////////////
 # Starts up the internal Ballerina Hub.
 #
+# + basePath - The base path of the hub service
+# + subscriptionResourcePath - The resource path for subscription
+# + publishResourcePath - The resource path for publishing and topic registration
 # + topicRegistrationRequired - Whether a topic needs to be registered at the hub prior to publishing/subscribing
 #                               to the topic
 # + publicUrl - The URL for the hub to be included in content delivery requests, defaults to
 #               `http(s)://localhost:{port}/websub/hub` if unspecified
 # + hubListener - The `http:Listener` to which the hub service is attached
-# + return - `WebSubHub` The WebSubHub object representing the newly started up hub, or `HubStartedUpError` indicating
-#            that the hub is already started, and including the WebSubHub object representing the
+# + return - `Hub` The WebSub Hub object representing the newly started up hub, or `HubStartedUpError` indicating
+#            that the hub is already started, and including the WebSub Hub object representing the
 #            already started up hub
-function startUpHubService(boolean topicRegistrationRequired, string publicUrl, http:Listener hubListener)
-                                                                        returns WebSubHub|HubStartedUpError = external;
+function startUpHubService(string basePath, string subscriptionResourcePath, string publishResourcePath,
+                           boolean topicRegistrationRequired, string publicUrl, http:Listener hubListener)
+                                    returns Hub|HubStartedUpError|HubStartupError = external;
 
 # Stop the Ballerina Hub, if started.
 #
-# + hubUrl - The URL of the Hub service
-# + return - `boolean` True if the Ballerina Hub had been started up and was stopped now, false if the Hub had not been
-#            started up
-function stopHubService(string hubUrl) returns boolean = external;
+# + hub - The `websub:Hub` object returned when starting the hub
+# + return - `()` if the Ballerina Hub had been started up and was stopped now, `error` if not
+function stopHubService(Hub hub) returns error? = external;
 
 # Adds a new subscription for the specified topic in the Ballerina Hub.
 #
@@ -56,20 +59,19 @@ function publishToInternalHub(string topic, WebSubContent content) returns error
 #
 # + topic - The topic for which the subscription was added
 # + callback - The callback registered for this subscription
-function removeSubscription(string topic, string callback) = external;
+function removeNativeSubscription(string topic, string callback) = external;
 
 # Registers a topic in the Ballerina Hub.
 #
 # + topic - The topic to register
-# + loadingOnStartUp - Whether registration is being called on loading from the database at start up
 # + return - `error` if an error occurred with registration
-function registerTopicAtHub(string topic, boolean loadingOnStartUp = false) returns error? = external;
+function registerTopicAtNativeHub(string topic) returns error? = external;
 
 # Unregisters a topic in the Ballerina Hub.
 #
 # + topic - The topic to unregister
 # + return - `error` if an error occurred with unregistration
-function unregisterTopicAtHub(string topic) returns error? = external;
+function unregisterTopicAtNativeHub(string topic) returns error? = external;
 
 # Retrieves whether a topic is registered with the Ballerina Hub.
 #
@@ -82,10 +84,10 @@ function isTopicRegistered(string topic) returns boolean = external;
 ///////////////////////////////////////////////////////////////////
 # Publishes an update against the topic in the Ballerina Hub.
 #
-# + hubUrl - The URL of the Ballerina WebSub Hub as included in the WebSubHub struct
+# + publishUrl - The publisher URL of the Ballerina WebSub Hub as included in the `websub:Hub` object
 # + topic - The topic for which the update should happen
 # + content - The content to send to subscribers, with the payload and content-type specified
 # + return - `error` if an error occurred during publishing
-function validateAndPublishToInternalHub(string hubUrl, string topic, WebSubContent content) returns error? = external;
+function validateAndPublishToInternalHub(string publishUrl, string topic, WebSubContent content) returns error? = external;
 
 function constructByteArray(io:ReadableByteChannel byteChannel) returns byte[] = external;

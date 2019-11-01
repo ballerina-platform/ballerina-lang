@@ -66,7 +66,7 @@ public type WebhookServerForPayload object {
     }
 
     public function __gracefulStop() returns error? {
-        return ();
+        return self.websubListener.__gracefulStop();
     }
 
     public function __immediateStop() returns error? {
