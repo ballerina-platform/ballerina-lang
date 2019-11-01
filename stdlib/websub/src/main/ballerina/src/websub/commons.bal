@@ -437,8 +437,6 @@ public type SubscriptionChangeResponse record {|
 # + remotePublish - The record representing configuration related to remote publishing allowance
 # + topicRegistrationRequired - Whether a topic needs to be registered at the hub prior to publishing/subscribing
 #                               to the topic
-# + publicUrl - The URL for the hub to be included in content delivery requests, defaults to
-#               `http(s)://localhost:{port}/websub/hub` if unspecified
 # + clientConfig - The configuration for the hub to communicate with remote HTTP endpoints
 # + hubPersistenceStore - The `HubPersistenceStore` to use to persist hub data
 public type HubConfiguration record {|
@@ -446,7 +444,6 @@ public type HubConfiguration record {|
     SignatureMethod signatureMethod = SHA256;
     RemotePublishConfig remotePublish?;
     boolean topicRegistrationRequired = true;
-    string publicUrl?;
     http:ClientConfiguration clientConfig?;
     HubPersistenceStore hubPersistenceStore?;
 |};
@@ -471,6 +468,11 @@ public type RemotePublishConfig record {|
 # + serviceAuth - The auth configuration for the hub service
 # + subscriptionResourceAuth - The auth configuration for the subscription resource of the hub service
 # + publisherResourceAuth - The auth configuration for the publisher resource of the hub service
+# + publicUrl - The URL for the hub for remote interaction; used in defining the subscription and publish URLs.
+#               The subscription URL is defined as {publicUrl}/{basePath}/{subscriptionResourcePath} if `publicUrl` is
+#               specified, defaults to `http(s)://localhost:{port}/{basePath}/{subscriptionResourcePath}` if not.
+#               The publish URL is defined as {publicUrl}/{basePath}/{publishResourcePath} if `publicUrl` is
+#               specified, defaults to `http(s)://localhost:{port}/{basePath}/{publishResourcePath}` if not.
 # + hubConfiguration - The hub specific configuration
 # + return - `Hub` The WebSub Hub object representing the newly started up hub, or `HubStartedUpError` indicating
 #            that the hub is already started, and including the `websub:Hub` object representing the
@@ -482,6 +484,7 @@ public function startHub(http:Listener hubServiceListener,
                          public http:ServiceResourceAuth serviceAuth = {enabled:false},
                          public http:ServiceResourceAuth subscriptionResourceAuth = {enabled:false},
                          public http:ServiceResourceAuth publisherResourceAuth = {enabled:false},
+                         public string? publicUrl = (),
                          public HubConfiguration hubConfiguration = {})
                             returns Hub|HubStartedUpError|HubStartupError {
 
@@ -504,7 +507,7 @@ public function startHub(http:Listener hubServiceListener,
 
     // reset the hubUrl once the other parameters are set. if url is an empty string, create hub url with listener
     // configs in the native code
-    hubPublicUrl = hubConfiguration["publicUrl"] ?: "";
+    hubPublicUrl = publicUrl ?: "";
     hubClientConfig = hubConfiguration["clientConfig"];
     hubPersistenceStoreImpl = hubConfiguration["hubPersistenceStore"];
 
@@ -622,6 +625,18 @@ public type Hub object {
             return e;
         }
         return unregisterTopic(topic);
+    }
+
+    # Removes a subscription from the Ballerina Hub, without verifying intent.
+    #
+    # + topic - The topic for which the subscription should be removed
+    # + callback - The callback for which the subscription should be removed
+    # + return - `error` if an error occurred with removal
+    public function removeSubscription(string topic, string callback) returns error? {
+        removeNativeSubscription(topic, callback);
+        if (hubPersistenceEnabled) {
+            return persistSubscriptionChange(MODE_UNSUBSCRIBE, {topic: topic, callback: callback});
+        }
     }
 
     # Retrieves topics currently recognized by the Hub.

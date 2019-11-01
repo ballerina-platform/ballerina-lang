@@ -3,7 +3,7 @@ NAME
 
 SYNOPSIS
        ballerina run [<options>] <ballerina-file-path> | <module-name>
-                        | <executable-jar> [(--key=value)...] [--] [args...]
+                        | <executable-jar> [<config properties>] [--] [<arguments>]
 
 
 DESCRIPTION
@@ -37,6 +37,7 @@ OPTIONS
            The source will be looked up relative to the given source root
            path.
 
+CONFIG PROPERTIES
        (--key=value)...
            Set Ballerina environment parameters as key/value pairs.
            If multiple parameters need to be provided, each parameter
@@ -44,6 +45,7 @@ OPTIONS
            supported by the Ballerina standard library modules are specified
            in the relevant API documentation.
 
+ARGUMENTS
        --
            The argument '--' signals the end of Ballerina environment
            parameters. Any and all arguments following '--' are treated as
