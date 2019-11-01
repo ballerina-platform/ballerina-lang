@@ -59,7 +59,7 @@ function publishToInternalHub(string topic, WebSubContent content) returns error
 #
 # + topic - The topic for which the subscription was added
 # + callback - The callback registered for this subscription
-function removeSubscription(string topic, string callback) = external;
+function removeNativeSubscription(string topic, string callback) = external;
 
 # Registers a topic in the Ballerina Hub.
 #

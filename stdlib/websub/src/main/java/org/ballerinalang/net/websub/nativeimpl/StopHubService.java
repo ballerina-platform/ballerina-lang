@@ -19,6 +19,7 @@
 package org.ballerinalang.net.websub.nativeimpl;
 
 import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -39,7 +40,7 @@ import org.ballerinalang.net.websub.hub.Hub;
 )
 public class StopHubService {
 
-    public static Object stopHubService(Strand strand, Object hub) {
+    public static Object stopHubService(Strand strand, ObjectValue hub) {
         Hub hubInstance = Hub.getInstance();
         if (hubInstance.isStarted()) {
             try {
