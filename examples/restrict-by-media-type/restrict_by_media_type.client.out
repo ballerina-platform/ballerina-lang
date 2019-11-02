@@ -1,4 +1,4 @@
-# To invoke the service, use the following client.
+# To invoke the service, execute the following cURL request.
 $ curl -v http://localhost:9092/infoService -H "Accept:application/xml" -H "Content-Type:application/json" -d '{"name":"Ballerina"}'
 # The server response.
 < HTTP/1.1 200 OK
@@ -8,8 +8,8 @@ $ curl -v http://localhost:9092/infoService -H "Accept:application/xml" -H "Cont
 * Connection #0 to host localhost left intact
 <name>Ballerina</name>
 
-# Use the following client to invoke the service using unsupported media type. The Content type of the
-# request is not listed under consumes resource configuration.
+# To invoke the service using unsupported media type, execute the following cURL request. The content type of the
+# request is not listed under the `consumes` resource configuration.
 $ curl -v http://localhost:9092/infoService -H "Accept:application/xml" -H "Content-Type:text/plain" -d "Hello ballerina"
 # The server response.
 < HTTP/1.1 415 Unsupported Media Type
@@ -18,8 +18,8 @@ $ curl -v http://localhost:9092/infoService -H "Accept:application/xml" -H "Cont
 <
 * Connection #0 to host localhost left intact
 
-# Use the following client to invoke the service with a media type that is not acceptable. The media type mentioned
-# in the Accept header is not listed under produces resource configuration.
+# To invoke the service with a media type that is not acceptable, execute the following cURL request. The media type mentioned
+# in the Accept header is not listed under the `produces` resource configuration.
 $ curl -v http://localhost:9092/infoService -H "Accept:text/html" -H "Content-Type:application/json" -d '{"name":"Ballerina"}'
 # The server response.
 < HTTP/1.1 406 Not Acceptable
