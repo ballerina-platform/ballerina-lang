@@ -31,20 +31,15 @@ import org.ballerinalang.net.http.websocket.WebSocketConstants;
 import org.ballerinalang.net.http.websocket.WebSocketException;
 import org.ballerinalang.net.http.websocket.WebSocketService;
 import org.ballerinalang.net.http.websocket.WebSocketUtil;
-import org.ballerinalang.stdlib.io.utils.IOConstants;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
-import org.wso2.transport.http.netty.contract.websocket.ClientHandshakeFuture;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketClientConnector;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketClientConnectorConfig;
 
 import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
-
-import static org.ballerinalang.net.http.websocket.WebSocketConstants.WSS_SCHEME;
-import static org.ballerinalang.stdlib.io.utils.IOConstants.IO_PACKAGE_ID;
 
 /**
  * Initialize the WebSocket Client.
@@ -64,58 +59,52 @@ import static org.ballerinalang.stdlib.io.utils.IOConstants.IO_PACKAGE_ID;
 )
 public class InitEndpoint {
 
+    private static final Logger logger = LoggerFactory.getLogger(InitEndpoint.class);
+    private static final String STATEMENT_FOR_BACK_OF_FACTOR = "The decay's value set for the configuration needs " +
+            "to be greater than -1. ";
+    private static final String STATEMENT_FOR_MAX_INTERVAL = "The maxInterval's value set for the configuration" +
+            " needs to be greater than -1. ";
+    private static final String STATEMENT_FOR_MAX_ATTEPTS = "The maximum doReconnect attempt's value set for the" +
+            " configuration needs to be greater than -1. ";
+    private static final String STATEMENT_FOR_INTEVAL = "The interval's value set for the configuration needs to be " +
+            "greater than -1. ";
+    private static final String MAX_COUNT = "maxCount";
+    private static final String INTERVAL = "intervalInMillis";
+    private static final String BACK_OF_FACTOR = "backOffFactor";
+    private static final String MAX_INTERVAL = "maxWaitIntervalInMillis";
+
     public static void initEndpoint(Strand strand, ObjectValue webSocketClient) {
         @SuppressWarnings(WebSocketConstants.UNCHECKED)
         MapValue<String, Object> clientEndpointConfig = (MapValue<String, Object>) webSocketClient.getMapValue(
                 HttpConstants.CLIENT_ENDPOINT_CONFIG);
-
+        if (WebSocketUtil.hasRetryConfig(webSocketClient)) {
+            @SuppressWarnings(WebSocketConstants.UNCHECKED)
+            MapValue<String, Object> retryConfig = (MapValue<String, Object>) clientEndpointConfig.getMapValue(
+                    WebSocketConstants.RETRY_CONFIG);
+            RetryContext retryConnectorConfig = new RetryContext();
+            populateRetryConnectorConfig(retryConfig, retryConnectorConfig);
+            webSocketClient.addNativeData(WebSocketConstants.RETRY_CONFIG, retryConnectorConfig);
+        }
         String remoteUrl = webSocketClient.getStringValue(WebSocketConstants.CLIENT_URL_CONFIG);
-        String scheme = URI.create(remoteUrl).getScheme();
-        Object clientService = clientEndpointConfig.get(WebSocketConstants.CLIENT_SERVICE_CONFIG);
-        WebSocketService wsService;
-        if (clientService != null) {
-            BType param = ((ObjectValue) clientService).getType().getAttachedFunctions()[0].getParameterType()[0];
-            if (param == null || !WebSocketConstants.WEBSOCKET_CLIENT_NAME.equals(
-                    param.toString())) {
-                throw new WebSocketException("The callback service should be a WebSocket Client Service");
-            }
-            wsService = new WebSocketService((ObjectValue) clientService, strand.scheduler);
-        } else {
-            wsService = new WebSocketService(strand.scheduler);
-        }
-        WebSocketClientConnectorConfig clientConnectorConfig = new WebSocketClientConnectorConfig(remoteUrl);
-        populateClientConnectorConfig(clientEndpointConfig, clientConnectorConfig, scheme);
-
+        WebSocketService wsService = validateAndCreateWebSocketService(clientEndpointConfig, strand);
         HttpWsConnectorFactory connectorFactory = HttpUtil.createHttpWsConnectionFactory();
-        WebSocketClientConnector clientConnector = connectorFactory.createWsClientConnector(
-                clientConnectorConfig);
+        WebSocketClientConnectorConfig clientConnectorConfig = new WebSocketClientConnectorConfig(remoteUrl);
+        String scheme = URI.create(remoteUrl).getScheme();
+        populateClientConnectorConfig(clientEndpointConfig, clientConnectorConfig, scheme);
+        // Create the client connector
+        WebSocketClientConnector clientConnector = connectorFactory.createWsClientConnector(clientConnectorConfig);
         WebSocketClientConnectorListener clientConnectorListener = new WebSocketClientConnectorListener();
-        boolean readyOnConnect = clientEndpointConfig.getBooleanValue(WebSocketConstants.CLIENT_READY_ON_CONNECT);
-        ClientHandshakeFuture handshakeFuture = clientConnector.connect();
-        handshakeFuture.setWebSocketConnectorListener(clientConnectorListener);
-        CountDownLatch countDownLatch = new CountDownLatch(1);
-        handshakeFuture.setClientHandshakeListener(
-                new WebSocketClientHandshakeListener(webSocketClient, wsService, clientConnectorListener,
-                                                     readyOnConnect, countDownLatch));
-        try {
-            // Wait for 5 minutes before timeout
-            if (!countDownLatch.await(60 * 5L, TimeUnit.SECONDS)) {
-                throw new WebSocketException(WebSocketConstants.ErrorCode.WsGenericError,
-                                             "Waiting for WebSocket handshake has not been successful",
-                                             WebSocketUtil.createErrorCause(
-                                                     "Connection timeout",
-                                                     IOConstants.ErrorCode.ConnectionTimedOut.errorCode(),
-                                                     IO_PACKAGE_ID));
-            }
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            throw new WebSocketException("Error occurred: " + e.getMessage());
-
-        }
+        // Add client connector as a native data, when client is not as a failover client
+        // Because when using one url  no need to create the client connector again
+        webSocketClient.addNativeData(WebSocketConstants.CLIENT_CONNECTOR, clientConnector);
+        webSocketClient.addNativeData(WebSocketConstants.CLIENT_LISTENER, clientConnectorListener);
+        WebSocketUtil.establishWebSocketConnection(webSocketClient, wsService);
+        WebSocketUtil.waitForHandshake(webSocketClient);
     }
 
     private static void populateClientConnectorConfig(MapValue<String, Object> clientEndpointConfig,
-            WebSocketClientConnectorConfig clientConnectorConfig, String scheme) {
+                                                      WebSocketClientConnectorConfig clientConnectorConfig,
+                                                      String scheme) {
         clientConnectorConfig.setAutoRead(false); // Frames are read sequentially in ballerina.
         clientConnectorConfig.setSubProtocols(WebSocketUtil.findNegotiableSubProtocols(clientEndpointConfig));
         @SuppressWarnings(WebSocketConstants.UNCHECKED)
@@ -135,7 +124,7 @@ public class InitEndpoint {
         MapValue secureSocket = clientEndpointConfig.getMapValue(HttpConstants.ENDPOINT_CONFIG_SECURE_SOCKET);
         if (secureSocket != null) {
             HttpUtil.populateSSLConfiguration(clientConnectorConfig, secureSocket);
-        } else if (scheme.equals(WSS_SCHEME)) {
+        } else if (scheme.equals(WebSocketConstants.WSS_SCHEME)) {
             clientConnectorConfig.useJavaDefaults();
         }
         clientConnectorConfig.setWebSocketCompressionEnabled(
@@ -148,6 +137,104 @@ public class InitEndpoint {
                 key -> customHeaders.put(key, headers.get(key).toString())
         );
         return customHeaders;
+    }
+
+    /**
+     * Populate the retry config.
+     *
+     * @param retryConfig a retry config
+     * @param retryConnectorConfig retry connector config
+     */
+    private static void populateRetryConnectorConfig(MapValue<String, Object> retryConfig,
+                                                     RetryContext retryConnectorConfig) {
+        setInterval(Integer.parseInt(retryConfig.get(INTERVAL).toString()), retryConnectorConfig);
+        setBackOfFactor(Float.parseFloat(retryConfig.get(BACK_OF_FACTOR).toString()),
+                retryConnectorConfig);
+        setMaxInterval(Integer.parseInt(retryConfig.get(MAX_INTERVAL).toString()),
+                retryConnectorConfig);
+        setMaxAttempts(Integer.parseInt(retryConfig.get(MAX_COUNT).toString()),
+                retryConnectorConfig);
+    }
+
+    /**
+     * Validate and create the webSocket service.
+     *
+     * @param clientEndpointConfig a client endpoint config
+     * @param strand a strand
+     * @return webSocketService
+     */
+    private static WebSocketService validateAndCreateWebSocketService(MapValue<String, Object> clientEndpointConfig,
+                                                                      Strand strand) {
+        Object clientService = clientEndpointConfig.get(WebSocketConstants.CLIENT_SERVICE_CONFIG);
+        if (clientService != null) {
+            BType param = ((ObjectValue) clientService).getType().getAttachedFunctions()[0].getParameterType()[0];
+            if (param == null || !WebSocketConstants.WEBSOCKET_CLIENT_NAME.equals(
+                    param.toString())) {
+                throw new WebSocketException("The callback service should be a WebSocket Client Service");
+            }
+            return new WebSocketService((ObjectValue) clientService, strand.scheduler);
+        } else {
+            return new WebSocketService(strand.scheduler);
+        }
+    }
+
+    /**
+     * Set value of the interval in the retry config.
+     *
+     * @param interval retry interval
+     * @param retryConnectorConfig retry connector config
+     */
+    private static void setInterval(int interval, RetryContext retryConnectorConfig) {
+        if (interval < 0) {
+            logger.warn("{} The interval[{}] value is set to 1000.", STATEMENT_FOR_INTEVAL, interval);
+            interval = 1000;
+        }
+        retryConnectorConfig.setInterval(interval);
+    }
+
+    /**
+     * Set value of the backOfFactor in the retry config.
+     *
+     * @param backOfFactor a rate of increase of the reconnect delay
+     * @param retryConnectorConfig retry connector config
+     */
+    private static void setBackOfFactor(float backOfFactor, RetryContext retryConnectorConfig) {
+        if (backOfFactor < 0) {
+            logger.warn("{} The backOfFactor[{}] value is set to 1.0", STATEMENT_FOR_BACK_OF_FACTOR,
+                    backOfFactor);
+            backOfFactor = (float) 1.0;
+        }
+        retryConnectorConfig.setBackOfFactor(backOfFactor);
+    }
+
+    /**
+     * Set value of the maxInterval in the retry config.
+     *
+     * @param maxInterval a maximum interval
+     * @param retryConnectorConfig retry connector config
+     */
+    private static void setMaxInterval(int maxInterval, RetryContext retryConnectorConfig) {
+        if (maxInterval < 0) {
+            logger.warn("{} The maxInterval[{}] value is set to 30000", STATEMENT_FOR_MAX_INTERVAL,
+                    maxInterval);
+            maxInterval =  30000;
+        }
+        retryConnectorConfig.setMaxInterval(maxInterval);
+    }
+
+    /**
+     * Set value of the maxAttempts in the retry config.
+     *
+     * @param maxAttempts a maximum number of retry attempts
+     * @param retryConnectorConfig retry connector config
+     */
+    private static void setMaxAttempts(int maxAttempts, RetryContext retryConnectorConfig) {
+        if (maxAttempts < 0) {
+            logger.warn("{} The maxAttempts[{}] value is set to 0", STATEMENT_FOR_MAX_ATTEPTS,
+                    maxAttempts);
+            maxAttempts = 0;
+        }
+        retryConnectorConfig.setMaxAttempts(maxAttempts);
     }
 
     private InitEndpoint() {

@@ -33,21 +33,27 @@ import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpErrorType;
+import org.ballerinalang.net.http.websocket.client.RetryContext;
+import org.ballerinalang.net.http.websocket.client.WebSocketClientConnectorListener;
+import org.ballerinalang.net.http.websocket.client.WebSocketClientHandshakeListener;
 import org.ballerinalang.net.http.websocket.server.WebSocketConnectionInfo;
 import org.ballerinalang.net.http.websocket.server.WebSocketConnectionManager;
 import org.ballerinalang.net.http.websocket.server.WebSocketServerService;
 import org.ballerinalang.stdlib.io.utils.IOConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.transport.http.netty.contract.websocket.ClientHandshakeFuture;
+import org.wso2.transport.http.netty.contract.websocket.WebSocketClientConnector;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketConnection;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Locale;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import javax.net.ssl.SSLException;
-
-import static org.ballerinalang.net.http.websocket.WebSocketConstants.ErrorCode;
-import static org.ballerinalang.stdlib.io.utils.IOConstants.IO_PACKAGE_ID;
 
 /**
  * Utility class for WebSocket.
@@ -55,10 +61,14 @@ import static org.ballerinalang.stdlib.io.utils.IOConstants.IO_PACKAGE_ID;
 public class WebSocketUtil {
 
     private static final Logger logger = LoggerFactory.getLogger(WebSocketUtil.class);
+    private static final String STATEMENT_FOR_RECONNECT = "Maximum retry attempts but couldn't connect " +
+            "to the server: ";
+    private static final String RECONNECTING = "reconnecting...";
+    private static final String CLIENT_ENDPOINT_CONFIG = "config";
 
     public static ObjectValue createAndPopulateWebSocketCaller(WebSocketConnection webSocketConnection,
-                                                                WebSocketServerService wsService,
-                                                                WebSocketConnectionManager connectionManager) {
+                                                               WebSocketServerService wsService,
+                                                               WebSocketConnectionManager connectionManager) {
         ObjectValue webSocketCaller = BallerinaValues.createObjectValue(HttpConstants.PROTOCOL_HTTP_PKG_ID,
                                                                         WebSocketConstants.WEBSOCKET_CALLER);
         ObjectValue webSocketConnector = BallerinaValues.createObjectValue(
@@ -151,7 +161,7 @@ public class WebSocketUtil {
         return configs.getArrayValue(WebSocketConstants.ANNOTATION_ATTR_SUB_PROTOCOLS).getStringArray();
     }
 
-    public static String getErrorMessage(Throwable err) {
+    static String getErrorMessage(Throwable err) {
         if (err.getMessage() == null) {
             return "Unexpected error occurred";
         }
@@ -165,15 +175,15 @@ public class WebSocketUtil {
      * @return the relevant WebSocketException with proper error code.
      */
     public static WebSocketException createErrorByType(Throwable throwable) {
-        ErrorCode errorCode = ErrorCode.WsGenericError;
+        WebSocketConstants.ErrorCode errorCode = WebSocketConstants.ErrorCode.WsGenericError;
         ErrorValue cause = null;
         String message = getErrorMessage(throwable);
         if (throwable instanceof CorruptedWebSocketFrameException) {
             WebSocketCloseStatus status = ((CorruptedWebSocketFrameException) throwable).closeStatus();
             if (status == WebSocketCloseStatus.MESSAGE_TOO_BIG) {
-                errorCode = ErrorCode.WsPayloadTooBigError;
+                errorCode = WebSocketConstants.ErrorCode.WsPayloadTooBigError;
             } else {
-                errorCode = ErrorCode.WsProtocolError;
+                errorCode = WebSocketConstants.ErrorCode.WsProtocolError;
             }
         } else if (throwable instanceof SSLException) {
             cause = createErrorCause(throwable.getMessage(), HttpErrorType.SSL_ERROR.getReason(),
@@ -181,29 +191,29 @@ public class WebSocketUtil {
             message = "SSL/TLS Error";
         } else if (throwable instanceof IllegalStateException) {
             if (throwable.getMessage().contains("frame continuation")) {
-                errorCode = ErrorCode.WsInvalidContinuationFrameError;
+                errorCode = WebSocketConstants.ErrorCode.WsInvalidContinuationFrameError;
             } else if (throwable.getMessage().toLowerCase(Locale.ENGLISH).contains("close frame")) {
-                errorCode = ErrorCode.WsConnectionClosureError;
+                errorCode = WebSocketConstants.ErrorCode.WsConnectionClosureError;
             }
         } else if (throwable instanceof IllegalAccessException &&
                 throwable.getMessage().equals(WebSocketConstants.THE_WEBSOCKET_CONNECTION_HAS_NOT_BEEN_MADE)) {
-            errorCode = ErrorCode.WsConnectionError;
+            errorCode = WebSocketConstants.ErrorCode.WsConnectionError;
         } else if (throwable instanceof TooLongFrameException) {
-            errorCode = ErrorCode.WsPayloadTooBigError;
+            errorCode = WebSocketConstants.ErrorCode.WsPayloadTooBigError;
         } else if (throwable instanceof CodecException) {
-            errorCode = ErrorCode.WsProtocolError;
+            errorCode = WebSocketConstants.ErrorCode.WsProtocolError;
         } else if (throwable instanceof WebSocketHandshakeException) {
-            errorCode = ErrorCode.WsInvalidHandshakeError;
+            errorCode = WebSocketConstants.ErrorCode.WsInvalidHandshakeError;
         } else if (throwable instanceof IOException) {
-            errorCode = ErrorCode.WsConnectionError;
+            errorCode = WebSocketConstants.ErrorCode.WsConnectionError;
             cause = createErrorCause(throwable.getMessage(), IOConstants.ErrorCode.GenericError.errorCode(),
-                                     IO_PACKAGE_ID);
+                    IOConstants.IO_PACKAGE_ID);
             message = "IO Error";
         }
         return new WebSocketException(errorCode, message, cause);
     }
 
-    public static ErrorValue createErrorCause(String message, String reason, BPackage packageName) {
+    private static ErrorValue createErrorCause(String message, String reason, BPackage packageName) {
 
         MapValue<String, Object> detailRecordType = BallerinaValues.createRecordValue(
                 packageName, WebSocketConstants.WEBSOCKET_ERROR_DETAILS);
@@ -211,14 +221,129 @@ public class WebSocketUtil {
         return BallerinaErrors.createError(reason, detailRecord);
     }
 
-    public static MapValue<String, Object> createDetailRecord(String errMsg) {
+    static MapValue<String, Object> createDetailRecord(String errMsg) {
         return createDetailRecord(errMsg, null);
     }
 
-    public static MapValue<String, Object> createDetailRecord(String errMsg, ErrorValue cause) {
+    static MapValue<String, Object> createDetailRecord(String errMsg, ErrorValue cause) {
         MapValue<String, Object> detail = BallerinaValues.createRecordValue(HttpConstants.PROTOCOL_HTTP_PKG_ID,
                                                                             WebSocketConstants.WEBSOCKET_ERROR_DETAILS);
         return BallerinaValues.createRecord(detail, errMsg, cause);
+    }
+
+    /**
+     * Check whether client's config has retryConfig ot not.
+     *
+     * @param webSocketClient webSocket client
+     * @return if client's config has retry config, return true
+     */
+    public static boolean hasRetryConfig(ObjectValue webSocketClient) {
+        return webSocketClient.getMapValue(CLIENT_ENDPOINT_CONFIG).
+                getMapValue(WebSocketConstants.RETRY_CONFIG) != null;
+    }
+
+    public static void waitForHandshake(ObjectValue webSocketClient) {
+        CountDownLatch countDownLatch = new CountDownLatch(1);
+        webSocketClient.addNativeData(WebSocketConstants.COUNT_DOWN_LATCH, countDownLatch);
+        try {
+            // Wait for 5 minutes before timeout
+            if (!countDownLatch.await(60 * 5L, TimeUnit.SECONDS)) {
+                throw new WebSocketException(WebSocketConstants.ErrorCode.WsGenericError,
+                        "Waiting for WebSocket handshake has not been successful", WebSocketUtil.createErrorCause(
+                        "Connection timeout", IOConstants.ErrorCode.ConnectionTimedOut.errorCode(),
+                        IOConstants.IO_PACKAGE_ID));
+            }
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new WebSocketException("Error occurred: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Establish the connection with endpoint and set the listener into it.
+     *
+     * @param webSocketClient webSocket client
+     * @param wsService webSocket service
+     */
+    public static void establishWebSocketConnection(ObjectValue webSocketClient, WebSocketService wsService) {
+        WebSocketClientConnectorListener clientConnectorListener = (WebSocketClientConnectorListener) webSocketClient.
+                getNativeData(WebSocketConstants.CLIENT_LISTENER);
+        WebSocketClientConnector clientConnector = (WebSocketClientConnector) webSocketClient.
+                getNativeData(WebSocketConstants.CLIENT_CONNECTOR);
+        boolean readyOnConnect = webSocketClient.getMapValue(CLIENT_ENDPOINT_CONFIG).getBooleanValue(
+                WebSocketConstants.CLIENT_READY_ON_CONNECT);
+        ClientHandshakeFuture handshakeFuture = clientConnector.connect();
+        handshakeFuture.setWebSocketConnectorListener(clientConnectorListener);
+        handshakeFuture.setClientHandshakeListener(new WebSocketClientHandshakeListener(webSocketClient, wsService,
+                clientConnectorListener, readyOnConnect));
+    }
+
+    /**
+     * Reconnect when webSocket connection is lost.
+     *
+     * @param connectionInfo information about the connection
+     * @return if attempts reconnection, return true
+     */
+    public static boolean reconnect(WebSocketConnectionInfo connectionInfo) {
+        ObjectValue webSocketClient = connectionInfo.getWebSocketEndpoint();
+        RetryContext retryConnectorConfig = (RetryContext) webSocketClient.getNativeData(WebSocketConstants.
+                RETRY_CONFIG);
+        int interval = retryConnectorConfig.getInterval();
+        int maxInterval = retryConnectorConfig.getMaxInterval();
+        int maxAttempts = retryConnectorConfig.getMaxAttempts();
+        int noOfReconnectAttempts = retryConnectorConfig.getReconnectAttempts();
+        float backOfFactor = retryConnectorConfig.getBackOfFactor();
+        WebSocketService wsService = connectionInfo.getService();
+        Date date = new Date();
+        SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
+        // Check the no of reconnection attempt equals with maximum reconnection attempt or not.
+        // If it isn't equal, call the initialiseWebSocketConnection()
+        // if it equals, return false
+        if (((noOfReconnectAttempts < maxAttempts) && maxAttempts > 0) || maxAttempts == 0) {
+            retryConnectorConfig.setReconnectAttempts(noOfReconnectAttempts + 1);
+            String time = formatter.format(date.getTime());
+            logger.debug(WebSocketConstants.LOG_MESSAGE, time, RECONNECTING);
+            setCountDownLatch(calculateWaitingTime(interval, maxInterval, backOfFactor, noOfReconnectAttempts));
+            establishWebSocketConnection(webSocketClient, wsService);
+            return true;
+        }
+        logger.debug(WebSocketConstants.LOG_MESSAGE, STATEMENT_FOR_RECONNECT , webSocketClient.
+                getStringValue(WebSocketConstants.CLIENT_URL_CONFIG));
+        return false;
+    }
+
+    /**
+     * Set waiting time before attempting to next doReconnect/failover.
+     *
+     * @param interval interval
+     */
+    private static void setCountDownLatch(int interval) {
+        CountDownLatch countDownLatch = new CountDownLatch(1);
+        try {
+            if (!countDownLatch.await(interval, TimeUnit.MILLISECONDS)) {
+                countDownLatch.countDown();
+            }
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new WebSocketException("Error occurred: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Calculate the waiting time.
+     *
+     * @param interval interval
+     * @param maxInterval maximum Interval
+     * @param backOfFactor back of factor
+     * @param reconnectAttempts no of doReconnect attempts
+     * @return waiting time
+     */
+    private static int calculateWaitingTime(int interval, int maxInterval, float backOfFactor, int reconnectAttempts) {
+        interval = (int) (interval * Math.pow(backOfFactor, reconnectAttempts));
+        if (interval > maxInterval) {
+            interval = maxInterval;
+        }
+        return interval;
     }
 
     private WebSocketUtil() {

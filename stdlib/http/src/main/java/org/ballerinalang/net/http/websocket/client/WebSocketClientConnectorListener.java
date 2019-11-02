@@ -18,9 +18,13 @@
 
 package org.ballerinalang.net.http.websocket.client;
 
+import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.net.http.websocket.WebSocketConstants;
 import org.ballerinalang.net.http.websocket.WebSocketResourceDispatcher;
 import org.ballerinalang.net.http.websocket.WebSocketUtil;
 import org.ballerinalang.net.http.websocket.server.WebSocketConnectionInfo;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketBinaryMessage;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketCloseMessage;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketConnection;
@@ -29,15 +33,18 @@ import org.wso2.transport.http.netty.contract.websocket.WebSocketControlMessage;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketHandshaker;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketTextMessage;
 
+import java.io.IOException;
+
 /**
  * Ballerina Connector listener for WebSocket.
  *
  * @since 0.93
  */
 public class WebSocketClientConnectorListener implements WebSocketConnectorListener {
-    private WebSocketConnectionInfo connectionInfo;
-
-
+    private WebSocketConnectionInfo connectionInfo = null;
+    private static final Logger logger = LoggerFactory.getLogger(WebSocketClientConnectorListener.class);
+    private static final String STATEMENT_FOR_CLOSE_CONNECTION = "Reconnect attempt not made because of " +
+            "close initiated by the server: ";
     public void setConnectionInfo(WebSocketConnectionInfo connectionInfo) {
         this.connectionInfo = connectionInfo;
     }
@@ -76,15 +83,29 @@ public class WebSocketClientConnectorListener implements WebSocketConnectorListe
 
     @Override
     public void onMessage(WebSocketCloseMessage webSocketCloseMessage) {
-        try {
-            WebSocketResourceDispatcher.dispatchOnClose(connectionInfo, webSocketCloseMessage);
-        } catch (IllegalAccessException e) {
-            // Ignore as it is not possible have an Illegal access
+        ObjectValue webSocketClient = connectionInfo.getWebSocketEndpoint();
+        int statusCode = webSocketCloseMessage.getCloseCode();
+        if (WebSocketUtil.hasRetryConfig(webSocketClient)) {
+            if (statusCode == WebSocketConstants.STATUS_CODE_ABNORMAL_CLOSURE &&
+                    WebSocketUtil.reconnect(connectionInfo)) {
+                return;
+            } else {
+                if (statusCode != WebSocketConstants.STATUS_CODE_ABNORMAL_CLOSURE) {
+                    logger.debug(WebSocketConstants.LOG_MESSAGE, STATEMENT_FOR_CLOSE_CONNECTION,
+                            webSocketClient.getStringValue(WebSocketConstants.CLIENT_URL_CONFIG));
+                }
+            }
         }
+       dispatchOnClose(connectionInfo, webSocketCloseMessage);
     }
 
     @Override
     public void onError(WebSocketConnection webSocketConnection, Throwable throwable) {
+        ObjectValue webSocketClient = connectionInfo.getWebSocketEndpoint();
+        if (WebSocketUtil.hasRetryConfig(webSocketClient) && throwable instanceof IOException &&
+                WebSocketUtil.reconnect(connectionInfo)) {
+                return;
+        }
         WebSocketResourceDispatcher.dispatchOnError(connectionInfo, throwable);
     }
 
@@ -101,6 +122,15 @@ public class WebSocketClientConnectorListener implements WebSocketConnectorListe
     public void onClose(WebSocketConnection webSocketConnection) {
         try {
             WebSocketUtil.setListenerOpenField(connectionInfo);
+        } catch (IllegalAccessException e) {
+            // Ignore as it is not possible have an Illegal access
+        }
+    }
+
+    private static void dispatchOnClose(WebSocketConnectionInfo connectionInfo,
+                                        WebSocketCloseMessage webSocketCloseMessage) {
+        try {
+            WebSocketResourceDispatcher.dispatchOnClose(connectionInfo, webSocketCloseMessage);
         } catch (IllegalAccessException e) {
             // Ignore as it is not possible have an Illegal access
         }

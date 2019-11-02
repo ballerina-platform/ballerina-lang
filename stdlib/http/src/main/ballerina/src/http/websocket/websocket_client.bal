@@ -173,6 +173,7 @@ public type WebSocketClient client object {
 # + maxFrameSize - The maximum payload size of a WebSocket frame in bytes.
 #                  If this is not set or is negative  or zero the default frame size of 65536 will be used.
 # + webSocketCompressionEnabled - Enable support for compression in WebSocket
+# + retryConfig - Configurations related to retrying.
 public type WebSocketClientConfiguration record {|
     service? callbackService = ();
     string[] subProtocols = [];
@@ -182,4 +183,19 @@ public type WebSocketClientConfiguration record {|
     ClientSecureSocket? secureSocket = ();
     int maxFrameSize = 0;
     boolean webSocketCompressionEnabled = true;
+    WebSocketRetryConfig retryConfig?;
+|};
+
+# Configurations for reconnecting to the WebSocket.
+#
+# + maxCount - The maximum number of retry attempts. If the count is zero, the client will retry indefinitely.
+# + intervalInMillis - The number of milliseconds to delay before attempting to reconnect.
+# + backOffFactor - The rate of increase of the reconnect delay. Allows reconnect attempts to back off when problems
+#                persist.
+# + maxWaitIntervalInMillis - Maximum time of the retry interval in milliseconds.
+public type WebSocketRetryConfig record {|
+    int maxCount = 0;
+    int intervalInMillis = 1000;
+    float backOffFactor = 1.0;
+    int maxWaitIntervalInMillis = 30000;
 |};
