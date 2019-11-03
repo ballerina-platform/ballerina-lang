@@ -12,7 +12,7 @@ public function main() {
     // Initializes a producer.
     nats:Connection connection = new("nats://localhost:4222");
     nats:Producer producer = new(connection);
-    while (message != ESCAPE) {
+    while (true) {
         message = io:readln("Message : ");
         if (message != ESCAPE) {
             // Produces a message to the specified subject.
