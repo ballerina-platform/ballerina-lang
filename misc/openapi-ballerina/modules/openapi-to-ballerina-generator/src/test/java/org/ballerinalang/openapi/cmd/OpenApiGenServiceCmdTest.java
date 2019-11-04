@@ -26,7 +26,7 @@ public class OpenApiGenServiceCmdTest extends OpenAPICommandTest {
     @BeforeTest(description = "This will create a new ballerina project for testing below scenarios.")
     public void setupBallerinaProject() throws IOException {
         super.setup();
-        petProject = OpenAPICommandTest.createBalProject(tmpDir.toString(), "petsModule");
+        petProject = OpenAPICommandTest.createBalProject(tmpDir.toString());
     }
 
     @Test(description = "Test openapi gen-service for invalid ballerina project")
@@ -227,8 +227,8 @@ public class OpenApiGenServiceCmdTest extends OpenAPICommandTest {
 
     @Test(description = "Test openapi gen-service for successful service generation with inline request body type")
     public void testInlineRequestBodyServiceGen() throws IOException {
-        petProject = OpenAPICommandTest.createBalProject(tmpDir.toString(), "inlineModule");
         Path inlineYaml = RES_DIR.resolve(Paths.get("inline-request-body.yaml"));
+        createBalProjectModule(petProject, "inlineModule");
         String[] args = {"inlineModule:inlineService", inlineYaml.toString()};
 
         OpenApiGenServiceCmd cmd = new OpenApiGenServiceCmd(printStream, petProject.getBalProjectPath().toString());
@@ -246,8 +246,6 @@ public class OpenApiGenServiceCmdTest extends OpenAPICommandTest {
 
         Stream<String> expectedServiceLines = Files.lines(expectedServiceFile);
         String expectedServiceContent = expectedServiceLines.collect(Collectors.joining("\n"));
-
-
 
         if (Files.exists(petProject.getResourcePath().resolve(inlineYaml.getFileName()))
                 && Files.exists(petProject.getSrcPath().resolve("inlineModule").resolve("inlineService.bal"))) {
