@@ -51,16 +51,14 @@ public type InboundOAuth2Provider object {
         }
 
         var oauth2Cache = self.introspectionServerConfig?.oauth2Cache;
-        if (oauth2Cache is cache:Cache) {
-            if (oauth2Cache.hasKey(credential)) {
-                var cachedOAuth2Info = authenticateFromCache(oauth2Cache, credential);
-                if (cachedOAuth2Info is CachedOAuth2Info) {
-                    auth:setAuthenticationContext("oauth2", credential);
-                    auth:setPrincipal(cachedOAuth2Info.username, cachedOAuth2Info.username, getScopes(cachedOAuth2Info.scopes));
-                    return true;
-                } else {
-                    return false;
-                }
+        if (oauth2Cache is cache:Cache && oauth2Cache.hasKey(credential)) {
+            var cachedOAuth2Info = authenticateFromCache(oauth2Cache, credential);
+            if (cachedOAuth2Info is CachedOAuth2Info) {
+                auth:setAuthenticationContext("oauth2", credential);
+                auth:setPrincipal(cachedOAuth2Info.username, cachedOAuth2Info.username, getScopes(cachedOAuth2Info.scopes));
+                return true;
+            } else {
+                return false;
             }
         }
 
@@ -112,6 +110,14 @@ public type InboundOAuth2Provider object {
     }
 };
 
+function addToAuthenticationCache(cache:Cache oauth2Cache, string token, string username, string scopes, int exp) {
+    CachedOAuth2Info cachedOAuth2Info = {username: username, scopes: scopes, expiryTime: exp};
+    oauth2Cache.put(token, cachedOAuth2Info);
+    log:printDebug(function() returns string {
+        return "Add authenticated user :" + username + " to the cache.";
+    });
+}
+
 function authenticateFromCache(cache:Cache oauth2Cache, string token) returns CachedOAuth2Info? {
     var cachedOAuth2Info = trap <CachedOAuth2Info>oauth2Cache.get(token);
     if (cachedOAuth2Info is CachedOAuth2Info) {
@@ -121,14 +127,6 @@ function authenticateFromCache(cache:Cache oauth2Cache, string token) returns Ca
             oauth2Cache.remove(token);
         }
     }
-}
-
-function addToAuthenticationCache(cache:Cache oauth2Cache, string token, string username, string scopes, int exp) {
-    CachedOAuth2Info cachedOAuth2Info = {username: username, scopes: scopes, expiryTime: exp};
-    oauth2Cache.put(token, cachedOAuth2Info);
-    log:printDebug(function() returns string {
-        return "Add authenticated user :" + username + " to the cache.";
-    });
 }
 
 # Represents cached OAuth2 information.
