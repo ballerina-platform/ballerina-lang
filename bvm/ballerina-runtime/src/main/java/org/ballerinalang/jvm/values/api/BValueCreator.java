@@ -48,8 +48,6 @@
   * @since 1.1.0
   */
  public class BValueCreator {
-     //------------------------ ArrayValue -------------------------------------------------------------------
-
      /**
       * Creates a new array with given type.
       *
@@ -133,8 +131,6 @@
      public static BArray createArrayValue(Object[] values, BType type, int length) {
          return new ArrayValue(type, length);
      }
-
-     //------------------------ DecimalValue -------------------------------------------------------------------
 
      /**
       * Create a decimal from given value.

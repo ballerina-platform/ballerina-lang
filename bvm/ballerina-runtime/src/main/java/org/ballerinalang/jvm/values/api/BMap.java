@@ -21,8 +21,7 @@ import org.ballerinalang.jvm.values.MapValue;
 
 /**
  * <p>
- * An interface for MapValue. This is created only for the purpose of java bytecode verifier to pass at runtime when
- * we used the implementation of MapValue.
+ * An interface for map Value. Represents both maps and records in Ballerina.
  * </p>
  *  
  * @param <K> the type of keys maintained by this map
