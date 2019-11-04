@@ -20,12 +20,11 @@ package org.ballerinalang.testerina.util;
 
 import org.ballerinalang.compiler.BLangCompilerException;
 
-import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.util.HashSet;
 import java.util.StringJoiner;
 
 
@@ -38,23 +37,17 @@ public class TestarinaClassLoader {
 
     private URLClassLoader cl;
 
-    public TestarinaClassLoader(Path testJarPath, File importsCache, String skip) {
+    public TestarinaClassLoader(Path testJarPath, HashSet<Path> dependencyJarPaths, String skip) {
         try {
             int index = 0;
             URL[] jars;
-            if (importsCache.isDirectory()) {
-                String[] jarFIles = importsCache.list();
-                jars = new URL[jarFIles.length + 1];
-                for (String file : jarFIles) {
-                    if (file.contains(skip)) {
-                        continue;
-                    }
-                    jars[index++] = Paths.get(importsCache.getPath(), file).toUri().toURL();
+            jars = new URL[dependencyJarPaths.size() + 1];
+            for (Path file : dependencyJarPaths) {
+                if (file == null || file.getFileName().toString().contains(skip)) {
+                    continue;
                 }
-            } else {
-                jars = new URL[1];
+                jars[index++] = file.toUri().toURL();
             }
-
             jars[index] = testJarPath.toFile().toURI().toURL();
             cl = new URLClassLoader(jars);
         } catch (MalformedURLException e) {

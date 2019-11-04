@@ -240,11 +240,16 @@ function getHubService() returns service {
             string callbackFromParams = params[HUB_CALLBACK] ?: "";
             var decodedCallbackFromParams = encoding:decodeUriComponent(callbackFromParams, "UTF-8");
             string callback = decodedCallbackFromParams is string ? decodedCallbackFromParams : callbackFromParams;
+
+            log:printInfo("Subscription request received for topic[" + topic + "] with callback[" + callback + "]");
+
             var validationStatus = validateSubscriptionChangeRequest(mode, topic, callback);
             if (validationStatus is error) {
                 response.statusCode = http:STATUS_BAD_REQUEST;
                 string errorMessage = <string>validationStatus.detail()?.message;
                 response.setTextPayload(errorMessage);
+                log:printError("Invalid subscription request received for topic[" + topic + "] with callback[" +
+                                            callback + "]");
             } else {
                 validSubscriptionChangeRequest = true;
                 response.statusCode = http:STATUS_ACCEPTED;
@@ -318,6 +323,8 @@ function verifyIntentAndAddSubscription(string callback, string topic, map<strin
     if (mode == MODE_SUBSCRIBE) {
         queryParams = queryParams + "&" + HUB_LEASE_SECONDS + "=" + leaseSeconds.toString();
     }
+
+    log:printInfo("Sending intent verification request to callback[" + callback + "] for topic[" + topic + "]");
 
     var subscriberResponse = callbackEp->get(<@untainted string> queryParams, request);
 
