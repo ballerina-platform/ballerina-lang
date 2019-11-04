@@ -47,7 +47,6 @@ public class StreamValue implements RefValue, BStream {
     /**
      * The name of the underlying broker topic representing the stream object.
      */
-    @Deprecated
     public String streamId;
 
     @Deprecated
@@ -58,7 +57,6 @@ public class StreamValue implements RefValue, BStream {
         this.streamId = UUID.randomUUID().toString();
     }
 
-    @Deprecated
     public String getStreamId() {
         return streamId;
     }

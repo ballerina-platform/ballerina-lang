@@ -18,8 +18,10 @@
  package org.ballerinalang.jvm.values.api;
 
  import org.apache.axiom.om.OMNode;
+ import org.ballerinalang.jvm.BallerinaValues;
  import org.ballerinalang.jvm.DecimalValueKind;
  import org.ballerinalang.jvm.JSONDataSource;
+ import org.ballerinalang.jvm.types.BPackage;
  import org.ballerinalang.jvm.types.BStructureType;
  import org.ballerinalang.jvm.types.BType;
  import org.ballerinalang.jvm.values.ArrayValue;
@@ -36,6 +38,7 @@
 
  import java.io.InputStream;
  import java.math.BigDecimal;
+ import java.util.Map;
  import java.util.function.Consumer;
  import java.util.function.Function;
 
@@ -377,5 +380,52 @@
      }
 
 
+     /**
+      * Create a record value using the given package id and record type name.
+      *
+      * @param packageId the package id that the record type resides.
+      * @param recordTypeName name of the record type.
+      * @return value of the record.
+      */
+     public static BMap<String, Object> createRecordValue(BPackage packageId, String recordTypeName) {
+         return (BMap<String, Object>) BallerinaValues.createRecordValue(packageId, recordTypeName);
+     }
+
+     /**
+      * Create a record value that populates record fields using the given package id, record type name and a map of
+      * field names and associated values for fields.
+      *
+      * @param packageId the package id that the record type resides.
+      * @param recordTypeName name of the record type.
+      * @param valueMap values to be used for fields when creating the record.
+      * @return value of the populated record.
+      */
+     public static BMap<String, Object> createRecordValue(BPackage packageId, String recordTypeName,
+                                                              Map<String, Object> valueMap) {
+         return (BMap<String, Object>) BallerinaValues.createRecordValue(packageId, recordTypeName, valueMap);
+     }
+
+     /**
+      * Create an object value using the given package id and object type name.
+      *
+      * @param packageId the package id that the object type resides.
+      * @param objectTypeName name of the object type.
+      * @param fieldValues values to be used for fields when creating the object value instance.
+      * @return value of the object.
+      */
+     public static BObject createObjectValue(BPackage packageId, String objectTypeName, Object... fieldValues) {
+         return (BObject) BallerinaValues.createObjectValue(packageId, objectTypeName, fieldValues);
+     }
+
+     /**
+      * Populate a runtime record value with given field values.
+      *
+      * @param record which needs to get populated
+      * @param values field values of the record.
+      * @return value of the record.
+      */
+     public static BMap<String, Object> createRecord(BMap<String, Object> record, Object... values) {
+         return (BMap) BallerinaValues.createRecord(record, values);
+     }
 
  }

@@ -38,19 +38,14 @@
  */
  public class FutureValue implements BFuture, RefValue {
 
-     @Deprecated
      public Strand strand;
 
-     @Deprecated
      public Object result;
 
-     @Deprecated
      public boolean isDone;
 
-     @Deprecated
      public Throwable panic;
 
-     @Deprecated
      public CallableUnitCallback callback;
 
      BType type;

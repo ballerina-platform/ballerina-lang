@@ -75,7 +75,6 @@ import static org.ballerinalang.jvm.values.freeze.FreezeUtils.handleInvalidUpdat
  * <p>
  * <i>Note: This is an internal API and may change in future versions.</i>
  * </p>
- * @deprecated
  * @see MapValue
  * 
  * @param <K> the type of keys maintained by this map
@@ -83,7 +82,6 @@ import static org.ballerinalang.jvm.values.freeze.FreezeUtils.handleInvalidUpdat
  *
  * @since 0.995.0
  */
-@Deprecated
 public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue, CollectionValue, MapValue<K, V>,
         BMap<K, V> {
 
@@ -230,11 +228,6 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
 
     @Override
     public Object merge(MapValue v2, boolean checkMergeability) {
-        return merge((MapValueImpl) v2, checkMergeability);
-    }
-
-    @Override
-    public Object merge(BMap v2, boolean checkMergeability) {
         return merge((MapValueImpl) v2, checkMergeability);
     }
 

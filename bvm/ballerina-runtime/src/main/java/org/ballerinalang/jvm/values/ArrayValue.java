@@ -96,7 +96,6 @@ public class ArrayValue implements RefValue, CollectionValue, BArray {
     private double[] floatValues;
     private String[] stringValues;
 
-    @Deprecated
     public BType elementType;
     private BType tupleRestType;
 
@@ -355,7 +354,6 @@ public class ArrayValue implements RefValue, CollectionValue, BArray {
         }
     }
 
-    @Deprecated
     public Object get(long index) {
         rangeCheckForGet(index, size);
         switch (this.elementType.getTag()) {
@@ -457,7 +455,6 @@ public class ArrayValue implements RefValue, CollectionValue, BArray {
         add(size, value);
     }
 
-    @Deprecated
     public Object shift(long index) {
         handleFrozenArrayValue();
         Object val = get(index);
@@ -494,7 +491,6 @@ public class ArrayValue implements RefValue, CollectionValue, BArray {
         unshift(0, (ArrayValue) values);
     }
 
-    @Deprecated
     public void unshift(long index, ArrayValue vals) {
         handleFrozenArrayValue();
 
@@ -673,7 +669,6 @@ public class ArrayValue implements RefValue, CollectionValue, BArray {
         return size;
     }
 
-    @Deprecated
     public boolean isEmpty() {
         return size == 0;
     }
@@ -861,7 +856,6 @@ public class ArrayValue implements RefValue, CollectionValue, BArray {
         return Arrays.copyOf(stringValues, size);
     }
 
-    @Deprecated
     public long[] getLongArray() {
         return Arrays.copyOf(intValues, size);
     }
@@ -891,7 +885,6 @@ public class ArrayValue implements RefValue, CollectionValue, BArray {
         }
     }
 
-    @Deprecated
     public void resizeInternalArray(int newLength) {
         if (arrayType.getTag() == TypeTags.TUPLE_TAG) {
             refValues = Arrays.copyOf(refValues, newLength);
@@ -1027,7 +1020,6 @@ public class ArrayValue implements RefValue, CollectionValue, BArray {
         this.elementType = type;
     }
 
-    @Deprecated
     public String getJSONString() {
         ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
         JSONGenerator gen = new JSONGenerator(byteOut);
@@ -1309,7 +1301,6 @@ public class ArrayValue implements RefValue, CollectionValue, BArray {
         return new ArrayIterator(this);
     }
 
-    @Deprecated
     public void setLength(long length) {
         if (length == size) {
             return;
