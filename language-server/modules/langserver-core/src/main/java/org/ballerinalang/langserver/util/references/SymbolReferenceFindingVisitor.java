@@ -23,7 +23,7 @@ import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.model.Whitespace;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.TopLevelNode;
-import org.eclipse.lsp4j.Position;
+import org.eclipse.lsp4j.TextDocumentPositionParams;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
@@ -127,18 +127,22 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
     private HashMap<DiagnosticPos, BSymbol> workerVarDefPositionMap = new HashMap<>();
     private HashMap<String, BSymbol> workerNamesMap = new HashMap<>();
 
-    public SymbolReferenceFindingVisitor(LSContext lsContext, String pkgName, Position pos, boolean currentCUnitMode) {
+    public SymbolReferenceFindingVisitor(LSContext lsContext, String pkgName, boolean currentCUnitMode) {
         this.lsContext = lsContext;
         this.symbolReferences = lsContext.get(NodeContextKeys.REFERENCES_KEY);
         this.tokenName = lsContext.get(NodeContextKeys.NODE_NAME_KEY);
-        this.cursorLine = pos.getLine();
-        this.cursorCol = pos.getCharacter();
+        TextDocumentPositionParams position = lsContext.get(DocumentServiceKeys.POSITION_KEY);
+        if (position == null) {
+            throw new IllegalStateException("Position information not available in the Operation Context");
+        }
+        this.cursorLine = position.getPosition().getLine();
+        this.cursorCol = position.getPosition().getCharacter();
         this.currentCUnitMode = currentCUnitMode;
         this.pkgName = pkgName;
     }
 
-    public SymbolReferenceFindingVisitor(LSContext lsContext, String pkgName, Position pos) {
-        this(lsContext, pkgName, pos, false);
+    public SymbolReferenceFindingVisitor(LSContext lsContext, String pkgName) {
+        this(lsContext, pkgName, false);
     }
 
     @Override
