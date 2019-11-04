@@ -29,6 +29,7 @@ import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.ObjectValue;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.UUID;
@@ -253,5 +254,21 @@ public class StaticMethods {
 
     public static long usingParamValues(long a, long b) {
         return a + (b * 3);
+    }
+
+    public static BigDecimal decimalParamAndReturn(BigDecimal a) {
+        return new BigDecimal("99.7").add(a);
+    }
+
+    public static Object decimalParamAndReturnAsObject(BigDecimal a) {
+        return new BigDecimal("99.6").add((BigDecimal) a);
+    }
+
+    public static BigDecimal decimalParamAsObjectAndReturn(Object a) {
+        return new BigDecimal("99.4").add((BigDecimal) a);
+    }
+
+    public static String returnStringForBUnionFromJava() {
+        return "99999";
     }
 }

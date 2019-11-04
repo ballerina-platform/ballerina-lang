@@ -177,8 +177,11 @@ function generateCheckCastBToJDouble(jvm:MethodVisitor mv, bir:BType sourceType)
 function generateCheckCastBToJRef(jvm:MethodVisitor mv, bir:BType sourceType, jvm:JRefType | jvm:JArrayType targetType) {
     if (sourceType is bir:BTypeHandle) {
         mv.visitMethodInsn(INVOKEVIRTUAL, HANDLE_VALUE, "getValue", "()Ljava/lang/Object;", false);
-        string classSig = getJTypeSignature(targetType);
-        mv.visitTypeInsn(CHECKCAST, classSig);
+	    string sig = getSignatureForJType(targetType);
+        mv.visitTypeInsn(CHECKCAST, sig);
+    } else if (sourceType is bir:BTypeDecimal) {
+        // In this case we should send a BigDecimal to java side 
+        mv.visitMethodInsn(INVOKEVIRTUAL, DECIMAL_VALUE, "decimalValue", "()Ljava/math/BigDecimal;", false);
     } else {
     	if (targetType is jvm:JRefType) {
             addBoxInsn(mv, sourceType);
@@ -314,8 +317,8 @@ function generateCheckCastJToBDecimal(jvm:MethodVisitor mv, jvm:JType sourceType
         mv.visitMethodInsn(INVOKESTATIC, DECIMAL_VALUE, "valueOfJ", io:sprintf("(F)L%s;", DECIMAL_VALUE), false);
     } else if (sourceType is jvm:JDouble) {
         mv.visitMethodInsn(INVOKESTATIC, DECIMAL_VALUE, "valueOfJ", io:sprintf("(D)L%s;", DECIMAL_VALUE), false);
-    // } else if (sourceType is jvm:JRefType) { // TODO check and fix below - rajith
-    //     mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "anyToJDoubleCast", io:sprintf("(L%s;)D", OBJECT), false);
+    } else if (sourceType is jvm:JRefType) { 
+        mv.visitMethodInsn(INVOKESTATIC, DECIMAL_VALUE, "valueOfJ", io:sprintf("(Ljava/math/BigDecimal;)L%s;", DECIMAL_VALUE), false);
     } else {
         error err = error(io:sprintf("Casting is not supported from '%s' to 'int'", sourceType));
         panic err;

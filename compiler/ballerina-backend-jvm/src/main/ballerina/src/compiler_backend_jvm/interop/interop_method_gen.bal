@@ -318,7 +318,6 @@ function genJFieldForInteropField(JFieldFunctionWrapper jFieldFuncWrapper,
 function desugarInteropFuncs(bir:Package module, JMethodFunctionWrapper extFuncWrapper,
                                     bir:Function birFunc) {
     // resetting the variable generation index
-    localVarIndex = 0;
     bir:BType retType = <bir:BType>birFunc.typeValue["retType"];
     jvm:Method jMethod = extFuncWrapper.jMethod;
     jvm:MethodType jMethodType = jMethod.mType;
@@ -336,10 +335,6 @@ function desugarInteropFuncs(bir:Package module, JMethodFunctionWrapper extFuncW
     bir:VarRef?[] args = [];
 
     bir:VariableDcl? receiver = birFunc.receiver;
-    //if (!(receiver is ())) {
-    //    bir:VarRef argRef = {variableDcl:receiver, typeValue:receiver.typeValue};
-    //    args[args.length()] = argRef;
-    //}
 
     bir:FunctionParam?[] birFuncParams = birFunc.params;
     int birFuncParamIndex = 0;
@@ -361,6 +356,7 @@ function desugarInteropFuncs(bir:Package module, JMethodFunctionWrapper extFuncW
 	bir:BType bPType = birFuncParam.typeValue;
 	jvm:JType jPType = jMethodParamTypes[jMethodParamIndex];
         bir:VarRef argRef = {variableDcl:birFuncParam, typeValue:bPType};
+	// we generate cast operations for unmatching B to J types
 	if (!isVarArg && !isMatchingBAndJType(bPType, jPType)) {
 	    string varName = "$_param_jobject_var" + birFuncParamIndex.toString() + "_$";
             bir:VariableDcl paramVarDcl = { typeValue:jPType, name: { value: varName }, kind: "LOCAL" };
@@ -370,6 +366,11 @@ function desugarInteropFuncs(bir:Package module, JMethodFunctionWrapper extFuncW
 	    argRef = paramVarRef;
 	    beginBB.instructions[beginBB.instructions.length()] = jToBCast;
 	}
+	// for var args, we have two options
+	// 1 - desugar java array creation here,
+	// 2 - keep the var arg type in the intstruction and do the array creation in instruction gen
+	// we are going with the option two for the time being, hence keeping var arg type in the instructions
+	// (drawback with option 2 is, function frame may not have proper variables)
 	if (isVarArg) {
 	    varArgType = jPType;
 	}
@@ -421,6 +422,7 @@ function desugarInteropFuncs(bir:Package module, JMethodFunctionWrapper extFuncW
     }
 
     string jMethodName = birFunc.name.value;
+    // We may be able to use the same instruction rather than two, check later
     if jMethod.kind is jvm:CONSTRUCTOR {
         JIConstructorCall jCall = {pos:birFunc.pos, args:args, varArgExist:birFunc.restParamExist, varArgType:varArgType,
 	                        kind:bir:TERMINATOR_PLATFORM, lhsOp:jRetVarRef, jClassName:jMethod.class, name:jMethod.name,
@@ -454,14 +456,6 @@ function isMatchingBAndJType(bir:BType sourceTypes, jvm:JType targetType) return
         return true;
     }
     return false;
-}
-
-int localVarIndex = 0;
-
-function getNextVarName() returns bir:Name {
-    bir:Name varName = {value:"%gen" + localVarIndex.toString()};
-    localVarIndex += 1;
-    return varName;
 }
 
 type BValueType bir:BTypeInt | bir:BTypeFloat | bir:BTypeBoolean | bir:BTypeByte | bir:BTypeNil;
@@ -505,7 +499,7 @@ function loadMethodParamToStackInInteropFunction(jvm:MethodVisitor mv,
 
 function getJTypeSignature(jvm:JType jType) returns string {
     if (jType is jvm:JRefType) {
-        return jType.typeValue;
+        return "L" + jType.typeValue + ";";
     } else if (jType is jvm:JArrayType) {
         jvm:JType eType = jType.elementType;
 	return "[" + getJTypeSignature(eType); 
@@ -533,41 +527,41 @@ function getJTypeSignature(jvm:JType jType) returns string {
     }
 }
 
-//function getSignatureForJType(jvm:JRefType|jvm:JArrayType jType) returns string {
-//    if (jType is jvm:JRefType) {
-//        return jType.typeValue;
-//    } else {
-//        jvm:JType eType = jType.elementType;
-//        string sig = "[";
-//        while (eType is jvm:JArrayType) {
-//            eType = eType.elementType;
-//            sig += "[";
-//        }
-//
-//        if (eType is jvm:JRefType) {
-//            return sig + "L" + getSignatureForJType(eType) + ";";
-//        } else if (eType is jvm:JByte) {
-//            return sig + "B";
-//        } else if (eType is jvm:JChar) {
-//            return sig + "C";
-//        } else if (eType is jvm:JShort) {
-//            return sig + "S";
-//        } else if (eType is jvm:JInt) {
-//            return sig + "I";
-//        } else if (eType is jvm:JLong) {
-//            return sig + "J";
-//        } else if (eType is jvm:JFloat) {
-//            return sig + "F";
-//        } else if (eType is jvm:JDouble) {
-//            return sig + "D";
-//        } else if (eType is jvm:JBoolean ) {
-//            return sig + "Z";
-//        } else {
-//            error e = error(io:sprintf("invalid element type: %s", eType));
-//            panic e;
-//        }
-//    }
-//}
+function getSignatureForJType(jvm:JRefType|jvm:JArrayType jType) returns string {
+    if (jType is jvm:JRefType) {
+        return jType.typeValue;
+    } else {
+        jvm:JType eType = jType.elementType;
+        string sig = "[";
+        while (eType is jvm:JArrayType) {
+            eType = eType.elementType;
+            sig += "[";
+        }
+
+        if (eType is jvm:JRefType) {
+            return sig + "L" + getSignatureForJType(eType) + ";";
+        } else if (eType is jvm:JByte) {
+            return sig + "B";
+        } else if (eType is jvm:JChar) {
+            return sig + "C";
+        } else if (eType is jvm:JShort) {
+            return sig + "S";
+        } else if (eType is jvm:JInt) {
+            return sig + "I";
+        } else if (eType is jvm:JLong) {
+            return sig + "J";
+        } else if (eType is jvm:JFloat) {
+            return sig + "F";
+        } else if (eType is jvm:JDouble) {
+            return sig + "D";
+        } else if (eType is jvm:JBoolean ) {
+            return sig + "Z";
+        } else {
+            error e = error(io:sprintf("invalid element type: %s", eType));
+            panic e;
+        }
+    }
+}
 
 function genVarArg(jvm:MethodVisitor mv, BalToJVMIndexMap indexMap, bir:BType bType, jvm:JType jvmType,
                    int varArgIndex) {
@@ -693,7 +687,7 @@ function genArrayNew(jvm:MethodVisitor mv, jvm:JType elementType) {
     } else if elementType is jvm:JFloat {
         mv.visitIntInsn(NEWARRAY, T_FLOAT);
     } else if elementType is jvm:JRefType | jvm:JArrayType {
-        mv.visitTypeInsn(ANEWARRAY, getJTypeSignature(elementType));
+        mv.visitTypeInsn(ANEWARRAY, getSignatureForJType(elementType));
     } else {
         error e = error(io:sprintf("invalid type for var-arg: %s", elementType));
         panic e;

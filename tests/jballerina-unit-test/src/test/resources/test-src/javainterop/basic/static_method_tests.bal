@@ -48,6 +48,10 @@ function testUsingParamValues() returns int {
     return usingParamValues() + usingParamValues(5) + usingParamValues(50, 20);
 }
 
+function testDecimalParamAndReturn(decimal a1) returns decimal {
+    return decimalParamAndReturn(a1);
+}
+
 // Interop functions
 public function acceptNothingAndReturnNothing() = @java:Method {
     class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
@@ -143,6 +147,10 @@ function funcWithAsyncDefaultParamExpression(int a1 = asyncRet(), int a2 = async
 } external;
 
 function usingParamValues(int a1 = asyncRet(), int a2 = asyncRetWithVal(a1)) returns int = @java:Method {
+    class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
+} external;
+
+function decimalParamAndReturn(decimal a1) returns decimal = @java:Method {
     class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
 } external;
 

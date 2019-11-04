@@ -127,42 +127,42 @@ public class TypeChecker {
 
     public static byte anyToJByte(Object sourceVal) {
         return TypeConverter.anyToJByteCast(sourceVal,
-                () -> BallerinaErrors.createJTypeCastError(sourceVal, "byte"));
+                () -> BallerinaErrors.createBToJTypeCastError(sourceVal, "byte"));
     }
 
     public static char anyToJChar(Object sourceVal) {
         return TypeConverter.anyToJCharCast(sourceVal,
-                () -> BallerinaErrors.createJTypeCastError(sourceVal, "char"));
+                () -> BallerinaErrors.createBToJTypeCastError(sourceVal, "char"));
     }
 
     public static short anyToJShort(Object sourceVal) {
         return TypeConverter.anyToJShortCast(sourceVal,
-                () -> BallerinaErrors.createJTypeCastError(sourceVal, "short"));
+                () -> BallerinaErrors.createBToJTypeCastError(sourceVal, "short"));
     }
 
     public static int anyToJInt(Object sourceVal) {
         return TypeConverter.anyToJIntCast(sourceVal,
-                () -> BallerinaErrors.createJTypeCastError(sourceVal, "int"));
+                () -> BallerinaErrors.createBToJTypeCastError(sourceVal, "int"));
     }
 
     public static long anyToJLong(Object sourceVal) {
         return TypeConverter.anyToJLongCast(sourceVal,
-                () -> BallerinaErrors.createJTypeCastError(sourceVal, "long"));
+                () -> BallerinaErrors.createBToJTypeCastError(sourceVal, "long"));
     }
 
     public static float anyToJFloat(Object sourceVal) {
         return TypeConverter.anyToJFloatCast(sourceVal,
-                () -> BallerinaErrors.createJTypeCastError(sourceVal, "float"));
+                () -> BallerinaErrors.createBToJTypeCastError(sourceVal, "float"));
     }
 
     public static double anyToJDouble(Object sourceVal) {
         return TypeConverter.anyToJDoubleCast(sourceVal,
-                () -> BallerinaErrors.createJTypeCastError(sourceVal, "double"));
+                () -> BallerinaErrors.createBToJTypeCastError(sourceVal, "double"));
     }
 
     public static boolean anyToJBoolean(Object sourceVal) {
         return TypeConverter.anyToJBooleanCast(sourceVal,
-                () -> BallerinaErrors.createJTypeCastError(sourceVal, "boolean"));
+                () -> BallerinaErrors.createBToJTypeCastError(sourceVal, "boolean"));
     }
 
     /**

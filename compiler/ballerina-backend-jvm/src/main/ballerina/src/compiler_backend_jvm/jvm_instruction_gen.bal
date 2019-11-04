@@ -1193,6 +1193,11 @@ function addJUnboxInsn(jvm:MethodVisitor mv, bir:BType? bType) {
         mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "anyToJDouble", io:sprintf("(L%s;)D", OBJECT), false);
     } else if (bType is jvm:JBoolean) {
         mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "anyToJBoolean", io:sprintf("(L%s;)Z", OBJECT), false);
+    } else if (bType is jvm:JRefType) {
+        mv.visitTypeInsn(CHECKCAST, bType.typeValue);
+    //} else {
+    //    error err = error(io:sprintf("Unboxing is not supported for '%s'", bType));
+    //    panic err;
     }
 }
 

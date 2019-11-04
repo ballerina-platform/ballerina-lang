@@ -44,12 +44,10 @@ function genJMethodForBExternalFunc(bir:Function birFunc,
                                       bir:BType? attachedType = ()) {
     var extFuncWrapper = getExternalFunctionWrapper(birModule, birFunc, attachedType = attachedType);
 
-    if extFuncWrapper is OldStyleExternalFunctionWrapper {
-        genJMethodForBFunc(birFunc, cw, birModule, false, "", attachedType = attachedType);
-    } else if  extFuncWrapper is JMethodFunctionWrapper {
-        genJMethodForBFunc(birFunc, cw, birModule, false, "", attachedType = attachedType);
-    } else {
+    if (extFuncWrapper is JFieldFunctionWrapper) {
         genJFieldForInteropField(extFuncWrapper, cw, birModule);
+    } else {
+        genJMethodForBFunc(birFunc, cw, birModule, false, "", attachedType = attachedType);
     }
 }
 

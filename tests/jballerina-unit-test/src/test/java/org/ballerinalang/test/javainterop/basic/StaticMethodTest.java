@@ -18,6 +18,7 @@
 package org.ballerinalang.test.javainterop.basic;
 
 import org.ballerinalang.jvm.values.ErrorValue;
+import org.ballerinalang.model.values.BDecimal;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BHandleValue;
 import org.ballerinalang.model.values.BInteger;
@@ -133,5 +134,14 @@ public class StaticMethodTest {
         BValue[] returns = BRunUtil.invoke(result, "testUsingParamValues");
         Assert.assertTrue(returns[0] instanceof BInteger);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 290);
+    }
+
+    @Test
+    public void testDecimalParamAndReturn() {
+        BValue[] args = new BValue[1];
+        args[0] = new BDecimal("100");
+        BValue[] returns = BRunUtil.invoke(result, "testDecimalParamAndReturn", args);
+        Assert.assertTrue(returns[0] instanceof BDecimal);
+        Assert.assertEquals(returns[0].stringValue(), "199.7");
     }
 }

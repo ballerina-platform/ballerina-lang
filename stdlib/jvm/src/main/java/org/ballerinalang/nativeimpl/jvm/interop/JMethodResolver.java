@@ -50,6 +50,7 @@ import static org.ballerinalang.nativeimpl.jvm.interop.JInterop.J_PRIMITIVE_FLOA
 import static org.ballerinalang.nativeimpl.jvm.interop.JInterop.J_PRIMITIVE_INT_TNAME;
 import static org.ballerinalang.nativeimpl.jvm.interop.JInterop.J_PRIMITIVE_LONG_TNAME;
 import static org.ballerinalang.nativeimpl.jvm.interop.JInterop.J_PRIMITIVE_SHORT_TNAME;
+import static org.ballerinalang.nativeimpl.jvm.interop.JInterop.J_STRING_TNAME;
 import static org.ballerinalang.nativeimpl.jvm.interop.JInterop.J_VOID_TNAME;
 import static org.ballerinalang.nativeimpl.jvm.interop.JInteropException.OVERLOADED_METHODS_REASON;
 
@@ -196,9 +197,12 @@ class JMethodResolver {
     private boolean isValidExpectedBType(Class<?> jParamType, BType bParamType, JMethodRequest jMethodRequest) {
         String jParamTypeName = jParamType.getTypeName();
         switch (bParamType.getTag()) {
-            case TypeTags.HANDLE_TAG:
             case TypeTags.ANY_TAG:
             case TypeTags.ANYDATA_TAG:
+                if (jParamTypeName.equals(J_STRING_TNAME)) {
+                    return false;
+                }
+            case TypeTags.HANDLE_TAG:
                 return !jParamType.isPrimitive();
             case TypeTags.NULL_TAG:
                 return jParamTypeName.equals(J_VOID_TNAME);
@@ -266,6 +270,9 @@ class JMethodResolver {
                     if (isValidExpectedBType(jParamType, member, jMethodRequest)) {
                         return true;
                     }
+                }
+                if (jParamTypeName.equals(J_STRING_TNAME)) {
+                    return false;
                 }
                 return !jParamType.isPrimitive();
         }

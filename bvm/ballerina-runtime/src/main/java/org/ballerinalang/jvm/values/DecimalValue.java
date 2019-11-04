@@ -455,4 +455,10 @@ public class DecimalValue {
     public static DecimalValue valueOfJ(double value) {
         return new DecimalValue(new BigDecimal(value, MathContext.DECIMAL128).setScale(1, BigDecimal.ROUND_HALF_EVEN));
     }
+
+    public static DecimalValue valueOfJ(BigDecimal value) {
+        // TODO check whether we need to create a new BigDecimal again(or use the same value)
+        return new DecimalValue(new BigDecimal(value.toString(), MathContext.DECIMAL128)
+                .setScale(1, BigDecimal.ROUND_HALF_EVEN));
+    }
 }
