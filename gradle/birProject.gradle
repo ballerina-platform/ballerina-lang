@@ -56,20 +56,32 @@ task createBirJar(type: Exec) {
     dependsOn createBir
     dependsOn createBirCache
     dependsOn copyExternalMappingNextToBir
-    
+    dependsOn ':ballerina-libs:copyDependencies'
+
     workingDir "$buildDir/generated-bir-jar"
 
     onlyIf { file(generatedBirDir + project.ext.moduleName + '.bir').exists() }
 
     doFirst {
+        def commands = [];
+        def jarsToBeLoaded = [];
         def mapPath = OperatingSystem.current().isWindows() ? "\"\"" : ""
         if (!sourceSets.main.allJava.isEmpty()) {
             mapPath = generatedBirDir + project.ext.moduleName + '.map.json'
         }
 
+        jarsToBeLoaded.add("$rootDir" + "/bvm/ballerina-runtime/build/libs/ballerina-runtime-${project.version}.jar");
+        new File("$projectDir/src/main/ballerina/Ballerina.toml").readLines().
+                findAll({x -> x ==~ /.*path = ".\/lib\/.*/ }).
+                collect {
+                    def jarPath = it.split(/"/)[1].replace('@project.version@', "${project.version}").
+                            replace('./lib', "")
+                    jarsToBeLoaded.add("$rootDir" + "/distribution/libs/libs" + jarPath);
+        }
+
         configurations.birJarCompile.each {
             if (OperatingSystem.current().isWindows()) {
-                commandLine 'cmd.exe', '/c',
+                commands = [ 'cmd.exe', '/c',
 
                         new File(it, '/bin/ballerina.bat'), 'run', new File(it, '/bre/lib/compiler_backend_jvm.jar'),
 
@@ -77,9 +89,11 @@ task createBirJar(type: Exec) {
                         mapPath,
                         "$buildDir/generated-bir-jar/" + project.ext.moduleName + ".jar",
                         'false',
-                        "$buildDir/bir-cache"
+                        'false',
+                        "1",
+                        "$buildDir/bir-cache"];
             } else {
-                commandLine 'sh',
+                commands = [ 'sh',
 
                         new File(it, '/bin/ballerina'), 'run', new File(it, '/bre/lib/compiler_backend_jvm.jar'),
 
@@ -87,8 +101,12 @@ task createBirJar(type: Exec) {
                         mapPath,
                         "$buildDir/generated-bir-jar/" + project.ext.moduleName + ".jar",
                         'false',
-                        "$buildDir/bir-cache"
+                        'false',
+                        "1",
+                        "$buildDir/bir-cache"];
             }
+            commands.addAll(jarsToBeLoaded)
+            commandLine commands
             println commandLine
         }
     }

@@ -1,0 +1,156 @@
+/*
+ * Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
+apply from: "$rootDir/gradle/repositories.gradle"
+
+configurations {
+    dist {
+        transitive false
+    }
+}
+
+dependencies {
+    dist 'com.squareup.okhttp3:okhttp:3.9.1'
+    dist 'com.squareup.okio:okio:1.13.0'
+    dist 'com.uber.jaeger:jaeger-core:0.24.0'
+    dist 'com.uber.jaeger:jaeger-thrift:0.24.0'
+    dist 'com.zaxxer:HikariCP:3.3.1'
+    dist 'io.dropwizard.metrics:metrics-core:3.1.0'
+    dist 'javax.transaction:javax.transaction-api:1.2'
+    dist 'org.apache.thrift:libthrift:0.10.0'
+    dist 'org.jvnet.mimepull:mimepull:1.9.7'
+    dist 'org.quartz-scheduler:quartz-jobs:2.3.0'
+    dist 'org.quartz-scheduler:quartz:2.3.0'
+    dist 'org.wso2.carbon:org.wso2.carbon.core:5.1.0'
+    dist 'org.wso2.securevault:org.wso2.securevault:1.0.0-wso2v2'
+    dist 'org.wso2.transport.file:org.wso2.transport.local-file-system:6.0.55'
+    dist 'org.wso2.transport.http:org.wso2.transport.http.netty:6.2.30'
+    dist 'org.bouncycastle:bcprov-jdk15on:1.61'
+    dist 'org.bouncycastle:bcpkix-jdk15on:1.61'
+
+    dist 'info.picocli:picocli:4.0.1'
+    dist 'org.apache.kafka:kafka-clients:2.0.1'
+    dist 'org.apache.kafka:kafka_2.11:2.0.1'
+    dist 'io.ballerina.messaging:broker-auth:0.970.0'
+    dist 'io.ballerina.messaging:broker-common:0.970.0'
+    dist 'io.ballerina.messaging:broker-coordination:0.970.0'
+    dist 'io.ballerina.messaging:broker-core:0.970.5'
+    dist 'io.ballerina.messaging:broker-rest-runner:0.970.0'
+    dist 'org.apache.geronimo.specs:geronimo-activation_1.1_spec:1.1'
+    dist 'org.apache.geronimo.specs:geronimo-stax-api_1.0_spec:1.0.1'
+    dist 'com.google.code.gson:gson:2.7'
+    dist 'com.google.guava:guava:19.0'
+    dist 'com.github.jknack:handlebars:4.0.6'
+    dist 'jaxen:jaxen:1.1.6'
+    dist 'io.netty:netty-buffer:4.1.39.Final'
+    dist 'io.netty:netty-codec-http2:4.1.39.Final'
+    dist 'io.netty:netty-codec-http:4.1.39.Final'
+    dist 'io.netty:netty-codec:4.1.39.Final'
+    dist 'io.netty:netty-common:4.1.39.Final'
+    dist 'io.netty:netty-handler-proxy:4.1.39.Final'
+    dist 'io.netty:netty-handler:4.1.39.Final'
+    dist 'io.netty:netty-resolver:4.1.39.Final'
+    dist 'io.netty:netty-tcnative-boringssl-static:2.0.25.Final'
+    dist 'io.netty:netty-transport:4.1.39.Final'
+    dist 'commons-pool.wso2:commons-pool:1.5.6.wso2v1'
+    dist 'org.wso2.carbon.messaging:org.wso2.carbon.messaging:2.3.7'
+    dist 'org.wso2.carbon.metrics:org.wso2.carbon.metrics.core:2.3.7'
+    dist 'com.google.protobuf:protobuf-java:3.9.1'
+    dist 'org.wso2.orbit.org.yaml:snakeyaml:1.16.0.wso2v1'
+    dist 'org.wso2.staxon:staxon-core:1.2.0.wso2v2'
+    dist 'com.rabbitmq:amqp-client:5.7.3'
+    dist 'com.jcraft:jzlib:1.1.3'
+    dist 'io.nats:java-nats-streaming:2.2.1'
+    dist 'io.nats:jnats:2.6.0'
+    dist 'commons-beanutils:commons-beanutils:1.9.3'
+    dist 'org.jboss.logging:jboss-logging:3.3.1.Final'
+    dist 'commons-collections:commons-collections:3.2.2'
+    dist 'org.apache.geronimo.specs:geronimo-json_1.0_spec:1.0-alpha-1'
+    dist 'io.netty:netty-transport-native-epoll:4.1.39.Final'
+    dist 'io.netty:netty-transport-native-kqueue:4.1.39.Final'
+//    dist 'org.codehaus.woodstox:woodstox-core-asl:4.2.0'
+//    dist 'org.codehaus.woodstox:stax2-api:3.1.1'
+
+    dist project(':ballerina-auth')
+    dist project(':ballerina-cli-utils')
+    dist project(':ballerina-config-api')
+    dist project(':ballerina-core')
+    dist project(':ballerina-crypto')
+    dist project(':ballerina-file')
+    dist project(':ballerina-filepath')
+    dist project(':ballerina-grpc')
+    dist project(':ballerina-jdbc')
+    dist project(':ballerina-http')
+    dist project(':ballerina-openapi')
+    dist project(':ballerina-encoding')
+    dist project(':ballerina-io')
+    dist project(':ballerina-lang')
+    dist project(':ballerina-log-api')
+    dist project(':ballerina-logging')
+    dist project(':ballerina-math')
+    dist project(':ballerina-mime')
+    dist project(':ballerina-websub')
+    dist project(':ballerina-observability')
+    dist project(':ballerina-reflect')
+    dist project(':ballerina-runtime-api')
+    dist project(':ballerina-socket')
+    dist project(':ballerina-streams')
+    dist project(':ballerina-system')
+    dist project(':ballerina-task')
+    dist project(':ballerina-time')
+    dist project(':ballerina-tool')
+    dist project(':ballerina-transactions')
+    dist project(':ballerina-java')
+    dist project(':ballerina-java-arrays')
+    dist project(':ballerina-xslt')
+    dist project(':ballerina-utils')
+    dist project(':metrics-extensions:ballerina-metrics-extension')
+    dist project(':metrics-extensions:ballerina-prometheus-extension')
+    dist project(':tracing-extensions:ballerina-jaeger-extension')
+    dist project(':ballerina-kafka')
+    dist project(':ballerina-nats')
+    dist project(':ballerina-rabbitmq')
+    dist project(':ballerina-stringutils')
+    dist project(':ballerina-jwt')
+    dist project(':ballerina-ldap')
+    dist project(':ballerina-oauth2')
+    dist project(':ballerina-xmlutils')
+    dist project(':ballerina-jsonutils')
+    dist project(':ballerina-docker')
+    dist project(':ballerina-kubernetes')
+    dist project(':ballerina-istio')
+    dist project(':ballerina-openshift')
+
+    // Lang libs
+    dist project(':ballerina-lang:internal')
+    dist project(':ballerina-lang:annotations')
+    dist project(':ballerina-lang:array')
+    dist project(':ballerina-lang:decimal')
+    dist project(':ballerina-lang:error')
+    dist project(':ballerina-lang:floatingpoint')
+    dist project(':ballerina-lang:future')
+    dist project(':ballerina-lang:integer')
+    dist project(':ballerina-lang:map')
+    dist project(':ballerina-lang:object')
+    dist project(':ballerina-lang:stream')
+    dist project(':ballerina-lang:string')
+    dist project(':ballerina-lang:table')
+    dist project(':ballerina-lang:typedesc')
+    dist project(':ballerina-lang:value')
+    dist project(':ballerina-lang:xml')
+
+}

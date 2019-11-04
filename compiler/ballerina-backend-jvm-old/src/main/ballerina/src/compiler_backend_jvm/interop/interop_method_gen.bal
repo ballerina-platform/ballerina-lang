@@ -30,7 +30,8 @@ type JFieldFunctionWrapper record {|
 
 type JInteropFunctionWrapper JMethodFunctionWrapper | JFieldFunctionWrapper;
 
-function createJInteropFunctionWrapper(jvm:InteropValidationRequest jInteropValidationReq,
+function createJInteropFunctionWrapper(jvm:InteropValidator interopValidator,
+                                       jvm:InteropValidationRequest jInteropValidationReq,
                                        bir:Function birFunc,
                                        string orgName,
                                        string moduleName,
@@ -43,15 +44,15 @@ function createJInteropFunctionWrapper(jvm:InteropValidationRequest jInteropVali
                                                 versionValue, birModuleClassName);
     if (jInteropValidationReq is jvm:MethodValidationRequest) {
         jInteropValidationReq.restParamExist = birFunc.restParamExist;
-        return createJMethodWrapper(jInteropValidationReq, birFuncWrapper);
+        return createJMethodWrapper(interopValidator, jInteropValidationReq, birFuncWrapper);
     } else {
-        return createJFieldWrapper(jInteropValidationReq, birFuncWrapper);
+        return createJFieldWrapper(interopValidator, jInteropValidationReq, birFuncWrapper);
     }
 }
 
-function createJMethodWrapper(jvm:MethodValidationRequest jMethodValidationReq,
+function createJMethodWrapper(jvm:InteropValidator interopValidator, jvm:MethodValidationRequest jMethodValidationReq,
                               BIRFunctionWrapper birFuncWrapper) returns JMethodFunctionWrapper | error {
-    var jMethod = check jvm:validateAndGetJMethod(jMethodValidationReq);
+    var jMethod = check interopValidator.validateAndGetJMethod(jMethodValidationReq);
 
     return  {
         orgName : birFuncWrapper.orgName,
@@ -64,9 +65,9 @@ function createJMethodWrapper(jvm:MethodValidationRequest jMethodValidationReq,
     };
 }
 
-function createJFieldWrapper(jvm:FieldValidationRequest jFieldValidationReq,
+function createJFieldWrapper(jvm:InteropValidator interopValidator, jvm:FieldValidationRequest jFieldValidationReq,
                              BIRFunctionWrapper birFuncWrapper) returns JFieldFunctionWrapper | error  {
-    var jField = check jvm:validateAndGetJField(jFieldValidationReq);
+    var jField = check interopValidator.validateAndGetJField(jFieldValidationReq);
 
     return  {
         orgName : birFuncWrapper.orgName,
@@ -211,31 +212,30 @@ function genJFieldForInteropField(JFieldFunctionWrapper jFieldFuncWrapper,
     }
 
     // Handle return type
-    int returnVarRefIndex = -1;
     bir:BType retType = <bir:BType>birFunc.typeValue["retType"];
+    bir:VariableDcl retVarDcl = { typeValue: <bir:BType>retType, name: { value: "$_ret_var_$" }, kind: "LOCAL" };
+    int returnVarRefIndex = indexMap.getIndex(retVarDcl);
+
     if retType is bir:BTypeNil {
+        mv.visitInsn(ACONST_NULL);
+    } else if retType is bir:BTypeHandle {
+        // Here the corresponding Java method parameter type is 'jvm:RefType'. This has been verified before
+        bir:VariableDcl retJObjectVarDcl = { typeValue: "any", name: { value: "$_ret_jobject_var_$" }, kind: "LOCAL" };
+        int returnJObjectVarRefIndex = indexMap.getIndex(retJObjectVarDcl);
+        mv.visitVarInsn(ASTORE, returnJObjectVarRefIndex);
+        mv.visitTypeInsn(NEW, HANDLE_VALUE);
+        mv.visitInsn(DUP);
+        mv.visitVarInsn(ALOAD, returnJObjectVarRefIndex);
+        mv.visitMethodInsn(INVOKESPECIAL, HANDLE_VALUE, "<init>", "(Ljava/lang/Object;)V", false);
     } else {
-        bir:VariableDcl retVarDcl = { typeValue: <bir:BType>retType, name: { value: "$_ret_var_$" }, kind: "LOCAL" };
-        returnVarRefIndex = indexMap.getIndex(retVarDcl);
-        if retType is bir:BTypeHandle {
-            // Here the corresponding Java method parameter type is 'jvm:RefType'. This has been verified before
-            bir:VariableDcl retJObjectVarDcl = { typeValue: "any", name: { value: "$_ret_jobject_var_$" }, kind: "LOCAL" };
-            int returnJObjectVarRefIndex = indexMap.getIndex(retJObjectVarDcl);
-            mv.visitVarInsn(ASTORE, returnJObjectVarRefIndex);
-            mv.visitTypeInsn(NEW, HANDLE_VALUE);
-            mv.visitInsn(DUP);
-            mv.visitVarInsn(ALOAD, returnJObjectVarRefIndex);
-            mv.visitMethodInsn(INVOKESPECIAL, HANDLE_VALUE, "<init>", "(Ljava/lang/Object;)V", false);
+        // bType is a value-type
+        if(jFieldType is jvm:PrimitiveType) {
+            performWideningPrimitiveConversion(mv, <BValueType>retType, jFieldType);
         } else {
-            // bType is a value-type
-            if(jFieldType is jvm:PrimitiveType) {
-                performWideningPrimitiveConversion(mv, <BValueType>retType, jFieldType);
-            } else {
-                addUnboxInsn(mv, retType);
-            }
+            addUnboxInsn(mv, retType);
         }
-        generateVarStore(mv, retVarDcl, currentPackageName, returnVarRefIndex);
     }
+    generateVarStore(mv, retVarDcl, currentPackageName, returnVarRefIndex);
 
     jvm:Label retLabel = labelGen.getLabel("return_lable");
     mv.visitLabel(retLabel);
@@ -391,15 +391,56 @@ function genJMethodForInteropMethod(JMethodFunctionWrapper extFuncWrapper,
     }
 
     // Handle return type
-    int returnVarRefIndex = -1;
     bir:BType retType = <bir:BType>birFunc.typeValue["retType"];
+    bir:VariableDcl retVarDcl = { typeValue: <bir:BType>retType, name: { value: "$_ret_var_$" }, kind: "LOCAL" };
+    int returnVarRefIndex = indexMap.getIndex(retVarDcl);
+
     if retType is bir:BTypeNil {
-    } else {
-        boolean isVoidReturnThrows = false;
-        bir:VariableDcl retVarDcl = { typeValue: <bir:BType>retType, name: { value: "$_ret_var_$" }, kind: "LOCAL" };
-        returnVarRefIndex = indexMap.getIndex(retVarDcl);
-        if retType is bir:BTypeHandle {
-            // Here the corresponding Java method parameter type is 'jvm:RefType'. This has been verified before
+        mv.visitInsn(ACONST_NULL);
+    } else if retType is bir:BTypeHandle {
+        // Here the corresponding Java method parameter type is 'jvm:RefType'. This has been verified before
+        bir:VariableDcl retJObjectVarDcl = { typeValue: "any", name: { value: "$_ret_jobject_var_$" }, kind: "LOCAL" };
+        int returnJObjectVarRefIndex = indexMap.getIndex(retJObjectVarDcl);
+        mv.visitVarInsn(ASTORE, returnJObjectVarRefIndex);
+        mv.visitTypeInsn(NEW, HANDLE_VALUE);
+        mv.visitInsn(DUP);
+        mv.visitVarInsn(ALOAD, returnJObjectVarRefIndex);
+        mv.visitMethodInsn(INVOKESPECIAL, HANDLE_VALUE, "<init>", "(Ljava/lang/Object;)V", false);
+    } else if (retType is BValueType) {
+        // retType is a value-type
+        if(jMethodRetType is jvm:PrimitiveType) {
+            performWideningPrimitiveConversion(mv, retType, jMethodRetType);
+        } else {
+            addUnboxInsn(mv, retType);
+        }
+    } else if (retType is bir:BUnionType) {
+        if (jMethodRetType is jvm:PrimitiveType) {
+            bir:BType bType = getBTypeFromJType(jMethodRetType);
+            performWideningPrimitiveConversion(mv, <BValueType> bType, jMethodRetType);
+            addBoxInsn(mv, bType);
+        } else if (jMethodRetType is jvm:RefType) {
+            jvm:Label afterHandle = labelGen.getLabel("after_handle");
+            if (jMethodRetType.typeName == "java/lang/Object") {
+                mv.visitInsn(DUP);
+                mv.visitTypeInsn(INSTANCEOF, ERROR_VALUE);
+                mv.visitJumpInsn(IFNE, afterHandle);
+
+                mv.visitInsn(DUP);
+                mv.visitTypeInsn(INSTANCEOF, "java/lang/Number");
+                mv.visitJumpInsn(IFNE, afterHandle);
+
+                mv.visitInsn(DUP);
+                mv.visitTypeInsn(INSTANCEOF, "java/lang/Boolean");
+                mv.visitJumpInsn(IFNE, afterHandle);
+
+                mv.visitInsn(DUP);
+                mv.visitTypeInsn(INSTANCEOF, REF_VALUE);
+                mv.visitJumpInsn(IFNE, afterHandle);
+
+                mv.visitInsn(DUP);
+                mv.visitTypeInsn(INSTANCEOF, "java/lang/Byte");
+                mv.visitJumpInsn(IFNE, afterHandle);
+            }
             bir:VariableDcl retJObjectVarDcl = { typeValue: "any", name: { value: "$_ret_jobject_var_$" }, kind: "LOCAL" };
             int returnJObjectVarRefIndex = indexMap.getIndex(retJObjectVarDcl);
             mv.visitVarInsn(ASTORE, returnJObjectVarRefIndex);
@@ -407,70 +448,21 @@ function genJMethodForInteropMethod(JMethodFunctionWrapper extFuncWrapper,
             mv.visitInsn(DUP);
             mv.visitVarInsn(ALOAD, returnJObjectVarRefIndex);
             mv.visitMethodInsn(INVOKESPECIAL, HANDLE_VALUE, "<init>", "(Ljava/lang/Object;)V", false);
-        } else if (retType is BValueType) {
-            // retType is a value-type
-            if(jMethodRetType is jvm:PrimitiveType) {
-                performWideningPrimitiveConversion(mv, retType, jMethodRetType);
-            } else {
-                addUnboxInsn(mv, retType);
-            }
-        } else if (retType is bir:BUnionType) {
-            if (jMethodRetType is jvm:PrimitiveType) {
-                bir:BType bType = getBTypeFromJType(jMethodRetType);
-                performWideningPrimitiveConversion(mv, <BValueType> bType, jMethodRetType);
-                addBoxInsn(mv, bType);
-                if bType is bir:BTypeNil {
-                    isVoidReturnThrows = true;
-                }
-            } else if (jMethodRetType is jvm:RefType) {
-                jvm:Label afterHandle = labelGen.getLabel("after_handle");
-                if (jMethodRetType.typeName == "java/lang/Object") {
-                    mv.visitInsn(DUP);
-                    mv.visitTypeInsn(INSTANCEOF, ERROR_VALUE);
-                    mv.visitJumpInsn(IFNE, afterHandle);
-
-                    mv.visitInsn(DUP);
-                    mv.visitTypeInsn(INSTANCEOF, "java/lang/Number");
-                    mv.visitJumpInsn(IFNE, afterHandle);
-
-                    mv.visitInsn(DUP);
-                    mv.visitTypeInsn(INSTANCEOF, "java/lang/Boolean");
-                    mv.visitJumpInsn(IFNE, afterHandle);
-
-                    mv.visitInsn(DUP);
-                    mv.visitTypeInsn(INSTANCEOF, REF_VALUE);
-                    mv.visitJumpInsn(IFNE, afterHandle);
-
-                    mv.visitInsn(DUP);
-                    mv.visitTypeInsn(INSTANCEOF, "java/lang/Byte");
-                    mv.visitJumpInsn(IFNE, afterHandle);
-                }
-                bir:VariableDcl retJObjectVarDcl = { typeValue: "any", name: { value: "$_ret_jobject_var_$" }, kind: "LOCAL" };
-                int returnJObjectVarRefIndex = indexMap.getIndex(retJObjectVarDcl);
-                mv.visitVarInsn(ASTORE, returnJObjectVarRefIndex);
-                mv.visitTypeInsn(NEW, HANDLE_VALUE);
-                mv.visitInsn(DUP);
-                mv.visitVarInsn(ALOAD, returnJObjectVarRefIndex);
-                mv.visitMethodInsn(INVOKESPECIAL, HANDLE_VALUE, "<init>", "(Ljava/lang/Object;)V", false);
-                mv.visitLabel(afterHandle);
-            }
+            mv.visitLabel(afterHandle);
         }
-        if (!isVoidReturnThrows) {
-            generateVarStore(mv, retVarDcl, currentPackageName, returnVarRefIndex);
-        }  
+
+        if (getActualType(retType) is bir:BTypeNil) {
+            mv.visitInsn(ACONST_NULL);
+        }
     }
 
+    generateVarStore(mv, retVarDcl, currentPackageName, returnVarRefIndex);
+    
     jvm:Label retLabel = labelGen.getLabel("return_lable");
     mv.visitLabel(retLabel);
     mv.visitLineNumber(birFunc.pos.sLine, retLabel);
     
-    if (retType is bir:BUnionType && getActualType(retType) is bir:BTypeNil) {
-        mv.visitInsn(ACONST_NULL);
-        mv.visitInsn(ARETURN);
-    } else {
-        termGen.genReturnTerm({pos:{}, kind:"RETURN"}, returnVarRefIndex, birFunc);
-    }
-    
+    termGen.genReturnTerm({pos:{}, kind:"RETURN"}, returnVarRefIndex, birFunc);
     
     // iterate the exception classes and generate catch blocks
     foreach var exception in extFuncWrapper.jMethod.throws {

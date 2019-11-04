@@ -29,8 +29,8 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -69,9 +69,8 @@ public class RunTestsTask implements Task {
                 jarPath = modulejarPath;
             }
             String modulejarName = modulejarPath != null ? modulejarPath.toString() : "";
-            TestarinaClassLoader classLoader = new TestarinaClassLoader(jarPath,
-                    Paths.get(sourceRootPath.toString(), "target", "tmp").toFile(),
-                    modulejarName);
+            HashSet<Path> dependencyJarPaths = buildContext.moduleDependencyPathMap.get(bLangPackage.packageID);
+            TestarinaClassLoader classLoader = new TestarinaClassLoader(jarPath, dependencyJarPaths, modulejarName);
             programFileMap.put(bLangPackage, classLoader);
         }
         // Create a class loader to
