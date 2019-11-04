@@ -116,7 +116,7 @@ class BallerinaDebugAdapterDescriptorFactory implements DebugAdapterDescriptorFa
         } else {
             startScriptPath = path.resolve(ballerinaPath, "lib", "tools", "debug-adapter", "launcher", "debug-adapter-launcher.bat");
         }
-        const SHOW_VSCODE_IDE_DOCS = "https://ballerina.io/learn/tools-ides/vscode-plugin/run-and-debug/";
+        const SHOW_VSCODE_IDE_DOCS = "https://ballerina.io/learn/tools-ides//vscode-plugin/run-and-debug";
         const showDetails: string = 'Learn More';
         window.showWarningMessage("Ballerina Debugging is an experimental feature. Click \"Learn more\" for known limitations and workarounds.",
             showDetails).then((selection)=>{
