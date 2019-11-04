@@ -21,9 +21,9 @@ public function main() {
         io:println("Subscription Request successful at Hub [" + response.hub +
                     "] for Topic [" + response.topic + "]");
     } else {
-        string errCause = <string>response.detail().message;
-        io:println("Error occurred with Subscription Request: " +
-                                            <string>response.detail()?.message);
+        error err = response;
+        string errCause = <string> err.detail()?.message;
+        io:println("Error occurred with Subscription Request: " + errCause);
     }
 
     // Waits for the initial notification before unsubscribing.
@@ -41,7 +41,8 @@ public function main() {
         io:println("Unsubscription Request successful at Hub [" + response.hub +
                     "] for Topic [" + response.topic + "]");
     } else {
-        io:println("Error occurred with Unsubscription Request: " +
-                                            <string>response.detail()?.message);
+        error err = response;
+        string errCause = <string> err.detail()?.message;
+        io:println("Error occurred with Unsubscription Request: " + errCause);
     }
 }

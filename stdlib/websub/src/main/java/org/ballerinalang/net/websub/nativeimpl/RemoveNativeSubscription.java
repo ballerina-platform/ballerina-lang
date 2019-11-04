@@ -31,14 +31,14 @@ import org.ballerinalang.net.websub.hub.Hub;
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "websub",
-        functionName = "removeSubscription",
+        functionName = "removeNativeSubscription",
         args = {@Argument(name = "topic", type = TypeKind.STRING),
                 @Argument(name = "callback", type = TypeKind.STRING)},
         isPublic = true
 )
-public class RemoveSubscription {
+public class RemoveNativeSubscription {
 
-    public static void removeSubscription(Strand strand, String topic, String callback) {
+    public static void removeNativeSubscription(Strand strand, String topic, String callback) {
         Hub.getInstance().unregisterSubscription(strand, topic, callback);
     }
 }

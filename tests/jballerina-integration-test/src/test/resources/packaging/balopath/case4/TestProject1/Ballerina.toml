@@ -1,3 +1,11 @@
 [project]
 org-name = "bcintegrationtest"
 version = "1.2.0"
+
+[platform]
+target = "java8"
+
+    [[platform.libraries]]
+    artifactId = "utils"
+    path = "./utils-lib/utils.jar"
+    groupId = "wso2"

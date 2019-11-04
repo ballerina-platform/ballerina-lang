@@ -5,8 +5,12 @@
 # `.bal` file, and execute the `ballerina run` command.
 $ ballerina run hub.bal
 Starting up the Ballerina Hub Service
+[ballerina/websub] Ballerina WebSub Hub started up.
+[ballerina/websub] Publish URL: http://localhost:9191/websub/publish
+[ballerina/websub] Subscription URL: http://localhost:9191/websub/hub
 [ballerina/http] started HTTP/WS listener 0.0.0.0:9191
-[ballerina/websub] Default Ballerina WebSub Hub started up at http://localhost:9191/websub/hub
-2018-04-26 22:20:43,096 INFO  [ballerina/websub] - Topic registration successful at Hub, for topic[http://websubpubtopic.com]
-2018-04-26 22:20:45,960 INFO  [ballerina/websub] - Intent verification successful for mode: [subscribe], for callback URL: [http://localhost:8181/websub]
-2018-04-26 22:20:53,377 INFO  [ballerina/websub] - Update notification done for Topic [http://websubpubtopic.com]
+2019-11-01 14:36:36,782 INFO  [ballerina/websub] - Topic registration successful at Hub, for topic[http://websubpubtopic.com]
+2019-11-01 14:36:42,764 INFO  [ballerina/websub] - Subscription request received for topic[http://websubpubtopic.com] with callback[http://localhost:8181/websub]
+2019-11-01 14:36:42,807 INFO  [ballerina/websub] - Sending intent verification request to callback[http://localhost:8181/websub] for topic[http://websubpubtopic.com]
+2019-11-01 14:36:43,116 INFO  [ballerina/websub] - Intent verification successful for mode: [subscribe], for callback URL: [http://localhost:8181/websub]
+2019-11-01 14:36:46,952 INFO  [ballerina/websub] - Update notification done for Topic [http://websubpubtopic.com]

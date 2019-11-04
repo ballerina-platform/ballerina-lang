@@ -17,10 +17,10 @@
 package org.ballerinalang.test.util;
 
 import org.ballerinalang.model.tree.PackageNode;
-import org.ballerinalang.util.JBallerinaInMemoryClassLoader;
 import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.ballerinalang.util.diagnostic.DiagnosticListener;
 
+import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -36,7 +36,7 @@ public class CompileResult {
     private PackageNode pkgNode;
     private CompileResultDiagnosticListener diagnosticListener;
 
-    JBallerinaInMemoryClassLoader classLoader;
+    URLClassLoader classLoader;
 
     public CompileResult(CompileResultDiagnosticListener diagnosticListener) {
         this.diagnosticListener = diagnosticListener;
@@ -65,11 +65,11 @@ public class CompileResult {
         this.pkgNode = pkgNode;
     }
 
-    public JBallerinaInMemoryClassLoader getClassLoader() {
+    public URLClassLoader getClassLoader() {
         return classLoader;
     }
 
-    void setClassLoader(JBallerinaInMemoryClassLoader classLoader) {
+    void setClassLoader(URLClassLoader classLoader) {
         this.classLoader = classLoader;
     }
 

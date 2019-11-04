@@ -240,11 +240,16 @@ function getHubService() returns service {
             string callbackFromParams = params[HUB_CALLBACK] ?: "";
             var decodedCallbackFromParams = encoding:decodeUriComponent(callbackFromParams, "UTF-8");
             string callback = decodedCallbackFromParams is string ? decodedCallbackFromParams : callbackFromParams;
+
+            log:printInfo("Subscription request received for topic[" + topic + "] with callback[" + callback + "]");
+
             var validationStatus = validateSubscriptionChangeRequest(mode, topic, callback);
             if (validationStatus is error) {
                 response.statusCode = http:STATUS_BAD_REQUEST;
                 string errorMessage = <string>validationStatus.detail()?.message;
                 response.setTextPayload(errorMessage);
+                log:printError("Invalid subscription request received for topic[" + topic + "] with callback[" +
+                                            callback + "]");
             } else {
                 validSubscriptionChangeRequest = true;
                 response.statusCode = http:STATUS_ACCEPTED;
@@ -319,6 +324,8 @@ function verifyIntentAndAddSubscription(string callback, string topic, map<strin
         queryParams = queryParams + "&" + HUB_LEASE_SECONDS + "=" + leaseSeconds.toString();
     }
 
+    log:printInfo("Sending intent verification request to callback[" + callback + "] for topic[" + topic + "]");
+
     var subscriberResponse = callbackEp->get(<@untainted string> queryParams, request);
 
     if (subscriberResponse is http:Response) {
@@ -342,7 +349,7 @@ function verifyIntentAndAddSubscription(string callback, string topic, map<strin
                     }
                     addSubscription(subscriptionDetails);
                 } else {
-                    removeSubscription(topic, callback);
+                    removeNativeSubscription(topic, callback);
                 }
 
                 log:printInfo("Intent verification successful for mode: [" + mode + "], for callback URL: ["
@@ -482,7 +489,7 @@ function distributeContent(string callback, SubscriptionDetails subscriptionDeta
 
     if (currentTime - leaseSeconds > createdAt) {
         //TODO: introduce a separate periodic task, and modify select to select only active subs
-        removeSubscription(subscriptionDetails.topic, callback);
+        removeNativeSubscription(subscriptionDetails.topic, callback);
         if (hubPersistenceEnabled) {
             error? remResult = persistSubscriptionChange(MODE_UNSUBSCRIBE, subscriptionDetails);
             if (remResult is error) {
@@ -517,7 +524,7 @@ function distributeContent(string callback, SubscriptionDetails subscriptionDeta
                 log:printDebug("Content delivery to callback[" + callback + "] successful for topic["
                                     + subscriptionDetails.topic + "]");
             } else if (respStatusCode == http:STATUS_GONE) {
-                removeSubscription(subscriptionDetails.topic, callback);
+                removeNativeSubscription(subscriptionDetails.topic, callback);
                 if (hubPersistenceEnabled) {
                     error? remResult = persistSubscriptionChange(MODE_UNSUBSCRIBE, subscriptionDetails);
                     if (remResult is error) {

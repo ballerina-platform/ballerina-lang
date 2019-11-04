@@ -151,7 +151,8 @@ public class Hub {
             }
             return;
         } else {
-            for (HubSubscriber subscriber: getSubscribers()) {
+            List<HubSubscriber> currentSubscriberList = getSubscribers();
+            for (HubSubscriber subscriber: currentSubscriberList) {
                 if (subscriber.equals(subscriberToUnregister)) {
                     subscriberToUnregister = subscriber;
                     break;
@@ -249,10 +250,10 @@ public class Hub {
             Object secureSocket = ((MapValue<String, Object>) hubListener.get("config")).get("secureSocket");
 
             String path = basePath.equals(SLASH) ? publishResourcePath : basePath.concat(publishResourcePath);
-            publicUrl = secureSocket != null ? ("https://localhost:" + hubPort + path)
+            return secureSocket != null ? ("https://localhost:" + hubPort + path)
                     : ("http://localhost:" + hubPort + path);
         }
-        return publicUrl;
+        return publicUrl.concat(basePath.equals(SLASH) ? publishResourcePath : basePath.concat(publishResourcePath));
     }
 
     @SuppressWarnings("unchecked")
@@ -262,10 +263,11 @@ public class Hub {
             Object secureSocket = ((MapValue<String, Object>) hubListener.get("config")).get("secureSocket");
 
             String path = basePath.equals(SLASH) ? subscribeResourcePath : basePath.concat(subscribeResourcePath);
-            publicUrl = secureSocket != null ? ("https://localhost:" + hubPort + path)
+            return secureSocket != null ? ("https://localhost:" + hubPort + path)
                     : ("http://localhost:" + hubPort + path);
         }
-        return publicUrl;
+        return publicUrl.concat(basePath.equals(SLASH) ? subscribeResourcePath :
+                                        basePath.concat(subscribeResourcePath));
     }
 
     /**
