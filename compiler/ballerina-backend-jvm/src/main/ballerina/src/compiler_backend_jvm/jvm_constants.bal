@@ -299,7 +299,6 @@ const string LINKED_HASH_SET = "java/util/LinkedHashSet";
 const string STRING_BUILDER = "java/lang/StringBuilder";
 const string COMPARABLE = "java/lang/Comparable";
 const string FUNCTION = "java/util/function/Function";
-const string CONSUMER = "java/util/function/Consumer";
 const string EXCEPTION = "java/lang/Exception";
 const string LONG_STREAM = "java/util/stream/LongStream";
 const string JAVA_THREAD = "java/lang/Thread";
@@ -346,7 +345,6 @@ const string BUILT_IN_PACKAGE_NAME = "lang.annotations";
 
 
 // scheduler related constants
-const string SCHEDULE_CONSUMER_METHOD =  "scheduleConsumer";
 const string SCHEDULE_FUNCTION_METHOD =  "scheduleFunction";
 const string SCHEDULER_START_METHOD =  "start";
 
