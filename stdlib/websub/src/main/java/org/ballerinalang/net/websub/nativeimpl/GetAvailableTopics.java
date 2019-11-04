@@ -35,7 +35,7 @@ import org.ballerinalang.net.websub.hub.Hub;
 @BallerinaFunction(
         orgName = "ballerina", packageName = "websub",
         functionName = "getAvailableTopics",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = "WebSubHub", structPackage = "ballerina/websub"),
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = "Hub", structPackage = "ballerina/websub"),
         returnType = {@ReturnType(type = TypeKind.ARRAY, elementType = TypeKind.STRING)},
         isPublic = true
 )

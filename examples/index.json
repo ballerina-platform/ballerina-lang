@@ -432,10 +432,6 @@
                 "url": "byte-io"
             },
             {
-                "name": "Character I/O",
-                "url": "character-io"
-            },
-            {
                 "name": "Record I/O",
                 "url": "record-io"
             },
@@ -450,6 +446,10 @@
             {
                 "name": "XML I/O",
                 "url": "xml-io"
+            },
+            {
+                "name": "Read/Write Files",
+                "url": "character-io"
             },
             {
                 "name": "JSON to CSV Transform",
@@ -785,6 +785,37 @@
                 "url": "http-timeout"
             }
         ]
+    },
+    {
+        "title": "WebSub",
+        "column": 1,
+        "category": "Working over the network",
+        "samples": [{
+            "name": "Internal Hub Sample",
+            "url": "websub-internal-hub-sample"
+        },
+            {
+                "name": "Remote Hub Sample",
+                "url": "websub-remote-hub-sample"
+            },
+            {
+                "name": "Hub Client Sample",
+                "url": "websub-hub-client-sample"
+            },
+            {
+                "name": "Service Integration Sample",
+                "url": "websub-service-integration-sample"
+            }
+        ]
+    },
+    {
+        "title": "Listeners",
+        "column": 1,
+        "category": "Working over the network",
+        "samples": [{
+            "name": "Directory Listener",
+            "url": "directory-listener"
+        }]
     },
     {
         "title": "Database",

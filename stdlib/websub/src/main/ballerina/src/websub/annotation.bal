@@ -28,6 +28,7 @@ import ballerina/http;
 # + leaseSeconds - The period for which the subscription is expected to be active
 # + secret - The secret to be used for authenticated content distribution
 # + callback - The callback to use when registering, if unspecified host:port/path will be used
+# + expectIntentVerification - A `boolean` indicating whether an intent verification is expected from the hub
 # + publisherClientConfig - The configuration for the discovery client, to use if a resource URL is specified
 # + hubClientConfig - The configuration for the hub client used to interact with the discovered/specified hub
 public type SubscriberServiceConfiguration record {|
@@ -37,6 +38,7 @@ public type SubscriberServiceConfiguration record {|
     int leaseSeconds?;
     string secret?;
     string callback?;
+    boolean expectIntentVerification = false;
     http:ClientConfiguration publisherClientConfig?;
     http:ClientConfiguration hubClientConfig?;
 |};

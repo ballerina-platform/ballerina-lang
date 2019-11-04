@@ -120,4 +120,6 @@ public class Tokens {
     public static final String TYPEDESC = "typedesc";
     public static final String XMLNS = "xmlns";
     public static final String XML_LITERAL_START = "xml `";
+    public static final String COMMITTED = "committed";
+    public static final String ABORTED = "aborted";
 }

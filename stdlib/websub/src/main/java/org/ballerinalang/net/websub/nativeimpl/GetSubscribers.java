@@ -51,7 +51,7 @@ import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB_PACK
         orgName = "ballerina", packageName = "websub",
         functionName = "getSubscribers",
         args = {@Argument(name = "topic", type = TypeKind.STRING)},
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = "WebSubHub", structPackage = WEBSUB_PACKAGE),
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = "Hub", structPackage = WEBSUB_PACKAGE),
         returnType = @ReturnType(type = TypeKind.ARRAY, elementType = TypeKind.RECORD,
                                  structType = SUBSCRIPTION_DETAILS, structPackage = WEBSUB_PACKAGE),
         isPublic = true

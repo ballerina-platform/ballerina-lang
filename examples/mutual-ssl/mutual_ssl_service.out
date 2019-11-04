@@ -1,4 +1,4 @@
 # To start the service, navigate to the directory that contains the
-# `.bal` file and use the `ballerina run` command.
+# `.bal` file and execute the `ballerina run` command.
 $ ballerina run mutual_ssl_service.bal
 [ballerina/http] started HTTPS/WSS listener 0.0.0.0:9095

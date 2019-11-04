@@ -42,6 +42,7 @@ import org.ballerinalang.net.http.DataContext;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpErrorType;
 import org.ballerinalang.net.http.HttpUtil;
+import org.ballerinalang.net.http.ValueCreatorUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.Constants;
@@ -63,8 +64,6 @@ import java.util.Optional;
 import static io.netty.handler.codec.http.HttpHeaderNames.ACCEPT_ENCODING;
 import static org.ballerinalang.jvm.runtime.RuntimeConstants.BALLERINA_VERSION;
 import static org.ballerinalang.net.http.HttpConstants.ANN_CONFIG_ATTR_COMPRESSION;
-import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_HTTP_PKG_ID;
-import static org.ballerinalang.net.http.HttpConstants.REQUEST;
 import static org.ballerinalang.net.http.HttpUtil.extractEntity;
 import static org.ballerinalang.net.http.HttpUtil.getCompressionState;
 import static org.wso2.transport.http.netty.contract.Constants.ENCODING_DEFLATE;
@@ -86,7 +85,7 @@ public abstract class AbstractHTTPAction {
     protected static HttpCarbonMessage createOutboundRequestMsg(Strand strand, String serviceUri, MapValue config, 
                                                                 String path, ObjectValue request) {
         if (request == null) {
-            request = BallerinaValues.createObjectValue(PROTOCOL_HTTP_PKG_ID, REQUEST);
+            request = ValueCreatorUtils.createRequestObject();
         }
 
         HttpCarbonMessage requestMsg = HttpUtil.getCarbonMsg(request, HttpUtil.createHttpCarbonMessage(true));
