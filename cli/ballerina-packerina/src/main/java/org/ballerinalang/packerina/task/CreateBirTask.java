@@ -27,6 +27,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.ProjectDirs;
 
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 
@@ -74,7 +75,9 @@ public class CreateBirTask implements Task {
                 // If not fetch from home bir cache.
                 importBir = buildContext.getBirPathFromHomeCache(id);
                 // Write only if bir does not exists. No need to overwrite.
-                birWriter.writeBIRToPath(bPackageSymbol.birPackageFile, id, importBir, true);
+                if (Files.notExists(importBir)) {
+                    birWriter.writeBIRToPath(bPackageSymbol.birPackageFile, id, importBir);
+                }
             }
     
             // write child import bir(s)

@@ -38,16 +38,9 @@ public interface BFunctionPointer<T, R> extends RefValue {
      * Execute the {@code Function} with given parameter array.
      *
      * @param t {@code Function to be executed}
-     * @return The result of the executes function.
+     * @return The result of the executed function.
      */
-    R apply(T t);
-
-    /**
-     * Execute the void function {@code Consumer} with given parameter array.
-     *
-     * @param t {@code Consumer} to be executed.
-     */
-    void accept(T t);
+    R call(T t);
 
     /**
      * Returns the {@code Function} the FP is pointed to.
@@ -55,11 +48,4 @@ public interface BFunctionPointer<T, R> extends RefValue {
      * @return {@code Function}
      */
     Function<T, R> getFunction();
-
-    /**
-     * Returns the {@code Consumer} the FP is pointed to.
-     *
-     * @return {@code Consumer}
-     */
-    Consumer<T> getConsumer();
 }

@@ -111,6 +111,14 @@ public type Channel client object {
     # + return - RabbitMQ Connection object or error if an I/O problem is encountered.
     public function getConnection() returns Connection | Error = external;
 
+    # Retrieves a message synchronously from the given queue, providing direct access to the messages in the queue.
+    #
+    # + queueName - The name of the queue.
+    # + ackMode - Type of acknowledgement mode.
+    # + return - `Message` object containing the retrieved message data or an `Error` if an
+    #               I/O problem is encountered.
+    public remote function basicGet(string queueName, AcknowledgementMode ackMode) returns Message | Error = external;
+
     private function createChannel(Connection? connection) = external;
 };
 

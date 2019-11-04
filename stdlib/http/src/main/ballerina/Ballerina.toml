@@ -15,7 +15,7 @@ target = "java8"
     [[platform.libraries]]
     artifactId = "org.wso2.transport.http.netty"
     version = "6.0.294"
-    path = "./lib/org.wso2.transport.http.netty-6.2.28.jar"
+    path = "./lib/org.wso2.transport.http.netty-6.2.30.jar"
     groupId = "org.wso2.transport.http"
     modules = ["http"]
 

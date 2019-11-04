@@ -43,7 +43,6 @@ public class FPValue<T, R> implements BFunctionPointer<T, R>, RefValue {
 
     final BType type;
     Function<T, R> function;
-    Consumer<T> consumer;
 
     @Deprecated
     public FPValue(Function<T, R> function, BType type) {
@@ -51,26 +50,36 @@ public class FPValue<T, R> implements BFunctionPointer<T, R>, RefValue {
         this.type = type;
     }
 
+    public R call(T t) {
+        return this.function.apply(t);
+    }
+
     @Deprecated
     public FPValue(Consumer<T> consumer, BType type) {
-        this.consumer = consumer;
+        this.function = val -> {
+            consumer.accept(val);
+            return null;
+        };
         this.type = type;
     }
 
+    @Deprecated
     public R apply(T t) {
         return this.function.apply(t);
     }
 
+    @Deprecated
     public void accept(T t) {
-        this.consumer.accept(t);
+        this.function.apply(t);
     }
 
     public Function<T, R> getFunction() {
         return this.function;
     }
 
+    @Deprecated
     public Consumer<T> getConsumer() {
-        return this.consumer;
+        return val -> this.function.apply(val);
     }
 
     @Override
