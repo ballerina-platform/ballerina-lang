@@ -1140,32 +1140,6 @@ function addBoxInsn(jvm:MethodVisitor mv, bir:BType? bType) {
     }
 }
 
-function addBoxJInsn(jvm:MethodVisitor mv, bir:BType? bType) {
-    if (bType is ()) {
-        return;
-    } else if (bType is jvm:JByte) {
-        mv.visitMethodInsn(INVOKESTATIC, INT_VALUE, "valueOf", io:sprintf("(I)L%s;", INT_VALUE), false);
-    } else if (bType is jvm:JChar) {
-        mv.visitMethodInsn(INVOKESTATIC, INT_VALUE, "valueOf", io:sprintf("(I)L%s;", INT_VALUE), false);
-    } else if (bType is jvm:JShort) {
-        mv.visitMethodInsn(INVOKESTATIC, INT_VALUE, "valueOf", io:sprintf("(I)L%s;", INT_VALUE), false);
-    } else if (bType is jvm:JInt) {
-        mv.visitMethodInsn(INVOKESTATIC, INT_VALUE, "valueOf", io:sprintf("(I)L%s;", INT_VALUE), false);
-    // TODO fill the rest - rajith
-    //} else if (bType is bir:BTypeInt) {
-    //    mv.visitMethodInsn(INVOKESTATIC, LONG_VALUE, "valueOf", io:sprintf("(J)L%s;", LONG_VALUE), false);
-    //} else if (bType is bir:BTypeByte) {
-    //    mv.visitMethodInsn(INVOKESTATIC, INT_VALUE, "valueOf", io:sprintf("(I)L%s;", INT_VALUE), false);
-    //} else if (bType is bir:BTypeFloat) {
-    //    mv.visitMethodInsn(INVOKESTATIC, DOUBLE_VALUE, "valueOf", io:sprintf("(D)L%s;", DOUBLE_VALUE), false);
-    //} else if (bType is bir:BTypeBoolean) {
-    //    mv.visitMethodInsn(INVOKESTATIC, BOOLEAN_VALUE, "valueOf", io:sprintf("(Z)L%s;", BOOLEAN_VALUE), false);
-    } else {
-        // do nothing
-        return;
-    }
-}
-
 function addUnboxInsn(jvm:MethodVisitor mv, bir:BType? bType) {
     if (bType is ()) {
         return;

@@ -202,6 +202,7 @@ class JMethodResolver {
                 if (jParamTypeName.equals(J_STRING_TNAME)) {
                     return false;
                 }
+                return !jParamType.isPrimitive();
             case TypeTags.HANDLE_TAG:
                 return !jParamType.isPrimitive();
             case TypeTags.NULL_TAG:

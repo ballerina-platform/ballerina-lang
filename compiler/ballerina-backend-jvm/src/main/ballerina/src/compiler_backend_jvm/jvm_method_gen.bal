@@ -1207,7 +1207,7 @@ function loadDefaultValue(jvm:MethodVisitor mv, bir:BType bType) {
                 bType is bir:BTypeDesc) {
         mv.visitInsn(ACONST_NULL);
     } else if (bType is jvm:JType) {
-	loadDefaultJValue(mv, bType);
+	    loadDefaultJValue(mv, bType);
     } else {
         error err = error( "JVM generation is not supported for type " +
                                         io:sprintf("%s", bType));
@@ -2244,7 +2244,7 @@ function generateField(jvm:ClassWriter cw, bir:BType bType, string fieldName, bo
     } else if (bType is bir:BTypeHandle) {
         typeSig = io:sprintf("L%s;", HANDLE_VALUE);
     } else if (bType is jvm:JType) {
-    	typeSig = getJTypeSignature(bType);
+        typeSig = getJTypeSignature(bType);
     } else {
         error err = error( "JVM generation is not supported for type " +
                                     io:sprintf("%s", bType));

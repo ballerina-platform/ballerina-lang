@@ -366,10 +366,10 @@ type TerminatorGenerator object {
         self.mv.visitJumpInsn(GOTO, notBlockedOnExternLabel);
 
         self.mv.visitLabel(blockedOnExternLabel);
-	boolean isInterface = callIns.invocationType == INVOKEINTERFACE;
+	    boolean isInterface = callIns.invocationType == INVOKEINTERFACE;
 
         int argIndex = 0;
-	if (callIns.invocationType == INVOKEVIRTUAL || isInterface) {
+	    if (callIns.invocationType == INVOKEVIRTUAL || isInterface) {
             // check whether function params already include the self
             bir:VariableDcl selfArg = getVariableDcl(callIns.args[0]?.variableDcl);
             self.loadVar(selfArg);
@@ -401,11 +401,11 @@ type TerminatorGenerator object {
             _ = self.visitArg(arg);
             argIndex += 1;
         }
-	if (callIns.varArgExist) {
+	    if (callIns.varArgExist) {
             bir:VarRef arg = <bir:VarRef>callIns.args[argIndex];
             int localVarIndex = self.indexMap.getIndex(arg.variableDcl);
             genVarArg(self.mv, self.indexMap, arg.typeValue, <jvm:JType>callIns.varArgType, localVarIndex);
-	}
+	    }
 
         string jClassName = callIns.jClassName;
         string jMethodName = callIns.name;

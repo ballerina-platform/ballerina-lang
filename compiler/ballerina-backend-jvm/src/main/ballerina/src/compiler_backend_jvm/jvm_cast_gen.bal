@@ -75,7 +75,7 @@ function generateCheckCastBToJByte(jvm:MethodVisitor mv, bir:BType sourceType) {
     } else if (sourceType is bir:BTypeHandle) {
         mv.visitMethodInsn(INVOKEVIRTUAL, HANDLE_VALUE, "getValue", "()Ljava/lang/Object;", false);
     } else {
-        error err = error(io:sprintf("Casting is not supported from '%s' to 'int'", sourceType));
+        error err = error(io:sprintf("Casting is not supported from '%s' to 'java byte'", sourceType));
         panic err;
     }
 }
@@ -139,7 +139,7 @@ function generateCheckCastBToJLong(jvm:MethodVisitor mv, bir:BType sourceType) {
     } else if (sourceType is bir:BTypeHandle) {
         mv.visitMethodInsn(INVOKEVIRTUAL, HANDLE_VALUE, "getValue", "()Ljava/lang/Object;", false);
     } else {
-        error err = error(io:sprintf("Casting is not supported from '%s' to 'int'", sourceType));
+        error err = error(io:sprintf("Casting is not supported from '%s' to 'java long'", sourceType));
         panic err;
     }
 }
@@ -154,7 +154,7 @@ function generateCheckCastBToJFloat(jvm:MethodVisitor mv, bir:BType sourceType) 
     } else if (sourceType is bir:BTypeHandle) {
         mv.visitMethodInsn(INVOKEVIRTUAL, HANDLE_VALUE, "getValue", "()Ljava/lang/Object;", false);
     } else {
-        error err = error(io:sprintf("Casting is not supported from '%s' to 'int'", sourceType));
+        error err = error(io:sprintf("Casting is not supported from '%s' to 'java float'", sourceType));
         panic err;
     }
 }
@@ -293,7 +293,7 @@ function generateCheckCastJToBFloat(jvm:MethodVisitor mv, jvm:JType sourceType) 
     } else if (sourceType is jvm:JRefType) {
         mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "anyToJDouble", io:sprintf("(L%s;)D", OBJECT), false);
     } else {
-        error err = error(io:sprintf("Casting is not supported from '%s' to 'int'", sourceType));
+        error err = error(io:sprintf("Casting is not supported from '%s' to 'float'", sourceType));
         panic err;
     }
 }
@@ -320,7 +320,7 @@ function generateCheckCastJToBDecimal(jvm:MethodVisitor mv, jvm:JType sourceType
     } else if (sourceType is jvm:JRefType) { 
         mv.visitMethodInsn(INVOKESTATIC, DECIMAL_VALUE, "valueOfJ", io:sprintf("(Ljava/math/BigDecimal;)L%s;", DECIMAL_VALUE), false);
     } else {
-        error err = error(io:sprintf("Casting is not supported from '%s' to 'int'", sourceType));
+        error err = error(io:sprintf("Casting is not supported from '%s' to 'decimal'", sourceType));
         panic err;
     }
 }
