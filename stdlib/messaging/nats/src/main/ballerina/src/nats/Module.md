@@ -42,7 +42,7 @@ nats:Error? result = producer->publish(subject, "hello world");
 2. Publish as a request that expects a reply.
 ```ballerina
 nats:Producer producer = new(connection);
-nats:Message|error reqReply = producer->request(subject, "hello world", 5000);
+nats:Message|nats:Error reqReply = producer->request(subject, "hello world", 5000);
 ```
 
 3. Publish messages with a replyTo subject 
