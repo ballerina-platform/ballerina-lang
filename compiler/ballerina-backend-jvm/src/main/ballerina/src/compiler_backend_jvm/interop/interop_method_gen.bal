@@ -442,12 +442,12 @@ function desugarInteropFuncs(bir:Package module, JMethodFunctionWrapper extFuncW
     bir:Return ret = {pos:birFunc.pos, kind:bir:TERMINATOR_RETURN};
     retBB.terminator = ret;
 
-    json|error j = json.constructFrom(birFunc);
-    if (j is json) {
-    	io:println(j.toJsonString());
-    } else {
-    	io:println(j);
-    }
+    //json|error j = json.constructFrom(birFunc);
+    //if (j is json) {
+    //	io:println(j.toJsonString());
+    //} else {
+    //	io:println(j);
+    //}
 }
 
 function isMatchingBAndJType(bir:BType sourceTypes, jvm:JType targetType) returns boolean {
