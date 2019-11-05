@@ -17,18 +17,18 @@
 # Docker annotation configuration.
 #
 # + registry - Docker registry url.
-# + name - Name of the docker image. Default value is the file name of the generated balx file.
+# + name - Name of the docker image. Default value is the file name of the executable .jar file.
 # + tag - Docker image tag. Default value is `"latest"`.
 # + username - Username for docker registry.
 # + password - Password for docker registry.
-# + baseImage - Base image to create the docker image. Default value is `"ballerina/ballerina-runtime:<BALLERINA_VERSION>"`.
-# Use `"ballerina/ballerina-runtime:latest"` to use the latest stable ballerina runtime docker image.
+# + baseImage - Base image to create the docker image. Default value is `"openjdk:8-jre-alpine"`.
 # + buildImage - Enable building docker image. Default value is `true`.
 # + push - Enable pushing docker image to registry. Field `buildImage` must be set to `true` to be effective. Default value is `false`.
+# + cmd - Value for CMD for the generated Dockerfile. Default is `CMD java -jar ${APP} [--b7a.config.file=${CONFIG_FILE}] [--debug]`.
 # + enableDebug - Enable ballerina debug. Default is `false`.
 # + debugPort - Ballerina remote debug port. Default is `5005`.
 # + dockerAPIVersion - Docker API version.
-# + dockerHost - Docker host IP and docker PORT. ( e.g minikube IP and docker PORT).
+# + dockerHost - Docker host IP and docker PORT. (e.g minikube IP and docker PORT).
 # Default is to use DOCKER_HOST environment variable.
 # If DOCKER_HOST is unavailable, use `"unix:///var/run/docker.sock"` for Unix or use `"npipe:////./pipe/docker_engine"` for Windows 10 or use `"localhost:2375"`.
 # + dockerCertPath - Docker certificate path. Default is to use `"DOCKER_CERT_PATH"` environment variable.
@@ -41,6 +41,7 @@ public type DockerConfiguration record {|
     string baseImage?;
     boolean buildImage = true;
     boolean push = false;
+    string cmd?;
     boolean enableDebug = false;
     int debugPort = 5005;
     string dockerAPIVersion?;

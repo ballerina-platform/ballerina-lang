@@ -1,0 +1,6 @@
+[project]
+org-name= "testOrg"
+version= "1.0.0"
+
+[dependencies]
+"testOrg/testModule" = "1.1.1"

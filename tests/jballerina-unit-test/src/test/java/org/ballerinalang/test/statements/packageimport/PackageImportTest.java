@@ -67,7 +67,7 @@ public class PackageImportTest {
     public void testInvalidImport2() {
         CompileResult result = BCompileUtil.compile("test-src/statements/package/imports/invalid-import-negative2.bal");
         Assert.assertEquals(result.getErrorCount(), 1);
-        BAssertUtil.validateError(result, 0, "cannot resolve module 'foo.x'", 1, 1);
+        BAssertUtil.validateError(result, 0, "cannot resolve module 'foo.x as x'", 1, 1);
     }
 
     @Test
@@ -90,7 +90,7 @@ public class PackageImportTest {
         Assert.assertEquals(result.getErrorCount(), 2);
         int i = 0;
         BAssertUtil.validateError(result, i++, "unused import module 'ballerina/io'", 1, 1);
-        BAssertUtil.validateError(result, i++, "unused import module 'ballerina/io'", 2, 1);
+        BAssertUtil.validateError(result, i++, "unused import module 'ballerina/io as otherIO'", 2, 1);
     }
 
     @Test

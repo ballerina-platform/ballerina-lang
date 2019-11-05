@@ -180,6 +180,6 @@ public class ServerSocketTest {
 
     @AfterClass
     public void cleanUp() {
-        SelectorManager.getInstance().stop();
+        SelectorManager.getInstance().stop(false);
     }
 }
