@@ -89,6 +89,6 @@ public function main() {
 }
 
 // Checks whether a given employee's salary is higher than 300.0.
-function isHigherSalary(Employee p) returns boolean {
-    return p.salary > 300.0;
+function isHigherSalary(Employee emp) returns boolean {
+    return emp.salary > 300.0;
 }
