@@ -40,10 +40,7 @@ import com.intellij.openapi.editor.event.DocumentEvent;
 import com.intellij.openapi.editor.event.DocumentListener;
 import com.intellij.openapi.editor.event.EditorMouseListener;
 import com.intellij.openapi.editor.event.EditorMouseMotionListener;
-import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.util.TextRange;
-import com.intellij.psi.PsiDocumentManager;
-import com.intellij.psi.PsiFile;
 import io.ballerina.plugins.idea.extensions.server.BallerinaASTDidChange;
 import io.ballerina.plugins.idea.extensions.server.BallerinaASTDidChangeResponse;
 import io.ballerina.plugins.idea.extensions.server.BallerinaASTRequest;
@@ -306,7 +303,6 @@ public class BallerinaEditorEventManager extends EditorEventManager {
         String label = item.getLabel();
         Command command = item.getCommand();
         List<TextEdit> addTextEdits = item.getAdditionalTextEdits();
-        InsertTextFormat format = item.getInsertTextFormat();
 
         if (addTextEdits != null) {
             builder = builder.withInsertHandler((InsertionContext context, LookupElement lookupElement) ->
@@ -316,7 +312,7 @@ public class BallerinaEditorEventManager extends EditorEventManager {
                             prepareAndRunSnippet(lookupString);
                         }
                         context.commitDocument();
-                        applyEdit(Integer.MAX_VALUE, addTextEdits, "Completion : " + label, false, false);
+                        applyEdit(addTextEdits, "Completion : " + label);
                         if (command != null) {
                             executeCommands(Collections.singletonList(command));
                         }
@@ -421,21 +417,14 @@ public class BallerinaEditorEventManager extends EditorEventManager {
         });
     }
 
-    boolean applyEdit(int version, List<TextEdit> edits, String name, boolean closeAfter, boolean setCaret) {
-        Runnable runnable = getEditsRunnable(version, edits, name, setCaret);
+    private void applyEdit(List<TextEdit> edits, String name) {
+        Runnable runnable = getEditsRunnable(Integer.MAX_VALUE, edits, name, false);
         writeAction(() -> {
             if (runnable != null) {
                 CommandProcessor.getInstance()
                         .executeCommand(getProject(), runnable, name, "LSPPlugin", editor.getDocument());
             }
-            if (closeAfter) {
-                PsiFile file = PsiDocumentManager.getInstance(getProject()).getPsiFile(editor.getDocument());
-                if (file != null) {
-                    FileEditorManager.getInstance(getProject()).closeFile(file.getVirtualFile());
-                }
-            }
         });
-        return runnable != null;
     }
 
     private String insertIndents(String lookupString, Position position) {
