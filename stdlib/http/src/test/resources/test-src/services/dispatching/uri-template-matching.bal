@@ -382,3 +382,18 @@ service WildcardService on testEP {
         _ = caller->respond(res);
     }
 }
+
+@http:ServiceConfig {
+    basePath:"/encodedUri"
+}
+service URLEncodeService on testEP {
+    @http:ResourceConfig {
+        path:"/test/{aaa}/{bbb}/{ccc}"
+    }
+    resource function encodedPath(http:Caller caller, http:Request req, string aaa, string bbb, string ccc) {
+        http:Response res = new;
+        json responseJson = {aaa:aaa, bbb:bbb, ccc:ccc};
+        res.setJsonPayload(untaint responseJson);
+        _ = caller->respond(res);
+    }
+}

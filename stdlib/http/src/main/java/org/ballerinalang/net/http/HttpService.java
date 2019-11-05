@@ -148,8 +148,7 @@ public class HttpService implements Cloneable {
         if (basePath == null || basePath.trim().isEmpty()) {
             this.basePath = DEFAULT_BASE_PATH.concat(this.getName().startsWith(DOLLAR) ? "" : this.getName());
         } else {
-            String sanitizedPath = sanitizeBasePath(basePath);
-            this.basePath = urlDecode(sanitizedPath);
+            this.basePath = sanitizeBasePath(basePath);
         }
     }
 
