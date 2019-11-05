@@ -485,7 +485,6 @@ public class BuildCommandTest extends CommandTest {
             String name = je.getName();
             int method = je.getMethod();
             if (name.endsWith(BLANG_COMPILED_JAR_EXT)) {
-                System.out.println(name + " " + method);
                 Assert.assertEquals(method, ZipEntry.STORED);
             }
         }

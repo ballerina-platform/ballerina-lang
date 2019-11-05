@@ -88,6 +88,7 @@ public class SpiServicesTestCase extends BaseTest {
         String result = serviceList.toString();
         Assert.assertTrue(result.contains("serviceA"), "serviceA cannot be found in service List :" + result);
         Assert.assertTrue(result.contains("serviceB"), "serviceB cannot be found in service List :" + result);
+        Assert.assertEquals(result.length(), 18);
     }
 
     @AfterClass

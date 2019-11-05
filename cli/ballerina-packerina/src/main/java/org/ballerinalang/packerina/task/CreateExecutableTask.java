@@ -25,11 +25,9 @@ import org.ballerinalang.packerina.buildcontext.sourcecontext.SingleModuleContex
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.util.Lists;
 
-import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.HashMap;
@@ -104,7 +102,7 @@ public class CreateExecutableTask implements Task {
                 StringBuilder service = entry.getValue();
                 ZipEntry e = new ZipEntry(s);
                 outStream.putNextEntry(e);
-                outStream.write(service.toString().getBytes());
+                outStream.write(service.toString().getBytes(StandardCharsets.UTF_8));
                 outStream.closeEntry();
             }
             // Copy dependency jar
@@ -140,12 +138,13 @@ public class CreateExecutableTask implements Task {
                         s = new StringBuilder();
                         services.put(entryName, s);
                     }
-                    BufferedReader fromBr = new BufferedReader(new InputStreamReader((inStream),
-                                                                                     StandardCharsets.UTF_8));
-                    String text;
-                    while ((text = fromBr.readLine()) != null) {
-                        s.append(text);
-                        s.append("\n");
+                    char c = '\n';
+                    while ((len = inStream.read()) != -1) {
+                        c = (char) len;
+                        s.append(c);
+                    }
+                    if (c != '\n') {
+                        s.append('\n');
                     }
                     continue;
                 }
@@ -160,7 +159,6 @@ public class CreateExecutableTask implements Task {
                 while ((len = inStream.read(buffer)) > 0) {
                     outStream.write(buffer, 0, len);
                 }
-
                 outStream.closeEntry();
             }
         }
