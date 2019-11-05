@@ -82,7 +82,7 @@ public function main() {
     // Removes employees with salaries higher than 300.0
     // from the table.
     int | error count = tb.remove(isHigherSalary);
-    io:println("Deleted Count:", count);
+    io:println("Deleted Count: ", count);
 
     // Contains records of employees with salaries less than 300.0.
     io:println(tb);
