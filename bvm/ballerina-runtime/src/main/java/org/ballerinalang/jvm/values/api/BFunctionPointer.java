@@ -19,7 +19,6 @@ package org.ballerinalang.jvm.values.api;
 
 import org.ballerinalang.jvm.values.RefValue;
 
-import java.util.function.Consumer;
 import java.util.function.Function;
 
 /**
