@@ -29,7 +29,7 @@ import java.net.URLDecoder;
  */
 public class DecodeUriComponent {
 
-    public static Object externDecodeUriComponent(String url, String charset) {
+    public static Object decodeUriComponent(String url, String charset) {
         try {
             return URLDecoder.decode(url, charset);
         } catch (UnsupportedEncodingException e) {

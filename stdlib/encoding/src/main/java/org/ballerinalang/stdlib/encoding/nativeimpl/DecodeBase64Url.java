@@ -30,7 +30,7 @@ import java.util.Base64;
  */
 public class DecodeBase64Url {
 
-    public static Object externDecodeBase64Url(String input) {
+    public static Object decodeBase64Url(String input) {
         try {
             byte[] output = Base64.getUrlDecoder().decode(input);
             return new ArrayValue(output);

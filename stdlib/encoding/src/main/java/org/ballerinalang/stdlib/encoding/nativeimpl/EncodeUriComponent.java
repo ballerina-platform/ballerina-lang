@@ -28,7 +28,7 @@ import java.net.URLEncoder;
  */
 public class EncodeUriComponent {
 
-    public static Object externEncodeUriComponent(String url, String charset) {
+    public static Object encodeUriComponent(String url, String charset) {
         try {
             String encoded = URLEncoder.encode(url, charset);
             StringBuilder buf = new StringBuilder(encoded.length());

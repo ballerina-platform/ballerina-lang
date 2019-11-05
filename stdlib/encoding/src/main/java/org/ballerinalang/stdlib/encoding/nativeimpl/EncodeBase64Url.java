@@ -30,7 +30,7 @@ import java.util.Base64;
  */
 public class EncodeBase64Url {
 
-    public static String externEncodeBase64Url(ArrayValue input) {
+    public static String encodeBase64Url(ArrayValue input) {
         byte[] encodedValue = Base64.getUrlEncoder().encode(input.getBytes());
         return new String(encodedValue, StandardCharsets.ISO_8859_1);
     }
