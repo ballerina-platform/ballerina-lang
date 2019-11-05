@@ -56,9 +56,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.StringJoiner;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import static org.ballerinalang.jvm.JSONUtils.mergeJson;
 import static org.ballerinalang.jvm.TypeConverter.getConvertibleTypes;
@@ -90,9 +87,6 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
     private static final String UNDERSCORE = "_";
     private static final String SLASH = "/";
 
-    private final ReadWriteLock lock = new ReentrantReadWriteLock();
-    private final Lock readLock = lock.readLock();
-    private final Lock writeLock = lock.writeLock();
     private volatile Status freezeStatus = new Status(State.UNFROZEN);
     private final Map<String, Object> nativeData = new HashMap<>();
 
@@ -115,12 +109,7 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
      */
     @Override
     public V get(Object key) {
-        readLock.lock();
-        try {
-            return getValue(key);
-        } finally {
-            readLock.unlock();
-        }
+        return super.get(key);
     }
 
     public Long getIntValue(String key) {
@@ -166,15 +155,10 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
      * @return value associated with the key
      */
     public V getOrThrow(Object key) {
-        readLock.lock();
-        try {
-            if (!containsKey(key)) {
-                throw BallerinaErrors.createError(MAP_KEY_NOT_FOUND_ERROR, "cannot find key '" + key + "'");
-            }
-            return getValue(key);
-        } finally {
-            readLock.unlock();
+        if (!containsKey(key)) {
+            throw BallerinaErrors.createError(MAP_KEY_NOT_FOUND_ERROR, "cannot find key '" + key + "'");
         }
+        return super.get(key);
     }
 
     /**
@@ -186,78 +170,65 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
      * @return value associated with the key
      */
     public V fillAndGet(Object key) {
-        writeLock.lock();
-        try {
-            if (containsKey(key)) {
-                return getValue(key);
-            }
-
-            BType expectedType = null;
-
-            // The type should be a record or map for filling read.
-            if (this.type.getTag() == TypeTags.RECORD_TYPE_TAG) {
-                BRecordType recordType = (BRecordType) this.type;
-                Map fields = recordType.getFields();
-                if (fields.containsKey(key)) {
-                    expectedType = ((BField) fields.get(key)).type;
-                } else {
-                    if (recordType.sealed) {
-                        // Panic if this record type does not contain a key by the specified name.
-                        throw BallerinaErrors.createError(MAP_KEY_NOT_FOUND_ERROR, "cannot find key '" + key + "'");
-                    }
-                    expectedType = recordType.restFieldType;
-                }
-            } else {
-                expectedType = ((BMapType) this.type).getConstrainedType();
-            }
-
-            if (!TypeChecker.hasFillerValue(expectedType)) {
-                // Panic if the field does not have a filler value.
-                throw BallerinaErrors.createError(MAP_KEY_NOT_FOUND_ERROR, "cannot find key '" + key + "'");
-            }
-
-            Object value = expectedType.getZeroValue();
-            this.put((K) key, (V) value);
-            return (V) value;
-        } finally {
-            writeLock.unlock();
+        if (containsKey(key)) {
+            return super.get(key);
         }
+
+        BType expectedType = null;
+
+        // The type should be a record or map for filling read.
+        if (this.type.getTag() == TypeTags.RECORD_TYPE_TAG) {
+            BRecordType recordType = (BRecordType) this.type;
+            Map fields = recordType.getFields();
+            if (fields.containsKey(key)) {
+                expectedType = ((BField) fields.get(key)).type;
+            } else {
+                if (recordType.sealed) {
+                    // Panic if this record type does not contain a key by the specified name.
+                    throw BallerinaErrors.createError(MAP_KEY_NOT_FOUND_ERROR, "cannot find key '" + key + "'");
+                }
+                expectedType = recordType.restFieldType;
+            }
+        } else {
+            expectedType = ((BMapType) this.type).getConstrainedType();
+        }
+
+        if (!TypeChecker.hasFillerValue(expectedType)) {
+            // Panic if the field does not have a filler value.
+            throw BallerinaErrors.createError(MAP_KEY_NOT_FOUND_ERROR, "cannot find key '" + key + "'");
+        }
+
+        Object value = expectedType.getZeroValue();
+        this.put((K) key, (V) value);
+        return (V) value;
     }
 
     @Override
     public Object merge(MapValue v2, boolean checkMergeability) {
-        writeLock.lock();
-        try {
-            ((MapValueImpl) v2).writeLock.lock();
-
-            if (checkMergeability) {
-                ErrorValue errorIfUnmergeable = JSONUtils.getErrorIfUnmergeable(this, v2, new ArrayList<>());
-                if (errorIfUnmergeable != null) {
-                    return errorIfUnmergeable;
-                }
+        if (checkMergeability) {
+            ErrorValue errorIfUnmergeable = JSONUtils.getErrorIfUnmergeable(this, v2, new ArrayList<>());
+            if (errorIfUnmergeable != null) {
+                return errorIfUnmergeable;
             }
-
-            MapValue<String, Object> m1 = (MapValue<String, Object>) this;
-            MapValue<String, Object> m2 = (MapValue<String, Object>) v2;
-
-            for (Map.Entry<String, Object> entry : m2.entrySet()) {
-                String key = entry.getKey();
-
-                if (!m1.containsKey(key)) {
-                    m1.put(key, entry.getValue());
-                    continue;
-                }
-
-                // Set checkMergeability to false to avoid rechecking mergeability.
-                // Since write locks are acquired, the initial check should suffice, and merging will always succeed.
-                m1.put(key, mergeJson(m1.get(key), entry.getValue(), false));
-            }
-
-            return this;
-        } finally {
-            ((MapValueImpl) v2).writeLock.unlock();
-            writeLock.unlock();
         }
+
+        MapValue<String, Object> m1 = (MapValue<String, Object>) this;
+        MapValue<String, Object> m2 = (MapValue<String, Object>) v2;
+
+        for (Map.Entry<String, Object> entry : m2.entrySet()) {
+            String key = entry.getKey();
+
+            if (!m1.containsKey(key)) {
+                m1.put(key, entry.getValue());
+                continue;
+            }
+
+            // Set checkMergeability to false to avoid rechecking mergeability.
+            // Since write locks are acquired, the initial check should suffice, and merging will always succeed.
+            m1.put(key, mergeJson(m1.get(key), entry.getValue(), false));
+        }
+
+        return this;
     }
 
     /**
@@ -274,13 +245,8 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
      */
     @Override
     public V put(K key, V value) {
-        writeLock.lock();
-        try {
-            checkFreezeStatus();
-            return putValue(key, value);
-        } finally {
-            writeLock.unlock();
-        }
+        checkFreezeStatus();
+        return putValue(key, value);
     }
     
     /**
@@ -312,15 +278,10 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
      * Clear map entries.
      */
     public void clear() {
-        writeLock.lock();
-        try {
-            if (freezeStatus.getState() != State.UNFROZEN) {
-                handleInvalidUpdate(freezeStatus.getState(), MAP_LANG_LIB);
-            }
-            removeAll();
-        } finally {
-            writeLock.unlock();
+        if (freezeStatus.getState() != State.UNFROZEN) {
+            handleInvalidUpdate(freezeStatus.getState(), MAP_LANG_LIB);
         }
+        super.clear();
     }
 
     /**
@@ -331,12 +292,7 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
      */
     @Override
     public boolean containsKey(Object key) {
-        readLock.lock();
-        try {
-            return hasKey(key);
-        } finally {
-            readLock.unlock();
-        }
+        return super.containsKey(key);
     }
 
     /**
@@ -357,15 +313,10 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
      */
     @Override
     public V remove(Object key) {
-        writeLock.lock();
-        try {
-            if (freezeStatus.getState() != State.UNFROZEN) {
-                handleInvalidUpdate(freezeStatus.getState(), MAP_LANG_LIB);
-            }
-            return removeValue(key);
-        } finally {
-            writeLock.unlock();
+        if (freezeStatus.getState() != State.UNFROZEN) {
+            handleInvalidUpdate(freezeStatus.getState(), MAP_LANG_LIB);
         }
+        return super.remove(key);
     }
 
     /**
@@ -375,12 +326,8 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
      */
     @SuppressWarnings("unchecked")
     public K[] getKeys() {
-        readLock.lock();
-        try {
-            return keys();
-        } finally {
-            readLock.unlock();
-        }
+        Set<K> keys = super.keySet();
+        return (K[]) keys.toArray(new String[keys.size()]);
     }
 
     /**
@@ -389,12 +336,7 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
      * @return values as an array
      */
     public Collection<V> values() {
-        readLock.lock();
-        try {
-            return getValues();
-        } finally {
-            readLock.unlock();
-        }
+        return super.values();
     }
 
     /**
@@ -404,12 +346,7 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
      */
     @Override
     public int size() {
-        readLock.lock();
-        try {
-            return getSize();
-        } finally {
-            readLock.unlock();
-        }
+        return super.size();
     }
 
     /**
@@ -418,12 +355,7 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
      * @return Flag indicating whether the map is empty or not
      */
     public boolean isEmpty() {
-        readLock.lock();
-        try {
-            return getSize() == 0;
-        } finally {
-            readLock.unlock();
-        }
+        return this.size() == 0;
     }
 
     @Override
@@ -434,27 +366,22 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
     @SuppressWarnings("unchecked")
     @Override
     public Object copy(Map<Object, Object> refs) {
-        readLock.lock();
-        try {
-            if (isFrozen()) {
-                return this;
-            }
-
-            if (refs.containsKey(this)) {
-                return refs.get(this);
-            }
-
-            MapValueImpl<K, V> newMap = new MapValueImpl<>(type);
-            refs.put(this, newMap);
-            for (Map.Entry<K, V> entry : this.entrySet()) {
-                V value = entry.getValue();
-                value = value instanceof RefValue ? (V) ((RefValue) value).copy(refs) : value;
-                newMap.put(entry.getKey(), value);
-            }
-            return newMap;
-        } finally {
-            readLock.unlock();
+        if (isFrozen()) {
+            return this;
         }
+
+        if (refs.containsKey(this)) {
+            return refs.get(this);
+        }
+
+        MapValueImpl<K, V> newMap = new MapValueImpl<>(type);
+        refs.put(this, newMap);
+        for (Map.Entry<K, V> entry : this.entrySet()) {
+            V value = entry.getValue();
+            value = value instanceof RefValue ? (V) ((RefValue) value).copy(refs) : value;
+            newMap.put(entry.getKey(), value);
+        }
+        return newMap;
     }
 
     @SuppressWarnings("unchecked")
@@ -474,18 +401,13 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
 
     @Override
     public String stringValue(Strand strand) {
-        readLock.lock();
-        try {
-            StringJoiner sj = new StringJoiner(" ");
-            for (Map.Entry<K, V> kvEntry : this.entrySet()) {
-                K key = kvEntry.getKey();
-                V value = kvEntry.getValue();
-                sj.add(key + "=" + StringUtils.getStringValue(strand, value));
-            }
-            return sj.toString();
-        } finally {
-            readLock.unlock();
+        StringJoiner sj = new StringJoiner(" ");
+        for (Map.Entry<K, V> kvEntry : this.entrySet()) {
+            K key = kvEntry.getKey();
+            V value = kvEntry.getValue();
+            sj.add(key + "=" + StringUtils.getStringValue(strand, value));
         }
+        return sj.toString();
     }
 
     @Override
@@ -588,7 +510,7 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
 
         if (FreezeUtils.isOpenForFreeze(this.freezeStatus, freezeStatus)) {
             this.freezeStatus = freezeStatus;
-            getValues().forEach(val -> {
+            this.values().forEach(val -> {
                 if (val instanceof RefValue) {
                     ((RefValue) val).attemptFreeze(freezeStatus);
                 }
@@ -708,34 +630,5 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
      */
     protected V putValue(K key, V value) {
         return super.put(key, value);
-    }
-
-    protected V getValue(Object key) {
-        return super.get(key);
-    }
-
-    protected boolean hasKey(Object key) {
-        return super.containsKey(key);
-    }
-
-    protected V removeValue(Object key) {
-        return super.remove(key);
-    }
-
-    protected K[] keys() {
-        Set<K> keys = super.keySet();
-        return (K[]) keys.toArray(new String[keys.size()]);
-    }
-
-    protected void removeAll() {
-        super.clear();
-    }
-
-    protected Collection<V> getValues() {
-        return super.values();
-    }
-
-    protected int getSize() {
-        return super.size();
     }
 }

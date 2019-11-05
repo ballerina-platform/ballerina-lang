@@ -324,7 +324,7 @@ public type ObjectGenerator object {
         self.createRecordGetMethod(cw, fields, className);
         self.createRecordSetMethod(cw, fields, className);
         self.createRecordEntrySetMethod(cw, fields, className);
-        self.createRecordHasKeyMethod(cw, fields, className);
+        self.createRecordContainsKeyMethod(cw, fields, className);
         self.createRecordGetValuesMethod(cw, fields, className);
         self.createGetSizeMethod(cw, fields, className);
 
@@ -433,7 +433,7 @@ public type ObjectGenerator object {
     }
 
     private function createRecordGetMethod(jvm:ClassWriter cw, bir:BRecordField?[] fields, string className) {
-        jvm:MethodVisitor mv = cw.visitMethod(ACC_PROTECTED, "getValue",
+        jvm:MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "get",
                 io:sprintf("(L%s;)L%s;", OBJECT, OBJECT), io:sprintf("(L%s;)TV;", OBJECT), ());
         mv.visitCode();
 
@@ -548,7 +548,8 @@ public type ObjectGenerator object {
         mv.visitVarInsn(ALOAD, 0);
         mv.visitVarInsn(ALOAD, nameRegIndex);
         mv.visitVarInsn(ALOAD, valueRegIndex);
-        mv.visitMethodInsn(INVOKESPECIAL, MAP_VALUE_IMPL, "putValue", io:sprintf("(L%s;L%s;)L%s;", OBJECT, OBJECT, OBJECT), false);
+        mv.visitMethodInsn(INVOKESPECIAL, MAP_VALUE_IMPL, "putValue", 
+                            io:sprintf("(L%s;L%s;)L%s;", OBJECT, OBJECT, OBJECT), false);
         mv.visitInsn(ARETURN);
     }
 
@@ -556,7 +557,7 @@ public type ObjectGenerator object {
         mv.visitLabel(defaultCaseLabel);
         mv.visitVarInsn(ALOAD, 0);
         mv.visitVarInsn(ALOAD, nameRegIndex);
-        mv.visitMethodInsn(INVOKESPECIAL, MAP_VALUE_IMPL, "getValue", io:sprintf("(L%s;)L%s;", OBJECT, OBJECT), false);
+        mv.visitMethodInsn(INVOKESPECIAL, MAP_VALUE_IMPL, "get", io:sprintf("(L%s;)L%s;", OBJECT, OBJECT), false);
         mv.visitInsn(ARETURN);
     }
 
@@ -619,8 +620,8 @@ public type ObjectGenerator object {
 
     }
 
-    private function createRecordHasKeyMethod(jvm:ClassWriter cw, bir:BRecordField?[] fields, string className) {
-        jvm:MethodVisitor mv = cw.visitMethod(ACC_PROTECTED, "hasKey", io:sprintf("(L%s;)Z", OBJECT), (), ());
+    private function createRecordContainsKeyMethod(jvm:ClassWriter cw, bir:BRecordField?[] fields, string className) {
+        jvm:MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "containsKey", io:sprintf("(L%s;)Z", OBJECT), (), ());
         mv.visitCode();
  
         int fieldNameRegIndex = 1;
@@ -666,7 +667,7 @@ public type ObjectGenerator object {
         mv.visitLabel(defaultCaseLabel);
         mv.visitVarInsn(ALOAD, 0);
         mv.visitVarInsn(ALOAD, fieldNameRegIndex);
-        mv.visitMethodInsn(INVOKESPECIAL, MAP_VALUE_IMPL, "hasKey", io:sprintf("(L%s;)Z", OBJECT), false);
+        mv.visitMethodInsn(INVOKESPECIAL, MAP_VALUE_IMPL, "containsKey", io:sprintf("(L%s;)Z", OBJECT), false);
         mv.visitInsn(IRETURN);
 
         mv.visitMaxs(0, 0);
@@ -674,7 +675,7 @@ public type ObjectGenerator object {
     }
 
     function createRecordGetValuesMethod(jvm:ClassWriter cw, bir:BRecordField?[] fields, string className) {
-        jvm:MethodVisitor  mv = cw.visitMethod(ACC_PROTECTED, "getValues", io:sprintf("()L%s;", COLLECTION), 
+        jvm:MethodVisitor  mv = cw.visitMethod(ACC_PUBLIC, "values", io:sprintf("()L%s;", COLLECTION), 
                             io:sprintf("()L%s<TV;>;", COLLECTION), ());
         mv.visitCode();
 
@@ -708,7 +709,7 @@ public type ObjectGenerator object {
 
         mv.visitVarInsn(ALOAD, valuesVarIndex);
         mv.visitVarInsn(ALOAD, 0); // self
-        mv.visitMethodInsn(INVOKESPECIAL, MAP_VALUE_IMPL, "getValues", io:sprintf("()L%s;", COLLECTION), false);
+        mv.visitMethodInsn(INVOKESPECIAL, MAP_VALUE_IMPL, "values", io:sprintf("()L%s;", COLLECTION), false);
         mv.visitMethodInsn(INVOKEINTERFACE, LIST, "addAll", io:sprintf("(L%s;)Z", COLLECTION), true);
         mv.visitInsn(POP);
 
@@ -719,12 +720,12 @@ public type ObjectGenerator object {
     }
 
     function createGetSizeMethod(jvm:ClassWriter cw, bir:BRecordField?[] fields, string className) {
-        jvm:MethodVisitor mv = cw.visitMethod(ACC_PROTECTED, "getSize", "()I", (), ());
+        jvm:MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "size", "()I", (), ());
         mv.visitCode();
         int sizeVarIndex = 1;
 
         mv.visitVarInsn(ALOAD, 0);
-        mv.visitMethodInsn(INVOKESPECIAL, MAP_VALUE_IMPL, "getSize", "()I", false);
+        mv.visitMethodInsn(INVOKESPECIAL, MAP_VALUE_IMPL, "size", "()I", false);
         mv.visitVarInsn(ISTORE, sizeVarIndex);
 
         int requiredFieldsCount = 0;
