@@ -168,7 +168,8 @@ type TerminatorGenerator object {
         }
         bir:BType bType = <bir:BType> func.typeValue?.retType;
         if (bType is bir:BTypeNil) {
-            self.mv.visitInsn(RETURN);
+            self.mv.visitVarInsn(ALOAD, returnVarRefIndex);
+            self.mv.visitInsn(ARETURN);
         } else if (bType is bir:BTypeInt) {
             self.mv.visitVarInsn(LLOAD, returnVarRefIndex);
             self.mv.visitInsn(LRETURN);
@@ -420,7 +421,7 @@ type TerminatorGenerator object {
 
         self.mv.visitLabel(notBlockedOnExternLabel);
     }
-    
+
     function genJIConstructorTerm(JIConstructorCall callIns, string funcName, bir:BType? attachedType, int localVarOffset) {
         // Load function parameters of the target Java method to the stack..
         jvm:Label blockedOnExternLabel = new;
@@ -492,11 +493,11 @@ type TerminatorGenerator object {
         panic err;
     }
 
-    private function storeReturnFromCallIns(bir:Call callIns) {
-        bir:VariableDcl? lhsOpVarDcl = callIns.lhsOp?.variableDcl;
-
+    private function storeReturnFromCallIns(bir:VariableDcl? lhsOpVarDcl) {
         if (lhsOpVarDcl is bir:VariableDcl) {
             self.storeToVar(lhsOpVarDcl);
+        } else {
+            self.mv.visitInsn(POP);
         }
     }
 
@@ -600,11 +601,7 @@ type TerminatorGenerator object {
         self.mv.visitMethodInsn(INVOKEINTERFACE, OBJECT_VALUE, "call", methodDesc, true);
 
         bir:BType? returnType = callIns.lhsOp?.typeValue;
-        if (returnType is ()) {
-            self.mv.visitInsn(POP);
-        } else {
-            addUnboxInsn(self.mv, returnType);
-        }
+        addUnboxInsn(self.mv, returnType);
     }
 
     function loadBooleanArgToIndicateUserProvidedArg(string orgName, string moduleName, boolean userProvided) {
@@ -676,8 +673,8 @@ type TerminatorGenerator object {
         if (futureType is bir:BFutureType) {
             returnType = futureType.returnType;
         }
-        boolean isVoid = returnType is bir:BTypeNil;
-        createFunctionPointer(self.mv, currentClass, lambdaName, isVoid, 0);
+
+        createFunctionPointer(self.mv, currentClass, lambdaName, 0);
         lambdas[lambdaName] = callIns;
         lambdaIndex += 1;
 
@@ -784,20 +781,14 @@ type TerminatorGenerator object {
         }
 
         // if async, we submit this to sceduler (worker scenario)
-        boolean isVoid = false;
         bir:BType returnType = fpCall.fp.typeValue;
-        if (returnType is bir:BInvokableType) {
-            isVoid = returnType?.retType is bir:BTypeNil;
-        }
 
         if (fpCall.isAsync) {
             // load function ref now
             self.loadVar(fpCall.fp.variableDcl);
             self.submitToScheduler(fpCall.lhsOp, localVarOffset);
-        } else if (isVoid) {
-            self.mv.visitMethodInsn(INVOKEVIRTUAL, FUNCTION_POINTER, "accept", io:sprintf("(L%s;)V", OBJECT), false);
         } else {
-            self.mv.visitMethodInsn(INVOKEVIRTUAL, FUNCTION_POINTER, "apply", io:sprintf("(L%s;)L%s;", OBJECT, OBJECT), false);
+            self.mv.visitMethodInsn(INVOKEVIRTUAL, FUNCTION_POINTER, "call", io:sprintf("(L%s;)L%s;", OBJECT, OBJECT), false);
             // store reult
             bir:BType? lhsType = fpCall.lhsOp?.typeValue;
             if (lhsType is bir:BType) {
@@ -807,6 +798,8 @@ type TerminatorGenerator object {
             bir:VariableDcl? lhsVar = fpCall.lhsOp?.variableDcl;
             if (lhsVar is bir:VariableDcl) {
                 self.storeToVar(lhsVar);
+            } else {
+                self.mv.visitInsn(POP);
             }
         }
     }
@@ -887,22 +880,16 @@ type TerminatorGenerator object {
 
     function submitToScheduler(bir:VarRef? lhsOp, int localVarOffset) {
         bir:BType? futureType = lhsOp?.typeValue;
-        boolean isVoid = false;
         bir:BType returnType = "any";
         if (futureType is bir:BFutureType) {
-            isVoid = futureType.returnType is bir:BTypeNil;
             returnType = futureType.returnType;
         }
+
         // load strand
         self.mv.visitVarInsn(ALOAD, localVarOffset);
-        if (isVoid) {
-            self.mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, "scheduleConsumer",
-                io:sprintf("([L%s;L%s;L%s;)L%s;", OBJECT, FUNCTION_POINTER, STRAND, FUTURE_VALUE), false);
-        } else {
-            loadType(self.mv, returnType);
-            self.mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, "scheduleFunction",
+        loadType(self.mv, returnType);
+        self.mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, "scheduleFunction",
                 io:sprintf("([L%s;L%s;L%s;L%s;)L%s;", OBJECT, FUNCTION_POINTER, STRAND, BTYPE, FUTURE_VALUE), false);
-        }
 
         // store return
         if (lhsOp is bir:VarRef) {

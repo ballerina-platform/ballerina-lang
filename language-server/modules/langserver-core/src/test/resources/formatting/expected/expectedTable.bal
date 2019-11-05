@@ -75,3 +75,24 @@ function name1() returns error? {
         ]
     };
 }
+
+type Person1 record {
+    int id;
+    int age = -1;
+    float salary;
+    string name;
+    boolean married;
+    float amount = 55.0;
+};
+
+public function main() {
+    table<Person1> personTable = table {
+        {key id, age, salary, name, married, amount},
+        [
+            {1, 30, 300.5, "Mary", true},
+            {2, 20, 300.5, "John", true}
+        ]
+    };
+
+    io:println(personTable);
+}

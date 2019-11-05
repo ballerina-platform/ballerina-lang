@@ -39,7 +39,7 @@ public class CreateBaloTask implements Task {
     
             // generate balo for each module.
             BaloFileWriter baloWriter = BaloFileWriter.getInstance(buildContext);
-            baloWriter.write(module, baloPath);
+            baloWriter.write(module, baloPath, buildContext.moduleDependencyPathMap.get(module.packageID));
         }
     }
 }

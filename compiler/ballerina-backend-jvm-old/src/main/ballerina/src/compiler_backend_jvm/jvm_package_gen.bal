@@ -113,15 +113,17 @@ function lookupGlobalVarClassName(string key) returns string {
     }
 }
 
-function generateDependencyList(bir:ModuleID moduleId, @tainted JarFile jarFile) {
-    generatePackage(moduleId, jarFile, false);
+function generateDependencyList(bir:ModuleID moduleId, @tainted JarFile jarFile,
+                                jvm:InteropValidator interopValidator) {
+    generatePackage(moduleId, jarFile, interopValidator, false);
     string pkgName = getPackageName(moduleId.org, moduleId.name);
     if (!dependentModules.hasKey(pkgName)) {
         dependentModules[pkgName] = moduleId;
     }
 }
 
-public function generatePackage(bir:ModuleID moduleId, @tainted JarFile jarFile, boolean isEntry) {
+public function generatePackage(bir:ModuleID moduleId, @tainted JarFile jarFile,
+                                jvm:InteropValidator interopValidator, boolean isEntry) {
     string orgName = moduleId.org;
     string moduleName = moduleId.name;
     string pkgName = getPackageName(orgName, moduleName);
@@ -134,7 +136,7 @@ public function generatePackage(bir:ModuleID moduleId, @tainted JarFile jarFile,
 
     // generate imported modules recursively
     foreach var mod in module.importModules {
-        generateDependencyList(importModuleToModuleId(mod), jarFile);
+        generateDependencyList(importModuleToModuleId(mod), jarFile, interopValidator);
         if (dlogger.getErrorCount() > 0) {
             return;
         }
@@ -145,7 +147,8 @@ public function generatePackage(bir:ModuleID moduleId, @tainted JarFile jarFile,
     }
 
     typeOwnerClass = getModuleLevelClassName(<@untainted> orgName, <@untainted> moduleName, MODULE_INIT_CLASS_NAME);
-    map<JavaClass> jvmClassMap = generateClassNameMappings(module, pkgName, typeOwnerClass, <@untainted> lambdas);
+    map<JavaClass> jvmClassMap = generateClassNameMappings(module, pkgName, typeOwnerClass,
+                                                           <@untainted> lambdas, interopValidator);
     if (!isEntry || dlogger.getErrorCount() > 0) {
         return;
     }
@@ -400,7 +403,8 @@ function cleanupPackageName(string pkgName) returns string {
 # + lambdaCalls - The lambdas
 # + return - The map of javaClass records on given source file name
 function generateClassNameMappings(bir:Package module, string pkgName, string initClass, 
-                                   map<bir:AsyncCall|bir:FPLoad> lambdaCalls) returns map<JavaClass> {
+                                   map<bir:AsyncCall|bir:FPLoad> lambdaCalls,
+                                   jvm:InteropValidator interopValidator) returns map<JavaClass> {
     
     string orgName = module.org.value;
     string moduleName = module.name.value;
@@ -468,7 +472,7 @@ function generateClassNameMappings(bir:Package module, string pkgName, string in
 
             BIRFunctionWrapper | error birFuncWrapperOrError;
             if (isExternFunc(getFunction(birFunc))) {
-                birFuncWrapperOrError = createExternalFunctionWrapper(birFunc, orgName, moduleName,
+                birFuncWrapperOrError = createExternalFunctionWrapper(interopValidator, birFunc, orgName, moduleName,
                                                     versionValue, birModuleClassName);
             } else {
                 addDefaultableBooleanVarsToSignature(birFunc);
@@ -533,7 +537,8 @@ function generateClassNameMappings(bir:Package module, string pkgName, string in
 }
 
 function getFunctionWrapper(bir:Function currentFunc, string orgName ,string moduleName, 
-                            string versionValue,  string  moduleClass) returns BIRFunctionWrapper {
+                            string versionValue,  string  moduleClass) 
+                                returns BIRFunctionWrapper {
 
     bir:BInvokableType functionTypeDesc = currentFunc.typeValue;
     bir:VariableDcl? receiver = currentFunc.receiver;

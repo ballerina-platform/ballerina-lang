@@ -343,7 +343,7 @@ public class Types {
         if (target.tag == TypeTags.RECORD) {
             if (source.tag == TypeTags.RECORD) {
                 TypePair pair = new TypePair(source, target);
-                List<TypePair> unresolvedTypes = new ArrayList<>();
+                Set<TypePair> unresolvedTypes = new HashSet<>();
                 unresolvedTypes.add(pair);
                 return checkRecordEquivalencyForStamping((BRecordType) source, (BRecordType) target, unresolvedTypes);
             } else if (source.tag == TypeTags.MAP) {
@@ -390,7 +390,7 @@ public class Types {
     }
 
     private boolean checkRecordEquivalencyForStamping(BRecordType rhsType, BRecordType lhsType,
-                                                      List<TypePair> unresolvedTypes) {
+                                                      Set<TypePair> unresolvedTypes) {
         // Both records should be public or private.
         // Get the XOR of both flags(masks)
         // If both are public, then public bit should be 0;
@@ -419,7 +419,7 @@ public class Types {
     }
 
     private boolean checkFieldEquivalencyForStamping(BStructureType lhsType, BStructureType rhsType,
-                                                     List<TypePair> unresolvedTypes) {
+                                                     Set<TypePair> unresolvedTypes) {
         Map<Name, BField> rhsFields = rhsType.fields.stream().collect(
                 Collectors.toMap(BField::getName, field -> field));
 

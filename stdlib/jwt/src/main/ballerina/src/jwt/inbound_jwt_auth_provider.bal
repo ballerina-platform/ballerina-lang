@@ -113,7 +113,7 @@ function setPrincipal(JwtPayload jwtPayload) {
         auth:setPrincipal(claims = claims);
         if (claims.hasKey(SCOPE)) {
             var scopeString = claims[SCOPE];
-            if (scopeString is string) {
+            if (scopeString is string && scopeString != "") {
                 auth:setPrincipal(scopes = stringutils:split(scopeString, " "));
             }
         }
