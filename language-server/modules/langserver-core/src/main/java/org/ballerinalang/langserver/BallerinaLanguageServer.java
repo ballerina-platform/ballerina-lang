@@ -58,7 +58,6 @@ import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 import static org.ballerinalang.langserver.BallerinaWorkspaceService.Experimental.INTROSPECTION;
@@ -141,7 +140,7 @@ public class BallerinaLanguageServer implements ExtendedLanguageServer, Extended
         TextDocumentClientCapabilities textDocCapabilities = params.getCapabilities().getTextDocument();
         ((BallerinaTextDocumentService) this.textService).setClientCapabilities(textDocCapabilities);
 
-        Map<String, Boolean> experimentalClientCapabilities = null;
+        HashMap experimentalClientCapabilities = null;
         if (params.getCapabilities().getExperimental() != null) {
             experimentalClientCapabilities =
                     new Gson().fromJson(params.getCapabilities().getExperimental().toString(), HashMap.class);
@@ -155,12 +154,19 @@ public class BallerinaLanguageServer implements ExtendedLanguageServer, Extended
         experimentalServerCapabilities.put("astProvider", true);
         experimentalServerCapabilities.put("examplesProvider", true);
         experimentalServerCapabilities.put("apiEditorProvider", true);
-        if (experimentalClientCapabilities != null && experimentalClientCapabilities.get(INTROSPECTION.getValue())) {
+        if (experimentalClientCapabilities != null &&
+                experimentalClientCapabilities.get(INTROSPECTION.getValue()) != null) {
             int port = ballerinaTraceListener.startListener();
             experimentalServerCapabilities.put("introspection", new ProviderOptions(port));
         }
-        if (experimentalClientCapabilities != null && experimentalClientCapabilities.get(SEMANTIC_SYNTAX_HIGHLIGHTER.getValue())) {
+        if (experimentalClientCapabilities != null &&
+                experimentalClientCapabilities.get(SEMANTIC_SYNTAX_HIGHLIGHTER.getValue()) != null) {
             experimentalServerCapabilities.put("semanticSyntaxHighlighter", true);
+            String[][] scopes = new String[2][2];
+            scopes[0][0] = "source.ballerina";
+            scopes[1][0] = "keyword.ballerina";
+            scopes[1][1] = "keyword.other.ballerina";
+            experimentalServerCapabilities.put("semanticScopes", scopes);
         }
         res.getCapabilities().setExperimental(experimentalServerCapabilities);
 

@@ -22,7 +22,7 @@ function highlightLines(highlightingInfo: SemanticHighlightingInformation[]): { 
     highlightingInfo.forEach(element => {
         highlights.push(...decodeTokens(element));
     });
-    console.log(highlights);
+
     highlights.forEach(element => {
         if (!highlightByScope[element.scope]) { highlightByScope[element.scope] = [element.range]; }
         else { highlightByScope[element.scope].push(element.range); }
@@ -31,17 +31,13 @@ function highlightLines(highlightingInfo: SemanticHighlightingInformation[]): { 
     return highlightByScope;
 }
 
-export function setEditorDecorations(highlightingInfo: { line: number, token: string }[]) {
+export function setEditorDecorations(highlightingInfo: SemanticHighlightingInformation[]) {
     const scopeObj = highlightLines(highlightingInfo);
     const decorationType1 = window.createTextEditorDecorationType({
-        backgroundColor: 'blue',
-        color: 'red',
-        fontStyle: 'bold'
+        color: 'red'
     });
     const decorationType2 = window.createTextEditorDecorationType({
-        backgroundColor: 'red',
-        color: 'blue',
-        fontStyle: 'bold'
+        color: 'blue'
     });
     const decorationTypes: TextEditorDecorationType[] = [decorationType1, decorationType2];
 
@@ -51,3 +47,5 @@ export function setEditorDecorations(highlightingInfo: { line: number, token: st
         activeEditor.setDecorations(decorationTypes[index], scopeObj[index]);
     }
 }
+
+

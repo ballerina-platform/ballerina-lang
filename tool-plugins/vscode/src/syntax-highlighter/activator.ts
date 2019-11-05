@@ -19,6 +19,7 @@ import { BallerinaExtension } from '../core';
 import { commands, ExtensionContext } from 'vscode';
 import { setEditorDecorations } from './highlighter';
 import { SemanticHighlightingInformation } from './model';
+import { getScopeColor } from './scopeTree';
 
 export function activate(ballerinaExtInstance: BallerinaExtension) {
     const context = <ExtensionContext>ballerinaExtInstance.context;
@@ -29,6 +30,7 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
 
     let disposable = commands.registerCommand('ballerina.highlightSyntax', () => {
         setEditorDecorations(highlightingInfo);
+        console.log(getScopeColor("string.begin.ballerina"));
     });
     
     context.subscriptions.push(disposable);
