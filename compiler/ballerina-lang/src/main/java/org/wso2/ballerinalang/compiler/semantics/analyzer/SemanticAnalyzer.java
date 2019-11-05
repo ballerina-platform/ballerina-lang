@@ -1941,11 +1941,12 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 matchedType = matchedDetailItem.type;
             }
 
+            checkErrorDetailRefItem(detailItem.pos, rhsPos, detailItem, matchedType);
+            resetTypeNarrowing(detailItem.expr, matchedType);
             if (!types.isAssignable(matchedType, detailItem.expr.type)) {
                 dlog.error(detailItem.pos, DiagnosticCode.INCOMPATIBLE_TYPES,
                         detailItem.expr.type, matchedType);
             }
-            checkErrorDetailRefItem(detailItem.pos, rhsPos, detailItem, matchedType);
         }
         if (lhsRef.restVar != null && !isIgnoreVar(lhsRef)) {
             setTypeOfVarRefInErrorBindingAssignment(lhsRef.restVar);
@@ -1955,6 +1956,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 dlog.error(lhsRef.restVar.pos, DiagnosticCode.INCOMPATIBLE_TYPES, lhsRef.restVar.type, expRestType);
                 return;
             }
+            resetTypeNarrowing(lhsRef.restVar, expRestType);
             typeChecker.checkExpr(lhsRef.restVar, env);
         }
     }

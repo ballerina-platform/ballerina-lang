@@ -564,4 +564,16 @@ public class TypeGuardTest {
         BValue[] returns = BRunUtil.invoke(result, "testTypeGuardForRecordDestructuringAssignmentNegative");
         Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
     }
+
+    @Test
+    public void testTypeGuardForErrorDestructuringAssignmentPositive() {
+        BValue[] returns = BRunUtil.invoke(result, "testTypeGuardForErrorDestructuringAssignmentPositive");
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test
+    public void testTypeGuardForErrorDestructuringAssignmentNegative() {
+        BValue[] returns = BRunUtil.invoke(result, "testTypeGuardForErrorDestructuringAssignmentNegative");
+        Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
+    }
 }
