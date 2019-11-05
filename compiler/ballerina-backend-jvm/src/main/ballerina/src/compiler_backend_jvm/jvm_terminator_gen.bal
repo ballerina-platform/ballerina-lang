@@ -274,7 +274,7 @@ type TerminatorGenerator object {
         self.genCall(callIns, orgName, moduleName, localVarOffset);
 
         // store return
-        self.storeReturnFromCallIns(callIns);
+        self.storeReturnFromCallIns(callIns.lhsOp?.variableDcl);
     }
 
     function genJCallTerm(JavaMethodCall callIns, string funcName, bir:BType? attachedType, int localVarOffset) {

@@ -177,7 +177,7 @@ function generateCheckCastBToJDouble(jvm:MethodVisitor mv, bir:BType sourceType)
 function generateCheckCastBToJRef(jvm:MethodVisitor mv, bir:BType sourceType, jvm:JRefType | jvm:JArrayType targetType) {
     if (sourceType is bir:BTypeHandle) {
         mv.visitMethodInsn(INVOKEVIRTUAL, HANDLE_VALUE, "getValue", "()Ljava/lang/Object;", false);
-	    string sig = getSignatureForJType(targetType);
+	string sig = getSignatureForJType(targetType);
         mv.visitTypeInsn(CHECKCAST, sig);
     } else if (sourceType is bir:BTypeDecimal) {
         // In this case we should send a BigDecimal to java side 

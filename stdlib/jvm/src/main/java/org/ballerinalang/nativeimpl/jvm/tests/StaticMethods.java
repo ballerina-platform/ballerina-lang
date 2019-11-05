@@ -31,6 +31,7 @@ import org.ballerinalang.jvm.values.ObjectValue;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.UUID;
 
@@ -270,5 +271,25 @@ public class StaticMethods {
 
     public static String returnStringForBUnionFromJava() {
         return "99999";
+    }
+    /////////////
+
+
+    public static ArrayValue mockedNativeFuncWithOptionalParams(long a, double b, String c,
+                                                                long d, String e) {
+        BTupleType tupleType = new BTupleType(
+                Arrays.asList(BTypes.typeInt, BTypes.typeFloat, BTypes.typeString, BTypes.typeInt, BTypes.typeString));
+        ArrayValue tuple = new ArrayValue(tupleType);
+        tuple.add(0, Long.valueOf(a));
+        tuple.add(1, Double.valueOf(b));
+        tuple.add(2, (Object) c);
+        tuple.add(3, Long.valueOf(d));
+        tuple.add(4, (Object) e);
+        return tuple;
+    }
+
+    public static UUID getUUId() {
+        UUID uuid = UUID.randomUUID();
+        return uuid;
     }
 }

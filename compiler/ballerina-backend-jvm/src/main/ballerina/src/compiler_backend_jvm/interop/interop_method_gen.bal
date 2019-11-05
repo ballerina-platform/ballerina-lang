@@ -288,28 +288,25 @@ function genJFieldForInteropField(JFieldFunctionWrapper jFieldFuncWrapper,
 
     if retType is bir:BTypeNil {
         mv.visitInsn(ACONST_NULL);
+    } else if retType is bir:BTypeHandle {
+        // Here the corresponding Java method parameter type is 'jvm:RefType'. This has been verified before
+        bir:VariableDcl retJObjectVarDcl = { typeValue: "any", name: { value: "$_ret_jobject_var_$" }, kind: "LOCAL" };
+        int returnJObjectVarRefIndex = indexMap.getIndex(retJObjectVarDcl);
+        mv.visitVarInsn(ASTORE, returnJObjectVarRefIndex);
+        mv.visitTypeInsn(NEW, HANDLE_VALUE);
+        mv.visitInsn(DUP);
+        mv.visitVarInsn(ALOAD, returnJObjectVarRefIndex);
+        mv.visitMethodInsn(INVOKESPECIAL, HANDLE_VALUE, "<init>", "(Ljava/lang/Object;)V", false);
     } else {
-        bir:VariableDcl retVarDcl = { typeValue: <bir:BType>retType, name: { value: "$_ret_var_$" }, kind: "LOCAL" };
-        returnVarRefIndex = indexMap.getIndex(retVarDcl);
-        if retType is bir:BTypeHandle {
-            // Here the corresponding Java method parameter type is 'jvm:JRefType'. This has been verified before
-            bir:VariableDcl retJObjectVarDcl = { typeValue: "any", name: { value: "$_ret_jobject_var_$" }, kind: "LOCAL" };
-            int returnJObjectVarRefIndex = indexMap.getIndex(retJObjectVarDcl);
-            mv.visitVarInsn(ASTORE, returnJObjectVarRefIndex);
-            mv.visitTypeInsn(NEW, HANDLE_VALUE);
-            mv.visitInsn(DUP);
-            mv.visitVarInsn(ALOAD, returnJObjectVarRefIndex);
-            mv.visitMethodInsn(INVOKESPECIAL, HANDLE_VALUE, "<init>", "(Ljava/lang/Object;)V", false);
+        // bType is a value-type
+        if(jFieldType is jvm:JPrimitiveType) {
+            performWideningPrimitiveConversion(mv, <BValueType>retType, jFieldType);
         } else {
-            // bType is a value-type
-            if(jFieldType is jvm:JPrimitiveType) {
-                performWideningPrimitiveConversion(mv, <BValueType>retType, jFieldType);
-            } else {
-                addUnboxInsn(mv, retType);
-            }
+            addUnboxInsn(mv, retType);
         }
-        generateVarStore(mv, retVarDcl, currentPackageName, returnVarRefIndex);
     }
+
+    generateVarStore(mv, retVarDcl, currentPackageName, returnVarRefIndex);
 
     jvm:Label retLabel = labelGen.getLabel("return_lable");
     mv.visitLabel(retLabel);
@@ -357,27 +354,27 @@ function desugarInteropFuncs(bir:Package module, JMethodFunctionWrapper extFuncW
     while (birFuncParamIndex < paramCount) {
         bir:FunctionParam birFuncParam = <bir:FunctionParam>birFuncParams[birFuncParamIndex];
         boolean isVarArg = (birFuncParamIndex == (paramCount - 1)) && birFunc.restParamExist;
-	    bir:BType bPType = birFuncParam.typeValue;
-	    jvm:JType jPType = jMethodParamTypes[jMethodParamIndex];
+	bir:BType bPType = birFuncParam.typeValue;
+	jvm:JType jPType = jMethodParamTypes[jMethodParamIndex];
         bir:VarRef argRef = {variableDcl:birFuncParam, typeValue:bPType};
-	    // we generate cast operations for unmatching B to J types
-	    if (!isVarArg && !isMatchingBAndJType(bPType, jPType)) {
-	        string varName = "$_param_jobject_var" + birFuncParamIndex.toString() + "_$";
+	// we generate cast operations for unmatching B to J types
+	if (!isVarArg && !isMatchingBAndJType(bPType, jPType)) {
+	    string varName = "$_param_jobject_var" + birFuncParamIndex.toString() + "_$";
             bir:VariableDcl paramVarDcl = { typeValue:jPType, name: { value: varName }, kind: "LOCAL" };
-	        birFunc.localVars[birFunc.localVars.length()] = paramVarDcl;
-	        bir:VarRef paramVarRef = {typeValue:jPType, variableDcl:paramVarDcl};
-	        JCast jToBCast = {pos:birFunc.pos, lhsOp:paramVarRef, rhsOp:argRef, targetType:jPType};
-	        argRef = paramVarRef;
-	        beginBB.instructions[beginBB.instructions.length()] = jToBCast;
-	    }
-	    // for var args, we have two options
-	    // 1 - desugar java array creation here,
-	    // 2 - keep the var arg type in the intstruction and do the array creation in instruction gen
-	    // we are going with the option two for the time being, hence keeping var arg type in the instructions
-	    // (drawback with option 2 is, function frame may not have proper variables)
-	    if (isVarArg) {
-	        varArgType = jPType;
-	    }
+	    birFunc.localVars[birFunc.localVars.length()] = paramVarDcl;
+	    bir:VarRef paramVarRef = {typeValue:jPType, variableDcl:paramVarDcl};
+	    JCast jToBCast = {pos:birFunc.pos, lhsOp:paramVarRef, rhsOp:argRef, targetType:jPType};
+	    argRef = paramVarRef;
+	    beginBB.instructions[beginBB.instructions.length()] = jToBCast;
+	}
+	// for var args, we have two options
+	// 1 - desugar java array creation here,
+	// 2 - keep the var arg type in the intstruction and do the array creation in instruction gen
+	// we are going with the option two for the time being, hence keeping var arg type in the instructions
+	// (drawback with option 2 is, function frame may not have proper variables)
+	if (isVarArg) {
+	    varArgType = jPType;
+	}
         args[args.length()] = argRef;
         birFuncParamIndex += 1;
         jMethodParamIndex += 1;
@@ -386,14 +383,14 @@ function desugarInteropFuncs(bir:Package module, JMethodFunctionWrapper extFuncW
     int invocationType = INVOKESTATIC;
     if jMethod.kind is jvm:METHOD && !jMethod.isStatic {
         if jMethod.isInterface {
-	        invocationType = INVOKEINTERFACE;
+	    invocationType = INVOKEINTERFACE;
         } else {
-	        invocationType = INVOKEVIRTUAL;
+	    invocationType = INVOKEVIRTUAL;
         }
     } else if jMethod.kind is jvm:METHOD && jMethod.isStatic {
     	// nothing to do - remove later
     } else {
-	    invocationType = INVOKESPECIAL;
+	invocationType = INVOKESPECIAL;
     }
 
     bir:VarRef? jRetVarRef = ();
@@ -405,14 +402,14 @@ function desugarInteropFuncs(bir:Package module, JMethodFunctionWrapper extFuncW
     if (!(retType is bir:BTypeNil)) {
         bir:VarRef retRef = {variableDcl:getVariableDcl(birFunc.localVars[0]), typeValue:retType};
 
-	    if (!(jMethodRetType is jvm:JVoid)) {
-                bir:VariableDcl retJObjectVarDcl = { typeValue:jMethodRetType, name: { value: "$_ret_jobject_var_$" }, kind: "LOCAL" };
-	        birFunc.localVars[birFunc.localVars.length()] = retJObjectVarDcl;
-	        bir:VarRef castVarRef = {typeValue:jMethodRetType, variableDcl:retJObjectVarDcl};
-	        jRetVarRef = castVarRef;
-	        JCast jToBCast = {pos:birFunc.pos, lhsOp:retRef, rhsOp:castVarRef, targetType:retType};
-	        thenBB.instructions[thenBB.instructions.length()] = jToBCast;
-	    }
+	if (!(jMethodRetType is jvm:JVoid)) {
+            bir:VariableDcl retJObjectVarDcl = { typeValue:jMethodRetType, name: { value: "$_ret_jobject_var_$" }, kind: "LOCAL" };
+	    birFunc.localVars[birFunc.localVars.length()] = retJObjectVarDcl;
+	    bir:VarRef castVarRef = {typeValue:jMethodRetType, variableDcl:retJObjectVarDcl};
+	    jRetVarRef = castVarRef;
+	    JCast jToBCast = {pos:birFunc.pos, lhsOp:retRef, rhsOp:castVarRef, targetType:retType};
+	    thenBB.instructions[thenBB.instructions.length()] = jToBCast;
+	}
 
         bir:BasicBlock catchBB = {id: getNextDesugarBBId(bbPrefix), instructions: []};
        	JErrorEntry ee = { trapBB:beginBB, errorOp:retRef, targetBB:catchBB, catchIns:[] };
@@ -445,12 +442,12 @@ function desugarInteropFuncs(bir:Package module, JMethodFunctionWrapper extFuncW
     bir:Return ret = {pos:birFunc.pos, kind:bir:TERMINATOR_RETURN};
     retBB.terminator = ret;
 
-    // json|error j = json.constructFrom(birFunc);
-    // if (j is json) {
-    // 	io:println(j.toJsonString());
-    // } else {
-    // 	io:println(j);
-    // }
+    json|error j = json.constructFrom(birFunc);
+    if (j is json) {
+    	io:println(j.toJsonString());
+    } else {
+    	io:println(j);
+    }
 }
 
 function isMatchingBAndJType(bir:BType sourceTypes, jvm:JType targetType) returns boolean {

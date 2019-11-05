@@ -463,8 +463,7 @@ function generateFrameClassJFieldLoad(bir:VariableDcl localVar, jvm:MethodVisito
         mv.visitVarInsn(ISTORE, index);
     } else if (jType is jvm:JArrayType ||
                 jType is jvm:JRefType) {
-        mv.visitFieldInsn(GETFIELD, frameName, stringutils:replace(localVar.name.value, "%","_"),
-                io:sprintf("L%s;", OBJECT));
+        mv.visitFieldInsn(GETFIELD, frameName, stringutils:replace(localVar.name.value, "%","_"), getJTypeSignature(jType));
         mv.visitVarInsn(ASTORE, index);
     } else {
         error err = error( "JVM generation is not supported for type " +
@@ -599,9 +598,11 @@ function generateFrameClassJFieldUpdate(bir:VariableDcl localVar, jvm:MethodVisi
         mv.visitFieldInsn(PUTFIELD, frameName, stringutils:replace(localVar.name.value, "%","_"), "Z");
     } else if (jType is jvm:JArrayType ||
                 jType is jvm:JRefType) {
+	string classSig = getJTypeSignature(jType);
+	string className = getSignatureForJType(jType);
         mv.visitVarInsn(ALOAD, index);
-        mv.visitFieldInsn(PUTFIELD, frameName, stringutils:replace(localVar.name.value, "%","_"),
-                io:sprintf("L%s;", OBJECT));
+        mv.visitTypeInsn(CHECKCAST, className);
+        mv.visitFieldInsn(PUTFIELD, frameName, stringutils:replace(localVar.name.value, "%","_"), classSig);
     } else {
         error err = error( "JVM generation is not supported for type " +
                                     io:sprintf("%s", jType));
@@ -651,6 +652,8 @@ function getJVMTypeSign(bir:BType bType) returns string {
             || bType is bir:BJSONType
             || bType is bir:BFiniteType) {
         jvmType = io:sprintf("L%s;", OBJECT);
+    } else if (bType is jvm:JType) {
+        jvmType = getJTypeSignature(bType);
     } else if (bType is bir:BXMLType) {
         jvmType = io:sprintf("L%s;", XML_VALUE);
     }
