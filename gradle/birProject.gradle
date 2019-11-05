@@ -67,10 +67,10 @@ task createBirJar(type: Exec) {
         def jarsToBeLoaded = [];
         def mapPath = OperatingSystem.current().isWindows() ? "\"\"" : ""
         if (!sourceSets.main.allJava.isEmpty()) {
-            mapPath = generatedBirDir + project.ext.moduleName + '.map.json'
-        }
-        if (!file(mapPath).exists()) {
-            mapPath = ""
+            def generatedMapPath = generatedBirDir + project.ext.moduleName + '.map.json'
+            if (file(generatedMapPath).exists()) {
+                mapPath = generatedMapPath
+            }
         }
 
         jarsToBeLoaded.add("$rootDir" + "/bvm/ballerina-runtime/build/libs/ballerina-runtime-${project.version}.jar");
