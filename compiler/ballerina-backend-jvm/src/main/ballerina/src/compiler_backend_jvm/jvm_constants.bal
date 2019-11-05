@@ -297,6 +297,7 @@ const string LIST = "java/util/List";
 const string SET = "java/util/Set";
 const string LINKED_HASH_SET = "java/util/LinkedHashSet";
 const string STRING_BUILDER = "java/lang/StringBuilder";
+const string STRING_JOINER = "java/util/StringJoiner";
 const string COMPARABLE = "java/lang/Comparable";
 const string FUNCTION = "java/util/function/Function";
 const string CONSUMER = "java/util/function/Consumer";
@@ -304,6 +305,9 @@ const string EXCEPTION = "java/lang/Exception";
 const string LONG_STREAM = "java/util/stream/LongStream";
 const string JAVA_THREAD = "java/lang/Thread";
 const string JAVA_RUNTIME = "java/lang/Runtime";
+const string MAP_ENTRY = "java/util/Map$Entry";
+const string MAP_SIMPLE_ENTRY = "java/util/AbstractMap$SimpleEntry";
+const string COLLECTION = "java/util/Collection";
 
 // service objects, annotation processing related classes
 const string ANNOTATION_UTILS = "org/ballerinalang/jvm/AnnotationUtils";

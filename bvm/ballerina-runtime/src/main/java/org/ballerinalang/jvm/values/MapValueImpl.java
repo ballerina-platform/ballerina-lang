@@ -50,6 +50,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -281,30 +282,7 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
             writeLock.unlock();
         }
     }
-
-    /**
-     * @param key key with which the specified value is to be associated
-     * @param value value to be associated with the specified key
-     * @return the previous value associated with <tt>key</tt>, or
-     *         <tt>null</tt> if there was no mapping for <tt>key</tt>.
-     *         (A <tt>null</tt> return can also indicate that the map
-     *         previously associated <tt>null</tt> with <tt>key</tt>.)
-     */
-    protected V putValue(K key, V value) {
-        return super.put(key, value);
-    }
-
-    /**
-     * Retrieve the value for the given key from map.
-     * A null will be returned if the key does not exists.
-     *
-     * @param key key used to get the value
-     * @return value associated with the key
-     */
-    protected V getValue(Object key) {
-        return super.get(key);
-    }
-
+    
     /**
      * Check the freeze status of the current map value for updates. If its frozen,
      * then a {@link ErrorValue} will be thrown.
@@ -339,7 +317,7 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
             if (freezeStatus.getState() != State.UNFROZEN) {
                 handleInvalidUpdate(freezeStatus.getState(), MAP_LANG_LIB);
             }
-            super.clear();
+            removeAll();
         } finally {
             writeLock.unlock();
         }
@@ -355,7 +333,7 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
     public boolean containsKey(Object key) {
         readLock.lock();
         try {
-            return super.containsKey(key);
+            return hasKey(key);
         } finally {
             readLock.unlock();
         }
@@ -384,7 +362,7 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
             if (freezeStatus.getState() != State.UNFROZEN) {
                 handleInvalidUpdate(freezeStatus.getState(), MAP_LANG_LIB);
             }
-            return super.remove(key);
+            return removeValue(key);
         } finally {
             writeLock.unlock();
         }
@@ -399,8 +377,7 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
     public K[] getKeys() {
         readLock.lock();
         try {
-            Set<K> keys = super.keySet();
-            return (K[]) keys.toArray(new String[keys.size()]);
+            return keys();
         } finally {
             readLock.unlock();
         }
@@ -414,7 +391,7 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
     public Collection<V> values() {
         readLock.lock();
         try {
-            return super.values();
+            return getValues();
         } finally {
             readLock.unlock();
         }
@@ -429,7 +406,7 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
     public int size() {
         readLock.lock();
         try {
-            return super.size();
+            return getSize();
         } finally {
             readLock.unlock();
         }
@@ -443,7 +420,7 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
     public boolean isEmpty() {
         readLock.lock();
         try {
-            return super.size() == 0;
+            return getSize() == 0;
         } finally {
             readLock.unlock();
         }
@@ -469,7 +446,7 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
 
             MapValueImpl<K, V> newMap = new MapValueImpl<>(type);
             refs.put(this, newMap);
-            for (Map.Entry<K, V> entry : super.entrySet()) {
+            for (Map.Entry<K, V> entry : this.entrySet()) {
                 V value = entry.getValue();
                 value = value instanceof RefValue ? (V) ((RefValue) value).copy(refs) : value;
                 newMap.put(entry.getKey(), value);
@@ -498,8 +475,8 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
     @Override
     public String stringValue(Strand strand) {
         readLock.lock();
-        StringJoiner sj = new StringJoiner(" ");
         try {
+            StringJoiner sj = new StringJoiner(" ");
             for (Map.Entry<K, V> kvEntry : this.entrySet()) {
                 K key = kvEntry.getKey();
                 V value = kvEntry.getValue();
@@ -611,7 +588,7 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
 
         if (FreezeUtils.isOpenForFreeze(this.freezeStatus, freezeStatus)) {
             this.freezeStatus = freezeStatus;
-            super.values().forEach(val -> {
+            getValues().forEach(val -> {
                 if (val instanceof RefValue) {
                     ((RefValue) val).attemptFreeze(freezeStatus);
                 }
@@ -644,16 +621,6 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
         return freezeStatus.isFrozen();
     }
 
-    // Private methods
-
-    private String getStringValue(Object value) {
-        if (value == null) {
-            return null;
-        } else {
-            return value.toString();
-        }
-    }
-
     public String getJSONString() {
         ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
         JSONGenerator gen = new JSONGenerator(byteOut);
@@ -668,7 +635,7 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
 
     @Override
     public IteratorValue getIterator() {
-        return new MapIterator<>(new LinkedHashMap<>(this).entrySet().iterator());
+        return new MapIterator<>(new LinkedHashSet<>(this.entrySet()).iterator());
     }
 
     /**
@@ -732,5 +699,43 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
      */
     public Map<String, Object> getNativeDataMap() {
         return this.nativeData;
+    }
+
+    /*
+     * Below are a set of convenient methods that handle map related operations.
+     * This makes it easier to extend the operations without affecting the
+     * common behaviors such as error handling.
+     */
+    protected V putValue(K key, V value) {
+        return super.put(key, value);
+    }
+
+    protected V getValue(Object key) {
+        return super.get(key);
+    }
+
+    protected boolean hasKey(Object key) {
+        return super.containsKey(key);
+    }
+
+    protected V removeValue(Object key) {
+        return super.remove(key);
+    }
+
+    protected K[] keys() {
+        Set<K> keys = super.keySet();
+        return (K[]) keys.toArray(new String[keys.size()]);
+    }
+
+    protected void removeAll() {
+        super.clear();
+    }
+
+    protected Collection<V> getValues() {
+        return super.values();
+    }
+
+    protected int getSize() {
+        return super.size();
     }
 }

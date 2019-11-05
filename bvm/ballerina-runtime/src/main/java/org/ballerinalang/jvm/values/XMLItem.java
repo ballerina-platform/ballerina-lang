@@ -1096,6 +1096,33 @@ public final class XMLItem extends XMLValue<OMNode> {
             return this.bXmlItem.isFrozen();
         }
 
+        @Override
+        public Set<Map.Entry<String, String>> entrySet() {
+            Set<Map.Entry<String, String>> keys = new LinkedHashSet<>();
+            if (this.bXmlItem.nodeType != XMLNodeType.ELEMENT) {
+                return keys;
+            }
+
+            String namespaceOfPrefix = getNamespaceOfPrefix();
+            Iterator<OMNamespace> namespaceIterator = ((OMElement) this.bXmlItem.omNode).getAllDeclaredNamespaces();
+            while (namespaceIterator.hasNext()) {
+                OMNamespace namespace = namespaceIterator.next();
+                String prefix = namespace.getPrefix();
+                if (prefix.isEmpty()) {
+                    continue;
+                }
+                keys.add(new SimpleEntry<>(namespaceOfPrefix + prefix, namespace.getNamespaceURI()));
+            }
+
+            Iterator<OMAttribute> attrIterator = ((OMElement) this.bXmlItem.omNode).getAllAttributes();
+            while (attrIterator.hasNext()) {
+                OMAttribute attr = attrIterator.next();
+                keys.add(new SimpleEntry<>(attr.getQName().toString(), attr.getAttributeValue()));
+            }
+
+            return keys;
+        }
+
         // private methods
         private String getNamespaceOfPrefix() {
             OMNamespace defaultNs = ((OMElement) this.bXmlItem.omNode).getDefaultNamespace();

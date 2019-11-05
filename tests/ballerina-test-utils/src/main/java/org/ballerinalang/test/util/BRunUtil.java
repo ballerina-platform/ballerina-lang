@@ -866,11 +866,11 @@ public class BRunUtil {
             case org.ballerinalang.jvm.types.TypeTags.RECORD_TYPE_TAG:
             case org.ballerinalang.jvm.types.TypeTags.JSON_TAG:
             case org.ballerinalang.jvm.types.TypeTags.MAP_TAG:
-                MapValueImpl jvmMap = (MapValueImpl) value;
+                MapValueImpl<?, ?> jvmMap = (MapValueImpl) value;
                 BMap<Object, BRefType> bmap = new BMap<Object, BRefType>(getBVMType(jvmMap.getType(), new Stack<>()));
                 bvmValueMap.put(String.valueOf(value.hashCode()), bmap);
-                for (Object key : jvmMap.keySet()) {
-                    bmap.put(key, getBVMValue(jvmMap.get(key), bvmValueMap));
+                for (Map.Entry entry : jvmMap.entrySet()) {
+                    bmap.put(entry.getKey(), getBVMValue(entry.getValue(), bvmValueMap));
                 }
                 bmap.getNativeData().putAll(jvmMap.getNativeDataMap());
                 return bmap;
