@@ -1,7 +1,7 @@
 <idea-plugin>
     <id>io.ballerina</id>
     <name>Ballerina</name>
-    <version>1.0.2</version>
+    <version>1.0.3</version>
     <vendor email="ballerinalang@wso2.com" url="https://ballerina.io/">BallerinaLang</vendor>
 
     <description><![CDATA[
@@ -13,9 +13,8 @@
 
     <change-notes><![CDATA[
       <ul>
-        <li> Added fixes for Ballerina external library tracker.</li>
-        <li> Added debugger-related minor fixes and improvements. </li>
-        <li> Fixed package reference highlighting inside annotation attachments. </li>
+        <li> Added smart on-type-formatting for ballerina string splitting.</li>
+        <li> Fixed and improved double quotes handling.</li>
       </ul>
     ]]>
     </change-notes>
