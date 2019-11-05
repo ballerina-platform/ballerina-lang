@@ -7,6 +7,7 @@ import org.testng.annotations.Test;
 import picocli.CommandLine;
 
 import java.io.IOException;
+import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -261,8 +262,21 @@ public class OpenApiGenServiceCmdTest extends OpenAPICommandTest {
             matcher.find();
 
             String contractPath = "contract: " + "\"" + matcher.group(1)  + "\"";
-            expectedServiceContent = expectedServiceContent.replaceAll("\\bcontract\\b: \"(.*?)\"", contractPath);
+            expectedServiceContent = expectedServiceContent.replaceAll("\\bcontract\\b: \"(.*?)\"",
+                    contractPath);
             expectedServiceLines.close();
+
+            PrintStream outStream = System.err;
+            outStream.println("\n\n---------------------------- Generated Service -----------------------------------");
+            outStream.println("\n\n");
+            outStream.println(generatedService);
+            outStream.println("\n\n");
+            outStream.println("\n\n---------------------------- Generated Service -----------------------------------");
+            outStream.println("\n\n---------------------------- Expected  Service -----------------------------------");
+            outStream.println("\n\n");
+            outStream.println(expectedServiceContent);
+            outStream.println("\n\n");
+            outStream.println("\n\n---------------------------- Expected  Service -----------------------------------");
 
             if (expectedServiceContent.trim().equals(generatedService.trim())) {
                 Assert.assertTrue(true);
