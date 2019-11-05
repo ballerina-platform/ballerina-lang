@@ -246,7 +246,8 @@ class JMethodResolver {
                 case TypeTags.DECIMAL_TAG:
                     return this.classLoader.loadClass(BigDecimal.class.getCanonicalName()).isAssignableFrom(jParamType);
                 case TypeTags.STRING_TAG:
-                    return this.classLoader.loadClass(String.class.getCanonicalName()).isAssignableFrom(jParamType);
+                    // Currently no java type matches to ballerina string type.
+                    return false;
                 case TypeTags.MAP_TAG:
                 case TypeTags.RECORD_TYPE_TAG:
                 case TypeTags.JSON_TAG:
