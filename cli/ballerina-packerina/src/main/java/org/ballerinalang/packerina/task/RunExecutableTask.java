@@ -26,9 +26,9 @@ import org.ballerinalang.packerina.buildcontext.sourcecontext.SingleFileContext;
 import org.ballerinalang.packerina.buildcontext.sourcecontext.SingleModuleContext;
 import org.ballerinalang.tool.util.BFileUtil;
 import org.ballerinalang.util.BootstrapRunner;
-import org.ballerinalang.util.JBallerinaInMemoryClassLoader;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
+import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -85,7 +85,7 @@ public class RunExecutableTask implements Task {
     @Override
     public void execute(BuildContext buildContext) {
         Path sourceRootPath = buildContext.get(BuildContextField.SOURCE_ROOT);
-        
+        Path runtimeJar = getRuntimeAllJar(buildContext);
         if (!this.isGeneratedExecutable) {
             this.runExecutable();
             return;
@@ -141,9 +141,8 @@ public class RunExecutableTask implements Task {
         }
     
         // set the source root path relative to the source path i.e. set the parent directory of the source path
-        System.setProperty(ProjectDirConstants.BALLERINA_SOURCE_ROOT, sourceRootPath.toString());
-        
-        this.runGeneratedExecutable(executableModule);
+        System.setProperty(ProjectDirConstants.BALLERINA_SOURCE_ROOT, sourceRootPath.toString());;
+        this.runGeneratedExecutable(executableModule, buildContext, runtimeJar);
     }
     
     /**
@@ -151,16 +150,16 @@ public class RunExecutableTask implements Task {
      *
      * @param executableModule The module to run.
      */
-    private void runGeneratedExecutable(BLangPackage executableModule) {
+    private void runGeneratedExecutable(BLangPackage executableModule, BuildContext buildContext, Path runtimeJar) {
         String balHome = Objects.requireNonNull(System.getProperty("ballerina.home"),
                 "ballerina.home is not set");
-        JBallerinaInMemoryClassLoader classLoader;
+        ClassLoader classLoader;
         try {
             ConfigRegistry.getInstance().setInitialized(true);
             Path targetDirectory = Files.createTempDirectory("ballerina-compile").toAbsolutePath();
-            classLoader = BootstrapRunner.createClassLoaders(executableModule,
-                    Paths.get(balHome).resolve("bir-cache"),
-                    targetDirectory, Optional.empty(), false, false);
+            classLoader = BootstrapRunner.createClassLoaders(executableModule, Paths.get(balHome).resolve("bir-cache"),
+                                                             targetDirectory, Optional.empty(), false, runtimeJar,
+                                                             buildContext.moduleDependencyPathMap);
             ConfigRegistry.getInstance().setInitialized(false);
         } catch (IOException e) {
             throw new BLangCompilerException("error invoking jballerina backend", e);
@@ -181,10 +180,9 @@ public class RunExecutableTask implements Task {
             throw createLauncherException("main method cannot be found for init class " + initClassName);
         } catch (IllegalAccessException | IllegalArgumentException e) {
             throw createLauncherException("invoking main method failed due to " + e.getMessage());
-        } catch (InvocationTargetException | NoSuchFieldException e) {
+        } catch (ClassNotFoundException | InvocationTargetException | NoSuchFieldException e) {
             throw createLauncherException("invoking main method failed due to ", e.getCause());
         }
-        
     }
     
     /**
@@ -234,5 +232,12 @@ public class RunExecutableTask implements Task {
         } catch (IOException e) {
             throw createLauncherException("error while getting init class name from manifest due to " + e.getMessage());
         }
+    }
+
+    private Path getRuntimeAllJar(BuildContext buildContext) {
+        String balHomePath = buildContext.get(BuildContextField.HOME_REPO).toString();
+        String ballerinaVersion = RepoUtils.getBallerinaVersion();
+        String runtimeJarName = "ballerina-rt-" + ballerinaVersion + BLANG_COMPILED_JAR_EXT;
+        return Paths.get(balHomePath, "bre", "lib", runtimeJarName);
     }
 }

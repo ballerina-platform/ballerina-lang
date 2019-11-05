@@ -39,6 +39,7 @@ public class ASMUtil {
     public static final String JVM_PKG_PATH = BALLERINA_PACKAGE_PREFIX + "jvm";
     public static final BPackage JVM_PKG_ID = new BPackage(BALLERINA_BUILTIN_PKG_PREFIX, "jvm");
     public static final String NATIVE_KEY = "native";
+    public static final String INTEROP_VALIDATOR = "InteropValidator";
 
     public static final String OBJECT_DESC = "Ljava/lang/Object;";
     public static final String FUNCTION_DESC = "Ljava/util/function/Function;";

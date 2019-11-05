@@ -1889,10 +1889,7 @@ public class BLangPackageBuilder {
                                      List<String> nameComps,
                                      String version,
                                      String alias) {
-        // Disabling versioned import until compiler support semvar versioned imports
-        if (!(version == null || version.isEmpty())) {
-            this.dlog.error(pos, DiagnosticCode.VERSIONED_IMPORT_NOT_SUPPORTED);
-        }
+
         BLangImportPackage importDcl = getImportPackage(pos, ws, orgName, nameComps, version, alias);
         this.compUnit.addTopLevelNode(importDcl);
         this.imports.add(importDcl);

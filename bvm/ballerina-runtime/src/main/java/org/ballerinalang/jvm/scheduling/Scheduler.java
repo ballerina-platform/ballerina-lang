@@ -105,8 +105,9 @@ public class Scheduler {
         return schedule(params, fp.getFunction(), parent, null, null, returnType);
     }
 
+    @Deprecated
     public FutureValue scheduleConsumer(Object[] params, FPValue<?, ?> fp, Strand parent) {
-        return schedule(params, fp.getConsumer(), parent, null);
+        return schedule(params, fp.getFunction(), parent, (CallableUnitCallback) null);
     }
 
     /**
@@ -123,6 +124,20 @@ public class Scheduler {
     public FutureValue schedule(Object[] params, Function function, Strand parent, CallableUnitCallback callback,
                                 Map<String, Object> properties, BType returnType) {
         FutureValue future = createFuture(parent, callback, properties, returnType);
+        return schedule(params, function, parent, future);
+    }
+
+    /**
+     * Add a task to the runnable list, which will eventually be executed by the Scheduler.
+     *
+     * @param params   - parameters to be passed to the function
+     * @param function - function to be executed
+     * @param parent   - parent strand that makes the request to schedule another
+     * @param callback - to notify any listener when ever the execution of the given function is finished
+     * @return - Reference to the scheduled task
+     */
+    public FutureValue schedule(Object[] params, Function function, Strand parent, CallableUnitCallback callback) {
+        FutureValue future = createFuture(parent, callback, null, BTypes.typeNull);
         return schedule(params, function, parent, future);
     }
 
@@ -144,6 +159,7 @@ public class Scheduler {
      * @param callback - to notify any listener when ever the execution of the given function is finished
      * @return - Reference to the scheduled task
      */
+    @Deprecated
     public FutureValue schedule(Object[] params, Consumer consumer, Strand parent, CallableUnitCallback callback) {
         FutureValue future = createFuture(parent, callback, null, BTypes.typeNull);
         params[0] = future.strand;
@@ -380,7 +396,6 @@ public class Scheduler {
  */
 class SchedulerItem {
     private Function function;
-    private Consumer consumer;
     private Object[] params;
     final FutureValue future;
     boolean parked;
@@ -393,9 +408,13 @@ class SchedulerItem {
         this.params = params;
     }
 
+    @Deprecated
     public SchedulerItem(Consumer consumer, Object[] params, FutureValue future) {
         this.future = future;
-        this.consumer = consumer;
+        this.function = val -> {
+            consumer.accept(val);
+            return null;
+        };
         this.params = params;
     }
 
@@ -404,12 +423,7 @@ class SchedulerItem {
     }
 
     public Object execute() {
-        if (this.consumer != null) {
-            this.consumer.accept(this.params);
-            return null;
-        } else {
-            return this.function.apply(this.params);
-        }
+        return this.function.apply(this.params);
     }
 
     public boolean isYielded() {
