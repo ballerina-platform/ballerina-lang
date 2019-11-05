@@ -21,18 +21,13 @@ import * as path from 'path';
 import { debug } from '../utils/logger';
 import { ServerOptions, ExecutableOptions } from 'vscode-languageclient';
 
-export function getServerOptions(ballerinaHome: string, experimental: boolean, debugLogsEnabled: boolean, traceLogsEnabled: boolean) : ServerOptions {
-    debug(`Using Ballerina installation at ${ballerinaHome} for Language server.`);
-
-    const cwd = path.join(ballerinaHome, 'bin');
-    let args = [];
-    let cmd = (process.platform === 'win32') ? path.join(cwd, 'ballerina.bat') : path.join(cwd, 'ballerina');
-
-    args.push("start-language-server");
-
-    let opt: ExecutableOptions = {cwd: cwd};
+export function getServerOptions(ballerinaCmd: string, experimental: boolean, debugLogsEnabled: boolean, traceLogsEnabled: boolean) : ServerOptions {
+    debug(`Using Ballerina CLI command '${ballerinaCmd}' for Language server.`);
+    let cmd = ballerinaCmd;
+    let args = ["start-language-server"];
+  
+    let opt: ExecutableOptions = {};
     opt.env = Object.assign({}, process.env);
-    opt.env.BALLERINA_HOME = ballerinaHome;
     if (process.env.LSDEBUG === "true") {
         debug('Language Server is starting in debug mode.');
         args.push('--debug');
@@ -66,7 +61,7 @@ export function getServerOptions(ballerinaHome: string, experimental: boolean, d
 
 export function getOldServerOptions(ballerinaHome: string, experimental: boolean, debugLogsEnabled: boolean, traceLogsEnabled: boolean) : ServerOptions {
     // Fallback into old way, TODO: Remove this in a later verison
-    debug(`Using Ballerina installation at ${ballerinaHome} for Language server.`);
+    debug(`Using Ballerina installation at '${ballerinaHome}' for Language server.`);
 
     let cmd;
     const cwd = path.join(ballerinaHome, 'lib', 'tools', 'lang-server', 'launcher');

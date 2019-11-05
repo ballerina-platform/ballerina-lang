@@ -30,7 +30,7 @@ import {
 import * as path from 'path';
 import * as fs from 'fs';
 import { exec, execSync } from 'child_process';
-import { LanguageClientOptions, State as LS_STATE, RevealOutputChannelOn, DidChangeConfigurationParams } from "vscode-languageclient";
+import { LanguageClientOptions, State as LS_STATE, RevealOutputChannelOn, DidChangeConfigurationParams, ServerOptions } from "vscode-languageclient";
 import { getServerOptions, getOldServerOptions } from '../server/server';
 import { ExtendedLangClient } from './extended-language-client';
 import { log, getOutputChannel } from '../utils/index';
@@ -52,6 +52,7 @@ export interface ConstructIdentifier {
 export class BallerinaExtension {
     public telemetryReporter: TelemetryReporter;
     public ballerinaHome: string;
+    public ballerinaCmd: string;
     public isNewCLICmdSupported: boolean = true;
     public extension: Extension<any>;
     private clientOptions: LanguageClientOptions;
@@ -64,6 +65,7 @@ export class BallerinaExtension {
 
     constructor() {
         this.ballerinaHome = '';
+        this.ballerinaCmd = '';
         this.webviewPanels = {};
         // Load the extension
         this.extension = extensions.getExtension(EXTENSION_ID)!;
@@ -88,6 +90,7 @@ export class BallerinaExtension {
             if (this.overrideBallerinaHome()) {
                 log("Ballerina home is configured in settings.");
                 this.ballerinaHome = this.getConfiguredBallerinaHome();
+                this.ballerinaCmd = this.getBallerinaCmd(this.ballerinaHome);
                 // Lets check if ballerina home is valid.
                 if (!this.isValidBallerinaHome(this.ballerinaHome)) {
                     const msg = "Configured Ballerina home is not valid.";
@@ -101,8 +104,9 @@ export class BallerinaExtension {
             } else {
                 log("Auto detecting Ballerina home.");
                 // If ballerina home is not set try to auto detect ballerina home.
-                const { isBallerinaNotFound, isOldBallerinaDist, home } = this.autoDetectBallerinaHome();
+                const { isBallerinaNotFound, isOldBallerinaDist, home, cmd } = this.autoDetectBallerinaHome();
                 this.ballerinaHome = home;
+                this.ballerinaCmd = cmd;
 
                 if (isBallerinaNotFound) {
                     this.showMessageInstallBallerina();
@@ -118,7 +122,6 @@ export class BallerinaExtension {
                     return Promise.reject(msg);
                 }
             }
-            log("Using " + this.ballerinaHome + " as the Ballerina home.");
             // Validate the ballerina version.
             const pluginVersion = this.extension.packageJSON.version.split('-')[0];
             return this.getBallerinaVersion(this.ballerinaHome, this.overrideBallerinaHome()).then(ballerinaVersion => {
@@ -130,9 +133,11 @@ export class BallerinaExtension {
                 this.isNewCLICmdSupported = this.compareVersions(ballerinaVersion, "1.0.3", true) >= 0;
 
                 // if Home is found load Language Server.
-                let serverOptions = getServerOptions(this.getBallerinaHome(), this.isExperimental(), this.isDebugLogsEnabled(), this.isTraceLogsEnabled());
-                if (!this.isNewCLICmdSupported) {
-                    serverOptions = getOldServerOptions(this.getBallerinaHome(), this.isExperimental(), this.isDebugLogsEnabled(), this.isTraceLogsEnabled());
+                let serverOptions:ServerOptions;
+                if (this.isNewCLICmdSupported) {
+                    serverOptions = getServerOptions(this.ballerinaCmd, this.isExperimental(), this.isDebugLogsEnabled(), this.isTraceLogsEnabled());
+                } else {
+                    serverOptions = getOldServerOptions(this.ballerinaHome, this.isExperimental(), this.isDebugLogsEnabled(), this.isTraceLogsEnabled());
                 }
                 this.langClient = new ExtendedLangClient('ballerina-vscode', 'Ballerina LS Client', serverOptions, this.clientOptions, false);
 
@@ -441,7 +446,7 @@ export class BallerinaExtension {
         return <boolean>workspace.getConfiguration().get(ENABLE_TRACE_LOG);
     }
 
-    autoDetectBallerinaHome(): { home: string, isOldBallerinaDist: boolean, isBallerinaNotFound: boolean } {
+    autoDetectBallerinaHome(): { home: string, cmd: string, isOldBallerinaDist: boolean, isBallerinaNotFound: boolean } {
         let balHomeOutput = "",
             isBallerinaNotFound = false,
             isOldBallerinaDist = false;
@@ -464,6 +469,7 @@ export class BallerinaExtension {
 
         return {
             home: isBallerinaNotFound || isOldBallerinaDist ? '' : balHomeOutput,
+            cmd: this.getBallerinaCmd(this.overrideBallerinaHome()? balHomeOutput: ''),
             isBallerinaNotFound,
             isOldBallerinaDist
         };

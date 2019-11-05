@@ -114,7 +114,7 @@ class BallerinaDebugAdapterDescriptorFactory implements DebugAdapterDescriptorFa
         const port = session.configuration.debugServer;
         const cwd = this.getCurrentWorkingDir();
         let args:string[] = [];
-        const cmd = this.getScriptPath(cwd, args);
+        const cmd = this.getScriptPath(args);
 
         const SHOW_VSCODE_IDE_DOCS = "https://ballerina.io/learn/tools-ides/vscode-plugin/run-and-debug";
         const showDetails: string = 'Learn More';
@@ -129,8 +129,7 @@ class BallerinaDebugAdapterDescriptorFactory implements DebugAdapterDescriptorFa
 
         let opt: ExecutableOptions = {cwd: cwd};
         opt.env = Object.assign({}, process.env);
-        opt.env.BALLERINA_HOME = this.ballerinaExtInstance.getBallerinaHome();
-        
+  
         const serverProcess = child_process.spawn(cmd, args, opt);
 
         if (this.ballerinaExtInstance.isNewCLICmdSupported) {
@@ -155,21 +154,14 @@ class BallerinaDebugAdapterDescriptorFactory implements DebugAdapterDescriptorFa
             return new DebugAdapterServer(port);
         });
     }
-    getScriptPath(cwd: string, args: string[]) :  string {
+    getScriptPath(args: string[]) :  string {
         if (this.ballerinaExtInstance.isNewCLICmdSupported) {
-            const cwd = path.join(this.ballerinaExtInstance.getBallerinaHome(), "bin");
-            let cmd;
-            if (process.platform === 'win32') {
-                cmd = path.join(cwd, 'ballerina.bat');
-            } else {
-                cmd = 'sh';
-                args.push(path.join(cwd, 'ballerina'));
-            }
+            let cmd = this.ballerinaExtInstance.ballerinaCmd;
             args.push('start-debugger-adapter');
             return cmd;
         } else {
             // Fallback into old way, TODO: Remove this in a later verison
-            const cwd = path.join(this.ballerinaExtInstance.getBallerinaHome(), "lib", "tools", "debug-adapter", "launcher");
+            const cwd = path.join(this.ballerinaExtInstance.ballerinaHome, "lib", "tools", "debug-adapter", "launcher");
             let startScriptPath = path.resolve(cwd, "debug-adapter-launcher.sh");
             // Ensure that start script can be executed
             if (isUnix()) {
@@ -182,10 +174,10 @@ class BallerinaDebugAdapterDescriptorFactory implements DebugAdapterDescriptorFa
     }
     getCurrentWorkingDir() :  string {
         if (this.ballerinaExtInstance.isNewCLICmdSupported) {
-            return path.join(this.ballerinaExtInstance.getBallerinaHome(), "bin");
+            return path.join(this.ballerinaExtInstance.ballerinaHome, "bin");
         } else {
             // Fallback into old way, TODO: Remove this in a later verison
-            return path.join(this.ballerinaExtInstance.getBallerinaHome(), "lib", "tools", "debug-adapter", "launcher");
+            return path.join(this.ballerinaExtInstance.ballerinaHome, "lib", "tools", "debug-adapter", "launcher");
         }
     }
 }

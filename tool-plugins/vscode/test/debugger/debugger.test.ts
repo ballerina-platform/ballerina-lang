@@ -49,8 +49,7 @@ suite('Ballerina Debug Adapter', () => {
         
         let opt: ExecutableOptions = {cwd: cwd};
         opt.env = Object.assign({}, process.env);
-        opt.env.BALLERINA_HOME = this.ballerinaExtInstance.getBallerinaHome();
-        
+     
         let cmd = '';
         let args : string[] = [];
         if (process.platform === 'win32') {
