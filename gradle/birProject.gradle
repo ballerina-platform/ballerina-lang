@@ -69,6 +69,9 @@ task createBirJar(type: Exec) {
         if (!sourceSets.main.allJava.isEmpty()) {
             mapPath = generatedBirDir + project.ext.moduleName + '.map.json'
         }
+        if (!file(mapPath).exists()) {
+            mapPath = ""
+        }
 
         jarsToBeLoaded.add("$rootDir" + "/bvm/ballerina-runtime/build/libs/ballerina-runtime-${project.version}.jar");
         new File("$projectDir/src/main/ballerina/Ballerina.toml").readLines().
