@@ -17,8 +17,6 @@
 */
 package org.ballerinalang.jvm.values.api;
 
-import org.ballerinalang.jvm.values.RefValue;
-
 /**
  * <p>
  * Represents an XML qualified name in ballerina.
@@ -26,7 +24,7 @@ import org.ballerinalang.jvm.values.RefValue;
  * 
  * @since 1.1.0
  */
-public interface BXmlQName extends RefValue {
+public interface BXmlQName extends BRefValue {
 
     /**
      * Create attribute map with an XML.

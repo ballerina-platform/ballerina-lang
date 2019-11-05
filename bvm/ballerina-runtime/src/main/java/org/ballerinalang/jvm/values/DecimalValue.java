@@ -517,6 +517,7 @@ public class DecimalValue implements BDecimal {
      * Get the string value.
      * @return string value
      */
+    @Override
     public String toString() {
         return this.stringValue();
     }

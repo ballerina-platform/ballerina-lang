@@ -21,7 +21,6 @@ package org.ballerinalang.jvm.values.api;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.values.FPValue;
-import org.ballerinalang.jvm.values.RefValue;
 
 /**
  * <p>
@@ -30,13 +29,7 @@ import org.ballerinalang.jvm.values.RefValue;
  *
  * @since 1.1.0
  */
-public interface BStream extends RefValue {
-
-    /**
-     * {@inheritDoc}
-     */
-    String stringValue(Strand strand);
-
+public interface BStream extends BRefValue {
     /**
      * Returns the constrained {@code BType} of the stream.
      *

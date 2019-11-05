@@ -21,8 +21,10 @@
  import org.ballerinalang.jvm.BallerinaValues;
  import org.ballerinalang.jvm.DecimalValueKind;
  import org.ballerinalang.jvm.JSONDataSource;
+ import org.ballerinalang.jvm.types.BArrayType;
  import org.ballerinalang.jvm.types.BPackage;
  import org.ballerinalang.jvm.types.BStructureType;
+ import org.ballerinalang.jvm.types.BTupleType;
  import org.ballerinalang.jvm.types.BType;
  import org.ballerinalang.jvm.values.ArrayValue;
  import org.ballerinalang.jvm.values.DecimalValue;
@@ -49,13 +51,22 @@
   */
  public class BValueCreator {
      /**
-      * Creates a new array with given type.
+      * Creates a new array with given array type.
       *
-      * @param type the {@code BType} object representing the element
-      *             type of the array
+      * @param type the {@code BArrayType} object representing the type
       * @return the new array
       */
-     public static BArray createArrayValue(BType type) {
+     public static BArray createArrayValue(BArrayType type) {
+         return new ArrayValue(type);
+     }
+
+     /**
+      * Creates a new tuple with given tuple type.
+      *
+      * @param type the {@code BTupleType} object representing the type
+      * @return the new array
+      */
+     public static BArray createArrayValue(BTupleType type) {
          return new ArrayValue(type);
      }
 

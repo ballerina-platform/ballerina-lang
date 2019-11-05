@@ -20,7 +20,6 @@ import org.ballerinalang.jvm.XMLNodeType;
 import org.ballerinalang.jvm.values.CollectionValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
-import org.ballerinalang.jvm.values.RefValue;
 import org.ballerinalang.jvm.values.XMLQName;
 
 /**
@@ -37,9 +36,9 @@ import org.ballerinalang.jvm.values.XMLQName;
  * </p>
  * 
  * @param <T> Type of the underlying impl
- * @since 0.995.0
+ * @since 1.1.0
  */
-public interface BXml<T> extends RefValue, CollectionValue {
+public interface BXml<T> extends BRefValue, CollectionValue {
 
     /**
      * Start of a XML comment.

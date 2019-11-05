@@ -18,7 +18,6 @@
  package org.ballerinalang.jvm.values.api;
 
  import org.ballerinalang.jvm.scheduling.Strand;
- import org.ballerinalang.jvm.values.RefValue;
  import org.ballerinalang.jvm.values.connector.CallableUnitCallback;
 
  /**
@@ -28,7 +27,7 @@
   *
   * @since 1.1.0
   */
-  public interface BFuture extends RefValue {
+  public interface BFuture extends BRefValue {
 
      /**
       * Abort execution of the {@code Strand} that the future is attached.

@@ -18,7 +18,6 @@
 package org.ballerinalang.jvm.values.api;
 
 import org.ballerinalang.jvm.types.BType;
-import org.ballerinalang.jvm.values.RefValue;
 
 /**
  * <p>
@@ -31,7 +30,7 @@ import org.ballerinalang.jvm.values.RefValue;
  *
  * @since 1.1.0
  */
-public interface BTypedesc extends RefValue {
+public interface BTypedesc extends BRefValue {
 
     /**
      * Returns the {@code BType} of the value describe by this type descriptor.

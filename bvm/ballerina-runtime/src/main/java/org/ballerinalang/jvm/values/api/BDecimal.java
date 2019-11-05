@@ -83,13 +83,6 @@ public interface BDecimal {
     boolean booleanValue();
 
     /**
-     * Returns the string value.
-     *
-     * @return string value
-     */
-    String stringValue();
-
-    /**
      * Returns the  {@code BigDecimal} value.
      *
      * @return the decimal value

@@ -17,8 +17,6 @@
  */
 package org.ballerinalang.jvm.values.api;
 
-import org.ballerinalang.jvm.values.RefValue;
-
 /**
  * <p>
  * Represent an opaque handle value in jBallerina.
@@ -26,7 +24,7 @@ import org.ballerinalang.jvm.values.RefValue;
  *  
  * @since 1.1.0
  */
-public interface BHandle extends RefValue {
+public interface BHandle extends BRefValue {
 
     /**
      * Returns the internal value of the handle.

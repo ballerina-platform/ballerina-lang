@@ -15,15 +15,11 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.jvm.values;
+package org.ballerinalang.jvm.values.api;
 
-import org.ballerinalang.jvm.commons.TypeValuePair;
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.util.exceptions.BLangFreezeException;
-import org.ballerinalang.jvm.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
-import org.ballerinalang.jvm.values.api.BRefValue;
 import org.ballerinalang.jvm.values.freeze.State;
 import org.ballerinalang.jvm.values.freeze.Status;
 import org.ballerinalang.jvm.values.utils.StringUtils;
@@ -31,40 +27,18 @@ import org.ballerinalang.jvm.values.utils.StringUtils;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.Charset;
-import java.util.List;
 import java.util.Map;
 
 /**
  * <p>
- * Interface to be implemented by all the reference types.
- * </p>
- * <p>
- * <i>Note: This is an internal API and may change in future versions.</i>
+ * Represents all the reference types.
  * </p>
  * 
- * @since 0.995.0
+ * @since 1.1.0
  */
-public interface RefValue extends BRefValue {
-
-    default String stringValue() {
-        return stringValue(null);
-    }
-
-    /**
-     * Returns the string presentation of the value on which the method is called. This is used only by ArrayValue
-     * and MapValueImpl.
-     * @param strand The strand on which the stringValue method is called
-     * @return String representation of value
-     */
-    default String stringValue(Strand strand) {
-        throw new BallerinaException("'stringValue(Strand strand)' not allowed on '" + getType() + "'");
-    }
+public interface BRefValue {
 
     BType getType();
-
-    default void stamp(BType type, List<TypeValuePair> unresolvedValues) {
-        throw new BLangRuntimeException("'constructFrom()' not allowed on '" + getType() + "'");
-    }
 
     /**
      * Method to perform a deep copy, recursively copying all structural values and their members.
@@ -96,7 +70,7 @@ public interface RefValue extends BRefValue {
     }
 
     /**
-     * Method to retrieve if the {@link RefValue} is frozen, if applicable. Compile time checks ensure
+     * Method to retrieve if the {@link BRefValue} is frozen, if applicable. Compile time checks ensure
      * that the check is only possible on structured basic types.
      *
      * @return Flag indicating whether the value is frozen or not
@@ -106,7 +80,7 @@ public interface RefValue extends BRefValue {
     }
 
     /**
-     * Method to attempt freezing a {@link RefValue}, to disallow further modification.
+     * Method to attempt freezing a {@link BRefValue}, to disallow further modification.
      *
      * @param freezeStatus the {@link Status} instance to keep track of the
      *            freeze result of this attempt
@@ -116,8 +90,8 @@ public interface RefValue extends BRefValue {
     }
 
     /**
-     * Sets the freeze status of {@link RefValue}, to disallow further modification. This method does not check if
-     * the {@link RefValue} is in the middle of freezing by another process.
+     * Sets the freeze status of {@link BRefValue}, to disallow further modification. This method does not check if
+     * the {@link BRefValue} is in the middle of freezing by another process.
      */
      default void freezeDirect() {
         throw new BLangFreezeException("'freezeDirect()' not allowed on '" + getType() + "'");
@@ -153,7 +127,7 @@ public interface RefValue extends BRefValue {
     }
 
     /**
-     * Default serialize implementation for {@link RefValue}.
+     * Default serialize implementation for {@link BRefValue}.
      *
      * @param outputStream Represent the output stream that the data will be written to.
      */

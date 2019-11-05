@@ -108,4 +108,9 @@ public class StreamValue implements RefValue, BStream {
     public void subscribe(FPValue<Object[], Object> functionPointer) {
         streamSubscriptionManager.registerMessageProcessor(this, functionPointer);
     }
+
+    @Override
+    public String toString() {
+        return stringValue();
+    }
 }

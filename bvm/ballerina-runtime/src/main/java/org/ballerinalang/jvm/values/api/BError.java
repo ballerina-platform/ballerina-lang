@@ -17,8 +17,6 @@
  */
 package org.ballerinalang.jvm.values.api;
 
-import org.ballerinalang.jvm.values.RefValue;
-
 import java.io.PrintWriter;
 
 import static org.ballerinalang.jvm.BallerinaErrors.ERROR_PRINT_PREFIX;
@@ -30,7 +28,7 @@ import static org.ballerinalang.jvm.BallerinaErrors.ERROR_PRINT_PREFIX;
  *
  * @since 1.1.0
  */
-public abstract class BError extends RuntimeException implements RefValue {
+public abstract class BError extends RuntimeException implements BRefValue {
 
     public BError(String reason) {
         super(reason);

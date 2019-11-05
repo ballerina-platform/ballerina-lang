@@ -29,6 +29,4 @@ import org.ballerinalang.jvm.values.MapValue;
  *
  * @since 1.1.0
  */
-public interface BMap<K, V> extends MapValue<K, V> {
-
-}
+public interface BMap<K, V> extends MapValue<K, V> {}

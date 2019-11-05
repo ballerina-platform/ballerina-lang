@@ -17,8 +17,6 @@
  */
 package org.ballerinalang.jvm.values.api;
 
-import org.ballerinalang.jvm.values.RefValue;
-
 import java.util.function.Function;
 
 /**
@@ -31,7 +29,7 @@ import java.util.function.Function;
  *
  * @since 1.1.0
  */
-public interface BFunctionPointer<T, R> extends RefValue {
+public interface BFunctionPointer<T, R> extends BRefValue {
 
     /**
      * Execute the {@code Function} with given parameter array.
