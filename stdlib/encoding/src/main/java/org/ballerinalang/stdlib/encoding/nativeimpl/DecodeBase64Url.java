@@ -18,9 +18,7 @@
 
 package org.ballerinalang.stdlib.encoding.nativeimpl;
 
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ArrayValue;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.stdlib.encoding.EncodingUtil;
 
 import java.util.Base64;
@@ -30,13 +28,9 @@ import java.util.Base64;
  *
  * @since 0.991.0
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "encoding",
-        functionName = "decodeBase64Url", isPublic = true
-)
 public class DecodeBase64Url {
 
-    public static Object decodeBase64Url(Strand strand, String input) {
+    public static Object externDecodeBase64Url(String input) {
         try {
             byte[] output = Base64.getUrlDecoder().decode(input);
             return new ArrayValue(output);
