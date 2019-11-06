@@ -1066,6 +1066,17 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "WebSocketRetryConfig",
+      "kind": "Struct",
+      "detail": "Record",
+      "documentation": {
+        "left": "Configurations for reconnecting to the WebSocket.\n"
+      },
+      "sortText": "221",
+      "insertText": "WebSocketRetryConfig",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "WebSocketConnector",
       "kind": "Interface",
       "detail": "Object",
