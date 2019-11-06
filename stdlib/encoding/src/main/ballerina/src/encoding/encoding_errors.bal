@@ -14,6 +14,15 @@
 // specific language governing permissions and limitations
 // under the License.
 
+# Record type to hold the details of an error.
+#
+# + message - Specific error message of the error.
+# + cause - Any other error, which causes this error.
+public type Detail record {
+    string message;
+    error cause?;
+};
+
 type Detail record {
     string message;
     error cause?;
