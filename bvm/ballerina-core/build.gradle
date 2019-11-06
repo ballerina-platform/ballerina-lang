@@ -44,6 +44,7 @@ dependencies {
     implementation 'io.opentracing:opentracing-util'
     implementation 'org.awaitility:awaitility'
     implementation 'com.zaxxer:HikariCP'
+    implementation 'org.slf4j:slf4j-jdk14'
 }
 
 description = 'Ballerina - Core'
@@ -51,6 +52,9 @@ description = 'Ballerina - Core'
 configurations {
     implementation {
         exclude group: 'org.apache.servicemix.bundles', module: 'org.apache.servicemix.bundles.commons-beanutils'
+        exclude group: 'org.ops4j.pax.logging', module: 'pax-logging-api'
+        exclude group: 'org.ops4j.pax.logging', module: 'pax-logging-log4j2'
+        exclude group: 'org.slf4j', module: 'slf4j-log4j12'
     }
 }
 

@@ -390,7 +390,8 @@ public type ObjectGenerator object {
             initFuncName = cleanupFunctionName(recordType.name.value + "__init_");
         }
 
-        mv.visitMethodInsn(INVOKESTATIC, valueClassName, initFuncName, io:sprintf("(L%s;L%s;)V", STRAND, MAP_VALUE), false);
+        mv.visitMethodInsn(INVOKESTATIC, valueClassName, initFuncName, 
+                            io:sprintf("(L%s;L%s;)L%s;", STRAND, MAP_VALUE, OBJECT), false);
         mv.visitInsn(RETURN);
         mv.visitMaxs(0, 0);
         mv.visitEnd();

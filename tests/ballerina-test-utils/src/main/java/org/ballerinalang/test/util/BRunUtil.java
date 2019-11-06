@@ -235,8 +235,8 @@ public class BRunUtil {
         BIRNode.BIRPackage birPackage = ((BLangPackage) compileResult.getAST()).symbol.bir;
         String funcClassName = BFileUtil.getQualifiedClassName(birPackage.org.value, birPackage.name.value,
                 getClassName(function.pos.src.cUnitName));
-        Class<?> funcClass = compileResult.getClassLoader().loadClass(funcClassName);
         try {
+            Class<?> funcClass = compileResult.getClassLoader().loadClass(funcClassName);
             Method method = getMethod(functionName, funcClass);
             Function<Object[], Object> func = a -> {
                 try {
@@ -269,7 +269,7 @@ public class BRunUtil {
                         futureValue.panic);
             }
             jvmResult = futureValue.result;
-        } catch (NoSuchMethodException e) {
+        } catch (ClassNotFoundException | NoSuchMethodException e) {
             throw new RuntimeException("Error while invoking function '" + functionName + "'", e);
         }
 
@@ -372,8 +372,8 @@ public class BRunUtil {
         BIRNode.BIRPackage birPackage = ((BLangPackage) compileResult.getAST()).symbol.bir;
         String funcClassName = BFileUtil.getQualifiedClassName(birPackage.org.value, birPackage.name.value,
                 getClassName(function.pos.src.cUnitName));
-        Class<?> funcClass = compileResult.getClassLoader().loadClass(funcClassName);
         try {
+            Class<?> funcClass = compileResult.getClassLoader().loadClass(funcClassName);
             Method method = funcClass.getDeclaredMethod(functionName, jvmParamTypes);
             Function<Object[], Object> func = a -> {
                 try {
@@ -406,7 +406,7 @@ public class BRunUtil {
                         futureValue.panic);
             }
             jvmResult = futureValue.result;
-        } catch (NoSuchMethodException e) {
+        } catch (ClassNotFoundException | NoSuchMethodException e) {
             throw new RuntimeException("Error while invoking function '" + functionName + "'", e);
         }
 

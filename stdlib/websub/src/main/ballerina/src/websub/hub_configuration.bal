@@ -14,23 +14,21 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/config;
 import ballerina/http;
-import ballerina/log;
-import ballerina/stringutils;
 
-const string BASE_PATH = "/websub";
-const string HUB_PATH = "/hub";
 
 const string DEFAULT_HOST = "0.0.0.0";
 const int DEFAULT_LEASE_SECONDS_VALUE = 86400; //one day
 const string DEFAULT_SIGNATURE_METHOD = "SHA256";
+const int DEFAULT_CACHE_EXPIRY_MILLIS = 172800000;
 
-//TODO: Fix persistence configs, H2?
-const string DEFAULT_DB_DIRECTORY = "/tmp/websubdb";
-const string DEFAULT_DB_NAME = "HUB_DB";
-const string DEFAULT_DB_USERNAME = "sa";
-const string DEFAULT_DB_PASSWORD = "";
+string hubBasePath = "/";
+string hubSubscriptionResourcePath = "/";
+string hubPublishResourcePath = "/publish";
+
+http:ServiceAuth hubServiceAuth = {enabled: false};
+http:ResourceAuth hubSubscriptionResourceAuth = {enabled: false};
+http:ResourceAuth hubPublisherResourceAuth = {enabled: false};
 
 int hubLeaseSeconds = DEFAULT_LEASE_SECONDS_VALUE;
 string hubSignatureMethod = DEFAULT_SIGNATURE_METHOD;
@@ -47,7 +45,7 @@ boolean hubPersistenceEnabled = false;
 # + hubServiceListener - The `http:Listener` to which the service is attached
 function startHubService(http:Listener hubServiceListener) {
     // TODO : handle errors
-    checkpanic hubServiceListener.__attach(hubService);
+    checkpanic hubServiceListener.__attach(getHubService());
     checkpanic hubServiceListener.__start();
 }
 
@@ -65,50 +63,18 @@ function isHubTopicRegistrationRequired() returns boolean {
     return hubTopicRegistrationRequired;
 }
 
-
 function getSignatureMethod(SignatureMethod? signatureMethod) returns string {
-    string signaturemethodAsConfig = config:getAsString("b7a.websub.hub.signaturemethod");
-    if (signaturemethodAsConfig == "") {
-        match signatureMethod {
-            "SHA256" => {
-                return "SHA256";
-            }
-            "SHA1" => {
-                return "SHA1";
-            }
+    match signatureMethod {
+        "SHA256" => {
+            return "SHA256";
         }
-    } else {
-        if (stringutils:equalsIgnoreCase(signaturemethodAsConfig, SHA1)) {
-            return signaturemethodAsConfig;
-        }
-        if (!stringutils:equalsIgnoreCase(signaturemethodAsConfig, SHA256)) {
-            log:printWarn("unknown signature method : [" + signaturemethodAsConfig + "], defaulting to SHA256");
+        "SHA1" => {
+            return "SHA1";
         }
     }
     return DEFAULT_SIGNATURE_METHOD;
 }
 
 function getRemotePublishConfig(RemotePublishConfig? remotePublish) returns RemotePublishConfig {
-    RemotePublishMode hubRemotePublishMode = PUBLISH_MODE_DIRECT;
-    boolean remotePublishingEnabled = false;
-    if (remotePublish is RemotePublishConfig) {
-        remotePublishingEnabled = config:getAsBoolean("b7a.websub.hub.remotepublish", remotePublish.enabled);
-    }
-
-
-    string remotePublishModeAsConfig =  config:getAsString("b7a.websub.hub.remotepublish.mode");
-    if (remotePublishModeAsConfig == "") {
-        if (remotePublish is RemotePublishConfig) {
-            hubRemotePublishMode = remotePublish.mode;
-        } else {
-            hubRemotePublishMode = PUBLISH_MODE_DIRECT;
-        }
-    } else {
-        if (stringutils:equalsIgnoreCase(remotePublishModeAsConfig, REMOTE_PUBLISHING_MODE_FETCH)) {
-            hubRemotePublishMode = PUBLISH_MODE_FETCH;
-        } else if (!stringutils:equalsIgnoreCase(remotePublishModeAsConfig, REMOTE_PUBLISHING_MODE_DIRECT)) {
-            log:printWarn("unknown publish mode: [" + remotePublishModeAsConfig + "], defaulting to direct mode");
-        }
-    }
-    return { enabled : remotePublishingEnabled, mode : hubRemotePublishMode };
+    return remotePublish is RemotePublishConfig ? remotePublish : {};
 }

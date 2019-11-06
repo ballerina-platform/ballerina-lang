@@ -59,9 +59,9 @@ import static org.ballerinalang.mime.util.MimeConstants.READABLE_BYTE_CHANNEL_ST
 import static org.ballerinalang.mime.util.MimeConstants.REQUEST_ENTITY_FIELD;
 import static org.ballerinalang.mime.util.MimeConstants.TEMP_FILE_EXTENSION;
 import static org.ballerinalang.mime.util.MimeConstants.TEMP_FILE_NAME;
-import static org.ballerinalang.stdlib.utils.ValueCreatorUtils.createEntityObject;
-import static org.ballerinalang.stdlib.utils.ValueCreatorUtils.createMediaTypeObject;
-import static org.ballerinalang.stdlib.utils.ValueCreatorUtils.createRequestObject;
+import static org.ballerinalang.net.http.ValueCreatorUtils.createEntityObject;
+import static org.ballerinalang.net.http.ValueCreatorUtils.createMediaTypeObject;
+import static org.ballerinalang.net.http.ValueCreatorUtils.createRequestObject;
 
 /**
  * Utility functions for multipart handling.
