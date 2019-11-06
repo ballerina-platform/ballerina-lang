@@ -62,7 +62,10 @@ import java.util.Map;
 
 import javax.xml.XMLConstants;
 import javax.xml.namespace.QName;
+import javax.xml.stream.events.XMLEvent;
+import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamReader;
 
 /**
  * Common utility methods used for XML manipulation.
@@ -205,6 +208,12 @@ public class XMLFactory {
             throw BallerinaErrors.createError("failed to create xml: " + e.getMessage());
         }
         return new XMLSequence(elementsSeq);
+    }
+
+
+    public static XMLValue<?> parse2(String str) {
+        StaxXMLSource staxXMLSource = new StaxXMLSource(str);
+        return staxXMLSource.next();
     }
 
     /**

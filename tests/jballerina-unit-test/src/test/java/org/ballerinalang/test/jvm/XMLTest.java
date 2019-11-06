@@ -17,6 +17,8 @@
  */
 package org.ballerinalang.test.jvm;
 
+import org.ballerinalang.jvm.XMLFactory;
+import org.ballerinalang.jvm.values.XMLValue;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueArray;
@@ -27,7 +29,6 @@ import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
-import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
@@ -42,10 +43,21 @@ public class XMLTest {
     private CompileResult compileResult;
     private CompileResult literalWithNamespacesResult;
 
-    @BeforeClass
+    //@BeforeClass
     public void setup() {
         compileResult = BCompileUtil.compile("test-src/jvm/xml.bal");
         literalWithNamespacesResult = BCompileUtil.compile("test-src/jvm/xml-literals-with-namespaces.bal");
+    }
+
+    @Test
+    public void test() {
+        XMLValue<?> test = XMLFactory.parse2(
+//                "<?xml version=\"1.0\"  encoding=\"UTF-8\"?>" +
+//                "<?proc h=\"data\" p=\"more data\" ?>" +
+//                "<!-- cmnt -->" +
+                "<hello xmlns:ns=\"the  url\" ns:attr=\"blah\" >" +
+                        "<ns:elem ns:at=\"the at\" />" +
+                        "</hello>");
     }
 
     @Test

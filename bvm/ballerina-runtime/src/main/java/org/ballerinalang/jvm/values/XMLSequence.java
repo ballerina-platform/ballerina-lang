@@ -56,12 +56,19 @@ import static org.ballerinalang.jvm.util.BLangConstants.XML_LANG_LIB;
 public final class XMLSequence extends XMLValue<ArrayValue> {
 
     ArrayValue sequence;
+    List<XMLValue<?>> sequenceX;
 
     /**
      * Create an empty xml sequence.
      */
     public XMLSequence() {
         sequence = new ArrayValue(new BArrayType(BTypes.typeXML), 0);
+        sequenceX = new ArrayList<>();
+    }
+
+    public XMLSequence(List<XMLValue<?>> children) {
+        this();
+        sequenceX = children;
     }
 
     /**q

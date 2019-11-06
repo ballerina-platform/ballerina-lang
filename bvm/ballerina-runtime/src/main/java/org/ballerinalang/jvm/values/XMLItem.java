@@ -79,8 +79,12 @@ import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.getMod
 @SuppressWarnings("unchecked")
 public final class XMLItem extends XMLValue<OMNode> {
 
+    private QName name;
     OMNode omNode;
     private XMLNodeType nodeType;
+
+    XMLSequence children;
+    MapValue<String, String> attributes = new MapValueImpl<>();
 
     /**
      * Create an empty XMLValue.
@@ -106,6 +110,12 @@ public final class XMLItem extends XMLValue<OMNode> {
         } catch (Throwable t) {
             handleXmlException("failed to create xml: ", t);
         }
+    }
+
+
+    public XMLItem(QName name, XMLSequence children) {
+        this.name = name;
+        this.children = children;
     }
 
     /**

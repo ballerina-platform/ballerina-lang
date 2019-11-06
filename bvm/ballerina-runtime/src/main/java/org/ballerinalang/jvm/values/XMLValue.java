@@ -43,7 +43,7 @@ import javax.xml.namespace.QName;
  * <li>sequence of above</li>
  * </ul>
  * <p>
- * <i>Note: This is an internal API and may change in future versions.</i>
+ * <i>Note: This is an internal API an  ange in future versions.</i>
  * </p>
  * 
  * @param <T> Type of the underlying impl
