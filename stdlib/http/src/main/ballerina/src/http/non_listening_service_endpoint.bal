@@ -29,11 +29,10 @@ public type MockListener object {
     }
 
     public function __gracefulStop() returns error? {
-        return ();
+        return self.gracefulStop();
     }
 
     public function __immediateStop() returns error? {
-        return self.stop();
     }
 
     public function __attach(service s, string? name = ()) returns error? {
@@ -63,7 +62,7 @@ public type MockListener object {
 
     public function start() returns error? = external;
 
-    public function stop() = external;
+    public function gracefulStop() returns error? = external;
 
     public function detach(service s) returns error? = external;
 };

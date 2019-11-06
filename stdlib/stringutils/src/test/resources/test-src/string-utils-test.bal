@@ -46,8 +46,8 @@ function testReplaceAll(string original, string regex, string replacement) retur
     return stringutils:replaceAll(original, regex, replacement);
 }
 
-function testReplaceFirst(string original, string stringToReplace, string replacement) returns string {
-    return stringutils:replaceFirst(original, stringToReplace, replacement);
+function testReplaceFirst(string original, string regex, string replacement) returns string {
+    return stringutils:replaceFirst(original, regex, replacement);
 }
 
 function testSplit() returns string[] {

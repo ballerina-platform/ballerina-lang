@@ -27,5 +27,5 @@
         ".vscode-test",
         "target",
         "extractedDistribution"
-    ],
+    ]
 }

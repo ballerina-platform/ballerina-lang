@@ -23,7 +23,6 @@ import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.ballerinalang.util.diagnostic.DiagnosticLog;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
-import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.util.List;
 
@@ -44,14 +43,14 @@ public class WebSubSubscriberServiceValidator {
 
     private static final int CUSTOM_RESOURCE_PARAM_COUNT = 2;
 
-    public static void validateDefaultResources(BLangFunction resource, boolean returnsErrorOrNil, DiagnosticLog dlog) {
+    public static void validateDefaultResources(BLangFunction resource, DiagnosticLog dlog) {
         String resourceName = resource.getName().getValue();
         switch (resourceName) {
             case RESOURCE_NAME_ON_INTENT_VERIFICATION:
-                validateOnIntentVerificationResource(resource, returnsErrorOrNil, dlog);
+                validateOnIntentVerificationResource(resource, dlog);
                 break;
             case RESOURCE_NAME_ON_NOTIFICATION:
-                validateOnNotificationResource(resource, returnsErrorOrNil, dlog);
+                validateOnNotificationResource(resource, dlog);
                 break;
             default:
                 dlog.logDiagnostic(Diagnostic.Kind.ERROR, resource.getPosition(), "invalid resource name '"
@@ -61,9 +60,7 @@ public class WebSubSubscriberServiceValidator {
         }
     }
 
-    private static void validateOnIntentVerificationResource(BLangFunction resource, boolean returnsErrorOrNil,
-                                                             DiagnosticLog dlog) {
-        validateResourceReturnType(returnsErrorOrNil, dlog, resource.pos);
+    private static void validateOnIntentVerificationResource(BLangFunction resource, DiagnosticLog dlog) {
         List<BLangSimpleVariable> paramDetails = resource.getParameters();
         if (isValidParamNumber(resource, paramDetails, 2, resource.getName().getValue(), dlog)) {
             validateStructType(resource.getName().getValue(), paramDetails.get(0), WEBSUB_PACKAGE,
@@ -73,9 +70,7 @@ public class WebSubSubscriberServiceValidator {
         }
     }
 
-    private static void validateOnNotificationResource(BLangFunction resource, boolean returnsErrorOrNil,
-                                                       DiagnosticLog dlog) {
-        validateResourceReturnType(returnsErrorOrNil, dlog, resource.pos);
+    private static void validateOnNotificationResource(BLangFunction resource, DiagnosticLog dlog) {
         List<BLangSimpleVariable> paramDetails = resource.getParameters();
         if (isValidParamNumber(resource, paramDetails, 1, resource.getName().getValue(), dlog)) {
             validateStructType(resource.getName().getValue(), paramDetails.get(0), WEBSUB_PACKAGE,
@@ -100,13 +95,6 @@ public class WebSubSubscriberServiceValidator {
             dlog.logDiagnostic(Diagnostic.Kind.ERROR, paramDetail.pos, "invalid resource signature for '" + resourceName
                     + "', expected '" + packageName.concat(":").concat(structuralTypeName) + "' as " + paramPosition
                     + " parameter");
-        }
-    }
-
-    private static void validateResourceReturnType(boolean resourceReturnsErrorOrNil, DiagnosticLog dlog,
-                                                   DiagnosticPos pos) {
-        if (!resourceReturnsErrorOrNil) {
-            dlog.logDiagnostic(Diagnostic.Kind.ERROR, pos, "invalid return type: expected error?");
         }
     }
 }
