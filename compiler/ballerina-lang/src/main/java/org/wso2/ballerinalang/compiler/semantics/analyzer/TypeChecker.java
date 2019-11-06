@@ -153,7 +153,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-
 import javax.xml.XMLConstants;
 
 import static org.wso2.ballerinalang.compiler.tree.BLangInvokableNode.DEFAULT_WORKER_NAME;
@@ -921,10 +920,10 @@ public class TypeChecker extends BLangNodeVisitor {
             return;
         }
 
-        List<BType> matchedTypeList = getRecordCompatibleType(expType, recordLiteral);
+        List<BType> matchedTypeList = getMappingConstructorCompatibleTypes(expType, recordLiteral);
 
         if (matchedTypeList.isEmpty()) {
-            dlog.error(recordLiteral.pos, DiagnosticCode.INVALID_LITERAL_FOR_TYPE, expType);
+            reportIncompatibleMappingConstructorError(recordLiteral, expType);
             recordLiteral.keyValuePairs
                     .forEach(keyValuePair -> checkRecLiteralKeyValue(keyValuePair, symTable.errorType));
         } else if (matchedTypeList.size() > 1) {
@@ -947,8 +946,31 @@ public class TypeChecker extends BLangNodeVisitor {
         }
     }
 
-    private List<BType> getRecordCompatibleType(BType bType, BLangRecordLiteral recordLiteral) {
+    private boolean isMappingConstructorCompatibleType(BType type) {
+        return type.tag == TypeTags.RECORD || type.tag == TypeTags.MAP || type.tag == TypeTags.JSON;
+    }
 
+    private void reportIncompatibleMappingConstructorError(BLangRecordLiteral mappingConstructorExpr, BType expType) {
+        if (expType.tag != TypeTags.UNION) {
+            dlog.error(mappingConstructorExpr.pos, DiagnosticCode.MAPPING_CONSTRUCTOR_COMPATIBLE_TYPE_NOT_FOUND,
+                       expType);
+            return;
+        }
+
+        BUnionType unionType = (BUnionType) expType;
+        Set<BType> memberTypes = unionType.getMemberTypes();
+
+        for (BType bType : memberTypes) {
+            if (isMappingConstructorCompatibleType(bType)) {
+                dlog.error(mappingConstructorExpr.pos, DiagnosticCode.INCOMPATIBLE_MAPPING_CONSTRUCTOR, unionType);
+                return;
+            }
+        }
+
+        dlog.error(mappingConstructorExpr.pos, DiagnosticCode.MAPPING_CONSTRUCTOR_COMPATIBLE_TYPE_NOT_FOUND, unionType);
+    }
+
+    private List<BType> getMappingConstructorCompatibleTypes(BType bType, BLangRecordLiteral recordLiteral) {
         if (bType.tag == TypeTags.UNION) {
             Set<BType> expTypes = ((BUnionType) bType).getMemberTypes();
 
