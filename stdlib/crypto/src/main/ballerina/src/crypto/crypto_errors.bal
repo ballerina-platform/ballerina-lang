@@ -23,11 +23,6 @@ public type Detail record {
     error cause?;
 };
 
-type Detail record {
-    string message;
-    error cause?;
-};
-
 # Represents the Crypto error reason.
 public const CRYPTO_ERROR = "{ballerina/crypto}Error";
 

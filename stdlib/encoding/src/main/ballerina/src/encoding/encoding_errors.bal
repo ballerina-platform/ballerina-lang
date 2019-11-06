@@ -23,11 +23,6 @@ public type Detail record {
     error cause?;
 };
 
-type Detail record {
-    string message;
-    error cause?;
-};
-
 # Represents the Encoding error code.
 public const ENCODING_ERROR = "{ballerina/encoding}Error";
 

@@ -23,10 +23,5 @@ public type Detail record {
     error cause?;
 };
 
-public type Detail record {
-    string message;
-    error cause?;
-};
-
 public const CACHE_ERROR = "{ballerina/cache}Error";
 public type Error error<CACHE_ERROR, Detail>;
