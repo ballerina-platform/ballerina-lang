@@ -808,7 +808,12 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 break;
             case TUPLE_VARIABLE:
                 if (variable.isDeclaredWithVar && variable.expr.getKind() == NodeKind.LIST_CONSTRUCTOR_EXPR) {
-                    dlog.error(varRefExpr.pos, DiagnosticCode.INVALID_LITERAL_FOR_TYPE, "tuple binding pattern");
+                    List<String> bindingPatternVars = new ArrayList<>();
+                    List<BLangVariable> members = ((BLangTupleVariable) variable).memberVariables;
+                    for (BLangVariable var : members) {
+                        bindingPatternVars.add(((BLangSimpleVariable) var).name.value);
+                    }
+                    dlog.error(varRefExpr.pos, DiagnosticCode.CANNOT_INFER_TYPES_FOR_TUPLE_BINDING, bindingPatternVars);
                     variable.type = symTable.semanticError;
                     return;
                 }

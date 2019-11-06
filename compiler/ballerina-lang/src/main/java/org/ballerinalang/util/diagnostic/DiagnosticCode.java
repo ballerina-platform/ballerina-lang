@@ -191,6 +191,7 @@ public enum DiagnosticCode {
     INVALID_LITERAL_FOR_TYPE("invalid.literal.for.type"),
     INCOMPATIBLE_MAPPING_CONSTRUCTOR("incompatible.mapping.constructor.expression"),
     MAPPING_CONSTRUCTOR_COMPATIBLE_TYPE_NOT_FOUND("mapping.constructor.compatible.type.not.found"),
+    CANNOT_INFER_TYPES_FOR_TUPLE_BINDING("cannot.infer.types.for.tuple.binding"),
     INVALID_LITERAL_FOR_MATCH_PATTERN("invalid.literal.for.match.pattern"),
     INVALID_EXPR_WITH_TYPE_GUARD_FOR_MATCH_PATTERN("invalid.expr.with.type.guard.for.match"),
     ARRAY_LITERAL_NOT_ALLOWED("array.literal.not.allowed"),
