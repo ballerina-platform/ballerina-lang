@@ -154,13 +154,15 @@ public class NegativeValidationTest {
         BCompileUtil.compileInProc(path);
     }
 
-    @Test(expectedExceptions = BLangCompilerException.class, expectedExceptionsMessageRegExp = expectedMsg13)
+    @Test(expectedExceptions = BLangCompilerException.class, expectedExceptionsMessageRegExp = expectedMsg13
+            , enabled = false)
     public void testMethodSignatureNotMatch7() {
         String path = "test-src/javainterop/negative/method_sig_not_match7.bal";
         BCompileUtil.compileInProc(path);
     }
 
-    @Test(expectedExceptions = BLangCompilerException.class, expectedExceptionsMessageRegExp = expectedMsg14)
+    @Test(expectedExceptions = BLangCompilerException.class, expectedExceptionsMessageRegExp = expectedMsg14
+            , enabled = false)
     public void testMethodSignatureNotMatch8() {
         String path = "test-src/javainterop/negative/method_sig_not_match8.bal";
         BCompileUtil.compileInProc(path);
