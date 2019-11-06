@@ -64,7 +64,7 @@
             <class name="org.ballerinalang.test.service.http.sample.ResourceFunctionReturnTestCase"/>
             <class name="org.ballerinalang.test.service.http.sample.HTTPListenerActionsTestCase"/>
             <class name="org.ballerinalang.test.service.http.sample.MultipleHTTPClientsTestCase"/>
-<!--            <class name="org.ballerinalang.test.service.http.sample.HTTPHeaderServerTestCase"/>-->
+            <class name="org.ballerinalang.test.service.http.sample.HTTPHeaderServerTestCase"/>
             <class name="org.ballerinalang.test.service.http.sample.KeepAliveTestCase"/>
             <class name="org.ballerinalang.test.service.http.sample.HTTPCachingTestCase"/>
             <class name="org.ballerinalang.test.service.http.sample.HTTPClientContinueTestCase"/>
