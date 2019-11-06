@@ -17,6 +17,12 @@ type Order record {
     float amount;
 };
 
+// This `record` type represents the summed-up order details.
+type SummedOrder record {
+    int personId;
+    float amount;
+};
+
 // This `record` type represents the order details (this is derived by joining the person details
 //and the order details).
 type OrderDetails record {
@@ -24,6 +30,12 @@ type OrderDetails record {
     string personName;
     string items;
     float amount;
+};
+
+// This `record` type represents the public profile of a person.
+type PersonPublicProfile record {
+    string knownName;
+    int age = -1;
 };
 
 // This is the main function.
@@ -64,9 +76,62 @@ public function main() {
     // This prints the content of the `Order` table.
     printTable(queryStmt, "The orderTable: ", orderTable);
 
-
     // Querying a `table` always returns a new in-memory `table`.
-    // Joins a `table` with another `table` using the `where` clause and returns the selected fields in a
+
+    //Queries all the records in a `table` and returns them as another in-memory `table`.
+    table<Person> personTableCopy = from personTable select *;
+    queryStmt = "\ntable<Person> personTableCopy = from personTable select *;";
+    printTable(queryStmt,"personTableCopy: ", personTableCopy);
+
+    //Queries all the records and returns them in the ascending order of the salary.
+    table<Person> orderedPersonTable = from personTable select * order by salary;
+    queryStmt = "\ntable<Person> orderedPersonTable = " +
+            "from personTable select * order by salary;";
+    printTable(queryStmt, "orderedPersonTable: ", orderedPersonTable);
+
+    //Queries all the records in a `table` that match a specific filter criterion.
+    table<Person> personTableCopyWithFilter =
+                 from personTable where name == "jane" select *;
+    queryStmt = "\ntable<Person> personTableCopyWithFilter = " +
+            "from personTable where name == 'jane' select *;";
+    printTable(queryStmt, "personTableCopyWithFilter: ", personTableCopyWithFilter);
+
+    //Queries only a few fields in a `table` and returns the results as a new in-memory
+    //`table` constrained by a different type.
+    table<PersonPublicProfile> childTable = from personTable
+                  select name as knownName, age;
+    queryStmt = "\ntable<PersonPublicProfile > childTable = " +
+                    "from personTable select name as knownName, age;";
+    printTable(queryStmt, "childTable: ", childTable);
+
+    //This applies the `group by` clause to a `table` and returns a new `table` with the result.
+    table<SummedOrder> summedOrderTable = from orderTable
+                  select personId, sum(amount) group by personId;
+    queryStmt = "\ntable<SummedOrder> summedOrderTable = " +
+            "from orderTable select personId, sum(amount) group by personId;";
+    printTable(queryStmt, "summedOrderTable: ", summedOrderTable);
+
+    //Joins a `table` with another `table` and returns the selected fields in a `table`
+    //constrained by a different type.
+    table<OrderDetails> orderDetailsTable =
+                    from personTable as tempPersonTable
+                    join orderTable as tempOrderTable
+                        on tempPersonTable.id == tempOrderTable.personId
+                    select tempOrderTable.orderId as orderId,
+                            tempPersonTable.name as personName,
+                            tempOrderTable.items as items,
+                            tempOrderTable.amount as amount;
+    queryStmt = "\ntable<OrderDetails> orderDetailsTable = " +
+            "from personTable as tempPersonTable " +
+            "join orderTable as tempOrderTable " +
+                    "on tempPersonTable.id == tempOrderTable.personId " +
+            "select tempOrderTable.orderId as orderId, " +
+                    "tempPersonTable.name as personName, " +
+                    "tempOrderTable.items as items, " +
+                    "tempOrderTable.amount as amount;";
+    printTable(queryStmt, "orderDetailsTable: ", orderDetailsTable);
+
+    //Joins a `table` with another `table` using the `where` clause and returns the selected fields in a
     // `table` constrained by a different type.
     table<OrderDetails> orderDetailsWithFilter =
                     from personTable

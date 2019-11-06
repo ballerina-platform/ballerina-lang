@@ -1075,32 +1075,8 @@
         "column": 3,
         "category": "Experimental features",
         "samples": [{
-                "name": "Select all the fields",
-                "url": "table-queries-select-all"
-            },
-            {
-                "name": "Select a few field for the output",
-                "url": "table-queries-select-with-few-output-fields"
-            },
-            {
-                "name": "Select with filtering",
-                "url": "table-queries-select-with-filtering"
-            },
-            {
-                "name": "Select with order-by clause",
-                "url": "table-queries-select-with-order-by"
-            },
-            {
-                "name": "Select with group-by clause",
-                "url": "table-queries-select-with-group-by"
-            },
-            {
-                "name": "Joining two tables",
-                "url": "table-queries-join"
-            },
-            {
-                "name": "Joining two tables with filtering",
-                "url": "table-queries-join-with-filtering"
+                "name": "Table Queries",
+                "url": "table-queries"
             }
         ]
     }
