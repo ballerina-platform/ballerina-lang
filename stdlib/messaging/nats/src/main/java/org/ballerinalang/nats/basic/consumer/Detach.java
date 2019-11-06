@@ -18,7 +18,6 @@
 
 package org.ballerinalang.nats.basic.consumer;
 
-import io.nats.client.Connection;
 import io.nats.client.Dispatcher;
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.scheduling.Strand;
@@ -35,7 +34,7 @@ import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static org.ballerinalang.nats.Constants.DISPATCHER_LIST;
-import static org.ballerinalang.nats.Constants.NATS_CLIENT_SUBSCRIBED;
+import static org.ballerinalang.nats.Constants.NATS_CLIENT_UNSUBSCRIBED;
 
 /**
  * Creates a subscription with the NATS server.
@@ -45,22 +44,17 @@ import static org.ballerinalang.nats.Constants.NATS_CLIENT_SUBSCRIBED;
 @BallerinaFunction(
         orgName = Constants.ORG_NAME,
         packageName = Constants.NATS,
-        functionName = "register",
+        functionName = "detach",
         receiver = @Receiver(type = TypeKind.OBJECT,
                 structType = Constants.NATS_LISTENER,
                 structPackage = Constants.NATS_PACKAGE),
         isPublic = true
 )
-public class Register {
-
+public class Detach {
     private static final PrintStream console;
 
-    public static Object register(Strand strand, ObjectValue listenerObject, ObjectValue service,
-                                  Object annotationData) {
+    public static Object detach(Strand strand, ObjectValue listenerObject, ObjectValue service) {
         String errorMessage = "Error while registering the subscriber. ";
-        Connection natsConnection =
-                (Connection) ((ObjectValue) listenerObject.get(Constants.CONNECTION_OBJ))
-                        .getNativeData(Constants.NATS_CONNECTION);
         @SuppressWarnings("unchecked")
         List<ObjectValue> serviceList =
                 (List<ObjectValue>) ((ObjectValue) listenerObject.get(Constants.CONNECTION_OBJ))
@@ -71,40 +65,24 @@ public class Register {
             return BallerinaErrors.createError(Constants.NATS_ERROR_CODE, errorMessage +
                     "Cannot find subscription configuration");
         }
-        String queueName = subscriptionConfig.getStringValue(Constants.QUEUE_NAME);
-        String subject = subscriptionConfig.getStringValue(Constants.SUBJECT);
-        Dispatcher dispatcher = natsConnection.createDispatcher(new DefaultMessageHandler(strand.scheduler, service));
-        // Add dispatcher. This is needed when closing the connection.
         @SuppressWarnings("unchecked")
         ConcurrentHashMap<String, Dispatcher> dispatcherList = (ConcurrentHashMap<String, Dispatcher>)
                 listenerObject.getNativeData(DISPATCHER_LIST);
-        dispatcherList.put(service.getType().getName(), dispatcher);
-        if (subscriptionConfig.getMapValue(Constants.PENDING_LIMITS) != null) {
-            setPendingLimits(dispatcher, subscriptionConfig.getMapValue(Constants.PENDING_LIMITS));
-        }
+        String subject = subscriptionConfig.getStringValue(Constants.SUBJECT);
+        Dispatcher dispatcher = dispatcherList.get(service.getType().getName());
+        // Add dispatcher. This is needed when closing the connection.
         try {
-            if (queueName != null) {
-                dispatcher.subscribe(subject, queueName);
-            } else {
-                dispatcher.subscribe(subject);
-            }
+            dispatcher.unsubscribe(subject);
         } catch (IllegalArgumentException | IllegalStateException ex) {
             return BallerinaErrors.createError(Constants.NATS_ERROR_CODE, errorMessage +
                     ex.getMessage());
         }
-        serviceList.add(service);
-        String sOutput = "subject " + subject + (queueName != null ? " & queue " + queueName : "");
-        console.println(NATS_CLIENT_SUBSCRIBED + sOutput);
+        serviceList.remove(service);
+        String sOutput = "subject " + subject;
+        console.println(NATS_CLIENT_UNSUBSCRIBED + sOutput);
+        dispatcherList.remove(service.getType().getName());
         listenerObject.addNativeData(DISPATCHER_LIST, dispatcherList);
         return null;
-    }
-
-    // Set limits on the maximum number of messages, or maximum size of messages this consumer will
-    // hold before it starts to drop new messages waiting for the resource functions to drain the queue.
-    private static void setPendingLimits(Dispatcher dispatcher, MapValue pendingLimits) {
-        long maxMessages = pendingLimits.getIntValue(Constants.MAX_MESSAGES);
-        long maxBytes = pendingLimits.getIntValue(Constants.MAX_BYTES);
-        dispatcher.setPendingLimits(maxMessages, maxBytes);
     }
 
     static {

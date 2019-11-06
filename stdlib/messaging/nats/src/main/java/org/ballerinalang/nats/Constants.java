@@ -90,6 +90,7 @@ public class Constants {
     public static final String COUNTDOWN_LATCH = "count_down_latch";
 
     public static final String NATS_CLIENT_SUBSCRIBED = "[ballerina/nats] Client subscribed for ";
+    public static final String NATS_CLIENT_UNSUBSCRIBED = "[ballerina/nats] Client unsubscribed from ";
 
     public static final String CONNECTION_CONFIG_SECURE_SOCKET = "secureSocket";
     public static final String CONNECTION_KEYSTORE = "keyStore";

@@ -30,7 +30,9 @@ import org.ballerinalang.nats.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.List;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.ballerinalang.nats.Constants.DISPATCHER_LIST;
@@ -66,8 +68,14 @@ public class ImmediateStop {
             return;
         }
         @SuppressWarnings("unchecked")
-        List<Dispatcher> dispatcherList = (List<Dispatcher>) listenerObject.getNativeData(DISPATCHER_LIST);
-        dispatcherList.forEach(natsConnection::closeDispatcher);
+        ConcurrentHashMap<String, Dispatcher> dispatcherList = (ConcurrentHashMap<String, Dispatcher>)
+                listenerObject.getNativeData(DISPATCHER_LIST);
+        Iterator dispatchers = dispatcherList.entrySet().iterator();
+        while (dispatchers.hasNext()) {
+            Map.Entry pair = (Map.Entry)dispatchers.next();
+            natsConnection.closeDispatcher((Dispatcher) pair.getValue());
+            dispatchers.remove(); // avoids a ConcurrentModificationException
+        }
 
         int clientsCount =
                 ((AtomicInteger) connectionObject.getNativeData(Constants.CONNECTED_CLIENTS)).decrementAndGet();
