@@ -110,6 +110,9 @@ public class LangServerStartCmd implements BLauncherCmd {
     }
 
     private static void addClassPath(File path) {
+        if (path == null) {
+            return;
+        }
         try {
             // Here we use reflections, since `URLClassLoader.addURL` is a private method
             URI url = path.toURI();
