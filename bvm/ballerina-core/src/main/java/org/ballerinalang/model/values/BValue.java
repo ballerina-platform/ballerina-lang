@@ -53,7 +53,7 @@ public interface BValue {
     /**
      * Method to attempt freezing a {@link BValue}, to disallow further modification.
      *
-     * @param freezeStatus  the {@link BVM.FreezeStatus} instance to keep track of the
+     * @param freezeStatus  the {@link org.ballerinalang.bre.bvm.BVM.FreezeStatus} instance to keep track of the
      *                      freeze result of this attempt
      */
     default void attemptFreeze(BVM.FreezeStatus freezeStatus) {
