@@ -46,12 +46,12 @@ function testHubStartUp() returns boolean {
     if (err is error) {
         return false;
     }
-    err = lis0.__immediateStop();
-    err = lis1.__immediateStop();
+    err = lis0.__gracefulStop();
+    err = lis1.__gracefulStop();
 
     http:Listener lis2 = new (9393);
     res2 = websub:startHub(lis2);
-    err = lis2.__immediateStop();
+    err = lis2.__gracefulStop();
     if res2 is websub:Hub {
         boolean b = res2.publishUrl == "http://localhost:9393/publish" &&
             res2.subscriptionUrl == "http://localhost:9393/";
@@ -66,7 +66,7 @@ function testPublisherAndSubscriptionInvalidSameResourcePath() returns boolean {
     websub:Hub|websub:HubStartedUpError|websub:HubStartupError res =
         websub:startHub(lis, "/websub", "/hub", "/hub");
 
-    var err = lis.__immediateStop();
+    var err = lis.__gracefulStop();
 
     if (res is websub:HubStartupError) {
         return res.reason() == "{ballerina/websub}HubStartupError" &&

@@ -45,6 +45,7 @@ import static org.awaitility.Awaitility.given;
 import static org.ballerinalang.test.packaging.PackerinaTestUtils.deleteFiles;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_COMPILED_JAR_EXT;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_COMPILED_PKG_BINARY_EXT;
+import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_SOURCE_EXT;
 
 /**
  * Test cases related to solving dependencies using paths in Ballerina.toml.
@@ -55,6 +56,7 @@ public class PathDependencyTestCase extends BaseTest {
     private Map<String, String> envVariables;
     private BMainInstance balClient;
     private String orgName = "bcintegrationtest";
+    private String beeModuleName = "bee" + PackerinaTestUtils.randomModuleName(10);
     
     @BeforeClass()
     public void setUp() throws IOException, BallerinaTestException {
@@ -200,14 +202,13 @@ public class PathDependencyTestCase extends BaseTest {
         Path caseResources = tempTestResources.resolve("case4");
         // Build bee module of TestProject1
         //// change module name
-        String beeModuleName = "bee" + PackerinaTestUtils.randomModuleName(10);
         Path testProjBeeModulePath = caseResources.resolve("TestProject1").resolve("src").resolve(beeModuleName);
         Files.createDirectories(caseResources.resolve("TestProject1").resolve("src").resolve(beeModuleName));
         copyFolder(caseResources.resolve("TestProject1").resolve("src").resolve("bee"), testProjBeeModulePath);
         deleteFiles(caseResources.resolve("TestProject1").resolve("src").resolve("bee"));
         
-        String beeModuleBaloFileName = beeModuleName + "-" + ProgramFileConstants.IMPLEMENTATION_VERSION + "-any-1.2.0"
-                                       + BLANG_COMPILED_PKG_BINARY_EXT;
+        String beeModuleBaloFileName = beeModuleName + "-" + ProgramFileConstants.IMPLEMENTATION_VERSION + "-java8-1" +
+                ".2.0" + BLANG_COMPILED_PKG_BINARY_EXT;
         
         String module1BuildMsg = "target" + File.separator + "balo" + File.separator + beeModuleBaloFileName;
         LogLeecher beeModuleBuildLeecher = new LogLeecher(module1BuildMsg);
@@ -443,6 +444,48 @@ public class PathDependencyTestCase extends BaseTest {
         bazRunLeecher.waitForText(10000);
     }
 
+    /**
+     * Case8: Build the utils single bal file which is using previusly pushed utils module with interop jar.
+     * Then run the jar.
+     *
+     * @throws BallerinaTestException Error when executing the commands.
+     */
+    @Test(description = "Case8: Test single bal file using external module with interop dependency",
+    dependsOnMethods = "testBaloPathCase7")
+    public void testBaloSingleBalFileCase8() throws BallerinaTestException, IOException {
+
+        Path caseResources = tempTestResources.resolve("case8");
+
+        String interopFileName = "interop_file";
+        String interopBalFileName = interopFileName + BLANG_SOURCE_EXT;
+        String interopBalJarFileName = interopFileName + BLANG_COMPILED_JAR_EXT;
+        //// replace import
+        Path feeBalPath = caseResources.resolve(interopBalFileName);
+        Stream<String> lines = Files.lines(feeBalPath);
+        List<String> replaced = lines.map(line -> line.replaceAll("bee", beeModuleName))
+                .collect(Collectors.toList());
+        Files.write(feeBalPath, replaced);
+
+        String testMsg = "Tested utils getString method using interop and received: This is a test string value !!!";
+        LogLeecher fileBuildLeecher = new LogLeecher(interopBalJarFileName);
+        LogLeecher fileTestLeecher = new LogLeecher(testMsg);
+        balClient.runMain("build", new String[]{interopBalFileName}, envVariables, new String[]{},
+                          new LogLeecher[]{fileBuildLeecher, fileTestLeecher}, caseResources.toString());
+        fileBuildLeecher.waitForText(5000);
+
+        String msg = "This is a test string value !!!";
+
+        LogLeecher bazRunLeecher = new LogLeecher(msg);
+        balClient.runMain("run", new String[]{interopBalJarFileName}, envVariables, new String[0],
+                          new LogLeecher[]{bazRunLeecher}, caseResources.toString());
+        bazRunLeecher.waitForText(10000);
+
+        // ballerina run bal command
+        LogLeecher balRunLeecher = new LogLeecher(msg);
+        balClient.runMain("run", new String[]{interopBalFileName}, envVariables, new String[]{},
+                          new LogLeecher[]{balRunLeecher}, caseResources.toString());
+        balRunLeecher.waitForText(10000);
+    }
 
     /**
      * Get environment variables and add ballerina_home as a env variable the tmp directory.

@@ -18,6 +18,7 @@ import ballerina/io;
 import ballerina/bir;
 import ballerina/jvm;
 import ballerina/internal;
+import ballerina/lang.'int as lint;
 
 public type JarFile record {|
     map<string> manifestEntries = {};
@@ -31,21 +32,33 @@ public type JavaClass record {|
 |};
 
 string[] birCacheDirs = [];
+string[] jarLibraries = [];
 
 public function main(string... args) {
     string pathToEntryBir = <@untainted> args[0];
     string mapPath = <@untainted> args[1];
     string targetPath = args[2];
     boolean dumpBir = internal:equalsIgnoreCase(args[3], "true");
+    boolean useSystemClassLoader = internal:equalsIgnoreCase(args[4], "true");
+    int numCacheDirs =  <int>lint:fromString(args[5]);
 
-    var numCacheDirs = args.length() - 4;
     int i = 0;
     while (i < numCacheDirs) {
-        birCacheDirs[i] = args[4 + i];
+        birCacheDirs[i] = <@untainted> args[6 + i];
         i = i + 1;
     }
 
-    var jarFile = generateJarBinary(pathToEntryBir, mapPath, dumpBir);
+    // main will receive the no of cache directories as 6th arg. Then we read the rest of the args as cache directories
+    // based on 6th arg value.
+    int argsCount = 6 + numCacheDirs;
+    int dependentJarCnt = args.length() - argsCount;
+    i = 0;
+    while (i < dependentJarCnt) {
+        jarLibraries[i] = <@untainted> args[argsCount + i];
+        i = i + 1;
+    }
+
+    var jarFile = generateJarBinary(pathToEntryBir, mapPath, dumpBir, jarLibraries, useSystemClassLoader);
     if (dlogger.getErrorCount() > 0) {
         dlogger.printErrors();
         jvm:systemExit(1);
@@ -55,7 +68,8 @@ public function main(string... args) {
     writeJarFile(jarFile, targetPath);
 }
 
-function generateJarBinary(string pathToEntryBir, string mapPath, boolean dumpBir) returns JarFile {
+function generateJarBinary(string pathToEntryBir, string mapPath, boolean dumpBir,
+                           string[] jarLibraries, boolean useSystemClassLoader) returns JarFile {
     if (mapPath != "") {
         externalMapCache = readMap(mapPath);
     }
@@ -70,8 +84,9 @@ function generateJarBinary(string pathToEntryBir, string mapPath, boolean dumpBi
     }
 
     JarFile jarFile = {};
+    jvm:InteropValidator interopValidator = new(jarLibraries, useSystemClassLoader);
     generatePackage(createModuleId(entryMod.org.value, entryMod.name.value,
-                                        entryMod.versionValue.value), <@untainted> jarFile, true);
+                                        entryMod.versionValue.value), <@untainted> jarFile, interopValidator, true);
     return jarFile;
 }
 

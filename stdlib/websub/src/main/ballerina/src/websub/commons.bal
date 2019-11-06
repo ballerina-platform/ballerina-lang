@@ -75,6 +75,7 @@ const ANNOT_FIELD_CALLBACK = "callback";
 const ANNOT_FIELD_LEASE_SECONDS = "leaseSeconds";
 const ANNOT_FIELD_SECRET = "secret";
 const ANNOT_FIELD_SUBSCRIBE_ON_STARTUP = "subscribeOnStartUp";
+const ANNOT_FIELD_EXPECT_INTENT_VERIFICATION = "expectIntentVerification";
 const ANNOT_FIELD_HUB_CLIENT_CONFIG = "hubClientConfig";
 const ANNOT_FIELD_PUBLISHER_CLIENT_CONFIG = "publisherClientConfig";
 
@@ -547,7 +548,7 @@ public type Hub object {
     #
     # + return - `boolean` indicating whether the internal Ballerina Hub was stopped
     public function stop() returns error? {
-        var stopResult = self.hubHttpListener.__immediateStop();
+        var stopResult = self.hubHttpListener.__gracefulStop();
         var stopHubServiceResult = stopHubService(self);
 
         if (stopResult is () && stopHubServiceResult is ()) {
