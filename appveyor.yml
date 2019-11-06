@@ -42,7 +42,7 @@ install:
   - cmd: git submodule update --init --recursive
 build_script:
   - SET MAVEN_OPTS="-Xms1024m"
-  - gradlew.bat build -x test --info -scan --stacktrace --console=plain --no-daemon
+  - gradlew.bat build -x :language-server:language-server-core:test -x :ballerina-packerina:test -x :ballerina-lang:test -x :ballerina-http:test -x :ballerina-file:test -x :ballerina-task:test -x :ballerina-socket:test -x :jballerina-unit-test:test -x :plugin-vscode:test --info -scan --stacktrace --console=plain --no-daemon
 cache:
   - C:\maven\ -> appveyor.yml
   - C:\Users\appveyor\.m2\ -> pom.xml
