@@ -31,7 +31,6 @@ type PureType anydata|error;
 # Each subscriber receives a separate clone of the data.
 public function publish(stream<PureType> strm, PureType data) {
     function (PureType)[] funcs = streamManager.getSubscriptionFuncs(strm);
-    int noOfFuncs = arrays:length(funcs);
     future<any>[] ftrs = [];
     arrays:forEach(funcs, function(function (PureType) returns () func) {
         future<any> ftr;
@@ -40,7 +39,7 @@ public function publish(stream<PureType> strm, PureType data) {
         } else {
             ftr = start func(data);
         }
-        ftrs[arrays:length(ftrs)] = ftr;
+        arrays:push(ftrs, ftr);
     });
 
     arrays:forEach(ftrs, function(future<any> ftr) {
