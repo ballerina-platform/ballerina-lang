@@ -29,10 +29,9 @@ import org.ballerinalang.stdlib.crypto.CryptoUtils;
  *
  * @since 0.990.4
  */
-@BallerinaFunction(orgName = "ballerina", packageName = "crypto", functionName = "decryptAesEcb", isPublic = true)
 public class DecryptAesEcb {
 
-    public static Object decryptAesEcb(Strand strand, ArrayValue inputValue, ArrayValue keyValue, Object padding) {
+    public static Object decryptAesEcb(ArrayValue inputValue, ArrayValue keyValue, Object padding) {
         byte[] input = inputValue.getBytes();
         byte[] key = keyValue.getBytes();
         return CryptoUtils.aesEncryptDecrypt(CryptoUtils.CipherMode.DECRYPT, Constants.ECB, padding.toString(), key,

@@ -18,10 +18,8 @@
 
 package org.ballerinalang.stdlib.crypto.nativeimpl;
 
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.stdlib.crypto.Constants;
 import org.ballerinalang.stdlib.crypto.CryptoUtils;
 
@@ -34,10 +32,9 @@ import java.security.PublicKey;
  *
  * @since 0.990.4
  */
-@BallerinaFunction(orgName = "ballerina", packageName = "crypto", functionName = "decryptRsaEcb", isPublic = true)
 public class DecryptRsaEcb {
 
-    public static Object decryptRsaEcb(Strand strand, ArrayValue inputValue, Object keys, Object padding) {
+    public static Object decryptRsaEcb(ArrayValue inputValue, Object keys, Object padding) {
         byte[] input = inputValue.getBytes();
         MapValue<?, ?> keyMap = (MapValue<?, ?>) keys;
         Key key;

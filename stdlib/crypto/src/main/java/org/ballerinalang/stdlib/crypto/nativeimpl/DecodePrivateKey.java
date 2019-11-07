@@ -19,9 +19,7 @@
 package org.ballerinalang.stdlib.crypto.nativeimpl;
 
 import org.ballerinalang.jvm.BallerinaValues;
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.stdlib.crypto.Constants;
 import org.ballerinalang.stdlib.crypto.CryptoUtils;
 
@@ -41,13 +39,10 @@ import java.security.cert.CertificateException;
  *
  * @since 0.990.3
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "crypto",
-        functionName = "decodePrivateKey", isPublic = true)
 public class DecodePrivateKey {
 
     @SuppressWarnings("unchecked")
-    public static Object decodePrivateKey(Strand strand, Object keyStoreValue, String keyAlias, String keyPassword) {
+    public static Object decodePrivateKey(Object keyStoreValue, String keyAlias, String keyPassword) {
         MapValue<String, Object> keyStore = (MapValue<String, Object>) keyStoreValue;
 
         PrivateKey privateKey;

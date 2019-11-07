@@ -18,9 +18,7 @@
 
 package org.ballerinalang.stdlib.crypto.nativeimpl;
 
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ArrayValue;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.stdlib.crypto.Constants;
 import org.ballerinalang.stdlib.crypto.CryptoUtils;
 
@@ -29,10 +27,9 @@ import org.ballerinalang.stdlib.crypto.CryptoUtils;
  *
  * @since 0.990.4
  */
-@BallerinaFunction(orgName = "ballerina", packageName = "crypto", functionName = "decryptAesCbc", isPublic = true)
 public class DecryptAesCbc {
 
-    public static Object decryptAesCbc(Strand strand, ArrayValue inputValue, ArrayValue keyValue,
+    public static Object decryptAesCbc(ArrayValue inputValue, ArrayValue keyValue,
                                        ArrayValue ivValue, Object padding) {
         byte[] input = inputValue.getBytes();
         byte[] key = keyValue.getBytes();

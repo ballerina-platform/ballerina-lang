@@ -32,7 +32,6 @@ import java.security.PublicKey;
  *
  * @since 0.990.4
  */
-@BallerinaFunction(orgName = "ballerina", packageName = "crypto", functionName = "verifyRsaSha256Signature")
 public class VerifyRsaSha256Signature {
 
     public static Object verifyRsaSha256Signature(Strand strand, ArrayValue dataValue, ArrayValue signatureValue,
