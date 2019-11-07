@@ -32,7 +32,7 @@ type PureType anydata|error;
 public function publish(stream<PureType> strm, PureType data) {
     function (PureType)[] funcs = streamManager.getSubscriptionFuncs(strm);
     future<any>[] ftrs = [];
-    arrays:forEach(funcs, function(function (PureType) returns () func) {
+    arrays:forEach(funcs, function(function (PureType) func) {
         future<any> ftr;
         if (data is anydata) {
             ftr = start func(values:clone(data));
