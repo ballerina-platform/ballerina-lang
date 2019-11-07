@@ -74,7 +74,7 @@ public class GracefulStop {
                 listenerObject.getNativeData(DISPATCHER_LIST);
         Iterator dispatchers = dispatcherList.entrySet().iterator();
         while (dispatchers.hasNext()) {
-            Map.Entry pair = (Map.Entry)dispatchers.next();
+            Map.Entry pair = (Map.Entry) dispatchers.next();
             natsConnection.closeDispatcher((Dispatcher) pair.getValue());
             dispatchers.remove(); // avoids a ConcurrentModificationException
         }

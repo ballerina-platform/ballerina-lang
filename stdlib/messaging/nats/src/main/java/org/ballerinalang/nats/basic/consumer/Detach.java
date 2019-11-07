@@ -37,9 +37,9 @@ import static org.ballerinalang.nats.Constants.DISPATCHER_LIST;
 import static org.ballerinalang.nats.Constants.NATS_CLIENT_UNSUBSCRIBED;
 
 /**
- * Creates a subscription with the NATS server.
+ * Unsubscribe the consumer from the subject.
  *
- * @since 0.995
+ * @since 1.0.4
  */
 @BallerinaFunction(
         orgName = Constants.ORG_NAME,
@@ -54,15 +54,14 @@ public class Detach {
     private static final PrintStream console;
 
     public static Object detach(Strand strand, ObjectValue listenerObject, ObjectValue service) {
-        String errorMessage = "Error while registering the subscriber. ";
         @SuppressWarnings("unchecked")
         List<ObjectValue> serviceList =
                 (List<ObjectValue>) ((ObjectValue) listenerObject.get(Constants.CONNECTION_OBJ))
                         .getNativeData(Constants.SERVICE_LIST);
-        MapValue<String, Object> subscriptionConfig = Utils.getSubscriptionConfig(service.getType().getAnnotation(
-                Constants.NATS_PACKAGE, Constants.SUBSCRIPTION_CONFIG));
+        MapValue<String, Object> subscriptionConfig = Utils.getSubscriptionConfig(service.getType()
+                .getAnnotation(Constants.NATS_PACKAGE, Constants.SUBSCRIPTION_CONFIG));
         if (subscriptionConfig == null) {
-            return BallerinaErrors.createError(Constants.NATS_ERROR_CODE, errorMessage +
+            return BallerinaErrors.createError(Constants.NATS_ERROR_CODE, "Error occurred while un-subscribing, " +
                     "Cannot find subscription configuration");
         }
         @SuppressWarnings("unchecked")
@@ -70,12 +69,11 @@ public class Detach {
                 listenerObject.getNativeData(DISPATCHER_LIST);
         String subject = subscriptionConfig.getStringValue(Constants.SUBJECT);
         Dispatcher dispatcher = dispatcherList.get(service.getType().getName());
-        // Add dispatcher. This is needed when closing the connection.
         try {
             dispatcher.unsubscribe(subject);
         } catch (IllegalArgumentException | IllegalStateException ex) {
-            return BallerinaErrors.createError(Constants.NATS_ERROR_CODE, errorMessage +
-                    ex.getMessage());
+            return BallerinaErrors.createError(Constants.NATS_ERROR_CODE, "Error occurred while un-subscribing "
+                    + ex.getMessage());
         }
         serviceList.remove(service);
         String sOutput = "subject " + subject;
