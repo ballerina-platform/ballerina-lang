@@ -2048,8 +2048,7 @@ type BalToJVMIndexMap object {
         if (bType is bir:BTypeInt ||
             bType is bir:BTypeFloat) {
             self.localVarIndex = self.localVarIndex + 2;
-        } else if (bType is jvm:JLong ||
-                        bType is jvm:JDouble) {
+        } else if (bType is jvm:JLong || bType is jvm:JDouble) {
             self.localVarIndex = self.localVarIndex + 2;
         } else {
             self.localVarIndex = self.localVarIndex + 1;
