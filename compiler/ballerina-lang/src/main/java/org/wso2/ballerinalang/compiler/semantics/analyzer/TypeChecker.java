@@ -29,6 +29,7 @@ import org.ballerinalang.model.tree.clauses.SelectExpressionNode;
 import org.ballerinalang.model.tree.expressions.NamedArgNode;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
+import org.wso2.ballerinalang.compiler.parser.BLangAnonymousModelHelper;
 import org.wso2.ballerinalang.compiler.semantics.model.BLangBuiltInMethod;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
@@ -177,6 +178,7 @@ public class TypeChecker extends BLangNodeVisitor {
     private boolean isTypeChecked;
     private TypeNarrower typeNarrower;
     private TypeParamAnalyzer typeParamAnalyzer;
+    private BLangAnonymousModelHelper anonymousModelHelper;
 
     /**
      * Expected types or inherited types.
@@ -206,6 +208,7 @@ public class TypeChecker extends BLangNodeVisitor {
         this.dlog = BLangDiagnosticLog.getInstance(context);
         this.typeNarrower = TypeNarrower.getInstance(context);
         this.typeParamAnalyzer = TypeParamAnalyzer.getInstance(context);
+        this.anonymousModelHelper = BLangAnonymousModelHelper.getInstance(context);
     }
 
     public BType checkExpr(BLangExpression expr, SymbolEnv env) {
@@ -1098,32 +1101,11 @@ public class TypeChecker extends BLangNodeVisitor {
             this.dlog.error(syncSendExpr.pos, DiagnosticCode.UNDEFINED_WORKER, workerName);
         }
 
-        if (expType == symTable.noType) {
-            BType workerValueType = ((BFutureType) syncSendExpr.workerType).constraint;
+        syncSendExpr.expectedType = expType;
 
-            switch (workerValueType.tag) {
-                case TypeTags.UNION:
-                    LinkedHashSet<BType> compatibleReturnTypes = new LinkedHashSet<>(
-                            (((BUnionType) workerValueType).getMemberTypes().stream()
-                                     .filter(memType -> memType.tag == TypeTags.ERROR)
-                                     .collect(Collectors.toSet())));
-
-                    if (compatibleReturnTypes.isEmpty()) {
-                        resultType = symTable.nilType;
-                    } else {
-                        compatibleReturnTypes.add(symTable.nilType);
-                        resultType = BUnionType.create(null, compatibleReturnTypes);
-                    }
-                    break;
-                case TypeTags.ERROR:
-                    resultType = BUnionType.create(null, workerValueType, symTable.nilType);
-                    break;
-                default:
-                    resultType = symTable.nilType;
-            }
-        } else {
-            resultType = expType;
-        }
+        // Type checking against the matching receive is done during code analysis.
+        // When the expected type is noType, set the result type as nil to avoid variable assignment is required errors.
+        resultType = expType == symTable.noType ? symTable.nilType : expType;
     }
 
     @Override
@@ -1244,8 +1226,9 @@ public class TypeChecker extends BLangNodeVisitor {
     @Override
     public void visit(BLangRecordVarRef varRefExpr) {
         List<BField> fields = new ArrayList<>();
-        BRecordTypeSymbol recordSymbol = Symbols.createRecordSymbol(0, Names.EMPTY, env.enclPkg.symbol.pkgID,
-                null, env.scope.owner);
+        BRecordTypeSymbol recordSymbol = Symbols.createRecordSymbol(0,
+                names.fromString(this.anonymousModelHelper.getNextAnonymousTypeKey(env.enclPkg.symbol.pkgID)),
+                env.enclPkg.symbol.pkgID, null, env.scope.owner);
         boolean unresolvedReference = false;
         for (BLangRecordVarRef.BLangRecordVarRefKeyValue recordRefField : varRefExpr.recordRefFields) {
             ((BLangVariableReference) recordRefField.variableReference).lhsVar = true;
@@ -1275,10 +1258,12 @@ public class TypeChecker extends BLangNodeVisitor {
         BRecordType bRecordType = new BRecordType(recordSymbol);
         bRecordType.fields = fields;
         recordSymbol.type = bRecordType;
-        varRefExpr.symbol = new BVarSymbol(0, Names.EMPTY, env.enclPkg.symbol.pkgID, bRecordType, env.scope.owner);
+        varRefExpr.symbol = new BVarSymbol(0, recordSymbol.name,
+                env.enclPkg.symbol.pkgID, bRecordType, env.scope.owner);
 
         if (varRefExpr.restParam == null) {
             bRecordType.sealed = true;
+            bRecordType.restFieldType = symTable.noType;
         } else {
             bRecordType.restFieldType = symTable.mapType;
         }
@@ -1301,8 +1286,6 @@ public class TypeChecker extends BLangNodeVisitor {
             checkExpr(varRefExpr.reason, env);
         }
 
-        BErrorTypeSymbol errorTSymbol = Symbols.createErrorSymbol(0, Names.EMPTY, env.enclPkg.symbol.pkgID,
-                null, env.scope.owner);
         boolean unresolvedReference = false;
 
         for (BLangNamedArgsExpression detailItem : varRefExpr.detail) {
@@ -1366,7 +1349,7 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         BType errorDetailType = getCompatibleDetailType(errorRefRestFieldType);
-        resultType = new BErrorType(errorTSymbol, varRefExpr.reason.type, errorDetailType);
+        resultType = new BErrorType(symTable.errorType.tsymbol, varRefExpr.reason.type, errorDetailType);
     }
 
     private void checkIndirectErrorVarRef(BLangErrorVarRef varRefExpr) {
@@ -1378,6 +1361,9 @@ public class TypeChecker extends BLangNodeVisitor {
         if (varRefExpr.restVar != null) {
             checkExpr(varRefExpr.restVar, env);
         }
+
+        // Indirect error binding pattern does not have an error reason binding fragment
+        varRefExpr.reason.type = symTable.noType;
     }
 
     private BRecordType getCompatibleDetailType(BType errorRefRestFieldType) {

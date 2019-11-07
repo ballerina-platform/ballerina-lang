@@ -1985,6 +1985,10 @@ public class Desugar extends BLangNodeVisitor {
                 }
                 createVarRefAssignmentStmts((BLangRecordVarRef) expression, parentBlockStmt, tupleVarSymbol,
                         arrayAccessExpr);
+
+                createTypeDefinition(recordVarRef.type, recordVarRef.type.tsymbol,
+                        createRecordTypeNode((BRecordType) recordVarRef.type));
+
                 continue;
             }
 
@@ -2052,6 +2056,22 @@ public class Desugar extends BLangNodeVisitor {
             assignmentExpr = arrayAccess;
         }
         return assignmentExpr;
+    }
+
+    private BLangRecordTypeNode createRecordTypeNode(BRecordType recordType) {
+        List<BLangSimpleVariable> fieldList = new ArrayList<>();
+        for (BField field : recordType.fields) {
+            BVarSymbol symbol = field.symbol;
+            if (symbol == null) {
+                symbol = new BVarSymbol(Flags.PUBLIC, field.name,
+                        this.env.enclPkg.packageID, symTable.pureType, null);
+            }
+
+            BLangSimpleVariable fieldVar = ASTBuilderUtil.createVariable(
+                    field.pos, symbol.name.value, field.type, null, symbol);
+            fieldList.add(fieldVar);
+        }
+        return createRecordTypeNode(fieldList, recordType);
     }
 
     @Override
