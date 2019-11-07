@@ -13,8 +13,8 @@
             "--extensionDevelopmentPath=${workspaceFolder}"
         ],
         "env": {
-            "LS_CUSTOM_CLASSPATH": "/home/tharushi/ballerina-lang/language-server/modules/langserver-core/build/distributions/*",
-            "LSDEBUG": "true",
+            "LS_CUSTOM_CLASSPATH": "",
+            "LSDEBUG": "false",
             "COMPOSER_DEBUG": "false",
             "COMPOSER_DEV_HOST": "http://localhost:9000"
         },

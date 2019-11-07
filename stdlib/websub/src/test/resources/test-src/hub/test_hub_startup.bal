@@ -14,19 +14,63 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/websub;
 import ballerina/http;
+import ballerina/websub;
 
-function startupHub(int hubPort) returns websub:WebSubHub|websub:HubStartedUpError {
-    return websub:startHub(new http:Listener(hubPort));
+function testHubStartUp() returns boolean {
+    http:Listener lis0 = new (9191);
+    http:Listener lis1 = new (9292);
+    websub:Hub|websub:HubStartedUpError|websub:HubStartupError res =
+        websub:startHub(lis0, "/websub", "/hub", "/pub", publicUrl = "https://localhost:9191");
+
+    if (res is websub:Hub) {
+        if (res.publishUrl != "https://localhost:9191/websub/pub" ||
+                res.subscriptionUrl != "https://localhost:9191/websub/hub") {
+            return false;
+        }
+    } else {
+        return false;
+    }
+
+    // testHubStartUpWhenStarted
+    websub:Hub|websub:HubStartedUpError|websub:HubStartupError res2 =
+            websub:startHub(lis1);
+
+    if !(res2 is websub:HubStartedUpError) || res2.startedUpHub !== res {
+        return false;
+    }
+
+    // testHubShutdownAndStart
+    websub:Hub hub = <websub:Hub> res;
+    error? err = hub.stop();
+    if (err is error) {
+        return false;
+    }
+    err = lis0.__gracefulStop();
+    err = lis1.__gracefulStop();
+
+    http:Listener lis2 = new (9393);
+    res2 = websub:startHub(lis2);
+    err = lis2.__gracefulStop();
+    if res2 is websub:Hub {
+        boolean b = res2.publishUrl == "http://localhost:9393/publish" &&
+            res2.subscriptionUrl == "http://localhost:9393/";
+        err = hub.stop();
+        return b;
+    }
+    return false;
 }
 
-//TODO change function to accept websub:WebSubHub|websub:HubStartedUpError hubStartUpResult once test migration is done
-function stopHub(int hubPort) returns boolean {
-    var hubStartUpResult = websub:startHub(new http:Listener(hubPort));
-    if (hubStartUpResult is websub:WebSubHub) {
-        return hubStartUpResult.stop();
-    } else {
-        return hubStartUpResult.startedUpHub.stop();
+function testPublisherAndSubscriptionInvalidSameResourcePath() returns boolean {
+    http:Listener lis = new (9494);
+    websub:Hub|websub:HubStartedUpError|websub:HubStartupError res =
+        websub:startHub(lis, "/websub", "/hub", "/hub");
+
+    var err = lis.__gracefulStop();
+
+    if (res is websub:HubStartupError) {
+        return res.reason() == "{ballerina/websub}HubStartupError" &&
+            res.detail().message == "publisher and subscription resource paths cannot be the same";
     }
+    return false;
 }

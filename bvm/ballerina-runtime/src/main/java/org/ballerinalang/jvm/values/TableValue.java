@@ -245,7 +245,7 @@ public class TableValue implements RefValue, CollectionValue {
         int deletedCount = 0;
         while (this.hasNext()) {
             MapValueImpl<String, Object> row = this.getNext();
-            if (func.apply(new Object[] { strand, row, true })) {
+            if (func.call(new Object[] { strand, row, true })) {
                 tableProvider.deleteData(this.tableName, row);
                 ++deletedCount;
             }
