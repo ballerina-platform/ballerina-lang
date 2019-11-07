@@ -82,6 +82,7 @@ public class Constants {
     public static final String NATS_STREAMING_LISTENER = "StreamingListener";
 
     public static final String STREAMING_DISPATCHER_LIST = "StreamingDispatcherList";
+    public static final String STREAMING_SUBSCRIPTION_LIST = "StreamingSubscriptionsList";
 
     public static final String ON_MESSAGE_RESOURCE = "onMessage";
 

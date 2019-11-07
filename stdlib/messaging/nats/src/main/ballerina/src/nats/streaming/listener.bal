@@ -43,23 +43,18 @@ public type StreamingListener object {
         self.init();
     }
 
-    function init() = external;
-
     public function __attach(service s, string? name = ()) returns error? {
         self.attach(s, self.connection);
     }
 
-    function attach(service serviceType, Connection? conn) = external;
-
     public function __detach(service s) returns error? {
+        self.detach(s);
     }
 
     public function __start() returns error? {
          createStreamingConnection(self, self.connection, self.clusterId, self.clientId, self.streamingConfig);
          self.subscribe();
     }
-
-    function subscribe() = external;
 
     public function __gracefulStop() returns error? {
         return ();
@@ -76,5 +71,10 @@ public type StreamingListener object {
             return detachFromNatsConnection(self, natsConnection);
         }
     }
+
+     function init() = external;
+     function subscribe() = external;
+     function attach(service serviceType, Connection? conn) = external;
+     function detach(service serviceType) = external;
 
 };
