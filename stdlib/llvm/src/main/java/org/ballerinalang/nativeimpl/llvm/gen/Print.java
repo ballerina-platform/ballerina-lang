@@ -34,7 +34,5 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 public class Print {
 
     public static void print(int value) {
-
-        System.out.println(value);
     }
 }
