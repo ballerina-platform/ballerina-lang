@@ -1,3 +1,4 @@
+import ballerina/runtime;
 import ballerinax/java;
 
 function testAcceptNothingAndReturnNothing() {
@@ -24,6 +25,32 @@ function testAcceptThreeParamsAndReturnSomething(handle h1, handle h2, handle h3
     return acceptThreeParamsAndReturnSomething(h1, h2, h3);
 }
 
+function testErrorOrTupleReturn() returns error|[string,string] {
+   [string,string] ret = check getArrayValue();
+   return ret;
+}
+
+function testFuncWithAsyncDefaultParamExpression() returns int {
+    return funcWithAsyncDefaultParamExpression() + funcWithAsyncDefaultParamExpression(5) + funcWithAsyncDefaultParamExpression(50, 20);
+}
+
+function asyncRet() returns int {
+    runtime:sleep(50);
+    return 10;
+}
+
+function asyncRetWithVal(int a = 30) returns int {
+    runtime:sleep(50);
+    return a + 20;
+}
+
+function testUsingParamValues() returns int {
+    return usingParamValues() + usingParamValues(5) + usingParamValues(50, 20);
+}
+
+function testDecimalParamAndReturn(decimal a1) returns decimal {
+    return decimalParamAndReturn(a1);
+}
 
 // Interop functions
 public function acceptNothingAndReturnNothing() = @java:Method {
@@ -110,3 +137,20 @@ public function getObjectOrError() returns Person|error = @java:Method {
     name: "returnObjectOrError",
     class: "org.ballerinalang.test.javainterop.basic.StaticMethodTest"
 } external;
+
+function getArrayValue() returns [string, string] | error = @java:Method {
+    class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
+} external;
+
+function funcWithAsyncDefaultParamExpression(int a1 = asyncRet(), int a2 = asyncRet()) returns int = @java:Method {
+    class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
+} external;
+
+function usingParamValues(int a1 = asyncRet(), int a2 = asyncRetWithVal(a1)) returns int = @java:Method {
+    class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
+} external;
+
+function decimalParamAndReturn(decimal a1) returns decimal = @java:Method {
+    class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
+} external;
+
