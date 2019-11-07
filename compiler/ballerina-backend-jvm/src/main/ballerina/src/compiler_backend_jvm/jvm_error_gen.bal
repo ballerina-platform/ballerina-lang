@@ -39,7 +39,7 @@ type ErrorHandlerGenerator object {
 
     function generateTryInsForTrap(bir:ErrorEntry currentEE, string previousTargetBB, jvm:Label startLabel, jvm:Label jumpLabel) {
 	    if (currentEE is JErrorEntry) {
-                self.mv.visitLabel(startLabel);
+            self.mv.visitLabel(startLabel);
 	        return;
 	    }
         var varDcl = <bir:VariableDcl>currentEE.errorOp.variableDcl;
@@ -63,7 +63,7 @@ type ErrorHandlerGenerator object {
     						InstructionGenerator instGen, TerminatorGenerator termGen) {
         self.mv.visitLabel(endLabel);
         self.mv.visitJumpInsn(GOTO, jumpLabel);
-	    if (currentEE is JErrorEntry) {
+        if (currentEE is JErrorEntry) {
             var retVarDcl = <bir:VariableDcl>currentEE.errorOp.variableDcl;
             int retIndex = self.getJVMIndexOfVarRef(retVarDcl);
 	        foreach CatchIns catchIns in currentEE.catchIns {
