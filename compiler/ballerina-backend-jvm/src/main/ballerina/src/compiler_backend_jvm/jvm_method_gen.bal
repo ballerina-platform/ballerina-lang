@@ -406,7 +406,7 @@ function geerateFrameClassFieldLoad(int localVarOffset, bir:VariableDcl?[] local
             mv.visitVarInsn(ASTORE, index);
         }   else if (bType is bir:BTypeNil ||
                     bType is bir:BTypeAny ||
-                    bType is bir:BTypeAnyData ||}
+                    bType is bir:BTypeAnyData ||
                     bType is bir:BUnionType ||
                     bType is bir:BJSONType ||
                     bType is bir:BFiniteType) {

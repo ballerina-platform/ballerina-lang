@@ -403,12 +403,12 @@ function desugarInteropFuncs(bir:Package module, JMethodFunctionWrapper extFuncW
         bir:VarRef retRef = {variableDcl:getVariableDcl(birFunc.localVars[0]), typeValue:retType};
         if (!(jMethodRetType is jvm:JVoid)) {
             bir:VariableDcl retJObjectVarDcl = { typeValue:jMethodRetType, name: { value: "$_ret_jobject_var_$" }, kind: "LOCAL" };
-    	    birFunc.localVars[birFunc.localVars.length()] = retJObjectVarDcl;
-    	    bir:VarRef castVarRef = {typeValue:jMethodRetType, variableDcl:retJObjectVarDcl};
-    	    jRetVarRef = castVarRef;
-    	    JCast jToBCast = {pos:birFunc.pos, lhsOp:retRef, rhsOp:castVarRef, targetType:retType};
-    	    thenBB.instructions[thenBB.instructions.length()] = jToBCast;
-    	}
+            birFunc.localVars[birFunc.localVars.length()] = retJObjectVarDcl;
+            bir:VarRef castVarRef = {typeValue:jMethodRetType, variableDcl:retJObjectVarDcl};
+            jRetVarRef = castVarRef;
+            JCast jToBCast = {pos:birFunc.pos, lhsOp:retRef, rhsOp:castVarRef, targetType:retType};
+            thenBB.instructions[thenBB.instructions.length()] = jToBCast;
+        }
 
         bir:BasicBlock catchBB = {id: getNextDesugarBBId(bbPrefix), instructions: []};
         JErrorEntry ee = { trapBB:beginBB, errorOp:retRef, targetBB:catchBB, catchIns:[] };

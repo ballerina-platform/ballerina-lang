@@ -223,7 +223,7 @@ function generateJToBCheckCast(jvm:MethodVisitor mv, BalToJVMIndexMap indexMap, 
         return;
     } else if (targetType is bir:BTypeHandle) {
         generateJCastToBHandle(mv, sourceType);
-	    return;
+        return;
     } else if (targetType is bir:BTypeAny) {
         generateJCastToBAny(mv, indexMap, sourceType);
         return;
