@@ -76,14 +76,14 @@ public class Subscribe {
         ConcurrentHashMap<ObjectValue, Subscription> subscriptionsMap =
                 (ConcurrentHashMap<ObjectValue, Subscription>) streamingListener
                         .getNativeData(STREAMING_SUBSCRIPTION_LIST);
-        Iterator dispatchers = serviceListenerMap.entrySet().iterator();
-        while (dispatchers.hasNext()) {
-            Map.Entry pair = (Map.Entry) dispatchers.next();
+        Iterator serviceListeners = serviceListenerMap.entrySet().iterator();
+        while (serviceListeners.hasNext()) {
+            Map.Entry pair = (Map.Entry) serviceListeners.next();
             Subscription sub =
                     createSubscription((ObjectValue) pair.getKey(),
                             (StreamingListener) pair.getValue(), streamingConnection);
             subscriptionsMap.put((ObjectValue) pair.getKey(), sub);
-            dispatchers.remove(); // avoids a ConcurrentModificationException
+            serviceListeners.remove(); // avoids a ConcurrentModificationException
         }
     }
 

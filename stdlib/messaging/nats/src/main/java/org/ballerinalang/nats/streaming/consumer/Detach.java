@@ -24,13 +24,11 @@ import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
+import org.ballerinalang.nats.Constants;
 import org.ballerinalang.nats.Utils;
 
 import java.io.IOException;
 import java.util.concurrent.ConcurrentHashMap;
-
-import static org.ballerinalang.nats.Constants.STREAMING_DISPATCHER_LIST;
-import static org.ballerinalang.nats.Constants.STREAMING_SUBSCRIPTION_LIST;
 
 /**
  * Unsubscribe from a subject.
@@ -48,10 +46,10 @@ public class Detach {
     public static void detach(Strand strand, ObjectValue streamingListener, ObjectValue service) {
         ConcurrentHashMap<ObjectValue, StreamingListener> serviceListenerMap =
                 (ConcurrentHashMap<ObjectValue, StreamingListener>) streamingListener
-                        .getNativeData(STREAMING_DISPATCHER_LIST);
+                        .getNativeData(Constants.STREAMING_DISPATCHER_LIST);
         ConcurrentHashMap<ObjectValue, Subscription> subscriptionsMap =
                 (ConcurrentHashMap<ObjectValue, Subscription>) streamingListener
-                        .getNativeData(STREAMING_SUBSCRIPTION_LIST);
+                        .getNativeData(Constants.STREAMING_SUBSCRIPTION_LIST);
         Subscription subscription = subscriptionsMap.get(service);
         try {
             if (subscription != null) {
@@ -59,8 +57,8 @@ public class Detach {
                 subscriptionsMap.remove(service);
                 serviceListenerMap.remove(service);
             }
-            streamingListener.addNativeData(STREAMING_DISPATCHER_LIST, serviceListenerMap);
-            streamingListener.addNativeData(STREAMING_SUBSCRIPTION_LIST, subscriptionsMap);
+            streamingListener.addNativeData(Constants.STREAMING_DISPATCHER_LIST, serviceListenerMap);
+            streamingListener.addNativeData(Constants.STREAMING_SUBSCRIPTION_LIST, subscriptionsMap);
         } catch (IOException e) {
             throw Utils.createNatsError("Error occurred while un-subscribing: " + e.getMessage());
         }

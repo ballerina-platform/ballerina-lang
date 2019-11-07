@@ -23,14 +23,12 @@ import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
+import org.ballerinalang.nats.Constants;
 
 import java.util.concurrent.ConcurrentHashMap;
 
-import static org.ballerinalang.nats.Constants.STREAMING_DISPATCHER_LIST;
-import static org.ballerinalang.nats.Constants.STREAMING_SUBSCRIPTION_LIST;
-
 /**
- * Inits listener.
+ * Initializes the listener.
  *
  * @since 1.0.0
  */
@@ -45,8 +43,8 @@ public class Init {
 
     public static void init(Strand strand, ObjectValue streamingListener) {
         ConcurrentHashMap<ObjectValue, StreamingListener> serviceListenerMap = new ConcurrentHashMap<>();
-        streamingListener.addNativeData(STREAMING_DISPATCHER_LIST, serviceListenerMap);
+        streamingListener.addNativeData(Constants.STREAMING_DISPATCHER_LIST, serviceListenerMap);
         ConcurrentHashMap<ObjectValue, Subscription> subscriptionsMap = new ConcurrentHashMap<>();
-        streamingListener.addNativeData(STREAMING_SUBSCRIPTION_LIST, subscriptionsMap);
+        streamingListener.addNativeData(Constants.STREAMING_SUBSCRIPTION_LIST, subscriptionsMap);
     }
 }

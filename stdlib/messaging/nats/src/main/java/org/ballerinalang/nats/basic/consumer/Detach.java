@@ -33,9 +33,6 @@ import java.io.PrintStream;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
-import static org.ballerinalang.nats.Constants.DISPATCHER_LIST;
-import static org.ballerinalang.nats.Constants.NATS_CLIENT_UNSUBSCRIBED;
-
 /**
  * Unsubscribe the consumer from the subject.
  *
@@ -66,7 +63,7 @@ public class Detach {
         }
         @SuppressWarnings("unchecked")
         ConcurrentHashMap<String, Dispatcher> dispatcherList = (ConcurrentHashMap<String, Dispatcher>)
-                listenerObject.getNativeData(DISPATCHER_LIST);
+                listenerObject.getNativeData(Constants.DISPATCHER_LIST);
         String subject = subscriptionConfig.getStringValue(Constants.SUBJECT);
         Dispatcher dispatcher = dispatcherList.get(service.getType().getName());
         try {
@@ -77,9 +74,10 @@ public class Detach {
         }
         serviceList.remove(service);
         String sOutput = "subject " + subject;
-        console.println(NATS_CLIENT_UNSUBSCRIBED + sOutput);
+        console.println(Constants.NATS_CLIENT_UNSUBSCRIBED + sOutput);
         dispatcherList.remove(service.getType().getName());
-        listenerObject.addNativeData(DISPATCHER_LIST, dispatcherList);
+        listenerObject.addNativeData(Constants.DISPATCHER_LIST, dispatcherList);
+        listenerObject.addNativeData(Constants.SERVICE_LIST, serviceList);
         return null;
     }
 

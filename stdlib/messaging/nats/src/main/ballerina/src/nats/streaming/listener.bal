@@ -76,5 +76,4 @@ public type StreamingListener object {
      function subscribe() = external;
      function attach(service serviceType, Connection? conn) = external;
      function detach(service serviceType) = external;
-
 };

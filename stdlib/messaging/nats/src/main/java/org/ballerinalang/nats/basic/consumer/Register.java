@@ -34,9 +34,6 @@ import java.io.PrintStream;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
-import static org.ballerinalang.nats.Constants.DISPATCHER_LIST;
-import static org.ballerinalang.nats.Constants.NATS_CLIENT_SUBSCRIBED;
-
 /**
  * Creates a subscription with the NATS server.
  *
@@ -77,7 +74,7 @@ public class Register {
         // Add dispatcher. This is needed when closing the connection.
         @SuppressWarnings("unchecked")
         ConcurrentHashMap<String, Dispatcher> dispatcherList = (ConcurrentHashMap<String, Dispatcher>)
-                listenerObject.getNativeData(DISPATCHER_LIST);
+                listenerObject.getNativeData(Constants.DISPATCHER_LIST);
         dispatcherList.put(service.getType().getName(), dispatcher);
         if (subscriptionConfig.getMapValue(Constants.PENDING_LIMITS) != null) {
             setPendingLimits(dispatcher, subscriptionConfig.getMapValue(Constants.PENDING_LIMITS));
@@ -94,8 +91,9 @@ public class Register {
         }
         serviceList.add(service);
         String sOutput = "subject " + subject + (queueName != null ? " & queue " + queueName : "");
-        console.println(NATS_CLIENT_SUBSCRIBED + sOutput);
-        listenerObject.addNativeData(DISPATCHER_LIST, dispatcherList);
+        console.println(Constants.NATS_CLIENT_SUBSCRIBED + sOutput);
+        listenerObject.addNativeData(Constants.DISPATCHER_LIST, dispatcherList);
+        listenerObject.addNativeData(Constants.SERVICE_LIST, serviceList);
         return null;
     }
 
