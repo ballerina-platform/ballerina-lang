@@ -915,8 +915,8 @@ public class BIRGen extends BLangNodeVisitor {
         syncSend.expr.accept(this);
         BIROperand dataOp = this.env.targetOperand;
 
-        BIRVariableDcl tempVarDcl = new BIRVariableDcl(syncSend.type, this.env.nextLocalVarId(names),
-                VarScope.FUNCTION, VarKind.TEMP);
+        BIRVariableDcl tempVarDcl = new BIRVariableDcl(syncSend.receive.matchingSendsError,
+                                                       this.env.nextLocalVarId(names), VarScope.FUNCTION, VarKind.TEMP);
         this.env.enclFunc.localVars.add(tempVarDcl);
         BIROperand lhsOp = new BIROperand(tempVarDcl);
         this.env.targetOperand = lhsOp;

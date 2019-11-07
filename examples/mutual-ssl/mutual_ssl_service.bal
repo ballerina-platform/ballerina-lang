@@ -13,7 +13,7 @@ http:ListenerConfiguration helloWorldEPConfig = {
             path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
             password: "ballerina"
         },
-         // Configure the preferred SSL protocol and the versions to enable.
+         // Enable the preferred SSL protocol and its versions.
         protocol: {
             name: "TLS",
             versions: ["TLSv1.2", "TLSv1.1"]
@@ -39,7 +39,7 @@ service helloWorld on helloWorldEP {
         path: "/"
     }
     resource function sayHello(http:Caller caller, http:Request req) {
-        // Send response to the caller.
+        // Send the response to the caller.
         var result = caller->respond("Successful");
         if (result is error) {
             log:printError("Error in responding", err = result);

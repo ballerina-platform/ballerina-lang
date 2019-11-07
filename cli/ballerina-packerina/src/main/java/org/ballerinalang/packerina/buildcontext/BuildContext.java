@@ -44,8 +44,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BALLERINA_HOME;
@@ -68,6 +70,7 @@ public class BuildContext extends HashMap<BuildContextField, Object> {
     private SourceType srcType;
     private transient PrintStream out;
     private transient PrintStream err;
+    public transient Map<PackageID, HashSet<Path>> moduleDependencyPathMap = new HashMap<>();
     
     /**
      * Create a build context with context fields.

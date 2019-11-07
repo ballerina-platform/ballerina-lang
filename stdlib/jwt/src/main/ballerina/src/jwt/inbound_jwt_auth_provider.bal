@@ -64,7 +64,7 @@ public type InboundJwtAuthProvider object {
                 <@untainted> validationResult);
             return true;
         } else {
-            return auth:prepareError("JWT validation failed.", validationResult);
+            return prepareAuthError("JWT validation failed.", validationResult);
         }
     }
 };
@@ -113,7 +113,7 @@ function setPrincipal(JwtPayload jwtPayload) {
         auth:setPrincipal(claims = claims);
         if (claims.hasKey(SCOPE)) {
             var scopeString = claims[SCOPE];
-            if (scopeString is string) {
+            if (scopeString is string && scopeString != "") {
                 auth:setPrincipal(scopes = stringutils:split(scopeString, " "));
             }
         }

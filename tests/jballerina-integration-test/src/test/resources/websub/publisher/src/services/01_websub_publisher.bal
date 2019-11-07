@@ -110,6 +110,15 @@ service publisher on publisherServiceEP {
             }
         }
     }
+
+    resource function unsubscribe(http:Caller caller, http:Request req) returns error? {
+        check webSubHub.removeSubscription("http://one.websub.topic.com",
+                                           "http://localhost:23181/websubThree?topic=http://one.websub.topic.com&fooVal=barVal");
+        var err = caller->respond("unsubscription successful");
+        if (err is error) {
+            log:printError("Error responding on unsubscription request", err);
+        }
+    }
 }
 
 service publisherTwo on publisherServiceEP {
