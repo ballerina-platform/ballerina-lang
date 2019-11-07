@@ -327,6 +327,9 @@ public type ObjectGenerator object {
         self.createRecordContainsKeyMethod(cw, fields, className);
         self.createRecordGetValuesMethod(cw, fields, className);
         self.createGetSizeMethod(cw, fields, className);
+        self.createRecordRemoveMethod(cw);
+        self.createRecordClearMethod(cw);
+        self.createRecordGetKeysMethod(cw, fields, className);
 
         self.createRecordConstructor(cw, className);
         self.createRecordInitWrapper(cw, className, typeDef);
@@ -749,6 +752,78 @@ public type ObjectGenerator object {
         mv.visitVarInsn(ILOAD, sizeVarIndex);
         mv.visitInsn(IRETURN);
 
+        mv.visitMaxs(0, 0);
+        mv.visitEnd();
+    }
+
+    function createRecordRemoveMethod(jvm:ClassWriter cw) {
+        // throw an UnsupportedOperationException, since remove is not supported by for records.
+        jvm:MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "clear", "()V", (), ());
+        mv.visitCode();
+        mv.visitTypeInsn(NEW, UNSUPPORTED_OPERATION_EXCEPTION);
+        mv.visitInsn(DUP);
+        mv.visitMethodInsn(INVOKESPECIAL, UNSUPPORTED_OPERATION_EXCEPTION, "<init>", "()V", false);
+        mv.visitInsn(ATHROW);
+        mv.visitMaxs(0, 0);
+        mv.visitEnd();
+    }
+
+    function createRecordClearMethod(jvm:ClassWriter cw) {
+        // throw an UnsupportedOperationException, since remove is not supported by for records.
+        jvm:MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "remove", io:sprintf("(L%s;)L%s;", OBJECT, OBJECT),
+                                                io:sprintf("(L%s;)TV;", OBJECT), ());
+        mv.visitCode();
+        mv.visitTypeInsn(NEW, UNSUPPORTED_OPERATION_EXCEPTION);
+        mv.visitInsn(DUP);
+        mv.visitMethodInsn(INVOKESPECIAL, UNSUPPORTED_OPERATION_EXCEPTION, "<init>", "()V", false);
+        mv.visitInsn(ATHROW);
+        mv.visitMaxs(0, 0);
+        mv.visitEnd();
+    }
+
+    function createRecordGetKeysMethod(jvm:ClassWriter cw, bir:BRecordField?[] fields, string className) {
+        jvm:MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "getKeys", io:sprintf("()[L%s;",OBJECT), "()[TK;", ());
+        mv.visitCode();
+
+        int KeysVarIndex = 1;
+        mv.visitTypeInsn(NEW, LINKED_HASH_SET);
+        mv.visitInsn(DUP);
+        mv.visitMethodInsn(INVOKESPECIAL, LINKED_HASH_SET, "<init>", "()V", false);
+        mv.visitVarInsn(ASTORE, KeysVarIndex);
+
+        foreach var optionalField in fields {
+            bir:BRecordField field = getRecordField(optionalField);
+            jvm:Label ifNotPresent = new;
+
+            // If its an optional field, generate if-condition to check the presense of the field.
+            string fieldName = field.name.value;
+            if (self.isOptionalRecordField(field)) {
+                mv.visitVarInsn(ALOAD, 0); // self
+                mv.visitFieldInsn(GETFIELD, className, self.getFieldIsPresentFlagName(fieldName),
+                                    getTypeDesc(bir:TYPE_BOOLEAN));
+                mv.visitJumpInsn(IFEQ, ifNotPresent);
+            }
+
+            mv.visitVarInsn(ALOAD, KeysVarIndex);
+            mv.visitLdcInsn(fieldName);
+            mv.visitMethodInsn(INVOKEINTERFACE, LIST, "add", io:sprintf("(L%s;)Z", OBJECT), true);
+            mv.visitInsn(POP);
+            mv.visitLabel(ifNotPresent);
+        }
+
+        mv.visitVarInsn(ALOAD, KeysVarIndex);
+        mv.visitVarInsn(ALOAD, 0); // self
+        mv.visitMethodInsn(INVOKESPECIAL, LINKED_HASH_MAP, "keySet", io:sprintf("()L%s;", SET), false);
+        mv.visitMethodInsn(INVOKEINTERFACE, SET, "addAll", io:sprintf("(L%s;)Z", SET), true);
+        mv.visitInsn(POP);
+
+        mv.visitVarInsn(ALOAD, KeysVarIndex);
+        mv.visitInsn(DUP);
+        mv.visitMethodInsn(INVOKEINTERFACE, SET, "size", "()I", true);
+        mv.visitTypeInsn(ANEWARRAY, STRING_VALUE);
+        mv.visitMethodInsn(INVOKEINTERFACE, SET, "toArray", io:sprintf("([L%s;)[L%s;", OBJECT, OBJECT), true);
+
+        mv.visitInsn(ARETURN);
         mv.visitMaxs(0, 0);
         mv.visitEnd();
     }

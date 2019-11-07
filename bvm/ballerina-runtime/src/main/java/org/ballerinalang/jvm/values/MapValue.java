@@ -40,8 +40,6 @@ public interface MapValue<K, V> extends RefValue, CollectionValue {
 
     V put(K key, V value);
 
-    void putAll(Map<? extends K, ? extends V> m);
-    
     V remove(Object key);
 
     boolean containsKey(Object key);

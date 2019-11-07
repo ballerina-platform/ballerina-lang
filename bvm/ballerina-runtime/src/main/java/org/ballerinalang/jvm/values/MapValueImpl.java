@@ -158,7 +158,7 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
         if (!containsKey(key)) {
             throw BallerinaErrors.createError(MAP_KEY_NOT_FOUND_ERROR, "cannot find key '" + key + "'");
         }
-        return super.get(key);
+        return this.get(key);
     }
 
     /**
@@ -171,7 +171,7 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
      */
     public V fillAndGet(Object key) {
         if (containsKey(key)) {
-            return super.get(key);
+            return this.get(key);
         }
 
         BType expectedType = null;

@@ -332,6 +332,7 @@ const string STACK_OVERFLOW_ERROR = "java/lang/StackOverflowError";
 const string HANDLE_THROWABLE_METHOD = "handleRuntimeErrors";
 const string HANDLE_STOP_PANIC_METHOD = "silentlyLogBadSad";
 const string HANDLE_RETURNED_ERROR_METHOD = "handleRuntimeReturnValues";
+const string UNSUPPORTED_OPERATION_EXCEPTION = "java/lang/UnsupportedOperationException";
 
 // code generation related constants.
 const string MODULE_INIT_CLASS_NAME = "___init";
