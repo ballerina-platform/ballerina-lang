@@ -520,11 +520,16 @@ public type ObjectGenerator object {
             bir:BRecordField field = getRecordField(optionalField);
             jvm:Label targetLabel = targetLabels[i];
             mv.visitLabel(targetLabel);
+
+            // load the existing value to return
+            string fieldName = field.name.value;
+            mv.visitVarInsn(ALOAD, 0);
+            mv.visitFieldInsn(GETFIELD, className, fieldName, getTypeDesc(field.typeValue));
+            addBoxInsn(mv, field.typeValue);
+
             mv.visitVarInsn(ALOAD, 0);
             mv.visitVarInsn(ALOAD, valueRegIndex);
             addUnboxInsn(mv, field.typeValue);
-
-            string fieldName = field.name.value;
             mv.visitFieldInsn(PUTFIELD, className, fieldName, getTypeDesc(field.typeValue));
 
             // if the field is an optional-field, then also set the isPresent flag of that field to true.
@@ -535,7 +540,6 @@ public type ObjectGenerator object {
                                     getTypeDesc(bir:TYPE_BOOLEAN));
             }
 
-            mv.visitVarInsn(ALOAD, valueRegIndex);
             mv.visitInsn(ARETURN);
             i += 1;
         }

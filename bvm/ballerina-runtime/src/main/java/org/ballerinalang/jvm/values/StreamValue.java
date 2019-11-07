@@ -22,6 +22,7 @@ import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.streams.StreamSubscriptionManager;
 import org.ballerinalang.jvm.types.BStreamType;
 import org.ballerinalang.jvm.types.BType;
+import org.ballerinalang.jvm.values.api.BStream;
 
 import java.util.Map;
 import java.util.UUID;
@@ -36,7 +37,7 @@ import java.util.UUID;
  * 
  * @since 0.995.0
  */
-public class StreamValue implements RefValue {
+public class StreamValue implements RefValue, BStream {
 
     private BType type;
     private BType constraintType;
@@ -48,6 +49,7 @@ public class StreamValue implements RefValue {
      */
     public String streamId;
 
+    @Deprecated
     public StreamValue(BType type) {
         this.streamSubscriptionManager = StreamSubscriptionManager.getInstance();
         this.constraintType = ((BStreamType) type).getConstrainedType();
@@ -59,6 +61,9 @@ public class StreamValue implements RefValue {
         return streamId;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public String stringValue(Strand strand) {
         return "stream " + streamId + " " + getType().toString();
     }
@@ -102,5 +107,10 @@ public class StreamValue implements RefValue {
      */
     public void subscribe(FPValue<Object[], Object> functionPointer) {
         streamSubscriptionManager.registerMessageProcessor(this, functionPointer);
+    }
+
+    @Override
+    public String toString() {
+        return stringValue();
     }
 }

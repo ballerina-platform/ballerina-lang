@@ -38,6 +38,7 @@ import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.jvm.util.exceptions.BLangFreezeException;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.util.exceptions.RuntimeErrors;
+import org.ballerinalang.jvm.values.api.BMap;
 import org.ballerinalang.jvm.values.freeze.FreezeUtils;
 import org.ballerinalang.jvm.values.freeze.State;
 import org.ballerinalang.jvm.values.freeze.Status;
@@ -72,13 +73,15 @@ import static org.ballerinalang.jvm.values.freeze.FreezeUtils.handleInvalidUpdat
  * <p>
  * <i>Note: This is an internal API and may change in future versions.</i>
  * </p>
+ * @see MapValue
  * 
  * @param <K> the type of keys maintained by this map
  * @param <V> the type of mapped values
  *
  * @since 0.995.0
  */
-public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue, CollectionValue, MapValue<K, V> {
+public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue, CollectionValue, MapValue<K, V>,
+        BMap<K, V> {
 
     private static final long serialVersionUID = 1L;
     private BType type;
@@ -205,30 +208,7 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
 
     @Override
     public Object merge(MapValue v2, boolean checkMergeability) {
-        if (checkMergeability) {
-            ErrorValue errorIfUnmergeable = JSONUtils.getErrorIfUnmergeable(this, v2, new ArrayList<>());
-            if (errorIfUnmergeable != null) {
-                return errorIfUnmergeable;
-            }
-        }
-
-        MapValue<String, Object> m1 = (MapValue<String, Object>) this;
-        MapValue<String, Object> m2 = (MapValue<String, Object>) v2;
-
-        for (Map.Entry<String, Object> entry : m2.entrySet()) {
-            String key = entry.getKey();
-
-            if (!m1.containsKey(key)) {
-                m1.put(key, entry.getValue());
-                continue;
-            }
-
-            // Set checkMergeability to false to avoid rechecking mergeability.
-            // Since write locks are acquired, the initial check should suffice, and merging will always succeed.
-            m1.put(key, mergeJson(m1.get(key), entry.getValue(), false));
-        }
-
-        return this;
+        return merge((MapValueImpl) v2, checkMergeability);
     }
 
     /**
@@ -630,5 +610,32 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
      */
     protected V putValue(K key, V value) {
         return super.put(key, value);
+    }
+
+    private Object merge(MapValueImpl v2, boolean checkMergeability) {
+        if (checkMergeability) {
+            ErrorValue errorIfUnmergeable = JSONUtils.getErrorIfUnmergeable(this, v2, new ArrayList<>());
+            if (errorIfUnmergeable != null) {
+                return errorIfUnmergeable;
+            }
+        }
+
+        MapValue<String, Object> m1 = (MapValue<String, Object>) this;
+        MapValue<String, Object> m2 = (MapValue<String, Object>) v2;
+
+        for (Map.Entry<String, Object> entry : m2.entrySet()) {
+            String key = entry.getKey();
+
+            if (!m1.containsKey(key)) {
+                m1.put(key, entry.getValue());
+                continue;
+            }
+
+            // Set checkMergeability to false to avoid rechecking mergeability.
+            // Since write locks are acquired, the initial check should suffice, and merging will always succeed.
+            m1.put(key, mergeJson(m1.get(key), entry.getValue(), false));
+        }
+
+        return this;
     }
 }
