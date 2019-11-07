@@ -258,7 +258,7 @@
     <test name="ballerina-socket-tests" parallel="false">
         <classes>
             <class name="org.ballerinalang.test.socket.SocketBaseTest"/>
-            <class name="org.ballerinalang.test.socket.SocketClientCallbackServiceTestCase"/>
+<!--            <class name="org.ballerinalang.test.socket.SocketClientCallbackServiceTestCase"/>-->
         </classes>
     </test>
 </suite>
