@@ -37,6 +37,7 @@ import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BMapType;
 import org.ballerinalang.jvm.types.BTypes;
+import org.ballerinalang.jvm.values.api.BXml;
 import org.ballerinalang.jvm.values.freeze.FreezeUtils;
 import org.ballerinalang.jvm.values.freeze.State;
 import org.ballerinalang.jvm.values.freeze.Status;
@@ -85,6 +86,7 @@ public final class XMLItem extends XMLValue<OMNode> {
     /**
      * Create an empty XMLValue.
      */
+    @Deprecated
     public XMLItem() {
         omNode = new OMElementImpl();
         setXMLNodeType();
@@ -95,6 +97,7 @@ public final class XMLItem extends XMLValue<OMNode> {
      *
      * @param xmlValue A XML string
      */
+    @Deprecated
     public XMLItem(String xmlValue) {
         if (xmlValue == null) {
             return;
@@ -113,6 +116,7 @@ public final class XMLItem extends XMLValue<OMNode> {
      *
      * @param value xml object
      */
+    @Deprecated
     public XMLItem(OMNode value) {
         this.omNode = value;
         setXMLNodeType();
@@ -123,6 +127,7 @@ public final class XMLItem extends XMLValue<OMNode> {
      *
      * @param inputStream Input Stream
      */
+    @Deprecated
     public XMLItem(InputStream inputStream) {
         if (inputStream == null) {
             return;
@@ -446,6 +451,10 @@ public final class XMLItem extends XMLValue<OMNode> {
         }
     }
 
+    public void setChildren(BXml<?> seq) {
+        setChildren((XMLValue<?>) seq);
+    }
+
     /**
      * {@inheritDoc}
      */
@@ -480,6 +489,10 @@ public final class XMLItem extends XMLValue<OMNode> {
         } else {
             currentNode.addChild((OMNode) seq.value());
         }
+    }
+
+    public void addChildren(BXml<?> seq) {
+        addChildren((XMLValue) seq);
     }
 
     /**
