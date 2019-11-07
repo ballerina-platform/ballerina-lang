@@ -806,7 +806,7 @@ public type ObjectGenerator object {
 
             mv.visitVarInsn(ALOAD, KeysVarIndex);
             mv.visitLdcInsn(fieldName);
-            mv.visitMethodInsn(INVOKEINTERFACE, LIST, "add", io:sprintf("(L%s;)Z", OBJECT), true);
+            mv.visitMethodInsn(INVOKEINTERFACE, SET, "add", io:sprintf("(L%s;)Z", OBJECT), true);
             mv.visitInsn(POP);
             mv.visitLabel(ifNotPresent);
         }
@@ -814,7 +814,7 @@ public type ObjectGenerator object {
         mv.visitVarInsn(ALOAD, KeysVarIndex);
         mv.visitVarInsn(ALOAD, 0); // self
         mv.visitMethodInsn(INVOKESPECIAL, LINKED_HASH_MAP, "keySet", io:sprintf("()L%s;", SET), false);
-        mv.visitMethodInsn(INVOKEINTERFACE, SET, "addAll", io:sprintf("(L%s;)Z", SET), true);
+        mv.visitMethodInsn(INVOKEINTERFACE, SET, "addAll", io:sprintf("(L%s;)Z", COLLECTION), true);
         mv.visitInsn(POP);
 
         mv.visitVarInsn(ALOAD, KeysVarIndex);

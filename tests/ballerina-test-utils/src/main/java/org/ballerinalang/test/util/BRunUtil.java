@@ -176,7 +176,9 @@ public class BRunUtil {
         BIRNode.BIRFunction function = getInvokedFunction(compileResult, functionName);
         args = addDefaultableBoolean(args);
         paramTypes = addDefaultableBooleanType(paramTypes);
-        return invoke(compileResult, function, functionName, args, paramTypes);
+        Object jvmResult = invoke(compileResult, function, functionName, args, paramTypes);
+        BValue result = getBVMValue(jvmResult);
+        return new BValue[] { result };
     }
 
     private static Object[] addDefaultableBoolean(Object[] args) {
@@ -210,7 +212,7 @@ public class BRunUtil {
     }
 
     /**
-     * This method handles the input arguments and output result mapping between BVM types, values to JVM types, values.
+     * This method handles the input arguments.
      *
      * @param compileResult CompileResult instance
      * @param function function model instance from BIR model
@@ -219,7 +221,7 @@ public class BRunUtil {
      * @param paramTypes types of the parameters of the function
      * @return return the result from function invocation
      */
-    private static BValue[] invoke(CompileResult compileResult, BIRNode.BIRFunction function, String functionName,
+    private static Object invoke(CompileResult compileResult, BIRNode.BIRFunction function, String functionName,
                                    Object[] args, Class<?>[] paramTypes) {
         assert args.length == paramTypes.length;
         Class<?>[] jvmParamTypes = new Class[paramTypes.length + 1];
@@ -273,8 +275,7 @@ public class BRunUtil {
             throw new RuntimeException("Error while invoking function '" + functionName + "'", e);
         }
 
-        BValue result = getBVMValue(jvmResult);
-        return new BValue[] { result };
+        return jvmResult;
     }
 
     private static Method getMethod(String functionName, Class<?> funcClass) throws NoSuchMethodException {
@@ -1135,7 +1136,6 @@ public class BRunUtil {
         return arr;
     }
 
-
     /**
      * Invoke a ballerina function.
      *
@@ -1146,5 +1146,10 @@ public class BRunUtil {
     public static BValue[] invoke(CompileResult compileResult, String functionName) {
         BValue[] args = {};
         return invoke(compileResult, functionName, args);
+    }
+
+    public static Object invokeAndGetJVMResult(CompileResult compileResult, String functionName) {
+        BIRNode.BIRFunction function = getInvokedFunction(compileResult, functionName);
+        return invoke(compileResult, function, functionName, new BValue[0], new Class<?>[0]);
     }
 }
