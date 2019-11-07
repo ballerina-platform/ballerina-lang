@@ -28,8 +28,9 @@ public enum XMLNodeType {
     ELEMENT("element"),
     TEXT("text"),
     COMMENT("comment"),
-    PI("pi");
-    
+    PI("pi"),
+    CDATA("cdata");
+
     String nodeType;
 
     XMLNodeType(String value) {

@@ -9,9 +9,9 @@ public class XMLContentHolderItem extends XMLValue<OMNode> {
 
     private String data;
     private String target; // only applicable for PI nodes
-    private ContentType type;
+    private XMLNodeType type;
 
-    public XMLContentHolderItem(String data, ContentType contentType) {
+    public XMLContentHolderItem(String data, XMLNodeType contentType) {
         this.data = data;
         this.type = contentType;
     }
@@ -19,7 +19,7 @@ public class XMLContentHolderItem extends XMLValue<OMNode> {
     public XMLContentHolderItem(String data, String target) {
         this.data = data;
         this.target = target;
-        this.type = ContentType.PI;
+        this.type = XMLNodeType.PI;
     }
 
     @Override

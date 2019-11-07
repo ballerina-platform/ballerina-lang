@@ -79,8 +79,9 @@ public class XMLIterator {
             return cursor == 0;
         }
 
-        private CodePointIterator createCodePointIterator(XMLItem value) {
-            return new CodePointIterator(((OMText) value.omNode).getText());
+        private CodePointIterator createCodePointIterator(XMLValue value) {
+            // todo: We don't need this anymore, text in xml are chuncked now.
+            return new CodePointIterator((((XMLContentHolderItem) value).stringValue()));
         }
     }
 

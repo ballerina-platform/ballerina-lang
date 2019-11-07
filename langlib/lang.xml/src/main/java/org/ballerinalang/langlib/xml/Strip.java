@@ -26,7 +26,11 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
- * Strips any text items from an XML sequence that are all whitespace.
+ * Strips the insignificant parts of the an xml value.
+ * Comment items, processing instruction items are considered insignificant.
+ * After removal of comments and processing instructions, the text is grouped into
+ * the biggest possible chunks (i.e. only elements cause division into multiple chunks)
+ * and a chunk is considered insignificant if the entire chunk is whitespace.
  * 
  * @since 0.88
  */
