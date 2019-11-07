@@ -55,9 +55,16 @@ public class XMLTest {
 //                "<?xml version=\"1.0\"  encoding=\"UTF-8\"?>" +
 //                "<?proc h=\"data\" p=\"more data\" ?>" +
 //                "<!-- cmnt -->" +
+                "<![CDATA[\n" +
+                        "while (x < len && !done) {\n" +
+                        "    print( \"Still working, 'zzzz'.\" );\n" +
+                        "    ++x;\n" +
+                        "    }\n" +
+                        "]]>" +
                 "<hello xmlns:ns=\"the  url\" ns:attr=\"blah\" >" +
                         "<ns:elem ns:at=\"the at\" />" +
                         "</hello>");
+        int i = 0;
     }
 
     @Test

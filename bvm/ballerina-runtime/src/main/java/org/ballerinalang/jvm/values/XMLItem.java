@@ -24,11 +24,8 @@ import org.apache.axiom.om.OMNamespace;
 import org.apache.axiom.om.OMNode;
 import org.apache.axiom.om.OMProcessingInstruction;
 import org.apache.axiom.om.OMText;
-import org.apache.axiom.om.OMXMLBuilderFactory;
 import org.apache.axiom.om.impl.common.OMChildrenQNameIterator;
 import org.apache.axiom.om.impl.common.OMNamespaceImpl;
-import org.apache.axiom.om.impl.llom.OMElementImpl;
-import org.apache.commons.lang3.StringEscapeUtils;
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.XMLFactory;
 import org.ballerinalang.jvm.XMLNodeType;
@@ -41,7 +38,6 @@ import org.ballerinalang.jvm.values.freeze.FreezeUtils;
 import org.ballerinalang.jvm.values.freeze.State;
 import org.ballerinalang.jvm.values.freeze.Status;
 
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -80,19 +76,11 @@ import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.getMod
 public final class XMLItem extends XMLValue<OMNode> {
 
     private QName name;
-    OMNode omNode;
+    //OMNode omNode;
     private XMLNodeType nodeType;
 
     XMLSequence children;
     MapValue<String, String> attributes = new MapValueImpl<>();
-
-    /**
-     * Create an empty XMLValue.
-     */
-    public XMLItem() {
-        omNode = new OMElementImpl();
-        setXMLNodeType();
-    }
 
     /**
      * Initialize a {@link XMLItem} from a XML string.
@@ -105,8 +93,10 @@ public final class XMLItem extends XMLValue<OMNode> {
         }
 
         try {
-            omNode = XMLFactory.stringToOM(xmlValue);
-            setXMLNodeType();
+            // Use XMLFactory to create nodes.
+            assert false;
+            //omNode = XMLFactory.stringToOM(xmlValue);
+//            setXMLNodeType();
         } catch (Throwable t) {
             handleXmlException("failed to create xml: ", t);
         }
@@ -124,27 +114,9 @@ public final class XMLItem extends XMLValue<OMNode> {
      * @param value xml object
      */
     public XMLItem(OMNode value) {
-        this.omNode = value;
-        setXMLNodeType();
-    }
-
-    /**
-     * Create a {@link XMLItem} from a {@link InputStream}.
-     *
-     * @param inputStream Input Stream
-     */
-    public XMLItem(InputStream inputStream) {
-        if (inputStream == null) {
-            return;
-        }
-
-        try {
-            omNode = OMXMLBuilderFactory.createOMBuilder(XMLFactory.STAX_PARSER_CONFIGURATION, inputStream)
-                    .getDocumentElement();
-            setXMLNodeType();
-        } catch (Throwable t) {
-            handleXmlException("failed to create xml: ", t);
-        }
+        assert false;
+        //this.omNode = value;
+//        setXMLNodeType();
     }
 
     /**
@@ -160,7 +132,7 @@ public final class XMLItem extends XMLValue<OMNode> {
      */
     @Override
     public boolean isEmpty() {
-        return omNode == null;
+        return children.isEmpty();
     }
 
     /**
@@ -176,7 +148,7 @@ public final class XMLItem extends XMLValue<OMNode> {
      */
     @Override
     public String getItemType() {
-        return new String(nodeType.value());
+        return nodeType.value();
     }
 
     /**
@@ -185,7 +157,7 @@ public final class XMLItem extends XMLValue<OMNode> {
     @Override
     public String getElementName() {
         if (nodeType == XMLNodeType.ELEMENT) {
-            return new String(((OMElement) omNode).getQName().toString());
+            return name.toString();
         }
 
         return BTypes.typeString.getEmptyValue();
@@ -196,24 +168,25 @@ public final class XMLItem extends XMLValue<OMNode> {
      */
     @Override
     public String getTextValue() {
-        switch (nodeType) {
-            case ELEMENT:
-                StringBuilder elementTextBuilder = new StringBuilder();
-                Iterator<OMNode> children = ((OMElement) omNode).getChildren();
-                while (children.hasNext()) {
-                    elementTextBuilder.append(getTextValue(children.next()));
-                }
-                return elementTextBuilder.toString();
-            case TEXT:
-                String text = ((OMText) omNode).getText();
-                return StringEscapeUtils.escapeXml11(text);
-            case COMMENT:
-                return BTypes.typeString.getZeroValue();
-            case PI:
-                return BTypes.typeString.getZeroValue();
-            default:
-                return BTypes.typeString.getZeroValue();
-        }
+        return "<emtpy/>";
+//        switch (nodeType) {
+//            case ELEMENT:
+//                StringBuilder elementTextBuilder = new StringBuilder();
+//                Iterator<OMNode> children = ((OMElement) omNode).getChildren();
+//                while (children.hasNext()) {
+//                    elementTextBuilder.append(getTextValue(children.next()));
+//                }
+//                return elementTextBuilder.toString();
+//            case TEXT:
+//                String text = ((OMText) omNode).getText();
+//                return StringEscapeUtils.escapeXml11(text);
+//            case COMMENT:
+//                return BTypes.typeString.getZeroValue();
+//            case PI:
+//                return BTypes.typeString.getZeroValue();
+//            default:
+//                return BTypes.typeString.getZeroValue();
+//        }
     }
 
     /**
@@ -233,13 +206,13 @@ public final class XMLItem extends XMLValue<OMNode> {
             return STRING_NULL_VALUE;
         }
         QName attributeName = getQName(localName, namespace, prefix);
-        OMAttribute attribute = ((OMElement) omNode).getAttribute(attributeName);
+        OMAttribute attribute = null; //((OMElement) omNode).getAttribute(attributeName);
 
         if (attribute != null) {
             return attribute.getAttributeValue();
         }
 
-        OMNamespace ns = ((OMElement) omNode).findNamespaceURI(localName);
+        OMNamespace ns = null; //((OMElement) omNode).findNamespaceURI(localName);
         return ns == null ? STRING_NULL_VALUE : ns.getNamespaceURI();
     }
 
@@ -261,17 +234,21 @@ public final class XMLItem extends XMLValue<OMNode> {
         XMLValidator.validateXMLName(prefix);
 
         // If the attribute already exists, update the value.
-        OMElement node = (OMElement) omNode;
+        //OMElement node = (OMElement) omNode;
         QName qname = getQName(localName, namespaceUri, prefix);
-        OMAttribute attr = node.getAttribute(qname);
-        if (attr != null) {
-            attr.setAttributeValue(value);
-            return;
-        }
+//        OMAttribute attr = node.getAttribute(qname);
+//        if (attr != null) {
+//            attr.setAttributeValue(value);
+//            return;
+//        }
+
+        attributes.put(qname.toString(), value);
 
         // If the prefix is 'xmlns' then this is a namespace addition
         if (prefix != null && prefix.equals(XMLConstants.XMLNS_ATTRIBUTE)) {
-            node.declareNamespace(value, localName);
+            String xmlnsPrefix = "{" + XMLConstants.XMLNS_ATTRIBUTE_NS_URI + "}" + prefix;
+            attributes.put(xmlnsPrefix, namespaceUri);
+            //attributes.put()
             return;
         }
 
@@ -283,6 +260,9 @@ public final class XMLItem extends XMLValue<OMNode> {
      */
     @Override
     public MapValue<String, ?> getAttributesMap() {
+        if (omNode == null) {
+            return this.attributes;
+        }
         XMLAttributeMap attrMap = new XMLAttributeMap(this);
         return attrMap;
     }
@@ -759,27 +739,27 @@ public final class XMLItem extends XMLValue<OMNode> {
     }
 
     // private methods
-
-    private void setXMLNodeType() {
-        switch (omNode.getType()) {
-            case OMNode.ELEMENT_NODE:
-                nodeType = XMLNodeType.ELEMENT;
-                break;
-            case OMNode.TEXT_NODE:
-            case OMNode.SPACE_NODE:
-                nodeType = XMLNodeType.TEXT;
-                break;
-            case OMNode.COMMENT_NODE:
-                nodeType = XMLNodeType.COMMENT;
-                break;
-            case OMNode.PI_NODE:
-                nodeType = XMLNodeType.PI;
-                break;
-            default:
-                nodeType = XMLNodeType.SEQUENCE;
-                break;
-        }
-    }
+//
+//    private void setXMLNodeType() {
+//        switch (omNode.getType()) {
+//            case OMNode.ELEMENT_NODE:
+//                nodeType = XMLNodeType.ELEMENT;
+//                break;
+//            case OMNode.TEXT_NODE:
+//            case OMNode.SPACE_NODE:
+//                nodeType = XMLNodeType.TEXT;
+//                break;
+//            case OMNode.COMMENT_NODE:
+//                nodeType = XMLNodeType.COMMENT;
+//                break;
+//            case OMNode.PI_NODE:
+//                nodeType = XMLNodeType.PI;
+//                break;
+//            default:
+//                nodeType = XMLNodeType.SEQUENCE;
+//                break;
+//        }
+//    }
 
     private String getTextValue(OMNode node) {
         switch (node.getType()) {
@@ -1114,4 +1094,5 @@ public final class XMLItem extends XMLValue<OMNode> {
             return namespaceOfPrefix;
         }
     }
+
 }

@@ -1,6 +1,7 @@
 package org.ballerinalang.jvm;
 
 import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinalang.jvm.values.XMLContentHolderItem;
 import org.ballerinalang.jvm.values.XMLItem;
 import org.ballerinalang.jvm.values.XMLSequence;
 import org.ballerinalang.jvm.values.XMLValue;
@@ -20,7 +21,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 
 public class StaxXMLSource {
@@ -52,6 +52,7 @@ public class StaxXMLSource {
         e.printStackTrace();
     }
 
+    // todo: wrong method name. This is not iterative.
     public XMLValue next() {
         try {
             while (xmlStreamReader.hasNext()) {
@@ -61,13 +62,13 @@ public class StaxXMLSource {
                         readElement(xmlStreamReader);
                         break;
                     case XMLEvent.END_ELEMENT:
-                        endElement(xmlStreamReader);
+                        endElement();
                         break;
                     case XMLEvent.PROCESSING_INSTRUCTION:
                         readPI(xmlStreamReader);
                         break;
                     case XMLEvent.END_DOCUMENT:
-                        return buildDocument(xmlStreamReader);
+                        return buildDocument();
                     case XMLEvent.COMMENT:
                         readComment(xmlStreamReader);
                         break;
@@ -88,31 +89,39 @@ public class StaxXMLSource {
     }
 
     private void readPI(XMLStreamReader xmlStreamReader) {
+        setupXmlDocument();
+        XMLContentHolderItem xmlItem = new XMLContentHolderItem(
+                xmlStreamReader.getPIData(), xmlStreamReader.getPITarget());
+        siblingDeque.peek().add(xmlItem);
     }
 
     private void readCDATA(XMLStreamReader xmlStreamReader) {
+        setupXmlDocument();
+        XMLContentHolderItem xmlItem = new XMLContentHolderItem(
+                xmlStreamReader.getText(), XMLContentHolderItem.ContentType.CDATA);
+        siblingDeque.peek().add(xmlItem);
     }
 
     private void readComment(XMLStreamReader xmlStreamReader) {
+        setupXmlDocument();
+
+        XMLContentHolderItem xmlItem = new XMLContentHolderItem(
+                xmlStreamReader.getText(), XMLContentHolderItem.ContentType.COMMENT);
+        siblingDeque.peek().add(xmlItem);
     }
 
-    private XMLValue buildDocument(XMLStreamReader xmlStreamReader) {
+    private XMLValue buildDocument() {
         this.siblingDeque.pop();
         return this.seqDeque.pop();
     }
 
-    private void endElement(XMLStreamReader xmlStreamReader) {
+    private void endElement() {
         this.siblingDeque.pop();
         this.seqDeque.pop();
     }
 
     private void readElement(XMLStreamReader xmlStreamReader) {
-        if (seqDeque.isEmpty()) {
-            ArrayList<XMLValue<?>> children = new ArrayList<>();
-            siblingDeque.push(children);
-            XMLSequence xmlSequence = new XMLSequence(children);
-            seqDeque.push(xmlSequence);
-        }
+        setupXmlDocument();
 
         QName elemName = xmlStreamReader.getName();
         ArrayList<XMLValue<?>> children = new ArrayList<>();
@@ -126,7 +135,18 @@ public class StaxXMLSource {
         siblingDeque.push(children);
     }
 
+    private void setupXmlDocument() {
+        if (seqDeque.isEmpty()) {
+            ArrayList<XMLValue<?>> children = new ArrayList<>();
+            siblingDeque.push(children);
+            XMLSequence xmlSequence = new XMLSequence(children);
+            seqDeque.push(xmlSequence);
+        }
+    }
+
+    // need to duplicate the same in xmlItem.setAttribute
     private void addAttributesAndNamespaceDecl(XMLStreamReader xmlStreamReader, XMLItem xmlItem, QName elemName) {
+        @SuppressWarnings("unchecked")
         MapValue<String, String> attributesMap = (MapValue<String, String>) xmlItem.getAttributesMap();
         Set<QName> usedNS = new HashSet<>();
 
