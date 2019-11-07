@@ -57,8 +57,6 @@ public class Detach {
                 subscriptionsMap.remove(service);
                 serviceListenerMap.remove(service);
             }
-            streamingListener.addNativeData(Constants.STREAMING_DISPATCHER_LIST, serviceListenerMap);
-            streamingListener.addNativeData(Constants.STREAMING_SUBSCRIPTION_LIST, subscriptionsMap);
         } catch (IOException e) {
             throw Utils.createNatsError("Error occurred while un-subscribing: " + e.getMessage());
         }

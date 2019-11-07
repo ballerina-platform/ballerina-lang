@@ -62,11 +62,11 @@ public class Register {
         List<ObjectValue> serviceList =
                 (List<ObjectValue>) ((ObjectValue) listenerObject.get(Constants.CONNECTION_OBJ))
                         .getNativeData(Constants.SERVICE_LIST);
-        MapValue<String, Object> subscriptionConfig = Utils.getSubscriptionConfig(service.getType().getAnnotation(
-                Constants.NATS_PACKAGE, Constants.SUBSCRIPTION_CONFIG));
+        MapValue<String, Object> subscriptionConfig = Utils.getSubscriptionConfig(service.getType()
+                .getAnnotation(Constants.NATS_PACKAGE, Constants.SUBSCRIPTION_CONFIG));
         if (subscriptionConfig == null) {
-            return BallerinaErrors.createError(Constants.NATS_ERROR_CODE, errorMessage +
-                    "Cannot find subscription configuration");
+            return BallerinaErrors.createError(Constants.NATS_ERROR_CODE,
+                    errorMessage + " Cannot find subscription configuration.");
         }
         String queueName = subscriptionConfig.getStringValue(Constants.QUEUE_NAME);
         String subject = subscriptionConfig.getStringValue(Constants.SUBJECT);
@@ -86,14 +86,12 @@ public class Register {
                 dispatcher.subscribe(subject);
             }
         } catch (IllegalArgumentException | IllegalStateException ex) {
-            return BallerinaErrors.createError(Constants.NATS_ERROR_CODE, errorMessage +
-                    ex.getMessage());
+            return BallerinaErrors.createError(Constants.NATS_ERROR_CODE,
+                    errorMessage + ex.getMessage());
         }
         serviceList.add(service);
-        String sOutput = "subject " + subject + (queueName != null ? " & queue " + queueName : "");
-        console.println(Constants.NATS_CLIENT_SUBSCRIBED + sOutput);
-        listenerObject.addNativeData(Constants.DISPATCHER_LIST, dispatcherList);
-        listenerObject.addNativeData(Constants.SERVICE_LIST, serviceList);
+        String consoleOutput = "subject " + subject + (queueName != null ? " & queue " + queueName : "");
+        console.println(Constants.NATS_CLIENT_SUBSCRIBED + consoleOutput);
         return null;
     }
 

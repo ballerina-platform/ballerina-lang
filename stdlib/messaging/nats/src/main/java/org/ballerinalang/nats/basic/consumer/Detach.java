@@ -50,34 +50,31 @@ import java.util.concurrent.ConcurrentHashMap;
 public class Detach {
     private static final PrintStream console;
 
-    public static Object detach(Strand strand, ObjectValue listenerObject, ObjectValue service) {
+    public static Object detach(Strand strand, ObjectValue listener, ObjectValue service) {
         @SuppressWarnings("unchecked")
         List<ObjectValue> serviceList =
-                (List<ObjectValue>) ((ObjectValue) listenerObject.get(Constants.CONNECTION_OBJ))
+                (List<ObjectValue>) ((ObjectValue) listener.get(Constants.CONNECTION_OBJ))
                         .getNativeData(Constants.SERVICE_LIST);
         MapValue<String, Object> subscriptionConfig = Utils.getSubscriptionConfig(service.getType()
                 .getAnnotation(Constants.NATS_PACKAGE, Constants.SUBSCRIPTION_CONFIG));
         if (subscriptionConfig == null) {
-            return BallerinaErrors.createError(Constants.NATS_ERROR_CODE, "Error occurred while un-subscribing, " +
-                    "Cannot find subscription configuration");
+            return BallerinaErrors.createError(Constants.NATS_ERROR_CODE,
+                    "Error occurred while un-subscribing, Cannot find subscription configuration");
         }
         @SuppressWarnings("unchecked")
         ConcurrentHashMap<String, Dispatcher> dispatcherList = (ConcurrentHashMap<String, Dispatcher>)
-                listenerObject.getNativeData(Constants.DISPATCHER_LIST);
+                listener.getNativeData(Constants.DISPATCHER_LIST);
         String subject = subscriptionConfig.getStringValue(Constants.SUBJECT);
         Dispatcher dispatcher = dispatcherList.get(service.getType().getName());
         try {
             dispatcher.unsubscribe(subject);
         } catch (IllegalArgumentException | IllegalStateException ex) {
-            return BallerinaErrors.createError(Constants.NATS_ERROR_CODE, "Error occurred while un-subscribing "
-                    + ex.getMessage());
+            return BallerinaErrors.createError(Constants.NATS_ERROR_CODE,
+                    "Error occurred while un-subscribing " + ex.getMessage());
         }
+        console.println(Constants.NATS_CLIENT_UNSUBSCRIBED + subject);
         serviceList.remove(service);
-        String sOutput = "subject " + subject;
-        console.println(Constants.NATS_CLIENT_UNSUBSCRIBED + sOutput);
         dispatcherList.remove(service.getType().getName());
-        listenerObject.addNativeData(Constants.DISPATCHER_LIST, dispatcherList);
-        listenerObject.addNativeData(Constants.SERVICE_LIST, serviceList);
         return null;
     }
 

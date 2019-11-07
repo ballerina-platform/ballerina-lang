@@ -96,11 +96,11 @@ public class Subscribe {
         assertNull(subject, "`Subject` annotation field is mandatory");
         String queueName = annotation.getStringValue(QUEUE_NAME_ANNOTATION_FIELD);
         SubscriptionOptions subscriptionOptions = buildSubscriptionOptions(annotation);
-        String sOutput = "subject " + subject + (queueName != null ? " & queue " + queueName : "");
+        String consoleOutput = "subject " + subject + (queueName != null ? " & queue " + queueName : "");
         try {
             Subscription subscription =
                     streamingConnection.subscribe(subject, queueName, messageHandler, subscriptionOptions);
-            console.println(NATS_CLIENT_SUBSCRIBED + sOutput);
+            console.println(NATS_CLIENT_SUBSCRIBED + consoleOutput);
             return subscription;
         } catch (IOException | InterruptedException e) {
             throw Utils.createNatsError(e.getMessage());
