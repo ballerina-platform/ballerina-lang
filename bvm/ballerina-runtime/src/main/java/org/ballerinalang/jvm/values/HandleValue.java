@@ -70,4 +70,8 @@ public class HandleValue implements RefValue {
 
         return this;
     }
+
+    public static HandleValue valueOfJ(Object value) {
+        return new HandleValue(value);
+    }
 }

@@ -427,4 +427,38 @@ public class DecimalValue {
         return new DecimalValue(value ? BigDecimal.ONE.setScale(1, BigDecimal.ROUND_HALF_EVEN) :
                                         BigDecimal.ZERO.setScale(1, BigDecimal.ROUND_HALF_EVEN));
     }
+
+    public static DecimalValue valueOfJ(byte value) {
+        return new DecimalValue(new BigDecimal(value, MathContext.DECIMAL128).setScale(1, BigDecimal.ROUND_HALF_EVEN));
+    }
+
+    public static DecimalValue valueOfJ(char value) {
+        return new DecimalValue(new BigDecimal(value, MathContext.DECIMAL128).setScale(1, BigDecimal.ROUND_HALF_EVEN));
+    }
+
+    public static DecimalValue valueOfJ(short value) {
+        return new DecimalValue(new BigDecimal(value, MathContext.DECIMAL128).setScale(1, BigDecimal.ROUND_HALF_EVEN));
+    }
+
+    public static DecimalValue valueOfJ(int value) {
+        return new DecimalValue(new BigDecimal(value, MathContext.DECIMAL128).setScale(1, BigDecimal.ROUND_HALF_EVEN));
+    }
+
+    public static DecimalValue valueOfJ(long value) {
+        return new DecimalValue(new BigDecimal(value, MathContext.DECIMAL128).setScale(1, BigDecimal.ROUND_HALF_EVEN));
+    }
+
+    public static DecimalValue valueOfJ(float value) {
+        return new DecimalValue(new BigDecimal(value, MathContext.DECIMAL128).setScale(1, BigDecimal.ROUND_HALF_EVEN));
+    }
+
+    public static DecimalValue valueOfJ(double value) {
+        return new DecimalValue(new BigDecimal(value, MathContext.DECIMAL128).setScale(1, BigDecimal.ROUND_HALF_EVEN));
+    }
+
+    public static DecimalValue valueOfJ(BigDecimal value) {
+        // TODO check whether we need to create a new BigDecimal again(or use the same value)
+        return new DecimalValue(new BigDecimal(value.toString(), MathContext.DECIMAL128)
+                .setScale(1, BigDecimal.ROUND_HALF_EVEN));
+    }
 }
