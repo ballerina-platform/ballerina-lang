@@ -22,7 +22,10 @@
  import org.ballerinalang.jvm.DecimalValueKind;
  import org.ballerinalang.jvm.JSONDataSource;
  import org.ballerinalang.jvm.types.BArrayType;
+ import org.ballerinalang.jvm.types.BErrorType;
+ import org.ballerinalang.jvm.types.BFunctionType;
  import org.ballerinalang.jvm.types.BPackage;
+ import org.ballerinalang.jvm.types.BStreamType;
  import org.ballerinalang.jvm.types.BStructureType;
  import org.ballerinalang.jvm.types.BTupleType;
  import org.ballerinalang.jvm.types.BType;
@@ -41,7 +44,6 @@
  import java.io.InputStream;
  import java.math.BigDecimal;
  import java.util.Map;
- import java.util.function.Consumer;
  import java.util.function.Function;
 
  /**
@@ -66,7 +68,7 @@
       * @param type the {@code BTupleType} object representing the type
       * @return the new array
       */
-     public static BArray createArrayValue(BTupleType type) {
+     public static BArray createTupleValue(BTupleType type) {
          return new ArrayValue(type);
      }
 
@@ -124,10 +126,10 @@
       * Create a new Ref value array.
       *
       * @param values initial array values
-      * @param type {@code BType} of the array. Do not use for primitive types.
+      * @param type {@code BArrayType} of the array.
       * @return ref Value array
       */
-     public static BArray createArrayValue(Object[] values, BType type) {
+     public static BArray createArrayValue(Object[] values, BArrayType type) {
          return new ArrayValue(values, type);
      }
 
@@ -135,11 +137,11 @@
       * Create a ref value array with given maximum length.
       *
       * @param values initial array values
-      * @param type {@code BType} of the array. Do not use for primitive types
+      * @param type {@code BArrayType} of the array.
       * @param length maximum length
       * @return fixed length ref value array
       */
-     public static BArray createArrayValue(Object[] values, BType type, int length) {
+     public static BArray createArrayValue(Object[] values, BArrayType type, int length) {
          return new ArrayValue(type, length);
      }
 
@@ -188,12 +190,12 @@
      /**
       * Create error value with given type, reason and details.
       *
-      * @param type {@code BType} of the error
+      * @param type {@code BErrorType} of the error
       * @param reason error reason
       * @param details error details
       * @return error value
       */
-     public static BError createErrorValue(BType type, String reason, Object details) {
+     public static BError createErrorValue(BErrorType type, String reason, Object details) {
          return new ErrorValue(type, reason, details);
      }
 
@@ -201,22 +203,11 @@
       * Create function pointer to the given function with given {@code BType}.
       *
       * @param function pointing function
-      * @param type {@code BType} of the function pointer
+      * @param type {@code BFunctionType} of the function pointer
       * @return function pointer
       */
-     public static BFunctionPointer createFPValue(Function function, BType type) {
+     public static BFunctionPointer createFPValue(Function function, BFunctionType type) {
          return new FPValue(function, type);
-     }
-
-     /**
-      * Create function pointer to the given function with given {@code BType}.
-      *
-      * @param consumer pointing function
-      * @param type {@code BType} of the function pointer
-      * @return function pointer
-      */
-     public static BFunctionPointer createFPValue(Consumer consumer, BType type) {
-         return new FPValue(consumer, type);
      }
 
      /**
@@ -235,7 +226,7 @@
       * @param type constraint type
       * @return stream value
       */
-     public static BStream createStreamValue(BType type) {
+     public static BStream createStreamValue(BStreamType type) {
          return new StreamValue(type);
      }
 
@@ -353,7 +344,7 @@
       * @param prefix Namespace prefix
       * @return XML qualified name
       */
-     public static BXmlQName createXMLQName(String localName, String uri, String prefix) {
+     public static BXMLQName createXMLQName(String localName, String uri, String prefix) {
          return new XMLQName(localName, uri, prefix);
      }
 
@@ -363,7 +354,7 @@
       * @param qNameStr qualified name string
       * @return  XML qualified name
       */
-     public static BXmlQName createXMLQName(String qNameStr) {
+     public static BXMLQName createXMLQName(String qNameStr) {
          return new XMLQName(qNameStr);
      }
 

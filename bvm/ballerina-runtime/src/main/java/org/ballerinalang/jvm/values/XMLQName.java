@@ -20,7 +20,7 @@ package org.ballerinalang.jvm.values;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
-import org.ballerinalang.jvm.values.api.BXmlQName;
+import org.ballerinalang.jvm.values.api.BXMLQName;
 
 import java.util.Map;
 
@@ -34,7 +34,7 @@ import java.util.Map;
  * 
  * @since 0.995.0
  */
-public final class XMLQName implements RefValue, BXmlQName {
+public final class XMLQName implements RefValue, BXMLQName {
 
     private String localName;
     private String uri;

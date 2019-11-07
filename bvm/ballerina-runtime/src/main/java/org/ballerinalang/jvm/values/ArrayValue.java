@@ -74,7 +74,7 @@ import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.getMod
  * 
  * @since 0.995.0
  */
-public class ArrayValue implements RefValue, CollectionValue, BArray {
+public class ArrayValue implements RefValue, BArray {
 
     static final int SYSTEM_ARRAY_MAX = Integer.MAX_VALUE - 8;
     protected BType arrayType;

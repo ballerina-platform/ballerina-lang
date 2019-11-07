@@ -52,7 +52,7 @@ import static org.ballerinalang.jvm.util.BLangConstants.TABLE_LANG_LIB;
  *  
  * @since 0.995.0
  */
-public class TableValue implements RefValue, CollectionValue, BTable {
+public class TableValue implements RefValue, BTable {
 
     protected DataIterator iterator;
     private boolean hasNextVal;
