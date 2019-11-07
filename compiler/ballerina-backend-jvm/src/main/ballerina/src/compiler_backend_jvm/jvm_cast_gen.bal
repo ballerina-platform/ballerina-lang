@@ -183,7 +183,7 @@ function generateCheckCastBToJRef(jvm:MethodVisitor mv, bir:BType sourceType, jv
         // In this case we should send a BigDecimal to java side 
         mv.visitMethodInsn(INVOKEVIRTUAL, DECIMAL_VALUE, "decimalValue", "()Ljava/math/BigDecimal;", false);
     } else {
-    	if (targetType is jvm:JRefType) {
+        if (targetType is jvm:JRefType) {
             addBoxInsn(mv, sourceType);
             mv.visitTypeInsn(CHECKCAST, targetType.typeValue);
         } else {
@@ -223,7 +223,7 @@ function generateJToBCheckCast(jvm:MethodVisitor mv, BalToJVMIndexMap indexMap, 
         return;
     } else if (targetType is bir:BTypeHandle) {
         generateJCastToBHandle(mv, sourceType);
-	return;
+	    return;
     } else if (targetType is bir:BTypeAny) {
         generateJCastToBAny(mv, indexMap, sourceType);
         return;

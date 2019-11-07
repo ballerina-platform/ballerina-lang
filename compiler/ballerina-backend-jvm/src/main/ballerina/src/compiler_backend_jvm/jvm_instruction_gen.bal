@@ -63,7 +63,7 @@ type InstructionGenerator object {
     }
 
     function generatePlatformIns(JInstruction ins) {
-    	if (ins.jKind == JCAST) {
+        if (ins.jKind == JCAST) {
             JCast castIns = <JCast> ins;
             bir:BType targetType = castIns.targetType;
             self.loadVar(castIns.rhsOp.variableDcl);
