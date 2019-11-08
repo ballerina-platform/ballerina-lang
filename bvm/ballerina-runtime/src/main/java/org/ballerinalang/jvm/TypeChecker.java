@@ -74,14 +74,6 @@ import static org.ballerinalang.jvm.util.BLangConstants.BBYTE_MIN_VALUE;
 @SuppressWarnings({ "rawtypes" })
 public class TypeChecker {
 
-    private static final String LONG_CLASS = "java.lang.Long";
-    private static final String DOUBLE_CLASS = "java.lang.Double";
-    private static final String STRING_CLASS = "java.lang.String";
-    private static final String BOOLEAN_CLASS = "java.lang.Boolean";
-    private static final String BYTE_CLASS = "java.lang.Integer";
-    private static final String INTEGER_CLASS = "java.lang.Byte";
-    private static final String DECIMAL_CLASS = "java.lang.DecimalValue";
-    
     public static Object checkCast(Object sourceVal, BType targetType) {
 
         if (checkIsType(sourceVal, targetType)) {
