@@ -1095,11 +1095,11 @@
                 "url": "table-queries-select-with-group-by"
             },
             {
-                "name": "Joining two tables",
+                "name": "Join two tables",
                 "url": "table-queries-join"
             },
             {
-                "name": "Joining two tables with filtering",
+                "name": "Join two tables with filtering",
                 "url": "table-queries-join-with-filtering"
             }
         ]
