@@ -58,8 +58,9 @@ public class AnnotationConfigsProcessor {
     /**
      * Visit each records for the provided annotations acceptor.
      *
-     * @param records  list of {@link BLangRecordLiteral.BLangRecordKeyValue}
-     * @param acceptor {@link BiConsumer} annotations acceptor
+     * @param records  list of
+     * {@link org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKeyValue}
+     * @param acceptor {@link java.util.function.BiConsumer} annotations acceptor
      */
     public static void visitRecords(List<BLangRecordLiteral.BLangRecordKeyValue> records,
                                     BiConsumer<BLangRecordLiteral.BLangRecordKeyValue, BLangSimpleVarRef> acceptor) {
