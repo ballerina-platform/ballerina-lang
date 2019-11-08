@@ -1,6 +1,6 @@
-// Ballerina supports querying tables using a syntax similar to SQL. This query syntax can only be used to query a table.
-// Modification of an existing table is not supported.
-// When an existing table is queried using Ballerina SQL, a new in-memory table is created with the queried data and
-// that table is returned.
-// Executing these SQL-like queries on tables returned through Ballerina database clients is not
-// supported yet.
+// Ballerina supports joining two tables using queries similar to SQL. In this particular example, two tables, one
+// with persons' details and other table with order details are joined together. Both tables have the person id which
+// is used to join. This query syntax can only be used to query a table. Modification of an existing table is not
+// supported When an existing table is queried using Ballerina SQL, a new in-memory table is created with the queried
+// data and that table is returned. Executing these SQL-like queries on tables returned through Ballerina database
+// clients is not supported yet.
