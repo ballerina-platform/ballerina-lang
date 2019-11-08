@@ -193,11 +193,11 @@ public class ErrorVariableReferenceTest {
         Assert.assertEquals(returns[i++].stringValue(), "/usr/bhah/a.log");
         Assert.assertEquals(returns[i++].stringValue(), "45221");
         Assert.assertEquals(returns[i++].stringValue(), "128");
-        Assert.assertEquals(returns[i++].stringValue(), "{\"message\":\"file open failed\", " +
-                "\"targetFileName\":\"/usr/bhah/a.log\", \"errorCode\":45221, \"flags\":128, \"cause\":c {}}");
+        Assert.assertEquals(returns[i++].stringValue(), "{\"message\":\"file open failed\", \"cause\":c {}, " +
+                "\"targetFileName\":\"/usr/bhah/a.log\", \"errorCode\":45221, \"flags\":128}");
         Assert.assertEquals(returns[i++].stringValue(), "file open failed");
-        Assert.assertEquals(returns[i++].stringValue(), "{\"targetFileName\":\"/usr/bhah/a.log\", " +
-                "\"errorCode\":45221, \"flags\":128, \"cause\":c {}}");
+        Assert.assertEquals(returns[i++].stringValue(), "{\"cause\":c {}, \"targetFileName\":\"/usr/bhah/a.log\", " +
+                "\"errorCode\":45221, \"flags\":128}");
     }
 
     @Test
