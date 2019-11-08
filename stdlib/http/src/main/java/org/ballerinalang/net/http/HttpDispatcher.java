@@ -83,9 +83,8 @@ public class HttpDispatcher {
             inboundReqMsg.setProperty(HttpConstants.MATRIX_PARAMS, matrixParams);
 
             URI validatedUri = getValidatedURI(uriWithoutMatrixParams);
-
-            String basePath = servicesRegistry.findTheMostSpecificBasePath(validatedUri.getPath(),
-                    servicesOnInterface, sortedServiceURIs);
+            String basePath = servicesRegistry.findTheMostSpecificBasePath(validatedUri.getRawPath(),
+                                                                           servicesOnInterface, sortedServiceURIs);
 
             if (basePath == null) {
                 inboundReqMsg.setProperty(HttpConstants.HTTP_STATUS_CODE, 404);
@@ -102,7 +101,7 @@ public class HttpDispatcher {
     }
 
     private static void setInboundReqProperties(HttpCarbonMessage inboundReqMsg, URI requestUri, String basePath) {
-        String subPath = URIUtil.getSubPath(requestUri.getPath(), basePath);
+        String subPath = URIUtil.getSubPath(requestUri.getRawPath(), basePath);
         inboundReqMsg.setProperty(HttpConstants.BASE_PATH, basePath);
         inboundReqMsg.setProperty(HttpConstants.SUB_PATH, subPath);
         inboundReqMsg.setProperty(HttpConstants.QUERY_STR, requestUri.getQuery());

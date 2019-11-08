@@ -57,7 +57,7 @@ public class FreezeUtils {
      * An update to a value would panic either if a value is frozen or if a value is currently in the process of
      * being frozen.
      *
-     * @param currentState the current {@link BVM.FreezeStatus.State} of the value
+     * @param currentState the current {@link org.ballerinalang.bre.bvm.BVM.FreezeStatus.State} of the value
      */
     public static void handleInvalidUpdate(BVM.FreezeStatus.State currentState) {
         switch (currentState) {
