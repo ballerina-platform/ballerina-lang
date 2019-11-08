@@ -306,13 +306,13 @@ public class DelimitedRecordChannel implements IOChannel {
         Pattern reg = Pattern.compile(regex);
         String[] split = reg.split(record);
         for (int i = 0; i < split.length; i++) {
-            String filed = split[i];
-            if (filed.isEmpty()) {
+            String field = split[i];
+            if (field.isEmpty()) {
                 split[i] = null;
                 continue;
             }
-            if (filed.matches(DOUBLE_QUOTE_REGEX)) {
-                split[i] = filed.substring(filed.indexOf('\"') + 1, filed.lastIndexOf('\"'));
+            if (field.matches(DOUBLE_QUOTE_REGEX)) {
+                split[i] = field.substring(field.indexOf('\"') + 1, field.lastIndexOf('\"'));
             }
         }
         return split;
