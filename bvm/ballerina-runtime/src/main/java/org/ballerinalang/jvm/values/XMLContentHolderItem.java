@@ -1,9 +1,17 @@
 package org.ballerinalang.jvm.values;
 
 import org.apache.axiom.om.OMNode;
+import org.ballerinalang.jvm.StaxXMLSink;
 import org.ballerinalang.jvm.XMLNodeType;
+import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.values.freeze.Status;
 
+import java.io.ByteArrayOutputStream;
+import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
+
+import static org.ballerinalang.jvm.util.BLangConstants.STRING_NULL_VALUE;
 
 public class XMLContentHolderItem extends XMLValue<OMNode> {
 
@@ -169,5 +177,55 @@ public class XMLContentHolderItem extends XMLValue<OMNode> {
 
     public enum ContentType {
         COMMENT, CDATA, PI;
+    }
+
+    @Override
+    public String stringValue() {
+        try {
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            (new StaxXMLSink(outputStream)).write(this);
+            return new String(outputStream.toByteArray(), StandardCharsets.UTF_8);
+        } catch (Throwable t) {
+            handleXmlException("failed to get xml as string: ", t);
+        }
+        return STRING_NULL_VALUE;
+    }
+
+    @Override
+    public String stringValue(Strand strand) {
+        return stringValue();
+    }
+
+    @Override
+    public String toString() {
+        return this.stringValue();
+    }
+
+    @Override
+    public void attemptFreeze(Status freezeStatus) {
+
+    }
+
+    @Override
+    public void freezeDirect() {
+
+    }
+
+    @Override
+    public Object freeze() {
+        return null;
+    }
+
+    @Override
+    public void serialize(OutputStream outputStream) {
+        try {
+            if (outputStream instanceof StaxXMLSink) {
+                ((StaxXMLSink) outputStream).write(this);
+            } else {
+                (new StaxXMLSink(outputStream)).write(this);
+            }
+        } catch (Throwable t) {
+            handleXmlException("error occurred during writing the message to the output stream: ", t);
+        }
     }
 }

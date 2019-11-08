@@ -112,7 +112,7 @@ public class XMLIterator {
                 codePointIterator = null;
             }
 
-            Object curVal = value.sequence.getRefValue(cursor++);
+            Object curVal = value.children.get(cursor++);
             if (TypeChecker.getType(curVal).getTag() == TypeTags.XML_TAG &&
                     ((XMLItem) curVal).getNodeType() == XMLNodeType.TEXT) {
                 iterMode = IterMode.CODE_POINT;
@@ -124,7 +124,7 @@ public class XMLIterator {
 
         @Override
         public boolean hasNext() {
-            boolean hasMoreXmlItems = cursor < value.sequence.size();
+            boolean hasMoreXmlItems = cursor < value.children.size();
             return iterMode == IterMode.SEQUENCE ? hasMoreXmlItems : (codePointIterator.hasNext() || hasMoreXmlItems);
         }
     }

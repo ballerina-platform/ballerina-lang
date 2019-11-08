@@ -20,6 +20,7 @@ import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.OMNode;
 import org.apache.axiom.om.OMText;
 import org.ballerinalang.jvm.BallerinaErrors;
+import org.ballerinalang.jvm.StaxXMLSink;
 import org.ballerinalang.jvm.XMLNodeType;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BArrayType;
@@ -30,7 +31,9 @@ import org.ballerinalang.jvm.values.freeze.FreezeUtils;
 import org.ballerinalang.jvm.values.freeze.State;
 import org.ballerinalang.jvm.values.freeze.Status;
 
+import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -55,20 +58,18 @@ import static org.ballerinalang.jvm.util.BLangConstants.XML_LANG_LIB;
  */
 public final class XMLSequence extends XMLValue<ArrayValue> {
 
-    ArrayValue sequence;
-    List<XMLValue<?>> sequenceX;
+    List<XMLValue<?>> children;
 
     /**
      * Create an empty xml sequence.
      */
     public XMLSequence() {
-        sequence = new ArrayValue(new BArrayType(BTypes.typeXML), 0);
-        sequenceX = new ArrayList<>();
+        children = new ArrayList<>();
     }
 
     public XMLSequence(List<XMLValue<?>> children) {
         this();
-        sequenceX = children;
+        this.children = children;
     }
 
     /**q
@@ -77,7 +78,12 @@ public final class XMLSequence extends XMLValue<ArrayValue> {
      * @param sequence xml object
      */
     public XMLSequence(ArrayValue sequence) {
-        this.sequence = sequence;
+        assert false;
+        Object[] values = sequence.getValues();
+        this.children = new ArrayList<>();
+        for (Object value : values) {
+            this.children.add((XMLValue<?>) value);
+        }
     }
 
     /**
@@ -93,7 +99,7 @@ public final class XMLSequence extends XMLValue<ArrayValue> {
      */
     @Override
     public boolean isEmpty() {
-        return sequence.size() == 0;
+        return children.isEmpty();
     }
 
     /**
@@ -101,7 +107,7 @@ public final class XMLSequence extends XMLValue<ArrayValue> {
      */
     @Override
     public boolean isSingleton() {
-        return sequence.size() == 1;
+        return children.size() == 1;
     }
 
     /**
@@ -109,8 +115,8 @@ public final class XMLSequence extends XMLValue<ArrayValue> {
      */
     @Override
     public String getItemType() {
-        if (sequence.size() == 1) {
-            return ((XMLItem) sequence.getRefValue(0)).getItemType();
+        if (isSingleton()) {
+            return children.get(0).getItemType();
         }
 
         return XMLNodeType.SEQUENCE.value();
@@ -121,8 +127,8 @@ public final class XMLSequence extends XMLValue<ArrayValue> {
      */
     @Override
     public String getElementName() {
-        if (sequence.size() == 1) {
-            return ((XMLItem) sequence.getRefValue(0)).getElementName();
+        if (isSingleton()) {
+            return children.get(0).getElementName();
         }
         return STRING_EMPTY_VALUE;
     }
@@ -133,9 +139,8 @@ public final class XMLSequence extends XMLValue<ArrayValue> {
     @Override
     public String getTextValue() {
         StringBuilder seqTextBuilder = new StringBuilder();
-        for (int i = 0; i < sequence.size(); i++) {
-            XMLItem item = (XMLItem) sequence.getRefValue(i);
-            seqTextBuilder.append(item.getTextValue().toString());
+        for (XMLValue<?> x : children) {
+            seqTextBuilder.append(x.getTextValue());
         }
         return seqTextBuilder.toString();
     }
@@ -145,8 +150,8 @@ public final class XMLSequence extends XMLValue<ArrayValue> {
      */
     @Override
     public String getAttribute(String localName, String namespace) {
-        if (sequence.size() == 1) {
-            return ((XMLItem) sequence.getRefValue(0)).getAttribute(localName, namespace);
+        if (isSingleton()) {
+            return children.get(0).getAttribute(localName, namespace);
         }
 
         return STRING_NULL_VALUE;
@@ -157,8 +162,8 @@ public final class XMLSequence extends XMLValue<ArrayValue> {
      */
     @Override
     public String getAttribute(String localName, String namespace, String prefix) {
-        if (sequence.size() == 1) {
-            return ((XMLItem) sequence.getRefValue(0)).getAttribute(localName, namespace, prefix);
+        if (isSingleton()) {
+            return children.get(0).getAttribute(localName, namespace, prefix);
         }
 
         return STRING_NULL_VALUE;
@@ -169,8 +174,8 @@ public final class XMLSequence extends XMLValue<ArrayValue> {
      */
     @Override
     public void setAttribute(String localName, String namespace, String prefix, String value) {
-        if (sequence.size() == 1) {
-            ((XMLItem) sequence.getRefValue(0)).setAttribute(localName, namespace, prefix, value);
+        if (isSingleton()) {
+            children.get(0).setAttribute(localName, namespace, prefix, value);
         }
     }
 
@@ -179,8 +184,8 @@ public final class XMLSequence extends XMLValue<ArrayValue> {
      */
     @Override
     public MapValue<String, ?> getAttributesMap() {
-        if (sequence.size() == 1) {
-            return ((XMLItem) sequence.getRefValue(0)).getAttributesMap();
+        if (isSingleton()) {
+            return children.get(0).getAttributesMap();
         }
 
         return null;
@@ -194,8 +199,8 @@ public final class XMLSequence extends XMLValue<ArrayValue> {
             }
         }
 
-        if (sequence.size() == 1) {
-            ((XMLItem) sequence.getRefValue(0)).setAttributes(attributes);
+        if (isSingleton()) {
+            children.get(0).setAttributes(attributes);
         }
     }
 
@@ -206,8 +211,8 @@ public final class XMLSequence extends XMLValue<ArrayValue> {
     public XMLValue<?> elements() {
         ArrayValue elementsSeq = new ArrayValue(new BArrayType(BTypes.typeXML));
         int j = 0;
-        for (int i = 0; i < sequence.size(); i++) {
-            XMLItem item = (XMLItem) sequence.getRefValue(i);
+        for (XMLValue<?> x : children) {
+            XMLItem item = (XMLItem) x;
             if (item.getNodeType() == XMLNodeType.ELEMENT) {
                 elementsSeq.add(j++, item);
             }
@@ -223,8 +228,8 @@ public final class XMLSequence extends XMLValue<ArrayValue> {
         ArrayValue elementsSeq = new ArrayValue(new BArrayType(BTypes.typeXML));
         String qnameStr = getQname(qname).toString();
         int j = 0;
-        for (int i = 0; i < sequence.size(); i++) {
-            XMLItem item = (XMLItem) sequence.getRefValue(i);
+        for (XMLValue<?> x : children) {
+            XMLItem item = (XMLItem) x;
             if (item.getNodeType() == XMLNodeType.ELEMENT && item.getElementName().toString().equals(qnameStr)) {
                 elementsSeq.add(j++, item);
             }
@@ -240,8 +245,8 @@ public final class XMLSequence extends XMLValue<ArrayValue> {
     public XMLValue<?> children() {
         ArrayValue elementsSeq = new ArrayValue(new BArrayType(BTypes.typeXML));
         int index = 0;
-        for (int i = 0; i < sequence.size(); i++) {
-            XMLItem element = (XMLItem) sequence.getRefValue(i);
+        for (XMLValue<?> x : children) {
+            XMLItem element = (XMLItem) x;
             if (element.getNodeType() != XMLNodeType.ELEMENT) {
                 continue;
             }
@@ -264,8 +269,8 @@ public final class XMLSequence extends XMLValue<ArrayValue> {
         ArrayValue elementsSeq = new ArrayValue(new BArrayType(BTypes.typeXML));
         QName name = getQname(qname);
         int index = 0;
-        for (int i = 0; i < sequence.size(); i++) {
-            XMLItem element = (XMLItem) sequence.getRefValue(i);
+        for (XMLValue<?> x : children) {
+            XMLItem element = (XMLItem) x;
             if (element.getNodeType() != XMLNodeType.ELEMENT) {
                 continue;
             }
@@ -290,11 +295,11 @@ public final class XMLSequence extends XMLValue<ArrayValue> {
             }
         }
 
-        if (sequence.size() != 1) {
+        if (children.size() != 1) {
             throw BallerinaErrors.createError("not an " + XMLNodeType.ELEMENT);
         }
 
-        ((XMLItem) sequence.getRefValue(0)).setChildren(seq);
+        children.get(0).setChildren(seq);
     }
 
     /**
@@ -308,11 +313,11 @@ public final class XMLSequence extends XMLValue<ArrayValue> {
             }
         }
 
-        if (sequence.size() != 1) {
+        if (children.size() != 1) {
             throw BallerinaErrors.createError("not an " + XMLNodeType.ELEMENT);
         }
 
-        ((XMLItem) sequence.getRefValue(0)).addChildren(seq);
+        children.get(0).addChildren(seq);
     }
 
     /**
@@ -322,8 +327,8 @@ public final class XMLSequence extends XMLValue<ArrayValue> {
     public XMLValue<?> strip() {
         ArrayValue elementsSeq = new ArrayValue(new BArrayType(BTypes.typeXML));
         int j = 0;
-        for (int i = 0; i < sequence.size(); i++) {
-            XMLItem element = (XMLItem) sequence.getRefValue(i);
+        for (XMLValue<?> x : children) {
+            XMLItem element = (XMLItem) x;
             if (element.value() == null || (element.getNodeType() == XMLNodeType.TEXT &&
                     ((OMText) element.value()).getText().trim().isEmpty())) {
                 continue;
@@ -339,7 +344,7 @@ public final class XMLSequence extends XMLValue<ArrayValue> {
      */
     @Override
     public XMLValue<?> slice(long startIndex, long endIndex) {
-        if (startIndex > this.sequence.size() || endIndex > this.sequence.size() || startIndex < -1 || endIndex < -1) {
+        if (startIndex > this.children.size() || endIndex > this.children.size() || startIndex < -1 || endIndex < -1) {
             throw BallerinaErrors.createError("index out of range: [" + startIndex + "," + endIndex + "]");
         }
 
@@ -348,7 +353,7 @@ public final class XMLSequence extends XMLValue<ArrayValue> {
         }
 
         if (endIndex == -1) {
-            endIndex = sequence.size();
+            endIndex = children.size();
         }
 
         if (startIndex == endIndex) {
@@ -362,7 +367,7 @@ public final class XMLSequence extends XMLValue<ArrayValue> {
         int j = 0;
         ArrayValue elementsSeq = new ArrayValue(new BArrayType(BTypes.typeXML));
         for (int i = (int) startIndex; i < endIndex; i++) {
-            elementsSeq.add(j++, sequence.getRefValue(i));
+            elementsSeq.add(j++, children.get(i));
         }
 
         return new XMLSequence(elementsSeq);
@@ -374,8 +379,8 @@ public final class XMLSequence extends XMLValue<ArrayValue> {
     @Override
     public XMLValue<?> descendants(String qname) {
         List<XMLValue<?>> descendants = new ArrayList<XMLValue<?>>();
-        for (int i = 0; i < sequence.size(); i++) {
-            XMLItem element = (XMLItem) sequence.getRefValue(i);
+        for (XMLValue<?> x : children) {
+            XMLItem element = (XMLItem) x;
             switch (element.getNodeType()) {
                 case ELEMENT:
                     addDescendants(descendants, (OMElement) element.value(), getQname(qname).toString());
@@ -396,8 +401,10 @@ public final class XMLSequence extends XMLValue<ArrayValue> {
      */
     @Override
     public void serialize(OutputStream outputStream) {
-        for (int i = 0; i < sequence.size(); i++) {
-            ((XMLValue<?>) sequence.getRefValue(i)).serialize(outputStream);
+        if (outputStream instanceof StaxXMLSink) {
+            ((StaxXMLSink) outputStream).write(this);
+        } else {
+            (new StaxXMLSink(outputStream)).write(this);
         }
     }
 
@@ -406,7 +413,7 @@ public final class XMLSequence extends XMLValue<ArrayValue> {
      */
     @Override
     public ArrayValue value() {
-        return sequence;
+        return new ArrayValue(children.toArray(),  new BArrayType(BTypes.typeXML));
     }
 
     /**
@@ -416,8 +423,8 @@ public final class XMLSequence extends XMLValue<ArrayValue> {
     public String toString() {
         try {
             StringBuilder sb = new StringBuilder();
-            for (int i = 0; i < sequence.size(); i++) {
-                sb.append(sequence.getRefValue(i).toString());
+            for (XMLValue<?> x : children) {
+                sb.append(x.toString());
             }
             return sb.toString();
         } catch (Throwable t) {
@@ -432,11 +439,9 @@ public final class XMLSequence extends XMLValue<ArrayValue> {
     @Override
     public String stringValue(Strand strand) {
         try {
-            StringBuilder sb = new StringBuilder();
-            for (int i = 0; i < sequence.size(); i++) {
-                sb.append(((RefValue) sequence.getRefValue(i)).stringValue(strand));
-            }
-            return sb.toString();
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            (new StaxXMLSink(outputStream)).write(this);
+            return new String(outputStream.toByteArray(), StandardCharsets.UTF_8);
         } catch (Throwable t) {
             handleXmlException("failed to get xml as string: ", t);
         }
@@ -457,10 +462,10 @@ public final class XMLSequence extends XMLValue<ArrayValue> {
             return refs.get(this);
         }
 
-        Object[] copiedVals = new Object[sequence.size()];
+        Object[] copiedVals = new Object[children.size()];
         refs.put(this, new XMLSequence(new ArrayValue(copiedVals, new BArrayType(BTypes.typeXML))));
-        for (int i = 0; i < sequence.size(); i++) {
-            copiedVals[i] = ((XMLValue<?>) sequence.getRefValue(i)).copy(refs);
+        for (int i = 0; i < children.size(); i++) {
+            copiedVals[i] = ((XMLValue<?>) children.get(i)).copy(refs);
         }
         return refs.get(this);
     }
@@ -483,7 +488,7 @@ public final class XMLSequence extends XMLValue<ArrayValue> {
     @Override
     public XMLValue<?> getItem(int index) {
         try {
-            return (XMLValue<?>) this.sequence.getRefValue(index);
+            return (XMLValue<?>) this.children.get(index);
         } catch (Exception e) {
             throw BallerinaErrors.createError(BallerinaErrorReasons.XML_OPERATION_ERROR, e.getMessage());
         }
@@ -495,8 +500,7 @@ public final class XMLSequence extends XMLValue<ArrayValue> {
     @Override
     public int size() {
         int size = 0;
-        for (int i = 0; i < this.sequence.size; i++) {
-            Object refValue = sequence.getRefValue(i);
+        for (Object refValue : this.children) {
             if (refValue instanceof XMLValue) {
                 XMLValue xmlItem = (XMLValue) refValue;
                 size += xmlItem.size();
@@ -512,8 +516,8 @@ public final class XMLSequence extends XMLValue<ArrayValue> {
      */
     @Override
     public void build() {
-        for (int i = 0; i < sequence.size(); i++) {
-            ((XMLValue<?>) sequence.getRefValue(i)).build();
+        for (XMLValue<?> x : children) {
+            ((XMLValue<?>) x).build();
         }
     }
 
@@ -525,11 +529,11 @@ public final class XMLSequence extends XMLValue<ArrayValue> {
             }
         }
 
-        if (sequence.size() != 1) {
+        if (children.size() != 1) {
             throw BallerinaErrors.createError("not an " + XMLNodeType.ELEMENT);
         }
 
-        ((XMLItem) sequence.getRefValue(0)).removeAttribute(qname);
+        children.get(0).removeAttribute(qname);
     }
 
     @Override
@@ -540,11 +544,11 @@ public final class XMLSequence extends XMLValue<ArrayValue> {
             }
         }
 
-        if (sequence.size() != 1) {
+        if (children.size() != 1) {
             throw BallerinaErrors.createError("not an " + XMLNodeType.ELEMENT);
         }
 
-        ((XMLItem) sequence.getRefValue(0)).removeChildren(qname);
+        children.get(0).removeChildren(qname);
     }
 
     /**
@@ -554,14 +558,18 @@ public final class XMLSequence extends XMLValue<ArrayValue> {
     public synchronized void attemptFreeze(Status freezeStatus) {
         if (FreezeUtils.isOpenForFreeze(this.freezeStatus, freezeStatus)) {
             this.freezeStatus = freezeStatus;
-            Arrays.stream(sequence.refValues).forEach(val -> ((RefValue) val).attemptFreeze(freezeStatus));
+            for (XMLValue<?> elem : children) {
+                elem.attemptFreeze((freezeStatus));
+            }
         }
     }
 
     @Override
     public void freezeDirect() {
         this.freezeStatus.setFrozen();
-        Arrays.stream(sequence.refValues).forEach(val -> ((RefValue) val).freezeDirect());
+        for (XMLValue<?> elem : children) {
+            elem.freezeDirect();
+        }
     }
 
     @Override
