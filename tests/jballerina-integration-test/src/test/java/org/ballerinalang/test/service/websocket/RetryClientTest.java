@@ -121,8 +121,8 @@ public class RetryClientTest extends WebSocketTestCommons {
         remoteServer.stop();
     }
 
-    @Test(description = "Tests the retry function using webSocket client (starting the server " +
-     ", sending and receiving binary frames Afterthat restart that server and do the same)")
+    @Test(description = "Tests the countDownLatch for retry function using webSocket client (starting the server " +
+     ", sending and receiving binary frames Afterthat restart that server and wait until six minutes)")
     public void testCoundownLatchForRetry() throws URISyntaxException, InterruptedException,
             BallerinaTestException {
         CountDownLatch countDownLatch = new CountDownLatch(1);
