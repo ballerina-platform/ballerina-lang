@@ -72,6 +72,8 @@ dependencies {
     testCompile project(':ballerina-core')
     testCompile 'org.slf4j:slf4j-simple'
     testCompile 'org.testng:testng'
+
+    interopImports project(':ballerina-encoding')
 }
 
 createBalo {
