@@ -119,6 +119,7 @@ public abstract class BIRTerminator extends BIRAbstractInstruction implements BI
      * @since 0.995.0
      */
     public static class AsyncCall extends Call {
+        public List<BIRAnnotationAttachment> annotAttachments;
 
         public AsyncCall(DiagnosticPos pos,
                          InstructionKind kind,
@@ -127,8 +128,10 @@ public abstract class BIRTerminator extends BIRAbstractInstruction implements BI
                          Name name,
                          List<BIROperand> args,
                          BIROperand lhsOp,
-                         BIRBasicBlock thenBB) {
+                         BIRBasicBlock thenBB,
+                         List<BIRAnnotationAttachment> annotAttachments) {
             super(pos, kind, isVirtual, calleePkg, name, args, lhsOp, thenBB);
+            this.annotAttachments = annotAttachments;
         }
 
         @Override
