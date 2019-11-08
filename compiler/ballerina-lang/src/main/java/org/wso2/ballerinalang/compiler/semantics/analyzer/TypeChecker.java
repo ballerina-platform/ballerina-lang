@@ -1286,8 +1286,6 @@ public class TypeChecker extends BLangNodeVisitor {
             checkExpr(varRefExpr.reason, env);
         }
 
-        BErrorTypeSymbol errorTSymbol = Symbols.createErrorSymbol(0, Names.EMPTY, env.enclPkg.symbol.pkgID,
-                null, env.scope.owner);
         boolean unresolvedReference = false;
 
         for (BLangNamedArgsExpression detailItem : varRefExpr.detail) {
@@ -1351,7 +1349,7 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         BType errorDetailType = getCompatibleDetailType(errorRefRestFieldType);
-        resultType = new BErrorType(errorTSymbol, varRefExpr.reason.type, errorDetailType);
+        resultType = new BErrorType(symTable.errorType.tsymbol, varRefExpr.reason.type, errorDetailType);
     }
 
     private void checkIndirectErrorVarRef(BLangErrorVarRef varRefExpr) {
@@ -1363,6 +1361,9 @@ public class TypeChecker extends BLangNodeVisitor {
         if (varRefExpr.restVar != null) {
             checkExpr(varRefExpr.restVar, env);
         }
+
+        // Indirect error binding pattern does not have an error reason binding fragment
+        varRefExpr.reason.type = symTable.noType;
     }
 
     private BRecordType getCompatibleDetailType(BType errorRefRestFieldType) {
