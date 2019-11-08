@@ -67,7 +67,7 @@ function injectDefaultParamInits(bir:Package module) {
             if extFuncWrapper is OldStyleExternalFunctionWrapper {
                 desugarOldExternFuncs(module, extFuncWrapper, birFunc);
                 enrichWithDefaultableParamInits(birFunc);
-	        } else if (extFuncWrapper is JMethodFunctionWrapper) {
+            } else if (extFuncWrapper is JMethodFunctionWrapper) {
                 desugarInteropFuncs(module, extFuncWrapper, birFunc);
                 enrichWithDefaultableParamInits(birFunc);
             } else if (!(extFuncWrapper is JMethodFunctionWrapper) && !(extFuncWrapper is JFieldFunctionWrapper)) {
