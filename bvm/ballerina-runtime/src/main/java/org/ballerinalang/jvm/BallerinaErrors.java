@@ -105,6 +105,12 @@ public class BallerinaErrors {
 
     }
 
+    public static ErrorValue createBToJTypeCastError(Object sourceVal, String targetType) {
+        throw createError(BallerinaErrorReasons.TYPE_CAST_ERROR,
+                BLangExceptionHelper.getErrorMessage(RuntimeErrors.J_TYPE_CAST_ERROR,
+                        TypeChecker.getType(sourceVal), targetType));
+    }
+
     public static ErrorValue createNumericConversionError(Object inputValue, BType targetType) {
         throw createError(BallerinaErrorReasons.NUMBER_CONVERSION_ERROR,
                           BLangExceptionHelper.getErrorMessage(

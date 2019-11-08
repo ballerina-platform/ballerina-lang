@@ -368,6 +368,10 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
     }
 
+    private boolean isNullOrEmpty(String s) {
+        return s == null || s.isEmpty();
+    }
+
     @Override
     public void visit(BLangImportPackage importPkgNode) {
         Name pkgAlias = names.fromIdNode(importPkgNode.alias);
@@ -390,29 +394,32 @@ public class SymbolEnter extends BLangNodeVisitor {
         Name orgName;
         Name version;
         PackageID enclPackageID = env.enclPkg.packageID;
-        if (importPkgNode.orgName.value == null || importPkgNode.orgName.value.isEmpty()) {
-            // means it's in 'import <pkg-name>' style
-            orgName = enclPackageID.orgName;
-            version = (Names.DEFAULT_VERSION.equals(enclPackageID.version)) ? new Name("") : enclPackageID.version;
-        } else if (importPkgNode.orgName.value.equals(enclPackageID.orgName.value)) {
-            // means it's in 'import <org-name>/<pkg-name>' style and <org-name> is used to import within same project
+        // The pattern of the import statement is 'import [org-name /] module-name [version sem-ver]'
+        // Three cases should be considered here.
+        // 1. import org-name/module-name version
+        // 2. import org-name/module-name
+        //      2a. same project
+        //      2b. different project
+        // 3. import module-name
+        if (!isNullOrEmpty(importPkgNode.orgName.value)) {
             orgName = names.fromIdNode(importPkgNode.orgName);
-            // Here we set the version to enclosing package version. Following cases will be handled properly:
-            // 1) Suppose the import is from the same project, then the enclosing package version set here will be used
-            //    to lookup package symbol cache, avoiding re-defining package symbol.
-            String pkgName = importPkgNode.getPackageName().stream()
-                    .map(id -> id.value)
-                    .collect(Collectors.joining("."));
-            if (this.sourceDirectory.getSourcePackageNames().contains(pkgName)) {
-                version = enclPackageID.version;
+            if (!isNullOrEmpty(importPkgNode.version.value)) {
+                version = names.fromIdNode(importPkgNode.version);
             } else {
-                version = new Name("");
+                String pkgName = importPkgNode.getPackageName().stream()
+                        .map(id -> id.value)
+                        .collect(Collectors.joining("."));
+                if (this.sourceDirectory.getSourcePackageNames().contains(pkgName)) {
+                    version = enclPackageID.version;
+                } else {
+                    version = Names.EMPTY;
+                }
             }
         } else {
-            // means it's in 'import <org-name>/<pkg-name>' style
-            orgName = names.fromIdNode(importPkgNode.orgName);
-            version = names.fromIdNode(importPkgNode.version);
+            orgName = enclPackageID.orgName;
+            version = (Names.DEFAULT_VERSION.equals(enclPackageID.version)) ? Names.EMPTY : enclPackageID.version;
         }
+
         List<Name> nameComps = importPkgNode.pkgNameComps.stream()
                 .map(identifier -> names.fromIdNode(identifier))
                 .collect(Collectors.toList());
@@ -497,7 +504,7 @@ public class SymbolEnter extends BLangNodeVisitor {
     public void visit(BLangXMLNS xmlnsNode) {
         String nsURI = (String) ((BLangLiteral) xmlnsNode.namespaceURI).value;
 
-        if (xmlnsNode.prefix.value != null && nsURI.isEmpty()) {
+        if (!nullOrEmpty(xmlnsNode.prefix.value) && nsURI.isEmpty()) {
             dlog.error(xmlnsNode.pos, DiagnosticCode.INVALID_NAMESPACE_DECLARATION, xmlnsNode.prefix);
         }
 
@@ -522,6 +529,10 @@ public class SymbolEnter extends BLangNodeVisitor {
         // Define it in the enclosing scope. Here we check for the owner equality,
         // to support overriding of namespace declarations defined at package level.
         defineSymbol(xmlnsNode.prefix.pos, xmlnsSymbol);
+    }
+
+    private boolean nullOrEmpty(String value) {
+        return value == null || value.isEmpty();
     }
 
     public void visit(BLangXMLNSStatement xmlnsStmtNode) {
@@ -1612,7 +1623,8 @@ public class SymbolEnter extends BLangNodeVisitor {
     private BLangSimpleVariable createReceiver(DiagnosticPos pos, BLangIdentifier name) {
         BLangSimpleVariable receiver = (BLangSimpleVariable) TreeBuilder.createSimpleVariableNode();
         receiver.pos = pos;
-        IdentifierNode identifier = createIdentifier(Names.SELF.getValue());
+        BLangIdentifier identifier = (BLangIdentifier) createIdentifier(Names.SELF.getValue());
+        identifier.pos = pos;
         receiver.setName(identifier);
         BLangUserDefinedType structTypeNode = (BLangUserDefinedType) TreeBuilder.createUserDefinedTypeNode();
         structTypeNode.pkgAlias = new BLangIdentifier();

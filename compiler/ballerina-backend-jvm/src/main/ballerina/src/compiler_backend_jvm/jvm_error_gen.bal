@@ -37,13 +37,13 @@ type ErrorHandlerGenerator object {
         self.mv.visitInsn(ATHROW);
     }
 
-    function generateTryInsForTrap(bir:ErrorEntry currentEE, string previousTargetBB, jvm:Label endLabel,
-                                   jvm:Label handlerLabel, jvm:Label otherErrorLabel, jvm:Label jumpLabel) {
-        jvm:Label startLabel = new;
+    function generateTryInsForTrap(bir:ErrorEntry currentEE, string previousTargetBB, jvm:Label startLabel, jvm:Label jumpLabel) {
+        if (currentEE is JErrorEntry) {
+            self.mv.visitLabel(startLabel);
+            return;
+        }
         var varDcl = <bir:VariableDcl>currentEE.errorOp.variableDcl;
         int lhsIndex = self.getJVMIndexOfVarRef(varDcl);
-        self.mv.visitTryCatchBlock(startLabel, endLabel, handlerLabel, ERROR_VALUE);
-        self.mv.visitTryCatchBlock(startLabel, endLabel, otherErrorLabel, STACK_OVERFLOW_ERROR);
         // Handle cases where the same variable used to trap multiple expressions with single trap statement.
         // Here we will check whether result error variable value and if it is null, we will skip the execution of
         // rest of the expressions trapped by error variable.
@@ -59,10 +59,38 @@ type ErrorHandlerGenerator object {
         }
     }
 
-    function generateCatchInsForTrap(bir:ErrorEntry currentEE, jvm:Label endLabel,
-                                    jvm:Label errorValueLabel, jvm:Label otherErrorLabel, jvm:Label jumpLabel) {
+    function generateCatchInsForTrap(bir:Function func, bir:ErrorEntry currentEE, jvm:Label startLabel, jvm:Label endLabel, jvm:Label jumpLabel, 
+    						InstructionGenerator instGen, TerminatorGenerator termGen) {
         self.mv.visitLabel(endLabel);
         self.mv.visitJumpInsn(GOTO, jumpLabel);
+        if (currentEE is JErrorEntry) {
+            var retVarDcl = <bir:VariableDcl>currentEE.errorOp.variableDcl;
+            int retIndex = self.getJVMIndexOfVarRef(retVarDcl);
+            foreach CatchIns catchIns in currentEE.catchIns {
+                jvm:Label errorValueLabel = new;
+                self.mv.visitTryCatchBlock(startLabel, endLabel, errorValueLabel, catchIns.errorClass);
+                self.mv.visitLabel(errorValueLabel);
+                self.mv.visitMethodInsn(INVOKESTATIC, BAL_ERRORS, "createInteropError", io:sprintf("(L%s;)L%s;", THROWABLE, ERROR_VALUE), false);
+                generateVarStore(self.mv, retVarDcl, self.currentPackageName, retIndex);
+                bir:Return term = catchIns.term;
+                termGen.genReturnTerm(term, retIndex, func);
+                self.mv.visitJumpInsn(GOTO, jumpLabel);
+            }
+            jvm:Label otherErrorLabel = new;
+            self.mv.visitTryCatchBlock(startLabel, endLabel, otherErrorLabel, THROWABLE);
+
+            self.mv.visitLabel(otherErrorLabel);
+            self.mv.visitMethodInsn(INVOKESTATIC, BAL_ERRORS, "createInteropError", io:sprintf("(L%s;)L%s;", THROWABLE, ERROR_VALUE), false);
+            self.mv.visitInsn(ATHROW);
+            self.mv.visitJumpInsn(GOTO, jumpLabel);
+            self.mv.visitLabel(jumpLabel);
+            return;
+	    }
+
+        jvm:Label errorValueLabel = new;
+        jvm:Label otherErrorLabel = new;
+        self.mv.visitTryCatchBlock(startLabel, endLabel, errorValueLabel, ERROR_VALUE);
+        self.mv.visitTryCatchBlock(startLabel, endLabel, otherErrorLabel, STACK_OVERFLOW_ERROR);
         self.mv.visitLabel(errorValueLabel);
 
         var varDcl = <bir:VariableDcl>currentEE.errorOp.variableDcl;

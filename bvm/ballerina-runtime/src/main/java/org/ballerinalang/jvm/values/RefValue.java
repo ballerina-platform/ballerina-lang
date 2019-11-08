@@ -23,6 +23,7 @@ import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.util.exceptions.BLangFreezeException;
 import org.ballerinalang.jvm.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
+import org.ballerinalang.jvm.values.api.BRefValue;
 import org.ballerinalang.jvm.values.freeze.State;
 import org.ballerinalang.jvm.values.freeze.Status;
 import org.ballerinalang.jvm.values.utils.StringUtils;
@@ -43,7 +44,7 @@ import java.util.Map;
  * 
  * @since 0.995.0
  */
-public interface RefValue {
+public interface RefValue extends BRefValue {
 
     default String stringValue() {
         return stringValue(null);

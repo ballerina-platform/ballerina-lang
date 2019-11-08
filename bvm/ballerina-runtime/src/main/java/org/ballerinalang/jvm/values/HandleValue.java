@@ -20,6 +20,7 @@ package org.ballerinalang.jvm.values;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
+import org.ballerinalang.jvm.values.api.BHandle;
 
 import java.util.Map;
 
@@ -33,14 +34,19 @@ import java.util.Map;
  *  
  * @since 1.0
  */
-public class HandleValue implements RefValue {
+public class HandleValue implements BHandle, RefValue {
 
     private Object value;
 
+    @Deprecated
     public HandleValue(Object value) {
         this.value = value;
     }
 
+    /**
+     * Returns the internal value of the handle.
+     * @return {@code Object} value
+     */
     public Object getValue() {
         return value;
     }
@@ -69,5 +75,9 @@ public class HandleValue implements RefValue {
     public Object frozenCopy(Map<Object, Object> refs) {
 
         return this;
+    }
+
+    public static HandleValue valueOfJ(Object value) {
+        return new HandleValue(value);
     }
 }

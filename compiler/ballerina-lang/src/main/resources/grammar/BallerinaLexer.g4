@@ -303,6 +303,10 @@ DecimalFloatingPointNumber
     |   DottedDecimalNumber ExponentPart? DecimalFloatSelector?
     ;
 
+DecimalExtendedFloatingPointNumber
+    :   DecimalFloatingPointNumber DOT DecimalNumeral
+    ;
+
 fragment
 ExponentPart
     :   ExponentIndicator SignedInteger
