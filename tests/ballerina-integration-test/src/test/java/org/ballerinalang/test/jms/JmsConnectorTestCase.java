@@ -36,7 +36,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * Testing Mutual SSL.
  */
-@Test(groups = "jms-test")
+@Test(groups = "broken")
 public class JmsConnectorTestCase extends BaseTest {
 
     private BServerInstance serverInstance;
