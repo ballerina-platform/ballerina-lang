@@ -74,6 +74,7 @@ dependencies {
     testCompile 'org.testng:testng'
 
     interopImports project(':ballerina-encoding')
+    interopImports project(':ballerina-crypto')
 }
 
 createBalo {

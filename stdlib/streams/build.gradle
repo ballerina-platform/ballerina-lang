@@ -65,6 +65,8 @@ dependencies {
     testCompile project(path: ':ballerina-test-common', configuration: 'tests')
     testCompile project(path: ':ballerina-test-utils', configuration: 'shadow')
     testCompile project(':ballerina-core')
+
+    interopImports project(':ballerina-crypto')
 }
 
 configurations {

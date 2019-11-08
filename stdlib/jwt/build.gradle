@@ -72,6 +72,7 @@ dependencies {
     baloImplementation project(path: ':ballerina-task', configuration: 'baloImplementation')
 
     interopImports project(':ballerina-encoding')
+    interopImports project(':ballerina-crypto')
 }
 
 configurations.all {
