@@ -56,7 +56,7 @@
 
     <test name="ballerina-swagger-tests" preserve-order="true" parallel="false">
         <packages>
-            <package name="org.ballerinalang.test.swagger.*"/>
+<!--            <package name="org.ballerinalang.test.swagger.*"/>-->
         </packages>
     </test>
 </suite>
