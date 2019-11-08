@@ -99,7 +99,6 @@ public class InitEndpoint {
         webSocketClient.addNativeData(WebSocketConstants.CLIENT_CONNECTOR, clientConnector);
         webSocketClient.addNativeData(WebSocketConstants.CLIENT_LISTENER, clientConnectorListener);
         WebSocketUtil.establishWebSocketConnection(webSocketClient, wsService);
-        WebSocketUtil.waitForHandshake(webSocketClient);
     }
 
     private static void populateClientConnectorConfig(MapValue<String, Object> clientEndpointConfig,

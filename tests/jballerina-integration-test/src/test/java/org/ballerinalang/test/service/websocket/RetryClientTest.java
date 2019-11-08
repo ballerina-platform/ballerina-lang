@@ -36,7 +36,7 @@ import java.util.concurrent.TimeUnit;
 public class RetryClientTest extends WebSocketTestCommons {
 
     private WebSocketRemoteServer remoteServer;
-    private String url =  "ws://localhost:21033";
+    private String url =  "ws://localhost:21030";
     private int port = 15300;
 
     @Test(description = "Tests the retry function using webSocket client (starting the server " +
@@ -104,7 +104,7 @@ public class RetryClientTest extends WebSocketTestCommons {
         ByteBuffer bufferSent = ByteBuffer.wrap(new byte[]{1, 2, 3, 4, 5});
         remoteServer = new WebSocketRemoteServer(port);
         remoteServer.run();
-        WebSocketTestClient client = new WebSocketTestClient("ws://localhost:21030");
+        WebSocketTestClient client = new WebSocketTestClient("ws://localhost:21031");
         client.handshake();
         client.setCountDownLatch(countDownLatch);
         client.sendBinary(bufferSent);
@@ -117,6 +117,32 @@ public class RetryClientTest extends WebSocketTestCommons {
         client.sendBinary(bufferSent);
         latchForRestart.await(TIMEOUT_IN_SECS, TimeUnit.SECONDS);
         Assert.assertNull(client.getBufferReceived());
+        client.shutDown();
+        remoteServer.stop();
+    }
+
+    @Test(description = "Tests the retry function using webSocket client (starting the server " +
+     ", sending and receiving binary frames Afterthat restart that server and do the same)")
+    public void testCoundownLatchForRetry() throws URISyntaxException, InterruptedException,
+            BallerinaTestException {
+        CountDownLatch countDownLatch = new CountDownLatch(1);
+        ByteBuffer bufferSent = ByteBuffer.wrap(new byte[]{1, 2, 3, 4, 5});
+        remoteServer = new WebSocketRemoteServer(port);
+        remoteServer.run();
+        WebSocketTestClient client = new WebSocketTestClient("ws://localhost:21032");
+        client.handshake();
+        client.setCountDownLatch(countDownLatch);
+        client.sendBinary(bufferSent);
+        countDownLatch.await(TIMEOUT_IN_SECS, TimeUnit.SECONDS);
+        Assert.assertEquals(client.getBufferReceived(), bufferSent);
+        remoteServer.stop();
+        CountDownLatch latchForRestart = new CountDownLatch(1);
+        latchForRestart.await(6, TimeUnit.MINUTES);
+        remoteServer.run();
+        latchForRestart.await(2, TimeUnit.MINUTES);
+        client.sendBinary(bufferSent);
+        latchForRestart.await(TIMEOUT_IN_SECS, TimeUnit.SECONDS);
+        Assert.assertEquals(client.getBufferReceived(), bufferSent);
         client.shutDown();
         remoteServer.stop();
     }

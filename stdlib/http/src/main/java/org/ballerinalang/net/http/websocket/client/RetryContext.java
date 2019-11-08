@@ -163,7 +163,7 @@ public class RetryContext {
      *
      * @return firstConnectionMadeSuccessfully
      */
-    boolean isFirstConnectionMadeSuccessfully() {
+    public boolean isFirstConnectionMadeSuccessfully() {
         return firstConnectionMadeSuccessfully;
     }
 
@@ -172,8 +172,5 @@ public class RetryContext {
      */
     void setFirstConnectionMadeSuccessfully() {
         this.firstConnectionMadeSuccessfully = true;
-    }
-
-    RetryContext() {
     }
 }

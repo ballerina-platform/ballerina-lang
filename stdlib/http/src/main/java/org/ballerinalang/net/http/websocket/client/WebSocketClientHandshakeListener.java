@@ -49,17 +49,19 @@ public class WebSocketClientHandshakeListener implements ClientHandshakeListener
     private final WebSocketClientConnectorListener clientConnectorListener;
     private final boolean readyOnConnect;
     private final ObjectValue webSocketClient;
+    private final CountDownLatch countDownLatch;
     private static final Logger logger = LoggerFactory.getLogger(WebSocketClientHandshakeListener.class);
     private static final String CONNECTED_TO = "Connected to ";
 
     public WebSocketClientHandshakeListener(ObjectValue webSocketClient,
                                             WebSocketService wsService,
                                             WebSocketClientConnectorListener clientConnectorListener,
-                                            boolean readyOnConnect) {
+                                            boolean readyOnConnect, CountDownLatch countDownLatch) {
         this.webSocketClient = webSocketClient;
         this.wsService = wsService;
         this.clientConnectorListener = clientConnectorListener;
         this.readyOnConnect = readyOnConnect;
+        this.countDownLatch = countDownLatch;
     }
 
     @Override
@@ -77,10 +79,14 @@ public class WebSocketClientHandshakeListener implements ClientHandshakeListener
         }
         setWebSocketClient(webSocketClient, carbonResponse, webSocketConnection, retryConfig);
         clientConnectorListener.setConnectionInfo(getWebSocketOpenConnectionInfo(webSocketConnection,
-                webSocketConnector));
+                webSocketConnector, webSocketClient, wsService));
         // Read the next frame when readyOnConnect is true or isReady is true
         readNextFrame(readyOnConnect, webSocketClient, webSocketConnection, retryConfig);
-        countDownForHandshake(webSocketClient);
+        if (countDownLatch == null) {
+            countDownForHandshake(webSocketClient);
+        } else {
+            countDownLatch.countDown();
+        }
         logger.debug(WebSocketConstants.LOG_MESSAGE, CONNECTED_TO, webSocketClient.getStringValue(
                 WebSocketConstants.CLIENT_URL_CONFIG));
         // The following are created for future connections.
@@ -98,7 +104,8 @@ public class WebSocketClientHandshakeListener implements ClientHandshakeListener
         }
         ObjectValue webSocketConnector = BallerinaValues.createObjectValue(PROTOCOL_HTTP_PKG_ID,
                                                                            WebSocketConstants.WEBSOCKET_CONNECTOR);
-        WebSocketConnectionInfo connectionInfo = getWebSocketOpenConnectionInfo(null, webSocketConnector);
+        WebSocketConnectionInfo connectionInfo = getWebSocketOpenConnectionInfo(null,
+                webSocketConnector, webSocketClient, wsService);
         if (throwable instanceof IOException && WebSocketUtil.hasRetryConfig(webSocketClient) &&
                 WebSocketUtil.reconnect(connectionInfo)) {
                 return;
@@ -106,8 +113,10 @@ public class WebSocketClientHandshakeListener implements ClientHandshakeListener
         dispatchOnError(connectionInfo, throwable);
     }
 
-    private WebSocketConnectionInfo getWebSocketOpenConnectionInfo(WebSocketConnection webSocketConnection,
-                                                                   ObjectValue webSocketConnector) {
+    private static WebSocketConnectionInfo getWebSocketOpenConnectionInfo(WebSocketConnection webSocketConnection,
+                                                                         ObjectValue webSocketConnector,
+                                                                         ObjectValue webSocketClient,
+                                                                         WebSocketService wsService) {
         WebSocketConnectionInfo connectionInfo = new WebSocketConnectionInfo(
                 wsService, webSocketConnection, webSocketClient);
         webSocketConnector.addNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_CONNECTION_INFO, connectionInfo);

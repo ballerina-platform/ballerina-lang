@@ -65,6 +65,7 @@ public class WebSocketUtil {
             "to the server: ";
     private static final String RECONNECTING = "reconnecting...";
     private static final String CLIENT_ENDPOINT_CONFIG = "config";
+    private static final String ERROR_MESSAGE = "Error occurred: ";
 
     public static ObjectValue createAndPopulateWebSocketCaller(WebSocketConnection webSocketConnection,
                                                                WebSocketServerService wsService,
@@ -242,9 +243,7 @@ public class WebSocketUtil {
                 getMapValue(WebSocketConstants.RETRY_CONFIG) != null;
     }
 
-    public static void waitForHandshake(ObjectValue webSocketClient) {
-        CountDownLatch countDownLatch = new CountDownLatch(1);
-        webSocketClient.addNativeData(WebSocketConstants.COUNT_DOWN_LATCH, countDownLatch);
+    private static void waitForHandshake(CountDownLatch countDownLatch) {
         try {
             // Wait for 5 minutes before timeout
             if (!countDownLatch.await(60 * 5L, TimeUnit.SECONDS)) {
@@ -255,7 +254,7 @@ public class WebSocketUtil {
             }
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            throw new WebSocketException("Error occurred: " + e.getMessage());
+            throw new WebSocketException(ERROR_MESSAGE + e.getMessage());
         }
     }
 
@@ -274,8 +273,32 @@ public class WebSocketUtil {
                 WebSocketConstants.CLIENT_READY_ON_CONNECT);
         ClientHandshakeFuture handshakeFuture = clientConnector.connect();
         handshakeFuture.setWebSocketConnectorListener(clientConnectorListener);
-        handshakeFuture.setClientHandshakeListener(new WebSocketClientHandshakeListener(webSocketClient, wsService,
-                clientConnectorListener, readyOnConnect));
+        if (webSocketClient.getNativeData(WebSocketConstants.RETRY_CONFIG) != null &&
+                ((RetryContext) webSocketClient.getNativeData(WebSocketConstants.RETRY_CONFIG)).
+                        isFirstConnectionMadeSuccessfully()) {
+            CountDownLatch countDownLatch = new CountDownLatch(1);
+            handshakeFuture.setClientHandshakeListener(new WebSocketClientHandshakeListener(webSocketClient, wsService,
+                    clientConnectorListener, readyOnConnect, countDownLatch));
+            waitForHandshake(countDownLatch);
+        } else {
+            handshakeFuture.setClientHandshakeListener(new WebSocketClientHandshakeListener(webSocketClient, wsService,
+                    clientConnectorListener, readyOnConnect, null));
+            waitForHandshake(webSocketClient);
+        }
+    }
+
+    private static void waitForHandshake(ObjectValue webSocketClient) {
+        if (webSocketClient.getNativeData(WebSocketConstants.COUNT_DOWN_LATCH) == null) {
+            CountDownLatch countDownLatch = new CountDownLatch(1);
+            webSocketClient.addNativeData(WebSocketConstants.COUNT_DOWN_LATCH, countDownLatch);
+            try {
+                // Wait to call countDown()
+                countDownLatch.await();
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                throw new WebSocketException(ERROR_MESSAGE + e.getMessage());
+            }
+        }
     }
 
     /**
@@ -313,7 +336,7 @@ public class WebSocketUtil {
     }
 
     /**
-     * Set waiting time before attempting to next doReconnect/failover.
+     * Set waiting time before attempting to next reconnect.
      *
      * @param interval interval
      */
@@ -325,7 +348,7 @@ public class WebSocketUtil {
             }
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            throw new WebSocketException("Error occurred: " + e.getMessage());
+            throw new WebSocketException(ERROR_MESSAGE + e.getMessage());
         }
     }
 
