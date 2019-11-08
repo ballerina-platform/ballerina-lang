@@ -57,7 +57,6 @@ import org.wso2.transport.http.netty.message.ResponseHandle;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Optional;
@@ -146,7 +145,7 @@ public abstract class AbstractHTTPAction {
         return serviceUri;
     }
 
-    private static String encodeWhitespacesInUri(String uri) throws UnsupportedEncodingException {
+    private static String encodeWhitespacesInUri(String uri) {
         if (!uri.contains(WHITESPACE)) {
             return uri;
         }
