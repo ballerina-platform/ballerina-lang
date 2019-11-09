@@ -15,7 +15,12 @@
  *
  */
 
-apply from: "$rootDir/gradle/javaProject.gradle"
+//apply from: "$rootDir/gradle/javaProject.gradle"
+apply plugin: 'java'
+apply plugin: 'checkstyle'
+apply plugin: "com.github.spotbugs"
+
+apply from: "$rootDir/gradle/repositories.gradle"
 
 configurations {
     dist {
@@ -86,9 +91,9 @@ dependencies {
 
     // runtime
     dist 'org.apache.ws.commons.axiom:axiom-c14n:1.2.22'
-    dist 'org.apache.ws.commons.axiom:axiom-dom:1.2.22'
     dist 'org.apache.ws.commons.axiom:axiom-impl:1.2.22'
     dist 'org.apache.ws.commons.axiom:axiom-api:1.2.20'
+    dist 'org.apache.ws.commons.axiom:axiom-dom:1.2.22'
     dist 'commons-logging:commons-logging:1.1.1'
     dist 'io.opentracing:opentracing-api:0.31.0'
     dist 'io.opentracing:opentracing-util:0.31.0'
@@ -115,6 +120,7 @@ dependencies {
 }
 
 jar {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     dependsOn configurations.dist
     from { configurations.dist.collect { it.isDirectory() ? it : zipTree(it) } }
 }
