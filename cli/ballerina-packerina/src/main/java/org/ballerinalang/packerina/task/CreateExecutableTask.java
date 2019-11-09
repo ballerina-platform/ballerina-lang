@@ -31,6 +31,8 @@ import java.io.IOException;
 import java.lang.reflect.Field;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -53,7 +55,10 @@ public class CreateExecutableTask implements Task {
         try {
             // We need to access the already inserted names set to override the default behavior of throwing exception.
             namesField = ZipOutputStream.class.getDeclaredField("names");
-            namesField.setAccessible(true);
+            AccessController.doPrivileged((PrivilegedAction<Object>) () -> {
+                namesField.setAccessible(true);
+                return null;
+            });
         } catch (NoSuchFieldException e) {
             throw createLauncherException("unable to retrive the entry names field :" + e.getMessage());
         }
