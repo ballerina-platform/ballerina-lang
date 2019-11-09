@@ -175,10 +175,6 @@ public class XMLContentHolderItem extends XMLValue<OMNode> {
         return null;
     }
 
-    public enum ContentType {
-        COMMENT, CDATA, PI;
-    }
-
     @Override
     public String stringValue() {
         try {

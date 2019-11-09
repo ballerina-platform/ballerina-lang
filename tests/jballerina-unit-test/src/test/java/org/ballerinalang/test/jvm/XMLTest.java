@@ -56,8 +56,9 @@ public class XMLTest {
 //                "<?proc h=\"data\" p=\"more data\" ?>" +
 //                "<!-- cmnt -->" +
                 "<elem>" +
+                        "bunch of text" +
                 "<![CDATA[\n" +
-                        "while (x < len && !done) {\n" +
+                        "while (x < len && !done)  {\n" +
                         "    print( \"Still working, 'zzzz'.\" );\n" +
                         "    ++x;\n" +
                         "    }\n" +
@@ -66,6 +67,7 @@ public class XMLTest {
                         "<ns:elem ns:at=\"the at\" />" +
                         "</hello>" +
                 "</elem>");
+        String s = test.toString();
         int i = 0;
     }
 

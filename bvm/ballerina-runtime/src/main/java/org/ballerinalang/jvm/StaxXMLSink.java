@@ -17,6 +17,9 @@
  */
 package org.ballerinalang.jvm;
 
+import org.ballerinalang.jvm.values.XMLContentHolderItem;
+import org.ballerinalang.jvm.values.XMLItem;
+import org.ballerinalang.jvm.values.XMLSequence;
 import org.ballerinalang.jvm.values.XMLValue;
 
 import javax.xml.stream.XMLOutputFactory;
@@ -47,6 +50,57 @@ public class StaxXMLSink extends OutputStream {
     }
 
     public void write(XMLValue<?> xmlValue) {
+        switch (xmlValue.getNodeType()) {
+            case SEQUENCE:
+                writeSeq((XMLSequence) xmlValue);
+                break;
+            case ELEMENT:
+                writeElement((XMLItem) xmlValue);
+                break;
+            case TEXT:
+                writeXMLText((XMLContentHolderItem) xmlValue);
+                break;
+            case COMMENT:
+                writeXMLComment((XMLContentHolderItem) xmlValue);
+                break;
+            case PI:
+                writeXMLPI((XMLContentHolderItem) xmlValue);
+                break;
+            case CDATA:
+                writeXMLCDATA((XMLContentHolderItem) xmlValue);
+                break;
+            default:
+                throw new IllegalStateException("Unexpected value: " + xmlValue.getNodeType());
+        }
+
+    }
+
+    private void writeXMLCDATA(XMLContentHolderItem xmlValue) {
+        int i = 0;
+
+    }
+
+    private void writeXMLPI(XMLContentHolderItem xmlValue) {
+        int i = 0;
+    }
+
+    private void writeXMLComment(XMLContentHolderItem xmlValue) {
+        int i = 0;
+
+    }
+
+    private void writeXMLText(XMLContentHolderItem xmlValue) {
+        int i = 0;
+
+    }
+
+    private void writeElement(XMLItem xmlValue) {
+        int i = 0;
+
+    }
+
+    private void writeSeq(XMLSequence xmlValue) {
+        int i = 0;
 
     }
 }

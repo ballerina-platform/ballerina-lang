@@ -94,7 +94,7 @@ public class StaxXMLSource {
                         break;
                     case XMLEvent.CDATA:
                     case XMLEvent.CHARACTERS:
-                        readCDATA(xmlStreamReader);
+                        readText(xmlStreamReader);
                         break;
                     case XMLEvent.NAMESPACE:
                         assert false;
@@ -116,10 +116,8 @@ public class StaxXMLSource {
         siblingDeque.peek().add(xmlItem);
     }
 
-    private void readCDATA(XMLStreamReader xmlStreamReader) {
-        // we don't support CDATA?
-//        setupXmlDocument();
-        XMLContentHolderItem xmlItem = new XMLContentHolderItem(xmlStreamReader.getText(), XMLNodeType.CDATA);
+    private void readText(XMLStreamReader xmlStreamReader) {
+        XMLContentHolderItem xmlItem = new XMLContentHolderItem(xmlStreamReader.getText(), XMLNodeType.TEXT);
         siblingDeque.peek().add(xmlItem);
     }
 
