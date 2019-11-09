@@ -20,6 +20,7 @@ package org.ballerinalang.test.statements.arrays;
 
 import org.ballerinalang.model.types.BRecordType;
 import org.ballerinalang.model.types.BTypes;
+import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.util.Flags;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BByte;
@@ -34,6 +35,7 @@ import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
+import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -485,6 +487,13 @@ public class ArrayFillTest {
         assertEquals(resultArray.size(), 2);
     }
 
+    @Test
+    public void testFiniteTypesInUnionArrayFill() {
+        BValue[] returns = BRunUtil.invokeFunction(compileResult, "testFiniteTypeArrayFill");
+        Assert.assertEquals(returns[0].getType().getTag(), TypeTags.ARRAY_TAG);
+        Assert.assertEquals(((BValueArray) returns[0]).getValues()[5].value().toString(), "1.2");
+    }
+
     @Test(enabled = false)
     public void testRecordTypeWithOptionalFieldsArrayFill() {
         BValue[] returns = BRunUtil.invokeFunction(compileResult, "testRecordTypeWithOptionalFieldsArrayFill");
@@ -562,6 +571,20 @@ public class ArrayFillTest {
                     "without filler values.*")
     public void testRecordTypeWithRequiredFieldsArrayFill() {
         BRunUtil.invokeFunction(negativeCompileResult, "testRecordTypeWithRequiredFieldsArrayFill");
+    }
+
+    @Test(expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = ".*array of length .* cannot be expanded into array of length .* " +
+                    "without filler values.*")
+    public void testFiniteTypeArrayFillNegative() {
+        BRunUtil.invokeFunction(negativeCompileResult, "testFiniteTypeArrayFill");
+    }
+
+    @Test(expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = ".*array of length .* cannot be expanded into array of length .* " +
+                    "without filler values.*")
+    public void testFiniteTypeArrayFillNegative2() {
+        BRunUtil.invokeFunction(negativeCompileResult, "testFiniteTypeArrayFill2");
     }
 
     private void validateMapValue(BMap<String, BValue> actual, BMap<String, BValue> expected) {

@@ -76,3 +76,9 @@ function testMismatchingElementTags() {
 function dummyFunctionToUseMath() {
     float f = x:random();
 }
+
+function testXmlNsInterpolation() returns xml {
+    string ns = "http://wso2.com/";
+    xml x = xml `<foo xmlns="${ns}" xmlns:foo="${ns}">hello</foo>`;
+    return x;
+}

@@ -204,7 +204,6 @@ public enum DiagnosticCode {
     INVALID_FUNCTION_POINTER_INVOCATION("invalid.function.pointer.invocation"),
     AMBIGUOUS_TYPES("ambiguous.type"),
 
-    NOT_ENOUGH_ARGS_FUNC_CALL("not.enough.args.call"),
     TOO_MANY_ARGS_FUNC_CALL("too.many.args.call"),
     NON_PUBLIC_ARG_ACCESSED_WITH_NAMED_ARG("non.public.arg.accessed.with.named.arg"),
     ASSIGNMENT_COUNT_MISMATCH("assignment.count.mismatch"),
@@ -291,7 +290,6 @@ public enum DiagnosticCode {
     INVALID_ERROR_REASON_BINDING_PATTERN("invalid.error.reason.binding.pattern"),
     INVALID_ERROR_REST_BINDING_PATTERN("invalid.error.rest.binding.pattern"),
     INVALID_TYPE_DEFINITION_FOR_ERROR_VAR("invalid.type.definition.for.error.var"),
-    INVALID_ERROR_LITERAL_BINDING_PATTERN("invalid.error.literal.in.binding.pattern"),
     INVALID_ERROR_DESTRUCTURING_NO_REASON_GIVEN("invalid.error.destructuring.reason"),
     INVALID_ERROR_MATCH_PATTERN("invalid.error.match.pattern"),
     DUPLICATE_VARIABLE_IN_BINDING_PATTERN("duplicate.variable.in.binding.pattern"),
@@ -303,6 +301,7 @@ public enum DiagnosticCode {
     XML_QNAME_UPDATE_NOT_ALLOWED("xml.qname.update.not.allowed"),
     INVALID_NAMESPACE_DECLARATION("invalid.namespace.declaration"),
     CANNOT_UPDATE_XML_SEQUENCE("cannot.update.xml.sequence"),
+    INVALID_XML_NS_INTERPOLATION("invalid.xml.ns.interpolation"),
 
     UNDEFINED_ANNOTATION("undefined.annotation"),
     ANNOTATION_NOT_ALLOWED("annotation.not.allowed"),
@@ -369,6 +368,7 @@ public enum DiagnosticCode {
     CHECKED_EXPR_INVALID_USAGE_NO_ERROR_TYPE_IN_RHS("checked.expr.invalid.usage.no.error.type.rhs"),
     CHECKED_EXPR_INVALID_USAGE_ALL_ERROR_TYPES_IN_RHS("checked.expr.invalid.usage.only.error.types.rhs"),
     CHECKED_EXPR_NO_ERROR_RETURN_IN_ENCL_INVOKABLE("checked.expr.no.error.return.in.encl.invokable"),
+    CHECKED_EXPR_NO_MATCHING_ERROR_RETURN_IN_ENCL_INVOKABLE("checked.expr.no.matching.error.return.in.encl.invokable"),
 
     START_REQUIRE_INVOCATION("start.require.invocation"),
     INVALID_EXPR_STATEMENT("invalid.expr.statement"),
@@ -464,11 +464,14 @@ public enum DiagnosticCode {
     // Type Param related error codes.
     TYPE_PARAM_OUTSIDE_LANG_MODULE("type.param.outside.lang.module"),
 
-    VERSIONED_IMPORT_NOT_SUPPORTED("versioned.import.not.supported"),
     INVALID_INVOCATION_LVALUE_ASSIGNMENT("invalid.lvalue.lhs.of.assignment"),
     INVALID_INVOCATION_LVALUE_COMPOUND_ASSIGNMENT("invalid.lvalue.lhs.of.compound.assignment"),
 
-    IDENTIFIER_LITERAL_ONLY_SUPPORTS_ALPHANUMERICS("identifier.literal.only.supports.alphanumerics")
+    IDENTIFIER_LITERAL_ONLY_SUPPORTS_ALPHANUMERICS("identifier.literal.only.supports.alphanumerics"),
+
+    // Warnings
+    MULTI_LINE_STRINGS_NOT_ALLOWED("multi.line.strings.not.allowed"),
+    SEND_RECEIVE_TYPE_MISMATCH("send.receive.type.mismatch")
 
     ;
     private String value;

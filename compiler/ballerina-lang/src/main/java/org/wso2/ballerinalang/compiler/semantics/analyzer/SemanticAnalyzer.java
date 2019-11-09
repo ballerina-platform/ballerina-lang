@@ -467,7 +467,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
         BType detailType = errorType.detailType.type;
         if (!types.isValidErrorDetailType(detailType)) {
-            dlog.error(errorType.detailType.pos, DiagnosticCode.INVALID_ERROR_DETAIL_TYPE, detailType,
+            dlog.error(errorType.detailType.pos, DiagnosticCode.INVALID_ERROR_DETAIL_TYPE, errorType.detailType,
                     symTable.detailType);
         }
     }
@@ -1310,7 +1310,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 dlog.error(errorVariable.pos, DiagnosticCode.NO_NEW_VARIABLES_VAR_ASSIGNMENT);
                 return false;
             }
-            return validateErrorReasonMatchPatternSyntax(errorVariable);
+            return validateErrorReasonMatchPatternSyntax(errorVariable, true);
         }
 
         if (errorType.detailType.getKind() == TypeKind.RECORD) {
@@ -1332,7 +1332,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     }
 
     private boolean validateErrorVariable(BLangErrorVariable errorVariable, BErrorType errorType) {
-        if (!validateErrorReasonMatchPatternSyntax(errorVariable)) {
+        if (!validateErrorReasonMatchPatternSyntax(errorVariable, false)) {
             return false;
         }
 
@@ -1377,7 +1377,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         return true;
     }
 
-    private boolean validateErrorReasonMatchPatternSyntax(BLangErrorVariable errorVariable) {
+    // todo: warn parameter is a hack to fix patch compatibility by using dlog.warn, remove for minor release
+    private boolean validateErrorReasonMatchPatternSyntax(BLangErrorVariable errorVariable, boolean warn) {
         if (errorVariable.isInMatchStmt
                 && !errorVariable.reasonVarPrefixAvailable
                 && errorVariable.reasonMatchConst == null
@@ -1386,6 +1387,11 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             BSymbol reasonConst = symResolver.lookupSymbol(
                     this.env.enclEnv, names.fromString(errorVariable.reason.name.value), SymTag.CONSTANT);
             if (reasonConst == symTable.notFoundSymbol) {
+                if (warn) {
+                    dlog.warning(errorVariable.reason.pos, DiagnosticCode.INVALID_ERROR_REASON_BINDING_PATTERN,
+                            errorVariable.reason.name);
+                    return true;
+                }
                 dlog.error(errorVariable.reason.pos, DiagnosticCode.INVALID_ERROR_REASON_BINDING_PATTERN,
                         errorVariable.reason.name);
             } else {
@@ -1656,11 +1662,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             // set reason var refs type to no type if the variable name is '_'
             errorDeStmt.varRef.reason.type = symTable.noType;
         }
-        if (errorDeStmt.expr.getKind() == NodeKind.INVOCATION
-                && ((BLangInvocation) errorDeStmt.expr).name.value.equals(Names.ERROR.value)) {
-            dlog.error(errorDeStmt.expr.pos, DiagnosticCode.INVALID_ERROR_LITERAL_BINDING_PATTERN);
-            return;
-        }
+
         typeChecker.checkExpr(errorDeStmt.expr, this.env);
         checkErrorVarRefEquivalency(errorDeStmt.pos, errorDeStmt.varRef, errorDeStmt.expr.type, errorDeStmt.expr.pos);
     }
@@ -1786,15 +1788,15 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     private boolean hasOnlyAnydataTypedFields(BRecordType recordType) {
         boolean allAnydataFields = recordType.fields.stream()
                 .map(field -> field.type)
-                .allMatch(fieldType -> types.isAnydata(fieldType));
-        return allAnydataFields && (recordType.sealed || types.isAnydata(recordType.restFieldType));
+                .allMatch(fieldType -> fieldType.isAnydata());
+        return allAnydataFields && (recordType.sealed || recordType.restFieldType.isAnydata());
     }
 
     private boolean hasOnlyPureTypedFields(BRecordType recordType) {
         boolean allPureFields = recordType.fields.stream()
                 .map(field -> field.type)
-                .allMatch(fieldType -> types.isPureType(fieldType));
-        return allPureFields && (recordType.sealed || types.isPureType(recordType.restFieldType));
+                .allMatch(fieldType -> fieldType.isPureType());
+        return allPureFields && (recordType.sealed || recordType.restFieldType.isPureType());
     }
 
     private boolean hasErrorTypedField(BRecordType recordType) {
@@ -2270,34 +2272,24 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangTransaction transactionNode) {
-        analyzeStmt(transactionNode.transactionBody, env);
+        SymbolEnv transactionEnv = SymbolEnv.createTransactionEnv(transactionNode, env);
+        analyzeStmt(transactionNode.transactionBody, transactionEnv);
         if (transactionNode.onRetryBody != null) {
-            analyzeStmt(transactionNode.onRetryBody, env);
+            analyzeStmt(transactionNode.onRetryBody, transactionEnv);
         }
 
         if (transactionNode.committedBody != null) {
-            analyzeStmt(transactionNode.committedBody, env);
+            analyzeStmt(transactionNode.committedBody, transactionEnv);
         }
 
         if (transactionNode.abortedBody != null) {
-            analyzeStmt(transactionNode.abortedBody, env);
+            analyzeStmt(transactionNode.abortedBody, transactionEnv);
         }
 
         if (transactionNode.retryCount != null) {
-            typeChecker.checkExpr(transactionNode.retryCount, env, symTable.intType);
+            typeChecker.checkExpr(transactionNode.retryCount, transactionEnv, symTable.intType);
             checkRetryStmtValidity(transactionNode.retryCount);
         }
-        
-        // Transaction node will be desugar to lambda function, hence transaction environment scope variables needs to
-        // be added as closure variables.
-        env.scope.entries
-                .values().stream().map(scopeEntry -> scopeEntry.symbol)
-                .filter(bSymbol -> bSymbol instanceof BVarSymbol)
-                .forEach(bSymbol -> bSymbol.closure = true);
-        env.scope.owner.scope.entries
-                .values().stream().map(scopeEntry -> scopeEntry.symbol)
-                .filter(bSymbol -> bSymbol instanceof BVarSymbol)
-                .forEach(bSymbol -> bSymbol.closure = true);
     }
 
     @Override

@@ -42,7 +42,11 @@ public type OutboundJwtAuthProvider object {
         string authToken = "";
         var jwtIssuerConfig = self.jwtIssuerConfig;
         if (jwtIssuerConfig is JwtIssuerConfig) {
-            authToken = check getAuthTokenForJWTAuth(jwtIssuerConfig);
+            var result = getAuthTokenForJWTAuth(jwtIssuerConfig);
+            if (result is error) {
+                return prepareAuthError(result.reason(), result);
+            }
+            authToken = <string> result;
         } else {
             runtime:AuthenticationContext? authContext = runtime:getInvocationContext()?.authenticationContext;
             if (authContext is runtime:AuthenticationContext) {
@@ -50,7 +54,7 @@ public type OutboundJwtAuthProvider object {
             }
         }
         if (authToken == "") {
-            return auth:prepareError("JWT was not used during inbound authentication. Provide JwtIssuerConfig to issue new token.");
+            return prepareAuthError("JWT was not used during inbound authentication. Provide JwtIssuerConfig to issue new token.");
         }
         return authToken;
     }

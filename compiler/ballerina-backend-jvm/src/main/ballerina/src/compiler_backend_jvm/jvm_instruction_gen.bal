@@ -69,52 +69,57 @@ type InstructionGenerator object {
 
 
     function generateBinaryOpIns(bir:BinaryOp binaryIns) {
-        if (binaryIns.kind == bir:BINARY_LESS_THAN) {
-            self.generateLessThanIns(binaryIns);
-        } else if (binaryIns.kind == bir:BINARY_ADD) {
-            self.generateAddIns(binaryIns);
-        } else if (binaryIns.kind == bir:BINARY_EQUAL) {
-            self.generateEqualIns(binaryIns);
-        } else if (binaryIns.kind == bir:BINARY_SUB) {
-            self.generateSubIns(binaryIns);
-        } else if (binaryIns.kind == bir:BINARY_DIV) {
-            self.generateDivIns(binaryIns);
-        } else if (binaryIns.kind == bir:BINARY_MUL) {
-            self.generateMulIns(binaryIns);
-        } else if (binaryIns.kind == bir:BINARY_MOD) {
-            self.generateRemIns(binaryIns);
-        } else if (binaryIns.kind == bir:BINARY_LESS_EQUAL) {
-            self.generateLessEqualIns(binaryIns);
-        } else if (binaryIns.kind == bir:BINARY_NOT_EQUAL) {
-            self.generateNotEqualIns(binaryIns);
-        }  else if (binaryIns.kind == bir:BINARY_GREATER_THAN) {
-            self.generateGreaterThanIns(binaryIns);
-        }  else if (binaryIns.kind == bir:BINARY_GREATER_EQUAL) {
-            self.generateGreaterEqualIns(binaryIns);
-        } else if (binaryIns.kind == bir:BINARY_REF_EQUAL) {
-            self.generateRefEqualIns(binaryIns);
-        } else if (binaryIns.kind == bir:BINARY_REF_NOT_EQUAL) {
-            self.generateRefNotEqualIns(binaryIns);
-        } else if (binaryIns.kind == bir:BINARY_CLOSED_RANGE) {
-            self.generateClosedRangeIns(binaryIns);
-        } else if (binaryIns.kind == bir:BINARY_HALF_OPEN_RANGE) {
-            self.generateClosedRangeIns(binaryIns);
-        } else if (binaryIns.kind == bir:BINARY_ANNOT_ACCESS) {
-            self.generateAnnotAccessIns(binaryIns);
-        } else if (binaryIns.kind == bir:BINARY_BITWISE_AND) {
-            self.generateBitwiseAndIns(binaryIns);
-        } else if (binaryIns.kind == bir:BINARY_BITWISE_OR) {
-            self.generateBitwiseOrIns(binaryIns);
-        } else if (binaryIns.kind == bir:BINARY_BITWISE_XOR) {
-            self.generateBitwiseXorIns(binaryIns);
-        } else if (binaryIns.kind == bir:BINARY_BITWISE_LEFT_SHIFT) {
-            self.generateBitwiseLeftShiftIns(binaryIns);
-        } else if (binaryIns.kind == bir:BINARY_BITWISE_RIGHT_SHIFT) {
-            self.generateBitwiseRightShiftIns(binaryIns);
-        } else if (binaryIns.kind == bir:BINARY_BITWISE_UNSIGNED_RIGHT_SHIFT) {
-            self.generateBitwiseUnsignedRightShiftIns(binaryIns);
+        int insKind = binaryIns.kind;
+        if (insKind <= bir:BINARY_LESS_EQUAL) {
+            if (insKind == bir:BINARY_ADD) {
+                self.generateAddIns(binaryIns);
+            } else if (insKind == bir:BINARY_SUB) {
+                self.generateSubIns(binaryIns);
+            } else if (insKind == bir:BINARY_MUL) {
+                self.generateMulIns(binaryIns);
+            } else if (insKind == bir:BINARY_DIV) {
+                self.generateDivIns(binaryIns);
+            } else if (insKind == bir:BINARY_MOD) {
+                self.generateRemIns(binaryIns);
+            } else if (insKind == bir:BINARY_EQUAL) {
+                self.generateEqualIns(binaryIns);
+            } else if (insKind == bir:BINARY_NOT_EQUAL) {
+                self.generateNotEqualIns(binaryIns);
+            }  else if (insKind == bir:BINARY_GREATER_THAN) {
+                self.generateGreaterThanIns(binaryIns);
+            }  else if (insKind == bir:BINARY_GREATER_EQUAL) {
+                self.generateGreaterEqualIns(binaryIns);
+            } else if (insKind == bir:BINARY_LESS_THAN) {
+                self.generateLessThanIns(binaryIns);
+            } else {
+                self.generateLessEqualIns(binaryIns);
+            } 
+        } else if (insKind <= bir:BINARY_BITWISE_UNSIGNED_RIGHT_SHIFT) {
+            if (insKind == bir:BINARY_REF_EQUAL) {
+                self.generateRefEqualIns(binaryIns);
+            } else if (insKind == bir:BINARY_REF_NOT_EQUAL) {
+                self.generateRefNotEqualIns(binaryIns);
+            } else if (insKind == bir:BINARY_CLOSED_RANGE) {
+                self.generateClosedRangeIns(binaryIns);
+            } else if (insKind == bir:BINARY_HALF_OPEN_RANGE) {
+                self.generateClosedRangeIns(binaryIns);
+            } else if (insKind == bir:BINARY_ANNOT_ACCESS) {
+                self.generateAnnotAccessIns(binaryIns);
+            } else if (insKind == bir:BINARY_BITWISE_AND) {
+                self.generateBitwiseAndIns(binaryIns);
+            } else if (insKind == bir:BINARY_BITWISE_OR) {
+                self.generateBitwiseOrIns(binaryIns);
+            } else if (insKind == bir:BINARY_BITWISE_XOR) {
+                self.generateBitwiseXorIns(binaryIns);
+            } else if (insKind == bir:BINARY_BITWISE_LEFT_SHIFT) {
+                self.generateBitwiseLeftShiftIns(binaryIns);
+            } else if (insKind == bir:BINARY_BITWISE_RIGHT_SHIFT) {
+                self.generateBitwiseRightShiftIns(binaryIns);
+            } else {
+                self.generateBitwiseUnsignedRightShiftIns(binaryIns);
+            }
         } else {
-            error err = error("JVM generation is not supported for type : " + io:sprintf("%s", binaryIns.kind));
+            error err = error("JVM generation is not supported for type : " + io:sprintf("%s", insKind));
             panic err;
         }
     }
@@ -581,7 +586,7 @@ type InstructionGenerator object {
         return self.indexMap.getIndex(varDcl);
     }
 
-    function generateMapNewIns(bir:NewMap mapNewIns) {
+    function generateMapNewIns(bir:NewMap mapNewIns, int localVarOffset) {
         bir:BType typeOfMapNewIns = mapNewIns.bType;
         string className = MAP_VALUE_IMPL;
 
@@ -595,17 +600,24 @@ type InstructionGenerator object {
 
             self.mv.visitTypeInsn(NEW, className);
             self.mv.visitInsn(DUP);
+            self.mv.visitInsn(DUP);
             if (typeRef is bir:TypeRef) {
                 loadExternalOrLocalType(self.mv, typeRef);
             } else {
                 loadType(self.mv, mapNewIns.bType);
             }
+            self.mv.visitMethodInsn(INVOKESPECIAL, className, "<init>", io:sprintf("(L%s;)V", BTYPE), false);
+
+            // Invoke the init-function of this type.
+            self.mv.visitVarInsn(ALOAD, localVarOffset);
+            self.mv.visitInsn(SWAP);
+            self.mv.visitMethodInsn(INVOKESTATIC, className, "$init", io:sprintf("(L%s;L%s;)V", STRAND, MAP_VALUE), false);
         } else {
             self.mv.visitTypeInsn(NEW, className);
             self.mv.visitInsn(DUP);
             loadType(self.mv, mapNewIns.bType);
+            self.mv.visitMethodInsn(INVOKESPECIAL, className, "<init>", io:sprintf("(L%s;)V", BTYPE), false);
         }
-        self.mv.visitMethodInsn(INVOKESPECIAL, className, "<init>", io:sprintf("(L%s;)V", BTYPE), false);
         self.storeToVar(mapNewIns.lhsOp.variableDcl);
     }
 
@@ -888,28 +900,21 @@ type InstructionGenerator object {
         string methodClass = lookupFullQualifiedClassName(lookupKey);
 
         bir:BType returnType = inst.lhsOp.typeValue;
-        boolean isVoid = false;
-        if (returnType is bir:BInvokableType) {
-            isVoid = returnType?.retType is bir:BTypeNil;
-        } else {
+        if !(returnType is bir:BInvokableType) {
             error err = error( "Expected BInvokableType, found " + io:sprintf("%s", returnType));
             panic err;
         }
+
         foreach var v in inst.closureMaps {
             if (v is bir:VarRef) {
                 self.loadVar(v.variableDcl);
             }
         }
 
-        self.mv.visitInvokeDynamicInsn(currentClass, lambdaName, isVoid, inst.closureMaps.length());
+        self.mv.visitInvokeDynamicInsn(currentClass, lambdaName, inst.closureMaps.length());
         loadType(self.mv, returnType);
-        if (isVoid) {
-            self.mv.visitMethodInsn(INVOKESPECIAL, FUNCTION_POINTER, "<init>",
-                                    io:sprintf("(L%s;L%s;)V", CONSUMER, BTYPE), false);
-        } else {
-            self.mv.visitMethodInsn(INVOKESPECIAL, FUNCTION_POINTER, "<init>",
-                                    io:sprintf("(L%s;L%s;)V", FUNCTION, BTYPE), false);
-        }
+        self.mv.visitMethodInsn(INVOKESPECIAL, FUNCTION_POINTER, "<init>",
+                                io:sprintf("(L%s;L%s;)V", FUNCTION, BTYPE), false);
 
         // Set annotations if available.
         self.mv.visitInsn(DUP);
@@ -1111,13 +1116,17 @@ type InstructionGenerator object {
 };
 
 function addBoxInsn(jvm:MethodVisitor mv, bir:BType? bType) {
-    if (bType is bir:BType) {
+    if (bType is ()) {
+        return;
+    } else {
         generateCast(mv, bType, "any");
     }
 }
 
 function addUnboxInsn(jvm:MethodVisitor mv, bir:BType? bType) {
-    if (bType is bir:BType) {
+    if (bType is ()) {
+        return;
+    } else {
         generateCast(mv, "any", bType);
     }
 }

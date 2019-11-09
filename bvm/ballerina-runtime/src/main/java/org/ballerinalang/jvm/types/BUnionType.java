@@ -32,6 +32,7 @@ public class BUnionType extends BType {
     private List<BType> memberTypes;
     private Boolean nullable;
     private String cachedToString;
+    private int typeFlags;
 
     /**
      * Create a {@code BUnionType} which represents the union type.
@@ -44,14 +45,36 @@ public class BUnionType extends BType {
      * Create a {@code BUnionType} which represents the union type.
      *
      * @param memberTypes of the union type
+     * @param typeFlags flags associated with the type
      */
-    public BUnionType(List<BType> memberTypes) {
+    public BUnionType(List<BType> memberTypes, int typeFlags) {
         super(null, null, Object.class);
         this.memberTypes = memberTypes;
+        this.typeFlags = typeFlags;
     }
 
-    public BUnionType(BType[] memberTypes) {
-        this(Arrays.asList(memberTypes));
+    public BUnionType(List<BType> memberTypes) {
+        this(memberTypes, 0);
+        boolean nilable = false, isAnydata = true, isPureType = true;
+        for (BType memberType : memberTypes) {
+            nilable |= memberType.isNilable();
+            isAnydata &= memberType.isAnydata();
+            isPureType &= memberType.isPureType();
+        }
+
+        if (nilable) {
+            this.typeFlags = TypeFlags.addToMask(this.typeFlags, TypeFlags.NILABLE);
+        }
+        if (isAnydata) {
+            this.typeFlags = TypeFlags.addToMask(this.typeFlags, TypeFlags.ANYDATA);
+        }
+        if (isPureType) {
+            this.typeFlags = TypeFlags.addToMask(this.typeFlags, TypeFlags.PURETYPE);
+        }
+    }
+
+    public BUnionType(BType[] memberTypes, int typeFlags) {
+        this(Arrays.asList(memberTypes), typeFlags);
     }
 
     public List<BType> getMemberTypes() {
@@ -108,11 +131,25 @@ public class BUnionType extends BType {
         if (this == o) {
             return true;
         }
+
         if (!(o instanceof BUnionType)) {
             return false;
         }
+
         BUnionType that = (BUnionType) o;
-        return memberTypes.containsAll(that.memberTypes) && that.memberTypes.containsAll(memberTypes);
+        if (this.memberTypes.size() != that.memberTypes.size()) {
+            return false;
+        }
+
+        // Note: Ordered comparison is used here as an optimization to speed up the union equals method.
+        // union types that are like (A|B is B|A) will be fall through to assignable check in jvm/TypeChecker
+        // Refer: https://github.com/ballerina-platform/ballerina-lang/pull/19197#discussion_r328972983
+        for (int i = 0; i < memberTypes.size(); i++) {
+            if (!this.memberTypes.get(i).equals(that.memberTypes.get(i))) {
+                return false;
+            }
+        }
+        return true;
     }
 
     @Override
@@ -127,6 +164,7 @@ public class BUnionType extends BType {
     }
 
     public boolean isNilable() {
+        // TODO: use the flag
         if (nullable == null) {
             nullable = checkNillable(memberTypes);
         }
@@ -140,5 +178,19 @@ public class BUnionType extends BType {
             }
         }
         return false;
+    }
+
+    @Override
+    public boolean isAnydata() {
+        return TypeFlags.isFlagOn(this.typeFlags, TypeFlags.ANYDATA);
+    }
+
+    @Override
+    public boolean isPureType() {
+        return TypeFlags.isFlagOn(this.typeFlags, TypeFlags.PURETYPE);
+    }
+
+    public int getTypeFlags() {
+        return this.typeFlags;
     }
 }

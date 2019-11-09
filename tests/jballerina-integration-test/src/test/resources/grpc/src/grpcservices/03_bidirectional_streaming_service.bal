@@ -33,7 +33,7 @@ listener grpc:Listener ep3 = new (9093, {
       }
   });
 
-map<grpc:Caller> connectionsMap = {};
+@tainted map<grpc:Caller> connectionsMap = {};
 boolean initialized = false;
 
 @grpc:ServiceConfig {name:"chat",

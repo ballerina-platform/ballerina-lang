@@ -33,3 +33,24 @@ function testJSONArrayToJsonAssignment() returns (json) {
     json j2 = j1;
     return j2;
 }
+
+public function testCloseRecordToMapJsonAssigment() returns [map<json>, map<json>] {
+    AnotherPerson ap = {};
+    Person p = {};
+    map<json> pm = p;
+    map<json> m = ap;
+    return [pm, m];
+}
+
+// all member types including rest type is json compatible
+type Person record {|
+    string name = "";
+    int age = 10;
+    string...;
+|};
+
+// all member types are json compatible
+type AnotherPerson record {|
+    string name = "";
+    int age = 10 + 20;
+|};

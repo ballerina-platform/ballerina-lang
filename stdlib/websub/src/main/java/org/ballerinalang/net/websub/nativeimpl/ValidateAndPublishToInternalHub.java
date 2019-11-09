@@ -48,7 +48,7 @@ public class ValidateAndPublishToInternalHub {
     public static Object validateAndPublishToInternalHub(Strand strand, String hubUrl, String topic,
                                                          MapValue<String, Object> content) {
         Hub hubInstance = Hub.getInstance();
-        if (hubInstance.isStarted() && hubInstance.getHubUrl().equals(hubUrl)) {
+        if (hubInstance.isStarted() && hubInstance.getPublishUrl().equals(hubUrl)) {
             try {
                 Hub.getInstance().publish(topic, content);
             } catch (BallerinaWebSubException e) {

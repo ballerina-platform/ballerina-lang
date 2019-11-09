@@ -299,7 +299,6 @@ const string LINKED_HASH_SET = "java/util/LinkedHashSet";
 const string STRING_BUILDER = "java/lang/StringBuilder";
 const string COMPARABLE = "java/lang/Comparable";
 const string FUNCTION = "java/util/function/Function";
-const string CONSUMER = "java/util/function/Consumer";
 const string EXCEPTION = "java/lang/Exception";
 const string LONG_STREAM = "java/util/stream/LongStream";
 const string JAVA_THREAD = "java/lang/Thread";
@@ -346,7 +345,6 @@ const string BUILT_IN_PACKAGE_NAME = "lang.annotations";
 
 
 // scheduler related constants
-const string SCHEDULE_CONSUMER_METHOD =  "scheduleConsumer";
 const string SCHEDULE_FUNCTION_METHOD =  "scheduleFunction";
 const string SCHEDULER_START_METHOD =  "start";
 
@@ -362,3 +360,8 @@ const int BAL_REQUIRED = 256;
 const int BAL_PRIVATE = 1024;
 const int BAL_OPTIONAL = 8192;
 const int BAL_SERVICE = 524288;
+
+// type flags
+const int TYPE_FLAG_NILABLE = 1;
+const int TYPE_FLAG_ANYDATA = 2;
+const int TYPE_FLAG_PURETYPE = 4;

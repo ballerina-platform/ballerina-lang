@@ -72,13 +72,13 @@ class JMethodRequest {
     private JMethodRequest() {
     }
 
-    static JMethodRequest build(MapValue jMethodReqBValue) {
+    static JMethodRequest build(MapValue jMethodReqBValue, ClassLoader classLoader) {
         JMethodRequest jMethodReq = new JMethodRequest();
         jMethodReq.kind = JMethodKind.getKind((String) jMethodReqBValue.get(KIND_FIELD));
         jMethodReq.methodName = (String) jMethodReqBValue.get(NAME_FIELD);
-        jMethodReq.declaringClass = JInterop.loadClass((String) jMethodReqBValue.get(CLASS_FIELD));
+        jMethodReq.declaringClass = JInterop.loadClass((String) jMethodReqBValue.get(CLASS_FIELD), classLoader);
         jMethodReq.paramTypeConstraints = JInterop.buildParamTypeConstraints(
-                (ArrayValue) jMethodReqBValue.get(PARAM_TYPE_CONSTRAINTS_FIELD));
+                (ArrayValue) jMethodReqBValue.get(PARAM_TYPE_CONSTRAINTS_FIELD), classLoader);
 
         MapValue bFuncType = (MapValue) jMethodReqBValue.get(B_FUNC_TYPE_FIELD);
         ArrayValue paramTypes = (ArrayValue) bFuncType.get(PARAM_TYPES_FIELD);
@@ -171,7 +171,7 @@ class JMethodRequest {
                     return new BTupleType(memberTypes);
                 case RECORD_TNAME:
                     return new BRecordType(bRecordType.getName(), bRecordType.getPackage(), bRecordType.flags,
-                            bRecordType.sealed);
+                            bRecordType.sealed, bRecordType.typeFlags);
                 case ARRAY_TNAME:
                     return new BArrayType(getBType(arrayTypeValue.get(ARRAY_ELEMENT_TYPE_FIELD)));
                 default:

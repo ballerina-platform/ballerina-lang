@@ -71,6 +71,7 @@ public type Listener object {
     }
 
     public function __detach(service s) returns error? {
+        return self.detach(s);
     }
 
     # Retrieve the Channel which initializes this listener.
@@ -79,6 +80,7 @@ public type Listener object {
     public function getChannel() returns Channel | error = external;
 
     private function registerListener(service serviceType) returns error? = external;
+    private function detach(service serviceType) returns error? = external;
     private function stop() returns error? = external;
     private function start() returns error? = external;
     private function setQosSettings(int? prefetchCount, int? prefetchSize) returns error? = external;

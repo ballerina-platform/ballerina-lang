@@ -20,6 +20,7 @@ package org.wso2.ballerinalang.compiler.desugar;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
+import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.elements.TableColumnFlag;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.NodeKind;
@@ -1984,6 +1985,10 @@ public class Desugar extends BLangNodeVisitor {
                 }
                 createVarRefAssignmentStmts((BLangRecordVarRef) expression, parentBlockStmt, tupleVarSymbol,
                         arrayAccessExpr);
+
+                createTypeDefinition(recordVarRef.type, recordVarRef.type.tsymbol,
+                        createRecordTypeNode((BRecordType) recordVarRef.type));
+
                 continue;
             }
 
@@ -2051,6 +2056,22 @@ public class Desugar extends BLangNodeVisitor {
             assignmentExpr = arrayAccess;
         }
         return assignmentExpr;
+    }
+
+    private BLangRecordTypeNode createRecordTypeNode(BRecordType recordType) {
+        List<BLangSimpleVariable> fieldList = new ArrayList<>();
+        for (BField field : recordType.fields) {
+            BVarSymbol symbol = field.symbol;
+            if (symbol == null) {
+                symbol = new BVarSymbol(Flags.PUBLIC, field.name,
+                        this.env.enclPkg.packageID, symTable.pureType, null);
+            }
+
+            BLangSimpleVariable fieldVar = ASTBuilderUtil.createVariable(
+                    field.pos, symbol.name.value, field.type, null, symbol);
+            fieldList.add(fieldVar);
+        }
+        return createRecordTypeNode(fieldList, recordType);
     }
 
     @Override
@@ -2719,32 +2740,32 @@ public class Desugar extends BLangNodeVisitor {
         // Desugar transaction code, on retry and on abort code to separate functions.
         BLangLambdaFunction trxMainFunc = createLambdaFunction(pos, "$anonTrxMainFunc$",
                                                                Collections.emptyList(),
-                                                               trxReturnNode, transactionNode.transactionBody);
+                                                               trxReturnNode,
+                                                               rewrite(transactionNode.transactionBody, env));
         BLangLambdaFunction trxOnRetryFunc = createLambdaFunction(pos, "$anonTrxOnRetryFunc$",
                                                                   Collections.emptyList(),
-                                                                  otherReturnNode, transactionNode.onRetryBody);
+                                                                  otherReturnNode,
+                                                                  rewrite(transactionNode.onRetryBody, env));
         BLangLambdaFunction trxCommittedFunc = createLambdaFunction(pos, "$anonTrxCommittedFunc$",
                                                                     Collections.emptyList(),
-                                                                    otherReturnNode, transactionNode.committedBody);
+                                                                    otherReturnNode,
+                                                                    rewrite(transactionNode.committedBody, env));
         BLangLambdaFunction trxAbortedFunc = createLambdaFunction(pos, "$anonTrxAbortedFunc$",
                                                                   Collections.emptyList(),
-                                                                  otherReturnNode, transactionNode.abortedBody);
+                                                                  otherReturnNode,
+                                                                  rewrite(transactionNode.abortedBody, env));
         trxMainFunc.cachedEnv = env.createClone();
         trxOnRetryFunc.cachedEnv = env.createClone();
         trxCommittedFunc.cachedEnv = env.createClone();
         trxAbortedFunc.cachedEnv = env.createClone();
 
         // Retrive the symbol for beginTransactionInitiator function.
-        BSymbol trxModSym = env.enclPkg.imports
-                .stream()
-                .filter(importPackage ->
-                                importPackage.symbol.pkgID.toString().equals(Names.TRANSACTION_ORG.value + Names
-                                        .ORG_NAME_SEPARATOR.value + Names.TRANSACTION_PACKAGE.value))
-                .findAny().get().symbol;
+        PackageID packageID = new PackageID(Names.BALLERINA_ORG, Names.TRANSACTION_PACKAGE, Names.EMPTY);
+        BPackageSymbol transactionPkgSymbol = new BPackageSymbol(packageID, null, 0);
         BInvokableSymbol invokableSymbol =
-                (BInvokableSymbol) symResolver.lookupSymbol(symTable.pkgEnvMap.get(trxModSym),
-                                                            TRX_INITIATOR_BEGIN_FUNCTION,
-                                                            SymTag.FUNCTION);
+                (BInvokableSymbol) symResolver.lookupSymbol(symTable.pkgEnvMap.get(transactionPkgSymbol),
+                        TRX_INITIATOR_BEGIN_FUNCTION,
+                        SymTag.FUNCTION);
         BLangLiteral transactionBlockId = ASTBuilderUtil.createLiteral(pos, symTable.stringType,
                                                                        getTransactionBlockId());
         List<BLangExpression> requiredArgs = Lists.of(transactionBlockId, transactionNode.retryCount, trxMainFunc,

@@ -116,7 +116,7 @@ public class TopLevelScopeProvider extends LSCompletionProvider {
         }
 
         List<CompletionItem> completionItems = new ArrayList<>();
-        visibleSymbols.removeIf(this.attachedOrSelfKeywordFilter());
+        visibleSymbols.removeIf(this.attachedSymbolFilter());
         completionItems.addAll(getBasicTypes(visibleSymbols));
         completionItems.addAll(this.getPackagesCompletionItems(lsContext));
         return completionItems;

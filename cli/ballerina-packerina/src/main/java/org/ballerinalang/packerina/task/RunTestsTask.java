@@ -29,8 +29,8 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -52,29 +52,27 @@ public class RunTestsTask implements Task {
         // Only tests in packages are executed so default packages i.e. single bal files which has the package name
         // as "." are ignored. This is to be consistent with the "ballerina test" command which only executes tests
         // in packages.
-        moduleBirMap.stream()
-            .forEach(bLangPackage -> {
-                // todo following is some legacy logic check if we need to do this.
-                // if (bLangPackage.containsTestablePkg()) {
-                // } else {
-                    // In this package there are no tests to be executed. But we need to say to the users that
-                    // there are no tests found in the package to be executed as :
-                    // Running tests
-                    //     <org-name>/<package-name>:<version>
-                    //         No tests found
-                // }
-                Path jarPath = buildContext.getTestJarPathFromTargetCache(bLangPackage.packageID);
-                Path modulejarPath = buildContext.getJarPathFromTargetCache(bLangPackage.packageID).getFileName();
-                // subsitute test jar if module jar if tests not exists
-                if (Files.notExists(jarPath)) {
-                    jarPath = modulejarPath;
-                }
-                String modulejarName = modulejarPath != null ? modulejarPath.toString() : "";
-                TestarinaClassLoader classLoader = new TestarinaClassLoader(jarPath,
-                        Paths.get(sourceRootPath.toString(), "target", "tmp").toFile(),
-                        modulejarName);
-                programFileMap.put(bLangPackage, classLoader);
-            });
+        for (BLangPackage bLangPackage : moduleBirMap) {
+            // todo following is some legacy logic check if we need to do this.
+            // if (bLangPackage.containsTestablePkg()) {
+            // } else {
+            // In this package there are no tests to be executed. But we need to say to the users that
+            // there are no tests found in the package to be executed as :
+            // Running tests
+            //     <org-name>/<package-name>:<version>
+            //         No tests found
+            // }
+            Path jarPath = buildContext.getTestJarPathFromTargetCache(bLangPackage.packageID);
+            Path modulejarPath = buildContext.getJarPathFromTargetCache(bLangPackage.packageID).getFileName();
+            // subsitute test jar if module jar if tests not exists
+            if (Files.notExists(jarPath)) {
+                jarPath = modulejarPath;
+            }
+            String modulejarName = modulejarPath != null ? modulejarPath.toString() : "";
+            HashSet<Path> dependencyJarPaths = buildContext.moduleDependencyPathMap.get(bLangPackage.packageID);
+            TestarinaClassLoader classLoader = new TestarinaClassLoader(jarPath, dependencyJarPaths, modulejarName);
+            programFileMap.put(bLangPackage, classLoader);
+        }
         // Create a class loader to
 
         if (programFileMap.size() > 0) {
