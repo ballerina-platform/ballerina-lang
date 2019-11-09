@@ -28,6 +28,7 @@ import org.wso2.ballerinalang.util.Lists;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.HashMap;
@@ -46,6 +47,17 @@ import static org.ballerinalang.tool.LauncherUtils.createLauncherException;
 public class CreateExecutableTask implements Task {
     
     private static HashSet<String> excludeExtensions =  new HashSet<>(Lists.of("DSA", "SF"));
+    private static Field namesField;
+
+    static {
+        try {
+            // We need to access the already inserted names set to override the default behavior of throwing exception.
+            namesField = ZipOutputStream.class.getDeclaredField("names");
+            namesField.setAccessible(true);
+        } catch (NoSuchFieldException e) {
+            throw createLauncherException("unable to retrive the entry names field :" + e.getMessage());
+        }
+    }
 
     @Override
     public void execute(BuildContext buildContext) {
@@ -60,6 +72,11 @@ public class CreateExecutableTask implements Task {
                 if (module.symbol.entryPointExists) {
                     Path executablePath = buildContext.getExecutablePathFromTarget(module.packageID);
                     Path jarFromCachePath = buildContext.getJarPathFromTargetCache(module.packageID);
+                    /*
+                    TODO: We earlier used ZipFileSystem but we cannot explicitly set the compression method in
+                     java8 with ZipFileSystem. Once we moved to java11 we can revert back to ZipFileSystem then we can
+                      get rid of with accessing names field as well.
+                      */
                     try (ZipOutputStream outStream =
                                  new ZipOutputStream(new FileOutputStream(String.valueOf(executablePath)))) {
                         assembleExecutable(jarFromCachePath,
@@ -90,7 +107,7 @@ public class CreateExecutableTask implements Task {
 
     private void assembleExecutable(Path jarFromCachePath, HashSet<Path> dependencySet, ZipOutputStream outStream) {
         try {
-            HashSet<String> entries = new HashSet<>();
+            HashSet<String> entries = (HashSet<String>) namesField.get(outStream);
             HashMap<String, StringBuilder> services = new HashMap<>();
             copyJarToJar(outStream, jarFromCachePath.toString(), entries, services);
             for (Path path : dependencySet) {
@@ -109,7 +126,7 @@ public class CreateExecutableTask implements Task {
             // Copy dependency libraries
             // Executable is created at give location.
             // If no entry point is found we do nothing.
-        } catch (IOException | NullPointerException e) {
+        } catch (IOException | NullPointerException | IllegalAccessException e) {
             throw createLauncherException("unable to create the executable: " + e.getMessage());
         }
     }
@@ -131,8 +148,13 @@ public class CreateExecutableTask implements Task {
         try (ZipInputStream inStream = new ZipInputStream(new FileInputStream(sourceJarFile))) {
             for (ZipEntry e; (e = inStream.getNextEntry()) != null; ) {
                 String entryName = e.getName();
+                // Skip already copied files or excluded extensions.
+                if (e.isDirectory() || entries.contains(entryName) ||
+                        excludeExtensions.contains(entryName.substring(entryName.lastIndexOf(".") + 1))) {
+                    continue;
+                }
                 // SPIs will be merged first and then put into jar separately.
-                if (!e.isDirectory() && entryName.startsWith("META-INF/services")) {
+                if (entryName.startsWith("META-INF/services")) {
                     StringBuilder s = services.get(entryName);
                     if (s == null) {
                         s = new StringBuilder();
@@ -148,13 +170,6 @@ public class CreateExecutableTask implements Task {
                     }
                     continue;
                 }
-
-                // Skip already copied files or excluded extensions.
-                if (entries.contains(entryName) ||
-                        excludeExtensions.contains(entryName.substring(entryName.lastIndexOf(".") + 1))) {
-                    continue;
-                }
-                entries.add(entryName);
                 outStream.putNextEntry(e);
                 while ((len = inStream.read(buffer)) > 0) {
                     outStream.write(buffer, 0, len);
