@@ -39,21 +39,20 @@ import org.slf4j.LoggerFactory;
         functionName = "ready",
         receiver = @Receiver(
                 type = TypeKind.OBJECT,
-                structType = WebSocketConstants.WEBSOCKET_CLIENT,
+                structType = WebSocketConstants.WEBSOCKET_CONNECTOR,
                 structPackage = WebSocketConstants.FULL_PACKAGE_HTTP
         )
 )
 public class Ready {
     private static final Logger log = LoggerFactory.getLogger(Ready.class);
 
-    public static Object ready(Strand strand, ObjectValue wsClient) {
+    public static Object ready(Strand strand, ObjectValue wsConnector) {
         try {
-            ObjectValue wsConnection = (ObjectValue) wsClient.get(WebSocketConstants.CLIENT_CONNECTOR_FIELD);
-            WebSocketConnectionInfo connectionInfo = (WebSocketConnectionInfo) wsConnection
+            WebSocketConnectionInfo connectionInfo = (WebSocketConnectionInfo) wsConnector
                     .getNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_CONNECTION_INFO);
-            boolean isReady = wsClient.getBooleanValue(WebSocketConstants.CONNECTOR_IS_READY_FIELD);
+            boolean isReady = wsConnector.getBooleanValue(WebSocketConstants.CONNECTOR_IS_READY_FIELD);
             if (!isReady) {
-                WebSocketUtil.readFirstFrame(connectionInfo.getWebSocketConnection(), wsClient);
+                WebSocketUtil.readFirstFrame(connectionInfo.getWebSocketConnection(), wsConnector);
             } else {
                 return new WebSocketException("Already started reading frames");
             }

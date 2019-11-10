@@ -75,6 +75,12 @@ public class WebSocketConstants {
     public static final String CLIENT_LISTENER = "clientListener";
     public static final String CLIENT_CONNECTOR = "clientConnector";
     public static final String LOG_MESSAGE = "{} {}";
+    public static final String CLIENT_ENDPOINT_CONFIG = "config";
+    public static final String TARGET_URLS = "targetUrls";
+    public static final String FAILOVER_CONFIG = "failoverConfig";
+    public static final String CONNECTOR_FACTORY = "connectorFactory";
+    public static final String FAILOVER_WEBSOCKET_CLIENT = "WebSocketFailoverClient";
+    public static final String CONNECTED_TO = "Connected to ";
 
     public static final String COMPRESSION_ENABLED_CONFIG = "webSocketCompressionEnabled";
 

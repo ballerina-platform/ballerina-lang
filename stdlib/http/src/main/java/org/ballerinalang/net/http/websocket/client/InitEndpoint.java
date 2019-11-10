@@ -19,7 +19,6 @@
 package org.ballerinalang.net.http.websocket.client;
 
 import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
@@ -28,7 +27,6 @@ import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.net.http.websocket.WebSocketConstants;
-import org.ballerinalang.net.http.websocket.WebSocketException;
 import org.ballerinalang.net.http.websocket.WebSocketService;
 import org.ballerinalang.net.http.websocket.WebSocketUtil;
 import org.slf4j.Logger;
@@ -38,8 +36,6 @@ import org.wso2.transport.http.netty.contract.websocket.WebSocketClientConnector
 import org.wso2.transport.http.netty.contract.websocket.WebSocketClientConnectorConfig;
 
 import java.net.URI;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Initialize the WebSocket Client.
@@ -86,11 +82,11 @@ public class InitEndpoint {
             webSocketClient.addNativeData(WebSocketConstants.RETRY_CONFIG, retryConnectorConfig);
         }
         String remoteUrl = webSocketClient.getStringValue(WebSocketConstants.CLIENT_URL_CONFIG);
-        WebSocketService wsService = validateAndCreateWebSocketService(clientEndpointConfig, strand);
+        WebSocketService wsService = WebSocketUtil.validateAndCreateWebSocketService(clientEndpointConfig, strand);
         HttpWsConnectorFactory connectorFactory = HttpUtil.createHttpWsConnectionFactory();
         WebSocketClientConnectorConfig clientConnectorConfig = new WebSocketClientConnectorConfig(remoteUrl);
         String scheme = URI.create(remoteUrl).getScheme();
-        populateClientConnectorConfig(clientEndpointConfig, clientConnectorConfig, scheme);
+        WebSocketUtil.populateClientConnectorConfig(clientEndpointConfig, clientConnectorConfig, scheme);
         // Create the client connector
         WebSocketClientConnector clientConnector = connectorFactory.createWsClientConnector(clientConnectorConfig);
         WebSocketClientConnectorListener clientConnectorListener = new WebSocketClientConnectorListener();
@@ -99,43 +95,6 @@ public class InitEndpoint {
         webSocketClient.addNativeData(WebSocketConstants.CLIENT_CONNECTOR, clientConnector);
         webSocketClient.addNativeData(WebSocketConstants.CLIENT_LISTENER, clientConnectorListener);
         WebSocketUtil.establishWebSocketConnection(webSocketClient, wsService);
-    }
-
-    private static void populateClientConnectorConfig(MapValue<String, Object> clientEndpointConfig,
-                                                      WebSocketClientConnectorConfig clientConnectorConfig,
-                                                      String scheme) {
-        clientConnectorConfig.setAutoRead(false); // Frames are read sequentially in ballerina.
-        clientConnectorConfig.setSubProtocols(WebSocketUtil.findNegotiableSubProtocols(clientEndpointConfig));
-        @SuppressWarnings(WebSocketConstants.UNCHECKED)
-        MapValue<String, Object> headerValues = (MapValue<String, Object>) clientEndpointConfig.getMapValue(
-                WebSocketConstants.CLIENT_CUSTOM_HEADERS_CONFIG);
-        if (headerValues != null) {
-            clientConnectorConfig.addHeaders(getCustomHeaders(headerValues));
-        }
-
-        long idleTimeoutInSeconds = WebSocketUtil.findIdleTimeoutInSeconds(clientEndpointConfig);
-        if (idleTimeoutInSeconds > 0) {
-            clientConnectorConfig.setIdleTimeoutInMillis((int) (idleTimeoutInSeconds * 1000));
-        }
-
-        clientConnectorConfig.setMaxFrameSize(WebSocketUtil.findMaxFrameSize(clientEndpointConfig));
-
-        MapValue secureSocket = clientEndpointConfig.getMapValue(HttpConstants.ENDPOINT_CONFIG_SECURE_SOCKET);
-        if (secureSocket != null) {
-            HttpUtil.populateSSLConfiguration(clientConnectorConfig, secureSocket);
-        } else if (scheme.equals(WebSocketConstants.WSS_SCHEME)) {
-            clientConnectorConfig.useJavaDefaults();
-        }
-        clientConnectorConfig.setWebSocketCompressionEnabled(
-                clientEndpointConfig.getBooleanValue(WebSocketConstants.COMPRESSION_ENABLED_CONFIG));
-    }
-
-    private static Map<String, String> getCustomHeaders(MapValue<String, Object> headers) {
-        Map<String, String> customHeaders = new HashMap<>();
-        headers.keySet().forEach(
-                key -> customHeaders.put(key, headers.get(key).toString())
-        );
-        return customHeaders;
     }
 
     /**
@@ -153,28 +112,6 @@ public class InitEndpoint {
                 retryConnectorConfig);
         setMaxAttempts(Integer.parseInt(retryConfig.get(MAX_COUNT).toString()),
                 retryConnectorConfig);
-    }
-
-    /**
-     * Validate and create the webSocket service.
-     *
-     * @param clientEndpointConfig a client endpoint config
-     * @param strand a strand
-     * @return webSocketService
-     */
-    private static WebSocketService validateAndCreateWebSocketService(MapValue<String, Object> clientEndpointConfig,
-                                                                      Strand strand) {
-        Object clientService = clientEndpointConfig.get(WebSocketConstants.CLIENT_SERVICE_CONFIG);
-        if (clientService != null) {
-            BType param = ((ObjectValue) clientService).getType().getAttachedFunctions()[0].getParameterType()[0];
-            if (param == null || !WebSocketConstants.WEBSOCKET_CLIENT_NAME.equals(
-                    param.toString())) {
-                throw new WebSocketException("The callback service should be a WebSocket Client Service");
-            }
-            return new WebSocketService((ObjectValue) clientService, strand.scheduler);
-        } else {
-            return new WebSocketService(strand.scheduler);
-        }
     }
 
     /**
