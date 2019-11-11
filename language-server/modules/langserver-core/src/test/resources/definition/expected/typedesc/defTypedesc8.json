@@ -1,24 +1,24 @@
 {
   "source": {
-    "file": "defFl3.bal"
+    "file": "defFl24.bal"
   },
   "position": {
     "line": 8,
-    "character": 25
+    "character": 41
   },
   "result": [
     {
       "range": {
         "start": {
-          "line": 6,
-          "character": 72
+          "line": 2,
+          "character": 12
         },
         "end": {
-          "line": 6,
-          "character": 79
+          "line": 2,
+          "character": 26
         }
       },
-      "uri": "defFl3.bal"
+      "uri": "defFl24.bal"
     }
   ]
 }
