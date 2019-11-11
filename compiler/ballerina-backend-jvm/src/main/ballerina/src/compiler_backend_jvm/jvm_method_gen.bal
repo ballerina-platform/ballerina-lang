@@ -421,12 +421,54 @@ function geerateFrameClassFieldLoad(int localVarOffset, bir:VariableDcl?[] local
             mv.visitFieldInsn(GETFIELD, frameName, stringutils:replace(localVar.name.value, "%","_"),
                     io:sprintf("L%s;", HANDLE_VALUE));
             mv.visitVarInsn(ASTORE, index);
+        } else if (bType is jvm:JType) {
+            generateFrameClassJFieldLoad(localVar, mv, index, frameName);
         } else {
             error err = error( "JVM generation is not supported for type " +
                                         io:sprintf("%s", bType));
             panic err;
         }
         k = k + 1;
+    }
+
+}
+
+function generateFrameClassJFieldLoad(bir:VariableDcl localVar, jvm:MethodVisitor mv,
+                                    int index, string frameName) {
+    jvm:JType jType = <jvm:JType>localVar.typeValue;
+
+    if (jType is jvm:JByte) {
+        mv.visitFieldInsn(GETFIELD, frameName, stringutils:replace(localVar.name.value, "%","_"), "I");
+        mv.visitVarInsn(ISTORE, index);
+    } else if (jType is jvm:JChar) {
+        mv.visitFieldInsn(GETFIELD, frameName, stringutils:replace(localVar.name.value, "%","_"), "I");
+        mv.visitVarInsn(ISTORE, index);
+    } else if (jType is jvm:JShort) {
+        mv.visitFieldInsn(GETFIELD, frameName, stringutils:replace(localVar.name.value, "%","_"), "I");
+        mv.visitVarInsn(ISTORE, index);
+    } else if (jType is jvm:JInt) {
+        mv.visitFieldInsn(GETFIELD, frameName, stringutils:replace(localVar.name.value, "%","_"), "I");
+        mv.visitVarInsn(ISTORE, index);
+    } else if (jType is jvm:JLong) {
+        mv.visitFieldInsn(GETFIELD, frameName, stringutils:replace(localVar.name.value, "%","_"), "J");
+        mv.visitVarInsn(LSTORE, index);
+    } else if (jType is jvm:JFloat) {
+        mv.visitFieldInsn(GETFIELD, frameName, stringutils:replace(localVar.name.value, "%","_"), "F");
+        mv.visitVarInsn(FSTORE, index);
+    } else if (jType is jvm:JDouble) {
+        mv.visitFieldInsn(GETFIELD, frameName, stringutils:replace(localVar.name.value, "%","_"), "D");
+        mv.visitVarInsn(DSTORE, index);
+    } else if (jType is jvm:JBoolean) {
+        mv.visitFieldInsn(GETFIELD, frameName, stringutils:replace(localVar.name.value, "%","_"), "Z");
+        mv.visitVarInsn(ISTORE, index);
+    } else if (jType is jvm:JArrayType ||
+                jType is jvm:JRefType) {
+        mv.visitFieldInsn(GETFIELD, frameName, stringutils:replace(localVar.name.value, "%","_"), getJTypeSignature(jType));
+        mv.visitVarInsn(ASTORE, index);
+    } else {
+        error err = error( "JVM generation is not supported for type " +
+                                    io:sprintf("%s", jType));
+        panic err;
     }
 
 }
@@ -516,12 +558,55 @@ function geerateFrameClassFieldUpdate(int localVarOffset, bir:VariableDcl?[] loc
             mv.visitVarInsn(ALOAD, index);
             mv.visitFieldInsn(PUTFIELD, frameName, stringutils:replace(localVar.name.value, "%","_"),
                      io:sprintf("L%s;", HANDLE_VALUE));
+        } else if (bType is jvm:JType) {
+            generateFrameClassJFieldUpdate(localVar, mv, index, frameName);
         } else {
             error err = error( "JVM generation is not supported for type " +
                                         io:sprintf("%s", bType));
             panic err;
         }
         k = k + 1;
+    }
+}
+
+function generateFrameClassJFieldUpdate(bir:VariableDcl localVar, jvm:MethodVisitor mv,
+                                      int index, string frameName) {
+    bir:BType jType = <jvm:JType>localVar.typeValue;
+    if (jType is jvm:JByte) {
+        mv.visitVarInsn(ILOAD, index);
+        mv.visitFieldInsn(PUTFIELD, frameName, stringutils:replace(localVar.name.value, "%","_"), "B");
+    } else if (jType is jvm:JChar) {
+        mv.visitVarInsn(ILOAD, index);
+        mv.visitFieldInsn(PUTFIELD, frameName, stringutils:replace(localVar.name.value, "%","_"), "C");
+    } else if (jType is jvm:JShort) {
+        mv.visitVarInsn(ILOAD, index);
+        mv.visitFieldInsn(PUTFIELD, frameName, stringutils:replace(localVar.name.value, "%","_"), "S");
+    } else if (jType is jvm:JInt) {
+        mv.visitVarInsn(ILOAD, index);
+        mv.visitFieldInsn(PUTFIELD, frameName, stringutils:replace(localVar.name.value, "%","_"), "I");
+    } else if (jType is jvm:JLong) {
+        mv.visitVarInsn(LLOAD, index);
+        mv.visitFieldInsn(PUTFIELD, frameName, stringutils:replace(localVar.name.value, "%","_"), "J");
+    } else if (jType is jvm:JFloat) {
+        mv.visitVarInsn(FLOAD, index);
+        mv.visitFieldInsn(PUTFIELD, frameName, stringutils:replace(localVar.name.value, "%","_"), "F");
+    } else if (jType is jvm:JDouble) {
+        mv.visitVarInsn(DLOAD, index);
+        mv.visitFieldInsn(PUTFIELD, frameName, stringutils:replace(localVar.name.value, "%","_"), "D");
+    } else if (jType is jvm:JBoolean) {
+        mv.visitVarInsn(ILOAD, index);
+        mv.visitFieldInsn(PUTFIELD, frameName, stringutils:replace(localVar.name.value, "%","_"), "Z");
+    } else if (jType is jvm:JArrayType ||
+                jType is jvm:JRefType) {
+        string classSig = getJTypeSignature(jType);
+        string className = getSignatureForJType(jType);
+        mv.visitVarInsn(ALOAD, index);
+        mv.visitTypeInsn(CHECKCAST, className);
+        mv.visitFieldInsn(PUTFIELD, frameName, stringutils:replace(localVar.name.value, "%","_"), classSig);
+    } else {
+        error err = error( "JVM generation is not supported for type " +
+                                    io:sprintf("%s", jType));
+        panic err;
     }
 }
 
@@ -567,6 +652,8 @@ function getJVMTypeSign(bir:BType bType) returns string {
             || bType is bir:BJSONType
             || bType is bir:BFiniteType) {
         jvmType = io:sprintf("L%s;", OBJECT);
+    } else if (bType is jvm:JType) {
+        jvmType = getJTypeSignature(bType);
     } else if (bType is bir:BXMLType) {
         jvmType = io:sprintf("L%s;", XML_VALUE);
     }
@@ -585,9 +672,8 @@ function generateBasicBlocks(jvm:MethodVisitor mv, bir:BasicBlock?[] basicBlocks
     bir:ErrorEntry?[] errorEntries = func.errorEntries;
     bir:ErrorEntry? currentEE = ();
     string previousTargetBB = "";
+    jvm:Label startLabel = new;
     jvm:Label endLabel = new;
-    jvm:Label errorValueLabel = new;
-    jvm:Label otherErrorLabel = new;
     jvm:Label jumpLabel = new;
     int errorEntryCnt = 0;
     if (errorEntries.length() > errorEntryCnt) {
@@ -617,16 +703,15 @@ function generateBasicBlocks(jvm:MethodVisitor mv, bir:BasicBlock?[] basicBlocks
         int m = 0;
         int insCount = bb.instructions.length();
         boolean isTrapped = currentEE is bir:ErrorEntry  && currentEE.trapBB.id.value == currentBBName;
+
         // Cases will be generate between instructions and terminator of the basic block. So if basic block is
         // trapped we need to generate two try catches as for instructions and terminator.
         if (isTrapped && insCount > 0) {
+            startLabel = new;
             endLabel = new;
-            errorValueLabel = new;
-            otherErrorLabel = new;
             jumpLabel = new;
             // start try for instructions.
-            errorGen.generateTryInsForTrap(<bir:ErrorEntry>currentEE, previousTargetBB, endLabel,
-                                                errorValueLabel, otherErrorLabel, jumpLabel);
+            errorGen.generateTryInsForTrap(<bir:ErrorEntry>currentEE, previousTargetBB, startLabel, jumpLabel);
         }
 
         int insKind;
@@ -721,6 +806,8 @@ function generateBasicBlocks(jvm:MethodVisitor mv, bir:BasicBlock?[] basicBlocks
                 } else {
                     instGen.generateNegateIns(<bir:UnaryOp> inst);
                 } 
+            } else if (insKind == bir:INS_KIND_PLATFORM) {
+                instGen.generatePlatformIns(<JInstruction>inst);
             } else {
                 error err = error("JVM generation is not supported for operation " + io:sprintf("%s", inst));
                 panic err;
@@ -730,8 +817,7 @@ function generateBasicBlocks(jvm:MethodVisitor mv, bir:BasicBlock?[] basicBlocks
 
         // close the started try block with a catch statement for instructions.
         if (isTrapped && insCount > 0) {
-            errorGen.generateCatchInsForTrap(<bir:ErrorEntry>currentEE, endLabel, errorValueLabel, otherErrorLabel,
-                                                jumpLabel);
+            errorGen.generateCatchInsForTrap(func, <bir:ErrorEntry>currentEE, startLabel, endLabel, jumpLabel, instGen, termGen);
         }
         jvm:Label bbEndLable = labelGen.getLabel(funcName + bb.id.value + "beforeTerm");
         mv.visitLabel(bbEndLable);
@@ -748,13 +834,11 @@ function generateBasicBlocks(jvm:MethodVisitor mv, bir:BasicBlock?[] basicBlocks
         if (!isArg || (isArg && !(terminator is bir:Return))) {
             if (isTrapped && !(terminator is bir:GOTO)) {
                 isTerminatorTrapped = true;
+                startLabel = new;
                 endLabel = new;
-                errorValueLabel = new;
-                otherErrorLabel = new;
                 jumpLabel = new;
                 // start try for terminator if current block is trapped.
-                errorGen.generateTryInsForTrap(<bir:ErrorEntry>currentEE, previousTargetBB, endLabel,
-                                                errorValueLabel, otherErrorLabel, jumpLabel);
+                errorGen.generateTryInsForTrap(<bir:ErrorEntry>currentEE, previousTargetBB, startLabel, jumpLabel);
             }
             generateDiagnosticPos(terminator.pos, mv);
             if (isModuleInitFunction(module, func) && terminator is bir:Return) {
@@ -763,8 +847,7 @@ function generateBasicBlocks(jvm:MethodVisitor mv, bir:BasicBlock?[] basicBlocks
             termGen.genTerminator(terminator, func, funcName, localVarOffset, returnVarRefIndex, attachedType, isObserved);
             if (isTerminatorTrapped) {
                 // close the started try block with a catch statement for terminator.
-                errorGen.generateCatchInsForTrap(<bir:ErrorEntry>currentEE, endLabel, errorValueLabel,
-                                                    otherErrorLabel, jumpLabel);
+                errorGen.generateCatchInsForTrap(func, <bir:ErrorEntry>currentEE, startLabel, endLabel, jumpLabel, instGen, termGen);
             }
         }
 
@@ -1037,9 +1120,47 @@ function genDefaultValue(jvm:MethodVisitor mv, bir:BType bType, int index) {
                 bType is bir:BTypeDesc) {
         mv.visitInsn(ACONST_NULL);
         mv.visitVarInsn(ASTORE, index);
+    } else if (bType is jvm:JType) {
+        genJDefaultValue(mv, bType, index);
     } else {
         error err = error( "JVM generation is not supported for type " +
                                         io:sprintf("%s", bType));
+        panic err;
+    }
+}
+
+function genJDefaultValue(jvm:MethodVisitor mv, jvm:JType jType, int index) {
+    if (jType is jvm:JByte) {
+        mv.visitInsn(ICONST_0);
+        mv.visitVarInsn(ISTORE, index);
+    } else if (jType is jvm:JChar) {
+        mv.visitInsn(ICONST_0);
+        mv.visitVarInsn(ISTORE, index);
+    } else if (jType is jvm:JShort) {
+        mv.visitInsn(ICONST_0);
+        mv.visitVarInsn(ISTORE, index);
+    } else if (jType is jvm:JInt) {
+        mv.visitInsn(ICONST_0);
+        mv.visitVarInsn(ISTORE, index);
+    } else if (jType is jvm:JLong) {
+        mv.visitInsn(LCONST_0);
+        mv.visitVarInsn(LSTORE, index);
+    } else if (jType is jvm:JFloat) {
+        mv.visitInsn(FCONST_0);
+        mv.visitVarInsn(FSTORE, index);
+    } else if (jType is jvm:JDouble) {
+        mv.visitInsn(DCONST_0);
+        mv.visitVarInsn(DSTORE, index);
+    } else if (jType is jvm:JBoolean) {
+        mv.visitInsn(ICONST_0);
+        mv.visitVarInsn(ISTORE, index);
+    } else if (jType is jvm:JArrayType ||
+                jType is jvm:JRefType) {
+        mv.visitInsn(ACONST_NULL);
+        mv.visitVarInsn(ASTORE, index);
+    } else {
+        error err = error( "JVM generation is not supported for type " +
+                                        io:sprintf("%s", jType));
         panic err;
     }
 }
@@ -1072,9 +1193,38 @@ function loadDefaultValue(jvm:MethodVisitor mv, bir:BType bType) {
                 bType is bir:BTypeHandle ||
                 bType is bir:BTypeDesc) {
         mv.visitInsn(ACONST_NULL);
+    } else if (bType is jvm:JType) {
+	    loadDefaultJValue(mv, bType);
     } else {
         error err = error( "JVM generation is not supported for type " +
                                         io:sprintf("%s", bType));
+        panic err;
+    }
+}
+
+function loadDefaultJValue(jvm:MethodVisitor mv, jvm:JType jType) {
+    if (jType is jvm:JByte) {
+        mv.visitInsn(ICONST_0);
+    } else if (jType is jvm:JChar) {
+        mv.visitInsn(ICONST_0);
+    } else if (jType is jvm:JShort) {
+        mv.visitInsn(ICONST_0);
+    } else if (jType is jvm:JInt) {
+        mv.visitInsn(ICONST_0);
+    } else if (jType is jvm:JLong) {
+        mv.visitInsn(LCONST_0);
+    } else if (jType is jvm:JFloat) {
+        mv.visitInsn(FCONST_0);
+    } else if (jType is jvm:JDouble) {
+        mv.visitInsn(DCONST_0);
+    } else if (jType is jvm:JBoolean) {
+        mv.visitInsn(ICONST_0);
+    } else if (jType is jvm:JArrayType ||
+                jType is jvm:JRefType) {
+        mv.visitInsn(ACONST_NULL);
+    } else {
+        error err = error( "JVM generation is not supported for type " +
+                                        io:sprintf("%s", jType));
         panic err;
     }
 }
@@ -1898,6 +2048,8 @@ type BalToJVMIndexMap object {
         if (bType is bir:BTypeInt ||
             bType is bir:BTypeFloat) {
             self.localVarIndex = self.localVarIndex + 2;
+        } else if (bType is jvm:JLong || bType is jvm:JDouble) {
+            self.localVarIndex = self.localVarIndex + 2;
         } else {
             self.localVarIndex = self.localVarIndex + 1;
         }
@@ -1944,12 +2096,6 @@ function generateFrameClassForFunction (bir:Package pkg, bir:Function? func, map
                                         bir:BType? attachedType = ()) {
     string pkgName = getPackageName(pkg.org.value, pkg.name.value);
     bir:Function currentFunc = getFunction(<@untainted> func);
-    if (isExternFunc(currentFunc)) {
-        var extFuncWrapper = getExternalFunctionWrapper(pkg, currentFunc, attachedType = attachedType);
-        if (!(extFuncWrapper is OldStyleExternalFunctionWrapper)) {
-            return;
-        }
-    }
     string frameClassName = getFrameClassName(pkgName, currentFunc.name.value, attachedType);
     jvm:ClassWriter cw = new(COMPUTE_FRAMES);
     cw.visitSource(currentFunc.pos.sourceFileName);
@@ -2052,6 +2198,8 @@ function generateField(jvm:ClassWriter cw, bir:BType bType, string fieldName, bo
         typeSig = io:sprintf("L%s;", FUNCTION_POINTER);
     } else if (bType is bir:BTypeHandle) {
         typeSig = io:sprintf("L%s;", HANDLE_VALUE);
+    } else if (bType is jvm:JType) {
+        typeSig = getJTypeSignature(bType);
     } else {
         error err = error( "JVM generation is not supported for type " +
                                     io:sprintf("%s", bType));
@@ -2281,7 +2429,7 @@ function generateModuleInitializer(jvm:ClassWriter cw, bir:Package module) {
 
     // Using object return type since this is similar to a ballerina function without a return.
     // A ballerina function with no returns is equivalent to a function with nil-return.
-    jvm:MethodVisitor mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, CURRENT_MODULE_INIT, 
+    jvm:MethodVisitor mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, CURRENT_MODULE_INIT,
                                           io:sprintf("(L%s;)L%s;", STRAND, OBJECT), (), ());
     mv.visitCode();
 
