@@ -29,9 +29,6 @@ import org.ballerinalang.test.context.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
-
 /**
  * Simple WebSocket server for Test cases.
  */
@@ -63,23 +60,6 @@ public final class WebSocketRemoteServer {
         bootstrap.group(bossGroup, workerGroup).channel(NioServerSocketChannel.class)
                 .handler(new LoggingHandler(LogLevel.INFO))
                 .childHandler(new WebSocketRemoteServerInitializer(sslEnabled));
-        bootstrap.bind(port).sync();
-    }
-
-    public void run1() throws InterruptedException, BallerinaTestException {
-        log.info("Starting websocket remote server at '" + port + "'");
-        Utils.checkPortAvailability(port);
-        bossGroup = new NioEventLoopGroup(1);
-        workerGroup = new NioEventLoopGroup(5);
-
-        ServerBootstrap bootstrap = new ServerBootstrap();
-        bootstrap.group(bossGroup, workerGroup).channel(NioServerSocketChannel.class)
-                .handler(new LoggingHandler(LogLevel.INFO))
-                .childHandler(new WebSocketRemoteServerInitializer(sslEnabled));
-        CountDownLatch countDownLatch = new CountDownLatch(1);
-        if (!countDownLatch.await(60 * 5L, TimeUnit.SECONDS)) {
-            countDownLatch.countDown();
-        }
         bootstrap.bind(port).sync();
     }
 

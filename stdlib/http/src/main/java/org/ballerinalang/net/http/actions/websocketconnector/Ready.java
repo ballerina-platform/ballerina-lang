@@ -53,6 +53,8 @@ public class Ready {
             boolean isReady = wsConnector.getBooleanValue(WebSocketConstants.CONNECTOR_IS_READY_FIELD);
             if (!isReady) {
                 WebSocketUtil.readFirstFrame(connectionInfo.getWebSocketConnection(), wsConnector);
+                connectionInfo.getWebSocketEndpoint().getMapValue(WebSocketConstants.CLIENT_ENDPOINT_CONFIG).
+                        put(WebSocketConstants.CLIENT_READY_ON_CONNECT, true);
             } else {
                 return new WebSocketException("Already started reading frames");
             }

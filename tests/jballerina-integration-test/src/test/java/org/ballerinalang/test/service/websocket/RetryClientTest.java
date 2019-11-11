@@ -39,123 +39,72 @@ public class RetryClientTest extends WebSocketTestCommons {
     private String url =  "ws://localhost:21030";
     private int port = 15300;
 
-//    @Test(description = "Tests the retry function using webSocket client (starting the server " +
-//            ", sending and receiving text frames Afterthat restart that server and do the same)")
-//    public void testRetry() throws URISyntaxException, InterruptedException, BallerinaTestException {
-//        CountDownLatch countDownLatch = new CountDownLatch(1);
-//        String textSent = "hi all";
-//        remoteServer = new WebSocketRemoteServer(port);
-//        remoteServer.run();
-//        WebSocketTestClient client = new WebSocketTestClient(url);
-//        client.handshake();
-//        client.setCountDownLatch(countDownLatch);
-//        client.sendText(textSent);
-//        countDownLatch.await(TIMEOUT_IN_SECS, TimeUnit.SECONDS);
-//        Assert.assertEquals(client.getTextReceived(), textSent);
-//        remoteServer.stop();
-//        CountDownLatch latchForRestart = new CountDownLatch(1);
-//        remoteServer.run();
-//        latchForRestart.await(TIMEOUT_IN_SECS, TimeUnit.SECONDS);
-//        client.sendText(textSent);
-//        latchForRestart.await(TIMEOUT_IN_SECS, TimeUnit.SECONDS);
-//        Assert.assertEquals(client.getTextReceived(), textSent);
-//        remoteServer.stop();
-//        client.shutDown();
-//    }
-//
-//    @Test(description = "Tests the retry function with maximum count using webSocket client (starting the given" +
-//            " server, sending and receiving text frames Afterthat restart that server, sending and receiving" +
-//            " text frames. Again, restart that server, sending and receiving binary frames)")
-//    public void testMultipleRetryAttempts() throws URISyntaxException, InterruptedException, BallerinaTestException {
-//        CountDownLatch countDownLatch = new CountDownLatch(1);
-//        String text = "hi madam";
-//        ByteBuffer bufferData = ByteBuffer.wrap(new byte[]{1, 2, 3, 4, 6});
-//        remoteServer = new WebSocketRemoteServer(port);
-//        remoteServer.run();
-//        WebSocketTestClient client = new WebSocketTestClient(url);
-//        client.handshake();
-//        client.setCountDownLatch(countDownLatch);
-//        client.sendText(text);
-//        countDownLatch.await(TIMEOUT_IN_SECS, TimeUnit.SECONDS);
-//        Assert.assertEquals(client.getTextReceived(), text);
-//        remoteServer.stop();
-//        CountDownLatch latchForRestart = new CountDownLatch(1);
-//        remoteServer.run();
-//        latchForRestart.await(TIMEOUT_IN_SECS, TimeUnit.SECONDS);
-//        client.sendText(text);
-//        latchForRestart.await(TIMEOUT_IN_SECS, TimeUnit.SECONDS);
-//        Assert.assertEquals(client.getTextReceived(), text);
-//        remoteServer.stop();
-//        CountDownLatch countDownLatchForRestart = new CountDownLatch(1);
-//        remoteServer.run();
-//        countDownLatchForRestart.await(TIMEOUT_IN_SECS, TimeUnit.SECONDS);
-//        client.sendBinary(bufferData);
-//        countDownLatchForRestart.await(TIMEOUT_IN_SECS, TimeUnit.SECONDS);
-//        Assert.assertEquals(client.getBufferReceived(), bufferData);
-//        client.shutDown();
-//        remoteServer.stop();
-//    }
-//
-//    @Test(description = "Tests the retry function using webSocket client (starting the server " +
-//            ", sending and receiving binary frames Afterthat restart that server and do the same)")
-//    public void testBinaryFrameForRetryWithMaxCount() throws URISyntaxException, InterruptedException,
-//            BallerinaTestException {
-//        CountDownLatch countDownLatch = new CountDownLatch(1);
-//        ByteBuffer bufferSent = ByteBuffer.wrap(new byte[]{1, 2, 3, 4, 5});
-//        remoteServer = new WebSocketRemoteServer(port);
-//        remoteServer.run();
-//        WebSocketTestClient client = new WebSocketTestClient("ws://localhost:21031");
-//        client.handshake();
-//        client.setCountDownLatch(countDownLatch);
-//        client.sendBinary(bufferSent);
-//        countDownLatch.await(TIMEOUT_IN_SECS, TimeUnit.SECONDS);
-//        Assert.assertEquals(client.getBufferReceived(), bufferSent);
-//        remoteServer.stop();
-//        CountDownLatch latchForRestart = new CountDownLatch(1);
-//        latchForRestart.await(TIMEOUT_IN_SECS, TimeUnit.SECONDS);
-//        remoteServer.run();
-//        client.sendBinary(bufferSent);
-//        latchForRestart.await(TIMEOUT_IN_SECS, TimeUnit.SECONDS);
-//        Assert.assertNull(client.getBufferReceived());
-//        client.shutDown();
-//        remoteServer.stop();
-//    }
-//
-//    @Test(description = "Tests the countDownLatch for retry function using webSocket client (starting the server " +
-//     ", sending and receiving binary frames Afterthat restart that server and wait until six minutes)")
-//    public void testCoundownLatchForRetry() throws URISyntaxException, InterruptedException,
-//            BallerinaTestException {
-//        CountDownLatch countDownLatch = new CountDownLatch(1);
-//        ByteBuffer bufferSent = ByteBuffer.wrap(new byte[]{1, 2, 3, 4, 5});
-//        remoteServer = new WebSocketRemoteServer(port);
-//        remoteServer.run();
-//        WebSocketTestClient client = new WebSocketTestClient("ws://localhost:21032");
-//        client.handshake();
-//        client.setCountDownLatch(countDownLatch);
-//        client.sendBinary(bufferSent);
-//        countDownLatch.await(TIMEOUT_IN_SECS, TimeUnit.SECONDS);
-//        Assert.assertEquals(client.getBufferReceived(), bufferSent);
-//        remoteServer.stop();
-//        CountDownLatch latchForRestart = new CountDownLatch(1);
-//        latchForRestart.await(6, TimeUnit.MINUTES);
-//        remoteServer.run();
-//        latchForRestart.await(2, TimeUnit.MINUTES);
-//        client.sendBinary(bufferSent);
-//        latchForRestart.await(TIMEOUT_IN_SECS, TimeUnit.SECONDS);
-//        Assert.assertEquals(client.getBufferReceived(), bufferSent);
-//        client.shutDown();
-//        remoteServer.stop();
-//    }
+    @Test(description = "Tests the retry function using webSocket client (starting the server " +
+            ", sending and receiving text frames Afterthat restart that server and do the same)")
+    public void testRetry() throws URISyntaxException, InterruptedException, BallerinaTestException {
+        CountDownLatch countDownLatch = new CountDownLatch(1);
+        String textSent = "hi all";
+        remoteServer = new WebSocketRemoteServer(port);
+        remoteServer.run();
+        WebSocketTestClient client = new WebSocketTestClient(url);
+        client.handshake();
+        client.setCountDownLatch(countDownLatch);
+        client.sendText(textSent);
+        countDownLatch.await(TIMEOUT_IN_SECS, TimeUnit.SECONDS);
+        Assert.assertEquals(client.getTextReceived(), textSent);
+        remoteServer.stop();
+        CountDownLatch latchForRestart = new CountDownLatch(1);
+        remoteServer.run();
+        latchForRestart.await(TIMEOUT_IN_SECS, TimeUnit.SECONDS);
+        client.sendText(textSent);
+        latchForRestart.await(TIMEOUT_IN_SECS, TimeUnit.SECONDS);
+        Assert.assertEquals(client.getTextReceived(), textSent);
+        remoteServer.stop();
+        client.shutDown();
+    }
 
-    @Test(description = "Tests the countDownLatch for retry function using webSocket client (starting the server " +
-            ", sending and receiving binary frames Afterthat restart that server and wait until six minutes)")
-    public void testCoundownLatchForRetry1() throws URISyntaxException, InterruptedException,
+    @Test(description = "Tests the retry function with maximum count using webSocket client (starting the given" +
+            " server, sending and receiving text frames Afterthat restart that server, sending and receiving" +
+            " text frames. Again, restart that server, sending and receiving binary frames)")
+    public void testMultipleRetryAttempts() throws URISyntaxException, InterruptedException, BallerinaTestException {
+        CountDownLatch countDownLatch = new CountDownLatch(1);
+        String text = "hi madam";
+        ByteBuffer bufferData = ByteBuffer.wrap(new byte[]{1, 2, 3, 4, 6});
+        remoteServer = new WebSocketRemoteServer(port);
+        remoteServer.run();
+        WebSocketTestClient client = new WebSocketTestClient(url);
+        client.handshake();
+        client.setCountDownLatch(countDownLatch);
+        client.sendText(text);
+        countDownLatch.await(TIMEOUT_IN_SECS, TimeUnit.SECONDS);
+        Assert.assertEquals(client.getTextReceived(), text);
+        remoteServer.stop();
+        CountDownLatch latchForRestart = new CountDownLatch(1);
+        remoteServer.run();
+        latchForRestart.await(TIMEOUT_IN_SECS, TimeUnit.SECONDS);
+        client.sendText(text);
+        latchForRestart.await(TIMEOUT_IN_SECS, TimeUnit.SECONDS);
+        Assert.assertEquals(client.getTextReceived(), text);
+        remoteServer.stop();
+        CountDownLatch countDownLatchForRestart = new CountDownLatch(1);
+        remoteServer.run();
+        countDownLatchForRestart.await(TIMEOUT_IN_SECS, TimeUnit.SECONDS);
+        client.sendBinary(bufferData);
+        countDownLatchForRestart.await(TIMEOUT_IN_SECS, TimeUnit.SECONDS);
+        Assert.assertEquals(client.getBufferReceived(), bufferData);
+        client.shutDown();
+        remoteServer.stop();
+    }
+
+    @Test(description = "Tests the retry function using webSocket client (starting the server " +
+            ", sending and receiving binary frames Afterthat restart that server and do the same)")
+    public void testBinaryFrameForRetryWithMaxCount() throws URISyntaxException, InterruptedException,
             BallerinaTestException {
         CountDownLatch countDownLatch = new CountDownLatch(1);
         ByteBuffer bufferSent = ByteBuffer.wrap(new byte[]{1, 2, 3, 4, 5});
         remoteServer = new WebSocketRemoteServer(port);
         remoteServer.run();
-        WebSocketTestClient client = new WebSocketTestClient("ws://localhost:21034");
+        WebSocketTestClient client = new WebSocketTestClient("ws://localhost:21031");
         client.handshake();
         client.setCountDownLatch(countDownLatch);
         client.sendBinary(bufferSent);
@@ -163,12 +112,29 @@ public class RetryClientTest extends WebSocketTestCommons {
         Assert.assertEquals(client.getBufferReceived(), bufferSent);
         remoteServer.stop();
         CountDownLatch latchForRestart = new CountDownLatch(1);
-        remoteServer.run1();
-        latchForRestart.await(6, TimeUnit.MINUTES);
+        latchForRestart.await(TIMEOUT_IN_SECS, TimeUnit.SECONDS);
+        remoteServer.run();
         client.sendBinary(bufferSent);
         latchForRestart.await(TIMEOUT_IN_SECS, TimeUnit.SECONDS);
-        Assert.assertEquals(client.getBufferReceived(), bufferSent);
+        Assert.assertNull(client.getBufferReceived());
         client.shutDown();
+        remoteServer.stop();
+    }
+
+    @Test(description = "Tests readyOnConnect functionality")
+    public void testReadyOnConnect() throws URISyntaxException, InterruptedException,
+            BallerinaTestException {
+        String expected = "error {ballerina/http}WsGenericError message=Already started reading frames";
+        CountDownLatch countDownLatch = new CountDownLatch(1);
+        remoteServer = new WebSocketRemoteServer(port);
+        remoteServer.run();
+        WebSocketTestClient client = new WebSocketTestClient("ws://localhost:21034");
+        client.handshake();
+        client.setCountDownLatch(countDownLatch);
+        client.sendText("msg");
+        countDownLatch.await(20, TimeUnit.SECONDS);
+        String textReceived = client.getTextReceived();
+        Assert.assertEquals(textReceived, expected);
         remoteServer.stop();
     }
 }

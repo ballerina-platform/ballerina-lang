@@ -38,8 +38,8 @@ import org.ballerinalang.net.http.HttpErrorType;
 import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.net.http.websocket.client.FailoverContext;
 import org.ballerinalang.net.http.websocket.client.RetryContext;
-import org.ballerinalang.net.http.websocket.client.WebSocketClientConnectorListener;
 import org.ballerinalang.net.http.websocket.client.WebSocketClientHandshakeListener;
+import org.ballerinalang.net.http.websocket.client.WebSocketClientListener;
 import org.ballerinalang.net.http.websocket.client.WebSocketFailoverClientHandshakeListener;
 import org.ballerinalang.net.http.websocket.client.WebSocketFailoverClientListener;
 import org.ballerinalang.net.http.websocket.server.WebSocketConnectionInfo;
@@ -125,9 +125,9 @@ public class WebSocketUtil {
         });
     }
 
-    public static void readFirstFrame(WebSocketConnection webSocketConnection, ObjectValue wsClient) {
+    public static void readFirstFrame(WebSocketConnection webSocketConnection, ObjectValue wsConnector) {
         webSocketConnection.readNextFrame();
-        wsClient.set(WebSocketConstants.CONNECTOR_IS_READY_FIELD, true);
+        wsConnector.set(WebSocketConstants.CONNECTOR_IS_READY_FIELD, true);
     }
 
     /**
@@ -259,6 +259,11 @@ public class WebSocketUtil {
                 getMapValue(WebSocketConstants.RETRY_CONFIG) != null;
     }
 
+    /**
+     * Waits for 5 minutes before timeout.
+     *
+     * @param countDownLatch countDown latch
+     */
     private static void waitForHandshake(CountDownLatch countDownLatch) {
         try {
             // Wait for 5 minutes before timeout
@@ -275,13 +280,13 @@ public class WebSocketUtil {
     }
 
     /**
-     * Establish the connection with endpoint and set the listener into it.
+     * Establishes the ClientHandshakeFuture for failover client and set listeners into this.
      *
      * @param webSocketClient webSocket client
      * @param wsService webSocket service
      */
     public static void establishWebSocketConnection(ObjectValue webSocketClient, WebSocketService wsService) {
-        WebSocketClientConnectorListener clientConnectorListener = (WebSocketClientConnectorListener) webSocketClient.
+        WebSocketClientListener clientConnectorListener = (WebSocketClientListener) webSocketClient.
                 getNativeData(WebSocketConstants.CLIENT_LISTENER);
         WebSocketClientConnector clientConnector = (WebSocketClientConnector) webSocketClient.
                 getNativeData(WebSocketConstants.CLIENT_CONNECTOR);
@@ -304,7 +309,7 @@ public class WebSocketUtil {
     }
 
     /**
-     * Reconnect when webSocket connection is lost.
+     * Reconnects when webSocket connection is lost.
      *
      * @param connectionInfo information about the connection
      * @return if attempts reconnection, return true
@@ -338,7 +343,7 @@ public class WebSocketUtil {
     }
 
     /**
-     * Set waiting time before attempting to next reconnect.
+     * Sets waiting time before attempting to next reconnect.
      *
      * @param interval interval
      */
@@ -355,7 +360,7 @@ public class WebSocketUtil {
     }
 
     /**
-     * Calculate the waiting time.
+     * Calculates the waiting time.
      *
      * @param interval interval
      * @param maxInterval maximum Interval
@@ -372,7 +377,7 @@ public class WebSocketUtil {
     }
 
     /**
-     * Failover when webSocket connection is lost.
+     * Failover when webSocket connection lost.
      *
      * @param connectionInfo information about the connection
      * @return if attempts failover, return true
@@ -405,6 +410,13 @@ public class WebSocketUtil {
         return false;
     }
 
+    /**
+     * Establishes the ClientHandshakeFuture for failover client and set listeners into this.
+     *
+     * @param clientConnector client connector
+     * @param webSocketClient webSocket client
+     * @param wsService webSocket service
+     */
     public static void establishFailoverConnection(WebSocketClientConnector clientConnector,
                                                    ObjectValue webSocketClient, WebSocketService wsService) {
         WebSocketFailoverClientListener clientConnectorListener = new WebSocketFailoverClientListener();
@@ -426,6 +438,11 @@ public class WebSocketUtil {
         }
     }
 
+    /**
+     * Waits until call the countDown().
+     *
+     * @param webSocketClient webSocket client
+     */
     private static void waitForHandshake(ObjectValue webSocketClient) {
         if (webSocketClient.getNativeData(WebSocketConstants.COUNT_DOWN_LATCH) == null) {
             CountDownLatch countDownLatch = new CountDownLatch(1);
@@ -568,7 +585,7 @@ public class WebSocketUtil {
 
     public static void dispatchOnError(WebSocketConnectionInfo connectionInfo, Throwable throwable,
                                        CountDownLatch countDownLatch) {
-        logger.error("Error occurred: ", throwable);
+        logger.error(ERROR_MESSAGE, throwable);
         if (countDownLatch == null) {
             WebSocketUtil.countDownForHandshake(connectionInfo.getWebSocketEndpoint());
         }

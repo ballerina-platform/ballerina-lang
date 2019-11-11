@@ -36,8 +36,6 @@ import org.wso2.transport.http.netty.message.HttpCarbonResponse;
 import java.io.IOException;
 import java.util.concurrent.CountDownLatch;
 
-import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_HTTP_PKG_ID;
-
 /**
  * The handshake listener for the client.
  *
@@ -46,7 +44,7 @@ import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_HTTP_PKG_ID;
 public class WebSocketClientHandshakeListener implements ClientHandshakeListener {
 
     private final WebSocketService wsService;
-    private final WebSocketClientConnectorListener clientConnectorListener;
+    private final WebSocketClientListener clientConnectorListener;
     private final boolean readyOnConnect;
     private final ObjectValue webSocketClient;
     private final CountDownLatch countDownLatch;
@@ -55,7 +53,7 @@ public class WebSocketClientHandshakeListener implements ClientHandshakeListener
 
     public WebSocketClientHandshakeListener(ObjectValue webSocketClient,
                                             WebSocketService wsService,
-                                            WebSocketClientConnectorListener clientConnectorListener,
+                                            WebSocketClientListener clientConnectorListener,
                                             boolean readyOnConnect, CountDownLatch countDownLatch) {
         this.webSocketClient = webSocketClient;
         this.wsService = wsService;
@@ -72,16 +70,15 @@ public class WebSocketClientHandshakeListener implements ClientHandshakeListener
         }
         ObjectValue webSocketConnector;
         if (retryConfig != null && !retryConfig.isFirstConnectionMadeSuccessfully()) {
-            webSocketConnector = BallerinaValues.createObjectValue(HttpConstants.PROTOCOL_HTTP_PKG_ID,
-                    WebSocketConstants.WEBSOCKET_CONNECTOR);
+            webSocketConnector = WebSocketUtil.createWebSocketConnector(readyOnConnect);
         } else {
             webSocketConnector = (ObjectValue) webSocketClient.get(WebSocketConstants.CLIENT_CONNECTOR_FIELD);
         }
         setWebSocketClient(webSocketClient, carbonResponse, webSocketConnection, retryConfig);
-        clientConnectorListener.setConnectionInfo(getWebSocketOpenConnectionInfo(webSocketConnection,
+        clientConnectorListener.setConnectionInfo(WebSocketUtil.getWebSocketOpenConnectionInfo(webSocketConnection,
                 webSocketConnector, webSocketClient, wsService));
         // Read the next frame when readyOnConnect is true or isReady is true
-        readNextFrame(readyOnConnect, webSocketClient, webSocketConnection, retryConfig);
+        WebSocketUtil.readNextFrame(readyOnConnect, webSocketClient, webSocketConnection);
         if (countDownLatch == null) {
             countDownForHandshake(webSocketClient);
         } else {
@@ -102,26 +99,15 @@ public class WebSocketClientHandshakeListener implements ClientHandshakeListener
         if (response != null) {
             webSocketClient.set(WebSocketConstants.CLIENT_RESPONSE_FIELD, HttpUtil.createResponseStruct(response));
         }
-        ObjectValue webSocketConnector = BallerinaValues.createObjectValue(PROTOCOL_HTTP_PKG_ID,
+        ObjectValue webSocketConnector = BallerinaValues.createObjectValue(HttpConstants.PROTOCOL_HTTP_PKG_ID,
                                                                            WebSocketConstants.WEBSOCKET_CONNECTOR);
-        WebSocketConnectionInfo connectionInfo = getWebSocketOpenConnectionInfo(null,
+        WebSocketConnectionInfo connectionInfo = WebSocketUtil.getWebSocketOpenConnectionInfo(null,
                 webSocketConnector, webSocketClient, wsService);
         if (throwable instanceof IOException && WebSocketUtil.hasRetryConfig(webSocketClient) &&
                 WebSocketUtil.reconnect(connectionInfo)) {
                 return;
         }
         dispatchOnError(connectionInfo, throwable);
-    }
-
-    private static WebSocketConnectionInfo getWebSocketOpenConnectionInfo(WebSocketConnection webSocketConnection,
-                                                                         ObjectValue webSocketConnector,
-                                                                         ObjectValue webSocketClient,
-                                                                         WebSocketService wsService) {
-        WebSocketConnectionInfo connectionInfo = new WebSocketConnectionInfo(
-                wsService, webSocketConnection, webSocketClient);
-        webSocketConnector.addNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_CONNECTION_INFO, connectionInfo);
-        webSocketClient.set(WebSocketConstants.CLIENT_CONNECTOR_FIELD, webSocketConnector);
-        return connectionInfo;
     }
 
     private static void setWebSocketClient(ObjectValue webSocketClient, HttpCarbonResponse carbonResponse,
@@ -132,24 +118,6 @@ public class WebSocketClientHandshakeListener implements ClientHandshakeListener
             webSocketClient.set(WebSocketConstants.LISTENER_ID_FIELD, webSocketConnection.getChannelId());
         } else {
             WebSocketUtil.populateWebSocketEndpoint(webSocketConnection, webSocketClient);
-        }
-    }
-
-    /**
-     * Call the readNextFrame().
-     *
-     * @param readyOnConnect ready on connect
-     * @param webSocketClient webSocket client
-     * @param webSocketConnection webSocket connection
-     */
-    private static void readNextFrame(boolean readyOnConnect, ObjectValue webSocketClient,
-                                      WebSocketConnection webSocketConnection, RetryContext retryConfig) {
-        if (readyOnConnect || ((boolean) (webSocketClient.get(WebSocketConstants.CONNECTOR_IS_READY_FIELD)))) {
-            if (retryConfig != null && !retryConfig.isFirstConnectionMadeSuccessfully()) {
-                WebSocketUtil.readFirstFrame(webSocketConnection, webSocketClient);
-            } else {
-                webSocketConnection.readNextFrame();
-            }
         }
     }
 

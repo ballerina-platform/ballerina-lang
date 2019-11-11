@@ -15,37 +15,35 @@
 // under the License.
 
 import ballerina/http;
+import ballerina/io;
 
 @http:WebSocketServiceConfig {
 }
 service on new http:Listener(21034) {
 
     resource function onOpen(http:WebSocketCaller wsEp) {
-        http:WebSocketClient wsClientEp = new("ws://localhost:21033/websocket", { callbackService:
-        cowntDownService, readyOnConnect: false, retryConfig: {intervalInMillis: 60000}});
+        http:WebSocketClient wsClientEp = new("ws://localhost:15300/websocket", { callbackService:
+            readyOnConnectService, readyOnConnect: true, retryConfig: {}});
         wsEp.setAttribute(ASSOCIATED_CONNECTION, wsClientEp);
         wsClientEp.setAttribute(ASSOCIATED_CONNECTION, wsEp);
-        var returnVal = wsClientEp->ready();
-        if (returnVal is http:WebSocketError) {
-            panic returnVal;
-        }
     }
 
     resource function onText(http:WebSocketCaller wsEp, string text) {
         http:WebSocketClient clientEp = getAssociatedClientEndpoint(wsEp);
-        var returnVal = clientEp->pushText(text);
-        if (returnVal is http:WebSocketError) {
-            panic returnVal;
+        var returnVal = clientEp->ready();
+        if (returnVal is error) {
+            checkpanic wsEp->pushText(returnVal.toString());
         }
     }
 }
 
-service cowntDownService = @http:WebSocketServiceConfig {} service {
-    resource function onText(http:WebSocketClient wsEp, string text) {
-        http:WebSocketCaller serviceEp = getAssociatedListener(wsEp);
-        var returnVal = serviceEp->pushText(text);
-        if (returnVal is http:WebSocketError) {
-            panic returnVal;
+service readyOnConnectService = @http:WebSocketServiceConfig {} service {
+    resource function onError(http:WebSocketClient clientCaller, error err) {
+        http:WebSocketCaller? caller = serverCaller;
+        if (caller is http:WebSocketCaller) {
+            checkpanic caller->pushText(err.toString());
+        } else {
+            io:println("serverCaller has not been set");
         }
     }
 };

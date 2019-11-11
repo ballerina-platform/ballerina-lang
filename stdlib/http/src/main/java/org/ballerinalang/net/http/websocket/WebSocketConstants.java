@@ -81,6 +81,8 @@ public class WebSocketConstants {
     public static final String CONNECTOR_FACTORY = "connectorFactory";
     public static final String FAILOVER_WEBSOCKET_CLIENT = "WebSocketFailoverClient";
     public static final String CONNECTED_TO = "Connected to ";
+    public static final String FULL_FAILOVER_WEBSOCKET_CLIENT_NAME = BLangConstants.BALLERINA_PACKAGE_PREFIX +
+    PACKAGE_HTTP + SEPARATOR + FAILOVER_WEBSOCKET_CLIENT;
 
     public static final String COMPRESSION_ENABLED_CONFIG = "webSocketCompressionEnabled";
 

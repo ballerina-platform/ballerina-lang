@@ -89,7 +89,7 @@ public class InitEndpoint {
         WebSocketUtil.populateClientConnectorConfig(clientEndpointConfig, clientConnectorConfig, scheme);
         // Create the client connector
         WebSocketClientConnector clientConnector = connectorFactory.createWsClientConnector(clientConnectorConfig);
-        WebSocketClientConnectorListener clientConnectorListener = new WebSocketClientConnectorListener();
+        WebSocketClientListener clientConnectorListener = new WebSocketClientListener();
         // Add client connector as a native data, when client is not as a failover client
         // Because when using one url  no need to create the client connector again
         webSocketClient.addNativeData(WebSocketConstants.CLIENT_CONNECTOR, clientConnector);
