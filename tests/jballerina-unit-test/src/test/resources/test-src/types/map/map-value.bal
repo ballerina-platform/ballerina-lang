@@ -73,32 +73,3 @@ function testEchoAny(any value)returns (string) {
     string stringVal = <string> value;
     return stringVal;
 }
-
-function testMapSynchronization() returns (int) {
-    map<any> m = {};
-
-    fork {
-        worker w1 {
-            int i = 0;
-            while (i < 1000) {
-                string key = "a" + i.toString();
-                string value = "foo" + i.toString();
-                m[key] = value;
-                i = i + 1;
-            }
-        }
-        worker w2 {
-            int j = 0;
-            while (j < 1000) {
-                string key = "b" + j.toString();
-                string value = "bar" + j.toString();
-                m[key] = value;
-                j = j + 1;
-            }
-        }
-    }
-
-    _ = wait {w1, w2};
-
-    return m.length();
-}

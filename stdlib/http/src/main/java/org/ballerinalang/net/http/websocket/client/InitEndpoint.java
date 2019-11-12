@@ -29,8 +29,8 @@ import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.net.http.websocket.WebSocketConstants;
 import org.ballerinalang.net.http.websocket.WebSocketException;
+import org.ballerinalang.net.http.websocket.WebSocketService;
 import org.ballerinalang.net.http.websocket.WebSocketUtil;
-import org.ballerinalang.net.http.websocket.server.WebSocketService;
 import org.ballerinalang.stdlib.io.utils.IOConstants;
 import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
 import org.wso2.transport.http.netty.contract.websocket.ClientHandshakeFuture;
@@ -144,8 +144,8 @@ public class InitEndpoint {
 
     private static Map<String, String> getCustomHeaders(MapValue<String, Object> headers) {
         Map<String, String> customHeaders = new HashMap<>();
-        headers.keySet().forEach(
-                key -> customHeaders.put(key, headers.get(key).toString())
+        headers.entrySet().forEach(
+                entry -> customHeaders.put(entry.getKey(), headers.get(entry.getKey()).toString())
         );
         return customHeaders;
     }

@@ -55,7 +55,7 @@ public class CancelWebSocketUpgrade {
         NonBlockingCallback callback = new NonBlockingCallback(strand);
         try {
             WebSocketHandshaker webSocketHandshaker =
-                    (WebSocketHandshaker) connectionObj.getNativeData(WebSocketConstants.WEBSOCKET_MESSAGE);
+                    (WebSocketHandshaker) connectionObj.getNativeData(WebSocketConstants.WEBSOCKET_HANDSHAKER);
             if (webSocketHandshaker == null) {
                 callback.notifyFailure(new WebSocketException(WebSocketConstants.ErrorCode.WsInvalidHandshakeError,
                                               "Not a WebSocket upgrade request. Cannot cancel the request"));

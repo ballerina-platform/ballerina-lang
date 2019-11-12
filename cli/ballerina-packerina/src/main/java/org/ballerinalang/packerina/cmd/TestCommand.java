@@ -27,8 +27,8 @@ import org.ballerinalang.packerina.task.CompileTask;
 import org.ballerinalang.packerina.task.CopyModuleJarTask;
 import org.ballerinalang.packerina.task.CopyNativeLibTask;
 import org.ballerinalang.packerina.task.CreateBaloTask;
-import org.ballerinalang.packerina.task.CreateBinariesTask;
 import org.ballerinalang.packerina.task.CreateBirTask;
+import org.ballerinalang.packerina.task.CreateJarTask;
 import org.ballerinalang.packerina.task.CreateTargetDirTask;
 import org.ballerinalang.packerina.task.RunTestsTask;
 import org.ballerinalang.tool.BLauncherCmd;
@@ -125,9 +125,6 @@ public class TestCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--debug", description = "start Ballerina in remote debugging mode")
     private String debugPort;
 
-    @CommandLine.Option(names = {"--config"}, description = "Path to the configuration file when running tests.")
-    private String configFilePath;
-
     public void execute() {
         if (this.helpFlag) {
             String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(TEST_COMMAND);
@@ -143,7 +140,7 @@ public class TestCommand implements BLauncherCmd {
             CommandUtil.printError(this.errStream,
                     "too many arguments.",
                     "ballerina test [--offline] [--sourceroot <path>] [--experimental] [--skip-lock]\n" +
-                           "                      [--config <config_file>] [<module-name> | -a | --all]",
+                           "                      [<module-name> | -a | --all]  [--] [(--key=value)...]",
                     false);
 
             CommandUtil.exitError(this.exitWhenFinish);
@@ -276,7 +273,8 @@ public class TestCommand implements BLauncherCmd {
                 .addTask(new CreateBirTask())   // create the bir
                 .addTask(new CopyNativeLibTask(skipCopyLibsFromDist))    // copy the native libs(projects only)
                 // create the jar.
-                .addTask(new CreateBinariesTask(this.dumpBIR, this.nativeBinary, this.dumpLLVMIR, this.noOptimizeLLVM))
+                .addTask(new CreateJarTask(this.dumpBIR, this.skipCopyLibsFromDist, this.nativeBinary, this.dumpLLVMIR,
+                        this.noOptimizeLLVM))
                 .addTask(new CopyModuleJarTask(skipCopyLibsFromDist))
                 .addTask(new RunTestsTask()) // run tests
                 .build();
@@ -300,7 +298,8 @@ public class TestCommand implements BLauncherCmd {
 
     @Override
     public void printUsage(StringBuilder out) {
-        out.append("  ballerina test [<module-name>] \n");
+        out.append(" ballerina test [--offline] [--sourceroot <path>] [--experimental] [--skip-lock]\n" +
+                           "[<module-name> | -a | --all] [--] [(--key=value)...]\n");
     }
 
     @Override

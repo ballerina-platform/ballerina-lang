@@ -20,7 +20,7 @@
                                         "character": 3
                                     }
                                 },
-                                "newText": "(int, string) c = "
+                                "newText": "[int, string] twoIntegers2 = "
                             }
                         ]
                     }

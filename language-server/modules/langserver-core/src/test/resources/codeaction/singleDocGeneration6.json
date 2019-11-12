@@ -1,0 +1,35 @@
+{
+  "range": {
+    "start": {
+      "line": 36,
+      "character": 17
+    },
+    "end": {
+      "line": 36,
+      "character": 17
+    }
+  },
+  "expected": {
+    "size": 2,
+    "actions": {
+      "documentThis": {
+        "title": "Document This",
+        "command": "ADD_DOC",
+        "arguments": [
+          {
+            "argumentK": "node.type",
+            "argumentV": "OBJECT_FUNCTION"
+          },
+          {
+            "argumentK": "node.line",
+            "argumentV": "36"
+          }
+        ]
+      },
+      "documentAll": {
+        "title": "Document All",
+        "command": "ADD_ALL_DOC"
+      }
+    }
+  }
+}

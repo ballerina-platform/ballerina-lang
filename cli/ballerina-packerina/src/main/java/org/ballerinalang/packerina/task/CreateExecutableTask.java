@@ -23,27 +23,29 @@ import org.ballerinalang.packerina.buildcontext.BuildContextField;
 import org.ballerinalang.packerina.buildcontext.sourcecontext.SingleFileContext;
 import org.ballerinalang.packerina.buildcontext.sourcecontext.SingleModuleContext;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
-import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 import org.wso2.ballerinalang.util.Lists;
 
-import java.io.File;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.net.URI;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardCopyOption;
+import java.nio.file.StandardOpenOption;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Optional;
 
 import static org.ballerinalang.tool.LauncherUtils.createLauncherException;
-import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_COMPILED_JAR_EXT;
 
 /**
  * Task for creating the executable jar file.
@@ -52,15 +54,6 @@ public class CreateExecutableTask implements Task {
     
     private static HashSet<String> excludeExtensions =  new HashSet<>(Lists.of("DSA", "SF"));
 
-    private boolean skipCopyLibsFromDist = false;
-
-    public CreateExecutableTask(boolean skipCopyLibsFromDist) {
-        this.skipCopyLibsFromDist = skipCopyLibsFromDist;
-    }
-
-    public CreateExecutableTask() {
-    }
-    
     @Override
     public void execute(BuildContext buildContext) {
         Optional<BLangPackage> modulesWithEntryPoints = buildContext.getModules().stream()
@@ -78,10 +71,7 @@ public class CreateExecutableTask implements Task {
                     URI uberJarUri = URI.create("jar:" + executablePath.toUri().toString());
                     // Load the to jar to a file system
                     try (FileSystem toFs = FileSystems.newFileSystem(uberJarUri, Collections.emptyMap())) {
-                        if (!skipCopyLibsFromDist) {
-                            copyRuntimeAllJar(buildContext, toFs);
-                        }
-                        assembleExecutable(buildContext, module, toFs);
+                        assembleExecutable(module, buildContext.moduleDependencyPathMap.get(module.packageID), toFs);
                     } catch (IOException e) {
                         throw createLauncherException("unable to extract the uber jar :" + e.getMessage());
                     }
@@ -115,29 +105,13 @@ public class CreateExecutableTask implements Task {
             throw createLauncherException("unable to copy the jar from cache path :" + e.getMessage());
         }
     }
-
-    private void copyRuntimeAllJar(BuildContext buildContext, FileSystem toFs) {
-        String balHomePath = buildContext.get(BuildContextField.HOME_REPO).toString();
-        String ballerinaVersion = System.getProperty("ballerina.version");
-        String runtimeJarName = "ballerina-rt-" + ballerinaVersion + BLANG_COMPILED_JAR_EXT;
-        Path runtimeAllJar = Paths.get(balHomePath, "bre", "lib", runtimeJarName);
-        try {
-            copyFromJarToJar(runtimeAllJar, toFs);
-        } catch (IOException e) {
-            throw createLauncherException("unable to copy the ballerina runtime all jar :" + e.getMessage());
-        }
-    }
     
-    private void assembleExecutable(BuildContext buildContext, BLangPackage bLangPackage, FileSystem toFs) {
+    private void assembleExecutable(BLangPackage bLangPackage, HashSet<Path> dependencySet, FileSystem toFs) {
         try {
-            Path targetDir = buildContext.get(BuildContextField.TARGET_DIR);
-            Path tmpDir = targetDir.resolve(ProjectDirConstants.TARGET_TMP_DIRECTORY);
             // Check if the package has an entry point.
             if (bLangPackage.symbol.entryPointExists) {
-                for (File file : tmpDir.toFile().listFiles()) {
-                    if (!file.isDirectory()) {
-                        copyFromJarToJar(file.toPath(), toFs);
-                    }
+                for (Path path : dependencySet) {
+                    copyFromJarToJar(path, toFs);
                 }
             }
             // Copy dependency jar
@@ -159,20 +133,20 @@ public class CreateExecutableTask implements Task {
             Files.walkFileTree(from, new Copy(from, to));
         }
     }
-    
+
     static class Copy extends SimpleFileVisitor<Path> {
         private Path fromPath;
         private Path toPath;
         private StandardCopyOption copyOption;
         
         
-        public Copy(Path fromPath, Path toPath, StandardCopyOption copyOption) {
+        Copy(Path fromPath, Path toPath, StandardCopyOption copyOption) {
             this.fromPath = fromPath;
             this.toPath = toPath;
             this.copyOption = copyOption;
         }
         
-        public Copy(Path fromPath, Path toPath) {
+        Copy(Path fromPath, Path toPath) {
             this(fromPath, toPath, StandardCopyOption.REPLACE_EXISTING);
         }
         
@@ -184,17 +158,32 @@ public class CreateExecutableTask implements Task {
             }
             return FileVisitResult.CONTINUE;
         }
-        
-        @Override
-        public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-            Path toFile = toPath.resolve(fromPath.relativize(file).toString());
-            String fileName = toFile.getFileName().toString();
-            if ((!Files.exists(toFile) &&
-                    !excludeExtensions.contains(fileName.substring(fileName.lastIndexOf(".") + 1))) ||
-                    toFile.toString().startsWith("/META-INF/services")) {
-                Files.copy(file, toFile, copyOption);
-            }
-            return FileVisitResult.CONTINUE;
-        }
-    }
+
+         @Override
+         public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+             Path toFile = toPath.resolve(fromPath.relativize(file).toString());
+             String fileName = toFile.getFileName().toString();
+             if ((!Files.exists(toFile) &&
+                     !excludeExtensions.contains(fileName.substring(fileName.lastIndexOf(".") + 1)))) {
+                 Files.copy(file, toFile, copyOption);
+             } else if (toFile.toString().startsWith("/META-INF/services")) {
+                 this.mergeSPIFiles(file, toFile);
+             }
+             return FileVisitResult.CONTINUE;
+         }
+
+         private void mergeSPIFiles(Path fromFilePath, Path toFilePath) throws IOException {
+             // Merge the spi implementations for each service file.
+             try (BufferedReader fromBr = new BufferedReader(new InputStreamReader(Files
+                     .newInputStream(fromFilePath), StandardCharsets.UTF_8));
+                  BufferedWriter toBw = new BufferedWriter(new OutputStreamWriter(Files
+                          .newOutputStream(toFilePath, StandardOpenOption.APPEND), StandardCharsets.UTF_8))) {
+                 String text;
+                 while ((text = fromBr.readLine()) != null) {
+                     toBw.newLine();
+                     toBw.write(text);
+                 }
+             }
+         }
+     }
 }

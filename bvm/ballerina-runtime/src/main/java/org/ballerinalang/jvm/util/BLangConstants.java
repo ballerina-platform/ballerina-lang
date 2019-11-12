@@ -136,15 +136,13 @@ public class BLangConstants {
 
     // runtime related error message constant values
     public static final String INTERNAL_ERROR_MESSAGE =
-            "ballerina: Oh no, something really went wrong. Bad. Sad.\n" +
+            "ballerina: Oh no, something really went wrong.\n" +
             "\n" +
-            "There should be a file named \"ballerina-internal.log\" in the current directory.\n" +
-            "If you are able to share with us the code that broke Ballerina then\n" +
-            "we would REALLY appreciate if you would report this to us:\n" +
-            "go to https://github.com/ballerina-platform/ballerina-lang/issues and\n" +
-            "create a bug report with both this log file and the sample code.\n" +
-            "\n" +
-            "We thank you for helping make us better dancers.";
+            "The `ballerina-internal.log` file located in the current directory\n" + 
+            "will indicate what the problem is.\n" +
+            "We really appreciate it if you can share with us, the code\n" +
+            "that broke Ballerina, together with this log file by creating a\n" +
+            "bug report in https://github.com/ballerina-platform/ballerina-lang/issues.\n";
 
     public static final String DEFAULT_LOG_FILE_HANDLER_PATTERN =
             "org.ballerinalang.logging.handlers.DefaultLogFileHandler.pattern";

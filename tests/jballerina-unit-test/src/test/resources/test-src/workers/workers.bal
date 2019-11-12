@@ -97,6 +97,24 @@ public function receiveWithTrap() returns error|int {
    return ret;
 }
 
+public function syncSendReceiveWithTrap() returns int|error {
+    worker w1 {
+        int i = 2;
+        if true {
+            panic error("sync send err", message = "err msg");
+        }
+        i ->> w2;
+   }
+
+    worker w2 returns error|int {
+        int|error  j = trap <- w1;
+        return j;
+    }
+
+   int|error ret = wait w2;
+   return ret;
+}
+
 public function receiveWithCheck() returns error|int {
     worker w1 returns boolean|error{
       int i = 2;
@@ -115,6 +133,59 @@ public function receiveWithCheck() returns error|int {
     }
 
     return wait w2;
+}
+
+public function syncSendReceiveWithCheck() returns int|error {
+    worker w1 returns boolean|error {
+        int i = 2;
+        if (true) {
+            return error("sync send err", message = "err msg");
+        }
+        i -> w2;
+        return false;
+    }
+
+    worker w2 returns error? {
+        int j = check <- w1;
+    }
+
+    return wait w2;
+}
+
+public function receiveWithCheckpanic() {
+    worker w1 returns boolean|error {
+        int i = 2;
+        if (true) {
+            error err = error("err", message = "err msg");
+            return err;
+        }
+        i -> w2;
+        return false;
+    }
+
+    worker w2 {
+        int j = checkpanic <- w1;
+    }
+
+    wait w2;
+}
+
+public function syncSendReceiveWithCheckpanic() {
+    worker w1 returns boolean|error {
+        int i = 2;
+        if (true) {
+            error err = error("err", message = "sync send err msg");
+            return err;
+        }
+        i ->> w2;
+        return false;
+    }
+
+    worker w2 {
+        int j = checkpanic <- w1;
+    }
+
+    wait w2;
 }
 
 public function sendToDefaultWithPanicBeforeSendInWorker() returns int {

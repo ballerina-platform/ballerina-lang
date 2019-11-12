@@ -193,11 +193,11 @@ public class ErrorVariableReferenceTest {
         Assert.assertEquals(returns[i++].stringValue(), "/usr/bhah/a.log");
         Assert.assertEquals(returns[i++].stringValue(), "45221");
         Assert.assertEquals(returns[i++].stringValue(), "128");
-        Assert.assertEquals(returns[i++].stringValue(), "{\"message\":\"file open failed\", " +
-                "\"targetFileName\":\"/usr/bhah/a.log\", \"errorCode\":45221, \"flags\":128, \"cause\":c {}}");
+        Assert.assertEquals(returns[i++].stringValue(), "{\"message\":\"file open failed\", \"cause\":c {}, " +
+                "\"targetFileName\":\"/usr/bhah/a.log\", \"errorCode\":45221, \"flags\":128}");
         Assert.assertEquals(returns[i++].stringValue(), "file open failed");
-        Assert.assertEquals(returns[i++].stringValue(), "{\"targetFileName\":\"/usr/bhah/a.log\", " +
-                "\"errorCode\":45221, \"flags\":128, \"cause\":c {}}");
+        Assert.assertEquals(returns[i++].stringValue(), "{\"cause\":c {}, \"targetFileName\":\"/usr/bhah/a.log\", " +
+                "\"errorCode\":45221, \"flags\":128}");
     }
 
     @Test
@@ -225,7 +225,7 @@ public class ErrorVariableReferenceTest {
         BAssertUtil.validateError(resultNegative, ++i, incompatibleTypes +
                 "expected '[any,string,map,[error,any]]', found '[int,string,error,[error,Foo]]'", 79, 58);
         BAssertUtil.validateError(resultNegative, ++i, incompatibleTypes + "expected 'Bar', " +
-                "found 'record {| string message?; $error0 cause?; (anydata|error)...; |}'", 93, 32);
+                "found 'record {| string message?; error cause?; (anydata|error)...; |}'", 93, 32);
         BAssertUtil.validateError(resultNegative, ++i,
                 incompatibleTypes + "expected 'boolean', found 'string'", 94, 20);
         BAssertUtil.validateError(resultNegative, ++i, "invalid binding pattern, variable reference " +

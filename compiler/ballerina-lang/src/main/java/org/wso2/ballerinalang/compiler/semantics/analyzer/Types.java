@@ -343,7 +343,7 @@ public class Types {
         if (target.tag == TypeTags.RECORD) {
             if (source.tag == TypeTags.RECORD) {
                 TypePair pair = new TypePair(source, target);
-                List<TypePair> unresolvedTypes = new ArrayList<>();
+                Set<TypePair> unresolvedTypes = new HashSet<>();
                 unresolvedTypes.add(pair);
                 return checkRecordEquivalencyForStamping((BRecordType) source, (BRecordType) target, unresolvedTypes);
             } else if (source.tag == TypeTags.MAP) {
@@ -390,7 +390,7 @@ public class Types {
     }
 
     private boolean checkRecordEquivalencyForStamping(BRecordType rhsType, BRecordType lhsType,
-                                                      List<TypePair> unresolvedTypes) {
+                                                      Set<TypePair> unresolvedTypes) {
         // Both records should be public or private.
         // Get the XOR of both flags(masks)
         // If both are public, then public bit should be 0;
@@ -419,7 +419,7 @@ public class Types {
     }
 
     private boolean checkFieldEquivalencyForStamping(BStructureType lhsType, BStructureType rhsType,
-                                                     List<TypePair> unresolvedTypes) {
+                                                     Set<TypePair> unresolvedTypes) {
         Map<Name, BField> rhsFields = rhsType.fields.stream().collect(
                 Collectors.toMap(BField::getName, field -> field));
 
@@ -519,8 +519,7 @@ public class Types {
 
         if (target.tag == TypeTags.MAP && source.tag == TypeTags.RECORD) {
             BRecordType recordType = (BRecordType) source;
-            BMapType mapType = (BMapType) target;
-            return isAssignableRecordType(recordType, mapType);
+            return isAssignableRecordType(recordType, (BMapType) target);
         }
 
         if (target.getKind() == TypeKind.SERVICE && source.getKind() == TypeKind.SERVICE) {
@@ -622,9 +621,17 @@ public class Types {
                 isArrayTypesAssignable(source, target, unresolvedTypes);
     }
 
-    private boolean isAssignableRecordType(BRecordType recordType, BMapType mapType) {
-        return  recordType.fields.stream().allMatch(field -> isAssignable(field.type, mapType.constraint)) &&
-                isAssignable(recordType.restFieldType, mapType.constraint);
+    private boolean isAssignableRecordType(BRecordType recordType, BMapType targetMapType) {
+        if (recordType.sealed) {
+            return recordFieldsAssignableToMap(recordType, targetMapType);
+        } else {
+            return isAssignable(recordType.restFieldType, targetMapType.constraint)
+                    && recordFieldsAssignableToMap(recordType, targetMapType);
+        }
+    }
+
+    private boolean recordFieldsAssignableToMap(BRecordType recordType, BMapType targetMapType) {
+        return recordType.fields.stream().allMatch(field -> isAssignable(field.type, targetMapType.constraint));
     }
 
     private boolean isErrorTypeAssignable(BErrorType source, BErrorType target, Set<TypePair> unresolvedTypes) {

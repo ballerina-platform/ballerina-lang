@@ -38,7 +38,7 @@ public class NotifyRemoteParticipantOnFailure {
 
     public static void notifyRemoteParticipantOnFailure(Strand strand) {
         org.ballerinalang.jvm.transactions.TransactionLocalContext transactionLocalContext =
-                strand.getLocalTransactionContext();
+                strand.transactionLocalContext;
         if (transactionLocalContext == null) {
             return;
         }

@@ -28,9 +28,9 @@ import org.ballerinalang.packerina.task.CopyExecutableTask;
 import org.ballerinalang.packerina.task.CopyModuleJarTask;
 import org.ballerinalang.packerina.task.CopyNativeLibTask;
 import org.ballerinalang.packerina.task.CreateBaloTask;
-import org.ballerinalang.packerina.task.CreateBinariesTask;
 import org.ballerinalang.packerina.task.CreateBirTask;
 import org.ballerinalang.packerina.task.CreateExecutableTask;
+import org.ballerinalang.packerina.task.CreateJarTask;
 import org.ballerinalang.packerina.task.CreateLockFileTask;
 import org.ballerinalang.packerina.task.CreateTargetDirTask;
 import org.ballerinalang.packerina.task.PrintExecutablePathTask;
@@ -56,6 +56,7 @@ import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
 import static org.ballerinalang.compiler.CompilerOptionName.EXPERIMENTAL_FEATURES_ENABLED;
 import static org.ballerinalang.compiler.CompilerOptionName.LOCK_ENABLED;
 import static org.ballerinalang.compiler.CompilerOptionName.OFFLINE;
+import static org.ballerinalang.compiler.CompilerOptionName.PRESERVE_WHITESPACE;
 import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
 import static org.ballerinalang.compiler.CompilerOptionName.SKIP_TESTS;
 import static org.ballerinalang.compiler.CompilerOptionName.TEST_ENABLED;
@@ -144,7 +145,7 @@ public class BuildCommand implements BLauncherCmd {
     private boolean dumpLLVMIR;
 
     @CommandLine.Option(names = "--no-optimize-llvm", hidden = true)
-    private boolean noOptimizeLLVM;
+    private boolean noOptimizeLlvm;
 
     @CommandLine.Option(names = {"--help", "-h"}, hidden = true)
     private boolean helpFlag;
@@ -152,11 +153,8 @@ public class BuildCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--experimental", description = "Enable experimental language features.")
     private boolean experimentalFlag;
 
-    @CommandLine.Option(names = {"--config"}, description = "Path to the configuration file when running tests.")
-    private String configFilePath;
-
     private static final String buildCmd = "ballerina build [-o <output>] [--sourceroot] [--offline] [--skip-tests]\n" +
-            "                    [--skip-lock] {<ballerina-file | module-name> | -a | --all}";
+            "                    [--skip-lock] {<ballerina-file | module-name> | -a | --all} [--] [(--key=value)...]";
 
     public void execute() {
         if (this.helpFlag) {
@@ -174,15 +172,6 @@ public class BuildCommand implements BLauncherCmd {
             CommandUtil.exitError(this.exitWhenFinish);
             return;
         }
-        
-        /*if (this.nativeBinary) {
-            CommandUtil.printError(this.errStream,
-                    "LLVM native generation is not supported.",
-                    null,
-                    false);
-            CommandUtil.exitError(this.exitWhenFinish);
-            return;
-        }*/
     
         // if -a or --all flag is not given, then it is mandatory to give a module name or ballerina file as arg.
         if (!this.buildAll && (this.argList == null || this.argList.size() == 0)) {
@@ -365,6 +354,7 @@ public class BuildCommand implements BLauncherCmd {
         options.put(SKIP_TESTS, Boolean.toString(this.skipTests));
         options.put(TEST_ENABLED, "true");
         options.put(EXPERIMENTAL_FEATURES_ENABLED, Boolean.toString(this.experimentalFlag));
+        options.put(PRESERVE_WHITESPACE, "true");
         // create builder context
         BuildContext buildContext = new BuildContext(this.sourceRootPath, targetPath, sourcePath, compilerContext);
         buildContext.setOut(outStream);
@@ -384,11 +374,12 @@ public class BuildCommand implements BLauncherCmd {
                 .addTask(new CreateBirTask())   // create the bir
                 .addTask(new CopyNativeLibTask(skipCopyLibsFromDist))    // copy the native libs(projects only)
                 // create the jar.
-                .addTask(new CreateBinariesTask(this.dumpBIR, this.nativeBinary, this.dumpLLVMIR, this.noOptimizeLLVM))
+                .addTask(new CreateJarTask(this.dumpBIR, skipCopyLibsFromDist, this.nativeBinary, this.dumpLLVMIR,
+                        this.noOptimizeLlvm))
                 .addTask(new CopyModuleJarTask(skipCopyLibsFromDist))
                 .addTask(new RunTestsTask(), this.skipTests || isSingleFileBuild) // run tests
                                                                                                 // (projects only)
-                .addTask(new CreateExecutableTask(skipCopyLibsFromDist), this.compile)  // create the executable.jar
+                .addTask(new CreateExecutableTask(), this.compile)  // create the executable.jar
                                                                                         // file
                 .addTask(new CopyExecutableTask(outputPath), !isSingleFileBuild)    // copy executable
                 .addTask(new PrintExecutablePathTask(), this.compile)   // print the location of the executable
@@ -427,7 +418,7 @@ public class BuildCommand implements BLauncherCmd {
     @Override
     public void printUsage(StringBuilder out) {
         out.append("  ballerina build [-o <output-file>] [--offline] [--skip-tests] [--skip-lock] " +
-                   "{<ballerina-file | module-name> | -a | --all} \n");
+                   "{<ballerina-file | module-name> | -a | --all} [--] [(--key=value)...]\n");
     }
 
     @Override

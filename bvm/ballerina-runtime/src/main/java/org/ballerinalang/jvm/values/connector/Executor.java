@@ -48,6 +48,10 @@ import java.util.function.Function;
  */
 public class Executor {
 
+    private static final BUnionType OPTIONAL_ERROR_TYPE = new BUnionType(
+            new BType[] { BTypes.typeError, BTypes.typeNull },
+            TypeFlags.asMask(TypeFlags.NILABLE, TypeFlags.PURETYPE));
+
     /**
      * This method will execute Ballerina resource in non-blocking manner. It will use Ballerina worker-pool for the
      * execution and will return the connector thread immediately.
@@ -71,9 +75,7 @@ public class Executor {
             }
             return service.call(strand, resourceName, args);
         };
-        BUnionType unionType = new BUnionType(new BType[] { BTypes.typeError, BTypes.typeNull },
-                TypeFlags.asMask(TypeFlags.NILABLE, TypeFlags.PURETYPE));
-        scheduler.schedule(new Object[1], func, null, callback, properties, unionType);
+        scheduler.schedule(new Object[1], func, null, callback, properties, OPTIONAL_ERROR_TYPE);
     }
 
     /**

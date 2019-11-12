@@ -25,17 +25,15 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.ProjectDirs;
 
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 
-import static org.ballerinalang.tool.LauncherUtils.createLauncherException;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_COMPILED_JAR_EXT;
-import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.TARGET_TMP_DIRECTORY;
 
 /**
  * Copy module jars to target/tmp.
@@ -54,64 +52,54 @@ public class CopyModuleJarTask implements Task {
     @Override
     public void execute(BuildContext buildContext) {
 
-        Path targetDir = buildContext.get(BuildContextField.TARGET_DIR);
-        Path tmpDir = targetDir.resolve(TARGET_TMP_DIRECTORY);
         Path sourceRootPath = buildContext.get(BuildContextField.SOURCE_ROOT);
         String balHomePath = buildContext.get(BuildContextField.HOME_REPO).toString();
 
-        try {
-            if (!tmpDir.toFile().exists()) {
-                Files.createDirectory(tmpDir);
-            }
-        } catch (IOException e) {
-            throw createLauncherException("unable to create tmp directory in target :" + e.getMessage());
-        }
         // Copy module jar
         List<BLangPackage> moduleBirMap = buildContext.getModules();
-        copyModuleJar(buildContext, moduleBirMap, tmpDir);
+        copyModuleJar(buildContext, moduleBirMap);
         // Copy imported jars.
-        copyImportedJars(buildContext, moduleBirMap, sourceRootPath, tmpDir, balHomePath);
+        copyImportedJars(buildContext, moduleBirMap, sourceRootPath, balHomePath);
     }
 
-    private void copyModuleJar(BuildContext buildContext, List<BLangPackage> moduleBirMap, Path tmpDir) {
+    private void copyModuleJar(BuildContext buildContext, List<BLangPackage> moduleBirMap) {
         for (BLangPackage module : moduleBirMap) {
             // get the jar path of the module.
             Path jarOutput = buildContext.getJarPathFromTargetCache(module.packageID);
-            Path jarTarget = tmpDir.resolve(jarOutput.getFileName());
-            try {
-                Files.copy(jarOutput, jarTarget, StandardCopyOption.REPLACE_EXISTING);
-            } catch (IOException e) {
-                throw createLauncherException("unable to copy the module jar :" + e.getMessage());
-            }
+            buildContext.moduleDependencyPathMap.get(module.packageID).add(jarOutput);
         }
     }
 
     private void copyImportedJars(BuildContext buildContext, List<BLangPackage> moduleBirMap, Path sourceRootPath,
-                                  Path tmpDir, String balHomePath) {
+                                  String balHomePath) {
         // Imported jar
-        HashSet<String> alreadyImportedSet = new HashSet<>();
+        Map<PackageID, Path> alreadyImportedMap = new HashMap<>();
         for (BLangPackage pkg : moduleBirMap) {
-            copyImportedJars(pkg.symbol.imports, buildContext, sourceRootPath, tmpDir, balHomePath, alreadyImportedSet);
+            copyImportedJars(pkg.symbol.imports, buildContext, sourceRootPath, balHomePath,
+                             buildContext.moduleDependencyPathMap.get(pkg.packageID), alreadyImportedMap);
         }
     }
 
-    private void copyImportedJars(List<BPackageSymbol> imports, BuildContext buildContext, Path sourceRootPath,
-                                  Path tmpDir, String balHomePath, HashSet<String> alreadyImportedSet) {
+    private void copyImportedJars(List<BPackageSymbol> imports, BuildContext buildContext,
+                                  Path sourceRootPath, String balHomePath, HashSet<Path> moduleDependencyList,
+                                  Map<PackageID, Path> alreadyImportedMap) {
         for (BPackageSymbol importSymbol : imports) {
             PackageID pkgId = importSymbol.pkgID;
-            String id = pkgId.toString();
-            if (alreadyImportedSet.contains(id)) {
-                continue;
+            Path importedPath = alreadyImportedMap.get(pkgId);
+            if (importedPath != null) {
+                moduleDependencyList.add(importedPath);
+            } else {
+                copyImportedJar(buildContext, importSymbol, sourceRootPath, balHomePath,
+                                moduleDependencyList, alreadyImportedMap);
             }
-            alreadyImportedSet.add(id);
-            copyImportedJar(buildContext, importSymbol, sourceRootPath, tmpDir, balHomePath);
-            copyImportedJars(importSymbol.imports, buildContext, sourceRootPath,
-                             tmpDir, balHomePath, alreadyImportedSet);
+            copyImportedJars(importSymbol.imports, buildContext, sourceRootPath, balHomePath, moduleDependencyList,
+                             alreadyImportedMap);
         }
     }
 
     private void copyImportedJar(BuildContext buildContext, BPackageSymbol importz,
-                                 Path project, Path tmpDir, String balHomePath) {
+                                 Path project, String balHomePath, HashSet<Path> moduleDependencyList,
+                                 Map<PackageID, Path> alreadyImportedMap) {
         PackageID id = importz.pkgID;
         String moduleJarName = id.orgName.value + "-" + id.name.value + "-" + id.version.value +
                 BLANG_COMPILED_JAR_EXT;
@@ -138,11 +126,7 @@ public class CopyModuleJarTask implements Task {
                 importJar = Paths.get(balHomePath, "bre", "lib", id.name.value + BLANG_COMPILED_JAR_EXT);
             }
         }
-        try {
-            Path jarTarget = tmpDir.resolve(moduleJarName);
-            Files.copy(importJar, jarTarget, StandardCopyOption.REPLACE_EXISTING);
-        } catch (IOException e) {
-            throw createLauncherException("unable to find the imported jar from the distribution: " + e.getMessage());
-        }
+        moduleDependencyList.add(importJar);
+        alreadyImportedMap.put(importz.pkgID, importJar);
     }
 }

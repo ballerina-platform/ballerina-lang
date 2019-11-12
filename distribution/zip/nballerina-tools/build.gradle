@@ -97,7 +97,7 @@ dependencies {
     dist 'info.picocli:picocli:4.0.1'
     dist project(':ballerina-stringutils')
 
-
+    distBal project(path: ':jballerina', configuration: 'balo')
     dist project(':ballerina-backend-llvm')
     birJar project(path: ':ballerina-backend-llvm', configuration: 'birJar')
     dist project(':language-server:language-server-compiler')

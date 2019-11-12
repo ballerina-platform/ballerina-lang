@@ -41,10 +41,9 @@ import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpDispatcher;
 import org.ballerinalang.net.http.HttpResource;
 import org.ballerinalang.net.http.websocket.server.OnUpgradeResourceCallback;
+import org.ballerinalang.net.http.websocket.server.WebSocketConnectionInfo;
 import org.ballerinalang.net.http.websocket.server.WebSocketConnectionManager;
-import org.ballerinalang.net.http.websocket.server.WebSocketOpenConnectionInfo;
 import org.ballerinalang.net.http.websocket.server.WebSocketServerService;
-import org.ballerinalang.net.http.websocket.server.WebSocketService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketBinaryMessage;
@@ -57,9 +56,6 @@ import org.wso2.transport.http.netty.contract.websocket.WebSocketTextMessage;
 
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
-
-import static org.ballerinalang.net.http.websocket.WebSocketConstants.STATUS_CODE_ABNORMAL_CLOSURE;
-import static org.ballerinalang.net.http.websocket.WebSocketConstants.STATUS_CODE_FOR_NO_STATUS_CODE_PRESENT;
 
 /**
  * {@code WebSocketDispatcher} This is the web socket request dispatcher implementation which finds best matching
@@ -84,7 +80,7 @@ public class WebSocketResourceDispatcher {
                 .getHttpCarbonRequest(), httpEndpointConfig);
 
         ObjectValue httpCaller = (ObjectValue) signatureParams[0];
-        httpCaller.addNativeData(WebSocketConstants.WEBSOCKET_MESSAGE, webSocketHandshaker);
+        httpCaller.addNativeData(WebSocketConstants.WEBSOCKET_HANDSHAKER, webSocketHandshaker);
         httpCaller.addNativeData(WebSocketConstants.WEBSOCKET_SERVICE, wsService);
         httpCaller.addNativeData(HttpConstants.NATIVE_DATA_WEBSOCKET_CONNECTION_MANAGER, connectionManager);
 
@@ -120,7 +116,6 @@ public class WebSocketResourceDispatcher {
 
             @Override
             public void notifyFailure(ErrorValue error) {
-                webSocketConnection.readNextFrame();
                 ErrorHandlerUtils.printError("error: " + error.getPrintableStackTrace());
                 WebSocketUtil.closeDuringUnexpectedCondition(webSocketConnection);
             }
@@ -130,7 +125,7 @@ public class WebSocketResourceDispatcher {
                         onOpenCallableUnitCallback,
                         null, bValues);
     }
-    public static void dispatchOnText(WebSocketOpenConnectionInfo connectionInfo, WebSocketTextMessage textMessage)
+    public static void dispatchOnText(WebSocketConnectionInfo connectionInfo, WebSocketTextMessage textMessage)
             throws IllegalAccessException {
         WebSocketConnection webSocketConnection = connectionInfo.getWebSocketConnection();
         WebSocketService wsService = connectionInfo.getService();
@@ -141,8 +136,10 @@ public class WebSocketResourceDispatcher {
         }
         BType[] parameterTypes = onTextMessageResource.getParameterType();
         Object[] bValues = new Object[parameterTypes.length * 2];
-        bValues[0] = connectionInfo.getWebSocketCaller();
+
+        bValues[0] = connectionInfo.getWebSocketEndpoint();
         bValues[1] = true;
+
         boolean finalFragment = textMessage.isFinalFragment();
         BType dataType = parameterTypes[1];
         int dataTypeTag = dataType.getTag();
@@ -150,17 +147,20 @@ public class WebSocketResourceDispatcher {
             bValues[2] = textMessage.getText();
             bValues[3] = true;
             if (parameterTypes.length == 3) {
-                bValues[4] = textMessage.isFinalFragment();
+                bValues[4] = finalFragment;
                 bValues[5] = true;
             }
-            Executor.submit(wsService.getScheduler(), wsService.getBalService(), onTextMessageResource.getName(),
+            Executor.submit(wsService.getScheduler(), wsService.getBalService(),
+                            WebSocketConstants.RESOURCE_NAME_ON_TEXT,
                             new WebSocketResourceCallback(webSocketConnection), null, bValues);
-        } else if (dataTypeTag == TypeTags.JSON_TAG || dataTypeTag == TypeTags.RECORD_TYPE_TAG ||
-                dataTypeTag == TypeTags.XML_TAG || dataTypeTag == TypeTags.ARRAY_TAG) {
+        } else if (isDataBindingSupported(dataTypeTag)) {
+            // During data binding the string is aggregated before it is dispatched to the resource
+            WebSocketConnectionInfo.StringAggregator stringAggregator =
+                    connectionInfo.createIfNullAndGetStringAggregator();
             if (finalFragment) {
-                connectionInfo.appendAggregateString(textMessage.getText());
+                stringAggregator.appendAggregateString(textMessage.getText());
                 Object aggregate = getAggregatedObject(webSocketConnection, dataType,
-                                                       connectionInfo.getAggregateString());
+                                                       stringAggregator.getAggregateString());
                 if (aggregate != null) {
                     bValues[2] = aggregate;
                     bValues[3] = true;
@@ -168,13 +168,18 @@ public class WebSocketResourceDispatcher {
                                     WebSocketConstants.RESOURCE_NAME_ON_TEXT,
                                     new WebSocketResourceCallback(webSocketConnection), null, bValues);
                 }
-                connectionInfo.resetAggregateString();
+                stringAggregator.resetAggregateString();
             } else {
-                connectionInfo.appendAggregateString(textMessage.getText());
+                stringAggregator.appendAggregateString(textMessage.getText());
                 webSocketConnection.readNextFrame();
             }
 
         }
+    }
+
+    private static boolean isDataBindingSupported(int dataTypeTag) {
+        return dataTypeTag == TypeTags.JSON_TAG || dataTypeTag == TypeTags.RECORD_TYPE_TAG ||
+                dataTypeTag == TypeTags.XML_TAG || dataTypeTag == TypeTags.ARRAY_TAG;
     }
 
     private static Object getAggregatedObject(WebSocketConnection webSocketConnection, BType dataType,
@@ -212,9 +217,8 @@ public class WebSocketResourceDispatcher {
         return null;
     }
 
-    public static void dispatchOnBinary(WebSocketOpenConnectionInfo connectionInfo,
-                                        WebSocketBinaryMessage binaryMessage)
-            throws IllegalAccessException {
+    public static void dispatchOnBinary(WebSocketConnectionInfo connectionInfo,
+                                        WebSocketBinaryMessage binaryMessage) throws IllegalAccessException {
         WebSocketConnection webSocketConnection = connectionInfo.getWebSocketConnection();
         WebSocketService wsService = connectionInfo.getService();
         AttachedFunction onBinaryMessageResource = wsService.getResourceByName(
@@ -225,7 +229,7 @@ public class WebSocketResourceDispatcher {
         }
         BType[] paramDetails = onBinaryMessageResource.getParameterType();
         Object[] bValues = new Object[paramDetails.length * 2];
-        bValues[0] = connectionInfo.getWebSocketCaller();
+        bValues[0] = connectionInfo.getWebSocketEndpoint();
         bValues[1] = true;
         bValues[2] = new ArrayValue(binaryMessage.getByteArray());
         bValues[3] = true;
@@ -238,7 +242,7 @@ public class WebSocketResourceDispatcher {
 
     }
 
-    public static void dispatchOnPingOnPong(WebSocketOpenConnectionInfo connectionInfo,
+    public static void dispatchOnPingOnPong(WebSocketConnectionInfo connectionInfo,
                                             WebSocketControlMessage controlMessage)
             throws IllegalAccessException {
         if (controlMessage.getControlSignal() == WebSocketControlSignal.PING) {
@@ -248,7 +252,7 @@ public class WebSocketResourceDispatcher {
         }
     }
 
-    private static void dispatchOnPing(WebSocketOpenConnectionInfo connectionInfo,
+    private static void dispatchOnPing(WebSocketConnectionInfo connectionInfo,
                                        WebSocketControlMessage controlMessage) throws IllegalAccessException {
         WebSocketConnection webSocketConnection = connectionInfo.getWebSocketConnection();
         WebSocketService wsService = connectionInfo.getService();
@@ -259,7 +263,7 @@ public class WebSocketResourceDispatcher {
         }
         BType[] paramTypes = onPingMessageResource.getParameterType();
         Object[] bValues = new Object[paramTypes.length * 2];
-        bValues[0] = connectionInfo.getWebSocketCaller();
+        bValues[0] = connectionInfo.getWebSocketEndpoint();
         bValues[1] = true;
         bValues[2] = new ArrayValue(controlMessage.getByteArray());
         bValues[3] = true;
@@ -267,7 +271,7 @@ public class WebSocketResourceDispatcher {
                         new WebSocketResourceCallback(webSocketConnection), null, bValues);
     }
 
-    private static void dispatchOnPong(WebSocketOpenConnectionInfo connectionInfo,
+    private static void dispatchOnPong(WebSocketConnectionInfo connectionInfo,
                                        WebSocketControlMessage controlMessage) throws IllegalAccessException {
         WebSocketConnection webSocketConnection = connectionInfo.getWebSocketConnection();
         WebSocketService wsService = connectionInfo.getService();
@@ -278,7 +282,7 @@ public class WebSocketResourceDispatcher {
         }
         BType[] paramDetails = onPongMessageResource.getParameterType();
         Object[] bValues = new Object[paramDetails.length * 2];
-        bValues[0] = connectionInfo.getWebSocketCaller();
+        bValues[0] = connectionInfo.getWebSocketEndpoint();
         bValues[1] = true;
         bValues[2] = new ArrayValue(controlMessage.getByteArray());
         bValues[3] = true;
@@ -286,7 +290,7 @@ public class WebSocketResourceDispatcher {
                         new WebSocketResourceCallback(webSocketConnection), null, bValues);
     }
 
-    public static void dispatchOnClose(WebSocketOpenConnectionInfo connectionInfo, WebSocketCloseMessage closeMessage)
+    public static void dispatchOnClose(WebSocketConnectionInfo connectionInfo, WebSocketCloseMessage closeMessage)
             throws IllegalAccessException {
         WebSocketUtil.setListenerOpenField(connectionInfo);
         WebSocketConnection webSocketConnection = connectionInfo.getWebSocketConnection();
@@ -294,19 +298,15 @@ public class WebSocketResourceDispatcher {
         AttachedFunction onCloseResource = wsService.getResourceByName(WebSocketConstants.RESOURCE_NAME_ON_CLOSE);
         int closeCode = closeMessage.getCloseCode();
         String closeReason = closeMessage.getCloseReason();
+
         if (onCloseResource == null) {
-            if (webSocketConnection.isOpen()) {
-                if (closeCode == STATUS_CODE_FOR_NO_STATUS_CODE_PRESENT) {
-                    webSocketConnection.finishConnectionClosure();
-                } else {
-                    webSocketConnection.finishConnectionClosure(closeCode, null);
-                }
-            }
+            finishConnectionClosureIfOpen(webSocketConnection, closeCode, connectionInfo);
             return;
         }
+
         BType[] paramDetails = onCloseResource.getParameterType();
         Object[] bValues = new Object[paramDetails.length * 2];
-        bValues[0] = connectionInfo.getWebSocketCaller();
+        bValues[0] = connectionInfo.getWebSocketEndpoint();
         bValues[1] = true;
         bValues[2] = closeCode;
         bValues[3] = true;
@@ -315,23 +315,13 @@ public class WebSocketResourceDispatcher {
         CallableUnitCallback onCloseCallback = new CallableUnitCallback() {
             @Override
             public void notifySuccess() {
-                if (closeMessage.getCloseCode() != STATUS_CODE_ABNORMAL_CLOSURE
-                        && webSocketConnection.isOpen()) {
-                    ChannelFuture finishFuture;
-                    if (closeCode == STATUS_CODE_FOR_NO_STATUS_CODE_PRESENT) {
-                        finishFuture = webSocketConnection.finishConnectionClosure();
-                    } else {
-                        finishFuture = webSocketConnection.finishConnectionClosure(closeCode, null);
-                    }
-                    finishFuture.addListener(closeFuture -> connectionInfo.getWebSocketCaller()
-                            .set(WebSocketConstants.LISTENER_IS_SECURE_FIELD, false));
-                }
+                finishConnectionClosureIfOpen(webSocketConnection, closeCode, connectionInfo);
             }
 
             @Override
             public void notifyFailure(ErrorValue error) {
                 ErrorHandlerUtils.printError(error.getPrintableStackTrace());
-                WebSocketUtil.closeDuringUnexpectedCondition(webSocketConnection);
+                finishConnectionClosureIfOpen(webSocketConnection, closeCode, connectionInfo);
             }
         };
 
@@ -339,11 +329,24 @@ public class WebSocketResourceDispatcher {
                         onCloseCallback, null, bValues);
     }
 
-    public static void dispatchOnError(WebSocketOpenConnectionInfo connectionInfo, Throwable throwable) {
+    private static void finishConnectionClosureIfOpen(WebSocketConnection webSocketConnection, int closeCode,
+                                                      WebSocketConnectionInfo connectionInfo) {
+        if (webSocketConnection.isOpen()) {
+            ChannelFuture finishFuture;
+            if (closeCode == WebSocketConstants.STATUS_CODE_FOR_NO_STATUS_CODE_PRESENT) {
+                finishFuture = webSocketConnection.finishConnectionClosure();
+            } else {
+                finishFuture = webSocketConnection.finishConnectionClosure(closeCode, null);
+            }
+            finishFuture.addListener(closeFuture -> WebSocketUtil.setListenerOpenField(connectionInfo));
+        }
+    }
+
+    public static void dispatchOnError(WebSocketConnectionInfo connectionInfo, Throwable throwable) {
         try {
             WebSocketUtil.setListenerOpenField(connectionInfo);
         } catch (IllegalAccessException e) {
-            connectionInfo.getWebSocketCaller().set(WebSocketConstants.LISTENER_IS_OPEN_FIELD, false);
+            connectionInfo.getWebSocketEndpoint().set(WebSocketConstants.LISTENER_IS_OPEN_FIELD, false);
         }
         WebSocketService webSocketService = connectionInfo.getService();
         AttachedFunction onErrorResource = webSocketService.getResourceByName(
@@ -352,11 +355,10 @@ public class WebSocketResourceDispatcher {
             log.error("Unexpected error", throwable);
         }
         if (onErrorResource == null) {
-            ErrorHandlerUtils.printError(throwable);
             return;
         }
         Object[] bValues = new Object[onErrorResource.getParameterType().length * 2];
-        bValues[0] = connectionInfo.getWebSocketCaller();
+        bValues[0] = connectionInfo.getWebSocketEndpoint();
         bValues[1] = true;
         bValues[2] = WebSocketUtil.createErrorByType(throwable);
         bValues[3] = true;
@@ -380,18 +382,17 @@ public class WebSocketResourceDispatcher {
         return !(throwable instanceof CorruptedFrameException);
     }
 
-    public static void dispatchOnIdleTimeout(WebSocketOpenConnectionInfo connectionInfo) throws IllegalAccessException {
+    public static void dispatchOnIdleTimeout(WebSocketConnectionInfo connectionInfo) throws IllegalAccessException {
         WebSocketConnection webSocketConnection = connectionInfo.getWebSocketConnection();
         WebSocketService wsService = connectionInfo.getService();
         AttachedFunction onIdleTimeoutResource = wsService.getResourceByName(
                 WebSocketConstants.RESOURCE_NAME_ON_IDLE_TIMEOUT);
         if (onIdleTimeoutResource == null) {
-            webSocketConnection.readNextFrame();
             return;
         }
         BType[] paramDetails = onIdleTimeoutResource.getParameterType();
         Object[] bValues = new Object[paramDetails.length * 2];
-        bValues[0] = connectionInfo.getWebSocketCaller();
+        bValues[0] = connectionInfo.getWebSocketEndpoint();
         bValues[1] = true;
 
         CallableUnitCallback onIdleTimeoutCallback = new CallableUnitCallback() {
