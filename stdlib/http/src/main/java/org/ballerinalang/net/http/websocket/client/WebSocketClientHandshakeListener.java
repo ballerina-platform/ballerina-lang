@@ -103,6 +103,9 @@ public class WebSocketClientHandshakeListener implements ClientHandshakeListener
                                                                            WebSocketConstants.WEBSOCKET_CONNECTOR);
         WebSocketConnectionInfo connectionInfo = WebSocketUtil.getWebSocketOpenConnectionInfo(null,
                 webSocketConnector, webSocketClient, wsService);
+        if (countDownLatch != null) {
+            countDownLatch.countDown();
+        }
         if (throwable instanceof IOException && WebSocketUtil.hasRetryConfig(webSocketClient) &&
                 WebSocketUtil.reconnect(connectionInfo)) {
                 return;
