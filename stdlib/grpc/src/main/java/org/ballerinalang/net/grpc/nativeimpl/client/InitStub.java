@@ -75,7 +75,7 @@ public class InitStub {
         try {
             ServiceDefinition serviceDefinition = new ServiceDefinition(rootDescriptor, descriptorMap);
             Map<String, MethodDescriptor> methodDescriptorMap =
-                    serviceDefinition.getMethodDescriptors(clientEndpoint.getType().getAttachedFunctions());
+                    serviceDefinition.getMethodDescriptors(clientEndpoint.getType());
 
             genericEndpoint.addNativeData(METHOD_DESCRIPTORS, methodDescriptorMap);
             if (BLOCKING_TYPE.equalsIgnoreCase(stubType)) {
