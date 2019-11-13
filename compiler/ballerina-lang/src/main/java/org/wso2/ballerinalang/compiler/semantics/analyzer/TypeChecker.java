@@ -1881,7 +1881,8 @@ public class TypeChecker extends BLangNodeVisitor {
                 resultType = new BMapType(TypeTags.MAP, constraintType, symTable.mapType.tsymbol);
                 break;
             default:
-                dlog.error(waitForAllExpr.pos, DiagnosticCode.INVALID_LITERAL_FOR_TYPE, expType);
+                dlog.error(waitForAllExpr.pos, DiagnosticCode.INCOMPATIBLE_TYPES, expType,
+                           getWaitForAllExprReturnType(waitForAllExpr.keyValuePairs));
                 resultType = symTable.semanticError;
                 break;
         }
@@ -1890,6 +1891,23 @@ public class TypeChecker extends BLangNodeVisitor {
         if (resultType != null && resultType != symTable.semanticError) {
             types.setImplicitCastExpr(waitForAllExpr, waitForAllExpr.type, expType);
         }
+    }
+
+    private BRecordType getWaitForAllExprReturnType(List<BLangWaitForAllExpr.BLangWaitKeyValue> keyVals) {
+        BRecordType retType = new BRecordType(null);
+        
+        for (BLangWaitForAllExpr.BLangWaitKeyValue keyVal : keyVals) {
+            BSymbol symbol = symResolver.lookupSymbol(env, names.fromIdNode(keyVal.key), SymTag.VARIABLE);
+            BField field = new BField(names.fromIdNode(keyVal.key), null,
+                                      new BVarSymbol(0, names.fromIdNode(keyVal.key), env.enclPkg.packageID,
+                                                     symbol.type, null));
+            retType.fields.add(field);
+        }
+
+        retType.restFieldType = symTable.noType;
+        retType.sealed = true;
+        retType.tsymbol = Symbols.createRecordSymbol(0, Names.EMPTY, env.enclPkg.packageID, retType, null);
+        return retType;
     }
 
     private LinkedHashSet<BType> collectWaitExprTypes(List<BLangWaitForAllExpr.BLangWaitKeyValue> keyVals) {
@@ -1917,7 +1935,8 @@ public class TypeChecker extends BLangNodeVisitor {
         // check if the record is sealed, if so check if the fields in wait collection is more than the fields expected
         // by the lhs record
         if (((BRecordType) expType).sealed && rhsFields.size() > lhsFields.size()) {
-            dlog.error(waitExpr.pos, DiagnosticCode.INVALID_LITERAL_FOR_TYPE, expType);
+            dlog.error(waitExpr.pos, DiagnosticCode.INCOMPATIBLE_TYPES, expType,
+                       getWaitForAllExprReturnType(waitExpr.keyValuePairs));
             resultType = symTable.semanticError;
             return;
         }
