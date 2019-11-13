@@ -60,6 +60,7 @@ import static org.ballerinalang.compiler.CompilerOptionName.SKIP_TESTS;
 import static org.ballerinalang.compiler.CompilerOptionName.TEST_ENABLED;
 import static org.ballerinalang.jvm.runtime.RuntimeConstants.SYSTEM_PROP_BAL_DEBUG;
 import static org.ballerinalang.packerina.buildcontext.sourcecontext.SourceType.SINGLE_BAL_FILE;
+import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_COMPILED_JAR_EXT;
 
 /**
  * This class represents the "run" command and it holds arguments and flags specified by the user.
@@ -219,8 +220,8 @@ public class RunCommand implements BLauncherCmd {
         } else {
             CommandUtil.printError(this.errStream,
                     "invalid Ballerina source path. It should either be a name of a module in a Ballerina project, " +
-                    "a file with a \'" + BLangConstants.BLANG_SRC_FILE_SUFFIX + "\' extension, or an executable .jar " +
-                    "file.",
+                    "a file with a '" + BLangConstants.BLANG_SRC_FILE_SUFFIX + "' extension, or an executable '" +
+                    BLANG_COMPILED_JAR_EXT + "' file.",
                     "ballerina run {<bal-file> | <module-name> | <executable-jar>}",
                     true);
             Runtime.getRuntime().exit(1);
