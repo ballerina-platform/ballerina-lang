@@ -160,3 +160,15 @@ function testFieldAndIndexBasedVarRefs() returns [anydata, anydata] {
     [m["var1"], [m["var2"], _]] = t1;
     return [m["var1"], m["var2"]];
 }
+
+function testAssigningValuesToFinalVars() {
+    [string, float] t1 = ["hello", 1.0];
+    final var [s1, f1] = t1;
+    [s1, f1] = t1;
+
+    [string?, [float, boolean], int...] t2 = ["hi", [1.0, true], 1, 2];
+    final [string?, [float, boolean], int...] [s2, [f2, b2], ...n2] = t2;
+    [s2, [f2, b2], ...n2] = t2;
+    s2 = "hello";
+    [f2, b2] = [2.0, false];
+}
