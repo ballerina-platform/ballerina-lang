@@ -93,6 +93,8 @@ public class DelimitedRecordChannel implements IOChannel {
      */
     private Format format;
 
+    private static final String DOUBLE_QUOTE_REGEX = "\"([^\"]*)\"";
+
     private static final Logger log = LoggerFactory.getLogger(DelimitedRecordChannel.class);
 
     public DelimitedRecordChannel(CharacterChannel channel, Format format) {
@@ -304,8 +306,13 @@ public class DelimitedRecordChannel implements IOChannel {
         Pattern reg = Pattern.compile(regex);
         String[] split = reg.split(record);
         for (int i = 0; i < split.length; i++) {
-            if (split[i].isEmpty()) {
+            String field = split[i];
+            if (field.isEmpty()) {
                 split[i] = null;
+                continue;
+            }
+            if (field.matches(DOUBLE_QUOTE_REGEX)) {
+                split[i] = field.substring(field.indexOf('\"') + 1, field.lastIndexOf('\"'));
             }
         }
         return split;
