@@ -17,7 +17,7 @@ type Order record {
     float amount;
 };
 
-// This `record` type represents the order details (this is derived by joining the person details
+// This `record` type represents the order details (derived by joining the person details
 //and the order details).
 type OrderDetails record {
     int orderId;
@@ -29,7 +29,7 @@ type OrderDetails record {
 public function main() {
     string queryStmt = "";
 
-    // These are a few sample values that represent different `Person` records.
+    // These are a few sample values, which represent different `Person` records.
     Person p1 =
     {id: 1, age: 25, salary: 1000.50, name: "jane", married: true};
     Person p2 =
@@ -39,7 +39,7 @@ public function main() {
     Person p4 =
     {id: 4, age: 28, salary: 1100.50, name: "alex", married: false};
 
-    // This is the in-memory `table` that is constrained by the `Person` type.
+    // This is the in-memory `table`, which is constrained by the `Person` type.
     table<Person> personTable = table {
         {id, age, salary, name, married},
         [p1, p2, p3, p4]
@@ -48,7 +48,7 @@ public function main() {
     // This prints the content of the `Person` table.
     printTable(queryStmt, "The personTable:  ", personTable);
 
-    // These are a few sample values that represent orders made by the people who were
+    // These are a few sample values, which represent orders made by 
     // the person records listed above.
     Order o1 =
     {personId: 1, orderId: 1234, items: "pen, book, eraser", amount: 34.75};

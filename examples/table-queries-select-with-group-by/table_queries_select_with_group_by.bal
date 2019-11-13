@@ -17,8 +17,8 @@ type SummedOrder record {
 public function main() {
     string queryStmt = "";
 
-    // These are a few sample values that represent orders made by the people who were
-    // listed above as person records.
+    // These are a few sample values, which represent orders made by 
+    // the person records listed above.
     Order o1 =
     {personId: 1, orderId: 1234, items: "pen, book, eraser", amount: 34.75};
     Order o2 =
@@ -27,7 +27,7 @@ public function main() {
     {personId: 2, orderId: 5643, items: "Macbook Pro", amount: 2334.75};
     Order o4 = {personId: 3, orderId: 8765, items: "Tshirt", amount: 20.75};
 
-    // This is the in-memory `table` that is constrained by the `Order` type.
+    // This is the in-memory `table`, which is constrained by the `Order` type.
     table<Order> orderTable = table {
         {personId, orderId, items, amount},
         [o1, o2, o3, o4]
