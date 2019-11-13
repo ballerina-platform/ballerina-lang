@@ -576,20 +576,25 @@ public class WebSocketUtil {
         }
     }
 
-    public static void countDownForHandshake(ObjectValue webSocketClient) {
+    private static void countDownForHandshake(ObjectValue webSocketClient) {
         if (webSocketClient.getNativeData(WebSocketConstants.COUNT_DOWN_LATCH) != null) {
             ((CountDownLatch) webSocketClient.getNativeData(WebSocketConstants.COUNT_DOWN_LATCH)).countDown();
             webSocketClient.addNativeData(WebSocketConstants.COUNT_DOWN_LATCH, null);
         }
     }
 
-    public static void dispatchOnError(WebSocketConnectionInfo connectionInfo, Throwable throwable,
-                                       CountDownLatch countDownLatch) {
+    public static void dispatchOnError(WebSocketConnectionInfo connectionInfo, Throwable throwable) {
         logger.error(ERROR_MESSAGE, throwable);
-        if (countDownLatch == null) {
-            WebSocketUtil.countDownForHandshake(connectionInfo.getWebSocketEndpoint());
-        }
+        countDownForHandshake(connectionInfo.getWebSocketEndpoint());
         WebSocketResourceDispatcher.dispatchOnError(connectionInfo, throwable);
+    }
+
+    public static void countDownForSuccess(CountDownLatch countDownLatch, ObjectValue webSocketClient) {
+        if (countDownLatch == null) {
+            WebSocketUtil.countDownForHandshake(webSocketClient);
+        } else {
+            countDownLatch.countDown();
+        }
     }
 
     private WebSocketUtil() {

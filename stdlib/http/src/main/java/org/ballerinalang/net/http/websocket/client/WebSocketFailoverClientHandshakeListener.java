@@ -76,11 +76,7 @@ public class WebSocketFailoverClientHandshakeListener implements ClientHandshake
                 webSocketConnector, webSocketClient, wsService));
         // Read the next frame when readyOnConnect is true or isReady is true
         WebSocketUtil.readNextFrame(readyOnConnect, webSocketClient, webSocketConnection);
-        if (countDownLatch == null) {
-            WebSocketUtil.countDownForHandshake(webSocketClient);
-        } else {
-            countDownLatch.countDown();
-        }
+        WebSocketUtil.countDownForSuccess(countDownLatch, webSocketClient);
         // Following these are created for future connection
         if (failoverConfig != null) {
             int currentIndex = failoverConfig.getCurrentIndex();
@@ -107,10 +103,8 @@ public class WebSocketFailoverClientHandshakeListener implements ClientHandshake
         if (countDownLatch != null) {
             countDownLatch.countDown();
         }
-        if (throwable instanceof IOException && WebSocketUtil.failover(connectionInfo)) {
-            return;
-        } else {
-            WebSocketUtil.dispatchOnError(connectionInfo, throwable, countDownLatch);
+        if (!(throwable instanceof IOException && WebSocketUtil.failover(connectionInfo))) {
+            WebSocketUtil.dispatchOnError(connectionInfo, throwable);
         }
     }
 

@@ -23,7 +23,6 @@ import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.net.http.websocket.WebSocketConstants;
-import org.ballerinalang.net.http.websocket.WebSocketResourceDispatcher;
 import org.ballerinalang.net.http.websocket.WebSocketService;
 import org.ballerinalang.net.http.websocket.WebSocketUtil;
 import org.ballerinalang.net.http.websocket.server.WebSocketConnectionInfo;
@@ -79,11 +78,7 @@ public class WebSocketClientHandshakeListener implements ClientHandshakeListener
                 webSocketConnector, webSocketClient, wsService));
         // Read the next frame when readyOnConnect is true or isReady is true
         WebSocketUtil.readNextFrame(readyOnConnect, webSocketClient, webSocketConnection);
-        if (countDownLatch == null) {
-            countDownForHandshake(webSocketClient);
-        } else {
-            countDownLatch.countDown();
-        }
+        WebSocketUtil.countDownForSuccess(countDownLatch, webSocketClient);
         logger.debug(WebSocketConstants.LOG_MESSAGE, CONNECTED_TO, webSocketClient.getStringValue(
                 WebSocketConstants.CLIENT_URL_CONFIG));
         // The following are created for future connections.
@@ -110,7 +105,7 @@ public class WebSocketClientHandshakeListener implements ClientHandshakeListener
                 WebSocketUtil.reconnect(connectionInfo)) {
                 return;
         }
-        dispatchOnError(connectionInfo, throwable);
+        WebSocketUtil.dispatchOnError(connectionInfo, throwable);
     }
 
     private static void setWebSocketClient(ObjectValue webSocketClient, HttpCarbonResponse carbonResponse,
@@ -125,18 +120,6 @@ public class WebSocketClientHandshakeListener implements ClientHandshakeListener
     }
 
     /**
-     * Count Down the initialised countDownLatch.
-     *
-     * @param webSocketClient webSocket client
-     */
-    private static void countDownForHandshake(ObjectValue webSocketClient) {
-        if (webSocketClient.getNativeData(WebSocketConstants.COUNT_DOWN_LATCH) != null) {
-            ((CountDownLatch) webSocketClient.getNativeData(WebSocketConstants.COUNT_DOWN_LATCH)).countDown();
-            webSocketClient.addNativeData(WebSocketConstants.COUNT_DOWN_LATCH, null);
-        }
-    }
-
-    /**
      * Set the value into the retryContext.
      *
      * @param retryConfig retry context
@@ -146,10 +129,5 @@ public class WebSocketClientHandshakeListener implements ClientHandshakeListener
             retryConfig.setFirstConnectionMadeSuccessfully();
         }
         retryConfig.setReconnectAttempts(0);
-    }
-
-    private void dispatchOnError(WebSocketConnectionInfo connectionInfo, Throwable throwable) {
-        countDownForHandshake(webSocketClient);
-        WebSocketResourceDispatcher.dispatchOnError(connectionInfo, throwable);
     }
 }

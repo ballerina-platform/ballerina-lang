@@ -49,10 +49,8 @@ public class WebSocketFailoverClientListener extends WebSocketClientConnectorLis
     @Override
     public void onMessage(WebSocketCloseMessage webSocketCloseMessage) {
         int statusCode = webSocketCloseMessage.getCloseCode();
-        if (statusCode == WebSocketConstants.STATUS_CODE_ABNORMAL_CLOSURE &&
-                WebSocketUtil.failover(connectionInfo)) {
-            return;
-        } else {
+        if (!(statusCode == WebSocketConstants.STATUS_CODE_ABNORMAL_CLOSURE &&
+                WebSocketUtil.failover(connectionInfo))) {
             WebSocketUtil.dispatchOnClose(connectionInfo, webSocketCloseMessage);
         }
     }
@@ -60,9 +58,7 @@ public class WebSocketFailoverClientListener extends WebSocketClientConnectorLis
     @Override
     public void onError(WebSocketConnection webSocketConnection, Throwable throwable) {
         // When connection lost, do the failover to the remaining server urls.
-        if (throwable instanceof IOException && WebSocketUtil.failover(connectionInfo)) {
-            return;
-        } else {
+        if (!(throwable instanceof IOException && WebSocketUtil.failover(connectionInfo))) {
             logger.error("Error occurred: ", throwable);
             WebSocketResourceDispatcher.dispatchOnError(connectionInfo, throwable);
         }
