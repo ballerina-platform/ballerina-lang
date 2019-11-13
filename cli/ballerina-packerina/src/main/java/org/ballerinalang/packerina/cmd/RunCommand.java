@@ -112,7 +112,7 @@ public class RunCommand implements BLauncherCmd {
         if (this.argList == null || this.argList.size() == 0) {
             CommandUtil.printError(this.errStream,
                     "no ballerina program given.",
-                    "ballerina run {<bal-file> | <module-name>}",
+                    "ballerina run {<bal-file> | <module-name> | <executable-jar>}",
                     true);
     
             Runtime.getRuntime().exit(1);
