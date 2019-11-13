@@ -9,7 +9,7 @@ listener http:Listener ep0 = new(9090);
 @http:ServiceConfig {
     basePath: "/"
 }
-service inlineService on ep0 {
+service inlineservice on ep0 {
 
     @http:ResourceConfig {
         methods:["POST"],

@@ -228,7 +228,7 @@ public class OpenApiGenServiceCmdTest extends OpenAPICommandTest {
     public void testInlineRequestBodyServiceGen() throws IOException {
         Path inlineYaml = RES_DIR.resolve(Paths.get("inline-request-body.yaml"));
         createBalProjectModule(petProject, "inlineModule");
-        String[] args = {"inlineModule:inlineService", inlineYaml.toString()};
+        String[] args = {"inlineModule:inlineservice", inlineYaml.toString()};
 
         OpenApiGenServiceCmd cmd = new OpenApiGenServiceCmd(printStream, petProject.getBalProjectPath().toString());
         new CommandLine(cmd).parseArgs(args);
@@ -247,10 +247,10 @@ public class OpenApiGenServiceCmdTest extends OpenAPICommandTest {
         String expectedServiceContent = expectedServiceLines.collect(Collectors.joining("\n"));
 
         if (Files.exists(petProject.getResourcePath().resolve(inlineYaml.getFileName()))
-                && Files.exists(petProject.getSrcPath().resolve("inlineModule").resolve("inlineService.bal"))) {
+                && Files.exists(petProject.getSrcPath().resolve("inlineModule").resolve("inlineservice.bal"))) {
 
             Stream<String> serviceLines = Files.lines(petProject.getSrcPath()
-                    .resolve("inlineModule").resolve("inlineService.bal"));
+                    .resolve("inlineModule").resolve("inlineservice.bal"));
             String generatedService = serviceLines.collect(Collectors.joining("\n"));
             serviceLines.close();
 
