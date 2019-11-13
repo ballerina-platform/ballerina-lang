@@ -86,6 +86,10 @@ public final class XMLSequence extends XMLValue<ArrayValue> {
         }
     }
 
+    public List<XMLValue<?>> getChildrenList() {
+        return children;
+    }
+
     /**
      * {@inheritDoc}
      */

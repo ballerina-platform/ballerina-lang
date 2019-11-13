@@ -57,13 +57,13 @@ public class XMLTest {
 //                "<!-- cmnt -->" +
                 "<elem>" +
                         "bunch of text" +
-                "<![CDATA[\n" +
-                        "while (x < len && !done)  {\n" +
-                        "    print( \"Still working, 'zzzz'.\" );\n" +
-                        "    ++x;\n" +
-                        "    }\n" +
-                        "]]>" +
-                "<hello xmlns:ns=\"the  url\" ns:attr=\"blah\" >" +
+//                "<![CDATA[\n" +
+//                        "while (x < len && !done)  {\n" +
+//                        "    print( \"Still working, 'zzzz'.\" );\n" +
+//                        "    ++x;\n" +
+//                        "    }\n" +
+//                        "]]>" +
+                "<hello xmlns=\"xxxx\" xmlns:ns=\"the  url\" ns:attr=\"blah\" >" +
                         "<ns:elem ns:at=\"the at\" />" +
                         "</hello>" +
                 "</elem>");

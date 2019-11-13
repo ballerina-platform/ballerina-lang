@@ -63,7 +63,7 @@ import static org.ballerinalang.jvm.util.BLangConstants.XML_LANG_LIB;
 @SuppressWarnings("unchecked")
 public final class XMLItem extends XMLValue<OMNode> {
 
-    private final String XMLNS_URL_PREFIX = "{" + XMLConstants.XMLNS_ATTRIBUTE_NS_URI + "}";
+    public static final String XMLNS_URL_PREFIX = "{" + XMLConstants.XMLNS_ATTRIBUTE_NS_URI + "}";
     private QName name;
     XMLSequence children;
     MapValue<String, String> attributes = new MapValueImpl<>();
@@ -143,6 +143,10 @@ public final class XMLItem extends XMLValue<OMNode> {
     @Override
     public String getElementName() {
         return name.toString();
+    }
+
+    public QName getQName() {
+        return this.name;
     }
 
     /**
@@ -225,7 +229,7 @@ public final class XMLItem extends XMLValue<OMNode> {
      * {@inheritDoc}
      */
     @Override
-    public MapValue<String, ?> getAttributesMap() {
+    public MapValue<String, String> getAttributesMap() {
         return this.attributes;
     }
 

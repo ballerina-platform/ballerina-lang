@@ -40,6 +40,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static javax.xml.stream.XMLStreamConstants.CDATA;
+import static javax.xml.stream.XMLStreamConstants.CHARACTERS;
+import static javax.xml.stream.XMLStreamConstants.COMMENT;
+import static javax.xml.stream.XMLStreamConstants.END_DOCUMENT;
+import static javax.xml.stream.XMLStreamConstants.END_ELEMENT;
+import static javax.xml.stream.XMLStreamConstants.PROCESSING_INSTRUCTION;
+import static javax.xml.stream.XMLStreamConstants.START_ELEMENT;
+
 /**
  * @since 1.1.0
  */
@@ -78,26 +86,24 @@ public class StaxXMLSource {
             while (xmlStreamReader.hasNext()) {
                 int next = xmlStreamReader.next();
                 switch (next) {
-                    case XMLEvent.START_ELEMENT:
+                    case START_ELEMENT:
                         readElement(xmlStreamReader);
                         break;
-                    case XMLEvent.END_ELEMENT:
+                    case END_ELEMENT:
                         endElement();
                         break;
-                    case XMLEvent.PROCESSING_INSTRUCTION:
+                    case PROCESSING_INSTRUCTION:
                         readPI(xmlStreamReader);
                         break;
-                    case XMLEvent.END_DOCUMENT:
-                        return buildDocument();
-                    case XMLEvent.COMMENT:
+                    case COMMENT:
                         readComment(xmlStreamReader);
                         break;
-                    case XMLEvent.CDATA:
-                    case XMLEvent.CHARACTERS:
+                    case CDATA:
+                    case CHARACTERS:
                         readText(xmlStreamReader);
                         break;
-                    case XMLEvent.NAMESPACE:
-                        assert false;
+                    case END_DOCUMENT:
+                        return buildDocument();
                     default:
                         assert false;
                 }
@@ -186,8 +192,17 @@ public class StaxXMLSource {
                 namespaceURI = namespaces.getOrDefault(prefix, "");
             }
 
-            String xmlnsPrefix = "{" + XMLConstants.XMLNS_ATTRIBUTE_NS_URI + "}" + prefix;
+            String xmlnsPrefix = XMLItem.XMLNS_URL_PREFIX + prefix;
             attributesMap.put(xmlnsPrefix, namespaceURI);
+        }
+
+        for(int i = 0; i < xmlStreamReader.getNamespaceCount(); i++) {
+            String uri = xmlStreamReader.getNamespaceURI(i);
+            String prefix = xmlStreamReader.getNamespacePrefix(i);
+            if (prefix == null || prefix.isEmpty()) {
+                String xmlnsPrefix = XMLItem.XMLNS_URL_PREFIX;
+                attributesMap.put(xmlnsPrefix, uri);
+            }
         }
     }
 }

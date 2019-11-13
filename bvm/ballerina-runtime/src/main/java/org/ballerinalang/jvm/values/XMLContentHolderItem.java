@@ -70,6 +70,14 @@ public class XMLContentHolderItem extends XMLValue<OMNode> {
 
     }
 
+    public String getData() {
+        return data;
+    }
+
+    public String getTarget() {
+        return target;
+    }
+
     @Override
     public MapValue<String, ?> getAttributesMap() {
         return null;
@@ -117,7 +125,7 @@ public class XMLContentHolderItem extends XMLValue<OMNode> {
 
     @Override
     public XMLNodeType getNodeType() {
-        return null;
+        return type;
     }
 
     @Override
