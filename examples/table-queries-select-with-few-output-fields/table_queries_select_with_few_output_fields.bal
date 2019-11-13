@@ -18,7 +18,7 @@ type PersonPublicProfile record {
 public function main() {
     string queryStmt = "";
 
-    // These are a few sample values that represent different `Person` records.
+    // These are a few sample values, which represent different `Person` records.
     Person p1 =
     {id: 1, age: 25, salary: 1000.50, name: "jane", married: true};
     Person p2 =
