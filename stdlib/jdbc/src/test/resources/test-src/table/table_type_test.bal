@@ -1619,7 +1619,7 @@ function getXMLConversionResult(table<record {}> | error tableOrError) returns x
     return retVal;
 }
 
-function testSelectQueryWithCursorTable(string jdbcURL) returns error? {
+function testSelectQueryWithCursorTable(string jdbcURL) returns @tainted error? {
     jdbc:Client testDB = new ({
         url: jdbcURL,
         username: "SA",
@@ -1639,7 +1639,7 @@ function testSelectQueryWithCursorTableHelper(table<IntData> t1) {
     select *;
 }
 
-function testJoinQueryWithCursorTable(string jdbcURL) returns error? {
+function testJoinQueryWithCursorTable(string jdbcURL) returns @tainted error? {
     jdbc:Client testDB = new ({
         url: jdbcURL,
         username: "SA",

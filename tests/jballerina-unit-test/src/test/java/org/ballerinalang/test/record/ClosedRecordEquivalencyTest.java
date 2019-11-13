@@ -55,7 +55,7 @@ public class ClosedRecordEquivalencyTest {
     }
 
     @Test(description = "Test equivalence of public records that are in the same package. " +
-            "Equivalency test is performed in another package.")
+            "Equivalency test is performed in another package.", enabled = false)
     public void testEqOfPublicStructs() {
         BValue[] returns = BRunUtil.invoke(compileResult,
                                            "testEqOfPublicStructs");

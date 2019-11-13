@@ -36,6 +36,7 @@ import org.ballerinalang.jvm.util.exceptions.BLangFreezeException;
 import org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.util.exceptions.RuntimeErrors;
+import org.ballerinalang.jvm.values.api.BArray;
 import org.ballerinalang.jvm.values.freeze.FreezeUtils;
 import org.ballerinalang.jvm.values.freeze.State;
 import org.ballerinalang.jvm.values.freeze.Status;
@@ -73,7 +74,7 @@ import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.getMod
  * 
  * @since 0.995.0
  */
-public class ArrayValue implements RefValue, CollectionValue {
+public class ArrayValue implements RefValue, BArray {
 
     static final int SYSTEM_ARRAY_MAX = Integer.MAX_VALUE - 8;
     protected BType arrayType;
@@ -100,6 +101,7 @@ public class ArrayValue implements RefValue, CollectionValue {
 
     //------------------------ Constructors -------------------------------------------------------------------
 
+    @Deprecated
     public ArrayValue(Object[] values, BType type) {
         this.refValues = values;
         this.arrayType = type;
@@ -109,36 +111,42 @@ public class ArrayValue implements RefValue, CollectionValue {
         }
     }
 
+    @Deprecated
     public ArrayValue(long[] values) {
         this.intValues = values;
         this.size = values.length;
         setArrayElementType(BTypes.typeInt);
     }
 
+    @Deprecated
     public ArrayValue(boolean[] values) {
         this.booleanValues = values;
         this.size = values.length;
         setArrayElementType(BTypes.typeBoolean);
     }
 
+    @Deprecated
     public ArrayValue(byte[] values) {
         this.byteValues = values;
         this.size = values.length;
         setArrayElementType(BTypes.typeByte);
     }
 
+    @Deprecated
     public ArrayValue(double[] values) {
         this.floatValues = values;
         this.size = values.length;
         setArrayElementType(BTypes.typeFloat);
     }
 
+    @Deprecated
     public ArrayValue(String[] values) {
         this.stringValues = values;
         this.size = values.length;
         setArrayElementType(BTypes.typeString);
     }
 
+    @Deprecated
     public ArrayValue(BType type) {
         if (type.getTag() == TypeTags.INT_TAG) {
             intValues = (long[]) newArrayInstance(Long.TYPE);
@@ -208,10 +216,12 @@ public class ArrayValue implements RefValue, CollectionValue {
         }
     }
 
+    @Deprecated
     public ArrayValue() {
         refValues = (Object[]) newArrayInstance(Object.class);
     }
 
+    @Deprecated
     public ArrayValue(BType type, long size) {
         this.arrayType = type;
         if (type.getTag() == TypeTags.ARRAY_TAG) {
@@ -237,6 +247,11 @@ public class ArrayValue implements RefValue, CollectionValue {
 
     // -----------------------  get methods ----------------------------------------------------
 
+    /**
+     * Get value in the given array index.
+     * @param index array index
+     * @return array value
+     */
     public Object getValue(long index) {
         if (elementType != null) {
             if (elementType.getTag() == TypeTags.INT_TAG) {
@@ -256,6 +271,11 @@ public class ArrayValue implements RefValue, CollectionValue {
         return getRefValue(index);
     }
 
+    /**
+     * Get ref value in the given index.
+     * @param index array index
+     * @return array value
+     */
     public Object getRefValue(long index) {
         rangeCheckForGet(index, size);
         if (refValues == null) {
@@ -264,6 +284,11 @@ public class ArrayValue implements RefValue, CollectionValue {
         return refValues[(int) index];
     }
 
+    /**
+     * Get int value in the given index.
+     * @param index array index
+     * @return array element
+     */
     public long getInt(long index) {
         rangeCheckForGet(index, size);
         if (elementType.getTag() == TypeTags.INT_TAG) {
@@ -273,6 +298,11 @@ public class ArrayValue implements RefValue, CollectionValue {
         }
     }
 
+    /**
+     * Get boolean value in the given index.
+     * @param index array index
+     * @return array element
+     */
     public boolean getBoolean(long index) {
         rangeCheckForGet(index, size);
         if (elementType.getTag() == TypeTags.BOOLEAN_TAG) {
@@ -282,6 +312,11 @@ public class ArrayValue implements RefValue, CollectionValue {
         }
     }
 
+    /**
+     * Get byte value in the given index.
+     * @param index array index
+     * @return array element
+     */
     public byte getByte(long index) {
         rangeCheckForGet(index, size);
         if (elementType.getTag() == TypeTags.BYTE_TAG) {
@@ -291,6 +326,11 @@ public class ArrayValue implements RefValue, CollectionValue {
         }
     }
 
+    /**
+     * Get float value in the given index.
+     * @param index array index
+     * @return array element
+     */
     public double getFloat(long index) {
         rangeCheckForGet(index, size);
         if (elementType.getTag() == TypeTags.FLOAT_TAG) {
@@ -300,6 +340,11 @@ public class ArrayValue implements RefValue, CollectionValue {
         }
     }
 
+    /**
+     * Get string value in the given index.
+     * @param index array index
+     * @return array element
+     */
     public String getString(long index) {
         rangeCheckForGet(index, size);
         if (elementType.getTag() == TypeTags.STRING_TAG) {
@@ -329,18 +374,33 @@ public class ArrayValue implements RefValue, CollectionValue {
 
     // ----------------------------  add methods --------------------------------------------------
 
+    /**
+     * Add ref value to the given array index.
+     * @param index array index
+     * @param value value to be added
+     */
     public void add(long index, Object value) {
         handleFrozenArrayValue();
         prepareForAdd(index, refValues.length);
         refValues[(int) index] = value;
     }
 
+    /**
+     * Add int value to the given array index.
+     * @param index array index
+     * @param value value to be added
+     */
     public void add(long index, long value) {
         handleFrozenArrayValue();
         prepareForAdd(index, intValues.length);
         intValues[(int) index] = value;
     }
 
+    /**
+     * Add boolean value to the given array index.
+     * @param index array index
+     * @param value value to be added
+     */
     public void add(long index, boolean value) {
         if (elementType.getTag() == TypeTags.INT_TAG) {
             add(index, value);
@@ -352,18 +412,33 @@ public class ArrayValue implements RefValue, CollectionValue {
         booleanValues[(int) index] = value;
     }
 
+    /**
+     * Add byte value to the given array index.
+     * @param index array index
+     * @param value value to be added
+     */
     public void add(long index, byte value) {
         handleFrozenArrayValue();
         prepareForAdd(index, byteValues.length);
         byteValues[(int) index] = value;
     }
 
+    /**
+     * Add double value to the given array index.
+     * @param index array index
+     * @param value value to be added
+     */
     public void add(long index, double value) {
         handleFrozenArrayValue();
         prepareForAdd(index, floatValues.length);
         floatValues[(int) index] = value;
     }
 
+    /**
+     * Add string value to the given array index.
+     * @param index array index
+     * @param value value to be added
+     */
     public void add(long index, String value) {
         handleFrozenArrayValue();
         prepareForAdd(index, stringValues.length);
@@ -372,6 +447,10 @@ public class ArrayValue implements RefValue, CollectionValue {
 
     //-------------------------------------------------------------------------------------------------------------
 
+    /**
+     * Append value to the existing array.
+     * @param value value to be appended
+     */
     public void append(Object value) {
         add(size, value);
     }
@@ -383,12 +462,33 @@ public class ArrayValue implements RefValue, CollectionValue {
         return val;
     }
 
+    /**
+     * Removes and returns first member of an array.
+     * @return the value that was the first member of the array
+     */
+    public Object shift() {
+        return shift(0);
+    }
+
     private void shiftArray(int index, Object arr) {
         int nElemsToBeMoved = this.size - 1 - index;
         if (nElemsToBeMoved >= 0) {
             System.arraycopy(arr, index + 1, arr, index, nElemsToBeMoved);
         }
         this.size--;
+    }
+
+    /**
+     * Adds values to the start of an array.
+     * @param values values to add to the start of the array
+     */
+    public void unshift(ArrayValue values) {
+        unshift(0, values);
+    }
+
+    @Override
+    public void unshift(BArray values) {
+        unshift(0, (ArrayValue) values);
     }
 
     public void unshift(long index, ArrayValue vals) {
@@ -730,21 +830,41 @@ public class ArrayValue implements RefValue, CollectionValue {
         return stringValue();
     }
 
+    /**
+     * Get ref values array.
+     * @return ref value array
+     */
     public Object[] getValues() {
         return refValues;
     }
 
+    /**
+     * Get a copy of byte array.
+     * @return byte array
+     */
     public byte[] getBytes() {
         byte[] bytes = new byte[this.size];
         System.arraycopy(byteValues, 0, bytes, 0, this.size);
         return bytes;
     }
 
+    /**
+     * Get a copy of string array.
+     * @return string array
+     */
     public String[] getStringArray() {
         return Arrays.copyOf(stringValues, size);
     }
 
     public long[] getLongArray() {
+        return Arrays.copyOf(intValues, size);
+    }
+
+    /**
+     * Get a copy of int array.
+     * @return int array
+     */
+    public long[] getIntArray() {
         return Arrays.copyOf(intValues, size);
     }
 
@@ -822,9 +942,22 @@ public class ArrayValue implements RefValue, CollectionValue {
         }
     }
 
+    /**
+     * Get {@code BType} of the array.
+     * @return array type.
+     */
     public BType getArrayType() {
         return arrayType;
     }
+
+    /**
+     * Get {@code BType} of the array elements.
+     * @return element type
+     */
+    public BType getElementType() {
+        return this.elementType;
+    }
+
 
     private void rangeCheckForGet(long index, int size) {
         rangeCheck(index, size);
@@ -1159,7 +1292,10 @@ public class ArrayValue implements RefValue, CollectionValue {
         this.arrayType = type;
         refValues = null;
     }
-    
+
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public IteratorValue getIterator() {
         return new ArrayIterator(this);

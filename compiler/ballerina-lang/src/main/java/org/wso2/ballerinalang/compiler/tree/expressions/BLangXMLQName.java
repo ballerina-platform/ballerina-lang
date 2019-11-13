@@ -40,12 +40,6 @@ public class BLangXMLQName extends BLangExpression implements XMLQNameNode {
     public BLangXMLQName() {    
     }
 
-    public BLangXMLQName(String localname) {
-        this.localname = new BLangIdentifier();
-        this.prefix = new BLangIdentifier();
-        this.localname.value = localname;
-    }
-
     public BLangXMLQName(String localname, String prefix) {
         this.localname = new BLangIdentifier();
         this.localname.value = localname;

@@ -16,7 +16,7 @@
 
 import ballerina/io;
 
-function testWriteFixedSignedInt(int value, string path, io:ByteOrder byteOrder) returns io:Error? {
+function testWriteFixedSignedInt(int value, string path, io:ByteOrder byteOrder) returns @tainted io:Error? {
     io:WritableByteChannel ch = check io:openWritableFile(path);
     io:WritableDataChannel dataChannel = new(ch, byteOrder);
     var result = dataChannel.writeInt64(value);
@@ -35,7 +35,7 @@ function testReadFixedSignedInt(string path, io:ByteOrder byteOrder) returns @ta
     }
 }
 
-function testWriteVarInt(int value, string path, io:ByteOrder byteOrder) returns io:Error? {
+function testWriteVarInt(int value, string path, io:ByteOrder byteOrder) returns @tainted io:Error? {
     io:WritableByteChannel ch = check io:openWritableFile(path);
     io:WritableDataChannel dataChannel = new(ch, byteOrder);
     var result = dataChannel.writeVarInt(value);
@@ -54,7 +54,7 @@ function testReadVarInt(string path, io:ByteOrder byteOrder) returns @tainted in
     }
 }
 
-function testWriteFixedFloat(float value, string path, io:ByteOrder byteOrder) returns io:Error? {
+function testWriteFixedFloat(float value, string path, io:ByteOrder byteOrder) returns @tainted io:Error? {
     io:WritableByteChannel ch = check io:openWritableFile(path);
     io:WritableDataChannel dataChannel = new(ch, byteOrder);
     var result = dataChannel.writeFloat64(value);
@@ -73,7 +73,7 @@ function testReadFixedFloat(string path, io:ByteOrder byteOrder) returns @tainte
     }
 }
 
-function testWriteBool(boolean value, string path, io:ByteOrder byteOrder) returns io:Error? {
+function testWriteBool(boolean value, string path, io:ByteOrder byteOrder) returns @tainted io:Error? {
     io:WritableByteChannel ch = check io:openWritableFile(path);
     io:WritableDataChannel dataChannel = new(ch, byteOrder);
     var result = dataChannel.writeBool(value);

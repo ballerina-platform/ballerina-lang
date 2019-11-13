@@ -303,55 +303,55 @@ public class PackageLoader {
      * 2. If a version is available on the Ballerina.toml
      * 3. If a version is available in the Ballerina.toml of the enclosing module's balo.
      *
-     * @param moduleID The ID of the module.
+     * @param moduleID      The ID of the module.
      * @param enclPackageId The ID of the parent module.
      */
     private void updateModuleIDVersion(PackageID moduleID, PackageID enclPackageId) {
         String orgName = moduleID.orgName.value;
         String moduleName = moduleID.name.value;
-        
+
         // Set the version from the Ballerina.lock file found in the current project.
-        if (enclPackageId != null && moduleID.version.value.isEmpty() &&
-            this.hasLockFile(Paths.get(this.options.get(PROJECT_DIR)))) {
+        if (enclPackageId != null && this.hasLockFile(Paths.get(this.options.get(PROJECT_DIR)))) {
             // Not a top level package or bal
             if (this.lockFile.getImports().containsKey(enclPackageId.toString())) {
                 List<LockFileImport> foundBaseImport = lockFile.getImports().get(enclPackageId.toString());
-                Optional<LockFileImport> foundNestedImport = foundBaseImport
-                                                                      .stream()
-                                                                      .filter(nestedImport ->
-                                                      moduleID.orgName.value.equals(nestedImport.getOrgName()) &&
-                                                      moduleID.name.value.equals(nestedImport.getName()))
-                                                                      .findFirst();
-                foundNestedImport.ifPresent(dependencyPkg -> moduleID.version =
-                        new Name(dependencyPkg.getVersion()));
+
+                for (LockFileImport nestedImport : foundBaseImport) {
+                    if (moduleID.orgName.value.equals(nestedImport.getOrgName()) &&
+                            moduleID.name.value.equals(nestedImport.getName())) {
+                        moduleID.version = new Name(nestedImport.getVersion());
+                        return;
+                    }
+                }
             }
         }
-    
+
         // Set version from the Ballerina.toml of the current project.
-        if (enclPackageId != null && moduleID.version.value.isEmpty() && null != this.manifest) {
-            // TODO: make getDependencies return a map
-            Optional<Dependency> dependency = this.manifest.getDependencies().stream()
-                    .filter(d -> d.getModuleName().equals(moduleName) && d.getOrgName().equals(orgName) &&
-                                 null != d.getMetadata().getVersion() &&
-                                 !"*".equals(d.getMetadata().getVersion()))
-                    .findFirst();
-            dependency.ifPresent(value -> moduleID.version = new Name(value.getMetadata().getVersion()));
+        if (enclPackageId != null && this.manifest != null) {
+
+            for (Dependency dependency : this.manifest.getDependencies()) {
+                if (dependency.getModuleName().equals(moduleName) && dependency.getOrgName().equals(orgName) &&
+                        dependency.getMetadata().getVersion() != null &&
+                        !"*".equals(dependency.getMetadata().getVersion())) {
+                    moduleID.version = new Name(dependency.getMetadata().getVersion());
+                    return;
+                }
+            }
         }
-        
+
         // Set the version from Ballerina.toml found in dependent balos.
-        if (null != enclPackageId && moduleID.version.value.isEmpty() && this.dependencyManifests.size() > 0 &&
-            this.dependencyManifests.containsKey(enclPackageId)) {
-            
-            Optional<Dependency> manifestDependency = this.dependencyManifests.get(enclPackageId).getDependencies()
-                    .stream()
-                    .filter(dep -> dep.getOrgName().equals(moduleID.orgName.value) &&
-                                   dep.getModuleName().equals(moduleID.name.value) &&
-                                   null != dep.getMetadata().getVersion() &&
-                                   !"*".equals(dep.getMetadata().getVersion()))
-                    .findFirst();
-        
-            manifestDependency.ifPresent(dependency -> moduleID.version =
-                    new Name(dependency.getMetadata().getVersion()));
+        if (enclPackageId != null && this.dependencyManifests.size() > 0
+                && this.dependencyManifests.containsKey(enclPackageId)) {
+
+            for (Dependency manifestDependency : this.dependencyManifests.get(enclPackageId).getDependencies()) {
+                if (manifestDependency.getOrgName().equals(moduleID.orgName.value) &&
+                        manifestDependency.getModuleName().equals(moduleID.name.value) &&
+                        manifestDependency.getMetadata().getVersion() != null &&
+                        !"*".equals(manifestDependency.getMetadata().getVersion())) {
+                    moduleID.version = new Name(manifestDependency.getMetadata().getVersion());
+                    return;
+                }
+            }
         }
     }
 
