@@ -1076,7 +1076,7 @@
         "category": "Experimental features",
         "samples": [{
                 "name": "Select all the fields",
-                "url": "table-queries-select-all"
+                "url": "table-queries"
             },
             {
                 "name": "Select a few field for the output",
