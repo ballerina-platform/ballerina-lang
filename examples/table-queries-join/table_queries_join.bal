@@ -49,7 +49,7 @@ public function main() {
     printTable(queryStmt, "The personTable:  ", personTable);
 
     // These are a few sample values that represent orders made by the people who were
-    // listed above as person records.
+    // the person records listed above.
     Order o1 =
     {personId: 1, orderId: 1234, items: "pen, book, eraser", amount: 34.75};
     Order o2 =
