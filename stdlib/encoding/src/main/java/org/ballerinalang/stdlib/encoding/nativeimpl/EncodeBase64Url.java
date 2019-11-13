@@ -18,9 +18,7 @@
 
 package org.ballerinalang.stdlib.encoding.nativeimpl;
 
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ArrayValue;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
@@ -30,13 +28,9 @@ import java.util.Base64;
  *
  * @since 0.991.0
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "encoding",
-        functionName = "encodeBase64Url", isPublic = true
-)
 public class EncodeBase64Url {
 
-    public static String encodeBase64Url(Strand strand, ArrayValue input) {
+    public static String encodeBase64Url(ArrayValue input) {
         byte[] encodedValue = Base64.getUrlEncoder().encode(input.getBytes());
         return new String(encodedValue, StandardCharsets.ISO_8859_1);
     }

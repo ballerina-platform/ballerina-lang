@@ -17,11 +17,14 @@
  */
 package org.ballerinalang.toml;
 
+import org.ballerinalang.toml.exceptions.TomlException;
 import org.ballerinalang.toml.model.Manifest;
+import org.ballerinalang.toml.parser.ManifestProcessor;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 import org.wso2.ballerinalang.util.TomlParserUtils;
 
+import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Path;
@@ -58,5 +61,13 @@ public class TomlFileToManifestTest {
         Assert.assertEquals(manifest.getDependencies().get(1).getMetadata().getPath().toString(),
                 "path/to/github.balo");
         
+    }
+    
+    @Test(description = "Test invalid Ballerina.toml", expectedExceptions = TomlException.class,
+          expectedExceptionsMessageRegExp = ".*expected begin_array but was string at path.*")
+    public void testInvalidTomlFile() throws URISyntaxException, IOException, TomlException {
+        URI ballerinaTomlURI = getClass().getClassLoader().getResource("invalid-ballerina.toml").toURI();
+        Path ballerinTomlPath = Paths.get(ballerinaTomlURI);
+        ManifestProcessor.parseTomlContentFromFile(ballerinTomlPath);
     }
 }
