@@ -20,7 +20,6 @@ package org.ballerinalang.net.http.websocket.client;
 
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.net.http.websocket.WebSocketConstants;
-import org.ballerinalang.net.http.websocket.WebSocketResourceDispatcher;
 import org.ballerinalang.net.http.websocket.WebSocketUtil;
 import org.ballerinalang.net.http.websocket.server.WebSocketConnectionInfo;
 import org.slf4j.Logger;
@@ -39,8 +38,6 @@ public class WebSocketClientListener extends WebSocketClientConnectorListener {
 
     private WebSocketConnectionInfo connectionInfo = null;
     private static final Logger logger = LoggerFactory.getLogger(WebSocketClientListener.class);
-    private static final String STATEMENT_FOR_CLOSE_CONNECTION = "Reconnect attempt not made because of " +
-            "close initiated by the server: ";
 
     @Override
     public void setConnectionInfo(WebSocketConnectionInfo connectionInfo) {
@@ -58,7 +55,7 @@ public class WebSocketClientListener extends WebSocketClientConnectorListener {
                 return;
             } else {
                 if (statusCode != WebSocketConstants.STATUS_CODE_ABNORMAL_CLOSURE) {
-                    logger.debug(WebSocketConstants.LOG_MESSAGE, STATEMENT_FOR_CLOSE_CONNECTION,
+                    logger.debug(WebSocketConstants.LOG_MESSAGE, WebSocketConstants.STATEMENT_FOR_CLOSE_CONNECTION,
                             webSocketClient.getStringValue(WebSocketConstants.CLIENT_URL_CONFIG));
                 }
             }
@@ -73,6 +70,6 @@ public class WebSocketClientListener extends WebSocketClientConnectorListener {
                 WebSocketUtil.reconnect(connectionInfo)) {
             return;
         }
-        WebSocketResourceDispatcher.dispatchOnError(connectionInfo, throwable);
+        WebSocketUtil.dispatchOnError(throwable, connectionInfo);
     }
 }

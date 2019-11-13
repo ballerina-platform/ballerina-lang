@@ -87,6 +87,15 @@ public class FailoverInitEndpoint {
         }
         // Creates the connector factory and sets it as the native data.
         webSocketClient.addNativeData(WebSocketConstants.CONNECTOR_FACTORY, HttpUtil.createHttpWsConnectionFactory());
+        if (clientEndpointConfig.get(WebSocketConstants.RETRY_CONFIG) != null) {
+            @SuppressWarnings(WebSocketConstants.UNCHECKED)
+            MapValue<String, Object> retryConfig = (MapValue<String, Object>) clientEndpointConfig.
+                    get(WebSocketConstants.RETRY_CONFIG);
+            // Set the retry config values
+            RetryContext retryConnectorConfig = new RetryContext();
+            WebSocketUtil.populateRetryConnectorConfig(retryConfig, retryConnectorConfig);
+            webSocketClient.addNativeData(WebSocketConstants.RETRY_CONFIG, retryConnectorConfig);
+        }
         // Sets the failover config values.
         FailoverContext failoverConfig = new FailoverContext();
         populateFailoverConnectorConfig(clientEndpointConfig, failoverConfig, newTargetUrls);

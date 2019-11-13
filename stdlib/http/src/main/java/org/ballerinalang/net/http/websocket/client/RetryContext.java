@@ -64,7 +64,7 @@ public class RetryContext {
      *
      * @param backOfFactor a initial index.
      */
-    void setBackOfFactor(float backOfFactor) {
+    public void setBackOfFactor(float backOfFactor) {
         this.backOfFactor = backOfFactor;
     }
 
@@ -82,7 +82,7 @@ public class RetryContext {
      *
      * @param maxInterval a index.
      */
-    void setMaxInterval(int maxInterval) {
+    public void setMaxInterval(int maxInterval) {
         this.maxInterval = maxInterval;
     }
 
@@ -100,7 +100,7 @@ public class RetryContext {
      *
      * @param maxAttempts a index.
      */
-    void setMaxAttempts(int maxAttempts) {
+    public void setMaxAttempts(int maxAttempts) {
         this.maxAttempts = maxAttempts;
     }
 

@@ -18,8 +18,8 @@
 
 package org.ballerinalang.net.http.websocket.client;
 
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.net.http.websocket.WebSocketConstants;
-import org.ballerinalang.net.http.websocket.WebSocketResourceDispatcher;
 import org.ballerinalang.net.http.websocket.WebSocketUtil;
 import org.ballerinalang.net.http.websocket.server.WebSocketConnectionInfo;
 import org.slf4j.Logger;
@@ -48,9 +48,14 @@ public class WebSocketFailoverClientListener extends WebSocketClientConnectorLis
 
     @Override
     public void onMessage(WebSocketCloseMessage webSocketCloseMessage) {
+        ObjectValue webSocketClient = connectionInfo.getWebSocketEndpoint();
         int statusCode = webSocketCloseMessage.getCloseCode();
-        if (!(statusCode == WebSocketConstants.STATUS_CODE_ABNORMAL_CLOSURE &&
-                WebSocketUtil.failover(connectionInfo))) {
+        if (statusCode == WebSocketConstants.STATUS_CODE_ABNORMAL_CLOSURE) {
+            WebSocketUtil.determineFailoverOrReconnect(connectionInfo, null, webSocketCloseMessage);
+        } else {
+            if (WebSocketUtil.hasRetryConfig(webSocketClient)) {
+                logger.debug(WebSocketConstants.STATEMENT_FOR_CLOSE_CONNECTION);
+            }
             WebSocketUtil.dispatchOnClose(connectionInfo, webSocketCloseMessage);
         }
     }
@@ -58,9 +63,10 @@ public class WebSocketFailoverClientListener extends WebSocketClientConnectorLis
     @Override
     public void onError(WebSocketConnection webSocketConnection, Throwable throwable) {
         // When connection lost, do the failover to the remaining server urls.
-        if (!(throwable instanceof IOException && WebSocketUtil.failover(connectionInfo))) {
-            logger.error("Error occurred: ", throwable);
-            WebSocketResourceDispatcher.dispatchOnError(connectionInfo, throwable);
+        if (throwable instanceof IOException) {
+            WebSocketUtil.determineFailoverOrReconnect(connectionInfo, throwable, null);
+        } else {
+            WebSocketUtil.dispatchOnError(throwable, connectionInfo);
         }
     }
 }

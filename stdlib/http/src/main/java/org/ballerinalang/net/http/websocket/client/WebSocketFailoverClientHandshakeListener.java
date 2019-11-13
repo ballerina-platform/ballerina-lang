@@ -78,6 +78,9 @@ public class WebSocketFailoverClientHandshakeListener implements ClientHandshake
         WebSocketUtil.readNextFrame(readyOnConnect, webSocketClient, webSocketConnection);
         WebSocketUtil.countDownForSuccess(countDownLatch, webSocketClient);
         // Following these are created for future connection
+        if (WebSocketUtil.hasRetryConfig(webSocketClient)) {
+            ((RetryContext) webSocketClient.getNativeData(WebSocketConstants.RETRY_CONFIG)).setReconnectAttempts(0);
+        }
         if (failoverConfig != null) {
             int currentIndex = failoverConfig.getCurrentIndex();
             logger.debug(WebSocketConstants.LOG_MESSAGE, WebSocketConstants.CONNECTED_TO,
@@ -103,7 +106,9 @@ public class WebSocketFailoverClientHandshakeListener implements ClientHandshake
         if (countDownLatch != null) {
             countDownLatch.countDown();
         }
-        if (!(throwable instanceof IOException && WebSocketUtil.failover(connectionInfo))) {
+        if (throwable instanceof IOException) {
+            WebSocketUtil.determineFailoverOrReconnect(connectionInfo, throwable, null);
+        } else {
             WebSocketUtil.dispatchOnError(connectionInfo, throwable);
         }
     }

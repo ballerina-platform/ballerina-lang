@@ -82,6 +82,20 @@ public class WebSocketUtil {
             " the targets: ";
     private static final String WEBSOCKET_FAILOVER_CLIENT_NAME = WebSocketConstants.PACKAGE_HTTP +
             WebSocketConstants.SEPARATOR + WebSocketConstants.FAILOVER_WEBSOCKET_CLIENT;
+    private static final String STATEMENT_FOR_FAILOVDER_RECONNECT = "Maximum retry attempts but couldn't connect " +
+            "to the one of the server in the targets: ";
+    private static final String STATEMENT_FOR_BACK_OF_FACTOR = "The decay's value set for the configuration needs " +
+            "to be greater than -1. ";
+    private static final String STATEMENT_FOR_MAX_INTERVAL = "The maxInterval's value set for the configuration" +
+            " needs to be greater than -1. ";
+    private static final String STATEMENT_FOR_MAX_ATTEPTS = "The maximum doReconnect attempt's value set for the" +
+            " configuration needs to be greater than -1. ";
+    private static final String STATEMENT_FOR_INTEVAL = "The interval's value set for the configuration needs to be " +
+            "greater than -1. ";
+    private static final String MAX_COUNT = "maxCount";
+    private static final String INTERVAL = "intervalInMillis";
+    private static final String BACK_OF_FACTOR = "backOffFactor";
+    private static final String MAX_INTERVAL = "maxWaitIntervalInMillis";
 
     public static ObjectValue createAndPopulateWebSocketCaller(WebSocketConnection webSocketConnection,
                                                                WebSocketServerService wsService,
@@ -390,12 +404,7 @@ public class WebSocketUtil {
         List targets = failoverConfig.getTargetUrls();
         int failoverInterval = failoverConfig.getFailoverInterval();
         WebSocketService wsService = connectionInfo.getService();
-        // Set next url index
-        currentIndex++;
-        // Check current url index equals to target size or not. if equal, set the currentIndex = 0
-        if (currentIndex == targets.size()) {
-            currentIndex = 0;
-        }
+        currentIndex = getCurrentIndex(currentIndex, targets);
         // Check the current url index equals with previous connected url index or not.
         // If it isn't equal, call the initialiseWebSocketConnection()
         // if it equals, return false
@@ -595,6 +604,199 @@ public class WebSocketUtil {
         } else {
             countDownLatch.countDown();
         }
+    }
+
+    public static void determineFailoverOrReconnect(WebSocketConnectionInfo connectionInfo, Throwable throwable,
+                                                    WebSocketCloseMessage webSocketCloseMessage) {
+        ObjectValue webSocketClient = connectionInfo.getWebSocketEndpoint();
+        if (hasRetryConfig(webSocketClient)) {
+            // When connection lost, do the failover to the remaining server urls.
+            // If failover fails, do the reconnection
+            if (!failoverAndRetry(connectionInfo)) {
+                setDispatcher(connectionInfo, throwable, webSocketCloseMessage);
+            }
+        } else {
+            // When connection lost, do the failover to the remaining server urls.
+            if (!failover(connectionInfo)) {
+                setDispatcher(connectionInfo, throwable, webSocketCloseMessage);
+            }
+        }
+    }
+
+    private static void setDispatcher(WebSocketConnectionInfo connectionInfo, Throwable throwable,
+                                      WebSocketCloseMessage webSocketCloseMessage) {
+        ObjectValue webSocketCaller = connectionInfo.getWebSocketEndpoint();
+        countDownForHandshake(webSocketCaller);
+        dispatchIntoResource(connectionInfo, throwable, webSocketCloseMessage);
+    }
+
+    private static void dispatchIntoResource(WebSocketConnectionInfo connectionInfo, Throwable throwable,
+                                             WebSocketCloseMessage webSocketCloseMessage) {
+        if (throwable != null) {
+            WebSocketResourceDispatcher.dispatchOnError(connectionInfo, throwable);
+        } else {
+            dispatchOnClose(connectionInfo, webSocketCloseMessage);
+        }
+    }
+
+    /**
+     * Failover and Reconnect when webSocket connection is lost.
+     *
+     * @param connectionInfo information about the connection
+     * @return if failover or retry attempts, return true
+     */
+    private static boolean failoverAndRetry(WebSocketConnectionInfo connectionInfo) {
+        ObjectValue webSocketClient = connectionInfo.getWebSocketEndpoint();
+        FailoverContext failoverConfig = (FailoverContext) webSocketClient.
+                getNativeData(WebSocketConstants.FAILOVER_CONFIG);
+        List targets = failoverConfig.getTargetUrls();
+        // Check whether failover attempt finished or not.
+        // If it isn't finished, call the establishFailoverConnection()
+        // if it is finished and has retry config, call the reconnectForFailover()
+        if (!failoverConfig.isFailoverFinished()) {
+            if (!failover(connectionInfo)) {
+                failoverConfig.setFailoverFinished(true);
+            } else {
+                return true;
+            }
+        }
+        if (failoverConfig.isFailoverFinished()) {
+            return reconnectForFailover(connectionInfo, failoverConfig, targets);
+        }
+        return false;
+    }
+
+    /**
+     * Do the reconnection when webSocket connection will be lost.
+     *
+     * @param connectionInfo a connection info
+     */
+    private static boolean reconnectForFailover(WebSocketConnectionInfo connectionInfo,
+                                                FailoverContext failoverConfig, List targets) {
+        ObjectValue webSocketClient = connectionInfo.getWebSocketEndpoint();
+        RetryContext retryConnectorConfig = (RetryContext) webSocketClient.
+                getNativeData(WebSocketConstants.RETRY_CONFIG);
+        int interval = retryConnectorConfig.getInterval();
+        int maxInterval = retryConnectorConfig.getMaxInterval();
+        int maxAttempts = retryConnectorConfig.getMaxAttempts();
+        int noOfReconnectAttempts = retryConnectorConfig.getReconnectAttempts();
+        float backOfFactor = retryConnectorConfig.getBackOfFactor();
+        int currentIndex = failoverConfig.getCurrentIndex();
+        WebSocketService wsService = connectionInfo.getService();
+        Date date = new Date();
+        currentIndex = getCurrentIndex(currentIndex, targets);
+        // Check the current url index equals with previous connected url index or not.
+        // If it is equal, update the no of reconnection attempt by one
+        if (currentIndex == failoverConfig.getInitialIndex()) {
+            SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
+            String time = formatter.format(date.getTime());
+            logger.debug(WebSocketConstants.LOG_MESSAGE, time, RECONNECTING);
+            noOfReconnectAttempts++;
+            retryConnectorConfig.setReconnectAttempts(noOfReconnectAttempts);
+        }
+        // Check the no of reconnection attempt equals with maximum reconnection attempt or not.
+        // If it isn't equal, call the initialiseWebSocketConnection()
+        // if it equals, return false
+        if (((noOfReconnectAttempts < maxAttempts) && maxAttempts > 0) || maxAttempts == 0) {
+            failoverConfig.setCurrentIndex(currentIndex);
+            setCountDownLatch(calculateWaitingTime(interval, maxInterval, backOfFactor, noOfReconnectAttempts));
+            establishFailoverConnection(createWebSocketClientConnector(targets.get(currentIndex).toString(),
+                    webSocketClient), webSocketClient, wsService);
+            return true;
+        }
+        logger.debug(WebSocketConstants.LOG_MESSAGE, STATEMENT_FOR_FAILOVDER_RECONNECT, targets);
+        return false;
+    }
+
+    public static void dispatchOnError(Throwable throwable, WebSocketConnectionInfo connectionInfo) {
+        logger.error(WebSocketConstants.ERROR_MESSAGE, throwable);
+        WebSocketResourceDispatcher.dispatchOnError(connectionInfo, throwable);
+    }
+
+    /**
+     * Populate the retry config.
+     *
+     * @param retryConfig a retry config
+     * @param retryConnectorConfig retry connector config
+     */
+    public static void populateRetryConnectorConfig(MapValue<String, Object> retryConfig,
+                                                    RetryContext retryConnectorConfig) {
+        setInterval(Integer.parseInt(retryConfig.get(INTERVAL).toString()), retryConnectorConfig);
+        setBackOfFactor(Float.parseFloat(retryConfig.get(BACK_OF_FACTOR).toString()),
+                retryConnectorConfig);
+        setMaxInterval(Integer.parseInt(retryConfig.get(MAX_INTERVAL).toString()),
+                retryConnectorConfig);
+        setMaxAttempts(Integer.parseInt(retryConfig.get(MAX_COUNT).toString()),
+                retryConnectorConfig);
+    }
+
+    /**
+     * Set value of the interval in the retry config.
+     *
+     * @param interval retry interval
+     * @param retryConnectorConfig retry connector config
+     */
+    private static void setInterval(int interval, RetryContext retryConnectorConfig) {
+        if (interval < 0) {
+            logger.warn("{} The interval[{}] value is set to 1000.", STATEMENT_FOR_INTEVAL, interval);
+            interval = 1000;
+        }
+        retryConnectorConfig.setInterval(interval);
+    }
+
+    /**
+     * Set value of the backOfFactor in the retry config.
+     *
+     * @param backOfFactor a rate of increase of the reconnect delay
+     * @param retryConnectorConfig retry connector config
+     */
+    private static void setBackOfFactor(float backOfFactor, RetryContext retryConnectorConfig) {
+        if (backOfFactor < 0) {
+            logger.warn("{} The backOfFactor[{}] value is set to 1.0", STATEMENT_FOR_BACK_OF_FACTOR,
+                    backOfFactor);
+            backOfFactor = (float) 1.0;
+        }
+        retryConnectorConfig.setBackOfFactor(backOfFactor);
+    }
+
+    /**
+     * Set value of the maxInterval in the retry config.
+     *
+     * @param maxInterval a maximum interval
+     * @param retryConnectorConfig retry connector config
+     */
+    private static void setMaxInterval(int maxInterval, RetryContext retryConnectorConfig) {
+        if (maxInterval < 0) {
+            logger.warn("{} The maxInterval[{}] value is set to 30000", STATEMENT_FOR_MAX_INTERVAL,
+                    maxInterval);
+            maxInterval =  30000;
+        }
+        retryConnectorConfig.setMaxInterval(maxInterval);
+    }
+
+    /**
+     * Set value of the maxAttempts in the retry config.
+     *
+     * @param maxAttempts a maximum number of retry attempts
+     * @param retryConnectorConfig retry connector config
+     */
+    private static void setMaxAttempts(int maxAttempts, RetryContext retryConnectorConfig) {
+        if (maxAttempts < 0) {
+            logger.warn("{} The maxAttempts[{}] value is set to 0", STATEMENT_FOR_MAX_ATTEPTS,
+                    maxAttempts);
+            maxAttempts = 0;
+        }
+        retryConnectorConfig.setMaxAttempts(maxAttempts);
+    }
+
+    private static int getCurrentIndex (int currentIndex, List targets) {
+        // Set next url index
+        currentIndex++;
+        // Check current url index equals to target size or not. if equal, set the currentIndex = 0
+        if (currentIndex == targets.size()) {
+            currentIndex = 0;
+        }
+        return currentIndex;
     }
 
     private WebSocketUtil() {
