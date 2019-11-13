@@ -39,7 +39,7 @@ public function main() {
     Person p4 =
     {id: 4, age: 28, salary: 1100.50, name: "alex", married: false};
 
-    // This is the in-memory `table` that is constrained by the `Person` type.
+    // This is the in-memory `table`, which is constrained by the `Person` type.
     table<Person> personTable = table {
         {id, age, salary, name, married},
         [p1, p2, p3, p4]
