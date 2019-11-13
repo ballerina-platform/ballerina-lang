@@ -17,7 +17,7 @@ type Order record {
     float amount;
 };
 
-// This `record` type represents the order details (this is derived by joining the person details
+// This `record` type represents the order details (derived by joining the person details
 //and the order details).
 type OrderDetails record {
     int orderId;
