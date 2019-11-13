@@ -250,7 +250,7 @@ public class DocCommand implements BLauncherCmd {
             targetPath = this.sourceRootPath.resolve(ProjectDirConstants.TARGET_DIR_NAME);
         } else {
             CommandUtil.printError(this.errStream,
-                    "invalid Ballerina source path, it should either be a name of a module in a Ballerina project or " +
+                    "invalid Ballerina source path. It should either be a name of a module in a Ballerina project or " +
                     "a file with a \'" + BLangConstants.BLANG_SRC_FILE_SUFFIX + "\' extension. use the -a or --all " +
                     "flag to generate docs for all modules.",
                     "ballerina doc {<ballerina-file> | <module-name> | -a | --all}",

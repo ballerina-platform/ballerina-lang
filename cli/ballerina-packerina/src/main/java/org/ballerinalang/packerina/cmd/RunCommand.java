@@ -218,8 +218,8 @@ public class RunCommand implements BLauncherCmd {
             targetPath = sourceRootPath.resolve(ProjectDirConstants.TARGET_DIR_NAME);
         } else {
             CommandUtil.printError(this.errStream,
-                    "invalid Ballerina source path, it should be a name of a module in a Ballerina project or a " +
-                    "file with a \'" + BLangConstants.BLANG_SRC_FILE_SUFFIX + "\' extension or an executable .jar " +
+                    "invalid Ballerina source path. It should either be a name of a module in a Ballerina project, " +
+                    "a file with a \'" + BLangConstants.BLANG_SRC_FILE_SUFFIX + "\' extension, or an executable .jar " +
                     "file.",
                     "ballerina run {<bal-file> | <module-name> | <executable-jar>}",
                     true);
