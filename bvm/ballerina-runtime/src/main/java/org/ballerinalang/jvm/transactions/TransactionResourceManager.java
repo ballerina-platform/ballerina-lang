@@ -124,7 +124,7 @@ public class TransactionResourceManager {
                                       FPValue aborted, Strand strand) {
         localParticipants.computeIfAbsent(gTransactionId, gid -> new ConcurrentSkipListSet<>()).add(transactionBlockId);
 
-        TransactionLocalContext transactionLocalContext = strand.getLocalTransactionContext();
+        TransactionLocalContext transactionLocalContext = strand.transactionLocalContext;
         registerCommittedFunction(transactionBlockId, committed);
         registerAbortedFunction(transactionBlockId, aborted);
         transactionLocalContext.beginTransactionBlock(transactionBlockId);
@@ -313,7 +313,7 @@ public class TransactionResourceManager {
         FPValue fp = committedFuncRegistry.get(transactionBlockId);
         Object[] args = { strand, (transactionId + ":" + transactionBlockId), true };
         if (fp != null) {
-            strand.scheduler.schedule(args, fp.getConsumer(), strand, null);
+            strand.scheduler.schedule(args, fp.getFunction(), strand, null);
         }
     }
 

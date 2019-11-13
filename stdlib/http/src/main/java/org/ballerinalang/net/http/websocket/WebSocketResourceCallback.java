@@ -23,7 +23,7 @@ import org.ballerinalang.jvm.values.connector.CallableUnitCallback;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketConnection;
 
 /**
- * Empty callback impl for web socket.
+ * Callback impl for web socket.
  */
 public class WebSocketResourceCallback implements CallableUnitCallback {
 

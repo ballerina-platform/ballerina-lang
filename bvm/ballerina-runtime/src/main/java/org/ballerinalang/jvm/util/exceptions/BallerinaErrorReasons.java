@@ -43,6 +43,7 @@ public class BallerinaErrorReasons {
     public static final String TABLE_CLOSED_ERROR = BALLERINA_PREFIX.concat("TableClosedError");
 
     public static final String DIVISION_BY_ZERO_ERROR = BALLERINA_PREFIX.concat("DivisionByZero");
+    public static final String NUMBER_OVERFLOW = BALLERINA_PREFIX.concat("NumberOverflow");
     public static final String ARITHMETIC_OPERATION_ERROR = BALLERINA_PREFIX.concat("ArithmeticOperationError");
     public static final String JAVA_NULL_REFERENCE_ERROR = BALLERINA_PREFIX.concat("JavaNullReferenceError");
     public static final String JAVA_CLASS_NOT_FOUND_ERROR = BALLERINA_PREFIX.concat("JavaClassNotFoundError");

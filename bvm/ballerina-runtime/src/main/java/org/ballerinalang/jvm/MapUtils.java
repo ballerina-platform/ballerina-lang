@@ -21,7 +21,6 @@ import org.ballerinalang.jvm.types.BField;
 import org.ballerinalang.jvm.types.BMapType;
 import org.ballerinalang.jvm.types.BRecordType;
 import org.ballerinalang.jvm.types.BType;
-import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.jvm.util.exceptions.RuntimeErrors;
@@ -44,12 +43,11 @@ public class MapUtils {
 
     public static void handleMapStore(MapValue<String, Object> mapValue, String fieldName, Object value) {
         BType mapType = mapValue.getType();
-        BType valuesType = value == null ? BTypes.typeNull : TypeChecker.getType(value);
-
         switch (mapType.getTag()) {
             case TypeTags.MAP_TAG:
                 if (!TypeChecker.checkIsType(value, ((BMapType) mapType).getConstrainedType())) {
                     BType expType = ((BMapType) mapType).getConstrainedType();
+                    BType valuesType = TypeChecker.getType(value);
                     throw BallerinaErrors.createError(getModulePrefixedReason(MAP_LANG_LIB,
                                                                               INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER),
                             BLangExceptionHelper.getErrorMessage(RuntimeErrors.INVALID_MAP_INSERTION, expType,
@@ -77,6 +75,7 @@ public class MapUtils {
                 }
 
                 if (!TypeChecker.checkIsType(value, recFieldType)) {
+                    BType valuesType = TypeChecker.getType(value);
                     throw BallerinaErrors.createError(getModulePrefixedReason(MAP_LANG_LIB,
                                                                               INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER),
                             BLangExceptionHelper.getErrorMessage(RuntimeErrors.INVALID_RECORD_FIELD_ADDITION, fieldName,

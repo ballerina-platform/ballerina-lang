@@ -36,33 +36,33 @@ type ResultBlobCorrectOrderWrongType record {
 };
 
 function testWrongOrderInt(string jdbcURL) returns @tainted error? {
-    return testWrongOrder("SELECT int_type, long_type, float_type, boolean_type, string_type, double_type from DataTable
-    WHERE row_id = 1", jdbcURL);
+    return testWrongOrder("SELECT int_type, long_type, float_type, boolean_type, string_type, double_type from DataTable " +
+    "WHERE row_id = 1", jdbcURL);
 }
 
 function testWrongOrderString(string jdbcURL) returns @tainted error? {
-    return testWrongOrder("SELECT int_type, long_type, float_type, boolean_type, string_type, double_type from DataTable
-    WHERE row_id = 1", jdbcURL);
+    return testWrongOrder("SELECT int_type, long_type, float_type, boolean_type, string_type, double_type from DataTable " +
+    "WHERE row_id = 1", jdbcURL);
 }
 
 function testWrongOrderBoolean(string jdbcURL) returns @tainted error? {
-    return testWrongOrder("SELECT boolean_type, long_type, float_type, string_type, int_type, double_type from DataTable
-    WHERE row_id = 1", jdbcURL);
+    return testWrongOrder("SELECT boolean_type, long_type, float_type, string_type, int_type, double_type from DataTable " +
+    "WHERE row_id = 1", jdbcURL);
 }
 
 function testWrongOrderDouble(string jdbcURL) returns @tainted error? {
-    return testWrongOrder("SELECT double_type, long_type, float_type, string_type, int_type, boolean_type from DataTable
-    WHERE row_id = 1", jdbcURL);
+    return testWrongOrder("SELECT double_type, long_type, float_type, string_type, int_type, boolean_type from DataTable " +
+    "WHERE row_id = 1", jdbcURL);
 }
 
 function testWrongOrderFloat(string jdbcURL) returns @tainted error? {
-    return testWrongOrder("SELECT double_type, long_type, float_type, string_type, int_type, boolean_type from DataTable
-    WHERE row_id = 1", jdbcURL);
+    return testWrongOrder("SELECT double_type, long_type, float_type, string_type, int_type, boolean_type from DataTable " +
+    "WHERE row_id = 1", jdbcURL);
 }
 
 function testWrongOrderLong(string jdbcURL) returns @tainted error? {
-    return testWrongOrder("SELECT boolean_type, string_type, float_type, long_type, int_type, double_type from DataTable
-    WHERE row_id = 1", jdbcURL);
+    return testWrongOrder("SELECT boolean_type, string_type, float_type, long_type, int_type, double_type from DataTable " +
+    "WHERE row_id = 1", jdbcURL);
 }
 
 function testWrongOrderBlobWrongOrder(string jdbcURL) returns @tainted error? {
@@ -149,8 +149,8 @@ function testLowerNoOfParams(string jdbcURL) returns @tainted error? {
         poolOptions: {maximumPoolSize: 1}
     });
 
-    var selectRet = testDB->select("SELECT boolean_type, boolean_type, string_type, float_type, long_type, int_type,
-        double_type from DataTable WHERE row_id = 1", Result);
+    var selectRet = testDB->select("SELECT boolean_type, boolean_type, string_type, float_type, long_type, int_type," +
+        "double_type from DataTable WHERE row_id = 1", Result);
     error? retVal = ();
 
     if (selectRet is table<Result>) {

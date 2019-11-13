@@ -23,9 +23,9 @@ import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.net.http.websocket.WebSocketConstants;
 import org.ballerinalang.net.http.websocket.WebSocketResourceDispatcher;
+import org.ballerinalang.net.http.websocket.WebSocketService;
 import org.ballerinalang.net.http.websocket.WebSocketUtil;
-import org.ballerinalang.net.http.websocket.server.WebSocketOpenConnectionInfo;
-import org.ballerinalang.net.http.websocket.server.WebSocketService;
+import org.ballerinalang.net.http.websocket.server.WebSocketConnectionInfo;
 import org.wso2.transport.http.netty.contract.websocket.ClientHandshakeListener;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketConnection;
 import org.wso2.transport.http.netty.message.HttpCarbonResponse;
@@ -65,9 +65,9 @@ public class WebSocketClientHandshakeListener implements ClientHandshakeListener
                             HttpUtil.createResponseStruct(carbonResponse));
         ObjectValue webSocketConnector = BallerinaValues.createObjectValue(PROTOCOL_HTTP_PKG_ID,
                                                                            WebSocketConstants.WEBSOCKET_CONNECTOR);
-        WebSocketOpenConnectionInfo connectionInfo = getWebSocketOpenConnectionInfo(webSocketConnection,
-                                                                                    webSocketConnector);
-        WebSocketUtil.populateWebSocketCaller(webSocketConnection, webSocketClient);
+        WebSocketConnectionInfo connectionInfo = getWebSocketOpenConnectionInfo(webSocketConnection,
+                                                                                webSocketConnector);
+        WebSocketUtil.populateWebSocketEndpoint(webSocketConnection, webSocketClient);
         clientConnectorListener.setConnectionInfo(connectionInfo);
         if (readyOnConnect) {
             WebSocketUtil.readFirstFrame(webSocketConnection, webSocketClient);
@@ -82,14 +82,14 @@ public class WebSocketClientHandshakeListener implements ClientHandshakeListener
         }
         ObjectValue webSocketConnector = BallerinaValues.createObjectValue(PROTOCOL_HTTP_PKG_ID,
                                                                            WebSocketConstants.WEBSOCKET_CONNECTOR);
-        WebSocketOpenConnectionInfo connectionInfo = getWebSocketOpenConnectionInfo(null, webSocketConnector);
+        WebSocketConnectionInfo connectionInfo = getWebSocketOpenConnectionInfo(null, webSocketConnector);
         countDownLatch.countDown();
         WebSocketResourceDispatcher.dispatchOnError(connectionInfo, throwable);
     }
 
-    private WebSocketOpenConnectionInfo getWebSocketOpenConnectionInfo(WebSocketConnection webSocketConnection,
-                                                                       ObjectValue webSocketConnector) {
-        WebSocketOpenConnectionInfo connectionInfo = new WebSocketOpenConnectionInfo(
+    private WebSocketConnectionInfo getWebSocketOpenConnectionInfo(WebSocketConnection webSocketConnection,
+                                                                   ObjectValue webSocketConnector) {
+        WebSocketConnectionInfo connectionInfo = new WebSocketConnectionInfo(
                 wsService, webSocketConnection, webSocketClient);
         webSocketConnector.addNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_CONNECTION_INFO, connectionInfo);
         webSocketClient.set(WebSocketConstants.CLIENT_CONNECTOR_FIELD, webSocketConnector);

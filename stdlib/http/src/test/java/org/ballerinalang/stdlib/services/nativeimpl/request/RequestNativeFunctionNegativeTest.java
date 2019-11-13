@@ -43,8 +43,8 @@ import static org.ballerinalang.mime.util.MimeConstants.ENTITY_HEADERS;
 import static org.ballerinalang.mime.util.MimeConstants.IS_BODY_BYTE_CHANNEL_ALREADY_SET;
 import static org.ballerinalang.mime.util.MimeConstants.REQUEST_ENTITY_FIELD;
 import static org.ballerinalang.mime.util.MimeConstants.TEXT_PLAIN;
-import static org.ballerinalang.stdlib.utils.ValueCreatorUtils.createEntityObject;
-import static org.ballerinalang.stdlib.utils.ValueCreatorUtils.createRequestObject;
+import static org.ballerinalang.net.http.ValueCreatorUtils.createEntityObject;
+import static org.ballerinalang.net.http.ValueCreatorUtils.createRequestObject;
 
 /**
  * Test cases for ballerina/http request negative native functions.
@@ -216,8 +216,8 @@ public class RequestNativeFunctionNegativeTest {
         Assert.assertEquals(compileResultNegative.getErrorCount(), 2);
         //testRequestSetStatusCode
         BAssertUtil.validateError(compileResultNegative, 0,
-                                  "undefined function 'setStatusCode' in object 'ballerina/http:Request'", 4, 5);
+                                  "undefined function 'setStatusCode' in object 'ballerina/http:Request'", 4, 9);
         BAssertUtil.validateError(compileResultNegative, 1,
-                                  "undefined field 'statusCode' in object 'ballerina/http:Request'", 5, 5);
+                                  "undefined field 'statusCode' in object 'ballerina/http:Request'", 5, 8);
     }
 }

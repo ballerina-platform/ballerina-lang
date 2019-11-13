@@ -33,8 +33,8 @@ import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpErrorType;
+import org.ballerinalang.net.http.websocket.server.WebSocketConnectionInfo;
 import org.ballerinalang.net.http.websocket.server.WebSocketConnectionManager;
-import org.ballerinalang.net.http.websocket.server.WebSocketOpenConnectionInfo;
 import org.ballerinalang.net.http.websocket.server.WebSocketServerService;
 import org.ballerinalang.stdlib.io.utils.IOConstants;
 import org.slf4j.Logger;
@@ -65,16 +65,16 @@ public class WebSocketUtil {
                 HttpConstants.PROTOCOL_HTTP_PKG_ID, WebSocketConstants.WEBSOCKET_CONNECTOR);
 
         webSocketCaller.set(WebSocketConstants.LISTENER_CONNECTOR_FIELD, webSocketConnector);
-        populateWebSocketCaller(webSocketConnection, webSocketCaller);
-        WebSocketOpenConnectionInfo connectionInfo =
-                new WebSocketOpenConnectionInfo(wsService, webSocketConnection, webSocketCaller);
+        populateWebSocketEndpoint(webSocketConnection, webSocketCaller);
+        WebSocketConnectionInfo connectionInfo =
+                new WebSocketConnectionInfo(wsService, webSocketConnection, webSocketCaller);
         connectionManager.addConnection(webSocketConnection.getChannelId(), connectionInfo);
         webSocketConnector.addNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_CONNECTION_INFO,
                                          connectionInfo);
         return webSocketCaller;
     }
 
-    public static void populateWebSocketCaller(WebSocketConnection webSocketConnection, ObjectValue webSocketCaller) {
+    public static void populateWebSocketEndpoint(WebSocketConnection webSocketConnection, ObjectValue webSocketCaller) {
         webSocketCaller.set(WebSocketConstants.LISTENER_ID_FIELD, webSocketConnection.getChannelId());
         String negotiatedSubProtocol = webSocketConnection.getNegotiatedSubProtocol();
         webSocketCaller.set(WebSocketConstants.LISTENER_NEGOTIATED_SUBPROTOCOLS_FIELD, negotiatedSubProtocol);
@@ -113,9 +113,9 @@ public class WebSocketUtil {
 
     }
 
-    public static void setListenerOpenField(WebSocketOpenConnectionInfo connectionInfo) throws IllegalAccessException {
-        connectionInfo.getWebSocketCaller().set(WebSocketConstants.LISTENER_IS_OPEN_FIELD,
-                                                connectionInfo.getWebSocketConnection().isOpen());
+    public static void setListenerOpenField(WebSocketConnectionInfo connectionInfo) throws IllegalAccessException {
+        connectionInfo.getWebSocketEndpoint().set(WebSocketConstants.LISTENER_IS_OPEN_FIELD,
+                                                  connectionInfo.getWebSocketConnection().isOpen());
     }
 
     public static int findMaxFrameSize(MapValue<String, Object> configs) {

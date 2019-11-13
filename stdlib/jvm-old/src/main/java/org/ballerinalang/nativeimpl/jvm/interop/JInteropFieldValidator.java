@@ -19,12 +19,18 @@ package org.ballerinalang.nativeimpl.jvm.interop;
 
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.nativeimpl.jvm.interop.JavaField.JFieldMethod;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
+import org.ballerinalang.natives.annotations.Receiver;
 
 import java.lang.reflect.Field;
 
+import static org.ballerinalang.nativeimpl.jvm.ASMUtil.INTEROP_VALIDATOR;
+import static org.ballerinalang.nativeimpl.jvm.ASMUtil.JVM_PKG_PATH;
 import static org.ballerinalang.nativeimpl.jvm.interop.JInterop.CLASS_FIELD;
+import static org.ballerinalang.nativeimpl.jvm.interop.JInterop.CLASS_LOADER_DATA;
 import static org.ballerinalang.nativeimpl.jvm.interop.JInterop.FIELD_TYPE_FIELD;
 import static org.ballerinalang.nativeimpl.jvm.interop.JInterop.IS_STATIC_FIELD;
 import static org.ballerinalang.nativeimpl.jvm.interop.JInterop.METHOD_FIELD;
@@ -37,16 +43,20 @@ import static org.ballerinalang.nativeimpl.jvm.interop.JInterop.SIG_FIELD;
  * @since 1.0.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "jvm", functionName = "validateAndGetJField"
+        orgName = "ballerina", packageName = "jvm",
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = INTEROP_VALIDATOR, structPackage = JVM_PKG_PATH),
+        functionName = "validateAndGetJField"
 )
 public class JInteropFieldValidator {
 
-    public static Object validateAndGetJField(Strand strand, MapValue<String, Object> jFieldValidationRequest) {
+    public static Object validateAndGetJField(Strand strand, ObjectValue interopValidatorStruct,
+                                              MapValue<String, Object> jFieldValidationRequest) {
         try {
             // 1) Load Java class  - validate
+            ClassLoader classLoader = (ClassLoader) interopValidatorStruct.getNativeData(CLASS_LOADER_DATA);
             JFieldMethod method = getFieldMethod(jFieldValidationRequest);
             String className = (String) jFieldValidationRequest.get(CLASS_FIELD);
-            Class clazz = JInterop.loadClass(className);
+            Class clazz = JInterop.loadClass(className, classLoader);
 
             // 2) Load Java method details - use the method kind in the request - validate kind and the existance of the
             // method. Possible there may be more than one methods for the given kind and the name

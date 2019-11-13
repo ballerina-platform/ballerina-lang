@@ -24,6 +24,7 @@ import org.testng.annotations.Test;
 import java.util.Arrays;
 
 import static org.ballerinalang.test.util.BAssertUtil.validateError;
+import static org.ballerinalang.test.util.BAssertUtil.validateWarning;
 
 /**
  * Negative worker related tests.
@@ -114,8 +115,25 @@ public class WorkerFailTest {
     @Test
     public void testSendReceiveMismatch() {
         CompileResult result = BCompileUtil.compile("test-src/workers/send_receive_mismatch_negative.bal");
+        Assert.assertEquals(result.getWarnCount(), 1);
+        validateWarning(result, 0, "incompatible types: expected 'string', found 'int'. This is currently allowed due" +
+                " to a bug in the compiler (https://git.io/Jeu6j) and will be disallowed in a future release. If the " +
+                "receive evaluates to error, this would result in abrupt completion with panic.", 23, 21);
+    }
+
+    @Test
+    public void testSyncSendReceiveMismatch() {
+        CompileResult result = BCompileUtil.compile("test-src/workers/sync_send_receive_negative.bal");
         Assert.assertEquals(result.getErrorCount(), 1);
-        validateError(result, 0, "incompatible types: expected 'string', found 'int'", 23, 21);
+        validateError(result, 0, "variable assignment is required", 33, 9);
+        Assert.assertEquals(result.getWarnCount(), 2);
+        validateWarning(result, 1, "incompatible types: expected 'int', found '(E1|int)'. This is currently allowed " +
+                "due to a bug in the compiler (https://git.io/Jeu6j) and will be disallowed in a future release. If " +
+                "the receive evaluates to error, this would result in abrupt completion with panic.", 37, 18);
+        validateWarning(result, 2, "incompatible types: expected 'string', found '(E1|E2|string)'. This is currently " +
+                "allowed due to a bug in the compiler (https://git.io/Jeu6j) and will be disallowed in a future " +
+                "release. If the receive evaluates to error, this would result in abrupt completion with panic.", 42,
+                        20);
     }
 
     @Test
@@ -156,17 +174,29 @@ public class WorkerFailTest {
     @Test
     public void invalidReceiveWithTrapWithNonError() {
         CompileResult result = BCompileUtil.compile("test-src/workers/invalid-receive-with-trap.bal");
-        String message = Arrays.toString(result.getDiagnostics());
-        Assert.assertEquals(result.getErrorCount(), 1, message);
-        Assert.assertTrue(message.contains("incompatible types"), message);
+        Assert.assertEquals(result.getErrorCount(), 2);
+        validateError(result, 0, "incompatible types: expected 'int', found '(int|error)'", 10, 15);
+        validateError(result, 1, "incompatible types: expected 'string', found '(string|error)'", 20, 18);
     }
 
     @Test
     public void invalidReceiveWithCheckWithNonError() {
         CompileResult result = BCompileUtil.compile("test-src/workers/invalid-receive-with-check.bal");
-        String message = Arrays.toString(result.getDiagnostics());
-        Assert.assertEquals(result.getErrorCount(), 1, message);
-        Assert.assertTrue(message.contains("no expression type is equivalent to error"), message);
+        Assert.assertEquals(result.getErrorCount(), 2);
+        validateError(result, 0, "invalid usage of the 'check' expression operator: no expression type is " +
+                "equivalent to error type", 10, 21);
+        validateError(result, 1, "invalid usage of the 'check' expression operator: no expression type is " +
+                "equivalent to error type", 23, 21);
+    }
+
+    @Test
+    public void invalidReceiveWithCheckpanic() {
+        CompileResult result = BCompileUtil.compile("test-src/workers/invalid_receive_with_checkpanic_negative.bal");
+        Assert.assertEquals(result.getErrorCount(), 2);
+        validateError(result, 0, "invalid usage of the 'checkpanic' expression operator: no expression type is " +
+                "equivalent to error type", 23, 31);
+        validateError(result, 1, "invalid usage of the 'checkpanic' expression operator: no expression type is " +
+                "equivalent to error type", 33, 31);
     }
 
     @Test

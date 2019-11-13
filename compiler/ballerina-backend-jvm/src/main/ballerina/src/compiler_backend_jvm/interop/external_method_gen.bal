@@ -44,10 +44,10 @@ function genJMethodForBExternalFunc(bir:Function birFunc,
                                       bir:BType? attachedType = ()) {
     var extFuncWrapper = getExternalFunctionWrapper(birModule, birFunc, attachedType = attachedType);
 
-    if extFuncWrapper is OldStyleExternalFunctionWrapper {
-        genJMethodForBFunc(birFunc, cw, birModule, false, "", attachedType = attachedType);
+    if (extFuncWrapper is JFieldFunctionWrapper) {
+        genJFieldForInteropField(extFuncWrapper, cw, birModule);
     } else {
-        genJMethodForBExternalFuncInterop(extFuncWrapper, cw, birModule);
+        genJMethodForBFunc(birFunc, cw, birModule, false, "", attachedType = attachedType);
     }
 }
 
@@ -66,6 +66,9 @@ function injectDefaultParamInits(bir:Package module) {
             var extFuncWrapper = lookupBIRFunctionWrapper(module, birFunc, attachedType = ());
             if extFuncWrapper is OldStyleExternalFunctionWrapper {
                 desugarOldExternFuncs(module, extFuncWrapper, birFunc);
+                enrichWithDefaultableParamInits(birFunc);
+            } else if (extFuncWrapper is JMethodFunctionWrapper) {
+                desugarInteropFuncs(module, extFuncWrapper, birFunc);
                 enrichWithDefaultableParamInits(birFunc);
             } else if (!(extFuncWrapper is JMethodFunctionWrapper) && !(extFuncWrapper is JFieldFunctionWrapper)) {
                 enrichWithDefaultableParamInits(birFunc);
@@ -152,8 +155,9 @@ function lookupBIRFunctionWrapper(bir:Package birModule, bir:Function birFunc,
     }
 }
 
-function createExternalFunctionWrapper(bir:Function birFunc, string orgName ,string moduleName, string versionValue,
-                                        string  birModuleClassName) returns BIRFunctionWrapper | error {
+function createExternalFunctionWrapper(jvm:InteropValidator interopValidator, bir:Function birFunc,
+                                       string orgName ,string moduleName, string versionValue,
+                                       string  birModuleClassName) returns BIRFunctionWrapper | error {
     BIRFunctionWrapper birFuncWrapper;
     jvm:InteropValidationRequest? jInteropValidationReq = getInteropAnnotValue(birFunc);
     if (jInteropValidationReq is ()) {
@@ -173,8 +177,8 @@ function createExternalFunctionWrapper(bir:Function birFunc, string orgName ,str
             panic err;
         }
     } else {
-        birFuncWrapper = check createJInteropFunctionWrapper(jInteropValidationReq, birFunc, orgName, moduleName,
-                                versionValue, birModuleClassName);
+        birFuncWrapper = check createJInteropFunctionWrapper(interopValidator, jInteropValidationReq, birFunc, orgName,
+                                moduleName, versionValue, birModuleClassName);
     }
 
     return birFuncWrapper;
@@ -193,7 +197,7 @@ function createOldStyleExternalFunctionWrapper(bir:Function birFunc, string orgN
     string jvmMethodDescription = getMethodDesc(functionTypeDesc.paramTypes, <bir:BType?> functionTypeDesc?.retType,
                                                 attachedType = attachedType);
     string jMethodVMSig = getMethodDesc(jMethodPramTypes, <bir:BType?> functionTypeDesc?.retType,
-                                        attachedType = attachedType);
+                                        attachedType = attachedType, isExtern = true);
 
     return {
         orgName : orgName,

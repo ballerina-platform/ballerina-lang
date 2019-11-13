@@ -64,7 +64,6 @@ function testUnionWithErrorReturnHandle(handle receiver) returns error|int|boole
      return unionWithErrorReturnHandle(receiver);
 }
 
-
 // Interop functions
 
 public function increaseCounterByOne(handle receiver) = @java:Method{
@@ -159,3 +158,4 @@ public function errorDetail(handle receiver) returns error? = @java:Method{
 public function uncheckedErrorDetail(handle receiver) returns int = @java:Method{
     class:"org/ballerinalang/nativeimpl/jvm/tests/InstanceMethods"
 } external;
+

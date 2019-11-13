@@ -338,12 +338,19 @@ function populateRequestFields (Request originalRequest, Request newRequest)  {
     newRequest.extraPathInfo = originalRequest.extraPathInfo;
 }
 
-function populateMultipartRequest(Request inRequest) returns Request|error {
+function populateMultipartRequest(Request inRequest) returns Request|ClientError {
     if (isMultipartRequest(inRequest)) {
         mime:Entity[] bodyParts = check inRequest.getBodyParts();
         foreach var bodyPart in bodyParts {
             if (isNestedEntity(bodyPart)) {
-                mime:Entity[] childParts = check bodyPart.getBodyParts();
+                mime:Entity[]|error result = bodyPart.getBodyParts();
+
+                if (result is error) {
+                    return getGenericClientError(result.reason(), result);
+                }
+
+                mime:Entity[] childParts = <mime:Entity[]> result;
+
                 foreach var childPart in childParts {
                     // When performing passthrough scenarios, message needs to be built before
                     // invoking the endpoint to create a message datasource.
@@ -369,7 +376,7 @@ function isNestedEntity(mime:Entity entity) returns @tainted boolean {
         entity.getHeader(mime:CONTENT_TYPE).startsWith(MULTIPART_AS_PRIMARY_TYPE);
 }
 
-function createFailoverRequest(Request request, mime:Entity requestEntity) returns Request|error {
+function createFailoverRequest(Request request, mime:Entity requestEntity) returns Request|ClientError {
     if (isMultipartRequest(request)) {
         return populateMultipartRequest(request);
     } else {

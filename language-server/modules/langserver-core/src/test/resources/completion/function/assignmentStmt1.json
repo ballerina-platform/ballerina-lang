@@ -31,7 +31,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n"
+          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `string` args"
         }
       },
       "sortText": "120",
@@ -323,6 +323,29 @@
             }
           },
           "newText": "import ballerina/grpc;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/bir",
+      "kind": "Module",
+      "detail": "Package",
+      "sortText": "140",
+      "insertText": "bir",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/bir;\n"
         }
       ]
     },

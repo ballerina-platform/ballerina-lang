@@ -27,9 +27,9 @@ import org.ballerinalang.packerina.task.CompileTask;
 import org.ballerinalang.packerina.task.CopyModuleJarTask;
 import org.ballerinalang.packerina.task.CopyNativeLibTask;
 import org.ballerinalang.packerina.task.CreateBaloTask;
-import org.ballerinalang.packerina.task.CreateBinariesTask;
 import org.ballerinalang.packerina.task.CreateBirTask;
 import org.ballerinalang.packerina.task.CreateExecutableTask;
+import org.ballerinalang.packerina.task.CreateJarTask;
 import org.ballerinalang.packerina.task.CreateTargetDirTask;
 import org.ballerinalang.packerina.task.PrintExecutablePathTask;
 import org.ballerinalang.packerina.task.PrintRunningExecutableTask;
@@ -270,7 +270,7 @@ public class RunCommand implements BLauncherCmd {
                 .addTask(new CreateBirTask())   // create the bir
                 .addTask(new CopyNativeLibTask())    // copy the native libs(projects only)
                 // create the jar.
-                .addTask(new CreateBinariesTask(this.dumpBIR, this.nativeBinary, this.dumpLLVMIR, this.noOptimizeLLVM))
+                .addTask(new CreateJarTask(this.dumpBIR, this.nativeBinary, this.dumpLLVMIR, this.noOptimizeLLVM))
                 .addTask(new CopyModuleJarTask())
                 .addTask(new CreateExecutableTask())  // create the executable .jar file
                 .addTask(new PrintExecutablePathTask(), isSingleFileBuild)   // print the location of the executable
@@ -316,7 +316,7 @@ public class RunCommand implements BLauncherCmd {
     public void printUsage(StringBuilder out) {
         out.append("  ballerina run [--offline]\n" +
                            "                [--sourceroot]\n" +
-                           "                {<balfile> | module-name | executable-jar} [configs (--key=value)...] " 
+                           "                {<balfile> | module-name | executable-jar} [(--key=value)...] "
                            + "[--] [args...] \n");
     }
 

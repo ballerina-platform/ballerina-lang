@@ -17,11 +17,12 @@
     },
     {
       "label": "Separator",
+      "kind": "Enum",
       "detail": "Union",
       "documentation": {
-        "left": "Field separators which are supported by DelimitedTextRecordChannel."
+        "left": "Field separators which are supported by DelimitedTextRecordChannel.\n\nCOMMA - Delimited text records would be separated using a comma.\n\nTAB - Delimited text records would be separated using a tab.\n\nCOLON - Delimited text records would be separated using a colon(:)."
       },
-      "sortText": "110",
+      "sortText": "160",
       "insertText": "Separator",
       "insertTextFormat": "Snippet"
     },
@@ -37,6 +38,9 @@
       "label": "Error",
       "kind": "Event",
       "detail": "Union",
+      "documentation": {
+        "left": "Represents IO module related errors."
+      },
       "sortText": "200",
       "insertText": "Error",
       "insertTextFormat": "Snippet"
@@ -46,7 +50,7 @@
       "kind": "Interface",
       "detail": "Object",
       "documentation": {
-        "left": "ReadableByteChannel represents an input resource (i.e file, socket). which could be used to source bytes."
+        "left": "ReadableByteChannel represents an input resource (i.e file). which could be used to source bytes."
       },
       "sortText": "190",
       "insertText": "ReadableByteChannel",
@@ -112,7 +116,7 @@
       "kind": "Interface",
       "detail": "Object",
       "documentation": {
-        "left": "WritableByteChannel represents an output resource (i.e file, socket). which could be used to sink bytes."
+        "left": "WritableByteChannel represents an output resource (i.e file). which could be used to sink bytes."
       },
       "sortText": "190",
       "insertText": "WritableByteChannel",

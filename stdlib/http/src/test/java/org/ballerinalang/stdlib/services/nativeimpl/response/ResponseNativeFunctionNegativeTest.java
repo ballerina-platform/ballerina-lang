@@ -42,8 +42,8 @@ import static org.ballerinalang.mime.util.MimeConstants.IS_BODY_BYTE_CHANNEL_ALR
 import static org.ballerinalang.mime.util.MimeConstants.PROTOCOL_PACKAGE_MIME;
 import static org.ballerinalang.mime.util.MimeConstants.RESPONSE_ENTITY_FIELD;
 import static org.ballerinalang.mime.util.MimeConstants.TEXT_PLAIN;
-import static org.ballerinalang.stdlib.utils.ValueCreatorUtils.createEntityObject;
-import static org.ballerinalang.stdlib.utils.ValueCreatorUtils.createResponseObject;
+import static org.ballerinalang.net.http.ValueCreatorUtils.createEntityObject;
+import static org.ballerinalang.net.http.ValueCreatorUtils.createResponseObject;
 
 /**
  * Test cases for ballerina/http inbound response negative native functions.
@@ -198,6 +198,6 @@ public class ResponseNativeFunctionNegativeTest {
         BAssertUtil.validateError(resultNegative, 0, "incompatible types: expected 'int', found 'string'", 4, 22);
         // testInResponseGetMethod
         BAssertUtil.validateError(resultNegative, 1, "undefined field 'method' in object 'ballerina/http:Response'", 9,
-                21);
+                24);
     }
 }

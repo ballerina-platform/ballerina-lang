@@ -19,6 +19,8 @@
 package org.ballerinalang.langlib.array;
 
 import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.types.BType;
+import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
@@ -26,7 +28,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 import static org.ballerinalang.jvm.values.utils.ArrayUtils.add;
-import static org.ballerinalang.jvm.values.utils.ArrayUtils.checkIsArrayOnlyOperation;
+import static org.ballerinalang.jvm.values.utils.ArrayUtils.createOpNotSupportedError;
 
 /**
  * Native implementation of lang.array:push((any|error)[], (any|error)...).
@@ -42,13 +44,22 @@ import static org.ballerinalang.jvm.values.utils.ArrayUtils.checkIsArrayOnlyOper
 public class Push {
 
     public static void push(Strand strand, ArrayValue arr, ArrayValue vals) {
-        checkIsArrayOnlyOperation(arr.getType(), "push()");
-
+        BType arrType = arr.getType();
         int nVals = vals.size();
-        int elemTypeTag = arr.elementType.getTag();
-
-        for (int i = arr.size(), j = 0; j < nVals; i++, j++) {
-            add(arr, elemTypeTag, i, vals.get(j));
+        switch (arrType.getTag()) {
+            case TypeTags.ARRAY_TAG:
+                int elemTypeTag = arr.elementType.getTag();
+                for (int i = arr.size(), j = 0; j < nVals; i++, j++) {
+                    add(arr, elemTypeTag, i, vals.get(j));
+                }
+                break;
+            case TypeTags.TUPLE_TAG:
+                for (int i = arr.size(), j = 0; j < nVals; i++, j++) {
+                    add(arr, TypeTags.ANY_TAG, i, vals.get(j));
+                }
+                break;
+            default:
+                throw createOpNotSupportedError(arrType, "push()");
         }
     }
 }

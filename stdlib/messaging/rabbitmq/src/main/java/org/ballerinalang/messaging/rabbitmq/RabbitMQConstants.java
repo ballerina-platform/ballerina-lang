@@ -85,6 +85,7 @@ public class RabbitMQConstants {
     public static final String ALIAS_PREFETCH_COUNT = "prefetchCount";
     public static final String ALIAS_PREFETCH_SIZE = "prefetchSize";
     public static final String CONSUMER_SERVICES = "consumer_services";
+    public static final String STARTED_SERVICES = "started_services";
     public static final String AUTO_ACKMODE = "auto";
     public static final String CLIENT_ACKMODE = "client";
     public static final int DEFAULT_PREFETCH = 10;

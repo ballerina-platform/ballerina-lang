@@ -32,6 +32,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Extern function ballerina.system:exec.
@@ -58,7 +59,8 @@ public class Exec {
             pb.directory(new File((String) dir));
         }
         if (env != null) {
-            pb.environment().putAll(env);
+            Map<String, String> pbEnv = pb.environment();
+            env.entrySet().forEach(entry -> pbEnv.put(entry.getKey(), entry.getValue()));
         }
         try {
             return SystemUtils.getProcessObject(pb.start());

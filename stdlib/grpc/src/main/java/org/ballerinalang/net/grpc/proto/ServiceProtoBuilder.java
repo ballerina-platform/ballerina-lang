@@ -23,7 +23,6 @@ import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.AttachPoint;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
-import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.ServiceNode;
 import org.ballerinalang.model.tree.expressions.LiteralNode;
@@ -182,16 +181,15 @@ public class ServiceProtoBuilder extends AbstractCompilerPlugin {
         if (annSymbol instanceof BAnnotationSymbol) {
             annoAttachment.annotationSymbol = (BAnnotationSymbol) annSymbol;
         }
-        IdentifierNode identifierNode = TreeBuilder.createIdentifierNode();
-        if (identifierNode instanceof BLangIdentifier) {
-            annoAttachment.annotationName = (BLangIdentifier) identifierNode;
-        }
+        annoAttachment.annotationName = (BLangIdentifier) TreeBuilder.createIdentifierNode();
         annoAttachment.annotationName.value = ANN_SERVICE_DESCRIPTOR;
+        annoAttachment.annotationName.pos = pos;
         annoAttachment.pos = pos;
         BLangRecordLiteral literalNode = (BLangRecordLiteral) TreeBuilder.createRecordLiteralNode();
         annoAttachment.expr = literalNode;
         BLangIdentifier pkgAlias = (BLangIdentifier) TreeBuilder.createIdentifierNode();
         pkgAlias.setValue(PROTOCOL_PACKAGE_GRPC);
+        pkgAlias.pos = pos;
         annoAttachment.pkgAlias = pkgAlias;
         annoAttachment.attachPoints.add(AttachPoint.Point.SERVICE);
         literalNode.pos = pos;
@@ -247,9 +245,11 @@ public class ServiceProtoBuilder extends AbstractCompilerPlugin {
             functionRef.type = symTable.mapType;
             BLangIdentifier funcName = (BLangIdentifier) TreeBuilder.createIdentifierNode();
             funcName.setValue(DESCRIPTOR_MAP);
+            funcName.pos = pos;
             functionRef.name = funcName;
             BLangIdentifier funcPkgAlias = (BLangIdentifier) TreeBuilder.createIdentifierNode();
             funcPkgAlias.setValue("");
+            funcPkgAlias.pos = pos;
             functionRef.pkgAlias = funcPkgAlias;
         }
 
@@ -260,6 +260,7 @@ public class ServiceProtoBuilder extends AbstractCompilerPlugin {
         BLangSimpleVarRef mapKeyLiteral = (BLangSimpleVarRef) TreeBuilder.createSimpleVariableReferenceNode();
         BLangIdentifier keyName = (BLangIdentifier) TreeBuilder.createIdentifierNode();
         keyName.setValue(ANN_FIELD_DESC_MAP);
+        keyName.pos = pos;
         mapKeyLiteral.variableName = keyName;
         mapKeyLiteral.type = symTable.mapType;
         mapKeyLiteral.pos = pos;

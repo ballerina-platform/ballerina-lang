@@ -247,4 +247,5 @@ public class InstanceMethodTest {
             Assert.assertTrue(e.getMessage().contains("cause=error java.lang.Throwable message=Unchecked cause"));
         }
     }
+
 }

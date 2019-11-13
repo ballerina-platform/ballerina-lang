@@ -34,7 +34,6 @@ public class FunctionSignatureNegativeTest {
         CompileResult result = BCompileUtil.compile("test-src/functions/different-function-signatures" +
                 "-semantics-negative.bal");
         String tooManyArguments = "too many arguments in call to ";
-        String notEnoughArguments = "not enough arguments in call to ";
 
         BAssertUtil.validateError(result, i++, "redeclared symbol 'c'", 1, 73);
         BAssertUtil.validateError(result, i++, "redeclared argument 'a'", 17, 19);
@@ -47,17 +46,13 @@ public class FunctionSignatureNegativeTest {
                 "'functionWithOnlyPositionalParams'()", 57, 9);
         BAssertUtil.validateError(result, i++, "missing required parameter 'c' in call to " +
                 "'functionWithOnlyPositionalParams'()", 57, 9);
-        BAssertUtil.validateError(result, i++, notEnoughArguments + "'functionWithOnlyPositionalParams()'", 57, 9);
         BAssertUtil.validateError(result, i++, "missing required parameter 'c' in call to " +
                 "'functionWithOnlyPositionalParams'()", 58, 9);
-        BAssertUtil.validateError(result, i++, notEnoughArguments + "'functionWithOnlyPositionalParams()'", 58, 9);
         BAssertUtil.validateError(result, i++, "missing required parameter 'c' in call to " +
                 "'functionWithOnlyPositionalParams'()", 59, 9);
-        BAssertUtil.validateError(result, i++, notEnoughArguments + "'functionWithOnlyPositionalParams()'", 59, 9);
         BAssertUtil.validateError(result, i++, "incompatible types: expected 'boolean', found 'string'", 59, 45);
         BAssertUtil.validateError(result, i++, "missing required parameter 'b' in call to " +
                 "'functionWithOnlyPositionalParams'()", 60, 9);
-        BAssertUtil.validateError(result, i++, notEnoughArguments + "'functionWithOnlyPositionalParams()'", 60, 9);
         BAssertUtil.validateError(result, i++, tooManyArguments + "'functionWithOnlyPositionalParams()'", 61, 9);
         BAssertUtil.validateError(result, i++, tooManyArguments + "'functionWithOnlyPositionalParams()'", 62, 56);
         BAssertUtil.validateError(result, i++, "missing required parameter 'c' in call to " +
@@ -77,10 +72,8 @@ public class FunctionSignatureNegativeTest {
         BAssertUtil.validateError(result, i++, "rest argument not allowed after named arguments", 90, 45);
         BAssertUtil.validateError(result, i++, "missing required parameter 'y' in call to " +
                 "'functionWithNoRestParam'()", 98, 5);
-        BAssertUtil.validateError(result, i++, notEnoughArguments + "'functionWithNoRestParam()'", 98, 5);
         BAssertUtil.validateError(result, i++, "missing required parameter 'y' in call to " +
                 "'functionWithNoRestParam'()", 99, 5);
-        BAssertUtil.validateError(result, i++, notEnoughArguments + "'functionWithNoRestParam()'", 99, 5);
         BAssertUtil.validateError(result, i++, "incompatible types: expected 'int', found 'string'", 99, 29);
         BAssertUtil.validateError(result, i++, "incompatible types: expected 'int', found 'string'", 100, 29);
         BAssertUtil.validateError(result, i++, "incompatible types: expected 'string', found 'int'", 100, 39);
@@ -91,14 +84,10 @@ public class FunctionSignatureNegativeTest {
                 "'functionWithNoRestParam'()", 106, 5);
         BAssertUtil.validateError(result, i++, "missing required parameter 'y' in call to " +
                 "'functionWithNoRestParam'()", 106, 5);
-        BAssertUtil.validateError(result, i++, "not enough arguments in call to " +
-                "'functionWithNoRestParam()'", 106, 5);
         BAssertUtil.validateError(result, i++, "missing required parameter 'x' in call to " +
                 "'functionWithNoRestParam'()", 107, 5);
         BAssertUtil.validateError(result, i++, "missing required parameter 'y' in call to " +
                 "'functionWithNoRestParam'()", 107, 5);
-        BAssertUtil.validateError(result, i++, "not enough arguments in call to " +
-                "'functionWithNoRestParam()'", 107, 5);
         BAssertUtil.validateError(result, i++, "missing required parameter 'x' in call to " +
                 "'functionWithNoRestParam'()", 108, 5);
         BAssertUtil.validateError(result, i++, "missing required parameter 'y' in call to " +

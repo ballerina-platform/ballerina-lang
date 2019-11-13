@@ -58,11 +58,11 @@ public class Entries {
         BMapType entryMapConstraint = new BMapType(entryType);
         MapValue<Object, ArrayValue> entries = new MapValueImpl<>(entryMapConstraint);
 
-        m.forEach((key, value) -> {
+        m.entrySet().forEach(entry -> {
             ArrayValue entryTuple = new ArrayValue(entryType);
-            add(entryTuple, refType, 0, key);
-            add(entryTuple, refType, 1, value);
-            entries.put(key, entryTuple);
+            add(entryTuple, refType, 0, entry.getKey());
+            add(entryTuple, refType, 1, entry.getValue());
+            entries.put(entry.getKey(), entryTuple);
         });
 
         return entries;

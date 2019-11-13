@@ -60,6 +60,7 @@ dependencies {
     testCompile project(':ballerina-reflect')
     testCompile project(':ballerina-crypto')
     testCompile project(':ballerina-file')
+    testCompile project(':ballerina-auth')
 }
 
 configurations.all {
