@@ -48,7 +48,7 @@ public function main() {
     // This prints the content of the `Person` table.
     printTable(queryStmt, "The personTable:  ", personTable);
 
-    // These are a few sample values that represent orders made by the people who were
+    // These are a few sample values, which represent orders made by the 
     //  person records listed above.
     Order o1 =
     {personId: 1, orderId: 1234, items: "pen, book, eraser", amount: 34.75};
