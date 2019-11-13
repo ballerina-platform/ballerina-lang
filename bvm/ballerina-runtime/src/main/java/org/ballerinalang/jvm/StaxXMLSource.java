@@ -170,8 +170,7 @@ public class StaxXMLSource {
 
     // need to duplicate the same in xmlItem.setAttribute
     private void addAttributesAndNamespaceDecl(XMLStreamReader xmlStreamReader, XMLItem xmlItem, QName elemName) {
-        @SuppressWarnings("unchecked")
-        MapValue<String, String> attributesMap = (MapValue<String, String>) xmlItem.getAttributesMap();
+        MapValue<String, String> attributesMap = xmlItem.getAttributesMap();
         Set<QName> usedNS = new HashSet<>();
 
         int count = xmlStreamReader.getAttributeCount();

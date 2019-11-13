@@ -29,8 +29,14 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.Deque;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * @since 1.1.0
@@ -38,11 +44,13 @@ import java.util.Map;
 public class StaxXMLSink extends OutputStream {
     private static final XMLOutputFactory xmlOutputFactory = XMLOutputFactory.newInstance();
     private XMLStreamWriter xmlStreamWriter;
+    private Deque<Set<String>> parentNSSet;
 
 
     public StaxXMLSink(OutputStream outputStream) {
         try {
             xmlStreamWriter = xmlOutputFactory.createXMLStreamWriter(outputStream);
+            parentNSSet = new ArrayDeque<>();
         } catch (XMLStreamException e) {
             // ignore
         }
@@ -81,7 +89,7 @@ public class StaxXMLSink extends OutputStream {
     }
 
     private void writeXMLPI(XMLContentHolderItem xmlValue) throws XMLStreamException {
-        xmlStreamWriter.writeProcessingInstruction(xmlValue.getTarget(), xmlValue.getTarget());
+        xmlStreamWriter.writeProcessingInstruction(xmlValue.getTarget(), xmlValue.getData());
     }
 
     private void writeXMLComment(XMLContentHolderItem xmlValue) throws XMLStreamException {
@@ -99,16 +107,24 @@ public class StaxXMLSink extends OutputStream {
         QName qName = xmlValue.getQName();
         xmlStreamWriter.writeStartElement(qName.getPrefix(), qName.getLocalPart(), qName.getNamespaceURI());
 
-        Map<String, String> nsPrefixMap = getNamespacePrefixes(xmlValue);
+        HashSet<String> curNSSet = setupNSHierarchy();
+
+        Map<String, String> nsPrefixMap = prefixToNSUri(xmlValue);
         // Write namespaces
         for (Map.Entry<String, String> nsEntry : nsPrefixMap.entrySet()) {
             if (nsEntry.getKey().isEmpty()) {
                 xmlStreamWriter.setDefaultNamespace(nsEntry.getValue());
                 xmlStreamWriter.writeDefaultNamespace(nsEntry.getValue());
             } else {
-                xmlStreamWriter.writeNamespace(nsEntry.getKey(), nsEntry.getValue());
-                xmlStreamWriter.setPrefix(nsEntry.getKey(), nsEntry.getValue());
+                // Only write the namespace decl if not in the namespace hierarchy.
+                String nsKey = nsEntry.getKey() + "<>" + nsEntry.getValue();
+                if (!curNSSet.contains(nsKey)) {
+                    xmlStreamWriter.writeNamespace(nsEntry.getKey(), nsEntry.getValue());
+                    xmlStreamWriter.setPrefix(nsEntry.getKey(), nsEntry.getValue());
+                    curNSSet.add(nsKey);
+                }
             }
+
         }
         // Write attributes
         for (Map.Entry<String, String> attributeEntry : xmlValue.getAttributesMap().entrySet()) {
@@ -126,19 +142,47 @@ public class StaxXMLSink extends OutputStream {
 
         xmlValue.children().serialize(this);
         xmlStreamWriter.writeEndElement();
-
+        // Reset namesapce decl hierrarchy for this node.
+        this.parentNSSet.pop();
     }
 
-    private Map<String, String> getNamespacePrefixes(XMLItem xmlValue) {
+    private HashSet<String> setupNSHierarchy() {
+        Set<String> prevNSSet = this.parentNSSet.peek();
+
+        HashSet<String> curNSSet;
+        if (prevNSSet == null) {
+            curNSSet = new HashSet<>();
+        } else {
+            curNSSet = new HashSet<>(prevNSSet);
+        }
+
+        this.parentNSSet.push(curNSSet);
+        return curNSSet;
+    }
+
+    private Map<String, String> prefixToNSUri(XMLItem xmlValue) {
         Map<String, String> nsPrefixMap = new HashMap<>();
         // Extract namespace entries
         for (Map.Entry<String, String> attributeEntry : xmlValue.getAttributesMap().entrySet()) {
             String key = attributeEntry.getKey();
             if (key.startsWith(XMLItem.XMLNS_URL_PREFIX)) {
                 int closingCurly = key.indexOf('}');
-                String uri = key.substring(1, closingCurly);
                 String prefix = key.substring(closingCurly + 1);
                 nsPrefixMap.put(prefix, attributeEntry.getValue());
+            }
+        }
+
+        // Remove NS prefixes which points to default NS URI
+        String defaultNs = nsPrefixMap.get("");
+        if (defaultNs != null) {
+            List<String> alternativePrefixes = new ArrayList<>();
+            for (Map.Entry<String, String> entry : nsPrefixMap.entrySet()) {
+                if (!entry.getKey().isEmpty() && entry.getValue().equals(defaultNs)) {
+                    alternativePrefixes.add(entry.getKey());
+                }
+            }
+            for (String prefix : alternativePrefixes) {
+                nsPrefixMap.remove(prefix);
             }
         }
         return nsPrefixMap;

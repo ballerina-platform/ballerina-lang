@@ -52,9 +52,9 @@ public class XMLTest {
     @Test
     public void test() {
         XMLValue<?> test = XMLFactory.parse2(
-//                "<?xml version=\"1.0\"  encoding=\"UTF-8\"?>" +
-//                "<?proc h=\"data\" p=\"more data\" ?>" +
-//                "<!-- cmnt -->" +
+                "<?xml version=\"1.0\"  encoding=\"UTF-8\"?>" +
+                "<?proc h=\"data\" p=\"more data\" ?>" +
+                "<!-- cmnt -->" +
                 "<elem>" +
                         "bunch of text" +
 //                "<![CDATA[\n" +
@@ -63,11 +63,12 @@ public class XMLTest {
 //                        "    ++x;\n" +
 //                        "    }\n" +
 //                        "]]>" +
-                "<hello xmlns=\"xxxx\" xmlns:ns=\"the  url\" ns:attr=\"blah\" >" +
+                "<hello xmlns=\"xxxx\" xmlns:ns=\"ns-url-0\" ns:attr=\"blah\" >" +
                         "<ns:elem ns:at=\"the at\" />" +
                         "</hello>" +
                 "</elem>");
         String s = test.toString();
+        Assert.assertEquals(s, "");
         int i = 0;
     }
 
