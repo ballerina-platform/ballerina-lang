@@ -25,6 +25,7 @@ import org.ballerinalang.net.http.websocket.WebSocketConstants;
 import org.ballerinalang.net.http.websocket.WebSocketResourceDispatcher;
 import org.ballerinalang.net.http.websocket.WebSocketService;
 import org.ballerinalang.net.http.websocket.WebSocketUtil;
+import org.ballerinalang.net.http.websocket.observability.WebSocketObservabilityUtil;
 import org.ballerinalang.net.http.websocket.server.WebSocketConnectionInfo;
 import org.wso2.transport.http.netty.contract.websocket.ClientHandshakeListener;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketConnection;
@@ -73,6 +74,7 @@ public class WebSocketClientHandshakeListener implements ClientHandshakeListener
             WebSocketUtil.readFirstFrame(webSocketConnection, webSocketClient);
         }
         countDownLatch.countDown();
+        WebSocketObservabilityUtil.observeConnection(connectionInfo);
     }
 
     @Override
