@@ -20,6 +20,7 @@
  import org.ballerinalang.jvm.scheduling.Strand;
  import org.ballerinalang.jvm.types.BFutureType;
  import org.ballerinalang.jvm.types.BType;
+ import org.ballerinalang.jvm.values.api.BFuture;
  import org.ballerinalang.jvm.values.connector.CallableUnitCallback;
 
  import java.util.Map;
@@ -35,7 +36,7 @@
  * 
  * @since 0.995.0
  */
- public class FutureValue implements RefValue {
+ public class FutureValue implements BFuture, RefValue {
 
      public Strand strand;
 
@@ -49,6 +50,7 @@
 
      BType type;
 
+     @Deprecated
      public FutureValue(Strand strand, CallableUnitCallback callback, BType constraint) {
          this.strand = strand;
          this.callback = callback;
@@ -86,4 +88,50 @@
      public void cancel() {
          this.strand.cancel = true;
      }
- }
+
+    /**
+     * Returns the strand that the future is attached to.
+     * @return {@code Strand}
+     */
+    public Strand getStrand() {
+        return this.strand;
+    }
+
+    /**
+     * Returns the result value of the future.
+     * @return result value
+     */
+    public Object getResult() {
+       return this.result;
+    }
+
+    /**
+     * Returns completion status of the {@code Strand} that the future is attached.
+     * @return true if future is completed
+     */
+    public boolean isDone() {
+        return this.isDone;
+    }
+
+    /**
+     * Returns {@code Throwable} if the attached strand panic.
+     * @return panic error or null if not panic occurred
+     */
+    public Throwable getPanic() {
+        return this.panic;
+    }
+
+    /**
+     * {@code CallableUnitCallback} listening on the completion of this future.
+     * @return registered {@code CallableUnitCallback}
+     */
+    public CallableUnitCallback getCallback() {
+        return this.callback;
+    }
+
+    @Override
+    public String toString() {
+        return stringValue(this.strand);
+    }
+
+}

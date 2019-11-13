@@ -1098,32 +1098,11 @@ public class TypeChecker extends BLangNodeVisitor {
             this.dlog.error(syncSendExpr.pos, DiagnosticCode.UNDEFINED_WORKER, workerName);
         }
 
-        if (expType == symTable.noType) {
-            BType workerValueType = ((BFutureType) syncSendExpr.workerType).constraint;
+        syncSendExpr.expectedType = expType;
 
-            switch (workerValueType.tag) {
-                case TypeTags.UNION:
-                    LinkedHashSet<BType> compatibleReturnTypes = new LinkedHashSet<>(
-                            (((BUnionType) workerValueType).getMemberTypes().stream()
-                                     .filter(memType -> memType.tag == TypeTags.ERROR)
-                                     .collect(Collectors.toSet())));
-
-                    if (compatibleReturnTypes.isEmpty()) {
-                        resultType = symTable.nilType;
-                    } else {
-                        compatibleReturnTypes.add(symTable.nilType);
-                        resultType = BUnionType.create(null, compatibleReturnTypes);
-                    }
-                    break;
-                case TypeTags.ERROR:
-                    resultType = BUnionType.create(null, workerValueType, symTable.nilType);
-                    break;
-                default:
-                    resultType = symTable.nilType;
-            }
-        } else {
-            resultType = expType;
-        }
+        // Type checking against the matching receive is done during code analysis.
+        // When the expected type is noType, set the result type as nil to avoid variable assignment is required errors.
+        resultType = expType == symTable.noType ? symTable.nilType : expType;
     }
 
     @Override

@@ -20,6 +20,7 @@ package org.ballerinalang.jvm.values;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.util.BLangConstants;
+import org.ballerinalang.jvm.values.api.BFunctionPointer;
 
 import java.util.Map;
 import java.util.function.Consumer;
@@ -38,11 +39,12 @@ import java.util.function.Function;
  *
  * @since 0.995.0
  */
-public class FPValue<T, R> implements RefValue {
+public class FPValue<T, R> implements BFunctionPointer<T, R>, RefValue {
 
     final BType type;
     Function<T, R> function;
 
+    @Deprecated
     public FPValue(Function<T, R> function, BType type) {
         this.function = function;
         this.type = type;
