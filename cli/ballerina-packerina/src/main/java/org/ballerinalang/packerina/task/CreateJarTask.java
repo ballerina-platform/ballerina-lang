@@ -22,6 +22,7 @@ import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.packerina.buildcontext.BuildContext;
 import org.ballerinalang.packerina.buildcontext.BuildContextField;
+import org.ballerinalang.packerina.model.ExecutableJar;
 import org.ballerinalang.util.BootstrapRunner;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
@@ -67,7 +68,7 @@ public class CreateJarTask implements Task {
 
         List<BLangPackage> moduleBirMap = buildContext.getModules();
         for (BLangPackage module : moduleBirMap) {
-            HashSet<Path> moduleDependencySet = buildContext.moduleDependencyPathMap.get(module.packageID);
+            HashSet<Path> moduleDependencySet = buildContext.moduleDependencyPathMap.get(module.packageID).platformLibs;
             if (!skipCopyLibsFromDist) {
                 moduleDependencySet.add(runtimeJar);
             }
@@ -124,7 +125,7 @@ public class CreateJarTask implements Task {
                 birFilePath = buildContext.getBirPathFromHomeCache(id);
             }
             if (!Files.exists(jarFilePath)) {
-                HashSet<Path> moduleDependencySet = buildContext.moduleDependencyPathMap.get(id);
+                HashSet<Path> moduleDependencySet = buildContext.moduleDependencyPathMap.get(id).platformLibs;
                 if (!skipCopyLibsFromDist) {
                     moduleDependencySet.add(runtimeJar);
                 }

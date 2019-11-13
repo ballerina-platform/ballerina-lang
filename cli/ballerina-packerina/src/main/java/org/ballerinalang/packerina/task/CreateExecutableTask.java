@@ -71,7 +71,9 @@ public class CreateExecutableTask implements Task {
                     URI uberJarUri = URI.create("jar:" + executablePath.toUri().toString());
                     // Load the to jar to a file system
                     try (FileSystem toFs = FileSystems.newFileSystem(uberJarUri, Collections.emptyMap())) {
-                        assembleExecutable(module, buildContext.moduleDependencyPathMap.get(module.packageID), toFs);
+                        assembleExecutable(module,
+                                           buildContext.moduleDependencyPathMap.get(module.packageID).platformLibs,
+                                           toFs);
                     } catch (IOException e) {
                         throw createLauncherException("unable to extract the uber jar :" + e.getMessage());
                     }
