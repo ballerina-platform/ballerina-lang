@@ -30,7 +30,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.nio.file.Path;
-import java.util.HashSet;
 import java.util.List;
 
 import static org.ballerinalang.tool.LauncherUtils.createLauncherException;

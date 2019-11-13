@@ -26,9 +26,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.sql.Driver;
-import java.sql.DriverManager;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;

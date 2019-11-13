@@ -29,12 +29,8 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 import org.wso2.ballerinalang.util.Lists;
 
-import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.PrintStream;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.MalformedURLException;
@@ -44,7 +40,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.StringJoiner;
 import java.util.jar.Attributes;
 import java.util.jar.JarInputStream;
 import java.util.jar.Manifest;
@@ -227,7 +222,7 @@ public class RunExecutableTask implements Task {
 
     private static String getClassPath(ExecutableJar jar) {
         String seperator = ":";
-        if(OsUtils.isWindows()){
+        if (OsUtils.isWindows()) {
             seperator = ";";
         }
         StringBuilder classPath = new StringBuilder(jar.moduleJar.toString());
@@ -236,15 +231,4 @@ public class RunExecutableTask implements Task {
         }
         return classPath.toString();
     }
-
-    private static String getConsoleOutput(InputStream inputStream, PrintStream printStream) {
-        final BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
-        StringJoiner sj = new StringJoiner(System.getProperty("line.separator"));
-        reader.lines().iterator().forEachRemaining(line -> {
-            printStream.println(line);
-            sj.add(line);
-        });
-        return sj.toString();
-    }
-
 }
