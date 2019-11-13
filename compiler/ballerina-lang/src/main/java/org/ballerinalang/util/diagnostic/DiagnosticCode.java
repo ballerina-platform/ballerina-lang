@@ -471,8 +471,7 @@ public enum DiagnosticCode {
     IDENTIFIER_LITERAL_ONLY_SUPPORTS_ALPHANUMERICS("identifier.literal.only.supports.alphanumerics"),
 
     // Warnings
-    MULTI_LINE_STRINGS_NOT_ALLOWED("multi.line.strings.not.allowed"),
-    SEND_RECEIVE_TYPE_MISMATCH("send.receive.type.mismatch")
+    MULTI_LINE_STRINGS_NOT_ALLOWED("multi.line.strings.not.allowed")
 
     ;
     private String value;
