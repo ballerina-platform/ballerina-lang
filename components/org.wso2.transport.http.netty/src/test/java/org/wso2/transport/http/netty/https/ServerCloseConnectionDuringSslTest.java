@@ -54,38 +54,54 @@ public class ServerCloseConnectionDuringSslTest {
     private HttpServer httpServer;
     private HttpWsConnectorFactory factory;
     private static final Logger LOG = LoggerFactory.getLogger(ServerCloseConnectionDuringSslTest.class);
+    private DefaultHttpConnectorListener listener;
 
     @BeforeClass
     public void setup() {
-        httpServer = TestUtil
-                .startHTTPServer(TestUtil.HTTP_SERVER_PORT, new ServerCloseTcpConnectionInitializer());
-
-        factory = new DefaultHttpWsConnectorFactory();
-        httpClientConnector = factory.createHttpClientConnector(new HashMap<>(), getSenderConfigs());
+        givenServerThatClosesConnection();
+        givenANormalHttpsClient();
     }
 
     @Test
     public void testServerCloseChannelDuringSslHandshake() {
         try {
-            HttpCarbonMessage msg = TestUtil.createHttpsPostReq(TestUtil.HTTP_SERVER_PORT, "", "");
-
-            CountDownLatch latch = new CountDownLatch(1);
-            DefaultHttpConnectorListener listener = new DefaultHttpConnectorListener(latch);
-            HttpResponseFuture responseFuture = httpClientConnector.send(msg);
-            responseFuture.setHttpConnectorListener(listener);
-
-            latch.await(5, TimeUnit.SECONDS);
-
-            Throwable response = listener.getHttpErrorMessage();
-            assertNotNull(response);
-            assertTrue(response instanceof ClientConnectorException,
-                    "Exception is not an instance of ClientConnectorException");
-            String result = response.getMessage();
-
-            assertEquals("Remote host: localhost/127.0.0.1:9000 closed the connection while SSL handshake", result);
+            whenANormalHttpsRequestSent();
+            thenRespShouldBeAServerCloseException();
         } catch (Exception ex) {
             TestUtil.handleException("Exception occurred while running testServerCloseChannelDuringSslHandshake", ex);
         }
+    }
+
+    @AfterClass
+    public void cleanUp() throws ServerConnectorException {
+        try {
+            httpServer.shutdown();
+            httpClientConnector.close();
+            factory.shutdown();
+        } catch (Exception e) {
+            LOG.warn("Interrupted while waiting for response", e);
+        }
+    }
+
+    private void thenRespShouldBeAServerCloseException() {
+        Throwable response = listener.getHttpErrorMessage();
+        assertNotNull(response);
+        assertTrue(response instanceof ClientConnectorException,
+                "Exception is not an instance of ClientConnectorException");
+        String result = response.getMessage();
+
+        assertEquals("Remote host: localhost/127.0.0.1:9000 closed the connection while SSL handshake", result);
+    }
+
+    private void whenANormalHttpsRequestSent() throws InterruptedException {
+        HttpCarbonMessage msg = TestUtil.createHttpsPostReq(TestUtil.HTTP_SERVER_PORT, "", "");
+
+        CountDownLatch latch = new CountDownLatch(1);
+        listener = new DefaultHttpConnectorListener(latch);
+        HttpResponseFuture responseFuture = httpClientConnector.send(msg);
+        responseFuture.setHttpConnectorListener(listener);
+
+        latch.await(5, TimeUnit.SECONDS);
     }
 
     private SenderConfiguration getSenderConfigs() {
@@ -100,14 +116,13 @@ public class ServerCloseConnectionDuringSslTest {
         return senderConfiguration;
     }
 
-    @AfterClass
-    public void cleanUp() throws ServerConnectorException {
-        try {
-            httpServer.shutdown();
-            httpClientConnector.close();
-            factory.shutdown();
-        } catch (Exception e) {
-            LOG.warn("Interrupted while waiting for response", e);
-        }
+    private void givenANormalHttpsClient() {
+        factory = new DefaultHttpWsConnectorFactory();
+        httpClientConnector = factory.createHttpClientConnector(new HashMap<>(), getSenderConfigs());
+    }
+
+    private void givenServerThatClosesConnection() {
+        httpServer = TestUtil
+                .startHTTPServer(TestUtil.HTTP_SERVER_PORT, new ServerCloseTcpConnectionInitializer());
     }
 }
