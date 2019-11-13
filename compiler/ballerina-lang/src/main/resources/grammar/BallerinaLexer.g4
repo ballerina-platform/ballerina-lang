@@ -373,7 +373,7 @@ StringCharacters
 
 fragment
 StringCharacter
-    :   ~["\\]  // This needs to be ~["\\\u000A\u000D]. But due to issue #19501, reverted back to ~["\\]
+    :   ~["\\\u000A\u000D]
     |   EscapeSequence
     ;
     
