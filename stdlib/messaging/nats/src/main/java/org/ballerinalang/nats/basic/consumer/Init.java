@@ -26,9 +26,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.nats.Constants;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.ballerinalang.nats.Constants.CONNECTED_CLIENTS;
@@ -54,7 +52,7 @@ public class Init {
         // This is to add listener to the connected client list in connection object.
         ((AtomicInteger) connectionObject.getNativeData(CONNECTED_CLIENTS)).incrementAndGet();
         // Initialize dispatcher list to use in service register and listener close.
-        List<Dispatcher> dispatcherList = Collections.synchronizedList(new ArrayList<>());
+        ConcurrentHashMap<String, Dispatcher> dispatcherList = new ConcurrentHashMap<String, Dispatcher>();
         listenerObject.addNativeData(DISPATCHER_LIST, dispatcherList);
     }
 }

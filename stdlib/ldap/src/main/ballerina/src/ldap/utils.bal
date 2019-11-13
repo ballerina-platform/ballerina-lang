@@ -1,4 +1,4 @@
-// Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+// Copyright (c) 2019 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 //
 // WSO2 Inc. licenses this file to you under the Apache License,
 // Version 2.0 (the "License"); you may not use this file except
@@ -16,22 +16,6 @@
 
 import ballerina/auth;
 import ballerina/log;
-
-# Log and prepare `error` as a `Error`.
-#
-# + message - Error message
-# + err - `error` instance
-# + return - Prepared `Error` instance
-function prepareError(string message, error? err = ()) returns Error {
-    log:printError(message, err);
-    Error oauth2Error;
-    if (err is error) {
-        oauth2Error = error(OAUTH2_ERROR, message = message, cause = err);
-    } else {
-        oauth2Error = error(OAUTH2_ERROR, message = message);
-    }
-    return oauth2Error;
-}
 
 # Log and prepare `error` as a `auth:Error`.
 #

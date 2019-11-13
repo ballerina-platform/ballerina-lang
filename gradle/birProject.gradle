@@ -3,6 +3,12 @@ import org.apache.tools.ant.filters.*;
 
 apply from: "$rootDir/gradle/birTestableProject.gradle"
 
+configurations {
+    interopImports {
+        transitive(false)
+    }
+}
+
 project.ext.moduleName = files(file('src/main/ballerina/src').listFiles()).filter { File f ->
     f.isDirectory() && f.name != 'target' && f.name != '.ballerina'
 }.singleFile.name
@@ -53,6 +59,7 @@ task createCacheEntries {
 task createBirJar(type: Exec) {
     dependsOn configurations.birJarCompile
     dependsOn configurations.bir
+    dependsOn configurations.interopImports
     dependsOn createBir
     dependsOn createBirCache
     dependsOn copyExternalMappingNextToBir
@@ -67,9 +74,15 @@ task createBirJar(type: Exec) {
         def jarsToBeLoaded = [];
         def mapPath = OperatingSystem.current().isWindows() ? "\"\"" : ""
         if (!sourceSets.main.allJava.isEmpty()) {
-            mapPath = generatedBirDir + project.ext.moduleName + '.map.json'
+            def generatedMapPath = generatedBirDir + project.ext.moduleName + '.map.json'
+            if (file(generatedMapPath).exists()) {
+                mapPath = generatedMapPath
+            }
         }
 
+        configurations.interopImports.each {
+            jarsToBeLoaded.addAll(it);
+        }
         jarsToBeLoaded.add("$rootDir" + "/bvm/ballerina-runtime/build/libs/ballerina-runtime-${project.version}.jar");
         new File("$projectDir/src/main/ballerina/Ballerina.toml").readLines().
                 findAll({x -> x ==~ /.*path = ".\/lib\/.*/ }).

@@ -64,7 +64,7 @@ public type InboundJwtAuthProvider object {
                 <@untainted> validationResult);
             return true;
         } else {
-            return auth:prepareError("JWT validation failed.", validationResult);
+            return prepareAuthError("JWT validation failed.", validationResult);
         }
     }
 };

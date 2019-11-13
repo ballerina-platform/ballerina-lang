@@ -177,7 +177,6 @@ public class StreamsQuerySemanticAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangForever foreverStatement) {
 
-        foreverStatement.setEnv(env);
         for (StreamingQueryStatementNode streamingQueryStatement : foreverStatement.getStreamingQueryStatements()) {
             SymbolEnv stmtEnv = SymbolEnv.createStreamingQueryEnv(
                     (BLangStreamingQueryStatement) streamingQueryStatement, env);
@@ -221,6 +220,8 @@ public class StreamsQuerySemanticAnalyzer extends BLangNodeVisitor {
         if (patternClause != null) {
             analyzeNode(patternClause, env);
         }
+
+        streamingQueryStatement.cachedEnv = env;
     }
 
     @Override
