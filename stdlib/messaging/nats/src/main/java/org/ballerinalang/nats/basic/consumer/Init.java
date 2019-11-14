@@ -19,12 +19,7 @@
 package org.ballerinalang.nats.basic.consumer;
 
 import io.nats.client.Dispatcher;
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.nats.Constants;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -37,22 +32,13 @@ import static org.ballerinalang.nats.Constants.DISPATCHER_LIST;
  *
  * @since 0.995
  */
-@BallerinaFunction(
-        orgName = Constants.ORG_NAME,
-        packageName = Constants.NATS,
-        functionName = "init",
-        receiver = @Receiver(type = TypeKind.OBJECT,
-                structType = Constants.NATS_LISTENER,
-                structPackage = Constants.NATS_PACKAGE),
-        isPublic = true
-)
 public class Init {
 
-    public static void init(Strand strand, ObjectValue listenerObject, ObjectValue connectionObject) {
+    public static void consumerInit(ObjectValue listenerObject, ObjectValue connectionObject) {
         // This is to add listener to the connected client list in connection object.
         ((AtomicInteger) connectionObject.getNativeData(CONNECTED_CLIENTS)).incrementAndGet();
         // Initialize dispatcher list to use in service register and listener close.
-        ConcurrentHashMap<String, Dispatcher> dispatcherList = new ConcurrentHashMap<String, Dispatcher>();
+        ConcurrentHashMap<String, Dispatcher> dispatcherList = new ConcurrentHashMap<>();
         listenerObject.addNativeData(DISPATCHER_LIST, dispatcherList);
     }
 }

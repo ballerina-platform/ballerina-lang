@@ -21,12 +21,8 @@ package org.ballerinalang.nats.connection;
 import io.nats.client.Connection;
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.TypeChecker;
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.nats.Constants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,21 +35,12 @@ import java.util.concurrent.atomic.AtomicInteger;
  *
  * @since 0.995
  */
-@BallerinaFunction(
-        orgName = Constants.ORG_NAME,
-        packageName = Constants.NATS,
-        functionName = "close",
-        receiver = @Receiver(type = TypeKind.OBJECT,
-                structType = "Connection",
-                structPackage = Constants.NATS_PACKAGE),
-        isPublic = true
-)
 public class Close {
 
     private static final Logger LOG = LoggerFactory.getLogger(Close.class);
     private static PrintStream console = System.out;
 
-    public static Object close(Strand strand, ObjectValue connectionObject, Object forceful) {
+    public static Object externClose(ObjectValue connectionObject, Object forceful) {
         int clientCount = ((AtomicInteger) connectionObject.getNativeData(Constants.CONNECTED_CLIENTS)).get();
         if (clientCount == 0 || isForceShutdown(forceful)) {
             Connection natsConnection = (Connection) connectionObject.getNativeData(Constants.NATS_CONNECTION);

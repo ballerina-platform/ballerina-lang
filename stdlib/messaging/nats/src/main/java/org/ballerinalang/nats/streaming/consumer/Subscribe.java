@@ -21,15 +21,11 @@ import io.nats.streaming.StreamingConnection;
 import io.nats.streaming.Subscription;
 import io.nats.streaming.SubscriptionOptions;
 import org.ballerinalang.jvm.TypeChecker;
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.nats.Constants;
 import org.ballerinalang.nats.Utils;
 
@@ -48,13 +44,6 @@ import static org.ballerinalang.nats.Constants.STREAMING_SUBSCRIPTION_LIST;
 /**
  * Remote function implementation for subscribing to a NATS subject.
  */
-@BallerinaFunction(orgName = "ballerina",
-        packageName = "nats",
-        functionName = "subscribe",
-        receiver = @Receiver(type = TypeKind.OBJECT,
-                structType = "StreamingListener",
-                structPackage = "ballerina/nats"),
-        isPublic = true)
 public class Subscribe {
     private static final PrintStream console;
     private static final String STREAMING_SUBSCRIPTION_CONFIG = "StreamingSubscriptionConfig";
@@ -67,7 +56,7 @@ public class Subscribe {
     private static final String MANUAL_ACK_ANNOTATION_FIELD = "manualAck";
     private static final String START_POSITION_ANNOTATION_FIELD = "startPosition";
 
-    public static void subscribe(Strand strand, ObjectValue streamingListener) {
+    public static void streamingSubscribe(ObjectValue streamingListener) {
         StreamingConnection streamingConnection = (StreamingConnection) streamingListener
                 .getNativeData(Constants.NATS_STREAMING_CONNECTION);
         ConcurrentHashMap<ObjectValue, StreamingListener> serviceListenerMap =

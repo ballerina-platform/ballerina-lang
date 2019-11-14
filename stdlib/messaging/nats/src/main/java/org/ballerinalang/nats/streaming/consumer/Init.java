@@ -18,11 +18,7 @@
 package org.ballerinalang.nats.streaming.consumer;
 
 import io.nats.streaming.Subscription;
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.nats.Constants;
 
 import java.util.concurrent.ConcurrentHashMap;
@@ -32,16 +28,9 @@ import java.util.concurrent.ConcurrentHashMap;
  *
  * @since 1.0.0
  */
-@BallerinaFunction(orgName = "ballerina",
-                   packageName = "nats",
-                   functionName = "init",
-                   receiver = @Receiver(type = TypeKind.OBJECT,
-                                        structType = "StreamingListener",
-                                        structPackage = "ballerina/nats"),
-                   isPublic = true)
 public class Init {
 
-    public static void init(Strand strand, ObjectValue streamingListener) {
+    public static void streamingListenerInit(ObjectValue streamingListener) {
         ConcurrentHashMap<ObjectValue, StreamingListener> serviceListenerMap = new ConcurrentHashMap<>();
         streamingListener.addNativeData(Constants.STREAMING_DISPATCHER_LIST, serviceListenerMap);
         ConcurrentHashMap<ObjectValue, Subscription> subscriptionsMap = new ConcurrentHashMap<>();

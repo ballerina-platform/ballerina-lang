@@ -20,11 +20,7 @@ package org.ballerinalang.nats.basic.consumer;
 
 import io.nats.client.Connection;
 import io.nats.client.Dispatcher;
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.nats.Constants;
 import org.ballerinalang.nats.Utils;
 import org.slf4j.Logger;
@@ -42,20 +38,11 @@ import static org.ballerinalang.nats.Constants.DISPATCHER_LIST;
  *
  * @since 0.995
  */
-@BallerinaFunction(
-        orgName = Constants.ORG_NAME,
-        packageName = Constants.NATS,
-        functionName = "immediateStop",
-        receiver = @Receiver(type = TypeKind.OBJECT,
-                structType = Constants.NATS_LISTENER,
-                structPackage = Constants.NATS_PACKAGE),
-        isPublic = true
-)
 public class ImmediateStop {
 
     private static final Logger LOG = LoggerFactory.getLogger(ImmediateStop.class);
 
-    public static void immediateStop(Strand strand, ObjectValue listenerObject) {
+    public static void basicImmediateStop(ObjectValue listenerObject) {
         ObjectValue connectionObject = (ObjectValue) listenerObject.get(Constants.CONNECTION_OBJ);
         if (connectionObject == null) {
             LOG.debug("Connection object reference does not exist. Possibly the connection is already closed.");

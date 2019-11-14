@@ -15,6 +15,7 @@
 // under the License.
 
 import ballerina/lang.'object as lang;
+import ballerinax/java;
 
 # Represents the NATS Streaming Server connection, to which a subscription service should be bound to in order to receive messages
 # of the corresponding subscription.
@@ -40,20 +41,20 @@ public type StreamingListener object {
         self.clusterId = clusterId;
         self.clientId = clientId;
         self.streamingConfig = streamingConfig;
-        self.init();
+        streamingListenerInit(self);
     }
 
     public function __attach(service s, string? name = ()) returns error? {
-        self.attach(s, self.connection);
+        streamingAttach(self, s, self.connection);
     }
 
     public function __detach(service s) returns error? {
-        self.detach(s);
+        streamingDetach(self, s);
     }
 
     public function __start() returns error? {
-         createStreamingConnection(self, self.connection, self.clusterId, self.clientId, self.streamingConfig);
-         self.subscribe();
+         createStreamingConnection(self, self.connection, java:fromString(self.clusterId), self.clientId, self.streamingConfig);
+         streamingSubscribe(self);
     }
 
     public function __gracefulStop() returns error? {
@@ -71,9 +72,24 @@ public type StreamingListener object {
             return detachFromNatsConnection(self, natsConnection);
         }
     }
-
-     function init() = external;
-     function subscribe() = external;
-     function attach(service serviceType, Connection? conn) = external;
-     function detach(service serviceType) = external;
 };
+
+function streamingListenerInit(StreamingListener lis) =
+@java:Method {
+    class: "org.ballerinalang.nats.streaming.consumer.Init"
+} external;
+
+function streamingSubscribe(StreamingListener lis) =
+@java:Method {
+    class: "org.ballerinalang.nats.streaming.consumer.Subscribe"
+} external;
+
+function streamingAttach(StreamingListener lis, service serviceType, Connection? conn) =
+@java:Method {
+    class: "org.ballerinalang.nats.streaming.consumer.Attach"
+} external;
+
+function streamingDetach(StreamingListener lis, service serviceType) =
+@java:Method {
+    class: "org.ballerinalang.nats.streaming.consumer.Detach"
+} external;
