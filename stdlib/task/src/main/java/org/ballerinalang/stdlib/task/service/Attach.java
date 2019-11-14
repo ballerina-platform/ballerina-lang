@@ -17,25 +17,18 @@
 */
 package org.ballerinalang.stdlib.task.service;
 
-import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.BRuntime;
+import org.ballerinalang.jvm.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.stdlib.task.exceptions.SchedulingException;
 import org.ballerinalang.stdlib.task.objects.ServiceInformation;
 import org.ballerinalang.stdlib.task.objects.Task;
-import org.ballerinalang.stdlib.task.utils.Utils;
 
 import java.util.Objects;
 
 import static org.ballerinalang.stdlib.task.utils.TaskConstants.NATIVE_DATA_TASK_OBJECT;
-import static org.ballerinalang.stdlib.task.utils.TaskConstants.OBJECT_NAME_LISTENER;
-import static org.ballerinalang.stdlib.task.utils.TaskConstants.ORGANIZATION_NAME;
-import static org.ballerinalang.stdlib.task.utils.TaskConstants.PACKAGE_NAME;
 import static org.ballerinalang.stdlib.task.utils.TaskConstants.PARAMETER_ATTACHMENT;
-import static org.ballerinalang.stdlib.task.utils.TaskConstants.TASK_PACKAGE_NAME;
 import static org.ballerinalang.stdlib.task.utils.Utils.validateService;
 
 /**
@@ -43,26 +36,15 @@ import static org.ballerinalang.stdlib.task.utils.Utils.validateService;
  *
  * @since 0.995.0
  */
-@BallerinaFunction(
-        orgName = ORGANIZATION_NAME,
-        packageName = PACKAGE_NAME,
-        functionName = "register",
-        receiver = @Receiver(
-                type = TypeKind.OBJECT,
-                structType = OBJECT_NAME_LISTENER,
-                structPackage = TASK_PACKAGE_NAME),
-        isPublic = true
-)
-public class Register {
+public class Attach {
 
-    public static Object register(Strand strand, ObjectValue taskListener, ObjectValue service,
-                                  MapValue<String, Object> config) {
+    public static Object attach(ObjectValue taskListener, ObjectValue service, MapValue<String, Object> config) {
         Object attachments = config.get(PARAMETER_ATTACHMENT);
         ServiceInformation serviceInformation;
         if (Objects.nonNull(attachments)) {
-            serviceInformation = new ServiceInformation(strand, service, attachments);
+            serviceInformation = new ServiceInformation(BRuntime.getCurrentRuntime(), service, attachments);
         } else {
-            serviceInformation = new ServiceInformation(strand, service);
+            serviceInformation = new ServiceInformation(BRuntime.getCurrentRuntime(), service);
         }
 
         /*
@@ -71,7 +53,9 @@ public class Register {
         try {
             validateService(serviceInformation);
         } catch (SchedulingException e) {
-            return Utils.createTaskError(e.getMessage());
+            //TODO: Ideally this should return an Error using createError() method.
+            // Fix this once we can return errors from interop functions (Check with master)
+            throw new BLangRuntimeException(e.getMessage());
         }
 
         Task task = (Task) taskListener.getNativeData(NATIVE_DATA_TASK_OBJECT);

@@ -17,11 +17,7 @@
  */
 package org.ballerinalang.stdlib.task.service;
 
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.stdlib.task.api.TaskServerConnector;
 import org.ballerinalang.stdlib.task.exceptions.SchedulingException;
 import org.ballerinalang.stdlib.task.impl.TaskServerConnectorImpl;
@@ -31,31 +27,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import static org.ballerinalang.stdlib.task.utils.TaskConstants.NATIVE_DATA_TASK_OBJECT;
-import static org.ballerinalang.stdlib.task.utils.TaskConstants.OBJECT_NAME_LISTENER;
-import static org.ballerinalang.stdlib.task.utils.TaskConstants.ORGANIZATION_NAME;
-import static org.ballerinalang.stdlib.task.utils.TaskConstants.PACKAGE_NAME;
-import static org.ballerinalang.stdlib.task.utils.TaskConstants.TASK_PACKAGE_NAME;
 
 /**
  * Native function to start the service attached to the listener.
  *
  * @since 0.995.0
  */
-@BallerinaFunction(
-        orgName = ORGANIZATION_NAME,
-        packageName = PACKAGE_NAME,
-        functionName = "start",
-        receiver = @Receiver(
-                type = TypeKind.OBJECT,
-                structType = OBJECT_NAME_LISTENER,
-                structPackage = TASK_PACKAGE_NAME),
-        isPublic = true
-)
 public class Start {
 
     private static final Logger LOG = LoggerFactory.getLogger(Start.class);
 
-    public static Object start(Strand strand, ObjectValue taskListener) {
+    public static Object start(ObjectValue taskListener) {
         Task task = (Task) taskListener.getNativeData(NATIVE_DATA_TASK_OBJECT);
         TaskServerConnector serverConnector = new TaskServerConnectorImpl(task);
         try {
