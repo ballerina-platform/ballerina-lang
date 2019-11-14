@@ -41,6 +41,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstructorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BErrorTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
@@ -93,8 +94,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttribute;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQName;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangXMLNSStatement;
 import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangConstrainedType;
@@ -990,12 +989,12 @@ public class SymbolEnter extends BLangNodeVisitor {
             }
         }
 
-        //if the varSymbol is invokable and if it is a function pointer which is not a function parameter
-        if (varSymbol.type.tag == TypeTags.INVOKABLE &&
-                    varNode.expr != null && varNode.expr.getKind() == NodeKind.LAMBDA) {
-            BLangFunction lambdaFunc = ((BLangLambdaFunction) varNode.expr).function;
-            BInvokableSymbol invokableSymbol = (BInvokableSymbol) varSymbol;
-            invokableSymbol.params = lambdaFunc.symbol.params;
+        if (varSymbol.type.tag == TypeTags.INVOKABLE) {
+            BInvokableSymbol symbol = (BInvokableSymbol) varSymbol;
+            BInvokableTypeSymbol tsymbol = (BInvokableTypeSymbol) symbol.type.tsymbol;
+            symbol.params = tsymbol.params;
+            symbol.restParam = tsymbol.restParam;
+            symbol.retType = tsymbol.returnType;
         }
     }
 
@@ -1394,15 +1393,22 @@ public class SymbolEnter extends BLangNodeVisitor {
                 .map(paramSym -> paramSym.type)
                 .collect(Collectors.toList());
 
+        BInvokableTypeSymbol functionTypeSymbol = Symbols.createInvokableTypeSymbol(SymTag.FUNCTION_TYPE,
+                invokableSymbol.flags,
+                invokableSymbol.name, env.enclPkg.symbol.pkgID,
+                invokableSymbol.type, env.scope.owner);
+        functionTypeSymbol.params = invokableSymbol.params;
+        functionTypeSymbol.returnType = invokableSymbol.retType;
+
+        BType restType = null;
         if (invokableNode.restParam != null) {
             defineNode(invokableNode.restParam, invokableEnv);
             invokableSymbol.restParam = invokableNode.restParam.symbol;
-            paramTypes.add(invokableSymbol.restParam.type);
+            functionTypeSymbol.restParam = invokableSymbol.restParam;
+            restType = invokableSymbol.restParam.type;
         }
-        invokableSymbol.type = new BInvokableType(paramTypes, invokableNode.returnTypeNode.type, null);
-        invokableSymbol.type.tsymbol = Symbols.createTypeSymbol(SymTag.FUNCTION_TYPE, invokableSymbol.flags,
-                                                                Names.EMPTY, env.enclPkg.symbol.pkgID,
-                                                                invokableSymbol.type, env.scope.owner);
+        invokableSymbol.type = new BInvokableType(paramTypes, restType, invokableNode.returnTypeNode.type, null);
+        invokableSymbol.type.tsymbol = functionTypeSymbol;
     }
 
     private void defineSymbol(DiagnosticPos pos, BSymbol symbol) {
