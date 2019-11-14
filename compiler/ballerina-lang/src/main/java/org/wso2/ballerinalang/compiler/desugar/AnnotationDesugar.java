@@ -509,8 +509,10 @@ public class AnnotationDesugar {
                 .map(param -> param.symbol)
                 .collect(Collectors.toList());
         functionSymbol.scope = new Scope(functionSymbol);
+        functionSymbol.restParam = function.restParam != null ? function.restParam.symbol : null;
         functionSymbol.type = new BInvokableType(Collections.emptyList(),
-                                                 new BMapType(TypeTags.MAP, symTable.anyType, null), null);
+                function.restParam != null ? function.restParam.type : null,
+                new BMapType(TypeTags.MAP, symTable.anyType, null), null);
         function.symbol = functionSymbol;
         return functionSymbol;
     }

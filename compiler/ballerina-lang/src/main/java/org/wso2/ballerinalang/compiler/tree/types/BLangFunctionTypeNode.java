@@ -35,6 +35,7 @@ import java.util.stream.Collectors;
 public class BLangFunctionTypeNode extends BLangType implements FunctionTypeNode {
 
     public List<BLangVariable> params = new ArrayList<>();
+    public BLangVariable restParam;
     public BLangType returnTypeNode;
 
     public boolean returnsKeywordExists = false;
