@@ -38,6 +38,7 @@ import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.types.TypeFlags;
 import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.DecimalValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
@@ -92,10 +93,10 @@ public abstract class AbstractSQLStatement implements SQLStatement {
     }
 
     ArrayValue constructParameters(ArrayValue parameters) throws ApplicationException {
-        ArrayValue parametersNew = new ArrayValue();
+        ArrayValue parametersNew = new ArrayValueImpl();
         int paramCount = parameters.size();
         for (int i = 0; i < paramCount; ++i) {
-            Object value = parameters.getValue(i);
+            Object value = parameters.get(i);
             MapValue<String, Object> paramRecord;
             BType type = TypeChecker.getType(value);
             if (type.getTag() == TypeTags.OBJECT_TYPE_TAG

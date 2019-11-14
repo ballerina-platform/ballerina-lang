@@ -30,6 +30,7 @@ import org.ballerinalang.jvm.types.TypeFlags;
 import org.ballerinalang.jvm.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.jvm.values.AbstractObjectValue;
 import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.DecimalValue;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.FPValue;
@@ -456,8 +457,8 @@ public class BRunUtil {
                 org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType arrayType =
                         (org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType) type;
                 BValueArray array = (BValueArray) value;
-                ArrayValue jvmArray = new ArrayValue(getJVMType(array.getType()), array.size());
-                jvmArray.elementType = getJVMType(array.elementType);
+                ArrayValue jvmArray = new ArrayValueImpl(
+                        (org.ballerinalang.jvm.types.BArrayType) getJVMType(array.getType()), array.size());
                 for (int i = 0; i < array.size(); i++) {
                     switch (arrayType.eType.tag) {
                         case TypeTags.INT_TAG:
@@ -566,7 +567,7 @@ public class BRunUtil {
             case TypeTags.ARRAY_TAG:
                 BArrayType arrayType = (BArrayType) type;
                 BValueArray array = (BValueArray) value;
-                ArrayValue jvmArray = new ArrayValue(getJVMType(arrayType));
+                ArrayValue jvmArray = new ArrayValueImpl((org.ballerinalang.jvm.types.BArrayType) getJVMType(arrayType));
                 for (int i = 0; i < array.size(); i++) {
                     switch (arrayType.getElementType().getTag()) {
                         case TypeTags.INT_TAG:

@@ -19,6 +19,7 @@
 package org.ballerinalang.nats;
 
 import io.nats.client.Message;
+
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.JSONParser;
@@ -31,6 +32,7 @@ import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.DecimalValue;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
@@ -86,7 +88,7 @@ public class Utils {
                 dispatchedData = new DecimalValue(new String(data, StandardCharsets.UTF_8));
                 break;
             case TypeTags.ARRAY_TAG:
-                dispatchedData = new ArrayValue(data);
+                dispatchedData = new ArrayValueImpl(data);
                 break;
             case TypeTags.XML_TAG:
                 dispatchedData = XMLFactory.parse(new String(data, StandardCharsets.UTF_8));
@@ -104,11 +106,11 @@ public class Utils {
     public static ObjectValue getMessageObject(Message message) {
         ObjectValue msgObj;
         if (message != null) {
-            ArrayValue msgData = new ArrayValue(message.getData());
+            ArrayValue msgData = new ArrayValueImpl(message.getData());
             msgObj = BallerinaValues.createObjectValue(Constants.NATS_PACKAGE_ID,
                     Constants.NATS_MESSAGE_OBJ_NAME, message.getSubject(), msgData, message.getReplyTo());
         } else {
-            ArrayValue msgData = new ArrayValue(new byte[0]);
+            ArrayValue msgData = new ArrayValueImpl(new byte[0]);
             msgObj = BallerinaValues.createObjectValue(Constants.NATS_PACKAGE_ID,
                     Constants.NATS_MESSAGE_OBJ_NAME, "", msgData, "");
         }

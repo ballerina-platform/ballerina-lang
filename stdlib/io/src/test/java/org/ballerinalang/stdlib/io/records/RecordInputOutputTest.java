@@ -154,12 +154,12 @@ public class RecordInputOutputTest {
         DelimitedRecordChannel recordChannel = new DelimitedRecordChannel(characterChannel, "\n", ",");
 
         String[] recordOne = {"Foo", "Bar", "911"};
-        ArrayValue recordOneArr = new ArrayValue(recordOne);
+        ArrayValue recordOneArr = new ArrayValueImpl(recordOne);
 
         recordChannel.write(recordOneArr);
 
         String[] recordTwo = {"Jim", "Com", "119"};
-        ArrayValue recordTwoArr = new ArrayValue(recordTwo);
+        ArrayValue recordTwoArr = new ArrayValueImpl(recordTwo);
 
         recordChannel.write(recordTwoArr);
         recordChannel.close();

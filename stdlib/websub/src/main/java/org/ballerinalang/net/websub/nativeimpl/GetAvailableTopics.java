@@ -20,6 +20,7 @@ package org.ballerinalang.net.websub.nativeimpl;
 
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -43,6 +44,6 @@ public class GetAvailableTopics {
 
     public static ArrayValue getAvailableTopics(Strand strand, ObjectValue webSubHub) {
         String[] topics = Hub.getInstance().getTopics();
-        return new ArrayValue(topics);
+        return new ArrayValueImpl(topics);
     }
 }

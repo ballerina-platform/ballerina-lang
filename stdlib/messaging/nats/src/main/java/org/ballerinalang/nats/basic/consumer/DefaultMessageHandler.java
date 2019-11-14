@@ -20,12 +20,14 @@ package org.ballerinalang.nats.basic.consumer;
 
 import io.nats.client.Message;
 import io.nats.client.MessageHandler;
+
 import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.services.ErrorHandlerUtils;
 import org.ballerinalang.jvm.types.AttachedFunction;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.connector.CallableUnitCallback;
@@ -60,7 +62,7 @@ public class DefaultMessageHandler implements MessageHandler {
      */
     @Override
     public void onMessage(Message message) {
-        ArrayValue msgData = new ArrayValue(message.getData());
+        ArrayValue msgData = new ArrayValueImpl(message.getData());
         ObjectValue msgObj = BallerinaValues.createObjectValue(Constants.NATS_PACKAGE_ID,
                 Constants.NATS_MESSAGE_OBJ_NAME, message.getSubject(), msgData, message.getReplyTo());
         AttachedFunction onMessage = getAttachedFunction(serviceObject, ON_MESSAGE_RESOURCE);

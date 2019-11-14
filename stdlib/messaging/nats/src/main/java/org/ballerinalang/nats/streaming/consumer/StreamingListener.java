@@ -19,12 +19,13 @@ package org.ballerinalang.nats.streaming.consumer;
 
 import io.nats.streaming.Message;
 import io.nats.streaming.MessageHandler;
+
 import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.services.ErrorHandlerUtils;
 import org.ballerinalang.jvm.types.AttachedFunction;
 import org.ballerinalang.jvm.types.BType;
-import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.connector.CallableUnitCallback;
@@ -56,7 +57,7 @@ public class StreamingListener implements MessageHandler {
     public void onMessage(Message msg) {
         ObjectValue ballerinaNatsMessage = BallerinaValues.createObjectValue(Constants.NATS_PACKAGE_ID,
                 NATS_STREAMING_MESSAGE_OBJ_NAME, msg.getSubject(),
-                        new ArrayValue(msg.getData()), msg.getReplyTo());
+                        new ArrayValueImpl(msg.getData()), msg.getReplyTo());
         ballerinaNatsMessage.addNativeData(Constants.NATS_STREAMING_MSG, msg);
         AttachedFunction onMessageResource = getAttachedFunction(service, "onMessage");
         BType[] parameterTypes = onMessageResource.getParameterType();

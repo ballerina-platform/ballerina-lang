@@ -81,7 +81,7 @@ public class Util {
     public static ArrayValue getArrayOfBodyParts(ArrayList<ObjectValue> bodyParts) {
         BType typeOfBodyPart = bodyParts.get(0).getType();
         ObjectValue[] result = bodyParts.toArray(new ObjectValue[bodyParts.size()]);
-        return new ArrayValue(result, new org.ballerinalang.jvm.types.BArrayType(typeOfBodyPart));
+        return new ArrayValueImpl(result, new org.ballerinalang.jvm.types.BArrayType(typeOfBodyPart));
     }
 
     /**

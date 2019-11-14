@@ -62,30 +62,32 @@ public class Lists {
         }
     }
 
+    // FIXME: remove
     public static void add(ArrayValue array, long index, Object refType) {
-
-        BType elementType = array.elementType;
-
-        if (array.getType().getTag() == TypeTags.TUPLE_TAG) {
-            BTupleType tupleType = (BTupleType) array.getType();
+        BType elementType = null;
+        BType arrayType = array.getType();
+        if (arrayType.getTag() == TypeTags.TUPLE_TAG) {
+            BTupleType tupleType = (BTupleType) arrayType;
             if (isTupleIndexWithinRange(tupleType, index)) {
                 elementType = tupleType.getTupleTypes().get((int) index);
             }
+        } else {
+            elementType = ((BArrayType) arrayType).getElementType();
         }
 
-        if (elementType != null && !TypeChecker.checkIsType(refType, elementType)) {
+        if (!TypeChecker.checkIsType(refType, elementType)) {
             throw BallerinaErrors.createError(
                     getModulePrefixedReason(ARRAY_LANG_LIB, INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER),
                     BLangExceptionHelper.getErrorMessage(RuntimeErrors.INCOMPATIBLE_TYPE,
                             elementType, (refType != null) ? TypeChecker.getType(refType) : BTypes.typeNull));
         }
 
-        if (array.getType().getTag() != TypeTags.ARRAY_TAG) {
+        if (arrayType.getTag() != TypeTags.ARRAY_TAG) {
             array.add(index, refType);
             return;
         }
 
-        switch (((BArrayType) array.getType()).getElementType().getTag()) {
+        switch (((BArrayType) arrayType).getElementType().getTag()) {
             case TypeTags.BOOLEAN_TAG:
                 array.add(index, ((Boolean) refType).booleanValue());
                 return;

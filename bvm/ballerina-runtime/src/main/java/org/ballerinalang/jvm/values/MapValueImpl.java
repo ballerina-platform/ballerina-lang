@@ -563,7 +563,7 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
             types.add(TypeChecker.getType(value));
             BTupleType tupleType = new BTupleType(types);
 
-            ArrayValue tuple = new ArrayValue(tupleType);
+            TupleValueImpl tuple = new TupleValueImpl(tupleType);
             tuple.add(0, next.getKey());
             tuple.add(1, value);
             return tuple;

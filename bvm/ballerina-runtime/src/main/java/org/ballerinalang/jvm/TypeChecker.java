@@ -1130,10 +1130,11 @@ public class TypeChecker {
             return false;
         }
 
-        if (BTypes.isValueType(source.elementType)) {
+        BType elementType = ((BArrayType) source.getType()).getElementType();
+        if (BTypes.isValueType(elementType)) {
             int bound = source.size();
             for (int i = 0; i < bound; i++) {
-                if (!checkIsType(source.elementType, targetType.getTupleTypes().get(i), new ArrayList<>())) {
+                if (!checkIsType(elementType, targetType.getTupleTypes().get(i), new ArrayList<>())) {
                     return false;
                 }
             }
@@ -1162,10 +1163,11 @@ public class TypeChecker {
 
         ArrayValue source = (ArrayValue) sourceValue;
         BType targetTypeElementType = targetType.getElementType();
-        if (BTypes.isValueType(source.elementType)) {
-            boolean isType = checkIsType(source.elementType, targetTypeElementType, new ArrayList<>());
+        BType sourceElementType = ((BArrayType) source.getType()).getElementType();
+        if (BTypes.isValueType(sourceElementType)) {
+            boolean isType = checkIsType(sourceElementType, targetTypeElementType, new ArrayList<>());
 
-            if (isType || !allowNumericConversion || !isNumericType(source.elementType)) {
+            if (isType || !allowNumericConversion || !isNumericType(sourceElementType)) {
                 return isType;
             }
 
@@ -1234,8 +1236,9 @@ public class TypeChecker {
                                                List<TypeValuePair> unresolvedValues, boolean allowNumericConversion) {
         if (sourceType.getTag() == TypeTags.ARRAY_TAG) {
             ArrayValue source = (ArrayValue) sourceValue;
-            if (BTypes.isValueType(source.elementType)) {
-                return checkIsType(source.elementType, targetType, new ArrayList<>());
+            BType elementType = ((BArrayType) source.getType()).getElementType();
+            if (BTypes.isValueType(elementType)) {
+                return checkIsType(elementType, targetType, new ArrayList<>());
             }
 
             Object[] arrayValues = source.getValues();
@@ -1466,7 +1469,7 @@ public class TypeChecker {
         }
 
         for (int i = 0; i < lhsList.size(); i++) {
-            if (!isEqual(lhsList.getValue(i), rhsList.getValue(i), checkedValues)) {
+            if (!isEqual(lhsList.get(i), rhsList.get(i), checkedValues)) {
                 return false;
             }
         }

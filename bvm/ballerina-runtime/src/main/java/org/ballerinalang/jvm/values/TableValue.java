@@ -412,7 +412,7 @@ public class TableValue implements RefValue, BTable {
         }
 
         TableIterator cloneIterator = tableProvider.createIterator(this.tableName, this.constraintType);
-        ArrayValue data = new ArrayValue();
+        ArrayValue data = new ArrayValueImpl();
         int cursor = 0;
         try {
             while (cloneIterator.next()) {

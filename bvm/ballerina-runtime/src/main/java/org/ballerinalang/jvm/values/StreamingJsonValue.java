@@ -41,7 +41,7 @@ import java.util.Map;
  *  
  * @since 0.981.0
  */
-public class StreamingJsonValue extends ArrayValue implements BStreamingJson {
+public class StreamingJsonValue extends ArrayValueImpl implements BStreamingJson {
 
     JSONDataSource datasource;
 

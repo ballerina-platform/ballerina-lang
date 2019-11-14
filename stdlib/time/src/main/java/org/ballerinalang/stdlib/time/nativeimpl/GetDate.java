@@ -20,8 +20,9 @@ package org.ballerinalang.stdlib.time.nativeimpl;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BTupleType;
 import org.ballerinalang.jvm.types.BTypes;
-import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.AbstractArrayValue;
 import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinalang.jvm.values.TupleValueImpl;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 
 import java.util.Arrays;
@@ -40,8 +41,8 @@ public class GetDate extends AbstractTimeFunction {
     private static final BTupleType getDateTupleType = new BTupleType(
             Arrays.asList(BTypes.typeInt, BTypes.typeInt, BTypes.typeInt));
 
-    public static ArrayValue getDate(Strand strand, MapValue<String, Object> timeRecord) {
-        ArrayValue date = new ArrayValue(getDateTupleType);
+    public static AbstractArrayValue getDate(Strand strand, MapValue<String, Object> timeRecord) {
+        TupleValueImpl date = new TupleValueImpl(getDateTupleType);
         date.add(0, Long.valueOf(getYear(timeRecord)));
         date.add(1, Long.valueOf(getMonth(timeRecord)));
         date.add(2, Long.valueOf(getDay(timeRecord)));

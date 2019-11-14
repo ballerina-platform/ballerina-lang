@@ -28,6 +28,7 @@ import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.XMLItem;
 import org.ballerinalang.jvm.values.XMLSequence;
@@ -121,7 +122,7 @@ public class XsltTransformer {
 
         // Here we go through the iterator and add all the children nodes to a BRefValueArray.
         // The BRefValueArray is used to create a BXMLSequence object.
-        ArrayValue omNodeArray = new ArrayValue(new BArrayType(BTypes.typeXML));
+        ArrayValue omNodeArray = new ArrayValueImpl(new BArrayType(BTypes.typeXML));
         OMDocument omDocument;
         OMNode omNode;
         int omNodeIndex = 0;
