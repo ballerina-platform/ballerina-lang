@@ -78,8 +78,7 @@ function generateJarBinary(string pathToEntryBir, string mapPath, boolean dumpBi
     compiledPkgCache[entryMod.org.value + entryMod.name.value] = entryMod;
 
     if (dumpBir) {
-       bir:BirEmitter emitter = new(entryMod);
-       emitter.emitPackage();
+        io:println(bir:emitModule(entryMod));
     }
 
     JarFile jarFile = {};
