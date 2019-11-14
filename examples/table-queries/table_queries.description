@@ -1,6 +1,6 @@
-// Ballerina supports querying tables using a syntax similar to SQL. This query syntax can only be used to query a table.
-// Modification of an existing table is not supported.
+// Ballerina allows querying in-memory tables with syntax similar to SQL. To select all the columns/fields from the
+// source table, "*" can be used along with the select clause. In this example, an exact copy of the source table is
+// created. This query syntax can only be used to query a table. The modification of an existing table is not supported.
 // When an existing table is queried using Ballerina SQL, a new in-memory table is created with the queried data and
-// that table is returned.
-// Executing these SQL-like queries on tables returned through Ballerina database clients is not
+// that table is returned. Executing these SQL-like queries on tables returned through Ballerina database clients is not
 // supported yet.
