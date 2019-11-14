@@ -592,9 +592,10 @@ public class TypeParamAnalyzer {
         List<BType> paramTypes = expType.paramTypes.stream()
                 .map(type -> getMatchingBoundType(type, env, resolvedTypes))
                 .collect(Collectors.toList());
-        // TODO: 7/4/19 Set a type symbol for the below type. Otherwise it'll cause problems for functions returning
-        //  a function pointer.
-        return new BInvokableType(paramTypes, getMatchingBoundType(expType.retType, env, resolvedTypes), null);
+        BType restType = expType.restType;
+        return new BInvokableType(paramTypes, restType, getMatchingBoundType(expType.retType, env, resolvedTypes),
+                Symbols.createInvokableTypeSymbol(SymTag.FUNCTION_TYPE, expType.flags, Names.EMPTY,
+                        env.enclPkg.symbol.pkgID, expType, env.scope.owner));
     }
 
     private BType getMatchingObjectBoundType(BObjectType expType, SymbolEnv env, HashSet<BType> resolvedTypes) {
