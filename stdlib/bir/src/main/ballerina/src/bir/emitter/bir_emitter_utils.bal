@@ -74,27 +74,23 @@ function emitBinaryOpInstructionKind(BinaryOpInstructionKind kind) returns strin
     } else if kind is BINARY_REF_NOT_EQUAL {
         return "!==";
     } else if kind is BINARY_CLOSED_RANGE {
-        // TODO fix 
-        return "";
+        return "...";
     } else if kind is BINARY_HALF_OPEN_RANGE {
-        // TODO fix 
-        return "";
+        return "..<";
     } else if kind is BINARY_ANNOT_ACCESS {
-        // TODO fix 
-        return "";
+        return ".@";
     } else if kind is BINARY_BITWISE_AND {
         return "&";
     } else if kind is BINARY_BITWISE_OR {
         return "|";
     } else if kind is BINARY_BITWISE_XOR {
-        // TODO fix 
-        return "";
+        return "^";
     } else if kind is BINARY_BITWISE_LEFT_SHIFT {
-        return "<";
+        return "<<";
     } else if kind is BINARY_BITWISE_RIGHT_SHIFT {
-        return ">";
+        return ">>";
     } else { // if kind is BINARY_BITWISE_UNSIGNED_RIGHT_SHIFT {
-        return "";
+        return ">>>";
     }
 }
 

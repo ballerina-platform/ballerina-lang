@@ -14,8 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/io;
-
 function emitInstructions(Instruction?[] instructions, int tabs) returns string {
     string insStr = "";
     foreach Instruction? ins in instructions {
@@ -74,9 +72,9 @@ function emitInstruction(Instruction ins, int tabs) returns string {
         return emitInsUnaryOp(ins, tabs); 
     } else if ins is NewTypeDesc {
         return emitInsNewTypeDesc(ins, tabs); 
+    } else {
+        return emitPlatformInstruction(ins, tabs);
     }
-    error e = error(io:sprintf("cannot emmit instruction, invalid instruction: %s", ins));
-    panic e;
 }
 
 function emitInsConstantLoad(ConstantLoad ins, int tabs) returns string {
@@ -109,13 +107,37 @@ function emitInsNewMap(NewMap ins, int tabs) returns string {
 
 
 function emitInsNewTable(NewTable ins, int tabs) returns string {
-    // TODO fill this 
-    return "";
+    string str = "";
+    str += emitTabs(tabs);
+    str += emitVarRef(ins.lhsOp); 
+    str += emitSpaces(1);
+    str += "=";
+    str += emitSpaces(1);
+    str += "table(";
+    str += emitVarRef(ins.columnsOp); 
+    str += ",";
+    str += emitSpaces(1);
+    str += emitVarRef(ins.dataOp); 
+    str += ",";
+    str += emitSpaces(1);
+    str += emitVarRef(ins.keyColOp); 
+    str += ")<";
+    str += emitTypeRef(ins.typeValue); 
+    str += ">;";
+    return str;
 }
  
 function emitInsNewStream(NewStream ins, int tabs) returns string {
-    // TODO fill this 
-    return "";
+    string str = "";
+    str += emitTabs(tabs);
+    str += emitVarRef(ins.lhsOp); 
+    str += emitSpaces(1);
+    str += "=";
+    str += emitSpaces(1);
+    str += "stream<";
+    str += emitTypeRef(ins.streamType); 
+    str += ">;";
+    return str;
 }
  
 function emitInsNewInstance(NewInstance ins, int tabs) returns string {
@@ -354,9 +376,9 @@ function emitTerminator(Terminator term, int tabs) returns string {
         return emitFPCall(term, tabs);
     } else if term is WaitAll {
         return emitWaitAll(term, tabs);
+    } else {
+        return emitPlatformTerminator(term, tabs);
     }
-    error e = error(io:sprintf("cannot emmit terminator, invalid terminator: %s", term));
-    panic e;
 }
 
 function emitWait(Wait term, int tabs) returns string { 
@@ -413,13 +435,53 @@ function emitCall(Call term, int tabs) returns string {
 }
 
 function emitAsyncCall(AsyncCall term, int tabs) returns string { 
-    // TODO fill this 
-    return "";
+    string str = "";
+    str += emitTabs(tabs);
+    VarRef? lhsOp = term.lhsOp;
+    if lhsOp is VarRef {
+        str += emitVarRef(lhsOp);
+        str += emitSpaces(1);
+        str += "=";
+        str += emitSpaces(1);
+    }
+    str += "start";
+    str += emitSpaces(1);
+    str += emitName(term.name);
+    str += "(";
+    int i = 0;
+    int argLength = term.args.length();
+    foreach VarRef? ref in term.args {
+        if ref is VarRef {
+            str += emitVarRef(ref);
+            i += 1;
+            if i < argLength {
+                str += ",";
+                str += emitSpaces(1);
+            }
+        }
+    }
+    str += ")";
+    str += emitSpaces(1);
+    str += "->";
+    str += emitSpaces(1);
+    str += emitBasicBlockRef(term.thenBB);
+    str += ";";
+    return str;
 }
 
 function emitBranch(Branch term, int tabs) returns string { 
-    // TODO fill this 
-    return "";
+    string str = "";
+    str += emitTabs(tabs);
+    str += emitVarRef(term.op);
+    str += "?";
+    str += emitSpaces(1);
+    str += emitBasicBlockRef(term.trueBB);
+    str += emitSpaces(1);
+    str += ":";
+    str += emitSpaces(1);
+    str += emitBasicBlockRef(term.falseBB);
+    str += ";";
+    return str;
 }
 
 function emitGOTO(GOTO term, int tabs) returns string { 

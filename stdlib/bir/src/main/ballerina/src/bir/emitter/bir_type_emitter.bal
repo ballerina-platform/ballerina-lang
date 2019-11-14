@@ -18,15 +18,15 @@ import ballerina/io;
 
 map<BType> bTypes = {};
 
-public type BTypeBasicType BTypeInt | BTypeBoolean | BTypeAny | BTypeNil | BTypeByte | BTypeFloat 
+type BTypeBasicType BTypeInt | BTypeBoolean | BTypeAny | BTypeNil | BTypeByte | BTypeFloat 
                           | BTypeString | BTypeAnyData | BTypeNone | BJSONType | BXMLType | BTypeDecimal;
 
-public type BTypeComplexType BUnionType | BTupleType | BInvokableType | BArrayType | BRecordType | BObjectType 
+type BTypeComplexType BUnionType | BTupleType | BInvokableType | BArrayType | BRecordType | BObjectType 
                           | BMapType | BErrorType | BFutureType | Self | BTypeDesc | BServiceType | BPlatformType 
 			  | BFiniteType | BTableType | BStreamType;
 
 
-public function emitType(BType bType, int tabs = 0) returns string {
+function emitType(BType bType, int tabs = 0) returns string {
     if bType is BTypeBasicType {
         return emitBasicType(bType);
     } else if bType is BTypeComplexType {
@@ -36,7 +36,7 @@ public function emitType(BType bType, int tabs = 0) returns string {
     panic e;
 }
 
-public function emitBasicType(BTypeBasicType bType) returns string {
+function emitBasicType(BTypeBasicType bType) returns string {
     string bStr = "";
     if bType is BTypeInt {
         bStr += "int";
@@ -66,7 +66,7 @@ public function emitBasicType(BTypeBasicType bType) returns string {
     return bStr;
 }
 
-public function emitComplexType(BTypeComplexType bType, int tabs) returns string {
+function emitComplexType(BTypeComplexType bType, int tabs) returns string {
     if bType is BUnionType {
         return emitBUnionType(bType, tabs);
     } else if bType is BTupleType {
@@ -102,7 +102,7 @@ public function emitComplexType(BTypeComplexType bType, int tabs) returns string
     }
 }
 
-public function emitBUnionType(BUnionType bType, int tabs) returns string {
+function emitBUnionType(BUnionType bType, int tabs) returns string {
     string unionStr = "";
     int length = bType.members.length();
     int i = 0;
@@ -120,7 +120,7 @@ public function emitBUnionType(BUnionType bType, int tabs) returns string {
     return unionStr;
 }	
 
-public function emitBTupleType(BTupleType bType, int tabs) returns string {
+function emitBTupleType(BTupleType bType, int tabs) returns string {
     string tupleStr = "(";
     int length = bType.tupleTypes.length();
     int i = 0;
@@ -138,7 +138,7 @@ public function emitBTupleType(BTupleType bType, int tabs) returns string {
     return tupleStr;
 }	
 
-public function emitBInvokableType(BInvokableType bType, int tabs) returns string {
+function emitBInvokableType(BInvokableType bType, int tabs) returns string {
     string invString = "function(";
     int pLength = bType.paramTypes.length();
     int i = 0;
@@ -163,7 +163,7 @@ public function emitBInvokableType(BInvokableType bType, int tabs) returns strin
     return invString;
 }
 
-public function emitBArrayType(BArrayType bType, int tabs) returns string {
+function emitBArrayType(BArrayType bType, int tabs) returns string {
     string arrStr = emitTypeRef(bType.eType);
     arrStr += "[";
     if bType.size > 0 {
@@ -173,7 +173,7 @@ public function emitBArrayType(BArrayType bType, int tabs) returns string {
     return arrStr;
 }	
 
-public function emitBRecordType(BRecordType bType, int tabs) returns string {
+function emitBRecordType(BRecordType bType, int tabs) returns string {
     string recordStr = "record";
     recordStr += emitSpaces(1);
     recordStr += "{";
@@ -197,7 +197,7 @@ public function emitBRecordType(BRecordType bType, int tabs) returns string {
     return recordStr;
 }	
 
-public function emitBObjectType(BObjectType bType, int tabs) returns string {
+function emitBObjectType(BObjectType bType, int tabs) returns string {
     string str = "object";
     str += emitSpaces(1);
     str += "{";
@@ -233,29 +233,12 @@ public function emitBObjectType(BObjectType bType, int tabs) returns string {
     return str;
 }	
 
-public function emitBMapType(BMapType bType, int tabs) returns string {
-    //string recordStr = "record";
-    //recordStr += emitSpaces(1);
-    //recordStr += "{";
-    //recordStr += emitLBreaks(1);
-    //foreach BRecordField? bField in bType.fields {
-    //    if bField is BRecordField {
-    //        recordStr += emitTabs(tabs + 1);
-    //        string flags = emitFlags(bField.flags);
-    //        recordStr += flags;
-    //        if flags != "" {
-    //            recordStr += emitSpaces(1);
-    //        }
-    //        recordStr += emitTypeRef(bField.typeValue, tabs + 1);
-    //        recordStr += emitSpaces(1);
-    //        recordStr += emitName(bField.name);
-    //        recordStr += ";";
-    //        recordStr += emitLBreaks(1);
-    //    }
-    //}
-    //recordStr += "}";
-    //return recordStr;
-    return "";
+function emitBMapType(BMapType bType, int tabs) returns string {
+    string str = "map";
+    str += "<";
+    str += emitTypeRef(bType.constraint);
+    str += ">";
+    return str;
 }	
 
 function emitBErrorType(BErrorType bType, int tabs) returns string {
@@ -269,8 +252,11 @@ function emitBErrorType(BErrorType bType, int tabs) returns string {
 }
 
 function emitBFutureType(BFutureType bType, int tabs) returns string {
-    // TODO fill 
-    return "";
+    string str = "future";
+    str += "<";
+    str += emitTypeRef(bType.returnType);
+    str += ">";
+    return str;
 }
 
 function emitSelf(Self bType, int tabs) returns string {
@@ -279,36 +265,46 @@ function emitSelf(Self bType, int tabs) returns string {
 }
 
 function emitBTypeDesc(BTypeDesc bType, int tabs) returns string {
-    // TODO fill 
-    return "";
+    string str = "typeDesc";
+    str += "<";
+    str += emitTypeRef(bType.typeConstraint);
+    str += ">";
+    return str;
 }
 
 function emitBServiceType(BServiceType bType, int tabs) returns string {
-    // TODO fill 
-    return "";
-}
-
-function emitBPlatformType(BPlatformType bType, int tabs) returns string {
-    // TODO fill 
-    return "";
+    string str = "service";
+    str += "<";
+    str += emitTypeRef(bType.oType);
+    str += ">";
+    return str;
 }
 
 function emitBFiniteType(BFiniteType bType, int tabs) returns string {
-    // TODO fill 
-    return "";
+    string str = "";
+    str += "[";
+    // TODO fill finite type
+    str += "]";
+    return str;
 }
 
 function emitBTableType(BTableType bType, int tabs) returns string {
-    // TODO fill 
-    return "";
+    string str = "table";
+    str += "<";
+    str += emitTypeRef(bType.tConstraint);
+    str += ">";
+    return str;
 }
 
 function emitBStreamType(BStreamType bType, int tabs) returns string {
-    // TODO fill 
-    return "";
+    string str = "table";
+    str += "<";
+    str += emitTypeRef(bType.sConstraint);
+    str += ">";
+    return str;
 }
 /////////////////////// Emitting type reference ///////////////////////////
-public function emitTypeRef(BType bType, int tabs = 0) returns string {
+function emitTypeRef(BType bType, int tabs = 0) returns string {
     if bType is BTypeBasicType {
         return emitBasicType(bType);
     } else if bType is BTypeComplexType {
@@ -318,7 +314,7 @@ public function emitTypeRef(BType bType, int tabs = 0) returns string {
     panic e;
 }
 
-public function emitComplextTypeRef(BTypeComplexType bType, int tabs) returns string {
+function emitComplextTypeRef(BTypeComplexType bType, int tabs) returns string {
     string? tName = getTypeName(bType);
     if tName is string {
         return tName;
