@@ -39,6 +39,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BErrorTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
@@ -3291,6 +3292,10 @@ public class TypeChecker extends BLangNodeVisitor {
 
     private void checkInvocationParamAndReturnType(BLangInvocation iExpr) {
         BType actualType = checkInvocationParam(iExpr);
+        //TODO: discuss moving this flag to somewhere before this
+        if (actualType.tag == TypeTags.INVOKABLE && actualType.tsymbol != null) {
+            actualType.tsymbol.flags |= Flags.PUBLIC;
+        }
         resultType = types.checkType(iExpr, actualType, this.expType);
     }
 
@@ -3302,16 +3307,10 @@ public class TypeChecker extends BLangNodeVisitor {
 
         List<BType> paramTypes = ((BInvokableType) iExpr.symbol.type).getParameterTypes();
         Map<String, BVarSymbol> params = ((BInvokableSymbol) iExpr.symbol).params
-                .stream().collect(Collectors.toMap(a -> a.name.getValue(), a -> a));
-        int parameterCount;
-        if (iExpr.symbol.tag == SymTag.VARIABLE) {
-            // Here we assume function pointers can have only required params.
-            // And assume that named params and rest params are not supported.
-            parameterCount = paramTypes.size();
-        } else {
-            parameterCount = ((BInvokableSymbol) iExpr.symbol).params.size();
-        }
+                .stream().filter(a -> !a.name.equals(Names.EMPTY))
+                .collect(Collectors.toMap(a -> a.name.getValue(), a -> a));
 
+        int parameterCount = paramTypes.size();
         iExpr.requiredArgs = new ArrayList<>();
 
         // Split the different argument types: required args, named args and rest args
@@ -3364,17 +3363,19 @@ public class TypeChecker extends BLangNodeVisitor {
     private BType checkInvocationArgs(BLangInvocation iExpr, List<BType> paramTypes, BLangExpression vararg) {
         BType actualType = symTable.semanticError;
         BInvokableSymbol invokableSymbol = (BInvokableSymbol) iExpr.symbol;
-        List<BVarSymbol> nonRestParams = new ArrayList<>(invokableSymbol.params);
+        BInvokableType bInvokableType = (BInvokableType) invokableSymbol.type;
+        BInvokableTypeSymbol invokableTypeSymbol = (BInvokableTypeSymbol) bInvokableType.tsymbol;
+        List<BVarSymbol> nonRestParams = new ArrayList<>(invokableTypeSymbol.params);
         checkNonRestArgs(nonRestParams, iExpr, paramTypes);
 
         // Check whether the expected param count and the actual args counts are matching.
-        if (invokableSymbol.restParam == null && (vararg != null || !iExpr.restArgs.isEmpty())) {
+        if (invokableTypeSymbol.restParam == null && (vararg != null || !iExpr.restArgs.isEmpty())) {
             dlog.error(iExpr.pos, DiagnosticCode.TOO_MANY_ARGS_FUNC_CALL, iExpr.name.value);
             return actualType;
         }
 
-        checkRestArgs(iExpr.restArgs, vararg, invokableSymbol.restParam);
-        BType retType = typeParamAnalyzer.getReturnTypeParams(env, invokableSymbol.type.getReturnType());
+        checkRestArgs(iExpr.restArgs, vararg, invokableTypeSymbol.restParam);
+        BType retType = typeParamAnalyzer.getReturnTypeParams(env, bInvokableType.getReturnType());
 
         if (iExpr.async) {
             return this.generateFutureType(invokableSymbol, retType);
