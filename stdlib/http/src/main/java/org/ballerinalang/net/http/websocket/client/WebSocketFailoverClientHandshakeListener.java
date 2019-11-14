@@ -25,6 +25,7 @@ import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.net.http.websocket.WebSocketConstants;
 import org.ballerinalang.net.http.websocket.WebSocketService;
 import org.ballerinalang.net.http.websocket.WebSocketUtil;
+import org.ballerinalang.net.http.websocket.observability.WebSocketObservabilityUtil;
 import org.ballerinalang.net.http.websocket.server.WebSocketConnectionInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -72,11 +73,14 @@ public class WebSocketFailoverClientHandshakeListener implements ClientHandshake
 
         }
         setFailoverWebSocketEndpoint(carbonResponse, webSocketClient, webSocketConnection, failoverConfig);
-        clientConnectorListener.setConnectionInfo(WebSocketUtil.getWebSocketOpenConnectionInfo(webSocketConnection,
-                webSocketConnector, webSocketClient, wsService));
+        WebSocketConnectionInfo connectionInfo = WebSocketUtil.getWebSocketOpenConnectionInfo(webSocketConnection,
+                webSocketConnector,
+                webSocketClient, wsService);
+        clientConnectorListener.setConnectionInfo(connectionInfo);
         // Read the next frame when readyOnConnect is true or isReady is true
         WebSocketUtil.readNextFrame(readyOnConnect, webSocketClient, webSocketConnection);
         WebSocketUtil.countDownForSuccess(countDownLatch, webSocketClient);
+        WebSocketObservabilityUtil.observeConnection(connectionInfo);
         // Following these are created for future connection
         if (WebSocketUtil.hasRetryConfig(webSocketClient)) {
             ((RetryContext) webSocketClient.getNativeData(WebSocketConstants.RETRY_CONFIG)).setReconnectAttempts(0);

@@ -546,11 +546,7 @@ public class WebSocketUtil {
 
     public static void dispatchOnClose(WebSocketConnectionInfo connectionInfo,
                                        WebSocketCloseMessage webSocketCloseMessage) {
-        try {
-            WebSocketResourceDispatcher.dispatchOnClose(connectionInfo, webSocketCloseMessage);
-        } catch (IllegalAccessException e) {
-            // Ignore as it is not possible have an Illegal access
-        }
+        WebSocketResourceDispatcher.dispatchOnClose(connectionInfo, webSocketCloseMessage);
     }
 
     public static WebSocketConnectionInfo getWebSocketOpenConnectionInfo(WebSocketConnection webSocketConnection,
