@@ -42,6 +42,7 @@ import org.ballerinalang.net.http.websocket.client.WebSocketClientHandshakeListe
 import org.ballerinalang.net.http.websocket.client.WebSocketClientListener;
 import org.ballerinalang.net.http.websocket.client.WebSocketFailoverClientHandshakeListener;
 import org.ballerinalang.net.http.websocket.client.WebSocketFailoverClientListener;
+import org.ballerinalang.net.http.websocket.observability.WebSocketObservabilityUtil;
 import org.ballerinalang.net.http.websocket.server.WebSocketConnectionInfo;
 import org.ballerinalang.net.http.websocket.server.WebSocketConnectionManager;
 import org.ballerinalang.net.http.websocket.server.WebSocketServerService;
@@ -98,6 +99,10 @@ public class WebSocketUtil {
         connectionManager.addConnection(webSocketConnection.getChannelId(), connectionInfo);
         webSocketConnector.addNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_CONNECTION_INFO,
                                          connectionInfo);
+        //Observe new connection
+        WebSocketObservabilityUtil.observeConnection(
+                connectionManager.getConnectionInfo(webSocketConnection.getChannelId()));
+
         return webSocketCaller;
     }
 
@@ -137,7 +142,6 @@ public class WebSocketUtil {
      */
     public static void closeDuringUnexpectedCondition(WebSocketConnection webSocketConnection) {
         webSocketConnection.terminateConnection(1011, "Unexpected condition");
-
     }
 
     public static void setListenerOpenField(WebSocketConnectionInfo connectionInfo) throws IllegalAccessException {

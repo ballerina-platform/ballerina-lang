@@ -25,6 +25,7 @@ import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.net.http.websocket.WebSocketConstants;
 import org.ballerinalang.net.http.websocket.WebSocketService;
 import org.ballerinalang.net.http.websocket.WebSocketUtil;
+import org.ballerinalang.net.http.websocket.observability.WebSocketObservabilityUtil;
 import org.ballerinalang.net.http.websocket.server.WebSocketConnectionInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -79,6 +80,7 @@ public class WebSocketClientHandshakeListener implements ClientHandshakeListener
         // Read the next frame when readyOnConnect is true or isReady is true
         WebSocketUtil.readNextFrame(readyOnConnect, webSocketClient, webSocketConnection);
         WebSocketUtil.countDownForSuccess(countDownLatch, webSocketClient);
+        WebSocketObservabilityUtil.observeConnection(connectionInfo);
         logger.debug(WebSocketConstants.LOG_MESSAGE, CONNECTED_TO, webSocketClient.getStringValue(
                 WebSocketConstants.CLIENT_URL_CONFIG));
         // The following are created for future connections.

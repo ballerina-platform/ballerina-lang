@@ -26,6 +26,8 @@ import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.http.websocket.WebSocketConstants;
 import org.ballerinalang.net.http.websocket.WebSocketException;
 import org.ballerinalang.net.http.websocket.WebSocketUtil;
+import org.ballerinalang.net.http.websocket.observability.WebSocketObservabilityConstants;
+import org.ballerinalang.net.http.websocket.observability.WebSocketObservabilityUtil;
 import org.ballerinalang.net.http.websocket.server.WebSocketConnectionInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,9 +49,11 @@ public class Ready {
     private static final Logger log = LoggerFactory.getLogger(Ready.class);
 
     public static Object ready(Strand strand, ObjectValue wsConnector) {
-        try {
-            WebSocketConnectionInfo connectionInfo = (WebSocketConnectionInfo) wsConnector
+        WebSocketConnectionInfo connectionInfo = (WebSocketConnectionInfo) wsConnector
                     .getNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_CONNECTION_INFO);
+        WebSocketObservabilityUtil.observeResourceInvocation(strand, connectionInfo,
+        WebSocketConstants.RESOURCE_NAME_READY);
+        try {
             boolean isReady = wsConnector.getBooleanValue(WebSocketConstants.CONNECTOR_IS_READY_FIELD);
             if (!isReady) {
                 WebSocketUtil.readFirstFrame(connectionInfo.getWebSocketConnection(), wsConnector);
@@ -60,6 +64,9 @@ public class Ready {
             }
         } catch (Exception e) {
             log.error("Error occurred when calling ready", e);
+            WebSocketObservabilityUtil.observeError(WebSocketObservabilityUtil.getConnectionInfo(wsConnection),
+                                                    WebSocketObservabilityConstants.ERROR_TYPE_READY,
+                                                    e.getMessage());
             return WebSocketUtil.createErrorByType(e);
         }
         return null;

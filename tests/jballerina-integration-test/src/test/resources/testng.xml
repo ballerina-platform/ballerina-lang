@@ -281,6 +281,7 @@
         <classes>
             <class name="org.ballerinalang.test.observability.tracing.TracingTestCase"/>
             <class name="org.ballerinalang.test.observability.metrics.MetricsTestCase"/>
+            <class name="org.ballerinalang.test.observability.metrics.WebSocketMetricsTestCase"/>
         </classes>
     </test>
 
