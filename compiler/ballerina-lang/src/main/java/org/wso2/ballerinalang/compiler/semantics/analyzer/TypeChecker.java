@@ -959,8 +959,23 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         BUnionType unionType = (BUnionType) expType;
-        Set<BType> memberTypes = unionType.getMemberTypes();
+        BType[] memberTypes = unionType.getMemberTypes().toArray(new BType[0]);
 
+        // Special case handling for `T?` where T is a record type. This is done to give more user friendly error
+        // messages for this common scenario.
+        if (memberTypes.length == 2) {
+            if (memberTypes[0].tag == TypeTags.RECORD && memberTypes[1].tag == TypeTags.NIL) {
+                reportMissingRecordFieldDiagnostics(mappingConstructorExpr.keyValuePairs, (BRecordType) memberTypes[0]);
+                return;
+            } else if (memberTypes[1].tag == TypeTags.RECORD && memberTypes[0].tag == TypeTags.NIL) {
+                reportMissingRecordFieldDiagnostics(mappingConstructorExpr.keyValuePairs, (BRecordType) memberTypes[1]);
+                return;
+            }
+        }
+
+        // By this point, we know there aren't any types to which we can assign the mapping constructor. If this is
+        // case where there is at least one type with which we can use mapping constructors, but this particular
+        // mapping constructor is incompatible, we give an incompatible mapping constructor error.
         for (BType bType : memberTypes) {
             if (isMappingConstructorCompatibleType(bType)) {
                 dlog.error(mappingConstructorExpr.pos, DiagnosticCode.INCOMPATIBLE_MAPPING_CONSTRUCTOR, unionType);
@@ -969,6 +984,23 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         dlog.error(mappingConstructorExpr.pos, DiagnosticCode.MAPPING_CONSTRUCTOR_COMPATIBLE_TYPE_NOT_FOUND, unionType);
+    }
+
+    private void reportMissingRecordFieldDiagnostics(List<BLangRecordKeyValue> keyValPairs, BRecordType recType) {
+        Set<String> expFieldNames = recType.fields.stream().map(f -> f.name.value).collect(Collectors.toSet());
+
+        for (BLangRecordKeyValue keyVal : keyValPairs) {
+            String fieldName = getFieldName(keyVal.key);
+
+            if (fieldName == null) {
+                continue;
+            }
+
+            if (!expFieldNames.contains(fieldName)) {
+                dlog.error(keyVal.key.expr.pos, DiagnosticCode.UNDEFINED_STRUCTURE_FIELD_WITH_TYPE, fieldName,
+                           "record", recType);
+            }
+        }
     }
 
     private List<BType> getMappingConstructorCompatibleTypes(BType bType, BLangRecordLiteral recordLiteral) {
