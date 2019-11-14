@@ -7,8 +7,8 @@ function funcWithNamedParams (int a, int b, string c="John") returns [int, int, 
 }
 
 function testFunctionPointerAssignmentWithRestParams() returns [int, int, int[]]{
-    function (int, int, int[]) returns [int, int, int[]] func = funcWithRestParams;
-    return func(1, 2, [3, 4]);
+    function (int, int, int...) returns [int, int, int[]] func = funcWithRestParams;
+    return func(1, 2, 3, 4);
 }
 
 function testFunctionPointerAssignmentWithNamedParams() returns [int, int, string]{
