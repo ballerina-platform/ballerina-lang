@@ -832,45 +832,6 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
     }
 
-    private boolean typesMissMatch(List<BType> lhs, List<BType> rhs) {
-        if (lhs.size() != rhs.size()) {
-            return true;
-        }
-
-        for (int i = 0; i < lhs.size(); i++) {
-            if (!types.isSameType(lhs.get(i), rhs.get(i))) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private boolean namesMissMatch(List<BLangSimpleVariable> lhs, List<BVarSymbol> rhs) {
-        if (lhs.size() != rhs.size()) {
-            return true;
-        }
-
-        for (int i = 0; i < lhs.size(); i++) {
-            if (!rhs.get(i).name.equals(names.fromIdNode(lhs.get(i).name))) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private boolean namesMissMatchDef(List<BLangSimpleVariableDef> lhs, List<BVarSymbol> rhs) {
-        if (lhs.size() != rhs.size()) {
-            return true;
-        }
-
-        for (int i = 0; i < lhs.size(); i++) {
-            if (!rhs.get(i).name.equals(names.fromIdNode(lhs.get(i).var.name))) {
-                return true;
-            }
-        }
-        return false;
-    }
-
     @Override
     public void visit(BLangResource resourceNode) {
     }
@@ -1897,42 +1858,6 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
 
         return signatureBuilder.toString();
-    }
-
-    // TODO: 5/24/19 Remove this
-    private void defineInitFunctionParam(BLangSimpleVariable varNode) {
-        Name varName = names.fromIdNode(varNode.name);
-
-        // Here it is assumed that initFunctions are always for objects.
-        BLangObjectTypeNode objectTypeNode = (BLangObjectTypeNode) env.enclType;
-        BTypeSymbol objectTypeSumbol = objectTypeNode.type.tsymbol;
-        BSymbol fieldSymbol = symResolver.resolveObjectField(varNode.pos, env, varName, objectTypeSumbol);
-
-        if (fieldSymbol == symTable.notFoundSymbol) {
-            dlog.error(varNode.pos, DiagnosticCode.UNDEFINED_STRUCTURE_FIELD_WITH_TYPE, varName,
-                       env.enclType.type.getKind().typeName(), env.enclType.type.tsymbol.name);
-        }
-
-        // Define a new symbol for the constructor param, with the same type as the object field.
-        varNode.type = fieldSymbol.type;
-        BVarSymbol paramSymbol;
-        if (fieldSymbol.kind == SymbolKind.FUNCTION) {
-            paramSymbol = ASTBuilderUtil.duplicateInvokableSymbol((BInvokableSymbol) fieldSymbol,
-                                                                  objectTypeNode.initFunction.symbol, fieldSymbol.name,
-                                                                  objectTypeSumbol.pkgID);
-        } else {
-            paramSymbol = new BVarSymbol(Flags.asMask(varNode.flagSet), varName, env.enclPkg.symbol.pkgID, varNode.type,
-                                         env.scope.owner);
-        }
-        defineShadowedSymbol(varNode.pos, paramSymbol, env);
-
-        // Create an assignment to the actual field.
-        // i.e.: self.x = x
-        objectTypeNode.initFunction.initFunctionStmts.put(fieldSymbol,
-                                                          (BLangStatement) createAssignmentStmt(varNode, paramSymbol,
-                                                                                                fieldSymbol));
-        varNode.symbol = paramSymbol;
-        return;
     }
 
     private BPackageSymbol duplicatePackagSymbol(BPackageSymbol originalSymbol) {

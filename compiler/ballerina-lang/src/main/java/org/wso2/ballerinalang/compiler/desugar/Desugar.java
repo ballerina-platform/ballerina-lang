@@ -2813,7 +2813,7 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     private String getTransactionBlockId() {
-        return String.valueOf(env.enclPkg.packageID.orgName) + "$" + env.enclPkg.packageID.name + "$"
+        return env.enclPkg.packageID.orgName + "$" + env.enclPkg.packageID.name + "$"
                 + transactionIndex++;
     }
 
