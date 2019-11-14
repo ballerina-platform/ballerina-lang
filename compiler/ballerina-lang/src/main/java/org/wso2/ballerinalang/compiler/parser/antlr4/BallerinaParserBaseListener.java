@@ -52,6 +52,18 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterVersionPattern(BallerinaParser.VersionPatternContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitVersionPattern(BallerinaParser.VersionPatternContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterImportDeclaration(BallerinaParser.ImportDeclarationContext ctx) { }
 	/**
 	 * {@inheritDoc}

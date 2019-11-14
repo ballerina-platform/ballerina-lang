@@ -93,7 +93,7 @@ public function filter(map<Type> m, function(Type val) returns boolean func) ret
 #
 # + m - the map
 # + func - combining function
-# + initial - initial value for the first argument of combining function 'func'
+# + initial - initial value for the first argument of combining parameter `func`
 # + return - result of combining the members of `m` using `func`
 public function reduce(map<Type> m, function(Type1 accum, Type val) returns Type1 func, Type1 initial) returns Type1 = external;
 

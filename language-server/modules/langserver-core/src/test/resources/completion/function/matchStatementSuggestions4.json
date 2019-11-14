@@ -2270,14 +2270,25 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "ServiceResourceAuth",
+      "label": "ServiceAuth",
       "kind": "Struct",
       "detail": "Record",
       "documentation": {
-        "left": "Configures the authentication scheme for a service or a resource.\n"
+        "left": "Configures the authentication scheme for a service.\n"
       },
       "sortText": "180",
-      "insertText": "ServiceResourceAuth",
+      "insertText": "ServiceAuth",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ResourceAuth",
+      "kind": "Struct",
+      "detail": "Record",
+      "documentation": {
+        "left": "Configures the authentication scheme for a resource.\n"
+      },
+      "sortText": "180",
+      "insertText": "ResourceAuth",
       "insertTextFormat": "Snippet"
     },
     {

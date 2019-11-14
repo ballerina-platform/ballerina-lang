@@ -325,33 +325,47 @@ public class MarkdownDocumentationTest {
     public void testDocumentationNegative() {
         CompileResult compileResult = BCompileUtil.compile("test-src/documentation/markdown_negative.bal");
         Assert.assertEquals(compileResult.getErrorCount(), 0);
-        Assert.assertEquals(compileResult.getWarnCount(), 23);
+        Assert.assertEquals(compileResult.getWarnCount(), 37);
 
         int index = 0;
 
-        BAssertUtil.validateWarning(compileResult, index++, "field 'a' already documented", 5, 5);
-        BAssertUtil.validateWarning(compileResult, index++, "no such documentable field 'c'", 7, 5);
-        BAssertUtil.validateWarning(compileResult, index++, "no documentable return parameter", 8, 1);
-        BAssertUtil.validateWarning(compileResult, index++, "undocumented field 'cd'", 12, 5);
-        BAssertUtil.validateWarning(compileResult, index++, "field 'a' already documented", 22, 5);
-        BAssertUtil.validateWarning(compileResult, index++, "no such documentable field 'c'", 24, 5);
-        BAssertUtil.validateWarning(compileResult, index++, "undocumented field 'cdd'", 28, 5);
-        BAssertUtil.validateWarning(compileResult, index++, "field 'path' already documented", 33, 5);
-        BAssertUtil.validateWarning(compileResult, index++, "no such documentable field 'path2'", 34, 5);
-        BAssertUtil.validateWarning(compileResult, index++, "undocumented field 'path3'", 37, 5);
-        BAssertUtil.validateWarning(compileResult, index++, "undocumented return parameter", 39, 5);
-        BAssertUtil.validateWarning(compileResult, index++, "parameter 'accessMode' already documented", 43, 9);
-        BAssertUtil.validateWarning(compileResult, index++, "no such documentable parameter 'successful'", 44, 9);
-        BAssertUtil.validateWarning(compileResult, index++, "field 'url' already documented", 67, 5);
-        BAssertUtil.validateWarning(compileResult, index++, "no such documentable field 'urls'", 68, 5);
-        BAssertUtil.validateWarning(compileResult, index++, "undocumented field 'url2'", 71, 3);
-        BAssertUtil.validateWarning(compileResult, index++, "no such documentable parameter 'conn'", 76, 5);
-        BAssertUtil.validateWarning(compileResult, index++, "no documentable return parameter", 77, 1);
-        BAssertUtil.validateWarning(compileResult, index++, "parameter 'req' already documented", 85, 9);
-        BAssertUtil.validateWarning(compileResult, index++, "no such documentable parameter 'reqest'", 86, 9);
-        BAssertUtil.validateWarning(compileResult, index++, "no such documentable parameter 'testConstd'", 97, 5);
-        BAssertUtil.validateWarning(compileResult, index++, "no documentable return parameter", 98, 1);
-        BAssertUtil.validateWarning(compileResult, index, "undocumented parameter 'filePath'", 104, 22);
+        BAssertUtil.validateWarning(compileResult, index++, "invalid identifier in documentation reference '9invalidFunc'", 4, 3);
+        BAssertUtil.validateWarning(compileResult, index++, "invalid reference in documentation 'invalidFunc' for type 'function'", 5, 3);
+        BAssertUtil.validateWarning(compileResult, index++, "invalid usage of parameter reference outside of function definition 'invalidParameter'", 6, 3);
+        BAssertUtil.validateWarning(compileResult, index++, "field 'a' already documented", 8, 5);
+        BAssertUtil.validateWarning(compileResult, index++, "no such documentable field 'c'", 10, 5);
+        BAssertUtil.validateWarning(compileResult, index++, "no documentable return parameter", 11, 1);
+        BAssertUtil.validateWarning(compileResult, index++, "undocumented field 'cd'", 15, 5);
+        BAssertUtil.validateWarning(compileResult, index++, "invalid identifier in documentation reference '9invalidServ'", 21, 3);
+        BAssertUtil.validateWarning(compileResult, index++, "invalid reference in documentation 'invalidServ' for type 'service'", 22, 3);
+        BAssertUtil.validateWarning(compileResult, index++, "invalid usage of parameter reference outside of function definition 'invalidParameter'", 23, 3);
+        BAssertUtil.validateWarning(compileResult, index++, "field 'a' already documented", 28, 5);
+        BAssertUtil.validateWarning(compileResult, index++, "no such documentable field 'c'", 30, 5);
+        BAssertUtil.validateWarning(compileResult, index++, "undocumented field 'cdd'", 34, 5);
+        BAssertUtil.validateWarning(compileResult, index++, "field 'path' already documented", 39, 5);
+        BAssertUtil.validateWarning(compileResult, index++, "no such documentable field 'path2'", 40, 5);
+        BAssertUtil.validateWarning(compileResult, index++, "invalid identifier in documentation reference '9invalidConst'", 41, 3);
+        BAssertUtil.validateWarning(compileResult, index++, "invalid reference in documentation 'invalidConst' for type 'const'", 42, 3);
+        BAssertUtil.validateWarning(compileResult, index++, "invalid usage of parameter reference outside of function definition 'invalidParameter'", 43, 3);
+        BAssertUtil.validateWarning(compileResult, index++, "undocumented field 'path3'", 46, 5);
+        BAssertUtil.validateWarning(compileResult, index++, "undocumented return parameter", 48, 5);
+        BAssertUtil.validateWarning(compileResult, index++, "parameter 'accessMode' already documented", 52, 9);
+        BAssertUtil.validateWarning(compileResult, index++, "no such documentable parameter 'successful'", 53, 9);
+        BAssertUtil.validateWarning(compileResult, index++, "field 'url' already documented", 76, 5);
+        BAssertUtil.validateWarning(compileResult, index++, "no such documentable field 'urls'", 77, 5);
+        BAssertUtil.validateWarning(compileResult, index++, "undocumented field 'url2'", 80, 3);
+        BAssertUtil.validateWarning(compileResult, index++, "invalid identifier in documentation reference '9invalidConst'", 85, 3);
+        BAssertUtil.validateWarning(compileResult, index++, "invalid reference in documentation 'invalidConst' for type 'const'", 86, 3);
+        BAssertUtil.validateWarning(compileResult, index++, "invalid usage of parameter reference outside of function definition 'invalidParameter'", 87, 3);
+        BAssertUtil.validateWarning(compileResult, index++, "no such documentable parameter 'conn'", 88, 5);
+        BAssertUtil.validateWarning(compileResult, index++, "no documentable return parameter", 89, 1);
+        BAssertUtil.validateWarning(compileResult, index++, "parameter 'req' already documented", 97, 9);
+        BAssertUtil.validateWarning(compileResult, index++, "no such documentable parameter 'reqest'", 98, 9);
+        BAssertUtil.validateWarning(compileResult, index++, "no such documentable parameter 'testConstd'", 109, 5);
+        BAssertUtil.validateWarning(compileResult, index++, "no documentable return parameter", 110, 1);
+        BAssertUtil.validateWarning(compileResult, index++, "invalid identifier in documentation reference '9function'", 115, 3);
+        BAssertUtil.validateWarning(compileResult, index++, "invalid reference in documentation 'filePath1' for type 'parameter'", 116, 3);
+        BAssertUtil.validateWarning(compileResult, index, "undocumented parameter 'filePath'", 117, 22);
     }
 
     @Test(description = "Test doc service")

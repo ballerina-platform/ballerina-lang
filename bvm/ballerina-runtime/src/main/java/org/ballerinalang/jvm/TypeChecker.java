@@ -125,6 +125,46 @@ public class TypeChecker {
                                                                                                BTypes.typeDecimal));
     }
 
+    public static byte anyToJByte(Object sourceVal) {
+        return TypeConverter.anyToJByteCast(sourceVal,
+                () -> BallerinaErrors.createBToJTypeCastError(sourceVal, "byte"));
+    }
+
+    public static char anyToJChar(Object sourceVal) {
+        return TypeConverter.anyToJCharCast(sourceVal,
+                () -> BallerinaErrors.createBToJTypeCastError(sourceVal, "char"));
+    }
+
+    public static short anyToJShort(Object sourceVal) {
+        return TypeConverter.anyToJShortCast(sourceVal,
+                () -> BallerinaErrors.createBToJTypeCastError(sourceVal, "short"));
+    }
+
+    public static int anyToJInt(Object sourceVal) {
+        return TypeConverter.anyToJIntCast(sourceVal,
+                () -> BallerinaErrors.createBToJTypeCastError(sourceVal, "int"));
+    }
+
+    public static long anyToJLong(Object sourceVal) {
+        return TypeConverter.anyToJLongCast(sourceVal,
+                () -> BallerinaErrors.createBToJTypeCastError(sourceVal, "long"));
+    }
+
+    public static float anyToJFloat(Object sourceVal) {
+        return TypeConverter.anyToJFloatCast(sourceVal,
+                () -> BallerinaErrors.createBToJTypeCastError(sourceVal, "float"));
+    }
+
+    public static double anyToJDouble(Object sourceVal) {
+        return TypeConverter.anyToJDoubleCast(sourceVal,
+                () -> BallerinaErrors.createBToJTypeCastError(sourceVal, "double"));
+    }
+
+    public static boolean anyToJBoolean(Object sourceVal) {
+        return TypeConverter.anyToJBooleanCast(sourceVal,
+                () -> BallerinaErrors.createBToJTypeCastError(sourceVal, "boolean"));
+    }
+
     /**
      * Check whether a given value belongs to the given type.
      *
@@ -134,11 +174,15 @@ public class TypeChecker {
      */
     public static boolean checkIsType(Object sourceVal, BType targetType) {
         BType sourceType = getType(sourceVal);
-        if (isMutable(sourceVal, sourceType)) {
-            return checkIsType(sourceType, targetType, new ArrayList<>());
+        if (checkIsType(sourceType, targetType, new ArrayList<>())) {
+            return true;
         }
 
-        return checkIsLikeType(sourceVal, targetType);
+        if (isMutable(sourceVal, sourceType)) {
+            return false;
+        }
+
+        return checkIsLikeOnValue(sourceVal, sourceType, targetType, new ArrayList<>(), false);
     }
 
     /**
@@ -235,21 +279,23 @@ public class TypeChecker {
     public static BType getType(Object value) {
         if (value == null) {
             return BTypes.typeNull;
-        } else if (value instanceof Long) {
-            return BTypes.typeInt;
-        } else if (value instanceof Double) {
-            return BTypes.typeFloat;
+        } else if (value instanceof Number) {
+            if (value instanceof Long) {
+                return BTypes.typeInt;
+            } else if (value instanceof Double) {
+                return BTypes.typeFloat;
+            } else if (value instanceof Integer || value instanceof Byte) {
+                return BTypes.typeByte;
+            }
         } else if (value instanceof DecimalValue) {
             return BTypes.typeDecimal;
         } else if (value instanceof String) {
             return BTypes.typeString;
         } else if (value instanceof Boolean) {
             return BTypes.typeBoolean;
-        } else if (value instanceof Byte || value instanceof Integer) {
-            return BTypes.typeByte;
-        } else {
-            return ((RefValue) value).getType();
         }
+
+        return ((RefValue) value).getType();
     }
 
     /**
@@ -916,21 +962,48 @@ public class TypeChecker {
         return expType == actualType;
     }
 
-    static boolean checkIsLikeType(Object sourceValue, BType targetType, List<TypeValuePair> unresolvedValues,
-                                   boolean allowNumericConversion) {
+
+    /**
+     * Check whether a given value confirms to a given type. First it checks if the type of the value, and
+     * if fails then falls back to checking the value.
+     * 
+     * @param sourceValue Value to check
+     * @param sourceType Type of the value
+     * @param targetType Target type
+     * @param unresolvedValues Values that are unresolved so far
+     * @param allowNumericConversion Flag indicating whether to perform numeric conversions
+     * @return True if the value confirms to the provided type. False, otherwise.
+     */
+    private static boolean checkIsLikeType(Object sourceValue, BType targetType, List<TypeValuePair> unresolvedValues,
+                                           boolean allowNumericConversion) {
         BType sourceType = getType(sourceValue);
-
-        // TODO: 8/13/19 Maryam - remove and check
-        if (sourceType.getTag() == TypeTags.INT_TAG && targetType.getTag() == TypeTags.BYTE_TAG) { // check byte literal
-            return isByteLiteral((Long) sourceValue);
-        }
-
         if (checkIsType(sourceType, targetType, new ArrayList<>())) {
             return true;
         }
 
+        return checkIsLikeOnValue(sourceValue, sourceType, targetType, unresolvedValues, allowNumericConversion);
+    }
+
+    /**
+     * Check whether a given value confirms to a given type. Strictly checks the value only, and does not consider the
+     * type of the value for consideration.
+     * 
+     * @param sourceValue Value to check
+     * @param sourceType Type of the value
+     * @param targetType Target type
+     * @param unresolvedValues Values that are unresolved so far
+     * @param allowNumericConversion Flag indicating whether to perform numeric conversions
+     * @return True if the value confirms to the provided type. False, otherwise.
+     */
+    private static boolean checkIsLikeOnValue(Object sourceValue, BType sourceType, BType targetType,
+                                              List<TypeValuePair> unresolvedValues, boolean allowNumericConversion) {
         switch (targetType.getTag()) {
             case TypeTags.BYTE_TAG:
+                // TODO: 8/13/19 Maryam - remove and check
+                if (sourceType.getTag() == TypeTags.INT_TAG) {
+                    return isByteLiteral((Long) sourceValue);
+                }
+
                 return allowNumericConversion && TypeConverter.isConvertibleToByte(sourceValue);
             case TypeTags.INT_TAG:
                 return allowNumericConversion && TypeConverter.isConvertibleToInt(sourceValue);
@@ -967,7 +1040,10 @@ public class TypeChecker {
                     List<BType> compatibleTypesWithNumConversion = new ArrayList<>();
                     List<BType> compatibleTypesWithoutNumConversion = new ArrayList<>();
                     for (BType type : ((BUnionType) targetType).getMemberTypes()) {
-                        if (checkIsLikeType(sourceValue, type, unresolvedValues, false)) {
+                        List<TypeValuePair> tempList = new ArrayList<>(unresolvedValues.size());
+                        tempList.addAll(unresolvedValues);
+
+                        if (checkIsLikeType(sourceValue, type, tempList, false)) {
                             compatibleTypesWithoutNumConversion.add(type);
                         }
 

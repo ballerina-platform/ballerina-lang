@@ -53,10 +53,10 @@ public type RedirectClient client object {
     # + return - The HTTP `Response` message, or an error if the invocation fails
     public function get(string path, public RequestMessage message = ()) returns Response|ClientError {
         var result = performRedirectIfEligible(self, path, <Request>message, HTTP_GET);
-        if (result is Response) {
-            return result;
-        } else {
+        if (result is HttpFuture) {
             return getInvalidTypeError();
+        } else {
+            return result;
         }
     }
 
@@ -69,10 +69,10 @@ public type RedirectClient client object {
     # + return - The HTTP `Response` message, or an error if the invocation fails
     public function post(string path, RequestMessage message) returns Response|ClientError {
         var result =  performRedirectIfEligible(self, path, <Request>message, HTTP_POST);
-        if (result is Response) {
-            return result;
-        } else {
+        if (result is HttpFuture) {
             return getInvalidTypeError();
+        } else {
+            return result;
         }
     }
 
@@ -85,10 +85,10 @@ public type RedirectClient client object {
     # + return - The HTTP `Response` message, or an error if the invocation fails
     public function head(string path, public RequestMessage message = ()) returns Response|ClientError {
         var result = performRedirectIfEligible(self, path, <Request>message, HTTP_HEAD);
-        if (result is Response) {
-            return result;
-        } else {
+        if (result is HttpFuture) {
             return getInvalidTypeError();
+        } else {
+            return result;
         }
     }
 
@@ -101,10 +101,10 @@ public type RedirectClient client object {
     # + return - The HTTP `Response` message, or an error if the invocation fails
     public function put(string path, RequestMessage message) returns Response|ClientError {
         var result = performRedirectIfEligible(self, path, <Request>message, HTTP_PUT);
-        if (result is Response) {
-            return result;
-        } else {
+        if (result is HttpFuture) {
             return getInvalidTypeError();
+        } else {
+            return result;
         }
     }
 
@@ -132,10 +132,10 @@ public type RedirectClient client object {
             return self.httpClient->execute(httpVerb, path, request);
         } else {
             var result = performRedirectIfEligible(self, path, request, extractHttpOperation(httpVerb));
-            if (result is Response) {
-                return result;
-            } else {
+            if (result is HttpFuture) {
                 return getInvalidTypeError();
+            } else {
+                return result;
             }
         }
     }
@@ -149,10 +149,10 @@ public type RedirectClient client object {
     # + return - The HTTP `Response` message, or an error if the invocation fails
     public function patch(string path, RequestMessage message) returns Response|ClientError {
         var result = performRedirectIfEligible(self, path, <Request>message, HTTP_PATCH);
-        if (result is Response) {
-            return result;
-        } else {
+        if (result is HttpFuture) {
             return getInvalidTypeError();
+        } else {
+            return result;
         }
     }
 
@@ -165,10 +165,10 @@ public type RedirectClient client object {
     # + return - The HTTP `Response` message, or an error if the invocation fails
     public function delete(string path, public RequestMessage message = ()) returns Response|ClientError {
         var result = performRedirectIfEligible(self, path, <Request>message, HTTP_DELETE);
-        if (result is Response) {
-            return result;
-        } else {
+        if (result is HttpFuture) {
             return getInvalidTypeError();
+        } else {
+            return result;
         }
     }
 
@@ -181,10 +181,10 @@ public type RedirectClient client object {
     # + return - The HTTP `Response` message, or an error if the invocation fails
     public function options(string path, public RequestMessage message = ()) returns Response|ClientError {
         var result = performRedirectIfEligible(self, path, <Request>message, HTTP_OPTIONS);
-        if (result is Response) {
-            return result;
-        } else {
+        if (result is HttpFuture) {
             return getInvalidTypeError();
+        } else {
+            return result;
         }
     }
 

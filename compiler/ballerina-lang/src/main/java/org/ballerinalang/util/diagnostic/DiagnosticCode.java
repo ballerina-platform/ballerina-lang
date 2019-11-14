@@ -371,6 +371,7 @@ public enum DiagnosticCode {
     // Checked expression related errors
     CHECKED_EXPR_INVALID_USAGE_NO_ERROR_TYPE_IN_RHS("checked.expr.invalid.usage.no.error.type.rhs"),
     CHECKED_EXPR_INVALID_USAGE_ALL_ERROR_TYPES_IN_RHS("checked.expr.invalid.usage.only.error.types.rhs"),
+    CHECKED_EXPR_NO_ERROR_RETURN_IN_ENCL_INVOKABLE("checked.expr.no.error.return.in.encl.invokable"),
     CHECKED_EXPR_NO_MATCHING_ERROR_RETURN_IN_ENCL_INVOKABLE("checked.expr.no.matching.error.return.in.encl.invokable"),
 
     START_REQUIRE_INVOCATION("start.require.invocation"),
@@ -467,14 +468,10 @@ public enum DiagnosticCode {
     // Type Param related error codes.
     TYPE_PARAM_OUTSIDE_LANG_MODULE("type.param.outside.lang.module"),
 
-    VERSIONED_IMPORT_NOT_SUPPORTED("versioned.import.not.supported"),
     INVALID_INVOCATION_LVALUE_ASSIGNMENT("invalid.lvalue.lhs.of.assignment"),
     INVALID_INVOCATION_LVALUE_COMPOUND_ASSIGNMENT("invalid.lvalue.lhs.of.compound.assignment"),
 
-    IDENTIFIER_LITERAL_ONLY_SUPPORTS_ALPHANUMERICS("identifier.literal.only.supports.alphanumerics"),
-
-    // Warnings
-    MULTI_LINE_STRINGS_NOT_ALLOWED("multi.line.strings.not.allowed")
+    IDENTIFIER_LITERAL_ONLY_SUPPORTS_ALPHANUMERICS("identifier.literal.only.supports.alphanumerics")
 
     ;
     private String value;

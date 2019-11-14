@@ -19,9 +19,10 @@
 package org.ballerinalang.model.tree;
 
 /**
-* Interface to extend to make a node documentable.
-* @since 1.1.0
-*/
+ * Interface to extend to make a node documentable.
+ *
+ * @since 1.1.0
+ */
 public interface MarkdownDocumentationReferenceAttributeNode extends Node {
     DocumentationReferenceType getType();
 }

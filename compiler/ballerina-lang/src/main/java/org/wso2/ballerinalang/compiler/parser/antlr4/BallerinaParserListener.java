@@ -38,6 +38,16 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitVersion(BallerinaParser.VersionContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#versionPattern}.
+	 * @param ctx the parse tree
+	 */
+	void enterVersionPattern(BallerinaParser.VersionPatternContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#versionPattern}.
+	 * @param ctx the parse tree
+	 */
+	void exitVersionPattern(BallerinaParser.VersionPatternContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#importDeclaration}.
 	 * @param ctx the parse tree
 	 */

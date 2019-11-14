@@ -473,6 +473,92 @@ public class TypeConverter {
         throw errorFunc.get();
     }
 
+    // JBallerina related casts
+
+    static byte anyToJByteCast(Object sourceVal, Supplier<ErrorValue> errorFunc) {
+        if (sourceVal instanceof Byte) {
+            return (Byte) sourceVal;
+        } else {
+            throw errorFunc.get();
+        }
+    }
+
+    static char anyToJCharCast(Object sourceVal, Supplier<ErrorValue> errorFunc) {
+        if (sourceVal instanceof Character) {
+            return (Character) sourceVal;
+        } else {
+            throw errorFunc.get();
+        }
+    }
+
+    static short anyToJShortCast(Object sourceVal, Supplier<ErrorValue> errorFunc) {
+        if (sourceVal instanceof Short) {
+            return (Short) sourceVal;
+        } else {
+            throw errorFunc.get();
+        }
+    }
+
+    static int anyToJIntCast(Object sourceVal, Supplier<ErrorValue> errorFunc) {
+        if (sourceVal instanceof Integer) {
+            return (Integer) sourceVal;
+        } else {
+            throw errorFunc.get();
+        }
+    }
+
+    static long anyToJLongCast(Object sourceVal, Supplier<ErrorValue> errorFunc) {
+        if (sourceVal instanceof Long) {
+            return (Long) sourceVal;
+        } else {
+            throw errorFunc.get();
+        }
+    }
+
+    static float anyToJFloatCast(Object sourceVal, Supplier<ErrorValue> errorFunc) {
+        if (sourceVal instanceof Float) {
+            return (Float) sourceVal;
+        } else {
+            throw errorFunc.get();
+        }
+    }
+
+    static double anyToJDoubleCast(Object sourceVal, Supplier<ErrorValue> errorFunc) {
+        if (sourceVal instanceof Double) {
+            return (Double) sourceVal;
+        } else {
+            throw errorFunc.get();
+        }
+    }
+
+    static boolean anyToJBooleanCast(Object sourceVal, Supplier<ErrorValue> errorFunc) {
+        if (sourceVal instanceof Boolean) {
+            return (Boolean) sourceVal;
+        } else {
+            throw errorFunc.get();
+        }
+    }
+
+    public static long jFloatToBInt(float sourceVal) {
+        checkIsValidFloat(sourceVal, BTypes.typeInt);
+
+        if (!isFloatWithinIntRange(sourceVal)) {
+            throw BallerinaErrors.createNumericConversionError(sourceVal, BTypes.typeInt);
+        }
+
+        return (long) Math.rint(sourceVal);
+    }
+
+    public static long jDoubleToBInt(double sourceVal) {
+        checkIsValidFloat(sourceVal, BTypes.typeInt);
+
+        if (!isFloatWithinIntRange(sourceVal)) {
+            throw BallerinaErrors.createNumericConversionError(sourceVal, BTypes.typeInt);
+        }
+
+        return (long) Math.rint(sourceVal);
+    }
+
     private static boolean isByteLiteral(long longValue) {
         return (longValue >= BBYTE_MIN_VALUE && longValue <= BBYTE_MAX_VALUE);
     }

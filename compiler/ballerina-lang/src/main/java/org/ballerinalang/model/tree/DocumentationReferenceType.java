@@ -20,6 +20,7 @@ package org.ballerinalang.model.tree;
 
 /**
  * Used to identify the type of backticked reference in Markdown Documentation strings.
+ *
  * @since 1.1.0
  */
 public enum DocumentationReferenceType {

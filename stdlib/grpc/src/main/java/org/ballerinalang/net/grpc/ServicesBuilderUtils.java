@@ -180,7 +180,7 @@ public class ServicesBuilderUtils {
         }
     }
 
-    private static Descriptors.FileDescriptor getFileDescriptor(String descriptorData, Map<String, String> descMap)
+    private static Descriptors.FileDescriptor getFileDescriptor(String descriptorData, MapValue<String, String> descMap)
             throws InvalidProtocolBufferException, Descriptors.DescriptorValidationException, GrpcServerException {
         byte[] descriptor = hexStringToByteArray(descriptorData);
         if (descriptor.length == 0) {

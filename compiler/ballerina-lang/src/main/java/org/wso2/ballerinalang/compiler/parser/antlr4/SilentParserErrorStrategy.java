@@ -27,6 +27,7 @@ import org.wso2.ballerinalang.compiler.parser.BLangReferenceParserListener;
 
 /**
  * Class is responsible for issuing warnings when Documentation Reference is in an invalid format
+ *
  * @since 1.1.0
  */
 public class SilentParserErrorStrategy extends DefaultErrorStrategy {

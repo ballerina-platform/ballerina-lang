@@ -80,7 +80,7 @@ public class TypeGuardTest {
     public void testTypeGuardSemanticsNegative() {
         CompileResult negativeResult = BCompileUtil.compile("test-src/statements/ifelse/type-guard-semantics-negative" +
                 ".bal");
-        Assert.assertEquals(negativeResult.getErrorCount(), 39);
+        Assert.assertEquals(negativeResult.getErrorCount(), 42);
         int i = 0;
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int', found 'string'", 22, 17);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'string', found 'int'", 25, 20);
@@ -148,8 +148,12 @@ public class TypeGuardTest {
                 "incompatible types: expected 'string', found '(int|string|boolean)'", 308, 20);
         BAssertUtil.validateError(negativeResult, i++,
                                   "incompatible types: expected 'string', found '(string|int)'", 318, 21);
-        BAssertUtil.validateError(negativeResult, i,
+        BAssertUtil.validateError(negativeResult, i++,
                                   "incompatible types: expected 'int', found '(string|int)'", 320, 17);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'string', found 'string?'", 328,
+                                  25);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int', found 'int?'", 343, 22);
+        BAssertUtil.validateError(negativeResult, i, "incompatible types: expected 'int', found 'int?'", 355, 22);
     }
 
     @Test
@@ -538,6 +542,42 @@ public class TypeGuardTest {
     @Test
     public void testTypeGuardForCustomErrorNegative() {
         BValue[] returns = BRunUtil.invoke(result, "testTypeGuardForCustomErrorNegative");
+        Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test
+    public void testTypeGuardForTupleDestructuringAssignmentPositive() {
+        BValue[] returns = BRunUtil.invoke(result, "testTypeGuardForTupleDestructuringAssignmentPositive");
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test
+    public void testTypeGuardForTupleDestructuringAssignmentNegative() {
+        BValue[] returns = BRunUtil.invoke(result, "testTypeGuardForTupleDestructuringAssignmentNegative");
+        Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test
+    public void testTypeGuardForRecordDestructuringAssignmentPositive() {
+        BValue[] returns = BRunUtil.invoke(result, "testTypeGuardForRecordDestructuringAssignmentPositive");
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test
+    public void testTypeGuardForRecordDestructuringAssignmentNegative() {
+        BValue[] returns = BRunUtil.invoke(result, "testTypeGuardForRecordDestructuringAssignmentNegative");
+        Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test
+    public void testTypeGuardForErrorDestructuringAssignmentPositive() {
+        BValue[] returns = BRunUtil.invoke(result, "testTypeGuardForErrorDestructuringAssignmentPositive");
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test
+    public void testTypeGuardForErrorDestructuringAssignmentNegative() {
+        BValue[] returns = BRunUtil.invoke(result, "testTypeGuardForErrorDestructuringAssignmentNegative");
         Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
     }
 }

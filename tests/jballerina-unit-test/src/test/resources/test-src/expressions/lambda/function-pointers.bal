@@ -159,3 +159,16 @@ function testSubTypingWithAny() returns any {
     any s = ff();
     return s;
 }
+
+public function testVoidFunctionAsUnionReturnFunction() returns string {
+    string s = "value";
+    xyz(function () { 
+        s += " - updated through lambda";
+    });
+
+    return s;
+}
+
+function xyz(function() returns any|error func) {
+    var result = func();
+}

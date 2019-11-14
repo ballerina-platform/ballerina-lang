@@ -210,11 +210,11 @@ public class SQLDatasource {
                 config.setJdbcUrl(sqlDatasourceParams.jdbcUrl);
             }
             if (sqlDatasourceParams.dbOptionsMap != null) {
-                sqlDatasourceParams.dbOptionsMap.forEach((key, value) -> {
-                    if (SQLDatasourceUtils.isSupportedDbOptionType(value)) {
-                        config.addDataSourceProperty(key, value);
+                sqlDatasourceParams.dbOptionsMap.entrySet().forEach(entry -> {
+                    if (SQLDatasourceUtils.isSupportedDbOptionType(entry.getValue())) {
+                        config.addDataSourceProperty(entry.getKey(), entry.getValue());
                     } else {
-                        throw ErrorGenerator.getSQLApplicationError("unsupported type " + key
+                        throw ErrorGenerator.getSQLApplicationError("unsupported type " + entry.getKey()
                                 + " for the db option");
                     }
                 });

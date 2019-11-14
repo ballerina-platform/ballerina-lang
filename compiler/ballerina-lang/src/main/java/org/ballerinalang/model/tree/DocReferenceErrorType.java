@@ -20,12 +20,13 @@ package org.ballerinalang.model.tree;
 
 /**
  * This class contains a list of diagnostic codes.
+ *
  * @since 1.1.0
  */
 public enum DocReferenceErrorType {
     NO_ERROR,
-    BACKTICK_IDENTIFIER_ERROR, // Identifier invalid in `reference` type of reference.
-    IDENTIFIER_ERROR, // Identifier invalid in keyword `reference` type of reference.
-    REFERENCE_ERROR, // Invalid reference.
+    BACKTICK_IDENTIFIER_ERROR, // Invalid use of `reference`. Eg : `9getName()`.
+    IDENTIFIER_ERROR, // Invalid use of keyword `identifier`. Eg : function `9getName`.
+    REFERENCE_ERROR, // Reference not found in the scope.
     PARAMETER_REFERENCE_ERROR // Incorrectly used parameter `reference` in a place other than a function.
 }

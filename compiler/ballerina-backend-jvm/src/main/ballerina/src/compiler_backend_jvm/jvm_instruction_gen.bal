@@ -62,6 +62,16 @@ type InstructionGenerator object {
         self.storeToVar(loadIns.lhsOp.variableDcl);
     }
 
+    function generatePlatformIns(JInstruction ins) {
+        if (ins.jKind == JCAST) {
+            JCast castIns = <JCast> ins;
+            bir:BType targetType = castIns.targetType;
+            self.loadVar(castIns.rhsOp.variableDcl);
+            generatePlatformCheckCast(self.mv, self.indexMap, castIns.rhsOp.typeValue, targetType);
+            self.storeToVar(castIns.lhsOp.variableDcl);
+        }
+    }
+
     function generateMoveIns(bir:Move moveIns) {
         self.loadVar(moveIns.rhsOp.variableDcl);
         self.storeToVar(moveIns.lhsOp.variableDcl);
@@ -900,28 +910,21 @@ type InstructionGenerator object {
         string methodClass = lookupFullQualifiedClassName(lookupKey);
 
         bir:BType returnType = inst.lhsOp.typeValue;
-        boolean isVoid = false;
-        if (returnType is bir:BInvokableType) {
-            isVoid = returnType?.retType is bir:BTypeNil;
-        } else {
+        if !(returnType is bir:BInvokableType) {
             error err = error( "Expected BInvokableType, found " + io:sprintf("%s", returnType));
             panic err;
         }
+
         foreach var v in inst.closureMaps {
             if (v is bir:VarRef) {
                 self.loadVar(v.variableDcl);
             }
         }
 
-        self.mv.visitInvokeDynamicInsn(currentClass, lambdaName, isVoid, inst.closureMaps.length());
+        self.mv.visitInvokeDynamicInsn(currentClass, lambdaName, inst.closureMaps.length());
         loadType(self.mv, returnType);
-        if (isVoid) {
-            self.mv.visitMethodInsn(INVOKESPECIAL, FUNCTION_POINTER, "<init>",
-                                    io:sprintf("(L%s;L%s;)V", CONSUMER, BTYPE), false);
-        } else {
-            self.mv.visitMethodInsn(INVOKESPECIAL, FUNCTION_POINTER, "<init>",
-                                    io:sprintf("(L%s;L%s;)V", FUNCTION, BTYPE), false);
-        }
+        self.mv.visitMethodInsn(INVOKESPECIAL, FUNCTION_POINTER, "<init>",
+                                io:sprintf("(L%s;L%s;)V", FUNCTION, BTYPE), false);
 
         // Set annotations if available.
         self.mv.visitInsn(DUP);
@@ -1138,6 +1141,33 @@ function addUnboxInsn(jvm:MethodVisitor mv, bir:BType? bType) {
     }
 }
 
+function addJUnboxInsn(jvm:MethodVisitor mv, bir:BType? bType) {
+    if (bType is ()) {
+        return;
+    } else if (bType is jvm:JByte) {
+        mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "anyToJByte", io:sprintf("(L%s;)B", OBJECT), false);
+    } else if (bType is jvm:JChar) {
+        mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "anyToJChar", io:sprintf("(L%s;)C", OBJECT), false);
+    } else if (bType is jvm:JShort) {
+        mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "anyToJShort", io:sprintf("(L%s;)S", OBJECT), false);
+    } else if (bType is jvm:JInt) {
+        mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "anyToJInt", io:sprintf("(L%s;)I", OBJECT), false);
+    } else if (bType is jvm:JLong) {
+        mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "anyToJLong", io:sprintf("(L%s;)J", OBJECT), false);
+    } else if (bType is jvm:JFloat) {
+        mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "anyToJFloat", io:sprintf("(L%s;)F", OBJECT), false);
+    } else if (bType is jvm:JDouble) {
+        mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "anyToJDouble", io:sprintf("(L%s;)D", OBJECT), false);
+    } else if (bType is jvm:JBoolean) {
+        mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "anyToJBoolean", io:sprintf("(L%s;)Z", OBJECT), false);
+    } else if (bType is jvm:JRefType) {
+        mv.visitTypeInsn(CHECKCAST, bType.typeValue);
+    //} else {
+    //    error err = error(io:sprintf("Unboxing is not supported for '%s'", bType));
+    //    panic err;
+    }
+}
+
 function generateVarLoad(jvm:MethodVisitor mv, bir:VariableDcl varDcl, string currentPackageName, int valueIndex) {
     bir:BType bType = varDcl.typeValue;
 
@@ -1198,8 +1228,37 @@ function generateVarLoad(jvm:MethodVisitor mv, bir:VariableDcl varDcl, string cu
                 bType is bir:BTypeHandle ||
                 bType is bir:BTypeDesc) {
         mv.visitVarInsn(ALOAD, valueIndex);
+    } else if(bType is jvm:JType) {
+        generateJVarLoad(mv, bType, currentPackageName, valueIndex);
     } else {
         error err = error( "JVM generation is not supported for type " +io:sprintf("%s", bType));
+        panic err;
+    }
+}
+
+function generateJVarLoad(jvm:MethodVisitor mv, jvm:JType jType, string currentPackageName, int valueIndex) {
+
+    if (jType is jvm:JByte) {
+        mv.visitVarInsn(ILOAD, valueIndex);
+    } else if (jType is jvm:JChar) {
+        mv.visitVarInsn(ILOAD, valueIndex);
+    } else if (jType is jvm:JShort) {
+        mv.visitVarInsn(ILOAD, valueIndex);
+    } else if (jType is jvm:JInt) {
+        mv.visitVarInsn(ILOAD, valueIndex);
+    } else if (jType is jvm:JLong) {
+        mv.visitVarInsn(LLOAD, valueIndex);
+    } else if (jType is jvm:JFloat) {
+        mv.visitVarInsn(FLOAD, valueIndex);
+    } else if (jType is jvm:JDouble) {
+        mv.visitVarInsn(DLOAD, valueIndex);
+    } else if (jType is jvm:JBoolean) {
+        mv.visitVarInsn(ILOAD, valueIndex);
+    } else if (jType is jvm:JArrayType ||
+                jType is jvm:JRefType) {
+        mv.visitVarInsn(ALOAD, valueIndex);
+    } else {
+        error err = error( "JVM generation is not supported for type " +io:sprintf("%s", jType));
         panic err;
     }
 }
@@ -1252,10 +1311,39 @@ function generateVarStore(jvm:MethodVisitor mv, bir:VariableDcl varDcl, string c
                     bType is bir:BInvokableType ||
                     bType is bir:BFiniteType ||
                     bType is bir:BTypeHandle ||
-                    bType is bir:BTypeDesc) {
-        mv.visitVarInsn(ASTORE, valueIndex);
+		    bType is bir:BTypeDesc) {
+			    mv.visitVarInsn(ASTORE, valueIndex);
+    } else if(bType is jvm:JType) {
+        generateJVarStore(mv, bType, currentPackageName, valueIndex);
     } else {
         error err = error("JVM generation is not supported for type " +io:sprintf("%s", bType));
         panic err;
     }
 }
+
+function generateJVarStore(jvm:MethodVisitor mv, jvm:JType jType, string currentPackageName, int valueIndex) {
+    if (jType is jvm:JByte) {
+        mv.visitVarInsn(ISTORE, valueIndex);
+    } else if (jType is jvm:JChar) {
+        mv.visitVarInsn(ISTORE, valueIndex);
+    } else if (jType is jvm:JShort) {
+        mv.visitVarInsn(ISTORE, valueIndex);
+    } else if (jType is jvm:JInt) {
+        mv.visitVarInsn(ISTORE, valueIndex);
+    } else if (jType is jvm:JLong) {
+        mv.visitVarInsn(LSTORE, valueIndex);
+    } else if (jType is jvm:JFloat) {
+        mv.visitVarInsn(FSTORE, valueIndex);
+    } else if (jType is jvm:JDouble) {
+        mv.visitVarInsn(DSTORE, valueIndex);
+    } else if (jType is jvm:JBoolean) {
+        mv.visitVarInsn(ISTORE, valueIndex);
+    } else if (jType is jvm:JArrayType ||
+                jType is jvm:JRefType) {
+        mv.visitVarInsn(ASTORE, valueIndex);
+    } else {
+        error err = error("JVM generation is not supported for type " +io:sprintf("%s", jType));
+        panic err;
+    }
+}
+

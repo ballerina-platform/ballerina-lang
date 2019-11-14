@@ -36,17 +36,19 @@ public type Producer client object {
     #
     # + subject - The subject to send the message to.
     # + data - Data to publish.
+    # + replyTo - The subject or the callback service the receiver should send the response to.
     # + return -  A specific error if there is a problem when publishing the message. Returns () otherwise.
-    public remote function publish(string subject, @untainted Content data) returns Error? {
+    public remote function publish(string subject, @untainted Content data, (string | service)? replyTo = ())
+                    returns Error? {
         string | byte[] | error converted = convertData(data);
         if (converted is error) {
             return prepareError("Error in data conversion", err = converted);
         } else {
-            return self.externPublish(subject, converted);
+            return self.externPublish(subject, converted, replyTo);
         }
     }
 
-    function externPublish(string subject, string | byte[] data, string? replyTo = ()) returns Error? = external;
+    function externPublish(string subject, string | byte[] data, (string | service)? replyTo = ()) returns Error? = external;
 
     # Produces a message and would wait for a response.
     #

@@ -19,7 +19,13 @@ packageName
     ;
 
 version
-    :   VERSION Identifier
+    :   VERSION versionPattern
+    ;
+
+versionPattern
+    :   DecimalIntegerLiteral
+    |   DecimalFloatingPointNumber
+    |   DecimalExtendedFloatingPointNumber
     ;
 
 importDeclaration

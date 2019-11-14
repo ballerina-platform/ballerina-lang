@@ -3,8 +3,8 @@ NAME
 
 SYNOPSIS
        ballerina build [<options>]
-                       <ballerina-file-path> | <module-name> [(--key=value)...]
-       ballerina build -a | --all [<options>]
+                       <ballerina-file-path> | <module-name> [<config properties>]
+       ballerina build -a | --all [<options>] [--] [<config properties>]
 
 
 DESCRIPTION
@@ -47,6 +47,10 @@ OPTIONS
        --skip-lock
            Skip using the lock file to resolve dependencies.
 
+       --experimental
+           Enable experimental language features.
+
+CONFIG PROPERTIES
        (--key=value)...
            Set Ballerina environment parameters as key/value pairs.
            If multiple parameters need to be provided, each parameter

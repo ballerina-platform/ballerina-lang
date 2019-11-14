@@ -320,3 +320,48 @@ function testGlobalVarInTypeGuard() {
         int i = si;
     }
 }
+
+function testTupleDestructuringAssignmentTypeResetting() {
+    [string?, int] [s, i] = tupleReturningFunc("str");
+    if (s is string) {
+        [s, i] = tupleReturningFunc(());
+        string strVal = s;
+    }
+}
+
+function tupleReturningFunc(string? s) returns [string?, int] {
+    return [s, 1];
+}
+
+function testRecordDestructuringAssignmentTypeResetting() {
+    record {
+        string s;
+        int? i;
+    } {s, i, ...rest} = recordReturningFunc(1);
+    if (i is int) {
+        {s: s, i: i, ...rest} = recordReturningFunc(2);
+        int intVal = i;
+    }
+}
+
+function recordReturningFunc(int? i) returns record {string s; int? i;} {
+    return {s: "hello", i: i, "f": 1.0};
+}
+
+function testErrorDestructuringAssignmentTypeResetting() {
+    var error(s, message = message, code = code) = errorReturningFunc(1);
+    if (code is int) {
+        error(s, message = message, code = code) = errorReturningFunc(());
+        int intVal = code;
+    }
+}
+
+type Detail record {
+    string message?;
+    error cause?;
+    int? code;
+};
+
+function errorReturningFunc(int? i) returns error<string, Detail> {
+    return error("hello", message = "hello", code = i, f = 1.0);
+}

@@ -121,7 +121,7 @@ public function interopWithAnyReturn() returns boolean {
         return false;
     }
     var b = acceptIntAnyReturn(2);
-    if (!(b is string)) {
+    if (!(b is handle)) {
         return false;
     }
     var c = acceptIntAnyReturn(3);
