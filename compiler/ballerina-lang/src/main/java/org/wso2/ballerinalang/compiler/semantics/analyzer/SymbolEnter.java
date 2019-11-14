@@ -260,16 +260,16 @@ public class SymbolEnter extends BLangNodeVisitor {
             importPkgHolder.put(qualifiedName, new ImportResolveHolder(importNode));
             defineNode(importNode, pkgEnv);
         });
-    
+
         for (ImportResolveHolder importHolder : importPkgHolder.values()) {
             for (BLangImportPackage unresolvedPkg : importHolder.unresolved) {
                 BPackageSymbol pkgSymbol = importHolder.resolved.symbol; // get a copy of the package symbol, add
                                                                          // compilation unit info to it,
-    
+
                 BPackageSymbol importSymbol = importHolder.resolved.symbol;
                 Name resolvedPkgAlias = names.fromIdNode(importHolder.resolved.alias);
                 Name unresolvedPkgAlias = names.fromIdNode(unresolvedPkg.alias);
-    
+
                 // check if its the same import or has the same alias.
                 if (!Names.IGNORE.equals(unresolvedPkgAlias) && unresolvedPkgAlias.equals(resolvedPkgAlias)
                     && importSymbol.compUnit.equals(names.fromIdNode(unresolvedPkg.compUnit))) {
@@ -281,7 +281,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                     }
                     continue;
                 }
-                
+
                 unresolvedPkg.symbol = pkgSymbol;
                 // and define it in the current package scope
                 BPackageSymbol symbol = duplicatePackagSymbol(pkgSymbol);
@@ -302,6 +302,10 @@ public class SymbolEnter extends BLangNodeVisitor {
         pkgNode.constants.forEach(constant -> typDefs.add(constant));
         pkgNode.typeDefinitions.forEach(typDef -> typDefs.add(typDef));
         defineTypeNodes(typDefs, pkgEnv);
+
+        pkgNode.globalVars.stream().filter(variable -> variable.expr != null
+                && variable.isDeclaredWithVar && variable.expr.getKind() == NodeKind.LAMBDA)
+                .forEach(var -> addFunctionType(var, pkgEnv));
 
         // Enabled logging errors after type def visit.
         // TODO: Do this in a cleaner way
@@ -1090,7 +1094,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             return;
         }
     }
-    
+
     private boolean isValidAnnotationType(BType type) {
         if (type == symTable.semanticError) {
             return false;
@@ -1884,18 +1888,24 @@ public class SymbolEnter extends BLangNodeVisitor {
         BLangIdentifier pkgName = importPkgNode.pkgNameComps.get(importPkgNode.pkgNameComps.size() - 1);
         return pkgName.value.equals(importSymbol.pkgID.name.value);
     }
-    
+
+    private void addFunctionType(BLangSimpleVariable variable, SymbolEnv env) {
+        BLangFunction function = ((BLangLambdaFunction) variable.expr).function;
+        variable.type = symResolver.createInvokableType(function.getParameters(),
+                function.restParam, function.returnTypeNode, env);
+    }
+
     /**
      * Holds imports that are resolved and unresolved.
      */
     public static class ImportResolveHolder {
         public BLangImportPackage resolved;
         public List<BLangImportPackage> unresolved;
-    
+
         public ImportResolveHolder() {
             this.unresolved = new ArrayList<>();
         }
-        
+
         public ImportResolveHolder(BLangImportPackage resolved) {
             this.resolved = resolved;
             this.unresolved = new ArrayList<>();
