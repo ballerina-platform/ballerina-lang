@@ -107,29 +107,30 @@ public class StaxXMLSink extends OutputStream {
     }
 
     private void writeElement(XMLItem xmlValue) throws XMLStreamException {
-        QName qName = xmlValue.getQName();
-        xmlStreamWriter.writeStartElement(qName.getPrefix(), qName.getLocalPart(), qName.getNamespaceURI());
-
-        HashSet<String> curNSSet = setupNamespaceHierarchy();
+        // Setup namespace hierarchy
+        Set<String> prevNSSet = this.parentNSSet.peek();
+        HashSet<String> currentNSLevel = prevNSSet == null ? new HashSet<>() : new HashSet<>(prevNSSet);
+        this.parentNSSet.push(currentNSLevel);
 
         Map<String, String> nsPrefixMap = prefixToNSUri(xmlValue);
-        // Write namespaces
-        for (Map.Entry<String, String> nsEntry : nsPrefixMap.entrySet()) {
-            if (nsEntry.getKey().isEmpty()) {
-                xmlStreamWriter.setDefaultNamespace(nsEntry.getValue());
-                xmlStreamWriter.writeDefaultNamespace(nsEntry.getValue());
-            } else {
-                // Only write the namespace decl if not in the namespace hierarchy.
-                String nsKey = concatNsPrefixURI(nsEntry.getKey(), nsEntry.getValue());
-                if (!curNSSet.contains(nsKey)) {
-                    xmlStreamWriter.writeNamespace(nsEntry.getKey(), nsEntry.getValue());
-                    xmlStreamWriter.setPrefix(nsEntry.getKey(), nsEntry.getValue());
-                    curNSSet.add(nsKey);
-                }
-            }
 
-        }
+        QName qName = xmlValue.getQName();
+        setMissingElementPrefix(currentNSLevel, nsPrefixMap, qName);
+        xmlStreamWriter.writeStartElement(qName.getPrefix(), qName.getLocalPart(), qName.getNamespaceURI());
+
+        // Write namespaces
+        writeNamespaceAttributes(currentNSLevel, nsPrefixMap);
+
         // Write attributes
+        writeAttributes(xmlValue, currentNSLevel);
+
+        xmlValue.children().serialize(this);
+        xmlStreamWriter.writeEndElement();
+        // Reset namespace decl hierarchy for this node.
+        this.parentNSSet.pop();
+    }
+
+    private void writeAttributes(XMLItem xmlValue, HashSet<String> curNSSet) throws XMLStreamException {
         for (Map.Entry<String, String> attributeEntry : xmlValue.getAttributesMap().entrySet()) {
             String key = attributeEntry.getKey();
             int closingCurlyPos = key.indexOf('}');
@@ -147,11 +148,41 @@ public class StaxXMLSink extends OutputStream {
                 xmlStreamWriter.writeAttribute(uri, localName, attributeEntry.getValue());
             }
         }
+    }
 
-        xmlValue.children().serialize(this);
-        xmlStreamWriter.writeEndElement();
-        // Reset namespace decl hierarchy for this node.
-        this.parentNSSet.pop();
+    private void writeNamespaceAttributes(HashSet<String> curNSSet, Map<String, String> nsPrefixMap) throws XMLStreamException {
+        for (Map.Entry<String, String> nsEntry : nsPrefixMap.entrySet()) {
+            if (nsEntry.getKey().isEmpty()) {
+                xmlStreamWriter.setDefaultNamespace(nsEntry.getValue());
+                xmlStreamWriter.writeDefaultNamespace(nsEntry.getValue());
+            } else {
+                // Only write the namespace decl if not in the namespace hierarchy.
+                String nsKey = concatNsPrefixURI(nsEntry.getKey(), nsEntry.getValue());
+                if (!curNSSet.contains(nsKey)) {
+                    xmlStreamWriter.writeNamespace(nsEntry.getKey(), nsEntry.getValue());
+                    xmlStreamWriter.setPrefix(nsEntry.getKey(), nsEntry.getValue());
+                    curNSSet.add(nsKey);
+                }
+            }
+        }
+    }
+
+    private void setMissingElementPrefix(HashSet<String> curNSSet, Map<String, String> nsPrefixMap, QName qName)
+            throws XMLStreamException {
+        if (qName.getPrefix().isEmpty()
+                && xmlStreamWriter.getNamespaceContext().getPrefix(qName.getNamespaceURI()) == null) {
+            boolean prefixFound = false;
+            for (Map.Entry<String, String> entry : nsPrefixMap.entrySet()) {
+                if (entry.getValue().equals(qName.getNamespaceURI())) {
+                    xmlStreamWriter.setPrefix(entry.getKey(), entry.getValue());
+                    prefixFound = true;
+                    break;
+                }
+            }
+            if (!prefixFound) {
+                generateAndAddRandomNSPrefix(curNSSet, qName.getNamespaceURI());
+            }
+        }
     }
 
     private void generateAndAddRandomNSPrefix(HashSet<String> curNSSet, String uri) throws XMLStreamException {
@@ -192,20 +223,6 @@ public class StaxXMLSink extends OutputStream {
 
     private String concatNsPrefixURI(String randStr, String nsUri) {
         return randStr + "<>" + nsUri;
-    }
-
-    private HashSet<String> setupNamespaceHierarchy() {
-        Set<String> prevNSSet = this.parentNSSet.peek();
-
-        HashSet<String> curNSSet;
-        if (prevNSSet == null) {
-            curNSSet = new HashSet<>();
-        } else {
-            curNSSet = new HashSet<>(prevNSSet);
-        }
-
-        this.parentNSSet.push(curNSSet);
-        return curNSSet;
     }
 
     private Map<String, String> prefixToNSUri(XMLItem xmlValue) {
