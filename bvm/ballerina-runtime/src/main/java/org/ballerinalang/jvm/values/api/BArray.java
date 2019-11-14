@@ -164,12 +164,6 @@ public interface BArray extends BRefValue, CollectionValue {
     long[] getIntArray();
 
     /**
-     * Get {@code BType} of the array.
-     * @return array type.
-     */
-    BType getArrayType();
-
-    /**
      * Get {@code BType} of the array elements.
      * @return element type
      */

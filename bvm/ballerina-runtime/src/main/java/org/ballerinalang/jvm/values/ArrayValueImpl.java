@@ -18,7 +18,6 @@
 package org.ballerinalang.jvm.values;
 
 import org.ballerinalang.jvm.BallerinaErrors;
-import org.ballerinalang.jvm.JSONGenerator;
 import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.commons.ArrayState;
 import org.ballerinalang.jvm.commons.TypeValuePair;
@@ -37,10 +36,8 @@ import org.ballerinalang.jvm.values.freeze.FreezeUtils;
 import org.ballerinalang.jvm.values.freeze.Status;
 import org.ballerinalang.jvm.values.utils.StringUtils;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.lang.reflect.Array;
 import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.List;
@@ -136,28 +133,28 @@ public class ArrayValueImpl extends AbstractArrayValue {
     private void initArrayValues(BType elementType) {
         switch (elementType.getTag()) {
             case TypeTags.INT_TAG:
-                intValues = (long[]) newArrayInstance(Long.TYPE);
+                this.intValues = new long[DEFAULT_ARRAY_SIZE];
                 break;
             case TypeTags.FLOAT_TAG:
-                floatValues = (double[]) newArrayInstance(Double.TYPE);
+                this.floatValues = new double[DEFAULT_ARRAY_SIZE];
                 break;
             case TypeTags.STRING_TAG:
-                stringValues = (String[]) newArrayInstance(String.class);
+                this.stringValues = new String[DEFAULT_ARRAY_SIZE];
                 break;
             case TypeTags.BOOLEAN_TAG:
-                booleanValues = (boolean[]) newArrayInstance(Boolean.TYPE);
+                this.booleanValues = new boolean[DEFAULT_ARRAY_SIZE];
                 break;
             case TypeTags.BYTE_TAG:
-                byteValues = (byte[]) newArrayInstance(Byte.TYPE);
+                this.byteValues = new byte[DEFAULT_ARRAY_SIZE];
                 break;
             default:
-                refValues = (Object[]) newArrayInstance(Object.class);
+                this.refValues = new Object[DEFAULT_ARRAY_SIZE];
         }
     }
 
     @Deprecated
     public ArrayValueImpl() {
-        refValues = (Object[]) newArrayInstance(Object.class);
+        this.refValues = new Object[DEFAULT_ARRAY_SIZE];
     }
 
     @Deprecated
@@ -167,7 +164,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
         if (size != -1) {
             this.size = this.maxSize = (int) size;
         }
-        initArrayValues(elementType);
+        initArrayValues(this.elementType);
     }
 
     // ----------------------- get methods ----------------------------------------------------
@@ -178,6 +175,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
      * @param index array index
      * @return array value
      */
+    @Override
     public Object get(long index) {
         rangeCheckForGet(index, size);
         switch (this.elementType.getTag()) {
@@ -202,6 +200,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
      * @param index array index
      * @return array value
      */
+    @Override
     public Object getRefValue(long index) {
         rangeCheckForGet(index, size);
         if (refValues != null) {
@@ -216,6 +215,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
      * @param index array index
      * @return array element
      */
+    @Override
     public long getInt(long index) {
         rangeCheckForGet(index, size);
         if (intValues != null) {
@@ -230,6 +230,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
      * @param index array index
      * @return array element
      */
+    @Override
     public boolean getBoolean(long index) {
         rangeCheckForGet(index, size);
         if (booleanValues != null) {
@@ -244,6 +245,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
      * @param index array index
      * @return array element
      */
+    @Override
     public byte getByte(long index) {
         rangeCheckForGet(index, size);
         if (byteValues != null) {
@@ -258,6 +260,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
      * @param index array index
      * @return array element
      */
+    @Override
     public double getFloat(long index) {
         rangeCheckForGet(index, size);
         if (floatValues != null) {
@@ -272,6 +275,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
      * @param index array index
      * @return array element
      */
+    @Override
     public String getString(long index) {
         rangeCheckForGet(index, size);
         if (stringValues != null) {
@@ -288,6 +292,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
      * @param index array index
      * @param value value to be added
      */
+    @Override
     public void add(long index, Object value) {
         handleFrozenArrayValue();
         prepareForAdd(index, value, refValues.length);
@@ -300,6 +305,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
      * @param index array index
      * @param value value to be added
      */
+    @Override
     public void add(long index, long value) {
         handleFrozenArrayValue();
         prepareForAdd(index, value, intValues.length);
@@ -312,6 +318,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
      * @param index array index
      * @param value value to be added
      */
+    @Override
     public void add(long index, boolean value) {
         if (elementType.getTag() == TypeTags.INT_TAG) {
             add(index, value);
@@ -329,6 +336,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
      * @param index array index
      * @param value value to be added
      */
+    @Override
     public void add(long index, byte value) {
         handleFrozenArrayValue();
         prepareForAdd(index, value, byteValues.length);
@@ -341,6 +349,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
      * @param index array index
      * @param value value to be added
      */
+    @Override
     public void add(long index, double value) {
         handleFrozenArrayValue();
         prepareForAdd(index, value, floatValues.length);
@@ -353,6 +362,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
      * @param index array index
      * @param value value to be added
      */
+    @Override
     public void add(long index, String value) {
         handleFrozenArrayValue();
         prepareForAdd(index, value, stringValues.length);
@@ -366,10 +376,12 @@ public class ArrayValueImpl extends AbstractArrayValue {
      * 
      * @param value value to be appended
      */
+    @Override
     public void append(Object value) {
         add(this.size, value);
     }
 
+    @Override
     public Object shift(long index) {
         handleFrozenArrayValue();
         Object val = get(index);
@@ -518,6 +530,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
      * 
      * @return ref value array
      */
+    @Override
     public Object[] getValues() {
         return refValues;
     }
@@ -527,6 +540,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
      * 
      * @return byte array
      */
+    @Override
     public byte[] getBytes() {
         byte[] bytes = new byte[this.size];
         System.arraycopy(byteValues, 0, bytes, 0, this.size);
@@ -538,6 +552,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
      * 
      * @return string array
      */
+    @Override
     public String[] getStringArray() {
         return Arrays.copyOf(stringValues, size);
     }
@@ -551,13 +566,14 @@ public class ArrayValueImpl extends AbstractArrayValue {
      * 
      * @return int array
      */
+    @Override
     public long[] getIntArray() {
         return Arrays.copyOf(intValues, size);
     }
 
     @Override
     public void serialize(OutputStream outputStream) {
-        if (elementType.getTag() == TypeTags.BYTE_TAG) {
+        if (this.elementType.getTag() == TypeTags.BYTE_TAG) {
             try {
                 outputStream.write(byteValues);
             } catch (IOException e) {
@@ -572,184 +588,6 @@ public class ArrayValueImpl extends AbstractArrayValue {
         }
     }
 
-    public void resizeInternalArray(int newLength) {
-        switch (elementType.getTag()) {
-            case TypeTags.INT_TAG:
-                intValues = Arrays.copyOf(intValues, newLength);
-                break;
-            case TypeTags.BOOLEAN_TAG:
-                booleanValues = Arrays.copyOf(booleanValues, newLength);
-                break;
-            case TypeTags.BYTE_TAG:
-                byteValues = Arrays.copyOf(byteValues, newLength);
-                break;
-            case TypeTags.FLOAT_TAG:
-                floatValues = Arrays.copyOf(floatValues, newLength);
-                break;
-            case TypeTags.STRING_TAG:
-                stringValues = Arrays.copyOf(stringValues, newLength);
-                break;
-            default:
-                refValues = Arrays.copyOf(refValues, newLength);
-                break;
-        }
-    }
-
-    private void fillValues(int index) {
-        if (index <= this.size) {
-            return;
-        }
-
-        switch (this.elementType.getTag()) {
-            case TypeTags.STRING_TAG:
-                Arrays.fill(stringValues, size, index, BLangConstants.STRING_EMPTY_VALUE);
-                return;
-            case TypeTags.INT_TAG:
-            case TypeTags.BYTE_TAG:
-            case TypeTags.FLOAT_TAG:
-            case TypeTags.BOOLEAN_TAG:
-                return;
-            default:
-                Arrays.fill(refValues, size, index, elementType.getZeroValue());
-
-        }
-    }
-
-    /**
-     * Get {@code BType} of the array.
-     * 
-     * @return array type.
-     */
-    public BType getArrayType() {
-        return arrayType;
-    }
-
-    /**
-     * Get {@code BType} of the array elements.
-     * 
-     * @return element type
-     */
-    public BType getElementType() {
-        return this.elementType;
-    }
-
-    protected void rangeCheckForGet(long index, int size) {
-        rangeCheck(index, size);
-        if (index >= size) {
-            throw BLangExceptionHelper.getRuntimeException(
-                    getModulePrefixedReason(ARRAY_LANG_LIB, INDEX_OUT_OF_RANGE_ERROR_IDENTIFIER),
-                    RuntimeErrors.ARRAY_INDEX_OUT_OF_RANGE, index, size);
-        }
-    }
-
-    protected void rangeCheck(long index, int size) {
-        if (index > Integer.MAX_VALUE || index < Integer.MIN_VALUE) {
-            throw BLangExceptionHelper.getRuntimeException(
-                    getModulePrefixedReason(ARRAY_LANG_LIB, INDEX_OUT_OF_RANGE_ERROR_IDENTIFIER),
-                    RuntimeErrors.INDEX_NUMBER_TOO_LARGE, index);
-        }
-
-        if ((int) index < 0 || index >= maxSize) {
-            throw BLangExceptionHelper.getRuntimeException(
-                    getModulePrefixedReason(ARRAY_LANG_LIB, INDEX_OUT_OF_RANGE_ERROR_IDENTIFIER),
-                    RuntimeErrors.ARRAY_INDEX_OUT_OF_RANGE, index, size);
-        }
-    }
-
-    private void fillerValueCheck(int index, int size) {
-        // if there has been values added beyond the current index, that means filler values
-        // has already been checked. Therefore no need to check again.
-        if (this.size >= index) {
-            return;
-        }
-
-        // if the elementType doesn't have an implicit initial value & if the insertion is not a consecutive append
-        // to the array, then an exception will be thrown.
-        if (!TypeChecker.hasFillerValue(elementType) && (index > size)) {
-            throw BLangExceptionHelper.getRuntimeException(BallerinaErrorReasons.ILLEGAL_LIST_INSERTION_ERROR,
-                    RuntimeErrors.ILLEGAL_ARRAY_INSERTION, size, index + 1);
-        }
-    }
-
-    protected Object newArrayInstance(Class<?> componentType) {
-        return (size > 0) ? Array.newInstance(componentType, size)
-                : Array.newInstance(componentType, DEFAULT_ARRAY_SIZE);
-    }
-
-    private void setArrayType(BType elementType) {
-        this.arrayType = new BArrayType(elementType);
-        this.elementType = elementType;
-    }
-
-    public String getJSONString() {
-        ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
-        JSONGenerator gen = new JSONGenerator(byteOut);
-        try {
-            gen.serialize(this);
-            gen.flush();
-        } catch (IOException e) {
-            throw new BallerinaException("Error in converting JSON to a string: " + e.getMessage(), e);
-        }
-        return new String(byteOut.toByteArray());
-    }
-
-    protected void prepareForAdd(long index, Object value, int currentArraySize) {
-        // check types
-        if (!TypeChecker.checkIsType(value, this.elementType)) {
-            throw BallerinaErrors.createError(
-                    getModulePrefixedReason(ARRAY_LANG_LIB, INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER),
-                    BLangExceptionHelper.getErrorMessage(RuntimeErrors.INCOMPATIBLE_TYPE, this.elementType,
-                            TypeChecker.getType(value)));
-        }
-
-        int intIndex = (int) index;
-        rangeCheck(index, size);
-        fillerValueCheck(intIndex, size);
-        ensureCapacity(intIndex + 1, currentArraySize);
-        fillValues(intIndex);
-        resetSize(intIndex);
-    }
-
-    /**
-     * Same as {@code prepareForAdd}, except fillerValueCheck is not performed as we are guaranteed to add
-     * elements to consecutive positions.
-     *
-     * @param index last index after add operation completes
-     * @param currentArraySize current array size
-     */
-    protected void prepareForConsecutiveMultiAdd(long index, int currentArraySize) {
-        int intIndex = (int) index;
-        rangeCheck(index, size);
-        ensureCapacity(intIndex + 1, currentArraySize);
-        resetSize(intIndex);
-    }
-
-    protected void ensureCapacity(int requestedCapacity, int currentArraySize) {
-        if (requestedCapacity <= currentArraySize) {
-            return;
-        }
-
-        if (this.arrayType.getState() != ArrayState.UNSEALED) {
-            return;
-        }
-
-        // Here the growth rate is 1.5. This value has been used by many other languages
-        int newArraySize = currentArraySize + (currentArraySize >> 1);
-
-        // Now get the maximum value of the calculate new array size and request capacity
-        newArraySize = Math.max(newArraySize, requestedCapacity);
-
-        // Now get the minimum value of new array size and maximum array size
-        newArraySize = Math.min(newArraySize, maxSize);
-        resizeInternalArray(newArraySize);
-    }
-
-    private void resetSize(int index) {
-        if (index >= size) {
-            size = index + 1;
-        }
-    }
-
     /**
      * {@inheritDoc}
      */
@@ -759,7 +597,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
             return;
         }
         this.freezeStatus = freezeStatus;
-        if (elementType == null || elementType.getTag() > TypeTags.BOOLEAN_TAG) {
+        if (this.elementType == null || this.elementType.getTag() > TypeTags.BOOLEAN_TAG) {
             for (int i = 0; i < this.size; i++) {
                 Object value = this.getRefValue(i);
                 if (value instanceof RefValue) {
@@ -778,7 +616,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
             return;
         }
         this.freezeStatus.setFrozen();
-        if (elementType == null || elementType.getTag() > TypeTags.BOOLEAN_TAG) {
+        if (this.elementType == null || this.elementType.getTag() > TypeTags.BOOLEAN_TAG) {
             for (int i = 0; i < this.size; i++) {
                 Object value = this.getRefValue(i);
                 if (value instanceof RefValue) {
@@ -804,21 +642,159 @@ public class ArrayValueImpl extends AbstractArrayValue {
         return new ArrayIterator(this);
     }
 
+    /**
+     * Get {@code BType} of the array elements.
+     * 
+     * @return element type
+     */
     @Override
-    public void setLength(long length) {
-        if (length == size) {
-            return;
-        }
-        handleFrozenArrayValue();
-        int newLength = (int) length;
-        checkFixedLength(length);
-        rangeCheck(length, size);
-        fillerValueCheck(newLength, size);
-        resizeInternalArray(newLength);
-        fillValues(newLength);
-        size = newLength;
+    public BType getElementType() {
+        return this.elementType;
     }
 
+    // Protected methods
+
+    @Override
+    protected void resizeInternalArray(int newLength) {
+        switch (this.elementType.getTag()) {
+            case TypeTags.INT_TAG:
+                intValues = Arrays.copyOf(intValues, newLength);
+                break;
+            case TypeTags.BOOLEAN_TAG:
+                booleanValues = Arrays.copyOf(booleanValues, newLength);
+                break;
+            case TypeTags.BYTE_TAG:
+                byteValues = Arrays.copyOf(byteValues, newLength);
+                break;
+            case TypeTags.FLOAT_TAG:
+                floatValues = Arrays.copyOf(floatValues, newLength);
+                break;
+            case TypeTags.STRING_TAG:
+                stringValues = Arrays.copyOf(stringValues, newLength);
+                break;
+            default:
+                refValues = Arrays.copyOf(refValues, newLength);
+                break;
+        }
+    }
+
+    @Override
+    protected void fillValues(int index) {
+        if (index <= this.size) {
+            return;
+        }
+
+        switch (this.elementType.getTag()) {
+            case TypeTags.STRING_TAG:
+                Arrays.fill(stringValues, size, index, BLangConstants.STRING_EMPTY_VALUE);
+                return;
+            case TypeTags.INT_TAG:
+            case TypeTags.BYTE_TAG:
+            case TypeTags.FLOAT_TAG:
+            case TypeTags.BOOLEAN_TAG:
+                return;
+            default:
+                Arrays.fill(refValues, size, index, elementType.getZeroValue());
+
+        }
+    }
+
+    @Override
+    protected void rangeCheckForGet(long index, int size) {
+        rangeCheck(index, size);
+        if (index >= size) {
+            throw BLangExceptionHelper.getRuntimeException(
+                    getModulePrefixedReason(ARRAY_LANG_LIB, INDEX_OUT_OF_RANGE_ERROR_IDENTIFIER),
+                    RuntimeErrors.ARRAY_INDEX_OUT_OF_RANGE, index, size);
+        }
+    }
+
+    @Override
+    protected void rangeCheck(long index, int size) {
+        if (index > Integer.MAX_VALUE || index < Integer.MIN_VALUE) {
+            throw BLangExceptionHelper.getRuntimeException(
+                    getModulePrefixedReason(ARRAY_LANG_LIB, INDEX_OUT_OF_RANGE_ERROR_IDENTIFIER),
+                    RuntimeErrors.INDEX_NUMBER_TOO_LARGE, index);
+        }
+
+        if ((int) index < 0 || index >= maxSize) {
+            throw BLangExceptionHelper.getRuntimeException(
+                    getModulePrefixedReason(ARRAY_LANG_LIB, INDEX_OUT_OF_RANGE_ERROR_IDENTIFIER),
+                    RuntimeErrors.ARRAY_INDEX_OUT_OF_RANGE, index, size);
+        }
+    }
+
+    @Override
+    protected void fillerValueCheck(int index, int size) {
+        // if there has been values added beyond the current index, that means filler values
+        // has already been checked. Therefore no need to check again.
+        if (this.size >= index) {
+            return;
+        }
+
+        // if the elementType doesn't have an implicit initial value & if the insertion is not a consecutive append
+        // to the array, then an exception will be thrown.
+        if (!TypeChecker.hasFillerValue(elementType) && (index > size)) {
+            throw BLangExceptionHelper.getRuntimeException(BallerinaErrorReasons.ILLEGAL_LIST_INSERTION_ERROR,
+                    RuntimeErrors.ILLEGAL_ARRAY_INSERTION, size, index + 1);
+        }
+    }
+
+    @Override
+    protected void prepareForAdd(long index, Object value, int currentArraySize) {
+        // check types
+        if (!TypeChecker.checkIsType(value, this.elementType)) {
+            throw BallerinaErrors.createError(
+                    getModulePrefixedReason(ARRAY_LANG_LIB, INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER),
+                    BLangExceptionHelper.getErrorMessage(RuntimeErrors.INCOMPATIBLE_TYPE, this.elementType,
+                            TypeChecker.getType(value)));
+        }
+
+        int intIndex = (int) index;
+        rangeCheck(index, size);
+        fillerValueCheck(intIndex, size);
+        ensureCapacity(intIndex + 1, currentArraySize);
+        fillValues(intIndex);
+        resetSize(intIndex);
+    }
+
+    /**
+     * Same as {@code prepareForAdd}, except fillerValueCheck is not performed as we are guaranteed to add
+     * elements to consecutive positions.
+     *
+     * @param index last index after add operation completes
+     * @param currentArraySize current array size
+     */
+    @Override
+    protected void prepareForConsecutiveMultiAdd(long index, int currentArraySize) {
+        int intIndex = (int) index;
+        rangeCheck(index, size);
+        ensureCapacity(intIndex + 1, currentArraySize);
+        resetSize(intIndex);
+    }
+
+    @Override
+    protected void ensureCapacity(int requestedCapacity, int currentArraySize) {
+        if (requestedCapacity <= currentArraySize) {
+            return;
+        }
+
+        if (this.arrayType.getState() != ArrayState.UNSEALED) {
+            return;
+        }
+
+        // Here the growth rate is 1.5. This value has been used by many other languages
+        int newArraySize = currentArraySize + (currentArraySize >> 1);
+
+        // Now get the maximum value of the calculate new array size and request capacity
+        newArraySize = Math.max(newArraySize, requestedCapacity);
+
+        // Now get the minimum value of new array size and maximum array size
+        newArraySize = Math.min(newArraySize, maxSize);
+        resizeInternalArray(newArraySize);
+    }
+
+    @Override
     protected void checkFixedLength(long length) {
         if (this.arrayType.getState() == ArrayState.CLOSED_SEALED) {
             throw BLangExceptionHelper.getRuntimeException(
@@ -827,15 +803,8 @@ public class ArrayValueImpl extends AbstractArrayValue {
         }
     }
 
-    private void shiftArray(int index, Object arr) {
-        int nElemsToBeMoved = this.size - 1 - index;
-        if (nElemsToBeMoved >= 0) {
-            System.arraycopy(arr, index + 1, arr, index, nElemsToBeMoved);
-        }
-        this.size--;
-    }
-
-    private void unshift(long index, ArrayValue vals) {
+    @Override
+    protected void unshift(long index, ArrayValue vals) {
         handleFrozenArrayValue();
         unshiftArray(index, vals.size(), getCurrentArrayLength());
         switch (this.elementType.getTag()) {
@@ -856,6 +825,19 @@ public class ArrayValueImpl extends AbstractArrayValue {
                 break;
             default:
                 addToRefArray(vals, (int) index);
+        }
+    }
+
+    // Private methods
+
+    private void setArrayType(BType elementType) {
+        this.arrayType = new BArrayType(elementType);
+        this.elementType = elementType;
+    }
+
+    private void resetSize(int index) {
+        if (index >= size) {
+            size = index + 1;
         }
     }
 
@@ -900,6 +882,14 @@ public class ArrayValueImpl extends AbstractArrayValue {
         for (int i = startIndex, j = 0; i < endIndex; i++, j++) {
             add(i, vals.getRefValue(j));
         }
+    }
+
+    private void shiftArray(int index, Object arr) {
+        int nElemsToBeMoved = this.size - 1 - index;
+        if (nElemsToBeMoved >= 0) {
+            System.arraycopy(arr, index + 1, arr, index, nElemsToBeMoved);
+        }
+        this.size--;
     }
 
     private void unshiftArray(long index, int unshiftByN, int arrLength) {
@@ -949,10 +939,5 @@ public class ArrayValueImpl extends AbstractArrayValue {
             default:
                 return refValues.length;
         }
-    }
-
-    @Override
-    protected void unshift(long index, AbstractArrayValue vals) {
-        unshift(index, (ArrayValue) vals);
     }
 }

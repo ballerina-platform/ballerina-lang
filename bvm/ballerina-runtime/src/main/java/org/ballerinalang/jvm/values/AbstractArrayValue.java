@@ -32,7 +32,6 @@ import org.ballerinalang.jvm.values.freeze.Status;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.lang.reflect.Array;
 import java.util.List;
 import java.util.Map;
 
@@ -40,13 +39,13 @@ import static org.ballerinalang.jvm.util.BLangConstants.ARRAY_LANG_LIB;
 
 /**
  * <p>
- * Represent an array in ballerina.
+ * Abstract implementation of an array value in ballerina.
  * </p>
  * <p>
  * <i>Note: This is an internal API and may change in future versions.</i>
  * </p>
  * 
- * @since 0.995.0
+ * @since 1.1.0
  */
 public abstract class AbstractArrayValue implements ArrayValue {
 
@@ -213,13 +212,13 @@ public abstract class AbstractArrayValue implements ArrayValue {
      * 
      * @param values values to add to the start of the array
      */
-    public void unshift(AbstractArrayValue values) {
+    public void unshift(ArrayValue values) {
         unshift(0, values);
     }
 
     @Override
     public void unshift(BArray values) {
-        unshift(0, (AbstractArrayValue) values);
+        unshift(0, (ArrayValue) values);
     }
 
     @Override
@@ -250,7 +249,7 @@ public abstract class AbstractArrayValue implements ArrayValue {
 
     @Override
     public Object frozenCopy(Map<Object, Object> refs) {
-        AbstractArrayValue copy = (AbstractArrayValue) copy(refs);
+        ArrayValue copy = (ArrayValue) copy(refs);
         if (!copy.isFrozen()) {
             copy.freezeDirect();
         }
@@ -306,18 +305,34 @@ public abstract class AbstractArrayValue implements ArrayValue {
         return new ArrayIterator(this);
     }
 
+    @Override
+    public void setLength(long length) {
+        if (length == size) {
+            return;
+        }
+        handleFrozenArrayValue();
+        int newLength = (int) length;
+        checkFixedLength(length);
+        rangeCheck(length, size);
+        fillerValueCheck(newLength, size);
+        resizeInternalArray(newLength);
+        fillValues(newLength);
+        size = newLength;
+    }
+
     /*
      * helper methods that are visible to the implementation classes.
      */
 
+    protected abstract void fillValues(int newLength);
+
+    protected abstract void fillerValueCheck(int newLength, int size2);
+
+    protected abstract void resizeInternalArray(int newLength);
+
     protected abstract void rangeCheckForGet(long index, int size);
 
     protected abstract void rangeCheck(long index, int size);
-
-    protected Object newArrayInstance(Class<?> componentType) {
-        return (this.size > 0) ? Array.newInstance(componentType, this.size)
-                : Array.newInstance(componentType, DEFAULT_ARRAY_SIZE);
-    }
 
     /**
      * Util method to handle frozen array values.
@@ -358,7 +373,7 @@ public abstract class AbstractArrayValue implements ArrayValue {
         }
     }
 
-    protected abstract void unshift(long index, AbstractArrayValue vals);
+    protected abstract void unshift(long index, ArrayValue vals);
 
     protected abstract void checkFixedLength(long length);
 
@@ -368,11 +383,11 @@ public abstract class AbstractArrayValue implements ArrayValue {
      * @since 0.995.0
      */
     static class ArrayIterator implements IteratorValue {
-        AbstractArrayValue array;
+        ArrayValue array;
         long cursor = 0;
         long length;
 
-        ArrayIterator(AbstractArrayValue value) {
+        ArrayIterator(ArrayValue value) {
             this.array = value;
             this.length = value.size();
         }

@@ -569,8 +569,8 @@ public class TypeConverter {
 
     public static BType resolveMatchingTypeForUnion(Object value, BType type) {
         if (value instanceof ArrayValue && ((ArrayValue) value).getType().getTag() == TypeTags.ARRAY_TAG &&
-                !isDeepStampingRequiredForArray(((ArrayValue) value).getArrayType())) {
-            return ((ArrayValue) value).getArrayType();
+                !isDeepStampingRequiredForArray(((ArrayValue) value).getType())) {
+            return ((ArrayValue) value).getType();
         }
 
         if (value instanceof MapValue && ((MapValue) value).getType().getTag() == TypeTags.MAP_TAG &&

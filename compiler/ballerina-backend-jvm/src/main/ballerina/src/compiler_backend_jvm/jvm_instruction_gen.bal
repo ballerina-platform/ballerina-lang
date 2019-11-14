@@ -775,7 +775,7 @@ type InstructionGenerator object {
             self.mv.visitInsn(DUP);
             loadType(self.mv, inst.typeValue);
             self.loadVar(inst.sizeOp.variableDcl);
-            self.mv.visitMethodInsn(INVOKESPECIAL, TUPLE_VALUE_IMPL, "<init>", io:sprintf("(L%s;J)V", BTYPE), false);
+            self.mv.visitMethodInsn(INVOKESPECIAL, TUPLE_VALUE_IMPL, "<init>", io:sprintf("(L%s;J)V", TUPLE_TYPE), false);
             self.storeToVar(inst.lhsOp.variableDcl);
         }
     }
@@ -805,8 +805,9 @@ type InstructionGenerator object {
         } else if (valueType is bir:BTypeString) {
             self.mv.visitMethodInsn(INVOKEINTERFACE, ARRAY_VALUE, "add", io:sprintf("(JL%s;)V", STRING_VALUE), true);
         } else if (valueType is bir:BTypeBoolean) {
-            self.mv.visitMethodInsn(INVOKEINTERFACE, ARRAY_VALUE, "add", "(JI)V", true);
+            self.mv.visitMethodInsn(INVOKEINTERFACE, ARRAY_VALUE, "add", "(JZ)V", true);
         } else if (valueType is bir:BTypeByte) {
+            self.mv.visitInsn(I2B);
             self.mv.visitMethodInsn(INVOKEINTERFACE, ARRAY_VALUE, "add", "(JB)V", true);
         } else {
             self.mv.visitMethodInsn(INVOKEINTERFACE, ARRAY_VALUE, "add", io:sprintf("(JL%s;)V", OBJECT), true);
@@ -835,6 +836,7 @@ type InstructionGenerator object {
             self.mv.visitMethodInsn(INVOKEINTERFACE, ARRAY_VALUE, "getBoolean", "(J)Z", true);
         } else if (bType is bir:BTypeByte) {
             self.mv.visitMethodInsn(INVOKEINTERFACE, ARRAY_VALUE, "getByte", "(J)B", true);
+            self.mv.visitMethodInsn(INVOKESTATIC, "java/lang/Byte", "toUnsignedInt", "(B)I", false);
         } else if (bType is bir:BTypeFloat) {
             self.mv.visitMethodInsn(INVOKEINTERFACE, ARRAY_VALUE, "getFloat", "(J)D", true);
         } else {

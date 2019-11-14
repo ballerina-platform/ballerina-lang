@@ -48,7 +48,7 @@ public class StreamingJsonValue extends ArrayValueImpl implements BStreamingJson
     @Deprecated
     public StreamingJsonValue(JSONDataSource datasource) {
         this.datasource = datasource;
-        this.refValues = (RefValue[]) newArrayInstance(RefValue.class);
+        this.refValues = new RefValue[DEFAULT_ARRAY_SIZE];
         this.arrayType = new BArrayType(new BMapType(BTypes.typeJSON));
     }
 
