@@ -119,7 +119,7 @@ public class SSLHandlerFactory {
 
         } catch (UnrecoverableKeyException | KeyManagementException |
                 NoSuchAlgorithmException | KeyStoreException | IOException e) {
-            throw new IllegalArgumentException("Failed to initialize the SSLContext", e);
+            throw new IllegalArgumentException("Failed to initialize the SSLContext: " + e.getMessage());
         }
     }
 
