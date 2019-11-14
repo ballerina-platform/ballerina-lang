@@ -99,6 +99,17 @@ public class Message {
             bMapValue = new MapValueImpl<>(bType);
             bMessage = bMapValue;
         }
+
+        if (input == null) {
+            if (bMapValue != null) {
+                for (Map.Entry<Integer, Descriptors.FieldDescriptor> entry : fieldDescriptors.entrySet()) {
+                    bMapValue.put(entry.getValue().getName(), null);
+                }
+            } else {
+                bMessage = null;
+            }
+            return;
+        }
         boolean done = false;
         while (!done) {
             int tag = input.readTag();
