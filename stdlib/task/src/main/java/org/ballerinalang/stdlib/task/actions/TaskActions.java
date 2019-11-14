@@ -17,15 +17,29 @@
  */
 package org.ballerinalang.stdlib.task.actions;
 
+import org.ballerinalang.jvm.BRuntime;
+import org.ballerinalang.jvm.util.exceptions.BLangRuntimeException;
+import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.stdlib.task.api.TaskServerConnector;
 import org.ballerinalang.stdlib.task.exceptions.SchedulingException;
+import org.ballerinalang.stdlib.task.impl.TaskServerConnectorImpl;
+import org.ballerinalang.stdlib.task.objects.ServiceInformation;
 import org.ballerinalang.stdlib.task.objects.Task;
 import org.ballerinalang.stdlib.task.utils.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Objects;
+
+import static org.ballerinalang.stdlib.task.utils.TaskConstants.MEMBER_LISTENER_CONFIGURATION;
 import static org.ballerinalang.stdlib.task.utils.TaskConstants.NATIVE_DATA_TASK_OBJECT;
+import static org.ballerinalang.stdlib.task.utils.TaskConstants.PARAMETER_ATTACHMENT;
+import static org.ballerinalang.stdlib.task.utils.TaskConstants.RECORD_TIMER_CONFIGURATION;
 import static org.ballerinalang.stdlib.task.utils.TaskConstants.SCHEDULER_ERROR_REASON;
+import static org.ballerinalang.stdlib.task.utils.Utils.processAppointment;
+import static org.ballerinalang.stdlib.task.utils.Utils.processTimer;
+import static org.ballerinalang.stdlib.task.utils.Utils.validateService;
 
 /**
  * Class to handle ballerina external functions in Task library.
@@ -67,5 +81,75 @@ public class TaskActions {
             return Utils.createTaskError(SCHEDULER_ERROR_REASON, e.getMessage());
         }
         return null;
+    }
+
+    public static Object start(ObjectValue taskListener) {
+        Task task = (Task) taskListener.getNativeData(NATIVE_DATA_TASK_OBJECT);
+        TaskServerConnector serverConnector = new TaskServerConnectorImpl(task);
+        try {
+            serverConnector.start();
+        } catch (SchedulingException e) {
+            LOG.error(e.getMessage(), e);
+            return Utils.createTaskError(e.getMessage());
+        }
+        return null;
+    }
+
+    public static Object stop(ObjectValue taskListener) {
+        Task task = (Task) taskListener.getNativeData(NATIVE_DATA_TASK_OBJECT);
+        TaskServerConnector serverConnector = new TaskServerConnectorImpl(task);
+        try {
+            serverConnector.stop();
+        } catch (SchedulingException e) {
+            LOG.error(e.getMessage(), e);
+            return Utils.createTaskError(e.getMessage());
+        }
+        return null;
+    }
+
+    public static Object attach(ObjectValue taskListener, ObjectValue service, MapValue<String, Object> config) {
+        Object attachments = config.get(PARAMETER_ATTACHMENT);
+        ServiceInformation serviceInformation;
+        if (Objects.nonNull(attachments)) {
+            serviceInformation = new ServiceInformation(BRuntime.getCurrentRuntime(), service, attachments);
+        } else {
+            serviceInformation = new ServiceInformation(BRuntime.getCurrentRuntime(), service);
+        }
+
+        /*
+         * TODO: After #14148 fixed, use compiler plugin to validate the service
+         */
+        try {
+            validateService(serviceInformation);
+        } catch (SchedulingException e) {
+            //TODO: Ideally this should return an Error using createError() method.
+            // Fix this once we can return errors from interop functions (Check with master)
+            throw new BLangRuntimeException(e.getMessage());
+        }
+
+        Task task = (Task) taskListener.getNativeData(NATIVE_DATA_TASK_OBJECT);
+        task.addService(serviceInformation);
+        return null;
+    }
+
+    @SuppressWarnings("unchecked")
+    public static void init(ObjectValue taskListener) {
+        MapValue<String, Object> configurations = (MapValue<String, Object>) taskListener.get(
+                MEMBER_LISTENER_CONFIGURATION);
+        String configurationTypeName = configurations.getType().getName();
+        Task task;
+        try {
+            if (RECORD_TIMER_CONFIGURATION.equals(configurationTypeName)) {
+                task = processTimer(configurations);
+            } else { // Record type validates at the compile time; Hence we do not need exhaustive validation.
+                task = processAppointment(configurations);
+            }
+            taskListener.addNativeData(NATIVE_DATA_TASK_OBJECT, task);
+        } catch (SchedulingException e) {
+            LOG.error(e.getMessage(), e);
+            //TODO: Ideally this should return an Error using createError() method.
+            // Fix this once we can return errors from interop functions (Check with master)
+            throw new BLangRuntimeException(e.getMessage());
+        }
     }
 }

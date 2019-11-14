@@ -107,17 +107,17 @@ function resumeExternal(Listener task) returns ListenerError? = @java:Method {
 
 function stopExternal(Listener task) returns ListenerError? = @java:Method {
     name: "stop",
-    class: "org.ballerinalang.stdlib.task.service.Stop"
+    class: "org.ballerinalang.stdlib.task.actions.TaskActions"
 } external;
 
 function startExternal(Listener task) returns ListenerError? = @java:Method {
     name: "start",
-    class: "org.ballerinalang.stdlib.task.service.Start"
+    class: "org.ballerinalang.stdlib.task.actions.TaskActions"
 } external;
 
 function initExternal(Listener task) = @java:Method {
     name: "init",
-    class: "org.ballerinalang.stdlib.task.service.Init"
+    class: "org.ballerinalang.stdlib.task.actions.TaskActions"
 } external;
 
 function detachExternal(Listener task, service attachedService) returns ListenerError? = @java:Method {
@@ -127,5 +127,5 @@ function detachExternal(Listener task, service attachedService) returns Listener
 
 function attachExternal(Listener task, service s, map<any> config) returns ListenerError? = @java:Method {
     name: "attach",
-    class: "org.ballerinalang.stdlib.task.service.Attach"
+    class: "org.ballerinalang.stdlib.task.actions.TaskActions"
 } external;
