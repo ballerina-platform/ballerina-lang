@@ -60,7 +60,7 @@ public class Elements {
     }
 
     private static XMLValue<?> generateCodePointSequence(XMLValue<?> value) {
-        ArrayValue array = new ArrayValueImpl(new BArrayType(BTypes.typeXML));
+        ArrayValue array = new ArrayValueImpl(new BArrayType(BTypes.typeString));
         IteratorValue bIterator = value.getIterator();
         long i = 0;
         while (bIterator.hasNext()) {

@@ -61,6 +61,7 @@ public class TupleValueImpl extends AbstractArrayValue {
 
     protected BTupleType tupleType;
     Object[] refValues;
+    private int minSize = 0;
 
     // ------------------------ Constructors -------------------------------------------------------------------
 
@@ -69,12 +70,13 @@ public class TupleValueImpl extends AbstractArrayValue {
         this.refValues = values;
         this.tupleType = type;
         this.size = values.length;
+        this.minSize = type.getTupleTypes().size();
     }
 
     @Deprecated
     public TupleValueImpl(BTupleType type) {
         this.tupleType = type;
-        this.size = this.tupleType.getTupleTypes().size();
+        this.minSize = this.size = this.tupleType.getTupleTypes().size();
         this.maxSize = (type.getRestType() != null) ? this.maxSize : this.size;
         this.refValues = new Object[DEFAULT_ARRAY_SIZE];
         AtomicInteger counter = new AtomicInteger(0);
@@ -90,11 +92,9 @@ public class TupleValueImpl extends AbstractArrayValue {
     @Deprecated
     public TupleValueImpl(BTupleType type, long size) {
         this.tupleType = type;
-        if (size != -1) {
-            this.size = (int) size;
-            this.maxSize = (type.getRestType() != null) ? this.maxSize : (int) size;
-        }
-
+        this.size = (int) size;
+        this.minSize = type.getTupleTypes().size();
+        this.maxSize = (type.getRestType() != null) ? this.maxSize : (int) size;
         this.refValues = new Object[DEFAULT_ARRAY_SIZE];
     }
 
@@ -200,7 +200,7 @@ public class TupleValueImpl extends AbstractArrayValue {
      */
     @Override
     public void add(long index, long value) {
-        add(index, value);
+        add(index, Long.valueOf(value));
     }
 
     /**
@@ -211,7 +211,7 @@ public class TupleValueImpl extends AbstractArrayValue {
      */
     @Override
     public void add(long index, boolean value) {
-        add(index, value);
+        add(index, Boolean.valueOf(value));
     }
 
     /**
@@ -222,7 +222,7 @@ public class TupleValueImpl extends AbstractArrayValue {
      */
     @Override
     public void add(long index, byte value) {
-        add(index, value);
+        add(index, Byte.valueOf(value));
     }
 
     /**
@@ -233,7 +233,7 @@ public class TupleValueImpl extends AbstractArrayValue {
      */
     @Override
     public void add(long index, double value) {
-        add(index, value);
+        add(index, Double.valueOf(value));
     }
 
     /**
@@ -244,7 +244,7 @@ public class TupleValueImpl extends AbstractArrayValue {
      */
     @Override
     public void add(long index, String value) {
-        add(index, value);
+        add(index, (Object) value);
     }
 
     // -------------------------------------------------------------------------------------------------------------
@@ -515,7 +515,13 @@ public class TupleValueImpl extends AbstractArrayValue {
         rangeCheck(index, size);
 
         // check types
-        BType elemType = this.tupleType.getTupleTypes().get((int) index);
+        BType elemType;
+        if (index >= this.minSize) {
+            elemType = this.tupleType.getRestType();
+        } else {
+            elemType = this.tupleType.getTupleTypes().get((int) index);
+        }
+
         if (!TypeChecker.checkIsType(value, elemType)) {
             throw BallerinaErrors.createError(
                     getModulePrefixedReason(ARRAY_LANG_LIB, INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER),

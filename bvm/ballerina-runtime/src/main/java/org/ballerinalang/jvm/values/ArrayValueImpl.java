@@ -295,8 +295,31 @@ public class ArrayValueImpl extends AbstractArrayValue {
     @Override
     public void add(long index, Object value) {
         handleFrozenArrayValue();
-        prepareForAdd(index, value, refValues.length);
-        refValues[(int) index] = value;
+        switch (this.getElementType().getTag()) {
+            case TypeTags.BOOLEAN_TAG:
+                prepareForAdd(index, value, booleanValues.length);
+                this.booleanValues[(int) index] = ((Boolean) value).booleanValue();
+                return;
+            case TypeTags.FLOAT_TAG:
+                prepareForAdd(index, value, floatValues.length);
+                this.floatValues[(int) index] = ((Double) value).doubleValue();
+                return;
+            case TypeTags.BYTE_TAG:
+                prepareForAdd(index, value, byteValues.length);
+                this.byteValues[(int) index] = ((Integer) value).byteValue();
+                return;
+            case TypeTags.INT_TAG:
+                prepareForAdd(index, value, intValues.length);
+                this.intValues[(int) index] = ((Long) value).longValue();
+                return;
+            case TypeTags.STRING_TAG:
+                prepareForAdd(index, value, stringValues.length);
+                this.stringValues[(int) index] = (String) value;
+                return;
+            default:
+                prepareForAdd(index, value, refValues.length);
+                this.refValues[(int) index] = value;
+        }
     }
 
     /**
@@ -320,11 +343,6 @@ public class ArrayValueImpl extends AbstractArrayValue {
      */
     @Override
     public void add(long index, boolean value) {
-        if (elementType.getTag() == TypeTags.INT_TAG) {
-            add(index, value);
-            return;
-        }
-
         handleFrozenArrayValue();
         prepareForAdd(index, value, booleanValues.length);
         booleanValues[(int) index] = value;
