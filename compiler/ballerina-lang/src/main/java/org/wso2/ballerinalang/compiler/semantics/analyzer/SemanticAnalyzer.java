@@ -1007,7 +1007,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                             .collect(Collectors.toList());
 
                     if (possibleTypes.isEmpty()) {
-                        dlog.error(varNode.typeNode.pos, DiagnosticCode.INVALID_TUPLE_BINDING_PATTERN_DECL, varNode.type);
+                        dlog.error(varNode.pos, DiagnosticCode.INVALID_TUPLE_BINDING_PATTERN_DECL, varNode.type);
                         return false;
                     }
 
@@ -1059,7 +1059,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                     tupleTypeNode = (BTupleType) varNode.type;
                     break;
                 default:
-                    dlog.error(varNode.typeNode.pos, DiagnosticCode.INVALID_TUPLE_BINDING_PATTERN_DECL, varNode.type);
+                    dlog.error(varNode.pos, DiagnosticCode.INVALID_TUPLE_BINDING_PATTERN_DECL, varNode.type);
                     return false;
             }
         }
