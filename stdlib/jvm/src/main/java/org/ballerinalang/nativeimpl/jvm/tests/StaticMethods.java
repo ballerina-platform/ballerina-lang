@@ -17,6 +17,9 @@
  */
 package org.ballerinalang.nativeimpl.jvm.tests;
 
+import org.ballerinalang.jvm.BallerinaValues;
+import org.ballerinalang.jvm.types.BArrayType;
+import org.ballerinalang.jvm.types.BPackage;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.values.ArrayValue;
@@ -28,6 +31,7 @@ import org.ballerinalang.jvm.values.ObjectValue;
 import java.io.IOException;
 import java.util.Date;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * This class contains a set of utility static methods required for interoperability testing.
@@ -226,5 +230,22 @@ public class StaticMethods {
             throws JavaInteropTestCheckedException {
         e.put("name", newVal);
         return e;
+    }
+
+    public static MapValue getMapOrError(String swaggerFilePath, MapValue apiDef)
+            throws JavaInteropTestCheckedException {
+        String finalBasePath = "basePath";
+        AtomicLong runCount = new AtomicLong(0L);
+        ArrayValue arrayValue = new ArrayValue(new BArrayType(BallerinaValues.createRecordValue(new BPackage(
+                "", "."), "ResourceDefinition").getType()));
+        MapValue<String, Object> apiDefinitions = BallerinaValues.createRecordValue(new BPackage("",
+                "."), "ApiDefinition");
+        MapValue<String, Object> resource = BallerinaValues.createRecordValue(new BPackage("",
+                "."), "ResourceDefinition");
+        resource.put("path", finalBasePath);
+        resource.put("method", "Method string");
+        arrayValue.add(runCount.getAndIncrement(), resource);
+        apiDefinitions.put("resources", arrayValue);
+        return apiDefinitions;
     }
 }
