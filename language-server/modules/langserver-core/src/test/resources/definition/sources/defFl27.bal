@@ -131,9 +131,9 @@ function rangeNumericalTypeTestEqualityExprTest() {
 }
 
 function chekingExpr() returns error? {
-	int intVal = check getError();
-	int intVal2 = checkpanic getError();
-	int|error divided = trap divide(1, 0);
+    int intVal = check getError();
+    int intVal2 = checkpanic getError();
+    int|error divided = trap divide(1, 0);
 }
 
 function getError() returns error|int {

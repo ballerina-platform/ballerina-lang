@@ -96,6 +96,7 @@ public class BLangWaitForAllExpr extends BLangExpression implements WaitForAllEx
 
         @Override
         public void accept(BLangNodeVisitor visitor) {
+            visitor.visit(this);
         }
     }
 

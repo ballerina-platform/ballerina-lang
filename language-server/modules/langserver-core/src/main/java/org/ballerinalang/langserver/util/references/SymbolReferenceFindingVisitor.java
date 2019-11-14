@@ -66,6 +66,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeTestExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypedescExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWaitExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangWaitForAllExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerSyncSendExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttributeAccess;
@@ -350,15 +351,11 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
     public void visit(BLangSimpleVariableDef varDefNode) {
         BLangSimpleVariable variable = varDefNode.var;
         BLangType typeNode = variable.typeNode;
-        if (varDefNode.getWS() == null) {
+        if (varDefNode.isWorker) {
             if (varDefNode.var.expr instanceof BLangLambdaFunction
                     && ((BLangLambdaFunction) varDefNode.var.expr).function.flagSet.contains(Flag.WORKER)) {
                 return;
             }
-            /*
-             * TODO: Use alternative way to check for the variable future representation instead of null ws
-             * This is a worker representation.
-             */
             Optional<BLangFunction> workerFunction = this.getWorkerFunctionFromPosition(variable.pos);
             workerFunction.ifPresent(this::acceptNode);
             return;
@@ -739,6 +736,17 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
     @Override
     public void visit(BLangTrapExpr trapExpr) {
         this.acceptNode(trapExpr.expr);
+    }
+
+    @Override
+    public void visit(BLangWaitForAllExpr waitForAllExpr) {
+        waitForAllExpr.getKeyValuePairs().forEach(this::acceptNode);
+    }
+
+    @Override
+    public void visit(BLangWaitForAllExpr.BLangWaitKeyValue waitKeyValue) {
+        this.acceptNode(waitKeyValue.keyExpr);
+        this.acceptNode(waitKeyValue.valueExpr);
     }
 
     private void acceptNode(BLangNode node) {
