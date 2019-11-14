@@ -41,7 +41,7 @@ jobs:
       name: "Build without tests - Windows"
     - script:
       - while sleep 9m; do echo "=====[ $SECONDS seconds still running ]====="; done &
-      - ./gradlew build -x test -x createJavadoc --stacktrace -scan --console=plain --no-daemon
+      - ./gradlew build -x :language-server:language-server-core:test -x :ballerina-packerina:test -x :ballerina-lang:test -x :ballerina-http:test -x :ballerina-file:test -x :ballerina-task:test -x :ballerina-socket:test -x :jballerina-unit-test:test -x :plugin-vscode:test -x createJavadoc --stacktrace -scan --console=plain --no-daemon
       # Killing background sleep loop
       - kill %1
       name:  "Build without tests - Linux"
