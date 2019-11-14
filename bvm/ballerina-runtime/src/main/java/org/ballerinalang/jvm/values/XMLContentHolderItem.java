@@ -79,7 +79,7 @@ public class XMLContentHolderItem extends XMLValue<OMNode> {
     }
 
     @Override
-    public MapValue<String, ?> getAttributesMap() {
+    public MapValue<String, String> getAttributesMap() {
         return null;
     }
 

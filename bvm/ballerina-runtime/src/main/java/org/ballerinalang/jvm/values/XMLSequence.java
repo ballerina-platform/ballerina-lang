@@ -187,7 +187,7 @@ public final class XMLSequence extends XMLValue<ArrayValue> {
      * {@inheritDoc}
      */
     @Override
-    public MapValue<String, ?> getAttributesMap() {
+    public MapValue<String, String> getAttributesMap() {
         if (isSingleton()) {
             return children.get(0).getAttributesMap();
         }

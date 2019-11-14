@@ -18,6 +18,7 @@
 package org.ballerinalang.test.jvm;
 
 import org.ballerinalang.jvm.XMLFactory;
+import org.ballerinalang.jvm.values.XMLSequence;
 import org.ballerinalang.jvm.values.XMLValue;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
@@ -52,21 +53,23 @@ public class XMLTest {
     @Test
     public void test() {
         XMLValue<?> test = XMLFactory.parse2(
-                "<?xml version=\"1.0\"  encoding=\"UTF-8\"?>" +
                 "<?proc h=\"data\" p=\"more data\" ?>" +
                 "<!-- cmnt -->" +
-                "<elem>" +
-                        "bunch of text" +
+                "<elem xmlns=\"iiiiii\">" +
+                    "bunch of text" +
+                    "<hello xmlns=\"xxxx\" xmlns:ns=\"ns-url-0\" ns:attr=\"blah\" >" +
+                        "<ns:elem ns:at=\"the at\" />" +
+                        "<elkk xmlns=\"http://xxxx.com/kkk\">abc</elkk>" +
+                    "</hello>" +
+                "</elem>");
 //                "<![CDATA[\n" +
 //                        "while (x < len && !done)  {\n" +
 //                        "    print( \"Still working, 'zzzz'.\" );\n" +
 //                        "    ++x;\n" +
 //                        "    }\n" +
 //                        "]]>" +
-                "<hello xmlns=\"xxxx\" xmlns:ns=\"ns-url-0\" ns:attr=\"blah\" >" +
-                        "<ns:elem ns:at=\"the at\" />" +
-                        "</hello>" +
-                "</elem>");
+        ((XMLSequence) test).getChildrenList().get(2)
+                .getAttributesMap().put("{stud-url}attrX", "val");
         String s = test.toString();
         Assert.assertEquals(s, "");
         int i = 0;
