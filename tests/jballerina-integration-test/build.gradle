@@ -192,4 +192,4 @@ task copyToLib(type: Copy) {
     from configurations.testLibs
 }
 
-build.dependsOn(copyToLib)
+test.dependsOn(copyToLib)
