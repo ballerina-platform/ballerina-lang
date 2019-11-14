@@ -21,6 +21,7 @@ import org.ballerinalang.langserver.completion.CompletionTest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.DataProvider;
+import org.testng.annotations.Test;
 
 /**
  * Completion item tests for function definition.
@@ -34,8 +35,8 @@ public class TestablePackageCompletionTest extends CompletionTest {
     public Object[][] dataProvider() {
         log.info("Test textDocument/completion for Function Definition Scope");
         return new Object[][] {
-                {"topLevelCompletion.json", "testablepackage"},
-                {"blockStatementCompletion.json", "testablepackage"},
+//                {"topLevelCompletion.json", "testablepackage"},
+//                {"blockStatementCompletion.json", "testablepackage"},
         };
     }
 }
