@@ -76,8 +76,7 @@ public class WebSocketClientHandshakeListener implements ClientHandshakeListener
         }
         setWebSocketClient(webSocketClient, carbonResponse, webSocketConnection, retryConfig);
         WebSocketConnectionInfo connectionInfo = WebSocketUtil.getWebSocketOpenConnectionInfo(webSocketConnection,
-                webSocketConnector,
-                webSocketClient, wsService);
+                webSocketConnector, webSocketClient, wsService);
         clientConnectorListener.setConnectionInfo(connectionInfo);
         // Read the next frame when readyOnConnect is true or isReady is true
         WebSocketUtil.readNextFrame(readyOnConnect, webSocketClient, webSocketConnection);

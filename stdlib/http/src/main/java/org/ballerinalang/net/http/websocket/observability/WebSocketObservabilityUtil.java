@@ -22,6 +22,7 @@ import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.net.http.websocket.WebSocketConstants;
 import org.ballerinalang.net.http.websocket.WebSocketService;
+import org.ballerinalang.net.http.websocket.client.FailoverContext;
 import org.ballerinalang.net.http.websocket.server.WebSocketConnectionInfo;
 import org.ballerinalang.net.http.websocket.server.WebSocketServerService;
 import org.slf4j.Logger;
@@ -209,7 +210,14 @@ public class WebSocketObservabilityUtil {
         if (service instanceof WebSocketServerService) {
             return ((WebSocketServerService) service).getBasePath();
         } else {
-            return connectionInfo.getWebSocketEndpoint().getStringValue("url");
+            if (connectionInfo.getWebSocketEndpoint().getType().getName().
+                    equalsIgnoreCase(WebSocketConstants.FAILOVER_WEBSOCKET_CLIENT)) {
+                FailoverContext failoverConfig = (FailoverContext) connectionInfo.getWebSocketEndpoint().
+                        getNativeData(WebSocketConstants.FAILOVER_CONFIG);
+                return failoverConfig.getTargetUrls().get(failoverConfig.getCurrentIndex());
+            } else {
+                return connectionInfo.getWebSocketEndpoint().getStringValue("url");
+            }
         }
     }
 
