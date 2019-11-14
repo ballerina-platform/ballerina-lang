@@ -3611,27 +3611,6 @@ public class TypeChecker extends BLangNodeVisitor {
         return false;
     }
 
-    private BType checkRecLiteralKeyExpr(BLangExpression keyExpr) {
-        // If the key is not at identifier (i.e: varRef), check the expression
-        if (keyExpr.getKind() != NodeKind.SIMPLE_VARIABLE_REF) {
-            return checkExpr(keyExpr, this.env, symTable.stringType);
-        }
-
-        // If the key expression is an identifier then we simply set the type as string.
-        keyExpr.type = symTable.stringType;
-        return keyExpr.type;
-    }
-
-    private BType checkIndexExprForObjectFieldAccess(BLangExpression indexExpr) {
-        if (indexExpr.getKind() != NodeKind.LITERAL && indexExpr.getKind() != NodeKind.NUMERIC_LITERAL) {
-            indexExpr.type = symTable.semanticError;
-            dlog.error(indexExpr.pos, DiagnosticCode.INVALID_INDEX_EXPR_STRUCT_FIELD_ACCESS);
-            return indexExpr.type;
-        }
-
-        return checkExpr(indexExpr, this.env, symTable.stringType);
-    }
-
     private BType addNilForNillableIndexBasedAccess(BType actualType) {
         // index based map/record access always returns a nil-able type for optional/rest fields.
         if (actualType.isNullable()) {
@@ -3812,23 +3791,6 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         return newChildren;
-    }
-
-    private BLangExpression getBinaryAddExpr(BLangExpression lExpr, BLangExpression rExpr, BSymbol opSymbol) {
-        BLangBinaryExpr binaryExpressionNode = (BLangBinaryExpr) TreeBuilder.createBinaryExpressionNode();
-        binaryExpressionNode.lhsExpr = lExpr;
-        binaryExpressionNode.rhsExpr = rExpr;
-        binaryExpressionNode.pos = rExpr.pos;
-        binaryExpressionNode.opKind = OperatorKind.ADD;
-        if (opSymbol != symTable.notFoundSymbol) {
-            binaryExpressionNode.type = opSymbol.type.getReturnType();
-            binaryExpressionNode.opSymbol = (BOperatorSymbol) opSymbol;
-        } else {
-            binaryExpressionNode.type = symTable.semanticError;
-        }
-
-        types.checkType(binaryExpressionNode, binaryExpressionNode.type, symTable.stringType);
-        return binaryExpressionNode;
     }
 
     private BLangExpression getXMLTextLiteral(List<BLangExpression> exprs) {
