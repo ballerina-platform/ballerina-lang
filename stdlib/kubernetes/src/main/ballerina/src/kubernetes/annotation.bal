@@ -279,7 +279,7 @@ public type Secret record {|
 
 #Secret volume mount configurations for kubernetes.
 #
-# + secrets - Array of [Secret](kubernetes.html#Secret)
+# + secrets - Array of Secret
 public type SecretMount record {|
     Secret[] secrets;
 |};
@@ -302,7 +302,7 @@ public type ConfigMap record {|
 # Secret volume mount configurations for kubernetes.
 #
 # + conf - path to ballerina configuration file
-# + configMaps - Array of [ConfigMap](kubernetes.html#ConfigMap)
+# + configMaps - Array of ConfigMap
 public type ConfigMapMount record {|
     string conf;
     ConfigMap[] configMaps?;
@@ -327,7 +327,7 @@ public type PersistentVolumeClaimConfig record {|
 
 # Persistent Volume Claims configurations for kubernetes.
 #
-# + volumeClaims - Array of [PersistentVolumeClaimConfig](kubernetes.html#PersistentVolumeClaimConfig)
+# + volumeClaims - Array of PersistentVolumeClaimConfig
 public type PersistentVolumeClaims record {|
     PersistentVolumeClaimConfig[] volumeClaims;
 |};
@@ -350,7 +350,7 @@ public type ResourceQuotaConfig record {|
 
 # Resource Quota configuration for kubernetes.
 #
-# + resourceQuotas - Array of [ResourceQuotaConfig](kubernetes.html#ResourceQuotaConfig)
+# + resourceQuotas - Array of ResourceQuotaConfig
 public type ResourceQuotas record {|
     ResourceQuotaConfig[] resourceQuotas;
 |};
