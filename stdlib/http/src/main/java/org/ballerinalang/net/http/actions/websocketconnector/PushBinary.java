@@ -26,6 +26,8 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.http.websocket.WebSocketConstants;
 import org.ballerinalang.net.http.websocket.WebSocketUtil;
+import org.ballerinalang.net.http.websocket.observability.WebSocketObservabilityConstants;
+import org.ballerinalang.net.http.websocket.observability.WebSocketObservabilityUtil;
 import org.ballerinalang.net.http.websocket.server.WebSocketConnectionInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,14 +52,22 @@ public class PushBinary {
     public static Object pushBinary(Strand strand, ObjectValue wsConnection, ArrayValue binaryData,
                                     boolean finalFrame) {
         NonBlockingCallback callback = new NonBlockingCallback(strand);
+        WebSocketConnectionInfo connectionInfo = (WebSocketConnectionInfo) wsConnection
+                .getNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_CONNECTION_INFO);
+        WebSocketObservabilityUtil.observeResourceInvocation(strand, connectionInfo,
+                                                             WebSocketConstants.RESOURCE_NAME_PUSH_BINARY);
         try {
-            WebSocketConnectionInfo connectionInfo = (WebSocketConnectionInfo) wsConnection
-                    .getNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_CONNECTION_INFO);
             ChannelFuture webSocketChannelFuture = connectionInfo.getWebSocketConnection().pushBinary(
                     ByteBuffer.wrap(binaryData.getBytes()), finalFrame);
             WebSocketUtil.handleWebSocketCallback(callback, webSocketChannelFuture, log);
+            WebSocketObservabilityUtil.observeSend(WebSocketObservabilityConstants.MESSAGE_TYPE_BINARY,
+                                                   connectionInfo);
         } catch (Exception e) {
             log.error("Error occurred when pushing binary data", e);
+            WebSocketObservabilityUtil.observeError(WebSocketObservabilityUtil.getConnectionInfo(wsConnection),
+                                                    WebSocketObservabilityConstants.ERROR_TYPE_MESSAGE_SENT,
+                                                    WebSocketObservabilityConstants.MESSAGE_TYPE_BINARY,
+                                                    e.getMessage());
             callback.notifyFailure(WebSocketUtil.createErrorByType(e));
         }
         return null;
