@@ -142,7 +142,19 @@ public class Symbols {
                                                PackageID pkgID,
                                                BType type,
                                                BSymbol owner) {
+        if (type != null && type.tag == TypeTags.INVOKABLE) {
+            return createInvokableTypeSymbol(symTag, flags, name, pkgID, type, owner);
+        }
         return new BTypeSymbol(symTag, flags, name, pkgID, type, owner);
+    }
+
+    public static BInvokableTypeSymbol createInvokableTypeSymbol(int symTag,
+                                                                 int flags,
+                                                                 Name name,
+                                                                 PackageID pkgID,
+                                                                 BType type,
+                                                                 BSymbol owner) {
+        return new BInvokableTypeSymbol(symTag, flags, name, pkgID, type, owner);
     }
 
     public static BInvokableSymbol createInvokableSymbol(int kind,
