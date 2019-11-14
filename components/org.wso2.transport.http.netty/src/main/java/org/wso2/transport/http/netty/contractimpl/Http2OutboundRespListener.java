@@ -64,6 +64,7 @@ public class Http2OutboundRespListener implements HttpConnectorListener {
 
     private Http2MessageStateContext http2MessageStateContext;
     private HttpCarbonMessage inboundRequestMsg;
+    private HttpCarbonMessage outboundResponseMsg;
     private ChannelHandlerContext ctx;
     private Http2ConnectionEncoder encoder;
     private int originalStreamId;   // stream id of the request received from the client
@@ -102,6 +103,7 @@ public class Http2OutboundRespListener implements HttpConnectorListener {
 
     @Override
     public void onMessage(HttpCarbonMessage outboundResponseMsg) {
+        this.outboundResponseMsg = outboundResponseMsg;
         writeMessage(outboundResponseMsg, originalStreamId, true);
     }
 
@@ -277,6 +279,10 @@ public class Http2OutboundRespListener implements HttpConnectorListener {
         return inboundRequestMsg;
     }
 
+    public HttpCarbonMessage getOutboundResponseMsg() {
+        return outboundResponseMsg;
+    }
+
     public Http2Connection getConnection() {
         return conn;
     }
@@ -299,6 +305,10 @@ public class Http2OutboundRespListener implements HttpConnectorListener {
 
     public void removeDefaultResponseWriter() {
         remoteFlowControlListener.removeResponseWriter(defaultResponseWriter);
+    }
+
+    public void removeBackPressureListener() {
+        defaultResponseWriter.getBackPressureObservable().removeListener();
     }
 
     public Http2ServerChannel getHttp2ServerChannel() {

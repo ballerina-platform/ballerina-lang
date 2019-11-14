@@ -38,9 +38,13 @@ import org.wso2.transport.http.netty.message.Http2HeadersFrame;
 import org.wso2.transport.http.netty.message.Http2PushPromise;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
+import java.io.IOException;
+
 import static org.wso2.transport.http.netty.contract.Constants.HTTP2_SERVER_TIMEOUT_ERROR_MESSAGE;
 import static org.wso2.transport.http.netty.contract.Constants.IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_OUTBOUND_RESPONSE;
+import static org.wso2.transport.http.netty.contract.Constants.REMOTE_CLIENT_CLOSED_BEFORE_INITIATING_OUTBOUND_RESPONSE;
 import static org.wso2.transport.http.netty.contractimpl.common.states.Http2StateUtil.writeHttp2Promise;
+import static org.wso2.transport.http.netty.contractimpl.common.states.StateUtil.CONNECTOR_NOTIFYING_ERROR;
 
 /**
  * State between end of inbound request payload read and start of outbound response or push response headers write.
@@ -85,12 +89,8 @@ public class EntityBodyReceived implements ListenerState {
             http2MessageStateContext.getListenerState()
                     .writeOutboundResponseBody(http2OutboundRespListener, outboundResponseMsg, httpContent, streamId);
         } else {
-            // When the initial frames of the response is to be sent.
-            http2MessageStateContext.setListenerState(
-                    new SendingHeaders(http2OutboundRespListener, http2MessageStateContext));
-            http2MessageStateContext.getListenerState()
-                    .writeOutboundResponseHeaders(http2OutboundRespListener, outboundResponseMsg, httpContent,
-                            streamId);
+            Http2StateUtil.beginResponseWrite(http2MessageStateContext, http2OutboundRespListener,
+                                              outboundResponseMsg, httpContent, streamId);
         }
     }
 
@@ -118,5 +118,18 @@ public class EntityBodyReceived implements ListenerState {
         Http2StateUtil.sendRequestTimeoutResponse(ctx, http2OutboundRespListener, streamId,
                                                   HttpResponseStatus.INTERNAL_SERVER_ERROR, Unpooled.copiedBuffer(
                         HTTP2_SERVER_TIMEOUT_ERROR_MESSAGE, CharsetUtil.UTF_8), false, false);
+    }
+
+    @Override
+    public void handleAbruptChannelClosure(ServerConnectorFuture serverConnectorFuture, ChannelHandlerContext ctx,
+                                           Http2OutboundRespListener http2OutboundRespListener, int streamId) {
+        http2OutboundRespListener.getOutboundResponseMsg().setIoException(
+                new IOException(REMOTE_CLIENT_CLOSED_BEFORE_INITIATING_OUTBOUND_RESPONSE));
+        try {
+            serverConnectorFuture.notifyErrorListener(
+                    new ServerConnectorException(REMOTE_CLIENT_CLOSED_BEFORE_INITIATING_OUTBOUND_RESPONSE));
+        } catch (ServerConnectorException e) {
+            LOG.error(CONNECTOR_NOTIFYING_ERROR, e);
+        }
     }
 }

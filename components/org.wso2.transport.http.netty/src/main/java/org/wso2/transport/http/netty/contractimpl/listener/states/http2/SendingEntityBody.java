@@ -52,12 +52,14 @@ import org.wso2.transport.http.netty.message.Http2HeadersFrame;
 import org.wso2.transport.http.netty.message.Http2PushPromise;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
+import java.io.IOException;
 import java.util.Calendar;
 
 import static org.wso2.transport.http.netty.contract.Constants.ACCESS_LOG;
 import static org.wso2.transport.http.netty.contract.Constants.ACCESS_LOG_FORMAT;
 import static org.wso2.transport.http.netty.contract.Constants.HTTP_X_FORWARDED_FOR;
 import static org.wso2.transport.http.netty.contract.Constants.IDLE_TIMEOUT_TRIGGERED_WHILE_WRITING_OUTBOUND_RESPONSE_BODY;
+import static org.wso2.transport.http.netty.contract.Constants.REMOTE_CLIENT_CLOSED_WHILE_WRITING_OUTBOUND_RESPONSE_BODY;
 import static org.wso2.transport.http.netty.contract.Constants.TO;
 import static org.wso2.transport.http.netty.contractimpl.common.states.Http2StateUtil.validatePromisedStreamState;
 
@@ -81,6 +83,7 @@ public class SendingEntityBody implements ListenerState {
     private final Calendar inboundRequestArrivalTime;
     private final int originalStreamId;
     private final Http2OutboundRespListener http2OutboundRespListener;
+    private HttpCarbonMessage outboundResponseMsg;
 
     private Long contentLength = 0L;
     private String remoteAddress;
@@ -125,6 +128,7 @@ public class SendingEntityBody implements ListenerState {
     public void writeOutboundResponseBody(Http2OutboundRespListener http2OutboundRespListener,
                                           HttpCarbonMessage outboundResponseMsg, HttpContent httpContent,
                                           int streamId) throws Http2Exception {
+        this.outboundResponseMsg = outboundResponseMsg;
         writeContent(http2OutboundRespListener, outboundResponseMsg, httpContent, streamId);
     }
 
@@ -146,6 +150,16 @@ public class SendingEntityBody implements ListenerState {
         } catch (ServerConnectorException e) {
             LOG.error("Error while notifying error state to server-connector listener");
         }
+    }
+
+    @Override
+    public void handleAbruptChannelClosure(ServerConnectorFuture serverConnectorFuture, ChannelHandlerContext ctx,
+                                           Http2OutboundRespListener http2OutboundRespListener, int streamId) {
+        IOException connectionClose = new IOException(REMOTE_CLIENT_CLOSED_WHILE_WRITING_OUTBOUND_RESPONSE_BODY);
+        outboundResponseMsg.setIoException(connectionClose);
+        outboundRespStatusFuture.notifyHttpListener(connectionClose);
+
+        LOG.error(REMOTE_CLIENT_CLOSED_WHILE_WRITING_OUTBOUND_RESPONSE_BODY);
     }
 
     private void writeContent(Http2OutboundRespListener http2OutboundRespListener,

@@ -98,7 +98,7 @@ public class WebSocketClientHandshakeHandler extends ChannelInboundHandlerAdapte
                     false, secure, requestedUri, handshaker.actualSubprotocol(), connectorFuture,
                     webSocketMessageQueueHandler);
             channel.pipeline().addLast(Constants.WEBSOCKET_FRAME_HANDLER, inboundFrameHandler);
-            channel.pipeline().remove(Constants.WEBSOCKET_CLIENT_HANDSHAKE_HANDLER);
+            channel.pipeline().remove(this);
             DefaultWebSocketConnection webSocketConnection = inboundFrameHandler.getWebSocketConnection();
             if (autoRead) {
                 webSocketConnection.startReadingFrames();

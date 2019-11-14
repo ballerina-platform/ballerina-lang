@@ -100,4 +100,15 @@ public interface ListenerState {
      */
     void handleStreamTimeout(ServerConnectorFuture serverConnectorFuture, ChannelHandlerContext ctx,
                              Http2OutboundRespListener http2OutboundRespListener, int streamId);
+
+    /**
+     * Handles the abrupt channel closure.
+     *
+     * @param serverConnectorFuture     the sever connector future
+     * @param ctx                       the channel handler context
+     * @param http2OutboundRespListener the http/2 outbound response listener
+     * @param streamId                  the stream id
+     */
+    void handleAbruptChannelClosure(ServerConnectorFuture serverConnectorFuture, ChannelHandlerContext ctx,
+                                    Http2OutboundRespListener http2OutboundRespListener, int streamId);
 }

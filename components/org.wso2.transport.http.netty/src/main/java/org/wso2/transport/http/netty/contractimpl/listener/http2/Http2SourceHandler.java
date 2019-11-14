@@ -179,6 +179,9 @@ public final class Http2SourceHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) {
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Channel inactive event received in HTTP2SourceHandler");
+        }
         destroy();
         closeTargetChannels();
         ctx.fireChannelInactive();
@@ -191,6 +194,17 @@ public final class Http2SourceHandler extends ChannelInboundHandlerAdapter {
     }
 
     private void destroy() {
+        //Handle channel close for all the streams in the connection.
+        LOG.debug("Inbound request map size {}", http2ServerChannel.getStreamIdRequestMap().size());
+        http2ServerChannel.getStreamIdRequestMap().forEach((streamId, inboundMessageHolder) -> {
+            HttpCarbonMessage inboundMsg = inboundMessageHolder.getInboundMsg();
+            LOG.debug("Listener state {}", inboundMsg.getHttp2MessageStateContext().getListenerState());
+            inboundMsg.getHttp2MessageStateContext().getListenerState()
+                    .handleAbruptChannelClosure(serverConnectorFuture, getChannelHandlerContext(),
+                                                inboundMessageHolder.getHttp2OutboundRespListener(), streamId);
+            inboundMessageHolder.getHttp2OutboundRespListener().removeDefaultResponseWriter();
+            inboundMessageHolder.getHttp2OutboundRespListener().removeBackPressureListener();
+        });
         http2ServerChannel.getDataEventListeners().forEach(Http2DataEventListener::destroy);
         http2ServerChannel.destroy();
     }
