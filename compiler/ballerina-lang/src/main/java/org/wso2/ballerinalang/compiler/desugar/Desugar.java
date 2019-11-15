@@ -31,6 +31,7 @@ import org.ballerinalang.model.tree.statements.BlockNode;
 import org.ballerinalang.model.tree.statements.StreamingQueryStatementNode;
 import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
 import org.ballerinalang.model.tree.types.TypeNode;
+import org.ballerinalang.model.types.Type;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.Transactions;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolEnter;
@@ -348,17 +349,20 @@ public class Desugar extends BLangNodeVisitor {
                     continue;
                 }
 
-                if (objectTypeNode.initFunction == null) {
-                    objectTypeNode.initFunction = createInitFunctionForStructureType(objectTypeNode, env,
-                                                                                     Names.USER_DEFINED_INIT_SUFFIX);
-                }
+                objectTypeNode.defInitFunction = createInitFunctionForStructureType2(objectTypeNode, env,
+                        Names.DEFAULT_INIT_SUFFIX);
 
-                // Add init function to the attached function list
+                // Add default init function to the attached function list
                 BObjectTypeSymbol objectSymbol = ((BObjectTypeSymbol) objectTypeNode.type.tsymbol);
-                objectSymbol.attachedFuncs.add(objectSymbol.initializerFunc);
+                objectSymbol.attachedFuncs.add(objectSymbol.defaultInitializerFunc);
+                pkgNode.functions.add(objectTypeNode.defInitFunction);
+                pkgNode.topLevelNodes.add(objectTypeNode.defInitFunction);
 
-                pkgNode.functions.add(objectTypeNode.initFunction);
-                pkgNode.topLevelNodes.add(objectTypeNode.initFunction);
+                if (objectTypeNode.initFunction != null) {
+                    objectSymbol.attachedFuncs.add(objectSymbol.initializerFunc);
+                    pkgNode.functions.add(objectTypeNode.initFunction);
+                    pkgNode.topLevelNodes.add(objectTypeNode.initFunction);
+                }
             } else if (typeDef.symbol.tag == SymTag.RECORD) {
                 BLangRecordTypeNode recordTypeNod = (BLangRecordTypeNode) typeDef.typeNode;
                 pkgNode.functions.add(recordTypeNod.initFunction);
@@ -582,20 +586,20 @@ public class Desugar extends BLangNodeVisitor {
         }
 
         // Add object level variables to the init function.
-        Map<BSymbol, BLangStatement> initFunctionStmts = objectTypeNode.initFunction.initFunctionStmts;
+        Map<BSymbol, BLangStatement> initFunctionStmts = objectTypeNode.defInitFunction.initFunctionStmts;
         objectTypeNode.fields.stream()
                 // skip if the field is already have an value set by the constructor.
                 .filter(field -> !initFunctionStmts.containsKey(field.symbol))
                 .filter(field -> field.expr != null)
                 .forEachOrdered(field -> {
                     initFunctionStmts.put(field.symbol,
-                            createStructFieldUpdate(objectTypeNode.initFunction, field));
+                            createStructFieldUpdate(objectTypeNode.defInitFunction, field));
                 });
 
         // Adding init statements to the init function.
         BLangStatement[] initStmts = initFunctionStmts.values().toArray(new BLangStatement[0]);
         for (int i = 0; i < initFunctionStmts.size(); i++) {
-            objectTypeNode.initFunction.body.stmts.add(i, initStmts[i]);
+            objectTypeNode.defInitFunction.body.stmts.add(i, initStmts[i]);
         }
 
         result = objectTypeNode;
@@ -3357,8 +3361,12 @@ public class Desugar extends BLangNodeVisitor {
                 break;
             default:
                 if (typeInitExpr.type.tag == TypeTags.OBJECT && typeInitExpr.initInvocation.symbol == null) {
-                    typeInitExpr.initInvocation.symbol =
-                            ((BObjectTypeSymbol) typeInitExpr.type.tsymbol).initializerFunc.symbol;
+                    if (((BObjectTypeSymbol) typeInitExpr.type.tsymbol).initializerFunc != null) {
+                        typeInitExpr.initInvocation.symbol =
+                                ((BObjectTypeSymbol) typeInitExpr.type.tsymbol).initializerFunc.symbol;
+                    } else {
+                        typeInitExpr.initInvocation = null;
+                    }
                 }
                 result = rewrite(desugarObjectTypeInit(typeInitExpr), env);
         }
@@ -3373,6 +3381,31 @@ public class Desugar extends BLangNodeVisitor {
         BLangSimpleVariableDef objVarDef = createVarDef("$obj$", objType, typeInitExpr, typeInitExpr.pos);
         BLangSimpleVarRef objVarRef = ASTBuilderUtil.createVariableRef(typeInitExpr.pos, objVarDef.var.symbol);
         blockStmt.addStatement(objVarDef);
+
+        BInvokableSymbol defaultInitializerSymbol = null;
+        if (typeInitExpr.type.getKind() == TypeKind.UNION) {
+            for (BType member : new ArrayList<>(((BUnionType) typeInitExpr.type).getMemberTypes())) {
+                if (member.getKind() == TypeKind.OBJECT) {
+                    defaultInitializerSymbol = ((BObjectTypeSymbol) member.tsymbol).defaultInitializerFunc.symbol;
+                    break;
+                }
+            }
+        } else {
+            defaultInitializerSymbol = ((BObjectTypeSymbol) typeInitExpr.type.tsymbol)
+                    .defaultInitializerFunc.symbol;
+        }
+
+        BLangExpressionStmt defaultInitInvExpr = ASTBuilderUtil.createExpressionStmt(typeInitExpr.pos, blockStmt);
+        BLangInvocation defaultInvocation = ASTBuilderUtil.createInvocationExprMethod(typeInitExpr.pos, defaultInitializerSymbol,
+                Collections.emptyList(), Collections.emptyList(), symResolver);
+        defaultInvocation.exprSymbol = objVarDef.var.symbol;
+        defaultInitInvExpr.expr = rewriteExpr(defaultInvocation);
+
+        if (typeInitExpr.initInvocation == null) {
+            BLangStatementExpression stmtExpr = ASTBuilderUtil.createStatementExpression(blockStmt, objVarRef);
+            stmtExpr.type = objVarRef.symbol.type;
+            return stmtExpr;
+        }
         typeInitExpr.initInvocation.exprSymbol = objVarDef.var.symbol;
 
         // __init() returning nil is the common case and the type test is not needed for it.
@@ -6282,6 +6315,50 @@ public class Desugar extends BLangNodeVisitor {
         structureTypeNode.initFunction = initFunction;
         return rewrite(initFunction, env);
     }
+
+private BLangFunction createInitFunctionForStructureType2(BLangObjectTypeNode structureTypeNode, SymbolEnv env,
+                                                             Name suffix) {
+        BLangFunction initFunction = ASTBuilderUtil
+                .createInitFunctionWithNilReturn(structureTypeNode.pos, Names.EMPTY.value, suffix);
+
+        // Create the receiver
+        initFunction.receiver = ASTBuilderUtil.createReceiver(structureTypeNode.pos, structureTypeNode.type);
+        BVarSymbol receiverSymbol = new BVarSymbol(Flags.asMask(EnumSet.noneOf(Flag.class)),
+                names.fromIdNode(initFunction.receiver.name),
+                env.enclPkg.symbol.pkgID, structureTypeNode.type, null);
+        initFunction.receiver.symbol = receiverSymbol;
+
+        initFunction.type = new BInvokableType(new ArrayList<>(), symTable.nilType, null);
+        initFunction.attachedFunction = true;
+        initFunction.flagSet.add(Flag.ATTACHED);
+
+        // Create function symbol
+        Name funcSymbolName = names.fromString(Symbols.getAttachedFuncSymbolName(
+               structureTypeNode.type.tsymbol.name.value, suffix.value));
+        initFunction.symbol = Symbols
+                .createFunctionSymbol(Flags.asMask(initFunction.flagSet), funcSymbolName, env.enclPkg.symbol.pkgID,
+                        initFunction.type, structureTypeNode.symbol.scope.owner,
+                        initFunction.body != null);
+        initFunction.symbol.scope = new Scope(initFunction.symbol);
+        initFunction.symbol.scope.define(receiverSymbol.name, receiverSymbol);
+        initFunction.symbol.receiverSymbol = receiverSymbol;
+        receiverSymbol.owner = initFunction.symbol;
+
+        // Add return type as nil to the symbol
+        initFunction.symbol.retType = symTable.nilType;
+
+        // Set the taint information to the constructed init function
+        initFunction.symbol.taintTable = new HashMap<>();
+        TaintRecord taintRecord = new TaintRecord(TaintRecord.TaintedStatus.UNTAINTED, new ArrayList<>());
+        initFunction.symbol.taintTable.put(TaintAnalyzer.ALL_UNTAINTED_TABLE_ENTRY_INDEX, taintRecord);
+
+        // Update Object type with attached function details
+        BObjectTypeSymbol typeSymbol = ((BObjectTypeSymbol) structureTypeNode.type.tsymbol);
+        typeSymbol.defaultInitializerFunc = new BAttachedFunction(suffix, initFunction.symbol,
+                (BInvokableType) initFunction.type);
+        structureTypeNode.defInitFunction = initFunction;
+        return rewrite(initFunction, env);
+     }
 
     private void visitBinaryLogicalExpr(BLangBinaryExpr binaryExpr) {
         /*

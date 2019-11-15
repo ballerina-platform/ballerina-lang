@@ -316,25 +316,38 @@ function generateObjectValueCreateMethod(jvm:ClassWriter cw, bir:TypeDef?[] obje
         mv.visitVarInsn(ALOAD, tempVarIndex);
         mv.visitVarInsn(ALOAD, strandVarIndex);
 
-        mv.visitLdcInsn("__init");
-        mv.visitVarInsn(ALOAD, argsIndex);
+        mv.visitLdcInsn("$__init$");
+        mv.visitInsn(ACONST_NULL);
 
         string methodDesc = io:sprintf("(L%s;L%s;[L%s;)L%s;", STRAND, STRING_VALUE, OBJECT, OBJECT);
         mv.visitMethodInsn(INVOKEINTERFACE, OBJECT_VALUE, "call", methodDesc, true);
 
-        bir:VariableDcl tempResult = { typeValue: "any",
-                                    name: { value: "tempResult" },
-                                    kind: "LOCAL" };
-        int tempResultIndex = indexMap.getIndex(tempResult);
-        mv.visitVarInsn(ASTORE, tempResultIndex);
-        mv.visitVarInsn(ALOAD, tempResultIndex);
-        mv.visitTypeInsn(INSTANCEOF, ERROR_VALUE);
-        jvm:Label noErrorLabel = new jvm:Label();
-        mv.visitJumpInsn(IFEQ, noErrorLabel);
-        mv.visitVarInsn(ALOAD, tempResultIndex);
-        mv.visitTypeInsn(CHECKCAST, ERROR_VALUE);
-        mv.visitInsn(ATHROW);
-        mv.visitLabel(noErrorLabel);
+        mv.visitInsn(POP);
+
+        bir:BObjectType objType = <bir:BObjectType> typeDef.typeValue;
+        if !(objType.constructor is ()) {
+            mv.visitVarInsn(ALOAD, tempVarIndex);
+            mv.visitVarInsn(ALOAD, strandVarIndex);
+            mv.visitLdcInsn("__init");
+            mv.visitVarInsn(ALOAD, argsIndex);
+
+            mv.visitMethodInsn(INVOKEINTERFACE, OBJECT_VALUE, "call", methodDesc, true);
+
+            bir:VariableDcl tempResult = { typeValue: "any",
+                                        name: { value: "tempResult" },
+                                        kind: "LOCAL" };
+            int tempResultIndex = indexMap.getIndex(tempResult);
+            mv.visitVarInsn(ASTORE, tempResultIndex);
+            mv.visitVarInsn(ALOAD, tempResultIndex);
+            mv.visitTypeInsn(INSTANCEOF, ERROR_VALUE);
+            jvm:Label noErrorLabel = new jvm:Label();
+            mv.visitJumpInsn(IFEQ, noErrorLabel);
+            mv.visitVarInsn(ALOAD, tempResultIndex);
+            mv.visitTypeInsn(CHECKCAST, ERROR_VALUE);
+            mv.visitInsn(ATHROW);
+            mv.visitLabel(noErrorLabel);
+        }
+
         mv.visitVarInsn(ALOAD, tempVarIndex);
         mv.visitInsn(ARETURN);
 
