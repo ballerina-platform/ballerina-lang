@@ -1257,6 +1257,9 @@ public class HttpUtil {
         if (disableSslValidation) {
             sslConfiguration.disableSsl();
             return;
+        } else if (StringUtils.isEmpty(trustCerts) && trustStore == null) {
+            sslConfiguration.useJavaDefaults();
+            return;
         }
         if (trustStore != null && StringUtils.isNotBlank(trustCerts)) {
             throw createHttpError("Cannot configure both trustStore and trustCerts at the same time.",
