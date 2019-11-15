@@ -203,8 +203,9 @@ public class ObjectInitializerTest {
     @Test(description = "Test invoking '__init' function with args in a function inside object descriptor when field " +
             "values are being changed.")
     public void testInitInvocationInsideObjectForChangingFieldValuesWithArgs() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testInitInvocationInsideObjectForChangingFieldValues");
+        BValue[] returns = BRunUtil.invoke(compileResult,
+                "testInitInvocationInsideObjectForChangingFieldValuesWithArgs");
 
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 80);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 82);
     }
 }
