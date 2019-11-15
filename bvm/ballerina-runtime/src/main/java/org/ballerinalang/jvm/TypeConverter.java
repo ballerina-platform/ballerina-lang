@@ -159,6 +159,7 @@ public class TypeConverter {
         }
     }
 
+    // TODO: return only the first matching type
     public static List<BType> getConvertibleTypes(Object inputValue, BType targetType) {
         return getConvertibleTypes(inputValue, targetType, new ArrayList<>());
     }
@@ -179,6 +180,9 @@ public class TypeConverter {
                 if (isConvertibleToRecordType(inputValue, (BRecordType) targetType, unresolvedValues)) {
                     convertibleTypes.add(targetType);
                 }
+                break;
+            case TypeTags.ANYDATA_TAG:
+                convertibleTypes.add(TypeConverter.resolveMatchingTypeForUnion(inputValue, targetType));
                 break;
             default:
                 if (TypeChecker.checkIsLikeType(inputValue, targetType, true)) {

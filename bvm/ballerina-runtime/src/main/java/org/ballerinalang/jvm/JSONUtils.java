@@ -260,7 +260,7 @@ public class JSONUtils {
         }
 
         try {
-            Lists.add((ArrayValue) json, index, element);
+            ((ArrayValue) json).add(index, element);
         } catch (ErrorValue e) {
             Object errorDetails = e.getDetails();
             if (errorDetails != null) {

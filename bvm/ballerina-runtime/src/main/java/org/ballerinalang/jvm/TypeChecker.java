@@ -48,6 +48,7 @@ import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.RefValue;
 import org.ballerinalang.jvm.values.StreamValue;
 import org.ballerinalang.jvm.values.TableValue;
+import org.ballerinalang.jvm.values.TupleValueImpl;
 import org.ballerinalang.jvm.values.TypedescValue;
 import org.ballerinalang.jvm.values.XMLValue;
 
@@ -1130,25 +1131,36 @@ public class TypeChecker {
             return false;
         }
 
-        BType elementType = ((BArrayType) source.getType()).getElementType();
-        if (BTypes.isValueType(elementType)) {
-            int bound = source.size();
-            for (int i = 0; i < bound; i++) {
+        int bound = source.size();
+        for (int i = 0; i < bound; i++) {
+            BType elementType = getArrayElementType(source, i);
+            if (BTypes.isValueType(elementType)) {
                 if (!checkIsType(elementType, targetType.getTupleTypes().get(i), new ArrayList<>())) {
                     return false;
                 }
-            }
-            return true;
-        }
-
-        int bound = source.size();
-        for (int i = 0; i < bound; i++) {
-            if (!checkIsLikeType(source.getRefValue(i), targetType.getTupleTypes().get(i), unresolvedValues,
-                                 allowNumericConversion)) {
-                return false;
+            } else {
+                if (!checkIsLikeType(source.getRefValue(i), targetType.getTupleTypes().get(i), unresolvedValues,
+                        allowNumericConversion)) {
+                    return false;
+                }
             }
         }
         return true;
+
+    }
+
+    private static BType getArrayElementType(ArrayValue source, int elementIndex) {
+        BType type = source.getType();
+        switch (type.getTag()) {
+            case TypeTags.TUPLE_TAG:
+                BTupleType tupleType = (BTupleType) type;
+                int fixedLen = tupleType.getTupleTypes().size();
+                return (elementIndex < fixedLen) ? tupleType.getTupleTypes().get(elementIndex) : tupleType.getRestType();
+            case TypeTags.ARRAY_TAG:
+                return ((BArrayType) source.getType()).getElementType();
+            default:
+                throw new IllegalStateException();
+        }
     }
 
     private static boolean isByteLiteral(long longValue) {
@@ -1163,29 +1175,31 @@ public class TypeChecker {
 
         ArrayValue source = (ArrayValue) sourceValue;
         BType targetTypeElementType = targetType.getElementType();
-        BType sourceElementType = ((BArrayType) source.getType()).getElementType();
-        if (BTypes.isValueType(sourceElementType)) {
-            boolean isType = checkIsType(sourceElementType, targetTypeElementType, new ArrayList<>());
+        if (source.getType().getTag() == TypeTags.ARRAY_TAG) {
+            BType sourceElementType = ((BArrayType) source.getType()).getElementType();
+            if (BTypes.isValueType(sourceElementType)) {
+                boolean isType = checkIsType(sourceElementType, targetTypeElementType, new ArrayList<>());
 
-            if (isType || !allowNumericConversion || !isNumericType(sourceElementType)) {
-                return isType;
-            }
-
-            if (isNumericType(targetTypeElementType)) {
-                return true;
-            }
-
-            if (targetTypeElementType.getTag() != TypeTags.UNION_TAG) {
-                return false;
-            }
-
-            List<BType> targetNumericTypes = new ArrayList<>();
-            for (BType memType : ((BUnionType) targetTypeElementType).getMemberTypes()) {
-                if (isNumericType(memType) && !targetNumericTypes.contains(memType)) {
-                    targetNumericTypes.add(memType);
+                if (isType || !allowNumericConversion || !isNumericType(sourceElementType)) {
+                    return isType;
                 }
+
+                if (isNumericType(targetTypeElementType)) {
+                    return true;
+                }
+
+                if (targetTypeElementType.getTag() != TypeTags.UNION_TAG) {
+                    return false;
+                }
+
+                List<BType> targetNumericTypes = new ArrayList<>();
+                for (BType memType : ((BUnionType) targetTypeElementType).getMemberTypes()) {
+                    if (isNumericType(memType) && !targetNumericTypes.contains(memType)) {
+                        targetNumericTypes.add(memType);
+                    }
+                }
+                return targetNumericTypes.size() == 1;
             }
-            return targetNumericTypes.size() == 1;
         }
 
         Object[] arrayValues = source.getValues();

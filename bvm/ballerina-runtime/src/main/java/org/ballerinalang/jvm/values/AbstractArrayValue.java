@@ -19,7 +19,6 @@ package org.ballerinalang.jvm.values;
 
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.JSONGenerator;
-import org.ballerinalang.jvm.commons.TypeValuePair;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.util.exceptions.BLangFreezeException;
@@ -32,7 +31,6 @@ import org.ballerinalang.jvm.values.freeze.Status;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.List;
 import java.util.Map;
 
 import static org.ballerinalang.jvm.util.BLangConstants.ARRAY_LANG_LIB;
@@ -240,9 +238,6 @@ public abstract class AbstractArrayValue implements ArrayValue {
     public boolean isEmpty() {
         return size == 0;
     }
-
-    @Override
-    public abstract void stamp(BType type, List<TypeValuePair> unresolvedValues);
 
     @Override
     public abstract Object copy(Map<Object, Object> refs);

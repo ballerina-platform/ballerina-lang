@@ -35,6 +35,7 @@ import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.DecimalValue;
 import org.ballerinalang.jvm.values.ErrorValue;
+import org.ballerinalang.jvm.values.TupleValueImpl;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -362,7 +363,7 @@ public class ArgumentParser {
                     + "]', element count mismatch for tuple " + "type: '" + type + "'");
         }
 
-        ArrayValue tupleValues = new ArrayValueImpl(new BArrayType(type));
+        ArrayValue tupleValues = new TupleValueImpl(type);
         int index = 0;
         for (BType elementType : type.getTupleTypes()) {
             String tupleElement = tupleElements[index].trim();

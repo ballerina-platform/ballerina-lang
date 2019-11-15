@@ -480,11 +480,6 @@ public class ArrayValueImpl extends AbstractArrayValue {
     }
 
     @Override
-    public void stamp(BType type, List<TypeValuePair> unresolvedValues) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
     public Object copy(Map<Object, Object> refs) {
         if (isFrozen()) {
             return this;
