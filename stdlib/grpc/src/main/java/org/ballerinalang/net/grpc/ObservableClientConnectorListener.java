@@ -29,7 +29,7 @@ import static org.ballerinalang.net.http.HttpConstants.RESPONSE_STATUS_CODE_FIEL
 /**
  * Observable Client Connector Listener.
  *
- * @since 0.995.0
+ * @since 1.0.4
  */
 public class ObservableClientConnectorListener extends ClientConnectorListener {
     private final DataContext context;
@@ -43,7 +43,7 @@ public class ObservableClientConnectorListener extends ClientConnectorListener {
     public void onMessage(HttpCarbonMessage httpCarbonMessage) {
         super.onMessage(httpCarbonMessage);
         Integer statusCode = (Integer) httpCarbonMessage.getProperty(RESPONSE_STATUS_CODE_FIELD);
-        addHttpStatusCode(statusCode != null ? statusCode : 0);
+        addHttpStatusCode(statusCode == null ? 0 : statusCode);
     }
 
     @Override
