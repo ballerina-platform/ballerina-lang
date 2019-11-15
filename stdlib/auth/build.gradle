@@ -46,6 +46,8 @@ dependencies {
     implementation project(':ballerina-io')
     implementation project(':ballerina-stringutils')
 
+    interopImports project(':ballerina-task')
+
     testCompile 'org.testng:testng'
     testCompile 'org.slf4j:slf4j-jdk14'
     testCompile project(path: ':ballerina-test-common', configuration: 'tests')
