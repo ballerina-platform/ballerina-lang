@@ -21,12 +21,8 @@ package org.ballerinalang.nats.basic.consumer;
 import io.nats.client.Connection;
 import io.nats.client.Dispatcher;
 import org.ballerinalang.jvm.BallerinaErrors;
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.nats.Constants;
 import org.ballerinalang.nats.Utils;
 
@@ -39,21 +35,11 @@ import java.util.concurrent.ConcurrentHashMap;
  *
  * @since 0.995
  */
-@BallerinaFunction(
-        orgName = Constants.ORG_NAME,
-        packageName = Constants.NATS,
-        functionName = "register",
-        receiver = @Receiver(type = TypeKind.OBJECT,
-                structType = Constants.NATS_LISTENER,
-                structPackage = Constants.NATS_PACKAGE),
-        isPublic = true
-)
 public class Register {
 
     private static final PrintStream console;
 
-    public static Object register(Strand strand, ObjectValue listenerObject, ObjectValue service,
-                                  Object annotationData) {
+    public static Object basicRegister(ObjectValue listenerObject, ObjectValue service, Object annotationData) {
         String errorMessage = "Error while registering the subscriber. ";
         Connection natsConnection =
                 (Connection) ((ObjectValue) listenerObject.get(Constants.CONNECTION_OBJ))
@@ -70,7 +56,7 @@ public class Register {
         }
         String queueName = subscriptionConfig.getStringValue(Constants.QUEUE_NAME);
         String subject = subscriptionConfig.getStringValue(Constants.SUBJECT);
-        Dispatcher dispatcher = natsConnection.createDispatcher(new DefaultMessageHandler(strand.scheduler, service));
+        Dispatcher dispatcher = natsConnection.createDispatcher(new DefaultMessageHandler(service));
         // Add dispatcher. This is needed when closing the connection.
         @SuppressWarnings("unchecked")
         ConcurrentHashMap<String, Dispatcher> dispatcherList = (ConcurrentHashMap<String, Dispatcher>)

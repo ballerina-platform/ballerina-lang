@@ -20,12 +20,8 @@ package org.ballerinalang.nats.basic.consumer;
 
 import io.nats.client.Dispatcher;
 import org.ballerinalang.jvm.BallerinaErrors;
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.nats.Constants;
 import org.ballerinalang.nats.Utils;
 
@@ -38,19 +34,10 @@ import java.util.concurrent.ConcurrentHashMap;
  *
  * @since 1.0.4
  */
-@BallerinaFunction(
-        orgName = Constants.ORG_NAME,
-        packageName = Constants.NATS,
-        functionName = "detach",
-        receiver = @Receiver(type = TypeKind.OBJECT,
-                structType = Constants.NATS_LISTENER,
-                structPackage = Constants.NATS_PACKAGE),
-        isPublic = true
-)
 public class Detach {
     private static final PrintStream console;
 
-    public static Object detach(Strand strand, ObjectValue listener, ObjectValue service) {
+    public static Object basicDetach(ObjectValue listener, ObjectValue service) {
         @SuppressWarnings("unchecked")
         List<ObjectValue> serviceList =
                 (List<ObjectValue>) ((ObjectValue) listener.get(Constants.CONNECTION_OBJ))

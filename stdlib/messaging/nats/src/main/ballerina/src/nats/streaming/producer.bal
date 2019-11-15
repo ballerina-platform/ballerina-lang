@@ -14,6 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerinax/java;
+
 # NATS `StreamingProducer` would act as a client allowing to publish messages to the
 # NATS streaming server. `StreamingProducer` needs the NATS `Connection` to be initialized.
 public type StreamingProducer client object {
@@ -28,7 +30,7 @@ public type StreamingProducer client object {
     public function __init(Connection connection, public string? clientId = (), public string clusterId = "test-cluster",
     public StreamingConfig? streamingConfig = ()) {
         self.conn = connection;
-        createStreamingConnection(self, connection, clusterId, clientId, streamingConfig);
+        createStreamingConnection(self, connection, java:fromString(clusterId), clientId, streamingConfig);
     }
 
     # Publishes data to a given subject.
@@ -49,11 +51,9 @@ public type StreamingProducer client object {
         if (converted is error) {
             return prepareError("Error in data conversion", err = converted);
         } else {
-            return self.externPublish(subject, converted);
+            return externStreamingPublish(self, java:fromString(subject), converted);
         }
     }
-
-    function externPublish(string subject, string | byte[] data) returns string | Error = external;
 
     # Close the producer.
     #
@@ -68,7 +68,18 @@ public type StreamingProducer client object {
 };
 
 function detachFromNatsConnection(StreamingProducer|StreamingListener streamingClient, Connection? natsConnection)
-returns error? = external;
+returns error? =
+@java:Method {
+    class: "org.ballerinalang.nats.streaming.producer.CloseConnection"
+} external;
 
 function createStreamingConnection(StreamingProducer|StreamingListener streamingClient, Connection? conn,
-string clusterId, string? clientId, StreamingConfig? streamingConfig) = external;
+handle clusterId, string? clientId, StreamingConfig? streamingConfig) =
+@java:Method {
+    class: "org.ballerinalang.nats.streaming.producer.CreateStreamingConnection"
+} external;
+
+function externStreamingPublish(StreamingProducer producer, handle subject, string | byte[] data) returns string | Error =
+@java:Method {
+    class: "org.ballerinalang.nats.streaming.producer.Publish"
+} external;

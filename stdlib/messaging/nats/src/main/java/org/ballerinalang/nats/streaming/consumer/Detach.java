@@ -19,11 +19,7 @@
 package org.ballerinalang.nats.streaming.consumer;
 
 import io.nats.streaming.Subscription;
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.nats.Constants;
 import org.ballerinalang.nats.Utils;
 
@@ -35,15 +31,8 @@ import java.util.concurrent.ConcurrentHashMap;
  *
  * @since 1.0.4
  */
-@BallerinaFunction(orgName = "ballerina",
-        packageName = "nats",
-        functionName = "detach",
-        receiver = @Receiver(type = TypeKind.OBJECT,
-                structType = "StreamingListener",
-                structPackage = "ballerina/nats"),
-        isPublic = true)
 public class Detach {
-    public static void detach(Strand strand, ObjectValue streamingListener, ObjectValue service) {
+    public static void streamingDetach(ObjectValue streamingListener, ObjectValue service) {
         ConcurrentHashMap<ObjectValue, StreamingListener> serviceListenerMap =
                 (ConcurrentHashMap<ObjectValue, StreamingListener>) streamingListener
                         .getNativeData(Constants.STREAMING_DISPATCHER_LIST);
@@ -52,11 +41,12 @@ public class Detach {
                         .getNativeData(Constants.STREAMING_SUBSCRIPTION_LIST);
         Subscription subscription = subscriptionsMap.get(service);
         try {
-            if (subscription != null) {
-                subscription.unsubscribe();
-                subscriptionsMap.remove(service);
-                serviceListenerMap.remove(service);
+            if (subscription == null) {
+                return;
             }
+            subscription.unsubscribe();
+            subscriptionsMap.remove(service);
+            serviceListenerMap.remove(service);
         } catch (IOException e) {
             throw Utils.createNatsError("Error occurred while un-subscribing: " + e.getMessage());
         }

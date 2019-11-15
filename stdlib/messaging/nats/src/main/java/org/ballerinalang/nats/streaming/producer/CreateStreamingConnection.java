@@ -19,10 +19,8 @@ package org.ballerinalang.nats.streaming.producer;
 
 import io.nats.client.Connection;
 import io.nats.streaming.StreamingConnection;
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.nats.Constants;
 import org.ballerinalang.nats.Utils;
 import org.ballerinalang.nats.streaming.BallerinaNatsStreamingConnectionFactory;
@@ -34,13 +32,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 /**
  * Remote function implementation for NATS Streaming Connection creation.
  */
-@BallerinaFunction(orgName = "ballerina",
-                   packageName = "nats",
-                   functionName = "createStreamingConnection",
-                   isPublic = true)
 public class CreateStreamingConnection {
 
-    public static void createStreamingConnection(Strand strand, Object streamingClient, Object conn,
+    public static void createStreamingConnection(Object streamingClient, Object conn,
             String clusterId, Object clientIdNillable, Object streamingConfig) {
         ObjectValue connectionObject = (ObjectValue) conn;
         Connection natsConnection = (Connection) connectionObject.getNativeData(Constants.NATS_CONNECTION);

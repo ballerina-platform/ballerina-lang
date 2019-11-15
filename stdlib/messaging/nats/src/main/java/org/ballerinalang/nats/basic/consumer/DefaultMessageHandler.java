@@ -20,8 +20,8 @@ package org.ballerinalang.nats.basic.consumer;
 
 import io.nats.client.Message;
 import io.nats.client.MessageHandler;
+import org.ballerinalang.jvm.BRuntime;
 import org.ballerinalang.jvm.BallerinaValues;
-import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.services.ErrorHandlerUtils;
 import org.ballerinalang.jvm.types.AttachedFunction;
 import org.ballerinalang.jvm.types.BType;
@@ -29,7 +29,6 @@ import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.connector.CallableUnitCallback;
-import org.ballerinalang.jvm.values.connector.Executor;
 import org.ballerinalang.nats.Constants;
 import org.ballerinalang.nats.Utils;
 
@@ -48,10 +47,8 @@ public class DefaultMessageHandler implements MessageHandler {
 
     // Resource which the message should be dispatched.
     private ObjectValue serviceObject;
-    private Scheduler scheduler;
 
-    DefaultMessageHandler(Scheduler scheduler, ObjectValue serviceObject) {
-        this.scheduler = scheduler;
+    DefaultMessageHandler(ObjectValue serviceObject) {
         this.serviceObject = serviceObject;
     }
 
@@ -81,8 +78,8 @@ public class DefaultMessageHandler implements MessageHandler {
      */
     private void dispatch(ObjectValue msgObj) {
         CountDownLatch countDownLatch = new CountDownLatch(1);
-        Executor.submit(scheduler, serviceObject, ON_MESSAGE_RESOURCE, new ResponseCallback(countDownLatch),
-                null, msgObj, Boolean.TRUE);
+        BRuntime.getCurrentRuntime().invokeMethodAsync(serviceObject, ON_MESSAGE_RESOURCE,
+                new ResponseCallback(countDownLatch), null, msgObj, Boolean.TRUE);
         try {
             countDownLatch.await();
         } catch (InterruptedException e) {
@@ -102,16 +99,16 @@ public class DefaultMessageHandler implements MessageHandler {
         try {
             Object typeBoundData = bindDataToIntendedType(data, intendedType);
             CountDownLatch countDownLatch = new CountDownLatch(1);
-            Executor.submit(scheduler, serviceObject, ON_MESSAGE_RESOURCE,
+            BRuntime.getCurrentRuntime().invokeMethodAsync(serviceObject, ON_MESSAGE_RESOURCE,
                     new ResponseCallback(countDownLatch), null,
                     msgObj, true, typeBoundData, true);
             countDownLatch.await();
         } catch (NumberFormatException e) {
             ErrorValue dataBindError = Utils
                     .createNatsError("The received message is unsupported by the resource signature");
-            ErrorHandler.dispatchError(serviceObject, scheduler, msgObj, dataBindError);
+            ErrorHandler.dispatchError(serviceObject, msgObj, dataBindError);
         } catch (ErrorValue e) {
-            ErrorHandler.dispatchError(serviceObject, scheduler, msgObj, e);
+            ErrorHandler.dispatchError(serviceObject, msgObj, e);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             throw Utils.createNatsError(Constants.THREAD_INTERRUPTED_ERROR);
