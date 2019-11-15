@@ -20,7 +20,6 @@ package org.ballerinalang.net.http.websocket;
 
 import io.netty.channel.ChannelFuture;
 import io.netty.handler.codec.CorruptedFrameException;
-
 import org.ballerinalang.jvm.JSONParser;
 import org.ballerinalang.jvm.JSONUtils;
 import org.ballerinalang.jvm.XMLFactory;

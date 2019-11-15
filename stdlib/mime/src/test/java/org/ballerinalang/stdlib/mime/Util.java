@@ -24,6 +24,7 @@ import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.XMLFactory;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.XMLValue;
 import org.ballerinalang.jvm.values.utils.StringUtils;
