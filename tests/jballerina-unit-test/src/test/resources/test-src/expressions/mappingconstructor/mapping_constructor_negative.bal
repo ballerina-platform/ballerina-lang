@@ -14,34 +14,14 @@
 // specific language governing permissions and limitations
 // under the License.
 
-type Foo record {|
-    string s;
-    int i?;
+type Person record {|
+    string name;
 |};
 
-float f = 1.0;
-string s = "not s";
-
-function getInt() returns int {
-    return 1;
+function testUnionsWithTypesSupportingMappingConstructors() {
+    string|Person x = {name: "John", age: 25};
 }
 
-function getString(string s) returns string {
-    return s;
-}
-
-function testInvalidExprAsRecordKey() {
-    Foo f1 = { s: "str", [f]: 1.0 };
-    Foo f2 = { [getString("s")]: "str" };
-    Foo f3 = { s: "str", [getInt()]: 1 };
-    Foo f4 = { s: "str", [getString(true)]: 1 };
-    Foo f5 = { [s]: "str" };
-
-    error e = error("test error");
-    Foo f6 = { s: "str", [getString("e")]: e };
-}
-
-function testNonExistentKeyInOptionalType() {
-    Foo? f1 = {s: "foo", invalid: 123};
-    ()|Foo f2 = {s: "foo", x: 123, y: "hello", z: 34.56};
+function testUnionsOfTypesWithoutSupportForMappingConstructors() {
+    int|float x = {name: "John", age: 25};
 }
