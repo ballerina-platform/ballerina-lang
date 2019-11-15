@@ -36,6 +36,7 @@ import java.util.Optional;
 
 import static org.ballerinalang.net.grpc.GrpcConstants.ORG_NAME;
 import static org.ballerinalang.net.grpc.GrpcConstants.REQUEST_SENDER;
+import static org.ballerinalang.net.grpc.GrpcConstants.TAG_KEY_GRPC_MESSAGE_CONTENT;
 
 /**
  * Extern function for streaming respond to the server.
@@ -51,6 +52,7 @@ import static org.ballerinalang.net.grpc.GrpcConstants.REQUEST_SENDER;
         isPublic = true
 )
 public class Send {
+
     private static final Logger LOG = LoggerFactory.getLogger(Send.class);
 
     public static Object send(Strand strand, ObjectValue streamConnection, Object responseValue) {
@@ -65,7 +67,7 @@ public class Send {
             try {
                 // Add message content to observer context.
                 Optional<ObserverContext> observerContext = ObserveUtils.getObserverContextOfCurrentFrame(strand);
-                observerContext.ifPresent(ctx -> ctx.addTag("grpc.message_content", responseValue.toString()));
+                observerContext.ifPresent(ctx -> ctx.addTag(TAG_KEY_GRPC_MESSAGE_CONTENT, responseValue.toString()));
 
                 Message requestMessage = new Message(inputType.getName(), responseValue);
                 requestSender.onNext(requestMessage);
