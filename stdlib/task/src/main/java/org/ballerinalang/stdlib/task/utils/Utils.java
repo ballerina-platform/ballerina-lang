@@ -151,11 +151,11 @@ public class Utils {
         long interval = ((Long) configurations.get(FIELD_INTERVAL)).intValue();
         long delay = ((Long) configurations.get(FIELD_DELAY)).intValue();
 
-        if (Objects.nonNull(configurations.get(FIELD_NO_OF_RUNS))) {
+        if (configurations.get(FIELD_NO_OF_RUNS) == null) {
+            task = new Timer(delay, interval);
+        } else {
             long noOfRuns = ((Long) configurations.get(FIELD_NO_OF_RUNS)).intValue();
             task = new Timer(delay, interval, noOfRuns);
-        } else {
-            task = new Timer(delay, interval);
         }
         return task;
     }
@@ -165,11 +165,11 @@ public class Utils {
         Object appointmentDetails = configurations.get(MEMBER_APPOINTMENT_DETAILS);
         String cronExpression = getCronExpressionFromAppointmentRecord(appointmentDetails);
 
-        if (Objects.nonNull(configurations.get(FIELD_NO_OF_RUNS))) {
+        if (configurations.get(FIELD_NO_OF_RUNS) == null) {
+            appointment = new Appointment(cronExpression);
+        } else {
             long noOfRuns = ((Long) configurations.get(FIELD_NO_OF_RUNS)).intValue();
             appointment = new Appointment(cronExpression, noOfRuns);
-        } else {
-            appointment = new Appointment(cronExpression);
         }
         return appointment;
     }

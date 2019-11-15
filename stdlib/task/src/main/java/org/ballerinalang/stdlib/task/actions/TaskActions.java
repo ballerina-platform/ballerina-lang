@@ -27,10 +27,6 @@ import org.ballerinalang.stdlib.task.impl.TaskServerConnectorImpl;
 import org.ballerinalang.stdlib.task.objects.ServiceInformation;
 import org.ballerinalang.stdlib.task.objects.Task;
 import org.ballerinalang.stdlib.task.utils.Utils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.Objects;
 
 import static org.ballerinalang.stdlib.task.utils.TaskConstants.MEMBER_LISTENER_CONFIGURATION;
 import static org.ballerinalang.stdlib.task.utils.TaskConstants.NATIVE_DATA_TASK_OBJECT;
@@ -48,14 +44,11 @@ import static org.ballerinalang.stdlib.task.utils.Utils.validateService;
  */
 public class TaskActions {
 
-    private static final Logger LOG = LoggerFactory.getLogger(TaskActions.class);
-
     public static Object pause(ObjectValue taskListener) {
         Task task = (Task) taskListener.getNativeData(NATIVE_DATA_TASK_OBJECT);
         try {
             task.pause();
         } catch (SchedulingException e) {
-            LOG.error(e.getMessage(), e);
             return Utils.createTaskError(SCHEDULER_ERROR_REASON, e.getMessage());
         }
         return null;
@@ -66,7 +59,6 @@ public class TaskActions {
         try {
             task.resume();
         } catch (SchedulingException e) {
-            LOG.error(e.getMessage(), e);
             return Utils.createTaskError(SCHEDULER_ERROR_REASON, e.getMessage());
         }
         return null;
@@ -89,7 +81,6 @@ public class TaskActions {
         try {
             serverConnector.start();
         } catch (SchedulingException e) {
-            LOG.error(e.getMessage(), e);
             return Utils.createTaskError(e.getMessage());
         }
         return null;
@@ -101,7 +92,6 @@ public class TaskActions {
         try {
             serverConnector.stop();
         } catch (SchedulingException e) {
-            LOG.error(e.getMessage(), e);
             return Utils.createTaskError(e.getMessage());
         }
         return null;
@@ -110,10 +100,10 @@ public class TaskActions {
     public static Object attach(ObjectValue taskListener, ObjectValue service, MapValue<String, Object> config) {
         Object attachments = config.get(PARAMETER_ATTACHMENT);
         ServiceInformation serviceInformation;
-        if (Objects.nonNull(attachments)) {
-            serviceInformation = new ServiceInformation(BRuntime.getCurrentRuntime(), service, attachments);
-        } else {
+        if (attachments == null) {
             serviceInformation = new ServiceInformation(BRuntime.getCurrentRuntime(), service);
+        } else {
+            serviceInformation = new ServiceInformation(BRuntime.getCurrentRuntime(), service, attachments);
         }
 
         /*
@@ -146,7 +136,6 @@ public class TaskActions {
             }
             taskListener.addNativeData(NATIVE_DATA_TASK_OBJECT, task);
         } catch (SchedulingException e) {
-            LOG.error(e.getMessage(), e);
             //TODO: Ideally this should return an Error using createError() method.
             // Fix this once we can return errors from interop functions (Check with master)
             throw new BLangRuntimeException(e.getMessage());
