@@ -1,0 +1,10 @@
+[project]
+org-name= "wso2"
+version= "0.1.0"
+
+[dependencies]
+
+[platform]
+target = "java8"
+
+    [[platform.libraries]]

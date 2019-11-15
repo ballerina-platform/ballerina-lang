@@ -109,6 +109,13 @@ public class StaticMethodTest {
         Assert.assertEquals(((BError) returns[0]).getReason(), "some reason");
     }
 
+    @Test(description = "Test static java method that returns error value or MapValue")
+    public void testMapValueOrErrorReturn() {
+        BValue[] returns = BRunUtil.invoke(result, "testUnionReturn");
+        Assert.assertEquals(returns[0].stringValue(), "resources=path=basePath method=Method string");
+
+    }
+
     public static Object returnObjectOrError() {
         return new ErrorValue("some reason", null);
     }

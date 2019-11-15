@@ -813,7 +813,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                     return;
                 }
                 if (TypeTags.TUPLE != rhsType.tag) {
-                    dlog.error(varRefExpr.pos, DiagnosticCode.INVALID_TYPE_DEFINITION_FOR_TUPLE_VAR, rhsType);
+                    dlog.error(varRefExpr.pos, DiagnosticCode.INVALID_TUPLE_BINDING_PATTERN_INFERENCE, rhsType);
                     variable.type = symTable.semanticError;
                     return;
                 }
@@ -884,7 +884,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             case TUPLE_VARIABLE:
                 BLangTupleVariable tupleVariable = (BLangTupleVariable) variable;
                 if (TypeTags.TUPLE != rhsType.tag && TypeTags.UNION != rhsType.tag) {
-                    dlog.error(variable.pos, DiagnosticCode.INVALID_TYPE_DEFINITION_FOR_TUPLE_VAR, rhsType);
+                    dlog.error(variable.pos, DiagnosticCode.INVALID_TUPLE_BINDING_PATTERN_INFERENCE, rhsType);
                     recursivelyDefineVariables(tupleVariable, blockEnv);
                     return;
                 }
@@ -1007,7 +1007,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                             .collect(Collectors.toList());
 
                     if (possibleTypes.isEmpty()) {
-                        dlog.error(varNode.pos, DiagnosticCode.INVALID_TYPE_DEFINITION_FOR_TUPLE_VAR, varNode.type);
+                        dlog.error(varNode.pos, DiagnosticCode.INVALID_TUPLE_BINDING_PATTERN_DECL, varNode.type);
                         return false;
                     }
 
@@ -1059,7 +1059,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                     tupleTypeNode = (BTupleType) varNode.type;
                     break;
                 default:
-                    dlog.error(varNode.pos, DiagnosticCode.INVALID_TYPE_DEFINITION_FOR_TUPLE_VAR, varNode.type);
+                    dlog.error(varNode.pos, DiagnosticCode.INVALID_TUPLE_BINDING_PATTERN_DECL, varNode.type);
                     return false;
             }
         }

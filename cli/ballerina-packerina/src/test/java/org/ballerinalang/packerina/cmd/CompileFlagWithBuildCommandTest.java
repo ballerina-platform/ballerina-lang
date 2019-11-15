@@ -76,9 +76,9 @@ public class CompileFlagWithBuildCommandTest extends CommandTest {
         buildCommand.execute();
     
         String buildLog = readOutput(true);
-        Assert.assertEquals(buildLog, "ballerina: invalid Ballerina source path, it should either be a module " +
-                                      "name in a Ballerina project or a file with a '.bal' extension. Use the -a or " +
-                                      "--all flag to build or compile all modules.\n" +
+        Assert.assertEquals(buildLog, "ballerina: invalid Ballerina source path. It should either be a name of a " +
+                                      "module in a Ballerina project or a file with a '.bal' extension. " +
+                                      "Use the -a or --all flag to build or compile all modules.\n" +
                                       "\n" +
                                       "USAGE:\n" +
                                       "    ballerina build {<ballerina-file> | <module-name> | -a | --all}\n" +
@@ -146,9 +146,9 @@ public class CompileFlagWithBuildCommandTest extends CommandTest {
         new CommandLine(buildCommand).parse("-c", "xyz");
         buildCommand.execute();
         String buildLog = readOutput(true);
-        Assert.assertEquals(buildLog, "ballerina: invalid Ballerina source path, it should either be a module name " +
-                                      "in a Ballerina project or a file with a '.bal' extension. Use the -a or --all " +
-                                      "flag to build or compile all modules.\n" +
+        Assert.assertEquals(buildLog, "ballerina: invalid Ballerina source path. It should either be a name of a " +
+                                      "module in a Ballerina project or a file with a '.bal' extension. " +
+                                      "Use the -a or --all flag to build or compile all modules.\n" +
                                       "\n" +
                                       "USAGE:\n" +
                                       "    ballerina build {<ballerina-file> | <module-name> | -a | --all}\n" +

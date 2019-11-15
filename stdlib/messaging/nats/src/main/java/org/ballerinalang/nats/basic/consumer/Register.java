@@ -21,21 +21,18 @@ package org.ballerinalang.nats.basic.consumer;
 import io.nats.client.Connection;
 import io.nats.client.Dispatcher;
 import org.ballerinalang.jvm.BallerinaErrors;
-import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.nats.Constants;
+import org.ballerinalang.nats.Utils;
 
 import java.io.PrintStream;
 import java.util.List;
-
-import static org.ballerinalang.nats.Constants.DISPATCHER_LIST;
-import static org.ballerinalang.nats.Constants.NATS_CLIENT_SUBSCRIBED;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Creates a subscription with the NATS server.
@@ -65,19 +62,20 @@ public class Register {
         List<ObjectValue> serviceList =
                 (List<ObjectValue>) ((ObjectValue) listenerObject.get(Constants.CONNECTION_OBJ))
                         .getNativeData(Constants.SERVICE_LIST);
-        MapValue<String, Object> subscriptionConfig = getSubscriptionConfig(service.getType().getAnnotation(
-                Constants.NATS_PACKAGE, Constants.SUBSCRIPTION_CONFIG));
+        MapValue<String, Object> subscriptionConfig = Utils.getSubscriptionConfig(service.getType()
+                .getAnnotation(Constants.NATS_PACKAGE, Constants.SUBSCRIPTION_CONFIG));
         if (subscriptionConfig == null) {
-            return BallerinaErrors.createError(Constants.NATS_ERROR_CODE, errorMessage +
-                    "Cannot find subscription configuration");
+            return BallerinaErrors.createError(Constants.NATS_ERROR_CODE,
+                    errorMessage + " Cannot find subscription configuration.");
         }
         String queueName = subscriptionConfig.getStringValue(Constants.QUEUE_NAME);
         String subject = subscriptionConfig.getStringValue(Constants.SUBJECT);
         Dispatcher dispatcher = natsConnection.createDispatcher(new DefaultMessageHandler(strand.scheduler, service));
         // Add dispatcher. This is needed when closing the connection.
         @SuppressWarnings("unchecked")
-        List<Dispatcher> dispatcherList = (List<Dispatcher>) listenerObject.getNativeData(DISPATCHER_LIST);
-        dispatcherList.add(dispatcher);
+        ConcurrentHashMap<String, Dispatcher> dispatcherList = (ConcurrentHashMap<String, Dispatcher>)
+                listenerObject.getNativeData(Constants.DISPATCHER_LIST);
+        dispatcherList.put(service.getType().getName(), dispatcher);
         if (subscriptionConfig.getMapValue(Constants.PENDING_LIMITS) != null) {
             setPendingLimits(dispatcher, subscriptionConfig.getMapValue(Constants.PENDING_LIMITS));
         }
@@ -88,12 +86,12 @@ public class Register {
                 dispatcher.subscribe(subject);
             }
         } catch (IllegalArgumentException | IllegalStateException ex) {
-            return BallerinaErrors.createError(Constants.NATS_ERROR_CODE, errorMessage +
-                    ex.getMessage());
+            return BallerinaErrors.createError(Constants.NATS_ERROR_CODE,
+                    errorMessage + ex.getMessage());
         }
         serviceList.add(service);
-        String sOutput = "subject " + subject + (queueName != null ? " & queue " + queueName : "");
-        console.println(NATS_CLIENT_SUBSCRIBED + sOutput);
+        String consoleOutput = "subject " + subject + (queueName != null ? " & queue " + queueName : "");
+        console.println(Constants.NATS_CLIENT_SUBSCRIBED + consoleOutput);
         return null;
     }
 
@@ -103,16 +101,6 @@ public class Register {
         long maxMessages = pendingLimits.getIntValue(Constants.MAX_MESSAGES);
         long maxBytes = pendingLimits.getIntValue(Constants.MAX_BYTES);
         dispatcher.setPendingLimits(maxMessages, maxBytes);
-    }
-
-    @SuppressWarnings("unchecked")
-    private static MapValue<String, Object> getSubscriptionConfig(Object annotationData) {
-
-        MapValue annotationRecord = null;
-        if (TypeChecker.getType(annotationData).getTag() == TypeTags.RECORD_TYPE_TAG) {
-            annotationRecord = (MapValue) annotationData;
-        }
-        return annotationRecord;
     }
 
     static {
