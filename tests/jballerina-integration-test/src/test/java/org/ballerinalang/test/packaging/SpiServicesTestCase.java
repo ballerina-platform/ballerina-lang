@@ -89,6 +89,15 @@ public class SpiServicesTestCase extends BaseTest {
         Assert.assertTrue(result.contains("serviceA"), "serviceA cannot be found in service List :" + result);
         Assert.assertTrue(result.contains("serviceB"), "serviceB cannot be found in service List :" + result);
         Assert.assertEquals(result.length(), 18);
+        LogLeecher jarRunLeecher = new LogLeecher("org.hsqldb.jdbc.JDBCDriver");
+        balClient.runMain("run", new String[]{jarPath.toString()}, new HashMap<>(), new String[0],
+                          new LogLeecher[]{jarRunLeecher}, testProjectPath.toString());
+        jarRunLeecher.waitForText(2000);
+
+        LogLeecher balRunLeecher = new LogLeecher("org.hsqldb.jdbc.JDBCDriver");
+        balClient.runMain("run", new String[]{"module"}, new HashMap<>(), new String[0],
+                          new LogLeecher[]{balRunLeecher}, testProjectPath.toString());
+        balRunLeecher.waitForText(2000);
     }
 
     @AfterClass
