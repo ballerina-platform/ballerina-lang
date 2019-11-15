@@ -83,11 +83,6 @@ public class TupleValueImpl extends AbstractArrayValue {
     }
 
     @Deprecated
-    public TupleValueImpl() {
-        this.refValues = new Object[DEFAULT_ARRAY_SIZE];
-    }
-
-    @Deprecated
     public TupleValueImpl(BTupleType type, long size) {
         this.tupleType = type;
         this.size = (int) size;

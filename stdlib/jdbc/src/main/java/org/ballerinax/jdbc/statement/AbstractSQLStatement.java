@@ -93,7 +93,7 @@ public abstract class AbstractSQLStatement implements SQLStatement {
     }
 
     ArrayValue constructParameters(ArrayValue parameters) throws ApplicationException {
-        ArrayValue parametersNew = new ArrayValueImpl();
+        ArrayValue parametersNew = new ArrayValueImpl((BArrayType) parameters.getType());
         int paramCount = parameters.size();
         for (int i = 0; i < paramCount; ++i) {
             Object value = parameters.get(i);

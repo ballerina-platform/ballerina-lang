@@ -20,7 +20,6 @@ package org.ballerinalang.jvm.values;
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.commons.ArrayState;
-import org.ballerinalang.jvm.commons.TypeValuePair;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BType;
@@ -40,7 +39,6 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.Charset;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Map;
 import java.util.StringJoiner;
 import java.util.stream.IntStream;
@@ -63,7 +61,7 @@ import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.getMod
 public class ArrayValueImpl extends AbstractArrayValue {
 
     protected BArrayType arrayType;
-    private BType elementType;
+    protected BType elementType;
 
     protected Object[] refValues;
     private long[] intValues;
@@ -150,11 +148,6 @@ public class ArrayValueImpl extends AbstractArrayValue {
             default:
                 this.refValues = new Object[DEFAULT_ARRAY_SIZE];
         }
-    }
-
-    @Deprecated
-    public ArrayValueImpl() {
-        this.refValues = new Object[DEFAULT_ARRAY_SIZE];
     }
 
     @Deprecated

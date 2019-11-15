@@ -26,6 +26,7 @@ import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.XMLFactory;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BObjectType;
+import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.ObjectValue;
@@ -398,7 +399,7 @@ public class EntityBodyHandler {
      */
     public static ArrayValue getBodyPartArray(ObjectValue entityObj) {
         return entityObj.getNativeData(BODY_PARTS) != null ?
-                (ArrayValue) entityObj.getNativeData(BODY_PARTS) : new ArrayValueImpl();
+                (ArrayValue) entityObj.getNativeData(BODY_PARTS) : new ArrayValueImpl(new BArrayType(BTypes.typeAny), 0);
     }
 
     public static Channel getByteChannel(ObjectValue entityObj) {
