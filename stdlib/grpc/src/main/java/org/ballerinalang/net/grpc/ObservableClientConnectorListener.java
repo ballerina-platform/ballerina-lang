@@ -34,7 +34,7 @@ import static org.ballerinalang.net.http.HttpConstants.RESPONSE_STATUS_CODE_FIEL
 public class ObservableClientConnectorListener extends ClientConnectorListener {
     private final DataContext context;
 
-    ObservableClientConnectorListener(ClientCall.ClientStreamListener streamListener, DataContext context) {
+    public ObservableClientConnectorListener(ClientCall.ClientStreamListener streamListener, DataContext context) {
         super(streamListener);
         this.context = context;
     }

@@ -323,37 +323,33 @@ public class MessageUtils {
             case 0:
                 return HttpResponseStatus.OK.code();
             case 1:
+                // The operation was cancelled
                 return 499;
-            case 2:
-                return HttpResponseStatus.INTERNAL_SERVER_ERROR.code();
             case 3:
+            case 9:
+            case 11:
                 return HttpResponseStatus.BAD_REQUEST.code();
             case 4:
                 return HttpResponseStatus.GATEWAY_TIMEOUT.code();
             case 5:
                 return HttpResponseStatus.NOT_FOUND.code();
             case 6:
+            case 10:
                 return HttpResponseStatus.CONFLICT.code();
             case 7:
                 return HttpResponseStatus.FORBIDDEN.code();
             case 8:
                 return HttpResponseStatus.TOO_MANY_REQUESTS.code();
-            case 9:
-                return HttpResponseStatus.BAD_REQUEST.code();
-            case 10:
-                return HttpResponseStatus.CONFLICT.code();
-            case 11:
-                return HttpResponseStatus.BAD_REQUEST.code();
             case 12:
                 return HttpResponseStatus.NOT_IMPLEMENTED.code();
-            case 13:
-                return HttpResponseStatus.INTERNAL_SERVER_ERROR.code();
             case 14:
                 return HttpResponseStatus.SERVICE_UNAVAILABLE.code();
             case 15:
                 return HttpResponseStatus.INTERNAL_SERVER_ERROR.code();
             case 16:
                 return HttpResponseStatus.UNAUTHORIZED.code();
+            case 2:
+            case 13:
             default:
                 return HttpResponseStatus.INTERNAL_SERVER_ERROR.code();
         }
