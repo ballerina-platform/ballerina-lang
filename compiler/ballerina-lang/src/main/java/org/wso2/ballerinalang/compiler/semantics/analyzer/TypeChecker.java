@@ -1930,10 +1930,18 @@ public class TypeChecker extends BLangNodeVisitor {
         BRecordType retType = new BRecordType(null);
         
         for (BLangWaitForAllExpr.BLangWaitKeyValue keyVal : keyVals) {
-            BSymbol symbol = symResolver.lookupSymbol(env, names.fromIdNode(keyVal.key), SymTag.VARIABLE);
+            BLangIdentifier fieldName;
+            if (keyVal.valueExpr == null || keyVal.valueExpr.getKind() != NodeKind.SIMPLE_VARIABLE_REF) {
+                fieldName = keyVal.key;
+            } else {
+                fieldName = ((BLangSimpleVarRef) keyVal.valueExpr).variableName;
+            }
+
+            BSymbol symbol = symResolver.lookupSymbol(env, names.fromIdNode(fieldName), SymTag.VARIABLE);
+            BType fieldType = symbol.type.tag == TypeTags.FUTURE ? ((BFutureType) symbol.type).constraint : symbol.type;
             BField field = new BField(names.fromIdNode(keyVal.key), null,
                                       new BVarSymbol(0, names.fromIdNode(keyVal.key), env.enclPkg.packageID,
-                                                     symbol.type, null));
+                                                     fieldType, null));
             retType.fields.add(field);
         }
 
