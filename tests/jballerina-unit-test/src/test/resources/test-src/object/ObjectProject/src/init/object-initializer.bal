@@ -241,3 +241,42 @@ function testCheckPanicInObjectInitArg() returns error {
 function testObjectInitPanic() returns error|PanicReceiver {
     return trap new PanicReceiver("Mr. Panic");
 }
+
+type Student1 object {
+    public int marks = 75;
+
+    public function __init() {
+        string grade = "B";
+    }
+
+    public function getMarks() returns int {
+        self.__init();
+        return self.marks;
+    }
+};
+
+function testInitInvocationInsideObjectForChangingFieldValues() returns int {
+    Student1 student = new;
+    student.marks = 80;
+    return student.getMarks();
+}
+
+type Student2 object {
+    public int marks = 75;
+    public string grade;
+
+    public function __init(string grade) {
+        self.grade = grade;
+    }
+
+    public function getMarks() returns int {
+        self.__init("B+");
+        return self.marks;
+    }
+};
+
+function testInitInvocationInsideObjectForChangingFieldValuesWithArgs() returns int {
+    Student2 student = new("B");
+    student.marks = 82;
+    return student.getMarks();
+}

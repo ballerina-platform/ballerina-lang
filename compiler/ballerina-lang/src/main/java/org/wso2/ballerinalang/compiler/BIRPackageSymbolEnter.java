@@ -367,7 +367,7 @@ public class BIRPackageSymbolEnter {
                         || funcName.equals(Names.INIT_FUNCTION_SUFFIX.value)) {
                     structureTypeSymbol.initializerFunc = attachedFunc;
                 } else if (funcName.equals(Names.DEFAULT_INIT_SUFFIX.value)) {
-                    structureTypeSymbol.defaultInitializerFunc = attachedFunc;
+                    ((BObjectTypeSymbol) structureTypeSymbol).defaultInitializerFunc = attachedFunc;
                 }
             }
         }

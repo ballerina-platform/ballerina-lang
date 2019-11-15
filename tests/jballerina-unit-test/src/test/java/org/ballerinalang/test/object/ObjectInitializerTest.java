@@ -191,4 +191,20 @@ public class ObjectInitializerTest {
         Assert.assertEquals(returns[0].getType().getTag(), TypeTags.STRING);
         Assert.assertEquals(returns[0].stringValue(), "Ballerina");
     }
+
+    @Test(description = "Test invoking '__init' function in a function inside object descriptor when field values are" +
+            " being changed.")
+    public void testInitInvocationInsideObjectForChangingFieldValues() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testInitInvocationInsideObjectForChangingFieldValues");
+
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 80);
+    }
+
+    @Test(description = "Test invoking '__init' function with args in a function inside object descriptor when field " +
+            "values are being changed.")
+    public void testInitInvocationInsideObjectForChangingFieldValuesWithArgs() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testInitInvocationInsideObjectForChangingFieldValues");
+
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 80);
+    }
 }
