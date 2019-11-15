@@ -339,7 +339,7 @@ public class ArgumentParser {
                     }
                     return byteArrayArgs;
                 default:
-                    ArrayValue refValueArray = new ArrayValueImpl();
+                    ArrayValue refValueArray = new ArrayValueImpl((BArrayType) type);
                     for (int i = 0; i < args.size(); i++) {
                         refValueArray.add(i, getBValue(elementType, args.get(i)));
                     }

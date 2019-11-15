@@ -598,8 +598,8 @@ function generateFrameClassJFieldUpdate(bir:VariableDcl localVar, jvm:MethodVisi
         mv.visitFieldInsn(PUTFIELD, frameName, stringutils:replace(localVar.name.value, "%","_"), "Z");
     } else if (jType is jvm:JArrayType ||
                 jType is jvm:JRefType) {
-	string classSig = getJTypeSignature(jType);
-	string className = getSignatureForJType(jType);
+        string classSig = getJTypeSignature(jType);
+        string className = getSignatureForJType(jType);
         mv.visitVarInsn(ALOAD, index);
         mv.visitTypeInsn(CHECKCAST, className);
         mv.visitFieldInsn(PUTFIELD, frameName, stringutils:replace(localVar.name.value, "%","_"), classSig);
@@ -807,8 +807,8 @@ function generateBasicBlocks(jvm:MethodVisitor mv, bir:BasicBlock?[] basicBlocks
                     instGen.generateNegateIns(<bir:UnaryOp> inst);
                 } 
             } else if (insKind == bir:INS_KIND_PLATFORM) {
-	        instGen.generatePlatformIns(<JInstruction>inst);
-	    } else {
+                instGen.generatePlatformIns(<JInstruction>inst);
+            } else {
                 error err = error("JVM generation is not supported for operation " + io:sprintf("%s", inst));
                 panic err;
             }
@@ -1121,7 +1121,7 @@ function genDefaultValue(jvm:MethodVisitor mv, bir:BType bType, int index) {
         mv.visitInsn(ACONST_NULL);
         mv.visitVarInsn(ASTORE, index);
     } else if (bType is jvm:JType) {
-	genJDefaultValue(mv, bType, index);
+        genJDefaultValue(mv, bType, index);
     } else {
         error err = error( "JVM generation is not supported for type " +
                                         io:sprintf("%s", bType));
@@ -2048,8 +2048,7 @@ type BalToJVMIndexMap object {
         if (bType is bir:BTypeInt ||
             bType is bir:BTypeFloat) {
             self.localVarIndex = self.localVarIndex + 2;
-        } else if (bType is jvm:JLong ||
-            bType is jvm:JDouble) {
+        } else if (bType is jvm:JLong || bType is jvm:JDouble) {
             self.localVarIndex = self.localVarIndex + 2;
         } else {
             self.localVarIndex = self.localVarIndex + 1;

@@ -38,10 +38,10 @@ type ErrorHandlerGenerator object {
     }
 
     function generateTryInsForTrap(bir:ErrorEntry currentEE, string previousTargetBB, jvm:Label startLabel, jvm:Label jumpLabel) {
-	    if (currentEE is JErrorEntry) {
-                self.mv.visitLabel(startLabel);
-	        return;
-	    }
+        if (currentEE is JErrorEntry) {
+            self.mv.visitLabel(startLabel);
+            return;
+        }
         var varDcl = <bir:VariableDcl>currentEE.errorOp.variableDcl;
         int lhsIndex = self.getJVMIndexOfVarRef(varDcl);
         // Handle cases where the same variable used to trap multiple expressions with single trap statement.
@@ -63,19 +63,19 @@ type ErrorHandlerGenerator object {
     						InstructionGenerator instGen, TerminatorGenerator termGen) {
         self.mv.visitLabel(endLabel);
         self.mv.visitJumpInsn(GOTO, jumpLabel);
-	    if (currentEE is JErrorEntry) {
+        if (currentEE is JErrorEntry) {
             var retVarDcl = <bir:VariableDcl>currentEE.errorOp.variableDcl;
             int retIndex = self.getJVMIndexOfVarRef(retVarDcl);
-	        foreach CatchIns catchIns in currentEE.catchIns {
-	            jvm:Label errorValueLabel = new;
+            foreach CatchIns catchIns in currentEE.catchIns {
+                jvm:Label errorValueLabel = new;
                 self.mv.visitTryCatchBlock(startLabel, endLabel, errorValueLabel, catchIns.errorClass);
                 self.mv.visitLabel(errorValueLabel);
                 self.mv.visitMethodInsn(INVOKESTATIC, BAL_ERRORS, "createInteropError", io:sprintf("(L%s;)L%s;", THROWABLE, ERROR_VALUE), false);
                 generateVarStore(self.mv, retVarDcl, self.currentPackageName, retIndex);
-	    	    bir:Return term = catchIns.term;
+                bir:Return term = catchIns.term;
                 termGen.genReturnTerm(term, retIndex, func);
                 self.mv.visitJumpInsn(GOTO, jumpLabel);
-	        }
+            }
             jvm:Label otherErrorLabel = new;
             self.mv.visitTryCatchBlock(startLabel, endLabel, otherErrorLabel, THROWABLE);
 
@@ -87,7 +87,7 @@ type ErrorHandlerGenerator object {
             return;
 	    }
 
-	    jvm:Label errorValueLabel = new;
+        jvm:Label errorValueLabel = new;
         jvm:Label otherErrorLabel = new;
         self.mv.visitTryCatchBlock(startLabel, endLabel, errorValueLabel, ERROR_VALUE);
         self.mv.visitTryCatchBlock(startLabel, endLabel, otherErrorLabel, STACK_OVERFLOW_ERROR);

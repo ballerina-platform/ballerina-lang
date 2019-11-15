@@ -20,7 +20,6 @@ package org.ballerinalang.test.functions;
 import org.ballerinalang.jvm.types.BTupleType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.values.ArrayValue;
-import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.TupleValueImpl;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;

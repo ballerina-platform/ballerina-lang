@@ -47,12 +47,14 @@ import static org.ballerinalang.jvm.observability.tracer.TraceConstants.TAG_SPAN
 public class ObserveUtils {
     private static final List<BallerinaObserver> observers = new CopyOnWriteArrayList<>();
     private static final boolean enabled;
+    private static final boolean metricsEnabled;
     private static final boolean tracingEnabled;
 
     static {
         ConfigRegistry configRegistry = ConfigRegistry.getInstance();
         tracingEnabled = configRegistry.getAsBoolean(CONFIG_TRACING_ENABLED);
-        enabled = configRegistry.getAsBoolean(CONFIG_METRICS_ENABLED) || tracingEnabled;
+        metricsEnabled = configRegistry.getAsBoolean(CONFIG_METRICS_ENABLED);
+        enabled = metricsEnabled || tracingEnabled;
     }
 
     /**
@@ -220,6 +222,24 @@ public class ObserveUtils {
      */
     public static boolean isObservabilityEnabled() {
         return enabled;
+    }
+
+    /**
+     * Check if metrics is enabled or not.
+     *
+     * @return true if metrics is enabled else false
+     */
+    public static boolean isMetricsEnabled() {
+        return metricsEnabled;
+    }
+
+    /**
+     * Check if tracing is enabled or not.
+     *
+     * @return true if tracing is enabled else false
+     */
+    public static boolean isTracingEnabled() {
+        return tracingEnabled;
     }
 
     /**

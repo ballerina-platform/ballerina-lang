@@ -26,6 +26,8 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.http.websocket.WebSocketConstants;
 import org.ballerinalang.net.http.websocket.WebSocketUtil;
+import org.ballerinalang.net.http.websocket.observability.WebSocketObservabilityConstants;
+import org.ballerinalang.net.http.websocket.observability.WebSocketObservabilityUtil;
 import org.ballerinalang.net.http.websocket.server.WebSocketConnectionInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,13 +52,21 @@ public class Pong {
 
     public static Object pong(Strand strand, ObjectValue wsConnection, ArrayValue binaryData) {
         NonBlockingCallback callback = new NonBlockingCallback(strand);
+        WebSocketConnectionInfo connectionInfo = (WebSocketConnectionInfo) wsConnection
+                .getNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_CONNECTION_INFO);
+        WebSocketObservabilityUtil.observeResourceInvocation(strand, connectionInfo,
+                                                             WebSocketConstants.RESOURCE_NAME_PONG);
         try {
-            WebSocketConnectionInfo connectionInfo = (WebSocketConnectionInfo) wsConnection
-                    .getNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_CONNECTION_INFO);
             ChannelFuture future = connectionInfo.getWebSocketConnection().pong(ByteBuffer.wrap(binaryData.getBytes()));
             WebSocketUtil.handleWebSocketCallback(callback, future, log);
+            WebSocketObservabilityUtil.observeSend(WebSocketObservabilityConstants.MESSAGE_TYPE_PONG,
+                                                   connectionInfo);
         } catch (Exception e) {
             log.error("Error occurred when ponging", e);
+            WebSocketObservabilityUtil.observeError(WebSocketObservabilityUtil.getConnectionInfo(wsConnection),
+                                                    WebSocketObservabilityConstants.ERROR_TYPE_MESSAGE_SENT,
+                                                    WebSocketObservabilityConstants.MESSAGE_TYPE_PONG,
+                                                    e.getMessage());
             callback.notifyFailure(WebSocketUtil.createErrorByType(e));
         }
         return null;
