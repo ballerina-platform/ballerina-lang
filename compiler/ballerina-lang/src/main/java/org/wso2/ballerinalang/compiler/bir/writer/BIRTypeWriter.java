@@ -21,6 +21,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.ballerinalang.model.elements.MarkdownDocAttachment;
 import org.ballerinalang.model.symbols.SymbolKind;
+import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.ByteCPEntry;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.FloatCPEntry;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.IntegerCPEntry;
@@ -343,9 +344,17 @@ public class BIRTypeWriter implements TypeVisitor {
             attachedFuncs = new ArrayList<>();
             buff.writeByte(0); // constructor not present
         }
-        buff.writeInt(attachedFuncs.size());
+
+        List<BAttachedFunction> writableAttachedFunctions = new ArrayList<>();
         for (BAttachedFunction attachedFunc : attachedFuncs) {
-            writeAttachFunction(attachedFunc);
+            if (bObjectType.getKind() == TypeKind.SERVICE && attachedFunc.funcName == Names.DEFAULT_INIT_SUFFIX) {
+                continue;
+            }
+            writableAttachedFunctions.add(attachedFunc);
+        }
+        buff.writeInt(writableAttachedFunctions.size());
+        for (BAttachedFunction writableAttachedFunc : writableAttachedFunctions) {
+            writeAttachFunction(writableAttachedFunc);
         }
     }
 
