@@ -1691,13 +1691,12 @@ public class TypeChecker extends BLangNodeVisitor {
                     cIExpr.initInvocation.symbol = ((BObjectTypeSymbol) actualType.tsymbol).initializerFunc.symbol;
                     checkInvocationParam(cIExpr.initInvocation);
                     cIExpr.initInvocation.type = ((BInvokableSymbol) cIExpr.initInvocation.symbol).retType;
-                } else if (!cIExpr.initInvocation.argExprs.isEmpty()) {
+                } else {
                     // If the initializerFunc is null then this is a default constructor invocation. Hence should not
                     // pass any arguments.
-                    dlog.error(cIExpr.pos, DiagnosticCode.TOO_MANY_ARGS_FUNC_CALL, cIExpr.initInvocation.exprSymbol);
-                    cIExpr.initInvocation.argExprs.forEach(expr -> checkExpr(expr, env, symTable.noType));
-                    resultType = symTable.semanticError;
-                    return;
+                    if (!isValidInitInvocation(cIExpr, (BObjectType) actualType)) {
+                        return;
+                    }
                 }
                 break;
             case TypeTags.STREAM:
@@ -1712,13 +1711,18 @@ public class TypeChecker extends BLangNodeVisitor {
                 BType matchedType = getMatchingType(matchingMembers, cIExpr, actualType);
                 cIExpr.initInvocation.type = symTable.nilType;
 
-                if (matchedType.tag == TypeTags.OBJECT
-                        && ((BObjectTypeSymbol) matchedType.tsymbol).initializerFunc != null) {
-                    cIExpr.initInvocation.symbol = ((BObjectTypeSymbol) matchedType.tsymbol).initializerFunc.symbol;
-                    checkInvocationParam(cIExpr.initInvocation);
-                    cIExpr.initInvocation.type = ((BInvokableSymbol) cIExpr.initInvocation.symbol).retType;
-                    actualType = matchedType;
-                    break;
+                if (matchedType.tag == TypeTags.OBJECT) {
+                    if (((BObjectTypeSymbol) matchedType.tsymbol).initializerFunc != null) {
+                        cIExpr.initInvocation.symbol = ((BObjectTypeSymbol) matchedType.tsymbol).initializerFunc.symbol;
+                        checkInvocationParam(cIExpr.initInvocation);
+                        cIExpr.initInvocation.type = ((BInvokableSymbol) cIExpr.initInvocation.symbol).retType;
+                        actualType = matchedType;
+                        break;
+                    } else {
+                        if (!isValidInitInvocation(cIExpr, (BObjectType) matchedType)) {
+                            return;
+                        }
+                    }
                 }
                 types.checkType(cIExpr, matchedType, expType);
                 cIExpr.type = matchedType;
@@ -1735,6 +1739,17 @@ public class TypeChecker extends BLangNodeVisitor {
         }
         BType actualTypeInitType = getObjectConstructorReturnType(actualType, cIExpr.initInvocation.type);
         resultType = types.checkType(cIExpr, actualTypeInitType, expType);
+    }
+
+    private boolean isValidInitInvocation(BLangTypeInit cIExpr, BObjectType objType) {
+
+        if (!cIExpr.initInvocation.argExprs.isEmpty() && ((BObjectTypeSymbol) objType.tsymbol).initializerFunc == null) {
+            dlog.error(cIExpr.pos, DiagnosticCode.TOO_MANY_ARGS_FUNC_CALL, cIExpr.initInvocation.exprSymbol);
+            cIExpr.initInvocation.argExprs.forEach(expr -> checkExpr(expr, env, symTable.noType));
+            resultType = symTable.semanticError;
+            return false;
+        }
+        return true;
     }
 
     private BType getObjectConstructorReturnType(BType objType, BType initRetType) {
