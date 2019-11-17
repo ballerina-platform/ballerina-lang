@@ -30,6 +30,7 @@ import org.ballerinalang.jvm.types.BUnionType;
 import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.net.grpc.exception.GrpcClientException;
+import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -144,7 +145,7 @@ public final class ServiceDefinition {
         AttachedFunction[] attachedFunctions = clientEndpointType.getAttachedFunctions();
         for (AttachedFunction attachedFunction : attachedFunctions) {
             String methodName = attachedFunction.getName();
-            if (methodName.equals("$__init$")) {
+            if (methodName.equals(Names.DEFAULT_INIT_SUFFIX.getValue())) {
                 continue;
             }
             Descriptors.MethodDescriptor methodDescriptor = serviceDescriptor.findMethodByName(methodName);
