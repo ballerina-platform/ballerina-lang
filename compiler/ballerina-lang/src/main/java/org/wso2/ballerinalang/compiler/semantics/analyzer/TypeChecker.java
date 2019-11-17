@@ -1743,7 +1743,8 @@ public class TypeChecker extends BLangNodeVisitor {
 
     private boolean isValidInitInvocation(BLangTypeInit cIExpr, BObjectType objType) {
 
-        if (!cIExpr.initInvocation.argExprs.isEmpty() && ((BObjectTypeSymbol) objType.tsymbol).initializerFunc == null) {
+        if (!cIExpr.initInvocation.argExprs.isEmpty()
+                && ((BObjectTypeSymbol) objType.tsymbol).initializerFunc == null) {
             dlog.error(cIExpr.pos, DiagnosticCode.TOO_MANY_ARGS_FUNC_CALL, cIExpr.initInvocation.exprSymbol);
             cIExpr.initInvocation.argExprs.forEach(expr -> checkExpr(expr, env, symTable.noType));
             resultType = symTable.semanticError;
