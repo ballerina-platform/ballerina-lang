@@ -195,7 +195,7 @@ public abstract class XMLValue<T> implements RefValue, CollectionValue {
      * 
      * @return All the children sequences of the elements in this sequence
      */
-    public abstract XMLValue<?> children();
+    public abstract XMLValue<?>  children();
 
     /**
      * Selects and concatenate all the children sequences that matches the given qualified name,
@@ -324,24 +324,20 @@ public abstract class XMLValue<T> implements RefValue, CollectionValue {
 
     /**
      * Recursively traverse and add the descendant with the given name to the descendants list.
-     * 
-     * @param descendants List to add descendants
+     *  @param descendants List to add descendants
      * @param currentElement Current node
      * @param qname Qualified name of the descendants to search
      */
-    @SuppressWarnings("unchecked")
-    protected void addDescendants(List<XMLValue<?>> descendants, OMElement currentElement, String qname) {
-        Iterator<OMNode> childrenItr = currentElement.getChildren();
-        while (childrenItr.hasNext()) {
-            OMNode child = childrenItr.next();
-            if (child.getType() != OMNode.ELEMENT_NODE) {
-                continue;
+    protected void addDescendants(List<XMLValue<?>> descendants, XMLItem currentElement, String qname) {
+        for (XMLValue<?> child : currentElement.children.children) {
+            if (child.getNodeType() == XMLNodeType.ELEMENT) {
+                if (((XMLItem) child).getQName().toString().equals(qname)) { // todo: is this name check correct? verify
+                    descendants.add(child);
+                    continue;
+                } else {
+                    addDescendants(descendants, (XMLItem) child, qname);
+                }
             }
-            if (qname.equals(((OMElement) child).getQName().toString())) {
-                descendants.add(new XMLItem(child));
-                continue;
-            }
-            addDescendants(descendants, (OMElement) child, qname);
         }
     }
 

@@ -164,7 +164,8 @@ public class JSONToXMLConverter {
                         currentRoot = traverseJsonNode(entry.getValue(), entry.getKey(), currentRoot,
                                 omElementArrayList, attributePrefix, arrayEntryTag);
                         if (nodeName == null) { // Outermost object
-                            omElementArrayList.add(new XMLItem(currentRoot));
+                            // todo: fix this
+                            //omElementArrayList.add(new XMLItem(currentRoot));
                             currentRoot = null;
                         }
                     }
@@ -175,7 +176,7 @@ public class JSONToXMLConverter {
                         currentRoot = traverseJsonNode(entry.getValue(), entry.getKey(), currentRoot,
                                 omElementArrayList, attributePrefix, arrayEntryTag);
                         if (nodeName == null) { // Outermost object
-                            omElementArrayList.add(new XMLItem(currentRoot));
+                            //omElementArrayList.add(new XMLItem(currentRoot));
                             currentRoot = null;
                         }
                     }
@@ -186,7 +187,7 @@ public class JSONToXMLConverter {
                         currentRoot = traverseJsonNode(array.getRefValue(i), arrayEntryTag, currentRoot,
                                 omElementArrayList, attributePrefix, arrayEntryTag);
                         if (nodeName == null) { // Outermost array
-                            omElementArrayList.add(new XMLItem(currentRoot));
+                            //omElementArrayList.add(new XMLItem(currentRoot));
                             currentRoot = null;
                         }
                     }

@@ -17,12 +17,15 @@
 package org.ballerinalang.jvm.values;
 
 import org.apache.axiom.om.OMElement;
+import org.apache.axiom.om.OMException;
 import org.apache.axiom.om.OMNamespace;
 import org.apache.axiom.om.OMNode;
 import org.apache.axiom.om.OMText;
 import org.apache.axiom.om.impl.common.OMNamespaceImpl;
+import org.apache.axiom.om.impl.dom.TextImpl;
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.StaxXMLSink;
+import org.ballerinalang.jvm.XMLFactory;
 import org.ballerinalang.jvm.XMLNodeType;
 import org.ballerinalang.jvm.XMLValidator;
 import org.ballerinalang.jvm.scheduling.Strand;
@@ -40,6 +43,7 @@ import java.util.Map;
 
 import javax.xml.XMLConstants;
 import javax.xml.namespace.QName;
+import javax.xml.stream.XMLStreamException;
 
 import static org.ballerinalang.jvm.XMLNodeType.ELEMENT;
 import static org.ballerinalang.jvm.util.BLangConstants.STRING_NULL_VALUE;
@@ -99,10 +103,8 @@ public final class XMLItem extends XMLValue<OMNode> {
      *
      * @param value xml object
      */
-    public XMLItem(OMNode value) {
-        assert false;
-        //this.omNode = value;
-//        setXMLNodeType();
+    public XMLItem(QName name) {
+        this(name, new XMLSequence(new ArrayList<>()));
     }
 
     /**
@@ -432,8 +434,18 @@ public final class XMLItem extends XMLValue<OMNode> {
      */
     @Override
     public OMNode value() {
-        assert false;
-        return null; //this.omNode;
+        try {
+            String xmlStr = this.stringValue();
+            OMElement omElement = XMLFactory.stringToOM(xmlStr);
+            return omElement;
+        } catch (ErrorValue e) {
+            throw e;
+        } catch (OMException | XMLStreamException e) {
+            Throwable cause = e.getCause() == null ? e : e.getCause();
+            throw BallerinaErrors.createError(cause.getMessage());
+        } catch (Throwable e) {
+            throw BallerinaErrors.createError("failed to parse xml: " + e.getMessage());
+        }
     }
 
     /**

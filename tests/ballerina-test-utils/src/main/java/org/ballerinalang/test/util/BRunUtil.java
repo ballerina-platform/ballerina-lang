@@ -17,9 +17,11 @@
  */
 package org.ballerinalang.test.util;
 
+import org.apache.axiom.om.OMNode;
 import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.DecimalValueKind;
 import org.ballerinalang.jvm.TypeChecker;
+import org.ballerinalang.jvm.XMLFactory;
 import org.ballerinalang.jvm.XMLNodeType;
 import org.ballerinalang.jvm.commons.ArrayState;
 import org.ballerinalang.jvm.scheduling.Scheduler;
@@ -522,7 +524,7 @@ public class BRunUtil {
             case TypeTags.XML_TAG:
                 BXML<?> xml = (BXML<?>) value;
                 if (xml.getNodeType() != org.ballerinalang.model.util.XMLNodeType.SEQUENCE) {
-                    return new XMLItem(((BXMLItem) xml).value());
+                    return XMLFactory.parse2(xml.stringValue());
                 }
                 BValueArray elements = ((BXMLSequence) xml).value();
                 return new XMLSequence((ArrayValue) getJVMValue(elements.getType(), elements));
@@ -630,7 +632,7 @@ public class BRunUtil {
             case TypeTags.XML_TAG:
                 BXML<?> xml = (BXML<?>) value;
                 if (xml.getNodeType() != org.ballerinalang.model.util.XMLNodeType.SEQUENCE) {
-                    return new XMLItem(((BXMLItem) xml).value());
+                    return XMLFactory.parse2(xml.stringValue());
                 }
                 BValueArray elements = ((BXMLSequence) xml).value();
                 return new XMLSequence((ArrayValue) getJVMValue(elements.getType(), elements));
@@ -922,7 +924,7 @@ public class BRunUtil {
             case org.ballerinalang.jvm.types.TypeTags.XML_TAG:
                 XMLValue<?> xml = (XMLValue<?>) value;
                 if (xml.getNodeType() != XMLNodeType.SEQUENCE) {
-                    return new BXMLItem(((XMLItem) xml).value());
+                    return new BXMLItem(((XMLValue<OMNode>) xml).value());
                 }
                 ArrayValue elements = ((XMLSequence) xml).value();
                 bvmValue = new BXMLSequence((BValueArray) getBVMValue(elements, bvmValueMap));

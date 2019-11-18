@@ -234,7 +234,7 @@ public final class XMLSequence extends XMLValue<ArrayValue> {
         int j = 0;
         for (XMLValue<?> x : children) {
             XMLItem item = (XMLItem) x;
-            if (item.getNodeType() == XMLNodeType.ELEMENT && item.getElementName().toString().equals(qnameStr)) {
+            if (item.getNodeType() == XMLNodeType.ELEMENT && item.getElementName().equals(qnameStr)) {
                 elementsSeq.add(j++, item);
             }
         }
@@ -245,47 +245,23 @@ public final class XMLSequence extends XMLValue<ArrayValue> {
      * {@inheritDoc}
      */
     @Override
-    @SuppressWarnings("unchecked")
     public XMLValue<?> children() {
-        ArrayValue elementsSeq = new ArrayValue(new BArrayType(BTypes.typeXML));
-        int index = 0;
-        for (XMLValue<?> x : children) {
-            XMLItem element = (XMLItem) x;
-            if (element.getNodeType() != XMLNodeType.ELEMENT) {
-                continue;
-            }
-
-            Iterator<OMNode> childrenItr = ((OMElement) element.value()).getChildren();
-            while (childrenItr.hasNext()) {
-                elementsSeq.add(index++, new XMLItem(childrenItr.next()));
-            }
-        }
-
-        return new XMLSequence(elementsSeq);
+        return this;
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    @SuppressWarnings("unchecked")
     public XMLValue<?> children(String qname) {
-        ArrayValue elementsSeq = new ArrayValue(new BArrayType(BTypes.typeXML));
-        QName name = getQname(qname);
-        int index = 0;
-        for (XMLValue<?> x : children) {
-            XMLItem element = (XMLItem) x;
-            if (element.getNodeType() != XMLNodeType.ELEMENT) {
-                continue;
-            }
-
-            Iterator<OMNode> childrenItr = ((OMElement) element.value()).getChildrenWithName(name);
-            while (childrenItr.hasNext()) {
-                OMNode child = childrenItr.next();
-                elementsSeq.add(index++, new XMLItem(child));
+        List<XMLValue<?>> selected = new ArrayList<>();
+        for (XMLValue<?> elem : this.children) {
+            if (elem.getElementName().equals(qname)) {
+                selected.add(elem);
             }
         }
-        return new XMLSequence(elementsSeq);
+
+        return new XMLSequence(selected);
     }
 
     /**
@@ -387,7 +363,7 @@ public final class XMLSequence extends XMLValue<ArrayValue> {
             XMLItem element = (XMLItem) x;
             switch (element.getNodeType()) {
                 case ELEMENT:
-                    addDescendants(descendants, (OMElement) element.value(), getQname(qname).toString());
+                    addDescendants(descendants, element, getQname(qname).toString());
                     break;
                 default:
                     break;

@@ -1,11 +1,15 @@
 package org.ballerinalang.jvm.values;
 
+import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.OMNode;
 import org.ballerinalang.jvm.StaxXMLSink;
+import org.ballerinalang.jvm.XMLFactory;
 import org.ballerinalang.jvm.XMLNodeType;
 import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.freeze.Status;
 
+import javax.xml.stream.XMLStreamException;
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
@@ -100,7 +104,7 @@ public class XMLContentHolderItem extends XMLValue<OMNode> {
 
     @Override
     public XMLValue<?> children() {
-        return null;
+        return new XMLSequence();
     }
 
     @Override
@@ -175,7 +179,15 @@ public class XMLContentHolderItem extends XMLValue<OMNode> {
 
     @Override
     public OMNode value() {
-        return null;
+        try {
+            // todo: we gonna need to handle this as stringToOM returns a element node
+            // what we need is all element, comments, pi, etc.
+            String xmlFragment = this.stringValue();
+            OMElement omElement = XMLFactory.stringToOM("<root>" + xmlFragment + "</root>");
+            return (OMNode) omElement.getChildren().next();
+        } catch (XMLStreamException e) {
+            throw new BallerinaException(e);
+        }
     }
 
     @Override

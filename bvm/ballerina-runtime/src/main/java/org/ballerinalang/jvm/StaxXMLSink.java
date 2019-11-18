@@ -113,7 +113,6 @@ public class StaxXMLSink extends OutputStream {
         this.parentNSSet.push(currentNSLevel);
 
         Map<String, String> nsPrefixMap = prefixToNSUri(xmlValue);
-
         QName qName = xmlValue.getQName();
         setMissingElementPrefix(currentNSLevel, nsPrefixMap, qName);
         xmlStreamWriter.writeStartElement(qName.getPrefix(), qName.getLocalPart(), qName.getNamespaceURI());
@@ -150,7 +149,8 @@ public class StaxXMLSink extends OutputStream {
         }
     }
 
-    private void writeNamespaceAttributes(HashSet<String> curNSSet, Map<String, String> nsPrefixMap) throws XMLStreamException {
+    private void writeNamespaceAttributes(HashSet<String> curNSSet, Map<String, String> nsPrefixMap)
+            throws XMLStreamException {
         for (Map.Entry<String, String> nsEntry : nsPrefixMap.entrySet()) {
             if (nsEntry.getKey().isEmpty()) {
                 xmlStreamWriter.setDefaultNamespace(nsEntry.getValue());
@@ -169,7 +169,7 @@ public class StaxXMLSink extends OutputStream {
 
     private void setMissingElementPrefix(HashSet<String> curNSSet, Map<String, String> nsPrefixMap, QName qName)
             throws XMLStreamException {
-        if (qName.getPrefix().isEmpty()
+        if (!qName.getNamespaceURI().isEmpty() && qName.getPrefix().isEmpty()
                 && xmlStreamWriter.getNamespaceContext().getPrefix(qName.getNamespaceURI()) == null) {
             boolean prefixFound = false;
             for (Map.Entry<String, String> entry : nsPrefixMap.entrySet()) {

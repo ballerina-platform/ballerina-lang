@@ -46,12 +46,14 @@ import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.TableValue;
+import org.ballerinalang.jvm.values.XMLContentHolderItem;
 import org.ballerinalang.jvm.values.XMLItem;
 import org.ballerinalang.jvm.values.XMLQName;
 import org.ballerinalang.jvm.values.XMLSequence;
 import org.ballerinalang.jvm.values.XMLValue;
 
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.StringReader;
 import java.util.ArrayList;
@@ -120,40 +122,13 @@ public class XMLFactory {
         try {
 
             if (xmlStr.isEmpty()) {
-                return new XMLItem(new TextImpl());
+                return new XMLSequence();
             }
 
-            // If this is an XML document, parse it and return an element type XML.
-            if (xmlStr.trim().startsWith(XML_DCLR_START)) {
-                return new XMLItem(xmlStr);
-            }
-
-            // Here we add a dummy enclosing tag, and send to AXIOM to parse the XML.
-            // This is to overcome the issue of axiom not allowing to parse xml-comments,
-            // xml-text nodes, and pi nodes, without having an enclosing xml-element node.
-            OMElement omElement = stringToOM("<root>" + xmlStr + "</root>");
-            Iterator<OMNode> children = omElement.getChildren();
-            OMNode omNode = null;
-            if (children.hasNext()) {
-                omNode = children.next();
-            }
-
-            if (children.hasNext()) {
-                throw BallerinaErrors
-                        .createError("xml item must be one of the types: 'element', 'comment', 'text', 'pi'");
-            }
-
-            // Here the node is detached from the dummy root, and added to a
-            // document element. This is to get the xpath working correctly
-            omNode = omNode.detach();
-            OMDocument doc = OM_FACTORY.createOMDocument();
-            doc.addChild(omNode);
-            return new XMLItem(omNode);
+            StaxXMLSource staxXMLSource = new StaxXMLSource(xmlStr);
+            return staxXMLSource.next();
         } catch (ErrorValue e) {
             throw e;
-        } catch (OMException | XMLStreamException e) {
-            Throwable cause = e.getCause() == null ? e : e.getCause();
-            throw BallerinaErrors.createError(cause.getMessage());
         } catch (Throwable e) {
             throw BallerinaErrors.createError("failed to parse xml: " + e.getMessage());
         }
@@ -167,21 +142,14 @@ public class XMLFactory {
      */
     @SuppressWarnings("unchecked")
     public static XMLValue<?> parse(InputStream xmlStream) {
-        ArrayValue elementsSeq = new ArrayValue(new BArrayType(BTypes.typeXML));
-        OMDocument doc;
         try {
-            doc = OMXMLBuilderFactory.createOMBuilder(STAX_PARSER_CONFIGURATION, xmlStream).getDocument();
-            Iterator<OMNode> docChildItr = doc.getChildren();
-            int i = 0;
-            while (docChildItr.hasNext()) {
-                elementsSeq.add(i++, new XMLItem(docChildItr.next()));
-            }
+            StaxXMLSource staxXMLSource = new StaxXMLSource(new InputStreamReader(xmlStream));
+            return staxXMLSource.next();
         } catch (DeferredParsingException e) {
             throw BallerinaErrors.createError(e.getCause().getMessage());
         } catch (Throwable e) {
             throw BallerinaErrors.createError("failed to create xml: " + e.getMessage());
         }
-        return new XMLSequence(elementsSeq);
     }
 
     /**
@@ -193,21 +161,14 @@ public class XMLFactory {
      */
     @SuppressWarnings("unchecked")
     public static XMLValue<?> parse(InputStream xmlStream, String charset) {
-        ArrayValue elementsSeq = new ArrayValue(new BArrayType(BTypes.typeXML));
-        OMDocument doc;
         try {
-            doc = OMXMLBuilderFactory.createOMBuilder(STAX_PARSER_CONFIGURATION, xmlStream, charset).getDocument();
-            Iterator<OMNode> docChildItr = doc.getChildren();
-            int index = 0;
-            while (docChildItr.hasNext()) {
-                elementsSeq.add(index++, new XMLItem(docChildItr.next()));
-            }
+            StaxXMLSource staxXMLSource = new StaxXMLSource(new InputStreamReader(xmlStream, charset));
+            return staxXMLSource.next();
         } catch (DeferredParsingException e) {
             throw BallerinaErrors.createError(e.getCause().getMessage());
         } catch (Throwable e) {
             throw BallerinaErrors.createError("failed to create xml: " + e.getMessage());
         }
-        return new XMLSequence(elementsSeq);
     }
 
 
@@ -224,21 +185,14 @@ public class XMLFactory {
      */
     @SuppressWarnings("unchecked")
     public static XMLValue<?> parse(Reader reader) {
-        ArrayValue elementsSeq = new ArrayValue(new BArrayType(BTypes.typeXML));
-        OMDocument doc;
         try {
-            doc = OMXMLBuilderFactory.createOMBuilder(STAX_PARSER_CONFIGURATION, reader).getDocument();
-            Iterator<OMNode> docChildItr = doc.getChildren();
-            int i = 0;
-            while (docChildItr.hasNext()) {
-                elementsSeq.add(i++, new XMLItem(docChildItr.next()));
-            }
+            StaxXMLSource staxXMLSource = new StaxXMLSource(reader);
+            return staxXMLSource.next();
         } catch (DeferredParsingException e) {
             throw BallerinaErrors.createError(e.getCause().getMessage());
         } catch (Throwable e) {
             throw BallerinaErrors.createError("failed to create xml: " + e.getMessage());
         }
-        return new XMLSequence(elementsSeq);
     }
 
     /**
@@ -249,8 +203,7 @@ public class XMLFactory {
      * @return Concatenated XML sequence
      */
     public static XMLValue<?> concatenate(XMLValue<?> firstSeq, XMLValue<?> secondSeq) {
-        ArrayValue concatSeq = new ArrayValue(new BArrayType(BTypes.typeXML));
-        int j = 0;
+        ArrayList<XMLValue<?>> concatenatedList = new ArrayList<>();
 
         // Load the content fully before concat the two
         firstSeq.build();
@@ -258,25 +211,19 @@ public class XMLFactory {
 
         // Add all the items in the first sequence
         if (firstSeq.getNodeType() == XMLNodeType.SEQUENCE) {
-            ArrayValue seq = ((XMLSequence) firstSeq).value();
-            for (int i = 0; i < seq.size(); i++) {
-                concatSeq.add(j++, seq.getRefValue(i));
-            }
+            concatenatedList.addAll(((XMLSequence) firstSeq).getChildrenList());
         } else {
-            concatSeq.add(j++, firstSeq);
+            concatenatedList.add(firstSeq);
         }
 
         // Add all the items in the second sequence
         if (secondSeq.getNodeType() == XMLNodeType.SEQUENCE) {
-            ArrayValue seq = ((XMLSequence) secondSeq).value();
-            for (int i = 0; i < seq.size(); i++) {
-                concatSeq.add(j++, seq.getRefValue(i));
-            }
+            concatenatedList.addAll(((XMLSequence) secondSeq).getChildrenList());
         } else {
-            concatSeq.add(j++, secondSeq);
+            concatenatedList.add(secondSeq);
         }
 
-        return new XMLSequence(concatSeq);
+        return new XMLSequence(concatenatedList);
     }
 
     /**
@@ -287,9 +234,13 @@ public class XMLFactory {
      */
     @SuppressWarnings("rawtypes")
     public static XMLValue tableToXML(TableValue table) {
-        OMSourcedElementImpl omSourcedElement = new OMSourcedElementImpl();
-        omSourcedElement.init(new TableOMDataSource(table, null, null));
-        return new XMLItem(omSourcedElement);
+        // todo: Implement table to xml (issue #19910)
+
+//        OMSourcedElementImpl omSourcedElement = new OMSourcedElementImpl();
+//        omSourcedElement.init(new TableOMDataSource(table, null, null));
+//        return new XMLItem(omSourcedElement);
+        assert false;
+        return null;
     }
 
     /**
@@ -312,7 +263,6 @@ public class XMLFactory {
         XMLValidator.validateXMLQName(startTagName);
 
         String nsUri = startTagName.getUri();
-        OMElement omElement;
         if (defaultNsUri == null) {
             defaultNsUri = XMLConstants.NULL_NS_URI;
         }
@@ -320,20 +270,10 @@ public class XMLFactory {
         String prefix = startTagName.getPrefix() == null ? XMLConstants.DEFAULT_NS_PREFIX : startTagName.getPrefix();
 
         if (nsUri == null) {
-            omElement = OM_FACTORY.createOMElement(startTagName.getLocalName(), defaultNsUri, prefix);
-        } else if (nsUri.isEmpty()) {
-            omElement = OM_FACTORY.createOMElement(startTagName.getLocalName(), nsUri, prefix);
-        } else if (nsUri.equals(defaultNsUri)) {
-            omElement = OM_FACTORY.createOMElement(startTagName.getLocalName(), defaultNsUri, prefix);
+            return new XMLItem(new QName(defaultNsUri, startTagName.getLocalName(), prefix));
         } else {
-            QName qname = getQName(startTagName.getLocalName(), nsUri, prefix);
-            omElement = OM_FACTORY.createOMElement(qname);
-            if (!defaultNsUri.isEmpty()) {
-                omElement.declareDefaultNamespace(defaultNsUri);
-            }
+            return new XMLItem(new QName(nsUri, startTagName.getLocalName(), prefix));
         }
-
-        return new XMLItem(omElement);
     }
 
     /**
@@ -343,8 +283,7 @@ public class XMLFactory {
      * @return XMLValue Comment type XMLValue
      */
     public static XMLValue<?> createXMLComment(String content) {
-        OMComment omComment = OM_FACTORY.createOMComment(OM_FACTORY.createOMDocument(), content);
-        return new XMLItem(omComment);
+        return new XMLContentHolderItem(content, XMLNodeType.COMMENT);
     }
 
     /**
@@ -363,8 +302,7 @@ public class XMLFactory {
                 .replace("&lt;", "<")
                 .replace("&amp;", "&");
 
-        OMText omText = OM_FACTORY.createOMText(content);
-        return new XMLItem(omText);
+        return new XMLContentHolderItem(content, XMLNodeType.TEXT);
     }
 
     /**
@@ -375,9 +313,7 @@ public class XMLFactory {
      * @return XMLValue Processing instruction type XMLValue
      */
     public static XMLValue<?> createXMLProcessingInstruction(String tartget, String data) {
-        OMProcessingInstruction omText =
-                OM_FACTORY.createOMProcessingInstruction(OM_FACTORY.createOMDocument(), tartget, data);
-        return new XMLItem(omText);
+        return new XMLContentHolderItem(data, tartget);
     }
 
     /**
