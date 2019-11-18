@@ -1288,14 +1288,30 @@ public class BLangPackageBuilder {
         switch (variable.getKind()) {
             case TUPLE_VARIABLE:
                 // If the variable is a tuple variable, we need to set the final flag to the all member variables.
-                ((BLangTupleVariable) variable).memberVariables.forEach(this::markVariableAsFinal);
+                BLangTupleVariable tupleVariable = (BLangTupleVariable) variable;
+                tupleVariable.memberVariables.forEach(this::markVariableAsFinal);
+                if (tupleVariable.restVariable != null) {
+                    markVariableAsFinal(tupleVariable.restVariable);
+                }
                 break;
             case RECORD_VARIABLE:
                 // If the variable is a record variable, we need to set the final flag to the all the variables in
                 // the record.
-                ((BLangRecordVariable) variable).variableList.stream()
+                BLangRecordVariable recordVariable = (BLangRecordVariable) variable;
+                recordVariable.variableList.stream()
                         .map(BLangRecordVariableKeyValue::getValue)
                         .forEach(this::markVariableAsFinal);
+                if (recordVariable.restParam != null) {
+                    markVariableAsFinal((BLangVariable) recordVariable.restParam);
+                }
+                break;
+            case ERROR_VARIABLE:
+                BLangErrorVariable errorVariable = (BLangErrorVariable) variable;
+                markVariableAsFinal(errorVariable.reason);
+                errorVariable.detail.forEach(entry -> markVariableAsFinal(entry.valueBindingPattern));
+                if (errorVariable.restDetail != null) {
+                    markVariableAsFinal(errorVariable.restDetail);
+                }
                 break;
         }
     }
