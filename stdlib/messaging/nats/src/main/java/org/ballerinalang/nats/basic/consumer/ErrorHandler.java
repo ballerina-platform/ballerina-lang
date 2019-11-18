@@ -43,12 +43,12 @@ public class ErrorHandler {
      * @param msgObj        Message object
      * @param e             ErrorValue
      */
-    static void dispatchError(ObjectValue serviceObject, ObjectValue msgObj, ErrorValue e) {
+    static void dispatchError(ObjectValue serviceObject, ObjectValue msgObj, ErrorValue e, BRuntime runtime) {
         boolean onErrorResourcePresent = Arrays.stream(serviceObject.getType().getAttachedFunctions())
                 .anyMatch(resource -> resource.getName().equals(ON_ERROR_RESOURCE));
         if (onErrorResourcePresent) {
             CountDownLatch countDownLatch = new CountDownLatch(1);
-            BRuntime.getCurrentRuntime().invokeMethodAsync(serviceObject, ON_ERROR_RESOURCE,
+            runtime.invokeMethodAsync(serviceObject, ON_ERROR_RESOURCE,
                     new DefaultMessageHandler.ResponseCallback(countDownLatch), msgObj, true, e, true);
             try {
                 countDownLatch.await();
