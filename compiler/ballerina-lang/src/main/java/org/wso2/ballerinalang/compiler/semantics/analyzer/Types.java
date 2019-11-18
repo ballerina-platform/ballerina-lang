@@ -20,6 +20,7 @@ package org.wso2.ballerinalang.compiler.semantics.analyzer;
 import org.ballerinalang.model.Name;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.model.types.UnionType;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.semantics.model.BLangBuiltInMethod;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
@@ -1024,6 +1025,15 @@ public class Types {
                     foreachNode.nillableResultType = nextMethodReturnType;
                     return;
                 }
+
+                // check for iterable objects
+                BUnionType nextMethodReturnType = getVarTypeFromIterableObject((BObjectType) collectionType);
+                if (nextMethodReturnType != null) {
+                    foreachNode.resultType = getRecordType(nextMethodReturnType);
+                    foreachNode.nillableResultType = nextMethodReturnType;
+                    foreachNode.varType = ((BRecordType) foreachNode.resultType).fields.get(0).type;
+                    return;
+                }
                 // fallthrough
             default:
                 foreachNode.varType = symTable.semanticError;
@@ -1041,6 +1051,117 @@ public class Types {
         foreachNode.varType = varType;
         foreachNode.resultType = getRecordType(nextMethodReturnType);
         foreachNode.nillableResultType = nextMethodReturnType;
+    }
+
+    private BUnionType getVarTypeFromIterableObject(BObjectType collectionType) {
+        BObjectTypeSymbol objectTypeSymbol = (BObjectTypeSymbol) collectionType.tsymbol;
+        Optional<BAttachedFunction> attachFunc = objectTypeSymbol.attachedFuncs.stream()
+                .filter(func -> func.funcName.value.equals("__iterator")).findFirst();
+
+        if (!attachFunc.isPresent()) {
+            //TODO: print error
+            return null;
+        }
+
+        BAttachedFunction candidateIteratorFunc = attachFunc.get();
+        return getVarTypeFromIteratorFunc(candidateIteratorFunc);
+    }
+
+    private BUnionType getVarTypeFromIteratorFunc(BAttachedFunction candidateIteratorFunc) {
+        if(!candidateIteratorFunc.type.paramTypes.isEmpty()) {
+            //TODO: print error
+            return null;
+        }
+
+        BType returnType = candidateIteratorFunc.type.retType;
+        // abstract object {public function next() returns record {|int value;|}?;}
+        return getVarTypeFromIteratorFuncReturnType(returnType);
+    }
+
+    private BUnionType getVarTypeFromIteratorFuncReturnType(BType returnType) {
+        BObjectTypeSymbol objectTypeSymbol;
+        Optional<BAttachedFunction> attachFunc;
+        if (returnType.tag != TypeTags.OBJECT) {
+            //TODO: print error
+            return null;
+        }
+
+        objectTypeSymbol = (BObjectTypeSymbol) returnType.tsymbol;
+        attachFunc = objectTypeSymbol.attachedFuncs.stream()
+                .filter(func -> func.funcName.value.equals("next")).findFirst();
+
+        if (!attachFunc.isPresent()) {
+            //TODO: print error
+            return null;
+        }
+
+        BAttachedFunction nextFunc = attachFunc.get();
+        // Check if the object has the function,
+        // public function next() returns record {|int value;|}?;
+        return getVarTypeFromNextFunc(nextFunc);
+    }
+
+    private BUnionType getVarTypeFromNextFunc(BAttachedFunction nextFunc) {
+        BType returnType;
+        if (!nextFunc.type.paramTypes.isEmpty()) {
+            //TODO: print error
+            return null;
+        }
+
+        returnType = nextFunc.type.retType;
+        // Check if the next function return type has the union type,
+        // record {|int value;|}|();
+        if (checkNextFuncReturnType(returnType)) {
+            return (BUnionType) returnType;
+        }
+
+        return null;
+    }
+
+    private boolean checkNextFuncReturnType(BType returnType) {
+        if (returnType.tag != TypeTags.UNION) {
+            //TODO: print error
+            return false;
+        }
+
+        List<BType> types = new ArrayList<>(((BUnionType) returnType).getMemberTypes());
+
+        if(!types.removeIf(type -> type.tag == TypeTags.NIL)) {
+            //TODO: print error
+            return false;
+        }
+
+        if (types.size() != 1) {
+            //TODO: print error
+            return false;
+        }
+
+        if (types.get(0).tag != TypeTags.RECORD) {
+            //TODO: print error
+            return false;
+        }
+
+        BRecordType recordType = (BRecordType) types.get(0);
+        // Check if the union type has the record type,
+        // record {|int value;|};
+        return checkRecordTypeInNextFuncReturnType(recordType);
+    }
+
+    private boolean checkRecordTypeInNextFuncReturnType(BRecordType recordType) {
+        if (!recordType.sealed) {
+            //TODO: print error
+            return false;
+        }
+
+        if (recordType.fields.size() != 1) {
+            //TODO: print error
+            return false;
+        }
+
+        Optional<BField> valueField = recordType.fields.stream()
+                .filter(field -> field.name.value.equals("value")).findFirst();
+
+        return valueField.isPresent();
     }
 
     private BRecordType getRecordType(BUnionType type) {
