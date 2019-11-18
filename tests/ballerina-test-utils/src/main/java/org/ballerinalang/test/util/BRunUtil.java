@@ -313,6 +313,11 @@ public class BRunUtil {
             bvmParamTypes.add(
                     new org.wso2.ballerinalang.compiler.semantics.model.types.BType(TypeTags.BOOLEAN_TAG, null));
         }
+        if (function.type.restType != null) {
+            bvmParamTypes.add(function.type.restType);
+            bvmParamTypes.add(
+                    new org.wso2.ballerinalang.compiler.semantics.model.types.BType(TypeTags.BOOLEAN_TAG, null));
+        }
         Class<?>[] jvmParamTypes = new Class[bvmParamTypes.size() + 1];
         Object[] jvmArgs = new Object[bvmArgs.length + 1];
         jvmParamTypes[0] = Strand.class;
