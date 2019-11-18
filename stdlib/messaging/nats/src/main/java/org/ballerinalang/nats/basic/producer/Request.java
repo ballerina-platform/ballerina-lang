@@ -20,7 +20,6 @@ package org.ballerinalang.nats.basic.producer;
 
 import io.nats.client.Connection;
 import io.nats.client.Message;
-
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.TypeChecker;

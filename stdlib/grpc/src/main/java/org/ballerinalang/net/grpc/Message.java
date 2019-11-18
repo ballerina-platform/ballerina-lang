@@ -343,11 +343,11 @@ public class Message {
                             if (fieldDescriptor.isRepeated()) {
                                 ArrayValue structArray = bMapValue.get(name) != null ?
                                         (ArrayValue) bMapValue.get(name) : null;
+                                BType fieldType = recordType.getFields().get(name).getFieldType();
                                 if (structArray == null || structArray.size() == 0) {
-                                    structArray = new ArrayValueImpl(new BArrayType(bType));
+                                    structArray = new ArrayValueImpl((BArrayType) fieldType);
                                     bMapValue.put(name, structArray);
                                 }
-                                BType fieldType = recordType.getFields().get(name).getFieldType();
                                 structArray.add(structArray.size(), readMessage(fieldDescriptor,
                                         ((BArrayType) fieldType).getElementType(), input).bMessage);
                             } else if (fieldDescriptor.getContainingOneof() != null) {

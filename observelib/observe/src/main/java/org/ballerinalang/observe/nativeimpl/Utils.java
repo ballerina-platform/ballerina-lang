@@ -82,7 +82,7 @@ public class Utils {
                 }
 
                 MapValue<String, Object> aSnapshot = BallerinaValues.createRecordValue(
-                        ObserveNativeImplConstants.OBSERVE_PACKAGE_ID, ObserveNativeImplConstants.STATISTIC_CONFIG);
+                        ObserveNativeImplConstants.OBSERVE_PACKAGE_ID, ObserveNativeImplConstants.SNAPSHOT);
                 aSnapshot.put("timeWindow", snapshot.getTimeWindow().toMillis());
                 aSnapshot.put("mean", snapshot.getMean());
                 aSnapshot.put("max", snapshot.getMax());

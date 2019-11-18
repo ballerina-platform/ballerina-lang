@@ -19,7 +19,6 @@ package org.ballerinalang.nats.streaming.consumer;
 
 import io.nats.streaming.Message;
 import io.nats.streaming.MessageHandler;
-
 import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.services.ErrorHandlerUtils;

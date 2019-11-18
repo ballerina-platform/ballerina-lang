@@ -48,7 +48,6 @@ import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.RefValue;
 import org.ballerinalang.jvm.values.StreamValue;
 import org.ballerinalang.jvm.values.TableValue;
-import org.ballerinalang.jvm.values.TupleValueImpl;
 import org.ballerinalang.jvm.values.TypedescValue;
 import org.ballerinalang.jvm.values.XMLValue;
 
@@ -1155,7 +1154,8 @@ public class TypeChecker {
             case TypeTags.TUPLE_TAG:
                 BTupleType tupleType = (BTupleType) type;
                 int fixedLen = tupleType.getTupleTypes().size();
-                return (elementIndex < fixedLen) ? tupleType.getTupleTypes().get(elementIndex) : tupleType.getRestType();
+                return (elementIndex < fixedLen) ? tupleType.getTupleTypes().get(elementIndex)
+                        : tupleType.getRestType();
             case TypeTags.ARRAY_TAG:
                 return ((BArrayType) source.getType()).getElementType();
             default:

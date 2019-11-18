@@ -19,14 +19,14 @@
 package org.ballerinalang.mime.util;
 
 import io.netty.handler.codec.http.HttpHeaderNames;
-
 import org.ballerinalang.jvm.BallerinaErrors;
+import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.JSONParser;
 import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.XMLFactory;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BObjectType;
-import org.ballerinalang.jvm.types.BTypes;
+import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.ObjectValue;
@@ -55,10 +55,12 @@ import java.util.Set;
 
 import static org.ballerinalang.mime.util.MimeConstants.BODY_PARTS;
 import static org.ballerinalang.mime.util.MimeConstants.CHARSET;
+import static org.ballerinalang.mime.util.MimeConstants.ENTITY;
 import static org.ballerinalang.mime.util.MimeConstants.ENTITY_BYTE_CHANNEL;
 import static org.ballerinalang.mime.util.MimeConstants.FIRST_BODY_PART_INDEX;
 import static org.ballerinalang.mime.util.MimeConstants.MESSAGE_DATA_SOURCE;
 import static org.ballerinalang.mime.util.MimeConstants.MULTIPART_AS_PRIMARY_TYPE;
+import static org.ballerinalang.mime.util.MimeConstants.PROTOCOL_MIME_PKG_ID;
 import static org.ballerinalang.mime.util.MimeUtil.isNotNullAndEmpty;
 
 /**
@@ -69,6 +71,8 @@ import static org.ballerinalang.mime.util.MimeUtil.isNotNullAndEmpty;
 public class EntityBodyHandler {
 
     private static final Logger log = LoggerFactory.getLogger(EntityBodyHandler.class);
+    private static final BType MIME_ENTITY_TYPE =
+            BallerinaValues.createObjectValue(PROTOCOL_MIME_PKG_ID, ENTITY).getType();
 
     /**
      * Get a byte channel for a given text data.
@@ -398,8 +402,8 @@ public class EntityBodyHandler {
      * @return An array of body parts
      */
     public static ArrayValue getBodyPartArray(ObjectValue entityObj) {
-        return entityObj.getNativeData(BODY_PARTS) != null ?
-                (ArrayValue) entityObj.getNativeData(BODY_PARTS) : new ArrayValueImpl(new BArrayType(BTypes.typeAny), 0);
+        return entityObj.getNativeData(BODY_PARTS) != null ? (ArrayValue) entityObj.getNativeData(BODY_PARTS)
+                : new ArrayValueImpl(new BArrayType(MIME_ENTITY_TYPE), 0);
     }
 
     public static Channel getByteChannel(ObjectValue entityObj) {

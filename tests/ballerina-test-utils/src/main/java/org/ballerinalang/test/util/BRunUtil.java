@@ -457,8 +457,14 @@ public class BRunUtil {
                 org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType arrayType =
                         (org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType) type;
                 BValueArray array = (BValueArray) value;
-                ArrayValue jvmArray = new ArrayValueImpl(
-                        (org.ballerinalang.jvm.types.BArrayType) getJVMType(array.getType()), array.size());
+                org.ballerinalang.jvm.types.BType jvmType = getJVMType(array.getType());
+                org.ballerinalang.jvm.types.BArrayType jvmArrayType;
+                if (jvmType.getTag() == org.ballerinalang.jvm.types.TypeTags.ARRAY_TAG) {
+                    jvmArrayType = (org.ballerinalang.jvm.types.BArrayType) jvmType;
+                } else {
+                    jvmArrayType = new org.ballerinalang.jvm.types.BArrayType(jvmType);
+                }
+                ArrayValue jvmArray = new ArrayValueImpl(jvmArrayType, array.size());
                 for (int i = 0; i < array.size(); i++) {
                     switch (arrayType.eType.tag) {
                         case TypeTags.INT_TAG:
@@ -567,7 +573,8 @@ public class BRunUtil {
             case TypeTags.ARRAY_TAG:
                 BArrayType arrayType = (BArrayType) type;
                 BValueArray array = (BValueArray) value;
-                ArrayValue jvmArray = new ArrayValueImpl((org.ballerinalang.jvm.types.BArrayType) getJVMType(arrayType));
+                ArrayValue jvmArray =
+                        new ArrayValueImpl((org.ballerinalang.jvm.types.BArrayType) getJVMType(arrayType));
                 for (int i = 0; i < array.size(); i++) {
                     switch (arrayType.getElementType().getTag()) {
                         case TypeTags.INT_TAG:

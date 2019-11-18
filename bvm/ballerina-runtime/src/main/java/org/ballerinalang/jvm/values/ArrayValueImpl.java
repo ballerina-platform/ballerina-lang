@@ -299,7 +299,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
                 return;
             case TypeTags.BYTE_TAG:
                 prepareForAdd(index, value, byteValues.length);
-                this.byteValues[(int) index] = ((Integer) value).byteValue();
+                this.byteValues[(int) index] = ((Number) value).byteValue();
                 return;
             case TypeTags.INT_TAG:
                 prepareForAdd(index, value, intValues.length);
@@ -581,7 +581,9 @@ public class ArrayValueImpl extends AbstractArrayValue {
     public void serialize(OutputStream outputStream) {
         if (this.elementType.getTag() == TypeTags.BYTE_TAG) {
             try {
-                outputStream.write(byteValues);
+                for (int i = 0; i < this.size; i++) {
+                    outputStream.write(this.byteValues[i]);
+                }
             } catch (IOException e) {
                 throw new BallerinaException("error occurred while writing the binary content to the output stream", e);
             }

@@ -32,7 +32,6 @@ import org.ballerinalang.jvm.types.BTupleType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypedescType;
 import org.ballerinalang.jvm.types.BTypes;
-import org.ballerinalang.jvm.types.BUnionType;
 import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
@@ -45,7 +44,6 @@ import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.RefValue;
 import org.ballerinalang.jvm.values.TupleValueImpl;
 import org.ballerinalang.jvm.values.TypedescValue;
-import org.ballerinalang.jvm.values.XMLValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -96,12 +94,19 @@ public class ConstructFrom {
     public static Object convert(BType convertType, Object inputValue) {
         try {
             return convert(inputValue, convertType, new ArrayList<>());
+        } catch (ErrorValue e) {
+            return e;
         } catch (BallerinaException e) {
             return createError(CONSTRUCT_FROM_CONVERSION_ERROR, e.getDetail());
         }
     }
 
     private static Object convert(Object value, BType targetType, List<TypeValuePair> unresolvedValues) {
+        return convert(value, targetType, unresolvedValues, false);
+    }
+
+    private static Object convert(Object value, BType targetType, List<TypeValuePair> unresolvedValues,
+                                  boolean allowAmbiguity) {
         if (value == null) {
             if (targetType.isNilable()) {
                 return null;
@@ -112,9 +117,9 @@ public class ConstructFrom {
 
         List<BType> convertibleTypes = getConvertibleTypes(value, targetType);
         if (convertibleTypes.size() == 0) {
-            return createConversionError(value, targetType);
-        } else if (convertibleTypes.size() > 1) {
-            return createConversionError(value, targetType, AMBIGUOUS_TARGET);
+            throw createConversionError(value, targetType);
+        } else if (!allowAmbiguity && convertibleTypes.size() > 1) {
+            throw createConversionError(value, targetType, AMBIGUOUS_TARGET);
         }
 
         BType sourceType = TypeChecker.getType(value);
@@ -234,7 +239,7 @@ public class ConstructFrom {
 
     private static void putToMap(MapValue<String, Object> map, Map.Entry entry, BType fieldType,
                                  List<TypeValuePair> unresolvedValues) {
-        Object newValue = convert(entry.getValue(), fieldType, unresolvedValues);
+        Object newValue = convert(entry.getValue(), fieldType, unresolvedValues, true);
         map.put(entry.getKey().toString(), newValue);
     }
 

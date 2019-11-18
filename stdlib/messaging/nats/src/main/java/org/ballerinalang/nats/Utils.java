@@ -19,7 +19,6 @@
 package org.ballerinalang.nats;
 
 import io.nats.client.Message;
-
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.JSONParser;

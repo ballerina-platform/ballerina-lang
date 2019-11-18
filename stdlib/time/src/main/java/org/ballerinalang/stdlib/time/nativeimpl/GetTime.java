@@ -20,7 +20,7 @@ package org.ballerinalang.stdlib.time.nativeimpl;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BTupleType;
 import org.ballerinalang.jvm.types.BTypes;
-import org.ballerinalang.jvm.values.AbstractArrayValue;
+import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.TupleValueImpl;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -41,7 +41,7 @@ public class GetTime extends AbstractTimeFunction {
     private static final BTupleType getTimeTupleType = new BTupleType(
             Arrays.asList(BTypes.typeInt, BTypes.typeInt, BTypes.typeInt, BTypes.typeInt));
 
-    public static AbstractArrayValue getTime(Strand strand, MapValue<String, Object> timeRecord) {
+    public static ArrayValue getTime(Strand strand, MapValue<String, Object> timeRecord) {
         TupleValueImpl time = new TupleValueImpl(getTimeTupleType);
         time.add(0, Long.valueOf(getHour(timeRecord)));
         time.add(1, Long.valueOf(getMinute(timeRecord)));
