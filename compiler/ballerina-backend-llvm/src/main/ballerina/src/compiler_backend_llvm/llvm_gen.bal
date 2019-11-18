@@ -16,9 +16,12 @@
 
 import ballerina/llvm;
 import ballerina/bir;
+import ballerina/io;
 
 // TODO: make non-global
 llvm:LLVMValueRef? printfRef = ();
+map<llvm:LLVMTypeRef> structMap = {"null" : llvm:llvmVoidType()};
+map<int> precedenceMap = {"boolean":0, "int":1};
 
 function genPackage(bir:Package pkg, string targetObjectFilePath, boolean dumpLLVMIR, boolean noOptimize) {
     var mod = createModule(pkg.org, pkg.name, pkg.versionValue);
@@ -139,10 +142,10 @@ function genBType(bir:BType? bType) returns llvm:LLVMTypeRef {
         return llvm:llvmVoidType();
     } else if (bType is ()) {
         return llvm:llvmVoidType();
+    } else if (bType is bir:BArrayType) { 
+        return llvm:llvmVoidType();
     } else if (bType is bir:BUnionType) {
-        return llvm:llvmVoidType();
-    } else if (bType is bir:BArrayType) {
-        return llvm:llvmVoidType();
+        return createUnion(<bir:BUnionType>bType);
     }
     typedesc<any> T = typeof bType;
     error err = error( "Undefined type :" + T.toString());
@@ -168,4 +171,65 @@ function appendAllTo(any[] toArr, any[] fromArr) {
         toArr[i] = bI;
         i = i + 1;
     }
+}
+
+function createUnion(bir:BUnionType bType) returns llvm:LLVMTypeRef {
+    io:println("Creating Struct type for Union");
+    string largestType = "boolean";
+    foreach var member in bType.members {
+        if (member is bir:BTypeInt) {
+            largestType = checkForLargerType(largestType, "int");
+            createTaggedInt();
+        } else if (member is bir:BTypeBoolean) {
+            largestType = checkForLargerType(largestType, "boolean");
+            createTaggedBool();
+        } else {
+            io:println("any");
+        }
+    }
+    io:println(largestType);
+    return <llvm:LLVMTypeRef>structMap[largestType];
+}
+
+function checkForLargerType(string first, string second) returns string { 
+    if (<int>precedenceMap[first] > <int>precedenceMap[second]) {
+        return first;
+    } else {
+        return second;
+    }
+}
+
+function createTaggedInt() {
+    io:println("BeforeMapCheckInt");
+    if (structMap.hasKey("int")) {
+        return;
+    }
+    io:println("AfterMapCheckInt");
+    llvm:LLVMTypeRef structType = createNamedStruct("tagged_int");
+    llvm:LLVMTypeRef[] argTypes = [llvm:llvmInt64Type(), llvm:llvmInt64Type()];
+    llvm:llvmStructSetBody1(structType, argTypes, 2, 0);
+    structMap["int"] = structType;
+    if (structMap.hasKey("int")) {
+        io:println("HasInt");
+    }
+}
+
+function createTaggedBool() {
+    io:println("BeforeMapCheckBool");
+    if (structMap.hasKey("boolean")) {
+        return;
+    }
+    io:println("AfterMapCheckBool");
+    llvm:LLVMTypeRef structType = createNamedStruct("tagged_bool");
+    var argTypes = [llvm:llvmInt64Type(), llvm:llvmInt1Type()];
+    llvm:llvmStructSetBody1(structType, argTypes, 2, 0);
+    structMap["boolean"] = structType;
+    if (structMap.hasKey("boolean")) {
+        io:println("HasBoolean");
+    }
+}
+
+function createNamedStruct(string name) returns llvm:LLVMTypeRef {
+    var structType = llvm:llvmStructCreateNamed(llvm:llvmGetGlobalContext(), name);
+    return structType;
 }
