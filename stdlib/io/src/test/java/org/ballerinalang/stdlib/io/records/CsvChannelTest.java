@@ -232,7 +232,7 @@ public class CsvChannelTest {
         BValue[] returns = BRunUtil.invoke(csvInputOutputProgramFile, "nextRecord");
         records = (BValueArray) returns[0];
         Assert.assertEquals(records.size(), expectedRecordLength);
-        Assert.assertEquals(records.stringValue(), "[\"\"User1,12\"\", \" WSO2\", \" 07xxxxxx\"]");
+        Assert.assertEquals(records.stringValue(), "[\"User1,12\", \"WSO2\", \"07xxxxxx\"]");
 
         returns = BRunUtil.invoke(csvInputOutputProgramFile, "hasNextRecord");
         hasNextRecord = (BBoolean) returns[0];
@@ -249,6 +249,15 @@ public class CsvChannelTest {
         records = (BValueArray) returns[0];
 
         Assert.assertEquals(records.size(), expectedRecordLength);
+
+        returns = BRunUtil.invoke(csvInputOutputProgramFile, "hasNextRecord");
+        hasNextRecord = (BBoolean) returns[0];
+        Assert.assertTrue(hasNextRecord.booleanValue(), "Expecting more records");
+
+        returns = BRunUtil.invoke(csvInputOutputProgramFile, "nextRecord");
+        records = (BValueArray) returns[0];
+        Assert.assertEquals(records.size(), expectedRecordLength);
+        Assert.assertEquals(records.stringValue(), "[\"User4\", \"\", \"123xxxxx\"]");
 
         returns = BRunUtil.invoke(csvInputOutputProgramFile, "nextRecord");
         BError error = (BError) returns[0];

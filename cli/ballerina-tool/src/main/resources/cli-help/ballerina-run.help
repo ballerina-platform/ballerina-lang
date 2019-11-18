@@ -37,6 +37,9 @@ OPTIONS
            The source will be looked up relative to the given source root
            path.
 
+       --experimental
+           Enable experimental language features.
+
 CONFIG PROPERTIES
        (--key=value)...
            Set Ballerina environment parameters as key/value pairs.

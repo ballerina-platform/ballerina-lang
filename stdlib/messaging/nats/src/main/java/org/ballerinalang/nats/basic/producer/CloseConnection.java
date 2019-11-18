@@ -19,12 +19,8 @@
 package org.ballerinalang.nats.basic.producer;
 
 import org.ballerinalang.jvm.TypeChecker;
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.nats.Constants;
 
 import java.util.concurrent.atomic.AtomicInteger;
@@ -34,18 +30,9 @@ import java.util.concurrent.atomic.AtomicInteger;
  *
  * @since 0.995
  */
-@BallerinaFunction(
-        orgName = Constants.ORG_NAME,
-        packageName = Constants.NATS,
-        functionName = "closeConnection",
-        receiver = @Receiver(type = TypeKind.OBJECT,
-                structType = Constants.NATS_PRODUCER,
-                structPackage = Constants.NATS_PACKAGE),
-        isPublic = true
-)
 public class CloseConnection {
 
-    public static void closeConnection(Strand strand, ObjectValue producerObject) {
+    public static void closeConnection(ObjectValue producerObject) {
         Object connection = producerObject.get("conn");
         if (TypeChecker.getType(connection).getTag() == TypeTags.OBJECT_TYPE_TAG) {
             ObjectValue connectionObject = (ObjectValue) connection;
