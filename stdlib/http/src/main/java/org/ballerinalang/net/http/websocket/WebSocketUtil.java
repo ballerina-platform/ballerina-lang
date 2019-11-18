@@ -33,6 +33,7 @@ import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpErrorType;
+import org.ballerinalang.net.http.websocket.observability.WebSocketObservabilityUtil;
 import org.ballerinalang.net.http.websocket.server.WebSocketConnectionInfo;
 import org.ballerinalang.net.http.websocket.server.WebSocketConnectionManager;
 import org.ballerinalang.net.http.websocket.server.WebSocketServerService;
@@ -57,8 +58,8 @@ public class WebSocketUtil {
     private static final Logger logger = LoggerFactory.getLogger(WebSocketUtil.class);
 
     public static ObjectValue createAndPopulateWebSocketCaller(WebSocketConnection webSocketConnection,
-                                                                WebSocketServerService wsService,
-                                                                WebSocketConnectionManager connectionManager) {
+                                                               WebSocketServerService wsService,
+                                                               WebSocketConnectionManager connectionManager) {
         ObjectValue webSocketCaller = BallerinaValues.createObjectValue(HttpConstants.PROTOCOL_HTTP_PKG_ID,
                                                                         WebSocketConstants.WEBSOCKET_CALLER);
         ObjectValue webSocketConnector = BallerinaValues.createObjectValue(
@@ -71,6 +72,10 @@ public class WebSocketUtil {
         connectionManager.addConnection(webSocketConnection.getChannelId(), connectionInfo);
         webSocketConnector.addNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_CONNECTION_INFO,
                                          connectionInfo);
+        //Observe new connection
+        WebSocketObservabilityUtil.observeConnection(
+                connectionManager.getConnectionInfo(webSocketConnection.getChannelId()));
+
         return webSocketCaller;
     }
 
@@ -110,7 +115,6 @@ public class WebSocketUtil {
      */
     public static void closeDuringUnexpectedCondition(WebSocketConnection webSocketConnection) {
         webSocketConnection.terminateConnection(1011, "Unexpected condition");
-
     }
 
     public static void setListenerOpenField(WebSocketConnectionInfo connectionInfo) throws IllegalAccessException {

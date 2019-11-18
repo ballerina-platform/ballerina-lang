@@ -984,7 +984,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
                 reasonIdentifier = ctx.simpleMatchPattern().Identifier().getText();
             } else {
                 reasonIdentifier = ctx.simpleMatchPattern().QuotedStringLiteral().getText();
-                validateQuotedStringLiteral(reasonIdentifier, getCurrentPos(ctx));
                 constReasonMatchPattern = true;
             }
         }
@@ -1854,8 +1853,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         Set<Whitespace> ws = getWS(ctx);
 
         String actualText = node.getText();
-        validateQuotedStringLiteral(actualText, pos);
-
         actualText = actualText.substring(1, actualText.length() - 1);
         actualText = StringEscapeUtils.unescapeJava(actualText);
 
@@ -2205,7 +2202,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         boolean isTopLevel = ctx.parent instanceof BallerinaParser.CompilationUnitContext;
         String namespaceUri = ctx.QuotedStringLiteral().getText();
         DiagnosticPos pos = getCurrentPos(ctx);
-        validateQuotedStringLiteral(namespaceUri, pos);
 
         namespaceUri = namespaceUri.substring(1, namespaceUri.length() - 1);
         namespaceUri = StringEscapeUtils.unescapeJava(namespaceUri);
@@ -2567,8 +2563,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
                                             node.getText());
         } else if ((node = ctx.QuotedStringLiteral()) != null) {
             String text = node.getText();
-            validateQuotedStringLiteral(text, pos);
-
             text = text.substring(1, text.length() - 1);
             text = StringEscapeUtils.unescapeJava(text);
             this.pkgBuilder.addLiteralValue(pos, ws, TypeTags.STRING, text, node.getText());
@@ -3539,12 +3533,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             }
         }
         return originalNodeValue;
-    }
-
-    private void validateQuotedStringLiteral(String str, DiagnosticPos pos) {
-        if (str.contains("\r") || str.contains("\n")) {
-            dlog.warning(pos, DiagnosticCode.MULTI_LINE_STRINGS_NOT_ALLOWED);
-        }
     }
 
     /**
