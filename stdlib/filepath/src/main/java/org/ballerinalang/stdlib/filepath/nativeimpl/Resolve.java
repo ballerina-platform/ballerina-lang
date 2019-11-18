@@ -18,8 +18,6 @@
 
 package org.ballerinalang.stdlib.filepath.nativeimpl;
 
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.stdlib.filepath.Constants;
 import org.ballerinalang.stdlib.filepath.Utils;
 
@@ -35,15 +33,9 @@ import java.nio.file.Paths;
  *
  * @since 0.995.0
  */
-@BallerinaFunction(
-        orgName = Constants.ORG_NAME,
-        packageName = Constants.PACKAGE_NAME,
-        functionName = "resolve",
-        isPublic = true
-)
 public class Resolve {
 
-    public static Object resolve(Strand strand, String inputPath) {
+    public static Object externResolve(String inputPath) {
         try {
             Path realPath = Files.readSymbolicLink(Paths.get(inputPath).toAbsolutePath());
             return realPath.toString();

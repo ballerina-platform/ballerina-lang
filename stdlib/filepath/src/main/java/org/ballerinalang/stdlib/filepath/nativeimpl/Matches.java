@@ -18,8 +18,6 @@
 
 package org.ballerinalang.stdlib.filepath.nativeimpl;
 
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.stdlib.filepath.Constants;
 import org.ballerinalang.stdlib.filepath.Utils;
 
@@ -34,17 +32,11 @@ import java.util.regex.PatternSyntaxException;
  *
  * @since 0.995.0
  */
-@BallerinaFunction(
-        orgName = Constants.ORG_NAME,
-        packageName = Constants.PACKAGE_NAME,
-        functionName = "matches",
-        isPublic = true
-)
 public class Matches {
 
     private static final String GLOB_SYNTAX_FLAVOR = "glob:";
 
-    public static Object matches(Strand strand, String inputPath, String pattern) {
+    public static Object externMatches(String inputPath, String pattern) {
         FileSystem fs = FileSystems.getDefault();
         PathMatcher matcher;
         try {

@@ -18,6 +18,7 @@ import ballerina/io;
 import ballerina/log;
 import ballerina/system;
 import ballerina/stringutils;
+import ballerinax/java;
 
 boolean isWindows = system:getEnv("OS") != "";
 string pathSeparator = isWindows ? "\\" : "/";
@@ -27,7 +28,25 @@ string pathListSeparator = isWindows ? ";" : ":";
 #
 # + path - String value of file path.
 # + return - The absolute path reference or an error if the path cannot be derived
-public function absolute(@untainted string path) returns string|Error = external;
+public function absolute(@untainted string path) returns string|Error {
+    var result = externAbsolute(java:fromString(path));
+    if (result is Error) {
+        return result;
+    } else {
+        var stringResult = java:toString(result);
+        if (stringResult is string) {
+            return stringResult;
+        } else {
+            Error e = prepareError(GENERIC_ERROR, "Error occurred while retrieving the absolute path.");
+            return e;
+        }
+    }
+}
+
+public function externAbsolute(handle path) returns handle|Error =
+@java:Method {
+    class: "org.ballerinalang.stdlib.filepath.nativeimpl.Absolute"
+} external;
 
 # Returns path separator of underline operating system.
 #
@@ -347,7 +366,25 @@ public function relative(string base, string target) returns string|Error {
 #
 # + path - String value of file path.
 # + return - Resolved file path
-public function resolve(@untainted string path) returns string|Error = external;
+public function resolve(@untainted string path) returns string|Error {
+    var result = externResolve(java:fromString(path));
+    if (result is Error) {
+        return result;
+    } else {
+        var stringResult = java:toString(result);
+        if (stringResult is string) {
+            return stringResult;
+        } else {
+            Error e = prepareError(GENERIC_ERROR, "Error occurred while resolving the path.");
+            return e;
+        }
+    }
+}
+
+public function externResolve(handle path) returns handle|Error =
+@java:Method {
+    class: "org.ballerinalang.stdlib.filepath.nativeimpl.Resolve"
+} external;
 
 # Reports whether all of filename matches the provided pattern, not just a substring.
 # An error is returned if the pattern is malformed.
@@ -355,7 +392,14 @@ public function resolve(@untainted string path) returns string|Error = external;
 # + path - String value of the file path.
 # + pattern - String value of the target file path.
 # + return - True if filename of the path matches with the pattern, else false
-public function matches(string path, string pattern) returns boolean|Error = external;
+public function matches(string path, string pattern) returns boolean|Error {
+    return externMatches(java:fromString(path), java:fromString(pattern));
+}
+
+public function externMatches(handle path, handle pattern) returns boolean|Error =
+@java:Method {
+    class: "org.ballerinalang.stdlib.filepath.nativeimpl.Matches"
+} external;
 
 # Parses the give path and remove redundent slashes.
 #

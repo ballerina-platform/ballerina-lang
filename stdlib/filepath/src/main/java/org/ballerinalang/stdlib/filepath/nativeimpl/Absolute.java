@@ -18,8 +18,6 @@
 
 package org.ballerinalang.stdlib.filepath.nativeimpl;
 
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.stdlib.filepath.Constants;
 import org.ballerinalang.stdlib.filepath.Utils;
 
@@ -31,15 +29,9 @@ import java.nio.file.InvalidPathException;
  *
  * @since 0.995.0
  */
-@BallerinaFunction(
-        orgName = Constants.ORG_NAME,
-        packageName = Constants.PACKAGE_NAME,
-        functionName = "absolute",
-        isPublic = true
-)
 public class Absolute {
 
-    public static Object absolute(Strand strand, String inputPath) {
+    public static Object externAbsolute(String inputPath) {
         try {
             String absolutePath = FileSystems.getDefault().getPath(inputPath).toAbsolutePath().toString();
             return  absolutePath;
