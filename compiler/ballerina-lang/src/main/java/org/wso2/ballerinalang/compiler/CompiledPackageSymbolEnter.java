@@ -32,6 +32,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BErrorTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
@@ -1023,6 +1024,11 @@ public class CompiledPackageSymbolEnter {
                     funcType.paramTypes.get(requiredParamCount + defaultableParamCount), invokableSymbol);
             invokableSymbol.restParam = varSymbol;
         }
+
+        BInvokableTypeSymbol tsymbol = ((BInvokableTypeSymbol) invokableSymbol.type.tsymbol);
+        tsymbol.params = invokableSymbol.params;
+        tsymbol.restParam = invokableSymbol.restParam;
+        tsymbol.returnType = invokableSymbol.retType;
     }
 
     private DefaultValueLiteral getDefaultValue(DataInputStream dataInStream)
@@ -1440,10 +1446,9 @@ public class CompiledPackageSymbolEnter {
             if (retType == null) {
                 retType = symTable.nilType;
             }
-            BTypeSymbol tsymbol = Symbols.createTypeSymbol(SymTag.FUNCTION_TYPE, Flags.asMask(EnumSet.of(Flag.PUBLIC)),
-                                                           Names.EMPTY, env.pkgSymbol.pkgID, null,
-                                                           env.pkgSymbol.owner);
-            return new BInvokableType(funcParams, retType, tsymbol);
+            BTypeSymbol tsymbol = Symbols.createInvokableTypeSymbol(SymTag.FUNCTION_TYPE,
+                    Flags.asMask(EnumSet.of(Flag.PUBLIC)), Names.EMPTY, env.pkgSymbol.pkgID, null, env.pkgSymbol.owner);
+            return new BInvokableType(funcParams, null, retType, tsymbol);
         }
 
         @Override

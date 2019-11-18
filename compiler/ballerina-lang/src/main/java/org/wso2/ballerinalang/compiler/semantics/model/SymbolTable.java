@@ -666,6 +666,7 @@ public class SymbolTable {
         rootScope.define(name, symbol);
     }
 
+    @Deprecated
     public BOperatorSymbol createOperator(Name name,
                                           List<BType> paramTypes,
                                           BType retType,

@@ -46,6 +46,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BErrorTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
@@ -440,8 +441,8 @@ public class Desugar extends BLangNodeVisitor {
     private void createInvokableSymbol(BLangFunction bLangFunction, SymbolEnv env) {
         BType returnType = bLangFunction.returnTypeNode.type == null ?
                 symResolver.resolveTypeNode(bLangFunction.returnTypeNode, env) : bLangFunction.returnTypeNode.type;
-
-        BInvokableType invokableType = new BInvokableType(new ArrayList<>(), returnType, null);
+        BType restType = bLangFunction.restParam != null ? bLangFunction.restParam.type : null;
+        BInvokableType invokableType = new BInvokableType(new ArrayList<>(), restType, returnType, null);
         BInvokableSymbol functionSymbol = Symbols.createFunctionSymbol(Flags.asMask(bLangFunction.flagSet),
                 new Name(bLangFunction.name.value), env.enclPkg.packageID, invokableType, env.enclPkg.symbol, true);
         functionSymbol.retType = returnType;
@@ -1743,6 +1744,7 @@ public class Desugar extends BLangNodeVisitor {
                 .collect(Collectors.toList());
         functionSymbol.scope = env.scope;
         functionSymbol.type = new BInvokableType(Collections.singletonList(getStringAnyTupleType()),
+                function.restParam != null ? function.restParam.type : null,
                 symTable.booleanType, null);
         function.symbol = functionSymbol;
         rewrite(function, env);
@@ -2811,7 +2813,7 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     private String getTransactionBlockId() {
-        return String.valueOf(env.enclPkg.packageID.orgName) + "$" + env.enclPkg.packageID.name + "$"
+        return env.enclPkg.packageID.orgName + "$" + env.enclPkg.packageID.name + "$"
                 + transactionIndex++;
     }
 
@@ -3850,11 +3852,13 @@ public class Desugar extends BLangNodeVisitor {
         }).map(varNode -> varNode.symbol).collect(Collectors.toList());
 
         funcSymbol.params = paramSymbols;
+        funcSymbol.restParam = funcNode.restParam != null ? funcNode.restParam.symbol : null;
         funcSymbol.retType = funcNode.returnTypeNode.type;
 
         // Create function type.
         List<BType> paramTypes = paramSymbols.stream().map(paramSym -> paramSym.type).collect(Collectors.toList());
-        funcNode.type = new BInvokableType(paramTypes, funcNode.returnTypeNode.type, null);
+        funcNode.type = new BInvokableType(paramTypes, funcSymbol.restParam != null ? funcSymbol.restParam.type : null,
+                funcNode.returnTypeNode.type, null);
 
         lambdaFunction.function.pos = bLangArrowFunction.pos;
         lambdaFunction.function.body.pos = bLangArrowFunction.pos;
@@ -6295,6 +6299,15 @@ public class Desugar extends BLangNodeVisitor {
         initFunction.symbol.scope = new Scope(initFunction.symbol);
         initFunction.symbol.scope.define(receiverSymbol.name, receiverSymbol);
         initFunction.symbol.receiverSymbol = receiverSymbol;
+
+        BInvokableTypeSymbol tsymbol = Symbols.createInvokableTypeSymbol(SymTag.FUNCTION_TYPE,
+                initFunction.symbol.flags, initFunction.symbol.name, env.enclPkg.packageID, null,
+                initFunction.symbol);
+        initFunction.type.tsymbol = tsymbol;
+        tsymbol.params = initFunction.symbol.params;
+        tsymbol.restParam = initFunction.symbol.restParam;
+        tsymbol.returnType = initFunction.symbol.retType;
+
         receiverSymbol.owner = initFunction.symbol;
 
         // Add return type as nil to the symbol

@@ -834,7 +834,7 @@ lambdaReturnParameter
     ;
 
 parameterTypeNameList
-    :   parameterTypeName (COMMA parameterTypeName)*
+    :   parameterTypeName (COMMA parameterTypeName)* (COMMA restParameterTypeName)?
     ;
 
 parameterTypeName
@@ -842,7 +842,7 @@ parameterTypeName
     ;
 
 parameterList
-    :   parameter (COMMA parameter)*
+    :   parameter (COMMA parameter)* (COMMA restParameter)?
     ;
 
 parameter
@@ -855,6 +855,10 @@ defaultableParameter
 
 restParameter
     :   annotationAttachment* typeName ELLIPSIS Identifier
+    ;
+
+restParameterTypeName
+    : typeName restDescriptorPredicate ELLIPSIS
     ;
 
 formalParameterList
