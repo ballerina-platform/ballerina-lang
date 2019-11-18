@@ -29,6 +29,9 @@ import org.ballerinalang.jvm.types.BTableType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons;
+import org.ballerinalang.jvm.values.api.BFunctionPointer;
+import org.ballerinalang.jvm.values.api.BMap;
+import org.ballerinalang.jvm.values.api.BTable;
 import org.ballerinalang.jvm.values.freeze.FreezeUtils;
 import org.ballerinalang.jvm.values.freeze.State;
 import org.ballerinalang.jvm.values.freeze.Status;
@@ -49,7 +52,7 @@ import static org.ballerinalang.jvm.util.BLangConstants.TABLE_LANG_LIB;
  *  
  * @since 0.995.0
  */
-public class TableValue implements RefValue, CollectionValue {
+public class TableValue implements RefValue, BTable {
 
     protected DataIterator iterator;
     private boolean hasNextVal;
@@ -62,6 +65,7 @@ public class TableValue implements RefValue, CollectionValue {
     private volatile Status freezeStatus = new Status(State.UNFROZEN);
     private BType type;
 
+    @Deprecated
     public TableValue() {
         this.iterator = null;
         this.tableProvider = null;
@@ -71,11 +75,13 @@ public class TableValue implements RefValue, CollectionValue {
         this.type = BTypes.typeTable;
     }
 
+    @Deprecated
     public TableValue(String tableName, BStructureType constraintType) {
         this(constraintType);
         this.tableName = tableName;
     }
 
+    @Deprecated
     public TableValue(BStructureType constraintType) {
         this.nextPrefetched = false;
         this.hasNextVal = false;
@@ -83,6 +89,7 @@ public class TableValue implements RefValue, CollectionValue {
         this.type = new BTableType(constraintType);
     }
 
+    @Deprecated
     public TableValue(String query, TableValue fromTable, TableValue joinTable,
                       BStructureType constraintType, ArrayValue params) {
         this.tableProvider = TableProvider.getInstance();
@@ -104,6 +111,7 @@ public class TableValue implements RefValue, CollectionValue {
         this.type = new BTableType(constraintType);
     }
 
+    @Deprecated
     public TableValue(BType type, ArrayValue keyColumns, ArrayValue dataRows) {
         //Create table with given constraints.
         BType constrainedType = ((BTableType) type).getConstrainedType();
@@ -123,6 +131,11 @@ public class TableValue implements RefValue, CollectionValue {
         return stringValue();
     }
 
+    /**
+     * Returns string representation of the table.
+     * @param strand The strand on which the stringValue method is called
+     * @return string representation of the table
+     */
     public String stringValue(Strand strand) {
         return createStringValueDataEntry(strand);
     }
@@ -141,6 +154,10 @@ public class TableValue implements RefValue, CollectionValue {
         return this.type;
     }
 
+    /**
+     * Returns true if the table iterator has more records.
+     * @return true if there is more rows
+     */
     public boolean hasNext() {
         if (tableClosed) {
             throw BallerinaErrors.createError(BallerinaErrorReasons.TABLE_OPERATION_ERROR,
@@ -159,6 +176,9 @@ public class TableValue implements RefValue, CollectionValue {
         return hasNextVal;
     }
 
+    /**
+     * Move table cursor to the next row.
+     */
     public void moveToNext() {
         if (tableClosed) {
             throw BallerinaErrors.createError(BallerinaErrorReasons.TABLE_CLOSED_ERROR,
@@ -174,6 +194,9 @@ public class TableValue implements RefValue, CollectionValue {
         }
     }
 
+    /**
+     * Close the table dataset.
+     */
     public void close() {
         if (iterator != null) {
             iterator.close();
@@ -181,6 +204,9 @@ public class TableValue implements RefValue, CollectionValue {
         tableClosed = true;
     }
 
+    /**
+     * Close and reset the table iterator cursors.
+     */
     public void reset() {
         if (iterator != null) {
             iterator.reset();
@@ -189,11 +215,21 @@ public class TableValue implements RefValue, CollectionValue {
         resetIterationHelperAttributes();
     }
 
+    /**
+     * Get the next record.
+     *
+     * @return {@code MapValue}
+     */
     public MapValueImpl<String, Object> getNext() {
         // Make next row the current row
         moveToNext();
         // Create BStruct from current row
         return (MapValueImpl<String, Object>) iterator.generateNext();
+    }
+
+    @Override
+    public Object performAddOperation(BMap<String, Object> data) {
+        return performAddOperation((MapValueImpl<String, Object>) data);
     }
 
     /**
@@ -219,6 +255,11 @@ public class TableValue implements RefValue, CollectionValue {
         }
     }
 
+    /**
+     * Performs addition of a record to the database.
+     *
+     * @param data The record to be inserted
+     */
     public void addData(MapValueImpl<String, Object> data) {
         if (data.getType() != this.constraintType) {
             throw BallerinaErrors.createError(BallerinaErrorReasons.TABLE_OPERATION_ERROR,
@@ -229,6 +270,16 @@ public class TableValue implements RefValue, CollectionValue {
         reset();
     }
 
+    public void addData(BMap<String, Object> data) {
+        addData((MapValueImpl<String, Object>) data);
+    }
+
+    /**
+     * Remove records that cause true return from given function pointer.
+     * @param strand strand to be used for function execution
+     * @param func function pointer
+     * @return deleted count or error
+     */
     public Object performRemoveOperation(Strand strand, FPValue<Object, Boolean> func) {
         synchronized (this) {
             if (freezeStatus.getState() != State.UNFROZEN) {
@@ -245,7 +296,7 @@ public class TableValue implements RefValue, CollectionValue {
         int deletedCount = 0;
         while (this.hasNext()) {
             MapValueImpl<String, Object> row = this.getNext();
-            if (func.apply(new Object[] { strand, row, true })) {
+            if (func.call(new Object[] { strand, row, true })) {
                 tableProvider.deleteData(this.tableName, row);
                 ++deletedCount;
             }
@@ -253,42 +304,94 @@ public class TableValue implements RefValue, CollectionValue {
         return deletedCount;
     }
 
+    public Object performRemoveOperation(Strand strand, BFunctionPointer<Object, Boolean> func) {
+        return performRemoveOperation(strand, (FPValue<Object, Boolean>) func);
+    }
+
+    /**
+     * Retrieves the value of the designated string column in the current row.
+     * @param columnIndex column index
+     * @return column value
+     */
     public String getString(int columnIndex) {
         return iterator.getString(columnIndex);
     }
 
+    /**
+     * Retrieves the value of the designated int column in the current row.
+     * @param columnIndex column index
+     * @return column value
+     */
     public Long getInt(int columnIndex) {
         return iterator.getInt(columnIndex);
     }
 
+    /**
+     * Retrieves the value of the designated float column in the current row.
+     * @param columnIndex column index
+     * @return column value
+     */
     public Double getFloat(int columnIndex) {
         return iterator.getFloat(columnIndex);
     }
 
+    /**
+     * Retrieves the value of the designated boolean column in the current row.
+     * @param columnIndex column index
+     * @return column value
+     */
     public Boolean getBoolean(int columnIndex) {
         return iterator.getBoolean(columnIndex);
     }
 
+    /**
+     * Retrieves the value of the designated blob column in the current row.
+     * @param columnIndex column index
+     * @return column value
+     */
     public String getBlob(int columnIndex) {
         return iterator.getBlob(columnIndex);
     }
 
+    /**
+     * Retrieves the value of the designated struct column in the current row.
+     * @param columnIndex column index
+     * @return column value
+     */
     public Object[] getStruct(int columnIndex) {
         return iterator.getStruct(columnIndex);
     }
 
+    /**
+     * Retrieves the value of the designated array column in the current row.
+     * @param columnIndex column index
+     * @return column value
+     */
     public Object[] getArray(int columnIndex) {
         return iterator.getArray(columnIndex);
     }
 
+    /**
+     * Retrieves the value of the designated decimal column in the current row.
+     * @param columnIndex column index
+     * @return column value
+     */
     public DecimalValue getDecimal(int columnIndex) {
         return iterator.getDecimal(columnIndex);
     }
 
+    /**
+     * Returns the list of column definitions.
+     * @return list of {@code ColumnDefinition}
+     */
     public List<ColumnDefinition> getColumnDefs() {
         return iterator.getColumnDefinitions();
     }
 
+    /**
+     * Returns the record structure of the table.
+     * @return structure type
+     */
     public BStructureType getStructType() {
         return iterator.getStructType();
     }
@@ -380,6 +483,10 @@ public class TableValue implements RefValue, CollectionValue {
         return true;
     }
 
+    /**
+     * Returns an array of primary keys.
+     * @return primary key array
+     */
     public ArrayValue getPrimaryKeys() {
         return this.primaryKeys;
     }

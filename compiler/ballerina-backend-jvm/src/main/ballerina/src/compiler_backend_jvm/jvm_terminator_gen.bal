@@ -71,6 +71,10 @@ type TerminatorGenerator object {
             self.genFlushIns(terminator, funcName, localVarOffset);
         } else if (terminator is JavaMethodCall) {
             self.genJCallTerm(terminator, funcName, attachedType, localVarOffset);
+        } else if (terminator is JIMethodCall) {
+            self.genJICallTerm(terminator, funcName, attachedType, localVarOffset);
+        } else if (terminator is JIConstructorCall) {
+            self.genJIConstructorTerm(terminator, funcName, attachedType, localVarOffset);
         } else {
             error err = error( "JVM generation is not supported for terminator instruction " +
                 io:sprintf("%s", terminator));
@@ -164,7 +168,8 @@ type TerminatorGenerator object {
         }
         bir:BType bType = <bir:BType> func.typeValue?.retType;
         if (bType is bir:BTypeNil) {
-            self.mv.visitInsn(RETURN);
+            self.mv.visitVarInsn(ALOAD, returnVarRefIndex);
+            self.mv.visitInsn(ARETURN);
         } else if (bType is bir:BTypeInt) {
             self.mv.visitVarInsn(LLOAD, returnVarRefIndex);
             self.mv.visitInsn(LRETURN);
@@ -265,45 +270,11 @@ type TerminatorGenerator object {
     function genCallTerm(bir:Call callIns, string funcName, int localVarOffset) {
         string orgName = callIns.pkgID.org;
         string moduleName = callIns.pkgID.name;
+        // invoke the function
+        self.genCall(callIns, orgName, moduleName, localVarOffset);
 
-        // check for native blocking call
-        if (isInteropFuncCall(callIns)) {
-            jvm:Label blockedOnExternLabel = new;
-            jvm:Label notBlockedOnExternLabel = new;
-
-            self.mv.visitVarInsn(ALOAD, localVarOffset);
-            self.mv.visitMethodInsn(INVOKEVIRTUAL, STRAND, "isBlockedOnExtern", "()Z", false);
-            self.mv.visitJumpInsn(IFEQ, blockedOnExternLabel);
-
-            self.mv.visitVarInsn(ALOAD, localVarOffset);
-            self.mv.visitInsn(ICONST_0);
-            self.mv.visitFieldInsn(PUTFIELD, "org/ballerinalang/jvm/scheduling/Strand", "blockedOnExtern", "Z");
-
-            if (callIns.lhsOp?.variableDcl is bir:VariableDcl) {
-                self.mv.visitVarInsn(ALOAD, localVarOffset);
-                self.mv.visitFieldInsn(GETFIELD, "org/ballerinalang/jvm/scheduling/Strand", "returnValue", "Ljava/lang/Object;");
-                addUnboxInsn(self.mv, callIns.lhsOp?.typeValue);
-                // store return
-                self.storeReturnFromCallIns(callIns);
-            }
-
-            self.mv.visitJumpInsn(GOTO, notBlockedOnExternLabel);
-
-            self.mv.visitLabel(blockedOnExternLabel);
-            // invoke the function
-            self.genCall(callIns, orgName, moduleName, localVarOffset);
-
-            // store return
-            self.storeReturnFromCallIns(callIns);
-
-            self.mv.visitLabel(notBlockedOnExternLabel);
-        } else {
-            // invoke the function
-            self.genCall(callIns, orgName, moduleName, localVarOffset);
-
-            // store return
-            self.storeReturnFromCallIns(callIns);
-        }
+        // store return
+        self.storeReturnFromCallIns(callIns.lhsOp?.variableDcl);
     }
 
     function genJCallTerm(JavaMethodCall callIns, string funcName, bir:BType? attachedType, int localVarOffset) {
@@ -322,8 +293,7 @@ type TerminatorGenerator object {
         if (callIns.lhsOp?.variableDcl is bir:VariableDcl) {
             self.mv.visitVarInsn(ALOAD, localVarOffset);
             self.mv.visitFieldInsn(GETFIELD, "org/ballerinalang/jvm/scheduling/Strand", "returnValue", "Ljava/lang/Object;");
-            addUnboxInsn(self.mv, callIns.lhsOp?.typeValue);
-            // store return
+            addUnboxInsn(self.mv, callIns.lhsOp?.typeValue); // store return
             bir:VariableDcl? lhsOpVarDcl = callIns.lhsOp?.variableDcl;
 
             if (lhsOpVarDcl is bir:VariableDcl) {
@@ -339,6 +309,7 @@ type TerminatorGenerator object {
         if attachedType is () {
             self.mv.visitVarInsn(ALOAD, localVarOffset);
         } else {
+            // Below codes are not needed (as normal external funcs doesn't support attached invocations)
             // check whether function params already include the self
             self.mv.visitVarInsn(ALOAD, localVarOffset);
             bir:VariableDcl selfArg = getVariableDcl(callIns.args[0]?.variableDcl);
@@ -368,6 +339,144 @@ type TerminatorGenerator object {
         self.mv.visitLabel(notBlockedOnExternLabel);
     }
 
+    function genJICallTerm(JIMethodCall callIns, string funcName, bir:BType? attachedType, int localVarOffset) {
+        // Load function parameters of the target Java method to the stack..
+        jvm:Label blockedOnExternLabel = new;
+        jvm:Label notBlockedOnExternLabel = new;
+
+        self.mv.visitVarInsn(ALOAD, localVarOffset);
+        self.mv.visitMethodInsn(INVOKEVIRTUAL, STRAND, "isBlockedOnExtern", "()Z", false);
+        self.mv.visitJumpInsn(IFEQ, blockedOnExternLabel);
+
+        self.mv.visitVarInsn(ALOAD, localVarOffset);
+        self.mv.visitInsn(ICONST_0);
+        self.mv.visitFieldInsn(PUTFIELD, "org/ballerinalang/jvm/scheduling/Strand", "blockedOnExtern", "Z");
+
+        if (callIns.lhsOp?.variableDcl is bir:VariableDcl) {
+            self.mv.visitVarInsn(ALOAD, localVarOffset);
+            self.mv.visitFieldInsn(GETFIELD, "org/ballerinalang/jvm/scheduling/Strand", "returnValue", "Ljava/lang/Object;");
+            addJUnboxInsn(self.mv, callIns.lhsOp?.typeValue);
+            // store return
+            bir:VariableDcl? lhsOpVarDcl = callIns.lhsOp?.variableDcl;
+
+            if (lhsOpVarDcl is bir:VariableDcl) {
+                self.storeToVar(lhsOpVarDcl);
+            }
+        }
+
+        self.mv.visitJumpInsn(GOTO, notBlockedOnExternLabel);
+
+        self.mv.visitLabel(blockedOnExternLabel);
+        boolean isInterface = callIns.invocationType == INVOKEINTERFACE;
+
+        int argIndex = 0;
+        if (callIns.invocationType == INVOKEVIRTUAL || isInterface) {
+            // check whether function params already include the self
+            bir:VariableDcl selfArg = getVariableDcl(callIns.args[0]?.variableDcl);
+            self.loadVar(selfArg);
+            self.mv.visitMethodInsn(INVOKEVIRTUAL, HANDLE_VALUE, "getValue", "()Ljava/lang/Object;", false);
+            self.mv.visitTypeInsn(CHECKCAST, callIns.jClassName);
+
+            jvm:Label ifNonNullLabel = self.labelGen.getLabel("receiver_null_check");
+            self.mv.visitLabel(ifNonNullLabel);
+            self.mv.visitInsn(DUP);
+
+            jvm:Label elseBlockLabel = self.labelGen.getLabel("receiver_null_check_else");
+            self.mv.visitJumpInsn(IFNONNULL, elseBlockLabel);
+            jvm:Label thenBlockLabel = self.labelGen.getLabel("receiver_null_check_then");
+            self.mv.visitLabel(thenBlockLabel);
+            self.mv.visitFieldInsn(GETSTATIC, BAL_ERROR_REASONS, "JAVA_NULL_REFERENCE_ERROR", "L" + STRING_VALUE + ";");
+            self.mv.visitFieldInsn(GETSTATIC, RUNTIME_ERRORS, "JAVA_NULL_REFERENCE", "L" + RUNTIME_ERRORS + ";");
+            self.mv.visitInsn(ICONST_0);
+            self.mv.visitTypeInsn(ANEWARRAY, OBJECT);
+            self.mv.visitMethodInsn(INVOKESTATIC, BLANG_EXCEPTION_HELPER, "getRuntimeException",
+                "(L" + STRING_VALUE + ";L" + RUNTIME_ERRORS + ";[L" + OBJECT + ";)L" + ERROR_VALUE + ";", false);
+            self.mv.visitInsn(ATHROW);
+            self.mv.visitLabel(elseBlockLabel);
+            argIndex += 1;
+        }
+
+        int argsCount = callIns.varArgExist ? callIns.args.length() - 1 : callIns.args.length();
+        while (argIndex < argsCount) {
+            bir:VarRef? arg = callIns.args[argIndex];
+            _ = self.visitArg(arg);
+            argIndex += 1;
+        }
+        if (callIns.varArgExist) {
+            bir:VarRef arg = <bir:VarRef>callIns.args[argIndex];
+            int localVarIndex = self.indexMap.getIndex(arg.variableDcl);
+            genVarArg(self.mv, self.indexMap, arg.typeValue, <jvm:JType>callIns.varArgType, localVarIndex);
+        }
+
+        string jClassName = callIns.jClassName;
+        string jMethodName = callIns.name;
+        string jMethodVMSig = callIns.jMethodVMSig;
+        self.mv.visitMethodInsn(callIns.invocationType, jClassName, jMethodName, jMethodVMSig, isInterface);
+
+        bir:VariableDcl? lhsOpVarDcl = callIns.lhsOp?.variableDcl;
+
+        if (lhsOpVarDcl is bir:VariableDcl) {
+            self.storeToVar(lhsOpVarDcl);
+        }
+
+        self.mv.visitLabel(notBlockedOnExternLabel);
+    }
+
+    function genJIConstructorTerm(JIConstructorCall callIns, string funcName, bir:BType? attachedType, int localVarOffset) {
+        // Load function parameters of the target Java method to the stack..
+        jvm:Label blockedOnExternLabel = new;
+        jvm:Label notBlockedOnExternLabel = new;
+
+        self.mv.visitVarInsn(ALOAD, localVarOffset);
+        self.mv.visitMethodInsn(INVOKEVIRTUAL, STRAND, "isBlockedOnExtern", "()Z", false);
+        self.mv.visitJumpInsn(IFEQ, blockedOnExternLabel);
+
+        self.mv.visitVarInsn(ALOAD, localVarOffset);
+        self.mv.visitInsn(ICONST_0);
+        self.mv.visitFieldInsn(PUTFIELD, "org/ballerinalang/jvm/scheduling/Strand", "blockedOnExtern", "Z");
+
+        if (callIns.lhsOp?.variableDcl is bir:VariableDcl) {
+            self.mv.visitVarInsn(ALOAD, localVarOffset);
+            self.mv.visitFieldInsn(GETFIELD, "org/ballerinalang/jvm/scheduling/Strand", "returnValue", "Ljava/lang/Object;");
+            addUnboxInsn(self.mv, callIns.lhsOp?.typeValue);
+            // store return
+            bir:VariableDcl? lhsOpVarDcl = callIns.lhsOp?.variableDcl;
+
+            if (lhsOpVarDcl is bir:VariableDcl) {
+                self.storeToVar(lhsOpVarDcl);
+            }
+        }
+
+        self.mv.visitJumpInsn(GOTO, notBlockedOnExternLabel);
+
+        self.mv.visitLabel(blockedOnExternLabel);
+
+        self.mv.visitTypeInsn(NEW, callIns.jClassName);
+        self.mv.visitInsn(DUP);
+
+        int argIndex = 0;
+
+        int argsCount = callIns.args.length();
+        while (argIndex < argsCount) {
+            bir:VarRef? arg = callIns.args[argIndex];
+            _ = self.visitArg(arg);
+            argIndex += 1;
+        }
+
+        string jClassName = callIns.jClassName;
+        string jMethodName = callIns.name;
+        string jMethodVMSig = callIns.jMethodVMSig;
+        self.mv.visitMethodInsn(INVOKESPECIAL, jClassName, jMethodName, jMethodVMSig, false);
+
+        bir:VariableDcl? lhsOpVarDcl = callIns.lhsOp?.variableDcl;
+
+        if (lhsOpVarDcl is bir:VariableDcl) {
+            self.storeToVar(lhsOpVarDcl);
+        }
+
+        self.mv.visitLabel(notBlockedOnExternLabel);
+    }
+
     private function cleanupVariableDecl(bir:VariableDcl? varDecl) returns bir:VariableDcl {
         if(varDecl is bir:VariableDcl) {
             return varDecl;
@@ -384,11 +493,11 @@ type TerminatorGenerator object {
         panic err;
     }
 
-    private function storeReturnFromCallIns(bir:Call callIns) {
-        bir:VariableDcl? lhsOpVarDcl = callIns.lhsOp?.variableDcl;
-
+    private function storeReturnFromCallIns(bir:VariableDcl? lhsOpVarDcl) {
         if (lhsOpVarDcl is bir:VariableDcl) {
             self.storeToVar(lhsOpVarDcl);
+        } else {
+            self.mv.visitInsn(POP);
         }
     }
 
@@ -492,11 +601,7 @@ type TerminatorGenerator object {
         self.mv.visitMethodInsn(INVOKEINTERFACE, OBJECT_VALUE, "call", methodDesc, true);
 
         bir:BType? returnType = callIns.lhsOp?.typeValue;
-        if (returnType is ()) {
-            self.mv.visitInsn(POP);
-        } else {
-            addUnboxInsn(self.mv, returnType);
-        }
+        addUnboxInsn(self.mv, returnType);
     }
 
     function loadBooleanArgToIndicateUserProvidedArg(string orgName, string moduleName, boolean userProvided) {
@@ -568,8 +673,8 @@ type TerminatorGenerator object {
         if (futureType is bir:BFutureType) {
             returnType = futureType.returnType;
         }
-        boolean isVoid = returnType is bir:BTypeNil;
-        createFunctionPointer(self.mv, currentClass, lambdaName, isVoid, 0);
+
+        createFunctionPointer(self.mv, currentClass, lambdaName, 0);
         lambdas[lambdaName] = callIns;
         lambdaIndex += 1;
 
@@ -676,20 +781,14 @@ type TerminatorGenerator object {
         }
 
         // if async, we submit this to sceduler (worker scenario)
-        boolean isVoid = false;
         bir:BType returnType = fpCall.fp.typeValue;
-        if (returnType is bir:BInvokableType) {
-            isVoid = returnType?.retType is bir:BTypeNil;
-        }
 
         if (fpCall.isAsync) {
             // load function ref now
             self.loadVar(fpCall.fp.variableDcl);
             self.submitToScheduler(fpCall.lhsOp, localVarOffset);
-        } else if (isVoid) {
-            self.mv.visitMethodInsn(INVOKEVIRTUAL, FUNCTION_POINTER, "accept", io:sprintf("(L%s;)V", OBJECT), false);
         } else {
-            self.mv.visitMethodInsn(INVOKEVIRTUAL, FUNCTION_POINTER, "apply", io:sprintf("(L%s;)L%s;", OBJECT, OBJECT), false);
+            self.mv.visitMethodInsn(INVOKEVIRTUAL, FUNCTION_POINTER, "call", io:sprintf("(L%s;)L%s;", OBJECT, OBJECT), false);
             // store reult
             bir:BType? lhsType = fpCall.lhsOp?.typeValue;
             if (lhsType is bir:BType) {
@@ -699,6 +798,8 @@ type TerminatorGenerator object {
             bir:VariableDcl? lhsVar = fpCall.lhsOp?.variableDcl;
             if (lhsVar is bir:VariableDcl) {
                 self.storeToVar(lhsVar);
+            } else {
+                self.mv.visitInsn(POP);
             }
         }
     }
@@ -779,22 +880,16 @@ type TerminatorGenerator object {
 
     function submitToScheduler(bir:VarRef? lhsOp, int localVarOffset) {
         bir:BType? futureType = lhsOp?.typeValue;
-        boolean isVoid = false;
         bir:BType returnType = "any";
         if (futureType is bir:BFutureType) {
-            isVoid = futureType.returnType is bir:BTypeNil;
             returnType = futureType.returnType;
         }
+
         // load strand
         self.mv.visitVarInsn(ALOAD, localVarOffset);
-        if (isVoid) {
-            self.mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, "scheduleConsumer",
-                io:sprintf("([L%s;L%s;L%s;)L%s;", OBJECT, FUNCTION_POINTER, STRAND, FUTURE_VALUE), false);
-        } else {
-            loadType(self.mv, returnType);
-            self.mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, "scheduleFunction",
+        loadType(self.mv, returnType);
+        self.mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, "scheduleFunction",
                 io:sprintf("([L%s;L%s;L%s;L%s;)L%s;", OBJECT, FUNCTION_POINTER, STRAND, BTYPE, FUTURE_VALUE), false);
-        }
 
         // store return
         if (lhsOp is bir:VarRef) {
@@ -899,36 +994,3 @@ function isExternStaticFunctionCall(bir:Call|bir:AsyncCall|bir:FPLoad callIns) r
     return false;
 }
 
-function isInteropFuncCall(bir:Call|bir:AsyncCall|bir:FPLoad callIns) returns boolean {
-    string methodName;
-    string orgName;
-    string moduleName;
-
-    if (callIns is bir:Call) {
-        if (callIns.isVirtual) {
-            return false;
-        }
-        methodName = callIns.name.value;
-        orgName = callIns.pkgID.org;
-        moduleName = callIns.pkgID.name;
-    } else if (callIns is bir:AsyncCall) {
-        methodName = callIns.name.value;
-        orgName = callIns.pkgID.org;
-        moduleName = callIns.pkgID.name;
-    } else {
-        methodName = callIns.name.value;
-        orgName = callIns.pkgID.org;
-        moduleName = callIns.pkgID.name;
-    }
-
-    string key = getPackageName(orgName, moduleName) + methodName;
-
-    if (birFunctionMap.hasKey(key)) {
-        BIRFunctionWrapper functionWrapper = getBIRFunctionWrapper(birFunctionMap[key]);
-        if (functionWrapper is JMethodFunctionWrapper) {
-            return true;
-        }
-    }
-
-    return false;
-}

@@ -346,16 +346,16 @@
         "column": 2,
         "category": "Language concepts",
         "samples": [ {
-                "name": "Tuple Type Binding Pattern",
-                "url": "tuple-type-binding-pattern"
+                "name": "Tuple-Typed Binding Pattern",
+                "url": "tuple-typed-binding-pattern"
             },
             {
-                "name": "Record Type Binding Pattern",
-                "url": "record-type-binding-pattern"
+                "name": "Record-Typed Binding Pattern",
+                "url": "record-typed-binding-pattern"
             },
             {
-                "name": "Error Type Binding Pattern",
-                "url": "error-type-binding-pattern"
+                "name": "Error-Typed Binding Pattern",
+                "url": "error-typed-binding-pattern"
             },
             {
                 "name": "Tuple Destructure Binding Pattern",
@@ -432,10 +432,6 @@
                 "url": "byte-io"
             },
             {
-                "name": "Character I/O",
-                "url": "character-io"
-            },
-            {
                 "name": "Record I/O",
                 "url": "record-io"
             },
@@ -450,6 +446,10 @@
             {
                 "name": "XML I/O",
                 "url": "xml-io"
+            },
+            {
+                "name": "Read/Write Files",
+                "url": "character-io"
             },
             {
                 "name": "JSON to CSV Transform",
@@ -785,6 +785,37 @@
                 "url": "http-timeout"
             }
         ]
+    },
+    {
+        "title": "WebSub",
+        "column": 1,
+        "category": "Working over the network",
+        "samples": [{
+            "name": "Internal Hub Sample",
+            "url": "websub-internal-hub-sample"
+        },
+            {
+                "name": "Remote Hub Sample",
+                "url": "websub-remote-hub-sample"
+            },
+            {
+                "name": "Hub Client Sample",
+                "url": "websub-hub-client-sample"
+            },
+            {
+                "name": "Service Integration Sample",
+                "url": "websub-service-integration-sample"
+            }
+        ]
+    },
+    {
+        "title": "Listeners",
+        "column": 1,
+        "category": "Working over the network",
+        "samples": [{
+            "name": "Directory Listener",
+            "url": "directory-listener"
+        }]
     },
     {
         "title": "Database",
