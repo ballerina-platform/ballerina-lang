@@ -278,18 +278,6 @@ public class FunctionPointersTest {
         Assert.assertEquals(returns[0].stringValue(), "12");
     }
 
-    @Test
-    public void testFunctionPointerRest() {
-        BValue[] returns = BRunUtil.invoke(fpProgram, "testFunctionPointerRest");
-        Assert.assertEquals(returns[0].stringValue(), "[1, 2, 3]");
-    }
-
-    @Test
-    public void testFunctionPointerRestTyped() {
-        BValue[] returns = BRunUtil.invoke(fpProgram, "testFunctionPointerRestTyped");
-        Assert.assertEquals(returns[0].stringValue(), "[4, 5, 6]");
-    }
-
     @Test(description = "Test global function pointers defined using var")
     public void testGlobalFunctionPointerVar() {
         BValue[] returns = BRunUtil.invoke(fpProgram, "testGlobalFunctionPointerVar");

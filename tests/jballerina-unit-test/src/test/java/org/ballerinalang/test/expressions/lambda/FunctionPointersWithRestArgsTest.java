@@ -1,5 +1,5 @@
 /*
-*   Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+*   Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 *
 *  WSO2 Inc. licenses this file to you under the Apache License,
 *  Version 2.0 (the "License"); you may not use this file except
@@ -19,7 +19,6 @@ package org.ballerinalang.test.expressions.lambda;
 
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.test.util.BAssertUtil;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
@@ -28,29 +27,34 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 /**
- * Test cases for Function pointers and lambda, with optional parameters.
+ * Test cases for function pointers with rest params.
  *
- * @since 0.965
+ * @since 1.1.0
  */
-public class FunctionPointersWithOptionalArgsTest {
+public class FunctionPointersWithRestArgsTest {
 
-    CompileResult result;
+    private CompileResult fpProgram;
 
     @BeforeClass
     public void setup() {
-        result = BCompileUtil.compile("test-src/expressions/lambda/function-pointers-with-optional-args.bal");
+        fpProgram = BCompileUtil.compile("test-src/expressions/lambda/function-pointers-with-rest-args.bal");
     }
 
     @Test
-    public void testFunctionPointersWithNamedArgs() {
-        CompileResult result =
-                BCompileUtil.compile("test-src/expressions/lambda/function-pointers-with-named-args-negative.bal");
-        BAssertUtil.validateError(result, 0, "invalid token 'c'", 6, 29);
+    public void testFunctionPointerRest() {
+        BValue[] returns = BRunUtil.invoke(fpProgram, "testFunctionPointerRest");
+        Assert.assertEquals(returns[0].stringValue(), "[1, 2, 3]");
     }
 
     @Test
-    public void testFunctionPointerAssignmentWithNamedParams() {
-        BValue[] returns = BRunUtil.invoke(result, "testFunctionPointerAssignmentWithNamedParams");
+    public void testFunctionPointerRestTyped() {
+        BValue[] returns = BRunUtil.invoke(fpProgram, "testFunctionPointerRestTyped");
+        Assert.assertEquals(returns[0].stringValue(), "[4, 5, 6]");
+    }
+
+    @Test
+    public void testFunctionPointerAssignmentWithRestParams() {
+        BValue[] returns = BRunUtil.invoke(fpProgram, "testFunctionPointerAssignmentWithRestParams");
         Assert.assertNotNull(returns);
         Assert.assertEquals(returns.length, 3);
         Assert.assertNotNull(returns[0]);
@@ -60,6 +64,6 @@ public class FunctionPointersWithOptionalArgsTest {
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 2);
 
         Assert.assertNotNull(returns[2]);
-        Assert.assertEquals(returns[2].stringValue(), "Alex");
+        Assert.assertEquals(returns[2].stringValue(), "[3, 4]");
     }
 }
