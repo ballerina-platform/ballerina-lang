@@ -666,6 +666,7 @@ public class BIRPackageSymbolEnter {
                     invokableType.restType, invokableSymbol);
         }
         BInvokableTypeSymbol tsymbol = (BInvokableTypeSymbol) invokableType.tsymbol;
+        tsymbol.flags = invokableSymbol.flags;
         tsymbol.params = invokableSymbol.params;
         tsymbol.restParam = invokableSymbol.restParam;
         tsymbol.returnType = invokableSymbol.retType;
