@@ -1145,7 +1145,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
 
         int requiredParamCount = invocationExpr.requiredArgs.size();
         int restCount = invocationExpr.restArgs == null || invocationExpr.restArgs.isEmpty() ? 0 : 1;
-        int totalParamCount = requiredParamCount + restCount;
+        int totalParamCount = requiredParamCount + restCount + receiverIfAttachedFunction(invocationExpr);
 
         for (int i = ALL_UNTAINTED_TABLE_ENTRY_INDEX; i < totalParamCount; i++) {
             TaintRecord record = new TaintRecord(
@@ -1159,6 +1159,10 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         }
 
         return taintTable;
+    }
+
+    private int receiverIfAttachedFunction(BLangInvocation invocationExpr) {
+        return isTaintAnalyzableAttachedFunction(invocationExpr) ? 1 : 0;
     }
 
     private void analyzeBuiltInMethodInvocation(BLangInvocation invocationExpr) {
