@@ -470,7 +470,7 @@ service URLEncodeService on testEP {
     resource function encodedPath(http:Caller caller, http:Request req, string aaa, string bbb, string ccc) {
         http:Response res = new;
         json responseJson = {aaa:aaa, bbb:bbb, ccc:ccc};
-        res.setJsonPayload(untaint responseJson);
+        res.setJsonPayload(<@untainted json> responseJson);
         checkpanic caller->respond(res);
     }
 }
