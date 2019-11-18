@@ -23,6 +23,7 @@ import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.util.websocket.client.WebSocketTestClient;
 import org.ballerinalang.test.util.websocket.server.WebSocketRemoteServer;
 import org.testng.Assert;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.net.URISyntaxException;
@@ -41,6 +42,7 @@ public class FailoverClientTest extends WebSocketTestCommons {
     private String url = "ws://localhost:21033";
     private int port = 15300;
     private String textSent = "hi all";
+    private String text = "hi";
 
     @Test(description = "Tests starting the second server in the target URLs, sending and receiving text frames " +
             "using the failover websocket client")
@@ -102,13 +104,11 @@ public class FailoverClientTest extends WebSocketTestCommons {
         ByteBuffer bufferSent = ByteBuffer.wrap(new byte[]{1, 2, 3, 4, 6});
         WebSocketTestClient client = new WebSocketTestClient(url);
         client.handshake();
-
         client.sendText(textSent);
         countDownLatchFor15300.await(TIMEOUT_IN_SECS, TimeUnit.SECONDS);
         Assert.assertEquals(client.getTextReceived(), textSent);
         remoteServer15300.stop();
         CountDownLatch countDownLatchFor15200 = new CountDownLatch(1);
-        String text = "hi";
         client.sendText(text);
         countDownLatchFor15200.await(TIMEOUT_IN_SECS, TimeUnit.SECONDS);
         Assert.assertEquals(client.getTextReceived(), text);
@@ -128,7 +128,6 @@ public class FailoverClientTest extends WebSocketTestCommons {
         remoteServer15200 = new WebSocketRemoteServer(15200);
         remoteServer15300 = new WebSocketRemoteServer(port);
         remoteServer15200.run();
-        ByteBuffer bufferSent = ByteBuffer.wrap(new byte[]{1, 2, 3, 4, 6});
         WebSocketTestClient client = new WebSocketTestClient(url);
         client.handshake();
         client.sendText(textSent);
@@ -138,11 +137,33 @@ public class FailoverClientTest extends WebSocketTestCommons {
         countDownLatch.await(TIMEOUT_IN_SECS, TimeUnit.SECONDS);
         remoteServer15200.stop();
         CountDownLatch countDownLatchFor15300 = new CountDownLatch(1);
-        String text = "hi";
         client.sendText(text);
         countDownLatchFor15300.await(TIMEOUT_IN_SECS, TimeUnit.SECONDS);
         Assert.assertEquals(client.getTextReceived(), text);
         client.shutDown();
         remoteServer15300.stop();
+    }
+
+    @Test(description = "Tests handshake's waiting time exception")
+    public void testCownDownLatch() throws URISyntaxException, InterruptedException, BallerinaTestException {
+        WebSocketTestClient serverClient = new WebSocketTestClient("ws://localhost:21037/basic/ws");
+        serverClient.handshake();
+        CountDownLatch countDownLatch = new CountDownLatch(1);
+        remoteServer15300 = new WebSocketRemoteServer(port);
+        remoteServer15300.run();
+        WebSocketTestClient client = new WebSocketTestClient("ws://localhost:21038");
+        client.handshake();
+        client.setCountDownLatch(countDownLatch);
+        client.sendText(textSent);
+        countDownLatch.await(TIMEOUT_IN_SECS, TimeUnit.SECONDS);
+        Assert.assertEquals(client.getTextReceived(), textSent);
+        countDownLatch.await(TIMEOUT_IN_SECS, TimeUnit.SECONDS);
+        remoteServer15300.stop();
+        CountDownLatch countDownLatch1 = new CountDownLatch(1);
+        countDownLatch1.await(6, TimeUnit.MINUTES);
+        Assert.assertEquals(client.getTextReceived(), "error {ballerina/http}WsGenericError " +
+                "message={ballerina/http}WsGenericError");
+        client.shutDown();
+        serverClient.shutDown();
     }
 }
