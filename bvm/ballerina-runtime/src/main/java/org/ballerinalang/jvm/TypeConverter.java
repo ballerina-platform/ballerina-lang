@@ -182,7 +182,10 @@ public class TypeConverter {
                 }
                 break;
             case TypeTags.ANYDATA_TAG:
-                convertibleTypes.add(TypeConverter.resolveMatchingTypeForUnion(inputValue, targetType));
+                BType matchingType = TypeConverter.resolveMatchingTypeForUnion(inputValue, targetType);
+                if (matchingType != null) {
+                    convertibleTypes.add(matchingType);
+                }
                 break;
             default:
                 if (TypeChecker.checkIsLikeType(inputValue, targetType, true)) {
@@ -580,6 +583,10 @@ public class TypeConverter {
         if (value instanceof MapValue && ((MapValue) value).getType().getTag() == TypeTags.MAP_TAG &&
                 !isDeepStampingRequiredForMap(((MapValue) value).getType())) {
             return ((MapValue) value).getType();
+        }
+
+        if (value == null && type.isNilable()) {
+            return BTypes.typeNull;
         }
 
         if (checkIsLikeType(value, BTypes.typeInt)) {
