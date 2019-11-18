@@ -47,9 +47,11 @@ public class DefaultMessageHandler implements MessageHandler {
 
     // Resource which the message should be dispatched.
     private ObjectValue serviceObject;
+    private BRuntime runtime;
 
-    DefaultMessageHandler(ObjectValue serviceObject) {
+    DefaultMessageHandler(ObjectValue serviceObject, BRuntime runtime) {
         this.serviceObject = serviceObject;
+        this.runtime = runtime;
     }
 
     /**
@@ -78,8 +80,8 @@ public class DefaultMessageHandler implements MessageHandler {
      */
     private void dispatch(ObjectValue msgObj) {
         CountDownLatch countDownLatch = new CountDownLatch(1);
-        BRuntime.getCurrentRuntime().invokeMethodAsync(serviceObject, ON_MESSAGE_RESOURCE,
-                new ResponseCallback(countDownLatch), null, msgObj, Boolean.TRUE);
+        runtime.invokeMethodAsync(serviceObject, ON_MESSAGE_RESOURCE,
+                new ResponseCallback(countDownLatch), msgObj, Boolean.TRUE);
         try {
             countDownLatch.await();
         } catch (InterruptedException e) {
@@ -99,16 +101,15 @@ public class DefaultMessageHandler implements MessageHandler {
         try {
             Object typeBoundData = bindDataToIntendedType(data, intendedType);
             CountDownLatch countDownLatch = new CountDownLatch(1);
-            BRuntime.getCurrentRuntime().invokeMethodAsync(serviceObject, ON_MESSAGE_RESOURCE,
-                    new ResponseCallback(countDownLatch), null,
+            runtime.invokeMethodAsync(serviceObject, ON_MESSAGE_RESOURCE, new ResponseCallback(countDownLatch),
                     msgObj, true, typeBoundData, true);
             countDownLatch.await();
         } catch (NumberFormatException e) {
             ErrorValue dataBindError = Utils
                     .createNatsError("The received message is unsupported by the resource signature");
-            ErrorHandler.dispatchError(serviceObject, msgObj, dataBindError);
+            ErrorHandler.dispatchError(serviceObject, msgObj, dataBindError, runtime);
         } catch (ErrorValue e) {
-            ErrorHandler.dispatchError(serviceObject, msgObj, e);
+            ErrorHandler.dispatchError(serviceObject, msgObj, e, runtime);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             throw Utils.createNatsError(Constants.THREAD_INTERRUPTED_ERROR);

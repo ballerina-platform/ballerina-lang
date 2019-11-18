@@ -20,6 +20,7 @@ package org.ballerinalang.nats.basic.consumer;
 
 import io.nats.client.Connection;
 import io.nats.client.Dispatcher;
+import org.ballerinalang.jvm.BRuntime;
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
@@ -56,7 +57,8 @@ public class Register {
         }
         String queueName = subscriptionConfig.getStringValue(Constants.QUEUE_NAME);
         String subject = subscriptionConfig.getStringValue(Constants.SUBJECT);
-        Dispatcher dispatcher = natsConnection.createDispatcher(new DefaultMessageHandler(service));
+        BRuntime runtime = BRuntime.getCurrentRuntime();
+        Dispatcher dispatcher = natsConnection.createDispatcher(new DefaultMessageHandler(service, runtime));
         // Add dispatcher. This is needed when closing the connection.
         @SuppressWarnings("unchecked")
         ConcurrentHashMap<String, Dispatcher> dispatcherList = (ConcurrentHashMap<String, Dispatcher>)
