@@ -26,6 +26,7 @@ import org.testng.annotations.Test;
 /**
  * Test cases for XML security.
  */
+@Test(enabled = false)
 public class XMLSecurityTest {
 
     @Test

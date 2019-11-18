@@ -43,6 +43,7 @@ import java.util.Set;
 import static javax.xml.stream.XMLStreamConstants.CDATA;
 import static javax.xml.stream.XMLStreamConstants.CHARACTERS;
 import static javax.xml.stream.XMLStreamConstants.COMMENT;
+import static javax.xml.stream.XMLStreamConstants.DTD;
 import static javax.xml.stream.XMLStreamConstants.END_DOCUMENT;
 import static javax.xml.stream.XMLStreamConstants.END_ELEMENT;
 import static javax.xml.stream.XMLStreamConstants.PROCESSING_INSTRUCTION;
@@ -104,6 +105,9 @@ public class StaxXMLSource {
                         break;
                     case END_DOCUMENT:
                         return buildDocument();
+                    case DTD:
+                        handleDTD(xmlStreamReader);
+                        break;
                     default:
                         assert false;
                 }
@@ -113,6 +117,10 @@ public class StaxXMLSource {
         }
 
         return null;
+    }
+
+    private void handleDTD(XMLStreamReader xmlStreamReader) {
+        throw new UnsupportedOperationException("xml dtd");
     }
 
     private void readPI(XMLStreamReader xmlStreamReader) {

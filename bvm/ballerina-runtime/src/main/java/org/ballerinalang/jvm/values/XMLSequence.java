@@ -556,4 +556,22 @@ public final class XMLSequence extends XMLValue<ArrayValue> {
     public IteratorValue getIterator() {
         return new XMLIterator.SequenceIterator(this);
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == this) {
+            return true;
+        }
+
+        if (obj instanceof XMLSequence) {
+            XMLSequence that = (XMLSequence) obj;
+            return that.children.equals(this.children);
+        }
+        if (obj instanceof XMLItem) {
+            if (this.children.size() == 1 && this.children.get(0).equals(obj)) {
+                return true;
+            }
+        }
+        return false;
+    }
 }

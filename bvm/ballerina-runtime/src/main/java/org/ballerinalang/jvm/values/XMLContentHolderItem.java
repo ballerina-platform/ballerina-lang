@@ -24,6 +24,7 @@ public class XMLContentHolderItem extends XMLValue<OMNode> {
     private XMLNodeType type;
 
     public XMLContentHolderItem(String data, XMLNodeType contentType) {
+        // data is the content of xml comment or text node
         this.data = data;
         this.type = contentType;
     }
@@ -243,5 +244,28 @@ public class XMLContentHolderItem extends XMLValue<OMNode> {
         } catch (Throwable t) {
             handleXmlException("error occurred during writing the message to the output stream: ", t);
         }
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+
+        if (obj instanceof XMLContentHolderItem) {
+            XMLContentHolderItem that = (XMLContentHolderItem) obj;
+            if (that.getNodeType() != this.getNodeType()) {
+                return false;
+            }
+            switch (this.getNodeType()) {
+                case TEXT:
+                case COMMENT:
+                    return this.getData().equals(that.getData());
+                case PI:
+                    return this.getData().equals(that.getData()) && this.getTarget().equals(that.getTarget());
+            }
+
+        }
+        return false;
     }
 }

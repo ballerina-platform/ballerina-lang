@@ -362,27 +362,7 @@ public class XMLFactory {
      * @return true if the two are equal, false if not equal or an exception is thrown while checking equality
      */
     public static boolean isEqual(XMLValue<?> xmlOne, XMLValue<?> xmlTwo) {
-        XMLNodeType xmlOneNodeType = xmlOne.getNodeType();
-        XMLNodeType xmlTwoNodeType = xmlTwo.getNodeType();
-
-        try {
-            if (xmlOneNodeType == XMLNodeType.SEQUENCE && xmlTwoNodeType == XMLNodeType.SEQUENCE) {
-                return isXmlSequenceEqual((XMLSequence) xmlOne, (XMLSequence) xmlTwo);
-            } else if (xmlOneNodeType != XMLNodeType.SEQUENCE && xmlTwoNodeType != XMLNodeType.SEQUENCE) {
-                return isXmlItemEqual((XMLItem) xmlOne, (XMLItem) xmlTwo);
-            } else {
-                if (xmlOneNodeType == XMLNodeType.SEQUENCE && xmlOne.isSingleton()) {
-                    return isXmlSingletonSequenceItemEqual((XMLSequence) xmlOne, (XMLItem) xmlTwo);
-                }
-
-                if (xmlTwoNodeType == XMLNodeType.SEQUENCE && xmlTwo.isSingleton()) {
-                    return isXmlSingletonSequenceItemEqual((XMLSequence) xmlTwo, (XMLItem) xmlOne);
-                }
-            }
-        } catch (Exception e) {
-            // ignore and return false
-        }
-        return false;
+        return xmlOne.equals(xmlTwo);
     }
 
     private static boolean isXmlSequenceEqual(XMLSequence xmlSequenceOne, XMLSequence xmlSequenceTwo) {

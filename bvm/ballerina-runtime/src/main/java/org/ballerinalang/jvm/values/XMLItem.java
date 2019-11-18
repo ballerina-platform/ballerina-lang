@@ -645,4 +645,33 @@ public final class XMLItem extends XMLValue<OMNode> {
     public IteratorValue getIterator() {
         return new XMLIterator.ItemIterator(this);
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == this) {
+            return true;
+        }
+
+        if (obj instanceof XMLItem) {
+            XMLItem that = (XMLItem) obj;
+            boolean qNameEquals = that.getQName().equals(this.getQName());
+            if (!qNameEquals) {
+                return false;
+            }
+
+            boolean attrMapEquals = that.attributes.entrySet().equals(this.attributes.entrySet());
+            if (!attrMapEquals) {
+                return false;
+            }
+
+            return that.children.equals(this.children);
+        }
+        if (obj instanceof XMLSequence) {
+            XMLSequence other = (XMLSequence) obj;
+            if (other.children.size() == 1 && this.equals(other.children.get(0))) {
+                return true;
+            }
+        }
+        return false;
+    }
 }
