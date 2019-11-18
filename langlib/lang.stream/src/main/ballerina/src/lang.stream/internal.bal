@@ -20,10 +20,6 @@ StreamManager streamManager = new;
 # Represent the stream subscription manager for different streams.
 type StreamManager object {
 
-    public function __init() {
-
-    }
-
     # Add a new subscription function to the given stream.
     # + strm - The stream to which the subscription is added
     # + func - The subscription function to be added
