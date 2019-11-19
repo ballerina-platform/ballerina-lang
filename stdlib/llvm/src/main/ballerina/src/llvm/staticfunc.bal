@@ -668,7 +668,7 @@ public function llvmBuildStore(LLVMBuilderRef arg0, LLVMValueRef val, LLVMValueR
 ////public function llvmBuildGEP(LLVMBuilderRef b, LLVMValueRef pointer, LLVMValueRef indices, int numIndices, BytePointer name) returns LLVMValueRef = external;
 ////public function llvmBuildInBoundsGEP(LLVMBuilderRef b, LLVMValueRef pointer, LLVMValueRef indices, int numIndices, BytePointer name) returns LLVMValueRef = external;
 //public function llvmBuildInBoundsGEP(LLVMBuilderRef b, LLVMValueRef pointer, PointerPointer indices, int numIndices, string name) returns LLVMValueRef = external;
-//public function llvmBuildStructGEP(LLVMBuilderRef b, LLVMValueRef pointer, int idx, string name) returns LLVMValueRef = external;
+public function llvmBuildStructGEP(LLVMBuilderRef b, LLVMValueRef pointer, int idx, string name) returns LLVMValueRef = external;
 ////public function llvmBuildStructGEP(LLVMBuilderRef b, LLVMValueRef pointer, int idx, BytePointer name) returns LLVMValueRef = external;
 ////public function llvmBuildGlobalString(LLVMBuilderRef b, BytePointer str, BytePointer name) returns LLVMValueRef = external;
 //public function llvmBuildGlobalString(LLVMBuilderRef b, string str, string name) returns LLVMValueRef = external;

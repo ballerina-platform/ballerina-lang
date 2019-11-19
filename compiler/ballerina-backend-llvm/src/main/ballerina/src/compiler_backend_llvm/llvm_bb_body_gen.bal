@@ -43,9 +43,15 @@ type BbBodyGenrator object {
     }
 
     function genTypeCast(bir:TypeCast castIns) {
-        llvm:LLVMValueRef lhsRef = self.parent.getLocalVarRefById(castIns.lhsOp.variableDcl.name.value);
-        llvm:LLVMTypeRef lhsRefType = llvm:llvmTypeOf(lhsRef);
-        boolean typesCompatible = checkIfTypesAreCompatible(castIns.castType, lhsRefType);
+        llvm:LLVMTypeRef lhsType = self.getLhsType(castIns.lhsOp.variableDcl.name.value);
+        boolean typesCompatible = checkIfTypesAreCompatible(castIns.castType, lhsType);
+        llvm:LLVMValueRef rhsVarOp = self.parent.genLoadLocalToTempVar(castIns.rhsOp);
+        string tagOfUnion = genStructGepName(localVariableName(castIns.rhsOp.variableDcl), TAGGED_UNION_FLAG_INDEX);
+        llvm:LLVMValueRef taggedStructFlag = llvm:llvmBuildStructGEP(self.builder, rhsVarOp, TAGGED_UNION_FLAG_INDEX, tagOfUnion);
+    }
+
+    function getLhsType(string lhsVariableName) returns llvm:LLVMTypeRef {
+        return self.parent.getLocalVarTypeRefById(lhsVariableName);
     }
 
     function genMoveIns(bir:Move moveIns) {
@@ -56,7 +62,7 @@ type BbBodyGenrator object {
     }
 
     function genBinaryOpIns(bir:BinaryOp binaryIns) {
-        var lhsTmpName = localVarName(binaryIns.lhsOp.variableDcl) + "_temp";
+        var lhsTmpName = localVarNameWithPostFix(binaryIns.lhsOp.variableDcl) + "_temp";
         var lhsRef = self.parent.getLocalVarRefById(binaryIns.lhsOp.variableDcl.name.value);
         var rhsOp1 = self.parent.genLoadLocalToTempVar(binaryIns.rhsOp1);
         var rhsOp2 = self.parent.genLoadLocalToTempVar(binaryIns.rhsOp2);

@@ -23,7 +23,9 @@ import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.nativeimpl.llvm.FFIUtil;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
+import org.bytedeco.javacpp.BytePointer;
 import org.bytedeco.javacpp.LLVM;
+import org.bytedeco.javacpp.PointerPointer;
 
 import static org.ballerinalang.model.types.TypeKind.RECORD;
 
@@ -44,6 +46,8 @@ public class TypeCheck {
             MapValue<String, Object> lhsType) {
         LLVM.LLVMTypeRef castTypeRef = (LLVM.LLVMTypeRef) FFIUtil.getRecodeArgumentNative(castType);
         LLVM.LLVMTypeRef lhsTypeRef = (LLVM.LLVMTypeRef) FFIUtil.getRecodeArgumentNative(lhsType);
-        return lhsTypeRef == castTypeRef;
+        String castTypeName = LLVM.LLVMGetStructName(castTypeRef).getString();
+        String lhsTypeName = LLVM.LLVMGetStructName(lhsTypeRef).getString();
+        return castTypeName.compareTo(lhsTypeName) == 0;
     }
 }

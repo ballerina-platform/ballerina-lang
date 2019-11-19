@@ -16,12 +16,12 @@
 
 import ballerina/llvm;
 import ballerina/bir;
-import ballerina/io;
 
 // TODO: make non-global
 llvm:LLVMValueRef? printfRef = ();
 map<llvm:LLVMTypeRef> structMap = {"null" : llvm:llvmVoidType()};
 map<int> precedenceMap = { "null":0, "boolean":1, "int":2};
+const int TAGGED_UNION_FLAG_INDEX = 0;
 
 function genPackage(bir:Package pkg, string targetObjectFilePath, boolean dumpLLVMIR, boolean noOptimize) {
     var mod = createModule(pkg.org, pkg.name, pkg.versionValue);
@@ -152,10 +152,16 @@ function genBType(bir:BType? bType) returns llvm:LLVMTypeRef {
     panic err;
 }
 
-function localVarName(bir:VariableDcl? localVar) returns string {
+function localVarNameWithPostFix(bir:VariableDcl? localVar) returns string {
+    string localVarName = localVariableName(localVar);
+    string postFixName = localVarNameFromId(localVarName);
+    return postFixName;
+}
+
+function localVariableName(bir:VariableDcl? localVar) returns string {
     string? temp = localVar["name"]?.value;
     if (temp is string) {
-        return localVarNameFromId(temp);
+        return temp;
     }
     error err = error("Local Variable name is not a string");
     panic err;
@@ -174,7 +180,6 @@ function appendAllTo(any[] toArr, any[] fromArr) {
 }
 
 function createUnion(bir:BUnionType bType) returns llvm:LLVMTypeRef {
-    io:println("Creating Struct type for Union");
     string largestType = "null";
     foreach var member in bType.members {
         if (member is bir:BTypeInt) {
@@ -183,11 +188,8 @@ function createUnion(bir:BUnionType bType) returns llvm:LLVMTypeRef {
         } else if (member is bir:BTypeBoolean) {
             largestType = checkForLargerType(largestType, "boolean");
             createTaggedBool();
-        } else {
-            io:println("any");
         }
     }
-    io:println(largestType);
     return <llvm:LLVMTypeRef>structMap[largestType];
 }
 
@@ -200,33 +202,23 @@ function checkForLargerType(string first, string second) returns string {
 }
 
 function createTaggedInt() {
-    io:println("BeforeMapCheckInt");
     if (structMap.hasKey("int")) {
         return;
     }
-    io:println("AfterMapCheckInt");
     llvm:LLVMTypeRef structType = createNamedStruct("tagged_int");
     llvm:LLVMTypeRef[] argTypes = [llvm:llvmInt64Type(), llvm:llvmInt64Type()];
     llvm:llvmStructSetBody1(structType, argTypes, 2, 0);
     structMap["int"] = structType;
-    if (structMap.hasKey("int")) {
-        io:println("HasInt");
-    }
 }
 
 function createTaggedBool() {
-    io:println("BeforeMapCheckBool");
     if (structMap.hasKey("boolean")) {
         return;
     }
-    io:println("AfterMapCheckBool");
     llvm:LLVMTypeRef structType = createNamedStruct("tagged_bool");
     var argTypes = [llvm:llvmInt64Type(), llvm:llvmInt1Type()];
     llvm:llvmStructSetBody1(structType, argTypes, 2, 0);
     structMap["boolean"] = structType;
-    if (structMap.hasKey("boolean")) {
-        io:println("HasBoolean");
-    }
 }
 
 function createNamedStruct(string name) returns llvm:LLVMTypeRef {
@@ -235,6 +227,13 @@ function createNamedStruct(string name) returns llvm:LLVMTypeRef {
 }
 
 function checkIfTypesAreCompatible(bir:BType castType, llvm:LLVMTypeRef lhsType) returns boolean {
-    llvm:LLVMTypeRef castTypeRef = genBType(castType);
-    return llvm:llvmCheckIfTypesMatch(castTypeRef, lhsType);   
+    if (castType is bir:BUnionType) {
+        llvm:LLVMTypeRef castTypeRef = genBType(castType);
+        return llvm:llvmCheckIfTypesMatch(castTypeRef, lhsType);   
+    }
+    return true;
+}
+
+function genStructGepName(string structName, int index) returns string {
+    return structName.concat("_index", index.toString());
 }

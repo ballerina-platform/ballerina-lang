@@ -23,6 +23,7 @@ type FuncGenrator object {
     llvm:LLVMValueRef? funcRef = ();
     llvm:LLVMModuleRef mod;
     map<llvm:LLVMValueRef>? localVarRefs = {};
+    map<llvm:LLVMTypeRef> localVarTypeRefs = {};
     llvm:LLVMValueRef? varAllocBB = ();
     llvm:LLVMBuilderRef builder;
 
@@ -73,17 +74,11 @@ type FuncGenrator object {
         self.varAllocBB = self.genBbDecl("var_allloc");
         int paramIndex = 0;
         foreach var localVar in self.func.localVars {
-            var varName = localVarName(localVar);
+            var varName = localVarNameWithPostFix(localVar);
             var varType = genBType(localVar["typeValue"]);
             llvm:LLVMValueRef localVarRef = llvm:llvmBuildAlloca(self.builder, varType, varName);
-            map<llvm:LLVMValueRef>? localVarRefsTemp = self.localVarRefs;
-            if (localVarRefsTemp is map<llvm:LLVMValueRef>) {
-                string? temp = localVar["name"]?.value;
-                if (temp is string) {
-                    localVarRefsTemp[temp] = localVarRef;
-                }
-            }
-
+            self.cacheLocVarValue(localVar, localVarRef);
+            self.cacheLocVarType(localVar, varType);
             if (self.isParameter(localVar)) {
                 llvm:LLVMValueRef? funcTemp = self.funcRef;
                 if (funcTemp is llvm:LLVMValueRef) {
@@ -92,6 +87,22 @@ type FuncGenrator object {
                     paramIndex += 1;
                 }
             }
+        }
+    }
+
+    function cacheLocVarValue(bir:VariableDcl? localVar, llvm:LLVMValueRef localVarRef) {
+        map<llvm:LLVMValueRef>? localVarRefsTemp = self.localVarRefs;
+        if (localVarRefsTemp is map<llvm:LLVMValueRef>) {
+            string localVarRefName = localVariableName(localVar);
+            localVarRefsTemp[localVarRefName] = localVarRef;
+        }
+    }
+
+    function cacheLocVarType(bir:VariableDcl? localVar, llvm:LLVMTypeRef localVarTypeRef) {
+        map<llvm:LLVMValueRef>? localVarTypeRefsTemp = self.localVarTypeRefs;
+        if (localVarTypeRefsTemp is map<llvm:LLVMTypeRef>) {
+            string localVarRefName = localVariableName(localVar);
+            localVarTypeRefsTemp[localVarRefName] = localVarTypeRef;
         }
     }
 
@@ -131,7 +142,7 @@ type FuncGenrator object {
 
     function genLoadLocalToTempVar(bir:VarRef oprand) returns llvm:LLVMValueRef {
         bir:VarRef refOprand = oprand;
-        string tempName = localVarName(refOprand.variableDcl) + "_temp";
+        string tempName = localVarNameWithPostFix(refOprand.variableDcl) + "_temp";
         var localVarRef = self.getLocalVarRefById(refOprand.variableDcl.name.value);
         return llvm:llvmBuildLoad(self.builder, localVarRef, tempName);
     }
@@ -140,6 +151,17 @@ type FuncGenrator object {
         llvm:LLVMValueRef? tempVarRef = self.localVarRefs[id];
         if (tempVarRef is llvm:LLVMValueRef) {
             return tempVarRef;
+        }
+        else {
+            panic error("SimpleErrorType", message = "Local var by name '" + id + "' dosn't exist in " +
+                self.func.name.value);
+        }
+    }
+
+    function getLocalVarTypeRefById(string id) returns llvm:LLVMTypeRef {
+        llvm:LLVMTypeRef? tempTypeRef = self.localVarTypeRefs[id];
+        if (tempTypeRef is llvm:LLVMTypeRef) {
+            return tempTypeRef;
         }
         else {
             panic error("SimpleErrorType", message = "Local var by name '" + id + "' dosn't exist in " +
