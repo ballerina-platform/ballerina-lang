@@ -18,26 +18,19 @@
 package org.ballerinalang.jvm.values;
 
 import org.ballerinalang.jvm.BallerinaErrors;
-import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.JSONGenerator;
 import org.ballerinalang.jvm.JSONUtils;
 import org.ballerinalang.jvm.TypeChecker;
-import org.ballerinalang.jvm.TypeConverter;
-import org.ballerinalang.jvm.commons.TypeValuePair;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BField;
 import org.ballerinalang.jvm.types.BMapType;
-import org.ballerinalang.jvm.types.BPackage;
 import org.ballerinalang.jvm.types.BRecordType;
 import org.ballerinalang.jvm.types.BTupleType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
-import org.ballerinalang.jvm.types.BUnionType;
 import org.ballerinalang.jvm.types.TypeTags;
-import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.jvm.util.exceptions.BLangFreezeException;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
-import org.ballerinalang.jvm.util.exceptions.RuntimeErrors;
 import org.ballerinalang.jvm.values.api.BMap;
 import org.ballerinalang.jvm.values.freeze.FreezeUtils;
 import org.ballerinalang.jvm.values.freeze.State;
@@ -59,9 +52,7 @@ import java.util.Set;
 import java.util.StringJoiner;
 
 import static org.ballerinalang.jvm.JSONUtils.mergeJson;
-import static org.ballerinalang.jvm.TypeConverter.getConvertibleTypes;
 import static org.ballerinalang.jvm.util.BLangConstants.MAP_LANG_LIB;
-import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.CONSTRUCT_FROM_CYCLIC_VALUE_REFERENCE_ERROR;
 import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.MAP_KEY_NOT_FOUND_ERROR;
 import static org.ballerinalang.jvm.values.freeze.FreezeUtils.handleInvalidUpdate;
 
@@ -85,11 +76,6 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
 
     private static final long serialVersionUID = 1L;
     private BType type;
-
-    private static final String PERIOD = ".";
-    private static final String UNDERSCORE = "_";
-    private static final String SLASH = "/";
-
     private volatile Status freezeStatus = new Status(State.UNFROZEN);
     private final Map<String, Object> nativeData = new HashMap<>();
 
@@ -395,90 +381,6 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
         return type;
     }
 
-    public void stamp(BType type, List<TypeValuePair> unresolvedValues) {
-        TypeValuePair typeValuePair = new TypeValuePair(this, type);
-        if (unresolvedValues.contains(typeValuePair)) {
-            throw new BallerinaException(CONSTRUCT_FROM_CYCLIC_VALUE_REFERENCE_ERROR,
-                                         BLangExceptionHelper.getErrorMessage(RuntimeErrors.CYCLIC_VALUE_REFERENCE,
-                                                                              this.type));
-        }
-        unresolvedValues.add(typeValuePair);
-        if (type.getTag() == TypeTags.JSON_TAG) {
-            type = TypeConverter.resolveMatchingTypeForUnion(this, type);
-            this.stamp(type, unresolvedValues);
-        } else if (type.getTag() == TypeTags.MAP_TAG) {
-            for (Map.Entry valueEntry : this.entrySet()) {
-                Object value = valueEntry.getValue();
-                BType constraintType = ((BMapType) type).getConstrainedType();
-                if (value instanceof RefValue) {
-                    ((RefValue) value).stamp(constraintType, unresolvedValues);
-                } else if (!TypeChecker.checkIsType(value, constraintType)) {
-                    // Has to be a numeric conversion.
-                    this.put((K) valueEntry.getKey(),
-                             (V) TypeConverter.convertValues(getConvertibleTypes(value, constraintType).get(0), value));
-                }
-            }
-        } else if (type.getTag() == TypeTags.RECORD_TYPE_TAG) {
-            BRecordType recordType = (BRecordType) type;
-            MapValueImpl<String, Object> recordWithDefaults = (MapValueImpl<String, Object>)
-                    BallerinaValues.createRecordValue(recordType.getPackage(), recordType.getName());
-
-            for (Map.Entry valueEntry : recordWithDefaults.entrySet()) {
-                Object fieldName = valueEntry.getKey();
-                if (!this.containsKey(fieldName)) {
-                    this.put((K) fieldName, (V) valueEntry.getValue());
-                }
-            }
-
-            BType restFieldType = recordType.restFieldType;
-            Map<String, BType> targetTypeField = new HashMap<>();
-            for (BField field : recordType.getFields().values()) {
-                targetTypeField.put(field.getFieldName(), field.getFieldType());
-            }
-
-            for (Map.Entry valueEntry : this.entrySet()) {
-                String fieldName = valueEntry.getKey().toString();
-                Object value = valueEntry.getValue();
-                BType bType = targetTypeField.getOrDefault(fieldName, restFieldType);
-                if (value instanceof RefValue) {
-                    ((RefValue) value).stamp(bType, unresolvedValues);
-                } else if (!TypeChecker.checkIsType(value, bType)) {
-                    // Has to be a numeric conversion.
-                    this.put((K) fieldName,
-                             (V) TypeConverter.convertValues(getConvertibleTypes(value, bType).get(0), value));
-                }
-            }
-        } else if (type.getTag() == TypeTags.UNION_TAG) {
-            for (BType memberType : ((BUnionType) type).getMemberTypes()) {
-                if (TypeChecker.checkIsLikeType(this, memberType)) {
-                    this.stamp(memberType, unresolvedValues);
-                    if (memberType.getTag() == TypeTags.ANYDATA_TAG) {
-                        type = TypeConverter.resolveMatchingTypeForUnion(this, memberType);
-                    } else {
-                        type = memberType;
-                    }
-                    break;
-                }
-            }
-        } else if (type.getTag() == TypeTags.ANYDATA_TAG) {
-            type = TypeConverter.resolveMatchingTypeForUnion(this, type);
-            this.stamp(type, unresolvedValues);
-        }
-
-        this.type = type;
-        unresolvedValues.remove(typeValuePair);
-    }
-
-    private String getPackageForValueCreator(BPackage bPackage) {
-        if (PERIOD.equals(bPackage.toString())) {
-            return PERIOD;
-        }
-
-        String org = bPackage.org;
-        String name = bPackage.name;
-        return org.replace(PERIOD, UNDERSCORE).concat(SLASH).concat(name.replace(PERIOD, UNDERSCORE));
-    }
-
     /**
      * {@inheritDoc}
      */
@@ -563,7 +465,7 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
             types.add(TypeChecker.getType(value));
             BTupleType tupleType = new BTupleType(types);
 
-            ArrayValue tuple = new ArrayValue(tupleType);
+            TupleValueImpl tuple = new TupleValueImpl(tupleType);
             tuple.add(0, next.getKey());
             tuple.add(1, value);
             return tuple;

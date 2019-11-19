@@ -23,6 +23,7 @@ import org.apache.kafka.common.KafkaException;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.messaging.kafka.utils.KafkaConstants;
 import org.ballerinalang.model.types.TypeKind;
@@ -58,7 +59,7 @@ public class GetSubscription {
 
         try {
             Set<String> subscriptions = kafkaConsumer.subscription();
-            ArrayValue arrayValue = new ArrayValue(new BArrayType(org.ballerinalang.jvm.types.BTypes.typeString));
+            ArrayValue arrayValue = new ArrayValueImpl(new BArrayType(org.ballerinalang.jvm.types.BTypes.typeString));
             if (!subscriptions.isEmpty()) {
                 // TODO: Remove this counter variable, and use append method in for loop once #17075 fixed.
                 int i = 0;
