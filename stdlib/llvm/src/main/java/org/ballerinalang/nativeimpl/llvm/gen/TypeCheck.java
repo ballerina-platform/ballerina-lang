@@ -33,14 +33,14 @@ import static org.ballerinalang.model.types.TypeKind.RECORD;
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "llvm",
-        functionName = "llvmTypeCheck",
+        functionName = "llvmCheckIfTypesMatch",
         args = {
                 @Argument(name = "castType", type = RECORD, structType = "LLVMTypeRef"),
                 @Argument(name = "lhsType", type = RECORD, structType = "LLVMTypeRef")
         }
 )
 public class TypeCheck {
-    public static boolean llvmTypeCheck(Strand strand, MapValue<String, Object> castType,
+    public static boolean llvmCheckIfTypesMatch(Strand strand, MapValue<String, Object> castType,
             MapValue<String, Object> lhsType) {
         LLVM.LLVMTypeRef castTypeRef = (LLVM.LLVMTypeRef) FFIUtil.getRecodeArgumentNative(castType);
         LLVM.LLVMTypeRef lhsTypeRef = (LLVM.LLVMTypeRef) FFIUtil.getRecodeArgumentNative(lhsType);

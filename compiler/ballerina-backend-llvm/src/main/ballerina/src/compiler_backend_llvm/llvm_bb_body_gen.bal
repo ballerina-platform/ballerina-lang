@@ -38,14 +38,14 @@ type BbBodyGenrator object {
         } else if (instruction is bir:ConstantLoad) {
             self.genConstantLoadIns(instruction);
         } else if (instruction is bir:TypeCast) {
-            self.getTypeCast(instruction);
+            self.genTypeCast(instruction);
         }
     }
 
     function genTypeCast(bir:TypeCast castIns) {
         llvm:LLVMValueRef lhsRef = self.parent.getLocalVarRefById(castIns.lhsOp.variableDcl.name.value);
-        LLVMTypeRef lhsRefType = llvm:llvmTypeOf(lhsRef);
-        boolean typesCompatible = (castIns.castType, lhsRefType);
+        llvm:LLVMTypeRef lhsRefType = llvm:llvmTypeOf(lhsRef);
+        boolean typesCompatible = checkIfTypesAreCompatible(castIns.castType, lhsRefType);
     }
 
     function genMoveIns(bir:Move moveIns) {

@@ -63,9 +63,9 @@ type FuncGenrator object {
     }
     function genFunctionBody(map<FuncGenrator> funcGenrators) {
         self.genLocalVarAllocationBbBody();
-        //var bbTermGenrators = self.genBbBodies();
-        //self.genLocalVarAllocationBBTerminator(bbTermGenrators);
-        //self.genBbTerminators(funcGenrators, bbTermGenrators);
+        var bbTermGenrators = self.genBbBodies();
+        self.genLocalVarAllocationBBTerminator(bbTermGenrators);
+        self.genBbTerminators(funcGenrators, bbTermGenrators);
     }
 
 

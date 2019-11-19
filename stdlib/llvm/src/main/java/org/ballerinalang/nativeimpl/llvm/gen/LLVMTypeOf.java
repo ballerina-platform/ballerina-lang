@@ -16,13 +16,9 @@
 
 package org.ballerinalang.nativeimpl.llvm.gen;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BPackage;
 import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.llvm.FFIUtil;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -38,7 +34,7 @@ import static org.bytedeco.javacpp.LLVM.LLVMTypeOf;
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "llvm",
-        functionName = "checkIfTypesMatch",
+        functionName = "llvmTypeOf",
         args = {
                 @Argument(name = "val", type = RECORD, structType = "LLVMValueRef"),
         },
@@ -48,7 +44,7 @@ import static org.bytedeco.javacpp.LLVM.LLVMTypeOf;
 )
 public class LLVMTypeOf {
 
-    public static MapValue<String, Object> checkIfTypesMatch(Strand strand, MapValue<String, Object> val) {
+    public static MapValue<String, Object> llvmTypeOf(Strand strand, MapValue<String, Object> val) {
         LLVM.LLVMValueRef valRef = (LLVM.LLVMValueRef) FFIUtil.getRecodeArgumentNative(val);
         LLVMTypeRef returnValue = LLVMTypeOf(valRef);
         MapValue<String, Object> returnWrappedRecord = FFIUtil.newRecord(new BPackage("ballerina",

@@ -235,6 +235,6 @@ function createNamedStruct(string name) returns llvm:LLVMTypeRef {
 }
 
 function checkIfTypesAreCompatible(bir:BType castType, llvm:LLVMTypeRef lhsType) returns boolean {
-    LLVMTypeRef castTypeRef = genBType(castType);
-    return llvm:checkIfTypesMatch(castTypeRef, lhsType);   
+    llvm:LLVMTypeRef castTypeRef = genBType(castType);
+    return llvm:llvmCheckIfTypesMatch(castTypeRef, lhsType);   
 }
