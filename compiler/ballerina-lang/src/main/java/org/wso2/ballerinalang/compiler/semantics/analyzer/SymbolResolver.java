@@ -1085,7 +1085,7 @@ public class SymbolResolver extends BLangNodeVisitor {
         if (restVariable != null) {
             restType = resolveTypeNode(restVariable.typeNode, env);
             restVariable.type = restType;
-            restParam = new BVarSymbol(restType.flags, names.fromIdNode(((BLangSimpleVariable)restVariable).name),
+            restParam = new BVarSymbol(restType.flags, names.fromIdNode(((BLangSimpleVariable) restVariable).name),
                     env.enclPkg.symbol.pkgID, restType, env.scope.owner);
         }
 

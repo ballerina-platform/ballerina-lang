@@ -845,7 +845,9 @@ public class Types {
         }
 
         if (source.restType != null) {
-            if (target.restType == null ) return  false;
+            if (target.restType == null) {
+                return  false;
+            }
             if (target.restType.tag != TypeTags.ANY
                     && !equality.test(source.restType, target.restType, unresolvedTypes)) {
                 return false;

@@ -908,7 +908,7 @@ public class BIRPackageSymbolEnter {
                     bMapType.constraint = readTypeFromCp();
                     return bMapType;
                 case TypeTags.INVOKABLE:
-                    BInvokableType bInvokableType = new BInvokableType(null,null, null, null);
+                    BInvokableType bInvokableType = new BInvokableType(null, null, null, null);
                     bInvokableType.flags = flags;
                     int paramCount = inputStream.readInt();
                     List<BType> paramTypes = new ArrayList<>();
