@@ -159,6 +159,7 @@ public class TypeConverter {
         }
     }
 
+    // TODO: return only the first matching type
     public static List<BType> getConvertibleTypes(Object inputValue, BType targetType) {
         return getConvertibleTypes(inputValue, targetType, new ArrayList<>());
     }
@@ -178,6 +179,12 @@ public class TypeConverter {
             case TypeTags.RECORD_TYPE_TAG:
                 if (isConvertibleToRecordType(inputValue, (BRecordType) targetType, unresolvedValues)) {
                     convertibleTypes.add(targetType);
+                }
+                break;
+            case TypeTags.ANYDATA_TAG:
+                BType matchingType = TypeConverter.resolveMatchingTypeForUnion(inputValue, targetType);
+                if (matchingType != null) {
+                    convertibleTypes.add(matchingType);
                 }
                 break;
             default:
@@ -569,13 +576,17 @@ public class TypeConverter {
 
     public static BType resolveMatchingTypeForUnion(Object value, BType type) {
         if (value instanceof ArrayValue && ((ArrayValue) value).getType().getTag() == TypeTags.ARRAY_TAG &&
-                !isDeepStampingRequiredForArray(((ArrayValue) value).getArrayType())) {
-            return ((ArrayValue) value).getArrayType();
+                !isDeepStampingRequiredForArray(((ArrayValue) value).getType())) {
+            return ((ArrayValue) value).getType();
         }
 
         if (value instanceof MapValue && ((MapValue) value).getType().getTag() == TypeTags.MAP_TAG &&
                 !isDeepStampingRequiredForMap(((MapValue) value).getType())) {
             return ((MapValue) value).getType();
+        }
+
+        if (value == null && type.isNilable()) {
+            return BTypes.typeNull;
         }
 
         if (checkIsLikeType(value, BTypes.typeInt)) {

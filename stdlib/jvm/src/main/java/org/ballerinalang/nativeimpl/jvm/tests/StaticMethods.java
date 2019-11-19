@@ -17,16 +17,19 @@
  */
 package org.ballerinalang.nativeimpl.jvm.tests;
 
+import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BTupleType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.TupleValueImpl;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -65,7 +68,7 @@ public class StaticMethods {
 
     // This scenario is for map value to be passed to interop and return array value.
     public static ArrayValue getArrayValueFromMap(String key, MapValue mapValue) {
-        ArrayValue arrayValue = new ArrayValue(BTypes.typeInt);
+        ArrayValue arrayValue = new ArrayValueImpl(new BArrayType(BTypes.typeInt));
         arrayValue.add(0, 1);
         long fromMap = mapValue.getIntValue(key);
         arrayValue.add(1, fromMap);
@@ -183,7 +186,7 @@ public class StaticMethods {
 
     public static ArrayValue getArrayValueFromMapWhichThrowsCheckedException(String key, MapValue mapValue)
             throws JavaInteropTestCheckedException {
-        ArrayValue arrayValue = new ArrayValue(BTypes.typeInt);
+        ArrayValue arrayValue = new ArrayValueImpl(new BArrayType(BTypes.typeInt));
         arrayValue.add(0, 1);
         long fromMap = mapValue.getIntValue(key);
         arrayValue.add(1, fromMap);
@@ -234,11 +237,11 @@ public class StaticMethods {
         return e;
     }
 
-    public static ArrayValue getArrayValue() throws BallerinaException {
+    public static TupleValueImpl getArrayValue() throws BallerinaException {
         String name = null;
         String type = null;
         try {
-            return new ArrayValue(new String[]{name, type}, new BTupleType(new ArrayList<BType>() {
+            return new TupleValueImpl(new String[]{name, type}, new BTupleType(new ArrayList<BType>() {
                 {
                     add(BTypes.typeString);
                     add(BTypes.typeString);
@@ -275,11 +278,11 @@ public class StaticMethods {
     /////////////
 
 
-    public static ArrayValue mockedNativeFuncWithOptionalParams(long a, double b, String c,
+    public static TupleValueImpl mockedNativeFuncWithOptionalParams(long a, double b, String c,
                                                                 long d, String e) {
         BTupleType tupleType = new BTupleType(
                 Arrays.asList(BTypes.typeInt, BTypes.typeFloat, BTypes.typeString, BTypes.typeInt, BTypes.typeString));
-        ArrayValue tuple = new ArrayValue(tupleType);
+        TupleValueImpl tuple = new TupleValueImpl(tupleType);
         tuple.add(0, Long.valueOf(a));
         tuple.add(1, Double.valueOf(b));
         tuple.add(2, (Object) c);

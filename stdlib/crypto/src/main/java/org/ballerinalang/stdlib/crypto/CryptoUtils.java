@@ -18,7 +18,7 @@
 package org.ballerinalang.stdlib.crypto;
 
 import org.ballerinalang.jvm.BallerinaErrors;
-import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.ErrorValue;
 
 import java.security.InvalidAlgorithmParameterException;
@@ -123,7 +123,7 @@ public class CryptoUtils {
             Signature sig = Signature.getInstance(algorithm);
             sig.initSign(privateKey);
             sig.update(input);
-            return new ArrayValue(sig.sign());
+            return new ArrayValueImpl(sig.sign());
         } catch (InvalidKeyException e) {
             return CryptoUtils.createError("Uninitialized private key: " + e.getMessage());
         } catch (NoSuchAlgorithmException | SignatureException e) {
@@ -187,7 +187,7 @@ public class CryptoUtils {
             Cipher cipher = Cipher.getInstance(Constants.RSA + "/" + transformedAlgorithmMode + "/"
                     + transformedAlgorithmPadding);
             initCipher(cipher, cipherMode, key, paramSpec);
-            return new ArrayValue(cipher.doFinal(input));
+            return new ArrayValueImpl(cipher.doFinal(input));
         } catch (NoSuchAlgorithmException e) {
             return CryptoUtils.createError("Unsupported algorithm: RSA " + algorithmMode + " " + algorithmPadding +
                     ": " + e.getMessage());
@@ -229,7 +229,7 @@ public class CryptoUtils {
             AlgorithmParameterSpec paramSpec = buildParameterSpec(transformedAlgorithmMode, iv, (int) tagSize);
             Cipher cipher = Cipher.getInstance("AES/" + transformedAlgorithmMode + "/" + transformedAlgorithmPadding);
             initCipher(cipher, cipherMode, keySpec, paramSpec);
-            return new ArrayValue(cipher.doFinal(input));
+            return new ArrayValueImpl(cipher.doFinal(input));
         } catch (NoSuchAlgorithmException e) {
             return CryptoUtils.createError("Unsupported algorithm: AES " + algorithmMode + " " + algorithmPadding +
                     ": " + e.getMessage());

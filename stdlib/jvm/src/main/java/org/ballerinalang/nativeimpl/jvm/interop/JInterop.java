@@ -18,9 +18,11 @@
 package org.ballerinalang.nativeimpl.jvm.interop;
 
 import org.ballerinalang.jvm.BallerinaValues;
+import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BPackage;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
@@ -137,7 +139,7 @@ class JInterop {
     static MapValue<String, Object> createJMethodTypeBValue(JMethod jMethod) {
         MapValue<String, Object> jMethodTypeBRecord = createRecordBValue(METHOD_TYPE_TYPE_NAME);
 
-        ArrayValue paramBTypeArray = new ArrayValue(BTypes.typeAnydata);
+        ArrayValue paramBTypeArray = new ArrayValueImpl(new BArrayType(BTypes.typeAnydata));
         Class<?>[] paramClassTypes = jMethod.getParamTypes();
         for (int paramIndex = 0; paramIndex < paramClassTypes.length; paramIndex++) {
             Class<?> paramClassType = paramClassTypes[paramIndex];

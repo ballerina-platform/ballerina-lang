@@ -21,7 +21,7 @@ package org.ballerinalang.stdlib.mime;
 import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.types.BMapType;
 import org.ballerinalang.jvm.types.BTypes;
-import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.ObjectValue;
@@ -174,7 +174,7 @@ public class MimeUtilityFunctionTest {
     @Test(enabled = false)
     public void testMimeBase64EncodeBlob() {
         String expectedValue = "SGVsbG8gQmFsbGVyaW5h";
-        Object[] args = {new ArrayValue("Hello Ballerina".getBytes())};
+        Object[] args = {new ArrayValueImpl("Hello Ballerina".getBytes())};
         BValue[] returnValues = BRunUtil.invoke(compileResult, "testMimeBase64EncodeBlob", args);
         Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null,
                            "Invalid return value");
@@ -184,7 +184,7 @@ public class MimeUtilityFunctionTest {
     @Test(enabled = false)
     public void testMimeBase64DecodeBlob() {
         String expectedValue = "Hello Ballerina";
-        Object[] args = {new ArrayValue("SGVsbG8gQmFsbGVyaW5h".getBytes())};
+        Object[] args = {new ArrayValueImpl("SGVsbG8gQmFsbGVyaW5h".getBytes())};
         BValue[] returnValues = BRunUtil.invoke(compileResult, "testMimeBase64DecodeBlob", args);
         Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null,
                            "Invalid return value");
@@ -249,7 +249,7 @@ public class MimeUtilityFunctionTest {
     @Test(description = "Set byte array data to entity and get the content back from entity as a byte array")
     public void testGetAndSetByteArray() {
         String content = "ballerina";
-        Object[] args = {new ArrayValue(content.getBytes())};
+        Object[] args = {new ArrayValueImpl(content.getBytes())};
         BValue[] returns = BRunUtil.invoke(compileResult, "testSetAndGetByteArray", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(new String(((BValueArray) returns[0]).getBytes()), content);
