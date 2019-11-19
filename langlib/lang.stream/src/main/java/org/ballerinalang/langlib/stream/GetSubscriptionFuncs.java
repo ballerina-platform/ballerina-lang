@@ -19,7 +19,10 @@
 package org.ballerinalang.langlib.stream;
 
 import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.types.BArrayType;
+import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.StreamValue;
 import org.ballerinalang.model.types.TypeKind;
@@ -47,7 +50,7 @@ public class GetSubscriptionFuncs {
         ArrayValue funcArray = (ArrayValue) subscriptionMgr.getNativeData(stream.streamId);
 
         if (funcArray == null) {
-            funcArray = new ArrayValue();
+            funcArray = new ArrayValueImpl(new BArrayType(BTypes.typeAny));
             subscriptionMgr.addNativeData(stream.streamId, funcArray);
         }
 

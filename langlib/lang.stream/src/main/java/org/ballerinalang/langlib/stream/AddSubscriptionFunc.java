@@ -24,6 +24,7 @@ import org.ballerinalang.jvm.types.BFunctionType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.FPValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.StreamValue;
@@ -56,7 +57,7 @@ public class AddSubscriptionFunc {
         //TODO: This is a hack to make typeParam work
         functionType.paramTypes = new BType[] {BTypes.typePureType};
         if (funcArray == null) {
-            funcArray = new ArrayValue(new BArrayType(subscriptionFunc.getType()));
+            funcArray = new ArrayValueImpl(new BArrayType(subscriptionFunc.getType()));
             subscriptionMgr.addNativeData(stream.streamId, funcArray);
         }
 
