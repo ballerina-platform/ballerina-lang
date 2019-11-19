@@ -85,6 +85,7 @@ dependencies {
     implementation project(':ballerina-config-api')
     implementation project(':ballerina-lang:annotations')
 
+    interopImports project(':ballerina-filepath')
 }
 
 configurations {
