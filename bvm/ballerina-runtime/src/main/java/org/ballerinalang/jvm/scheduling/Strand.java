@@ -60,6 +60,7 @@ public class Strand {
     public Set<SchedulerItem> dependants;
     public ObserverContext observerContext;
     public boolean cancel;
+    public int threadId;
 
     SchedulerItem schedulerItem;
     List<WaitContext> waitingContexts;
