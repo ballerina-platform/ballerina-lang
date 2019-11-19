@@ -76,15 +76,14 @@ public class RunTestsTask implements Task {
     }
 
     private HashSet<Path> findDependencyJarPaths(BLangPackage bLangPackage, BuildContext buildContext) {
-
         HashSet<Path> moduleDependencies = buildContext.moduleDependencyPathMap.get(bLangPackage.packageID).
                 platformLibs;
+        if (!bLangPackage.containsTestablePkg()) {
+            return moduleDependencies;
+        }
         // create a new set so that original set is not affected with test dependencies
         HashSet<Path> dependencyJarPaths = new HashSet<>(moduleDependencies);
 
-        if (!bLangPackage.containsTestablePkg()) {
-            return dependencyJarPaths;
-        }
         // add test dependency jars also to the dependency set, if it exists
         BLangTestablePackage testablePackage = bLangPackage.getTestablePkg();
         for (BLangImportPackage importPackage : testablePackage.imports) {
@@ -93,11 +92,11 @@ public class RunTestsTask implements Task {
                 continue;
             }
 
-            // add imported modules dependency jar paths
+            // add imported module's dependent jar paths
             HashSet<Path> testDependencies = buildContext.moduleDependencyPathMap.get(importPkgId).platformLibs;
             dependencyJarPaths.addAll(testDependencies);
 
-            // add imported modules jar path
+            // add imported module's jar path
             Path jarPath = buildContext.getTestJarPathFromTargetCache(importPkgId);
             Path moduleJarPath = buildContext.getJarPathFromTargetCache(importPkgId).getFileName();
             if (Files.exists(jarPath)) {
