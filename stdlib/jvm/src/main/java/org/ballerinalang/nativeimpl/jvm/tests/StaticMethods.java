@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.nativeimpl.jvm.tests;
 
+import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BTupleType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
@@ -27,6 +28,8 @@ import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.XMLItem;
+import org.ballerinalang.jvm.values.XMLValue;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -291,5 +294,35 @@ public class StaticMethods {
     public static UUID getUUId() {
         UUID uuid = UUID.randomUUID();
         return uuid;
+    }
+
+    public static Object getJson() {
+        MapValueImpl map = new MapValueImpl<>(BTypes.typeJSON);
+        map.put("name", "John");
+        return map;
+    }
+
+    public static MapValueImpl getJsonObject() {
+        MapValueImpl map = new MapValueImpl<>(BTypes.typeJSON);
+        map.put("name", "Doe");
+        return map;
+    }
+
+    public static ArrayValue getJsonArray() {
+        ArrayValue array = new ArrayValue(new BArrayType(BTypes.typeJSON));
+        array.add(0, (Object) "John");
+        return array;
+    }
+
+    public static int getInt() {
+        return 4;
+    }
+
+    public static int getIntFromJson(Object json) {
+        return ((Number) json).intValue();
+    }
+
+    public static int getIntFromJsonInt(int json) {
+        return json;
     }
 }
