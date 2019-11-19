@@ -179,7 +179,7 @@ public function llvmPointerType(LLVMTypeRef elementType, int addressSpace) retur
 public function llvmVoidType() returns LLVMTypeRef = external;
 //public function llvmLabelType() returns LLVMTypeRef = external;
 //public function llvmX86MMXType() returns LLVMTypeRef = external;
-//public function llvmTypeOf(LLVMValueRef val) returns LLVMTypeRef = external;
+public function llvmTypeOf(LLVMValueRef val) returns LLVMTypeRef = external;
 //public function llvmGetValueKind(LLVMValueRef val) returns int = external;
 //public function llvmGetValueName(LLVMValueRef val) returns BytePointer = external;
 ////public function llvmSetValueName(LLVMValueRef val, BytePointer name) = external;
@@ -1202,3 +1202,4 @@ public function llvmPassManagerBuilderPopulateModulePassManager(LLVMPassManagerB
 //public function llvmAddBBVectorizePass(LLVMPassManagerRef pm) = external;
 //public function llvmAddLoopVectorizePass(LLVMPassManagerRef pm) = external;
 //public function llvmAddSLPVectorizePass(LLVMPassManagerRef pm) = external;
+public function checkIfTypesMatch(LLVMTypeRef castType, LLVMTypeRef lhsType) returns boolean = external;

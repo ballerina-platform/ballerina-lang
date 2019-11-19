@@ -37,7 +37,15 @@ type BbBodyGenrator object {
             self.genBinaryOpIns(instruction);
         } else if (instruction is bir:ConstantLoad) {
             self.genConstantLoadIns(instruction);
+        } else if (instruction is bir:TypeCast) {
+            self.getTypeCast(instruction);
         }
+    }
+
+    function genTypeCast(bir:TypeCast castIns) {
+        llvm:LLVMValueRef lhsRef = self.parent.getLocalVarRefById(castIns.lhsOp.variableDcl.name.value);
+        LLVMTypeRef lhsRefType = llvm:llvmTypeOf(lhsRef);
+        boolean typesCompatible = (castIns.castType, lhsRefType);
     }
 
     function genMoveIns(bir:Move moveIns) {

@@ -21,7 +21,7 @@ import ballerina/io;
 // TODO: make non-global
 llvm:LLVMValueRef? printfRef = ();
 map<llvm:LLVMTypeRef> structMap = {"null" : llvm:llvmVoidType()};
-map<int> precedenceMap = {"boolean":0, "int":1};
+map<int> precedenceMap = { "null":0, "boolean":1, "int":2};
 
 function genPackage(bir:Package pkg, string targetObjectFilePath, boolean dumpLLVMIR, boolean noOptimize) {
     var mod = createModule(pkg.org, pkg.name, pkg.versionValue);
@@ -175,7 +175,7 @@ function appendAllTo(any[] toArr, any[] fromArr) {
 
 function createUnion(bir:BUnionType bType) returns llvm:LLVMTypeRef {
     io:println("Creating Struct type for Union");
-    string largestType = "boolean";
+    string largestType = "null";
     foreach var member in bType.members {
         if (member is bir:BTypeInt) {
             largestType = checkForLargerType(largestType, "int");
@@ -232,4 +232,9 @@ function createTaggedBool() {
 function createNamedStruct(string name) returns llvm:LLVMTypeRef {
     var structType = llvm:llvmStructCreateNamed(llvm:llvmGetGlobalContext(), name);
     return structType;
+}
+
+function checkIfTypesAreCompatible(bir:BType castType, llvm:LLVMTypeRef lhsType) returns boolean {
+    LLVMTypeRef castTypeRef = genBType(castType);
+    return llvm:checkIfTypesMatch(castTypeRef, lhsType);   
 }
