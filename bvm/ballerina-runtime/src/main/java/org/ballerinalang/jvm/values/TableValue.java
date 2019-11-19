@@ -23,6 +23,7 @@ import org.ballerinalang.jvm.DataIterator;
 import org.ballerinalang.jvm.TableProvider;
 import org.ballerinalang.jvm.TableUtils;
 import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BFunctionType;
 import org.ballerinalang.jvm.types.BStructureType;
 import org.ballerinalang.jvm.types.BTableType;
@@ -412,7 +413,7 @@ public class TableValue implements RefValue, BTable {
         }
 
         TableIterator cloneIterator = tableProvider.createIterator(this.tableName, this.constraintType);
-        ArrayValue data = new ArrayValue();
+        ArrayValue data = new ArrayValueImpl(new BArrayType(this.constraintType));
         int cursor = 0;
         try {
             while (cloneIterator.next()) {

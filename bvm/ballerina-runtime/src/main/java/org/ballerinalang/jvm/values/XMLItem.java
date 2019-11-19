@@ -333,7 +333,7 @@ public final class XMLItem extends XMLValue<OMNode> {
      */
     @Override
     public XMLValue<?> elements() {
-        ArrayValue elementsSeq = new ArrayValue(new BArrayType(BTypes.typeXML));
+        ArrayValue elementsSeq = new ArrayValueImpl(new BArrayType(BTypes.typeXML));
         switch (nodeType) {
             case ELEMENT:
                 elementsSeq.add(0, this);
@@ -349,7 +349,7 @@ public final class XMLItem extends XMLValue<OMNode> {
      */
     @Override
     public XMLValue<?> elements(String qname) {
-        ArrayValue elementsSeq = new ArrayValue(new BArrayType(BTypes.typeXML));
+        ArrayValue elementsSeq = new ArrayValueImpl(new BArrayType(BTypes.typeXML));
         switch (nodeType) {
             case ELEMENT:
                 if (getElementName().toString().equals(getQname(qname).toString())) {
@@ -367,7 +367,7 @@ public final class XMLItem extends XMLValue<OMNode> {
      */
     @Override
     public XMLValue<?> children() {
-        ArrayValue elementsSeq = new ArrayValue(new BArrayType(BTypes.typeXML));
+        ArrayValue elementsSeq = new ArrayValueImpl(new BArrayType(BTypes.typeXML));
         switch (nodeType) {
             case ELEMENT:
                 Iterator<OMNode> childrenItr = ((OMElement) omNode).getChildren();
@@ -388,7 +388,7 @@ public final class XMLItem extends XMLValue<OMNode> {
      */
     @Override
     public XMLValue<?> children(String qname) {
-        ArrayValue elementsSeq = new ArrayValue(new BArrayType(BTypes.typeXML));
+        ArrayValue elementsSeq = new ArrayValueImpl(new BArrayType(BTypes.typeXML));
         switch (nodeType) {
             case ELEMENT:
                 /*
@@ -550,7 +550,7 @@ public final class XMLItem extends XMLValue<OMNode> {
         }
 
         XMLValue<?>[] array = descendants.toArray(new XMLValue[descendants.size()]);
-        return new XMLSequence(new ArrayValue(array, new BArrayType(BTypes.typeXML)));
+        return new XMLSequence(new ArrayValueImpl(array, new BArrayType(BTypes.typeXML)));
     }
 
     /**

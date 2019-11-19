@@ -22,6 +22,7 @@ import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.ErrorValue;
 
 import java.io.IOException;
@@ -65,7 +66,7 @@ public class RuntimeUtils {
      */
     public static ArrayValue createVarArgsArray(String[] args, int index, BArrayType type) {
 
-        ArrayValue array = new ArrayValue(type, type.getSize());
+        ArrayValue array = new ArrayValueImpl(type, type.getSize());
         for (int i = index; i < args.length; i++) {
             addToArray(type.getElementType(), args[i], array);
         }

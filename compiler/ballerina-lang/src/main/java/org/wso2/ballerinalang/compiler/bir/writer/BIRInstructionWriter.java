@@ -60,10 +60,13 @@ public class BIRInstructionWriter extends BIRVisitor {
     private ByteBuf buf;
     private BIRTypeWriter typeWriter;
     private ConstantPool cp;
+    private BIRBinaryWriter binaryWriter;
 
-    public BIRInstructionWriter(ByteBuf buf, BIRTypeWriter typeWriter, ConstantPool cp) {
+    public BIRInstructionWriter(ByteBuf buf, BIRTypeWriter typeWriter, ConstantPool cp,
+                                BIRBinaryWriter birBinaryWriter) {
         this.buf = buf;
         this.typeWriter = typeWriter;
+        this.binaryWriter = birBinaryWriter;
         this.cp = cp;
     }
 
@@ -268,6 +271,8 @@ public class BIRInstructionWriter extends BIRVisitor {
         } else {
             buf.writeByte(0);
         }
+
+        binaryWriter.writeAnnotAttachments(buf, this, birAsyncCall.annotAttachments);
         addCpAndWriteString(birAsyncCall.thenBB.id.value);
     }
 

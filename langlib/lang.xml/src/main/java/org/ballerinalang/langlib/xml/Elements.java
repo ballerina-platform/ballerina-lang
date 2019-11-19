@@ -23,6 +23,7 @@ import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.IteratorValue;
 import org.ballerinalang.jvm.values.XMLSequence;
 import org.ballerinalang.jvm.values.XMLValue;
@@ -59,7 +60,7 @@ public class Elements {
     }
 
     private static XMLValue<?> generateCodePointSequence(XMLValue<?> value) {
-        ArrayValue array = new ArrayValue(new BArrayType(BTypes.typeXML));
+        ArrayValue array = new ArrayValueImpl(new BArrayType(BTypes.typeString));
         IteratorValue bIterator = value.getIterator();
         long i = 0;
         while (bIterator.hasNext()) {

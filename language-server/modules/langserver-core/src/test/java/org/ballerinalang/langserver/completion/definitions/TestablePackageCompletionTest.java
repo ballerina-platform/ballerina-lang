@@ -34,8 +34,8 @@ public class TestablePackageCompletionTest extends CompletionTest {
     public Object[][] dataProvider() {
         log.info("Test textDocument/completion for Function Definition Scope");
         return new Object[][] {
-                {"topLevelCompletion.json", "testablepackage"},
-                {"blockStatementCompletion.json", "testablepackage"},
+//                {"topLevelCompletion.json", "testablepackage"},
+//                {"blockStatementCompletion.json", "testablepackage"},
         };
     }
 }

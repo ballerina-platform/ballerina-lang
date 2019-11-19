@@ -25,6 +25,7 @@ import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -96,7 +97,7 @@ public class GetAvailableTopics {
     }
 
     private static ArrayValue getArrayValueFromMap(Map<String, List<PartitionInfo>> map) {
-        ArrayValue arrayValue = new ArrayValue(new BArrayType(BTypes.typeString));
+        ArrayValue arrayValue = new ArrayValueImpl(new BArrayType(BTypes.typeString));
         if (!map.keySet().isEmpty()) {
             int i = 0;
             for (String topic : map.keySet()) {
