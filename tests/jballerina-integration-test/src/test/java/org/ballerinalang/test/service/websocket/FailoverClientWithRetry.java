@@ -92,7 +92,7 @@ public class FailoverClientWithRetry extends WebSocketTestCommons {
         remoteServer15300.stop();
     }
 
-@Test(description = "Tests the retry function using failover webSocket client (starting the given servers in " +
+    @Test(description = "Tests the retry function using failover webSocket client (starting the given servers in " +
         "the target URLs, first sending and receiving text frames Afterthat stop the first server in the target " +
         "URLs, sending and receiving binary frames. Stop that server and starting the first server again, " +
         "sending and receiving text frames)")

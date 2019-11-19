@@ -40,6 +40,8 @@ public class FailoverClientTest extends WebSocketTestCommons {
     private WebSocketRemoteServer remoteServer15200;
     private String url = "ws://localhost:21033";
     private int port = 15300;
+    private String textSent = "hi all";
+    private String text = "hi";
 
     @Test(description = "Tests starting the second server in the target URLs, sending and receiving text frames " +
             "using the failover websocket client")
@@ -50,7 +52,6 @@ public class FailoverClientTest extends WebSocketTestCommons {
         remoteServer15200.run();
         WebSocketTestClient client = new WebSocketTestClient(url);
         client.handshake();
-        String textSent = "hi all";
         client.sendText(textSent);
         countDownLatch.await(TIMEOUT_IN_SECS, TimeUnit.SECONDS);
         Assert.assertEquals(client.getTextReceived(), textSent);
@@ -102,15 +103,11 @@ public class FailoverClientTest extends WebSocketTestCommons {
         ByteBuffer bufferSent = ByteBuffer.wrap(new byte[]{1, 2, 3, 4, 6});
         WebSocketTestClient client = new WebSocketTestClient(url);
         client.handshake();
-        String textSent = "hi all";
         client.sendText(textSent);
         countDownLatchFor15300.await(TIMEOUT_IN_SECS, TimeUnit.SECONDS);
         Assert.assertEquals(client.getTextReceived(), textSent);
         remoteServer15300.stop();
         CountDownLatch countDownLatchFor15200 = new CountDownLatch(1);
-        int time = 2;
-        countDownLatchFor15200.await(time, TimeUnit.SECONDS);
-        String text = "hi";
         client.sendText(text);
         countDownLatchFor15200.await(TIMEOUT_IN_SECS, TimeUnit.SECONDS);
         Assert.assertEquals(client.getTextReceived(), text);
@@ -119,5 +116,53 @@ public class FailoverClientTest extends WebSocketTestCommons {
         Assert.assertEquals(client.getBufferReceived(), bufferSent);
         client.shutDown();
         remoteServer15200.stop();
+    }
+
+    @Test(description = "Test the Failover websocket client (starting the second server in the target URLs, " +
+            "first sending and receiving text frames Afterthat stop the second server and start the in the target " +
+            "URLs, sending and receiving binary frames) ")
+    public void testFailoverWithBothServerFirstStartSecondServer() throws URISyntaxException, InterruptedException,
+            BallerinaTestException {
+        CountDownLatch countDownLatch = new CountDownLatch(1);
+        remoteServer15200 = new WebSocketRemoteServer(15200);
+        remoteServer15300 = new WebSocketRemoteServer(port);
+        remoteServer15200.run();
+        WebSocketTestClient client = new WebSocketTestClient(url);
+        client.handshake();
+        client.sendText(textSent);
+        countDownLatch.await(TIMEOUT_IN_SECS, TimeUnit.SECONDS);
+        Assert.assertEquals(client.getTextReceived(), textSent);
+        remoteServer15300.run();
+        countDownLatch.await(TIMEOUT_IN_SECS, TimeUnit.SECONDS);
+        remoteServer15200.stop();
+        CountDownLatch countDownLatchFor15300 = new CountDownLatch(1);
+        client.sendText(text);
+        countDownLatchFor15300.await(TIMEOUT_IN_SECS, TimeUnit.SECONDS);
+        Assert.assertEquals(client.getTextReceived(), text);
+        client.shutDown();
+        remoteServer15300.stop();
+    }
+
+    @Test(description = "Tests handshake's waiting time exception")
+    public void testCownDownLatch() throws URISyntaxException, InterruptedException, BallerinaTestException {
+        WebSocketTestClient serverClient = new WebSocketTestClient("ws://localhost:21037/basic/ws");
+        serverClient.handshake();
+        CountDownLatch countDownLatch = new CountDownLatch(1);
+        remoteServer15300 = new WebSocketRemoteServer(port);
+        remoteServer15300.run();
+        WebSocketTestClient client = new WebSocketTestClient("ws://localhost:21038");
+        client.handshake();
+        client.setCountDownLatch(countDownLatch);
+        client.sendText(textSent);
+        countDownLatch.await(TIMEOUT_IN_SECS, TimeUnit.SECONDS);
+        Assert.assertEquals(client.getTextReceived(), textSent);
+        countDownLatch.await(TIMEOUT_IN_SECS, TimeUnit.SECONDS);
+        remoteServer15300.stop();
+        CountDownLatch countDownLatch1 = new CountDownLatch(1);
+        countDownLatch1.await(6, TimeUnit.MINUTES);
+        Assert.assertEquals(client.getTextReceived(), "error {ballerina/http}WsGenericError " +
+                "message={ballerina/http}WsGenericError");
+        client.shutDown();
+        serverClient.shutDown();
     }
 }

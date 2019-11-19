@@ -3538,7 +3538,7 @@
       "kind": "Struct",
       "detail": "Record",
       "documentation": {
-        "left": "Configuration for the WebSocket client endpoint.\n"
+        "left": "Configurations for the WebSocket client endpoint.\n"
       },
       "sortText": "180",
       "insertText": "WebSocketClientConfiguration",
@@ -3641,6 +3641,28 @@
       },
       "sortText": "200",
       "insertText": "WebSocketError",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "WebSocketFailoverClient",
+      "kind": "Interface",
+      "detail": "Object",
+      "documentation": {
+        "left": "A WebSocket client endpoint, which provides failover support for multiple WebSocket targets."
+      },
+      "sortText": "190",
+      "insertText": "WebSocketFailoverClient",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "WebSocketFailoverClientConfiguration",
+      "kind": "Struct",
+      "detail": "Record",
+      "documentation": {
+        "left": "Configurations for the WebSocket client endpoint.\n"
+      },
+      "sortText": "180",
+      "insertText": "WebSocketFailoverClientConfiguration",
       "insertTextFormat": "Snippet"
     },
     {

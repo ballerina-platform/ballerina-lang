@@ -285,7 +285,7 @@ public class WebSocketUtil {
     private static void waitForHandshake(CountDownLatch countDownLatch) {
         try {
             // Wait for 5 minutes before timeout
-            if (!countDownLatch.await(60 * 5L, TimeUnit.SECONDS)) {
+            if (!countDownLatch.await(5, TimeUnit.MINUTES)) {
                 throw new WebSocketException(WebSocketConstants.ErrorCode.WsGenericError,
                         "Waiting for WebSocket handshake has not been successful", WebSocketUtil.createErrorCause(
                         "Connection timeout", IOConstants.ErrorCode.ConnectionTimedOut.errorCode(),
