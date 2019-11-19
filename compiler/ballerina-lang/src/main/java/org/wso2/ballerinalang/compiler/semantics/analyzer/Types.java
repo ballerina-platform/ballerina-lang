@@ -20,7 +20,6 @@ package org.wso2.ballerinalang.compiler.semantics.analyzer;
 import org.ballerinalang.model.Name;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.types.UnionType;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.semantics.model.BLangBuiltInMethod;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
@@ -1017,15 +1016,6 @@ public class Types {
                 foreachNode.nillableResultType = symTable.semanticError;
                 return;
             case TypeTags.OBJECT:
-                if (isAssignable(symTable.intRangeType, collectionType)) {
-                    foreachNode.varType = symTable.intType;
-                    BUnionType nextMethodReturnType =
-                            (BUnionType) getResultTypeOfNextInvocation((BObjectType) collectionType);
-                    foreachNode.resultType = getRecordType(nextMethodReturnType);
-                    foreachNode.nillableResultType = nextMethodReturnType;
-                    return;
-                }
-
                 // check for iterable objects
                 BUnionType nextMethodReturnType = getVarTypeFromIterableObject((BObjectType) collectionType);
                 if (nextMethodReturnType != null) {
