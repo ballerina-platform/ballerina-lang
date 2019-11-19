@@ -30,6 +30,7 @@ import org.ballerinalang.jvm.types.BStructureType;
 import org.ballerinalang.jvm.types.BTupleType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.DecimalValue;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.FPValue;
@@ -37,6 +38,7 @@ import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.StreamValue;
 import org.ballerinalang.jvm.values.StreamingJsonValue;
 import org.ballerinalang.jvm.values.TableValue;
+import org.ballerinalang.jvm.values.TupleValueImpl;
 import org.ballerinalang.jvm.values.TypedescValue;
 import org.ballerinalang.jvm.values.XMLItem;
 import org.ballerinalang.jvm.values.XMLQName;
@@ -60,7 +62,7 @@ import java.util.function.Function;
       * @return the new array
       */
      public static BArray createArrayValue(BArrayType type) {
-         return new ArrayValue(type);
+         return new ArrayValueImpl(type);
      }
 
      /**
@@ -70,7 +72,7 @@ import java.util.function.Function;
       * @return the new array
       */
      public static BArray createTupleValue(BTupleType type) {
-         return new ArrayValue(type);
+         return new TupleValueImpl(type);
      }
 
      /**
@@ -80,7 +82,7 @@ import java.util.function.Function;
       * @return integer array
       */
      public static BArray createArrayValue(long[] values) {
-         return new ArrayValue(values);
+         return new ArrayValueImpl(values);
      }
 
      /**
@@ -90,7 +92,7 @@ import java.util.function.Function;
       * @return boolean array
       */
      public static  BArray createArrayValue(boolean[] values) {
-         return new ArrayValue(values);
+         return new ArrayValueImpl(values);
      }
 
      /**
@@ -100,7 +102,7 @@ import java.util.function.Function;
       * @return byte array
       */
      public static BArray createArrayValue(byte[] values) {
-         return new ArrayValue(values);
+         return new ArrayValueImpl(values);
      }
 
      /**
@@ -110,7 +112,7 @@ import java.util.function.Function;
       * @return float array
       */
      public static BArray createArrayValue(double[] values) {
-         return new ArrayValue(values);
+         return new ArrayValueImpl(values);
      }
 
      /**
@@ -120,7 +122,7 @@ import java.util.function.Function;
       * @return string array
       */
      public static BArray createArrayValue(String[] values) {
-         return new ArrayValue(values);
+         return new ArrayValueImpl(values);
      }
 
      /**
@@ -131,7 +133,7 @@ import java.util.function.Function;
       * @return ref Value array
       */
      public static BArray createArrayValue(Object[] values, BArrayType type) {
-         return new ArrayValue(values, type);
+         return new ArrayValueImpl(values, type);
      }
 
      /**
@@ -143,7 +145,7 @@ import java.util.function.Function;
       * @return fixed length ref value array
       */
      public static BArray createArrayValue(Object[] values, BArrayType type, int length) {
-         return new ArrayValue(type, length);
+         return new ArrayValueImpl(type, length);
      }
 
      /**

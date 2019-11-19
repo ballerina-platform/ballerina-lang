@@ -24,6 +24,7 @@ import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons;
 import org.ballerinalang.jvm.util.exceptions.RuntimeErrors;
 import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
@@ -171,7 +172,7 @@ public class BallerinaErrors {
             }
         }
         BType recordType = BallerinaValues.createRecordValue(BALLERINA_RUNTIME_PKG_ID, CALL_STACK_ELEMENT).getType();
-        ArrayValue callStack = new ArrayValue(new BArrayType(recordType));
+        ArrayValue callStack = new ArrayValueImpl(new BArrayType(recordType));
         for (int i = 0; i < filteredStack.size(); i++) {
             callStack.add(i, getStackFrame(filteredStack.get(i)));
         }
