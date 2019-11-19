@@ -48,6 +48,7 @@ public class StaxXMLSink extends OutputStream {
     private final Random random = new Random();
     private XMLStreamWriter xmlStreamWriter;
     private Deque<Set<String>> parentNSSet;
+    private int nsNumber;
 
 
     public StaxXMLSink(OutputStream outputStream) {
@@ -114,8 +115,8 @@ public class StaxXMLSink extends OutputStream {
 
         Map<String, String> nsPrefixMap = prefixToNSUri(xmlValue);
         QName qName = xmlValue.getQName();
+        writeStartElement(qName, nsPrefixMap);
         setMissingElementPrefix(currentNSLevel, nsPrefixMap, qName);
-        xmlStreamWriter.writeStartElement(qName.getPrefix(), qName.getLocalPart(), qName.getNamespaceURI());
 
         // Write namespaces
         writeNamespaceAttributes(currentNSLevel, nsPrefixMap);
@@ -127,6 +128,38 @@ public class StaxXMLSink extends OutputStream {
         xmlStreamWriter.writeEndElement();
         // Reset namespace decl hierarchy for this node.
         this.parentNSSet.pop();
+    }
+
+    private String setDefaultNamespace(Map<String, String> nsPrefixMap, QName qName) throws XMLStreamException {
+        boolean elementNSUsageFoundInAttribute = false;
+        for (Map.Entry<String, String> entry : nsPrefixMap.entrySet()) {
+            if (entry.getValue().equals(qName.getNamespaceURI())) {
+                elementNSUsageFoundInAttribute = true;
+            }
+            if (entry.getKey().isEmpty()) {
+                xmlStreamWriter.setDefaultNamespace(entry.getValue());
+                return entry.getValue();
+            }
+        }
+        if (!elementNSUsageFoundInAttribute) {
+            xmlStreamWriter.setDefaultNamespace(qName.getNamespaceURI());
+            return qName.getNamespaceURI();
+        }
+        return null;
+    }
+
+    private void writeStartElement(QName qName, Map<String, String> nsPrefixMap) throws XMLStreamException {
+        String defaultNamespaceUri = setDefaultNamespace(nsPrefixMap, qName);
+
+        if (qName.getPrefix() == null || qName.getPrefix().isEmpty()) {
+            xmlStreamWriter.writeStartElement(qName.getLocalPart());
+        } else {
+            xmlStreamWriter.writeStartElement(qName.getPrefix(), qName.getLocalPart(), qName.getNamespaceURI());
+        }
+
+        if (defaultNamespaceUri != null) {
+            xmlStreamWriter.writeDefaultNamespace(defaultNamespaceUri);
+        }
     }
 
     private void writeAttributes(XMLItem xmlValue, HashSet<String> curNSSet) throws XMLStreamException {
@@ -170,19 +203,23 @@ public class StaxXMLSink extends OutputStream {
     private void setMissingElementPrefix(HashSet<String> curNSSet, Map<String, String> nsPrefixMap, QName qName)
             throws XMLStreamException {
         if (!qName.getNamespaceURI().isEmpty() && qName.getPrefix().isEmpty()
-                && xmlStreamWriter.getNamespaceContext().getPrefix(qName.getNamespaceURI()) == null) {
-            boolean prefixFound = false;
+                && alreadyDefinedNSPrefixNotFound(qName)) {
             for (Map.Entry<String, String> entry : nsPrefixMap.entrySet()) {
                 if (entry.getValue().equals(qName.getNamespaceURI())) {
                     xmlStreamWriter.setPrefix(entry.getKey(), entry.getValue());
-                    prefixFound = true;
                     break;
                 }
-            }
-            if (!prefixFound) {
-                generateAndAddRandomNSPrefix(curNSSet, qName.getNamespaceURI());
+                if (entry.getKey().isEmpty()) {
+                    xmlStreamWriter.setDefaultNamespace(entry.getValue());
+                    xmlStreamWriter.writeDefaultNamespace(entry.getValue());
+                }
             }
         }
+    }
+
+    private boolean alreadyDefinedNSPrefixNotFound(QName qName) {
+        String prefix = xmlStreamWriter.getNamespaceContext().getPrefix(qName.getNamespaceURI());
+        return prefix == null || prefix.isEmpty();
     }
 
     private void generateAndAddRandomNSPrefix(HashSet<String> curNSSet, String uri) throws XMLStreamException {
@@ -198,27 +235,30 @@ public class StaxXMLSink extends OutputStream {
         // When generated value is between a-z use that as next char in random char sequence.
         // When generated value is over a-z range, convert it to 0-9 range and use that as next char.
 
-        PrimitiveIterator.OfInt iterator = random.ints('a', 'z' + 10).iterator();
-        char[] randomCharacters = new char[numChar];
-        for(int i = 0; i < numChar; i++) {
-            Integer val = iterator.next();
-            if (val > 'z') {
-                // Convert to 0 to 9 range
-                randomCharacters[i] = (char) ('0' + val - 'z');
-            } else {
-                // ASCII a to z range
-                randomCharacters[i] = (char) val.intValue();
-            }
-        }
-        String randStr = "ns" + new String(randomCharacters);
+//        PrimitiveIterator.OfInt iterator = random.ints('a', 'z' + 10).iterator();
+//        char[] randomCharacters = new char[numChar];
+//        for(int i = 0; i < numChar; i++) {
+//            Integer val = iterator.next();
+//            if (val > 'z') {
+//                // Convert to 0 to 9 range
+//                randomCharacters[i] = (char) ('0' + val - 'z');
+//            } else {
+//                // ASCII a to z range
+//                randomCharacters[i] = (char) val.intValue();
+//            }
+//        }
+//        String randStr = "ns" + new String(randomCharacters);
+//
+//        // Do not shadow already defined prefixes.
+//        for (String hash : curNSSet) {
+//            if (hash.startsWith(randStr)) {
+//                return generateRandomPrefix(curNSSet, numChar);
+//            }
+//        }
+//        return randStr;
 
-        // Do not shadow already defined prefixes.
-        for (String hash : curNSSet) {
-            if (hash.startsWith(randStr)) {
-                return generateRandomPrefix(curNSSet, numChar);
-            }
-        }
-        return randStr;
+        nsNumber++;
+        return "ns" + nsNumber;
     }
 
     private String concatNsPrefixURI(String randStr, String nsUri) {
