@@ -216,9 +216,20 @@ public final class XMLItem extends XMLValue<OMNode> {
         XMLValidator.validateXMLName(localName);
         XMLValidator.validateXMLName(prefix);
 
+        // JVM codegen uses prefix == 'xmlns' and namespaceUri == null to denote namespace decl at runtime.
+        // 'localName' will contain the namespace name where as 'value' will contain the namespace URI
+        // todo: Fix this so that namespaceURI points to XMLConstants.XMLNS_ATTRIBUTE_NS_URI
+        //  and remove this special case
+        if (namespaceUri == null && prefix.equals(XMLConstants.XMLNS_ATTRIBUTE)) {
+            String nsNameDecl = "{" + XMLConstants.XMLNS_ATTRIBUTE_NS_URI + "}" + localName;
+            attributes.put(nsNameDecl, value);
+            return;
+        }
+
         // If the attribute already exists, update the value.
         QName qname = getQName(localName, namespaceUri, prefix);
         attributes.put(qname.toString(), value);
+
 
         // If the prefix is 'xmlns' then this is a namespace addition
         if (prefix != null && prefix.equals(XMLConstants.XMLNS_ATTRIBUTE)) {

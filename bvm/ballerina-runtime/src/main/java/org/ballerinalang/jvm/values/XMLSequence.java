@@ -568,9 +568,7 @@ public final class XMLSequence extends XMLValue<ArrayValue> {
             return that.children.equals(this.children);
         }
         if (obj instanceof XMLItem) {
-            if (this.children.size() == 1 && this.children.get(0).equals(obj)) {
-                return true;
-            }
+            return this.children.size() == 1 && this.children.get(0).equals(obj);
         }
         return false;
     }
