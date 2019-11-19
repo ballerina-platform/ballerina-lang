@@ -56,7 +56,7 @@ jobs:
       name: "Run Build + tests (without integration) - Linux"
       script:
         - while sleep 9m; do echo "=====[ $SECONDS seconds still running ]====="; done &
-        - ./gradlew build -x :jballerina-integration-test:test -x createJavadoc --stacktrace -scan --console=plain --no-daemon
+        - ./gradlew clean build --no-build-cache -x :jballerina-integration-test:test -x createJavadoc --stacktrace -scan --console=plain --no-daemon
         # Killing background sleep loop
         - kill %1
       os: linux
@@ -75,7 +75,7 @@ jobs:
     - script:
         - while sleep 9m; do echo "=====[ $SECONDS seconds still running ]====="; done &
         # TODO enable tests for all projects
-        - ./gradlew.bat build -Dorg.gradle.parallel=false -x :language-server:language-server-core:test -x :ballerina-packerina:test -x :ballerina-lang:test -x :ballerina-http:test -x :ballerina-file:test -x :ballerina-task:test -x :ballerina-socket:test -x :jballerina-unit-test:test -x :jballerina-integration-test:test -x :plugin-vscode:test -x createJavadoc --stacktrace -scan --console=plain --no-daemon
+        - ./gradlew.bat clean build --no-build-cache -Dorg.gradle.parallel=false -x :language-server:language-server-core:test -x :ballerina-packerina:test -x :ballerina-lang:test -x :ballerina-http:test -x :ballerina-file:test -x :ballerina-task:test -x :ballerina-socket:test -x :jballerina-unit-test:test -x :jballerina-integration-test:test -x :plugin-vscode:test -x createJavadoc --stacktrace -scan --console=plain --no-daemon
         # Killing background sleep loop
         - kill %1
       name:  "Tests - windows"
@@ -87,7 +87,7 @@ jobs:
         - export JAVA_HOME="c:\\java8"
     - script:
         - while sleep 9m; do echo "=====[ $SECONDS seconds still running ]====="; done &
-        - ./gradlew :jballerina-integration-test:test -x createJavadoc --stacktrace -scan --console=plain --no-daemon
+        - ./gradlew clean --no-build-cache :jballerina-integration-test:test -x createJavadoc --stacktrace -scan --console=plain --no-daemon
         # Killing background sleep loop
         - kill %1
       os: linux

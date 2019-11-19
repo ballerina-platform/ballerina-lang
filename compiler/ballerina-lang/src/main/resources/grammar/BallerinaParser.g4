@@ -145,6 +145,8 @@ dualAttachPointIdent
     |   PARAMETER
     |   RETURN
     |   SERVICE
+    |   WORKER
+    |   START
     ;
 
 sourceOnlyAttachPoint

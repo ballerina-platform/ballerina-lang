@@ -32,7 +32,7 @@ import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BStructureType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.TypeTags;
-import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
@@ -216,7 +216,7 @@ public class WebSocketResourceDispatcher {
                                                          (BStructureType) dataType);
                 case TypeTags.ARRAY_TAG:
                     if (((BArrayType) dataType).getElementType().getTag() == TypeTags.BYTE_TAG) {
-                        return new ArrayValue(
+                        return new ArrayValueImpl(
                                 aggregateString.getBytes(StandardCharsets.UTF_8));
                     }
                     break;
@@ -258,7 +258,7 @@ public class WebSocketResourceDispatcher {
             Object[] bValues = new Object[paramDetails.length * 2];
             bValues[0] = connectionInfo.getWebSocketEndpoint();
             bValues[1] = true;
-            bValues[2] = new ArrayValue(binaryMessage.getByteArray());
+            bValues[2] = new ArrayValueImpl(binaryMessage.getByteArray());
             bValues[3] = true;
             if (paramDetails.length == 3) {
                 bValues[4] = binaryMessage.isFinalFragment();
@@ -299,7 +299,7 @@ public class WebSocketResourceDispatcher {
             Object[] bValues = new Object[paramTypes.length * 2];
             bValues[0] = connectionInfo.getWebSocketEndpoint();
             bValues[1] = true;
-            bValues[2] = new ArrayValue(controlMessage.getByteArray());
+            bValues[2] = new ArrayValueImpl(controlMessage.getByteArray());
             bValues[3] = true;
             executeResource(wsService, new WebSocketResourceCallback(
                     connectionInfo, WebSocketConstants.RESOURCE_NAME_ON_PING),
@@ -329,7 +329,7 @@ public class WebSocketResourceDispatcher {
             Object[] bValues = new Object[paramDetails.length * 2];
             bValues[0] = connectionInfo.getWebSocketEndpoint();
             bValues[1] = true;
-            bValues[2] = new ArrayValue(controlMessage.getByteArray());
+            bValues[2] = new ArrayValueImpl(controlMessage.getByteArray());
             bValues[3] = true;
             executeResource(wsService, new WebSocketResourceCallback(
                     connectionInfo, WebSocketConstants.RESOURCE_NAME_ON_PONG),

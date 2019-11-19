@@ -37,7 +37,7 @@ public class PackageImportCompletionTest extends CompletionTest {
         return new Object[][]{
                 {"packageImport1.json", "packageimport"},
                 {"packageImport3.json", "packageimport"},
-                {"packageImport4.json", "packageimport"},
+//                {"packageImport4.json", "packageimport"},
 //                {"packageImport2.json", "packageimport"}
         };
     }
