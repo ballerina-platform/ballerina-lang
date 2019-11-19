@@ -68,6 +68,14 @@ public class NegativeValidationTest {
             "\\{ballerinax/java\\}METHOD_SIGNATURE_DOES_NOT_MATCH message=No such Java method " +
             "'getArrayValueFromMapWhichThrowsCheckedException' which throws checked exception found in class " +
             "'class org.ballerinalang.nativeimpl.jvm.tests.StaticMethods'.*";
+    private final String expectedMsg18 = "error: .:method_sig_not_match12.bal:3:1: " +
+            "\\{ballerinax/java\\}METHOD_SIGNATURE_DOES_NOT_MATCH message=No such Java method " +
+            "'getIntFromJsonInt' with method argument type 'int' found in class " +
+            "'class org.ballerinalang.nativeimpl.jvm.tests.StaticMethods'";
+    private final String expectedMsg19 = "error: .:method_sig_not_match13.bal:3:1: " +
+            "\\{ballerinax/java\\}METHOD_SIGNATURE_DOES_NOT_MATCH message=No such Java method " +
+            "'getIntFromJsonInt' with method argument type 'int' found in class " +
+            "'class org.ballerinalang.nativeimpl.jvm.tests.StaticMethods'";
 
     @Test(expectedExceptions = BLangCompilerException.class)
     public void testAcceptNothing() {
@@ -144,6 +152,18 @@ public class NegativeValidationTest {
     @Test(expectedExceptions = BLangCompilerException.class, expectedExceptionsMessageRegExp = expectedMsg12)
     public void testMethodSignatureNotMatch6() {
         String path = "test-src/javainterop/negative/method_sig_not_match6.bal";
+        BCompileUtil.compileInProc(path);
+    }
+
+    @Test(expectedExceptions = BLangCompilerException.class, expectedExceptionsMessageRegExp = expectedMsg18)
+    public void testJavaPrimitiveForBJsonParam() {
+        String path = "test-src/javainterop/negative/method_sig_not_match12.bal";
+        BCompileUtil.compileInProc(path);
+    }
+
+    @Test(expectedExceptions = BLangCompilerException.class, expectedExceptionsMessageRegExp = expectedMsg19)
+    public void testJavaPrimitiveForBUnionParam() {
+        String path = "test-src/javainterop/negative/method_sig_not_match13.bal";
         BCompileUtil.compileInProc(path);
     }
 }
