@@ -65,6 +65,24 @@ public class StaxXMLSink extends OutputStream {
         assert false;
     }
 
+    @Override
+    public void flush() throws IOException {
+        try {
+            xmlStreamWriter.flush();
+        } catch (XMLStreamException e) {
+            throw new BallerinaException(e);
+        }
+    }
+
+    @Override
+    public void close() throws IOException {
+        try {
+            xmlStreamWriter.close();
+        } catch (XMLStreamException e) {
+            throw new BallerinaException(e);
+        }
+    }
+
     public void write(XMLValue<?> xmlValue) {
         try {
             switch (xmlValue.getNodeType()) {
@@ -141,7 +159,7 @@ public class StaxXMLSink extends OutputStream {
                 return entry.getValue();
             }
         }
-        if (!elementNSUsageFoundInAttribute) {
+        if (!elementNSUsageFoundInAttribute && !qName.getNamespaceURI().isEmpty()) {
             xmlStreamWriter.setDefaultNamespace(qName.getNamespaceURI());
             return qName.getNamespaceURI();
         }
@@ -294,7 +312,9 @@ public class StaxXMLSink extends OutputStream {
     }
 
     private void writeSeq(XMLSequence xmlValue) {
+        int i = 0;
         for (XMLValue<?> value : xmlValue.getChildrenList()) {
+            i++;
             this.write(value);
         }
     }

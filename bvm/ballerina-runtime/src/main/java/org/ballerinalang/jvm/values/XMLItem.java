@@ -474,8 +474,12 @@ public final class XMLItem extends XMLValue<OMNode> {
     public String stringValue(Strand strand) {
         try {
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-            (new StaxXMLSink(outputStream)).write(this);
-            return new String(outputStream.toByteArray(), StandardCharsets.UTF_8);
+            StaxXMLSink staxXMLSink = new StaxXMLSink(outputStream);
+            staxXMLSink.write(this);
+            staxXMLSink.flush();
+            String xml = new String(outputStream.toByteArray(), StandardCharsets.UTF_8);
+            staxXMLSink.close();
+            return xml;
         } catch (Throwable t) {
             handleXmlException("failed to get xml as string: ", t);
         }

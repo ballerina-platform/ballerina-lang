@@ -34,6 +34,7 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import javax.xml.stream.XMLStreamException;
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -351,7 +352,7 @@ public class IOTest {
     }
 
     @Test(description = "Test 'writeXml' function in ballerina/io package")
-    public void testWriteXmlCharacters() {
+    public void testWriteXmlCharacters() throws XMLStreamException {
         String content = "<test>\n" + "\t\t<name>Foo</name>\n" + "\t</test>";
 
         String sourceToWrite = currentDirectoryPath + "/xmlCharsFile.xml";
@@ -359,7 +360,7 @@ public class IOTest {
         //Will initialize the channel
         BValue[] args = { new BString(sourceToWrite), new BString("UTF-8") };
         BRunUtil.invoke(characterInputOutputProgramFile, "initWritableChannel", args);
-        OMNode omNode = (OMNode) XMLFactory.parse(content).value();
+        OMNode omNode = (OMNode) XMLFactory.stringToOM(content);
         args = new BValue[] { new BXMLItem(omNode) };
         BValue[] result = BRunUtil.invoke(characterInputOutputProgramFile, "writeXml", args);
 
