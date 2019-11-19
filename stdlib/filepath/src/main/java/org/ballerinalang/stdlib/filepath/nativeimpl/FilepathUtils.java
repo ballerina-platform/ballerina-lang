@@ -21,20 +21,33 @@ package org.ballerinalang.stdlib.filepath.nativeimpl;
 import org.ballerinalang.stdlib.filepath.Constants;
 import org.ballerinalang.stdlib.filepath.Utils;
 
+import java.io.IOException;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
+import java.nio.file.Files;
+import java.nio.file.InvalidPathException;
+import java.nio.file.NoSuchFileException;
+import java.nio.file.NotLinkException;
+import java.nio.file.Path;
 import java.nio.file.PathMatcher;
 import java.nio.file.Paths;
 import java.util.regex.PatternSyntaxException;
 
 /**
- * The native class to get real value of the path after evaluating any symbolic links.
+ * Native function implementations for the filepath module APIs.
  *
- * @since 0.995.0
+ * @since 1.0.5
  */
-public class Matches {
-
+public class FilepathUtils {
     private static final String GLOB_SYNTAX_FLAVOR = "glob:";
+
+    public static Object externAbsolute(String inputPath) {
+        try {
+            return FileSystems.getDefault().getPath(inputPath).toAbsolutePath().toString();
+        } catch (InvalidPathException ex) {
+            return Utils.getPathError(Constants.INVALID_PATH_ERROR, "Invalid path " + inputPath);
+        }
+    }
 
     public static Object externMatches(String inputPath, String pattern) {
         FileSystem fs = FileSystems.getDefault();
@@ -52,5 +65,20 @@ public class Matches {
             return false;
         }
         return matcher.matches(Paths.get(inputPath));
+    }
+
+    public static Object externResolve(String inputPath) {
+        try {
+            Path realPath = Files.readSymbolicLink(Paths.get(inputPath).toAbsolutePath());
+            return realPath.toString();
+        } catch (NotLinkException ex) {
+            return Utils.getPathError(Constants.NOT_LINK_ERROR, "Path is not a symbolic link " + inputPath);
+        } catch (NoSuchFileException ex) {
+            return Utils.getPathError(Constants.FILE_NOT_FOUND_ERROR, "File does not exist at " + inputPath);
+        } catch (IOException ex) {
+            return Utils.getPathError(Constants.IO_ERROR, "IO error for " + inputPath);
+        } catch (SecurityException ex) {
+            return Utils.getPathError(Constants.SECURITY_ERROR, "Security error for " + inputPath);
+        }
     }
 }

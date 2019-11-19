@@ -45,7 +45,7 @@ public function absolute(@untainted string path) returns string|Error {
 
 function externAbsolute(handle path) returns handle|Error =
 @java:Method {
-    class: "org.ballerinalang.stdlib.filepath.nativeimpl.Absolute"
+    class: "org.ballerinalang.stdlib.filepath.nativeimpl.FilepathUtils"
 } external;
 
 # Returns path separator of underline operating system.
@@ -383,7 +383,7 @@ public function resolve(@untainted string path) returns string|Error {
 
 function externResolve(handle path) returns handle|Error =
 @java:Method {
-    class: "org.ballerinalang.stdlib.filepath.nativeimpl.Resolve"
+    class: "org.ballerinalang.stdlib.filepath.nativeimpl.FilepathUtils"
 } external;
 
 # Reports whether all of filename matches the provided pattern, not just a substring.
@@ -398,7 +398,7 @@ public function matches(string path, string pattern) returns boolean|Error {
 
 function externMatches(handle path, handle pattern) returns boolean|Error =
 @java:Method {
-    class: "org.ballerinalang.stdlib.filepath.nativeimpl.Matches"
+    class: "org.ballerinalang.stdlib.filepath.nativeimpl.FilepathUtils"
 } external;
 
 # Parses the give path and remove redundent slashes.
