@@ -299,6 +299,7 @@ class JMethodResolver {
                                 return true;
                             }
                         }
+                        return false;
                     } else {
                         // for method arguments, all ballerina member types should be assignable to java-type.
                         for (BType member : members) {
@@ -308,7 +309,6 @@ class JMethodResolver {
                         }
                         return true;
                     }
-                    return false;
             }
             return false;
         } catch (ClassNotFoundException | NoClassDefFoundError e) {
