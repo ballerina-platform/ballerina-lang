@@ -19,16 +19,11 @@
 package org.ballerinalang.mime.nativeimpl;
 
 import org.ballerinalang.jvm.BallerinaValues;
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.mime.util.EntityBodyChannel;
 import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.mime.util.EntityWrapper;
 import org.ballerinalang.mime.util.MimeUtil;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.stdlib.io.channels.base.Channel;
 import org.ballerinalang.stdlib.io.utils.IOConstants;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
@@ -46,16 +41,9 @@ import static org.ballerinalang.mime.util.MimeConstants.TRANSPORT_MESSAGE;
  *
  * @since 0.963.0
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "mime",
-        functionName = "getByteChannel",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = "Entity", structPackage = "ballerina/mime"),
-        returnType = {@ReturnType(type = TypeKind.RECORD), @ReturnType(type = TypeKind.RECORD)},
-        isPublic = true
-)
 public class GetByteChannel {
 
-    public static Object getByteChannel(Strand strand, ObjectValue entityObj) {
+    public static Object getByteChannel(ObjectValue entityObj) {
         ObjectValue byteChannelObj;
         try {
             byteChannelObj = BallerinaValues.createObjectValue(PROTOCOL_IO_PKG_ID, READABLE_BYTE_CHANNEL_STRUCT);

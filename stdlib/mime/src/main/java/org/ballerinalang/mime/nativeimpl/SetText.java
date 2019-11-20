@@ -18,14 +18,9 @@
 
 package org.ballerinalang.mime.nativeimpl;
 
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.mime.util.MimeUtil;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.Receiver;
 
 import static org.ballerinalang.mime.util.MimeConstants.TEXT_PLAIN;
 
@@ -34,16 +29,9 @@ import static org.ballerinalang.mime.util.MimeConstants.TEXT_PLAIN;
  *
  * @since 0.963.0
  */
-@BallerinaFunction(orgName = "ballerina", packageName = "mime",
-        functionName = "setText",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = "Entity", structPackage = "ballerina/mime"),
-        args = {@Argument(name = "textContent", type = TypeKind.STRING), @Argument(name = "contentType",
-                type = TypeKind.STRING)},
-        isPublic = true
-)
 public class SetText {
 
-    public static void setText(Strand strand, ObjectValue entityObj, String textContent, String contentType) {
+    public static void setText(ObjectValue entityObj, String textContent, String contentType) {
         EntityBodyHandler.addMessageDataSource(entityObj, textContent);
         MimeUtil.setMediaTypeToEntity(entityObj, contentType != null ? contentType : TEXT_PLAIN);
     }

@@ -18,14 +18,9 @@
 
 package org.ballerinalang.mime.nativeimpl;
 
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.mime.util.MimeUtil;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.Receiver;
 
 import static org.ballerinalang.mime.util.MimeConstants.BODY_PARTS;
 import static org.ballerinalang.mime.util.MimeConstants.MULTIPART_FORM_DATA;
@@ -35,16 +30,9 @@ import static org.ballerinalang.mime.util.MimeConstants.MULTIPART_FORM_DATA;
  *
  * @since 0.964.0
  */
-@BallerinaFunction(orgName = "ballerina", packageName = "mime",
-        functionName = "setBodyParts",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = "Entity", structPackage = "ballerina/mime"),
-        args = {@Argument(name = "bodyParts", type = TypeKind.ARRAY), @Argument(name = "contentType",
-                type = TypeKind.STRING)},
-        isPublic = true
-)
 public class SetBodyParts {
 
-    public static void setBodyParts(Strand strand, ObjectValue entityObj, ArrayValue bodyParts, String contentType) {
+    public static void setBodyParts(ObjectValue entityObj, ArrayValue bodyParts, String contentType) {
         entityObj.addNativeData(BODY_PARTS, bodyParts);
         MimeUtil.setMediaTypeToEntity(entityObj, contentType != null ? contentType : MULTIPART_FORM_DATA);
     }

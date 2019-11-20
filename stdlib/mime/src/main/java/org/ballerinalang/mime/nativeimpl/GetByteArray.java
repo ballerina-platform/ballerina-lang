@@ -19,7 +19,7 @@
 package org.ballerinalang.mime.nativeimpl;
 
 import io.netty.handler.codec.http.HttpHeaderNames;
-import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.ErrorValue;
@@ -29,10 +29,6 @@ import org.ballerinalang.jvm.values.utils.StringUtils;
 import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.mime.util.HeaderUtil;
 import org.ballerinalang.mime.util.MimeUtil;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.natives.annotations.ReturnType;
 
 import java.nio.charset.Charset;
 
@@ -46,17 +42,9 @@ import static org.ballerinalang.mime.util.MimeUtil.isNotNullAndEmpty;
  *
  * @since 0.963.0
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "mime",
-        functionName = "getByteArray",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = "Entity", structPackage = "ballerina/mime"),
-        returnType = {@ReturnType(type = TypeKind.ARRAY, elementType = TypeKind.BYTE),
-                @ReturnType(type = TypeKind.RECORD)},
-        isPublic = true
-)
 public class GetByteArray extends AbstractGetPayloadHandler {
 
-    public static Object getByteArray(Strand strand, ObjectValue entityObj) {
+    public static Object getByteArray(ObjectValue entityObj) {
         NonBlockingCallback callback = null;
         ArrayValue result = null;
         try {
@@ -86,7 +74,7 @@ public class GetByteArray extends AbstractGetPayloadHandler {
                 result = EntityBodyHandler.constructBlobDataSource(entityObj);
                 updateDataSource(entityObj, result);
             } else {
-                callback = new NonBlockingCallback(strand);
+                callback = new NonBlockingCallback(Scheduler.getStrand());
                 constructNonBlockingDataSource(callback, entityObj, SourceType.BLOB);
             }
         } catch (Exception ex) {

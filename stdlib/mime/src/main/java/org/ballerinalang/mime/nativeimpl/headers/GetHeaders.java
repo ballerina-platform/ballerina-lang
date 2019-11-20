@@ -19,18 +19,12 @@
 package org.ballerinalang.mime.nativeimpl.headers;
 
 import io.netty.handler.codec.http.HttpHeaders;
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.mime.util.MimeUtil;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.natives.annotations.ReturnType;
 
 import java.util.List;
 
@@ -42,17 +36,9 @@ import static org.ballerinalang.mime.util.MimeConstants.HEADER_NOT_FOUND;
  *
  * @since 0.966.0
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "mime",
-        functionName = "getHeaders",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = "Entity", structPackage = "ballerina/mime"),
-        args = {@Argument(name = "headerName", type = TypeKind.STRING)},
-        returnType = {@ReturnType(type = TypeKind.ARRAY)},
-        isPublic = true
-)
 public class GetHeaders {
 
-    public static ArrayValue getHeaders(Strand strand, ObjectValue entityObj, String headerName) {
+    public static ArrayValue getHeaders(ObjectValue entityObj, String headerName) {
         if (entityObj.getNativeData(ENTITY_HEADERS) == null) {
             throw MimeUtil.createError(HEADER_NOT_FOUND, "Http header does not exist");
         }

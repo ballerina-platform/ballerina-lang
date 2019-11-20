@@ -18,16 +18,12 @@
 
 package org.ballerinalang.mime.nativeimpl;
 
-import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
 import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.mime.util.MimeUtil;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.natives.annotations.ReturnType;
 
 import static org.ballerinalang.mime.util.EntityBodyHandler.isStreamingRequired;
 
@@ -36,16 +32,9 @@ import static org.ballerinalang.mime.util.EntityBodyHandler.isStreamingRequired;
  *
  * @since 0.963.0
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "mime",
-        functionName = "getText",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = "Entity", structPackage = "ballerina/mime"),
-        returnType = {@ReturnType(type = TypeKind.STRING), @ReturnType(type = TypeKind.RECORD)},
-        isPublic = true
-)
 public class GetText extends AbstractGetPayloadHandler {
 
-    public static Object getText(Strand strand, ObjectValue entityObj) {
+    public static Object getText(ObjectValue entityObj) {
         NonBlockingCallback callback = null;
         String result = null;
         try {
@@ -58,7 +47,7 @@ public class GetText extends AbstractGetPayloadHandler {
                 result = EntityBodyHandler.constructStringDataSource(entityObj);
                 updateDataSource(entityObj, result);
             } else {
-                callback = new NonBlockingCallback(strand);
+                callback = new NonBlockingCallback(Scheduler.getStrand());
                 constructNonBlockingDataSource(callback, entityObj, SourceType.TEXT);
             }
         } catch (Exception ex) {

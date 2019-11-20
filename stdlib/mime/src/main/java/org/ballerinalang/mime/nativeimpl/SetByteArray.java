@@ -18,15 +18,10 @@
 
 package org.ballerinalang.mime.nativeimpl;
 
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.mime.util.MimeUtil;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.Receiver;
 
 import static org.ballerinalang.mime.util.MimeConstants.OCTET_STREAM;
 
@@ -35,16 +30,9 @@ import static org.ballerinalang.mime.util.MimeConstants.OCTET_STREAM;
  *
  * @since 0.963.0
  */
-@BallerinaFunction(orgName = "ballerina", packageName = "mime",
-        functionName = "setByteArray",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = "Entity", structPackage = "ballerina/mime"),
-        args = {@Argument(name = "blobContent", type = TypeKind.ARRAY, elementType = TypeKind.BYTE),
-                @Argument(name = "contentType", type = TypeKind.STRING)},
-        isPublic = true
-)
 public class SetByteArray {
 
-    public static void setByteArray(Strand strand, ObjectValue entityObj, ArrayValue payload, String contentType) {
+    public static void setByteArray(ObjectValue entityObj, ArrayValue payload, String contentType) {
         EntityBodyHandler.addMessageDataSource(entityObj, payload);
         MimeUtil.setMediaTypeToEntity(entityObj, contentType != null ? contentType : OCTET_STREAM);
     }

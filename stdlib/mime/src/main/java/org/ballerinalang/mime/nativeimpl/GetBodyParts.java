@@ -18,16 +18,11 @@
 
 package org.ballerinalang.mime.nativeimpl;
 
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.mime.util.HeaderUtil;
 import org.ballerinalang.mime.util.MimeUtil;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.stdlib.io.channels.base.Channel;
 
 import java.util.Locale;
@@ -43,16 +38,9 @@ import static org.ballerinalang.mime.util.MimeConstants.PARSING_ENTITY_BODY_FAIL
  *
  * @since 0.963.0
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "mime",
-        functionName = "getBodyParts",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = "Entity", structPackage = "ballerina/mime"),
-        returnType = {@ReturnType(type = TypeKind.ARRAY), @ReturnType(type = TypeKind.RECORD)},
-        isPublic = true
-)
 public class GetBodyParts {
 
-    public static Object getBodyParts(Strand strand, ObjectValue entityObj) {
+    public static Object getBodyParts(ObjectValue entityObj) {
         ArrayValue partsArray;
         try {
             String baseType = HeaderUtil.getBaseType(entityObj);
