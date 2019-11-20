@@ -172,68 +172,81 @@ public function generatePackage(bir:ModuleID moduleId, @tainted JarFile jarFile,
     objGen.generateValueClasses(module.typeDefs, jarFile.pkgEntries);
     generateFrameClasses(module, jarFile.pkgEntries);
 
+    future<()>[] classGens = [];
     foreach var [ moduleClass, v ] in jvmClassMap.entries() {
-        jvm:ClassWriter cw = new(COMPUTE_FRAMES);
-        currentClass = <@untainted> moduleClass;
-        if (moduleClass == typeOwnerClass) {
-            cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, moduleClass, (), VALUE_CREATOR, ());
-            generateDefaultConstructor(cw, VALUE_CREATOR);
-            generateUserDefinedTypeFields(cw, module.typeDefs);
-            generateValueCreatorMethods(cw, module.typeDefs, moduleId);
-            // populate global variable to class name mapping and generate them
-            foreach var globalVar in module.globalVars {
-                if (globalVar is bir:GlobalVariableDcl) {
-                    generatePackageVariable(globalVar, cw);
-                    generateLockForVariable(globalVar, cw);
-                }
-            }
-
-            if (isEntry) {  // TODO: this check seems redundant: check and remove
-                bir:Function? mainFunc = getMainFunc(module?.functions);
-                string mainClass = "";
-                if (mainFunc is bir:Function) {
-                    mainClass = getModuleLevelClassName(<@untainted> orgName, <@untainted> moduleName,
-                                       <@untainted> cleanupPathSeperators(cleanupBalExt(mainFunc.pos.sourceFileName)));
-                }
-
-                generateMainMethod(mainFunc, cw, module, mainClass, moduleClass, serviceEPAvailable);
-                if (mainFunc is bir:Function) {
-                    generateLambdaForMain(mainFunc, cw, module, mainClass, moduleClass);
-                }
-                generateLambdaForPackageInits(cw, module, mainClass, moduleClass, dependentModuleArray);
-                jarFile.manifestEntries["Main-Class"] = moduleClass;
-            }
-            generateStaticInitializer(module.globalVars, cw, moduleClass, serviceEPAvailable);
-            generateCreateTypesMethod(cw, module.typeDefs);
-            generateModuleInitializer(cw, module);
-            generateExecutionStopMethod(cw, typeOwnerClass, module, dependentModuleArray);
-        } else {
-            cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, moduleClass, (), OBJECT, ());
-            generateDefaultConstructor(cw, OBJECT);
-        }
-        cw.visitSource(v.sourceFileName);
-        // generate methods
-        foreach var func in v.functions {
-            generateMethod(getFunction(func), cw, module, serviceName = getFunction(func).workerName.value);
-        }
-        // generate lambdas created during generating methods
-        foreach var [name, call] in lambdas.entries() {
-            generateLambdaMethod(call, cw, name);
-        }
-        // clear the lambdas
-        lambdas = {};
-        lambdaIndex = 0;
-        cw.visitEnd();
-
-        var result = cw.toByteArray();
-        if (result is error) {
-            logCompileError(result, module, module);
-            jarFile.pkgEntries[moduleClass + ".class"] = [];
-        } else {
-            jarFile.pkgEntries[moduleClass + ".class"] = result;
-        }
+        classGens[classGens.length()] = start generateClass(module, moduleId, moduleClass, v, jarFile, isEntry, serviceEPAvailable);
+    }
+    foreach var a in classGens {
+        _ = wait a;
     }
 }
+
+function generateClass(bir:Package module, bir:ModuleID moduleId, string moduleClass, JavaClass v, 
+                            @tainted JarFile jarFile, boolean isEntry, boolean serviceEPAvailable) {
+    string orgName = moduleId.org;
+    string moduleName = moduleId.name;
+    string pkgName = getPackageName(orgName, moduleName);
+
+    jvm:ClassWriter cw = new(COMPUTE_FRAMES);
+    currentClass = <@untainted> moduleClass;
+    if (moduleClass == typeOwnerClass) {
+        cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, moduleClass, (), VALUE_CREATOR, ());
+        generateDefaultConstructor(cw, VALUE_CREATOR);
+        generateUserDefinedTypeFields(cw, module.typeDefs);
+        generateValueCreatorMethods(cw, module.typeDefs, moduleId);
+        // populate global variable to class name mapping and generate them
+        foreach var globalVar in module.globalVars {
+            if (globalVar is bir:GlobalVariableDcl) {
+                generatePackageVariable(globalVar, cw);
+                generateLockForVariable(globalVar, cw);
+            }
+        }
+
+        if (isEntry) {  // TODO: this check seems redundant: check and remove
+            bir:Function? mainFunc = getMainFunc(module?.functions);
+            string mainClass = "";
+            if (mainFunc is bir:Function) {
+                mainClass = getModuleLevelClassName(<@untainted> orgName, <@untainted> moduleName,
+                                   <@untainted> cleanupPathSeperators(cleanupBalExt(mainFunc.pos.sourceFileName)));
+            }
+
+            generateMainMethod(mainFunc, cw, module, mainClass, moduleClass, serviceEPAvailable);
+            if (mainFunc is bir:Function) {
+                generateLambdaForMain(mainFunc, cw, module, mainClass, moduleClass);
+            }
+            generateLambdaForPackageInits(cw, module, mainClass, moduleClass, dependentModuleArray);
+            jarFile.manifestEntries["Main-Class"] = moduleClass;
+        }
+        generateStaticInitializer(module.globalVars, cw, moduleClass, serviceEPAvailable);
+        generateCreateTypesMethod(cw, module.typeDefs);
+        generateModuleInitializer(cw, module);
+        generateExecutionStopMethod(cw, typeOwnerClass, module, dependentModuleArray);
+    } else {
+        cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, moduleClass, (), OBJECT, ());
+        generateDefaultConstructor(cw, OBJECT);
+    }
+    cw.visitSource(v.sourceFileName);
+    // generate methods
+    foreach var func in v.functions {
+        generateMethod(getFunction(func), cw, module, serviceName = getFunction(func).workerName.value);
+    }
+    // generate lambdas created during generating methods
+    foreach var [name, call] in lambdas.entries() {
+        generateLambdaMethod(call, cw, name);
+    }
+    // clear the lambdas
+    lambdas = {};
+    lambdaIndex = 0;
+    cw.visitEnd();
+
+    var result = cw.toByteArray();
+    if (result is error) {
+        logCompileError(result, module, module);
+        jarFile.pkgEntries[moduleClass + ".class"] = [];
+    } else {
+        jarFile.pkgEntries[moduleClass + ".class"] = result;
+    }
+}       
 
 function createDependantModuleFlatArray() {
     foreach var [k, id] in dependentModules.entries() {

@@ -30,25 +30,29 @@ public type ObjectGenerator object {
     }
 
     public function generateValueClasses(bir:TypeDef?[] typeDefs, map<byte[]> jarEntries) {
+        [string, future<byte[]>][] vClasses = [];
         foreach var optionalTypeDef in typeDefs {
             bir:TypeDef typeDef = getTypeDef(optionalTypeDef);
             bir:BType bType = typeDef.typeValue;
             if (bType is bir:BObjectType && !bType.isAbstract) {
                 self.currentObjectType = bType;
                 string className = getTypeValueClassName(self.module, typeDef.name.value);
-                byte[] bytes = self.createObjectValueClass(bType, className, typeDef, false);
-                jarEntries[className + ".class"] = bytes;
+                future<byte[]> f = start self.createObjectValueClass(bType, className, typeDef, false);
+                vClasses[vClasses.length()] = [className + ".class", f];
             } else if (bType is bir:BServiceType) {
                 self.currentObjectType = bType.oType;
                 string className = getTypeValueClassName(self.module, typeDef.name.value);
-                byte[] bytes = self.createObjectValueClass(bType.oType, className, typeDef, true);
-                jarEntries[className + ".class"] = bytes;
+                future<byte[]> f = start self.createObjectValueClass(bType.oType, className, typeDef, true);
+                vClasses[vClasses.length()] = [className + ".class", f];
             } else if (bType is bir:BRecordType) {
                 self.currentRecordType = bType;
                 string className = getTypeValueClassName(self.module, typeDef.name.value);
-                byte[] bytes = self.createRecordValueClass(bType, className, typeDef);
-                jarEntries[className + ".class"] = bytes;
+                future<byte[]> f = start self.createRecordValueClass(bType, className, typeDef);
+                vClasses[vClasses.length()] = [className + ".class", f];
             }
+        }
+        foreach var [k, v]  in vClasses {
+            jarEntries[k] = wait v;
         }
     }
 

@@ -2070,8 +2070,9 @@ type BalToJVMIndexMap object {
 };
 
 function generateFrameClasses(bir:Package pkg, map<byte[]> pkgEntries) {
+    future<()>[] frameFutures = [];
     foreach var func in pkg.functions {
-        generateFrameClassForFunction(pkg, func, pkgEntries);
+        frameFutures[frameFutures.length()] = start generateFrameClassForFunction(pkg, func, pkgEntries);
     }
 
     foreach var typeDef in pkg.typeDefs {
@@ -2086,9 +2087,12 @@ function generateFrameClasses(bir:Package pkg, map<byte[]> pkgEntries) {
                 attachedType = typeDef?.typeValue;
             }
             foreach var func in attachedFuncs {
-                generateFrameClassForFunction(pkg, func, pkgEntries, attachedType=attachedType);
+                frameFutures[frameFutures.length()] = start generateFrameClassForFunction(pkg, func, pkgEntries, attachedType=attachedType);
             }
         }
+    }
+    foreach var f in frameFutures {
+        _ = wait f;
     }
 }
 
