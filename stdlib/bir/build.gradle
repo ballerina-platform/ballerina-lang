@@ -43,6 +43,8 @@ dependencies {
     baloImplementation project(path: ':ballerina-stringutils', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-java', configuration: 'baloImplementation')
 
+    interopImports project(':ballerina-io')
+
     baloCreat project(':lib-creator')
     testCompile project(':ballerina-tool')
     testCompile project(':ballerina-core')

@@ -14,13 +14,29 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerinax/java;
+
 # Prints `any` or `error` value(s) to the STDOUT.
 # + values - The value(s) to be printed.
-public function print((any|error)... values) = external;
+public function print((any|error)... values) {
+    printExtern(values);
+}
+
+function printExtern((any|error)... values) = @java:Method {
+    name: "print",
+    class: "org.ballerinalang.stdlib.io.nativeimpl.PrintUtils"
+} external;
 
 # Prints `any` or `error` value(s) to the STDOUT followed by a new line.
 # + values - The value(s) to be printed.
-public function println((any|error)... values) = external;
+public function println((any|error)... values) {
+    printlnExtern(values);
+}
+
+function printlnExtern((any|error)... values) = @java:Method {
+    name: "println",
+    class: "org.ballerinalang.stdlib.io.nativeimpl.PrintUtils"
+} external;
 
 # Returns a formatted string using the specified format string and arguments. Following format specifiers are allowed.
 #

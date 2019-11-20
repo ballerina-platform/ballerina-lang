@@ -33,6 +33,8 @@ dependencies {
     implementation 'org.apache.ws.commons.axiom:axiom-api:1.2.22'
     implementation 'org.apache.ws.commons.axiom:axiom-impl:1.2.22'
 
+    interopImports project(':ballerina-io')
+
     testCompile project(path: ':ballerina-test-common', configuration: 'tests')
     testCompile project(path: ':ballerina-test-utils', configuration: 'shadow')
     testCompile project(':ballerina-core')
