@@ -3306,9 +3306,14 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         List<BType> paramTypes = ((BInvokableType) iExpr.symbol.type).getParameterTypes();
-        Map<String, BVarSymbol> params = ((BInvokableSymbol) iExpr.symbol).params
-                .stream().filter(a -> !a.name.equals(Names.EMPTY))
-                .collect(Collectors.toMap(a -> a.name.getValue(), a -> a));
+        Map<String, BVarSymbol> params = new HashMap<>();
+        for (BVarSymbol a : ((BInvokableSymbol) iExpr.symbol).params) {
+            if (!a.name.equals(Names.EMPTY)) {
+                if (params.put(a.name.getValue(), a) != null) {
+                    throw new IllegalStateException("Duplicate key");
+                }
+            }
+        }
 
         int parameterCount = paramTypes.size();
         iExpr.requiredArgs = new ArrayList<>();

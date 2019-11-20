@@ -226,7 +226,7 @@ public type TypeParser object {
             }
             obj.retType = self.parseTypeCpRef();
             return obj;
-        }
+    }
 
     function parseRecordType(int typeFlags) returns BRecordType {
         BRecordType obj = { moduleId: self.cp.packages[self.readInt32()],

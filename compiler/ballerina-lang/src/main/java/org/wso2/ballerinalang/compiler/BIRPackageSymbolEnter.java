@@ -408,7 +408,7 @@ public class BIRPackageSymbolEnter {
 
         BType type = readBType(dataInStream);
         if (type.tag == TypeTags.INVOKABLE) {
-            defineInvokableTypeParams((BInvokableType) type);
+            setInvokableTypeSymbol((BInvokableType) type);
         }
 
         // Temp solution to add abstract flag if available TODO find a better approach
@@ -441,7 +441,7 @@ public class BIRPackageSymbolEnter {
         }
     }
 
-    private void defineInvokableTypeParams(BInvokableType invokableType) {
+    private void setInvokableTypeSymbol(BInvokableType invokableType) {
         BInvokableTypeSymbol tsymbol = (BInvokableTypeSymbol) invokableType.tsymbol;
         List<BVarSymbol> params = new ArrayList<>();
         for (BType paramType : invokableType.paramTypes) {
@@ -515,16 +515,20 @@ public class BIRPackageSymbolEnter {
         }
 
         if (type.tag == TypeTags.INVOKABLE) {
-            BInvokableType bInvokableType = (BInvokableType) type;
-            BInvokableType clonedType = new BInvokableType(bInvokableType.paramTypes, bInvokableType.restType,
-                    bInvokableType.retType, null);
-            clonedType.tsymbol = Symbols.createInvokableTypeSymbol(SymTag.FUNCTION_TYPE,
-                    type.flags, Names.EMPTY, env.pkgSymbol.pkgID, null,
-                    env.pkgSymbol.owner);
-            return clonedType;
+            return createClonedInvokableTypeWithTsymbol((BInvokableType) type);
         }
 
         return type;
+    }
+
+    private BInvokableType createClonedInvokableTypeWithTsymbol(BInvokableType bInvokableType) {
+        BInvokableType clonedType = new BInvokableType(bInvokableType.paramTypes, bInvokableType.restType,
+                bInvokableType.retType, null);
+        clonedType.tsymbol = Symbols.createInvokableTypeSymbol(SymTag.FUNCTION_TYPE,
+                bInvokableType.flags, env.pkgSymbol.pkgID, null,
+                env.pkgSymbol.owner);
+        //TODO: tsymbol param values should be read from bir and added here
+        return clonedType;
     }
 
     private void addShapeCP(BType bType, int typeCpIndex) {

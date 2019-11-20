@@ -21,7 +21,7 @@ package org.wso2.ballerinalang.compiler.semantics.model.symbols;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
-import org.wso2.ballerinalang.compiler.util.Name;
+import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,7 +29,7 @@ import java.util.List;
 /**
  * Represents a function type symbol.
  *
- * @since 1.0.3
+ * @since 1.1.0
  */
 public class BInvokableTypeSymbol extends BTypeSymbol {
 
@@ -37,8 +37,8 @@ public class BInvokableTypeSymbol extends BTypeSymbol {
     public BVarSymbol restParam;
     public BType returnType;
 
-    public BInvokableTypeSymbol(int symTag, int flags, Name name, PackageID pkgID, BType type, BSymbol owner) {
-        super(symTag, flags, name, pkgID, type, owner);
+    public BInvokableTypeSymbol(int symTag, int flags, PackageID pkgID, BType type, BSymbol owner) {
+        super(symTag, flags, Names.EMPTY, pkgID, type, owner);
         this.params = new ArrayList<>();
     }
 

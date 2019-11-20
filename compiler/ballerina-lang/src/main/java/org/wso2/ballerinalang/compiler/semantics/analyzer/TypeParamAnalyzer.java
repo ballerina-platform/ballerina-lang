@@ -594,7 +594,7 @@ public class TypeParamAnalyzer {
                 .collect(Collectors.toList());
         BType restType = expType.restType;
         return new BInvokableType(paramTypes, restType, getMatchingBoundType(expType.retType, env, resolvedTypes),
-                Symbols.createInvokableTypeSymbol(SymTag.FUNCTION_TYPE, expType.flags, Names.EMPTY,
+                Symbols.createInvokableTypeSymbol(SymTag.FUNCTION_TYPE, expType.flags,
                         env.enclPkg.symbol.pkgID, expType, env.scope.owner));
     }
 

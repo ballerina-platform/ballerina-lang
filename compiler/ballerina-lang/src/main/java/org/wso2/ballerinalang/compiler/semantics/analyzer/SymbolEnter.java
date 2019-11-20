@@ -303,9 +303,12 @@ public class SymbolEnter extends BLangNodeVisitor {
         pkgNode.typeDefinitions.forEach(typDef -> typDefs.add(typDef));
         defineTypeNodes(typDefs, pkgEnv);
 
-        pkgNode.globalVars.stream().filter(variable -> variable.expr != null
-                && variable.isDeclaredWithVar && variable.expr.getKind() == NodeKind.LAMBDA)
-                .forEach(var -> addFunctionType(var, pkgEnv));
+        for (BLangSimpleVariable variable : pkgNode.globalVars) {
+            if (variable.expr != null
+                    && variable.isDeclaredWithVar && variable.expr.getKind() == NodeKind.LAMBDA) {
+                addFunctionType(variable, pkgEnv);
+            }
+        }
 
         // Enabled logging errors after type def visit.
         // TODO: Do this in a cleaner way
@@ -1360,7 +1363,7 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         BInvokableTypeSymbol functionTypeSymbol = Symbols.createInvokableTypeSymbol(SymTag.FUNCTION_TYPE,
                 invokableSymbol.flags,
-                invokableSymbol.name, env.enclPkg.symbol.pkgID,
+                env.enclPkg.symbol.pkgID,
                 invokableSymbol.type, env.scope.owner);
         functionTypeSymbol.params = invokableSymbol.params;
         functionTypeSymbol.returnType = invokableSymbol.retType;
