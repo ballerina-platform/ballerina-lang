@@ -18,13 +18,8 @@
 
 package org.ballerinalang.mime.nativeimpl.contentdisposition;
 
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.mime.util.MimeUtil;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.natives.annotations.ReturnType;
 
 import static org.ballerinalang.mime.util.MimeConstants.DISPOSITION_FIELD;
 
@@ -33,17 +28,9 @@ import static org.ballerinalang.mime.util.MimeConstants.DISPOSITION_FIELD;
  *
  * @since  0.970.0
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "mime",
-        functionName = "toString",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = "ContentDisposition",
-                structPackage = "ballerina/mime"),
-        returnType = {@ReturnType(type = TypeKind.STRING)},
-        isPublic = true
-)
 public class ToString {
 
-    public static String toString(Strand strand, ObjectValue contentDispositionObj) {
+    public static String convertContentDispositionToString(ObjectValue contentDispositionObj) {
         StringBuilder dispositionBuilder = new StringBuilder();
         if (contentDispositionObj != null) {
             String disposition = String.valueOf(contentDispositionObj.get(DISPOSITION_FIELD));

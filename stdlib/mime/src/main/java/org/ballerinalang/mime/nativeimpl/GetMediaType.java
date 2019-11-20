@@ -19,13 +19,8 @@
 package org.ballerinalang.mime.nativeimpl;
 
 import org.ballerinalang.jvm.BallerinaValues;
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.mime.util.MimeUtil;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
 
 import static org.ballerinalang.mime.nativeimpl.AbstractGetPayloadHandler.getErrorMsg;
 import static org.ballerinalang.mime.util.MimeConstants.INVALID_CONTENT_TYPE;
@@ -37,15 +32,9 @@ import static org.ballerinalang.mime.util.MimeConstants.PROTOCOL_MIME_PKG_ID;
  *
  * @since 0.96
  */
-@BallerinaFunction(orgName = "ballerina", packageName = "mime",
-        functionName = "getMediaType",
-        args = {@Argument(name = "contentType",
-                type = TypeKind.STRING)},
-        returnType = {@ReturnType(type = TypeKind.RECORD)},
-        isPublic = true)
 public class GetMediaType {
 
-    public static Object getMediaType(Strand strand, String contentType) {
+    public static Object getMediaType(String contentType) {
         try {
             ObjectValue mediaType = BallerinaValues.createObjectValue(PROTOCOL_MIME_PKG_ID, MEDIA_TYPE);
             mediaType = MimeUtil.parseMediaType(mediaType, contentType);

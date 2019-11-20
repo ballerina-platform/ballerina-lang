@@ -19,13 +19,8 @@
 package org.ballerinalang.mime.nativeimpl.contentdisposition;
 
 import org.ballerinalang.jvm.BallerinaValues;
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.mime.util.MimeUtil;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
 
 import static org.ballerinalang.mime.util.MimeConstants.CONTENT_DISPOSITION_STRUCT;
 import static org.ballerinalang.mime.util.MimeConstants.PROTOCOL_MIME_PKG_ID;
@@ -35,15 +30,9 @@ import static org.ballerinalang.mime.util.MimeConstants.PROTOCOL_MIME_PKG_ID;
  *
  * @since  0.970.0
  */
-@BallerinaFunction(orgName = "ballerina", packageName = "mime",
-        functionName = "getContentDispositionObject",
-        args = {@Argument(name = "contentDisposition",
-                type = TypeKind.STRING)},
-        returnType = {@ReturnType(type = TypeKind.RECORD)},
-        isPublic = true)
 public class GetContentDispositionObject {
 
-    public static ObjectValue getContentDispositionObject(Strand strand, String contentDisposition) {
+    public static ObjectValue getContentDispositionObject(String contentDisposition) {
         ObjectValue contentDispositionObj = BallerinaValues.createObjectValue(PROTOCOL_MIME_PKG_ID,
                                                                      CONTENT_DISPOSITION_STRUCT);
         MimeUtil.populateContentDispositionObject(contentDispositionObj, contentDisposition);

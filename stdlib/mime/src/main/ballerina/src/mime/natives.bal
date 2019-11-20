@@ -15,6 +15,7 @@
 // under the License.
 
 import ballerina/io;
+import ballerinax/java;
 import ballerina/lang.'int as langint;
 
 # Key name for `boundary` parameter in MediaType. This is needed for composite type media types.
@@ -64,8 +65,15 @@ public type ContentDisposition object {
 
     # Converts the `ContentDisposition` type to a string suitable for use as the value of a corresponding MIME header.
     # + return - The `string` represnetation of the `ContentDisposition` object
-    public function toString() returns string = external;
+    public function toString() returns string {
+        return <string>java:toString(convertContentDispositionToString(self));
+    }
 };
+
+function convertContentDispositionToString(ContentDisposition contentDisposition) returns handle =
+@java:Method {
+    class: "org.ballerinalang.mime.nativeimpl.contentdisposition.ToString"
+} external;
 
 # Describes the nature of the data in the body of a MIME entity.
 #
@@ -446,12 +454,24 @@ function getEncoding(MediaType contentType) returns (string?) {
 #
 # + contentType - Content-Type in string
 # + return - `MediaType` object or an error in case of invalid content-type
-public function getMediaType(string contentType) returns MediaType|InvalidContentTypeError = external;
+public function getMediaType(string contentType) returns MediaType|InvalidContentTypeError {
+    return externGetMediaType(java:fromString(contentType));
+}
+
+function externGetMediaType(handle contentType) returns MediaType|InvalidContentTypeError = @java:Method {
+    class: "org.ballerinalang.mime.nativeimpl.GetMediaType",
+    name: "getMediaType"
+} external;
 
 # Given the Content-Disposition as a string, gets the ContentDisposition object with it.
 #
 # + contentDisposition - Content disposition string
 # + return - A `ContentDisposition` object
-public function getContentDispositionObject(string contentDisposition) returns ContentDisposition = external;
+public function getContentDispositionObject(string contentDisposition) returns ContentDisposition {
+    return externGetContentDispositionObject(java:fromString(contentDisposition));
+}
 
-
+function externGetContentDispositionObject(handle contentType) returns ContentDisposition = @java:Method {
+    class: "org.ballerinalang.mime.nativeimpl.contentdisposition.GetContentDispositionObject",
+    name: "getContentDispositionObject"
+} external;
