@@ -24,6 +24,7 @@ import org.apache.kafka.common.KafkaException;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
@@ -62,7 +63,7 @@ public class Poll {
         NonBlockingCallback callback = new NonBlockingCallback(strand);
         KafkaConsumer<byte[], byte[]> kafkaConsumer = (KafkaConsumer) consumerObject.getNativeData(NATIVE_CONSUMER);
         Duration duration = Duration.ofMillis(timeout);
-        ArrayValue consumerRecordsArray = new ArrayValue(new BArrayType(getConsumerRecord().getType()));
+        ArrayValue consumerRecordsArray = new ArrayValueImpl(new BArrayType(getConsumerRecord().getType()));
         try {
             ConsumerRecords<byte[], byte[]> recordsRetrieved = kafkaConsumer.poll(duration);
             if (!recordsRetrieved.isEmpty()) {

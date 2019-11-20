@@ -20,6 +20,7 @@ package org.ballerinalang.stdlib.crypto.nativeimpl;
 
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.stdlib.crypto.CryptoUtils;
 
@@ -35,6 +36,6 @@ import org.ballerinalang.stdlib.crypto.CryptoUtils;
 public class HmacSha1 {
 
     public static ArrayValue hmacSha1(Strand strand, ArrayValue inputValue, ArrayValue keyValue) {
-        return new ArrayValue(CryptoUtils.hmac("HmacSHA1", keyValue.getBytes(), inputValue.getBytes()));
+        return new ArrayValueImpl(CryptoUtils.hmac("HmacSHA1", keyValue.getBytes(), inputValue.getBytes()));
     }
 }

@@ -33,6 +33,7 @@ import org.ballerinalang.jvm.types.BMapType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.model.types.TypeKind;
@@ -63,7 +64,7 @@ public class GetAllMetrics {
     public static ArrayValue getAllMetrics(Strand strand) {
         Metric[] metrics = DefaultMetricRegistry.getInstance().getAllMetrics();
 
-        ArrayValue bMetrics = new ArrayValue(new BArrayType(METRIC_TYPE));
+        ArrayValue bMetrics = new ArrayValueImpl(new BArrayType(METRIC_TYPE));
         int metricIndex = 0;
         for (Metric metric : metrics) {
             MetricId metricId = metric.getId();

@@ -34,7 +34,7 @@ public interface BArray extends BRefValue, CollectionValue {
      * @param index array index
      * @return array value
      */
-   Object getValue(long index);
+   Object get(long index);
 
     /**
      * Get ref value in the given index.
@@ -162,12 +162,6 @@ public interface BArray extends BRefValue, CollectionValue {
      * @return int array
      */
     long[] getIntArray();
-
-    /**
-     * Get {@code BType} of the array.
-     * @return array type.
-     */
-    BType getArrayType();
 
     /**
      * Get {@code BType} of the array elements.

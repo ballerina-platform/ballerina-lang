@@ -20,7 +20,7 @@ package org.ballerinalang.stdlib.ldap.nativeimpl;
 
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -63,7 +63,7 @@ public class GetGroups {
             CommonLdapConfiguration ldapConfiguration = (CommonLdapConfiguration) ldapConnection.getNativeData(
                     LdapConstants.LDAP_CONFIGURATION);
             String[] externalRoles = doGetGroupsListOfUser(userName, ldapConfiguration, ldapConnectionContext);
-            return new ArrayValue(externalRoles);
+            return new ArrayValueImpl(externalRoles);
         } catch (NamingException | ErrorValue e) {
             return LdapUtils.createError(e.getMessage());
         } finally {

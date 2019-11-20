@@ -22,6 +22,7 @@ import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.XMLSequence;
 import org.ballerinalang.jvm.values.XMLValue;
 import org.ballerinalang.model.types.TypeKind;
@@ -44,7 +45,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 public class Concat {
 
     public static XMLValue<?> concat(Strand strand, ArrayValue arrayValue) {
-        ArrayValue backingArray = new ArrayValue(new BArrayType(BTypes.typeXML));
+        ArrayValue backingArray = new ArrayValueImpl(new BArrayType(BTypes.typeXML));
         for (int i = 0; i < arrayValue.size(); i++) {
             Object refValue = arrayValue.getRefValue(i);
             if (refValue instanceof String) {

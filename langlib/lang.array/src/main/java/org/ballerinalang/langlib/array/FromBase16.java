@@ -20,7 +20,7 @@ package org.ballerinalang.langlib.array;
 
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -73,6 +73,6 @@ public class FromBase16 {
                                                "Invalid character(s): " + invalidChars.toString());
         }
 
-        return new ArrayValue(bytes);
+        return new ArrayValueImpl(bytes);
     }
 }

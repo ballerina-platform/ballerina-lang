@@ -18,7 +18,7 @@
 package org.ballerinalang.stdlib.io.nativeimpl;
 
 import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -57,7 +57,7 @@ public class NextTextRecord {
             return IOUtils.createEoFError();
         } else {
             try {
-                return new ArrayValue(delimitedRecordChannel.read());
+                return new ArrayValueImpl(delimitedRecordChannel.read());
             } catch (BallerinaIOException e) {
                 log.error("error occurred while reading next text record from ReadableTextRecordChannel", e);
                 return IOUtils.createError(e);

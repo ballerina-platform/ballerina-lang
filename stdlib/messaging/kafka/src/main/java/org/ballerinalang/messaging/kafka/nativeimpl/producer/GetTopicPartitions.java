@@ -24,6 +24,7 @@ import org.apache.kafka.common.PartitionInfo;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
@@ -66,7 +67,7 @@ public class GetTopicPartitions {
                 handleTransactions(strand, producerObject);
             }
             List<PartitionInfo> partitionInfoList = kafkaProducer.partitionsFor(topic);
-            ArrayValue topicPartitionArray = new ArrayValue(new BArrayType(getTopicPartitionRecord().getType()));
+            ArrayValue topicPartitionArray = new ArrayValueImpl(new BArrayType(getTopicPartitionRecord().getType()));
 //            if (!partitionInfoList.isEmpty()) {
 //                partitionInfoList.forEach(info -> {
 //                    MapValue<String, Object> partition = populateTopicPartitionRecord(info.topic(), info.partition());
