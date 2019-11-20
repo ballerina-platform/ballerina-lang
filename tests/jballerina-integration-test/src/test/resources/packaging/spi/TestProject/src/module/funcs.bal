@@ -5,7 +5,7 @@ public function main() {
     io:println(getDriversAsString());
 }
 
-public function  getDriversAsString() returns string = @java:Method {
+public function  getDriversAsString() returns handle = @java:Method {
       class:"PrintDrivers"
 } external;
 
