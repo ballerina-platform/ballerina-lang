@@ -84,6 +84,9 @@ public class StaxXMLSink extends OutputStream {
     }
 
     public void write(XMLValue<?> xmlValue) {
+        if (xmlValue == null) {
+            return;
+        }
         try {
             switch (xmlValue.getNodeType()) {
                 case SEQUENCE:
@@ -312,9 +315,7 @@ public class StaxXMLSink extends OutputStream {
     }
 
     private void writeSeq(XMLSequence xmlValue) {
-        int i = 0;
         for (XMLValue<?> value : xmlValue.getChildrenList()) {
-            i++;
             this.write(value);
         }
     }

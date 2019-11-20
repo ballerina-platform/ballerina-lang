@@ -101,7 +101,7 @@ public final class XMLItem extends XMLValue<OMNode> {
     /**
      * Initialize a {@link XMLItem} from a {@link org.apache.axiom.om.OMNode} object.
      *
-     * @param value xml object
+     * @param name element's qualified name
      */
     public XMLItem(QName name) {
         this(name, new XMLSequence(new ArrayList<>()));
@@ -495,8 +495,10 @@ public final class XMLItem extends XMLValue<OMNode> {
             return this;
         }
 
-        return new XMLItem(new QName(name.getNamespaceURI(), name.getLocalPart(), name.getPrefix()),
-                (XMLSequence) children.copy(refs));
+        QName elemName = new QName(this.name.getNamespaceURI(), this.name.getLocalPart(), this.name.getPrefix());
+        XMLItem xmlItem = new XMLItem(elemName, (XMLSequence) children.copy(refs));
+        xmlItem.getAttributesMap().putAll((Map<String, String>) this.getAttributesMap().copy(refs));
+        return xmlItem;
     }
 
     /**
@@ -564,7 +566,18 @@ public final class XMLItem extends XMLValue<OMNode> {
             }
         }
 
-        this.children.children.clear();
+        List<XMLValue<?>> children = this.children.children;
+        List<Integer> toRemove = new ArrayList<>();
+        for(int i = 0; i < children.size(); i++) {
+            XMLValue<?> child = children.get(i);
+            if (child.getNodeType() == ELEMENT && ((XMLItem) child).getElementName().equals(qname)) {
+                toRemove.add(i);
+            }
+        }
+
+        for (Integer index : toRemove) {
+            children.remove(index.intValue());
+        }
     }
 
     /**

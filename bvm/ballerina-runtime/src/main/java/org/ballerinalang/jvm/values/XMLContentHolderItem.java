@@ -150,7 +150,8 @@ public class XMLContentHolderItem extends XMLValue<OMNode> {
 
     @Override
     public Object copy(Map<Object, Object> refs) {
-        return null;
+        // XMLContentHolderItem is immutable
+        return this;
     }
 
     @Override

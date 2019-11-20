@@ -446,12 +446,14 @@ public final class XMLSequence extends XMLValue<ArrayValue> {
             return refs.get(this);
         }
 
-        Object[] copiedVals = new Object[children.size()];
-        refs.put(this, new XMLSequence(new ArrayValue(copiedVals, new BArrayType(BTypes.typeXML))));
-        for (int i = 0; i < children.size(); i++) {
-            copiedVals[i] = ((XMLValue<?>) children.get(i)).copy(refs);
+        ArrayList<XMLValue<?>> copiedChildrenList = new ArrayList<>(children.size());
+        XMLSequence copiedSeq = new XMLSequence(copiedChildrenList);
+        refs.put(this, copiedSeq);
+        for (XMLValue<?> child : children) {
+            copiedChildrenList.add((XMLValue<?>) child.copy(refs));
         }
-        return refs.get(this);
+
+        return copiedSeq;
     }
 
     /**
