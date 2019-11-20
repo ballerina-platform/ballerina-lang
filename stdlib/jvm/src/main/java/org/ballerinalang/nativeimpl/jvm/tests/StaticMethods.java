@@ -295,4 +295,34 @@ public class StaticMethods {
         UUID uuid = UUID.randomUUID();
         return uuid;
     }
+
+    public static Object getJson() {
+        MapValueImpl map = new MapValueImpl<>(BTypes.typeJSON);
+        map.put("name", "John");
+        return map;
+    }
+
+    public static MapValueImpl getJsonObject() {
+        MapValueImpl map = new MapValueImpl<>(BTypes.typeJSON);
+        map.put("name", "Doe");
+        return map;
+    }
+
+    public static ArrayValue getJsonArray() {
+        ArrayValue array = new ArrayValueImpl(new BArrayType(BTypes.typeJSON));
+        array.add(0, (Object) "John");
+        return array;
+    }
+
+    public static int getInt() {
+        return 4;
+    }
+
+    public static int getIntFromJson(Object json) {
+        return ((Number) json).intValue();
+    }
+
+    public static int getIntFromJsonInt(int json) {
+        return json;
+    }
 }
