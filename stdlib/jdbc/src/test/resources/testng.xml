@@ -29,6 +29,8 @@ under the License.
             <class name="org.ballerinax.jdbc.actions.H2ActionsTest"/>
 
             <class name="org.ballerinax.jdbc.table.TableTypeTest"/>
+            <class name="org.ballerinax.jdbc.table.TableTypeNegativeTest"/>
+            <class name="org.ballerinax.jdbc.table.TableTypeNillableMappingTest"/>
 
             <class name="org.ballerinax.jdbc.connection.ConnectionPoolTest"/>
             <class name="org.ballerinax.jdbc.connection.ConnectorInitTest"/>

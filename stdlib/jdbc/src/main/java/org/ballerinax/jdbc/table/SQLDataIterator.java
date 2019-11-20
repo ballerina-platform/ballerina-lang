@@ -28,6 +28,7 @@ import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.types.BUnionType;
 import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.DecimalValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
@@ -516,7 +517,7 @@ public class SQLDataIterator extends TableIterator {
             if (nonNillType.getTag() == TypeTags.ARRAY_TAG) {
                 int elementTypeTag = ((BArrayType) nonNillType).getElementType().getTag();
                 if (elementTypeTag == TypeTags.BYTE_TAG) {
-                    RefValue refValue = bytes == null ? null : new ArrayValue(bytes);
+                    RefValue refValue = bytes == null ? null : new ArrayValueImpl(bytes);
                     bStruct.put(fieldName, refValue);
                 } else {
                     handleUnAssignableUnionTypeAssignment();
@@ -529,7 +530,7 @@ public class SQLDataIterator extends TableIterator {
                 if (TypeTags.ARRAY_TAG == fieldTypeTag) {
                     int elementTypeTag = ((BArrayType) fieldType).getElementType().getTag();
                     if (elementTypeTag == TypeTags.BYTE_TAG) {
-                        bStruct.put(fieldName, new ArrayValue(bytes));
+                        bStruct.put(fieldName, new ArrayValueImpl(bytes));
                     } else {
                         throw new PanickingApplicationException(MISMATCHING_FIELD_ASSIGNMENT);
                     }
@@ -595,7 +596,7 @@ public class SQLDataIterator extends TableIterator {
             if (elementTypeTag == TypeTags.BYTE_TAG) {
                 Blob blobValue = rs.getBlob(index);
                 byte[] bytes = blobValue.getBytes(1L, (int) blobValue.length());
-                bStruct.put(fieldName, bytes == null ? null : new ArrayValue(bytes));
+                bStruct.put(fieldName, bytes == null ? null : new ArrayValueImpl(bytes));
             } else {
                 errorHandlerFunction.apply();
             }

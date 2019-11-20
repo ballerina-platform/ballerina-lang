@@ -20,6 +20,7 @@ package org.ballerinalang.stdlib.crypto.nativeimpl;
 
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.stdlib.crypto.CryptoUtils;
 
@@ -34,6 +35,6 @@ import org.ballerinalang.stdlib.crypto.CryptoUtils;
 public class HashSha384 {
 
     public static ArrayValue hashSha384(Strand strand, ArrayValue inputValue) {
-        return new ArrayValue(CryptoUtils.hash("SHA-384", inputValue.getBytes()));
+        return new ArrayValueImpl(CryptoUtils.hash("SHA-384", inputValue.getBytes()));
     }
 }

@@ -22,6 +22,7 @@ import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.types.BPackage;
 import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
@@ -255,7 +256,7 @@ public class Utils {
         } else {
             encodedContent = Base64.getEncoder().encode(bytes);
         }
-        return new ArrayValue(encodedContent);
+        return new ArrayValueImpl(encodedContent);
     }
 
     /**
@@ -272,6 +273,6 @@ public class Utils {
         } else {
             decodedContent = Base64.getDecoder().decode(encodedContent);
         }
-        return new ArrayValue(decodedContent);
+        return new ArrayValueImpl(decodedContent);
     }
 }

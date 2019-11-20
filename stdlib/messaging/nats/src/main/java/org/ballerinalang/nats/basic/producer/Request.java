@@ -26,6 +26,7 @@ import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -77,7 +78,7 @@ public class Request {
                 } else {
                     reply = incoming.get();
                 }
-                ArrayValue msgData = new ArrayValue(reply.getData());
+                ArrayValue msgData = new ArrayValueImpl(reply.getData());
                 ObjectValue msgObj = BallerinaValues.createObjectValue(Constants.NATS_PACKAGE_ID,
                         Constants.NATS_MESSAGE_OBJ_NAME, reply.getSubject(), msgData, reply.getReplyTo());
                 msgObj.addNativeData(Constants.NATS_MSG, reply);

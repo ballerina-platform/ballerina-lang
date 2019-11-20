@@ -24,6 +24,7 @@ import org.apache.kafka.common.TopicPartition;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.messaging.kafka.utils.KafkaConstants;
@@ -60,7 +61,7 @@ public class GetPausedPartitions {
 
     public static Object getPausedPartitions(Strand strand, ObjectValue consumerObject) {
         KafkaConsumer<byte[], byte[]> kafkaConsumer = (KafkaConsumer) consumerObject.getNativeData(NATIVE_CONSUMER);
-        ArrayValue topicPartitionArray = new ArrayValue(new BArrayType(getTopicPartitionRecord().getType()));
+        ArrayValue topicPartitionArray = new ArrayValueImpl(new BArrayType(getTopicPartitionRecord().getType()));
         try {
             Set<TopicPartition> pausedPartitions = kafkaConsumer.paused();
 //            pausedPartitions.forEach(partition -> {

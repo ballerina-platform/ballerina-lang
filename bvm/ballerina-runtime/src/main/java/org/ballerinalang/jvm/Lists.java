@@ -20,17 +20,8 @@
 package org.ballerinalang.jvm;
 
 import org.ballerinalang.jvm.types.BArrayType;
-import org.ballerinalang.jvm.types.BTupleType;
-import org.ballerinalang.jvm.types.BType;
-import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.types.TypeTags;
-import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
-import org.ballerinalang.jvm.util.exceptions.RuntimeErrors;
 import org.ballerinalang.jvm.values.ArrayValue;
-
-import static org.ballerinalang.jvm.util.BLangConstants.ARRAY_LANG_LIB;
-import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER;
-import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
 
 /**
  * Common utility methods used for List manipulation.
@@ -60,53 +51,5 @@ public class Lists {
             default:
                 return array.getRefValue(index);
         }
-    }
-
-    public static void add(ArrayValue array, long index, Object refType) {
-
-        BType elementType = array.elementType;
-
-        if (array.getType().getTag() == TypeTags.TUPLE_TAG) {
-            BTupleType tupleType = (BTupleType) array.getType();
-            if (isTupleIndexWithinRange(tupleType, index)) {
-                elementType = tupleType.getTupleTypes().get((int) index);
-            }
-        }
-
-        if (elementType != null && !TypeChecker.checkIsType(refType, elementType)) {
-            throw BallerinaErrors.createError(
-                    getModulePrefixedReason(ARRAY_LANG_LIB, INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER),
-                    BLangExceptionHelper.getErrorMessage(RuntimeErrors.INCOMPATIBLE_TYPE,
-                            elementType, (refType != null) ? TypeChecker.getType(refType) : BTypes.typeNull));
-        }
-
-        if (array.getType().getTag() != TypeTags.ARRAY_TAG) {
-            array.add(index, refType);
-            return;
-        }
-
-        switch (((BArrayType) array.getType()).getElementType().getTag()) {
-            case TypeTags.BOOLEAN_TAG:
-                array.add(index, ((Boolean) refType).booleanValue());
-                return;
-            case TypeTags.FLOAT_TAG:
-                array.add(index, ((Double) refType).doubleValue());
-                return;
-            case TypeTags.BYTE_TAG:
-                array.add(index, ((Integer) refType).byteValue());
-                return;
-            case TypeTags.INT_TAG:
-                array.add(index, ((Long) refType).longValue());
-                return;
-            case TypeTags.STRING_TAG:
-                array.add(index, (String) refType);
-                return;
-            default:
-                array.add(index, refType);
-        }
-    }
-
-    private static boolean isTupleIndexWithinRange(BTupleType tuple, long index) {
-        return index >= 0 && index < tuple.getTupleTypes().size();
     }
 }

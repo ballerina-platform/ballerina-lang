@@ -142,6 +142,14 @@ public class AnnotationDesugar {
         defineFunctionAnnotations(pkgNode, env, initFunction);
     }
 
+    void defineStatementAnnotations(List<BLangAnnotationAttachment> attachments, DiagnosticPos pos, PackageID pkgID,
+                                    BSymbol owner) {
+        BLangFunction function = defineFunction(pos, pkgID,
+                owner);
+        BLangRecordLiteral mapLiteral = ASTBuilderUtil.createEmptyRecordLiteral(function.pos, symTable.mapType);
+        addAnnotsToLiteral(attachments, mapLiteral, function);
+    }
+
     private void defineTypeAnnotations(BLangPackage pkgNode, SymbolEnv env, BLangFunction initFunction) {
         for (BLangTypeDefinition typeDef : pkgNode.typeDefinitions) {
             PackageID pkgID = typeDef.symbol.pkgID;

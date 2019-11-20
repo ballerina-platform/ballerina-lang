@@ -679,6 +679,7 @@ public type AsyncCall record {|
     boolean isVirtual;
     boolean isAsync = true;
     BasicBlock thenBB;
+    AnnotationAttachment?[] annotAttachments = [];
 |};
 
 public type Branch record {|
