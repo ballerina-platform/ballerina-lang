@@ -838,8 +838,7 @@ public class Types {
         }
 
         for (int i = 0; i < source.paramTypes.size(); i++) {
-            if (target.paramTypes.get(i).tag != TypeTags.ANY
-                    && !equality.test(source.paramTypes.get(i), target.paramTypes.get(i), unresolvedTypes)) {
+            if (!equality.test(source.paramTypes.get(i), target.paramTypes.get(i), unresolvedTypes)) {
                 return false;
             }
         }
@@ -848,8 +847,7 @@ public class Types {
             if (target.restType == null) {
                 return  false;
             }
-            if (target.restType.tag != TypeTags.ANY
-                    && !equality.test(source.restType, target.restType, unresolvedTypes)) {
+            if (!equality.test(source.restType, target.restType, unresolvedTypes)) {
                 return false;
             }
         }
