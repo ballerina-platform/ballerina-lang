@@ -527,7 +527,14 @@ public class BRunUtil {
                     return XMLFactory.parse2(xml.stringValue());
                 }
                 BValueArray elements = ((BXMLSequence) xml).value();
-                return new XMLSequence((ArrayValue) getJVMValue(elements.getType(), elements));
+                ArrayValue arrayValue = (ArrayValue) getJVMValue(elements.getType(), elements);
+
+                List<XMLValue<?>> list = new ArrayList<>();
+                for (Object arrayValueValue : arrayValue.getValues()) {
+                    list.add((XMLValue<?>) arrayValueValue);
+                }
+
+                return new XMLSequence(list);
             case TypeTags.HANDLE_TAG:
                 BHandleValue handleValue = (BHandleValue) value;
                 return new HandleValue(handleValue.getValue());
@@ -635,7 +642,13 @@ public class BRunUtil {
                     return XMLFactory.parse2(xml.stringValue());
                 }
                 BValueArray elements = ((BXMLSequence) xml).value();
-                return new XMLSequence((ArrayValue) getJVMValue(elements.getType(), elements));
+                ArrayValue jvmValue = (ArrayValue) getJVMValue(elements.getType(), elements);
+                List<XMLValue<?>> list = new ArrayList<>();
+                for (Object v : jvmValue.getValues()) {
+                    list.add((XMLValue<?>) v);
+                }
+
+                return new XMLSequence(list);
             case TypeTags.HANDLE_TAG:
                 BHandleValue bHandleValue = (BHandleValue) value;
                 return new HandleValue(bHandleValue.getValue());

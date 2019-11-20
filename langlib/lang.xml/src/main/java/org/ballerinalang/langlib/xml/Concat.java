@@ -18,16 +18,19 @@
 package org.ballerinalang.langlib.xml;
 
 import org.ballerinalang.jvm.XMLFactory;
+import org.ballerinalang.jvm.XMLNodeType;
 import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.types.BArrayType;
-import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.XMLContentHolderItem;
 import org.ballerinalang.jvm.values.XMLSequence;
 import org.ballerinalang.jvm.values.XMLValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Concatenate xml items into a new sequence. Empty xml sequence if empty.
@@ -44,13 +47,25 @@ import org.ballerinalang.natives.annotations.ReturnType;
 public class Concat {
 
     public static XMLValue<?> concat(Strand strand, ArrayValue arrayValue) {
-        ArrayValue backingArray = new ArrayValue(new BArrayType(BTypes.typeXML));
+        List<XMLValue<?>> backingArray = new ArrayList<>();
+        XMLValue<?> lastItem = null;
         for (int i = 0; i < arrayValue.size(); i++) {
             Object refValue = arrayValue.getRefValue(i);
             if (refValue instanceof String) {
-                backingArray.add(i, XMLFactory.createXMLText((String) refValue));
+                if (lastItem != null && lastItem.getNodeType() == XMLNodeType.TEXT) {
+                    // If last added item is a string, then concat prev values with this values and replace prev value.
+                    String concat = ((XMLContentHolderItem) lastItem).getData() + refValue;
+                    XMLValue<?> xmlText = XMLFactory.createXMLText(concat);
+                    backingArray.add(backingArray.size() - 1, xmlText);
+                    lastItem = xmlText;
+                    continue;
+                }
+                XMLValue<?> xmlText = XMLFactory.createXMLText((String) refValue);
+                backingArray.add(xmlText);
+                lastItem = xmlText;
             } else {
-                backingArray.add(i, refValue);
+                backingArray.add((XMLValue<?>) refValue);
+                lastItem = (XMLValue<?>) refValue;
             }
         }
         return new XMLSequence(backingArray);

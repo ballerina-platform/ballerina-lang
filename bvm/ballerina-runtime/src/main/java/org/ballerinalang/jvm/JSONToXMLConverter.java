@@ -79,7 +79,8 @@ public class JSONToXMLConverter {
             for (int i = 0; i < count; i++) {
                 elementsSeq.add(i, omElementArrayList.get(i));
             }
-            xml = new XMLSequence(elementsSeq);
+            // todo: fix this
+            xml = new XMLSequence(/*elementsSeq*/);
         }
         return xml;
     }

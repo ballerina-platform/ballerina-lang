@@ -66,7 +66,6 @@ public class Filter {
             }
         }
 
-        ArrayValue elemArray = new ArrayValue(elements.toArray(), new BArrayType(BTypes.typeXML));
-        return new XMLSequence(elemArray);
+        return new XMLSequence(elements);
     }
 }

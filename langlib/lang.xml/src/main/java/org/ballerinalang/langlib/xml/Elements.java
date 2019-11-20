@@ -19,16 +19,16 @@
 package org.ballerinalang.langlib.xml;
 
 import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.types.BArrayType;
-import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
-import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.IteratorValue;
 import org.ballerinalang.jvm.values.XMLSequence;
 import org.ballerinalang.jvm.values.XMLValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Get all the elements-type items of a xml.
@@ -59,12 +59,11 @@ public class Elements {
     }
 
     private static XMLValue<?> generateCodePointSequence(XMLValue<?> value) {
-        ArrayValue array = new ArrayValue(new BArrayType(BTypes.typeXML));
+        List<XMLValue<?>> list = new ArrayList<>();
         IteratorValue bIterator = value.getIterator();
-        long i = 0;
         while (bIterator.hasNext()) {
-            array.add(i++, bIterator.next());
+            list.add((XMLValue<?>) bIterator.next());
         }
-        return new XMLSequence(array);
+        return new XMLSequence(list);
     }
 }

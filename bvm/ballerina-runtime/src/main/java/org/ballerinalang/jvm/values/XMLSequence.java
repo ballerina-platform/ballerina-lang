@@ -16,8 +16,6 @@
 
 package org.ballerinalang.jvm.values;
 
-import org.apache.axiom.om.OMElement;
-import org.apache.axiom.om.OMNode;
 import org.apache.axiom.om.OMText;
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.StaxXMLSink;
@@ -35,12 +33,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-
-import javax.xml.namespace.QName;
 
 import static org.ballerinalang.jvm.util.BLangConstants.STRING_EMPTY_VALUE;
 import static org.ballerinalang.jvm.util.BLangConstants.STRING_NULL_VALUE;
@@ -70,20 +64,6 @@ public final class XMLSequence extends XMLValue<ArrayValue> {
     public XMLSequence(List<XMLValue<?>> children) {
         this();
         this.children = children;
-    }
-
-    /**q
-     * Initialize a {@link XMLSequence} from a {@link org.apache.axiom.om.OMNode} object.
-     *
-     * @param sequence xml object
-     */
-    public XMLSequence(ArrayValue sequence) {
-        assert false;
-        Object[] values = sequence.getValues();
-        this.children = new ArrayList<>();
-        for (Object value : values) {
-            this.children.add((XMLValue<?>) value);
-        }
     }
 
     public List<XMLValue<?>> getChildrenList() {
@@ -213,9 +193,12 @@ public final class XMLSequence extends XMLValue<ArrayValue> {
      */
     @Override
     public XMLValue<?> elements() {
-        ArrayValue elementsSeq = new ArrayValue(new BArrayType(BTypes.typeXML));
+        List elementsSeq = new ArrayList<XMLValue<?>>();
         int j = 0;
         for (XMLValue<?> x : children) {
+            if (x.getNodeType() != XMLNodeType.ELEMENT) {
+                continue;
+            }
             XMLItem item = (XMLItem) x;
             if (item.getNodeType() == XMLNodeType.ELEMENT) {
                 elementsSeq.add(j++, item);
@@ -229,10 +212,13 @@ public final class XMLSequence extends XMLValue<ArrayValue> {
      */
     @Override
     public XMLValue<?> elements(String qname) {
-        ArrayValue elementsSeq = new ArrayValue(new BArrayType(BTypes.typeXML));
+        List<XMLValue<?>> elementsSeq = new ArrayList<>();
         String qnameStr = getQname(qname).toString();
         int j = 0;
         for (XMLValue<?> x : children) {
+            if (x.getNodeType() != XMLNodeType.ELEMENT) {
+                continue;
+            }
             XMLItem item = (XMLItem) x;
             if (item.getNodeType() == XMLNodeType.ELEMENT && item.getElementName().equals(qnameStr)) {
                 elementsSeq.add(j++, item);
@@ -305,7 +291,7 @@ public final class XMLSequence extends XMLValue<ArrayValue> {
      */
     @Override
     public XMLValue<?> strip() {
-        ArrayValue elementsSeq = new ArrayValue(new BArrayType(BTypes.typeXML));
+        List<XMLValue<?>> elementsSeq = new ArrayList<>();
         int j = 0;
         for (XMLValue<?> x : children) {
             XMLItem element = (XMLItem) x;
@@ -345,7 +331,7 @@ public final class XMLSequence extends XMLValue<ArrayValue> {
         }
 
         int j = 0;
-        ArrayValue elementsSeq = new ArrayValue(new BArrayType(BTypes.typeXML));
+        List<XMLValue<?>> elementsSeq = new ArrayList<>();
         for (int i = (int) startIndex; i < endIndex; i++) {
             elementsSeq.add(j++, children.get(i));
         }
@@ -370,8 +356,7 @@ public final class XMLSequence extends XMLValue<ArrayValue> {
             }
         }
 
-        XMLValue<?>[] array = descendants.toArray(new XMLValue[descendants.size()]);
-        return new XMLSequence(new ArrayValue(array, new BArrayType(BTypes.typeXML)));
+        return new XMLSequence(descendants);
     }
 
     // Methods from Datasource impl

@@ -79,9 +79,10 @@ public class JSONToXMLConverter {
             ArrayValue elementsSeq = new ArrayValue(new BArrayType(BTypes.typeXML));
             int count = omElementArrayList.size();
             for (int i = 0; i < count; i++) {
-                elementsSeq.add(i, omElementArrayList.get(i));
+                // todo: uncomment
+//                elementsSeq.add(i, omElementArrayList.get(i));
             }
-            return new XMLSequence(elementsSeq);
+            return new XMLSequence(/*elementsSeq*/);
         }
     }
 

@@ -61,7 +61,6 @@ public class Map {
             elements.add((XMLValue<?>) func.apply(new Object[]{strand, next, true}));
         }
 
-        ArrayValue elemArray = new ArrayValue(elements.toArray(), new BArrayType(BTypes.typeXML));
-        return new XMLSequence(elemArray);
+        return new XMLSequence(elements);
     }
 }
