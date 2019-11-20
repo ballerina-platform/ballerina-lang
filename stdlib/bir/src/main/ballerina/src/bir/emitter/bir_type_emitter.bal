@@ -283,7 +283,16 @@ function emitBServiceType(BServiceType bType, int tabs) returns string {
 function emitBFiniteType(BFiniteType bType, int tabs) returns string {
     string str = "";
     str += "[";
-    // TODO fill finite type
+    int i = 0;
+    int length = bType.values.length();
+    foreach var v in bType.values {
+        str += v.toString();
+        i += 1;
+        if i < length {
+            str += ",";
+            str += emitSpaces(1);
+        }
+    }
     str += "]";
     return str;
 }
