@@ -244,7 +244,7 @@ public class StaticMethods {
             throws JavaInteropTestCheckedException {
         String finalBasePath = "basePath";
         AtomicLong runCount = new AtomicLong(0L);
-        ArrayValue arrayValue = new (new BArrayType(BallerinaValues.createRecordValue(new BPackage(
+        ArrayValue arrayValue = new ArrayValueImpl(new BArrayType(BallerinaValues.createRecordValue(new BPackage(
                 "", "."), "ResourceDefinition").getType()));
         MapValue<String, Object> apiDefinitions = BallerinaValues.createRecordValue(new BPackage("",
                 "."), "ApiDefinition");
