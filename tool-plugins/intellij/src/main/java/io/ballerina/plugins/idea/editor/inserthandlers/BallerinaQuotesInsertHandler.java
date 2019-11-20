@@ -47,7 +47,7 @@ public class BallerinaQuotesInsertHandler extends TypedHandlerDelegate {
 
         // Checks whether the cursor is already placed inside a ballerina string.
         int caretOff = editor.getCaretModel().getOffset();
-        if (!isInStringLiteral(file, caretOff)) {
+        if (isInStringLiteral(file, caretOff)) {
             // If the cursor is already placed inside a string, auto closing shouldn't be triggered.
             char prevChar = editor.getDocument().getText(new TextRange(caretOff - 1, caretOff)).charAt(0);
             char nextChar = editor.getDocument().getText(new TextRange(caretOff, caretOff + 1)).charAt(0);

@@ -18,9 +18,7 @@
 package org.ballerinalang.nats.streaming.producer;
 
 import io.nats.streaming.StreamingConnection;
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.nats.Constants;
 import org.ballerinalang.nats.Utils;
 
@@ -33,13 +31,9 @@ import java.util.concurrent.atomic.AtomicInteger;
  *
  * @since 1.0.0
  */
-@BallerinaFunction(orgName = "ballerina",
-                   packageName = "nats",
-                   functionName = "detachFromNatsConnection",
-                   isPublic = true)
 public class CloseConnection {
 
-    public static Object detachFromNatsConnection(Strand strand, Object streamingClient, Object natsConnection) {
+    public static Object detachFromNatsConnection(Object streamingClient, Object natsConnection) {
         ObjectValue streamingClientObject = (ObjectValue) streamingClient;
         StreamingConnection streamingConnection = (StreamingConnection) streamingClientObject
                 .getNativeData(Constants.NATS_STREAMING_CONNECTION);

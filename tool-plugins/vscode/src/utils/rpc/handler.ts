@@ -163,7 +163,7 @@ export class WebViewRPCHandler {
                     .then((response: Thenable<any>) => {
                         this.webViewPanel.webview.postMessage({
                             originId: msg.id,
-                            response,
+                            response: JSON.stringify(response)
                         });
                     });
             }
@@ -171,7 +171,7 @@ export class WebViewRPCHandler {
             // this is a response from remote to one of our requests
             const callback = this._callbacks.get(msg.originId);
             if (callback) {
-                callback(msg.response);
+                callback(JSON.parse(msg.response));
                 this._callbacks.delete(msg.originId);
             }
         }

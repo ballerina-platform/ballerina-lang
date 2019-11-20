@@ -42,7 +42,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.StringJoiner;
 import java.util.concurrent.TimeUnit;
@@ -161,26 +160,6 @@ public class BootstrapRunner {
         }
     }
 
-    private static void writeNonEntryPkgs(List<BPackageSymbol> imports, Path birCache, Path importsBirCache,
-                                          Path jarTargetDir, Path runtimeJar,
-                                          Map<PackageID, HashSet<Path>> moduleDependencyPathMap,
-                                          boolean dumpBir) throws IOException {
-        for (BPackageSymbol pkg : imports) {
-            PackageID id = pkg.pkgID;
-            if (!"ballerina".equals(id.orgName.value) && !"ballerinax".equals(id.orgName.value)) {
-                writeNonEntryPkgs(pkg.imports, birCache, importsBirCache, jarTargetDir, runtimeJar,
-                                  moduleDependencyPathMap, dumpBir);
-                Path pkgBir = getModuleBir(pkg, importsBirCache);
-                String jarOutputPath = jarTargetDir.resolve(id.name.value + ".jar").toString();
-                HashSet<Path> jarPaths = moduleDependencyPathMap.get(id);
-                jarPaths.add(runtimeJar);
-                loadTargetAndGenerateJarBinary(pkgBir.toString(), jarOutputPath, dumpBir,
-                                               jarPaths, birCache.toString(),
-                                               importsBirCache.toString());
-            }
-        }
-    }
-
     private static Path getModuleBir(BPackageSymbol pkg, Path importsBirCache) throws IOException {
         PackageID id = pkg.pkgID;
         byte[] bytes = PackageFileWriter.writePackage(pkg.birPackageFile);
@@ -236,42 +215,6 @@ public class BootstrapRunner {
             urls = new URL[1];
         }
         urls[index] = jarTarget.toFile().toURI().toURL();
-        return new URLClassLoader(urls);
-    }
-
-    public static URLClassLoader createClassLoaders(BLangPackage bLangPackage, Path systemBirCache, Path buildRoot,
-                                                    Optional<Path> jarTargetRoot, boolean dumpBir, Path runtimeJar,
-                                                    Map<PackageID, HashSet<Path>> moduleJarsMap) throws IOException {
-
-        byte[] bytes = PackageFileWriter.writePackage(bLangPackage.symbol.birPackageFile);
-        String fileName = calcFileNameForJar(bLangPackage);
-        Files.createDirectories(buildRoot);
-        Path intermediates = Files.createTempDirectory(buildRoot, fileName + "-");
-        Path entryBir = intermediates.resolve(fileName + ".bir");
-        Path jarTarget = jarTargetRoot.orElse(intermediates).resolve(fileName + ".jar");
-        Files.write(entryBir, bytes);
-
-        Path importsBirCache = intermediates.resolve("imports").resolve("bir-cache");
-        Path importsTarget = importsBirCache.getParent().resolve("generated-bir-jar");
-        Files.createDirectories(importsTarget);
-        writeNonEntryPkgs(bLangPackage.symbol.imports, systemBirCache, importsBirCache, importsTarget, runtimeJar,
-                          moduleJarsMap, dumpBir);
-        HashSet<Path> moduleDependencySet = moduleJarsMap.get(bLangPackage.packageID);
-        moduleDependencySet.add(runtimeJar);
-        URL[] urls = new URL[moduleDependencySet.size() + 1];
-        int i = 0;
-        List<String> jarFilePaths = new ArrayList<>(moduleDependencySet.size());
-        for (Path path : moduleDependencySet) {
-            urls[i] = path.toUri().toURL();
-            jarFilePaths.add(path.toString());
-            i++;
-        }
-        urls[urls.length - 1] = jarTarget.toUri().toURL();
-        generateJarBinary(entryBir.toString(), jarTarget.toString(), dumpBir, false, jarFilePaths,
-                          systemBirCache.toString(), importsBirCache.toString());
-        if (!Files.exists(jarTarget)) {
-            throw new RuntimeException("Compiled binary jar is not found: " + jarFilePaths);
-        }
         return new URLClassLoader(urls);
     }
 
