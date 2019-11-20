@@ -626,6 +626,7 @@ public class BLangPackageBuilder {
         if (restParamAvail) {
             functionTypeNode.restParam = (BLangSimpleVariable) this.restParamStack.pop();
         }
+        functionTypeNode.flagSet.add(Flag.PUBLIC);
 
         functionTypeNode.addWS(ws);
         addType(functionTypeNode);

@@ -1895,7 +1895,7 @@ public class SymbolEnter extends BLangNodeVisitor {
     private void addFunctionType(BLangSimpleVariable variable, SymbolEnv env) {
         BLangFunction function = ((BLangLambdaFunction) variable.expr).function;
         variable.type = symResolver.createInvokableType(function.getParameters(),
-                function.restParam, function.returnTypeNode, env);
+                function.restParam, function.returnTypeNode, Flags.asMask(variable.flagSet), env);
     }
 
     /**

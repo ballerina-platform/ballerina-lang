@@ -3292,10 +3292,6 @@ public class TypeChecker extends BLangNodeVisitor {
 
     private void checkInvocationParamAndReturnType(BLangInvocation iExpr) {
         BType actualType = checkInvocationParam(iExpr);
-        //TODO: discuss moving this flag to somewhere before this
-        if (actualType.tag == TypeTags.INVOKABLE && actualType.tsymbol != null) {
-            actualType.tsymbol.flags |= Flags.PUBLIC;
-        }
         resultType = types.checkType(iExpr, actualType, this.expType);
     }
 

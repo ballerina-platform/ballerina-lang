@@ -1040,11 +1040,11 @@ public class SymbolResolver extends BLangNodeVisitor {
     @Override
     public void visit(BLangFunctionTypeNode functionTypeNode) {
         resultType = createInvokableType(functionTypeNode.getParams(), functionTypeNode.restParam,
-                functionTypeNode.returnTypeNode, env);
+                functionTypeNode.returnTypeNode, Flags.asMask(functionTypeNode.flagSet), env);
     } 
 
     public BInvokableType createInvokableType(List<? extends BLangVariable> paramVars, BLangVariable restVariable,
-                               BLangType retTypeVar, SymbolEnv env) {
+                               BLangType retTypeVar, int flags, SymbolEnv env) {
         List<BType> paramTypes = new ArrayList<>();
         List<BVarSymbol> params = new ArrayList<>();
 
@@ -1090,9 +1090,10 @@ public class SymbolResolver extends BLangNodeVisitor {
         }
 
         BInvokableType bInvokableType = new BInvokableType(paramTypes, restType, retType, null);
+        bInvokableType.flags = flags;
         BInvokableTypeSymbol tsymbol = Symbols.createInvokableTypeSymbol(SymTag.FUNCTION_TYPE,
-                Flags.asMask(EnumSet.noneOf(Flag.class)),
-                Names.EMPTY, env.enclPkg.symbol.pkgID,
+                flags,
+                env.enclPkg.symbol.pkgID,
                 bInvokableType, env.scope.owner);
 
         tsymbol.params = params;
