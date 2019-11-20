@@ -17,12 +17,17 @@
  */
 package org.ballerinalang.net.grpc.callback;
 
+import io.netty.handler.codec.http.HttpResponseStatus;
+import org.ballerinalang.jvm.observability.ObserverContext;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.net.grpc.Message;
+import org.ballerinalang.net.grpc.Status;
 import org.ballerinalang.net.grpc.StreamObserver;
 import org.ballerinalang.net.grpc.listener.ServerCallHandler;
 
+import static org.ballerinalang.jvm.observability.ObservabilityConstants.TAG_KEY_HTTP_STATUS_CODE;
 import static org.ballerinalang.net.grpc.GrpcConstants.EMPTY_DATATYPE_NAME;
+import static org.ballerinalang.net.grpc.MessageUtils.getMappingHttpStatusCode;
 
 /**
  * Call back class registered for streaming gRPC service in B7a executor.
@@ -33,14 +38,17 @@ public class UnaryCallableUnitCallBack extends AbstractCallableUnitCallBack {
 
     private StreamObserver requestSender;
     private boolean emptyResponse;
-    
-    public UnaryCallableUnitCallBack(StreamObserver requestSender, boolean isEmptyResponse) {
+    private ObserverContext observerContext;
+
+    public UnaryCallableUnitCallBack(StreamObserver requestSender, boolean isEmptyResponse, ObserverContext context) {
         this.requestSender = requestSender;
         this.emptyResponse = isEmptyResponse;
+        this.observerContext = context;
     }
     
     @Override
     public void notifySuccess() {
+        super.notifySuccess();
         // check whether connection is closed.
         if (requestSender instanceof ServerCallHandler.ServerCallStreamObserver) {
             ServerCallHandler.ServerCallStreamObserver serverCallStreamObserver = (ServerCallHandler
@@ -57,14 +65,20 @@ public class UnaryCallableUnitCallBack extends AbstractCallableUnitCallBack {
         if (emptyResponse) {
             requestSender.onNext(new Message(EMPTY_DATATYPE_NAME, null));
         }
+        if (observerContext != null) {
+            observerContext.addTag(TAG_KEY_HTTP_STATUS_CODE, HttpResponseStatus.OK.codeAsText().toString());
+        }
         // Notify complete if service impl doesn't call complete;
         requestSender.onCompleted();
-        super.notifySuccess();
     }
     
     @Override
     public void notifyFailure(ErrorValue error) {
         handleFailure(requestSender, error);
+        if (observerContext != null) {
+            observerContext.addTag(TAG_KEY_HTTP_STATUS_CODE,
+                    String.valueOf(getMappingHttpStatusCode(Status.Code.INTERNAL.value())));
+        }
         super.notifyFailure(error);
     }
 }

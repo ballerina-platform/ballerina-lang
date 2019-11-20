@@ -312,6 +312,50 @@ public class MessageUtils {
     }
 
     /**
+     * Return Mapping Http Status code to gRPC status code.
+     * @see <a href="https://github.com/grpc/grpc/blob/master/doc/statuscodes.md">gRPC status code</a>
+     *
+     * @param code gRPC Status code
+     * @return Http status code
+     */
+    public static int getMappingHttpStatusCode(int code) {
+        switch(code) {
+            case 0:
+                return HttpResponseStatus.OK.code();
+            case 1:
+                // The operation was cancelled
+                return 499;
+            case 3:
+            case 9:
+            case 11:
+                return HttpResponseStatus.BAD_REQUEST.code();
+            case 4:
+                return HttpResponseStatus.GATEWAY_TIMEOUT.code();
+            case 5:
+                return HttpResponseStatus.NOT_FOUND.code();
+            case 6:
+            case 10:
+                return HttpResponseStatus.CONFLICT.code();
+            case 7:
+                return HttpResponseStatus.FORBIDDEN.code();
+            case 8:
+                return HttpResponseStatus.TOO_MANY_REQUESTS.code();
+            case 12:
+                return HttpResponseStatus.NOT_IMPLEMENTED.code();
+            case 14:
+                return HttpResponseStatus.SERVICE_UNAVAILABLE.code();
+            case 15:
+                return HttpResponseStatus.INTERNAL_SERVER_ERROR.code();
+            case 16:
+                return HttpResponseStatus.UNAUTHORIZED.code();
+            case 2:
+            case 13:
+            default:
+                return HttpResponseStatus.INTERNAL_SERVER_ERROR.code();
+        }
+    }
+
+    /**
      * Reads an entire {@link HttpContent} to a new array. After calling this method, the buffer
      * will contain no readable bytes.
      */
