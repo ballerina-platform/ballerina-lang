@@ -25,6 +25,11 @@ public class SemanticHighlightingInformation {
     private int line;
     private String token;
 
+    public SemanticHighlightingInformation(int line, String token) {
+        this.line = line;
+        this.token = token;
+    }
+
     public String getToken() {
         return token;
     }

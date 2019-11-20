@@ -17,35 +17,18 @@
  */
 package org.ballerinalang.langserver.extensions.ballerina.syntaxhighlighter;
 
+import org.ballerinalang.langserver.compiler.LSContext;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 
 import java.util.List;
 
 /**
- * Represents a response for Ballerina Syntax Highlighter.
+ * Syntax Highlight Keys for semantic syntax highlighting.
  *
  * @since 1.0.2
  */
 
-public class BallerinaHighlightingResponse {
-    private String params;
-
-    private List<BLangIdentifier> list;
-
-    public List<BLangIdentifier> getList() {
-        return list;
-    }
-
-    public void setList(List<BLangIdentifier> list) {
-        this.list = list;
-    }
-
-    public String getParams() {
-        return params;
-    }
-
-    public void setParams(String params) {
-        this.params = params;
-    }
-
+public class SemanticHighlightKeys {
+    public static final LSContext.Key<List<SemanticHighlightProvider.HighlightInfo>> SEMANTIC_HIGHLIGHTING_KEY
+            = new LSContext.Key<>();
 }

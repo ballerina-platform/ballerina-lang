@@ -43,6 +43,8 @@ import org.ballerinalang.langserver.completions.SymbolInfo;
 import org.ballerinalang.langserver.completions.util.CompletionUtil;
 import org.ballerinalang.langserver.diagnostic.DiagnosticsHelper;
 import org.ballerinalang.langserver.exception.UserErrorException;
+import org.ballerinalang.langserver.extensions.ballerina.syntaxhighlighter.SemanticHighlightKeys;
+import org.ballerinalang.langserver.extensions.ballerina.syntaxhighlighter.SemanticHighlightProvider;
 import org.ballerinalang.langserver.implementation.GotoImplementationCustomErrorStrategy;
 import org.ballerinalang.langserver.implementation.GotoImplementationUtil;
 import org.ballerinalang.langserver.index.LSIndexImpl;
@@ -91,6 +93,7 @@ import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.eclipse.lsp4j.services.TextDocumentService;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
+import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 
 import java.net.MalformedURLException;
@@ -628,6 +631,8 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 context.put(DocumentServiceKeys.FILE_URI_KEY, docUri);
                 LSDocument lsDocument = new LSDocument(context.get(DocumentServiceKeys.FILE_URI_KEY));
                 diagnosticsHelper.compileAndSendDiagnostics(client, context, lsDocument, documentManager);
+                SemanticHighlightProvider semanticHighlightProvider = new SemanticHighlightProvider();
+                semanticHighlightProvider.getHighlights(client, context, documentManager);
             } catch (CompilationFailedException e) {
                 String msg = "Computing 'diagnostics' failed!";
                 TextDocumentIdentifier identifier = new TextDocumentIdentifier(params.getTextDocument().getUri());
@@ -669,6 +674,8 @@ class BallerinaTextDocumentService implements TextDocumentService {
                     ctx.put(DocumentServiceKeys.FILE_URI_KEY, fileURI);
                     LSDocument lsDocument = new LSDocument(fileURI);
                     diagnosticsHelper.compileAndSendDiagnostics(client, ctx, lsDocument, documentManager);
+                    SemanticHighlightProvider semanticHighlightProvider = new SemanticHighlightProvider();
+                    semanticHighlightProvider.getHighlights(client, ctx, documentManager);
                     // Clear current cache upon successfull compilation
                     // If the compiler fails, still we'll have the cached entry(marked as outdated)
                     LSCompilerCache.clear(ctx, lsDocument.getProjectRoot());

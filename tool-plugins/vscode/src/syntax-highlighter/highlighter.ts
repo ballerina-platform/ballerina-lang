@@ -1,6 +1,6 @@
 import { Base64 } from 'js-base64';
 import { HighlightToken, SemanticHighlightingInformation } from './model';
-import { Range, window, TextEditorDecorationType } from 'vscode';
+import { Range, window, TextEditorDecorationType, Color } from 'vscode';
 
 function decodeTokens(element: SemanticHighlightingInformation): HighlightToken[] {
     const tokenArray: HighlightToken[] = [];
@@ -34,16 +34,16 @@ function highlightLines(highlightingInfo: SemanticHighlightingInformation[]): { 
 export function setEditorDecorations(highlightingInfo: SemanticHighlightingInformation[]) {
     const scopeObj = highlightLines(highlightingInfo);
     const decorationType1 = window.createTextEditorDecorationType({
-        color: 'red'
+        color: 'yellow'
     });
     const decorationType2 = window.createTextEditorDecorationType({
-        color: 'blue'
+        color: 'red'
     });
     const decorationTypes: TextEditorDecorationType[] = [decorationType1, decorationType2];
 
     let activeEditor = window.activeTextEditor;
     if (!activeEditor) { return; }
-    for (let index = 0; index < decorationTypes.length; index++) {
+    for (let index = 0; index < Object.keys(scopeObj).length; index++) {
         activeEditor.setDecorations(decorationTypes[index], scopeObj[index]);
     }
 }

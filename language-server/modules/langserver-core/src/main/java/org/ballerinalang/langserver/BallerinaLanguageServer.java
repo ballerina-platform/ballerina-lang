@@ -39,6 +39,7 @@ import org.ballerinalang.langserver.extensions.ballerina.symbol.BallerinaSymbolS
 import org.ballerinalang.langserver.extensions.ballerina.symbol.BallerinaSymbolServiceImpl;
 import org.ballerinalang.langserver.extensions.ballerina.syntaxhighlighter.BallerinaSyntaxHighlightService;
 import org.ballerinalang.langserver.extensions.ballerina.syntaxhighlighter.BallerinaSyntaxHighlightServiceImpl;
+import org.ballerinalang.langserver.extensions.ballerina.syntaxhighlighter.SemanticHighlightKeys;
 import org.ballerinalang.langserver.extensions.ballerina.traces.BallerinaTraceService;
 import org.ballerinalang.langserver.extensions.ballerina.traces.BallerinaTraceServiceImpl;
 import org.ballerinalang.langserver.extensions.ballerina.traces.Listener;
@@ -103,7 +104,7 @@ public class BallerinaLanguageServer implements ExtendedLanguageServer, Extended
         this.ballerinaTraceListener = new Listener(this.ballerinaTraceService);
         this.ballerinaSymbolService = new BallerinaSymbolServiceImpl(lsGlobalContext);
         this.ballerinaFragmentService = new BallerinaFragmentServiceImpl(lsGlobalContext);
-        this.ballerinaSyntaxHighlightService = new BallerinaSyntaxHighlightServiceImpl();
+        this.ballerinaSyntaxHighlightService = new BallerinaSyntaxHighlightServiceImpl(lsGlobalContext);
 
         LSAnnotationCache.initiate();
         LSCodeLensesProviderFactory.getInstance().initiate();
@@ -167,6 +168,8 @@ public class BallerinaLanguageServer implements ExtendedLanguageServer, Extended
             scopes[1][0] = "keyword.ballerina";
             scopes[1][1] = "keyword.other.ballerina";
             experimentalServerCapabilities.put("semanticScopes", scopes);
+
+
         }
         res.getCapabilities().setExperimental(experimentalServerCapabilities);
 

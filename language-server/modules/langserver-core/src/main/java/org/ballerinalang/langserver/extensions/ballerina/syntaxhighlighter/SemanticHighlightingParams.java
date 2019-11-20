@@ -17,12 +17,17 @@
  */
 package org.ballerinalang.langserver.extensions.ballerina.syntaxhighlighter;
 import org.eclipse.lsp4j.VersionedTextDocumentIdentifier;
+
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * Represents the data model for Semantic Highlighting params.
  *
  * @since 1.0.2
  */
 public class SemanticHighlightingParams {
+
     private VersionedTextDocumentIdentifier textDocument;
     private SemanticHighlightingInformation[] lines;
 
