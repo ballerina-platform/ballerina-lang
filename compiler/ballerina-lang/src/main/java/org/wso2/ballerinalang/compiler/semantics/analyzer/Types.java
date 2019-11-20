@@ -1010,11 +1010,6 @@ public class Types {
                 }
                 varType = tableType.constraint;
                 break;
-            case TypeTags.SEMANTIC_ERROR:
-                foreachNode.varType = symTable.semanticError;
-                foreachNode.resultType = symTable.semanticError;
-                foreachNode.nillableResultType = symTable.semanticError;
-                return;
             case TypeTags.OBJECT:
                 // check for iterable objects
                 BUnionType nextMethodReturnType = getVarTypeFromIterableObject((BObjectType) collectionType);
@@ -1024,7 +1019,14 @@ public class Types {
                     foreachNode.varType = ((BRecordType) foreachNode.resultType).fields.get(0).type;
                     return;
                 }
+                dlog.error(foreachNode.collection.pos, DiagnosticCode.ITERABLE_NOT_SUPPORTED_OBJECT,
+                           collectionType);
                 // fallthrough
+            case TypeTags.SEMANTIC_ERROR:
+                foreachNode.varType = symTable.semanticError;
+                foreachNode.resultType = symTable.semanticError;
+                foreachNode.nillableResultType = symTable.semanticError;
+                return;
             default:
                 foreachNode.varType = symTable.semanticError;
                 foreachNode.resultType = symTable.semanticError;
@@ -1049,7 +1051,6 @@ public class Types {
                 .filter(func -> func.funcName.value.equals("__iterator")).findFirst();
 
         if (!attachFunc.isPresent()) {
-            //TODO: print error
             return null;
         }
 
@@ -1059,7 +1060,6 @@ public class Types {
 
     private BUnionType getVarTypeFromIteratorFunc(BAttachedFunction candidateIteratorFunc) {
         if(!candidateIteratorFunc.type.paramTypes.isEmpty()) {
-            //TODO: print error
             return null;
         }
 
@@ -1072,7 +1072,6 @@ public class Types {
         BObjectTypeSymbol objectTypeSymbol;
         Optional<BAttachedFunction> attachFunc;
         if (returnType.tag != TypeTags.OBJECT) {
-            //TODO: print error
             return null;
         }
 
@@ -1081,7 +1080,6 @@ public class Types {
                 .filter(func -> func.funcName.value.equals("next")).findFirst();
 
         if (!attachFunc.isPresent()) {
-            //TODO: print error
             return null;
         }
 
@@ -1094,7 +1092,6 @@ public class Types {
     private BUnionType getVarTypeFromNextFunc(BAttachedFunction nextFunc) {
         BType returnType;
         if (!nextFunc.type.paramTypes.isEmpty()) {
-            //TODO: print error
             return null;
         }
 
@@ -1110,24 +1107,20 @@ public class Types {
 
     private boolean checkNextFuncReturnType(BType returnType) {
         if (returnType.tag != TypeTags.UNION) {
-            //TODO: print error
             return false;
         }
 
         List<BType> types = new ArrayList<>(((BUnionType) returnType).getMemberTypes());
 
         if(!types.removeIf(type -> type.tag == TypeTags.NIL)) {
-            //TODO: print error
             return false;
         }
 
         if (types.size() != 1) {
-            //TODO: print error
             return false;
         }
 
         if (types.get(0).tag != TypeTags.RECORD) {
-            //TODO: print error
             return false;
         }
 
@@ -1139,12 +1132,10 @@ public class Types {
 
     private boolean checkRecordTypeInNextFuncReturnType(BRecordType recordType) {
         if (!recordType.sealed) {
-            //TODO: print error
             return false;
         }
 
         if (recordType.fields.size() != 1) {
-            //TODO: print error
             return false;
         }
 
