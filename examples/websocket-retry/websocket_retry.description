@@ -1,0 +1,1 @@
+//If the WebSocket client lost a connection by server goes down or getting any IOExceptions, Ballerina automatically reconnect to the same backend until the connection make success or maximum reconnect attempts.
