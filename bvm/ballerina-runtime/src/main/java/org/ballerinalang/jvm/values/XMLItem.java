@@ -220,7 +220,7 @@ public final class XMLItem extends XMLValue<OMNode> {
         // 'localName' will contain the namespace name where as 'value' will contain the namespace URI
         // todo: Fix this so that namespaceURI points to XMLConstants.XMLNS_ATTRIBUTE_NS_URI
         //  and remove this special case
-        if (namespaceUri == null && prefix.equals(XMLConstants.XMLNS_ATTRIBUTE)) {
+        if (namespaceUri == null && (prefix == null || prefix.equals(XMLConstants.XMLNS_ATTRIBUTE))) {
             String nsNameDecl = "{" + XMLConstants.XMLNS_ATTRIBUTE_NS_URI + "}" + localName;
             attributes.put(nsNameDecl, value);
             return;

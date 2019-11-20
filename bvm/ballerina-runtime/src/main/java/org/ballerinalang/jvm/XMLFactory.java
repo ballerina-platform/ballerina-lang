@@ -272,7 +272,11 @@ public class XMLFactory {
         if (nsUri == null) {
             return new XMLItem(new QName(defaultNsUri, startTagName.getLocalName(), prefix));
         } else {
-            return new XMLItem(new QName(nsUri, startTagName.getLocalName(), prefix));
+            XMLItem xmlItem = new XMLItem(new QName(nsUri, startTagName.getLocalName(), prefix));
+            if (defaultNsUri != null && !defaultNsUri.isEmpty()) {
+                xmlItem.setAttribute(XMLConstants.XMLNS_ATTRIBUTE, null, null, defaultNsUri);
+            }
+            return xmlItem;
         }
     }
 

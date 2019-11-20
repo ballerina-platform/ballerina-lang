@@ -420,8 +420,12 @@ public final class XMLSequence extends XMLValue<ArrayValue> {
     public String stringValue(Strand strand) {
         try {
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-            (new StaxXMLSink(outputStream)).write(this);
-            return new String(outputStream.toByteArray(), StandardCharsets.UTF_8);
+            StaxXMLSink staxXMLSink = new StaxXMLSink(outputStream);
+            staxXMLSink.write(this);
+            staxXMLSink.flush();
+            String str = new String(outputStream.toByteArray(), StandardCharsets.UTF_8);
+            staxXMLSink.close();
+            return str;
         } catch (Throwable t) {
             handleXmlException("failed to get xml as string: ", t);
         }
