@@ -22,7 +22,6 @@ import org.apache.axiom.om.OMNamespace;
 import org.apache.axiom.om.OMNode;
 import org.apache.axiom.om.OMText;
 import org.apache.axiom.om.impl.common.OMNamespaceImpl;
-import org.apache.axiom.om.impl.dom.TextImpl;
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.StaxXMLSink;
 import org.ballerinalang.jvm.XMLFactory;
@@ -46,6 +45,7 @@ import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamException;
 
 import static org.ballerinalang.jvm.XMLNodeType.ELEMENT;
+import static org.ballerinalang.jvm.XMLNodeType.TEXT;
 import static org.ballerinalang.jvm.util.BLangConstants.STRING_NULL_VALUE;
 import static org.ballerinalang.jvm.util.BLangConstants.XML_LANG_LIB;
 
@@ -61,7 +61,7 @@ import static org.ballerinalang.jvm.util.BLangConstants.XML_LANG_LIB;
  * </ul>
  * <p>
  * <i>Note: This is an internal API and may change in future versions.</i>
- * </p> 
+ * </p>
  * @since 0.995.0
  */
 @SuppressWarnings("unchecked")
@@ -375,7 +375,7 @@ public final class XMLItem extends XMLValue<OMNode> {
     @Override
     public void addChildren(XMLValue<?> seq) {
         synchronized (this) {
-            if (freezeStatus.getState() != State.UNFROZEN) {
+            if (freezeStatus.getState() != State.UNFROZEN || children.freezeStatus.getState() != State.UNFROZEN) {
                 FreezeUtils.handleInvalidUpdate(freezeStatus.getState(), XML_LANG_LIB);
             }
         }
@@ -384,11 +384,35 @@ public final class XMLItem extends XMLValue<OMNode> {
             return;
         }
 
+        ArrayList leftList = new ArrayList(children.children);
+        this.children = new XMLSequence(leftList);
+
         if (seq.getNodeType() == XMLNodeType.SEQUENCE) {
-            children.children.addAll(((XMLSequence) seq).children);
+            List<XMLValue<?>> appendingList = ((XMLSequence) seq).getChildrenList();
+            if (isLastChildIsTextNode(leftList)
+                    && appendingList.size() > 0 && appendingList.get(0).getNodeType() == TEXT) {
+                mergeAdjoiningTextNodesIntoList(leftList, appendingList);
+            } else {
+                leftList.addAll(appendingList);
+            }
         } else {
-            children.children.add(seq);
+            leftList.add(seq);
         }
+    }
+
+    private void mergeAdjoiningTextNodesIntoList(ArrayList leftList, List<XMLValue<?>> appendingList) {
+        XMLContentHolderItem lastChild = (XMLContentHolderItem) leftList.get(leftList.size() - 1);
+        String firstChildContent = ((XMLContentHolderItem) appendingList.get(0)).getData();
+        String mergedTextContent = lastChild.getData() + firstChildContent;
+        XMLContentHolderItem xmlContentHolderItem = new XMLContentHolderItem(mergedTextContent, TEXT);
+        leftList.set(leftList.size() - 1, xmlContentHolderItem);
+        for (int i = 1; i < appendingList.size(); i++) {
+            leftList.add(appendingList.get(i));
+        }
+    }
+
+    private boolean isLastChildIsTextNode(List<XMLValue<?>> childList) {
+        return childList.size() > 0 && childList.get(childList.size() - 1).getNodeType() == TEXT;
     }
 
     /**
@@ -568,7 +592,7 @@ public final class XMLItem extends XMLValue<OMNode> {
 
         List<XMLValue<?>> children = this.children.children;
         List<Integer> toRemove = new ArrayList<>();
-        for(int i = 0; i < children.size(); i++) {
+        for (int i = 0; i < children.size(); i++) {
             XMLValue<?> child = children.get(i);
             if (child.getNodeType() == ELEMENT && ((XMLItem) child).getElementName().equals(qname)) {
                 toRemove.add(i);

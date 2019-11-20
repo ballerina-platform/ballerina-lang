@@ -485,16 +485,7 @@ public final class XMLSequence extends XMLValue<ArrayValue> {
      */
     @Override
     public int size() {
-        int size = 0;
-        for (Object refValue : this.children) {
-            if (refValue instanceof XMLValue) {
-                XMLValue xmlItem = (XMLValue) refValue;
-                size += xmlItem.size();
-            } else {
-                size += 1;
-            }
-        }
-        return size;
+        return this.children.size();
     }
 
     /**
