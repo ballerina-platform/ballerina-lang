@@ -38,7 +38,7 @@ import java.util.regex.PatternSyntaxException;
  *
  * @since 1.0.5
  */
-public class FilepathUtils {
+public class FilePathUtils {
     private static final String GLOB_SYNTAX_FLAVOR = "glob:";
 
     public static Object externAbsolute(String inputPath) {
