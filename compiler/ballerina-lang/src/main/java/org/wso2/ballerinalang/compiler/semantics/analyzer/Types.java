@@ -1059,7 +1059,7 @@ public class Types {
     }
 
     private BUnionType getVarTypeFromIteratorFunc(BAttachedFunction candidateIteratorFunc) {
-        if(!candidateIteratorFunc.type.paramTypes.isEmpty()) {
+        if (!candidateIteratorFunc.type.paramTypes.isEmpty()) {
             return null;
         }
 
@@ -1112,7 +1112,7 @@ public class Types {
 
         List<BType> types = new ArrayList<>(((BUnionType) returnType).getMemberTypes());
 
-        if(!types.removeIf(type -> type.tag == TypeTags.NIL)) {
+        if (!types.removeIf(type -> type.tag == TypeTags.NIL)) {
             return false;
         }
 
