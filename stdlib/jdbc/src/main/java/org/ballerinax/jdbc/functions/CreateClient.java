@@ -44,7 +44,7 @@ import java.util.UUID;
 )
 public class CreateClient {
 
-    public static ObjectValue createClient(Strand strand, MapValue<String, Object> config, MapValue<String,
+    public static ObjectValue createClient(MapValue<String, Object> config, MapValue<String,
                 Object> globalPoolOptions) {
         String url = config.getStringValue(Constants.EndpointConfig.URL);
 

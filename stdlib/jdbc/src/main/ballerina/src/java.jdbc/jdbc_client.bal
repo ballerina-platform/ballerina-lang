@@ -14,6 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerinax/java;
+
 # Represents the base JDBC Client
 type JdbcClient client object {
 
@@ -26,7 +28,7 @@ type JdbcClient client object {
     #            `Error` will be returned if there is any error
     remote function call(@untainted string sqlQuery, typedesc<record{}>[]? recordType, Param... parameters)
         returns @tainted table<record {}>[]|()|Error {
-        return nativeCall(self, sqlQuery, recordType, ...parameters);
+        return nativeCall(self, java:fromString(sqlQuery), recordType, ...parameters);
     }
 
     # The select remote function implementation for JDBC Client to select data from tables.
@@ -37,7 +39,7 @@ type JdbcClient client object {
     # + return - A `table` returned by the SQL query statement else `Error` will be returned if there is an error
     remote function select(@untainted string sqlQuery, typedesc<record{}>? recordType,
                                   Param... parameters) returns @tainted table<record {}>|Error {
-        return nativeSelect(self, sqlQuery, recordType, ...parameters);
+        return nativeSelect(self, java:fromString(sqlQuery), recordType, ...parameters);
     }
 
     # The update remote function implementation for JDBC Client to insert/delete/modify data and schema of the database.
@@ -47,7 +49,7 @@ type JdbcClient client object {
     # + return - A `UpdateResult` with the updated row count and key column values,
     #            else `Error` will be returned if there is any error
     remote function update(@untainted string sqlQuery, Param... parameters) returns UpdateResult|Error {
-        return nativeUpdate(self, sqlQuery, ...parameters);
+        return nativeUpdate(self, java:fromString(sqlQuery), ...parameters);
     }
 
     # The batchUpdate remote function implementation for JDBC Client to execute batch operations.
@@ -67,27 +69,40 @@ type JdbcClient client object {
     remote function batchUpdate(@untainted string sqlQuery, boolean rollbackAllInFailure,
                                        Param?[]... parameters)
                                        returns BatchUpdateResult {
-        return nativeBatchUpdate(self, sqlQuery, rollbackAllInFailure, ...parameters);
+        return nativeBatchUpdate(self, java:fromString(sqlQuery), rollbackAllInFailure, ...parameters);
     }
 };
 
-function nativeSelect(JdbcClient sqlClient, @untainted string sqlQuery, typedesc<record{}>? recordType,
-    Param... parameters) returns @tainted table<record {}>|Error = external;
+function nativeSelect(JdbcClient sqlClient, @untainted handle sqlQuery, typedesc<record{}>? recordType,
+    Param... parameters) returns @tainted table<record {}>|Error = @java:Method {
+        class: "org.ballerinax.jdbc.actions.Select"
+    } external;
 
-function nativeCall(JdbcClient sqlClient, @untainted string sqlQuery, typedesc<record{}>[]? recordType, Param... parameters)
-    returns @tainted table<record {}>[]|()|Error = external;
+function nativeCall(JdbcClient sqlClient, @untainted handle sqlQuery, typedesc<record{}>[]? recordType,
+    Param... parameters)
+    returns @tainted table<record {}>[]|()|Error = @java:Method {
+       class: "org.ballerinax.jdbc.actions.Call"
+    } external;
 
-function nativeUpdate(JdbcClient sqlClient, @untainted string sqlQuery, Param... parameters)
-    returns UpdateResult|Error = external;
+function nativeUpdate(JdbcClient sqlClient, @untainted handle sqlQuery, Param... parameters)
+    returns UpdateResult|Error = @java:Method {
+       class: "org.ballerinax.jdbc.actions.Update"
+    } external;
 
-function nativeBatchUpdate(JdbcClient sqlClient, @untainted string sqlQuery, boolean rollbackAllInFailure,
+function nativeBatchUpdate(JdbcClient sqlClient, @untainted handle sqlQuery, boolean rollbackAllInFailure,
     Param?[]... parameters)
-    returns BatchUpdateResult = external;
+    returns BatchUpdateResult = @java:Method {
+        class: "org.ballerinax.jdbc.actions.BatchUpdate"
+    } external;
 
-function createClient(ClientConfiguration config, PoolOptions globalPoolOptions) returns JdbcClient = external;
+function createClient(ClientConfiguration config, PoolOptions globalPoolOptions) returns JdbcClient = @java:Method {
+    class: "org.ballerinax.jdbc.functions.CreateClient"
+} external;
 
 # An internal function used by clients to shutdown the connection pool.
 #
 # + jdbcClient - The Client object which represents the connection pool
 # + return - Possible error during closing the client
-function close(JdbcClient jdbcClient) returns error? = external;
+function close(JdbcClient jdbcClient) returns error? = @java:Method {
+    class: "org.ballerinax.jdbc.functions.Close"
+} external;

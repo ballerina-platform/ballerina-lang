@@ -17,7 +17,7 @@
  */
 package org.ballerinax.jdbc.actions;
 
-import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -37,11 +37,11 @@ import org.ballerinax.jdbc.statement.SQLStatement;
 )
 public class Call {
 
-    public static Object nativeCall(Strand strand, ObjectValue client, String sqlQuery, Object recordType,
+    public static Object nativeCall(ObjectValue client, String sqlQuery, Object recordType,
             ArrayValue parameters) {
         SQLDatasource datasource = (SQLDatasource) client.getNativeData(Constants.JDBC_CLIENT);
         SQLStatement callStatement = new CallStatement(client, datasource, sqlQuery, (ArrayValue) recordType,
-                parameters, strand);
+                parameters, Scheduler.getStrand());
         return callStatement.execute();
     }
 
