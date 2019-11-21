@@ -23,9 +23,7 @@ import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.nativeimpl.llvm.FFIUtil;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.bytedeco.javacpp.BytePointer;
 import org.bytedeco.javacpp.LLVM;
-import org.bytedeco.javacpp.PointerPointer;
 
 import static org.ballerinalang.model.types.TypeKind.RECORD;
 

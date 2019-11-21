@@ -74,7 +74,7 @@ type FuncGenrator object {
         self.varAllocBB = self.genBbDecl("var_allloc");
         int paramIndex = 0;
         foreach var localVar in self.func.localVars {
-            var varName = localVarNameWithPostFix(localVar);
+            var varName = localVarNameWithPreFix(localVar);
             var varType = genBType(localVar["typeValue"]);
             llvm:LLVMValueRef localVarRef = llvm:llvmBuildAlloca(self.builder, varType, varName);
             self.cacheLocVarValue(localVar, localVarRef);
@@ -88,7 +88,20 @@ type FuncGenrator object {
                 }
             }
         }
+        //self.testStructElementPointer();
     }
+
+    //TODO : Remove this test function
+    //function testStructElementPointer() {
+    //    llvm:LLVMTypeRef taggedUnionType = getTaggedStructType("int") ;
+    //    llvm:LLVMValueRef testTaggedInt = self.getLocalVarRefById("1");//llvm:llvmBuildAlloca(self.builder, taggedUnionType, "StructTestVar");
+    //    //map<llvm:LLVMValueRef>? localVarRefsTemp = self.localVarRefs;
+    //    //if (localVarRefsTemp is map<llvm:LLVMValueRef>) {
+    //    //    string localVarRefName = "StructTestVar";
+    //    //    localVarRefsTemp[localVarRefName] = testTaggedInt;
+    //    //}
+    //    llvm:LLVMValueRef taggedUnionFlag = llvm:llvmBuildStructGEP(self.builder, testTaggedInt, 0, "taggedUnionFlag");
+    //}
 
     function cacheLocVarValue(bir:VariableDcl? localVar, llvm:LLVMValueRef localVarRef) {
         map<llvm:LLVMValueRef>? localVarRefsTemp = self.localVarRefs;
@@ -142,8 +155,8 @@ type FuncGenrator object {
 
     function genLoadLocalToTempVar(bir:VarRef oprand) returns llvm:LLVMValueRef {
         bir:VarRef refOprand = oprand;
-        string tempName = localVarNameWithPostFix(refOprand.variableDcl) + "_temp";
-        var localVarRef = self.getLocalVarRefById(refOprand.variableDcl.name.value);
+        string tempName = localVarNameWithPreFix(refOprand.variableDcl) + "_temp";
+        var localVarRef = self.getLocalVarRef(refOprand.variableDcl);
         return llvm:llvmBuildLoad(self.builder, localVarRef, tempName);
     }
 
@@ -156,6 +169,11 @@ type FuncGenrator object {
             panic error("SimpleErrorType", message = "Local var by name '" + id + "' dosn't exist in " +
                 self.func.name.value);
         }
+    }
+
+    function getLocalVarRef(bir:VariableDcl? variable) returns llvm:LLVMValueRef {
+        string id = localVariableName(variable);
+        return self.getLocalVarRefById(id);
     }
 
     function getLocalVarTypeRefById(string id) returns llvm:LLVMTypeRef {

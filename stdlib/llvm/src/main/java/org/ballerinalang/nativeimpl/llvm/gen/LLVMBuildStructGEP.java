@@ -16,13 +16,9 @@
 
 package org.ballerinalang.nativeimpl.llvm.gen;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BPackage;
 import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.llvm.FFIUtil;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -57,7 +53,7 @@ public class LLVMBuildStructGEP {
             MapValue<String, Object> pointer, long idx, String name) {
         LLVM.LLVMBuilderRef bRef = (LLVM.LLVMBuilderRef) FFIUtil.getRecodeArgumentNative(b);
         LLVM.LLVMValueRef pointerRef = (LLVM.LLVMValueRef) FFIUtil.getRecodeArgumentNative(pointer);
-        int idxRef = (int)idx;
+        int idxRef = (int) idx;
         LLVMValueRef returnValue = LLVMBuildStructGEP(bRef, pointerRef, idxRef, name);
         MapValue<String, Object> returnWrappedRecord = FFIUtil.newRecord(new BPackage("ballerina",
                 "llvm"), "LLVMValueRef");

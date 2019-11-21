@@ -1,5 +1,6 @@
 import ballerina/llvm;
 import ballerina/bir;
+//import ballerina/io;
 
 type BbBodyGenrator object {
 
@@ -42,28 +43,89 @@ type BbBodyGenrator object {
         }
     }
 
+    //TODO : Remove this typeCast function as I have written a better version
+    //function genTypeCast(bir:TypeCast castIns) {
+    //    bir:VariableDcl lhsVariableDcl = castIns.lhsOp.variableDcl;
+    //    llvm:LLVMTypeRef lhsType = self.getLhsType(lhsVariableDcl);
+    //    boolean typesCompatible = checkIfTypesAreCompatible(castIns.castType, lhsType);
+    //    if (!typesCompatible) {
+    //        error typesNotCompatibleError = error("SimpleEroor", message = "Types Not Compatible for Type Cast");
+    //        panic typesNotCompatibleError;
+    //    }
+    //    llvm:LLVMValueRef lhsVarValueRef = self.parent.getLocalVarRefById("1");
+    //    string tagOfUnion = genStructGepName(localVariableName(lhsVariableDcl), TAGGED_UNION_FLAG_INDEX);
+    //    string lhsVariableName = localVariableName(lhsVariableDcl);
+    //    io:println(lhsVariableName);
+    //    //llvm:LLVMValueRef taggedStructFlag = llvm:llvmBuildStructGEP(self.builder, lhsVarValueRef, 1, "");
+    //    //self.parent.testStructElementPointer();
+    //}
+
     function genTypeCast(bir:TypeCast castIns) {
-        llvm:LLVMTypeRef lhsType = self.getLhsType(castIns.lhsOp.variableDcl.name.value);
-        boolean typesCompatible = checkIfTypesAreCompatible(castIns.castType, lhsType);
-        llvm:LLVMValueRef rhsVarOp = self.parent.genLoadLocalToTempVar(castIns.rhsOp);
-        string tagOfUnion = genStructGepName(localVariableName(castIns.rhsOp.variableDcl), TAGGED_UNION_FLAG_INDEX);
-        llvm:LLVMValueRef taggedStructFlag = llvm:llvmBuildStructGEP(self.builder, rhsVarOp, TAGGED_UNION_FLAG_INDEX, tagOfUnion);
+        if (self.isUnionToSingleCast(castIns)) {
+            return;
+        } else if (self.isSingleToUnionCast(castIns)) {
+            self.genSingleToUnionCast(castIns);
+        } else {
+            return;
+        }
     }
 
-    function getLhsType(string lhsVariableName) returns llvm:LLVMTypeRef {
-        return self.parent.getLocalVarTypeRefById(lhsVariableName);
+    function isUnionToSingleCast(bir:TypeCast castIns) returns boolean {
+        boolean isCastTypeUnion = isUnionType(castIns.castType);
+        boolean isRhsTypeUnion = isUnionType(castIns.rhsOp.typeValue);
+        return (!isCastTypeUnion && isRhsTypeUnion);
+    }
+    
+    function isSingleToUnionCast(bir:TypeCast castIns) returns boolean {
+        boolean isCastTypeUnion = isUnionType(castIns.castType);
+        boolean isRhsTypeUnion = isUnionType(castIns.rhsOp.typeValue);
+        return (isCastTypeUnion && !isRhsTypeUnion);
+    }
+
+    function genSingleToUnionCast(bir:TypeCast castIns) {
+        if (self.isLhsTypePartOfCastUnion(castIns)) {
+            llvm:LLVMValueRef tagOfUnion = self.buildStructGepForVariable(castIns.lhsOp.variableDcl,TAGGED_UNION_FLAG_INDEX);
+            self.storeTagValueInTaggedUnion(castIns.rhsOp.typeValue, tagOfUnion);
+        }
+    }
+
+    function storeTagValueInTaggedUnion(bir:BType typeValue, llvm:LLVMValueRef tagOfUnion) {
+        int tagValue = getTagValue(typeValue);
+        llvm:LLVMValueRef loadTagValue = llvm:llvmConstInt(llvm:llvmInt64Type(), tagValue, 0);
+        llvm:LLVMValueRef storeTagValue = llvm:llvmBuildStore(self.builder, tagOfUnion, loadTagValue);
+    }
+
+    function buildStructGepForVariable(bir:VariableDcl variable, int elementIndex) returns llvm:LLVMValueRef {
+            string elementName = genStructGepName(localVariableName(variable), elementIndex);
+            llvm:LLVMValueRef rhsValueRef = self.parent.getLocalVarRef(variable);
+            return llvm:llvmBuildStructGEP(self.builder, rhsValueRef, elementIndex, elementName);
+    }
+
+    function isLhsTypePartOfCastUnion(bir:TypeCast castIns) returns boolean {
+        bir:BUnionType castUnionType = <bir:BUnionType>castIns.castType;
+        bir:BType lhsType = castIns.lhsOp.typeValue;
+        foreach var typeMember in castUnionType.members {
+            if (typeMember is lhsType) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    function getLhsType(bir:VariableDcl variable) returns llvm:LLVMTypeRef {
+        return self.parent.getLocalVarTypeRefById(localVariableName(variable));
     }
 
     function genMoveIns(bir:Move moveIns) {
-        llvm:LLVMValueRef lhsRef = self.parent.getLocalVarRefById(moveIns.lhsOp.variableDcl.name.value);
+        llvm:LLVMValueRef lhsRef = self.parent.getLocalVarRef(moveIns.lhsOp.variableDcl);
         var rhsVarOp = moveIns.rhsOp;
         llvm:LLVMValueRef rhsVarOpRef = self.parent.genLoadLocalToTempVar(rhsVarOp);
         var loaded = <llvm:LLVMValueRef> llvm:llvmBuildStore(self.builder, rhsVarOpRef, lhsRef);
     }
 
     function genBinaryOpIns(bir:BinaryOp binaryIns) {
-        var lhsTmpName = localVarNameWithPostFix(binaryIns.lhsOp.variableDcl) + "_temp";
-        var lhsRef = self.parent.getLocalVarRefById(binaryIns.lhsOp.variableDcl.name.value);
+        var lhsTmpName = localVarNameWithPreFix(binaryIns.lhsOp.variableDcl) + "_temp";
+        var lhsRef = self.parent.getLocalVarRef(binaryIns.lhsOp.variableDcl);
         var rhsOp1 = self.parent.genLoadLocalToTempVar(binaryIns.rhsOp1);
         var rhsOp2 = self.parent.genLoadLocalToTempVar(binaryIns.rhsOp2);
         var kind = binaryIns.kind;
@@ -97,7 +159,7 @@ type BbBodyGenrator object {
             error err = error("NotIntErr", message = "invalid value in constLoad");
             panic err;
         }
-        llvm:LLVMValueRef lhsRef = self.parent.getLocalVarRefById(constLoad.lhsOp.variableDcl.name.value);
+        llvm:LLVMValueRef lhsRef = self.parent.getLocalVarRef(constLoad.lhsOp.variableDcl);
         var constRef = llvm:llvmConstInt(llvm:llvmInt64Type(), <int>constLoad.value, 0);
         var loaded = llvm:llvmBuildStore(self.builder, constRef, <llvm:LLVMValueRef>lhsRef);
     }

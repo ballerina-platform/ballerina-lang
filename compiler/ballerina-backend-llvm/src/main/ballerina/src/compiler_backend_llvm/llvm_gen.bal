@@ -16,6 +16,7 @@
 
 import ballerina/llvm;
 import ballerina/bir;
+import ballerina/stringutils;
 
 // TODO: make non-global
 llvm:LLVMValueRef? printfRef = ();
@@ -108,11 +109,27 @@ function mapFuncsToNameAndGenrator(llvm:LLVMModuleRef mod, llvm:LLVMBuilderRef b
     map<FuncGenrator> genrators = {};
     foreach var func in funcs {
         if (!(func is ())) {
+            //Skipping init, start, stop function temporarily. TODO: Remove this check
+            if (!checkForValidFunction(func)) {
+                continue;
+            }
             FuncGenrator funcGen = new(func, mod, builder);
             genrators[func.name.value] = funcGen;
         }
     }
     return genrators;
+}
+
+function checkForValidFunction(bir:Function func) returns boolean {
+    if (stringutils:contains(func.name.value, "init")) {
+        return false;
+    } else if (stringutils:contains(func.name.value, "start")) {
+        return false;
+    } else if (stringutils:contains(func.name.value, "stop")) {
+        return false;
+    } else {
+        return true;
+    }   
 }
 
 function optimize(llvm:LLVMModuleRef mod) {
@@ -152,23 +169,23 @@ function genBType(bir:BType? bType) returns llvm:LLVMTypeRef {
     panic err;
 }
 
-function localVarNameWithPostFix(bir:VariableDcl? localVar) returns string {
+function localVarNameWithPreFix(bir:VariableDcl? localVar) returns string {
     string localVarName = localVariableName(localVar);
-    string postFixName = localVarNameFromId(localVarName);
+    string postFixName = addPrefixToLocalVarName(localVarName);
     return postFixName;
 }
 
 function localVariableName(bir:VariableDcl? localVar) returns string {
     string? temp = localVar["name"]?.value;
     if (temp is string) {
-        return temp;
+        return temp.substring(1, temp.length());
     }
     error err = error("Local Variable name is not a string");
     panic err;
 }
 
-function localVarNameFromId(string localVarStr) returns string {
-    return "local" + localVarStr.substring(1, localVarStr.length());
+function addPrefixToLocalVarName(string localVarStr) returns string {
+    return "local" + localVarStr;
 }
 
 function appendAllTo(any[] toArr, any[] fromArr) {
@@ -179,21 +196,30 @@ function appendAllTo(any[] toArr, any[] fromArr) {
     }
 }
 
+function getTaggedStructType(string typeName) returns llvm:LLVMTypeRef {
+    boolean hasType = structMap.hasKey(typeName);
+    if (!hasType) {
+        error typeNotInMapError = error("SimpleErrorType", message = "Type : " + typeName + " Not in structMap");
+        panic typeNotInMapError;
+    }
+    return <llvm:LLVMTypeRef>structMap[typeName];
+}
+
 function createUnion(bir:BUnionType bType) returns llvm:LLVMTypeRef {
     string largestType = "null";
     foreach var member in bType.members {
         if (member is bir:BTypeInt) {
-            largestType = checkForLargerType(largestType, "int");
+            largestType = getLargerType(largestType, "int");
             createTaggedInt();
         } else if (member is bir:BTypeBoolean) {
-            largestType = checkForLargerType(largestType, "boolean");
+            largestType = getLargerType(largestType, "boolean");
             createTaggedBool();
         }
     }
     return <llvm:LLVMTypeRef>structMap[largestType];
 }
 
-function checkForLargerType(string first, string second) returns string { 
+function getLargerType(string first, string second) returns string { 
     if (<int>precedenceMap[first] > <int>precedenceMap[second]) {
         return first;
     } else {
@@ -236,4 +262,25 @@ function checkIfTypesAreCompatible(bir:BType castType, llvm:LLVMTypeRef lhsType)
 
 function genStructGepName(string structName, int index) returns string {
     return structName.concat("_index", index.toString());
+}
+
+function isUnionType(bir:BType typeValue) returns boolean {
+    return typeValue is bir:BUnionType;
+}
+
+function getTagValue(bir:BType typeValue) returns int {
+    if (typeValue is bir:BTypeInt) {
+        return getPrecedenceValueFromTypeString("int");
+    }   
+    if (typeValue is bir:BTypeBoolean) {
+        return getPrecedenceValueFromTypeString("boolean");
+    }
+    return 0;
+}
+
+function getPrecedenceValueFromTypeString(string typeString) returns int {
+    if (!precedenceMap.hasKey(typeString)) {
+        return 0;
+    }
+    return <int>precedenceMap[typeString];
 }
