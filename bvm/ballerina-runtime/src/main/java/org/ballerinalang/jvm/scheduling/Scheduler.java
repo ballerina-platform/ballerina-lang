@@ -106,7 +106,9 @@ public class Scheduler {
     }
 
     public FutureValue scheduleFunction(Object[] params, FPValue<?, ?> fp, Strand parent, BType returnType) {
-        return schedule(params, fp.getFunction(), parent, null, null, returnType, counter++ % this.numThreads);
+        int threadId = counter % this.numThreads;
+        counter = threadId + 1;
+        return schedule(params, fp.getFunction(), parent, null, null, returnType, threadId);
     }
 
     public FutureValue scheduleFunction(Object[] params, FPValue<?, ?> fp, Strand parent, BType returnType, int id) {
@@ -115,7 +117,9 @@ public class Scheduler {
 
     @Deprecated
     public FutureValue scheduleConsumer(Object[] params, FPValue<?, ?> fp, Strand parent) {
-        return schedule(params, fp.getFunction(), parent, (CallableUnitCallback) null, counter++ % this.numThreads);
+        int threadId = counter % this.numThreads;
+        counter = threadId + 1;
+        return schedule(params, fp.getFunction(), parent, (CallableUnitCallback) null, threadId);
     }
 
     /**
@@ -131,7 +135,8 @@ public class Scheduler {
      */
     public FutureValue schedule(Object[] params, Function function, Strand parent, CallableUnitCallback callback,
                                 Map<String, Object> properties, BType returnType) {
-        int threadId = counter++ % this.numThreads;
+        int threadId = counter % this.numThreads;
+        counter = threadId + 1;
         FutureValue future = createFuture(parent, callback, properties, returnType, threadId);
         return schedule(params, function, parent, future, threadId);
     }
@@ -152,7 +157,8 @@ public class Scheduler {
      * @return - Reference to the scheduled task
      */
     public FutureValue schedule(Object[] params, Function function, Strand parent, CallableUnitCallback callback) {
-        int threadId = counter++ % this.numThreads;
+        int threadId = counter % this.numThreads;
+        counter = threadId + 1;
         FutureValue future = createFuture(parent, callback, null, BTypes.typeNull, threadId);
         return schedule(params, function, parent, future, threadId);
     }
@@ -192,7 +198,8 @@ public class Scheduler {
      */
     @Deprecated
     public FutureValue schedule(Object[] params, Consumer consumer, Strand parent, CallableUnitCallback callback) {
-        int threadId = counter++ % this.numThreads;
+        int threadId = counter % this.numThreads;
+        counter = threadId + 1;
         FutureValue future = createFuture(parent, callback, null, BTypes.typeNull, threadId);
         params[0] = future.strand;
         SchedulerItem item = new SchedulerItem(consumer, params, future);
