@@ -570,7 +570,16 @@ function externHasHeader(Entity entity, handle headerName) returns boolean = @ja
 #            If the given input is of type io:ReadableByteChannel, an encoded `io:ReadableByteChannel` is returned.
 #            In case of errors, an `EncodeError` record is returned.
 public function base64Encode((string|byte[]|io:ReadableByteChannel) contentToBeEncoded, string charset = "utf-8")
-    returns (string|byte[]|io:ReadableByteChannel|EncodeError) = external;
+                returns (string|byte[]|io:ReadableByteChannel|EncodeError) {
+    return externBase64Encode(contentToBeEncoded, java:fromString(charset));
+}
+
+function externBase64Encode((string|byte[]|io:ReadableByteChannel) contentToBeEncoded, handle charset) returns
+                                                                (string|byte[]|io:ReadableByteChannel|EncodeError) =
+@java:Method {
+    class: "org.ballerinalang.mime.nativeimpl.mimebase64.Base64Encode",
+    name: "base64Encode"
+} external;
 
 # **Deprecated API**. Decodes a given input with MIME specific Base64 encoding scheme.
 #
@@ -581,7 +590,16 @@ public function base64Encode((string|byte[]|io:ReadableByteChannel) contentToBeE
 #            If the given input is of type io:ReadableByteChannel, a decoded `io:ReadableByteChannel` is returned.
 #            In case of errors, an `DecodeError` record is returned.
 public function base64Decode((string|byte[]|io:ReadableByteChannel) contentToBeDecoded, string charset = "utf-8")
-    returns (string|byte[]|io:ReadableByteChannel|DecodeError) = external;
+    returns (string|byte[]|io:ReadableByteChannel|DecodeError) {
+    return externBase64Decode(contentToBeDecoded, java:fromString(charset));
+}
+
+function externBase64Decode((string|byte[]|io:ReadableByteChannel) contentToBeDecoded, handle charset) returns
+                                                                (string|byte[]|io:ReadableByteChannel|DecodeError) =
+@java:Method {
+    class: "org.ballerinalang.mime.nativeimpl.mimebase64.Base64Decode",
+    name: "base64Decode"
+} external;
 
 # **Deprecated API**. Encodes a given byte[] with Base64 encoding scheme.
 #

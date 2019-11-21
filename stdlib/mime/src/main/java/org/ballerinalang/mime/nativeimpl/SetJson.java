@@ -29,13 +29,6 @@ import static org.ballerinalang.mime.util.MimeConstants.APPLICATION_JSON;
  *
  * @since 0.963.0
  */
-//@BallerinaFunction(orgName = "ballerina", packageName = "mime",
-//        functionName = "setJson",
-//        receiver = @Receiver(type = TypeKind.OBJECT, structType = "Entity", structPackage = "ballerina/mime"),
-//        args = {@Argument(name = "jsonContent", type = TypeKind.JSON), @Argument(name = "contentType",
-//                type = TypeKind.STRING)},
-//        isPublic = true
-//)
 public class SetJson {
 
     public static void setJson(ObjectValue entityObj, Object jsonContent, String contentType) {

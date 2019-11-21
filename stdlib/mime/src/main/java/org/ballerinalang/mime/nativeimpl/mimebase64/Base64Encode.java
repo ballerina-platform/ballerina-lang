@@ -16,11 +16,6 @@
 
 package org.ballerinalang.mime.nativeimpl.mimebase64;
 
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.stdlib.io.utils.Utils;
 
 import static org.ballerinalang.mime.util.MimeConstants.UTF_8;
@@ -30,17 +25,9 @@ import static org.ballerinalang.mime.util.MimeConstants.UTF_8;
  *
  * @since 0.970.0
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "mime",
-        functionName = "base64Encode",
-        args = {@Argument(name = "contentToBeEncoded", type = TypeKind.UNION), @Argument(name = "charset",
-                type = TypeKind.STRING)},
-        returnType = {@ReturnType(type = TypeKind.UNION)},
-        isPublic = true
-)
 public class Base64Encode {
 
-    public static Object base64Encode(Strand strand, Object contentToBeDecoded, String charset) {
+    public static Object base64Encode(Object contentToBeDecoded, String charset) {
         return Utils.encode(contentToBeDecoded, charset != null ? charset : UTF_8, true);
     }
 }
