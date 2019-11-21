@@ -88,15 +88,20 @@ public class ForeachIterableObjectTest {
     public void testIterableObjectErrors() {
         Assert.assertEquals(negativeResult.getErrorCount(), 5);
         int i = 0;
-        BAssertUtil.validateError(negativeResult, i++, "incompatible types: 'Iterable1' is not an iterable " +
-                                                       "object", 120, 25);
-        BAssertUtil.validateError(negativeResult, i++, "incompatible types: 'Iterable2' is not an iterable " +
-                                                       "object", 122, 25);
-        BAssertUtil.validateError(negativeResult, i++, "incompatible types: 'Iterable3' is not an iterable " +
-                                                       "object", 124, 25);
-        BAssertUtil.validateError(negativeResult, i++, "incompatible types: 'Iterable4' is not an iterable " +
-                                                       "object", 126, 25);
-        BAssertUtil.validateError(negativeResult, i, "incompatible types: 'Iterable5' is not an iterable " +
-                                                       "object", 128, 25);
+        BAssertUtil.validateError(negativeResult, i++, "iterable objects must have a __iterator function " +
+                "with signature,  public function __iterator() returns (object { public function next () returns " +
+                "(record {| T value; |}?); });", 120, 25);
+        BAssertUtil.validateError(negativeResult, i++, "iterable objects must have a __iterator function " +
+                "with signature,  public function __iterator() returns (object { publicl function next () returns " +
+                "(record {| T value; |}?); });", 122, 25);
+        BAssertUtil.validateError(negativeResult, i++, "iterable objects must have a __iterator function " +
+                "with signature,  public function __iterator() returns (object { public function next () returns " +
+                "(record {| T value; |}?); });", 124, 25);
+        BAssertUtil.validateError(negativeResult, i++, "iterable objects must have a __iterator function " +
+                "with signature,  public function __iterator() returns (object { public function next () returns " +
+                "(record {| T value; |}?); });", 126, 25);
+        BAssertUtil.validateError(negativeResult, i, "iterable objects must have a __iterator function " +
+                "with signature,  public function __iterator() returns (object { public function next () returns " +
+                "(record {| T value; |}?); });", 128, 25);
     }
 }

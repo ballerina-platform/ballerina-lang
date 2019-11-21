@@ -32,6 +32,7 @@ import org.ballerinalang.model.tree.statements.StreamingQueryStatementNode;
 import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
 import org.ballerinalang.model.tree.types.TypeNode;
 import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.util.BLangCompilerConstants;
 import org.ballerinalang.util.Transactions;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolEnter;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
@@ -2511,25 +2512,30 @@ public class Desugar extends BLangNodeVisitor {
                                                          BVarSymbol collectionSymbol,
                                                          BInvokableSymbol iteratorInvokableSymbol,
                                                          boolean isIteratorFuncFromLangLib) {
-        BLangBlockStmt blockNode;
         BLangSimpleVariableDef iteratorVarDef = getIteratorVariableDefinition(foreach.pos, collectionSymbol,
                 iteratorInvokableSymbol, isIteratorFuncFromLangLib);
-        blockNode = desugarForeachToWhile(foreach, iteratorVarDef);
+        BLangBlockStmt blockNode = desugarForeachToWhile(foreach, iteratorVarDef);
         blockNode.stmts.add(0, dataVariableDefinition);
         return blockNode;
     }
 
     private BInvokableSymbol getIterableObjectIteratorInvokableSymbol(BVarSymbol collectionSymbol) {
         BObjectTypeSymbol typeSymbol = (BObjectTypeSymbol) collectionSymbol.type.tsymbol;
-        //We know for sure at this point, the object symbol should have the __iterator method
-        BAttachedFunction function = typeSymbol.attachedFuncs.stream().filter(func -> func.funcName.value.equals(
-                "__iterator")).findFirst().get();
+        // We know for sure at this point, the object symbol should have the __iterator method
+        BAttachedFunction iteratorFunc = null;
+        for (BAttachedFunction func : typeSymbol.attachedFuncs) {
+            if (func.funcName.value.equals(BLangCompilerConstants.ITERABLE_OBJECT_ITERATOR_FUNC)) {
+                iteratorFunc = func;
+                break;
+            }
+        }
+        BAttachedFunction function = iteratorFunc;
         return function.symbol;
     }
 
     private BInvokableSymbol getLangLibIteratorInvokableSymbol(BVarSymbol collectionSymbol) {
         return (BInvokableSymbol) symResolver.lookupLangLibMethod(collectionSymbol.type,
-                                                                  names.fromString("iterator"));
+                names.fromString(BLangCompilerConstants.ITERABLE_COLLECTION_ITERATOR_FUNC));
     }
 
     private BLangBlockStmt desugarForeachToWhile(BLangForeach foreach, BLangSimpleVariableDef varDef) {
@@ -3484,7 +3490,7 @@ public class Desugar extends BLangNodeVisitor {
                     .orElse(symTable.noType);
         }
 
-        throw new IllegalStateException("None object type '" + type.toString() + "' found in object init conext");
+        throw new IllegalStateException("None object type '" + type.toString() + "' found in object init context");
     }
 
     private BLangErrorType getErrorTypeNode() {

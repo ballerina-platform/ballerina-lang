@@ -20,8 +20,8 @@ package org.wso2.ballerinalang.compiler.semantics.analyzer;
 import org.ballerinalang.model.Name;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.util.BLangCompilerConstants;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
-import org.wso2.ballerinalang.compiler.semantics.model.BLangBuiltInMethod;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BCastOperatorSymbol;
@@ -1019,8 +1019,7 @@ public class Types {
                     foreachNode.varType = ((BRecordType) foreachNode.resultType).fields.get(0).type;
                     return;
                 }
-                dlog.error(foreachNode.collection.pos, DiagnosticCode.ITERABLE_NOT_SUPPORTED_OBJECT,
-                           collectionType);
+                dlog.error(foreachNode.collection.pos, DiagnosticCode.INCOMPATIBLE_ITERATOR_FUNCTION_SIGNATURE);
                 // fallthrough
             case TypeTags.SEMANTIC_ERROR:
                 foreachNode.varType = symTable.semanticError;
@@ -1037,7 +1036,7 @@ public class Types {
         }
 
         BInvokableSymbol iteratorSymbol = (BInvokableSymbol) symResolver.lookupLangLibMethod(collectionType,
-                names.fromBuiltInMethod(BLangBuiltInMethod.ITERATE));
+                names.fromString(BLangCompilerConstants.ITERABLE_COLLECTION_ITERATOR_FUNC));
         BUnionType nextMethodReturnType =
                 (BUnionType) getResultTypeOfNextInvocation((BObjectType) iteratorSymbol.retType);
         foreachNode.varType = varType;
@@ -1047,15 +1046,13 @@ public class Types {
 
     private BUnionType getVarTypeFromIterableObject(BObjectType collectionType) {
         BObjectTypeSymbol objectTypeSymbol = (BObjectTypeSymbol) collectionType.tsymbol;
-        Optional<BAttachedFunction> attachFunc = objectTypeSymbol.attachedFuncs.stream()
-                .filter(func -> func.funcName.value.equals("__iterator")).findFirst();
-
-        if (!attachFunc.isPresent()) {
-            return null;
+        for (BAttachedFunction func : objectTypeSymbol.attachedFuncs) {
+            if (func.funcName.value.equals(BLangCompilerConstants.ITERABLE_OBJECT_ITERATOR_FUNC)) {
+                return getVarTypeFromIteratorFunc(func);
+            }
         }
 
-        BAttachedFunction candidateIteratorFunc = attachFunc.get();
-        return getVarTypeFromIteratorFunc(candidateIteratorFunc);
+        return null;
     }
 
     private BUnionType getVarTypeFromIteratorFunc(BAttachedFunction candidateIteratorFunc) {
@@ -1070,23 +1067,18 @@ public class Types {
 
     private BUnionType getVarTypeFromIteratorFuncReturnType(BType returnType) {
         BObjectTypeSymbol objectTypeSymbol;
-        Optional<BAttachedFunction> attachFunc;
         if (returnType.tag != TypeTags.OBJECT) {
             return null;
         }
 
         objectTypeSymbol = (BObjectTypeSymbol) returnType.tsymbol;
-        attachFunc = objectTypeSymbol.attachedFuncs.stream()
-                .filter(func -> func.funcName.value.equals("next")).findFirst();
-
-        if (!attachFunc.isPresent()) {
-            return null;
+        for (BAttachedFunction func : objectTypeSymbol.attachedFuncs) {
+            if (func.funcName.value.equals(BLangCompilerConstants.NEXT_FUNC)) {
+                return getVarTypeFromNextFunc(func);
+            }
         }
 
-        BAttachedFunction nextFunc = attachFunc.get();
-        // Check if the object has the function,
-        // public function next() returns record {|int value;|}?;
-        return getVarTypeFromNextFunc(nextFunc);
+        return null;
     }
 
     private BUnionType getVarTypeFromNextFunc(BAttachedFunction nextFunc) {
@@ -1139,15 +1131,22 @@ public class Types {
             return false;
         }
 
-        Optional<BField> valueField = recordType.fields.stream()
-                .filter(field -> field.name.value.equals("value")).findFirst();
+        for (BField field : recordType.fields) {
+            if (field.name.value.equals(BLangCompilerConstants.VALUE_FIELD)) {
+                return true;
+            }
+        }
 
-        return valueField.isPresent();
+        return false;
     }
 
     private BRecordType getRecordType(BUnionType type) {
-        return (BRecordType) type.getMemberTypes()
-                .stream().filter(member -> member.tag == TypeTags.RECORD).findFirst().orElse(null);
+        for (BType member : type.getMemberTypes()) {
+            if (member.tag == TypeTags.RECORD) {
+                return (BRecordType) member;
+            }
+        }
+        return null;
     }
 
     private BType getResultTypeOfNextInvocation(BObjectType iteratorType) {
@@ -1157,10 +1156,13 @@ public class Types {
 
     private BAttachedFunction getNextFunc(BObjectType iteratorType) {
         BObjectTypeSymbol iteratorSymbol = (BObjectTypeSymbol) iteratorType.tsymbol;
-        Optional<BAttachedFunction> nextFunc = iteratorSymbol.attachedFuncs.stream()
-                .filter(bAttachedFunction -> bAttachedFunction.funcName.value.equals(BLangBuiltInMethod.NEXT.getName()))
-                .findFirst();
-        return nextFunc.orElse(null);
+        for (BAttachedFunction bAttachedFunction : iteratorSymbol.attachedFuncs) {
+            if (bAttachedFunction.funcName.value
+                    .equals(BLangCompilerConstants.NEXT_FUNC)) {
+                return bAttachedFunction;
+            }
+        }
+        return null;
     }
 
     public BType inferRecordFieldType(BRecordType recordType) {
