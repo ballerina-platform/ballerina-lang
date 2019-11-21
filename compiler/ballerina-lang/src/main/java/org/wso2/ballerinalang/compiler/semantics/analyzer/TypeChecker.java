@@ -921,10 +921,10 @@ public class TypeChecker extends BLangNodeVisitor {
             return;
         }
 
-        List<BType> matchedTypeList = getRecordCompatibleType(expType, recordLiteral);
+        List<BType> matchedTypeList = getMappingConstructorCompatibleTypes(expType, recordLiteral);
 
         if (matchedTypeList.isEmpty()) {
-            dlog.error(recordLiteral.pos, DiagnosticCode.INVALID_LITERAL_FOR_TYPE, expType);
+            reportIncompatibleMappingConstructorError(recordLiteral, expType);
             recordLiteral.keyValuePairs
                     .forEach(keyValuePair -> checkRecLiteralKeyValue(keyValuePair, symTable.errorType));
         } else if (matchedTypeList.size() > 1) {
@@ -947,8 +947,63 @@ public class TypeChecker extends BLangNodeVisitor {
         }
     }
 
-    private List<BType> getRecordCompatibleType(BType bType, BLangRecordLiteral recordLiteral) {
+    private boolean isMappingConstructorCompatibleType(BType type) {
+        return type.tag == TypeTags.RECORD || type.tag == TypeTags.MAP || type.tag == TypeTags.JSON;
+    }
 
+    private void reportIncompatibleMappingConstructorError(BLangRecordLiteral mappingConstructorExpr, BType expType) {
+        if (expType.tag != TypeTags.UNION) {
+            dlog.error(mappingConstructorExpr.pos, DiagnosticCode.MAPPING_CONSTRUCTOR_COMPATIBLE_TYPE_NOT_FOUND,
+                       expType);
+            return;
+        }
+
+        BUnionType unionType = (BUnionType) expType;
+        BType[] memberTypes = unionType.getMemberTypes().toArray(new BType[0]);
+
+        // Special case handling for `T?` where T is a record type. This is done to give more user friendly error
+        // messages for this common scenario.
+        if (memberTypes.length == 2) {
+            if (memberTypes[0].tag == TypeTags.RECORD && memberTypes[1].tag == TypeTags.NIL) {
+                reportMissingRecordFieldDiagnostics(mappingConstructorExpr.keyValuePairs, (BRecordType) memberTypes[0]);
+                return;
+            } else if (memberTypes[1].tag == TypeTags.RECORD && memberTypes[0].tag == TypeTags.NIL) {
+                reportMissingRecordFieldDiagnostics(mappingConstructorExpr.keyValuePairs, (BRecordType) memberTypes[1]);
+                return;
+            }
+        }
+
+        // By this point, we know there aren't any types to which we can assign the mapping constructor. If this is
+        // case where there is at least one type with which we can use mapping constructors, but this particular
+        // mapping constructor is incompatible, we give an incompatible mapping constructor error.
+        for (BType bType : memberTypes) {
+            if (isMappingConstructorCompatibleType(bType)) {
+                dlog.error(mappingConstructorExpr.pos, DiagnosticCode.INCOMPATIBLE_MAPPING_CONSTRUCTOR, unionType);
+                return;
+            }
+        }
+
+        dlog.error(mappingConstructorExpr.pos, DiagnosticCode.MAPPING_CONSTRUCTOR_COMPATIBLE_TYPE_NOT_FOUND, unionType);
+    }
+
+    private void reportMissingRecordFieldDiagnostics(List<BLangRecordKeyValue> keyValPairs, BRecordType recType) {
+        Set<String> expFieldNames = recType.fields.stream().map(f -> f.name.value).collect(Collectors.toSet());
+
+        for (BLangRecordKeyValue keyVal : keyValPairs) {
+            String fieldName = getFieldName(keyVal.key);
+
+            if (fieldName == null) {
+                continue;
+            }
+
+            if (!expFieldNames.contains(fieldName)) {
+                dlog.error(keyVal.key.expr.pos, DiagnosticCode.UNDEFINED_STRUCTURE_FIELD_WITH_TYPE, fieldName,
+                           "record", recType);
+            }
+        }
+    }
+
+    private List<BType> getMappingConstructorCompatibleTypes(BType bType, BLangRecordLiteral recordLiteral) {
         if (bType.tag == TypeTags.UNION) {
             Set<BType> expTypes = ((BUnionType) bType).getMemberTypes();
 
@@ -1859,7 +1914,8 @@ public class TypeChecker extends BLangNodeVisitor {
                 resultType = new BMapType(TypeTags.MAP, constraintType, symTable.mapType.tsymbol);
                 break;
             default:
-                dlog.error(waitForAllExpr.pos, DiagnosticCode.INVALID_LITERAL_FOR_TYPE, expType);
+                dlog.error(waitForAllExpr.pos, DiagnosticCode.INCOMPATIBLE_TYPES, expType,
+                           getWaitForAllExprReturnType(waitForAllExpr.keyValuePairs));
                 resultType = symTable.semanticError;
                 break;
         }
@@ -1868,6 +1924,31 @@ public class TypeChecker extends BLangNodeVisitor {
         if (resultType != null && resultType != symTable.semanticError) {
             types.setImplicitCastExpr(waitForAllExpr, waitForAllExpr.type, expType);
         }
+    }
+
+    private BRecordType getWaitForAllExprReturnType(List<BLangWaitForAllExpr.BLangWaitKeyValue> keyVals) {
+        BRecordType retType = new BRecordType(null);
+        
+        for (BLangWaitForAllExpr.BLangWaitKeyValue keyVal : keyVals) {
+            BLangIdentifier fieldName;
+            if (keyVal.valueExpr == null || keyVal.valueExpr.getKind() != NodeKind.SIMPLE_VARIABLE_REF) {
+                fieldName = keyVal.key;
+            } else {
+                fieldName = ((BLangSimpleVarRef) keyVal.valueExpr).variableName;
+            }
+
+            BSymbol symbol = symResolver.lookupSymbol(env, names.fromIdNode(fieldName), SymTag.VARIABLE);
+            BType fieldType = symbol.type.tag == TypeTags.FUTURE ? ((BFutureType) symbol.type).constraint : symbol.type;
+            BField field = new BField(names.fromIdNode(keyVal.key), null,
+                                      new BVarSymbol(0, names.fromIdNode(keyVal.key), env.enclPkg.packageID,
+                                                     fieldType, null));
+            retType.fields.add(field);
+        }
+
+        retType.restFieldType = symTable.noType;
+        retType.sealed = true;
+        retType.tsymbol = Symbols.createRecordSymbol(0, Names.EMPTY, env.enclPkg.packageID, retType, null);
+        return retType;
     }
 
     private LinkedHashSet<BType> collectWaitExprTypes(List<BLangWaitForAllExpr.BLangWaitKeyValue> keyVals) {
@@ -1895,7 +1976,8 @@ public class TypeChecker extends BLangNodeVisitor {
         // check if the record is sealed, if so check if the fields in wait collection is more than the fields expected
         // by the lhs record
         if (((BRecordType) expType).sealed && rhsFields.size() > lhsFields.size()) {
-            dlog.error(waitExpr.pos, DiagnosticCode.INVALID_LITERAL_FOR_TYPE, expType);
+            dlog.error(waitExpr.pos, DiagnosticCode.INCOMPATIBLE_TYPES, expType,
+                       getWaitForAllExprReturnType(waitExpr.keyValuePairs));
             resultType = symTable.semanticError;
             return;
         }

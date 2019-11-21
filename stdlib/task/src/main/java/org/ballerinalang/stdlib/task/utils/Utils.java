@@ -25,19 +25,25 @@ import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.stdlib.task.exceptions.SchedulingException;
+import org.ballerinalang.stdlib.task.objects.Appointment;
 import org.ballerinalang.stdlib.task.objects.ServiceInformation;
+import org.ballerinalang.stdlib.task.objects.Timer;
 
 import java.util.Objects;
 
 import static org.ballerinalang.stdlib.task.utils.TaskConstants.DETAIL_RECORD_NAME;
 import static org.ballerinalang.stdlib.task.utils.TaskConstants.FIELD_DAYS_OF_MONTH;
 import static org.ballerinalang.stdlib.task.utils.TaskConstants.FIELD_DAYS_OF_WEEK;
+import static org.ballerinalang.stdlib.task.utils.TaskConstants.FIELD_DELAY;
 import static org.ballerinalang.stdlib.task.utils.TaskConstants.FIELD_HOURS;
+import static org.ballerinalang.stdlib.task.utils.TaskConstants.FIELD_INTERVAL;
 import static org.ballerinalang.stdlib.task.utils.TaskConstants.FIELD_MINUTES;
 import static org.ballerinalang.stdlib.task.utils.TaskConstants.FIELD_MONTHS;
+import static org.ballerinalang.stdlib.task.utils.TaskConstants.FIELD_NO_OF_RUNS;
 import static org.ballerinalang.stdlib.task.utils.TaskConstants.FIELD_SECONDS;
 import static org.ballerinalang.stdlib.task.utils.TaskConstants.FIELD_YEAR;
 import static org.ballerinalang.stdlib.task.utils.TaskConstants.LISTENER_ERROR_REASON;
+import static org.ballerinalang.stdlib.task.utils.TaskConstants.MEMBER_APPOINTMENT_DETAILS;
 import static org.ballerinalang.stdlib.task.utils.TaskConstants.RECORD_APPOINTMENT_DATA;
 import static org.ballerinalang.stdlib.task.utils.TaskConstants.RESOURCE_ON_TRIGGER;
 import static org.ballerinalang.stdlib.task.utils.TaskConstants.TASK_PACKAGE_ID;
@@ -138,5 +144,33 @@ public class Utils {
             throw new SchedulingException(
                     "Invalid resource function signature: \'" + RESOURCE_ON_TRIGGER + "\' should not return a value.");
         }
+    }
+
+    public static Timer processTimer(MapValue<String, Object> configurations) throws SchedulingException {
+        Timer task;
+        long interval = ((Long) configurations.get(FIELD_INTERVAL)).intValue();
+        long delay = ((Long) configurations.get(FIELD_DELAY)).intValue();
+
+        if (configurations.get(FIELD_NO_OF_RUNS) == null) {
+            task = new Timer(delay, interval);
+        } else {
+            long noOfRuns = ((Long) configurations.get(FIELD_NO_OF_RUNS)).intValue();
+            task = new Timer(delay, interval, noOfRuns);
+        }
+        return task;
+    }
+
+    public static Appointment processAppointment(MapValue<String, Object> configurations) throws SchedulingException {
+        Appointment appointment;
+        Object appointmentDetails = configurations.get(MEMBER_APPOINTMENT_DETAILS);
+        String cronExpression = getCronExpressionFromAppointmentRecord(appointmentDetails);
+
+        if (configurations.get(FIELD_NO_OF_RUNS) == null) {
+            appointment = new Appointment(cronExpression);
+        } else {
+            long noOfRuns = ((Long) configurations.get(FIELD_NO_OF_RUNS)).intValue();
+            appointment = new Appointment(cronExpression, noOfRuns);
+        }
+        return appointment;
     }
 }
