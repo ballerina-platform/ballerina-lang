@@ -40,7 +40,7 @@ import org.ballerinax.jdbc.statement.SQLStatement;
 public class BatchUpdate {
 
     public static MapValue<String, Object> nativeBatchUpdate(ObjectValue client, String sqlQuery,
-                                                             boolean rollbackAllInFailure, ArrayValue parameters) {
+                                                             boolean rollbackAllInFailure, Object... parameters) {
         SQLDatasource datasource = (SQLDatasource) client.getNativeData(Constants.JDBC_CLIENT);
         SQLStatement batchUpdateStatement = new BatchUpdateStatement(client, datasource, sqlQuery, parameters,
                 rollbackAllInFailure, Scheduler.getStrand());

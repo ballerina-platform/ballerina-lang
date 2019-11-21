@@ -45,10 +45,10 @@ public class SelectStatement extends AbstractSQLStatement {
     private final ObjectValue client;
     private final SQLDatasource datasource;
     private final String query;
-    private final ArrayValue parameters;
+    private final Object[] parameters;
     private final BStructureType structType;
 
-    public SelectStatement(ObjectValue client, SQLDatasource datasource, String query, ArrayValue parameters,
+    public SelectStatement(ObjectValue client, SQLDatasource datasource, String query, Object[] parameters,
                            TypedescValue recordType, Strand strand) {
         super(strand);
         this.client = client;

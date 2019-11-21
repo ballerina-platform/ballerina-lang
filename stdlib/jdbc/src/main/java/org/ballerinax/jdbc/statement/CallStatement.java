@@ -73,11 +73,11 @@ public class CallStatement extends AbstractSQLStatement {
     private final ObjectValue client;
     private final SQLDatasource datasource;
     private final String query;
-    private final ArrayValue parameters;
+    private final Object[] parameters;
     private final ArrayValue structTypes;
 
     public CallStatement(ObjectValue client, SQLDatasource datasource, String query, ArrayValue structTypes,
-                         ArrayValue parameters, Strand strand) {
+                         Object[] parameters, Strand strand) {
         super(strand);
         this.client = client;
         this.datasource = datasource;
@@ -208,18 +208,18 @@ public class CallStatement extends AbstractSQLStatement {
         return resultSets;
     }
 
-    private void setOutParameters(CallableStatement stmt, ArrayValue params, TableResourceManager rm)
+    private void setOutParameters(CallableStatement stmt, Object[] params, TableResourceManager rm)
             throws SQLException, ApplicationException {
         if (params == null) {
             return;
         }
-        int paramCount = params.size();
+        int paramCount = params.length;
         for (int index = 0; index < paramCount; index++) {
-            org.ballerinalang.jvm.types.BType type = TypeChecker.getType(params.get(index));
+            org.ballerinalang.jvm.types.BType type = TypeChecker.getType(params[index]);
             if (type.getTag() != TypeTags.RECORD_TYPE_TAG) {
                 continue;
             }
-            MapValue<String, Object> paramValue = (MapValue<String, Object>) params.get(index);
+            MapValue<String, Object> paramValue = (MapValue<String, Object>) params[index];
             if (paramValue != null) {
                 String sqlType = StatementProcessUtils.getSQLType(paramValue);
                 int direction = StatementProcessUtils.getParameterDirection(paramValue);

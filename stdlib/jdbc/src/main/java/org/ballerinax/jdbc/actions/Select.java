@@ -39,7 +39,7 @@ import org.ballerinax.jdbc.statement.SelectStatement;
 public class Select {
 
     public static Object nativeSelect(ObjectValue client, String query, Object recordType,
-            ArrayValue parameters) {
+                                      Object... parameters) {
         SQLDatasource sqlDatasource = (SQLDatasource) client.getNativeData(Constants.JDBC_CLIENT);
         SQLStatement selectStatement = new SelectStatement(client, sqlDatasource, query, parameters,
                 (TypedescValue) recordType, Scheduler.getStrand());

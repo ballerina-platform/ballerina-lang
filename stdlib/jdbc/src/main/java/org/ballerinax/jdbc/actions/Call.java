@@ -38,7 +38,7 @@ import org.ballerinax.jdbc.statement.SQLStatement;
 public class Call {
 
     public static Object nativeCall(ObjectValue client, String sqlQuery, Object recordType,
-            ArrayValue parameters) {
+                                    Object... parameters) {
         SQLDatasource datasource = (SQLDatasource) client.getNativeData(Constants.JDBC_CLIENT);
         SQLStatement callStatement = new CallStatement(client, datasource, sqlQuery, (ArrayValue) recordType,
                 parameters, Scheduler.getStrand());
