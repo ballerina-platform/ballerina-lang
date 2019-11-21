@@ -22,25 +22,25 @@ import ballerina/log;
 import ballerina/mime;
 import ballerina/stringutils;
 
-# Intent verification request parameter `hub.challenge` representing the challenge that needs to be echoed by
+# Intent verification request parameter 'hub.challenge' representing the challenge that needs to be echoed by
 # susbscribers to verify intent.
 const string HUB_CHALLENGE = "hub.challenge";
 
 # Parameter `hub.mode` representing the mode of the request from hub to subscriber or subscriber to hub.
 const string HUB_MODE = "hub.mode";
 
-# Subscription change or intent verification request parameter `hub.topic` representing the topic relevant to the for
+# Subscription change or intent verification request parameter 'hub.topic'' representing the topic relevant to the for
 # which the request is initiated.
 const string HUB_TOPIC = "hub.topic";
 
-# Subscription change request parameter `hub.callback` representing the callback to which notification should happen.
+# Subscription change request parameter 'hub.callback' representing the callback to which notification should happen.
 const string HUB_CALLBACK = "hub.callback";
 
-# Subscription request parameter `hub.lease_seconds` representing the period for which the subscription is expected to
+# Subscription request parameter 'hub.lease_seconds' representing the period for which the subscription is expected to
 # be active.
 const string HUB_LEASE_SECONDS = "hub.lease_seconds";
 
-# Subscription parameter `hub.secret` representing the secret key to use for authenticated content distribution.
+# Subscription parameter 'hub.secret' representing the secret key to use for authenticated content distribution.
 const string HUB_SECRET = "hub.secret";
 
 # `hub.mode` value indicating "subscription" mode, to subscribe to updates for a topic.
@@ -279,7 +279,7 @@ public type Notification object {
     #
     # + headerName - The header name
     # + return - The first header value for the specified header name. An exception is thrown if no header is found.
-    #            Ideally `hasHeader()` needs to be used to check the existence of header initially.
+    #            Ideally `Notification.hasHeader()` needs to be used to check the existence of header initially.
     public function getHeader(string headerName) returns @tainted string {
         return self.request.getHeader(headerName);
     }
@@ -288,7 +288,7 @@ public type Notification object {
     #
     # + headerName - The header name
     # + return - The header values the specified header key maps to. An exception is thrown if no header is found.
-    #            Ideally `hasHeader()` needs to be used to check the existence of header initially.
+    #            Ideally `Notification.hasHeader()` needs to be used to check the existence of header initially.
     public function getHeaders(string headerName) returns @tainted string[] {
         return self.request.getHeaders(headerName);
     }
