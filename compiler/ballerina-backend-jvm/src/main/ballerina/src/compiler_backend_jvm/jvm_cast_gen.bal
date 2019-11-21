@@ -299,7 +299,12 @@ function generateCheckCastJToBFloat(jvm:MethodVisitor mv, jvm:JType sourceType) 
 }
 
 function generateCheckCastJToBString(jvm:MethodVisitor mv, jvm:JType sourceType) {
-    // TODO fill for jvm:JString later
+    if (sourceType is jvm:JRefType && sourceType.typeValue == "org/ballerinalang/jvm/values/StringValue") {
+        mv.visitMethodInsn(INVOKEINTERFACE, I_STRING_VALUE, "getValue", io:sprintf("()L%s;", STRING_VALUE) , true);
+    } else {
+        error err = error(io:sprintf("Casting is not supported from '%s' to 'string'", sourceType));
+        panic err;
+    }
 }
 
 function generateCheckCastJToBDecimal(jvm:MethodVisitor mv, jvm:JType sourceType) {

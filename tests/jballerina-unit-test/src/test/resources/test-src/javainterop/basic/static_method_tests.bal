@@ -13,6 +13,10 @@ function testAcceptNothingButReturnDate() returns handle {
     return acceptNothingButReturnDate();
 }
 
+function testAcceptNothingButReturnString() returns string {
+    return acceptNothingButReturnString();
+}
+
 function testAcceptSomethingAndReturnSomething(handle h) returns handle {
     return acceptSomethingAndReturnSomething(h);
 }
@@ -63,6 +67,10 @@ public function interopFunctionWithDifferentName() = @java:Method {
 } external;
 
 public function acceptNothingButReturnDate() returns handle = @java:Method {
+    class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
+} external;
+
+public function acceptNothingButReturnString() returns string = @java:Method {
     class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
 } external;
 

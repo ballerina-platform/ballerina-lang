@@ -22,6 +22,7 @@ import org.ballerinalang.model.values.BDecimal;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BHandleValue;
 import org.ballerinalang.model.values.BInteger;
+import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
@@ -70,6 +71,14 @@ public class StaticMethodTest {
         BValue[] returns = BRunUtil.invoke(result, "testAcceptNothingButReturnDate");
         Assert.assertEquals(returns.length, 1);
         Assert.assertTrue(((BHandleValue) returns[0]).getValue() instanceof Date);
+    }
+
+    @Test(description = "Test invoking a java static function that accepts nothing and returns a string")
+    public void testAcceptNothingButReturnString() {
+        BValue[] returns = BRunUtil.invoke(result, "testAcceptNothingButReturnString");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].getClass(), BString.class);
+        Assert.assertEquals(returns[0].stringValue(), "hello world");
     }
 
     @Test(description = "Test invoking a java static function that accepts and returns a Date")
