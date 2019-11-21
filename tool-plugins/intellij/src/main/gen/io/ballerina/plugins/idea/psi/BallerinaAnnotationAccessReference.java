@@ -21,12 +21,15 @@ import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
 
-public interface BallerinaPackageVersion extends PsiElement {
-
-  @Nullable
-  BallerinaVersionPattern getVersionPattern();
+public interface BallerinaAnnotationAccessReference extends BallerinaVariableReference {
 
   @NotNull
-  PsiElement getVersion();
+  BallerinaNameReference getNameReference();
+
+  @NotNull
+  BallerinaVariableReference getVariableReference();
+
+  @NotNull
+  PsiElement getAnnotationAccess();
 
 }

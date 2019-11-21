@@ -24,17 +24,16 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
-import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import io.ballerina.plugins.idea.psi.*;
 
-public class BallerinaPackageVersionImpl extends ASTWrapperPsiElement implements BallerinaPackageVersion {
+public class BallerinaAnnotationAccessReferenceImpl extends BallerinaVariableReferenceImpl implements BallerinaAnnotationAccessReference {
 
-  public BallerinaPackageVersionImpl(@NotNull ASTNode node) {
+  public BallerinaAnnotationAccessReferenceImpl(@NotNull ASTNode node) {
     super(node);
   }
 
   public void accept(@NotNull BallerinaVisitor visitor) {
-    visitor.visitPackageVersion(this);
+    visitor.visitAnnotationAccessReference(this);
   }
 
   public void accept(@NotNull PsiElementVisitor visitor) {
@@ -43,15 +42,21 @@ public class BallerinaPackageVersionImpl extends ASTWrapperPsiElement implements
   }
 
   @Override
-  @Nullable
-  public BallerinaVersionPattern getVersionPattern() {
-    return findChildByClass(BallerinaVersionPattern.class);
+  @NotNull
+  public BallerinaNameReference getNameReference() {
+    return findNotNullChildByClass(BallerinaNameReference.class);
   }
 
   @Override
   @NotNull
-  public PsiElement getVersion() {
-    return findNotNullChildByType(VERSION);
+  public BallerinaVariableReference getVariableReference() {
+    return findNotNullChildByClass(BallerinaVariableReference.class);
+  }
+
+  @Override
+  @NotNull
+  public PsiElement getAnnotationAccess() {
+    return findNotNullChildByType(ANNOTATION_ACCESS);
   }
 
 }

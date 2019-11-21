@@ -27,14 +27,14 @@ import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
 import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import io.ballerina.plugins.idea.psi.*;
 
-public class BallerinaPackageVersionImpl extends ASTWrapperPsiElement implements BallerinaPackageVersion {
+public class BallerinaVersionPatternImpl extends ASTWrapperPsiElement implements BallerinaVersionPattern {
 
-  public BallerinaPackageVersionImpl(@NotNull ASTNode node) {
+  public BallerinaVersionPatternImpl(@NotNull ASTNode node) {
     super(node);
   }
 
   public void accept(@NotNull BallerinaVisitor visitor) {
-    visitor.visitPackageVersion(this);
+    visitor.visitVersionPattern(this);
   }
 
   public void accept(@NotNull PsiElementVisitor visitor) {
@@ -44,14 +44,20 @@ public class BallerinaPackageVersionImpl extends ASTWrapperPsiElement implements
 
   @Override
   @Nullable
-  public BallerinaVersionPattern getVersionPattern() {
-    return findChildByClass(BallerinaVersionPattern.class);
+  public PsiElement getDecimalExtendedFloatingPointNumber() {
+    return findChildByType(DECIMAL_EXTENDED_FLOATING_POINT_NUMBER);
   }
 
   @Override
-  @NotNull
-  public PsiElement getVersion() {
-    return findNotNullChildByType(VERSION);
+  @Nullable
+  public PsiElement getDecimalFloatingPointNumber() {
+    return findChildByType(DECIMAL_FLOATING_POINT_NUMBER);
+  }
+
+  @Override
+  @Nullable
+  public PsiElement getDecimalIntegerLiteral() {
+    return findChildByType(DECIMAL_INTEGER_LITERAL);
   }
 
 }
