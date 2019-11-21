@@ -37,7 +37,7 @@ configurations {
     pack3native { transitive false }
     pack3bir { transitive false }
 
-    pack4 { transitive false } // pack with stdlib/jvm balo
+    pack4 { transitive false }
     pack4birJar { transitive false }
     pack4native { transitive false }
 }
