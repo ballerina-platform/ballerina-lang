@@ -32,7 +32,7 @@ configurations {
     pack2native { transitive false }
     pack2bir { transitive false }
 
-    pack3 { transitive false } // pack with stdlib/jvm balo
+    pack3 { transitive false } // pack with stdlib/jvm + stdlib/bir balo
     pack3birJar { transitive false }
     pack3native { transitive false }
     pack3bir { transitive false }
@@ -49,6 +49,9 @@ dependencies {
 
     pack2bir project(path: ':ballerina-bir-old', configuration: 'oldBir')
     pack2bir project(path: ':ballerina-bir-old', configuration: 'nativeMap')
+
+    pack3bir project(path: ':ballerina-bir-old', configuration: 'oldBir')
+    pack3bir project(path: ':ballerina-bir-old', configuration: 'nativeMap')
     pack3bir project(path: ':ballerina-jvm-old', configuration: 'oldBir')
     pack3bir project(path: ':ballerina-jvm-old', configuration: 'nativeMap')
 
