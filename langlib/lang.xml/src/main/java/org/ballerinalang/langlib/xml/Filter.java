@@ -26,6 +26,7 @@ import org.ballerinalang.jvm.values.FPValue;
 import org.ballerinalang.jvm.values.IteratorValue;
 import org.ballerinalang.jvm.values.XMLSequence;
 import org.ballerinalang.jvm.values.XMLValue;
+import org.ballerinalang.jvm.values.api.BXml;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -49,7 +50,7 @@ import java.util.List;
 )
 public class Filter {
 
-    public static XMLValue<?> filter(Strand strand, XMLValue<?> x, FPValue<Object, Boolean> func) {
+    public static XMLValue filter(Strand strand, XMLValue x, FPValue<Object, Boolean> func) {
         if (x.isSingleton()) {
             if (func.apply(new Object[]{strand, x, true})) {
                 return x;
@@ -58,9 +59,9 @@ public class Filter {
         }
 
         IteratorValue iterator = ((XMLSequence) x).getIterator();
-        List<XMLValue<?>> elements = new ArrayList<>();
+        List<BXml> elements = new ArrayList<>();
         while (iterator.hasNext()) {
-            XMLValue<?> next = (XMLValue<?>) iterator.next();
+            XMLValue next = (XMLValue) iterator.next();
             if (func.apply(new Object[]{strand, next, true})) {
                 elements.add(next);
             }

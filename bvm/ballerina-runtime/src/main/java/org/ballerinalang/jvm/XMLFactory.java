@@ -17,24 +17,15 @@
  */
 package org.ballerinalang.jvm;
 
-import org.apache.axiom.c14n.Canonicalizer;
-import org.apache.axiom.c14n.exceptions.CanonicalizationException;
-import org.apache.axiom.c14n.exceptions.InvalidCanonicalizerException;
 import org.apache.axiom.om.DeferredParsingException;
 import org.apache.axiom.om.OMAbstractFactory;
 import org.apache.axiom.om.OMAttribute;
-import org.apache.axiom.om.OMComment;
-import org.apache.axiom.om.OMDocument;
 import org.apache.axiom.om.OMElement;
-import org.apache.axiom.om.OMException;
 import org.apache.axiom.om.OMFactory;
 import org.apache.axiom.om.OMNamespace;
 import org.apache.axiom.om.OMNode;
-import org.apache.axiom.om.OMProcessingInstruction;
 import org.apache.axiom.om.OMText;
 import org.apache.axiom.om.OMXMLBuilderFactory;
-import org.apache.axiom.om.impl.dom.TextImpl;
-import org.apache.axiom.om.impl.llom.OMSourcedElementImpl;
 import org.apache.axiom.om.util.StAXParserConfiguration;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BMapType;
@@ -51,23 +42,19 @@ import org.ballerinalang.jvm.values.XMLItem;
 import org.ballerinalang.jvm.values.XMLQName;
 import org.ballerinalang.jvm.values.XMLSequence;
 import org.ballerinalang.jvm.values.XMLValue;
+import org.ballerinalang.jvm.values.api.BXml;
 
+import javax.xml.XMLConstants;
+import javax.xml.namespace.QName;
+import javax.xml.stream.XMLStreamException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.StringReader;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
-
-import javax.xml.XMLConstants;
-import javax.xml.namespace.QName;
-import javax.xml.stream.events.XMLEvent;
-import javax.xml.stream.XMLInputFactory;
-import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamReader;
 
 /**
  * Common utility methods used for XML manipulation.
@@ -79,37 +66,10 @@ public class XMLFactory {
     private static final String XML_NAMESPACE_PREFIX = "xmlns:";
     private static final String XML_VALUE_TAG = "#text";
     private static final String XML_DCLR_START = "<?xml";
-    private static Canonicalizer canonicalizer = null;
 
-    private static final String CANONICALIZER_OMIT_COMMENTS = "http://www.w3.org/TR/2001/REC-xml-c14n-20010315";
-    private static final String CANONICALIZER_WITH_COMMENTS =
-            "http://www.w3.org/TR/2001/REC-xml-c14n-20010315#WithComments";
-    private static final String CANONICALIZER_EXCL_OMIT_COMMENTS = "http://www.w3.org/2001/10/xml-exc-c14n#";
-    private static final String CANONICALIZER_EXCL_WITH_COMMENTS =
-            "http://www.w3.org/2001/10/xml-exc-c14n#WithComments";
     private static final BType jsonMapType =
             new BMapType(TypeConstants.MAP_TNAME, BTypes.typeJSON, new BPackage(null, null, null));
-    private static final OMFactory OM_FACTORY = OMAbstractFactory.getOMFactory();
     public static final StAXParserConfiguration STAX_PARSER_CONFIGURATION = StAXParserConfiguration.STANDALONE;
-
-    static {
-        Canonicalizer.init();
-        try {
-            Canonicalizer.register(CANONICALIZER_OMIT_COMMENTS,
-                    "org.apache.axiom.c14n.impl.Canonicalizer20010315OmitComments");
-            Canonicalizer.register(CANONICALIZER_WITH_COMMENTS,
-                    "org.apache.axiom.c14n.impl.Canonicalizer20010315WithComments");
-            Canonicalizer.register(CANONICALIZER_EXCL_OMIT_COMMENTS,
-                    "org.apache.axiom.c14n.impl.Canonicalizer20010315ExclOmitComments");
-            Canonicalizer.register(CANONICALIZER_EXCL_WITH_COMMENTS,
-                    "org.apache.axiom.c14n.impl.Canonicalizer20010315ExclWithComments");
-            canonicalizer = Canonicalizer.getInstance(CANONICALIZER_WITH_COMMENTS);
-        } catch (InvalidCanonicalizerException e) {
-            throw BallerinaErrors.createError("Error initializing canonicalizer: " + e.getMessage());
-        } catch (Exception ignore) {
-            // Ignore
-        }
-    }
 
     /**
      * Create a XML item from string literal.
@@ -117,8 +77,7 @@ public class XMLFactory {
      * @param xmlStr String representation of the XML
      * @return XML sequence
      */
-    @SuppressWarnings("unchecked")
-    public static XMLValue<?> parse(String xmlStr) {
+    public static XMLValue parse(String xmlStr) {
         try {
 
             if (xmlStr.isEmpty()) {
@@ -140,8 +99,7 @@ public class XMLFactory {
      * @param xmlStream XML input stream
      * @return XML Sequence
      */
-    @SuppressWarnings("unchecked")
-    public static XMLValue<?> parse(InputStream xmlStream) {
+    public static XMLValue parse(InputStream xmlStream) {
         try {
             StaxXMLSource staxXMLSource = new StaxXMLSource(new InputStreamReader(xmlStream));
             return staxXMLSource.next();
@@ -159,8 +117,7 @@ public class XMLFactory {
      * @param charset Charset to be used for parsing
      * @return XML Sequence
      */
-    @SuppressWarnings("unchecked")
-    public static XMLValue<?> parse(InputStream xmlStream, String charset) {
+    public static XMLValue parse(InputStream xmlStream, String charset) {
         try {
             StaxXMLSource staxXMLSource = new StaxXMLSource(new InputStreamReader(xmlStream, charset));
             return staxXMLSource.next();
@@ -172,7 +129,7 @@ public class XMLFactory {
     }
 
 
-    public static XMLValue<?> parse2(String str) {
+    public static XMLValue parse2(String str) {
         StaxXMLSource staxXMLSource = new StaxXMLSource(str);
         return staxXMLSource.next();
     }
@@ -183,8 +140,7 @@ public class XMLFactory {
      * @param reader XML reader
      * @return XML Sequence
      */
-    @SuppressWarnings("unchecked")
-    public static XMLValue<?> parse(Reader reader) {
+    public static XMLValue parse(Reader reader) {
         try {
             StaxXMLSource staxXMLSource = new StaxXMLSource(reader);
             return staxXMLSource.next();
@@ -202,8 +158,8 @@ public class XMLFactory {
      * @param secondSeq Second XML sequence
      * @return Concatenated XML sequence
      */
-    public static XMLValue<?> concatenate(XMLValue<?> firstSeq, XMLValue<?> secondSeq) {
-        ArrayList<XMLValue<?>> concatenatedList = new ArrayList<>();
+    public static XMLValue concatenate(XMLValue firstSeq, XMLValue secondSeq) {
+        ArrayList<BXml> concatenatedList = new ArrayList<>();
 
         // Load the content fully before concat the two
         firstSeq.build();
@@ -251,7 +207,7 @@ public class XMLFactory {
      * @param defaultNsUri Default namespace URI
      * @return XMLValue Element type XMLValue
      */
-    public static XMLValue<?> createXMLElement(XMLQName startTagName, XMLQName endTagName, String defaultNsUri) {
+    public static XMLValue createXMLElement(XMLQName startTagName, XMLQName endTagName, String defaultNsUri) {
         if (!StringUtils.isEqual(startTagName.getLocalName(), endTagName.getLocalName()) ||
                 !StringUtils.isEqual(startTagName.getUri(), endTagName.getUri()) ||
                 !StringUtils.isEqual(startTagName.getPrefix(), endTagName.getPrefix())) {
@@ -286,7 +242,7 @@ public class XMLFactory {
      * @param content Comment content
      * @return XMLValue Comment type XMLValue
      */
-    public static XMLValue<?> createXMLComment(String content) {
+    public static XMLValue createXMLComment(String content) {
         return new XMLContentHolderItem(content, XMLNodeType.COMMENT);
     }
 
@@ -296,7 +252,7 @@ public class XMLFactory {
      * @param content Text content
      * @return XMLValue Text type XMLValue
      */
-    public static XMLValue<?> createXMLText(String content) {
+    public static XMLValue createXMLText(String content) {
         // Remove carriage return on windows environments to eliminate additional &#xd; being added
         content = content.replace("\r\n", "\n");
 
@@ -316,7 +272,7 @@ public class XMLFactory {
      * @param data PI data
      * @return XMLValue Processing instruction type XMLValue
      */
-    public static XMLValue<?> createXMLProcessingInstruction(String tartget, String data) {
+    public static XMLValue createXMLProcessingInstruction(String tartget, String data) {
         return new XMLContentHolderItem(data, tartget);
     }
 
@@ -365,45 +321,8 @@ public class XMLFactory {
      * @param xmlTwo the second XML value
      * @return true if the two are equal, false if not equal or an exception is thrown while checking equality
      */
-    public static boolean isEqual(XMLValue<?> xmlOne, XMLValue<?> xmlTwo) {
+    public static boolean isEqual(XMLValue xmlOne, XMLValue xmlTwo) {
         return xmlOne.equals(xmlTwo);
-    }
-
-    private static boolean isXmlSequenceEqual(XMLSequence xmlSequenceOne, XMLSequence xmlSequenceTwo) {
-        if (xmlSequenceOne.size() != xmlSequenceTwo.size()) {
-            return false;
-        }
-
-        for (int i = 0; i < xmlSequenceOne.size(); i++) {
-            if (!isEqual((XMLValue<?>) xmlSequenceOne.value().getRefValue(i),
-                    (XMLValue<?>) xmlSequenceTwo.value().getRefValue(i))) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    private static boolean isXmlItemEqual(XMLItem xmlItemOne, XMLItem xmlItemTwo) throws CanonicalizationException {
-        switch (xmlItemOne.getNodeType()) {
-            case ELEMENT:
-                return Arrays.equals(canonicalize(xmlItemOne), canonicalize(xmlItemTwo));
-            default:
-                return xmlItemOne.toString().equals(xmlItemTwo.toString());
-        }
-    }
-
-    private static boolean isXmlSingletonSequenceItemEqual(XMLSequence singletonXmlSequence, XMLItem xmlItem)
-            throws CanonicalizationException {
-        switch (xmlItem.getNodeType()) {
-            case ELEMENT:
-                return Arrays.equals(canonicalize((XMLItem) singletonXmlSequence.getItem(0)), canonicalize(xmlItem));
-            default:
-                return singletonXmlSequence.getItem(0).toString().equals(xmlItem.toString());
-        }
-    }
-
-    private static byte[] canonicalize(XMLItem bxmlItem) throws CanonicalizationException {
-        return canonicalizer.canonicalize((bxmlItem).value().toString().getBytes());
     }
 
     /**
@@ -483,37 +402,37 @@ public class XMLFactory {
      */
     private static Object traverseXMLSequence(XMLSequence xmlSequence, String attributePrefix,
                                               boolean preserveNamespaces) {
-        ArrayValue sequence = xmlSequence.value();
-        long count = sequence.size();
-        ArrayList<OMElement> childArray = new ArrayList<>();
-        ArrayList<OMText> textArray = new ArrayList<>();
-        for (int i = 0; i < count; ++i) {
-            XMLItem xmlItem = (XMLItem) sequence.getRefValue(i);
-            OMNode omNode = xmlItem.value();
-            if (OMNode.ELEMENT_NODE == omNode.getType()) {
-                childArray.add((OMElement) omNode);
-            } else if (OMNode.TEXT_NODE == omNode.getType()) {
-                textArray.add((OMText) omNode);
-            }
-        }
-
-        ArrayValue textArrayNode = null;
-        if (textArray.size() > 0) { // Text nodes are converted into json array
-            textArrayNode = processTextArray(textArray);
-        }
+//        ArrayValue sequence = xmlSequence.value();
+//        long count = sequence.size();
+//        ArrayList<OMElement> childArray = new ArrayList<>();
+//        ArrayList<OMText> textArray = new ArrayList<>();
+//        for (int i = 0; i < count; ++i) {
+//            XMLItem xmlItem = (XMLItem) sequence.getRefValue(i);
+//            OMNode omNode = xmlItem.value();
+//            if (OMNode.ELEMENT_NODE == omNode.getType()) {
+//                childArray.add((OMElement) omNode);
+//            } else if (OMNode.TEXT_NODE == omNode.getType()) {
+//                textArray.add((OMText) omNode);
+//            }
+//        }
+//
+//        ArrayValue textArrayNode = null;
+//        if (textArray.size() > 0) { // Text nodes are converted into json array
+//            textArrayNode = processTextArray(textArray);
+//        }
 
         MapValueImpl<String, Object> jsonNode = new MapValueImpl<>(jsonMapType);
-        if (childArray.size() > 0) {
-            processChildelements(jsonNode, childArray, attributePrefix, preserveNamespaces);
-            if (textArrayNode != null) {
-                // When text nodes and elements are mixed, they will set into an array
-                textArrayNode.append(jsonNode);
-            }
-        }
-
-        if (textArrayNode != null) {
-            return textArrayNode;
-        }
+//        if (childArray.size() > 0) {
+//            processChildelements(jsonNode, childArray, attributePrefix, preserveNamespaces);
+//            if (textArrayNode != null) {
+//                // When text nodes and elements are mixed, they will set into an array
+//                textArrayNode.append(jsonNode);
+//            }
+//        }
+//
+//        if (textArrayNode != null) {
+//            return textArrayNode;
+//        }
 
         return jsonNode;
     }

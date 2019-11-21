@@ -40,7 +40,7 @@ public class IsEmpty {
 
     private static final String OPERATION = "check xml is empty";
 
-    public static boolean isEmpty(Strand strand, XMLValue<?> xml) {
+    public static boolean isEmpty(Strand strand, XMLValue xml) {
         try {
             return xml.isEmpty();
         } catch (Throwable e) {

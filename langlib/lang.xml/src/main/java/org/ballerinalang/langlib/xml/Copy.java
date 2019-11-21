@@ -40,9 +40,9 @@ public class Copy {
 
     private static final String OPERATION = "copy xml";
 
-    public static XMLValue<?> copy(Strand strand, XMLValue<?> xml) {
+    public static XMLValue copy(Strand strand, XMLValue xml) {
         try {
-            return (XMLValue<?>) xml.copy(new HashMap<>());
+            return (XMLValue) xml.copy(new HashMap<>());
         } catch (Throwable e) {
             BLangExceptionHelper.handleXMLException(OPERATION, e);
         }

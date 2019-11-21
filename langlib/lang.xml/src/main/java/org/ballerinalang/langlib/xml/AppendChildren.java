@@ -41,7 +41,7 @@ public class AppendChildren {
 
     private static final String OPERATION = "add children to xml element";
 
-    public static void appendChildren(Strand strand, XMLValue<?> xml, XMLValue<?> children) {
+    public static void appendChildren(Strand strand, XMLValue xml, XMLValue children) {
         try {
             xml.addChildren(children);
         } catch (Throwable e) {

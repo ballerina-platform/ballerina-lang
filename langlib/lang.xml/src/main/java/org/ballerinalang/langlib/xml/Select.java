@@ -42,9 +42,9 @@ public class Select {
 
     private static final String OPERATION = "select elements from xml";
 
-    public static XMLValue<?> select(Strand strand, XMLValue<?> xml, String qname) {
+    public static XMLValue select(Strand strand, XMLValue xml, String qname) {
         try {
-            return xml.elements(qname);
+            return (XMLValue) xml.elements(qname);
         } catch (Throwable e) {
             BLangExceptionHelper.handleXMLException(OPERATION, e);
         }

@@ -17,10 +17,10 @@
  */
 package org.ballerinalang.jvm.values.api;
 
-import org.apache.axiom.om.OMNode;
 import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.DecimalValueKind;
 import org.ballerinalang.jvm.JSONDataSource;
+import org.ballerinalang.jvm.XMLFactory;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BErrorType;
 import org.ballerinalang.jvm.types.BFunctionType;
@@ -42,8 +42,11 @@ import org.ballerinalang.jvm.values.XMLItem;
 import org.ballerinalang.jvm.values.XMLQName;
 import org.ballerinalang.jvm.values.XMLSequence;
 
+import javax.xml.namespace.QName;
 import java.io.InputStream;
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
@@ -303,8 +306,9 @@ import java.util.function.Function;
       *
       * @return {@code XMLItem}
       */
+     // todo: who uses this? verify or delete!!!
      public static BXml createXMLItem() {
-         return new XMLItem();
+         return new XMLItem(new QName(null), new XMLSequence());
      }
 
      /**
@@ -313,18 +317,8 @@ import java.util.function.Function;
       * @param xmlValue A XML string
       * @return {@code XMLItem}
       */
-     public static BXml<OMNode> createXMLItem(String xmlValue) {
-         return new XMLItem(xmlValue);
-     }
-
-     /**
-      * Create a {@code XMLItem} from a {@link org.apache.axiom.om.OMNode} object.
-      *
-      * @param value xml object
-      * @return {@code XMLItem}
-      */
-     public static BXml<OMNode> createXMLItem(OMNode value) {
-         return new XMLItem(value);
+     public static BXml createXMLItem(String xmlValue) {
+         return XMLFactory.parse(xmlValue);
      }
 
      /**
@@ -333,8 +327,8 @@ import java.util.function.Function;
       * @param inputStream Input Stream
       * @return {@code XMLItem}
       */
-     public static BXml<OMNode> ctreateXMLItem(InputStream inputStream) {
-         return new XMLItem(inputStream);
+     public static BXml ctreateXMLItem(InputStream inputStream) {
+         return XMLFactory.parse(inputStream);
      }
 
      /**
@@ -375,7 +369,11 @@ import java.util.function.Function;
       * @return xml sequence
       */
      public static BXml createXMLSequence(ArrayValue sequence) {
-         return new XMLSequence(sequence);
+         List<BXml> children = new ArrayList<>();
+         for (Object value : sequence.getValues()) {
+             children.add((BXml) value);
+         }
+         return new XMLSequence(children);
      }
 
 

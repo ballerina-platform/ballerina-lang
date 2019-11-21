@@ -21,7 +21,7 @@ import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.XMLContentHolderItem;
 import org.ballerinalang.jvm.values.XMLItem;
 import org.ballerinalang.jvm.values.XMLSequence;
-import org.ballerinalang.jvm.values.XMLValue;
+import org.ballerinalang.jvm.values.api.BXml;
 
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLOutputFactory;
@@ -36,8 +36,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.PrimitiveIterator;
-import java.util.Random;
 import java.util.Set;
 
 /**
@@ -45,7 +43,6 @@ import java.util.Set;
  */
 public class StaxXMLSink extends OutputStream {
     private static final XMLOutputFactory xmlOutputFactory = XMLOutputFactory.newInstance();
-    private final Random random = new Random();
     private XMLStreamWriter xmlStreamWriter;
     private Deque<Set<String>> parentNSSet;
     private int nsNumber;
@@ -83,7 +80,7 @@ public class StaxXMLSink extends OutputStream {
         }
     }
 
-    public void write(XMLValue<?> xmlValue) {
+    public void write(BXml xmlValue) {
         if (xmlValue == null) {
             return;
         }
@@ -315,7 +312,7 @@ public class StaxXMLSink extends OutputStream {
     }
 
     private void writeSeq(XMLSequence xmlValue) {
-        for (XMLValue<?> value : xmlValue.getChildrenList()) {
+        for (BXml value : xmlValue.getChildrenList()) {
             this.write(value);
         }
     }

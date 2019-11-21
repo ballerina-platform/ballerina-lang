@@ -40,7 +40,7 @@ public class IsSingleton {
 
     private static final String OPERATION = "check xml is singleton";
 
-    public static boolean isSingleton(Strand strand, XMLValue<?> xml) {
+    public static boolean isSingleton(Strand strand, XMLValue xml) {
         try {
             return xml.isSingleton();
         } catch (Throwable e) {

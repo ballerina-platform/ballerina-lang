@@ -21,7 +21,6 @@ import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.StaxXMLSink;
 import org.ballerinalang.jvm.XMLNodeType;
 import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.util.BLangConstants;
 import org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons;
@@ -51,9 +50,9 @@ import static org.ballerinalang.jvm.util.BLangConstants.XML_LANG_LIB;
  * 
  * @since 0.995.0
  */
-public final class XMLSequence extends XMLValue<ArrayValue> {
+public final class XMLSequence extends XMLValue {
 
-    List<XMLValue<?>> children;
+    List<BXml> children;
 
     /**
      * Create an empty xml sequence.
@@ -62,12 +61,12 @@ public final class XMLSequence extends XMLValue<ArrayValue> {
         children = new ArrayList<>();
     }
 
-    public XMLSequence(List<XMLValue<?>> children) {
+    public XMLSequence(List<BXml> children) {
         this();
         this.children = children;
     }
 
-    public List<XMLValue<?>> getChildrenList() {
+    public List<BXml> getChildrenList() {
         return children;
     }
 
@@ -124,7 +123,7 @@ public final class XMLSequence extends XMLValue<ArrayValue> {
     @Override
     public String getTextValue() {
         StringBuilder seqTextBuilder = new StringBuilder();
-        for (XMLValue<?> x : children) {
+        for (BXml x : children) {
             seqTextBuilder.append(x.getTextValue());
         }
         return seqTextBuilder.toString();
@@ -170,7 +169,7 @@ public final class XMLSequence extends XMLValue<ArrayValue> {
     @Override
     public MapValue<String, String> getAttributesMap() {
         if (isSingleton()) {
-            return children.get(0).getAttributesMap();
+            return (MapValue<String, String>) children.get(0).getAttributesMap();
         }
 
         return null;
@@ -193,10 +192,10 @@ public final class XMLSequence extends XMLValue<ArrayValue> {
      * {@inheritDoc}
      */
     @Override
-    public XMLValue<?> elements() {
-        List elementsSeq = new ArrayList<XMLValue<?>>();
+    public XMLValue elements() {
+        List elementsSeq = new ArrayList<XMLValue>();
         int j = 0;
-        for (XMLValue<?> x : children) {
+        for (BXml x : children) {
             if (x.getNodeType() != XMLNodeType.ELEMENT) {
                 continue;
             }
@@ -212,11 +211,11 @@ public final class XMLSequence extends XMLValue<ArrayValue> {
      * {@inheritDoc}
      */
     @Override
-    public XMLValue<?> elements(String qname) {
-        List<XMLValue<?>> elementsSeq = new ArrayList<>();
+    public XMLValue elements(String qname) {
+        List<BXml> elementsSeq = new ArrayList<>();
         String qnameStr = getQname(qname).toString();
         int j = 0;
-        for (XMLValue<?> x : children) {
+        for (BXml x : children) {
             if (x.getNodeType() != XMLNodeType.ELEMENT) {
                 continue;
             }
@@ -232,7 +231,7 @@ public final class XMLSequence extends XMLValue<ArrayValue> {
      * {@inheritDoc}
      */
     @Override
-    public XMLValue<?> children() {
+    public XMLValue children() {
         return this;
     }
 
@@ -240,9 +239,9 @@ public final class XMLSequence extends XMLValue<ArrayValue> {
      * {@inheritDoc}
      */
     @Override
-    public XMLValue<?> children(String qname) {
-        List<XMLValue<?>> selected = new ArrayList<>();
-        for (XMLValue<?> elem : this.children) {
+    public XMLValue children(String qname) {
+        List<BXml> selected = new ArrayList<>();
+        for (BXml elem : this.children) {
             if (elem.getNodeType() != XMLNodeType.ELEMENT) {
                 continue;
             }
@@ -258,7 +257,7 @@ public final class XMLSequence extends XMLValue<ArrayValue> {
      * {@inheritDoc}
      */
     @Override
-    public void setChildren(XMLValue<?> seq) {
+    public void setChildren(BXml seq) {
         synchronized (this) {
             if (freezeStatus.getState() != State.UNFROZEN) {
                 FreezeUtils.handleInvalidUpdate(freezeStatus.getState(), XML_LANG_LIB);
@@ -276,15 +275,7 @@ public final class XMLSequence extends XMLValue<ArrayValue> {
      * {@inheritDoc}
      */
     @Override
-    public void setChildren(BXml<?> seq) {
-        setChildren((XMLValue) seq);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void addChildren(XMLValue<?> seq) {
+    public void addChildren(BXml seq) {
         synchronized (this) {
             if (freezeStatus.getState() != State.UNFROZEN) {
                 FreezeUtils.handleInvalidUpdate(freezeStatus.getState(), XML_LANG_LIB);
@@ -302,18 +293,10 @@ public final class XMLSequence extends XMLValue<ArrayValue> {
      * {@inheritDoc}
      */
     @Override
-    public void addChildren(BXml<?> seq) {
-        addChildren((XMLValue) seq);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public XMLValue<?> strip() {
-        List<XMLValue<?>> elementsSeq = new ArrayList<>();
+    public XMLValue strip() {
+        List<BXml> elementsSeq = new ArrayList<>();
         int j = 0;
-        for (XMLValue<?> x : children) {
+        for (BXml x : children) {
             XMLItem element = (XMLItem) x;
             if (element.value() == null || (element.getNodeType() == XMLNodeType.TEXT &&
                     ((OMText) element.value()).getText().trim().isEmpty())) {
@@ -329,7 +312,7 @@ public final class XMLSequence extends XMLValue<ArrayValue> {
      * {@inheritDoc}
      */
     @Override
-    public XMLValue<?> slice(long startIndex, long endIndex) {
+    public XMLValue slice(long startIndex, long endIndex) {
         if (startIndex > this.children.size() || endIndex > this.children.size() || startIndex < -1 || endIndex < -1) {
             throw BallerinaErrors.createError("index out of range: [" + startIndex + "," + endIndex + "]");
         }
@@ -351,7 +334,7 @@ public final class XMLSequence extends XMLValue<ArrayValue> {
         }
 
         int j = 0;
-        List<XMLValue<?>> elementsSeq = new ArrayList<>();
+        List<BXml> elementsSeq = new ArrayList<>();
         for (int i = (int) startIndex; i < endIndex; i++) {
             elementsSeq.add(j++, children.get(i));
         }
@@ -363,9 +346,9 @@ public final class XMLSequence extends XMLValue<ArrayValue> {
      * {@inheritDoc}
      */
     @Override
-    public XMLValue<?> descendants(String qname) {
-        List<XMLValue<?>> descendants = new ArrayList<XMLValue<?>>();
-        for (XMLValue<?> x : children) {
+    public XMLValue descendants(String qname) {
+        List<BXml> descendants = new ArrayList<>();
+        for (BXml x : children) {
             XMLItem element = (XMLItem) x;
             switch (element.getNodeType()) {
                 case ELEMENT:
@@ -397,8 +380,8 @@ public final class XMLSequence extends XMLValue<ArrayValue> {
      * {@inheritDoc}
      */
     @Override
-    public ArrayValue value() {
-        return new ArrayValue(children.toArray(),  new BArrayType(BTypes.typeXML));
+    public Object value() {
+        return new ArrayValue(children.toArray(), BTypes.typeXML);
     }
 
     /**
@@ -408,7 +391,7 @@ public final class XMLSequence extends XMLValue<ArrayValue> {
     public String toString() {
         try {
             StringBuilder sb = new StringBuilder();
-            for (XMLValue<?> x : children) {
+            for (BXml x : children) {
                 sb.append(x.toString());
             }
             return sb.toString();
@@ -451,11 +434,11 @@ public final class XMLSequence extends XMLValue<ArrayValue> {
             return refs.get(this);
         }
 
-        ArrayList<XMLValue<?>> copiedChildrenList = new ArrayList<>(children.size());
+        ArrayList<BXml> copiedChildrenList = new ArrayList<>(children.size());
         XMLSequence copiedSeq = new XMLSequence(copiedChildrenList);
         refs.put(this, copiedSeq);
-        for (XMLValue<?> child : children) {
-            copiedChildrenList.add((XMLValue<?>) child.copy(refs));
+        for (BXml child : children) {
+            copiedChildrenList.add((XMLValue) child.copy(refs));
         }
 
         return copiedSeq;
@@ -477,9 +460,9 @@ public final class XMLSequence extends XMLValue<ArrayValue> {
      * {@inheritDoc}
      */
     @Override
-    public XMLValue<?> getItem(int index) {
+    public XMLValue getItem(int index) {
         try {
-            return (XMLValue<?>) this.children.get(index);
+            return (XMLValue) this.children.get(index);
         } catch (Exception e) {
             throw BallerinaErrors.createError(BallerinaErrorReasons.XML_OPERATION_ERROR, e.getMessage());
         }
@@ -498,8 +481,8 @@ public final class XMLSequence extends XMLValue<ArrayValue> {
      */
     @Override
     public void build() {
-        for (XMLValue<?> x : children) {
-            ((XMLValue<?>) x).build();
+        for (BXml x : children) {
+            x.build();
         }
     }
 
@@ -540,7 +523,7 @@ public final class XMLSequence extends XMLValue<ArrayValue> {
     public synchronized void attemptFreeze(Status freezeStatus) {
         if (FreezeUtils.isOpenForFreeze(this.freezeStatus, freezeStatus)) {
             this.freezeStatus = freezeStatus;
-            for (XMLValue<?> elem : children) {
+            for (BXml elem : children) {
                 elem.attemptFreeze((freezeStatus));
             }
         }
@@ -549,7 +532,7 @@ public final class XMLSequence extends XMLValue<ArrayValue> {
     @Override
     public void freezeDirect() {
         this.freezeStatus.setFrozen();
-        for (XMLValue<?> elem : children) {
+        for (BXml elem : children) {
             elem.freezeDirect();
         }
     }

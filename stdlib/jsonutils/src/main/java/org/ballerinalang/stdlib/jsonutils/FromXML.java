@@ -39,7 +39,7 @@ public class FromXML {
     private static final String OPTIONS_ATTRIBUTE_PREFIX = "attributePrefix";
     private static final String OPTIONS_PRESERVE_NS = "preserveNamespaces";
 
-    public static Object fromXML(Strand strand, XMLValue<?> xml, MapValue<?, ?> options) {
+    public static Object fromXML(Strand strand, XMLValue xml, MapValue<?, ?> options) {
         try {
             String attributePrefix = (String) options.get(OPTIONS_ATTRIBUTE_PREFIX);
             boolean preserveNamespaces = ((Boolean) options.get(OPTIONS_PRESERVE_NS));

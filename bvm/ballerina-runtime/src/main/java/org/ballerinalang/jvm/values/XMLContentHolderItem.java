@@ -7,6 +7,7 @@ import org.ballerinalang.jvm.XMLFactory;
 import org.ballerinalang.jvm.XMLNodeType;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
+import org.ballerinalang.jvm.values.api.BXml;
 import org.ballerinalang.jvm.values.freeze.Status;
 
 import javax.xml.stream.XMLStreamException;
@@ -17,7 +18,7 @@ import java.util.Map;
 
 import static org.ballerinalang.jvm.util.BLangConstants.STRING_NULL_VALUE;
 
-public class XMLContentHolderItem extends XMLValue<OMNode> {
+public class XMLContentHolderItem extends XMLValue {
 
     private String data;
     private String target; // only applicable for PI nodes
@@ -97,37 +98,39 @@ public class XMLContentHolderItem extends XMLValue<OMNode> {
     }
 
     @Override
-    public XMLValue<?> elements() {
+    public BXml elements() {
         return null;
     }
 
     @Override
-    public XMLValue<?> elements(String qname) {
+    public BXml elements(String qname) {
         return null;
     }
 
     @Override
-    public XMLValue<?> children() {
+    public XMLValue children() {
         return new XMLSequence();
     }
 
     @Override
-    public XMLValue<?> children(String qname) {
+    public XMLValue children(String qname) {
         return null;
     }
 
-    @Override
-    public void setChildren(XMLValue<?> seq) {
 
+
+    @Override
+    public void setChildren(BXml seq) {
+        // no op;
     }
 
     @Override
-    public void addChildren(XMLValue<?> seq) {
-
+    public void addChildren(BXml seq) {
+        // no op;
     }
 
     @Override
-    public XMLValue<?> strip() {
+    public BXml strip() {
         return null;
     }
 
@@ -137,17 +140,17 @@ public class XMLContentHolderItem extends XMLValue<OMNode> {
     }
 
     @Override
-    public XMLValue<?> slice(long startIndex, long endIndex) {
+    public BXml slice(long startIndex, long endIndex) {
         return null;
     }
 
     @Override
-    public XMLValue<?> descendants(String qname) {
+    public BXml descendants(String qname) {
         return null;
     }
 
     @Override
-    public XMLValue<?> getItem(int index) {
+    public XMLValue getItem(int index) {
         return null;
     }
 

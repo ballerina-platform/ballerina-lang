@@ -24,6 +24,7 @@ import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.XMLContentHolderItem;
 import org.ballerinalang.jvm.values.XMLSequence;
 import org.ballerinalang.jvm.values.XMLValue;
+import org.ballerinalang.jvm.values.api.BXml;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -46,26 +47,26 @@ import java.util.List;
 )
 public class Concat {
 
-    public static XMLValue<?> concat(Strand strand, ArrayValue arrayValue) {
-        List<XMLValue<?>> backingArray = new ArrayList<>();
-        XMLValue<?> lastItem = null;
+    public static XMLValue concat(Strand strand, ArrayValue arrayValue) {
+        List<BXml> backingArray = new ArrayList<>();
+        XMLValue lastItem = null;
         for (int i = 0; i < arrayValue.size(); i++) {
             Object refValue = arrayValue.getRefValue(i);
             if (refValue instanceof String) {
                 if (lastItem != null && lastItem.getNodeType() == XMLNodeType.TEXT) {
                     // If last added item is a string, then concat prev values with this values and replace prev value.
                     String concat = ((XMLContentHolderItem) lastItem).getData() + refValue;
-                    XMLValue<?> xmlText = XMLFactory.createXMLText(concat);
+                    XMLValue xmlText = XMLFactory.createXMLText(concat);
                     backingArray.add(backingArray.size() - 1, xmlText);
                     lastItem = xmlText;
                     continue;
                 }
-                XMLValue<?> xmlText = XMLFactory.createXMLText((String) refValue);
+                XMLValue xmlText = XMLFactory.createXMLText((String) refValue);
                 backingArray.add(xmlText);
                 lastItem = xmlText;
             } else {
-                backingArray.add((XMLValue<?>) refValue);
-                lastItem = (XMLValue<?>) refValue;
+                backingArray.add((XMLValue) refValue);
+                lastItem = (XMLValue) refValue;
             }
         }
         return new XMLSequence(backingArray);

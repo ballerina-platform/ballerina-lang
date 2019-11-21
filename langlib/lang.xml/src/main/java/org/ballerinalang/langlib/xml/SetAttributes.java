@@ -41,7 +41,7 @@ public class SetAttributes {
 
     private static final String OPERATION = "set attributes";
 
-    public static void setAttributes(Strand strand, XMLValue<?> xml, MapValue<?, ?> attributes) {
+    public static void setAttributes(Strand strand, XMLValue xml, MapValue<?, ?> attributes) {
         try {
             xml.setAttributes((MapValue<String, ?>) attributes);
         } catch (Throwable e) {

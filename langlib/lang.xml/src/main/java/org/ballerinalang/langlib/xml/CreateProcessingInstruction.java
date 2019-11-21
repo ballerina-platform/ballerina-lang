@@ -41,7 +41,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 )
 public class CreateProcessingInstruction {
 
-    public static XMLValue<?> createProcessingInstruction(Strand strand, String target, String content) {
+    public static XMLValue createProcessingInstruction(Strand strand, String target, String content) {
         return XMLFactory.createXMLProcessingInstruction(target, content);
     }
 }

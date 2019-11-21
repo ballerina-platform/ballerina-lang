@@ -36,7 +36,7 @@ public class XMLSecurityTest {
                 "<!ELEMENT foo ANY >" +
                 "<!ENTITY xxe SYSTEM \"https://www.w3schools.com/xml/note.xml\" >]>" +
                 "<foo>&xxe;</foo>";
-        XMLValue<?> xmlDocument = XMLFactory.parse(xmlString);
+        XMLValue xmlDocument = XMLFactory.parse(xmlString);
         Assert.assertEquals(xmlDocument.toString(), "<foo></foo>");
     }
 

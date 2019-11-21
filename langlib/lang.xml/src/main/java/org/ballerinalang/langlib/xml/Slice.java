@@ -44,7 +44,7 @@ public class Slice {
 
     private static final String OPERATION = "slice xml";
 
-    public static XMLValue<?> slice(Strand strand, XMLValue<?> xml, long startIndex, long endIndex) {
+    public static XMLValue slice(Strand strand, XMLValue xml, long startIndex, long endIndex) {
         if (startIndex > 1 || endIndex > 1 || startIndex < -1 || endIndex < -1) {
             throw BallerinaErrors.createError("index out of range: [" + startIndex + "," + endIndex + "]");
         }
@@ -66,7 +66,7 @@ public class Slice {
         }
 
         try {
-            return xml.slice(startIndex, endIndex);
+            return (XMLValue) xml.slice(startIndex, endIndex);
         } catch (Throwable e) {
             BLangExceptionHelper.handleXMLException(OPERATION, e);
         }

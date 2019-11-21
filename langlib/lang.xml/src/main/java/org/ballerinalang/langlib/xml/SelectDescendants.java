@@ -43,9 +43,9 @@ public class SelectDescendants {
 
     private static final String OPERATION = "select descendants from xml";
 
-    public static XMLValue<?> selectDescendants(Strand strand, XMLValue<?> xml, String qname) {
+    public static XMLValue selectDescendants(Strand strand, XMLValue xml, String qname) {
         try {
-            return xml.descendants(qname);
+            return (XMLValue) xml.descendants(qname);
         } catch (Throwable e) {
             BLangExceptionHelper.handleXMLException(OPERATION, e);
         }

@@ -42,7 +42,7 @@ public class GetName {
 
     private static final String OPERATION = "get element name in xml";
 
-    public static String getName(Strand strand, XMLValue<?> xmlVal) {
+    public static String getName(Strand strand, XMLValue xmlVal) {
         if (!IsElement.isElement(strand, xmlVal)) {
             throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.XML_FUNC_TYPE_ERROR, "getName", "element");
         }

@@ -44,9 +44,9 @@ public class Strip {
 
     private static final String OPERATION = "strip xml";
 
-    public static XMLValue<?> strip(Strand strand, XMLValue<?> xml) {
+    public static XMLValue strip(Strand strand, XMLValue xml) {
         try {
-            return xml.strip();
+            return (XMLValue) xml.strip();
         } catch (Throwable e) {
             BLangExceptionHelper.handleXMLException(OPERATION, e);
         }

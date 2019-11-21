@@ -43,9 +43,9 @@ import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.StreamValue;
 import org.ballerinalang.jvm.values.TableValue;
 import org.ballerinalang.jvm.values.TypedescValue;
-import org.ballerinalang.jvm.values.XMLItem;
 import org.ballerinalang.jvm.values.XMLSequence;
 import org.ballerinalang.jvm.values.XMLValue;
+import org.ballerinalang.jvm.values.api.BXml;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BErrorType;
@@ -530,9 +530,9 @@ public class BRunUtil {
                 BValueArray elements = ((BXMLSequence) xml).value();
                 ArrayValue arrayValue = (ArrayValue) getJVMValue(elements.getType(), elements);
 
-                List<XMLValue<?>> list = new ArrayList<>();
+                List<BXml> list = new ArrayList<>();
                 for (Object arrayValueValue : arrayValue.getValues()) {
-                    list.add((XMLValue<?>) arrayValueValue);
+                    list.add((BXml) arrayValueValue);
                 }
 
                 return new XMLSequence(list);
@@ -644,9 +644,9 @@ public class BRunUtil {
                 }
                 BValueArray elements = ((BXMLSequence) xml).value();
                 ArrayValue jvmValue = (ArrayValue) getJVMValue(elements.getType(), elements);
-                List<XMLValue<?>> list = new ArrayList<>();
+                List<BXml> list = new ArrayList<>();
                 for (Object v : jvmValue.getValues()) {
-                    list.add((XMLValue<?>) v);
+                    list.add((BXml) v);
                 }
 
                 return new XMLSequence(list);
@@ -936,12 +936,26 @@ public class BRunUtil {
                 }
                 return bvmObject;
             case org.ballerinalang.jvm.types.TypeTags.XML_TAG:
-                XMLValue<?> xml = (XMLValue<?>) value;
-                if (xml.getNodeType() != XMLNodeType.SEQUENCE) {
-                    return new BXMLItem(((XMLValue<OMNode>) xml).value());
+                if (value instanceof XMLValue) {
+                    if (((XMLValue) value).getNodeType() != XMLNodeType.SEQUENCE) {
+                        BXMLItem bxmlItem = new BXMLItem((OMNode) ((XMLValue) value).value());
+                        bvmValue = bxmlItem;
+                        break;
+                    } else {
+                        ArrayValue arrayValue = new ArrayValue(((XMLSequence) value).getChildrenList().toArray(),
+                                org.ballerinalang.jvm.types.BTypes.typeXML);
+
+                        bvmValue = getBVMValue(arrayValue);
+                        break;
+                    }
                 }
-                ArrayValue elements = ((XMLSequence) xml).value();
-                bvmValue = new BXMLSequence((BValueArray) getBVMValue(elements, bvmValueMap));
+
+                BValueArray ar = new BValueArray(BTypes.typeXML);
+                int i = 0;
+                for (Object obj : ((ArrayValue) value).getValues()) {
+                    ar.add(i++, getBVMValue(obj, bvmValueMap));
+                }
+                bvmValue = new BXMLSequence(ar);
                 break;
             case org.ballerinalang.jvm.types.TypeTags.TYPEDESC_TAG:
                 TypedescValue typedescValue = (TypedescValue) value;
@@ -970,7 +984,7 @@ public class BRunUtil {
         return bvmValue;
     }
 
-    private static BType getBVMType(org.ballerinalang.jvm.types.BType jvmType, 
+    private static BType getBVMType(org.ballerinalang.jvm.types.BType jvmType,
                                     Stack<org.ballerinalang.jvm.types.BField> selfTypeStack) {
         switch (jvmType.getTag()) {
             case org.ballerinalang.jvm.types.TypeTags.INT_TAG:

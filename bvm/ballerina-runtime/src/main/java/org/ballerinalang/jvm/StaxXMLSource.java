@@ -22,13 +22,12 @@ import org.ballerinalang.jvm.values.XMLContentHolderItem;
 import org.ballerinalang.jvm.values.XMLItem;
 import org.ballerinalang.jvm.values.XMLSequence;
 import org.ballerinalang.jvm.values.XMLValue;
+import org.ballerinalang.jvm.values.api.BXml;
 
-import javax.xml.XMLConstants;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
-import javax.xml.stream.events.XMLEvent;
 import java.io.Reader;
 import java.io.StringReader;
 import java.util.ArrayDeque;
@@ -59,7 +58,7 @@ public class StaxXMLSource {
     private XMLStreamReader xmlStreamReader;
     private Map<String, String> namespaces; // xml ns declarations from Bal source [xmlns "http://ns.com" as ns]
     private Deque<XMLSequence> seqDeque;
-    private Deque<List<XMLValue<?>>> siblingDeque; // we can remove this by opening up children list in XMLSeq
+    private Deque<List<BXml>> siblingDeque; // we can remove this by opening up children list in XMLSeq
 
     public StaxXMLSource(String str) {
         this(new StringReader(str));
@@ -156,7 +155,7 @@ public class StaxXMLSource {
         setupXmlDocument();
 
         QName elemName = xmlStreamReader.getName();
-        ArrayList<XMLValue<?>> children = new ArrayList<>();
+        ArrayList<BXml> children = new ArrayList<>();
         XMLSequence seq = new XMLSequence(children);
         seqDeque.push(seq);
         XMLItem xmlItem = new XMLItem(elemName, seq);
@@ -169,7 +168,7 @@ public class StaxXMLSource {
 
     private void setupXmlDocument() {
         if (seqDeque.isEmpty()) {
-            ArrayList<XMLValue<?>> children = new ArrayList<>();
+            ArrayList<BXml> children = new ArrayList<>();
             siblingDeque.push(children);
             XMLSequence xmlSequence = new XMLSequence(children);
             seqDeque.push(xmlSequence);

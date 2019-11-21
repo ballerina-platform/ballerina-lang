@@ -1,9 +1,7 @@
 package org.ballerinalang.jvm;
 
 import org.apache.axiom.om.OMComment;
-import org.apache.axiom.om.OMNode;
 import org.apache.axiom.om.OMProcessingInstruction;
-import org.apache.axiom.om.impl.llom.OMElementImpl;
 import org.ballerinalang.jvm.values.XMLValue;
 
 /**
@@ -12,23 +10,12 @@ import org.ballerinalang.jvm.values.XMLValue;
 public class XMLValueUtil {
 
     /**
-     * Set the local name of xml element.
-     *
-     * @param xmlValue source xml value to copy from.
-     * @param newName to be set in new element.
-     */
-    public static void setElementName(XMLValue<?> xmlValue, String newName) {
-        OMNode node = (OMNode) xmlValue.value();
-        ((OMElementImpl) node).setLocalName(newName);
-    }
-
-    /**
      * Get target potion of xml processing instruction.
      *
      * @param xmlValue xml processing instruction.
      * @return target.
      */
-    public static String getTarget(XMLValue<?> xmlValue) {
+    public static String getTarget(XMLValue xmlValue) {
        return ((OMProcessingInstruction) xmlValue.value()).getTarget();
     }
 

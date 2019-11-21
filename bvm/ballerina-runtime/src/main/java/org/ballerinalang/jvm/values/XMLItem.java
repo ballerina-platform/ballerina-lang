@@ -26,9 +26,6 @@ import org.ballerinalang.jvm.XMLFactory;
 import org.ballerinalang.jvm.XMLNodeType;
 import org.ballerinalang.jvm.XMLValidator;
 import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.types.BArrayType;
-import org.ballerinalang.jvm.types.BMapType;
-import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.values.api.BXml;
 import org.ballerinalang.jvm.values.freeze.FreezeUtils;
 import org.ballerinalang.jvm.values.freeze.State;
@@ -51,42 +48,23 @@ import static org.ballerinalang.jvm.util.BLangConstants.STRING_NULL_VALUE;
 import static org.ballerinalang.jvm.util.BLangConstants.XML_LANG_LIB;
 
 /**
- * todo: rewrite the doc
- * {@code BXML} represents a single XML item in Ballerina.
- * XML item could be one of:
- * <ul>
- * <li>element</li>
- * <li>text</li>
- * <li>comment</li>
- * <li>processing instruction</li>
- * </ul>
+ * {@code XMLItem} represents a single XML element in Ballerina.
  * <p>
  * <i>Note: This is an internal API and may change in future versions.</i>
  * </p>
  * @since 0.995.0
  */
-@SuppressWarnings("unchecked")
-public final class XMLItem extends XMLValue<OMNode> {
+public final class XMLItem extends XMLValue {
 
     public static final String XMLNS_URL_PREFIX = "{" + XMLConstants.XMLNS_ATTRIBUTE_NS_URI + "}";
     private QName name;
     XMLSequence children;
-    MapValue<String, String> attributes = new MapValueImpl<>();
-    OMNode omNode;
-    private XMLNodeType nodeType;
-
-    /**
-     * Create an empty XMLValue.
-     */
-    @Deprecated
-    public XMLItem() {
-        omNode = new OMElementImpl();
-        setXMLNodeType();
-    }
+    private MapValue<String, String> attributes;
 
     public XMLItem(QName name, XMLSequence children) {
         this.name = name;
         this.children = children;
+        attributes = new MapValueImpl<>();
     }
 
     /**
@@ -142,30 +120,16 @@ public final class XMLItem extends XMLValue<OMNode> {
         return this.name;
     }
 
+    public void setQName(QName name) {
+        this.name = name;
+    }
+
     /**
      * {@inheritDoc}
      */
     @Override
     public String getTextValue() {
         return children.getTextValue();
-//        switch (nodeType) {
-//            case ELEMENT:
-//                StringBuilder elementTextBuilder = new StringBuilder();
-//                Iterator<OMNode> children = ((OMElement) omNode).getChildren();
-//                while (children.hasNext()) {
-//                    elementTextBuilder.append(getTextValue(children.next()));
-//                }
-//                return elementTextBuilder.toString();
-//            case TEXT:
-//                String text = ((OMText) omNode).getText();
-//                return StringEscapeUtils.escapeXml11(text);
-//            case COMMENT:
-//                return BTypes.typeString.getZeroValue();
-//            case PI:
-//                return BTypes.typeString.getZeroValue();
-//            default:
-//                return BTypes.typeString.getZeroValue();
-//        }
     }
 
     /**
@@ -272,8 +236,8 @@ public final class XMLItem extends XMLValue<OMNode> {
      * {@inheritDoc}
      */
     @Override
-    public XMLValue<?> elements() {
-        ArrayList<XMLValue<?>> children = new ArrayList<>();
+    public XMLValue elements() {
+        ArrayList<BXml> children = new ArrayList<>();
         children.add(this);
         return new XMLSequence(children);
     }
@@ -282,8 +246,8 @@ public final class XMLItem extends XMLValue<OMNode> {
      * {@inheritDoc}
      */
     @Override
-    public XMLValue<?> elements(String qname) {
-        ArrayList<XMLValue<?>> children = new ArrayList<>();
+    public XMLValue elements(String qname) {
+        ArrayList<BXml> children = new ArrayList<>();
         if (getElementName().equals(getQname(qname).toString())) {
             children.add(this);
         }
@@ -294,7 +258,7 @@ public final class XMLItem extends XMLValue<OMNode> {
      * {@inheritDoc}
      */
     @Override
-    public XMLValue<?> children() {
+    public XMLValue children() {
         return children;
     }
 
@@ -302,7 +266,7 @@ public final class XMLItem extends XMLValue<OMNode> {
      * {@inheritDoc}
      */
     @Override
-    public XMLValue<?> children(String qname) {
+    public XMLValue children(String qname) {
         return children.children(qname);
     }
 
@@ -311,7 +275,7 @@ public final class XMLItem extends XMLValue<OMNode> {
      */
     // todo: hmmm name says setChildren, but what this does is addChildren o.O
     @Override
-    public void setChildren(XMLValue<?> seq) {
+    public void setChildren(BXml seq) {
         synchronized (this) {
             if (freezeStatus.getState() != State.UNFROZEN) {
                 FreezeUtils.handleInvalidUpdate(freezeStatus.getState(), XML_LANG_LIB);
@@ -322,16 +286,6 @@ public final class XMLItem extends XMLValue<OMNode> {
             return;
         }
 
-        // todo: move not an element error to xml sequnce and holder node.
-//        OMElement currentNode;
-//        switch (nodeType) {
-//            case ELEMENT:
-//                currentNode = ((OMElement) omNode);
-//                break;
-//            default:
-//                throw BallerinaErrors.createError("not an " + XMLNodeType.ELEMENT);
-//        }
-
         if (seq.getNodeType() == XMLNodeType.SEQUENCE) {
             children.children.addAll(((XMLSequence) seq).children);
         } else {
@@ -339,15 +293,11 @@ public final class XMLItem extends XMLValue<OMNode> {
         }
     }
 
-    public void setChildren(BXml<?> seq) {
-        setChildren((XMLValue<?>) seq);
-    }
-
     /**
      * {@inheritDoc}
      */
     @Override
-    public void addChildren(XMLValue<?> seq) {
+    public void addChildren(BXml seq) {
         synchronized (this) {
             if (freezeStatus.getState() != State.UNFROZEN || children.freezeStatus.getState() != State.UNFROZEN) {
                 FreezeUtils.handleInvalidUpdate(freezeStatus.getState(), XML_LANG_LIB);
@@ -362,7 +312,7 @@ public final class XMLItem extends XMLValue<OMNode> {
         this.children = new XMLSequence(leftList);
 
         if (seq.getNodeType() == XMLNodeType.SEQUENCE) {
-            List<XMLValue<?>> appendingList = ((XMLSequence) seq).getChildrenList();
+            List<BXml> appendingList = ((XMLSequence) seq).getChildrenList();
             if (isLastChildIsTextNode(leftList)
                     && appendingList.size() > 0 && appendingList.get(0).getNodeType() == TEXT) {
                 mergeAdjoiningTextNodesIntoList(leftList, appendingList);
@@ -374,7 +324,7 @@ public final class XMLItem extends XMLValue<OMNode> {
         }
     }
 
-    private void mergeAdjoiningTextNodesIntoList(ArrayList leftList, List<XMLValue<?>> appendingList) {
+    private void mergeAdjoiningTextNodesIntoList(ArrayList leftList, List<BXml> appendingList) {
         XMLContentHolderItem lastChild = (XMLContentHolderItem) leftList.get(leftList.size() - 1);
         String firstChildContent = ((XMLContentHolderItem) appendingList.get(0)).getData();
         String mergedTextContent = lastChild.getData() + firstChildContent;
@@ -385,19 +335,15 @@ public final class XMLItem extends XMLValue<OMNode> {
         }
     }
 
-    private boolean isLastChildIsTextNode(List<XMLValue<?>> childList) {
+    private boolean isLastChildIsTextNode(List<XMLValue> childList) {
         return childList.size() > 0 && childList.get(childList.size() - 1).getNodeType() == TEXT;
-    }
-
-    public void addChildren(BXml<?> seq) {
-        addChildren((XMLValue) seq);
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public XMLValue<?> strip() {
+    public XMLValue strip() {
         children.strip();
         return this;
     }
@@ -406,7 +352,7 @@ public final class XMLItem extends XMLValue<OMNode> {
      * {@inheritDoc}
      */
     @Override
-    public XMLValue<?> slice(long startIndex, long endIndex) {
+    public XMLValue slice(long startIndex, long endIndex) {
         return this;
     }
 
@@ -414,9 +360,9 @@ public final class XMLItem extends XMLValue<OMNode> {
      * {@inheritDoc}
      */
     @Override
-    public XMLValue<?> descendants(String qname) {
-        List<XMLValue<?>> descendants = new ArrayList<XMLValue<?>>();
-        for (XMLValue<?> item : children.children) {
+    public XMLValue descendants(String qname) {
+        List<BXml> descendants = new ArrayList<>();
+        for (BXml item : children.children) {
             if (item.getNodeType() == ELEMENT
                     && ((XMLItem) item).name.toString().equals(qname)) {
                 descendants.add(item);
@@ -492,6 +438,7 @@ public final class XMLItem extends XMLValue<OMNode> {
      * {@inheritDoc}
      */
     @Override
+    @SuppressWarnings("unchecked")
     public Object copy(Map<Object, Object> refs) {
         if (isFrozen()) {
             return this;
@@ -499,9 +446,20 @@ public final class XMLItem extends XMLValue<OMNode> {
 
         QName elemName = new QName(this.name.getNamespaceURI(), this.name.getLocalPart(), this.name.getPrefix());
         XMLItem xmlItem = new XMLItem(elemName, (XMLSequence) children.copy(refs));
-        xmlItem.getAttributesMap().putAll((Map<String, String>) this.getAttributesMap().copy(refs));
+
+        MapValue<String, String> attributesMap = xmlItem.getAttributesMap();
+        MapValue<String, String> copy = (MapValue<String, String>) this.getAttributesMap().copy(refs);
+        if (attributesMap instanceof MapValueImpl) {
+            MapValueImpl<String, String> map = (MapValueImpl<String, String>) attributesMap;
+            map.putAll((Map<String, String>) copy);
+        } else {
+            for (Map.Entry<String, String> entry : copy.entrySet()) {
+                attributesMap.put(entry.getKey(), entry.getValue());
+            }
+        }
+
         if (getAttributesMap().isFrozen()) {
-            xmlItem.getAttributesMap().freeze();
+            attributesMap.freeze();
         }
         return xmlItem;
     }
@@ -522,7 +480,7 @@ public final class XMLItem extends XMLValue<OMNode> {
      * {@inheritDoc}
      */
     @Override
-    public XMLValue<?> getItem(int index) {
+    public XMLValue getItem(int index) {
         if (index != 0) {
             throw BallerinaErrors.createError("index out of range: index: " + index + ", size: 1");
         }
@@ -571,10 +529,10 @@ public final class XMLItem extends XMLValue<OMNode> {
             }
         }
 
-        List<XMLValue<?>> children = this.children.children;
+        List<BXml> children = this.children.children;
         List<Integer> toRemove = new ArrayList<>();
         for (int i = 0; i < children.size(); i++) {
-            XMLValue<?> child = children.get(i);
+            BXml child = children.get(i);
             if (child.getNodeType() == ELEMENT && ((XMLItem) child).getElementName().equals(qname)) {
                 toRemove.add(i);
             }
