@@ -168,7 +168,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.array_  \n  \nCombines the members of an array using a combining function.\nThe combining function takes the combined value so far and a member of the array,\nand returns a new combined value.\n  \n**Params**  \n- `function ((any|error),(any|error)) returns ((any|error))` func: combining function  \n- `(any|error)` initial: initial value for the first argument of combining function `func`  \n  \n**Returns** `(any|error)`   \n- result of combining the members of `arr` using `func`  \n  \nFor example  \n```  \n# reduce([1, 2, 3], function (int total, int n) returns int { return total + n; }, 0)  \n# ```  \nis the same as `sum(1, 2, 3)`.  \n  \n"
+          "value": "**Package:** _ballerina/lang.array_  \n  \nCombines the members of an array using a combining function.\nThe combining function takes the combined value so far and a member of the array,\nand returns a new combined value.\n  \n**Params**  \n- `function ((any|error),(any|error)) returns ((any|error))` func: combining function  \n- `(any|error)` initial: initial value for the first argument of combining function-`func`  \n  \n**Returns** `(any|error)`   \n- result of combining the members of `arr` using `func`  \n  \nFor example  \n```  \n# reduce([1, 2, 3], function (int total, int n) returns int { return total + n; }, 0)  \n# ```  \nis the same as `sum(1, 2, 3)`.  \n  \n"
         }
       },
       "sortText": "121",
@@ -200,7 +200,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.array_  \n  \nApplies a function to each member of an array.\nThe function `func` is applied to each member of array `arr` in order.\n  \n**Params**  \n- `function ((any|error)) returns ()` func: a function to apply to each member"
+          "value": "**Package:** _ballerina/lang.array_  \n  \nApplies a function to each member of an array.\nThe function-`func` is applied to each member of array `arr` in order.\n  \n**Params**  \n- `function ((any|error)) returns ()` func: a function to apply to each member"
         }
       },
       "sortText": "121",

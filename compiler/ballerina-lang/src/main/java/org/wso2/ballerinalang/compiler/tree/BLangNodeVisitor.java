@@ -877,6 +877,10 @@ public abstract class BLangNodeVisitor {
         throw new AssertionError();
     }
 
+    public void visit(BLangMarkdownReferenceDocumentation bLangMarkdownReferenceDocumentation) {
+        throw new AssertionError();
+    }
+
     public void visit(BLangWaitForAllExpr.BLangWaitKeyValue waitKeyValue) {
         throw new AssertionError();
     }
