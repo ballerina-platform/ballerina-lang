@@ -20,11 +20,13 @@ package org.ballerinalang.util;
 
 /**
  * This class contains the constants used in compiler front end.
+ *
+ * @since 1.1.0
  */
 public class BLangCompilerConstants {
 
-    public final static String ITERABLE_COLLECTION_ITERATOR_FUNC = "iterator";
-    public final static String ITERABLE_OBJECT_ITERATOR_FUNC = "__iterator";
-    public final static String NEXT_FUNC = "next";
-    public final static String VALUE_FIELD = "value";
+    public static final String ITERABLE_COLLECTION_ITERATOR_FUNC = "iterator";
+    public static final String ITERABLE_OBJECT_ITERATOR_FUNC = "__iterator";
+    public static final String NEXT_FUNC = "next";
+    public static final String VALUE_FIELD = "value";
 }
