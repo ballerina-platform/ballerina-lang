@@ -40,6 +40,7 @@ import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.StreamValue;
+import org.ballerinalang.jvm.values.StringValue;
 import org.ballerinalang.jvm.values.TableValue;
 import org.ballerinalang.jvm.values.TypedescValue;
 import org.ballerinalang.jvm.values.XMLItem;
@@ -110,6 +111,8 @@ import java.util.stream.Collectors;
  * @since 0.94
  */
 public class BRunUtil {
+
+    public static final String IS_STRING_VALUE_PROP = "ballerina.bstring";
 
     /**
      * Invoke a ballerina function.
@@ -821,8 +824,14 @@ public class BRunUtil {
                 bvmValue = new BBoolean((boolean) value);
                 break;
             case org.ballerinalang.jvm.types.TypeTags.STRING_TAG:
-                bvmValue = new BString((String) value);
-                break;
+                if (System.getProperty(IS_STRING_VALUE_PROP, "").equals("")) {
+                    bvmValue = new BString((String) value);
+                    break;
+                } else {
+                    StringValue stringValue = (StringValue) value;
+                    bvmValue = new BString(stringValue.getValue());
+                    break;
+                }
             case org.ballerinalang.jvm.types.TypeTags.DECIMAL_TAG:
                 DecimalValue decimalValue = (DecimalValue) value;
                 bvmValue = new BDecimal(decimalValue.value().toString(),

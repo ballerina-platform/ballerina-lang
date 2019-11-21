@@ -62,7 +62,7 @@ public type RetryClient client object {
         self.httpClient = httpClient;
     }
 
-    # The `post()` function wraps the underlying HTTP remote functions in a way to provide
+    # The `RetryClient.post()` function wraps the underlying HTTP remote functions in a way to provide
     # retrying functionality for a given endpoint to recover from network level failures.
     #
     # + path - Resource path
@@ -78,7 +78,7 @@ public type RetryClient client object {
         }
     }
 
-    # The `head()` function wraps the underlying HTTP remote functions in a way to provide
+    # The `RetryClient.head()` function wraps the underlying HTTP remote functions in a way to provide
     # retrying functionality for a given endpoint to recover from network level failures.
     #
     # + path - Resource path
@@ -94,7 +94,7 @@ public type RetryClient client object {
         }
     }
 
-    # The `put()` function wraps the underlying HTTP remote function in a way to provide
+    # The `RetryClient.put()` function wraps the underlying HTTP remote function in a way to provide
     # retrying functionality for a given endpoint to recover from network level failures.
     #
     # + path - Resource path
@@ -110,8 +110,8 @@ public type RetryClient client object {
         }
     }
 
-    # The `forward()` function wraps the underlying HTTP remote function in a way to provide retrying functionality
-    # for a given endpoint with inbound request's HTTP verb to recover from network level failures.
+    # The `RetryClient.forward()` function wraps the underlying HTTP remote function in a way to provide retrying
+    # functionality for a given endpoint with inbound request's HTTP verb to recover from network level failures.
     #
     # + path - Resource path
     # + request - An HTTP inbound request message
@@ -125,8 +125,8 @@ public type RetryClient client object {
         }
     }
 
-    # The `execute()` sends an HTTP request to a service with the specified HTTP verb. The function wraps the
-    # underlying HTTP remote function in a way to provide retrying functionality for a given endpoint to recover
+    # The `RetryClient.execute()` sends an HTTP request to a service with the specified HTTP verb. The function wraps
+    # the underlying HTTP remote function in a way to provide retrying functionality for a given endpoint to recover
     # from network level failures.
     #
     # + httpVerb - The HTTP verb value
@@ -144,7 +144,7 @@ public type RetryClient client object {
         }
     }
 
-    # The `patch()` function wraps the underlying HTTP remote function in a way to provide
+    # The `RetryClient.patch()` function wraps the underlying HTTP remote function in a way to provide
     # retrying functionality for a given endpoint to recover from network level failures.
     #
     # + path - Resource path
@@ -160,7 +160,7 @@ public type RetryClient client object {
         }
     }
 
-    # The `delete()` function wraps the underlying HTTP remote function in a way to provide
+    # The `RetryClient.delete()` function wraps the underlying HTTP remote function in a way to provide
     # retrying functionality for a given endpoint to recover from network level failures.
     #
     # + path - Resource path
@@ -177,7 +177,7 @@ public type RetryClient client object {
         }
     }
 
-    # The `get()` function wraps the underlying HTTP remote function in a way to provide
+    # The `RetryClient.get()` function wraps the underlying HTTP remote function in a way to provide
     # retrying functionality for a given endpoint to recover from network level failures.
     #
     # + path - Resource path
@@ -193,7 +193,7 @@ public type RetryClient client object {
         }
     }
 
-    # The `options()` function wraps the underlying HTTP remote function in a way to provide
+    # The `RetryClient.options()` function wraps the underlying HTTP remote function in a way to provide
     # retrying functionality for a given endpoint to recover from network level failures.
     #
     # + path - Resource path
@@ -211,7 +211,7 @@ public type RetryClient client object {
     }
 
     # Submits an HTTP request to a service with the specified HTTP verb.
-	#cThe `submit()` function does not give out a `Response` as the result,
+	#cThe `RetryClient.submit()` function does not give out a `Response` as the result,
 	#crather it returns an `HttpFuture` which can be used to do further interactions with the endpoint.
     #
     # + httpVerb - The HTTP verb value

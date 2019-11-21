@@ -17,7 +17,10 @@
  */
 package org.ballerinalang.test.javainterop;
 
+import org.ballerinalang.jvm.values.XMLItem;
+import org.ballerinalang.jvm.values.XMLValue;
 import org.ballerinalang.model.values.BBoolean;
+import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
@@ -127,5 +130,35 @@ public class RefTypeTests {
 
         Assert.assertTrue(returns[0] instanceof BBoolean);
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test(description = "Test interoperability with ballerina json return")
+    public void testInteropWithJsonReturns() {
+        BValue[] returns = BRunUtil.invoke(result, "testJsonReturns");
+        Assert.assertEquals(returns.length, 4);
+
+        Assert.assertTrue(returns[0] instanceof BMap);
+        Assert.assertEquals(returns[0].toString(), "{\"name\":\"John\"}");
+
+        Assert.assertTrue(returns[1] instanceof BInteger);
+        Assert.assertEquals(((BInteger) returns[1]).intValue(), 4);
+
+        Assert.assertTrue(returns[2] instanceof BMap);
+        Assert.assertEquals(returns[2].toString(), "{\"name\":\"Doe\"}");
+
+        Assert.assertTrue(returns[3] instanceof BValueArray);
+        Assert.assertEquals(returns[3].toString(), "[\"John\"]");
+    }
+
+    @Test(description = "Test interoperability with ballerina json params")
+    public void testInteropWithJsonParams() {
+        BValue[] returns = BRunUtil.invoke(result, "testJsonParams");
+        Assert.assertTrue(returns[0] instanceof BInteger);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 7);
+    }
+    
+    // static methods
+    public static XMLValue getXML() {
+        return new XMLItem("<hello/>");
     }
 }

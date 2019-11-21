@@ -23,7 +23,7 @@ type AnydataType anydata;
 # Constructs a value with a specified type by copying another value.
 # + t - the type for the copy to be constructed
 # + v - the value to be copied
-# + return - a new value that belongs to type `t`, or an error if this cannot be done
+# + return - a new value that belongs to the type of `t`, or an error if this cannot be done
 #
 # When `v` is a structural value, the inherent type of the value to be constructed
 # comes from `t`. When `t` is a union, it must be possible to determine which
