@@ -79,7 +79,8 @@ public class WaitActionsNegativeTest {
         BAssertUtil.validateError(resultNegative, index++,
                 "missing non-defaultable required record field 'f2'", 86, 25);
         BAssertUtil.validateError(resultNegative, index++,
-                "invalid literal for type 'sealedRec'", 87, 26);
+                                  "incompatible types: expected 'sealedRec', found 'record {| int id; string name; " +
+                                          "boolean status; |}'", 87, 26);
         BAssertUtil.validateError(resultNegative, index++,
                 "invalid field name 'status' in type 'sealedRec'", 88, 26);
         BAssertUtil.validateError(resultNegative, index++,
