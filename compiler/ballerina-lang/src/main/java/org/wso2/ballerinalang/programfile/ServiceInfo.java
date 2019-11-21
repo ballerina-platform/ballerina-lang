@@ -26,6 +26,7 @@ import java.util.Objects;
  *
  * @since 0.87
  */
+@Deprecated
 public class ServiceInfo extends StructureTypeInfo {
 
     public int serviceTypeCPIndex;
