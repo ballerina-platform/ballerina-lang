@@ -126,7 +126,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.map_  \n  \nApplies a function each member of a map and returns a map of the result.\nThe resulting map will have the same keys as the argument map.\n  \n**Params**  \n- `function ((any|error)) returns ((any|error))` func: a function to apply to each member  \n  \n**Returns** `map<(any|error)>`   \n- new map containing result of applying function `func` to each member  \n  \n"
+          "value": "**Package:** _ballerina/lang.map_  \n  \nApplies a function each member of a map and returns a map of the result.\nThe resulting map will have the same keys as the argument map.\n  \n**Params**  \n- `function ((any|error)) returns ((any|error))` func: a function to apply to each member  \n  \n**Returns** `map<(any|error)>`   \n- new map containing result of applying function 'func' to each member  \n  \n"
         }
       },
       "sortText": "121",
@@ -158,7 +158,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.map_  \n  \nCombines the members of a map using a combining function.\nThe combining function takes the combined value so far and a member of the map,\nand returns a new combined value.\n  \n**Params**  \n- `function ((any|error),(any|error)) returns ((any|error))` func: combining function  \n- `(any|error)` initial: initial value for the first argument of combining function `func`  \n  \n**Returns** `(any|error)`   \n- result of combining the members of `m` using `func`  \n  \n"
+          "value": "**Package:** _ballerina/lang.map_  \n  \nCombines the members of a map using a combining function.\nThe combining function takes the combined value so far and a member of the map,\nand returns a new combined value.\n  \n**Params**  \n- `function ((any|error),(any|error)) returns ((any|error))` func: combining function  \n- `(any|error)` initial: initial value for the first argument of combining function 'func'  \n  \n**Returns** `(any|error)`   \n- result of combining the members of `m` using `func`  \n  \n"
         }
       },
       "sortText": "121",
@@ -194,7 +194,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.map_  \n  \nApplies a function to each member of a map.\nThe function `func` is applied to each member of `m`.\n  \n**Params**  \n- `function ((any|error)) returns ()` func: a function to apply to each member"
+          "value": "**Package:** _ballerina/lang.map_  \n  \nApplies a function to each member of a map.\nThe function 'func' is applied to each member of `m`.\n  \n**Params**  \n- `function ((any|error)) returns ()` func: a function to apply to each member"
         }
       },
       "sortText": "121",
