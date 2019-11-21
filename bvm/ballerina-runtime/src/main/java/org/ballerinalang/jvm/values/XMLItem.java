@@ -26,6 +26,10 @@ import org.ballerinalang.jvm.XMLFactory;
 import org.ballerinalang.jvm.XMLNodeType;
 import org.ballerinalang.jvm.XMLValidator;
 import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.types.BArrayType;
+import org.ballerinalang.jvm.types.BMapType;
+import org.ballerinalang.jvm.types.BTypes;
+import org.ballerinalang.jvm.values.api.BXml;
 import org.ballerinalang.jvm.values.freeze.FreezeUtils;
 import org.ballerinalang.jvm.values.freeze.State;
 import org.ballerinalang.jvm.values.freeze.Status;
@@ -68,6 +72,17 @@ public final class XMLItem extends XMLValue<OMNode> {
     private QName name;
     XMLSequence children;
     MapValue<String, String> attributes = new MapValueImpl<>();
+    OMNode omNode;
+    private XMLNodeType nodeType;
+
+    /**
+     * Create an empty XMLValue.
+     */
+    @Deprecated
+    public XMLItem() {
+        omNode = new OMElementImpl();
+        setXMLNodeType();
+    }
 
     public XMLItem(QName name, XMLSequence children) {
         this.name = name;
@@ -324,6 +339,10 @@ public final class XMLItem extends XMLValue<OMNode> {
         }
     }
 
+    public void setChildren(BXml<?> seq) {
+        setChildren((XMLValue<?>) seq);
+    }
+
     /**
      * {@inheritDoc}
      */
@@ -368,6 +387,10 @@ public final class XMLItem extends XMLValue<OMNode> {
 
     private boolean isLastChildIsTextNode(List<XMLValue<?>> childList) {
         return childList.size() > 0 && childList.get(childList.size() - 1).getNodeType() == TEXT;
+    }
+
+    public void addChildren(BXml<?> seq) {
+        addChildren((XMLValue) seq);
     }
 
     /**

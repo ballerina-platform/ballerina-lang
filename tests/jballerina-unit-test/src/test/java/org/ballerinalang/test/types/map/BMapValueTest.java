@@ -244,10 +244,4 @@ public class BMapValueTest {
         Assert.assertEquals(map.get(keys[2]).stringValue(), "foobar");
 
     }
-
-    @Test(dependsOnMethods = "testGrammar")
-    public void testMapSynchronization() {
-        BValue[] returnVals = BRunUtil.invoke(programFile, "testMapSynchronization", new BValue[0]);
-        Assert.assertEquals(((BInteger) returnVals[0]).intValue(), 2000);
-    }
 }

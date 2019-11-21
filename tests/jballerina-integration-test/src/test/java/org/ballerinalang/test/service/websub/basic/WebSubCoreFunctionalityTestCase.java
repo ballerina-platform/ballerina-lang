@@ -106,6 +106,7 @@ public class WebSubCoreFunctionalityTestCase extends WebSubBaseTest {
     private LogLeecher unsubscriptionIntentVerificationLogLeecher = new LogLeecher(
             UNSUBSCRIPTION_INTENT_VERIFICATION_LOG);
     private LogLeecher logAbsenceTestLogLeecher = new LogLeecher(INTERNAL_HUB_NOTIFICATION_LOG);
+    private LogLeecher logAbsenceTestLogLeecherTwo = new LogLeecher(QUERY_PARAM_LOG);
     private LogLeecher intentVerificationDenialLogLeecher = new LogLeecher(INTENT_VERIFICATION_DENIAL_LOG);
     private LogLeecher internalHubNotificationLogLeecherTwoAfterOneUnsubscription =
             new LogLeecher(INTERNAL_HUB_NOTIFICATION_LOG_TWO);
@@ -186,6 +187,7 @@ public class WebSubCoreFunctionalityTestCase extends WebSubBaseTest {
             }
         });
         webSubSubscriber.addLogLeecher(logAbsenceTestLogLeecher);
+        webSubSubscriber.addLogLeecher(logAbsenceTestLogLeecherTwo);
         unsubscriptionIntentVerificationLogLeecher.waitForText(LOG_LEECHER_TIMEOUT);
     }
 
@@ -194,9 +196,17 @@ public class WebSubCoreFunctionalityTestCase extends WebSubBaseTest {
             expectedExceptions = BallerinaTestException.class,
             expectedExceptionsMessageRegExp = ".*Timeout expired waiting for matching log.*")
     public void testUnsubscription() throws BallerinaTestException {
+        try {
+            HttpResponse response = HttpClientRequest.doGet("http://localhost:23080/publisher/unsubscribe");
+            Assert.assertEquals(response.getData(), "unsubscription successful");
+        } catch (IOException e) {
+            throw new BallerinaTestException("Error requesting unsubscription");
+        }
+
         requestUpdate(PUBLISHER_NOTIFY_URL + PATH_SEPARATOR + "skip_subscriber_check", HUB_MODE_INTERNAL,
                       CONTENT_TYPE_JSON);
         logAbsenceTestLogLeecher.waitForText(5000);
+        logAbsenceTestLogLeecherTwo.waitForText(2500);
         internalHubNotificationLogLeecherTwoAfterOneUnsubscription.waitForText(LOG_LEECHER_TIMEOUT);
     }
 

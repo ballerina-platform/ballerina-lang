@@ -29,14 +29,14 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.http.HTTPServicesRegistry;
 import org.ballerinalang.net.http.HttpConstants;
-import org.ballerinalang.net.http.WebSocketConstants;
-import org.ballerinalang.net.http.WebSocketService;
-import org.ballerinalang.net.http.WebSocketServicesRegistry;
+import org.ballerinalang.net.http.websocket.WebSocketConstants;
+import org.ballerinalang.net.http.websocket.server.WebSocketServerService;
+import org.ballerinalang.net.http.websocket.server.WebSocketServicesRegistry;
 
 import static org.ballerinalang.net.http.HttpConstants.MOCK_LISTENER_ENDPOINT;
 
 /**
- * Get the ID of the connection.
+ * Register a service to the mock listener.
  *
  * @since 0.966
  */
@@ -63,8 +63,7 @@ public class NonListeningRegister extends org.ballerinalang.net.http.serviceendp
             if (HttpConstants.HTTP_CALLER_NAME.equals(callerType)) {
                 httpServicesRegistry.registerService(service);
             } else if (WebSocketConstants.FULL_WEBSOCKET_CALLER_NAME.equals(callerType)) {
-                WebSocketService webSocketService = new WebSocketService(service, strand.scheduler);
-                webSocketServicesRegistry.registerService(webSocketService);
+                webSocketServicesRegistry.registerService(new WebSocketServerService(service, strand.scheduler));
             }
         } else {
             httpServicesRegistry.registerService(service);

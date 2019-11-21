@@ -52,15 +52,14 @@ public type Listener object {
     }
 
     public function __gracefulStop() returns error? {
+        http:Listener? sListener = self.serviceEndpoint;
+        if (sListener is http:Listener) {
+            return sListener.__gracefulStop();
+        }
         return ();
     }
 
     public function __immediateStop() returns error? {
-        http:Listener? sListener = self.serviceEndpoint;
-        if (sListener is http:Listener) {
-            return sListener.__immediateStop();
-        }
-        return ();
     }
 
     # Gets called when the endpoint is being initialized during module initialization.
@@ -277,8 +276,15 @@ function invokeClientConnectorForSubscription(string hub, http:ClientConfigurati
 
     var subscriptionResponse = websubHubClientEP->subscribe(subscriptionChangeRequest);
     if (subscriptionResponse is SubscriptionChangeResponse) {
-        log:printInfo("Subscription Request successful at Hub[" + subscriptionResponse.hub +
-                "], for Topic[" + subscriptionResponse.topic + "], with Callback [" + callback + "]");
+        string subscriptionSuccessMsg = "Subscription Request successfully sent to Hub[" + subscriptionResponse.hub +
+                                "], for Topic[" + subscriptionResponse.topic + "], with Callback [" + callback + "]";
+
+        boolean expectIntentVerification = <boolean> subscriptionDetails[ANNOT_FIELD_EXPECT_INTENT_VERIFICATION];
+        if (expectIntentVerification) {
+            log:printInfo(subscriptionSuccessMsg + ". Awaiting intent verification.");
+            return;
+        }
+        log:printInfo(subscriptionSuccessMsg);
     } else {
         string errCause = <string> subscriptionResponse.detail()?.message;
         log:printError("Subscription Request failed at Hub[" + hub + "], for Topic[" + topic + "]: " + errCause);
