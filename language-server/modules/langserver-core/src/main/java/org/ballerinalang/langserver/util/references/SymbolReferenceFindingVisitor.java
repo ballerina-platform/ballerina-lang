@@ -305,6 +305,7 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
     @Override
     public void visit(BLangMatch.BLangMatchStaticBindingPatternClause staticBindingPatternClause) {
         // todo: support the literal visit when the constant support implemented in compiler
+        this.acceptNode(staticBindingPatternClause.literal);
         this.acceptNode(staticBindingPatternClause.body);
     }
 
@@ -319,6 +320,10 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
     public void visit(BLangRecordVariable bLangRecordVariable) {
         bLangRecordVariable.variableList
                 .forEach(variableKeyValue -> this.acceptNode(variableKeyValue.valueBindingPattern));
+        if (bLangRecordVariable.restParam instanceof BLangNode) {
+            this.acceptNode((BLangNode) bLangRecordVariable.restParam);
+        }
+        this.acceptNode(bLangRecordVariable.expr);
         this.acceptNode(bLangRecordVariable.typeNode);
     }
 
@@ -343,6 +348,7 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
     @Override
     public void visit(BLangTupleVariable bLangTupleVariable) {
         bLangTupleVariable.memberVariables.forEach(this::acceptNode);
+        this.acceptNode(bLangTupleVariable.getRestVariable());
         this.acceptNode(bLangTupleVariable.typeNode);
         this.acceptNode(bLangTupleVariable.expr);
     }
@@ -769,10 +775,8 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
         Optional<SymbolReferencesModel.Reference> symbolAtCursor = this.symbolReferences.getReferenceAtCursor();
         // Here, tsymbol check has been added in order to support the finite types
         // TODO: Handle finite type. After the fix check if it falsely capture symbols in other files with same name
-        if (!this.currentCUnitMode && symbolAtCursor.isPresent() && (symbolAtCursor.get().getSymbol() != bSymbol
-                || bSymbol == null
-               /* && symbolAtCursor.get().getSymbol() != bSymbol.type.tsymbol
-                && symbolAtCursor.get().getSymbol().type.tsymbol != bSymbol.type.tsymbol*/)) {
+        if (bSymbol == null|| (!this.currentCUnitMode && symbolAtCursor.isPresent()
+                && (symbolAtCursor.get().getSymbol() != bSymbol))) {
             return;
         }
         DiagnosticPos zeroBasedPos = CommonUtil.toZeroBasedPosition(position);

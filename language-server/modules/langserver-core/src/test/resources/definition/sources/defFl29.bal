@@ -1,68 +1,42 @@
-function testStartAction() {
-    future<int> intFuture = start getIntValue(10, 20);
-    TestObject1 testObj = new;
-    future<()> nilFuture = start testObj.objectMethod1("Hello");
+function testBindingPattern() {
+    Capital capital = {name: "Sri Jayawardenapura Kotte"};
+    Country country = {name: "LK", capital: capital};
+    // List Binding Pattern
+    [int, string, Country, float...] [iVal, sVal, {name: ctName1, cap: {name: cpName1}}, ...rstVal] = [1, "Hello", country, 1.2, 3.4];
+    var capitalName = cpName1;
+    int iValRef = iVal;
+    float[] rstValRef = rstVal;
+    // Map Binding pattern
+    Country {name: ctName2, cap: {cpName2}} = country;
+    var capital2 = cpName2;
+    var country2 = ctName2;
     
+    Student student = {name: "", "science": 22};
+    Student {name: sName, ...marks} = student;
+    map<anydata> marksArr = marks;
+    
+    int noInitVarDef;
+    noInitVarDef = 11;
 }
 
-function getIntValue(int a, int b) returns int {
-    return a + b;
-}
-
-type TestObject1 object {
-    function objectMethod1(string arg) {
-        
-    }
+type Country record {
+    string name;
+    Capital capital;
 };
 
-function testWaitAction() {
-    future<int> future1 = start getIntValue(10, 20);
-    future<int> future2 = start getIntValue(10, 20);
-    
-    int futureRes = wait future1;
-    var  multiFutureRes1 = wait {future1, future2};
-    record {int f1; int f2;} multiFutureRes2 = wait {f1: future1, f2:future2};
-    var alternateFutureRes = wait future1 | future2;
+type Capital record {|
+    string name;
+|};
+
+type Student record {|
+    string name;
+    int...;
+|};
+
+function testVarDef() {
+    final var refVar1 = "Hello World";
+    var refVar2 = refVar1;
+    string refVar3;
+    refVar3 = "Ballerina";
+    refVar2 = refVar3;
 }
-
-function sendActionTest() {
-    worker w1 {
-        int w1Var1 = 12;
-        int w1Var2 = 12;
-        w1Var1->w2;
-        w1Var2->>w2;
-    }
-
-    worker w2 {
-        int w1Res = <-w1;
-        int w1Res2 = <-w1;
-    }
-}
-
-function testFlush() {
-    worker w1 {
-        int x = 2;
-        x -> w2;
-        error? e = flush w2;
-
-    }
-
-    worker w2 {
-        int s = <- w1;
-
-    }
-
-    _ = wait {w1, w2};
-}
-
-public type SimpleClient client object {
-    public remote function simpleAction(string actionParam) {
-        
-    }
-};
-
-function testRemoteAction() {
-    SimpleClient sClient = new();
-    sClient->simpleAction("Test");
-}
-

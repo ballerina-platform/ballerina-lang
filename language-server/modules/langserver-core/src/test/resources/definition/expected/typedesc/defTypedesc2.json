@@ -3,18 +3,18 @@
     "file": "defFl24.bal"
   },
   "position": {
-    "line": 22,
-    "character": 11
+    "line": 42,
+    "character": 12
   },
   "result": [
     {
       "range": {
         "start": {
-          "line": 5,
+          "line": 3,
           "character": 12
         },
         "end": {
-          "line": 5,
+          "line": 3,
           "character": 26
         }
       },
