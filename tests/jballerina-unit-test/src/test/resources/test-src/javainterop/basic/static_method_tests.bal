@@ -1,4 +1,5 @@
 import ballerina/runtime;
+import ballerina/io;
 import ballerinax/java;
 
 function testAcceptNothingAndReturnNothing() {
@@ -14,6 +15,8 @@ function testAcceptNothingButReturnDate() returns handle {
 }
 
 function testAcceptNothingButReturnString() returns string {
+    io:println("lolo");
+    io:println(acceptNothingButReturnString());
     return acceptNothingButReturnString();
 }
 
@@ -71,6 +74,10 @@ public function acceptNothingButReturnDate() returns handle = @java:Method {
 } external;
 
 public function acceptNothingButReturnString() returns string = @java:Method {
+    class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
+} external;
+
+function stringParamAndReturn(string a1) returns string = @java:Method {
     class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
 } external;
 

@@ -60,6 +60,10 @@ public class StaticMethods {
         return new BmpStringValue("hello world");
     }
 
+    public static StringValue stringParamAndReturn(StringValue a1) {
+        return a1.concat(new BmpStringValue(" and Hadrian"));
+    }
+
     public static Date acceptSomethingAndReturnSomething(Date date) {
         return date;
     }
