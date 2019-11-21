@@ -30,6 +30,7 @@ import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.AnnotationNode;
 import org.ballerinalang.model.tree.CompilationUnitNode;
 import org.ballerinalang.model.tree.DocumentableNode;
+import org.ballerinalang.model.tree.DocumentationReferenceType;
 import org.ballerinalang.model.tree.FunctionNode;
 import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.InvokableNode;
@@ -82,6 +83,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangMarkdownDocumentation;
+import org.wso2.ballerinalang.compiler.tree.BLangMarkdownReferenceDocumentation;
 import org.wso2.ballerinalang.compiler.tree.BLangNameReference;
 import org.wso2.ballerinalang.compiler.tree.BLangRecordVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangRecordVariable.BLangRecordVariableKeyValue;
@@ -2342,6 +2344,23 @@ public class BLangPackageBuilder {
         markdownDocumentationNode.addWS(ws);
     }
 
+    void endDocumentationReference(DiagnosticPos pos, String referenceType, String identifier) {
+        MarkdownDocumentationNode markdownDocumentationNode = markdownDocumentationStack.peek();
+        // Processing the reference name because its of the pattern "service   `". Trim the spaces and trailing "`".
+        String processedReferenceType = referenceType.substring(0, (referenceType.length() - 1)).trim().toUpperCase();
+        BLangMarkdownReferenceDocumentation referenceDocumentation = createReferenceDocumentation(pos,
+                DocumentationReferenceType.valueOf(processedReferenceType), identifier);
+        markdownDocumentationNode.addReference(referenceDocumentation);
+    }
+
+    // Store single backticked content in Documentation Node.
+    void endSingleBacktickedBlock(DiagnosticPos pos, String identifier) {
+        MarkdownDocumentationNode markdownDocumentationNode = markdownDocumentationStack.peek();
+        BLangMarkdownReferenceDocumentation referenceDocumentation =
+                createReferenceDocumentation(pos, DocumentationReferenceType.BACKTICK_CONTENT, identifier);
+        markdownDocumentationNode.addReference(referenceDocumentation);
+    }
+
     void endParameterDocumentation(DiagnosticPos pos, Set<Whitespace> ws, String parameterName, String description) {
         MarkdownDocumentationNode markdownDocumentationNode = markdownDocumentationStack.peek();
         BLangMarkdownParameterDocumentation parameterDocumentationNode =
@@ -2456,6 +2475,18 @@ public class BLangPackageBuilder {
                 || lExprNode.getKind() == NodeKind.INDEX_BASED_ACCESS_EXPR) {
             validateLvexpr(((BLangAccessExpression) lExprNode).expr, errorCode);
         }
+    }
+
+    private BLangMarkdownReferenceDocumentation createReferenceDocumentation(DiagnosticPos pos,
+                                                                              DocumentationReferenceType type,
+                                                                              String identifier) {
+        BLangMarkdownReferenceDocumentation referenceDocumentation =
+                (BLangMarkdownReferenceDocumentation) TreeBuilder.createMarkdownReferenceDocumentationNode();
+        referenceDocumentation.type = type;
+        referenceDocumentation.pos = pos;
+        referenceDocumentation.referenceName = identifier;
+
+        return referenceDocumentation;
     }
 
     void addTupleDestructuringStatement(DiagnosticPos pos, Set<Whitespace> ws) {

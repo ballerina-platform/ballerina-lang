@@ -84,6 +84,7 @@ class JInterop {
 
     //jvm type names
     static final String J_OBJECT_TNAME = Object.class.getTypeName();
+    static final String J_STRING_TNAME = String.class.getTypeName();
     static final String J_BOOLEAN_OBJ_TNAME = Boolean.class.getTypeName();
     static final String J_INTEGER_OBJ_TNAME = Integer.class.getTypeName();
     static final String J_BYTE_OBJ_TNAME = Byte.class.getTypeName();

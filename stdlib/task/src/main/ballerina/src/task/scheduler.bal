@@ -109,7 +109,7 @@ public type Scheduler object {
     # Checks whether the task listener is started or not.
     #
     # + return - Returns `true` if the Scheduler is already started, `false` if the Scheduler is
-    #               not started yet or stopped calling the `stop()` function.
+    #               not started yet or stopped calling the `Scheduler.stop()` function.
     public function isStarted() returns boolean {
         return self.taskListener.isStarted();
     }
