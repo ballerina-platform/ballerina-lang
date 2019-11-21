@@ -19,7 +19,7 @@
 # inside the `Select` object to return the events in the window to perform joining.
 # The window names in the window objects cannot be used in the queries. Always a function which returns the specific
 # window has to be used in streaing query.
-# E.g. If `LengthWindow` has to be used in a streaming query, the function `streams:length` has to be used for
+# E.g. If `LengthWindow` has to be used in a streaming query, the function 'streams:length' has to be used for
 # streaming  query without the module identifier `streams`. An example is shown below.
 #
 #       from inputStream window `length`(5)

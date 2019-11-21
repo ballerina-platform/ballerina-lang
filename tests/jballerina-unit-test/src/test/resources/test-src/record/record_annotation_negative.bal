@@ -2,10 +2,10 @@ import ballerina/http;
 
 # Documentation for Test annotation
 #
-# + a - annotation `field a` documentation
-# + a - annotation `field a` documentation
-# + b - annotation `field b` documentation
-# + c - annotation `field c` documentation
+# + a - `field a` documentation
+# + a - `field a` documentation
+# + b - `field b` documentation
+# + c - `field c` documentation
 type Tst record {
     string a;
     string b;

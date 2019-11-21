@@ -28,6 +28,7 @@ import org.ballerinalang.jvm.values.AbstractObjectValue;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.RefValue;
+import org.ballerinalang.jvm.values.StringValue;
 
 /**
  * This class contains the methods that deals with Strings.
@@ -48,6 +49,11 @@ public class StringUtils {
         }
 
         BType type = TypeChecker.getType(value);
+
+        //TODO: bstring - change to type tag check
+        if (value instanceof StringValue) {
+            return ((StringValue) value).getValue();
+        }
 
         if (type.getTag() < TypeTags.JSON_TAG) {
             return String.valueOf(value);

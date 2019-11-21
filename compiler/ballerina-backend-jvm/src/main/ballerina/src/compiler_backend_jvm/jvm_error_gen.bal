@@ -174,7 +174,7 @@ type DiagnosticLogger object {
 
 function print(string message) {
     handle errStream = getSystemErrorStream();
-    printToErrorStream(errStream, message);
+    printToErrorStream(errStream, java:fromString(message));
 }
 
 public function getSystemErrorStream() returns handle = @java:FieldGet {
@@ -182,7 +182,7 @@ public function getSystemErrorStream() returns handle = @java:FieldGet {
     class:"java/lang/System"
 } external;
 
-public function printToErrorStream(handle receiver, string message) = @java:Method {
+public function printToErrorStream(handle receiver, handle message) = @java:Method {
     name:"println",
     class:"java/io/PrintStream",
     paramTypes:["java.lang.String"]
