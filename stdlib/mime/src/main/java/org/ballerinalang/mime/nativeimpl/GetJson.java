@@ -20,7 +20,7 @@ package org.ballerinalang.mime.nativeimpl;
 
 import org.ballerinalang.jvm.JSONParser;
 import org.ballerinalang.jvm.TypeChecker;
-import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.ObjectValue;
@@ -28,10 +28,6 @@ import org.ballerinalang.jvm.values.RefValue;
 import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
 import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.mime.util.MimeUtil;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.natives.annotations.ReturnType;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 import static org.ballerinalang.mime.util.EntityBodyHandler.isStreamingRequired;
@@ -41,16 +37,16 @@ import static org.ballerinalang.mime.util.EntityBodyHandler.isStreamingRequired;
  *
  * @since 0.963.0
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "mime",
-        functionName = "getJson",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = "Entity", structPackage = "ballerina/mime"),
-        returnType = {@ReturnType(type = TypeKind.JSON), @ReturnType(type = TypeKind.RECORD)},
-        isPublic = true
-)
+//@BallerinaFunction(
+//        orgName = "ballerina", packageName = "mime",
+//        functionName = "getJson",
+//        receiver = @Receiver(type = TypeKind.OBJECT, structType = "Entity", structPackage = "ballerina/mime"),
+//        returnType = {@ReturnType(type = TypeKind.JSON), @ReturnType(type = TypeKind.RECORD)},
+//        isPublic = true
+//)
 public class GetJson extends AbstractGetPayloadHandler {
 
-    public static Object getJson(Strand strand, ObjectValue entityObj) {
+    public static Object getJson(ObjectValue entityObj) {
         NonBlockingCallback callback = null;
         RefValue result = null;
         try {
@@ -71,7 +67,7 @@ public class GetJson extends AbstractGetPayloadHandler {
                 result = (RefValue) EntityBodyHandler.constructJsonDataSource(entityObj);
                 updateJsonDataSource(entityObj, result);
             } else {
-                callback = new NonBlockingCallback(strand);
+                callback = new NonBlockingCallback(Scheduler.getStrand());
                 constructNonBlockingDataSource(callback, entityObj, SourceType.JSON);
             }
         } catch (Exception ex) {

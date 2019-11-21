@@ -238,7 +238,7 @@ public type Entity object {
     }
 
     # Sets the entity body with a given file. This method overrides any existing `content-type` headers
-    # with the default content type `application/octet-stream`. The default value `application/octet-stream`
+    # with the default content-type `application/octet-stream`. The default value `application/octet-stream`
     # can be overridden by passing the content type as an optional parameter.
     #
     # + filePath - Represents the path to the file
@@ -250,19 +250,23 @@ public type Entity object {
     }
 
     # Sets the entity body with the given `json` content. This method overrides any existing `content-type` headers
-    # with the default content type `application/json`. The default value `application/json` can be overridden
+    # with the default content-type `application/json`. The default value `application/json` can be overridden
     # by passing the content type as an optional parameter.
     #
     # + jsonContent - JSON content that needs to be set to entity
     # + contentType - Content type to be used with the payload. This is an optional parameter. `application/json`
     #                 is used as the default value.
-    public function setJson(@untainted json jsonContent, @untainted public string contentType = "application/json") = external;
+    public function setJson(@untainted json jsonContent, @untainted public string contentType = "application/json") {
+        return externSetJson(self, jsonContent, java:fromString(contentType));
+    }
 
     # Extracts JSON body from the entity. If the entity body is not a JSON, an error is returned.
     #
     # + return - `json` data extracted from the the entity body. An `ParserError` record is returned in case of
     #            errors.
-    public function getJson() returns @tainted json|ParserError = external;
+    public function getJson() returns @tainted json|ParserError {
+        return externGetJson(self);
+    }
 
     # Sets the entity body with the given XML content. This method overrides any existing content-type headers
     # with the default content-type `application/xml`. The default value `application/xml` can be overridden
@@ -307,7 +311,7 @@ public type Entity object {
     }
 
     # Sets the entity body with the given byte[] content. This method overrides any existing `content-type` headers
-    # with the default content type `application/octet-stream`. The default value `application/octet-stream`
+    # with the default content-type `application/octet-stream`. The default value `application/octet-stream`
     # can be overridden by passing the content type as an optional parameter.
     #
     # + blobContent - byte[] content that needs to be set to entity
@@ -362,7 +366,7 @@ public type Entity object {
     }
 
     # Sets body parts to entity. This method overrides any existing `content-type` headers
-    # with the default content type `multipart/form-data`. The default value `multipart/form-data` can be overridden
+    # with the default content-type `multipart/form-data`. The default value `multipart/form-data` can be overridden
     # by passing the content type as an optional parameter.
     #
     # + bodyParts - Represents the body parts that needs to be set to the entity
@@ -378,7 +382,7 @@ public type Entity object {
     # + headerName - Represents header name
     # + return - Header value associated with the given header name as a `string`. If multiple header values are
     #            present, then the first value is returned. An exception is thrown if no header is found. Use
-    #            `hasHeader()` beforehand to check the existence of header.
+    #            `Entity.hasHeader()` beforehand to check the existence of header.
     public function getHeader(@untainted string headerName) returns @tainted string {
         return <string>java:toString(externGetHeader(self, java:fromString(headerName)));
     }
@@ -387,16 +391,31 @@ public type Entity object {
     #
     # + headerName - The header name
     # + return - All the header values associated with the given header name as a `string[]`. An exception is thrown
-    #            if no header is found. Use `hasHeader()` beforehand to check the existence of header.
+    #            if no header is found. Use `Entity.hasHeader()` beforehand to check the existence of header.
     public function getHeaders(@untainted string headerName) returns @tainted string[] {
-        return <string[]>externGetHeaders(self, java:fromString(headerName));
+        handle[] headerValues = externGetHeaders(self, java:fromString(headerName));
+        string[] headers = [];
+        int index = 0;
+        foreach var headerValue in headerValues {
+            headers[index] = <string>java:toString(headerValue);
+            index =+ 1;
+        }
+        return headers;
     }
 
     # Gets all header names.
     #
     # + return - All header names as a `string[]`
     public function getHeaderNames() returns @tainted string[] {
-        return <string[]>externGetHeaderNames(self);
+        //return <string[]>externGetHeaderNames(self);
+        handle[] headerNames = externGetHeaderNames(self);
+            string[] headers = [];
+            int index = 0;
+            foreach var headerName in headerNames {
+                headers[index] = <string>java:toString(headerName);
+                index =+ 1;
+            }
+        return headers;
     }
 
     # Adds the given header value against the given header.
@@ -437,10 +456,15 @@ public type Entity object {
     }
 };
 
-//function externSetJson(Entity entity, json jsonContent, handle contentType) = @java:Method {
-//    class: "org.ballerinalang.mime.nativeimpl.SetJson",
-//    name: "setJson"
-//} external;
+function externSetJson(Entity entity, json jsonContent, handle contentType) = @java:Method {
+    class: "org.ballerinalang.mime.nativeimpl.SetJson",
+    name: "setJson"
+} external;
+
+function externGetJson(Entity entity) returns @tainted json|ParserError = @java:Method {
+    class: "org.ballerinalang.mime.nativeimpl.GetJson",
+    name: "getJson"
+} external;
 
 function externSetXml(Entity entity, xml xmlContent, handle contentType) = @java:Method {
     class: "org.ballerinalang.mime.nativeimpl.SetXml",

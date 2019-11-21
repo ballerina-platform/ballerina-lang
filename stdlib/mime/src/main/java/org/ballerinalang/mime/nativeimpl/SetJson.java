@@ -18,14 +18,9 @@
 
 package org.ballerinalang.mime.nativeimpl;
 
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.mime.util.MimeUtil;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.Receiver;
 
 import static org.ballerinalang.mime.util.MimeConstants.APPLICATION_JSON;
 
@@ -34,16 +29,16 @@ import static org.ballerinalang.mime.util.MimeConstants.APPLICATION_JSON;
  *
  * @since 0.963.0
  */
-@BallerinaFunction(orgName = "ballerina", packageName = "mime",
-        functionName = "setJson",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = "Entity", structPackage = "ballerina/mime"),
-        args = {@Argument(name = "jsonContent", type = TypeKind.JSON), @Argument(name = "contentType",
-                type = TypeKind.STRING)},
-        isPublic = true
-)
+//@BallerinaFunction(orgName = "ballerina", packageName = "mime",
+//        functionName = "setJson",
+//        receiver = @Receiver(type = TypeKind.OBJECT, structType = "Entity", structPackage = "ballerina/mime"),
+//        args = {@Argument(name = "jsonContent", type = TypeKind.JSON), @Argument(name = "contentType",
+//                type = TypeKind.STRING)},
+//        isPublic = true
+//)
 public class SetJson {
 
-    public static void setJson(Strand strand, ObjectValue entityObj, Object jsonContent, String contentType) {
+    public static void setJson(ObjectValue entityObj, Object jsonContent, String contentType) {
         EntityBodyHandler.addJsonMessageDataSource(entityObj, jsonContent);
         MimeUtil.setMediaTypeToEntity(entityObj, contentType != null ? contentType : APPLICATION_JSON);
     }

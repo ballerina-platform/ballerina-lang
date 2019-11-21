@@ -629,9 +629,11 @@ function genVarArg(jvm:MethodVisitor mv, BalToJVMIndexMap indexMap, bir:BType bT
         mv.visitMethodInsn(INVOKEINTERFACE, ARRAY_VALUE, "getByte", "(J)B", true);
     } else if (bElementType is bir:BTypeFloat) {
         mv.visitMethodInsn(INVOKEINTERFACE, ARRAY_VALUE, "getFloat", "(J)D", true);
-    } else {
+    } else if (bElementType is bir:BTypeHandle) {
         mv.visitMethodInsn(INVOKEINTERFACE, ARRAY_VALUE, "getRefValue", io:sprintf("(J)L%s;", OBJECT), true);
         mv.visitTypeInsn(CHECKCAST, HANDLE_VALUE);
+    } else {
+        mv.visitMethodInsn(INVOKEINTERFACE, ARRAY_VALUE, "getRefValue", io:sprintf("(J)L%s;", OBJECT), true);
     }
 
     // unwrap from handleValue
