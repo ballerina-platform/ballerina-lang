@@ -82,15 +82,15 @@ public type ProducerConfig record {|
     SecureSocket secureSocket?;
 |};
 
-# Producer acknowledgement type `all`. This will gurantee that the record will not be lost as long as at least one
+# Producer acknowledgement type 'all'. This will gurantee that the record will not be lost as long as at least one
 # in-sync replica is alive.
 public const ACKS_ALL = "all";
 
-# Producer acknowledgement type `0`. If the acknowledgement type set to this, the producer will not wait for any
+# Producer acknowledgement type '0'. If the acknowledgement type set to this, the producer will not wait for any
 # acknowledgement from the server.
 public const ACKS_NONE = "0";
 
-# Producer acknowledgement type `1`. If the acknowledgement type set to this, the leader will write the record to its
+# Producer acknowledgement type '1'. If the acknowledgement type set to this, the leader will write the record to its
 # local log but will respond without awaiting full acknowledgement from all followers.
 public const ACKS_SINGLE = "1";
 
