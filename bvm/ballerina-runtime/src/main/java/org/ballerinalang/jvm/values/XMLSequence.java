@@ -242,6 +242,9 @@ public final class XMLSequence extends XMLValue<ArrayValue> {
     public XMLValue<?> children(String qname) {
         List<XMLValue<?>> selected = new ArrayList<>();
         for (XMLValue<?> elem : this.children) {
+            if (elem.getNodeType() != XMLNodeType.ELEMENT) {
+                continue;
+            }
             if (elem.getElementName().equals(qname)) {
                 selected.add(elem);
             }

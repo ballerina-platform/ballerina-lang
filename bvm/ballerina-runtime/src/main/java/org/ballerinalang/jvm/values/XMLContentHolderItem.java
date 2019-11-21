@@ -57,7 +57,10 @@ public class XMLContentHolderItem extends XMLValue<OMNode> {
 
     @Override
     public String getTextValue() {
-        return null;
+        if (type == XMLNodeType.TEXT) {
+            return getData();
+        }
+        return "";
     }
 
     @Override

@@ -438,7 +438,7 @@ public class XMLLiteralTest {
         BValue[] returns = BRunUtil.invoke(literalWithNamespacesResult, "getXML");
         Assert.assertTrue(returns[0] instanceof BXML);
 
-        XMLItem xmlItem = new XMLItem(returns[0].stringValue());
+        XMLItem xmlItem = (XMLItem) XMLFactory.parse(returns[0].stringValue());
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         xmlItem.serialize(baos);
         Assert.assertEquals(new String(baos.toByteArray()),

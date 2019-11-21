@@ -23,6 +23,7 @@ import org.ballerinalang.jvm.DataIterator;
 import org.ballerinalang.jvm.JSONParser;
 import org.ballerinalang.jvm.TableResourceManager;
 import org.ballerinalang.jvm.TableUtils;
+import org.ballerinalang.jvm.XMLFactory;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BField;
 import org.ballerinalang.jvm.types.BStructureType;
@@ -262,7 +263,7 @@ public class TableIterator implements DataIterator {
                 break;
             case TypeTags.XML_TAG:
                 String xmlValue = rs.getString(index);
-                value = new XMLItem(xmlValue);
+                value = XMLFactory.parse(xmlValue);
                 break;
             case TypeTags.ARRAY_TAG:
                 BType arrayElementType = ((BArrayType) type).getElementType();

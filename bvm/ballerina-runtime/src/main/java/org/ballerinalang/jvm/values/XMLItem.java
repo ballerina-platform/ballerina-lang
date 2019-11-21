@@ -18,10 +18,8 @@ package org.ballerinalang.jvm.values;
 
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.OMException;
-import org.apache.axiom.om.OMNamespace;
 import org.apache.axiom.om.OMNode;
 import org.apache.axiom.om.OMText;
-import org.apache.axiom.om.impl.common.OMNamespaceImpl;
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.StaxXMLSink;
 import org.ballerinalang.jvm.XMLFactory;
@@ -32,6 +30,9 @@ import org.ballerinalang.jvm.values.freeze.FreezeUtils;
 import org.ballerinalang.jvm.values.freeze.State;
 import org.ballerinalang.jvm.values.freeze.Status;
 
+import javax.xml.XMLConstants;
+import javax.xml.namespace.QName;
+import javax.xml.stream.XMLStreamException;
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
@@ -39,10 +40,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-
-import javax.xml.XMLConstants;
-import javax.xml.namespace.QName;
-import javax.xml.stream.XMLStreamException;
 
 import static org.ballerinalang.jvm.XMLNodeType.ELEMENT;
 import static org.ballerinalang.jvm.XMLNodeType.TEXT;
@@ -71,27 +68,6 @@ public final class XMLItem extends XMLValue<OMNode> {
     private QName name;
     XMLSequence children;
     MapValue<String, String> attributes = new MapValueImpl<>();
-
-    /**
-     * Initialize a {@link XMLItem} from a XML string.
-     *
-     * @param xmlValue A XML string
-     */
-    public XMLItem(String xmlValue) {
-        if (xmlValue == null) {
-            return;
-        }
-
-        try {
-            // Use XMLFactory to create nodes.
-            assert false;
-            //omNode = XMLFactory.stringToOM(xmlValue);
-//            setXMLNodeType();
-        } catch (Throwable t) {
-            handleXmlException("failed to create xml: ", t);
-        }
-    }
-
 
     public XMLItem(QName name, XMLSequence children) {
         this.name = name;
@@ -156,7 +132,7 @@ public final class XMLItem extends XMLValue<OMNode> {
      */
     @Override
     public String getTextValue() {
-        return "<emtpy/>";
+        return children.getTextValue();
 //        switch (nodeType) {
 //            case ELEMENT:
 //                StringBuilder elementTextBuilder = new StringBuilder();
@@ -205,8 +181,11 @@ public final class XMLItem extends XMLValue<OMNode> {
      */
     @Override
     public void setAttribute(String localName, String namespaceUri, String prefix, String value) {
-        // todo: need to handle fronzen values
-
+        synchronized (this) {
+            if (freezeStatus.getState() != State.UNFROZEN) {
+                FreezeUtils.handleInvalidUpdate(freezeStatus.getState(), XML_LANG_LIB);
+            }
+        }
 
         if (localName == null || localName.isEmpty()) {
             throw BallerinaErrors.createError("localname of the attribute cannot be empty");
@@ -309,31 +288,7 @@ public final class XMLItem extends XMLValue<OMNode> {
      */
     @Override
     public XMLValue<?> children(String qname) {
-        assert false;
-        return null;
-//        ArrayValue elementsSeq = new ArrayValue(new BArrayType(BTypes.typeXML));
-//        switch (nodeType) {
-//            case ELEMENT:
-//                /*
-//                 * Here we are not using "((OMElement) omNode).getChildrenWithName(qname))" method, since as per the
-//                 * documentation of AxiomContainer.getChildrenWithName, if the namespace part of the qname is empty, it
-//                 * will look for the elements which matches only the local part and returns. i.e: It will not match the
-//                 * namespace. This is not the behavior we want. Hence we are explicitly creating an iterator which
-//                 * will return elements that will match both namespace and the localName, regardless whether they are
-//                 * empty or not.
-//                 */
-//                Iterator<OMNode> childrenItr =
-//                        new OMChildrenQNameIterator(((OMElement) omNode).getFirstOMChild(), getQname(qname));
-//                int i = 0;
-//                while (childrenItr.hasNext()) {
-//                    OMNode node = childrenItr.next();
-//                    elementsSeq.add(i++, new XMLItem(node));
-//                }
-//                break;
-//            default:
-//                break;
-//        }
-//        return new XMLSequence(elementsSeq);
+        return children.children(qname);
     }
 
     /**
@@ -522,6 +477,9 @@ public final class XMLItem extends XMLValue<OMNode> {
         QName elemName = new QName(this.name.getNamespaceURI(), this.name.getLocalPart(), this.name.getPrefix());
         XMLItem xmlItem = new XMLItem(elemName, (XMLSequence) children.copy(refs));
         xmlItem.getAttributesMap().putAll((Map<String, String>) this.getAttributesMap().copy(refs));
+        if (getAttributesMap().isFrozen()) {
+            xmlItem.getAttributesMap().freeze();
+        }
         return xmlItem;
     }
 
@@ -612,6 +570,7 @@ public final class XMLItem extends XMLValue<OMNode> {
         if (FreezeUtils.isOpenForFreeze(this.freezeStatus, freezeStatus)) {
             this.freezeStatus = freezeStatus;
         }
+        this.attributes.attemptFreeze(freezeStatus);
     }
 
     /**
@@ -620,6 +579,7 @@ public final class XMLItem extends XMLValue<OMNode> {
     @Override
     public void freezeDirect() {
         this.freezeStatus.setFrozen();
+        this.attributes.freezeDirect();
     }
 
     private String getTextValue(OMNode node) {
@@ -650,47 +610,6 @@ public final class XMLItem extends XMLValue<OMNode> {
             qname = new QName(namespaceUri, localName);
         }
         return qname;
-    }
-
-    private void createAttribute(String localName, String namespaceUri, String prefix, String value, OMElement node) {
-        // If the namespace is null/empty, only the local part exists. Therefore add a simple attribute.
-        if (namespaceUri == null || namespaceUri.isEmpty()) {
-            node.addAttribute(localName, value, null);
-            return;
-        }
-
-        if (!(prefix == null || prefix.isEmpty())) {
-            OMNamespace existingNs = node.findNamespaceURI(prefix);
-
-            // If a namespace exists with the same prefix but a different uri, then do not add the new attribute.
-            if (existingNs != null && !namespaceUri.equals(existingNs.getNamespaceURI())) {
-                throw BallerinaErrors
-                        .createError("failed to add attribute '" + prefix + ":" + localName + "'. prefix '" + prefix +
-                                "' is already bound to namespace '" + existingNs.getNamespaceURI() + "'");
-            }
-
-            node.addAttribute(localName, value, new OMNamespaceImpl(namespaceUri, prefix));
-            return;
-        }
-
-        // We reach here if the namespace prefix is null/empty, and a namespace uri exists.
-        // Find a prefix that has the same namespaceUri, out of the defined namespaces
-        Iterator<String> prefixes = node.getNamespaceContext(false).getPrefixes(namespaceUri);
-        if (prefixes.hasNext()) {
-            prefix = prefixes.next();
-            if (prefix.isEmpty()) {
-                node.addAttribute(localName, value, null);
-                return;
-            }
-            if (prefix.equals(XMLConstants.XMLNS_ATTRIBUTE)) {
-                // If found, and if its the default namespace, add a namespace decl
-                node.declareNamespace(value, localName);
-                return;
-            }
-        }
-
-        // Else use the prefix. If the prefix is null, a random prefix will be generated.
-        node.addAttribute(localName, value, new OMNamespaceImpl(namespaceUri, prefix));
     }
 
     @Override
