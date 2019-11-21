@@ -1369,4 +1369,3 @@ function generateJVarStore(jvm:MethodVisitor mv, jvm:JType jType, string current
         panic err;
     }
 }
-

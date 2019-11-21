@@ -17,7 +17,7 @@
 import ballerina/io;
 import ballerina/bir;
 import ballerina/jvm;
-import ballerina/internal;
+import ballerina/stringutils;
 import ballerina/lang.'int as lint;
 
 public type JarFile record {|
@@ -38,8 +38,8 @@ public function main(string... args) {
     string pathToEntryBir = <@untainted> args[0];
     string mapPath = <@untainted> args[1];
     string targetPath = args[2];
-    boolean dumpBir = internal:equalsIgnoreCase(args[3], "true");
-    boolean useSystemClassLoader = internal:equalsIgnoreCase(args[4], "true");
+    boolean dumpBir = stringutils:equalsIgnoreCase(args[3], "true");
+    boolean useSystemClassLoader = stringutils:equalsIgnoreCase(args[4], "true");
     int numCacheDirs =  <int>lint:fromString(args[5]);
 
     int i = 0;
@@ -47,7 +47,6 @@ public function main(string... args) {
         birCacheDirs[i] = <@untainted> args[6 + i];
         i = i + 1;
     }
-
     // main will receive the no of cache directories as 6th arg. Then we read the rest of the args as cache directories
     // based on 6th arg value.
     int argsCount = 6 + numCacheDirs;
@@ -79,8 +78,7 @@ function generateJarBinary(string pathToEntryBir, string mapPath, boolean dumpBi
     compiledPkgCache[entryMod.org.value + entryMod.name.value] = entryMod;
 
     if (dumpBir) {
-       bir:BirEmitter emitter = new(entryMod);
-       emitter.emitPackage();
+        io:println(bir:emitModule(entryMod));
     }
 
     JarFile jarFile = {};
