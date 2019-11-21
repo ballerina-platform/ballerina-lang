@@ -788,7 +788,7 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
         Optional<SymbolReferencesModel.Reference> symbolAtCursor = this.symbolReferences.getReferenceAtCursor();
         // Here, tsymbol check has been added in order to support the finite types
         // TODO: Handle finite type. After the fix check if it falsely capture symbols in other files with same name
-        if (bSymbol == null|| (!this.currentCUnitMode && symbolAtCursor.isPresent()
+        if (bSymbol == null || (!this.currentCUnitMode && symbolAtCursor.isPresent()
                 && (symbolAtCursor.get().getSymbol() != bSymbol))) {
             return;
         }

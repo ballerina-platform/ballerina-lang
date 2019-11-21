@@ -27,6 +27,8 @@ import org.ballerinalang.langserver.util.FileUtils;
 import org.ballerinalang.langserver.util.TestUtil;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.jsonrpc.Endpoint;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -49,6 +51,7 @@ public class DefinitionTest {
     protected Gson gson = new Gson();
     protected JsonParser parser = new JsonParser();
     protected Endpoint serviceEndpoint;
+    private static final Logger log = LoggerFactory.getLogger(DefinitionTest.class);
 
     @BeforeClass
     public void init() throws Exception {
@@ -69,6 +72,7 @@ public class DefinitionTest {
 
     @Test(description = "Test Go to definition between two files in same module", enabled = false)
     public void testDifferentFiles() throws IOException {
+        log.info("Test textDocument/definition for Two Files in same module");
         JsonObject configObject = FileUtils.fileContentAsObject(configRoot.resolve("multifile")
                 .resolve("defMultiFile1.json").toString());
         JsonObject source = configObject.getAsJsonObject("source");
@@ -80,6 +84,7 @@ public class DefinitionTest {
 
     @Test(description = "Test Go to definition between two modules", enabled = false)
     public void testDifferentModule() throws IOException {
+        log.info("Test textDocument/definition for two modules");
         JsonObject configObject = FileUtils.fileContentAsObject(configRoot.resolve("multipkg")
                 .resolve("defMultiPkg1.json").toString());
         JsonObject source = configObject.getAsJsonObject("source");
@@ -104,6 +109,7 @@ public class DefinitionTest {
 
     @DataProvider
     public Object[][] testDataProvider() throws IOException {
+        log.info("Test textDocument/definition for Basic Cases");
         return new Object[][]{
                 // Note: Variable Reference Expressions will be addressed in almost all the test cases
                 // Covers the Service Definition Test cases
