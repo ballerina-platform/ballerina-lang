@@ -47,7 +47,6 @@ dependencies {
     testCompile project(':ballerina-file')
 
     bir project(path: ':ballerina-time', configuration: 'bir')
-
 }
 
 createBalo {
