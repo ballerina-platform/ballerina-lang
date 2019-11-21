@@ -23,6 +23,7 @@ llvm:LLVMValueRef? printfRef = ();
 map<llvm:LLVMTypeRef> structMap = {"null" : llvm:llvmVoidType()};
 map<int> precedenceMap = { "null":0, "boolean":1, "int":2};
 const int TAGGED_UNION_FLAG_INDEX = 0;
+const int TAGGED_UNION_VALUE_INDEX = 1;
 
 function genPackage(bir:Package pkg, string targetObjectFilePath, boolean dumpLLVMIR, boolean noOptimize) {
     var mod = createModule(pkg.org, pkg.name, pkg.versionValue);
@@ -260,8 +261,8 @@ function checkIfTypesAreCompatible(bir:BType castType, llvm:LLVMTypeRef lhsType)
     return true;
 }
 
-function genStructGepName(string structName, int index) returns string {
-    return structName.concat("_index", index.toString());
+function genStructGepName(string variableName, int index) returns string {
+    return "struct_" + variableName + "_index" + index.toString(); 
 }
 
 function isUnionType(bir:BType typeValue) returns boolean {
@@ -283,4 +284,8 @@ function getPrecedenceValueFromTypeString(string typeString) returns int {
         return 0;
     }
     return <int>precedenceMap[typeString];
+}
+
+function getValueRefFromInt(int value, int sign) returns llvm:LLVMValueRef {
+    return llvm:llvmConstInt(llvm:llvmInt64Type(), value, sign);
 }

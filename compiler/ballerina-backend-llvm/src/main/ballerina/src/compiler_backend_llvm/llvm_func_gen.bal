@@ -88,20 +88,7 @@ type FuncGenrator object {
                 }
             }
         }
-        //self.testStructElementPointer();
     }
-
-    //TODO : Remove this test function
-    //function testStructElementPointer() {
-    //    llvm:LLVMTypeRef taggedUnionType = getTaggedStructType("int") ;
-    //    llvm:LLVMValueRef testTaggedInt = self.getLocalVarRefById("1");//llvm:llvmBuildAlloca(self.builder, taggedUnionType, "StructTestVar");
-    //    //map<llvm:LLVMValueRef>? localVarRefsTemp = self.localVarRefs;
-    //    //if (localVarRefsTemp is map<llvm:LLVMValueRef>) {
-    //    //    string localVarRefName = "StructTestVar";
-    //    //    localVarRefsTemp[localVarRefName] = testTaggedInt;
-    //    //}
-    //    llvm:LLVMValueRef taggedUnionFlag = llvm:llvmBuildStructGEP(self.builder, testTaggedInt, 0, "taggedUnionFlag");
-    //}
 
     function cacheLocVarValue(bir:VariableDcl? localVar, llvm:LLVMValueRef localVarRef) {
         map<llvm:LLVMValueRef>? localVarRefsTemp = self.localVarRefs;
