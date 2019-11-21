@@ -260,7 +260,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.xml_  \n  \nApplies a function to each item in an xml sequence, and returns an xml sequence of the results.\nThis represents each item in the same way as the `iterator` function.\n  \n**Params**  \n- `function ((xml|string)) returns ((xml|string))` func: a function to apply to each child or `item`  \n  \n**Returns** `xml`   \n- new xml value containing result of applying function `func` to each child or `item`  \n  \n"
+          "value": "**Package:** _ballerina/lang.xml_  \n  \nApplies a function to each item in an xml sequence, and returns an xml sequence of the results.\nThis represents each item in the same way as the `iterator` function.\n  \n**Params**  \n- `function ((xml|string)) returns ((xml|string))` func: a function to apply to each child or `item`  \n  \n**Returns** `xml`   \n- new xml value containing result of applying function 'func' to each child or `item`  \n  \n"
         }
       },
       "sortText": "120",

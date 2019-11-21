@@ -147,8 +147,8 @@ public type CircuitBreakerClient client object {
         self.circuitHealth = circuitHealth;
     }
 
-    # The POST remote function implementation of the Circuit Breaker. This wraps the `post()` function of the underlying
-    # HTTP remote functions provider.
+    # The POST remote function implementation of the Circuit Breaker. This wraps the `CircuitBreakerClient.post()`
+    # function of the underlying HTTP remote functions provider.
     #
     # + path - Resource path
     # + message - A Request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`
@@ -168,8 +168,8 @@ public type CircuitBreakerClient client object {
         }
     }
 
-    # The HEAD remote function implementation of the Circuit Breaker. This wraps the `head()` function of the underlying
-    # HTTP remote functions provider.
+    # The HEAD remote function implementation of the Circuit Breaker. This wraps the `CircuitBreakerClient.head()`
+    # function of the underlying HTTP remote functions provider.
     #
     # + path - Resource path
     # + message - A Request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`
@@ -189,8 +189,8 @@ public type CircuitBreakerClient client object {
         }
     }
 
-    # The PUT remote function implementation of the Circuit Breaker. This wraps the `put()` function of the underlying
-    # HTTP remote functions provider.
+    # The PUT remote function implementation of the Circuit Breaker. This wraps the `CircuitBreakerClient.put()`
+    # function of the underlying HTTP remote functions provider.
     #
     # + path - Resource path
     # + message - A Request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`
@@ -210,8 +210,8 @@ public type CircuitBreakerClient client object {
         }
     }
 
-    # This wraps the `post()` function of the underlying HTTP remote functions provider. The `execute()` function can
-    # be used to invoke an HTTP call with the given HTTP verb.
+    # This wraps the `CircuitBreakerClient.post()` function of the underlying HTTP remote functions provider.
+    # The `CircuitBreakerClient.execute()` function can be used to invoke an HTTP call with the given HTTP verb.
     #
     # + httpVerb - HTTP verb to be used for the request
     # + path - Resource path
@@ -232,8 +232,8 @@ public type CircuitBreakerClient client object {
         }
     }
 
-    # The PATCH remote function implementation of the Circuit Breaker. This wraps the `patch()` function of the
-    # underlying HTTP remote functions provider.
+    # The PATCH remote function implementation of the Circuit Breaker. This wraps the `CircuitBreakerClient.patch()`
+    # function of the underlying HTTP remote functions provider.
     #
     # + path - Resource path
     # + message - A Request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel` or
@@ -253,8 +253,8 @@ public type CircuitBreakerClient client object {
         }
     }
 
-    # The DELETE remote function implementation of the Circuit Breaker. This wraps the `delete()` function of the
-    # underlying HTTP remote functions provider.
+    # The DELETE remote function implementation of the Circuit Breaker. This wraps the `CircuitBreakerClient.delete()`
+    # function of the underlying HTTP remote functions provider.
     #
     # + path - Resource path
     # + message - A Request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel` or
@@ -274,8 +274,8 @@ public type CircuitBreakerClient client object {
         }
     }
 
-    # The GET remote function implementation of the Circuit Breaker. This wraps the `get()` function of the underlying
-    # HTTP remote functions provider.
+    # The GET remote function implementation of the Circuit Breaker. This wraps the `CircuitBreakerClient.get()`
+    # function of the underlying HTTP remote functions provider.
     #
     # + path - Resource path
     # + message - An optional HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`,
@@ -295,8 +295,8 @@ public type CircuitBreakerClient client object {
         }
     }
 
-    # The OPTIONS remote function implementation of the Circuit Breaker. This wraps the `options()` function of the
-    # underlying HTTP remote functions provider.
+    # The OPTIONS remote function implementation of the Circuit Breaker. This wraps the `CircuitBreakerClient.options()`
+    # function of the underlying HTTP remote functions provider.
     #
     # + path - Resource path
     # + message - An optional HTTP Request or any payload of type `string`, `xml`, `json`, `byte[]`,
@@ -316,8 +316,8 @@ public type CircuitBreakerClient client object {
         }
     }
 
-    # This wraps the `forward()` function of the underlying HTTP remote functions provider. The Forward remote function
-    # can be used to forward an incoming request to an upstream service as it is.
+    # This wraps the `CircuitBreakerClient.forward()` function of the underlying HTTP remote functions provider.
+    # The Forward remote function can be used to forward an incoming request to an upstream service as it is.
     #
     # + path - Resource path
     # + request - A Request struct
@@ -337,7 +337,7 @@ public type CircuitBreakerClient client object {
     }
 
     # Submits an HTTP request to a service with the specified HTTP verb.
-    # The `submit()` function does not give out a `Response` as the result,
+    # The `CircuitBreakerClient.submit()` function does not give out a `Response` as the result,
     # rather it returns an `HttpFuture` which can be used to do further interactions with the endpoint.
     #
     # + httpVerb - The HTTP verb value
@@ -374,8 +374,8 @@ public type CircuitBreakerClient client object {
         return self.httpClient->getResponse(httpFuture);
     }
 
-    # Circuit breaking not supported. Defaults to the `hasPromise()` function of the underlying HTTP remote functions
-    # provider.
+    # Circuit breaking not supported. Defaults to the `CircuitBreakerClient.hasPromise()` function of the underlying
+    # HTTP remote functions provider.
     #
     # + httpFuture - The `HttpFuture` relates to a previous asynchronous invocation
     # + return - A `boolean` that represents whether a `PushPromise` exists
@@ -399,8 +399,8 @@ public type CircuitBreakerClient client object {
         return self.httpClient->getPromisedResponse(promise);
     }
 
-    # Circuit breaking not supported. Defaults to the `rejectPromise()` function of the underlying HTTP
-    # remote functions provider.
+    # Circuit breaking not supported. Defaults to the `CircuitBreakerClient.rejectPromise()` function of the underlying
+    # HTTP remote functions provider.
     #
     # + promise - The `PushPromise` to be rejected
     public function rejectPromise(PushPromise promise) {
