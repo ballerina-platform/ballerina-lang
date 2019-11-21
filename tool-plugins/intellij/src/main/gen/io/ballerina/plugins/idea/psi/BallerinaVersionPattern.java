@@ -21,12 +21,15 @@ import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
 
-public interface BallerinaPackageVersion extends PsiElement {
+public interface BallerinaVersionPattern extends PsiElement {
 
   @Nullable
-  BallerinaVersionPattern getVersionPattern();
+  PsiElement getDecimalExtendedFloatingPointNumber();
 
-  @NotNull
-  PsiElement getVersion();
+  @Nullable
+  PsiElement getDecimalFloatingPointNumber();
+
+  @Nullable
+  PsiElement getDecimalIntegerLiteral();
 
 }

@@ -29,6 +29,7 @@ public interface BallerinaTypes {
   IElementType ACTION_INVOCATION = new BallerinaCompositeElementType("ACTION_INVOCATION");
   IElementType ACTION_INVOCATION_EXPRESSION = new BallerinaCompositeElementType("ACTION_INVOCATION_EXPRESSION");
   IElementType ALIAS = new BallerinaCompositeElementType("ALIAS");
+  IElementType ANNOTATION_ACCESS_REFERENCE = new BallerinaCompositeElementType("ANNOTATION_ACCESS_REFERENCE");
   IElementType ANNOTATION_ACTION_EXPRESSION = new BallerinaCompositeElementType("ANNOTATION_ACTION_EXPRESSION");
   IElementType ANNOTATION_ATTACHMENT = new BallerinaCompositeElementType("ANNOTATION_ATTACHMENT");
   IElementType ANNOTATION_DEFINITION = new BallerinaCompositeElementType("ANNOTATION_DEFINITION");
@@ -308,6 +309,7 @@ public interface BallerinaTypes {
   IElementType VARIABLE_REFERENCE_EXPRESSION = new BallerinaCompositeElementType("VARIABLE_REFERENCE_EXPRESSION");
   IElementType VARIABLE_REFERENCE_LIST = new BallerinaCompositeElementType("VARIABLE_REFERENCE_LIST");
   IElementType VAR_MATCH_PATTERN_CLAUSE = new BallerinaCompositeElementType("VAR_MATCH_PATTERN_CLAUSE");
+  IElementType VERSION_PATTERN = new BallerinaCompositeElementType("VERSION_PATTERN");
   IElementType WAIT_EXPRESSION = new BallerinaCompositeElementType("WAIT_EXPRESSION");
   IElementType WAIT_FOR_COLLECTION = new BallerinaCompositeElementType("WAIT_FOR_COLLECTION");
   IElementType WAIT_KEY_VALUE = new BallerinaCompositeElementType("WAIT_KEY_VALUE");
@@ -379,6 +381,7 @@ public interface BallerinaTypes {
   IElementType DAY = new BallerinaTokenType("day");
   IElementType DAYS = new BallerinaTokenType("days");
   IElementType DECIMAL = new BallerinaTokenType("decimal");
+  IElementType DECIMAL_EXTENDED_FLOATING_POINT_NUMBER = new BallerinaTokenType("DECIMAL_EXTENDED_FLOATING_POINT_NUMBER");
   IElementType DECIMAL_FLOATING_POINT_NUMBER = new BallerinaTokenType("DECIMAL_FLOATING_POINT_NUMBER");
   IElementType DECIMAL_INTEGER_LITERAL = new BallerinaTokenType("DECIMAL_INTEGER_LITERAL");
   IElementType DECREMENT = new BallerinaTokenType("--");
@@ -570,6 +573,9 @@ public interface BallerinaTypes {
       }
       else if (type == ALIAS) {
         return new BallerinaAliasImpl(node);
+      }
+      else if (type == ANNOTATION_ACCESS_REFERENCE) {
+        return new BallerinaAnnotationAccessReferenceImpl(node);
       }
       else if (type == ANNOTATION_ACTION_EXPRESSION) {
         return new BallerinaAnnotationActionExpressionImpl(node);
@@ -1395,6 +1401,9 @@ public interface BallerinaTypes {
       }
       else if (type == VAR_MATCH_PATTERN_CLAUSE) {
         return new BallerinaVarMatchPatternClauseImpl(node);
+      }
+      else if (type == VERSION_PATTERN) {
+        return new BallerinaVersionPatternImpl(node);
       }
       else if (type == WAIT_EXPRESSION) {
         return new BallerinaWaitExpressionImpl(node);
