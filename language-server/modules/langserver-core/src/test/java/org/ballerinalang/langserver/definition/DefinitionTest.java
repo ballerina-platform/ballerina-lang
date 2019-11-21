@@ -106,10 +106,6 @@ public class DefinitionTest {
     public Object[][] testDataProvider() throws IOException {
         return new Object[][]{
                 // Note: Variable Reference Expressions will be addressed in almost all the test cases
-                
-//                {"defXMLNS1.json", "xmlns"},
-//                {"defXMLNS2.json", "xmlns"},
-//                {"defXMLNS3.json", "xmlns"},
                 // Covers the Service Definition Test cases
                 {"defService1.json", "service"},
                 {"defService2.json", "service"},
@@ -157,7 +153,39 @@ public class DefinitionTest {
                 {"defTypeDesc21.json", "typedesc"},
                 // Covers Object Type Descriptor
                 {"defTypeDesc22.json", "typedesc"},
-                
+                {"defTypeDesc23.json", "typedesc"},
+                {"defTypeDesc24.json", "typedesc"},
+                {"defTypeDesc25.json", "typedesc"},
+                {"defTypeDesc26.json", "typedesc"},
+                {"defTypeDesc27.json", "typedesc"},
+                {"defTypeDesc28.json", "typedesc"},
+                {"defTypeDesc29.json", "typedesc"},
+                {"defTypeDesc30.json", "typedesc"},
+                {"defTypeDesc31.json", "typedesc"},
+                {"defTypeDesc32.json", "typedesc"},
+                {"defTypeDesc33.json", "typedesc"},
+                {"defTypeDesc34.json", "typedesc"},
+                {"defTypeDesc35.json", "typedesc"},
+                {"defTypeDesc36.json", "typedesc"},
+                {"defTypeDesc37.json", "typedesc"},
+                // Covers Future type Descriptor
+                {"defTypeDesc38.json", "typedesc"},
+                {"defTypeDesc39.json", "typedesc"},
+                {"defTypeDesc40.json", "typedesc"},
+                // Covers TypeDesc Type Descriptor
+                {"defTypeDesc41.json", "typedesc"},
+                {"defTypeDesc42.json", "typedesc"},
+                {"defTypeDesc43.json", "typedesc"},
+                // Covers Handle Type Descriptor
+                {"defTypeDesc44.json", "typedesc"},
+                // Covers Union Type Descriptor
+                {"defTypeDesc45.json", "typedesc"},
+                {"defTypeDesc46.json", "typedesc"},
+                {"defTypeDesc47.json", "typedesc"},
+                // Optional Type Descriptor
+                {"defTypeDesc48.json", "typedesc"},
+                {"defTypeDesc49.json", "typedesc"},
+                {"defTypeDesc50.json", "typedesc"},
                 // Covers the Module Level variable declarations
                 {"defModuleVar1.json", "modulevardecl"},
                 {"defModuleVar2.json", "modulevardecl"},
@@ -340,59 +368,6 @@ public class DefinitionTest {
                 {"defPanicStmt1.json", "panic"},
                 // Covers Return Statement
                 {"defReturnStmt1.json", "return"},
-                
-                
-//                {"defService6.json", "service"},
-//                {"defArrays1.json", "array"},
-//                {"defArrays2.json", "array"},
-//                {"defArrays3.json", "array"},
-//                {"defArrays4.json", "array"},
-//                {"defArrays5.json", "array"},
-//                {"defArrays6.json", "array"},
-//                {"defArrays7.json", "array"},
-//                {"defArrays8.json", "array"},
-//                {"defArrays9.json", "array"},
-//                {"defArrays10.json", "array"},
-//                {"defArrays11.json", "array"},
-//                {"defArrays12.json", "array"},
-//                {"defArrays13.json", "array"},
-//                {"defArrays14.json", "array"},
-//                {"defArrays15.json", "array"},
-//                {"defArrays16.json", "array"},
-//                {"defArrays17.json", "array"},
-//                {"defArrays19.json", "array"},
-//                {"defCompoundAssignment1.json", "compoundassignment"},
-////                {"defForeach22.json", "foreach"}, TODO: Source invalid and need verify
-//                {"defForeach23.json", "foreach"},
-//                {"defForeach24.json", "foreach"},
-//                {"defForeach25.json", "foreach"},
-//                {"defForeach26.json", "foreach"},
-//                {"defTransaction1.json", "transaction"},
-//                {"defRecord1.json", "record"},
-//                {"defRecord2.json", "record"},
-//                {"defError1.json", "error"},
-//                {"defWaitExpression1.json", "waitexpression"},
-//                {"defExpressionConnectorInit.json", "expression"},
-//                {"defAnnotation1.json", "annotation"},
-//                {"defAnnotation2.json", "annotation"},
-//                {"defAnnotation3.json", "annotation"},
-//                {"defAnnotation4.json", "annotation"},
-////                {"defAnnotation5.json", "annotation"},
-//                {"defAnnotation6.json", "annotation"},
-////                {"defAnnotation7.json", "annotation"},
-//                {"defWorker1.json", "worker"},
-//                {"defWorker2.json", "worker"},
-//                {"defWorker3.json", "worker"},
-//                {"defWorker4.json", "worker"},
-//                {"defLambda1.json", "lambda"},
-//                {"defLambda2.json", "lambda"},
-//                {"defLambda3.json", "lambda"},
-//                {"defLambda4.json", "lambda"},
-//                {"defObject1.json", "object"},
-//                {"defListener1.json", "listener"},
-//                {"defListener2.json", "listener"},
-//                TODO: enable
-//                {"defExpressionNamedArgs.json", "expression"},
         };
     }
     

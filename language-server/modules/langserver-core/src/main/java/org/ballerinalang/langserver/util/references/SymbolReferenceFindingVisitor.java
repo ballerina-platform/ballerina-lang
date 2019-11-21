@@ -126,6 +126,7 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
     private String pkgName;
     private List<TopLevelNode> topLevelNodes = new ArrayList<>();
     private List<BLangFunction> workerLambdas = new ArrayList<>();
+    private List<BLangTypeDefinition> anonTypeDefinitions = new ArrayList<>();
     private HashMap<DiagnosticPos, BSymbol> workerVarDefPositionMap = new HashMap<>();
     private HashMap<String, BSymbol> workerNamesMap = new HashMap<>();
 
@@ -164,6 +165,10 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
                     return false;
                 }
                 return !((BLangFunction) topLevelNode).flagSet.contains(Flag.LAMBDA);
+            } else if (topLevelNode instanceof BLangTypeDefinition
+                    && ((BLangTypeDefinition) topLevelNode).flagSet.contains(Flag.ANONYMOUS)) {
+                anonTypeDefinitions.add((BLangTypeDefinition) topLevelNode);
+                return false;
             }
             return true;
         }).collect(Collectors.toList());
@@ -304,7 +309,6 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
 
     @Override
     public void visit(BLangMatch.BLangMatchStaticBindingPatternClause staticBindingPatternClause) {
-        // todo: support the literal visit when the constant support implemented in compiler
         this.acceptNode(staticBindingPatternClause.literal);
         this.acceptNode(staticBindingPatternClause.body);
     }
@@ -491,6 +495,12 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
 
     @Override
     public void visit(BLangUserDefinedType userDefinedType) {
+        // For the inline type Descriptors, following logic applies. Check test case defTypeDesc13 
+        Optional<BLangTypeDefinition> anonType = this.getAnonTypeFromPosition(userDefinedType.pos);
+        if (anonType.isPresent()) {
+            this.acceptNode(anonType.get().typeNode);
+            return;
+        }
         if (!this.isMatchingUserDefinedType(userDefinedType)) {
             return;
         }
@@ -522,6 +532,7 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
     public void visit(BLangRecordTypeNode recordTypeNode) {
         // Type name is handled at the BLangTypeDefinition visitor and here we visit the fields
         recordTypeNode.fields.forEach(this::acceptNode);
+        this.acceptNode(recordTypeNode.restFieldType);
     }
 
     @Override
@@ -641,6 +652,8 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
     @Override
     public void visit(BLangTypeInit typeInit) {
         if (typeInit.initInvocation != null && typeInit.initInvocation.name.value.equals(this.tokenName)) {
+            // This logic get executed when hover over the new keyword in the below example
+            // new(arg1, arg2)
             BSymbol symbol = typeInit.initInvocation.symbol;
             if (symbol == null) {
                 symbol = typeInit.type.tsymbol;
@@ -801,173 +814,6 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
 
         this.symbolReferences.addReference(ref);
     }
-
-//    private int getCharLengthBeforeToken(String tokenName, List<Whitespace> whitespaces) {
-//        int length = 0;
-//        for (int i = 0; i < whitespaces.size(); i++) {
-//            String previous = whitespaces.get(i).getPrevious();
-//            if (i != 0) {
-//                length += whitespaces.get(i).getWs().length();
-//            }
-//            if (!previous.equals(tokenName)) {
-//                length += previous.length();
-//            } else {
-//                break;
-//            }
-//        }
-//
-//        return length;
-//    }
-
-//    private int getTypeLengthWithWS(BLangType typeNode, boolean nested) {
-//        int length = 0;
-//
-//        // Check whether whitespaces are null for the type node.
-//        // If null return length as 0.
-//        if (typeNode == null || typeNode.getWS() == null) {
-//            return length;
-//        }
-//
-//        List<Whitespace> whitespaces = new ArrayList<>(typeNode.getWS());
-//
-//        if (typeNode instanceof BLangUnionTypeNode) {
-//            length = getUnionTypeLength((BLangUnionTypeNode) typeNode, nested);
-//        } else if (typeNode instanceof BLangTupleTypeNode) {
-//            length += this.getTupleTypeLength((BLangTupleTypeNode) typeNode, nested);
-//        } else if (typeNode instanceof BLangValueType || typeNode instanceof BLangUserDefinedType
-//                || typeNode instanceof BLangBuiltInRefTypeNode || typeNode instanceof BLangErrorType) {
-//            // Ex: int or http:Request or MyType
-//            int startCounter = 0;
-//            if (!nested) {
-//                length += whitespaces.get(0).getPrevious().length();
-//                startCounter++;
-//            }
-//            for (int i = startCounter; i < whitespaces.size(); i++) {
-//                Whitespace whitespace = whitespaces.get(i);
-//                length += whitespace.getPrevious().length() + whitespace.getWs().length();
-//            }
-//        } else if (typeNode instanceof BLangArrayType) {
-//            int typeLength = this.getTypeLengthWithWS(((BLangArrayType) typeNode).elemtype, nested);
-//            List<Whitespace> arrWs = new ArrayList<>(typeNode.getWS());
-//            for (Whitespace whitespace : arrWs) {
-//                length += whitespace.getPrevious().length() + whitespace.getWs().length();
-//            }
-//            length += typeLength;
-//        } else if (typeNode instanceof BLangConstrainedType) {
-//            BLangConstrainedType cType = (BLangConstrainedType) typeNode;
-//            length += this.getTypeLengthWithWS(cType.type, nested) + this.getTypeLengthWithWS(cType.constraint, true);
-//            for (Whitespace whitespace : whitespaces) {
-//                length += whitespace.getWs().length() + whitespace.getPrevious().length();
-//            }
-//        }
-//
-//        return length;
-//    }
-
-//    private int getTupleTypeLength(BLangTupleTypeNode tupleType, boolean nested) {
-//        int length = 0;
-//        List<BLangType> memberTypeNodes = tupleType.memberTypeNodes;
-//        List<Whitespace> tupleWSList = new ArrayList<>(tupleType.getWS());
-//        int startCounter = 0;
-//        if (!nested) {
-//            length += tupleWSList.get(0).getPrevious().length();
-//            startCounter++;
-//        }
-//        for (int i = startCounter; i < tupleWSList.size(); i++) {
-//            Whitespace whitespace = tupleWSList.get(i);
-//            length += whitespace.getPrevious().length() + whitespace.getWs().length();
-//        }
-//
-//        for (BLangType memberTypeNode : memberTypeNodes) {
-//            length += this.getTypeLengthWithWS(memberTypeNode, true);
-//        }
-//
-//        return length;
-//    }
-
-//    private int getUnionTypeLength(BLangUnionTypeNode unionTypeNode, boolean nested) {
-//        List<BLangType> memberTypeNodes = unionTypeNode.getMemberTypeNodes();
-//        List<Whitespace> firstTypeWs = new ArrayList<>(memberTypeNodes.get(0).getWS());
-//        List<Whitespace> unionWs = new ArrayList<>(unionTypeNode.getWS());
-//        int startCounter = 0;
-//        int length = 0;
-//        if (!nested) {
-//            length = firstTypeWs.get(0).getPrevious().length();
-//            startCounter++;
-//        }
-//        for (int i = startCounter; i < memberTypeNodes.size(); i++) {
-//            length += this.getTypeLengthWithWS(memberTypeNodes.get(i), true);
-//        }
-//
-//        boolean addFirstWS = unionWs.get(0).getPrevious().equals("|");
-//        for (int i = 0; i < unionWs.size(); i++) {
-//            Whitespace ws = unionWs.get(i);
-//            if (i != 0 || addFirstWS) {
-//                /*
-//                Avoid cases like (int|boolean) and in these cases we do not add the first ws length
-//                In cases like boolean|int first ws is | then we have to add the first ws length
-//                 */
-//                length += ws.getWs().length();
-//            }
-//            length += ws.getPrevious().length();
-//        }
-//
-//        return length;
-//    }
-
-//    private DiagnosticPos getTypeNamePosition(BLangUserDefinedType userDefinedType, String typeName) {
-//        DiagnosticPos typePos = userDefinedType.pos;
-//        List<Whitespace> whitespaces = new ArrayList<>(userDefinedType.getWS());
-//        int offset = 0;
-//        if (whitespaces.size() > 1) {
-//            // handles the case - http:Response, otherwise the case is Foo where no package specified
-//            offset = whitespaces.get(0).getPrevious().length();
-//            for (int i = 1; i < whitespaces.size(); i++) {
-//                Whitespace ws = whitespaces.get(i);
-//                offset += ws.getWs().length();
-//                if (ws.getPrevious().equals(typeName)) {
-//                    break;
-//                }
-//                offset += ws.getPrevious().length();
-//            }
-//        }
-//        int sCol = typePos.sCol + offset;
-//        int eCol = sCol + typeName.length();
-//
-//        return new DiagnosticPos(typePos.src, typePos.sLine, typePos.eLine, sCol, eCol);
-//    }
-    
-//    private int getWSLengthOfToken(List<Whitespace> wsList, String tokenName) {
-//        int length = 0;
-//        for (Whitespace whitespace : wsList) {
-//            if (whitespace.getPrevious().equals(tokenName)) {
-//                length = whitespace.getWs().length();
-//                break;
-//            }
-//        }
-//        
-//        return length;
-//    }
-
-//    private boolean forEachVariableDef(List<Whitespace> wsList) {
-//        return wsList.get(0).getPrevious().equals("foreach");
-//    }
-//
-//    private int getForEachVarDefStart(BLangType typeNode, DiagnosticPos varPos, List<Whitespace> wsList) {
-//        if (typeNode == null) {
-//                /*
-//                Ex: foreach var itr in data ...
-//                itr is considered here
-//                 */
-//            return varPos.sCol + this.getCharLengthBeforeToken(this.tokenName, wsList);
-//        }
-//        /*
-//        Ex: foreach string str in ....
-//        str is considered here
-//         */
-//        return varPos.sCol + this.getCharLengthBeforeToken(this.tokenName, wsList)
-//                + this.getTypeLengthWithWS(typeNode, true);
-//    }
     
     private Optional<BVarSymbol> getServiceVarSymbol() {
         return this.topLevelNodes.stream().filter(node -> node instanceof BLangSimpleVariable
@@ -987,6 +833,10 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
     
     private Optional<BLangFunction> getWorkerFunctionFromPosition(DiagnosticPos position) {
         return this.workerLambdas.stream().filter(function -> function.getPosition() == position).findAny();
+    }
+    
+    private Optional<BLangTypeDefinition> getAnonTypeFromPosition(DiagnosticPos position) {
+        return this.anonTypeDefinitions.stream().filter(anonTypeDef -> anonTypeDef.getPosition() == position).findAny();
     }
     
     private void fillVisibleWorkerVarDefMaps(List<BLangStatement> statements) {

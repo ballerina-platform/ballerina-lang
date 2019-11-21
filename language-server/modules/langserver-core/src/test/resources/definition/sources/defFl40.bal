@@ -42,7 +42,12 @@ type Object2 object {
         int funcField = param1;
         int funcField2 = param2;
         float[] funcField3 = param3;
+        self.object2Function();
         return 1;
+    }
+
+    function object2Function() {
+        // Logic goes here
     }
 };
 

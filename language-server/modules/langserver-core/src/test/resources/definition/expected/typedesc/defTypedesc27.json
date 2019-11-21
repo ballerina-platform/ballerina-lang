@@ -3,19 +3,19 @@
     "file": "defFl40.bal"
   },
   "position": {
-    "line": 4,
-    "character": 48
+    "line": 12,
+    "character": 27
   },
   "result": [
     {
       "range": {
         "start": {
-          "line": 53,
-          "character": 9
+          "line": 11,
+          "character": 51
         },
         "end": {
-          "line": 53,
-          "character": 35
+          "line": 11,
+          "character": 57
         }
       },
       "uri": "defFl40.bal"
