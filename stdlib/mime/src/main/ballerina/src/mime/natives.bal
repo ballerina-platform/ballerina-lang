@@ -407,7 +407,6 @@ public type Entity object {
     #
     # + return - All header names as a `string[]`
     public function getHeaderNames() returns @tainted string[] {
-        //return <string[]>externGetHeaderNames(self);
         handle[] headerNames = externGetHeaderNames(self);
             string[] headers = [];
             int index = 0;
