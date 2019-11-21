@@ -23,6 +23,9 @@ import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+/**
+ * Test cases for function invocation using self keyword reference type in ballerina.
+ */
 public class ObjectWithFunctionInvocationUsingSelfKeyword {
 
     @Test(description = "Test the function invocation using self keyword when the fields are not initialized.")
