@@ -516,6 +516,7 @@ public interface BallerinaTypes {
   IElementType START = new BallerinaTokenType("start");
   IElementType STREAM = new BallerinaTokenType("stream");
   IElementType STRING = new BallerinaTokenType("string");
+  IElementType STRING_TEMPLATE_EXPRESSION_END = new BallerinaTokenType("STRING_TEMPLATE_EXPRESSION_END");
   IElementType STRING_TEMPLATE_EXPRESSION_START = new BallerinaTokenType("STRING_TEMPLATE_EXPRESSION_START");
   IElementType STRING_TEMPLATE_LITERAL_END = new BallerinaTokenType("STRING_TEMPLATE_LITERAL_END");
   IElementType STRING_TEMPLATE_LITERAL_START = new BallerinaTokenType("STRING_TEMPLATE_LITERAL_START");
