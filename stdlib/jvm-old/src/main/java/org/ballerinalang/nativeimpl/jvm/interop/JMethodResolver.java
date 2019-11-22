@@ -28,6 +28,7 @@ import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.StreamValue;
+import org.ballerinalang.jvm.values.StringValue;
 import org.ballerinalang.jvm.values.TableValue;
 import org.ballerinalang.jvm.values.XMLValue;
 
@@ -258,8 +259,7 @@ class JMethodResolver {
                 case TypeTags.DECIMAL_TAG:
                     return this.classLoader.loadClass(BigDecimal.class.getCanonicalName()).isAssignableFrom(jType);
                 case TypeTags.STRING_TAG:
-                    // Currently no java type matches to ballerina string type.
-                    return false;
+                    return this.classLoader.loadClass(StringValue.class.getCanonicalName()).isAssignableFrom(jType);
                 case TypeTags.MAP_TAG:
                 case TypeTags.RECORD_TYPE_TAG:
                     return this.classLoader.loadClass(MapValue.class.getCanonicalName()).isAssignableFrom(jType);
