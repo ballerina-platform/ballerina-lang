@@ -38,7 +38,7 @@ import java.nio.charset.StandardCharsets;
 public class MessageUtils {
     public static Object nativeBasicAck(Channel channel, int deliveryTag, boolean ackMode,
                                         boolean ackStatus, boolean multiple) {
-        if (!ackStatus && ackMode) {
+        if (!ackStatus && !ackMode) {
             try {
                 channel.basicAck(deliveryTag, multiple);
             } catch (IOException exception) {
@@ -47,7 +47,7 @@ public class MessageUtils {
             } catch (AlreadyClosedException exception) {
                 return RabbitMQUtils.returnErrorValue(RabbitMQConstants.CHANNEL_CLOSED_ERROR);
             }
-        } else if (ackStatus && ackMode) {
+        } else if (ackStatus) {
             return RabbitMQUtils.returnErrorValue(RabbitMQConstants.MULTIPLE_ACK_ERROR);
         } else {
             return RabbitMQUtils.returnErrorValue(RabbitMQConstants.ACK_MODE_ERROR);
@@ -57,7 +57,7 @@ public class MessageUtils {
 
     public static Object nativeBasicNack(Channel channel, int deliveryTag, boolean ackMode,
                                          boolean ackStatus, boolean multiple, boolean requeue) {
-        if (!ackStatus && ackMode) {
+        if (!ackStatus && !ackMode) {
             try {
                 channel.basicNack(deliveryTag, multiple, requeue);
             } catch (IOException exception) {
@@ -66,7 +66,7 @@ public class MessageUtils {
             } catch (AlreadyClosedException exception) {
                 return RabbitMQUtils.returnErrorValue(RabbitMQConstants.CHANNEL_CLOSED_ERROR);
             }
-        } else if (ackStatus && ackMode) {
+        } else if (ackStatus) {
             return RabbitMQUtils.returnErrorValue(RabbitMQConstants.MULTIPLE_ACK_ERROR);
         } else {
             return RabbitMQUtils.returnErrorValue(RabbitMQConstants.ACK_MODE_ERROR);

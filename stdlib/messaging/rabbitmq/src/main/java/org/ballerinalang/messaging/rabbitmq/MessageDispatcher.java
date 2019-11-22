@@ -188,7 +188,6 @@ public class MessageDispatcher {
     }
 
     private ObjectValue getMessageObjectValue(byte[] message, long deliveryTag, AMQP.BasicProperties properties) {
-        try {
             ObjectValue messageObjectValue = BallerinaValues.createObjectValue(RabbitMQConstants.PACKAGE_ID_RABBITMQ,
                     RabbitMQConstants.MESSAGE_OBJECT);
             messageObjectValue.set(RabbitMQConstants.DELIVERY_TAG, deliveryTag);
@@ -213,10 +212,6 @@ public class MessageDispatcher {
                         BallerinaValues.createRecord(basicProperties, values));
             }
             return messageObjectValue;
-        } catch (Throwable e) {
-            e.printStackTrace();
-            throw e;
-        }
     }
 
     private void handleError(byte[] message, long deliveryTag, AMQP.BasicProperties properties) {
