@@ -53,6 +53,8 @@ dependencies {
     baloImplementation project(path: ':ballerina-auth', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-lang:annotations', configuration: 'baloImplementation')
 
+    interopImports project(':ballerina-task')
+
     implementation project(':ballerina-system')
     implementation project(':ballerina-tool')
     implementation project(':ballerina-lang')

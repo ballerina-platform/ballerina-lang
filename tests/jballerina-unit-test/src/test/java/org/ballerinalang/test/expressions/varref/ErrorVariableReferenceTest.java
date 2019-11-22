@@ -200,11 +200,36 @@ public class ErrorVariableReferenceTest {
                 "\"errorCode\":45221, \"flags\":128}");
     }
 
+    @Test(description = "Test error varref inside a tupple ref")
+    public void testErrorDestructuringInATuppleDestructuring() {
+        BValue[] returns = BRunUtil.invoke(result, "testErrorDestructuringInATuppleDestructuring");
+        int i = 0;
+        Assert.assertEquals(returns[i++].stringValue(), "r2");
+        Assert.assertEquals(returns[i++].stringValue(), "msg");
+    }
+
+    @Test(description = "Test indirect error varref inside a tupple ref")
+    public void testIndirectErrorVarRefInTuppleRef() {
+        BValue[] returns = BRunUtil.invoke(result, "testIndirectErrorVarRefInTuppleRef");
+        int i = 0;
+        Assert.assertEquals(returns[i++].stringValue(), "Msg One");
+        Assert.assertEquals(returns[i++].stringValue(), "Detail Msg");
+        Assert.assertEquals(returns[i++].stringValue(), "1");
+    }
+
+    @Test(description = "Test error ctor in tupple var ref statement")
+    public void testErrorRefAndCtorInSameStatement() {
+        BValue[] returns = BRunUtil.invoke(result, "testErrorRefAndCtorInSameStatement");
+        int i = 0;
+        Assert.assertEquals(returns[i++].stringValue(), "r2");
+        Assert.assertEquals(returns[i++].stringValue(), "Detail Msg");
+        Assert.assertEquals(returns[i++].stringValue(), "1");
+    }
+
     @Test
     public void testErrorVariablesSemanticsNegative() {
         CompileResult resultNegative = BCompileUtil.compile(
                 "test-src/expressions/varref/error_variable_reference_semantics_negative.bal");
-        Assert.assertEquals(resultNegative.getErrorCount(), 25);
         int i = -1;
         String incompatibleTypes = "incompatible types: ";
         BAssertUtil.validateError(resultNegative, ++i,
@@ -219,7 +244,9 @@ public class ErrorVariableReferenceTest {
         BAssertUtil.validateError(resultNegative, ++i,
                 incompatibleTypes + "expected 'string', found '(string|boolean)?'", 42, 43);
         BAssertUtil.validateError(resultNegative, ++i,
-                "error constructor expression is not supported for error binding pattern", 43, 81);
+                "incompatible types: expected 'string', found '(anydata|error)'", 43, 43);
+        BAssertUtil.validateError(resultNegative, ++i,
+                "incompatible types: expected 'any', found '(anydata|error)'", 43, 62);
         BAssertUtil.validateError(resultNegative, ++i,
                 incompatibleTypes + "expected 'boolean', found 'string'", 65, 18);
         BAssertUtil.validateError(resultNegative, ++i, incompatibleTypes +
@@ -252,6 +279,8 @@ public class ErrorVariableReferenceTest {
         BAssertUtil.validateError(resultNegative, ++i, "cannot assign a value to final 'rest'", 160, 38);
         BAssertUtil.validateError(resultNegative, ++i, "cannot assign a value to final 'message3'", 164, 21);
         BAssertUtil.validateError(resultNegative, ++i, "cannot assign a value to final 'abc3'", 164, 37);
+
+        Assert.assertEquals(resultNegative.getErrorCount(), i + 1);
     }
 
     @Test
