@@ -14,6 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerinax/java;
 import ballerina/lang.'object as lang;
 
 # Mock server endpoint which does not open a listening port.
@@ -56,7 +57,9 @@ public type MockListener object {
         }
     }
 
-    public function initEndpoint() returns error? = external;
+    public function initEndpoint() returns error? {
+        return externMockInitEndpoint(self);
+    }
 
     public function register(service s, string? name) returns error? = external;
 
@@ -66,3 +69,8 @@ public type MockListener object {
 
     public function detach(service s) returns error? = external;
 };
+
+function externMockInitEndpoint(MockListener mockListener) returns error? = @java:Method {
+    class: "org.ballerinalang.net.http.serviceendpoint.InitEndpoint",
+    name: "initEndpoint"
+} external;

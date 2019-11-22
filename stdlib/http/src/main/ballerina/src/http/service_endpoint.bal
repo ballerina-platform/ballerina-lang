@@ -14,6 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerinax/java;
 import ballerina/cache;
 import ballerina/crypto;
 import ballerina/lang.'object as lang;
@@ -110,14 +111,18 @@ public type Listener object {
         }
     }
 
-    public function initEndpoint() returns error? = external;
+    public function initEndpoint() returns error? {
+        return externInitEndpoint(self);
+    }
 
     # Gets invoked when attaching a service to the endpoint.
     #
     # + s - The service that needs to be attached
     # + name - Name of the service
     # + return - An `error` if an error occurred during the service attachment process or else nil
-    function register(service s, string? name) returns error? = external;
+    function register(service s, string? name) returns error? {
+        return externRegister(self);
+    }
 
     # Starts the registered service.
     #
@@ -135,6 +140,11 @@ public type Listener object {
     # + return - An `error` if an error occurred during the service detachment process or else nil
     function detach(service s) returns error? = external;
 };
+
+function externInitEndpoint(Listener listenerObj) returns error? = @java:Method {
+    class: "org.ballerinalang.net.http.serviceendpoint.InitEndpoint",
+    name: "initEndpoint"
+} external;
 
 # Presents a read-only view of the remote address.
 #
