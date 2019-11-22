@@ -27,8 +27,10 @@ import org.ballerinalang.toml.model.Dependency;
 import org.ballerinalang.toml.model.Library;
 import org.ballerinalang.toml.model.Manifest;
 import org.ballerinalang.toml.parser.ManifestProcessor;
+import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
+import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.ProjectDirs;
 import org.wso2.ballerinalang.programfile.ProgramFileConstants;
 
@@ -48,7 +50,6 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.stream.Collectors;
 
-import static org.ballerinalang.packerina.buildcontext.sourcecontext.SourceType.SINGLE_BAL_FILE;
 import static org.ballerinalang.tool.LauncherUtils.createLauncherException;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BALO_PLATFORM_LIB_DIR_NAME;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_COMPILED_JAR_EXT;
@@ -62,6 +63,9 @@ public class CopyNativeLibTask implements Task {
             .collect(Collectors.toList());
     private boolean skipCopyLibsFromDist;
     private Manifest manifest;
+    private boolean skipTests;
+    private PackageCache packageCache;
+
 
     public CopyNativeLibTask(boolean skipCopyLibsFromDist) {
         this.skipCopyLibsFromDist = skipCopyLibsFromDist;
@@ -74,37 +78,45 @@ public class CopyNativeLibTask implements Task {
     
     @Override
     public void execute(BuildContext buildContext) {
+        CompilerContext context = buildContext.get(BuildContextField.COMPILER_CONTEXT);
+        packageCache = PackageCache.getInstance(context);
+        skipTests = buildContext.skipTests();
 
         Path sourceRootPath = buildContext.get(BuildContextField.SOURCE_ROOT);
         String balHomePath = buildContext.get(BuildContextField.HOME_REPO).toString();
         this.manifest = ManifestProcessor.getInstance(buildContext.get(BuildContextField.COMPILER_CONTEXT)).
                 getManifest();
-        List<BLangPackage> moduleBirMap  = buildContext.getModules();
-        if (buildContext.getSourceType() == SINGLE_BAL_FILE) {
-            copyImportedJarsForSingleBalFile(buildContext, moduleBirMap, sourceRootPath, balHomePath);
-            return;
-        }
-        copyImportedJarsForModules(buildContext, moduleBirMap, sourceRootPath, balHomePath);
+        copyImportedJarsForModules(buildContext, buildContext.getModules(), sourceRootPath, balHomePath);
     }
 
-    private void copyImportedJarsForSingleBalFile(BuildContext buildContext, List<BLangPackage> moduleBirMap,
-                                                  Path sourceRootPath, String balHomePath) {
-        // Iterate through the imports and copy dependencies.
-        HashSet<PackageID> alreadyImportedSet = new HashSet<>();
-        for (BLangPackage pkg : moduleBirMap) {
-            copyImportedLibs(pkg.symbol.imports, buildContext.moduleDependencyPathMap.get(pkg.packageID).platformLibs,
-                             buildContext, sourceRootPath, balHomePath, alreadyImportedSet);
-        }
-    }
-
-    private void copyImportedJarsForModules(BuildContext buildContext,  List<BLangPackage> moduleBirMap,
+    private void copyImportedJarsForModules(BuildContext buildContext, List<BLangPackage> moduleBirMap,
                                             Path sourceRootPath, String balHomePath) {
         // Iterate through the imports and copy dependencies.
         HashSet<PackageID> alreadyImportedSet = new HashSet<>();
         for (BLangPackage pkg : moduleBirMap) {
-            // Copy jars from imported modules.
-            copyImportedLibs(pkg.symbol.imports, buildContext.moduleDependencyPathMap.get(pkg.packageID).platformLibs,
-                             buildContext, sourceRootPath, balHomePath, alreadyImportedSet);
+            PackageID packageID = pkg.packageID;
+            BLangPackage bLangPackage = packageCache.get(packageID);
+
+            if (bLangPackage == null || !buildContext.moduleDependencyPathMap.containsKey(packageID)) {
+                continue;
+            }
+
+            copyImportedLibs(bLangPackage.symbol.imports,
+                    buildContext.moduleDependencyPathMap.get(packageID).platformLibs,
+                    buildContext, sourceRootPath, balHomePath, alreadyImportedSet);
+
+            if (skipTests || !bLangPackage.hasTestablePackage()) {
+                continue;
+            }
+
+            for (BLangPackage testPkg : bLangPackage.getTestablePkgs()) {
+                if (!buildContext.moduleDependencyPathMap.containsKey(testPkg.packageID)) {
+                    continue;
+                }
+                copyImportedLibs(testPkg.symbol.imports,
+                        buildContext.moduleDependencyPathMap.get(testPkg.packageID).platformLibs,
+                        buildContext, sourceRootPath, balHomePath, alreadyImportedSet);
+            }
         }
     }
 
