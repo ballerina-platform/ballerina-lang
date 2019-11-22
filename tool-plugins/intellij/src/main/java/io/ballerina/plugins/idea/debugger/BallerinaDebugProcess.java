@@ -136,7 +136,7 @@ public class BallerinaDebugProcess extends XDebugProcess {
         ApplicationManager.getApplication().executeOnPooledThread(() -> {
             print("Ballerina Debugging is an experimental feature.\n" +
                     "Visit https://ballerina.io/learn/tools-ides/intellij-plugin/" +
-                    "using-intellij-plugin-features/#debugging-ballerina-programs for known limitations and" +
+                    "using-intellij-plugin-features#debugging-ballerina-programs for known limitations and" +
                     " workarounds.\n\n", false);
             if (isRemoteDebugMode) {
                 print("Attaching to remote debug process...\n\n", false);
