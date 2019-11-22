@@ -14,18 +14,28 @@
 // specific language governing permissions and limitations
 // under the License.
 
-# Represents the base JDBC Client
-type JdbcClient client object {
+# Represents a JDBC client endpoint.
+#
+public type Client client object {
+    private boolean clientActive = true;
 
-    # The call remote function implementation for JDBC client to invoke stored procedures/functions.
+    # Gets called when the JDBC client is instantiated.
+    public function __init(ClientConfiguration c) {
+        createClient(self, c, globalPoolConfigContainer.getGlobalPoolConfig());
+    }
+
+    # The call remote function implementation for JDBC Client to invoke stored procedures/functions.
     #
     # + sqlQuery - The SQL stored procedure to execute
     # + recordType - Array of record types of the returned tables if there is any
     # + parameters - The parameters to be passed to the procedure/function call
     # + return - A `table[]` if there are tables returned by the call remote function and else nil,
     #            `Error` will be returned if there is any error
-    remote function call(@untainted string sqlQuery, typedesc<record{}>[]? recordType, Param... parameters)
-        returns @tainted table<record {}>[]|()|Error {
+    public remote function call(@untainted string sqlQuery, typedesc<record {}>[]? recordType, Param... parameters)
+                                returns @tainted table<record {}>[]|()|Error {
+        if (!self.clientActive) {
+            return self.handleStoppedClientInvocation();
+        }
         return nativeCall(self, sqlQuery, recordType, ...parameters);
     }
 
@@ -35,8 +45,11 @@ type JdbcClient client object {
     # + recordType - Type of the returned table
     # + parameters - The parameters to be passed to the select query
     # + return - A `table` returned by the SQL query statement else `Error` will be returned if there is an error
-    remote function select(@untainted string sqlQuery, typedesc<record{}>? recordType,
-                                  Param... parameters) returns @tainted table<record {}>|Error {
+    public remote function select(@untainted string sqlQuery, typedesc<record{}>? recordType, Param... parameters)
+                                  returns @tainted table<record {}>|Error {
+        if (!self.clientActive) {
+            return self.handleStoppedClientInvocation();
+        }
         return nativeSelect(self, sqlQuery, recordType, ...parameters);
     }
 
@@ -44,9 +57,13 @@ type JdbcClient client object {
     #
     # + sqlQuery - SQL statement to execute
     # + parameters - The parameters to be passed to the update query
-    # + return - A `UpdateResult` with the updated row count and key column values,
-    #            else `Error` will be returned if there is any error
-    remote function update(@untainted string sqlQuery, Param... parameters) returns UpdateResult|Error {
+    # + return - `UpdateResult` with the updated row count and key column values,
+    #             else `Error` will be returned if there is an error
+    public remote function update(@untainted string sqlQuery, Param... parameters)
+                                  returns UpdateResult|Error {
+        if (!self.clientActive) {
+            return self.handleStoppedClientInvocation();
+        }
         return nativeUpdate(self, sqlQuery, ...parameters);
     }
 
@@ -64,30 +81,48 @@ type JdbcClient client object {
     #            in the batch have executed successfully, the error will be `nil`. If one or more commands have failed,
     #            the `returnedError` field will give the corresponding `Error` along with the int[] which
     #            contains updated row count or the status returned from each command in the batch.
-    remote function batchUpdate(@untainted string sqlQuery, boolean rollbackAllInFailure,
+    public remote function batchUpdate(@untainted string sqlQuery, boolean rollbackAllInFailure,
                                        Param?[]... parameters)
                                        returns BatchUpdateResult {
+        if (!self.clientActive) {
+            return self.handleStoppedClientInvocationForBatchUpdate();
+        }
         return nativeBatchUpdate(self, sqlQuery, rollbackAllInFailure, ...parameters);
+    }
+
+    # Stops the JDBC client.
+    #
+    # + return - Possible error during closing the client
+    public function stop() returns error? {
+        self.clientActive = false;
+        return close(self);
+    }
+
+    function handleStoppedClientInvocation() returns Error {
+        ApplicationError e = ApplicationError(message = "Client has been stopped");
+        return e;
+    }
+
+    function handleStoppedClientInvocationForBatchUpdate() returns BatchUpdateResult {
+        int[] rowCount = [];
+        ApplicationError e = ApplicationError(message = "Client has been stopped");
+        BatchUpdateResult res = {updatedRowCount: rowCount, generatedKeys: {}, returnedError: e};
+        return res;
     }
 };
 
-function nativeSelect(JdbcClient sqlClient, @untainted string sqlQuery, typedesc<record{}>? recordType,
+function nativeSelect(Client jdbcClient,@untainted string sqlQuery, typedesc<record {}>? recordType,
     Param... parameters) returns @tainted table<record {}>|Error = external;
 
-function nativeCall(JdbcClient sqlClient, @untainted string sqlQuery, typedesc<record{}>[]? recordType, Param... parameters)
-    returns @tainted table<record {}>[]|()|Error = external;
+function nativeCall(Client jdbcClient,@untainted string sqlQuery, typedesc<record {}>[]? recordType,
+    Param... parameters) returns @tainted table<record {}>[]|()|Error = external;
 
-function nativeUpdate(JdbcClient sqlClient, @untainted string sqlQuery, Param... parameters)
+function nativeUpdate(Client jdbcClient,@untainted string sqlQuery, Param... parameters)
     returns UpdateResult|Error = external;
 
-function nativeBatchUpdate(JdbcClient sqlClient, @untainted string sqlQuery, boolean rollbackAllInFailure,
-    Param?[]... parameters)
-    returns BatchUpdateResult = external;
+function nativeBatchUpdate(Client jdbcClient,@untainted string sqlQuery, boolean rollbackAllInFailure,
+    Param?[]... parameters) returns BatchUpdateResult = external;
 
-function createClient(ClientConfiguration config, PoolOptions globalPoolOptions) returns JdbcClient = external;
+function createClient(Client jdbcClient, ClientConfiguration config, PoolOptions globalPoolOptions) = external;
 
-# An internal function used by clients to shutdown the connection pool.
-#
-# + jdbcClient - The Client object which represents the connection pool
-# + return - Possible error during closing the client
-function close(JdbcClient jdbcClient) returns error? = external;
+function close(Client jdbcClient) returns error? = external;

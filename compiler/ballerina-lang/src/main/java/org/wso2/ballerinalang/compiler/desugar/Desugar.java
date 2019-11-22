@@ -32,6 +32,7 @@ import org.ballerinalang.model.tree.statements.StreamingQueryStatementNode;
 import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
 import org.ballerinalang.model.tree.types.TypeNode;
 import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.util.BLangCompilerConstants;
 import org.ballerinalang.util.Transactions;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolEnter;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
@@ -2526,7 +2527,7 @@ public class Desugar extends BLangNodeVisitor {
                 foreach.collection.type, this.env.scope.owner);
         BLangSimpleVariable dataVariable = ASTBuilderUtil.createVariable(foreach.pos, "$data$",
                 foreach.collection.type, foreach.collection, dataSymbol);
-        BLangSimpleVariableDef dataVariableDefinition = ASTBuilderUtil.createVariableDef(foreach.pos, dataVariable);
+        BLangSimpleVariableDef dataVarDef = ASTBuilderUtil.createVariableDef(foreach.pos, dataVariable);
 
         // Get the symbol of the variable (collection).
         BVarSymbol collectionSymbol = dataVariable.symbol;
@@ -2538,22 +2539,53 @@ public class Desugar extends BLangNodeVisitor {
             case TypeTags.MAP:
             case TypeTags.TABLE:
             case TypeTags.RECORD:
-                BLangSimpleVariableDef iteratorVarDef = getIteratorVariableDefinition(foreach, collectionSymbol);
-                blockNode = desugarForeachToWhile(foreach, iteratorVarDef);
-                blockNode.stmts.add(0, dataVariableDefinition);
+                BInvokableSymbol iteratorSymbol = getLangLibIteratorInvokableSymbol(collectionSymbol);
+                blockNode = desugarForeachWithIteratorDef(foreach, dataVarDef, collectionSymbol, iteratorSymbol, true);
                 break;
             case TypeTags.OBJECT: //We know for sure, the object is an iterable from TypeChecker phase.
-                blockNode = desugarForeachToWhile(foreach, dataVariableDefinition);
+                iteratorSymbol = getIterableObjectIteratorInvokableSymbol(collectionSymbol);
+                blockNode = desugarForeachWithIteratorDef(foreach, dataVarDef, collectionSymbol, iteratorSymbol, false);
                 break;
             default:
                 blockNode = ASTBuilderUtil.createBlockStmt(foreach.pos);
-                blockNode.stmts.add(0, dataVariableDefinition);
+                blockNode.stmts.add(0, dataVarDef);
                 break;
         }
 
         // Rewrite the block.
         rewrite(blockNode, this.env);
         result = blockNode;
+    }
+
+    private BLangBlockStmt desugarForeachWithIteratorDef(BLangForeach foreach,
+                                                         BLangSimpleVariableDef dataVariableDefinition,
+                                                         BVarSymbol collectionSymbol,
+                                                         BInvokableSymbol iteratorInvokableSymbol,
+                                                         boolean isIteratorFuncFromLangLib) {
+        BLangSimpleVariableDef iteratorVarDef = getIteratorVariableDefinition(foreach.pos, collectionSymbol,
+                iteratorInvokableSymbol, isIteratorFuncFromLangLib);
+        BLangBlockStmt blockNode = desugarForeachToWhile(foreach, iteratorVarDef);
+        blockNode.stmts.add(0, dataVariableDefinition);
+        return blockNode;
+    }
+
+    private BInvokableSymbol getIterableObjectIteratorInvokableSymbol(BVarSymbol collectionSymbol) {
+        BObjectTypeSymbol typeSymbol = (BObjectTypeSymbol) collectionSymbol.type.tsymbol;
+        // We know for sure at this point, the object symbol should have the __iterator method
+        BAttachedFunction iteratorFunc = null;
+        for (BAttachedFunction func : typeSymbol.attachedFuncs) {
+            if (func.funcName.value.equals(BLangCompilerConstants.ITERABLE_OBJECT_ITERATOR_FUNC)) {
+                iteratorFunc = func;
+                break;
+            }
+        }
+        BAttachedFunction function = iteratorFunc;
+        return function.symbol;
+    }
+
+    private BInvokableSymbol getLangLibIteratorInvokableSymbol(BVarSymbol collectionSymbol) {
+        return (BInvokableSymbol) symResolver.lookupLangLibMethod(collectionSymbol.type,
+                names.fromString(BLangCompilerConstants.ITERABLE_COLLECTION_ITERATOR_FUNC));
     }
 
     private BLangBlockStmt desugarForeachToWhile(BLangForeach foreach, BLangSimpleVariableDef varDef) {
@@ -3511,7 +3543,7 @@ public class Desugar extends BLangNodeVisitor {
                     .orElse(symTable.noType);
         }
 
-        throw new IllegalStateException("None object type '" + type.toString() + "' found in object init conext");
+        throw new IllegalStateException("None object type '" + type.toString() + "' found in object init context");
     }
 
     private BLangErrorType getErrorTypeNode() {
@@ -4341,30 +4373,27 @@ public class Desugar extends BLangNodeVisitor {
     // private functions
 
     // Foreach desugar helper method.
-    private BLangSimpleVariableDef getIteratorVariableDefinition(BLangForeach foreach, BVarSymbol collectionSymbol) {
+    private BLangSimpleVariableDef getIteratorVariableDefinition(DiagnosticPos pos, BVarSymbol collectionSymbol,
+                                                                 BInvokableSymbol iteratorInvokableSymbol,
+                                                                 boolean isIteratorFuncFromLangLib) {
 
-        BLangIdentifier iterateIdentifier =
-                ASTBuilderUtil.createIdentifier(foreach.pos, BLangBuiltInMethod.ITERATE.getName());
-        BLangSimpleVarRef dataReference = ASTBuilderUtil.createVariableRef(foreach.pos, collectionSymbol);
 
+        BLangSimpleVarRef dataReference = ASTBuilderUtil.createVariableRef(pos, collectionSymbol);
         BLangInvocation iteratorInvocation = (BLangInvocation) TreeBuilder.createInvocationNode();
-        iteratorInvocation.pos = foreach.pos;
-        iteratorInvocation.name = iterateIdentifier;
+        iteratorInvocation.pos = pos;
         iteratorInvocation.expr = dataReference;
-        BInvokableSymbol langLibMethodSymbol = (BInvokableSymbol) symResolver.lookupLangLibMethod(collectionSymbol.type,
-                                                                                names.fromIdNode(iterateIdentifier));
-        iteratorInvocation.symbol = langLibMethodSymbol;
-        iteratorInvocation.type = langLibMethodSymbol.retType;
+        iteratorInvocation.symbol = iteratorInvokableSymbol;
+        iteratorInvocation.type = iteratorInvokableSymbol.retType;
         iteratorInvocation.argExprs = Lists.of(dataReference);
         iteratorInvocation.requiredArgs = iteratorInvocation.argExprs;
-        iteratorInvocation.langLibInvocation = true;
+        iteratorInvocation.langLibInvocation = isIteratorFuncFromLangLib;
         BVarSymbol iteratorSymbol = new BVarSymbol(0, names.fromString("$iterator$"), this.env.scope.owner.pkgID,
-                langLibMethodSymbol.retType, this.env.scope.owner);
+                iteratorInvokableSymbol.retType, this.env.scope.owner);
 
         // Note - any $iterator$ = $data$.iterator();
-        BLangSimpleVariable iteratorVariable = ASTBuilderUtil.createVariable(foreach.pos, "$iterator$",
-                langLibMethodSymbol.retType, iteratorInvocation, iteratorSymbol);
-        return ASTBuilderUtil.createVariableDef(foreach.pos, iteratorVariable);
+        BLangSimpleVariable iteratorVariable = ASTBuilderUtil.createVariable(pos, "$iterator$",
+                iteratorInvokableSymbol.retType, iteratorInvocation, iteratorSymbol);
+        return ASTBuilderUtil.createVariableDef(pos, iteratorVariable);
     }
 
     // Foreach desugar helper method.
