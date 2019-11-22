@@ -103,31 +103,43 @@ public type StreamEvent object {
     # Returns the value of an attribute.
     #
     # + path - the path
+    # + useDataMap - whether to use the dataMap or the data
+    # + return - the attribute value.
+    public function getAttributeValue(string path, boolean useDataMap) returns anydata {
+        if (useDataMap) {
+            string[] attribSplit = stringutils:split(path, "\\.");
+            string[] aliasSplit = stringutils:split(attribSplit[0], "\\[");
+            string attrib = attribSplit[1];
+            string alias = aliasSplit[0];
+            int index = 0;
+            map<anydata>[] dArray = self.dataMap[alias] ?: [{}];
+            if (aliasSplit.length() > 1) {
+                string replacedString = stringutils:replaceAll(aliasSplit[1], "]", "");
+                string indexStr = replacedString.trim();
+                if (stringutils:contains(indexStr, "last")) {
+                    int lastIndex = dArray.length();
+                    if (stringutils:contains(indexStr, "-")) {
+                        string[] vals = stringutils:split(indexStr, "-");
+                        string subCount = vals[1].trim();
+                        index = lastIndex - checkpanic langint:fromString(subCount);
+                    } else {
+                        index = lastIndex;
+                    }
+                } else {
+                    index = checkpanic langint:fromString(indexStr);
+                }
+            }
+            return dArray[index][attrib];
+        }
+        return self.get(path);
+    }
+
+    # Returns the value of an attribute.
+    #
+    # + path - the absolute attribute path
     # + return - the attribute value.
     public function get(string path) returns anydata {
-        string[] attribSplit = stringutils:split(path, "\\.");
-        string[] aliasSplit = stringutils:split(attribSplit[0], "\\[");
-        string attrib = attribSplit[1];
-        string alias = aliasSplit[0];
-        int index = 0;
-        map<anydata>[] dArray = self.dataMap[alias] ?: [{}];
-        if (aliasSplit.length() > 1) {
-            string replacedString = stringutils:replaceAll(aliasSplit[1], "]", "");
-            string indexStr = replacedString.trim();
-            if (stringutils:contains(indexStr, "last")) {
-                int lastIndex = dArray.length();
-                if (stringutils:contains(indexStr, "-")) {
-                    string[] vals = stringutils:split(indexStr, "-");
-                    string subCount = vals[1].trim();
-                    index = lastIndex - checkpanic langint:fromString(subCount);
-                } else {
-                    index = lastIndex;
-                }
-            } else {
-                index = checkpanic langint:fromString(indexStr);
-            }
-        }
-        return dArray[index][attrib];
+        return self.data[path];
     }
 
     # Returns the name of the stream.
@@ -189,7 +201,6 @@ public type StreamEvent object {
     }
 };
 
-//todo: add eventId
 # This record represents a stream event which can be persisted.
 #
 # + eventType - description
