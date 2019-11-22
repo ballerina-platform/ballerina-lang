@@ -20,7 +20,6 @@ package org.ballerinalang.stdlib.config;
 
 import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.jvm.BallerinaErrors;
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -39,9 +38,9 @@ import java.util.Map;
 public class GetConfig {
 
     private static final ConfigRegistry configRegistry = ConfigRegistry.getInstance();
-    private static final String lookupErrReason = "{ballerina/config}LookupError";
+    private static final String LOOKUPERRREASON = "{ballerina/config}LookupError";
 
-    public static Object get(Strand strand, String configKey, Object type) {
+    public static Object get(String configKey, Object type) {
 
         try {
             switch (type.toString()) {
@@ -59,7 +58,7 @@ public class GetConfig {
                     throw new IllegalStateException("invalid value type: " + type.toString());
             }
         } catch (IllegalArgumentException e) {
-            throw BallerinaErrors.createError(lookupErrReason, e.getMessage());
+            throw BallerinaErrors.createError(LOOKUPERRREASON, e.getMessage());
         }
     }
 

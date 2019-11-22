@@ -19,7 +19,6 @@
 package org.ballerinalang.stdlib.config;
 
 import org.ballerinalang.config.ConfigRegistry;
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 
 /**
@@ -34,7 +33,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 )
 public class Contains {
 
-    public static boolean contains(Strand strand, String configKey) {
+    public static boolean contains(String configKey) {
         return ConfigRegistry.getInstance().contains(configKey);
     }
 }
