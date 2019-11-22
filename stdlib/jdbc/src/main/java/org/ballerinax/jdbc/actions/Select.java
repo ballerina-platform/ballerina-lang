@@ -32,10 +32,9 @@ import org.ballerinax.jdbc.statement.SelectStatement;
  *
  * @since 0.8.0
  */
-@BallerinaFunction(
-        orgName = "ballerinax", packageName = "java.jdbc",
-        functionName = "nativeSelect"
-)
+@BallerinaFunction(orgName = "ballerinax",
+                   packageName = "java.jdbc",
+                   functionName = "nativeSelect")
 public class Select {
 
     public static Object nativeSelect(Strand strand, ObjectValue client, String query, Object recordType,
