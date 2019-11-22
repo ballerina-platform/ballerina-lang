@@ -33,7 +33,8 @@ jobs:
       install:
         - choco install jdk8 -params 'installdir=c:\\java8'
         - export JAVA_HOME="c:\\java8"
-        - export PATH="%PATH%;%JAVA_HOME%\bin"
+        - export PATH=%PATH%;%JAVA_HOME%\bin
+        - set PATH=%PATH%;%JAVA_HOME%\bin
       script:
         - while sleep 9m; do echo "=====[ $SECONDS seconds still running ]====="; done &
         - ./gradlew.bat build -x test -x createJavadoc --stacktrace -scan --console=plain --no-daemon
