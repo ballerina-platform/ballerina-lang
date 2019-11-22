@@ -92,7 +92,7 @@ public class ForeachIterableObjectTest {
                 "with signature,  public function __iterator() returns (object { public function next () returns " +
                 "(record {| T value; |}?); });", 120, 25);
         BAssertUtil.validateError(negativeResult, i++, "iterable objects must have a __iterator function " +
-                "with signature,  public function __iterator() returns (object { publicl function next () returns " +
+                "with signature,  public function __iterator() returns (object { public function next () returns " +
                 "(record {| T value; |}?); });", 122, 25);
         BAssertUtil.validateError(negativeResult, i++, "iterable objects must have a __iterator function " +
                 "with signature,  public function __iterator() returns (object { public function next () returns " +
