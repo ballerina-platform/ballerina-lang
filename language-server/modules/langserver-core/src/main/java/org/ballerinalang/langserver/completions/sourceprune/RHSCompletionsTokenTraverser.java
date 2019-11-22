@@ -13,11 +13,14 @@
   See the License for the specific language governing permissions and
   limitations under the License.
  */
-package org.ballerinalang.langserver.sourceprune;
+package org.ballerinalang.langserver.completions.sourceprune;
 
 import org.antlr.v4.runtime.CommonToken;
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.TokenStream;
+import org.ballerinalang.langserver.sourceprune.AbstractTokenTraverser;
+import org.ballerinalang.langserver.sourceprune.SourcePruneContext;
+import org.ballerinalang.langserver.sourceprune.SourcePruneKeys;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
 
 import java.util.ArrayList;
@@ -29,7 +32,7 @@ import java.util.Optional;
  * 
  * @since 0.995.0
  */
-class RHSTokenTraverser extends AbstractTokenTraverser {
+public class RHSCompletionsTokenTraverser extends AbstractTokenTraverser {
     private int leftBraceCount;
     private int leftBracketCount;
     private int leftParenthesisCount;
@@ -38,7 +41,7 @@ class RHSTokenTraverser extends AbstractTokenTraverser {
     private boolean definitionRemoved;
     private boolean forcedProcessedToken;
 
-    RHSTokenTraverser(SourcePruneContext sourcePruneContext, boolean pruneTokens) {
+    RHSCompletionsTokenTraverser(SourcePruneContext sourcePruneContext, boolean pruneTokens) {
         super(pruneTokens);
         this.leftBraceCount = sourcePruneContext.get(SourcePruneKeys.LEFT_BRACE_COUNT_KEY);
         this.leftParenthesisCount = sourcePruneContext.get(SourcePruneKeys.LEFT_PARAN_COUNT_KEY);
@@ -50,7 +53,8 @@ class RHSTokenTraverser extends AbstractTokenTraverser {
         this.processedTokens = new ArrayList<>();
     }
 
-    List<CommonToken>  traverseRHS(TokenStream tokenStream, int tokenIndex) {
+    @Override
+    public List<CommonToken> traverse(TokenStream tokenStream, int tokenIndex) {
         Optional<Token> token = Optional.of(tokenStream.get(tokenIndex));
         while (token.isPresent()) {
             int type = token.get().getType();

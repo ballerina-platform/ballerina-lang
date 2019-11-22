@@ -13,12 +13,15 @@
   See the License for the specific language governing permissions and
   limitations under the License.
  */
-package org.ballerinalang.langserver.sourceprune;
+package org.ballerinalang.langserver.completions.sourceprune;
 
 import org.antlr.v4.runtime.CommonToken;
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.TokenStream;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.sourceprune.AbstractTokenTraverser;
+import org.ballerinalang.langserver.sourceprune.SourcePruneContext;
+import org.ballerinalang.langserver.sourceprune.SourcePruneKeys;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
 
 import java.util.ArrayList;
@@ -32,7 +35,7 @@ import java.util.stream.Collectors;
  * 
  * @since 0.995.0
  */
-class LHSTokenTraverser extends AbstractTokenTraverser {
+public class LHSCompletionsTokenTraverser extends AbstractTokenTraverser {
     private List<Integer> lhsTraverseTerminals;
     private List<Integer> blockRemoveKWTerminals;
     private boolean removeBlock;
@@ -46,7 +49,7 @@ class LHSTokenTraverser extends AbstractTokenTraverser {
     private SourcePruneContext sourcePruneContext;
     private boolean forcedProcessedToken;
 
-    LHSTokenTraverser(SourcePruneContext sourcePruneContext, boolean pruneTokens) {
+    LHSCompletionsTokenTraverser(SourcePruneContext sourcePruneContext, boolean pruneTokens) {
         super(pruneTokens);
         this.sourcePruneContext = sourcePruneContext;
         this.lhsTraverseTerminals = sourcePruneContext.get(SourcePruneKeys.LHS_TRAVERSE_TERMINALS_KEY);
@@ -64,7 +67,8 @@ class LHSTokenTraverser extends AbstractTokenTraverser {
         this.processedTokens = new ArrayList<>();
     }
 
-    List<CommonToken> traverseLHS(TokenStream tokenStream, int tokenIndex) {
+    @Override
+    public List<CommonToken> traverse(TokenStream tokenStream, int tokenIndex) {
         Optional<Token> token = Optional.of(tokenStream.get(tokenIndex));
         while (token.isPresent()) {
             int type = token.get().getType();

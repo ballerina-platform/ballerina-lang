@@ -31,16 +31,16 @@ import java.util.Optional;
  * 
  * @since 0.995.0
  */
-abstract class AbstractTokenTraverser {
-    int lastProcessedToken = -1;
+public abstract class AbstractTokenTraverser implements TokenTraverser {
+    protected int lastProcessedToken = -1;
     protected boolean pruneTokens;
-    List<CommonToken> processedTokens = new ArrayList<>();
+    protected List<CommonToken> processedTokens = new ArrayList<>();
 
-    AbstractTokenTraverser(boolean pruneTokens) {
+    public AbstractTokenTraverser(boolean pruneTokens) {
         this.pruneTokens = pruneTokens;
     }
 
-    void processToken(Token token) {
+    protected void processToken(Token token) {
         this.processedTokens.add(new CommonToken(token));
         if (token.getType() == BallerinaParser.NEW_LINE || token.getType() == BallerinaParser.EOF ||
                 token.getChannel() != Token.DEFAULT_CHANNEL || token.getType() == BallerinaParser.WS) {
@@ -64,7 +64,7 @@ abstract class AbstractTokenTraverser {
      * @param tokenStream   Current token stream
      * @param tokenIndex    Token index of the if token or open parenthesis
      */
-    void replaceCondition(TokenStream tokenStream, int tokenIndex) {
+    protected void replaceCondition(TokenStream tokenStream, int tokenIndex) {
         Optional<Token> nextDefaultToken = CommonUtil.getNextDefaultToken(tokenStream, tokenIndex);
         nextDefaultToken.ifPresent(token -> ((CommonToken) token)
                 .setText(String.join("_", Collections.nCopies(token.getText().length() / 2, "a"))));
