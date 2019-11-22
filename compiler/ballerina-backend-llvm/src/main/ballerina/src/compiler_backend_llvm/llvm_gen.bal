@@ -305,7 +305,7 @@ function getValueRefFromInt(int value, int sign) returns llvm:LLVMValueRef {
     return llvm:llvmConstInt(llvm:llvmInt64Type(), value, sign);
 }
 
-function getTaggedStructMapFromSingleType(bir:BType typeValue) returns llvm:LLVMTypeRef {
+function getTaggedStructTypeFromSingleType(bir:BType typeValue) returns llvm:LLVMTypeRef {
     return getTaggedStructType(getTypeStringName(typeValue));
 }
 

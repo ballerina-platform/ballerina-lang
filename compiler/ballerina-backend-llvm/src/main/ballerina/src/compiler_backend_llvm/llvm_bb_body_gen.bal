@@ -103,14 +103,14 @@ type BbBodyGenrator object {
     function getCorrectUnionTypeToStore(bir:VariableDcl lhsVariableDcl, bir:VarRef rhsVariableRef) returns llvm:LLVMValueRef {
         boolean shouldBitCast = self.isLowerOrderTypeOfUnion(lhsVariableDcl.typeValue, rhsVariableRef.typeValue);
         if (shouldBitCast) {
-            llvm:LLVMValueRef bitCastedTaggedUnion =  self.buildBitCastedUnion(lhsVariableDcl, rhsVariableRef.typeValue);
+            return self.buildBitCastedUnion(lhsVariableDcl, rhsVariableRef.typeValue);
         }
         return self.parent.getLocalVarRef(lhsVariableDcl);
     }
 
     function buildBitCastedUnion(bir:VariableDcl variable, bir:BType bitcastType) returns llvm:LLVMValueRef {
         llvm:LLVMValueRef genericUnionValRef = self.parent.getLocalVarRef(variable);
-        llvm:LLVMTypeRef castStructType = getTaggedStructType(getTypeStringName(bitcastType));
+        llvm:LLVMTypeRef castStructType = self.getTypePointerForTaggedStructType((bitcastType));
         return llvm:llvmBuildBitCast(self.builder, genericUnionValRef, castStructType, genStructCastName(variable.name.value, getTypeStringName(bitcastType)));
     }
 
@@ -149,10 +149,19 @@ type BbBodyGenrator object {
     }
 
     function genMoveIns(bir:Move moveIns) {
+        if (moveIns.lhsOp.typeValue is bir:BUnionType) {
+            self.castLhsOpForMoveIns(moveIns);
+        }
         llvm:LLVMValueRef lhsRef = self.parent.getLocalVarRef(moveIns.lhsOp.variableDcl);
         var rhsVarOp = moveIns.rhsOp;
         llvm:LLVMValueRef rhsVarOpRef = self.parent.genLoadLocalToTempVar(rhsVarOp);
         var loaded = <llvm:LLVMValueRef> llvm:llvmBuildStore(self.builder, rhsVarOpRef, lhsRef);
+    }
+
+    function castLhsOpForMoveIns (bir:Move moveIns) {
+        llvm:LLVMTypeRef castTypePointer = llvm:llvmTypeOf(self.parent.getLocalVarRef(moveIns.rhsOp.variableDcl));
+        llvm:LLVMValueRef castedLhsValPointer = llvm:llvmBuildBitCast(self.builder, self.parent.getLocalVarRef(moveIns.lhsOp.variableDcl), castTypePointer, "moveTempBitCast");
+        self.parent.storeValueRefForLocalVarRef(castedLhsValPointer, moveIns.lhsOp.variableDcl);
     }
 
     function genBinaryOpIns(bir:BinaryOp binaryIns) {
@@ -204,6 +213,13 @@ type BbBodyGenrator object {
         llvm:LLVMValueRef lhsRef = self.parent.getLocalVarRef(constLoad.lhsOp.variableDcl);
         var constRef = llvm:llvmConstInt(llvm:llvmInt1Type(), <boolean>constLoad.value?1:0, 0);
         var loaded = llvm:llvmBuildStore(self.builder, constRef, <llvm:LLVMValueRef>lhsRef);
+    }
+
+    function getTypePointerForTaggedStructType(bir:BType typeValue) returns llvm:LLVMTypeRef {
+        llvm:LLVMTypeRef taggedUnionType = getTaggedStructTypeFromSingleType(typeValue);
+        llvm:LLVMValueRef tempStructAllocation = llvm:llvmBuildAlloca(self.builder, taggedUnionType, "tempStructForPointerGen");
+        llvm:LLVMTypeRef typePointerToTaggedUnion = llvm:llvmTypeOf(tempStructAllocation);
+        return typePointerToTaggedUnion;
     }
 };
 
