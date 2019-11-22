@@ -94,7 +94,7 @@ public class RabbitMQConstants {
     public static final String STARTED_SERVICES = "started_services";
     public static final String CHANNEL_REFERENCE = "amqpChannel";
     public static final String QOS_STATUS = "qos_status";
-    public static final String LISTENER_OBJECT = "Listener";
+    static final String LISTENER_OBJECT = "Listener";
     public static final String SERVICE_CONFIG = "ServiceConfig";
     public static final String ALIAS_QUEUE_CONFIG = "queueConfig";
     public static final String ALIAS_ACK_MODE = "ackMode";
@@ -114,7 +114,7 @@ public class RabbitMQConstants {
 
     // Channel constant fields
     public static final String CHANNEL_NATIVE_OBJECT = "rabbitmq_channel_object";
-    public static final String JAVA_CLIENT_CHANNEL = "amqpChannel";
+    static final String JAVA_CLIENT_CHANNEL = "amqpChannel";
 
     // Message constant fields
     public static final String MESSAGE_OBJECT = "Message";
@@ -131,17 +131,13 @@ public class RabbitMQConstants {
     public static final String FLOAT_CONTENT_ERROR = "Error while retrieving the float content of the message. ";
     static final String DISPATCH_ERROR = "Error occurred while dispatching the message. ";
 
-
-
-
-
     // Transaction constant fields
     public static final String RABBITMQ_TRANSACTION_CONTEXT = "rabbitmq_transactional_context";
     static final String COMMIT_FAILED = "Transaction commit failed: ";
     static final String ROLLBACK_FAILED = "Transaction rollback failed: ";
 
     // Basic Properties constant fields
-    public static final String RECORD_BASIC_PROPERTIES = "BasicProperties";
+    static final String RECORD_BASIC_PROPERTIES = "BasicProperties";
     public static final String ALIAS_REPLY_TO = "replyTo";
     public static final String ALIAS_CONTENT_TYPE = "contentType";
     public static final String ALIAS_CONTENT_ENCODING = "contentEncoding";

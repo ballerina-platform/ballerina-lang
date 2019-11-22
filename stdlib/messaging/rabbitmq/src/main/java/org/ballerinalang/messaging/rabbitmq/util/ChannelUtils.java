@@ -25,6 +25,7 @@ import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.GetResponse;
 import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
+import org.ballerinalang.jvm.values.HandleValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.messaging.rabbitmq.RabbitMQConnectorException;
@@ -232,7 +233,7 @@ public class ChannelUtils {
         ObjectValue messageObjectValue = BallerinaValues.createObjectValue(RabbitMQConstants.PACKAGE_ID_RABBITMQ,
                 RabbitMQConstants.MESSAGE_OBJECT);
         messageObjectValue.addNativeData(RabbitMQConstants.DELIVERY_TAG, response.getEnvelope().getDeliveryTag());
-        messageObjectValue.addNativeData(RabbitMQConstants.CHANNEL_NATIVE_OBJECT, channel);
+        messageObjectValue.addNativeData(RabbitMQConstants.CHANNEL_NATIVE_OBJECT, new HandleValue(channel));
         messageObjectValue.addNativeData(RabbitMQConstants.MESSAGE_CONTENT, response.getBody());
         messageObjectValue.addNativeData(RabbitMQConstants.AUTO_ACK_STATUS, autoAck);
         messageObjectValue.addNativeData(RabbitMQConstants.BASIC_PROPERTIES, response.getProps());

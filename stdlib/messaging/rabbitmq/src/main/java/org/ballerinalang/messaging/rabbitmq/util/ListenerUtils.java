@@ -37,7 +37,7 @@ import java.util.ArrayList;
 import java.util.concurrent.TimeoutException;
 
 /**
- * Util class for RabbitMQ Listener handling.
+ * Util class for RabbitMQ Listener actions handling.
  *
  * @since 1.0.4
  */
@@ -46,6 +46,70 @@ public class ListenerUtils {
     private static boolean started = false;
     private static ArrayList<ObjectValue> services = new ArrayList<>();
     private static BRuntime runtime;
+
+    public static void externInit(ObjectValue listenerObjectValue, Channel channel) {
+        listenerObjectValue.addNativeData(RabbitMQConstants.CHANNEL_NATIVE_OBJECT, channel);
+    }
+
+    public static Object registerListener(ObjectValue listenerObjectValue, ObjectValue service) {
+        runtime = BRuntime.getCurrentRuntime();
+        Channel channel = (Channel) listenerObjectValue.getNativeData(RabbitMQConstants.CHANNEL_NATIVE_OBJECT);
+        if (service != null) {
+            try {
+                declareQueueIfNotExists(service, channel);
+            } catch (IOException e) {
+                return RabbitMQUtils.returnErrorValue("I/O Error occurred while declaring the queue: " +
+                        e.getMessage());
+            }
+            if (isStarted()) {
+                services =
+                        (ArrayList<ObjectValue>) listenerObjectValue.getNativeData(RabbitMQConstants.CONSUMER_SERVICES);
+                startReceivingMessages(service, channel, listenerObjectValue);
+            }
+            services.add(service);
+            listenerObjectValue.addNativeData(RabbitMQConstants.CONSUMER_SERVICES, services);
+        }
+        return null;
+    }
+
+    public static Object start(ObjectValue listenerObjectValue) {
+        Strand strand = Scheduler.getStrand();
+        boolean autoAck;
+        ObjectValue channelObject = (ObjectValue) listenerObjectValue.get(RabbitMQConstants.CHANNEL_REFERENCE);
+        Channel channel = (Channel) listenerObjectValue.getNativeData(RabbitMQConstants.CHANNEL_NATIVE_OBJECT);
+        @SuppressWarnings(RabbitMQConstants.UNCHECKED)
+        ArrayList<ObjectValue> services =
+                (ArrayList<ObjectValue>) listenerObjectValue.getNativeData(RabbitMQConstants.CONSUMER_SERVICES);
+        @SuppressWarnings(RabbitMQConstants.UNCHECKED)
+        ArrayList<ObjectValue> startedServices =
+                (ArrayList<ObjectValue>) listenerObjectValue.getNativeData(RabbitMQConstants.STARTED_SERVICES);
+        if (services != null && !services.isEmpty()) {
+            for (ObjectValue service : services) {
+                if (startedServices == null || !startedServices.contains(service)) {
+                    MapValue serviceConfig =
+                            (MapValue) service.getType().getAnnotation(RabbitMQConstants.PACKAGE_RABBITMQ,
+                                    RabbitMQConstants.SERVICE_CONFIG);
+                    @SuppressWarnings(RabbitMQConstants.UNCHECKED)
+                    MapValue<String, Object> queueConfig =
+                            (MapValue<String, Object>) serviceConfig.getMapValue(RabbitMQConstants.ALIAS_QUEUE_CONFIG);
+                    autoAck = getAckMode(service);
+                    boolean isQosSet = channelObject.getNativeData(RabbitMQConstants.QOS_STATUS) != null;
+                    if (!isQosSet) {
+                        try {
+                            handleBasicQos(channel, queueConfig);
+                        } catch (RabbitMQConnectorException exception) {
+                            return RabbitMQUtils.returnErrorValue("Error occurred while setting the QoS settings."
+                                    + exception.getDetail());
+                        }
+                    }
+                    MessageDispatcher messageDispatcher = new MessageDispatcher(service, channel, autoAck, runtime, strand);
+                    messageDispatcher.receiveMessages(listenerObjectValue);
+                }
+            }
+        }
+        started = true;
+        return null;
+    }
 
     public static Object detach(ObjectValue listenerObjectValue, ObjectValue service) {
         Channel channel = (Channel) listenerObjectValue.getNativeData(RabbitMQConstants.CHANNEL_NATIVE_OBJECT);
@@ -78,30 +142,6 @@ public class ListenerUtils {
             return RabbitMQUtils.returnErrorValue("Error occurred while retrieving the Channel," +
                     " Channel is not properly initialized");
         }
-    }
-
-    public static void externInit(ObjectValue listenerObjectValue, Channel channel) {
-        listenerObjectValue.addNativeData(RabbitMQConstants.CHANNEL_NATIVE_OBJECT, channel);
-    }
-
-    public static Object registerListener(ObjectValue listenerObjectValue, ObjectValue service) {
-        runtime = BRuntime.getCurrentRuntime();
-        Channel channel = (Channel) listenerObjectValue.getNativeData(RabbitMQConstants.CHANNEL_NATIVE_OBJECT);
-        if (service != null) {
-            try {
-                declareQueueIfNotExists(service, channel);
-            } catch (IOException e) {
-                return RabbitMQUtils.returnErrorValue("I/O Error occurred while declaring the queue.");
-            }
-            if (isStarted()) {
-                services =
-                        (ArrayList<ObjectValue>) listenerObjectValue.getNativeData(RabbitMQConstants.CONSUMER_SERVICES);
-                startReceivingMessages(service, channel, listenerObjectValue);
-            }
-            services.add(service);
-            listenerObjectValue.addNativeData(RabbitMQConstants.CONSUMER_SERVICES, services);
-        }
-        return null;
     }
 
     private static void declareQueueIfNotExists(ObjectValue service, Channel channel) throws IOException {
@@ -141,46 +181,6 @@ public class ListenerUtils {
             return BallerinaErrors.createError("An I/O error occurred while setting the global " +
                     "quality of service settings for the listener");
         }
-        return null;
-    }
-
-    public static Object start(ObjectValue listenerObjectValue) {
-        runtime = BRuntime.getCurrentRuntime();
-        Strand strand = Scheduler.getStrand();
-        boolean autoAck;
-        ObjectValue channelObject = (ObjectValue) listenerObjectValue.get(RabbitMQConstants.CHANNEL_REFERENCE);
-        Channel channel = (Channel) listenerObjectValue.getNativeData(RabbitMQConstants.CHANNEL_NATIVE_OBJECT);
-        @SuppressWarnings(RabbitMQConstants.UNCHECKED)
-        ArrayList<ObjectValue> services =
-                (ArrayList<ObjectValue>) listenerObjectValue.getNativeData(RabbitMQConstants.CONSUMER_SERVICES);
-        @SuppressWarnings(RabbitMQConstants.UNCHECKED)
-        ArrayList<ObjectValue> startedServices =
-                (ArrayList<ObjectValue>) listenerObjectValue.getNativeData(RabbitMQConstants.STARTED_SERVICES);
-        if (services != null && !services.isEmpty()) {
-            for (ObjectValue service : services) {
-                if (startedServices == null || !startedServices.contains(service)) {
-                    MapValue serviceConfig =
-                            (MapValue) service.getType().getAnnotation(RabbitMQConstants.PACKAGE_RABBITMQ,
-                                    RabbitMQConstants.SERVICE_CONFIG);
-                    @SuppressWarnings(RabbitMQConstants.UNCHECKED)
-                    MapValue<String, Object> queueConfig =
-                            (MapValue<String, Object>) serviceConfig.getMapValue(RabbitMQConstants.ALIAS_QUEUE_CONFIG);
-                    autoAck = getAckMode(service);
-                    boolean isQosSet = channelObject.getNativeData(RabbitMQConstants.QOS_STATUS) != null;
-                    if (!isQosSet) {
-                        try {
-                            handleBasicQos(channel, queueConfig);
-                        } catch (RabbitMQConnectorException exception) {
-                            return RabbitMQUtils.returnErrorValue("Error occurred while setting the QoS settings."
-                                    + exception.getDetail());
-                        }
-                    }
-                    MessageDispatcher messageDispatcher = new MessageDispatcher(service, channel, autoAck, runtime, strand);
-                    messageDispatcher.receiveMessages(listenerObjectValue);
-                }
-            }
-        }
-        started = true;
         return null;
     }
 
@@ -264,5 +264,4 @@ public class ListenerUtils {
     static {
         console = System.out;
     }
-
 }
