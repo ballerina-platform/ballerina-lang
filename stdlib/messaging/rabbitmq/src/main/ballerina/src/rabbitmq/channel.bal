@@ -148,6 +148,10 @@ public type Channel client object {
     public function abortChannel(int? closeCode = (), string? closeMessage = ()) returns Error? {
         return nativeChannelAbort(closeCode, closeMessage, self.amqpChannel);
     }
+
+    function getChannel() returns handle {
+        return self.amqpChannel;
+    }
 };
 
 function createChannel(handle connection) returns handle =

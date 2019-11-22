@@ -90,6 +90,10 @@ public class RabbitMQConstants {
     public static final String KEY_STORE_PATH = "path";
 
     // Channel listener constant fields
+    public static final String CONSUMER_SERVICES = "consumer_services";
+    public static final String STARTED_SERVICES = "started_services";
+    public static final String CHANNEL_REFERENCE = "amqpChannel";
+    public static final String QOS_STATUS = "qos_status";
     public static final String LISTENER_OBJECT = "Listener";
     public static final String SERVICE_CONFIG = "ServiceConfig";
     public static final String ALIAS_QUEUE_CONFIG = "queueConfig";

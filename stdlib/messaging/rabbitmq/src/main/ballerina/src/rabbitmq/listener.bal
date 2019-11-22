@@ -23,7 +23,7 @@ public type Listener object {
 
     *lang:Listener;
 
-    private Channel rabbitmqChannel;
+    private Channel amqpChannel;
 
     # Initializes a Listener object with the given `Connection` object or connection parameters.
     # Creates a `Connection` object if only the connection configuration is given. Sets global QoS settings,
@@ -35,8 +35,9 @@ public type Listener object {
     # + prefetchSize - Maximum amount of content (measured in octets) that the server will deliver, 0 if unlimited.
     public function __init(ConnectionConfiguration|Connection connectionOrConnectionConfig, int? prefetchCount = (),
                                     int? prefetchSize = ()) {
-        self.rabbitmqChannel = new Channel(connectionOrConnectionConfig);
+        self.amqpChannel = new Channel(connectionOrConnectionConfig);
         var result = self.setQosSettings(prefetchCount, prefetchSize);
+        externInit(self, self.amqpChannel.getChannel());
         if (result is error) {
             panic result;
         }
@@ -48,14 +49,14 @@ public type Listener object {
     # + name - Name of the service.
     # + return - Nil or error upon failure to register service.
     public function __attach(service s, string? name = ()) returns error? {
-        return registerListener(self.rabbitmqChannel, s);
+        return registerListener(self, s);
     }
 
     # Starts the consuming messages on all attached services.
     #
     # + return - Nil or error upon failure to start.
     public function __start() returns error? {
-        return start(self.rabbitmqChannel);
+        return start(self);
     }
 
     # Stops consuming messages and detaches the service from the `Listener` endpoint.
@@ -63,11 +64,11 @@ public type Listener object {
     # + s - Type descriptor of the service to bind to.
     # + return - Nil or error upon failure to detach service.
     public function __detach(service s) returns error? {
-        return detach(self.rabbitmqChannel, s);
+        return detach(self, s);
     }
 
     public function __gracefulStop() returns error? {
-        return stop(self.rabbitmqChannel);
+        return stop(self);
     }
 
     # Stops consuming messages through all consumer services and terminate the connection
@@ -75,18 +76,18 @@ public type Listener object {
     #
     # + return - Nil or error upon failure to close ChannelListener.
     public function __immediateStop() returns error? {
-        return abortConnection(self.rabbitmqChannel);
+        return abortConnection(self);
     }
 
     # Retrieve the `Channel` which initializes this `Listener`.
     #
     # + return - RabbitMQ Channel object or error if an I/O problem is encountered.
     public function getChannel() returns Channel {
-        return self.rabbitmqChannel;
+        return self.amqpChannel;
     }
 
     private function setQosSettings(int? prefetchCount, int? prefetchSize) returns error? {
-        return nativeSetQosSettings(prefetchCount, prefetchSize, self.rabbitmqChannel);
+        return nativeSetQosSettings(prefetchCount, prefetchSize, self);
     }
 };
 
@@ -107,32 +108,37 @@ public type RabbitMQServiceConfig record {|
 # Service descriptor data generated at compile time.
 public annotation RabbitMQServiceConfig ServiceConfig on service;
 
-function registerListener(Channel rabbitmqChannel, service serviceType) returns Error? =
+function externInit(Listener lis, handle amqpChannel) =
 @java:Method {
     class: "org.ballerinalang.messaging.rabbitmq.util.ListenerUtils"
 } external;
 
-function start(Channel rabbitmqChannel) returns Error? =
+function registerListener(Listener lis, service serviceType) returns Error? =
 @java:Method {
     class: "org.ballerinalang.messaging.rabbitmq.util.ListenerUtils"
 } external;
 
-function detach(Channel rabbitmqChannel, service serviceType) returns Error? =
+function start(Listener lis) returns Error? =
 @java:Method {
     class: "org.ballerinalang.messaging.rabbitmq.util.ListenerUtils"
 } external;
 
-function stop(Channel rabbitmqChannel) returns Error? =
+function detach(Listener lis, service serviceType) returns Error? =
 @java:Method {
     class: "org.ballerinalang.messaging.rabbitmq.util.ListenerUtils"
 } external;
 
-function abortConnection(Channel rabbitmqChannel) returns Error? =
+function stop(Listener lis) returns Error? =
 @java:Method {
     class: "org.ballerinalang.messaging.rabbitmq.util.ListenerUtils"
 } external;
 
-function nativeSetQosSettings(int? prefetchCount, int? prefetchSize, Channel rabbitmqChannel) returns Error? =
+function abortConnection(Listener lis) returns Error? =
+@java:Method {
+    class: "org.ballerinalang.messaging.rabbitmq.util.ListenerUtils"
+} external;
+
+function nativeSetQosSettings(int? prefetchCount, int? prefetchSize, Listener lis) returns Error? =
 @java:Method {
     class: "org.ballerinalang.messaging.rabbitmq.util.ListenerUtils"
 } external;
