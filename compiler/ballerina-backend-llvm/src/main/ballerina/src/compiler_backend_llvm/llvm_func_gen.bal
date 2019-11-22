@@ -163,6 +163,14 @@ type FuncGenrator object {
         return self.getLocalVarRefById(id);
     }
 
+    function storeValueRefForLocalVarRef(llvm:LLVMValueRef valueRef, bir:VariableDcl varDcl) {
+        string id = localVariableName(varDcl);
+        if (self.localVarRefs is map<llvm:LLVMValueRef>) {
+            map<llvm:LLVMValueRef> localVarRefsTemp = <map<llvm:LLVMValueRef>>self.localVarRefs;
+            localVarRefsTemp[id] = valueRef;
+        }   
+    }
+
     function getLocalVarTypeRefById(string id) returns llvm:LLVMTypeRef {
         llvm:LLVMTypeRef? tempTypeRef = self.localVarTypeRefs[id];
         if (tempTypeRef is llvm:LLVMTypeRef) {

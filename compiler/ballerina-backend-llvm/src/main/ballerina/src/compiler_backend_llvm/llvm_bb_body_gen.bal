@@ -82,6 +82,9 @@ type BbBodyGenrator object {
         bir:VariableDcl lhsVariableDcl = castIns.lhsOp.variableDcl;
         bir:VarRef rhsVariableRef = castIns.rhsOp;
 
+        llvm:LLVMValueRef structValueRef = self.getCorrectUnionTypeToStore(lhsVariableDcl, rhsVariableRef);
+        self.parent.storeValueRefForLocalVarRef(structValueRef, lhsVariableDcl);
+
         self.storeTagForTaggedUnion(lhsVariableDcl, rhsVariableRef.typeValue);
         self.storeActualValueInTaggedUnion(lhsVariableDcl, rhsVariableRef);
     }
@@ -92,9 +95,29 @@ type BbBodyGenrator object {
     }
 
     function storeActualValueInTaggedUnion(bir:VariableDcl lhsVariableDcl, bir:VarRef rhsVariableRef) {
-        llvm:LLVMValueRef actualValuePtr = self.buildStructGepForVariable(lhsVariableDcl, TAGGED_UNION_VALUE_INDEX);
+        llvm:LLVMValueRef ptrToActualValueInTaggedUnion = self.buildStructGepForVariable(lhsVariableDcl, TAGGED_UNION_VALUE_INDEX);
         llvm:LLVMValueRef rhsValue = self.parent.genLoadLocalToTempVar(rhsVariableRef);
-        _ = llvm:llvmBuildStore(self.builder, rhsValue, actualValuePtr);
+        _ = llvm:llvmBuildStore(self.builder, rhsValue, ptrToActualValueInTaggedUnion);
+    }
+
+    function getCorrectUnionTypeToStore(bir:VariableDcl lhsVariableDcl, bir:VarRef rhsVariableRef) returns llvm:LLVMValueRef {
+        boolean shouldBitCast = self.isLowerOrderTypeOfUnion(lhsVariableDcl.typeValue, rhsVariableRef.typeValue);
+        if (shouldBitCast) {
+            llvm:LLVMValueRef bitCastedTaggedUnion =  self.buildBitCastedUnion(lhsVariableDcl, rhsVariableRef.typeValue);
+        }
+        return self.parent.getLocalVarRef(lhsVariableDcl);
+    }
+
+    function buildBitCastedUnion(bir:VariableDcl variable, bir:BType bitcastType) returns llvm:LLVMValueRef {
+        llvm:LLVMValueRef genericUnionValRef = self.parent.getLocalVarRef(variable);
+        llvm:LLVMTypeRef castStructType = getTaggedStructType(getTypeStringName(bitcastType));
+        return llvm:llvmBuildBitCast(self.builder, genericUnionValRef, castStructType, genStructCastName(variable.name.value, getTypeStringName(bitcastType)));
+    }
+
+    function isLowerOrderTypeOfUnion(bir:BType unionType, bir:BType member) returns boolean {
+        int unionTypeTagValue = getTagValue(unionType);
+        int memberTypeTagValue = getTagValue(member);
+        return (memberTypeTagValue < unionTypeTagValue);
     }
 
     function genUnionToSingleCast(bir:TypeCast castIns) {
@@ -164,12 +187,22 @@ type BbBodyGenrator object {
     }
 
     function genConstantLoadIns(bir:ConstantLoad constLoad) {
-        if !(constLoad.value is int) {
-            error err = error("NotIntErr", message = "invalid value in constLoad");
-            panic err;
+        if (constLoad.value is int) {
+            self.genIntConstLoadIns(constLoad);
+        } else {
+            self.genBoolConstLoadIns(constLoad);
         }
+            }
+
+    function genIntConstLoadIns(bir:ConstantLoad constLoad) {
         llvm:LLVMValueRef lhsRef = self.parent.getLocalVarRef(constLoad.lhsOp.variableDcl);
         var constRef = llvm:llvmConstInt(llvm:llvmInt64Type(), <int>constLoad.value, 0);
+        var loaded = llvm:llvmBuildStore(self.builder, constRef, <llvm:LLVMValueRef>lhsRef);
+    }
+
+    function genBoolConstLoadIns(bir:ConstantLoad constLoad) {
+        llvm:LLVMValueRef lhsRef = self.parent.getLocalVarRef(constLoad.lhsOp.variableDcl);
+        var constRef = llvm:llvmConstInt(llvm:llvmInt1Type(), <boolean>constLoad.value?1:0, 0);
         var loaded = llvm:llvmBuildStore(self.builder, constRef, <llvm:LLVMValueRef>lhsRef);
     }
 };

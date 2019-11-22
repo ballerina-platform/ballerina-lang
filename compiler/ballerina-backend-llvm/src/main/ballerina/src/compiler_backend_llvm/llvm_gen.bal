@@ -270,13 +270,28 @@ function isUnionType(bir:BType typeValue) returns boolean {
 }
 
 function getTagValue(bir:BType typeValue) returns int {
-    if (typeValue is bir:BTypeInt) {
-        return getPrecedenceValueFromTypeString("int");
-    }   
-    if (typeValue is bir:BTypeBoolean) {
-        return getPrecedenceValueFromTypeString("boolean");
+    if (typeValue is bir:BUnionType) {
+        return getTagValueForUnion(typeValue);
+    } else {
+        return getTagForSingleType(typeValue);
     }
-    return 0;
+}
+
+function getTagValueForUnion(bir:BUnionType unionType) returns int {
+    int largestTag = 0;
+    foreach var member in unionType.members {
+        if (member is bir:BType) {
+            int currentTagVal = getTagForSingleType(member);
+            if (currentTagVal > largestTag) {
+                largestTag = currentTagVal;
+            }
+        }
+    }
+    return largestTag;
+}
+
+function getTagForSingleType(bir:BType typeValue) returns int {
+    return getPrecedenceValueFromTypeString(getTypeStringName(typeValue));
 }
 
 function getPrecedenceValueFromTypeString(string typeString) returns int {
@@ -288,4 +303,22 @@ function getPrecedenceValueFromTypeString(string typeString) returns int {
 
 function getValueRefFromInt(int value, int sign) returns llvm:LLVMValueRef {
     return llvm:llvmConstInt(llvm:llvmInt64Type(), value, sign);
+}
+
+function getTaggedStructMapFromSingleType(bir:BType typeValue) returns llvm:LLVMTypeRef {
+    return getTaggedStructType(getTypeStringName(typeValue));
+}
+
+function genStructCastName(string variableName, string castName) returns string {
+    return variableName + "_" + castName;
+}
+
+function getTypeStringName(bir:BType typeValue) returns string {
+    if (typeValue is bir:BTypeInt) {
+        return "int";
+    }
+    if (typeValue is bir:BTypeBoolean) {
+        return "boolean";
+    }
+    return "null";
 }

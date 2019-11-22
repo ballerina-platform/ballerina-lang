@@ -700,7 +700,7 @@ public function llvmBuildGlobalStringPtr(LLVMBuilderRef b, string str, string na
 //public function llvmBuildPtrToInt(LLVMBuilderRef arg0, LLVMValueRef val, LLVMTypeRef destTy, string name) returns LLVMValueRef = external;
 ////public function llvmBuildIntToPtr(LLVMBuilderRef arg0, LLVMValueRef val, LLVMTypeRef destTy, BytePointer name) returns LLVMValueRef = external;
 //public function llvmBuildIntToPtr(LLVMBuilderRef arg0, LLVMValueRef val, LLVMTypeRef destTy, string name) returns LLVMValueRef = external;
-//public function llvmBuildBitCast(LLVMBuilderRef arg0, LLVMValueRef val, LLVMTypeRef destTy, string name) returns LLVMValueRef = external;
+public function llvmBuildBitCast(LLVMBuilderRef arg0, LLVMValueRef val, LLVMTypeRef destTy, string name) returns LLVMValueRef = external;
 ////public function llvmBuildBitCast(LLVMBuilderRef arg0, LLVMValueRef val, LLVMTypeRef destTy, BytePointer name) returns LLVMValueRef = external;
 ////public function llvmBuildAddrSpaceCast(LLVMBuilderRef arg0, LLVMValueRef val, LLVMTypeRef destTy, BytePointer name) returns LLVMValueRef = external;
 //public function llvmBuildAddrSpaceCast(LLVMBuilderRef arg0, LLVMValueRef val, LLVMTypeRef destTy, string name) returns LLVMValueRef = external;
