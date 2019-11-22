@@ -36,6 +36,7 @@ dependencies {
     baloImplementation project(path: ':ballerina-runtime-api', configuration: 'baloImplementation')
 
     interopImports project(':ballerina-io')
+    interopImports project(':ballerina-task')
 
     //transitive
     baloImplementation project(path: ':ballerina-log-api', configuration: 'baloImplementation')

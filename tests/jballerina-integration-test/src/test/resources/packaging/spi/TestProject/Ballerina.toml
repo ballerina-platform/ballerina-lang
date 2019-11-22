@@ -11,3 +11,9 @@ target = "java8"
   [[platform.libraries]]
   path = "./libs/serviceB.jar"
 
+  [[platform.libraries]]
+  path = "./libs/drivers.jar"
+
+  [[platform.libraries]]
+  path = "../../../../../../build/libs/hsqldb-2.4.1.jar"
+

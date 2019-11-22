@@ -17,7 +17,9 @@
  */
 package org.ballerinalang.nativeimpl.jvm.tests;
 
+import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.types.BArrayType;
+import org.ballerinalang.jvm.types.BPackage;
 import org.ballerinalang.jvm.types.BTupleType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
@@ -25,10 +27,12 @@ import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ArrayValueImpl;
+import org.ballerinalang.jvm.values.BmpStringValue;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.StringValue;
 import org.ballerinalang.jvm.values.TupleValueImpl;
 
 import java.io.IOException;
@@ -37,6 +41,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * This class contains a set of utility static methods required for interoperability testing.
@@ -52,6 +57,14 @@ public class StaticMethods {
 
     public static Date acceptNothingButReturnDate() {
         return new Date();
+    }
+
+    public static StringValue acceptNothingButReturnString() {
+        return new BmpStringValue("hello world");
+    }
+
+    public static StringValue stringParamAndReturn(StringValue a1) {
+        return a1.concat(new BmpStringValue(" and Hadrian"));
     }
 
     public static Date acceptSomethingAndReturnSomething(Date date) {
@@ -235,6 +248,23 @@ public class StaticMethods {
             throws JavaInteropTestCheckedException {
         e.put("name", newVal);
         return e;
+    }
+
+    public static MapValue getMapOrError(String swaggerFilePath, MapValue apiDef)
+            throws JavaInteropTestCheckedException {
+        String finalBasePath = "basePath";
+        AtomicLong runCount = new AtomicLong(0L);
+        ArrayValue arrayValue = new ArrayValueImpl(new BArrayType(BallerinaValues.createRecordValue(new BPackage(
+                "", "."), "ResourceDefinition").getType()));
+        MapValue<String, Object> apiDefinitions = BallerinaValues.createRecordValue(new BPackage("",
+                "."), "ApiDefinition");
+        MapValue<String, Object> resource = BallerinaValues.createRecordValue(new BPackage("",
+                "."), "ResourceDefinition");
+        resource.put("path", finalBasePath);
+        resource.put("method", "Method string");
+        arrayValue.add(runCount.getAndIncrement(), resource);
+        apiDefinitions.put("resources", arrayValue);
+        return apiDefinitions;
     }
 
     public static TupleValueImpl getArrayValue() throws BallerinaException {
