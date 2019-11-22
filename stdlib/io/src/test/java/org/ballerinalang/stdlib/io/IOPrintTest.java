@@ -51,7 +51,7 @@ public class IOPrintTest {
     @BeforeClass(alwaysRun = true)
     public void setup() {
         original = System.out;
-        compileResult = BCompileUtil.compile("test-src/io/io-test.bal");
+        compileResult = BCompileUtil.compileOffline("test-src/io/io-test.bal");
     }
 
     @AfterClass(alwaysRun = true)

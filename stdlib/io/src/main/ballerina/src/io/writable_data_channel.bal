@@ -14,6 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerinax/java;
+
 # Represents network byte order.
 #
 # BIG_ENDIAN - specifies the bytes to be in the order of most significant byte first
@@ -30,15 +32,15 @@ public const LITTLE_ENDIAN = "LE";
 # Represents a WritableDataChannel for writing data.
 public type WritableDataChannel object {
 
-    public function __init(WritableByteChannel byteChannel, public ByteOrder bOrder = "BE") {
-        self.init(byteChannel, bOrder);
-    }
-
     # Initializes data channel.
     #
     # + byteChannel - channel which would represent the source to read/write data
     # + bOrder - network byte order
-    function init(WritableByteChannel byteChannel, ByteOrder bOrder) = external;
+    public function __init(WritableByteChannel byteChannel, public ByteOrder bOrder = "BE") {
+        // Remove temp once this got fixed #19842
+        string temp = bOrder;
+        initWritableDataChannel(self, byteChannel, java:fromString(temp));
+    }
 
     # Writes 16 bit integer.
     #
@@ -94,3 +96,8 @@ public type WritableDataChannel object {
     # + return - nill if the channel is closed successfully or `Error` if any error occurred
     public function close() returns Error? = external;
 };
+
+function initWritableDataChannel(WritableDataChannel dataChannel, WritableByteChannel byteChannel, handle bOrder) = @java:Method {
+    name: "initWritableDataChannel",
+    class: "org.ballerinalang.stdlib.io.nativeimpl.DataChannelUtils"
+} external;

@@ -31,6 +31,8 @@ import java.io.IOException;
 import java.nio.ByteOrder;
 import java.nio.channels.ClosedChannelException;
 
+import static org.ballerinalang.stdlib.io.utils.IOConstants.DATA_CHANNEL_NAME;
+
 /**
  * This class hold Java inter-ops bridging functions for io# *DataChannels.
  *
@@ -65,7 +67,7 @@ public class DataChannelUtils {
             ByteOrder byteOrder = getByteOrder((String) order);
             Channel channel = (Channel) byteChannelObj.getNativeData(IOConstants.BYTE_CHANNEL_NAME);
             DataChannel dataChannel = new DataChannel(channel, byteOrder);
-            dataChannelObj.addNativeData(IOConstants.DATA_CHANNEL_NAME, dataChannel);
+            dataChannelObj.addNativeData(DATA_CHANNEL_NAME, dataChannel);
         } catch (Exception e) {
             String message = "error while creating data channel: " + e.getMessage();
             log.error(message, e);
@@ -74,7 +76,7 @@ public class DataChannelUtils {
     }
 
     public static Object readInt16(ObjectValue dataChannelObj) {
-        DataChannel channel = (DataChannel) dataChannelObj.getNativeData(IOConstants.DATA_CHANNEL_NAME);
+        DataChannel channel = (DataChannel) dataChannelObj.getNativeData(DATA_CHANNEL_NAME);
         try {
             return channel.readLong(Representation.BIT_16).getValue();
         } catch (IOException e) {
@@ -84,7 +86,7 @@ public class DataChannelUtils {
     }
 
     public static Object readInt32(ObjectValue dataChannelObj) {
-        DataChannel channel = (DataChannel) dataChannelObj.getNativeData(IOConstants.DATA_CHANNEL_NAME);
+        DataChannel channel = (DataChannel) dataChannelObj.getNativeData(DATA_CHANNEL_NAME);
         try {
             return channel.readLong(Representation.BIT_32).getValue();
         } catch (IOException e) {
@@ -94,7 +96,7 @@ public class DataChannelUtils {
     }
 
     public static Object readInt64(ObjectValue dataChannelObj) {
-        DataChannel channel = (DataChannel) dataChannelObj.getNativeData(IOConstants.DATA_CHANNEL_NAME);
+        DataChannel channel = (DataChannel) dataChannelObj.getNativeData(DATA_CHANNEL_NAME);
         try {
             return channel.readLong(Representation.BIT_64).getValue();
         } catch (IOException e) {
@@ -104,7 +106,7 @@ public class DataChannelUtils {
     }
 
     public static Object readFloat32(ObjectValue dataChannelObj) {
-        DataChannel channel = (DataChannel) dataChannelObj.getNativeData(IOConstants.DATA_CHANNEL_NAME);
+        DataChannel channel = (DataChannel) dataChannelObj.getNativeData(DATA_CHANNEL_NAME);
         try {
             return channel.readDouble(Representation.BIT_32);
         } catch (IOException e) {
@@ -114,7 +116,7 @@ public class DataChannelUtils {
     }
 
     public static Object readFloat64(ObjectValue dataChannelObj) {
-        DataChannel channel = (DataChannel) dataChannelObj.getNativeData(IOConstants.DATA_CHANNEL_NAME);
+        DataChannel channel = (DataChannel) dataChannelObj.getNativeData(DATA_CHANNEL_NAME);
         try {
             return channel.readDouble(Representation.BIT_64);
         } catch (IOException e) {
@@ -124,7 +126,7 @@ public class DataChannelUtils {
     }
 
     public static Object readBool(ObjectValue dataChannelObj) {
-        DataChannel channel = (DataChannel) dataChannelObj.getNativeData(IOConstants.DATA_CHANNEL_NAME);
+        DataChannel channel = (DataChannel) dataChannelObj.getNativeData(DATA_CHANNEL_NAME);
         try {
             return channel.readBoolean();
         } catch (IOException e) {
@@ -134,7 +136,7 @@ public class DataChannelUtils {
     }
 
     public static Object readString(ObjectValue dataChannelObj, long nBytes, String encoding) {
-        DataChannel channel = (DataChannel) dataChannelObj.getNativeData(IOConstants.DATA_CHANNEL_NAME);
+        DataChannel channel = (DataChannel) dataChannelObj.getNativeData(DATA_CHANNEL_NAME);
         if (channel.hasReachedEnd()) {
             if (log.isDebugEnabled()) {
                 log.debug(String.format("Channel %d reached it's end", channel.hashCode()));
@@ -152,7 +154,7 @@ public class DataChannelUtils {
     }
 
     public static Object readVarInt(ObjectValue dataChannelObj) {
-        DataChannel channel = (DataChannel) dataChannelObj.getNativeData(IOConstants.DATA_CHANNEL_NAME);
+        DataChannel channel = (DataChannel) dataChannelObj.getNativeData(DATA_CHANNEL_NAME);
         try {
             return channel.readLong(Representation.VARIABLE).getValue();
         } catch (IOException e) {
@@ -162,7 +164,7 @@ public class DataChannelUtils {
     }
 
     public static Object closeReadableDataChannel(ObjectValue dataChannelObj) {
-        DataChannel channel = (DataChannel) dataChannelObj.getNativeData(IOConstants.DATA_CHANNEL_NAME);
+        DataChannel channel = (DataChannel) dataChannelObj.getNativeData(DATA_CHANNEL_NAME);
         try {
             channel.close();
         } catch (ClosedChannelException e) {
@@ -171,5 +173,18 @@ public class DataChannelUtils {
             return IOUtils.createError(e);
         }
         return null;
+    }
+
+    public static void initWritableDataChannel(ObjectValue dataChannelObj, ObjectValue byteChannelObj, Object order) {
+        try {
+            ByteOrder byteOrder = getByteOrder((String) order);
+            Channel channel = (Channel) byteChannelObj.getNativeData(IOConstants.BYTE_CHANNEL_NAME);
+            DataChannel dataChannel = new DataChannel(channel, byteOrder);
+            dataChannelObj.addNativeData(DATA_CHANNEL_NAME, dataChannel);
+        } catch (Exception e) {
+            String message = "error while creating data channel: " + e.getMessage();
+            log.error(message, e);
+            throw IOUtils.createError(message);
+        }
     }
 }

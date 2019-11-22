@@ -26,7 +26,7 @@ public type ReadableDataChannel object {
     public function __init(ReadableByteChannel byteChannel, public ByteOrder bOrder = "BE") {
         // Remove temp once this got fixed #19842
         string temp = bOrder;
-        init(self, byteChannel, java:fromString(temp));
+        initReadableDataChannel(self, byteChannel, java:fromString(temp));
     }
 
     #Reads a 16 bit integer.
@@ -100,7 +100,7 @@ public type ReadableDataChannel object {
     }
 };
 
-function init(ReadableDataChannel dataChannel, ReadableByteChannel byteChannel, handle bOrder) = @java:Method {
+function initReadableDataChannel(ReadableDataChannel dataChannel, ReadableByteChannel byteChannel, handle bOrder) = @java:Method {
     name: "initReadableDataChannel",
     class: "org.ballerinalang.stdlib.io.nativeimpl.DataChannelUtils"
 } external;

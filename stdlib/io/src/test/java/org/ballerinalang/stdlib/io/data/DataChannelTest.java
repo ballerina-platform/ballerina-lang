@@ -43,7 +43,7 @@ public class DataChannelTest {
 
     @BeforeClass
     public void setup() {
-        dataChannel = BCompileUtil.compile("test-src/io/data_io.bal");
+        dataChannel = BCompileUtil.compileOffline("test-src/io/data_io.bal");
         currentDirectoryPath = System.getProperty("user.dir") + "/build";
     }
 
