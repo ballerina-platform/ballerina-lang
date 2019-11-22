@@ -102,4 +102,18 @@ public class FunctionPointersNegativeTest {
         BAssertUtil.validateError(result, i++, "too many arguments in call to 'fn()'", 31, 16);
         BAssertUtil.validateError(result, i++, "too many arguments in call to 'fn()'", 42, 16);
     }
+
+    @Test()
+    public void testFpRestParameterWarning() {
+        CompileResult result = BCompileUtil.compile("test-src/expressions/lambda/negative" +
+                "/fp_rest_warning_test.bal");
+        Assert.assertEquals(result.getWarnCount(), 2);
+        int i = 0;
+        BAssertUtil.validateWarning(result, i++, "invalid argument: passing an array argument for a rest parameter " +
+                "is currently allowed due to a bug in the compiler (https://git.io/Je0oe) and will be fixed in a " +
+                "future release.", 3, 8);
+        BAssertUtil.validateWarning(result, i, "invalid argument: passing an array argument for a rest parameter " +
+                "is currently allowed due to a bug in the compiler (https://git.io/Je0oe) and will " +
+                "be fixed in a future release.", 4, 8);
+    }
 }

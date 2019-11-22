@@ -48,7 +48,7 @@ public function fromTable(table<record{}> tbl) returns json {
 }
 
 // ToDO: remove () once fix the #19917
-function externFromTable(table<record{}> tbl) returns json | () = @java:Method {
+function externFromTable(table<record{}> tbl) returns json|() = @java:Method {
     name: "fromTable",
     class: "org.ballerinalang.stdlib.jsonutils.FromTable"
 } external;
