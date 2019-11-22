@@ -48,8 +48,8 @@ public class SelectStatement extends AbstractSQLStatement {
     private final Object[] parameters;
     private final BStructureType structType;
 
-    public SelectStatement(ObjectValue client, SQLDatasource datasource, String query, Object[] parameters,
-                           TypedescValue recordType, Strand strand) {
+    public SelectStatement(ObjectValue client, SQLDatasource datasource, String query,
+                           TypedescValue recordType, Strand strand, Object... parameters) {
         super(strand);
         this.client = client;
         this.datasource = datasource;

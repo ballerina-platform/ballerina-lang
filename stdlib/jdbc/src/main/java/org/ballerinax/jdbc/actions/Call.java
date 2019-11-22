@@ -41,7 +41,7 @@ public class Call {
                                     Object... parameters) {
         SQLDatasource datasource = (SQLDatasource) client.getNativeData(Constants.JDBC_CLIENT);
         SQLStatement callStatement = new CallStatement(client, datasource, sqlQuery, (ArrayValue) recordType,
-                parameters, Scheduler.getStrand());
+                Scheduler.getStrand(), parameters);
         return callStatement.execute();
     }
 

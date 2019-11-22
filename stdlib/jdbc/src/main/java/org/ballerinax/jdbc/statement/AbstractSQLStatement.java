@@ -95,7 +95,7 @@ public abstract class AbstractSQLStatement implements SQLStatement {
         this.strand = strand;
     }
 
-    ArrayValue constructParameters(Object[] parameters) throws ApplicationException {
+    ArrayValue constructParameters(Object... parameters) throws ApplicationException {
         ArrayValue parametersNew = new ArrayValueImpl(new BArrayType(SQL_PARAMETER_TYPE));
         int paramCount = parameters.length;
         for (int i = 0; i < paramCount; ++i) {

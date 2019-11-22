@@ -42,8 +42,8 @@ public class BatchUpdate {
     public static MapValue<String, Object> nativeBatchUpdate(ObjectValue client, String sqlQuery,
                                                              boolean rollbackAllInFailure, Object... parameters) {
         SQLDatasource datasource = (SQLDatasource) client.getNativeData(Constants.JDBC_CLIENT);
-        SQLStatement batchUpdateStatement = new BatchUpdateStatement(client, datasource, sqlQuery, parameters,
-                rollbackAllInFailure, Scheduler.getStrand());
+        SQLStatement batchUpdateStatement = new BatchUpdateStatement(client, datasource, sqlQuery,
+                rollbackAllInFailure, Scheduler.getStrand(), parameters);
         return (MapValue<String, Object>) batchUpdateStatement.execute();
     }
 

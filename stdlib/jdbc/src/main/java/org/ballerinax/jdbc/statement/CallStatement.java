@@ -77,7 +77,7 @@ public class CallStatement extends AbstractSQLStatement {
     private final ArrayValue structTypes;
 
     public CallStatement(ObjectValue client, SQLDatasource datasource, String query, ArrayValue structTypes,
-                         Object[] parameters, Strand strand) {
+                        Strand strand, Object... parameters) {
         super(strand);
         this.client = client;
         this.datasource = datasource;
@@ -114,7 +114,7 @@ public class CallStatement extends AbstractSQLStatement {
             if (resultSetsReturned || refCursorOutParamsPresent) {
                 rm = new TableResourceManager(conn, stmt, !isInTransaction);
             }
-            setOutParameters(stmt, parameters, rm);
+            setOutParameters(stmt, rm, parameters);
             if (resultSetsReturned) {
                 rm.addAllResultSets(resultSets);
                 // If a result set has been returned from the stored procedure it needs to be pushed in to return
@@ -208,7 +208,7 @@ public class CallStatement extends AbstractSQLStatement {
         return resultSets;
     }
 
-    private void setOutParameters(CallableStatement stmt, Object[] params, TableResourceManager rm)
+    private void setOutParameters(CallableStatement stmt, TableResourceManager rm, Object... params)
             throws SQLException, ApplicationException {
         if (params == null) {
             return;

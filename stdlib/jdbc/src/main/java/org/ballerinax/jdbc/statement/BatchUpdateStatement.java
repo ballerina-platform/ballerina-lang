@@ -57,7 +57,7 @@ public class BatchUpdateStatement extends AbstractSQLStatement {
     private final boolean rollbackAllInFailure;
 
     public BatchUpdateStatement(ObjectValue client, SQLDatasource datasource, String query,
-                                Object[] parameters, boolean rollbackAllInFailure, Strand strand) {
+                                boolean rollbackAllInFailure, Strand strand, Object... parameters) {
         super(strand);
         this.client = client;
         this.datasource = datasource;

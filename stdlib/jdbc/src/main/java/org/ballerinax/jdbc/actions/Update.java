@@ -40,8 +40,8 @@ public class Update {
 
     public static Object nativeUpdate(ObjectValue client, String query, Object... parameters) {
         SQLDatasource sqlDatasource = (SQLDatasource) client.getNativeData(Constants.JDBC_CLIENT);
-        SQLStatement updateStatement = new UpdateStatement(client, sqlDatasource, query, parameters,
-                Scheduler.getStrand());
+        SQLStatement updateStatement = new UpdateStatement(client, sqlDatasource, query,
+                Scheduler.getStrand(), parameters);
         return updateStatement.execute();
     }
 
