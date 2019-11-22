@@ -22,7 +22,6 @@ import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import org.ballerinalang.jvm.BRuntime;
 import org.ballerinalang.jvm.BallerinaErrors;
-import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
@@ -54,26 +53,29 @@ public class ListenerUtils {
     public static Object registerListener(ObjectValue listenerObjectValue, ObjectValue service) {
         runtime = BRuntime.getCurrentRuntime();
         Channel channel = (Channel) listenerObjectValue.getNativeData(RabbitMQConstants.CHANNEL_NATIVE_OBJECT);
-        if (service != null) {
-            try {
-                declareQueueIfNotExists(service, channel);
-            } catch (IOException e) {
-                return RabbitMQUtils.returnErrorValue("I/O Error occurred while declaring the queue: " +
-                        e.getMessage());
-            }
-            if (isStarted()) {
-                services =
-                        (ArrayList<ObjectValue>) listenerObjectValue.getNativeData(RabbitMQConstants.CONSUMER_SERVICES);
-                startReceivingMessages(service, channel, listenerObjectValue);
-            }
-            services.add(service);
-            listenerObjectValue.addNativeData(RabbitMQConstants.CONSUMER_SERVICES, services);
+        if (service == null) {
+            return null;
         }
+        try {
+            declareQueueIfNotExists(service, channel);
+        } catch (IOException e) {
+            return RabbitMQUtils.returnErrorValue("I/O Error occurred while declaring the queue: " +
+                    e.getMessage());
+        }
+        if (isStarted()) {
+            services =
+                    (ArrayList<ObjectValue>) listenerObjectValue.getNativeData(RabbitMQConstants.CONSUMER_SERVICES);
+            startReceivingMessages(service, channel, listenerObjectValue);
+        }
+        services.add(service);
+        listenerObjectValue.addNativeData(RabbitMQConstants.CONSUMER_SERVICES, services);
         return null;
     }
 
     public static Object start(ObjectValue listenerObjectValue) {
-        Strand strand = Scheduler.getStrand();
+        if (runtime == null) {
+            runtime = BRuntime.getCurrentRuntime();
+        }
         boolean autoAck;
         ObjectValue channelObject = (ObjectValue) listenerObjectValue.get(RabbitMQConstants.CHANNEL_REFERENCE);
         Channel channel = (Channel) listenerObjectValue.getNativeData(RabbitMQConstants.CHANNEL_NATIVE_OBJECT);
@@ -83,28 +85,29 @@ public class ListenerUtils {
         @SuppressWarnings(RabbitMQConstants.UNCHECKED)
         ArrayList<ObjectValue> startedServices =
                 (ArrayList<ObjectValue>) listenerObjectValue.getNativeData(RabbitMQConstants.STARTED_SERVICES);
-        if (services != null && !services.isEmpty()) {
-            for (ObjectValue service : services) {
-                if (startedServices == null || !startedServices.contains(service)) {
-                    MapValue serviceConfig =
-                            (MapValue) service.getType().getAnnotation(RabbitMQConstants.PACKAGE_RABBITMQ,
-                                    RabbitMQConstants.SERVICE_CONFIG);
-                    @SuppressWarnings(RabbitMQConstants.UNCHECKED)
-                    MapValue<String, Object> queueConfig =
-                            (MapValue<String, Object>) serviceConfig.getMapValue(RabbitMQConstants.ALIAS_QUEUE_CONFIG);
-                    autoAck = getAckMode(service);
-                    boolean isQosSet = channelObject.getNativeData(RabbitMQConstants.QOS_STATUS) != null;
-                    if (!isQosSet) {
-                        try {
-                            handleBasicQos(channel, queueConfig);
-                        } catch (RabbitMQConnectorException exception) {
-                            return RabbitMQUtils.returnErrorValue("Error occurred while setting the QoS settings."
-                                    + exception.getDetail());
-                        }
+        if (services == null || services.isEmpty()) {
+            return null;
+        }
+        for (ObjectValue service : services) {
+            if (startedServices == null || !startedServices.contains(service)) {
+                MapValue serviceConfig =
+                        (MapValue) service.getType().getAnnotation(RabbitMQConstants.PACKAGE_RABBITMQ,
+                                RabbitMQConstants.SERVICE_CONFIG);
+                @SuppressWarnings(RabbitMQConstants.UNCHECKED)
+                MapValue<String, Object> queueConfig =
+                        (MapValue<String, Object>) serviceConfig.getMapValue(RabbitMQConstants.ALIAS_QUEUE_CONFIG);
+                autoAck = getAckMode(service);
+                boolean isQosSet = channelObject.getNativeData(RabbitMQConstants.QOS_STATUS) != null;
+                if (!isQosSet) {
+                    try {
+                        handleBasicQos(channel, queueConfig);
+                    } catch (RabbitMQConnectorException exception) {
+                        return RabbitMQUtils.returnErrorValue("Error occurred while setting the QoS settings."
+                                + exception.getDetail());
                     }
-                    MessageDispatcher messageDispatcher = new MessageDispatcher(service, channel, autoAck, runtime, strand);
-                    messageDispatcher.receiveMessages(listenerObjectValue);
                 }
+                MessageDispatcher messageDispatcher = new MessageDispatcher(service, channel, autoAck, runtime);
+                messageDispatcher.receiveMessages(listenerObjectValue);
             }
         }
         started = true;
@@ -185,7 +188,7 @@ public class ListenerUtils {
     }
 
     private static void startReceivingMessages(ObjectValue service, Channel channel, ObjectValue listener) {
-        MessageDispatcher messageDispatcher = new MessageDispatcher(service, channel, getAckMode(service), runtime, null);
+        MessageDispatcher messageDispatcher = new MessageDispatcher(service, channel, getAckMode(service), runtime);
         messageDispatcher.receiveMessages(listener);
 
     }

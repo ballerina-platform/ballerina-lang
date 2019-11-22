@@ -114,10 +114,7 @@ public type Channel client object {
     # + return - `Message` object containing the retrieved message data or an `Error` if an
     #               I/O problem is encountered.
     public remote function basicGet(string queueName, AcknowledgementMode ackMode) returns Message | Error {
-        boolean autoAck = false;
-        if (ackMode is AUTO_ACK) {
-            autoAck = true;
-        }
+        boolean autoAck = ackMode is AUTO_ACK;
         return nativeBasicGet(java:fromString(queueName), autoAck, self.amqpChannel);
     }
 

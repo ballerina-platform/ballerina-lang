@@ -35,8 +35,11 @@ import org.ballerinalang.jvm.types.BStructureType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.util.exceptions.BallerinaConnectorException;
-import org.ballerinalang.jvm.values.*;
-import org.ballerinalang.messaging.rabbitmq.util.ListenerUtils;
+import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.ErrorValue;
+import org.ballerinalang.jvm.values.HandleValue;
+import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinalang.jvm.values.ObjectValue;
 
 import java.io.IOException;
 import java.io.PrintStream;
@@ -58,11 +61,8 @@ public class MessageDispatcher {
     private ObjectValue service;
     private String queueName;
     private BRuntime runtime;
-    private Strand strand;
 
-    public MessageDispatcher(ObjectValue service, Channel channel, boolean autoAck, BRuntime runtime,
-                             Strand strand) {
-        this.strand = strand;
+    public MessageDispatcher(ObjectValue service, Channel channel, boolean autoAck, BRuntime runtime) {
         this.channel = channel;
         this.autoAck = autoAck;
         this.service = service;

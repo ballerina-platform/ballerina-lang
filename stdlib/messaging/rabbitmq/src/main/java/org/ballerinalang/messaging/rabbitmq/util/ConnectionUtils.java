@@ -173,11 +173,7 @@ public class ConnectionUtils {
     }
 
     public static boolean nativeIsClosed(Connection connection) {
-        boolean flag = false;
-        if (connection == null || !connection.isOpen()) {
-            flag = true;
-        }
-        return flag;
+        return connection == null || !connection.isOpen();
     }
 
     public static Object handleCloseConnection(Object closeCode, Object closeMessage, Object timeout,
