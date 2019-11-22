@@ -55,7 +55,8 @@ public class KafkaConsumerPauseTest {
 
     @BeforeClass
     public void setup() throws IOException {
-        result = BCompileUtil.compile(getFilePath(Paths.get(TEST_SRC, TEST_CONSUMER, "kafka_consumer_pause.bal")));
+        result = BCompileUtil
+                .compileOffline(getFilePath(Paths.get(TEST_SRC, TEST_CONSUMER, "kafka_consumer_pause.bal")));
         dataDir = Testing.Files.createTestingDirectory("cluster-kafka-consumer-pause-test");
         kafkaCluster = createKafkaCluster(dataDir, 14003, 14103).addBrokers(1).startup();
         kafkaCluster.createTopic("test", 1, 1);

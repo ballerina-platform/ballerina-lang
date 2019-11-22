@@ -163,8 +163,8 @@ public class DataChannelUtils {
         }
     }
 
-    public static Object closeReadableDataChannel(ObjectValue dataChannelObj) {
-        DataChannel channel = (DataChannel) dataChannelObj.getNativeData(DATA_CHANNEL_NAME);
+    public static Object closeDataChannel(ObjectValue dataChannel) {
+        DataChannel channel = (DataChannel) dataChannel.getNativeData(DATA_CHANNEL_NAME);
         try {
             channel.close();
         } catch (ClosedChannelException e) {
@@ -186,5 +186,93 @@ public class DataChannelUtils {
             log.error(message, e);
             throw IOUtils.createError(message);
         }
+    }
+
+    public static Object writeInt16(ObjectValue dataChannelObj, long value) {
+        DataChannel channel = (DataChannel) dataChannelObj.getNativeData(DATA_CHANNEL_NAME);
+        try {
+            channel.writeLong(value, Representation.BIT_16);
+        } catch (IOException e) {
+            log.error("Error occurred while writing int16.", e);
+            return IOUtils.createError(e);
+        }
+        return null;
+    }
+
+    public static Object writeInt32(ObjectValue dataChannelObj, long value) {
+        DataChannel channel = (DataChannel) dataChannelObj.getNativeData(DATA_CHANNEL_NAME);
+        try {
+            channel.writeLong(value, Representation.BIT_32);
+        } catch (IOException e) {
+            log.error("Error occurred while writing int32.", e);
+            return IOUtils.createError(e);
+        }
+        return null;
+    }
+
+    public static Object writeInt64(ObjectValue dataChannelObj, long value) {
+        DataChannel channel = (DataChannel) dataChannelObj.getNativeData(DATA_CHANNEL_NAME);
+        try {
+            channel.writeLong(value, Representation.BIT_64);
+        } catch (IOException e) {
+            log.error("Error occurred while writing int64.", e);
+            return IOUtils.createError(e);
+        }
+        return null;
+    }
+
+    public static Object writeFloat32(ObjectValue dataChannelObj, double value) {
+        DataChannel channel = (DataChannel) dataChannelObj.getNativeData(DATA_CHANNEL_NAME);
+        try {
+            channel.writeDouble(value, Representation.BIT_32);
+        } catch (IOException e) {
+            log.error("Error occurred while writing float32.", e);
+            return IOUtils.createError(e);
+        }
+        return null;
+    }
+
+    public static Object writeFloat64(ObjectValue dataChannelObj, double value) {
+        DataChannel channel = (DataChannel) dataChannelObj.getNativeData(DATA_CHANNEL_NAME);
+        try {
+            channel.writeDouble(value, Representation.BIT_64);
+        } catch (IOException e) {
+            log.error("Error occurred while writing float64.", e);
+            return IOUtils.createError(e);
+        }
+        return null;
+    }
+
+    public static Object writeBool(ObjectValue dataChannelObj, boolean value) {
+        DataChannel channel = (DataChannel) dataChannelObj.getNativeData(IOConstants.DATA_CHANNEL_NAME);
+        try {
+            channel.writeBoolean(value);
+        } catch (IOException e) {
+            log.error("Error occurred while writing boolean.", e);
+            return IOUtils.createError(e);
+        }
+        return null;
+    }
+
+    public static Object writeString(ObjectValue dataChannelObj, String value, String encoding) {
+        DataChannel channel = (DataChannel) dataChannelObj.getNativeData(DATA_CHANNEL_NAME);
+        try {
+            channel.writeString(value, encoding);
+        } catch (IOException e) {
+            log.error("Error occurred while writing string.", e);
+            return IOUtils.createError(e);
+        }
+        return null;
+    }
+
+    public static Object writeVarInt(ObjectValue dataChannelObj, long value) {
+        DataChannel channel = (DataChannel) dataChannelObj.getNativeData(DATA_CHANNEL_NAME);
+        try {
+            channel.writeLong(value, Representation.VARIABLE);
+        } catch (IOException e) {
+            log.error("Error occurred while writing VarInt.", e);
+            return IOUtils.createError(e);
+        }
+        return null;
     }
 }

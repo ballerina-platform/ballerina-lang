@@ -57,7 +57,8 @@ public class KafkaConsumerTopicsTest {
 
     @BeforeClass
     public void setup() throws IOException {
-        result = BCompileUtil.compile(getFilePath(Paths.get(TEST_SRC, TEST_CONSUMER, "kafka_consumer_topics.bal")));
+        result = BCompileUtil
+                .compileOffline(getFilePath(Paths.get(TEST_SRC, TEST_CONSUMER, "kafka_consumer_topics.bal")));
         dataDir = Testing.Files.createTestingDirectory("cluster-kafka-consumer-get-available-topics-test");
         kafkaCluster = createKafkaCluster(dataDir, 14008, 14108).addBrokers(1).startup();
     }
