@@ -25,25 +25,21 @@ import org.ballerinalang.packerina.buildcontext.sourcecontext.SingleModuleContex
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.util.Lists;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.net.URI;
+import java.lang.reflect.Field;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.FileSystem;
-import java.nio.file.FileSystems;
-import java.nio.file.FileVisitResult;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.SimpleFileVisitor;
-import java.nio.file.StandardCopyOption;
-import java.nio.file.StandardOpenOption;
-import java.nio.file.attribute.BasicFileAttributes;
-import java.util.Collections;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Optional;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
+import java.util.zip.ZipOutputStream;
 
 import static org.ballerinalang.tool.LauncherUtils.createLauncherException;
 
@@ -53,6 +49,20 @@ import static org.ballerinalang.tool.LauncherUtils.createLauncherException;
 public class CreateExecutableTask implements Task {
     
     private static HashSet<String> excludeExtensions =  new HashSet<>(Lists.of("DSA", "SF"));
+    private static Field namesField;
+
+    static {
+        try {
+            // We need to access the already inserted names set to override the default behavior of throwing exception.
+            namesField = ZipOutputStream.class.getDeclaredField("names");
+            AccessController.doPrivileged((PrivilegedAction<Object>) () -> {
+                namesField.setAccessible(true);
+                return null;
+            });
+        } catch (NoSuchFieldException e) {
+            throw createLauncherException("unable to retrive the entry names field :" + e.getMessage());
+        }
+    }
 
     @Override
     public void execute(BuildContext buildContext) {
@@ -66,12 +76,17 @@ public class CreateExecutableTask implements Task {
             for (BLangPackage module : buildContext.getModules()) {
                 if (module.symbol.entryPointExists) {
                     Path executablePath = buildContext.getExecutablePathFromTarget(module.packageID);
-                    copyJarFromCachePath(buildContext, module, executablePath);
-                    // Copy ballerina runtime all jar
-                    URI uberJarUri = URI.create("jar:" + executablePath.toUri().toString());
-                    // Load the to jar to a file system
-                    try (FileSystem toFs = FileSystems.newFileSystem(uberJarUri, Collections.emptyMap())) {
-                        assembleExecutable(module, buildContext.moduleDependencyPathMap.get(module.packageID), toFs);
+                    Path jarFromCachePath = buildContext.getJarPathFromTargetCache(module.packageID);
+                    /*
+                    TODO: We earlier used ZipFileSystem but we cannot explicitly set the compression method in
+                     java8 with ZipFileSystem. Once we moved to java11 we can revert back to ZipFileSystem then we can
+                      get rid of with accessing names field as well.
+                      */
+                    try (ZipOutputStream outStream =
+                                 new ZipOutputStream(new FileOutputStream(String.valueOf(executablePath)))) {
+                        assembleExecutable(jarFromCachePath,
+                                           buildContext.moduleDependencyPathMap.get(module.packageID).platformLibs,
+                                           outStream);
                     } catch (IOException e) {
                         throw createLauncherException("unable to extract the uber jar :" + e.getMessage());
                     }
@@ -96,94 +111,77 @@ public class CreateExecutableTask implements Task {
         }
     }
 
-    private void copyJarFromCachePath(BuildContext buildContext, BLangPackage bLangPackage, Path executablePath) {
-        Path jarFromCachePath = buildContext.getJarPathFromTargetCache(bLangPackage.packageID);
+    private void assembleExecutable(Path jarFromCachePath, HashSet<Path> dependencySet, ZipOutputStream outStream) {
         try {
-            // Copy the jar from cache to bin directory
-            Files.copy(jarFromCachePath, executablePath, StandardCopyOption.REPLACE_EXISTING);
-        } catch (IOException e) {
-            throw createLauncherException("unable to copy the jar from cache path :" + e.getMessage());
-        }
-    }
-    
-    private void assembleExecutable(BLangPackage bLangPackage, HashSet<Path> dependencySet, FileSystem toFs) {
-        try {
-            // Check if the package has an entry point.
-            if (bLangPackage.symbol.entryPointExists) {
-                for (Path path : dependencySet) {
-                    copyFromJarToJar(path, toFs);
-                }
+            HashSet<String> entries = (HashSet<String>) namesField.get(outStream);
+            HashMap<String, StringBuilder> services = new HashMap<>();
+            copyJarToJar(outStream, jarFromCachePath.toString(), entries, services);
+            for (Path path : dependencySet) {
+                copyJarToJar(outStream, path.toString(), entries, services);
+            }
+            // Copy merged spi services
+            for (Map.Entry<String, StringBuilder> entry : services.entrySet()) {
+                String s = entry.getKey();
+                StringBuilder service = entry.getValue();
+                ZipEntry e = new ZipEntry(s);
+                outStream.putNextEntry(e);
+                outStream.write(service.toString().getBytes(StandardCharsets.UTF_8));
+                outStream.closeEntry();
             }
             // Copy dependency jar
             // Copy dependency libraries
             // Executable is created at give location.
             // If no entry point is found we do nothing.
-        } catch (IOException | NullPointerException e) {
+        } catch (IOException | NullPointerException | IllegalAccessException e) {
             throw createLauncherException("unable to create the executable: " + e.getMessage());
         }
     }
 
-    private static void copyFromJarToJar(Path fromJar, FileSystem toFs) throws IOException {
-        Path to = toFs.getRootDirectories().iterator().next();
-        URI moduleJarUri = URI.create("jar:" + fromJar.toUri().toString());
-        // Load the from jar to a file system.
-        try (FileSystem fromFs = FileSystems.newFileSystem(moduleJarUri, Collections.emptyMap())) {
-            Path from = fromFs.getRootDirectories().iterator().next();
-            // Walk and copy the files.
-            Files.walkFileTree(from, new Copy(from, to));
+    /**
+     * Copy jar file to executable fat jar.
+     *
+     * @param outStream     Executable jar out stream
+     * @param sourceJarFile Source file
+     * @param entries       Entries set wiil be used ignore duplicate files
+     * @param services      Services will be used to temporary hold merged spi files.
+     * @throws IOException If file copy failed ioexception will be thrown
+     */
+    private void copyJarToJar(ZipOutputStream outStream, String sourceJarFile, HashSet<String> entries,
+                              HashMap<String, StringBuilder> services) throws IOException {
+
+        byte[] buffer = new byte[1024];
+        int len;
+        try (ZipInputStream inStream = new ZipInputStream(new FileInputStream(sourceJarFile))) {
+            for (ZipEntry e; (e = inStream.getNextEntry()) != null; ) {
+                String entryName = e.getName();
+                // Skip already copied files or excluded extensions.
+                if (e.isDirectory() || entries.contains(entryName) ||
+                        excludeExtensions.contains(entryName.substring(entryName.lastIndexOf(".") + 1))) {
+                    continue;
+                }
+                // SPIs will be merged first and then put into jar separately.
+                if (entryName.startsWith("META-INF/services")) {
+                    StringBuilder s = services.get(entryName);
+                    if (s == null) {
+                        s = new StringBuilder();
+                        services.put(entryName, s);
+                    }
+                    char c = '\n';
+                    while ((len = inStream.read()) != -1) {
+                        c = (char) len;
+                        s.append(c);
+                    }
+                    if (c != '\n') {
+                        s.append('\n');
+                    }
+                    continue;
+                }
+                outStream.putNextEntry(e);
+                while ((len = inStream.read(buffer)) > 0) {
+                    outStream.write(buffer, 0, len);
+                }
+                outStream.closeEntry();
+            }
         }
     }
-
-    static class Copy extends SimpleFileVisitor<Path> {
-        private Path fromPath;
-        private Path toPath;
-        private StandardCopyOption copyOption;
-        
-        
-        Copy(Path fromPath, Path toPath, StandardCopyOption copyOption) {
-            this.fromPath = fromPath;
-            this.toPath = toPath;
-            this.copyOption = copyOption;
-        }
-        
-        Copy(Path fromPath, Path toPath) {
-            this(fromPath, toPath, StandardCopyOption.REPLACE_EXISTING);
-        }
-        
-        @Override
-        public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
-            Path targetPath = toPath.resolve(fromPath.relativize(dir).toString());
-            if (!Files.exists(targetPath)) {
-                Files.createDirectory(targetPath);
-            }
-            return FileVisitResult.CONTINUE;
-        }
-
-         @Override
-         public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-             Path toFile = toPath.resolve(fromPath.relativize(file).toString());
-             String fileName = toFile.getFileName().toString();
-             if ((!Files.exists(toFile) &&
-                     !excludeExtensions.contains(fileName.substring(fileName.lastIndexOf(".") + 1)))) {
-                 Files.copy(file, toFile, copyOption);
-             } else if (toFile.toString().startsWith("/META-INF/services")) {
-                 this.mergeSPIFiles(file, toFile);
-             }
-             return FileVisitResult.CONTINUE;
-         }
-
-         private void mergeSPIFiles(Path fromFilePath, Path toFilePath) throws IOException {
-             // Merge the spi implementations for each service file.
-             try (BufferedReader fromBr = new BufferedReader(new InputStreamReader(Files
-                     .newInputStream(fromFilePath), StandardCharsets.UTF_8));
-                  BufferedWriter toBw = new BufferedWriter(new OutputStreamWriter(Files
-                          .newOutputStream(toFilePath, StandardOpenOption.APPEND), StandardCharsets.UTF_8))) {
-                 String text;
-                 while ((text = fromBr.readLine()) != null) {
-                     toBw.newLine();
-                     toBw.write(text);
-                 }
-             }
-         }
-     }
 }

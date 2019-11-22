@@ -118,6 +118,7 @@ public class SymbolTable {
     public final BType intArrayType = new BArrayType(intType);
     public final BType stringArrayType = new BArrayType(stringType);
     public final BType anydataArrayType = new BArrayType(anydataType);
+    public final BType anydataMapArrayType = new BArrayType(mapAnydataType);
     public final BType anyServiceType = new BServiceType(null);
     public final BType handleType = new BHandleType(TypeTags.HANDLE, null);
     public final BType typeDesc;

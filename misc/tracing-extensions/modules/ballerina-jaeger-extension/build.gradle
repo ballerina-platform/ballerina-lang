@@ -21,8 +21,8 @@ dependencies {
     implementation project(':ballerina-lang')
     implementation project(':ballerina-config')
     implementation project(':ballerina-runtime')
-    implementation 'com.uber.jaeger:jaeger-core'
-    implementation 'com.uber.jaeger:jaeger-thrift'
+    implementation 'io.jaegertracing:jaeger-core'
+    implementation 'io.jaegertracing:jaeger-thrift'
     implementation 'org.apache.thrift:libthrift'
     implementation 'com.squareup.okhttp3:okhttp'
     implementation 'com.squareup.okio:okio'

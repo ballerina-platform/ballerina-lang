@@ -33,6 +33,9 @@ if (project.name != "ballerina-jvm" && project.name != "ballerina-backend-jvm" &
 }
 
 configurations {
+    testLibs {
+        transitive false
+    }
     balRuntime
     jballerinaTools
     ballerina {
@@ -145,6 +148,8 @@ dependencies {
     testUtils project(path: ':ballerina-test-utils', configuration: 'shadow')
     jballerinaTools project(path: ':jballerina-tools', configuration: 'zip')
     observeTestUtils project(path: ':observability-test-utils', configuration: 'shadow')
+
+    testLibs 'org.hsqldb:hsqldb:2.4.1'
 }
 
 task createBre(type: org.gradle.api.tasks.Copy) {
@@ -181,3 +186,10 @@ description = 'Ballerina - Integration Test'
 configurations.all {
     resolutionStrategy.preferProjectModules()
 }
+
+task copyToLib(type: Copy) {
+    into "${buildDir}/libs"
+    from configurations.testLibs
+}
+
+test.dependsOn(copyToLib)
