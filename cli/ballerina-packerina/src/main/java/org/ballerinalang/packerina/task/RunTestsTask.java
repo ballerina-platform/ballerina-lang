@@ -23,7 +23,7 @@ import org.ballerinalang.packerina.buildcontext.BuildContext;
 import org.ballerinalang.packerina.buildcontext.BuildContextField;
 import org.ballerinalang.testerina.util.TestarinaClassLoader;
 import org.ballerinalang.testerina.util.TesterinaUtils;
-import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangTestablePackage;
 
@@ -49,6 +49,7 @@ public class RunTestsTask implements Task {
         // as "." are ignored. This is to be consistent with the "ballerina test" command which only executes tests
         // in packages.
         for (BLangPackage bLangPackage : moduleBirMap) {
+            PackageID packageID = bLangPackage.packageID;
             // todo following is some legacy logic check if we need to do this.
             // if (bLangPackage.containsTestablePkg()) {
             // } else {
@@ -58,14 +59,27 @@ public class RunTestsTask implements Task {
             //     <org-name>/<package-name>:<version>
             //         No tests found
             // }
-            Path jarPath = buildContext.getTestJarPathFromTargetCache(bLangPackage.packageID);
-            Path modulejarPath = buildContext.getJarPathFromTargetCache(bLangPackage.packageID).getFileName();
+            Path jarPath = buildContext.getTestJarPathFromTargetCache(packageID);
+            Path modulejarPath = buildContext.getJarPathFromTargetCache(packageID);
             // subsitute test jar if module jar if tests not exists
             if (Files.notExists(jarPath)) {
                 jarPath = modulejarPath;
             }
-            // find the set of dependency jar paths for running test for this module
-            HashSet<Path> dependencyJarPaths = findDependencyJarPaths(bLangPackage, buildContext);
+
+            if (!buildContext.moduleDependencyPathMap.containsKey(packageID)) {
+                continue;
+            }
+
+            HashSet<Path> moduleDependencies = buildContext.moduleDependencyPathMap.get(packageID).platformLibs;
+            // create a new set so that original set is not affected with test dependencies
+            HashSet<Path> dependencyJarPaths = new HashSet<>(moduleDependencies);
+            if (bLangPackage.containsTestablePkg()) {
+                // add test dependency jars also to the dependency set, if it exists
+                BLangTestablePackage testablePackage = bLangPackage.getTestablePkg();
+                // find the set of dependency jar paths for running test for this module and update
+                updateDependencyJarPaths(testablePackage.symbol.imports, buildContext, dependencyJarPaths);
+            }
+
             // Create a class loader to run tests.
             TestarinaClassLoader classLoader = new TestarinaClassLoader(jarPath, dependencyJarPaths);
             programFileMap.put(bLangPackage, classLoader);
@@ -75,36 +89,26 @@ public class RunTestsTask implements Task {
         }
     }
 
-    private HashSet<Path> findDependencyJarPaths(BLangPackage bLangPackage, BuildContext buildContext) {
-        HashSet<Path> moduleDependencies = buildContext.moduleDependencyPathMap.get(bLangPackage.packageID).
-                platformLibs;
-        if (!bLangPackage.containsTestablePkg()) {
-            return moduleDependencies;
-        }
-        // create a new set so that original set is not affected with test dependencies
-        HashSet<Path> dependencyJarPaths = new HashSet<>(moduleDependencies);
-
-        // add test dependency jars also to the dependency set, if it exists
-        BLangTestablePackage testablePackage = bLangPackage.getTestablePkg();
-        for (BLangImportPackage importPackage : testablePackage.imports) {
-            PackageID importPkgId = importPackage.symbol.pkgID;
+    private void updateDependencyJarPaths(List<BPackageSymbol> importPackageSymbols, BuildContext buildContext,
+                                          HashSet<Path> dependencyJarPaths) {
+        for (BPackageSymbol importPackageSymbol : importPackageSymbols) {
+            PackageID importPkgId = importPackageSymbol.pkgID;
             if (!buildContext.moduleDependencyPathMap.containsKey(importPkgId)) {
                 continue;
             }
-
             // add imported module's dependent jar paths
             HashSet<Path> testDependencies = buildContext.moduleDependencyPathMap.get(importPkgId).platformLibs;
             dependencyJarPaths.addAll(testDependencies);
 
             // add imported module's jar path
             Path jarPath = buildContext.getTestJarPathFromTargetCache(importPkgId);
-            Path moduleJarPath = buildContext.getJarPathFromTargetCache(importPkgId).getFileName();
+            Path moduleJarPath = buildContext.getJarPathFromTargetCache(importPkgId);
             if (Files.exists(jarPath)) {
                 dependencyJarPaths.add(jarPath);
             } else {
                 dependencyJarPaths.add(moduleJarPath);
             }
+            updateDependencyJarPaths(importPackageSymbol.imports, buildContext, dependencyJarPaths);
         }
-        return dependencyJarPaths;
     }
 }
