@@ -50,6 +50,11 @@ public class RunTestsTask implements Task {
         // in packages.
         for (BLangPackage bLangPackage : moduleBirMap) {
             PackageID packageID = bLangPackage.packageID;
+
+            if (!buildContext.moduleDependencyPathMap.containsKey(packageID)) {
+                continue;
+            }
+
             // todo following is some legacy logic check if we need to do this.
             // if (bLangPackage.containsTestablePkg()) {
             // } else {
@@ -66,18 +71,15 @@ public class RunTestsTask implements Task {
                 jarPath = modulejarPath;
             }
 
-            if (!buildContext.moduleDependencyPathMap.containsKey(packageID)) {
-                continue;
-            }
-
             HashSet<Path> moduleDependencies = buildContext.moduleDependencyPathMap.get(packageID).platformLibs;
             // create a new set so that original set is not affected with test dependencies
             HashSet<Path> dependencyJarPaths = new HashSet<>(moduleDependencies);
+
             if (bLangPackage.containsTestablePkg()) {
-                // add test dependency jars also to the dependency set, if it exists
-                BLangTestablePackage testablePackage = bLangPackage.getTestablePkg();
-                // find the set of dependency jar paths for running test for this module and update
-                updateDependencyJarPaths(testablePackage.symbol.imports, buildContext, dependencyJarPaths);
+                for (BLangTestablePackage testablePackage : bLangPackage.getTestablePkgs()) {
+                    // find the set of dependency jar paths for running test for this module and update
+                    updateDependencyJarPaths(testablePackage.symbol.imports, buildContext, dependencyJarPaths);
+                }
             }
 
             // Create a class loader to run tests.
