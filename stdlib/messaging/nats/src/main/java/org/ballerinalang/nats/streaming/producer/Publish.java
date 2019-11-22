@@ -18,12 +18,9 @@
 package org.ballerinalang.nats.streaming.producer;
 
 import io.nats.streaming.StreamingConnection;
-import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.nats.Constants;
 import org.ballerinalang.nats.Utils;
 
@@ -35,21 +32,14 @@ import static org.ballerinalang.nats.Utils.convertDataIntoByteArray;
 /**
  * Remote function implementation for publishing a message to a NATS streaming server.
  */
-@BallerinaFunction(orgName = "ballerina",
-                   packageName = "nats",
-                   functionName = "externPublish",
-                   receiver = @Receiver(type = TypeKind.OBJECT,
-                                        structType = "StreamingProducer",
-                                        structPackage = "ballerina/nats"),
-                   isPublic = true)
 public class Publish {
 
-    public static Object externPublish(Strand strand, ObjectValue publisher, String subject, Object data) {
+    public static Object externStreamingPublish(ObjectValue publisher, String subject, Object data) {
         StreamingConnection streamingConnection = (StreamingConnection) publisher
                 .getNativeData(Constants.NATS_STREAMING_CONNECTION);
         byte[] byteData = convertDataIntoByteArray(data);
         try {
-            NonBlockingCallback nonBlockingCallback = new NonBlockingCallback(strand);
+            NonBlockingCallback nonBlockingCallback = new NonBlockingCallback(Scheduler.getStrand());
             AckListener ackListener = new AckListener(nonBlockingCallback);
             streamingConnection.publish(subject, byteData, ackListener);
             return null;

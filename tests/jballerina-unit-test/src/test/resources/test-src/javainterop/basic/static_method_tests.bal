@@ -1,5 +1,7 @@
 import ballerina/runtime;
+import ballerina/io;
 import ballerinax/java;
+import ballerina/lang.'value;
 
 function testAcceptNothingAndReturnNothing() {
     acceptNothingAndReturnNothing();
@@ -11,6 +13,12 @@ function testInteropFunctionWithDifferentName() {
 
 function testAcceptNothingButReturnDate() returns handle {
     return acceptNothingButReturnDate();
+}
+
+function testAcceptNothingButReturnString() returns string {
+    io:println("lolo");
+    io:println(acceptNothingButReturnString());
+    return acceptNothingButReturnString();
 }
 
 function testAcceptSomethingAndReturnSomething(handle h) returns handle {
@@ -63,6 +71,14 @@ public function interopFunctionWithDifferentName() = @java:Method {
 } external;
 
 public function acceptNothingButReturnDate() returns handle = @java:Method {
+    class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
+} external;
+
+public function acceptNothingButReturnString() returns string = @java:Method {
+    class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
+} external;
+
+function stringParamAndReturn(string a1) returns string = @java:Method {
     class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
 } external;
 
@@ -132,6 +148,26 @@ public type Person object {
         self.age = age;
     }
 };
+
+public type ResourceDefinition record {|
+    string path;
+    string method;
+|};
+
+public type ApiDefinition record {|
+    ResourceDefinition[] resources;
+|};
+
+public function testUnionReturn() returns string {
+    ResourceDefinition resourceDef = {path:"path", method:"method"};
+    ResourceDefinition[] resources = [resourceDef];
+    ApiDefinition apiDef = {resources:resources};
+    return value:toString(getMapOrError(java:fromString("swagger"), apiDef));
+}
+
+function getMapOrError(handle swaggerFilePath, ApiDefinition apiDef) returns ApiDefinition | error  = @java:Method {
+    class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
+} external;
 
 public function getObjectOrError() returns Person|error = @java:Method {
     name: "returnObjectOrError",

@@ -284,7 +284,7 @@ public class SealedArrayTest {
 
     @Test()
     public void testSemanticsNegativeSealedArrays() {
-        Assert.assertEquals(semanticsNegative.getErrorCount(), 23);
+        Assert.assertEquals(semanticsNegative.getErrorCount(), 24);
         int i = 0;
         BAssertUtil.validateError(semanticsNegative, i++, "list index out of range: index: '5'", 19, 30);
         BAssertUtil.validateError(semanticsNegative, i++, "list index out of range: index: '5'", 25, 33);
@@ -323,8 +323,10 @@ public class SealedArrayTest {
                 "'0|1|2|S1'", 109, 20);
         BAssertUtil.validateError(semanticsNegative, i++, "incompatible types: expected 'int', found " +
                         "'(0|1|2|S1|S3)'", 110, 20);
-        BAssertUtil.validateError(semanticsNegative, i, "invalid list index expression: value space " +
+        BAssertUtil.validateError(semanticsNegative, i++, "invalid list index expression: value space " +
                 "'(3|4|5|7)' out of range", 111, 23);
+        BAssertUtil.validateError(semanticsNegative, i, "incompatible types: expected 'int[*]', found " +
+                        "'int[]'", 116, 22);
     }
 
     @Test(description = "Test accessing invalid index of sealed array",

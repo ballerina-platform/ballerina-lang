@@ -1,6 +1,6 @@
 {
   "name": "@ballerina/tracing",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "",
   "main": "lib/src/index.js",
   "scripts": {
@@ -18,7 +18,7 @@
   "author": "ballerina.io",
   "license": "Apache-2.0",
   "devDependencies": {
-    "@ballerina/composer-cli": "^1.0.3",
+    "@ballerina/composer-cli": "^1.0.4",
     "@types/lodash": "^4.14.116"
   },
   "dependencies": {

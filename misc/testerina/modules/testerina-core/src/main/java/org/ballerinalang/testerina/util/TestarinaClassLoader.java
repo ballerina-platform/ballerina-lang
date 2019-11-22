@@ -37,15 +37,12 @@ public class TestarinaClassLoader {
 
     private URLClassLoader cl;
 
-    public TestarinaClassLoader(Path testJarPath, HashSet<Path> dependencyJarPaths, String skip) {
+    public TestarinaClassLoader(Path testJarPath, HashSet<Path> dependencyJarPaths) {
         try {
             int index = 0;
             URL[] jars;
             jars = new URL[dependencyJarPaths.size() + 1];
             for (Path file : dependencyJarPaths) {
-                if (file == null || file.getFileName().toString().contains(skip)) {
-                    continue;
-                }
                 jars[index++] = file.toUri().toURL();
             }
             jars[index] = testJarPath.toFile().toURI().toURL();
