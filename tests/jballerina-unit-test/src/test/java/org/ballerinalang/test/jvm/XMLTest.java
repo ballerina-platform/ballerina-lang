@@ -17,9 +17,6 @@
  */
 package org.ballerinalang.test.jvm;
 
-import org.ballerinalang.jvm.XMLFactory;
-import org.ballerinalang.jvm.values.XMLSequence;
-import org.ballerinalang.jvm.values.XMLValue;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueArray;
@@ -57,7 +54,8 @@ public class XMLTest {
         Assert.assertEquals(result[0].stringValue(),
                 "<ns0:foo xmlns:ns0=\"http://wso2.com/\" xmlns:ns1=\"http://ballerinalang.org/\" " +
                         "a=\"hello world\" ns0:b=\"active\"><ns1:bar1>hello1</ns1:bar1><bar2>hello2</bar2></ns0:foo>");
-        Assert.assertEquals(result[1].stringValue(), "{\"{http://www.w3.org/2000/xmlns/}ns1\":\"http://ballerinalang.org/\"," +
+        Assert.assertEquals(result[1].stringValue(),
+                "{\"{http://www.w3.org/2000/xmlns/}ns1\":\"http://ballerinalang.org/\"," +
                 " \"{http://www.w3.org/2000/xmlns/}ns0\":\"http://wso2.com/\", \"a\":\"hello world\", " +
                 "\"{http://wso2.com/}b\":\"active\"}");
         Assert.assertEquals(result[2].stringValue(), "active");

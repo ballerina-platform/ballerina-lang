@@ -27,8 +27,9 @@ import org.ballerinalang.jvm.values.api.BXml;
 import org.ballerinalang.jvm.values.freeze.State;
 import org.ballerinalang.jvm.values.freeze.Status;
 
-import javax.xml.namespace.QName;
 import java.util.List;
+
+import javax.xml.namespace.QName;
 
 /**
  * {@code BXML} represents an XML in Ballerina. An XML could be one of:

@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.jvm;
 
+import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.XMLContentHolderItem;
 import org.ballerinalang.jvm.values.XMLItem;
@@ -24,10 +25,6 @@ import org.ballerinalang.jvm.values.XMLSequence;
 import org.ballerinalang.jvm.values.XMLValue;
 import org.ballerinalang.jvm.values.api.BXml;
 
-import javax.xml.namespace.QName;
-import javax.xml.stream.XMLInputFactory;
-import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamReader;
 import java.io.Reader;
 import java.io.StringReader;
 import java.util.ArrayDeque;
@@ -38,6 +35,11 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import javax.xml.namespace.QName;
+import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamReader;
 
 import static javax.xml.stream.XMLStreamConstants.CDATA;
 import static javax.xml.stream.XMLStreamConstants.CHARACTERS;
@@ -76,12 +78,10 @@ public class StaxXMLSource {
     }
 
     private void handleXMLStreamException(XMLStreamException e) {
-        // todo: handle properly
-        e.printStackTrace();
+        throw new BallerinaException(e.getMessage());
     }
 
-    // todo: wrong method name. This is not iterative.
-    public XMLValue next() {
+    public XMLValue parse() {
         try {
             while (xmlStreamReader.hasNext()) {
                 int next = xmlStreamReader.next();
@@ -181,7 +181,7 @@ public class StaxXMLSource {
         Set<QName> usedNS = new HashSet<>();
 
         int count = xmlStreamReader.getAttributeCount();
-        for(int i = 0; i < count; i++) {
+        for (int i = 0; i < count; i++) {
             QName attributeName = xmlStreamReader.getAttributeName(i);
             attributesMap.put(attributeName.toString(), xmlStreamReader.getAttributeValue(i));
             if (!attributeName.getPrefix().isEmpty()) {
@@ -202,7 +202,7 @@ public class StaxXMLSource {
             attributesMap.put(xmlnsPrefix, namespaceURI);
         }
 
-        for(int i = 0; i < xmlStreamReader.getNamespaceCount(); i++) {
+        for (int i = 0; i < xmlStreamReader.getNamespaceCount(); i++) {
             String uri = xmlStreamReader.getNamespaceURI(i);
             String prefix = xmlStreamReader.getNamespacePrefix(i);
             if (prefix == null || prefix.isEmpty()) {

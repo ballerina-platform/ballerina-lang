@@ -17,7 +17,6 @@
  */
 package org.ballerinalang.jvm.values;
 
-import org.apache.axiom.om.OMText;
 import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.XMLNodeType;
 import org.ballerinalang.jvm.types.TypeTags;

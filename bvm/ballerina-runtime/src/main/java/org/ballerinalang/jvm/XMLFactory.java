@@ -44,9 +44,6 @@ import org.ballerinalang.jvm.values.XMLSequence;
 import org.ballerinalang.jvm.values.XMLValue;
 import org.ballerinalang.jvm.values.api.BXml;
 
-import javax.xml.XMLConstants;
-import javax.xml.namespace.QName;
-import javax.xml.stream.XMLStreamException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
@@ -55,6 +52,10 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
+
+import javax.xml.XMLConstants;
+import javax.xml.namespace.QName;
+import javax.xml.stream.XMLStreamException;
 
 /**
  * Common utility methods used for XML manipulation.
@@ -85,7 +86,7 @@ public class XMLFactory {
             }
 
             StaxXMLSource staxXMLSource = new StaxXMLSource(xmlStr);
-            return staxXMLSource.next();
+            return staxXMLSource.parse();
         } catch (ErrorValue e) {
             throw e;
         } catch (Throwable e) {
@@ -102,7 +103,7 @@ public class XMLFactory {
     public static XMLValue parse(InputStream xmlStream) {
         try {
             StaxXMLSource staxXMLSource = new StaxXMLSource(new InputStreamReader(xmlStream));
-            return staxXMLSource.next();
+            return staxXMLSource.parse();
         } catch (DeferredParsingException e) {
             throw BallerinaErrors.createError(e.getCause().getMessage());
         } catch (Throwable e) {
@@ -120,7 +121,7 @@ public class XMLFactory {
     public static XMLValue parse(InputStream xmlStream, String charset) {
         try {
             StaxXMLSource staxXMLSource = new StaxXMLSource(new InputStreamReader(xmlStream, charset));
-            return staxXMLSource.next();
+            return staxXMLSource.parse();
         } catch (DeferredParsingException e) {
             throw BallerinaErrors.createError(e.getCause().getMessage());
         } catch (Throwable e) {
@@ -131,7 +132,7 @@ public class XMLFactory {
 
     public static XMLValue parse2(String str) {
         StaxXMLSource staxXMLSource = new StaxXMLSource(str);
-        return staxXMLSource.next();
+        return staxXMLSource.parse();
     }
 
     /**
@@ -143,7 +144,7 @@ public class XMLFactory {
     public static XMLValue parse(Reader reader) {
         try {
             StaxXMLSource staxXMLSource = new StaxXMLSource(reader);
-            return staxXMLSource.next();
+            return staxXMLSource.parse();
         } catch (DeferredParsingException e) {
             throw BallerinaErrors.createError(e.getCause().getMessage());
         } catch (Throwable e) {

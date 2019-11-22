@@ -34,7 +34,6 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import javax.xml.stream.XMLStreamException;
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -43,6 +42,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.stream.Stream;
+
+import javax.xml.stream.XMLStreamException;
 
 import static org.ballerinalang.stdlib.common.CommonTestUtils.getAbsoluteFilePath;
 import static org.ballerinalang.stdlib.io.utils.IOConstants.ErrorCode.EoF;

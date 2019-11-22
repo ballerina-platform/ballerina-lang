@@ -24,12 +24,14 @@ import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.util.BLangConstants;
 import org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons;
+import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.api.BXml;
 import org.ballerinalang.jvm.values.freeze.FreezeUtils;
 import org.ballerinalang.jvm.values.freeze.State;
 import org.ballerinalang.jvm.values.freeze.Status;
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -372,7 +374,14 @@ public final class XMLSequence extends XMLValue {
         if (outputStream instanceof StaxXMLSink) {
             ((StaxXMLSink) outputStream).write(this);
         } else {
-            (new StaxXMLSink(outputStream)).write(this);
+            StaxXMLSink staxXMLSink = new StaxXMLSink(outputStream);
+            staxXMLSink.write(this);
+            try {
+                staxXMLSink.flush();
+                staxXMLSink.close();
+            } catch (IOException e) {
+                throw new BallerinaException(e);
+            }
         }
     }
 

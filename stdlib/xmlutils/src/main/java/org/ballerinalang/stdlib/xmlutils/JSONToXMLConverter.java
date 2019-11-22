@@ -27,15 +27,12 @@ import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.XMLFactory;
 import org.ballerinalang.jvm.XMLValidator;
-import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BMapType;
 import org.ballerinalang.jvm.types.BType;
-import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.RefValue;
-import org.ballerinalang.jvm.values.XMLItem;
 import org.ballerinalang.jvm.values.XMLSequence;
 import org.ballerinalang.jvm.values.XMLValue;
 
@@ -76,12 +73,12 @@ public class JSONToXMLConverter {
             return omElementArrayList.get(0);
         } else {
             // There is a multi rooted node and create xml sequence from it
-            ArrayValue elementsSeq = new ArrayValue(new BArrayType(BTypes.typeXML));
-            int count = omElementArrayList.size();
-            for (int i = 0; i < count; i++) {
-                // todo: uncomment
-//                elementsSeq.add(i, omElementArrayList.get(i));
-            }
+//            ArrayValue elementsSeq = new ArrayValue(new BArrayType(BTypes.typeXML));
+//            int count = omElementArrayList.size();
+//            for (int i = 0; i < count; i++) {
+//                // todo: uncomment
+////                elementsSeq.add(i, omElementArrayList.get(i));
+//            }
             return new XMLSequence(/*elementsSeq*/);
         }
     }

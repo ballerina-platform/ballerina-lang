@@ -25,7 +25,7 @@ import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.jvm.values.XMLItem;
+import org.ballerinalang.jvm.values.XMLValue;
 import org.ballerinalang.mime.util.MimeConstants;
 import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.model.util.JsonParser;
@@ -555,7 +555,7 @@ public class RequestNativeFunctionSuccessTest {
 
     @Test
     public void testSetXmlPayload() {
-        XMLItem value = (XMLItem) XMLFactory.parse("<name>Ballerina</name>");
+        XMLValue value = XMLFactory.parse("<name>Ballerina</name>");
         BValue[] returnVals = BRunUtil.invoke(compileResult, "testSetXmlPayload", new Object[]{ value });
 
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
@@ -563,7 +563,7 @@ public class RequestNativeFunctionSuccessTest {
         Assert.assertTrue(returnVals[0] instanceof BMap);
         BMap<String, BValue> entity =
                 (BMap<String, BValue>) ((BMap<String, BValue>) returnVals[0]).get(REQUEST_ENTITY_FIELD);
-        XMLItem xmlValue = (XMLItem) TestEntityUtils.getMessageDataSource(entity);
+        XMLValue xmlValue = (XMLValue) TestEntityUtils.getMessageDataSource(entity);
         Assert.assertEquals(xmlValue.getTextValue(), "Ballerina", "Payload is not set properly");
     }
 
