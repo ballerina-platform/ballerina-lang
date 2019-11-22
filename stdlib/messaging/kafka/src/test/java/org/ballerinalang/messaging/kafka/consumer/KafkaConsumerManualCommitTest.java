@@ -60,7 +60,7 @@ public class KafkaConsumerManualCommitTest {
     public void setup() throws IOException {
         dataDir = Testing.Files.createTestingDirectory("cluster-kafka-consumer-manual-commit-test");
         kafkaCluster = createKafkaCluster(dataDir, 14002, 14102).addBrokers(1).startup();
-        result = BCompileUtil.compile(
+        result = BCompileUtil.compileOffline(
                 getFilePath(Paths.get(TEST_SRC, TEST_CONSUMER, "kafka_consumer_manual_commit.bal")));
     }
 

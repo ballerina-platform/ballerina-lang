@@ -51,7 +51,7 @@ public class KafkaConsumerAssignTest {
     @BeforeClass
     public void setup() throws IOException {
         dataDir =  Testing.Files.createTestingDirectory("kafka-consumer-assign-test");
-        result = BCompileUtil.compile(
+        result = BCompileUtil.compileOffline(
                 getFilePath(Paths.get(TEST_SRC, TEST_CONSUMER, "kafka_consumer_assign.bal")));
         kafkaCluster = createKafkaCluster(dataDir, 14001, 14101).addBrokers(1).startup();
         kafkaCluster.createTopic("test-1", 1, 1);

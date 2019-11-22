@@ -96,7 +96,7 @@ public type ReadableDataChannel object {
 
     # + return - nill if the channel is closed successfully or `Error` if any error occurred
     public function close() returns Error? {
-        return closeExtern(self);
+        return closeReadableDataChannelExtern(self);
     }
 };
 
@@ -146,7 +146,7 @@ function readVarIntExtern(ReadableDataChannel dataChannel) returns int|Error = @
     class: "org.ballerinalang.stdlib.io.nativeimpl.DataChannelUtils"
 } external;
 
-function closeExtern(ReadableDataChannel dataChannel) returns Error? = @java:Method {
-    name: "closeReadableDataChannel",
+function closeReadableDataChannelExtern(ReadableDataChannel dataChannel) returns Error? = @java:Method {
+    name: "closeDataChannel",
     class: "org.ballerinalang.stdlib.io.nativeimpl.DataChannelUtils"
 } external;

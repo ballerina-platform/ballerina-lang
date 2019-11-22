@@ -60,8 +60,8 @@ public class CreateWritableDelimitedRecordChannel {
             String fieldSeparator, String recordSeparator, String format) {
         try {
             //Will get the relevant byte channel and will create a character channel
-            CharacterChannel characterChannel = (CharacterChannel) characterChannelInfo.getNativeData(IOConstants
-                    .CHARACTER_CHANNEL_NAME);
+            CharacterChannel characterChannel = (CharacterChannel) characterChannelInfo
+                    .getNativeData(IOConstants.CHARACTER_CHANNEL_NAME);
             DelimitedRecordChannel delimitedRecordChannel;
             if (DEFAULT.equals(format)) {
                 delimitedRecordChannel = new DelimitedRecordChannel(characterChannel, recordSeparator, fieldSeparator);

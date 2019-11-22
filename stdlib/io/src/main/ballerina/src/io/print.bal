@@ -18,22 +18,14 @@ import ballerinax/java;
 
 # Prints `any` or `error` value(s) to the STDOUT.
 # + values - The value(s) to be printed.
-public function print((any|error)... values) {
-    printExtern(values);
-}
-
-function printExtern((any|error)... values) = @java:Method {
+public function print((any|error)... values) = @java:Method {
     name: "print",
     class: "org.ballerinalang.stdlib.io.nativeimpl.PrintUtils"
 } external;
 
 # Prints `any` or `error` value(s) to the STDOUT followed by a new line.
 # + values - The value(s) to be printed.
-public function println((any|error)... values) {
-    printlnExtern(values);
-}
-
-function printlnExtern((any|error)... values) = @java:Method {
+public function println((any|error)... values) = @java:Method {
     name: "println",
     class: "org.ballerinalang.stdlib.io.nativeimpl.PrintUtils"
 } external;
@@ -59,7 +51,7 @@ function printlnExtern((any|error)... values) = @java:Method {
 # + args   - Arguments referenced by the format specifiers in the format string.
 # + return - Formatted string
 public function sprintf(string format, (any|error)... args) returns string {
-    return <string>java:toString(sprintfExtern(java:fromString(format), args));
+    return <string>java:toString(sprintfExtern(java:fromString(format), ...args));
 }
 
 function sprintfExtern(handle format, (any|error)... args) returns handle = @java:Method {
