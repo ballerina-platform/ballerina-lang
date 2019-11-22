@@ -61,16 +61,44 @@ public type MockListener object {
         return externMockInitEndpoint(self);
     }
 
-    public function register(service s, string? name) returns error? = external;
+    public function register(service s, string? name) returns error? {
+        return externMockRegister(self, s, name);
+    }
 
-    public function start() returns error? = external;
+    public function start() returns error? {
+        return externMockStart(self);
+    }
 
-    public function gracefulStop() returns error? = external;
+    public function gracefulStop() returns error? {
+        return externMockGracefulStop(self);
+    }
 
-    public function detach(service s) returns error? = external;
+    public function detach(service s) returns error? {
+        return externMockDetach(self, s);
+    }
 };
 
 function externMockInitEndpoint(MockListener mockListener) returns error? = @java:Method {
-    class: "org.ballerinalang.net.http.serviceendpoint.InitEndpoint",
+    class: "org.ballerinalang.net.http.mock.nonlistening.NonListeningInitEndpoint",
     name: "initEndpoint"
+} external;
+
+function externMockRegister(MockListener mockListener, service s, string? name) returns error? = @java:Method {
+   class: "org.ballerinalang.net.http.mock.nonlistening.NonListeningRegister",
+   name: "register"
+} external;
+
+function externMockStart(MockListener mockListener) returns error? = @java:Method {
+    class: "org.ballerinalang.net.http.mock.nonlistening.NonListeningStart",
+    name: "start"
+} external;
+
+function externMockGracefulStop(MockListener mockListener) returns error? = @java:Method {
+    class: "org.ballerinalang.net.http.mock.nonlistening.NonListeningGracefulStop",
+    name: "gracefulStop"
+} external;
+
+function externMockDetach(MockListener mockListener, service s) returns error? = @java:Method {
+    class: "org.ballerinalang.net.http.mock.nonlistening.NonListeningDetachEndpoint",
+    name: "detach"
 } external;

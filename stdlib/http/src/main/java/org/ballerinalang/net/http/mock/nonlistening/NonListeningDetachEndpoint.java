@@ -18,26 +18,10 @@
 
 package org.ballerinalang.net.http.mock.nonlistening;
 
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.natives.annotations.ReturnType;
-
-import static org.ballerinalang.net.http.HttpConstants.MOCK_LISTENER_ENDPOINT;
-
 /**
  * Disengage a service from the listener.
  *
  * @since 1.0
  */
-
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "http",
-        functionName = "detach",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = MOCK_LISTENER_ENDPOINT,
-                structPackage = "ballerina.http"),
-        returnType = {@ReturnType(type = TypeKind.OBJECT)},
-        isPublic = true
-)
 public class NonListeningDetachEndpoint extends org.ballerinalang.net.http.serviceendpoint.Detach {
 }
