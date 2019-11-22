@@ -30,7 +30,7 @@ import org.testng.annotations.Test;
 /**
  * TestCases for foreach with Maps.
  *
- * @since 0.96.0
+ * @since 1.1.0
  */
 public class ForeachIterableObjectTest {
 
