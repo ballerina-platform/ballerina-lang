@@ -28,7 +28,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 /**
- * TestCases for foreach with Maps.
+ * TestCases for foreach with iterable objects.
  *
  * @since 1.1.0
  */
