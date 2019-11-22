@@ -57,7 +57,14 @@ function generateBToJCheckCast(jvm:MethodVisitor mv, bir:BType sourceType, jvm:J
     } else if (targetType is jvm:JDouble) {
         generateCheckCastBToJDouble(mv, sourceType);
         return;
-    } else if (targetType is jvm:JRefType|jvm:JArrayType) {
+    } else if (targetType is jvm:JRefType) {
+        if (targetType.typeValue == "org/ballerinalang/jvm/values/StringValue") {
+            generateCheckCastBToJString(mv, sourceType);
+        } else {
+            generateCheckCastBToJRef(mv, sourceType, targetType);
+        }
+        return;
+    } else if (targetType is jvm:JArrayType) {
         generateCheckCastBToJRef(mv, sourceType, targetType);
         return;
     } else {
