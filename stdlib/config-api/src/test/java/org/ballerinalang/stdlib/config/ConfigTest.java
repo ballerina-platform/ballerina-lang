@@ -370,8 +370,8 @@ public class ConfigTest {
     }
 
     @Test(description = "Test retrieving an invalid int config", expectedExceptions = BLangRuntimeException.class,
-          expectedExceptionsMessageRegExp = ".*error: \\{ballerina/config\\}LookupError message=config key " +
-                  "'expirationPeriod' does not map to a valid 'int'.*")
+          expectedExceptionsMessageRegExp = ".*error: org.ballerinalang.jvm.values.ErrorValue message=" +
+                  "\\{ballerina/config\\}LookupError config key 'expirationPeriod' does not map to a valid 'int'.*")
     public void testGetAsIntNegative() throws IOException {
         BString key = new BString("expirationPeriod");
         BValue[] inputArg = {key};
@@ -382,8 +382,9 @@ public class ConfigTest {
     }
 
     @Test(description = "Test retrieving an invalid float config", expectedExceptions = BLangRuntimeException.class,
-          expectedExceptionsMessageRegExp = ".*error: \\{ballerina/config\\}LookupError message=config key " +
-                  "'\"ballerina.http.host\"' does not map to a valid 'float'.*")
+          expectedExceptionsMessageRegExp = ".*error: org.ballerinalang.jvm.values.ErrorValue message=" +
+                  "\\{ballerina/config\\}LookupError config key '\"ballerina.http.host\"' does not map to a" +
+                  " valid 'float'.*")
     public void testGetAsFloatNegative() throws IOException {
         BString key = new BString("\"ballerina.http.host\"");
         BValue[] inputArg = {key};
@@ -394,8 +395,9 @@ public class ConfigTest {
     }
 
     @Test(description = "Test retrieving an invalid boolean config", expectedExceptions = BLangRuntimeException.class,
-          expectedExceptionsMessageRegExp = ".*error: \\{ballerina/config\\}LookupError message=config key " +
-                  "'expirationPeriod' does not map to a valid 'boolean'.*")
+          expectedExceptionsMessageRegExp = ".*error: org.ballerinalang.jvm.values.ErrorValue message=" +
+                  "\\{ballerina/config\\}LookupError config key 'expirationPeriod' does " +
+                  "not map to a valid 'boolean'.*")
     public void testGetAsBooleanNegative() throws IOException {
         BString key = new BString("expirationPeriod");
         BValue[] inputArg = {key};

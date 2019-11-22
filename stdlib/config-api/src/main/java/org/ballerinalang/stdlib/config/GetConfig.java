@@ -39,7 +39,7 @@ public class GetConfig {
     private static final ConfigRegistry configRegistry = ConfigRegistry.getInstance();
     private static final String LOOKUPERRREASON = "{ballerina/config}LookupError";
 
-    public static Object get(String configKey, String type) {
+    public static Object gets(String configKey, String type) {
         try {
             switch (type) {
                 case "STRING":
@@ -56,7 +56,7 @@ public class GetConfig {
                     throw new IllegalStateException("invalid value type: " + type);
             }
         } catch (IllegalArgumentException e) {
-            throw BallerinaErrors.createError(LOOKUPERRREASON, e.getMessage());
+            throw BallerinaErrors.createError(LOOKUPERRREASON + " " + e.getMessage());
         }
     }
 
