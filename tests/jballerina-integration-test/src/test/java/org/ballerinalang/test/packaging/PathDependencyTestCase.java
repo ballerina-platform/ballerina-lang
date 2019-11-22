@@ -512,7 +512,18 @@ public class PathDependencyTestCase extends BaseTest {
     public void testRuntimeTimeDependencyForExecutingModuleTests() throws BallerinaTestException {
         Path caseResources = tempTestResources.resolve("test-dependency");
         String msg = "invoked fooFn";
+
         LogLeecher buildLogLeecher = new LogLeecher(msg);
+        balClient.runMain("build", new String[]{"bar"}, envVariables, new String[]{}, new LogLeecher[]{buildLogLeecher},
+                caseResources.toString());
+        buildLogLeecher.waitForText(10000);
+
+        buildLogLeecher = new LogLeecher(msg);
+        balClient.runMain("build", new String[]{"daz"}, envVariables, new String[]{}, new LogLeecher[]{buildLogLeecher},
+                caseResources.toString());
+        buildLogLeecher.waitForText(10000);
+
+        buildLogLeecher = new LogLeecher(msg);
         balClient.runMain("build", new String[]{"-a"}, envVariables, new String[]{}, new LogLeecher[]{buildLogLeecher},
                 caseResources.toString());
         buildLogLeecher.waitForText(10000);
