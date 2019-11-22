@@ -16,6 +16,31 @@ public class OpenApiSchemaType {
     private List<String> required;
     private List<OpenApiPropertyType> schemaProperties;
     private boolean isArray;
+    private boolean isInline;
+
+    public String getReference() {
+        return reference;
+    }
+
+    public void setReference(String reference) {
+        this.reference = reference;
+    }
+
+    public boolean isArray() {
+        return isArray;
+    }
+
+    public void setArray(boolean array) {
+        isArray = array;
+    }
+
+    public boolean isInline() {
+        return isInline;
+    }
+
+    public void setInline(boolean inline) {
+        isInline = inline;
+    }
 
     public String getUnescapedItemName() {
         return unescapedItemName;

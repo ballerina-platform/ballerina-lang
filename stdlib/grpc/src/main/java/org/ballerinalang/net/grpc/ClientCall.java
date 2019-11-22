@@ -19,21 +19,31 @@ package org.ballerinalang.net.grpc;
 
 import io.netty.handler.codec.http.DefaultHttpHeaders;
 import io.netty.handler.codec.http.HttpHeaders;
+import org.ballerinalang.jvm.observability.ObserveUtils;
+import org.ballerinalang.jvm.observability.ObserverContext;
 import org.ballerinalang.net.grpc.exception.StatusRuntimeException;
 import org.ballerinalang.net.grpc.stubs.AbstractStub;
+import org.ballerinalang.net.http.HttpConstants;
 import org.wso2.transport.http.netty.contract.Constants;
 import org.wso2.transport.http.netty.contract.HttpClientConnector;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 
 import java.io.InputStream;
+import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.CancellationException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import static org.ballerinalang.jvm.observability.ObservabilityConstants.TAG_KEY_HTTP_METHOD;
+import static org.ballerinalang.jvm.observability.ObservabilityConstants.TAG_KEY_HTTP_STATUS_CODE;
+import static org.ballerinalang.jvm.observability.ObservabilityConstants.TAG_KEY_HTTP_URL;
+import static org.ballerinalang.jvm.observability.ObservabilityConstants.TAG_KEY_PEER_ADDRESS;
 import static org.ballerinalang.net.grpc.GrpcConstants.CONTENT_TYPE_KEY;
 import static org.ballerinalang.net.grpc.GrpcConstants.MESSAGE_ACCEPT_ENCODING;
 import static org.ballerinalang.net.grpc.GrpcConstants.MESSAGE_ENCODING;
 import static org.ballerinalang.net.grpc.GrpcConstants.TE_KEY;
+import static org.ballerinalang.net.http.HttpConstants.HTTP_VERSION;
 
 /**
  * This class handles a call to a remote method.
@@ -51,6 +61,7 @@ public final class ClientCall {
     private final MethodDescriptor method;
     private final boolean unaryRequest;
     private HttpClientConnector connector;
+    private DataContext context;
     private final OutboundMessage outboundMessage;
     private ClientConnectorListener connectorListener;
     private boolean cancelCalled;
@@ -58,27 +69,61 @@ public final class ClientCall {
     private DecompressorRegistry decompressorRegistry = DecompressorRegistry.getDefaultInstance();
     private CompressorRegistry compressorRegistry = CompressorRegistry.getDefaultInstance();
 
-    public ClientCall(HttpClientConnector connector, OutboundMessage outboundMessage, MethodDescriptor method) {
+    public ClientCall(HttpClientConnector connector, OutboundMessage outboundMessage, MethodDescriptor method,
+                      DataContext context) {
         this.method = method;
         this.unaryRequest = method.getType() == MethodDescriptor.MethodType.UNARY
                 || method.getType() == MethodDescriptor.MethodType.SERVER_STREAMING;
         this.connector = connector;
+        this.context = context;
         this.outboundMessage = outboundMessage;
     }
 
     private void prepareHeaders(
             Compressor compressor) {
+        Optional<ObserverContext> observerContext = ObserveUtils.getObserverContextOfCurrentFrame(context.getStrand());
         outboundMessage.removeHeader(MESSAGE_ENCODING);
         if (compressor != Codec.Identity.NONE) {
             outboundMessage.setHeader(MESSAGE_ENCODING, compressor.getMessageEncoding());
         }
         String advertisedEncodings = String.join(",", decompressorRegistry.getAdvertisedMessageEncodings());
         outboundMessage.setHeader(MESSAGE_ACCEPT_ENCODING, advertisedEncodings);
+        outboundMessage.getHeaders().entries().forEach(
+                x -> observerContext.ifPresent(ctx -> ctx.addTag(x.getKey(), x.getValue())));
+
         outboundMessage.setProperty(Constants.TO, "/" + method.getFullMethodName());
         outboundMessage.setHttpMethod(GrpcConstants.HTTP_METHOD);
         outboundMessage.setHttpVersion("2.0");
         outboundMessage.setHeader(CONTENT_TYPE_KEY, GrpcConstants.CONTENT_TYPE_GRPC);
         outboundMessage.setHeader(TE_KEY, GrpcConstants.TE_TRAILERS);
+    }
+
+    public void checkAndObserveHttpRequest() {
+        Optional<ObserverContext> observerContext =
+                ObserveUtils.getObserverContextOfCurrentFrame(context.getStrand());
+        observerContext.ifPresent(ctx -> {
+            injectHeaders(outboundMessage, ObserveUtils.getContextProperties(ctx));
+            ctx.addTag(TAG_KEY_HTTP_METHOD, GrpcConstants.HTTP_METHOD);
+            ctx.addTag(TAG_KEY_HTTP_URL, String.valueOf(outboundMessage.getProperty(HttpConstants.TO)));
+            ctx.addTag(TAG_KEY_PEER_ADDRESS,
+                    outboundMessage.getProperty(Constants.HTTP_HOST) + ":"
+                            + outboundMessage.getProperty(Constants.HTTP_PORT));
+            ctx.addTag(TE_KEY, GrpcConstants.TE_TRAILERS);
+            ctx.addTag(CONTENT_TYPE_KEY, GrpcConstants.CONTENT_TYPE_GRPC);
+            ctx.addTag(HTTP_VERSION, "2.0");
+            // Add HTTP Status Code tag. The HTTP status code will be set using the response message.
+            // Sometimes the HTTP status code will not be set due to errors etc. Therefore, it's very important to set
+            // some value to HTTP Status Code to make sure that tags will not change depending on various
+            // circumstances.
+            // HTTP Status code must be a number.
+            ctx.addTag(TAG_KEY_HTTP_STATUS_CODE, Integer.toString(0));
+        });
+    }
+
+    private void injectHeaders(OutboundMessage msg, Map<String, String> headers) {
+        if (headers != null) {
+            headers.forEach((key, value) -> msg.setHeader(key, String.valueOf(value)));
+        }
     }
 
     /**
@@ -88,7 +133,7 @@ public final class ClientCall {
      */
     public void start(final AbstractStub.Listener observer) {
         if (connectorListener != null) {
-            throw new IllegalStateException("Client connection us already setup.");
+            throw new IllegalStateException("Client connection already set up.");
         }
         if (cancelCalled) {
             throw new IllegalStateException("Client call was cancelled.");
@@ -111,7 +156,9 @@ public final class ClientCall {
         }
         prepareHeaders(compressor);
         ClientStreamListener clientStreamListener = new ClientStreamListener(observer);
-        connectorListener = new ClientConnectorListener(clientStreamListener);
+        connectorListener = ObserveUtils.isObservabilityEnabled() ?
+                new ObservableClientConnectorListener(clientStreamListener, context) :
+                new ClientConnectorListener(clientStreamListener);
         outboundMessage.framer().setCompressor(compressor);
         connectorListener.setDecompressorRegistry(decompressorRegistry);
         HttpResponseFuture responseFuture = connector.send(outboundMessage.getResponseMessage());

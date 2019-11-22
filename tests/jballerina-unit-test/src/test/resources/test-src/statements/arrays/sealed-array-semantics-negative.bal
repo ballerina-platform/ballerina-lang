@@ -110,3 +110,8 @@ function testInvalidArrayAccessByFiniteType() {
     var e = sArray[f4]; // incompatible types: expected 'int', found '0|1|2|S1|S3'
     var f = sArrayTwo[f5]; // invalid array index expression: value space '3|4|5|7' out of range
 }
+
+function openToSealArrrayAssignment() {
+    int[] intArr1 = [];
+    int[*] intArr2 = intArr1.clone();
+}
