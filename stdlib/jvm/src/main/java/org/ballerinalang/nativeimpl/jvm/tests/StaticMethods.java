@@ -27,10 +27,12 @@ import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ArrayValueImpl;
+import org.ballerinalang.jvm.values.BmpStringValue;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.StringValue;
 import org.ballerinalang.jvm.values.TupleValueImpl;
 
 import java.io.IOException;
@@ -55,6 +57,14 @@ public class StaticMethods {
 
     public static Date acceptNothingButReturnDate() {
         return new Date();
+    }
+
+    public static StringValue acceptNothingButReturnString() {
+        return new BmpStringValue("hello world");
+    }
+
+    public static StringValue stringParamAndReturn(StringValue a1) {
+        return a1.concat(new BmpStringValue(" and Hadrian"));
     }
 
     public static Date acceptSomethingAndReturnSomething(Date date) {
