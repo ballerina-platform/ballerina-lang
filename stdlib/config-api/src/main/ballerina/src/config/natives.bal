@@ -24,7 +24,8 @@ public function contains(@untainted string key) returns boolean {
     return externContains(java:fromString(key));
 }
 
-function externContains(handle key) returns boolean = @java:Method {
+public function externContains(handle key) returns boolean = @java:Method {
+    name: "contains",
     class: "org.ballerinalang.stdlib.config.Contains"
 } external;
 
@@ -41,12 +42,25 @@ public function setConfig(string key, string|int|float|boolean value) {
 
 }
 
-function externSetConfig(handle key, handle|int|float|boolean value) = @java:Method {
+public function externSetConfig(handle key, handle|int|float|boolean value) = @java:Method {
+    name: "setConfig",
     class: "org.ballerinalang.stdlib.config.SetConfig"
 } external;
 
-function get(@untainted string key, ValueType vType) returns string|int|float|boolean|map<any>|error {
-    var result = externGet(java:fromString(key), vType);
+public function get(@untainted string key, ValueType vType) returns string|int|float|boolean|map<any>|error {
+    string valueType = "ARRAY";
+    if (vType is STRING) {
+        valueType = "STRING";
+    } else if (vType is INT) {
+        valueType = "INT";
+    } else if (vType is FLOAT) {
+        valueType = "FLOAT";
+    } else if (vType is MAP) {
+        valueType = "MAP";
+    } else if (vType is BOOLEAN) {
+        valueType = "BOOLEAN";
+    }
+    var result = externGet(java:fromString(key), java:fromString(valueType));
     if (result is handle) {
         var stringResult = java:toString(result);
         if (stringResult is string) {
@@ -60,6 +74,7 @@ function get(@untainted string key, ValueType vType) returns string|int|float|bo
     }
 }
 
-function externGet(handle key, ValueType vType) returns handle|int|float|boolean|map<any> = @java:Method {
+public function externGet(handle key, handle vType) returns handle|int|float|boolean|map<any> = @java:Method {
+    name: "get",
     class: "org.ballerinalang.stdlib.config.GetConfig"
 } external;

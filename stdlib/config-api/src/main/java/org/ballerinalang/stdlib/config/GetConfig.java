@@ -36,14 +36,12 @@ import java.util.Map;
         functionName = "get"
 )
 public class GetConfig {
-
     private static final ConfigRegistry configRegistry = ConfigRegistry.getInstance();
     private static final String LOOKUPERRREASON = "{ballerina/config}LookupError";
 
-    public static Object get(String configKey, Object type) {
-
+    public static Object get(String configKey, String type) {
         try {
-            switch (type.toString()) {
+            switch (type) {
                 case "STRING":
                     return configRegistry.getAsString(configKey);
                 case "INT":
@@ -55,7 +53,7 @@ public class GetConfig {
                 case "MAP":
                     return buildMapValue(configRegistry.getAsMap(configKey));
                 default:
-                    throw new IllegalStateException("invalid value type: " + type.toString());
+                    throw new IllegalStateException("invalid value type: " + type);
             }
         } catch (IllegalArgumentException e) {
             throw BallerinaErrors.createError(LOOKUPERRREASON, e.getMessage());
