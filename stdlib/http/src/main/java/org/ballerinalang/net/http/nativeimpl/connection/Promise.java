@@ -18,6 +18,7 @@
 
 package org.ballerinalang.net.http.nativeimpl.connection;
 
+import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
@@ -37,20 +38,21 @@ import static org.ballerinalang.net.http.HttpConstants.CALLER;
 /**
  * {@code Promise} is the extern function to respond back to the client with a PUSH_PROMISE frame.
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "http",
-        functionName = "promise",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = CALLER,
-                structPackage = "ballerina/http"),
-        args = {@Argument(name = "promise", type = TypeKind.OBJECT, structType = "PushPromise",
-                structPackage = "ballerina/http")},
-        returnType = @ReturnType(type = TypeKind.RECORD, structType = "HttpConnectorError",
-                structPackage = "ballerina/http"),
-        isPublic = true
-)
+//@BallerinaFunction(
+//        orgName = "ballerina", packageName = "http",
+//        functionName = "promise",
+//        receiver = @Receiver(type = TypeKind.OBJECT, structType = CALLER,
+//                structPackage = "ballerina/http"),
+//        args = {@Argument(name = "promise", type = TypeKind.OBJECT, structType = "PushPromise",
+//                structPackage = "ballerina/http")},
+//        returnType = @ReturnType(type = TypeKind.RECORD, structType = "HttpConnectorError",
+//                structPackage = "ballerina/http"),
+//        isPublic = true
+//)
 public class Promise extends ConnectionAction {
-    public static Object promise(Strand strand, ObjectValue connectionObj, ObjectValue pushPromiseObj) {
+    public static Object promise(ObjectValue connectionObj, ObjectValue pushPromiseObj) {
         HttpCarbonMessage inboundRequestMsg = HttpUtil.getCarbonMsg(connectionObj, null);
+        Strand strand = Scheduler.getStrand();
         DataContext dataContext = new DataContext(strand, new NonBlockingCallback(strand), inboundRequestMsg);
         HttpUtil.serverConnectionStructCheck(inboundRequestMsg);
 
