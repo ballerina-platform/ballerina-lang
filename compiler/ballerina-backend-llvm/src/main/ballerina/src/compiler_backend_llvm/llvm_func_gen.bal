@@ -56,9 +56,11 @@ type FuncGenrator object {
     function genNonVoidFunctionArgTypes(int argsCount) returns llvm:LLVMTypeRef[] {
         llvm:LLVMTypeRef[] argTypes = [];
         int i = 0;
-        while (i < self.func.argsCount) {
-            argTypes[i] = llvm:llvmInt64Type();
-            i += 1;
+        foreach var param in  self.func.params {
+            if (param is bir:FunctionParam) {
+                argTypes[i] = genBType(param.typeValue);
+                i += 1;
+            }
         }
         return argTypes;
     }
