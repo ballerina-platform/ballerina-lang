@@ -71,6 +71,7 @@
             <class name="org.ballerinalang.test.service.http.sample.SslProtocolTest"/>
             <class name="org.ballerinalang.test.service.http.sample.SerializeComplexXmlTestCase"/>
             <class name="org.ballerinalang.test.service.http.sample.HTTPListenerMethodTestCase"/>
+            <class name="org.ballerinalang.test.service.http.sample.HTTPCookiesTestCase"/>
         </classes>
     </test>
 
