@@ -589,8 +589,12 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         analyzeNode(invocationExpr.expr, env);
         if (invocationExpr.expr != null && invocationExpr.expr.getKind() == NodeKind.SIMPLE_VARIABLE_REF
                 && ((BLangSimpleVarRef) invocationExpr.expr).getVariableName().value.equals(Names.SELF.value)) {
-            if (!isValidSelf(((BLangSimpleVarRef) invocationExpr.expr).symbol)) {
-                this.dlog.error(invocationExpr.pos, DiagnosticCode.CONTAINS_UNINITIALIZED_FIELDS);
+            StringBuilder uninitializedFields =
+                    getUninitializedFieldsForSelfKeyword((BObjectType) ((BLangSimpleVarRef)
+                            invocationExpr.expr).symbol.type);
+            if (uninitializedFields.length() != 0) {
+                this.dlog.error(invocationExpr.pos, DiagnosticCode.CONTAINS_UNINITIALIZED_FIELDS,
+                        uninitializedFields.toString());
                 return;
             }
         }
@@ -619,14 +623,18 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         }
     }
 
-    private boolean isValidSelf(BSymbol symbol) {
-
-        for (BField field : ((BObjectType) symbol.type).fields) {
-            if (this.uninitializedVars.containsKey(field.symbol)) {
-                return false;
+    private StringBuilder getUninitializedFieldsForSelfKeyword(BObjectType objType) {
+        boolean isFirstUninitializedField = true;
+        StringBuilder uninitializedFields = new StringBuilder();
+        for (BField field : objType.fields) {
+            if (this.uninitializedVars.containsKey(field.symbol) && isFirstUninitializedField) {
+                uninitializedFields = new StringBuilder(field.symbol.getName().value);
+                isFirstUninitializedField = false;
+            } else if (this.uninitializedVars.containsKey(field.symbol)) {
+                uninitializedFields.append(", ").append(field.symbol.getName().value);
             }
         }
-        return true;
+        return uninitializedFields;
     }
 
     private boolean isGlobalVarSymbol(BSymbol symbol) {

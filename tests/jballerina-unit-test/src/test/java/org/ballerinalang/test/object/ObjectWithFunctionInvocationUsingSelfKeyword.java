@@ -35,8 +35,8 @@ public class ObjectWithFunctionInvocationUsingSelfKeyword {
                 ".bal");
 
         Assert.assertEquals(compileResult.getErrorCount(), 3);
-        BAssertUtil.validateError(compileResult, 0, "all fields must be initialized", 5, 9);
-        BAssertUtil.validateError(compileResult, 1, "all fields must be initialized", 24, 13);
-        BAssertUtil.validateError(compileResult, 2, "all fields must be initialized", 43, 13);
+        BAssertUtil.validateError(compileResult, 0, "fields 'name, age' not initialized", 6, 9);
+        BAssertUtil.validateError(compileResult, 1, "fields 'name, city' not initialized", 27, 13);
+        BAssertUtil.validateError(compileResult, 2, "fields 'name, city' not initialized", 48, 13);
     }
 }
