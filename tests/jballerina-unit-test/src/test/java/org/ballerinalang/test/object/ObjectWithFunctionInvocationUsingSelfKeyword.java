@@ -34,7 +34,9 @@ public class ObjectWithFunctionInvocationUsingSelfKeyword {
         CompileResult compileResult = BCompileUtil.compile("test-src/object/object_self_function_invocation_negative" +
                 ".bal");
 
-        Assert.assertEquals(compileResult.getErrorCount(), 1);
+        Assert.assertEquals(compileResult.getErrorCount(), 3);
         BAssertUtil.validateError(compileResult, 0, "all fields must be initialized", 5, 9);
+        BAssertUtil.validateError(compileResult, 1, "all fields must be initialized", 24, 13);
+        BAssertUtil.validateError(compileResult, 2, "all fields must be initialized", 43, 13);
     }
 }
