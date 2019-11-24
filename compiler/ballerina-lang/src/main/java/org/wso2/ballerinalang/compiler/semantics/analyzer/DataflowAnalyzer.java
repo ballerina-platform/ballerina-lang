@@ -622,8 +622,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     private boolean isValidSelf(BSymbol symbol) {
 
         for (BField field : ((BObjectType) symbol.type).fields) {
-            InitStatus initStatus = this.uninitializedVars.get(field.symbol);
-            if (initStatus != null) {
+            if (this.uninitializedVars.containsKey(field.symbol)) {
                 return false;
             }
         }
