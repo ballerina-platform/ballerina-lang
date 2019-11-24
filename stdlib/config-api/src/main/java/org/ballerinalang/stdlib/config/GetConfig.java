@@ -39,7 +39,7 @@ public class GetConfig {
     private static final ConfigRegistry configRegistry = ConfigRegistry.getInstance();
     private static final String LOOKUPERRREASON = "{ballerina/config}LookupError";
 
-    public static Object gets(String configKey, String type) {
+    public static Object get(String configKey, String type) {
         try {
             switch (type) {
                 case "STRING":
