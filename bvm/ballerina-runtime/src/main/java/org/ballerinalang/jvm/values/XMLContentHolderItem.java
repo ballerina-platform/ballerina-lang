@@ -70,7 +70,7 @@ public class XMLContentHolderItem extends XMLValue {
 
     @Override
     public String getItemType() {
-        return null;
+        return getNodeType().value();
     }
 
     @Override
