@@ -303,6 +303,10 @@ DecimalFloatingPointNumber
     |   DottedDecimalNumber ExponentPart? DecimalFloatSelector?
     ;
 
+DecimalExtendedFloatingPointNumber
+    :   DecimalFloatingPointNumber DOT DecimalNumeral
+    ;
+
 fragment
 ExponentPart
     :   ExponentIndicator SignedInteger
@@ -369,7 +373,7 @@ StringCharacters
 
 fragment
 StringCharacter
-    :   ~["\\]
+    :   ~["\\]  // This needs to be ~["\\\u000A\u000D]. But due to issue #19501, reverted back to ~["\\]
     |   EscapeSequence
     ;
 

@@ -76,7 +76,7 @@ public type PoolOptions record {|
     boolean isXA = config:getAsBoolean("b7a.jdbc.pool.isXA", false);
     int maximumPoolSize = config:getAsInt("\"b7a.jdbc.pool.maximumPoolSize\"", 15);
     int connectionTimeoutInMillis = config:getAsInt("\"b7a.jdbc.pool.connectionTimeoutInMillis\"", 30000);
-    int idleTimeoutInMillis =  config:getAsInt("b7a.jdbc.pool.idleTimeoutInMillis", 600000);
+    int idleTimeoutInMillis = config:getAsInt("b7a.jdbc.pool.idleTimeoutInMillis", 600000);
     int minimumIdle = config:getAsInt("b7a.jdbc.pool.minimumIdle", 15);
     int maxLifetimeInMillis = config:getAsInt("b7a.jdbc.pool.maxLifetimeInMillis", 1800000);
     int validationTimeoutInMillis = config:getAsInt("\"b7a.jdbc.pool.validationTimeoutInMillis\"", 5000);
@@ -84,19 +84,19 @@ public type PoolOptions record {|
 
 // This is a container object that holds the global pool config and initilizes the internal map of connection pools
 type GlobalPoolConfigContainer object {
-     private PoolOptions poolConfig = {};
+    private PoolOptions poolConfig = {};
 
-     function __init() {
-         // poolConfig record is frozen so that it cannot be modified during runtime
-         PoolOptions frozenConfig = self.poolConfig.cloneReadOnly();
-         self.initGlobalPoolContainer(frozenConfig);
-     }
+    function __init() {
+        // poolConfig record is frozen so that it cannot be modified during runtime
+        PoolOptions frozenConfig = self.poolConfig.cloneReadOnly();
+        self.initGlobalPoolContainer(frozenConfig);
+    }
 
-     function initGlobalPoolContainer(PoolOptions poolConfig) = external;
+    function initGlobalPoolContainer(PoolOptions poolConfig) = external;
 
-     function getGlobalPoolConfig() returns PoolOptions {
+    function getGlobalPoolConfig() returns PoolOptions {
         return self.poolConfig;
-     }
+    }
 };
 
 // This is an instance of GlobalPoolConfigContainer object type. The __init functions of database clients pass
@@ -200,7 +200,7 @@ public type Parameter record {|
     SQLType sqlType;
     anydata value = ();
     Direction direction = DIRECTION_IN;
-    typedesc<record{}> recordType?;
+    typedesc<record {}> recordType?;
 |};
 
 # Represents the output of the `update` remote function.

@@ -17,7 +17,6 @@
  */
 package org.ballerinax.jdbc.functions;
 
-import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
@@ -37,33 +36,25 @@ import java.util.UUID;
  * @since 0.970
  */
 
-@BallerinaFunction(
-        orgName = "ballerinax", packageName = "java.jdbc",
-        functionName = "createClient",
-        isPublic = true
-)
+@BallerinaFunction(orgName = "ballerinax",
+                   packageName = "java.jdbc",
+                   functionName = "createClient",
+                   isPublic = true)
 public class CreateClient {
 
-    public static ObjectValue createClient(Strand strand, MapValue<String, Object> config, MapValue<String,
-                Object> globalPoolOptions) {
-        ObjectValue jdbcClient = createSQLDBClient(config, globalPoolOptions);
-        jdbcClient.addNativeData(Constants.CONNECTOR_ID_KEY, UUID.randomUUID().toString());
-        return jdbcClient;
-    }
-
-    public static ObjectValue createSQLDBClient(MapValue<String, Object> clientEndpointConfig,
+    public static void createClient(Strand strand, ObjectValue client, MapValue<String, Object> config,
             MapValue<String, Object> globalPoolOptions) {
-        String url = clientEndpointConfig.getStringValue(Constants.EndpointConfig.URL);
+        String url = config.getStringValue(Constants.EndpointConfig.URL);
 
         if (!isJdbcUrlValid(url)) {
             throw ErrorGenerator.getSQLApplicationError("invalid JDBC URL: " + url);
         }
 
-        String username = clientEndpointConfig.getStringValue(Constants.EndpointConfig.USERNAME);
-        String password = clientEndpointConfig.getStringValue(Constants.EndpointConfig.PASSWORD);
-        MapValue<String, Object> dbOptions = (MapValue<String, Object>) clientEndpointConfig
+        String username = config.getStringValue(Constants.EndpointConfig.USERNAME);
+        String password = config.getStringValue(Constants.EndpointConfig.PASSWORD);
+        MapValue<String, Object> dbOptions = (MapValue<String, Object>) config
                 .getMapValue(Constants.EndpointConfig.DB_OPTIONS);
-        MapValue<String, Object> poolOptions = (MapValue<String, Object>) clientEndpointConfig
+        MapValue<String, Object> poolOptions = (MapValue<String, Object>) config
                 .getMapValue(Constants.EndpointConfig.POOL_OPTIONS);
         boolean userProvidedPoolOptionsNotPresent = poolOptions == null;
         if (userProvidedPoolOptionsNotPresent) {
@@ -79,9 +70,8 @@ public class CreateClient {
 
         SQLDatasource sqlDatasource = sqlDatasourceParams.getPoolOptionsWrapper()
                 .retrieveDatasource(sqlDatasourceParams);
-        ObjectValue sqlClient = BallerinaValues.createObjectValue(Constants.JDBC_PACKAGE_ID, Constants.JDBC_CLIENT);
-        sqlClient.addNativeData(Constants.JDBC_CLIENT, sqlDatasource);
-        return sqlClient;
+        client.addNativeData(Constants.JDBC_CLIENT, sqlDatasource);
+        client.addNativeData(Constants.CONNECTOR_ID_KEY, UUID.randomUUID().toString());
     }
 
     // Unable to perform a complete validation since URL differs based on the database.

@@ -44,6 +44,10 @@ public class BallerinaVisitor extends PsiElementVisitor {
     visitPsiElement(o);
   }
 
+  public void visitAnnotationAccessReference(@NotNull BallerinaAnnotationAccessReference o) {
+    visitVariableReference(o);
+  }
+
   public void visitAnnotationActionExpression(@NotNull BallerinaAnnotationActionExpression o) {
     visitExpression(o);
   }
@@ -1065,6 +1069,10 @@ public class BallerinaVisitor extends PsiElementVisitor {
   }
 
   public void visitVariableReferenceList(@NotNull BallerinaVariableReferenceList o) {
+    visitPsiElement(o);
+  }
+
+  public void visitVersionPattern(@NotNull BallerinaVersionPattern o) {
     visitPsiElement(o);
   }
 
