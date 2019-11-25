@@ -123,7 +123,7 @@ public class CookieNativeFunctionSuccessTest {
         Assert.assertEquals(bvalue2.get("name").stringValue(), "SID002");
     }
 
-    @Test(description = "Test add array of cookies into cookie store")
+    @Test(description = "Test add a similar cookie as in the store")
     public void testAddSimilarCookieToCookieStore() {
 
         BValue[] returnVals = BRunUtil.invoke(result, "testAddSimilarCookieToCookieStore");
