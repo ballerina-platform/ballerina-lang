@@ -83,7 +83,7 @@ jobs:
       name:  "Tests - windows"
       os: windows
       language: node_js
-      node_js: 8,
+      node_js: 8
       install:
         - choco install jdk8 -params 'installdir=c:\\java8'
         - export JAVA_HOME="c:\\java8"
@@ -95,7 +95,7 @@ jobs:
       os: linux
       language: java
       jdk: openjdk8
-      node_js: 8,
+      node_js: 8
       before_install:
           - nvm install 8
           - nvm use 8
