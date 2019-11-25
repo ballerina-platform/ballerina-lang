@@ -90,7 +90,7 @@ public type Caller client object {
     # + reason - Reason for cancelling the upgrade
     # + return - An `error` if an error occurs during cancelling the upgrade or nil
     public remote function cancelWebSocketUpgrade(int status, string reason) returns WebSocketError? {
-        return externCancelWebSocketUpgrade(self, status, reason);
+        return externCancelWebSocketUpgrade(self, status, java:fromString(reason));
     }
 
     # Sends a `100-continue` response to the caller.
@@ -222,8 +222,9 @@ function externAcceptWebSocketUpgrade(Caller caller, map<string> headers) return
     name: "acceptWebSocketUpgrade"
 } external;
 
-function externCancelWebSocketUpgrade(Caller caller, int status, string reason) returns WebSocketError? =
+function externCancelWebSocketUpgrade(Caller caller, int status, handle reason) returns WebSocketError? =
 @java:Method {
     class: "org.ballerinalang.net.http.nativeimpl.connection.CancelWebSocketUpgrade",
-    name: "cancelWebSocketUpgrade"
+    name: "cancelWebSocketUpgrade",
+    paramTypes: ["org.ballerinalang.jvm.values.ObjectValue", "long", "java.lang.String"]
 } external;

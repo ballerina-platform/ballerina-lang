@@ -33,16 +33,6 @@ import org.wso2.transport.http.netty.contract.websocket.WebSocketHandshaker;
  *
  * @since 0.970
  */
-//@BallerinaFunction(
-//        orgName = WebSocketConstants.BALLERINA_ORG,
-//        packageName = WebSocketConstants.PACKAGE_HTTP,
-//        functionName = "cancelWebSocketUpgrade",
-//        receiver = @Receiver(
-//                type = TypeKind.OBJECT,
-//                structType = HttpConstants.CALLER,
-//                structPackage = WebSocketConstants.FULL_PACKAGE_HTTP
-//        )
-//)
 public class CancelWebSocketUpgrade {
     private static final Logger log = LoggerFactory.getLogger(CancelWebSocketUpgrade.class);
 
