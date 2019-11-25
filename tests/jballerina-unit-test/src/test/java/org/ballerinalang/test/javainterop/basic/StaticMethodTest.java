@@ -22,6 +22,7 @@ import org.ballerinalang.model.values.BDecimal;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BHandleValue;
 import org.ballerinalang.model.values.BInteger;
+import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
@@ -72,6 +73,23 @@ public class StaticMethodTest {
         Assert.assertTrue(((BHandleValue) returns[0]).getValue() instanceof Date);
     }
 
+    @Test(description = "Test invoking a java static function that accepts nothing and returns a string")
+    public void testAcceptNothingButReturnString() {
+        BValue[] returns = BRunUtil.invoke(result, "testAcceptNothingButReturnString");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].getClass(), BString.class);
+        Assert.assertEquals(returns[0].stringValue(), "hello world");
+    }
+
+    @Test
+    public void testStringParamAndReturn() {
+        BValue[] args = new BValue[1];
+        args[0] = new BString("Royce");
+        BValue[] returns = BRunUtil.invoke(result, "stringParamAndReturn", args);
+        Assert.assertTrue(returns[0] instanceof BString);
+        Assert.assertEquals(returns[0].stringValue(), "Royce and Hadrian");
+    }
+
     @Test(description = "Test invoking a java static function that accepts and returns a Date")
     public void testAcceptSomethingAndReturnSomething() {
         BValue[] args = new BValue[1];
@@ -109,6 +127,13 @@ public class StaticMethodTest {
         BValue[] returns = BRunUtil.invoke(result, "getObjectOrError");
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(((BError) returns[0]).getReason(), "some reason");
+    }
+
+    @Test(description = "Test static java method that returns error value or MapValue")
+    public void testMapValueOrErrorReturn() {
+        BValue[] returns = BRunUtil.invoke(result, "testUnionReturn");
+        Assert.assertEquals(returns[0].stringValue(), "resources=path=basePath method=Method string");
+
     }
 
     public static Object returnObjectOrError() {

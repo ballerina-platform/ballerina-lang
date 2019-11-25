@@ -1,0 +1,12 @@
+# To run this sample, navigate to the directory that contains the
+# `.bal` file, and execute the `ballerina run` command.
+$ ballerina run --experimental table_queries_select_with_filtering.bal
+The personTable:
+id=1 age=25 salary=1000.5 name=jane married=true
+id=2 age=26 salary=1050.5 name=kane married=false
+id=3 age=27 salary=1200.5 name=jack married=true
+id=4 age=28 salary=1100.5 name=alex married=false
+
+table<Person> personTableCopyWithFilter = from personTable where name == 'jane' select *;
+personTableCopyWithFilter:
+id=1 age=25 salary=1000.5 name=jane married=true

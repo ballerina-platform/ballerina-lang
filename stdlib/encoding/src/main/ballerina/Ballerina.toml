@@ -6,8 +6,8 @@ version = "1.0.0"
 target = "java8"
 
     [[platform.libraries]]
-    artifactId = "llvm"
-    version = "1.0.0-encoding-SNAPSHOT"
+    artifactId = "encoding"
+    version = "@project.version@"
     path = "./lib/ballerina-encoding-@project.version@.jar"
     groupId = "ballerina"
     modules = ["encoding"]

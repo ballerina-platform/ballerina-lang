@@ -62,6 +62,7 @@ import java.util.stream.Collectors;
 import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
 import static org.ballerinalang.compiler.CompilerOptionName.EXPERIMENTAL_FEATURES_ENABLED;
 import static org.ballerinalang.compiler.CompilerOptionName.LOCK_ENABLED;
+import static org.ballerinalang.compiler.CompilerOptionName.OFFLINE;
 import static org.ballerinalang.compiler.CompilerOptionName.PRESERVE_WHITESPACE;
 import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
 import static org.ballerinalang.test.util.TestConstant.ENABLE_JBALLERINA_TESTS;
@@ -95,6 +96,20 @@ public class BCompileUtil {
      */
     public static CompileResult compile(String sourceFilePath) {
         return compileOnJBallerina(sourceFilePath, false, true);
+    }
+
+    /**
+     * Compile and return the semantic errors.
+     *
+     * @param sourceFilePath Path to source module/file
+     * @return Semantic errors
+     */
+    public static CompileResult compileOffline(String sourceFilePath) {
+        CompilerContext context = new CompilerContext();
+        CompilerOptions options = CompilerOptions.getInstance(context);
+        options.put(OFFLINE, "true");
+        context.put(CompilerOptions.class, options);
+        return compileOnJBallerina(context, sourceFilePath, false, true);
     }
 
     /**
@@ -586,6 +601,14 @@ public class BCompileUtil {
         String packageName = sourcePath.getFileName().toString();
         Path sourceRoot = resourceDir.resolve(sourcePath.getParent());
         return compileOnJBallerina(sourceRoot.toString(), packageName, temp, init);
+    }
+
+    private static CompileResult compileOnJBallerina(CompilerContext context, String sourceFilePath,
+                                                     boolean temp, boolean init) {
+        Path sourcePath = Paths.get(sourceFilePath);
+        String packageName = sourcePath.getFileName().toString();
+        Path sourceRoot = resourceDir.resolve(sourcePath.getParent());
+        return compileOnJBallerina(context, sourceRoot.toString(), packageName, temp, init, false);
     }
 
     /**
