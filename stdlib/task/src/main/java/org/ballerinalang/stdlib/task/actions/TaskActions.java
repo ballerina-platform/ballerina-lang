@@ -18,7 +18,6 @@
 package org.ballerinalang.stdlib.task.actions;
 
 import org.ballerinalang.jvm.BRuntime;
-import org.ballerinalang.jvm.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.stdlib.task.api.TaskServerConnector;
@@ -33,6 +32,7 @@ import static org.ballerinalang.stdlib.task.utils.TaskConstants.NATIVE_DATA_TASK
 import static org.ballerinalang.stdlib.task.utils.TaskConstants.PARAMETER_ATTACHMENT;
 import static org.ballerinalang.stdlib.task.utils.TaskConstants.RECORD_TIMER_CONFIGURATION;
 import static org.ballerinalang.stdlib.task.utils.TaskConstants.SCHEDULER_ERROR_REASON;
+import static org.ballerinalang.stdlib.task.utils.Utils.createTaskError;
 import static org.ballerinalang.stdlib.task.utils.Utils.processAppointment;
 import static org.ballerinalang.stdlib.task.utils.Utils.processTimer;
 import static org.ballerinalang.stdlib.task.utils.Utils.validateService;
@@ -112,9 +112,7 @@ public class TaskActions {
         try {
             validateService(serviceInformation);
         } catch (SchedulingException e) {
-            //TODO: Ideally this should return an Error using createError() method.
-            // Fix this once we can return errors from interop functions (Check with master)
-            throw new BLangRuntimeException(e.getMessage());
+            return createTaskError(e.getMessage());
         }
 
         Task task = (Task) taskListener.getNativeData(NATIVE_DATA_TASK_OBJECT);
@@ -123,7 +121,7 @@ public class TaskActions {
     }
 
     @SuppressWarnings("unchecked")
-    public static void init(ObjectValue taskListener) {
+    public static Object init(ObjectValue taskListener) {
         MapValue<String, Object> configurations = (MapValue<String, Object>) taskListener.get(
                 MEMBER_LISTENER_CONFIGURATION);
         String configurationTypeName = configurations.getType().getName();
@@ -136,9 +134,8 @@ public class TaskActions {
             }
             taskListener.addNativeData(NATIVE_DATA_TASK_OBJECT, task);
         } catch (SchedulingException e) {
-            //TODO: Ideally this should return an Error using createError() method.
-            // Fix this once we can return errors from interop functions (Check with master)
-            throw new BLangRuntimeException(e.getMessage());
+            return createTaskError(e.getMessage());
         }
+        return null;
     }
 }
