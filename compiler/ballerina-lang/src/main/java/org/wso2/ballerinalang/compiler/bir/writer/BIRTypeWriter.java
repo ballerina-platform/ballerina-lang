@@ -21,7 +21,6 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.ballerinalang.model.elements.MarkdownDocAttachment;
 import org.ballerinalang.model.symbols.SymbolKind;
-import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.ByteCPEntry;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.FloatCPEntry;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.IntegerCPEntry;
@@ -331,30 +330,40 @@ public class BIRTypeWriter implements TypeVisitor {
         //TODO cleanup, there cannot be objects without attached function list and symbol kind other than object
         if (tSymbol.kind == SymbolKind.OBJECT) {
             Map<Boolean, List<BAttachedFunction>> partitions = ((BObjectTypeSymbol) tSymbol).attachedFuncs.stream()
-                    .collect(Collectors.partitioningBy(n -> n.funcName.equals(Names.USER_DEFINED_INIT_SUFFIX)));
+                    .collect(Collectors.partitioningBy(n -> (n.funcName.equals(Names.USER_DEFINED_INIT_SUFFIX) ||
+                            n.funcName.equals(Names.DEFAULT_INIT_SUFFIX))));
             attachedFuncs = partitions.get(false);
-            List<BAttachedFunction> constructor = partitions.get(true);
-            if (constructor.size() != 0) {
-                buff.writeByte(1); // constructor present
-                writeAttachFunction(partitions.get(true).get(0));
+
+            List<BAttachedFunction> constructors = partitions.get(true);
+            if (constructors.size() == 2) {
+                for (BAttachedFunction constructor : constructors) {
+                    buff.writeByte(1);
+                    writeAttachFunction(constructor);
+                }
+            } else if (constructors.size() == 1) {
+                BAttachedFunction func = constructors.get(0);
+                if (func.funcName.equals(Names.DEFAULT_INIT_SUFFIX)) {
+                    buff.writeByte(1);
+                    writeAttachFunction(func);
+                    buff.writeByte(0);
+                } else if (func.funcName.equals(Names.USER_DEFINED_INIT_SUFFIX)) {
+                    buff.writeByte(0);
+                    buff.writeByte(1);
+                    writeAttachFunction(func);
+                }
             } else {
-                buff.writeByte(0); // constructor not present
+                buff.writeByte(0);
+                buff.writeByte(0);
             }
         } else {
             attachedFuncs = new ArrayList<>();
-            buff.writeByte(0); // constructor not present
+            buff.writeByte(0); // default constructor not present
+            buff.writeByte(0); // user defined constructor not present
         }
 
-        List<BAttachedFunction> writableAttachedFunctions = new ArrayList<>();
+        buff.writeInt(attachedFuncs.size());
         for (BAttachedFunction attachedFunc : attachedFuncs) {
-            if (bObjectType.getKind() == TypeKind.SERVICE && attachedFunc.funcName == Names.DEFAULT_INIT_SUFFIX) {
-                continue;
-            }
-            writableAttachedFunctions.add(attachedFunc);
-        }
-        buff.writeInt(writableAttachedFunctions.size());
-        for (BAttachedFunction writableAttachedFunc : writableAttachedFunctions) {
-            writeAttachFunction(writableAttachedFunc);
+            writeAttachFunction(attachedFunc);
         }
     }
 

@@ -347,7 +347,6 @@ public class Desugar extends BLangNodeVisitor {
                 if (objectTypeNode.flagSet.contains(Flag.ABSTRACT)) {
                     continue;
                 }
-
                 objectTypeNode.defaultInitFunction = createInitFunctionForObjectType(objectTypeNode, env);
 
                 // Add default init function to the attached function list

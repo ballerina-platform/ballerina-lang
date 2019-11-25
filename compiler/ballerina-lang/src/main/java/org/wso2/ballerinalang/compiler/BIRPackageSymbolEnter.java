@@ -1021,6 +1021,10 @@ public class BIRPackageSymbolEnter {
                         objectType.fields.add(structField);
                         objectSymbol.scope.define(objectVarSymbol.name, objectVarSymbol);
                     }
+                    boolean defaultConstructorPresent = inputStream.readBoolean();
+                    if (defaultConstructorPresent) {
+                        ignoreAttachedFunc();
+                    }
                     boolean constructorPresent = inputStream.readBoolean();
                     if (constructorPresent) {
                         ignoreAttachedFunc();
