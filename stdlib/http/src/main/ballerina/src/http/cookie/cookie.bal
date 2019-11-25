@@ -24,12 +24,12 @@ import ballerina/time;
 # + value - Value of the cookie
 # + path - URI path to which the cookie belongs
 # + domain - Host to which the cookie will be sent
-# + maxAge - Maximum lifetime of the cookie, represented as number of seconds until the cookie expires
-# + expires - Maximum lifetime of the cookie, represented as date and time at which the cookie expires
-# + httpOnly - Cookie is sent only to http requests
+# + maxAge - Maximum lifetime of the cookie represented as the number of seconds until the cookie expires
+# + expires - Maximum lifetime of the cookie represented as the date and time at which the cookie expires
+# + httpOnly - Cookie is sent only to HTTP requests
 # + secure - Cookie is sent only to secure channels
 # + creationTime - Creation time of the cookie
-# + lastAccessedTime - Last accessed time of the cookie
+# + lastAccessedTime - Last-accessed time of the cookie
 # + hostOnly - Cookie is sent only to the requested host
 public type Cookie object {
 
@@ -85,7 +85,7 @@ public type Cookie object {
         return true;
     }
 
-    // Gets the Cookie object in its string representation to be used in ‘Set-Cookie’ header in the response.
+    // Gets the Cookie object in its string representation to be used in the ‘Set-Cookie’ header of the response.
     function toStringValue() returns string {
         string setCookieHeaderValue = "";
         setCookieHeaderValue = appendNameValuePair(setCookieHeaderValue, self.name, self.value);
@@ -112,7 +112,7 @@ public type Cookie object {
     }
 };
 
-// Converts the cookie's expires time into GMT format.
+// Converts the cookie's expiry time into the GMT format.
 function toGmtFormat(Cookie cookie) returns boolean {
     time:Time | error t1 = time:parse(cookie.expires, "yyyy-MM-dd HH:mm:ss");
     if (t1 is time:Time) {
@@ -149,7 +149,7 @@ function appendNameIntValuePair(string setCookieHeaderValue, string name, int va
     return resultString;
 }
 
-// Returns the cookie object from "Set-Cookie" header string value.
+// Returns the cookie object from the string value of the "Set-Cookie" header.
 function parseSetCookieHeader(string cookieStringValue) returns Cookie {
     Cookie cookie = new;
     string cookieValue = cookieStringValue;
@@ -186,7 +186,7 @@ function parseSetCookieHeader(string cookieStringValue) returns Cookie {
     return cookie;
 }
 
-// Returns an array of cookie objects from "Cookie" header string value.
+// Returns an array of cookie objects from the string value of the "Cookie" header.
 function parseCookieHeader(string cookieStringValue) returns Cookie[] {
     Cookie[] cookiesInRequest = [];
     string cookieValue = cookieStringValue;
@@ -203,7 +203,7 @@ function parseCookieHeader(string cookieStringValue) returns Cookie[] {
     return cookiesInRequest;
 }
 
-// Sorts an array of cookies in order to make "Cookie" header in the request.
+// Sorts an array of cookies in order to make the "Cookie" header in the request according to the rules in rfc-6265. - https://tools.ietf.org/html/rfc6265#section-5.4
 function sortCookies(Cookie[] cookies) {
     int i = 0;
     int j = 0;
@@ -217,7 +217,7 @@ function sortCookies(Cookie[] cookies) {
                 cookies[j] = temp;
             }
             if (cookies[i].path.length() == cookies[j].path.length()) {
-                //sort according to time
+                // Sorts according to time.
                 time:Time | error t1 = cookies[i].creationTime;
                 time:Time | error t2 = cookies[j].creationTime;
                 if (t1 is time:Time && t2 is time:Time) {
