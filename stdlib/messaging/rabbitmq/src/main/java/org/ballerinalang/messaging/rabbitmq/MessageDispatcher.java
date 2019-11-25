@@ -82,6 +82,8 @@ public class MessageDispatcher {
 
     /**
      * Start receiving messages and dispatch the messages to the attached service.
+     *
+     * @param listener Listener object value.
      */
     public void receiveMessages(ObjectValue listener) {
         console.println("[ballerina/rabbitmq] Consumer service started for queue " + queueName);

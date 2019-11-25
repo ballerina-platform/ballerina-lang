@@ -73,9 +73,7 @@ public class ListenerUtils {
     }
 
     public static Object start(ObjectValue listenerObjectValue) {
-        if (runtime == null) {
-            runtime = BRuntime.getCurrentRuntime();
-        }
+        runtime = BRuntime.getCurrentRuntime();
         boolean autoAck;
         ObjectValue channelObject = (ObjectValue) listenerObjectValue.get(RabbitMQConstants.CHANNEL_REFERENCE);
         Channel channel = (Channel) listenerObjectValue.getNativeData(RabbitMQConstants.CHANNEL_NATIVE_OBJECT);
