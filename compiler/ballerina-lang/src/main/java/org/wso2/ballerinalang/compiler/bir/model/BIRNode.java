@@ -348,7 +348,7 @@ public abstract class BIRNode {
      */
     public static class BIRBasicBlock extends BIRNode {
         public Name id;
-        public List<BIRInstruction> instructions;
+        public List<BIRNonTerminator> instructions;
         public BIRTerminator terminator;
 
         public BIRBasicBlock(Name id) {
@@ -686,10 +686,10 @@ public abstract class BIRNode {
      */
     public static class BIRLockDetailsHolder {
         public Set<BIRGlobalVariableDcl> globalLocks;
-        public Map<BIRVariableDcl, Set<String>> fieldLocks;
+        public Map<BIROperand, Set<String>> fieldLocks;
 
         public BIRLockDetailsHolder(Set<BIRGlobalVariableDcl> globalLocks,
-                                    Map<BIRVariableDcl, Set<String>> fieldLocks) {
+                                    Map<BIROperand, Set<String>> fieldLocks) {
             this.globalLocks = globalLocks;
             this.fieldLocks = fieldLocks;
         }

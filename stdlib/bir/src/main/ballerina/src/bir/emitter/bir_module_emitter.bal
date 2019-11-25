@@ -165,13 +165,16 @@ function emitLocalVars(VariableDcl?[] localVars, int tabs) returns string {
 }
 
 function emitLocalVar(VariableDcl lVar, int tabs) returns string {
-    string lVarStr = "";
-    lVarStr += emitTabs(tabs);
-    lVarStr += emitName(lVar.name);
-    lVarStr += emitSpaces(1);
-    lVarStr += emitTypeRef(lVar.typeValue);
-    lVarStr += ";";
-    return lVarStr;
+    string str = "";
+    str += emitTabs(tabs);
+    str += emitName(lVar.name);
+    str += "(";
+    str += lVar.kind.toString();
+    str += ")";
+    str += emitSpaces(1);
+    str += emitTypeRef(lVar.typeValue);
+    str += ";";
+    return str;
 }
 
 function emitBasicBlocks(BasicBlock?[] basicBlocks, int tabs) returns string {
