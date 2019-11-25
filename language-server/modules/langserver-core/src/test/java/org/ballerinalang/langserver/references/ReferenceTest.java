@@ -55,7 +55,7 @@ public class ReferenceTest {
         this.serviceEndpoint = TestUtil.initializeLanguageSever();
     }
 
-    @Test(description = "Test Find all references", dataProvider = "testDataProvider")
+    @Test(description = "Test Find all references", dataProvider = "testDataProvider", enabled = false)
     public void test(String configPath, String configDir) throws IOException {
         JsonObject configObject = FileUtils.fileContentAsObject(configRoot.resolve(configDir)
                 .resolve(configPath).toString());

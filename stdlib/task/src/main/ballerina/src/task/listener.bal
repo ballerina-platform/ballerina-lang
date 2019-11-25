@@ -14,11 +14,12 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/lang.'object as lang;
+import ballerina/lang.'object;
+import ballerinax/java;
 
 # Represents a ballerina task listener, which can be used to schedule and execute tasks periodically.
 public type Listener object {
-    *lang:Listener;
+    *'object:Listener;
     boolean started = false;
 
     private TimerConfiguration|AppointmentConfiguration listenerConfiguration;
@@ -30,26 +31,23 @@ public type Listener object {
             }
         }
         self.listenerConfiguration = configs;
-        var initResult = self.init();
-        if (initResult is error) {
-            panic initResult;
-        }
+        initExternal(self);
     }
 
     public function __attach(service s, string? name = ()) returns error? {
         // ignore param 'name'
-        var result = self.register(s, {});
+        var result = attachExternal(self, s, {});
         if (result is error) {
             panic result;
         }
     }
 
     public function __detach(service s) returns error? {
-        return self.detach(s);
+        return detachExternal(self, s);
     }
 
     public function __start() returns error? {
-        var result = self.start();
+        var result = startExternal(self);
         if (result is error) {
             panic result;
         }
@@ -59,11 +57,7 @@ public type Listener object {
     }
 
     public function __gracefulStop() returns error? {
-        return ();
-    }
-
-    public function __immediateStop() returns error? {
-        var result = self.stop();
+        var result = stopExternal(self);
         if (result is error) {
             panic result;
         }
@@ -72,15 +66,15 @@ public type Listener object {
         }
     }
 
-    function init() returns ListenerError? = external;
-
-    function register(service s, map<any> config) returns ListenerError? = external;
-
-    function start() returns ListenerError? = external;
-
-    function stop() returns ListenerError? = external;
-
-    function detach(service attachedService) returns ListenerError? = external;
+    public function __immediateStop() returns error? {
+        var result = stopExternal(self);
+        if (result is error) {
+            panic result;
+        }
+        lock {
+            self.started = false;
+        }
+    }
 
     function isStarted() returns boolean {
         return self.started;
@@ -89,10 +83,49 @@ public type Listener object {
     # Pauses the task listener.
     #
     # + return - Returns `task:ListenerError` if an error is occurred while resuming, nil Otherwise.
-    public function pause() returns ListenerError? = external;
+    public function pause() returns ListenerError? {
+        return pauseExternal(self);
+    }
 
     # Resumes a paused task listener.
     #
     # + return - Returns `task:ListenerError` when an error occurred while pausing, nil Otherwise.
-    public function resume() returns ListenerError? = external;
+    public function resume() returns ListenerError? {
+        return resumeExternal(self);
+    }
 };
+
+function pauseExternal(Listener task) returns ListenerError? = @java:Method {
+    name: "pause",
+    class: "org.ballerinalang.stdlib.task.actions.TaskActions"
+} external;
+
+function resumeExternal(Listener task) returns ListenerError? = @java:Method {
+    name: "resume",
+    class: "org.ballerinalang.stdlib.task.actions.TaskActions"
+} external;
+
+function stopExternal(Listener task) returns ListenerError? = @java:Method {
+    name: "stop",
+    class: "org.ballerinalang.stdlib.task.actions.TaskActions"
+} external;
+
+function startExternal(Listener task) returns ListenerError? = @java:Method {
+    name: "start",
+    class: "org.ballerinalang.stdlib.task.actions.TaskActions"
+} external;
+
+function initExternal(Listener task) = @java:Method {
+    name: "init",
+    class: "org.ballerinalang.stdlib.task.actions.TaskActions"
+} external;
+
+function detachExternal(Listener task, service attachedService) returns ListenerError? = @java:Method {
+    name: "detach",
+    class: "org.ballerinalang.stdlib.task.actions.TaskActions"
+} external;
+
+function attachExternal(Listener task, service s, map<any> config) returns ListenerError? = @java:Method {
+    name: "attach",
+    class: "org.ballerinalang.stdlib.task.actions.TaskActions"
+} external;

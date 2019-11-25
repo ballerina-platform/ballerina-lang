@@ -24,12 +24,12 @@ import org.ballerinalang.packerina.buildcontext.sourcecontext.MultiModuleContext
 import org.ballerinalang.packerina.buildcontext.sourcecontext.SingleFileContext;
 import org.ballerinalang.packerina.buildcontext.sourcecontext.SingleModuleContext;
 import org.ballerinalang.packerina.buildcontext.sourcecontext.SourceType;
+import org.ballerinalang.packerina.model.ExecutableJar;
 import org.wso2.ballerinalang.compiler.Compiler;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.nio.file.Path;
-import java.util.HashSet;
 import java.util.List;
 
 import static org.ballerinalang.tool.LauncherUtils.createLauncherException;
@@ -51,7 +51,7 @@ public class CompileTask implements Task {
             if (null != balFile) {
                 BLangPackage compiledModule = compiler.build(balFile.toString());
                 singleFileContext.setModule(compiledModule);
-                buildContext.moduleDependencyPathMap.put(compiledModule.packageID, new HashSet<>());
+                buildContext.moduleDependencyPathMap.put(compiledModule.packageID, new ExecutableJar());
             } else {
                 throw createLauncherException("unable to find ballerina source");
             }
@@ -59,7 +59,7 @@ public class CompileTask implements Task {
             SingleModuleContext moduleContext = buildContext.get(BuildContextField.SOURCE_CONTEXT);
             BLangPackage compiledModule = compiler.build(moduleContext.getModuleName());
             moduleContext.setModule(compiledModule);
-            buildContext.moduleDependencyPathMap.put(compiledModule.packageID, new HashSet<>());
+            buildContext.moduleDependencyPathMap.put(compiledModule.packageID, new ExecutableJar());
         } else {
             MultiModuleContext multiModuleContext = buildContext.get(BuildContextField.SOURCE_CONTEXT);
             List<BLangPackage> compiledModules = compiler.compilePackages(true);
@@ -68,7 +68,7 @@ public class CompileTask implements Task {
             }
             multiModuleContext.setModules(compiledModules);
             for (BLangPackage bLangPackage: compiledModules) {
-                buildContext.moduleDependencyPathMap.put(bLangPackage.packageID, new HashSet<>());
+                buildContext.moduleDependencyPathMap.put(bLangPackage.packageID, new ExecutableJar());
             }
         }
         

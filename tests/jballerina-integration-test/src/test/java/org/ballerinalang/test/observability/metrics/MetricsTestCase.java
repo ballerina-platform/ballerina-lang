@@ -117,14 +117,12 @@ public class MetricsTestCase extends BaseTest {
 
     private void addMetrics() {
         final Pattern regexNumber = Pattern.compile("[-+]?\\d*\\.?\\d+([eE][-+]?\\d+)?");
-        final Pattern regexValue = Pattern.compile("6.0");
         expectedMetrics.put("ballerina_http_Caller_response_time_seconds_value" +
                 "{action=\"respond\",http_status_code=\"200\",}", regexNumber);
         expectedMetrics.put("http_response_time_seconds_value{protocol=\"http\",http_url=\"/test\"," +
                 "service=\"metricsTest_0\",resource=\"getProduct\",http_method=\"GET\",}", regexNumber);
-        expectedMetrics.put("ballerinax_java_jdbc_JdbcClient_response_time_seconds_value{" +
+        expectedMetrics.put("ballerinax_java_jdbc_Client_response_time_seconds_value{" +
                 "action=\"select\",db_instance=\"h2\",db_type=\"sql\",peer_address=\"" +
                 "jdbc:h2:file:../../tempdb/TEST_DB\",db_statement=\"SELECT * FROM Products\",}", regexNumber);
-        expectedMetrics.put("ballerinax_java_jdbc_Client_requests_total_value{action=\"select\",}", regexValue);
     }
 }

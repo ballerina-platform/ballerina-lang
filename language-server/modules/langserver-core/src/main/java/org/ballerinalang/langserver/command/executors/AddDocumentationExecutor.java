@@ -21,6 +21,7 @@ import org.ballerinalang.langserver.command.ExecuteCommandKeys;
 import org.ballerinalang.langserver.command.LSCommandExecutor;
 import org.ballerinalang.langserver.command.LSCommandExecutorException;
 import org.ballerinalang.langserver.command.docs.DocAttachmentInfo;
+import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
@@ -75,7 +76,7 @@ public class AddDocumentationExecutor implements LSCommandExecutor {
 
         BLangPackage bLangPackage;
         try {
-            WorkspaceDocumentManager documentManager = ctx.get(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY);
+            WorkspaceDocumentManager documentManager = ctx.get(CommonKeys.DOC_MANAGER_KEY);
             bLangPackage = LSModuleCompiler.getBLangPackage(ctx, documentManager, LSCustomErrorStrategy.class, false,
                     false);
         } catch (CompilationFailedException e) {
