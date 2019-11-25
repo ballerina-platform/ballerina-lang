@@ -20,8 +20,8 @@ package org.wso2.ballerinalang.compiler.semantics.analyzer;
 import org.ballerinalang.model.Name;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.util.BLangCompilerConstants;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
-import org.wso2.ballerinalang.compiler.semantics.model.BLangBuiltInMethod;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BCastOperatorSymbol;
@@ -1010,21 +1010,22 @@ public class Types {
                 }
                 varType = tableType.constraint;
                 break;
+            case TypeTags.OBJECT:
+                // check for iterable objects
+                BUnionType nextMethodReturnType = getVarTypeFromIterableObject((BObjectType) collectionType);
+                if (nextMethodReturnType != null) {
+                    foreachNode.resultType = getRecordType(nextMethodReturnType);
+                    foreachNode.nillableResultType = nextMethodReturnType;
+                    foreachNode.varType = ((BRecordType) foreachNode.resultType).fields.get(0).type;
+                    return;
+                }
+                dlog.error(foreachNode.collection.pos, DiagnosticCode.INCOMPATIBLE_ITERATOR_FUNCTION_SIGNATURE);
+                // fallthrough
             case TypeTags.SEMANTIC_ERROR:
                 foreachNode.varType = symTable.semanticError;
                 foreachNode.resultType = symTable.semanticError;
                 foreachNode.nillableResultType = symTable.semanticError;
                 return;
-            case TypeTags.OBJECT:
-                if (isAssignable(symTable.intRangeType, collectionType)) {
-                    foreachNode.varType = symTable.intType;
-                    BUnionType nextMethodReturnType =
-                            (BUnionType) getResultTypeOfNextInvocation((BObjectType) collectionType);
-                    foreachNode.resultType = getRecordType(nextMethodReturnType);
-                    foreachNode.nillableResultType = nextMethodReturnType;
-                    return;
-                }
-                // fallthrough
             default:
                 foreachNode.varType = symTable.semanticError;
                 foreachNode.resultType = symTable.semanticError;
@@ -1035,7 +1036,7 @@ public class Types {
         }
 
         BInvokableSymbol iteratorSymbol = (BInvokableSymbol) symResolver.lookupLangLibMethod(collectionType,
-                names.fromBuiltInMethod(BLangBuiltInMethod.ITERATE));
+                names.fromString(BLangCompilerConstants.ITERABLE_COLLECTION_ITERATOR_FUNC));
         BUnionType nextMethodReturnType =
                 (BUnionType) getResultTypeOfNextInvocation((BObjectType) iteratorSymbol.retType);
         foreachNode.varType = varType;
@@ -1043,9 +1044,109 @@ public class Types {
         foreachNode.nillableResultType = nextMethodReturnType;
     }
 
+    private BUnionType getVarTypeFromIterableObject(BObjectType collectionType) {
+        BObjectTypeSymbol objectTypeSymbol = (BObjectTypeSymbol) collectionType.tsymbol;
+        for (BAttachedFunction func : objectTypeSymbol.attachedFuncs) {
+            if (func.funcName.value.equals(BLangCompilerConstants.ITERABLE_OBJECT_ITERATOR_FUNC)) {
+                return getVarTypeFromIteratorFunc(func);
+            }
+        }
+
+        return null;
+    }
+
+    private BUnionType getVarTypeFromIteratorFunc(BAttachedFunction candidateIteratorFunc) {
+        if (!candidateIteratorFunc.type.paramTypes.isEmpty()) {
+            return null;
+        }
+
+        BType returnType = candidateIteratorFunc.type.retType;
+        // abstract object {public function next() returns record {|int value;|}?;}
+        return getVarTypeFromIteratorFuncReturnType(returnType);
+    }
+
+    private BUnionType getVarTypeFromIteratorFuncReturnType(BType returnType) {
+        BObjectTypeSymbol objectTypeSymbol;
+        if (returnType.tag != TypeTags.OBJECT) {
+            return null;
+        }
+
+        objectTypeSymbol = (BObjectTypeSymbol) returnType.tsymbol;
+        for (BAttachedFunction func : objectTypeSymbol.attachedFuncs) {
+            if (func.funcName.value.equals(BLangCompilerConstants.NEXT_FUNC)) {
+                return getVarTypeFromNextFunc(func);
+            }
+        }
+
+        return null;
+    }
+
+    private BUnionType getVarTypeFromNextFunc(BAttachedFunction nextFunc) {
+        BType returnType;
+        if (!nextFunc.type.paramTypes.isEmpty()) {
+            return null;
+        }
+
+        returnType = nextFunc.type.retType;
+        // Check if the next function return type has the union type,
+        // record {|int value;|}|();
+        if (checkNextFuncReturnType(returnType)) {
+            return (BUnionType) returnType;
+        }
+
+        return null;
+    }
+
+    private boolean checkNextFuncReturnType(BType returnType) {
+        if (returnType.tag != TypeTags.UNION) {
+            return false;
+        }
+
+        List<BType> types = new ArrayList<>(((BUnionType) returnType).getMemberTypes());
+
+        if (!types.removeIf(type -> type.tag == TypeTags.NIL)) {
+            return false;
+        }
+
+        if (types.size() != 1) {
+            return false;
+        }
+
+        if (types.get(0).tag != TypeTags.RECORD) {
+            return false;
+        }
+
+        BRecordType recordType = (BRecordType) types.get(0);
+        // Check if the union type has the record type,
+        // record {|int value;|};
+        return checkRecordTypeInNextFuncReturnType(recordType);
+    }
+
+    private boolean checkRecordTypeInNextFuncReturnType(BRecordType recordType) {
+        if (!recordType.sealed) {
+            return false;
+        }
+
+        if (recordType.fields.size() != 1) {
+            return false;
+        }
+
+        for (BField field : recordType.fields) {
+            if (field.name.value.equals(BLangCompilerConstants.VALUE_FIELD)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     private BRecordType getRecordType(BUnionType type) {
-        return (BRecordType) type.getMemberTypes()
-                .stream().filter(member -> member.tag == TypeTags.RECORD).findFirst().orElse(null);
+        for (BType member : type.getMemberTypes()) {
+            if (member.tag == TypeTags.RECORD) {
+                return (BRecordType) member;
+            }
+        }
+        return null;
     }
 
     private BType getResultTypeOfNextInvocation(BObjectType iteratorType) {
@@ -1055,10 +1156,13 @@ public class Types {
 
     private BAttachedFunction getNextFunc(BObjectType iteratorType) {
         BObjectTypeSymbol iteratorSymbol = (BObjectTypeSymbol) iteratorType.tsymbol;
-        Optional<BAttachedFunction> nextFunc = iteratorSymbol.attachedFuncs.stream()
-                .filter(bAttachedFunction -> bAttachedFunction.funcName.value.equals(BLangBuiltInMethod.NEXT.getName()))
-                .findFirst();
-        return nextFunc.orElse(null);
+        for (BAttachedFunction bAttachedFunction : iteratorSymbol.attachedFuncs) {
+            if (bAttachedFunction.funcName.value
+                    .equals(BLangCompilerConstants.NEXT_FUNC)) {
+                return bAttachedFunction;
+            }
+        }
+        return null;
     }
 
     public BType inferRecordFieldType(BRecordType recordType) {
