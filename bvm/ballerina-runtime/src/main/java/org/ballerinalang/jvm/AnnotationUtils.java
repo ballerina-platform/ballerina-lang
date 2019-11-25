@@ -100,9 +100,7 @@ public class AnnotationUtils {
      * @return true if should run concurrently
      */
     public static boolean isConcurrent(FPValue fpValue) {
-        if (((BFunctionType) fpValue.getType()).getAnnotation("ballerina/lang.annotations", "concurrent") != null) {
-            return true;
-        }
-        return false;
+        return  ((BFunctionType) fpValue.getType()).getAnnotation("ballerina/lang.annotations",
+                "concurrent") != null ? true : false;
     }
 }
