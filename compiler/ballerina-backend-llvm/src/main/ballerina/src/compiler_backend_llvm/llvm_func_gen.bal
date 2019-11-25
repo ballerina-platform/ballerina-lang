@@ -76,7 +76,7 @@ type FuncGenrator object {
         self.varAllocBB = self.genBbDecl("var_allloc");
         int paramIndex = 0;
         foreach var localVar in self.func.localVars {
-            var varName = localVarNameWithPreFix(localVar);
+            var varName = localVarNameWithPrefix(localVar);
             var varType = genBType(localVar["typeValue"]);
             llvm:LLVMValueRef localVarRef = llvm:llvmBuildAlloca(self.builder, varType, varName);
             self.cacheLocVarValue(localVar, localVarRef);
@@ -90,6 +90,7 @@ type FuncGenrator object {
                 }
             }
         }
+        createTypePointerForTaggedStructType(self.builder);
     }
 
     function cacheLocVarValue(bir:VariableDcl? localVar, llvm:LLVMValueRef localVarRef) {
@@ -144,7 +145,7 @@ type FuncGenrator object {
 
     function genLoadLocalToTempVar(bir:VarRef oprand) returns llvm:LLVMValueRef {
         bir:VarRef refOprand = oprand;
-        string tempName = localVarNameWithPreFix(refOprand.variableDcl) + "_temp";
+        string tempName = localVarNameWithPrefix(refOprand.variableDcl) + "_temp";
         var localVarRef = self.getLocalVarRef(refOprand.variableDcl);
         return llvm:llvmBuildLoad(self.builder, localVarRef, tempName);
     }

@@ -109,9 +109,10 @@ type BbBodyGenrator object {
     }
 
     function buildBitCastedUnion(bir:VariableDcl variable, bir:BType bitcastType) returns llvm:LLVMValueRef {
+        string castName = genStructCastName(localVarNameWithPrefix(variable), getTypeStringName(bitcastType));
         llvm:LLVMValueRef genericUnionValRef = self.parent.getLocalVarRef(variable);
-        llvm:LLVMTypeRef castStructType = self.getTypePointerForTaggedStructType((bitcastType));
-        return llvm:llvmBuildBitCast(self.builder, genericUnionValRef, castStructType, genStructCastName(variable.name.value, getTypeStringName(bitcastType)));
+        llvm:LLVMTypeRef castStructType = getTypePointerForTaggedStructType((bitcastType));
+        return llvm:llvmBuildBitCast(self.builder, genericUnionValRef, castStructType, castName);
     }
 
     function isLowerOrderTypeOfUnion(bir:BType unionType, bir:BType member) returns boolean {
@@ -139,7 +140,7 @@ type BbBodyGenrator object {
     }
 
     function buildStructGepForVariable(bir:VariableDcl variable, int elementIndex) returns llvm:LLVMValueRef {
-            string elementName = genStructGepName(localVariableName(variable), elementIndex);
+            string elementName = genStructGepName(localVarNameWithPrefix(variable), elementIndex);
             llvm:LLVMValueRef rhsValueRef = self.parent.getLocalVarRef(variable);
             return llvm:llvmBuildStructGEP(self.builder, rhsValueRef, elementIndex, elementName);
     }
@@ -165,7 +166,7 @@ type BbBodyGenrator object {
     }
 
     function genBinaryOpIns(bir:BinaryOp binaryIns) {
-        var lhsTmpName = localVarNameWithPreFix(binaryIns.lhsOp.variableDcl) + "_temp";
+        var lhsTmpName = localVarNameWithPrefix(binaryIns.lhsOp.variableDcl) + "_temp";
         var lhsRef = self.parent.getLocalVarRef(binaryIns.lhsOp.variableDcl);
         var rhsOp1 = self.parent.genLoadLocalToTempVar(binaryIns.rhsOp1);
         var rhsOp2 = self.parent.genLoadLocalToTempVar(binaryIns.rhsOp2);
@@ -215,12 +216,7 @@ type BbBodyGenrator object {
         var loaded = llvm:llvmBuildStore(self.builder, constRef, <llvm:LLVMValueRef>lhsRef);
     }
 
-    function getTypePointerForTaggedStructType(bir:BType typeValue) returns llvm:LLVMTypeRef {
-        llvm:LLVMTypeRef taggedUnionType = getTaggedStructTypeFromSingleType(typeValue);
-        llvm:LLVMValueRef tempStructAllocation = llvm:llvmBuildAlloca(self.builder, taggedUnionType, "tempStructForPointerGen");
-        llvm:LLVMTypeRef typePointerToTaggedUnion = llvm:llvmTypeOf(tempStructAllocation);
-        return typePointerToTaggedUnion;
-    }
+    
 };
 
 function findBbRefById(map<BbTermGenrator> bbGenrators, string id) returns llvm:LLVMBasicBlockRef {

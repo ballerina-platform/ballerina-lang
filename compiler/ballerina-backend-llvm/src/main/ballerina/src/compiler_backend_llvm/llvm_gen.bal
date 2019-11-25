@@ -21,6 +21,7 @@ import ballerina/stringutils;
 // TODO: make non-global
 llvm:LLVMValueRef? printfRef = ();
 map<llvm:LLVMTypeRef> structMap = {"null" : llvm:llvmVoidType()};
+map<llvm:LLVMTypeRef> taggedTypeToTypePointerMap = {};
 map<int> precedenceMap = { "null":0, "boolean":1, "int":2};
 const int TAGGED_UNION_FLAG_INDEX = 0;
 const int TAGGED_UNION_VALUE_INDEX = 1;
@@ -170,7 +171,7 @@ function genBType(bir:BType? bType) returns llvm:LLVMTypeRef {
     panic err;
 }
 
-function localVarNameWithPreFix(bir:VariableDcl? localVar) returns string {
+function localVarNameWithPrefix(bir:VariableDcl? localVar) returns string {
     string localVarName = localVariableName(localVar);
     string postFixName = addPrefixToLocalVarName(localVarName);
     return postFixName;
@@ -262,7 +263,7 @@ function checkIfTypesAreCompatible(bir:BType castType, llvm:LLVMTypeRef lhsType)
 }
 
 function genStructGepName(string variableName, int index) returns string {
-    return "struct_" + variableName + "_index" + index.toString(); 
+    return variableName + "_index" + index.toString(); 
 }
 
 function isUnionType(bir:BType typeValue) returns boolean {
@@ -321,4 +322,24 @@ function getTypeStringName(bir:BType typeValue) returns string {
         return "boolean";
     }
     return "null";
+}
+
+function createTypePointerForTaggedStructType(llvm:LLVMBuilderRef builder) {
+    foreach var taggedType in structMap.keys() {
+        if (!taggedTypeToTypePointerMap.hasKey(taggedType))  {
+            llvm:LLVMTypeRef taggedUnionType = getTaggedStructType(taggedType);
+            llvm:LLVMValueRef tempStructAllocation = llvm:llvmBuildAlloca(builder, taggedUnionType, ("temoStructOf"+taggedType));
+            llvm:LLVMTypeRef typePointerToTaggedUnion = llvm:llvmTypeOf(tempStructAllocation);
+            taggedTypeToTypePointerMap[taggedType] = typePointerToTaggedUnion;
+        }
+    }
+}
+
+function getTypePointerForTaggedStructType(bir:BType typeValue) returns llvm:LLVMTypeRef {
+    string typeName = getTypeStringName(typeValue);
+    if (taggedTypeToTypePointerMap.hasKey(typeName)) {
+        return <llvm:LLVMTypeRef>taggedTypeToTypePointerMap[typeName];
+    }
+    error noPointerTypeFoundError = error("SimpleError", message = "NoTaggedValuePOinterType found for type : " + typeName);
+    panic noPointerTypeFoundError;
 }
