@@ -276,7 +276,6 @@ public final class XMLItem extends XMLValue {
     /**
      * {@inheritDoc}
      */
-    // todo: hmmm name says setChildren, but what this does is addChildren o.O
     @Override
     public void setChildren(BXml seq) {
         synchronized (this) {
@@ -290,8 +289,9 @@ public final class XMLItem extends XMLValue {
         }
 
         if (seq.getNodeType() == XMLNodeType.SEQUENCE) {
-            children.children.addAll(((XMLSequence) seq).children);
+            children = (XMLSequence) seq;
         } else {
+            children = new XMLSequence();
             children.children.add(seq);
         }
     }
