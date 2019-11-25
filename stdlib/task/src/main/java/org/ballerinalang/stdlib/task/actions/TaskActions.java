@@ -25,7 +25,6 @@ import org.ballerinalang.stdlib.task.exceptions.SchedulingException;
 import org.ballerinalang.stdlib.task.impl.TaskServerConnectorImpl;
 import org.ballerinalang.stdlib.task.objects.ServiceInformation;
 import org.ballerinalang.stdlib.task.objects.Task;
-import org.ballerinalang.stdlib.task.utils.Utils;
 
 import static org.ballerinalang.stdlib.task.utils.TaskConstants.MEMBER_LISTENER_CONFIGURATION;
 import static org.ballerinalang.stdlib.task.utils.TaskConstants.NATIVE_DATA_TASK_OBJECT;
@@ -49,7 +48,7 @@ public class TaskActions {
         try {
             task.pause();
         } catch (SchedulingException e) {
-            return Utils.createTaskError(SCHEDULER_ERROR_REASON, e.getMessage());
+            return createTaskError(SCHEDULER_ERROR_REASON, e.getMessage());
         }
         return null;
     }
@@ -59,7 +58,7 @@ public class TaskActions {
         try {
             task.resume();
         } catch (SchedulingException e) {
-            return Utils.createTaskError(SCHEDULER_ERROR_REASON, e.getMessage());
+            return createTaskError(SCHEDULER_ERROR_REASON, e.getMessage());
         }
         return null;
     }
@@ -70,7 +69,7 @@ public class TaskActions {
             String serviceName = service.getType().getName();
             task.removeService(serviceName);
         } catch (Exception e) {
-            return Utils.createTaskError(SCHEDULER_ERROR_REASON, e.getMessage());
+            return createTaskError(SCHEDULER_ERROR_REASON, e.getMessage());
         }
         return null;
     }
@@ -81,7 +80,7 @@ public class TaskActions {
         try {
             serverConnector.start();
         } catch (SchedulingException e) {
-            return Utils.createTaskError(e.getMessage());
+            return createTaskError(e.getMessage());
         }
         return null;
     }
@@ -92,7 +91,7 @@ public class TaskActions {
         try {
             serverConnector.stop();
         } catch (SchedulingException e) {
-            return Utils.createTaskError(e.getMessage());
+            return createTaskError(e.getMessage());
         }
         return null;
     }
