@@ -488,6 +488,21 @@ public class PathDependencyTestCase extends BaseTest {
     }
 
     /**
+     * Build TestProject1. TestProject1 will fail as the given platform dependency does not have a valid path.
+     *
+     * @throws BallerinaTestException Error when executing the commands.
+     */
+    @Test(description = "Test platform library dependency valid path")
+    public void testValidatePlatformLibraryPath() throws BallerinaTestException {
+        Path caseResources = tempTestResources.resolve("platform-dependency");
+        String msg = "error: path is not specified for given platform library dependency.";
+        LogLeecher bazRunLeecher = new LogLeecher(msg, LogLeecher.LeecherType.ERROR);
+        balClient.runMain("build", new String[]{"-a"}, envVariables, new String[]{}, new LogLeecher[]{bazRunLeecher},
+                caseResources.resolve("TestProject1").toString());
+        bazRunLeecher.waitForText(10000);
+    }
+
+    /**
      * Get environment variables and add ballerina_home as a env variable the tmp directory.
      *
      * @return env directory variable array

@@ -5536,7 +5536,7 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // STRING_TEMPLATE_EXPRESSION_START Expression RIGHT_BRACE
+  // STRING_TEMPLATE_EXPRESSION_START Expression STRING_TEMPLATE_EXPRESSION_END
   static boolean StringTemplateExpression(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "StringTemplateExpression")) return false;
     if (!nextTokenIs(b, STRING_TEMPLATE_EXPRESSION_START)) return false;
@@ -5544,7 +5544,7 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
     Marker m = enter_section_(b);
     r = consumeToken(b, STRING_TEMPLATE_EXPRESSION_START);
     r = r && Expression(b, l + 1, -1);
-    r = r && consumeToken(b, RIGHT_BRACE);
+    r = r && consumeToken(b, STRING_TEMPLATE_EXPRESSION_END);
     exit_section_(b, m, null, r);
     return r;
   }

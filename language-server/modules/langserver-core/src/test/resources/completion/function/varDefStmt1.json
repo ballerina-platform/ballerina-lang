@@ -34,6 +34,17 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "Detail",
+      "kind": "Struct",
+      "detail": "Record",
+      "documentation": {
+        "left": "Record type to hold the details of an error.\n"
+      },
+      "sortText": "221",
+      "insertText": "Detail",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "Error",
       "kind": "Event",
       "detail": "Error",
