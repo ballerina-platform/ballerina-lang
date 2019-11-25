@@ -16,7 +16,7 @@ LINE_COMMENT ('// An HTTP endpoint can be configured to communicate through HTTP
 WHITE_SPACE ('\n')
 LINE_COMMENT ('// To secure an endpoint using HTTPS, the endpoint needs to be configured with')
 WHITE_SPACE ('\n')
-LINE_COMMENT ('// a keystore a certificate and private key for the endpoint.')
+LINE_COMMENT ('// a keystore, a certificate, and a private key for the endpoint.')
 WHITE_SPACE ('\n')
 identifier ('http')
 : (':')

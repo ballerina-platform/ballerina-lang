@@ -3,7 +3,7 @@
 This module is designed to support input and output operations via channels in a canonical way, either in a blocking,
 or non-blocking manner.
 
-![architecture](resources/package-architecture.svg)
+![architecture](./resources/package-architecture.svg)
 
 ### Channels
 A channel represents an I/O source or sink of some bytes, characters, or records that are opened for reading, or
