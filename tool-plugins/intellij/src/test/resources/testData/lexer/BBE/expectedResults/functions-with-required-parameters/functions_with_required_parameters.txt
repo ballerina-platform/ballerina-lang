@@ -107,7 +107,7 @@ LINE_COMMENT ('// Arguments for required parameters can also be passed as named 
 WHITE_SPACE ('\n    ')
 LINE_COMMENT ('// All arguments after the first named argument need to be passed by name.')
 WHITE_SPACE ('\n    ')
-LINE_COMMENT ('// Named arguments do not have to be specified in order.')
+LINE_COMMENT ('// Named arguments do not have to be specified in the order in which the parameters are defined.')
 WHITE_SPACE ('\n    ')
 identifier ('result')
 WHITE_SPACE (' ')
