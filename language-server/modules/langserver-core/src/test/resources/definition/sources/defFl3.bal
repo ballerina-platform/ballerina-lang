@@ -1,6 +1,7 @@
 import ballerina/http;
 
 listener http:Listener httpLst = new(9090);
+listener http:Listener httpLst2 = new(9090);
 http:Client cl2 = new("http://localhost:9090");
 service defTestService1 on new http:Listener(8080) {
     resource function defTestResource1(http:Caller caller, http:Request request) {
@@ -14,8 +15,12 @@ service defTestService1 on new http:Listener(8080) {
     }
 }
 
-service defTestService2 on httpLst {
+service defTestService2 on httpLst, httpLst2 {
     resource function defTestResource2(http:Caller caller, http:Request request) {
-        
+        self.service2Function();
     }
+    
+    function service2Function() {
+		// Logic goes here
+	}
 }
