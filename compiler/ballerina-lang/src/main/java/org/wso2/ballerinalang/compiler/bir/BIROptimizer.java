@@ -78,7 +78,7 @@ public class BIROptimizer {
     /**
      * This class is to optimize away unwanted temporary variables in right hand side of statements.
      */
-    public class RHSTempVarOptimizer extends BIRVisitor {
+    public static class RHSTempVarOptimizer extends BIRVisitor {
         private Map<BIROperand, List<BIRAbstractInstruction>> tempVarUpdateInstructions = new HashMap<>();
         private Map<BIROperand, List<BIRErrorEntry>> errorEntries = new HashMap<>();
         private List<BIRVariableDcl> removedTempVars = new ArrayList<>();
@@ -210,7 +210,7 @@ public class BIROptimizer {
     /**
      * This class is to optimize away unwanted temp wars in left hand side of statements.
      */
-    public class LHSTempVarOptimizer extends BIRVisitor {
+    public static class LHSTempVarOptimizer extends BIRVisitor {
         private OptimizerEnv env;
 
         @Override
@@ -478,7 +478,7 @@ public class BIROptimizer {
     /**
      * Env class to hold optimizer level common variables.
      */
-    public class OptimizerEnv {
+    public static class OptimizerEnv {
         // key - temp var, value - real var
         private Map<BIRVariableDcl, BIRVariableDcl> tempVars = new HashMap<>();
 

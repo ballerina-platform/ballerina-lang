@@ -160,6 +160,11 @@ public abstract class BIRNode {
             // Here we assume names are unique.
             return this.name.equals(otherVarDecl.name);
         }
+
+        @Override
+        public int hashCode() {
+            return this.name.value.hashCode();
+        }
         
         @Override
         public String toString() {
