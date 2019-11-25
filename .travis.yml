@@ -84,10 +84,6 @@ jobs:
       os: windows
       language: node_js
       node_js: 8,
-      before_install:
-          - nvm install 8
-          - nvm use 8
-          - npm install -g npm@'5.6.0'
       install:
         - choco install jdk8 -params 'installdir=c:\\java8'
         - export JAVA_HOME="c:\\java8"
