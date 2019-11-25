@@ -38,7 +38,10 @@ public class RabbitMQResourceValidator {
     private static final String INVALID_RESOURCE_SIGNATURE_FOR = "Invalid resource signature for ";
     private static final String RESOURCE_IN_SERVICE = " resource in service ";
 
-    public static void validate(BLangFunction resource, DiagnosticLog dlog) {
+    public static void validate(BLangFunction resource, DiagnosticLog dlog, boolean resourceReturnsErrorOrNil) {
+        if (!resourceReturnsErrorOrNil) {
+            dlog.logDiagnostic(Diagnostic.Kind.ERROR, resource.pos, "Invalid return type: expected error?");
+        }
         switch (resource.getName().getValue()) {
             case RabbitMQConstants.FUNC_ON_MESSAGE:
                 validateOnMessageResource(resource, dlog);
