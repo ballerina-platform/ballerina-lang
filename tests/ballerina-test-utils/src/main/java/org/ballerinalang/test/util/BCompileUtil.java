@@ -141,6 +141,19 @@ public class BCompileUtil {
         return compileOnJBallerina(sourceFilePath, temp, true);
     }
 
+    // This is a temp fix until service test are fix
+    public static CompileResult compileOffline(boolean temp, String sourceFilePath) {
+        Path sourcePath = Paths.get(sourceFilePath);
+        String packageName = sourcePath.getFileName().toString();
+        Path sourceRoot = resourceDir.resolve(sourcePath.getParent());
+
+        CompilerContext context = new CompilerContext();
+        CompilerOptions options = CompilerOptions.getInstance(context);
+        options.put(OFFLINE, "true");
+        context.put(CompilerOptions.class, options);
+        return compileOnJBallerina(context, sourceRoot.toString(), packageName, temp, true, false);
+    }
+
     private static void runInit(BLangPackage bLangPackage, ClassLoader classLoader, boolean temp)
             throws ClassNotFoundException {
         String initClassName = BFileUtil.getQualifiedClassName(bLangPackage.packageID.orgName.value,
