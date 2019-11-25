@@ -47,7 +47,7 @@ public function externSetConfig(handle key, handle|int|float|boolean value) = @j
     class: "org.ballerinalang.stdlib.config.SetConfig"
 } external;
 
-public function get(@untainted string key, ValueType vType) returns string|int|float|boolean|map<any>|error {
+public function get(@untainted string key, ValueType vType) returns string|int|float|boolean|map<any> {
     string valueType = "ARRAY";
     if (vType is STRING) {
         valueType = "STRING";
@@ -61,14 +61,13 @@ public function get(@untainted string key, ValueType vType) returns string|int|f
         valueType = "BOOLEAN";
     }
     var result = externGet(java:fromString(key), java:fromString(valueType));
+    string value = "";
     if (result is handle) {
         var stringResult = java:toString(result);
         if (stringResult is string) {
-            return stringResult;
-        } else {
-            error err = error("Invalid value. Expected a 'string'.");
-            return err;
+            value = stringResult;
         }
+        return value;
     } else {
         return result;
     }

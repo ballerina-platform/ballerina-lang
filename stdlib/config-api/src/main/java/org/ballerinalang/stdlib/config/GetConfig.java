@@ -56,7 +56,7 @@ public class GetConfig {
                     throw new IllegalStateException("invalid value type: " + type);
             }
         } catch (IllegalArgumentException e) {
-            throw BallerinaErrors.createError(LOOKUPERRREASON + " " + e.getMessage());
+            throw BallerinaErrors.createError(LOOKUPERRREASON,  e.getMessage());
         }
     }
 
