@@ -51,6 +51,7 @@ jobs:
       jdk: openjdk8
       node_js: 8
       before_install:
+          - nvm install 8
           - nvm use 8
           - npm install -g npm@'5.6.0'
     - stage: "Tests"
@@ -65,6 +66,7 @@ jobs:
       jdk: openjdk8
       node_js: 8
       before_install:
+          - nvm install 8
           - nvm use 8
           - npm install -g npm@'5.6.0'
       install: 
@@ -95,6 +97,11 @@ jobs:
       os: linux
       language: java
       jdk: openjdk8
+      node_js: 8
+      before_install:
+          - nvm install 8
+          - nvm use 8
+          - npm install -g npm@'5.6.0'
       name:  "Integration tests - Linux"
 
 
