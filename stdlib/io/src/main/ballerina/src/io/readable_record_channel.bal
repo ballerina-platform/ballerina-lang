@@ -30,7 +30,7 @@ public type ReadableTextRecordChannel object {
     # + rs - Record separator (this could be a regex)
     public function __init(ReadableCharacterChannel charChannel, public string fs = "", public string rs = "",
                            public string fmt = "default") {
-        initRecordChannel(self, charChannel, java:fromString(fs), java:fromString(rs), java:fromString(fmt));
+        initReadableTextRecordChannel(self, charChannel, java:fromString(fs), java:fromString(rs), java:fromString(fmt));
     }
 
     # Checks whether there's a record left to be read.
@@ -64,7 +64,7 @@ public type ReadableTextRecordChannel object {
     }
 };
 
-function initRecordChannel(ReadableTextRecordChannel textChannel, ReadableCharacterChannel charChannel,
+function initReadableTextRecordChannel(ReadableTextRecordChannel textChannel, ReadableCharacterChannel charChannel,
             handle fs, handle rs, handle fmt) = @java:Method {
     name: "initRecordChannel",
     class: "org.ballerinalang.stdlib.io.nativeimpl.RecordChannelUtils"

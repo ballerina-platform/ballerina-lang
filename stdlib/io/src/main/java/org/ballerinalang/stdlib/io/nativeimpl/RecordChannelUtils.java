@@ -18,6 +18,10 @@
 
 package org.ballerinalang.stdlib.io.nativeimpl;
 
+import org.ballerinalang.jvm.types.BArrayType;
+import org.ballerinalang.jvm.types.BTypes;
+import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.HandleValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.api.BValueCreator;
 import org.ballerinalang.stdlib.io.channels.base.CharacterChannel;
@@ -33,6 +37,8 @@ import java.io.IOException;
 import java.nio.channels.ClosedChannelException;
 
 import static org.ballerinalang.stdlib.io.utils.IOConstants.TXT_RECORD_CHANNEL_NAME;
+
+//import org.ballerinalang.jvm.values.ArrayValue;
 
 /**
  * This class hold Java inter-ops bridging functions for io# *CSVChannel/*RTextRecordChannel.
@@ -93,12 +99,34 @@ public class RecordChannelUtils {
             return IOUtils.createEoFError();
         } else {
             try {
-                return BValueCreator.createArrayValue(textRecordChannel.read());
+                String[] records = textRecordChannel.read();
+                HandleValue[] handleValues = new HandleValue[records.length];
+                for (int i = 0; i < records.length; i++) {
+                    handleValues[i] = new HandleValue(records[i]);
+                }
+                return BValueCreator.createArrayValue(handleValues, new BArrayType(BTypes.typeHandle));
             } catch (BallerinaIOException e) {
                 log.error("error occurred while reading next text record from ReadableTextRecordChannel", e);
                 return IOUtils.createError(e);
             }
         }
+    }
+
+    public static Object write(ObjectValue channel, ArrayValue content) {
+        DelimitedRecordChannel delimitedRecordChannel = (DelimitedRecordChannel) channel
+                .getNativeData(TXT_RECORD_CHANNEL_NAME);
+        try {
+            String[] arr = new String[content.size()];
+            for (int i = 0; i < content.size(); i++) {
+                HandleValue handleValue = (HandleValue) content.get(i);
+                String st = (String) handleValue.getValue();
+                arr[i] = st;
+            }
+            delimitedRecordChannel.write(arr);
+        } catch (IOException e) {
+            return IOUtils.createError(e);
+        }
+        return null;
     }
 
     public static Object close(ObjectValue channel) {
