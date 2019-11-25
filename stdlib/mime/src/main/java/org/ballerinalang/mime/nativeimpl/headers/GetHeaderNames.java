@@ -23,6 +23,7 @@ import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ArrayValueImpl;
+import org.ballerinalang.jvm.values.HandleValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 
 import java.util.Set;
@@ -38,7 +39,7 @@ import static org.ballerinalang.mime.util.MimeConstants.ENTITY_HEADERS;
 public class GetHeaderNames {
 
     public static ArrayValue getHeaderNames(ObjectValue entityObj) {
-        ArrayValue stringArray = new ArrayValueImpl(new BArrayType(BTypes.typeString));
+        ArrayValue stringArray = new ArrayValueImpl(new BArrayType(BTypes.typeHandle));
         if (entityObj.getNativeData(ENTITY_HEADERS) == null) {
             return stringArray;
         }
@@ -48,7 +49,7 @@ public class GetHeaderNames {
             Set<String> distinctNames = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
             distinctNames.addAll(httpHeaders.names());
             for (String headerName : distinctNames) {
-                stringArray.add(i, headerName);
+                stringArray.add(i, new HandleValue(headerName));
                 i++;
             }
         }

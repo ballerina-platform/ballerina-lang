@@ -23,6 +23,7 @@ import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ArrayValueImpl;
+import org.ballerinalang.jvm.values.HandleValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.mime.util.MimeUtil;
 
@@ -48,9 +49,9 @@ public class GetHeaders {
             throw MimeUtil.createError(HEADER_NOT_FOUND, "Http header does not exist");
         }
         int i = 0;
-        ArrayValue stringArray = new ArrayValueImpl(new BArrayType(BTypes.typeString));
+        ArrayValue stringArray = new ArrayValueImpl(new BArrayType(BTypes.typeHandle));
         for (String headerValue : headerValueList) {
-            stringArray.add(i, headerValue);
+            stringArray.add(i, new HandleValue(headerValue));
             i++;
         }
         return stringArray;

@@ -398,8 +398,9 @@ public type Entity object {
         int index = 0;
         foreach var headerValue in headerValues {
             headers[index] = <string>java:toString(headerValue);
-            index =+ 1;
+            index = index + 1;
         }
+        io:println(headers);
         return headers;
     }
 
@@ -412,7 +413,7 @@ public type Entity object {
             int index = 0;
             foreach var headerName in headerNames {
                 headers[index] = <string>java:toString(headerName);
-                index =+ 1;
+                index = index + 1;
             }
         return headers;
     }
