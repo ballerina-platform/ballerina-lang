@@ -77,7 +77,8 @@ public class TimerServiceTest {
     @Test(
             description = "Tests a timer listener with negative interval value",
             expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*Timer scheduling interval should be a positive integer.*"
+            expectedExceptionsMessageRegExp = ".*Timer scheduling interval should be a positive integer.*",
+            enabled = false
     )
     public void testListenerTimerNegativeInterval() {
         BCompileUtil.compile(getFilePath(Paths.get("listener", "timer", "service_negative_interval.bal")));
@@ -86,7 +87,8 @@ public class TimerServiceTest {
     @Test(
             description = "Tests a timer listener with negative delay value",
             expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*Timer scheduling delay should be a non-negative value.*"
+            expectedExceptionsMessageRegExp = ".*Timer scheduling delay should be a non-negative value.*",
+            enabled = false
     )
     public void testListenerTimerNegativeDelay() {
         BCompileUtil.compile(getFilePath(Paths.get("listener", "timer", "service_negative_delay.bal")));
@@ -100,7 +102,8 @@ public class TimerServiceTest {
     @Test(
             description = "Tests a timer scheduler with zero interval",
             expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*Timer scheduling interval should be a positive integer.*"
+            expectedExceptionsMessageRegExp = ".*Timer scheduling interval should be a positive integer.*",
+            enabled = false
     )
     public void testZeroInterval() {
         BCompileUtil.compile(getFilePath(Paths.get("listener", "timer", "zero_interval.bal")));
