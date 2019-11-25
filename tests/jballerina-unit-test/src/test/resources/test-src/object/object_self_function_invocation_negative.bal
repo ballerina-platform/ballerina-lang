@@ -24,6 +24,9 @@ type Person2 object {
     public function __init(string name, string city) {
         int i = 0;
         while (i < 5) {
+            if (i/2 == 2) {
+                continue;
+            }
             self.modify(self);
         }
         self.name = name;
@@ -35,7 +38,7 @@ type Person2 object {
     }
 };
 
-public function testSelfKeywordInvocationWithLoopNegative() {
+public function testSelfKeywordInvocationWithLoopAndContinueNegative() {
     Person2 person = new("person2", "city");
 }
 
@@ -43,12 +46,16 @@ type Person3 object {
     string name;
     string city;
 
-    public function __init(string name) {
-        if (name == "") {
+    public function __init(string name, string city) {
+        int i = 0;
+        while (i < 5) {
+            if (i/2 == 2) {
+                break;
+            }
             self.modify(self);
         }
         self.name = name;
-        self.city = "city";
+        self.city = city;
     }
 
     function modify(Person3 person) {
@@ -56,6 +63,58 @@ type Person3 object {
     }
 };
 
+public function testSelfKeywordInvocationWithLoopAndBreakNegative() {
+    Person3 person = new("person2", "city");
+}
+
+
+type Person4 object {
+    string name;
+    string city;
+
+    public function __init(string name) {
+        if (name == "") {
+            self.name = "tom";
+          } else if (name == "tom") {
+            self.city = "London";
+          } else {
+            self.name = "tom";
+            self.city = "London";
+          }
+        self.modify(self);
+        self.name = name;
+        self.city = "city";
+    }
+
+    function modify(Person4 person) {
+        person.name = "New Name";
+    }
+};
+
 public function testSelfKeywordInvocationWithBranchNegative() {
-    Person3 person = new("person3");
+    Person4 person = new("");
+}
+
+type Person5 object {
+    string name;
+    string city;
+
+    public function __init(string[] names, string city) {
+        foreach string n in names {
+            if (n == "person1") {
+                self.modify(self);
+            }
+            self.name = n;
+        }
+        self.city = city;
+    }
+
+    function modify(Person5 person) {
+        person.name = "New Name";
+    }
+};
+
+public function testSelfKeywordInvocationWithForEachNegative() {
+    string[] persons = ["person1", "person2", "person3"];
+    Person5 person = new(persons, "city");
 }

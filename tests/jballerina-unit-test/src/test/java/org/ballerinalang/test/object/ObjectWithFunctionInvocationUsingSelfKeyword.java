@@ -34,9 +34,11 @@ public class ObjectWithFunctionInvocationUsingSelfKeyword {
         CompileResult compileResult = BCompileUtil.compile("test-src/object/object_self_function_invocation_negative" +
                 ".bal");
 
-        Assert.assertEquals(compileResult.getErrorCount(), 3);
+        Assert.assertEquals(compileResult.getErrorCount(), 5);
         BAssertUtil.validateError(compileResult, 0, "fields 'name, age' not initialized", 6, 9);
-        BAssertUtil.validateError(compileResult, 1, "fields 'name, city' not initialized", 27, 13);
-        BAssertUtil.validateError(compileResult, 2, "fields 'name, city' not initialized", 48, 13);
+        BAssertUtil.validateError(compileResult, 1, "fields 'name, city' not initialized", 30, 13);
+        BAssertUtil.validateError(compileResult, 2, "fields 'name, city' not initialized", 55, 13);
+        BAssertUtil.validateError(compileResult, 3, "fields 'name, city' not initialized", 84, 9);
+        BAssertUtil.validateError(compileResult, 4, "fields 'name, city' not initialized", 105, 17);
     }
 }
