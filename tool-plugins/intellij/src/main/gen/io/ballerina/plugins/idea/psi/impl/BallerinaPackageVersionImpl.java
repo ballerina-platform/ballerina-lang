@@ -44,8 +44,8 @@ public class BallerinaPackageVersionImpl extends ASTWrapperPsiElement implements
 
   @Override
   @Nullable
-  public PsiElement getIdentifier() {
-    return findChildByType(IDENTIFIER);
+  public BallerinaVersionPattern getVersionPattern() {
+    return findChildByClass(BallerinaVersionPattern.class);
   }
 
   @Override

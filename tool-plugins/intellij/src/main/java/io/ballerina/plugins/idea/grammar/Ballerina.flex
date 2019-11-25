@@ -65,6 +65,8 @@ SignedInteger = {Sign}? {Digits}
 Sign = [+-]
 DecimalFloatSelector = [dDfF]
 
+DecimalExtendedFloatingPointNumber = {DecimalFloatingPointNumber} "." {DecimalNumeral}
+
 HexFloatingPointNumber = {HexDigits} {BinaryExponent} | {DottedHexNumber} {BinaryExponent}?
 BinaryExponent = {BinaryExponentIndicator} {SignedInteger}
 BinaryExponentIndicator = [pP]
@@ -437,6 +439,7 @@ DOLLAR = \$
     {QUOTED_STRING_LITERAL}                     { return QUOTED_STRING_LITERAL; }
 
     {DecimalFloatingPointNumber}                { return DECIMAL_FLOATING_POINT_NUMBER; }
+    {DecimalExtendedFloatingPointNumber}        { return DECIMAL_EXTENDED_FLOATING_POINT_NUMBER; }
     {HexadecimalFloatingPointLiteral}           { return HEXADECIMAL_FLOATING_POINT_LITERAL; }
 
 
