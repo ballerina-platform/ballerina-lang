@@ -17,13 +17,13 @@
  */
 package org.ballerinalang.jvm.values;
 
-import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.OMNode;
-import org.ballerinalang.jvm.StaxXMLSink;
-import org.ballerinalang.jvm.XMLFactory;
+import org.apache.axiom.om.impl.llom.CharacterDataImpl;
+import org.apache.axiom.om.impl.llom.OMCommentImpl;
+import org.apache.axiom.om.impl.llom.OMProcessingInstructionImpl;
+import org.ballerinalang.jvm.BallerinaXMLSerializer;
 import org.ballerinalang.jvm.XMLNodeType;
 import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.api.BXml;
 import org.ballerinalang.jvm.values.freeze.Status;
 
@@ -31,8 +31,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
-
-import javax.xml.stream.XMLStreamException;
+import java.util.NoSuchElementException;
 
 import static org.ballerinalang.jvm.util.BLangConstants.STRING_NULL_VALUE;
 
@@ -122,7 +121,7 @@ public class XMLContentHolderItem extends XMLValue {
 
     @Override
     public BXml elements() {
-        return null;
+        return new XMLSequence();
     }
 
     @Override
@@ -210,31 +209,51 @@ public class XMLContentHolderItem extends XMLValue {
 
     @Override
     public OMNode value() {
-        try {
-            // todo: we gonna need to handle this as stringToOM returns a element node
-            // what we need is all element, comments, pi, etc.
-            String xmlFragment = this.stringValue();
-            OMElement omElement = XMLFactory.stringToOM("<root>" + xmlFragment + "</root>");
-            return (OMNode) omElement.getChildren().next();
-        } catch (XMLStreamException e) {
-            throw new BallerinaException(e);
-        }
+            if (this.type == XMLNodeType.PI) {
+                OMProcessingInstructionImpl pi = new OMProcessingInstructionImpl();
+                pi.setTarget(this.target);
+                pi.setValue(this.data);
+                return pi;
+            } else if (this.type == XMLNodeType.COMMENT) {
+                OMCommentImpl omComment = new OMCommentImpl();
+                omComment.setValue(this.data);
+                return omComment;
+            }
+            CharacterDataImpl characterData = new CharacterDataImpl();
+            characterData.data = this.data;
+            return characterData;
     }
 
     @Override
     public IteratorValue getIterator() {
-        return null;
+        return new IteratorValue() {
+            boolean read = false;
+            @Override
+            public boolean hasNext() {
+                return !read;
+            }
+
+            @Override
+            public Object next() {
+                if (!read) {
+                    this.read = true;
+                    return data;
+                } else {
+                    throw new NoSuchElementException();
+                }
+            }
+        };
     }
 
     @Override
     public String stringValue() {
         try {
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-            StaxXMLSink staxXMLSink = new StaxXMLSink(outputStream);
-            staxXMLSink.write(this);
-            staxXMLSink.flush();
+            BallerinaXMLSerializer ballerinaXMLSerializer = new BallerinaXMLSerializer(outputStream);
+            ballerinaXMLSerializer.write(this);
+            ballerinaXMLSerializer.flush();
             String str = new String(outputStream.toByteArray(), StandardCharsets.UTF_8);
-            staxXMLSink.close();
+            ballerinaXMLSerializer.close();
             return str;
         } catch (Throwable t) {
             handleXmlException("failed to get xml as string: ", t);
@@ -270,10 +289,10 @@ public class XMLContentHolderItem extends XMLValue {
     @Override
     public void serialize(OutputStream outputStream) {
         try {
-            if (outputStream instanceof StaxXMLSink) {
-                ((StaxXMLSink) outputStream).write(this);
+            if (outputStream instanceof BallerinaXMLSerializer) {
+                ((BallerinaXMLSerializer) outputStream).write(this);
             } else {
-                (new StaxXMLSink(outputStream)).write(this);
+                (new BallerinaXMLSerializer(outputStream)).write(this);
             }
         } catch (Throwable t) {
             handleXmlException("error occurred during writing the message to the output stream: ", t);

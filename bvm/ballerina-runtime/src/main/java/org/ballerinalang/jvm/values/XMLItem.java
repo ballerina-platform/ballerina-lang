@@ -21,7 +21,7 @@ import org.apache.axiom.om.OMException;
 import org.apache.axiom.om.OMNode;
 import org.apache.axiom.om.OMText;
 import org.ballerinalang.jvm.BallerinaErrors;
-import org.ballerinalang.jvm.StaxXMLSink;
+import org.ballerinalang.jvm.BallerinaXMLSerializer;
 import org.ballerinalang.jvm.XMLFactory;
 import org.ballerinalang.jvm.XMLNodeType;
 import org.ballerinalang.jvm.XMLValidator;
@@ -38,6 +38,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 
 import javax.xml.XMLConstants;
 import javax.xml.namespace.QName;
@@ -179,7 +180,8 @@ public final class XMLItem extends XMLValue {
         // 'localName' will contain the namespace name where as 'value' will contain the namespace URI
         // todo: Fix this so that namespaceURI points to XMLConstants.XMLNS_ATTRIBUTE_NS_URI
         //  and remove this special case
-        if (namespaceUri == null && (prefix == null || prefix.equals(XMLConstants.XMLNS_ATTRIBUTE))) {
+        if ((namespaceUri == null && prefix != null && prefix.equals(XMLConstants.XMLNS_ATTRIBUTE))
+            || localName.equals(XMLConstants.XMLNS_ATTRIBUTE)) {
             String nsNameDecl = "{" + XMLConstants.XMLNS_ATTRIBUTE_NS_URI + "}" + localName;
             attributes.put(nsNameDecl, value);
             return;
@@ -379,10 +381,10 @@ public final class XMLItem extends XMLValue {
     @Override
     public void serialize(OutputStream outputStream) {
         try {
-            if (outputStream instanceof StaxXMLSink) {
-                ((StaxXMLSink) outputStream).write(this);
+            if (outputStream instanceof BallerinaXMLSerializer) {
+                ((BallerinaXMLSerializer) outputStream).write(this);
             } else {
-                (new StaxXMLSink(outputStream)).write(this);
+                (new BallerinaXMLSerializer(outputStream)).write(this);
             }
         } catch (Throwable t) {
             handleXmlException("error occurred during writing the message to the output stream: ", t);
@@ -423,11 +425,11 @@ public final class XMLItem extends XMLValue {
     public String stringValue(Strand strand) {
         try {
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-            StaxXMLSink staxXMLSink = new StaxXMLSink(outputStream);
-            staxXMLSink.write(this);
-            staxXMLSink.flush();
+            BallerinaXMLSerializer ballerinaXMLSerializer = new BallerinaXMLSerializer(outputStream);
+            ballerinaXMLSerializer.write(this);
+            ballerinaXMLSerializer.flush();
             String xml = new String(outputStream.toByteArray(), StandardCharsets.UTF_8);
-            staxXMLSink.close();
+            ballerinaXMLSerializer.close();
             return xml;
         } catch (Throwable t) {
             handleXmlException("failed to get xml as string: ", t);
@@ -596,7 +598,23 @@ public final class XMLItem extends XMLValue {
 
     @Override
     public IteratorValue getIterator() {
-        return new XMLIterator.ItemIterator(this);
+        return new IteratorValue() {
+            boolean read = false;
+
+            @Override
+            public boolean hasNext() {
+                return !read;
+            }
+
+            @Override
+            public Object next() {
+                if (read) {
+                    throw new NoSuchElementException();
+                }
+                read = true;
+                return this;
+            }
+        };
     }
 
     @Override

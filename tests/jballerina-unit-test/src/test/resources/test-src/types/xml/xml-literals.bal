@@ -131,6 +131,7 @@ function testXMLLiteralWithEscapeSequence() returns [xml, string[], int, any[]] 
 
     any[] elements = [];
     i = 0;
+    // There are not 'xml elements' in x1
     foreach var e in x1.elements() {
         elements[i] = e;
         i += 1;

@@ -138,23 +138,19 @@ public class XMLAttributesTest {
                         "xmlns:ns3=\"http://sample.com/wso2/f\" ns4:diff=\"yes\" ns4:foo1=\"bar1\"></root>");
     }
 
-    @Test(expectedExceptions = { BLangRuntimeException.class }, 
-            expectedExceptionsMessageRegExp = ".*failed to add attribute " +
-            "'ns5:foo1'. prefix 'ns5' is already bound to namespace 'http://sample.com/wso2/f/'.*")
-    public void testAddAttributeWithQName_4() {
-        BRunUtil.invoke(xmlAttrProgFile, "testAddAttributeWithDiffQName_4");
-        Assert.fail();
-    }
-
     @Test
     public void testAddAttributeWithQName_5() {
         BValue[] returns = BRunUtil.invoke(xmlAttrProgFile, "testAddAttributeWithDiffQName_5");
         Assert.assertTrue(returns[0] instanceof BXML);
-        Assert.assertEquals(returns[0].stringValue(), "<root xmlns=\"http://sample.com/wso2/c1\" " +
-                "xmlns:ns3=\"http://sample.com/wso2/f\" xmlns:ns4=\"http://sample.com/wso2/f/\" " +
-                "xmlns:ns5=\"http://sample.com/wso2/f/\" xmlns:ns0=\"http://sample.com/wso2/a1\" " +
-                "xmlns:ns1=\"http://sample.com/wso2/b1\" " +
-                "ns4:diff=\"yes\" foo1=\"bar1\" foo2=\"bar2\" foo3=\"bar3\"></root>");
+        Assert.assertEquals(returns[0].stringValue(),
+                "<root " +
+                        "xmlns=\"http://sample.com/wso2/c1\" " +
+                        "xmlns:ns5=\"http://sample.com/wso2/f/\" " +
+                        "xmlns:ns0=\"http://sample.com/wso2/a1\" " +
+                        "xmlns:ns1=\"http://sample.com/wso2/b1\" " +
+                        "xmlns:ns4=\"http://sample.com/wso2/f/\" " +
+                        "xmlns:ns3=\"http://sample.com/wso2/f\" " +
+                        "ns4:diff=\"yes\" foo1=\"bar1\" foo2=\"bar2\" foo3=\"bar3\"></root>");
     }
     
     @Test

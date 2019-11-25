@@ -42,29 +42,29 @@ import javax.xml.stream.XMLStreamWriter;
 /**
  * @since 1.1.0
  */
-public class StaxXMLSink extends OutputStream {
+public class BallerinaXMLSerializer extends OutputStream {
     private static final XMLOutputFactory xmlOutputFactory = XMLOutputFactory.newInstance();
     private XMLStreamWriter xmlStreamWriter;
     private Deque<Set<String>> parentNSSet;
     private int nsNumber;
 
 
-    public StaxXMLSink(OutputStream outputStream) {
+    public BallerinaXMLSerializer(OutputStream outputStream) {
         try {
             xmlStreamWriter = xmlOutputFactory.createXMLStreamWriter(outputStream);
             parentNSSet = new ArrayDeque<>();
         } catch (XMLStreamException e) {
-            // ignore
+            throw new BallerinaException(e);
         }
     }
 
     @Override
-    public void write(int b) throws IOException {
+    public void write(int b) {
         assert false;
     }
 
     @Override
-    public void flush() throws IOException {
+    public void flush() {
         try {
             xmlStreamWriter.flush();
         } catch (XMLStreamException e) {
@@ -182,6 +182,7 @@ public class StaxXMLSink extends OutputStream {
     }
 
     private void writeAttributes(XMLItem xmlValue, HashSet<String> curNSSet) throws XMLStreamException {
+        String defaultNS = xmlStreamWriter.getNamespaceContext().getNamespaceURI("xmlns");
         for (Map.Entry<String, String> attributeEntry : xmlValue.getAttributesMap().entrySet()) {
             String key = attributeEntry.getKey();
             int closingCurlyPos = key.indexOf('}');
@@ -196,7 +197,11 @@ public class StaxXMLSink extends OutputStream {
                     generateAndAddRandomNSPrefix(curNSSet, uri);
                 }
                 String localName = key.substring(closingCurlyPos + 1);
-                xmlStreamWriter.writeAttribute(uri, localName, attributeEntry.getValue());
+                if (uri.equals(defaultNS)) {
+                    xmlStreamWriter.writeAttribute(localName, attributeEntry.getValue());
+                } else {
+                    xmlStreamWriter.writeAttribute(uri, localName, attributeEntry.getValue());
+                }
             }
         }
     }
@@ -204,10 +209,7 @@ public class StaxXMLSink extends OutputStream {
     private void writeNamespaceAttributes(HashSet<String> curNSSet, Map<String, String> nsPrefixMap)
             throws XMLStreamException {
         for (Map.Entry<String, String> nsEntry : nsPrefixMap.entrySet()) {
-            if (nsEntry.getKey().isEmpty()) {
-                xmlStreamWriter.setDefaultNamespace(nsEntry.getValue());
-                xmlStreamWriter.writeDefaultNamespace(nsEntry.getValue());
-            } else {
+            if (!nsEntry.getKey().isEmpty()) {
                 // Only write the namespace decl if not in the namespace hierarchy.
                 String nsKey = concatNsPrefixURI(nsEntry.getKey(), nsEntry.getValue());
                 if (!curNSSet.contains(nsKey)) {
@@ -242,42 +244,27 @@ public class StaxXMLSink extends OutputStream {
     }
 
     private void generateAndAddRandomNSPrefix(HashSet<String> curNSSet, String uri) throws XMLStreamException {
-        String randomNSPrefix = generateRandomPrefix(curNSSet, 4);
+        String randomNSPrefix = generateRandomPrefix(curNSSet, uri);
         String nsKey = concatNsPrefixURI(randomNSPrefix, uri);
         xmlStreamWriter.writeNamespace(randomNSPrefix, uri);
         xmlStreamWriter.setPrefix(randomNSPrefix, uri);
         curNSSet.add(nsKey);
     }
 
-    private String generateRandomPrefix(HashSet<String> curNSSet, int numChar) {
-        // Generate random int between ASCII value of 'a' to 'z' and 9 more.
-        // When generated value is between a-z use that as next char in random char sequence.
-        // When generated value is over a-z range, convert it to 0-9 range and use that as next char.
-
-//        PrimitiveIterator.OfInt iterator = random.ints('a', 'z' + 10).iterator();
-//        char[] randomCharacters = new char[numChar];
-//        for(int i = 0; i < numChar; i++) {
-//            Integer val = iterator.next();
-//            if (val > 'z') {
-//                // Convert to 0 to 9 range
-//                randomCharacters[i] = (char) ('0' + val - 'z');
-//            } else {
-//                // ASCII a to z range
-//                randomCharacters[i] = (char) val.intValue();
-//            }
-//        }
-//        String randStr = "ns" + new String(randomCharacters);
-//
-//        // Do not shadow already defined prefixes.
-//        for (String hash : curNSSet) {
-//            if (hash.startsWith(randStr)) {
-//                return generateRandomPrefix(curNSSet, numChar);
-//            }
-//        }
-//        return randStr;
-
+    private String generateRandomPrefix(HashSet<String> curNSSet, String uri) {
         nsNumber++;
-        return "ns" + nsNumber;
+        String generatedNs = "ns" + nsNumber;
+        if (curNSSet.contains(concatNsPrefixURI(generatedNs, uri))) {
+            return generateRandomPrefix(curNSSet, uri);
+        }
+        for (String nsFrag : curNSSet) {
+            int end = nsFrag.indexOf("<>");
+            String prefix = nsFrag.substring(0, end);
+            if (prefix.equals(generatedNs)) {
+                return generateRandomPrefix(curNSSet, uri);
+            }
+        }
+        return generatedNs;
     }
 
     private String concatNsPrefixURI(String randStr, String nsUri) {

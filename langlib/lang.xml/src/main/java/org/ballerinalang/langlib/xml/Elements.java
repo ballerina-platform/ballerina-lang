@@ -48,9 +48,6 @@ public class Elements {
 
     public static XMLValue elements(Strand strand, XMLValue xml) {
         try {
-            if (xml.getNodeType() == org.ballerinalang.jvm.XMLNodeType.TEXT) {
-                return generateCodePointSequence(xml);
-            }
             return (XMLValue) xml.elements();
         } catch (Throwable e) {
             BLangExceptionHelper.handleXMLException(OPERATION, e);

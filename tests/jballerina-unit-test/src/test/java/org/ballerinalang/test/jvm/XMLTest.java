@@ -175,7 +175,7 @@ public class XMLTest {
                 "<p:person xmlns:p=\"foo\" xmlns:q=\"bar\" xmlns:ns1=\"http://ballerina.com/b\">hello</p:person>");
     }
 
-    @Test
+    @Test(enabled =  false) // todo: re-enable when implementing getElement syntax (seq.<elm>)
     public void testFieldBasedAccess() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testFieldBasedAccess");
         Assert.assertEquals(returns[0].stringValue(),

@@ -153,7 +153,7 @@ public class XMLIterationTest {
         BValue[] results = BRunUtil.invoke(result, "xmlSequenceIter");
         Assert.assertEquals(result.getDiagnostics().length, 0);
         String str = results[0].stringValue();
-        Assert.assertEquals(str, "<book>the book</book>\nb\ni\nt\n \no\nf\n \nt\ne\nx\nt\n✂\n✅\n");
+        Assert.assertEquals(str, "<book>the book</book>\nbit of text✂✅\n");
     }
 
     @Test(description = "Test iterating over xml sequence where all elements are character items")
@@ -161,6 +161,6 @@ public class XMLIterationTest {
         BValue[] results = BRunUtil.invoke(result, "xmlCharItemIter");
         Assert.assertEquals(result.getDiagnostics().length, 0);
         String str = results[0].stringValue();
-        Assert.assertEquals(str, "b\ni\nt\n \no\nf\n \nt\ne\nx\nt\n✂\n✅\n");
+        Assert.assertEquals(str, "bit of text✂✅\n");
     }
 }

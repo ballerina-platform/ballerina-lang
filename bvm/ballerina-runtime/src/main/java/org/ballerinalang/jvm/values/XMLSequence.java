@@ -18,9 +18,10 @@ package org.ballerinalang.jvm.values;
 
 import org.apache.axiom.om.OMText;
 import org.ballerinalang.jvm.BallerinaErrors;
-import org.ballerinalang.jvm.StaxXMLSink;
+import org.ballerinalang.jvm.BallerinaXMLSerializer;
 import org.ballerinalang.jvm.XMLNodeType;
 import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.util.BLangConstants;
 import org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons;
@@ -35,6 +36,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -196,15 +198,11 @@ public final class XMLSequence extends XMLValue {
     @Override
     public XMLValue elements() {
         List elementsSeq = new ArrayList<XMLValue>();
-        int j = 0;
-        for (BXml x : children) {
-            if (x.getNodeType() != XMLNodeType.ELEMENT) {
+        for (BXml child : children) {
+            if (child.getNodeType() != XMLNodeType.ELEMENT) {
                 continue;
             }
-            XMLItem item = (XMLItem) x;
-            if (item.getNodeType() == XMLNodeType.ELEMENT) {
-                elementsSeq.add(j++, item);
-            }
+            elementsSeq.add(child);
         }
         return new XMLSequence(elementsSeq);
     }
@@ -371,14 +369,14 @@ public final class XMLSequence extends XMLValue {
      */
     @Override
     public void serialize(OutputStream outputStream) {
-        if (outputStream instanceof StaxXMLSink) {
-            ((StaxXMLSink) outputStream).write(this);
+        if (outputStream instanceof BallerinaXMLSerializer) {
+            ((BallerinaXMLSerializer) outputStream).write(this);
         } else {
-            StaxXMLSink staxXMLSink = new StaxXMLSink(outputStream);
-            staxXMLSink.write(this);
+            BallerinaXMLSerializer ballerinaXMLSerializer = new BallerinaXMLSerializer(outputStream);
+            ballerinaXMLSerializer.write(this);
             try {
-                staxXMLSink.flush();
-                staxXMLSink.close();
+                ballerinaXMLSerializer.flush();
+                ballerinaXMLSerializer.close();
             } catch (IOException e) {
                 throw new BallerinaException(e);
             }
@@ -390,7 +388,8 @@ public final class XMLSequence extends XMLValue {
      */
     @Override
     public Object value() {
-        return new ArrayValue(children.toArray(), BTypes.typeXML);
+        BArrayType bArrayType = new BArrayType(BTypes.typeXML);
+        return new ArrayValue(children.toArray(), bArrayType);
     }
 
     /**
@@ -417,11 +416,11 @@ public final class XMLSequence extends XMLValue {
     public String stringValue(Strand strand) {
         try {
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-            StaxXMLSink staxXMLSink = new StaxXMLSink(outputStream);
-            staxXMLSink.write(this);
-            staxXMLSink.flush();
+            BallerinaXMLSerializer ballerinaXMLSerializer = new BallerinaXMLSerializer(outputStream);
+            ballerinaXMLSerializer.write(this);
+            ballerinaXMLSerializer.flush();
             String str = new String(outputStream.toByteArray(), StandardCharsets.UTF_8);
-            staxXMLSink.close();
+            ballerinaXMLSerializer.close();
             return str;
         } catch (Throwable t) {
             handleXmlException("failed to get xml as string: ", t);
@@ -472,6 +471,9 @@ public final class XMLSequence extends XMLValue {
     public XMLValue getItem(int index) {
         try {
             return (XMLValue) this.children.get(index);
+        } catch (IndexOutOfBoundsException e) {
+            throw BallerinaErrors.createError(BallerinaErrorReasons.XML_OPERATION_ERROR,
+                    "IndexOutOfRange " + e.getMessage());
         } catch (Exception e) {
             throw BallerinaErrors.createError(BallerinaErrorReasons.XML_OPERATION_ERROR, e.getMessage());
         }
@@ -548,7 +550,19 @@ public final class XMLSequence extends XMLValue {
 
     @Override
     public IteratorValue getIterator() {
-        return new XMLIterator.SequenceIterator(this);
+        return new IteratorValue() {
+            Iterator<BXml> iterator = children.iterator();
+
+            @Override
+            public boolean hasNext() {
+                return iterator.hasNext();
+            }
+
+            @Override
+            public Object next() {
+                return iterator.next();
+            }
+        };
     }
 
     @Override

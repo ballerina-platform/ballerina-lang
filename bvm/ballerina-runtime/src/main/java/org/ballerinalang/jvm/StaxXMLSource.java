@@ -119,7 +119,7 @@ public class StaxXMLSource {
     }
 
     private void handleDTD(XMLStreamReader xmlStreamReader) {
-        throw new UnsupportedOperationException("xml dtd");
+        // ignore
     }
 
     private void readPI(XMLStreamReader xmlStreamReader) {
@@ -202,12 +202,15 @@ public class StaxXMLSource {
             attributesMap.put(xmlnsPrefix, namespaceURI);
         }
 
-        for (int i = 0; i < xmlStreamReader.getNamespaceCount(); i++) {
+        int namespaceCount = xmlStreamReader.getNamespaceCount();
+        for (int i = 0; i < namespaceCount; i++) {
             String uri = xmlStreamReader.getNamespaceURI(i);
             String prefix = xmlStreamReader.getNamespacePrefix(i);
             if (prefix == null || prefix.isEmpty()) {
                 String xmlnsPrefix = XMLItem.XMLNS_URL_PREFIX;
                 attributesMap.put(xmlnsPrefix, uri);
+            } else {
+                attributesMap.put(XMLItem.XMLNS_URL_PREFIX + prefix, uri);
             }
         }
     }
