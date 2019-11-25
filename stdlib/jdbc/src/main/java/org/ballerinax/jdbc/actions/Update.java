@@ -32,10 +32,9 @@ import org.ballerinax.jdbc.statement.UpdateStatement;
  *
  * @since 0.8.0
  */
-@BallerinaFunction(
-        orgName = "ballerinax", packageName = "java.jdbc",
-        functionName = "nativeUpdate"
-)
+@BallerinaFunction(orgName = "ballerinax",
+                   packageName = "java.jdbc",
+                   functionName = "nativeUpdate")
 public class Update {
 
     public static Object nativeUpdate(ObjectValue client, String query, Object... parameters) {
