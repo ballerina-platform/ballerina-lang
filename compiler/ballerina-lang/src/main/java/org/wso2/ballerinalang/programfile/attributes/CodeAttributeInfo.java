@@ -22,6 +22,7 @@ package org.wso2.ballerinalang.programfile.attributes;
  *
  * @since 0.87
  */
+@Deprecated
 public class CodeAttributeInfo implements AttributeInfo {
 
     // Index to a UTF8CPEntry
