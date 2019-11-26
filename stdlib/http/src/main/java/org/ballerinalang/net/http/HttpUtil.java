@@ -684,9 +684,7 @@ public class HttpUtil {
         Object remoteSocketAddress = inboundMsg.getProperty(HttpConstants.REMOTE_ADDRESS);
         if (remoteSocketAddress instanceof InetSocketAddress) {
             InetSocketAddress inetSocketAddress = (InetSocketAddress) remoteSocketAddress;
-            String remoteHost = inetSocketAddress.getHostName();
             long remotePort = inetSocketAddress.getPort();
-            remote.put(HttpConstants.REMOTE_HOST_FIELD, new BString(remoteHost));
             remote.put(HttpConstants.REMOTE_PORT_FIELD, new BInteger(remotePort));
         }
         httpCaller.put(HttpConstants.REMOTE_STRUCT_FIELD, remote);
