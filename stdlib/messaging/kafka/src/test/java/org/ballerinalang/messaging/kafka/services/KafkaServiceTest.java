@@ -60,7 +60,7 @@ public class KafkaServiceTest {
 
     @Test(description = "Test endpoint bind to a service")
     public void testKafkaServiceEndpoint() {
-        compileResult = BCompileUtil.compile(true,
+        compileResult = BCompileUtil.compileOffline(true,
                 getFilePath(Paths.get(TEST_SRC, TEST_SERVICES, "kafka_service.bal")));
         String topic = "service-test";
         String message = "test_string";
@@ -80,7 +80,7 @@ public class KafkaServiceTest {
 
     @Test(description = "Test endpoint bind to a service")
     public void testKafkaAdvancedService() {
-        compileResult = BCompileUtil.compile(true,
+        compileResult = BCompileUtil.compileOffline(true,
                 getFilePath(Paths.get(TEST_SRC, TEST_SERVICES, "kafka_service_advanced.bal")));
         BRunUtil.invoke(compileResult, "funcKafkaProduce");
 
@@ -98,7 +98,7 @@ public class KafkaServiceTest {
 
     @Test(description = "Test kafka service stop() function")
     public void testKafkaServiceStop() {
-        compileResult = BCompileUtil.compile(true,
+        compileResult = BCompileUtil.compileOffline(true,
                 getFilePath(Paths.get(TEST_SRC, TEST_SERVICES, "kafka_service_stop.bal")));
         BRunUtil.invoke(compileResult, "funcKafkaProduce");
         try {

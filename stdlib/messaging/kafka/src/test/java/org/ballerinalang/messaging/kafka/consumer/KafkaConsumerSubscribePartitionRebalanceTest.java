@@ -59,7 +59,7 @@ public class KafkaConsumerSubscribePartitionRebalanceTest {
 
     @Test(description = "Test functionality of subscribeWithPartitionRebalance() function")
     public void testKafkaConsumerSubscribeWithPartitionRebalance() {
-        CompileResult result = BCompileUtil.compile(true, getFilePath(
+        CompileResult result = BCompileUtil.compileOffline(true, getFilePath(
                 Paths.get(TEST_SRC, TEST_CONSUMER, "kafka_consumer_subscribe_with_partition_rebalance.bal")));
         BValue[] returnBValuesRevoked = BRunUtil.invoke(result, "funcKafkaGetRebalanceInvokedPartitionsCount");
         Assert.assertEquals(returnBValuesRevoked.length, 1);

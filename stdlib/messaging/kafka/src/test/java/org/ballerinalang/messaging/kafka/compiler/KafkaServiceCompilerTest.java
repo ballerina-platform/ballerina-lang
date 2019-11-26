@@ -82,7 +82,7 @@ public class KafkaServiceCompilerTest {
     public void testKafkaServiceMoreThanOneResource() {
         String msg = "More than one resources found in Kafka service kafkaTestService. " +
                 "Kafka Service should only have one resource";
-        compileResult = BCompileUtil.compile(getFilePath(
+        compileResult = BCompileUtil.compileOffline(getFilePath(
                 Paths.get(TEST_SRC, TEST_COMPILER, "kafka_service_more_than_one_resource.bal")));
         validateCompilerErrors(compileResult, msg);
     }

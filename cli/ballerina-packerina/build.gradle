@@ -32,6 +32,8 @@ dependencies {
     bir project(path: ':ballerina-io',  configuration: 'bir')
     bir project(path: ':testerina:testerina-core',  configuration: 'bir')
 
+    testCompile project(':ballerina-io')
+
     implementation project(':ballerina-lang')
     implementation project(':ballerina-config')
     implementation project(':ballerina-logging')
