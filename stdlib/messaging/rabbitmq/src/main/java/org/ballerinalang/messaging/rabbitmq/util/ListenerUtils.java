@@ -38,7 +38,7 @@ import java.util.concurrent.TimeoutException;
 /**
  * Util class for RabbitMQ Listener actions handling.
  *
- * @since 1.0.4
+ * @since 1.1.0
  */
 public class ListenerUtils {
     private static final PrintStream console;

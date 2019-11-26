@@ -33,7 +33,7 @@ import java.nio.charset.StandardCharsets;
 /**
  * Util class for RabbitMQ Message handling.
  *
- * @since 1.0.4
+ * @since 1.1.0
  */
 public class MessageUtils {
     public static Object nativeBasicAck(Channel channel, int deliveryTag, boolean ackMode,
