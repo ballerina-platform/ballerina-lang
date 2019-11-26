@@ -53,7 +53,7 @@ public class ChannelUtils {
         }
     }
 
-    public static Object nativeQueueDeclare(MapValue queueConfig, Channel channel) {
+    public static Object nativeQueueDeclare(Object queueConfig, Channel channel) {
         try {
             if (queueConfig == null) {
                 return channel.queueDeclare();

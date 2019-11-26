@@ -35,11 +35,11 @@ import org.ballerinalang.jvm.types.BStructureType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.util.exceptions.BallerinaConnectorException;
-import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.HandleValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.api.BValueCreator;
 
 import java.io.IOException;
 import java.io.PrintStream;
@@ -194,7 +194,7 @@ public class MessageDispatcher {
                     RabbitMQConstants.MESSAGE_OBJECT);
             messageObjectValue.set(RabbitMQConstants.DELIVERY_TAG, deliveryTag);
             messageObjectValue.set(RabbitMQConstants.JAVA_CLIENT_CHANNEL, new HandleValue(channel));
-            messageObjectValue.set(RabbitMQConstants.MESSAGE_CONTENT, new ArrayValue(message));
+            messageObjectValue.set(RabbitMQConstants.MESSAGE_CONTENT, BValueCreator.createArrayValue(message));
             messageObjectValue.set(RabbitMQConstants.AUTO_ACK_STATUS, autoAck);
             messageObjectValue.set(RabbitMQConstants.MESSAGE_ACK_STATUS, false);
             if (properties != null) {
