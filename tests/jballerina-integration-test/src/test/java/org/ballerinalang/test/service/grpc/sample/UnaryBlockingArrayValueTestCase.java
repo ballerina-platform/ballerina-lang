@@ -131,7 +131,7 @@ public class UnaryBlockingArrayValueTestCase extends GrpcBaseTest {
         Assert.assertEquals(response.stringValue(), ",Sam,John");
     }
 
-    @Test
+    @Test(enabled = false)
     public void testIntArrayOutputClient() {
         BValue[] responses = BRunUtil.invoke(result, "testIntArrayOutput", new Object[]{});
         Assert.assertEquals(responses.length, 1);

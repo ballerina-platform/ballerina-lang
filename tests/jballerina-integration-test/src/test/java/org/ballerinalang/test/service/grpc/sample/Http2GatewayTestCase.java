@@ -42,7 +42,7 @@ public class Http2GatewayTestCase extends GrpcBaseTest {
         System.setProperty("ballerina.home", serverInstance.getServerHome());
     }
 
-    @Test(description = "Test bidirectional streaming client")
+    @Test(description = "Test bidirectional streaming client", enabled = false)
     public void testBidiStreamingClient() {
 
         Path balFilePath = Paths.get("src", "test", "resources", "grpc", "src", "clients",
