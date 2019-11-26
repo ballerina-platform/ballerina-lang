@@ -218,6 +218,14 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "var",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "220",
+      "insertText": "var ",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "float",
       "kind": "Unit",
       "detail": "Float",
