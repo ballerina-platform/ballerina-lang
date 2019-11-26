@@ -40,6 +40,7 @@ dependencies {
 
     interopImports project(':ballerina-task')
     interopImports project(':ballerina-config-api')
+    interopImports project(':ballerina-math')
 
     baloCreat project(':lib-creator')
     implementation project(':ballerina-lang')
