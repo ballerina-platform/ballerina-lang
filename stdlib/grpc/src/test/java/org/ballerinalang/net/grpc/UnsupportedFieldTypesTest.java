@@ -36,7 +36,7 @@ public class UnsupportedFieldTypesTest {
 
         Path serviceBalPath = Paths.get("src", "test", "resources", "test-src",
                 "negative_json_message_type.bal");
-        CompileResult result = BCompileUtil.compile(serviceBalPath.toAbsolutePath().toString());
+        CompileResult result = BCompileUtil.compileOffline(serviceBalPath.toAbsolutePath().toString());
         Assert.assertEquals(1, result.getErrorCount());
         Assert.assertEquals(1, result.getDiagnostics().length);
         Assert.assertEquals("Unsupported field type, field type json currently not supported.", result
@@ -48,7 +48,7 @@ public class UnsupportedFieldTypesTest {
 
         Path serviceBalPath = Paths.get("src", "test", "resources", "test-src",
                 "negative_map_message_type.bal");
-        CompileResult result = BCompileUtil.compile(serviceBalPath.toAbsolutePath().toString());
+        CompileResult result = BCompileUtil.compileOffline(serviceBalPath.toAbsolutePath().toString());
         Assert.assertEquals(1, result.getErrorCount());
         Assert.assertEquals(1, result.getDiagnostics().length);
         Assert.assertEquals("Unsupported field type, field type map currently not supported.", result.getDiagnostics
