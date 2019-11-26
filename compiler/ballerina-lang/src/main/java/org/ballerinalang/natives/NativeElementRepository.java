@@ -27,6 +27,7 @@ import java.util.Map;
  * This represents a native element repository, that would be populated by any
  * native element provider.
  */
+@Deprecated
 public class NativeElementRepository {
 
     private Map<String, NativeFunctionDef> nativeFuncEntries = new HashMap<>();

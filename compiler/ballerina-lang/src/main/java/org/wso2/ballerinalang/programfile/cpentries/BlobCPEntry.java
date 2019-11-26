@@ -24,6 +24,7 @@ import java.util.Arrays;
  *
  * @since 0.975.0
  */
+@Deprecated
 public class BlobCPEntry implements ConstantPoolEntry {
 
     private byte[] value;
