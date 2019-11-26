@@ -16,7 +16,6 @@
 
 import ballerina/llvm;
 import ballerina/bir;
-import ballerina/stringutils;
 
 // TODO: make non-global
 llvm:LLVMValueRef? printfRef = ();
@@ -123,15 +122,15 @@ function mapFuncsToNameAndGenrator(llvm:LLVMModuleRef mod, llvm:LLVMBuilderRef b
 }
 
 function checkForValidFunction(bir:Function func) returns boolean {
-    if (stringutils:contains(func.name.value, "init")) {
+    if (func.name.value =="init") {
         return false;
-    } else if (stringutils:contains(func.name.value, "start")) {
+    } else if (func.name.value == "start") {
         return false;
-    } else if (stringutils:contains(func.name.value, "stop")) {
+    } else if (func.name.value == "stop") {
         return false;
     } else {
         return true;
-    }   
+    }
 }
 
 function optimize(llvm:LLVMModuleRef mod) {
@@ -261,27 +260,19 @@ function createNamedStruct(string name) returns llvm:LLVMTypeRef {
     return structType;
 }
 
-function checkIfTypesAreCompatible(bir:BType castType, llvm:LLVMTypeRef lhsType) returns boolean {
-    if (castType is bir:BUnionType) {
-        llvm:LLVMTypeRef castTypeRef = genBType(castType);
-        return llvm:llvmCheckIfTypesMatch(castTypeRef, lhsType);   
-    }
-    return true;
-}
-
 function isUnionType(bir:BType typeValue) returns boolean {
     return typeValue is bir:BUnionType;
 }
 
-function getTagValue(bir:BType typeValue) returns int {
+function getTag(bir:BType typeValue) returns int {
     if (typeValue is bir:BUnionType) {
-        return getTagValueForUnion(typeValue);
+        return getTagForUnion(typeValue);
     } else {
         return getTagForSingleType(typeValue);
     }
 }
 
-function getTagValueForUnion(bir:BUnionType unionType) returns int {
+function getTagForUnion(bir:BUnionType unionType) returns int {
     int largestTag = 0;
     foreach var member in unionType.members {
         if (member is bir:BType) {
@@ -311,10 +302,6 @@ function getValueRefFromInt(int value, int sign) returns llvm:LLVMValueRef {
 
 function getTaggedStructTypeFromSingleType(bir:BType typeValue) returns llvm:LLVMTypeRef {
     return getTaggedStructType(getTypeStringName(typeValue));
-}
-
-function genStructCastName(string variableName, string castName) returns string {
-    return variableName + "_" + castName;
 }
 
 function getTypeStringName(bir:BType typeValue) returns string {

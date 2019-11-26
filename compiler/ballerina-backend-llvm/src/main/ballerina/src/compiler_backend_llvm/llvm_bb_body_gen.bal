@@ -50,7 +50,7 @@ type BbBodyGenrator object {
         if (isLhsUnionType) {
             llvm:LLVMValueRef unionTagValue =
                         self.parent.loadElementFromStruct(typeTestIns.rhsOp, TAGGED_UNION_FLAG_INDEX);
-            llvm:LLVMValueRef valueOfType = getValueRefFromInt(getTagValue(typeTestIns.typeValue), 0);
+            llvm:LLVMValueRef valueOfType = getValueRefFromInt(getTag(typeTestIns.typeValue), 0);
             llvm:LLVMValueRef isEq = llvm:llvmBuildICmp(self.builder, llvm:LLVMIntEQ, unionTagValue, valueOfType, "typeTest");
             _ = llvm:llvmBuildStore(self.builder, isEq, self.parent.getLocalVarRef(typeTestIns.lhsOp));
         } 
