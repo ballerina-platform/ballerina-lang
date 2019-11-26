@@ -52,7 +52,7 @@ public class BootstrapRunner {
 
     private static final PrintStream out = System.out;
     private static final PrintStream err = System.err;
-    private static String CLASSPATH = "CLASSPATH";
+    private static final String CLASSPATH = "CLASSPATH";
 
     public static void loadTargetAndGenerateJarBinary(String entryBir, String jarOutputPath, boolean dumpBir,
                                                       HashSet<Path> moduleDependencySet, String... birCachePaths) {
