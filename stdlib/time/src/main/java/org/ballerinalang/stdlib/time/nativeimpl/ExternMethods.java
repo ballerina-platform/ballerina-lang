@@ -33,16 +33,16 @@ import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAccessor;
 import java.util.Arrays;
 
-import static org.ballerinalang.stdlib.time.nativeimpl.AbstractTimeFunction.ZONE_FIELD;
-import static org.ballerinalang.stdlib.time.nativeimpl.AbstractTimeFunction.ZONE_ID_FIELD;
-import static org.ballerinalang.stdlib.time.nativeimpl.AbstractTimeFunction.changeTimezone;
-import static org.ballerinalang.stdlib.time.nativeimpl.AbstractTimeFunction.createDateTime;
-import static org.ballerinalang.stdlib.time.nativeimpl.AbstractTimeFunction.getDefaultString;
-import static org.ballerinalang.stdlib.time.nativeimpl.AbstractTimeFunction.getFormattedString;
-import static org.ballerinalang.stdlib.time.nativeimpl.AbstractTimeFunction.getZonedDateTime;
-import static org.ballerinalang.stdlib.time.nativeimpl.AbstractTimeFunction.parseTime;
+import static org.ballerinalang.stdlib.time.util.Constants.MULTIPLIER_TO_NANO;
+import static org.ballerinalang.stdlib.time.util.TimeUtils.changeTimezone;
+import static org.ballerinalang.stdlib.time.util.TimeUtils.createDateTime;
+import static org.ballerinalang.stdlib.time.util.TimeUtils.getDefaultString;
+import static org.ballerinalang.stdlib.time.util.TimeUtils.getFormattedString;
 import static org.ballerinalang.stdlib.time.util.TimeUtils.getTimeRecord;
 import static org.ballerinalang.stdlib.time.util.TimeUtils.getTimeZoneRecord;
+import static org.ballerinalang.stdlib.time.util.TimeUtils.getZoneId;
+import static org.ballerinalang.stdlib.time.util.TimeUtils.getZonedDateTime;
+import static org.ballerinalang.stdlib.time.util.TimeUtils.parseTime;
 
 /**
  * Extern methods used in Ballerina Time library.
@@ -57,38 +57,8 @@ public class ExternMethods {
     private static final BTupleType getTimeTupleType = new BTupleType(
             Arrays.asList(BTypes.typeInt, BTypes.typeInt, BTypes.typeInt, BTypes.typeInt));
 
-    public static MapValue<?, ?> addDuration(MapValue<String, Object> timeRecord, long years,
-                                                   long months, long days, long hours, long minutes, long seconds,
-                                                   long milliSeconds) {
-        ZonedDateTime dateTime = getZonedDateTime(timeRecord);
-        long nanoSeconds = milliSeconds * 1000000;
-        dateTime = dateTime.plusYears(years).plusMonths(months).plusDays(days).plusHours(hours).plusMinutes(minutes)
-                .plusSeconds(seconds).plusNanos(nanoSeconds);
-        MapValue<String, Object> zoneData = (MapValue<String, Object>) timeRecord.get(ZONE_FIELD);
-        String zoneIdName = zoneData.get(ZONE_ID_FIELD).toString();
-        long mSec = dateTime.toInstant().toEpochMilli();
-        return TimeUtils.createTimeRecord(getTimeZoneRecord(), getTimeRecord(), mSec, zoneIdName);
-    }
-
-    public static Object createTime(long years, long months, long dates, long hours, long minutes,
-                                    long seconds, long milliSeconds, String zoneId) {
-        try {
-            return createDateTime((int) years, (int) months, (int) dates, (int) hours, (int) minutes, (int) seconds,
-                                  (int) milliSeconds, zoneId);
-        } catch (ErrorValue e) {
-            return e;
-        }
-    }
-
-    public static MapValue<?, ?> currentTime() {
-        long currentTime = Instant.now().toEpochMilli();
-        return TimeUtils.createTimeRecord(getTimeZoneRecord(), getTimeRecord(), currentTime,
-                                          ZoneId.systemDefault().toString());
-    }
-
-    public static long getDay(MapValue<String, Object> timeRecord) {
-        ZonedDateTime dateTime = getZonedDateTime(timeRecord);
-        return dateTime.getDayOfMonth();
+    public static String toString(MapValue<String, Object> timeRecord) {
+        return getDefaultString(timeRecord);
     }
 
     public static Object format(MapValue<String, Object> timeRecord, Object pattern) {
@@ -102,6 +72,46 @@ public class ExternMethods {
         } catch (IllegalArgumentException e) {
             return TimeUtils.getTimeError("Invalid Pattern: " + pattern.toString());
         }
+    }
+
+    public static long getYear(MapValue<String, Object> timeRecord) {
+        ZonedDateTime dateTime = getZonedDateTime(timeRecord);
+        return dateTime.getYear();
+    }
+
+    public static long getMonth(MapValue<String, Object> timeRecord) {
+        ZonedDateTime dateTime = getZonedDateTime(timeRecord);
+        return dateTime.getMonthValue();
+    }
+
+    public static long getDay(MapValue<String, Object> timeRecord) {
+        ZonedDateTime dateTime = getZonedDateTime(timeRecord);
+        return dateTime.getDayOfMonth();
+    }
+
+    public static String getWeekday(MapValue<String, Object> timeRecord) {
+        ZonedDateTime dateTime = getZonedDateTime(timeRecord);
+        return dateTime.getDayOfWeek().toString();
+    }
+
+    public static long getHour(MapValue<String, Object> timeRecord) {
+        ZonedDateTime dateTime = getZonedDateTime(timeRecord);
+        return dateTime.getHour();
+    }
+
+    public static long getMinute(MapValue<String, Object> timeRecord) {
+        ZonedDateTime dateTime = getZonedDateTime(timeRecord);
+        return dateTime.getMinute();
+    }
+
+    public static long getSecond(MapValue<String, Object> timeRecord) {
+        ZonedDateTime dateTime = getZonedDateTime(timeRecord);
+        return dateTime.getSecond();
+    }
+
+    public static long getMilliSecond(MapValue<String, Object> timeRecord) {
+        ZonedDateTime dateTime = getZonedDateTime(timeRecord);
+        return dateTime.getNano() / 1000000;
     }
 
     public static ArrayValue getDate(MapValue<String, Object> timeRecord) {
@@ -121,24 +131,50 @@ public class ExternMethods {
         return time;
     }
 
-    public static long getHour(MapValue<String, Object> timeRecord) {
+    public static MapValue<?, ?> addDuration(MapValue<String, Object> timeRecord, long years,
+                                                   long months, long days, long hours, long minutes, long seconds,
+                                                   long milliSeconds) {
         ZonedDateTime dateTime = getZonedDateTime(timeRecord);
-        return dateTime.getHour();
+        long nanoSeconds = milliSeconds * MULTIPLIER_TO_NANO;
+        dateTime = dateTime.plusYears(years).plusMonths(months).plusDays(days).plusHours(hours).plusMinutes(minutes)
+                .plusSeconds(seconds).plusNanos(nanoSeconds);
+        long mSec = dateTime.toInstant().toEpochMilli();
+        return TimeUtils.createTimeRecord(getTimeZoneRecord(), getTimeRecord(), mSec, getZoneId(timeRecord));
     }
 
-    public static long getMilliSecond(MapValue<String, Object> timeRecord) {
+    public static MapValue<String, Object> subtractDuration(MapValue<String, Object> timeRecord,
+                                                            long years, long months, long days, long hours,
+                                                            long minutes, long seconds, long milliSeconds) {
         ZonedDateTime dateTime = getZonedDateTime(timeRecord);
-        return dateTime.getNano() / 1000000;
+        long nanoSeconds = milliSeconds * MULTIPLIER_TO_NANO;
+        dateTime = dateTime.minusYears(years).minusMonths(months).minusDays(days).minusHours(hours)
+                .minusMinutes(minutes).minusSeconds(seconds).minusNanos(nanoSeconds);
+        long mSec = dateTime.toInstant().toEpochMilli();
+        return TimeUtils.createTimeRecord(getTimeZoneRecord(), getTimeRecord(), mSec, getZoneId(timeRecord));
     }
 
-    public static long getMinute(MapValue<String, Object> timeRecord) {
-        ZonedDateTime dateTime = getZonedDateTime(timeRecord);
-        return dateTime.getMinute();
+    public static Object toTimeZone(MapValue<String, Object> timeRecord, String zoneId) {
+        try {
+            return changeTimezone(timeRecord, zoneId);
+        } catch (ErrorValue e) {
+            return e;
+        }
     }
 
-    public static long getMonth(MapValue<String, Object> timeRecord) {
-        ZonedDateTime dateTime = getZonedDateTime(timeRecord);
-        return dateTime.getMonthValue();
+    public static MapValue<?, ?> currentTime() {
+        long currentTime = Instant.now().toEpochMilli();
+        return TimeUtils.createTimeRecord(getTimeZoneRecord(), getTimeRecord(), currentTime,
+                                          ZoneId.systemDefault().toString());
+    }
+
+    public static Object createTime(long years, long months, long dates, long hours, long minutes,
+                                    long seconds, long milliSeconds, String zoneId) {
+        try {
+            return createDateTime((int) years, (int) months, (int) dates, (int) hours, (int) minutes, (int) seconds,
+                                  (int) milliSeconds, zoneId);
+        } catch (ErrorValue e) {
+            return e;
+        }
     }
 
     public static Object parse(String dateString, Object pattern) {
@@ -152,45 +188,5 @@ public class ExternMethods {
         } catch (ErrorValue e) {
             return e;
         }
-    }
-
-    public static long getSecond(MapValue<String, Object> timeRecord) {
-        ZonedDateTime dateTime = getZonedDateTime(timeRecord);
-        return dateTime.getSecond();
-    }
-
-    public static MapValue<String, Object> subtractDuration(MapValue<String, Object> timeRecord,
-                                                            long years, long months, long days, long hours,
-                                                            long minutes, long seconds, long milliSeconds) {
-        ZonedDateTime dateTime = getZonedDateTime(timeRecord);
-        long nanoSeconds = milliSeconds * 1000000;
-        dateTime = dateTime.minusYears(years).minusMonths(months).minusDays(days).minusHours(hours)
-                .minusMinutes(minutes).minusSeconds(seconds).minusNanos(nanoSeconds);
-        MapValue<String, Object> zoneData = (MapValue<String, Object>) timeRecord.get(ZONE_FIELD);
-        String zoneIdName = zoneData.get(ZONE_ID_FIELD).toString();
-        long mSec = dateTime.toInstant().toEpochMilli();
-        return TimeUtils.createTimeRecord(getTimeZoneRecord(), getTimeRecord(), mSec, zoneIdName);
-    }
-
-    public static String toString(MapValue<String, Object> timeRecord) {
-        return getDefaultString(timeRecord);
-    }
-
-    public static Object toTimeZone(MapValue<String, Object> timeRecord, String zoneId) {
-        try {
-            return changeTimezone(timeRecord, zoneId);
-        } catch (ErrorValue e) {
-            return e;
-        }
-    }
-
-    public static String getWeekday(MapValue<String, Object> timeRecord) {
-        ZonedDateTime dateTime = getZonedDateTime(timeRecord);
-        return dateTime.getDayOfWeek().toString();
-    }
-
-    public static long getYear(MapValue<String, Object> timeRecord) {
-        ZonedDateTime dateTime = getZonedDateTime(timeRecord);
-        return dateTime.getYear();
     }
 }
