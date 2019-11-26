@@ -540,7 +540,7 @@ public type Request object {
 
     # Gets cookies from the request.
     #
-    # + return - An array of cookie objects which are included in the request
+    # + return - An array of cookie objects, which are included in the request
     public function getCookies() returns Cookie[] {
         string cookiesStringValue = "";
         Cookie[] cookiesInRequest = [];
@@ -551,7 +551,7 @@ public type Request object {
     }
 };
 
-# A record for providing mutual ssl handshake results.
+# A record for providing mutual SSL handshake results.
 #
 # + status - Status of the handshake.
 public type MutualSslHandshake record {|

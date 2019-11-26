@@ -399,7 +399,7 @@ public type Response object {
 
     # Adds the cookie to response.
     #
-    # + cookie - The cookie which is added to response
+    # + cookie - The cookie, which is added to response
     public function addCookie(Cookie cookie) {
         var result = cookie.isValid();
         if (result is boolean) {
@@ -409,7 +409,7 @@ public type Response object {
         }
     }
 
-    # Deletes cookies in the client's cookie store by server.
+    # Deletes the cookies in the client's cookie store.
     #
     # + cookiesToRemove - Cookies to be deleted
     public function removeCookiesFromRemoteStore(Cookie...cookiesToRemove) {
@@ -422,7 +422,7 @@ public type Response object {
 
     # Gets cookies from the response.
     #
-    # + return - An array of cookie objects which are included in the response
+    # + return - An array of cookie objects, which are included in the response
     public function getCookies() returns @tainted Cookie[] {
         Cookie[] cookiesInResponse = [];
         string[] cookiesStringValues = self.getHeaders("Set-Cookie");
