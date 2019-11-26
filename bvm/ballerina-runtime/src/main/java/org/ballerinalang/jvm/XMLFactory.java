@@ -85,8 +85,8 @@ public class XMLFactory {
                 return new XMLSequence();
             }
 
-            StaxXMLSource staxXMLSource = new StaxXMLSource(xmlStr);
-            return staxXMLSource.parse();
+            XMLTreeBuilder XMLTreeBuilder = new XMLTreeBuilder(xmlStr);
+            return XMLTreeBuilder.parse();
         } catch (ErrorValue e) {
             throw e;
         } catch (Throwable e) {
@@ -102,8 +102,8 @@ public class XMLFactory {
      */
     public static XMLValue parse(InputStream xmlStream) {
         try {
-            StaxXMLSource staxXMLSource = new StaxXMLSource(new InputStreamReader(xmlStream));
-            return staxXMLSource.parse();
+            XMLTreeBuilder XMLTreeBuilder = new XMLTreeBuilder(new InputStreamReader(xmlStream));
+            return XMLTreeBuilder.parse();
         } catch (DeferredParsingException e) {
             throw BallerinaErrors.createError(e.getCause().getMessage());
         } catch (Throwable e) {
@@ -120,8 +120,8 @@ public class XMLFactory {
      */
     public static XMLValue parse(InputStream xmlStream, String charset) {
         try {
-            StaxXMLSource staxXMLSource = new StaxXMLSource(new InputStreamReader(xmlStream, charset));
-            return staxXMLSource.parse();
+            XMLTreeBuilder XMLTreeBuilder = new XMLTreeBuilder(new InputStreamReader(xmlStream, charset));
+            return XMLTreeBuilder.parse();
         } catch (DeferredParsingException e) {
             throw BallerinaErrors.createError(e.getCause().getMessage());
         } catch (Throwable e) {
@@ -131,8 +131,8 @@ public class XMLFactory {
 
 
     public static XMLValue parse2(String str) {
-        StaxXMLSource staxXMLSource = new StaxXMLSource(str);
-        return staxXMLSource.parse();
+        XMLTreeBuilder XMLTreeBuilder = new XMLTreeBuilder(str);
+        return XMLTreeBuilder.parse();
     }
 
     /**
@@ -143,8 +143,8 @@ public class XMLFactory {
      */
     public static XMLValue parse(Reader reader) {
         try {
-            StaxXMLSource staxXMLSource = new StaxXMLSource(reader);
-            return staxXMLSource.parse();
+            XMLTreeBuilder XMLTreeBuilder = new XMLTreeBuilder(reader);
+            return XMLTreeBuilder.parse();
         } catch (DeferredParsingException e) {
             throw BallerinaErrors.createError(e.getCause().getMessage());
         } catch (Throwable e) {

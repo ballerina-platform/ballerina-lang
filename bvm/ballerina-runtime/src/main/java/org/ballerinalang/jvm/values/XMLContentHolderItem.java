@@ -35,8 +35,8 @@ import java.util.NoSuchElementException;
 
 import static org.ballerinalang.jvm.util.BLangConstants.STRING_NULL_VALUE;
 
-/** XML nodes containing atomic content
- * such as text, comment and processing instructions.
+/**
+ * XML nodes containing atomic content such as text, comment and processing instructions.
  *
  * @since 1.1.0
  */
@@ -75,7 +75,7 @@ public class XMLContentHolderItem extends XMLValue {
 
     @Override
     public String getElementName() {
-        return null;
+        return "";
     }
 
     @Override

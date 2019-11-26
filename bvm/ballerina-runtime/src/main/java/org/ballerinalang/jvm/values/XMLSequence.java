@@ -199,10 +199,9 @@ public final class XMLSequence extends XMLValue {
     public XMLValue elements() {
         List elementsSeq = new ArrayList<XMLValue>();
         for (BXml child : children) {
-            if (child.getNodeType() != XMLNodeType.ELEMENT) {
-                continue;
+            if (child.getNodeType() == XMLNodeType.ELEMENT) {
+                elementsSeq.add(child);
             }
-            elementsSeq.add(child);
         }
         return new XMLSequence(elementsSeq);
     }
@@ -214,14 +213,9 @@ public final class XMLSequence extends XMLValue {
     public XMLValue elements(String qname) {
         List<BXml> elementsSeq = new ArrayList<>();
         String qnameStr = getQname(qname).toString();
-        int j = 0;
-        for (BXml x : children) {
-            if (x.getNodeType() != XMLNodeType.ELEMENT) {
-                continue;
-            }
-            XMLItem item = (XMLItem) x;
-            if (item.getNodeType() == XMLNodeType.ELEMENT && item.getElementName().equals(qnameStr)) {
-                elementsSeq.add(j++, item);
+        for (BXml child : children) {
+            if (child.getElementName().equals(qnameStr)) {
+                elementsSeq.add(child);
             }
         }
         return new XMLSequence(elementsSeq);
@@ -242,9 +236,6 @@ public final class XMLSequence extends XMLValue {
     public XMLValue children(String qname) {
         List<BXml> selected = new ArrayList<>();
         for (BXml elem : this.children) {
-            if (elem.getNodeType() != XMLNodeType.ELEMENT) {
-                continue;
-            }
             if (elem.getElementName().equals(qname)) {
                 selected.add(elem);
             }
@@ -398,11 +389,7 @@ public final class XMLSequence extends XMLValue {
     @Override
     public String toString() {
         try {
-            StringBuilder sb = new StringBuilder();
-            for (BXml x : children) {
-                sb.append(x.toString());
-            }
-            return sb.toString();
+            return stringValue();
         } catch (Throwable t) {
             handleXmlException("failed to get xml as string: ", t);
         }
@@ -416,11 +403,11 @@ public final class XMLSequence extends XMLValue {
     public String stringValue(Strand strand) {
         try {
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-            BallerinaXMLSerializer ballerinaXMLSerializer = new BallerinaXMLSerializer(outputStream);
-            ballerinaXMLSerializer.write(this);
-            ballerinaXMLSerializer.flush();
+            BallerinaXMLSerializer serializer = new BallerinaXMLSerializer(outputStream);
+            serializer.write(this);
+            serializer.flush();
             String str = new String(outputStream.toByteArray(), StandardCharsets.UTF_8);
-            ballerinaXMLSerializer.close();
+            serializer.close();
             return str;
         } catch (Throwable t) {
             handleXmlException("failed to get xml as string: ", t);
@@ -492,8 +479,8 @@ public final class XMLSequence extends XMLValue {
      */
     @Override
     public void build() {
-        for (BXml x : children) {
-            x.build();
+        for (BXml child : children) {
+            child.build();
         }
     }
 

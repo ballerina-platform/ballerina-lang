@@ -51,9 +51,11 @@ import static javax.xml.stream.XMLStreamConstants.PROCESSING_INSTRUCTION;
 import static javax.xml.stream.XMLStreamConstants.START_ELEMENT;
 
 /**
+ * XML tree builder for Ballerina xml node structure using
+ *
  * @since 1.1.0
  */
-public class StaxXMLSource {
+public class XMLTreeBuilder {
 
     // XMLInputFactory2
     private static final XMLInputFactory xmlInputFactory = XMLInputFactory.newInstance();
@@ -62,11 +64,11 @@ public class StaxXMLSource {
     private Deque<XMLSequence> seqDeque;
     private Deque<List<BXml>> siblingDeque; // we can remove this by opening up children list in XMLSeq
 
-    public StaxXMLSource(String str) {
+    public XMLTreeBuilder(String str) {
         this(new StringReader(str));
     }
 
-    public StaxXMLSource(Reader stringReader) {
+    public XMLTreeBuilder(Reader stringReader) {
         namespaces = new HashMap<>();
         seqDeque = new ArrayDeque<>();
         siblingDeque = new ArrayDeque<>();

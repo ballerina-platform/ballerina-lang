@@ -311,13 +311,12 @@ public final class XMLItem extends XMLValue {
             return;
         }
 
-        ArrayList leftList = new ArrayList(children.children);
-        this.children = new XMLSequence(leftList);
+        List<BXml> leftList = new ArrayList<>(children.children);
 
         if (seq.getNodeType() == XMLNodeType.SEQUENCE) {
             List<BXml> appendingList = ((XMLSequence) seq).getChildrenList();
-            if (isLastChildIsTextNode(leftList)
-                    && appendingList.size() > 0 && appendingList.get(0).getNodeType() == TEXT) {
+            if (isLastChildIsTextNode(leftList) && !appendingList.isEmpty()
+                    && appendingList.get(0).getNodeType() == TEXT) {
                 mergeAdjoiningTextNodesIntoList(leftList, appendingList);
             } else {
                 leftList.addAll(appendingList);
@@ -325,9 +324,10 @@ public final class XMLItem extends XMLValue {
         } else {
             leftList.add(seq);
         }
+        this.children = new XMLSequence(leftList);
     }
 
-    private void mergeAdjoiningTextNodesIntoList(ArrayList leftList, List<BXml> appendingList) {
+    private void mergeAdjoiningTextNodesIntoList(List leftList, List<BXml> appendingList) {
         XMLContentHolderItem lastChild = (XMLContentHolderItem) leftList.get(leftList.size() - 1);
         String firstChildContent = ((XMLContentHolderItem) appendingList.get(0)).getData();
         String mergedTextContent = lastChild.getData() + firstChildContent;
@@ -338,8 +338,8 @@ public final class XMLItem extends XMLValue {
         }
     }
 
-    private boolean isLastChildIsTextNode(List<XMLValue> childList) {
-        return childList.size() > 0 && childList.get(childList.size() - 1).getNodeType() == TEXT;
+    private boolean isLastChildIsTextNode(List<BXml> childList) {
+        return !childList.isEmpty() && childList.get(childList.size() - 1).getNodeType() == TEXT;
     }
 
     /**
@@ -504,7 +504,6 @@ public final class XMLItem extends XMLValue {
      */
     @Override
     public void build() {
-        //this.omNode.build();
     }
 
     /**

@@ -40,6 +40,8 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 
 /**
+ * XML Serializer for Ballerina XML value trees.
+ *
  * @since 1.1.0
  */
 public class BallerinaXMLSerializer extends OutputStream {
@@ -106,7 +108,6 @@ public class BallerinaXMLSerializer extends OutputStream {
                     throw new IllegalStateException("Unexpected value: " + xmlValue.getNodeType());
             }
         } catch (XMLStreamException e) {
-            // is this the best way to handle this???
             throw new BallerinaException(e.getMessage(), e);
         }
     }

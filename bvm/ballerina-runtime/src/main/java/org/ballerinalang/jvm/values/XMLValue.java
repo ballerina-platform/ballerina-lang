@@ -41,7 +41,7 @@ import javax.xml.namespace.QName;
  * <li>sequence of above</li>
  * </ul>
  * <p>
- * <i>Note: This is an internal API an  ange in future versions.</i>
+ * <i>Note: This is an internal API and may change in future versions.</i>
  * </p>
  * 
  * @since 0.995.0
@@ -126,14 +126,14 @@ public abstract class XMLValue implements RefValue, BXml {
 
     /**
      * Recursively traverse and add the descendant with the given name to the descendants list.
-     *  @param descendants List to add descendants
+     * @param descendants List to add descendants
      * @param currentElement Current node
      * @param qname Qualified name of the descendants to search
      */
     protected void addDescendants(List<BXml> descendants, XMLItem currentElement, String qname) {
         for (BXml child : currentElement.children.children) {
             if (child.getNodeType() == XMLNodeType.ELEMENT) {
-                if (((XMLItem) child).getQName().toString().equals(qname)) { // todo: is this name check correct? verify
+                if (((XMLItem) child).getQName().toString().equals(qname)) {
                     descendants.add(child);
                     continue;
                 } else {
@@ -150,7 +150,8 @@ public abstract class XMLValue implements RefValue, BXml {
         return this.freezeStatus.isFrozen();
     }
 
-    // todo: Fix in the JVM code gen to directly call overridden BXml methods
+    // TODO: These are bridge methods to invoke methods in BXml interface
+    // Fix in the JVM code gen to directly call overridden BXml methods
     public void addChildren(XMLValue seq) {
         addChildren((BXml) seq);
     }
