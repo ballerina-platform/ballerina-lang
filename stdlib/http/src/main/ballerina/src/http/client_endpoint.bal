@@ -29,7 +29,7 @@ import ballerina/time;
 # + config - The configurations associated with the client
 # + httpClient - Chain of different HTTP clients which provides the capability for initiating contact with a remote
 #                HTTP service in resilient manner
-# + cookieStore - Store to keep cookies of the client
+# + cookieStore - Stores the cookies of the client
 public type Client client object {
 
     public string url;
@@ -37,13 +37,13 @@ public type Client client object {
     public HttpClient httpClient;
     public CookieStore cookieStore;
 
-    # Gets invoked to initialize the client. During initialization, configurations provided through the `config`
-    # record is used to determine which type of additional behaviours are added to the endpoint (e.g: caching,
+    # Gets invoked to initialize the client. During initialization, the configurations provided through the `config`
+    # record is used to determine which type of additional behaviours are added to the endpoint (e.g., caching,
     # security, circuit breaking).
     #
     # + url - URL of the target service
     # + config - The configurations to be used when initializing the client
-    # + cookieStore - Store to keep cookies of the client
+    # + cookieStore - Stores the cookies of the client
     public function __init(string url, public ClientConfiguration? config = ()) {
         self.config = config ?: {};
         self.url = url;
@@ -237,10 +237,10 @@ public type TargetService record {|
 # + secureSocket - SSL/TLS related options
 # + cache - HTTP caching related configurations
 # + compression - Specifies the way of handling compression (`accept-encoding`) header
-# + auth - HTTP authentication related configurations
-# + circuitBreaker - Configurations associated with Circuit Breaker behaviour
-# + retryConfig - Configurations associated with Retry
-# + cookieConfig - Configurations associated with Cookies
+# + auth - HTTP authentication-related configurations
+# + circuitBreaker - Configurations associated with the behaviour of the Circuit Breaker
+# + retryConfig - Configurations associated with retrying
+# + cookieConfig - Configurations associated with cookies
 public type ClientConfiguration record {|
     string httpVersion = HTTP_1_1;
     ClientHttp1Settings http1Settings = {};
@@ -361,17 +361,17 @@ public type OutboundAuthConfig record {|
 # Client configuration for cookies.
 #
 # + enabled - User agents provide users with a mechanism for disabling or enabling cookies
-# + maxPerCookieSize - At least 4096 bytes per cookie (as measured by the sum of the length of the cookie’s name, value, and  attributes)
-# + maxCookiesPerDomain - At least 50 cookies per domain
-# + maxCookieCount - At least 3000 cookies total
-# + blockThirdPartyCookies - User can block cookies from third party responses and refuse to send cookies for third party requests  if needed
-# + enablePersistent - Users are provided with a mechanism for enabling or disabling persistent cookies which are stored until a specific expiration date.
+# + maxSizePerCookie -  Maximum number of bytes per cookie (as measured by the sum of the length of the cookie’s name, value, and  attributes), which is 4096 bytes
+# + maxCookiesPerDomain - Maximum number of cookies per domain, which is 50
+# + maxTotalCookieCount - Maximum number of total cookies allowed to be stored in cookie store, which is 3000
+# + blockThirdPartyCookies - User can block cookies from third party responses and refuse to send cookies for third party requests, if needed
+# + enablePersistent - Users are provided with a mechanism for enabling or disabling persistent cookies, which are stored until a specific expiration date.
 #                     If false, only session cookies are used
 public type CookieConfig record {|
      boolean enabled = false;
-     int maxPerCookieSize = 4096;
-     int maxCookieCount = 3000;
+     int maxSizePerCookie = 4096;
      int maxCookiesPerDomain = 50;
+     int maxTotalCookieCount = 3000;
      boolean blockThirdPartyCookies = true;
      boolean enablePersistent = false;
 |};
@@ -508,34 +508,28 @@ function createRetryClient(string url, ClientConfiguration configuration, Cookie
 function createCookieClient(string url, ClientConfiguration configuration, CookieStore cookieStore) returns HttpClient|ClientError {
     var cookieConfigVal = configuration.cookieConfig;
     if (cookieConfigVal is CookieConfig) {
-        if (cookieConfigVal.enabled) {
-            if (configuration.cache.enabled) {
-                var httpCachingClient = createHttpCachingClient(url, configuration, configuration.cache);
-                if (httpCachingClient is HttpClient) {
-                    return new CookieClient(url, configuration, cookieConfigVal, httpCachingClient, cookieStore);
-                } else {
-                    return httpCachingClient;
-                }
-            } else {
-                var httpSecureClient = createHttpSecureClient(url, configuration);
-                if (httpSecureClient is HttpClient) {
-                    return new CookieClient(url, configuration, cookieConfigVal, httpSecureClient, cookieStore);
-                } else {
-                    return httpSecureClient;
-                }
-            }
-        } else {
+        if (!cookieConfigVal.enabled) {
             return createDefaultClient(url, configuration);
         }
-    } else{
-        return createDefaultClient(url, configuration);
+        if (configuration.cache.enabled) {
+            var httpCachingClient = createHttpCachingClient(url, configuration, configuration.cache);
+            if (httpCachingClient is HttpClient) {
+                return new CookieClient(url, configuration, cookieConfigVal, httpCachingClient, cookieStore);
+            }
+            return httpCachingClient;
+        }
+        var httpSecureClient = createHttpSecureClient(url, configuration);
+        if (httpSecureClient is HttpClient) {
+            return new CookieClient(url, configuration, cookieConfigVal, httpSecureClient, cookieStore);
+        }
+        return httpSecureClient;
     }
+    return createDefaultClient(url, configuration);
 }
 
 function createDefaultClient(string url, ClientConfiguration configuration) returns HttpClient|ClientError {
     if (configuration.cache.enabled) {
         return createHttpCachingClient(url, configuration, configuration.cache);
-    } else {
-        return createHttpSecureClient(url, configuration);
     }
+    return createHttpSecureClient(url, configuration);
 }
