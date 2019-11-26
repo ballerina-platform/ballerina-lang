@@ -29,7 +29,6 @@ dependencies {
     implementation project(':ballerina-lang')
     implementation project(':ballerina-utils')
     implementation project(':ballerina-io')
-    implementation project(':ballerina-java')
     implementation project(':ballerina-runtime')
 
     testCompile 'org.testng:testng:6.13.1'
