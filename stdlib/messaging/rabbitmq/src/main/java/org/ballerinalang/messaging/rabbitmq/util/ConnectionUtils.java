@@ -172,7 +172,7 @@ public class ConnectionUtils {
         }
     }
 
-    public static boolean nativeIsClosed(Connection connection) {
+    public static boolean isClosed(Connection connection) {
         return connection == null || !connection.isOpen();
     }
 

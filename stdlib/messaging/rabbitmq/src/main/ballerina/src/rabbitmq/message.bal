@@ -131,36 +131,43 @@ public type Message client object {
 function nativeBasicAck(handle amqpChannel, int deliveryTag, boolean multiple, boolean ackMode, boolean ackStatus)
 returns Error? =
 @java:Method {
+    name: "basicAck",
     class: "org.ballerinalang.messaging.rabbitmq.util.MessageUtils"
 } external;
 
 function nativeBasicNack(handle amqpChannel, int deliveryTag, boolean ackMode, boolean ackStatus, boolean multiple,
 boolean requeue) returns Error? =
 @java:Method {
+    name: "basicNack",
     class: "org.ballerinalang.messaging.rabbitmq.util.MessageUtils"
 } external;
 
 function nativeGetTextContent(byte[] messageContent) returns handle | Error =
 @java:Method {
+    name: "getTextContent",
     class: "org.ballerinalang.messaging.rabbitmq.util.MessageUtils"
 } external;
 
 function nativeGetFloatContent(byte[] messageContent) returns float | Error  =
 @java:Method {
+    name: "getFloatContent",
     class: "org.ballerinalang.messaging.rabbitmq.util.MessageUtils"
 } external;
 
 function nativeGetIntContent(byte[] messageContent) returns int | Error  =
 @java:Method {
+    name: "getIntContent",
     class: "org.ballerinalang.messaging.rabbitmq.util.MessageUtils"
 } external;
 
 function nativeGetXMLContent(byte[] messageContent) returns xml | Error  =
 @java:Method {
+    name: "getXMLContent",
     class: "org.ballerinalang.messaging.rabbitmq.util.MessageUtils"
 } external;
 
 function nativeGetJSONContent(byte[] messageContent) returns json | Error  =
 @java:Method {
+    name: "getJSONContent",
     class: "org.ballerinalang.messaging.rabbitmq.util.MessageUtils"
 } external;

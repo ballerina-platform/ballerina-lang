@@ -158,7 +158,7 @@ public class ListenerUtils {
         channel.queueDeclare(queueName, durable, exclusive, autoDelete, null);
     }
 
-    public static Object nativeSetQosSettings(Object prefetchCount, Object prefetchSize,
+    public static Object setQosSettings(Object prefetchCount, Object prefetchSize,
                                               ObjectValue listenerObjectValue) {
         ObjectValue channelObject =
                 (ObjectValue) listenerObjectValue.get(RabbitMQConstants.CHANNEL_REFERENCE);

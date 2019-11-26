@@ -140,5 +140,6 @@ function abortConnection(Listener lis) returns Error? =
 
 function nativeSetQosSettings(int? prefetchCount, int? prefetchSize, Listener lis) returns Error? =
 @java:Method {
+    name: "setQosSettings",
     class: "org.ballerinalang.messaging.rabbitmq.util.ListenerUtils"
 } external;

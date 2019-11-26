@@ -53,7 +53,7 @@ public class ChannelUtils {
         }
     }
 
-    public static Object nativeQueueDeclare(Object queueConfig, Channel channel) {
+    public static Object queueDeclare(Object queueConfig, Channel channel) {
         try {
             if (queueConfig == null) {
                 return channel.queueDeclare();
@@ -76,7 +76,7 @@ public class ChannelUtils {
         return null;
     }
 
-    public static Object nativeExchangeDeclare(MapValue<String, Object> exchangeConfig, Channel channel) {
+    public static Object exchangeDeclare(MapValue<String, Object> exchangeConfig, Channel channel) {
         try {
             String exchangeName = exchangeConfig.getStringValue(RabbitMQConstants.EXCHANGE_NAME);
             String exchangeType = exchangeConfig.getStringValue(RabbitMQConstants.EXCHANGE_TYPE);
@@ -95,7 +95,7 @@ public class ChannelUtils {
         return null;
     }
 
-    public static Object nativeQueueBind(String queueName, String exchangeName, String bindingKey, Channel channel) {
+    public static Object queueBind(String queueName, String exchangeName, String bindingKey, Channel channel) {
         try {
             channel.queueBind(queueName, exchangeName, bindingKey, null);
         } catch (IOException exception) {
@@ -105,7 +105,7 @@ public class ChannelUtils {
         return null;
     }
 
-    public static Object nativeBasicPublish(Object messageContent, String routingKey, String exchangeName,
+    public static Object basicPublish(Object messageContent, String routingKey, String exchangeName,
                                             Object properties, Channel channel) {
         String defaultExchangeName = "";
         if (exchangeName != null) {
@@ -143,7 +143,7 @@ public class ChannelUtils {
         return null;
     }
 
-    public static Object nativeQueueDelete(String queueName, boolean ifUnused, boolean ifEmpty, Channel channel) {
+    public static Object queueDelete(String queueName, boolean ifUnused, boolean ifEmpty, Channel channel) {
         try {
             channel.queueDelete(queueName, ifUnused, ifEmpty);
         } catch (IOException | RabbitMQConnectorException exception) {
@@ -153,7 +153,7 @@ public class ChannelUtils {
         return null;
     }
 
-    public static Object nativeExchangeDelete(String exchangeName, Channel channel) {
+    public static Object exchangeDelete(String exchangeName, Channel channel) {
         try {
             channel.exchangeDelete(exchangeName);
         } catch (IOException | BallerinaException exception) {
@@ -163,7 +163,7 @@ public class ChannelUtils {
         return null;
     }
 
-    public static Object nativeQueuePurge(String queueName, Channel channel) {
+    public static Object queuePurge(String queueName, Channel channel) {
         try {
             channel.queuePurge(queueName);
         } catch (IOException | RabbitMQConnectorException exception) {
@@ -173,7 +173,7 @@ public class ChannelUtils {
         return null;
     }
 
-    public static Object nativeChannelClose(Object closeCode, Object closeMessage, Channel channel) {
+    public static Object close(Object closeCode, Object closeMessage, Channel channel) {
         try {
             boolean validCloseCode = closeCode != null && RabbitMQUtils.checkIfInt(closeCode);
             boolean validCloseMessage = closeMessage != null && RabbitMQUtils.checkIfString(closeMessage);
@@ -189,7 +189,7 @@ public class ChannelUtils {
         return null;
     }
 
-    public static Object nativeChannelAbort(Object closeCode, Object closeMessage, Channel channel) {
+    public static Object abort(Object closeCode, Object closeMessage, Channel channel) {
         try {
             boolean validCloseCode = closeCode != null && RabbitMQUtils.checkIfInt(closeCode);
             boolean validCloseMessage = closeMessage != null && RabbitMQUtils.checkIfString(closeMessage);
@@ -205,7 +205,7 @@ public class ChannelUtils {
         }
     }
 
-    public static Object nativeGetConnection(Channel channel) {
+    public static Object getConnection(Channel channel) {
         try {
             Connection connection = channel.getConnection();
             ObjectValue connectionObject = BallerinaValues.createObjectValue(RabbitMQConstants.PACKAGE_ID_RABBITMQ,
@@ -218,7 +218,7 @@ public class ChannelUtils {
         }
     }
 
-    public static Object nativeBasicGet(String queueName, boolean ackMode, Channel channel) {
+    public static Object basicGet(String queueName, boolean ackMode, Channel channel) {
         try {
             GetResponse response = channel.basicGet(queueName, ackMode);
             return createAndPopulateMessageObjectValue(response, channel, ackMode);

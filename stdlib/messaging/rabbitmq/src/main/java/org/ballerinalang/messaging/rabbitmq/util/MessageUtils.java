@@ -36,7 +36,7 @@ import java.nio.charset.StandardCharsets;
  * @since 1.1.0
  */
 public class MessageUtils {
-    public static Object nativeBasicAck(Channel channel, int deliveryTag, boolean ackMode,
+    public static Object basicAck(Channel channel, int deliveryTag, boolean ackMode,
                                         boolean ackStatus, boolean multiple) {
         if (!ackStatus && !ackMode) {
             try {
@@ -55,7 +55,7 @@ public class MessageUtils {
         return null;
     }
 
-    public static Object nativeBasicNack(Channel channel, int deliveryTag, boolean ackMode,
+    public static Object basicNack(Channel channel, int deliveryTag, boolean ackMode,
                                          boolean ackStatus, boolean multiple, boolean requeue) {
         if (!ackStatus && !ackMode) {
             try {
@@ -74,7 +74,7 @@ public class MessageUtils {
         return null;
     }
 
-    public static Object nativeGetTextContent(ArrayValue messageContent) {
+    public static Object getTextContent(ArrayValue messageContent) {
         byte[] messageCont = messageContent.getBytes();
         try {
             return new String(messageCont, StandardCharsets.UTF_8.name());
@@ -84,7 +84,7 @@ public class MessageUtils {
         }
     }
 
-    public static Object nativeGetFloatContent(ArrayValue messageContent) {
+    public static Object getFloatContent(ArrayValue messageContent) {
         try {
             return Float.parseFloat(new String(messageContent.getBytes(), StandardCharsets.UTF_8.name()));
         } catch (UnsupportedEncodingException exception) {
@@ -93,7 +93,7 @@ public class MessageUtils {
         }
     }
 
-    public static Object nativeGetIntContent(ArrayValue messageContent) {
+    public static Object getIntContent(ArrayValue messageContent) {
         try {
             return Integer.parseInt(new String(messageContent.getBytes(), StandardCharsets.UTF_8.name()));
         } catch (UnsupportedEncodingException exception) {
@@ -102,7 +102,7 @@ public class MessageUtils {
         }
     }
 
-    public static Object nativeGetJSONContent(ArrayValue messageContent) {
+    public static Object getJSONContent(ArrayValue messageContent) {
 
         try {
             return JSONParser.parse(new String(messageContent.getBytes(), StandardCharsets.UTF_8.name()));
@@ -112,7 +112,7 @@ public class MessageUtils {
         }
     }
 
-    public static Object nativeGetXMLContent(ArrayValue messageContent) {
+    public static Object getXMLContent(ArrayValue messageContent) {
         try {
             return XMLFactory.parse(new String(messageContent.getBytes(), StandardCharsets.UTF_8.name()));
         } catch (UnsupportedEncodingException exception) {

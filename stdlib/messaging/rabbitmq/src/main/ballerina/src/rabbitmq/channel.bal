@@ -158,56 +158,67 @@ function createChannel(handle connection) returns handle =
 
 function nativeQueueDeclare(QueueConfiguration? config, handle amqpChannel) returns handle | Error? =
 @java:Method {
+    name: "queueDeclare",
     class: "org.ballerinalang.messaging.rabbitmq.util.ChannelUtils"
 } external;
 
 function nativeExchangeDeclare(ExchangeConfiguration config, handle amqpChannel) returns Error? =
 @java:Method {
+    name: "exchangeDeclare",
     class: "org.ballerinalang.messaging.rabbitmq.util.ChannelUtils"
 } external;
 
 function nativeQueueBind(handle queueName, handle exchangeName, handle bindingKey, handle amqpChannel) returns Error? =
 @java:Method {
+    name: "queueBind",
     class: "org.ballerinalang.messaging.rabbitmq.util.ChannelUtils"
 } external;
 
 function nativeBasicPublish(MessageContent messageContent, handle routingKey, handle exchangeName,
 BasicProperties? properties, handle amqpChannel) returns Error? =
 @java:Method {
+    name: "basicPublish",
     class: "org.ballerinalang.messaging.rabbitmq.util.ChannelUtils"
 } external;
 
 function nativeQueueDelete(handle queueName, boolean ifUnused, boolean ifEmpty, handle amqpChannel) returns Error? =
 @java:Method {
+    name: "queueDelete",
     class: "org.ballerinalang.messaging.rabbitmq.util.ChannelUtils"
 } external;
 
 function nativeExchangeDelete(handle exchangeName, handle amqpChannel) returns Error? =
 @java:Method {
+    name: "exchangeDelete",
     class: "org.ballerinalang.messaging.rabbitmq.util.ChannelUtils"
 } external;
 
 function nativeQueuePurge(handle queueName, handle amqpChannel) returns Error? =
 @java:Method {
+    name: "queuePurge",
     class: "org.ballerinalang.messaging.rabbitmq.util.ChannelUtils"
 } external;
 
 function nativeChannelClose(int? closeCode, string? closeMessage, handle amqpChannel) returns Error? =
 @java:Method {
+    name: "close",
     class: "org.ballerinalang.messaging.rabbitmq.util.ChannelUtils"
 } external;
 
 function nativeChannelAbort(int? closeCode, string? closeMessage, handle amqpChannel) returns Error? =
 @java:Method {
+    name: "abort",
     class: "org.ballerinalang.messaging.rabbitmq.util.ChannelUtils"
 } external;
 
 function nativeGetConnection(handle amqpChannel) returns Connection | Error =
 @java:Method {
+    name: "getConnection",
     class: "org.ballerinalang.messaging.rabbitmq.util.ChannelUtils"
 } external;
 
 function nativeBasicGet(handle queueName, boolean ackMode, handle amqpChannel) returns Message | Error =
 @java:Method {
+    name: "basicGet",
     class: "org.ballerinalang.messaging.rabbitmq.util.ChannelUtils"
 } external;

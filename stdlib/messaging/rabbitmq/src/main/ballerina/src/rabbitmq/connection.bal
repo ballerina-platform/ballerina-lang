@@ -70,6 +70,7 @@ function createConnection(ConnectionConfiguration connectionConfiguration) retur
 
 function nativeIsClosed(handle amqpConnection) returns boolean =
 @java:Method {
+    name: "isClosed",
     class: "org.ballerinalang.messaging.rabbitmq.util.ConnectionUtils"
 } external;
 
