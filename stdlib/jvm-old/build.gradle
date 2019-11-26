@@ -26,7 +26,7 @@ configurations {
 }
 
 dependencies {
-    balo  project(path: ':ballerina-bootstrapper', configuration: 'pack1')
+    balo  project(path: ':ballerina-bootstrapper', configuration: 'pack2')
     dist 'org.ow2.asm:asm:7.1'
 }
 
