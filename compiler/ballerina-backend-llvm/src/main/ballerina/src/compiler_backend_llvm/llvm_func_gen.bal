@@ -15,7 +15,6 @@
 // under the License.
 
 import ballerina/llvm;
-//import ballerina/io;
 import ballerina/bir;
 
 type FuncGenrator object {
@@ -76,7 +75,7 @@ type FuncGenrator object {
         self.varAllocBB = self.genBbDecl("var_allloc");
         int paramIndex = 0;
         foreach var localVar in self.func.localVars {
-            var varName = localVarNameWithPrefix(localVar);
+            var varName = localVariableNameWithPrefix(localVar);
             var varType = genBType(localVar["typeValue"]);
             llvm:LLVMValueRef localVarRef = llvm:llvmBuildAlloca(self.builder, varType, varName);
             self.cacheLocVarValue(localVar, localVarRef);
@@ -145,8 +144,8 @@ type FuncGenrator object {
 
     function genLoadLocalToTempVar(bir:VarRef oprand) returns llvm:LLVMValueRef {
         bir:VarRef refOprand = oprand;
-        string tempName = localVarNameWithPrefix(refOprand.variableDcl) + "_temp";
-        var localVarRef = self.getLocalVarRef(refOprand.variableDcl);
+        string tempName = localVariableNameWithPrefix(refOprand) + "_temp";
+        var localVarRef = self.getLocalVarRef(refOprand);
         return llvm:llvmBuildLoad(self.builder, localVarRef, tempName);
     }
 
@@ -161,13 +160,13 @@ type FuncGenrator object {
         }
     }
 
-    function getLocalVarRef(bir:VariableDcl? variable) returns llvm:LLVMValueRef {
+    function getLocalVarRef(bir:VarRef? variable) returns llvm:LLVMValueRef {
         string id = localVariableName(variable);
         return self.getLocalVarRefById(id);
     }
 
-    function storeValueRefForLocalVarRef(llvm:LLVMValueRef valueRef, bir:VariableDcl varDcl) {
-        string id = localVariableName(varDcl);
+    function storeValueRefForLocalVarRef(llvm:LLVMValueRef valueRef, bir:VarRef variable) {
+        string id = localVariableName(variable);
         map<llvm:LLVMValueRef>? localVarRefsTemp = self.localVarRefs;
         if (localVarRefsTemp is map<llvm:LLVMValueRef>) {
             localVarRefsTemp[id] = valueRef;
@@ -197,5 +196,26 @@ type FuncGenrator object {
 
     function isVoidFunc() returns boolean {
         return !(self.func.typeValue["retType"] is ());
+    }
+
+    function loadElementFromStruct(bir:VarRef variable, int elementIndex) returns llvm:LLVMValueRef {
+        string elementName = self.getLoadElementFromStructName(variable, elementIndex);
+        llvm:LLVMValueRef ptrToElementOfUnion = self.buildStructGepForVariable(variable, elementIndex);
+        return llvm:llvmBuildLoad(self.builder, ptrToElementOfUnion, elementName);
+    }
+
+    function buildStructGepForVariable(bir:VarRef variable, int elementIndex) returns llvm:LLVMValueRef {
+        string elementName = self.getStructGepName(localVariableNameWithPrefix(variable), elementIndex);
+        llvm:LLVMValueRef rhsValueRef = self.getLocalVarRef(variable);
+        return llvm:llvmBuildStructGEP(self.builder, rhsValueRef, elementIndex, elementName);
+    }
+
+    function getLoadElementFromStructName(bir:VarRef variable, int elementIndex) returns string {
+        string elementName = self.getStructGepName(localVariableNameWithPrefix(variable), elementIndex);
+        return elementName + "_temp";
+    }
+
+    function getStructGepName(string variableName, int index) returns string {
+        return variableName + "_index" + index.toString();
     }
 };

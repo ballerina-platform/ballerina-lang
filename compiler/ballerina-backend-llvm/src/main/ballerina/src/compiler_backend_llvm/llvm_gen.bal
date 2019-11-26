@@ -171,14 +171,21 @@ function genBType(bir:BType? bType) returns llvm:LLVMTypeRef {
     panic err;
 }
 
-function localVarNameWithPrefix(bir:VariableDcl? localVar) returns string {
+function localVariableNameWithPrefix(bir:VarRef|bir:VariableDcl|() localVar) returns string {
     string localVarName = localVariableName(localVar);
     string postFixName = addPrefixToLocalVarName(localVarName);
     return postFixName;
 }
 
-function localVariableName(bir:VariableDcl? localVar) returns string {
-    string? temp = localVar["name"]?.value;
+function localVariableName(bir:VarRef|bir:VariableDcl|() localVar) returns string {
+    string? temp;
+    if(localVar is bir:VarRef) {
+        temp = localVar.variableDcl["name"]?.value;
+    } else if (localVar is bir:VariableDcl) {
+        temp = localVar["name"]?.value;
+    } else {
+        temp = ();
+    }
     if (temp is string) {
         return temp.substring(1, temp.length());
     }
@@ -260,10 +267,6 @@ function checkIfTypesAreCompatible(bir:BType castType, llvm:LLVMTypeRef lhsType)
         return llvm:llvmCheckIfTypesMatch(castTypeRef, lhsType);   
     }
     return true;
-}
-
-function genStructGepName(string variableName, int index) returns string {
-    return variableName + "_index" + index.toString(); 
 }
 
 function isUnionType(bir:BType typeValue) returns boolean {

@@ -86,7 +86,7 @@ type BbTermGenrator object {
         llvm:LLVMValueRef callReturn = llvm:llvmBuildCall(self.builder, calleFuncRef, args, args.length(), "");
         if (callIns.lhsOp is bir:VarRef) {
             bir:VarRef lhsOpVar = <bir:VarRef>callIns.lhsOp;
-            var lhsRef = self.parent.getLocalVarRef(lhsOpVar.variableDcl);
+            var lhsRef = self.parent.getLocalVarRef(lhsOpVar);
             var loaded = llvm:llvmBuildStore(self.builder, callReturn, <llvm:LLVMValueRef> lhsRef);
         }
     }

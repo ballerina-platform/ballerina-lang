@@ -1,6 +1,5 @@
 import ballerina/llvm;
 import ballerina/bir;
-//import ballerina/io;
 
 type BbBodyGenrator object {
 
@@ -49,125 +48,22 @@ type BbBodyGenrator object {
         bir:BType rhsOpType = typeTestIns.rhsOp.typeValue;
         boolean isLhsUnionType = isUnionType(rhsOpType);
         if (isLhsUnionType) {
-            llvm:LLVMValueRef unionTagValue = self.loadElementFromStruct(typeTestIns.rhsOp.variableDcl, TAGGED_UNION_FLAG_INDEX);
+            llvm:LLVMValueRef unionTagValue =
+                        self.parent.loadElementFromStruct(typeTestIns.rhsOp, TAGGED_UNION_FLAG_INDEX);
             llvm:LLVMValueRef valueOfType = getValueRefFromInt(getTagValue(typeTestIns.typeValue), 0);
             llvm:LLVMValueRef isEq = llvm:llvmBuildICmp(self.builder, llvm:LLVMIntEQ, unionTagValue, valueOfType, "typeTest");
-            _ = llvm:llvmBuildStore(self.builder, isEq, self.parent.getLocalVarRef(typeTestIns.lhsOp.variableDcl));
+            _ = llvm:llvmBuildStore(self.builder, isEq, self.parent.getLocalVarRef(typeTestIns.lhsOp));
         } 
     }
 
     function genTypeCast(bir:TypeCast castIns) {
-        if (self.isUnionToSingleCast(castIns)) {
-            self.genUnionToSingleCast(castIns);
-        } else if (self.isSingleToUnionCast(castIns)) {
-            self.genSingleToUnionCast(castIns);
-        } else {
-            return;
-        }
-    }
-
-    function isUnionToSingleCast(bir:TypeCast castIns) returns boolean {
-        boolean isCastTypeUnion = isUnionType(castIns.castType);
-        boolean isRhsTypeUnion = isUnionType(castIns.rhsOp.typeValue);
-        return (!isCastTypeUnion && isRhsTypeUnion);
-    }
-    
-    function isSingleToUnionCast(bir:TypeCast castIns) returns boolean {
-        boolean isCastTypeUnion = isUnionType(castIns.castType);
-        boolean isRhsTypeUnion = isUnionType(castIns.rhsOp.typeValue);
-        return (isCastTypeUnion && !isRhsTypeUnion);
-    }
-
-    function genSingleToUnionCast(bir:TypeCast castIns) {
-        bir:VariableDcl lhsVariableDcl = castIns.lhsOp.variableDcl;
-        bir:VarRef rhsVariableRef = castIns.rhsOp;
-
-        llvm:LLVMValueRef structValueRef = self.getCorrectUnionTypeToStore(lhsVariableDcl, rhsVariableRef);
-        self.parent.storeValueRefForLocalVarRef(structValueRef, lhsVariableDcl);
-
-        self.storeTagForTaggedUnion(lhsVariableDcl, rhsVariableRef.typeValue);
-        self.storeActualValueInTaggedUnion(lhsVariableDcl, rhsVariableRef);
-    }
-    
-    function storeTagForTaggedUnion(bir:VariableDcl variableDcl, bir:BType typeValue) {
-        llvm:LLVMValueRef tagOfUnion = self.buildStructGepForVariable(variableDcl, TAGGED_UNION_FLAG_INDEX);
-        self.storeTagValueInTaggedUnion(typeValue, tagOfUnion);
-    }
-
-    function storeActualValueInTaggedUnion(bir:VariableDcl lhsVariableDcl, bir:VarRef rhsVariableRef) {
-        llvm:LLVMValueRef ptrToActualValueInTaggedUnion = self.buildStructGepForVariable(lhsVariableDcl, TAGGED_UNION_VALUE_INDEX);
-        llvm:LLVMValueRef rhsValue = self.parent.genLoadLocalToTempVar(rhsVariableRef);
-        _ = llvm:llvmBuildStore(self.builder, rhsValue, ptrToActualValueInTaggedUnion);
-    }
-
-    function getCorrectUnionTypeToStore(bir:VariableDcl lhsVariableDcl, bir:VarRef rhsVariableRef) returns llvm:LLVMValueRef {
-        boolean shouldBitCast = self.isLowerOrderTypeOfUnion(lhsVariableDcl.typeValue, rhsVariableRef.typeValue);
-        if (shouldBitCast) {
-            return self.buildBitCastedUnion(lhsVariableDcl, rhsVariableRef.typeValue);
-        }
-        return self.parent.getLocalVarRef(lhsVariableDcl);
-    }
-
-    function buildBitCastedUnion(bir:VariableDcl variable, bir:BType bitcastType) returns llvm:LLVMValueRef {
-        string castName = genStructCastName(localVarNameWithPrefix(variable), getTypeStringName(bitcastType));
-        llvm:LLVMValueRef genericUnionValRef = self.parent.getLocalVarRef(variable);
-        llvm:LLVMTypeRef castStructType = getTypePointerForTaggedStructType((bitcastType));
-        return llvm:llvmBuildBitCast(self.builder, genericUnionValRef, castStructType, castName);
-    }
-
-    function isLowerOrderTypeOfUnion(bir:BType unionType, bir:BType member) returns boolean {
-        int unionTypeTagValue = getTagValue(unionType);
-        int memberTypeTagValue = getTagValue(member);
-        return (memberTypeTagValue < unionTypeTagValue);
-    }
-
-    function genUnionToSingleCast(bir:TypeCast castIns) {
-        llvm:LLVMValueRef actualValueInTaggedUnion = self.loadElementFromStruct(castIns.rhsOp.variableDcl, TAGGED_UNION_VALUE_INDEX);
-        llvm:LLVMValueRef lhsValuePtr = self.parent.getLocalVarRef(castIns.lhsOp.variableDcl);
-        _ = llvm:llvmBuildStore(self.builder, actualValueInTaggedUnion, lhsValuePtr);
-    }
-
-    function loadElementFromStruct(bir:VariableDcl variable, int elementIndex) returns llvm:LLVMValueRef {
-        string elementName = genStructGepName(localVariableName(variable), elementIndex);
-        llvm:LLVMValueRef ptrToElementOfUnion = self.buildStructGepForVariable(variable, elementIndex);
-        return llvm:llvmBuildLoad(self.builder, ptrToElementOfUnion, elementName);
-    }
-
-    function storeTagValueInTaggedUnion(bir:BType typeValue, llvm:LLVMValueRef tagOfUnion) {
-        int tagValue = getTagValue(typeValue);
-        llvm:LLVMValueRef loadedTagValue = getValueRefFromInt(tagValue, 0);
-        _ = llvm:llvmBuildStore(self.builder, loadedTagValue, tagOfUnion);
-    }
-
-    function buildStructGepForVariable(bir:VariableDcl variable, int elementIndex) returns llvm:LLVMValueRef {
-            string elementName = genStructGepName(localVarNameWithPrefix(variable), elementIndex);
-            llvm:LLVMValueRef rhsValueRef = self.parent.getLocalVarRef(variable);
-            return llvm:llvmBuildStructGEP(self.builder, rhsValueRef, elementIndex, elementName);
-    }
-
-    function getLhsType(bir:VariableDcl variable) returns llvm:LLVMTypeRef {
-        return self.parent.getLocalVarTypeRefById(localVariableName(variable));
-    }
-
-    function genMoveIns(bir:Move moveIns) {
-        if (moveIns.lhsOp.typeValue is bir:BUnionType) {
-            self.castLhsOpForMoveIns(moveIns);
-        }
-        llvm:LLVMValueRef lhsRef = self.parent.getLocalVarRef(moveIns.lhsOp.variableDcl);
-        var rhsVarOp = moveIns.rhsOp;
-        llvm:LLVMValueRef rhsVarOpRef = self.parent.genLoadLocalToTempVar(rhsVarOp);
-        var loaded = <llvm:LLVMValueRef> llvm:llvmBuildStore(self.builder, rhsVarOpRef, lhsRef);
-    }
-
-    function castLhsOpForMoveIns (bir:Move moveIns) {
-        llvm:LLVMTypeRef castTypePointer = llvm:llvmTypeOf(self.parent.getLocalVarRef(moveIns.rhsOp.variableDcl));
-        llvm:LLVMValueRef castedLhsValPointer = llvm:llvmBuildBitCast(self.builder, self.parent.getLocalVarRef(moveIns.lhsOp.variableDcl), castTypePointer, "moveTempBitCast");
-        self.parent.storeValueRefForLocalVarRef(castedLhsValPointer, moveIns.lhsOp.variableDcl);
+        CastInsGenerator castGen = new(self.builder, self.parent, castIns);
+        castGen.genTypeCast();
     }
 
     function genBinaryOpIns(bir:BinaryOp binaryIns) {
-        var lhsTmpName = localVarNameWithPrefix(binaryIns.lhsOp.variableDcl) + "_temp";
-        var lhsRef = self.parent.getLocalVarRef(binaryIns.lhsOp.variableDcl);
+        var lhsTmpName = localVariableNameWithPrefix(binaryIns.lhsOp.variableDcl) + "_temp";
+        var lhsRef = self.parent.getLocalVarRef(binaryIns.lhsOp);
         var rhsOp1 = self.parent.genLoadLocalToTempVar(binaryIns.rhsOp1);
         var rhsOp2 = self.parent.genLoadLocalToTempVar(binaryIns.rhsOp2);
         var kind = binaryIns.kind;
@@ -202,21 +98,36 @@ type BbBodyGenrator object {
         } else {
             self.genBoolConstLoadIns(constLoad);
         }
-            }
+    }
 
     function genIntConstLoadIns(bir:ConstantLoad constLoad) {
-        llvm:LLVMValueRef lhsRef = self.parent.getLocalVarRef(constLoad.lhsOp.variableDcl);
+        llvm:LLVMValueRef lhsRef = self.parent.getLocalVarRef(constLoad.lhsOp);
         var constRef = llvm:llvmConstInt(llvm:llvmInt64Type(), <int>constLoad.value, 0);
         var loaded = llvm:llvmBuildStore(self.builder, constRef, <llvm:LLVMValueRef>lhsRef);
     }
 
     function genBoolConstLoadIns(bir:ConstantLoad constLoad) {
-        llvm:LLVMValueRef lhsRef = self.parent.getLocalVarRef(constLoad.lhsOp.variableDcl);
+        llvm:LLVMValueRef lhsRef = self.parent.getLocalVarRef(constLoad.lhsOp);
         var constRef = llvm:llvmConstInt(llvm:llvmInt1Type(), <boolean>constLoad.value?1:0, 0);
         var loaded = llvm:llvmBuildStore(self.builder, constRef, <llvm:LLVMValueRef>lhsRef);
     }
 
-    
+    function genMoveIns(bir:Move moveIns) {
+        if (moveIns.lhsOp.typeValue is bir:BUnionType) {
+            self.castLhsOpForMoveIns(moveIns);
+        }
+        llvm:LLVMValueRef lhsRef = self.parent.getLocalVarRef(moveIns.lhsOp);
+        var rhsVarOp = moveIns.rhsOp;
+        llvm:LLVMValueRef rhsVarOpRef = self.parent.genLoadLocalToTempVar(rhsVarOp);
+        var loaded = <llvm:LLVMValueRef> llvm:llvmBuildStore(self.builder, rhsVarOpRef, lhsRef);
+    }
+
+    function castLhsOpForMoveIns (bir:Move moveIns) {
+        llvm:LLVMTypeRef castTypePointer = llvm:llvmTypeOf(self.parent.getLocalVarRef(moveIns.rhsOp));
+        llvm:LLVMValueRef castedLhsValPointer =
+          llvm:llvmBuildBitCast(self.builder, self.parent.getLocalVarRef(moveIns.lhsOp), castTypePointer, "moveTempBitCast");
+        self.parent.storeValueRefForLocalVarRef(castedLhsValPointer, moveIns.lhsOp);
+    }
 };
 
 function findBbRefById(map<BbTermGenrator> bbGenrators, string id) returns llvm:LLVMBasicBlockRef {
