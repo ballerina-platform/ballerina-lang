@@ -88,7 +88,11 @@ public class AttachPoint {
         /**
          * Indicate Worker Attach point.
          */
-        WORKER("worker");
+        WORKER("worker"),
+        /**
+         * Indicate start action Attach point.
+         */
+        START("start");
 
         private String value;
 

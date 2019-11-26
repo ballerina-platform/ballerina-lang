@@ -137,7 +137,7 @@ public type PackageParser object {
         var sig = self.parseInvokableType();
 
         // Read annotation Attachments
-        AnnotationAttachment?[] annotAttachments = self.parseAnnotAttachments();
+        AnnotationAttachment?[] annotAttachments = parseAnnotAttachments(self.reader);
 
         // Read and ignore parameter details, not used in jvm gen
         self.readAndIgnoreParamDetails();
@@ -421,89 +421,6 @@ public type PackageParser object {
             retType: returnType
         };
     }
-
-    function parseAnnotAttachments() returns AnnotationAttachment?[] {
-        AnnotationAttachment?[] annotAttachments = [];
-        int annotNoBytes_ignored = self.reader.readInt64();
-        int noOfAnnotAttachments = self.reader.readInt32();
-        if (noOfAnnotAttachments == 0) {
-            return annotAttachments;
-        }
-
-        foreach var i in 0..<noOfAnnotAttachments {
-            annotAttachments[annotAttachments.length()] = self.parseAnnotAttachment();
-        }
-
-        return annotAttachments;
-    }
-
-    function parseAnnotAttachment() returns AnnotationAttachment {
-        // Read ModuleID
-        ModuleID modId = self.reader.readModuleIDCpRef();
-        // Read DiagnosticPos
-        DiagnosticPos pos = parseDiagnosticPos(self.reader);
-        // Read AnnotTagRef
-        string annotTagRef = self.reader.readStringCpRef();
-        // Read AnnotationValue values
-        AnnotationValue?[] annotValues = [];
-        int noOfAnnotValue = self.reader.readInt32();
-        foreach var i in 0..<noOfAnnotValue {
-            annotValues[annotValues.length()] = self.parseAnnotAttachValue();
-        }
-
-        return {
-            moduleId: modId,
-            pos: pos,
-            annotTagRef: {value:annotTagRef},
-            annotValues:annotValues
-        };
-    }
-
-    function parseAnnotAttachValue() returns AnnotationValue {
-        var bType = self.reader.readTypeCpRef();
-        if bType is BArrayType {
-            return self.parseAnnotArrayValue();
-        } else if bType is BMapType || bType is BRecordType {
-            return self.parseAnnotRecordValue();
-        } else {
-            // This is a value type
-            return self.parseAnnotLiteralValue(bType);
-        }
-    }
-
-    function parseAnnotLiteralValue(BType bType) returns AnnotationLiteralValue {
-        var value = parseLiteralValue(self.reader, bType);
-        return {
-            literalType: bType,
-            literalValue: value
-        };
-    }
-
-    function parseAnnotRecordValue() returns AnnotationRecordValue {
-        map<AnnotationValue> annotValueMap = {};
-        var noOfAnnotValueEntries = self.reader.readInt32();
-        foreach var i in 0..<noOfAnnotValueEntries {
-            var key = self.reader.readStringCpRef();
-            var annotValue = self.parseAnnotAttachValue();
-            annotValueMap[key] = annotValue;
-        }
-        return {
-            annotValueMap: annotValueMap
-        };
-    }
-
-    function parseAnnotArrayValue() returns AnnotationArrayValue {
-        AnnotationValue?[]  annotValueArray = [];
-        var noOfAnnotValueEntries = self.reader.readInt32();
-        foreach var i in 0..<noOfAnnotValueEntries {
-            var annotValue = self.parseAnnotAttachValue();
-            annotValueArray[annotValueArray.length()] = annotValue;
-        }
-        return {
-            annotValueArray: annotValueArray
-        };
-    }
-
 };
 
 function skipMarkDownDocAttachement(BirChannelReader reader) {
@@ -586,15 +503,98 @@ public function parseDiagnosticPos(BirChannelReader reader) returns DiagnosticPo
 }
 
 function getWorkerChannels(BirChannelReader reader) returns ChannelDetail[] {
-        ChannelDetail[] channelDetails = [];
-        var count = reader.readInt32();
-        int i = 0;
-        while (i < count) {
-            string name = reader.readStringCpRef();
-            boolean onSameStrand = reader.readBoolean();
-            boolean isSend = reader.readBoolean();
-            channelDetails[i] = { name: { value:name }, onSameStrand:onSameStrand, isSend:isSend };
-            i += 1;
-        }
-        return channelDetails;
+    ChannelDetail[] channelDetails = [];
+    var count = reader.readInt32();
+    int i = 0;
+    while (i < count) {
+        string name = reader.readStringCpRef();
+        boolean onSameStrand = reader.readBoolean();
+        boolean isSend = reader.readBoolean();
+        channelDetails[i] = { name: { value:name }, onSameStrand:onSameStrand, isSend:isSend };
+        i += 1;
     }
+    return channelDetails;
+}
+
+function parseAnnotAttachments(BirChannelReader reader) returns AnnotationAttachment?[] {
+    AnnotationAttachment?[] annotAttachments = [];
+    int annotNoBytes_ignored = reader.readInt64();
+    int noOfAnnotAttachments = reader.readInt32();
+    if (noOfAnnotAttachments == 0) {
+        return annotAttachments;
+    }
+
+    foreach var i in 0..<noOfAnnotAttachments {
+        annotAttachments[annotAttachments.length()] = parseAnnotAttachment(reader);
+    }
+    //io:println(annotAttachments);
+
+    return annotAttachments;
+}
+
+function parseAnnotAttachment(BirChannelReader reader) returns AnnotationAttachment {
+    // Read ModuleID
+    ModuleID modId = reader.readModuleIDCpRef();
+    // Read DiagnosticPos
+    DiagnosticPos pos = parseDiagnosticPos(reader);
+    // Read AnnotTagRef
+    string annotTagRef = reader.readStringCpRef();
+    // Read AnnotationValue values
+    AnnotationValue?[] annotValues = [];
+    int noOfAnnotValue = reader.readInt32();
+    foreach var i in 0..<noOfAnnotValue {
+        annotValues[annotValues.length()] = parseAnnotAttachValue(reader);
+    }
+
+    return {
+        moduleId: modId,
+        pos: pos,
+        annotTagRef: {value:annotTagRef},
+        annotValues:annotValues
+    };
+}
+
+function parseAnnotAttachValue(BirChannelReader reader) returns AnnotationValue {
+    var bType = reader.readTypeCpRef();
+    if bType is BArrayType {
+        return parseAnnotArrayValue(reader);
+    } else if bType is BMapType || bType is BRecordType {
+        return parseAnnotRecordValue(reader);
+    } else {
+        // This is a value type
+        return parseAnnotLiteralValue(reader, bType);
+    }
+}
+
+function parseAnnotLiteralValue(BirChannelReader reader, BType bType) returns AnnotationLiteralValue {
+    var value = parseLiteralValue(reader, bType);
+    return {
+        literalType: bType,
+        literalValue: value
+    };
+}
+
+function parseAnnotRecordValue(BirChannelReader reader) returns AnnotationRecordValue {
+    map<AnnotationValue> annotValueMap = {};
+    var noOfAnnotValueEntries = reader.readInt32();
+    foreach var i in 0..<noOfAnnotValueEntries {
+        var key = reader.readStringCpRef();
+        var annotValue = parseAnnotAttachValue(reader);
+        annotValueMap[key] = annotValue;
+    }
+    return {
+        annotValueMap: annotValueMap
+    };
+}
+
+function parseAnnotArrayValue(BirChannelReader reader) returns AnnotationArrayValue {
+    AnnotationValue?[]  annotValueArray = [];
+    var noOfAnnotValueEntries = reader.readInt32();
+    foreach var i in 0..<noOfAnnotValueEntries {
+        var annotValue = parseAnnotAttachValue(reader);
+        annotValueArray[annotValueArray.length()] = annotValue;
+    }
+    return {
+        annotValueArray: annotValueArray
+    };
+}

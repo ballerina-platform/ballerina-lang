@@ -26,6 +26,7 @@ import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.util.BLangConstants;
 import org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons;
+import org.ballerinalang.jvm.values.api.BXml;
 import org.ballerinalang.jvm.values.freeze.FreezeUtils;
 import org.ballerinalang.jvm.values.freeze.State;
 import org.ballerinalang.jvm.values.freeze.Status;
@@ -60,15 +61,17 @@ public final class XMLSequence extends XMLValue<ArrayValue> {
     /**
      * Create an empty xml sequence.
      */
+    @Deprecated
     public XMLSequence() {
-        sequence = new ArrayValue(new BArrayType(BTypes.typeXML), 0);
+        sequence = new ArrayValueImpl(new BArrayType(BTypes.typeXML), 0);
     }
 
-    /**q
+    /**
      * Initialize a {@link XMLSequence} from a {@link org.apache.axiom.om.OMNode} object.
      *
      * @param sequence xml object
      */
+    @Deprecated
     public XMLSequence(ArrayValue sequence) {
         this.sequence = sequence;
     }
@@ -197,7 +200,7 @@ public final class XMLSequence extends XMLValue<ArrayValue> {
      */
     @Override
     public XMLValue<?> elements() {
-        ArrayValue elementsSeq = new ArrayValue(new BArrayType(BTypes.typeXML));
+        ArrayValue elementsSeq = new ArrayValueImpl(new BArrayType(BTypes.typeXML));
         int j = 0;
         for (int i = 0; i < sequence.size(); i++) {
             XMLItem item = (XMLItem) sequence.getRefValue(i);
@@ -213,7 +216,7 @@ public final class XMLSequence extends XMLValue<ArrayValue> {
      */
     @Override
     public XMLValue<?> elements(String qname) {
-        ArrayValue elementsSeq = new ArrayValue(new BArrayType(BTypes.typeXML));
+        ArrayValue elementsSeq = new ArrayValueImpl(new BArrayType(BTypes.typeXML));
         String qnameStr = getQname(qname).toString();
         int j = 0;
         for (int i = 0; i < sequence.size(); i++) {
@@ -231,7 +234,7 @@ public final class XMLSequence extends XMLValue<ArrayValue> {
     @Override
     @SuppressWarnings("unchecked")
     public XMLValue<?> children() {
-        ArrayValue elementsSeq = new ArrayValue(new BArrayType(BTypes.typeXML));
+        ArrayValue elementsSeq = new ArrayValueImpl(new BArrayType(BTypes.typeXML));
         int index = 0;
         for (int i = 0; i < sequence.size(); i++) {
             XMLItem element = (XMLItem) sequence.getRefValue(i);
@@ -254,7 +257,7 @@ public final class XMLSequence extends XMLValue<ArrayValue> {
     @Override
     @SuppressWarnings("unchecked")
     public XMLValue<?> children(String qname) {
-        ArrayValue elementsSeq = new ArrayValue(new BArrayType(BTypes.typeXML));
+        ArrayValue elementsSeq = new ArrayValueImpl(new BArrayType(BTypes.typeXML));
         QName name = getQname(qname);
         int index = 0;
         for (int i = 0; i < sequence.size(); i++) {
@@ -294,6 +297,14 @@ public final class XMLSequence extends XMLValue<ArrayValue> {
      * {@inheritDoc}
      */
     @Override
+    public void setChildren(BXml<?> seq) {
+        setChildren((XMLValue) seq);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public void addChildren(XMLValue<?> seq) {
         synchronized (this) {
             if (freezeStatus.getState() != State.UNFROZEN) {
@@ -312,8 +323,16 @@ public final class XMLSequence extends XMLValue<ArrayValue> {
      * {@inheritDoc}
      */
     @Override
+    public void addChildren(BXml<?> seq) {
+        addChildren((XMLValue) seq);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public XMLValue<?> strip() {
-        ArrayValue elementsSeq = new ArrayValue(new BArrayType(BTypes.typeXML));
+        ArrayValue elementsSeq = new ArrayValueImpl(new BArrayType(BTypes.typeXML));
         int j = 0;
         for (int i = 0; i < sequence.size(); i++) {
             XMLItem element = (XMLItem) sequence.getRefValue(i);
@@ -353,7 +372,7 @@ public final class XMLSequence extends XMLValue<ArrayValue> {
         }
 
         int j = 0;
-        ArrayValue elementsSeq = new ArrayValue(new BArrayType(BTypes.typeXML));
+        ArrayValue elementsSeq = new ArrayValueImpl(new BArrayType(BTypes.typeXML));
         for (int i = (int) startIndex; i < endIndex; i++) {
             elementsSeq.add(j++, sequence.getRefValue(i));
         }
@@ -379,7 +398,7 @@ public final class XMLSequence extends XMLValue<ArrayValue> {
         }
 
         XMLValue<?>[] array = descendants.toArray(new XMLValue[descendants.size()]);
-        return new XMLSequence(new ArrayValue(array, new BArrayType(BTypes.typeXML)));
+        return new XMLSequence(new ArrayValueImpl(array, new BArrayType(BTypes.typeXML)));
     }
 
     // Methods from Datasource impl
@@ -451,7 +470,7 @@ public final class XMLSequence extends XMLValue<ArrayValue> {
         }
 
         Object[] copiedVals = new Object[sequence.size()];
-        refs.put(this, new XMLSequence(new ArrayValue(copiedVals, new BArrayType(BTypes.typeXML))));
+        refs.put(this, new XMLSequence(new ArrayValueImpl(copiedVals, new BArrayType(BTypes.typeXML))));
         for (int i = 0; i < sequence.size(); i++) {
             copiedVals[i] = ((XMLValue<?>) sequence.getRefValue(i)).copy(refs);
         }
@@ -488,7 +507,7 @@ public final class XMLSequence extends XMLValue<ArrayValue> {
     @Override
     public int size() {
         int size = 0;
-        for (int i = 0; i < this.sequence.size; i++) {
+        for (int i = 0; i < this.sequence.size(); i++) {
             Object refValue = sequence.getRefValue(i);
             if (refValue instanceof XMLValue) {
                 XMLValue xmlItem = (XMLValue) refValue;
@@ -547,14 +566,14 @@ public final class XMLSequence extends XMLValue<ArrayValue> {
     public synchronized void attemptFreeze(Status freezeStatus) {
         if (FreezeUtils.isOpenForFreeze(this.freezeStatus, freezeStatus)) {
             this.freezeStatus = freezeStatus;
-            Arrays.stream(sequence.refValues).forEach(val -> ((RefValue) val).attemptFreeze(freezeStatus));
+            Arrays.stream(sequence.getValues()).forEach(val -> ((RefValue) val).attemptFreeze(freezeStatus));
         }
     }
 
     @Override
     public void freezeDirect() {
         this.freezeStatus.setFrozen();
-        Arrays.stream(sequence.refValues).forEach(val -> ((RefValue) val).freezeDirect());
+        Arrays.stream(sequence.getValues()).forEach(val -> ((RefValue) val).freezeDirect());
     }
 
     @Override

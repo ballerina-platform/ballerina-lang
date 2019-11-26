@@ -239,6 +239,8 @@ const string TYPEDESC_VALUE = "org/ballerinalang/jvm/values/TypedescValue";
 const string HANDLE_VALUE = "org/ballerinalang/jvm/values/HandleValue";
 const string LOCK_VALUE = "org/ballerinalang/jvm/BLock";
 const string FUNCTION_POINTER = "org/ballerinalang/jvm/values/FPValue";
+const string ARRAY_VALUE_IMPL = "org/ballerinalang/jvm/values/ArrayValueImpl";
+const string TUPLE_VALUE_IMPL = "org/ballerinalang/jvm/values/TupleValueImpl";
 
 // types related classes
 const string BTYPE = "org/ballerinalang/jvm/types/BType";
@@ -297,12 +299,16 @@ const string LIST = "java/util/List";
 const string SET = "java/util/Set";
 const string LINKED_HASH_SET = "java/util/LinkedHashSet";
 const string STRING_BUILDER = "java/lang/StringBuilder";
+const string STRING_JOINER = "java/util/StringJoiner";
 const string COMPARABLE = "java/lang/Comparable";
 const string FUNCTION = "java/util/function/Function";
 const string EXCEPTION = "java/lang/Exception";
 const string LONG_STREAM = "java/util/stream/LongStream";
 const string JAVA_THREAD = "java/lang/Thread";
 const string JAVA_RUNTIME = "java/lang/Runtime";
+const string MAP_ENTRY = "java/util/Map$Entry";
+const string MAP_SIMPLE_ENTRY = "java/util/AbstractMap$SimpleEntry";
+const string COLLECTION = "java/util/Collection";
 
 // service objects, annotation processing related classes
 const string ANNOTATION_UTILS = "org/ballerinalang/jvm/AnnotationUtils";
@@ -328,6 +334,7 @@ const string STACK_OVERFLOW_ERROR = "java/lang/StackOverflowError";
 const string HANDLE_THROWABLE_METHOD = "handleRuntimeErrors";
 const string HANDLE_STOP_PANIC_METHOD = "silentlyLogBadSad";
 const string HANDLE_RETURNED_ERROR_METHOD = "handleRuntimeReturnValues";
+const string UNSUPPORTED_OPERATION_EXCEPTION = "java/lang/UnsupportedOperationException";
 
 // code generation related constants.
 const string MODULE_INIT_CLASS_NAME = "___init";

@@ -40,7 +40,7 @@ public type HttpSecureClient client object {
         }
     }
 
-    # This wraps the `post()` function of the underlying HTTP remote functions provider. Add relevant authentication
+    # This wraps the `HttpSecureClient.post()` function of the underlying HTTP remote functions provider. Add relevant authentication
     # headers to the request and send the request to actual network call.
     #
     # + path - Resource path
@@ -58,7 +58,7 @@ public type HttpSecureClient client object {
         return res;
     }
 
-    # This wraps the `head()` function of the underlying HTTP remote functions provider. Add relevant authentication
+    # This wraps the `HttpSecureClient.head()` function of the underlying HTTP remote functions provider. Add relevant authentication
     # headers to the request and send the request to actual network call.
     #
     # + path - Resource path
@@ -76,7 +76,7 @@ public type HttpSecureClient client object {
         return res;
     }
 
-    # This wraps the `put()` function of the underlying HTTP remote functions provider. Add relevant authentication
+    # This wraps the `HttpSecureClient.put()` function of the underlying HTTP remote functions provider. Add relevant authentication
     # headers to the request and send the request to actual network call.
     #
     # + path - Resource path
@@ -94,7 +94,7 @@ public type HttpSecureClient client object {
         return res;
     }
 
-    # This wraps the `execute()` function of the underlying HTTP remote functions provider. Add relevant authentication
+    # This wraps the `HttpSecureClient.execute()` function of the underlying HTTP remote functions provider. Add relevant authentication
     # headers o the request and send the request to actual network call.
     #
     # + httpVerb - HTTP verb value
@@ -113,7 +113,7 @@ public type HttpSecureClient client object {
         return res;
     }
 
-    # This wraps the `patch()` function of the underlying HTTP remote functions provider. Add relevant authentication
+    # This wraps the `HttpSecureClient.patch()` function of the underlying HTTP remote functions provider. Add relevant authentication
     # headers to the request and send the request to actual network call.
     #
     # + path - Resource path
@@ -131,7 +131,7 @@ public type HttpSecureClient client object {
         return res;
     }
 
-    # This wraps the `delete()` function of the underlying HTTP remote functions provider. Add relevant authentication
+    # This wraps the `HttpSecureClient.delete()` function of the underlying HTTP remote functions provider. Add relevant authentication
     # headers to the request and send the request to actual network call.
     #
     # + path - Resource path
@@ -149,7 +149,7 @@ public type HttpSecureClient client object {
         return res;
     }
 
-    # This wraps the `get()` function of the underlying HTTP remote functions provider. Add relevant authentication
+    # This wraps the `HttpSecureClient.get()` function of the underlying HTTP remote functions provider. Add relevant authentication
     # headers to the request and send the request to actual network call.
     #
     # + path - Request path
@@ -167,7 +167,7 @@ public type HttpSecureClient client object {
         return res;
     }
 
-    # This wraps the `options()` function of the underlying HTTP remote functions provider. Add relevant authentication
+    # This wraps the `HttpSecureClient.options()` function of the underlying HTTP remote functions provider. Add relevant authentication
     # headers to the request and send the request to actual network call.
     #
     # + path - Request path
@@ -185,7 +185,7 @@ public type HttpSecureClient client object {
         return res;
     }
 
-    # This wraps the `forward()` function of the underlying HTTP remote functions provider. Add relevant authentication
+    # This wraps the `HttpSecureClient.forward()` function of the underlying HTTP remote functions provider. Add relevant authentication
     # headers to the request and send the request to actual network call.
     #
     # + path - Request path
@@ -202,7 +202,7 @@ public type HttpSecureClient client object {
         return res;
     }
 
-    # This wraps the `submit()` function of the underlying HTTP remote functions provider. Add relevant authentication
+    # This wraps the `HttpSecureClient.submit()` function of the underlying HTTP remote functions provider. Add relevant authentication
     # headers to the request and send the request to actual network call.
     #
     # + httpVerb - The HTTP verb value

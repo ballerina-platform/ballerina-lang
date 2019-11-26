@@ -65,7 +65,7 @@ public class BIRBinaryWriter {
     public byte[] serialize() {
         ByteBuf birbuf = Unpooled.buffer();
         BIRTypeWriter typeWriter = new BIRTypeWriter(birbuf, cp);
-        BIRInstructionWriter insWriter = new BIRInstructionWriter(birbuf, typeWriter, cp);
+        BIRInstructionWriter insWriter = new BIRInstructionWriter(birbuf, typeWriter, cp, this);
 
 
         // Write the package details in the form of constant pool entry
@@ -232,7 +232,7 @@ public class BIRBinaryWriter {
 
         ByteBuf birbuf = Unpooled.buffer();
         BIRTypeWriter funcTypeWriter = new BIRTypeWriter(birbuf, cp);
-        BIRInstructionWriter funcInsWriter = new BIRInstructionWriter(birbuf, funcTypeWriter, cp);
+        BIRInstructionWriter funcInsWriter = new BIRInstructionWriter(birbuf, funcTypeWriter, cp, this);
 
         // Arg count
         birbuf.writeInt(birFunction.argsCount);
@@ -419,7 +419,7 @@ public class BIRBinaryWriter {
         buf.writeInt(cp.addShapeCPEntry(type));
     }
 
-    private void writeAnnotAttachments(ByteBuf buff,
+    void writeAnnotAttachments(ByteBuf buff,
                                        BIRInstructionWriter insWriter,
                                        List<BIRAnnotationAttachment> annotAttachments) {
         ByteBuf annotBuf = Unpooled.buffer();

@@ -53,6 +53,7 @@ import static org.ballerinalang.nativeimpl.jvm.interop.JInterop.J_PRIMITIVE_FLOA
 import static org.ballerinalang.nativeimpl.jvm.interop.JInterop.J_PRIMITIVE_INT_TNAME;
 import static org.ballerinalang.nativeimpl.jvm.interop.JInterop.J_PRIMITIVE_LONG_TNAME;
 import static org.ballerinalang.nativeimpl.jvm.interop.JInterop.J_PRIMITIVE_SHORT_TNAME;
+import static org.ballerinalang.nativeimpl.jvm.interop.JInterop.J_STRING_TNAME;
 import static org.ballerinalang.nativeimpl.jvm.interop.JInterop.J_VOID_TNAME;
 import static org.ballerinalang.nativeimpl.jvm.interop.JInteropException.CLASS_NOT_FOUND_REASON;
 import static org.ballerinalang.nativeimpl.jvm.interop.JInteropException.OVERLOADED_METHODS_REASON;
@@ -65,10 +66,8 @@ import static org.ballerinalang.nativeimpl.jvm.interop.JInteropException.OVERLOA
 class JMethodResolver {
 
     private ClassLoader classLoader;
-
-    // only supports the ref-type members
-    private static final BType[] JSON_MEMBERS =
-            new BType[] { BTypes.typeNull, new BMapType(BTypes.typeJSON), new BArrayType(BTypes.typeJSON) };
+    private static final BType[] JSON_MEMBERS = new BType[] { BTypes.typeNull, BTypes.typeString, BTypes.typeInt,
+            BTypes.typeFloat, BTypes.typeBoolean, new BMapType(BTypes.typeJSON), new BArrayType(BTypes.typeJSON) };
 
     JMethodResolver(ClassLoader classLoader) {
         this.classLoader = classLoader;
@@ -212,9 +211,13 @@ class JMethodResolver {
         try {
             String jTypeName = jType.getTypeName();
             switch (bType.getTag()) {
-                case TypeTags.HANDLE_TAG:
                 case TypeTags.ANY_TAG:
                 case TypeTags.ANYDATA_TAG:
+                    if (jTypeName.equals(J_STRING_TNAME)) {
+                        return false;
+                    }
+                    return !jType.isPrimitive();
+                case TypeTags.HANDLE_TAG:
                     return !jType.isPrimitive();
                 case TypeTags.NULL_TAG:
                     return jTypeName.equals(J_VOID_TNAME);
@@ -249,7 +252,8 @@ class JMethodResolver {
                 case TypeTags.DECIMAL_TAG:
                     return this.classLoader.loadClass(BigDecimal.class.getCanonicalName()).isAssignableFrom(jType);
                 case TypeTags.STRING_TAG:
-                    return this.classLoader.loadClass(String.class.getCanonicalName()).isAssignableFrom(jType);
+                    // Currently no java type matches to ballerina string type.
+                    return false;
                 case TypeTags.MAP_TAG:
                 case TypeTags.RECORD_TYPE_TAG:
                     return this.classLoader.loadClass(MapValue.class.getCanonicalName()).isAssignableFrom(jType);
@@ -299,7 +303,6 @@ class JMethodResolver {
                                 return true;
                             }
                         }
-                        return false;
                     } else {
                         // for method arguments, all ballerina member types should be assignable to java-type.
                         for (BType member : members) {
@@ -307,8 +310,11 @@ class JMethodResolver {
                                 return false;
                             }
                         }
+
                         return true;
                     }
+
+                    return false;
             }
             return false;
         } catch (ClassNotFoundException | NoClassDefFoundError e) {

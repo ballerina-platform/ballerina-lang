@@ -67,4 +67,6 @@ public class DocumentServiceKeys {
             = new LSContext.Key<>();
     public static final LSContext.Key<Boolean> IS_CACHE_OUTDATED_SUPPORTED
             = new LSContext.Key<>();
+    public static final LSContext.Key<Boolean> COMPILE_FULL_PROJECT
+            = new LSContext.Key<>();
 }

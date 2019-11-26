@@ -1,12 +1,12 @@
 {
-    "result": {
-        "contents": {
-            "kind": "markdown",
-            "value": "**Description**  \n  \nThe `post()` function can be used to send HTTP POST requests to HTTP endpoints.  \n  \n**Params**  \n- `string` **path**: Resource path  \n- `(http:Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[])` **message**: An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,  \n            `io:ReadableByteChannel` or `mime:Entity[]`  \n  \n**Returns** `(http:Response|http:FailoverAllEndpointsFailedError|http:FailoverActionFailedError|http:UpstreamServiceUnavailableError|http:AllLoadBalanceEndpointsFailedError|http:AllRetryAttemptsFailed|http:IdleTimeoutError|http:AuthenticationError|http:AuthorizationError|http:InitializingOutboundRequestError|http:WritingOutboundRequestHeadersError|http:WritingOutboundRequestBodyError|http:InitializingInboundResponseError|http:ReadingInboundResponseHeadersError|http:ReadingInboundResponseBodyError|http:UnsupportedActionError|http:Http2ClientError|http:MaximumWaitTimeExceededError|http:SslError|http:GenericClientError)`  \n- The response for the request or an `http:ClientError` if failed to establish communication with the upstream server  \n  \n"
-        }
-    },
-    "id": {
-        "left": "324"
-    },
-    "jsonrpc": "2.0"
+  "result": {
+    "contents": {
+      "kind": "markdown",
+      "value": "**Description**  \n  \nThe `Client.post()` function can be used to send HTTP POST requests to HTTP endpoints.  \n  \n**Params**  \n- `string` **path**: Resource path  \n- `(http:Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[])` **message**: An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,  \n            `io:ReadableByteChannel` or `mime:Entity[]`  \n  \n**Returns** `(http:Response|http:FailoverAllEndpointsFailedError|http:FailoverActionFailedError|http:UpstreamServiceUnavailableError|http:AllLoadBalanceEndpointsFailedError|http:AllRetryAttemptsFailed|http:IdleTimeoutError|http:AuthenticationError|http:AuthorizationError|http:InitializingOutboundRequestError|http:WritingOutboundRequestHeadersError|http:WritingOutboundRequestBodyError|http:InitializingInboundResponseError|http:ReadingInboundResponseHeadersError|http:ReadingInboundResponseBodyError|http:UnsupportedActionError|http:Http2ClientError|http:MaximumWaitTimeExceededError|http:SslError|http:GenericClientError)`  \n- The response for the request or an `http:ClientError` if failed to establish communication with the upstream server  \n  \n"
+    }
+  },
+  "id": {
+    "left": "324"
+  },
+  "jsonrpc": "2.0"
 }

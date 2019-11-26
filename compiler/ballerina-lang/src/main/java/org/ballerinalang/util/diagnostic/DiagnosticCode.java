@@ -329,6 +329,9 @@ public enum DiagnosticCode {
     VARIABLE_ALREADY_DOCUMENTED("variable.already.documented"),
     UNDOCUMENTED_RETURN_PARAMETER("undocumented.return.parameter"),
     NO_DOCUMENTABLE_RETURN_PARAMETER("no.documentable.return.parameter"),
+    INVALID_DOCUMENTATION_IDENTIFIER("invalid.documentation.identifier"),
+    INVALID_DOCUMENTATION_REFERENCE("invalid.documentation.reference"),
+    INVALID_USAGE_OF_PARAMETER_REFERENCE("invalid.use.of.parameter.reference"),
 
     NO_SUCH_DOCUMENTABLE_ATTRIBUTE("no.such.documentable.attribute"),
     INVALID_USE_OF_ENDPOINT_DOCUMENTATION_ATTRIBUTE("invalid.use.of.endpoint.documentation.attribute"),
@@ -340,6 +343,7 @@ public enum DiagnosticCode {
 
     // Error codes related to iteration.
     ITERABLE_NOT_SUPPORTED_COLLECTION("iterable.not.supported.collection"),
+    INCOMPATIBLE_ITERATOR_FUNCTION_SIGNATURE("incompatible.iterator.function.signature"),
     ITERABLE_NOT_SUPPORTED_OPERATION("iterable.not.supported.operation"),
     ITERABLE_TOO_MANY_VARIABLES("iterable.too.many.variables"),
     ITERABLE_NOT_ENOUGH_VARIABLES("iterable.not.enough.variables"),
@@ -471,11 +475,7 @@ public enum DiagnosticCode {
     INVALID_INVOCATION_LVALUE_ASSIGNMENT("invalid.lvalue.lhs.of.assignment"),
     INVALID_INVOCATION_LVALUE_COMPOUND_ASSIGNMENT("invalid.lvalue.lhs.of.compound.assignment"),
 
-    IDENTIFIER_LITERAL_ONLY_SUPPORTS_ALPHANUMERICS("identifier.literal.only.supports.alphanumerics"),
-
-    // Warnings
-    MULTI_LINE_STRINGS_NOT_ALLOWED("multi.line.strings.not.allowed"),
-    SEND_RECEIVE_TYPE_MISMATCH("send.receive.type.mismatch")
+    IDENTIFIER_LITERAL_ONLY_SUPPORTS_ALPHANUMERICS("identifier.literal.only.supports.alphanumerics")
 
     ;
     private String value;

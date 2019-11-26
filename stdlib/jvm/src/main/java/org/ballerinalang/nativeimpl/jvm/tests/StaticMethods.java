@@ -20,15 +20,25 @@ package org.ballerinalang.nativeimpl.jvm.tests;
 import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BPackage;
+import org.ballerinalang.jvm.types.BTupleType;
+import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.types.TypeTags;
+import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.ArrayValueImpl;
+import org.ballerinalang.jvm.values.BmpStringValue;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.StringValue;
+import org.ballerinalang.jvm.values.TupleValueImpl;
 
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicLong;
@@ -49,6 +59,14 @@ public class StaticMethods {
         return new Date();
     }
 
+    public static StringValue acceptNothingButReturnString() {
+        return new BmpStringValue("hello world");
+    }
+
+    public static StringValue stringParamAndReturn(StringValue a1) {
+        return a1.concat(new BmpStringValue(" and Hadrian"));
+    }
+
     public static Date acceptSomethingAndReturnSomething(Date date) {
         return date;
     }
@@ -63,7 +81,7 @@ public class StaticMethods {
 
     // This scenario is for map value to be passed to interop and return array value.
     public static ArrayValue getArrayValueFromMap(String key, MapValue mapValue) {
-        ArrayValue arrayValue = new ArrayValue(BTypes.typeInt);
+        ArrayValue arrayValue = new ArrayValueImpl(new BArrayType(BTypes.typeInt));
         arrayValue.add(0, 1);
         long fromMap = mapValue.getIntValue(key);
         arrayValue.add(1, fromMap);
@@ -181,7 +199,7 @@ public class StaticMethods {
 
     public static ArrayValue getArrayValueFromMapWhichThrowsCheckedException(String key, MapValue mapValue)
             throws JavaInteropTestCheckedException {
-        ArrayValue arrayValue = new ArrayValue(BTypes.typeInt);
+        ArrayValue arrayValue = new ArrayValueImpl(new BArrayType(BTypes.typeInt));
         arrayValue.add(0, 1);
         long fromMap = mapValue.getIntValue(key);
         arrayValue.add(1, fromMap);
@@ -236,7 +254,7 @@ public class StaticMethods {
             throws JavaInteropTestCheckedException {
         String finalBasePath = "basePath";
         AtomicLong runCount = new AtomicLong(0L);
-        ArrayValue arrayValue = new ArrayValue(new BArrayType(BallerinaValues.createRecordValue(new BPackage(
+        ArrayValue arrayValue = new ArrayValueImpl(new BArrayType(BallerinaValues.createRecordValue(new BPackage(
                 "", "."), "ResourceDefinition").getType()));
         MapValue<String, Object> apiDefinitions = BallerinaValues.createRecordValue(new BPackage("",
                 "."), "ApiDefinition");
@@ -247,6 +265,65 @@ public class StaticMethods {
         arrayValue.add(runCount.getAndIncrement(), resource);
         apiDefinitions.put("resources", arrayValue);
         return apiDefinitions;
+    }
+
+    public static TupleValueImpl getArrayValue() throws BallerinaException {
+        String name = null;
+        String type = null;
+        try {
+            return new TupleValueImpl(new String[]{name, type}, new BTupleType(new ArrayList<BType>() {
+                {
+                    add(BTypes.typeString);
+                    add(BTypes.typeString);
+                }
+            }));
+        } catch (BallerinaException e) {
+            throw new BallerinaException("Error occurred while creating ArrayValue.", e);
+        }
+    }
+
+    public static long funcWithAsyncDefaultParamExpression(long a, long b) {
+        return a + (b * 2);
+    }
+
+    public static long usingParamValues(long a, long b) {
+        return a + (b * 3);
+    }
+
+    public static BigDecimal decimalParamAndReturn(BigDecimal a) {
+        return new BigDecimal("99.7").add(a);
+    }
+
+    public static Object decimalParamAndReturnAsObject(BigDecimal a) {
+        return new BigDecimal("99.6").add((BigDecimal) a);
+    }
+
+    public static BigDecimal decimalParamAsObjectAndReturn(Object a) {
+        return new BigDecimal("99.4").add((BigDecimal) a);
+    }
+
+    public static String returnStringForBUnionFromJava() {
+        return "99999";
+    }
+    /////////////
+
+
+    public static TupleValueImpl mockedNativeFuncWithOptionalParams(long a, double b, String c,
+                                                                long d, String e) {
+        BTupleType tupleType = new BTupleType(
+                Arrays.asList(BTypes.typeInt, BTypes.typeFloat, BTypes.typeString, BTypes.typeInt, BTypes.typeString));
+        TupleValueImpl tuple = new TupleValueImpl(tupleType);
+        tuple.add(0, Long.valueOf(a));
+        tuple.add(1, Double.valueOf(b));
+        tuple.add(2, (Object) c);
+        tuple.add(3, Long.valueOf(d));
+        tuple.add(4, (Object) e);
+        return tuple;
+    }
+
+    public static UUID getUUId() {
+        UUID uuid = UUID.randomUUID();
+        return uuid;
     }
 
     public static Object getJson() {
@@ -262,13 +339,13 @@ public class StaticMethods {
     }
 
     public static ArrayValue getJsonArray() {
-        ArrayValue array = new ArrayValue(new BArrayType(BTypes.typeJSON));
+        ArrayValue array = new ArrayValueImpl(new BArrayType(BTypes.typeJSON));
         array.add(0, (Object) "John");
         return array;
     }
 
-    public static Object getInt() {
-        return Long.valueOf(4);
+    public static int getInt() {
+        return 4;
     }
 
     public static int getIntFromJson(Object json) {

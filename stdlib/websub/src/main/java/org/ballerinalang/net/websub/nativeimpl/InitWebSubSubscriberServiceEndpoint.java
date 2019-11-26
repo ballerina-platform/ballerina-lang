@@ -28,7 +28,7 @@ import org.ballerinalang.jvm.values.TypedescValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.net.http.WebSocketServicesRegistry;
+import org.ballerinalang.net.http.websocket.server.WebSocketServicesRegistry;
 import org.ballerinalang.net.websub.WebSubServicesRegistry;
 
 import java.util.HashMap;

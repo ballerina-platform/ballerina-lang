@@ -18,6 +18,7 @@
 
 package org.ballerinalang.stdlib.file.service.compiler;
 
+import org.ballerinalang.compiler.plugins.AbstractCompilerPlugin;
 import org.ballerinalang.compiler.plugins.SupportedResourceParamTypes;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.ServiceNode;
@@ -27,7 +28,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
-import org.wso2.ballerinalang.util.AbstractTransportCompilerPlugin;
 
 import java.util.List;
 
@@ -46,7 +46,7 @@ import static org.ballerinalang.util.diagnostic.Diagnostic.Kind.ERROR;
         expectedListenerType = @SupportedResourceParamTypes.Type(packageName = "file", name = "Listener"),
         paramTypes = { @SupportedResourceParamTypes.Type(packageName = "file", name = "FileEvent") }
 )
-public class DirectoryListenerCompilerPlugin extends AbstractTransportCompilerPlugin {
+public class DirectoryListenerCompilerPlugin extends AbstractCompilerPlugin {
 
     private DiagnosticLog dlog = null;
 
@@ -84,9 +84,6 @@ public class DirectoryListenerCompilerPlugin extends AbstractTransportCompilerPl
                             return;
                         }
                     }
-                }
-                if (!isResourceReturnsErrorOrNil(resource)) {
-                    dlog.logDiagnostic(ERROR, resource.getPosition(), msg);
                 }
                 break;
             default:

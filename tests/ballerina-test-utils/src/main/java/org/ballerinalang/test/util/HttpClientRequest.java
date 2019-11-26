@@ -96,6 +96,10 @@ public class HttpClientRequest {
         return executeRequestWithoutRequestBody(TestConstant.HTTP_METHOD_GET, requestUrl, new HashMap<>(), throwError);
     }
 
+    public static HttpResponse doGetAndPreserveNewlineInResponseData(String requestUrl) throws IOException {
+        return executeRequestAndPreserveNewline(TestConstant.HTTP_METHOD_GET, requestUrl, new HashMap<>());
+    }
+
     /**
      * Send an HTTP POST request to a service.
      *
@@ -186,6 +190,12 @@ public class HttpClientRequest {
             , String> headers, boolean throwError) throws IOException {
         return executeRequestWithoutRequestBody(method, requestUrl, headers, DEFAULT_READ_TIMEOUT,
                 defaultResponseBuilder, throwError);
+    }
+
+    private static HttpResponse executeRequestAndPreserveNewline(String method, String requestUrl, Map<String
+            , String> headers) throws IOException {
+        return executeRequestWithoutRequestBody(method, requestUrl, headers, DEFAULT_READ_TIMEOUT,
+                                                preserveNewLineResponseBuilder);
     }
 
     private static HttpResponse executeRequestWithoutRequestBody(String method, String requestUrl,
@@ -303,6 +313,16 @@ public class HttpClientRequest {
         StringBuilder sb = new StringBuilder();
         while ((line = bufferedReader.readLine()) != null) {
             sb.append(line);
+        }
+        return sb.toString();
+    });
+
+    private static CheckedFunction<BufferedReader, String> preserveNewLineResponseBuilder = ((bufferedReader) -> {
+        String line;
+        StringBuilder sb = new StringBuilder();
+        while ((line = bufferedReader.readLine()) != null) {
+            sb.append(line);
+            sb.append(System.lineSeparator());
         }
         return sb.toString();
     });

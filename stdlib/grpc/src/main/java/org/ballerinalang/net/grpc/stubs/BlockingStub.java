@@ -21,9 +21,9 @@ import io.netty.handler.codec.http.HttpHeaders;
 import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.types.BTupleType;
 import org.ballerinalang.jvm.types.BTypes;
-import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.TupleValueImpl;
 import org.ballerinalang.net.grpc.ClientCall;
 import org.ballerinalang.net.grpc.DataContext;
 import org.ballerinalang.net.grpc.Message;
@@ -100,7 +100,7 @@ public class BlockingStub extends AbstractStub {
         @Override
         public void onClose(Status status, HttpHeaders trailers) {
             ErrorValue httpConnectorError = null;
-            ArrayValue inboundResponse = null;
+            TupleValueImpl inboundResponse = null;
             if (status.isOk()) {
                 if (value == null) {
                     // No value received so mark the future as an error
@@ -111,9 +111,8 @@ public class BlockingStub extends AbstractStub {
                     // Set response headers, when response headers exists in the message context.
                     ObjectValue headerObject = BallerinaValues.createObjectValue(PROTOCOL_GRPC_PKG_ID, HEADERS);
                     headerObject.addNativeData(MESSAGE_HEADERS, value.getHeaders());
-                    ArrayValue contentTuple =
-                            new ArrayValue(
-                                    new BTupleType(Arrays.asList(BTypes.typeAnydata, headerObject.getType())));
+                    TupleValueImpl contentTuple = new TupleValueImpl(
+                            new BTupleType(Arrays.asList(BTypes.typeAnydata, headerObject.getType())));
                     contentTuple.add(0, responseBValue);
                     contentTuple.add(1, headerObject);
                     inboundResponse = contentTuple;

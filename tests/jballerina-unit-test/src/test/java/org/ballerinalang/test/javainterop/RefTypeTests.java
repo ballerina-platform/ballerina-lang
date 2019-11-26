@@ -17,6 +17,8 @@
  */
 package org.ballerinalang.test.javainterop;
 
+import org.ballerinalang.jvm.values.XMLItem;
+import org.ballerinalang.jvm.values.XMLValue;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
@@ -153,5 +155,10 @@ public class RefTypeTests {
         BValue[] returns = BRunUtil.invoke(result, "testJsonParams");
         Assert.assertTrue(returns[0] instanceof BInteger);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 7);
+    }
+    
+    // static methods
+    public static XMLValue getXML() {
+        return new XMLItem("<hello/>");
     }
 }

@@ -42,6 +42,8 @@ dependencies {
     baloImplementation project(path: ':ballerina-utils', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-xmlutils', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-jsonutils', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-java', configuration: 'baloImplementation')
+
     baloImplementation project(path: ':ballerina-mime', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-cache', configuration: 'baloImplementation')
 
@@ -71,6 +73,8 @@ dependencies {
     testCompile project(':ballerina-core')
     testCompile project(':ballerina-jsonutils')
     testCompile project(':ballerina-xmlutils')
+    testCompile project(':ballerina-java')
+    implementation project(':ballerina-time')
     testCompile project(':ballerina-mime')
     testCompile project(':ballerina-transactions')
 

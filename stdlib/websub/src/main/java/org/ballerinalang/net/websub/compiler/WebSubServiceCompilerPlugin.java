@@ -16,6 +16,7 @@
  */
 package org.ballerinalang.net.websub.compiler;
 
+import org.ballerinalang.compiler.plugins.AbstractCompilerPlugin;
 import org.ballerinalang.compiler.plugins.SupportedResourceParamTypes;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.ServiceNode;
@@ -24,7 +25,6 @@ import org.ballerinalang.util.diagnostic.DiagnosticLog;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
-import org.wso2.ballerinalang.util.AbstractTransportCompilerPlugin;
 
 import java.util.List;
 
@@ -54,7 +54,7 @@ import static org.ballerinalang.net.websub.WebSubSubscriberServiceValidator.vali
                 @SupportedResourceParamTypes.Type(packageName = WEBSUB, name = WEBSUB_NOTIFICATION_REQUEST)
         }
 )
-public class WebSubServiceCompilerPlugin extends AbstractTransportCompilerPlugin {
+public class WebSubServiceCompilerPlugin extends AbstractCompilerPlugin {
 
     private DiagnosticLog dlog = null;
     private static final String WEBSUB_LISTENER = "T".concat(WEBSUB_PACKAGE).concat(":")
@@ -111,7 +111,7 @@ public class WebSubServiceCompilerPlugin extends AbstractTransportCompilerPlugin
         }
 
         resources.forEach(res -> {
-            validateDefaultResources(res, isResourceReturnsErrorOrNil(res), dlog);
+            validateDefaultResources(res, dlog);
         });
     }
 
