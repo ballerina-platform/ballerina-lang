@@ -24,7 +24,7 @@ public function contains(@untainted string key) returns boolean {
     return externContains(java:fromString(key));
 }
 
-public function externContains(handle key) returns boolean = @java:Method {
+function externContains(handle key) returns boolean = @java:Method {
     name: "contains",
     class: "org.ballerinalang.stdlib.config.Contains"
 } external;
@@ -42,7 +42,7 @@ public function setConfig(string key, string|int|float|boolean value) {
 
 }
 
-public function externSetConfig(handle key, handle|int|float|boolean value) = @java:Method {
+function externSetConfig(handle key, handle|int|float|boolean value) = @java:Method {
     name: "setConfig",
     class: "org.ballerinalang.stdlib.config.SetConfig"
 } external;
@@ -73,7 +73,7 @@ public function get(@untainted string key, ValueType vType) returns string|int|f
     }
 }
 
-public function externGet(handle key, handle vType) returns handle|int|float|boolean|map<any> = @java:Method {
+function externGet(handle key, handle vType) returns handle|int|float|boolean|map<any> = @java:Method {
     name: "get",
     class: "org.ballerinalang.stdlib.config.GetConfig"
 } external;
