@@ -24,7 +24,10 @@ import org.ballerinalang.jvm.types.BPackage;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
 
+import java.time.DateTimeException;
+import java.time.Instant;
 import java.time.ZoneId;
+import java.time.temporal.TemporalAccessor;
 import java.time.zone.ZoneRulesException;
 import java.util.Date;
 import java.util.TimeZone;
@@ -80,5 +83,23 @@ public class TimeUtils {
 
     public static ErrorValue getTimeError(String message) {
         return BallerinaErrors.createError(TIME_ERROR_CODE, message);
+    }
+
+    public static MapValue<String, Object> getTimeRecord(TemporalAccessor dateTime, String dateString,
+                                                          String pattern) {
+        MapValue<String, Object> timeZoneRecord = TimeUtils.getTimeZoneRecord();
+        MapValue<String, Object> timeRecord = TimeUtils.getTimeRecord();
+        long epochTime = -1;
+        String zoneId;
+        try {
+            epochTime = Instant.from(dateTime).toEpochMilli();
+            zoneId = String.valueOf(ZoneId.from(dateTime));
+        } catch (DateTimeException e) {
+            if (epochTime < 0) {
+                throw TimeUtils.getTimeError("failed to parse \"" + dateString + "\" to the " + pattern + " format");
+            }
+            zoneId = ZoneId.systemDefault().toString();
+        }
+        return TimeUtils.createTimeRecord(timeZoneRecord, timeRecord, epochTime, zoneId);
     }
 }

@@ -37,9 +37,9 @@ import java.time.temporal.TemporalAccessor;
 public abstract class AbstractTimeFunction {
 
     private static final String KEY_ZONED_DATETIME = "ZonedDateTime";
-    private static final String TIME_FIELD = "time";
-    private static final String ZONE_FIELD = "zone";
-    private static final String ZONE_ID_FIELD = "id";
+    public static final String TIME_FIELD = "time";
+    public static final String ZONE_FIELD = "zone";
+    public static final String ZONE_ID_FIELD = "id";
 
     private static MapValue<String, Object> zoneRecord;
     private static MapValue<String, Object> timeRecord;
@@ -129,76 +129,11 @@ public abstract class AbstractTimeFunction {
         return dateTime.format(DateTimeFormatter.ISO_OFFSET_DATE_TIME);
     }
 
-    static MapValue<String, Object> addDuration(MapValue<String, Object> timeRecord, long years, long months,
-                                                long days, long hours, long minutes, long seconds, long milliSeconds) {
-        ZonedDateTime dateTime = getZonedDateTime(timeRecord);
-        long nanoSeconds = milliSeconds * 1000000;
-        dateTime = dateTime.plusYears(years).plusMonths(months).plusDays(days).plusHours(hours).plusMinutes(minutes)
-                .plusSeconds(seconds).plusNanos(nanoSeconds);
-        MapValue<String, Object> zoneData = (MapValue<String, Object>) timeRecord.get(ZONE_FIELD);
-        String zoneIdName = zoneData.get(ZONE_ID_FIELD).toString();
-        long mSec = dateTime.toInstant().toEpochMilli();
-        return TimeUtils.createTimeRecord(getTimeZoneRecord(), getTimeRecord(), mSec, zoneIdName);
-    }
-
-    static MapValue<String, Object> subtractDuration(MapValue<String, Object> timeRecord, long years, long months,
-                                                     long days, long hours, long minutes, long seconds,
-                                                     long milliSeconds) {
-        ZonedDateTime dateTime = getZonedDateTime(timeRecord);
-        long nanoSeconds = milliSeconds * 1000000;
-        dateTime = dateTime.minusYears(years).minusMonths(months).minusDays(days).minusHours(hours)
-                .minusMinutes(minutes).minusSeconds(seconds).minusNanos(nanoSeconds);
-        MapValue<String, Object> zoneData = (MapValue<String, Object>) timeRecord.get(ZONE_FIELD);
-        String zoneIdName = zoneData.get(ZONE_ID_FIELD).toString();
-        long mSec = dateTime.toInstant().toEpochMilli();
-        return TimeUtils.createTimeRecord(getTimeZoneRecord(), getTimeRecord(), mSec, zoneIdName);
-    }
-
     static MapValue<String, Object> changeTimezone(MapValue<String, Object> timeRecord, String zoneId) {
         MapValue<String, Object> timezone = TimeUtils.createTimeZone(TimeUtils.getTimeZoneRecord(), zoneId);
         timeRecord.put(ZONE_FIELD, timezone);
         clearRecordCache(timeRecord);
         return timeRecord;
-    }
-
-    static int getYear(MapValue<String, Object> timeRecord) {
-        ZonedDateTime dateTime = getZonedDateTime(timeRecord);
-        return dateTime.getYear();
-    }
-
-    static int getMonth(MapValue<String, Object> timeRecord) {
-        ZonedDateTime dateTime = getZonedDateTime(timeRecord);
-        return dateTime.getMonthValue();
-    }
-
-    static int getDay(MapValue<String, Object> timeRecord) {
-        ZonedDateTime dateTime = getZonedDateTime(timeRecord);
-        return dateTime.getDayOfMonth();
-    }
-
-    static int getHour(MapValue<String, Object> timeRecord) {
-        ZonedDateTime dateTime = getZonedDateTime(timeRecord);
-        return dateTime.getHour();
-    }
-
-    static int getMinute(MapValue<String, Object> timeRecord) {
-        ZonedDateTime dateTime = getZonedDateTime(timeRecord);
-        return dateTime.getMinute();
-    }
-
-    static int getSecond(MapValue<String, Object> timeRecord) {
-        ZonedDateTime dateTime = getZonedDateTime(timeRecord);
-        return dateTime.getSecond();
-    }
-
-    static int getMilliSecond(MapValue<String, Object> timeRecord) {
-        ZonedDateTime dateTime = getZonedDateTime(timeRecord);
-        return dateTime.getNano() / 1000000;
-    }
-
-    static String getWeekDay(MapValue<String, Object> timeRecord) {
-        ZonedDateTime dateTime = getZonedDateTime(timeRecord);
-        return dateTime.getDayOfWeek().toString();
     }
 
     static ZonedDateTime getZonedDateTime(MapValue<String, Object> timeRecord) {
