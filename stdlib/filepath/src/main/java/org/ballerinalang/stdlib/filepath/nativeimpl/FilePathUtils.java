@@ -41,7 +41,7 @@ import java.util.regex.PatternSyntaxException;
 public class FilePathUtils {
     private static final String GLOB_SYNTAX_FLAVOR = "glob:";
 
-    public static Object externAbsolute(String inputPath) {
+    public static Object absolute(String inputPath) {
         try {
             return FileSystems.getDefault().getPath(inputPath).toAbsolutePath().toString();
         } catch (InvalidPathException ex) {
@@ -49,7 +49,7 @@ public class FilePathUtils {
         }
     }
 
-    public static Object externMatches(String inputPath, String pattern) {
+    public static Object matches(String inputPath, String pattern) {
         FileSystem fs = FileSystems.getDefault();
         PathMatcher matcher;
         try {
@@ -67,7 +67,7 @@ public class FilePathUtils {
         return matcher.matches(Paths.get(inputPath));
     }
 
-    public static Object externResolve(String inputPath) {
+    public static Object resolve(String inputPath) {
         try {
             Path realPath = Files.readSymbolicLink(Paths.get(inputPath).toAbsolutePath());
             return realPath.toString();

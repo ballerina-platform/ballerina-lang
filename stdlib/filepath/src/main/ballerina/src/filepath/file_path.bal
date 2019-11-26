@@ -45,6 +45,7 @@ public function absolute(@untainted string path) returns string|Error {
 
 function externAbsolute(handle path) returns handle|Error =
 @java:Method {
+    name: "absolute",
     class: "org.ballerinalang.stdlib.filepath.nativeimpl.FilePathUtils"
 } external;
 
@@ -383,6 +384,7 @@ public function resolve(@untainted string path) returns string|Error {
 
 function externResolve(handle path) returns handle|Error =
 @java:Method {
+    name: "resolve",
     class: "org.ballerinalang.stdlib.filepath.nativeimpl.FilePathUtils"
 } external;
 
@@ -398,6 +400,7 @@ public function matches(string path, string pattern) returns boolean|Error {
 
 function externMatches(handle path, handle pattern) returns boolean|Error =
 @java:Method {
+    name: "matches",
     class: "org.ballerinalang.stdlib.filepath.nativeimpl.FilePathUtils"
 } external;
 
