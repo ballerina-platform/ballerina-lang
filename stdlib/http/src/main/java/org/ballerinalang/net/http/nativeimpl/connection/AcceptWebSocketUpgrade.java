@@ -37,16 +37,6 @@ import org.wso2.transport.http.netty.contract.websocket.WebSocketHandshaker;
 /**
  * {@code AcceptWebSocketUpgrade} is the AcceptWebSocketUpgrade action implementation of the HTTP Connector.
  */
-//@BallerinaFunction(
-//        orgName = WebSocketConstants.BALLERINA_ORG,
-//        packageName = WebSocketConstants.PACKAGE_HTTP,
-//        functionName = "acceptWebSocketUpgrade",
-//        receiver = @Receiver(
-//                type = TypeKind.OBJECT,
-//                structType = HttpConstants.CALLER,
-//                structPackage = WebSocketConstants.FULL_PACKAGE_HTTP
-//        )
-//)
 public class AcceptWebSocketUpgrade {
     private static final Logger log = LoggerFactory.getLogger(AcceptWebSocketUpgrade.class);
 

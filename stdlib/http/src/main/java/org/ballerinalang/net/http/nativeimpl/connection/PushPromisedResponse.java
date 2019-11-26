@@ -39,19 +39,6 @@ import static org.ballerinalang.net.http.HttpUtil.extractEntity;
 /**
  * {@code PushPromisedResponse} is the extern function to respond back the client with Server Push response.
  */
-//@BallerinaFunction(
-//        orgName = "ballerina", packageName = "http",
-//        functionName = "pushPromisedResponse",
-//        receiver = @Receiver(type = TypeKind.OBJECT, structType = CALLER,
-//                structPackage = "ballerina/http"),
-//        args = {@Argument(name = "promise", type = TypeKind.OBJECT, structType = "PushPromise",
-//                structPackage = "ballerina/http"),
-//                @Argument(name = "res", type = TypeKind.OBJECT, structType = "OutResponse",
-//                        structPackage = "ballerina/http")},
-//        returnType = @ReturnType(type = TypeKind.RECORD, structType = "HttpConnectorError",
-//                structPackage = "ballerina/http"),
-//        isPublic = true
-//)
 public class PushPromisedResponse extends ConnectionAction {
 
     public static Object pushPromisedResponse(ObjectValue connectionObj, ObjectValue pushPromiseObj,

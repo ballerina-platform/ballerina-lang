@@ -52,16 +52,6 @@ import static org.ballerinalang.net.http.nativeimpl.pipelining.PipeliningHandler
  *
  * @since 0.96
  */
-//@BallerinaFunction(
-//        orgName = "ballerina", packageName = "http",
-//        functionName = "nativeRespond",
-//        args = {@Argument(name = "connection", type = TypeKind.OBJECT),
-//                @Argument(name = "res", type = TypeKind.OBJECT, structType = "Response",
-//                        structPackage = "ballerina/http")},
-//        returnType = @ReturnType(type = TypeKind.RECORD, structType = "HttpConnectorError",
-//                structPackage = "ballerina/http"),
-//        isPublic = true
-//)
 public class Respond extends ConnectionAction {
 
     private static final Logger log = LoggerFactory.getLogger(Respond.class);
