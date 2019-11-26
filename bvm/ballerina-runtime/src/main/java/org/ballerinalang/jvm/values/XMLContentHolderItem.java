@@ -60,6 +60,9 @@ public class XMLContentHolderItem extends XMLValue {
 
     @Override
     public boolean isEmpty() {
+        if (getNodeType() == XMLNodeType.TEXT) {
+            return getData().isEmpty();
+        }
         return false;
     }
 
@@ -153,7 +156,10 @@ public class XMLContentHolderItem extends XMLValue {
 
     @Override
     public BXml strip() {
-        return null;
+        if (getNodeType() == XMLNodeType.TEXT && !getData().trim().isEmpty()) {
+            return this;
+        }
+        return new XMLContentHolderItem("", XMLNodeType.TEXT);
     }
 
     @Override

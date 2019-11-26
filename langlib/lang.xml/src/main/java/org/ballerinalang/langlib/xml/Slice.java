@@ -18,10 +18,8 @@
 
 package org.ballerinalang.langlib.xml;
 
-import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
-import org.ballerinalang.jvm.values.XMLSequence;
 import org.ballerinalang.jvm.values.XMLValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
@@ -45,26 +43,6 @@ public class Slice {
     private static final String OPERATION = "slice xml";
 
     public static XMLValue slice(Strand strand, XMLValue xml, long startIndex, long endIndex) {
-        if (startIndex > 1 || endIndex > 1 || startIndex < -1 || endIndex < -1) {
-            throw BallerinaErrors.createError("index out of range: [" + startIndex + "," + endIndex + "]");
-        }
-
-        if (startIndex == -1) {
-            startIndex = 0;
-        }
-
-        if (endIndex == -1) {
-            endIndex = 1;
-        }
-
-        if (startIndex == endIndex) {
-            return new XMLSequence();
-        }
-
-        if (startIndex > endIndex) {
-            throw BallerinaErrors.createError("invalid indices: " + startIndex + " < " + endIndex);
-        }
-
         try {
             return (XMLValue) xml.slice(startIndex, endIndex);
         } catch (Throwable e) {

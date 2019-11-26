@@ -286,14 +286,30 @@ public final class XMLSequence extends XMLValue {
     @Override
     public XMLValue strip() {
         List<BXml> elementsSeq = new ArrayList<>();
-        int j = 0;
+        boolean prevChildWasATextNode = false;
+        String prevConsecutiveText = null;
+
         for (BXml x : children) {
-            XMLItem element = (XMLItem) x;
-            if (element.value() == null || (element.getNodeType() == XMLNodeType.TEXT &&
-                    ((OMText) element.value()).getText().trim().isEmpty())) {
-                continue;
+            XMLValue item = (XMLValue) x;
+            if (item.getNodeType() == XMLNodeType.TEXT) {
+                if (prevChildWasATextNode) {
+                    prevConsecutiveText += ((XMLContentHolderItem) x).getData();
+                } else {
+                    prevConsecutiveText = ((XMLContentHolderItem) x).getData();
+                }
+                prevChildWasATextNode = true;
+            } else if (item.getNodeType() == XMLNodeType.ELEMENT) {
+                // Previous child was a text node and now we see a element node, we need to add last child to the list
+                if (prevChildWasATextNode && !prevConsecutiveText.trim().isEmpty()) {
+                    elementsSeq.add(new XMLContentHolderItem(prevConsecutiveText, XMLNodeType.TEXT));
+                    prevConsecutiveText = null;
+                }
+                prevChildWasATextNode = false;
+                elementsSeq.add(x);
             }
-            elementsSeq.add(j++, element);
+        }
+        if (prevChildWasATextNode && !prevConsecutiveText.trim().isEmpty()) {
+            elementsSeq.add(new XMLContentHolderItem(prevConsecutiveText, XMLNodeType.TEXT));
         }
 
         return new XMLSequence(elementsSeq);
