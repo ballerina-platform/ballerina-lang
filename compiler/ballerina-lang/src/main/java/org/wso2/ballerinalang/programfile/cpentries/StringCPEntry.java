@@ -22,6 +22,7 @@ package org.wso2.ballerinalang.programfile.cpentries;
  *
  * @since 0.87
  */
+@Deprecated
 public class StringCPEntry implements ConstantPoolEntry {
 
     // Index to a valid UTF8 entry in the constant pool
