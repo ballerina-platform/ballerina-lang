@@ -28,7 +28,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 /**
- * Test cases for ballerina/http inbound response negative native functions.
+ * Test cases for ballerina/HTTP inbound response negative native functions.
  */
 public class CookieNativeFunctionNegativeTest {
 

@@ -195,7 +195,7 @@ function testGetCookiesFromCookieStore1() returns @tainted http:Cookie[] {
     if (cookieConfigVal is http:CookieConfig) {
         cookieStore.addCookie(cookie1, cookieConfigVal, "http://google.com", "/sample");
     }
-    // Gets relevant cookie from cookie store.
+    // Gets the relevant cookie from the cookie store.
     return cookieStore.getCookies("http://google.com", "/sample");
 }
 

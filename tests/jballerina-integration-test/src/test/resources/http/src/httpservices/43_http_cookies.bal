@@ -26,7 +26,7 @@ service cookie on new http:Listener(9253) {
         path: "/cookieBackend"
    }
     resource function addSessionCookies(http:Caller caller, http:Request req) {
-        // Creates cookies.
+        // Creates the cookies.
         http:Cookie cookie1 = new;
         cookie1.name = "SID001";
         cookie1.value = "239d4dmnmsddd34";
@@ -73,7 +73,7 @@ service cookie on new http:Listener(9253) {
           path: "/cookieBackend_2"
     }
     resource function addSimilarSessionCookie(http:Caller caller, http:Request req) {
-        // Creates cookies.
+        // Creates the cookies.
         http:Cookie cookie1 = new;
         cookie1.name = "SID002";
         cookie1.value = "239d4dmnmsddd34";
@@ -90,7 +90,7 @@ service cookie on new http:Listener(9253) {
 
         http:Response res = new;
         http:Cookie[] reqstCookies=req.getCookies();
-        // Adds cookies if there are no cookies in the inbound request, not adding otherwise.
+        // Adds cookies only if there are no cookies in the inbound request.
         if (reqstCookies.length() == 0) {
             res.addCookie(cookie1);
             res.addCookie(cookie2);
@@ -107,7 +107,7 @@ service cookie on new http:Listener(9253) {
           path: "/cookieBackend_3"
     }
     resource function removeSessionCookie(http:Caller caller, http:Request req) {
-        // Creates cookies.
+        // Creates the cookies.
         http:Cookie cookie1 = new;
         cookie1.name = "SID001";
         cookie1.value = "239d4dmnmsddd34";

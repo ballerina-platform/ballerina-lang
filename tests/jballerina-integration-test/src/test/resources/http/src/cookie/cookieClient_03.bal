@@ -20,9 +20,9 @@ import ballerina/io;
 public function main() {
     http:Client cookieClientEndpoint = new ("http://localhost:9253", { cookieConfig: {enabled: true}});
     http:Request req = new;
-    // First request -send  similar session cookies in response.
+    // Server sends similar session cookies in the response for the first request..
     var response = cookieClientEndpoint->get("/cookie/cookieBackend_2", req);
-    // Second request after replacing old cookie with new cookie .
+    // Sends second request after replacing the old cookie with the new.
     response = cookieClientEndpoint->get("/cookie/cookieBackend_2", req);
     if (response is http:Response) {
         var payload = response.getTextPayload();

@@ -20,9 +20,9 @@ import ballerina/io;
 public function main() {
     http:Client cookieClientEndpoint = new ("http://localhost:9253", { cookieConfig: {enabled: true, enablePersistent:true}});
     http:Request req = new;
-    // First request -send session cookies in the response.
+    // Server sends the session cookies in the response for the first request.
     var response = cookieClientEndpoint->get("/cookie/cookieBackend_3", req);
-    // Server sends expired cookie in the response in order to remove existing cookie in cookie store.
+    // Server sends an expired cookie in the response in order to remove the existing cookie in the cookie store.
     response = cookieClientEndpoint->get("/cookie/cookieBackend_3", req);
     // Third request after removing the cookie.
     response = cookieClientEndpoint->get("/cookie/cookieBackend_3", req);
