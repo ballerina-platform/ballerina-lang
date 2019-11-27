@@ -16,11 +16,11 @@
 
 package org.ballerinalang.net.http.actions.httpclient;
 
+import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.net.http.DataContext;
 import org.ballerinalang.net.http.HttpConstants;
 import org.wso2.transport.http.netty.contract.HttpClientConnector;
@@ -32,13 +32,14 @@ import static org.ballerinalang.net.http.HttpConstants.CLIENT_ENDPOINT_SERVICE_U
 /**
  * {@code Put} is the PUT action implementation of the HTTP Connector.
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "http",
-        functionName = "nativePut"
-)
+//@BallerinaFunction(
+//        orgName = "ballerina", packageName = "http",
+//        functionName = "nativePut"
+//)
 public class Put extends AbstractHTTPAction {
     @SuppressWarnings("unchecked")
-    public static Object nativePut(Strand strand, ObjectValue httpClient, String path, ObjectValue requestObj) {
+    public static Object put(ObjectValue httpClient, String path, ObjectValue requestObj) {
+        Strand strand = Scheduler.getStrand();
         String url = httpClient.getStringValue(CLIENT_ENDPOINT_SERVICE_URI);
         MapValue<String, Object> config = (MapValue<String, Object>) httpClient.get(CLIENT_ENDPOINT_CONFIG);
         HttpClientConnector clientConnector = (HttpClientConnector) httpClient.getNativeData(HttpConstants.CLIENT);

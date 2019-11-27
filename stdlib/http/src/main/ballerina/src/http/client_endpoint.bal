@@ -14,6 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerinax/java;
 import ballerina/crypto;
 import ballerina/time;
 
@@ -256,7 +257,10 @@ public type ClientHttp1Settings record {|
     ProxyConfig? proxy = ();
 |};
 
-function createSimpleHttpClient(HttpClient caller, PoolConfiguration globalPoolConfig) = external;
+function createSimpleHttpClient(HttpClient caller, PoolConfiguration globalPoolConfig) = @java:Method {
+   class: "org.ballerinalang.net.http.clientendpoint.CreateSimpleHttpClient",
+   name: "createSimpleHttpClient"
+} external;
 
 # Provides settings related to HTTP/2 protocol.
 #

@@ -16,12 +16,8 @@
 
 package org.ballerinalang.net.http.actions.httpclient;
 
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpUtil;
 import org.wso2.transport.http.netty.contract.HttpClientConnector;
@@ -30,14 +26,14 @@ import org.wso2.transport.http.netty.message.Http2PushPromise;
 /**
  * {@code RejectPromise} action can be used to reject a push promise.
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "http",
-        functionName = "rejectPromise",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = HttpConstants.HTTP_CLIENT,
-                structPackage = "ballerina/http")
-)
+//@BallerinaFunction(
+//        orgName = "ballerina", packageName = "http",
+//        functionName = "rejectPromise",
+//        receiver = @Receiver(type = TypeKind.OBJECT, structType = HttpConstants.HTTP_CLIENT,
+//                structPackage = "ballerina/http")
+//)
 public class RejectPromise extends AbstractHTTPAction {
-    public static void rejectPromise(Strand strand, ObjectValue clientObj, ObjectValue pushPromiseObj) {
+    public static void rejectPromise(ObjectValue clientObj, ObjectValue pushPromiseObj) {
         Http2PushPromise http2PushPromise = HttpUtil.getPushPromise(pushPromiseObj, null);
         if (http2PushPromise == null) {
             throw new BallerinaException("invalid push promise");
