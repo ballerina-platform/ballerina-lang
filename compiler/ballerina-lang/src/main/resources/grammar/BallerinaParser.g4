@@ -1,3 +1,4 @@
+
 parser grammar BallerinaParser;
 
 options {
@@ -837,6 +838,7 @@ lambdaReturnParameter
 
 parameterTypeNameList
     :   parameterTypeName (COMMA parameterTypeName)* (COMMA restParameterTypeName)?
+    |   restParameterTypeName
     ;
 
 parameterTypeName
@@ -845,6 +847,7 @@ parameterTypeName
 
 parameterList
     :   parameter (COMMA parameter)* (COMMA restParameter)?
+    |   restParameter
     ;
 
 parameter
