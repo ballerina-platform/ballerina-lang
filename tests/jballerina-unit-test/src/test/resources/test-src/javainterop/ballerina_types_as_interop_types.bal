@@ -193,8 +193,8 @@ public function getArrayValueFromMapWhichThrowsCheckedException(handle key, map<
 
 // JSON interop
 
-function testJsonReturns() returns [json, json, json, json] {
-	return [getJson(), getInt(), getJsonObject(), getJsonArray()];
+function testJsonReturns() returns [json, json, json, json, json] {
+	return [getJson(), getInt(), getJsonObject(), getJsonArray(), getNullJson()];
 }
 
 function testJsonParams() returns json {
@@ -221,6 +221,9 @@ function getIntFromJson(json j) returns int = @java:Method {
     class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
 } external;
 
+public function getNullJson() returns json = @java:Method {
+    class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
+} external;
 
 // XML interop
 
@@ -280,5 +283,45 @@ function getIntegersAsMixType() returns MIX_TYPE = @java:Method {
 
 function acceptMixType(MIX_TYPE x) returns any = @java:Method {
     name:"acceptAny",
+    class:"org/ballerinalang/test/javainterop/RefTypeTests"
+} external;
+
+
+// Function pointers with interop
+
+function testUseFunctionPointer() returns int {
+    return useFunctionPointer(function (int a, int b) returns int { return a + b; } );
+}
+
+function testGetFunctionPointer() returns int {
+    var fp = getFunctionPointer(function (int a, int b) returns int { return a + b; } );
+    return fp(4, 6);
+}
+
+function useFunctionPointer((function (int a, int b) returns int) fp) returns int = @java:Method {
+    class:"org/ballerinalang/test/javainterop/RefTypeTests"
+} external;
+
+function getFunctionPointer(any x) returns (function (int a, int b) returns int) = @java:Method {
+    class:"org/ballerinalang/test/javainterop/RefTypeTests"
+} external;
+
+
+// Type desc with interop
+
+function testUseTypeDesc() returns handle {
+    return useTypeDesc(json);
+}
+
+function testGetTypeDesc() returns typedesc<any> {
+    typedesc<any> td = getTypeDesc();
+    return td;
+}
+
+function useTypeDesc(typedesc<any> t) returns handle = @java:Method {
+    class:"org/ballerinalang/test/javainterop/RefTypeTests"
+} external;
+
+function getTypeDesc() returns typedesc<any> = @java:Method {
     class:"org/ballerinalang/test/javainterop/RefTypeTests"
 } external;

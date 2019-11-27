@@ -20,6 +20,7 @@ package org.ballerinalang.nativeimpl.jvm.interop;
 import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BFiniteType;
+import org.ballerinalang.jvm.types.BFunctionType;
 import org.ballerinalang.jvm.types.BObjectType;
 import org.ballerinalang.jvm.types.BRecordType;
 import org.ballerinalang.jvm.types.BTupleType;
@@ -183,6 +184,13 @@ class JMethodRequest {
                     String finiteTypeName = (String) ((MapValue) typeValue.get(NAME_FIELD)).get(VALUE_FIELD);
                     return new BFiniteType(finiteTypeName, getValueSpace((ArrayValue) typeValue.get(VALUES_FIELD)),
                             bRecordType.typeFlags);
+                case TypeConstants.FUNCTION_TNAME:
+                    ArrayValue params = (ArrayValue) typeValue.get(PARAM_TYPES_FIELD);
+                    BType[] paramTypes = new BType[params.size()];
+                    for (int i = 0; i < params.size(); i++) {
+                        paramTypes[i] = getBType(params.get(i));
+                    }
+                    return new BFunctionType(paramTypes, getBType(typeValue.get(RETURN_TYPE_FIELD)));
                 default:
                     throw new UnsupportedOperationException("JInterop does not support type '" + bType + "'");
             }

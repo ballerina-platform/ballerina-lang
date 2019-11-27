@@ -344,6 +344,10 @@ public class StaticMethods {
         return array;
     }
 
+    public static Object getNullJson() {
+        return null;
+    }
+
     public static int getInt() {
         return 4;
     }

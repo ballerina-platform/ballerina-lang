@@ -17,15 +17,21 @@
  */
 package org.ballerinalang.test.javainterop;
 
+import org.ballerinalang.jvm.scheduling.Scheduler;
+import org.ballerinalang.jvm.types.BTypes;
+import org.ballerinalang.jvm.values.FPValue;
 import org.ballerinalang.jvm.values.HandleValue;
+import org.ballerinalang.jvm.values.TypedescValue;
 import org.ballerinalang.jvm.values.XMLItem;
 import org.ballerinalang.jvm.values.XMLValue;
+import org.ballerinalang.model.types.BTypeDesc;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BHandleValue;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
+import org.ballerinalang.model.values.BTypeDescValue;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.model.values.BValueType;
@@ -139,7 +145,7 @@ public class RefTypeTests {
     @Test(description = "Test interoperability with ballerina json return")
     public void testInteropWithJsonReturns() {
         BValue[] returns = BRunUtil.invoke(result, "testJsonReturns");
-        Assert.assertEquals(returns.length, 4);
+        Assert.assertEquals(returns.length, 5);
 
         Assert.assertTrue(returns[0] instanceof BMap);
         Assert.assertEquals(returns[0].toString(), "{\"name\":\"John\"}");
@@ -152,6 +158,8 @@ public class RefTypeTests {
 
         Assert.assertTrue(returns[3] instanceof BValueArray);
         Assert.assertEquals(returns[3].toString(), "[\"John\"]");
+
+        Assert.assertNull(returns[4]);
     }
 
     @Test(description = "Test interoperability with ballerina json params")
@@ -218,6 +226,34 @@ public class RefTypeTests {
         Assert.assertEquals(((BBoolean) returns[2]).booleanValue(), false);
     }
 
+    @Test
+    public void testUseFunctionPointer() {
+        BValue[] returns = BRunUtil.invoke(result, "testUseFunctionPointer");
+        Assert.assertTrue(returns[0] instanceof BValueType);
+        Assert.assertEquals(((BValueType) returns[0]).intValue(), 7);
+    }
+
+    @Test
+    public void testGetFunctionPointer() {
+        BValue[] returns = BRunUtil.invoke(result, "testGetFunctionPointer");
+        Assert.assertTrue(returns[0] instanceof BValueType);
+        Assert.assertEquals(((BValueType) returns[0]).intValue(), 10);
+    }
+
+    @Test
+    public void testUseTypeDesc() {
+        BValue[] returns = BRunUtil.invoke(result, "testUseTypeDesc");
+        Assert.assertTrue(returns[0] instanceof BHandleValue);
+        Assert.assertEquals(((BHandleValue) returns[0]).getValue(), "typedesc json");
+    }
+
+    @Test
+    public void testGetTypeDesc() {
+        BValue[] returns = BRunUtil.invoke(result, "testGetTypeDesc");
+        Assert.assertTrue(returns[0] instanceof BTypeDescValue);
+        Assert.assertEquals(((BTypeDescValue) returns[0]).stringValue(), "xml");
+    }
+
     // static methods
 
     public static XMLValue getXML() {
@@ -250,5 +286,21 @@ public class RefTypeTests {
 
     public static Object acceptAny(Object x) {
         return x;
+    }
+
+    public static int useFunctionPointer(FPValue fp) {
+        return ((Long) fp.call(new Object[] { Scheduler.getStrand(), 3, true, 4, true })).intValue();
+    }
+
+    public static FPValue getFunctionPointer(Object fp) {
+        return (FPValue) fp;
+    }
+
+    public static String useTypeDesc(TypedescValue type) {
+        return type.stringValue();
+    }
+
+    public static TypedescValue getTypeDesc() {
+        return new TypedescValue(BTypes.typeXML);
     }
 }
