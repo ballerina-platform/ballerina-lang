@@ -44,10 +44,13 @@ public class ListenerUtils {
     private static final PrintStream console;
     private static boolean started = false;
     private static ArrayList<ObjectValue> services = new ArrayList<>();
+    private static ArrayList<ObjectValue> startedServices = new ArrayList<>();
     private static BRuntime runtime;
 
     public static void externInit(ObjectValue listenerObjectValue, Channel channel) {
         listenerObjectValue.addNativeData(RabbitMQConstants.CHANNEL_NATIVE_OBJECT, channel);
+        listenerObjectValue.addNativeData(RabbitMQConstants.CONSUMER_SERVICES, services);
+        listenerObjectValue.addNativeData(RabbitMQConstants.STARTED_SERVICES, startedServices);
     }
 
     public static Object registerListener(ObjectValue listenerObjectValue, ObjectValue service) {
@@ -68,7 +71,6 @@ public class ListenerUtils {
             startReceivingMessages(service, channel, listenerObjectValue);
         }
         services.add(service);
-        listenerObjectValue.addNativeData(RabbitMQConstants.CONSUMER_SERVICES, services);
         return null;
     }
 
