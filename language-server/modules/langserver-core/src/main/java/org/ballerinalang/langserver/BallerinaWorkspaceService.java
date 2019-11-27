@@ -23,6 +23,7 @@ import org.ballerinalang.langserver.command.ExecuteCommandKeys;
 import org.ballerinalang.langserver.command.LSCommandExecutor;
 import org.ballerinalang.langserver.command.LSCommandExecutorException;
 import org.ballerinalang.langserver.command.LSCommandExecutorProvider;
+import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSCompilerUtil;
 import org.ballerinalang.langserver.compiler.LSModuleCompiler;
@@ -141,7 +142,7 @@ public class BallerinaWorkspaceService implements WorkspaceService {
         return CompletableFuture.supplyAsync(() -> {
             LSServiceOperationContext executeCmdContext = new LSServiceOperationContext(LSContextOperation.WS_EXEC_CMD);
             executeCmdContext.put(ExecuteCommandKeys.COMMAND_ARGUMENTS_KEY, params.getArguments());
-            executeCmdContext.put(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY, this.workspaceDocumentManager);
+            executeCmdContext.put(CommonKeys.DOC_MANAGER_KEY, this.workspaceDocumentManager);
             executeCmdContext.put(ExecuteCommandKeys.LANGUAGE_SERVER_KEY, this.languageServer);
             executeCmdContext.put(ExecuteCommandKeys.DIAGNOSTICS_HELPER_KEY, this.diagnosticsHelper);
 

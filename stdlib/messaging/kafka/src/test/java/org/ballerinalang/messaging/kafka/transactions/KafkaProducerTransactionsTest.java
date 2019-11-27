@@ -123,11 +123,13 @@ public class KafkaProducerTransactionsTest {
         }
     }
 
-    @Test(description = "Test transactional producer with idempotence false")
+
+    // TODO: Enable after the issue #19893 is fixed
+    @Test(description = "Test transactional producer with idempotence false", enabled = false)
     public void testKafkaTransactionalProducerWithoutIdempotenceTest() {
         String message = "Failed to initialize the producer: configuration enableIdempotence must be set to true to " +
                 "enable transactional producer";
-        result = BCompileUtil.compile(getFilePath(
+        result = BCompileUtil.compileOffline(getFilePath(
                 Paths.get(TEST_SRC, TEST_TRANSACTIONS, "transactional_producer_without_idempotence.bal")));
         BValue[] returnValues = BRunUtil.invoke(result, "funcKafkaCreateProducer");
         Assert.assertEquals(returnValues.length, 1);

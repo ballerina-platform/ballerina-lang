@@ -23,7 +23,6 @@ import org.ballerinalang.model.symbols.VariableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNoType;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
-import org.wso2.ballerinalang.programfile.Instruction.Operand;
 
 /**
  * @since 0.94
@@ -34,11 +33,6 @@ public class BXMLNSSymbol extends BSymbol implements VariableSymbol {
      * Holds the namespace URI for lookup during semantic validations.
      */
     public String namespaceURI;
-
-    /**
-     * Represent the index of the namespace URI in a memory block of the VM.
-     */
-    public Operand nsURIIndex;
 
     public BXMLNSSymbol(Name prefix, String namespaceURI, PackageID pkgID, BSymbol owner) {
         super(SymTag.XMLNS, 0, prefix, pkgID, new BNoType(TypeTags.XMLNS), owner);

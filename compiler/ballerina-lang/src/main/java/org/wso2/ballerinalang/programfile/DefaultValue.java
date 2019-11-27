@@ -22,6 +22,7 @@ package org.wso2.ballerinalang.programfile;
  *
  * @since 0.92
  */
+@Deprecated
 public class DefaultValue {
     public int typeDescCPIndex;
     public String desc;
