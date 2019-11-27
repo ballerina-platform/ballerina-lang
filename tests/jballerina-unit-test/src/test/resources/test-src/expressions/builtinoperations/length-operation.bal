@@ -177,7 +177,7 @@ function lengthOfMultipleXmlElements() returns (int) {
     xml x3 = xml `-Other txt-`;
     xml x4 = xml `<!--I am a comment-->`;
     xml x5 = xml `<?target data?>`;
-    xml x6 = x1 + x2 + x3 + x4;
+    xml x6 = x1 + x2 + x3 + x4 + x5;
     int length = x6.length();
     return length;
 }

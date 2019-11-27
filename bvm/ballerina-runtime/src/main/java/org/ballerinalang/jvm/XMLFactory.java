@@ -37,10 +37,12 @@ import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.TableValue;
-import org.ballerinalang.jvm.values.XMLContentHolderItem;
+import org.ballerinalang.jvm.values.XMLComment;
 import org.ballerinalang.jvm.values.XMLItem;
+import org.ballerinalang.jvm.values.XMLPi;
 import org.ballerinalang.jvm.values.XMLQName;
 import org.ballerinalang.jvm.values.XMLSequence;
+import org.ballerinalang.jvm.values.XMLText;
 import org.ballerinalang.jvm.values.XMLValue;
 import org.ballerinalang.jvm.values.api.BXml;
 
@@ -51,6 +53,7 @@ import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.xml.XMLConstants;
@@ -85,8 +88,8 @@ public class XMLFactory {
                 return new XMLSequence();
             }
 
-            XMLTreeBuilder XMLTreeBuilder = new XMLTreeBuilder(xmlStr);
-            return XMLTreeBuilder.parse();
+            XMLTreeBuilder treeBuilder = new XMLTreeBuilder(xmlStr);
+            return treeBuilder.parse();
         } catch (ErrorValue e) {
             throw e;
         } catch (Throwable e) {
@@ -102,8 +105,8 @@ public class XMLFactory {
      */
     public static XMLValue parse(InputStream xmlStream) {
         try {
-            XMLTreeBuilder XMLTreeBuilder = new XMLTreeBuilder(new InputStreamReader(xmlStream));
-            return XMLTreeBuilder.parse();
+            XMLTreeBuilder treeBuilder = new XMLTreeBuilder(new InputStreamReader(xmlStream));
+            return treeBuilder.parse();
         } catch (DeferredParsingException e) {
             throw BallerinaErrors.createError(e.getCause().getMessage());
         } catch (Throwable e) {
@@ -120,19 +123,13 @@ public class XMLFactory {
      */
     public static XMLValue parse(InputStream xmlStream, String charset) {
         try {
-            XMLTreeBuilder XMLTreeBuilder = new XMLTreeBuilder(new InputStreamReader(xmlStream, charset));
-            return XMLTreeBuilder.parse();
+            XMLTreeBuilder xmlTreeBuilder = new XMLTreeBuilder(new InputStreamReader(xmlStream, charset));
+            return xmlTreeBuilder.parse();
         } catch (DeferredParsingException e) {
             throw BallerinaErrors.createError(e.getCause().getMessage());
         } catch (Throwable e) {
             throw BallerinaErrors.createError("failed to create xml: " + e.getMessage());
         }
-    }
-
-
-    public static XMLValue parse2(String str) {
-        XMLTreeBuilder XMLTreeBuilder = new XMLTreeBuilder(str);
-        return XMLTreeBuilder.parse();
     }
 
     /**
@@ -143,8 +140,8 @@ public class XMLFactory {
      */
     public static XMLValue parse(Reader reader) {
         try {
-            XMLTreeBuilder XMLTreeBuilder = new XMLTreeBuilder(reader);
-            return XMLTreeBuilder.parse();
+            XMLTreeBuilder xmlTreeBuilder = new XMLTreeBuilder(reader);
+            return xmlTreeBuilder.parse();
         } catch (DeferredParsingException e) {
             throw BallerinaErrors.createError(e.getCause().getMessage());
         } catch (Throwable e) {
@@ -162,15 +159,39 @@ public class XMLFactory {
     public static XMLValue concatenate(XMLValue firstSeq, XMLValue secondSeq) {
         ArrayList<BXml> concatenatedList = new ArrayList<>();
 
-        // Load the content fully before concat the two
-        firstSeq.build();
-        secondSeq.build();
+        if (firstSeq.getNodeType() == XMLNodeType.TEXT && secondSeq.getNodeType() == XMLNodeType.TEXT) {
+            return new XMLText(firstSeq.getTextValue() + secondSeq.getTextValue());
+        }
 
         // Add all the items in the first sequence
         if (firstSeq.getNodeType() == XMLNodeType.SEQUENCE) {
             concatenatedList.addAll(((XMLSequence) firstSeq).getChildrenList());
         } else {
             concatenatedList.add(firstSeq);
+        }
+
+        // When last item fo left seq and first item of right seq are both text nodes merge them into single consecutive
+        // text node.
+        if (!concatenatedList.isEmpty()) {
+            int lastIndexOFLeftChildren = concatenatedList.size() - 1;
+            BXml lastItem = concatenatedList.get(lastIndexOFLeftChildren);
+            if (lastItem.getNodeType() == XMLNodeType.TEXT && secondSeq.getNodeType() == XMLNodeType.SEQUENCE) {
+                List<BXml> rightChildren = ((XMLSequence) secondSeq).getChildrenList();
+                if (!rightChildren.isEmpty()) {
+                    BXml firsOfRightSeq = rightChildren.get(0);
+                    if (firsOfRightSeq.getNodeType() == XMLNodeType.TEXT) {
+                        concatenatedList.remove(lastIndexOFLeftChildren); // remove last item, from already copied list
+                        concatenatedList.addAll(rightChildren);
+                        String merged = ((XMLText) lastItem).getTextValue() + ((XMLText) firsOfRightSeq).getTextValue();
+                        concatenatedList.set(lastIndexOFLeftChildren, new XMLText(merged));
+                        return new XMLSequence(concatenatedList);
+                    }
+                }
+            } else if (lastItem.getNodeType() == XMLNodeType.TEXT && secondSeq.getNodeType() == XMLNodeType.TEXT) {
+                String merged = lastItem.getTextValue() + secondSeq.getTextValue();
+                concatenatedList.set(lastIndexOFLeftChildren, new XMLText(merged));
+                return new XMLSequence(concatenatedList);
+            }
         }
 
         // Add all the items in the second sequence
@@ -244,7 +265,7 @@ public class XMLFactory {
      * @return XMLValue Comment type XMLValue
      */
     public static XMLValue createXMLComment(String content) {
-        return new XMLContentHolderItem(content, XMLNodeType.COMMENT);
+        return new XMLComment(content);
     }
 
     /**
@@ -263,7 +284,7 @@ public class XMLFactory {
                 .replace("&lt;", "<")
                 .replace("&amp;", "&");
 
-        return new XMLContentHolderItem(content, XMLNodeType.TEXT);
+        return new XMLText(content);
     }
 
     /**
@@ -274,7 +295,7 @@ public class XMLFactory {
      * @return XMLValue Processing instruction type XMLValue
      */
     public static XMLValue createXMLProcessingInstruction(String tartget, String data) {
-        return new XMLContentHolderItem(data, tartget);
+        return new XMLPi(data, tartget);
     }
 
     /**

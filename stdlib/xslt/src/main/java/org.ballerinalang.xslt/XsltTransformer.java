@@ -22,8 +22,10 @@ import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.util.AXIOMUtil;
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.XMLFactory;
+import org.ballerinalang.jvm.XMLNodeType;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ErrorValue;
+import org.ballerinalang.jvm.values.XMLItem;
 import org.ballerinalang.jvm.values.XMLSequence;
 import org.ballerinalang.jvm.values.XMLValue;
 import org.ballerinalang.model.types.TypeKind;
@@ -35,6 +37,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.StringWriter;
 
+import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
@@ -63,7 +66,18 @@ public class XsltTransformer {
 
     public static Object transform(Strand strand, XMLValue xmlInput, XMLValue xslInput) {
         try {
+            boolean unwrap = false;
+            if (xmlInput.getNodeType() == XMLNodeType.SEQUENCE) {
+                XMLItem wrapper = new XMLItem(new QName("root"), (XMLSequence) xmlInput);
+                xmlInput = wrapper;
+                unwrap = true;
+            }
             String input = xmlInput.toString();
+            // Remove <root></root> wrapper
+            if (unwrap) {
+                input = input.substring(6, input.length() - 7).trim();
+            }
+
             String xsl = xslInput.toString();
             OMElement omXML = AXIOMUtil.stringToOM(input);
             OMElement omXSL = AXIOMUtil.stringToOM(xsl);

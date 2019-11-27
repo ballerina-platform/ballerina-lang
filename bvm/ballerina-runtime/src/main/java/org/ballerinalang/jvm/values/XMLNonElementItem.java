@@ -18,9 +18,6 @@
 package org.ballerinalang.jvm.values;
 
 import org.apache.axiom.om.OMNode;
-import org.apache.axiom.om.impl.llom.CharacterDataImpl;
-import org.apache.axiom.om.impl.llom.OMCommentImpl;
-import org.apache.axiom.om.impl.llom.OMProcessingInstructionImpl;
 import org.ballerinalang.jvm.BallerinaXMLSerializer;
 import org.ballerinalang.jvm.XMLNodeType;
 import org.ballerinalang.jvm.scheduling.Strand;
@@ -36,35 +33,13 @@ import java.util.NoSuchElementException;
 import static org.ballerinalang.jvm.util.BLangConstants.STRING_NULL_VALUE;
 
 /**
- * XML nodes containing atomic content such as text, comment and processing instructions.
+ * Functionality common to PI, COMMENT and TEXT nodes.
  *
  * @since 1.1.0
  */
-public class XMLContentHolderItem extends XMLValue {
-
-    private String data;
-    private String target; // only applicable for PI nodes
-    private XMLNodeType type;
-
-    public XMLContentHolderItem(String data, XMLNodeType contentType) {
-        // data is the content of xml comment or text node
-        this.data = data;
-        this.type = contentType;
-    }
-
-    public XMLContentHolderItem(String data, String target) {
-        this.data = data;
-        this.target = target;
-        this.type = XMLNodeType.PI;
-    }
-
+public abstract class XMLNonElementItem extends XMLValue {
     @Override
-    public boolean isEmpty() {
-        if (getNodeType() == XMLNodeType.TEXT) {
-            return getData().isEmpty();
-        }
-        return false;
-    }
+    public abstract boolean isEmpty();
 
     @Override
     public boolean isSingleton() {
@@ -82,12 +57,7 @@ public class XMLContentHolderItem extends XMLValue {
     }
 
     @Override
-    public String getTextValue() {
-        if (type == XMLNodeType.TEXT) {
-            return getData();
-        }
-        return "";
-    }
+    public abstract String getTextValue();
 
     @Override
     public String getAttribute(String localName, String namespace) {
@@ -102,14 +72,6 @@ public class XMLContentHolderItem extends XMLValue {
     @Override
     public void setAttribute(String localName, String namespace, String prefix, String value) {
 
-    }
-
-    public String getData() {
-        return data;
-    }
-
-    public String getTarget() {
-        return target;
     }
 
     @Override
@@ -142,30 +104,21 @@ public class XMLContentHolderItem extends XMLValue {
         return null;
     }
 
-
-
     @Override
     public void setChildren(BXml seq) {
-        // no op;
     }
 
     @Override
     public void addChildren(BXml seq) {
-        // no op;
     }
 
     @Override
     public BXml strip() {
-        if (getNodeType() == XMLNodeType.TEXT && !getData().trim().isEmpty()) {
-            return this;
-        }
-        return new XMLContentHolderItem("", XMLNodeType.TEXT);
+        return new XMLText("");
     }
 
     @Override
-    public XMLNodeType getNodeType() {
-        return type;
-    }
+    public abstract XMLNodeType getNodeType();
 
     @Override
     public BXml slice(long startIndex, long endIndex) {
@@ -190,12 +143,12 @@ public class XMLContentHolderItem extends XMLValue {
 
     @Override
     public Object frozenCopy(Map<Object, Object> refs) {
-        return null;
+        return this;
     }
 
     @Override
     public int size() {
-        return 0;
+        return 1;
     }
 
     @Override
@@ -214,39 +167,33 @@ public class XMLContentHolderItem extends XMLValue {
     }
 
     @Override
-    public OMNode value() {
-            if (this.type == XMLNodeType.PI) {
-                OMProcessingInstructionImpl pi = new OMProcessingInstructionImpl();
-                pi.setTarget(this.target);
-                pi.setValue(this.data);
-                return pi;
-            } else if (this.type == XMLNodeType.COMMENT) {
-                OMCommentImpl omComment = new OMCommentImpl();
-                omComment.setValue(this.data);
-                return omComment;
+    public abstract OMNode value();
+
+
+    @Override
+    public void serialize(OutputStream outputStream) {
+        try {
+            if (outputStream instanceof BallerinaXMLSerializer) {
+                ((BallerinaXMLSerializer) outputStream).write(this);
+            } else {
+                (new BallerinaXMLSerializer(outputStream)).write(this);
             }
-            CharacterDataImpl characterData = new CharacterDataImpl();
-            characterData.data = this.data;
-            return characterData;
+        } catch (Throwable t) {
+            handleXmlException("error occurred during writing the message to the output stream: ", t);
+        }
     }
 
     @Override
     public IteratorValue getIterator() {
         return new IteratorValue() {
-            boolean read = false;
             @Override
             public boolean hasNext() {
-                return !read;
+                return false;
             }
 
             @Override
             public Object next() {
-                if (!read) {
-                    this.read = true;
-                    return data;
-                } else {
-                    throw new NoSuchElementException();
-                }
+                throw new NoSuchElementException();
             }
         };
     }
@@ -289,42 +236,9 @@ public class XMLContentHolderItem extends XMLValue {
 
     @Override
     public Object freeze() {
-        return null;
+        return this;
     }
 
     @Override
-    public void serialize(OutputStream outputStream) {
-        try {
-            if (outputStream instanceof BallerinaXMLSerializer) {
-                ((BallerinaXMLSerializer) outputStream).write(this);
-            } else {
-                (new BallerinaXMLSerializer(outputStream)).write(this);
-            }
-        } catch (Throwable t) {
-            handleXmlException("error occurred during writing the message to the output stream: ", t);
-        }
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-
-        if (obj instanceof XMLContentHolderItem) {
-            XMLContentHolderItem that = (XMLContentHolderItem) obj;
-            if (that.getNodeType() != this.getNodeType()) {
-                return false;
-            }
-            switch (this.getNodeType()) {
-                case TEXT:
-                case COMMENT:
-                    return this.getData().equals(that.getData());
-                case PI:
-                    return this.getData().equals(that.getData()) && this.getTarget().equals(that.getTarget());
-            }
-
-        }
-        return false;
-    }
+    public abstract boolean equals(Object obj);
 }

@@ -16,7 +16,6 @@
 
 package org.ballerinalang.jvm.values;
 
-import org.apache.axiom.om.OMText;
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.BallerinaXMLSerializer;
 import org.ballerinalang.jvm.XMLNodeType;
@@ -226,7 +225,10 @@ public final class XMLSequence extends XMLValue {
      */
     @Override
     public XMLValue children() {
-        return this;
+        if (children.size() == 1) {
+            return (XMLValue) children.get(0).children();
+        }
+        return new XMLSequence(new ArrayList<>(children));
     }
 
     /**
@@ -239,6 +241,10 @@ public final class XMLSequence extends XMLValue {
             if (elem.getElementName().equals(qname)) {
                 selected.add(elem);
             }
+        }
+
+        if (selected.size() == 1) {
+            return (XMLValue) selected.get(0);
         }
 
         return new XMLSequence(selected);
@@ -293,15 +299,15 @@ public final class XMLSequence extends XMLValue {
             XMLValue item = (XMLValue) x;
             if (item.getNodeType() == XMLNodeType.TEXT) {
                 if (prevChildWasATextNode) {
-                    prevConsecutiveText += ((XMLContentHolderItem) x).getData();
+                    prevConsecutiveText += x.getTextValue();
                 } else {
-                    prevConsecutiveText = ((XMLContentHolderItem) x).getData();
+                    prevConsecutiveText = x.getTextValue();
                 }
                 prevChildWasATextNode = true;
             } else if (item.getNodeType() == XMLNodeType.ELEMENT) {
                 // Previous child was a text node and now we see a element node, we need to add last child to the list
                 if (prevChildWasATextNode && !prevConsecutiveText.trim().isEmpty()) {
-                    elementsSeq.add(new XMLContentHolderItem(prevConsecutiveText, XMLNodeType.TEXT));
+                    elementsSeq.add(new XMLText(prevConsecutiveText));
                     prevConsecutiveText = null;
                 }
                 prevChildWasATextNode = false;
@@ -309,7 +315,7 @@ public final class XMLSequence extends XMLValue {
             }
         }
         if (prevChildWasATextNode && !prevConsecutiveText.trim().isEmpty()) {
-            elementsSeq.add(new XMLContentHolderItem(prevConsecutiveText, XMLNodeType.TEXT));
+            elementsSeq.add(new XMLText(prevConsecutiveText));
         }
 
         return new XMLSequence(elementsSeq);
@@ -357,12 +363,12 @@ public final class XMLSequence extends XMLValue {
         List<BXml> descendants = new ArrayList<>();
         for (BXml x : children) {
             XMLItem element = (XMLItem) x;
-            switch (element.getNodeType()) {
-                case ELEMENT:
-                    addDescendants(descendants, element, getQname(qname).toString());
-                    break;
-                default:
-                    break;
+        if (element.getQName().toString().equals(getQname(qname).toString())) {
+                descendants.add(element);
+                continue;
+            }
+            if (element.getNodeType() == XMLNodeType.ELEMENT) {
+                addDescendants(descendants, element, getQname(qname).toString());
             }
         }
 

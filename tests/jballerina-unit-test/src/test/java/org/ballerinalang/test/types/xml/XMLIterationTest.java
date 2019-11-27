@@ -138,14 +138,9 @@ public class XMLIterationTest {
 
         Assert.assertNotNull(returns);
 
-        BXMLSequence refValue = (BXMLSequence) ((BXMLSequence) returns[0]).value().getRefValue(0);
-
-        Assert.assertEquals(((BXMLItem) (refValue).value().getRefValue(0)).getTextValue().stringValue(),
-                authors[0][0]);
-
-        refValue = (BXMLSequence) ((BXMLSequence) returns[0]).value().getRefValue(1);
-        Assert.assertEquals(((BXMLItem) (refValue).value().getRefValue(0)).getTextValue().stringValue(),
-                authors[1][0]);
+        BValueArray resArray = ((BXMLSequence) returns[0]).value();
+        Assert.assertEquals(((BXMLItem) resArray.getRefValue(0)).getTextValue().stringValue(), authors[0][0]);
+        Assert.assertEquals(((BXMLItem) resArray.getRefValue(1)).getTextValue().stringValue(), authors[1][0]);
     }
 
     @Test(description = "Test iterating over xml elements where some elements are characters")

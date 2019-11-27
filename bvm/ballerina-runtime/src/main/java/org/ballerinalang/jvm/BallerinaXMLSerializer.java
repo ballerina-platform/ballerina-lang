@@ -18,9 +18,12 @@
 package org.ballerinalang.jvm;
 
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
-import org.ballerinalang.jvm.values.XMLContentHolderItem;
+import org.ballerinalang.jvm.values.ErrorValue;
+import org.ballerinalang.jvm.values.XMLComment;
 import org.ballerinalang.jvm.values.XMLItem;
+import org.ballerinalang.jvm.values.XMLPi;
 import org.ballerinalang.jvm.values.XMLSequence;
+import org.ballerinalang.jvm.values.XMLText;
 import org.ballerinalang.jvm.values.api.BXml;
 
 import java.io.IOException;
@@ -96,35 +99,34 @@ public class BallerinaXMLSerializer extends OutputStream {
                     writeElement((XMLItem) xmlValue);
                     break;
                 case TEXT:
-                    writeXMLText((XMLContentHolderItem) xmlValue);
+                    writeXMLText((XMLText) xmlValue);
                     break;
                 case COMMENT:
-                    writeXMLComment((XMLContentHolderItem) xmlValue);
+                    writeXMLComment((XMLComment) xmlValue);
                     break;
                 case PI:
-                    writeXMLPI((XMLContentHolderItem) xmlValue);
+                    writeXMLPI((XMLPi) xmlValue);
                     break;
                 default:
                     throw new IllegalStateException("Unexpected value: " + xmlValue.getNodeType());
             }
         } catch (XMLStreamException e) {
-            throw new BallerinaException(e.getMessage(), e);
+            // todo: need to use these for all the errors that need to be panics
+            throw new ErrorValue(e.getMessage(), null);
         }
     }
 
-    private void writeXMLPI(XMLContentHolderItem xmlValue) throws XMLStreamException {
+    private void writeXMLPI(XMLPi xmlValue) throws XMLStreamException {
         xmlStreamWriter.writeProcessingInstruction(xmlValue.getTarget(), xmlValue.getData());
     }
 
-    private void writeXMLComment(XMLContentHolderItem xmlValue) throws XMLStreamException {
-        xmlStreamWriter.writeComment(xmlValue.getData());
+    private void writeXMLComment(XMLComment xmlValue) throws XMLStreamException {
+        xmlStreamWriter.writeComment(xmlValue.getTextValue());
 
     }
 
-    private void writeXMLText(XMLContentHolderItem xmlValue) throws XMLStreamException {
-        // todo: handle just test vs cdata
-        xmlStreamWriter.writeCharacters(xmlValue.getData());
-
+    private void writeXMLText(XMLText xmlValue) throws XMLStreamException {
+        xmlStreamWriter.writeCharacters(xmlValue.getTextValue());
     }
 
     private void writeElement(XMLItem xmlValue) throws XMLStreamException {
@@ -135,7 +137,7 @@ public class BallerinaXMLSerializer extends OutputStream {
 
         Map<String, String> nsPrefixMap = prefixToNSUri(xmlValue);
         QName qName = xmlValue.getQName();
-        writeStartElement(qName, nsPrefixMap);
+        writeStartElement(qName, nsPrefixMap, currentNSLevel);
         setMissingElementPrefix(currentNSLevel, nsPrefixMap, qName);
 
         // Write namespaces
@@ -144,13 +146,14 @@ public class BallerinaXMLSerializer extends OutputStream {
         // Write attributes
         writeAttributes(xmlValue, currentNSLevel);
 
-        xmlValue.children().serialize(this);
+        xmlValue.getChildrenSeq().serialize(this);
         xmlStreamWriter.writeEndElement();
         // Reset namespace decl hierarchy for this node.
         this.parentNSSet.pop();
     }
 
-    private String setDefaultNamespace(Map<String, String> nsPrefixMap, QName qName) throws XMLStreamException {
+    private String setDefaultNamespace(Map<String, String> nsPrefixMap, QName qName, HashSet<String> currentNSLevel)
+            throws XMLStreamException {
         boolean elementNSUsageFoundInAttribute = false;
         for (Map.Entry<String, String> entry : nsPrefixMap.entrySet()) {
             if (entry.getValue().equals(qName.getNamespaceURI())) {
@@ -165,11 +168,24 @@ public class BallerinaXMLSerializer extends OutputStream {
             xmlStreamWriter.setDefaultNamespace(qName.getNamespaceURI());
             return qName.getNamespaceURI();
         }
+
+        // Undeclare default namespace for this element, if outer elements have redefined default ns and this
+        // element doesn't have NS URI in it's name.
+        if ((qName.getNamespaceURI() == null || qName.getNamespaceURI().isEmpty())) {
+            for (String s : currentNSLevel) {
+                if (s.startsWith("xmlns")) {
+                    xmlStreamWriter.setDefaultNamespace("");
+                    return "";
+                }
+            }
+        }
+
         return null;
     }
 
-    private void writeStartElement(QName qName, Map<String, String> nsPrefixMap) throws XMLStreamException {
-        String defaultNamespaceUri = setDefaultNamespace(nsPrefixMap, qName);
+    private void writeStartElement(QName qName, Map<String, String> nsPrefixMap, HashSet<String> currentNSLevel)
+            throws XMLStreamException {
+        String defaultNamespaceUri = setDefaultNamespace(nsPrefixMap, qName, currentNSLevel);
 
         if (qName.getPrefix() == null || qName.getPrefix().isEmpty()) {
             xmlStreamWriter.writeStartElement(qName.getLocalPart());

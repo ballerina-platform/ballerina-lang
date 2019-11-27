@@ -18,7 +18,6 @@
 package org.ballerinalang.test.types.xml;
 
 import org.ballerinalang.jvm.XMLFactory;
-import org.ballerinalang.jvm.values.XMLItem;
 import org.ballerinalang.jvm.values.XMLValue;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BIterator;

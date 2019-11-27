@@ -525,7 +525,7 @@ public class BRunUtil {
             case TypeTags.XML_TAG:
                 BXML<?> xml = (BXML<?>) value;
                 if (xml.getNodeType() != org.ballerinalang.model.util.XMLNodeType.SEQUENCE) {
-                    return XMLFactory.parse2(xml.stringValue());
+                    return XMLFactory.parse(xml.stringValue());
                 }
                 BValueArray elements = ((BXMLSequence) xml).value();
                 ArrayValue arrayValue = (ArrayValue) getJVMValue(elements.getType(), elements);
@@ -640,7 +640,7 @@ public class BRunUtil {
             case TypeTags.XML_TAG:
                 BXML<?> xml = (BXML<?>) value;
                 if (xml.getNodeType() != org.ballerinalang.model.util.XMLNodeType.SEQUENCE) {
-                    return XMLFactory.parse2(xml.stringValue());
+                    return XMLFactory.parse(xml.stringValue());
                 }
                 BValueArray elements = ((BXMLSequence) xml).value();
                 ArrayValue jvmValue = (ArrayValue) getJVMValue(elements.getType(), elements);

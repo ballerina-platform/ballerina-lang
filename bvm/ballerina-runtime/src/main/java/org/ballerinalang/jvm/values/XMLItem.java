@@ -35,6 +35,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -60,7 +62,7 @@ public final class XMLItem extends XMLValue {
 
     public static final String XMLNS_URL_PREFIX = "{" + XMLConstants.XMLNS_ATTRIBUTE_NS_URI + "}";
     private QName name;
-    XMLSequence children;
+    private XMLSequence children;
     private MapValue<String, String> attributes;
 
     public XMLItem(QName name, XMLSequence children) {
@@ -91,7 +93,7 @@ public final class XMLItem extends XMLValue {
      */
     @Override
     public boolean isEmpty() {
-        return children.isEmpty();
+        return false;
     }
 
     /**
@@ -154,6 +156,10 @@ public final class XMLItem extends XMLValue {
         if (namespace != null && !namespace.isEmpty()) {
             return attributes.get("{" + namespace + "}" + localName);
         }
+        String defaultNS = attributes.get("{http://www.w3.org/2000/xmlns/}xmlns");
+        if (defaultNS != null) {
+            return attributes.get("{" + defaultNS + "}" + localName);
+        }
         return attributes.get(localName);
     }
 
@@ -185,6 +191,14 @@ public final class XMLItem extends XMLValue {
             String nsNameDecl = "{" + XMLConstants.XMLNS_ATTRIBUTE_NS_URI + "}" + localName;
             attributes.put(nsNameDecl, value);
             return;
+        }
+
+        String nsOfPrefix = attributes.get(XMLNS_URL_PREFIX + prefix);
+        if (namespaceUri != null && nsOfPrefix != null && !namespaceUri.equals(nsOfPrefix)) {
+            String errorMsg = String.format(
+                    "failed to add attribute '%s:%s'. prefix '%s' is already bound to namespace '%s'",
+                    prefix, localName, prefix, nsOfPrefix);
+            throw BallerinaErrors.createError(errorMsg);
         }
 
         // If the attribute already exists, update the value.
@@ -262,7 +276,7 @@ public final class XMLItem extends XMLValue {
      */
     @Override
     public XMLValue children() {
-        return children;
+        return new XMLSequence(new ArrayList<>(children.getChildrenList()));
     }
 
     /**
@@ -328,11 +342,11 @@ public final class XMLItem extends XMLValue {
     }
 
     private void mergeAdjoiningTextNodesIntoList(List leftList, List<BXml> appendingList) {
-        XMLContentHolderItem lastChild = (XMLContentHolderItem) leftList.get(leftList.size() - 1);
-        String firstChildContent = ((XMLContentHolderItem) appendingList.get(0)).getData();
+        XMLPi lastChild = (XMLPi) leftList.get(leftList.size() - 1);
+        String firstChildContent = ((XMLPi) appendingList.get(0)).getData();
         String mergedTextContent = lastChild.getData() + firstChildContent;
-        XMLContentHolderItem xmlContentHolderItem = new XMLContentHolderItem(mergedTextContent, TEXT);
-        leftList.set(leftList.size() - 1, xmlContentHolderItem);
+        XMLText text = new XMLText(mergedTextContent);
+        leftList.set(leftList.size() - 1, text);
         for (int i = 1; i < appendingList.size(); i++) {
             leftList.add(appendingList.get(i));
         }
@@ -364,15 +378,10 @@ public final class XMLItem extends XMLValue {
      */
     @Override
     public XMLValue descendants(String qname) {
-        List<BXml> descendants = new ArrayList<>();
-        for (BXml item : children.children) {
-            if (item.getNodeType() == ELEMENT
-                    && ((XMLItem) item).name.toString().equals(qname)) {
-                descendants.add(item);
-            }
+        if (getQName().toString().equals(qname)) {
+            return new XMLSequence(Arrays.asList(this));
         }
-
-        return new XMLSequence(descendants);
+        return children.descendants(qname);
     }
 
     /**
@@ -540,6 +549,7 @@ public final class XMLItem extends XMLValue {
             }
         }
 
+        Collections.reverse(toRemove);
         for (Integer index : toRemove) {
             children.remove(index.intValue());
         }
@@ -593,6 +603,10 @@ public final class XMLItem extends XMLValue {
             qname = new QName(namespaceUri, localName);
         }
         return qname;
+    }
+
+    public XMLSequence getChildrenSeq() {
+        return children;
     }
 
     @Override

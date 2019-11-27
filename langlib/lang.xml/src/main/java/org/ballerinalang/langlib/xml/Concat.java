@@ -21,7 +21,7 @@ import org.ballerinalang.jvm.XMLFactory;
 import org.ballerinalang.jvm.XMLNodeType;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ArrayValue;
-import org.ballerinalang.jvm.values.XMLContentHolderItem;
+import org.ballerinalang.jvm.values.XMLPi;
 import org.ballerinalang.jvm.values.XMLSequence;
 import org.ballerinalang.jvm.values.XMLValue;
 import org.ballerinalang.jvm.values.api.BXml;
@@ -55,7 +55,7 @@ public class Concat {
             if (refValue instanceof String) {
                 if (lastItem != null && lastItem.getNodeType() == XMLNodeType.TEXT) {
                     // If last added item is a string, then concat prev values with this values and replace prev value.
-                    String concat = ((XMLContentHolderItem) lastItem).getData() + refValue;
+                    String concat = ((XMLPi) lastItem).getData() + refValue;
                     XMLValue xmlText = XMLFactory.createXMLText(concat);
                     backingArray.add(backingArray.size() - 1, xmlText);
                     lastItem = xmlText;

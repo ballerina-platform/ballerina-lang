@@ -19,8 +19,9 @@ package org.ballerinalang.jvm;
 
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.jvm.values.XMLContentHolderItem;
+import org.ballerinalang.jvm.values.XMLComment;
 import org.ballerinalang.jvm.values.XMLItem;
+import org.ballerinalang.jvm.values.XMLPi;
 import org.ballerinalang.jvm.values.XMLSequence;
 import org.ballerinalang.jvm.values.XMLValue;
 import org.ballerinalang.jvm.values.api.BXml;
@@ -51,14 +52,20 @@ import static javax.xml.stream.XMLStreamConstants.PROCESSING_INSTRUCTION;
 import static javax.xml.stream.XMLStreamConstants.START_ELEMENT;
 
 /**
- * XML tree builder for Ballerina xml node structure using
+ * XML tree builder for Ballerina xml node structure using {@code XMLStreamReader}.
  *
  * @since 1.1.0
  */
 public class XMLTreeBuilder {
 
     // XMLInputFactory2
-    private static final XMLInputFactory xmlInputFactory = XMLInputFactory.newInstance();
+    private static final XMLInputFactory xmlInputFactory;
+
+    static {
+        xmlInputFactory = XMLInputFactory.newInstance();
+        xmlInputFactory.setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES, false);
+    }
+
     private XMLStreamReader xmlStreamReader;
     private Map<String, String> namespaces; // xml ns declarations from Bal source [xmlns "http://ns.com" as ns]
     private Deque<XMLSequence> seqDeque;
@@ -79,8 +86,9 @@ public class XMLTreeBuilder {
         }
     }
 
-    private void handleXMLStreamException(XMLStreamException e) {
-        throw new BallerinaException(e.getMessage());
+    private void handleXMLStreamException(Exception e) {
+        // todo: do e.getMessage contain all the information? verify
+        throw new BallerinaException(e.getMessage(), e);
     }
 
     public XMLValue parse() {
@@ -113,7 +121,7 @@ public class XMLTreeBuilder {
                         assert false;
                 }
             }
-        } catch (XMLStreamException e) {
+        } catch (Exception e) {
             handleXMLStreamException(e);
         }
 
@@ -126,21 +134,20 @@ public class XMLTreeBuilder {
 
     private void readPI(XMLStreamReader xmlStreamReader) {
         setupXmlDocument();
-        XMLContentHolderItem xmlItem = new XMLContentHolderItem(
+        XMLPi xmlItem = new XMLPi(
                 xmlStreamReader.getPIData(), xmlStreamReader.getPITarget());
         siblingDeque.peek().add(xmlItem);
     }
 
     private void readText(XMLStreamReader xmlStreamReader) {
-        XMLContentHolderItem xmlItem = new XMLContentHolderItem(xmlStreamReader.getText(), XMLNodeType.TEXT);
-        siblingDeque.peek().add(xmlItem);
+        setupXmlDocument();
+        siblingDeque.peek().add(XMLFactory.createXMLText(xmlStreamReader.getText()));
     }
 
     private void readComment(XMLStreamReader xmlStreamReader) {
         setupXmlDocument();
 
-        XMLContentHolderItem xmlItem = new XMLContentHolderItem(xmlStreamReader.getText(), XMLNodeType.COMMENT);
-        siblingDeque.peek().add(xmlItem);
+        siblingDeque.peek().add(new XMLComment(xmlStreamReader.getText()));
     }
 
     private XMLValue buildDocument() {
