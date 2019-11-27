@@ -70,6 +70,14 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "final",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "220",
+      "insertText": "final ",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "foreach",
       "kind": "Snippet",
       "detail": "Statement",
@@ -264,6 +272,17 @@
       "detail": "String",
       "sortText": "230",
       "insertText": "string",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Dispatcher",
+      "kind": "Struct",
+      "detail": "Record",
+      "documentation": {
+        "left": "Defines a disptcher to be used for concurrent execution of strands.\n"
+      },
+      "sortText": "180",
+      "insertText": "Dispatcher",
       "insertTextFormat": "Snippet"
     },
     {
