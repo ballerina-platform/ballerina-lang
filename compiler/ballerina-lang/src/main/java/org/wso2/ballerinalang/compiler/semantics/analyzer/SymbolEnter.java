@@ -1414,6 +1414,14 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
 
         BVarSymbol varSymbol = createVarSymbol(symbol.flags, type, symbol.name, targetEnv);
+        if (type.tag == TypeTags.INVOKABLE && type.tsymbol != null) {
+            BInvokableTypeSymbol tsymbol = (BInvokableTypeSymbol) type.tsymbol;
+            BInvokableSymbol invokableSymbol = (BInvokableSymbol) varSymbol;
+            invokableSymbol.params = tsymbol.params;
+            invokableSymbol.restParam = tsymbol.restParam;
+            invokableSymbol.retType = tsymbol.returnType;
+            invokableSymbol.flags = tsymbol.flags;
+        }
         varSymbol.owner = symbol.owner;
         varSymbol.originalSymbol = symbol;
         defineShadowedSymbol(pos, varSymbol, targetEnv);
