@@ -220,3 +220,65 @@ public function getJsonArray() returns json = @java:Method {
 function getIntFromJson(json j) returns int = @java:Method {
     class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
 } external;
+
+
+// XML interop
+
+function testPassingXML() returns string {
+    return <string> java:toString(getStringFromXML(xml `<foo/>`));
+}
+
+function getXML() returns xml = @java:Method {
+    class:"org/ballerinalang/test/javainterop/RefTypeTests"
+} external;
+
+function getStringFromXML(xml x) returns handle = @java:Method {
+    class:"org/ballerinalang/test/javainterop/RefTypeTests"
+} external;
+
+
+// Finite type interop
+
+type ALL_INT 1|2|3|4|5;
+type MIX_TYPE 1 | 2 | "hello" | true | false;
+
+function testAcceptAllInts() returns [int, float, int] {
+    ALL_INT i = 4;
+    return [acceptAllInts(i), acceptAllFloats(i), <int> acceptAny(i)];
+}
+
+function testAcceptMixTypes() returns [any, any, any] {
+    ALL_INT i = 4;
+    return [acceptMixType(2), acceptMixType("hello"), acceptMixType(false)];
+}
+
+function getAllInts() returns ALL_INT = @java:Method {
+    class:"org/ballerinalang/test/javainterop/RefTypeTests"
+} external;
+
+function acceptAllInts(ALL_INT x) returns int = @java:Method {
+    class:"org/ballerinalang/test/javainterop/RefTypeTests"
+} external;
+
+function acceptAllFloats(ALL_INT x) returns float = @java:Method {
+    class:"org/ballerinalang/test/javainterop/RefTypeTests"
+} external;
+
+function acceptAny(ALL_INT x) returns any = @java:Method {
+    class:"org/ballerinalang/test/javainterop/RefTypeTests"
+} external;
+
+function getMixType() returns MIX_TYPE = @java:Method {
+    name:"getAny",
+    class:"org/ballerinalang/test/javainterop/RefTypeTests"
+} external;
+
+function getIntegersAsMixType() returns MIX_TYPE = @java:Method {
+    name:"getAllInts",
+    class:"org/ballerinalang/test/javainterop/RefTypeTests"
+} external;
+
+function acceptMixType(MIX_TYPE x) returns any = @java:Method {
+    name:"acceptAny",
+    class:"org/ballerinalang/test/javainterop/RefTypeTests"
+} external;

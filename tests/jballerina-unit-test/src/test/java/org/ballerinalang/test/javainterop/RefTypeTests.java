@@ -17,14 +17,19 @@
  */
 package org.ballerinalang.test.javainterop;
 
+import org.ballerinalang.jvm.values.HandleValue;
 import org.ballerinalang.jvm.values.XMLItem;
 import org.ballerinalang.jvm.values.XMLValue;
 import org.ballerinalang.model.values.BBoolean;
+import org.ballerinalang.model.values.BFloat;
+import org.ballerinalang.model.values.BHandleValue;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueArray;
+import org.ballerinalang.model.values.BValueType;
+import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
@@ -65,7 +70,6 @@ public class RefTypeTests {
         BBoolean bool = (BBoolean) returns[0];
         Assert.assertTrue(bool.booleanValue());
     }
-
 
     @Test(description = "Test interoperability with ballerina ref types as params and map return")
     public void testInteropWithRefTypesAndMapReturn() {
@@ -156,9 +160,95 @@ public class RefTypeTests {
         Assert.assertTrue(returns[0] instanceof BInteger);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 7);
     }
-    
+
+    @Test
+    public void testGetXML() {
+        BValue[] returns = BRunUtil.invoke(result, "getXML");
+        Assert.assertTrue(returns[0] instanceof BXML);
+        Assert.assertEquals(returns[0].stringValue(), "<hello></hello>");
+    }
+
+    @Test
+    public void testPassXML() {
+        BValue[] returns = BRunUtil.invoke(result, "testPassingXML");
+        Assert.assertTrue(returns[0] instanceof BString);
+        Assert.assertEquals(returns[0].stringValue(), "<foo></foo>");
+    }
+
+    @Test
+    public void testGetAllInts() {
+        BValue[] returns = BRunUtil.invoke(result, "getAllInts");
+        Assert.assertTrue(returns[0] instanceof BInteger);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 3);
+    }
+
+    @Test
+    public void testAcceptAllInts() {
+        BValue[] returns = BRunUtil.invoke(result, "testAcceptAllInts");
+        Assert.assertTrue(returns[0] instanceof BInteger);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 4);
+        Assert.assertTrue(returns[1] instanceof BFloat);
+        Assert.assertEquals(((BFloat) returns[1]).floatValue(), 4.0);
+        Assert.assertTrue(returns[2] instanceof BInteger);
+        Assert.assertEquals(((BInteger) returns[2]).intValue(), 4);
+    }
+
+    @Test
+    public void testGetMixType() {
+        BValue[] returns = BRunUtil.invoke(result, "getMixType");
+        Assert.assertTrue(returns[0] instanceof BValueType);
+        Assert.assertEquals(((BValueType) returns[0]).intValue(), 5);
+    }
+
+    @Test
+    public void testGetIntegersAsMixType() {
+        BValue[] returns = BRunUtil.invoke(result, "getIntegersAsMixType");
+        Assert.assertTrue(returns[0] instanceof BValueType);
+        Assert.assertEquals(((BValueType) returns[0]).intValue(), 3);
+    }
+
+    @Test
+    public void testAcceptMixType() {
+        BValue[] returns = BRunUtil.invoke(result, "testAcceptMixTypes");
+        Assert.assertTrue(returns[0] instanceof BInteger);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 2);
+        Assert.assertTrue(returns[1] instanceof BHandleValue);
+        Assert.assertEquals(((BHandleValue) returns[1]).getValue(), "hello");
+        Assert.assertTrue(returns[2] instanceof BBoolean);
+        Assert.assertEquals(((BBoolean) returns[2]).booleanValue(), false);
+    }
+
     // static methods
+
     public static XMLValue getXML() {
         return new XMLItem("<hello/>");
+    }
+
+    public static String getStringFromXML(XMLValue x) {
+        return x.toString();
+    }
+
+    public static int getAllInts() {
+        return 3;
+    }
+
+    public static int acceptAllInts(int x) {
+        return x;
+    }
+
+    public static float getAllFloats() {
+        return (float) 3.54;
+    }
+
+    public static float acceptAllFloats(float x) {
+        return x;
+    }
+
+    public static Object getAny() {
+        return 5;
+    }
+
+    public static Object acceptAny(Object x) {
+        return x;
     }
 }

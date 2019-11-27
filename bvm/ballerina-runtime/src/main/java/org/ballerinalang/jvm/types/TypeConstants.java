@@ -47,6 +47,7 @@ public class TypeConstants {
     public static final String ERROR = "error";
     public static final String SERVICE = "service";
     public static final String HANDLE_TNAME = "handle";
+    public static final String FINITE_TNAME = "finite";
 
     // Special Types and Type fields.
     public static final String DETAIL_TYPE = "detail";
