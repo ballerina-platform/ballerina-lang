@@ -19,18 +19,12 @@
 package org.ballerinalang.stdlib.config;
 
 import org.ballerinalang.config.ConfigRegistry;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
 
 /**
  * Extern function ballerina.config:setConfig.
  *
  * @since 0.966.0
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "config",
-        functionName = "setConfig",
-        isPublic = true
-)
 public class SetConfig {
 
     private static final ConfigRegistry CONFIG_REGISTRY = ConfigRegistry.getInstance();
