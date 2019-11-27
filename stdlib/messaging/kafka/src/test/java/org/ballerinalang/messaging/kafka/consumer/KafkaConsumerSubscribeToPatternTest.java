@@ -64,7 +64,7 @@ public class KafkaConsumerSubscribeToPatternTest {
             // Unsubscribe from topics first
             BValue[] returnBValuesUnsubscribe = BRunUtil.invoke(result, "funcKafkaTestUnsubscribe");
             Assert.assertEquals(returnBValuesUnsubscribe.length, 1);
-            Assert.assertNull(((BHandleValue)returnBValuesUnsubscribe[0]).getValue());
+            Assert.assertNull(((BHandleValue) returnBValuesUnsubscribe[0]).getValue());
 
             BValue[] returnBValues = BRunUtil.invoke(result, "funcKafkaTestGetSubscribedTopicCount");
             Assert.assertEquals(returnBValues.length, 1);
