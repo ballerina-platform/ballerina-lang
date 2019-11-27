@@ -101,4 +101,5 @@ public type Protocols record {|
     string sslProtocolVersions = ""; // SSL_ENABLED_PROTOCOLS_CONFIG 3
 |};
 
-public type KafkaData byte[]|int|float|string|handle;
+# Union data type used in Kafka clients.
+public type KafkaData byte[]|int|float|string;

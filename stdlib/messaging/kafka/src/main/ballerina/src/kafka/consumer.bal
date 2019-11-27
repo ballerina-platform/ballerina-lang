@@ -74,8 +74,8 @@ public type ConsumerConfig record {|
     string? clientId = ();
     string? interceptorClasses = ();
     string? isolationLevel = ();
-    string keyDeserializer = DES_BYTE_ARRAY;
-    string valueDeserializer = DES_BYTE_ARRAY;
+    DeserializerType keyDeserializer = DES_BYTE_ARRAY;
+    DeserializerType valueDeserializer = DES_BYTE_ARRAY;
 
     string[]? topics = ();
     string[]? properties = ();

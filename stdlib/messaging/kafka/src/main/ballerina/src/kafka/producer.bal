@@ -62,8 +62,8 @@ public type ProducerConfig record {|
     string? partitionerClass = ();
     string? interceptorClasses = ();
     string? transactionalId = ();
-    string valueSerializer = SER_BYTE_ARRAY;
-    string keySerializer = SER_BYTE_ARRAY;
+    SerializerType valueSerializer = SER_BYTE_ARRAY;
+    SerializerType keySerializer = SER_BYTE_ARRAY;
 
     int bufferMemory = -1;
     int retryCount = -1;
