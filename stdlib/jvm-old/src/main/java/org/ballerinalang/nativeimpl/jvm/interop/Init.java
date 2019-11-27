@@ -51,6 +51,7 @@ public class Init {
 
     public static void init(Strand strand, ObjectValue interopValidatorStruct, ArrayValue jarUrls,
                             boolean useSystemClassLoader) {
+
         try {
             String[] moduleDependencySet = jarUrls.getStringArray();
             URL[] urls = new URL[moduleDependencySet.length];
