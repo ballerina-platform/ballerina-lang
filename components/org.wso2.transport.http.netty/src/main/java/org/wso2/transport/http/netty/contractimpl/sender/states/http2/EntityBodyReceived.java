@@ -85,7 +85,7 @@ public class EntityBodyReceived implements SenderState {
     @Override
     public void readInboundResponseHeaders(ChannelHandlerContext ctx, Http2HeadersFrame http2HeadersFrame,
                                            OutboundMsgHolder outboundMsgHolder, boolean serverPush,
-                                           Http2MessageStateContext http2MessageStateContext) {
+                                           Http2MessageStateContext http2MessageStateContext) throws Http2Exception {
         // When promised response message is going to be received after the original response or previous promised
         // responses has been received.
         http2MessageStateContext.setSenderState(new ReceivingHeaders(http2TargetHandler, http2RequestWriter));
@@ -107,7 +107,8 @@ public class EntityBodyReceived implements SenderState {
     }
 
     @Override
-    public void handleStreamTimeout(OutboundMsgHolder outboundMsgHolder, boolean serverPush) {
+    public void handleStreamTimeout(OutboundMsgHolder outboundMsgHolder, boolean serverPush,
+            ChannelHandlerContext ctx, int streamId) {
         LOG.warn("handleStreamTimeout {}", ILLEGAL_STATE_ERROR);
     }
 
