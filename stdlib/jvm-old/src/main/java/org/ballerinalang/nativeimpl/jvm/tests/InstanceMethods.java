@@ -156,4 +156,5 @@ public class InstanceMethods {
         }
         return 10;
     }
+
 }

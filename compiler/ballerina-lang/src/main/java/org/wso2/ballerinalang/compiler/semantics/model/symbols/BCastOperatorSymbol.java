@@ -41,9 +41,8 @@ public class BCastOperatorSymbol extends BOperatorSymbol {
                                BType sourceType,
                                BSymbol owner,
                                boolean implicit,
-                               boolean safe,
-                               int opcode) {
-        super(Names.CAST_OP, pkgID, type, owner, opcode);
+                               boolean safe) {
+        super(Names.CAST_OP, pkgID, type, owner);
         this.kind = SymbolKind.CAST_OPERATOR;
         this.params = Lists.of(new BVarSymbol(0, new Name("_"), pkgID, sourceType, this));
         this.implicit = implicit;
