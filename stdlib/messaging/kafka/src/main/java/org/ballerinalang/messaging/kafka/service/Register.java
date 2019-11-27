@@ -51,7 +51,7 @@ public class Register {
         Properties configs = KafkaUtils.processKafkaConsumerConfig(listenerConfigurations);
 
         try {
-            KafkaConsumer<byte[], byte[]> kafkaConsumer = null;
+            KafkaConsumer kafkaConsumer = null;
             if (Objects.nonNull(listener.getNativeData(NATIVE_CONSUMER))) {
                 kafkaConsumer = (KafkaConsumer) listener.getNativeData(NATIVE_CONSUMER);
             }

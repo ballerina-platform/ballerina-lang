@@ -36,7 +36,7 @@ public class FlushRecords {
 
     public static Object flushRecords(ObjectValue producerObject) {
         Strand strand = Scheduler.getStrand();
-        KafkaProducer<byte[], byte[]> kafkaProducer = (KafkaProducer) producerObject.getNativeData(NATIVE_PRODUCER);
+        KafkaProducer kafkaProducer = (KafkaProducer) producerObject.getNativeData(NATIVE_PRODUCER);
         try {
             if (strand.isInTransaction()) {
                 handleTransactions(strand, producerObject);

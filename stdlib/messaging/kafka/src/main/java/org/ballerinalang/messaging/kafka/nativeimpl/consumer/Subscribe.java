@@ -40,7 +40,7 @@ public class Subscribe {
     private static final PrintStream console = System.out;
 
     public static Object subscribe(ObjectValue consumerObject, ArrayValue topics) {
-        KafkaConsumer<byte[], byte[]> kafkaConsumer = (KafkaConsumer) consumerObject.getNativeData(NATIVE_CONSUMER);
+        KafkaConsumer kafkaConsumer = (KafkaConsumer) consumerObject.getNativeData(NATIVE_CONSUMER);
         ArrayList<String> topicsList = getStringListFromStringArrayValue(topics);
         try {
             kafkaConsumer.subscribe(topicsList);

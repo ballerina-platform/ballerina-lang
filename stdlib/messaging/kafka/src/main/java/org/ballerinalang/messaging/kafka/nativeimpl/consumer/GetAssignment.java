@@ -41,7 +41,7 @@ import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.populateTopicPa
 public class GetAssignment {
 
     public static Object getAssignment(ObjectValue consumerObject) {
-        KafkaConsumer<byte[], byte[]> kafkaConsumer = (KafkaConsumer) consumerObject.getNativeData(NATIVE_CONSUMER);
+        KafkaConsumer kafkaConsumer = (KafkaConsumer) consumerObject.getNativeData(NATIVE_CONSUMER);
         ArrayValue topicPartitionArray = new ArrayValueImpl(new BArrayType(getTopicPartitionRecord().getType()));
         try {
             Set<TopicPartition> topicPartitions = kafkaConsumer.assignment();

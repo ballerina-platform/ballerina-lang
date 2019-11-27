@@ -49,7 +49,7 @@ public class CommitOffset {
     private static final Logger logger = LoggerFactory.getLogger(Close.class);
 
     public static Object commitOffset(ObjectValue consumerObject, ArrayValue offsets, long duration) {
-        KafkaConsumer<byte[], byte[]> kafkaConsumer = (KafkaConsumer) consumerObject.getNativeData(NATIVE_CONSUMER);
+        KafkaConsumer kafkaConsumer = (KafkaConsumer) consumerObject.getNativeData(NATIVE_CONSUMER);
 
         Properties consumerProperties = (Properties) consumerObject.getNativeData(NATIVE_CONSUMER_CONFIG);
         int defaultApiTimeout = getDefaultApiTimeout(consumerProperties);

@@ -32,7 +32,7 @@ import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.createKafkaErro
 public class Unsubscribe {
 
     public static Object unsubscribe(ObjectValue consumerObject) {
-        KafkaConsumer<byte[], byte[]> kafkaConsumer = (KafkaConsumer) consumerObject.getNativeData(NATIVE_CONSUMER);
+        KafkaConsumer kafkaConsumer = (KafkaConsumer) consumerObject.getNativeData(NATIVE_CONSUMER);
         try {
             kafkaConsumer.unsubscribe();
         } catch (KafkaException e) {

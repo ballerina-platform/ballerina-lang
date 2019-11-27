@@ -37,7 +37,7 @@ import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.createKafkaErro
 public class GetSubscription {
 
     public static Object getSubscription(ObjectValue consumerObject) {
-        KafkaConsumer<byte[], byte[]> kafkaConsumer = (KafkaConsumer) consumerObject.getNativeData(NATIVE_CONSUMER);
+        KafkaConsumer kafkaConsumer = (KafkaConsumer) consumerObject.getNativeData(NATIVE_CONSUMER);
 
         try {
             Set<String> subscriptions = kafkaConsumer.subscription();

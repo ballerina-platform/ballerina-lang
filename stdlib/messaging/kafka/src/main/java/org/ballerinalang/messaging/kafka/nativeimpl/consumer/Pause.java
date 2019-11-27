@@ -41,7 +41,7 @@ public class Pause {
     private static final Logger logger = LoggerFactory.getLogger(Pause.class);
 
     public static Object pause(ObjectValue consumerObject, ArrayValue topicPartitions) {
-        KafkaConsumer<byte[], byte[]> kafkaConsumer = (KafkaConsumer) consumerObject.getNativeData(NATIVE_CONSUMER);
+        KafkaConsumer kafkaConsumer = (KafkaConsumer) consumerObject.getNativeData(NATIVE_CONSUMER);
         ArrayList<TopicPartition> partitionList = getTopicPartitionList(topicPartitions, logger);
 
         try {

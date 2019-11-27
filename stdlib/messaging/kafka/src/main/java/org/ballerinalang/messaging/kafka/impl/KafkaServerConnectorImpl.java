@@ -44,10 +44,10 @@ public class KafkaServerConnectorImpl implements KafkaServerConnector {
     private Properties configParams;
     private int numOfConcurrentConsumers = 1;
     private List<KafkaRecordConsumer> messageConsumers;
-    private KafkaConsumer<byte[], byte[]> kafkaConsumer;
+    private KafkaConsumer kafkaConsumer;
 
     public KafkaServerConnectorImpl(String serviceId, Properties configParams, KafkaListener kafkaListener,
-                                    KafkaConsumer<byte[], byte[]> kafkaConsumer) throws KafkaConnectorException {
+                                    KafkaConsumer kafkaConsumer) throws KafkaConnectorException {
         this.kafkaListener = kafkaListener;
         this.serviceId = serviceId;
         if (configParams.get(KafkaConstants.ALIAS_CONCURRENT_CONSUMERS) != null) {

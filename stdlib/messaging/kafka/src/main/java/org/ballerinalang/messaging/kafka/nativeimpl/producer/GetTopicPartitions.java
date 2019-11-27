@@ -45,7 +45,7 @@ public class GetTopicPartitions {
 
     public static Object getTopicPartitions(ObjectValue producerObject, String topic) {
         Strand strand = Scheduler.getStrand();
-        KafkaProducer<byte[], byte[]> kafkaProducer = (KafkaProducer) producerObject.getNativeData(NATIVE_PRODUCER);
+        KafkaProducer kafkaProducer = (KafkaProducer) producerObject.getNativeData(NATIVE_PRODUCER);
         try {
             if (strand.isInTransaction()) {
                 handleTransactions(strand, producerObject);

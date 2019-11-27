@@ -52,7 +52,7 @@ public class GetBeginningOffsets {
     public static Object getBeginningOffsets(ObjectValue consumerObject, ArrayValue topicPartitions,
                                              long duration) {
 
-        KafkaConsumer<byte[], byte[]> kafkaConsumer = (KafkaConsumer) consumerObject.getNativeData(NATIVE_CONSUMER);
+        KafkaConsumer kafkaConsumer = (KafkaConsumer) consumerObject.getNativeData(NATIVE_CONSUMER);
         Properties consumerProperties = (Properties) consumerObject.getNativeData(NATIVE_CONSUMER_CONFIG);
 
         int defaultApiTimeout = getDefaultApiTimeout(consumerProperties);
@@ -74,7 +74,7 @@ public class GetBeginningOffsets {
         }
     }
 
-    private static Map<TopicPartition, Long> getBeginningOffsetsWithDuration(KafkaConsumer<byte[], byte[]> consumer,
+    private static Map<TopicPartition, Long> getBeginningOffsetsWithDuration(KafkaConsumer consumer,
                                                                              ArrayList<TopicPartition> partitions,
                                                                              long timeout) {
         Duration duration = Duration.ofMillis(timeout);

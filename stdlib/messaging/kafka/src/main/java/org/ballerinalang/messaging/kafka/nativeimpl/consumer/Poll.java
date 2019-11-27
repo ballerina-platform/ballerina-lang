@@ -46,7 +46,7 @@ public class Poll {
     public static Object poll(ObjectValue consumerObject, long timeout) {
         Strand strand = Scheduler.getStrand();
         NonBlockingCallback callback = new NonBlockingCallback(strand);
-        KafkaConsumer<byte[], byte[]> kafkaConsumer = (KafkaConsumer) consumerObject.getNativeData(NATIVE_CONSUMER);
+        KafkaConsumer kafkaConsumer = (KafkaConsumer) consumerObject.getNativeData(NATIVE_CONSUMER);
         Duration duration = Duration.ofMillis(timeout);
         ArrayValue consumerRecordsArray =
                 (ArrayValue) BValueCreator.createArrayValue(new BArrayType(getConsumerRecord().getType()));

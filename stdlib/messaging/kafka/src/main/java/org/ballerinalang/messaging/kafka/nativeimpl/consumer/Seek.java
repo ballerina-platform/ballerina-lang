@@ -36,7 +36,7 @@ import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.createTopicPart
 public class Seek {
 
     public static Object seek(ObjectValue consumerObject, MapValue<String, Object> partitionOffset) {
-        KafkaConsumer<byte[], byte[]> kafkaConsumer = (KafkaConsumer) consumerObject.getNativeData(NATIVE_CONSUMER);
+        KafkaConsumer kafkaConsumer = (KafkaConsumer) consumerObject.getNativeData(NATIVE_CONSUMER);
         TopicPartition topicPartition = createTopicPartitionFromPartitionOffset(partitionOffset);
         Long offset = partitionOffset.getIntValue(ALIAS_OFFSET);
 

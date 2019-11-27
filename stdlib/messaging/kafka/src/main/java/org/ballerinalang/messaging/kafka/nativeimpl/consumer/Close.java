@@ -44,7 +44,7 @@ public class Close {
     private static final Logger logger = LoggerFactory.getLogger(Close.class);
 
     public static Object close(ObjectValue consumerObject, long duration) {
-        KafkaConsumer<byte[], byte[]> kafkaConsumer = (KafkaConsumer) consumerObject.getNativeData(NATIVE_CONSUMER);
+        KafkaConsumer kafkaConsumer = (KafkaConsumer) consumerObject.getNativeData(NATIVE_CONSUMER);
         Properties consumerProperties = (Properties) consumerObject.getNativeData(NATIVE_CONSUMER_CONFIG);
         int defaultApiTimeout = getDefaultApiTimeout(consumerProperties);
         int apiTimeout = getIntFromLong(duration, logger, ALIAS_DURATION);
@@ -63,7 +63,7 @@ public class Close {
         return null;
     }
 
-    private static void closeWithDuration(KafkaConsumer<byte[], byte[]> kafkaConsumer, long timeout) {
+    private static void closeWithDuration(KafkaConsumer kafkaConsumer, long timeout) {
         Duration duration = Duration.ofMillis(timeout);
         kafkaConsumer.close(duration);
     }

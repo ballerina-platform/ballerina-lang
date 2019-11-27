@@ -52,7 +52,7 @@ public class GetTopicPartitions {
     private static final Logger logger = LoggerFactory.getLogger(GetTopicPartitions.class);
 
     public static Object getTopicPartitions(ObjectValue consumerObject, String topic, long duration) {
-        KafkaConsumer<byte[], byte[]> kafkaConsumer = (KafkaConsumer) consumerObject.getNativeData(NATIVE_CONSUMER);
+        KafkaConsumer kafkaConsumer = (KafkaConsumer) consumerObject.getNativeData(NATIVE_CONSUMER);
         Properties consumerProperties = (Properties) consumerObject.getNativeData(NATIVE_CONSUMER_CONFIG);
 
         int defaultApiTimeout = getDefaultApiTimeout(consumerProperties);
@@ -88,7 +88,7 @@ public class GetTopicPartitions {
         }
     }
 
-    private static List<PartitionInfo> getPartitionInfoList(KafkaConsumer<byte[], byte[]> kafkaConsumer, String topic,
+    private static List<PartitionInfo> getPartitionInfoList(KafkaConsumer kafkaConsumer, String topic,
                                                             long timeout) {
         Duration duration = Duration.ofMillis(timeout);
         return kafkaConsumer.partitionsFor(topic, duration);

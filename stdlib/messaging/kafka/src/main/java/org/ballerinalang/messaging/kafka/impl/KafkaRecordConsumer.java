@@ -51,7 +51,7 @@ public class KafkaRecordConsumer {
 
     private static final Logger logger = LoggerFactory.getLogger(KafkaRecordConsumer.class);
 
-    private KafkaConsumer<byte[], byte[]> kafkaConsumer;
+    private KafkaConsumer kafkaConsumer;
     private Duration pollingTimeout = Duration.ofMillis(1000);
     private int pollingInterval = 1000;
     private boolean decoupleProcessing = true;
@@ -66,7 +66,7 @@ public class KafkaRecordConsumer {
                                Properties configParams,
                                String serviceId,
                                int consumerId,
-                               KafkaConsumer<byte[], byte[]> kafkaConsumer) {
+                               KafkaConsumer kafkaConsumer) {
         this.serviceId = serviceId;
         this.consumerId = consumerId;
         // Initialize Kafka Consumer.

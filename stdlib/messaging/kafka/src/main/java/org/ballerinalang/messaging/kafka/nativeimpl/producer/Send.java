@@ -58,7 +58,7 @@ public class Send {
         byte[] keyValue = Objects.nonNull(key) ? ((ArrayValue) key).getBytes() : null;
         ProducerRecord<byte[], byte[]> kafkaRecord = new ProducerRecord(topic, partitionValue, timestampValue,
                 keyValue, value.getBytes());
-        KafkaProducer<byte[], byte[]> producer = (KafkaProducer) producerObject.getNativeData(NATIVE_PRODUCER);
+        KafkaProducer producer = (KafkaProducer) producerObject.getNativeData(NATIVE_PRODUCER);
         try {
             if (strand.isInTransaction()) {
                 handleTransactions(strand, producerObject);

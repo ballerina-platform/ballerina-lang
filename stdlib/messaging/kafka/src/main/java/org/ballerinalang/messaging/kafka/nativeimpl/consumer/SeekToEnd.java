@@ -42,7 +42,7 @@ public class SeekToEnd {
     private static final Logger logger = LoggerFactory.getLogger(SeekToEnd.class);
 
     public static Object seekToEnd(ObjectValue consumerObject, ArrayValue topicPartitions) {
-        KafkaConsumer<byte[], byte[]> kafkaConsumer = (KafkaConsumer) consumerObject.getNativeData(NATIVE_CONSUMER);
+        KafkaConsumer kafkaConsumer = (KafkaConsumer) consumerObject.getNativeData(NATIVE_CONSUMER);
         ArrayList<TopicPartition> partitionList = getTopicPartitionList(topicPartitions, logger);
         try {
             kafkaConsumer.seekToEnd(partitionList);

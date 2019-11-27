@@ -51,7 +51,7 @@ public class GetEndOffsets {
 
     public static Object getEndOffsets(ObjectValue consumerObject, ArrayValue topicPartitions,
                                        long duration) {
-        KafkaConsumer<byte[], byte[]> kafkaConsumer = (KafkaConsumer) consumerObject.getNativeData(NATIVE_CONSUMER);
+        KafkaConsumer kafkaConsumer = (KafkaConsumer) consumerObject.getNativeData(NATIVE_CONSUMER);
         Properties consumerProperties = (Properties) consumerObject.getNativeData(NATIVE_CONSUMER_CONFIG);
 
         int defaultApiTimeout = getDefaultApiTimeout(consumerProperties);
@@ -75,7 +75,7 @@ public class GetEndOffsets {
         return getPartitionOffsetArrayFromOffsetMap(offsetMap);
     }
 
-    private static Map<TopicPartition, Long> getEndOffsetsWithDuration(KafkaConsumer<byte[], byte[]> consumer,
+    private static Map<TopicPartition, Long> getEndOffsetsWithDuration(KafkaConsumer consumer,
                                                                        ArrayList<TopicPartition> partitions,
                                                                        long timeout) {
         Duration duration = Duration.ofMillis(timeout);

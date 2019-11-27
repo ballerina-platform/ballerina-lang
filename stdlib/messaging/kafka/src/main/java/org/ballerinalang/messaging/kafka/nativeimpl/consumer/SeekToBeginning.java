@@ -41,7 +41,7 @@ public class SeekToBeginning {
     private static final Logger logger = LoggerFactory.getLogger(SeekToBeginning.class);
 
     public static Object seekToBeginning(ObjectValue consumerObject, ArrayValue topicPartitions) {
-        KafkaConsumer<byte[], byte[]> kafkaConsumer = (KafkaConsumer) consumerObject.getNativeData(NATIVE_CONSUMER);
+        KafkaConsumer kafkaConsumer = (KafkaConsumer) consumerObject.getNativeData(NATIVE_CONSUMER);
         ArrayList<TopicPartition> partitionList = getTopicPartitionList(topicPartitions, logger);
         try {
             kafkaConsumer.seekToBeginning(partitionList);

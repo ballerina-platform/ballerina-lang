@@ -41,7 +41,7 @@ public class Resume {
     private static final Logger logger = LoggerFactory.getLogger(Resume.class);
 
     public static Object resume(ObjectValue consumerObject, ArrayValue topicPartitions) {
-        KafkaConsumer<byte[], byte[]> kafkaConsumer = (KafkaConsumer) consumerObject.getNativeData(NATIVE_CONSUMER);
+        KafkaConsumer kafkaConsumer = (KafkaConsumer) consumerObject.getNativeData(NATIVE_CONSUMER);
         ArrayList<TopicPartition> partitionList = getTopicPartitionList(topicPartitions, logger);
 
         try {

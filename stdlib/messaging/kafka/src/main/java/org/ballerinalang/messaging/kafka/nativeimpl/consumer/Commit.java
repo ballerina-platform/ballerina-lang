@@ -32,7 +32,7 @@ import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.createKafkaErro
 public class Commit {
 
     public static Object commit(ObjectValue consumerObject) {
-        KafkaConsumer<byte[], byte[]> kafkaConsumer = (KafkaConsumer) consumerObject.getNativeData(NATIVE_CONSUMER);
+        KafkaConsumer kafkaConsumer = (KafkaConsumer) consumerObject.getNativeData(NATIVE_CONSUMER);
         try {
             kafkaConsumer.commitSync();
         } catch (KafkaException e) {

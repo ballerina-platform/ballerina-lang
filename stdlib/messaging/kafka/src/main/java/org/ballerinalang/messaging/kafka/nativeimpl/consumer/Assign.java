@@ -41,7 +41,7 @@ public class Assign {
     private static final Logger logger = LoggerFactory.getLogger(Assign.class);
 
     public static Object assign(ObjectValue consumerObject, ArrayValue topicPartitions) {
-        KafkaConsumer<byte[], byte[]> kafkaConsumer = (KafkaConsumer) consumerObject.getNativeData(NATIVE_CONSUMER);
+        KafkaConsumer kafkaConsumer = (KafkaConsumer) consumerObject.getNativeData(NATIVE_CONSUMER);
         ArrayList<TopicPartition> partitions = getTopicPartitionList(topicPartitions, logger);
         try {
             kafkaConsumer.assign(partitions);

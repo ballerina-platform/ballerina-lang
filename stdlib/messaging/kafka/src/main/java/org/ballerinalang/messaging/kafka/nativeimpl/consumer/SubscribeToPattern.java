@@ -34,7 +34,7 @@ import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.createKafkaErro
 public class SubscribeToPattern {
 
     public static Object subscribeToPattern(ObjectValue consumerObject, String topicRegex) {
-        KafkaConsumer<byte[], byte[]> kafkaConsumer = (KafkaConsumer) consumerObject.getNativeData(NATIVE_CONSUMER);
+        KafkaConsumer kafkaConsumer = (KafkaConsumer) consumerObject.getNativeData(NATIVE_CONSUMER);
         try {
             kafkaConsumer.subscribe(Pattern.compile(topicRegex));
         } catch (IllegalArgumentException | IllegalStateException | KafkaException e) {

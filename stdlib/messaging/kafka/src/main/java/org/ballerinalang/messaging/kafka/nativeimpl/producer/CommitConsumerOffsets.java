@@ -43,7 +43,7 @@ public class CommitConsumerOffsets {
     public static Object commitConsumerOffsets(ObjectValue producerObject, ArrayValue offsets,
                                                String groupId) {
         Strand strand = Scheduler.getStrand();
-        KafkaProducer<byte[], byte[]> kafkaProducer = (KafkaProducer) producerObject.getNativeData(NATIVE_PRODUCER);
+        KafkaProducer kafkaProducer = (KafkaProducer) producerObject.getNativeData(NATIVE_PRODUCER);
         Map<TopicPartition, OffsetAndMetadata> partitionToMetadataMap = getPartitionToMetadataMap(offsets);
         try {
             if (strand.isInTransaction()) {

@@ -50,7 +50,7 @@ public class GetPositionOffset {
     public static Object getPositionOffset(ObjectValue consumerObject,
                                            MapValue<String, Object> topicPartition,
                                            long duration) {
-        KafkaConsumer<byte[], byte[]> kafkaConsumer = (KafkaConsumer) consumerObject.getNativeData(NATIVE_CONSUMER);
+        KafkaConsumer kafkaConsumer = (KafkaConsumer) consumerObject.getNativeData(NATIVE_CONSUMER);
         Properties consumerProperties = (Properties) consumerObject.getNativeData(NATIVE_CONSUMER_CONFIG);
 
         int defaultApiTimeout = getDefaultApiTimeout(consumerProperties);
@@ -74,7 +74,7 @@ public class GetPositionOffset {
         }
     }
 
-    private static long getPositionWithDuration(KafkaConsumer<byte[], byte[]> kafkaConsumer,
+    private static long getPositionWithDuration(KafkaConsumer kafkaConsumer,
                                                 TopicPartition topicPartition,
                                                 long timeout) {
         Duration duration = Duration.ofMillis(timeout);

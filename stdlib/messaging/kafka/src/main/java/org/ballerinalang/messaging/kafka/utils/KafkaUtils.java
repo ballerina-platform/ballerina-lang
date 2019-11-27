@@ -642,7 +642,7 @@ public class KafkaUtils {
     }
 
     public static void createKafkaProducer(Properties producerProperties, ObjectValue producerObject) {
-        KafkaProducer<byte[], byte[]> kafkaProducer = new KafkaProducer<>(producerProperties);
+        KafkaProducer kafkaProducer = new KafkaProducer<>(producerProperties);
         producerObject.addNativeData(KafkaConstants.NATIVE_PRODUCER, kafkaProducer);
         producerObject.addNativeData(KafkaConstants.NATIVE_PRODUCER_CONFIG, producerProperties);
     }

@@ -70,7 +70,7 @@ public class SubscribeWithPartitionRebalance {
                                                          FPValue onPartitionsRevoked, FPValue onPartitionsAssigned) {
 
         NonBlockingCallback callback = new NonBlockingCallback(strand);
-        KafkaConsumer<byte[], byte[]> kafkaConsumer = (KafkaConsumer) consumerObject.getNativeData(NATIVE_CONSUMER);
+        KafkaConsumer kafkaConsumer = (KafkaConsumer) consumerObject.getNativeData(NATIVE_CONSUMER);
         ArrayList<String> topicsList = getStringListFromStringArrayValue(topics);
         ConsumerRebalanceListener consumer = new KafkaRebalanceListener(strand, strand.scheduler, onPartitionsRevoked,
                 onPartitionsAssigned, consumerObject);

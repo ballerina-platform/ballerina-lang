@@ -52,7 +52,7 @@ public class Connect {
         MapValue<String, Object> configs = (MapValue<String, Object>) consumerObject.get(CONSUMER_CONFIG_FIELD_NAME);
         Properties consumerProperties = processKafkaConsumerConfig(configs);
         try {
-            KafkaConsumer<byte[], byte[]> kafkaConsumer = new KafkaConsumer<>(consumerProperties);
+            KafkaConsumer kafkaConsumer = new KafkaConsumer<>(consumerProperties);
             consumerObject.addNativeData(NATIVE_CONSUMER, kafkaConsumer);
             consumerObject.addNativeData(NATIVE_CONSUMER_CONFIG, consumerProperties);
         } catch (KafkaException e) {
