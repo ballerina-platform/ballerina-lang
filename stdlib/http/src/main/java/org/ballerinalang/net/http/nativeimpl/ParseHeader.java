@@ -18,15 +18,11 @@
 package org.ballerinalang.net.http.nativeimpl;
 
 import org.ballerinalang.jvm.BallerinaErrors;
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BTupleType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.TupleValueImpl;
 import org.ballerinalang.mime.util.HeaderUtil;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
 
 import java.util.Arrays;
 
@@ -40,20 +36,20 @@ import static org.ballerinalang.mime.util.MimeConstants.SEMICOLON;
  *
  * @since 0.96.1
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "http",
-        functionName = "parseHeader",
-        returnType = {@ReturnType(type = TypeKind.STRING),
-                @ReturnType(type = TypeKind.MAP, elementType = TypeKind.STRING),
-                @ReturnType(type = TypeKind.RECORD, structType = "Error")},
-        isPublic = true
-)
+//@BallerinaFunction(
+//        orgName = "ballerina", packageName = "http",
+//        functionName = "parseHeader",
+//        returnType = {@ReturnType(type = TypeKind.STRING),
+//                @ReturnType(type = TypeKind.MAP, elementType = TypeKind.STRING),
+//                @ReturnType(type = TypeKind.RECORD, structType = "Error")},
+//        isPublic = true
+//)
 public class ParseHeader {
 
     private static final BTupleType parseHeaderTupleType = new BTupleType(
             Arrays.asList(BTypes.typeString, BTypes.typeMap));
 
-    public static Object parseHeader(Strand strand, String headerValue) {
+    public static Object parseHeader(String headerValue) {
         String errMsg;
         if (headerValue != null) {
             try {
