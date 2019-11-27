@@ -287,6 +287,7 @@ const string MATH_UTILS = "org/ballerinalang/jvm/MathUtils";
 const string BAL_ERROR_REASONS = "org/ballerinalang/jvm/util/exceptions/BallerinaErrorReasons";
 const string RUNTIME_ERRORS = "org/ballerinalang/jvm/util/exceptions/RuntimeErrors";
 const string BLANG_EXCEPTION_HELPER = "org/ballerinalang/jvm/util/exceptions/BLangExceptionHelper";
+const string COMPATIBILITY_CHECKER = "org/ballerinalang/jvm/util/CompatibilityChecker";
 
 // other java classes
 const string OBJECT = "java/lang/Object";

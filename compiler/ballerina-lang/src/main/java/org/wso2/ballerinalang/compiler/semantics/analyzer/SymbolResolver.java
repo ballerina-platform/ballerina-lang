@@ -80,7 +80,6 @@ import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
-import org.wso2.ballerinalang.programfile.InstructionCodes;
 import org.wso2.ballerinalang.util.Flags;
 import org.wso2.ballerinalang.util.Lists;
 
@@ -358,22 +357,10 @@ public class SymbolResolver extends BLangNodeVisitor {
     }
 
     BSymbol createEqualityOperator(OperatorKind opKind, BType lhsType, BType rhsType) {
-        int opcode;
-        if (opKind == OperatorKind.REF_EQUAL) {
-            opcode = InstructionCodes.REF_EQ;
-        } else if (opKind == OperatorKind.REF_NOT_EQUAL) {
-            opcode = InstructionCodes.REF_NEQ;
-        } else if (opKind == OperatorKind.EQUAL) {
-            opcode = InstructionCodes.REQ;
-        } else {
-            // OperatorKind.NOT_EQUAL
-            opcode = InstructionCodes.RNE;
-        }
-
         List<BType> paramTypes = Lists.of(lhsType, rhsType);
         BType retType = symTable.booleanType;
         BInvokableType opType = new BInvokableType(paramTypes, retType, null);
-        return new BOperatorSymbol(names.fromString(opKind.value()), null, opType, null, opcode);
+        return new BOperatorSymbol(names.fromString(opKind.value()), null, opType, null);
     }
 
     BInvokableSymbol createBuiltinMethodSymbol(BLangBuiltInMethod method, BType type, BType retType) {
@@ -386,7 +373,7 @@ public class SymbolResolver extends BLangNodeVisitor {
     BOperatorSymbol createTypeCastSymbol(BType type, BType retType) {
         List<BType> paramTypes = Lists.of(type);
         BInvokableType opType = new BInvokableType(paramTypes, retType, null);
-        return new BOperatorSymbol(Names.CAST_OP, null, opType, null, InstructionCodes.TYPE_CAST);
+        return new BOperatorSymbol(Names.CAST_OP, null, opType, null);
     }
 
     BSymbol getNumericConversionOrCastSymbol(BLangExpression expr, BType sourceType,
@@ -795,9 +782,9 @@ public class SymbolResolver extends BLangNodeVisitor {
             }
             symTable.intRangeType = (BObjectType) ((BInvokableType) entry.symbol.type).retType;
             symTable.defineBinaryOperator(OperatorKind.CLOSED_RANGE, symTable.intType, symTable.intType,
-                    symTable.intRangeType, InstructionCodes.INT_RANGE);
+                    symTable.intRangeType);
             symTable.defineBinaryOperator(OperatorKind.HALF_OPEN_RANGE, symTable.intType, symTable.intType,
-                    symTable.intRangeType, InstructionCodes.INT_RANGE);
+                    symTable.intRangeType);
             return;
         }
         throw new IllegalStateException("built-in Integer Range type not found ?");

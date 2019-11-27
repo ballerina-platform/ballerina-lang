@@ -29,6 +29,7 @@ import java.util.Map;
  *
  * @since 0.973.0
  */
+@Deprecated
 public class AnnotationInfo implements AttributeInfoPool {
 
     public int nameCPIndex;

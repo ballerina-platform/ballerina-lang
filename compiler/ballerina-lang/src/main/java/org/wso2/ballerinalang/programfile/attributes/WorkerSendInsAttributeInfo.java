@@ -21,6 +21,7 @@ package org.wso2.ballerinalang.programfile.attributes;
  * Keep track of the workers that may waiting on current worker.
  * @since 0.985.0
  */
+@Deprecated
 public class WorkerSendInsAttributeInfo implements AttributeInfo {
 
     // Index to a UTF8CPEntry
