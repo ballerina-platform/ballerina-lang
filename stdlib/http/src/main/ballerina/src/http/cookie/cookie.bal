@@ -203,7 +203,7 @@ function parseCookieHeader(string cookieStringValue) returns Cookie[] {
     return cookiesInRequest;
 }
 
-// Sorts an array of cookies in order to make the "Cookie" header in the request according to the rules in rfc-6265. - https://tools.ietf.org/html/rfc6265#section-5.4
+// Sorts an array of cookies in order to make the "Cookie" header in the request according to the rules in [RFC-6265](https://tools.ietf.org/html/rfc6265#section-5.4).
 function sortCookies(Cookie[] cookies) {
     int i = 0;
     int j = 0;
