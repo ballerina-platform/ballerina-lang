@@ -725,9 +725,9 @@ public class RequestNativeFunctionSuccessTest {
         ObjectValue inRequest = createRequestObject();
         ObjectValue entity = createEntityObject();
         inRequest.set(REQUEST_ENTITY_FIELD, entity);
-        BValue[] returnVals = BRunUtil.invoke(compileResult, "testAddCookies",  new Object[]{ inRequest });
+        BValue[] returnVals = BRunUtil.invoke(compileResult, "testAddCookies", new Object[]{inRequest});
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
-                "Invalid Return Values.");
+                           "Invalid Return Values.");
         Assert.assertTrue(returnVals[0] instanceof BMap);
         BMap<String, BValue> entityStruct =
                 (BMap<String, BValue>) ((BMap<String, BValue>) returnVals[0]).get(REQUEST_ENTITY_FIELD);
@@ -740,9 +740,9 @@ public class RequestNativeFunctionSuccessTest {
         ObjectValue inRequest = createRequestObject();
         ObjectValue entity = createEntityObject();
         inRequest.set(REQUEST_ENTITY_FIELD, entity);
-        BValue[] returnVals = BRunUtil.invoke(compileResult, "testGetCookies",  new Object[]{ inRequest });
+        BValue[] returnVals = BRunUtil.invoke(compileResult, "testGetCookies", new Object[]{inRequest});
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
-                "No cookie objects in the Return Values");
+                           "No cookie objects in the Return Values");
         Assert.assertTrue(returnVals.length == 1);
     }
 }

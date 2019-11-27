@@ -551,10 +551,12 @@ public class ResponseNativeFunctionSuccessTest {
     @Test
     public void testAddCookie() {
         ObjectValue outResponse = createResponseObject();
-        String headerName="Set-Cookie";
-        String headerValue="SID3=31d4d96e407aad42; Domain=google.com; Path=/sample; Expires=Mon, 26 Jun 2017 05:46:22 GMT; Max-Age=3600; HttpOnly; Secure";
+        String headerName = "Set-Cookie";
+        String headerValue =
+                "SID3=31d4d96e407aad42; Domain=google.com; Path=/sample; Expires=Mon, 26 Jun 2017 05:46:22 GMT; " +
+                        "Max-Age=3600; HttpOnly; Secure";
         BValue[] returnValue = BRunUtil.invoke(result, "testAddCookie",
-                new Object[]{ outResponse});
+                                               new Object[]{outResponse});
         Assert.assertFalse(returnValue.length == 0 || returnValue[0] == null, "Invalid Return Values.");
         Assert.assertTrue(returnValue[0] instanceof BMap);
         BMap<String, BValue> entityStruct =
@@ -566,10 +568,10 @@ public class ResponseNativeFunctionSuccessTest {
     @Test
     public void testRemoveCookiesFromRemoteStore() {
         ObjectValue outResponse = createResponseObject();
-        String headerName="Set-Cookie";
-        String headerValue="SID3=31d4d96e407aad42; Expires=Sat, 12 Mar 1994 08:12:22 GMT";
-        BValue[] returnValue =BRunUtil.invoke(result, "testRemoveCookiesFromRemoteStore",
-                new Object[]{ outResponse});
+        String headerName = "Set-Cookie";
+        String headerValue = "SID3=31d4d96e407aad42; Expires=Sat, 12 Mar 1994 08:12:22 GMT";
+        BValue[] returnValue = BRunUtil.invoke(result, "testRemoveCookiesFromRemoteStore",
+                                               new Object[]{outResponse});
         Assert.assertFalse(returnValue.length == 0 || returnValue[0] == null, "Invalid Return Values.");
         Assert.assertTrue(returnValue[0] instanceof BMap);
         BMap<String, BValue> entityStruct =
@@ -587,7 +589,7 @@ public class ResponseNativeFunctionSuccessTest {
         HttpUtil.addCarbonMsg(inResponse, inResponseMsg);
         ObjectValue entity = createEntityObject();
         HttpUtil.populateInboundResponse(inResponse, entity, inResponseMsg);
-        BValue[] returnVals = BRunUtil.invoke(result, "testGetCookies", new Object[]{ inResponse });
+        BValue[] returnVals = BRunUtil.invoke(result, "testGetCookies", new Object[]{inResponse});
         Assert.assertFalse(returnVals.length == 0 || returnVals[0] == null, "No cookie objects in the Return Values");
         Assert.assertTrue(returnVals.length == 1);
     }

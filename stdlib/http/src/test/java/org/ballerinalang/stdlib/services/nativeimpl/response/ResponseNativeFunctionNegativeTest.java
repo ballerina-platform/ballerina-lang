@@ -198,7 +198,7 @@ public class ResponseNativeFunctionNegativeTest {
     @Test
     public void testAddCookiesWithInvalidName() {
         ObjectValue outResponse = createResponseObject();
-        BValue[] returnVals = BRunUtil.invoke(result, "testAddCookieWithInvalidName", new Object[]{ outResponse });
+        BValue[] returnVals = BRunUtil.invoke(result, "testAddCookieWithInvalidName", new Object[]{outResponse});
         Assert.assertFalse(returnVals.length == 0 || returnVals[0] == null, "Invalid Return Values.");
         Assert.assertTrue(returnVals[0] instanceof BMap);
         BMap<String, BValue> entityStruct =
@@ -210,7 +210,7 @@ public class ResponseNativeFunctionNegativeTest {
     @Test
     public void testAddCookiesWithInvalidValue() {
         ObjectValue outResponse = createResponseObject();
-        BValue[] returnVals = BRunUtil.invoke(result, "testAddCookieWithInvalidValue", new Object[]{ outResponse });
+        BValue[] returnVals = BRunUtil.invoke(result, "testAddCookieWithInvalidValue", new Object[]{outResponse});
         Assert.assertFalse(returnVals.length == 0 || returnVals[0] == null, "Invalid Return Values.");
         Assert.assertTrue(returnVals[0] instanceof BMap);
         BMap<String, BValue> entityStruct =
@@ -222,7 +222,7 @@ public class ResponseNativeFunctionNegativeTest {
     @Test
     public void testAddCookiesWithInvalidPath1() {
         ObjectValue outResponse = createResponseObject();
-        BValue[] returnVals = BRunUtil.invoke(result, "testAddCookieWithInvalidPath1", new Object[]{ outResponse });
+        BValue[] returnVals = BRunUtil.invoke(result, "testAddCookieWithInvalidPath1", new Object[]{outResponse});
         Assert.assertFalse(returnVals.length == 0 || returnVals[0] == null, "Invalid Return Values.");
         Assert.assertTrue(returnVals[0] instanceof BMap);
         BMap<String, BValue> entityStruct =
@@ -234,7 +234,7 @@ public class ResponseNativeFunctionNegativeTest {
     @Test
     public void testAddCookiesWithInvalidPath2() {
         ObjectValue outResponse = createResponseObject();
-        BValue[] returnVals = BRunUtil.invoke(result, "testAddCookieWithInvalidPath2", new Object[]{ outResponse });
+        BValue[] returnVals = BRunUtil.invoke(result, "testAddCookieWithInvalidPath2", new Object[]{outResponse});
         Assert.assertFalse(returnVals.length == 0 || returnVals[0] == null, "Invalid Return Values.");
         Assert.assertTrue(returnVals[0] instanceof BMap);
         BMap<String, BValue> entityStruct =
@@ -246,7 +246,7 @@ public class ResponseNativeFunctionNegativeTest {
     @Test
     public void testAddCookiesWithInvalidExpires() {
         ObjectValue outResponse = createResponseObject();
-        BValue[] returnVals = BRunUtil.invoke(result, "testAddCookieWithInvalidExpires", new Object[]{ outResponse });
+        BValue[] returnVals = BRunUtil.invoke(result, "testAddCookieWithInvalidExpires", new Object[]{outResponse});
         Assert.assertFalse(returnVals.length == 0 || returnVals[0] == null, "Invalid Return Values.");
         Assert.assertTrue(returnVals[0] instanceof BMap);
         BMap<String, BValue> entityStruct =
@@ -258,7 +258,7 @@ public class ResponseNativeFunctionNegativeTest {
     @Test
     public void testAddCookiesWithInvalidMaxAge() {
         ObjectValue outResponse = createResponseObject();
-        BValue[] returnVals = BRunUtil.invoke(result, "testAddCookieWithInvalidMaxAge", new Object[]{ outResponse });
+        BValue[] returnVals = BRunUtil.invoke(result, "testAddCookieWithInvalidMaxAge", new Object[]{outResponse});
         Assert.assertFalse(returnVals.length == 0 || returnVals[0] == null, "Invalid Return Values.");
         Assert.assertTrue(returnVals[0] instanceof BMap);
         BMap<String, BValue> entityStruct =

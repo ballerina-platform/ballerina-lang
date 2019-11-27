@@ -109,38 +109,38 @@ public type CookieStore object {
         }
     }
 
-     # Gets all the cookies in the cookie store.
-     #
-     # + return - All the cookies
-     public function getAllCookies() returns Cookie[] {
-         return self.allSessionCookies;
-     }
+    # Gets all the cookies in the cookie store.
+    #
+    # + return - All the cookies
+    public function getAllCookies() returns Cookie[] {
+     return self.allSessionCookies;
+    }
 
-     # Removes a specific cookie.
-     #
-     # + name - Name of the cookie to be removed
-     # + domain - Domain of the cookie to be removed
-     # + path - Path of the cookie to be removed
-     # + return - Return true if the relevant cookie is removed, false otherwise
-     public function removeCookie(string name, string domain, string path) returns boolean {
-         lock {
-             // Removes the session cookie in the cookie store, which is matched with the given name, domain and path.
-             int k = 0;
-             while (k < self.allSessionCookies.length()) {
-                 if (name == self.allSessionCookies[k].name && domain == self.allSessionCookies[k].domain && path ==  self.allSessionCookies[k].path) {
-                     int j = k;
-                     while (j < self.allSessionCookies.length()-1) {
-                         self.allSessionCookies[j] = self.allSessionCookies[j + 1];
-                         j = j + 1;
-                     }
-                     Cookie lastCookie = self.allSessionCookies.pop();
-                     return true;
+    # Removes a specific cookie.
+    #
+    # + name - Name of the cookie to be removed
+    # + domain - Domain of the cookie to be removed
+    # + path - Path of the cookie to be removed
+    # + return - Return true if the relevant cookie is removed, false otherwise
+    public function removeCookie(string name, string domain, string path) returns boolean {
+     lock {
+         // Removes the session cookie in the cookie store, which is matched with the given name, domain and path.
+         int k = 0;
+         while (k < self.allSessionCookies.length()) {
+             if (name == self.allSessionCookies[k].name && domain == self.allSessionCookies[k].domain && path ==  self.allSessionCookies[k].path) {
+                 int j = k;
+                 while (j < self.allSessionCookies.length()-1) {
+                     self.allSessionCookies[j] = self.allSessionCookies[j + 1];
+                     j = j + 1;
                  }
-                 k = k + 1;
+                 Cookie lastCookie = self.allSessionCookies.pop();
+                 return true;
              }
-             return false;
+             k = k + 1;
          }
+         return false;
      }
+    }
 
     # Removes all the cookies.
     public function clear() {
