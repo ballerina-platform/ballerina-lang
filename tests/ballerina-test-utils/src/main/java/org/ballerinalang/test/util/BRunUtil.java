@@ -1089,7 +1089,11 @@ public class BRunUtil {
                     bParamTypes[i] = getBVMType(jvmBFunctionType.paramTypes[i], selfTypeStack);
                 }
                 BType bRetType = getBVMType(jvmBFunctionType.retType, selfTypeStack);
-                return new BFunctionType(bParamTypes, new BType[]{bRetType});
+                BType bRestType = null;
+                if (jvmBFunctionType.restType != null) {
+                    bRestType = getBVMType(jvmBFunctionType.restType, selfTypeStack);
+                }
+                return new BFunctionType(bParamTypes, bRestType, new BType[]{bRetType});
             case org.ballerinalang.jvm.types.TypeTags.HANDLE_TAG:
                 return BTypes.typeHandle;
             case org.ballerinalang.jvm.types.TypeTags.SERVICE_TAG:

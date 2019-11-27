@@ -222,7 +222,7 @@ public type TypeParser object {
                 obj.paramTypes = self.parseTypes();
                 boolean hasRest = self.readBoolean();
                 if (hasRest) {
-                    obj.paramTypes.push(self.parseTypeCpRef());
+                    obj.restType = self.parseTypeCpRef();
                 }
                 obj.retType = self.parseTypeCpRef();
                 return obj;
