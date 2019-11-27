@@ -43,11 +43,13 @@ public class ConstrainedMapTest {
 
     private CompileResult compileResult;
     private CompileResult negativeResult;
+    private CompileResult negativeRunTimeResult;
 
     @BeforeClass
     public void setup() {
         compileResult = BCompileUtil.compile("test-src/types/map/constrained-map.bal");
         negativeResult = BCompileUtil.compile("test-src/types/map/constrained-map-negative.bal");
+        negativeRunTimeResult = BCompileUtil.compile("test-src/types/map/map-closed-record-assignment-negative.bal");
     }
 
     @Test(description = "Test Map constrained with type negative semantic validations.")
@@ -548,5 +550,21 @@ public class ConstrainedMapTest {
                   " insertion: expected value of type 'string', found '\\(\\)'.*")
     public void testInherentTypeViolationWithNilType() {
         BRunUtil.invoke(compileResult, "testInherentTypeViolationWithNilType");
+    }
+
+    @Test(description = "Test closed record assignment to map which is constrained to anydata.")
+    public void testMapAnyDataClosedRecordAssignment() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testMapAnyDataClosedRecordAssignment");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertEquals(returns[0].stringValue(), "Jack");
+    }
+
+    @Test(description = "Test closed record assignment to map which is constrained to anydata and access non-exist " +
+            "field",
+            expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = ".*invalid field access: field 'name' not found in record type " +
+                    "'Teacher'.*")
+    public void testMapAnyDataClosedRecordAssignmentNegative() {
+        BRunUtil.invoke(negativeRunTimeResult, "testMapAnyDataClosedRecordAssignmentNegative");
     }
 }
