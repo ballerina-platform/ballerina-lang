@@ -18,7 +18,6 @@
 
 package org.ballerinalang.stdlib.system.nativeimpl;
 
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -49,7 +48,7 @@ import java.nio.channels.ReadableByteChannel;
 )
 public class Stderr extends AbstractNativeChannel {
 
-    public static ObjectValue stderr(Strand strand, ObjectValue objVal) {
+    public static ObjectValue stderr(ObjectValue objVal) {
         Process process = SystemUtils.processFromObject(objVal);
         InputStream in = process.getErrorStream();
         ReadableByteChannel readableByteChannel = Channels.newChannel(in);        

@@ -17,11 +17,12 @@
  */
 package org.ballerinalang.stdlib.system.nativeimpl;
 
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.stdlib.system.utils.SystemUtils;
+
+import java.io.PrintStream;
 
 /**
  * Extern function ballerina.system:getName.
@@ -37,8 +38,12 @@ import org.ballerinalang.stdlib.system.utils.SystemUtils;
 public class GetUsername {
 
     private static final String PROPERTY_NAME = "user.name";
+    private static PrintStream console = System.out;
 
-    public static String getUsername(Strand strand) {
+    public static String getUsername() {
+        console.println("#####################");
+        console.println(SystemUtils.getSystemProperty(PROPERTY_NAME));
+        console.println("#####################");
         return SystemUtils.getSystemProperty(PROPERTY_NAME);
     }
 }

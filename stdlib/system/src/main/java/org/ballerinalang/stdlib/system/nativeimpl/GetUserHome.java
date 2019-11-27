@@ -17,11 +17,12 @@
  */
 package org.ballerinalang.stdlib.system.nativeimpl;
 
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.stdlib.system.utils.SystemUtils;
+
+import java.io.PrintStream;
 
 /**
  * Extern function ballerina.system:getUserHome.
@@ -37,8 +38,11 @@ import org.ballerinalang.stdlib.system.utils.SystemUtils;
 public class GetUserHome {
 
     private static final String PROPERTY_NAME = "user.home";
-
-    public static String getUserHome(Strand strand) {
+    private static PrintStream console = System.out;
+    public static String getUserHome() {
+        console.println("#####################");
+        console.println(SystemUtils.getSystemProperty(PROPERTY_NAME));
+        console.println("#####################");
         return SystemUtils.getSystemProperty(PROPERTY_NAME);
     }
 }

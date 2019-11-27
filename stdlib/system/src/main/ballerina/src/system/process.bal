@@ -15,6 +15,7 @@
 // under the License.
 
 import ballerina/io;
+import ballerinax/java;
 
 # This object contains information on a process being created from Ballerina.
 # This is returned from the `exec` function in the `system` module.
@@ -25,31 +26,43 @@ public type Process object {
     # Waits for the process to finish it's work and exit.
     #
     # + return - Returns the exit code for the process, or an `Error` if a failure occurs
-    public function waitForExit() returns int|Error = external;
+    public function waitForExit() returns int|Error {
+        return nativeWaitForExit(self);
+    }
     
     # Returns the exit code of the process when it has finished the execution.
     # Error if the process has not exited yet.
     #
     # + return - Returns the exit code of the process, or an `Error` if the process hasn't exited yet
-    public function exitCode() returns int|Error = external;
+    public function exitCode() returns int|Error {
+        return nativeExitCode(self);
+    }
     
     # Destroys the process.
-    public function destroy() = external;
+    public function destroy() {
+        return nativeDestroy(self);
+    }
     
     # Provides a channel (to write into), which is made available as the 'standard input' for the process.
     #
     # + return - The `io:WritableByteChannel` which represents the process's 'standard input'
-    public function stdin() returns io:WritableByteChannel = external;
+    public function stdin() returns io:WritableByteChannel {
+        return nativeStdin(self);
+    }
     
     # Provides a channel (to read from), which is made available as the 'standard output' of the process.
     #
     # + return - The `io:ReadableByteChannel` which represents the process's 'standard output'
-    public function stdout() returns io:ReadableByteChannel = external;
+    public function stdout() returns io:ReadableByteChannel {
+        return nativeStdout(self);
+    }
     
     # Provides a channel (to read from), which is made available as the 'standard error' of the process.
     #
     # + return - The `io:ReadableByteChannel` which represents the process's 'standard error'
-    public function stderr() returns io:ReadableByteChannel = external;
+    public function stderr() returns io:ReadableByteChannel {
+        return nativeStderr(self);
+    }
     
     # Pipes the standard output of the current process to the standard input of the given process.
     #
@@ -92,3 +105,33 @@ public type Process object {
     }
 
 };
+
+function nativeWaitForExit(Process process) returns int|Error = @java:Method {
+    name: "waitForExit",
+    class: "org.ballerinalang.stdlib.system.nativeimpl.WaitForExit"
+} external;
+
+function nativeExitCode(Process process) returns int|Error = @java:Method {
+    name: "exitCode",
+    class: "org.ballerinalang.stdlib.system.nativeimpl.ExitCode"
+} external;
+
+function nativeDestroy(Process process) = @java:Method {
+    name: "destroy",
+    class: "org.ballerinalang.stdlib.system.nativeimpl.Destroy"
+} external;
+
+function nativeStdin(Process process) returns io:WritableByteChannel = @java:Method {
+    name: "stdin",
+    class: "org.ballerinalang.stdlib.system.nativeimpl.Stdin"
+} external;
+
+function nativeStdout(Process process) returns io:ReadableByteChannel = @java:Method {
+    name: "stdout",
+    class: "org.ballerinalang.stdlib.system.nativeimpl.Stdout"
+} external;
+
+function nativeStderr(Process process) returns io:ReadableByteChannel = @java:Method {
+    name: "stderr",
+    class: "org.ballerinalang.stdlib.system.nativeimpl.Stderr"
+} external;

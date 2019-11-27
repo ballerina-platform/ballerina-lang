@@ -72,6 +72,7 @@ dependencies {
     baloImplementation project(path: ':ballerina-reflect', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-config-api', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-lang:annotations', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-java', configuration: 'baloImplementation')
 
     implementation project(':ballerina-auth')
     implementation project(':ballerina-http')
@@ -85,6 +86,7 @@ dependencies {
     implementation project(':ballerina-config-api')
     implementation project(':ballerina-lang:annotations')
 
+    interopImports project(':ballerina-system')
 }
 
 configurations {

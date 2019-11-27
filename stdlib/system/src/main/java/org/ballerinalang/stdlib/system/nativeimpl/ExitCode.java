@@ -18,7 +18,6 @@
 
 package org.ballerinalang.stdlib.system.nativeimpl;
 
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -46,7 +45,7 @@ public class ExitCode {
     
     private static final Logger log = LoggerFactory.getLogger(WaitForExit.class);
 
-    public static Object exitCode(Strand strand, ObjectValue objVal) {
+    public static Object exitCode(ObjectValue objVal) {
         Process process = SystemUtils.processFromObject(objVal);
         try {
             return process.exitValue();

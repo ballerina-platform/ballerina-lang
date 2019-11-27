@@ -18,7 +18,6 @@
 
 package org.ballerinalang.stdlib.system.nativeimpl;
 
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -38,7 +37,7 @@ import java.util.UUID;
 )
 public class Uuid {
 
-    public static String uuid(Strand strand) {
+    public static String uuid() {
         return UUID.randomUUID().toString();
     }
 }

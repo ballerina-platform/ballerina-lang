@@ -17,7 +17,6 @@
  */
 package org.ballerinalang.stdlib.system.nativeimpl;
 
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 
@@ -32,7 +31,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 )
 public class GetEnv {
 
-    public static String getEnv(Strand strand, String name) {
+    public static String getEnv(String name) {
         String value = System.getenv(name);
         if (value == null) {
             return BTypes.typeString.getZeroValue();

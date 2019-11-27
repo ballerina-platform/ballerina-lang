@@ -18,7 +18,6 @@
 
 package org.ballerinalang.stdlib.system.nativeimpl;
 
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -49,7 +48,7 @@ import java.nio.channels.WritableByteChannel;
 )
 public class Stdin extends AbstractNativeChannel {
 
-    public static ObjectValue stdin(Strand strand, ObjectValue objVal) {
+    public static ObjectValue stdin(ObjectValue objVal) {
         Process process = SystemUtils.processFromObject(objVal);
         OutputStream out = process.getOutputStream();
         WritableByteChannel writableByteChannel = Channels.newChannel(out);        

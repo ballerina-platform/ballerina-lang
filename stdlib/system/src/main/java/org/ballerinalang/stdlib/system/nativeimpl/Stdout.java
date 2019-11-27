@@ -18,7 +18,6 @@
 
 package org.ballerinalang.stdlib.system.nativeimpl;
 
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -49,7 +48,7 @@ import java.nio.channels.ReadableByteChannel;
 )
 public class Stdout extends AbstractNativeChannel {
 
-    public static ObjectValue stdout(Strand strand, ObjectValue objVal) {
+    public static ObjectValue stdout(ObjectValue objVal) {
         Process process = SystemUtils.processFromObject(objVal);
         InputStream in = process.getInputStream();
         ReadableByteChannel readableByteChannel = Channels.newChannel(in);        
