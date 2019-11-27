@@ -27,6 +27,7 @@ import java.util.Objects;
  *
  * @since 0.90
  */
+@Deprecated
 public class WorkerDataChannelRefCPEntry implements ConstantPoolEntry {
     // Index to a valid Package entry in the constant pool
     private int uniqueNameCPIndex;

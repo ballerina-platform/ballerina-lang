@@ -171,7 +171,7 @@ class JMethodRequest {
                     return new BTupleType(memberTypes);
                 case RECORD_TNAME:
                     return new BRecordType(bRecordType.getName(), bRecordType.getPackage(), bRecordType.flags,
-                            bRecordType.sealed);
+                            bRecordType.sealed, bRecordType.typeFlags);
                 case ARRAY_TNAME:
                     return new BArrayType(getBType(arrayTypeValue.get(ARRAY_ELEMENT_TYPE_FIELD)));
                 default:

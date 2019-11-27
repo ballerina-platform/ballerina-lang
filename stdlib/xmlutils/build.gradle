@@ -29,6 +29,7 @@ dependencies {
 
     baloImplementation project(path: ':ballerina-lang:annotations', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-runtime-api', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-java', configuration: 'baloImplementation')
 
     implementation 'org.apache.ws.commons.axiom:axiom-impl'
     implementation 'org.apache.ws.commons.axiom:axiom-dom'

@@ -91,8 +91,8 @@ public type TypeParser object {
 
     function parseTypeAndAddToCp() returns BType {
         if (self.cpI < self.cp.types.length()){
-            var parsedType = self.cp.types[self.cpI];
-            if (parsedType is BType) {
+            BType? parsedType = self.cp.types[self.cpI];
+            if !(parsedType is ()) {
                 return parsedType;
             }
         }
@@ -202,7 +202,7 @@ public type TypeParser object {
     }
 
     function parseUnionType(int typeFlags) returns BUnionType {
-        BUnionType obj = { members:[], typeFlags:typeFlags };
+        BUnionType obj = { members:[], typeFlags:typeFlags }; 
         obj.members = self.parseTypes();
         return obj;
     }
