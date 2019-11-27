@@ -81,4 +81,31 @@ public class FunctionPointersWithRestArgsTest {
         Assert.assertNotNull(returns[2]);
         Assert.assertEquals(returns[2].stringValue(), "[8, 9, 4]");
     }
+
+    @Test
+    public void testFunctionPointerRestParamUnionNarrow() {
+        BValue[] returns = BRunUtil.invoke(fpProgram, "testFunctionPointerRestParamUnionNarrow");
+        Assert.assertNotNull(returns);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertNotNull(returns[0]);
+        Assert.assertEquals(returns[0].stringValue(), "[2, 3, 4]");
+    }
+
+    @Test
+    public void testFunctionPointerRestParamUnionNarrowName() {
+        BValue[] returns = BRunUtil.invoke(fpProgram, "testFunctionPointerRestParamUnionNarrowName");
+        Assert.assertNotNull(returns);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertNotNull(returns[0]);
+        Assert.assertEquals(returns[0].stringValue(), "[3, 2, 1]");
+    }
+
+    @Test
+    public void testFunctionPointerRestParamStructuredType() {
+        BValue[] returns = BRunUtil.invoke(fpProgram, "testFunctionPointerRestParamStructuredType");
+        Assert.assertNotNull(returns);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertNotNull(returns[0]);
+        Assert.assertEquals(returns[0].stringValue(), "Irshad");
+    }
 }
