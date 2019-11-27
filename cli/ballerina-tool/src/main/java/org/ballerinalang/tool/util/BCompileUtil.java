@@ -29,7 +29,6 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
-import org.wso2.ballerinalang.programfile.CompiledBinaryFile;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -335,17 +334,6 @@ public class BCompileUtil {
         } else if (CompilerPhase.CODE_GEN.compareTo(compilerPhase) > 0 || compilerPhase == CompilerPhase.BIR_GEN) {
             return comResult;
         }
-        CompiledBinaryFile.ProgramFile programFile;
-        // If its executing tests, then check if the testable package is null or not. If its not null, then pass the
-        // testable package node to generate the package program file.
-        if (withTests && packageNode.containsTestablePkg()) {
-            programFile = compiler.getExecutableProgram(packageNode.getTestablePkg());
-        } else {
-            // If its not executing tests or if its executing tests and the testable package is not present then pass
-            // the bLangPackage node to generate the program file.
-            programFile = compiler.getExecutableProgram(packageNode);
-        }
-
         return comResult;
     }
 

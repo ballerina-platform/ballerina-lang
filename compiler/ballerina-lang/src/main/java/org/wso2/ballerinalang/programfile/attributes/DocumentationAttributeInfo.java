@@ -25,6 +25,7 @@ import java.util.List;
  *
  * @since 0.970.0
  */
+@Deprecated
 public class DocumentationAttributeInfo implements AttributeInfo {
 
     // Index to a UTF8CPEntry
