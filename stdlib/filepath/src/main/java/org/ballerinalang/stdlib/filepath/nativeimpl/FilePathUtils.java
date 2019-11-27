@@ -18,32 +18,56 @@
 
 package org.ballerinalang.stdlib.filepath.nativeimpl;
 
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.stdlib.filepath.Constants;
 import org.ballerinalang.stdlib.filepath.Utils;
 
 import java.io.IOException;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
 import java.nio.file.Files;
+import java.nio.file.InvalidPathException;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.NotLinkException;
 import java.nio.file.Path;
+import java.nio.file.PathMatcher;
 import java.nio.file.Paths;
+import java.util.regex.PatternSyntaxException;
 
 /**
- * The native class to get real value of the path after evaluating any symbolic links.
+ * Native function implementations for the filepath module APIs.
  *
- * @since 0.995.0
+ * @since 1.0.5
  */
-@BallerinaFunction(
-        orgName = Constants.ORG_NAME,
-        packageName = Constants.PACKAGE_NAME,
-        functionName = "resolve",
-        isPublic = true
-)
-public class Resolve {
+public class FilePathUtils {
+    private static final String GLOB_SYNTAX_FLAVOR = "glob:";
 
-    public static Object resolve(Strand strand, String inputPath) {
+    public static Object absolute(String inputPath) {
+        try {
+            return FileSystems.getDefault().getPath(inputPath).toAbsolutePath().toString();
+        } catch (InvalidPathException ex) {
+            return Utils.getPathError(Constants.INVALID_PATH_ERROR, "Invalid path " + inputPath);
+        }
+    }
+
+    public static Object matches(String inputPath, String pattern) {
+        FileSystem fs = FileSystems.getDefault();
+        PathMatcher matcher;
+        try {
+            if (!pattern.startsWith(GLOB_SYNTAX_FLAVOR)) {
+                matcher = fs.getPathMatcher(GLOB_SYNTAX_FLAVOR + pattern);
+            } else {
+                matcher = fs.getPathMatcher(pattern);
+            }
+        } catch (PatternSyntaxException ex) {
+            return Utils.getPathError(Constants.INVALID_PATTERN_ERROR, "Invalid pattern " + pattern);
+        }
+        if (inputPath == null) {
+            return false;
+        }
+        return matcher.matches(Paths.get(inputPath));
+    }
+
+    public static Object resolve(String inputPath) {
         try {
             Path realPath = Files.readSymbolicLink(Paths.get(inputPath).toAbsolutePath());
             return realPath.toString();
@@ -57,5 +81,4 @@ public class Resolve {
             return Utils.getPathError(Constants.SECURITY_ERROR, "Security error for " + inputPath);
         }
     }
-
 }
