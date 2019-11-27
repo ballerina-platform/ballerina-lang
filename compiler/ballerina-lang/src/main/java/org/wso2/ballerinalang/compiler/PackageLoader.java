@@ -114,7 +114,6 @@ public class PackageLoader {
     private final SourceDirectory sourceDirectory;
     private final PackageCache packageCache;
     private final SymbolEnter symbolEnter;
-    private final CompiledPackageSymbolEnter compiledPkgSymbolEnter;
     private final BIRPackageSymbolEnter birPackageSymbolEnter;
     private final Names names;
     private final BLangDiagnosticLog dlog;
@@ -148,7 +147,6 @@ public class PackageLoader {
         this.parser = Parser.getInstance(context);
         this.packageCache = PackageCache.getInstance(context);
         this.symbolEnter = SymbolEnter.getInstance(context);
-        this.compiledPkgSymbolEnter = CompiledPackageSymbolEnter.getInstance(context);
         this.birPackageSymbolEnter = BIRPackageSymbolEnter.getInstance(context);
         this.names = Names.getInstance(context);
         this.dlog = BLangDiagnosticLog.getInstance(context);

@@ -23,6 +23,7 @@ package org.wso2.ballerinalang.programfile.cpentries;
  *
  * @since 0.90
  */
+@Deprecated
 public interface ConstantPool {
 
     int addCPEntry(ConstantPoolEntry cpEntry);

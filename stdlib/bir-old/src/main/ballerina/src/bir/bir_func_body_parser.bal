@@ -602,7 +602,7 @@ public type FuncBodyParser object {
                 j += 1;
             }
 
-            Unlock unlockIns = {pos:pos, kind:kind, globleVars:globleVars,
+            Unlock unlockIns = {pos:pos, kind:kind, globleVars:globleVars, 
                 localLocks:localLocks, unlockBB:self.parseBBRef()};
             return unlockIns;
         }

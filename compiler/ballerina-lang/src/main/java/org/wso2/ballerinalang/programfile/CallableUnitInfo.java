@@ -31,6 +31,7 @@ import java.util.Map;
  *
  * @since 0.87
  */
+@Deprecated
 public class CallableUnitInfo implements AttributeInfoPool, WorkerInfoPool {
 
     // Index to the PackageCPEntry
