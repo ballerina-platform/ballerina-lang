@@ -22,6 +22,7 @@ import org.ballerinalang.natives.NativeElementRepository;
 /**
  * This represents the Java SPI for a Ballerina native element provider.
  */
+@Deprecated
 public interface NativeElementProvider {
 
     /**

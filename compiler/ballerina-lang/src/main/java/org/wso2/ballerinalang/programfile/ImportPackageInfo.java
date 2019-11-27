@@ -25,6 +25,7 @@ import java.util.Objects;
  *
  * @since 0.963.0
  */
+@Deprecated
 public class ImportPackageInfo {
 
     public int orgNameCPIndex;

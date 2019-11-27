@@ -28,4 +28,11 @@
         <Bug pattern="PZLA_PREFER_ZERO_LENGTH_ARRAYS" />
         <Class name="org.ballerinalang.nativeimpl.jvm.methodvisitor.VisitLookupSwitchInsn" />
     </Match>
+    <Match>
+        <Package name="org.ballerinalang.nativeimpl.jvm.tests" />
+    </Match>
+    <Match>
+        <Bug pattern="UWF_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR" />
+        <Class name="org.ballerinalang.nativeimpl.jvm.interop.JMethodRequest" />
+    </Match>
 </FindBugsFilter>

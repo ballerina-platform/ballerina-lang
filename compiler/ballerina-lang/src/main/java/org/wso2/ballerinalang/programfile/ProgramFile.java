@@ -39,6 +39,7 @@ import static org.wso2.ballerinalang.programfile.ProgramFileConstants.VERSION_NU
  *
  * @since 0.87
  */
+@Deprecated
 public class ProgramFile implements ConstantPool, AttributeInfoPool {
     // Entry point flags
     public static final int EP_MAIN_FLAG = 1;
