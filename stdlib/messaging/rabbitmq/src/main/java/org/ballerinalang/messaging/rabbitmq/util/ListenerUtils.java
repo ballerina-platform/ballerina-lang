@@ -47,7 +47,7 @@ public class ListenerUtils {
     private static ArrayList<ObjectValue> startedServices = new ArrayList<>();
     private static BRuntime runtime;
 
-    public static void externInit(ObjectValue listenerObjectValue, Channel channel) {
+    public static void init(ObjectValue listenerObjectValue, Channel channel) {
         listenerObjectValue.addNativeData(RabbitMQConstants.CHANNEL_NATIVE_OBJECT, channel);
         listenerObjectValue.addNativeData(RabbitMQConstants.CONSUMER_SERVICES, services);
         listenerObjectValue.addNativeData(RabbitMQConstants.STARTED_SERVICES, startedServices);

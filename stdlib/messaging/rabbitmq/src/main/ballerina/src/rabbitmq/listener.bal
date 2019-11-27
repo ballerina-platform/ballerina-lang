@@ -110,6 +110,7 @@ public annotation RabbitMQServiceConfig ServiceConfig on service;
 
 function externInit(Listener lis, handle amqpChannel) =
 @java:Method {
+    name: "init",
     class: "org.ballerinalang.messaging.rabbitmq.util.ListenerUtils"
 } external;
 
