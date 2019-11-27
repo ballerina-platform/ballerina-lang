@@ -18,7 +18,6 @@
 package org.ballerinalang.stdlib.config;
 
 import org.ballerinalang.config.ConfigRegistry;
-import org.ballerinalang.jvm.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
@@ -27,6 +26,7 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
+import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -371,7 +371,7 @@ public class ConfigTest {
 
     @Test(description = "Test retrieving an invalid int config", expectedExceptions = BLangRuntimeException.class,
           expectedExceptionsMessageRegExp = ".*error: \\{ballerina/config\\}LookupError message=config key " +
-                  "'expirationPeriod' does not map to a valid 'int'.*", enabled = false)
+                  "'expirationPeriod' does not map to a valid 'int'.*")
     public void testGetAsIntNegative() throws IOException {
         BString key = new BString("expirationPeriod");
         BValue[] inputArg = {key};
@@ -383,7 +383,7 @@ public class ConfigTest {
 
     @Test(description = "Test retrieving an invalid float config", expectedExceptions = BLangRuntimeException.class,
           expectedExceptionsMessageRegExp = ".*error: \\{ballerina/config\\}LookupError message=config key " +
-                  "'\"ballerina.http.host\"' does not map to a valid 'float'.*", enabled = false)
+                  "'\"ballerina.http.host\"' does not map to a valid 'float'.*")
     public void testGetAsFloatNegative() throws IOException {
         BString key = new BString("\"ballerina.http.host\"");
         BValue[] inputArg = {key};
@@ -395,7 +395,7 @@ public class ConfigTest {
 
     @Test(description = "Test retrieving an invalid boolean config", expectedExceptions = BLangRuntimeException.class,
           expectedExceptionsMessageRegExp = ".*error: \\{ballerina/config\\}LookupError message=config key " +
-                  "'expirationPeriod' does not map to a valid 'boolean'.*", enabled = false)
+                  "'expirationPeriod' does not map to a valid 'boolean'.*")
     public void testGetAsBooleanNegative() throws IOException {
         BString key = new BString("expirationPeriod");
         BValue[] inputArg = {key};
