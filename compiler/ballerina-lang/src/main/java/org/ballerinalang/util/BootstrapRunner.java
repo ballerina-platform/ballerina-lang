@@ -40,6 +40,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.StringJoiner;
 import java.util.concurrent.TimeUnit;
@@ -51,6 +52,7 @@ public class BootstrapRunner {
 
     private static final PrintStream out = System.out;
     private static final PrintStream err = System.err;
+    private static final String CLASSPATH = "CLASSPATH";
 
     public static void loadTargetAndGenerateJarBinary(String entryBir, String jarOutputPath, boolean dumpBir,
                                                       HashSet<Path> moduleDependencySet, String... birCachePaths) {
@@ -66,12 +68,16 @@ public class BootstrapRunner {
             List<String> commands = new ArrayList<>();
             commands.add("java");
             setSystemProperty(commands, "ballerina.bstring");
-            commands.add("-cp");
-            commands.add(System.getProperty("java.class.path"));
             commands.add("ballerina.compiler_backend_jvm.___init");
             commands.addAll(createArgsForCompilerBackend(entryBir, jarOutputPath, dumpBir, true, birCachePaths,
                     jarFilePaths));
-            Process process = new ProcessBuilder(commands).start();
+
+            // pass the classpath for the sub-process
+            ProcessBuilder pb = new ProcessBuilder(commands);
+            Map<String, String> env = pb.environment();
+            env.put(CLASSPATH, System.getProperty("java.class.path"));
+
+            Process process = pb.start();
             getConsoleOutput(process.getInputStream(), out);
             String consoleError = getConsoleOutput(process.getErrorStream(), err);
             boolean processEnded = process.waitFor(120, TimeUnit.SECONDS);
@@ -82,7 +88,7 @@ public class BootstrapRunner {
                 throw new BLangCompilerException(consoleError);
             }
         } catch (InterruptedException | IOException e) {
-            throw new BLangCompilerException("failed running jvm code gen phase.");
+            throw new BLangCompilerException("failed running jvm code gen phase.", e);
         }
     }
 
