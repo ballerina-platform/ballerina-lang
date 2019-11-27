@@ -25,6 +25,9 @@ import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+/**
+ * Neagative Test cases for constraining map.
+ */
 public class ConstrainedMapNegativeTest {
 
     private CompileResult negativeRunTimeResult;
