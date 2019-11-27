@@ -30,6 +30,10 @@ import ballerinax/java;
 # + isolationLevel - Transactional message reading method. Use "read_committed" to read the committed messages
 #       only in transactional mode when poll() is called. Use "read_uncommitted" to read all the messages,
 #       even the aborted ones.
+# + keyDeserializer - Deserializer used for the Kafka record key. This can be either `kafka:DeserializerType` or an
+#       user-defined deserializer.
+# + valueDeserializer - Deserializer used for the Kafka record value. This can be either `kafka:DeserializerType` or an
+#       user-defined deserializer.
 # + topics - Topics to be subscribed by the consumer.
 # + properties - Additional properties if required.
 # + sessionTimeoutInMillis - Timeout used to detect consumer failures when heartbeat threshold is reached.
@@ -70,6 +74,8 @@ public type ConsumerConfig record {|
     string? clientId = ();
     string? interceptorClasses = ();
     string? isolationLevel = ();
+    string keyDeserializer = DES_BYTE_ARRAY;
+    string valueDeserializer = DES_BYTE_ARRAY;
 
     string[]? topics = ();
     string[]? properties = ();
@@ -122,6 +128,21 @@ public type ConsumerRecord record {|
     int timestamp;
     string topic;
 |};
+
+# In-built Kafka byte array deserializer.
+public const DES_BYTE_ARRAY = "BYTE_ARRAY";
+
+# In-built Kafka string deserializer.
+public const DES_STRING = "STRING";
+
+# In-built Kafka int deserializer.
+public const DES_INT = "INT";
+
+# In-built Kafka float deserializer.
+public const DES_FLOAT = "FLOAT";
+
+# Kafka in-built deserializer type.
+public type DeserializerType DES_BYTE_ARRAY|DES_STRING|DES_INT|DES_FLOAT;
 
 # Represent a Kafka consumer endpoint.
 #

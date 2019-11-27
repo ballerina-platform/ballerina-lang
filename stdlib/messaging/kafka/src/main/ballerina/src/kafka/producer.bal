@@ -28,6 +28,10 @@ import ballerinax/java;
 # + partitionerClass - Partitioner class to be used to select partition to which the message is sent.
 # + interceptorClasses - Interceptor classes to be used before sending records.
 # + transactionalId - Transactional ID to be used in transactional delivery.
+# + keySerializer - Serializer used for the Kafka record key. This can be either `kafka:SerializerType` or an
+#       user-defined serializer.
+# + valueSerializer - Serializer used for the Kafka record value. This can be either `kafka:SerializerType` or an
+#       user-defined serializer.
 # + bufferMemory - Total bytes of memory the producer can use to buffer records.
 # + retryCount - Number of retries to resend a record.
 # + batchSize - Number of records to be batched for a single request. Use 0 for no batching.
@@ -58,6 +62,8 @@ public type ProducerConfig record {|
     string? partitionerClass = ();
     string? interceptorClasses = ();
     string? transactionalId = ();
+    string valueSerializer = SER_BYTE_ARRAY;
+    string keySerializer = SER_BYTE_ARRAY;
 
     int bufferMemory = -1;
     int retryCount = -1;
@@ -97,6 +103,21 @@ public const ACKS_SINGLE = "1";
 
 # Kafka producer acknowledgement type.
 public type Producer_Acks ACKS_ALL|ACKS_NONE|ACKS_SINGLE;
+
+# In-built Kafka Byte Array serializer.
+public const SER_BYTE_ARRAY = "BYTE_ARRAY";
+
+# In-built Kafka string serializer.
+public const SER_STRING = "STRING";
+
+# In-built Kafka int serializer.
+public const SER_INT = "INT";
+
+# In-built Kafka float serializer.
+public const SER_FLOAT = "FLOAT";
+
+# Kafka in-built serializer type.
+public type SerializerType SER_BYTE_ARRAY|SER_STRING|SER_INT|SER_FLOAT;
 
 # Represent a Kafka producer endpoint.
 #
