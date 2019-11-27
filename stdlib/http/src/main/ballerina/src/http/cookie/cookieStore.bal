@@ -111,9 +111,9 @@ public type CookieStore object {
 
     # Gets all the cookies in the cookie store.
     #
-    # + return - All the cookies
+    # + return - Array of all the cookie objects
     public function getAllCookies() returns Cookie[] {
-     return self.allSessionCookies;
+        return self.allSessionCookies;
     }
 
     # Removes a specific cookie.
@@ -123,23 +123,23 @@ public type CookieStore object {
     # + path - Path of the cookie to be removed
     # + return - Return true if the relevant cookie is removed, false otherwise
     public function removeCookie(string name, string domain, string path) returns boolean {
-     lock {
-         // Removes the session cookie in the cookie store, which is matched with the given name, domain and path.
-         int k = 0;
-         while (k < self.allSessionCookies.length()) {
-             if (name == self.allSessionCookies[k].name && domain == self.allSessionCookies[k].domain && path ==  self.allSessionCookies[k].path) {
-                 int j = k;
-                 while (j < self.allSessionCookies.length()-1) {
-                     self.allSessionCookies[j] = self.allSessionCookies[j + 1];
-                     j = j + 1;
+         lock {
+             // Removes the session cookie in the cookie store, which is matched with the given name, domain and path.
+             int k = 0;
+             while (k < self.allSessionCookies.length()) {
+                 if (name == self.allSessionCookies[k].name && domain == self.allSessionCookies[k].domain && path ==  self.allSessionCookies[k].path) {
+                     int j = k;
+                     while (j < self.allSessionCookies.length()-1) {
+                         self.allSessionCookies[j] = self.allSessionCookies[j + 1];
+                         j = j + 1;
+                     }
+                     Cookie lastCookie = self.allSessionCookies.pop();
+                     return true;
                  }
-                 Cookie lastCookie = self.allSessionCookies.pop();
-                 return true;
+                 k = k + 1;
              }
-             k = k + 1;
+             return false;
          }
-         return false;
-     }
     }
 
     # Removes all the cookies.

@@ -49,9 +49,8 @@ public type Cookie object {
     public function isPersistent() returns boolean {
         if (self.expires == "" && self.maxAge == 0) {
             return false;
-        } else {
-            return true;
         }
+        return true;
     }
 
     // Returns true if the attributes of the cookie are in the correct format; false otherwise.
