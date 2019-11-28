@@ -18,6 +18,9 @@ public class FileSystemSourceInput implements CompilerInput {
     private final Path path;
     private Path packageRoot;
 
+    // Cached Value.
+    private byte[] code = null;
+
     public FileSystemSourceInput(Path path) {
         this.path = path;
     }
@@ -43,12 +46,16 @@ public class FileSystemSourceInput implements CompilerInput {
 
     @Override
     public byte[] getCode() {
+
+        if (code != null) {
+            return code;
+        }
         try {
             byte[] code = Files.readAllBytes(path);
             if (isBLangBinaryFile(path)) {
                 path.getFileSystem().close();
             }
-            return code;
+            return this.code = code;
         } catch (IOException e) {
             throw new BLangCompilerException("Error reading source file " + path);
         }

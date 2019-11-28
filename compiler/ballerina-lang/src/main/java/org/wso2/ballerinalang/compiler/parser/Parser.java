@@ -17,7 +17,6 @@
 */
 package org.wso2.ballerinalang.compiler.parser;
 
-import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.DefaultErrorStrategy;
 import org.ballerinalang.compiler.CompilerOptionName;
@@ -29,9 +28,7 @@ import org.ballerinalang.repository.CompilerInput;
 import org.ballerinalang.repository.PackageSource;
 import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.packaging.converters.FileSystemSourceInput;
-import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaLexer;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
-import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParserErrorListener;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParserErrorStrategy;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
@@ -43,10 +40,7 @@ import org.wso2.ballerinalang.compiler.util.diagnotic.BDiagnosticSource;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 
 /**
@@ -62,6 +56,7 @@ public class Parser {
     private CompilerContext context;
     private BLangDiagnosticLog dlog;
     private PackageCache pkgCache;
+    private TokenCache tokenCache;
 
     public static Parser getInstance(CompilerContext context) {
         Parser parser = context.get(PARSER_KEY);
@@ -80,6 +75,7 @@ public class Parser {
         this.preserveWhitespace = Boolean.parseBoolean(options.get(CompilerOptionName.PRESERVE_WHITESPACE));
         this.dlog = BLangDiagnosticLog.getInstance(context);
         this.pkgCache = PackageCache.getInstance(context);
+        this.tokenCache = TokenCache.getInstance(context);
     }
 
     public BLangPackage parse(PackageSource pkgSource, Path sourceRootPath) {
@@ -116,13 +112,7 @@ public class Parser {
             compUnit.setName(sourceEntry.getEntryName());
             compUnit.pos = new DiagnosticPos(diagnosticSrc, 1, 1, 1, 1);
 
-            ANTLRInputStream ais = new ANTLRInputStream(new InputStreamReader(new ByteArrayInputStream(sourceEntry
-                    .getCode()), StandardCharsets.UTF_8));
-            ais.name = entryName;
-            BallerinaLexer lexer = new BallerinaLexer(ais);
-            lexer.removeErrorListeners();
-            lexer.addErrorListener(new BallerinaParserErrorListener(context, diagnosticSrc));
-            CommonTokenStream tokenStream = new CommonTokenStream(lexer);
+            CommonTokenStream tokenStream = tokenCache.getTokenStream(sourceEntry, packageID, diagnosticSrc);
             BallerinaParser parser = new BallerinaParser(tokenStream);
             parser.setErrorHandler(getErrorStrategy(diagnosticSrc));
             parser.addParseListener(newListener(tokenStream, compUnit, diagnosticSrc));
