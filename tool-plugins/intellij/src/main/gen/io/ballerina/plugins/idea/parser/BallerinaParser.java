@@ -56,12 +56,12 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
       RECORD_LITERAL_CONST_EXPRESSION, SIMPLE_LITERAL_CONST_EXPRESSION),
     create_token_set_(STATIC_MATCH_IDENTIFIER_LITERAL, STATIC_MATCH_LIST_LITERAL, STATIC_MATCH_LITERAL, STATIC_MATCH_OR_EXPRESSION,
       STATIC_MATCH_RECORD_LITERAL, STATIC_MATCH_SIMPLE_LITERAL),
-    create_token_set_(FIELD_VARIABLE_REFERENCE, FUNCTION_INVOCATION_REFERENCE, INVOCATION_REFERENCE, MAP_ARRAY_VARIABLE_REFERENCE,
-      SIMPLE_VARIABLE_REFERENCE, STRING_FUNCTION_INVOCATION_REFERENCE, TYPE_DESC_EXPR_INVOCATION_REFERENCE, VARIABLE_REFERENCE,
-      XML_ATTRIB_VARIABLE_REFERENCE),
     create_token_set_(ARRAY_TYPE_NAME, EXCLUSIVE_RECORD_TYPE_DESCRIPTOR, GROUP_TYPE_NAME, INCLUSIVE_RECORD_TYPE_DESCRIPTOR,
       NULLABLE_TYPE_NAME, OBJECT_TYPE_NAME, SIMPLE_TYPE_NAME, TUPLE_TYPE_NAME,
       TYPE_NAME, UNION_TYPE_NAME),
+    create_token_set_(ANNOTATION_ACCESS_REFERENCE, FIELD_VARIABLE_REFERENCE, FUNCTION_INVOCATION_REFERENCE, INVOCATION_REFERENCE,
+      MAP_ARRAY_VARIABLE_REFERENCE, SIMPLE_VARIABLE_REFERENCE, STRING_FUNCTION_INVOCATION_REFERENCE, TYPE_DESC_EXPR_INVOCATION_REFERENCE,
+      VARIABLE_REFERENCE, XML_ATTRIB_VARIABLE_REFERENCE),
     create_token_set_(ACTION_INVOCATION_EXPRESSION, ANNOTATION_ACTION_EXPRESSION, ARROW_FUNCTION_EXPRESSION, BINARY_ADD_SUB_EXPRESSION,
       BINARY_AND_EXPRESSION, BINARY_COMPARE_EXPRESSION, BINARY_DIV_MUL_MOD_EXPRESSION, BINARY_EQUAL_EXPRESSION,
       BINARY_OR_EXPRESSION, BINARY_REF_EQUAL_EXPRESSION, BITWISE_EXPRESSION, BITWISE_SHIFT_EXPRESSION,
@@ -4120,14 +4120,15 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // version identifier
+  // version VersionPattern
   public static boolean PackageVersion(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "PackageVersion")) return false;
     if (!nextTokenIs(b, VERSION)) return false;
     boolean r, p;
     Marker m = enter_section_(b, l, _NONE_, PACKAGE_VERSION, null);
-    r = consumeTokens(b, 1, VERSION, IDENTIFIER);
+    r = consumeToken(b, VERSION);
     p = r; // pin = 1
+    r = r && VersionPattern(b, l + 1);
     exit_section_(b, l, m, r, p, null);
     return r || p;
   }
@@ -6337,6 +6338,21 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
     r = r && VariableReference(b, l + 1, -1);
     exit_section_(b, l, m, r, p, null);
     return r || p;
+  }
+
+  /* ********************************************************** */
+  // DECIMAL_INTEGER_LITERAL
+  //     |   DECIMAL_FLOATING_POINT_NUMBER
+  //     |   DECIMAL_EXTENDED_FLOATING_POINT_NUMBER
+  public static boolean VersionPattern(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "VersionPattern")) return false;
+    boolean r;
+    Marker m = enter_section_(b, l, _NONE_, VERSION_PATTERN, "<version pattern>");
+    r = consumeToken(b, DECIMAL_INTEGER_LITERAL);
+    if (!r) r = consumeToken(b, DECIMAL_FLOATING_POINT_NUMBER);
+    if (!r) r = consumeToken(b, DECIMAL_EXTENDED_FLOATING_POINT_NUMBER);
+    exit_section_(b, l, m, r, false, null);
+    return r;
   }
 
   /* ********************************************************** */
@@ -8563,6 +8579,7 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
   // 5: ATOM(FunctionInvocationReference)
   // 6: ATOM(SimpleVariableReference)
   // 7: ATOM(TypeDescExprInvocationReference)
+  // 8: POSTFIX(AnnotationAccessReference)
   public static boolean VariableReference(PsiBuilder b, int l, int g) {
     if (!recursion_guard_(b, l, "VariableReference")) return false;
     addVariant(b, "<variable reference>");
@@ -8598,6 +8615,10 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
       else if (g < 4 && XmlAttrib(b, l + 1)) {
         r = true;
         exit_section_(b, l, m, XML_ATTRIB_VARIABLE_REFERENCE, r, true, null);
+      }
+      else if (g < 8 && AnnotationAccessReference_0(b, l + 1)) {
+        r = true;
+        exit_section_(b, l, m, ANNOTATION_ACCESS_REFERENCE, r, true, null);
       }
       else {
         exit_section_(b, l, m, null, false, false, null);
@@ -8647,6 +8668,17 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
     r = TypeDescExpression(b, l + 1);
     r = r && Invocation(b, l + 1);
     exit_section_(b, l, m, r, false, null);
+    return r;
+  }
+
+  // ANNOTATION_ACCESS NameReference
+  private static boolean AnnotationAccessReference_0(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "AnnotationAccessReference_0")) return false;
+    boolean r;
+    Marker m = enter_section_(b);
+    r = consumeTokenSmart(b, ANNOTATION_ACCESS);
+    r = r && NameReference(b, l + 1);
+    exit_section_(b, m, null, r);
     return r;
   }
 

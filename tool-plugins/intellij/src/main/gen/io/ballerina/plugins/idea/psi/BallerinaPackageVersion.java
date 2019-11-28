@@ -24,7 +24,7 @@ import com.intellij.psi.PsiElement;
 public interface BallerinaPackageVersion extends PsiElement {
 
   @Nullable
-  PsiElement getIdentifier();
+  BallerinaVersionPattern getVersionPattern();
 
   @NotNull
   PsiElement getVersion();
