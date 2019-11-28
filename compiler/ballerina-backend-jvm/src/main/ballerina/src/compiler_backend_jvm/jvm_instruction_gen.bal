@@ -874,7 +874,7 @@ type InstructionGenerator object {
             self.mv.visitMethodInsn(INVOKEINTERFACE, ARRAY_VALUE, "getFloat", "(J)D", true);
         } else {
             self.mv.visitMethodInsn(INVOKEINTERFACE, ARRAY_VALUE, "getRefValue", io:sprintf("(J)L%s;", OBJECT), true);
-            string? targetTypeClass = getTargetClass(varRefType, bType);
+            string? targetTypeClass = getTargetClass(bType);
             if (targetTypeClass is string) {
                 self.mv.visitTypeInsn(CHECKCAST, targetTypeClass);
             } else {

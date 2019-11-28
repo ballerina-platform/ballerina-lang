@@ -21,11 +21,9 @@ import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.values.FPValue;
 import org.ballerinalang.jvm.values.FutureValue;
-import org.ballerinalang.jvm.values.HandleValue;
 import org.ballerinalang.jvm.values.TypedescValue;
 import org.ballerinalang.jvm.values.XMLItem;
 import org.ballerinalang.jvm.values.XMLValue;
-import org.ballerinalang.model.types.BTypeDesc;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BHandleValue;
@@ -40,6 +38,7 @@ import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
+import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -188,7 +187,7 @@ public class RefTypeTests {
     public void testGetAllInts() {
         BValue[] returns = BRunUtil.invoke(result, "getAllInts");
         Assert.assertTrue(returns[0] instanceof BInteger);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 3);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 2);
     }
 
     @Test
@@ -212,6 +211,15 @@ public class RefTypeTests {
     @Test
     public void testGetIntegersAsMixType() {
         BValue[] returns = BRunUtil.invoke(result, "getIntegersAsMixType");
+        Assert.assertTrue(returns[0] instanceof BValueType);
+        Assert.assertEquals(((BValueType) returns[0]).intValue(), 2);
+    }
+
+    @Test(expectedExceptions = { BLangRuntimeException.class },
+            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}TypeCastError message=incompatible types: 'int'" +
+                    " cannot be cast to 'MIX_TYPE'.*")
+    public void testGetInvalidIntegerAsMixType() {
+        BValue[] returns = BRunUtil.invoke(result, "getInvalidIntegerAsMixType");
         Assert.assertTrue(returns[0] instanceof BValueType);
         Assert.assertEquals(((BValueType) returns[0]).intValue(), 3);
     }
@@ -280,7 +288,11 @@ public class RefTypeTests {
     }
 
     public static int getAllInts() {
-        return 3;
+        return 2;
+    }
+
+    public static int getInvalidMixType() {
+        return 456;
     }
 
     public static int acceptAllInts(int x) {

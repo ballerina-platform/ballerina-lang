@@ -91,7 +91,7 @@ public class StaticMethods {
     }
 
     public static ErrorValue acceptStringErrorReturn(String msg) {
-        return new ErrorValue(msg, null);
+        return new ErrorValue(msg, new MapValueImpl<>(BTypes.typeErrorDetail));
     }
 
     public static Object acceptIntUnionReturn(int flag) {
@@ -206,7 +206,7 @@ public class StaticMethods {
 
     public static ErrorValue acceptStringErrorReturnWhichThrowsCheckedException(String msg)
             throws JavaInteropTestCheckedException {
-        return new ErrorValue(msg, null);
+        return new ErrorValue(msg, new MapValueImpl<>(BTypes.typeErrorDetail));
     }
 
     public static Object acceptIntUnionReturnWhichThrowsCheckedException(int flag)

@@ -194,7 +194,7 @@ public function getArrayValueFromMapWhichThrowsCheckedException(handle key, map<
 // JSON interop
 
 function testJsonReturns() returns [json, json, json, json, json] {
-	return [getJson(), getInt(), getJsonObject(), getJsonArray(), checkpanic getNullJson()];
+	return [getJson(), getInt(), getJsonObject(), getJsonArray(), getNullJson()];
 }
 
 function testJsonParams() returns json {
@@ -221,7 +221,7 @@ function getIntFromJson(json j) returns int = @java:Method {
     class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
 } external;
 
-public function getNullJson() returns json|error = @java:Method {
+public function getNullJson() returns json = @java:Method {
     class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
 } external;
 
@@ -243,7 +243,7 @@ function getStringFromXML(xml x) returns handle = @java:Method {
 // Finite type interop
 
 type ALL_INT 1|2|3|4|5;
-type MIX_TYPE 1 | 2 | "hello" | true | false;
+type MIX_TYPE 1 | 2 | 5 | "hello" | true | false;
 
 function testAcceptAllInts() returns [int, float, int] {
     ALL_INT i = 4;
@@ -286,6 +286,10 @@ function acceptMixType(MIX_TYPE x) returns any = @java:Method {
     class:"org/ballerinalang/test/javainterop/RefTypeTests"
 } external;
 
+function getInvalidIntegerAsMixType() returns MIX_TYPE = @java:Method {
+    name:"getInvalidMixType",
+    class:"org/ballerinalang/test/javainterop/RefTypeTests"
+} external;
 
 // Function pointers with interop
 

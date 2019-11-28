@@ -249,35 +249,32 @@ function generateJToBCheckCast(jvm:MethodVisitor mv, BalToJVMIndexMap indexMap, 
     } else if (targetType is bir:BTypeNil) {
         // Do nothing
         return;
-    } else if (targetType is bir:BUnionType) {
-        generateCheckCastJToBUnionType(mv, indexMap, sourceType, targetType);
-        return;
-    } else if (targetType is bir:BTypeAnyData) {
-        generateCheckCastJToBAnyData(mv, indexMap, sourceType);
-        return;
-    } else if (targetType is bir:BTypeHandle) {
-        generateJCastToBHandle(mv, sourceType);
-        return;
-    } else if (targetType is bir:BTypeAny) {
-        generateJCastToBAny(mv, indexMap, sourceType);
-        return;
-    } else if (targetType is bir:BJSONType) {
-        generateCheckCastJToBJSON(mv, indexMap, sourceType);
-        return;
-    } else if (targetType is bir:BFiniteType) {
-        generateCheckCastJToBFiniteType(mv, indexMap, sourceType);
-        return;
-    // TODO fix below properly - rajith
-    //} else if (sourceType is bir:BXMLType && targetType is bir:BMapType) {
-    //    generateXMLToAttributesMap(mv, sourceType);
-    //    return;
-    //} else if (targetType is bir:BFiniteType) {
-    //    generateCheckCastToFiniteType(mv, sourceType, targetType);
-    //    return;
-    //} else if (sourceType is bir:BRecordType && (targetType is bir:BMapType && targetType.constraint is bir:BTypeAny)) {
-    //    // do nothing
     } else {
-        string? targetTypeClass = getTargetClass(sourceType, targetType);
+        if (targetType is bir:BUnionType) {
+            generateCheckCastJToBUnionType(mv, indexMap, sourceType, targetType);
+        } else if (targetType is bir:BTypeAnyData) {
+            generateCheckCastJToBAnyData(mv, indexMap, sourceType);
+        } else if (targetType is bir:BTypeHandle) {
+            generateJCastToBHandle(mv, sourceType);
+        } else if (targetType is bir:BTypeAny) {
+            generateJCastToBAny(mv, indexMap, sourceType);
+        } else if (targetType is bir:BJSONType) {
+            generateCheckCastJToBJSON(mv, indexMap, sourceType);
+        } else if (targetType is bir:BFiniteType) {
+            generateCheckCastJToBFiniteType(mv, indexMap, sourceType);
+        // TODO fix below properly - rajith
+        //} else if (sourceType is bir:BXMLType && targetType is bir:BMapType) {
+        //    generateXMLToAttributesMap(mv, sourceType);
+        //    return;
+        //} else if (targetType is bir:BFiniteType) {
+        //    generateCheckCastToFiniteType(mv, sourceType, targetType);
+        //    return;
+        //} else if (sourceType is bir:BRecordType && (targetType is bir:BMapType && targetType.constraint is bir:BTypeAny)) {
+        //    // do nothing
+        }
+
+        checkCast(mv, targetType);
+        string? targetTypeClass = getTargetClass(targetType);
         if (targetTypeClass is string) {
             mv.visitTypeInsn(CHECKCAST, targetTypeClass);
         }
@@ -391,15 +388,10 @@ function generateCheckCastJToBByte(jvm:MethodVisitor mv, jvm:JType sourceType) {
 
 function generateCheckCastJToBUnionType(jvm:MethodVisitor mv, BalToJVMIndexMap indexMap, jvm:JType sourceType, bir:BUnionType targetType) {
     generateJCastToBAny(mv, indexMap, sourceType);
-    // TODO implement check cast from java types - rajith
-    //checkCast(mv, targetType);
 }
 
 function generateCheckCastJToBAnyData(jvm:MethodVisitor mv, BalToJVMIndexMap indexMap, jvm:JType sourceType) {
-    if (sourceType is jvm:JRefType || sourceType is jvm:JArrayType) {
-    	// TODO fix properly - rajith
-        //checkCast(mv, bir:TYPE_ANYDATA);
-    } else {
+    if !(sourceType is jvm:JRefType || sourceType is jvm:JArrayType) {
         // if value types, then ad box instruction
         generateJCastToBAny(mv, indexMap, sourceType);
     }
@@ -561,7 +553,7 @@ function generateCheckCast(jvm:MethodVisitor mv, bir:BType sourceType, bir:BType
     }
 
     // cast to the specific java class
-    string? targetTypeClass = getTargetClass(sourceType, targetType);
+    string? targetTypeClass = getTargetClass(targetType);
     if (targetTypeClass is string) {
         mv.visitTypeInsn(CHECKCAST, targetTypeClass);
     }
@@ -723,7 +715,7 @@ function checkCast(jvm:MethodVisitor mv, bir:BType targetType) {
             io:sprintf("(L%s;L%s;)L%s;", OBJECT, BTYPE, OBJECT), false);
 }
 
-function getTargetClass(bir:BType sourceType, bir:BType targetType) returns string? {
+function getTargetClass(bir:BType targetType) returns string? {
     string targetTypeClass;
     if (targetType is bir:BArrayType || targetType is bir:BTupleType) {
         targetTypeClass = ARRAY_VALUE;
@@ -798,7 +790,7 @@ function generateCast(jvm:MethodVisitor mv, bir:BType sourceType, bir:BType targ
     }
 
     // cast to the specific java class
-    string? targetTypeClass = getTargetClass(sourceType, targetType);
+    string? targetTypeClass = getTargetClass(targetType);
     if (targetTypeClass is string) {
         mv.visitTypeInsn(CHECKCAST, targetTypeClass);
     }
