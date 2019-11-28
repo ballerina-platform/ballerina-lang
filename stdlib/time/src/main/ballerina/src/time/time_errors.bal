@@ -27,3 +27,8 @@ public type Detail record {
 public const TIME_ERROR_REASON = "{ballerina/time}TimeError";
 # Represents Time module related error
 public type Error error<TIME_ERROR_REASON, Detail>;
+
+function getInvalidStringError() returns Error {
+    error e = error(TIME_ERROR_REASON, message = "Invalid string returned from the format function");
+    return <Error>e;
+}

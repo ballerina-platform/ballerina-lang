@@ -18,10 +18,6 @@
 
 package org.ballerinalang.stdlib.system.nativeimpl;
 
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
-
 import java.util.UUID;
 
 /**
@@ -29,12 +25,6 @@ import java.util.UUID;
  *
  * @since 0.8.0
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "system",
-        functionName = "uuid",
-        returnType = {@ReturnType(type = TypeKind.STRING)},
-        isPublic = true
-)
 public class Uuid {
 
     public static String uuid() {

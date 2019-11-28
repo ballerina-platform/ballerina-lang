@@ -18,17 +18,12 @@
 package org.ballerinalang.stdlib.system.nativeimpl;
 
 import org.ballerinalang.jvm.types.BTypes;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
 
 /**
  * Extern function ballerina.system:getEnv.
  *
  * @since 0.94.1
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "system",
-        functionName = "getEnv", isPublic = true
-)
 public class GetEnv {
 
     public static String getEnv(String name) {

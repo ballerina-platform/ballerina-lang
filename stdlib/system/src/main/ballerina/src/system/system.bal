@@ -15,7 +15,6 @@
 // under the License.
 
 import ballerinax/java;
-//import ballerina/io;
 
 # Returns the environment variable value associated with the provided name.
 #
@@ -75,22 +74,10 @@ function nativeUuid() returns handle = @java:Method {
 # + return - Returns a `Process` object in success, or an `Error` if a failure occurs
 public function exec(@untainted string command, @untainted map<string> env = {},
                      @untainted string? dir = (), @untainted string... args) returns Process|Error {
-    handle[] nativeArgs = [];
-    int j = 0;
-    if (args.length() > 0) {
-        while (j < args.length()) {
-            nativeArgs[j] = java:fromString(args[j]);
-            j = j + 1;
-        }
-    }
-    string nativeDir = "";
-    if (dir is string) {
-        nativeDir = dir;
-    }
-    return nativeExec(java:fromString(command), env, java:fromString(nativeDir), nativeArgs);
+    return nativeExec(java:fromString(command), env, dir, args);
 }
 
-function nativeExec(handle command, map<string> env, handle nativeDir, handle[] args) returns Process|Error = @java:Method {
+function nativeExec(handle command, map<string> env, string? dir, string[] args) returns Process|Error = @java:Method {
     name: "exec",
     class: "org.ballerinalang.stdlib.system.nativeimpl.Exec"
 } external;

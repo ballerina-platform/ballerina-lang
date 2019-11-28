@@ -62,6 +62,7 @@ public class ListenerServiceValidationTest {
                     ".*Invalid resource function found: timerStart. Expected: 'onTrigger'.*",
             enabled = false
     )
+
     public void testInvalidResourceName() {
         BCompileUtil.compile(getFilePath(Paths.get(TEST_DIRECTORY, "invalid_resource.bal")));
     }

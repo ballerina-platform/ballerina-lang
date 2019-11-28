@@ -32,5 +32,4 @@ public class Destroy {
         Process process = SystemUtils.processFromObject(objVal);
         process.destroy();
     }
-
 }

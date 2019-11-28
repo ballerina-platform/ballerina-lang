@@ -45,9 +45,7 @@ public class Exec {
                               ArrayValue args) {
         List<String> commandList = new ArrayList<String>();
         commandList.add(command);
-        if (args.size() > 0) {
-            commandList.addAll(Arrays.asList(args.getStringArray()));
-        }
+        commandList.addAll(Arrays.asList(args.getStringArray()));
         ProcessBuilder pb = new ProcessBuilder(commandList);
         if (dir != null) {
             pb.directory(new File((String) dir));
@@ -63,5 +61,4 @@ public class Exec {
             return SystemUtils.getBallerinaError(SystemConstants.PROCESS_EXEC_ERROR, e);
         }
     }
-
 }

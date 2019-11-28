@@ -40,6 +40,7 @@ dependencies {
 
     interopImports project(':ballerina-task')
     interopImports project(':ballerina-system')
+    interopImports project(':ballerina-time')
 
     testCompile project(path: ':ballerina-test-common', configuration: 'tests')
     testCompile project(path: ':ballerina-test-utils', configuration: 'shadow')
