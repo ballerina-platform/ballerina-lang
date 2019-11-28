@@ -37,9 +37,8 @@ public function setConfig(string key, string|int|float|boolean value) {
     if (value is string) {
         externSetConfig(java:fromString(key), java:fromString(value));
     } else {
-         externSetConfig(java:fromString(key), value);
+        externSetConfig(java:fromString(key), value);
     }
-
 }
 
 function externSetConfig(handle key, handle|int|float|boolean value) = @java:Method {

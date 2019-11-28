@@ -21,23 +21,18 @@ package org.ballerinalang.messaging.kafka.nativeimpl.consumer;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.KafkaException;
+import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.values.ArrayValue;
-import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.api.BValueCreator;
 import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
-import org.ballerinalang.messaging.kafka.utils.KafkaConstants;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.Receiver;
 
 import java.time.Duration;
 
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.CONSUMER_ERROR;
-import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.KAFKA_PACKAGE_NAME;
-import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.KAFKA_PROTOCOL_PACKAGE;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.NATIVE_CONSUMER;
 import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.createKafkaError;
 import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.getConsumerRecord;
@@ -46,24 +41,15 @@ import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.populateConsume
 /**
  * Native function polls the broker to retrieve messages within given timeout.
  */
-@BallerinaFunction(
-        orgName = KafkaConstants.ORG_NAME,
-        packageName = KAFKA_PACKAGE_NAME,
-        functionName = "poll",
-        receiver = @Receiver(
-                type = TypeKind.OBJECT,
-                structType = KafkaConstants.CONSUMER_STRUCT_NAME,
-                structPackage = KAFKA_PROTOCOL_PACKAGE
-        ),
-        isPublic = true
-)
 public class Poll {
 
-    public static Object poll(Strand strand, ObjectValue consumerObject, long timeout) {
+    public static Object poll(ObjectValue consumerObject, long timeout) {
+        Strand strand = Scheduler.getStrand();
         NonBlockingCallback callback = new NonBlockingCallback(strand);
         KafkaConsumer<byte[], byte[]> kafkaConsumer = (KafkaConsumer) consumerObject.getNativeData(NATIVE_CONSUMER);
         Duration duration = Duration.ofMillis(timeout);
-        ArrayValue consumerRecordsArray = new ArrayValueImpl(new BArrayType(getConsumerRecord().getType()));
+        ArrayValue consumerRecordsArray =
+                (ArrayValue) BValueCreator.createArrayValue(new BArrayType(getConsumerRecord().getType()));
         try {
             ConsumerRecords<byte[], byte[]> recordsRetrieved = kafkaConsumer.poll(duration);
             if (!recordsRetrieved.isEmpty()) {
