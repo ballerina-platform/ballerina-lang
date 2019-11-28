@@ -24,6 +24,7 @@ import org.wso2.ballerinalang.programfile.Instruction.Operand;
  *
  * @since 0.87
  */
+@Deprecated
 public class InstructionFactory {
 
     public static Instruction get(int opcode) {

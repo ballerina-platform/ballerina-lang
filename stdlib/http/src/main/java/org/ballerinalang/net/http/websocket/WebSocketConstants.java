@@ -57,6 +57,13 @@ public class WebSocketConstants {
     public static final String RESOURCE_NAME_ON_CLOSE = "onClose";
     public static final String RESOURCE_NAME_ON_IDLE_TIMEOUT = "onIdleTimeout";
     public static final String RESOURCE_NAME_ON_ERROR = "onError";
+    public static final String RESOURCE_NAME_CLOSE = "close";
+    public static final String RESOURCE_NAME_PING = "ping";
+    public static final String RESOURCE_NAME_PONG = "pong";
+    public static final String RESOURCE_NAME_PUSH_BINARY = "pushBinary";
+    public static final String RESOURCE_NAME_PUSH_TEXT = "pushText";
+    public static final String RESOURCE_NAME_READY = "ready";
+    public static final String RESOURCE_NAME_UPGRADE = "upgrade";
 
     public static final String WEBSOCKET_HANDSHAKER = "WEBSOCKET_MESSAGE";
 

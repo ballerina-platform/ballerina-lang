@@ -20,7 +20,7 @@ package org.ballerinalang.nativeimpl.jvm.classwriter;
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BTypes;
-import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.ObjectValue;
@@ -56,7 +56,7 @@ public class ToByteArray {
     public static Object toByteArray(Strand strand, ObjectValue oCw) {
         ClassWriter cw = ASMUtil.getRefArgumentNativeData(oCw);
         try {
-            return new ArrayValue(cw.toByteArray());
+            return new ArrayValueImpl(cw.toByteArray());
         } catch (MethodTooLargeException e) {
             MapValue<String, String> details = new MapValueImpl<>(BTypes.typeErrorDetail);
             details.put(NAME, e.getMethodName());

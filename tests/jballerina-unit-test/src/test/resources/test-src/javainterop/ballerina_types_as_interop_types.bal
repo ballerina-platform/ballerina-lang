@@ -190,3 +190,33 @@ public function getArrayValueFromMapWhichThrowsCheckedException(handle key, map<
     class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
 } external;
 
+
+// JSON interop
+
+function testJsonReturns() returns [json, json, json, json] {
+	return [getJson(), getInt(), getJsonObject(), getJsonArray()];
+}
+
+function testJsonParams() returns json {
+	return getIntFromJson(7);
+}
+
+public function getJson() returns json = @java:Method {
+    class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
+} external;
+
+public function getInt() returns json = @java:Method {
+    class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
+} external;
+
+public function getJsonObject() returns json = @java:Method {
+    class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
+} external;
+
+public function getJsonArray() returns json = @java:Method {
+    class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
+} external;
+
+function getIntFromJson(json j) returns int = @java:Method {
+    class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
+} external;

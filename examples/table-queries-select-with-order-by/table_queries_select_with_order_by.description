@@ -1,0 +1,5 @@
+// Ballerina supports re-ordering table rows in ascending or descending order by the given fields. In this example, all the
+// rows in the person table are ordered in ascending order by the field "salary". This query syntax can only be used to
+// query a table. The modification of an existing table is not supported. When an existing table is queried using Ballerina
+// SQL, a new in-memory table is created with the queried data and that table is returned. Executing these SQL-like
+// queries on tables returned through Ballerina database clients is not supported yet.

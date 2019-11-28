@@ -110,7 +110,6 @@ public class InitEndpoint {
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             throw new WebSocketException("Error occurred: " + e.getMessage());
-
         }
     }
 

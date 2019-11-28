@@ -41,15 +41,14 @@ import java.util.Map;
  *  
  * @since 0.981.0
  */
-public class StreamingJsonValue extends ArrayValue implements BStreamingJson {
+public class StreamingJsonValue extends ArrayValueImpl implements BStreamingJson {
 
     JSONDataSource datasource;
 
     @Deprecated
     public StreamingJsonValue(JSONDataSource datasource) {
+        super(new BArrayType(new BMapType(BTypes.typeJSON)));
         this.datasource = datasource;
-        this.refValues = (RefValue[]) newArrayInstance(RefValue.class);
-        this.arrayType = new BArrayType(new BMapType(BTypes.typeJSON));
     }
 
     @Override

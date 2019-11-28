@@ -31,6 +31,8 @@ dependencies {
     implementation project(':ballerina-crypto')
     implementation project(':ballerina-time')
 
+    interopImports project(':ballerina-time')
+
     implementation 'com.rabbitmq:amqp-client:5.6.0'
 
     baloImplementation project(path: ':ballerina-runtime-api', configuration: 'baloImplementation')

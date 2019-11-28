@@ -62,7 +62,7 @@ public type InboundLdapAuthProvider object {
         if (groups is string[]) {
             scopes = groups;
         } else {
-            return auth:prepareError("Failed to get groups from LDAP with the username: " + username, groups);
+            return prepareAuthError("Failed to get groups from LDAP with the username: " + username, groups);
         }
         if (authenticated is boolean) {
             if (authenticated) {
@@ -72,7 +72,7 @@ public type InboundLdapAuthProvider object {
             }
             return authenticated;
         } else {
-            return auth:prepareError("Failed to authenticate LDAP with username: " + username + " and password: " + password, authenticated);
+            return prepareAuthError("Failed to authenticate LDAP with username: " + username + " and password: " + password, authenticated);
         }
     }
 };

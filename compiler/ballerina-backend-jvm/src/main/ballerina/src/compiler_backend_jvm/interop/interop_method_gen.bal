@@ -591,7 +591,7 @@ function genVarArg(jvm:MethodVisitor mv, BalToJVMIndexMap indexMap, bir:BType bT
 
     // get the number of var args provided
     mv.visitVarInsn(ALOAD, varArgIndex);
-    mv.visitMethodInsn(INVOKEVIRTUAL, ARRAY_VALUE, "size", "()I", false);
+    mv.visitMethodInsn(INVOKEINTERFACE, ARRAY_VALUE, "size", "()I", true);
     mv.visitInsn(DUP);  // duplicate array size - needed for array new
     mv.visitVarInsn(ISTORE, varArgsLenVarIndex);
 
@@ -620,18 +620,20 @@ function genVarArg(jvm:MethodVisitor mv, BalToJVMIndexMap indexMap, bir:BType bT
     mv.visitInsn(I2L);
 
     if (bElementType is bir:BTypeInt) {
-        mv.visitMethodInsn(INVOKEVIRTUAL, ARRAY_VALUE, "getInt", "(J)J", false);
+        mv.visitMethodInsn(INVOKEINTERFACE, ARRAY_VALUE, "getInt", "(J)J", true);
     } else if (bElementType is bir:BTypeString) {
-        mv.visitMethodInsn(INVOKEVIRTUAL, ARRAY_VALUE, "getString", io:sprintf("(J)L%s;", STRING_VALUE), false);
+        mv.visitMethodInsn(INVOKEINTERFACE, ARRAY_VALUE, "getString", io:sprintf("(J)L%s;", STRING_VALUE), true);
     } else if (bElementType is bir:BTypeBoolean) {
-        mv.visitMethodInsn(INVOKEVIRTUAL, ARRAY_VALUE, "getJBoolean", "(J)Z", false);
+        mv.visitMethodInsn(INVOKEINTERFACE, ARRAY_VALUE, "getBoolean", "(J)Z", true);
     } else if (bElementType is bir:BTypeByte) {
-        mv.visitMethodInsn(INVOKEVIRTUAL, ARRAY_VALUE, "getJByte", "(J)B", false);
+        mv.visitMethodInsn(INVOKEINTERFACE, ARRAY_VALUE, "getByte", "(J)B", true);
     } else if (bElementType is bir:BTypeFloat) {
-        mv.visitMethodInsn(INVOKEVIRTUAL, ARRAY_VALUE, "getJFloat", "(J)D", false);
-    } else {
-        mv.visitMethodInsn(INVOKEVIRTUAL, ARRAY_VALUE, "getRefValue", io:sprintf("(J)L%s;", OBJECT), false);
+        mv.visitMethodInsn(INVOKEINTERFACE, ARRAY_VALUE, "getFloat", "(J)D", true);
+    } else if (bElementType is bir:BTypeHandle) {
+        mv.visitMethodInsn(INVOKEINTERFACE, ARRAY_VALUE, "getRefValue", io:sprintf("(J)L%s;", OBJECT), true);
         mv.visitTypeInsn(CHECKCAST, HANDLE_VALUE);
+    } else {
+        mv.visitMethodInsn(INVOKEINTERFACE, ARRAY_VALUE, "getRefValue", io:sprintf("(J)L%s;", OBJECT), true);
     }
 
     // unwrap from handleValue

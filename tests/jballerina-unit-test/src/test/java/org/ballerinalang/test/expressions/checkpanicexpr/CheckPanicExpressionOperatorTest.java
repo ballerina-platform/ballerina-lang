@@ -52,7 +52,7 @@ public class CheckPanicExpressionOperatorTest {
     }
 
     @Test(expectedExceptions = {BLangRuntimeException.class},
-            expectedExceptionsMessageRegExp = "error: Generic Error fatal=true message=Something Went Wrong.*")
+            expectedExceptionsMessageRegExp = "error: Generic Error message=Something Went Wrong fatal=true.*")
     public void testSafeAssignmentBasics2() {
         BValue[] arg = {new BInteger(2)};
         BRunUtil.invoke(result, "testBasicCheckpanic", arg);

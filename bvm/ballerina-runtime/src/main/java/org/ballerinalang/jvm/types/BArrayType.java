@@ -19,6 +19,7 @@ package org.ballerinalang.jvm.types;
 
 import org.ballerinalang.jvm.commons.ArrayState;
 import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.ArrayValueImpl;
 
 /**
  * {@code BArrayType} represents a type of an arrays in Ballerina.
@@ -75,10 +76,10 @@ public class BArrayType extends BType {
             case TypeTags.STRING_TAG:
             case TypeTags.BYTE_TAG:
             case TypeTags.DECIMAL_TAG:
-                return (V) new ArrayValue(new BArrayType(elementType), size);
+                return (V) new ArrayValueImpl(new BArrayType(elementType), size);
             case TypeTags.ARRAY_TAG: // fall through
             default:
-                return (V) new ArrayValue(this);
+                return (V) new ArrayValueImpl(this);
         }
     }
 
@@ -92,9 +93,9 @@ public class BArrayType extends BType {
             case TypeTags.BOOLEAN_TAG:
             case TypeTags.STRING_TAG:
             case TypeTags.BYTE_TAG:
-                return (V) new ArrayValue(elementType);
+                return (V) new ArrayValueImpl(new BArrayType(elementType));
             default:
-                return (V) new ArrayValue(this);
+                return (V) new ArrayValueImpl(this);
         }
     }
 

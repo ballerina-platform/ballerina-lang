@@ -16,7 +16,7 @@
  */
 package org.ballerinalang.jvm.types;
 
-import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.TupleValueImpl;
 
 import java.util.List;
 import java.util.Objects;
@@ -84,7 +84,7 @@ public class BTupleType extends BType {
 
     @Override
     public <V extends Object> V getZeroValue() {
-        return (V) new ArrayValue(this);
+        return (V) new TupleValueImpl(this);
     }
 
     @Override

@@ -19,6 +19,7 @@
 package org.ballerinalang.stdlib.io.records;
 
 import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.stdlib.io.MockByteChannel;
 import org.ballerinalang.stdlib.io.channels.base.Channel;
 import org.ballerinalang.stdlib.io.channels.base.CharacterChannel;
@@ -71,11 +72,11 @@ public class AsyncReadWriteTest {
         DelimitedRecordChannel recordChannel = new DelimitedRecordChannel(characterChannel, "\n", ",");
 
         String[] recordOne = {"Foo", "Bar", "911"};
-        ArrayValue recordOneArr = new ArrayValue(recordOne);
+        ArrayValue recordOneArr = new ArrayValueImpl(recordOne);
         recordChannel.write(recordOneArr);
 
         String[] recordTwo = {"Jim", "Com", "119"};
-        ArrayValue recordTwoArr = new ArrayValue(recordTwo);
+        ArrayValue recordTwoArr = new ArrayValueImpl(recordTwo);
         recordChannel.write(recordTwoArr);
         recordChannel.close();
     }

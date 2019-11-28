@@ -81,13 +81,15 @@ public class Field {
             }
             String fieldDefaultValue = FIELD_DEFAULT_VALUE_MAP.get(fieldDescriptor.getType());
             String fieldLabel = FIELD_LABEL_MAP.get(fieldDescriptor.getLabel());
+            if (fieldDescriptor.getLabel() == DescriptorProtos.FieldDescriptorProto.Label.LABEL_REPEATED) {
+                fieldDefaultValue = fieldLabel;
+            }
             String fieldName = fieldDescriptor.getName();
             if (Arrays.stream(BallerinaLexer.ruleNames).anyMatch(fieldName::equalsIgnoreCase) || Names.ERROR.value
                     .equalsIgnoreCase(fieldName)) {
                 fieldName = "'" + fieldName;
             }
-            return new Field(fieldName, fieldType, fieldLabel, fieldDescriptor.getDefaultValue() !=
-                    null ? fieldDescriptor.getDefaultValue() : fieldDefaultValue);
+            return new Field(fieldName, fieldType, fieldLabel, fieldDefaultValue);
         }
 
         private Builder(DescriptorProtos.FieldDescriptorProto fieldDescriptor) {

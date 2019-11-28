@@ -19,30 +19,19 @@
 package org.ballerinalang.stdlib.jsonutils;
 
 import org.ballerinalang.jvm.JSONUtils;
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.TableValue;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
  * Converts a given table to its JSON representation.
  *
  * @since 1.0.0
  */
-@BallerinaFunction(
-        orgName = "ballerina",
-        packageName = "jsonutils",
-        functionName = "fromTable",
-        args = {
-                @Argument(name = "tbl", type = TypeKind.TABLE)
-        },
-        returnType = {@ReturnType(type = TypeKind.JSON)},
-        isPublic = true
-)
 public class FromTable {
-    public static Object fromTable(Strand strand, TableValue tableValue) {
+
+    public static Object fromTable(TableValue tableValue) {
         return JSONUtils.toJSON(tableValue);
+    }
+
+    private FromTable() {
     }
 }

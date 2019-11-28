@@ -22,6 +22,7 @@ package org.ballerinalang.compiler.backend.llvm;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 
@@ -46,7 +47,7 @@ public class ReadFileFully {
     public static ArrayValue readFileFully(Strand strand, String path) {
 
         try {
-            return new ArrayValue(Files.readAllBytes(Paths.get(path)));
+            return new ArrayValueImpl(Files.readAllBytes(Paths.get(path)));
         } catch (IOException e) {
             throw new BallerinaException(e);
         }

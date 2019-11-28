@@ -87,6 +87,14 @@ public class NegativeValidationTest {
             "\\{ballerinax/java\\}METHOD_SIGNATURE_DOES_NOT_MATCH message=Incompatible return type for method " +
             "'returnStringForBUnionFromJava' in class 'org.ballerinalang.nativeimpl.jvm.tests.StaticMethods': " +
             "Java type 'java.lang.String' will not be matched to ballerina type 'int\\|float\\|string'";
+    private final String expectedMsg18 = "error: .:method_sig_not_match12.bal:3:1: " +
+            "\\{ballerinax/java\\}METHOD_SIGNATURE_DOES_NOT_MATCH message=Incompatible param type for method " +
+            "'getIntFromJsonInt' in class 'org.ballerinalang.nativeimpl.jvm.tests.StaticMethods': Java type 'int' " +
+            "will not be matched to ballerina type 'json'";
+    private final String expectedMsg19 = "error: .:method_sig_not_match13.bal:3:1: " +
+            "\\{ballerinax/java\\}METHOD_SIGNATURE_DOES_NOT_MATCH message=Incompatible param type for method " +
+            "'getIntFromJsonInt' in class 'org.ballerinalang.nativeimpl.jvm.tests.StaticMethods': Java type 'int' " +
+            "will not be matched to ballerina type 'int\\|string'";
 
     @Test(expectedExceptions = BLangCompilerException.class)
     public void testAcceptNothing() {
@@ -193,6 +201,18 @@ public class NegativeValidationTest {
     @Test(expectedExceptions = BLangCompilerException.class, expectedExceptionsMessageRegExp = expectedMsg17)
     public void testReturnStringForBUnionFromJava() {
         String path = "test-src/javainterop/negative/method_sig_not_match11.bal";
+        BCompileUtil.compileInProc(path);
+    }
+
+    @Test(expectedExceptions = BLangCompilerException.class, expectedExceptionsMessageRegExp = expectedMsg18)
+    public void testJavaPrimitiveForBJsonParam() {
+        String path = "test-src/javainterop/negative/method_sig_not_match12.bal";
+        BCompileUtil.compileInProc(path);
+    }
+    
+    @Test(expectedExceptions = BLangCompilerException.class, expectedExceptionsMessageRegExp = expectedMsg19)
+    public void testJavaPrimitiveForBUnionParam() {
+        String path = "test-src/javainterop/negative/method_sig_not_match13.bal";
         BCompileUtil.compileInProc(path);
     }
 }

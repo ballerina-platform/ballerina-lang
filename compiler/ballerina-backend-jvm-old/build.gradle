@@ -24,6 +24,6 @@ configurations {
 }
 
 dependencies {
-    balo  project(path: ':ballerina-bootstrapper', configuration: 'pack2')
+    balo  project(path: ':ballerina-bootstrapper', configuration: 'pack3')
 }
 
