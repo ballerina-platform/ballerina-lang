@@ -85,7 +85,7 @@ public class MessageUtils {
 
     public static Object getFloatContent(ArrayValue messageContent) {
         try {
-            return Float.parseFloat(new String(messageContent.getBytes(), StandardCharsets.UTF_8.name()));
+            return Double.parseDouble(new String(messageContent.getBytes(), StandardCharsets.UTF_8.name()));
         } catch (UnsupportedEncodingException exception) {
             return RabbitMQUtils.returnErrorValue(RabbitMQConstants.FLOAT_CONTENT_ERROR
                     + exception.getMessage());
