@@ -194,7 +194,7 @@ public function getArrayValueFromMapWhichThrowsCheckedException(handle key, map<
 // JSON interop
 
 function testJsonReturns() returns [json, json, json, json, json] {
-	return [getJson(), getInt(), getJsonObject(), getJsonArray(), getNullJson()];
+	return [getJson(), getInt(), getJsonObject(), getJsonArray(), checkpanic getNullJson()];
 }
 
 function testJsonParams() returns json {
@@ -221,7 +221,7 @@ function getIntFromJson(json j) returns int = @java:Method {
     class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
 } external;
 
-public function getNullJson() returns json = @java:Method {
+public function getNullJson() returns json|error = @java:Method {
     class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
 } external;
 
@@ -323,5 +323,28 @@ function useTypeDesc(typedesc<any> t) returns handle = @java:Method {
 } external;
 
 function getTypeDesc() returns typedesc<any> = @java:Method {
+    class:"org/ballerinalang/test/javainterop/RefTypeTests"
+} external;
+
+
+// future with interop
+
+function testUseFuture() returns any {
+    future<any> f = start getInt();
+    _ = wait f;
+    return useFuture(f);
+}
+
+function testGetFuture() returns any {
+    future<any> f1 = start getInt();
+    future<any> f2 = getFuture(f1);
+    return wait f2;
+}
+
+function useFuture(future<any> f) returns any = @java:Method {
+    class:"org/ballerinalang/test/javainterop/RefTypeTests"
+} external;
+
+function getFuture(any a) returns future<any> = @java:Method {
     class:"org/ballerinalang/test/javainterop/RefTypeTests"
 } external;

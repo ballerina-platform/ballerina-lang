@@ -20,6 +20,7 @@ package org.ballerinalang.test.javainterop;
 import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.values.FPValue;
+import org.ballerinalang.jvm.values.FutureValue;
 import org.ballerinalang.jvm.values.HandleValue;
 import org.ballerinalang.jvm.values.TypedescValue;
 import org.ballerinalang.jvm.values.XMLItem;
@@ -254,6 +255,20 @@ public class RefTypeTests {
         Assert.assertEquals(((BTypeDescValue) returns[0]).stringValue(), "xml");
     }
 
+    @Test
+    public void testUseFuture() {
+        BValue[] returns = BRunUtil.invoke(result, "testUseFuture");
+        Assert.assertTrue(returns[0] instanceof BInteger);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 4);
+    }
+
+    @Test
+    public void testGetFuture() {
+        BValue[] returns = BRunUtil.invoke(result, "testGetFuture");
+        Assert.assertTrue(returns[0] instanceof BInteger);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 4);
+    }
+
     // static methods
 
     public static XMLValue getXML() {
@@ -302,5 +317,13 @@ public class RefTypeTests {
 
     public static TypedescValue getTypeDesc() {
         return new TypedescValue(BTypes.typeXML);
+    }
+
+    public static Object useFuture(FutureValue future) {
+        return future.getResult();
+    }
+
+    public static FutureValue getFuture(Object a) {
+        return (FutureValue) a;
     }
 }
