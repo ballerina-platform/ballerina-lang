@@ -20,6 +20,7 @@ public class FileSystemSourceInput implements CompilerInput {
 
     // Cached Value.
     private byte[] code = null;
+    private String entryName = null;
 
     public FileSystemSourceInput(Path path) {
         this.path = path;
@@ -32,6 +33,10 @@ public class FileSystemSourceInput implements CompilerInput {
 
     @Override
     public String getEntryName() {
+
+        if (entryName != null) {
+            return entryName;
+        }
         // We need to return the file path relative to the package root.
         // This is to distinguish files with the same name but in different folders.
         if (packageRoot != null) {
@@ -41,7 +46,7 @@ public class FileSystemSourceInput implements CompilerInput {
             return pkgRoot.toURI().relativize(file.toURI()).getPath();
         }
         Path fileName = path.getFileName();
-        return fileName != null ? fileName.toString() : path.toString();
+        return this.entryName = (fileName != null ? fileName.toString() : path.toString());
     }
 
     @Override
