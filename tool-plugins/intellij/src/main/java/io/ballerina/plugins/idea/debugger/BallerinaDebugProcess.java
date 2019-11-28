@@ -17,7 +17,9 @@
 package io.ballerina.plugins.idea.debugger;
 
 import com.intellij.execution.ExecutionResult;
+import com.intellij.execution.process.ProcessEvent;
 import com.intellij.execution.process.ProcessHandler;
+import com.intellij.execution.process.ProcessListener;
 import com.intellij.execution.ui.ConsoleViewContentType;
 import com.intellij.execution.ui.ExecutionConsole;
 import com.intellij.icons.AllIcons;
@@ -26,6 +28,7 @@ import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.ReadAction;
 import com.intellij.openapi.diagnostic.Logger;
+import com.intellij.openapi.util.Key;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.containers.ContainerUtil;
 import com.intellij.xdebugger.XDebugProcess;
@@ -83,6 +86,7 @@ public class BallerinaDebugProcess extends XDebugProcess {
     private final BallerinaBreakpointHandler breakpointHandler;
     private final BallerinaDAPClientConnector dapClientConnector;
     private boolean isConnected = false;
+    private boolean isReadyToConnect = false;
     private boolean isRemoteDebugMode = false;
     private final AtomicBoolean breakpointsInitiated = new AtomicBoolean();
 
@@ -132,7 +136,6 @@ public class BallerinaDebugProcess extends XDebugProcess {
 
     @Override
     public void sessionInitialized() {
-        final int[] retryAttempt = {0};
         ApplicationManager.getApplication().executeOnPooledThread(() -> {
             print("Ballerina Debugging is an experimental feature.\n" +
                     "Visit https://ballerina.io/learn/tools-ides/intellij-plugin/" +
@@ -140,51 +143,86 @@ public class BallerinaDebugProcess extends XDebugProcess {
                     " workarounds.\n\n", false);
             if (isRemoteDebugMode) {
                 print("Attaching to remote debug process...\n\n", false);
+                initDebugSession();
             } else {
                 print("Waiting for debug process to start...\n\n", false);
-            }
-            // If already connected with the debug server, tries to set breakpoints and attach with the remote jvm.
-            if (dapClientConnector.isConnected()) {
-                LOGGER.debug("Connection is already created.");
-                isConnected = true;
-                startDebugSession();
-                return;
-            }
-
-            // Else, tries to initiate the socket connection.
-            while (!isConnected && (++retryAttempt[0] <= MAX_RETRY_COUNT)) {
-                try {
-                    Thread.sleep(500);
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
+                if (processHandler == null || processHandler.isProcessTerminating()
+                        || processHandler.isProcessTerminated()) {
+                    return;
                 }
-
-                if (!dapClientConnector.isConnected()) {
-                    LOGGER.debug("Not connected. Retrying...");
-                    dapClientConnector.createConnection();
-                    if (dapClientConnector.isConnected()) {
-                        isConnected = true;
-                        if (isRemoteDebugMode) {
-                            print(String.format("Connected to the remote server at %s.\n\n",
-                                    dapClientConnector.getAddress()), false);
+                processHandler.addProcessListener(new ProcessListener() {
+                    @Override
+                    public void onTextAvailable(@NotNull ProcessEvent event, @NotNull Key outputType) {
+                        // Waiting to make the connection with the debug server until the ballerina program execution
+                        // is started and then suspended.
+                        if (!isReadyToConnect && event.getText().contains("Listening for transport dt_socket")) {
+                            isReadyToConnect = true;
+                            initDebugSession();
                         }
-                        LOGGER.debug("Connection created.");
-                        startDebugSession();
-                        break;
                     }
-                } else {
-                    LOGGER.debug("Connection is already created.");
+
+                    @Override
+                    public void startNotified(@NotNull ProcessEvent event) {
+                        // No implementation.
+                    }
+
+                    @Override
+                    public void processTerminated(@NotNull ProcessEvent event) {
+                        // No implementation.
+                    }
+
+                    @Override
+                    public void processWillTerminate(@NotNull ProcessEvent event, boolean willBeDestroyed) {
+                        // No implementation.
+                    }
+                });
+            }
+        });
+    }
+
+    public void initDebugSession() {
+        final int[] retryAttempt = {0};
+        // If already connected with the debug server, tries to set breakpoints and attach with the remote jvm.
+        if (dapClientConnector.isConnected()) {
+            LOGGER.debug("Connection is already created.");
+            isConnected = true;
+            startDebugSession();
+            return;
+        }
+
+        // Else, tries to initiate the socket connection.
+        while (!isConnected && (++retryAttempt[0] <= MAX_RETRY_COUNT)) {
+            try {
+                Thread.sleep(500);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+
+            if (!dapClientConnector.isConnected()) {
+                LOGGER.debug("Not connected. Retrying...");
+                dapClientConnector.createConnection();
+                if (dapClientConnector.isConnected()) {
                     isConnected = true;
+                    if (isRemoteDebugMode) {
+                        print(String.format("Connected to the remote server at %s.\n\n",
+                                dapClientConnector.getAddress()), false);
+                    }
+                    LOGGER.debug("Connection created.");
                     startDebugSession();
                     break;
                 }
+            } else {
+                LOGGER.debug("Connection is already created.");
+                isConnected = true;
+                startDebugSession();
+                break;
             }
-            if (!dapClientConnector.isConnected()) {
-                print(String.format("Connection to debug server at %s could not be established.\n",
-                        dapClientConnector.getAddress()), true);
-                getSession().stop();
-            }
-        });
+        }
+        if (!dapClientConnector.isConnected()) {
+            print(String.format("Connection to debug server at %s could not be established.\n",
+                    dapClientConnector.getAddress()), true);
+            getSession().stop();
+        }
     }
 
     private void startDebugSession() {
