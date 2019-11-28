@@ -32,7 +32,7 @@ import java.util.Map;
  */
 public class GetConfig {
     private static final ConfigRegistry configRegistry = ConfigRegistry.getInstance();
-    private static final String LOOKUP_ERROR_REASON = "{ballerina/config}LookupError";
+    public static final String LOOKUP_ERROR_REASON = "{ballerina/config}LookupError";
 
     public static Object get(String configKey, String type) {
         try {
