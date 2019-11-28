@@ -19,7 +19,7 @@ import ballerina/lang.'int as langint;
 import ballerina/stringutils;
 import ballerina/system;
 
-public type ValueType STRING|INT|FLOAT|BOOLEAN|MAP|ARRAY;
+type ValueType STRING|INT|FLOAT|BOOLEAN|MAP|ARRAY;
 
 const STRING = "STRING";
 const INT = "INT";
