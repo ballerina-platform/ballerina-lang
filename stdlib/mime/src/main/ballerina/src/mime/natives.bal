@@ -72,7 +72,7 @@ public type ContentDisposition object {
 
 function convertContentDispositionToString(ContentDisposition contentDisposition) returns handle =
 @java:Method {
-    class: "org.ballerinalang.mime.nativeimpl.contentdisposition.ToString"
+    class: "org.ballerinalang.mime.nativeimpl.ContentDisposition"
 } external;
 
 # Describes the nature of the data in the body of a MIME entity.
@@ -457,107 +457,107 @@ public type Entity object {
 };
 
 function externSetJson(Entity entity, json jsonContent, handle contentType) = @java:Method {
-    class: "org.ballerinalang.mime.nativeimpl.SetJson",
+    class: "org.ballerinalang.mime.nativeimpl.MimeEntityBody",
     name: "setJson"
 } external;
 
 function externGetJson(Entity entity) returns @tainted json|ParserError = @java:Method {
-    class: "org.ballerinalang.mime.nativeimpl.GetJson",
+    class: "org.ballerinalang.mime.nativeimpl.MimeDataSource",
     name: "getJson"
 } external;
 
 function externSetXml(Entity entity, xml xmlContent, handle contentType) = @java:Method {
-    class: "org.ballerinalang.mime.nativeimpl.SetXml",
+    class: "org.ballerinalang.mime.nativeimpl.MimeEntityBody",
     name: "setXml"
 } external;
 
 function externGetXml(Entity entity) returns @tainted xml|ParserError = @java:Method {
-    class: "org.ballerinalang.mime.nativeimpl.GetXml",
+    class: "org.ballerinalang.mime.nativeimpl.MimeDataSource",
     name: "getXml"
 } external;
 
 function externSetText(Entity entity, handle textContent, handle contentType) = @java:Method {
-    class: "org.ballerinalang.mime.nativeimpl.SetText",
+    class: "org.ballerinalang.mime.nativeimpl.MimeEntityBody",
     name: "setText"
 } external;
 
 function externGetText(Entity entity) returns @tainted handle|ParserError = @java:Method {
-    class: "org.ballerinalang.mime.nativeimpl.GetText",
+    class: "org.ballerinalang.mime.nativeimpl.MimeDataSource",
     name: "getText"
 } external;
 
 function externSetByteArray(Entity entity, byte[] byteArray, handle contentType) = @java:Method {
-    class: "org.ballerinalang.mime.nativeimpl.SetByteArray",
+    class: "org.ballerinalang.mime.nativeimpl.MimeEntityBody",
     name: "setByteArray"
 } external;
 
 function externGetByteArray(Entity entity) returns @tainted byte[]|ParserError = @java:Method {
-    class: "org.ballerinalang.mime.nativeimpl.GetByteArray",
+    class: "org.ballerinalang.mime.nativeimpl.MimeDataSource",
     name: "getByteArray"
 } external;
 
 function externSetByteChannel(Entity entity, io:ReadableByteChannel byteChannel, handle contentType) = @java:Method {
-    class: "org.ballerinalang.mime.nativeimpl.SetByteChannel",
+    class: "org.ballerinalang.mime.nativeimpl.MimeEntityBody",
     name: "setByteChannel"
 } external;
 
 function externGetByteChannel(Entity entity) returns @tainted io:ReadableByteChannel|ParserError = @java:Method {
-    class: "org.ballerinalang.mime.nativeimpl.GetByteChannel",
+    class: "org.ballerinalang.mime.nativeimpl.MimeEntityBody",
     name: "getByteChannel"
 } external;
 
 function externSetBodyParts(Entity entity, Entity[] bodyParts, handle contentType) = @java:Method {
-    class: "org.ballerinalang.mime.nativeimpl.SetBodyParts",
+    class: "org.ballerinalang.mime.nativeimpl.MimeEntityBody",
     name: "setBodyParts"
 } external;
 
 function externGetBodyParts(Entity entity) returns Entity[]|ParserError = @java:Method {
-    class: "org.ballerinalang.mime.nativeimpl.GetBodyParts",
+    class: "org.ballerinalang.mime.nativeimpl.MimeEntityBody",
     name: "getBodyParts"
 } external;
 
 function externGetBodyPartsAsChannel(Entity entity) returns @tainted io:ReadableByteChannel|ParserError = @java:Method {
-    class: "org.ballerinalang.mime.nativeimpl.GetBodyPartsAsChannel",
+    class: "org.ballerinalang.mime.nativeimpl.MimeEntityBody",
     name: "getBodyPartsAsChannel"
 } external;
 
 function externGetHeader(Entity entity, handle headerName) returns @tainted handle = @java:Method {
-    class: "org.ballerinalang.mime.nativeimpl.headers.GetHeader",
+    class: "org.ballerinalang.mime.nativeimpl.EntityHeaders",
     name: "getHeader"
 } external;
 
 function externGetHeaders(Entity entity, handle headerName) returns @tainted handle[] = @java:Method {
-    class: "org.ballerinalang.mime.nativeimpl.headers.GetHeaders",
+    class: "org.ballerinalang.mime.nativeimpl.EntityHeaders",
     name: "getHeaders"
 } external;
 
 function externGetHeaderNames(Entity entity) returns @tainted handle[] = @java:Method {
-    class: "org.ballerinalang.mime.nativeimpl.headers.GetHeaderNames",
+    class: "org.ballerinalang.mime.nativeimpl.EntityHeaders",
     name: "getHeaderNames"
 } external;
 
 function externAddHeader(Entity entity, handle headerName, handle headerValue) = @java:Method {
-    class: "org.ballerinalang.mime.nativeimpl.headers.AddHeader",
+    class: "org.ballerinalang.mime.nativeimpl.EntityHeaders",
     name: "addHeader"
 } external;
 
 function externSetHeader(Entity entity, handle headerName, handle headerValue) = @java:Method {
-    class: "org.ballerinalang.mime.nativeimpl.headers.SetHeader",
+    class: "org.ballerinalang.mime.nativeimpl.EntityHeaders",
     name: "setHeader"
 } external;
 
 function externRemoveHeader(Entity entity, handle headerName) = @java:Method {
-    class: "org.ballerinalang.mime.nativeimpl.headers.RemoveHeader",
+    class: "org.ballerinalang.mime.nativeimpl.EntityHeaders",
     name: "removeHeader"
 } external;
 
 function externRemoveAllHeaders(Entity entity) = @java:Method {
-    class: "org.ballerinalang.mime.nativeimpl.headers.RemoveAllHeaders",
+    class: "org.ballerinalang.mime.nativeimpl.EntityHeaders",
     name: "removeAllHeaders"
 } external;
 
 function externHasHeader(Entity entity, handle headerName) returns boolean = @java:Method {
-    class: "org.ballerinalang.mime.nativeimpl.headers.HasHeader",
+    class: "org.ballerinalang.mime.nativeimpl.EntityHeaders",
     name: "hasHeader"
 } external;
 
@@ -577,7 +577,7 @@ public function base64Encode((string|byte[]|io:ReadableByteChannel) contentToBeE
 function externBase64Encode((string|byte[]|io:ReadableByteChannel) contentToBeEncoded, handle charset) returns
                                                                 (string|byte[]|io:ReadableByteChannel|EncodeError) =
 @java:Method {
-    class: "org.ballerinalang.mime.nativeimpl.mimebase64.Base64Encode",
+    class: "org.ballerinalang.mime.nativeimpl.MimeBase64",
     name: "base64Encode"
 } external;
 
@@ -597,7 +597,7 @@ public function base64Decode((string|byte[]|io:ReadableByteChannel) contentToBeD
 function externBase64Decode((string|byte[]|io:ReadableByteChannel) contentToBeDecoded, handle charset) returns
                                                                 (string|byte[]|io:ReadableByteChannel|DecodeError) =
 @java:Method {
-    class: "org.ballerinalang.mime.nativeimpl.mimebase64.Base64Decode",
+    class: "org.ballerinalang.mime.nativeimpl.MimeBase64",
     name: "base64Decode"
 } external;
 
@@ -644,7 +644,7 @@ public function getMediaType(string contentType) returns MediaType|InvalidConten
 }
 
 function externGetMediaType(handle contentType) returns MediaType|InvalidContentTypeError = @java:Method {
-    class: "org.ballerinalang.mime.nativeimpl.GetMediaType",
+    class: "org.ballerinalang.mime.nativeimpl.MimeEntityBody",
     name: "getMediaType"
 } external;
 
@@ -657,6 +657,6 @@ public function getContentDispositionObject(string contentDisposition) returns C
 }
 
 function externGetContentDispositionObject(handle contentType) returns ContentDisposition = @java:Method {
-    class: "org.ballerinalang.mime.nativeimpl.contentdisposition.GetContentDispositionObject",
+    class: "org.ballerinalang.mime.nativeimpl.ContentDisposition",
     name: "getContentDispositionObject"
 } external;

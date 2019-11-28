@@ -6,7 +6,7 @@
  *  in compliance with the License.
  *  You may obtain a copy of the License at
  *
- *  http://www.apache.org/licenses/LICENSE-2.0
+ *    http://www.apache.org/licenses/LICENSE-2.0
  *
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
@@ -16,22 +16,24 @@
  *  under the License.
  */
 
-package org.ballerinalang.stdlib.jsonutils;
+package org.ballerinalang.mime.nativeimpl;
 
-import org.ballerinalang.jvm.JSONUtils;
-import org.ballerinalang.jvm.values.TableValue;
+import org.ballerinalang.stdlib.io.utils.Utils;
+
+import static org.ballerinalang.mime.util.MimeConstants.UTF_8;
 
 /**
- * Converts a given table to its JSON representation.
+ * Utilities related to MIME base64.
  *
- * @since 1.0.0
+ * @since 1.1.0
  */
-public class FromTable {
+public class MimeBase64 {
 
-    public static Object fromTable(TableValue tableValue) {
-        return JSONUtils.toJSON(tableValue);
+    public static Object base64Decode(Object contentToBeDecoded, String charset) {
+        return Utils.decode(contentToBeDecoded, charset != null ? charset : UTF_8, true);
     }
 
-    private FromTable() {
+    public static Object base64Encode(Object contentToBeDecoded, String charset) {
+        return Utils.encode(contentToBeDecoded, charset != null ? charset : UTF_8, true);
     }
 }
