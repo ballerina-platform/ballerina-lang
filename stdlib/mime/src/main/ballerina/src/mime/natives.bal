@@ -462,7 +462,7 @@ function externSetJson(Entity entity, json jsonContent, handle contentType) = @j
 } external;
 
 function externGetJson(Entity entity) returns @tainted json|ParserError = @java:Method {
-    class: "org.ballerinalang.mime.nativeimpl.MimeDataSource",
+    class: "org.ballerinalang.mime.nativeimpl.MimeDataSourceBuilder",
     name: "getJson"
 } external;
 
@@ -472,7 +472,7 @@ function externSetXml(Entity entity, xml xmlContent, handle contentType) = @java
 } external;
 
 function externGetXml(Entity entity) returns @tainted xml|ParserError = @java:Method {
-    class: "org.ballerinalang.mime.nativeimpl.MimeDataSource",
+    class: "org.ballerinalang.mime.nativeimpl.MimeDataSourceBuilder",
     name: "getXml"
 } external;
 
@@ -482,7 +482,7 @@ function externSetText(Entity entity, handle textContent, handle contentType) = 
 } external;
 
 function externGetText(Entity entity) returns @tainted handle|ParserError = @java:Method {
-    class: "org.ballerinalang.mime.nativeimpl.MimeDataSource",
+    class: "org.ballerinalang.mime.nativeimpl.MimeDataSourceBuilder",
     name: "getText"
 } external;
 
@@ -492,7 +492,7 @@ function externSetByteArray(Entity entity, byte[] byteArray, handle contentType)
 } external;
 
 function externGetByteArray(Entity entity) returns @tainted byte[]|ParserError = @java:Method {
-    class: "org.ballerinalang.mime.nativeimpl.MimeDataSource",
+    class: "org.ballerinalang.mime.nativeimpl.MimeDataSourceBuilder",
     name: "getByteArray"
 } external;
 

@@ -49,7 +49,7 @@ import static org.ballerinalang.mime.util.MimeUtil.isNotNullAndEmpty;
  *
  * @since 1.1.0
  */
-public class MimeDataSource extends AbstractGetPayloadHandler {
+public class MimeDataSourceBuilder extends AbstractGetPayloadHandler {
 
     public static Object getByteArray(ObjectValue entityObj) {
         NonBlockingCallback callback = null;
