@@ -22,13 +22,9 @@ import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.clients.consumer.OffsetAndMetadata;
 import org.apache.kafka.common.KafkaException;
 import org.apache.kafka.common.TopicPartition;
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.Receiver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,13 +36,9 @@ import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.ALIAS_DURAT
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.ALIAS_PARTITION;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.ALIAS_TOPIC;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.CONSUMER_ERROR;
-import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.CONSUMER_STRUCT_NAME;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.DURATION_UNDEFINED_VALUE;
-import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.KAFKA_PACKAGE_NAME;
-import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.KAFKA_PROTOCOL_PACKAGE;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.NATIVE_CONSUMER;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.NATIVE_CONSUMER_CONFIG;
-import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.ORG_NAME;
 import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.createKafkaError;
 import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.getDefaultApiTimeout;
 import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.getIntFromLong;
@@ -56,23 +48,11 @@ import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.populatePartiti
 /**
  * Native function returns committed offset for given partition.
  */
-@BallerinaFunction(
-        orgName = ORG_NAME,
-        packageName = KAFKA_PACKAGE_NAME,
-        functionName = "getCommittedOffset",
-        receiver = @Receiver(
-                type = TypeKind.OBJECT,
-                structType = CONSUMER_STRUCT_NAME,
-                structPackage = KAFKA_PROTOCOL_PACKAGE
-        ),
-        isPublic = true
-)
 public class GetCommittedOffset {
 
     private static final Logger logger = LoggerFactory.getLogger(GetCommittedOffset.class);
 
-    public static Object getCommittedOffset(Strand strand, ObjectValue consumerObject,
-                                            MapValue<String, Object> topicPartition,
+    public static Object getCommittedOffset(ObjectValue consumerObject, MapValue<String, Object> topicPartition,
                                             long duration) {
 
         KafkaConsumer<byte[], byte[]> kafkaConsumer = (KafkaConsumer) consumerObject.getNativeData(NATIVE_CONSUMER);
