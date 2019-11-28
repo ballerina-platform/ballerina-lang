@@ -32,6 +32,7 @@ import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
@@ -159,7 +160,7 @@ public class KafkaUtils {
     public static Object[] getResourceParameters(ObjectValue service, ObjectValue listener,
                                                  ConsumerRecords<byte[], byte[]> records, String groupId) {
 
-        ArrayValue consumerRecordsArray = new ArrayValue(new BArrayType(getConsumerRecord().getType()));
+        ArrayValue consumerRecordsArray = new ArrayValueImpl(new BArrayType(getConsumerRecord().getType()));
 
         if (service.getType().getAttachedFunctions()[0].getParameterType().length == 2) {
 //            records.forEach(record -> {
@@ -174,7 +175,7 @@ public class KafkaUtils {
             }
             return new Object[]{listener, true, consumerRecordsArray, true, null, false, null, false};
         } else {
-            ArrayValue partitionOffsetsArray = new ArrayValue(new BArrayType(getPartitionOffsetRecord().getType()));
+            ArrayValue partitionOffsetsArray = new ArrayValueImpl(new BArrayType(getPartitionOffsetRecord().getType()));
 //            records.forEach(record -> {
 //                MapValue<String, Object> consumerRecord = populateConsumerRecord(record);
 //                MapValue<String, Object> topicPartition = populateTopicPartitionRecord(record.topic(),
@@ -529,7 +530,7 @@ public class KafkaUtils {
         if (Objects.isNull(byteArray)) {
             return null;
         }
-        return new ArrayValue(byteArray);
+        return new ArrayValueImpl(byteArray);
     }
 
     public static MapValue<String, Object> getConsumerRecord() {
@@ -567,7 +568,7 @@ public class KafkaUtils {
     }
 
     public static ArrayValue getPartitionOffsetArrayFromOffsetMap(Map<TopicPartition, Long> offsetMap) {
-        ArrayValue partitionOffsetArray = new ArrayValue(new BArrayType(getPartitionOffsetRecord().getType()));
+        ArrayValue partitionOffsetArray = new ArrayValueImpl(new BArrayType(getPartitionOffsetRecord().getType()));
         if (!offsetMap.entrySet().isEmpty()) {
             // TODO: remove the counter variable and use append method once #17075 fixed.
             int i = 0;

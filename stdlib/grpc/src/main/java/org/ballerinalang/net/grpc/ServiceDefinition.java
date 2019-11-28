@@ -22,6 +22,7 @@ import com.google.protobuf.DescriptorProtos;
 import com.google.protobuf.Descriptors;
 import com.google.protobuf.InvalidProtocolBufferException;
 import org.ballerinalang.jvm.types.AttachedFunction;
+import org.ballerinalang.jvm.types.BObjectType;
 import org.ballerinalang.jvm.types.BTupleType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
@@ -105,24 +106,42 @@ public final class ServiceDefinition {
         return Descriptors.FileDescriptor.buildFrom(descriptorProto, fileDescriptors);
     }
 
-    private Descriptors.ServiceDescriptor getServiceDescriptor() throws GrpcClientException {
+    private Descriptors.ServiceDescriptor getServiceDescriptor(String clientTypeName) throws GrpcClientException {
         Descriptors.FileDescriptor descriptor = getDescriptor();
 
         if (descriptor.getFile().getServices().isEmpty()) {
             throw new GrpcClientException("No service found in proto definition file");
         }
-        if (descriptor.getFile().getServices().size() > 1) {
-            throw new GrpcClientException("Multiple service definitions in signal proto file is not supported. Number" +
-                    " of service found: " + descriptor.getFile().getServices().size());
+
+        Descriptors.ServiceDescriptor serviceDescriptor = null;
+        String serviceName = null;
+        if (clientTypeName != null) {
+            if (clientTypeName.endsWith("BlockingClient")) {
+                serviceName = clientTypeName.substring(0, clientTypeName.length() - 14);
+            } else if (clientTypeName.endsWith("Client")) {
+                serviceName = clientTypeName.substring(0, clientTypeName.length() - 6);
+            }
         }
-        return descriptor.getFile().getServices().get(0);
+        if (serviceName != null) {
+            serviceDescriptor = descriptor.findServiceByName(serviceName);
+        }
+        if (serviceDescriptor == null) {
+            if (descriptor.getFile().getServices().size() == 1) {
+                serviceDescriptor = descriptor.getFile().getServices().get(0);
+            } else {
+                throw new GrpcClientException("Couldn't find service descriptor for client endpoint in the proto " +
+                        "definition. Please check client endpoint type name with the service name in the proto " +
+                        "definition.");
+            }
+        }
+        return serviceDescriptor;
     }
 
-    public Map<String, MethodDescriptor> getMethodDescriptors(AttachedFunction[] attachedFunctions)
+    public Map<String, MethodDescriptor> getMethodDescriptors(BObjectType clientEndpointType)
             throws GrpcClientException {
         Map<String, MethodDescriptor> descriptorMap = new HashMap<>();
-        Descriptors.ServiceDescriptor serviceDescriptor = getServiceDescriptor();
-
+        Descriptors.ServiceDescriptor serviceDescriptor = getServiceDescriptor(clientEndpointType.getName());
+        AttachedFunction[] attachedFunctions = clientEndpointType.getAttachedFunctions();
         for (AttachedFunction attachedFunction : attachedFunctions) {
             String methodName = attachedFunction.getName();
             Descriptors.MethodDescriptor methodDescriptor = serviceDescriptor.findMethodByName(methodName);

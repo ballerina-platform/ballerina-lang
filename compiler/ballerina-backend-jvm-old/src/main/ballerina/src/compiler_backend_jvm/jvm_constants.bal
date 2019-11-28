@@ -239,6 +239,8 @@ const string TYPEDESC_VALUE = "org/ballerinalang/jvm/values/TypedescValue";
 const string HANDLE_VALUE = "org/ballerinalang/jvm/values/HandleValue";
 const string LOCK_VALUE = "org/ballerinalang/jvm/BLock";
 const string FUNCTION_POINTER = "org/ballerinalang/jvm/values/FPValue";
+const string ARRAY_VALUE_IMPL = "org/ballerinalang/jvm/values/ArrayValueImpl";
+const string TUPLE_VALUE_IMPL = "org/ballerinalang/jvm/values/TupleValueImpl";
 
 // types related classes
 const string BTYPE = "org/ballerinalang/jvm/types/BType";
@@ -285,6 +287,7 @@ const string MATH_UTILS = "org/ballerinalang/jvm/MathUtils";
 const string BAL_ERROR_REASONS = "org/ballerinalang/jvm/util/exceptions/BallerinaErrorReasons";
 const string RUNTIME_ERRORS = "org/ballerinalang/jvm/util/exceptions/RuntimeErrors";
 const string BLANG_EXCEPTION_HELPER = "org/ballerinalang/jvm/util/exceptions/BLangExceptionHelper";
+const string COMPATIBILITY_CHECKER = "org/ballerinalang/jvm/util/CompatibilityChecker";
 
 // other java classes
 const string OBJECT = "java/lang/Object";

@@ -30,6 +30,7 @@ import org.ballerinalang.jvm.types.TypeFlags;
 import org.ballerinalang.jvm.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.jvm.values.AbstractObjectValue;
 import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.DecimalValue;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.FPValue;
@@ -39,6 +40,7 @@ import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.StreamValue;
+import org.ballerinalang.jvm.values.StringValue;
 import org.ballerinalang.jvm.values.TableValue;
 import org.ballerinalang.jvm.values.TypedescValue;
 import org.ballerinalang.jvm.values.XMLItem;
@@ -109,6 +111,8 @@ import java.util.stream.Collectors;
  * @since 0.94
  */
 public class BRunUtil {
+
+    public static final String IS_STRING_VALUE_PROP = "ballerina.bstring";
 
     /**
      * Invoke a ballerina function.
@@ -456,8 +460,14 @@ public class BRunUtil {
                 org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType arrayType =
                         (org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType) type;
                 BValueArray array = (BValueArray) value;
-                ArrayValue jvmArray = new ArrayValue(getJVMType(array.getType()), array.size());
-                jvmArray.elementType = getJVMType(array.elementType);
+                org.ballerinalang.jvm.types.BType jvmType = getJVMType(array.getType());
+                org.ballerinalang.jvm.types.BArrayType jvmArrayType;
+                if (jvmType.getTag() == org.ballerinalang.jvm.types.TypeTags.ARRAY_TAG) {
+                    jvmArrayType = (org.ballerinalang.jvm.types.BArrayType) jvmType;
+                } else {
+                    jvmArrayType = new org.ballerinalang.jvm.types.BArrayType(jvmType);
+                }
+                ArrayValue jvmArray = new ArrayValueImpl(jvmArrayType, array.size());
                 for (int i = 0; i < array.size(); i++) {
                     switch (arrayType.eType.tag) {
                         case TypeTags.INT_TAG:
@@ -566,7 +576,8 @@ public class BRunUtil {
             case TypeTags.ARRAY_TAG:
                 BArrayType arrayType = (BArrayType) type;
                 BValueArray array = (BValueArray) value;
-                ArrayValue jvmArray = new ArrayValue(getJVMType(arrayType));
+                ArrayValue jvmArray =
+                        new ArrayValueImpl((org.ballerinalang.jvm.types.BArrayType) getJVMType(arrayType));
                 for (int i = 0; i < array.size(); i++) {
                     switch (arrayType.getElementType().getTag()) {
                         case TypeTags.INT_TAG:
@@ -813,8 +824,14 @@ public class BRunUtil {
                 bvmValue = new BBoolean((boolean) value);
                 break;
             case org.ballerinalang.jvm.types.TypeTags.STRING_TAG:
-                bvmValue = new BString((String) value);
-                break;
+                if (System.getProperty(IS_STRING_VALUE_PROP, "").equals("")) {
+                    bvmValue = new BString((String) value);
+                    break;
+                } else {
+                    StringValue stringValue = (StringValue) value;
+                    bvmValue = new BString(stringValue.getValue());
+                    break;
+                }
             case org.ballerinalang.jvm.types.TypeTags.DECIMAL_TAG:
                 DecimalValue decimalValue = (DecimalValue) value;
                 bvmValue = new BDecimal(decimalValue.value().toString(),

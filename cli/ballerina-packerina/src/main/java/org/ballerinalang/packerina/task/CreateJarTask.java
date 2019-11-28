@@ -77,7 +77,7 @@ public class CreateJarTask implements Task {
 
         List<BLangPackage> moduleBirMap = buildContext.getModules();
         for (BLangPackage module : moduleBirMap) {
-            HashSet<Path> moduleDependencySet = buildContext.moduleDependencyPathMap.get(module.packageID);
+            HashSet<Path> moduleDependencySet = buildContext.moduleDependencyPathMap.get(module.packageID).platformLibs;
             if (!skipCopyLibsFromDist) {
                 moduleDependencySet.add(runtimeJar);
             }
@@ -138,7 +138,7 @@ public class CreateJarTask implements Task {
                 birFilePath = buildContext.getBirPathFromHomeCache(id);
             }
             if (!Files.exists(jarFilePath)) {
-                HashSet<Path> moduleDependencySet = buildContext.moduleDependencyPathMap.get(id);
+                HashSet<Path> moduleDependencySet = buildContext.moduleDependencyPathMap.get(id).platformLibs;
                 if (!skipCopyLibsFromDist) {
                     moduleDependencySet.add(runtimeJar);
                 }

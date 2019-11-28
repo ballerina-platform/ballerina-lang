@@ -100,7 +100,7 @@ public class UnaryServerCallHandler extends ServerCallHandler {
         }
 
         void invoke(Message request, ServerCallStreamObserver responseObserver) {
-            onMessageInvoke(resource, request, responseObserver);
+            onMessageInvoke(resource, request, responseObserver, call.getObserverContext());
         }
     }
 }

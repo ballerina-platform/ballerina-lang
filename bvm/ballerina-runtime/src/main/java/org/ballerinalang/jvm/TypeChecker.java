@@ -47,6 +47,7 @@ import org.ballerinalang.jvm.values.HandleValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.RefValue;
 import org.ballerinalang.jvm.values.StreamValue;
+import org.ballerinalang.jvm.values.StringValue;
 import org.ballerinalang.jvm.values.TableValue;
 import org.ballerinalang.jvm.values.TypedescValue;
 import org.ballerinalang.jvm.values.XMLValue;
@@ -290,6 +291,8 @@ public class TypeChecker {
         } else if (value instanceof DecimalValue) {
             return BTypes.typeDecimal;
         } else if (value instanceof String) {
+            return BTypes.typeString;
+        } else if (value instanceof StringValue) {
             return BTypes.typeString;
         } else if (value instanceof Boolean) {
             return BTypes.typeBoolean;
@@ -1130,24 +1133,37 @@ public class TypeChecker {
             return false;
         }
 
-        if (BTypes.isValueType(source.elementType)) {
-            int bound = source.size();
-            for (int i = 0; i < bound; i++) {
-                if (!checkIsType(source.elementType, targetType.getTupleTypes().get(i), new ArrayList<>())) {
+        int bound = source.size();
+        for (int i = 0; i < bound; i++) {
+            BType elementType = getArrayElementType(source, i);
+            if (BTypes.isValueType(elementType)) {
+                if (!checkIsType(elementType, targetType.getTupleTypes().get(i), new ArrayList<>())) {
+                    return false;
+                }
+            } else {
+                if (!checkIsLikeType(source.getRefValue(i), targetType.getTupleTypes().get(i), unresolvedValues,
+                        allowNumericConversion)) {
                     return false;
                 }
             }
-            return true;
-        }
-
-        int bound = source.size();
-        for (int i = 0; i < bound; i++) {
-            if (!checkIsLikeType(source.getRefValue(i), targetType.getTupleTypes().get(i), unresolvedValues,
-                                 allowNumericConversion)) {
-                return false;
-            }
         }
         return true;
+
+    }
+
+    private static BType getArrayElementType(ArrayValue source, int elementIndex) {
+        BType type = source.getType();
+        switch (type.getTag()) {
+            case TypeTags.TUPLE_TAG:
+                BTupleType tupleType = (BTupleType) type;
+                int fixedLen = tupleType.getTupleTypes().size();
+                return (elementIndex < fixedLen) ? tupleType.getTupleTypes().get(elementIndex)
+                        : tupleType.getRestType();
+            case TypeTags.ARRAY_TAG:
+                return ((BArrayType) source.getType()).getElementType();
+            default:
+                throw new IllegalStateException();
+        }
     }
 
     private static boolean isByteLiteral(long longValue) {
@@ -1162,28 +1178,31 @@ public class TypeChecker {
 
         ArrayValue source = (ArrayValue) sourceValue;
         BType targetTypeElementType = targetType.getElementType();
-        if (BTypes.isValueType(source.elementType)) {
-            boolean isType = checkIsType(source.elementType, targetTypeElementType, new ArrayList<>());
+        if (source.getType().getTag() == TypeTags.ARRAY_TAG) {
+            BType sourceElementType = ((BArrayType) source.getType()).getElementType();
+            if (BTypes.isValueType(sourceElementType)) {
+                boolean isType = checkIsType(sourceElementType, targetTypeElementType, new ArrayList<>());
 
-            if (isType || !allowNumericConversion || !isNumericType(source.elementType)) {
-                return isType;
-            }
-
-            if (isNumericType(targetTypeElementType)) {
-                return true;
-            }
-
-            if (targetTypeElementType.getTag() != TypeTags.UNION_TAG) {
-                return false;
-            }
-
-            List<BType> targetNumericTypes = new ArrayList<>();
-            for (BType memType : ((BUnionType) targetTypeElementType).getMemberTypes()) {
-                if (isNumericType(memType) && !targetNumericTypes.contains(memType)) {
-                    targetNumericTypes.add(memType);
+                if (isType || !allowNumericConversion || !isNumericType(sourceElementType)) {
+                    return isType;
                 }
+
+                if (isNumericType(targetTypeElementType)) {
+                    return true;
+                }
+
+                if (targetTypeElementType.getTag() != TypeTags.UNION_TAG) {
+                    return false;
+                }
+
+                List<BType> targetNumericTypes = new ArrayList<>();
+                for (BType memType : ((BUnionType) targetTypeElementType).getMemberTypes()) {
+                    if (isNumericType(memType) && !targetNumericTypes.contains(memType)) {
+                        targetNumericTypes.add(memType);
+                    }
+                }
+                return targetNumericTypes.size() == 1;
             }
-            return targetNumericTypes.size() == 1;
         }
 
         Object[] arrayValues = source.getValues();
@@ -1234,8 +1253,9 @@ public class TypeChecker {
                                                List<TypeValuePair> unresolvedValues, boolean allowNumericConversion) {
         if (sourceType.getTag() == TypeTags.ARRAY_TAG) {
             ArrayValue source = (ArrayValue) sourceValue;
-            if (BTypes.isValueType(source.elementType)) {
-                return checkIsType(source.elementType, targetType, new ArrayList<>());
+            BType elementType = ((BArrayType) source.getType()).getElementType();
+            if (BTypes.isValueType(elementType)) {
+                return checkIsType(elementType, targetType, new ArrayList<>());
             }
 
             Object[] arrayValues = source.getValues();
@@ -1466,7 +1486,7 @@ public class TypeChecker {
         }
 
         for (int i = 0; i < lhsList.size(); i++) {
-            if (!isEqual(lhsList.getValue(i), rhsList.getValue(i), checkedValues)) {
+            if (!isEqual(lhsList.get(i), rhsList.get(i), checkedValues)) {
                 return false;
             }
         }

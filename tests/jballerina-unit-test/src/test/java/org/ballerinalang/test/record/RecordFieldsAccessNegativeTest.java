@@ -42,7 +42,9 @@ public class RecordFieldsAccessNegativeTest {
         BAssertUtil.validateError(result, i++, "attempt to expose non-public symbol 'FooFamily'", 12, 5);
         BAssertUtil.validateError(result, i++, "attempt to refer to non-accessible symbol 'PrivatePerson'", 20, 5);
         BAssertUtil.validateError(result, i++, "unknown type 'PrivatePerson'", 20, 5);
-        BAssertUtil.validateError(result, i++, "invalid literal for type 'other'", 20, 27);
+        BAssertUtil.validateError(result, i++,
+                                  "a type compatible with mapping constructor expressions not found in type 'other'",
+                                  20, 27);
     }
 
     @Test(description = "Test private fields access in record 02")

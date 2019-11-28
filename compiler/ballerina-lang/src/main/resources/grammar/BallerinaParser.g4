@@ -145,6 +145,8 @@ dualAttachPointIdent
     |   PARAMETER
     |   RETURN
     |   SERVICE
+    |   WORKER
+    |   START
     ;
 
 sourceOnlyAttachPoint
@@ -1144,19 +1146,23 @@ returnParameterDescriptionLine
     ;
 
 documentationText
-    :   (DocumentationText | ReferenceType | VARIABLE | MODULE | documentationReference | singleBacktickedBlock | doubleBacktickedBlock | tripleBacktickedBlock | DefinitionReference)+
+    :   (documentationReference | documentationTextContent | referenceType | singleBacktickedBlock | doubleBacktickedBlock | tripleBacktickedBlock)+
     ;
 
 documentationReference
-    :   definitionReference
+    :   referenceType singleBacktickedContent SingleBacktickEnd
     ;
 
-definitionReference
-    :   definitionReferenceType singleBacktickedBlock
-    ;
-
-definitionReferenceType
-    :   DefinitionReference
+referenceType
+    :   DOCTYPE
+    |   DOCSERVICE
+    |   DOCVARIABLE
+    |   DOCVAR
+    |   DOCANNOTATION
+    |   DOCMODULE
+    |   DOCFUNCTION
+    |   DOCPARAMETER
+    |   DOCCONST
     ;
 
 parameterDocumentation
@@ -1193,4 +1199,51 @@ tripleBacktickedBlock
 
 tripleBacktickedContent
     :   TripleBacktickContent
+    ;
+
+documentationTextContent
+    :   DocumentationText
+    |   DocumentationEscapedCharacters
+    ;
+
+// Rules for parsing the content in the backticked block for documentation validation.
+documentationFullyqualifiedIdentifier
+    :   documentationIdentifierQualifier? documentationIdentifierTypename? documentationIdentifier braket?
+    ;
+
+documentationFullyqualifiedFunctionIdentifier
+    :   documentationIdentifierQualifier? documentationIdentifierTypename? documentationIdentifier braket
+    ;
+
+documentationIdentifierQualifier
+    :   Identifier COLON
+    ;
+
+documentationIdentifierTypename
+    :   Identifier DOT
+    ;
+
+documentationIdentifier
+    :   Identifier
+    |   TYPE_INT
+    |   TYPE_BYTE
+    |   TYPE_FLOAT
+    |   TYPE_DECIMAL
+    |   TYPE_BOOL
+    |   TYPE_STRING
+    |   TYPE_ERROR
+    |   TYPE_MAP
+    |   TYPE_JSON
+    |   TYPE_XML
+    |   TYPE_TABLE
+    |   TYPE_STREAM
+    |   TYPE_ANY
+    |   TYPE_DESC
+    |   TYPE_FUTURE
+    |   TYPE_ANYDATA
+    |   TYPE_HANDLE
+    ;
+
+braket
+    :   LEFT_PARENTHESIS RIGHT_PARENTHESIS
     ;

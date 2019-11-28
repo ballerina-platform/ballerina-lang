@@ -26,8 +26,8 @@ configurations {
 dependencies {
     dist 'com.squareup.okhttp3:okhttp:3.9.1'
     dist 'com.squareup.okio:okio:1.13.0'
-    dist 'com.uber.jaeger:jaeger-core:0.24.0'
-    dist 'com.uber.jaeger:jaeger-thrift:0.24.0'
+    dist 'io.jaegertracing:jaeger-core:0.31.0'
+    dist 'io.jaegertracing:jaeger-thrift:0.31.0'
     dist 'com.zaxxer:HikariCP:3.3.1'
     dist 'io.dropwizard.metrics:metrics-core:3.1.0'
     dist 'javax.transaction:javax.transaction-api:1.2'
@@ -38,7 +38,7 @@ dependencies {
     dist 'org.wso2.carbon:org.wso2.carbon.core:5.1.0'
     dist 'org.wso2.securevault:org.wso2.securevault:1.0.0-wso2v2'
     dist 'org.wso2.transport.file:org.wso2.transport.local-file-system:6.0.55'
-    dist 'org.wso2.transport.http:org.wso2.transport.http.netty:6.2.30'
+    dist 'org.wso2.transport.http:org.wso2.transport.http.netty:6.2.33'
     dist 'org.bouncycastle:bcprov-jdk15on:1.61'
     dist 'org.bouncycastle:bcpkix-jdk15on:1.61'
 

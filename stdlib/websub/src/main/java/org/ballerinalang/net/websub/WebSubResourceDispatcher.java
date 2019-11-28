@@ -95,7 +95,7 @@ class WebSubResourceDispatcher {
                 String annotatedTopic = "";
 
                 if (target instanceof ArrayValue) {
-                    annotatedTopic = (String) ((ArrayValue) target).getValue(1);
+                    annotatedTopic = ((ArrayValue) target).getString(1);
                 }
 
                 if (annotatedTopic.isEmpty() && service instanceof WebSubHttpService) {

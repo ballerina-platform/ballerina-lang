@@ -19,7 +19,7 @@
 package org.ballerinalang.stdlib.io.nativeimpl;
 
 import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
@@ -64,7 +64,7 @@ public class ReadBytes {
         } else {
             try {
                 byteChannel.read(content);
-                return new ArrayValue(getContentData(content));
+                return new ArrayValueImpl(getContentData(content));
             } catch (Exception e) {
                 String msg = "error occurred while reading bytes from the channel. " + e.getMessage();
                 log.error(msg, e);

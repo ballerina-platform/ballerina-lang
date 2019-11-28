@@ -25,6 +25,7 @@ import org.wso2.ballerinalang.programfile.DefaultValue;
  *
  * @since 0.92
  */
+@Deprecated
 public class DefaultValueAttributeInfo implements AttributeInfo {
 
     // Index to a UTF8CPEntry

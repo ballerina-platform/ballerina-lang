@@ -28,6 +28,7 @@ import java.util.List;
  *
  * @since 0.956
  */
+@Deprecated
 public class ParamDefaultValueAttributeInfo implements AttributeInfo {
 
     // Index to a UTF8CPEntry

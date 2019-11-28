@@ -66,7 +66,11 @@ type ErrorHandlerGenerator object {
         if (currentEE is JErrorEntry) {
             var retVarDcl = <bir:VariableDcl>currentEE.errorOp.variableDcl;
             int retIndex = self.getJVMIndexOfVarRef(retVarDcl);
+            boolean exeptionExist = false;
             foreach CatchIns catchIns in currentEE.catchIns {
+                if catchIns.errorClass == ERROR_VALUE {
+                    exeptionExist = true;
+                }
                 jvm:Label errorValueLabel = new;
                 self.mv.visitTryCatchBlock(startLabel, endLabel, errorValueLabel, catchIns.errorClass);
                 self.mv.visitLabel(errorValueLabel);
@@ -74,6 +78,14 @@ type ErrorHandlerGenerator object {
                 generateVarStore(self.mv, retVarDcl, self.currentPackageName, retIndex);
                 bir:Return term = catchIns.term;
                 termGen.genReturnTerm(term, retIndex, func);
+                self.mv.visitJumpInsn(GOTO, jumpLabel);
+            }
+            if !exeptionExist {
+                jvm:Label errorValErrorLabel = new;
+                self.mv.visitTryCatchBlock(startLabel, endLabel, errorValErrorLabel, ERROR_VALUE);
+
+                self.mv.visitLabel(errorValErrorLabel);
+                self.mv.visitInsn(ATHROW);
                 self.mv.visitJumpInsn(GOTO, jumpLabel);
             }
             jvm:Label otherErrorLabel = new;
@@ -174,7 +186,7 @@ type DiagnosticLogger object {
 
 function print(string message) {
     handle errStream = getSystemErrorStream();
-    printToErrorStream(errStream, message);
+    printToErrorStream(errStream, java:fromString(message));
 }
 
 public function getSystemErrorStream() returns handle = @java:FieldGet {
@@ -182,7 +194,7 @@ public function getSystemErrorStream() returns handle = @java:FieldGet {
     class:"java/lang/System"
 } external;
 
-public function printToErrorStream(handle receiver, string message) = @java:Method {
+public function printToErrorStream(handle receiver, handle message) = @java:Method {
     name:"println",
     class:"java/io/PrintStream",
     paramTypes:["java.lang.String"]

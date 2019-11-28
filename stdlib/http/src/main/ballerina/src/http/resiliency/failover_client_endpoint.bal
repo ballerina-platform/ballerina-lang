@@ -215,8 +215,8 @@ public type FailoverClient client object {
         }
     }
 
-    # Submits an HTTP request to a service with the specified HTTP verb. The `submit()` function does not return
-    # a `Response` as the result, rather it returns an `HttpFuture` which can be used for subsequent interactions
+    # Submits an HTTP request to a service with the specified HTTP verb. The `FailoverClient.submit()` function does not
+    # return a `Response` as the result, rather it returns an `HttpFuture` which can be used for subsequent interactions
     # with the HTTP endpoint.
     #
     # + httpVerb - The HTTP verb value

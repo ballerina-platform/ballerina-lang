@@ -62,6 +62,7 @@ import java.util.stream.Collectors;
 import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
 import static org.ballerinalang.compiler.CompilerOptionName.EXPERIMENTAL_FEATURES_ENABLED;
 import static org.ballerinalang.compiler.CompilerOptionName.LOCK_ENABLED;
+import static org.ballerinalang.compiler.CompilerOptionName.OFFLINE;
 import static org.ballerinalang.compiler.CompilerOptionName.PRESERVE_WHITESPACE;
 import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
 import static org.ballerinalang.test.util.TestConstant.ENABLE_JBALLERINA_TESTS;
@@ -98,6 +99,20 @@ public class BCompileUtil {
     }
 
     /**
+     * Compile and return the semantic errors.
+     *
+     * @param sourceFilePath Path to source module/file
+     * @return Semantic errors
+     */
+    public static CompileResult compileOffline(String sourceFilePath) {
+        CompilerContext context = new CompilerContext();
+        CompilerOptions options = CompilerOptions.getInstance(context);
+        options.put(OFFLINE, "true");
+        context.put(CompilerOptions.class, options);
+        return compileOnJBallerina(context, sourceFilePath, false, true);
+    }
+
+    /**
      * Compile on a separated process.
      *
      * @param sourceFilePath Path to source module/file
@@ -108,7 +123,7 @@ public class BCompileUtil {
         String packageName = sourcePath.getFileName().toString();
         Path sourceRoot = resourceDir.resolve(sourcePath.getParent());
         CompilerContext context = new CompilerContext();
-        return compileOnJBallerina(context, sourceRoot.toString(), packageName, false, true, true);
+        return compileOnJBallerina(context, sourceRoot.toString(), packageName, false, true);
     }
 
     /**
@@ -124,6 +139,19 @@ public class BCompileUtil {
     // This is a temp fix until service test are fix
     public static CompileResult compile(boolean temp, String sourceFilePath) {
         return compileOnJBallerina(sourceFilePath, temp, true);
+    }
+
+    // This is a temp fix until service test are fix
+    public static CompileResult compileOffline(boolean temp, String sourceFilePath) {
+        Path sourcePath = Paths.get(sourceFilePath);
+        String packageName = sourcePath.getFileName().toString();
+        Path sourceRoot = resourceDir.resolve(sourcePath.getParent());
+
+        CompilerContext context = new CompilerContext();
+        CompilerOptions options = CompilerOptions.getInstance(context);
+        options.put(OFFLINE, "true");
+        context.put(CompilerOptions.class, options);
+        return compileOnJBallerina(context, sourceRoot.toString(), packageName, temp, true);
     }
 
     private static void runInit(BLangPackage bLangPackage, ClassLoader classLoader, boolean temp)
@@ -484,16 +512,16 @@ public class BCompileUtil {
                                                      SourceDirectory sourceDirectory, boolean init) {
         CompilerContext context = new CompilerContext();
         context.put(SourceDirectory.class, sourceDirectory);
-        return compileOnJBallerina(context, sourceRoot, packageName, false, init, false);
+        return compileOnJBallerina(context, sourceRoot, packageName, false, init);
     }
 
     public static CompileResult compileOnJBallerina(String sourceRoot, String packageName, boolean temp, boolean init) {
         CompilerContext context = new CompilerContext();
-        return compileOnJBallerina(context, sourceRoot, packageName, temp, init, false);
+        return compileOnJBallerina(context, sourceRoot, packageName, temp, init);
     }
 
     public static CompileResult compileOnJBallerina(CompilerContext context, String sourceRoot, String packageName,
-                                                    boolean temp, boolean init, boolean onProc) {
+                                                    boolean temp, boolean init) {
         CompilerOptions options = CompilerOptions.getInstance(context);
         options.put(PROJECT_DIR, sourceRoot);
         options.put(COMPILER_PHASE, CompilerPhase.BIR_GEN.toString());
@@ -512,7 +540,7 @@ public class BCompileUtil {
             Path systemBirCache = buildDir.resolve("bir-cache");
             URLClassLoader cl = BootstrapRunner.createClassLoaders(bLangPackage, systemBirCache,
                                                                 buildDir.resolve("test-bir-temp"), Optional.empty(),
-                                                                false, onProc);
+                                                                false);
             compileResult.setClassLoader(cl);
 
             // TODO: calling run on compile method is wrong, should be called from BRunUtil
@@ -586,6 +614,14 @@ public class BCompileUtil {
         String packageName = sourcePath.getFileName().toString();
         Path sourceRoot = resourceDir.resolve(sourcePath.getParent());
         return compileOnJBallerina(sourceRoot.toString(), packageName, temp, init);
+    }
+
+    private static CompileResult compileOnJBallerina(CompilerContext context, String sourceFilePath,
+                                                     boolean temp, boolean init) {
+        Path sourcePath = Paths.get(sourceFilePath);
+        String packageName = sourcePath.getFileName().toString();
+        Path sourceRoot = resourceDir.resolve(sourcePath.getParent());
+        return compileOnJBallerina(context, sourceRoot.toString(), packageName, temp, init);
     }
 
     /**

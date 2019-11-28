@@ -35,6 +35,7 @@ import java.util.Set;
  *
  * @since 0.87
  */
+@Deprecated
 public class PackageInfo implements ConstantPool, AttributeInfoPool {
 
     public int orgNameCPIndex;
