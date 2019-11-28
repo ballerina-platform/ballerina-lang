@@ -72,7 +72,7 @@ public class FileTest {
 
     @BeforeClass
     public void setup() throws IOException {
-        compileResult = BCompileUtil.compile(Paths.get("test-src", "file-system-test.bal").toString());
+        compileResult = BCompileUtil.compileOffline(Paths.get("test-src", "file-system-test.bal").toString());
         tempDirPath = Paths.get(TEMP_DIR, "data-files");
         if (Files.notExists(tempDirPath)) {
             Files.createDirectory(tempDirPath);
