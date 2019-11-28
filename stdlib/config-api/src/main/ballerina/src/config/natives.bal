@@ -60,7 +60,6 @@ function get(@untainted string key, ValueType vType) returns string|int|float|bo
         valueType = "BOOLEAN";
     }
     var result = externGet(java:fromString(key), java:fromString(valueType));
-    string value = "";
     if (result is handle) {
         var stringResult = java:toString(result);
         if (stringResult is string) {
