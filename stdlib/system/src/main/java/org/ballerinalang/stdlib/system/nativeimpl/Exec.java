@@ -41,8 +41,7 @@ public class Exec {
 
     private static final Logger log = LoggerFactory.getLogger(Exec.class);
 
-    public static Object exec(String command, MapValue<String, String> env, Object dir,
-                              ArrayValue args) {
+    public static Object exec(String command, MapValue<String, String> env, Object dir, ArrayValue args) {
         List<String> commandList = new ArrayList<String>();
         commandList.add(command);
         commandList.addAll(Arrays.asList(args.getStringArray()));
