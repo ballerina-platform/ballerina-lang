@@ -37,7 +37,7 @@ import java.nio.charset.StandardCharsets;
  */
 public class MessageUtils {
     public static Object basicAck(Channel channel, int deliveryTag, boolean ackMode,
-                                        boolean ackStatus, boolean multiple) {
+                                  boolean ackStatus, boolean multiple) {
         if (ackStatus) {
             return RabbitMQUtils.returnErrorValue(RabbitMQConstants.MULTIPLE_ACK_ERROR);
         } else if (ackMode) {
@@ -47,7 +47,6 @@ public class MessageUtils {
                 channel.basicAck(deliveryTag, multiple);
             } catch (IOException exception) {
                 return RabbitMQUtils.returnErrorValue(RabbitMQConstants.ACK_ERROR + exception.getMessage());
-
             } catch (AlreadyClosedException exception) {
                 return RabbitMQUtils.returnErrorValue(RabbitMQConstants.CHANNEL_CLOSED_ERROR);
             }
@@ -56,7 +55,7 @@ public class MessageUtils {
     }
 
     public static Object basicNack(Channel channel, int deliveryTag, boolean ackMode,
-                                         boolean ackStatus, boolean multiple, boolean requeue) {
+                                   boolean ackStatus, boolean multiple, boolean requeue) {
         if (ackStatus) {
             return RabbitMQUtils.returnErrorValue(RabbitMQConstants.MULTIPLE_ACK_ERROR);
         } else if (ackMode) {
