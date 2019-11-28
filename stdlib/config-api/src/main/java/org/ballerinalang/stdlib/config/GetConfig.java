@@ -20,10 +20,8 @@ package org.ballerinalang.stdlib.config;
 
 import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.jvm.BallerinaErrors;
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
 
 import java.util.Map;
 
@@ -32,19 +30,13 @@ import java.util.Map;
  *
  * @since 0.970.0-alpha3
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "config",
-        functionName = "get"
-)
 public class GetConfig {
-
     private static final ConfigRegistry configRegistry = ConfigRegistry.getInstance();
-    private static final String lookupErrReason = "{ballerina/config}LookupError";
+    public static final String LOOKUP_ERROR_REASON = "{ballerina/config}LookupError";
 
-    public static Object get(Strand strand, String configKey, Object type) {
-
+    public static Object get(String configKey, String type) {
         try {
-            switch (type.toString()) {
+            switch (type) {
                 case "STRING":
                     return configRegistry.getAsString(configKey);
                 case "INT":
@@ -56,10 +48,10 @@ public class GetConfig {
                 case "MAP":
                     return buildMapValue(configRegistry.getAsMap(configKey));
                 default:
-                    throw new IllegalStateException("invalid value type: " + type.toString());
+                    throw new IllegalStateException("invalid value type: " + type);
             }
         } catch (IllegalArgumentException e) {
-            throw BallerinaErrors.createError(lookupErrReason, e.getMessage());
+            throw BallerinaErrors.createError(LOOKUP_ERROR_REASON,  e.getMessage());
         }
     }
 
