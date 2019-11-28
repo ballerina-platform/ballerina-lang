@@ -88,7 +88,6 @@ import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
-import org.wso2.ballerinalang.programfile.InstructionCodes;
 import org.wso2.ballerinalang.util.Lists;
 
 import java.util.ArrayList;
@@ -165,31 +164,9 @@ public class ASTBuilderUtil {
     }
 
     private static BCastOperatorSymbol createUnboxValueOpSymbolToAnyType(BType sourceType, SymbolTable symTable) {
-        int opcode;
-        switch (sourceType.tag) {
-            case TypeTags.INT:
-                opcode = InstructionCodes.I2ANY;
-                break;
-            case TypeTags.BYTE:
-                opcode = InstructionCodes.BI2ANY;
-                break;
-            case TypeTags.FLOAT:
-                opcode = InstructionCodes.F2ANY;
-                break;
-            case TypeTags.STRING:
-                opcode = InstructionCodes.S2ANY;
-                break;
-            case TypeTags.DECIMAL:
-                opcode = InstructionCodes.NOP;
-                break;
-            default:
-                opcode = InstructionCodes.B2ANY;
-                break;
-        }
-
         List<BType> paramTypes = Lists.of(sourceType, symTable.anyType);
         BInvokableType opType = new BInvokableType(paramTypes, symTable.anyType, null);
-        return new BCastOperatorSymbol(null, opType, sourceType, null, false, true, opcode);
+        return new BCastOperatorSymbol(null, opType, sourceType, null, false, true);
     }
 
     static BLangFunction createFunction(DiagnosticPos pos, String name) {
@@ -597,7 +574,7 @@ public class ASTBuilderUtil {
         assignableExpr.targetType = targetType;
         assignableExpr.type = type;
         assignableExpr.opSymbol = new BOperatorSymbol(names.fromString(assignableExpr.opKind.value()),
-                null, targetType, null, InstructionCodes.IS_ASSIGNABLE);
+                null, targetType, null);
         return assignableExpr;
     }
 
@@ -855,26 +832,6 @@ public class ASTBuilderUtil {
         newParamSymbol.defaultableParam = paramSymbol.defaultableParam;
         newParamSymbol.markdownDocumentation = paramSymbol.markdownDocumentation;
         return newParamSymbol;
-    }
-
-    static BLangInvocation createLambdaInvocation(DiagnosticPos pos, BInvokableSymbol invokableSymbol,
-                                                  BLangSimpleVarRef varRef, List<BLangSimpleVariable> requiredArgs,
-                                                  SymbolResolver symResolver) {
-        final BLangInvocation invokeLambda = (BLangInvocation) TreeBuilder.createInvocationNode();
-        invokeLambda.pos = pos;
-        BLangIdentifier invocationName = (BLangIdentifier) TreeBuilder.createIdentifierNode();
-        invocationName.setValue(BLangBuiltInMethod.CALL.getName());
-        invokeLambda.name = invocationName;
-        invokeLambda.argExprs.addAll(generateArgExprsForLambdas(pos, requiredArgs, invokableSymbol.params,
-                symResolver));
-        invokeLambda.requiredArgs.addAll(generateArgExprsForLambdas(pos, requiredArgs, invokableSymbol.params,
-                symResolver));
-        invokeLambda.builtInMethod = BLangBuiltInMethod.CALL;
-        invokeLambda.type = ((BInvokableType) invokableSymbol.type).retType;
-        invokeLambda.expr = varRef;
-        invokeLambda.builtinMethodInvocation = true;
-        invokeLambda.symbol = varRef.symbol;
-        return invokeLambda;
     }
 
     private static List<BLangExpression> generateArgExprsForLambdas(DiagnosticPos pos, List<BLangSimpleVariable> args,

@@ -437,7 +437,7 @@ public class OpenRecordTest {
     @Test
     public void testRecordInitWithFuncCalls() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testRecordInitWithFuncCalls");
-        Assert.assertEquals(returns[0].stringValue(), "{a:777, b:56}");
+        Assert.assertEquals(returns[0].stringValue(), "{b:56, a:777}");
     }
 
     @Test

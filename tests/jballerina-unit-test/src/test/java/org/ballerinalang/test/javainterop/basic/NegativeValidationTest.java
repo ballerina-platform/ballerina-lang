@@ -68,6 +68,33 @@ public class NegativeValidationTest {
             "\\{ballerinax/java\\}METHOD_SIGNATURE_DOES_NOT_MATCH message=No such Java method " +
             "'getArrayValueFromMapWhichThrowsCheckedException' which throws checked exception found in class " +
             "'class org.ballerinalang.nativeimpl.jvm.tests.StaticMethods'.*";
+    private final String expectedMsg13 = "error: .:method_sig_not_match7.bal:3:1: " +
+            "\\{ballerinax/java\\}METHOD_SIGNATURE_DOES_NOT_MATCH message=Incompatible param type for method 'split'" +
+            " in class 'java.lang.String': Java type 'java.lang.String' will not be matched to ballerina type " +
+            "'string'.*";
+    private final String expectedMsg14 = "error: .:method_sig_not_match8.bal:3:1: " +
+            "\\{ballerinax/java\\}METHOD_SIGNATURE_DOES_NOT_MATCH message=Parameter count does not match with Java " +
+            "method 'split' found in class 'java.lang.String'";
+    private final String expectedMsg15 = "error: .:method_sig_not_match9.bal:3:1: " +
+            "\\{ballerinax/java\\}METHOD_SIGNATURE_DOES_NOT_MATCH message=Incompatible param type for method " +
+            "'decimalParamAsObjectAndReturn' in class 'org.ballerinalang.nativeimpl.jvm.tests.StaticMethods': " +
+            "Java type 'java.lang.Object' will not be matched to ballerina type 'decimal'";
+    private final String expectedMsg16 = "error: .:method_sig_not_match10.bal:3:1: " +
+            "\\{ballerinax/java\\}METHOD_SIGNATURE_DOES_NOT_MATCH message=Incompatible return type for method " +
+            "'decimalParamAndReturnAsObject' in class 'org.ballerinalang.nativeimpl." +
+            "jvm.tests.StaticMethods': Java type 'java.lang.Object' will not be matched to ballerina type 'decimal'";
+    private final String expectedMsg17 = "error: .:method_sig_not_match11.bal:3:1: " +
+            "\\{ballerinax/java\\}METHOD_SIGNATURE_DOES_NOT_MATCH message=Incompatible return type for method " +
+            "'returnStringForBUnionFromJava' in class 'org.ballerinalang.nativeimpl.jvm.tests.StaticMethods': " +
+            "Java type 'java.lang.String' will not be matched to ballerina type 'int\\|float\\|string'";
+    private final String expectedMsg18 = "error: .:method_sig_not_match12.bal:3:1: " +
+            "\\{ballerinax/java\\}METHOD_SIGNATURE_DOES_NOT_MATCH message=Incompatible param type for method " +
+            "'getIntFromJsonInt' in class 'org.ballerinalang.nativeimpl.jvm.tests.StaticMethods': Java type 'int' " +
+            "will not be matched to ballerina type 'json'";
+    private final String expectedMsg19 = "error: .:method_sig_not_match13.bal:3:1: " +
+            "\\{ballerinax/java\\}METHOD_SIGNATURE_DOES_NOT_MATCH message=Incompatible param type for method " +
+            "'getIntFromJsonInt' in class 'org.ballerinalang.nativeimpl.jvm.tests.StaticMethods': Java type 'int' " +
+            "will not be matched to ballerina type 'int\\|string'";
 
     @Test(expectedExceptions = BLangCompilerException.class)
     public void testAcceptNothing() {
@@ -144,6 +171,48 @@ public class NegativeValidationTest {
     @Test(expectedExceptions = BLangCompilerException.class, expectedExceptionsMessageRegExp = expectedMsg12)
     public void testMethodSignatureNotMatch6() {
         String path = "test-src/javainterop/negative/method_sig_not_match6.bal";
+        BCompileUtil.compileInProc(path);
+    }
+
+    @Test(expectedExceptions = BLangCompilerException.class, expectedExceptionsMessageRegExp = expectedMsg13)
+    public void testMethodSignatureNotMatch7() {
+        String path = "test-src/javainterop/negative/method_sig_not_match7.bal";
+        BCompileUtil.compileInProc(path);
+    }
+
+    @Test(expectedExceptions = BLangCompilerException.class, expectedExceptionsMessageRegExp = expectedMsg14)
+    public void testMethodSignatureNotMatch8() {
+        String path = "test-src/javainterop/negative/method_sig_not_match8.bal";
+        BCompileUtil.compileInProc(path);
+    }
+
+    @Test(expectedExceptions = BLangCompilerException.class, expectedExceptionsMessageRegExp = expectedMsg15)
+    public void testMethodSignatureNotMatch9() {
+        String path = "test-src/javainterop/negative/method_sig_not_match9.bal";
+        BCompileUtil.compileInProc(path);
+    }
+
+    @Test(expectedExceptions = BLangCompilerException.class, expectedExceptionsMessageRegExp = expectedMsg16)
+    public void testMethodSignatureNotMatch10() {
+        String path = "test-src/javainterop/negative/method_sig_not_match10.bal";
+        BCompileUtil.compileInProc(path);
+    }
+
+    @Test(expectedExceptions = BLangCompilerException.class, expectedExceptionsMessageRegExp = expectedMsg17)
+    public void testReturnStringForBUnionFromJava() {
+        String path = "test-src/javainterop/negative/method_sig_not_match11.bal";
+        BCompileUtil.compileInProc(path);
+    }
+
+    @Test(expectedExceptions = BLangCompilerException.class, expectedExceptionsMessageRegExp = expectedMsg18)
+    public void testJavaPrimitiveForBJsonParam() {
+        String path = "test-src/javainterop/negative/method_sig_not_match12.bal";
+        BCompileUtil.compileInProc(path);
+    }
+    
+    @Test(expectedExceptions = BLangCompilerException.class, expectedExceptionsMessageRegExp = expectedMsg19)
+    public void testJavaPrimitiveForBUnionParam() {
+        String path = "test-src/javainterop/negative/method_sig_not_match13.bal";
         BCompileUtil.compileInProc(path);
     }
 }

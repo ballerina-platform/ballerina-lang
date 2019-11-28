@@ -16,7 +16,7 @@
 
 # Configurations related to a Timer
 #
-# + intervalInMillis - Timer interval (in Milliseconds), which triggers the `onTrigger()` resource.
+# + intervalInMillis - Timer interval (in Milliseconds), which triggers the `onTrigger` resource.
 # + initialDelayInMillis - Delay (in Milliseconds) after which the timer will run.
 # + noOfRecurrences - Number of times to trigger the task, after which the task stops running.
 public type TimerConfiguration record {|

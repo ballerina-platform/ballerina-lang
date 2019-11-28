@@ -27,6 +27,7 @@ import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.jvm.util.exceptions.RuntimeErrors;
 import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.utils.GetFunction;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
@@ -76,7 +77,7 @@ public class Slice {
 
         switch (arrType.getTag()) {
             case TypeTags.ARRAY_TAG:
-                slicedArr = new ArrayValue(arrType);
+                slicedArr = new ArrayValueImpl((BArrayType) arrType);
                 elemTypeTag = ((BArrayType) arrType).getElementType().getTag();
                 getFn = ArrayValue::get;
                 break;
@@ -84,7 +85,7 @@ public class Slice {
                 BTupleType tupleType = (BTupleType) arrType;
                 BUnionType unionType = new BUnionType(tupleType.getTupleTypes(), tupleType.getTypeFlags());
                 BArrayType slicedArrType = new BArrayType(unionType, (int) (endIndex - startIndex));
-                slicedArr = new ArrayValue(slicedArrType);
+                slicedArr = new ArrayValueImpl(slicedArrType);
                 elemTypeTag = -1; // To ensure additions go to ref value array in ArrayValue
                 getFn = ArrayValue::getRefValue;
                 break;

@@ -21,13 +21,11 @@ package org.ballerinalang.nats.basic.producer;
 import io.nats.client.Connection;
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.TypeChecker;
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.TypeTags;
+import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.nats.Constants;
+import org.ballerinalang.nats.Utils;
 
 import static org.ballerinalang.nats.Utils.convertDataIntoByteArray;
 
@@ -36,19 +34,9 @@ import static org.ballerinalang.nats.Utils.convertDataIntoByteArray;
  *
  * @since 0.995
  */
-@BallerinaFunction(
-        orgName = Constants.ORG_NAME,
-        packageName = Constants.NATS,
-        functionName = "externPublish",
-        receiver = @Receiver(type = TypeKind.OBJECT,
-                structType = "Producer",
-                structPackage = Constants.NATS_PACKAGE),
-        isPublic = true
-)
 public class Publish {
 
-    public static Object externPublish(Strand strand, ObjectValue producerObject, String subject, Object data,
-                                       Object replyTo) {
+    public static Object externPublish(ObjectValue producerObject, String subject, Object data, Object replyTo) {
         Object connection = producerObject.get("conn");
 
         if (TypeChecker.getType(connection).getTag() == TypeTags.OBJECT_TYPE_TAG) {
@@ -63,6 +51,15 @@ public class Publish {
             try {
                 if (TypeChecker.getType(replyTo).getTag() == TypeTags.STRING_TAG) {
                     natsConnection.publish(subject, (String) replyTo, byteContent);
+                } else if (TypeChecker.getType(replyTo).getTag() == TypeTags.SERVICE_TAG) {
+                    MapValue<String, Object> subscriptionConfig =
+                            getSubscriptionConfig(((ObjectValue) replyTo).getType().getAnnotation(
+                                    Constants.NATS_PACKAGE, Constants.SUBSCRIPTION_CONFIG));
+                    if (subscriptionConfig == null) {
+                        return Utils.createNatsError("Cannot find subscription configuration");
+                    }
+                    String replyToSubject = subscriptionConfig.getStringValue(Constants.SUBJECT);
+                    natsConnection.publish(subject, replyToSubject, byteContent);
                 } else {
                     natsConnection.publish(subject, byteContent);
                 }
@@ -75,5 +72,14 @@ public class Publish {
                     ". Producer is logically disconnected.");
         }
         return null;
+    }
+
+    @SuppressWarnings("unchecked")
+    private static MapValue<String, Object> getSubscriptionConfig(Object annotationData) {
+        MapValue annotationRecord = null;
+        if (TypeChecker.getType(annotationData).getTag() == TypeTags.RECORD_TYPE_TAG) {
+            annotationRecord = (MapValue) annotationData;
+        }
+        return annotationRecord;
     }
 }

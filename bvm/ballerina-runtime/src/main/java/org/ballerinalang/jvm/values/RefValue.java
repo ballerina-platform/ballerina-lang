@@ -17,12 +17,11 @@
  */
 package org.ballerinalang.jvm.values;
 
-import org.ballerinalang.jvm.commons.TypeValuePair;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.util.exceptions.BLangFreezeException;
-import org.ballerinalang.jvm.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
+import org.ballerinalang.jvm.values.api.BRefValue;
 import org.ballerinalang.jvm.values.freeze.State;
 import org.ballerinalang.jvm.values.freeze.Status;
 import org.ballerinalang.jvm.values.utils.StringUtils;
@@ -30,7 +29,6 @@ import org.ballerinalang.jvm.values.utils.StringUtils;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.Charset;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -43,7 +41,7 @@ import java.util.Map;
  * 
  * @since 0.995.0
  */
-public interface RefValue {
+public interface RefValue extends BRefValue {
 
     default String stringValue() {
         return stringValue(null);
@@ -60,10 +58,6 @@ public interface RefValue {
     }
 
     BType getType();
-
-    default void stamp(BType type, List<TypeValuePair> unresolvedValues) {
-        throw new BLangRuntimeException("'constructFrom()' not allowed on '" + getType() + "'");
-    }
 
     /**
      * Method to perform a deep copy, recursively copying all structural values and their members.

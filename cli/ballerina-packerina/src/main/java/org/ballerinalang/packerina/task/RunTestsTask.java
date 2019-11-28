@@ -18,25 +18,18 @@
 
 package org.ballerinalang.packerina.task;
 
-import org.ballerinalang.config.ConfigRegistry;
-import org.ballerinalang.logging.BLogManager;
 import org.ballerinalang.packerina.buildcontext.BuildContext;
 import org.ballerinalang.packerina.buildcontext.BuildContextField;
 import org.ballerinalang.testerina.util.TestarinaClassLoader;
 import org.ballerinalang.testerina.util.TesterinaUtils;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.LogManager;
-
-import static org.ballerinalang.tool.LauncherUtils.createLauncherException;
 
 /**
  * Task for executing tests.
@@ -68,35 +61,14 @@ public class RunTestsTask implements Task {
             if (Files.notExists(jarPath)) {
                 jarPath = modulejarPath;
             }
-            String modulejarName = modulejarPath != null ? modulejarPath.toString() : "";
-            HashSet<Path> dependencyJarPaths = buildContext.moduleDependencyPathMap.get(bLangPackage.packageID);
-            TestarinaClassLoader classLoader = new TestarinaClassLoader(jarPath, dependencyJarPaths, modulejarName);
+            HashSet<Path> dependencyJarPaths = buildContext.moduleDependencyPathMap
+                    .get(bLangPackage.packageID).platformLibs;
+            // Create a class loader to run tests.
+            TestarinaClassLoader classLoader = new TestarinaClassLoader(jarPath, dependencyJarPaths);
             programFileMap.put(bLangPackage, classLoader);
         }
-        // Create a class loader to
-
         if (programFileMap.size() > 0) {
             TesterinaUtils.executeTests(sourceRootPath, programFileMap, buildContext.out(), buildContext.err());
-        }
-    }
-
-    /**
-     * Initializes the {@link ConfigRegistry} and loads {@link LogManager} configs.
-     *
-     * @param sourceRootPath source directory
-     * @param configFilePath config file path
-     */
-    public static void loadConfigurations(Path sourceRootPath, String configFilePath) {
-        Path ballerinaConfPath = sourceRootPath.resolve("ballerina.conf");
-        try {
-            ConfigRegistry.getInstance().initRegistry(new LinkedHashMap<>(), configFilePath,
-                                                      ballerinaConfPath);
-            ((BLogManager) LogManager.getLogManager()).loadUserProvidedLogConfiguration();
-        } catch (IOException e) {
-            throw createLauncherException("failed to read the specified configuration file: " +
-                                                  ballerinaConfPath.toString());
-        } catch (RuntimeException e) {
-            throw createLauncherException(e.getMessage());
         }
     }
 }

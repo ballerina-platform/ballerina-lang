@@ -72,14 +72,25 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "ServiceResourceAuth",
+      "label": "ServiceAuth",
       "kind": "Struct",
       "detail": "Record",
       "documentation": {
-        "left": "Configures the authentication scheme for a service or a resource.\n"
+        "left": "Configures the authentication scheme for a service.\n"
       },
       "sortText": "221",
-      "insertText": "ServiceResourceAuth",
+      "insertText": "ServiceAuth",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ResourceAuth",
+      "kind": "Struct",
+      "detail": "Record",
+      "documentation": {
+        "left": "Configures the authentication scheme for a resource.\n"
+      },
+      "sortText": "221",
+      "insertText": "ResourceAuth",
       "insertTextFormat": "Snippet"
     },
     {
@@ -360,7 +371,7 @@
       "kind": "Interface",
       "detail": "Object",
       "documentation": {
-        "left": "Provides the HTTP actions for interacting with an HTTP server. Apart from the standard HTTP methods, `forward()`\nand `execute()` functions are provided. More complex and specific endpoint types can be created by wrapping this\ngeneric HTTP actions implementation.\n"
+        "left": "Provides the HTTP actions for interacting with an HTTP server. Apart from the standard HTTP methods,\n`HttpClient.forward()` and `HttpClient.execute()` functions are provided. More complex and specific endpoint types\ncan be created by wrapping this generic HTTP actions implementation.\n"
       },
       "sortText": "221",
       "insertText": "HttpClient",

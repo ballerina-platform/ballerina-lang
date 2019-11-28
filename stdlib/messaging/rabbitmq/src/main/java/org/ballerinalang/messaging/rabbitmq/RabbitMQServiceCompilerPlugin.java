@@ -18,13 +18,13 @@
 
 package org.ballerinalang.messaging.rabbitmq;
 
+import org.ballerinalang.compiler.plugins.AbstractCompilerPlugin;
 import org.ballerinalang.compiler.plugins.SupportedResourceParamTypes;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.ServiceNode;
 import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.ballerinalang.util.diagnostic.DiagnosticLog;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
-import org.wso2.ballerinalang.util.AbstractTransportCompilerPlugin;
 
 import java.util.List;
 
@@ -43,7 +43,7 @@ import java.util.List;
                         packageName = RabbitMQConstants.RABBITMQ,
                         name = RabbitMQConstants.MESSAGE_OBJECT
                 )})
-public class RabbitMQServiceCompilerPlugin extends AbstractTransportCompilerPlugin {
+public class RabbitMQServiceCompilerPlugin extends AbstractCompilerPlugin {
 
     private DiagnosticLog dlog = null;
 
@@ -75,6 +75,6 @@ public class RabbitMQServiceCompilerPlugin extends AbstractTransportCompilerPlug
                     "Only maximum of two resources are allowed in the service");
         }
         resources.forEach(
-                res -> RabbitMQResourceValidator.validate(res, dlog, isResourceReturnsErrorOrNil(res)));
+                res -> RabbitMQResourceValidator.validate(res, dlog));
     }
 }

@@ -790,7 +790,7 @@ StringTemplateLiteral ::= STRING_TEMPLATE_LITERAL_START StringTemplateContent? S
 StringTemplateContent ::= StringTemplateExpressionContent | StringTemplateTextContent
 
 private StringTemplateExpressionContent ::= StringTemplateExpression+ STRING_TEMPLATE_TEXT?
-private StringTemplateExpression ::= STRING_TEMPLATE_EXPRESSION_START Expression RIGHT_BRACE /*{pin=1}*/
+private StringTemplateExpression ::= STRING_TEMPLATE_EXPRESSION_START Expression STRING_TEMPLATE_EXPRESSION_END
 private StringTemplateTextContent ::= STRING_TEMPLATE_TEXT
 
 AnyIdentifierName ::= identifier | ReservedWord

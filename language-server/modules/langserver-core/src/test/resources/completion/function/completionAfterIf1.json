@@ -70,6 +70,14 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "final",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "220",
+      "insertText": "final ",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "else",
       "kind": "Snippet",
       "detail": "Statement",
@@ -236,6 +244,17 @@
       },
       "sortText": "120",
       "insertText": "testElseAndElseIf();",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Dispatcher",
+      "kind": "Struct",
+      "detail": "Record",
+      "documentation": {
+        "left": "Defines a disptcher to be used for concurrent execution of strands.\n"
+      },
+      "sortText": "180",
+      "insertText": "Dispatcher",
       "insertTextFormat": "Snippet"
     },
     {
@@ -610,6 +629,29 @@
             }
           },
           "newText": "import ballerina/grpc;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/bir",
+      "kind": "Module",
+      "detail": "Package",
+      "sortText": "140",
+      "insertText": "bir",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/bir;\n"
         }
       ]
     },

@@ -828,7 +828,7 @@ public class BTestRunner {
 
         if (valueSets instanceof ArrayValue) {
             ArrayValue arrayValue = (ArrayValue) valueSets;
-            if (arrayValue.elementType instanceof BArrayType) {
+            if (arrayValue.getElementType() instanceof BArrayType) {
                 // Ok we have an array of an array
                 for (int i = 0; i < arrayValue.size(); i++) {
                     // Iterate array elements and set parameters
@@ -852,7 +852,7 @@ public class BTestRunner {
         typeList.add(Strand.class);
         if (valueSets instanceof ArrayValue) {
             ArrayValue arrayValue = (ArrayValue) valueSets;
-            if (arrayValue.elementType instanceof BArrayType) {
+            if (arrayValue.getElementType() instanceof BArrayType) {
                 // Ok we have an array of an array
                 // Get the first entry
                 // Iterate elements and get class types.
@@ -868,7 +868,7 @@ public class BTestRunner {
     }
 
     private static void setTestFunctionSignature(List<Class> typeList, ArrayValue arrayValue) {
-        Class type = getArgTypeToClassMapping(arrayValue.elementType);
+        Class type = getArgTypeToClassMapping(arrayValue.getElementType());
         for (int i = 0; i < arrayValue.size(); i++) {
             // Add the param type.
             typeList.add(type);

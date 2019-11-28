@@ -48,7 +48,7 @@ public class Push {
         int nVals = vals.size();
         switch (arrType.getTag()) {
             case TypeTags.ARRAY_TAG:
-                int elemTypeTag = arr.elementType.getTag();
+                int elemTypeTag = arr.getElementType().getTag();
                 for (int i = arr.size(), j = 0; j < nVals; i++, j++) {
                     add(arr, elemTypeTag, i, vals.get(j));
                 }

@@ -159,6 +159,7 @@ public class TypeConverter {
         }
     }
 
+    // TODO: return only the first matching type
     public static List<BType> getConvertibleTypes(Object inputValue, BType targetType) {
         return getConvertibleTypes(inputValue, targetType, new ArrayList<>());
     }
@@ -178,6 +179,12 @@ public class TypeConverter {
             case TypeTags.RECORD_TYPE_TAG:
                 if (isConvertibleToRecordType(inputValue, (BRecordType) targetType, unresolvedValues)) {
                     convertibleTypes.add(targetType);
+                }
+                break;
+            case TypeTags.ANYDATA_TAG:
+                BType matchingType = TypeConverter.resolveMatchingTypeForUnion(inputValue, targetType);
+                if (matchingType != null) {
+                    convertibleTypes.add(matchingType);
                 }
                 break;
             default:
@@ -473,6 +480,92 @@ public class TypeConverter {
         throw errorFunc.get();
     }
 
+    // JBallerina related casts
+
+    static byte anyToJByteCast(Object sourceVal, Supplier<ErrorValue> errorFunc) {
+        if (sourceVal instanceof Byte) {
+            return (Byte) sourceVal;
+        } else {
+            throw errorFunc.get();
+        }
+    }
+
+    static char anyToJCharCast(Object sourceVal, Supplier<ErrorValue> errorFunc) {
+        if (sourceVal instanceof Character) {
+            return (Character) sourceVal;
+        } else {
+            throw errorFunc.get();
+        }
+    }
+
+    static short anyToJShortCast(Object sourceVal, Supplier<ErrorValue> errorFunc) {
+        if (sourceVal instanceof Short) {
+            return (Short) sourceVal;
+        } else {
+            throw errorFunc.get();
+        }
+    }
+
+    static int anyToJIntCast(Object sourceVal, Supplier<ErrorValue> errorFunc) {
+        if (sourceVal instanceof Integer) {
+            return (Integer) sourceVal;
+        } else {
+            throw errorFunc.get();
+        }
+    }
+
+    static long anyToJLongCast(Object sourceVal, Supplier<ErrorValue> errorFunc) {
+        if (sourceVal instanceof Long) {
+            return (Long) sourceVal;
+        } else {
+            throw errorFunc.get();
+        }
+    }
+
+    static float anyToJFloatCast(Object sourceVal, Supplier<ErrorValue> errorFunc) {
+        if (sourceVal instanceof Float) {
+            return (Float) sourceVal;
+        } else {
+            throw errorFunc.get();
+        }
+    }
+
+    static double anyToJDoubleCast(Object sourceVal, Supplier<ErrorValue> errorFunc) {
+        if (sourceVal instanceof Double) {
+            return (Double) sourceVal;
+        } else {
+            throw errorFunc.get();
+        }
+    }
+
+    static boolean anyToJBooleanCast(Object sourceVal, Supplier<ErrorValue> errorFunc) {
+        if (sourceVal instanceof Boolean) {
+            return (Boolean) sourceVal;
+        } else {
+            throw errorFunc.get();
+        }
+    }
+
+    public static long jFloatToBInt(float sourceVal) {
+        checkIsValidFloat(sourceVal, BTypes.typeInt);
+
+        if (!isFloatWithinIntRange(sourceVal)) {
+            throw BallerinaErrors.createNumericConversionError(sourceVal, BTypes.typeInt);
+        }
+
+        return (long) Math.rint(sourceVal);
+    }
+
+    public static long jDoubleToBInt(double sourceVal) {
+        checkIsValidFloat(sourceVal, BTypes.typeInt);
+
+        if (!isFloatWithinIntRange(sourceVal)) {
+            throw BallerinaErrors.createNumericConversionError(sourceVal, BTypes.typeInt);
+        }
+
+        return (long) Math.rint(sourceVal);
+    }
+
     private static boolean isByteLiteral(long longValue) {
         return (longValue >= BBYTE_MIN_VALUE && longValue <= BBYTE_MAX_VALUE);
     }
@@ -483,13 +576,17 @@ public class TypeConverter {
 
     public static BType resolveMatchingTypeForUnion(Object value, BType type) {
         if (value instanceof ArrayValue && ((ArrayValue) value).getType().getTag() == TypeTags.ARRAY_TAG &&
-                !isDeepStampingRequiredForArray(((ArrayValue) value).getArrayType())) {
-            return ((ArrayValue) value).getArrayType();
+                !isDeepStampingRequiredForArray(((ArrayValue) value).getType())) {
+            return ((ArrayValue) value).getType();
         }
 
         if (value instanceof MapValue && ((MapValue) value).getType().getTag() == TypeTags.MAP_TAG &&
                 !isDeepStampingRequiredForMap(((MapValue) value).getType())) {
             return ((MapValue) value).getType();
+        }
+
+        if (value == null && type.isNilable()) {
+            return BTypes.typeNull;
         }
 
         if (checkIsLikeType(value, BTypes.typeInt)) {

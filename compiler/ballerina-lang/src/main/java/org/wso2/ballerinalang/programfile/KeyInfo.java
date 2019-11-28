@@ -22,6 +22,7 @@ package org.wso2.ballerinalang.programfile;
  *
  * @since 0.990.4
  */
+@Deprecated
 public class KeyInfo {
 
     public String name;

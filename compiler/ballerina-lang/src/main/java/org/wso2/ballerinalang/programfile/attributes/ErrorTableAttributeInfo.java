@@ -26,6 +26,7 @@ import java.util.List;
 /**
  * @since 0.90
  */
+@Deprecated
 public class ErrorTableAttributeInfo implements AttributeInfo {
 
     // Index to a UTF8CPEntry

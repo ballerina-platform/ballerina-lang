@@ -18,7 +18,6 @@ import ballerina/lang.'string as strings;
 
 # Represents a WebSocket connection in Ballerina. This includes all connection-oriented operations.
 type WebSocketConnector object {
-    private boolean isReady = false;
 
     # Push text to the connection.
     #
@@ -90,11 +89,5 @@ type WebSocketConnector object {
     }
 
     function externClose(int statusCode, string reason, int timeoutInSecs) returns WebSocketError? = external;
-
-    # Called when the endpoint is ready to receive messages. Can be called only once per endpoint. For the
-    # WebSocketListener can be called only in upgrade or onOpen resources.
-    #
-    # + return - `error` if an error occurs when sending
-    public function ready() returns WebSocketError? = external;
 
 };

@@ -23,13 +23,10 @@ import io.nats.client.Message;
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.TypeChecker;
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.nats.Constants;
 
 import java.util.concurrent.ExecutionException;
@@ -44,20 +41,10 @@ import static org.ballerinalang.nats.Utils.convertDataIntoByteArray;
  *
  * @since 0.995
  */
-@BallerinaFunction(
-        orgName = Constants.ORG_NAME,
-        packageName = Constants.NATS,
-        functionName = "externRequest",
-        receiver = @Receiver(type = TypeKind.OBJECT,
-                structType = "Producer",
-                structPackage = Constants.NATS_PACKAGE),
-        isPublic = true
-)
 public class Request {
 
     @SuppressWarnings("unused")
-    public static Object externRequest(Strand strand, ObjectValue producerObject, String subject, Object data,
-                                       Object duration) {
+    public static Object externRequest(ObjectValue producerObject, String subject, Object data, Object duration) {
         Object connection = producerObject.get("conn");
 
         if (TypeChecker.getType(connection).getTag() == TypeTags.OBJECT_TYPE_TAG) {
@@ -77,7 +64,7 @@ public class Request {
                 } else {
                     reply = incoming.get();
                 }
-                ArrayValue msgData = new ArrayValue(reply.getData());
+                ArrayValue msgData = new ArrayValueImpl(reply.getData());
                 ObjectValue msgObj = BallerinaValues.createObjectValue(Constants.NATS_PACKAGE_ID,
                         Constants.NATS_MESSAGE_OBJ_NAME, reply.getSubject(), msgData, reply.getReplyTo());
                 msgObj.addNativeData(Constants.NATS_MSG, reply);

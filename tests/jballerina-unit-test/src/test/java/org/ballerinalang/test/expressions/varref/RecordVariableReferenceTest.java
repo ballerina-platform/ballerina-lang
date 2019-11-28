@@ -217,6 +217,13 @@ public class RecordVariableReferenceTest {
                 "invalid binding pattern, variable reference 'm[var1]' cannot be used with binding pattern", 198, 12);
         BAssertUtil.validateError(resultSemanticsNegative, ++i,
                 "invalid binding pattern, variable reference 'm[var2]' cannot be used with binding pattern", 198, 36);
+        BAssertUtil.validateError(resultSemanticsNegative, ++i, "cannot assign a value to final 's'", 213, 6);
+        BAssertUtil.validateError(resultSemanticsNegative, ++i, "cannot assign a value to final 'i'", 213, 9);
+        BAssertUtil.validateError(resultSemanticsNegative, ++i, "cannot assign a value to final 'f'", 213, 12);
+        BAssertUtil.validateError(resultSemanticsNegative, ++i, "cannot assign a value to final 's2'", 231, 6);
+        BAssertUtil.validateError(resultSemanticsNegative, ++i, "cannot assign a value to final 'iv'", 231, 19);
+        BAssertUtil.validateError(resultSemanticsNegative, ++i, "cannot assign a value to final 'b3'", 231, 23);
+        BAssertUtil.validateError(resultSemanticsNegative, ++i, "cannot assign a value to final 'm2'", 231, 31);
 
         Assert.assertEquals(resultSemanticsNegative.getErrorCount(), i + 1);
     }
