@@ -52,7 +52,7 @@ import static org.testng.AssertJUnit.assertNotNull;
 
 /**
  * This class tests http2 client 100-continue implementation for timeout after sending initial request with Expect
- * Continue header. Expected behaviour is if the server does not honour request within the given time interval,
+ * Continue header. Expected behaviour is if the server does not honour the request within the given time interval,
  * client should go ahead and send the payload.
  */
 public class ClientContinue100TimeoutTestcase {

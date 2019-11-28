@@ -161,7 +161,7 @@ public class Http2ClientTimeoutHandler implements Http2DataEventListener {
     }
 
     /**
-     * Class for creating a IdleTimeoutTask.
+     * This class is for creating a IdleTimeoutTask.
      */
     public class IdleTimeoutTask implements Runnable {
 
@@ -247,9 +247,8 @@ public class Http2ClientTimeoutHandler implements Http2DataEventListener {
                 try {
                     msgHolder.getRequest().getHttp2MessageStateContext().getSenderState()
                             .handleStreamTimeout(msgHolder, false, ctx, streamId);
-                    //TODO: check this. Is this the correct error? And is this the right place to handle this?
                 } catch (Http2Exception e) {
-                    msgHolder.getResponseFuture().notifyPushResponse(streamId, new EndpointTimeOutException(
+                    msgHolder.getResponseFuture().notifyHttpListener(new EndpointTimeOutException(
                             REMOTE_SERVER_CLOSED_WHILE_WRITING_OUTBOUND_REQUEST_BODY,
                             HttpResponseStatus.GATEWAY_TIMEOUT.code()));
                 }

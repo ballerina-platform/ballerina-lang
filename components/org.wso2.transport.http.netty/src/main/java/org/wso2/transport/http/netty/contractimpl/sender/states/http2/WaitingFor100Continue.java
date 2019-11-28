@@ -127,7 +127,6 @@ public class WaitingFor100Continue implements SenderState {
                 .readInboundResponseBody(ctx, http2DataFrame, outboundMsgHolder, serverPush, http2MessageStateContext);
     }
 
-    //TODO: What to do here?
     @Override
     public void readInboundPromise(ChannelHandlerContext ctx, Http2PushPromise http2PushPromise,
             OutboundMsgHolder outboundMsgHolder) {

@@ -81,7 +81,7 @@ public class ClientContinue100ChunkingTestCase {
     @Test
     public void test100ContinueNegative() {
         try {
-            DefaultHttpConnectorListener listener = whenRespSentForNegativeResponse();
+            DefaultHttpConnectorListener listener = whenReqSentForNegativeResponse();
             thenRespShouldBeStatus417(listener);
         } catch (Exception e) {
             TestUtil.handleException(
@@ -106,7 +106,7 @@ public class ClientContinue100ChunkingTestCase {
         assertEquals(responseBody, "Do not send me any payload");
     }
 
-    private DefaultHttpConnectorListener whenRespSentForNegativeResponse() throws InterruptedException {
+    private DefaultHttpConnectorListener whenReqSentForNegativeResponse() throws InterruptedException {
         HttpCarbonMessage msg = TestUtil
                 .createHttpsPostReq(TestUtil.SERVER_CONNECTOR_PORT, TestUtil.largeEntity, "");
         msg.setHeader(HttpHeaderNames.EXPECT.toString(), HttpHeaderValues.CONTINUE);

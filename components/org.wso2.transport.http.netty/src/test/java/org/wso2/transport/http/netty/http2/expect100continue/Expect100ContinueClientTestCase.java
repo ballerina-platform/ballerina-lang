@@ -58,7 +58,7 @@ public class Expect100ContinueClientTestCase {
     private static final Logger LOG = LoggerFactory.getLogger(Expect100ContinueClientTestCase.class);
     private ServerConnector serverConnector;
     private HttpClientConnector httpClientConnector;
-    private HttpWsConnectorFactory connectorFactory;
+    private HttpWsConnectorFactory connectorFactory = new DefaultHttpWsConnectorFactory();
     private DefaultHttpConnectorListener listener;
     private String testValue = "Test Message";
 
@@ -112,8 +112,6 @@ public class Expect100ContinueClientTestCase {
     private void given100ContinueSupportingServer() throws InterruptedException {
         ServerBootstrapConfiguration serverBootstrapConfig = new ServerBootstrapConfiguration(new HashMap<>());
         ListenerConfiguration listenerConfiguration = Continue100Util.getListenerConfigs();
-        listenerConfiguration.setServerHeader(TestUtil.TEST_SERVER);
-        connectorFactory = new DefaultHttpWsConnectorFactory();
         serverConnector = connectorFactory.createServerConnector(serverBootstrapConfig, listenerConfiguration);
         ServerConnectorFuture serverConnectorFuture = serverConnector.start();
         serverConnectorFuture.setHttpConnectorListener(new Continue100Listener());
@@ -121,7 +119,6 @@ public class Expect100ContinueClientTestCase {
     }
 
     private void givenNormalClient() {
-        connectorFactory = new DefaultHttpWsConnectorFactory();
         httpClientConnector = connectorFactory
                 .createHttpClientConnector(new HashMap<>(), Continue100Util.getSenderConfigs());
     }
