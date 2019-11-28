@@ -457,15 +457,13 @@ function testGetPrimitiveTypes(string jdbcURL) returns @tainted [int, int, float
     if (dtRet is table<ResultPrimitive>) {
         while (dtRet.hasNext()) {
             var rs = dtRet.getNext();
-            if (rs is ResultPrimitive) {
-                i = rs.INT_TYPE;
-                l = rs.LONG_TYPE;
-                f = rs.FLOAT_TYPE;
-                d = rs.DOUBLE_TYPE;
-                b = rs.BOOLEAN_TYPE;
-                s = rs.STRING_TYPE;
-                dec = rs.DECIMAL_TYPE;
-            }
+            i = rs.INT_TYPE;
+            l = rs.LONG_TYPE;
+            f = rs.FLOAT_TYPE;
+            d = rs.DOUBLE_TYPE;
+            b = rs.BOOLEAN_TYPE;
+            s = rs.STRING_TYPE;
+            dec = rs.DECIMAL_TYPE;
         }
     }
     checkpanic testDB.stop();
@@ -487,11 +485,9 @@ function testGetComplexTypes(string jdbcURL) returns @tainted [byte[], string, b
     if (tableOrError is table<ResultObject>) {
         while (tableOrError.hasNext()) {
             var rs = tableOrError.getNext();
-            if (rs is ResultObject) {
-                blobData = rs.BLOB_TYPE;
-                clob = rs.CLOB_TYPE;
-                binaryData = rs.BINARY_TYPE;
-            }
+            blobData = rs.BLOB_TYPE;
+            clob = rs.CLOB_TYPE;
+            binaryData = rs.BINARY_TYPE;
         }
     }
     checkpanic testDB.stop();
@@ -516,13 +512,11 @@ function testArrayData(string jdbcURL) returns @tainted [int[], int[], decimal[]
     if (tableOrError is table<ResultMap>) {
         while (tableOrError.hasNext()) {
             var rs = tableOrError.getNext();
-            if (rs is ResultMap) {
-                int_arr = rs.INT_ARRAY;
-                long_arr = rs.LONG_ARRAY;
-                float_arr = rs.FLOAT_ARRAY;
-                boolean_arr = rs.BOOLEAN_ARRAY;
-                string_arr = rs.STRING_ARRAY;
-            }
+            int_arr = rs.INT_ARRAY;
+            long_arr = rs.LONG_ARRAY;
+            float_arr = rs.FLOAT_ARRAY;
+            boolean_arr = rs.BOOLEAN_ARRAY;
+            string_arr = rs.STRING_ARRAY;
         }
     }
     checkpanic testDB.stop();
@@ -570,18 +564,16 @@ function testArrayDataInsertAndPrint(string jdbcURL) returns @tainted [int, int,
     if (dtRet is table<ResultMap>) {
         while (dtRet.hasNext()) {
             var rs = dtRet.getNext();
-            if (rs is ResultMap) {
-                io:println(rs.INT_ARRAY);
-                intArrLen = rs.INT_ARRAY.length();
-                io:println(rs.LONG_ARRAY);
-                longArrLen = rs.LONG_ARRAY.length();
-                io:println(rs.FLOAT_ARRAY);
-                floatArrLen = rs.FLOAT_ARRAY.length();
-                io:println(rs.BOOLEAN_ARRAY);
-                boolArrLen = rs.BOOLEAN_ARRAY.length();
-                io:println(rs.STRING_ARRAY);
-                strArrLen = rs.STRING_ARRAY.length();
-            }
+            io:println(rs.INT_ARRAY);
+            intArrLen = rs.INT_ARRAY.length();
+            io:println(rs.LONG_ARRAY);
+            longArrLen = rs.LONG_ARRAY.length();
+            io:println(rs.FLOAT_ARRAY);
+            floatArrLen = rs.FLOAT_ARRAY.length();
+            io:println(rs.BOOLEAN_ARRAY);
+            boolArrLen = rs.BOOLEAN_ARRAY.length();
+            io:println(rs.STRING_ARRAY);
+            strArrLen = rs.STRING_ARRAY.length();
         }
     }
     checkpanic testDB.stop();
@@ -615,12 +607,10 @@ function testDateTime(int datein, int timein, int timestampin, string jdbcURL) r
     if (selectRet is table<ResultDates>) {
         while (selectRet.hasNext()) {
             var rs = selectRet.getNext();
-            if (rs is ResultDates) {
-                time = rs.TIME_TYPE;
-                date = rs.DATE_TYPE;
-                timestamp = rs.TIMESTAMP_TYPE;
-                datetime = rs.DATETIME_TYPE;
-            }
+            time = rs.TIME_TYPE;
+            date = rs.DATE_TYPE;
+            timestamp = rs.TIMESTAMP_TYPE;
+            datetime = rs.DATETIME_TYPE;
         }
     }
     checkpanic testDB.stop();
@@ -671,12 +661,10 @@ function testDateTimeAsTimeStruct(string jdbcURL) returns @tainted [int, int, in
     if (selectRet is table<ResultDatesStruct>) {
         while (selectRet.hasNext()) {
             var rs = selectRet.getNext();
-            if (rs is ResultDatesStruct) {
-                dateRetrieved = rs.DATE_TYPE.time;
-                timeRetrieved = rs.TIME_TYPE.time;
-                timestampRetrieved = rs.TIMESTAMP_TYPE.time;
-                datetimeRetrieved = rs.DATETIME_TYPE.time;
-            }
+            dateRetrieved = rs.DATE_TYPE.time;
+            timeRetrieved = rs.TIME_TYPE.time;
+            timestampRetrieved = rs.TIMESTAMP_TYPE.time;
+            datetimeRetrieved = rs.DATETIME_TYPE.time;
         }
     }
     checkpanic testDB.stop();
@@ -713,12 +701,10 @@ function testDateTimeInt(int datein, int timein, int timestampin, string jdbcURL
     if (selectRet is table<ResultDatesInt>) {
         while (selectRet.hasNext()) {
             var rs = selectRet.getNext();
-            if (rs is ResultDatesInt) {
-                time = rs.TIME_TYPE;
-                date = rs.DATE_TYPE;
-                timestamp = rs.TIMESTAMP_TYPE;
-                datetime = rs.DATETIME_TYPE;
-            }
+            time = rs.TIME_TYPE;
+            date = rs.DATE_TYPE;
+            timestamp = rs.TIMESTAMP_TYPE;
+            datetime = rs.DATETIME_TYPE;
         }
     }
     checkpanic testDB.stop();
@@ -737,9 +723,7 @@ function testBlobData(string jdbcURL) returns @tainted byte[] {
     if (selectRet is table<ResultBlob>) {
         while (selectRet.hasNext()) {
             var rs = selectRet.getNext();
-            if (rs is ResultBlob) {
-                blobData = rs.BLOB_TYPE;
-            }
+            blobData = rs.BLOB_TYPE;
         }
     }
     checkpanic testDB.stop();
@@ -767,15 +751,13 @@ function testColumnAlias(string jdbcURL) returns @tainted [int, int, float, floa
     if (selectRet is table<ResultSetTestAlias>) {
         while (selectRet.hasNext()) {
             var rs = selectRet.getNext();
-            if (rs is ResultSetTestAlias) {
-                i = rs.INT_TYPE;
-                l = rs.LONG_TYPE;
-                f = rs.FLOAT_TYPE;
-                d = rs.DOUBLE_TYPE;
-                b = rs.BOOLEAN_TYPE;
-                s = rs.STRING_TYPE;
-                i2 = rs.DT2INT_TYPE;
-            }
+            i = rs.INT_TYPE;
+            l = rs.LONG_TYPE;
+            f = rs.FLOAT_TYPE;
+            d = rs.DOUBLE_TYPE;
+            b = rs.BOOLEAN_TYPE;
+            s = rs.STRING_TYPE;
+            i2 = rs.DT2INT_TYPE;
         }
     }
     checkpanic testDB.stop();
@@ -794,9 +776,7 @@ function testBlobInsert(string jdbcURL) returns int {
     if (selectRet is table<ResultBlob>) {
         while (selectRet.hasNext()) {
             var rs = selectRet.getNext();
-            if (rs is ResultBlob) {
-                blobData = rs.BLOB_TYPE;
-            }
+            blobData = rs.BLOB_TYPE;
         }
     }
     jdbc:Parameter para0 = {sqlType: jdbc:TYPE_INTEGER, value: 10};
@@ -823,9 +803,7 @@ function testTableAutoClose(string jdbcURL) returns @tainted [int, json] {
     if (selectRet is table<ResultPrimitiveInt>) {
         while (selectRet.hasNext()) {
             var rs = selectRet.getNext();
-            if (rs is ResultPrimitiveInt) {
-                i = rs.INT_TYPE;
-            }
+            i = rs.INT_TYPE;
         }
     }
     var selectRet2 = testDB->select("SELECT int_type, long_type, float_type, double_type," +

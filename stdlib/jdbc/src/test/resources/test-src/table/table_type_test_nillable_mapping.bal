@@ -179,9 +179,7 @@ function testMappingToNillableTypeFieldsBlob(string jdbcURL) returns @tainted by
     if (dt is table<NillableBlob>) {
         while (dt.hasNext()) {
             var rs = dt.getNext();
-            if (rs is NillableBlob) {
-                blob_type = rs.blob_type;
-            }
+            blob_type = rs.blob_type;
         }
     }
     checkpanic testDB.stop();
@@ -232,12 +230,10 @@ function testMappingDatesToNillableTimeType(string jdbcURL) returns @tainted [in
     if (dt is table<ResultDatesWithNillableTimeType>) {
         while (dt.hasNext()) {
             var rs = dt.getNext();
-            if (rs is ResultDatesWithNillableTimeType) {
-                dateRetrieved = getTimeIntFromTimeRecord(rs.DATE_TYPE);
-                timeRetrieved = getTimeIntFromTimeRecord(rs.TIME_TYPE);
-                timestampRetrieved = getTimeIntFromTimeRecord(rs.TIMESTAMP_TYPE);
-                datetimeRetrieved = getTimeIntFromTimeRecord(rs.DATETIME_TYPE);
-            }
+            dateRetrieved = getTimeIntFromTimeRecord(rs.DATE_TYPE);
+            timeRetrieved = getTimeIntFromTimeRecord(rs.TIME_TYPE);
+            timestampRetrieved = getTimeIntFromTimeRecord(rs.TIMESTAMP_TYPE);
+            datetimeRetrieved = getTimeIntFromTimeRecord(rs.DATETIME_TYPE);
         }
     }
     checkpanic testDB.stop();
