@@ -103,11 +103,11 @@ public class RunTestsTask implements Task {
             dependencyJarPaths.addAll(testDependencies);
 
             // add imported module's jar path
-            Path jarPath = buildContext.getTestJarPathFromTargetCache(importPkgId);
+            Path testJarPath = buildContext.getTestJarPathFromTargetCache(importPkgId);
             Path moduleJarPath = buildContext.getJarPathFromTargetCache(importPkgId);
-            if (Files.exists(jarPath)) {
-                dependencyJarPaths.add(jarPath);
-            } else {
+            if (Files.exists(testJarPath)) {
+                dependencyJarPaths.add(testJarPath);
+            } else if (Files.exists(moduleJarPath)) {
                 dependencyJarPaths.add(moduleJarPath);
             }
             updateDependencyJarPaths(importPackageSymbol.imports, buildContext, dependencyJarPaths);
