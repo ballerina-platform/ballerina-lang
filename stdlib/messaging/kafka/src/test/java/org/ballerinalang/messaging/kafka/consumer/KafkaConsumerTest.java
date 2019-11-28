@@ -102,7 +102,8 @@ public class KafkaConsumerTest {
         Assert.assertTrue(((BBoolean) returnBValues[0]).booleanValue());
     }
 
-    @Test(description = "Test kafka consumer connect with no config values")
+    // TODO: Enable after the issue #19893 is fixed
+    @Test(description = "Test kafka consumer connect with no config values", enabled = false)
     public void testKafkaConsumerConnectNegative() {
         BValue[] returnBValues = BRunUtil.invoke(result, "funcKafkaConnectNegative");
         Assert.assertEquals(returnBValues.length, 1);

@@ -43,8 +43,9 @@ dependencies {
     baloImplementation project(path: ':ballerina-task', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-time', configuration: 'baloImplementation')
 
-    interopImports project(':ballerina-task')
     interopImports project(':ballerina-math')
+    interopImports project(':ballerina-task')
+    interopImports project(':ballerina-time')
 
     // transitive
     baloImplementation project(path: ':ballerina-math', configuration: 'baloImplementation')

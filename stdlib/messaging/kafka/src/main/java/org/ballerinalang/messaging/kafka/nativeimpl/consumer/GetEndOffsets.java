@@ -21,13 +21,8 @@ package org.ballerinalang.messaging.kafka.nativeimpl.consumer;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.KafkaException;
 import org.apache.kafka.common.TopicPartition;
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.messaging.kafka.utils.KafkaConstants;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.Receiver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,8 +34,6 @@ import java.util.Properties;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.ALIAS_DURATION;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.CONSUMER_ERROR;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.DURATION_UNDEFINED_VALUE;
-import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.KAFKA_PACKAGE_NAME;
-import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.KAFKA_PROTOCOL_PACKAGE;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.NATIVE_CONSUMER;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.NATIVE_CONSUMER_CONFIG;
 import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.createKafkaError;
@@ -52,22 +45,11 @@ import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.getTopicPartiti
 /**
  * Native function returns end offsets for given partition array.
  */
-@BallerinaFunction(
-        orgName = KafkaConstants.ORG_NAME,
-        packageName = KAFKA_PACKAGE_NAME,
-        functionName = "getEndOffsets",
-        receiver = @Receiver(
-                type = TypeKind.OBJECT,
-                structType = KafkaConstants.CONSUMER_STRUCT_NAME,
-                structPackage = KAFKA_PROTOCOL_PACKAGE
-        ),
-        isPublic = true
-)
 public class GetEndOffsets {
 
     private static final Logger logger = LoggerFactory.getLogger(GetEndOffsets.class);
 
-    public static Object getEndOffsets(Strand strand, ObjectValue consumerObject, ArrayValue topicPartitions,
+    public static Object getEndOffsets(ObjectValue consumerObject, ArrayValue topicPartitions,
                                        long duration) {
         KafkaConsumer<byte[], byte[]> kafkaConsumer = (KafkaConsumer) consumerObject.getNativeData(NATIVE_CONSUMER);
         Properties consumerProperties = (Properties) consumerObject.getNativeData(NATIVE_CONSUMER_CONFIG);

@@ -21,15 +21,11 @@ package org.ballerinalang.messaging.kafka.nativeimpl.consumer;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.KafkaException;
 import org.apache.kafka.common.PartitionInfo;
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.Receiver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,13 +36,9 @@ import java.util.Properties;
 
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.ALIAS_DURATION;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.CONSUMER_ERROR;
-import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.CONSUMER_STRUCT_NAME;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.DURATION_UNDEFINED_VALUE;
-import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.KAFKA_PACKAGE_NAME;
-import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.KAFKA_PROTOCOL_PACKAGE;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.NATIVE_CONSUMER;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.NATIVE_CONSUMER_CONFIG;
-import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.ORG_NAME;
 import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.createKafkaError;
 import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.getDefaultApiTimeout;
 import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.getIntFromLong;
@@ -54,23 +46,11 @@ import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.getIntFromLong;
 /**
  * Native function returns given partition assignment for consumer.
  */
-@BallerinaFunction(
-        orgName = ORG_NAME,
-        packageName = KAFKA_PACKAGE_NAME,
-        functionName = "getAvailableTopics",
-        receiver = @Receiver(
-                type = TypeKind.OBJECT,
-                structType = CONSUMER_STRUCT_NAME,
-                structPackage = KAFKA_PROTOCOL_PACKAGE
-        ),
-        isPublic = true
-)
-
 public class GetAvailableTopics {
 
     private static final Logger logger = LoggerFactory.getLogger(GetAvailableTopics.class);
 
-    public static Object getAvailableTopics(Strand strand, ObjectValue consumerObject, long duration) {
+    public static Object getAvailableTopics(ObjectValue consumerObject, long duration) {
         KafkaConsumer<byte[], byte[]> kafkaConsumer = (KafkaConsumer) consumerObject.getNativeData(NATIVE_CONSUMER);
         Properties consumerProperties = (Properties) consumerObject.getNativeData(NATIVE_CONSUMER_CONFIG);
         int defaultApiTimeout = getDefaultApiTimeout(consumerProperties);
