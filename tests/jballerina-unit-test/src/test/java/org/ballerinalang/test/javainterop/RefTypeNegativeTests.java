@@ -36,15 +36,15 @@ public class RefTypeNegativeTests {
             BCompileUtil.compile("test-src/javainterop/ballerina_ref_types_as_interop_negative.bal");
         } catch (BLangCompilerException e) {
             errors = e.getMessage().split("\n");
-            System.out.println(e.getMessage());
         }
 
         Assert.assertNotNull(errors);
+        Assert.assertEquals(errors.length, 2);
         Assert.assertEquals(errors[0], "error: .:ballerina_ref_types_as_interop_negative.bal:13:1: {ballerinax/java}" +
                 "METHOD_SIGNATURE_DOES_NOT_MATCH message=Incompatible return type for method 'getAllFloats' in class" +
                 " 'org.ballerinalang.test.javainterop.RefTypeNegativeTests': Java type 'float' will not be matched " +
                 "to ballerina type 'ALL_INT'");
-        Assert.assertEquals(errors[0], "error: .:ballerina_ref_types_as_interop_negative.bal:28:1: {ballerinax/java}" +
+        Assert.assertEquals(errors[1], "error: .:ballerina_ref_types_as_interop_negative.bal:28:1: {ballerinax/java}" +
                 "METHOD_SIGNATURE_DOES_NOT_MATCH message=Incompatible param type for method 'acceptAllInts' in class" +
                 " 'org.ballerinalang.test.javainterop.RefTypeNegativeTests': Java type 'int' will not be matched to " +
                 "ballerina type 'MIX_TYPE'");

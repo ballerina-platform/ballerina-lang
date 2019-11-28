@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.test.javainterop.basic;
 
+import org.ballerinalang.jvm.values.HandleValue;
 import org.ballerinalang.model.types.BErrorType;
 import org.ballerinalang.model.types.BHandleType;
 import org.ballerinalang.model.values.BByte;
@@ -104,7 +105,8 @@ public class InstanceMethodTest {
 
         BValue[] returns = BRunUtil.invoke(result, "handleOrErrorWithObjectReturn", args);
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(((BByte) returns[0]).intValue(), 70);
+        Object value = ((BHandleValue) returns[0]).getValue();
+        Assert.assertEquals((int) value, 70);
 
         returns = BRunUtil.invoke(result, "handleOrErrorWithObjectReturnThrows", args);
         Assert.assertEquals(returns.length, 1);

@@ -257,11 +257,11 @@ function generateJToBCheckCast(jvm:MethodVisitor mv, BalToJVMIndexMap indexMap, 
         } else if (targetType is bir:BTypeHandle) {
             generateJCastToBHandle(mv, sourceType);
         } else if (targetType is bir:BTypeAny) {
-            generateJCastToBAny(mv, indexMap, sourceType);
+            generateJCastToBAny(mv, indexMap, sourceType, targetType);
         } else if (targetType is bir:BJSONType) {
             generateCheckCastJToBJSON(mv, indexMap, sourceType);
         } else if (targetType is bir:BFiniteType) {
-            generateCheckCastJToBFiniteType(mv, indexMap, sourceType);
+            generateCheckCastJToBFiniteType(mv, indexMap, sourceType, targetType);
         // TODO fix below properly - rajith
         //} else if (sourceType is bir:BXMLType && targetType is bir:BMapType) {
         //    generateXMLToAttributesMap(mv, sourceType);
@@ -387,13 +387,13 @@ function generateCheckCastJToBByte(jvm:MethodVisitor mv, jvm:JType sourceType) {
 }
 
 function generateCheckCastJToBUnionType(jvm:MethodVisitor mv, BalToJVMIndexMap indexMap, jvm:JType sourceType, bir:BUnionType targetType) {
-    generateJCastToBAny(mv, indexMap, sourceType);
+    generateJCastToBAny(mv, indexMap, sourceType, targetType);
 }
 
 function generateCheckCastJToBAnyData(jvm:MethodVisitor mv, BalToJVMIndexMap indexMap, jvm:JType sourceType) {
     if !(sourceType is jvm:JRefType || sourceType is jvm:JArrayType) {
         // if value types, then ad box instruction
-        generateJCastToBAny(mv, indexMap, sourceType);
+        generateJCastToBAny(mv, indexMap, sourceType, bir:TYPE_ANYDATA);
     }
 }
 
@@ -422,7 +422,7 @@ function generateJCastToBHandle(jvm:MethodVisitor mv, jvm:JType sourceType) {
     //}
 }
 
-function generateJCastToBAny(jvm:MethodVisitor mv, BalToJVMIndexMap indexMap, jvm:JType sourceType) {
+function generateJCastToBAny(jvm:MethodVisitor mv, BalToJVMIndexMap indexMap, jvm:JType sourceType, bir:BType targetType) {
     if (sourceType is jvm:JBoolean) {
         mv.visitMethodInsn(INVOKESTATIC, BOOLEAN_VALUE, "valueOf", io:sprintf("(Z)L%s;", BOOLEAN_VALUE), false);
     } else if (sourceType is jvm:JByte) {
@@ -446,6 +446,12 @@ function generateJCastToBAny(jvm:MethodVisitor mv, BalToJVMIndexMap indexMap, jv
     } else if (sourceType is jvm:JRefType) {
         jvm:Label afterHandle = new;
         if (sourceType.typeValue == "java/lang/Object") {
+
+            if (isNillable(targetType)) {
+                mv.visitInsn(DUP);
+                mv.visitJumpInsn(IFNULL, afterHandle);
+            }
+
             mv.visitInsn(DUP);
             mv.visitTypeInsn(INSTANCEOF, ERROR_VALUE);
             mv.visitJumpInsn(IFNE, afterHandle);
@@ -487,21 +493,34 @@ function generateJCastToBAny(jvm:MethodVisitor mv, BalToJVMIndexMap indexMap, jv
     }
 }
 
+function isNillable(bir:BType targetType) returns boolean {
+    if (targetType is bir:BTypeNil|bir:BJSONType|bir:BTypeAny|bir:BTypeAnyData) {
+        return true;
+    } else if (targetType is bir:BUnionType) {
+        return (targetType.typeFlags | TYPE_FLAG_NILABLE) == TYPE_FLAG_NILABLE;
+    } else if (targetType is bir:BFiniteType) {
+        return (targetType.typeFlags | TYPE_FLAG_NILABLE) == TYPE_FLAG_NILABLE;
+    }
+
+    return false;
+}
+
 function generateCheckCastJToBJSON(jvm:MethodVisitor mv, BalToJVMIndexMap indexMap, jvm:JType sourceType) {
     if (sourceType is jvm:JRefType || sourceType is jvm:JArrayType) {
     	// TODO fix properly - rajith
         //checkCast(mv, bir:TYPE_JSON);
     } else {
         // if value types, then ad box instruction
-        generateJCastToBAny(mv, indexMap, sourceType);
+        generateJCastToBAny(mv, indexMap, sourceType, bir:TYPE_JSON);
     }
 }
 
-function generateCheckCastJToBFiniteType(jvm:MethodVisitor mv, BalToJVMIndexMap indexMap, jvm:JType sourceType) {
+function generateCheckCastJToBFiniteType(jvm:MethodVisitor mv, BalToJVMIndexMap indexMap, jvm:JType sourceType,
+                                            bir:BType targetType) {
     // Finite types are stored in ref registry at ballerina side. Therefore if the return 
     // type if a primitive, then add a box instruction.
     if !(sourceType is jvm:JRefType || sourceType is jvm:JArrayType) {
-        generateJCastToBAny(mv, indexMap, sourceType);
+        generateJCastToBAny(mv, indexMap, sourceType, targetType);
     }
 }
 

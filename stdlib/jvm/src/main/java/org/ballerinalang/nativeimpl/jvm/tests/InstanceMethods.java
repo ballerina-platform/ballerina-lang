@@ -17,6 +17,8 @@
  */
 package org.ballerinalang.nativeimpl.jvm.tests;
 
+import org.ballerinalang.jvm.values.HandleValue;
+
 /**
  * This class contains a set of utility instance methods required for interoperability testing.
  *
@@ -98,7 +100,7 @@ public class InstanceMethods {
         if (false) {
             throw new InterruptedException();
         }
-        return 70;
+        return new HandleValue(70);
     }
 
     public Object handleOrErrorWithObjectReturnThrows() throws InterruptedException {
