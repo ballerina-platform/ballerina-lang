@@ -74,6 +74,7 @@ dependencies {
     baloImplementation project(path: ':ballerina-config-api', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-lang:annotations', configuration: 'baloImplementation')
 
+    interopImports project(':ballerina-io')
     interopImports project(':ballerina-filepath')
     interopImports project(':ballerina-system')
 
