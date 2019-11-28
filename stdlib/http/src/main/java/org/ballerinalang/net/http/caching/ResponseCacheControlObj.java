@@ -21,6 +21,7 @@ package org.ballerinalang.net.http.caching;
 import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.types.BPackage;
 import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.ObjectValue;
 
 import java.util.Map;
@@ -138,7 +139,7 @@ public class ResponseCacheControlObj {
                     if (value != null) {
                         value = value.replace("\"", "");
                         responseCacheControl.set(RES_CACHE_CONTROL_NO_CACHE_FIELDS_FIELD,
-                                                         new ArrayValue(value.split(",")));
+                                                         new ArrayValueImpl(value.split(",")));
                     }
                     break;
                 case NO_STORE:
@@ -152,7 +153,7 @@ public class ResponseCacheControlObj {
                     if (value != null) {
                         value = value.replace("\"", "");
                         responseCacheControl.set(RES_CACHE_CONTROL_PRIVATE_FIELDS_FIELD,
-                                                         new ArrayValue(value.split(",")));
+                                                         new ArrayValueImpl(value.split(",")));
                     }
                     break;
                 case PUBLIC:

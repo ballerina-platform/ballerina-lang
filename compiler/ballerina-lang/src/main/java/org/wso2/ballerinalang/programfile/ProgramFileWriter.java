@@ -28,6 +28,7 @@ import java.io.OutputStream;
  *
  * @since 0.963.0
  */
+@Deprecated
 public class ProgramFileWriter {
 
     public static void writeProgram(ProgramFile programFile, OutputStream programOutStream) throws IOException {

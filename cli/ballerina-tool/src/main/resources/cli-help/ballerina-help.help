@@ -48,7 +48,3 @@ BALLERINA COMMANDS
         grpc            Generate Ballerina sources for the given protobuf definition
         openapi         Generate Ballerina sources for the given OpenAPI definition and vice versa.
         version         Print Ballerina version
-
-
-See 'ballerina help <command>' for more information on a specific command.
-

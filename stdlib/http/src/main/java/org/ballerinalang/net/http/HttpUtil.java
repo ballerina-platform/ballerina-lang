@@ -710,9 +710,7 @@ public class HttpUtil {
         Object remoteSocketAddress = inboundMsg.getProperty(HttpConstants.REMOTE_ADDRESS);
         if (remoteSocketAddress instanceof InetSocketAddress) {
             InetSocketAddress inetSocketAddress = (InetSocketAddress) remoteSocketAddress;
-            String remoteHost = inetSocketAddress.getHostName();
             long remotePort = inetSocketAddress.getPort();
-            remote.put(HttpConstants.REMOTE_HOST_FIELD, remoteHost);
             remote.put(HttpConstants.REMOTE_PORT_FIELD, remotePort);
         }
         httpCaller.set(HttpConstants.REMOTE_STRUCT_FIELD, remote);
@@ -1256,6 +1254,9 @@ public class HttpUtil {
         List<Parameter> clientParams = new ArrayList<>();
         if (disableSslValidation) {
             sslConfiguration.disableSsl();
+            return;
+        } else if (StringUtils.isEmpty(trustCerts) && trustStore == null) {
+            sslConfiguration.useJavaDefaults();
             return;
         }
         if (trustStore != null && StringUtils.isNotBlank(trustCerts)) {

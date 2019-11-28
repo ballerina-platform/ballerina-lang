@@ -19,7 +19,9 @@
 package org.ballerinalang.langlib.array;
 
 import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.FPValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
@@ -42,8 +44,8 @@ import static org.ballerinalang.jvm.values.utils.ArrayUtils.add;
 public class Filter {
 
     public static ArrayValue filter(Strand strand, ArrayValue arr, FPValue<Object, Boolean> func) {
-        ArrayValue newArr = new ArrayValue(arr.getType());
-        int elemTypeTag = newArr.elementType.getTag();
+        ArrayValue newArr = new ArrayValueImpl((BArrayType) arr.getType());
+        int elemTypeTag = newArr.getElementType().getTag();
         int size = arr.size();
         Object val;
 

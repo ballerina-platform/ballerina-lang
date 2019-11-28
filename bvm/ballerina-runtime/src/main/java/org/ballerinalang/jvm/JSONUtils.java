@@ -33,6 +33,7 @@ import org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.util.exceptions.RuntimeErrors;
 import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.DecimalValue;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
@@ -89,13 +90,14 @@ public class JSONUtils {
             return null;
         }
 
-        if (bArray.elementType == BTypes.typeInt) {
+        BType elementType = bArray.getElementType();
+        if (elementType == BTypes.typeInt) {
             return convertIntArrayToJSON(bArray);
-        } else if (bArray.elementType == BTypes.typeBoolean) {
+        } else if (elementType == BTypes.typeBoolean) {
             return convertBooleanArrayToJSON(bArray);
-        } else if (bArray.elementType == BTypes.typeFloat) {
+        } else if (elementType == BTypes.typeFloat) {
             return convertFloatArrayToJSON(bArray);
-        } else if (bArray.elementType == BTypes.typeString) {
+        } else if (elementType == BTypes.typeString) {
             return convertStringArrayToJSON(bArray);
         } else {
             return convertRefArrayToJSON(bArray);
@@ -258,7 +260,7 @@ public class JSONUtils {
         }
 
         try {
-            Lists.add((ArrayValue) json, index, element);
+            ((ArrayValue) json).add(index, element);
         } catch (ErrorValue e) {
             Object errorDetails = e.getDetails();
             if (errorDetails != null) {
@@ -407,11 +409,11 @@ public class JSONUtils {
      */
     public static ArrayValue getKeys(Object json) {
         if (json == null || !isJSONObject(json)) {
-            return new ArrayValue(BTypes.typeString);
+            return new ArrayValueImpl(new BArrayType(BTypes.typeString));
         }
 
         String[] keys = ((MapValueImpl<String, ?>) json).getKeys();
-        return new ArrayValue(keys);
+        return new ArrayValueImpl(keys);
     }
 
     public static Object convertUnionTypeToJSON(Object source, BJSONType targetType) {
@@ -552,13 +554,13 @@ public class JSONUtils {
             case TypeTags.BOOLEAN_TAG:
                 return jsonArrayToBooleanArray(jsonArray);
             case TypeTags.ANY_TAG:
-                ArrayValue array = new ArrayValue(targetArrayType);
+                ArrayValue array = new ArrayValueImpl(targetArrayType);
                 for (int i = 0; i < jsonArray.size(); i++) {
                     array.add(i, jsonArray.getRefValue(i));
                 }
                 return array;
             default:
-                array = new ArrayValue(targetArrayType);
+                array = new ArrayValueImpl(targetArrayType);
                 for (int i = 0; i < jsonArray.size(); i++) {
                     array.append(convertJSON(jsonArray.getRefValue(i), targetElementType));
                 }
@@ -659,7 +661,7 @@ public class JSONUtils {
     }
 
     private static ArrayValue jsonArrayToBIntArray(ArrayValue arrayNode) {
-        ArrayValue intArray = new ArrayValue(BTypes.typeInt);
+        ArrayValue intArray = new ArrayValueImpl(new BArrayType(BTypes.typeInt));
         for (int i = 0; i < arrayNode.size(); i++) {
             Object jsonValue = arrayNode.getRefValue(i);
             intArray.add(i, jsonNodeToInt(jsonValue));
@@ -668,7 +670,7 @@ public class JSONUtils {
     }
 
     private static ArrayValue jsonArrayToBFloatArray(ArrayValue arrayNode) {
-        ArrayValue floatArray = new ArrayValue(BTypes.typeFloat);
+        ArrayValue floatArray = new ArrayValueImpl(new BArrayType(BTypes.typeFloat));
         for (int i = 0; i < arrayNode.size(); i++) {
             Object jsonValue = arrayNode.getRefValue(i);
             floatArray.add(i, jsonNodeToFloat(jsonValue));
@@ -677,7 +679,7 @@ public class JSONUtils {
     }
 
     private static ArrayValue jsonArrayToBDecimalArray(ArrayValue arrayNode) {
-        ArrayValue decimalArray = new ArrayValue(BTypes.typeDecimal);
+        ArrayValue decimalArray = new ArrayValueImpl(new BArrayType(BTypes.typeDecimal));
         for (int i = 0; i < arrayNode.size(); i++) {
             Object jsonValue = arrayNode.getRefValue(i);
             decimalArray.add(i, jsonNodeToDecimal(jsonValue));
@@ -686,7 +688,7 @@ public class JSONUtils {
     }
 
     private static ArrayValue jsonArrayToBStringArray(ArrayValue arrayNode) {
-        ArrayValue stringArray = new ArrayValue(BTypes.typeString);
+        ArrayValue stringArray = new ArrayValueImpl(new BArrayType(BTypes.typeString));
         for (int i = 0; i < arrayNode.size(); i++) {
             stringArray.add(i, arrayNode.getRefValue(i).toString());
         }
@@ -694,7 +696,7 @@ public class JSONUtils {
     }
 
     private static ArrayValue jsonArrayToBooleanArray(ArrayValue arrayNode) {
-        ArrayValue booleanArray = new ArrayValue(BTypes.typeBoolean);
+        ArrayValue booleanArray = new ArrayValueImpl(new BArrayType(BTypes.typeBoolean));
         for (int i = 0; i < arrayNode.size(); i++) {
             Object jsonValue = arrayNode.getRefValue(i);
             booleanArray.add(i, jsonNodeToBoolean(jsonValue));
@@ -709,7 +711,7 @@ public class JSONUtils {
      * @return JSON representation of the provided refValueArray
      */
     private static ArrayValue convertRefArrayToJSON(ArrayValue refValueArray) {
-        ArrayValue json = new ArrayValue(new BArrayType(BTypes.typeJSON));
+        ArrayValue json = new ArrayValueImpl(new BArrayType(BTypes.typeJSON));
         for (int i = 0; i < refValueArray.size(); i++) {
             Object value = refValueArray.getRefValue(i);
             if (value == null) {
@@ -744,7 +746,7 @@ public class JSONUtils {
      * @return JSON representation of the provided intArray
      */
     private static ArrayValue convertIntArrayToJSON(ArrayValue intArray) {
-        ArrayValue json = new ArrayValue(new BArrayType(BTypes.typeJSON));
+        ArrayValue json = new ArrayValueImpl(new BArrayType(BTypes.typeJSON));
         for (int i = 0; i < intArray.size(); i++) {
             long value = intArray.getInt(i);
             json.append(new Long(value));
@@ -759,7 +761,7 @@ public class JSONUtils {
      * @return JSON representation of the provided floatArray
      */
     private static ArrayValue convertFloatArrayToJSON(ArrayValue floatArray) {
-        ArrayValue json = new ArrayValue(new BArrayType(BTypes.typeJSON));
+        ArrayValue json = new ArrayValueImpl(new BArrayType(BTypes.typeJSON));
         for (int i = 0; i < floatArray.size(); i++) {
             double value = floatArray.getFloat(i);
             json.append(new Double(value));
@@ -774,7 +776,7 @@ public class JSONUtils {
      * @return JSON representation of the provided stringArray
      */
     private static ArrayValue convertStringArrayToJSON(ArrayValue stringArray) {
-        ArrayValue json = new ArrayValue(new BArrayType(BTypes.typeJSON));
+        ArrayValue json = new ArrayValueImpl(new BArrayType(BTypes.typeJSON));
         for (int i = 0; i < stringArray.size(); i++) {
             json.append(stringArray.getString(i));
         }
@@ -788,7 +790,7 @@ public class JSONUtils {
      * @return JSON representation of the provided booleanArray
      */
     private static ArrayValue convertBooleanArrayToJSON(ArrayValue booleanArray) {
-        ArrayValue json = new ArrayValue(new BArrayType(BTypes.typeJSON));
+        ArrayValue json = new ArrayValueImpl(new BArrayType(BTypes.typeJSON));
         for (int i = 0; i < booleanArray.size(); i++) {
             boolean value = booleanArray.getBoolean(i);
             json.append(new Boolean(value));

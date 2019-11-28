@@ -38,11 +38,13 @@ public class BLangMarkdownDocumentation extends BLangNode implements MarkdownDoc
 
     public LinkedList<BLangMarkdownDocumentationLine> documentationLines;
     public LinkedList<BLangMarkdownParameterDocumentation> parameters;
+    public LinkedList<BLangMarkdownReferenceDocumentation> references;
     public BLangMarkdownReturnParameterDocumentation returnParameter;
 
     public BLangMarkdownDocumentation() {
         this.documentationLines = new LinkedList<>();
         this.parameters = new LinkedList<>();
+        this.references = new LinkedList<>();
     }
 
     @Override
@@ -106,7 +108,19 @@ public class BLangMarkdownDocumentation extends BLangNode implements MarkdownDoc
 
     @Override
     public String toString() {
-        return "BLangMarkdownDocumentation: " + documentationLines + " " + parameters + " " +
+        return "BLangMarkdownDocumentation: " + documentationLines + " " + references + " " + parameters + " " +
                 (returnParameter == null ? "" : returnParameter);
+    }
+
+    @Override
+    public LinkedList<BLangMarkdownReferenceDocumentation> getReferences() {
+        return references;
+    }
+
+    @Override
+    public void addReference(BLangMarkdownReferenceDocumentation reference) {
+        if (reference != null) {
+            references.add(reference);
+        }
     }
 }
