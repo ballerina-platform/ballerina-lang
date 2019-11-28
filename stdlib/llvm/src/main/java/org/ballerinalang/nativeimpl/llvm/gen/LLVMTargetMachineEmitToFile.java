@@ -1,26 +1,8 @@
-/*
- *  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
- *
- *  WSO2 Inc. licenses this file to you under the Apache License,
- *  Version 2.0 (the "License"); you may not use this file except
- *  in compliance with the License.
- *  You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
- *
- *  Unless required by applicable law or agreed to in writing,
- *  software distributed under the License is distributed on an
- *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- *  KIND, either express or implied.  See the License for the
- *  specific language governing permissions and limitations
- *  under the License.
- */
 package org.ballerinalang.nativeimpl.llvm.gen;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
-import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BValueArray;
+import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.nativeimpl.llvm.FFIUtil;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -34,10 +16,12 @@ import static org.ballerinalang.model.types.TypeKind.RECORD;
 
 /**
  * Auto generated class.
+ *
+ * @since 1.0.3
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "llvm",
-        functionName = "LLVMTargetMachineEmitToFile",
+        functionName = "llvmTargetMachineEmitToFile",
         args = {
                 @Argument(name = "t", type = RECORD, structType = "LLVMTargetMachineRef"),
                 @Argument(name = "m", type = RECORD, structType = "LLVMModuleRef"),
@@ -49,19 +33,14 @@ import static org.ballerinalang.model.types.TypeKind.RECORD;
                 @ReturnType(type = INT, structPackage = "ballerina/llvm"),
         }
 )
-public class LLVMTargetMachineEmitToFile extends BlockingNativeCallableUnit {
+public class LLVMTargetMachineEmitToFile {
 
-    @Override
-    public void execute(Context context) {
-        LLVM.LLVMTargetMachineRef t = FFIUtil.getRecodeArgumentNative(context, 0);
-        LLVM.LLVMModuleRef m = FFIUtil.getRecodeArgumentNative(context, 1);
-        BValueArray fileNameByteArray = (BValueArray) context.getRefArgument(2);
-        int codegen = (int) context.getIntArgument(0);
-        BValueArray errorMsgByteArray = (BValueArray) context.getRefArgument(3);
+    public static long llvmTargetMachineEmitToFile(Strand strand, MapValue<String, Object> arg0, MapValue<String,
+            Object> arg1, ArrayValue arg2, long arg3, ArrayValue arg4) {
 
-        int returnValue = LLVM.LLVMTargetMachineEmitToFile(t, m, fileNameByteArray.getBytes(), codegen,
-                errorMsgByteArray.getBytes());
-        context.setReturnValues(new BInteger(returnValue));
+        LLVM.LLVMTargetMachineRef t = (LLVM.LLVMTargetMachineRef) FFIUtil.getRecodeArgumentNative(arg0);
+        LLVM.LLVMModuleRef m = (LLVM.LLVMModuleRef) FFIUtil.getRecodeArgumentNative(arg1);
+
+        return LLVM.LLVMTargetMachineEmitToFile(t, m, arg2.getBytes(), (int) arg3, arg4.getBytes());
     }
 }
-

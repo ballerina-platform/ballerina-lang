@@ -1,4 +1,4 @@
-// Copyright (c) 2018 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+// Copyright (c) 2019 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 //
 // WSO2 Inc. licenses this file to you under the Apache License,
 // Version 2.0 (the "License"); you may not use this file except
@@ -16,8 +16,8 @@
 
 package org.ballerinalang.nativeimpl.llvm.gen;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.nativeimpl.llvm.FFIUtil;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -28,20 +28,23 @@ import static org.bytedeco.javacpp.LLVM.LLVMPassManagerBuilderPopulateFunctionPa
 
 /**
  * Auto generated class.
+ *
+ * @since 1.0.3
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "llvm",
-        functionName = "LLVMPassManagerBuilderPopulateFunctionPassManager",
+        functionName = "llvmPassManagerBuilderPopulateFunctionPassManager",
         args = {
                 @Argument(name = "pmb", type = RECORD, structType = "LLVMPassManagerBuilderRef"),
                 @Argument(name = "pm", type = RECORD, structType = "LLVMPassManagerRef"),
         })
-public class LLVMPassManagerBuilderPopulateFunctionPassManager extends BlockingNativeCallableUnit {
+public class LLVMPassManagerBuilderPopulateFunctionPassManager {
 
-    @Override
-    public void execute(Context context) {
-        LLVM.LLVMPassManagerBuilderRef pmb = FFIUtil.getRecodeArgumentNative(context, 0);
-        LLVM.LLVMPassManagerRef pm = FFIUtil.getRecodeArgumentNative(context, 1);
+    public static void llvmPassManagerBuilderPopulateFunctionPassManager(Strand strand, MapValue<String, Object> arg0,
+                                                                         MapValue<String, Object> arg1) {
+
+        LLVM.LLVMPassManagerBuilderRef pmb = (LLVM.LLVMPassManagerBuilderRef) FFIUtil.getRecodeArgumentNative(arg0);
+        LLVM.LLVMPassManagerRef pm = (LLVM.LLVMPassManagerRef) FFIUtil.getRecodeArgumentNative(arg1);
         LLVMPassManagerBuilderPopulateFunctionPassManager(pmb, pm);
     }
 }
