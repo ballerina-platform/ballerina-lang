@@ -20,14 +20,9 @@ package org.ballerinax.jdbc.functions;
 
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinax.jdbc.datasource.SQLDatasourceUtils;
 
 import java.util.concurrent.ConcurrentHashMap;
-
-import static org.ballerinax.jdbc.Constants.JDBC_PACKAGE_PATH;
 
 /**
  * Extern function to initialize the global pool map.

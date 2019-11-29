@@ -18,7 +18,6 @@
 package org.ballerinax.jdbc.functions;
 
 import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinax.jdbc.Constants;
 import org.ballerinax.jdbc.datasource.SQLDatasource;
 
