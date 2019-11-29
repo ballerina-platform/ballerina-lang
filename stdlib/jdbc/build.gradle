@@ -49,7 +49,9 @@ dependencies {
     baloImplementation project(path: ':ballerina-time', configuration: 'baloImplementation')
 
     interopImports project(':ballerina-config-api')
+    interopImports project(':ballerina-io')
     interopImports project(':ballerina-jsonutils')
+    interopImports project(':ballerina-system')
 
     interopImports project(':ballerina-io')
 
