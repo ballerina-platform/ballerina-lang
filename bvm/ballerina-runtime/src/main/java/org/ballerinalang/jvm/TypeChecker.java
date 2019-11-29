@@ -1356,7 +1356,7 @@ public class TypeChecker {
     protected static boolean isFiniteTypeValue(Object sourceValue, BType sourceType, Object valueSpaceItem) {
         BType valueSpaceItemType = getType(valueSpaceItem);
         if (valueSpaceItemType.getTag() > TypeTags.FLOAT_TAG) {
-            return getType(valueSpaceItem).getTag() == sourceType.getTag() && valueSpaceItem.equals(sourceValue);
+            return valueSpaceItemType.getTag() == sourceType.getTag() && valueSpaceItem.equals(sourceValue);
         }
 
         switch (sourceType.getTag()) {
@@ -1364,9 +1364,17 @@ public class TypeChecker {
             case TypeTags.INT_TAG:
                 return ((Number) sourceValue).longValue() == ((Number) valueSpaceItem).longValue();
             case TypeTags.FLOAT_TAG:
-            case TypeTags.DECIMAL_TAG:
+                if (sourceType.getTag() != valueSpaceItemType.getTag()) {
+                    return false;
+                }
+
                 return ((Number) sourceValue).doubleValue() == ((Number) valueSpaceItem).doubleValue();
+            case TypeTags.DECIMAL_TAG:
+                // falls through
             default:
+                if (sourceType.getTag() != valueSpaceItemType.getTag()) {
+                    return false;
+                }
                 return valueSpaceItem.equals(sourceValue);
         }
     }
