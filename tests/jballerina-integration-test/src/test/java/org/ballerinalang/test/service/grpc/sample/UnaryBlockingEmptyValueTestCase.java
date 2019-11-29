@@ -71,7 +71,7 @@ public class UnaryBlockingEmptyValueTestCase extends GrpcBaseTest {
         Assert.assertEquals(structArray.size(), 2);
     }
 
-    @Test(enabled = false)
+    @Test
     public void testInputStructNoOutputClient() {
         // Stock Quote struct
         // StockQuote quote2 = {symbol: "Ballerina", name:"ballerina/io", last:1.0, low:0.5, high:2.0};

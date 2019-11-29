@@ -58,7 +58,7 @@ public class UnaryBlockingNestedStructTestCase extends GrpcBaseTest {
         Assert.assertEquals(responses[0].stringValue(), "Client got response: Submitted name: Sam");
     }
 
-    @Test(enabled = false)
+    @Test
     public void testOutputNestedStructClient() {
         BValue[] responses = BRunUtil.invoke(result, "testOutputNestedStruct", new Object[]{"WSO2"});
         Assert.assertEquals(responses.length, 1);

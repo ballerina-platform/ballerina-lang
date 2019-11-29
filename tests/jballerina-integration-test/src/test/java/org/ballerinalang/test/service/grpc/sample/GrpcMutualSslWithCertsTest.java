@@ -49,7 +49,7 @@ public class GrpcMutualSslWithCertsTest extends GrpcBaseTest {
         TestUtils.prepareBalo(this);
     }
 
-    @Test(enabled = false)
+    @Test
     public void testMutualSSLWithcerts() throws IOException {
         Path balFilePath = Paths.get("src", "test", "resources", "grpc", "src", "clients", "10_grpc_ssl_client.bal");
         String privateKey = StringEscapeUtils.escapeJava(Paths.get("src", "test", "resources", "certsAndKeys",

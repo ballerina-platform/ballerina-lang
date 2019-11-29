@@ -212,7 +212,7 @@
             <class name="org.ballerinalang.test.service.grpc.sample.ErrorServiceTestCase"/>
             <class name="org.ballerinalang.test.service.grpc.sample.BidiStreamingTestCase"/>
             <class name="org.ballerinalang.test.service.grpc.sample.ErrorReturnServiceTestCase"/>
-<!--            <class name="org.ballerinalang.test.service.grpc.sample.UnaryBlockingOneofFieldTestCase"/>-->
+            <class name="org.ballerinalang.test.service.grpc.sample.UnaryBlockingOneofFieldTestCase"/>
             <class name="org.ballerinalang.test.service.grpc.sample.Http2GatewayTestCase"/>
             <class name="org.ballerinalang.test.service.grpc.tool.InvalidServiceContractTestCase"/>
             <class name="org.ballerinalang.test.service.grpc.tool.StubGeneratorTestCase"/>
