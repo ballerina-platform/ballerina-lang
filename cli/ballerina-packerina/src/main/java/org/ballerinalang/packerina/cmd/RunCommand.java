@@ -90,6 +90,19 @@ public class RunCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--debug", hidden = true)
     private String debugPort;
 
+    @CommandLine.Option(names = {"--native"}, hidden = true,
+            description = "Compile Ballerina program to a native binary")
+    private boolean nativeBinary;
+
+    @CommandLine.Option(names = "--dump-llvm-ir", hidden = true)
+    private boolean dumpLLVMIR;
+
+    @CommandLine.Option(names = "--no-optimize-llvm", hidden = true)
+    private boolean noOptimizeLLVM;
+
+    @CommandLine.Option(names = "--dump-bir", hidden = true)
+    private boolean dumpBIR;
+
     @CommandLine.Option(names = "--experimental", description = "Enable experimental language features.")
     private boolean experimentalFlag;
 
@@ -258,7 +271,8 @@ public class RunCommand implements BLauncherCmd {
                 .addTask(new CreateBaloTask(), isSingleFileBuild)   // create the balos for modules(projects only)
                 .addTask(new CreateBirTask())   // create the bir
                 .addTask(new CopyNativeLibTask())    // copy the native libs(projects only)
-                .addTask(new CreateJarTask(false))  // create the jar
+                // create the jar.
+                .addTask(new CreateJarTask(this.dumpBIR, this.nativeBinary, this.dumpLLVMIR, this.noOptimizeLLVM))
                 .addTask(new CopyModuleJarTask())
                 .addTask(new CreateExecutableTask())  // create the executable .jar file
                 .addTask(new PrintExecutablePathTask(), isSingleFileBuild)   // print the location of the executable
