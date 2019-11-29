@@ -22,11 +22,10 @@ import ballerinax/java;
 # + return - Environment variable value if it exists, else an empty string
 public function getEnv(@untainted string name) returns string {
     var value = java:toString(nativeGetEnv(java:fromString(name)));
-    string output = "";
     if (value is string) {
-        output = value;
+        return value;
     }
-    return output;
+    return "";
 }
 
 function nativeGetEnv(handle key) returns handle = @java:Method {
