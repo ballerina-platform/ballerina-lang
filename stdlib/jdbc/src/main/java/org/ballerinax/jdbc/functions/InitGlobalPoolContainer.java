@@ -18,7 +18,6 @@
 
 package org.ballerinax.jdbc.functions;
 
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
@@ -33,15 +32,9 @@ import static org.ballerinax.jdbc.Constants.JDBC_PACKAGE_PATH;
 /**
  * Extern function to initialize the global pool map.
  */
-@BallerinaFunction(orgName = "ballerinax",
-                   packageName = "java.jdbc",
-                   functionName = "initGlobalPoolContainer",
-                   receiver = @Receiver(type = TypeKind.OBJECT,
-                                        structType = "GlobalPoolConfigContainer",
-                                        structPackage = JDBC_PACKAGE_PATH))
 public class InitGlobalPoolContainer {
 
-    public static void initGlobalPoolContainer(Strand strand, ObjectValue globalPoolConfigContainer,
+    public static void initGlobalPoolContainer(ObjectValue globalPoolConfigContainer,
             MapValue<String, Object> poolConfig) {
         SQLDatasourceUtils.addDatasourceContainer(poolConfig, new ConcurrentHashMap<>());
     }

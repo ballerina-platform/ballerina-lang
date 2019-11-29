@@ -34,11 +34,6 @@ import java.util.UUID;
  *
  * @since 0.970
  */
-
-@BallerinaFunction(orgName = "ballerinax",
-                   packageName = "java.jdbc",
-                   functionName = "createClient",
-                   isPublic = true)
 public class CreateClient {
 
     public static void createClient(ObjectValue client, MapValue<String, Object> config,
