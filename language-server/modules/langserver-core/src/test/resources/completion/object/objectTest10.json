@@ -1191,6 +1191,14 @@
       }
     },
     {
+      "label": "new",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "220",
+      "insertText": "new ",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "testObject(int field1, int field2)",
       "kind": "Function",
       "detail": "Function",

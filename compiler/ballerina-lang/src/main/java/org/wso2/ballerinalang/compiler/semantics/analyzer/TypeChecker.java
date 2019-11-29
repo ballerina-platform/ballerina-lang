@@ -39,6 +39,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BErrorTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
@@ -3380,6 +3381,13 @@ public class TypeChecker extends BLangNodeVisitor {
                 .collect(Collectors.toList());
 
         List<BVarSymbol> valueProvidedParams = new ArrayList<>();
+
+        BType symbolType = iExpr.symbol.type;
+        boolean hasRestParamAndArg = symbolType != null && symbolType.tsymbol != null
+                && symbolType.tsymbol.getKind() == SymbolKind.INVOKABLE_TYPE
+                && ((BInvokableTypeSymbol) symbolType.tsymbol).restParam != null
+                && !nonRestArgs.isEmpty() && paramTypes.size() == nonRestArgs.size();
+
         for (int i = 0; i < nonRestArgs.size(); i++) {
             BLangExpression arg = nonRestArgs.get(i);
             final BType expectedType = paramTypes.get(i);
@@ -3396,6 +3404,12 @@ public class TypeChecker extends BLangNodeVisitor {
             if (iExpr.symbol.tag == SymTag.VARIABLE) {
                 if (i < paramTypes.size()) {
                     checkTypeParamExpr(arg, this.env, expectedType);
+                    // Functions pointers takes rest parameters as arrays. This is incorrect, this should be fixed.
+                    // A warning is printed here for the above scenario mentioning this will fixed in a future release.
+                    if (hasRestParamAndArg && i == nonRestArgs.size() - 1
+                            && types.isAssignable(arg.type, expectedType)) {
+                        dlog.warning(iExpr.pos, DiagnosticCode.ARRAY_PASSED_TO_REST_ARG);
+                    }
                     if (nonRestParams.size() > i) {
                         requiredParams.remove(nonRestParams.get(i));
                     }

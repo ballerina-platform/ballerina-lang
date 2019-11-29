@@ -53,7 +53,7 @@ public class BallerinaApplicationRunningState extends BallerinaRunningState<Ball
 
     private int myDebugPort = 5006;
     @Nullable
-    private BallerinaHistoryProcessListener myHistoryProcessHandler;
+    public BallerinaHistoryProcessListener myHistoryProcessHandler;
 
     BallerinaApplicationRunningState(@NotNull ExecutionEnvironment env, @NotNull Module module,
                                      @NotNull BallerinaApplicationConfiguration configuration) {

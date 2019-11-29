@@ -503,6 +503,33 @@ public class PathDependencyTestCase extends BaseTest {
     }
 
     /**
+     * Build test-dependency project. There is a test time dependency from foo to bar. This should pass as previously,
+     * it was failing to load test time dependency from foo for bar, when test suite of bar was running.
+     *
+     * @throws BallerinaTestException Error when executing the commands.
+     */
+    @Test(description = "Test runtime test dependency from different modules")
+    public void testRuntimeTimeDependencyForExecutingModuleTests() throws BallerinaTestException {
+        Path caseResources = tempTestResources.resolve("test-dependency");
+        String msg = "invoked fooFn";
+
+        LogLeecher buildLogLeecher = new LogLeecher(msg);
+        balClient.runMain("build", new String[]{"bar"}, envVariables, new String[]{}, new LogLeecher[]{buildLogLeecher},
+                caseResources.toString());
+        buildLogLeecher.waitForText(10000);
+
+        buildLogLeecher = new LogLeecher(msg);
+        balClient.runMain("build", new String[]{"daz"}, envVariables, new String[]{}, new LogLeecher[]{buildLogLeecher},
+                caseResources.toString());
+        buildLogLeecher.waitForText(10000);
+
+        buildLogLeecher = new LogLeecher(msg);
+        balClient.runMain("build", new String[]{"-a"}, envVariables, new String[]{}, new LogLeecher[]{buildLogLeecher},
+                caseResources.toString());
+        buildLogLeecher.waitForText(10000);
+    }
+
+    /**
      * Get environment variables and add ballerina_home as a env variable the tmp directory.
      *
      * @return env directory variable array
