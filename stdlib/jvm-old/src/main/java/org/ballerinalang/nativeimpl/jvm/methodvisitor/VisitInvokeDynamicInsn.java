@@ -68,7 +68,6 @@ public class VisitInvokeDynamicInsn {
                 + STRING_DESC + METHOD_TYPE_DESC + METHOD_TYPE_DESC + "Ljava/lang/invoke/MethodHandle;"
                 + METHOD_TYPE_DESC + ")Ljava/lang/invoke/CallSite;", false);
 
-
         mv.visitInvokeDynamicInsn("apply", "(" + mapDesc + ")" + FUNCTION_DESC, handle,
                 new Object[]{Type.getType("(" + OBJECT_DESC + ")" + OBJECT_DESC),
                         new Handle(Opcodes.H_INVOKESTATIC, className, lambdaName,

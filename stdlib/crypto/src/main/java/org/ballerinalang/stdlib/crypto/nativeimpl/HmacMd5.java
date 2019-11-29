@@ -19,6 +19,7 @@
 package org.ballerinalang.stdlib.crypto.nativeimpl;
 
 import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.stdlib.crypto.CryptoUtils;
 
 /**
@@ -29,6 +30,6 @@ import org.ballerinalang.stdlib.crypto.CryptoUtils;
 public class HmacMd5 {
 
     public static ArrayValue hmacMd5(ArrayValue inputValue, ArrayValue keyValue) {
-        return new ArrayValue(CryptoUtils.hmac("HmacMD5", keyValue.getBytes(), inputValue.getBytes()));
+        return new ArrayValueImpl(CryptoUtils.hmac("HmacMD5", keyValue.getBytes(), inputValue.getBytes()));
     }
 }

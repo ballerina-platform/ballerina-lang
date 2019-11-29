@@ -19,7 +19,7 @@
 package org.ballerinalang.stdlib.crypto.nativeimpl;
 
 import org.ballerinalang.jvm.BallerinaValues;
-import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.stdlib.crypto.Constants;
 import org.ballerinalang.stdlib.crypto.CryptoUtils;
@@ -80,7 +80,7 @@ public class DecodePublicKey {
                                           x509Certificate.getNotAfter().getTime(), Constants.TIMEZONE_GMT));
 
                 certificateBMap.put(Constants.CERTIFICATE_RECORD_SIGNATURE_FIELD,
-                                    new ArrayValue(x509Certificate.getSignature()));
+                                    new ArrayValueImpl(x509Certificate.getSignature()));
                 certificateBMap.put(Constants.CERTIFICATE_RECORD_SIGNATURE_ALG_FIELD, x509Certificate.getSigAlgName());
             }
             PublicKey publicKey = certificate.getPublicKey();

@@ -24,6 +24,7 @@ import java.util.Objects;
  *
  * @since 0.87
  */
+@Deprecated
 public class FunctionInfo extends CallableUnitInfo {
 
     public FunctionInfo(int pkgCPIndex, int funcNameCPIndex) {

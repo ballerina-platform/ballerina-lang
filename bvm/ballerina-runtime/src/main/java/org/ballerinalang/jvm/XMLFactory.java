@@ -43,6 +43,7 @@ import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.types.TypeConstants;
 import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.TableValue;
@@ -164,7 +165,7 @@ public class XMLFactory {
      */
     @SuppressWarnings("unchecked")
     public static XMLValue<?> parse(InputStream xmlStream) {
-        ArrayValue elementsSeq = new ArrayValue(new BArrayType(BTypes.typeXML));
+        ArrayValue elementsSeq = new ArrayValueImpl(new BArrayType(BTypes.typeXML));
         OMDocument doc;
         try {
             doc = OMXMLBuilderFactory.createOMBuilder(STAX_PARSER_CONFIGURATION, xmlStream).getDocument();
@@ -190,7 +191,7 @@ public class XMLFactory {
      */
     @SuppressWarnings("unchecked")
     public static XMLValue<?> parse(InputStream xmlStream, String charset) {
-        ArrayValue elementsSeq = new ArrayValue(new BArrayType(BTypes.typeXML));
+        ArrayValue elementsSeq = new ArrayValueImpl(new BArrayType(BTypes.typeXML));
         OMDocument doc;
         try {
             doc = OMXMLBuilderFactory.createOMBuilder(STAX_PARSER_CONFIGURATION, xmlStream, charset).getDocument();
@@ -215,7 +216,7 @@ public class XMLFactory {
      */
     @SuppressWarnings("unchecked")
     public static XMLValue<?> parse(Reader reader) {
-        ArrayValue elementsSeq = new ArrayValue(new BArrayType(BTypes.typeXML));
+        ArrayValue elementsSeq = new ArrayValueImpl(new BArrayType(BTypes.typeXML));
         OMDocument doc;
         try {
             doc = OMXMLBuilderFactory.createOMBuilder(STAX_PARSER_CONFIGURATION, reader).getDocument();
@@ -240,7 +241,7 @@ public class XMLFactory {
      * @return Concatenated XML sequence
      */
     public static XMLValue<?> concatenate(XMLValue<?> firstSeq, XMLValue<?> secondSeq) {
-        ArrayValue concatSeq = new ArrayValue(new BArrayType(BTypes.typeXML));
+        ArrayValue concatSeq = new ArrayValueImpl(new BArrayType(BTypes.typeXML));
         int j = 0;
 
         // Load the content fully before concat the two
@@ -397,7 +398,7 @@ public class XMLFactory {
             // Process xml sequence
             XMLSequence xmlSequence = (XMLSequence) xml;
             if (xmlSequence.isEmpty()) {
-                return new ArrayValue(new BArrayType(BTypes.typeJSON));
+                return new ArrayValueImpl(new BArrayType(BTypes.typeJSON));
             }
             json = traverseXMLSequence(xmlSequence, attributePrefix, preserveNamespaces);
 
@@ -622,7 +623,7 @@ public class XMLFactory {
                     }
                 } else {
                     // Child elements with similar keys are put into an array
-                    ArrayValue arrayNode = new ArrayValue(new BArrayType(BTypes.typeJSON));
+                    ArrayValue arrayNode = new ArrayValueImpl(new BArrayType(BTypes.typeJSON));
                     for (OMElement element : elementList) {
                         arrayNode.append(element.getText());
                     }
@@ -648,7 +649,7 @@ public class XMLFactory {
                 root.put(key, elementList.get(0));
             } else {
                 // When there are multiple nodes with the same key they are set into an array
-                ArrayValue arrayNode = new ArrayValue(new BArrayType(BTypes.typeJSON));
+                ArrayValue arrayNode = new ArrayValueImpl(new BArrayType(BTypes.typeJSON));
                 for (Object node : elementList) {
                     arrayNode.append(node);
                 }
@@ -730,7 +731,7 @@ public class XMLFactory {
      */
     private static ArrayValue processTextArray(ArrayList<OMText> childArray) {
         // Create array based on xml text elements
-        ArrayValue arrayNode = new ArrayValue(new BArrayType(BTypes.typeJSON));
+        ArrayValue arrayNode = new ArrayValueImpl(new BArrayType(BTypes.typeJSON));
         for (OMText element : childArray) {
             arrayNode.append(element.getText());
         }

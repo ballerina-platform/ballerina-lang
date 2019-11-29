@@ -44,11 +44,15 @@ import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Collections;
+import java.util.Enumeration;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
 import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 import static org.ballerinalang.packerina.utils.FileUtils.deleteDirectory;
+import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_COMPILED_JAR_EXT;
 
 /**
  * Build command tests.
@@ -82,7 +86,7 @@ public class BuildCommandTest extends CommandTest {
     
         String buildLog = readOutput(true);
         Assert.assertEquals(buildLog.replaceAll("\r", ""),
-                "ballerina: invalid Ballerina source path, it should either be a module name " +
+                "ballerina: invalid Ballerina source path. It should either be a name of a module " +
                                       "in a Ballerina project or a file with a '.bal' extension. Use the -a or " +
                                       "--all flag to build or compile all modules.\n" +
                                       "\n" +
@@ -326,7 +330,7 @@ public class BuildCommandTest extends CommandTest {
         buildCommand.execute();
         String buildLog = readOutput(true);
         Assert.assertEquals(buildLog.replaceAll("\r", ""),
-                "ballerina: invalid Ballerina source path, it should either be a module name " +
+                "ballerina: invalid Ballerina source path. It should either be a name of a module " +
                                       "in a Ballerina project or a file with a '.bal' extension. Use the -a or --all " +
                                       "flag to build or compile all modules.\n" +
                                       "\n" +
@@ -462,12 +466,37 @@ public class BuildCommandTest extends CommandTest {
         }
     }
 
+    @Test(description = "Test Build Command in a Project which use dependency jar which include stored jar.")
+    public void testBuildCommandWithStoredJarDependency() throws IOException {
+        // Build the project
+        String[] compileArgs = {"--all", "--skip-tests"};
+        BuildCommand buildCommand = new BuildCommand(this.testResources.resolve("stored-jar-dependency-project"),
+                                                     printStream, printStream, false, true);
+        new CommandLine(buildCommand).parse(compileArgs);
+        buildCommand.execute();
+        Path target = this.testResources.resolve("stored-jar-dependency-project")
+                .resolve(ProjectDirConstants.TARGET_DIR_NAME);
+        Assert.assertTrue(Files.exists(target), "Check if target directory is created");
+        Path executablePath = target.resolve(ProjectDirConstants.BIN_DIR_NAME).resolve("mymodule.jar");
+        JarFile jarFile = new JarFile(executablePath.toFile());
+        Enumeration e = jarFile.entries();
+        while (e.hasMoreElements()) {
+            JarEntry je = (JarEntry) e.nextElement();
+            String name = je.getName();
+            int method = je.getMethod();
+            if (name.endsWith(BLANG_COMPILED_JAR_EXT)) {
+                Assert.assertEquals(method, ZipEntry.STORED);
+            }
+        }
+        readOutput(true);
+    }
+
     @Test(dependsOnMethods = {"testBuildCommand"})
     public void testBuildOutput() {
         Path bin = this.testResources.resolve("valid-project").resolve(ProjectDirConstants.TARGET_DIR_NAME)
                 .resolve(ProjectDirConstants.BIN_DIR_NAME);
         Assert.assertTrue(Files.exists(bin));
-        Assert.assertTrue(Files.exists(bin.resolve("mymodule" + ProjectDirConstants.BLANG_COMPILED_JAR_EXT)));
+        Assert.assertTrue(Files.exists(bin.resolve("mymodule" + BLANG_COMPILED_JAR_EXT)));
     }
 
     @Test(dependsOnMethods = {"testBuildCommand"})

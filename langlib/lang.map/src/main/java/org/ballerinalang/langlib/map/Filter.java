@@ -63,9 +63,9 @@ public class Filter {
         }
         MapValue newMap = new MapValueImpl(newMapType);
 
-        m.forEach((key, value) -> {
-            if (func.apply(new Object[]{strand, value, true})) {
-                newMap.put(key, value);
+        m.entrySet().forEach(entry -> {
+            if (func.apply(new Object[]{strand, entry.getValue(), true})) {
+                newMap.put(entry.getKey(), entry.getValue());
             }
         });
 

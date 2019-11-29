@@ -24,6 +24,7 @@ import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.MapValueImpl;
 
 import java.io.BufferedInputStream;
@@ -282,7 +283,7 @@ public class JSONParser {
             if (currentJsonNode != null) {
                 this.nodesStack.push(currentJsonNode);
             }
-            currentJsonNode = new ArrayValue(new BArrayType(BTypes.typeJSON));
+            currentJsonNode = new ArrayValueImpl(new BArrayType(BTypes.typeJSON));
             return FIRST_ARRAY_ELEMENT_READY_STATE;
         }
 

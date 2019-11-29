@@ -600,4 +600,13 @@ public class TaintedStatusPropagationTest {
         Assert.assertEquals(result.getDiagnostics().length, 1);
         BAssertUtil.validateError(result, 0, "tainted value passed to untainted parameter 'arg'", 21, 13);
     }
+
+    @Test
+    public void testTaintednessPropagationCheckExpressionNegative() {
+        CompileResult result = BCompileUtil.compile("test-src/taintchecking/propagation/check-expression-negative.bal");
+        Assert.assertEquals(result.getDiagnostics().length, 2);
+        BAssertUtil.validateError(result, 0, "tainted value passed to untainted parameter 'arg'", 19, 9);
+        BAssertUtil.validateError(result, 1,
+                "functions returning tainted value are required to annotate return signature @tainted: 'foo'", 22, 24);
+    }
 }

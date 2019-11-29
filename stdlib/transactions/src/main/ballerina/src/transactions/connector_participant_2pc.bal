@@ -41,7 +41,7 @@ type Participant2pcClientEP client object {
         self.conf = c;
     }
 
-    remote function prepare(string transactionId) returns string|error {
+    remote function prepare(string transactionId) returns @tainted string|error {
         http:Client httpClient = self.httpClient;
         http:Request req = new;
         PrepareRequest prepareReq = {transactionId:transactionId};
@@ -64,7 +64,7 @@ type Participant2pcClientEP client object {
         }
     }
 
-    remote function notify(string transactionId, string message) returns string|error {
+    remote function notify(string transactionId, string message) returns @tainted string|error {
         http:Client httpClient = self.httpClient;
         http:Request req = new;
         NotifyRequest notifyReq = {transactionId:transactionId, message:message};

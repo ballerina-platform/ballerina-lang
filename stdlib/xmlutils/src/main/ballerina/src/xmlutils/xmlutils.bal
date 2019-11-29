@@ -14,6 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerinax/java;
+
 # Record to provide configurations for the JSON to XML conversion.
 #
 # + attributePrefix - attribute prefix to use in XML
@@ -28,10 +30,25 @@ public type JsonOptions record {
 # + j - The json source
 # + options - JsonOptions struct for JSON to XML conversion properties
 # + return - XML representation of the given JSON
-public function fromJSON(json j, JsonOptions options = {}) returns xml|error = external;
+public function fromJSON(json? j, JsonOptions options = {}) returns xml|error {
+    return externFromJson(j, options);
+}
+
+// This is a temporary fix until resolve the #19917
+function externFromJson(json? j, JsonOptions options = {}) returns xml|error = @java:Method {
+    name: "fromJSON",
+    class: "org.ballerinalang.stdlib.xmlutils.ConvertUtils"
+} external;
 
 # Converts a table to its xml representation.
 #
 # + tbl - The source table
 # + return - XML representation of source table
-public function fromTable(table<record{}> tbl) returns xml = external;
+public function fromTable(table<record{}> tbl) returns xml {
+    return externFromTable(tbl);
+}
+
+function externFromTable(table<record{}> tbl) returns xml = @java:Method {
+    name: "fromTable",
+    class: "org.ballerinalang.stdlib.xmlutils.ConvertUtils"
+} external;

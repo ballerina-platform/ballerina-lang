@@ -19,13 +19,13 @@ package org.ballerinalang.jvm.values;
 
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.TypeChecker;
-import org.ballerinalang.jvm.commons.TypeValuePair;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.services.ErrorHandlerUtils;
 import org.ballerinalang.jvm.types.BErrorType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.types.TypeConstants;
+import org.ballerinalang.jvm.values.api.BError;
 import org.ballerinalang.jvm.values.freeze.Status;
 import org.ballerinalang.jvm.values.utils.StringUtils;
 
@@ -50,13 +50,14 @@ import static org.ballerinalang.jvm.util.BLangConstants.MODULE_INIT_CLASS_NAME;
  * 
  * @since 0.995.0
  */
-public class ErrorValue extends RuntimeException implements RefValue {
+public class ErrorValue extends BError implements RefValue {
 
     private static final long serialVersionUID = 1L;
     private final BType type;
     private final String reason;
     private final Object details;
 
+    @Deprecated
     public ErrorValue(String reason, Object details) {
         super(reason);
         this.type = new BErrorType(TypeConstants.ERROR, BTypes.typeError.getPackage(),
@@ -65,6 +66,7 @@ public class ErrorValue extends RuntimeException implements RefValue {
         this.details = details;
     }
 
+    @Deprecated
     public ErrorValue(BType type, String reason, Object details) {
         super(reason);
         this.type = type;
@@ -86,10 +88,6 @@ public class ErrorValue extends RuntimeException implements RefValue {
     @Override
     public BType getType() {
         return type;
-    }
-
-    @Override
-    public void stamp(BType type, List<TypeValuePair> unresolvedValues) {
     }
 
     @Override
@@ -121,10 +119,18 @@ public class ErrorValue extends RuntimeException implements RefValue {
         return stringValue();
     }
 
+    /**
+     * Returns error reason.
+     * @return reason string
+     */
     public String getReason() {
         return reason;
     }
 
+    /**
+     * Returns error details.
+     * @return detail record
+     */
     public Object getDetails() {
         if (details instanceof RefValue) {
             return ((RefValue) details).copy(new HashMap<>());
@@ -137,6 +143,10 @@ public class ErrorValue extends RuntimeException implements RefValue {
         ErrorHandlerUtils.printError(ERROR_PRINT_PREFIX + getPrintableStackTrace());
     }
 
+    /**
+     * Print error stack trace to the given {@code PrintWriter}.
+     * @param printWriter {@code PrintWriter} to be used
+     */
     public void printStackTrace(PrintWriter printWriter) {
         printWriter.print(ERROR_PRINT_PREFIX + getPrintableStackTrace());
     }
@@ -155,6 +165,10 @@ public class ErrorValue extends RuntimeException implements RefValue {
         return filteredStack.toArray(filteredStackArray);
     }
 
+    /**
+     * Returns error stack trace as a string.
+     * @return stack trace string
+     */
     public String getPrintableStackTrace() {
         String errorMsg = getErrorMessage();
         StringBuilder sb = new StringBuilder();

@@ -57,6 +57,7 @@ import org.ballerinalang.mime.util.MultipartDataSource;
 import org.ballerinalang.mime.util.MultipartDecoder;
 import org.ballerinalang.net.http.caching.RequestCacheControlObj;
 import org.ballerinalang.net.http.caching.ResponseCacheControlObj;
+import org.ballerinalang.net.http.websocket.WebSocketConstants;
 import org.ballerinalang.stdlib.io.utils.IOConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -709,9 +710,7 @@ public class HttpUtil {
         Object remoteSocketAddress = inboundMsg.getProperty(HttpConstants.REMOTE_ADDRESS);
         if (remoteSocketAddress instanceof InetSocketAddress) {
             InetSocketAddress inetSocketAddress = (InetSocketAddress) remoteSocketAddress;
-            String remoteHost = inetSocketAddress.getHostName();
             long remotePort = inetSocketAddress.getPort();
-            remote.put(HttpConstants.REMOTE_HOST_FIELD, remoteHost);
             remote.put(HttpConstants.REMOTE_PORT_FIELD, remotePort);
         }
         httpCaller.set(HttpConstants.REMOTE_STRUCT_FIELD, remote);
@@ -1041,10 +1040,6 @@ public class HttpUtil {
                 reqMsg.getHeader(HttpHeaderNames.EXPECT.toString())) || statusCode == 100;
     }
 
-    public static MapValue getResourceConfigAnnotation(AttachedFunction resource, String pkgPath) {
-        return (MapValue) resource.getAnnotation(pkgPath, HttpConstants.ANN_NAME_RESOURCE_CONFIG);
-    }
-
     public static MapValue getTransactionConfigAnnotation(AttachedFunction resource, String transactionPackagePath) {
         return (MapValue) resource.getAnnotation(transactionPackagePath,
                                                  TransactionConstants.ANN_NAME_TRX_PARTICIPANT_CONFIG);
@@ -1259,6 +1254,9 @@ public class HttpUtil {
         List<Parameter> clientParams = new ArrayList<>();
         if (disableSslValidation) {
             sslConfiguration.disableSsl();
+            return;
+        } else if (StringUtils.isEmpty(trustCerts) && trustStore == null) {
+            sslConfiguration.useJavaDefaults();
             return;
         }
         if (trustStore != null && StringUtils.isNotBlank(trustCerts)) {

@@ -19,6 +19,7 @@
 package org.ballerinalang.stdlib.crypto.nativeimpl;
 
 import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.stdlib.crypto.CryptoUtils;
 
 /**
@@ -29,6 +30,6 @@ import org.ballerinalang.stdlib.crypto.CryptoUtils;
 public class HashMd5 {
 
     public static ArrayValue hashMd5(ArrayValue inputValue) {
-        return new ArrayValue(CryptoUtils.hash("MD5", inputValue.getBytes()));
+        return new ArrayValueImpl(CryptoUtils.hash("MD5", inputValue.getBytes()));
     }
 }

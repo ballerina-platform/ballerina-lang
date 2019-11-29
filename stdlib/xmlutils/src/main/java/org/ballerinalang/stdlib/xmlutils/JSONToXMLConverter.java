@@ -33,6 +33,7 @@ import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.RefValue;
 import org.ballerinalang.jvm.values.XMLItem;
@@ -76,7 +77,7 @@ public class JSONToXMLConverter {
             return omElementArrayList.get(0);
         } else {
             // There is a multi rooted node and create xml sequence from it
-            ArrayValue elementsSeq = new ArrayValue(new BArrayType(BTypes.typeXML));
+            ArrayValue elementsSeq = new ArrayValueImpl(new BArrayType(BTypes.typeXML));
             int count = omElementArrayList.size();
             for (int i = 0; i < count; i++) {
                 elementsSeq.add(i, omElementArrayList.get(i));

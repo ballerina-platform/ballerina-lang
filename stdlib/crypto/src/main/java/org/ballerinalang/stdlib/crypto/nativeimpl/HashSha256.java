@@ -19,6 +19,7 @@
 package org.ballerinalang.stdlib.crypto.nativeimpl;
 
 import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.stdlib.crypto.CryptoUtils;
 
 /**
@@ -29,6 +30,6 @@ import org.ballerinalang.stdlib.crypto.CryptoUtils;
 public class HashSha256 {
 
     public static ArrayValue hashSha256(ArrayValue inputValue) {
-        return new ArrayValue(CryptoUtils.hash("SHA-256", inputValue.getBytes()));
+        return new ArrayValueImpl(CryptoUtils.hash("SHA-256", inputValue.getBytes()));
     }
 }

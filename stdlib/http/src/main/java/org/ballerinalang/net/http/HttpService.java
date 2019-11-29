@@ -47,7 +47,6 @@ import static org.ballerinalang.net.http.HttpConstants.DOLLAR;
 import static org.ballerinalang.net.http.HttpConstants.HTTP_PACKAGE_PATH;
 import static org.ballerinalang.net.http.HttpConstants.PACKAGE_BALLERINA_BUILTIN;
 import static org.ballerinalang.net.http.HttpUtil.checkConfigAnnotationAvailability;
-import static org.ballerinalang.net.http.HttpUtil.sanitizeBasePath;
 
 /**
  * {@code HttpService} This is the http wrapper for the {@code Service} implementation.
@@ -63,7 +62,6 @@ public class HttpService implements Cloneable {
     private static final String CORS_FIELD = "cors";
     private static final String VERSIONING_FIELD = "versioning";
     private static final String HOST_FIELD = "host";
-    protected static final String WEBSOCKET_UPGRADE_FIELD = "webSocketUpgrade";
 
     private ObjectValue balService;
     private List<HttpResource> resources;
@@ -162,8 +160,7 @@ public class HttpService implements Cloneable {
         if (basePath == null || basePath.trim().isEmpty()) {
             this.basePath = DEFAULT_BASE_PATH.concat(this.getName().startsWith(DOLLAR) ? "" : this.getName());
         } else {
-            String sanitizedPath = sanitizeBasePath(basePath);
-            this.basePath = urlDecode(sanitizedPath);
+            this.basePath = HttpUtil.sanitizeBasePath(basePath);
         }
     }
 
@@ -231,31 +228,8 @@ public class HttpService implements Cloneable {
             httpService.setHostName(DEFAULT_HOST);
         }
 
-        List<HttpResource> httpResources = new ArrayList<>();
-        List<HttpResource> upgradeToWebSocketResources = new ArrayList<>();
-        for (AttachedFunction resource : httpService.getBalService().getType().getAttachedFunctions()) {
-            if (!Flags.isFlagOn(resource.flags, Flags.RESOURCE)) {
-                continue;
-            }
-            MapValue resourceConfigAnnotation =
-                    HttpUtil.getResourceConfigAnnotation(resource, HttpConstants.HTTP_PACKAGE_PATH);
-            if (checkConfigAnnotationAvailability(resourceConfigAnnotation)
-                    && resourceConfigAnnotation.getMapValue(WEBSOCKET_UPGRADE_FIELD) != null) {
-                HttpResource upgradeResource = HttpResource.buildHttpResource(resource, httpService);
-                upgradeToWebSocketResources.add(upgradeResource);
-            } else {
-                HttpResource httpResource = HttpResource.buildHttpResource(resource, httpService);
-                try {
-                    httpService.getUriTemplate().parse(httpResource.getPath(), httpResource,
-                                                       new HttpResourceElementFactory());
-                } catch (URITemplateException | UnsupportedEncodingException e) {
-                    throw new BallerinaConnectorException(e.getMessage());
-                }
-                httpResources.add(httpResource);
-            }
-        }
-        httpService.setResources(httpResources);
-        httpService.setUpgradeToWebSocketResources(upgradeToWebSocketResources);
+        processResources(httpService);
+
         httpService.setAllAllowedMethods(DispatcherUtil.getAllResourceMethods(httpService));
 
         if (basePathList.size() == 1) {
@@ -275,6 +249,37 @@ public class HttpService implements Cloneable {
             serviceList.add(tempHttpService);
         }
         return serviceList;
+    }
+
+    private static void processResources(HttpService httpService) {
+        List<HttpResource> httpResources = new ArrayList<>();
+        List<HttpResource> upgradeToWebSocketResources = new ArrayList<>();
+        for (AttachedFunction resource : httpService.getBalService().getType().getAttachedFunctions()) {
+            if (!Flags.isFlagOn(resource.flags, Flags.RESOURCE)) {
+                continue;
+            }
+            MapValue resourceConfigAnnotation = HttpResource.getResourceConfigAnnotation(resource);
+            if (websocketUpgradeResource(resourceConfigAnnotation)) {
+                HttpResource upgradeResource = HttpResource.buildHttpResource(resource, httpService);
+                upgradeToWebSocketResources.add(upgradeResource);
+            } else {
+                HttpResource httpResource = HttpResource.buildHttpResource(resource, httpService);
+                try {
+                    httpService.getUriTemplate().parse(httpResource.getPath(), httpResource,
+                                                       new HttpResourceElementFactory());
+                } catch (URITemplateException | UnsupportedEncodingException e) {
+                    throw new BallerinaConnectorException(e.getMessage());
+                }
+                httpResources.add(httpResource);
+            }
+        }
+        httpService.setResources(httpResources);
+        httpService.setUpgradeToWebSocketResources(upgradeToWebSocketResources);
+    }
+
+    private static boolean websocketUpgradeResource(MapValue resourceConfigAnnotation) {
+        return checkConfigAnnotationAvailability(resourceConfigAnnotation)
+                && resourceConfigAnnotation.getMapValue(HttpConstants.ANN_CONFIG_ATTR_WEBSOCKET_UPGRADE) != null;
     }
 
     private static void prepareBasePathList(MapValue versioningConfig, String basePath, List<String> basePathList,

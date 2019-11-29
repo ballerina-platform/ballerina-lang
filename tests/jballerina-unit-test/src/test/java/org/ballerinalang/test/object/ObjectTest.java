@@ -422,10 +422,12 @@ public class ObjectTest {
     @Test(description = "Negative test to test returning different type without type name")
     public void testObjectNegativeTestForReturnDifferentType() {
         CompileResult result = BCompileUtil.compile("test-src/object/object_new_in_return_negative.bal");
-        Assert.assertEquals(result.getErrorCount(), 3);
+        Assert.assertEquals(result.getErrorCount(), 5);
         BAssertUtil.validateError(result, 0, "too many arguments in call to 'new()'", 18, 12);
         BAssertUtil.validateError(result, 1, "cannot infer type of the object from 'other'", 27, 19);
         BAssertUtil.validateError(result, 2, "invalid variable definition; can not infer the assignment type.", 27, 19);
+        BAssertUtil.validateError(result, 3, "too many arguments in call to 'null()'", 35, 24);
+        BAssertUtil.validateError(result, 4, "too many arguments in call to 'null()'", 39, 23);
     }
 
     @Test(description = "Negative test to test returning different type without type name")

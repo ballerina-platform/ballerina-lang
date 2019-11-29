@@ -1,4 +1,4 @@
-// Copyright (c) 2018 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+// Copyright (c) 2019 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 //
 // WSO2 Inc. licenses this file to you under the Apache License,
 // Version 2.0 (the "License"); you may not use this file except
@@ -16,17 +16,15 @@
 
 package org.ballerinalang.nativeimpl.llvm.gen;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.types.BPackage;
+import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.nativeimpl.llvm.FFIUtil;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.bytedeco.javacpp.BytePointer;
 import org.bytedeco.javacpp.LLVM;
-import org.bytedeco.javacpp.LLVM.LLVMTargetMachineRef;
 
 import static org.ballerinalang.model.types.TypeKind.INT;
 import static org.ballerinalang.model.types.TypeKind.RECORD;
@@ -34,10 +32,12 @@ import static org.bytedeco.javacpp.LLVM.LLVMCreateTargetMachine;
 
 /**
  * Auto generated class.
+ *
+ * @since 1.0.3
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "llvm",
-        functionName = "LLVMCreateTargetMachine",
+        functionName = "llvmCreateTargetMachine",
         args = {
                 @Argument(name = "t", type = RECORD, structType = "LLVMTargetRef"),
                 @Argument(name = "triple", type = RECORD, structType = "BytePointer"),
@@ -51,20 +51,23 @@ import static org.bytedeco.javacpp.LLVM.LLVMCreateTargetMachine;
                 @ReturnType(type = RECORD, structType = "LLVMTargetMachineRef", structPackage = "ballerina/llvm"),
         }
 )
-public class LLVMCreateTargetMachine extends BlockingNativeCallableUnit {
+public class LLVMCreateTargetMachine {
 
-    @Override
-    public void execute(Context context) {
-        LLVM.LLVMTargetRef t = FFIUtil.getRecodeArgumentNative(context, 0);
-        BytePointer triple = FFIUtil.getRecodeArgumentNative(context, 1);
-        BytePointer cpu = FFIUtil.getRecodeArgumentNative(context, 2);
-        BytePointer features = FFIUtil.getRecodeArgumentNative(context, 3);
-        int level = (int) context.getIntArgument(0);
-        int reloc = (int) context.getIntArgument(1);
-        int codeModel = (int) context.getIntArgument(2);
-        LLVMTargetMachineRef returnValue = LLVMCreateTargetMachine(t, triple, cpu, features, level, reloc, codeModel);
-        BMap<String, BValue> rerunWrapperRecode = FFIUtil.newRecord(context, "LLVMTargetMachineRef");
+    public static MapValue<String, Object> llvmCreateTargetMachine(Strand strand, MapValue<String, Object> arg0,
+                                                                   MapValue<String, Object> arg1,
+                                                                   MapValue<String, Object> arg2,
+                                                                   MapValue<String, Object> arg3,
+                                                                   long arg4, long arg5, long arg6) {
+
+        LLVM.LLVMTargetRef t = (LLVM.LLVMTargetRef) FFIUtil.getRecodeArgumentNative(arg0);
+        BytePointer triple = (BytePointer) FFIUtil.getRecodeArgumentNative(arg1);
+        BytePointer cpu = (BytePointer) FFIUtil.getRecodeArgumentNative(arg2);
+        BytePointer features = (BytePointer) FFIUtil.getRecodeArgumentNative(arg3);
+        LLVM.LLVMTargetMachineRef returnValue = LLVMCreateTargetMachine(t, triple, cpu, features, (int) arg4,
+                (int) arg5, (int) arg6);
+        MapValue<String, Object> rerunWrapperRecode = FFIUtil.newRecord(new BPackage("ballerina",
+                "llvm"), "LLVMTargetMachineRef");
         FFIUtil.addNativeToRecode(returnValue, rerunWrapperRecode);
-        context.setReturnValues(rerunWrapperRecode);
+        return rerunWrapperRecode;
     }
 }

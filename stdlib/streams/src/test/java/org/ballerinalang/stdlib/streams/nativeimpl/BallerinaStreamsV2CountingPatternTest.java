@@ -42,7 +42,10 @@ public class BallerinaStreamsV2CountingPatternTest {
         notPatternTests = BCompileUtil.compile("test-src/native/streamingv2-native-simple-counting-pattern-test.bal");
     }
 
-    @Test(description = "Test // A[2..4] -> B, select a[1].id as aId, b[0].id as bId, 0 as cID pattern query.")
+    @Test(
+            enabled = false, // disabling counting patterns with 9b4810d1778eca0cf70a28da32ae1ddd833cab7a
+            description = "Test // A[2..4] -> B, select a[1].id as aId, b[0].id as bId, 0 as cID pattern query."
+    )
     public void runPatternQuery1() {
         BValue[] outputEvents = BRunUtil.invoke(notPatternTests, "runPatternQuery1");
         Assert.assertNotNull(outputEvents);

@@ -20,7 +20,10 @@ package org.ballerinalang.mime.nativeimpl.headers;
 
 import io.netty.handler.codec.http.HttpHeaders;
 import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.types.BArrayType;
+import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -47,7 +50,7 @@ import static org.ballerinalang.mime.util.MimeConstants.ENTITY_HEADERS;
 public class GetHeaderNames {
 
     public static ArrayValue getHeaderNames(Strand strand, ObjectValue entityObj) {
-        ArrayValue stringArray = new ArrayValue(org.ballerinalang.jvm.types.BTypes.typeString);
+        ArrayValue stringArray = new ArrayValueImpl(new BArrayType(BTypes.typeString));
         if (entityObj.getNativeData(ENTITY_HEADERS) == null) {
             return stringArray;
         }

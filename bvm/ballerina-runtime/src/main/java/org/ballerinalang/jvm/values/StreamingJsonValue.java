@@ -24,6 +24,7 @@ import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BMapType;
 import org.ballerinalang.jvm.types.BTypes;
+import org.ballerinalang.jvm.values.api.BStreamingJson;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -40,14 +41,14 @@ import java.util.Map;
  *  
  * @since 0.981.0
  */
-public class StreamingJsonValue extends ArrayValue {
+public class StreamingJsonValue extends ArrayValueImpl implements BStreamingJson {
 
     JSONDataSource datasource;
 
+    @Deprecated
     public StreamingJsonValue(JSONDataSource datasource) {
+        super(new BArrayType(new BMapType(BTypes.typeJSON)));
         this.datasource = datasource;
-        this.refValues = (RefValue[]) newArrayInstance(RefValue.class);
-        this.arrayType = new BArrayType(new BMapType(BTypes.typeJSON));
     }
 
     @Override
@@ -81,6 +82,10 @@ public class StreamingJsonValue extends ArrayValue {
         return super.getRefValue(index);
     }
 
+    /**
+     * Serialize to the given {@code JSONGenerator}.
+     * @param gen {@code JSONGenerator} to use
+     */
     public void serialize(JSONGenerator gen) {
         /*
          * Below order is important, where if the value is generated from a streaming data source,
@@ -105,6 +110,10 @@ public class StreamingJsonValue extends ArrayValue {
         }
     }
 
+    /**
+     * Serialize the value to given {@code Writer}.
+     * @param writer {@code Writer} to be used
+     */
     public void serialize(Writer writer) {
         serialize(new JSONGenerator(writer));
     }

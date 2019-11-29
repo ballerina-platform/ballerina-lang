@@ -53,7 +53,7 @@ public class ClientConnectorListener implements HttpClientConnectorListener {
         this.stateListener = new ClientInboundStateListener(DEFAULT_MAX_MESSAGE_SIZE, streamListener);
     }
 
-    public final void setDecompressorRegistry(DecompressorRegistry decompressorRegistry) {
+    final void setDecompressorRegistry(DecompressorRegistry decompressorRegistry) {
         stateListener.setDecompressorRegistry(decompressorRegistry);
     }
 

@@ -11,7 +11,7 @@
           "documentation": {
             "right": {
               "kind": "markdown",
-              "value": "The `get()` function can be used to send HTTP GET requests to HTTP endpoints."
+              "value": "The `Client.get()` function can be used to send HTTP GET requests to HTTP endpoints."
             }
           },
           "parameters": [

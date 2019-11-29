@@ -52,7 +52,8 @@ public class LocalTransactionsTest {
 
     @BeforeClass
     public void setup() {
-        result = BCompileUtil.compile(Paths.get("test-src", "transaction", "local_transaction_test.bal").toString());
+        result = BCompileUtil.compileOffline(
+                Paths.get("test-src", "transaction", "local_transaction_test.bal").toString());
         testDatabase = new FileBasedTestDatabase(DBType.H2,
                 Paths.get("datafiles", "sql", "transaction", "local_transaction_test_data.sql").toString(),
                 SQLDBUtils.DB_DIRECTORY, DB_NAME);

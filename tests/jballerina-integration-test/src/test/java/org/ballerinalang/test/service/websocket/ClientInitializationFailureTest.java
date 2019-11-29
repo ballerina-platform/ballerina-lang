@@ -41,7 +41,7 @@ public class ClientInitializationFailureTest extends WebSocketTestCommons {
     private static final String URL = "ws://localhost:21010/client/failure";
     private LogLeecher logLeecher;
 
-    @BeforeClass(description = "Initializes the Ballerina server with the 09_client_failure.bal file")
+    @BeforeClass(description = "Initializes the Ballerina server with the 10_client_failure.bal file")
     public void setup() throws InterruptedException, URISyntaxException {
         String expectingErrorLog = "The WebSocket connection has not been made";
         logLeecher = new LogLeecher(expectingErrorLog);

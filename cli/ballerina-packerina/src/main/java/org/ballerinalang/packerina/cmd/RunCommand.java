@@ -60,6 +60,7 @@ import static org.ballerinalang.compiler.CompilerOptionName.SKIP_TESTS;
 import static org.ballerinalang.compiler.CompilerOptionName.TEST_ENABLED;
 import static org.ballerinalang.jvm.runtime.RuntimeConstants.SYSTEM_PROP_BAL_DEBUG;
 import static org.ballerinalang.packerina.buildcontext.sourcecontext.SourceType.SINGLE_BAL_FILE;
+import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_COMPILED_JAR_EXT;
 
 /**
  * This class represents the "run" command and it holds arguments and flags specified by the user.
@@ -89,6 +90,19 @@ public class RunCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--debug", hidden = true)
     private String debugPort;
 
+    @CommandLine.Option(names = {"--native"}, hidden = true,
+            description = "Compile Ballerina program to a native binary")
+    private boolean nativeBinary;
+
+    @CommandLine.Option(names = "--dump-llvm-ir", hidden = true)
+    private boolean dumpLLVMIR;
+
+    @CommandLine.Option(names = "--no-optimize-llvm", hidden = true)
+    private boolean noOptimizeLLVM;
+
+    @CommandLine.Option(names = "--dump-bir", hidden = true)
+    private boolean dumpBIR;
+
     @CommandLine.Option(names = "--experimental", description = "Enable experimental language features.")
     private boolean experimentalFlag;
 
@@ -112,7 +126,7 @@ public class RunCommand implements BLauncherCmd {
         if (this.argList == null || this.argList.size() == 0) {
             CommandUtil.printError(this.errStream,
                     "no ballerina program given.",
-                    "ballerina run {<bal-file> | <module-name>}",
+                    "ballerina run {<bal-file> | <module-name> | <executable-jar>}",
                     true);
     
             Runtime.getRuntime().exit(1);
@@ -218,9 +232,10 @@ public class RunCommand implements BLauncherCmd {
             targetPath = sourceRootPath.resolve(ProjectDirConstants.TARGET_DIR_NAME);
         } else {
             CommandUtil.printError(this.errStream,
-                    "invalid Ballerina source path, it should either be a module name in a Ballerina project or a " +
-                    "file with a \'" + BLangConstants.BLANG_SRC_FILE_SUFFIX + "\' extension.",
-                    "ballerina run {<bal-file> | <module-name>}",
+                    "invalid Ballerina source path. It should either be a name of a module in a Ballerina project, " +
+                    "a file with a '" + BLangConstants.BLANG_SRC_FILE_SUFFIX + "' extension, or an executable '" +
+                    BLANG_COMPILED_JAR_EXT + "' file.",
+                    "ballerina run {<bal-file> | <module-name> | <executable-jar>}",
                     true);
             Runtime.getRuntime().exit(1);
             return;
@@ -256,7 +271,8 @@ public class RunCommand implements BLauncherCmd {
                 .addTask(new CreateBaloTask(), isSingleFileBuild)   // create the balos for modules(projects only)
                 .addTask(new CreateBirTask())   // create the bir
                 .addTask(new CopyNativeLibTask())    // copy the native libs(projects only)
-                .addTask(new CreateJarTask(false))  // create the jar
+                // create the jar.
+                .addTask(new CreateJarTask(this.dumpBIR, this.nativeBinary, this.dumpLLVMIR, this.noOptimizeLLVM))
                 .addTask(new CopyModuleJarTask())
                 .addTask(new CreateExecutableTask())  // create the executable .jar file
                 .addTask(new PrintExecutablePathTask(), isSingleFileBuild)   // print the location of the executable

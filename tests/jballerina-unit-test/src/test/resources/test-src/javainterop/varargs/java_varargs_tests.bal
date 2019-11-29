@@ -55,6 +55,23 @@ public function testJavaGenericReturnType() returns [int, float, handle] {
     return [getIntFromGeneric(8), getFloatFromGeneric(3.25), getStringFromGeneric(java:fromString("apples"))];
 }
 
+public function testRefTypeVarArg() returns [string, string] {
+	error e1 = error("error one");
+	error e2 = error("error two");
+    return [<string> java:toString(getRefVararg(7, 2, 8)), <string> java:toString(getRefVararg(e1, e2))];
+}
+
+public function testIntArrayTypeVararg() returns string {
+    return <string> java:toString(getIntArrayTypeVararg([7, 2], [8]));
+}
+
+public function testRefArrayTypeVararg() returns string {
+	error e1 = error("error one");
+	error e2 = error("error two");
+    return <string> java:toString(getRefArrayTypeVararg([e1], [e2]));
+}
+
+
 // ------------ External functions -------------
 
 public function calculateSum(int... values) returns int = @java:Method {
@@ -121,5 +138,19 @@ public function getFloatFromGeneric(float value) returns float = @java:Method {
 
 public function getStringFromGeneric(handle value) returns handle = @java:Method {
     name:"getGenericValue",
+    class:"org.ballerinalang.test.javainterop.varargs.JavaVarargsTest"
+} external;
+
+public function getRefVararg((any|error)... value) returns handle = @java:Method {
+    class:"org.ballerinalang.test.javainterop.varargs.JavaVarargsTest"
+} external;
+
+public function getIntArrayTypeVararg(int[]... value) returns handle = @java:Method {
+	name:"getArrayTypeVararg",
+    class:"org.ballerinalang.test.javainterop.varargs.JavaVarargsTest"
+} external;
+
+public function getRefArrayTypeVararg((any|error)[]... value) returns handle = @java:Method {
+	name:"getArrayTypeVararg",
     class:"org.ballerinalang.test.javainterop.varargs.JavaVarargsTest"
 } external;

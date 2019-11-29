@@ -876,4 +876,12 @@ public abstract class BLangNodeVisitor {
     public void visit(BLangRecordLiteral.BLangRecordKeyValue recordKeyValue) {
         throw new AssertionError();
     }
+
+    public void visit(BLangMarkdownReferenceDocumentation bLangMarkdownReferenceDocumentation) {
+        throw new AssertionError();
+    }
+
+    public void visit(BLangWaitForAllExpr.BLangWaitKeyValue waitKeyValue) {
+        throw new AssertionError();
+    }
 }

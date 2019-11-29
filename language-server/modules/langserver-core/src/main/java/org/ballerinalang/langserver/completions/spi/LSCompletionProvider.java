@@ -264,6 +264,7 @@ public abstract class LSCompletionProvider {
         completionItems.add(getStaticItem(context, Snippet.KW_CONST));
         completionItems.add(getStaticItem(context, Snippet.DEF_ERROR));
         completionItems.add(getStaticItem(context, Snippet.KW_LISTENER));
+        completionItems.add(getStaticItem(context, Snippet.KW_VAR));
         return completionItems;
     }
 
@@ -300,7 +301,8 @@ public abstract class LSCompletionProvider {
                     String insertText = pkg.alias.value;
                     // If the import is a langlib module and there isn't a user defined alias we add ' before
                     if ("ballerina".equals(orgName) && pkg.pkgNameComps.get(0).getValue().equals("lang")
-                            && pkgName.endsWith("." + pkg.alias.value)) {
+                            && pkgName.endsWith("." + pkg.alias.value)
+                            && this.appendSingleQuoteForPackageInsertText(ctx)) {
                         insertText = "'" + insertText;
                     }
                     CompletionItem item = new CompletionItem();
@@ -540,6 +542,7 @@ public abstract class LSCompletionProvider {
         }
         completionItems.addAll(getVarDefCompletions(context));
         completionItems.add(newCItem);
+        completionItems.add(Snippet.KW_NEW.get().build(context));
         completionItems.add(typeCItem);
     
         return completionItems;
@@ -1036,6 +1039,16 @@ public abstract class LSCompletionProvider {
             }
         }
         return Optional.empty();
+    }
+    
+    private boolean appendSingleQuoteForPackageInsertText(LSContext context) {
+        List<CommonToken> defaultTokens = context.get(CompletionKeys.LHS_DEFAULT_TOKENS_KEY);
+        if (defaultTokens == null || defaultTokens.isEmpty()) {
+            return false;
+        }
+        CommonToken lastToken = defaultTokens.get(defaultTokens.size() - 1);
+        
+        return !lastToken.getText().startsWith("'");
     }
 
     private void addIfNotExists(SnippetBlock snippet, BLangService service, List<CompletionItem> items, LSContext ctx) {

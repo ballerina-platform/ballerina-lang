@@ -26,6 +26,7 @@ import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
+import org.ballerinalang.net.grpc.DataContext;
 import org.ballerinalang.net.grpc.MethodDescriptor;
 import org.ballerinalang.net.grpc.StreamObserver;
 import org.ballerinalang.net.grpc.exception.GrpcClientException;
@@ -105,13 +106,13 @@ public class StreamingExecute extends AbstractExecute {
                 MethodDescriptor.MethodType methodType = getMethodType(methodDescriptor);
                 DefaultStreamObserver responseObserver = new DefaultStreamObserver(strand.scheduler, callbackService);
                 StreamObserver requestSender;
+                DataContext context = new DataContext(strand, null);
                 if (methodType.equals(MethodDescriptor.MethodType.CLIENT_STREAMING)) {
                     requestSender = nonBlockingStub.executeClientStreaming(headers, responseObserver,
-                            methodDescriptors.get(methodName));
-
+                            methodDescriptors.get(methodName), context);
                 } else if (methodType.equals(MethodDescriptor.MethodType.BIDI_STREAMING)) {
                     requestSender = nonBlockingStub.executeBidiStreaming(headers, responseObserver, methodDescriptors
-                            .get(methodName));
+                            .get(methodName), context);
                 } else {
                     return notifyErrorReply(INTERNAL, "Error while executing the client call. Method type " +
                             methodType.name() + " not supported");
