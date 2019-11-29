@@ -37,10 +37,6 @@ import static org.ballerinalang.net.http.HttpUtil.checkRequestBodySizeHeadersAva
 /**
  * {@code Forward} action can be used to invoke an http call with incoming request httpVerb.
  */
-//@BallerinaFunction(
-//        orgName = "ballerina", packageName = "http",
-//        functionName = "nativeForward"
-//)
 public class Forward extends AbstractHTTPAction {
     @SuppressWarnings("unchecked")
     public static Object forward(ObjectValue httpClient, String path, ObjectValue requestObj) {

@@ -33,12 +33,6 @@ import org.wso2.transport.http.netty.message.ResponseHandle;
 /**
  * {@code GetResponse} action can be used to fetch the response message for a previous asynchronous invocation.
  */
-//@BallerinaFunction(
-//        orgName = "ballerina", packageName = "http",
-//        functionName = "getResponse",
-//        receiver = @Receiver(type = TypeKind.OBJECT, structType = HttpConstants.HTTP_CLIENT,
-//                structPackage = "ballerina/http")
-//)
 public class GetResponse extends AbstractHTTPAction {
 
     public static Object getResponse(ObjectValue clientObj, ObjectValue handleObj) {

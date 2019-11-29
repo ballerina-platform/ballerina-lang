@@ -203,26 +203,26 @@ function externGetPromisedResponse(HttpClient httpClient, PushPromise promise) r
 
 function externRejectPromise(HttpClient httpClient, PushPromise promise) =
 @java:Method {
-    class: "org.ballerinalang.net.http.actions.httpclient.RejectPromise",
+    class: "org.ballerinalang.net.http.actions.httpclient.HttpClientAction",
     name: "rejectPromise"
 } external;
 
 //Since the struct equivalency doesn't work with private keyword, following functions are defined outside the object
 function externPost(HttpClient caller , handle path, Request req) returns Response|ClientError =
 @java:Method {
-    class: "org.ballerinalang.net.http.actions.httpclient.Post",
+    class: "org.ballerinalang.net.http.actions.httpclient.HttpClientAction",
     name: "post"
 } external;
 
 function externHead(HttpClient caller , handle path, Request req) returns Response|ClientError =
 @java:Method {
-    class: "org.ballerinalang.net.http.actions.httpclient.Head",
+    class: "org.ballerinalang.net.http.actions.httpclient.HttpClientAction",
     name: "head"
 } external;
 
 function externPut(HttpClient caller , handle path, Request req) returns Response|ClientError =
 @java:Method {
-    class: "org.ballerinalang.net.http.actions.httpclient.Put",
+    class: "org.ballerinalang.net.http.actions.httpclient.HttpClientAction",
     name: "put"
 } external;
 
@@ -235,25 +235,25 @@ function externExecute(HttpClient caller , handle httpVerb, handle path,
 
 function externPatch(HttpClient caller , handle path, Request req) returns Response|ClientError =
 @java:Method {
-    class: "org.ballerinalang.net.http.actions.httpclient.Patch",
+    class: "org.ballerinalang.net.http.actions.httpclient.HttpClientAction",
     name: "patch"
 } external;
 
 function externDelete(HttpClient caller , handle path, Request req) returns Response|ClientError =
 @java:Method {
-    class: "org.ballerinalang.net.http.actions.httpclient.Delete",
+    class: "org.ballerinalang.net.http.actions.httpclient.HttpClientAction",
     name: "delete"
 } external;
 
 function externGet(HttpClient caller , handle path, Request req) returns Response|ClientError =
 @java:Method {
-    class: "org.ballerinalang.net.http.actions.httpclient.Get",
+    class: "org.ballerinalang.net.http.actions.httpclient.HttpClientAction",
     name: "get"
 } external;
 
 function externOptions(HttpClient caller , handle path, Request req) returns Response|ClientError =
 @java:Method {
-    class: "org.ballerinalang.net.http.actions.httpclient.Options",
+    class: "org.ballerinalang.net.http.actions.httpclient.HttpClientAction",
     name: "options"
 } external;
 

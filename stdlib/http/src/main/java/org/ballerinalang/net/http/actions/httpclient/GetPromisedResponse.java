@@ -34,12 +34,6 @@ import org.wso2.transport.http.netty.message.HttpCarbonMessage;
  * {@code GetPromisedResponse} action can be used to get a push response message associated with a
  * previous asynchronous invocation.
  */
-//@BallerinaFunction(
-//        orgName = "ballerina", packageName = "http",
-//        functionName = "getPromisedResponse",
-//        receiver = @Receiver(type = TypeKind.OBJECT, structType = HttpConstants.HTTP_CLIENT,
-//                structPackage = "ballerina/http")
-//)
 public class GetPromisedResponse extends AbstractHTTPAction {
 
     public static Object getPromisedResponse(ObjectValue clientObj, ObjectValue pushPromiseObj) {

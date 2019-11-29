@@ -34,12 +34,6 @@ import org.wso2.transport.http.netty.message.ResponseHandle;
  * {@code GetNextPromise} action can be used to get the next available push promise message associated with
  * a previous asynchronous invocation.
  */
-//@BallerinaFunction(
-//        orgName = "ballerina", packageName = "http",
-//        functionName = "getNextPromise",
-//        receiver = @Receiver(type = TypeKind.OBJECT, structType = HttpConstants.HTTP_CLIENT,
-//                structPackage = "ballerina/http")
-//)
 public class GetNextPromise extends AbstractHTTPAction {
 
     public static Object getNextPromise(ObjectValue clientObj, ObjectValue handleObj) {

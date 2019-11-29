@@ -32,10 +32,6 @@ import static org.ballerinalang.net.http.HttpConstants.CLIENT_ENDPOINT_SERVICE_U
 /**
  * {@code Submit} action can be used to invoke a http call with any httpVerb in asynchronous manner.
  */
-//@BallerinaFunction(
-//        orgName = "ballerina", packageName = "http",
-//        functionName = "nativeSubmit"
-//)
 public class Submit extends Execute {
     @SuppressWarnings("unchecked")
     public static Object submit(ObjectValue httpClient, String httpVerb, String path,

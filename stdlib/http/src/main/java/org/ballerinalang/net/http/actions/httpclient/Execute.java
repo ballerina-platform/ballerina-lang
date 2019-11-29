@@ -35,10 +35,6 @@ import static org.ballerinalang.net.http.HttpConstants.CLIENT_ENDPOINT_SERVICE_U
 /**
  * {@code Execute} action can be used to invoke execute a http call with any httpVerb.
  */
-//@BallerinaFunction(
-//        orgName = "ballerina", packageName = "http",
-//        functionName = "nativeExecute"
-//)
 public class Execute extends AbstractHTTPAction {
     @SuppressWarnings("unchecked")
     public static Object execute(ObjectValue httpClient, String verb, String path,

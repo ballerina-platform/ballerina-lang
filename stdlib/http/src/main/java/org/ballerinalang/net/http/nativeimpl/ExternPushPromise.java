@@ -18,13 +18,17 @@
 
 package org.ballerinalang.net.http.nativeimpl;
 
+import org.ballerinalang.jvm.types.BArrayType;
+import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ArrayValueImpl;
+import org.ballerinalang.jvm.values.HandleValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.net.http.HttpUtil;
 import org.wso2.transport.http.netty.message.Http2PushPromise;
 
 import java.util.Set;
+import java.util.TreeSet;
 
 /**
  * Utilities related to push promises.
@@ -49,13 +53,30 @@ public class ExternPushPromise {
         Http2PushPromise http2PushPromise =
                 HttpUtil.getPushPromise(pushPromiseObj, HttpUtil.createHttpPushPromise(pushPromiseObj));
         Set<String> httpHeaderNames = http2PushPromise.getHttpRequest().headers().names();
-        return new ArrayValueImpl(httpHeaderNames.toArray(new String[httpHeaderNames.size()]));
+        ArrayValue stringArray = new ArrayValueImpl(new BArrayType(BTypes.typeHandle));
+        if (httpHeaderNames != null && !httpHeaderNames.isEmpty()) {
+            int i = 0;
+            Set<String> distinctNames = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
+            distinctNames.addAll(httpHeaderNames);
+            for (String headerName : distinctNames) {
+                stringArray.add(i, new HandleValue(headerName));
+                i++;
+            }
+        }
+        return stringArray;
     }
 
     public static ArrayValue getHeaders(ObjectValue pushPromiseObj, String headerName) {
         Http2PushPromise http2PushPromise =
                 HttpUtil.getPushPromise(pushPromiseObj, HttpUtil.createHttpPushPromise(pushPromiseObj));
-        return new ArrayValueImpl(http2PushPromise.getHeaders(headerName));
+        String[] headers = http2PushPromise.getHeaders(headerName);
+        int i = 0;
+        ArrayValue stringArray = new ArrayValueImpl(new BArrayType(BTypes.typeHandle));
+        for (String header : headers) {
+            stringArray.add(i, new HandleValue(header));
+            i++;
+        }
+        return stringArray;
     }
 
     public static boolean hasHeader(ObjectValue pushPromiseObj, String headerName) {
