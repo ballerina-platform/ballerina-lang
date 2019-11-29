@@ -39,7 +39,8 @@ public class BallerinaStreamsV2SimplePatternTest {
 
     @BeforeClass
     public void setup() {
-        simplePatternTests = BCompileUtil.compile("test-src/native/streamingv2-native-simple-pattern-test.bal");
+        simplePatternTests =
+                BCompileUtil.compileOffline("test-src/native/streamingv2-native-simple-pattern-test.bal");
     }
 
     @Test(description = "Test simple pattern query.")
