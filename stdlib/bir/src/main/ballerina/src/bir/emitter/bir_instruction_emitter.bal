@@ -168,6 +168,8 @@ function emitInsNewArray(NewArray ins, int tabs) returns string {
     str += emitSpaces(1);
     str += "=";
     str += emitSpaces(1);
+    str += "newArray";
+    str += emitSpaces(1);
     str += emitTypeRef(ins.typeValue);
     str += "[";
     str += emitVarRef(ins.sizeOp);
@@ -215,13 +217,23 @@ function emitInsFieldAccess(FieldAccess ins, int tabs) returns string {
     string str = "";
     str += emitTabs(tabs);
     str += emitVarRef(ins.lhsOp);
-    str += emitSpaces(1);
-    str += "=";
-    str += emitSpaces(1);
-    str += emitVarRef(ins.rhsOp);
-    str += "[";
-    str += emitVarRef(ins.keyOp);
-    str += "]";
+    if ins.kind is INS_KIND_MAP_LOAD | INS_KIND_ARRAY_LOAD {
+        str += emitSpaces(1);
+        str += "=";
+        str += emitSpaces(1);
+        str += emitVarRef(ins.rhsOp);
+        str += "[";
+        str += emitVarRef(ins.keyOp);
+        str += "]";
+    } else if ins.kind is INS_KIND_MAP_STORE | INS_KIND_ARRAY_STORE {
+        str += "[";
+        str += emitVarRef(ins.keyOp);
+        str += "]";
+        str += emitSpaces(1);
+        str += "=";
+        str += emitSpaces(1);
+        str += emitVarRef(ins.rhsOp);
+    }
     str += ";";
     return str;
 }
@@ -233,10 +245,11 @@ function emitInsTypeCast(TypeCast ins, int tabs) returns string {
     str += emitSpaces(1);
     str += "=";
     str += emitSpaces(1);
-    str += emitVarRef(ins.rhsOp);
     str += "<";
     str += emitTypeRef(ins.castType);
     str += ">";
+    str += emitSpaces(1);
+    str += emitVarRef(ins.rhsOp);
     str += ";";
     return str;
 }
