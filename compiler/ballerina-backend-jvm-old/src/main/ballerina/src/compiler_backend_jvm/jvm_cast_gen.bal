@@ -428,12 +428,6 @@ function generateJCastToBAny(jvm:MethodVisitor mv, BalToJVMIndexMap indexMap, jv
     } else if (sourceType is jvm:JRefType) {
         jvm:Label afterHandle = new;
         if (sourceType.typeValue == "java/lang/Object") {
-
-            if (isNillable(targetType)) {
-                mv.visitInsn(DUP);
-                mv.visitJumpInsn(IFNULL, afterHandle);
-            }
-
             mv.visitInsn(DUP);
             mv.visitTypeInsn(INSTANCEOF, ERROR_VALUE);
             mv.visitJumpInsn(IFNE, afterHandle);
@@ -445,14 +439,11 @@ function generateJCastToBAny(jvm:MethodVisitor mv, BalToJVMIndexMap indexMap, jv
             mv.visitInsn(DUP);
             mv.visitTypeInsn(INSTANCEOF, "java/lang/Boolean");
             mv.visitJumpInsn(IFNE, afterHandle);
+        }
 
+        if (isNillable(targetType)) {
             mv.visitInsn(DUP);
-            mv.visitTypeInsn(INSTANCEOF, REF_VALUE);
-            mv.visitJumpInsn(IFNE, afterHandle);
-
-            mv.visitInsn(DUP);
-            mv.visitTypeInsn(INSTANCEOF, "java/lang/Byte");
-            mv.visitJumpInsn(IFNE, afterHandle);
+            mv.visitJumpInsn(IFNULL, afterHandle);
         }
 
         mv.visitInsn(DUP);
@@ -479,9 +470,9 @@ function isNillable(bir:BType targetType) returns boolean {
     if (targetType is bir:BTypeNil|bir:BJSONType|bir:BTypeAny|bir:BTypeAnyData) {
         return true;
     } else if (targetType is bir:BUnionType) {
-        return (targetType.typeFlags | TYPE_FLAG_NILABLE) == TYPE_FLAG_NILABLE;
+        return (targetType.typeFlags & TYPE_FLAG_NILABLE) == TYPE_FLAG_NILABLE;
     } else if (targetType is bir:BFiniteType) {
-        return (targetType.typeFlags | TYPE_FLAG_NILABLE) == TYPE_FLAG_NILABLE;
+        return (targetType.typeFlags & TYPE_FLAG_NILABLE) == TYPE_FLAG_NILABLE;
     }
 
     return false;

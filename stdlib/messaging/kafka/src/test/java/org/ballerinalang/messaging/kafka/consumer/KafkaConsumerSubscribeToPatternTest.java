@@ -20,7 +20,6 @@ package org.ballerinalang.messaging.kafka.consumer;
 
 import io.debezium.kafka.KafkaCluster;
 import io.debezium.util.Testing;
-import org.ballerinalang.model.values.BHandleValue;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.util.BCompileUtil;
@@ -64,7 +63,7 @@ public class KafkaConsumerSubscribeToPatternTest {
             // Unsubscribe from topics first
             BValue[] returnBValuesUnsubscribe = BRunUtil.invoke(result, "funcKafkaTestUnsubscribe");
             Assert.assertEquals(returnBValuesUnsubscribe.length, 1);
-            Assert.assertNull(((BHandleValue) returnBValuesUnsubscribe[0]).getValue());
+            Assert.assertNull(returnBValuesUnsubscribe[0]);
 
             BValue[] returnBValues = BRunUtil.invoke(result, "funcKafkaTestGetSubscribedTopicCount");
             Assert.assertEquals(returnBValues.length, 1);

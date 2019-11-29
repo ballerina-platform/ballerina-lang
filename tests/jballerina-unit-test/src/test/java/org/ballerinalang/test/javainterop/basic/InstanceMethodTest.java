@@ -17,7 +17,6 @@
  */
 package org.ballerinalang.test.javainterop.basic;
 
-import org.ballerinalang.jvm.values.HandleValue;
 import org.ballerinalang.model.types.BErrorType;
 import org.ballerinalang.model.types.BHandleType;
 import org.ballerinalang.model.values.BByte;

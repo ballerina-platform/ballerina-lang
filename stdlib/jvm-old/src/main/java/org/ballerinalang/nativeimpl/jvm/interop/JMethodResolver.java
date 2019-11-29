@@ -459,7 +459,8 @@ class JMethodResolver {
         }
     }
 
-    private JMethod resolveExactMethod(Class<?> clazz, String name, JMethodKind kind, ParamTypeConstraint[] constraints) {
+    private JMethod resolveExactMethod(Class<?> clazz, String name, JMethodKind kind,
+                                       ParamTypeConstraint[] constraints) {
         Class<?>[] paramTypes = new Class<?>[constraints.length];
         for (int constraintIndex = 0; constraintIndex < constraints.length; constraintIndex++) {
             paramTypes[constraintIndex] = constraints[constraintIndex].get();
