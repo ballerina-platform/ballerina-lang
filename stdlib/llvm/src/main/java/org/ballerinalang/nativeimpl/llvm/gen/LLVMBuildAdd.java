@@ -16,10 +16,9 @@
 
 package org.ballerinalang.nativeimpl.llvm.gen;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.types.BPackage;
+import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.nativeimpl.llvm.FFIUtil;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -33,10 +32,12 @@ import static org.bytedeco.javacpp.LLVM.LLVMBuildAdd;
 
 /**
  * Auto generated class.
+ *
+ * @since 1.0.3
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "llvm",
-        functionName = "LLVMBuildAdd",
+        functionName = "llvmBuildAdd",
         args = {
                 @Argument(name = "arg0", type = RECORD, structType = "LLVMBuilderRef"),
                 @Argument(name = "lhs", type = RECORD, structType = "LLVMValueRef"),
@@ -47,17 +48,18 @@ import static org.bytedeco.javacpp.LLVM.LLVMBuildAdd;
                 @ReturnType(type = RECORD, structType = "LLVMValueRef", structPackage = "ballerina/llvm"),
         }
 )
-public class LLVMBuildAdd extends BlockingNativeCallableUnit {
+public class LLVMBuildAdd {
 
-    @Override
-    public void execute(Context context) {
-        LLVM.LLVMBuilderRef arg0 = FFIUtil.getRecodeArgumentNative(context, 0);
-        LLVM.LLVMValueRef lhs = FFIUtil.getRecodeArgumentNative(context, 1);
-        LLVM.LLVMValueRef rhs = FFIUtil.getRecodeArgumentNative(context, 2);
-        String name = context.getStringArgument(0);
-        LLVMValueRef returnValue = LLVMBuildAdd(arg0, lhs, rhs, name);
-        BMap<String, BValue> rerunWrapperRecode = FFIUtil.newRecord(context, "LLVMValueRef");
-        FFIUtil.addNativeToRecode(returnValue, rerunWrapperRecode);
-        context.setReturnValues(rerunWrapperRecode);
+    public static MapValue<String, Object> llvmBuildAdd(Strand strand, MapValue<String, Object> arg0,
+                                            MapValue<String, Object> lhs, MapValue<String, Object> rhs, String name) {
+
+        LLVM.LLVMBuilderRef arg0Ref = (LLVM.LLVMBuilderRef) FFIUtil.getRecodeArgumentNative(arg0);
+        LLVMValueRef lhsRef = (LLVMValueRef) FFIUtil.getRecodeArgumentNative(lhs);
+        LLVMValueRef rhsRef = (LLVMValueRef) FFIUtil.getRecodeArgumentNative(rhs);
+        LLVMValueRef returnValue = LLVMBuildAdd(arg0Ref, lhsRef, rhsRef, name);
+        MapValue<String, Object> returnWrappedRecord = FFIUtil.newRecord(new BPackage("ballerina",
+                "llvm"), "LLVMValueRef");
+        FFIUtil.addNativeToRecode(returnValue, returnWrappedRecord);
+        return returnWrappedRecord;
     }
 }

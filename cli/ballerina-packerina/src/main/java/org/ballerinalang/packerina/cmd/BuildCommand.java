@@ -144,6 +144,9 @@ public class BuildCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--dump-llvm-ir", hidden = true)
     private boolean dumpLLVMIR;
 
+    @CommandLine.Option(names = "--no-optimize-llvm", hidden = true)
+    private boolean noOptimizeLlvm;
+
     @CommandLine.Option(names = {"--help", "-h"}, hidden = true)
     private boolean helpFlag;
 
@@ -166,15 +169,6 @@ public class BuildCommand implements BLauncherCmd {
         // check if there are too many arguments.
         if (args.length > 1) {
             CommandUtil.printError(this.errStream, "too many arguments.", buildCmd, false);
-            CommandUtil.exitError(this.exitWhenFinish);
-            return;
-        }
-        
-        if (this.nativeBinary) {
-            CommandUtil.printError(this.errStream,
-                    "LLVM native generation is not supported.",
-                    null,
-                    false);
             CommandUtil.exitError(this.exitWhenFinish);
             return;
         }
@@ -378,7 +372,9 @@ public class BuildCommand implements BLauncherCmd {
                 .addTask(new CreateBaloTask(), isSingleFileBuild)   // create the balos for modules(projects only)
                 .addTask(new CreateBirTask())   // create the bir
                 .addTask(new CopyNativeLibTask(skipCopyLibsFromDist))    // copy the native libs(projects only)
-                .addTask(new CreateJarTask(this.dumpBIR, skipCopyLibsFromDist))    // create the jar
+                // create the jar.
+                .addTask(new CreateJarTask(this.dumpBIR, skipCopyLibsFromDist, this.nativeBinary, this.dumpLLVMIR,
+                        this.noOptimizeLlvm))
                 .addTask(new CopyModuleJarTask(skipCopyLibsFromDist))
                 .addTask(new RunTestsTask(), this.skipTests || isSingleFileBuild) // run tests
                                                                                                 // (projects only)
