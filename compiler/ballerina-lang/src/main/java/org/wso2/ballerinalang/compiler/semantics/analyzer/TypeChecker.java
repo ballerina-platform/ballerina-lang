@@ -3411,19 +3411,6 @@ public class TypeChecker extends BLangNodeVisitor {
                 types.setImplicitCastExpr(arg, arg.type, expectedType);
             }
 
-            if (iExpr.symbol.tag == SymTag.VARIABLE) {
-                if (i < paramTypes.size()) {
-                    checkTypeParamExpr(arg, this.env, expectedType);
-                    if (nonRestParams.size() > i) {
-                        requiredParams.remove(nonRestParams.get(i));
-                    }
-                    continue;
-                }
-                // if no such parameter, too many arg have been given.
-                dlog.error(arg.pos, DiagnosticCode.TOO_MANY_ARGS_FUNC_CALL, iExpr.name.value);
-                return;
-            }
-
             if (arg.getKind() != NodeKind.NAMED_ARGS_EXPR) {
                 // if arg is positional, corresponding parameter in the same position should be of same type.
                 if (i < nonRestParams.size()) {
