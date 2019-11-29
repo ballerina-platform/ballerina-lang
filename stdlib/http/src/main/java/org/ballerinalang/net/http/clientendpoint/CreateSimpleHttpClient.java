@@ -45,14 +45,6 @@ import static org.wso2.transport.http.netty.contract.Constants.HTTP_2_0_VERSION;
  *
  * @since 0.966
  */
-
-//@BallerinaFunction(
-//        orgName = "ballerina", packageName = "http",
-//        functionName = "createSimpleHttpClient",
-//        args = {@Argument(name = "uri", type = TypeKind.STRING),
-//                @Argument(name = "client", type = TypeKind.OBJECT, structType = "Client")},
-//        isPublic = true
-//)
 public class CreateSimpleHttpClient {
     @SuppressWarnings("unchecked")
     public static void createSimpleHttpClient(ObjectValue httpClient,

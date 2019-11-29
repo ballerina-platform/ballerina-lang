@@ -30,14 +30,6 @@ import static org.ballerinalang.net.http.HttpUtil.populatePoolingConfig;
  *
  * @since 0.995.0
  */
-//@BallerinaFunction(
-//        orgName = "ballerina", packageName = "http",
-//        functionName = "initGlobalPool",
-//        receiver = @Receiver(type = TypeKind.OBJECT, structType = "ConnectionManager", structPackage = "ballerina"
-//                + "/http"),
-//        args = {@Argument(name = "poolConfig", type = TypeKind.RECORD, structType = "PoolConfiguration")},
-//        isPublic = true
-//)
 public class InitGlobalPool {
     public static void initGlobalPool(MapValue<String, Long> globalPoolConfig) {
         PoolConfiguration globalPool = new PoolConfiguration();

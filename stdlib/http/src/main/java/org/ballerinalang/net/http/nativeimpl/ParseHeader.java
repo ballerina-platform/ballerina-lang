@@ -36,14 +36,6 @@ import static org.ballerinalang.mime.util.MimeConstants.SEMICOLON;
  *
  * @since 0.96.1
  */
-//@BallerinaFunction(
-//        orgName = "ballerina", packageName = "http",
-//        functionName = "parseHeader",
-//        returnType = {@ReturnType(type = TypeKind.STRING),
-//                @ReturnType(type = TypeKind.MAP, elementType = TypeKind.STRING),
-//                @ReturnType(type = TypeKind.RECORD, structType = "Error")},
-//        isPublic = true
-//)
 public class ParseHeader {
 
     private static final BTupleType parseHeaderTupleType = new BTupleType(
