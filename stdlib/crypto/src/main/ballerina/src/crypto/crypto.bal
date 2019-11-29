@@ -314,7 +314,13 @@ public function verifyRsaSha512Signature(byte[] data, byte[] signature, PublicKe
 # + keyPassword - Key password
 # + return - Reference to the private key or `Error` if private key was unreadable
 public function decodePrivateKey(KeyStore|TrustStore keyStore, string keyAlias, string keyPassword)
-                                 returns PrivateKey|Error = @java:Method {
+                                 returns PrivateKey|Error {
+    return externDecodePrivateKey(keyStore, java:fromString(keyAlias), java:fromString(keyPassword));
+}
+
+function externDecodePrivateKey(KeyStore|TrustStore keyStore, handle keyAlias, handle keyPassword)
+                                returns PrivateKey|Error = @java:Method {
+    name: "decodePrivateKey",
     class: "org.ballerinalang.stdlib.crypto.nativeimpl.DecodePrivateKey"
 } external;
 
@@ -323,7 +329,13 @@ public function decodePrivateKey(KeyStore|TrustStore keyStore, string keyAlias, 
 # + keyStore - Key store or Trust store configurations
 # + keyAlias - Key alias
 # + return - Reference to the public key or `Error` if private key was unreadable
-public function decodePublicKey(KeyStore|TrustStore keyStore, string keyAlias) returns PublicKey|Error = @java:Method {
+public function decodePublicKey(KeyStore|TrustStore keyStore, string keyAlias) returns PublicKey|Error {
+    return externDecodePublicKey(keyStore, java:fromString(keyAlias));
+}
+
+public function externDecodePublicKey(KeyStore|TrustStore keyStore, handle keyAlias)
+                                      returns PublicKey|Error = @java:Method {
+    name: "decodePublicKey",
     class: "org.ballerinalang.stdlib.crypto.nativeimpl.DecodePublicKey"
 } external;
 
