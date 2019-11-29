@@ -400,7 +400,6 @@ public type Entity object {
             headers[index] = <string>java:toString(headerValue);
             index = index + 1;
         }
-        io:println(headers);
         return headers;
     }
 
@@ -409,12 +408,12 @@ public type Entity object {
     # + return - All header names as a `string[]`
     public function getHeaderNames() returns @tainted string[] {
         handle[] headerNames = externGetHeaderNames(self);
-            string[] headers = [];
-            int index = 0;
-            foreach var headerName in headerNames {
-                headers[index] = <string>java:toString(headerName);
-                index = index + 1;
-            }
+        string[] headers = [];
+        int index = 0;
+        foreach var headerName in headerNames {
+            headers[index] = <string>java:toString(headerName);
+            index = index + 1;
+        }
         return headers;
     }
 
