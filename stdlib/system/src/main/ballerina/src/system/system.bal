@@ -21,12 +21,18 @@ import ballerinax/java;
 # + name - Name of the environment variable
 # + return - Environment variable value if it exists, else an empty string
 public function getEnv(@untainted string name) returns string {
-    return covertToString(nativeGetEnv(java:fromString(name)));
+    var value = java:toString(nativeGetEnv(java:fromString(name)));
+    string output = "";
+    if (value is string) {
+        output = value;
+    }
+    return output;
 }
 
 function nativeGetEnv(handle key) returns handle = @java:Method {
-    name: "getEnv",
-    class: "org.ballerinalang.stdlib.system.nativeimpl.GetEnv"
+    name: "getenv",
+    class: "java.lang.System",
+    paramTypes: ["java.lang.String"]
 } external;
 
 # Returns the current user's name.
@@ -61,8 +67,8 @@ public function uuid() returns string {
 }
 
 function nativeUuid() returns handle = @java:Method {
-    name: "uuid",
-    class: "org.ballerinalang.stdlib.system.nativeimpl.Uuid"
+    name: "randomUUID",
+    class: "java.util.UUID"
 } external;
 
 # Executes an operating system command as a subprocess of the current process.
