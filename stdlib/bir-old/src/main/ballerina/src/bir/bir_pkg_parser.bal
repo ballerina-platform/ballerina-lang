@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/internal;
+import ballerina/stringutils;
 
 public type PackageParser object {
     BirChannelReader reader;
@@ -71,16 +71,16 @@ public type PackageParser object {
             string name = self.reader.readStringCpRef();
             int flags = self.reader.readInt32();
 
-            skipMarkDownDocAttachement(self.reader); 
+            skipMarkDownDocAttachement(self.reader);
 
             var typeValue = self.reader.readTypeCpRef();
 
             int constValueLength = self.reader.readInt64();
             _ = self.reader.readByteArray(<@untainted> constValueLength);
 
-            GlobalVariableDcl dcl = { kind:VAR_KIND_CONSTANT, 
-                                      name:{value:name}, 
-                                      typeValue:typeValue, 
+            GlobalVariableDcl dcl = { kind:VAR_KIND_CONSTANT,
+                                      name:{value:name},
+                                      typeValue:typeValue,
                                       flags:flags
                                     };
             globalVars[i] = dcl;
@@ -156,8 +156,8 @@ public type PackageParser object {
 
         int taintLength = self.reader.readInt64();
         _ = self.reader.readByteArray(<@untainted> taintLength); // read and ignore taint table
-        
-        skipMarkDownDocAttachement(self.reader); 
+
+        skipMarkDownDocAttachement(self.reader);
 
         var bodyLength = self.reader.readInt64(); // read and ignore function body length
         if (self.symbolsOnly) {
@@ -286,11 +286,11 @@ public type PackageParser object {
         self.skipAnnotations();
 
         return <@untainted Package> { importModules : importModules,
-                    typeDefs : typeDefs, 
-                    globalVars : globalVars, 
+                    typeDefs : typeDefs,
+                    globalVars : globalVars,
                     functions : funcs,
-                    name : { value: pkgId.name }, 
-                    org : { value: pkgId.org }, 
+                    name : { value: pkgId.name },
+                    org : { value: pkgId.org },
                     versionValue : { value: pkgId.modVersion } };
     }
 
@@ -318,18 +318,19 @@ public type PackageParser object {
         int i = 0;
         int j = 0;
         while (i < numEE) {
-            errorEntries[j] = bodyParser.parseEE();
-            
+            ErrorEntry errorEntry = bodyParser.parseEE();
+            errorEntries[j] = errorEntry;
+
             if (self.addInterimBB) {
-                ErrorEntry? interimEntry = errorEntries[j].clone();
+                ErrorEntry? interimEntry = errorEntry.clone();
                 j += 1;
                 if (interimEntry is ErrorEntry) {
                     interimEntry.trapBB.id.value = interimEntry.trapBB.id.value + "interim";
-                    errorEntries[j] = interimEntry;                    
+                    errorEntries[j] = interimEntry;
                 }
             }
             j += 1;
-            i += 1;   
+            i += 1;
         }
         return errorEntries;
     }
@@ -389,21 +390,21 @@ public type PackageParser object {
         int flags = self.reader.readInt32();
         int isLabel = self.reader.readInt8();
 
-        skipMarkDownDocAttachement(self.reader); 
+        skipMarkDownDocAttachement(self.reader);
 
         var bType = self.reader.readTypeCpRef();
         return { pos:pos, name: { value: name }, flags: flags, typeValue: bType, attachedFuncs: (), typeRefs : [] };
     }
 
-    function parseGlobalVars(GlobalVariableDcl?[] globalVars) {       
+    function parseGlobalVars(GlobalVariableDcl?[] globalVars) {
         int numGlobalVars = self.reader.readInt32();
-        int startIndex = globalVars.length();   
+        int startIndex = globalVars.length();
         int i = 0;
         while i < numGlobalVars {
             var kind = parseVarKind(self.reader);
             string name = self.reader.readStringCpRef();
             int flags = self.reader.readInt32();
-            skipMarkDownDocAttachement(self.reader); 
+            skipMarkDownDocAttachement(self.reader);
             var typeValue = self.reader.readTypeCpRef();
             GlobalVariableDcl dcl = {kind:kind, name:{value:name}, typeValue:typeValue, flags:flags};
             globalVars[startIndex + i] = dcl;
@@ -414,7 +415,7 @@ public type PackageParser object {
     public function parseSig(string sig) returns BInvokableType {
         BType returnType = "int";
         //TODO: add boolean
-        if (internal:lastIndexOf(sig, "(N)") == (sig.length() - 3)) {
+        if (stringutils:lastIndexOf(sig, "(N)") == (sig.length() - 3)) {
             returnType = "()";
         }
         return {
@@ -474,7 +475,7 @@ public function parseVarKind(BirChannelReader reader) returns VarKind {
     }  else if (b == 7) {
         ConstantVarKind ret = VAR_KIND_CONSTANT;
         return ret;
-    } 
+    }
 
     error err = error("unknown var kind tag " + b.toString());
     panic err;
@@ -527,7 +528,6 @@ function parseAnnotAttachments(BirChannelReader reader) returns AnnotationAttach
     foreach var i in 0..<noOfAnnotAttachments {
         annotAttachments[annotAttachments.length()] = parseAnnotAttachment(reader);
     }
-    //io:println(annotAttachments);
 
     return annotAttachments;
 }

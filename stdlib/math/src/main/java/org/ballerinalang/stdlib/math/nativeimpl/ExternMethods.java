@@ -30,7 +30,7 @@ import static org.ballerinalang.stdlib.math.nativeimpl.Constant.OVERFLOW_ERROR_M
 /**
  * External functions for ballerina/math library.
  *
- * @since 0.1.5
+ * @since 1.0.5
  */
 public class ExternMethods {
 

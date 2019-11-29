@@ -75,6 +75,7 @@ public type ErrorEntry record {|
     BasicBlock trapBB;
     VarRef errorOp;
     BasicBlock targetBB;
+    anydata...; // This is to type match with platform specific error entries
 |};
 
 public type ChannelDetail record {|
@@ -109,28 +110,28 @@ public type AnnotationArrayValue record {|
     AnnotationValue?[]  annotValueArray = [];
 |};
 
-public const BINARY_ADD = "ADD";
-public const BINARY_SUB = "SUB";
-public const BINARY_MUL = "MUL";
-public const BINARY_DIV = "DIV";
-public const BINARY_MOD = "MOD";
-public const BINARY_EQUAL = "EQUAL";
-public const BINARY_NOT_EQUAL = "NOT_EQUAL";
-public const BINARY_GREATER_THAN = "GREATER_THAN";
-public const BINARY_GREATER_EQUAL = "GREATER_EQUAL";
-public const BINARY_LESS_THAN = "LESS_THAN";
-public const BINARY_LESS_EQUAL = "LESS_EQUAL";
-public const BINARY_REF_EQUAL = "REF_EQUAL";
-public const BINARY_REF_NOT_EQUAL = "REF_NOT_EQUAL";
-public const BINARY_CLOSED_RANGE = "CLOSED_RANGE";
-public const BINARY_HALF_OPEN_RANGE = "HALF_OPEN_RANGE";
-public const BINARY_ANNOT_ACCESS = "ANNOT_ACCESS";
-public const BINARY_BITWISE_AND = "BITWISE_AND";
-public const BINARY_BITWISE_OR = "BITWISE_OR";
-public const BINARY_BITWISE_XOR = "BITWISE_XOR";
-public const BINARY_BITWISE_LEFT_SHIFT = "BITWISE_LEFT_SHIFT";
-public const BINARY_BITWISE_RIGHT_SHIFT = "BITWISE_RIGHT_SHIFT";
-public const BINARY_BITWISE_UNSIGNED_RIGHT_SHIFT = "BITWISE_UNSIGNED_RIGHT_SHIFT";
+public const BINARY_ADD = 1;
+public const BINARY_SUB = 2;
+public const BINARY_MUL = 3;
+public const BINARY_DIV = 4;
+public const BINARY_MOD = 5;
+public const BINARY_EQUAL = 6;
+public const BINARY_NOT_EQUAL = 7;
+public const BINARY_GREATER_THAN = 8;
+public const BINARY_GREATER_EQUAL = 9;
+public const BINARY_LESS_THAN = 10;
+public const BINARY_LESS_EQUAL = 11;
+public const BINARY_REF_EQUAL = 12;
+public const BINARY_REF_NOT_EQUAL = 13;
+public const BINARY_CLOSED_RANGE = 14;
+public const BINARY_HALF_OPEN_RANGE = 15;
+public const BINARY_ANNOT_ACCESS = 16;
+public const BINARY_BITWISE_AND = 17;
+public const BINARY_BITWISE_OR = 18;
+public const BINARY_BITWISE_XOR = 19;
+public const BINARY_BITWISE_LEFT_SHIFT = 20;
+public const BINARY_BITWISE_RIGHT_SHIFT = 21;
+public const BINARY_BITWISE_UNSIGNED_RIGHT_SHIFT = 22;
 
 public type BinaryOpInstructionKind BINARY_ADD|BINARY_SUB|BINARY_MUL|BINARY_DIV|BINARY_MOD
                                         |BINARY_EQUAL|BINARY_NOT_EQUAL|BINARY_REF_EQUAL|BINARY_REF_NOT_EQUAL
@@ -139,41 +140,43 @@ public type BinaryOpInstructionKind BINARY_ADD|BINARY_SUB|BINARY_MUL|BINARY_DIV|
                                         |BINARY_BITWISE_OR|BINARY_BITWISE_XOR|BINARY_BITWISE_LEFT_SHIFT
                                         |BINARY_BITWISE_RIGHT_SHIFT|BINARY_BITWISE_UNSIGNED_RIGHT_SHIFT;
 
-public const INS_KIND_MOVE = "MOVE";
-public const INS_KIND_CONST_LOAD = "CONST_LOAD";
-public const INS_KIND_NEW_MAP = "NEW_MAP";
-public const INS_KIND_NEW_INST = "NEW_INST";
-public const INS_KIND_MAP_STORE = "MAP_STORE";
-public const INS_KIND_NEW_ARRAY = "NEW_ARRAY";
-public const INS_KIND_ARRAY_STORE = "ARRAY_STORE";
-public const INS_KIND_MAP_LOAD = "MAP_LOAD";
-public const INS_KIND_ARRAY_LOAD = "ARRAY_LOAD";
-public const INS_KIND_NEW_ERROR = "NEW_ERROR";
-public const INS_KIND_TYPE_CAST = "TYPE_CAST";
-public const INS_KIND_IS_LIKE = "IS_LIKE";
-public const INS_KIND_TYPE_TEST = "TYPE_TEST";
-public const INS_KIND_OBJECT_STORE = "OBJECT_STORE";
-public const INS_KIND_OBJECT_LOAD = "OBJECT_LOAD";
-public const INS_KIND_NEW_XML_ELEMENT = "NEW_XML_ELEMENT";
-public const INS_KIND_NEW_XML_TEXT = "NEW_XML_TEXT";
-public const INS_KIND_NEW_XML_COMMENT = "NEW_XML_COMMENT";
-public const INS_KIND_NEW_XML_PI = "NEW_XML_PI";
-public const INS_KIND_NEW_XML_QNAME = "NEW_XML_QNAME";
-public const INS_KIND_NEW_STRING_XML_QNAME = "NEW_STRING_XML_QNAME";
-public const INS_KIND_XML_SEQ_STORE = "XML_SEQ_STORE";
-public const INS_KIND_XML_SEQ_LOAD = "XML_SEQ_LOAD";
-public const INS_KIND_XML_LOAD = "XML_LOAD";
-public const INS_KIND_XML_LOAD_ALL = "XML_LOAD_ALL";
-public const INS_KIND_XML_ATTRIBUTE_STORE = "XML_ATTRIBUTE_STORE";
-public const INS_KIND_XML_ATTRIBUTE_LOAD = "XML_ATTRIBUTE_LOAD";
-public const INS_KIND_FP_LOAD = "FP_LOAD";
-public const INS_KIND_STRING_LOAD = "STRING_LOAD";
-public const INS_KIND_NEW_TABLE = "NEW_TABLE";
-public const INS_KIND_NEW_STREAM = "NEW_STREAM";
-public const INS_KIND_TYPEOF = "TYPEOF";
-public const INS_KIND_NOT = "NOT";
-public const INS_KIND_NEW_TYPEDESC = "NEW_TYPEDESC";
-public const INS_KIND_NEGATE = "NEGATE";
+public const INS_KIND_MOVE = 25;
+public const INS_KIND_CONST_LOAD = 26;
+public const INS_KIND_NEW_MAP = 27;
+public const INS_KIND_NEW_INST = 28;
+public const INS_KIND_MAP_STORE = 29;
+public const INS_KIND_NEW_ARRAY = 30;
+public const INS_KIND_ARRAY_STORE = 31;
+public const INS_KIND_MAP_LOAD = 32;
+public const INS_KIND_ARRAY_LOAD = 33;
+public const INS_KIND_NEW_ERROR = 34;
+public const INS_KIND_TYPE_CAST = 35;
+public const INS_KIND_IS_LIKE = 36;
+public const INS_KIND_TYPE_TEST = 37;
+public const INS_KIND_OBJECT_STORE = 38;
+public const INS_KIND_OBJECT_LOAD = 39;
+public const INS_KIND_NEW_XML_ELEMENT = 40;
+public const INS_KIND_NEW_XML_TEXT = 41;
+public const INS_KIND_NEW_XML_COMMENT = 42;
+public const INS_KIND_NEW_XML_PI = 43;
+public const INS_KIND_NEW_XML_QNAME = 44;
+public const INS_KIND_NEW_STRING_XML_QNAME = 45;
+public const INS_KIND_XML_SEQ_STORE = 46;
+public const INS_KIND_XML_SEQ_LOAD = 47;
+public const INS_KIND_XML_LOAD = 48;
+public const INS_KIND_XML_LOAD_ALL = 49;
+public const INS_KIND_XML_ATTRIBUTE_STORE = 50;
+public const INS_KIND_XML_ATTRIBUTE_LOAD = 51;
+public const INS_KIND_FP_LOAD = 52;
+public const INS_KIND_STRING_LOAD = 53;
+public const INS_KIND_NEW_TABLE = 54;
+public const INS_KIND_NEW_STREAM = 55;
+public const INS_KIND_TYPEOF = 56;
+public const INS_KIND_NOT = 57;
+public const INS_KIND_NEW_TYPEDESC = 58;
+public const INS_KIND_NEGATE = 59;
+// Below number won't get serialized as this is used for platform specific instructions in each back ends
+public const INS_KIND_PLATFORM = 5000;
 
 public type InstructionKind INS_KIND_MOVE | INS_KIND_CONST_LOAD | INS_KIND_NEW_MAP | INS_KIND_NEW_INST |
                                 INS_KIND_MAP_STORE | INS_KIND_NEW_ARRAY | INS_KIND_NEW_ERROR | INS_KIND_ARRAY_STORE |
@@ -185,7 +188,7 @@ public type InstructionKind INS_KIND_MOVE | INS_KIND_CONST_LOAD | INS_KIND_NEW_M
                                 INS_KIND_XML_ATTRIBUTE_LOAD | INS_KIND_XML_LOAD_ALL | INS_KIND_XML_LOAD |
                                 INS_KIND_XML_SEQ_LOAD | INS_KIND_FP_LOAD | INS_KIND_STRING_LOAD | INS_KIND_NEW_TABLE |
                                 INS_KIND_TYPEOF | INS_KIND_NOT | INS_KIND_NEW_TYPEDESC | INS_KIND_NEW_STREAM |
-                                INS_KIND_NEGATE;
+                                INS_KIND_NEGATE | INS_KIND_PLATFORM;
 
 public const TERMINATOR_GOTO = "GOTO";
 public const TERMINATOR_CALL = "CALL";
@@ -331,6 +334,7 @@ public type BXMLType TYPE_XML;
 
 const HANDLE_TYPE_NAME = "handle";
 const SERVICE_TYPE_NAME = "service";
+public const PLATFORM_TYPE_NAME = "platform";
 const RECORD_TYPE_NAME = "record";
 const MAP_TYPE_NAME = "map";
 const STREAM_TYPE_NAME = "stream";
@@ -343,6 +347,12 @@ const TUPLE_TYPE_NAME = "tuple";
 const FUTURE_TYPE_NAME = "future";
 const FINITE_TYPE_NAME = "finite";
 const TYPEDESC_TYPE_NAME = "typedesc";
+
+public type BPlatformType record {|
+    PLATFORM_TYPE_NAME typeName = PLATFORM_TYPE_NAME;
+    // Below is to make it possible to define custom types in each back end as required
+    anydata...;
+|};
 
 public type BServiceType record {|
     SERVICE_TYPE_NAME typeName = SERVICE_TYPE_NAME;
@@ -464,7 +474,7 @@ public type BFiniteType record {|
 public type BType BTypeInt | BTypeBoolean | BTypeAny | BTypeNil | BTypeByte | BTypeFloat | BTypeString | BUnionType |
                   BTupleType | BInvokableType | BArrayType | BRecordType | BObjectType | BMapType | BErrorType |
                   BTypeAnyData | BTypeNone | BFutureType | BJSONType | Self | BTypeDesc | BXMLType | BServiceType |
-                  BFiniteType | BTableType | BStreamType | BTypeDecimal | BTypeHandle;
+                  BPlatformType | BFiniteType | BTableType | BStreamType | BTypeDecimal | BTypeHandle;
 
 public type ModuleID record {|
     string org = "";
@@ -481,15 +491,17 @@ public type BInvokableType record {
 
 // Instructions
 
-public type Instruction record  {
+public type Instruction record  {|
     DiagnosticPos pos;
     InstructionKind kind;
-};
+    anydata...;
+|};
 
-public type Terminator record {
+public type Terminator record {|
     DiagnosticPos pos;
     TerminatorKind kind;
-};
+    anydata...;
+|};
 
 public type DiagnosticPos record {|
     int sLine = -1;

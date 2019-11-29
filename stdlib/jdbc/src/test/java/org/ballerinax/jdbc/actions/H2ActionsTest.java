@@ -52,7 +52,7 @@ public class H2ActionsTest {
 
     @BeforeClass
     public void setup() {
-        result = BCompileUtil.compile(Paths.get("test-src", "actions", "h2_actions_test.bal").toString());
+        result = BCompileUtil.compileOffline(Paths.get("test-src", "actions", "h2_actions_test.bal").toString());
         testDatabase = new SQLDBUtils.FileBasedTestDatabase(SQLDBUtils.DBType.H2,
                 Paths.get("datafiles", "sql", "actions", "h2_actions_test_data.sql").toString(),
                 SQLDBUtils.DB_DIRECTORY_H2, DB_NAME);

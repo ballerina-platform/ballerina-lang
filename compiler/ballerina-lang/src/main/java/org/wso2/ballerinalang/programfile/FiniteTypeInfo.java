@@ -31,6 +31,7 @@ import java.util.Map;
  *
  * @since 0.971.0
  */
+@Deprecated
 public class FiniteTypeInfo implements TypeInfo {
 
     public List<ValueSpaceItemInfo> valueSpaceItemInfos = new ArrayList<>();

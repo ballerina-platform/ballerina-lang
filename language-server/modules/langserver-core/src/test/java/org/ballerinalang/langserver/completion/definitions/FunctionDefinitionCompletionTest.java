@@ -33,7 +33,7 @@ public class FunctionDefinitionCompletionTest extends CompletionTest {
 
     private static final Logger log = LoggerFactory.getLogger(FunctionDefinitionCompletionTest.class);
 
-    @Test(dataProvider = "completion-data-provider", enabled = false)
+    @Test(dataProvider = "completion-data-provider")
     public void test(String config, String configPath) throws WorkspaceDocumentException, IOException {
         super.test(config, configPath);
     }
@@ -174,6 +174,8 @@ public class FunctionDefinitionCompletionTest extends CompletionTest {
                 {"typeDescSuggestions2.json", "function"},
                 {"delimiterBasedCompletionOverArrays.json", "function"},
                 {"delimiterBasedCompletionOverXML.json", "function"},
+                {"langLibPackageSuggestion1.json", "function"},
+                {"langLibPackageSuggestion2.json", "function"},
 //                {"statementWithMissingSemiColon1.json", "function"},
 //                {"statementWithMissingSemiColon2.json", "function"},
 //                {"statementWithMissingSemiColon3.json", "function"},

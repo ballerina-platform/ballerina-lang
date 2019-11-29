@@ -1228,6 +1228,14 @@
       }
     },
     {
+      "label": "new",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "220",
+      "insertText": "new ",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "ObjectName(int arg1, string arg2, http:Response arg3)",
       "kind": "Function",
       "detail": "Function",

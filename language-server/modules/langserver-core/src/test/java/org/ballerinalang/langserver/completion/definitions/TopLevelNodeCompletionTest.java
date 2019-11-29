@@ -33,7 +33,7 @@ public class TopLevelNodeCompletionTest extends CompletionTest {
 
     private static final Logger log = LoggerFactory.getLogger(TopLevelNodeCompletionTest.class);
 
-    @Test(dataProvider = "completion-data-provider", enabled = false)
+    @Test(dataProvider = "completion-data-provider")
     public void test(String config, String configPath) throws IOException, WorkspaceDocumentException {
         super.test(config, configPath);
     }

@@ -29,6 +29,7 @@ import java.util.List;
  *
  * @since 0.88
  */
+@Deprecated
 public class LocalVariableAttributeInfo implements AttributeInfo {
 
     // Index to a UTF8CPEntry

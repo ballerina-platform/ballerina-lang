@@ -69,7 +69,6 @@ import org.wso2.ballerinalang.compiler.util.NumericLiteralSupport;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
-import org.wso2.ballerinalang.programfile.InstructionCodes;
 import org.wso2.ballerinalang.util.Flags;
 import org.wso2.ballerinalang.util.Lists;
 
@@ -1203,32 +1202,16 @@ public class Types {
                 (actualType.tag == TypeTags.FINITE ||
                          (actualType.tag == TypeTags.UNION && ((BUnionType) actualType).getMemberTypes().stream()
                                  .anyMatch(type -> type.tag == TypeTags.FINITE && isAssignable(type, expType))))) {
-            int code;
-            switch (expType.tag) {
-                case TypeTags.INT:
-                    code = InstructionCodes.ANY2I;
-                    break;
-                case TypeTags.BYTE:
-                    code = InstructionCodes.ANY2BI;
-                    break;
-                case TypeTags.FLOAT:
-                    code = InstructionCodes.ANY2F;
-                    break;
-                case TypeTags.STRING:
-                    code = InstructionCodes.ANY2S;
-                    break;
-                case TypeTags.BOOLEAN:
-                    code = InstructionCodes.ANY2B;
-                    break;
-                default:
-                    // for decimal or nil, no cast is required
-                    return symbol;
+            if (expType.tag != TypeTags.INT && expType.tag != TypeTags.BYTE && expType.tag != TypeTags.FLOAT
+                    && expType.tag != TypeTags.STRING && expType.tag != TypeTags.BOOLEAN) {
+                // for decimal or nil, no cast is required
+                return symbol;
             }
-            symbol = createCastOperatorSymbol(symTable.anyType, expType, true, code);
+            symbol = createCastOperatorSymbol(symTable.anyType, expType, true);
         } else if (expType.tag == TypeTags.ERROR
                 && (actualType.tag == TypeTags.UNION
                 && isAllErrorMembers((BUnionType) actualType))) {
-            symbol = createCastOperatorSymbol(symTable.anyType, symTable.errorType, true, InstructionCodes.ANY2E);
+            symbol = createCastOperatorSymbol(symTable.anyType, symTable.errorType, true);
 
         }
         return symbol;
@@ -1259,19 +1242,19 @@ public class Types {
     public BSymbol getCastOperator(BLangExpression expr, BType sourceType, BType targetType) {
         if (sourceType.tag == TypeTags.SEMANTIC_ERROR || targetType.tag == TypeTags.SEMANTIC_ERROR ||
                 sourceType == targetType) {
-            return createCastOperatorSymbol(sourceType, targetType, true, InstructionCodes.NOP);
+            return createCastOperatorSymbol(sourceType, targetType, true);
         }
         BSymbol bSymbol = symResolver.resolveTypeCastOperator(expr, sourceType, targetType);
         if (bSymbol != null && bSymbol != symTable.notFoundSymbol) {
             return bSymbol;
         }
-        return createCastOperatorSymbol(sourceType, targetType, true, InstructionCodes.NOP);
+        return createCastOperatorSymbol(sourceType, targetType, true);
     }
 
     public BSymbol getConversionOperator(BType sourceType, BType targetType) {
         if (sourceType.tag == TypeTags.SEMANTIC_ERROR || targetType.tag == TypeTags.SEMANTIC_ERROR ||
                 sourceType == targetType) {
-            return createCastOperatorSymbol(sourceType, targetType, true, InstructionCodes.NOP);
+            return createCastOperatorSymbol(sourceType, targetType, true);
         }
         BSymbol bSymbol = symResolver.resolveOperator(Names.CONVERSION_OP, Lists.of(sourceType, targetType));
         if (bSymbol != null && bSymbol != symTable.notFoundSymbol) {
@@ -1283,14 +1266,14 @@ public class Types {
     BSymbol getTypeCastOperator(BLangExpression expr, BType sourceType, BType targetType) {
         if (sourceType.tag == TypeTags.SEMANTIC_ERROR || targetType.tag == TypeTags.SEMANTIC_ERROR ||
                 sourceType == targetType) {
-            return createCastOperatorSymbol(sourceType, targetType, true, InstructionCodes.NOP);
+            return createCastOperatorSymbol(sourceType, targetType, true);
         }
 
         if (isAssignable(sourceType, targetType)) {
             if (isValueType(sourceType) || isValueType(targetType)) {
                 return getImplicitCastOpSymbol(sourceType, targetType);
             }
-            return createCastOperatorSymbol(sourceType, targetType, true, InstructionCodes.NOP);
+            return createCastOperatorSymbol(sourceType, targetType, true);
         }
 
         if (isAssignable(targetType, sourceType)) {
@@ -1409,10 +1392,9 @@ public class Types {
 
     private BCastOperatorSymbol createCastOperatorSymbol(BType sourceType,
                                                          BType targetType,
-                                                         boolean safe,
-                                                         int opcode) {
+                                                         boolean safe) {
         return Symbols.createCastOperatorSymbol(sourceType, targetType, symTable.errorType,
-                                                false, safe, opcode, null, null);
+                false, safe, null, null);
     }
 
     private boolean isNullable(BType fieldType) {

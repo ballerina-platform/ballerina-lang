@@ -26,6 +26,7 @@ under the License.
             <class name="org.ballerinax.jdbc.actions.UpdateTest"/>
             <class name="org.ballerinax.jdbc.actions.SelectTest"/>
             <class name="org.ballerinax.jdbc.actions.BatchUpdateTest"/>
+            <class name="org.ballerinax.jdbc.actions.CallTest"/>
             <class name="org.ballerinax.jdbc.actions.H2ActionsTest"/>
 
             <class name="org.ballerinax.jdbc.table.TableTypeTest"/>

@@ -1222,6 +1222,14 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "new",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "220",
+      "insertText": "new ",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "Response()",
       "kind": "Function",
       "detail": "Function",

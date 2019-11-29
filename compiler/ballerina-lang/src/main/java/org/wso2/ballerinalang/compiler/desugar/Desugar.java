@@ -221,7 +221,6 @@ import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
-import org.wso2.ballerinalang.programfile.InstructionCodes;
 import org.wso2.ballerinalang.util.Flags;
 import org.wso2.ballerinalang.util.Lists;
 
@@ -3378,7 +3377,7 @@ public class Desugar extends BLangNodeVisitor {
 
             BOperatorSymbol conversionSymbol = Symbols
                     .createCastOperatorSymbol(genIExpr.type, originalInvType, symTable.errorType, false, true,
-                            InstructionCodes.NOP, null, null);
+                            null, null);
             BLangTypeConversionExpr conversionExpr = (BLangTypeConversionExpr) TreeBuilder.createTypeConversionNode();
             conversionExpr.expr = genIExpr;
             conversionExpr.targetType = originalInvType;
@@ -4318,8 +4317,7 @@ public class Desugar extends BLangNodeVisitor {
         binaryExpr.opSymbol = new BOperatorSymbol(names.fromString(OperatorKind.ANNOT_ACCESS.value()), null,
                                                   new BInvokableType(Lists.of(binaryExpr.lhsExpr.type,
                                                                               binaryExpr.rhsExpr.type),
-                                                                     annotAccessExpr.type, null), null,
-                                                  InstructionCodes.ANNOT_ACCESS);
+                                                          annotAccessExpr.type, null), null);
         result = rewriteExpr(binaryExpr);
     }
 
@@ -5374,17 +5372,17 @@ public class Desugar extends BLangNodeVisitor {
             conversionSymbol = Symbols.createUnboxValueTypeOpSymbol(rhsType, lhsType);
         } else if (lhsType.tag == TypeTags.UNION && types.isSubTypeOfBaseType(lhsType, TypeTags.ERROR)) {
             conversionSymbol = Symbols.createCastOperatorSymbol(rhsType, symTable.errorType, symTable.errorType, false,
-                                                                true, InstructionCodes.NOP, null, null);
+                    true, null, null);
             lhsType = symTable.errorType;
         } else if (lhsType.tag == TypeTags.UNION || rhsType.tag == TypeTags.UNION) {
             conversionSymbol = Symbols.createCastOperatorSymbol(rhsType, lhsType, symTable.errorType, false, true,
-                                                                InstructionCodes.NOP, null, null);
+                    null, null);
         } else if (lhsType.tag == TypeTags.MAP || rhsType.tag == TypeTags.MAP) {
             conversionSymbol = Symbols.createCastOperatorSymbol(rhsType, lhsType, symTable.errorType, false, true,
-                                                                InstructionCodes.NOP, null, null);
+                    null, null);
         } else if (lhsType.tag == TypeTags.TABLE || rhsType.tag == TypeTags.TABLE) {
-            conversionSymbol = Symbols.createCastOperatorSymbol(rhsType, lhsType, symTable.errorType, false, true, 
-                                                                InstructionCodes.NOP, null, null);
+            conversionSymbol = Symbols.createCastOperatorSymbol(rhsType, lhsType, symTable.errorType, false, true,
+                    null, null);
         } else {
             conversionSymbol = (BOperatorSymbol) symResolver.resolveCastOperator(expr, rhsType, lhsType);
         }

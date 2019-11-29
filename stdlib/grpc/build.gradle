@@ -51,6 +51,11 @@ dependencies {
     implementation 'io.netty:netty-codec-http'
     implementation 'org.wso2.transport.http:org.wso2.transport.http.netty'
 
+    interopImports project(':ballerina-config-api')
+    interopImports project(':ballerina-io')
+    interopImports project(':ballerina-system')
+    interopImports project(':ballerina-time')
+
     //testCompile project(':ballerina-tool')
     testCompile project(path: ':ballerina-test-common', configuration: 'tests')
     testCompile project(path: ':ballerina-test-utils', configuration: 'shadow')

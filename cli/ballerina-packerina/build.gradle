@@ -54,7 +54,7 @@ dependencies {
     testRuntime project(path: ':ballerina-jvm', configuration: 'birJar')
     testRuntime project(path: ':ballerina-bir', configuration: 'birJar')
 
-    birJarCompile project(path: ':ballerina-bootstrapper', configuration: 'pack3')
+    birJarCompile project(path: ':ballerina-bootstrapper', configuration: 'pack4')
 }
 
 task createBirCache {

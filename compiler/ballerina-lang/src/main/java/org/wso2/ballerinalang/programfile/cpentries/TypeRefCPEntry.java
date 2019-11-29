@@ -22,6 +22,7 @@ package org.wso2.ballerinalang.programfile.cpentries;
  *
  * @since 0.88
  */
+@Deprecated
 public class TypeRefCPEntry implements ConstantPoolEntry {
 
     public int typeSigCPIndex;
