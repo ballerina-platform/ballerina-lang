@@ -1206,7 +1206,7 @@ public class Types {
         }
 
         if (actualType.tag == TypeTags.BYTE && expType.tag == TypeTags.INT) {
-            symbol = createCastOperatorSymbol(actualType, expType, true, InstructionCodes.NOP);
+            symbol = createCastOperatorSymbol(actualType, expType, true);
         } else if (isValueType(expType) &&
                 (actualType.tag == TypeTags.FINITE ||
                          (actualType.tag == TypeTags.UNION && ((BUnionType) actualType).getMemberTypes().stream()
