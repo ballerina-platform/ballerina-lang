@@ -17,7 +17,6 @@
  */
 package org.ballerinax.jdbc.functions;
 
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinax.jdbc.Constants;
@@ -33,7 +32,7 @@ import org.ballerinax.jdbc.datasource.SQLDatasource;
                    functionName = "close")
 public class Close {
 
-    public static Object close(Strand strand, ObjectValue client) {
+    public static Object close(ObjectValue client) {
         SQLDatasource datasource = (SQLDatasource) client.getNativeData(Constants.JDBC_CLIENT);
         // When an exception is thrown during database endpoint init (eg: driver not present) stop operation
         // of the endpoint is automatically called. But at this point, datasource is null therefore to handle that

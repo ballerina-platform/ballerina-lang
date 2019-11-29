@@ -17,7 +17,6 @@
  */
 package org.ballerinax.jdbc.functions;
 
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -42,7 +41,7 @@ import java.util.UUID;
                    isPublic = true)
 public class CreateClient {
 
-    public static void createClient(Strand strand, ObjectValue client, MapValue<String, Object> config,
+    public static void createClient(ObjectValue client, MapValue<String, Object> config,
             MapValue<String, Object> globalPoolOptions) {
         String url = config.getStringValue(Constants.EndpointConfig.URL);
 

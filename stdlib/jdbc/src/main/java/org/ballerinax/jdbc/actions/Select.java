@@ -17,7 +17,7 @@
  */
 package org.ballerinax.jdbc.actions;
 
-import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.TypedescValue;
@@ -37,11 +37,11 @@ import org.ballerinax.jdbc.statement.SelectStatement;
                    functionName = "nativeSelect")
 public class Select {
 
-    public static Object nativeSelect(Strand strand, ObjectValue client, String query, Object recordType,
+    public static Object nativeSelect(ObjectValue client, String query, Object recordType,
             ArrayValue parameters) {
         SQLDatasource sqlDatasource = (SQLDatasource) client.getNativeData(Constants.JDBC_CLIENT);
         SQLStatement selectStatement = new SelectStatement(client, sqlDatasource, query, parameters,
-                (TypedescValue) recordType, strand);
+                (TypedescValue) recordType, Scheduler.getStrand());
         return selectStatement.execute();
     }
 

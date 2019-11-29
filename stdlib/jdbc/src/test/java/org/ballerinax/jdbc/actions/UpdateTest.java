@@ -19,6 +19,7 @@ package org.ballerinax.jdbc.actions;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BDecimal;
 import org.ballerinalang.model.values.BFloat;
+import org.ballerinalang.model.values.BHandleValue;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
@@ -343,7 +344,7 @@ public class UpdateTest {
     @Test(groups = UPDATE_TEST)
     public void testStopClient() {
         BValue[] returns = BRunUtil.invokeFunction(result, "testStopClient", args);
-        Assert.assertNull(returns[0]);
+        Assert.assertNull(((BHandleValue) returns[0]).getValue());
     }
 
     @Test(dependsOnGroups = UPDATE_TEST)
