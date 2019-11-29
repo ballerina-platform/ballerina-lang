@@ -93,8 +93,7 @@ function covertToString(handle value) returns string {
     if (result is string) {
         output = result;
     } else {
-        error err = error("Error occured when converting the value to string.");
-        panic err;
+        panic error("Error occured when converting the value to string.");
     }
     return output;
 }
