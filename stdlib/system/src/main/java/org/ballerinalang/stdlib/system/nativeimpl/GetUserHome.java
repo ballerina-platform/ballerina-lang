@@ -17,10 +17,6 @@
  */
 package org.ballerinalang.stdlib.system.nativeimpl;
 
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.stdlib.system.utils.SystemUtils;
 
 /**
@@ -28,17 +24,10 @@ import org.ballerinalang.stdlib.system.utils.SystemUtils;
  *
  * @since 0.94.1
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "system",
-        functionName = "getUserHome",
-        returnType = {@ReturnType(type = TypeKind.STRING)},
-        isPublic = true
-)
 public class GetUserHome {
 
     private static final String PROPERTY_NAME = "user.home";
-
-    public static String getUserHome(Strand strand) {
+    public static String getUserHome() {
         return SystemUtils.getSystemProperty(PROPERTY_NAME);
     }
 }
