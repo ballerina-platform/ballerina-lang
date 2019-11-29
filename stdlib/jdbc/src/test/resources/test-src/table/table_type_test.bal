@@ -833,15 +833,10 @@ function testTableManualClose(string jdbcURL) returns @tainted int {
     if (selectRet is table<ResultPrimitiveInt>) {
         while (selectRet.hasNext()) {
             var rs = selectRet.getNext();
-            if (rs is ResultPrimitiveInt) {
-                int ret = rs.INT_TYPE;
-                i = i + 1;
-                if (i == 1) {
-                    break;
-                }
-            } else {
-                checkpanic testDB.stop();
-                return -1;
+            int ret = rs.INT_TYPE;
+            i = i + 1;
+            if (i == 1) {
+                break;
             }
         }
         selectRet.close();
@@ -856,12 +851,7 @@ function testTableManualClose(string jdbcURL) returns @tainted int {
     if (selectRet2 is table<ResultPrimitiveInt>) {
         while (selectRet2.hasNext()) {
             var rs2 = selectRet2.getNext();
-            if (rs2 is ResultPrimitiveInt) {
-                data = rs2.INT_TYPE;
-            } else {
-                checkpanic testDB.stop();
-                return -2;
-            }
+            data = rs2.INT_TYPE;
         }
         selectRet2.close();
     } else {
@@ -885,11 +875,7 @@ function testCloseConnectionPool(string jdbcURL) returns int {
     if (selectRet is table<ResultCount>) {
         while (selectRet.hasNext()) {
             var rs = selectRet.getNext();
-            if (rs is ResultCount) {
-                retVal = rs.COUNTVAL;
-            } else {
-                retVal = -1;
-            }
+            retVal = <@untainted> rs.COUNTVAL;
         }
     } else {
         retVal = -2;
@@ -965,9 +951,7 @@ function testMultipleRowsWithoutLoop(string jdbcURL) returns @tainted [int, int,
     if (selectRet is table<ResultPrimitiveInt>) {
         while (selectRet.hasNext()) {
             var rs = selectRet.getNext();
-            if (rs is ResultPrimitiveInt) {
-                i1 = rs.INT_TYPE;
-            }
+            i1 = rs.INT_TYPE;
         }
     }
 
@@ -977,9 +961,7 @@ function testMultipleRowsWithoutLoop(string jdbcURL) returns @tainted [int, int,
     if (selectRet2 is table<ResultPrimitiveInt>) {
         if (selectRet2.hasNext()) {
             var rs = selectRet2.getNext();
-            if (rs is ResultPrimitiveInt) {
-                i2 = rs.INT_TYPE;
-            }
+            i2 = rs.INT_TYPE;
         }
         selectRet2.close();
     }
@@ -989,14 +971,9 @@ function testMultipleRowsWithoutLoop(string jdbcURL) returns @tainted [int, int,
 
     if (selectRet3 is table<ResultPrimitiveInt>) {
         var rs1 = selectRet3.getNext();
-        if (rs1 is ResultPrimitiveInt) {
-            i3 = rs1.INT_TYPE;
-        }
-
+        i3 = rs1.INT_TYPE;
         var rs2 = selectRet3.getNext();
-        if (rs2 is ResultPrimitiveInt) {
-            i4 = rs2.INT_TYPE;
-        }
+        i4 = rs2.INT_TYPE;
         selectRet3.close();
     }
 
@@ -1007,13 +984,9 @@ function testMultipleRowsWithoutLoop(string jdbcURL) returns @tainted [int, int,
     if (selectRet4 is table<ResultPrimitiveInt>) {
         if (selectRet4.hasNext()) {
             var rs = selectRet4.getNext();
-            if (rs is ResultPrimitiveInt) {
-                s1 = s1 + rs.INT_TYPE.toString();
-            }
+            s1 = s1 + rs.INT_TYPE.toString();
             var rs2 = selectRet4.getNext();
-            if (rs2 is ResultPrimitiveInt) {
-                s1 = s1 + "_" + rs2.INT_TYPE.toString();
-            }
+            s1 = s1 + "_" + rs2.INT_TYPE.toString();
             if (selectRet4.hasNext()) {
                 s1 = s1 + "_" + "HAS";
             } else {
@@ -1028,9 +1001,7 @@ function testMultipleRowsWithoutLoop(string jdbcURL) returns @tainted [int, int,
 
     if (selectRet5 is table<ResultPrimitiveInt>) {
         var rs = selectRet5.getNext();
-        if (rs is ResultPrimitiveInt) {
-            s2 = s2 + rs.INT_TYPE.toString();
-        }
+        s2 = s2 + rs.INT_TYPE.toString();
         if (selectRet5.hasNext()) {
             s2 = s2 + "_" + "HAS";
         } else {
@@ -1043,9 +1014,7 @@ function testMultipleRowsWithoutLoop(string jdbcURL) returns @tainted [int, int,
         }
         if (selectRet5.hasNext()) {
             var rs2 = selectRet5.getNext();
-            if (rs2 is ResultPrimitiveInt) {
-                s2 = s2 + "_" + rs2.INT_TYPE.toString();
-            }
+            s2 = s2 + "_" + rs2.INT_TYPE.toString();
         }
         if (selectRet5.hasNext()) {
             s2 = s2 + "_" + "HAS";
@@ -1111,12 +1080,10 @@ function testGetFloatTypes(string jdbcURL) returns @tainted [float, float, decim
     if (selectRet is table<ResultSetFloat>) {
         while (selectRet.hasNext()) {
             var rs = selectRet.getNext();
-            if (rs is ResultSetFloat) {
-                f = rs.FLOAT_TYPE;
-                d = rs.DOUBLE_TYPE;
-                num = rs.NUMERIC_TYPE;
-                dec = rs.DECIMAL_TYPE;
-            }
+            f = rs.FLOAT_TYPE;
+            d = rs.DOUBLE_TYPE;
+            num = rs.NUMERIC_TYPE;
+            dec = rs.DECIMAL_TYPE;
         }
     }
     checkpanic testDB.stop();
@@ -1188,16 +1155,14 @@ function testSignedIntMaxMinValues(string jdbcURL) returns @tainted [int, int, i
         str = "";
         while (dtRet3.hasNext()) {
             var result = dtRet3.getNext();
-            if (result is ResultSignedInt) {
-                var tinyIntData = result.TINYINTDATA;
-                var smallIntData = result.SMALLINTDATA;
-                var intData = result.INTDATA;
-                var bigIntData = result.BIGINTDATA;
-                str = str + result.ID.toString() + "|" + (tinyIntData is int ? tinyIntData.toString() : "-1") + "|" +
-                (smallIntData is int ? smallIntData.toString() : "-1") + "|" +
-                (intData is int ? intData.toString() : "-1") + "|" +
-                (bigIntData is int ? bigIntData.toString() : "-1") + "#";
-            }
+            var tinyIntData = result.TINYINTDATA;
+            var smallIntData = result.SMALLINTDATA;
+            var intData = result.INTDATA;
+            var bigIntData = result.BIGINTDATA;
+            str = str + result.ID.toString() + "|" + (tinyIntData is int ? tinyIntData.toString() : "-1") + "|" +
+            (smallIntData is int ? smallIntData.toString() : "-1") + "|" +
+            (intData is int ? intData.toString() : "-1") + "|" +
+            (bigIntData is int ? bigIntData.toString() : "-1") + "#";
         }
     }
     checkpanic testDB.stop();
@@ -1258,15 +1223,13 @@ function testComplexTypeInsertAndRetrieval(string jdbcURL) returns @tainted [int
     if (selectRet3 is table<ResultComplexTypes>) {
         while (selectRet3.hasNext()) {
             var result = selectRet3.getNext();
-            if (result is ResultComplexTypes) {
-                string blobType;
-                expected[i] = result.BLOB_TYPE ?: [];
-                blobType = result.BLOB_TYPE is () ? "nil" : "nonNil";
-                var clobType = result.CLOB_TYPE;
-                str = str + result.ROW_ID.toString() + "|" + blobType.toString() + "|" +
-                (clobType is string ? clobType : "nil") + "|";
-                i += 1;
-            }
+            string blobType;
+            expected[i] = result.BLOB_TYPE ?: [];
+            blobType = result.BLOB_TYPE is () ? "nil" : "nonNil";
+            var clobType = result.CLOB_TYPE;
+            str = str + result.ROW_ID.toString() + "|" + blobType.toString() + "|" +
+            (clobType is string ? clobType : "nil") + "|";
+            i += 1;
         }
     }
     checkpanic testDB.stop();
@@ -1311,9 +1274,7 @@ function testStructFieldNotMatchingColumnName(string jdbcURL) returns @tainted [
     if (selectRet is table<ResultCount>) {
         while (selectRet.hasNext()) {
             var rs = selectRet.getNext();
-            if (rs is ResultCount) {
-                countAll = rs.COUNTVAL;
-            }
+            countAll = rs.COUNTVAL;
         }
     }
 
@@ -1323,12 +1284,10 @@ function testStructFieldNotMatchingColumnName(string jdbcURL) returns @tainted [
     if (selectRet2 is table<ResultTest>) {
         while (selectRet2.hasNext()) {
             var rs = selectRet2.getNext();
-            if (rs is ResultTest) {
-                i1 = rs.t1Row;
-                i2 = rs.t1Int;
-                i3 = rs.t2Row;
-                i4 = rs.t2Int;
-            }
+            i1 = rs.t1Row;
+            i2 = rs.t1Int;
+            i3 = rs.t2Row;
+            i4 = rs.t2Int;
         }
     }
     checkpanic testDB.stop();
@@ -1655,14 +1614,12 @@ function testTypeCheckingConstrainedCursorTableWithClosedConstraint(string jdbcU
     if (dtRet is table<ResultClosed>) {
         while (dtRet.hasNext()) {
             var rs = dtRet.getNext();
-            if (rs is ResultClosed) {
-                i = rs.INT_TYPE;
-                l = rs.LONG_TYPE;
-                f = rs.FLOAT_TYPE;
-                d = rs.DOUBLE_TYPE;
-                b = rs.BOOLEAN_TYPE;
-                s = rs.STRING_TYPE;
-            }
+            i = rs.INT_TYPE;
+            l = rs.LONG_TYPE;
+            f = rs.FLOAT_TYPE;
+            d = rs.DOUBLE_TYPE;
+            b = rs.BOOLEAN_TYPE;
+            s = rs.STRING_TYPE;
         }
     }
     checkpanic testDB.stop();
