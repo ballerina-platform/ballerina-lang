@@ -52,7 +52,7 @@ public class CallTest {
         result = BCompileUtil.compile(Paths.get("test-src", "actions", "call_test.bal").toString());
     }
 
-    @Test(groups = CALL_TEST, enabled = false)
+    @Test(groups = CALL_TEST)
     public void testCallWithStringTypes() {
         BValue[] returns = BRunUtil.invoke(result, "testCallWithStringTypes", args);
         Assert.assertEquals(returns[0].stringValue(), "test1");
