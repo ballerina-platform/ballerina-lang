@@ -87,6 +87,9 @@ function generateCheckCastBToJByte(jvm:MethodVisitor mv, bir:BType sourceType) {
         mv.visitInsn(I2B);
     } else if (sourceType is bir:BTypeHandle) {
         mv.visitMethodInsn(INVOKEVIRTUAL, HANDLE_VALUE, "getValue", "()Ljava/lang/Object;", false);
+    } else if (sourceType is bir:BFiniteType) {
+        mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "anyToByte", io:sprintf("(L%s;)I", OBJECT), false);
+        mv.visitInsn(I2B);
     } else {
         error err = error(io:sprintf("Casting is not supported from '%s' to 'java byte'", sourceType));
         panic err;
@@ -104,6 +107,10 @@ function generateCheckCastBToJChar(jvm:MethodVisitor mv, bir:BType sourceType) {
         mv.visitInsn(I2C);
     } else if (sourceType is bir:BTypeHandle) {
         mv.visitMethodInsn(INVOKEVIRTUAL, HANDLE_VALUE, "getValue", "()Ljava/lang/Object;", false);
+    } else if (sourceType is bir:BFiniteType) {
+        mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "anyToInt", io:sprintf("(L%s;)J", OBJECT), false);
+        mv.visitInsn(L2I);
+        mv.visitInsn(I2C);
     } else {
         error err = error(io:sprintf("Casting is not supported from '%s' to 'java char'", sourceType));
         panic err;
@@ -121,6 +128,10 @@ function generateCheckCastBToJShort(jvm:MethodVisitor mv, bir:BType sourceType) 
         mv.visitInsn(I2S);
     } else if (sourceType is bir:BTypeHandle) {
         mv.visitMethodInsn(INVOKEVIRTUAL, HANDLE_VALUE, "getValue", "()Ljava/lang/Object;", false);
+    } else if (sourceType is bir:BFiniteType) {
+        mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "anyToInt", io:sprintf("(L%s;)J", OBJECT), false);
+        mv.visitInsn(L2I);
+        mv.visitInsn(I2S);
     } else {
         error err = error(io:sprintf("Casting is not supported from '%s' to 'java short'", sourceType));
         panic err;
@@ -136,6 +147,9 @@ function generateCheckCastBToJInt(jvm:MethodVisitor mv, bir:BType sourceType) {
         mv.visitInsn(D2I);
     } else if (sourceType is bir:BTypeHandle) {
         mv.visitMethodInsn(INVOKEVIRTUAL, HANDLE_VALUE, "getValue", "()Ljava/lang/Object;", false);
+    } else if (sourceType is bir:BFiniteType) {
+        mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "anyToInt", io:sprintf("(L%s;)J", OBJECT), false);
+        mv.visitInsn(L2I);
     } else {
         error err = error(io:sprintf("Casting is not supported from '%s' to 'java int'", sourceType));
         panic err;
@@ -151,6 +165,8 @@ function generateCheckCastBToJLong(jvm:MethodVisitor mv, bir:BType sourceType) {
         mv.visitInsn(D2L);
     } else if (sourceType is bir:BTypeHandle) {
         mv.visitMethodInsn(INVOKEVIRTUAL, HANDLE_VALUE, "getValue", "()Ljava/lang/Object;", false);
+    } else if (sourceType is bir:BFiniteType) {
+        mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "anyToInt", io:sprintf("(L%s;)J", OBJECT), false);
     } else {
         error err = error(io:sprintf("Casting is not supported from '%s' to 'java long'", sourceType));
         panic err;
@@ -166,6 +182,9 @@ function generateCheckCastBToJFloat(jvm:MethodVisitor mv, bir:BType sourceType) 
         mv.visitInsn(D2F);
     } else if (sourceType is bir:BTypeHandle) {
         mv.visitMethodInsn(INVOKEVIRTUAL, HANDLE_VALUE, "getValue", "()Ljava/lang/Object;", false);
+    } else if (sourceType is bir:BFiniteType) {
+        mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "anyToFloat", io:sprintf("(L%s;)D", OBJECT), false);
+        mv.visitInsn(D2F);
     } else {
         error err = error(io:sprintf("Casting is not supported from '%s' to 'java float'", sourceType));
         panic err;
@@ -181,6 +200,8 @@ function generateCheckCastBToJDouble(jvm:MethodVisitor mv, bir:BType sourceType)
         // do nothing
     } else if (sourceType is bir:BTypeHandle) {
         mv.visitMethodInsn(INVOKEVIRTUAL, HANDLE_VALUE, "getValue", "()Ljava/lang/Object;", false);
+    } else if (sourceType is bir:BFiniteType) {
+        mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "anyToFloat", io:sprintf("(L%s;)D", OBJECT), false);
     } else {
         error err = error(io:sprintf("Casting is not supported from '%s' to 'java double'", sourceType));
         panic err;
@@ -228,32 +249,32 @@ function generateJToBCheckCast(jvm:MethodVisitor mv, BalToJVMIndexMap indexMap, 
     } else if (targetType is bir:BTypeNil) {
         // Do nothing
         return;
-    } else if (targetType is bir:BUnionType) {
-        generateCheckCastJToBUnionType(mv, indexMap, sourceType, targetType);
-        return;
-    } else if (targetType is bir:BTypeAnyData) {
-        generateCheckCastJToBAnyData(mv, indexMap, sourceType);
-        return;
-    } else if (targetType is bir:BTypeHandle) {
-        generateJCastToBHandle(mv, sourceType);
-        return;
-    } else if (targetType is bir:BTypeAny) {
-        generateJCastToBAny(mv, indexMap, sourceType);
-        return;
-    } else if (targetType is bir:BJSONType) {
-        generateCheckCastJToBJSON(mv, indexMap, sourceType);
-        return;
-    // TODO fix below properly - rajith
-    //} else if (sourceType is bir:BXMLType && targetType is bir:BMapType) {
-    //    generateXMLToAttributesMap(mv, sourceType);
-    //    return;
-    //} else if (targetType is bir:BFiniteType) {
-    //    generateCheckCastToFiniteType(mv, sourceType, targetType);
-    //    return;
-    //} else if (sourceType is bir:BRecordType && (targetType is bir:BMapType && targetType.constraint is bir:BTypeAny)) {
-    //    // do nothing
     } else {
-        string? targetTypeClass = getTargetClass(sourceType, targetType);
+        if (targetType is bir:BUnionType) {
+            generateCheckCastJToBUnionType(mv, indexMap, sourceType, targetType);
+        } else if (targetType is bir:BTypeAnyData) {
+            generateCheckCastJToBAnyData(mv, indexMap, sourceType);
+        } else if (targetType is bir:BTypeHandle) {
+            generateJCastToBHandle(mv, sourceType);
+        } else if (targetType is bir:BTypeAny) {
+            generateJCastToBAny(mv, indexMap, sourceType, targetType);
+        } else if (targetType is bir:BJSONType) {
+            generateCheckCastJToBJSON(mv, indexMap, sourceType);
+        } else if (targetType is bir:BFiniteType) {
+            generateCheckCastJToBFiniteType(mv, indexMap, sourceType, targetType);
+        // TODO fix below properly - rajith
+        //} else if (sourceType is bir:BXMLType && targetType is bir:BMapType) {
+        //    generateXMLToAttributesMap(mv, sourceType);
+        //    return;
+        //} else if (targetType is bir:BFiniteType) {
+        //    generateCheckCastToFiniteType(mv, sourceType, targetType);
+        //    return;
+        //} else if (sourceType is bir:BRecordType && (targetType is bir:BMapType && targetType.constraint is bir:BTypeAny)) {
+        //    // do nothing
+        }
+
+        checkCast(mv, targetType);
+        string? targetTypeClass = getTargetClass(targetType);
         if (targetTypeClass is string) {
             mv.visitTypeInsn(CHECKCAST, targetTypeClass);
         }
@@ -366,18 +387,13 @@ function generateCheckCastJToBByte(jvm:MethodVisitor mv, jvm:JType sourceType) {
 }
 
 function generateCheckCastJToBUnionType(jvm:MethodVisitor mv, BalToJVMIndexMap indexMap, jvm:JType sourceType, bir:BUnionType targetType) {
-    generateJCastToBAny(mv, indexMap, sourceType);
-    // TODO implement check cast from java types - rajith
-    //checkCast(mv, targetType);
+    generateJCastToBAny(mv, indexMap, sourceType, targetType);
 }
 
 function generateCheckCastJToBAnyData(jvm:MethodVisitor mv, BalToJVMIndexMap indexMap, jvm:JType sourceType) {
-    if (sourceType is jvm:JRefType || sourceType is jvm:JArrayType) {
-    	// TODO fix properly - rajith
-        //checkCast(mv, bir:TYPE_ANYDATA);
-    } else {
+    if !(sourceType is jvm:JRefType || sourceType is jvm:JArrayType) {
         // if value types, then ad box instruction
-        generateJCastToBAny(mv, indexMap, sourceType);
+        generateJCastToBAny(mv, indexMap, sourceType, bir:TYPE_ANYDATA);
     }
 }
 
@@ -406,7 +422,7 @@ function generateJCastToBHandle(jvm:MethodVisitor mv, jvm:JType sourceType) {
     //}
 }
 
-function generateJCastToBAny(jvm:MethodVisitor mv, BalToJVMIndexMap indexMap, jvm:JType sourceType) {
+function generateJCastToBAny(jvm:MethodVisitor mv, BalToJVMIndexMap indexMap, jvm:JType sourceType, bir:BType targetType) {
     if (sourceType is jvm:JBoolean) {
         mv.visitMethodInsn(INVOKESTATIC, BOOLEAN_VALUE, "valueOf", io:sprintf("(Z)L%s;", BOOLEAN_VALUE), false);
     } else if (sourceType is jvm:JByte) {
@@ -441,14 +457,11 @@ function generateJCastToBAny(jvm:MethodVisitor mv, BalToJVMIndexMap indexMap, jv
             mv.visitInsn(DUP);
             mv.visitTypeInsn(INSTANCEOF, "java/lang/Boolean");
             mv.visitJumpInsn(IFNE, afterHandle);
+        }
 
+        if (isNillable(targetType)) {
             mv.visitInsn(DUP);
-            mv.visitTypeInsn(INSTANCEOF, REF_VALUE);
-            mv.visitJumpInsn(IFNE, afterHandle);
-
-            mv.visitInsn(DUP);
-            mv.visitTypeInsn(INSTANCEOF, "java/lang/Byte");
-            mv.visitJumpInsn(IFNE, afterHandle);
+            mv.visitJumpInsn(IFNULL, afterHandle);
         }
 
         mv.visitInsn(DUP);
@@ -471,13 +484,34 @@ function generateJCastToBAny(jvm:MethodVisitor mv, BalToJVMIndexMap indexMap, jv
     }
 }
 
+function isNillable(bir:BType targetType) returns boolean {
+    if (targetType is bir:BTypeNil|bir:BJSONType|bir:BTypeAny|bir:BTypeAnyData) {
+        return true;
+    } else if (targetType is bir:BUnionType) {
+        return (targetType.typeFlags & TYPE_FLAG_NILABLE) == TYPE_FLAG_NILABLE;
+    } else if (targetType is bir:BFiniteType) {
+        return (targetType.typeFlags & TYPE_FLAG_NILABLE) == TYPE_FLAG_NILABLE;
+    }
+
+    return false;
+}
+
 function generateCheckCastJToBJSON(jvm:MethodVisitor mv, BalToJVMIndexMap indexMap, jvm:JType sourceType) {
     if (sourceType is jvm:JRefType || sourceType is jvm:JArrayType) {
     	// TODO fix properly - rajith
         //checkCast(mv, bir:TYPE_JSON);
     } else {
         // if value types, then ad box instruction
-        generateJCastToBAny(mv, indexMap, sourceType);
+        generateJCastToBAny(mv, indexMap, sourceType, bir:TYPE_JSON);
+    }
+}
+
+function generateCheckCastJToBFiniteType(jvm:MethodVisitor mv, BalToJVMIndexMap indexMap, jvm:JType sourceType,
+                                            bir:BType targetType) {
+    // Finite types are stored in ref registry at ballerina side. Therefore if the return 
+    // type if a primitive, then add a box instruction.
+    if !(sourceType is jvm:JRefType || sourceType is jvm:JArrayType) {
+        generateJCastToBAny(mv, indexMap, sourceType, targetType);
     }
 }
 
@@ -529,7 +563,7 @@ function generateCheckCast(jvm:MethodVisitor mv, bir:BType sourceType, bir:BType
     }
 
     // cast to the specific java class
-    string? targetTypeClass = getTargetClass(sourceType, targetType);
+    string? targetTypeClass = getTargetClass(targetType);
     if (targetTypeClass is string) {
         mv.visitTypeInsn(CHECKCAST, targetTypeClass);
     }
@@ -691,7 +725,7 @@ function checkCast(jvm:MethodVisitor mv, bir:BType targetType) {
             io:sprintf("(L%s;L%s;)L%s;", OBJECT, BTYPE, OBJECT), false);
 }
 
-function getTargetClass(bir:BType sourceType, bir:BType targetType) returns string? {
+function getTargetClass(bir:BType targetType) returns string? {
     string targetTypeClass;
     if (targetType is bir:BArrayType || targetType is bir:BTupleType) {
         targetTypeClass = ARRAY_VALUE;
@@ -766,7 +800,7 @@ function generateCast(jvm:MethodVisitor mv, bir:BType sourceType, bir:BType targ
     }
 
     // cast to the specific java class
-    string? targetTypeClass = getTargetClass(sourceType, targetType);
+    string? targetTypeClass = getTargetClass(targetType);
     if (targetTypeClass is string) {
         mv.visitTypeInsn(CHECKCAST, targetTypeClass);
     }
