@@ -67,6 +67,8 @@ dependencies {
     testCompile project(':ballerina-crypto')
     testCompile project(':ballerina-file')
     testCompile project(':ballerina-auth')
+
+    interopImports project(':ballerina-crypto')
 }
 
 configurations.all {

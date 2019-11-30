@@ -18,9 +18,7 @@
 
 package org.ballerinalang.stdlib.crypto.nativeimpl;
 
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ArrayValue;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
 
 import java.util.zip.CRC32;
 import java.util.zip.Checksum;
@@ -30,12 +28,9 @@ import java.util.zip.Checksum;
  *
  * @since 0.970.0-alpha1
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "crypto",
-        functionName = "crc32b", isPublic = true)
 public class Crc32b {
 
-    public static String crc32b(Strand strand, ArrayValue input) {
+    public static String crc32b(ArrayValue input) {
         Checksum checksum = new CRC32();
         byte[] bytes = input.getBytes();
         long checksumVal;

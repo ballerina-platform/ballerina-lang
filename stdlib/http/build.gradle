@@ -97,6 +97,8 @@ dependencies {
     testCompile project(':ballerina-core')
     testCompile 'org.apache.ws.commons.axiom:axiom-api'
     testCompile 'org.testng:testng'
+
+    interopImports project(':ballerina-crypto')
 }
 
 createBalo {

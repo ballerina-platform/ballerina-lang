@@ -70,7 +70,6 @@ dependencies {
     implementation project(':ballerina-observability')
     implementation project(":ballerina-config-api")
     implementation project(':ballerina-math')
-    implementation project(":ballerina-crypto")
     implementation project(':ballerina-time')
     implementation project(':ballerina-mime')
     implementation project(':ballerina-io')
@@ -83,6 +82,8 @@ dependencies {
     implementation project(':ballerina-utils')
     implementation project(':ballerina-config')
     implementation project(':ballerina-runtime')
+
+    interopImports project(':ballerina-crypto')
 }
 
 artifacts {
