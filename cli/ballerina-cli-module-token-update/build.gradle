@@ -62,6 +62,7 @@ dependencies {
     baloImplementation project(path: ':ballerina-utils', configuration: 'baloImplementation')
 
     interopImports project(':ballerina-config-api')
+    interopImports project(':ballerina-crypto')
     interopImports project(':ballerina-io')
     interopImports project(':ballerina-math')
     interopImports project(':ballerina-system')
@@ -72,8 +73,6 @@ dependencies {
     implementation project(':ballerina-runtime')
     implementation project(':ballerina-runtime-api')
     implementation project(':ballerina-utils')
-
-    interopImports project(':ballerina-io')
 }
 
 artifacts {
