@@ -18,6 +18,8 @@
 package org.ballerinalang.test.packaging;
 
 import org.awaitility.Duration;
+import org.ballerinalang.jvm.JSONParser;
+import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.test.BaseTest;
 import org.ballerinalang.test.context.BMainInstance;
 import org.ballerinalang.test.context.BallerinaTestException;
@@ -31,8 +33,13 @@ import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 import org.wso2.ballerinalang.programfile.ProgramFileConstants;
 import org.wso2.ballerinalang.util.RepoUtils;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URI;
+import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -148,6 +155,29 @@ public class PackagingTestCase extends BaseTest {
         });
 
         Assert.assertTrue(Files.exists(tempHomeDirectory.resolve(baloPath).resolve(baloFileName)));
+    }
+
+    @Test(description = "Test pullCount of a package from central", dependsOnMethods = "testPull")
+    public void testPullCount() throws IOException {
+        URI remoteUri = URI.create(RepoUtils.getRemoteRepoURL() + "/modules/info/" + orgName + "/" + moduleName);
+        HttpURLConnection conn;
+        conn = (HttpURLConnection) remoteUri.toURL().openConnection();
+        int statusCode = conn.getResponseCode();
+        if (statusCode == 200) {
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(conn.getInputStream()
+                    , Charset.defaultCharset()))) {
+                StringBuilder result = new StringBuilder();
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    result.append(line);
+                }
+                Object payload = JSONParser.parse(result.toString());
+                if (payload instanceof MapValue) {
+                    long pullCount = ((MapValue) payload).getIntValue("totalPullCount");
+                    Assert.assertEquals(pullCount, 1);
+                }
+            }
+        }
     }
 
 //    @Test(description = "Test searching a package from central", dependsOnMethods = "testPush")
