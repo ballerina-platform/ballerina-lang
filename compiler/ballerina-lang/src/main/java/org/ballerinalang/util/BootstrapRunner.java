@@ -30,8 +30,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -40,10 +43,12 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.StringJoiner;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 /**
  * Creates jars in file system using bootstrap pack and create class loader hierarchy for them.
@@ -53,6 +58,7 @@ public class BootstrapRunner {
     private static final PrintStream out = System.out;
     private static final PrintStream err = System.err;
     private static final String CLASSPATH = "CLASSPATH";
+    private static final String TMP_OBJECT_FILE_NAME = "ballerina_native_objf.o";
 
     public static void loadTargetAndGenerateJarBinary(String entryBir, String jarOutputPath, boolean dumpBir,
                                                       HashSet<Path> moduleDependencySet, String... birCachePaths) {
@@ -60,6 +66,87 @@ public class BootstrapRunner {
         List<String> jarFilePaths = new ArrayList<>(moduleDependencySet.size());
         moduleDependencySet.forEach(path -> jarFilePaths.add(path.toString()));
         generateJarBinaryInProc(entryBir, jarOutputPath, dumpBir, jarFilePaths, birCachePaths);
+    }
+
+    public static void genNativeCode(String entryBir, boolean dumpLLVM, boolean noOptimizeLLVM) {
+        Path osTempDirPath = Paths.get(System.getProperty("java.io.tmpdir"));
+        Path objectFilePath = osTempDirPath.resolve(TMP_OBJECT_FILE_NAME);
+        genObjectFile(entryBir, objectFilePath.toString(), dumpLLVM, noOptimizeLLVM);
+        genExecutable(objectFilePath, "llvm");
+
+        Runtime.getRuntime().exit(0);
+    }
+
+    private static void genObjectFile(String entryBir, String objFileOutputPath, boolean dumpLLVM,
+            boolean noOptimizeLLVM) {
+        try {
+            Class<?> backendMain = Class.forName("ballerina.compiler_backend_llvm.___init");
+            Method backendMainMethod = backendMain.getMethod("main", String[].class);
+            List<String> params = createArgsForCompilerBackend(entryBir, objFileOutputPath, dumpLLVM, noOptimizeLLVM);
+            backendMainMethod.invoke(null, new Object[]{params.toArray(new String[0])});
+        } catch (InvocationTargetException e) {
+            throw new BLangCompilerException(e.getTargetException().getMessage(), e);
+        } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException e) {
+            throw new BLangCompilerException("could not invoke compiler backend", e);
+        }
+    }
+
+    private static void genExecutable(Path objectFilePath, String execFilename) {
+        // Check whether gcc is installed
+        checkGCCAvailability();
+
+        // Create the os-specific gcc command
+        ProcessBuilder gccProcessBuilder = createOSSpecificGCCCommand(objectFilePath, execFilename);
+
+        try {
+            // Execute gcc
+            Process gccProcess = gccProcessBuilder.start();
+            int exitCode = gccProcess.waitFor();
+            if (exitCode != 0) {
+                throw new BLangCompilerException("linker failed: " + getProcessErrorOutput(gccProcess));
+            }
+        } catch (IOException | InterruptedException e) {
+            throw new BLangCompilerException("linker failed: " + e.getMessage(), e);
+        }
+    }
+
+    private static void checkGCCAvailability() {
+        Runtime rt = Runtime.getRuntime();
+        try {
+            Process gccCheckProc = rt.exec("gcc -v");
+            int exitVal = gccCheckProc.waitFor();
+            if (exitVal != 0) {
+                throw new BLangCompilerException("'gcc' is not installed in your environment");
+            }
+        } catch (IOException | InterruptedException e) {
+            throw new BLangCompilerException("probably, 'gcc' is not installed in your environment: " +
+                    e.getMessage(), e);
+        }
+    }
+
+    private static ProcessBuilder createOSSpecificGCCCommand(Path objectFilePath, String execFilename) {
+        String osName = System.getProperty("os.name").toLowerCase(Locale.ENGLISH);
+        ProcessBuilder gccProcessBuilder = new ProcessBuilder();
+        if (osName.startsWith("windows")) {
+            // TODO Window environment
+            gccProcessBuilder.command("cmd.exe", "/c", "dir");
+        } else if (osName.startsWith("mac os x")) {
+            // Mac OS X environment
+            gccProcessBuilder.command("gcc", objectFilePath.toString(), "-o", execFilename);
+        } else {
+            // TODO Is this assumption correct?
+            // Linux environment
+            gccProcessBuilder.command("gcc", objectFilePath.toString(), "-static", "-o", execFilename);
+        }
+        return gccProcessBuilder;
+    }
+
+    private static String getProcessErrorOutput(Process process) throws IOException {
+        //TODO: check win https://stackoverflow.com/questions/8398277/which-encoding-does-process-getinputstream-use
+        InputStreamReader in = new InputStreamReader(process.getErrorStream(), StandardCharsets.UTF_8);
+        try (BufferedReader errReader = new BufferedReader(in)) {
+            return errReader.lines().collect(Collectors.joining(", "));
+        }
     }
 
     private static void generateJarBinaryInProc(String entryBir, String jarOutputPath, boolean dumpBir,
@@ -122,6 +209,16 @@ public class BootstrapRunner {
         commands.add(String.valueOf(birCachePaths.length));
         commands.addAll(Arrays.asList(birCachePaths));
         commands.addAll(jarFilePaths);
+        return commands;
+    }
+
+    private static List<String> createArgsForCompilerBackend(String entryBir, String objFileOutputPath,
+            boolean dumpLLVM, boolean noOptimizeLLVM) {
+        List<String> commands = new ArrayList<>();
+        commands.add(entryBir);
+        commands.add(objFileOutputPath);
+        commands.add(dumpLLVM ? "true" : "false"); // dump LLVM-IR
+        commands.add(noOptimizeLLVM ? "true" : "false"); // Don't optimize LLVM-IR
         return commands;
     }
 

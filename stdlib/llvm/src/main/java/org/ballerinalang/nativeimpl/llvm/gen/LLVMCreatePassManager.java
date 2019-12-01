@@ -1,4 +1,4 @@
-// Copyright (c) 2018 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+// Copyright (c) 2019 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 //
 // WSO2 Inc. licenses this file to you under the Apache License,
 // Version 2.0 (the "License"); you may not use this file except
@@ -16,35 +16,37 @@
 
 package org.ballerinalang.nativeimpl.llvm.gen;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.types.BPackage;
+import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.nativeimpl.llvm.FFIUtil;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.bytedeco.javacpp.LLVM.LLVMPassManagerRef;
+import org.bytedeco.javacpp.LLVM;
 
 import static org.ballerinalang.model.types.TypeKind.RECORD;
 import static org.bytedeco.javacpp.LLVM.LLVMCreatePassManager;
 
 /**
  * Auto generated class.
+ *
+ * @since 1.0.3
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "llvm",
-        functionName = "LLVMCreatePassManager",
+        functionName = "llvmCreatePassManager",
         returnType = {
                 @ReturnType(type = RECORD, structType = "LLVMPassManagerRef", structPackage = "ballerina/llvm"),
         }
 )
-public class LLVMCreatePassManager extends BlockingNativeCallableUnit {
+public class LLVMCreatePassManager {
 
-    @Override
-    public void execute(Context context) {
-        LLVMPassManagerRef returnValue = LLVMCreatePassManager();
-        BMap<String, BValue> rerunWrapperRecode = FFIUtil.newRecord(context, "LLVMPassManagerRef");
+    public static MapValue<String, Object> llvmCreatePassManager(Strand strand) {
+
+        LLVM.LLVMPassManagerRef returnValue = LLVMCreatePassManager();
+        MapValue<String, Object> rerunWrapperRecode = FFIUtil.newRecord(new BPackage("ballerina",
+                "llvm"), "LLVMPassManagerRef");
         FFIUtil.addNativeToRecode(returnValue, rerunWrapperRecode);
-        context.setReturnValues(rerunWrapperRecode);
+        return rerunWrapperRecode;
     }
 }
