@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2019 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -16,15 +16,12 @@
  * under the License.
  */
 
-package org.ballerinalang.stdlib.socket.endpoint.tcp.server;
+package org.ballerinalang.stdlib.socket.endpoint.tcp;
 
-import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.stdlib.socket.SocketConstants;
 import org.ballerinalang.stdlib.socket.exceptions.SelectorInitializeException;
 import org.ballerinalang.stdlib.socket.tcp.ChannelRegisterCallback;
@@ -37,6 +34,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.net.InetSocketAddress;
+import java.net.SocketException;
 import java.nio.channels.AlreadyBoundException;
 import java.nio.channels.CancelledKeyException;
 import java.nio.channels.ServerSocketChannel;
@@ -44,34 +42,57 @@ import java.nio.channels.UnsupportedAddressTypeException;
 import java.util.concurrent.RejectedExecutionException;
 
 import static java.nio.channels.SelectionKey.OP_ACCEPT;
-import static org.ballerinalang.stdlib.socket.SocketConstants.CONFIG_FIELD_PORT;
-import static org.ballerinalang.stdlib.socket.SocketConstants.LISTENER_CONFIG;
-import static org.ballerinalang.stdlib.socket.SocketConstants.SERVER_SOCKET_KEY;
-import static org.ballerinalang.stdlib.socket.SocketConstants.SOCKET_PACKAGE;
-import static org.ballerinalang.stdlib.socket.SocketConstants.SOCKET_SERVICE;
+import static org.ballerinalang.stdlib.socket.SocketConstants.READ_TIMEOUT;
 
 /**
- * Start server socket listener.
+ * Native function implementations of the TCP Listener.
  *
- * @since 0.985.0
+ * @since 1.1.0
  */
+public class ServerUtils {
+    private static final Logger log = LoggerFactory.getLogger(ServerUtils.class);
 
-@BallerinaFunction(
-        orgName = "ballerina",
-        packageName = "socket",
-        functionName = "start",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = "Listener", structPackage = SOCKET_PACKAGE),
-        isPublic = true
-)
-public class Start {
-    private static final Logger log = LoggerFactory.getLogger(Start.class);
-
-    public static Object start(Strand strand, ObjectValue listener) {
-        final NonBlockingCallback callback = new NonBlockingCallback(strand);
+    public static Object initServer(ObjectValue listener, long port, MapValue<String, Object> config) {
         try {
-            ServerSocketChannel channel = (ServerSocketChannel) listener.getNativeData(SERVER_SOCKET_KEY);
-            int port = (int) listener.getNativeData(CONFIG_FIELD_PORT);
-            MapValue<String, Object> config = (MapValue<String, Object>) listener.getNativeData(LISTENER_CONFIG);
+            ServerSocketChannel serverSocket = ServerSocketChannel.open();
+            serverSocket.configureBlocking(false);
+            serverSocket.socket().setReuseAddress(true);
+            listener.addNativeData(SocketConstants.SERVER_SOCKET_KEY, serverSocket);
+            listener.addNativeData(SocketConstants.LISTENER_CONFIG, config);
+            listener.addNativeData(SocketConstants.CONFIG_FIELD_PORT, (int) port);
+            final long timeout = config.getIntValue(READ_TIMEOUT);
+            listener.addNativeData(READ_TIMEOUT, timeout);
+        } catch (SocketException e) {
+            return SocketUtils.createSocketError("unable to bind the socket port");
+        } catch (IOException e) {
+            log.error("Unable to initiate the socket listener", e);
+            return SocketUtils.createSocketError("unable to initiate the socket listener");
+        }
+        return null;
+    }
+
+    public static Object register(ObjectValue listener, ObjectValue service) {
+        final SocketService socketService =
+                getSocketService(listener, Scheduler.getStrand().scheduler, service);
+        listener.addNativeData(SocketConstants.SOCKET_SERVICE, socketService);
+        return null;
+    }
+
+    private static SocketService getSocketService(ObjectValue listener, Scheduler scheduler, ObjectValue service) {
+        ServerSocketChannel serverSocket =
+                (ServerSocketChannel) listener.getNativeData(SocketConstants.SERVER_SOCKET_KEY);
+        long timeout = (long) listener.getNativeData(READ_TIMEOUT);
+        return new SocketService(serverSocket, scheduler, service, timeout);
+    }
+
+    public static Object start(ObjectValue listener) {
+        final NonBlockingCallback callback = new NonBlockingCallback(Scheduler.getStrand());
+        try {
+            ServerSocketChannel channel =
+                    (ServerSocketChannel) listener.getNativeData(SocketConstants.SERVER_SOCKET_KEY);
+            int port = (int) listener.getNativeData(SocketConstants.CONFIG_FIELD_PORT);
+            MapValue<String, Object> config =
+                    (MapValue<String, Object>) listener.getNativeData(SocketConstants.LISTENER_CONFIG);
             String networkInterface = (String) config.getNativeData(SocketConstants.CONFIG_FIELD_INTERFACE);
             if (networkInterface == null) {
                 channel.bind(new InetSocketAddress(port));
@@ -81,7 +102,7 @@ public class Start {
             // Start selector
             final SelectorManager selectorManager = SelectorManager.getInstance();
             selectorManager.start();
-            SocketService socketService = (SocketService) listener.getNativeData(SOCKET_SERVICE);
+            SocketService socketService = (SocketService) listener.getNativeData(SocketConstants.SOCKET_SERVICE);
             ChannelRegisterCallback registerCallback = new ChannelRegisterCallback(socketService, callback, OP_ACCEPT);
             selectorManager.registerChannel(registerCallback);
             String socketListenerStarted = "[ballerina/socket] started socket listener ";
@@ -104,6 +125,21 @@ public class Start {
         } catch (RejectedExecutionException e) {
             log.error(e.getMessage(), e);
             callback.notifyFailure(SocketUtils.createSocketError("unable to start the socket listener."));
+        }
+        return null;
+    }
+
+    public static Object stop(ObjectValue listener, boolean graceful) {
+        try {
+            ServerSocketChannel channel =
+                    (ServerSocketChannel) listener.getNativeData(SocketConstants.SERVER_SOCKET_KEY);
+            final SelectorManager selectorManager = SelectorManager.getInstance();
+            selectorManager.unRegisterChannel(channel);
+            channel.close();
+            selectorManager.stop(graceful);
+        } catch (IOException e) {
+            log.error(e.getMessage(), e);
+            return SocketUtils.createSocketError("unable to stop the socket listener: " + e.getMessage());
         }
         return null;
     }

@@ -15,6 +15,7 @@
 // under the License.
 
 import ballerina/lang.'object as lang;
+import ballerinax/java;
 
 # Represents service endpoint where socket server service registered and start.
 #
@@ -23,40 +24,32 @@ public type Listener object {
     *lang:Listener;
 
     public function __init(int port, ListenerConfig? config = ()) {
-        var result = self.initServer(port, config ?: {});
+        var result = initServer(self, port, config ?: {});
         if (result is error) {
             panic result;
         }
     }
 
     public function __start() returns error? {
-        return self.start();
+        return serviceStart(self);
     }
 
     public function __gracefulStop() returns error? {
-        return self.stop(true);
+        return externStop(self, true);
     }
 
     public function __immediateStop() returns error? {
-        return self.stop(false);
+        return externStop(self, false);
     }
 
     public function __attach(service s, string? name = ()) returns error? {
-        return self.register(s, name);
+        return externRegister(self, s);
     }
 
     public function __detach(service s) returns error? {
         // Socket listener operations are strictly bound to the attached service. In fact, listener doesn't support
         // for multiple services. So not removing already attached service during the detach.
     }
-
-    function initServer(int port, ListenerConfig config) returns error? = external;
-
-    function register(service s, string? name) returns error? = external;
-
-    function start() returns error? = external;
-
-    function stop(boolean graceful) returns error? = external;
 };
 
 # Represents the socket server configuration.
@@ -67,3 +60,26 @@ public type ListenerConfig record {|
     string? interface = ();
     int readTimeoutInMillis = 300000;
 |};
+
+function initServer(Listener lis, int port, ListenerConfig config) returns error? =
+@java:Method {
+    class: "org.ballerinalang.stdlib.socket.endpoint.tcp.ServerUtils"
+} external;
+
+function externRegister(Listener lis, service s) returns error? =
+@java:Method {
+    name: "register",
+    class: "org.ballerinalang.stdlib.socket.endpoint.tcp.ServerUtils"
+} external;
+
+function serviceStart(Listener lis) returns error? =
+@java:Method {
+    name: "start",
+    class: "org.ballerinalang.stdlib.socket.endpoint.tcp.ServerUtils"
+} external;
+
+function externStop(Listener lis, boolean graceful) returns error? =
+@java:Method {
+    name: "stop",
+    class: "org.ballerinalang.stdlib.socket.endpoint.tcp.ServerUtils"
+} external;
