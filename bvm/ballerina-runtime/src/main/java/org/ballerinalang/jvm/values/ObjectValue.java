@@ -19,6 +19,7 @@ package org.ballerinalang.jvm.values;
 
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BObjectType;
+import org.ballerinalang.jvm.values.api.BObject;
 
 import java.util.HashMap;
 
@@ -32,7 +33,7 @@ import java.util.HashMap;
  * 
  * @since 0.995.0
  */
-public interface ObjectValue extends RefValue {
+public interface ObjectValue extends BObject, RefValue {
 
     Object call(Strand strand, String funcName, Object... args);
 

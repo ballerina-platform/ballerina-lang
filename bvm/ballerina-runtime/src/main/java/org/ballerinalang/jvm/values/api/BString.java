@@ -15,22 +15,19 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.jvm.values;
-
-import org.ballerinalang.jvm.values.api.BArray;
+package org.ballerinalang.jvm.values.api;
 
 /**
- * <p>
- * Represent an array in ballerina.
- * </p>
- * 
+ * Interface representing ballerina strings.
+ *
  * @since 1.1.0
  */
-public interface ArrayValue extends RefValue, BArray, CollectionValue {
+public interface BString {
 
-    String getJSONString();
+    String getValue();
 
-    Object shift(long index);
+    int getCodePoint(int index);
 
-    void setLength(long length);
+    int length();
+
 }

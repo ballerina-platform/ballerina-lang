@@ -37,6 +37,7 @@ import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BMapType;
 import org.ballerinalang.jvm.types.BTypes;
+import org.ballerinalang.jvm.values.api.BMap;
 import org.ballerinalang.jvm.values.api.BXml;
 import org.ballerinalang.jvm.values.freeze.FreezeUtils;
 import org.ballerinalang.jvm.values.freeze.State;
@@ -286,7 +287,7 @@ public final class XMLItem extends XMLValue<OMNode> {
      * {@inheritDoc}
      */
     @Override
-    public void setAttributes(MapValue<String, ?> attributes) {
+    public void setAttributes(BMap<String, ?> attributes) {
         synchronized (this) {
             if (freezeStatus.getState() != State.UNFROZEN) {
                 FreezeUtils.handleInvalidUpdate(freezeStatus.getState(), XML_LANG_LIB);

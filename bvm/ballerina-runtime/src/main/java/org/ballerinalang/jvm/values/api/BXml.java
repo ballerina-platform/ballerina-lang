@@ -17,10 +17,6 @@
 package org.ballerinalang.jvm.values.api;
 
 import org.ballerinalang.jvm.XMLNodeType;
-import org.ballerinalang.jvm.values.CollectionValue;
-import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.jvm.values.MapValueImpl;
-import org.ballerinalang.jvm.values.XMLQName;
 
 /**
  * {@code BXML} represents an XML in Ballerina. An XML could be one of:
@@ -38,27 +34,7 @@ import org.ballerinalang.jvm.values.XMLQName;
  * @param <T> Type of the underlying impl
  * @since 1.1.0
  */
-public interface BXml<T> extends BRefValue, CollectionValue {
-
-    /**
-     * Start of a XML comment.
-     */
-    String COMMENT_START = "<!--";
-
-    /**
-     * End of a XML Comment.
-     */
-    String COMMENT_END = "-->";
-
-    /**
-     * Start of a XML processing instruction.
-     */
-    String PI_START = "<?";
-
-    /**
-     * End of a XML processing instruction.
-     */
-    String PI_END = "?>";
+public interface BXml<T> extends BRefValue, BCollection {
 
     /**
      * Check whether the XML sequence is empty.
@@ -120,7 +96,7 @@ public interface BXml<T> extends BRefValue, CollectionValue {
      * @param attributeName Qualified name of the attribute
      * @return Value of the attribute
      */
-    String getAttribute(XMLQName attributeName);
+    String getAttribute(BXMLQName attributeName);
 
     /**
      * Set the value of a single attribute. If the attribute already exsists, then the value will be updated.
@@ -140,21 +116,21 @@ public interface BXml<T> extends BRefValue, CollectionValue {
      * @param attributeName Qualified name of the attribute
      * @param value Value of the attribute
      */
-    void setAttribute(XMLQName attributeName, String value);
+    void setAttribute(BXMLQName attributeName, String value);
 
     /**
-     * Get attributes as a {@link MapValueImpl}.
+     * Get attributes as a {@link BMap}.
      * 
-     * @return Attributes as a {@link MapValueImpl}
+     * @return Attributes as a {@link BMap}
      */
-    MapValue<String, ?> getAttributesMap();
+    BMap<String, ?> getAttributesMap();
 
     /**
-     * Set the attributes of the XML{@link MapValueImpl}.
+     * Set the attributes of the XML{@link BMap}.
      * 
      * @param attributes Attributes to be set.
      */
-    void setAttributes(MapValue<String, ?> attributes);
+    void setAttributes(BMap<String, ?> attributes);
 
     /**
      * Get all the elements-type items, in the given sequence.

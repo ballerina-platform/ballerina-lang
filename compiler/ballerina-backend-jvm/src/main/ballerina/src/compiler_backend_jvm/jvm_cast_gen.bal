@@ -211,10 +211,14 @@ function generateCheckCastBToJDouble(jvm:MethodVisitor mv, bir:BType sourceType)
 function generateCheckCastBToJRef(jvm:MethodVisitor mv, bir:BType sourceType, jvm:JRefType | jvm:JArrayType targetType) {
     if (sourceType is bir:BTypeHandle) {
         mv.visitMethodInsn(INVOKEVIRTUAL, HANDLE_VALUE, "getValue", "()Ljava/lang/Object;", false);
-	string sig = getSignatureForJType(targetType);
+        string sig = getSignatureForJType(targetType);
         mv.visitTypeInsn(CHECKCAST, sig);
     } else if (sourceType is bir:BTypeDecimal) {
-        // In this case we should send a BigDecimal to java side 
+        if (targetType is jvm:JRefType && targetType.typeValue == DECIMAL_VALUE) {
+            // if the java method signature expects a DecimalValue, then pass the current value as is. 
+            return;
+        }
+        // else, create and send a BigDecimal to java side 
         mv.visitMethodInsn(INVOKEVIRTUAL, DECIMAL_VALUE, "decimalValue", "()Ljava/math/BigDecimal;", false);
     } else {
         if (targetType is jvm:JRefType) {
@@ -356,8 +360,14 @@ function generateCheckCastJToBDecimal(jvm:MethodVisitor mv, jvm:JType sourceType
         mv.visitMethodInsn(INVOKESTATIC, DECIMAL_VALUE, "valueOfJ", io:sprintf("(F)L%s;", DECIMAL_VALUE), false);
     } else if (sourceType is jvm:JDouble) {
         mv.visitMethodInsn(INVOKESTATIC, DECIMAL_VALUE, "valueOfJ", io:sprintf("(D)L%s;", DECIMAL_VALUE), false);
-    } else if (sourceType is jvm:JRefType) { 
-        mv.visitMethodInsn(INVOKESTATIC, DECIMAL_VALUE, "valueOfJ", io:sprintf("(Ljava/math/BigDecimal;)L%s;", DECIMAL_VALUE), false);
+    } else if (sourceType is jvm:JRefType) {
+        if (sourceType.typeValue == DECIMAL_VALUE) {
+            // if the java method signature returns a DecimalValue, then pass the current value as is. 
+            return;
+        }
+
+        // else, create and send a DecimalValue to send to ballerina side 
+        mv.visitMethodInsn(INVOKESTATIC, DECIMAL_VALUE, "valueOfJ", io:sprintf("(L%s;)L%s;", BIG_DECIMAL, DECIMAL_VALUE), false);
     } else {
         error err = error(io:sprintf("Casting is not supported from '%s' to 'decimal'", sourceType));
         panic err;

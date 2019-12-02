@@ -15,9 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.jvm.values;
-
-import org.ballerinalang.jvm.values.api.BCollection;
+package org.ballerinalang.jvm.values.api;
 
 /**
  * <p>
@@ -27,9 +25,14 @@ import org.ballerinalang.jvm.values.api.BCollection;
  * <i>Note: This is an internal API and may change in future versions.</i>
  * </p>
  * 
- * @since 0.995.0
+ * @since 1.1.0
  */
-public interface CollectionValue extends BCollection {
+public interface BCollection {
 
-    IteratorValue getIterator();
+    /**
+     * Create new Iterator for this collection.
+     *
+     * @return iterator created.
+     */
+    BIterator<?> getIterator();
 }

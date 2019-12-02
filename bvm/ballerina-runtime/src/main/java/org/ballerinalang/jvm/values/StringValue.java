@@ -17,17 +17,13 @@
   */
  package org.ballerinalang.jvm.values;
 
+import org.ballerinalang.jvm.values.api.BString;
+
 /**
  * Interface representing ballerina strings.
  *
  * @since 1.0.5
  */
-public interface StringValue {
-    String getValue();
-
-    int getCodePoint(int index);
-
-    int length();
-
+public interface StringValue extends BString {
     StringValue concat(StringValue str);
 }
