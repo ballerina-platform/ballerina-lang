@@ -47,12 +47,7 @@ public class EntityHeaders {
             return;
         }
         HttpHeaders httpHeaders;
-        if (entityObj.getNativeData(ENTITY_HEADERS) != null) {
-            httpHeaders = (HttpHeaders) entityObj.getNativeData(ENTITY_HEADERS);
-        } else {
-            httpHeaders = new DefaultHttpHeaders();
-            entityObj.addNativeData(ENTITY_HEADERS, httpHeaders);
-        }
+        httpHeaders = getHeaders(entityObj);
         httpHeaders.add(headerName, headerValue);
     }
 
@@ -134,13 +129,24 @@ public class EntityHeaders {
         if (headerName == null || headerValue == null) {
             return;
         }
+        HttpHeaders httpHeaders = getHeaders(entityObj);
+        httpHeaders.set(headerName, headerValue);
+    }
+
+    private static HttpHeaders getHeaders(ObjectValue entityObj) {
         HttpHeaders httpHeaders;
         if (entityObj.getNativeData(ENTITY_HEADERS) != null) {
             httpHeaders = (HttpHeaders) entityObj.getNativeData(ENTITY_HEADERS);
         } else {
-            httpHeaders = new DefaultHttpHeaders();
-            entityObj.addNativeData(ENTITY_HEADERS, httpHeaders);
+            httpHeaders = setEntityHeaders(entityObj);
         }
-        httpHeaders.set(headerName, headerValue);
+        return httpHeaders;
+    }
+
+    private static HttpHeaders setEntityHeaders(ObjectValue entityObj) {
+        HttpHeaders httpHeaders;
+        httpHeaders = new DefaultHttpHeaders();
+        entityObj.addNativeData(ENTITY_HEADERS, httpHeaders);
+        return httpHeaders;
     }
 }

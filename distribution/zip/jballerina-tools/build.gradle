@@ -136,7 +136,6 @@ dependencies {
 
     balSource project(path: ':ballerina-bir', configuration: 'balSource')
     balSource project(path: ':ballerina-jvm', configuration: 'balSource')
-    balSource project(path: ':ballerina-llvm', configuration: 'balSource')
     birJar project(path: ':ballerina-cli-module-pull', configuration: 'cliModulePullJar')
     birJar project(path: ':ballerina-cli-module-push', configuration: 'cliModulePushJar')
     birJar project(path: ':ballerina-cli-module-search', configuration: 'cliModuleSearchJar')
@@ -360,7 +359,7 @@ task generateDocs(type: JavaExec) {
     classpath = files(pathingJar.archivePath)
     main = 'org.ballerinalang.plugin.gradle.doc.DocerinaGen'
     def libs = "$buildDir/ballerina/"
-    args("$libs", "$buildDir/api-docs", "lang.__internal,lang.annotations,llvm,bir,jvm,utils,ldap")
+    args("$libs", "$buildDir/api-docs", "lang.__internal,lang.annotations,bir,jvm,utils,ldap")
 }
 
 task createApiDocsZip(type: Zip) {

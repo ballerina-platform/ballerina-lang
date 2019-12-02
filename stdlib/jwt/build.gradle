@@ -71,9 +71,13 @@ dependencies {
     baloImplementation project(path: ':ballerina-system', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-task', configuration: 'baloImplementation')
 
+    interopImports project(':ballerina-config-api')
     interopImports project(':ballerina-encoding')
+    interopImports project(':ballerina-io')
+    interopImports project(':ballerina-system')
     interopImports project(':ballerina-task')
     interopImports project(':ballerina-time')
+    interopImports project(':ballerina-crypto')
 }
 
 configurations.all {
