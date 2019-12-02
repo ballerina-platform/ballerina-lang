@@ -502,14 +502,15 @@ function generateClassNameMappings(bir:Package module, string pkgName, string in
             typeDefMap[key] = typeDef;
         }
 
-        if ((bType is bir:BObjectType && !bType.isAbstract) || bType is bir:BServiceType) {
+        if ((bType is bir:BObjectType && !bType.isAbstract) || bType is bir:BServiceType || bType is bir:BRecordType) {
             bir:Function?[] attachedFuncs = getFunctions(typeDef.attachedFuncs);
             string typeName = "";
-            if (bType is bir:BObjectType) {
+            if (bType is bir:BObjectType || bType is bir:BRecordType) {
                 typeName = bType.name.value;
             } else {
                 typeName = bType.oType.name.value;
             }
+
             foreach var func in attachedFuncs {
 
                 // link the bir function for lookup
