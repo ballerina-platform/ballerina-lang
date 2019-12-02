@@ -66,7 +66,6 @@ public class URIDryConverter extends URIConverter {
     private static boolean loggedError = false;
     private static final Pattern semVerPatchPattern = Pattern.compile("(\\d+)\\.(\\d+)");
     private PrintStream errStream = System.err;
-    private List<String> supportedPlatforms = Arrays.stream(SUPPORTED_PLATFORMS).collect(Collectors.toList());
     private Proxy proxy;
 
     private static TrustManager[] trustAllCerts = new TrustManager[]{
@@ -94,7 +93,6 @@ public class URIDryConverter extends URIConverter {
             SSLContext sc = SSLContext.getInstance("SSL");
             sc.init(null, trustAllCerts, new java.security.SecureRandom());
             HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
-            supportedPlatforms.add("any");
             proxy = getProxy();
         } catch (NoSuchAlgorithmException | KeyManagementException e) {
             // ignore errors
