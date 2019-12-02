@@ -275,7 +275,18 @@ public class BuildCommandTest extends CommandTest {
                                       "USAGE:\n" +
                                       "    ballerina build {<ballerina-file> | <module-name> | -a | --all}\n");
     }
-    
+
+    @Test(description = "Build all modules with passing arguments")
+    public void testBuildAllWithArg() throws IOException {
+        // valid source root path
+        Path validBalFilePath = this.testResources.resolve("valid-project");
+        BuildCommand buildCommand = new BuildCommand(validBalFilePath, printStream, printStream, false, true);
+        new CommandLine(buildCommand).parse("-a", "hello2");
+        buildCommand.execute();
+        String buildLog = readOutput(true);
+        Assert.assertTrue(buildLog.contains("too many arguments.\n"));
+    }
+
     @Test(description = "Build bal file with no entry")
     public void testBuildBalFileWithNoEntry() throws IOException {
         // valid source root path
