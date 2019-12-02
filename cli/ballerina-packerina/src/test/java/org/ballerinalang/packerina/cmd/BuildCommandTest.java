@@ -275,7 +275,19 @@ public class BuildCommandTest extends CommandTest {
                                       "USAGE:\n" +
                                       "    ballerina build {<ballerina-file> | <module-name> | -a | --all}\n");
     }
-    
+
+    @Test(description = "Build all modules with passing arguments")
+    public void testBuildAllWithArg() throws IOException {
+        // valid source root path
+        Path validBalFilePath = this.testResources.resolve("valid-bal-file");
+        BuildCommand buildCommand = new BuildCommand(validBalFilePath, printStream, printStream, false, true);
+        // non existing bal file
+        new CommandLine(buildCommand).parse("-a", "hello2");
+        buildCommand.execute();
+        String buildLog = readOutput(true);
+        Assert.assertTrue(buildLog.contains("ballerina: you are trying to build/compile a Ballerina project but there is no Ballerina.toml file.\n"));
+    }
+
     @Test(description = "Build bal file with no entry")
     public void testBuildBalFileWithNoEntry() throws IOException {
         // valid source root path
