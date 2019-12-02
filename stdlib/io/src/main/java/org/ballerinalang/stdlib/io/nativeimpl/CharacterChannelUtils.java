@@ -81,7 +81,12 @@ public class CharacterChannelUtils {
         CharacterChannel charChannel = (CharacterChannel) channel.getNativeData(CHARACTER_CHANNEL_NAME);
         CharacterChannelReader reader = new CharacterChannelReader(charChannel);
         try {
-            return JSONParser.parse(reader);
+            Object returnValue = JSONParser.parse(reader);
+            if (returnValue instanceof String) {
+
+                return org.ballerinalang.jvm.StringUtils.fromString((String) returnValue);
+            }
+            return returnValue;
         } catch (BallerinaException e) {
             log.error("unable to read json from character channel", e);
             return IOUtils.createError(e);
