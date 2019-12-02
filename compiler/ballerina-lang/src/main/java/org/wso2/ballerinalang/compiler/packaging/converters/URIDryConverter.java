@@ -125,8 +125,8 @@ public class URIDryConverter extends URIConverter {
                 //// 500 - backend is broken
                 int statusCode = conn.getResponseCode();
                 if (statusCode == 200) {
-                    try (BufferedReader reader = new BufferedReader(new InputStreamReader(conn.getInputStream()
-                            , Charset.defaultCharset()))) {
+                    try (BufferedReader reader = new BufferedReader(new InputStreamReader(conn.getInputStream(),
+                            Charset.defaultCharset()))) {
                         StringBuilder result = new StringBuilder();
                         String line;
                         while ((line = reader.readLine()) != null) {

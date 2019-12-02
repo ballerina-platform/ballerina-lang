@@ -164,8 +164,8 @@ public class PackagingTestCase extends BaseTest {
         conn = (HttpURLConnection) remoteUri.toURL().openConnection();
         int statusCode = conn.getResponseCode();
         if (statusCode == 200) {
-            try (BufferedReader reader = new BufferedReader(new InputStreamReader(conn.getInputStream()
-                    , Charset.defaultCharset()))) {
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(conn.getInputStream(),
+                    Charset.defaultCharset()))) {
                 StringBuilder result = new StringBuilder();
                 String line;
                 while ((line = reader.readLine()) != null) {
