@@ -57,13 +57,29 @@ public class BootstrapRunner {
         generateJarBinaryInProc(entryBir, jarOutputPath, dumpBir, jarFilePaths, birCachePaths);
     }
 
-    public static void genNativeCode(String entryBir, boolean dumpLLVM, boolean noOptimizeLLVM) {
-        Path osTempDirPath = Paths.get(System.getProperty("java.io.tmpdir"));
-        Path objectFilePath = osTempDirPath.resolve(TMP_OBJECT_FILE_NAME);
+    public static void genNativeCode(String entryBir, Path targetDir, boolean dumpLLVM, boolean noOptimizeLLVM) {
+        Path nativeFolder = genNativeForlderInTarget(targetDir);
+        Path objectFilePath = nativeFolder.resolve(TMP_OBJECT_FILE_NAME);
         genObjectFile(entryBir, objectFilePath.toString(), dumpLLVM, noOptimizeLLVM);
         genExecutable(objectFilePath, "llvm");
 
         Runtime.getRuntime().exit(0);
+    }
+
+    public static Path genNativeForlderInTarget(Path targetDir) {
+        Path nativeFolder = targetDir.resolve("native");
+        buildDirectoryFromPath(nativeFolder);
+        return nativeFolder;
+    }
+
+    public static void buildDirectoryFromPath(Path directory) {
+        try {
+            if (!Files.exists(directory)) {
+                Files.createDirectories(directory);
+            }
+        } catch (IOException e) {
+            throw new BLangCompilerException("could not create native folder inside target folder", e);
+        }
     }
 
     private static void genObjectFile(String entryBir, String objFileOutputPath, boolean dumpLLVM,

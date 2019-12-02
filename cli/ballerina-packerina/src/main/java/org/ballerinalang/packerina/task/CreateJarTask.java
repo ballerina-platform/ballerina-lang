@@ -74,6 +74,7 @@ public class CreateJarTask implements Task {
         Path homeBIRCache = buildContext.getBirCacheFromHome();
         Path systemBIRCache = buildContext.getSystemRepoBirCache();
         Path runtimeJar = getRuntimeAllJar(buildContext);
+        Path targetDir = buildContext.get(BuildContextField.TARGET_DIR);
 
         List<BLangPackage> moduleBirMap = buildContext.getModules();
         for (BLangPackage module : moduleBirMap) {
@@ -91,7 +92,7 @@ public class CreateJarTask implements Task {
             Path jarOutput = buildContext.getJarPathFromTargetCache(module.packageID);
             if (!Files.exists(jarOutput)) {
                 if (buildNative) {
-                    BootstrapRunner.genNativeCode(entryBir.toString(), this.dumpLlvmIr, this.noOptimizeLlvm);
+                    BootstrapRunner.genNativeCode(entryBir.toString(), targetDir, this.dumpLlvmIr, this.noOptimizeLlvm);
                 } else {
                     BootstrapRunner
                             .loadTargetAndGenerateJarBinary(entryBir.toString(), jarOutput.toString(), this.dumpBir,
