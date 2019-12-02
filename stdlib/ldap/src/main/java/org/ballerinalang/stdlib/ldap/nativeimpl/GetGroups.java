@@ -19,11 +19,9 @@
 package org.ballerinalang.stdlib.ldap.nativeimpl;
 
 import org.ballerinalang.jvm.BallerinaErrors;
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.stdlib.ldap.CommonLdapConfiguration;
 import org.ballerinalang.stdlib.ldap.LdapConstants;
 import org.ballerinalang.stdlib.ldap.util.LdapUtils;
@@ -33,7 +31,6 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
-
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
@@ -48,14 +45,11 @@ import javax.naming.ldap.Rdn;
  *
  * @since 0.983.0
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "ldap",
-        functionName = "getGroups", isPublic = true)
 public class GetGroups {
 
     private static final Logger LOG = LoggerFactory.getLogger(GetGroups.class);
 
-    public static Object getGroups(Strand strand, MapValue<?, ?> ldapConnection, String userName) {
+    public static Object getGroups(MapValue<?, ?> ldapConnection, String userName) {
         try {
             LdapUtils.setServiceName((String) ldapConnection.getNativeData(LdapConstants.ENDPOINT_INSTANCE_ID));
             DirContext ldapConnectionContext = (DirContext) ldapConnection.getNativeData(

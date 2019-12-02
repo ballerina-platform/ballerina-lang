@@ -19,9 +19,7 @@
 package org.ballerinalang.stdlib.ldap.nativeimpl;
 
 import org.ballerinalang.jvm.BallerinaValues;
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.stdlib.ldap.CommonLdapConfiguration;
 import org.ballerinalang.stdlib.ldap.LdapConnectionContext;
 import org.ballerinalang.stdlib.ldap.LdapConstants;
@@ -37,7 +35,6 @@ import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 import java.util.ArrayList;
 import java.util.List;
-
 import javax.naming.NamingException;
 import javax.naming.directory.DirContext;
 import javax.net.ssl.SSLContext;
@@ -48,13 +45,9 @@ import javax.net.ssl.SSLContext;
  *
  * @since 0.983.0
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "ldap",
-        functionName = "initLdapConnectionContext", isPublic = true)
 public class InitLdapConnectionContext {
 
-    public static Object initLdapConnectionContext(Strand strand, MapValue<?, ?> authProviderConfig,
-                                                   String instanceId) {
+    public static Object initLdapConnectionContext(MapValue<?, ?> authProviderConfig, String instanceId) {
         CommonLdapConfiguration commonLdapConfiguration = new CommonLdapConfiguration();
 
         commonLdapConfiguration.setDomainName(authProviderConfig.getStringValue(LdapConstants.DOMAIN_NAME));
