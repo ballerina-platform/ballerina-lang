@@ -17,10 +17,12 @@
  */
 package org.wso2.ballerinalang.compiler.parser;
 
+import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.repository.CompilerInput;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -37,12 +39,18 @@ import java.util.Set;
 class ParserCache {
 
     private static final CompilerContext.Key<ParserCache> PARSER_CACHE_KEY = new CompilerContext.Key<>();
+    private boolean cacheEnabled;
+    private ASTCleaner astCleaner;
 
     private Map<PackageID, Map<String, BLangCompilationUnit>> pkgCache = new HashMap<>();
 
     private ParserCache(CompilerContext context) {
 
         context.put(PARSER_CACHE_KEY, this);
+        CompilerOptions options = CompilerOptions.getInstance(context);
+        CompilerPhase compilerPhase = options.getCompilerPhase();
+        this.cacheEnabled = compilerPhase.compareTo(CompilerPhase.DESUGAR) < 0;
+        this.astCleaner = ASTCleaner.getInstance(context);
     }
 
     static ParserCache getInstance(CompilerContext context) {
@@ -57,6 +65,9 @@ class ParserCache {
 
     BLangCompilationUnit get(CompilerInput sourceEntry, PackageID packageID) {
 
+        if (!cacheEnabled) {
+            return null;
+        }
         Map<String, BLangCompilationUnit> sourceEntryCache;
         if ((sourceEntryCache = pkgCache.get(packageID)) == null || !pkgCache.containsKey(packageID)) {
             return null;
@@ -67,11 +78,15 @@ class ParserCache {
         if (compilationUnit == null || compilationUnit.hash != getHash(sourceEntry)) {
             return null;
         }
+        astCleaner.visit(compilationUnit);
         return compilationUnit;
     }
 
     void put(CompilerInput sourceEntry, PackageID packageID, BLangCompilationUnit newCompUnit) {
 
+        if (!cacheEnabled) {
+            return;
+        }
         Map<String, BLangCompilationUnit> sourceEntryCache;
         if ((sourceEntryCache = this.pkgCache.get(packageID)) == null || !this.pkgCache.containsKey(packageID)) {
             sourceEntryCache = new HashMap<>();
