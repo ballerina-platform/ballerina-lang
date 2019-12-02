@@ -498,6 +498,15 @@ public class BuildCommandTest extends CommandTest {
         Assert.assertTrue(Files.exists(bin));
         Assert.assertTrue(Files.exists(bin.resolve("mymodule" + BLANG_COMPILED_JAR_EXT)));
     }
+    
+    @Test(dependsOnMethods = {"testBuildOutput"})
+    public void testCleanCommand() {
+        CleanCommand cleanCommand = new CleanCommand(Paths.get(System.getProperty("user.dir")), false);
+        new CommandLine(cleanCommand).parse("--sourceroot", this.testResources.resolve("valid-project").toString());
+        cleanCommand.execute();
+        Path target = this.testResources.resolve("valid-project").resolve(ProjectDirConstants.TARGET_DIR_NAME);
+        Assert.assertFalse(Files.exists(target), "Check if target directory is deleted");
+    }
 
     @Test(dependsOnMethods = {"testBuildCommand"})
     public void testBaloContents() throws IOException {
