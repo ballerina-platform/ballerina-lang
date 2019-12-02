@@ -2919,7 +2919,6 @@ public class TypeChecker extends BLangNodeVisitor {
                         SymTag.VARIABLE);
                 if (resolvedSymbol != symTable.notFoundSymbol) {
                     resolvedSymbol.closure = true;
-                    ((BLangFunction) encInvokable).closureVarSymbols.add(new ClosureVarSymbol(resolvedSymbol, pos));
                 }
                 break;
             } else {
