@@ -164,7 +164,7 @@ public class BuildCommand implements BLauncherCmd {
                 .initConfigurations(this.argList == null ? new String[0] : this.argList.toArray(new String[0]));
 
         // check if there are too many arguments.
-        if (args.length > 0) {
+        if (args.length > 1) {
             CommandUtil.printError(this.errStream, "too many arguments.", buildCmd, false);
             CommandUtil.exitError(this.exitWhenFinish);
             return;
@@ -228,6 +228,12 @@ public class BuildCommand implements BLauncherCmd {
             }
         
             targetPath = this.sourceRootPath.resolve(ProjectDirConstants.TARGET_DIR_NAME);
+
+            if (args.length > 0) {
+                CommandUtil.printError(this.errStream, "too many arguments.", buildCmd, false);
+                CommandUtil.exitError(this.exitWhenFinish);
+                return;
+            }
         } else if (this.argList.get(0).endsWith(BLangConstants.BLANG_SRC_FILE_SUFFIX)) {
             // when a single bal file is provided.
             if (this.compile) {
