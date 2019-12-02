@@ -35,7 +35,6 @@ public class BLangFieldBasedAccess extends BLangAccessExpression implements Fiel
     public BLangIdentifier field;
     public FieldKind fieldKind;
     public BVarSymbol varSymbol;
-    public boolean except = true;
 
     @Override
     public BLangExpression getExpression() {

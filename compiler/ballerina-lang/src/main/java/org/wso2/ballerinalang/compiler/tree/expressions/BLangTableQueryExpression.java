@@ -33,7 +33,7 @@ import java.util.List;
  */
 public class BLangTableQueryExpression extends BLangExpression implements TableQueryExpression {
 
-    private TableQuery tableQuery;
+    public TableQuery tableQuery;
 
     //This will be generated in desugar phase
     private String sqlQuery;

@@ -32,8 +32,8 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
  */
 public class BLangOrderByVariable extends BLangNode implements OrderByVariableNode {
 
-    private ExpressionNode varRef;
-    private String orderByType;
+    public ExpressionNode varRef;
+    public String orderByType;
 
     @Override
     public void setVariableReference(ExpressionNode varRef) {
