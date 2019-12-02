@@ -370,7 +370,7 @@ public class Desugar extends BLangNodeVisitor {
                 pkgNode.topLevelNodes.add(objectTypeNode.initFunction);
             } else if (typeDef.symbol.tag == SymTag.RECORD) {
                 BLangRecordTypeNode recordTypeNode = (BLangRecordTypeNode) typeDef.typeNode;
-                recordTypeNode.initFunction = createRecordInitFunction(recordTypeNode, env, Names.INIT_FUNCTION_SUFFIX);
+                recordTypeNode.initFunction = createRecordInitFunction(recordTypeNode, env);
                 pkgNode.functions.add(recordTypeNode.initFunction);
                 pkgNode.topLevelNodes.add(recordTypeNode.initFunction);
             }
@@ -626,7 +626,7 @@ public class Desugar extends BLangNodeVisitor {
 
         // Will be null only for locally defined anonymous types
         if (recordTypeNode.initFunction == null) {
-            recordTypeNode.initFunction = createRecordInitFunction(recordTypeNode, env, Names.INIT_FUNCTION_SUFFIX);
+            recordTypeNode.initFunction = createRecordInitFunction(recordTypeNode, env);
             env.enclPkg.addFunction(recordTypeNode.initFunction);
             env.enclPkg.topLevelNodes.add(recordTypeNode.initFunction);
         }
@@ -3163,7 +3163,7 @@ public class Desugar extends BLangNodeVisitor {
 
         BLangExpression expr;
         if (recordLiteral.type.tag == TypeTags.RECORD) {
-            expr = new BLangStructLiteral(recordLiteral.pos, recordLiteral.keyValuePairs, recordLiteral.type);
+            expr = desugarRecordConstructor(recordLiteral);
         } else if (recordLiteral.type.tag == TypeTags.MAP) {
             expr = new BLangMapLiteral(recordLiteral.pos, recordLiteral.keyValuePairs, recordLiteral.type);
         } else {
@@ -3171,6 +3171,59 @@ public class Desugar extends BLangNodeVisitor {
         }
 
         result = rewriteExpr(expr);
+    }
+
+    private BLangStatementExpression desugarRecordConstructor(BLangRecordLiteral mappingConstructorExpr) {
+        mappingConstructorExpr.desugared = true;
+        BLangBlockStmt blockStmt = ASTBuilderUtil.createBlockStmt(mappingConstructorExpr.pos);
+        BType recType = mappingConstructorExpr.type;
+        BRecordTypeSymbol recTSymbol = (BRecordTypeSymbol) recType.tsymbol;
+
+        // Person $rec$ = {};
+        BLangStructLiteral desugaredRec = new BLangStructLiteral(mappingConstructorExpr.pos, new ArrayList<>(),
+                                                                 recType);
+        BLangSimpleVariableDef recVarDef = createVarDef("rec", recType, desugaredRec, mappingConstructorExpr.pos);
+        BLangSimpleVarRef recVarRef = ASTBuilderUtil.createVariableRef(mappingConstructorExpr.pos,
+                                                                       recVarDef.var.symbol);
+        recVarDef.var.desugared = true; // Check with Maryam re: ArgsData
+        blockStmt.addStatement(recVarDef);
+
+        // $rec$.<init>();
+        BLangExpressionStmt initInvExpr = ASTBuilderUtil.createExpressionStmt(mappingConstructorExpr.pos, blockStmt);
+
+        List<BLangExpression> args = new ArrayList<>();
+        for (BVarSymbol param : recTSymbol.initializerFunc.symbol.params) {
+            BSymbol originalVar = symResolver.lookupSymbol(env, param.name, SymTag.VARIABLE);
+            BLangSimpleVarRef varRef = ASTBuilderUtil.createVariableRef(mappingConstructorExpr.pos, originalVar);
+            args.add(varRef);
+        }
+
+        BLangInvocation initInvocation = ASTBuilderUtil
+                .createInvocationExprForMethod(mappingConstructorExpr.pos, recTSymbol.initializerFunc.symbol,
+                                               args, symResolver);
+        initInvocation.expr = recVarRef;
+        initInvExpr.expr = initInvocation;
+
+        // Add assignments for the user provided key-value pairs
+        // e.g., $rec$.name = "Foo";
+        for (BLangRecordLiteral.BLangRecordKeyValue keyVal : mappingConstructorExpr.keyValuePairs) {//
+            // BLangSimpleVarRef selfVarRef = ASTBuilderUtil.createVariableRef(variable.pos, symbol);
+            BLangIndexBasedAccess field = ASTBuilderUtil.createIndexAccessExpr(recVarRef, keyVal.key.expr);
+            field.symbol = keyVal.key.fieldSymbol;
+            field.type = keyVal.valueExpr.type;
+
+            BLangAssignment assignmentStmt = (BLangAssignment) TreeBuilder.createAssignmentNode();
+            assignmentStmt.expr = keyVal.valueExpr;
+            assignmentStmt.pos = mappingConstructorExpr.pos;
+            assignmentStmt.setVariable(field);
+
+            blockStmt.addStatement(assignmentStmt);
+        }
+
+        // Create the statement expression, with $rec$ as the expression value.
+        BLangStatementExpression recordStmtExpr = ASTBuilderUtil.createStatementExpression(blockStmt, recVarRef);
+        recordStmtExpr.type = recVarRef.symbol.type;
+        return recordStmtExpr;
     }
 
     @Override
@@ -3436,7 +3489,7 @@ public class Desugar extends BLangNodeVisitor {
         iExpr.restArgs = rewriteExprs(iExpr.restArgs);
 
         annotationDesugar.defineStatementAnnotations(iExpr.annAttachments, iExpr.pos, iExpr.symbol.pkgID,
-                iExpr.symbol.owner);
+                                                     iExpr.symbol.owner, this.env);
 
         if (iExpr.functionPointerInvocation) {
             visitFunctionPointerInvocation(iExpr);
@@ -3541,8 +3594,8 @@ public class Desugar extends BLangNodeVisitor {
                 recordLiteral.keyValuePairs.add(member);
                 iExpr.requiredArgs.remove(arg);
             }
-            recordLiteral = rewriteExpr(recordLiteral);
-            BLangExpression cloned = visitCloneInvocation(recordLiteral, ((BErrorType) iExpr.symbol.type).detailType);
+            BLangExpression cloned = visitCloneInvocation(rewriteExpr(recordLiteral),
+                                                          ((BErrorType) iExpr.symbol.type).detailType);
             errorDetail = visitUtilMethodInvocation(iExpr.pos, BLangBuiltInMethod.FREEZE, Lists.of(cloned));
         }
         iExpr.requiredArgs.add(errorDetail);
@@ -6486,9 +6539,9 @@ public class Desugar extends BLangNodeVisitor {
         return rewrite(initFunction, env);
     }
 
-    private BLangFunction createRecordInitFunction(BLangRecordTypeNode recordTypeNode, SymbolEnv env, Name suffix) {
+    private BLangFunction createRecordInitFunction(BLangRecordTypeNode recordTypeNode, SymbolEnv env) {
         BLangFunction initFunction = ASTBuilderUtil
-                .createInitFunctionWithNilReturn(recordTypeNode.pos, Names.EMPTY.value, suffix);
+                .createInitFunctionWithNilReturn(recordTypeNode.pos, Names.EMPTY.value, Names.INIT_FUNCTION_SUFFIX);
 
         // Create the receiver
         initFunction.receiver = ASTBuilderUtil.createReceiver(recordTypeNode.pos, recordTypeNode.type);
@@ -6505,14 +6558,14 @@ public class Desugar extends BLangNodeVisitor {
 
         // Create function symbol
         Name funcSymbolName = names.fromString(Symbols.getAttachedFuncSymbolName(
-                recordTypeNode.type.tsymbol.name.value, Names.USER_DEFINED_INIT_SUFFIX.value));
+                recordTypeNode.type.tsymbol.name.value, Names.INIT_FUNCTION_SUFFIX.value));
         initFunction.symbol = Symbols
                 .createFunctionSymbol(Flags.asMask(initFunction.flagSet), funcSymbolName, env.enclPkg.symbol.pkgID,
-                                      initFunction.type, recordTypeNode.symbol.scope.owner,
-                                      initFunction.body != null);
+                                      initFunction.type, recordTypeNode.symbol, initFunction.body != null);
         initFunction.symbol.scope = new Scope(initFunction.symbol);
         initFunction.symbol.scope.define(receiverSymbol.name, receiverSymbol);
         initFunction.symbol.receiverSymbol = receiverSymbol;
+        initFunction.name = ASTBuilderUtil.createIdentifier(recordTypeNode.pos, funcSymbolName.value);
         receiverSymbol.owner = initFunction.symbol;
 
         // Create the params
@@ -6548,9 +6601,9 @@ public class Desugar extends BLangNodeVisitor {
         TaintRecord taintRecord = new TaintRecord(TaintRecord.TaintedStatus.UNTAINTED, new ArrayList<>());
         initFunction.symbol.taintTable.put(TaintAnalyzer.ALL_UNTAINTED_TABLE_ENTRY_INDEX, taintRecord);
 
-        // Update Object type with attached function details
+        // Update the record type with attached function details
         BRecordTypeSymbol typeSymbol = (BRecordTypeSymbol) recordTypeNode.type.tsymbol;
-        typeSymbol.initializerFunc = new BAttachedFunction(suffix, initFunction.symbol,
+        typeSymbol.initializerFunc = new BAttachedFunction(Names.INIT_FUNCTION_SUFFIX, initFunction.symbol,
                                                            (BInvokableType) initFunction.type);
         recordTypeNode.initFunction = initFunction;
         return rewrite(initFunction, env);
