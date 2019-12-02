@@ -40,7 +40,6 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRNode.ConstValue;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.TaintTable;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.BinaryOp;
-import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.FieldAccess;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.Move;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.UnaryOP;
 import org.wso2.ballerinalang.compiler.bir.model.BIROperand;
@@ -105,7 +104,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangJSONLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangMapLiteral;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKey;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKeyValue;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangStreamLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangStructLiteral;
@@ -535,10 +533,11 @@ public class BIRGen extends BLangNodeVisitor {
             case LITERAL:
             case NUMERIC_LITERAL:
                 return true;
-            case RECORD_LITERAL_EXPR:
-                BLangRecordLiteral recordLiteral = (BLangRecordLiteral) expr;
-                for (BLangRecordKeyValue keyValuePair : recordLiteral.keyValuePairs) {
-                    if (!isCompileTimeAnnotationValue(keyValuePair.valueExpr)) {
+            case STATEMENT_EXPRESSION:
+                BLangStatement[] recCreationStmts = getMappingConstructorKeyValPairs((BLangStatementExpression) expr);
+
+                for (BLangStatement recCreationStmt : recCreationStmts) {
+                    if (!isCompileTimeAnnotationValue(((BLangAssignment) recCreationStmt).expr)) {
                         return false;
                     }
                 }
@@ -564,8 +563,8 @@ public class BIRGen extends BLangNodeVisitor {
             case LITERAL:
             case NUMERIC_LITERAL:
                 return createAnnotationLiteralValue((BLangLiteral) expr);
-            case RECORD_LITERAL_EXPR:
-                return createAnnotationRecordValue((BLangRecordLiteral) expr);
+            case STATEMENT_EXPRESSION:
+                return createAnnotationRecordValue((BLangStatementExpression) expr);
             case ARRAY_LITERAL_EXPR:
                 return createAnnotationArrayValue((BLangArrayLiteral) expr);
             case TYPE_CONVERSION_EXPR:
@@ -576,15 +575,25 @@ public class BIRGen extends BLangNodeVisitor {
         }
     }
 
-    private BIRNode.BIRAnnotationRecordValue createAnnotationRecordValue(BLangRecordLiteral recordLiteral) {
+    private BIRNode.BIRAnnotationRecordValue createAnnotationRecordValue(BLangStatementExpression recordLiteral) {
         Map<String, BIRAnnotationValue> annotValueEntryMap = new HashMap<>();
-        for (BLangRecordKeyValue keyValuePair : recordLiteral.keyValuePairs) {
-            BLangLiteral keyLiteral = (BLangLiteral) keyValuePair.key.expr;
+        BLangStatement[] recKeyValPairs = getMappingConstructorKeyValPairs(recordLiteral);
+
+        for (BLangStatement keyValPair : recKeyValPairs) {
+            BLangAssignment fieldAssignment = (BLangAssignment) keyValPair;
+            BLangLiteral keyLiteral = (BLangLiteral) ((BLangStructFieldAccessExpr) fieldAssignment.varRef).indexExpr;
             String entryKey = (String) keyLiteral.value;
-            BIRAnnotationValue annotationValue = createAnnotationValue(keyValuePair.valueExpr);
+            BIRAnnotationValue annotationValue = createAnnotationValue(fieldAssignment.expr);
             annotValueEntryMap.put(entryKey, annotationValue);
         }
+
         return new BIRNode.BIRAnnotationRecordValue(recordLiteral.type, annotValueEntryMap);
+    }
+
+    private BLangStatement[] getMappingConstructorKeyValPairs(BLangStatementExpression mappingConstructor) {
+        List<BLangStatement> recCreationStmts = ((BLangBlockStmt) mappingConstructor.stmt).stmts;
+        // Dropping the first two since they are for creating the empty literal and invoking the init() method.
+        return recCreationStmts.subList(2, recCreationStmts.size()).toArray(new BLangStatement[0]);
     }
 
     private BIRNode.BIRAnnotationArrayValue createAnnotationArrayValue(BLangArrayLiteral arrayLiteral) {
@@ -702,9 +711,9 @@ public class BIRGen extends BLangNodeVisitor {
             return symbol.name;
         }
 
-        int offset = symbol.receiverSymbol.type.tsymbol.name.value.length() + 1;
+        int offset = symbol.owner.name.value.length() + 1;
         String attachedFuncName = symbol.name.value;
-        return names.fromString(attachedFuncName.substring(offset, attachedFuncName.length()));
+        return names.fromString(attachedFuncName.substring(offset));
     }
 
     private void addParam(BIRFunction birFunc, BLangVariable functionParam) {
@@ -1276,25 +1285,6 @@ public class BIRGen extends BLangNodeVisitor {
         }
         emit(instruction);
 
-        this.env.targetOperand = toVarRef;
-
-        // Invoke the struct initializer here.
-        if (astStructLiteralExpr.initializer != null) {
-            //TODO
-        }
-
-        // Generate code the struct literal.
-        for (BLangRecordKeyValue keyValue : astStructLiteralExpr.keyValuePairs) {
-            BLangRecordKey key = keyValue.key;
-            key.expr.accept(this);
-            BIROperand keyRegIndex = this.env.targetOperand;
-
-            keyValue.valueExpr.accept(this);
-            BIROperand valueRegIndex = this.env.targetOperand;
-
-            emit(new FieldAccess(astStructLiteralExpr.pos,
-                    InstructionKind.MAP_STORE, toVarRef, keyRegIndex, valueRegIndex));
-        }
         this.env.targetOperand = toVarRef;
     }
 
