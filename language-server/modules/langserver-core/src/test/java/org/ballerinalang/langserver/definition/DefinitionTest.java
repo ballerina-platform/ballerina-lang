@@ -281,9 +281,9 @@ public class DefinitionTest {
                 {"defWaitAction2.json", "action"},
                 {"defWaitAction3.json", "action"},
                 // Covers Worker Send Action
-                {"defSyncSendAction1.json", "action"},
+//                {"defSyncSendAction1.json", "action"},
 //                {"defSyncSendAction2.json", "action"},
-                {"defAsyncSendAction1.json", "action"},
+//                {"defAsyncSendAction1.json", "action"},
 //                {"defAsyncSendAction2.json", "action"},
                 // Covers Worker Receive Action
 //                {"defReceiveAction1.json", "action"},
