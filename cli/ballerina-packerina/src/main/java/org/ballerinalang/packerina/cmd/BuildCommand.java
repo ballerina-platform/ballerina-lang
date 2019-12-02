@@ -164,7 +164,7 @@ public class BuildCommand implements BLauncherCmd {
                 .initConfigurations(this.argList == null ? new String[0] : this.argList.toArray(new String[0]));
 
         // check if there are too many arguments.
-        if (args.length > 1) {
+        if (args.length > 0) {
             CommandUtil.printError(this.errStream, "too many arguments.", buildCmd, false);
             CommandUtil.exitError(this.exitWhenFinish);
             return;
