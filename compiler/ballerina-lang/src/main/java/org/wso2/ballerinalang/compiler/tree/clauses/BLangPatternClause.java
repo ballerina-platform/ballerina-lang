@@ -33,9 +33,9 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
  */
 public class BLangPatternClause extends BLangNode implements PatternClause {
 
-    private PatternStreamingInputNode patternStreamingInput;
+    public PatternStreamingInputNode patternStreamingInput;
     private boolean forAllEvents;
-    private WithinClause withinClause;
+    public WithinClause withinClause;
 
     @Override
     public boolean isForAllEvents() {

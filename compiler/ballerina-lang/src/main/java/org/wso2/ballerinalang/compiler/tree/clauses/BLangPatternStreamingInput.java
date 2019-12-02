@@ -35,8 +35,8 @@ import java.util.List;
 
 public class BLangPatternStreamingInput extends BLangNode implements PatternStreamingInputNode {
 
-    private PatternStreamingInputNode patternStreamingInput;
-    private List<PatternStreamingEdgeInputNode> patternStreamingEdgeInputNodeList = new ArrayList<>();
+    public BLangPatternStreamingInput patternStreamingInput;
+    public List<PatternStreamingEdgeInputNode> patternStreamingEdgeInputNodeList = new ArrayList<>();
     private boolean isFollowedBy;
     private boolean isEnclosedInParenthesis;
     private boolean isNotWithFor;
@@ -59,7 +59,8 @@ public class BLangPatternStreamingInput extends BLangNode implements PatternStre
 
     @Override
     public void setPatternStreamingInput(PatternStreamingInputNode patternStreamingInput) {
-        this.patternStreamingInput = patternStreamingInput;
+
+        this.patternStreamingInput = (BLangPatternStreamingInput) patternStreamingInput;
     }
 
     @Override
