@@ -52,6 +52,8 @@ dependencies {
     implementation 'org.wso2.transport.http:org.wso2.transport.http.netty'
 
     interopImports project(':ballerina-config-api')
+    interopImports project(':ballerina-io')
+    interopImports project(':ballerina-system')
     interopImports project(':ballerina-time')
 
     //testCompile project(':ballerina-tool')
@@ -74,6 +76,8 @@ dependencies {
     baloImplementation project(path: ':ballerina-crypto', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-time', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-http', configuration: 'baloImplementation')
+
+    interopImports project(':ballerina-crypto')
 }
 
 createBalo {
