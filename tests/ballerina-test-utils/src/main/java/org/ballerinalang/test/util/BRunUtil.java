@@ -824,14 +824,13 @@ public class BRunUtil {
                 bvmValue = new BBoolean((boolean) value);
                 break;
             case org.ballerinalang.jvm.types.TypeTags.STRING_TAG:
-                if (System.getProperty(IS_STRING_VALUE_PROP, "").equals("")) {
-                    bvmValue = new BString((String) value);
-                    break;
-                } else {
+                if (value instanceof StringValue) {
                     StringValue stringValue = (StringValue) value;
                     bvmValue = new BString(stringValue.getValue());
-                    break;
+                } else {
+                    bvmValue = new BString((String) value);
                 }
+                break;
             case org.ballerinalang.jvm.types.TypeTags.DECIMAL_TAG:
                 DecimalValue decimalValue = (DecimalValue) value;
                 bvmValue = new BDecimal(decimalValue.value().toString(),

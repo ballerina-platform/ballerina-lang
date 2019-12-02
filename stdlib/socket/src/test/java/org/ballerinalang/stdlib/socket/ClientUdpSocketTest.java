@@ -66,7 +66,7 @@ public class ClientUdpSocketTest {
         }
         String resourceRoot = Paths.get("src", "test", "resources").toAbsolutePath().toString();
         Path testResourceRoot = Paths.get(resourceRoot, "test-src");
-        socketClient = BCompileUtil.compile(testResourceRoot.resolve("udp_client_socket.bal").toString());
+        socketClient = BCompileUtil.compileOffline(testResourceRoot.resolve("udp_client_socket.bal").toString());
     }
 
     @AfterClass
