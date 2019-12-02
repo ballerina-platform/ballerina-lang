@@ -71,6 +71,8 @@ dependencies {
     implementation project(':ballerina-system')
     implementation project(':ballerina-task')
     implementation project(':ballerina-http')
+
+    interopImports project(':ballerina-crypto')
 }
 
 configurations {

@@ -72,6 +72,8 @@ dependencies {
     implementation project(':ballerina-runtime')
     implementation project(':ballerina-runtime-api')
     implementation project(':ballerina-utils')
+
+    interopImports project(':ballerina-crypto')
 }
 
 artifacts {

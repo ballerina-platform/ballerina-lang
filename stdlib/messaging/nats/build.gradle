@@ -66,6 +66,8 @@ dependencies {
     testCompile project(path: ':ballerina-test-utils', configuration: 'shadow')
     testCompile project(':ballerina-file')
     testCompile project(':ballerina-core')
+
+    interopImports project(':ballerina-crypto')
 }
 
 createBalo {
