@@ -843,13 +843,11 @@ public class Types {
             }
         }
 
-        if (source.restType != null) {
-            if (target.restType == null) {
-                return  false;
-            }
-            if (!equality.test(source.restType, target.restType, unresolvedTypes)) {
-                return false;
-            }
+        if ((source.restType != null && target.restType == null) ||
+                target.restType != null && source.restType == null) {
+            return false;
+        } else if (source.restType != null && !equality.test(source.restType, target.restType, unresolvedTypes)) {
+            return false;
         }
 
         if (source.retType == null && target.retType == null) {
