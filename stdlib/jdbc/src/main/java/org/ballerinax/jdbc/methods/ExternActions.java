@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinax.jdbc.actions;
+package org.ballerinax.jdbc.methods;
 
 import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.values.ArrayValue;
@@ -35,9 +35,9 @@ import org.ballerinax.jdbc.statement.UpdateStatement;
  *
  * @since 1.0.5
  */
-public class ExternActionMethods {
+public class ExternActions {
 
-    private ExternActionMethods() {}
+    private ExternActions() {}
 
     public static MapValue<String, Object> nativeBatchUpdate(ObjectValue client, String sqlQuery,
                                                              boolean rollbackAllInFailure, ArrayValue... parameters) {

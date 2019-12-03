@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinax.jdbc.functions;
+package org.ballerinax.jdbc.methods;
 
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
@@ -35,9 +35,9 @@ import java.util.concurrent.ConcurrentHashMap;
  *
  * @since 1.0.5
  */
-public class ExternFunctionMethods {
+public class ExternFunctions {
 
-    private ExternFunctionMethods() {}
+    private ExternFunctions() {}
 
     public static Object close(ObjectValue client) {
         SQLDatasource datasource = (SQLDatasource) client.getNativeData(Constants.JDBC_CLIENT);
