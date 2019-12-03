@@ -28,8 +28,6 @@ import org.ballerinalang.jvm.values.api.BString;
  */
 public interface StringValue extends BString, SimpleValue {
 
-    StringValue concat(StringValue str);
-
     @Override
     default BType getType() {
         return BTypes.typeString;

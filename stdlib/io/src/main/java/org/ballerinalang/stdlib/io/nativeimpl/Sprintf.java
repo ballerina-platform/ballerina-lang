@@ -18,7 +18,6 @@
 package org.ballerinalang.stdlib.io.nativeimpl;
 
 import org.ballerinalang.jvm.TypeChecker;
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.TypeTags;
@@ -26,10 +25,6 @@ import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.jvm.util.exceptions.RuntimeErrors;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.utils.StringUtils;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
 
 import java.util.IllegalFormatConversionException;
 
@@ -38,24 +33,22 @@ import java.util.IllegalFormatConversionException;
  *
  * @since 0.964.0
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "io",
-        functionName = "sprintf",
-        args = {@Argument(name = "format", type = TypeKind.STRING),
-                @Argument(name = "args", type = TypeKind.ARRAY)},
-        returnType = {@ReturnType(type = TypeKind.STRING)},
-        isPublic = true
-)
-
-/*
- * sprintf accept a format specifier and a list of arguments in an array and returns a formatted
- * string. Examples:
- *      sprintf("%s is awesome!", ["Ballerina"]) -> "Ballerina is awesome!"
- *      sprintf("%10.2f", [12.5678]) -> "     12.57"
- */
 public class Sprintf {
 
-    public static String sprintf(Strand strand, String format, ArrayValue args) {
+    private Sprintf() {
+    }
+
+    /**
+     * sprintf accept a format specifier and a list of arguments in an array and returns a formatted
+     * string. Examples:
+     * sprintf("%s is awesome!", ["Ballerina"]) = "Ballerina is awesome!"
+     * sprintf("%10.2f", [12.5678]) = "     12.57"
+     *
+     * @param format A format string
+     * @param args   Arguments referenced by the format specifiers in the format string
+     * @return a formatted string that specified as in format
+     */
+    public static String sprintf(String format, Object... args) {
         StringBuilder result = new StringBuilder();
 
         /* Special chars in case additional formatting is required later
@@ -82,7 +75,7 @@ public class Sprintf {
                 // skip % character
                 j = i + 1;
 
-                if (k >= args.size()) {
+                if (k >= args.length) {
                     // there's not enough arguments
                     throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.NOT_ENOUGH_FORMAT_ARGUMENTS);
                 }
@@ -93,8 +86,7 @@ public class Sprintf {
                 }
                 try {
                     char formatSpecifier = format.charAt(j);
-                    //TODO : Recheck following casting
-                    Object ref = args.getRefValue(k);
+                    Object ref = args[k];
                     switch (formatSpecifier) {
                         case 'b':
                         case 'B':
@@ -112,12 +104,11 @@ public class Sprintf {
                                 throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.ILLEGAL_FORMAT_CONVERSION,
                                         format.charAt(j) + " != ()");
                             }
-                            formatHexString(args, result, k, padding, formatSpecifier);
+                            formatHexString(result, k, padding, formatSpecifier, args);
                             break;
                         case 's':
                             if (ref != null) {
-                                result.append(String.format("%" + padding + "s",
-                                        StringUtils.getStringValue(ref)));
+                                result.append(String.format("%" + padding + "s", StringUtils.getStringValue(ref)));
                             }
                             break;
                         case '%':
@@ -130,7 +121,7 @@ public class Sprintf {
                     }
                 } catch (IllegalFormatConversionException e) {
                     throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.ILLEGAL_FORMAT_CONVERSION,
-                            format.charAt(j) + " != " + TypeChecker.getType(args.getRefValue(k)));
+                            format.charAt(j) + " != " + TypeChecker.getType(args[k]));
                 }
                 if (format.charAt(j) == '%') {
                     // special case %%, don't count as a format specifier
@@ -147,8 +138,8 @@ public class Sprintf {
         return result.toString();
     }
 
-    private static void formatHexString(ArrayValue args, StringBuilder result, int k, StringBuilder padding, char x) {
-        final Object argsValues = args.get(k);
+    private static void formatHexString(StringBuilder result, int k, StringBuilder padding, char x, Object... args) {
+        final Object argsValues = args[k];
         final BType type = TypeChecker.getType(argsValues);
         if (TypeTags.ARRAY_TAG == type.getTag() && TypeTags.BYTE_TAG == ((BArrayType) type).getElementType().getTag()) {
             ArrayValue byteArray = ((ArrayValue) argsValues);

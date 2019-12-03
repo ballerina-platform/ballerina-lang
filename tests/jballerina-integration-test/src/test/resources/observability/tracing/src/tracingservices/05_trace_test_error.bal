@@ -46,7 +46,7 @@ service echoService4 on new http:Listener(9094) {
             error e = error("Custom Panic in Service 1");
             panic e;
         }
-        var response = callNextResource4(id);
+        var response = callNextResource4(<@untainted> id);
         if (response is http:Response) {
             outResponse.setTextPayload("Hello, World!");
             checkpanic caller->respond(outResponse);
