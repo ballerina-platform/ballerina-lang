@@ -28,6 +28,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 public class BLangLiteral extends BLangExpression implements LiteralNode {
 
     public Object value;
+    public BType literalType;
     public String originalValue;
     public boolean isJSONContext;
     public boolean isFiniteContext;
@@ -38,7 +39,7 @@ public class BLangLiteral extends BLangExpression implements LiteralNode {
 
     public BLangLiteral(Object value, BType type) {
         this.value = value;
-        this.type = type;
+        this.type = this.literalType = type;
     }
 
     @Override
