@@ -216,7 +216,13 @@ public class Scheduler {
         for (int i = 0; i < numThreads - 1; i++) {
             new Thread(new Runner(i), "jbal-strand-exec-" + i).start();
         }
-        this.runSafely(numThreads - 1);
+
+        try {
+            runTask(numThreads - 1);
+        } catch (Throwable t) {
+            RuntimeUtils.printCrashLog(t);
+        }
+
         try {
             this.mainBlockSem.acquire();
         } catch (InterruptedException e) {
@@ -234,25 +240,18 @@ public class Scheduler {
 
         @Override
         public void run() {
-            runSafely(id);
-        }
-    }
-
-    /**
-     * Defensive programming to prevent unforeseen errors.
-     */
-    private void runSafely(int id) {
-        try {
-            run(id);
-        } catch (Throwable t) {
-            RuntimeUtils.printCrashLog(t);
+            try {
+                runTask(id);
+            } catch (Throwable t) {
+                RuntimeUtils.printCrashLog(t);
+            }
         }
     }
 
     /**
      * Executes tasks that are submitted to the Scheduler.
      */
-    private void run(int id) {
+    private void runTask(int id) {
         while (true) {
             SchedulerItem item;
             try {
@@ -277,6 +276,8 @@ public class Scheduler {
             }
 
             // only ID's permitted here are -1 or same ID
+            assert (item.future.strand.threadId == -1 || item.future.strand.threadId == id) : "Invalid thread ID " +
+                    "detected";
             item.future.strand.threadId = id;
 
             Object result = null;
