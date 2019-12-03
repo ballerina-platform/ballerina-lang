@@ -160,8 +160,8 @@ public class FunctionUtils extends AbstractExecute {
      * @param descriptorMap dependent descriptor map.
      * @return Error if there is an error while initializing the stub, else returns nil
      */
-    public static Object externInitStub(ObjectValue genericEndpoint, ObjectValue clientEndpoint,
-                                        String stubType, String rootDescriptor, MapValue<String, Object> descriptorMap) {
+    public static Object externInitStub(ObjectValue genericEndpoint, ObjectValue clientEndpoint, String stubType,
+                                        String rootDescriptor, MapValue<String, Object> descriptorMap) {
         HttpClientConnector clientConnector = (HttpClientConnector) genericEndpoint.getNativeData(CLIENT_CONNECTOR);
         String urlString = (String) genericEndpoint.getNativeData(ENDPOINT_URL);
 
