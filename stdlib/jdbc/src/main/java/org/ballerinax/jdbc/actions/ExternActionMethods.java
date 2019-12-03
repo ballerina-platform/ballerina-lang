@@ -69,6 +69,4 @@ public class ExternActionMethods {
                 Scheduler.getStrand());
         return updateStatement.execute();
     }
-
-
 }
