@@ -22,14 +22,44 @@ import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.stdlib.crypto.CryptoUtils;
 
+import java.util.zip.CRC32;
+import java.util.zip.Checksum;
+
 /**
- * Extern function ballerina.crypto:hashSha384.
+ * Extern functions ballerina hashing algorithms.
  *
  * @since 0.990.3
  */
-public class HashSha384 {
+public class Hash {
+
+    public static String crc32b(ArrayValue input) {
+        Checksum checksum = new CRC32();
+        byte[] bytes = input.getBytes();
+        long checksumVal;
+
+        checksum.update(bytes, 0, bytes.length);
+        checksumVal = checksum.getValue();
+        return Long.toHexString(checksumVal);
+    }
+
+    public static ArrayValue hashMd5(ArrayValue inputValue) {
+        return new ArrayValueImpl(CryptoUtils.hash("MD5", inputValue.getBytes()));
+    }
+
+    public static ArrayValue hashSha1(ArrayValue inputValue) {
+        return new ArrayValueImpl(CryptoUtils.hash("SHA-1", inputValue.getBytes()));
+    }
+
+    public static ArrayValue hashSha256(ArrayValue inputValue) {
+        return new ArrayValueImpl(CryptoUtils.hash("SHA-256", inputValue.getBytes()));
+    }
 
     public static ArrayValue hashSha384(ArrayValue inputValue) {
         return new ArrayValueImpl(CryptoUtils.hash("SHA-384", inputValue.getBytes()));
     }
+
+    public static ArrayValue hashSha512(ArrayValue inputValue) {
+        return new ArrayValueImpl(CryptoUtils.hash("SHA-512", inputValue.getBytes()));
+    }
+
 }
