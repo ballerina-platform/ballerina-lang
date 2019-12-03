@@ -16,10 +16,10 @@ function getAccountBalance(int accountID) returns int|error {
 
 public function main() {
     // Define an error of the generic error type.
-    // `error` is the default error type and the default error constructor.
-    // Error reason must be the first and only positional argument to default error constructor and the error reason
-    // value must be a subtype of string. Additional error detail can be provided as named argument to the constructor
-    // and each of those must be subtype of `anydata|error`.
+    // Define an error of the generic `error` type using the default error constructor.
+    // The error reason must be the first and only positional argument to the default error constructor and the type of the 
+    // value must be a subtype of `string`. Additional fields providing more details can be passed as named argument to the constructor
+    // and the type of each of those must be a subtype of `anydata|error`.
     error simpleError = error("SimpleErrorType", message = "Simple error occured");
 
     // Print the error reason and the `message` field from the error detail.

@@ -3,7 +3,7 @@ import ballerina/io;
 const INVALID_ACC_TYPE = "InvalidAccountType";
 
 // Define a record to represent the error details.
-// This record can have fields of `anydata|error` types.
+// This record can have fields of `anydata|error` types and should be a sub type of the built-in error's detail type.
 type InvalidAccountTypeErrorData record {
     string message?;
     error cause?;
