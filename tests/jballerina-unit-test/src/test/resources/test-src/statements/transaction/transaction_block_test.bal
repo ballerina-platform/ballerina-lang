@@ -305,3 +305,11 @@ public function testArrowFunctionInsideTransaction() returns int {
     }
     return a;
 }
+
+public function testAssignmentToUninitializedVariableOfOuterScopeFromTrxBlock() returns int|string {
+    int|string s;
+    transaction with retries = 1 {
+      s = "init-in-transaction-block";
+    }
+    return s;
+}
