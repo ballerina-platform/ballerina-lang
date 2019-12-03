@@ -18,24 +18,34 @@
 
 package org.ballerinalang.stdlib.encoding.nativeimpl;
 
-import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.stdlib.encoding.EncodingUtil;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.util.Base64;
 
 /**
- * Extern function ballerina.encoding:decodeBase64Url.
- *
+ * Extern functions of ballerina decoding.
+ *of
  * @since 0.991.0
  */
-public class DecodeBase64Url {
+public class Decode {
 
     public static Object decodeBase64Url(String input) {
         try {
             byte[] output = Base64.getUrlDecoder().decode(input);
-            return new ArrayValue(output);
+            return new ArrayValueImpl(output);
         } catch (IllegalArgumentException e) {
             return EncodingUtil.createError("Input is not a valid Base64 URL encoded value");
+        }
+    }
+
+    public static Object decodeUriComponent(String url, String charset) {
+        try {
+            return URLDecoder.decode(url, charset);
+        } catch (UnsupportedEncodingException e) {
+            return EncodingUtil.createError("Error occurred while decoding the URI component. " + e.getMessage());
         }
     }
 }
