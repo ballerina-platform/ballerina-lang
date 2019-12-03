@@ -115,28 +115,28 @@ public type Client client object {
 
 function nativeSelect(Client jdbcClient, @untainted handle sqlQuery, typedesc<record {}>? recordType,
     Param[] parameters) returns @tainted table<record {}>|Error = @java:Method {
-        class: "org.ballerinax.jdbc.actions.Select"
+        class: "org.ballerinax.jdbc.actions.ExternActionMethods"
     } external;
 
 function nativeCall(Client jdbcClient, @untainted handle sqlQuery, typedesc<record {}>[]? recordType,
     Param[] parameters) returns @tainted table<record {}>[]|()|Error = @java:Method {
-       class: "org.ballerinax.jdbc.actions.Call"
+       class: "org.ballerinax.jdbc.actions.ExternActionMethods"
     } external;
 
 function nativeUpdate(Client jdbcClient, @untainted handle sqlQuery, Param[] parameters)
     returns UpdateResult|Error = @java:Method {
-        class: "org.ballerinax.jdbc.actions.Update"
+        class: "org.ballerinax.jdbc.actions.ExternActionMethods"
     } external;
 
 function nativeBatchUpdate(Client jdbcClient, @untainted handle sqlQuery, boolean rollbackAllInFailure,
     Param?[]... parameters) returns BatchUpdateResult = @java:Method {
-        class: "org.ballerinax.jdbc.actions.BatchUpdate"
+        class: "org.ballerinax.jdbc.actions.ExternActionMethods"
     } external;
 
 function createClient(Client jdbcClient, ClientConfiguration config, PoolOptions globalPoolOptions) = @java:Method {
-    class: "org.ballerinax.jdbc.functions.CreateClient"
+    class: "org.ballerinax.jdbc.functions.ExternFunctionMethods"
 } external;
 
 function close(Client jdbcClient) returns error? = @java:Method {
-    class: "org.ballerinax.jdbc.functions.Close"
+    class: "org.ballerinax.jdbc.functions.ExternFunctionMethods"
 } external;

@@ -103,7 +103,7 @@ type GlobalPoolConfigContainer object {
 };
 
 function initGlobalPoolContainer(GlobalPoolConfigContainer poolConfigContainer, PoolOptions poolConfig) = @java:Method {
-    class: "org.ballerinax.jdbc.functions.InitGlobalPoolContainer"
+    class: "org.ballerinax.jdbc.functions.ExternFunctionMethods"
 } external;
 
 // This is an instance of GlobalPoolConfigContainer object type. The __init functions of database clients pass
