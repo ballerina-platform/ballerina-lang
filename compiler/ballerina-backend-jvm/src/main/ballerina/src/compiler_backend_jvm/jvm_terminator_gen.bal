@@ -547,7 +547,12 @@ type TerminatorGenerator object {
 
         string methodDesc = lookupJavaMethodDescription(lookupKey);
         string jvmClass = lookupFullQualifiedClassName(lookupKey);
-        self.mv.visitMethodInsn(INVOKESTATIC, jvmClass, cleanupFunctionName(methodName), methodDesc, false);
+        string cleanMethodName = cleanupFunctionName(methodName);
+        if (IS_BSTRING && orgName == "ballerina" && moduleName == "lang.string" && !cleanMethodName.endsWith("_")) {
+             cleanMethodName += "$bstring";
+             io:println(cleanMethodName);
+        }
+        self.mv.visitMethodInsn(INVOKESTATIC, jvmClass, cleanMethodName, methodDesc, false);
     }
 
     private function genVirtualCall(bir:Call callIns, string orgName, string moduleName, int localVarOffset) {

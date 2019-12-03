@@ -213,7 +213,7 @@ function genJMethodForBFunc(bir:Function func,
     mv.visitInsn(AALOAD);
     mv.visitTypeInsn(CHECKCAST, frameName);
 
-    geerateFrameClassFieldLoad(localVarOffset, localVars, mv, indexMap, frameName);
+    geerateFrameClassFieldLoad(localVarOffset, localVars, mv, indexMap, frameName, useBString);
     mv.visitFieldInsn(GETFIELD, frameName, "state", "I");
     mv.visitVarInsn(ISTORE, stateVarIndex);
     mv.visitJumpInsn(GOTO, varinitLable);
@@ -225,7 +225,7 @@ function genJMethodForBFunc(bir:Function func,
     mv.visitMethodInsn(INVOKESPECIAL, frameName, "<init>", "()V", false);
 
 
-    geerateFrameClassFieldUpdate(localVarOffset, localVars, mv, indexMap, frameName);
+    geerateFrameClassFieldUpdate(localVarOffset, localVars, mv, indexMap, frameName, useBString);
 
     mv.visitInsn(DUP);
     mv.visitVarInsn(ILOAD, stateVarIndex);
@@ -340,7 +340,7 @@ function genJMethodForBFunc(bir:Function func,
 }
 
 function geerateFrameClassFieldLoad(int localVarOffset, bir:VariableDcl?[] localVars, jvm:MethodVisitor mv,
-                                    BalToJVMIndexMap indexMap, string frameName) {
+                                    BalToJVMIndexMap indexMap, string frameName, boolean useBString) {
     int k = localVarOffset;
     while (k < localVars.length()) {
         bir:VariableDcl localVar = getVariableDcl(localVars[k]);
@@ -359,7 +359,7 @@ function geerateFrameClassFieldLoad(int localVarOffset, bir:VariableDcl?[] local
             mv.visitVarInsn(DSTORE, index);
         } else if (bType is bir:BTypeString) {
             mv.visitFieldInsn(GETFIELD, frameName, stringutils:replace(localVar.name.value, "%","_"),
-                    io:sprintf("L%s;", BSTRING_VALUE));
+                    io:sprintf("L%s;", useBString ? I_STRING_VALUE : STRING_VALUE));
             mv.visitVarInsn(ASTORE, index);
         } else if (bType is bir:BTypeDecimal) {
             mv.visitFieldInsn(GETFIELD, frameName, stringutils:replace(localVar.name.value, "%","_"),
@@ -475,7 +475,7 @@ function generateFrameClassJFieldLoad(bir:VariableDcl localVar, jvm:MethodVisito
 }
 
 function geerateFrameClassFieldUpdate(int localVarOffset, bir:VariableDcl?[] localVars, jvm:MethodVisitor mv,
-                                      BalToJVMIndexMap indexMap, string frameName) {
+                                      BalToJVMIndexMap indexMap, string frameName, boolean useBString) {
     int k = localVarOffset;
     while (k < localVars.length()) {
         bir:VariableDcl localVar = getVariableDcl(localVars[k]);
@@ -495,7 +495,7 @@ function geerateFrameClassFieldUpdate(int localVarOffset, bir:VariableDcl?[] loc
         } else if (bType is bir:BTypeString) {
             mv.visitVarInsn(ALOAD, index);
             mv.visitFieldInsn(PUTFIELD, frameName, stringutils:replace(localVar.name.value, "%","_"),
-                    io:sprintf("L%s;", BSTRING_VALUE));
+                    io:sprintf("L%s;", useBString ? I_STRING_VALUE : STRING_VALUE));
         } else if (bType is bir:BTypeDecimal) {
             mv.visitVarInsn(ALOAD, index);
             mv.visitFieldInsn(PUTFIELD, frameName, stringutils:replace(localVar.name.value, "%","_"),

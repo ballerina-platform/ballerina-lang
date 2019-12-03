@@ -195,9 +195,9 @@ function createOldStyleExternalFunctionWrapper(bir:Function birFunc, string orgN
     bir:VariableDcl? receiver = birFunc.receiver;
     bir:BType? attachedType = receiver is bir:VariableDcl ? receiver.typeValue : ();
     string jvmMethodDescription = getMethodDesc(functionTypeDesc.paramTypes, <bir:BType?> functionTypeDesc?.retType,
-                                                attachedType = attachedType);
+                                                attachedType = attachedType, useBString = IS_BSTRING);
     string jMethodVMSig = getMethodDesc(jMethodPramTypes, <bir:BType?> functionTypeDesc?.retType,
-                                        attachedType = attachedType, isExtern = true);
+                                        attachedType = attachedType, isExtern = true, useBString  = IS_BSTRING);
 
     return {
         orgName : orgName,

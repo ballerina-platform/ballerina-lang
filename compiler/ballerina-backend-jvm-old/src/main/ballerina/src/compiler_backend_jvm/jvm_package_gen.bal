@@ -27,6 +27,7 @@ type BIRFunctionWrapper record {
     bir:Function func;
     string fullQualifiedClassName;
     string jvmMethodDescription;
+    string? jvmMethodDescriptionBString = ();
 };
 
 DiagnosticLogger dlogger = new ();
@@ -76,10 +77,10 @@ function lookupTypeDef(bir:TypeDef|bir:TypeRef key) returns bir:TypeDef {
     }
 }
 
-function lookupJavaMethodDescription(string key) returns string {
+function lookupJavaMethodDescription(string key, boolean useBString) returns string {
     if (birFunctionMap.hasKey(key)) {
         BIRFunctionWrapper functionWrapper = getBIRFunctionWrapper(birFunctionMap[key]);
-        return functionWrapper.jvmMethodDescription;
+        return useBString ? ( functionWrapper.jvmMethodDescriptionBString ?: "<error>") : functionWrapper.jvmMethodDescription;
     } else {
         error err = error("cannot find jvm method description for : " + key);
         panic err;
@@ -546,12 +547,15 @@ function getFunctionWrapper(bir:Function currentFunc, string orgName ,string mod
     bir:BType? attachedType = receiver is bir:VariableDcl ? receiver.typeValue : ();
     string jvmMethodDescription = getMethodDesc(functionTypeDesc.paramTypes, functionTypeDesc?.retType,
                                                 attachedType = attachedType);
+    string jvmMethodDescriptionBString = getMethodDesc(functionTypeDesc.paramTypes, functionTypeDesc?.retType,
+                                                attachedType = attachedType, useBString = true);
     return {
         orgName : orgName,
         moduleName : moduleName,
         versionValue : versionValue,
         func : currentFunc,
         fullQualifiedClassName : moduleClass,
+        jvmMethodDescriptionBString : jvmMethodDescriptionBString,
         jvmMethodDescription : jvmMethodDescription
     };
 }

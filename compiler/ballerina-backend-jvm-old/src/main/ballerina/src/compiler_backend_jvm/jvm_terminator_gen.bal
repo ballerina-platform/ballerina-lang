@@ -270,8 +270,12 @@ type TerminatorGenerator object {
     function genCallTerm(bir:Call callIns, string funcName, int localVarOffset) {
         string orgName = callIns.pkgID.org;
         string moduleName = callIns.pkgID.name;
+        var callInsCopy = callIns.clone();
+        if(funcName.endsWith("$bstring")) {
+            callInsCopy.name.value = callIns.name.value + "$bstring";
+        }
         // invoke the function
-        self.genCall(callIns, orgName, moduleName, localVarOffset);
+        self.genCall(callInsCopy, orgName, moduleName, localVarOffset);
 
         // store return
         self.storeReturnFromCallIns(callIns.lhsOp?.variableDcl);
@@ -327,7 +331,7 @@ type TerminatorGenerator object {
 
         string jClassName = callIns.jClassName;
         string jMethodName = callIns.name;
-        string jMethodVMSig = callIns.jMethodVMSig;
+        string jMethodVMSig = funcName.endsWith("$bstring") ? callIns.jMethodVMSigBString : callIns.jMethodVMSig;
         self.mv.visitMethodInsn(INVOKESTATIC, jClassName, jMethodName, jMethodVMSig, false);
 
         bir:VariableDcl? lhsOpVarDcl = callIns.lhsOp?.variableDcl;
@@ -535,7 +539,10 @@ type TerminatorGenerator object {
         // load strand
         self.mv.visitVarInsn(ALOAD, localVarOffset);
         string lookupKey = getPackageName(orgName, moduleName) + methodLookupName;
-        boolean isExternFunction = isBIRFunctionExtern(lookupKey);
+        boolean useBString = lookupKey.endsWith("$bstring");
+        if(useBString) {
+            lookupKey = lookupKey.substring(0, lookupKey.length() - 8); 
+        }
         int argsCount = callIns.args.length();
         int i = 0;
         while (i < argsCount) {
@@ -545,7 +552,7 @@ type TerminatorGenerator object {
             i += 1;
         }
 
-        string methodDesc = lookupJavaMethodDescription(lookupKey);
+        string methodDesc = lookupJavaMethodDescription(lookupKey, useBString);
         string jvmClass = lookupFullQualifiedClassName(lookupKey);
         self.mv.visitMethodInsn(INVOKESTATIC, jvmClass, cleanupFunctionName(methodName), methodDesc, false);
     }
