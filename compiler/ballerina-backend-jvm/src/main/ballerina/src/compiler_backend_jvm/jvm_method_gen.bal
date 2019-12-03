@@ -135,6 +135,11 @@ function genJMethodForBFunc(bir:Function func,
         k += 1;
     }
 
+    bir:VariableDcl varDcl = getVariableDcl(localVars[0]);
+    returnVarRefIndex = indexMap.getIndex(varDcl);
+    bir:BType returnType = <bir:BType> func.typeValue?.retType;
+    genDefaultValue(mv, returnType, returnVarRefIndex);
+
     bir:VariableDcl stateVar = { typeValue: "string", //should  be javaInt
                                  name: { value: "state" },
                                  kind: "TEMP" };
@@ -149,11 +154,6 @@ function genJMethodForBFunc(bir:Function func,
 
     jvm:Label varinitLable = labelGen.getLabel(funcName + "varinit");
     mv.visitLabel(varinitLable);
-
-    bir:VariableDcl varDcl = getVariableDcl(localVars[0]);
-    returnVarRefIndex = indexMap.getIndex(varDcl);
-    bir:BType returnType = <bir:BType> func.typeValue?.retType;
-    genDefaultValue(mv, returnType, returnVarRefIndex);
 
     // uncomment to test yield
     // mv.visitFieldInsn(GETSTATIC, className, "i", "I");
