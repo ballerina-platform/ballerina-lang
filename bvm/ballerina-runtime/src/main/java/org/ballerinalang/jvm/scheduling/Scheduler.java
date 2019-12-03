@@ -276,8 +276,8 @@ public class Scheduler {
             }
 
             // only ID's permitted here are -1 or same ID
-            assert (item.future.strand.threadId == -1 || item.future.strand.threadId == id) : "Invalid thread ID " +
-                    "detected";
+            assert (item.future.strand.threadId == -1 || item.future.strand.threadId == id) : "Invalid strand thread " +
+                    "ID : " + item.future.strand.threadId;
             item.future.strand.threadId = id;
 
             Object result = null;
