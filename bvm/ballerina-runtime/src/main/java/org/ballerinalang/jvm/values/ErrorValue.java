@@ -19,7 +19,6 @@ package org.ballerinalang.jvm.values;
 
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.TypeChecker;
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.services.ErrorHandlerUtils;
 import org.ballerinalang.jvm.types.BErrorType;
 import org.ballerinalang.jvm.types.BType;
@@ -76,13 +75,8 @@ public class ErrorValue extends BError implements RefValue {
 
     @Override
     public String stringValue() {
-        return stringValue(null);
-    }
-
-    @Override
-    public String stringValue(Strand strand) {
-        return "error " + reason + Optional.ofNullable(details).map(details -> " " + StringUtils.getStringValue(strand,
-                details)).orElse("");
+        return "error " + reason +
+                Optional.ofNullable(details).map(details -> " " + StringUtils.getStringValue(details)).orElse("");
     }
 
     @Override

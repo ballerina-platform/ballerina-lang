@@ -241,6 +241,7 @@ const string LOCK_VALUE = "org/ballerinalang/jvm/BLock";
 const string FUNCTION_POINTER = "org/ballerinalang/jvm/values/FPValue";
 const string ARRAY_VALUE_IMPL = "org/ballerinalang/jvm/values/ArrayValueImpl";
 const string TUPLE_VALUE_IMPL = "org/ballerinalang/jvm/values/TupleValueImpl";
+const string SIMPLE_VALUE = "org/ballerinalang/jvm/values/SimpleValue";
 
 // types related classes
 const string BTYPE = "org/ballerinalang/jvm/types/BType";

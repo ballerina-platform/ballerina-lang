@@ -467,6 +467,10 @@ function generateJCastToBAny(jvm:MethodVisitor mv, BalToJVMIndexMap indexMap, jv
             mv.visitInsn(DUP);
             mv.visitTypeInsn(INSTANCEOF, "java/lang/Boolean");
             mv.visitJumpInsn(IFNE, afterHandle);
+
+            mv.visitInsn(DUP);
+            mv.visitTypeInsn(INSTANCEOF, SIMPLE_VALUE);
+            mv.visitJumpInsn(IFNE, afterHandle);
         }
 
         if (isNillable(targetType)) {

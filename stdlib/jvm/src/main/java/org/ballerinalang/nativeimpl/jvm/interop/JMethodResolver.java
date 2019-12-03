@@ -36,7 +36,7 @@ import org.ballerinalang.jvm.values.api.BStream;
 import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.jvm.values.api.BTable;
 import org.ballerinalang.jvm.values.api.BTypedesc;
-import org.ballerinalang.jvm.values.api.BXml;
+import org.ballerinalang.jvm.values.api.BXML;
 
 import java.lang.reflect.Executable;
 import java.lang.reflect.Method;
@@ -283,7 +283,7 @@ class JMethodResolver {
                 case TypeTags.TABLE_TAG:
                     return this.classLoader.loadClass(BTable.class.getCanonicalName()).isAssignableFrom(jType);
                 case TypeTags.XML_TAG:
-                    return this.classLoader.loadClass(BXml.class.getCanonicalName()).isAssignableFrom(jType);
+                    return this.classLoader.loadClass(BXML.class.getCanonicalName()).isAssignableFrom(jType);
                 case TypeTags.TUPLE_TAG:
                 case TypeTags.ARRAY_TAG:
                     if (jMethodRequest.restParamExist) {
@@ -317,7 +317,8 @@ class JMethodResolver {
                     }
                     return true;
                 case TypeTags.FUNCTION_POINTER_TAG:
-                    return this.classLoader.loadClass(BFunctionPointer.class.getCanonicalName()).isAssignableFrom(jType);
+                    return this.classLoader.loadClass(BFunctionPointer.class.getCanonicalName())
+                            .isAssignableFrom(jType);
                 case TypeTags.FUTURE_TAG:
                     return this.classLoader.loadClass(BFuture.class.getCanonicalName()).isAssignableFrom(jType);
                 case TypeTags.TYPEDESC_TAG:
@@ -414,7 +415,7 @@ class JMethodResolver {
                 case TypeTags.TABLE_TAG:
                     return this.classLoader.loadClass(BTable.class.getCanonicalName()).isAssignableFrom(jType);
                 case TypeTags.XML_TAG:
-                    return this.classLoader.loadClass(BXml.class.getCanonicalName()).isAssignableFrom(jType);
+                    return this.classLoader.loadClass(BXML.class.getCanonicalName()).isAssignableFrom(jType);
                 case TypeTags.TUPLE_TAG:
                 case TypeTags.ARRAY_TAG:
                     if (jMethodRequest.restParamExist) {
@@ -448,7 +449,8 @@ class JMethodResolver {
                     }
                     return false;
                 case TypeTags.FUNCTION_POINTER_TAG:
-                    return this.classLoader.loadClass(BFunctionPointer.class.getCanonicalName()).isAssignableFrom(jType);
+                    return this.classLoader.loadClass(BFunctionPointer.class.getCanonicalName())
+                            .isAssignableFrom(jType);
                 case TypeTags.FUTURE_TAG:
                     return this.classLoader.loadClass(BFuture.class.getCanonicalName()).isAssignableFrom(jType);
                 case TypeTags.TYPEDESC_TAG:

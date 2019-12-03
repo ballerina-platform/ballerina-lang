@@ -17,7 +17,6 @@
  */
 package org.ballerinalang.jvm.values;
 
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.values.api.BIterator;
@@ -44,7 +43,7 @@ public interface IteratorValue extends RefValue, BIterator {
     }
 
     @Override
-    default String stringValue(Strand strand) {
+    default String stringValue() {
         return "iterator " + getType().toString();
     }
 

@@ -65,7 +65,7 @@ public class StreamValue implements RefValue, BStream {
     /**
      * {@inheritDoc}
      */
-    public String stringValue(Strand strand) {
+    public String stringValue() {
         return "stream " + streamId + " " + getType().toString();
     }
 

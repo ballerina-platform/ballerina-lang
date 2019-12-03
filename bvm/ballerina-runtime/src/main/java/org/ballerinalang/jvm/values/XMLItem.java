@@ -33,12 +33,11 @@ import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.XMLFactory;
 import org.ballerinalang.jvm.XMLNodeType;
 import org.ballerinalang.jvm.XMLValidator;
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BMapType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.values.api.BMap;
-import org.ballerinalang.jvm.values.api.BXml;
+import org.ballerinalang.jvm.values.api.BXML;
 import org.ballerinalang.jvm.values.freeze.FreezeUtils;
 import org.ballerinalang.jvm.values.freeze.State;
 import org.ballerinalang.jvm.values.freeze.Status;
@@ -452,7 +451,7 @@ public final class XMLItem extends XMLValue<OMNode> {
         }
     }
 
-    public void setChildren(BXml<?> seq) {
+    public void setChildren(BXML<?> seq) {
         setChildren((XMLValue<?>) seq);
     }
 
@@ -492,7 +491,7 @@ public final class XMLItem extends XMLValue<OMNode> {
         }
     }
 
-    public void addChildren(BXml<?> seq) {
+    public void addChildren(BXML<?> seq) {
         addChildren((XMLValue) seq);
     }
 
@@ -593,7 +592,7 @@ public final class XMLItem extends XMLValue<OMNode> {
      * {@inheritDoc}
      */
     @Override
-    public String stringValue(Strand strand) {
+    public String stringValue() {
         try {
             switch (this.omNode.getType()) {
                 case OMNode.TEXT_NODE:
@@ -1088,11 +1087,6 @@ public final class XMLItem extends XMLValue<OMNode> {
                 copy.freezeDirect();
             }
             return copy;
-        }
-
-        @Override
-        public String stringValue(Strand strand) {
-            return stringValue();
         }
 
         @Override

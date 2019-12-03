@@ -49,7 +49,7 @@ public class PrintAny {
         for (int i = 0; i < values.size(); i++) {
             value = values.get(i);
             if (value != null) {
-                out.print(StringUtils.getStringValue(strand, value));
+                out.print(StringUtils.getStringValue(value));
             }
         }
     }

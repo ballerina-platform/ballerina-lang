@@ -11,35 +11,24 @@
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
+ * KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations
  * under the License.
  */
 package org.ballerinalang.jvm.values.api;
 
+import org.ballerinalang.jvm.types.BType;
+
 /**
  * <p>
- * Represents an iterator of a Ballerina {@code {@link BCollection}}.
+ * Represents all the ballerina values.
  * </p>
  * 
- * @param <T> The type of elements returned by this iterator
  * @since 1.1.0
  */
-public interface BIterator<T> extends BRefValue {
+public interface BValue {
 
-    /**
-     * Returns {@code true} if the iteration has more elements.
-     * (In other words, returns {@code true} if {@link #next} would
-     * return an element rather than throwing an exception.)
-     *
-     * @return {@code true} if the iteration has more elements
-     */
-    boolean hasNext();
+    String stringValue();
 
-    /**
-     * Returns the next element in the iteration.
-     *
-     * @return the next element in the iteration
-     */
-    T next();
+    BType getType();
 }

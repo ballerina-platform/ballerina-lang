@@ -21,13 +21,12 @@ import org.apache.axiom.om.OMNode;
 import org.apache.axiom.om.OMText;
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.XMLNodeType;
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.util.BLangConstants;
 import org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons;
 import org.ballerinalang.jvm.values.api.BMap;
-import org.ballerinalang.jvm.values.api.BXml;
+import org.ballerinalang.jvm.values.api.BXML;
 import org.ballerinalang.jvm.values.freeze.FreezeUtils;
 import org.ballerinalang.jvm.values.freeze.State;
 import org.ballerinalang.jvm.values.freeze.Status;
@@ -298,7 +297,7 @@ public final class XMLSequence extends XMLValue<ArrayValue> {
      * {@inheritDoc}
      */
     @Override
-    public void setChildren(BXml<?> seq) {
+    public void setChildren(BXML<?> seq) {
         setChildren((XMLValue) seq);
     }
 
@@ -324,7 +323,7 @@ public final class XMLSequence extends XMLValue<ArrayValue> {
      * {@inheritDoc}
      */
     @Override
-    public void addChildren(BXml<?> seq) {
+    public void addChildren(BXML<?> seq) {
         addChildren((XMLValue) seq);
     }
 
@@ -443,11 +442,11 @@ public final class XMLSequence extends XMLValue<ArrayValue> {
      * {@inheritDoc}
      */
     @Override
-    public String stringValue(Strand strand) {
+    public String stringValue() {
         try {
             StringBuilder sb = new StringBuilder();
             for (int i = 0; i < sequence.size(); i++) {
-                sb.append(((RefValue) sequence.getRefValue(i)).stringValue(strand));
+                sb.append(((RefValue) sequence.getRefValue(i)).stringValue());
             }
             return sb.toString();
         } catch (Throwable t) {

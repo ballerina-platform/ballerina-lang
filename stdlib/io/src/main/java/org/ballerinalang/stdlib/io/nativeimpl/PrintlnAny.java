@@ -50,7 +50,7 @@ public class PrintlnAny {
         for (int i = 0; i < values.size(); i++) {
             value = values.get(i);
             if (value != null) {
-                content.append(StringUtils.getStringValue(strand, value));
+                content.append(StringUtils.getStringValue(value));
             }
         }
         out.println(content);
