@@ -32,7 +32,7 @@ We appreciate your help!
 
 If you are unsure whether you have found a bug, please consider searching existing issues in github and asking in Ballerina-Dev Google Group.
 
-> IMPORTANT: Sensitive security-related issues should be reported to [security@ballerina.io](security@ballerina.io).
+> IMPORTANT: Sensitive security-related issues should be reported to [security@ballerina.io](security@ballerina.io). For details, see the [security policy](https://ballerina.io/security/)].
 
 To file non-security issues:
 
