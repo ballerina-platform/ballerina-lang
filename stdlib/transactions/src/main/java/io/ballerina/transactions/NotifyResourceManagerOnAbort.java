@@ -18,27 +18,25 @@
  */
 package io.ballerina.transactions;
 
+import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
  * Checks whether transactions is a nested transaction.
  *
  * @since 1.0
  */
-@BallerinaFunction(
-        orgName = "ballerina",
-        packageName = "transactions",
-        functionName = "notifyResourceManagerOnAbort",
-        args = {@Argument(name = "transactionBlockId", type = TypeKind.STRING)},
-        returnType =  {@ReturnType(type = TypeKind.VOID)}
-)
+//@BallerinaFunction(
+//        orgName = "ballerina",
+//        packageName = "transactions",
+//        functionName = "notifyResourceManagerOnAbort",
+//        args = {@Argument(name = "transactionBlockId", type = TypeKind.STRING)},
+//        returnType =  {@ReturnType(type = TypeKind.VOID)}
+//)
 public class NotifyResourceManagerOnAbort {
 
-    public static void notifyResourceManagerOnAbort(Strand strand, String transactionBlockId) {
+    public static void notifyResourceManagerOnAbort(String transactionBlockId) {
+        Strand strand = Scheduler.getStrand();
         org.ballerinalang.jvm.transactions.TransactionLocalContext transactionLocalContext =
                 strand.transactionLocalContext;
         org.ballerinalang.jvm.transactions.TransactionResourceManager.getInstance()

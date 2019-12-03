@@ -15,6 +15,7 @@
 // under the License.
 
 import ballerina/log;
+import ballerinax/java;
 
 # Handles the transaction initiator block.
 # Transaction initiator block will be desugared to following method.
@@ -315,38 +316,75 @@ function transactionParticipantWrapper(function () returns any|error trxFunc) re
 # + transactionId - Globally unique transaction ID.
 # + transactionBlockId - ID of the transaction block. Each transaction block in a process has a unique ID.
 # + return - true or false representing whether the resource manager preparation is successful or not.
-function prepareResourceManagers(string transactionId, string transactionBlockId) returns boolean = external;
+function prepareResourceManagers(string transactionId, string transactionBlockId) returns boolean {
+    return externPrepareResourceManagers(java:fromString(transactionId), java:fromString(transactionBlockId));
+}
+
+function externPrepareResourceManagers(handle transactionId, handle transactionBlockId) returns boolean =
+@java:Method {
+    class: "io.ballerina.transactions.Utils",
+    name: "prepareResourceManagers"
+} external;
 
 # Commit local resource managers.
 #
 # + transactionId - Globally unique transaction ID.
 # + transactionBlockId - ID of the transaction block. Each transaction block in a process has a unique ID.
 # + return - true or false representing whether the commit is successful or not.
-function commitResourceManagers(string transactionId, string transactionBlockId) returns boolean = external;
+function commitResourceManagers(string transactionId, string transactionBlockId) returns boolean {
+    return externCommitResourceManagers(java:fromString(transactionId), java:fromString(transactionBlockId));
+}
+
+function externCommitResourceManagers(handle transactionId, handle transactionBlockId) returns boolean =
+@java:Method {
+    class: "io.ballerina.transactions.Utils",
+    name: "commitResourceManagers"
+} external;
 
 # Abort local resource managers.
 #
 # + transactionId - Globally unique transaction ID.
 # + transactionBlockId - ID of the transaction block. Each transaction block in a process has a unique ID.
 # + return - true or false representing whether the resource manager abortion is successful or not.
-function abortResourceManagers(string transactionId, string transactionBlockId) returns boolean = external;
+function abortResourceManagers(string transactionId, string transactionBlockId) returns boolean {
+    return externAbortResourceManagers(java:fromString(transactionId), java:fromString(transactionBlockId));
+}
+
+function externAbortResourceManagers(handle transactionId, handle transactionBlockId) returns boolean =
+@java:Method {
+    class: "io.ballerina.transactions.Utils",
+    name: "abortResourceManagers"
+} external;
 
 # Get the current transaction id. This function is useful for user code to save state against a transaction ID,
 # so that when the `oncommit` or `onabort` functions registered for a transaction can retrieve that state using the
 # transaction  that is passed in to those functions.
 #
 # + return - A string representing the ID of the current transaction.
-public function getCurrentTransactionId() returns string = external;
+public function getCurrentTransactionId() returns string {
+    return <string>java:toString(externGetCurrentTransactionId());
+}
+
+function externGetCurrentTransactionId() returns handle = @java:Method {
+    class: "io.ballerina.transactions.Utils",
+    name: "getCurrentTransactionId"
+} external;
 
 # Checks whether the transaction is nested.
 #
 # + return - true or false representing whether the transaction is nested.
-function isNestedTransaction() returns boolean = external;
+function isNestedTransaction() returns boolean = @java:Method {
+    class: "io.ballerina.transactions.Utils",
+    name: "isNestedTransaction"
+} external;
 
 # Set the transactionContext.
 #
 # + transactionContext - Transaction context.
-function setTransactionContext(TransactionContext transactionContext) = external;
+function setTransactionContext(TransactionContext transactionContext) = @java:Method {
+    class: "io.ballerina.transactions.Utils",
+    name: "setTransactionContext"
+} external;
  
 # Register local participant. Functions with participant annotations will be desugered to below functions.
 #
@@ -355,7 +393,15 @@ function setTransactionContext(TransactionContext transactionContext) = external
 # + abortedFunc -  Function pointer for abort function for participant.
 # + return - Transaction context.
 function registerLocalParticipant(string transactionBlockId, function (string trxId) committedFunc,
-                                        function (string trxId) abortedFunc) returns  TransactionContext? = external;
+                                        function (string trxId) abortedFunc) returns  TransactionContext? {
+     return externRegisterLocalParticipant(java:fromString(transactionBlockId), committedFunc, abortedFunc);
+}
+
+function externRegisterLocalParticipant(handle transactionBlockId, function (string trxId) committedFunc,
+                    function (string trxId) abortedFunc) returns TransactionContext? = @java:Method {
+    class: "io.ballerina.transactions.Utils",
+    name: "registerLocalParticipant"
+} external;
 
 # Register remote participant. Functions with participant annotations will be desugered to below functions.
 #
@@ -364,30 +410,68 @@ function registerLocalParticipant(string transactionBlockId, function (string tr
 # + abortedFunc -  Function pointer for abort function for participant.
 # + return - Transaction context.
 function registerRemoteParticipant(string transactionBlockId, function (string trxId) committedFunc,
-                                        function (string trxId) abortedFunc) returns  TransactionContext? = external;
+                                        function (string trxId) abortedFunc) returns  TransactionContext? {
+    return externRegisterRemoteParticipant(java:fromString(transactionBlockId), committedFunc, abortedFunc);
+}
+
+function externRegisterRemoteParticipant(handle transactionBlockId, function (string trxId) committedFunc,
+                    function (string trxId) abortedFunc) returns TransactionContext? = @java:Method {
+    class: "io.ballerina.transactions.Utils",
+    name: "registerRemoteParticipant"
+} external;
 
 # Notify the transaction resource manager on local participant failture.
-function notifyLocalParticipantOnFailure() = external;
+function notifyLocalParticipantOnFailure() = @java:Method {
+    class: "io.ballerina.transactions.Utils",
+    name: "notifyLocalParticipantOnFailure"
+} external;
 
 # Notify the transaction resource manager on remote participant failture.
-function notifyRemoteParticipantOnFailure() = external;
+function notifyRemoteParticipantOnFailure() = @java:Method {
+    class: "io.ballerina.transactions.Utils",
+    name: "notifyRemoteParticipantOnFailure"
+} external;
 
 # Notify the transaction resource manager on abort.
 #
 # + transactionBlockId - ID of the transaction block.
-function notifyResourceManagerOnAbort(string transactionBlockId) = external;
+function notifyResourceManagerOnAbort(string transactionBlockId) {
+    externNotifyResourceManagerOnAbort(java:fromString(transactionBlockId));
+}
+
+function externNotifyResourceManagerOnAbort(handle transactionBlockId) = @java:Method {
+    class: "io.ballerina.transactions.Utils",
+    name: "notifyResourceManagerOnAbort"
+} external;
 
 # Rollback the transaction.
 #
 # + transactionBlockId - ID of the transaction block.
-function rollbackTransaction(string transactionBlockId) = external;
+function rollbackTransaction(string transactionBlockId) {
+    externRollbackTransaction(java:fromString(transactionBlockId));
+}
+
+function externRollbackTransaction(handle transactionBlockId) = @java:Method {
+    class: "io.ballerina.transactions.Utils",
+    name: "rollbackTransaction"
+} external;
 
 # Cleanup the transaction context.
 #
 # + transactionBlockId - ID of the transaction block.
-function cleanupTransactionContext(string transactionBlockId) = external;
+function cleanupTransactionContext(string transactionBlockId) {
+    externCleanupTransactionContext(java:fromString(transactionBlockId));
+}
+
+function externCleanupTransactionContext(handle transactionBlockId) = @java:Method {
+    class: "io.ballerina.transactions.Utils",
+    name: "cleanupTransactionContext"
+} external;
 
 # Get and Cleanup the failure.
 #
 # + return - is failed.
-function getAndClearFailure() returns boolean = external;
+function getAndClearFailure() returns boolean = @java:Method {
+    class: "io.ballerina.transactions.Utils",
+    name: "getAndClearFailure"
+} external;
