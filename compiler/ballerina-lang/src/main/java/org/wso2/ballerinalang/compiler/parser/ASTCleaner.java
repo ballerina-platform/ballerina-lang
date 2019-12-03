@@ -790,12 +790,11 @@ class ASTCleaner extends BLangNodeVisitor {
     @Override
     public void visit(BLangLiteral literalExpr) {
 
-        // literalExpr is not handled properly in the type checker. Hence, need to preserver original type.
-        BType originalType = literalExpr.type;
         literalExpr.isJSONContext = false;
         literalExpr.isFiniteContext = false;
         resetBLangExpression(literalExpr);
-        literalExpr.type = originalType;
+        // literalExpr is not handled properly in the type checker. Hence, need to preserver original type.
+        literalExpr.type = literalExpr.literalType;
     }
 
     @Override

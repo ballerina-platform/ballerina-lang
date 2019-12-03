@@ -1411,7 +1411,7 @@ public class BLangPackageBuilder {
         }
         litExpr.addWS(ws);
         litExpr.pos = pos;
-        litExpr.type = symTable.getTypeFromTag(typeTag);
+        litExpr.type = litExpr.literalType = symTable.getTypeFromTag(typeTag);
         litExpr.type.tag = typeTag;
         litExpr.value = value;
         litExpr.originalValue = originalValue;
@@ -2023,7 +2023,7 @@ public class BLangPackageBuilder {
                     (BLangLiteral) TreeBuilder.createLiteralExpression() :
                     (BLangLiteral) TreeBuilder.createNumericLiteralExpression();
             literal.setValue(((BLangLiteral) constantNode.expr).value);
-            literal.type = constantNode.expr.type;
+            literal.type = literal.literalType = constantNode.expr.type;
             literal.isConstant = true;
 
             // Create a new finite type node.
@@ -2644,7 +2644,7 @@ public class BLangPackageBuilder {
             BLangLiteral nilLiteral = (BLangLiteral) TreeBuilder.createLiteralExpression();
             nilLiteral.pos = pos;
             nilLiteral.value = Names.NIL_VALUE;
-            nilLiteral.type = symTable.nilType;
+            nilLiteral.type = nilLiteral.literalType = symTable.nilType;
             retStmt.expr = nilLiteral;
         }
         addStmtToCurrentBlock(retStmt);
