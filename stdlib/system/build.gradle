@@ -43,6 +43,8 @@ dependencies {
 
     interopImports project(':ballerina-io')
 
+    interopImports project(':ballerina-io')
+
     testCompile project(':ballerina-test-utils')
     testCompile project(':ballerina-reflect')
     testCompile project(':ballerina-core')

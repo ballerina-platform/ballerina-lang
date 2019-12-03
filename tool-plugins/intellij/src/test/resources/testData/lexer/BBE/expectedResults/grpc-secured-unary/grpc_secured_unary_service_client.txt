@@ -1,4 +1,4 @@
-LINE_COMMENT ('// This is the server implementation for the secured connection (HTTPS) scenario.')
+LINE_COMMENT ('// This is the client implementation for the secured connection (HTTPS) scenario.')
 WHITE_SPACE ('\n')
 import ('import')
 WHITE_SPACE (' ')
