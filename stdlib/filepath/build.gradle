@@ -31,6 +31,8 @@ dependencies {
     implementation project(':ballerina-io')
     implementation project(':ballerina-runtime')
 
+    interopImports project(':ballerina-io')
+
     testCompile 'org.testng:testng:6.13.1'
     testCompile project(':ballerina-runtime-api')
     testCompile project(':ballerina-system')

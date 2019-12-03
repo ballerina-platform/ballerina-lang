@@ -14,6 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerinax/java;
+
 # WritableByteChannel represents an output resource (i.e file). which could be used to sink bytes.
 public type WritableByteChannel object {
 
@@ -25,10 +27,24 @@ public type WritableByteChannel object {
     # + offset - Start offset
     # + return - Offset which should be kept when writing bytes.
     #            Number of bytes written or `Error` if any error occurred
-    public function write(byte[] content, int offset) returns int|Error = external;
+    public function write(byte[] content, int offset) returns int|Error {
+        return byteWriteExtern(self, content, offset);
+    }
 
     # Closes a given byte channel.
     #
     # + return - Will return () if there's no error
-    public function close() returns Error? = external;
+    public function close() returns Error? {
+        return closeWritableByteChannelExtern(self);
+    }
 };
+
+function byteWriteExtern(WritableByteChannel byteChannel, byte[] content, int offset) returns int|Error = @java:Method {
+    name: "write",
+    class: "org.ballerinalang.stdlib.io.nativeimpl.ByteChannelUtils"
+} external;
+
+function closeWritableByteChannelExtern(WritableByteChannel byteChannel) returns Error? = @java:Method {
+    name: "closeByteChannel",
+    class: "org.ballerinalang.stdlib.io.nativeimpl.ByteChannelUtils"
+} external;

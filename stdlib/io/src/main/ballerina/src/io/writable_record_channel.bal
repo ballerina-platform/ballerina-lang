@@ -14,6 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerinax/java;
+
 # Represents a channel which will allow to write records through a given WritableCharacterChannel.
 public type WritableTextRecordChannel object {
     private WritableCharacterChannel characterChannel;
@@ -27,26 +29,41 @@ public type WritableTextRecordChannel object {
     # + fs - Field separator (this could be a regex)
     public function __init(WritableCharacterChannel characterChannel, public string fs = "", public string rs = "",
                            public string fmt = "default") {
-        self.init(characterChannel, fs, rs, fmt);
+        initWritableTextRecordChannel(self, characterChannel, java:fromString(fs), java:fromString(rs), java:fromString(fmt));
     }
-
-    # Initializes delimited record channel.
-
-    # + cChannel - Character channel which will be used for reading/writing records
-    # + fieldSeparator - Field separator which will separate between fields
-    # + recordSeparator - Record separator which will separate between records
-    # + fmt - Format which will be used to represent the type of record i.e csv
-    function init(WritableCharacterChannel cChannel, string fieldSeparator,
-                  string recordSeparator, string fmt) = external;
 
     # Writes records to a given output resource.
 
     # + textRecord - List of fields to be written
     # + return - An `Error` if the records could not be written properly
-    public function write(string[] textRecord) returns Error? = external;
+    public function write(string[] textRecord) returns Error? {
+        handle[] records = [];
+            foreach string v in textRecord {
+                records.push(java:fromString(v));
+            }
+        return writeRecordExtern(self, records);
+    }
 
     # Closes a given record channel.
 
     # + return - An `Error` if the record channel could not be closed properly
-    public function close() returns Error? = external;
+    public function close() returns Error? {
+        return closeWritableTextRecordChannelExtern(self);
+    }
 };
+
+function initWritableTextRecordChannel(WritableTextRecordChannel textChannel, WritableCharacterChannel charChannel,
+            handle fs, handle rs, handle fmt) = @java:Method {
+    name: "initRecordChannel",
+    class: "org.ballerinalang.stdlib.io.nativeimpl.RecordChannelUtils"
+} external;
+
+function writeRecordExtern(WritableTextRecordChannel textChannel, handle[] textRecord) returns Error? = @java:Method {
+    name: "write",
+    class: "org.ballerinalang.stdlib.io.nativeimpl.RecordChannelUtils"
+} external;
+
+function closeWritableTextRecordChannelExtern(WritableTextRecordChannel textChannel) returns Error? = @java:Method {
+    name: "close",
+    class: "org.ballerinalang.stdlib.io.nativeimpl.RecordChannelUtils"
+} external;

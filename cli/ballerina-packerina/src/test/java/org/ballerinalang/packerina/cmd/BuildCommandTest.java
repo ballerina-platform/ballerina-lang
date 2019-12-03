@@ -275,7 +275,18 @@ public class BuildCommandTest extends CommandTest {
                                       "USAGE:\n" +
                                       "    ballerina build {<ballerina-file> | <module-name> | -a | --all}\n");
     }
-    
+
+    @Test(description = "Build all modules with passing arguments")
+    public void testBuildAllWithArg() throws IOException {
+        // valid source root path
+        Path validBalFilePath = this.testResources.resolve("valid-project");
+        BuildCommand buildCommand = new BuildCommand(validBalFilePath, printStream, printStream, false, true);
+        new CommandLine(buildCommand).parse("-a", "hello2");
+        buildCommand.execute();
+        String buildLog = readOutput(true);
+        Assert.assertTrue(buildLog.contains("too many arguments.\n"));
+    }
+
     @Test(description = "Build bal file with no entry")
     public void testBuildBalFileWithNoEntry() throws IOException {
         // valid source root path
@@ -497,6 +508,15 @@ public class BuildCommandTest extends CommandTest {
                 .resolve(ProjectDirConstants.BIN_DIR_NAME);
         Assert.assertTrue(Files.exists(bin));
         Assert.assertTrue(Files.exists(bin.resolve("mymodule" + BLANG_COMPILED_JAR_EXT)));
+    }
+    
+    @Test(dependsOnMethods = {"testBuildOutput"})
+    public void testCleanCommand() {
+        CleanCommand cleanCommand = new CleanCommand(Paths.get(System.getProperty("user.dir")), false);
+        new CommandLine(cleanCommand).parse("--sourceroot", this.testResources.resolve("valid-project").toString());
+        cleanCommand.execute();
+        Path target = this.testResources.resolve("valid-project").resolve(ProjectDirConstants.TARGET_DIR_NAME);
+        Assert.assertFalse(Files.exists(target), "Check if target directory is deleted");
     }
 
     @Test(dependsOnMethods = {"testBuildCommand"})

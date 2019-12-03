@@ -19,7 +19,13 @@ packageName
     ;
 
 version
-    :   VERSION Identifier
+    :   VERSION versionPattern
+    ;
+
+versionPattern
+    :   DecimalIntegerLiteral
+    |   DecimalFloatingPointNumber
+    |   DecimalExtendedFloatingPointNumber
     ;
 
 importDeclaration
@@ -628,13 +634,14 @@ waitKeyValue
 
 variableReference
     :   nameReference                                                           # simpleVariableReference
-    |   functionInvocation                                                      # functionInvocationReference
-    |   variableReference index                                                 # mapArrayVariableReference
     |   variableReference field                                                 # fieldVariableReference
+    |   variableReference ANNOTATION_ACCESS nameReference                       # annotAccessExpression
     |   variableReference xmlAttrib                                             # xmlAttribVariableReference
-    |   variableReference invocation                                            # invocationReference
+    |   functionInvocation                                                      # functionInvocationReference
     |   typeDescExpr invocation                                                 # typeDescExprInvocationReference
     |   QuotedStringLiteral invocation                                          # stringFunctionInvocationReference
+    |   variableReference invocation                                            # invocationReference
+    |   variableReference index                                                 # mapArrayVariableReference
     ;
 
 field
@@ -744,36 +751,35 @@ expression
     |   stringTemplateLiteral                                               # stringTemplateLiteralExpression
     |   (annotationAttachment* START)? variableReference                    # variableReferenceExpression
     |   actionInvocation                                                    # actionInvocationExpression
-    |   lambdaFunction                                                      # lambdaFunctionExpression
-    |   arrowFunction                                                       # arrowFunctionExpression
     |   typeInitExpr                                                        # typeInitExpression
     |   serviceConstructorExpr                                              # serviceConstructorExpression
     |   tableQuery                                                          # tableQueryExpression
-    |   LT (annotationAttachment+ typeName? | typeName) GT expression       # typeConversionExpression
-    |   (ADD | SUB | BIT_COMPLEMENT | NOT | TYPEOF) expression              # unaryExpression
-    |   LEFT_PARENTHESIS expression RIGHT_PARENTHESIS                       # groupExpression
     |   CHECK expression                                                    # checkedExpression
     |   CHECKPANIC expression                                               # checkPanickedExpression
-    |   expression IS typeName                                              # typeTestExpression
-    |   expression (DIV | MUL | MOD) expression                             # binaryDivMulModExpression
+    |   (ADD | SUB | BIT_COMPLEMENT | NOT | TYPEOF) expression              # unaryExpression
+    |   LT (annotationAttachment+ typeName? | typeName) GT expression       # typeConversionExpression
+    |   expression (MUL | DIV | MOD) expression                             # binaryDivMulModExpression
     |   expression (ADD | SUB) expression                                   # binaryAddSubExpression
     |   expression (shiftExpression) expression                             # bitwiseShiftExpression
-    |   expression (LT_EQUAL | GT_EQUAL | GT | LT) expression               # binaryCompareExpression
+    |   expression (ELLIPSIS | HALF_OPEN_RANGE) expression                  # integerRangeExpression
+    |   expression (LT | GT | LT_EQUAL | GT_EQUAL) expression               # binaryCompareExpression
+    |   expression IS typeName                                              # typeTestExpression
     |   expression (EQUAL | NOT_EQUAL) expression                           # binaryEqualExpression
     |   expression (REF_EQUAL | REF_NOT_EQUAL) expression                   # binaryRefEqualExpression
     |   expression (BIT_AND | BIT_XOR | PIPE) expression                    # bitwiseExpression
     |   expression AND expression                                           # binaryAndExpression
     |   expression OR expression                                            # binaryOrExpression
-    |   expression (ELLIPSIS | HALF_OPEN_RANGE) expression                  # integerRangeExpression
+    |   expression ELVIS expression                                         # elvisExpression
     |   expression QUESTION_MARK expression COLON expression                # ternaryExpression
+    |   lambdaFunction                                                      # lambdaFunctionExpression
+    |   arrowFunction                                                       # arrowFunctionExpression
+    |   LEFT_PARENTHESIS expression RIGHT_PARENTHESIS                       # groupExpression
     |   expression SYNCRARROW peerWorker                                    # workerSendSyncExpression
     |   WAIT (waitForCollection | expression)                               # waitExpression
     |   trapExpr                                                            # trapExpression
-    |   expression ELVIS expression                                         # elvisExpression
     |   LARROW peerWorker (COMMA expression)?                               # workerReceiveExpression
     |   flushWorker                                                         # flushWorkerExpression
     |   typeDescExpr                                                        # typeAccessExpression
-    |   expression ANNOTATION_ACCESS nameReference                          # annotAccessExpression
     ;
 
 constantExpression
@@ -802,8 +808,8 @@ trapExpr
     ;
 
 shiftExpression
-    :   GT shiftExprPredicate GT
-    |   LT shiftExprPredicate LT
+    :   LT shiftExprPredicate LT
+    |   GT shiftExprPredicate GT
     |   GT shiftExprPredicate GT shiftExprPredicate GT
     ;
 
