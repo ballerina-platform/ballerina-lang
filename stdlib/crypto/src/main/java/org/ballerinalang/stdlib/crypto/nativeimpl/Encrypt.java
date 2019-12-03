@@ -28,11 +28,41 @@ import java.security.PrivateKey;
 import java.security.PublicKey;
 
 /**
- * Extern function ballerina.crypto:encryptRsaEcb.
+ * Extern functions ballerina encrypt algorithms.
  *
  * @since 0.990.4
  */
-public class EncryptRsaEcb {
+public class Encrypt {
+
+    public static Object encryptAesCbc(ArrayValue inputValue, ArrayValue keyValue, ArrayValue ivValue, Object padding) {
+        byte[] input = inputValue.getBytes();
+        byte[] key = keyValue.getBytes();
+        byte[] iv = null;
+        if (ivValue != null) {
+            iv = ivValue.getBytes();
+        }
+        return CryptoUtils.aesEncryptDecrypt(CryptoUtils.CipherMode.ENCRYPT, Constants.CBC, padding.toString(), key,
+                input, iv, -1);
+    }
+
+    public static Object encryptAesEcb(ArrayValue inputValue, ArrayValue keyValue,  Object padding) {
+        byte[] input = inputValue.getBytes();
+        byte[] key = keyValue.getBytes();
+        return CryptoUtils.aesEncryptDecrypt(CryptoUtils.CipherMode.ENCRYPT, Constants.ECB, padding.toString(), key,
+                input, null, -1);
+    }
+
+    public static Object encryptAesGcm(ArrayValue inputValue, ArrayValue keyValue,
+                                       ArrayValue ivValue, Object padding, long tagSize) {
+        byte[] input = inputValue.getBytes();
+        byte[] key = keyValue.getBytes();
+        byte[] iv = null;
+        if (ivValue != null) {
+            iv = ivValue.getBytes();
+        }
+        return CryptoUtils.aesEncryptDecrypt(CryptoUtils.CipherMode.ENCRYPT, Constants.GCM, padding.toString(), key,
+                input, iv, tagSize);
+    }
 
     public static Object encryptRsaEcb(ArrayValue inputValue, Object keyUnion, Object padding) {
         byte[] input = inputValue.getBytes();
@@ -48,6 +78,6 @@ public class EncryptRsaEcb {
             return CryptoUtils.createError("Uninitialized private/public key");
         }
         return CryptoUtils.rsaEncryptDecrypt(CryptoUtils.CipherMode.ENCRYPT, Constants.ECB, padding.toString(), key,
-                                             input, null, -1);
+                input, null, -1);
     }
 }

@@ -23,13 +23,29 @@ import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.stdlib.crypto.CryptoUtils;
 
 /**
- * Extern function ballerina.crypto:hmacSha384.
+ * Extern functions ballerina hmac algorithms.
  *
  * @since 0.990.3
  */
-public class HmacSha384 {
+public class Hmac {
+
+    public static ArrayValue hmacMd5(ArrayValue inputValue, ArrayValue keyValue) {
+        return new ArrayValueImpl(CryptoUtils.hmac("HmacMD5", keyValue.getBytes(), inputValue.getBytes()));
+    }
+
+    public static ArrayValue hmacSha1(ArrayValue inputValue, ArrayValue keyValue) {
+        return new ArrayValueImpl(CryptoUtils.hmac("HmacSHA1", keyValue.getBytes(), inputValue.getBytes()));
+    }
+
+    public static ArrayValue hmacSha256(ArrayValue inputValue, ArrayValue keyValue) {
+        return new ArrayValueImpl(CryptoUtils.hmac("HmacSHA256", keyValue.getBytes(), inputValue.getBytes()));
+    }
 
     public static ArrayValue hmacSha384(ArrayValue inputValue, ArrayValue keyValue) {
         return new ArrayValueImpl(CryptoUtils.hmac("HmacSHA384", keyValue.getBytes(), inputValue.getBytes()));
+    }
+
+    public static ArrayValue hmacSha512(ArrayValue inputValue, ArrayValue keyValue) {
+        return new ArrayValueImpl(CryptoUtils.hmac("HmacSHA512", keyValue.getBytes(), inputValue.getBytes()));
     }
 }
