@@ -72,7 +72,7 @@ public class ClientSocketTest {
         }
         String resourceRoot = Paths.get("src", "test", "resources").toAbsolutePath().toString();
         Path testResourceRoot = Paths.get(resourceRoot, "test-src");
-        socketClient = BCompileUtil.compile(testResourceRoot.resolve("client_socket.bal").toString());
+        socketClient = BCompileUtil.compileOffline(testResourceRoot.resolve("client_socket.bal").toString());
     }
 
     @AfterClass
