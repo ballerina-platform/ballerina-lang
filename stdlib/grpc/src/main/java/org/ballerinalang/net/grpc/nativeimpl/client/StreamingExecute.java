@@ -18,6 +18,7 @@
 package org.ballerinalang.net.grpc.nativeimpl.client;
 
 import io.netty.handler.codec.http.HttpHeaders;
+import org.ballerinalang.jvm.BRuntime;
 import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.scheduling.Scheduler;
@@ -89,7 +90,7 @@ public class StreamingExecute extends AbstractExecute {
 
             try {
                 MethodDescriptor.MethodType methodType = getMethodType(methodDescriptor);
-                DefaultStreamObserver responseObserver = new DefaultStreamObserver(Scheduler.getStrand().scheduler,
+                DefaultStreamObserver responseObserver = new DefaultStreamObserver(BRuntime.getCurrentRuntime(),
                         callbackService);
                 StreamObserver requestSender;
                 DataContext context = new DataContext(Scheduler.getStrand(), null);

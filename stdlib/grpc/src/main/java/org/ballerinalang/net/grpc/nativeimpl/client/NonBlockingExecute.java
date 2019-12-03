@@ -18,6 +18,7 @@
 package org.ballerinalang.net.grpc.nativeimpl.client;
 
 import io.netty.handler.codec.http.HttpHeaders;
+import org.ballerinalang.jvm.BRuntime;
 import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.observability.ObserveUtils;
 import org.ballerinalang.jvm.observability.ObserverContext;
@@ -97,11 +98,11 @@ public class NonBlockingExecute extends AbstractExecute {
                 MethodDescriptor.MethodType methodType = getMethodType(methodDescriptor);
                 DataContext context = new DataContext(Scheduler.getStrand(), null);
                 if (methodType.equals(MethodDescriptor.MethodType.UNARY)) {
-                    nonBlockingStub.executeUnary(requestMsg, new DefaultStreamObserver(Scheduler.getStrand().scheduler,
+                    nonBlockingStub.executeUnary(requestMsg, new DefaultStreamObserver(BRuntime.getCurrentRuntime(),
                                     callbackService), methodDescriptors.get(methodName), context);
                 } else if (methodType.equals(MethodDescriptor.MethodType.SERVER_STREAMING)) {
                     nonBlockingStub.executeServerStreaming(requestMsg,
-                            new DefaultStreamObserver(Scheduler.getStrand().scheduler, callbackService),
+                            new DefaultStreamObserver(BRuntime.getCurrentRuntime(), callbackService),
                             methodDescriptors.get(methodName), context);
                 } else {
                     return notifyErrorReply(INTERNAL, "Error while executing the client call. Method type " +

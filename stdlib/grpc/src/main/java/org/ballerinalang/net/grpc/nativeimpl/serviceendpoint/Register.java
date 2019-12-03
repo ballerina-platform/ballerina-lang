@@ -15,7 +15,7 @@
  */
 package org.ballerinalang.net.grpc.nativeimpl.serviceendpoint;
 
-import org.ballerinalang.jvm.scheduling.Scheduler;
+import org.ballerinalang.jvm.BRuntime;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -58,7 +58,7 @@ public class Register extends AbstractGrpcNativeFunction {
                                 "initializing service register builder.")));
             } else {
                 servicesRegistryBuilder.addService(ServicesBuilderUtils.getServiceDefinition(
-                        Scheduler.getStrand().scheduler, service,
+                        BRuntime.getCurrentRuntime(), service,
                         service.getType().getAnnotation("ballerina/grpc:ServiceDescriptor")));
                 return null;
             }
