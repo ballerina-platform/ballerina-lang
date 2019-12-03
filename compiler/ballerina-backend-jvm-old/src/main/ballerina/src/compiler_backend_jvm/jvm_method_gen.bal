@@ -116,9 +116,11 @@ function genJMethodForBFunc(bir:Function func,
     // set channel details to strand.
     // these channel info is required to notify datachannels, when there is a panic
     // we cannot set this during strand creation, because function call do not have this info.
-    mv.visitVarInsn(ALOAD, localVarOffset);
-    loadChannelDetails(mv, func.workerChannels);
-    mv.visitMethodInsn(INVOKEVIRTUAL, STRAND, "updateChannelDetails", io:sprintf("([L%s;)V", CHANNEL_DETAILS), false);
+    if (func.workerChannels.length() > 0) {
+        mv.visitVarInsn(ALOAD, localVarOffset);
+        loadChannelDetails(mv, func.workerChannels);
+        mv.visitMethodInsn(INVOKEVIRTUAL, STRAND, "updateChannelDetails", io:sprintf("([L%s;)V", CHANNEL_DETAILS), false);
+    }
 
     // panic if this strand is cancelled
     checkStrandCancelled(mv, localVarOffset);
