@@ -1177,6 +1177,14 @@
       }
     },
     {
+      "label": "new",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "220",
+      "insertText": "new ",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "Listener(int port, (http:ListenerConfiguration|()) config)",
       "kind": "Function",
       "detail": "Function",
