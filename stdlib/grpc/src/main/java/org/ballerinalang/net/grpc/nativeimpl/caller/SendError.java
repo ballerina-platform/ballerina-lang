@@ -13,7 +13,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.ballerinalang.net.grpc.nativeimpl.calleraction;
+package org.ballerinalang.net.grpc.nativeimpl.caller;
 
 import io.netty.handler.codec.http.HttpHeaders;
 import org.ballerinalang.jvm.TypeChecker;

@@ -13,15 +13,18 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.ballerinalang.net.grpc.nativeimpl.calleraction;
+package org.ballerinalang.net.grpc.nativeimpl.caller;
 
 import com.google.protobuf.Descriptors;
-import io.netty.handler.codec.http.HttpResponseStatus;
+import io.netty.handler.codec.http.HttpHeaders;
+import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.observability.ObserveUtils;
 import org.ballerinalang.jvm.observability.ObserverContext;
 import org.ballerinalang.jvm.scheduling.Scheduler;
+import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.net.grpc.GrpcConstants;
+import org.ballerinalang.net.grpc.Message;
 import org.ballerinalang.net.grpc.MessageUtils;
 import org.ballerinalang.net.grpc.Status;
 import org.ballerinalang.net.grpc.StreamObserver;
@@ -31,17 +34,19 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Optional;
 
-import static org.ballerinalang.jvm.observability.ObservabilityConstants.TAG_KEY_HTTP_STATUS_CODE;
+import static org.ballerinalang.net.grpc.GrpcConstants.MESSAGE_HEADERS;
+import static org.ballerinalang.net.grpc.GrpcConstants.TAG_KEY_GRPC_MESSAGE_CONTENT;
 
 /**
- * Extern function to inform the caller, server finished sending messages.
+ * Extern function to respond the caller.
  *
- * @since 1.0.0
+ * @since 0.96.1
  */
-public class Complete {
-    private static final Logger LOG = LoggerFactory.getLogger(Complete.class);
+public class Send {
+    private static final Logger LOG = LoggerFactory.getLogger(Send.class);
 
-    public static Object externComplete(ObjectValue endpointClient) {
+    public static Object externSend(ObjectValue endpointClient, Object responseValue,
+                              Object headerValues) {
         StreamObserver responseObserver = MessageUtils.getResponseObserver(endpointClient);
         Descriptors.Descriptor outputType = (Descriptors.Descriptor) endpointClient.getNativeData(GrpcConstants
                 .RESPONSE_MESSAGE_DEFINITION);
@@ -51,16 +56,30 @@ public class Complete {
         if (responseObserver == null) {
             return MessageUtils.getConnectorError(new StatusRuntimeException(Status
                     .fromCode(Status.Code.INTERNAL.toStatus().getCode()).withDescription("Error while initializing " +
-                            "connector. response sender does not exist")));
+                            "connector. Response sender does not exist")));
         } else {
             try {
+                // If there is no response message like conn -> send(), system doesn't send the message.
                 if (!MessageUtils.isEmptyResponse(outputType)) {
-                    responseObserver.onCompleted();
+                    //Message responseMessage = MessageUtils.generateProtoMessage(responseValue, outputType);
+                    Message responseMessage = new Message(outputType.getName(), responseValue);
+                    // Update response headers when request headers exists in the context.
+                    HttpHeaders headers = null;
+                    if (headerValues != null &&
+                            (TypeChecker.getType(headerValues).getTag() == TypeTags.OBJECT_TYPE_TAG)) {
+                        headers = (HttpHeaders) ((ObjectValue) headerValues).getNativeData(MESSAGE_HEADERS);
+                    }
+                    if (headers != null) {
+                        responseMessage.setHeaders(headers);
+                        headers.entries().forEach(
+                                x -> observerContext.ifPresent(ctx -> ctx.addTag(x.getKey(), x.getValue())));
+                    }
+                    responseObserver.onNext(responseMessage);
+                    observerContext.ifPresent(ctx -> ctx.addTag(TAG_KEY_GRPC_MESSAGE_CONTENT,
+                            responseValue.toString()));
                 }
-                observerContext.ifPresent(ctx -> ctx.addTag(TAG_KEY_HTTP_STATUS_CODE,
-                        HttpResponseStatus.OK.codeAsText().toString()));
             } catch (Exception e) {
-                LOG.error("Error while sending complete message to caller.", e);
+                LOG.error("Error while sending client response.", e);
                 return MessageUtils.getConnectorError(e);
             }
         }

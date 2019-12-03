@@ -13,7 +13,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.ballerinalang.net.grpc.nativeimpl.calleraction;
+package org.ballerinalang.net.grpc.nativeimpl.caller;
 
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.net.grpc.MessageUtils;

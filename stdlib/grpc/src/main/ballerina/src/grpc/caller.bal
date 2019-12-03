@@ -68,22 +68,22 @@ public type Caller client object {
 
 function externSend(Caller endpointClient, any res, Headers? headers) returns Error? =
 @java:Method {
-    class: "org.ballerinalang.net.grpc.nativeimpl.calleraction.Send"
+    class: "org.ballerinalang.net.grpc.nativeimpl.caller.FunctionUtils"
 } external;
 
 function externComplete(Caller endpointClient) returns Error? =
 @java:Method {
-    class: "org.ballerinalang.net.grpc.nativeimpl.calleraction.Complete"
+    class: "org.ballerinalang.net.grpc.nativeimpl.caller.FunctionUtils"
 } external;
 
 function externIsCancelled(Caller endpointClient) returns boolean =
 @java:Method {
-    class: "org.ballerinalang.net.grpc.nativeimpl.calleraction.IsCancelled"
+    class: "org.ballerinalang.net.grpc.nativeimpl.caller.FunctionUtils"
 } external;
 
 function externSendError(Caller endpointClient, int statusCode, handle message, Headers? headers) returns Error? =
 @java:Method {
-    class: "org.ballerinalang.net.grpc.nativeimpl.calleraction.SendError"
+    class: "org.ballerinalang.net.grpc.nativeimpl.caller.FunctionUtils"
 } external;
 
 # Presents a read-only view of the remote address.

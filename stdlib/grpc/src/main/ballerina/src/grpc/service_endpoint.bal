@@ -73,22 +73,22 @@ public type Listener object {
 
 function externInitEndpoint(Listener listenerObject) returns error? =
 @java:Method {
-    class: "org.ballerinalang.net.grpc.nativeimpl.serviceendpoint.InitEndpoint"
+    class: "org.ballerinalang.net.grpc.nativeimpl.serviceendpoint.FunctionUtils"
 } external;
 
 function externRegister(Listener listenerObject, service serviceType, string? name) returns error? =
 @java:Method {
-    class: "org.ballerinalang.net.grpc.nativeimpl.serviceendpoint.Register"
+    class: "org.ballerinalang.net.grpc.nativeimpl.serviceendpoint.FunctionUtils"
 } external;
 
 function externStart(Listener listenerObject) returns error? =
 @java:Method {
-    class: "org.ballerinalang.net.grpc.nativeimpl.serviceendpoint.Start"
+    class: "org.ballerinalang.net.grpc.nativeimpl.serviceendpoint.FunctionUtils"
 } external;
 
 function externStop(Listener listenerObject) returns error? =
 @java:Method {
-    class: "org.ballerinalang.net.grpc.nativeimpl.serviceendpoint.Stop"
+    class: "org.ballerinalang.net.grpc.nativeimpl.serviceendpoint.FunctionUtils"
 } external;
 
 # Maximum number of requests that can be processed at a given time on a single connection.
@@ -146,4 +146,3 @@ public type ListenerSecureSocket record {|
     int handshakeTimeoutInSeconds?;
     int sessionTimeoutInSeconds?;
 |};
-
