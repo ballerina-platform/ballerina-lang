@@ -54,3 +54,93 @@ function testByteDowncastFromInt() returns boolean {
 
     return b0 == 0 && b178 == 178 && b255 == 255;
 }
+
+function testBytesInIntArray() returns boolean {
+    byte b0 = 0;
+    byte b178 = 178;
+    byte b255 = 255;
+
+    int[] arr = [-1, b0, 120, b178, b255, 340];
+
+    foreach [int, int][index, val] in arr.enumerate() {
+		match index {
+		    1 => {
+		        if val != b0 {
+		            return false;
+		        }
+		    }
+            3 => {
+                if val != 178 {
+                    return false;
+                }
+            }
+            4 => {
+                if val != b255 {
+                    return false;
+                }
+            }
+            _ => {
+                if val != arr[index] {
+                    return false;
+                }
+            }
+		}
+	}
+	return true;
+}
+
+function testBytesInIntMap() returns boolean {
+    byte b0 = 0;
+    byte b130 = 130;
+    byte b255 = 255;
+
+    map<int> mp = {
+        a: -1,
+        b: b0,
+        c: 121,
+        d: b130,
+        e: b255,
+        f: 300
+    };
+
+    return mp["a"] == -1 && mp["b"] == b0 && mp["c"] == 121 &&
+               mp["d"] == 130 && mp["e"] == b255 && mp["f"] == 300;
+}
+
+function testByteStructuredTypeAsIntStructuredType() returns boolean {
+    byte[] barr = [0, 1, 233, 255];
+    int[] iarr = barr;
+    iarr[iarr.length()] = 40;
+
+    map<byte> bmap = {
+        a: 0,
+        b: 1,
+        c: 254,
+        d: 255
+    };
+    map<int> imap = bmap;
+    imap["e"] = 230;
+
+    return iarr[0] is byte && iarr[0] == 0 &&
+            iarr[3] is byte && iarr[3] == <byte> 255 &&
+            iarr[4] is byte && iarr[4] == 40 &&
+            imap["a"] is byte && imap["a"] == 0 &&
+            imap["d"] is byte && imap["d"] == 255 &&
+            imap["e"] is byte && imap["e"] == 230;
+}
+
+function testInherentTypeViolationForArray() {
+    byte[] barr = [0, 1, 233, 255];
+    int[] iarr = barr;
+    iarr[6] = 256;
+}
+
+function testInherentTypeViolationForMap() {
+    map<byte> bmap = {
+        a: 0,
+        b: 123,
+        c: 255
+    };
+    map<int> imap = bmap;
+    imap["d"] = 300;
+}

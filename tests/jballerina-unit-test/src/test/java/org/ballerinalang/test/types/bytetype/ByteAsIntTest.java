@@ -22,8 +22,10 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
+import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 /**
@@ -34,20 +36,39 @@ import org.testng.annotations.Test;
 public class ByteAsIntTest {
     private CompileResult result;
 
-    @BeforeClass(alwaysRun = true)
+    @BeforeClass
     public void setup() {
         result = BCompileUtil.compile("test-src/types/byte/byte_as_int_test.bal");
     }
 
-    @Test
-    public void testByteAsInt() {
-        BValue[] returns = BRunUtil.invoke(result, "testByteAsInt");
+    @Test(dataProvider = "byteAsIntTests")
+    public void testByteAsInt(String function) {
+        BValue[] returns = BRunUtil.invoke(result, function);
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
     }
 
-    @Test
-    public void testByteDowncastFromInt() {
-        BValue[] returns = BRunUtil.invoke(result, "testByteDowncastFromInt");
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    @Test(expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = ".*error: \\{ballerina/lang.array\\}InherentTypeViolation " +
+                    "message=incompatible types: expected 'byte', found 'int'.*")
+    public void testInherentTypeViolationForArray() {
+        BRunUtil.invoke(result, "testInherentTypeViolationForArray");
+    }
+
+    @Test(expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = ".*error: \\{ballerina/lang.map\\}InherentTypeViolation " +
+                    "message=invalid map insertion: expected value of type 'byte', found 'int'.*")
+    public void testInherentTypeViolationForMap() {
+        BRunUtil.invoke(result, "testInherentTypeViolationForMap");
+    }
+
+    @DataProvider(name = "byteAsIntTests")
+    public static Object[][] byteAsIntTests() {
+        return new Object[][]{
+                {"testByteAsInt"},
+                {"testByteDowncastFromInt"},
+                {"testBytesInIntArray"},
+                {"testBytesInIntMap"},
+                {"testByteStructuredTypeAsIntStructuredType"}
+        };
     }
 }
