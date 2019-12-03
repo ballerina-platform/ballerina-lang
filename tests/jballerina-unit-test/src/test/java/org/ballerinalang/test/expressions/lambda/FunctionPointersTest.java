@@ -277,4 +277,10 @@ public class FunctionPointersTest {
         BValue[] returns = BRunUtil.invoke(fpProgram, "testSubTypingWithAny");
         Assert.assertEquals(returns[0].stringValue(), "12");
     }
+
+    @Test(description = "Test passing a no-return function pointer as a nil-returning function pointer")
+    public void testVoidFunctionAsUnionReturnFunction() {
+        BValue[] returns = BRunUtil.invoke(fpProgram, "testVoidFunctionAsUnionReturnFunction");
+        Assert.assertEquals(returns[0].stringValue(), "value - updated through lambda");
+    }
 }

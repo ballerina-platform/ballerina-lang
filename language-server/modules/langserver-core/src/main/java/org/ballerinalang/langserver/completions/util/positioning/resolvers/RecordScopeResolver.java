@@ -52,15 +52,14 @@ public class RecordScopeResolver extends CursorPositionResolver {
         DiagnosticPos ownerPos = CommonUtil
                 .toZeroBasedPosition(((BLangRecordTypeNode) recordNode).parent.getPosition());
         int ownerEndLine = ownerPos.getEndLine();
-        int ownerEndCol = ownerPos.getEndColumn();
         int nodeStartLine = nodePos.getStartLine();
+        int nodeEndLine = nodePos.getEndLine();
         int nodeStartCol = nodePos.getStartColumn();
         BLangRecordTypeNode bLangRecord = (BLangRecordTypeNode) recordNode;
         List<BLangSimpleVariable> fields = bLangRecord.fields;
         boolean isLastField = fields.indexOf(node) == fields.size() - 1;
         boolean isCursorBefore = ((nodeStartLine > line) || (nodeStartLine == line && nodeStartCol > col)) ||
-                (isLastField && ((line < ownerEndLine)
-                        || (line == ownerEndLine && col < ownerEndCol)));
+                (isLastField && isCursorWithinScopeAfterLastChild(line, ownerEndLine, nodeEndLine));
         
         if (isCursorBefore) {
             treeVisitor.forceTerminateVisitor();
@@ -75,5 +74,9 @@ public class RecordScopeResolver extends CursorPositionResolver {
         SymbolEnv symbolEnv = new SymbolEnv(record, env.scope);
         env.copyTo(symbolEnv);
         return symbolEnv;
+    }
+    
+    private boolean isCursorWithinScopeAfterLastChild(int cLine, int ownerELine, int nodeELine) {
+        return cLine > nodeELine && cLine < ownerELine;
     }
 }

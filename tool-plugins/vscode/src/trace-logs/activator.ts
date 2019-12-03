@@ -50,7 +50,7 @@ function showTraces(context: ExtensionContext, langClient: ExtendedLangClient) {
             command: 'updateTraces',
         });
     }
-
+    
     const remoteMethods: WebViewMethod[] = [
         {
             methodName: 'showDetails',

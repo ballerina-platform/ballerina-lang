@@ -27,3 +27,26 @@ function name3() {
 function tableReturnFunction() returns (table<any>) {
     return;
 }
+
+public function main() {
+    string text = "Sample String";
+    int number = 34;
+    string anotherText = <@untainted string>text;
+    int anotherNumber = <@untainted int>number;
+}
+
+public function test1() {
+    string text = "Sample String";
+    int number = 34;
+    string anotherText = <
+    @untainted string
+    >
+    text;
+    int anotherNumber =
+    <
+    @untainted
+    int
+    >
+    number
+    ;
+}

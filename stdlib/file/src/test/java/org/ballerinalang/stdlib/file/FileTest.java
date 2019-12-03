@@ -72,7 +72,7 @@ public class FileTest {
 
     @BeforeClass
     public void setup() throws IOException {
-        compileResult = BCompileUtil.compile(Paths.get("test-src", "file-system-test.bal").toString());
+        compileResult = BCompileUtil.compileOffline(Paths.get("test-src", "file-system-test.bal").toString());
         tempDirPath = Paths.get(TEMP_DIR, "data-files");
         if (Files.notExists(tempDirPath)) {
             Files.createDirectory(tempDirPath);
@@ -340,6 +340,8 @@ public class FileTest {
         try {
             BValue[] args = {new BString(srcFilePath.toString()), new BString(tempDestPath.toString()),
                     new BBoolean(false)};
+            String originalContent = new String(Files.readAllBytes(srcFilePath));
+            log.info("Source file content: " + originalContent);
             BRunUtil.invoke(compileResult, "testCopy", args);
             assertTrue(Files.exists(tempDestPath));
             assertTrue(Files.exists(srcFilePath));
@@ -348,18 +350,18 @@ public class FileTest {
             // Execute same with replaceExist false
             BValue[] args1 = {new BString(srcModifiedFilePath.toString()), new BString(tempDestPath.toString()),
                     new BBoolean(false)};
-            long modifiedTime = tempDestPath.toFile().lastModified();
             BRunUtil.invoke(compileResult, "testCopy", args1);
-            long modifiedTimeWithoutReplace = tempDestPath.toFile().lastModified();
-            assertEquals(modifiedTimeWithoutReplace, modifiedTime);
+            String modifiedWithoutReplace = new String(Files.readAllBytes(tempDestPath));
+            log.info("Modified without replace file content: " + modifiedWithoutReplace);
+            assertEquals(modifiedWithoutReplace, originalContent);
 
             // Execute same with replaceExist true
             BValue[] args2 = {new BString(srcModifiedFilePath.toString()), new BString(tempDestPath.toString()),
                     new BBoolean(true)};
-            Thread.sleep(5000);
             BRunUtil.invoke(compileResult, "testCopy", args2);
-            long modifiedTimeWithReplace = tempDestPath.toFile().lastModified();
-            assertNotEquals(modifiedTimeWithReplace, modifiedTime);
+            String modifiedWithReplace = new String(Files.readAllBytes(tempDestPath));
+            log.info("Modified with replace file content: " + modifiedWithReplace);
+            assertNotEquals(modifiedWithReplace, originalContent);
         } finally {
             Files.deleteIfExists(tempDestPath);
         }

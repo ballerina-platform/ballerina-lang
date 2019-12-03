@@ -152,41 +152,62 @@ public class AssignStmtTest {
         Assert.assertEquals(actual, expected);
     }
 
+    @Test(description = "Test action result assignment with variable destructure")
+    public void restActionResultAssignment() {
+        BValue[] returns = BRunUtil.invoke(result, "restActionResultAssignment");
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 0);
+        Assert.assertEquals(((BInteger) returns[1]).intValue(), 0);
+        Assert.assertEquals(returns[2].stringValue(), "a");
+        Assert.assertEquals(returns[3].stringValue(), "the error reason");
+        Assert.assertEquals(returns[4].stringValue(), "foo3 error");
+        Assert.assertEquals(returns[5].stringValue(), "3");
+    }
+
     @Test(description = "Test assignment statement with errors")
     public void testAssignmentNegativeCases() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 13);
+        int i = 0;
         //testIncompatibleTypeAssign
-        BAssertUtil.validateError(resultNegative, 0, "incompatible types: expected 'boolean'" +
-                ", found 'int'", 3, 9);
+        BAssertUtil.validateError(resultNegative, i++,
+                "incompatible types: expected 'boolean', found 'int'", 3, 9);
         //testAssignCountMismatch1
-        BAssertUtil.validateError(resultNegative, 1, "incompatible types: expected " +
-                        "'[int,string]', found '[int,string,int]'", 11,
-                17);
+        BAssertUtil.validateError(resultNegative, i++,
+                "incompatible types: expected '[int,string]', found '[int,string,int]'", 11, 17);
         //testAssignCountMismatch2
-        BAssertUtil.validateError(resultNegative, 2, "incompatible types: expected " +
-                        "'[int,string,int,int]', found '[int,string,int]'", 21,
-                23);
+        BAssertUtil.validateError(resultNegative, i++,
+                "incompatible types: expected '[int,string,int,int]', found '[int,string,int]'", 21, 23);
         //testAssignTypeMismatch1
-        BAssertUtil.validateError(resultNegative, 3, "incompatible types: expected " +
-                "'[int,string,int]', found '[string,string,int]'", 30, 20);
-        BAssertUtil.validateError(resultNegative, 4, "incompatible types: expected " +
-                "'string', found 'int'", 35, 13);
+        BAssertUtil.validateError(resultNegative, i++,
+                "incompatible types: expected '[int,string,int]', found '[string,string,int]'", 30, 20);
+        BAssertUtil.validateError(resultNegative, i++,
+                "incompatible types: expected 'string', found 'int'", 35, 13);
         //testAssignTypeMismatch2
-        BAssertUtil.validateError(resultNegative, 5, "incompatible types: expected " +
-                "'[int,int,int]', found '[int,string,int]'", 43, 20);
-        BAssertUtil.validateError(resultNegative, 6, "incompatible types: expected " +
-                "'string', found 'int'", 44, 16);
+        BAssertUtil.validateError(resultNegative, i++,
+                "incompatible types: expected '[int,int,int]', found '[int,string,int]'", 43, 20);
+        BAssertUtil.validateError(resultNegative, i++,
+                "incompatible types: expected 'string', found 'int'", 44, 16);
         //testVarRepeatedReturn1
-        BAssertUtil.validateError(resultNegative, 7, "redeclared symbol 'a'", 48, 19);
-        BAssertUtil.validateError(resultNegative, 8, "undefined symbol 'b'", 49, 22);
+        BAssertUtil.validateError(resultNegative, i++,
+                "redeclared symbol 'a'", 48, 19);
+        BAssertUtil.validateError(resultNegative, i++,
+                "undefined symbol 'b'", 49, 22);
         //testVarRepeatedReturn2
-        BAssertUtil.validateError(resultNegative, 9, "redeclared symbol 'name'", 53, 19);
-        BAssertUtil.validateError(resultNegative, 10, "undefined symbol 'b'", 54, 22);
-
-        BAssertUtil.validateError(resultNegative, 11, "cannot assign a value to final 'i'",
-                65, 5);
-        BAssertUtil.validateError(resultNegative, 12, "cannot assign a value to final 'aa'",
-                71, 5);
+        BAssertUtil.validateError(resultNegative, i++,
+                "redeclared symbol 'name'", 53, 19);
+        BAssertUtil.validateError(resultNegative, i++,
+                "undefined symbol 'b'", 54, 22);
+        BAssertUtil.validateError(resultNegative, i++,
+                "cannot assign a value to final 'i'", 65, 5);
+        BAssertUtil.validateError(resultNegative, i++,
+                "cannot assign a value to final 'aa'", 71, 5);
+        BAssertUtil.validateError(resultNegative, i++,
+                "incompatible types: expected 'int', found '[int,int]'", 90, 13);
+        BAssertUtil.validateError(resultNegative, i++,
+                "incompatible types: expected 'map<string>', found 'record {| string a; anydata...; |}'", 91, 22);
+        BAssertUtil.validateError(resultNegative, i++,
+                "invalid record binding pattern with type 'error'", 92, 9);
+        BAssertUtil.validateError(resultNegative, i++,
+                "invalid record variable; expecting a record type but found 'error' in type definition", 92, 20);
+        Assert.assertEquals(resultNegative.getErrorCount(), i);
     }
 
     @Test(description = "Test negative assignment statement with cast and conversion with var.")

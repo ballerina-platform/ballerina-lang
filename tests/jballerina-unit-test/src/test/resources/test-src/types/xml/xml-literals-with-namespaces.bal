@@ -27,15 +27,12 @@ function testDefineInlineNamespace() returns (xml) {
     return x1;
 }
 
-function testDefineInlineDefaultNamespace() returns [xml, xml, xml] {
+function testDefineInlineDefaultNamespace() returns [xml, xml] {
     xmlns "http://ballerina.com/default/namespace";
-
-    string defaultNs = "http://ballerina.com";
 
     xml x1 = xml `<foo xmlns:nsx="http://wso2.com/aaa" >hello</foo>`;
     xml x2 = xml `<foo xmlns:nsx="http://wso2.com/aaa" xmlns="http://wso2.com" >hello</foo>`;
-    xml x3 = xml `<foo xmlns:nsx="http://wso2.com/aaa" xmlns="${defaultNs}" >hello</foo>`;
-    return [x1, x2, x3];
+    return [x1, x2];
 }
 
 function testUsingNamespcesOfParent() returns (xml) {

@@ -30,6 +30,10 @@ function funcKafkaTestSubscribeToPattern() {
     var result = kafkaConsumer->subscribeToPattern("test.*");
 }
 
+function funcKafkaTestUnsubscribe() returns kafka:ConsumerError? {
+    return kafkaConsumer->unsubscribe();
+}
+
 function funcKafkaTestGetSubscribedTopicCount() returns int|error {
     var result = kafkaConsumer->getSubscription();
     if (result is error) {

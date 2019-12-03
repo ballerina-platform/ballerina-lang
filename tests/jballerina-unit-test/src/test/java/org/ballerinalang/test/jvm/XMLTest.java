@@ -122,11 +122,6 @@ public class XMLTest {
         Assert.assertEquals(returns[1].stringValue(),
                 "<foo xmlns=\"http://wso2.com\" xmlns:nsx=\"http://wso2.com/aaa\" " +
                         "xmlns:ns1=\"http://ballerina.com/b\">hello</foo>");
-
-        Assert.assertTrue(returns[2] instanceof BXML);
-        Assert.assertEquals(returns[2].stringValue(),
-                "<foo xmlns=\"http://ballerina.com\" xmlns:nsx=\"http://wso2.com/aaa\" " +
-                        "xmlns:ns1=\"http://ballerina.com/b\">hello</foo>");
     }
 
     @Test

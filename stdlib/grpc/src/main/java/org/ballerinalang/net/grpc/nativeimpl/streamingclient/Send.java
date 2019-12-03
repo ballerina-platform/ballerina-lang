@@ -16,6 +16,8 @@
 package org.ballerinalang.net.grpc.nativeimpl.streamingclient;
 
 import com.google.protobuf.Descriptors;
+import org.ballerinalang.jvm.observability.ObserveUtils;
+import org.ballerinalang.jvm.observability.ObserverContext;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
@@ -30,8 +32,11 @@ import org.ballerinalang.net.grpc.exception.StatusRuntimeException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Optional;
+
 import static org.ballerinalang.net.grpc.GrpcConstants.ORG_NAME;
 import static org.ballerinalang.net.grpc.GrpcConstants.REQUEST_SENDER;
+import static org.ballerinalang.net.grpc.GrpcConstants.TAG_KEY_GRPC_MESSAGE_CONTENT;
 
 /**
  * Extern function for streaming respond to the server.
@@ -47,6 +52,7 @@ import static org.ballerinalang.net.grpc.GrpcConstants.REQUEST_SENDER;
         isPublic = true
 )
 public class Send {
+
     private static final Logger LOG = LoggerFactory.getLogger(Send.class);
 
     public static Object send(Strand strand, ObjectValue streamConnection, Object responseValue) {
@@ -59,6 +65,10 @@ public class Send {
             Descriptors.Descriptor inputType = (Descriptors.Descriptor) streamConnection.getNativeData(GrpcConstants
                     .REQUEST_MESSAGE_DEFINITION);
             try {
+                // Add message content to observer context.
+                Optional<ObserverContext> observerContext = ObserveUtils.getObserverContextOfCurrentFrame(strand);
+                observerContext.ifPresent(ctx -> ctx.addTag(TAG_KEY_GRPC_MESSAGE_CONTENT, responseValue.toString()));
+
                 Message requestMessage = new Message(inputType.getName(), responseValue);
                 requestSender.onNext(requestMessage);
             } catch (Exception e) {

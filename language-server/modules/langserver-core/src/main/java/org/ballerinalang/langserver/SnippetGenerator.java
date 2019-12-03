@@ -453,6 +453,19 @@ public class SnippetGenerator {
     }
 
     /**
+     * Get Closed Record Definition Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getClosedRecordDefinitionSnippet() {
+        String snippet = "type ${1:RecordName} record {|" + CommonUtil.LINE_SEPARATOR + "\t${2}"
+                + CommonUtil.LINE_SEPARATOR + "|};";
+
+        return new SnippetBlock(ItemResolverConstants.CLOSED_RECORD_TYPE, snippet, ItemResolverConstants.SNIPPET_TYPE,
+                                SnippetType.SNIPPET);
+    }
+
+    /**
      * Get HTTP Resource Definition Snippet Block.
      *
      * @return {@link SnippetBlock}     Generated Snippet Block

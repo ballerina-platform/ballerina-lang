@@ -24,7 +24,9 @@ import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinalang.jvm.values.ObjectValue;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -57,6 +59,28 @@ public class RabbitMQUtils {
         valueMap.put(RabbitMQConstants.RABBITMQ_ERROR_MESSAGE, msg);
         return BallerinaValues.createRecordValue(RabbitMQConstants.PACKAGE_ID_RABBITMQ,
                 RabbitMQConstants.RABBITMQ_ERROR_DETAILS, valueMap);
+    }
+
+    static ArrayList<ObjectValue> addToList(ArrayList<ObjectValue> arrayList, ObjectValue objectValue) {
+        if (arrayList == null) {
+            arrayList = new ArrayList<>();
+        }
+        arrayList.add(objectValue);
+        return arrayList;
+    }
+
+    /**
+     * Removes a given element from the provided array list and returns the resulting list.
+     *
+     * @param arrayList   The original list
+     * @param objectValue Element to be removed
+     * @return Resulting list after removing the element
+     */
+    public static ArrayList<ObjectValue> removeFromList(ArrayList<ObjectValue> arrayList, ObjectValue objectValue) {
+        if (arrayList != null) {
+            arrayList.remove(objectValue);
+        }
+        return arrayList;
     }
 
     private RabbitMQUtils() {

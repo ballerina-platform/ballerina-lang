@@ -70,3 +70,24 @@ function constantAssignment () {
     // Following line is invalid.
     aa = "mad";
 }
+
+public type Client client object {
+    public remote function foo() returns [int, int] {
+        return [0, 0];
+    }
+
+    public remote function foo1() returns record { string a; } {
+        return { a: "a" };
+    }
+
+    public remote function foo2() returns error {
+        return error("the error reason");
+    }
+};
+
+public function restActionResultAssignment() {
+    Client c = new();
+    int a = c->foo();
+    map<string> sm = c->foo1();
+    var { a: d } = c->foo2();
+}

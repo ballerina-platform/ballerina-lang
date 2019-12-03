@@ -23,9 +23,10 @@ import org.ballerinalang.jvm.runtime.BLangThreadFactory;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BTupleType;
 import org.ballerinalang.jvm.types.BTypes;
-import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinalang.jvm.values.TupleValueImpl;
 import org.ballerinalang.stdlib.socket.SocketConstants;
 import org.ballerinalang.stdlib.socket.exceptions.SelectorInitializeException;
 import org.slf4j.Logger;
@@ -399,20 +400,20 @@ public class SelectorManager {
         callback.getCallback().notifySuccess();
     }
 
-    private ArrayValue createTcpSocketReturnValue(ReadPendingCallback callback, byte[] bytes) {
-        ArrayValue contentTuple = new ArrayValue(tcpReadResultTuple);
-        contentTuple.add(0, new ArrayValue(bytes));
+    private TupleValueImpl createTcpSocketReturnValue(ReadPendingCallback callback, byte[] bytes) {
+        TupleValueImpl contentTuple = new TupleValueImpl(tcpReadResultTuple);
+        contentTuple.add(0, new ArrayValueImpl(bytes));
         contentTuple.add(1, Long.valueOf(callback.getCurrentLength()));
         return contentTuple;
     }
 
-    private ArrayValue createUdpSocketReturnValue(ReadPendingCallback callback, byte[] bytes,
+    private TupleValueImpl createUdpSocketReturnValue(ReadPendingCallback callback, byte[] bytes,
             InetSocketAddress remoteAddress) {
         MapValue<String, Object> address = BallerinaValues.createRecordValue(SOCKET_PACKAGE_ID, "Address");
         address.put("port", remoteAddress.getPort());
         address.put("host", remoteAddress.getHostName());
-        ArrayValue contentTuple = new ArrayValue(receiveFromResultTuple);
-        contentTuple.add(0, new ArrayValue(bytes));
+        TupleValueImpl contentTuple = new TupleValueImpl(receiveFromResultTuple);
+        contentTuple.add(0, new ArrayValueImpl(bytes));
         contentTuple.add(1, Long.valueOf(callback.getCurrentLength()));
         contentTuple.add(2, address);
         return contentTuple;

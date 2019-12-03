@@ -2,7 +2,7 @@
     "name": "ballerina",
     "displayName": "Ballerina",
     "description": "Intellisense, Diagram View, Debugging, code formatting and refactoring for Ballerina",
-    "version": "1.0.1",
+    "version": "1.1.0-SNAPSHOT",
     "publisher": "ballerina",
     "repository": {
         "type": "git",
@@ -257,6 +257,11 @@
                     "light": "./resources/images/icons/refresh.svg",
                     "dark": "./resources/images/icons/refresh-inverse.svg"
                 }
+            },
+            {
+                "command": "ballerina.highlightSyntax",
+                "title": "Syntax Highlight",
+                "category": "Ballerina"
             }
         ],
         "menus": {
@@ -308,11 +313,14 @@
         "test-compile": "tsc -p ./",
         "test": "npm run test-compile && node ./node_modules/vscode/bin/test",
         "test-coverage": "cross-env COVER_CONFIG=html npm run test",
-        "package": "vsce package"
+        "package": "vsce package",
+        "build-tm-grammar": "js-yaml grammar/ballerina-grammar/syntaxes/ballerina.tmLanguage.yaml > grammar/ballerina-grammar/syntaxes/ballerina.tmLanguage.json"
     },
     "dependencies": {
+        "@types/js-base64": "^2.3.1",
         "cross-env": "^5.2.0",
         "glob": "^7.1.3",
+        "js-base64": "^2.5.1",
         "lodash": "^4.17.11",
         "mousetrap": "^1.6.3",
         "portfinder": "^1.0.21",
@@ -334,6 +342,7 @@
         "decache": "^4.5.1",
         "glob": "^7.1.3",
         "istanbul": "^0.4.5",
+        "js-yaml": "^3.13.1",
         "mocha": "^5.2.0",
         "remap-istanbul": "^0.13.0",
         "ts-loader": "^6.0.2",

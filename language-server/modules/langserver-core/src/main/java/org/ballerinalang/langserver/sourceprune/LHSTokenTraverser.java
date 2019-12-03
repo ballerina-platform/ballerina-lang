@@ -191,8 +191,17 @@ class LHSTokenTraverser extends AbstractTokenTraverser {
                 .collect(Collectors.toList())
                 .contains(BallerinaParser.SERVICE);
         if (token.getType() == BallerinaParser.COMMA || (!onServiceRule && token.getType() == BallerinaParser.ON)) {
+            boolean isComma = token.getType() == BallerinaParser.COMMA;
             this.processToken(token);
             this.forcedProcessedToken = true;
+            // TODO: signatureWithinAnnotations has been disabled
+            /* Following logic will invalidate the signatureWithinAnnotations.bal and Signature help has to find 
+            an alternative way of handling this case
+             */
+            if (isComma && this.incompleteStatementWithParenthesis(tokenStream, token)) {
+                this.sourcePruneContext.put(SourcePruneKeys.FORCE_CAPTURED_STATEMENT_WITH_PARENTHESIS_KEY, true);
+                return false;
+            }
         }
         
         return rightParenthesisCount == 0 && this.rightBraceCount == 0 && rightBracketCount == 0;
@@ -250,6 +259,13 @@ class LHSTokenTraverser extends AbstractTokenTraverser {
                     tokenOneToRight.get().getTokenIndex());
             
             if (tokenTwoToRight.isPresent()) {
+                /*
+                This is to cover the following case,
+                Eg: function (int , int ) returns (string) sumFunction = function (int a, a<cursor>) returns ...
+                 */
+                if (tokenTwoToRight.get().getType() == BallerinaParser.RETURNS) {
+                    return false;
+                }
                 /*
                 This is to cover the following case,
                 Eg: function (int , int ) returns (s<cursor>) sumFunction = ...

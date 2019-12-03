@@ -18,12 +18,7 @@
 
 package org.ballerinalang.nats.basic.producer;
 
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.nats.Constants;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -34,18 +29,9 @@ import static org.ballerinalang.nats.Constants.CONNECTED_CLIENTS;
  *
  * @since 0.995
  */
-@BallerinaFunction(
-        orgName = Constants.ORG_NAME,
-        packageName = Constants.NATS,
-        functionName = "init",
-        receiver = @Receiver(type = TypeKind.OBJECT,
-                structType = "Producer",
-                structPackage = Constants.NATS_PACKAGE),
-        isPublic = true
-)
 public class Init {
 
-    public static void init(Strand strand, ObjectValue producerObject, ObjectValue connectionObject) {
+    public static void producerInit(ObjectValue connectionObject) {
         // This is to add producer to the connected client list in connection object.
         ((AtomicInteger) connectionObject.getNativeData(CONNECTED_CLIENTS)).incrementAndGet();
     }

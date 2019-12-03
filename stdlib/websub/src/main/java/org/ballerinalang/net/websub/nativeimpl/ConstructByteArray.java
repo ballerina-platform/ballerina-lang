@@ -20,6 +20,7 @@ package org.ballerinalang.net.websub.nativeimpl;
 
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.model.types.TypeKind;
@@ -49,14 +50,14 @@ public class ConstructByteArray {
     public static ArrayValue constructByteArray(Strand strand, ObjectValue byteChannel) {
         Channel channel = (Channel) byteChannel.getNativeData(BYTE_CHANNEL_NAME);
         if (channel == null) {
-            return new ArrayValue(new byte[0]);
+            return new ArrayValueImpl(new byte[0]);
         }
         try {
             byte[] byteData = MimeUtil.getByteArray(channel.getInputStream());
             channel.close();
-            return new ArrayValue(byteData);
+            return new ArrayValueImpl(byteData);
         } catch (IOException e) {
-            return new ArrayValue(new byte[0]);
+            return new ArrayValueImpl(new byte[0]);
         }
     }
 }

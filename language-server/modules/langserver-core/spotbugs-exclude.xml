@@ -85,4 +85,10 @@
     <Match>
         <Class name="org.ballerinalang.langserver.symbols.SymbolFindingVisitor" />
     </Match>
+    <Match>
+        <Class name="org.ballerinalang.langserver.hover.util.HoverUtil" />
+        <OR>
+            <Bug pattern="BC_UNCONFIRMED_CAST" />
+        </OR>
+    </Match>
 </FindBugsFilter>

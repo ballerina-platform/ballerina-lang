@@ -18,6 +18,7 @@ package org.ballerinalang.net.grpc.nativeimpl.headers;
 import io.netty.handler.codec.http.HttpHeaders;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -52,7 +53,7 @@ public class GetAll {
         if (headersList != null) {
             String[] headerValue = new String[headersList.size()];
             headerValue = headers.getAll(headerName).toArray(headerValue);
-            return new ArrayValue(headerValue);
+            return new ArrayValueImpl(headerValue);
         } else {
             return null;
         }

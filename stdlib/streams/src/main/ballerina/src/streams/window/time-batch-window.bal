@@ -14,6 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 import ballerina/time;
+import ballerina/task;
 
 # This is a batch (tumbling) time window, that holds events arrived between window time periods, and gets updated for
 # every window time.
@@ -29,7 +30,6 @@ import ballerina/time;
 #
 # + timeInMilliSeconds - description
 # + windowParameters - description
-# + nextEmitTime - description
 # + currentEventQueue - description
 # + resetEvent - description
 # + nextProcessPointer - description
@@ -39,11 +39,10 @@ public type TimeBatchWindow object {
     *Snapshotable;
     public int timeInMilliSeconds;
     public any[] windowParameters;
-    public int nextEmitTime = -1;
     public LinkedList currentEventQueue;
     public StreamEvent? resetEvent;
     public function (StreamEvent?[])? nextProcessPointer;
-    public Scheduler scheduler;
+    public task:Scheduler scheduler;
 
     public function __init(function (StreamEvent?[])? nextProcessPointer, any[] windowParameters) {
         self.nextProcessPointer = nextProcessPointer;
@@ -52,9 +51,12 @@ public type TimeBatchWindow object {
         self.resetEvent = ();
         self.currentEventQueue = new();
         self.initParameters(self.windowParameters);
-        self.scheduler = new(function (StreamEvent?[] events) {
-                self.process(events);
-            });
+        self.scheduler = new({
+            intervalInMillis: self.timeInMilliSeconds,
+            initialDelayInMillis: self.timeInMilliSeconds
+        });
+        checkpanic self.scheduler.attach(eventInjectorService, self);
+        checkpanic self.scheduler.start();
     }
 
     public function initParameters(any[] parameters) {
@@ -76,57 +78,46 @@ public type TimeBatchWindow object {
     # The `process` function process the incoming events to the events and update the current state of the window.
     # + streamEvents - The array of stream events to be processed.
     public function process(StreamEvent?[] streamEvents) {
-        LinkedList outputStreamEvents = new();
-        if (self.nextEmitTime == -1) {
-            self.nextEmitTime = time:currentTime().time + self.timeInMilliSeconds;
-            self.scheduler.notifyAt(self.nextEmitTime);
-        }
 
-        int currentTime = time:currentTime().time;
-        boolean sendEvents = false;
-
-        if (currentTime >= self.nextEmitTime) {
-            self.nextEmitTime += self.timeInMilliSeconds;
-            self.scheduler.notifyAt(self.nextEmitTime);
-            sendEvents = true;
-        } else {
-            sendEvents = false;
-        }
-
-        foreach var evt in streamEvents {
-            StreamEvent event = <StreamEvent>evt;
-            if (event.eventType != "CURRENT") {
-                continue;
-            }
-            StreamEvent clonedEvent = event.copy();
-            self.currentEventQueue.addLast(clonedEvent);
-        }
-        if (sendEvents) {
-            if (!(self.currentEventQueue.getFirst() is ())) {
-                if (!(self.resetEvent is ())) {
-                    outputStreamEvents.addLast(self.resetEvent);
-                    self.resetEvent = ();
-                }
-                self.resetEvent = createResetStreamEvent(getStreamEvent(self.currentEventQueue.getFirst()));
-                self.currentEventQueue.resetToFront();
-                while (self.currentEventQueue.hasNext()) {
-                    StreamEvent streamEvent = getStreamEvent(self.currentEventQueue.next());
-                    outputStreamEvents.addLast(streamEvent);
+        lock {
+            foreach var evt in streamEvents {
+                StreamEvent event = <StreamEvent>evt;
+                if (event.eventType == "CURRENT") {
+                    StreamEvent clonedEvent = event.copy();
+                    self.currentEventQueue.addLast(clonedEvent);
+                } if (event.eventType == "TIMER") {
+                    self.resetEvent = createResetStreamEvent(event);
+                } else {
+                    continue;
                 }
             }
-            self.currentEventQueue.clear();
-        }
 
-        any nextProcessFuncPointer = self.nextProcessPointer;
-        if (nextProcessFuncPointer is function (StreamEvent?[])) {
-            if (outputStreamEvents.getSize() != 0) {
-                StreamEvent?[] events = [];
-                outputStreamEvents.resetToFront();
-                while (outputStreamEvents.hasNext()) {
-                    StreamEvent streamEvent = getStreamEvent(outputStreamEvents.next());
-                    events[events.length()] = streamEvent;
+            LinkedList outputStreamEvents = new();
+            boolean sendEvents = !(self.resetEvent is ());
+            if (sendEvents) {
+                outputStreamEvents.addLast(self.resetEvent);
+                if (!(self.currentEventQueue.getFirst() is ())) {
+                    self.currentEventQueue.resetToFront();
+                    while (self.currentEventQueue.hasNext()) {
+                        StreamEvent streamEvent = getStreamEvent(self.currentEventQueue.next());
+                        outputStreamEvents.addLast(streamEvent);
+                    }
                 }
-                nextProcessFuncPointer(events);
+                self.resetEvent = ();
+                self.currentEventQueue.clear();
+            }
+
+            any nextProcessFuncPointer = self.nextProcessPointer;
+            if (nextProcessFuncPointer is function (StreamEvent?[])) {
+                if (outputStreamEvents.getSize() != 0) {
+                    StreamEvent?[] events = [];
+                    outputStreamEvents.resetToFront();
+                    while (outputStreamEvents.hasNext()) {
+                        StreamEvent streamEvent = getStreamEvent(outputStreamEvents.next());
+                        events[events.length()] = streamEvent;
+                    }
+                    nextProcessFuncPointer(events);
+                }
             }
         }
     }
@@ -175,8 +166,7 @@ public type TimeBatchWindow object {
         return {
             "currentEventsList": currentEventsList,
             "resetEvt": resetEvt,
-            "timeInMilliSeconds": self.timeInMilliSeconds,
-            "nextEmitTime": self.nextEmitTime
+            "timeInMilliSeconds": self.timeInMilliSeconds
         };
     }
 
@@ -198,10 +188,18 @@ public type TimeBatchWindow object {
         if (millis is int) {
             self.timeInMilliSeconds = millis;
         }
-        any nxtEmitTime = state["nextEmitTime"];
-        if (nxtEmitTime is int) {
-            self.nextEmitTime = nxtEmitTime;
-        }
+    }
+};
+
+# `eventInjectorService` triggers the timer event generation at the given timestamp.
+service eventInjectorService = service {
+    resource function onTrigger(@tainted TimeBatchWindow timeBatchWindow) {
+        map<anydata> data = {};
+        int currentTime = time:currentTime().time;
+        StreamEvent timerEvent = new(["timer", data], "TIMER", currentTime);
+        StreamEvent?[] timerEventWrapper = [];
+        timerEventWrapper[0] = timerEvent;
+        timeBatchWindow.process(timerEventWrapper);
     }
 };
 

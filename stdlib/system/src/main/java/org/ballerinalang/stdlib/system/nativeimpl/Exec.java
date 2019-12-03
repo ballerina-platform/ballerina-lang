@@ -18,10 +18,8 @@
 
 package org.ballerinalang.stdlib.system.nativeimpl;
 
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.stdlib.system.utils.SystemConstants;
 import org.ballerinalang.stdlib.system.utils.SystemUtils;
 import org.slf4j.Logger;
@@ -32,24 +30,18 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Extern function ballerina.system:exec.
  *
  * @since 1.0.0
  */
-@BallerinaFunction(
-        orgName = SystemConstants.ORG_NAME,
-        packageName = SystemConstants.PACKAGE_NAME,
-        functionName = "exec",
-        isPublic = true
-)
 public class Exec {
 
     private static final Logger log = LoggerFactory.getLogger(Exec.class);
 
-    public static Object exec(Strand strand, String command, MapValue<String, String> env, Object dir, 
-                              ArrayValue args) {
+    public static Object exec(String command, MapValue<String, String> env, Object dir, ArrayValue args) {
         List<String> commandList = new ArrayList<String>();
         commandList.add(command);
         commandList.addAll(Arrays.asList(args.getStringArray()));
@@ -58,7 +50,8 @@ public class Exec {
             pb.directory(new File((String) dir));
         }
         if (env != null) {
-            pb.environment().putAll(env);
+            Map<String, String> pbEnv = pb.environment();
+            env.entrySet().forEach(entry -> pbEnv.put(entry.getKey(), entry.getValue()));
         }
         try {
             return SystemUtils.getProcessObject(pb.start());
@@ -67,5 +60,4 @@ public class Exec {
             return SystemUtils.getBallerinaError(SystemConstants.PROCESS_EXEC_ERROR, e);
         }
     }
-
 }

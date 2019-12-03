@@ -108,14 +108,26 @@ function getDecodedJwtComponents(string[] encodedJwtComponents) returns @tainted
 
     var decodeResult = encoding:decodeBase64Url(encodedJwtComponents[0]);
     if (decodeResult is byte[]) {
-        jwtHeader = check strings:fromBytes(decodeResult);
+        string|error result = strings:fromBytes(decodeResult);
+
+        if (result is error) {
+            return prepareError(result.reason(), result);
+        }
+
+        jwtHeader = <string> result;
     } else {
         return prepareError("Base64 url decode failed for JWT header.", decodeResult);
     }
 
     decodeResult = encoding:decodeBase64Url(encodedJwtComponents[1]);
     if (decodeResult is byte[]) {
-        jwtPayload = check strings:fromBytes(decodeResult);
+        string|error result = strings:fromBytes(decodeResult);
+
+        if (result is error) {
+            return prepareError(result.reason(), result);
+        }
+
+        jwtPayload = <string> result;
     } else {
         return prepareError("Base64 url decode failed for JWT payload.", decodeResult);
     }
@@ -268,7 +280,12 @@ function validateMandatoryJwtHeaderFields(JwtHeader jwtHeader) returns boolean {
 function validateCertificate(JwtTrustStoreConfig trustStoreConfig) returns boolean|Error {
     var publicKey = crypto:decodePublicKey(trustStoreConfig.trustStore, trustStoreConfig.certificateAlias);
     if (publicKey is crypto:PublicKey) {
-        time:Time currTimeInGmt = check time:toTimeZone(time:currentTime(), "GMT");
+        time:Time|error result = time:toTimeZone(time:currentTime(), "GMT");
+        if (result is error) {
+            return prepareError(result.reason(), result);
+        }
+
+        time:Time currTimeInGmt = <time:Time> result;
         int currTimeInGmtMillis = currTimeInGmt.time;
 
         var certificate = publicKey?.certificate;

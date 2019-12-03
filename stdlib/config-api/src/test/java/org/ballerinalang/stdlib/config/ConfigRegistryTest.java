@@ -83,7 +83,7 @@ public class ConfigRegistryTest {
     }
 
     @Test(expectedExceptions = IllegalArgumentException.class,
-          expectedExceptionsMessageRegExp = ".*hello.http.port does not map to a valid boolean")
+          expectedExceptionsMessageRegExp = ".*config key 'hello.http.port' does not map to a valid 'boolean'")
     public void testGetAsBooleanNegative() throws IOException {
         registry.initRegistry(new HashMap<>(), null, null);
         registry.addConfiguration("hello.http.port", 8080);
@@ -107,7 +107,7 @@ public class ConfigRegistryTest {
     }
 
     @Test(expectedExceptions = IllegalArgumentException.class,
-          expectedExceptionsMessageRegExp = ".*hello.http.port does not map to a valid int")
+          expectedExceptionsMessageRegExp = ".*config key 'hello.http.port' does not map to a valid 'int'")
     public void testGetAsIntNegative() throws IOException {
         registry.initRegistry(new HashMap<>(), null, null);
         registry.addConfiguration("hello.http.port", "invalid port");
@@ -136,7 +136,8 @@ public class ConfigRegistryTest {
     }
 
     @Test(expectedExceptions = IllegalArgumentException.class,
-          expectedExceptionsMessageRegExp = ".*hello.cache.evictionFactor does not map to a valid float")
+          expectedExceptionsMessageRegExp = ".*config key 'hello.cache.evictionFactor' does not map to a valid " +
+                  "'float'")
     public void testGetAsFloatNegative() throws IOException {
         registry.initRegistry(new HashMap<>(), null, null);
         registry.addConfiguration("hello.cache.evictionFactor", "invalid float");

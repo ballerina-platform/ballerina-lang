@@ -18,38 +18,34 @@
 package org.ballerinalang.nats.streaming.consumer;
 
 import io.nats.streaming.StreamingConnection;
+import io.nats.streaming.Subscription;
 import io.nats.streaming.SubscriptionOptions;
 import org.ballerinalang.jvm.TypeChecker;
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.nats.Constants;
 import org.ballerinalang.nats.Utils;
 
 import java.io.IOException;
+import java.io.PrintStream;
 import java.time.Duration;
+import java.util.Iterator;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeoutException;
 
+import static org.ballerinalang.nats.Constants.NATS_CLIENT_SUBSCRIBED;
 import static org.ballerinalang.nats.Constants.STREAMING_DISPATCHER_LIST;
+import static org.ballerinalang.nats.Constants.STREAMING_SUBSCRIPTION_LIST;
 
 /**
  * Remote function implementation for subscribing to a NATS subject.
  */
-@BallerinaFunction(orgName = "ballerina",
-                   packageName = "nats",
-                   functionName = "subscribe",
-                   receiver = @Receiver(type = TypeKind.OBJECT,
-                                        structType = "StreamingListener",
-                                        structPackage = "ballerina/nats"),
-                   isPublic = true)
 public class Subscribe {
+    private static final PrintStream console;
     private static final String STREAMING_SUBSCRIPTION_CONFIG = "StreamingSubscriptionConfig";
     private static final String SUBJECT_ANNOTATION_FIELD = "subject";
     private static final String QUEUE_NAME_ANNOTATION_FIELD = "queueName";
@@ -60,18 +56,28 @@ public class Subscribe {
     private static final String MANUAL_ACK_ANNOTATION_FIELD = "manualAck";
     private static final String START_POSITION_ANNOTATION_FIELD = "startPosition";
 
-    public static void subscribe(Strand strand, ObjectValue streamingListener) {
+    public static void streamingSubscribe(ObjectValue streamingListener) {
         StreamingConnection streamingConnection = (StreamingConnection) streamingListener
                 .getNativeData(Constants.NATS_STREAMING_CONNECTION);
         ConcurrentHashMap<ObjectValue, StreamingListener> serviceListenerMap =
                 (ConcurrentHashMap<ObjectValue, StreamingListener>) streamingListener
                         .getNativeData(STREAMING_DISPATCHER_LIST);
-        serviceListenerMap.forEach(
-                (subscriberService, listener) -> createSubscription(subscriberService, listener, streamingConnection));
+        ConcurrentHashMap<ObjectValue, Subscription> subscriptionsMap =
+                (ConcurrentHashMap<ObjectValue, Subscription>) streamingListener
+                        .getNativeData(STREAMING_SUBSCRIPTION_LIST);
+        Iterator serviceListeners = serviceListenerMap.entrySet().iterator();
+        while (serviceListeners.hasNext()) {
+            Map.Entry pair = (Map.Entry) serviceListeners.next();
+            Subscription sub =
+                    createSubscription((ObjectValue) pair.getKey(),
+                            (StreamingListener) pair.getValue(), streamingConnection);
+            subscriptionsMap.put((ObjectValue) pair.getKey(), sub);
+            serviceListeners.remove(); // avoids a ConcurrentModificationException
+        }
     }
 
-    private static void createSubscription(ObjectValue service, StreamingListener messageHandler,
-            StreamingConnection streamingConnection) {
+    private static Subscription createSubscription(ObjectValue service, StreamingListener messageHandler,
+                                                   StreamingConnection streamingConnection) {
         MapValue<String, Object> annotation = (MapValue<String, Object>) service.getType()
                 .getAnnotation(Constants.NATS_PACKAGE, STREAMING_SUBSCRIPTION_CONFIG);
         assertNull(annotation, "Streaming configuration annotation not present.");
@@ -79,8 +85,12 @@ public class Subscribe {
         assertNull(subject, "`Subject` annotation field is mandatory");
         String queueName = annotation.getStringValue(QUEUE_NAME_ANNOTATION_FIELD);
         SubscriptionOptions subscriptionOptions = buildSubscriptionOptions(annotation);
+        String consoleOutput = "subject " + subject + (queueName != null ? " & queue " + queueName : "");
         try {
-            streamingConnection.subscribe(subject, queueName, messageHandler, subscriptionOptions);
+            Subscription subscription =
+                    streamingConnection.subscribe(subject, queueName, messageHandler, subscriptionOptions);
+            console.println(NATS_CLIENT_SUBSCRIBED + consoleOutput);
+            return subscription;
         } catch (IOException | InterruptedException e) {
             throw Utils.createNatsError(e.getMessage());
         } catch (TimeoutException e) {
@@ -110,28 +120,28 @@ public class Subscribe {
         BType type = TypeChecker.getType(startPosition);
         int startPositionType = type.getTag();
         switch (startPositionType) {
-        case TypeTags.STRING_TAG:
-            BallerinaStartPosition startPositionValue = BallerinaStartPosition.valueOf((String) startPosition);
-            if (startPositionValue.equals(BallerinaStartPosition.LAST_RECEIVED)) {
-                builder.startWithLastReceived();
-            } else if (startPositionValue.equals(BallerinaStartPosition.FIRST)) {
-                builder.deliverAllAvailable();
-            }
-            // The else scenario is when the Start Position is "NEW_ONLY". There is no option to set this
-            // to the builder since this is the default.
-            break;
-        case TypeTags.TUPLE_TAG:
-            ArrayValue tupleValue = (ArrayValue) startPosition;
-            String startPositionKind = (String) tupleValue.getRefValue(0);
-            long timeOrSequenceNo = (Long) tupleValue.getRefValue(1);
-            if (startPositionKind.equals(BallerinaStartPosition.TIME_DELTA_START.name())) {
-                builder.startAtTimeDelta(Duration.ofSeconds(timeOrSequenceNo));
-            } else {
-                builder.startAtSequence(timeOrSequenceNo);
-            }
-            break;
-        default:
-            throw new AssertionError("Invalid type for start position value " + startPositionType);
+            case TypeTags.STRING_TAG:
+                BallerinaStartPosition startPositionValue = BallerinaStartPosition.valueOf((String) startPosition);
+                if (startPositionValue.equals(BallerinaStartPosition.LAST_RECEIVED)) {
+                    builder.startWithLastReceived();
+                } else if (startPositionValue.equals(BallerinaStartPosition.FIRST)) {
+                    builder.deliverAllAvailable();
+                }
+                // The else scenario is when the Start Position is "NEW_ONLY". There is no option to set this
+                // to the builder since this is the default.
+                break;
+            case TypeTags.TUPLE_TAG:
+                ArrayValue tupleValue = (ArrayValue) startPosition;
+                String startPositionKind = (String) tupleValue.getRefValue(0);
+                long timeOrSequenceNo = (Long) tupleValue.getRefValue(1);
+                if (startPositionKind.equals(BallerinaStartPosition.TIME_DELTA_START.name())) {
+                    builder.startAtTimeDelta(Duration.ofSeconds(timeOrSequenceNo));
+                } else {
+                    builder.startAtSequence(timeOrSequenceNo);
+                }
+                break;
+            default:
+                throw new AssertionError("Invalid type for start position value " + startPositionType);
         }
     }
 
@@ -148,4 +158,7 @@ public class Subscribe {
         NEW_ONLY, LAST_RECEIVED, FIRST, TIME_DELTA_START, SEQUENCE_NUMBER;
     }
 
+    static {
+        console = System.out;
+    }
 }

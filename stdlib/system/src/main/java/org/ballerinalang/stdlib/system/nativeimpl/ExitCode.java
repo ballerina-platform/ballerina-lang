@@ -18,12 +18,7 @@
 
 package org.ballerinalang.stdlib.system.nativeimpl;
 
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.stdlib.system.utils.SystemConstants;
 import org.ballerinalang.stdlib.system.utils.SystemUtils;
 import org.slf4j.Logger;
@@ -34,19 +29,11 @@ import org.slf4j.LoggerFactory;
  *
  * @since 1.0.0
  */
-@BallerinaFunction(
-        orgName = SystemConstants.ORG_NAME,
-        packageName = SystemConstants.PACKAGE_NAME,
-        functionName = "exitCode",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = "Process",
-        structPackage = "ballerina/system"),
-        returnType = { @ReturnType(type = TypeKind.INT), @ReturnType(type = TypeKind.ERROR) }
-)
 public class ExitCode {
     
     private static final Logger log = LoggerFactory.getLogger(WaitForExit.class);
 
-    public static Object exitCode(Strand strand, ObjectValue objVal) {
+    public static Object exitCode(ObjectValue objVal) {
         Process process = SystemUtils.processFromObject(objVal);
         try {
             return process.exitValue();
@@ -55,5 +42,4 @@ public class ExitCode {
             return SystemUtils.getBallerinaError(SystemConstants.PROCESS_EXEC_ERROR, e);
         }
     }
-
 }

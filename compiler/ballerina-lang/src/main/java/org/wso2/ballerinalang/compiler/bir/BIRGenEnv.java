@@ -51,7 +51,6 @@ class BIRGenEnv {
     private int currentBBId = -1;
     private int currentLocalVarId = -1;
     private int currentLambdaVarId = -1;
-    private int currentGlobalVarId = -1;
 
     BIRBasicBlock enclBB;
     BIROperand targetOperand;
@@ -89,11 +88,6 @@ class BIRGenEnv {
     Name nextLambdaVarId(Names names) {
         currentLambdaVarId++;
         return names.merge(Names.BIR_LOCAL_VAR_PREFIX, names.fromString(Integer.toString(currentLambdaVarId)));
-    }
-
-    Name nextGlobalVarId(Names names) {
-        currentGlobalVarId++;
-        return names.merge(Names.BIR_GLOBAL_VAR_PREFIX, names.fromString(Integer.toString(currentGlobalVarId)));
     }
 
     void clear() {

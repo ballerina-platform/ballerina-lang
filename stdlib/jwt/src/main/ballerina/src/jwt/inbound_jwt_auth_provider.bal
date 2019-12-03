@@ -60,10 +60,11 @@ public type InboundJwtAuthProvider object {
         if (validationResult is JwtPayload) {
             auth:setAuthenticationContext("jwt", credential);
             setPrincipal(validationResult);
-            addToAuthenticationCache(self.jwtValidatorConfig, credential, validationResult?.exp, validationResult);
+            addToAuthenticationCache(self.jwtValidatorConfig, credential, <@untainted> validationResult?.exp,
+                <@untainted> validationResult);
             return true;
         } else {
-            return auth:prepareError("JWT validation failed.", validationResult);
+            return prepareAuthError("JWT validation failed.", validationResult);
         }
     }
 };
@@ -112,7 +113,7 @@ function setPrincipal(JwtPayload jwtPayload) {
         auth:setPrincipal(claims = claims);
         if (claims.hasKey(SCOPE)) {
             var scopeString = claims[SCOPE];
-            if (scopeString is string) {
+            if (scopeString is string && scopeString != "") {
                 auth:setPrincipal(scopes = stringutils:split(scopeString, " "));
             }
         }

@@ -352,10 +352,15 @@ public class TaintedStatusPropagationTest {
     @Test
     public void testGlobalVariablesNegative() {
         CompileResult result = BCompileUtil.compile("test-src/taintchecking/propagation/global-variables-negative.bal");
-        Assert.assertEquals(result.getDiagnostics().length, 3);
-        BAssertUtil.validateError(result, 0, "tainted value passed to global variable 'KK'", 3, 1);
-        BAssertUtil.validateError(result, 1, "tainted value passed to untainted parameter 'pa'", 7, 9);
-        BAssertUtil.validateError(result, 2, "tainted value passed to global variable 'globalVariable'", 15, 5);
+        int i = 0;
+        BAssertUtil.validateError(result, i++, "tainted value passed to global variable 'KK'", 3, 1);
+        BAssertUtil.validateError(result, i++, "tainted value passed to untainted parameter 'pa'", 10, 9);
+        BAssertUtil.validateError(result, i++, "tainted value passed to global variable 'M'", 11, 5);
+        BAssertUtil.validateError(result, i++, "tainted value passed to global variable 'REC'", 12, 5);
+        BAssertUtil.validateError(result, i++, "tainted value passed to global variable 'REC'", 13, 5);
+        BAssertUtil.validateError(result, i++, "tainted value passed to global variable 'REC'", 14, 5);
+        BAssertUtil.validateError(result, i++, "tainted value passed to global variable 'globalVariable'", 22, 5);
+        Assert.assertEquals(result.getDiagnostics().length, i);
     }
 
     @Test
@@ -594,5 +599,14 @@ public class TaintedStatusPropagationTest {
         CompileResult result = BCompileUtil.compile("test-src/taintchecking/propagation/into-type-guard-negative.bal");
         Assert.assertEquals(result.getDiagnostics().length, 1);
         BAssertUtil.validateError(result, 0, "tainted value passed to untainted parameter 'arg'", 21, 13);
+    }
+
+    @Test
+    public void testTaintednessPropagationCheckExpressionNegative() {
+        CompileResult result = BCompileUtil.compile("test-src/taintchecking/propagation/check-expression-negative.bal");
+        Assert.assertEquals(result.getDiagnostics().length, 2);
+        BAssertUtil.validateError(result, 0, "tainted value passed to untainted parameter 'arg'", 19, 9);
+        BAssertUtil.validateError(result, 1,
+                "functions returning tainted value are required to annotate return signature @tainted: 'foo'", 22, 24);
     }
 }

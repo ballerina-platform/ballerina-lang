@@ -33,10 +33,10 @@ function testLocalTransaction(string jdbcURL) returns @tainted [int, int, boolea
     boolean committedBlockExecuted = false;
     boolean abortedBlockExecuted = false;
     transaction {
-        _ = checkpanic testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
-                                values ('James', 'Clerk', 200, 5000.75, 'USA')");
-        _ = checkpanic testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
-                                values ('James', 'Clerk', 200, 5000.75, 'USA')");
+        _ = checkpanic testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country) " +
+                                "values ('James', 'Clerk', 200, 5000.75, 'USA')");
+        _ = checkpanic testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country) " +
+                                "values ('James', 'Clerk', 200, 5000.75, 'USA')");
     } onretry {
         returnVal = -1;
     } committed {
@@ -64,10 +64,10 @@ function testTransactionRollback(string jdbcURL) returns @tainted [int, int, boo
     boolean stmtAfterFailureExecuted = false;
 
     transaction {
-        var e1 = testDB->update("Insert into Customers (firstName,lastName,registrationID,
-                creditLimit,country) values ('James', 'Clerk', 210, 5000.75, 'USA')");
-        var e2 = testDB->update("Insert into Customers2 (firstName,lastName,registrationID,
-                creditLimit,country) values ('James', 'Clerk', 210, 5000.75, 'USA')");
+        var e1 = testDB->update("Insert into Customers (firstName,lastName,registrationID," +
+                "creditLimit,country) values ('James', 'Clerk', 210, 5000.75, 'USA')");
+        var e2 = testDB->update("Insert into Customers2 (firstName,lastName,registrationID," +
+                "creditLimit,country) values ('James', 'Clerk', 210, 5000.75, 'USA')");
         stmtAfterFailureExecuted = true;
 
     } onretry {
@@ -91,10 +91,10 @@ function testLocalTransactionUpdateWithGeneratedKeys(string jdbcURL) returns @ta
     int returnVal = 0;
     int count;
     transaction {
-        var e1 = testDB->update("Insert into Customers
-        (firstName,lastName,registrationID,creditLimit,country) values ('James', 'Clerk', 615, 5000.75, 'USA')");
-        var e2 = testDB->update("Insert into Customers
-        (firstName,lastName,registrationID,creditLimit,country) values ('James', 'Clerk', 615, 5000.75, 'USA')");
+        var e1 = testDB->update("Insert into Customers " +
+        "(firstName,lastName,registrationID,creditLimit,country) values ('James', 'Clerk', 615, 5000.75, 'USA')");
+        var e2 = testDB->update("Insert into Customers " +
+        "(firstName,lastName,registrationID,creditLimit,country) values ('James', 'Clerk', 615, 5000.75, 'USA')");
     } onretry {
         returnVal = -1;
     }
@@ -117,10 +117,10 @@ function testTransactionRollbackUpdateWithGeneratedKeys(string jdbcURL) returns 
     int count;
 
     transaction {
-        var e1 = testDB->update("Insert into Customers (firstName,lastName,registrationID,
-                creditLimit,country) values ('James', 'Clerk', 618, 5000.75, 'USA')");
-        var e2 = testDB->update("Insert into Customers2 (firstName,lastName,registrationID,
-                creditLimit,country) values ('James', 'Clerk', 618, 5000.75, 'USA')");
+        var e1 = testDB->update("Insert into Customers (firstName,lastName,registrationID," +
+                "creditLimit,country) values ('James', 'Clerk', 618, 5000.75, 'USA')");
+        var e2 = testDB->update("Insert into Customers2 (firstName,lastName,registrationID," +
+                "creditLimit,country) values ('James', 'Clerk', 618, 5000.75, 'USA')");
     } onretry {
         returnVal = -1;
     }
@@ -218,10 +218,10 @@ function testLocalTransactionBatchUpdate(string jdbcURL) returns @tainted [int, 
     jdbc:Parameter?[] parameters2 = [para1, para2, para3, para4, para5];
 
     transaction {
-        var e1 = testDB->batchUpdate("Insert into Customers
-        (firstName,lastName,registrationID,creditLimit,country) values (?,?,?,?,?)", false, parameters1, parameters2);
-        var e2 = testDB->batchUpdate("Insert into Customers
-        (firstName,lastName,registrationID,creditLimit,country) values (?,?,?,?,?)", false, parameters1, parameters2);
+        var e1 = testDB->batchUpdate("Insert into Customers " +
+        "(firstName,lastName,registrationID,creditLimit,country) values (?,?,?,?,?)", false, parameters1, parameters2);
+        var e2 = testDB->batchUpdate("Insert into Customers " +
+        "(firstName,lastName,registrationID,creditLimit,country) values (?,?,?,?,?)", false, parameters1, parameters2);
     } onretry {
         returnVal = -1;
     }
@@ -260,10 +260,10 @@ function testLocalTransactionRollbackBatchUpdate(string jdbcURL) returns @tainte
     jdbc:Parameter?[] parameters2 = [para1, para2, para3, para4, para5];
 
     transaction {
-        var e1 = testDB->batchUpdate("Insert into Customers
-        (firstName,lastName,registrationID,creditLimit,country) values (?,?,?,?,?)", false, parameters1, parameters2);
-        var e2 = testDB->batchUpdate("Insert into Customers2
-        (firstName,lastName,registrationID,creditLimit,country) values (?,?,?,?,?)", false, parameters1, parameters2);
+        var e1 = testDB->batchUpdate("Insert into Customers " +
+        "(firstName,lastName,registrationID,creditLimit,country) values (?,?,?,?,?)", false, parameters1, parameters2);
+        var e2 = testDB->batchUpdate("Insert into Customers2 " +
+        "(firstName,lastName,registrationID,creditLimit,country) values (?,?,?,?,?)", false, parameters1, parameters2);
     } onretry {
         returnVal = -1;
     }
@@ -285,11 +285,11 @@ function testTransactionAbort(string jdbcURL) returns @tainted [int, int] {
     int returnVal = -1;
     int count;
     transaction {
-        var e1 = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
-                                            values ('James', 'Clerk', 220, 5000.75, 'USA')");
+        var e1 = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country) " +
+                                            "values ('James', 'Clerk', 220, 5000.75, 'USA')");
 
-        var e2 = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
-                                            values ('James', 'Clerk', 220, 5000.75, 'USA')");
+        var e2 = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country) " +
+                                            "values ('James', 'Clerk', 220, 5000.75, 'USA')");
         int i = 0;
         if (i == 0) {
             abort;
@@ -331,8 +331,8 @@ function testTransactionErrorPanic(string jdbcURL) returns @tainted [int, int, i
 function testTransactionErrorPanicHelper(jdbc:Client testDB) {
     int returnVal = 0;
     transaction {
-        var e1 = testDB->update("Insert into Customers (firstName,lastName,
-                              registrationID,creditLimit,country) values ('James', 'Clerk', 260, 5000.75, 'USA')");
+        var e1 = testDB->update("Insert into Customers (firstName,lastName," +
+                              "registrationID,creditLimit,country) values ('James', 'Clerk', 260, 5000.75, 'USA')");
         int i = 0;
         if (i == 0) {
             error e = error("error");
@@ -355,8 +355,8 @@ function testTransactionErrorPanicAndTrap(string jdbcURL) returns @tainted [int,
     int catchValue = 0;
     int count;
     transaction {
-        var e1 = testDB->update("Insert into Customers (firstName,lastName,registrationID,
-                 creditLimit,country) values ('James', 'Clerk', 250, 5000.75, 'USA')");
+        var e1 = testDB->update("Insert into Customers (firstName,lastName,registrationID," +
+                 "creditLimit,country) values ('James', 'Clerk', 250, 5000.75, 'USA')");
         var ret = trap testTransactionErrorPanicAndTrapHelper(0);
         if (ret is error) {
             catchValue = -1;
@@ -389,10 +389,10 @@ function testTransactionCommitted(string jdbcURL) returns @tainted [int, int] {
     int returnVal = 1;
     int count;
     transaction {
-        var e1 = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,
-               country) values ('James', 'Clerk', 300, 5000.75, 'USA')");
-        var e2 = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,
-               country) values ('James', 'Clerk', 300, 5000.75, 'USA')");
+        var e1 = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit," +
+               "country) values ('James', 'Clerk', 300, 5000.75, 'USA')");
+        var e2 = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit," +
+               "country) values ('James', 'Clerk', 300, 5000.75, 'USA')");
     } onretry {
         returnVal = -1;
     }
@@ -415,19 +415,19 @@ function testTwoTransactions(string jdbcURL) returns @tainted [int, int, int] {
     int returnVal2 = 1;
     int count;
     transaction {
-        var e1 = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
-                            values ('James', 'Clerk', 400, 5000.75, 'USA')");
-        var e2 = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
-                            values ('James', 'Clerk', 400, 5000.75, 'USA')");
+        var e1 = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country) " +
+                            "values ('James', 'Clerk', 400, 5000.75, 'USA')");
+        var e2 = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country) " +
+                            "values ('James', 'Clerk', 400, 5000.75, 'USA')");
     } onretry {
         returnVal1 = 0;
     }
 
     transaction {
-        var e1 = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
-                            values ('James', 'Clerk', 400, 5000.75, 'USA')");
-        var e2 = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
-                            values ('James', 'Clerk', 400, 5000.75, 'USA')");
+        var e1 = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country) " +
+                            "values ('James', 'Clerk', 400, 5000.75, 'USA')");
+        var e2 = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country) " +
+                            "values ('James', 'Clerk', 400, 5000.75, 'USA')");
     } onretry {
         returnVal2 = 0;
     }
@@ -447,10 +447,10 @@ function testTransactionWithoutHandlers(string jdbcURL) returns @tainted int {
     });
 
     transaction {
-        var e1 = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country) values
-                                           ('James', 'Clerk', 350, 5000.75, 'USA')");
-        var e2 = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country) values
-                                           ('James', 'Clerk', 350, 5000.75, 'USA')");
+        var e1 = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country) values " +
+                                           "('James', 'Clerk', 350, 5000.75, 'USA')");
+        var e2 = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country) values " +
+                                           "('James', 'Clerk', 350, 5000.75, 'USA')");
     }
 
     int count;
@@ -489,10 +489,10 @@ function testLocalTransactionFailedHelper(string status, jdbc:Client testDB) ret
     string a = status;
     transaction with retries = 4 {
         a = a + " inTrx";
-        var e1 = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
-                        values ('James', 'Clerk', 111, 5000.75, 'USA')");
-        var e2 = testDB->update("Insert into Customers2 (firstName,lastName,registrationID,creditLimit,country)
-                        values ('Anne', 'Clerk', 111, 5000.75, 'USA')");
+        var e1 = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country) " +
+                        "values ('James', 'Clerk', 111, 5000.75, 'USA')");
+        var e2 = testDB->update("Insert into Customers2 (firstName,lastName,registrationID,creditLimit,country) " +
+                        "values ('Anne', 'Clerk', 111, 5000.75, 'USA')");
     } onretry {
         a = a + " onRetry";
     } aborted {
@@ -528,14 +528,14 @@ function testLocalTransactionSuccessWithFailedHelper(string status, jdbc:Client 
     string a = status;
     transaction with retries = 4 {
         a = a + " inTrx";
-        var e1 = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
-                                    values ('James', 'Clerk', 222, 5000.75, 'USA')");
+        var e1 = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)" +
+                                    " values ('James', 'Clerk', 222, 5000.75, 'USA')");
         if (i == 2) {
-            var e2 = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
-                                        values ('Anne', 'Clerk', 222, 5000.75, 'USA')");
+            var e2 = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country) " +
+                                        "values ('Anne', 'Clerk', 222, 5000.75, 'USA')");
         } else {
-            var e3 = testDB->update("Insert into Customers2 (firstName,lastName,registrationID,creditLimit,country)
-                                        values ('Anne', 'Clerk', 222, 5000.75, 'USA')");
+            var e3 = testDB->update("Insert into Customers2 (firstName,lastName,registrationID,creditLimit,country) " +
+                                        "values ('Anne', 'Clerk', 222, 5000.75, 'USA')");
         }
     } onretry {
         a = a + " onRetry";
@@ -568,8 +568,8 @@ function testLocalTransactionFailedWithNextupdate(string jdbcURL) returns @taint
     if (ret is error) {
         i = -1;
     }
-    var e = checkpanic testDB1->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
-                            values ('James', 'Clerk', 12343, 5000.75, 'USA')");
+    var e = checkpanic testDB1->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country) " +
+                            "values ('James', 'Clerk', 12343, 5000.75, 'USA')");
     checkpanic testDB1.stop();
 
     var dt = testDB2->select("Select COUNT(*) as countval from Customers where registrationID = 12343",
@@ -581,8 +581,8 @@ function testLocalTransactionFailedWithNextupdate(string jdbcURL) returns @taint
 
 function testLocalTransactionFailedWithNextupdateHelper(jdbc:Client testDB) {
     transaction {
-        var e = testDB->update("Insert into Customers (firstNamess,lastName,registrationID,creditLimit,country)
-                                    values ('James', 'Clerk', 1234, 5000.75, 'USA')");
+        var e = testDB->update("Insert into Customers (firstNamess,lastName,registrationID,creditLimit,country) " +
+                                    "values ('James', 'Clerk', 1234, 5000.75, 'USA')");
     }
 }
 
@@ -597,8 +597,8 @@ function testNestedTwoLevelTransactionSuccess(string jdbcURL) returns @tainted [
     int returnVal = 0;
     int count;
     transaction {
-        var e = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
-                                values ('James', 'Clerk', 333, 5000.75, 'USA')");
+        var e = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country) " +
+                                "values ('James', 'Clerk', 333, 5000.75, 'USA')");
         testNestedTwoLevelTransactionSuccessParticipant(testDB);
     } onretry {
         returnVal = -1;
@@ -612,8 +612,8 @@ function testNestedTwoLevelTransactionSuccess(string jdbcURL) returns @tainted [
 
 @transactions:Participant {}
 function testNestedTwoLevelTransactionSuccessParticipant(jdbc:Client testDB) {
-    var e = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
-                                values ('James', 'Clerk', 333, 5000.75, 'USA')");
+    var e = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country) " +
+                                "values ('James', 'Clerk', 333, 5000.75, 'USA')");
 }
 
 function testNestedThreeLevelTransactionSuccess(string jdbcURL) returns @tainted [int, int] {
@@ -627,8 +627,8 @@ function testNestedThreeLevelTransactionSuccess(string jdbcURL) returns @tainted
     int returnVal = 0;
     int count;
     transaction {
-        var e = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
-                                values ('James', 'Clerk', 444, 5000.75, 'USA')");
+        var e = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country) " +
+                                "values ('James', 'Clerk', 444, 5000.75, 'USA')");
         testNestedThreeLevelTransactionSuccessParticipant1(testDB);
     } onretry {
         returnVal = -1;
@@ -642,15 +642,15 @@ function testNestedThreeLevelTransactionSuccess(string jdbcURL) returns @tainted
 
 @transactions:Participant {}
 function testNestedThreeLevelTransactionSuccessParticipant1(jdbc:Client testDB) {
-    var e = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
-                                values ('James', 'Clerk', 444, 5000.75, 'USA')");
+    var e = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country) " +
+                                "values ('James', 'Clerk', 444, 5000.75, 'USA')");
     testNestedThreeLevelTransactionSuccessParticipant2(testDB);
 }
 
 @transactions:Participant {}
 function testNestedThreeLevelTransactionSuccessParticipant2(jdbc:Client testDB) {
-    _ = checkpanic testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
-                                values ('James', 'Clerk', 444, 5000.75, 'USA')");
+    _ = checkpanic testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country) " +
+                                "values ('James', 'Clerk', 444, 5000.75, 'USA')");
 }
 
 function testNestedThreeLevelTransactionFailed(string jdbcURL) returns @tainted [int, int] {
@@ -677,8 +677,8 @@ function testNestedThreeLevelTransactionFailed(string jdbcURL) returns @tainted 
 function testNestedThreeLevelTransactionFailedHelper(jdbc:Client testDB) returns int {
     int returnVal = 0;
     transaction {
-        _ = checkpanic testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
-                                        values ('James', 'Clerk', 555, 5000.75, 'USA')");
+        _ = checkpanic testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country) " +
+                                        "values ('James', 'Clerk', 555, 5000.75, 'USA')");
         testNestedThreeLevelTransactionFailedHelperParticipant1(testDB);
     } onretry {
         returnVal = -1;
@@ -688,22 +688,22 @@ function testNestedThreeLevelTransactionFailedHelper(jdbc:Client testDB) returns
 
 @transactions:Participant {}
 function testNestedThreeLevelTransactionFailedHelperParticipant1(jdbc:Client testDB) {
-    var e = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
-                                        values ('James', 'Clerk', 555, 5000.75, 'USA')");
+    var e = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country) " +
+                                        "values ('James', 'Clerk', 555, 5000.75, 'USA')");
     testNestedThreeLevelTransactionFailedHelperParticipant2(testDB);
 }
 
 @transactions:Participant {}
 function testNestedThreeLevelTransactionFailedHelperParticipant2(jdbc:Client testDB) {
-    var e = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
-                                            values ('James', 'Clerk', 555, 5000.75, 'USA')");
+    var e = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country) " +
+                                            "values ('James', 'Clerk', 555, 5000.75, 'USA')");
     testNestedThreeLevelTransactionFailedHelperParticipant3(testDB);
 }
 
 @transactions:Participant {}
 function testNestedThreeLevelTransactionFailedHelperParticipant3(jdbc:Client testDB) {
-    var e = testDB->update("Insert into Customers (invalidColumn,lastName,registrationID,creditLimit,country)
-                                            values ('James', 'Clerk', 555, 5000.75, 'USA')");
+    var e = testDB->update("Insert into Customers (invalidColumn,lastName,registrationID,creditLimit,country) " +
+                                            "values ('James', 'Clerk', 555, 5000.75, 'USA')");
 }
 
 function testLocalTransactionWithSelectAndForeachIteration(string jdbcURL) returns @tainted [int, int] {
@@ -714,23 +714,21 @@ function testLocalTransactionWithSelectAndForeachIteration(string jdbcURL) retur
         poolOptions: {maximumPoolSize: 5}
     });
 
-    var e1 = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
-                                values ('James', 'Clerk', 900, 5000.75, 'USA')");
-    var e2 = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
-                                values ('James', 'Clerk', 900, 5000.75, 'USA')");
+    var e1 = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country) " +
+                                "values ('James', 'Clerk', 900, 5000.75, 'USA')");
+    var e2 = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country) " +
+                                "values ('James', 'Clerk', 900, 5000.75, 'USA')");
 
     int returnVal = 0;
     int count = -1;
     transaction {
-        var dt1 = testDB->select("Select COUNT(*) as countval from Customers where
-            registrationID = 900", ResultCount);
+        var dt1 = testDB->select("Select COUNT(*) as countval from Customers where registrationID = 900", ResultCount);
         if (dt1 is table<ResultCount>) {
             foreach var row in dt1 {
                 count = row.COUNTVAL;
             }
         }
-        var dt2 = testDB->select("Select COUNT(*) as countval from Customers where
-            registrationID = 900", ResultCount);
+        var dt2 = testDB->select("Select COUNT(*) as countval from Customers where registrationID = 900", ResultCount);
         if (dt2 is table<ResultCount>) {
             foreach var row in dt2 {
                 count = row.COUNTVAL;
@@ -751,25 +749,24 @@ function testLocalTransactionWithUpdateAfterSelectAndForeachIteration(string jdb
         poolOptions: {maximumPoolSize: 5}
     });
 
-    var e1 = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
-                                values ('James', 'Clerk', 902, 5000.75, 'USA')");
-    var e2 = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
-                                values ('James', 'Clerk', 902, 5000.75, 'USA')");
+    var e1 = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country) " +
+                                "values ('James', 'Clerk', 902, 5000.75, 'USA')");
+    var e2 = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country) " +
+                                "values ('James', 'Clerk', 902, 5000.75, 'USA')");
 
     int returnVal = 0;
     int count = -1;
     transaction {
-        var dt1 = testDB->select("Select COUNT(*) as countval from Customers where
-            registrationID = 902", ResultCount);
+        var dt1 = testDB->select("Select COUNT(*) as countval from Customers where registrationID = 902", ResultCount);
         if (dt1 is table<ResultCount>) {
             foreach var row in dt1 {
                 count = row.COUNTVAL;
             }
         }
-        var e3 = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
-                                        values ('James', 'Clerk', 902, 5000.75, 'USA')");
-        var dt2 = testDB->select("Select COUNT(*) as countval from Customers where
-            registrationID = 902", ResultCount);
+        var e3 = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country) " +
+                                        "values ('James', 'Clerk', 902, 5000.75, 'USA')");
+        var dt2 = testDB->select("Select COUNT(*) as countval from Customers where " +
+            "registrationID = 902", ResultCount);
         if (dt2 is table<ResultCount>) {
             foreach var row in dt2 {
                 count = row.COUNTVAL;
@@ -790,16 +787,16 @@ function testLocalTransactionWithUpdateAfterSelectAndBreakingWhileIteration(stri
         poolOptions: {maximumPoolSize: 5}
     });
 
-    var e1 = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
-                                values ('James', 'Clerk', 903, 5000.75, 'USA')");
-    var e2 = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
-                                values ('James', 'Clerk', 903, 5000.75, 'USA')");
+    var e1 = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country) " +
+                                "values ('James', 'Clerk', 903, 5000.75, 'USA')");
+    var e2 = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country) " +
+                                "values ('James', 'Clerk', 903, 5000.75, 'USA')");
 
     int returnVal = 0;
     int count = -1;
     transaction {
-        var dt1 = testDB->select("Select COUNT(*) as countval from Customers where
-            registrationID = 903", ResultCount);
+        var dt1 = testDB->select("Select COUNT(*) as countval from Customers where " +
+            "registrationID = 903", ResultCount);
         if (dt1 is table<ResultCount>) {
             while (dt1.hasNext()) {
                 var rs = dt1.getNext();
@@ -809,10 +806,10 @@ function testLocalTransactionWithUpdateAfterSelectAndBreakingWhileIteration(stri
                 break;
             }
         }
-        var e3 = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
-                                        values ('James', 'Clerk', 903, 5000.75, 'USA')");
-        var dt2 = testDB->select("Select COUNT(*) as countval from Customers where
-            registrationID = 903", ResultCount);
+        var e3 = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country) " +
+                                        "values ('James', 'Clerk', 903, 5000.75, 'USA')");
+        var dt2 = testDB->select("Select COUNT(*) as countval from Customers where " +
+            "registrationID = 903", ResultCount);
         if (dt2 is table<ResultCount>) {
             foreach var row in dt2 {
                 count = row.COUNTVAL;
@@ -833,24 +830,24 @@ function testLocalTransactionWithUpdateAfterSelectAndTableClosure(string jdbcURL
         poolOptions: {maximumPoolSize: 5}
     });
 
-    var e1 = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
-                                values ('James', 'Clerk', 904, 5000.75, 'USA')");
-    var e2 = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
-                                values ('James', 'Clerk', 904, 5000.75, 'USA')");
+    var e1 = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country) " +
+                                "values ('James', 'Clerk', 904, 5000.75, 'USA')");
+    var e2 = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country) " +
+                                "values ('James', 'Clerk', 904, 5000.75, 'USA')");
 
     int returnVal = 0;
     int count = -1;
     transaction {
-        var dt1 = testDB->select("Select COUNT(*) as countval from Customers where
-            registrationID = 904", ResultCount);
+        var dt1 = testDB->select("Select COUNT(*) as countval from Customers where " +
+            "registrationID = 904", ResultCount);
         if (dt1 is table<ResultCount>) {
             dt1.close();
         }
 
-        var e3 = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
-                                        values ('James', 'Clerk', 904, 5000.75, 'USA')");
-        var dt2 = testDB->select("Select COUNT(*) as countval from Customers where
-            registrationID = 904", ResultCount);
+        var e3 = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country) " +
+                                        "values ('James', 'Clerk', 904, 5000.75, 'USA')");
+        var dt2 = testDB->select("Select COUNT(*) as countval from Customers where " +
+            "registrationID = 904", ResultCount);
         if (dt2 is table<ResultCount>) {
             foreach var row in dt2 {
                 count = row.COUNTVAL;
@@ -871,19 +868,19 @@ function testLocalTransactionWithSelectAndHasNextIteration(string jdbcURL) retur
         poolOptions: {maximumPoolSize: 5}
     });
 
-    var e1 = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
-                                values ('James', 'Clerk', 901, 5000.75, 'USA')");
-    var e2 = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
-                                values ('James', 'Clerk', 901, 5000.75, 'USA')");
+    var e1 = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country) " +
+                                "values ('James', 'Clerk', 901, 5000.75, 'USA')");
+    var e2 = testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country) " +
+                                "values ('James', 'Clerk', 901, 5000.75, 'USA')");
 
     int returnVal = 0;
     int count = -1;
     transaction {
-        var dt1 = testDB->select("Select COUNT(*) as countval from Customers where
-            registrationID = 901", ResultCount);
+        var dt1 = testDB->select("Select COUNT(*) as countval from Customers where " +
+            "registrationID = 901", ResultCount);
         count = getTableCountValColumn(dt1);
-        var dt2 = testDB->select("Select COUNT(*) as countval from Customers where
-            registrationID = 901", ResultCount);
+        var dt2 = testDB->select("Select COUNT(*) as countval from Customers where " +
+            "registrationID = 901", ResultCount);
         count = getTableCountValColumn(dt2);
     } onretry {
         returnVal = -1;

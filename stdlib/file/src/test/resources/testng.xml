@@ -20,9 +20,13 @@
 <!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
 
 <suite name="ballerina-test-suite">
+    <listeners>
+        <listener class-name="org.ballerinalang.test.listener.JBallerinaTestInitializer"/>
+    </listeners>
     <test name="ballerina-lang-test-suite" preserve-order="true" parallel="false">
-        <packages>
-            <package name="org.ballerinalang.stdlib.file.*"/>
-        </packages>
+        <classes>
+            <class name="org.ballerinalang.stdlib.file.DirectoryListenerConnectorTest"/>
+            <class name="org.ballerinalang.stdlib.file.FileTest"/>
+        </classes>
     </test>
 </suite>

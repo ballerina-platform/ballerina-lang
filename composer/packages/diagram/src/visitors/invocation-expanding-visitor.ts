@@ -206,9 +206,7 @@ export const visitor: Visitor = {
         }
 
         const viewState = node.viewState as StmntViewState;
-        if (ASTKindChecker.isInvocation(node.expression)) {
-            handleExpanding(node.expression, viewState);
-        }
+        handleExpanding(node.expression, viewState);
     },
 
     endVisitVariableDef(node: VariableDef) {

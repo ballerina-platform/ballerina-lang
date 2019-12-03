@@ -945,3 +945,90 @@ function testTypeGuardForCustomErrorNegative() returns boolean {
         return false;
     }
 }
+
+function testTypeGuardForTupleDestructuringAssignmentPositive() returns boolean {
+    [string?, int] [s, i] = tupleReturningFunc("str");
+    if (s is string) {
+        string strVal = s;
+        [s, i] = tupleReturningFunc(());
+        return s is ();
+    }
+
+    return false;
+}
+
+function testTypeGuardForTupleDestructuringAssignmentNegative() returns boolean {
+    var [s, i] = tupleReturningFunc("str");
+    if (s is string) {
+        string strVal = s;
+        [s, i] = tupleReturningFunc(strVal);
+        return s is ();
+    }
+
+    return true;
+}
+
+function tupleReturningFunc(string? s) returns [string?, int] {
+    return [s, 1];
+}
+
+function testTypeGuardForRecordDestructuringAssignmentPositive() returns boolean {
+    var {s: s, i: i, ...rest} = recordReturningFunc(1);
+    if (i is int) {
+        int intVal = i;
+        {s: s, i: i, ...rest} = recordReturningFunc(());
+        return i is ();
+    }
+
+    return false;
+}
+
+function testTypeGuardForRecordDestructuringAssignmentNegative() returns boolean {
+    record {
+        string s;
+        int? i;
+    } {s, i, ...rest} = recordReturningFunc(1);
+    if (i is int) {
+        int intVal = i;
+        {s: s, i: i, ...rest} = recordReturningFunc(2);
+        return i is ();
+    }
+
+    return true;
+}
+
+function recordReturningFunc(int? i) returns record {string s; int? i;} {
+    return {s: "hello", i: i, "f": 1.0};
+}
+
+function testTypeGuardForErrorDestructuringAssignmentPositive() returns boolean {
+    var error(s, message = message, code = code) = errorReturningFunc(1);
+    if (code is int) {
+        int intVal = code;
+        error(s, message = message, code = code) = errorReturningFunc(());
+        return code is ();
+    }
+
+    return false;
+}
+
+function testTypeGuardForErrorDestructuringAssignmentNegative() returns boolean {
+    error<string, Detail> error(s, message = message, code = code) = errorReturningFunc(1);
+    if (code is int) {
+        int intVal = code;
+        error(s, message = message, code = code) = errorReturningFunc(3);
+        return code is ();
+    }
+
+    return true;
+}
+
+type Detail record {
+    string message?;
+    error cause?;
+    int? code;
+};
+
+function errorReturningFunc(int? i) returns error<string, Detail> {
+    return error("hello", message = "hello", code = i, f = 1.0);
+}

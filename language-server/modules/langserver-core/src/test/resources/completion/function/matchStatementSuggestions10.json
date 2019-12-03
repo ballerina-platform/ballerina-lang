@@ -70,6 +70,14 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "final",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "220",
+      "insertText": "final ",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "foreach",
       "kind": "Snippet",
       "detail": "Statement",
@@ -180,7 +188,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n  \n  \n**Returns** `(string|int|boolean)`   \n  \n"
+          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `(string|int|boolean)` i  \n  \n**Returns** `(string|int|boolean)`   \n  \n"
         }
       },
       "sortText": "120",
@@ -256,6 +264,17 @@
       "detail": "String",
       "sortText": "230",
       "insertText": "string",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Dispatcher",
+      "kind": "Struct",
+      "detail": "Record",
+      "documentation": {
+        "left": "Defines a disptcher to be used for concurrent execution of strands.\n"
+      },
+      "sortText": "180",
+      "insertText": "Dispatcher",
       "insertTextFormat": "Snippet"
     },
     {
@@ -718,6 +737,29 @@
             }
           },
           "newText": "import ballerina/grpc;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/bir",
+      "kind": "Module",
+      "detail": "Package",
+      "sortText": "140",
+      "insertText": "bir",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 2,
+              "character": 0
+            },
+            "end": {
+              "line": 2,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/bir;\n"
         }
       ]
     },

@@ -11,7 +11,7 @@ listener websub:Listener websubEP = new(8181);
 // Also, the exclusion of the onIntentVerification resource will result in auto intent-verification.
 @websub:SubscriberServiceConfig {
     path: "/websub",
-    target: ["https://localhost:9191/websub/hub","http://websubpubtopic.com"],
+    target: ["http://localhost:9191/websub/hub","http://websubpubtopic.com"],
     secret: "Kslk30SNF2AChs2"
 }
 service websubSubscriber on websubEP {

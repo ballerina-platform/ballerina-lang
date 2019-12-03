@@ -19,10 +19,9 @@
 package org.ballerinalang.stdlib.config;
 
 import org.ballerinalang.config.ConfigRegistry;
-import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
 
 import java.util.Map;
 
@@ -31,30 +30,28 @@ import java.util.Map;
  *
  * @since 0.970.0-alpha3
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "config",
-        functionName = "get"
-)
 public class GetConfig {
-
     private static final ConfigRegistry configRegistry = ConfigRegistry.getInstance();
+    public static final String LOOKUP_ERROR_REASON = "{ballerina/config}LookupError";
 
-    public static Object get(Strand strand, String configKey, Object type) {
-
-        // TODO: Add a try-catch
-        switch (type.toString()) {
-            case "STRING":
-                return configRegistry.getAsString(configKey);
-            case "INT":
-                return configRegistry.getAsInt(configKey);
-            case "FLOAT":
-                return configRegistry.getAsFloat(configKey);
-            case "BOOLEAN":
-                return configRegistry.getAsBoolean(configKey);
-            case "MAP":
-                return buildMapValue(configRegistry.getAsMap(configKey));
-            default:
-                throw new IllegalStateException("invalid value type: " + type.toString());
+    public static Object get(String configKey, String type) {
+        try {
+            switch (type) {
+                case "STRING":
+                    return configRegistry.getAsString(configKey);
+                case "INT":
+                    return configRegistry.getAsInt(configKey);
+                case "FLOAT":
+                    return configRegistry.getAsFloat(configKey);
+                case "BOOLEAN":
+                    return configRegistry.getAsBoolean(configKey);
+                case "MAP":
+                    return buildMapValue(configRegistry.getAsMap(configKey));
+                default:
+                    throw new IllegalStateException("invalid value type: " + type);
+            }
+        } catch (IllegalArgumentException e) {
+            throw BallerinaErrors.createError(LOOKUP_ERROR_REASON,  e.getMessage());
         }
     }
 

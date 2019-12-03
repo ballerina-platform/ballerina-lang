@@ -104,3 +104,25 @@ function testRecordTypeWithRequiredFieldsArrayFill() {
     Rec[] x = [];
     x[1] = {i: 1};
 }
+
+
+const decimal ZERO = 1.5;
+const int ONE_TWO = 1;
+const decimal TWO_THREE = 2.3;
+
+type DEC ZERO|ONE_TWO|TWO_THREE;
+type LiteralsAndType 1|"abc"|int;
+
+function testFiniteTypeArrayFill() returns DEC[] {
+    DEC value = 1.5;
+    DEC[] ar = [];
+    ar[5] = value;
+    return ar;
+}
+
+function testFiniteTypeArrayFill2() returns LiteralsAndType[] {
+    LiteralsAndType value2 = 1;
+    LiteralsAndType[] ar2 = [];
+    ar2[5] = value2;
+    return ar2;
+}

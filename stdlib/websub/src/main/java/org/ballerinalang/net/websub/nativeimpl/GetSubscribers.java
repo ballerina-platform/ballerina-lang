@@ -22,6 +22,7 @@ import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
@@ -51,7 +52,7 @@ import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB_PACK
         orgName = "ballerina", packageName = "websub",
         functionName = "getSubscribers",
         args = {@Argument(name = "topic", type = TypeKind.STRING)},
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = "WebSubHub", structPackage = WEBSUB_PACKAGE),
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = "Hub", structPackage = WEBSUB_PACKAGE),
         returnType = @ReturnType(type = TypeKind.ARRAY, elementType = TypeKind.RECORD,
                                  structType = SUBSCRIPTION_DETAILS, structPackage = WEBSUB_PACKAGE),
         isPublic = true
@@ -66,7 +67,7 @@ public class GetSubscribers {
             List<HubSubscriber> subscribers = Hub.getInstance().getSubscribers();
             MapValue<String, Object> subscriberDetailsRecordValue = BallerinaValues.createRecordValue(WEBSUB_PACKAGE_ID,
                                                                                      SUBSCRIPTION_DETAILS);
-            subscriberDetailArray = new ArrayValue(new BArrayType(subscriberDetailsRecordValue.getType()));
+            subscriberDetailArray = new ArrayValueImpl(new BArrayType(subscriberDetailsRecordValue.getType()));
             for (HubSubscriber subscriber : subscribers) {
                 if (topic.equals(subscriber.getTopic())) {
                     MapValue<String, Object> subscriberDetail = BallerinaValues.createRecord(

@@ -15,9 +15,9 @@
 // under the License.
 
 
-# Provides the HTTP actions for interacting with an HTTP server. Apart from the standard HTTP methods, `forward()`
-# and `execute()` functions are provided. More complex and specific endpoint types can be created by wrapping this
-# generic HTTP actions implementation.
+# Provides the HTTP actions for interacting with an HTTP server. Apart from the standard HTTP methods,
+# `HttpClient.forward()` and `HttpClient.execute()` functions are provided. More complex and specific endpoint types
+# can be created by wrapping this generic HTTP actions implementation.
 #
 # + url - The URL of the remote HTTP endpoint
 # + config - The configurations associated with the HttpClient
@@ -32,7 +32,7 @@ public type HttpClient client object {
         createSimpleHttpClient(self, globalHttpClientConnPool);
     }
 
-    # The `post()` function can be used to send HTTP POST requests to HTTP endpoints.
+    # The `HttpClient.post()` function can be used to send HTTP POST requests to HTTP endpoints.
     #
     # + path - Resource path
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
@@ -42,7 +42,7 @@ public type HttpClient client object {
         return nativePost(self, path, <Request>message);
     }
 
-    # The `head()` function can be used to send HTTP HEAD requests to HTTP endpoints.
+    # The `HttpClient.head()` function can be used to send HTTP HEAD requests to HTTP endpoints.
     #
     # + path - Resource path
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
@@ -52,7 +52,7 @@ public type HttpClient client object {
         return nativeHead(self, path, <Request>message);
     }
 
-    # The `put()` function can be used to send HTTP PUT requests to HTTP endpoints.
+    # The `HttpClient.put()` function can be used to send HTTP PUT requests to HTTP endpoints.
     #
     # + path - Resource path
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
@@ -73,7 +73,7 @@ public type HttpClient client object {
         return nativeExecute(self, httpVerb, path, <Request>message);
     }
 
-    # The `patch()` function can be used to send HTTP PATCH requests to HTTP endpoints.
+    # The `HttpClient.patch()` function can be used to send HTTP PATCH requests to HTTP endpoints.
     #
     # + path - Resource path
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
@@ -83,7 +83,7 @@ public type HttpClient client object {
         return nativePatch(self, path, <Request>message);
     }
 
-    # The `delete()` function can be used to send HTTP DELETE requests to HTTP endpoints.
+    # The `HttpClient.delete()` function can be used to send HTTP DELETE requests to HTTP endpoints.
     #
     # + path - Resource path
     # + message - An optional HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
@@ -93,7 +93,7 @@ public type HttpClient client object {
         return nativeDelete(self, path, <Request>message);
     }
 
-    # The `get()` function can be used to send HTTP GET requests to HTTP endpoints.
+    # The `HttpClient.get()` function can be used to send HTTP GET requests to HTTP endpoints.
     #
     # + path - Request path
     # + message - An optional HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
@@ -103,7 +103,7 @@ public type HttpClient client object {
         return nativeGet(self, path, <Request>message);
     }
 
-    # The `options()` function can be used to send HTTP OPTIONS requests to HTTP endpoints.
+    # The `HttpClient.options()` function can be used to send HTTP OPTIONS requests to HTTP endpoints.
     #
     # + path - Request path
     # + message - An optional HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
@@ -113,7 +113,7 @@ public type HttpClient client object {
         return nativeOptions(self, path, <Request>message);
     }
 
-    # The `forward()` function can be used to invoke an HTTP call with inbound request's HTTP verb
+    # The `HttpClient.forward()` function can be used to invoke an HTTP call with inbound request's HTTP verb
     #
     # + path - Request path
     # + request - An HTTP inbound request message
@@ -123,7 +123,7 @@ public type HttpClient client object {
     }
 
     # Submits an HTTP request to a service with the specified HTTP verb.
-    # The `submit()` function does not give out a `Response` as the result,
+    # The `HttpClient.submit()` function does not give out a `Response` as the result,
     # rather it returns an `HttpFuture` which can be used to do further interactions with the endpoint.
     #
     # + httpVerb - The HTTP verb value

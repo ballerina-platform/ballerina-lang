@@ -462,9 +462,12 @@ public type FuncBodyParser object {
                 lhsOp = self.parseVarRef();
             }
 
+            AnnotationAttachment?[] annots = [];
+            annots = parseAnnotAttachments(self.reader);
+
             BasicBlock thenBB = self.parseBBRef();
             AsyncCall call = {pos:pos, args:args, kind:kind, isVirtual: isVirtual, lhsOp:lhsOp, pkgID:pkgId, 
-                                name:{ value: name }, thenBB:thenBB};
+                                name:{ value: name }, thenBB:thenBB, annotAttachments:annots};
             return call;
         } else if (kindTag == INS_PANIC) {
             TerminatorKind kind = TERMINATOR_PANIC;
@@ -599,7 +602,7 @@ public type FuncBodyParser object {
                 j += 1;
             }
 
-            Unlock unlockIns = {pos:pos, kind:kind, globleVars:globleVars,
+            Unlock unlockIns = {pos:pos, kind:kind, globleVars:globleVars, 
                 localLocks:localLocks, unlockBB:self.parseBBRef()};
             return unlockIns;
         }

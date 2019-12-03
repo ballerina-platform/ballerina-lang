@@ -42,7 +42,6 @@ import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.ballerinalang.langserver.completions.util.Snippet;
 import org.ballerinalang.langserver.completions.util.filters.DelimiterBasedContentFilter;
 import org.ballerinalang.langserver.completions.util.filters.SymbolFilters;
-import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.types.TypeKind;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
@@ -258,12 +257,14 @@ public abstract class LSCompletionProvider {
         completionItems.add(getStaticItem(context, Snippet.STMT_NAMESPACE_DECLARATION));
         completionItems.add(getStaticItem(context, Snippet.DEF_OBJECT_SNIPPET));
         completionItems.add(getStaticItem(context, Snippet.DEF_RECORD));
+        completionItems.add(getStaticItem(context, Snippet.DEF_CLOSED_RECORD));
         completionItems.add(getStaticItem(context, Snippet.KW_TYPE));
         completionItems.add(getStaticItem(context, Snippet.KW_PUBLIC));
         completionItems.add(getStaticItem(context, Snippet.KW_FINAL));
         completionItems.add(getStaticItem(context, Snippet.KW_CONST));
         completionItems.add(getStaticItem(context, Snippet.DEF_ERROR));
         completionItems.add(getStaticItem(context, Snippet.KW_LISTENER));
+        completionItems.add(getStaticItem(context, Snippet.KW_VAR));
         return completionItems;
     }
 
@@ -292,16 +293,16 @@ public abstract class LSCompletionProvider {
         List<BLangImportPackage> currentModuleImports = ctx.get(DocumentServiceKeys.CURRENT_DOC_IMPORTS_KEY);
         List<CompletionItem> completionItems = currentModuleImports.stream()
                 .map(pkg -> {
-                    PackageID pkgID = pkg.symbol.pkgID;
-                    String orgName = pkgID.orgName.value;
-                    String pkgName = pkgID.nameComps.stream()
+                    String orgName = pkg.orgName.value;
+                    String pkgName = pkg.pkgNameComps.stream()
                             .map(id -> id.value)
                             .collect(Collectors.joining("."));
                     String label = pkg.alias.value;
                     String insertText = pkg.alias.value;
                     // If the import is a langlib module and there isn't a user defined alias we add ' before
-                    if ("ballerina".equals(orgName) && pkgID.nameComps.get(0).getValue().equals("lang")
-                            && pkgName.endsWith("." + pkg.alias.value)) {
+                    if ("ballerina".equals(orgName) && pkg.pkgNameComps.get(0).getValue().equals("lang")
+                            && pkgName.endsWith("." + pkg.alias.value)
+                            && this.appendSingleQuoteForPackageInsertText(ctx)) {
                         insertText = "'" + insertText;
                     }
                     CompletionItem item = new CompletionItem();
@@ -360,12 +361,10 @@ public abstract class LSCompletionProvider {
      *
      * @return {@link Predicate} Symbol filter predicate
      */
-    protected Predicate<SymbolInfo> attachedOrSelfKeywordFilter() {
+    protected Predicate<SymbolInfo> attachedSymbolFilter() {
         return symbolInfo -> {
             BSymbol bSymbol = symbolInfo.getScopeEntry().symbol;
-            return (bSymbol instanceof BInvokableSymbol && ((bSymbol.flags & Flags.ATTACHED) == Flags.ATTACHED))
-                    || (CommonKeys.SELF_KEYWORD_KEY.equals(bSymbol.getName().getValue())
-                    && (bSymbol.owner.flags & Flags.RESOURCE) == Flags.RESOURCE);
+            return bSymbol instanceof BInvokableSymbol && ((bSymbol.flags & Flags.ATTACHED) == Flags.ATTACHED);
         };
     }
 
@@ -543,6 +542,7 @@ public abstract class LSCompletionProvider {
         }
         completionItems.addAll(getVarDefCompletions(context));
         completionItems.add(newCItem);
+        completionItems.add(Snippet.KW_NEW.get().build(context));
         completionItems.add(typeCItem);
     
         return completionItems;
@@ -675,7 +675,8 @@ public abstract class LSCompletionProvider {
             return false;
         }
         int tokenSize = defaultTokens.size();
-        if (defaultTokens.indexOf(BallerinaParser.ASSIGN) > 0) {
+        int assignTokenIndex = defaultTokens.indexOf(BallerinaParser.ASSIGN);
+        if (assignTokenIndex > 0 && assignTokenIndex >= tokenSize - 3 && assignTokenIndex < tokenSize) {
             // check added to avoid the external function definition
             // function xyz() returns int = external;
             return false;
@@ -1038,6 +1039,16 @@ public abstract class LSCompletionProvider {
             }
         }
         return Optional.empty();
+    }
+    
+    private boolean appendSingleQuoteForPackageInsertText(LSContext context) {
+        List<CommonToken> defaultTokens = context.get(CompletionKeys.LHS_DEFAULT_TOKENS_KEY);
+        if (defaultTokens == null || defaultTokens.isEmpty()) {
+            return false;
+        }
+        CommonToken lastToken = defaultTokens.get(defaultTokens.size() - 1);
+        
+        return !lastToken.getText().startsWith("'");
     }
 
     private void addIfNotExists(SnippetBlock snippet, BLangService service, List<CompletionItem> items, LSContext ctx) {

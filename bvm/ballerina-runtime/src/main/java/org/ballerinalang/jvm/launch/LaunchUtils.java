@@ -19,7 +19,6 @@
 package org.ballerinalang.jvm.launch;
 
 import org.ballerinalang.config.ConfigRegistry;
-import org.ballerinalang.jvm.observability.ObservabilityConstants;
 import org.ballerinalang.jvm.util.RuntimeUtils;
 import org.ballerinalang.logging.BLogManager;
 
@@ -35,7 +34,9 @@ import java.util.Map;
 import java.util.ServiceLoader;
 import java.util.logging.LogManager;
 
+import static org.ballerinalang.jvm.observability.ObservabilityConstants.CONFIG_METRICS_ENABLED;
 import static org.ballerinalang.jvm.observability.ObservabilityConstants.CONFIG_OBSERVABILITY_ENABLED;
+import static org.ballerinalang.jvm.observability.ObservabilityConstants.CONFIG_TRACING_ENABLED;
 import static org.ballerinalang.jvm.util.BLangConstants.BALLERINA_ARGS_INIT_PREFIX;
 import static org.ballerinalang.jvm.util.BLangConstants.BALLERINA_ARGS_INIT_PREFIX_LENGTH;
 import static org.ballerinalang.jvm.util.BLangConstants.CONFIG_FILE_PROPERTY;
@@ -82,9 +83,8 @@ public class LaunchUtils {
             userProgramArgs.add(args[i]);
         }
 
-        String observeFlag = configArgs.get(CONFIG_OBSERVABILITY_ENABLED);
         // load configurations
-        loadConfigurations(configArgs, configArgs.get(CONFIG_FILE_PROPERTY), Boolean.parseBoolean(observeFlag));
+        loadConfigurations(configArgs, configArgs.get(CONFIG_FILE_PROPERTY));
         return userProgramArgs.toArray(new String[0]);
     }
 
@@ -101,7 +101,7 @@ public class LaunchUtils {
     /**
      * Initializes the {@link ConfigRegistry} and loads {@link LogManager} configs.
      */
-    private static void loadConfigurations(Map<String, String> configArgs, String configFilePath, boolean observeFlag) {
+    private static void loadConfigurations(Map<String, String> configArgs, String configFilePath) {
         Path ballerinaConfPath = Paths.get(System.getProperty("user.dir")).resolve("ballerina.conf");
         try {
             ConfigRegistry.getInstance().initRegistry(configArgs, configFilePath, ballerinaConfPath);
@@ -110,11 +110,10 @@ public class LaunchUtils {
                 ((BLogManager) logManager).loadUserProvidedLogConfiguration();
             }
 
+            boolean observeFlag = ConfigRegistry.getInstance().getAsBoolean(CONFIG_OBSERVABILITY_ENABLED);
             if (observeFlag) {
-                ConfigRegistry.getInstance()
-                              .addConfiguration(ObservabilityConstants.CONFIG_METRICS_ENABLED, Boolean.TRUE);
-                ConfigRegistry.getInstance()
-                              .addConfiguration(ObservabilityConstants.CONFIG_TRACING_ENABLED, Boolean.TRUE);
+                ConfigRegistry.getInstance().addConfiguration(CONFIG_METRICS_ENABLED, Boolean.TRUE);
+                ConfigRegistry.getInstance().addConfiguration(CONFIG_TRACING_ENABLED, Boolean.TRUE);
             }
 
         } catch (IOException e) {

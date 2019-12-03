@@ -20,7 +20,10 @@ package org.ballerinalang.mime.nativeimpl.headers;
 
 import io.netty.handler.codec.http.HttpHeaders;
 import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.types.BArrayType;
+import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.model.types.TypeKind;
@@ -59,7 +62,7 @@ public class GetHeaders {
             throw MimeUtil.createError(HEADER_NOT_FOUND, "Http header does not exist");
         }
         int i = 0;
-        ArrayValue stringArray = new ArrayValue(org.ballerinalang.jvm.types.BTypes.typeString);
+        ArrayValue stringArray = new ArrayValueImpl(new BArrayType(BTypes.typeString));
         for (String headerValue : headerValueList) {
             stringArray.add(i, headerValue);
             i++;

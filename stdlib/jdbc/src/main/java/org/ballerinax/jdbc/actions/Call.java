@@ -31,10 +31,9 @@ import org.ballerinax.jdbc.statement.SQLStatement;
  *
  * @since 0.8.0
  */
-@BallerinaFunction(
-        orgName = "ballerinax", packageName = "java.jdbc",
-        functionName = "nativeCall"
-)
+@BallerinaFunction(orgName = "ballerinax",
+                   packageName = "java.jdbc",
+                   functionName = "nativeCall")
 public class Call {
 
     public static Object nativeCall(Strand strand, ObjectValue client, String sqlQuery, Object recordType,

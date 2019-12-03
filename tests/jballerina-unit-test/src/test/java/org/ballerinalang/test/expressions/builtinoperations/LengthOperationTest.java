@@ -333,7 +333,7 @@ public class LengthOperationTest {
     public void testNegativeTests() {
         Assert.assertEquals(resNegative.getErrorCount(), 2);
         BAssertUtil.validateError(resNegative, 0, "incompatible types: expected 'string', found 'int'", 31, 21);
-        BAssertUtil.validateError(resNegative, 1, "undefined function 'length' in object 'Person'", 36, 18);
+        BAssertUtil.validateError(resNegative, 1, "undefined function 'length' in object 'Person'", 36, 21);
     }
 
 }

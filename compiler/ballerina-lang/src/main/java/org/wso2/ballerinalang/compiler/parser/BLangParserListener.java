@@ -179,7 +179,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
         this.pkgNameComps = new ArrayList<>();
         ctx.Identifier().forEach(e -> pkgNameComps.add(e.getText()));
-        this.pkgVersion = ctx.version() != null ? ctx.version().Identifier().getText() : null;
+        this.pkgVersion = ctx.version() != null ? ctx.version().versionPattern().getText() : null;
     }
 
     /**
@@ -1218,6 +1218,8 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             DiagnosticPos pos = getCurrentPos(ctx);
             this.pkgBuilder.addNameReference(pos, getWS(ctx), null, ctx.Identifier().getText());
             this.pkgBuilder.createSimpleVariableReference(pos, getWS(ctx));
+        } else if (ctx.LEFT_BRACKET() != null) {
+            this.pkgBuilder.addRecordKeyWS(getWS(ctx));
         }
     }
 
@@ -1857,8 +1859,10 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         this.pkgBuilder.addLiteralValue(pos, ws, TypeTags.STRING, actualText, node.getText());
 
         boolean argsAvailable = ctx.invocation().invocationArgList() != null;
-        String invocation = ctx.invocation().anyIdentifierName().getText();
-        this.pkgBuilder.createInvocationNode(getCurrentPos(ctx), getWS(ctx), invocation, argsAvailable);
+        BallerinaParser.AnyIdentifierNameContext identifierContext = ctx.invocation().anyIdentifierName();
+        String invocation = identifierContext.getText();
+        this.pkgBuilder.createInvocationNode(getCurrentPos(ctx), getWS(ctx), invocation, argsAvailable,
+                getCurrentPos(identifierContext));
     }
 
     @Override
@@ -1932,8 +1936,10 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         }
 
         boolean argsAvailable = ctx.invocation().invocationArgList() != null;
-        String invocation = ctx.invocation().anyIdentifierName().getText();
-        this.pkgBuilder.createInvocationNode(getCurrentPos(ctx), getWS(ctx), invocation, argsAvailable);
+        BallerinaParser.AnyIdentifierNameContext identifierContext = ctx.invocation().anyIdentifierName();
+        String invocation = identifierContext.getText();
+        this.pkgBuilder.createInvocationNode(getCurrentPos(ctx), getWS(ctx), invocation, argsAvailable,
+                getCurrentPos(identifierContext));
     }
 
     @Override
@@ -1943,8 +1949,10 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         }
 
         boolean argsAvailable = ctx.invocation().invocationArgList() != null;
-        String invocation = ctx.invocation().anyIdentifierName().getText();
-        this.pkgBuilder.createInvocationNode(getCurrentPos(ctx), getWS(ctx), invocation, argsAvailable);
+        BallerinaParser.AnyIdentifierNameContext identifierContext = ctx.invocation().anyIdentifierName();
+        String invocation = identifierContext.getText();
+        this.pkgBuilder.createInvocationNode(getCurrentPos(ctx), getWS(ctx), invocation, argsAvailable,
+                getCurrentPos(identifierContext));
     }
 
     /**
@@ -2193,13 +2201,14 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
         boolean isTopLevel = ctx.parent instanceof BallerinaParser.CompilationUnitContext;
         String namespaceUri = ctx.QuotedStringLiteral().getText();
+        DiagnosticPos pos = getCurrentPos(ctx);
+
         namespaceUri = namespaceUri.substring(1, namespaceUri.length() - 1);
         namespaceUri = StringEscapeUtils.unescapeJava(namespaceUri);
         String prefix = (ctx.Identifier() != null) ? ctx.Identifier().getText() : null;
         DiagnosticPos prefixPos = (ctx.Identifier() != null) ? getCurrentPos(ctx.Identifier()) : null;
 
-        this.pkgBuilder.addXMLNSDeclaration(getCurrentPos(ctx), getWS(ctx), namespaceUri, prefix, prefixPos,
-                                            isTopLevel);
+        this.pkgBuilder.addXMLNSDeclaration(pos, getWS(ctx), namespaceUri, prefix, prefixPos, isTopLevel);
     }
 
     @Override
@@ -3412,6 +3421,26 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             int numAnnotations = ctx.annotationAttachment().size();
             this.pkgBuilder.markLastInvocationAsAsync(getCurrentPos(ctx), numAnnotations);
         }
+    }
+
+    @Override
+    public void exitDocumentationReference(BallerinaParser.DocumentationReferenceContext ctx) {
+        if (isInErrorState) {
+            return;
+        }
+        BallerinaParser.ReferenceTypeContext referenceType  = ctx.referenceType();
+        BallerinaParser.SingleBacktickedContentContext backtickedContent = ctx.singleBacktickedContent();
+        this.pkgBuilder.endDocumentationReference(getCurrentPos(ctx), referenceType.getText(),
+                backtickedContent.getText());
+    }
+
+    @Override
+    public void exitSingleBacktickedBlock(BallerinaParser.SingleBacktickedBlockContext ctx) {
+        if (isInErrorState) {
+            return;
+        }
+        BallerinaParser.SingleBacktickedContentContext backtickedContent = ctx.singleBacktickedContent();
+        this.pkgBuilder.endSingleBacktickedBlock(getCurrentPos(ctx), backtickedContent.getText());
     }
 
     /**

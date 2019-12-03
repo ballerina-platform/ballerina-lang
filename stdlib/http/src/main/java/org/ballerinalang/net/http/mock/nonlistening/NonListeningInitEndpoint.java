@@ -26,7 +26,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 import static org.ballerinalang.net.http.HttpConstants.MOCK_LISTENER_ENDPOINT;
 
 /**
- * Get the ID of the connection.
+ * Initialize the HTTP mock listener.
  *
  * @since 0.966
  */

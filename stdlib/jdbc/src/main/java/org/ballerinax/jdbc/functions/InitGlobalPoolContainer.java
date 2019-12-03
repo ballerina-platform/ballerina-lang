@@ -33,16 +33,16 @@ import static org.ballerinax.jdbc.Constants.JDBC_PACKAGE_PATH;
 /**
  * Extern function to initialize the global pool map.
  */
-@BallerinaFunction(
-        orgName = "ballerinax", packageName = "java.jdbc",
-        functionName = "initGlobalPoolContainer",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = "GlobalPoolConfigContainer",
-                             structPackage = JDBC_PACKAGE_PATH)
-)
+@BallerinaFunction(orgName = "ballerinax",
+                   packageName = "java.jdbc",
+                   functionName = "initGlobalPoolContainer",
+                   receiver = @Receiver(type = TypeKind.OBJECT,
+                                        structType = "GlobalPoolConfigContainer",
+                                        structPackage = JDBC_PACKAGE_PATH))
 public class InitGlobalPoolContainer {
 
     public static void initGlobalPoolContainer(Strand strand, ObjectValue globalPoolConfigContainer,
-                                               MapValue<String, Object> poolConfig) {
+            MapValue<String, Object> poolConfig) {
         SQLDatasourceUtils.addDatasourceContainer(poolConfig, new ConcurrentHashMap<>());
     }
 

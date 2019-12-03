@@ -21,11 +21,14 @@ package org.ballerinalang.messaging.rabbitmq;
 import com.rabbitmq.client.AMQP;
 import com.rabbitmq.client.AlreadyClosedException;
 import com.rabbitmq.client.Channel;
+import com.rabbitmq.client.DefaultConsumer;
+import com.rabbitmq.client.Envelope;
+import org.ballerinalang.jvm.BRuntime;
 import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.JSONParser;
 import org.ballerinalang.jvm.JSONUtils;
 import org.ballerinalang.jvm.XMLFactory;
-import org.ballerinalang.jvm.scheduling.Scheduler;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.AttachedFunction;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BStructureType;
@@ -33,12 +36,16 @@ import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.util.exceptions.BallerinaConnectorException;
 import org.ballerinalang.jvm.values.ErrorValue;
+import org.ballerinalang.jvm.values.HandleValue;
+import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.jvm.values.connector.Executor;
+import org.ballerinalang.jvm.values.api.BValueCreator;
 
+import java.io.IOException;
+import java.io.PrintStream;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
-import java.util.Objects;
+import java.util.ArrayList;
 import java.util.concurrent.CountDownLatch;
 
 /**
@@ -47,29 +54,61 @@ import java.util.concurrent.CountDownLatch;
  * @since 0.995
  */
 public class MessageDispatcher {
-    private RabbitMQTransactionContext rabbitMQTransactionContext;
+    private String consumerTag;
+    private static final PrintStream console;
     private Channel channel;
     private boolean autoAck;
     private ObjectValue service;
-    private Scheduler scheduler;
+    private String queueName;
+    private BRuntime runtime;
 
-    public MessageDispatcher(RabbitMQTransactionContext rabbitMQTransactionContext, ObjectValue service,
-                             Channel channel, boolean autoAck, Scheduler scheduler) {
-        this.rabbitMQTransactionContext = rabbitMQTransactionContext;
+    public MessageDispatcher(ObjectValue service, Channel channel, boolean autoAck, BRuntime runtime) {
         this.channel = channel;
         this.autoAck = autoAck;
         this.service = service;
-        this.scheduler = scheduler;
+        this.queueName = getQueueNameFromConfig(service);
+        this.consumerTag = service.getType().getName();
+        this.runtime = runtime;
+    }
+
+    private String getQueueNameFromConfig(ObjectValue service) {
+        MapValue serviceConfig = (MapValue) service.getType().getAnnotation(RabbitMQConstants.PACKAGE_RABBITMQ,
+                RabbitMQConstants.SERVICE_CONFIG);
+        @SuppressWarnings(RabbitMQConstants.UNCHECKED)
+        MapValue<Strand, Object> queueConfig =
+                (MapValue) serviceConfig.getMapValue(RabbitMQConstants.ALIAS_QUEUE_CONFIG);
+        return queueConfig.getStringValue(RabbitMQConstants.QUEUE_NAME);
     }
 
     /**
-     * Dispatch messages.
+     * Start receiving messages and dispatch the messages to the attached service.
      *
-     * @param message     Message content to be dispatched to the resource function.
-     * @param deliveryTag Delivery tag of the message.
-     * @param properties  Basic properties of the message.
+     * @param listener Listener object value.
      */
-    public void handleDispatch(byte[] message, long deliveryTag, AMQP.BasicProperties properties) {
+    public void receiveMessages(ObjectValue listener) {
+        console.println("[ballerina/rabbitmq] Consumer service started for queue " + queueName);
+        DefaultConsumer consumer = new DefaultConsumer(channel) {
+            @Override
+            public void handleDelivery(String consumerTag,
+                                       Envelope envelope,
+                                       AMQP.BasicProperties properties,
+                                       byte[] body) {
+                handleDispatch(body, envelope.getDeliveryTag(), properties);
+            }
+        };
+        try {
+            channel.basicConsume(queueName, autoAck, consumerTag, consumer);
+        } catch (IOException exception) {
+            throw RabbitMQUtils.returnErrorValue("Error occurred while consuming messages; " +
+                    exception.getMessage());
+        }
+        ArrayList<ObjectValue> startedServices =
+                (ArrayList<ObjectValue>) listener.getNativeData(RabbitMQConstants.STARTED_SERVICES);
+        startedServices.add(service);
+        service.addNativeData(RabbitMQConstants.QUEUE_NAME, queueName);
+    }
+
+    private void handleDispatch(byte[] message, long deliveryTag, AMQP.BasicProperties properties) {
         AttachedFunction[] attachedFunctions = service.getType().getAttachedFunctions();
         AttachedFunction onMessageFunction;
         if (RabbitMQConstants.FUNC_ON_MESSAGE.equals(attachedFunctions[0].getName())) {
@@ -88,18 +127,12 @@ public class MessageDispatcher {
         }
     }
 
-    /**
-     * Dispatch messages.
-     *
-     * @param message     Message content to be dispatched to the resource function.
-     * @param deliveryTag Delivery tag of the message.
-     */
     private void dispatchMessage(byte[] message, long deliveryTag, AMQP.BasicProperties properties) {
         CountDownLatch countDownLatch = new CountDownLatch(1);
         try {
-            Executor.submit(scheduler, service, RabbitMQConstants.FUNC_ON_MESSAGE,
+            runtime.invokeMethodAsync(service, RabbitMQConstants.FUNC_ON_MESSAGE,
                     new RabbitMQResourceCallback(countDownLatch),
-                    null, getMessageObjectValue(message, deliveryTag, properties), true);
+                    getMessageObjectValue(message, deliveryTag, properties), true);
             countDownLatch.await();
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
@@ -109,13 +142,6 @@ public class MessageDispatcher {
         }
     }
 
-    /**
-     * Dispatches messages with data binding.
-     *
-     * @param message     Message content to be dispatched to the resource function.
-     * @param deliveryTag Delivery tag of the message.
-     * @param properties  Basic properties of the message.
-     */
     private void dispatchMessageWithDataBinding(byte[] message, long deliveryTag, AttachedFunction onMessage,
                                                 AMQP.BasicProperties properties) {
         BType[] paramTypes = onMessage.paramTypes;
@@ -123,9 +149,8 @@ public class MessageDispatcher {
             Object forContent = getMessageContentForType(message, paramTypes[1]);
             ObjectValue messageObjectValue = getMessageObjectValue(message, deliveryTag, properties);
             CountDownLatch countDownLatch = new CountDownLatch(1);
-            Executor.submit(scheduler, service, RabbitMQConstants.FUNC_ON_MESSAGE,
-                    new RabbitMQResourceCallback(countDownLatch), null,
-                    messageObjectValue, true, forContent, true);
+            runtime.invokeMethodAsync(service, RabbitMQConstants.FUNC_ON_MESSAGE,
+                    new RabbitMQResourceCallback(countDownLatch), messageObjectValue, true, forContent, true);
             countDownLatch.await();
         } catch (BallerinaConnectorException | UnsupportedEncodingException exception) {
             handleError(message, deliveryTag, properties);
@@ -135,13 +160,6 @@ public class MessageDispatcher {
         }
     }
 
-    /**
-     * Retrieve messages in the given type.
-     *
-     * @param message  The message body in bytes.
-     * @param dataType The data type of the message for data binding.
-     * @return Message in the given type.
-     */
     private Object getMessageContentForType(byte[] message, BType dataType) throws UnsupportedEncodingException {
         int dataTypeTag = dataType.getTag();
         switch (dataTypeTag) {
@@ -171,44 +189,40 @@ public class MessageDispatcher {
 
     }
 
-    /**
-     * Create and get message BMap.
-     *
-     * @param message    Message content received from the RabbitMQ server.
-     * @param properties Basic properties of the message.
-     * @return Ballerina RabbitMQ message BValue.
-     */
     private ObjectValue getMessageObjectValue(byte[] message, long deliveryTag, AMQP.BasicProperties properties) {
-        ObjectValue messageObjectValue = BallerinaValues.createObjectValue(RabbitMQConstants.PACKAGE_ID_RABBITMQ,
-                RabbitMQConstants.MESSAGE_OBJECT);
-        messageObjectValue.addNativeData(RabbitMQConstants.DELIVERY_TAG, deliveryTag);
-        messageObjectValue.addNativeData(RabbitMQConstants.CHANNEL_NATIVE_OBJECT, channel);
-        messageObjectValue.addNativeData(RabbitMQConstants.MESSAGE_CONTENT, message);
-        messageObjectValue.addNativeData(RabbitMQConstants.AUTO_ACK_STATUS, autoAck);
-        if (!Objects.isNull(rabbitMQTransactionContext)) {
-            messageObjectValue.addNativeData(RabbitMQConstants.RABBITMQ_TRANSACTION_CONTEXT,
-                    rabbitMQTransactionContext);
-        }
-        messageObjectValue.addNativeData(RabbitMQConstants.BASIC_PROPERTIES, properties);
-        messageObjectValue.addNativeData(RabbitMQConstants.MESSAGE_ACK_STATUS, false);
-        return messageObjectValue;
+            ObjectValue messageObjectValue = BallerinaValues.createObjectValue(RabbitMQConstants.PACKAGE_ID_RABBITMQ,
+                    RabbitMQConstants.MESSAGE_OBJECT);
+            messageObjectValue.set(RabbitMQConstants.DELIVERY_TAG, deliveryTag);
+            messageObjectValue.set(RabbitMQConstants.JAVA_CLIENT_CHANNEL, new HandleValue(channel));
+            messageObjectValue.set(RabbitMQConstants.MESSAGE_CONTENT, BValueCreator.createArrayValue(message));
+            messageObjectValue.set(RabbitMQConstants.AUTO_ACK_STATUS, autoAck);
+            messageObjectValue.set(RabbitMQConstants.MESSAGE_ACK_STATUS, false);
+            if (properties != null) {
+                String replyTo = properties.getReplyTo();
+                String contentType = properties.getContentType();
+                String contentEncoding = properties.getContentEncoding();
+                String correlationId = properties.getCorrelationId();
+                MapValue<String, Object> basicProperties =
+                        BallerinaValues.createRecordValue(RabbitMQConstants.PACKAGE_ID_RABBITMQ,
+                                RabbitMQConstants.RECORD_BASIC_PROPERTIES);
+                Object[] values = new Object[4];
+                values[0] = replyTo;
+                values[1] = contentType;
+                values[2] = contentEncoding;
+                values[3] = correlationId;
+                messageObjectValue.set(RabbitMQConstants.BASIC_PROPERTIES,
+                        BallerinaValues.createRecord(basicProperties, values));
+            }
+            return messageObjectValue;
     }
 
-    /**
-     * Triggers onError resource function upon error.
-     *
-     * @param message     Message content received from the RabbitMQ server.
-     * @param deliveryTag Delivery tag of the message.
-     * @param properties  Basic properties of the message.
-     */
     private void handleError(byte[] message, long deliveryTag, AMQP.BasicProperties properties) {
         ErrorValue error = RabbitMQUtils.returnErrorValue(RabbitMQConstants.DISPATCH_ERROR);
         ObjectValue messageObjectValue = getMessageObjectValue(message, deliveryTag, properties);
         CountDownLatch countDownLatch = new CountDownLatch(1);
         try {
-            Executor.submit(scheduler, service, RabbitMQConstants.FUNC_ON_ERROR,
-                    new RabbitMQResourceCallback(countDownLatch), null,
-                    messageObjectValue, true, error, true);
+            runtime.invokeMethodAsync(service, RabbitMQConstants.FUNC_ON_ERROR,
+                    new RabbitMQResourceCallback(countDownLatch), messageObjectValue, true, error, true);
             countDownLatch.await();
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
@@ -216,5 +230,9 @@ public class MessageDispatcher {
         } catch (AlreadyClosedException | BallerinaConnectorException exception) {
             throw new RabbitMQConnectorException("Error occurred in RabbitMQ service. ");
         }
+    }
+
+    static {
+        console = System.out;
     }
 }

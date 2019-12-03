@@ -1,0 +1,7 @@
+// Ballerina supports joining two tables along with filters in queries similar to SQL. In this particular example, two
+// tables, one with persons' details and the other with order details are joined together. Both tables have the person
+// ID, which is used to join. From the first table, the person with the name 'Jane' is filtered out and 
+// the order details entry of which the personId is three is filtered out from the other table. This query syntax can only be used
+// to query a table. The modification of an existing table is not supported. When an existing table is queried using
+// Ballerina SQL, a new in-memory table is created with the queried data and that table is returned. Executing these
+// SQL-like queries on tables returned through Ballerina database clients is not supported yet.

@@ -308,12 +308,19 @@ public class ClosedRecordTest {
     @Test
     public void testInvalidExprsAsRecordLiteralKeys() {
         CompileResult result = BCompileUtil.compile("test-src/record/closed_record_invalid_key_expr_negative.bal");
-        Assert.assertEquals(result.getErrorCount(), 6);
-        BAssertUtil.validateError(result, 0, "incompatible types: expected 'string', found 'float'", 34, 27);
-        BAssertUtil.validateError(result, 1, "missing non-defaultable required record field 's'", 35, 14);
-        BAssertUtil.validateError(result, 2, "incompatible types: expected 'string', found 'int'", 36, 27);
-        BAssertUtil.validateError(result, 3, "incompatible types: expected 'string', found 'boolean'", 37, 37);
-        BAssertUtil.validateError(result, 4, "missing non-defaultable required record field 's'", 38, 14);
-        BAssertUtil.validateError(result, 5, "incompatible types: expected '(string|int)', found 'error'", 41, 44);
+        int index = 0;
+
+        BAssertUtil.validateError(result, index++, "incompatible types: expected 'string', found 'float'", 34, 27);
+        BAssertUtil.validateError(result, index++, "missing non-defaultable required record field 's'", 35, 14);
+        BAssertUtil.validateError(result, index++, "incompatible types: expected 'string', found 'int'", 36, 27);
+        BAssertUtil.validateError(result, index++, "incompatible types: expected 'string', found 'boolean'", 37, 37);
+        BAssertUtil.validateError(result, index++, "missing non-defaultable required record field 's'", 38, 14);
+        BAssertUtil.validateError(result, index++, "incompatible types: expected '(string|int)', found 'error'",
+                                  41, 44);
+        BAssertUtil.validateError(result, index++, "undefined field 'invalid' in record 'Foo'", 45, 26);
+        BAssertUtil.validateError(result, index++, "undefined field 'x' in record 'Foo'", 46, 28);
+        BAssertUtil.validateError(result, index++, "undefined field 'y' in record 'Foo'", 46, 36);
+        BAssertUtil.validateError(result, index++, "undefined field 'z' in record 'Foo'", 46, 48);
+        Assert.assertEquals(result.getErrorCount(), index);
     }
 }

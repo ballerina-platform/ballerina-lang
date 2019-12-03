@@ -52,8 +52,8 @@ function testSelectNumericData(string jdbcURL) returns [int, int, int, int, int,
         poolOptions: {maximumPoolSize: 1}
     });
 
-    var result = testDB->select("SELECT int_type, bigint_type, smallint_type, tinyint_type, bit_type, decimal_type,
-                                numeric_type, float_type, real_type from NumericTypes where id = 1", NumericData);
+    var result = testDB->select("SELECT int_type, bigint_type, smallint_type, tinyint_type, bit_type, decimal_type," +
+                                "numeric_type, float_type, real_type from NumericTypes where id = 1", NumericData);
 
     int intType = -1;
     int bigintType = -1;
@@ -182,8 +182,8 @@ function testArrayOfQueryParameters(string jdbcURL) returns string {
     jdbc:Parameter para3 = {sqlType: jdbc:TYPE_DOUBLE, value: doubleArray};
     jdbc:Parameter para4 = {sqlType: jdbc:TYPE_DOUBLE, value: decimalArray};
 
-    var dt = testDB->select("SELECT  FirstName from Customers where FirstName = ? or lastName = 'A' or
-        lastName = '\"BB\"' or registrationID in(?) or lastName in(?) or creditLimit in(?) or creditLimit in (?)",
+    var dt = testDB->select("SELECT  FirstName from Customers where FirstName = ? or lastName = 'A' or " +
+        "lastName = '\"BB\"' or registrationID in(?) or lastName in(?) or creditLimit in(?) or creditLimit in (?)",
         ResultCustomers, para0, para1, para2, para3, para4);
     string firstName = "";
     if (dt is table<ResultCustomers>) {
@@ -214,8 +214,8 @@ function testBoolArrayOfQueryParameters(string jdbcURL) returns string {
     jdbc:Parameter para1 = {sqlType: jdbc:TYPE_BOOLEAN, value: boolDataArray};
     jdbc:Parameter para2 = {sqlType: jdbc:TYPE_VARCHAR, value: stringDataArray};
 
-    var dt = testDB->select("SELECT firstName from Customers where customerId = ? and visaAccepted in(?) and
-        firstName in (?)", ResultCustomers, 1, para1, para2);
+    var dt = testDB->select("SELECT firstName from Customers where customerId = ? and visaAccepted in(?) and " +
+        "firstName in (?)", ResultCustomers, 1, para1, para2);
     string firstName = "";
     if (dt is table<ResultCustomers>) {
         foreach var x in dt {

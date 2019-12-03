@@ -11,8 +11,8 @@ jdbc:Client testDB = new ({
 
 public function main() {
     // Creates the tables that are required for the transaction.
-    var ret = testDB->update("CREATE TABLE CUSTOMER (ID INTEGER, NAME
-                              VARCHAR(30))");
+    var ret = testDB->update("CREATE TABLE CUSTOMER (ID INTEGER, NAME " +
+                              "VARCHAR(30))");
     handleUpdate(ret, "Create CUSTOMER table");
 
     ret = testDB->update("CREATE TABLE SALARY (ID INTEGER, MON_SALARY FLOAT)");
@@ -28,11 +28,11 @@ public function main() {
     // aborting it. Only integer literals or constants are allowed as the `retry count`.
     transaction with retries = 4 {
         // This is the first remote function participant of the transaction.
-        ret = testDB->update("INSERT INTO CUSTOMER(ID,NAME)
-                                     VALUES (1, 'Anne')");
+        ret = testDB->update("INSERT INTO CUSTOMER(ID,NAME) " +
+                                     "VALUES (1, 'Anne')");
         // This is the second remote function participant of the transaction.
-        ret = testDB->update("INSERT INTO SALARY (ID, MON_SALARY)
-                                 VALUES (1, 2500)");
+        ret = testDB->update("INSERT INTO SALARY (ID, MON_SALARY) " +
+                                 "VALUES (1, 2500)");
         if (ret is jdbc:UpdateResult) {
             io:println("Inserted count: ", ret.updatedRowCount);
             // If the transaction is forced to abort, it will roll back the transaction

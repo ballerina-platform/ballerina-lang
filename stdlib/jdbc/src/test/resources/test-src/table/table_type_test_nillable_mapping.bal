@@ -125,9 +125,9 @@ function testMappingToNillableTypeFields(string jdbcURL) returns @tainted [int?,
         poolOptions: {maximumPoolSize: 1}
     });
 
-    var dt = testDB->select("SELECT int_type, long_type, float_type, double_type,
-        boolean_type, string_type, numeric_type, decimal_type, real_type, tinyint_type, smallint_type, clob_type,
-        binary_type from DataTypeTableNillable where row_id=1", NillableDataTypes);
+    var dt = testDB->select("SELECT int_type, long_type, float_type, double_type," +
+        "boolean_type, string_type, numeric_type, decimal_type, real_type, tinyint_type, smallint_type, clob_type," +
+        "binary_type from DataTypeTableNillable where row_id=1", NillableDataTypes);
 
     int? int_type = ();
     int? long_type = ();
@@ -175,8 +175,7 @@ function testMappingToNillableTypeFieldsBlob(string jdbcURL) returns @tainted by
         poolOptions: {maximumPoolSize: 1}
     });
     byte[]? blob_type = ();
-    var dt = testDB->select("SELECT blob_type from DataTypeTableNillableBlob where
-    row_id=3", NillableBlob);
+    var dt = testDB->select("SELECT blob_type from DataTypeTableNillableBlob where row_id=3", NillableBlob);
     if (dt is table<NillableBlob>) {
         while (dt.hasNext()) {
             var rs = dt.getNext();
@@ -224,11 +223,11 @@ function testMappingDatesToNillableTimeType(string jdbcURL) returns @tainted [in
     jdbc:Parameter para3 = {sqlType: jdbc:TYPE_TIMESTAMP, value: timestampStruct};
     jdbc:Parameter para4 = {sqlType: jdbc:TYPE_DATETIME, value: datetimeStruct};
 
-    _ = checkpanic testDB->update("Insert into DateTimeTypes
-        (row_id, date_type, time_type, timestamp_type, datetime_type) values (?,?,?,?,?)",
+    _ = checkpanic testDB->update("Insert into DateTimeTypes " +
+        "(row_id, date_type, time_type, timestamp_type, datetime_type) values (?,?,?,?,?)",
         para0, para1, para2, para3, para4);
-    var dt = testDB->select("SELECT date_type, time_type, timestamp_type, datetime_type
-                from DateTimeTypes where row_id = 150", ResultDatesWithNillableTimeType);
+    var dt = testDB->select("SELECT date_type, time_type, timestamp_type, datetime_type " +
+                "from DateTimeTypes where row_id = 150", ResultDatesWithNillableTimeType);
 
     if (dt is table<ResultDatesWithNillableTimeType>) {
         while (dt.hasNext()) {
@@ -273,12 +272,12 @@ function testMappingDatesToNillableIntType(int datein, int timein, int timestamp
     int timestamp = -1;
     int datetime = -1;
 
-    _ = checkpanic testDB->update("Insert into DateTimeTypes
-        (row_id, date_type, time_type, timestamp_type, datetime_type) values (?,?,?,?,?)",
+    _ = checkpanic testDB->update("Insert into DateTimeTypes " +
+        "(row_id, date_type, time_type, timestamp_type, datetime_type) values (?,?,?,?,?)",
         para0, para1, para2, para3, para4);
 
-    var dt = testDB->select("SELECT date_type, time_type, timestamp_type,
-    datetime_type from DateTimeTypes where row_id = 151", ResultDatesWithNillableIntType);
+    var dt = testDB->select("SELECT date_type, time_type, timestamp_type, " +
+    "datetime_type from DateTimeTypes where row_id = 151", ResultDatesWithNillableIntType);
 
     if (dt is table<ResultDatesWithNillableIntType>) {
         while (dt.hasNext()) {
@@ -314,12 +313,12 @@ function testMappingDatesToNillableStringType(int datein, int timein, int timest
     jdbc:Parameter para3 = {sqlType: jdbc:TYPE_TIMESTAMP, value: timestampin};
     jdbc:Parameter para4 = {sqlType: jdbc:TYPE_DATETIME, value: timestampin};
 
-    _ = checkpanic testDB->update("Insert into DateTimeTypes
-        (row_id, date_type, time_type, timestamp_type, datetime_type) values (?,?,?,?,?)",
+    _ = checkpanic testDB->update("Insert into DateTimeTypes " +
+        "(row_id, date_type, time_type, timestamp_type, datetime_type) values (?,?,?,?,?)",
         para0, para1, para2, para3, para4);
 
-    var dt = testDB->select("SELECT date_type, time_type, timestamp_type, datetime_type
-                from DateTimeTypes where row_id = 152", ResultDatesWithNillableStringType);
+    var dt = testDB->select("SELECT date_type, time_type, timestamp_type, datetime_type " +
+                "from DateTimeTypes where row_id = 152", ResultDatesWithNillableStringType);
 
     if (dt is table<ResultDatesWithNillableStringType>) {
         while (dt.hasNext()) {
@@ -345,10 +344,10 @@ function testMappingNullToNillableTypes(string jdbcURL) returns @tainted [int?, 
         password: "",
         poolOptions: {maximumPoolSize: 1}
     });
-    var dt = testDB->select("SELECT int_type, long_type, float_type, double_type,
-    boolean_type, string_type, numeric_type, decimal_type, real_type, tinyint_type, smallint_type, clob_type,
-    binary_type, date_type, time_type, datetime_type, timestamp_type from DataTypeTableNillable where
-    row_id=2", NillableDataTypesAll);
+    var dt = testDB->select("SELECT int_type, long_type, float_type, double_type," +
+    "boolean_type, string_type, numeric_type, decimal_type, real_type, tinyint_type, smallint_type, clob_type," +
+    "binary_type, date_type, time_type, datetime_type, timestamp_type from DataTypeTableNillable where " +
+    "row_id=2", NillableDataTypesAll);
 
     int? int_type = ();
     int? long_type = ();
@@ -430,8 +429,8 @@ function testMapArrayToNonNillableTypeWithNillableElementType(string jdbcURL) re
         poolOptions: {maximumPoolSize: 1}
     });
 
-    var dt = testDB->select("SELECT int_array, long_array, float_array, boolean_array,
-              string_array from ArrayTypes where row_id = 1", ResultMapNonNillableTypeNillableElements);
+    var dt = testDB->select("SELECT int_array, long_array, float_array, boolean_array," +
+              "string_array from ArrayTypes where row_id = 1", ResultMapNonNillableTypeNillableElements);
 
     int?[] int_arr = [];
     int?[] long_arr = [];
@@ -464,8 +463,8 @@ function testMapArrayToNillableTypeWithNillableElementType(string jdbcURL) retur
         poolOptions: {maximumPoolSize: 1}
     });
 
-    var dt = testDB->select("SELECT int_array, long_array, float_array, boolean_array,
-              string_array from ArrayTypes where row_id = 1", ResultMapNillable);
+    var dt = testDB->select("SELECT int_array, long_array, float_array, boolean_array," +
+              "string_array from ArrayTypes where row_id = 1", ResultMapNillable);
 
     int?[]? int_arr = ();
     int?[]? long_arr = ();
@@ -497,8 +496,8 @@ function testMapArrayToNillableTypeWithNonNillableElementType(string jdbcURL) re
         password: "",
         poolOptions: {maximumPoolSize: 1}
     });
-    var dt = testDB->select("SELECT int_array, long_array, float_array, boolean_array,
-              string_array from ArrayTypes where row_id = 1", ResultMapNillableTypeNonNillableElements);
+    var dt = testDB->select("SELECT int_array, long_array, float_array, boolean_array," +
+              "string_array from ArrayTypes where row_id = 1", ResultMapNillableTypeNonNillableElements);
 
     int[]? int_arr = ();
     int[]? long_arr = ();
@@ -531,8 +530,8 @@ function testMapNillIncludedArrayNonNillableTypeWithNillableElementType(string j
         poolOptions: {maximumPoolSize: 1}
     });
 
-    var dt = testDB->select("SELECT int_array, long_array, float_array, boolean_array,
-              string_array from ArrayTypes where row_id = 2", ResultMapNonNillableTypeNillableElements);
+    var dt = testDB->select("SELECT int_array, long_array, float_array, boolean_array," +
+              "string_array from ArrayTypes where row_id = 2", ResultMapNonNillableTypeNillableElements);
 
     int?[] int_arr = [];
     int?[] long_arr = [];
@@ -565,8 +564,8 @@ function testMapNillIncludedArrayNillableTypeWithNillableElementType(string jdbc
         poolOptions: {maximumPoolSize: 1}
     });
 
-    var dt = testDB->select("SELECT int_array, long_array, float_array, boolean_array,
-              string_array from ArrayTypes where row_id = 2", ResultMapNillable);
+    var dt = testDB->select("SELECT int_array, long_array, float_array, boolean_array," +
+              "string_array from ArrayTypes where row_id = 2", ResultMapNillable);
 
     int?[]? int_arr = ();
     int?[]? long_arr = ();
@@ -599,8 +598,8 @@ function testMapNilArrayToNillableTypeWithNonNillableElementTypes(string jdbcURL
         poolOptions: {maximumPoolSize: 1}
     });
 
-    var dt = testDB->select("SELECT int_array, long_array, float_array, boolean_array,
-              string_array from ArrayTypes where row_id = 3", ResultMapNillableTypeNonNillableElements);
+    var dt = testDB->select("SELECT int_array, long_array, float_array, boolean_array," +
+              "string_array from ArrayTypes where row_id = 3", ResultMapNillableTypeNonNillableElements);
 
     int[]? int_arr = ();
     int[]? long_arr = ();
@@ -633,8 +632,8 @@ function testMapNilArrayToNillableTypeWithNillableElementTypes(string jdbcURL) r
         poolOptions: {maximumPoolSize: 1}
     });
 
-    var dt = testDB->select("SELECT int_array, long_array, float_array, boolean_array,
-              string_array from ArrayTypes where row_id = 3", ResultMapNillable);
+    var dt = testDB->select("SELECT int_array, long_array, float_array, boolean_array," +
+              "string_array from ArrayTypes where row_id = 3", ResultMapNillable);
 
     int?[]? int_arr = ();
     int?[]? long_arr = ();
@@ -667,8 +666,8 @@ function testMapNillElementsOnlyArray(string jdbcURL) returns
         poolOptions: {maximumPoolSize: 1}
     });
 
-    var dt = testDB->select("SELECT int_array, long_array, float_array, boolean_array,
-              string_array from ArrayTypes where row_id = 5", ResultMapNonNillableTypeNillableElements);
+    var dt = testDB->select("SELECT int_array, long_array, float_array, boolean_array," +
+              "string_array from ArrayTypes where row_id = 5", ResultMapNonNillableTypeNillableElements);
 
     int?[] int_arr = [];
     int?[] long_arr = [];

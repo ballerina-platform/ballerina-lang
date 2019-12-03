@@ -86,6 +86,7 @@ public class ItemResolverConstants {
     public static final String BOOLEAN_TYPE = "boolean";
     public static final String OBJECT_TYPE = "type <ObjectName> object";
     public static final String RECORD_TYPE = "type <RecordName> record";
+    public static final String CLOSED_RECORD_TYPE = "type <RecordName> closed record";
     public static final String TYPE_TYPE = "type";
     public static final String REMOTE_FUNCTION_TYPE = "remote function";
     public static final String NEW_OBJECT_INITIALIZER_TYPE = "init function";

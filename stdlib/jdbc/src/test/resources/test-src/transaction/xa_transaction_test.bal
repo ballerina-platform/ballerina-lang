@@ -35,8 +35,8 @@ function testXATransactionSuccess(string jdbcURL1, string jdbcURL2) returns @tai
     });
 
     transaction {
-        _ = checkpanic testDB1->update("insert into Customers (customerId, name, creditLimit, country)
-                                values (1, 'Anne', 1000, 'UK')");
+        _ = checkpanic testDB1->update("insert into Customers (customerId, name, creditLimit, country) " +
+                                "values (1, 'Anne', 1000, 'UK')");
         _ = checkpanic testDB2->update("insert into Salary (id, value ) values (1, 1000)");
     }
 
@@ -70,8 +70,8 @@ function testXATransactionSuccessWithDataSource(string jdbcURL1, string jdbcURL2
     });
 
     transaction {
-        _ = checkpanic testDB1->update("insert into Customers (customerId, name, creditLimit, country)
-                                values (10, 'Anne', 1000, 'UK')");
+        _ = checkpanic testDB1->update("insert into Customers (customerId, name, creditLimit, country) " +
+                                "values (10, 'Anne', 1000, 'UK')");
         _ = checkpanic testDB2->update("insert into Salary (id, value ) values (10, 1000)");
     }
 
@@ -104,8 +104,8 @@ function testXATransactionSuccessWithH2Client(string jdbcURL1, string jdbcURL2) 
     });
 
     transaction {
-        _ = checkpanic testDB1->update("insert into Customers (customerId, name, creditLimit, country)
-                                values (11, 'Anne', 1000, 'UK')");
+        _ = checkpanic testDB1->update("insert into Customers (customerId, name, creditLimit, country) " +
+                                "values (11, 'Anne', 1000, 'UK')");
         _ = checkpanic testDB2->update("insert into Salary (id, value ) values (11, 1000)");
     }
 
@@ -156,8 +156,8 @@ function testXATransactionFailed1(string jdbcURL1, string jdbcURL2) returns @tai
 
 function testXATransactionFailed1Helper(jdbc:Client testDB1, jdbc:Client testDB2) {
     transaction {
-        _ = checkpanic testDB1->update("insert into Customers (customerId, name, creditLimit, country)
-                                    values (2, 'John', 1000, 'UK')");
+        _ = checkpanic testDB1->update("insert into Customers (customerId, name, creditLimit, country) " +
+                                    "values (2, 'John', 1000, 'UK')");
         _ = checkpanic testDB2->update("insert into Salary (id, invalidColumn ) values (2, 1000)");
     }
 }
@@ -192,8 +192,8 @@ function testXATransactionFailed2(string jdbcURL1, string jdbcURL2) returns @tai
 
 function testXATransactionFailed2Helper(jdbc:Client testDB1, jdbc:Client testDB2) {
     transaction {
-        _ = checkpanic testDB1->update("insert into Customers (customerId, name, creditLimit, invalidColumn)
-                                    values (2, 'John', 1000, 'UK')");
+        _ = checkpanic testDB1->update("insert into Customers (customerId, name, creditLimit, invalidColumn) " +
+                                    "values (2, 'John', 1000, 'UK')");
         _ = checkpanic testDB2->update("insert into Salary (id, value ) values (2, 1000)");
     }
 }
@@ -231,11 +231,11 @@ function testXATransactionRetryHelper(jdbc:Client testDB1, jdbc:Client testDB2) 
     int i = 0;
     transaction {
         if (i == 2) {
-            _ = checkpanic testDB1->update("insert into Customers (customerId, name, creditLimit, country)
-                        values (4, 'John', 1000, 'UK')");
+            _ = checkpanic testDB1->update("insert into Customers (customerId, name, creditLimit, country) " +
+                        "values (4, 'John', 1000, 'UK')");
         } else {
-            _ = checkpanic testDB1->update("insert into Customers (customerId, name, creditLimit, invalidColumn)
-                        values (4, 'John', 1000, 'UK')");
+            _ = checkpanic testDB1->update("insert into Customers (customerId, name, creditLimit, invalidColumn) " +
+                        "values (4, 'John', 1000, 'UK')");
         }
         _ = checkpanic testDB2->update("insert into Salary (id, value ) values (4, 1000)");
     } onretry {

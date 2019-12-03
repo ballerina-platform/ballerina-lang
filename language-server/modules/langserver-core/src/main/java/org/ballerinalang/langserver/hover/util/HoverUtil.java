@@ -30,6 +30,8 @@ import org.eclipse.lsp4j.MarkedString;
 import org.eclipse.lsp4j.MarkupContent;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
+import org.wso2.ballerinalang.compiler.semantics.model.Scope;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructureTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
@@ -43,6 +45,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangConstrainedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
+import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
@@ -272,6 +275,9 @@ public class HoverUtil {
             case OBJECT:
                 markdownDocAttachment = bSymbol.type.tsymbol.markdownDocumentation;
                 break;
+            case ANNOTATION:
+                markdownDocAttachment = ((BAnnotationSymbol) bSymbol.type.tsymbol).attachedType.markdownDocumentation;
+                break;
             case FUNCTION:
                 markdownDocAttachment = bSymbol.markdownDocumentation;
                 break;
@@ -327,6 +333,7 @@ public class HoverUtil {
             case OBJECT:
             case RECORD:
             case TYPE_DEF:
+            case ANNOTATION:
                 paramType = ContextConstants.DOC_FIELD;
                 break;
             default:
@@ -374,10 +381,16 @@ public class HoverUtil {
                 BVarSymbol param = params.get(i);
                 types.put(param.name.value, param.type);
             }
-        } else if (symbol instanceof BStructureTypeSymbol) {
-            // If it is a field set of a object or a record
-            BStructureTypeSymbol objectTypeSymbol = (BStructureTypeSymbol) symbol;
-            objectTypeSymbol.scope.entries.values()
+        } else if (symbol instanceof BStructureTypeSymbol || symbol instanceof BAnnotationSymbol) {
+            Map<Name, Scope.ScopeEntry> entries;
+            if (symbol instanceof BStructureTypeSymbol) {
+                // If it is a field set of a object or a record
+                BStructureTypeSymbol objectTypeSymbol = (BStructureTypeSymbol) symbol;
+                entries = objectTypeSymbol.scope.entries;
+            } else {
+                entries = ((BAnnotationSymbol) symbol).attachedType.scope.entries;
+            }
+            entries.values()
                     .stream()
                     .filter(s -> s.symbol instanceof BVarSymbol && s.symbol.getFlags().contains(Flag.PUBLIC))
                     .forEach(s -> types.put(s.symbol.name.value, s.symbol.type));
@@ -393,8 +406,7 @@ public class HoverUtil {
                 type = "`" + CommonUtil.getBTypeName(types.get(parameter.name), ctx, false) + "` ";
             }
             value.append("- ")
-                    .append(type)
-                    .append(parameter.name.trim())
+                    .append(type).append("**").append(parameter.name.trim()).append("**")
                     .append(": ")
                     .append(parameter.description.trim()).append(CommonUtil.MD_LINE_SEPARATOR);
         }

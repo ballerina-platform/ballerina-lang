@@ -28,10 +28,9 @@ import org.ballerinax.jdbc.datasource.SQLDatasource;
  *
  * @since 0.8.4
  */
-@BallerinaFunction(
-        orgName = "ballerinax", packageName = "java.jdbc",
-        functionName = "close"
-)
+@BallerinaFunction(orgName = "ballerinax",
+                   packageName = "java.jdbc",
+                   functionName = "close")
 public class Close {
 
     public static Object close(Strand strand, ObjectValue client) {

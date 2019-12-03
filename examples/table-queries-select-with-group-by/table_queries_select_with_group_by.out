@@ -1,0 +1,14 @@
+# To run this sample, navigate to the directory that contains the
+# `.bal` file, and execute the `ballerina run` command.
+$ ballerina run --experimental table_queries_select_with_group_by.bal
+The orderTable:
+personId=1 orderId=1234 items=pen, book, eraser amount=34.75
+personId=1 orderId=2314 items=dhal, rice, carrot amount=14.75
+personId=2 orderId=5643 items=Macbook Pro amount=2334.75
+personId=3 orderId=8765 items=Tshirt amount=20.75
+
+table<SummedOrder> summedOrderTable = from orderTable select personId, sum(amount) group by personId;
+summedOrderTable:
+personId=1 amount=49.5
+personId=2 amount=2334.75
+personId=3 amount=20.75

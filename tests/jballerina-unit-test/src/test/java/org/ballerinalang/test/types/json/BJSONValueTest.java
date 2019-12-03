@@ -55,17 +55,23 @@ public class BJSONValueTest {
     }
 
     @Test
-    public void testJsonInitWithUnsupportedtypes() {
-        Assert.assertEquals(negativeResult.getErrorCount(), 2);
+    public void testJsonWithIncompatibleTypesNegative() {
+        int i = 0;
 
         // testJsonArrayWithUnsupportedtypes
-        BAssertUtil.validateError(negativeResult, 0, "incompatible types: expected 'json', found 'table<DummyType>'", 7,
-                30);
+        BAssertUtil.validateError(negativeResult, i++,
+                "incompatible types: expected 'json', found 'table<DummyType>'", 7, 30);
 
         // testJsonInitWithUnsupportedtypes
-        BAssertUtil
-                .validateError(negativeResult, 1, "incompatible types: expected 'json', found 'table<DummyType>'", 13,
-                        42);
+        BAssertUtil.validateError(negativeResult, i++,
+                "incompatible types: expected 'json', found 'table<DummyType>'", 13, 42);
+        BAssertUtil.validateError(negativeResult, i++,
+                "incompatible types: expected 'map<json>', found 'Person'", 21, 20);
+        BAssertUtil.validateError(negativeResult, i++,
+                "incompatible types: expected 'map<json>', found 'AnotherPerson'", 22, 19);
+        BAssertUtil.validateError(negativeResult, i++,
+                "incompatible types: expected 'map<json>', found 'PersonWithTypedesc'", 23, 25);
+        Assert.assertEquals(negativeResult.getErrorCount(), i);
     }
 
     @Test
@@ -476,6 +482,13 @@ public class BJSONValueTest {
                     "incompatible types: '\\(\\)' cannot be cast to 'int\\[\\]'.*")
     public void testNullJsonToArray() {
         BRunUtil.invoke(compileResult, "testNullJsonToArray");
+    }
+
+    @Test(expectedExceptions = { BLangRuntimeException.class },
+            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}TypeCastError message=" +
+                    "incompatible types: 'json\\[\\]' cannot be cast to 'map<json>\\[\\]'.*")
+    public void testMapJsonToJsonArray() {
+        BRunUtil.invoke(compileResult, "testMapJsonToJsonArray");
     }
 
     @Test

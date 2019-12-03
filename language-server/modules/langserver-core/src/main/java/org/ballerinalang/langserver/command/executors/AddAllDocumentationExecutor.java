@@ -21,6 +21,7 @@ import org.ballerinalang.langserver.command.ExecuteCommandKeys;
 import org.ballerinalang.langserver.command.LSCommandExecutor;
 import org.ballerinalang.langserver.command.LSCommandExecutorException;
 import org.ballerinalang.langserver.command.docs.DocAttachmentInfo;
+import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
@@ -77,7 +78,7 @@ public class AddAllDocumentationExecutor implements LSCommandExecutor {
 
         BLangPackage bLangPackage;
         try {
-            WorkspaceDocumentManager docManager = context.get(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY);
+            WorkspaceDocumentManager docManager = context.get(CommonKeys.DOC_MANAGER_KEY);
             bLangPackage = LSModuleCompiler.getBLangPackage(context, docManager, LSCustomErrorStrategy.class, false,
                     false);
         } catch (CompilationFailedException e) {
@@ -106,6 +107,15 @@ public class AddAllDocumentationExecutor implements LSCommandExecutor {
                                 textEdits.add(getTextEdit(resourceInfo));
                             }
                         });
+            }
+            if (topLevelNode instanceof BLangTypeDefinition
+                    && ((BLangTypeDefinition) topLevelNode).typeNode instanceof BLangObjectTypeNode) {
+                ((BLangObjectTypeNode) ((BLangTypeDefinition) topLevelNode).typeNode).functions.forEach(function -> {
+                    DocAttachmentInfo resourceInfo = getDocumentationEditForNode(function);
+                    if (resourceInfo != null) {
+                        textEdits.add(getTextEdit(resourceInfo));
+                    }
+                });
             }
         }
 

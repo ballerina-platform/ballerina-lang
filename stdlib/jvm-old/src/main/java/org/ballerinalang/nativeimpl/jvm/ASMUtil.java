@@ -18,9 +18,11 @@
 package org.ballerinalang.nativeimpl.jvm;
 
 import org.ballerinalang.jvm.BallerinaValues;
+import org.ballerinalang.jvm.types.BPackage;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 
+import static org.ballerinalang.jvm.util.BLangConstants.BALLERINA_BUILTIN_PKG_PREFIX;
 import static org.ballerinalang.jvm.util.BLangConstants.BALLERINA_PACKAGE_PREFIX;
 
 /**
@@ -35,7 +37,9 @@ public class ASMUtil {
     public static final String FIELD_VISITOR = "FieldVisitor";
     public static final String LABEL = "Label";
     public static final String JVM_PKG_PATH = BALLERINA_PACKAGE_PREFIX + "jvm";
+    public static final BPackage JVM_PKG_ID = new BPackage(BALLERINA_BUILTIN_PKG_PREFIX, "jvm");
     public static final String NATIVE_KEY = "native";
+    public static final String INTEROP_VALIDATOR = "InteropValidator";
 
     public static final String OBJECT_DESC = "Ljava/lang/Object;";
     public static final String FUNCTION_DESC = "Ljava/util/function/Function;";
@@ -44,7 +48,7 @@ public class ASMUtil {
     public static final String MAP_VALUE_DESC = "Lorg/ballerinalang/jvm/values/MapValue;";
 
     public static ObjectValue newObject(String type) {
-        return BallerinaValues.createObjectValue(JVM_PKG_PATH, type);
+        return BallerinaValues.createObjectValue(JVM_PKG_ID, type);
     }
 
     public static <T> T getRefArgumentNativeData(ObjectValue objectValue) {

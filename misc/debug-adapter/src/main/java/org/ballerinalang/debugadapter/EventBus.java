@@ -17,6 +17,7 @@
 package org.ballerinalang.debugadapter;
 
 import com.sun.jdi.AbsentInformationException;
+import com.sun.jdi.IncompatibleThreadStateException;
 import com.sun.jdi.Location;
 import com.sun.jdi.ReferenceType;
 import com.sun.jdi.ThreadReference;
@@ -45,9 +46,11 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -91,6 +94,20 @@ public class EventBus {
             File parentDir = file.getParentFile();
             projectRoot = parentDir.toPath();
         }
+    }
+
+    public void resetBreakpoints() {
+        if (this.context.getDebuggee() == null) {
+            return;
+        }
+        context.getDebuggee().eventRequestManager().deleteAllBreakpoints();
+        breakpointsList.forEach((filePath, breakpoints) -> {
+            Arrays.stream(breakpoints).forEach(breakpoint -> {
+                this.context.getDebuggee().allClasses().forEach(referenceType -> {
+                    this.addBreakpoint(referenceType, breakpoint);
+                });
+            });
+        });
     }
 
     public Map<Long, ThreadReference> getThreadsMap() {
@@ -171,8 +188,7 @@ public class EventBus {
                     LOGGER.error(e.getMessage(), e);
                 }
             }
-        }
-        );
+        });
     }
 
     public void addBreakpoint(ReferenceType referenceType, Breakpoint breakpoint) {
@@ -230,5 +246,52 @@ public class EventBus {
         ContinuedEventArguments continuedEventArguments = new ContinuedEventArguments();
         continuedEventArguments.setAllThreadsContinued(true);
         context.getClient().continued(continuedEventArguments);
+    }
+
+    public void createStepOverRequest(long threadId) {
+        ThreadReference threadReference = getThreadsMap().get(threadId);
+        try {
+            Location currentLocation = threadReference.frames().get(0).location();
+            ReferenceType referenceType = currentLocation.declaringType();
+
+            List<Location> allLineLocations = currentLocation.method().allLineLocations();
+            Optional<Location> lastLocation =
+                    allLineLocations.stream().max(Comparator.comparingInt(Location::lineNumber));
+            Optional<Location> firstLocation =
+                    allLineLocations.stream().min(Comparator.comparingInt(Location::lineNumber));
+            // We are going to add breakpoints for each and every line and continue the debugger.
+
+            if (!firstLocation.isPresent()) {
+                return;
+            }
+            int nextStepPoint = firstLocation.get().lineNumber();
+
+            while (true) {
+                List<Location> locations = referenceType.locationsOfLine(nextStepPoint);
+                if (locations.size() > 0) {
+                    Location nextStepLocation = locations.get(0);
+                    // Make sure we are step over in the same method.
+                    if (nextStepLocation.lineNumber() > currentLocation.lineNumber()) {
+                        BreakpointRequest bpReq = context.getDebuggee().eventRequestManager()
+                                .createBreakpointRequest(nextStepLocation);
+                        bpReq.enable();
+                    }
+                }
+                nextStepPoint++;
+                if (nextStepPoint > lastLocation.get().lineNumber()) {
+                    break;
+                }
+            }
+
+            context.getDebuggee().resume();
+
+            // We are resuming all threads, we need to notify debug client about this.
+            ContinuedEventArguments continuedEventArguments = new ContinuedEventArguments();
+            continuedEventArguments.setAllThreadsContinued(true);
+            context.getClient().continued(continuedEventArguments);
+        } catch (IncompatibleThreadStateException | AbsentInformationException e) {
+            LOGGER.error(e.getMessage());
+            createStepRequest(threadId, StepRequest.STEP_OVER);
+        }
     }
 }

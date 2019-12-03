@@ -219,6 +219,15 @@ function generateRecordValueCreateMethod(jvm:ClassWriter cw, bir:TypeDef?[] reco
         mv.visitInsn(DUP);
         mv.visitFieldInsn(GETSTATIC, typeOwnerClass, fieldName, io:sprintf("L%s;", BTYPE));
         mv.visitMethodInsn(INVOKESPECIAL, className, "<init>", io:sprintf("(L%s;)V", BTYPE), false);
+
+        mv.visitInsn(DUP);
+        mv.visitTypeInsn(NEW, STRAND);
+        mv.visitInsn(DUP);
+        mv.visitInsn(ACONST_NULL);
+        mv.visitMethodInsn(INVOKESPECIAL, STRAND, "<init>", io:sprintf("(L%s;)V", SCHEDULER) , false);
+        mv.visitInsn(SWAP);
+        mv.visitMethodInsn(INVOKESTATIC, className, "$init", io:sprintf("(L%s;L%s;)V", STRAND, MAP_VALUE), false);
+        
         mv.visitInsn(ARETURN);
         i += 1;
     }
@@ -844,10 +853,14 @@ function loadType(jvm:MethodVisitor mv, bir:BType? bType) {
     } else if (bType is bir:BFiniteType) {
         loadFiniteType(mv, bType);
         return;
-    } else {
+    } else if (bType is bir:BFutureType) {
         loadFutureType(mv, bType);
         return;
+    } else {
+    	// TODO Fix properly - rajith
+        return;
     }
+
 
     mv.visitFieldInsn(GETSTATIC, BTYPES, typeFieldName, io:sprintf("L%s;", BTYPE));
 }
@@ -1117,7 +1130,7 @@ function getTypeDesc(bir:BType bType) returns string {
     } else if (bType is bir:BMapType || bType is bir:BRecordType) {
         return io:sprintf("L%s;", MAP_VALUE);
     } else if (bType is bir:BTypeDesc) {
-        return io:sprintf("L%s;", TYPEDESC_TYPE);
+        return io:sprintf("L%s;", TYPEDESC_VALUE);
     } else if (bType is bir:BTableType) {
         return io:sprintf("L%s;", TABLE_VALUE);
     } else if (bType is bir:BStreamType) {

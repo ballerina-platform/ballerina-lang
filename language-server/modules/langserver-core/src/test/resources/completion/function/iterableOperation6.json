@@ -12,10 +12,10 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.table_  \n  \nAdd record to the table.\n  \n  \n  \n**Returns** `(()|error)`   \n- An `error` will be returned if there is any error occurred during adding data or else nil is returned  \n  \n"
+          "value": "**Package:** _ballerina/lang.table_  \n  \nAdd record to the table.\n  \n**Params**  \n- `record {\n\n}` data: A record with data  \n  \n**Returns** `(()|error)`   \n- An `error` will be returned if there is any error occurred during adding data or else nil is returned  \n  \n"
         }
       },
-      "sortText": "130",
+      "sortText": "120",
       "insertText": "add(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -30,10 +30,10 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.value_  \n  \nReturns a clone of `value` that is read-only, i.e. immutable.\nIt corresponds to the ImmutableClone(v) abstract operation,\ndefined in the Ballerina Language Specification.\n  \n"
+          "value": "**Package:** _ballerina/lang.value_  \n  \nReturns a clone of `v` that is read-only, i.e. immutable.\nIt corresponds to the ImmutableClone(v) abstract operation,\ndefined in the Ballerina Language Specification.\n  \n"
         }
       },
-      "sortText": "130",
+      "sortText": "120",
       "insertText": "cloneReadOnly()",
       "insertTextFormat": "Snippet"
     },
@@ -47,7 +47,7 @@
           "value": "**Package:** _ballerina/lang.table_  \n  \nChecks for a new row in the given table. If a new row is found, moves the cursor to it.\n  \n  \n  \n**Returns** `boolean`   \n- True if there is a new row; false otherwise  \n  \n"
         }
       },
-      "sortText": "130",
+      "sortText": "120",
       "insertText": "hasNext()",
       "insertTextFormat": "Snippet"
     },
@@ -61,7 +61,7 @@
           "value": "**Package:** _ballerina/lang.table_  \n  \nRetrives the current row and return a record with the data in the columns.\n  \n  \n  \n**Returns** `record {\n\n}`   \n- The resulting row as a record  \n  \n"
         }
       },
-      "sortText": "130",
+      "sortText": "120",
       "insertText": "getNext()",
       "insertTextFormat": "Snippet"
     },
@@ -72,10 +72,10 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.table_  \n  \nRemove data from the table.\n  \n  \n  \n**Returns** `(int|error)`   \n- An `int` the number of deleted record count or `error` if any error occurred during removing data  \n  \n"
+          "value": "**Package:** _ballerina/lang.table_  \n  \nRemove data from the table.\n  \n**Params**  \n- `function (any) returns (boolean)` func: The function pointer for delete crieteria  \n  \n**Returns** `(int|error)`   \n- An `int` the number of deleted record count or `error` if any error occurred during removing data  \n  \n"
         }
       },
-      "sortText": "130",
+      "sortText": "120",
       "insertText": "remove(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -90,10 +90,10 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.table_  \n  \nReturns an iterator over the members of `tbl`.  \n  \n  \n**Returns** ``   \n  \n"
+          "value": "**Package:** _ballerina/lang.table_  \n  \nReturns an iterator over the members of `tbl`.\nThe iterator will iterate over the rows of the table in order.  \n  \n  \n**Returns** ``   \n- an iterator over `tbl`  \n  \n"
         }
       },
-      "sortText": "130",
+      "sortText": "120",
       "insertText": "iterator()",
       "insertTextFormat": "Snippet"
     },
@@ -107,7 +107,7 @@
           "value": "**Package:** _ballerina/lang.value_  \n  \nTests whether `v` is read-only, i.e. immutable\nReturns true if read-only, false otherwise.\n  \n  \n  \n**Returns** `boolean`   \n- true if read-only, false otherwise  \n  \n"
         }
       },
-      "sortText": "130",
+      "sortText": "120",
       "insertText": "isReadOnly()",
       "insertTextFormat": "Snippet"
     },
@@ -118,10 +118,10 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.value_  \n  \nReturns a clone of `value`.\nA clone is a deep copy that does not copy immutable subtrees.\nA clone can therefore safely be used concurrently with the original.\nIt corresponds to the Clone(v) abstract operation,\ndefined in the Ballerina Language Specification.\n  \n"
+          "value": "**Package:** _ballerina/lang.value_  \n  \nReturns a clone of `v`.\nA clone is a deep copy that does not copy immutable subtrees.\nA clone can therefore safely be used concurrently with the original.\nIt corresponds to the Clone(v) abstract operation,\ndefined in the Ballerina Language Specification.\n  \n"
         }
       },
-      "sortText": "130",
+      "sortText": "120",
       "insertText": "clone()",
       "insertTextFormat": "Snippet"
     },
@@ -132,10 +132,10 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.value_  \n  \nReturns a simple, human-readable representation of `value` as a string.\n  \n  \n  \n**Returns** `string`   \n- simple, human-readable string representation of `value`  \n  \n- if `value` is a string, then returns `value`  \n- if `value` is `()`, then returns an empty string  \n- if `value` is boolean, then the string `true` or `false`  \n- if `value` is an int, then return `value` represented as a decimal string  \n- if `value` is a float or decimal, then return `value` represented as a decimal string,  \n  with a decimal point only if necessary, but without any suffix indicating the type of `value`  \n  return `NaN`, `Infinity` for positive infinity, and `-Infinity` for negative infinity  \n- if `value` is a list, then returns the results toString on each member of the list  \n  separated by a space character  \n- if `value` is a map, then returns key\u003dvalue for each member separated by a space character  \n- if `value` is xml, then returns `value` in XML format (as if it occurred within an XML element)  \n- if `value` is table, TBD  \n- if `value` is an error, then a string consisting of the following in order  \n    1. the string `error`  \n    2. a space character  \n    3. the reason string  \n    4. if the detail record is non-empty  \n        1. a space character  \n        2. the result of calling toString on the detail record  \n- if `value` is an object, then  \n    - if `value` provides a `toString` method with a string return type and no required methods,  \n      then the result of calling that method on `value`  \n    - otherwise, `object` followed by some implementation-dependent string  \n- if `value` is any other behavioral type, then the identifier for the behavioral type  \n  (`function`, `future`, `service`, `typedesc` or `handle`)  \n  followed by some implementation-dependent string  \n  \nNote that `toString` may produce the same string for two Ballerina values  \nthat are not equal (in the sense of the `\u003d\u003d` operator).  \n  \n"
+          "value": "**Package:** _ballerina/lang.value_  \n  \nPerforms a minimal conversion of a value to a string.\nThe conversion is minimal in particular in the sense\nthat the conversion applied to a value that is already\na string does nothing.  \n  \n  \n**Returns** `string`   \n- a string resulting from the conversion  \n  \nThe result of `toString(v)` is as follows:  \n  \n- if `v` is a string, then returns `v`  \n- if `v` is `()`, then returns an empty string  \n- if `v` is boolean, then the string `true` or `false`  \n- if `v` is an int, then return `v` represented as a decimal string  \n- if `v` is a float or decimal, then return `v` represented as a decimal string,  \n  with a decimal point only if necessary, but without any suffix indicating the type of `v`;  \n  return `NaN`, `Infinity` for positive infinity, and `-Infinity` for negative infinity  \n- if `v` is a list, then returns the results toString on each member of the list  \n  separated by a space character  \n- if `v` is a map, then returns key=value for each member separated by a space character  \n- if `v` is xml, then returns `v` in XML format (as if it occurred within an XML element)  \n- if `v` is table, TBD  \n- if `v` is an error, then a string consisting of the following in order  \n    1. the string `error`  \n    2. a space character  \n    3. the reason string  \n    4. if the detail record is non-empty  \n        1. a space character  \n        2. the result of calling toString on the detail record  \n- if `v` is an object, then  \n    - if `v` provides a `toString` method with a string return type and no required methods,  \n      then the result of calling that method on `v`  \n    - otherwise, `object` followed by some implementation-dependent string  \n- if `v` is any other behavioral type, then the identifier for the behavioral type  \n  (`function`, `future`, `service`, `typedesc` or `handle`)  \n  followed by some implementation-dependent string  \n  \nNote that `toString` may produce the same string for two Ballerina values  \nthat are not equal (in the sense of the `==` operator).  \n  \n"
         }
       },
-      "sortText": "130",
+      "sortText": "120",
       "insertText": "toString()",
       "insertTextFormat": "Snippet"
     },
@@ -146,10 +146,10 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.table_  \n  \nReleases the database connection. If the table data is fully iterated, it will be automatically closed. This explicit\nclose is required only if it is not fully iterated.  \n"
+          "value": "**Package:** _ballerina/lang.table_  \n  \nReleases the database connection. If the table data is fully iterated, it will be automatically closed. This explicit\nclose is required only if it is not fully iterated.\n  \n"
         }
       },
-      "sortText": "130",
+      "sortText": "120",
       "insertText": "close();",
       "insertTextFormat": "Snippet"
     }

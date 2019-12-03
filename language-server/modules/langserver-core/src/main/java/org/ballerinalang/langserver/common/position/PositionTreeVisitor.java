@@ -23,15 +23,12 @@ import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.hover.util.HoverUtil;
-import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.eclipse.lsp4j.Position;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BEndpointVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
@@ -135,14 +132,12 @@ public class PositionTreeVisitor extends LSNodeVisitor {
         }
 
         if (HoverUtil.isMatchingPosition(HoverUtil.getIdentifierPosition(funcNode), this.position)) {
-            addPosition(funcNode, this.previousNode, funcNode.name.getValue(), funcSymbol.pkgID, funcSymbol.kind.name(),
-                        funcSymbol.kind.name(), funcNode.name.getValue(), funcSymbol.owner);
-            setTerminateVisitor(true);
+            addPosition(funcNode, this.previousNode);
+            setTerminateVisitor();
             return;
         }
 
-        addTopLevelNodeToContext(funcNode, funcNode.name.getValue(), funcSymbol.pkgID, funcSymbol.kind.name(),
-                                 funcSymbol.kind.name(), funcSymbol.owner);
+        addTopLevelNodeToContext(funcNode);
         setPreviousNode(funcNode);
         this.addToNodeStack(funcNode);
 
@@ -177,10 +172,8 @@ public class PositionTreeVisitor extends LSNodeVisitor {
                         if (type.tsymbol != null && type.tsymbol.getName().getValue().equals(userDefinedType
                                                                                                      .typeName
                                                                                                      .getValue())) {
-                            addPosition(userDefinedType, this.previousNode, userDefinedType.typeName.getValue(),
-                                        type.tsymbol.pkgID, type.tsymbol.kind.name(), type.tsymbol.kind.name(),
-                                        userDefinedType.typeName.getValue(), type.tsymbol.owner);
-                            setTerminateVisitor(true);
+                            addPosition(userDefinedType, this.previousNode);
+                            setTerminateVisitor();
                             break;
                         }
                     }
@@ -189,11 +182,8 @@ public class PositionTreeVisitor extends LSNodeVisitor {
                 }
             } else if (userDefinedType.type.tsymbol != null &&
                     HoverUtil.isMatchingPosition(userDefinedType.getPosition(), this.position)) {
-                addPosition(userDefinedType, this.previousNode, userDefinedType.typeName.getValue(),
-                            userDefinedType.type.tsymbol.pkgID, userDefinedType.type.tsymbol.kind.name(),
-                            userDefinedType.type.tsymbol.kind.name(),
-                            userDefinedType.typeName.getValue(), userDefinedType.type.tsymbol.owner);
-                setTerminateVisitor(true);
+                addPosition(userDefinedType, this.previousNode);
+                setTerminateVisitor();
             }
         }
     }
@@ -205,10 +195,8 @@ public class PositionTreeVisitor extends LSNodeVisitor {
             CommonUtil.calculateEndColumnOfGivenName(varNode.getPosition(), varNode.symbol.name.getValue(), "");
             DiagnosticPos identifierPos = HoverUtil.getIdentifierPosition(varNode);
             if (HoverUtil.isMatchingPosition(identifierPos, this.position)) {
-                addPosition(varNode, this.previousNode, varNode.symbol.name.getValue(), varNode.symbol.pkgID,
-                            ContextConstants.VARIABLE, ContextConstants.VARIABLE, varNode.symbol.name.getValue(),
-                            varNode.symbol.owner);
-                setTerminateVisitor(true);
+                addPosition(varNode, this.previousNode);
+                setTerminateVisitor();
             }
         }
 
@@ -225,46 +213,20 @@ public class PositionTreeVisitor extends LSNodeVisitor {
     public void visit(BLangSimpleVarRef varRefExpr) {
         CommonUtil.calculateEndColumnOfGivenName(varRefExpr.getPosition(), varRefExpr.variableName.value,
                                                  varRefExpr.pkgAlias.value);
-        if (varRefExpr.symbol != null && varRefExpr.symbol instanceof BEndpointVarSymbol &&
-                HoverUtil.isMatchingPosition(varRefExpr.getPosition(), this.position)) {
-            addPosition(varRefExpr, this.previousNode, ((BEndpointVarSymbol) varRefExpr.symbol).name.getValue(),
-                        ((BEndpointVarSymbol) varRefExpr.symbol).pkgID, ContextConstants.ENDPOINT,
-                        ContextConstants.ENDPOINT, varRefExpr.variableName.getValue(), varRefExpr.symbol.owner);
-            setTerminateVisitor(true);
-        } else if (varRefExpr.type != null && varRefExpr.type.tsymbol != null && varRefExpr.type.tsymbol.kind != null
+        if (varRefExpr.type != null && varRefExpr.type.tsymbol != null && varRefExpr.type.tsymbol.kind != null
                 && (varRefExpr.type.tsymbol.kind.name().equals(ContextConstants.OBJECT) ||
                 varRefExpr.type.tsymbol.kind.name().equals(ContextConstants.RECORD) ||
                 varRefExpr.type.tsymbol.kind.name().equals(ContextConstants.TYPE_DEF))
                 && HoverUtil.isMatchingPosition(varRefExpr.getPosition(), this.position)) {
-            if (varRefExpr.symbol != null) {
-                addPosition(varRefExpr, this.previousNode, varRefExpr.type.tsymbol.name.getValue(),
-                            varRefExpr.symbol.pkgID, ContextConstants.VARIABLE, varRefExpr.type.tsymbol.kind.name(),
-                            varRefExpr.variableName.getValue(), varRefExpr.symbol.owner);
-            } else {
-                addPosition(varRefExpr, this.previousNode, varRefExpr.type.tsymbol.name.getValue(),
-                            varRefExpr.type.tsymbol.pkgID, varRefExpr.type.tsymbol.kind.name(),
-                            varRefExpr.type.tsymbol.kind.name(), varRefExpr.variableName.getValue(),
-                            varRefExpr.type.tsymbol.owner);
-            }
-            setTerminateVisitor(true);
+            addPosition(varRefExpr, this.previousNode);
+            setTerminateVisitor();
         } else if (varRefExpr.pkgSymbol != null
                 && HoverUtil.isMatchingPosition(varRefExpr.getPosition(), this.position)) {
-            if (varRefExpr.symbol != null) {
-                addPosition(varRefExpr, this.previousNode, varRefExpr.variableName.getValue(),
-                            varRefExpr.pkgSymbol.pkgID, ContextConstants.VARIABLE, ContextConstants.VARIABLE,
-                            varRefExpr.variableName.getValue(), varRefExpr.symbol.owner);
-            } else {
-                addPosition(varRefExpr, this.previousNode, varRefExpr.type.tsymbol.name.getValue(),
-                            varRefExpr.type.tsymbol.pkgID, varRefExpr.type.tsymbol.kind.name(),
-                            varRefExpr.type.tsymbol.kind.name(), varRefExpr.variableName.getValue(),
-                            varRefExpr.type.tsymbol.owner);
-            }
-            setTerminateVisitor(true);
+            addPosition(varRefExpr, this.previousNode);
+            setTerminateVisitor();
         } else if (HoverUtil.isMatchingPosition(varRefExpr.getPosition(), this.position) && varRefExpr.symbol != null) {
-            addPosition(varRefExpr, this.previousNode, varRefExpr.symbol.name.getValue(), varRefExpr.symbol.pkgID,
-                        ContextConstants.VARIABLE, ContextConstants.VARIABLE, varRefExpr.variableName.getValue(),
-                        varRefExpr.symbol.owner);
-            setTerminateVisitor(true);
+            addPosition(varRefExpr, this.previousNode);
+            setTerminateVisitor();
         }
     }
 
@@ -365,10 +327,8 @@ public class PositionTreeVisitor extends LSNodeVisitor {
         }
 
         if (HoverUtil.isMatchingPosition(HoverUtil.getIdentifierPosition(serviceNode), this.position)) {
-            addPosition(serviceNode, this.previousNode, serviceNode.name.getValue(), serviceNode.symbol.pkgID,
-                        serviceNode.symbol.kind.name(), serviceNode.symbol.kind.name(), serviceNode.name.getValue(),
-                        serviceNode.symbol.owner);
-            setTerminateVisitor(true);
+            addPosition(serviceNode, this.previousNode);
+            setTerminateVisitor();
             return;
         }
         List<BLangNode> serviceContent = new ArrayList<>();
@@ -382,9 +342,7 @@ public class PositionTreeVisitor extends LSNodeVisitor {
         serviceContent.addAll(serviceFields);
         serviceContent.sort(new CommonUtil.BLangNodeComparator());
 
-        addTopLevelNodeToContext(serviceNode, serviceNode.name.getValue(), serviceNode.symbol.pkgID,
-                                 serviceNode.symbol.kind.name(), serviceNode.symbol.kind.name(),
-                                 serviceNode.symbol.owner);
+        addTopLevelNodeToContext(serviceNode);
 
         setPreviousNode(serviceNode);
         this.addToNodeStack(serviceNode);
@@ -466,18 +424,8 @@ public class PositionTreeVisitor extends LSNodeVisitor {
         }
 
         if (!terminateVisitor && HoverUtil.isMatchingPosition(invocationExpr.getPosition(), this.position)) {
-            BSymbol symbol = invocationExpr.symbol;
-            if (symbol != null) {
-                addPosition(invocationExpr, this.previousNode, invocationExpr.name.getValue(), symbol.pkgID,
-                            ContextConstants.FUNCTION, ContextConstants.FUNCTION, invocationExpr.name.getValue(),
-                            symbol.owner);
-            } else {
-                BTypeSymbol tSymbol = invocationExpr.type.tsymbol;
-                addPosition(invocationExpr, this.previousNode, invocationExpr.name.getValue(), tSymbol.pkgID,
-                            ContextConstants.FUNCTION, ContextConstants.FUNCTION, invocationExpr.name.getValue(),
-                            tSymbol.owner);
-            }
-            setTerminateVisitor(true);
+            addPosition(invocationExpr, this.previousNode);
+            setTerminateVisitor();
         }
     }
 
@@ -601,9 +549,7 @@ public class PositionTreeVisitor extends LSNodeVisitor {
 
     @Override
     public void visit(BLangRecordTypeNode recordTypeNode) {
-        BSymbol recordSymbol = recordTypeNode.symbol;
-        addTopLevelNodeToContext(recordTypeNode, recordSymbol.name.getValue(), recordSymbol.pkgID,
-                                 recordSymbol.kind.name(), recordSymbol.kind.name(), recordSymbol.owner);
+        addTopLevelNodeToContext(recordTypeNode);
         setPreviousNode(recordTypeNode);
         if (recordTypeNode.fields != null) {
             recordTypeNode.fields.forEach(this::acceptNode);
@@ -702,9 +648,7 @@ public class PositionTreeVisitor extends LSNodeVisitor {
 
     @Override
     public void visit(BLangTypeDefinition typeDefinition) {
-        addTopLevelNodeToContext(typeDefinition, typeDefinition.name.getValue(), typeDefinition.symbol.pkgID,
-                                 typeDefinition.symbol.kind.name(), typeDefinition.symbol.kind.name(),
-                                 typeDefinition.symbol.owner);
+        addTopLevelNodeToContext(typeDefinition);
         setPreviousNode(typeDefinition);
 
         if (typeDefinition.typeNode != null) {
@@ -714,9 +658,7 @@ public class PositionTreeVisitor extends LSNodeVisitor {
 
     @Override
     public void visit(BLangConstant constant) {
-        addTopLevelNodeToContext(constant, constant.name.getValue(), constant.symbol.pkgID,
-                                 ContextConstants.VARIABLE, ContextConstants.VARIABLE,
-                                 constant.symbol.owner);
+        addTopLevelNodeToContext(constant);
         setPreviousNode(constant);
 
         if (constant.typeNode != null) {
@@ -781,11 +723,9 @@ public class PositionTreeVisitor extends LSNodeVisitor {
 
     /**
      * Set terminate visitor.
-     *
-     * @param value boolean value for terminate visitor
      */
-    private void setTerminateVisitor(boolean value) {
-        this.terminateVisitor = value;
+    private void setTerminateVisitor() {
+        this.terminateVisitor = true;
     }
 
     /**
@@ -793,25 +733,14 @@ public class PositionTreeVisitor extends LSNodeVisitor {
      *
      * @param node node to be compared and added to the context
      */
-    private void addTopLevelNodeToContext(BLangNode node, String name, PackageID currentPkg,
-                                          String symbolKindOfParentNode, String symbolKindOfCurrentNode,
-                                          BSymbol owner) {
+    private void addTopLevelNodeToContext(BLangNode node) {
         if (node.getPosition().sLine == this.position.getLine()) {
-            addPosition(node, this.previousNode, name, currentPkg, symbolKindOfCurrentNode, symbolKindOfParentNode,
-                        name, owner);
+            addPosition(node, this.previousNode);
         }
     }
 
-    private void addPosition(BLangNode node, Object previousNode, String name, PackageID pkgID, String nodeKind,
-                             String nodeParentKind, String varName, BSymbol owner) {
+    private void addPosition(BLangNode node, Object previousNode) {
         this.context.put(NodeContextKeys.NODE_KEY, node);
         this.context.put(NodeContextKeys.PREVIOUSLY_VISITED_NODE_KEY, previousNode);
-        this.context.put(NodeContextKeys.NAME_OF_NODE_KEY, name);
-        this.context.put(NodeContextKeys.PACKAGE_OF_NODE_KEY, pkgID);
-        this.context.put(NodeContextKeys.SYMBOL_KIND_OF_NODE_KEY, nodeKind);
-        this.context.put(NodeContextKeys.SYMBOL_KIND_OF_NODE_PARENT_KEY, nodeParentKind);
-        this.context.put(NodeContextKeys.VAR_NAME_OF_NODE_KEY, varName);
-        this.context.put(NodeContextKeys.NODE_OWNER_KEY, owner.name.getValue());
-        this.context.put(NodeContextKeys.NODE_OWNER_PACKAGE_KEY, owner.pkgID);
     }
 }

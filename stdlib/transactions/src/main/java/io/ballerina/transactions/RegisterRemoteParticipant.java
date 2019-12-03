@@ -31,6 +31,8 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 import static io.ballerina.transactions.RegisterLocalParticipant.STRUCT_TYPE_TRANSACTION_CONTEXT;
+import static org.ballerinalang.jvm.runtime.RuntimeConstants.GLOBAL_TRANSACTION_ID;
+import static org.ballerinalang.jvm.runtime.RuntimeConstants.TRANSACTION_URL;
 import static org.ballerinalang.jvm.transactions.TransactionConstants.TRANSACTION_PACKAGE_ID;
 
 /**
@@ -52,15 +54,20 @@ public class RegisterRemoteParticipant {
     
     public static Object registerRemoteParticipant(Strand strand, String transactionBlockId, FPValue fpCommitted,
                                                FPValue fpAborted) {
-
-        TransactionLocalContext transactionLocalContext = strand.getLocalTransactionContext();
-        if (transactionLocalContext == null) {
+        String gTransactionId = (String) strand.getProperty(GLOBAL_TRANSACTION_ID);
+        if (gTransactionId == null) {
             // No transaction available to participate,
             // We have no business here. This is a no-op.
             return null;
         }
-        TransactionResourceManager transactionResourceManager = TransactionResourceManager.getInstance();
+
+        // Create transaction context and store in the strand.
+        TransactionLocalContext transactionLocalContext = TransactionLocalContext
+                .create(gTransactionId, strand.getProperty(TRANSACTION_URL).toString(), "2pc");
+        strand.transactionLocalContext = transactionLocalContext;
+
         // Register committed and aborted function handler if exists.
+        TransactionResourceManager transactionResourceManager = TransactionResourceManager.getInstance();
         transactionResourceManager.registerParticipation(transactionLocalContext.getGlobalTransactionId(),
                                                          transactionBlockId, fpCommitted, fpAborted, strand);
         MapValue<String, Object> trxContext = BallerinaValues.createRecordValue(TRANSACTION_PACKAGE_ID,

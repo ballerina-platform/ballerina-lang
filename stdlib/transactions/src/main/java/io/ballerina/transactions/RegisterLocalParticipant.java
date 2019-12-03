@@ -54,7 +54,7 @@ public class RegisterLocalParticipant {
 
     public static Object registerLocalParticipant(Strand strand, String transactionBlockId, FPValue fpCommitted,
                                                     FPValue fpAborted) {
-        TransactionLocalContext transactionLocalContext = strand.getLocalTransactionContext();
+        TransactionLocalContext transactionLocalContext = strand.transactionLocalContext;
         if (transactionLocalContext == null) {
             // No transaction available to participate,
             // We have no business here. This is a no-op.

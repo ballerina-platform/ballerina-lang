@@ -21,8 +21,8 @@ jdbc:Client testDB2 = new({
 
 public function main() {
     // Creates the table named CUSTOMER in the first database.
-    var ret = testDB1->update("CREATE TABLE CUSTOMER (ID INTEGER
-                    AUTO_INCREMENT, NAME VARCHAR(30))");
+    var ret = testDB1->update("CREATE TABLE CUSTOMER (ID INTEGER " +
+                    "AUTO_INCREMENT, NAME VARCHAR(30))");
     handleUpdate(ret, "Create CUSTOMER table");
     // Creates the table named SALARY in the second database.
     ret = testDB2->update("CREATE TABLE SALARY (ID INT, VALUE FLOAT)");
@@ -32,8 +32,8 @@ public function main() {
     transaction {
         // This is the first remote function to participate in the transaction. It inserts
         // the customer name to the first DB and gets the generated key.
-        var result = testDB1->update("INSERT INTO CUSTOMER(NAME)
-                                        VALUES ('Anne')");
+        var result = testDB1->update("INSERT INTO CUSTOMER(NAME) " +
+                                        "VALUES ('Anne')");
         int key = -1;
         if (result is jdbc:UpdateResult) {
             int count = result.updatedRowCount;

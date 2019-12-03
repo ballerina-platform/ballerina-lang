@@ -24,6 +24,7 @@ import java.lang.annotation.Repeatable;
  * Represents a custom Ballerina Annotation.
  */
 @Repeatable(value = BallerinaAnnotations.class)
+@Deprecated
 public @interface BallerinaAnnotation {
 
     /**

@@ -23,26 +23,26 @@ public function main() {
     // statement execution is successful, the `update` remote function
     // returns 0.
     io:println("The update operation - Creating table and procedures:");
-    var ret = testDB->update("CREATE TABLE student(id INT AUTO_INCREMENT,
-                         age INT, name VARCHAR(255), PRIMARY KEY (id))");
+    var ret = testDB->update("CREATE TABLE student(id INT AUTO_INCREMENT, " +
+                         "age INT, name VARCHAR(255), PRIMARY KEY (id))");
     handleUpdate(ret, "Create student table");
 
     // Create the stored procedure with IN parameters.
-    ret = testDB->update("CREATE PROCEDURE INSERTDATA(IN pAge INT,
-                       IN pName VARCHAR(255))
-	                   BEGIN
-                       INSERT INTO student(age, name) values (pAge, pName);
-                       END");
+    ret = testDB->update("CREATE PROCEDURE INSERTDATA(IN pAge INT, " +
+                       "IN pName VARCHAR(255)) " +
+	                   "BEGIN " +
+                       "INSERT INTO student(age, name) values (pAge, pName); " +
+                       "END");
     handleUpdate(ret, "Stored procedure with IN param creation");
 
     // Create the stored procedure with INOUT and OUT parameters.
-    ret = testDB->update("CREATE PROCEDURE GETCOUNT (INOUT pID INT,
-                          OUT pCount INT)
-                          BEGIN
-                          SELECT id INTO pID FROM student WHERE age = pID;
-                          SELECT COUNT(*) INTO pCount FROM student
-                            WHERE age = 20;
-                          END");
+    ret = testDB->update("CREATE PROCEDURE GETCOUNT (INOUT pID INT, " +
+                          "OUT pCount INT) " +
+                          "BEGIN " +
+                          "SELECT id INTO pID FROM student WHERE age = pID; " +
+                          "SELECT COUNT(*) INTO pCount FROM student " +
+                            "WHERE age = 20; " +
+                          "END");
     handleUpdate(ret, "Stored procedure with INOUT/OUT param creation");
 
 
@@ -62,10 +62,10 @@ public function main() {
     // Here stored procedure with OUT and INOUT parameters is invoked.
     io:println("\nThe call operation - With INOUT/OUT params");
     // Inovke the stored procedure.
-    jdbc:Parameter param1 = { sqlType: jdbc:TYPE_INTEGER, value: 20,
-        direction: jdbc:DIRECTION_INOUT };
-    jdbc:Parameter param2 = { sqlType: jdbc:TYPE_INTEGER,
-        direction: jdbc:DIRECTION_OUT };
+    jdbc:Parameter param1 = {sqlType: jdbc:TYPE_INTEGER, value: 20,
+        direction: jdbc:DIRECTION_INOUT};
+    jdbc:Parameter param2 = {sqlType: jdbc:TYPE_INTEGER,
+        direction: jdbc:DIRECTION_OUT};
     retCall = testDB->call("{CALL GETCOUNT(?,?)}", (), param1, param2);
     if (retCall is ()|table<record {}>[]) {
         io:println("Call operation with INOUT and OUT params successful");

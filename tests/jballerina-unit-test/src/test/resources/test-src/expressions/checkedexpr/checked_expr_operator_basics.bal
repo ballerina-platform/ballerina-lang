@@ -129,7 +129,7 @@ function testCheckExprInBinaryExpr2() returns MyError? {
     return ();
 }
 
-function testCheckExprInBinaryExpr3() returns string | CustomError {
+function testCheckExprInBinaryExpr3() returns string | MyError {
     string str = "hello, " + check readLineSuccess();
     return str;
 }
@@ -146,12 +146,6 @@ function testCheckExprInBinaryExpr5() returns error? {
 
 function testCheckExprInBinaryExpr6() returns string | CustomError {
     string str = "hello, " + check readLineCustomError();
-    return str;
-}
-
-// This test case should panic an error since customError is not assignable to the MyError
-function testCheckExprInBinaryExpr7() returns string | CustomError {
-    string str = "hello, " + check readLineError();
     return str;
 }
 

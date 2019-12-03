@@ -72,14 +72,25 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "ServiceResourceAuth",
+      "label": "ServiceAuth",
       "kind": "Struct",
       "detail": "Record",
       "documentation": {
-        "left": "Configures the authentication scheme for a service or a resource.\n"
+        "left": "Configures the authentication scheme for a service.\n"
       },
       "sortText": "180",
-      "insertText": "ServiceResourceAuth",
+      "insertText": "ServiceAuth",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ResourceAuth",
+      "kind": "Struct",
+      "detail": "Record",
+      "documentation": {
+        "left": "Configures the authentication scheme for a resource.\n"
+      },
+      "sortText": "180",
+      "insertText": "ResourceAuth",
       "insertTextFormat": "Snippet"
     },
     {
@@ -109,7 +120,7 @@
       "kind": "Interface",
       "detail": "Object",
       "documentation": {
-        "left": "Representation of the Authorization filter\n"
+        "left": "Representation of the Authorization filter.\n"
       },
       "sortText": "190",
       "insertText": "AuthzFilter",
@@ -360,7 +371,7 @@
       "kind": "Interface",
       "detail": "Object",
       "documentation": {
-        "left": "Provides the HTTP actions for interacting with an HTTP server. Apart from the standard HTTP methods, `forward()`\nand `execute()` functions are provided. More complex and specific endpoint types can be created by wrapping this\ngeneric HTTP actions implementation.\n"
+        "left": "Provides the HTTP actions for interacting with an HTTP server. Apart from the standard HTTP methods,\n`HttpClient.forward()` and `HttpClient.execute()` functions are provided. More complex and specific endpoint types\ncan be created by wrapping this generic HTTP actions implementation.\n"
       },
       "sortText": "190",
       "insertText": "HttpClient",
@@ -525,7 +536,7 @@
       "kind": "Event",
       "detail": "Union",
       "documentation": {
-        "left": "Ballerina Http Union Errors"
+        "left": "Defines the resiliency error types that returned from client"
       },
       "sortText": "200",
       "insertText": "ResiliencyError",
@@ -535,6 +546,9 @@
       "label": "ClientAuthError",
       "kind": "Event",
       "detail": "Union",
+      "documentation": {
+        "left": "Defines the Auth error types that returned from client"
+      },
       "sortText": "200",
       "insertText": "ClientAuthError",
       "insertTextFormat": "Snippet"
@@ -543,6 +557,9 @@
       "label": "OutboundRequestError",
       "kind": "Event",
       "detail": "Union",
+      "documentation": {
+        "left": "Defines the client error types that returned while sending outbound request"
+      },
       "sortText": "200",
       "insertText": "OutboundRequestError",
       "insertTextFormat": "Snippet"
@@ -551,6 +568,9 @@
       "label": "InboundResponseError",
       "kind": "Event",
       "detail": "Union",
+      "documentation": {
+        "left": "Defines the client error types that returned while receiving inbound response"
+      },
       "sortText": "200",
       "insertText": "InboundResponseError",
       "insertTextFormat": "Snippet"
@@ -559,6 +579,9 @@
       "label": "InboundRequestError",
       "kind": "Event",
       "detail": "Union",
+      "documentation": {
+        "left": "Defines the listener error types that returned while receiving inbound request"
+      },
       "sortText": "200",
       "insertText": "InboundRequestError",
       "insertTextFormat": "Snippet"
@@ -567,6 +590,9 @@
       "label": "OutboundResponseError",
       "kind": "Event",
       "detail": "Union",
+      "documentation": {
+        "left": "Defines the listener error types that returned while sending outbound response"
+      },
       "sortText": "200",
       "insertText": "OutboundResponseError",
       "insertTextFormat": "Snippet"
@@ -575,6 +601,9 @@
       "label": "ClientError",
       "kind": "Event",
       "detail": "Union",
+      "documentation": {
+        "left": "Defines the possible client error types"
+      },
       "sortText": "200",
       "insertText": "ClientError",
       "insertTextFormat": "Snippet"
@@ -583,6 +612,9 @@
       "label": "ListenerError",
       "kind": "Event",
       "detail": "Union",
+      "documentation": {
+        "left": "Defines the possible listener error types"
+      },
       "sortText": "200",
       "insertText": "ListenerError",
       "insertTextFormat": "Snippet"
@@ -1001,14 +1033,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "WebSocketError",
-      "kind": "Event",
-      "detail": "Union",
-      "sortText": "200",
-      "insertText": "WebSocketError",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "WebSocketCaller",
       "kind": "Interface",
       "detail": "Object",
@@ -1050,6 +1074,17 @@
       },
       "sortText": "190",
       "insertText": "WebSocketConnector",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "WebSocketError",
+      "kind": "Event",
+      "detail": "Union",
+      "documentation": {
+        "left": "The union of all the WebSocket related errors"
+      },
+      "sortText": "200",
+      "insertText": "WebSocketError",
       "insertTextFormat": "Snippet"
     },
     {

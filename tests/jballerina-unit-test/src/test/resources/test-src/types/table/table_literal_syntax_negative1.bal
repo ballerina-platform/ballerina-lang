@@ -238,3 +238,16 @@ public function testNonRecordAsTableConstraint(string... args) {
                 ]
             };
 }
+
+type Teacher record {
+    int id;
+    int age;
+    string name;
+};
+
+table<Teacher> t1 = table {
+    { key id, age, name },
+    [
+        { 1, 29 }
+    ]
+};

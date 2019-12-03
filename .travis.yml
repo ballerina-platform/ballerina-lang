@@ -24,13 +24,6 @@ git:
 services:
   - docker
 
-before_install:
-  - if [ $TRAVIS_OS_NAME == "linux" ]; then
-      export CXX="g++-4.9" CC="gcc-4.9" DISPLAY=:99.0;
-      sh -e /etc/init.d/xvfb start;
-      sleep 3;
-    fi
-
 jobs:
   include:
     - stage: "Build and Check(Windows + Linux)"
@@ -40,6 +33,7 @@ jobs:
       install:
         - choco install jdk8 -params 'installdir=c:\\java8'
         - export JAVA_HOME="c:\\java8"
+        - export PATH="$PATH;$JAVA_HOME\\bin"
       script:
         - while sleep 9m; do echo "=====[ $SECONDS seconds still running ]====="; done &
         - ./gradlew.bat build -x test -x createJavadoc --stacktrace -scan --console=plain --no-daemon
@@ -54,21 +48,61 @@ jobs:
       name:  "Build without tests - Linux"
       os: linux
       language: java
-      install:
+      jdk: openjdk8
+      node_js: 8
+      before_install:
+          - nvm install 8
+          - nvm use 8
           - npm install -g npm@'5.6.0'
-    - stage: "Tests (Linux only)"
-      name: "Run Build + tests (without integration)"
+    - stage: "Tests"
+      name: "Run Build + tests (without integration) - Linux"
       script:
         - while sleep 9m; do echo "=====[ $SECONDS seconds still running ]====="; done &
-        - ./gradlew build -x :jballerina-integration-test:test -x createJavadoc --stacktrace -scan --console=plain --no-daemon
+        - ./gradlew clean build --no-build-cache -x :jballerina-integration-test:test -x createJavadoc --stacktrace -scan --console=plain --no-daemon
         # Killing background sleep loop
         - kill %1
+      os: linux
+      language: java
+      jdk: openjdk8
+      node_js: 8
+      before_install:
+          - nvm install 8
+          - nvm use 8
+          - npm install -g npm@'5.6.0'
+      install: 
+        - |
+          if [ $TRAVIS_OS_NAME == "linux" ]; then
+            export DISPLAY=':99.0'
+            /usr/bin/Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
+          fi
     - script:
         - while sleep 9m; do echo "=====[ $SECONDS seconds still running ]====="; done &
-        - ./gradlew :jballerina-integration-test:test -x createJavadoc --stacktrace -scan --console=plain --no-daemon
+        # TODO enable tests for all projects
+        - ./gradlew.bat clean build --no-build-cache -Dorg.gradle.parallel=false -x :language-server:language-server-core:test -x :ballerina-packerina:test -x :ballerina-lang:test -x :ballerina-http:test -x :ballerina-file:test -x :ballerina-socket:test -x :jballerina-unit-test:test -x :jballerina-integration-test:test -x :plugin-vscode:test -x createJavadoc --stacktrace -scan --console=plain --no-daemon
         # Killing background sleep loop
         - kill %1
-      name:  "Integration tests"
+      name:  "Tests - windows"
+      os: windows
+      language: node_js
+      node_js: 8
+      install:
+        - choco install jdk8 -params 'installdir=c:\\java8'
+        - export JAVA_HOME="c:\\java8"
+        - export PATH="$PATH;$JAVA_HOME\\bin"
+    - script:
+        - while sleep 9m; do echo "=====[ $SECONDS seconds still running ]====="; done &
+        - ./gradlew clean --no-build-cache :jballerina-integration-test:test -x createJavadoc --stacktrace -scan --console=plain --no-daemon
+        # Killing background sleep loop
+        - kill %1
+      os: linux
+      language: java
+      jdk: openjdk8
+      node_js: 8
+      before_install:
+          - nvm install 8
+          - nvm use 8
+          - npm install -g npm@'5.6.0'
+      name:  "Integration tests - Linux"
 
 
 after_success:

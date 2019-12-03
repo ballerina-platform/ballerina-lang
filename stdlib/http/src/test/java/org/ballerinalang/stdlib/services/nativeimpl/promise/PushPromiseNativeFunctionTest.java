@@ -32,7 +32,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.transport.http.netty.message.Http2PushPromise;
 
-import static org.ballerinalang.stdlib.utils.ValueCreatorUtils.createPushPromiseObject;
+import static org.ballerinalang.net.http.ValueCreatorUtils.createPushPromiseObject;
 
 /**
  * Test cases for ballerina/http inbound inResponse success native functions.

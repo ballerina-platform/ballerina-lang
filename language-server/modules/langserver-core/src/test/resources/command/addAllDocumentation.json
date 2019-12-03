@@ -69,6 +69,45 @@
                   }
                 },
                 "newText": "# Description\n#\n# + testField - testField Parameter Description \n# + testPrivate - testPrivate Parameter Description \n# + testString - testString Parameter Description\n"
+              },
+              {
+                "range": {
+                  "start": {
+                    "line": 24,
+                    "character": 4
+                  },
+                  "end": {
+                    "line": 24,
+                    "character": 4
+                  }
+                },
+                "newText": "# Description\n    "
+              },
+              {
+                "range": {
+                  "start": {
+                    "line": 29,
+                    "character": 0
+                  },
+                  "end": {
+                    "line": 29,
+                    "character": 0
+                  }
+                },
+                "newText": "# Description\n"
+              },
+              {
+                "range": {
+                  "start": {
+                    "line": 31,
+                    "character": 4
+                  },
+                  "end": {
+                    "line": 31,
+                    "character": 4
+                  }
+                },
+                "newText": "# Description\n    #\n    # + param1 - param1 Parameter Description \n    # + param2 - param2 Parameter Description \n    # + return - Return Value Description\n    "
               }
             ]
           }

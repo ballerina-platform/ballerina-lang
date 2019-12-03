@@ -85,12 +85,39 @@ public class WorkerTest {
         Assert.assertEquals(ret.getReason(), "err");
     }
 
+    @Test()
+    public void syncSendReceiveWithTrap() {
+        BValue[] returns = BRunUtil.invoke(result, "syncSendReceiveWithTrap");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(((BError) returns[0]).getReason(), "sync send err");
+    }
+
     @Test
     public void receiveWithCheck() {
         BValue[] returns = BRunUtil.invoke(result, "receiveWithCheck", new BValue[0]);
         Assert.assertEquals(returns.length, 1);
         BError ret = (BError) returns[0];
         Assert.assertEquals(ret.getReason(), "err");
+    }
+
+    @Test
+    public void syncSendReceiveWithCheck() {
+        BValue[] returns = BRunUtil.invoke(result, "syncSendReceiveWithCheck", new BValue[0]);
+        Assert.assertEquals(returns.length, 1);
+        BError ret = (BError) returns[0];
+        Assert.assertEquals(ret.getReason(), "sync send err");
+    }
+
+    @Test(expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = ".*error: err message=err msg.*")
+    public void receiveWithCheckpanic() {
+        BRunUtil.invoke(result, "receiveWithCheckpanic");
+    }
+
+    @Test(expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = ".*error: err message=sync send err msg.*")
+    public void syncSendReceiveWithCheckpanic() {
+        BRunUtil.invoke(result, "syncSendReceiveWithCheckpanic");
     }
 
     @Test

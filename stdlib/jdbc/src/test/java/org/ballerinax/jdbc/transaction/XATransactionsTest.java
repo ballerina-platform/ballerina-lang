@@ -49,7 +49,8 @@ public class XATransactionsTest {
 
     @BeforeClass
     public void setup() {
-        result = BCompileUtil.compile(Paths.get("test-src", "transaction", "xa_transaction_test.bal").toString());
+        result = BCompileUtil.compileOffline(
+                Paths.get("test-src", "transaction", "xa_transaction_test.bal").toString());
         testDatabase1 = new SQLDBUtils.FileBasedTestDatabase(DBType.H2,
                 Paths.get("datafiles", "sql", "transaction", "xa_transaction_test_data_1.sql").toString(),
                 SQLDBUtils.DB_DIRECTORY_H2_1, DB_NAME1);

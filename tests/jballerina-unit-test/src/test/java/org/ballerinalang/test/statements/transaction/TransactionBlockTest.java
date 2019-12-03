@@ -197,6 +197,20 @@ public class TransactionBlockTest {
     }
 
     @Test
+    public void testTransactionInsideIfStmt() {
+        BValue[] returns = BRunUtil.invoke(programFile, "testTransactionInsideIfStmt");
+        Assert.assertTrue(returns[0] instanceof BInteger);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 18L);
+    }
+
+    @Test
+    public void testArrowFunctionInsideTransaction() {
+        BValue[] returns = BRunUtil.invoke(programFile, "testArrowFunctionInsideTransaction");
+        Assert.assertTrue(returns[0] instanceof BInteger);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 44L);
+    }
+
+    @Test
     public void testMultipleCommittedAbortedBlocks() {
         Assert.assertTrue(negativeProgramFile.getErrorCount() > 0);
     }

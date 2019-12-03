@@ -25,7 +25,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.ProjectDirs;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
-import org.wso2.ballerinalang.programfile.CompiledBinaryFile.ProgramFile;
 import org.wso2.ballerinalang.util.Lists;
 
 import java.io.PrintStream;
@@ -127,13 +126,6 @@ public class Compiler {
         }
 
         this.dependencyTree.listDependencyPackages(bLangPackage);
-    }
-
-    public ProgramFile getExecutableProgram(BLangPackage entryPackageNode) {
-        if (dlog.errorCount > 0) {
-            return null;
-        }
-        return this.binaryFileWriter.genExecutable(entryPackageNode);
     }
 
     public List<BLangPackage> compilePackages(boolean isBuild) {

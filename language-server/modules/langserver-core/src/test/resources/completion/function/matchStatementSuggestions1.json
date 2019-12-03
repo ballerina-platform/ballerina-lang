@@ -12,11 +12,11 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \n(string|int|boolean)"
+          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `(string|int|boolean)` i  \n  \n**Returns** `(string|int|boolean)`   \n  \n"
         }
       },
       "sortText": "120",
-      "insertText": "bar(i) {\n${1:value} \u003d\u003e {${2}}\n}",
+      "insertText": "bar(i) {\n${1:value} => {${2}}\n}",
       "insertTextFormat": "Snippet",
       "command": {
         "title": "editor.action.triggerParameterHints",
@@ -44,7 +44,7 @@
       "kind": "Variable",
       "detail": "Snippet",
       "sortText": "110",
-      "insertText": "var5 {\n\t${1:value} \u003d\u003e {${2}}\n}",
+      "insertText": "var5 {\n\t${1:value} => {${2}}\n}",
       "insertTextFormat": "Snippet"
     },
     {
@@ -60,7 +60,7 @@
       "kind": "Variable",
       "detail": "Snippet",
       "sortText": "110",
-      "insertText": "var4 {\n\t${1:value} \u003d\u003e {${2}}\n}",
+      "insertText": "var4 {\n\t${1:value} => {${2}}\n}",
       "insertTextFormat": "Snippet"
     },
     {
@@ -76,7 +76,7 @@
       "kind": "Variable",
       "detail": "Snippet",
       "sortText": "110",
-      "insertText": "var2 {\n\t${1:[\"\", 0, false]} \u003d\u003e {${2}}\n}",
+      "insertText": "var2 {\n\t${1:[\"\", 0, false]} => {${2}}\n}",
       "insertTextFormat": "Snippet"
     },
     {
@@ -92,7 +92,7 @@
       "kind": "Variable",
       "detail": "Snippet",
       "sortText": "110",
-      "insertText": "var1 {\n\t${1:value} \u003d\u003e {${2}}\n}",
+      "insertText": "var1 {\n\t${1:value} => {${2}}\n}",
       "insertTextFormat": "Snippet"
     },
     {
@@ -108,7 +108,7 @@
       "kind": "Variable",
       "detail": "Snippet",
       "sortText": "110",
-      "insertText": "i {\n\t${1:value} \u003d\u003e {${2}}\n}",
+      "insertText": "i {\n\t${1:value} => {${2}}\n}",
       "insertTextFormat": "Snippet"
     },
     {
@@ -124,7 +124,7 @@
       "kind": "Variable",
       "detail": "Snippet",
       "sortText": "110",
-      "insertText": "p {\n\t${1:{name:\"\", age:0}} \u003d\u003e {${2}}\n}",
+      "insertText": "p {\n\t${1:{name:\"\", age:0}} => {${2}}\n}",
       "insertTextFormat": "Snippet"
     },
     {

@@ -28,6 +28,8 @@ import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Utility methods for doing file operations.
@@ -131,5 +133,23 @@ public class BFileUtil {
         }
 
         return className;
+    }
+
+    /**
+     * Delete all the files which are listed according to a given pattern.
+     *
+     * @param path    Path to the directory
+     * @param pattern Filter pattern
+     * @throws IOException Failed when deleting
+     */
+    public static void deleteAll(Path path, String pattern) throws IOException {
+        if (!Files.exists(path)) {
+            return;
+        }
+        List<Path> files = Files.find(path, Integer.MAX_VALUE, (p, attribute) ->
+                p.toString().contains(pattern)).collect(Collectors.toList());
+        for (Path file : files) {
+            BFileUtil.delete(file);
+        }
     }
 }

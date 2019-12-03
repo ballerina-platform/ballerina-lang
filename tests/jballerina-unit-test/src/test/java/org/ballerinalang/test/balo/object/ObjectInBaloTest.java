@@ -391,7 +391,7 @@ public class ObjectInBaloTest {
                 "/object_with_non_defaultable_semantic_negative.bal");
         Assert.assertEquals(result.getErrorCount(), 1);
         BAssertUtil.validateError(result, 0, "undefined function 'attachInterface' in object " +
-                "'testorg/foo:1.0.0:Architect'", 7, 13);
+                "'testorg/foo:1.0.0:Architect'", 7, 15);
     }
 
     @Test (description = "Negative test to test uninitialized object variables")
@@ -409,9 +409,7 @@ public class ObjectInBaloTest {
                 "/object_new_in_return_negative.bal");
         int i = 0;
         BAssertUtil.validateError(result, i++, "missing required parameter 'addVal' in call to 'new'()", 8, 12);
-        BAssertUtil.validateError(result, i++, "not enough arguments in call to 'new()'", 8, 12);
         BAssertUtil.validateError(result, i++, "missing required parameter 'addVal' in call to 'new'()", 12, 33);
-        BAssertUtil.validateError(result, i++, "not enough arguments in call to 'new()'", 12, 33);
         BAssertUtil.validateError(result, i++, "cannot infer type of the object from 'other'", 13, 19);
         BAssertUtil.validateError(result, i++, "invalid variable definition; can not infer the assignment type.",
                 13, 19);
@@ -570,8 +568,8 @@ public class ObjectInBaloTest {
                 BCompileUtil.compile("test-src/balo/test_balo/object/test_objects_type_reference_negative.bal");
         Assert.assertEquals(result.getErrorCount(), 3);
         int i = 0;
-        BAssertUtil.validateError(result, i++, "undefined field 'name' in object 'Manager1'", 25, 9);
-        BAssertUtil.validateError(result, i++, "undefined field 'age' in object 'Manager1'", 26, 9);
+        BAssertUtil.validateError(result, i++, "undefined field 'name' in object 'Manager1'", 25, 13);
+        BAssertUtil.validateError(result, i++, "undefined field 'age' in object 'Manager1'", 26, 13);
         BAssertUtil.validateError(result, i++, "incompatible types: 'foo:Manager1' is not an abstract object", 38, 6);
     }
 

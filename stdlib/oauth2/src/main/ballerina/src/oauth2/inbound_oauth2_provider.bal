@@ -58,7 +58,12 @@ public type InboundOAuth2Provider object {
         req.setTextPayload(textPayload, mime:APPLICATION_FORM_URLENCODED);
         var response = self.introspectionClient->post("", req);
         if (response is http:Response) {
-            json payload = check response.getJsonPayload();
+            json|error result = response.getJsonPayload();
+            if (result is error) {
+                return <@untainted> prepareAuthError(result.reason(), result);
+            }
+
+            json payload = <json> result;
             boolean active = <boolean>payload.active;
             if (active) {
                 authenticated = true;
@@ -70,7 +75,7 @@ public type InboundOAuth2Provider object {
                 }
             }
         } else {
-            return auth:prepareError("Failed to call the introspection endpoint.", response);
+            return prepareAuthError("Failed to call the introspection endpoint.", response);
         }
 
         if (authenticated) {

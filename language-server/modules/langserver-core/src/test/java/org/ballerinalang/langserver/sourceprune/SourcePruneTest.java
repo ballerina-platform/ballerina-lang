@@ -20,13 +20,13 @@ package org.ballerinalang.langserver.sourceprune;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import org.ballerinalang.langserver.LSContextOperation;
+import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManagerImpl;
-import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.util.SourcePruneException;
 import org.ballerinalang.langserver.util.FileUtils;
 import org.eclipse.lsp4j.Position;
@@ -110,7 +110,7 @@ public class SourcePruneTest {
         URI fileUri = sourceRoot.resolve(source).toUri();
         TextDocumentPositionParams positionParams = new TextDocumentPositionParams();
         positionParams.setPosition(position);
-        lsContext.put(CompletionKeys.DOC_MANAGER_KEY, documentManager);
+        lsContext.put(CommonKeys.DOC_MANAGER_KEY, documentManager);
         lsContext.put(DocumentServiceKeys.POSITION_KEY, positionParams);
         lsContext.put(DocumentServiceKeys.FILE_URI_KEY, fileUri.toString());
         

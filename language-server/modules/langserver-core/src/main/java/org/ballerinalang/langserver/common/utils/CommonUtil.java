@@ -31,8 +31,6 @@ import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.compiler.common.modal.BallerinaPackage;
-import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentException;
-import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.completions.SymbolInfo;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.ballerinalang.langserver.completions.util.Priority;
@@ -51,7 +49,6 @@ import org.eclipse.lsp4j.CompletionItemKind;
 import org.eclipse.lsp4j.InsertTextFormat;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
-import org.eclipse.lsp4j.TextDocumentIdentifier;
 import org.eclipse.lsp4j.TextEdit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -111,7 +108,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
@@ -121,9 +117,6 @@ import java.util.function.BiFunction;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-
-import static org.ballerinalang.jvm.util.BLangConstants.CONSTRUCTOR_FUNCTION_SUFFIX;
-import static org.ballerinalang.langserver.compiler.LSCompilerUtil.getUntitledFilePath;
 
 /**
  * Common utils to be reuse in language server implementation.
@@ -295,56 +288,6 @@ public class CommonUtil {
     }
 
     /**
-     * Get the top level node type at the cursor line.
-     *
-     * @param identifier Document Identifier
-     * @param cursorLine Cursor line
-     * @param docManager Workspace document manager
-     * @return {@link String}   Top level node type
-     */
-    public static String topLevelNodeInLine(TextDocumentIdentifier identifier, int cursorLine,
-                                            WorkspaceDocumentManager docManager) {
-        List<String> topLevelKeywords = Arrays.asList("function", "service", "resource", "endpoint");
-        Optional<Path> filePath = CommonUtil.getPathFromURI(identifier.getUri());
-        if (!filePath.isPresent()) {
-            return "";
-        }
-
-        try {
-            Path compilationPath = getUntitledFilePath(filePath.toString()).orElse(filePath.get());
-            String fileContent = docManager.getFileContent(compilationPath);
-            String[] splitedFileContent = fileContent.split(LINE_SEPARATOR_SPLIT);
-            if ((splitedFileContent.length - 1) >= cursorLine) {
-                String lineContent = splitedFileContent[cursorLine];
-                List<String> alphaNumericTokens = new ArrayList<>(Arrays.asList(lineContent.split("[^\\w']+")));
-
-                ListIterator<String> iterator = alphaNumericTokens.listIterator();
-                int tokenCounter = 0;
-                while (iterator.hasNext()) {
-                    String topLevelKeyword = iterator.next();
-
-                    boolean validTypeDef = (topLevelKeyword.equals(CommonKeys.RECORD_KEYWORD_KEY)
-                            || topLevelKeyword.equals(CommonKeys.OBJECT_KEYWORD_KEY))
-                            && tokenCounter > 1
-                            && alphaNumericTokens.get(tokenCounter - 2).equals("type");
-
-                    if (validTypeDef || (topLevelKeywords.contains(topLevelKeyword) &&
-                            (!iterator.hasNext() || !CONSTRUCTOR_FUNCTION_SUFFIX.equals(iterator.next())))) {
-                        return topLevelKeyword;
-                    }
-                    tokenCounter++;
-                }
-
-
-            }
-            return null;
-        } catch (WorkspaceDocumentException e) {
-            logger.error("Error occurred while reading content of file: " + filePath.get().toString());
-            return null;
-        }
-    }
-
-    /**
      * Get the Annotation completion Item.
      *
      * @param packageID        Package Id
@@ -357,6 +300,7 @@ public class CommonUtil {
                                                              LSContext ctx, CommonToken pkgAlias,
                                                              Map<String, String> pkgAliasMap) {
         PackageID currentPkgID = ctx.get(DocumentServiceKeys.CURRENT_PACKAGE_ID_KEY);
+        String currentProjectOrgName = currentPkgID == null ? "" : currentPkgID.orgName.value;
 
         String aliasComponent = "";
         if (pkgAliasMap.containsKey(packageID.toString())) {
@@ -376,22 +320,26 @@ public class CommonUtil {
         annotationItem.setInsertTextFormat(InsertTextFormat.Snippet);
         annotationItem.setDetail(ItemResolverConstants.ANNOTATION_TYPE);
         annotationItem.setKind(CompletionItemKind.Property);
-        if (currentPkgID.name.value.equals(packageID.name.value)) {
+        if (currentPkgID != null && currentPkgID.name.value.equals(packageID.name.value)) {
             // If the annotation resides within the current package, no need to set the additional text edits
             return annotationItem;
         }
         List<BLangImportPackage> imports = ctx.get(DocumentServiceKeys.CURRENT_DOC_IMPORTS_KEY);
-        Optional currentPkgImport = imports.stream()
+        Optional pkgImport = imports.stream()
                 .filter(bLangImportPackage -> {
-                    String pkgName = bLangImportPackage.orgName + "/"
+                    String orgName = bLangImportPackage.orgName.value;
+                    String importPkgName = (orgName.equals("") ? currentProjectOrgName : orgName) + "/"
                             + CommonUtil.getPackageNameComponentsCombined(bLangImportPackage);
-                    String evalPkgName = packageID.orgName + "/" + packageID.nameComps.stream()
-                            .map(Name::getValue).collect(Collectors.joining("."));
-                    return pkgName.equals(evalPkgName);
+                    String annotationPkgOrgName = packageID.orgName.getValue();
+                    String annotationPkgName = annotationPkgOrgName + "/"
+                            + packageID.nameComps.stream()
+                            .map(Name::getValue)
+                            .collect(Collectors.joining("."));
+                    return importPkgName.equals(annotationPkgName);
                 })
                 .findAny();
         // if the particular import statement not available we add the additional text edit to auto import
-        if (!currentPkgImport.isPresent()) {
+        if (!pkgImport.isPresent()) {
             annotationItem.setAdditionalTextEdits(getAutoImportTextEdits(packageID.orgName.getValue(),
                     packageID.name.getValue(), ctx));
         }
@@ -574,6 +522,9 @@ public class CommonUtil {
             case MAP:
                 typeString = "{}";
                 break;
+            case OBJECT:
+                typeString = "new()";
+                break;
             case FINITE:
                 List<BLangExpression> valueSpace = new ArrayList<>(((BFiniteType) bType).valueSpace);
                 String value = valueSpace.get(0).toString();
@@ -667,14 +618,9 @@ public class CommonUtil {
     public static CompletionItem getFillAllStructFieldsItem(List<BField> fields) {
         List<String> fieldEntries = new ArrayList<>();
 
-        for (int i = 0; i < fields.size(); i++) {
-            BField bStructField = fields.get(i);
+        for (BField bStructField : fields) {
             String defaultFieldEntry = bStructField.getName().getValue()
                     + CommonKeys.PKG_DELIMITER_KEYWORD + " " + getDefaultValueForType(bStructField.getType());
-            if (bStructField.getType() instanceof BFiniteType || bStructField.getType() instanceof BUnionType) {
-                defaultFieldEntry += (i < fields.size() - 1 ? "," : "") +
-                        getFiniteAndUnionTypesComment(bStructField.type);
-            }
             fieldEntries.add(defaultFieldEntry);
         }
 
@@ -1003,13 +949,23 @@ public class CommonUtil {
     }
 
     public static BallerinaParser prepareParser(String content) {
-        ANTLRInputStream inputStream = new ANTLRInputStream(content);
-        BallerinaLexer lexer = new BallerinaLexer(inputStream);
-        lexer.removeErrorListeners();
-        CommonTokenStream commonTokenStream = new CommonTokenStream(lexer);
+        CommonTokenStream commonTokenStream = getTokenStream(content);
         BallerinaParser parser = new BallerinaParser(commonTokenStream);
         parser.removeErrorListeners();
         return parser;
+    }
+
+    static CommonTokenStream getTokenStream(String content) {
+        ANTLRInputStream inputStream = new ANTLRInputStream(content);
+        BallerinaLexer lexer = new BallerinaLexer(inputStream);
+        lexer.removeErrorListeners();
+        return new CommonTokenStream(lexer);
+    }
+
+    public static List<Token> getTokenList(String content) {
+        CommonTokenStream tokenStream = getTokenStream(content);
+        tokenStream.fill();
+        return new ArrayList<>(tokenStream.getTokens());
     }
 
     public static boolean symbolContainsInvalidChars(BSymbol bSymbol) {
@@ -1133,9 +1089,6 @@ public class CommonUtil {
             insertText.append("\"").append("${1}").append("\"");
         } else {
             insertText.append("${1:").append(getDefaultValueForType(bField.getType())).append("}");
-            if (bField.getType() instanceof BFiniteType || bField.getType() instanceof BUnionType) {
-                insertText.append(getFiniteAndUnionTypesComment(bField.getType()));
-            }
         }
 
         return insertText.toString();
@@ -1331,22 +1284,6 @@ public class CommonUtil {
             }
         }
         return pkgPrefix;
-    }
-
-    private static String getFiniteAndUnionTypesComment(BType bType) {
-        if (bType instanceof BFiniteType) {
-            List<BLangExpression> valueSpace = new ArrayList<>(((BFiniteType) bType).valueSpace);
-            return " // Values allowed: " + valueSpace.stream()
-                    .map(Object::toString)
-                    .collect(Collectors.joining("|"));
-        } else if (bType instanceof BUnionType) {
-            List<BType> memberTypes = new ArrayList<>(((BUnionType) bType).getMemberTypes());
-            return " // Values allowed: " + memberTypes.stream()
-                    .map(BType::toString)
-                    .collect(Collectors.joining("|"));
-        }
-
-        return "";
     }
 
     /**

@@ -39,12 +39,12 @@ public type ApplicationErrorData record {|
 |};
 
 # Represents an error caused by an issue related to database accessibility, erroneous queries, constraint violations,
-# database resource clean-up and other similar scenarios.
+# database resource clean-up, and other similar scenarios.
 public type DatabaseError error<DATABASE_ERROR_REASON, DatabaseErrorData>;
 
 public const APPLICATION_ERROR_REASON = "{ballerinax/java.jdbc}ApplicationError";
 
-# Represents an error originating from application level causes
+# Represents an error originating from application-level causes.
 public type ApplicationError error<APPLICATION_ERROR_REASON, ApplicationErrorData>;
 
 # Represents a database or application level error returned from JDBC client remote functions.

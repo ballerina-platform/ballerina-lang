@@ -21,11 +21,19 @@ import com.intellij.codeInsight.completion.InsertionContext;
 import com.intellij.codeInsight.lookup.AutoCompletionPolicy;
 import com.intellij.codeInsight.lookup.LookupElement;
 import com.intellij.codeInsight.lookup.LookupElementBuilder;
+import com.intellij.codeInsight.template.Template;
+import com.intellij.codeInsight.template.TemplateEditingListener;
+import com.intellij.codeInsight.template.TemplateManager;
+import com.intellij.codeInsight.template.impl.TemplateImpl;
+import com.intellij.codeInsight.template.impl.TemplateState;
+import com.intellij.codeInsight.template.impl.TextExpression;
 import com.intellij.icons.AllIcons;
+import com.intellij.openapi.command.CommandProcessor;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.editor.Caret;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
+import com.intellij.openapi.editor.EditorModificationUtil;
 import com.intellij.openapi.editor.LogicalPosition;
 import com.intellij.openapi.editor.ScrollType;
 import com.intellij.openapi.editor.event.DocumentEvent;
@@ -47,11 +55,13 @@ import org.eclipse.lsp4j.CompletionItemKind;
 import org.eclipse.lsp4j.CompletionList;
 import org.eclipse.lsp4j.CompletionParams;
 import org.eclipse.lsp4j.DidChangeTextDocumentParams;
+import org.eclipse.lsp4j.InsertTextFormat;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lsp4j.VersionedTextDocumentIdentifier;
 import org.eclipse.lsp4j.jsonrpc.JsonRpcException;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.wso2.lsp4intellij.client.languageserver.ServerOptions;
 import org.wso2.lsp4intellij.client.languageserver.requestmanager.RequestManager;
@@ -65,17 +75,22 @@ import org.wso2.lsp4intellij.utils.GUIUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.swing.Icon;
 
 import static org.wso2.lsp4intellij.requests.Timeout.getTimeout;
 import static org.wso2.lsp4intellij.requests.Timeouts.COMPLETION;
 import static org.wso2.lsp4intellij.utils.ApplicationUtils.computableReadAction;
+import static org.wso2.lsp4intellij.utils.ApplicationUtils.invokeLater;
+import static org.wso2.lsp4intellij.utils.ApplicationUtils.writeAction;
 
 /**
  * Editor event manager extension for Ballerina language.
@@ -86,6 +101,9 @@ public class BallerinaEditorEventManager extends EditorEventManager {
     private static final int TIMEOUT_AST = 3000;
     private static final int TIMEOUT_PROJECT_AST = 5000;
     private static final int TIMEOUT_ENDPOINTS = 2000;
+    private boolean isSnippetRunning = false;
+    // Todo - verify regex
+    private static final String LSP_SNIPPET_VAR_REGEX = "\\$\\{\\d+:?([^{^}]*)}";
 
     public BallerinaEditorEventManager(Editor editor, DocumentListener documentListener,
                                        EditorMouseListener mouseListener, EditorMouseMotionListener mouseMotionListener,
@@ -181,7 +199,13 @@ public class BallerinaEditorEventManager extends EditorEventManager {
 
     @Override
     public Iterable<? extends LookupElement> completion(Position pos) {
+
         List<LookupElement> lookupItems = new ArrayList<>();
+        // Code completion shouldn't be triggered when the snippet template is in progress.
+        if (isSnippetRunning) {
+            return lookupItems;
+        }
+
         CompletableFuture<Either<List<CompletionItem>, CompletionList>> request = getRequestManager()
                 .completion(new CompletionParams(getIdentifier(), pos));
         if (request == null) {
@@ -222,8 +246,7 @@ public class BallerinaEditorEventManager extends EditorEventManager {
         }
     }
 
-    public LookupElement createLookupItem(CompletionItem item, Position position) {
-        Command command = item.getCommand();
+    private LookupElement createLookupItem(CompletionItem item, Position position) {
         String detail = item.getDetail();
         String insertText = item.getInsertText();
         // Hack to avoid potential NPE since lang client does not handle null completion kinds.
@@ -231,7 +254,6 @@ public class BallerinaEditorEventManager extends EditorEventManager {
         CompletionItemKind kind = item.getKind() != null ? item.getKind() : CompletionItemKind.Property;
         String label = item.getLabel();
         TextEdit textEdit = item.getTextEdit();
-        List<TextEdit> addTextEdits = item.getAdditionalTextEdits();
         String presentableText = !Strings.isNullOrEmpty(label) ? label : (insertText != null) ? insertText : "";
         String tailText = (detail != null) ? detail : "";
         LSPIconProvider iconProvider = GUIUtils.getIconProviderFor(wrapper.getServerDefinition());
@@ -258,46 +280,151 @@ public class BallerinaEditorEventManager extends EditorEventManager {
 
         // Fixes IDEA internal assertion failure in windows.
         lookupString = lookupString.replace(DocumentUtils.WIN_SEPARATOR, DocumentUtils.LINUX_SEPARATOR);
-
         if (lookupString.contains(DocumentUtils.LINUX_SEPARATOR)) {
             lookupString = insertIndents(lookupString, position);
         }
-        lookupElementBuilder = LookupElementBuilder.create(lookupString);
-
-        if (textEdit != null) {
-            if (addTextEdits != null) {
-                lookupElementBuilder = setInsertHandler(lookupElementBuilder, addTextEdits, command, label);
-            }
-        } else if (addTextEdits != null) {
-            lookupElementBuilder = setInsertHandler(lookupElementBuilder, addTextEdits, command, label);
-        } else if (command != null) {
-            if (command.getCommand().equals("editor.action.triggerParameterHints")) {
-                // This is a vscode internal command to trigger signature help after completion. This needs to be done
-                // manually since intellij language client does not have that support.
-                String finalLookupString = lookupString;
-                lookupElementBuilder = lookupElementBuilder
-                        .withInsertHandler((InsertionContext context, LookupElement lookupElement) -> {
-                            context.commitDocument();
-                            Caret currentCaret = context.getEditor().getCaretModel().getCurrentCaret();
-                            currentCaret.moveCaretRelatively(finalLookupString.lastIndexOf(")") -
-                                    finalLookupString.length(), 0, false, false);
-                            signatureHelp();
-                        });
-            } else {
-                lookupElementBuilder = lookupElementBuilder
-                        .withInsertHandler((InsertionContext context, LookupElement lookupElement) -> {
-                            context.commitDocument();
-                            executeCommands(Collections.singletonList(command));
-                        });
-            }
+        if (shouldRunInSnippetMode(item, lookupString)) {
+            lookupElementBuilder = LookupElementBuilder.create(convertPlaceHolders(lookupString));
+        } else {
+            lookupElementBuilder = LookupElementBuilder.create(lookupString);
         }
+
+        lookupElementBuilder = addCompletionInsertHandlers(item, lookupElementBuilder, lookupString);
 
         if (kind == CompletionItemKind.Keyword) {
             lookupElementBuilder = lookupElementBuilder.withBoldness(true);
         }
+        return lookupElementBuilder.withPresentableText(presentableText).withTypeText(tailText, true).
+                withIcon(icon).withAutoCompletionPolicy(AutoCompletionPolicy.SETTINGS_DEPENDENT);
+    }
 
-        return lookupElementBuilder.withPresentableText(presentableText).withTypeText(tailText, true).withIcon(icon)
-                .withAutoCompletionPolicy(AutoCompletionPolicy.SETTINGS_DEPENDENT);
+    private LookupElementBuilder addCompletionInsertHandlers(CompletionItem item, LookupElementBuilder builder,
+                                                             String lookupString) {
+        String label = item.getLabel();
+        Command command = item.getCommand();
+        List<TextEdit> addTextEdits = item.getAdditionalTextEdits();
+
+        if (addTextEdits != null) {
+            builder = builder.withInsertHandler((InsertionContext context, LookupElement lookupElement) ->
+                    invokeLater(() -> {
+                        if (shouldRunInSnippetMode(item, lookupString)) {
+                            context.commitDocument();
+                            prepareAndRunSnippet(lookupString);
+                        }
+                        context.commitDocument();
+                        applyEdit(addTextEdits, "Completion : " + label);
+                        if (command != null) {
+                            executeCommands(Collections.singletonList(command));
+                        }
+                    }));
+        } else if (command != null) {
+            if (command.getCommand().equals("editor.action.triggerParameterHints")) {
+                // This is a vscode internal command to trigger signature help after completion. This needs to be done
+                // manually since intellij language client does not have that support.
+                builder = builder.withInsertHandler((InsertionContext context, LookupElement lookupElement) -> {
+                    context.commitDocument();
+                    Caret currentCaret = context.getEditor().getCaretModel().getCurrentCaret();
+                    currentCaret.moveCaretRelatively(lookupString.lastIndexOf(")") -
+                            lookupString.length(), 0, false, false);
+                    signatureHelp();
+                });
+            } else {
+                builder = builder.withInsertHandler((InsertionContext context, LookupElement lookupElement) -> {
+                    if (shouldRunInSnippetMode(item, lookupString)) {
+                        context.commitDocument();
+                        prepareAndRunSnippet(lookupString);
+                    }
+                    executeCommands(Collections.singletonList(command));
+                });
+            }
+        } else {
+            builder = builder.withInsertHandler((InsertionContext context, LookupElement lookupElement) -> {
+                if (shouldRunInSnippetMode(item, lookupString)) {
+                    context.commitDocument();
+                    prepareAndRunSnippet(lookupString);
+                }
+            });
+        }
+
+        return builder;
+    }
+
+    private boolean shouldRunInSnippetMode(CompletionItem item, String insertText) {
+        return item.getInsertTextFormat() == InsertTextFormat.Snippet && insertText.contains("$");
+    }
+
+    private String convertPlaceHolders(String insertText) {
+        return insertText.replaceAll(LSP_SNIPPET_VAR_REGEX, "");
+    }
+
+    private void prepareAndRunSnippet(String insertText) {
+        // Holds variable text (including the snippet syntax) against the starting index.
+        List<SnippetVariable> variables = new ArrayList<>();
+        // Fetches variables with place holders.
+        Matcher varMatcher = Pattern.compile(LSP_SNIPPET_VAR_REGEX).matcher(insertText);
+        while (varMatcher.find()) {
+            variables.add(new SnippetVariable(varMatcher.group(), varMatcher.start(), varMatcher.end()));
+        }
+        variables.sort(Comparator.comparingInt(o -> o.startIndex));
+
+        final String[] finalInsertText = {insertText};
+        variables.forEach(var -> finalInsertText[0] = finalInsertText[0].replace(var.lspSnippetText, "$"));
+
+        String[] splittedInsertText = finalInsertText[0].split("\\$");
+        finalInsertText[0] = String.join("", splittedInsertText);
+
+        // Creates and constructs a intellij live template using the LSP snippet text.
+        TemplateImpl template = (TemplateImpl) TemplateManager.getInstance(getProject())
+                .createTemplate(finalInsertText[0], "lsp4intellij");
+
+        final int[] varIndex = {0};
+        variables.forEach(var -> {
+            template.addTextSegment(splittedInsertText[varIndex[0]]);
+            template.addVariable(varIndex[0] + "_" + var.variableValue, new TextExpression(var.variableValue),
+                    new TextExpression(var.variableValue), true, false);
+            varIndex[0]++;
+        });
+        template.addTextSegment(splittedInsertText[splittedInsertText.length - 1]);
+        template.setInline(true);
+        EditorModificationUtil.moveCaretRelatively(editor, -template.getTemplateText().length());
+
+        // Runs the constructed live template.
+        isSnippetRunning = true;
+        TemplateManager.getInstance(getProject()).startTemplate(editor, template, new TemplateEditingListener() {
+            @Override
+            public void beforeTemplateFinished(@NotNull TemplateState state, Template template) {
+            }
+
+            @Override
+            public void templateFinished(@NotNull Template template, boolean brokenOff) {
+                isSnippetRunning = false;
+            }
+
+            @Override
+            public void templateCancelled(Template template) {
+                isSnippetRunning = false;
+            }
+
+            @Override
+            public void currentVariableChanged(@NotNull TemplateState templateState, Template template, int oldIndex,
+                                               int newIndex) {
+            }
+
+            @Override
+            public void waitingForInput(Template template) {
+
+            }
+        });
+    }
+
+    private void applyEdit(List<TextEdit> edits, String name) {
+        Runnable runnable = getEditsRunnable(Integer.MAX_VALUE, edits, name, false);
+        writeAction(() -> {
+            if (runnable != null) {
+                CommandProcessor.getInstance()
+                        .executeCommand(getProject(), runnable, name, "LSPPlugin", editor.getDocument());
+            }
+        });
     }
 
     private String insertIndents(String lookupString, Position position) {
@@ -356,6 +483,27 @@ public class BallerinaEditorEventManager extends EditorEventManager {
             });
         } catch (Exception e) {
             LOG.warn("Couldn't process source focus request from diagram editor.", e);
+        }
+    }
+
+    static class SnippetVariable {
+        String lspSnippetText;
+        int startIndex;
+        int endIndex;
+        String variableValue;
+
+        SnippetVariable(String text, int start, int end) {
+            this.lspSnippetText = text;
+            this.startIndex = start;
+            this.endIndex = end;
+            this.variableValue = getVariableValue(text);
+        }
+
+        private String getVariableValue(String lspVarSnippet) {
+            if (lspVarSnippet.contains(":")) {
+                return lspVarSnippet.substring(lspVarSnippet.indexOf(':') + 1, lspVarSnippet.lastIndexOf('}'));
+            }
+            return " ";
         }
     }
 }

@@ -22,7 +22,7 @@ import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.ServiceNode;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
-import org.ballerinalang.net.http.WebSocketConstants;
+import org.ballerinalang.net.http.websocket.WebSocketConstants;
 import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.ballerinalang.util.diagnostic.DiagnosticLog;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
@@ -82,16 +82,10 @@ public class HttpServiceCompilerPlugin extends AbstractCompilerPlugin {
                                "multiple service configuration annotations found in service : " +
                                        serviceNode.getName().getValue());
         }
-        //        final UserDefinedTypeNode serviceType = serviceNode.getServiceTypeStruct();
-        //        if (serviceType != null && HttpConstants.HTTP_SERVICE_TYPE.equals(serviceType.getTypeName()
-        // .getValue())) {
         resources.forEach(res -> {
             ResourceSignatureValidator.validate(res.getParameters(), dlog, res.pos);
             ResourceSignatureValidator.validateResourceAnnotation(res, dlog);
         });
-        //        }
-        // get value from endpoint.
-        // ((BLangSimpleVarRef) serviceNode.getBoundEndpoints().get(0)).varSymbol.getType().tsymbol.name.value
     }
 
     private void handleServiceConfigAnnotation(ServiceNode serviceNode, BLangAnnotationAttachment annotation) {

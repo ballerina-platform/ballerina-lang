@@ -36,13 +36,44 @@ Once connected, publishing is accomplished via one of the below two methods.
 1. Publish with the subject and the message content.
 ```ballerina
 nats:Producer producer = new(connection);
-error? result = producer->publish(subject, "hello world");
+nats:Error? result = producer->publish(subject, "hello world");
 ```
 
 2. Publish as a request that expects a reply.
 ```ballerina
 nats:Producer producer = new(connection);
-nats:Message|error reqReply = producer->request(subject, "hello world", 5000);
+nats:Message|nats:Error reqReply = producer->request(subject, "hello world", 5000);
+```
+
+3. Publish messages with a replyTo subject 
+```ballerina
+nats:Producer producer = new(connection);
+nats:Error? result = producer->publish(subject, <@untainted>message, 
+                         replyToSubject);
+```
+
+4. Publish messages with a replyTo callback service
+```ballerina
+nats:Producer producer = new(connection);
+nats:Error? result = producer->publish(subject, <@untainted>message, 
+                         replyToService);
+```
+```ballerina
+service replyToService =
+@nats:SubscriptionConfig {
+    subject: "replySubject"
+}
+service {
+
+    resource function onMessage(nats:Message msg, string data) {
+        // Prints the incoming message in the console.
+        log:printInfo("Received reply message : " + data);
+    }
+
+    resource function onError(nats:Message msg, nats:Error err) {
+        log:printError("Error occurred in data binding", err);
+    }
+};
 ```
 
 #### Publishing messages to a NATS streaming server

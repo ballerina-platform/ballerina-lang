@@ -37,6 +37,6 @@ import org.ballerinalang.natives.annotations.ReturnType;
 public class GetAndClearFailure {
 
     public static boolean getAndClearFailure(Strand strand) {
-        return strand.getLocalTransactionContext().getAndClearFailure() != null;
+        return strand.transactionLocalContext.getAndClearFailure() != null;
     }
 }

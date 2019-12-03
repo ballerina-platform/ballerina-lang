@@ -29,6 +29,7 @@ import org.ballerinalang.net.http.serviceendpoint.AbstractHttpNativeFunction;
 import org.ballerinalang.net.websub.BallerinaWebSubConnectorListener;
 import org.ballerinalang.net.websub.WebSubServicesRegistry;
 import org.ballerinalang.net.websub.WebSubSubscriberConstants;
+import org.ballerinalang.net.websub.WebSubUtils;
 import org.wso2.transport.http.netty.contract.ServerConnector;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 
@@ -51,7 +52,7 @@ import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB_SERV
 )
 public class StartWebSubSubscriberServiceEndpoint extends AbstractHttpNativeFunction {
 
-    public static void startWebSubSubscriberServiceEndpoint(Strand strand, ObjectValue subscriberServiceEndpoint) {
+    public static Object startWebSubSubscriberServiceEndpoint(Strand strand, ObjectValue subscriberServiceEndpoint) {
         ObjectValue serviceEndpoint = (ObjectValue) subscriberServiceEndpoint.get(WEBSUB_HTTP_ENDPOINT);
         ServerConnector serverConnector = getServerConnector(serviceEndpoint);
         //TODO: check if isStarted check is required
@@ -62,5 +63,13 @@ public class StartWebSubSubscriberServiceEndpoint extends AbstractHttpNativeFunc
                 new BallerinaWebSubConnectorListener(strand, webSubServicesRegistry, serviceEndpoint
                         .getMapValue(HttpConstants.SERVICE_ENDPOINT_CONFIG)));
         serverConnectorFuture.setPortBindingEventListener(new HttpConnectorPortBindingListener());
+        try {
+            serverConnectorFuture.sync();
+        } catch (Exception ex) {
+            return WebSubUtils.createError(WebSubSubscriberConstants.WEBSUB_LISTENER_STARTUP_FAILURE,
+                                           "failed to start server connector '" + serverConnector.getConnectorID() +
+                                                   "': " + ex.getMessage());
+        }
+        return null;
     }
 }

@@ -19,10 +19,8 @@
 package org.ballerinalang.stdlib.crypto.nativeimpl;
 
 import org.ballerinalang.jvm.BallerinaValues;
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.stdlib.crypto.Constants;
 import org.ballerinalang.stdlib.crypto.CryptoUtils;
 import org.ballerinalang.stdlib.time.util.TimeUtils;
@@ -44,13 +42,10 @@ import java.security.cert.X509Certificate;
  *
  * @since 0.990.3
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "crypto",
-        functionName = "decodePublicKey", isPublic = true)
 public class DecodePublicKey {
 
     @SuppressWarnings("unchecked")
-    public static Object decodePublicKey(Strand strand, Object keyStoreValue, String keyAlias) {
+    public static Object decodePublicKey(Object keyStoreValue, String keyAlias) {
         MapValue<String, Object> keyStore = (MapValue<String, Object>) keyStoreValue;
 
         File keyStoreFile = new File(
@@ -85,7 +80,7 @@ public class DecodePublicKey {
                                           x509Certificate.getNotAfter().getTime(), Constants.TIMEZONE_GMT));
 
                 certificateBMap.put(Constants.CERTIFICATE_RECORD_SIGNATURE_FIELD,
-                                    new ArrayValue(x509Certificate.getSignature()));
+                                    new ArrayValueImpl(x509Certificate.getSignature()));
                 certificateBMap.put(Constants.CERTIFICATE_RECORD_SIGNATURE_ALG_FIELD, x509Certificate.getSigAlgName());
             }
             PublicKey publicKey = certificate.getPublicKey();

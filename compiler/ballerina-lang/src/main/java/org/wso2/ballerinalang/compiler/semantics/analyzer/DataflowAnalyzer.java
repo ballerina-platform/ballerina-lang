@@ -18,7 +18,6 @@
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import org.ballerinalang.compiler.CompilerPhase;
-import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.TopLevelNode;
@@ -731,17 +730,21 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangLambdaFunction bLangLambdaFunction) {
-        if (bLangLambdaFunction.function.flagSet.contains(Flag.LAMBDA)) {
-            bLangLambdaFunction.function.closureVarSymbols.forEach(closureVarSymbol -> {
-                if (this.uninitializedVars.keySet().contains(closureVarSymbol.bSymbol)) {
-                    this.dlog.error(closureVarSymbol.diagnosticPos, DiagnosticCode.UNINITIALIZED_VARIABLE,
-                            closureVarSymbol.bSymbol);
-                }
-            });
-            return;
-        }
+        Map<BSymbol, InitStatus> prevUninitializedVars = this.uninitializedVars;
 
-        analyzeNode(bLangLambdaFunction.function, env);
+        BLangFunction funcNode = bLangLambdaFunction.function;
+        SymbolEnv funcEnv = SymbolEnv.createFunctionEnv(funcNode, funcNode.symbol.scope, env);
+
+        // Get a snapshot of the current uninitialized vars before visiting the node.
+        // This is done so that the original set of uninitialized vars will not be
+        // updated/marked as initialized.
+        this.uninitializedVars = copyUninitializedVars();
+        this.flowTerminated = false;
+
+        analyzeNode(funcNode.body, funcEnv);
+
+        // Restore the original set of uninitialized vars
+        this.uninitializedVars = prevUninitializedVars;
     }
 
     @Override

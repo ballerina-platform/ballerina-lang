@@ -817,12 +817,11 @@ public class BIRGen extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangSimpleVariable varNode) {
-        Name name = ANNOTATION_DATA.equals(varNode.symbol.name.value) ? new Name(ANNOTATION_DATA) :
-                this.env.nextGlobalVarId(names);
+        String name = ANNOTATION_DATA.equals(varNode.symbol.name.value) ? ANNOTATION_DATA : varNode.name.value;
         BIRGlobalVariableDcl birVarDcl = new BIRGlobalVariableDcl(varNode.pos, varNode.symbol.flags,
-                                                                  varNode.symbol.type, varNode.symbol.pkgID, name,
-                                                                  VarScope.GLOBAL, VarKind.GLOBAL,
-                                                                    varNode.name.value);
+                                                                  varNode.symbol.type, varNode.symbol.pkgID,
+                                                                  names.fromString(name), VarScope.GLOBAL,
+                                                                  VarKind.GLOBAL, varNode.name.value);
         birVarDcl.setMarkdownDocAttachment(varNode.symbol.markdownDocumentation);
         
         this.env.enclPkg.globalVars.add(birVarDcl);
@@ -916,8 +915,8 @@ public class BIRGen extends BLangNodeVisitor {
         syncSend.expr.accept(this);
         BIROperand dataOp = this.env.targetOperand;
 
-        BIRVariableDcl tempVarDcl = new BIRVariableDcl(syncSend.type, this.env.nextLocalVarId(names),
-                VarScope.FUNCTION, VarKind.TEMP);
+        BIRVariableDcl tempVarDcl = new BIRVariableDcl(syncSend.receive.matchingSendsError,
+                                                       this.env.nextLocalVarId(names), VarScope.FUNCTION, VarKind.TEMP);
         this.env.enclFunc.localVars.add(tempVarDcl);
         BIROperand lhsOp = new BIROperand(tempVarDcl);
         this.env.targetOperand = lhsOp;
@@ -1060,9 +1059,10 @@ public class BIRGen extends BLangNodeVisitor {
             this.env.enclBB.terminator = new BIRTerminator.FPCall(invocationExpr.pos, InstructionKind.FP_CALL,
                     fp, args, lhsOp, invocationExpr.async, thenBB);
         } else if (invocationExpr.async) {
+            List<BIRAnnotationAttachment> annots = getStatementAnnotations(invocationExpr.annAttachments, this.env);
             this.env.enclBB.terminator = new BIRTerminator.AsyncCall(invocationExpr.pos, InstructionKind.ASYNC_CALL,
                     isVirtual, invocationExpr.symbol.pkgID, getFuncName((BInvokableSymbol) invocationExpr.symbol),
-                    args, lhsOp, thenBB);
+                    args, lhsOp, thenBB, annots);
         } else {
             this.env.enclBB.terminator = new BIRTerminator.Call(invocationExpr.pos, InstructionKind.CALL, isVirtual,
                     invocationExpr.symbol.pkgID, getFuncName((BInvokableSymbol) invocationExpr.symbol), args, lhsOp,
@@ -1336,7 +1336,7 @@ public class BIRGen extends BLangNodeVisitor {
         this.env.targetOperand = toVarRef;
     }
 
-    private boolean isInSamePackage(BTypeSymbol objectTypeSymbol, BIRPackage enclPkg) {
+    private boolean isInSamePackage(BSymbol objectTypeSymbol, BIRPackage enclPkg) {
         return objectTypeSymbol.pkgID.orgName.equals(enclPkg.org) &&
                 objectTypeSymbol.pkgID.name.equals(enclPkg.name) &&
                 objectTypeSymbol.pkgID.version.equals(enclPkg.version);
@@ -1536,7 +1536,8 @@ public class BIRGen extends BLangNodeVisitor {
 
     private BIRGlobalVariableDcl getVarRef(BLangPackageVarRef astPackageVarRefExpr) {
         BSymbol symbol = astPackageVarRefExpr.symbol;
-        if ((symbol.tag & SymTag.CONSTANT) == SymTag.CONSTANT) {
+        if ((symbol.tag & SymTag.CONSTANT) == SymTag.CONSTANT ||
+                !isInSamePackage(astPackageVarRefExpr.varSymbol, env.enclPkg)) {
             return new BIRGlobalVariableDcl(astPackageVarRefExpr.pos, symbol.flags, symbol.type, symbol.pkgID,
                     symbol.name, VarScope.GLOBAL, VarKind.CONSTANT, symbol.name.value);
         }
@@ -2412,5 +2413,17 @@ public class BIRGen extends BLangNodeVisitor {
             return;
         }
         this.env.trapBlocks.peek().add(birBasicBlock);
+    }
+
+    private List<BIRAnnotationAttachment> getStatementAnnotations(List<BLangAnnotationAttachment> astAnnotAttachments,
+                                                                  BIRGenEnv currentEnv) {
+        //preserve function annotations
+        List<BIRAnnotationAttachment> functionAnnotAttachments = currentEnv.enclAnnotAttachments;
+        currentEnv.enclAnnotAttachments = new ArrayList<>();
+        astAnnotAttachments.forEach(annotAttach -> annotAttach.accept(this));
+        List<BIRAnnotationAttachment> statementAnnots = currentEnv.enclAnnotAttachments;
+        //reset function annotations
+        currentEnv.enclAnnotAttachments = functionAnnotAttachments;
+        return statementAnnots;
     }
 }

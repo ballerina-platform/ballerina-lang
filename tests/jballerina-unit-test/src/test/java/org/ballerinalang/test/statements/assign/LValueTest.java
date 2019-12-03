@@ -57,36 +57,39 @@ import static org.ballerinalang.test.util.BAssertUtil.validateError;
  */
 public class LValueTest {
 
-    private CompileResult result;
-    private CompileResult negativeResult;
+    private CompileResult result, negativeResult, semanticsNegativeResult;
 
     @BeforeClass
     public void setup() {
         result = BCompileUtil.compile("test-src/statements/assign/lvalue.bal");
         negativeResult = BCompileUtil.compile("test-src/statements/assign/lvalue_negative.bal");
+        semanticsNegativeResult = BCompileUtil.compile("test-src/statements/assign/lvalue-semantics-negative.bal");
     }
 
     @Test
     public void testNegativeCases() {
-        Assert.assertEquals(negativeResult.getErrorCount(), 9);
+        Assert.assertEquals(negativeResult.getErrorCount(), 1);
+        validateError(negativeResult, 0, "uninitialized field 's'", 19, 5);
+    }
+
+    @Test
+    public void testSemanticsNegativeCases() {
+        Assert.assertEquals(semanticsNegativeResult.getErrorCount(), 9);
         int i = 0;
-        validateError(negativeResult, i++, "incompatible types: expected 'int', found 'string'", 18, 13);
-        validateError(negativeResult, i++, "undefined field 'y' in object 'A'", 27, 5);
-        validateError(negativeResult, i++, "invalid operation: type 'A' does not support indexing", 28, 5);
-        validateError(negativeResult, i++, "optional field access cannot be used in the target expression of an " +
-                "assignment", 38, 5);
-        validateError(negativeResult, i++, "optional field access cannot be used in the target expression of an " +
-                "assignment", 39, 5);
-        // TODO: {enableCodeAnalyzerTests} following won't get captured after (typeChecker, semanticAnalyzer) &
-        //  codeAnalyzer separation.
-        //
-        //        validateError(negativeResult, i++, "uninitialized field 's'", 44, 5);
-        validateError(negativeResult, i++, "invalid operation: type 'map<int>?' does not support member access for " +
-                "assignment", 61, 5);
-        validateError(negativeResult, i++, "undefined field 'y' in record 'E'", 75, 5);
-        validateError(negativeResult, i++, "invalid operation: type 'map<int>?' does not support member access for " +
-                "assignment", 78, 5);
-        validateError(negativeResult, i++, "invalid operation: type 'E?' does not support field access", 79, 5);
+        validateError(semanticsNegativeResult, i++, "incompatible types: expected 'int', found 'string'", 18, 13);
+        validateError(semanticsNegativeResult, i++, "undefined field 'y' in object 'A'", 27, 6);
+        validateError(semanticsNegativeResult, i++, "invalid operation: type 'A' does not support indexing", 28, 5);
+        validateError(semanticsNegativeResult, i++, "optional field access cannot be used in the target expression " +
+                "of an assignment", 38, 5);
+        validateError(semanticsNegativeResult, i++, "optional field access cannot be used in the target expression " +
+                "of an assignment", 39, 5);
+        validateError(semanticsNegativeResult, i++, "invalid operation: type 'map<int>?' does not support member " +
+                "access for assignment", 61, 5);
+        validateError(semanticsNegativeResult, i++, "undefined field 'y' in record 'E'", 75, 5);
+        validateError(semanticsNegativeResult, i++, "invalid operation: type 'map<int>?' does not support member " +
+                "access for assignment", 78, 5);
+        validateError(semanticsNegativeResult, i++, "invalid operation: type 'E?' does not support field access",
+                79, 5);
     }
 
     @Test

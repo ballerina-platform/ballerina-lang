@@ -65,3 +65,12 @@ function testAsyncSend() {
     http:Client remoteEndpoint = new("http://localhost:9090");
     future<http:Response|error> f = start remoteEndpoint->post("/abc", "request");
 }
+
+@http:ServiceConfig {
+	
+}
+service helloService on new http:Listener(8080) {
+	resource function helloResource(http:Caller caller, http:Request request) {
+		
+	}
+}

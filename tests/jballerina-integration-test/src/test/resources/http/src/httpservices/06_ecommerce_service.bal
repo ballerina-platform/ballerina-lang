@@ -168,7 +168,7 @@ service OrderMgtService on serviceEndpoint5 {
     }
 }
 
-map<anydata> productsMap = populateSampleProducts();
+@tainted map<anydata> productsMap = populateSampleProducts();
 
 @http:ServiceConfig {
     basePath:"/productsservice"

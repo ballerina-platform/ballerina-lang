@@ -15,62 +15,9 @@
 // under the License.
 
 // ========================== Basics ==========================
-
-function testValueTypeInUnion() returns string {
-    int|string x = 5;
-    if (!(x is int)) {
-        int y = x;
-        return "int: " + y.toString();
-    } else {
-        string s = x;
-        return s;
-    }
-}
-
-type A record {|
-    string a;
-|};
-
-type B record {|
-    string b;
-    string c;
-|};
-
-function testSimpleRecordTypes_1() returns string {
-    A x = {a:"foo"};
-    any y = x;
-     if (y is A) {
-        return y["b"] + "-" + y["c"];
-    } else if (y is B) {
-        return y["a"];
-    }
-
-    return "n/a";
-}
-
-
 function testSimpleTernary() returns string {
     any a = "hello";
     return a is string ? (a is int ? "a is a string and an int" : "a is a string and not an int") : "a is not a string";
-}
-
-function testTypeGuardsWithAnd() returns string {
-    int|string x = 5;
-    if (x is int && x > 4) {
-        int y = x;
-        return "x is greater than 4: " + y.toString();
-    } else {
-        string s = x;
-        return s;
-    }
-}
-
-function testUndefinedSymbol() returns string {
-    if a is string {
-        return a;
-    }
-
-    return "";
 }
 
 function testTypeGuardInElse_1() returns string {
@@ -128,13 +75,13 @@ function testMultipleTypeGuardsWithAndOperator_2() returns int {
     int|string|boolean x = 5;
     any y = 7;
     if (x is int|string && y is int && x is string) {
-        return y.sum(x);
+        return 1;
     } else {
-        x = 5.5;
+        x = 1;
         return -1;
     }
 
-    x = {};
+    x = 6;
     return -1;
 }
 
@@ -147,76 +94,39 @@ function typeGuardInMatch([string, int]|[int, boolean]|int|float x) returns stri
     }
 }
 
-function testTypeGuardsWithOr_1() returns string {
-    int|string x = 5;
-    int|string y = 8;
-    if (x is int || y is int) {
-        int z = x;
-        return "x is greater than 4: " + z.toString();
-    } else {
-        string s = x;
-        return s;
-    }
-}
-
-function testTypeGuardsWithOr_2() returns string {
-    int|string|boolean x = 5;
-    int y = 8;
-    if (x is int|string) {
-        if (x is int || y > 4) {
-            int z = x;
-            return "x is greater than 4: " + z.toString();
-        } else {
-            string s = x;
-            return s;
-        }
-    } else {
-        return "x is boolean: " + x.toString();
-    }
-}
-
 function testTypeGuardsWithBinaryOps_1() {
     int|string|boolean|float x = 5;
     if (((x is int|string && x is int) || (x is boolean)) && (x is float)) {
-        int y = x;
+        int y = 1;
     } else {
-        string s = x;
+        string s = "";
     }
 }
 
 function testTypeGuardsWithBinaryOps_2() {
     int|string|boolean|float x = 5;
     if (((x is int|string || x is int) && (x is boolean)) || (x is float)) {
-        int y = x;
+        int y = 1;
     } else {
-        string s = x;
-    }
-}
-
-function testTypeGuardsWithBinaryOps_3() {
-    int|string|boolean|float x = 5;
-    if ((x is int|string && x is int) || (x is boolean)) {
-        int y = x;
-    } else {
-        string s = x;
+        string s = "";
     }
 }
 
 function testTypeGuardsWithBinaryOps_4() {
     int|string|boolean|float x = 5;
     if ((x is string && x is int && x is float) || (x is boolean)) {
-        int y = x;
+        int y = 1;
     } else {
-        string s = x;
+        string s = "";
     }
 }
 
 function testTypeGuardsWithBinaryOps_5() {
     int|string|boolean|float x = 5;
-    if ((x is string && x is T && x is float) || (x is boolean)) {
-        int y = x;
+    if ((x is string && x is float) || (x is boolean)) {
+        int y = 1;
     } else {
-        string s = x;
+        string s = "";
     }
 }
 
@@ -235,9 +145,9 @@ function testTypeGuardsWithBinaryOps_6() {
     Person|Student x = s;
 
     if ((x is string && x is Person && x is float) || (x is boolean)) {
-        int y = x;
+        int y = 1;
     } else {
-        string y = x;
+        string y = "";
     }
 }
 
@@ -246,77 +156,5 @@ function testTypeGuardsWithErrorInmatch() returns string {
     match a {
         var p if p is error => {return string `${p.reason()}`;}
         var p => {return "Internal server error";}
-    }
-}
-
-public function testUpdatingTypeNarrowedVar_1() {
-    int|string|boolean x = 5;
-
-    if (x is int|string) {
-        x = true;
-        int y = x;
-
-        if (x is int) {
-            int z = x;
-        } else {
-            string z = x;
-        }
-    }
-}
-
-public function testUpdatingTypeNarrowedVar_2() returns string {
-    int|string|boolean x = 8;
-    if (x is int) {
-        if (x > 5) {
-            x = "hello";
-        }
-
-        int z = x;
-        return "int:  + ";
-    }
-
-    return "not an int";
-}
-
-public function testUpdatingTypeNarrowedVar_3() {
-    int|string|boolean x = 8;
-    int|string|boolean y = 8;
-
-    if (x is int|string) {
-        int|string a = x;
-        if (x is int) {
-            int b = x;
-            if (x > 5) {
-
-                int c = x;
-                x = "hello";
-                int d = x;
-
-                if (y is int) {
-                    int e = x;
-                    y = "hello again";
-                    int f = x;
-                }
-                int g = x;
-                string h = y;
-            }
-            int i = x;
-            string j = y;
-        }
-
-        int|string j = x;
-        string h = y;
-    }
-
-    int|string|boolean i = x;
-}
-
-string|int si = "hello world";
-
-function testGlobalVarInTypeGuard() {
-    if (si is string) {
-        string s2 = si;
-    } else {
-        int i = si;
     }
 }

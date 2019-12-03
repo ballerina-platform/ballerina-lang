@@ -23,6 +23,7 @@ import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.command.ExecuteCommandKeys;
 import org.ballerinalang.langserver.command.LSCommandExecutor;
 import org.ballerinalang.langserver.command.LSCommandExecutorException;
+import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.FunctionGenerator;
@@ -46,11 +47,8 @@ import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
-import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
-import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
-import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.io.File;
@@ -113,7 +111,7 @@ public class CreateFunctionExecutor implements LSCommandExecutor {
             throw new LSCommandExecutorException("Invalid parameters received for the create function command!");
         }
 
-        WorkspaceDocumentManager documentManager = context.get(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY);
+        WorkspaceDocumentManager documentManager = context.get(CommonKeys.DOC_MANAGER_KEY);
 
         BLangInvocation functionNode;
         try {
@@ -210,17 +208,6 @@ public class CreateFunctionExecutor implements LSCommandExecutor {
                             if (typeDefinition.symbol instanceof BObjectTypeSymbol) {
                                 BObjectTypeSymbol typeSymbol = (BObjectTypeSymbol) typeDefinition.symbol;
                                 hasFunctions = typeSymbol.attachedFuncs.size() > 0;
-                            }
-                            return new ImmutablePair<>(pos, hasFunctions);
-                        }
-                    } else if (node instanceof BLangService) {
-                        BLangService bLangService = (BLangService) node;
-                        if (bLangService.name.value.equals(name)) {
-                            pos = bLangService.getPosition();
-                            BLangType typeNode = bLangService.serviceTypeDefinition.typeNode;
-                            if (typeNode instanceof BLangObjectTypeNode) {
-                                BLangObjectTypeNode objectTypeNode = (BLangObjectTypeNode) typeNode;
-                                hasFunctions = objectTypeNode.functions.size() > 0;
                             }
                             return new ImmutablePair<>(pos, hasFunctions);
                         }

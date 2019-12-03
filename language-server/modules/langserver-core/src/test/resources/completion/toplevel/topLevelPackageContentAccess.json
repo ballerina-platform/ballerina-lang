@@ -111,7 +111,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nThe HEAD remote function implementation of the Circuit Breaker. This wraps the `head()` function of the underlying\nHTTP remote function provider.  \n**Params**  \n- `string` path: Resource path  \n- `http:Request` outRequest: A Request struct  \n- `(FORWARD|GET|POST|DELETE|OPTIONS|PUT|PATCH|HEAD|SUBMIT|NONE)` requestAction: `HttpOperation` related to the request  \n- `http:HttpClient` httpClient: HTTP client which uses to call the relevant functions  \n- `string` verb: HTTP verb used for submit method(Defaultable)  \n- `string` verb: HTTP verb used for submit method  \n  \n**Returns** `(http:Response|http:HttpFuture|http:FailoverAllEndpointsFailedError|http:FailoverActionFailedError|http:UpstreamServiceUnavailableError|http:AllLoadBalanceEndpointsFailedError|http:AllRetryAttemptsFailed|http:IdleTimeoutError|http:AuthenticationError|http:AuthorizationError|http:InitializingOutboundRequestError|http:WritingOutboundRequestHeadersError|http:WritingOutboundRequestBodyError|http:InitializingInboundResponseError|http:ReadingInboundResponseHeadersError|http:ReadingInboundResponseBodyError|http:UnsupportedActionError|http:Http2ClientError|http:MaximumWaitTimeExceededError|http:SslError|http:GenericClientError)`   \n- The response for the request or an `http:ClientError` if failed to establish communication with the upstream server  \n  \n"
+          "value": "**Package:** _ballerina/http_  \n  \nThe HEAD remote function implementation of the Circuit Breaker. This wraps the `head` function of the underlying\nHTTP remote function provider.  \n**Params**  \n- `string` path: Resource path  \n- `http:Request` outRequest: A Request struct  \n- `(FORWARD|GET|POST|DELETE|OPTIONS|PUT|PATCH|HEAD|SUBMIT|NONE)` requestAction: `HttpOperation` related to the request  \n- `http:HttpClient` httpClient: HTTP client which uses to call the relevant functions  \n- `string` verb: HTTP verb used for submit method(Defaultable)  \n  \n**Returns** `(http:Response|http:HttpFuture|http:FailoverAllEndpointsFailedError|http:FailoverActionFailedError|http:UpstreamServiceUnavailableError|http:AllLoadBalanceEndpointsFailedError|http:AllRetryAttemptsFailed|http:IdleTimeoutError|http:AuthenticationError|http:AuthorizationError|http:InitializingOutboundRequestError|http:WritingOutboundRequestHeadersError|http:WritingOutboundRequestBodyError|http:InitializingInboundResponseError|http:ReadingInboundResponseHeadersError|http:ReadingInboundResponseBodyError|http:UnsupportedActionError|http:Http2ClientError|http:MaximumWaitTimeExceededError|http:SslError|http:GenericClientError)`   \n- The response for the request or an `http:ClientError` if failed to establish communication with the upstream server  \n  \n"
         }
       },
       "sortText": "120",
@@ -327,14 +327,40 @@
       ]
     },
     {
-      "label": "ServiceResourceAuth",
+      "label": "ServiceAuth",
       "kind": "Struct",
       "detail": "Record",
       "documentation": {
-        "left": "Configures the authentication scheme for a service or a resource.\n"
+        "left": "Configures the authentication scheme for a service.\n"
       },
       "sortText": "180",
-      "insertText": "ServiceResourceAuth",
+      "insertText": "ServiceAuth",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/http;\n"
+        }
+      ]
+    },
+    {
+      "label": "ResourceAuth",
+      "kind": "Struct",
+      "detail": "Record",
+      "documentation": {
+        "left": "Configures the authentication scheme for a resource.\n"
+      },
+      "sortText": "180",
+      "insertText": "ResourceAuth",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -1345,7 +1371,7 @@
       "kind": "Interface",
       "detail": "Object",
       "documentation": {
-        "left": "Representation of the Authorization filter\n"
+        "left": "Representation of the Authorization filter.\n"
       },
       "sortText": "190",
       "insertText": "AuthzFilter",
@@ -2040,7 +2066,7 @@
       "kind": "Event",
       "detail": "Union",
       "documentation": {
-        "left": "Ballerina Http Union Errors"
+        "left": "Defines the resiliency error types that returned from client"
       },
       "sortText": "200",
       "insertText": "ResiliencyError",
@@ -2065,6 +2091,9 @@
       "label": "ClientAuthError",
       "kind": "Event",
       "detail": "Union",
+      "documentation": {
+        "left": "Defines the Auth error types that returned from client"
+      },
       "sortText": "200",
       "insertText": "ClientAuthError",
       "insertTextFormat": "Snippet",
@@ -2088,6 +2117,9 @@
       "label": "OutboundRequestError",
       "kind": "Event",
       "detail": "Union",
+      "documentation": {
+        "left": "Defines the client error types that returned while sending outbound request"
+      },
       "sortText": "200",
       "insertText": "OutboundRequestError",
       "insertTextFormat": "Snippet",
@@ -2111,6 +2143,9 @@
       "label": "InboundResponseError",
       "kind": "Event",
       "detail": "Union",
+      "documentation": {
+        "left": "Defines the client error types that returned while receiving inbound response"
+      },
       "sortText": "200",
       "insertText": "InboundResponseError",
       "insertTextFormat": "Snippet",
@@ -2134,6 +2169,9 @@
       "label": "InboundRequestError",
       "kind": "Event",
       "detail": "Union",
+      "documentation": {
+        "left": "Defines the listener error types that returned while receiving inbound request"
+      },
       "sortText": "200",
       "insertText": "InboundRequestError",
       "insertTextFormat": "Snippet",
@@ -2157,6 +2195,9 @@
       "label": "OutboundResponseError",
       "kind": "Event",
       "detail": "Union",
+      "documentation": {
+        "left": "Defines the listener error types that returned while sending outbound response"
+      },
       "sortText": "200",
       "insertText": "OutboundResponseError",
       "insertTextFormat": "Snippet",
@@ -2180,6 +2221,9 @@
       "label": "ClientError",
       "kind": "Event",
       "detail": "Union",
+      "documentation": {
+        "left": "Defines the possible client error types"
+      },
       "sortText": "200",
       "insertText": "ClientError",
       "insertTextFormat": "Snippet",
@@ -2203,6 +2247,9 @@
       "label": "ListenerError",
       "kind": "Event",
       "detail": "Union",
+      "documentation": {
+        "left": "Defines the possible listener error types"
+      },
       "sortText": "200",
       "insertText": "ListenerError",
       "insertTextFormat": "Snippet",
@@ -2302,6 +2349,9 @@
       "label": "WebSocketError",
       "kind": "Event",
       "detail": "Union",
+      "documentation": {
+        "left": "The union of all the WebSocket related errors"
+      },
       "sortText": "200",
       "insertText": "WebSocketError",
       "insertTextFormat": "Snippet",
@@ -2453,7 +2503,7 @@
       "kind": "Interface",
       "detail": "Object",
       "documentation": {
-        "left": "Provides the HTTP actions for interacting with an HTTP server. Apart from the standard HTTP methods, `forward()`\nand `execute()` functions are provided. More complex and specific endpoint types can be created by wrapping this\ngeneric HTTP actions implementation.\n"
+        "left": "Provides the HTTP actions for interacting with an HTTP server. Apart from the standard HTTP methods,\n`HttpClient.forward()` and `HttpClient.execute()` functions are provided. More complex and specific endpoint types\ncan be created by wrapping this generic HTTP actions implementation.\n"
       },
       "sortText": "190",
       "insertText": "HttpClient",

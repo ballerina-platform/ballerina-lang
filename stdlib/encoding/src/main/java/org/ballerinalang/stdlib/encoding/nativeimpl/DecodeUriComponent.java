@@ -18,8 +18,6 @@
 
 package org.ballerinalang.stdlib.encoding.nativeimpl;
 
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.stdlib.encoding.EncodingUtil;
 
 import java.io.UnsupportedEncodingException;
@@ -29,14 +27,9 @@ import java.net.URLDecoder;
  * Extern function to decode URI components.
  * ballerina/encoding:decodeUriComponent
  */
-
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "encoding",
-        functionName = "decodeUriComponent", isPublic = true
-)
 public class DecodeUriComponent {
 
-    public static Object decodeUriComponent(Strand strand, String url, String charset) {
+    public static Object decodeUriComponent(String url, String charset) {
         try {
             return URLDecoder.decode(url, charset);
         } catch (UnsupportedEncodingException e) {

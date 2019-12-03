@@ -298,3 +298,21 @@ function testRecordTypeWithOptionalFieldsArrayFill() returns Rec[] {
     x[1] = {i: 1, j: 2};
     return x;
 }
+
+const decimal ZERO = 0.0;
+const decimal ONE_TWO = 1.2;
+const decimal TWO_THREE = 2.3;
+
+type DEC ZERO|ONE_TWO|TWO_THREE;
+type LiteralsAndType 1|2|int;
+
+function testFiniteTypeArrayFill() returns DEC[] {
+    DEC value = 1.2;
+    DEC[] ar = [];
+    ar[5] = value;
+
+    LiteralsAndType value2 = 1;
+    LiteralsAndType[] ar2 = [];
+    ar2[5] = value2;
+    return ar;
+}

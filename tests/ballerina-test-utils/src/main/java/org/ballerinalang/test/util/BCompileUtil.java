@@ -25,7 +25,6 @@ import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.FutureValue;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.util.BootstrapRunner;
-import org.ballerinalang.util.JBallerinaInMemoryClassLoader;
 import org.ballerinalang.util.diagnostic.DiagnosticListener;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.util.exceptions.BallerinaException;
@@ -46,6 +45,8 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -60,6 +61,8 @@ import java.util.stream.Collectors;
 
 import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
 import static org.ballerinalang.compiler.CompilerOptionName.EXPERIMENTAL_FEATURES_ENABLED;
+import static org.ballerinalang.compiler.CompilerOptionName.LOCK_ENABLED;
+import static org.ballerinalang.compiler.CompilerOptionName.OFFLINE;
 import static org.ballerinalang.compiler.CompilerOptionName.PRESERVE_WHITESPACE;
 import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
 import static org.ballerinalang.test.util.TestConstant.ENABLE_JBALLERINA_TESTS;
@@ -96,6 +99,20 @@ public class BCompileUtil {
     }
 
     /**
+     * Compile and return the semantic errors.
+     *
+     * @param sourceFilePath Path to source module/file
+     * @return Semantic errors
+     */
+    public static CompileResult compileOffline(String sourceFilePath) {
+        CompilerContext context = new CompilerContext();
+        CompilerOptions options = CompilerOptions.getInstance(context);
+        options.put(OFFLINE, "true");
+        context.put(CompilerOptions.class, options);
+        return compileOnJBallerina(context, sourceFilePath, false, true);
+    }
+
+    /**
      * Compile on a separated process.
      *
      * @param sourceFilePath Path to source module/file
@@ -106,7 +123,7 @@ public class BCompileUtil {
         String packageName = sourcePath.getFileName().toString();
         Path sourceRoot = resourceDir.resolve(sourcePath.getParent());
         CompilerContext context = new CompilerContext();
-        return compileOnJBallerina(context, sourceRoot.toString(), packageName, false, true, true);
+        return compileOnJBallerina(context, sourceRoot.toString(), packageName, false, true);
     }
 
     /**
@@ -124,7 +141,21 @@ public class BCompileUtil {
         return compileOnJBallerina(sourceFilePath, temp, true);
     }
 
-    private static void runInit(BLangPackage bLangPackage, JBallerinaInMemoryClassLoader classLoader, boolean temp) {
+    // This is a temp fix until service test are fix
+    public static CompileResult compileOffline(boolean temp, String sourceFilePath) {
+        Path sourcePath = Paths.get(sourceFilePath);
+        String packageName = sourcePath.getFileName().toString();
+        Path sourceRoot = resourceDir.resolve(sourcePath.getParent());
+
+        CompilerContext context = new CompilerContext();
+        CompilerOptions options = CompilerOptions.getInstance(context);
+        options.put(OFFLINE, "true");
+        context.put(CompilerOptions.class, options);
+        return compileOnJBallerina(context, sourceRoot.toString(), packageName, temp, true);
+    }
+
+    private static void runInit(BLangPackage bLangPackage, ClassLoader classLoader, boolean temp)
+            throws ClassNotFoundException {
         String initClassName = BFileUtil.getQualifiedClassName(bLangPackage.packageID.orgName.value,
                                                                bLangPackage.packageID.name.value,
                                                                TestConstant.MODULE_INIT_CLASS_NAME);
@@ -481,20 +512,21 @@ public class BCompileUtil {
                                                      SourceDirectory sourceDirectory, boolean init) {
         CompilerContext context = new CompilerContext();
         context.put(SourceDirectory.class, sourceDirectory);
-        return compileOnJBallerina(context, sourceRoot, packageName, false, init, false);
+        return compileOnJBallerina(context, sourceRoot, packageName, false, init);
     }
 
     public static CompileResult compileOnJBallerina(String sourceRoot, String packageName, boolean temp, boolean init) {
         CompilerContext context = new CompilerContext();
-        return compileOnJBallerina(context, sourceRoot, packageName, temp, init, false);
+        return compileOnJBallerina(context, sourceRoot, packageName, temp, init);
     }
 
     public static CompileResult compileOnJBallerina(CompilerContext context, String sourceRoot, String packageName,
-                                                    boolean temp, boolean init, boolean onProc) {
+                                                    boolean temp, boolean init) {
         CompilerOptions options = CompilerOptions.getInstance(context);
         options.put(PROJECT_DIR, sourceRoot);
         options.put(COMPILER_PHASE, CompilerPhase.BIR_GEN.toString());
         options.put(PRESERVE_WHITESPACE, "false");
+        options.put(LOCK_ENABLED, Boolean.toString(true));
         options.put(CompilerOptionName.EXPERIMENTAL_FEATURES_ENABLED, Boolean.TRUE.toString());
 
         CompileResult compileResult = compile(context, packageName, CompilerPhase.BIR_GEN, false);
@@ -506,11 +538,9 @@ public class BCompileUtil {
         try {
             Path buildDir = Paths.get("build").toAbsolutePath().normalize();
             Path systemBirCache = buildDir.resolve("bir-cache");
-            JBallerinaInMemoryClassLoader cl = BootstrapRunner.createClassLoaders(bLangPackage,
-                                                                                  systemBirCache,
-                                                                                  buildDir.resolve("test-bir-temp"),
-                    Optional.empty(), false,
-                    onProc);
+            URLClassLoader cl = BootstrapRunner.createClassLoaders(bLangPackage, systemBirCache,
+                                                                buildDir.resolve("test-bir-temp"), Optional.empty(),
+                                                                false);
             compileResult.setClassLoader(cl);
 
             // TODO: calling run on compile method is wrong, should be called from BRunUtil
@@ -520,7 +550,7 @@ public class BCompileUtil {
 
             return compileResult;
 
-        } catch (IOException e) {
+        } catch (ClassNotFoundException | IOException e) {
             throw new BLangRuntimeException("Error during jvm code gen of the test", e);
         }
     }
@@ -538,14 +568,15 @@ public class BCompileUtil {
         BLangPackage compiledPkg = ((BLangPackage) compileResult.getAST());
         String initClassName = BFileUtil.getQualifiedClassName(compiledPkg.packageID.orgName.value,
                 compiledPkg.packageID.name.value, MODULE_INIT_CLASS_NAME);
-        JBallerinaInMemoryClassLoader classLoader = compileResult.classLoader;
-        Class<?> initClazz = classLoader.loadClass(initClassName);
+        URLClassLoader classLoader = compileResult.classLoader;
+
 
         try {
+            Class<?> initClazz = classLoader.loadClass(initClassName);
             final List<String> actualArgs = new ArrayList<>();
             actualArgs.add(0, "java");
             actualArgs.add(1, "-cp");
-            String classPath = System.getProperty("java.class.path") + ":" + classLoader.getClassPath();
+            String classPath = System.getProperty("java.class.path") + ":" + getClassPath(classLoader);
             actualArgs.add(2, classPath);
             actualArgs.add(3, initClazz.getCanonicalName());
             actualArgs.addAll(Arrays.asList(args));
@@ -557,9 +588,18 @@ public class BCompileUtil {
             process.waitFor();
             int exitValue = process.exitValue();
             return new ExitDetails(exitValue, consoleInput, consoleError);
-        } catch (InterruptedException | IOException e) {
+        } catch (ClassNotFoundException | InterruptedException | IOException e) {
             throw new RuntimeException("Main method invocation failed", e);
         }
+    }
+
+    private static String getClassPath(URLClassLoader cl) {
+        URL[] urls = cl.getURLs();
+        StringJoiner joiner = new StringJoiner(":");
+        for (URL url : urls) {
+            joiner.add(url.getPath());
+        }
+        return joiner.toString();
     }
 
     private static String getConsoleOutput(InputStream inputStream) {
@@ -574,6 +614,14 @@ public class BCompileUtil {
         String packageName = sourcePath.getFileName().toString();
         Path sourceRoot = resourceDir.resolve(sourcePath.getParent());
         return compileOnJBallerina(sourceRoot.toString(), packageName, temp, init);
+    }
+
+    private static CompileResult compileOnJBallerina(CompilerContext context, String sourceFilePath,
+                                                     boolean temp, boolean init) {
+        Path sourcePath = Paths.get(sourceFilePath);
+        String packageName = sourcePath.getFileName().toString();
+        Path sourceRoot = resourceDir.resolve(sourcePath.getParent());
+        return compileOnJBallerina(context, sourceRoot.toString(), packageName, temp, init);
     }
 
     /**

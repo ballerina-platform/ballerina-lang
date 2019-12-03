@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.jvm.types;
 
+import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.util.Flags;
 
 import java.util.Arrays;
@@ -79,9 +80,22 @@ public class BTypes {
     }
 
     public static boolean isValueType(BType type) {
-        return type == BTypes.typeInt || type == BTypes.typeByte || type == BTypes.typeFloat ||
-                type == BTypes.typeDecimal || type == BTypes.typeString || type == BTypes.typeBoolean;
+        if (type == BTypes.typeInt || type == BTypes.typeByte || type == BTypes.typeFloat ||
+                type == BTypes.typeDecimal || type == BTypes.typeString || type == BTypes.typeBoolean) {
+            return true;
+        }
 
+
+        if (type != null && type.getTag() == TypeTags.FINITE_TYPE_TAG) {
+            // All the types in value space should be value types.
+            for (Object value : ((BFiniteType) type).valueSpace) {
+                if (!isValueType(TypeChecker.getType(value))) {
+                    return false;
+                }
+            }
+            return true;
+        }
+        return false;
     }
 
     public static BType getTypeFromName(String typeName) {

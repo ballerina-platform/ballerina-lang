@@ -20,20 +20,6 @@
 # + return - Clone of the given value
 function clone(any value) returns anydata|error = external;
 
-# Stamp the value to given type.
-#
-# + stampType - Type to be stamped
-# + value - Value to be stamped
-# + return - Stamped value
-function stamp(typedesc<any|error> stampType, any value) returns anydata|error = external;
-
-# Convert value to given type which can be stampable.
-#
-# + convertType - Type to be converted
-# + value - Value to be converted
-# + return - Converted value
-function convert(typedesc<any|error> convertType, any value) returns anydata|error = external;
-
 # Convert simple value to given type.
 #
 # + convertType - Type to be converted

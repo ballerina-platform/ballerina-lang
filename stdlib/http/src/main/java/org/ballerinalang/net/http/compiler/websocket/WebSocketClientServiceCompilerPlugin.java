@@ -20,16 +20,16 @@ import org.ballerinalang.compiler.plugins.AbstractCompilerPlugin;
 import org.ballerinalang.compiler.plugins.SupportedResourceParamTypes;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.ServiceNode;
-import org.ballerinalang.net.http.WebSocketConstants;
+import org.ballerinalang.net.http.websocket.WebSocketConstants;
 import org.ballerinalang.util.diagnostic.DiagnosticLog;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 
 import java.util.List;
 
-import static org.ballerinalang.net.http.WebSocketConstants.WEBSOCKET_CLIENT;
+import static org.ballerinalang.net.http.websocket.WebSocketConstants.WEBSOCKET_CLIENT;
 
 /**
- * Compiler plugin for validating WebSocket service.
+ * Compiler plugin for validating WebSocket client service.
  *
  * @since 0.965.0
  */

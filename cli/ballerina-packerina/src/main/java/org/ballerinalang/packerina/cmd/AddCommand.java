@@ -262,7 +262,7 @@ public class AddCommand implements BLauncherCmd {
         if (baloTemplate != null) {
             String moduleName = getModuleName(baloTemplate);
 
-            URI zipURI = URI.create("jar:file:" + baloTemplate.toString());
+            URI zipURI = URI.create("jar:" + baloTemplate.toUri().toString());
             try (FileSystem zipfs = FileSystems.newFileSystem(zipURI, new HashMap<>())) {
                 // Copy sources
                 Path srcDir = zipfs.getPath("/src").resolve(moduleName);
@@ -403,7 +403,7 @@ public class AddCommand implements BLauncherCmd {
     }
 
     private Module getModuleToml(Path baloPath) {
-        URI zipURI = URI.create("jar:file:" + baloPath.toString());
+        URI zipURI = URI.create("jar:" + baloPath.toUri().toString());
         try (FileSystem zipfs = FileSystems.newFileSystem(zipURI, new HashMap<>())) {
             Path metaDataToml = zipfs.getPath("metadata", "MODULE.toml");
             // We do a string comparison to be efficient.
@@ -416,7 +416,7 @@ public class AddCommand implements BLauncherCmd {
     }
 
     private boolean isTemplateBalo(Path baloPath) {
-        URI zipURI = URI.create("jar:file:" + baloPath.toString());
+        URI zipURI = URI.create("jar:" + baloPath.toUri().toString());
         try (FileSystem zipfs = FileSystems.newFileSystem(zipURI, new HashMap<>())) {
             Path metaDataToml = zipfs.getPath("metadata", "MODULE.toml");
             // We do a string comparison to be efficient.

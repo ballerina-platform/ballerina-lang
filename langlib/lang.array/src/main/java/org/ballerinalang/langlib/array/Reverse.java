@@ -19,7 +19,9 @@
 package org.ballerinalang.langlib.array;
 
 import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -41,8 +43,8 @@ import static org.ballerinalang.jvm.values.utils.ArrayUtils.add;
 public class Reverse {
 
     public static ArrayValue reverse(Strand strand, ArrayValue arr) {
-        ArrayValue reversedArr = new ArrayValue(arr.getType());
-        int elemTypeTag = reversedArr.elementType.getTag();
+        ArrayValue reversedArr = new ArrayValueImpl((BArrayType) arr.getType());
+        int elemTypeTag = reversedArr.getElementType().getTag();
         int size = arr.size();
 
         for (int i = size - 1, j = 0; i >= 0; i--, j++) {

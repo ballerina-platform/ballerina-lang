@@ -115,7 +115,6 @@ public class CommandParserTestCase extends BaseTest {
     @DataProvider(name = "runCmdOptions")
     public Object[][] runCmdOptions() {
         return new Object[][] {
-                { "--config" },
                 { "--debug" },
                 { "--offline" },
                 { "-e" }

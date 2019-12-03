@@ -18,17 +18,16 @@
 
 package org.ballerinalang.packerina.task;
 
-import org.ballerinalang.compiler.BLangCompilerException;
-import org.ballerinalang.config.ConfigRegistry;
+import org.ballerinalang.packerina.OsUtils;
 import org.ballerinalang.packerina.buildcontext.BuildContext;
 import org.ballerinalang.packerina.buildcontext.BuildContextField;
 import org.ballerinalang.packerina.buildcontext.sourcecontext.SingleFileContext;
 import org.ballerinalang.packerina.buildcontext.sourcecontext.SingleModuleContext;
+import org.ballerinalang.packerina.model.ExecutableJar;
 import org.ballerinalang.tool.util.BFileUtil;
-import org.ballerinalang.util.BootstrapRunner;
-import org.ballerinalang.util.JBallerinaInMemoryClassLoader;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
+import org.wso2.ballerinalang.util.Lists;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -39,9 +38,8 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.jar.Attributes;
 import java.util.jar.JarInputStream;
 import java.util.jar.Manifest;
@@ -85,7 +83,6 @@ public class RunExecutableTask implements Task {
     @Override
     public void execute(BuildContext buildContext) {
         Path sourceRootPath = buildContext.get(BuildContextField.SOURCE_ROOT);
-        
         if (!this.isGeneratedExecutable) {
             this.runExecutable();
             return;
@@ -141,9 +138,8 @@ public class RunExecutableTask implements Task {
         }
     
         // set the source root path relative to the source path i.e. set the parent directory of the source path
-        System.setProperty(ProjectDirConstants.BALLERINA_SOURCE_ROOT, sourceRootPath.toString());
-        
-        this.runGeneratedExecutable(executableModule);
+        System.setProperty(ProjectDirConstants.BALLERINA_SOURCE_ROOT, sourceRootPath.toString());;
+        this.runGeneratedExecutable(executableModule, buildContext);
     }
     
     /**
@@ -151,40 +147,28 @@ public class RunExecutableTask implements Task {
      *
      * @param executableModule The module to run.
      */
-    private void runGeneratedExecutable(BLangPackage executableModule) {
-        String balHome = Objects.requireNonNull(System.getProperty("ballerina.home"),
-                "ballerina.home is not set");
-        JBallerinaInMemoryClassLoader classLoader;
-        try {
-            ConfigRegistry.getInstance().setInitialized(true);
-            Path targetDirectory = Files.createTempDirectory("ballerina-compile").toAbsolutePath();
-            classLoader = BootstrapRunner.createClassLoaders(executableModule,
-                    Paths.get(balHome).resolve("bir-cache"),
-                    targetDirectory, Optional.empty(), false, false);
-            ConfigRegistry.getInstance().setInitialized(false);
-        } catch (IOException e) {
-            throw new BLangCompilerException("error invoking jballerina backend", e);
-        }
-    
+    private void runGeneratedExecutable(BLangPackage executableModule, BuildContext buildContext) {
+
+        ExecutableJar executableJar = buildContext.moduleDependencyPathMap.get(executableModule.packageID);
         String initClassName = BFileUtil.getQualifiedClassName(executableModule.packageID.orgName.value,
-                executableModule.packageID.name.value,
-                MODULE_INIT_CLASS_NAME);
-        
+                                                               executableModule.packageID.name.value,
+                                                               MODULE_INIT_CLASS_NAME);
         try {
-            Class<?> initClazz = classLoader.loadClass(initClassName);
-            Method mainMethod = initClazz.getDeclaredMethod(JAVA_MAIN, String[].class);
-            mainMethod.invoke(null, (Object) this.args);
-            if (!initClazz.getField("serviceEPAvailable").getBoolean(initClazz)) {
-                Runtime.getRuntime().exit(0);
-            }
-        } catch (NoSuchMethodException e) {
-            throw createLauncherException("main method cannot be found for init class " + initClassName);
-        } catch (IllegalAccessException | IllegalArgumentException e) {
-            throw createLauncherException("invoking main method failed due to " + e.getMessage());
-        } catch (InvocationTargetException | NoSuchFieldException e) {
-            throw createLauncherException("invoking main method failed due to ", e.getCause());
+            List<String> commands = new ArrayList<>();
+            commands.add("java");
+            commands.add("-cp");
+            commands.add(getClassPath(executableJar));
+            commands.add(initClassName);
+            commands.addAll(Lists.of(args));
+
+            ProcessBuilder pb = new ProcessBuilder(commands);
+            pb.redirectOutput(ProcessBuilder.Redirect.INHERIT);
+            pb.redirectError(ProcessBuilder.Redirect.INHERIT);
+            Process process = pb.start();
+            process.waitFor();
+        } catch (IOException | InterruptedException e) {
+            throw createLauncherException("Error occurred while running the executable ", e.getCause());
         }
-        
     }
     
     /**
@@ -234,5 +218,17 @@ public class RunExecutableTask implements Task {
         } catch (IOException e) {
             throw createLauncherException("error while getting init class name from manifest due to " + e.getMessage());
         }
+    }
+
+    private static String getClassPath(ExecutableJar jar) {
+        String seperator = ":";
+        if (OsUtils.isWindows()) {
+            seperator = ";";
+        }
+        StringBuilder classPath = new StringBuilder(jar.moduleJar.toString());
+        for (Path path : jar.platformLibs) {
+            classPath.append(seperator).append(path);
+        }
+        return classPath.toString();
     }
 }

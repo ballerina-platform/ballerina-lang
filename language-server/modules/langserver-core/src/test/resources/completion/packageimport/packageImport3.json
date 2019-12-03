@@ -42,13 +42,13 @@
       }
     },
     {
-      "label": "concat(...string)(string)",
+      "label": "concat(string... strs)(string)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.string_  \n  \nConcatenates zero or more strings.\n  \n**Params**  \n- strs: strings to be concatenated  \n  \n**Returns** `string`   \n- concatenation of all of the `strs`; empty string if `strs` is empty  \n  \n"
+          "value": "**Package:** _ballerina/lang.string_  \n  \nConcatenates zero or more strings.\n  \n**Params**  \n- `string[]` strs: strings to be concatenated  \n  \n**Returns** `string`   \n- concatenation of all of the `strs`; empty string if `strs` is empty  \n  \n"
         }
       },
       "sortText": "120",
@@ -84,7 +84,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.string_  \n  \nReturns a substring of a string.\n  \n**Params**  \n- `string` str: source string.  \n- `int` startIndex: the starting index, inclusive  \n- `int` endIndex: the ending index, exclusive  \n  \n**Returns** `string`   \n- substring consisting of characters with index \u003e\u003d startIndex and \u003c endIndex  \n  \n"
+          "value": "**Package:** _ballerina/lang.string_  \n  \nReturns a substring of a string.\n  \n**Params**  \n- `string` str: source string.  \n- `int` startIndex: the starting index, inclusive  \n- `int` endIndex: the ending index, exclusive(Defaultable)  \n  \n**Returns** `string`   \n- substring consisting of characters with index >= startIndex and < endIndex  \n  \n"
         }
       },
       "sortText": "120",
@@ -114,13 +114,13 @@
       }
     },
     {
-      "label": "join(string separator, ...string)(string)",
+      "label": "join(string separator, string... strs)(string)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.string_  \n  \nJoins zero or more strings together with a separator.\n  \n**Params**  \n- `string` separator: separator string  \n- strs: strings to be joined  \n  \n**Returns** `string`   \n- a string consisting of all of `strs` concatenated in order  \n    with `separator` in between them  \n  \n"
+          "value": "**Package:** _ballerina/lang.string_  \n  \nJoins zero or more strings together with a separator.\n  \n**Params**  \n- `string` separator: separator string  \n- `string[]` strs: strings to be joined  \n  \n**Returns** `string`   \n- a string consisting of all of `strs` concatenated in order  \n    with `separator` in between them  \n  \n"
         }
       },
       "sortText": "120",
@@ -138,7 +138,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.string_  \n  \nSearches for one string in another string.\n  \n**Params**  \n- `string` str: the string in which to search  \n- `string` substr: the string to search for  \n- `int` startIndex: index to start searching from(Defaultable)  \n- `int` startIndex: index to start searching from  \n  \n**Returns** `(int|())`   \n- index of the first occurrence of `substr` in `str` that is \u003e\u003d `startIndex`,  \n   or `()` if there is no such occurrence  \n  \n"
+          "value": "**Package:** _ballerina/lang.string_  \n  \nSearches for one string in another string.\n  \n**Params**  \n- `string` str: the string in which to search  \n- `string` substr: the string to search for  \n- `int` startIndex: index to start searching from(Defaultable)  \n  \n**Returns** `(int|())`   \n- index of the first occurrence of `substr` in `str` that is >= `startIndex`,  \n   or `()` if there is no such occurrence  \n  \n"
         }
       },
       "sortText": "120",

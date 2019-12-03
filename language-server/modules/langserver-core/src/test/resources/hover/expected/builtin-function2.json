@@ -2,7 +2,7 @@
     "result": {
         "contents": {
             "kind": "markdown",
-            "value": "**Description**  \n  \nSearches for one string in another string.  \n  \n**Params**  \n- `string` substr: the string to search for  \n- `int` startIndex: index to start searching from  \n  \n**Returns** `(int|())`  \n- index of the first occurrence of `substr` in `str` that is \u003e\u003d `startIndex`,  \n   or `()` if there is no such occurrence  \n  \n"
+            "value": "**Description**  \n  \nSearches for one string in another string.  \n  \n**Params**  \n- `string` **substr**: the string to search for  \n- `int` **startIndex**: index to start searching from  \n  \n**Returns** `(int|())`  \n- index of the first occurrence of `substr` in `str` that is >= `startIndex`,  \n   or `()` if there is no such occurrence  \n  \n"
         }
     },
     "id": {

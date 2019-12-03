@@ -34,7 +34,7 @@
       "kind": "Field",
       "detail": "Field",
       "sortText": "210",
-      "insertText": "chunking: ${1:\"AUTO\"} // Values allowed: AUTO|ALWAYS|NEVER",
+      "insertText": "chunking: ${1:\"AUTO\"}",
       "insertTextFormat": "Snippet"
     },
     {
@@ -66,7 +66,7 @@
       "kind": "Property",
       "detail": "none",
       "sortText": "110",
-      "insertText": "host: \"\",\nbasePath: \"\",\ncompression: {},\nchunking: \"AUTO\", // Values allowed: AUTO|ALWAYS|NEVER,\ncors: {},\nversioning: {},\nauth: {}",
+      "insertText": "host: \"\",\nbasePath: \"\",\ncompression: {},\nchunking: \"AUTO\",\ncors: {},\nversioning: {},\nauth: {}",
       "insertTextFormat": "Snippet"
     }
   ]

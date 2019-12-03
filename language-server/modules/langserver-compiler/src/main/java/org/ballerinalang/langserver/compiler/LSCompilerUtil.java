@@ -216,26 +216,15 @@ public class LSCompilerUtil {
                                       CompilerPhase.COMPILER_PLUGIN, stopOnSemanticErrors);
     }
 
-    private static boolean isSameFile(Path path1, Path path2) {
-        try {
-            return path1.equals(path2) || Files.isSameFile(path1, path2);
-        } catch (IOException e) {
-            return false;
-        }
-    }
-
     /**
      * Get compiler for the given context and file.
      *
      * @param context               Language server context
-     * @param relativeFilePath      File name which is currently open
      * @param compilerContext       Compiler context
      * @param customErrorStrategy   custom error strategy class
      * @return {@link Compiler}     ballerina compiler
      */
-    public static Compiler getCompiler(LSContext context, String relativeFilePath, CompilerContext compilerContext,
-                                       Class customErrorStrategy) {
-        context.put(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY, relativeFilePath);
+    static Compiler getCompiler(LSContext context, CompilerContext compilerContext, Class customErrorStrategy) {
         context.put(DocumentServiceKeys.COMPILER_CONTEXT_KEY, compilerContext);
         if (customErrorStrategy != null) {
             compilerContext.put(DefaultErrorStrategy.class,

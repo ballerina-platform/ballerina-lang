@@ -154,6 +154,67 @@ public class CompoundAssignmentTest {
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 10);
     }
 
+    @Test(description = "Test compound assignment with addition on array element where the index is an invocation.")
+    public void testCompoundAssignmentAdditionArrayElementFunctionInvocation() {
+        BValue[] returns = BRunUtil.invoke(result, "testCompoundAssignmentAdditionArrayElementFunctionInvocation");
+        Assert.assertEquals(returns.length, 3);
+        Assert.assertTrue(returns[0] instanceof BInteger);
+        Assert.assertTrue(returns[1] instanceof BInteger);
+        Assert.assertTrue(returns[2] instanceof BInteger);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 11);
+        Assert.assertEquals(((BInteger) returns[1]).intValue(), 1);
+        Assert.assertEquals(((BInteger) returns[2]).intValue(), 1);
+    }
+
+    @Test(description = "Test compound assignment with subtraction on array element where the index is an invocation.")
+    public void testCompoundAssignmentSubtractionArrayElementFunctionInvocation() {
+        BValue[] returns = BRunUtil.invoke(result, "testCompoundAssignmentSubtractionArrayElementFunctionInvocation");
+        Assert.assertEquals(returns.length, 3);
+        Assert.assertTrue(returns[0] instanceof BInteger);
+        Assert.assertTrue(returns[1] instanceof BInteger);
+        Assert.assertTrue(returns[2] instanceof BInteger);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
+        Assert.assertEquals(((BInteger) returns[1]).intValue(), 1);
+        Assert.assertEquals(((BInteger) returns[2]).intValue(), 1);
+    }
+
+    @Test(description = "Test compound assignment with division on array element where the index is an invocation.")
+    public void testCompoundAssignmentDivisionArrayElementFunctionInvocation() {
+        BValue[] returns = BRunUtil.invoke(result, "testCompoundAssignmentDivisionArrayElementFunctionInvocation");
+        Assert.assertEquals(returns.length, 3);
+        Assert.assertTrue(returns[0] instanceof BInteger);
+        Assert.assertTrue(returns[1] instanceof BInteger);
+        Assert.assertTrue(returns[2] instanceof BInteger);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
+        Assert.assertEquals(((BInteger) returns[1]).intValue(), 1);
+        Assert.assertEquals(((BInteger) returns[2]).intValue(), 1);
+    }
+
+    @Test(description = "Test compound assignment with multiplication on array element where the index is an " +
+            "invocation.")
+    public void testCompoundAssignmentMultiplicationArrayElementFunctionInvocation() {
+        BValue[] returns = BRunUtil.invoke(result,
+                "testCompoundAssignmentMultiplicationArrayElementFunctionInvocation");
+        Assert.assertEquals(returns.length, 3);
+        Assert.assertTrue(returns[0] instanceof BInteger);
+        Assert.assertTrue(returns[1] instanceof BInteger);
+        Assert.assertTrue(returns[2] instanceof BInteger);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 30);
+        Assert.assertEquals(((BInteger) returns[1]).intValue(), 1);
+        Assert.assertEquals(((BInteger) returns[2]).intValue(), 1);
+    }
+
+    @Test(description = "Test execution order of compound assignment on array element where the index is an " +
+            "invocation.")
+    public void testCompoundAssignmentArrayElementFunctionInvocationOrder() {
+        BValue[] returns = BRunUtil.invoke(result, "testCompoundAssignmentArrayElementFunctionInvocationOrder");
+        Assert.assertEquals(returns.length, 3);
+        Assert.assertTrue(returns[0] instanceof BInteger);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 30);
+        Assert.assertEquals(((BInteger) returns[1]).intValue(), 1);
+        Assert.assertEquals(((BInteger) returns[2]).intValue(), 1);
+    }
+
     @Test(description = "Test compound assignment with addition on struct element.")
     public void testCompoundAssignmentAdditionStructElement() {
         BValue[] returns = BRunUtil.invoke(result, "testCompoundAssignmentAdditionStructElement");

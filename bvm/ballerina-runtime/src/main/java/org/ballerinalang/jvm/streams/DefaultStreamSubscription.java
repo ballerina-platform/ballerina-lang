@@ -40,7 +40,7 @@ public class DefaultStreamSubscription extends StreamSubscription {
 
     public void execute(Object[] fpParams) {
         //Cannot use scheduler, as the order of events should be preserved
-        functionPointer.accept(fpParams);
+        functionPointer.call(fpParams);
     }
 
     public StreamValue getStream() {

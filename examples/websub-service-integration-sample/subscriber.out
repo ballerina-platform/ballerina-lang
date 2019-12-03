@@ -2,6 +2,6 @@
 # `.bal` file, and use the `ballerina run` command.
 $ ballerina run subscriber.bal
 [ballerina/http] started HTTP/WS listener 0.0.0.0:8181
-2018-08-08 10:56:50,048 INFO  [ballerina/websub] - Subscription Request successful at Hub[http://localhost:9191/websub/hub], for Topic[http://localhost:9090/ordermgt/ordertopic], with Callback [http://localhost:8181/ordereventsubscriber]
+2019-11-01 14:15:05,823 INFO  [ballerina/websub] - Subscription Request successfully sent to Hub[http://localhost:9191/websub/hub], for Topic[http://localhost:9090/ordermgt/ordertopic], with Callback [http://localhost:8181/ordereventsubscriber]
 ballerina: Intent Verification agreed - Mode [subscribe], Topic [http://localhost:9090/ordermgt/ordertopic], Lease Seconds [3600]
-2018-08-08 10:57:00,991 INFO  [] - WebSub Notification Received: New Order Added: 1001
+2019-11-01 14:15:58,892 INFO  [] - WebSub Notification Received: New Order Added: 1001

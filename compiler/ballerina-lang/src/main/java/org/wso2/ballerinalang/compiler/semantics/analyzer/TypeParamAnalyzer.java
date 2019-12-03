@@ -383,7 +383,11 @@ public class TypeParamAnalyzer {
 
     private void findTypeParamInTupleForArray(BArrayType expType, BTupleType actualType, SymbolEnv env,
                                               HashSet<BType> resolvedTypes, FindTypeParamResult result) {
-        BUnionType tupleElementType = BUnionType.create(null, new LinkedHashSet<>(actualType.tupleTypes));
+        LinkedHashSet<BType> tupleTypes = new LinkedHashSet<>(actualType.tupleTypes);
+        if (actualType.restType != null) {
+            tupleTypes.add(actualType.restType);
+        }
+        BUnionType tupleElementType = BUnionType.create(null, tupleTypes);
         findTypeParam(expType.eType, tupleElementType, env, resolvedTypes, result);
     }
 

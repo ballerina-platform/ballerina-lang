@@ -238,7 +238,7 @@ public class TableLiteralSyntaxTest {
         BValue[] returns = BRunUtil.invoke(result, "testStructWithDefaultDataToStruct");
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 0);
         Assert.assertEquals(((BFloat) returns[1]).floatValue(), 0.0);
-        Assert.assertEquals(returns[2].stringValue(), "");
+        Assert.assertEquals(returns[2].stringValue(), "empty");
         Assert.assertFalse(((BBoolean) returns[3]).booleanValue());
     }
 
@@ -334,17 +334,25 @@ public class TableLiteralSyntaxTest {
     }
 
     @Test
+    public void testTableLiteralWithDefaultableRecord() {
+        BValue[] returns = BRunUtil.invokeFunction(result, "testTableLiteralWithDefaultableRecord");
+        Assert.assertEquals((returns[0]).stringValue(),
+                "[{\"id\":1, \"age\":23, \"salary\":340.5, \"name\":\"John\", \"married\":false}, "
+                        + "{\"id\":2, \"age\":34, \"salary\":345.32, \"name\":\"empty\", \"married\":false}]");
+    }
+
+    @Test
     public void testStructWithDefaultDataToJson() {
         BValue[] returns = BRunUtil.invokeFunction(result, "testStructWithDefaultDataToJson");
         Assert.assertEquals((returns[0]).stringValue(),
-                "[{\"id\":1, \"age\":0, \"salary\":0.0, \"name\":\"\", " + "\"married\":false}]");
+                "[{\"id\":1, \"age\":0, \"salary\":0.0, \"name\":\"empty\", " + "\"married\":false}]");
     }
 
     @Test
     public void testStructWithDefaultDataToXml() {
         BValue[] returns = BRunUtil.invoke(result, "testStructWithDefaultDataToXml");
         Assert.assertEquals((returns[0]).stringValue(),
-                "<results><result><id>1</id><age>0</age><salary>0.0</salary><name></name>"
+                "<results><result><id>1</id><age>0</age><salary>0.0</salary><name>empty</name>"
                         + "<married>false</married></result></results>");
     }
 
@@ -522,6 +530,8 @@ public class TableLiteralSyntaxTest {
                                   "cannot infer table type", 223, 14);
         BAssertUtil.validateError(resultNegative, i++,
                                   "table type constraint must be a record type", 233, 20);
+        BAssertUtil.validateError(resultNegative, i++,
+                "missing non-defaultable required record field 'name'", 251, 9);
         Assert.assertEquals(resultNegative.getErrorCount(), i);
     }
 

@@ -49,6 +49,6 @@ public class SetTransactionContext {
         TransactionLocalContext trxCtx = TransactionLocalContext
                 .createTransactionParticipantLocalCtx(globalTransactionId, url, protocol);
         trxCtx.beginTransactionBlock(transactionBlockId);
-        strand.setLocalTransactionContext(trxCtx);
+        strand.transactionLocalContext = trxCtx;
     }
 }

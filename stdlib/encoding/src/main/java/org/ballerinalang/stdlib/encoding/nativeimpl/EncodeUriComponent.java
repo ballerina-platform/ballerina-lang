@@ -18,8 +18,6 @@
 
 package org.ballerinalang.stdlib.encoding.nativeimpl;
 
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.stdlib.encoding.EncodingUtil;
 
 import java.net.URLEncoder;
@@ -28,14 +26,9 @@ import java.net.URLEncoder;
  * Extern function to encode URI components.
  * ballerina/encoding:encodeUriComponent
  */
-
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "encoding",
-        functionName = "encodeUriComponent", isPublic = true
-)
 public class EncodeUriComponent {
 
-    public static Object encodeUriComponent(Strand strand, String url, String charset) {
+    public static Object encodeUriComponent(String url, String charset) {
         try {
             String encoded = URLEncoder.encode(url, charset);
             StringBuilder buf = new StringBuilder(encoded.length());

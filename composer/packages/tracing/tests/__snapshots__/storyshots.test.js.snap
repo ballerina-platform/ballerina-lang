@@ -9,11 +9,15 @@ exports[`Storyshots Detail view detail view 1`] = `
       headers
     </pre>
   </code>
-  <code>
-    <pre>
-      {"foo": "bar"}
-    </pre>
-  </code>
+  <div
+    className="payload"
+  >
+    <code>
+      <pre>
+        {"foo": "bar"}
+      </pre>
+    </code>
+  </div>
 </div>
 `;
 

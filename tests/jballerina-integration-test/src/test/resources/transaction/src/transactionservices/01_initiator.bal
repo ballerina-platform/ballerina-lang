@@ -18,6 +18,7 @@ import ballerina/http;
 import ballerina/io;
 import ballerina/log;
 import ballerina/transactions;
+import ballerina/runtime;
 
 listener http:Listener initiatorEP00 = new(8888);
 
@@ -109,7 +110,14 @@ service InitiatorService00 on initiatorEP00 {
             log:printInfo("testLocalParticipantSuccess-aborted block");
             state0.abortedFunctionCalled = true;
         }
-
+        if (state0.committedFunctionCalled) {
+            boolean waitResult = waitForCondition(5000, 20,
+                                function () returns boolean {return state0.localParticipantCommittedFunctionCalled;});
+            if (!waitResult) {
+                  error err = error("Participant failed to commit");
+                  panic err;
+            }
+        }
         http:Response res = new;  res.statusCode = 200;
         checkpanic ep->respond(res);
     }
@@ -398,3 +406,17 @@ type State0 object {
                             self.localParticipantAbortedFunctionCalled);
     }
 };
+
+function waitForCondition(int maxWaitInMillySeconds, int noOfRounds, function() returns boolean conditionFunc)
+             returns boolean {
+    int sleepTimePerEachRound = maxWaitInMillySeconds/noOfRounds;
+    int count = 0;
+    while (count < noOfRounds) {
+        if (conditionFunc()){
+            return true;
+        }
+        count = count + 1;
+        runtime:sleep(sleepTimePerEachRound);
+    }
+    return false;
+}

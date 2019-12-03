@@ -48,6 +48,7 @@ task updateVersion(type: Exec) {
     inputs.file("package.json")
     outputs.file("package.json")
     doFirst {
+        println "update version to " + project.version + " in " + project.path
         if (Os.isFamily(Os.FAMILY_WINDOWS)) {
             commandLine 'cmd', '/c', 'npm', 'run', 'update-version', '--', project.version
         } else {
