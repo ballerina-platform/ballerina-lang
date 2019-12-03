@@ -67,6 +67,7 @@ import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+
 import javax.net.ssl.HttpsURLConnection;
 
 import static org.testng.Assert.assertEquals;
@@ -347,7 +348,6 @@ public class TestUtil {
             DefaultHttpConnectorListener listener = new DefaultHttpConnectorListener(latch);
             HttpResponseFuture responseFuture = httpClientConnector.send(msg);
             responseFuture.setHttpConnectorListener(listener);
-
             latch.await(30, TimeUnit.SECONDS);
 
             HttpCarbonMessage response = listener.getHttpResponseMessage();

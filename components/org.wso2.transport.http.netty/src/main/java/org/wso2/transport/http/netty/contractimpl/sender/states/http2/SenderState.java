@@ -65,7 +65,7 @@ public interface SenderState {
      */
     void readInboundResponseHeaders(ChannelHandlerContext ctx, Http2HeadersFrame http2HeadersFrame,
                                     OutboundMsgHolder outboundMsgHolder, boolean serverPush,
-                                    Http2MessageStateContext http2MessageStateContext);
+                                    Http2MessageStateContext http2MessageStateContext) throws Http2Exception;
 
     /**
      * Writes headers of outbound request.
@@ -96,7 +96,8 @@ public interface SenderState {
      * @param outboundMsgHolder the outbound message holder
      * @param serverPush        indicates the response type
      */
-    void handleStreamTimeout(OutboundMsgHolder outboundMsgHolder, boolean serverPush);
+    void handleStreamTimeout(OutboundMsgHolder outboundMsgHolder, boolean serverPush, ChannelHandlerContext ctx,
+            int streamId) throws Http2Exception;
 
     /**
      * Handles the connection close event.

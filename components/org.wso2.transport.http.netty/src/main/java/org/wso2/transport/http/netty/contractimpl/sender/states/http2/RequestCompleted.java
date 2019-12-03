@@ -21,6 +21,7 @@ package org.wso2.transport.http.netty.contractimpl.sender.states.http2;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpResponseStatus;
+import io.netty.handler.codec.http2.Http2Exception;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.exceptions.EndpointTimeOutException;
@@ -71,7 +72,7 @@ public class RequestCompleted implements SenderState {
     @Override
     public void readInboundResponseHeaders(ChannelHandlerContext ctx, Http2HeadersFrame http2HeadersFrame,
                                            OutboundMsgHolder outboundMsgHolder, boolean serverPush,
-                                           Http2MessageStateContext http2MessageStateContext) {
+                                           Http2MessageStateContext http2MessageStateContext) throws Http2Exception {
         // When the initial frames of the response is to be received after sending the complete request.
         http2MessageStateContext.setSenderState(new ReceivingHeaders(http2TargetHandler, http2RequestWriter));
         http2MessageStateContext.getSenderState().readInboundResponseHeaders(ctx, http2HeadersFrame, outboundMsgHolder,
@@ -92,7 +93,8 @@ public class RequestCompleted implements SenderState {
     }
 
     @Override
-    public void handleStreamTimeout(OutboundMsgHolder outboundMsgHolder, boolean serverPush) {
+    public void handleStreamTimeout(OutboundMsgHolder outboundMsgHolder, boolean serverPush,
+            ChannelHandlerContext ctx, int streamId) {
         if (!serverPush) {
             outboundMsgHolder.getResponseFuture().notifyHttpListener(new EndpointTimeOutException(
                     IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_INBOUND_RESPONSE,

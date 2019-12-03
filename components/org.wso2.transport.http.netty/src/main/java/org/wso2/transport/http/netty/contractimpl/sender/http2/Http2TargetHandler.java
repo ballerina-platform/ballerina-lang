@@ -42,6 +42,8 @@ import org.wso2.transport.http.netty.message.Http2PushPromise;
 import org.wso2.transport.http.netty.message.Http2Reset;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
+import java.util.Locale;
+
 /**
  * {@code Http2TargetHandler} is responsible for sending and receiving HTTP/2 frames over an outbound connection.
  */
@@ -221,9 +223,16 @@ public class Http2TargetHandler extends ChannelDuplexHandler {
             return;
         }
         Http2MessageStateContext http2MessageStateContext = initHttp2MessageContext(outboundMsgHolder);
-        http2MessageStateContext.getSenderState().readInboundResponseHeaders(ctx, http2HeadersFrame,
-                                                                             outboundMsgHolder, serverPush,
-                                                                             http2MessageStateContext);
+        try {
+            http2MessageStateContext.getSenderState()
+                    .readInboundResponseHeaders(ctx, http2HeadersFrame, outboundMsgHolder, serverPush,
+                            http2MessageStateContext);
+        } catch (Http2Exception e) {
+            String errorMsg = "Failed to read the inbound headers from the response : " + e.getMessage()
+                    .toLowerCase(Locale.ENGLISH);
+            LOG.error(errorMsg, e);
+            outboundMsgHolder.getResponseFuture().notifyHttpListener(e);
+        }
     }
 
     private void onDataRead(ChannelHandlerContext ctx, Http2DataFrame http2DataFrame) {

@@ -26,6 +26,7 @@ import io.netty.handler.codec.http.DefaultLastHttpContent;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.LastHttpContent;
 import io.netty.handler.codec.http2.Http2Error;
+import io.netty.handler.codec.http2.Http2Exception;
 import io.netty.handler.codec.http2.Http2Headers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,6 +41,7 @@ import java.util.concurrent.TimeUnit;
 import static org.wso2.transport.http.netty.contract.Constants.IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_PUSH_RESPONSE;
 import static org.wso2.transport.http.netty.contract.Constants.IDLE_TIMEOUT_TRIGGERED_WHILE_READING_INBOUND_RESPONSE_BODY;
 import static org.wso2.transport.http.netty.contract.Constants.IDLE_TIMEOUT_TRIGGERED_WHILE_READING_PUSH_RESPONSE_BODY;
+import static org.wso2.transport.http.netty.contract.Constants.REMOTE_SERVER_CLOSED_WHILE_WRITING_OUTBOUND_REQUEST_BODY;
 import static org.wso2.transport.http.netty.contractimpl.common.Util.schedule;
 import static org.wso2.transport.http.netty.contractimpl.common.Util.ticksInNanos;
 
@@ -75,8 +77,14 @@ public class Http2ClientTimeoutHandler implements Http2DataEventListener {
         if (outboundMsgHolder != null) {
             outboundMsgHolder.setLastReadWriteTime(ticksInNanos());
             timerTasks.put(streamId,
-                           schedule(ctx, new IdleTimeoutTask(ctx, streamId), idleTimeNanos));
+                           schedule(ctx, new IdleTimeoutTask(ctx, streamId, false), idleTimeNanos));
         }
+    }
+
+    public void createTimerTask(ChannelHandlerContext ctx, int streamId, long timeOut, boolean expectContinue) {
+        this.idleTimeNanos = timeOut;
+        timerTasks.put(streamId, schedule(ctx, new IdleTimeoutTask(ctx, streamId, expectContinue),
+                TimeUnit.MILLISECONDS.toNanos(timeOut)));
     }
 
     @Override
@@ -152,14 +160,19 @@ public class Http2ClientTimeoutHandler implements Http2DataEventListener {
         }
     }
 
-    private class IdleTimeoutTask implements Runnable {
+    /**
+     * This class is for creating a IdleTimeoutTask.
+     */
+    public class IdleTimeoutTask implements Runnable {
 
         private ChannelHandlerContext ctx;
         private int streamId;
+        private boolean expectContinue;
 
-        IdleTimeoutTask(ChannelHandlerContext ctx, int streamId) {
+        IdleTimeoutTask(ChannelHandlerContext ctx, int streamId, boolean expectContinue) {
             this.ctx = ctx;
             this.streamId = streamId;
+            this.expectContinue = expectContinue;
         }
 
         @Override
@@ -177,7 +190,9 @@ public class Http2ClientTimeoutHandler implements Http2DataEventListener {
         private void runTimeOutLogic(OutboundMsgHolder msgHolder, boolean primary) {
             long nextDelay = getNextDelay(msgHolder);
             if (nextDelay <= 0) {
-                closeStream(streamId, ctx);
+                if (!expectContinue) {
+                    closeStream(streamId, ctx);
+                }
                 if (primary) {
                     handlePrimaryResponseTimeout(msgHolder);
                 } else {
@@ -195,7 +210,9 @@ public class Http2ClientTimeoutHandler implements Http2DataEventListener {
             } else {
                 notifyTimeoutError(msgHolder, true);
             }
-            http2ClientChannel.removeInFlightMessage(streamId);
+            if (!expectContinue) {
+                http2ClientChannel.removeInFlightMessage(streamId);
+            }
         }
 
         private void handlePushResponseTimeout(OutboundMsgHolder promiseHolder) {
@@ -227,8 +244,14 @@ public class Http2ClientTimeoutHandler implements Http2DataEventListener {
 
         private void notifyTimeoutError(OutboundMsgHolder msgHolder, boolean primary) {
             if (primary) {
-                msgHolder.getRequest().getHttp2MessageStateContext().getSenderState()
-                        .handleStreamTimeout(msgHolder, false);
+                try {
+                    msgHolder.getRequest().getHttp2MessageStateContext().getSenderState()
+                            .handleStreamTimeout(msgHolder, false, ctx, streamId);
+                } catch (Http2Exception e) {
+                    msgHolder.getResponseFuture().notifyHttpListener(new EndpointTimeOutException(
+                            REMOTE_SERVER_CLOSED_WHILE_WRITING_OUTBOUND_REQUEST_BODY,
+                            HttpResponseStatus.GATEWAY_TIMEOUT.code()));
+                }
 
             } else {
                 msgHolder.getResponseFuture().notifyPushResponse(streamId, new EndpointTimeOutException(
@@ -240,5 +263,9 @@ public class Http2ClientTimeoutHandler implements Http2DataEventListener {
         private long getNextDelay(OutboundMsgHolder msgHolder) {
             return idleTimeNanos - (ticksInNanos() - msgHolder.getLastReadWriteTime());
         }
+    }
+
+    public Map<Integer, ScheduledFuture<?>> getTimerTasks() {
+        return timerTasks;
     }
 }

@@ -92,7 +92,7 @@ public class SendingEntityBody implements SenderState {
     @Override
     public void readInboundResponseHeaders(ChannelHandlerContext ctx, Http2HeadersFrame http2HeadersFrame,
                                            OutboundMsgHolder outboundMsgHolder, boolean serverPush,
-                                           Http2MessageStateContext http2MessageStateContext) {
+                                           Http2MessageStateContext http2MessageStateContext) throws Http2Exception {
         // In bidirectional streaming case, while sending the request data frames, server response data frames can
         // receive. In order to handle it. we need to change the states depending on the action.
         http2MessageStateContext.setSenderState(new ReceivingHeaders(http2TargetHandler, http2RequestWriter));
@@ -118,7 +118,8 @@ public class SendingEntityBody implements SenderState {
     }
 
     @Override
-    public void handleStreamTimeout(OutboundMsgHolder outboundMsgHolder, boolean serverPush) {
+    public void handleStreamTimeout(OutboundMsgHolder outboundMsgHolder, boolean serverPush,
+            ChannelHandlerContext ctx, int streamId) {
         if (!serverPush) {
             outboundMsgHolder.getResponseFuture().notifyHttpListener(new EndpointTimeOutException(
                     IDLE_TIMEOUT_TRIGGERED_WHILE_WRITING_OUTBOUND_REQUEST_BODY,

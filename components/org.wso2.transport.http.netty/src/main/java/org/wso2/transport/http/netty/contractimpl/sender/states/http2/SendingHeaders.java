@@ -20,6 +20,7 @@ package org.wso2.transport.http.netty.contractimpl.sender.states.http2;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.HttpContent;
+import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpMessage;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpResponseStatus;
@@ -70,6 +71,7 @@ public class SendingHeaders implements SenderState {
     private final Http2ConnectionEncoder encoder;
     private final Http2ClientChannel http2ClientChannel;
     private int streamId;
+    private boolean continueHeader;
 
     public SendingHeaders(Http2TargetHandler http2TargetHandler, Http2RequestWriter http2RequestWriter) {
         this.http2TargetHandler = http2TargetHandler;
@@ -96,7 +98,7 @@ public class SendingHeaders implements SenderState {
     @Override
     public void readInboundResponseHeaders(ChannelHandlerContext ctx, Http2HeadersFrame http2HeadersFrame,
                                            OutboundMsgHolder outboundMsgHolder, boolean serverPush,
-                                           Http2MessageStateContext http2MessageStateContext) {
+                                           Http2MessageStateContext http2MessageStateContext) throws Http2Exception {
         // This is an action due to an application error. When the initial frames of the response is being received
         // before sending the complete request.
         outboundMsgHolder.getRequest().setIoException(new IOException(INBOUND_RESPONSE_ALREADY_RECEIVED));
@@ -119,11 +121,12 @@ public class SendingHeaders implements SenderState {
     }
 
     @Override
-    public void handleStreamTimeout(OutboundMsgHolder outboundMsgHolder, boolean serverPush) {
+    public void handleStreamTimeout(OutboundMsgHolder outboundMsgHolder, boolean serverPush,
+            ChannelHandlerContext ctx, int streamId) {
         if (!serverPush) {
-            outboundMsgHolder.getResponseFuture().notifyHttpListener(new EndpointTimeOutException(
-                    IDLE_TIMEOUT_TRIGGERED_WHILE_WRITING_OUTBOUND_REQUEST_HEADERS,
-                    HttpResponseStatus.GATEWAY_TIMEOUT.code()));
+            outboundMsgHolder.getResponseFuture().notifyHttpListener(
+                    new EndpointTimeOutException(IDLE_TIMEOUT_TRIGGERED_WHILE_WRITING_OUTBOUND_REQUEST_HEADERS,
+                            HttpResponseStatus.GATEWAY_TIMEOUT.code()));
         }
     }
 
@@ -149,8 +152,15 @@ public class SendingHeaders implements SenderState {
         if (endStream) {
             http2MessageStateContext.setSenderState(new RequestCompleted(http2TargetHandler, http2RequestWriter));
         } else {
-            http2MessageStateContext.setSenderState(new SendingEntityBody(http2TargetHandler, http2RequestWriter));
-            http2MessageStateContext.getSenderState().writeOutboundRequestBody(ctx, msg, http2MessageStateContext);
+            String expectHeader = httpOutboundRequest.getHeader(HttpHeaderNames.EXPECT.toString());
+            if (expectHeader != null) {
+                http2MessageStateContext.setSenderState(
+                        new WaitingFor100Continue(http2TargetHandler, http2RequestWriter, msg, ctx, streamId,
+                                http2MessageStateContext));
+            } else {
+                http2MessageStateContext.setSenderState(new SendingEntityBody(http2TargetHandler, http2RequestWriter));
+                http2MessageStateContext.getSenderState().writeOutboundRequestBody(ctx, msg, http2MessageStateContext);
+            }
         }
     }
 
