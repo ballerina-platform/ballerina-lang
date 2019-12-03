@@ -875,6 +875,10 @@ class ASTCleaner extends BLangNodeVisitor {
     @Override
     public void visit(BLangInvocation invocationExpr) {
 
+        // if this is a langlib invocation, we need to reset arg nodes.
+        if (invocationExpr.langLibInvocation) {
+            invocationExpr.argExprs.remove(0);
+        }
         clearNodeList(invocationExpr.argExprs);
         invocationExpr.exprSymbol = null;
         clearNodeList(invocationExpr.annAttachments);
