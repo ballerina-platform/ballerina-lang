@@ -23,7 +23,7 @@ service initiatingService on new http:Listener(9105) {
                                        {forwarded: "enable", httpVersion: "2.0",
                                         http2Settings: { http2PriorKnowledge: true }});
         var responseFromForwardBackend = forwadingClient->get(
-                                        "/forwardedBackend/forwardedResource", request);
+                                        "/forwardedBackend/forwardedResource", <@untainted> request);
         if (responseFromForwardBackend is http:Response) {
             var resultSentToClient = caller->respond(responseFromForwardBackend);
         }

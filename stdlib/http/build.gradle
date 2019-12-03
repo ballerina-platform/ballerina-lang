@@ -83,6 +83,8 @@ dependencies {
     // transitive
     baloImplementation project(path: ':ballerina-task', configuration: 'baloImplementation')
 
+    interopImports project(':ballerina-io')
+
     implementation 'io.netty:netty-codec-http'
     implementation 'org.wso2.transport.http:org.wso2.transport.http.netty'
     implementation 'org.wso2.carbon.messaging:org.wso2.carbon.messaging'
