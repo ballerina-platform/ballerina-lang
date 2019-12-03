@@ -17,12 +17,13 @@
  */
 package org.ballerinalang.net.http.nativeimpl;
 
-import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.types.BTupleType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.TupleValueImpl;
 import org.ballerinalang.mime.util.HeaderUtil;
+import org.ballerinalang.net.http.HttpErrorType;
+import org.ballerinalang.net.http.HttpUtil;
 
 import java.util.Arrays;
 
@@ -70,6 +71,8 @@ public class ParseHeader {
         } else {
             errMsg = PARSER_ERROR + "header value cannot be null";
         }
-        return BallerinaErrors.createError(READING_HEADER_FAILED, errMsg);
+        return HttpUtil.createHttpError(HttpErrorType.GENERIC_CLIENT_ERROR.getReason(),
+                                        HttpErrorType.GENERIC_CLIENT_ERROR.getErrorName(), READING_HEADER_FAILED,
+                                        errMsg);
     }
 }
