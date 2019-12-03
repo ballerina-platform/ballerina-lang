@@ -304,9 +304,8 @@ public class SymbolEnter extends BLangNodeVisitor {
         defineTypeNodes(typDefs, pkgEnv);
 
         for (BLangSimpleVariable variable : pkgNode.globalVars) {
-            if (variable.expr != null
-                    && variable.isDeclaredWithVar && variable.expr.getKind() == NodeKind.LAMBDA) {
-                addFunctionType(variable, pkgEnv);
+            if (variable.expr != null && variable.expr.getKind() == NodeKind.LAMBDA && variable.isDeclaredWithVar) {
+                resolveAndSetFunctionTypeFromRHSLambda(variable, pkgEnv);
             }
         }
 
@@ -1900,7 +1899,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         return pkgName.value.equals(importSymbol.pkgID.name.value);
     }
 
-    private void addFunctionType(BLangSimpleVariable variable, SymbolEnv env) {
+    private void resolveAndSetFunctionTypeFromRHSLambda(BLangSimpleVariable variable, SymbolEnv env) {
         BLangFunction function = ((BLangLambdaFunction) variable.expr).function;
         variable.type = symResolver.createInvokableType(function.getParameters(),
                 function.restParam, function.returnTypeNode, Flags.asMask(variable.flagSet), env);

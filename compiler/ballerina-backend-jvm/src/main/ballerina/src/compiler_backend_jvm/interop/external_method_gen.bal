@@ -195,7 +195,7 @@ function createOldStyleExternalFunctionWrapper(bir:Function birFunc, string orgN
     bir:BType? restType = functionTypeDesc?.restType;
 
     if (!(restType is ())) {
-        jMethodPramTypes[jMethodPramTypes.length()] = restType;
+        jMethodPramTypes.push(restType);
     }
 
     bir:VariableDcl? receiver = birFunc.receiver;

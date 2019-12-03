@@ -620,7 +620,6 @@ public class BLangPackageBuilder {
         if (paramsAvail) {
             functionTypeNode.addWS(commaWsStack.pop());
             functionTypeNode.params.addAll(this.varListStack.pop());
-
         }
 
         if (restParamAvail) {

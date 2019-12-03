@@ -106,14 +106,14 @@ public class BInvokableType extends BType implements InvokableType {
             retTypeWithParam = "(" + retTypeWithParam + ")";
         }
         String restParam = "";
-        if (restType != null && restType instanceof  BArrayType) {
+        if (restType != null && restType instanceof BArrayType) {
             if (!paramTypes.isEmpty()) {
                 restParam += ", ";
             }
             restParam += ((BArrayType) restType).eType + "...";
         }
         return "(" + (paramTypes.size() != 0 ? getBTypeListAsString(paramTypes) : "") + restParam + ")"
-               + " returns " + retTypeWithParam;
+                + " returns " + retTypeWithParam;
     }
 
     private static String getBTypeListAsString(List<BType> typeNames) {

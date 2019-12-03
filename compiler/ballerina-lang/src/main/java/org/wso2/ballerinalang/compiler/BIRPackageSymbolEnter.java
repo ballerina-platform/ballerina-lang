@@ -453,9 +453,7 @@ public class BIRPackageSymbolEnter {
         tsymbol.params = params;
 
         if (invokableType.restType != null) {
-            tsymbol.restParam = new BVarSymbol(0, Names.EMPTY,
-                    this.env.pkgSymbol.pkgID,
-                    invokableType.restType, null);
+            tsymbol.restParam = new BVarSymbol(0, Names.EMPTY, this.env.pkgSymbol.pkgID, invokableType.restType, null);
         }
 
         tsymbol.returnType = invokableType.retType;

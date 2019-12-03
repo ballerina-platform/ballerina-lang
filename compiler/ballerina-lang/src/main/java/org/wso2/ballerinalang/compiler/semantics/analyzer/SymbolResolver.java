@@ -100,7 +100,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static java.lang.String.format;
-import static org.ballerinalang.util.diagnostic.DiagnosticCode.REQUIRED_PARAM_DEFINED_AFTER_DEFAULTABLE_PARAM;
 import static org.wso2.ballerinalang.compiler.semantics.model.Scope.NOT_FOUND_ENTRY;
 import static org.wso2.ballerinalang.compiler.semantics.model.SymbolTable.UTILS;
 import static org.wso2.ballerinalang.compiler.util.Constants.OPEN_SEALED_ARRAY_INDICATOR;
@@ -1064,7 +1063,7 @@ public class SymbolResolver extends BLangNodeVisitor {
             param.symbol = symbol;
 
             if (param.expr == null && foundDefaultableParam) {
-                dlog.error(param.pos, REQUIRED_PARAM_DEFINED_AFTER_DEFAULTABLE_PARAM);
+                dlog.error(param.pos, DiagnosticCode.REQUIRED_PARAM_DEFINED_AFTER_DEFAULTABLE_PARAM);
             }
 
             if (param.flagSet.contains(Flag.PUBLIC)) {
