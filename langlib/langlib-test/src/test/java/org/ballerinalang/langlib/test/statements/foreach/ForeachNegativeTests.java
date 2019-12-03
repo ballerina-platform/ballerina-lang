@@ -97,7 +97,5 @@ public class ForeachNegativeTests {
         BAssertUtil.validateError(compile, index++,
                 "incompatible types: expected 'xml', found '(string|float|int|boolean)'", 51, 17);
         BAssertUtil.validateError(compile, index, "incompatible types: expected 'json', found 'xml'", 58, 13);
-
-
     }
 }
