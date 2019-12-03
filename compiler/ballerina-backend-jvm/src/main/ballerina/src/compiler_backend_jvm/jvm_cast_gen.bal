@@ -214,12 +214,8 @@ function generateCheckCastBToJRef(jvm:MethodVisitor mv, bir:BType sourceType, jv
         string sig = getSignatureForJType(targetType);
         mv.visitTypeInsn(CHECKCAST, sig);
     } else if (sourceType is bir:BTypeDecimal) {
-        if (targetType is jvm:JRefType && targetType.typeValue == DECIMAL_VALUE) {
-            // if the java method signature expects a DecimalValue, then pass the current value as is. 
-            return;
-        }
-        // else, create and send a BigDecimal to java side 
-        mv.visitMethodInsn(INVOKEVIRTUAL, DECIMAL_VALUE, "decimalValue", "()Ljava/math/BigDecimal;", false);
+        // do nothing
+        return;
     } else {
         if (targetType is jvm:JRefType) {
             addBoxInsn(mv, sourceType);
@@ -361,13 +357,7 @@ function generateCheckCastJToBDecimal(jvm:MethodVisitor mv, jvm:JType sourceType
     } else if (sourceType is jvm:JDouble) {
         mv.visitMethodInsn(INVOKESTATIC, DECIMAL_VALUE, "valueOfJ", io:sprintf("(D)L%s;", DECIMAL_VALUE), false);
     } else if (sourceType is jvm:JRefType) {
-        if (sourceType.typeValue == DECIMAL_VALUE) {
-            // if the java method signature returns a DecimalValue, then pass the current value as is. 
-            return;
-        }
-
-        // else, create and send a DecimalValue to send to ballerina side 
-        mv.visitMethodInsn(INVOKESTATIC, DECIMAL_VALUE, "valueOfJ", io:sprintf("(L%s;)L%s;", BIG_DECIMAL, DECIMAL_VALUE), false);
+        mv.visitTypeInsn(CHECKCAST, DECIMAL_VALUE);
     } else {
         error err = error(io:sprintf("Casting is not supported from '%s' to 'decimal'", sourceType));
         panic err;
@@ -455,17 +445,17 @@ function generateJCastToBAny(jvm:MethodVisitor mv, BalToJVMIndexMap indexMap, jv
         mv.visitMethodInsn(INVOKESTATIC, DOUBLE_VALUE, "valueOf", io:sprintf("(D)L%s;", DOUBLE_VALUE), false);
     } else if (sourceType is jvm:JRefType) {
         jvm:Label afterHandle = new;
-        if (sourceType.typeValue == "java/lang/Object") {
+        if (sourceType.typeValue == OBJECT) {
             mv.visitInsn(DUP);
             mv.visitTypeInsn(INSTANCEOF, ERROR_VALUE);
             mv.visitJumpInsn(IFNE, afterHandle);
 
             mv.visitInsn(DUP);
-            mv.visitTypeInsn(INSTANCEOF, "java/lang/Number");
+            mv.visitTypeInsn(INSTANCEOF, NUMBER);
             mv.visitJumpInsn(IFNE, afterHandle);
 
             mv.visitInsn(DUP);
-            mv.visitTypeInsn(INSTANCEOF, "java/lang/Boolean");
+            mv.visitTypeInsn(INSTANCEOF, BOOLEAN_VALUE);
             mv.visitJumpInsn(IFNE, afterHandle);
 
             mv.visitInsn(DUP);

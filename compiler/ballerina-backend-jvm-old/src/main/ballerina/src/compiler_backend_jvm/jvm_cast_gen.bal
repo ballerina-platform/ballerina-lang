@@ -433,11 +433,11 @@ function generateJCastToBAny(jvm:MethodVisitor mv, BalToJVMIndexMap indexMap, jv
             mv.visitJumpInsn(IFNE, afterHandle);
 
             mv.visitInsn(DUP);
-            mv.visitTypeInsn(INSTANCEOF, "java/lang/Number");
+            mv.visitTypeInsn(INSTANCEOF, NUMBER);
             mv.visitJumpInsn(IFNE, afterHandle);
 
             mv.visitInsn(DUP);
-            mv.visitTypeInsn(INSTANCEOF, "java/lang/Boolean");
+            mv.visitTypeInsn(INSTANCEOF, BOOLEAN_VALUE);
             mv.visitJumpInsn(IFNE, afterHandle);
 
             mv.visitInsn(DUP);

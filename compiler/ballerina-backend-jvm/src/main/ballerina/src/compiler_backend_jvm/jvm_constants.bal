@@ -313,6 +313,7 @@ const string MAP_ENTRY = "java/util/Map$Entry";
 const string MAP_SIMPLE_ENTRY = "java/util/AbstractMap$SimpleEntry";
 const string COLLECTION = "java/util/Collection";
 const string BIG_DECIMAL = "java/math/BigDecimal";
+const string NUMBER = "java/lang/Number";
 
 // service objects, annotation processing related classes
 const string ANNOTATION_UTILS = "org/ballerinalang/jvm/AnnotationUtils";

@@ -40,7 +40,6 @@ import org.ballerinalang.jvm.values.api.BXML;
 
 import java.lang.reflect.Executable;
 import java.lang.reflect.Method;
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -264,8 +263,7 @@ class JMethodResolver {
                     }
                     return jType.isPrimitive() && jTypeName.equals(J_PRIMITIVE_BOOLEAN_TNAME);
                 case TypeTags.DECIMAL_TAG:
-                    return this.classLoader.loadClass(BigDecimal.class.getCanonicalName()).isAssignableFrom(jType) ||
-                            this.classLoader.loadClass(BDecimal.class.getCanonicalName()).isAssignableFrom(jType);
+                    return this.classLoader.loadClass(BDecimal.class.getCanonicalName()).isAssignableFrom(jType);
                 case TypeTags.STRING_TAG:
                     return this.classLoader.loadClass(BString.class.getCanonicalName()).isAssignableFrom(jType);
                 case TypeTags.MAP_TAG:
@@ -386,8 +384,7 @@ class JMethodResolver {
                     }
                     return jType.isPrimitive() && jTypeName.equals(J_PRIMITIVE_BOOLEAN_TNAME);
                 case TypeTags.DECIMAL_TAG:
-                    return this.classLoader.loadClass(BigDecimal.class.getCanonicalName()).isAssignableFrom(jType) ||
-                            this.classLoader.loadClass(BDecimal.class.getCanonicalName()).isAssignableFrom(jType);
+                    return this.classLoader.loadClass(BDecimal.class.getCanonicalName()).isAssignableFrom(jType);
                 case TypeTags.STRING_TAG:
                     return this.classLoader.loadClass(BString.class.getCanonicalName()).isAssignableFrom(jType);
                 case TypeTags.MAP_TAG:
