@@ -18,13 +18,10 @@
 
 package org.ballerinalang.stdlib.file.service.endpoint;
 
-import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.BRuntime;
 import org.ballerinalang.jvm.types.AttachedFunction;
 import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.stdlib.file.service.DirectoryListenerConstants;
 import org.ballerinalang.stdlib.file.service.FSListener;
 import org.ballerinalang.stdlib.file.utils.FileConstants;
@@ -44,16 +41,9 @@ import static org.ballerinalang.stdlib.file.service.DirectoryListenerConstants.F
  * Register file listener service.
  */
 
-@BallerinaFunction(
-        orgName = "ballerina",
-        packageName = "file",
-        functionName = "register",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = "Listener", structPackage = "ballerina/file"),
-        isPublic = true
-)
 public class Register {
 
-    public static Object register(Strand strand, ObjectValue listener, ObjectValue service, Object name) {
+    public static Object register(ObjectValue listener, ObjectValue service, Object name) {
         MapValueImpl serviceEndpointConfig = listener.getMapValue(DirectoryListenerConstants.SERVICE_ENDPOINT_CONFIG);
         try {
             final Map<String, AttachedFunction> resourceRegistry = getResourceRegistry(service);
@@ -62,7 +52,7 @@ public class Register {
             LocalFileSystemConnectorFactory connectorFactory = new LocalFileSystemConnectorFactoryImpl();
             LocalFileSystemServerConnector serverConnector = connectorFactory
                     .createServerConnector(service.getType().getName(), paramMap,
-                            new FSListener(strand.scheduler, service, resourceRegistry));
+                            new FSListener(BRuntime.getCurrentRuntime(), service, resourceRegistry));
             listener.addNativeData(DirectoryListenerConstants.FS_SERVER_CONNECTOR, serverConnector);
         } catch (LocalFileSystemServerConnectorException e) {
             return FileUtils.getBallerinaError(FileConstants.FILE_SYSTEM_ERROR,

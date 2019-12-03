@@ -18,8 +18,6 @@
 
 package org.ballerinalang.stdlib.file.nativeimpl;
 
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.stdlib.file.utils.FileConstants;
 import org.ballerinalang.stdlib.file.utils.FileUtils;
 import org.slf4j.Logger;
@@ -41,20 +39,14 @@ import static java.nio.file.FileVisitResult.SKIP_SUBTREE;
 /**
  * Extern function ballerina.file:copy.
  *
- * @since 0.995.0
+ * @since 1.1.0
  */
-@BallerinaFunction(
-        orgName = FileConstants.ORG_NAME,
-        packageName = FileConstants.PACKAGE_NAME,
-        functionName = "copy",
-        isPublic = true
-)
 public class Copy {
 
     private static final Logger log = LoggerFactory.getLogger(Copy.class);
 
 
-    public static Object copy(Strand strand, String sourcePath, String destinationPath, boolean replaceExisting) {
+    public static Object copy(String sourcePath, String destinationPath, boolean replaceExisting) {
         Path srcPath = Paths.get(sourcePath);
         Path destPath = Paths.get(destinationPath);
 

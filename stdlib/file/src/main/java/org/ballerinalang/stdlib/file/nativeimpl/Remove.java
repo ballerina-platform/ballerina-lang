@@ -18,8 +18,6 @@
 
 package org.ballerinalang.stdlib.file.nativeimpl;
 
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.stdlib.file.utils.FileConstants;
 import org.ballerinalang.stdlib.file.utils.FileUtils;
 
@@ -35,19 +33,13 @@ import java.nio.file.attribute.BasicFileAttributes;
 /**
  * Extern function ballerina.file:remove.
  *
- * @since 0.995.0
+ * @since 1.1.0
  */
-@BallerinaFunction(
-        orgName = FileConstants.ORG_NAME,
-        packageName = FileConstants.PACKAGE_NAME,
-        functionName = "remove",
-        isPublic = true
-)
 public class Remove {
 
     private static final String CURRENT_DIR_PROPERTY_KEY = "user.dir";
 
-    public static Object remove(Strand strand, String path, boolean recursive) {
+    public static Object remove(String path, boolean recursive) {
         File removeFile = Paths.get(path).toAbsolutePath().toFile();
         String wdBValue = FileUtils.getSystemProperty(CURRENT_DIR_PROPERTY_KEY);
         File wd = Paths.get(wdBValue).toAbsolutePath().toFile();

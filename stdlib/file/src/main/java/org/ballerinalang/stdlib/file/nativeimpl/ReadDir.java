@@ -18,13 +18,11 @@
 
 package org.ballerinalang.stdlib.file.nativeimpl;
 
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.stdlib.file.utils.FileConstants;
 import org.ballerinalang.stdlib.file.utils.FileUtils;
 
@@ -38,19 +36,13 @@ import java.util.stream.Stream;
 /**
  * Extern function ballerina.file:readDir.
  *
- * @since 0.995.0
+ * @since 1.1.0
  */
-@BallerinaFunction(
-        orgName = FileConstants.ORG_NAME,
-        packageName = FileConstants.PACKAGE_NAME,
-        functionName = "readDir",
-        isPublic = true
-)
 public class ReadDir {
 
     private static BType fileInfoType;
 
-    public static Object readDir(Strand strand, String path, long maxDepth) {
+    public static Object readDir(String path, long maxDepth) {
         File inputFile = Paths.get(path).toAbsolutePath().toFile();
 
         if (!inputFile.exists()) {
