@@ -504,7 +504,7 @@ public class SymbolEnter extends BLangNodeVisitor {
     public void visit(BLangXMLNS xmlnsNode) {
         String nsURI = (String) ((BLangLiteral) xmlnsNode.namespaceURI).value;
 
-        if (xmlnsNode.prefix.value != null && nsURI.isEmpty()) {
+        if (!nullOrEmpty(xmlnsNode.prefix.value) && nsURI.isEmpty()) {
             dlog.error(xmlnsNode.pos, DiagnosticCode.INVALID_NAMESPACE_DECLARATION, xmlnsNode.prefix);
         }
 
@@ -529,6 +529,10 @@ public class SymbolEnter extends BLangNodeVisitor {
         // Define it in the enclosing scope. Here we check for the owner equality,
         // to support overriding of namespace declarations defined at package level.
         defineSymbol(xmlnsNode.prefix.pos, xmlnsSymbol);
+    }
+
+    private boolean nullOrEmpty(String value) {
+        return value == null || value.isEmpty();
     }
 
     public void visit(BLangXMLNSStatement xmlnsStmtNode) {
@@ -1619,7 +1623,8 @@ public class SymbolEnter extends BLangNodeVisitor {
     private BLangSimpleVariable createReceiver(DiagnosticPos pos, BLangIdentifier name) {
         BLangSimpleVariable receiver = (BLangSimpleVariable) TreeBuilder.createSimpleVariableNode();
         receiver.pos = pos;
-        IdentifierNode identifier = createIdentifier(Names.SELF.getValue());
+        BLangIdentifier identifier = (BLangIdentifier) createIdentifier(Names.SELF.getValue());
+        identifier.pos = pos;
         receiver.setName(identifier);
         BLangUserDefinedType structTypeNode = (BLangUserDefinedType) TreeBuilder.createUserDefinedTypeNode();
         structTypeNode.pkgAlias = new BLangIdentifier();

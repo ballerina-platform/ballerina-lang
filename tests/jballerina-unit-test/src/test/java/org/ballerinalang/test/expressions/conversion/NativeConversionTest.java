@@ -238,9 +238,9 @@ public class NativeConversionTest {
         Assert.assertTrue(returns[0] instanceof BMap);
         BMap<String, BValue> personStruct = (BMap<String, BValue>) returns[0];
 
-        Assert.assertEquals(personStruct.stringValue(), "{name:\"Child\", parent:(), age:25, "
-                + "address:{\"city\":\"Colombo\", \"country\":\"SriLanka\"}, info:{\"status\":\"single\"}, a:\"any " 
-                + "value\", marks:[87, 94, 72], score:5.67, alive:true, children:()}");
+        Assert.assertEquals(personStruct.stringValue(), "{name:\"Child\", age:25, parent:(), " +
+                "info:{\"status\":\"single\"}, address:{\"city\":\"Colombo\", \"country\":\"SriLanka\"}, " +
+                "marks:[87, 94, 72], a:\"any value\", score:5.67, alive:true, children:()}");
     }
 
     @Test(description = "Test converting a map with missing field to a struct")
@@ -249,9 +249,9 @@ public class NativeConversionTest {
         Assert.assertTrue(returns[0] instanceof BMap);
         BMap<String, BValue> personStruct = (BMap<String, BValue>) returns[0];
 
-        Assert.assertEquals(personStruct.stringValue(), "{name:\"Child\", parent:(), age:25, a:\"any value\", "
-                + "address:{\"city\":\"Colombo\", \"country\":\"SriLanka\"}, " 
-                + "marks:[87, 94, 72], score:5.67, alive:true}");
+        Assert.assertEquals(personStruct.stringValue(), "{name:\"Child\", age:25, parent:(), " +
+                "address:{\"city\":\"Colombo\", \"country\":\"SriLanka\"}, marks:[87, 94, 72], " +
+                "a:\"any value\", score:5.67, alive:true}");
     }
 
     @Test(description = "Test converting a map with incompatible inner array to a struct",
@@ -281,9 +281,9 @@ public class NativeConversionTest {
     public void testJsonToStructWithMissingOptionalFields() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testJsonToStructWithMissingOptionalFields");
         Assert.assertTrue(returns[0] instanceof BMap);
-        Assert.assertEquals(returns[0].stringValue(), "{name:\"Child\", parent:(), age:25, "
-                + "address:{\"city\":\"Colombo\", \"country\":\"SriLanka\"}, info:{\"status\":\"single\"}, a:\"any "
-                + "value\", marks:[87, 94, 72], score:5.67, alive:true}");
+        Assert.assertEquals(returns[0].stringValue(), "{name:\"Child\", age:25, parent:(), " +
+                "info:{\"status\":\"single\"}, address:{\"city\":\"Colombo\", \"country\":\"SriLanka\"}, " +
+                "marks:[87, 94, 72], a:\"any value\", score:5.67, alive:true}");
     }
 
     @Test(description = "Test converting a incompatible JSON to a struct",

@@ -23,6 +23,7 @@ import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BMapType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.ObjectValue;
@@ -76,7 +77,7 @@ public class RetrieveSubscriptionParameters {
 
     @SuppressWarnings("unchecked")
     public static ArrayValue retrieveSubscriptionParameters(Strand strand, ObjectValue subscriberServiceEndpoint) {
-        ArrayValue subscriptionDetailArray = new ArrayValue(new BArrayType(new BMapType(BTypes.typeAny)));
+        ArrayValue subscriptionDetailArray = new ArrayValueImpl(new BArrayType(new BMapType(BTypes.typeAny)));
         ObjectValue serviceEndpoint = (ObjectValue) subscriberServiceEndpoint.get(WEBSUB_HTTP_ENDPOINT);
         WebSubServicesRegistry webSubServicesRegistry = ((WebSubServicesRegistry) serviceEndpoint.getNativeData(
                 WEBSUB_SERVICE_REGISTRY));

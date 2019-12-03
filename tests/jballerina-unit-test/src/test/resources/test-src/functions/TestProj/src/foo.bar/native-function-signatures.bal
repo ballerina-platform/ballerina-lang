@@ -1,5 +1,9 @@
 import ballerinax/java;
-public function mockedNativeFuncWithOptionalParams(int a, float b, string c = "John", int d = 5, string e = "Doe")
+
+handle h1 = java:fromString("John");
+handle h2 = java:fromString("Doe");
+
+public function mockedNativeFuncWithOptionalParams(int a, float b, handle c = h1, int d = 5, handle e = h2)
                                                     returns [int, float, string, int, string] = @java:Method {
     name: "mockedNativeFuncWithOptionalParams",
     class: "org.ballerinalang.test.functions.FunctionSignatureTest"

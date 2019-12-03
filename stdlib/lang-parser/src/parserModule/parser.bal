@@ -14,7 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/io;
 import ballerina/log;
 
 type Parser object {
@@ -49,7 +48,7 @@ type Parser object {
         self.parserBuffer = parserBuffer;
     }
 
-    public function parse() returns PackageNode {
+    public function parse() returns @tainted PackageNode {
         DefinitionNode?[] defList = [];
         //definition list position
         int pos = 0;
@@ -69,7 +68,7 @@ type Parser object {
         PackageNode pkNode = {
             nodeKind: PACKAGE_NODE,
             tokenList: [currToken],
-            definitionList: <DefinitionNode[]>(defList.freeze())
+            definitionList: <DefinitionNode[]>(defList.cloneReadOnly())
         };
         return pkNode;
     }
@@ -80,16 +79,16 @@ type Parser object {
     # + expectedToken - Token type.
     # + rule - Grammar rule to which the token should be parsed.
     # + return - Token.
-    function matchToken(int expectedToken, NodeKind rule) returns Token {
+    function matchToken(int expectedToken, NodeKind rule) returns @tainted Token {
         if (self.LAToken(1) == expectedToken) {
             Token currToken = self.parserBuffer.consumeToken();
             return currToken;
         } else {
             if (self.LAToken(1) == LEXER_ERROR_TOKEN) {
-                log:printError(self.LookaheadToken(1).lineNumber + ":" + self.LookaheadToken(1).startPos + ": expected " +
+                log:printError(self.LookaheadToken(1).lineNumber.toString() + ":" + self.LookaheadToken(1).startPos.toString() + ": expected " +
                     tokenNames[expectedToken] + ";found an invalid token '" + self.LookaheadToken(1).text + "'");
             } else {
-                log:printError(self.LookaheadToken(1).lineNumber + ":" + self.LookaheadToken(1).startPos + ": expected " +
+                log:printError(self.LookaheadToken(1).lineNumber.toString() + ":" + self.LookaheadToken(1).startPos.toString() + ": expected " +
                     tokenNames[expectedToken] + "; found '" + self.LookaheadToken(1).text + "'");
             }
             Token panicToken = self.panicRecovery(expectedToken, rule);
@@ -102,7 +101,7 @@ type Parser object {
     # 
     # + expectedToken - Token type of the expected token.
     # + return - Token.
-    function insertToken(int expectedToken) returns Token {
+    function insertToken(int expectedToken) returns @tainted Token {
         log:printError(tokenNames[expectedToken] + " inserted");
         return {
             tokenType: expectedToken,
@@ -119,9 +118,9 @@ type Parser object {
     # Mismatched token is consumed and added to the error token list.
     # 
     # + return - Token
-    function deleteToken() returns Token {
+    function deleteToken() returns @tainted Token {
         Token invalidToken = self.parserBuffer.consumeToken();
-        log:printError(invalidToken.lineNumber + ":" + invalidToken.startPos + ": invalid token '" +
+        log:printError(invalidToken.lineNumber.toString() + ":" + invalidToken.startPos.toString() + ": invalid token '" +
             invalidToken.text + "'");
         self.errorTokens[self.errorCount] = invalidToken;
         self.errorCount += 1;
@@ -136,7 +135,7 @@ type Parser object {
     # + expectedToken - Token type of the expected token.
     # + rule - Grammar rule which the token should be parsed.
     # + return - Token
-    function panicRecovery(int expectedToken, NodeKind rule) returns Token {
+    function panicRecovery(int expectedToken, NodeKind rule) returns @tainted Token {
         boolean panicMode = true;
         self.errorRecovered = false;
 
@@ -268,7 +267,7 @@ type Parser object {
     # 
     # + currToken - Current token.
     # + return - FunctionNode
-    function parseFunction(Token currToken) returns FunctionNode {
+    function parseFunction(Token currToken) returns @tainted FunctionNode {
         Token functionToken = currToken;
         //parse function signature
         FunctionUnitSignatureNode signatureNode = self.parseCallableUnitSignature();
@@ -288,7 +287,7 @@ type Parser object {
     # | IDENTIFIER ()
     # 
     # + return - FunctionUnitSignatureNode
-    function parseCallableUnitSignature() returns FunctionUnitSignatureNode {
+    function parseCallableUnitSignature() returns @tainted FunctionUnitSignatureNode {
         Token identifier = self.matchToken(IDENTIFIER, FN_SIGNATURE_NODE);
         //if the identifier is mismatched, then panic recovery method is executed and
         // tokens upto lbrace will be consumed.
@@ -367,7 +366,7 @@ type Parser object {
     # error recovery method: token insertion.
     # 
     # + return - FunctionBodyNode
-    function parseCallableUnitBody() returns FunctionBodyNode {
+    function parseCallableUnitBody() returns @tainted FunctionBodyNode {
         StatementNode?[] stsList = [];
         //position of statements in stsList
         int pos = 0;
@@ -390,7 +389,7 @@ type Parser object {
             ErrorBlockNode erNode = {
                 nodeKind: ERROR_BLOCK_NODE,
                 tokenList: [lBrace, rBrace],
-                statementList: <StatementNode[]>(stsList.freeze())
+                statementList: <StatementNode[]>(stsList.cloneReadOnly())
             };
             self.resetErrorFlag();
             return erNode;
@@ -398,7 +397,7 @@ type Parser object {
             BlockNode blNode = {
                 nodeKind: BLOCK_NODE,
                 tokenList: [lBrace, rBrace],
-                statementList: <StatementNode[]>(stsList.freeze())
+                statementList: <StatementNode[]>(stsList.cloneReadOnly())
             };
             return blNode;
         }
@@ -409,7 +408,7 @@ type Parser object {
     # |<continue statement>
     # 
     # + return - StatementNode?
-    function parseStatement() returns StatementNode {
+    function parseStatement() returns @tainted StatementNode {
         //check if the LA token belongs to any of the statement type or else return an error node
         if (self.LAToken(1) == INT) {
             VariableDefStNode vDefNode = self.parseVariableDefinitionStatementNode();
@@ -418,7 +417,7 @@ type Parser object {
             ContinueStNode continueNode = self.parseContinueStatementNode();
             return continueNode;
         } else {
-            log:printError(self.LookaheadToken(1).lineNumber + ":" + self.LookaheadToken(1).startPos +
+            log:printError(self.LookaheadToken(1).lineNumber.toString() + ":" + self.LookaheadToken(1).startPos.toString() +
                 ": no viable statement type found for token: '" + self.LookaheadToken(1).text + "'");
             Token panicToken = self.panicRecovery(INT, STATEMENT_NODE);
 
@@ -436,7 +435,7 @@ type Parser object {
     # | <valeuTypeName>  IDENTIFIER ASSIGN <expression> SEMICOLON // int a  = b + 8;
     # 
     # + return - VariableDefinitionStatementNode
-    function parseVariableDefinitionStatementNode() returns VariableDefStNode {
+    function parseVariableDefinitionStatementNode() returns @tainted VariableDefStNode {
         //value type token
         Token valTypeToken = self.parseValueTypeName();
         //it is not necessary to check the validity of the value type since,
@@ -519,7 +518,7 @@ type Parser object {
     # + valTypeToken - value type Token
     # + valueKind1 - value kind of the valueType token.
     # + return - VariableDefStNode
-    function parseVarDefExpr(VariableReferenceNode vRefIdNode, Token valTypeToken, ValueKind valueKind1) returns VariableDefStNode {
+    function parseVarDefExpr(VariableReferenceNode vRefIdNode, Token valTypeToken, ValueKind valueKind1) returns @tainted VariableDefStNode {
         //token insertion if token assign is mismatched
         Token assign = self.matchToken(ASSIGN, VAR_DEF_STATEMENT_NODE);
         self.errorRecovered = true;
@@ -527,7 +526,7 @@ type Parser object {
         //if no semicolon found in the end of the expr,
         //then errorRecovered will set to false within the expressionBuilder method itself
         if (exprNode is ()) {
-            log:printError(assign.lineNumber + ":" + assign.endPos +
+            log:printError(assign.lineNumber.toString() + ":" + assign.endPos.toString() +
                 " : no valid expression found in variable definition statement.");
             self.errorRecovered = false;
         }
@@ -592,7 +591,7 @@ type Parser object {
     # |CONTINUE SEMICOLON
     # 
     # + return - ContinueStatementNode
-    function parseContinueStatementNode() returns ContinueStNode {
+    function parseContinueStatementNode() returns @tainted ContinueStNode {
         Token valTypeToken = self.parseValueTypeName();
         ValueKind valueKind1 = self.matchValueType(valTypeToken);
 
@@ -632,7 +631,7 @@ type Parser object {
     # 
     # + statementType - type of the statement, in which the expression is included.
     # + return - ExpressionNode
-    function expressionBuilder(string statementType) returns ExpressionNode {
+    function expressionBuilder(string statementType) returns @tainted ExpressionNode {
         //position count of the tuple list
         self.tupleListPos = 0;
 
@@ -666,7 +665,7 @@ type Parser object {
             Token operator = self.operatorStack.pop();
 
             if (operator.tokenType == LPAREN) {
-                log:printError(operator.lineNumber + ":" + operator.startPos + " : invalid tuple literal, missing ')'");
+                log:printError(operator.lineNumber.toString() + ":" + operator.startPos.toString() + " : invalid tuple literal, missing ')'");
                 self.invalidOccurence = true;
 
                 commaList[self.separatorCount] = operator;
@@ -680,7 +679,7 @@ type Parser object {
                 TupleLiteralNode tupleLNode = {
                     nodeKind: TUPLE_LITERAL_NODE,
                     tokenList: commaList,
-                    tupleExprList:<ExpressionNode[]>(tupleList.freeze())
+                    tupleExprList:<ExpressionNode[]>(tupleList.cloneReadOnly())
                 };
                 self.expStack.push(tupleLNode);
                 self.tupleListPos = 0;
@@ -692,7 +691,7 @@ type Parser object {
 
                 if (self.expectOperand == true) {
                     self.expectOperand = false;
-                    log:printError(operator.lineNumber + ":" + operator.startPos + " : missing unary expression");
+                    log:printError(operator.lineNumber.toString() + ":" + operator.startPos.toString() + " : missing unary expression");
                     self.invalidOccurence = true;
                     UnaryExpressionNode uExpression = {
                         nodeKind: UNARY_EXPRESSION_NODE,
@@ -714,7 +713,7 @@ type Parser object {
             }
             else if (operator.tokenType == COMMA) {
                 if (self.expectOperand == true) {
-                    log:printError(operator.lineNumber + ":" + operator.startPos + " : missing expression after comma");
+                    log:printError(operator.lineNumber.toString() + ":" + operator.startPos.toString() + " : missing expression after comma");
                     //token deletion without calling the method,
                     //as the comma token is already consumed and pushed to the opr stack
                     self.errorTokens[self.errorCount] = operator;
@@ -736,7 +735,7 @@ type Parser object {
                 ExpressionNode expr1 = self.expStack.pop();
                 if (expr1 is ()) {
                     self.errorRecovered = false;
-                    log:printError(operator.lineNumber + ":" + operator.startPos +
+                    log:printError(operator.lineNumber.toString() + ":" + operator.startPos.toString() +
                         " : invalid binary expression, binary RHS expression not found");
                     BinaryExpressionNode binaryExpression = {
                         nodeKind: BINARY_EXP_NODE,
@@ -761,7 +760,7 @@ type Parser object {
         //here only comma separated expression is found, missing lParen and rParen
         if (self.tupleListPos > 0) {
             Token lastOperator = commaList[commaList.length() - 1];
-            log:printError(lastOperator.lineNumber + ":" + lastOperator.startPos + " : invalid tuple literal expression");
+            log:printError(lastOperator.lineNumber.toString() + ":" + lastOperator.startPos.toString() + " : invalid tuple literal expression");
             ExpressionNode commaExpr = self.expStack.pop();
             tupleList[self.tupleListPos] = commaExpr;
             self.tupleListPos += 1;
@@ -769,7 +768,7 @@ type Parser object {
             TupleLiteralNode tupleLNode = {
                 nodeKind: TUPLE_LITERAL_NODE,
                 tokenList: commaList,
-                tupleExprList:<ExpressionNode[]>(tupleList.freeze())
+                tupleExprList:<ExpressionNode[]>(tupleList.cloneReadOnly())
             };
             self.expStack.push(tupleLNode);
         }
@@ -963,7 +962,7 @@ type Parser object {
                 Token operator = self.operatorStack.pop();
                 if (operator.tokenType == PARSER_ERROR_TOKEN) {
                     //considering only possible option to return parser error token would be a missing lparen
-                    log:printError(operator.lineNumber + ":" + operator.startPos +
+                    log:printError(operator.lineNumber.toString() + ":" + operator.startPos.toString() +
                         " : invalid tuple literal, missing '('");
                     Token insertlParen = self.insertToken(LPAREN);
                     insertlParen.text = "(";
@@ -972,7 +971,7 @@ type Parser object {
                     break;
                 } else if (operator.tokenType == COMMA) {
                     if (self.expectOperand == true) {
-                        log:printError(operator.lineNumber + ":" + operator.startPos +
+                        log:printError(operator.lineNumber.toString() + ":" + operator.startPos.toString() +
                             " : missing expression after comma");
                         //token deletion without calling the method,
                         // because the comma token is already consumed and pushed to the opr stack
@@ -994,7 +993,7 @@ type Parser object {
                     OperatorKind oprKind = self.matchOperatorType(operator);
                     if (self.expectOperand == true) {
                         self.expectOperand = false;
-                        log:printError(operator.lineNumber + ":" + operator.startPos + " : missing unary expression");
+                        log:printError(operator.lineNumber.toString() + ":" + operator.startPos.toString() + " : missing unary expression");
 
                         self.invalidOccurence = true;
                         UnaryExpressionNode uExpression = {
@@ -1016,7 +1015,7 @@ type Parser object {
                     }
                 } else {
                     if (self.expectOperand == true) {
-                        log:printError(operator.lineNumber + ":" + operator.startPos +
+                        log:printError(operator.lineNumber.toString() + ":" + operator.startPos.toString() +
                             " : invalid binary expression, binary RHS expression not found");
                         self.invalidOccurence = true;
                         OperatorKind opKind = self.matchOperatorType(operator);
@@ -1067,7 +1066,7 @@ type Parser object {
                 TupleLiteralNode tupleLNode = {
                     nodeKind: TUPLE_LITERAL_NODE,
                     tokenList: commaList,
-                    tupleExprList:<ExpressionNode[]>(tupleList.freeze())
+                    tupleExprList:<ExpressionNode[]>(tupleList.cloneReadOnly())
                 };
                 self.expStack.push(tupleLNode);
                 self.tupleListPos = 0;
@@ -1085,7 +1084,7 @@ type Parser object {
     # | STRING
     # 
     # + return - Token
-    function parseValueTypeName() returns Token {
+    function parseValueTypeName() returns @tainted Token {
         if (self.LAToken(1) == INT) {
             Token intType = self.matchToken(INT, STATEMENT_NODE);
             return intType;

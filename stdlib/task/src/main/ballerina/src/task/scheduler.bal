@@ -31,13 +31,13 @@ public type Scheduler object {
         string message = "Failed to attach the service to the scheduler";
         if (attachment != ()) {
             map<any> attachments = { attachment: attachment };
-            var result = self.taskListener.register(serviceToAttach, attachments);
+            var result = attachExternal(self.taskListener, serviceToAttach, attachments);
             if (result is ListenerError) {
                 SchedulerError err = error(SCHEDULER_ERROR_REASON, message = message, cause = result);
                 return err;
             }
         } else {
-            var result = self.taskListener.register(serviceToAttach, {});
+            var result = attachExternal(self.taskListener, serviceToAttach, {});
             if (result is ListenerError) {
                 SchedulerError err = error(SCHEDULER_ERROR_REASON, message = message, cause = result);
                 return err;
@@ -50,7 +50,7 @@ public type Scheduler object {
     # + attachedService - ballerina `service` object which needs to be detached from the task.
     # + return - Returns `task:SchedulerError` if the process failed due to any reason, nil otherwise.
     public function detach(service attachedService) returns SchedulerError? {
-        var result = self.taskListener.detach(attachedService);
+        var result = detachExternal(self.taskListener, attachedService);
         if (result is ListenerError) {
             string message = "Scheduler failed to detach the service";
             SchedulerError err = error(SCHEDULER_ERROR_REASON, message = message, cause = result);
@@ -62,7 +62,7 @@ public type Scheduler object {
     #
     # + return - Returns `task:SchedulerError` if the process failed due to any reason, nil otherwise.
     public function start() returns SchedulerError? {
-        var result = self.taskListener.start();
+        var result = startExternal(self.taskListener);
         if (result is ListenerError) {
             string message = "Scheduler failed to start";
             SchedulerError err = error(SCHEDULER_ERROR_REASON, message = message, cause = result);
@@ -74,7 +74,7 @@ public type Scheduler object {
     #
     # + return - Returns `task:SchedulerError` if the process failed due to any reason, nil otherwise.
     public function stop() returns SchedulerError? {
-        var result = self.taskListener.stop();
+        var result = stopExternal(self.taskListener);
         if (result is ListenerError) {
             string message = "Scheduler failed to stop";
             SchedulerError err = error(SCHEDULER_ERROR_REASON, message = message, cause = result);
@@ -86,7 +86,7 @@ public type Scheduler object {
     #
     # + return - Returns `task:SchedulerError` if an error is occurred while resuming, nil Otherwise.
     public function pause() returns SchedulerError? {
-        var result = self.taskListener.pause();
+        var result = pauseExternal(self.taskListener);
         if (result is ListenerError) {
             string message = "Scheduler failed to pause";
             SchedulerError err = error(SCHEDULER_ERROR_REASON, message = message, cause = result);
@@ -98,7 +98,7 @@ public type Scheduler object {
     #
     # + return - Returns `task:SchedulerError` when an error occurred while pausing, nil Otherwise.
     public function resume() returns SchedulerError? {
-        var result = self.taskListener.resume();
+        var result = resumeExternal(self.taskListener);
         if (result is ListenerError) {
             string message = "Scheduler failed to resume";
             SchedulerError err = error(SCHEDULER_ERROR_REASON, message = message, cause = result);
@@ -109,7 +109,7 @@ public type Scheduler object {
     # Checks whether the task listener is started or not.
     #
     # + return - Returns `true` if the Scheduler is already started, `false` if the Scheduler is
-    #               not started yet or stopped calling the `stop()` function.
+    #               not started yet or stopped calling the `Scheduler.stop()` function.
     public function isStarted() returns boolean {
         return self.taskListener.isStarted();
     }

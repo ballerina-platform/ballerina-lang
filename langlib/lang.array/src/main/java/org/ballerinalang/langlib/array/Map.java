@@ -24,6 +24,7 @@ import org.ballerinalang.jvm.types.BFunctionType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.FPValue;
 import org.ballerinalang.jvm.values.utils.GetFunction;
 import org.ballerinalang.model.types.TypeKind;
@@ -50,7 +51,7 @@ public class Map {
     public static ArrayValue map(Strand strand, ArrayValue arr, FPValue<Object, Object> func) {
         BType elemType = ((BFunctionType) func.getType()).retType;
         BType retArrType = new BArrayType(elemType);
-        ArrayValue retArr = new ArrayValue(retArrType);
+        ArrayValue retArr = new ArrayValueImpl((BArrayType) retArrType);
         int size = arr.size();
         GetFunction getFn;
         int elemTypeTag;

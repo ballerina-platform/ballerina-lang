@@ -57,6 +57,15 @@ dependencies {
     baloImplementation project(path: ':ballerina-stringutils', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-java', configuration: 'baloImplementation')
 
+    interopImports project(':ballerina-config-api')
+    interopImports project(':ballerina-io')
+    interopImports project(':ballerina-math')
+    interopImports project(':ballerina-system')
+    interopImports project(':ballerina-task')
+    interopImports project(':ballerina-encoding')
+    interopImports project(':ballerina-time')
+    interopImports project(':ballerina-crypto')
+
     // transitive
     baloImplementation project(path: ':ballerina-math', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-crypto', configuration: 'baloImplementation')
@@ -72,8 +81,6 @@ dependencies {
     testCompile project(':ballerina-core')
     testCompile 'org.slf4j:slf4j-simple'
     testCompile 'org.testng:testng'
-
-    interopImports project(':ballerina-encoding')
 }
 
 createBalo {

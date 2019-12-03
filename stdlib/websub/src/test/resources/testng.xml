@@ -25,9 +25,9 @@
         <classes>
             <class name="org.ballerinalang.net.websub.WebSubCompilationTest"/>
             <class name="org.ballerinalang.net.websub.WebSubDiscoveryResponseParserTest"/>
-            <class name="org.ballerinalang.net.websub.WebSubHubStartTest"/>
+            <!--<class name="org.ballerinalang.net.websub.WebSubHubStartTest"/>-->
             <class name="org.ballerinalang.net.websub.WebSubSpecificSubscriberValidationTest"/>
-            <class name="org.ballerinalang.net.websub.WebSubSubscriberStartTest"/>
+            <!--<class name="org.ballerinalang.net.websub.WebSubSubscriberStartTest"/>-->
         </classes>
     </test>
 </suite>

@@ -18,10 +18,8 @@
 
 package org.ballerinalang.stdlib.crypto.nativeimpl;
 
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.stdlib.crypto.Constants;
 import org.ballerinalang.stdlib.crypto.CryptoUtils;
 
@@ -34,10 +32,9 @@ import java.security.PublicKey;
  *
  * @since 0.990.4
  */
-@BallerinaFunction(orgName = "ballerina", packageName = "crypto", functionName = "encryptRsaEcb", isPublic = true)
 public class EncryptRsaEcb {
 
-    public static Object encryptRsaEcb(Strand strand, ArrayValue inputValue, Object keyUnion, Object padding) {
+    public static Object encryptRsaEcb(ArrayValue inputValue, Object keyUnion, Object padding) {
         byte[] input = inputValue.getBytes();
         // this is a union, but both a record types, so we can safely cast
         // TODO: unify union types when same type is duplicated eg:record:record.

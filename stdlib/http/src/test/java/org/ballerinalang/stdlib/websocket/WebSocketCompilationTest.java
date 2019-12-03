@@ -171,6 +171,14 @@ public class WebSocketCompilationTest {
                 "of 'error?' containing '()'", 21, 80);
     }
 
+    @Test(description = "Service path cannot support path params")
+    public void testServicePathParams() {
+        CompileResult compileResult = BCompileUtil.compileOnly(TEST_PATH + "path_param_service.bal");
+
+        assertExpectedDiagnosticsLength(compileResult, 1);
+        BAssertUtil.validateError(compileResult, 0, "Path params are not supported in service path", 23, 11);
+    }
+
     private void assertExpectedDiagnosticsLength(CompileResult compileResult, int expectedLength) {
         Assert.assertEquals(compileResult.getDiagnostics().length, expectedLength);
     }

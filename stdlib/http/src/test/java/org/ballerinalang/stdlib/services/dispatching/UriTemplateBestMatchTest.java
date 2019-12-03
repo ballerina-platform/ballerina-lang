@@ -694,4 +694,28 @@ public class UriTemplateBestMatchTest {
                 , "Request dispatched to wrong resource");
 
     }
+
+    @Test(description = "Test best match with encoded path params.")
+    public void testEncodedPathParams() {
+        String path = "/uri/go/1%2F1/ballerina/1%2F3";
+        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "GET");
+        HttpCarbonMessage response = Services.invoke(TEST_EP_PORT, cMsg);
+
+        Assert.assertNotNull(response, "Response message not found.");
+        BValue bJson = JsonParser.parse(new HttpMessageDataStreamer(response).getInputStream());
+
+        Assert.assertEquals(((BMap<String, BValue>) bJson).get("aaa").stringValue(), "1/1", "wrong param value");
+        Assert.assertEquals(((BMap<String, BValue>) bJson).get("bbb").stringValue(), "ballerina", "wrong param value");
+        Assert.assertEquals(((BMap<String, BValue>) bJson).get("ccc").stringValue(), "1/3", "wrong param value");
+
+        path = "/uri/go/123/456";
+        cMsg = MessageUtils.generateHTTPMessage(path, "GET");
+        response = Services.invoke(TEST_EP_PORT, cMsg);
+
+        Assert.assertNotNull(response, "Response message not found");
+        bJson = JsonParser.parse(new HttpMessageDataStreamer(response).getInputStream());
+
+        Assert.assertEquals(((BMap<String, BValue>) bJson).get("xxx").stringValue(), "123", "wrong param value");
+        Assert.assertEquals(((BMap<String, BValue>) bJson).get("yyy").stringValue(), "456", "wrong param value");
+    }
 }

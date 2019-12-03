@@ -22,12 +22,9 @@ public type {{serviceName}}{{#equals stubType "blocking"}}Blocking{{/equals}}Cli
         grpc:Headers resHeaders = new;
         {{#if outputType}}anydata result = ();
         [result, resHeaders] = payload;
-        {{#not_equal outputType "string"}}var value = typedesc<{{outputType}}>.constructFrom(result);
-        if (value is {{outputType}}) {
-            return [value, resHeaders];
-        } else {
-            return grpc:prepareError(grpc:INTERNAL_ERROR, "Error while constructing the message", value);
-        }{{/not_equal}}{{#equals outputType "string"}}return [result.toString(), resHeaders];{{/equals}}{{else}}[_, resHeaders] = payload;
+        {{#not_equal outputType "string"}}
+        return [<{{outputType}}>result, resHeaders];
+        {{/not_equal}}{{#equals outputType "string"}}return [result.toString(), resHeaders];{{/equals}}{{else}}[_, resHeaders] = payload;
         return resHeaders;{{/if}}
     }
 {{/blockingFunctions}}{{#nonBlockingFunctions}}

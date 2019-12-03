@@ -60,9 +60,6 @@ public class DispatcherUtil {
         if (cachedMethods.isEmpty()) {
             return cachedMethods;
         }
-        if (cachedMethods.contains(HttpConstants.HTTP_METHOD_GET)) {
-            cachedMethods.add(HttpConstants.HTTP_METHOD_HEAD);
-        }
         cachedMethods.add(HttpConstants.HTTP_METHOD_OPTIONS);
         cachedMethods = cachedMethods.stream().distinct().collect(Collectors.toList());
         return cachedMethods;

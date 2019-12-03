@@ -20,6 +20,7 @@ package org.ballerinalang.net.http.nativeimpl.promise;
 
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -46,6 +47,6 @@ public class GetHeaderNames {
         Http2PushPromise http2PushPromise =
                 HttpUtil.getPushPromise(pushPromiseObj, HttpUtil.createHttpPushPromise(pushPromiseObj));
         Set<String> httpHeaderNames = http2PushPromise.getHttpRequest().headers().names();
-        return new ArrayValue(httpHeaderNames.toArray(new String[httpHeaderNames.size()]));
+        return new ArrayValueImpl(httpHeaderNames.toArray(new String[httpHeaderNames.size()]));
     }
 }

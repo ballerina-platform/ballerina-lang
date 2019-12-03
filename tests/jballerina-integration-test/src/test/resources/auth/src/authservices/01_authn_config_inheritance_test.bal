@@ -33,6 +33,7 @@ listener http:Listener listener01 = new(20000, {
     }
 });
 
+// Service with auth enabled - true
 @http:ServiceConfig {
     basePath: "/echo1",
     auth: {
@@ -41,6 +42,7 @@ listener http:Listener listener01 = new(20000, {
 }
 service echo01_1 on listener01 {
 
+    // Resource with auth enabled - true
     @http:ResourceConfig {
         methods: ["GET"],
         auth: {
@@ -51,6 +53,7 @@ service echo01_1 on listener01 {
         checkpanic caller->respond();
     }
 
+    // Resource with auth enabled - false
     @http:ResourceConfig {
         methods: ["GET"],
         auth: {
@@ -60,8 +63,17 @@ service echo01_1 on listener01 {
     resource function test2(http:Caller caller, http:Request req) {
         checkpanic caller->respond();
     }
+
+    // Resource with auth enabled - not given
+    @http:ResourceConfig {
+        methods: ["GET"]
+    }
+    resource function test3(http:Caller caller, http:Request req) {
+        checkpanic caller->respond();
+    }
 }
 
+// Service with auth enabled - false
 @http:ServiceConfig {
     basePath: "/echo2",
     auth: {
@@ -70,6 +82,7 @@ service echo01_1 on listener01 {
 }
 service echo01_2 on listener01 {
 
+    // Resource with auth enabled - true
     @http:ResourceConfig {
         methods: ["GET"],
         auth: {
@@ -80,6 +93,7 @@ service echo01_2 on listener01 {
         checkpanic caller->respond();
     }
 
+    // Resource with auth enabled - false
     @http:ResourceConfig {
         methods: ["GET"],
         auth: {
@@ -87,6 +101,51 @@ service echo01_2 on listener01 {
         }
     }
     resource function test2(http:Caller caller, http:Request req) {
+        checkpanic caller->respond();
+    }
+
+    // Resource with auth enabled - not given
+    @http:ResourceConfig {
+        methods: ["GET"]
+    }
+    resource function test3(http:Caller caller, http:Request req) {
+        checkpanic caller->respond();
+    }
+}
+
+// Service with auth enabled - not given
+@http:ServiceConfig {
+    basePath: "/echo3"
+}
+service echo01_3 on listener01 {
+
+    // Resource with auth enabled - true
+    @http:ResourceConfig {
+        methods: ["GET"],
+        auth: {
+            enabled: true
+        }
+    }
+    resource function test1(http:Caller caller, http:Request req) {
+        checkpanic caller->respond();
+    }
+
+    // Resource with auth enabled - false
+    @http:ResourceConfig {
+        methods: ["GET"],
+        auth: {
+            enabled: false
+        }
+    }
+    resource function test2(http:Caller caller, http:Request req) {
+        checkpanic caller->respond();
+    }
+
+    // Resource with auth enabled - not given
+    @http:ResourceConfig {
+        methods: ["GET"]
+    }
+    resource function test3(http:Caller caller, http:Request req) {
         checkpanic caller->respond();
     }
 }

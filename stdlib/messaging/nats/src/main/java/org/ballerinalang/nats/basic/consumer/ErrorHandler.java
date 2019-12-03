@@ -18,10 +18,9 @@
 
 package org.ballerinalang.nats.basic.consumer;
 
-import org.ballerinalang.jvm.scheduling.Scheduler;
+import org.ballerinalang.jvm.BRuntime;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.jvm.values.connector.Executor;
 import org.ballerinalang.nats.Constants;
 import org.ballerinalang.nats.Utils;
 
@@ -41,19 +40,16 @@ public class ErrorHandler {
      * Dispatch errors to the onError resource, if the onError resource is available.
      *
      * @param serviceObject ObjectValue service
-     * @param scheduler     JBallerina strand scheduler
      * @param msgObj        Message object
      * @param e             ErrorValue
      */
-    public static void dispatchError(ObjectValue serviceObject, Scheduler scheduler,
-                                     ObjectValue msgObj, ErrorValue e) {
+    static void dispatchError(ObjectValue serviceObject, ObjectValue msgObj, ErrorValue e, BRuntime runtime) {
         boolean onErrorResourcePresent = Arrays.stream(serviceObject.getType().getAttachedFunctions())
                 .anyMatch(resource -> resource.getName().equals(ON_ERROR_RESOURCE));
         if (onErrorResourcePresent) {
             CountDownLatch countDownLatch = new CountDownLatch(1);
-            Executor.submit(scheduler, serviceObject, ON_ERROR_RESOURCE,
-                    new DefaultMessageHandler.ResponseCallback(countDownLatch),
-                    null, msgObj, true, e, true);
+            runtime.invokeMethodAsync(serviceObject, ON_ERROR_RESOURCE,
+                    new DefaultMessageHandler.ResponseCallback(countDownLatch), msgObj, true, e, true);
             try {
                 countDownLatch.await();
             } catch (InterruptedException ex) {

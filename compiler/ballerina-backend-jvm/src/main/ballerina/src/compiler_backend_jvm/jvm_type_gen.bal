@@ -853,10 +853,14 @@ function loadType(jvm:MethodVisitor mv, bir:BType? bType) {
     } else if (bType is bir:BFiniteType) {
         loadFiniteType(mv, bType);
         return;
-    } else {
+    } else if (bType is bir:BFutureType) {
         loadFutureType(mv, bType);
         return;
+    } else {
+    	// TODO Fix properly - rajith
+        return;
     }
+
 
     mv.visitFieldInsn(GETSTATIC, BTYPES, typeFieldName, io:sprintf("L%s;", BTYPE));
 }

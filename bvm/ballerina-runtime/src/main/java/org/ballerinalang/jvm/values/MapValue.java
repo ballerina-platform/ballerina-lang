@@ -17,7 +17,7 @@
  */
 package org.ballerinalang.jvm.values;
 
-import java.util.Map;
+import org.ballerinalang.jvm.values.api.BMap;
 
 /**
  * <p>
@@ -32,7 +32,7 @@ import java.util.Map;
  * @param <V> the type of mapped values
  * @since 0.995.0
  */
-public interface MapValue<K, V> extends RefValue, CollectionValue, Map<K, V> {
+public interface MapValue<K, V> extends RefValue, CollectionValue, BMap<K, V> {
 
     Long getIntValue(String key);
 
@@ -50,13 +50,7 @@ public interface MapValue<K, V> extends RefValue, CollectionValue, Map<K, V> {
 
     long getDefaultableIntValue(String key);
 
-    V getOrThrow(Object key);
-
-    V fillAndGet(Object key);
-
     Object merge(MapValue v2, boolean checkMergeability);
-
-    K[] getKeys();
 
     default int size() {
         return -1;

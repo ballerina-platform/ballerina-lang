@@ -18,10 +18,8 @@
 
 package org.ballerinalang.stdlib.crypto.nativeimpl;
 
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.stdlib.crypto.Constants;
 import org.ballerinalang.stdlib.crypto.CryptoUtils;
 
@@ -32,10 +30,9 @@ import java.security.PublicKey;
  *
  * @since 0.990.4
  */
-@BallerinaFunction(orgName = "ballerina", packageName = "crypto", functionName = "verifyRsaSha1Signature")
 public class VerifyRsaSha1Signature {
 
-    public static Object verifyRsaSha1Signature(Strand strand, ArrayValue dataValue, ArrayValue signatureValue,
+    public static Object verifyRsaSha1Signature(ArrayValue dataValue, ArrayValue signatureValue,
                                                 MapValue<?, ?> publicKey) {
         byte[] data = dataValue.getBytes();
         byte[] signature = signatureValue.getBytes();

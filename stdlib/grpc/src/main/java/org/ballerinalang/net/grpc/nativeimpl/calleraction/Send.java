@@ -18,6 +18,8 @@ package org.ballerinalang.net.grpc.nativeimpl.calleraction;
 import com.google.protobuf.Descriptors;
 import io.netty.handler.codec.http.HttpHeaders;
 import org.ballerinalang.jvm.TypeChecker;
+import org.ballerinalang.jvm.observability.ObserveUtils;
+import org.ballerinalang.jvm.observability.ObserverContext;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.values.ObjectValue;
@@ -33,11 +35,14 @@ import org.ballerinalang.net.grpc.exception.StatusRuntimeException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Optional;
+
 import static org.ballerinalang.net.grpc.GrpcConstants.CALLER;
 import static org.ballerinalang.net.grpc.GrpcConstants.MESSAGE_HEADERS;
 import static org.ballerinalang.net.grpc.GrpcConstants.ORG_NAME;
 import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_PACKAGE_GRPC;
 import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_STRUCT_PACKAGE_GRPC;
+import static org.ballerinalang.net.grpc.GrpcConstants.TAG_KEY_GRPC_MESSAGE_CONTENT;
 
 /**
  * Extern function to respond the caller.
@@ -52,6 +57,7 @@ import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_STRUCT_PACKAGE_G
                 structPackage = PROTOCOL_STRUCT_PACKAGE_GRPC),
         isPublic = true
 )
+
 public class Send {
     private static final Logger LOG = LoggerFactory.getLogger(Send.class);
 
@@ -60,6 +66,7 @@ public class Send {
         StreamObserver responseObserver = MessageUtils.getResponseObserver(endpointClient);
         Descriptors.Descriptor outputType = (Descriptors.Descriptor) endpointClient.getNativeData(GrpcConstants
                 .RESPONSE_MESSAGE_DEFINITION);
+        Optional<ObserverContext> observerContext = ObserveUtils.getObserverContextOfCurrentFrame(strand);
 
         if (responseObserver == null) {
             return MessageUtils.getConnectorError(new StatusRuntimeException(Status
@@ -79,8 +86,12 @@ public class Send {
                     }
                     if (headers != null) {
                         responseMessage.setHeaders(headers);
+                        headers.entries().forEach(
+                                x -> observerContext.ifPresent(ctx -> ctx.addTag(x.getKey(), x.getValue())));
                     }
                     responseObserver.onNext(responseMessage);
+                    observerContext.ifPresent(ctx -> ctx.addTag(TAG_KEY_GRPC_MESSAGE_CONTENT,
+                            responseValue.toString()));
                 }
             } catch (Exception e) {
                 LOG.error("Error while sending client response.", e);

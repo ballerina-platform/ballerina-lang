@@ -215,7 +215,7 @@ public class MultipartEncoderTest {
         }
     }
 
-    @Test
+    @Test(enabled = false)
     public void testBase64EncodeByteChannel() {
         String expectedValue = "SGVsbG8gQmFsbGVyaW5h";
         ObjectValue byteChannelStruct = MultipartUtils.getByteChannelStruct();

@@ -44,8 +44,8 @@ public type RedirectClient client object {
         self.httpClient = httpClient;
     }
 
-    # If the received response for the `get()` remote function is redirect eligible, redirect will be performed automatically
-    # by this `get()` function.
+    # If the received response for the `RedirectClient.get()` remote function is redirect eligible, redirect will be
+    # performed automatically by this `RedirectClient.get()` function.
     #
     # + path - Resource path
     # + message - An optional HTTP outbound request message or any payload of type `string`, `xml`, `json`,
@@ -60,8 +60,8 @@ public type RedirectClient client object {
         }
     }
 
-    # If the received response for the `post()` remote function is redirect eligible, redirect will be performed automatically
-    # by this `post()` function.
+    # If the received response for the `RedirectClient.post()` remote function is redirect eligible, redirect will
+    # be performed automaticallyby this `RedirectClient.post()` function.
     #
     # + path - Resource path
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
@@ -76,8 +76,8 @@ public type RedirectClient client object {
         }
     }
 
-    # If the received response for the `head()` remote function is redirect eligible, redirect will be performed automatically
-    # by this `head()` function.
+    # If the received response for the `RedirectClient.head()` remote function is redirect eligible, redirect will be
+    # performed automatically by this `RedirectClient.head()` function.
     #
     # + path - Resource path
     # + message - An optional HTTP outbound request message or or any payload of type `string`, `xml`, `json`,
@@ -92,8 +92,8 @@ public type RedirectClient client object {
         }
     }
 
-    # If the received response for the `put()` remote function is redirect eligible, redirect will be performed automatically
-    # by this `put()` function.
+    # If the received response for the `RedirectClient.put()` remote function is redirect eligible, redirect will be
+    # performed automatically by this `RedirectClient.put()` function.
     #
     # + path - Resource path
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
@@ -108,7 +108,7 @@ public type RedirectClient client object {
         }
     }
 
-    # The `forward()` function is used to invoke an HTTP call with inbound request's HTTP verb.
+    # The `RedirectClient.forward()` function is used to invoke an HTTP call with inbound request's HTTP verb.
     #
     # + path - Resource path
     # + request - An HTTP inbound request message
@@ -117,8 +117,8 @@ public type RedirectClient client object {
         return self.httpClient->forward(path, request);
     }
 
-    # The `execute()` sends an HTTP request to a service with the specified HTTP verb. Redirect will be performed
-    # only for HTTP methods.
+    # The `RedirectClient.execute()` sends an HTTP request to a service with the specified HTTP verb. Redirect will be
+    # performed only for HTTP methods.
     #
     # + httpVerb - The HTTP verb value
     # + path - Resource path
@@ -140,8 +140,8 @@ public type RedirectClient client object {
         }
     }
 
-    # If the received response for the `patch()` remote function is redirect eligible, redirect will be performed automatically
-    # by this `patch()` function.
+    # If the received response for the `RedirectClient.patch()` remote function is redirect eligible, redirect will be
+    # performed automatically by this `RedirectClient.patch()` function.
     #
     # + path - Resource path
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
@@ -156,8 +156,8 @@ public type RedirectClient client object {
         }
     }
 
-    # If the received response for the `delete()` remote function is redirect eligible, redirect will be performed automatically
-    # by this `delete()` function.
+    # If the received response for the `RedirectClient.delete()` remote function is redirect eligible, redirect will be
+    # performed automatically by this `RedirectClient.delete()` function.
     #
     # + path - Resource path
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
@@ -172,8 +172,8 @@ public type RedirectClient client object {
         }
     }
 
-    # If the received response for the `options()` remote function is redirect eligible, redirect will be performed automatically
-    # by this `options()` function.
+    # If the received response for the `RedirectClient.options()` remote function is redirect eligible, redirect will be
+    # performed automatically by this `RedirectClient.options()` function.
     #
     # + path - Resource path
     # + message - An optional HTTP outbound request message or any payload of type `string`, `xml`, `json`,
@@ -189,7 +189,7 @@ public type RedirectClient client object {
     }
 
     # Submits an HTTP request to a service with the specified HTTP verb.
-    # The `submit()` function does not give out a `Response` as the result,
+    # The `RedirectClient.submit()` function does not give out a `Response` as the result,
     # rather it returns an `HttpFuture` which can be used to do further interactions with the endpoint.
     #
     # + httpVerb - The HTTP verb value

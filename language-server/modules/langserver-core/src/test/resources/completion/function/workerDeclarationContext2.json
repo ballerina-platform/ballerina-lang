@@ -73,6 +73,17 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "Dispatcher",
+      "kind": "Struct",
+      "detail": "Record",
+      "documentation": {
+        "left": "Defines a disptcher to be used for concurrent execution of strands.\n"
+      },
+      "sortText": "180",
+      "insertText": "Dispatcher",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "error",
       "kind": "Event",
       "detail": "Error",
@@ -452,6 +463,29 @@
             }
           },
           "newText": "import ballerina/grpc;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/bir",
+      "kind": "Module",
+      "detail": "Package",
+      "sortText": "140",
+      "insertText": "bir",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 2,
+              "character": 0
+            },
+            "end": {
+              "line": 2,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/bir;\n"
         }
       ]
     },

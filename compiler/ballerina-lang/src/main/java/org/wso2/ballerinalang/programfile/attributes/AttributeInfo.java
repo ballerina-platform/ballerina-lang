@@ -24,6 +24,7 @@ package org.wso2.ballerinalang.programfile.attributes;
  *
  * @since 0.87
  */
+@Deprecated
 public interface AttributeInfo {
 
     Kind getKind();

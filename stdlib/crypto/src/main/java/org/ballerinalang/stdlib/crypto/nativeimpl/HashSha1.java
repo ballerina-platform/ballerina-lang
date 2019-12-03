@@ -18,9 +18,8 @@
 
 package org.ballerinalang.stdlib.crypto.nativeimpl;
 
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ArrayValue;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
+import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.stdlib.crypto.CryptoUtils;
 
 /**
@@ -28,12 +27,9 @@ import org.ballerinalang.stdlib.crypto.CryptoUtils;
  *
  * @since 0.990.3
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "crypto",
-        functionName = "hashSha1", isPublic = true)
 public class HashSha1 {
 
-    public static ArrayValue hashSha1(Strand strand, ArrayValue inputValue) {
-        return new ArrayValue(CryptoUtils.hash("SHA-1", inputValue.getBytes()));
+    public static ArrayValue hashSha1(ArrayValue inputValue) {
+        return new ArrayValueImpl(CryptoUtils.hash("SHA-1", inputValue.getBytes()));
     }
 }

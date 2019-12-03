@@ -30,7 +30,7 @@ import static org.ballerinalang.net.http.HttpConstants.MOCK_LISTENER_ENDPOINT;
 import static org.ballerinalang.net.http.HttpConstants.SERVICE_ENDPOINT_CONFIG;
 
 /**
- * Get the ID of the connection.
+ * Start the HTTP mock listener instance.
  *
  * @since 0.966
  */

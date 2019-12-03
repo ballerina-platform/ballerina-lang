@@ -23,6 +23,9 @@ import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.net.http.websocket.WebSocketConstants;
+import org.ballerinalang.net.http.websocket.server.WebSocketServerService;
+import org.ballerinalang.net.http.websocket.server.WebSocketServicesRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -127,29 +130,26 @@ public class HTTPServicesRegistry {
             //basePath will get cached after registering service
             sortedServiceURIs.add(basePath);
             sortedServiceURIs.sort((basePath1, basePath2) -> basePath2.length() - basePath1.length());
-            registerUpgradableWebSocketService(httpService);
+            // Register the WebSocket upgrade service in the WebSocket registry
+            registerWebSocketUpgradeService(httpService);
         }
     }
 
-    private void registerUpgradableWebSocketService(HttpService httpService) {
+    private void registerWebSocketUpgradeService(HttpService httpService) {
         httpService.getUpgradeToWebSocketResources().forEach(upgradeToWebSocketResource -> {
-            MapValue resourceConfigAnnotation =
-                    HttpUtil.getResourceConfigAnnotation(upgradeToWebSocketResource.getBalResource(),
-                                                         HttpConstants.HTTP_PACKAGE_PATH);
-            if (resourceConfigAnnotation == null) {
-                throw BallerinaErrors.createError(
-                        "Cannot register WebSocket service without resource config annotation in resource " +
-                                upgradeToWebSocketResource.getName());
-            }
-            MapValue webSocketConfig = resourceConfigAnnotation.getMapValue(
-                    HttpConstants.ANN_CONFIG_ATTR_WEBSOCKET_UPGRADE);
-            ObjectValue serviceField =
-                    (ObjectValue) webSocketConfig.get(WebSocketConstants.WEBSOCKET_UPGRADE_SERVICE_CONFIG);
-            WebSocketService webSocketService = new WebSocketService(sanitizeBasePath(httpService.getBasePath()),
-                                                                     upgradeToWebSocketResource, serviceField,
-                                                                     scheduler);
+            WebSocketServerService webSocketService = new WebSocketServerService(
+                    sanitizeBasePath(httpService.getBasePath()), upgradeToWebSocketResource,
+                    getUpgradeService(upgradeToWebSocketResource), scheduler);
             webSocketServicesRegistry.registerService(webSocketService);
         });
+    }
+
+    private ObjectValue getUpgradeService(HttpResource upgradeToWebSocketResource) {
+        MapValue resourceConfigAnnotation =
+                HttpResource.getResourceConfigAnnotation(upgradeToWebSocketResource.getBalResource());
+        MapValue webSocketConfig = resourceConfigAnnotation.getMapValue(
+                HttpConstants.ANN_CONFIG_ATTR_WEBSOCKET_UPGRADE);
+        return (ObjectValue) webSocketConfig.get(WebSocketConstants.WEBSOCKET_UPGRADE_SERVICE_CONFIG);
     }
 
     private String sanitizeBasePath(String basePath) {

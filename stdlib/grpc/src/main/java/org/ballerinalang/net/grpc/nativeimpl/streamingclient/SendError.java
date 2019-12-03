@@ -15,6 +15,8 @@
  */
 package org.ballerinalang.net.grpc.nativeimpl.streamingclient;
 
+import org.ballerinalang.jvm.observability.ObserveUtils;
+import org.ballerinalang.jvm.observability.ObserverContext;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
@@ -29,8 +31,12 @@ import org.ballerinalang.net.grpc.exception.StatusRuntimeException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Optional;
+
 import static org.ballerinalang.net.grpc.GrpcConstants.ORG_NAME;
 import static org.ballerinalang.net.grpc.GrpcConstants.REQUEST_SENDER;
+import static org.ballerinalang.net.grpc.GrpcConstants.TAG_KEY_GRPC_ERROR_MESSAGE;
+import static org.ballerinalang.net.grpc.MessageUtils.getMappingHttpStatusCode;
 
 /**
  * Extern function for sending error to the server.
@@ -46,6 +52,7 @@ import static org.ballerinalang.net.grpc.GrpcConstants.REQUEST_SENDER;
         isPublic = true
 )
 public class SendError {
+
     private static final Logger LOG = LoggerFactory.getLogger(SendError.class);
 
     public static Object sendError(Strand strand, ObjectValue streamingConnection, long statusCode, String errorMsg) {
@@ -58,6 +65,11 @@ public class SendError {
             try {
                 requestSender.onError(new Message(new StatusRuntimeException(Status.fromCodeValue((int) statusCode)
                         .withDescription(errorMsg))));
+                // Add message content to observer context.
+                Optional<ObserverContext> observerContext = ObserveUtils.getObserverContextOfCurrentFrame(strand);
+                observerContext.ifPresent(ctx -> ctx.addTag(TAG_KEY_GRPC_ERROR_MESSAGE,
+                        getMappingHttpStatusCode((int) statusCode) + " : " + errorMsg));
+
             } catch (Exception e) {
                 LOG.error("Error while sending error to server.", e);
                 return MessageUtils.getConnectorError(e);

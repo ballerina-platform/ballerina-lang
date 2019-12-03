@@ -26,6 +26,7 @@ import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.FPValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
@@ -129,7 +130,7 @@ public class SubscribeWithPartitionRebalance {
         }
 
         private ArrayValue getPartitionsArray(Collection<TopicPartition> partitions) {
-            ArrayValue topicPartitionArray = new ArrayValue(new BArrayType(getTopicPartitionRecord().getType()));
+            ArrayValue topicPartitionArray = new ArrayValueImpl(new BArrayType(getTopicPartitionRecord().getType()));
 //            partitions.forEach(partition -> {
 //                MapValue<String, Object> topicPartition = populateTopicPartitionRecord(partition.topic(),
 //                        partition.partition());

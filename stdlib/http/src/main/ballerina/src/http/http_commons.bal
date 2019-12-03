@@ -245,7 +245,7 @@ function buildResponse(ResponseMessage message) returns Response {
     return response;
 }
 
-# The HEAD remote function implementation of the Circuit Breaker. This wraps the `head()` function of the underlying
+# The HEAD remote function implementation of the Circuit Breaker. This wraps the `head` function of the underlying
 # HTTP remote function provider.
 
 # + path - Resource path

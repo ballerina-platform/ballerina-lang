@@ -40,3 +40,8 @@ function testInvalidExprAsRecordKey() {
     error e = error("test error");
     Foo f6 = { s: "str", [getString("e")]: e };
 }
+
+function testNonExistentKeyInOptionalType() {
+    Foo? f1 = {s: "foo", invalid: 123};
+    ()|Foo f2 = {s: "foo", x: 123, y: "hello", z: 34.56};
+}

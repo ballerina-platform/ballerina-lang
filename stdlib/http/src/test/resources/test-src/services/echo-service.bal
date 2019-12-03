@@ -143,7 +143,7 @@ service echo on echoEP {
         methods:["POST"],
         path:"/parseJSON"
     }
-    resource function errorReturn(http:Caller caller, http:Request req) returns error? {
+    resource function errorReturn(http:Caller caller, http:Request req) returns @tainted error? {
         json payload = check req.getJsonPayload();
         http:Response res = new;
         res.setPayload(<@untainted json> payload);

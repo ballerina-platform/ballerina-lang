@@ -1,4 +1,4 @@
-// Let's look at how to specify the exact Java constructor or Java method when there are overloaded.
-// If an only if the Java constructor or the method of interest is overloaded with the same number of
+// Let's look at how to specify the exact Java constructor or Java method when they are overloaded.
+// If and only if the Java constructor or the method of interest is overloaded with the same number of
 // parameters, then you need to specify the parameter types of the exact constructor or the method using the
 // `paramTypes` annotation field.

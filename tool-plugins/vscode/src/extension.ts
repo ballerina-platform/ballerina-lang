@@ -28,6 +28,7 @@ import { activate as activateTreeView } from './project-tree-view';
 import { activateDebugConfigProvider } from './debugger';
 import { activate as activateProjectFeatures } from './project';
 import { activate as activateOverview } from './overview';
+import { activate as activateSyntaxHighlighter } from './syntax-highlighter';
 import { StaticFeature, ClientCapabilities, DocumentSelector, ServerCapabilities } from 'vscode-languageclient';
 import { ExtendedLangClient } from './core/extended-language-client';
 import { log } from './utils';
@@ -78,6 +79,8 @@ export function activate(context: ExtensionContext): Promise<any> {
         activateOverview(ballerinaExtInstance);
         // Enable Ballerina Project Overview
         activateTreeView(ballerinaExtInstance);
+        // Enable Ballerina Syntax Highlighter
+        activateSyntaxHighlighter(ballerinaExtInstance);
     }).catch((e) => {
         log("Failed to activate Ballerina extension. " + (e.message ? e.message : e));
         // When plugins fails to start, provide a warning upon each command execution

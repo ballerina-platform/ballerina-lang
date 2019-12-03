@@ -34,11 +34,11 @@ public type Listener object {
     }
 
     public function __gracefulStop() returns error? {
-        return ();
+        return self.stop(true);
     }
 
     public function __immediateStop() returns error? {
-        return self.stop();
+        return self.stop(false);
     }
 
     public function __attach(service s, string? name = ()) returns error? {
@@ -46,6 +46,8 @@ public type Listener object {
     }
 
     public function __detach(service s) returns error? {
+        // Socket listener operations are strictly bound to the attached service. In fact, listener doesn't support
+        // for multiple services. So not removing already attached service during the detach.
     }
 
     function initServer(int port, ListenerConfig config) returns error? = external;
@@ -54,7 +56,7 @@ public type Listener object {
 
     function start() returns error? = external;
 
-    function stop() returns error? = external;
+    function stop(boolean graceful) returns error? = external;
 };
 
 # Represents the socket server configuration.

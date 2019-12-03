@@ -50,13 +50,13 @@ import static org.ballerinalang.stdlib.socket.SocketConstants.SOCKET_PACKAGE;
 public class Stop {
     private static final Logger log = LoggerFactory.getLogger(Stop.class);
 
-    public static Object stop(Strand strand, ObjectValue listener) {
+    public static Object stop(Strand strand, ObjectValue listener, boolean graceful) {
         try {
             ServerSocketChannel channel = (ServerSocketChannel) listener.getNativeData(SERVER_SOCKET_KEY);
             final SelectorManager selectorManager = SelectorManager.getInstance();
             selectorManager.unRegisterChannel(channel);
             channel.close();
-            selectorManager.stop();
+            selectorManager.stop(graceful);
         } catch (IOException e) {
             log.error(e.getMessage(), e);
             return SocketUtils.createSocketError("unable to stop the socket listener: " + e.getMessage());

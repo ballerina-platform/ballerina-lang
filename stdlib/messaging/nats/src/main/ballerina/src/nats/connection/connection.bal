@@ -14,6 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerinax/java;
+
 # Represents a single network connection to the NATS server.
 public type Connection object {
 
@@ -27,15 +29,25 @@ public type Connection object {
     public function __init(string url, ConnectionConfig? config = ()) {
         self.config = config ?: {};
         self.url = url;
-        self.init(self.url, self.config);
+        externInit(self, java:fromString(self.url), self.config);
     }
-
-    function init(string url, ConnectionConfig config) = external;
 
     # Closes a given connection.
     #
     # + forceful - The graceful shutdown flag. If `true`, the connection closes immediately.
     # By default, this is set to false.
     # + return - Returns () or the error if unable to complete the close operation.
-    public function close(boolean? forceful = ()) returns Error? = external;
+    public function close(boolean? forceful = ()) returns Error? {
+        return externClose(self, forceful);
+    }
 };
+
+function externInit(Connection connection, handle url, ConnectionConfig config) =
+@java:Method {
+    class: "org.ballerinalang.nats.connection.Init"
+} external;
+
+function externClose(Connection connection, boolean? forceful = ()) returns Error? =
+@java:Method {
+    class: "org.ballerinalang.nats.connection.Close"
+} external;

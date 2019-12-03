@@ -18,9 +18,6 @@
 package org.ballerinalang.test.util;
 
 import org.apache.commons.io.FileUtils;
-import org.hsqldb.Server;
-import org.hsqldb.persist.HsqlProperties;
-import org.hsqldb.server.ServerAcl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,47 +38,6 @@ public class SQLDBUtils {
 
     public static final String DB_DIRECTORY = System.getProperty("libdir") + File.separator + "tempdb" + File.separator;
     private static final Logger LOG = LoggerFactory.getLogger(SQLDBUtils.class);
-
-    /**
-     * Create HyperSQL DB with the given name and initialize with given SQL file.
-     *
-     * @param dbDirectory Name of the DB directory.
-     * @param dbName      Name of the DB instance.
-     * @param sqlFile     SQL statements for initialization.
-     */
-    public static SqlServer initDatabase(String dbDirectory, String dbName, String sqlFile) {
-        Connection connection = null;
-        Statement st = null;
-        try {
-            Class.forName("org.hsqldb.jdbcDriver");
-            String jdbcURL = "jdbc:hsqldb:file:" + dbDirectory + dbName;
-            connection = DriverManager.getConnection(jdbcURL, "SA", "");
-            String sql = readFileToString(sqlFile);
-            String[] sqlQuery = sql.trim().split("/");
-            st = connection.createStatement();
-            for (String query : sqlQuery) {
-                try {
-                    st.executeUpdate(query.trim());
-                } catch (SQLException e) {
-                    LOG.error("Query: " + query + " failed", e);
-                }
-            }
-
-            HsqlProperties p = new HsqlProperties();
-            p.setProperty("server.database.0", "file:" + dbDirectory + dbName);
-            p.setProperty("server.dbname.0", dbName);
-            p.setProperty("server.port", "9001");
-            Server server = new Server();
-            server.setProperties(p);
-            server.start();
-            return new SqlServer(server);
-        } catch (ClassNotFoundException | SQLException | ServerAcl.AclFormatException | IOException e) {
-            LOG.error("Error ", e);
-            return new SqlServer(null);
-        } finally {
-            releaseResources(connection, st);
-        }
-    }
 
     /**
      * Delete the given directory along with all files and sub directories.
@@ -117,45 +73,13 @@ public class SQLDBUtils {
     }
 
     private static String readFileToString(String path) {
-        String fileAsString = null;
         URL fileResource = BCompileUtil.class.getClassLoader().getResource(path);
         try {
             return FileUtils.readFileToString(new File(fileResource.toURI()), StandardCharsets.UTF_8);
         } catch (IOException | URISyntaxException e) {
             LOG.error("Error ", e);
         }
-        return fileAsString;
-    }
-
-    private static void releaseResources(Connection connection, Statement st) {
-        try {
-            if (st != null) {
-                st.close();
-            }
-            if (connection != null) {
-                connection.close();
-            }
-        } catch (SQLException e) {
-            LOG.error("Error ", e);
-        }
-    }
-
-    /**
-     * Wrapper class for HSQL server.
-     */
-    public static class SqlServer {
-
-        final Server server;
-
-        private SqlServer(Server server) {
-            this.server = server;
-        }
-
-        public void stop() {
-            if (server != null) {
-                server.stop();
-            }
-        }
+        return null;
     }
 
     /**
@@ -189,7 +113,7 @@ public class SQLDBUtils {
      * @param password Password to connect to the DB
      * @param sqlFile SQL statements for initialization.
      */
-    public static void initDatabase(String jdbcURL, String username, String password, String sqlFile) {
+    private static void initDatabase(String jdbcURL, String username, String password, String sqlFile) {
         try (Connection connection = DriverManager.getConnection(jdbcURL, username, password);
              Statement st = connection.createStatement()) {
             String sql = readFileToString(sqlFile);

@@ -1,0 +1,67 @@
+<?xml version="1.0"?>
+<?xml-stylesheet href="test.xsl" type="text/xsl"?>
+<!--
+    Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+
+    WSO2 Inc. licenses this file to you under the Apache License,
+    Version 2.0 (the "License"); you may not use this file except
+    in compliance with the License.
+    You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing,
+    software distributed under the License is distributed on an
+    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+    KIND, either express or implied.  See the License for the
+    specific language governing permissions and limitations
+    under the License.
+-->
+<!--<!DOCTYPE catalog SYSTEM "test.dtd">-->
+<language>
+    <project description="EI" product_image="ei.jpg">
+        <item description="Description1">
+            <item_number>ZZ001</item_number>
+            <price>5000.35</price>
+            <subitem description="Medium">
+                <color_of_banner image="header.jpg">Red</color_of_banner>
+                <color_of_banner image="footer.jpg">Purple</color_of_banner>
+            </subitem>
+
+            <subitem description="Large">
+                <color_of_banner image="header_1.jpg">Red</color_of_banner>
+                <color_of_banner image="footer_1.jpg">Green</color_of_banner>
+            </subitem>
+        </item>
+        <item description="Description2">
+            <item_number>DFL002</item_number>
+            <price>12333.45</price>
+            <!-- Multi line comment.
+               For each property, a random number is created.
+               This number is made of two parts that each
+               ranges from 100 to 999.
+               Both parts are separated by a dash.
+           -->
+            <subitem description="Subitem1">
+                <color_of_banner image="medium.jpg">Black</color_of_banner>
+                <color_of_banner image="large.jpg">Navy</color_of_banner>
+                <color_of_banner image="small.jpg">Navy</color_of_banner>
+            </subitem>
+            <subitem description="Subitem2">
+                <color_of_banner image="extra_small.jpg">Black</color_of_banner>
+                <color_of_banner image="large.jpg">Navy</color_of_banner>
+                <color_of_banner image="medium.jpg">Burgundy</color_of_banner>
+                <color_of_banner image="medium.jpg">Black</color_of_banner>
+            </subitem>
+            <subitem description="Subitem 3">
+                <!-- Single line comment.-->
+                <color_of_banner image="header_1.jpg">Orange</color_of_banner>
+                <color_of_banner image="footer_1.jpg">Black</color_of_banner>
+            </subitem>
+            <subitem description="Subitem 5">
+                <color_of_banner image="header_3.jpg">Burgundy</color_of_banner>
+                <color_of_banner image="header_4.jpg">Black</color_of_banner>
+            </subitem>
+        </item>
+    </project>
+</language>

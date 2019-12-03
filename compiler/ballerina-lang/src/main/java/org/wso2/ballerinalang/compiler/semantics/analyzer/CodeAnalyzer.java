@@ -2255,10 +2255,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
         BType exprType = env.enclInvokable.getReturnTypeNode().type;
 
-        if (!hasError(exprType)) {
-            dlog.error(checkedExpr.pos, DiagnosticCode.CHECKED_EXPR_NO_ERROR_RETURN_IN_ENCL_INVOKABLE);
-        } else if (!types.isAssignable(getErrorTypes(checkedExpr.expr.type), exprType)) {
-            dlog.warning(checkedExpr.pos, DiagnosticCode.CHECKED_EXPR_NO_MATCHING_ERROR_RETURN_IN_ENCL_INVOKABLE);
+        if (!types.isAssignable(getErrorTypes(checkedExpr.expr.type), exprType)) {
+            dlog.error(checkedExpr.pos, DiagnosticCode.CHECKED_EXPR_NO_MATCHING_ERROR_RETURN_IN_ENCL_INVOKABLE);
         }
 
         returnTypes.peek().add(exprType);
@@ -2351,17 +2349,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         analyzeTypeNode(constant.typeNode, env);
         analyzeNode(constant.expr, env);
         analyzeExportableTypeRef(constant.symbol, constant.symbol.type.tsymbol, false, constant.pos);
-    }
-
-    private boolean hasError(BType type) {
-        switch (type.tag) {
-            case TypeTags.ERROR:
-                return true;
-            case TypeTags.UNION:
-                return ((BUnionType) type).getMemberTypes().stream().anyMatch(memType -> memType.tag == TypeTags.ERROR);
-            default:
-                return false;
-        }
     }
 
     /**
@@ -2505,11 +2492,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             types.checkType(send.pos, receive.matchingSendsError, send.expectedType, DiagnosticCode.INCOMPATIBLE_TYPES);
         }
 
-        // The warning needs to be removed and the following line needs to be uncommented, for the minor release.
-//        types.checkType(receive, send.type, receive.type);
-        if (!types.isAssignable(send.type, receive.type)) {
-            dlog.warning(receive.pos, DiagnosticCode.SEND_RECEIVE_TYPE_MISMATCH, receive.type, send.type);
-        }
+        types.checkType(receive, send.type, receive.type);
 
         addImplicitCast(send.type, receive);
         NodeKind kind = receive.parent.getKind();

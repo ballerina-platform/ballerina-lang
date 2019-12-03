@@ -48,7 +48,9 @@ public class StructNegativeTest {
         // test undeclared struct init
         BAssertUtil.validateError(result, 2, "unknown type 'Department123'", 18, 5);
 
-        BAssertUtil.validateError(result, 3, "invalid literal for type 'other'", 18, 26);
+        BAssertUtil.validateError(result, 3,
+                                  "a type compatible with mapping constructor expressions not found in type 'other'",
+                                  18, 26);
 
         // test undeclared struct access
         BAssertUtil.validateError(result, 4, "undefined symbol 'dpt1'", 23, 5);

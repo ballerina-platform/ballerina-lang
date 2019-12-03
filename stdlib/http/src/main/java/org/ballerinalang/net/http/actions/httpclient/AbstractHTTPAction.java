@@ -77,7 +77,7 @@ public abstract class AbstractHTTPAction {
     private static final Logger logger = LoggerFactory.getLogger(AbstractHTTPAction.class);
 
     private static final String CACHE_BALLERINA_VERSION;
-
+    private static final String WHITESPACE = " ";
     static {
         CACHE_BALLERINA_VERSION = System.getProperty(BALLERINA_VERSION);
     }
@@ -121,7 +121,7 @@ public abstract class AbstractHTTPAction {
         }
         try {
             String uri = getServiceUri(serviceUri) + path;
-            URL url = new URL(uri);
+            URL url = new URL(encodeWhitespacesInUri(uri));
 
             int port = getOutboundReqPort(url);
             String host = url.getHost();
@@ -143,6 +143,14 @@ public abstract class AbstractHTTPAction {
             throw HttpUtil.createHttpError("service URI is not defined correctly.", HttpErrorType.GENERIC_CLIENT_ERROR);
         }
         return serviceUri;
+    }
+
+    private static String encodeWhitespacesInUri(String uri) {
+        if (!uri.contains(WHITESPACE)) {
+            return uri;
+        }
+        // Uses Percent-Encoding as defined in spec(https://tools.ietf.org/html/rfc3986#section-2.1)
+        return uri.trim().replaceAll(WHITESPACE, "%20");
     }
 
     private static void setOutboundReqHeaders(HttpCarbonMessage outboundRequest, int port, String host) {

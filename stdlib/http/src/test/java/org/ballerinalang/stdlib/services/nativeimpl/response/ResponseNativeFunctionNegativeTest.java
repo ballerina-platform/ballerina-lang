@@ -25,7 +25,6 @@ import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.stdlib.utils.TestEntityUtils;
 import org.ballerinalang.test.util.BAssertUtil;
 import org.ballerinalang.test.util.BCompileUtil;
@@ -39,7 +38,6 @@ import static org.ballerinalang.mime.util.MimeConstants.APPLICATION_JSON;
 import static org.ballerinalang.mime.util.MimeConstants.APPLICATION_XML;
 import static org.ballerinalang.mime.util.MimeConstants.ENTITY_HEADERS;
 import static org.ballerinalang.mime.util.MimeConstants.IS_BODY_BYTE_CHANNEL_ALREADY_SET;
-import static org.ballerinalang.mime.util.MimeConstants.PROTOCOL_PACKAGE_MIME;
 import static org.ballerinalang.mime.util.MimeConstants.RESPONSE_ENTITY_FIELD;
 import static org.ballerinalang.mime.util.MimeConstants.TEXT_PLAIN;
 import static org.ballerinalang.net.http.ValueCreatorUtils.createEntityObject;
@@ -51,10 +49,6 @@ import static org.ballerinalang.net.http.ValueCreatorUtils.createResponseObject;
 public class ResponseNativeFunctionNegativeTest {
 
     private CompileResult result, resultNegative;
-    private final String inRespStruct = HttpConstants.RESPONSE;
-    private final String entityStruct = HttpConstants.ENTITY;
-    private final String protocolPackageHttp = HttpConstants.PROTOCOL_PACKAGE_HTTP;
-    private final String protocolPackageMime = PROTOCOL_PACKAGE_MIME;
 
     @BeforeClass
     public void setup() {
@@ -85,9 +79,9 @@ public class ResponseNativeFunctionNegativeTest {
         inResponse.set(RESPONSE_ENTITY_FIELD, entity);
         BValue[] returnVals = BRunUtil.invoke(result, "testGetJsonPayload", new Object[]{ inResponse });
         Assert.assertNotNull(returnVals[0]);
-        Assert.assertEquals(((BError) returnVals[0]).getDetails().stringValue(), "{message:\"No payload\", "
-                + "cause:{ballerina/mime}ParsingEntityBodyFailed {cause:{ballerina/mime}NoContentError "
-                + "{message:\"Empty content\"}, message:\"Error occurred while extracting json data from entity\"}}");
+        Assert.assertEquals(((BError) returnVals[0]).getDetails().stringValue(), "{message:\"No payload\", " +
+                "cause:{ballerina/mime}ParsingEntityBodyFailed {message:\"Error occurred while extracting json" +
+                " data from entity\", cause:{ballerina/mime}NoContentError {message:\"Empty content\"}}}");
     }
 
     @Test(description = "Test method with string payload")
@@ -115,9 +109,9 @@ public class ResponseNativeFunctionNegativeTest {
         BValue[] returnVals = BRunUtil.invoke(result, "testGetTextPayload", new Object[]{ inResponse });
         Assert.assertFalse(returnVals.length == 0 || returnVals[0] == null, "Invalid Return Values.");
         Assert.assertTrue(returnVals[0].stringValue()
-                .contains("{message:\"No payload\", cause:{ballerina/mime}ParsingEntityBodyFailed "
-                        + "{cause:{ballerina/mime}NoContentError {message:\"Empty content\"}, message:\"Error occurred "
-                        + "while extracting text data from entity\"}}"));
+                .contains("{message:\"No payload\", cause:{ballerina/mime}ParsingEntityBodyFailed " +
+                        "{message:\"Error occurred while extracting text data from entity\", " +
+                        "cause:{ballerina/mime}NoContentError {message:\"Empty content\"}}}"));
     }
 
     @Test
@@ -127,9 +121,9 @@ public class ResponseNativeFunctionNegativeTest {
         TestEntityUtils.enrichTestEntityHeaders(entity, APPLICATION_XML);
         inResponse.set(RESPONSE_ENTITY_FIELD, entity);
         BValue[] returnVals = BRunUtil.invoke(result, "testGetXmlPayload", new Object[]{ inResponse });
-        Assert.assertEquals(((BError) returnVals[0]).getDetails().stringValue(), "{message:\"No payload\", "
-                + "cause:{ballerina/mime}ParsingEntityBodyFailed {cause:{ballerina/mime}NoContentError "
-                + "{message:\"Empty content\"}, message:\"Error occurred while extracting xml data from entity\"}}");
+        Assert.assertEquals(((BError) returnVals[0]).getDetails().stringValue(), "{message:\"No payload\", " +
+                "cause:{ballerina/mime}ParsingEntityBodyFailed {message:\"Error occurred while extracting xml " +
+                "data from entity\", cause:{ballerina/mime}NoContentError {message:\"Empty content\"}}}");
     }
 
     @Test
@@ -143,11 +137,11 @@ public class ResponseNativeFunctionNegativeTest {
         inResponse.addNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET, true);
         BValue[] returnVals = BRunUtil.invoke(result, "testGetXmlPayload", new Object[]{ inResponse });
         Assert.assertNotNull(returnVals[0]);
-        Assert.assertEquals(((BError) returnVals[0]).getDetails().stringValue(), "{message:\"Error occurred while "
-                + "retrieving the xml payload from the response\", cause:{ballerina/mime}ParsingEntityBodyFailed "
-                + "{cause:Unexpected character 'b' (code 98) in prolog; expected '<'" + StringUtil.NEWLINE
-                + " at [row,col {unknown-source}]: [1,1] {}, message:\"Error occurred while extracting xml "
-                + "data from entity\"}}");
+        Assert.assertEquals(((BError) returnVals[0]).getDetails().stringValue(), "{message:\"Error occurred while " +
+                "retrieving the xml payload from the response\", cause:{ballerina/mime}ParsingEntityBodyFailed " +
+                "{message:\"Error occurred while extracting xml data from entity\", cause:Unexpected character 'b'" +
+                " (code 98) in prolog; expected '<'" + StringUtil.NEWLINE +
+                " at [row,col {unknown-source}]: [1,1] {}}}");
     }
 
     @Test(description = "Test getEntity method on a response without a entity")

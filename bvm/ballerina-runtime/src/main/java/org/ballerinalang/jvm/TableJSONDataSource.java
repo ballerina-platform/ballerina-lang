@@ -26,6 +26,7 @@ import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.DecimalValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
@@ -82,7 +83,7 @@ public class TableJSONDataSource implements JSONDataSource {
 
     @Override
     public Object build() {
-        ArrayValue values = new ArrayValue(new BArrayType(BTypes.typeJSON));
+        ArrayValue values = new ArrayValueImpl(new BArrayType(BTypes.typeJSON));
         while (this.hasNext()) {
             values.append(this.next());
         }
@@ -167,7 +168,7 @@ public class TableJSONDataSource implements JSONDataSource {
     private static Object getStructData(Object[] data, BField[] structFields, int index) {
         try {
             if (structFields == null) {
-                ArrayValue jsonArray = new ArrayValue(new BArrayType(BTypes.typeJSON));
+                ArrayValue jsonArray = new ArrayValueImpl(new BArrayType(BTypes.typeJSON));
                 if (data != null) {
                     for (Object value : data) {
                         if (value instanceof String) {
@@ -230,7 +231,7 @@ public class TableJSONDataSource implements JSONDataSource {
     private static Object getDataArray(TableValue df, int columnIndex) {
         Object[] dataArray = df.getArray(columnIndex);
         int length = dataArray.length;
-        ArrayValue jsonArray = new ArrayValue(new BArrayType(BTypes.typeJSON));
+        ArrayValue jsonArray = new ArrayValueImpl(new BArrayType(BTypes.typeJSON));
         if (length > 0) {
             Object obj = dataArray[0];
             if (obj instanceof String) {

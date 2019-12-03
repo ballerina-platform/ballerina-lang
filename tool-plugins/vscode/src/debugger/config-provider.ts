@@ -108,13 +108,14 @@ class BallerinaDebugAdapterDescriptorFactory implements DebugAdapterDescriptorFa
     createDebugAdapterDescriptor(session: DebugSession, executable: DebugAdapterExecutable | undefined): Thenable<DebugAdapterDescriptor> {
         const port = session.configuration.debugServer;
         const ballerinaPath = ballerinaExtInstance.getBallerinaHome();
+        const cwd = path.join(ballerinaPath, "lib", "tools", "debug-adapter", "launcher");
 
-        let startScriptPath = path.resolve(ballerinaPath, "lib", "tools", "debug-adapter", "launcher", "debug-adapter-launcher.sh");
+        let startScriptPath = path.resolve(cwd, "debug-adapter-launcher.sh");
         // Ensure that start script can be executed
         if (isUnix()) {
             child_process.exec("chmod +x " + startScriptPath);
         } else {
-            startScriptPath = path.resolve(ballerinaPath, "lib", "tools", "debug-adapter", "launcher", "debug-adapter-launcher.bat");
+            startScriptPath = path.resolve(cwd, "debug-adapter-launcher.bat");
         }
         const SHOW_VSCODE_IDE_DOCS = "https://ballerina.io/learn/tools-ides/vscode-plugin/run-and-debug";
         const showDetails: string = 'Learn More';
@@ -127,7 +128,7 @@ class BallerinaDebugAdapterDescriptorFactory implements DebugAdapterDescriptorFa
 
         const serverProcess = child_process.spawn(startScriptPath, [
             port.toString()
-        ]);
+        ], { cwd });
 
         log("Starting debug adapter: " + startScriptPath);
         
