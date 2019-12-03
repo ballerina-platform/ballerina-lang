@@ -17,13 +17,9 @@
  */
 package org.ballerinalang.net.grpc.nativeimpl.clientendpoint;
 
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.grpc.MessageUtils;
 import org.ballerinalang.net.grpc.Status;
 import org.ballerinalang.net.grpc.exception.StatusRuntimeException;
@@ -41,11 +37,7 @@ import java.net.URL;
 import java.util.Map;
 
 import static org.ballerinalang.net.grpc.GrpcConstants.CLIENT_CONNECTOR;
-import static org.ballerinalang.net.grpc.GrpcConstants.CLIENT_ENDPOINT_TYPE;
 import static org.ballerinalang.net.grpc.GrpcConstants.ENDPOINT_URL;
-import static org.ballerinalang.net.grpc.GrpcConstants.ORG_NAME;
-import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_PACKAGE_GRPC;
-import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_STRUCT_PACKAGE_GRPC;
 import static org.ballerinalang.net.grpc.GrpcUtil.getConnectionManager;
 import static org.ballerinalang.net.grpc.GrpcUtil.populateSenderConfigurations;
 
@@ -54,18 +46,10 @@ import static org.ballerinalang.net.grpc.GrpcUtil.populateSenderConfigurations;
  *
  * @since 1.0.0
  */
-@BallerinaFunction(
-        orgName = ORG_NAME,
-        packageName = PROTOCOL_PACKAGE_GRPC,
-        functionName = "init",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = CLIENT_ENDPOINT_TYPE,
-                structPackage = PROTOCOL_STRUCT_PACKAGE_GRPC),
-        isPublic = true
-)
 public class Init {
 
     @SuppressWarnings("unchecked")
-    public static Object init(Strand strand, ObjectValue clientEndpoint, String urlString,
+    public static Object externInit(ObjectValue clientEndpoint, String urlString,
                             MapValue clientEndpointConfig, MapValue globalPoolConfig) {
         HttpConnectionManager connectionManager = HttpConnectionManager.getInstance();
         URL url;

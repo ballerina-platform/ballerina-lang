@@ -15,13 +15,9 @@
  */
 package org.ballerinalang.net.grpc.nativeimpl.serviceendpoint;
 
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.grpc.MessageUtils;
 import org.ballerinalang.net.grpc.ServicesRegistry;
 import org.ballerinalang.net.grpc.nativeimpl.AbstractGrpcNativeFunction;
@@ -32,10 +28,6 @@ import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.ServerConnector;
 import org.wso2.transport.http.netty.contract.config.ListenerConfiguration;
 
-import static org.ballerinalang.net.grpc.GrpcConstants.LISTENER;
-import static org.ballerinalang.net.grpc.GrpcConstants.ORG_NAME;
-import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_PACKAGE_GRPC;
-import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_STRUCT_PACKAGE_GRPC;
 import static org.ballerinalang.net.grpc.GrpcConstants.SERVER_CONNECTOR;
 import static org.ballerinalang.net.grpc.GrpcConstants.SERVICE_REGISTRY_BUILDER;
 import static org.ballerinalang.net.grpc.GrpcUtil.getListenerConfig;
@@ -46,18 +38,10 @@ import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_PORT;
  *
  * @since 1.0.0
  */
-@BallerinaFunction(
-        orgName = ORG_NAME,
-        packageName = PROTOCOL_PACKAGE_GRPC,
-        functionName = "initEndpoint",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = LISTENER,
-                structPackage = PROTOCOL_STRUCT_PACKAGE_GRPC),
-        isPublic = true
-)
 public class InitEndpoint extends AbstractGrpcNativeFunction {
     private static final Logger LOG = LoggerFactory.getLogger(InitEndpoint.class);
 
-    public static Object initEndpoint(Strand strand, ObjectValue listenerObject) {
+    public static Object externInitEndpoint(ObjectValue listenerObject) {
         MapValue serviceEndpointConfig = listenerObject.getMapValue(HttpConstants.SERVICE_ENDPOINT_CONFIG);
         long port = listenerObject.getIntValue(ENDPOINT_CONFIG_PORT);
         try {

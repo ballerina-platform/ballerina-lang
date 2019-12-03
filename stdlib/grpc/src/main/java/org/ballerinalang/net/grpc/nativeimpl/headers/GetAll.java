@@ -16,44 +16,29 @@
 package org.ballerinalang.net.grpc.nativeimpl.headers;
 
 import io.netty.handler.codec.http.HttpHeaders;
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ArrayValue;
-import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.Receiver;
+import org.ballerinalang.jvm.values.api.BValueCreator;
 
 import java.util.List;
 
 import static org.ballerinalang.net.grpc.GrpcConstants.MESSAGE_HEADERS;
-import static org.ballerinalang.net.grpc.GrpcConstants.ORG_NAME;
-import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_PACKAGE_GRPC;
-import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_STRUCT_PACKAGE_GRPC;
 
 /**
  * Get the Headers of the Message.
  *
  * @since 1.0.0
  */
-@BallerinaFunction(
-        orgName = ORG_NAME,
-        packageName = PROTOCOL_PACKAGE_GRPC,
-        functionName = "getAll",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = "Headers",
-                structPackage = PROTOCOL_STRUCT_PACKAGE_GRPC),
-        isPublic = true
-)
 public class GetAll {
 
-    public static ArrayValue getAll(Strand strand, ObjectValue headerValues, String headerName) {
+    public static ArrayValue externGetAll(ObjectValue headerValues, String headerName) {
         HttpHeaders headers = headerValues != null ? (HttpHeaders) headerValues.getNativeData(MESSAGE_HEADERS) : null;
         List<String> headersList =  headers != null ? headers.getAll(headerName) : null;
 
         if (headersList != null) {
             String[] headerValue = new String[headersList.size()];
             headerValue = headers.getAll(headerName).toArray(headerValue);
-            return new ArrayValueImpl(headerValue);
+            return (ArrayValue) BValueCreator.createArrayValue(headerValue);
         } else {
             return null;
         }

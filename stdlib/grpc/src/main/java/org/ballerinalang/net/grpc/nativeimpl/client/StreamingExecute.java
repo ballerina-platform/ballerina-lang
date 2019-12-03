@@ -20,12 +20,9 @@ package org.ballerinalang.net.grpc.nativeimpl.client;
 import io.netty.handler.codec.http.HttpHeaders;
 import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.TypeChecker;
-import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.grpc.DataContext;
 import org.ballerinalang.net.grpc.MethodDescriptor;
 import org.ballerinalang.net.grpc.StreamObserver;
@@ -35,13 +32,9 @@ import org.ballerinalang.net.grpc.stubs.NonBlockingStub;
 
 import java.util.Map;
 
-import static org.ballerinalang.net.grpc.GrpcConstants.CLIENT_ENDPOINT_TYPE;
 import static org.ballerinalang.net.grpc.GrpcConstants.MESSAGE_HEADERS;
 import static org.ballerinalang.net.grpc.GrpcConstants.METHOD_DESCRIPTORS;
-import static org.ballerinalang.net.grpc.GrpcConstants.ORG_NAME;
 import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_GRPC_PKG_ID;
-import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_PACKAGE_GRPC;
-import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_STRUCT_PACKAGE_GRPC;
 import static org.ballerinalang.net.grpc.GrpcConstants.REQUEST_MESSAGE_DEFINITION;
 import static org.ballerinalang.net.grpc.GrpcConstants.REQUEST_SENDER;
 import static org.ballerinalang.net.grpc.GrpcConstants.SERVICE_STUB;
@@ -53,18 +46,10 @@ import static org.ballerinalang.net.grpc.Status.Code.INTERNAL;
  *
  * @since 1.0.0
  */
-@BallerinaFunction(
-        orgName = ORG_NAME,
-        packageName = PROTOCOL_PACKAGE_GRPC,
-        functionName = "streamingExecute",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = CLIENT_ENDPOINT_TYPE,
-                structPackage = PROTOCOL_STRUCT_PACKAGE_GRPC),
-        isPublic = true
-)
 public class StreamingExecute extends AbstractExecute {
 
     @SuppressWarnings("unchecked")
-    public static Object streamingExecute(Strand strand, ObjectValue clientEndpoint, String methodName,
+    public static Object externStreamingExecute(ObjectValue clientEndpoint, String methodName,
                                            ObjectValue callbackService, Object headerValues) {
         if (clientEndpoint == null) {
             return notifyErrorReply(INTERNAL, "Error while getting connector. gRPC Client connector " +
@@ -104,9 +89,10 @@ public class StreamingExecute extends AbstractExecute {
 
             try {
                 MethodDescriptor.MethodType methodType = getMethodType(methodDescriptor);
-                DefaultStreamObserver responseObserver = new DefaultStreamObserver(strand.scheduler, callbackService);
+                DefaultStreamObserver responseObserver = new DefaultStreamObserver(Scheduler.getStrand().scheduler,
+                        callbackService);
                 StreamObserver requestSender;
-                DataContext context = new DataContext(strand, null);
+                DataContext context = new DataContext(Scheduler.getStrand(), null);
                 if (methodType.equals(MethodDescriptor.MethodType.CLIENT_STREAMING)) {
                     requestSender = nonBlockingStub.executeClientStreaming(headers, responseObserver,
                             methodDescriptors.get(methodName), context);

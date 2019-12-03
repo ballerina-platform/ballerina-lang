@@ -15,11 +15,7 @@
  */
 package org.ballerinalang.net.grpc.nativeimpl.serviceendpoint;
 
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.grpc.MessageUtils;
 import org.ballerinalang.net.grpc.ServerConnectorListener;
 import org.ballerinalang.net.grpc.ServerConnectorPortBindingListener;
@@ -31,24 +27,11 @@ import org.ballerinalang.net.http.HttpConstants;
 import org.wso2.transport.http.netty.contract.ServerConnector;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 
-import static org.ballerinalang.net.grpc.GrpcConstants.LISTENER;
-import static org.ballerinalang.net.grpc.GrpcConstants.ORG_NAME;
-import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_PACKAGE_GRPC;
-import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_STRUCT_PACKAGE_GRPC;
-
 /**
  * Extern function to start gRPC server instance.
  *
  * @since 1.0.0
  */
-@BallerinaFunction(
-        orgName = ORG_NAME,
-        packageName = PROTOCOL_PACKAGE_GRPC,
-        functionName = "start",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = LISTENER,
-                structPackage = PROTOCOL_STRUCT_PACKAGE_GRPC),
-        isPublic = true
-)
 public class Start extends AbstractGrpcNativeFunction {
 
     private static Object startServerConnector(ObjectValue listener, ServicesRegistry servicesRegistry) {
@@ -69,7 +52,7 @@ public class Start extends AbstractGrpcNativeFunction {
         return null;
     }
 
-    public static Object start(Strand strand, ObjectValue listener) {
+    public static Object externStart(ObjectValue listener) {
         ServicesRegistry.Builder servicesRegistryBuilder = getServiceRegistryBuilder(listener);
 
         if (!isConnectorStarted(listener)) {

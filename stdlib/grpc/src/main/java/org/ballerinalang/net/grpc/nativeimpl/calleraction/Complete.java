@@ -19,11 +19,8 @@ import com.google.protobuf.Descriptors;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import org.ballerinalang.jvm.observability.ObserveUtils;
 import org.ballerinalang.jvm.observability.ObserverContext;
-import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.grpc.GrpcConstants;
 import org.ballerinalang.net.grpc.MessageUtils;
 import org.ballerinalang.net.grpc.Status;
@@ -35,32 +32,21 @@ import org.slf4j.LoggerFactory;
 import java.util.Optional;
 
 import static org.ballerinalang.jvm.observability.ObservabilityConstants.TAG_KEY_HTTP_STATUS_CODE;
-import static org.ballerinalang.net.grpc.GrpcConstants.CALLER;
-import static org.ballerinalang.net.grpc.GrpcConstants.ORG_NAME;
-import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_PACKAGE_GRPC;
-import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_STRUCT_PACKAGE_GRPC;
 
 /**
  * Extern function to inform the caller, server finished sending messages.
  *
  * @since 1.0.0
  */
-@BallerinaFunction(
-        orgName = ORG_NAME,
-        packageName = PROTOCOL_PACKAGE_GRPC,
-        functionName = "complete",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = CALLER,
-                structPackage = PROTOCOL_STRUCT_PACKAGE_GRPC),
-        isPublic = true
-)
 public class Complete {
     private static final Logger LOG = LoggerFactory.getLogger(Complete.class);
 
-    public static Object complete(Strand strand, ObjectValue endpointClient) {
+    public static Object externComplete(ObjectValue endpointClient) {
         StreamObserver responseObserver = MessageUtils.getResponseObserver(endpointClient);
         Descriptors.Descriptor outputType = (Descriptors.Descriptor) endpointClient.getNativeData(GrpcConstants
                 .RESPONSE_MESSAGE_DEFINITION);
-        Optional<ObserverContext> observerContext = ObserveUtils.getObserverContextOfCurrentFrame(strand);
+        Optional<ObserverContext> observerContext =
+                ObserveUtils.getObserverContextOfCurrentFrame(Scheduler.getStrand());
 
         if (responseObserver == null) {
             return MessageUtils.getConnectorError(new StatusRuntimeException(Status

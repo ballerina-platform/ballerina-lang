@@ -15,36 +15,19 @@
  */
 package org.ballerinalang.net.grpc.nativeimpl.calleraction;
 
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.grpc.MessageUtils;
 import org.ballerinalang.net.grpc.StreamObserver;
 import org.ballerinalang.net.grpc.listener.ServerCallHandler;
-
-import static org.ballerinalang.net.grpc.GrpcConstants.CALLER;
-import static org.ballerinalang.net.grpc.GrpcConstants.ORG_NAME;
-import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_PACKAGE_GRPC;
-import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_STRUCT_PACKAGE_GRPC;
 
 /**
  * Extern function to check whether caller has terminated the connection in between.
  *
  * @since 1.0.0
  */
-@BallerinaFunction(
-        orgName = ORG_NAME,
-        packageName = PROTOCOL_PACKAGE_GRPC,
-        functionName = "isCancelled",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = CALLER,
-                structPackage = PROTOCOL_STRUCT_PACKAGE_GRPC),
-        isPublic = true
-)
 public class IsCancelled {
 
-    public static boolean isCancelled(Strand strand, ObjectValue endpointClient) {
+    public static boolean externIsCancelled(ObjectValue endpointClient) {
         StreamObserver responseObserver = MessageUtils.getResponseObserver(endpointClient);
 
         if (responseObserver instanceof ServerCallHandler.ServerCallStreamObserver) {

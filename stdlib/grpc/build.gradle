@@ -44,6 +44,7 @@ dependencies {
     implementation project(':ballerina-crypto')
     implementation project(':ballerina-http')
     implementation project(':ballerina-runtime')
+    implementation project(':ballerina-java')
 
     implementation 'org.apache.commons:commons-lang3'
     implementation 'com.google.protobuf:protobuf-java'
@@ -74,6 +75,7 @@ dependencies {
     baloImplementation project(path: ':ballerina-crypto', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-time', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-http', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-java', configuration: 'baloImplementation')
 }
 
 createBalo {

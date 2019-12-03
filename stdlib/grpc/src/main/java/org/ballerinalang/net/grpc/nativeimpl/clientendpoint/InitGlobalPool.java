@@ -18,16 +18,11 @@
 
 package org.ballerinalang.net.grpc.nativeimpl.clientendpoint;
 
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.Receiver;
 import org.wso2.transport.http.netty.contractimpl.sender.channel.pool.ConnectionManager;
 import org.wso2.transport.http.netty.contractimpl.sender.channel.pool.PoolConfiguration;
 
-import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_STRUCT_PACKAGE_GRPC;
 import static org.ballerinalang.net.grpc.GrpcUtil.populatePoolingConfig;
 import static org.ballerinalang.net.http.HttpConstants.CONNECTION_MANAGER;
 
@@ -36,17 +31,9 @@ import static org.ballerinalang.net.http.HttpConstants.CONNECTION_MANAGER;
  *
  * @since 0.995.0
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "grpc",
-        functionName = "initGlobalPool",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = "ConnectionManager", structPackage =
-                PROTOCOL_STRUCT_PACKAGE_GRPC),
-        isPublic = true
-)
 public class InitGlobalPool {
 
-    public static void initGlobalPool(Strand strand, ObjectValue endpointObject, MapValue<String,
-                                      Long> globalPoolConfig) {
+    public static void externInitGlobalPool(ObjectValue endpointObject, MapValue<String, Long> globalPoolConfig) {
         PoolConfiguration globalPool = new PoolConfiguration();
         populatePoolingConfig(globalPoolConfig, globalPool);
         ConnectionManager connectionManager = new ConnectionManager(globalPool);

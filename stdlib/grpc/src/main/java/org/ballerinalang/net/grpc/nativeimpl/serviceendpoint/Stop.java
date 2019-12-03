@@ -15,35 +15,18 @@
  */
 package org.ballerinalang.net.grpc.nativeimpl.serviceendpoint;
 
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.grpc.nativeimpl.AbstractGrpcNativeFunction;
 import org.ballerinalang.net.http.HttpConstants;
-
-import static org.ballerinalang.net.grpc.GrpcConstants.LISTENER;
-import static org.ballerinalang.net.grpc.GrpcConstants.ORG_NAME;
-import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_PACKAGE_GRPC;
-import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_STRUCT_PACKAGE_GRPC;
 
 /**
  * Extern function to stop gRPC server instance.
  *
  * @since 1.0.0
  */
-@BallerinaFunction(
-        orgName = ORG_NAME,
-        packageName = PROTOCOL_PACKAGE_GRPC,
-        functionName = "stop",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = LISTENER,
-                structPackage = PROTOCOL_STRUCT_PACKAGE_GRPC),
-        isPublic = true
-)
 public class Stop extends AbstractGrpcNativeFunction {
 
-    public static Object stop(Strand strand, ObjectValue serverEndpoint) {
+    public static Object externStop(ObjectValue serverEndpoint) {
         getServerConnector(serverEndpoint).stop();
         serverEndpoint.addNativeData(HttpConstants.CONNECTOR_STARTED, false);
         return null;

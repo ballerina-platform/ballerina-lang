@@ -20,12 +20,9 @@ import io.netty.handler.codec.http.HttpHeaders;
 import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.observability.ObserveUtils;
 import org.ballerinalang.jvm.observability.ObserverContext;
-import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.grpc.GrpcConstants;
 import org.ballerinalang.net.grpc.Message;
 import org.ballerinalang.net.grpc.MessageUtils;
@@ -37,11 +34,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Optional;
 
-import static org.ballerinalang.net.grpc.GrpcConstants.CALLER;
 import static org.ballerinalang.net.grpc.GrpcConstants.MESSAGE_HEADERS;
-import static org.ballerinalang.net.grpc.GrpcConstants.ORG_NAME;
-import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_PACKAGE_GRPC;
-import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_STRUCT_PACKAGE_GRPC;
 import static org.ballerinalang.net.grpc.GrpcConstants.TAG_KEY_GRPC_MESSAGE_CONTENT;
 
 /**
@@ -49,24 +42,16 @@ import static org.ballerinalang.net.grpc.GrpcConstants.TAG_KEY_GRPC_MESSAGE_CONT
  *
  * @since 0.96.1
  */
-@BallerinaFunction(
-        orgName = ORG_NAME,
-        packageName = PROTOCOL_PACKAGE_GRPC,
-        functionName = "send",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = CALLER,
-                structPackage = PROTOCOL_STRUCT_PACKAGE_GRPC),
-        isPublic = true
-)
-
 public class Send {
     private static final Logger LOG = LoggerFactory.getLogger(Send.class);
 
-    public static Object send(Strand strand, ObjectValue endpointClient, Object responseValue,
+    public static Object externSend(ObjectValue endpointClient, Object responseValue,
                               Object headerValues) {
         StreamObserver responseObserver = MessageUtils.getResponseObserver(endpointClient);
         Descriptors.Descriptor outputType = (Descriptors.Descriptor) endpointClient.getNativeData(GrpcConstants
                 .RESPONSE_MESSAGE_DEFINITION);
-        Optional<ObserverContext> observerContext = ObserveUtils.getObserverContextOfCurrentFrame(strand);
+        Optional<ObserverContext> observerContext =
+                ObserveUtils.getObserverContextOfCurrentFrame(Scheduler.getStrand());
 
         if (responseObserver == null) {
             return MessageUtils.getConnectorError(new StatusRuntimeException(Status

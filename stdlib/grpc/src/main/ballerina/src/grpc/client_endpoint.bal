@@ -15,6 +15,7 @@
 // under the License.
 
 import ballerina/crypto;
+import ballerinax/java;
 
 # The gRPC client endpoint provides the capability for initiating contact with a remote gRPC service. The API it
 # provides includes functions to send request/error messages.
@@ -31,13 +32,11 @@ public type Client client object {
     public function __init(string url, ClientConfiguration? config = ()) {
         self.config = config ?: {};
         self.url = url;
-        error? err = self.init(self.url, self.config, globalGrpcClientConnPool);
+        error? err = externInit(self, java:fromString(self.url), self.config, globalGrpcClientConnPool);
         if (err is error) {
             panic err;
         }
     }
-
-    function init(string url, ClientConfiguration config, PoolConfiguration globalPoolConfig) returns error? = external;
 
     # Calls when initializing client endpoint with service descriptor data extracted from proto file.
     #
@@ -46,8 +45,9 @@ public type Client client object {
     # + descriptorKey - Proto descriptor key. Key of proto descriptor.
     # + descriptorMap - Proto descriptor map. descriptor map with all dependent descriptors.
     # + return - Returns an error if encounters an error while initializing the stub, returns nill otherwise.
-    public function initStub(AbstractClientEndpoint clientEndpoint, string stubType, string descriptorKey, map<any> descriptorMap)
-                               returns Error? = external;
+    public function initStub(AbstractClientEndpoint clientEndpoint, string stubType, string descriptorKey, map<any> descriptorMap) returns Error? {
+        return externInitStub(self, clientEndpoint, java:fromString(stubType), java:fromString(descriptorKey), descriptorMap);
+    }
 
     # Calls when executing blocking call with gRPC service.
     #
@@ -55,8 +55,9 @@ public type Client client object {
     # + payload - Request message. Message type varies with remote service method parameter.
     # + headers - Optional headers parameter. Passes header value if needed. Default sets to nil.
     # + return - Returns response message and headers if executes successfully, error otherwise.
-    public remote function blockingExecute(string methodID, anydata payload, Headers? headers = ())
-                               returns ([anydata, Headers]|Error) = external;
+    public remote function blockingExecute(string methodID, anydata payload, Headers? headers = ()) returns ([anydata, Headers]|Error) {
+        return externBlockingExecute(self, java:fromString(methodID), payload, headers);
+    }
 
     # Calls when executing non-blocking call with gRPC service.
     #
@@ -65,8 +66,9 @@ public type Client client object {
     # + listenerService - Call back listener service. This service listens the response message from service.
     # + headers - Optional headers parameter. Passes header value if needed. Default sets to nil.
     # + return - Returns an error if encounters an error while sending the request, returns nil otherwise.
-    public remote function nonBlockingExecute(string methodID, anydata payload, service listenerService,
-                                              Headers? headers = ()) returns Error? = external;
+    public remote function nonBlockingExecute(string methodID, anydata payload, service listenerService, Headers? headers = ()) returns Error? {
+         return externNonBlockingExecute(self, java:fromString(methodID), payload, listenerService, headers);
+    }
 
 
     # Calls when executing streaming call with gRPC service.
@@ -75,9 +77,36 @@ public type Client client object {
     # + listenerService - Call back listener service. This service listens the response message from service.
     # + headers - Optional headers parameter. Passes header value if needed. Default sets to nil.
     # + return - Returns client connection if executes successfully, error otherwise.
-    public remote function streamingExecute(string methodID, service listenerService, Headers? headers = ())
-                               returns StreamingClient|Error = external;
+    public remote function streamingExecute(string methodID, service listenerService, Headers? headers = ()) returns StreamingClient|Error {
+        return externStreamingExecute(self, java:fromString(methodID), listenerService, headers);
+    }
 };
+
+function externInit(Client clientEndpoint, handle url, ClientConfiguration config, PoolConfiguration globalPoolConfig) returns Error? =
+@java:Method {
+    class: "org.ballerinalang.net.grpc.nativeimpl.clientendpoint.Init"
+} external;
+
+function externInitStub(Client genericEndpoint, AbstractClientEndpoint clientEndpoint, handle stubType, handle descriptorKey, map<any> descriptorMap) returns Error? =
+@java:Method {
+    class: "org.ballerinalang.net.grpc.nativeimpl.client.InitStub"
+} external;
+
+function externBlockingExecute(Client clientEndpoint, handle methodID, anydata payload, Headers? headers) returns ([anydata, Headers]|Error) =
+@java:Method {
+    class: "org.ballerinalang.net.grpc.nativeimpl.client.BlockingExecute"
+} external;
+
+function externNonBlockingExecute(Client clientEndpoint, handle methodID, anydata payload, service listenerService, Headers? headers) returns Error? =
+@java:Method {
+    class: "org.ballerinalang.net.grpc.nativeimpl.client.NonBlockingExecute"
+} external;
+
+function externStreamingExecute(Client clientEndpoint, handle methodID, service listenerService, Headers? headers) returns StreamingClient|Error =
+@java:Method {
+    class: "org.ballerinalang.net.grpc.nativeimpl.client.StreamingExecute"
+} external;
+
 
 # Represents abstract gRPC client endpoint. This abstract object is used in client endpoints generated by the
 # Protocol Buffer tool.

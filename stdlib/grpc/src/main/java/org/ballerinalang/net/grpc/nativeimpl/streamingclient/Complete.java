@@ -15,12 +15,7 @@
  */
 package org.ballerinalang.net.grpc.nativeimpl.streamingclient;
 
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.net.grpc.GrpcConstants;
 import org.ballerinalang.net.grpc.MessageUtils;
 import org.ballerinalang.net.grpc.Status;
 import org.ballerinalang.net.grpc.StreamObserver;
@@ -28,7 +23,6 @@ import org.ballerinalang.net.grpc.exception.StatusRuntimeException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static org.ballerinalang.net.grpc.GrpcConstants.ORG_NAME;
 import static org.ballerinalang.net.grpc.GrpcConstants.REQUEST_SENDER;
 
 /**
@@ -36,18 +30,10 @@ import static org.ballerinalang.net.grpc.GrpcConstants.REQUEST_SENDER;
  *
  * @since 1.0.0
  */
-@BallerinaFunction(
-        orgName = ORG_NAME,
-        packageName = GrpcConstants.PROTOCOL_PACKAGE_GRPC,
-        functionName = "complete",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = GrpcConstants.STREAMING_CLIENT,
-                structPackage = GrpcConstants.PROTOCOL_STRUCT_PACKAGE_GRPC),
-        isPublic = true
-)
 public class Complete {
     private static final Logger LOG = LoggerFactory.getLogger(Complete.class);
 
-    public static Object complete(Strand strand, ObjectValue streamingConnection) {
+    public static Object streamComplete(ObjectValue streamingConnection) {
         StreamObserver requestSender = (StreamObserver) streamingConnection.getNativeData(REQUEST_SENDER);
         if (requestSender == null) {
             return MessageUtils.getConnectorError(new StatusRuntimeException(Status

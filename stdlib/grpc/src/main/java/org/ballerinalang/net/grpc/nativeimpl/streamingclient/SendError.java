@@ -17,12 +17,8 @@ package org.ballerinalang.net.grpc.nativeimpl.streamingclient;
 
 import org.ballerinalang.jvm.observability.ObserveUtils;
 import org.ballerinalang.jvm.observability.ObserverContext;
-import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.net.grpc.GrpcConstants;
 import org.ballerinalang.net.grpc.Message;
 import org.ballerinalang.net.grpc.MessageUtils;
 import org.ballerinalang.net.grpc.Status;
@@ -33,7 +29,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Optional;
 
-import static org.ballerinalang.net.grpc.GrpcConstants.ORG_NAME;
 import static org.ballerinalang.net.grpc.GrpcConstants.REQUEST_SENDER;
 import static org.ballerinalang.net.grpc.GrpcConstants.TAG_KEY_GRPC_ERROR_MESSAGE;
 import static org.ballerinalang.net.grpc.MessageUtils.getMappingHttpStatusCode;
@@ -43,19 +38,12 @@ import static org.ballerinalang.net.grpc.MessageUtils.getMappingHttpStatusCode;
  *
  * @since 1.0.0
  */
-@BallerinaFunction(
-        orgName = ORG_NAME,
-        packageName = GrpcConstants.PROTOCOL_PACKAGE_GRPC,
-        functionName = "sendError",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = GrpcConstants.STREAMING_CLIENT,
-                structPackage = GrpcConstants.PROTOCOL_STRUCT_PACKAGE_GRPC),
-        isPublic = true
-)
 public class SendError {
 
     private static final Logger LOG = LoggerFactory.getLogger(SendError.class);
 
-    public static Object sendError(Strand strand, ObjectValue streamingConnection, long statusCode, String errorMsg) {
+    public static Object streamSendError(ObjectValue streamingConnection, long statusCode,
+                                      String errorMsg) {
         StreamObserver requestSender = (StreamObserver) streamingConnection.getNativeData(REQUEST_SENDER);
         if (requestSender == null) {
             return MessageUtils.getConnectorError(new StatusRuntimeException(Status
@@ -66,7 +54,8 @@ public class SendError {
                 requestSender.onError(new Message(new StatusRuntimeException(Status.fromCodeValue((int) statusCode)
                         .withDescription(errorMsg))));
                 // Add message content to observer context.
-                Optional<ObserverContext> observerContext = ObserveUtils.getObserverContextOfCurrentFrame(strand);
+                Optional<ObserverContext> observerContext =
+                        ObserveUtils.getObserverContextOfCurrentFrame(Scheduler.getStrand());
                 observerContext.ifPresent(ctx -> ctx.addTag(TAG_KEY_GRPC_ERROR_MESSAGE,
                         getMappingHttpStatusCode((int) statusCode) + " : " + errorMsg));
 

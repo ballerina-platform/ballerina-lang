@@ -19,12 +19,9 @@ import io.netty.handler.codec.http.HttpHeaders;
 import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.observability.ObserveUtils;
 import org.ballerinalang.jvm.observability.ObserverContext;
-import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.grpc.Message;
 import org.ballerinalang.net.grpc.MessageUtils;
 import org.ballerinalang.net.grpc.Status;
@@ -36,11 +33,7 @@ import org.slf4j.LoggerFactory;
 import java.util.Optional;
 
 import static org.ballerinalang.jvm.observability.ObservabilityConstants.TAG_KEY_HTTP_STATUS_CODE;
-import static org.ballerinalang.net.grpc.GrpcConstants.CALLER;
 import static org.ballerinalang.net.grpc.GrpcConstants.MESSAGE_HEADERS;
-import static org.ballerinalang.net.grpc.GrpcConstants.ORG_NAME;
-import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_PACKAGE_GRPC;
-import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_STRUCT_PACKAGE_GRPC;
 import static org.ballerinalang.net.grpc.MessageUtils.getMappingHttpStatusCode;
 
 /**
@@ -48,21 +41,14 @@ import static org.ballerinalang.net.grpc.MessageUtils.getMappingHttpStatusCode;
  *
  * @since 1.0.0
  */
-@BallerinaFunction(
-        orgName = ORG_NAME,
-        packageName = PROTOCOL_PACKAGE_GRPC,
-        functionName = "sendError",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = CALLER,
-                structPackage = PROTOCOL_STRUCT_PACKAGE_GRPC),
-        isPublic = true
-)
 public class SendError {
     private static final Logger LOG = LoggerFactory.getLogger(SendError.class);
 
-    public static Object sendError(Strand strand, ObjectValue endpointClient, long statusCode, String errorMsg,
+    public static Object externSendError(ObjectValue endpointClient, long statusCode, String errorMsg,
                                    Object headerValues) {
         StreamObserver responseObserver = MessageUtils.getResponseObserver(endpointClient);
-        Optional<ObserverContext> observerContext = ObserveUtils.getObserverContextOfCurrentFrame(strand);
+        Optional<ObserverContext> observerContext =
+                ObserveUtils.getObserverContextOfCurrentFrame(Scheduler.getStrand());
         if (responseObserver == null) {
             return MessageUtils.getConnectorError(new StatusRuntimeException(Status
                     .fromCode(Status.Code.INTERNAL.toStatus().getCode()).withDescription("Error while sending the " +

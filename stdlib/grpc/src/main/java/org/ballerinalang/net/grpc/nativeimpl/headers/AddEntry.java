@@ -17,33 +17,18 @@ package org.ballerinalang.net.grpc.nativeimpl.headers;
 
 import io.netty.handler.codec.http.DefaultHttpHeaders;
 import io.netty.handler.codec.http.HttpHeaders;
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.Receiver;
 
 import static org.ballerinalang.net.grpc.GrpcConstants.MESSAGE_HEADERS;
-import static org.ballerinalang.net.grpc.GrpcConstants.ORG_NAME;
-import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_PACKAGE_GRPC;
-import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_STRUCT_PACKAGE_GRPC;
 
 /**
  * Set custom Header to the Message.
  *
  * @since 1.0.0
  */
-@BallerinaFunction(
-        orgName = ORG_NAME,
-        packageName = PROTOCOL_PACKAGE_GRPC,
-        functionName = "addEntry",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = "Headers",
-                structPackage = PROTOCOL_STRUCT_PACKAGE_GRPC),
-        isPublic = true
-)
 public class AddEntry {
 
-    public static void addEntry(Strand strand, ObjectValue headerValues, String headerName, String headerValue) {
+    public static void externAddEntry(ObjectValue headerValues, String headerName, String headerValue) {
         HttpHeaders headers = (HttpHeaders) headerValues.getNativeData(MESSAGE_HEADERS);
         // Only initialize headers if not yet initialized
         headers = headers != null ? headers : new DefaultHttpHeaders();

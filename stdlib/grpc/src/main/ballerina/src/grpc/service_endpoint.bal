@@ -16,6 +16,7 @@
 
 import ballerina/crypto;
 import ballerina/lang.'object as lang;
+import ballerinax/java;
 
 # Represents server listener where one or more services can be registered. so that ballerina program can offer
 # service through this listener.
@@ -30,7 +31,7 @@ public type Listener object {
     #
     # + return - Returns an error if encounters an error while starting the server, returns nil otherwise.
     public function __start() returns error? {
-        return self.start();
+        return externStart(self);
     }
 
     public function __gracefulStop() returns error? {
@@ -41,7 +42,7 @@ public type Listener object {
     #
     # + return - Returns an error if encounters an error while stopping the server, returns nil otherwise.
     public function __immediateStop() returns error? {
-        return self.stop();
+        return externStop(self);
     }
 
     # Gets called every time a service attaches itself to this endpoint - also happens at module init time.
@@ -50,7 +51,7 @@ public type Listener object {
     # + name - Name of the service.
     # + return - Returns an error if encounters an error while attaching the service, returns nil otherwise.
     public function __attach(service s, string? name = ()) returns error? {
-        return self.register(s, name);
+        return externRegister(self, s, name);
     }
 
     public function __detach(service s) returns error? {
@@ -63,20 +64,32 @@ public type Listener object {
     public function __init(int port, ListenerConfiguration? config = ()) {
         self.config = config ?: {};
         self.port = port;
-        error? err = self.initEndpoint();
+        error? err = externInitEndpoint(self);
         if (err is error) {
             panic err;
         }
     }
-
-    function initEndpoint() returns error? = external;
-
-    function register(service serviceType, string? name) returns error? = external;
-
-    function start() returns error? = external;
-
-    function stop() returns error? = external;
 };
+
+function externInitEndpoint(Listener listenerObject) returns error? =
+@java:Method {
+    class: "org.ballerinalang.net.grpc.nativeimpl.serviceendpoint.InitEndpoint"
+} external;
+
+function externRegister(Listener listenerObject, service serviceType, string? name) returns error? =
+@java:Method {
+    class: "org.ballerinalang.net.grpc.nativeimpl.serviceendpoint.Register"
+} external;
+
+function externStart(Listener listenerObject) returns error? =
+@java:Method {
+    class: "org.ballerinalang.net.grpc.nativeimpl.serviceendpoint.Start"
+} external;
+
+function externStop(Listener listenerObject) returns error? =
+@java:Method {
+    class: "org.ballerinalang.net.grpc.nativeimpl.serviceendpoint.Stop"
+} external;
 
 # Maximum number of requests that can be processed at a given time on a single connection.
 const int MAX_PIPELINED_REQUESTS = 10;

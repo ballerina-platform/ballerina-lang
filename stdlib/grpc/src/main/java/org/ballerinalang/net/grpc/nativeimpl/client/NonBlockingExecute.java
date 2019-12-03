@@ -21,12 +21,9 @@ import io.netty.handler.codec.http.HttpHeaders;
 import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.observability.ObserveUtils;
 import org.ballerinalang.jvm.observability.ObserverContext;
-import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.grpc.DataContext;
 import org.ballerinalang.net.grpc.Message;
 import org.ballerinalang.net.grpc.MethodDescriptor;
@@ -36,12 +33,8 @@ import org.ballerinalang.net.grpc.stubs.NonBlockingStub;
 import java.util.Map;
 import java.util.Optional;
 
-import static org.ballerinalang.net.grpc.GrpcConstants.CLIENT_ENDPOINT_TYPE;
 import static org.ballerinalang.net.grpc.GrpcConstants.MESSAGE_HEADERS;
 import static org.ballerinalang.net.grpc.GrpcConstants.METHOD_DESCRIPTORS;
-import static org.ballerinalang.net.grpc.GrpcConstants.ORG_NAME;
-import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_PACKAGE_GRPC;
-import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_STRUCT_PACKAGE_GRPC;
 import static org.ballerinalang.net.grpc.GrpcConstants.SERVICE_STUB;
 import static org.ballerinalang.net.grpc.GrpcConstants.TAG_KEY_GRPC_MESSAGE_CONTENT;
 import static org.ballerinalang.net.grpc.Status.Code.INTERNAL;
@@ -51,18 +44,10 @@ import static org.ballerinalang.net.grpc.Status.Code.INTERNAL;
  *
  * @since 1.0.0
  */
-@BallerinaFunction(
-        orgName = ORG_NAME,
-        packageName = PROTOCOL_PACKAGE_GRPC,
-        functionName = "nonBlockingExecute",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = CLIENT_ENDPOINT_TYPE,
-                structPackage = PROTOCOL_STRUCT_PACKAGE_GRPC),
-        isPublic = true
-)
 public class NonBlockingExecute extends AbstractExecute {
 
     @SuppressWarnings("unchecked")
-    public static Object nonBlockingExecute(Strand strand, ObjectValue clientEndpoint, String methodName,
+    public static Object externNonBlockingExecute(ObjectValue clientEndpoint, String methodName,
                                             Object payload, ObjectValue callbackService, Object headerValues) {
         if (clientEndpoint == null) {
             return notifyErrorReply(INTERNAL, "Error while getting connector. gRPC Client connector is " +
@@ -95,10 +80,9 @@ public class NonBlockingExecute extends AbstractExecute {
 
         if (connectionStub instanceof NonBlockingStub) {
             Message requestMsg = new Message(methodDescriptor.getInputType().getName(), payload);
-            Optional<ObserverContext> observerContext = ObserveUtils.getObserverContextOfCurrentFrame(strand);
-            observerContext.ifPresent(ctx -> {
-                ctx.addTag(TAG_KEY_GRPC_MESSAGE_CONTENT, payload.toString());
-            });
+            Optional<ObserverContext> observerContext =
+                    ObserveUtils.getObserverContextOfCurrentFrame(Scheduler.getStrand());
+            observerContext.ifPresent(ctx -> ctx.addTag(TAG_KEY_GRPC_MESSAGE_CONTENT, payload.toString()));
             // Update request headers when request headers exists in the context.
             HttpHeaders headers = null;
             if (headerValues != null && (TypeChecker.getType(headerValues).getTag() == TypeTags.OBJECT_TYPE_TAG)) {
@@ -111,13 +95,13 @@ public class NonBlockingExecute extends AbstractExecute {
             NonBlockingStub nonBlockingStub = (NonBlockingStub) connectionStub;
             try {
                 MethodDescriptor.MethodType methodType = getMethodType(methodDescriptor);
-                DataContext context = new DataContext(strand, null);
+                DataContext context = new DataContext(Scheduler.getStrand(), null);
                 if (methodType.equals(MethodDescriptor.MethodType.UNARY)) {
-                    nonBlockingStub.executeUnary(requestMsg, new DefaultStreamObserver(strand.scheduler,
+                    nonBlockingStub.executeUnary(requestMsg, new DefaultStreamObserver(Scheduler.getStrand().scheduler,
                                     callbackService), methodDescriptors.get(methodName), context);
                 } else if (methodType.equals(MethodDescriptor.MethodType.SERVER_STREAMING)) {
                     nonBlockingStub.executeServerStreaming(requestMsg,
-                            new DefaultStreamObserver(strand.scheduler, callbackService),
+                            new DefaultStreamObserver(Scheduler.getStrand().scheduler, callbackService),
                             methodDescriptors.get(methodName), context);
                 } else {
                     return notifyErrorReply(INTERNAL, "Error while executing the client call. Method type " +
