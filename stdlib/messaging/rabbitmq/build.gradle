@@ -46,6 +46,7 @@ dependencies {
     testCompile 'org.testng:testng:6.13.1'
     testCompile project(':ballerina-jvm')
 
+    interopImports project(':ballerina-crypto')
 }
 
 configurations {

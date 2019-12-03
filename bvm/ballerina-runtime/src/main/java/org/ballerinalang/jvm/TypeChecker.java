@@ -1338,19 +1338,45 @@ public class TypeChecker {
         return true;
     }
 
-    private static boolean checkFiniteTypeAssignable(Object bRefTypeValue, BType sourceType, BFiniteType lhsType) {
-        if (bRefTypeValue == null) {
+    private static boolean checkFiniteTypeAssignable(Object sourceValue, BType sourceType, BFiniteType targetType) {
+        if (sourceValue == null) {
             // we should not reach here
             return false;
         }
 
-        for (Object valueSpaceItem : lhsType.valueSpace) {
+        for (Object valueSpaceItem : targetType.valueSpace) {
             // TODO: 8/13/19 Maryam fix for conversion
-            if (getType(valueSpaceItem).getTag() == sourceType.getTag() && valueSpaceItem.equals(bRefTypeValue)) {
+            if (isFiniteTypeValue(sourceValue, sourceType, valueSpaceItem)) {
                 return true;
             }
         }
         return false;
+    }
+
+    protected static boolean isFiniteTypeValue(Object sourceValue, BType sourceType, Object valueSpaceItem) {
+        BType valueSpaceItemType = getType(valueSpaceItem);
+        if (valueSpaceItemType.getTag() > TypeTags.FLOAT_TAG) {
+            return valueSpaceItemType.getTag() == sourceType.getTag() && valueSpaceItem.equals(sourceValue);
+        }
+
+        switch (sourceType.getTag()) {
+            case TypeTags.BYTE_TAG:
+            case TypeTags.INT_TAG:
+                return ((Number) sourceValue).longValue() == ((Number) valueSpaceItem).longValue();
+            case TypeTags.FLOAT_TAG:
+                if (sourceType.getTag() != valueSpaceItemType.getTag()) {
+                    return false;
+                }
+
+                return ((Number) sourceValue).doubleValue() == ((Number) valueSpaceItem).doubleValue();
+            case TypeTags.DECIMAL_TAG:
+                // falls through
+            default:
+                if (sourceType.getTag() != valueSpaceItemType.getTag()) {
+                    return false;
+                }
+                return valueSpaceItem.equals(sourceValue);
+        }
     }
 
     private static boolean checkIsErrorType(BType sourceType, BErrorType targetType, List<TypePair> unresolvedTypes) {

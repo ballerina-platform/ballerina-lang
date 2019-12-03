@@ -46,6 +46,8 @@ dependencies {
     implementation project(':ballerina-runtime')
     implementation project(':ballerina-java')
 
+    interopImports project(':ballerina-io')
+
     implementation 'org.apache.commons:commons-lang3'
     implementation 'com.google.protobuf:protobuf-java'
     implementation 'com.github.jknack:handlebars'
@@ -53,7 +55,10 @@ dependencies {
     implementation 'org.wso2.transport.http:org.wso2.transport.http.netty'
 
     interopImports project(':ballerina-config-api')
+    interopImports project(':ballerina-io')
+    interopImports project(':ballerina-system')
     interopImports project(':ballerina-time')
+    interopImports project(':ballerina-crypto')
 
     //testCompile project(':ballerina-tool')
     testCompile project(path: ':ballerina-test-common', configuration: 'tests')
