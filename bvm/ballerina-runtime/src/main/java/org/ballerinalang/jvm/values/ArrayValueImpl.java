@@ -177,7 +177,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
             case TypeTags.BOOLEAN_TAG:
                 return booleanValues[(int) index];
             case TypeTags.BYTE_TAG:
-                return byteValues[(int) index];
+                return Byte.toUnsignedInt(byteValues[(int) index]);
             case TypeTags.FLOAT_TAG:
                 return floatValues[(int) index];
             case TypeTags.STRING_TAG:
@@ -213,8 +213,10 @@ public class ArrayValueImpl extends AbstractArrayValue {
         rangeCheckForGet(index, size);
         if (intValues != null) {
             return intValues[(int) index];
+        } else if (refValues != null) {
+            return (Long) refValues[(int) index];
         }
-        return (Long) refValues[(int) index];
+        return Byte.toUnsignedInt(byteValues[(int) index]);
     }
 
     /**
@@ -324,8 +326,15 @@ public class ArrayValueImpl extends AbstractArrayValue {
     @Override
     public void add(long index, long value) {
         handleFrozenArrayValue();
-        prepareForAdd(index, value, intValues.length);
-        intValues[(int) index] = value;
+
+        if (intValues != null) {
+            prepareForAdd(index, value, intValues.length);
+            intValues[(int) index] = value;
+            return;
+        }
+
+        prepareForAdd(index, value, byteValues.length);
+        byteValues[(int) index] = (byte) ((Long) value).intValue();
     }
 
     /**
