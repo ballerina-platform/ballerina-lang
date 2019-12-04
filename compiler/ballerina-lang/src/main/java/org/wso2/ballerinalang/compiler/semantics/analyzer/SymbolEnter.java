@@ -257,8 +257,10 @@ public class SymbolEnter extends BLangNodeVisitor {
                 importPkgHolder.get(qualifiedName).unresolved.add(importNode);
                 return;
             }
-            importPkgHolder.put(qualifiedName, new ImportResolveHolder(importNode));
             defineNode(importNode, pkgEnv);
+            if (importNode.symbol != null) {
+                importPkgHolder.put(qualifiedName, new ImportResolveHolder(importNode));
+            }
         });
 
         for (ImportResolveHolder importHolder : importPkgHolder.values()) {
@@ -266,11 +268,6 @@ public class SymbolEnter extends BLangNodeVisitor {
             // compilation unit info to it,
 
             for (BLangImportPackage unresolvedPkg : importHolder.unresolved) {
-                if (pkgSymbol == null) {
-                    dlog.error(unresolvedPkg.pos, DiagnosticCode.MODULE_NOT_FOUND,
-                            unresolvedPkg.getQualifiedPackageName());
-                    continue;
-                }
                 BPackageSymbol importSymbol = importHolder.resolved.symbol;
                 Name resolvedPkgAlias = names.fromIdNode(importHolder.resolved.alias);
                 Name unresolvedPkgAlias = names.fromIdNode(unresolvedPkg.alias);
