@@ -95,6 +95,7 @@ processResources {
 }
 
 task copyHighlighter(type: Copy) {
+    dependsOn ":composer-library:npmBuild"
     from configurations.highlighterLib {
         include '*.js'
     }

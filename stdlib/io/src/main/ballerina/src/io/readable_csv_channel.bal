@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-//import ballerinax/java;
+import ballerinax/java;
 
 # Represents a ReadableCSVChannel which could be used to read records from CSV file.
 public type ReadableCSVChannel object {
@@ -88,11 +88,13 @@ public type ReadableCSVChannel object {
     #
     # + structType - The object the CSV records should be deserialized
     # + return - Table which represents CSV records or `Error` if any error occurred
-    public function getTable(typedesc<record {}> structType) returns @tainted table<record {}>|Error = external;
+    public function getTable(typedesc<record {}> structType) returns @tainted table<record {}>|Error {
+        return getTableExtern(self, structType);
+    }
 };
 
-//function getTableExtern(ReadableCSVChannel csvChannel, typedesc<record {}> structType)
-//            returns @tainted table<record {}>|Error = @java:Method {
-//    name: "getTable",
-//    class: "org.ballerinalang.stdlib.io.nativeimpl.GetTable"
-//} external;
+function getTableExtern(ReadableCSVChannel csvChannel, typedesc<record {}> structType)
+            returns @tainted table<record {}>|Error = @java:Method {
+    name: "getTable",
+    class: "org.ballerinalang.stdlib.io.nativeimpl.GetTable"
+} external;

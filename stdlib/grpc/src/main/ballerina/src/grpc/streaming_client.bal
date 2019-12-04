@@ -14,6 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerinax/java;
+
 # Provides the gRPC streaming client actions for interacting with gRPC server.
 public type StreamingClient client object {
 
@@ -21,17 +23,38 @@ public type StreamingClient client object {
     #
     # + res - The inbound request message.
     # + return - Returns an error if encounters an error while sending the response, returns nil otherwise.
-    public remote function send(any res) returns Error? = external;
+    public remote function send(any res) returns Error? {
+        return streamSend(self, res);
+    }
 
     # Informs the server, caller finished sending messages.
     #
     # + return - Returns an error if encounters an error while sending the response, returns nil otherwise.
-    public remote function complete() returns Error? = external;
+    public remote function complete() returns Error? {
+        return streamComplete(self);
+    }
 
     # Sends error message to the server.
     #
     # + statusCode - Error status code.
     # + message - Error message.
     # + return - Returns an error if encounters an error while sending the response, returns nil otherwise.
-    public remote function sendError(int statusCode, string message) returns Error? = external;
+    public remote function sendError(int statusCode, string message) returns Error? {
+        return streamSendError(self, statusCode, java:fromString(message));
+    }
 };
+
+function streamSend(StreamingClient streamConnection, any res) returns Error? =
+@java:Method {
+    class: "org.ballerinalang.net.grpc.nativeimpl.streamingclient.FunctionUtils"
+} external;
+
+function streamComplete(StreamingClient streamConnection) returns Error? =
+@java:Method {
+    class: "org.ballerinalang.net.grpc.nativeimpl.streamingclient.FunctionUtils"
+} external;
+
+function streamSendError(StreamingClient streamConnection, int statusCode, handle message) returns Error? =
+@java:Method {
+    class: "org.ballerinalang.net.grpc.nativeimpl.streamingclient.FunctionUtils"
+} external;
