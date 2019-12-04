@@ -5,9 +5,11 @@ import ballerinax/java;
 function workerDeclTest() {
      int a = 20;
      fork {
+       @concurrent{}
 	   worker w1 {
 	     int x = 0;
 	   }
+	   @concurrent{}
 	   worker w2 {
 	     int y = 0;
 	     int g = y + 1;
@@ -21,12 +23,14 @@ function workerDeclTest() {
 function forkWithMessageParsingTest() returns int {
     int x = 5;
     fork {
+       @concurrent{}
 	   worker w1 {
 	     int a = 5;
 	     int b = 0;
 	     a -> w2;
 	     b = <- w2;
 	   }
+	   @concurrent{}
 	   worker w2 {
 	     int a = 0;
 	     int b = 15;
