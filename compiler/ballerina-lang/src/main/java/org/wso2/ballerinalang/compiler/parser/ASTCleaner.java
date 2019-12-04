@@ -360,7 +360,7 @@ class ASTCleaner extends BLangNodeVisitor {
         clearNode(serviceNode.markdownDocumentationAttachment);
         clearNode(serviceNode.serviceTypeDefinition);
         clearNodeList(serviceNode.attachedExprs);
-        clearNode(serviceNode.variableNode);
+        // Excluded serviceNode.variableNode as that will captured in global variable.
     }
 
     @Override

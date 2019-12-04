@@ -47,6 +47,8 @@ public class BLangService extends BLangNode implements ServiceNode {
     public BLangIdentifier name;
     public BLangTypeDefinition serviceTypeDefinition;
     public List<BLangExpression> attachedExprs;
+
+    // Reference to global variable of this is a module level service.
     public BLangVariable variableNode;
     public boolean isAnonymousServiceValue;
 
