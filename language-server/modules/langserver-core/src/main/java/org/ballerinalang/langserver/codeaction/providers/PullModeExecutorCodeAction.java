@@ -42,8 +42,8 @@ public class PullModeExecutorCodeAction implements BallerinaCodeActionProvider {
      * {@inheritDoc}
      */
     @Override
-    public List<org.eclipse.lsp4j.CodeAction> getCodeActions(CodeActionNodeType nodeType, LSContext lsContext,
-                                                             List<Diagnostic> diagnostics) {
+    public List<CodeAction> getCodeActions(CodeActionNodeType nodeType, LSContext lsContext,
+                                           List<Diagnostic> diagnostics) {
 
         List<CodeAction> actions = new ArrayList<>();
 

@@ -59,7 +59,7 @@ public class IncompativleTypesCodeAction implements BallerinaCodeActionProvider 
         try {
             document = documentManager.getLSDocument(filePath.get());
         } catch (WorkspaceDocumentException e) {
-            e.printStackTrace();
+            // ignore
         }
 
         for (Diagnostic diagnostic : diagnostics) {
