@@ -117,9 +117,11 @@ function genJMethodForBFunc(bir:Function func,
     // set channel details to strand.
     // these channel info is required to notify datachannels, when there is a panic
     // we cannot set this during strand creation, because function call do not have this info.
-    mv.visitVarInsn(ALOAD, localVarOffset);
-    loadChannelDetails(mv, func.workerChannels);
-    mv.visitMethodInsn(INVOKEVIRTUAL, STRAND, "updateChannelDetails", io:sprintf("([L%s;)V", CHANNEL_DETAILS), false);
+    if (func.workerChannels.length() > 0) {
+        mv.visitVarInsn(ALOAD, localVarOffset);
+        loadChannelDetails(mv, func.workerChannels);
+        mv.visitMethodInsn(INVOKEVIRTUAL, STRAND, "updateChannelDetails", io:sprintf("([L%s;)V", CHANNEL_DETAILS), false);
+    }
 
     // panic if this strand is cancelled
     checkStrandCancelled(mv, localVarOffset);
@@ -135,6 +137,11 @@ function genJMethodForBFunc(bir:Function func,
         k += 1;
     }
 
+    bir:VariableDcl varDcl = getVariableDcl(localVars[0]);
+    returnVarRefIndex = indexMap.getIndex(varDcl);
+    bir:BType returnType = <bir:BType> func.typeValue?.retType;
+    genDefaultValue(mv, returnType, returnVarRefIndex);
+
     bir:VariableDcl stateVar = { typeValue: "string", //should  be javaInt
                                  name: { value: "state" },
                                  kind: "TEMP" };
@@ -149,11 +156,6 @@ function genJMethodForBFunc(bir:Function func,
 
     jvm:Label varinitLable = labelGen.getLabel(funcName + "varinit");
     mv.visitLabel(varinitLable);
-
-    bir:VariableDcl varDcl = getVariableDcl(localVars[0]);
-    returnVarRefIndex = indexMap.getIndex(varDcl);
-    bir:BType returnType = <bir:BType> func.typeValue?.retType;
-    genDefaultValue(mv, returnType, returnVarRefIndex);
 
     // uncomment to test yield
     // mv.visitFieldInsn(GETSTATIC, className, "i", "I");

@@ -134,18 +134,18 @@ public class TableValue implements RefValue, BTable {
 
     /**
      * Returns string representation of the table.
-     * @param strand The strand on which the stringValue method is called
+     * 
      * @return string representation of the table
      */
-    public String stringValue(Strand strand) {
-        return createStringValueDataEntry(strand);
+    public String stringValue() {
+        return createStringValueDataEntry();
     }
 
-    private String createStringValueDataEntry(Strand strand) {
+    private String createStringValueDataEntry() {
         StringJoiner sj = new StringJoiner(" ");
         while (hasNext()) {
             MapValueImpl<?, ?> struct = getNext();
-            sj.add(struct.stringValue(strand));
+            sj.add(struct.stringValue());
         }
         return sj.toString();
     }

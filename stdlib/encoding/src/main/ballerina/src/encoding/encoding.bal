@@ -26,7 +26,7 @@ public function encodeBase64Url(byte[] input) returns string {
 
 function externEncodeBase64Url(byte[] input) returns handle = @java:Method {
     name: "encodeBase64Url",
-    class: "org.ballerinalang.stdlib.encoding.nativeimpl.EncodeBase64Url"
+    class: "org.ballerinalang.stdlib.encoding.nativeimpl.Encode"
 } external;
 
 # Decodes the Base64 URL encoded `string` into a byte array.
@@ -39,7 +39,7 @@ public function decodeBase64Url(string input) returns byte[]|Error {
 
 function externDecodeBase64Url(handle input) returns byte[]|Error = @java:Method {
     name: "decodeBase64Url",
-    class: "org.ballerinalang.stdlib.encoding.nativeimpl.DecodeBase64Url"
+    class: "org.ballerinalang.stdlib.encoding.nativeimpl.Decode"
 } external;
 
 # Encodes the given URI component.
@@ -54,7 +54,7 @@ public function encodeUriComponent(string uriComponent, string charset) returns 
 
 function externEncodeUriComponent(handle uriComponent, handle charset) returns handle|Error = @java:Method {
     name: "encodeUriComponent",
-    class: "org.ballerinalang.stdlib.encoding.nativeimpl.EncodeUriComponent"
+    class: "org.ballerinalang.stdlib.encoding.nativeimpl.Encode"
 } external;
 
 # Decodes the given URI component.
@@ -69,5 +69,5 @@ public function decodeUriComponent(string uriComponent, string charset) returns 
 
 function externDecodeUriComponent(handle uriComponent, handle charset) returns handle|Error = @java:Method {
     name: "decodeUriComponent",
-    class: "org.ballerinalang.stdlib.encoding.nativeimpl.DecodeUriComponent"
+    class: "org.ballerinalang.stdlib.encoding.nativeimpl.Decode"
 } external;

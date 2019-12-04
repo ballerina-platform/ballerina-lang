@@ -17,7 +17,7 @@
   */
 package org.ballerinalang.jvm.values;
 
- /**
+/**
   * Represent ballerina strings containing only unicode basic multilingual plane characters.
   *
   * @since 1.0.5
@@ -53,4 +53,9 @@ public class BmpStringValue implements StringValue {
              throw new RuntimeException("not impl yet");
          }
      }
+
+    @Override
+    public String stringValue() {
+        return value;
+    }
 }

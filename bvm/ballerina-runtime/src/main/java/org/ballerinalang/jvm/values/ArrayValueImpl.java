@@ -20,7 +20,6 @@ package org.ballerinalang.jvm.values;
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.commons.ArrayState;
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
@@ -416,11 +415,6 @@ public class ArrayValueImpl extends AbstractArrayValue {
 
     @Override
     public String stringValue() {
-        return stringValue(null);
-    }
-
-    @Override
-    public String stringValue(Strand strand) {
         StringJoiner sj = new StringJoiner(" ");
         switch (this.elementType.getTag()) {
             case TypeTags.INT_TAG:
@@ -450,7 +444,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
                 break;
             default:
                 for (int i = 0; i < size; i++) {
-                    sj.add(StringUtils.getStringValue(strand, refValues[i]));
+                    sj.add(StringUtils.getStringValue(refValues[i]));
                 }
                 break;
         }
