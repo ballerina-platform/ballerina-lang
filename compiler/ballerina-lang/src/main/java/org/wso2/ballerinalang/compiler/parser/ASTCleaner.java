@@ -22,6 +22,7 @@ import org.ballerinalang.model.tree.clauses.PatternStreamingEdgeInputNode;
 import org.ballerinalang.model.tree.clauses.SelectExpressionNode;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.statements.StreamingQueryStatementNode;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
@@ -271,7 +272,7 @@ class ASTCleaner extends BLangNodeVisitor {
 
         accessExpression.originalType = null;
         clearNode(accessExpression.expr);
-        resetBLangExpression(accessExpression);
+        resetBLangVariableReference(accessExpression);
     }
 
     private void resetBLangStatement(BLangStatement statement) {
@@ -790,9 +791,11 @@ class ASTCleaner extends BLangNodeVisitor {
 
         literalExpr.isJSONContext = false;
         literalExpr.isFiniteContext = false;
+        BType type = literalExpr.type;
         resetBLangExpression(literalExpr);
         // literalExpr is not handled properly in the type checker. Hence, need to preserver original type.
-        literalExpr.type = literalExpr.literalType;
+        literalExpr.type = literalExpr.literalType != null ? literalExpr.literalType : type;
+        literalExpr.value = literalExpr.literalValue;
     }
 
     @Override
@@ -877,6 +880,8 @@ class ASTCleaner extends BLangNodeVisitor {
             invocationExpr.argExprs.remove(0);
             invocationExpr.langLibInvocation = false;
         }
+        invocationExpr.argExprs.clear();
+        invocationExpr.argExprs.addAll(invocationExpr.originalArgExprs);
         clearNodeList(invocationExpr.argExprs);
         invocationExpr.exprSymbol = null;
         clearNodeList(invocationExpr.annAttachments);

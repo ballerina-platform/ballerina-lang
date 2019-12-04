@@ -43,6 +43,7 @@ import java.util.Set;
  */
 public class BLangInvocation extends BLangAccessExpression implements InvocationNode {
 
+    public List<BLangExpression> originalArgExprs = new ArrayList<>();
     public BLangIdentifier pkgAlias;
     public BLangIdentifier name;
     public List<BLangExpression> argExprs = new ArrayList<>();
