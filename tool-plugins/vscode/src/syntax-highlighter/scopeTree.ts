@@ -1,12 +1,10 @@
-import { Color } from 'vscode';
-
 class Node {
     scope: string;
-    color: Color;
+    color: String;
     parent: any;
     children: Node[];
 
-    constructor(data: string, scopeColor: Color) {
+    constructor(data: string, scopeColor: String) {
         this.scope = data;
         this.color = scopeColor;
         this.parent = null;
@@ -20,8 +18,6 @@ class Node {
     setParent(parent: Node) {
         this.parent = parent;
     }
-
-
 }
 
 class Queue {
@@ -70,27 +66,27 @@ class ScopeTree {
     link(parent: Node, child: Node) {
         parent.setChild(child);
         child.setParent(parent);
-
     }
 }
 
 export function getScopeColor(scope: string) {
 
-    const node1 = new Node("source.ballerina", new Color(0, 0, 255, 0));
+    const node1 = new Node("endpoint.ballerina", "#F2A618");
     const tree = new ScopeTree(node1);
 
-    const node2 = new Node("string.ballerina", new Color(255, 0, 0, 0));
+    const node2 = new Node("unused.ballerina", "#FF751A");
     tree.link(node1, node2);
 
-    const node5 = new Node("keyword.ballerina", new Color(100, 100, 0, 0));
+    const node5 = new Node("keyword.ballerina", "#FFFFFF");
     tree.link(node1, node5);
 
-    const node3 = new Node("string.begin.ballerina", new Color(0, 255, 0, 0));
+    const node3 = new Node("string.ballerina", "#000000");
     tree.link(node2, node3);
 
-    const node4 = new Node("string.end.ballerina", new Color(0, 100, 0, 0));
-    tree.link(node2, node4);
-
     return tree.traverse(scope);
+}
 
+export function getScopeName(scope: number) {
+    let scopeArray: { [key: number]: string } = { 0: "endpoint.ballerina", 1: "unused.ballerina" };
+    return scopeArray[scope];
 }

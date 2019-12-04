@@ -1,50 +1,42 @@
+/*
+ *  Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing,
+ *  software distributed under the License is distributed on an
+ *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *  KIND, either express or implied.  See the License for the
+ *  specific language governing permissions and limitations
+ *  under the License.
+ */
 package org.ballerinalang.langserver.extensions.ballerina.syntaxhighlighter;
-
-import java.util.HashMap;
-import java.util.Map;
-
+/**
+ * Enum for the scopes.
+ */
 public enum ScopeEnum {
 
 
-    SOURCE("source",1), KEYWORD("keyword",2), ENDPOINT("endpoint",0);
+    ENDPOINT("endpoint.ballerina", 0), UNUSED("unused.ballerina", 1);
 
-    private String key;
-    private int value;
+    private String scopeName;
+    private int scopeId;
 
-//    private static Map<String, Integer> scopeMap = new HashMap<String, Integer>();
-//    static {
-//        test();
-//    }
-
-    public String getKey() {
-        return key;
+    ScopeEnum(String scopeName, int scopeId) {
+        this.scopeName = scopeName;
+        this.scopeId = scopeId;
     }
 
-    public void setKey(String key) {
-        this.key = key;
+    public String getScopeName() {
+        return scopeName;
     }
 
-    public int getValue() {
-        return value;
+    public int getScopeId() {
+        return scopeId;
     }
-
-    public void setValue(int value) {
-        this.value = value;
-    }
-
-
-    ScopeEnum(String source, int i) {
-        this.key = source;
-        this.value = i;
-    }
-//
-//    private static void test() {
-//        for (ScopeEnum scopeEnum : ScopeEnum.values()) {
-//            scopeMap.put(scopeEnum.key, scopeEnum.value);
-//        }
-//    }
-//
-//    public int getVal(String s) {
-//        return scopeMap.get(s);
-//    }
 };

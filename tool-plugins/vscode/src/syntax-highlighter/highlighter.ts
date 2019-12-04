@@ -1,6 +1,7 @@
 import { Base64 } from 'js-base64';
 import { HighlightToken, SemanticHighlightingInformation } from './model';
-import { Range, window, TextEditorDecorationType, Color } from 'vscode';
+import { Range, window } from 'vscode';
+import { getScopeColor, getScopeName } from './scopeTree';
 
 function decodeTokens(element: SemanticHighlightingInformation): HighlightToken[] {
     const tokenArray: HighlightToken[] = [];
@@ -15,37 +16,29 @@ function decodeTokens(element: SemanticHighlightingInformation): HighlightToken[
     return tokenArray;
 }
 
-function highlightLines(highlightingInfo: SemanticHighlightingInformation[]): { [scope: number]: Range[]; } {
+function highlightLines(highlightingInfo: SemanticHighlightingInformation): { [scope: number]: Range[]; } {
     let highlights: HighlightToken[] = [];
     let highlightByScope: { [scope: number]: Range[]; } = {};
 
-    highlightingInfo.forEach(element => {
-        highlights.push(...decodeTokens(element));
-    });
+    highlights.push(...decodeTokens(highlightingInfo));
 
     highlights.forEach(element => {
         if (!highlightByScope[element.scope]) { highlightByScope[element.scope] = [element.range]; }
         else { highlightByScope[element.scope].push(element.range); }
     });
-
+    
     return highlightByScope;
 }
 
-export function setEditorDecorations(highlightingInfo: SemanticHighlightingInformation[]) {
+export function setEditorDecorations(highlightingInfo: SemanticHighlightingInformation) {
     const scopeObj = highlightLines(highlightingInfo);
-    const decorationType1 = window.createTextEditorDecorationType({
-        color: 'yellow'
-    });
-    const decorationType2 = window.createTextEditorDecorationType({
-        color: 'red'
-    });
-    const decorationTypes: TextEditorDecorationType[] = [decorationType1, decorationType2];
 
     let activeEditor = window.activeTextEditor;
     if (!activeEditor) { return; }
-    for (let index = 0; index < Object.keys(scopeObj).length; index++) {
-        activeEditor.setDecorations(decorationTypes[index], scopeObj[index]);
+    for (let key in scopeObj) {
+        let decorationType = window.createTextEditorDecorationType({
+            color: getScopeColor(getScopeName(Number(key)))
+        });
+        activeEditor.setDecorations(decorationType, scopeObj[key]);
     }
 }
-
-

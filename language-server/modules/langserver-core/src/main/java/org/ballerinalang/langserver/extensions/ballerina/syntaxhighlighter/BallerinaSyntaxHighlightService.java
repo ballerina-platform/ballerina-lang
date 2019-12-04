@@ -23,7 +23,7 @@ import org.eclipse.lsp4j.jsonrpc.services.JsonSegment;
 import java.util.concurrent.CompletableFuture;
 
 /**
- * An extension interface for Language server to fetch information about ballerina syntax hightlighter.
+ * An extension interface for Language server to fetch information about ballerina syntax highlighter.
  *
  * @since 1.0.2
  */

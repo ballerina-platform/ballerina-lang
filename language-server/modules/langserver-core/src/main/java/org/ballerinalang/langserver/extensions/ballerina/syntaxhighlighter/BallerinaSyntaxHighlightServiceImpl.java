@@ -17,19 +17,6 @@
  */
 package org.ballerinalang.langserver.extensions.ballerina.syntaxhighlighter;
 
-import org.ballerinalang.langserver.BallerinaLanguageServer;
-import org.ballerinalang.langserver.LSContextOperation;
-import org.ballerinalang.langserver.LSGlobalContext;
-import org.ballerinalang.langserver.LSGlobalContextKeys;
-import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
-import org.ballerinalang.langserver.compiler.LSContext;
-import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
-import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
-import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
-import org.wso2.ballerinalang.compiler.tree.BLangPackage;
-import org.wso2.ballerinalang.compiler.util.CompilerContext;
-
-import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -39,19 +26,9 @@ import java.util.concurrent.CompletableFuture;
  */
 public class BallerinaSyntaxHighlightServiceImpl implements BallerinaSyntaxHighlightService {
 
-    private final List<SemanticHighlightProvider.HighlightInfo> list;
-    private final LSGlobalContext lsGlobalContext;
-
-    public BallerinaSyntaxHighlightServiceImpl(LSGlobalContext lsGlobalContext) {
-        this.list = lsGlobalContext.get(SemanticHighlightKeys.SEMANTIC_HIGHLIGHTING_KEY);
-        this.lsGlobalContext = lsGlobalContext;
-    }
-
     public CompletableFuture<BallerinaHighlightingResponse> list(BallerinaHighlightingRequest request) {
 
-        request.getParams();
         BallerinaHighlightingResponse reply = new BallerinaHighlightingResponse();
         return CompletableFuture.supplyAsync(() -> reply);
     }
-
 }

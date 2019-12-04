@@ -16,37 +16,21 @@
 *  under the License.
 */
 import { BallerinaExtension } from '../core';
-import { commands, ExtensionContext } from 'vscode';
 import { setEditorDecorations } from './highlighter';
 import { SemanticHighlightingInformation } from './model';
-import { getScopeColor } from './scopeTree';
 import { ExtendedLangClient } from '../core/extended-language-client';
+import { window } from 'vscode';
 
 export function activate(ballerinaExtInstance: BallerinaExtension) {
-    const context = <ExtensionContext>ballerinaExtInstance.context;
-    
-    // let highlightingInfo: SemanticHighlightingInformation[] =
-    //     [{ line: 4, token: "WzEyLCAxNCwgMF0=" }, //[0, 3, 0, 5,2, 1, 10, 5, 0]
-    //     { line: 5, token: "WzEyLCAxNSwgMF0=" }]; //[16, 2, 1, 20, 3, 0, 25, 2, 1]
 
-        const langClient = <ExtendedLangClient> ballerinaExtInstance.langClient;
+    const langClient = <ExtendedLangClient>ballerinaExtInstance.langClient;
 
-        ballerinaExtInstance.onReady().then(() => {
-            langClient.onNotification('window/highlighting', (highlights: SemanticHighlightingInformation) => {
-                let highlightInformation: SemanticHighlightingInformation[] = [];
-                highlightInformation.push(highlights); 
-                setEditorDecorations(highlightInformation);
-            });
-        })
-        .catch((e) => {
-            //window.showErrorMessage('Could not start HTTP logs feature', e.message);
+    ballerinaExtInstance.onReady().then(() => {
+        langClient.onNotification('window/highlighting', (highlights: SemanticHighlightingInformation) => {
+            setEditorDecorations(highlights);
         });
-
-    let disposable = commands.registerCommand('ballerina.highlightSyntax', () => {
-        
-        console.log(getScopeColor("string.begin.ballerina"));
-
-    });
-    
-    context.subscriptions.push(disposable);
+    })
+        .catch((e) => {
+            window.showErrorMessage('Could not start semantic highlighting feature', e.message);
+        });
 }

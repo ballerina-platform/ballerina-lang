@@ -22,8 +22,6 @@ import org.eclipse.lsp4j.Location;
 import org.eclipse.lsp4j.jsonrpc.services.JsonNotification;
 import org.eclipse.lsp4j.services.LanguageClient;
 
-import java.util.List;
-
 /**
  * Extended Language Client interface.
  */
@@ -35,6 +33,5 @@ public interface ExtendedLanguageClient extends LanguageClient {
     void showTextDocument(Location location);
 
     @JsonNotification("window/highlighting")
-//    void publishTextHighlighting(List<SemanticHighlightingInformation> semanticHighlightingInformation);
     void publishTextHighlighting(SemanticHighlightingInformation semanticHighlightingInformation);
 }

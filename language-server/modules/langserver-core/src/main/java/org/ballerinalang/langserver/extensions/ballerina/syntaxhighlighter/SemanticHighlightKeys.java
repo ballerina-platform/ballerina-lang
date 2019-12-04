@@ -18,7 +18,6 @@
 package org.ballerinalang.langserver.extensions.ballerina.syntaxhighlighter;
 
 import org.ballerinalang.langserver.compiler.LSContext;
-import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 
 import java.util.List;
 

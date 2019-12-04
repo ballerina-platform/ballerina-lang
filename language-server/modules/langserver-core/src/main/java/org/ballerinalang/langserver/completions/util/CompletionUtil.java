@@ -76,7 +76,6 @@ public class CompletionUtil {
         LSCompletionProvider completionProvider = scopeProviders.get(scope.getClass());
         try {
             items.addAll(completionProvider.getCompletions(ctx));
-            ctx.get(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY);
         } catch (Exception e) {
             LOGGER.error("Error while retrieving completions from: " + completionProvider.getClass());
         }

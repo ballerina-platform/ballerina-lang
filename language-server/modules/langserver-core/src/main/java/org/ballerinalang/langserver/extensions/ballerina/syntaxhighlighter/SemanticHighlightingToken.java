@@ -26,6 +26,12 @@ public class SemanticHighlightingToken {
     public int length;
     public int scope;
 
+    public SemanticHighlightingToken(int character, int length, int scope) {
+        this.character = character;
+        this.length = length;
+        this.scope = scope;
+    }
+
     public int getCharacter() {
         return character;
     }

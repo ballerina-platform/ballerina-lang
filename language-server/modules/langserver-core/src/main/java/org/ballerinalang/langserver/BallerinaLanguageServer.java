@@ -39,7 +39,7 @@ import org.ballerinalang.langserver.extensions.ballerina.symbol.BallerinaSymbolS
 import org.ballerinalang.langserver.extensions.ballerina.symbol.BallerinaSymbolServiceImpl;
 import org.ballerinalang.langserver.extensions.ballerina.syntaxhighlighter.BallerinaSyntaxHighlightService;
 import org.ballerinalang.langserver.extensions.ballerina.syntaxhighlighter.BallerinaSyntaxHighlightServiceImpl;
-import org.ballerinalang.langserver.extensions.ballerina.syntaxhighlighter.SemanticHighlightKeys;
+import org.ballerinalang.langserver.extensions.ballerina.syntaxhighlighter.ScopeEnum;
 import org.ballerinalang.langserver.extensions.ballerina.traces.BallerinaTraceService;
 import org.ballerinalang.langserver.extensions.ballerina.traces.BallerinaTraceServiceImpl;
 import org.ballerinalang.langserver.extensions.ballerina.traces.Listener;
@@ -104,7 +104,7 @@ public class BallerinaLanguageServer implements ExtendedLanguageServer, Extended
         this.ballerinaTraceListener = new Listener(this.ballerinaTraceService);
         this.ballerinaSymbolService = new BallerinaSymbolServiceImpl(lsGlobalContext);
         this.ballerinaFragmentService = new BallerinaFragmentServiceImpl(lsGlobalContext);
-        this.ballerinaSyntaxHighlightService = new BallerinaSyntaxHighlightServiceImpl(lsGlobalContext);
+        this.ballerinaSyntaxHighlightService = new BallerinaSyntaxHighlightServiceImpl();
 
         LSAnnotationCache.initiate();
         LSCodeLensesProviderFactory.getInstance().initiate();
@@ -164,12 +164,9 @@ public class BallerinaLanguageServer implements ExtendedLanguageServer, Extended
                 experimentalClientCapabilities.get(SEMANTIC_SYNTAX_HIGHLIGHTER.getValue()) != null) {
             experimentalServerCapabilities.put("semanticSyntaxHighlighter", true);
             String[][] scopes = new String[2][2];
-            scopes[0][0] = "source.ballerina";
-            scopes[1][0] = "keyword.ballerina";
-            scopes[1][1] = "keyword.other.ballerina";
+            scopes[0][0] = ScopeEnum.ENDPOINT.getScopeName();
+            scopes[1][0] = ScopeEnum.UNUSED.getScopeName();
             experimentalServerCapabilities.put("semanticScopes", scopes);
-
-
         }
         res.getCapabilities().setExperimental(experimentalServerCapabilities);
 
