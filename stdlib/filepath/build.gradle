@@ -55,6 +55,7 @@ dependencies {
 
     interopImports project(':ballerina-system')
     interopImports project(':ballerina-io')
+    interopImports project(':ballerina-log-api')
 }
 
 createBalo {
