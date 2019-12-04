@@ -173,7 +173,7 @@ static def createClassPathJar(outputName, jarsToBeLoaded) {
     Manifest manifest = new Manifest()
     manifest.getMainAttributes().put(Attributes.Name.MANIFEST_VERSION, "1.0");
     manifest.getMainAttributes().put(Attributes.Name.CLASS_PATH,
-            jarsToBeLoaded.toString().replaceAll("\\[|\\]","").replaceAll(","," "))
+            jarsToBeLoaded.toString().replaceAll("[\\[\\]]", "").replaceAll(",", " "))
     File classpathJarFile = new File(outputName)
     classpathJarFile.parentFile.mkdir()
     JarOutputStream jarOutputStream = new JarOutputStream(new FileOutputStream(classpathJarFile), manifest)
