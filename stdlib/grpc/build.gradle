@@ -44,6 +44,7 @@ dependencies {
     implementation project(':ballerina-crypto')
     implementation project(':ballerina-http')
     implementation project(':ballerina-runtime')
+    implementation project(':ballerina-java')
 
     interopImports project(':ballerina-io')
 
@@ -57,6 +58,7 @@ dependencies {
     interopImports project(':ballerina-io')
     interopImports project(':ballerina-system')
     interopImports project(':ballerina-time')
+    interopImports project(':ballerina-crypto')
 
     //testCompile project(':ballerina-tool')
     testCompile project(path: ':ballerina-test-common', configuration: 'tests')
@@ -78,8 +80,7 @@ dependencies {
     baloImplementation project(path: ':ballerina-crypto', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-time', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-http', configuration: 'baloImplementation')
-
-    interopImports project(':ballerina-crypto')
+    baloImplementation project(path: ':ballerina-java', configuration: 'baloImplementation')
 }
 
 createBalo {
