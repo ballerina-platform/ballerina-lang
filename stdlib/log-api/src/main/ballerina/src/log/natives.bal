@@ -14,29 +14,45 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerinax/java;
 
 # Logs the specified value at DEBUG level.
 #
 # + msg - The message to be logged
-public function printDebug(string | (function() returns (string)) msg) = external;
+public function printDebug(string | (function() returns (string)) msg) =
+@java:Method {
+    class: "org.ballerinalang.stdlib.log.Utils"
+} external;
 
 # Logs the specified message at ERROR level.
 #
 # + msg - The message to be logged
 # + err - The error struct to be logged
-public function printError(string | (function() returns (string)) msg, public error? err = ()) = external;
+public function printError(string | (function() returns (string)) msg, public error? err = ()) =
+@java:Method {
+    class: "org.ballerinalang.stdlib.log.Utils"
+} external;
 
 # Logs the specified message at INFO level.
 #
 # + msg - The message to be logged
-public function printInfo(string | (function() returns (string)) msg) = external;
+public function printInfo(string | (function() returns (string)) msg) =
+@java:Method {
+    class: "org.ballerinalang.stdlib.log.Utils"
+} external;
 
 # Logs the specified message at TRACE level.
 #
 # + msg - The message to be logged
-public function printTrace(string | (function() returns (string)) msg) = external;
+public function printTrace(string | (function() returns (string)) msg) =
+@java:Method {
+    class: "org.ballerinalang.stdlib.log.Utils"
+} external;
 
 # Logs the specified message at WARN level.
 #
 # + msg - The message to be logged
-public function printWarn(string | (function() returns (string)) msg) = external;
+public function printWarn(string | (function() returns (string)) msg) =
+@java:Method {
+    class: "org.ballerinalang.stdlib.log.Utils"
+} external;

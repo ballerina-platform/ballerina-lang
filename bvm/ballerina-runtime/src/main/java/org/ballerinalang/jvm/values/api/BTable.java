@@ -20,7 +20,6 @@ package org.ballerinalang.jvm.values.api;
 import org.ballerinalang.jvm.ColumnDefinition;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BStructureType;
-import org.ballerinalang.jvm.values.CollectionValue;
 
 import java.util.List;
 
@@ -31,7 +30,7 @@ import java.util.List;
  *
  * @since 1.1.0
  */
-public interface BTable extends BRefValue, CollectionValue {
+public interface BTable extends BRefValue, BCollection {
 
     /**
      * Returns true if the table iterator has more records.

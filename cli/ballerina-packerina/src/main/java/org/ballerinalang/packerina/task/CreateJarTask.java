@@ -42,16 +42,26 @@ import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_COM
 public class CreateJarTask implements Task {
 
     private boolean dumpBir;
+    private boolean buildNative;
+    private boolean dumpLlvmIr;
+    private boolean noOptimizeLlvm;
 
     private boolean skipCopyLibsFromDist = false;
 
-    public CreateJarTask(boolean dumpBir) {
+    public CreateJarTask(boolean dumpBir, boolean buildNative, boolean dumpLlvmIr, boolean noOptimizeLlvm) {
         this.dumpBir = dumpBir;
+        this.buildNative = buildNative;
+        this.dumpLlvmIr = dumpLlvmIr;
+        this.noOptimizeLlvm = noOptimizeLlvm;
     }
 
-    public CreateJarTask(boolean dumpBir, boolean skipCopyLibsFromDist) {
+    public CreateJarTask(boolean dumpBir, boolean skipCopyLibsFromDist, boolean buildNative, boolean dumpLlvmIr,
+            boolean noOptimizeLlvm) {
         this.dumpBir = dumpBir;
         this.skipCopyLibsFromDist = skipCopyLibsFromDist;
+        this.buildNative = buildNative;
+        this.dumpLlvmIr = dumpLlvmIr;
+        this.noOptimizeLlvm = noOptimizeLlvm;
     }
     
     @Override
@@ -80,10 +90,14 @@ public class CreateJarTask implements Task {
             // get the jar path of the module.
             Path jarOutput = buildContext.getJarPathFromTargetCache(module.packageID);
             if (!Files.exists(jarOutput)) {
-                BootstrapRunner
-                        .loadTargetAndGenerateJarBinary(entryBir.toString(), jarOutput.toString(), this.dumpBir,
-                                                        moduleDependencySet, projectBIRCache.toString(),
-                                                        homeBIRCache.toString(), systemBIRCache.toString());
+                if (buildNative) {
+                    BootstrapRunner.genNativeCode(entryBir.toString(), this.dumpLlvmIr, this.noOptimizeLlvm);
+                } else {
+                    BootstrapRunner
+                            .loadTargetAndGenerateJarBinary(entryBir.toString(), jarOutput.toString(), this.dumpBir,
+                                    moduleDependencySet, projectBIRCache.toString(),
+                                    homeBIRCache.toString(), systemBIRCache.toString());
+                }
             }
 
             // If there is a testable package we will create testable jar.

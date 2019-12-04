@@ -19,22 +19,15 @@
 package org.ballerinalang.stdlib.config;
 
 import org.ballerinalang.config.ConfigRegistry;
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
 
 /**
  * Extern function ballerina.config:contains.
  *
  * @since 0.965.0
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "config",
-        functionName = "contains",
-        isPublic = true
-)
 public class Contains {
 
-    public static boolean contains(Strand strand, String configKey) {
+    public static boolean contains(String configKey) {
         return ConfigRegistry.getInstance().contains(configKey);
     }
 }

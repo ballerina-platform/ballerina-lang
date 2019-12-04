@@ -1,4 +1,4 @@
-// Copyright (c) 2018 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+// Copyright (c) 2019 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 //
 // WSO2 Inc. licenses this file to you under the Apache License,
 // Version 2.0 (the "License"); you may not use this file except
@@ -16,16 +16,18 @@
 
 package org.ballerinalang.nativeimpl.llvm.gen;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.jvm.BallerinaValues;
+import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.types.BPackage;
+import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.nativeimpl.llvm.FFIUtil;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.bytedeco.javacpp.LLVM;
 import org.bytedeco.javacpp.LLVM.LLVMTypeRef;
+import org.bytedeco.javacpp.Pointer;
 import org.bytedeco.javacpp.PointerPointer;
 
 import static org.ballerinalang.model.types.TypeKind.ARRAY;
@@ -35,10 +37,12 @@ import static org.bytedeco.javacpp.LLVM.LLVMFunctionType;
 
 /**
  * Auto generated class.
+ *
+ * @since 1.0.3
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "llvm",
-        functionName = "LLVMFunctionType1",
+        functionName = "llvmFunctionType1",
         args = {
                 @Argument(name = "returnType", type = RECORD, structType = "LLVMTypeRef"),
                 @Argument(name = "paramTypes", type = ARRAY, elementType = RECORD),
@@ -49,18 +53,21 @@ import static org.bytedeco.javacpp.LLVM.LLVMFunctionType;
                 @ReturnType(type = RECORD, structType = "LLVMTypeRef", structPackage = "ballerina/llvm"),
         }
 )
-public class LLVMFunctionType1 extends BlockingNativeCallableUnit {
+public class LLVMFunctionType1 {
 
-    @Override
-    public void execute(Context context) {
-        LLVM.LLVMTypeRef returnType = FFIUtil.getRecodeArgumentNative(context, 0);
-        LLVMTypeRef[] paramTypes = FFIUtil.getRecodeArrayArgumentNative(context, 1, LLVMTypeRef[]::new);
-        PointerPointer<LLVMTypeRef> paramTypesWrapped = new PointerPointer<>(paramTypes);
-        int paramCount = (int) context.getIntArgument(0);
-        int isVarArg = (int) context.getIntArgument(1);
-        LLVMTypeRef returnValue = LLVMFunctionType(returnType, paramTypesWrapped, paramCount, isVarArg);
-        BMap<String, BValue> rerunWrapperRecode = FFIUtil.newRecord(context, "LLVMTypeRef");
-        FFIUtil.addNativeToRecode(returnValue, rerunWrapperRecode);
-        context.setReturnValues(rerunWrapperRecode);
+    public static MapValue<String, Object> llvmFunctionType1(Strand strand, MapValue<String, Object> returnType,
+                                                             ArrayValue paramTypes, long paramCount,
+                                                             long isVarArg) {
+
+        LLVM.LLVMTypeRef returnTypeRef = (LLVM.LLVMTypeRef) FFIUtil.getRecodeArgumentNative(returnType);
+        Pointer[] paramTypesRef = FFIUtil.getRecodeArrayArgumentNative(paramTypes);
+        PointerPointer paramTypesWrapped = new PointerPointer(paramTypesRef);
+        int paramCountRef = (int) paramCount;
+        int isVarArgRef = (int) isVarArg;
+        LLVMTypeRef returnValue = LLVMFunctionType(returnTypeRef, paramTypesWrapped, paramCountRef, isVarArgRef);
+        MapValue<String, Object> returnWrappedRecord = BallerinaValues.createRecordValue(new BPackage("ballerina",
+                "llvm"), "LLVMTypeRef");
+        FFIUtil.addNativeToRecode(returnValue, returnWrappedRecord);
+        return returnWrappedRecord;
     }
 }

@@ -50,7 +50,9 @@ dependencies {
     implementation 'info.picocli:picocli'
     implementation 'org.wso2.orbit.org.antlr:antlr4-runtime'
     implementation 'org.testng:testng'
-    
+
+    interopImports project(':ballerina-io')
+
     testCompile 'org.slf4j:slf4j-jdk14'
     testCompile 'io.swagger.core.v3:swagger-models'
     testCompile 'io.swagger.parser.v3:swagger-parser'
@@ -61,6 +63,8 @@ dependencies {
     baloImplementation project(path: ':ballerina-io', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-runtime-api', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-utils', configuration: 'baloImplementation')
+
+    interopImports project(':ballerina-reflect')
 }
 
 createBalo {

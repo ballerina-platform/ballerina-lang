@@ -59,10 +59,10 @@ public class IOTest {
 
     @BeforeClass
     public void setup() {
-        bytesInputOutputProgramFile = BCompileUtil.compile("test-src/io/bytes_io.bal");
-        characterInputOutputProgramFile = BCompileUtil.compile("test-src/io/char_io.bal");
-        recordsInputOutputProgramFile = BCompileUtil.compile("test-src/io/record_io.bal");
-        stringInputOutputProgramFile = BCompileUtil.compile("test-src/io/string_io.bal");
+        bytesInputOutputProgramFile = BCompileUtil.compileOffline("test-src/io/bytes_io.bal");
+        characterInputOutputProgramFile = BCompileUtil.compileOffline("test-src/io/char_io.bal");
+        recordsInputOutputProgramFile = BCompileUtil.compileOffline("test-src/io/record_io.bal");
+        stringInputOutputProgramFile = BCompileUtil.compileOffline("test-src/io/string_io.bal");
         currentDirectoryPath = System.getProperty("user.dir") + "/build";
     }
 
