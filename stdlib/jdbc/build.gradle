@@ -51,6 +51,7 @@ dependencies {
     interopImports project(':ballerina-config-api')
     interopImports project(':ballerina-io')
     interopImports project(':ballerina-jsonutils')
+    interopImports project(':ballerina-system')
     interopImports project(':ballerina-reflect')
 
     baloCreat project(':lib-creator')
