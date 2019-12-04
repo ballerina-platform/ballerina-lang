@@ -1381,7 +1381,10 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             BUnionType restFieldType = BUnionType.create(null, recordType.restFieldType);
             for (Map.Entry<String, BField> entry : fieldMap.entrySet()) {
                 if (!matchedDetailFields.contains(entry.getKey())) {
-                    restFieldType.add(entry.getValue().getType());
+                    BType type = entry.getValue().getType();
+                    if (!type.equals(symTable.nilType)) {
+                        restFieldType.add(type);
+                    }
                 }
             }
 
