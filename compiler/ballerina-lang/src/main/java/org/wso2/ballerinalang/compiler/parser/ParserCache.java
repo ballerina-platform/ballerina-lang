@@ -63,7 +63,7 @@ class ParserCache {
         return cache;
     }
 
-    BLangCompilationUnit get(CompilerInput sourceEntry, PackageID packageID) {
+    BLangCompilationUnit get(PackageID packageID, String entryName, byte[] hash) {
 
         if (!cacheEnabled) {
             return null;
@@ -73,16 +73,15 @@ class ParserCache {
             return null;
         }
 
-        String entryName = sourceEntry.getEntryName();
         BLangCompilationUnit compilationUnit = sourceEntryCache.get(entryName);
-        if (compilationUnit == null || compilationUnit.hash != getHash(sourceEntry)) {
+        if (compilationUnit == null || compilationUnit.hash == null || !Arrays.equals(compilationUnit.hash, hash)) {
             return null;
         }
         astCleaner.visit(compilationUnit);
         return compilationUnit;
     }
 
-    void put(CompilerInput sourceEntry, PackageID packageID, BLangCompilationUnit newCompUnit) {
+    void put(PackageID packageID, String entryName, byte[] hash, BLangCompilationUnit newCompUnit) {
 
         if (!cacheEnabled) {
             return;
@@ -93,8 +92,7 @@ class ParserCache {
             this.pkgCache.put(packageID, sourceEntryCache);
         }
 
-        String entryName = sourceEntry.getEntryName();
-        newCompUnit.hash = getHash(sourceEntry);
+        newCompUnit.hash = hash;
         sourceEntryCache.put(entryName, newCompUnit);
     }
 
@@ -114,11 +112,5 @@ class ParserCache {
                 sourceEntryCache.remove(s);
             }
         }
-    }
-
-    private static int getHash(CompilerInput sourceEntry) {
-
-        byte[] code = sourceEntry.getCode();
-        return Arrays.hashCode(code);
     }
 }

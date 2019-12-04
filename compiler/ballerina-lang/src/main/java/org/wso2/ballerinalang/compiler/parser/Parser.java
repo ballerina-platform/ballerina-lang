@@ -47,6 +47,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 
 /**
  * This class is responsible for parsing Ballerina source files.
@@ -108,10 +110,16 @@ public class Parser {
 
     private CompilationUnitNode generateCompilationUnit(CompilerInput sourceEntry, PackageID packageID) {
         try {
-            BLangCompilationUnit compilationUnit = parserCache.get(sourceEntry, packageID);
+            byte[] code = sourceEntry.getCode();
+            String entryName = sourceEntry.getEntryName();
+            byte[] hash = getMD5Digest(code);
+            BLangCompilationUnit compilationUnit = parserCache.get(packageID, entryName, hash);
             if (compilationUnit == null) {
-                compilationUnit = getCompilationUnit(sourceEntry, packageID);
-                parserCache.put(sourceEntry, packageID, compilationUnit);
+                compilationUnit = createCompilationUnit(sourceEntry, packageID);
+                boolean inError = populateCompilationUnit(compilationUnit, entryName, code);
+                if (!inError) {
+                    parserCache.put(packageID, entryName, hash, compilationUnit);
+                }
             }
             return compilationUnit;
         } catch (IOException e) {
@@ -119,28 +127,34 @@ public class Parser {
         }
     }
 
-    private BLangCompilationUnit getCompilationUnit(CompilerInput sourceEntry, PackageID packageID)
-            throws IOException {
+    private BLangCompilationUnit createCompilationUnit(CompilerInput sourceEntry, PackageID packageID) {
 
         BDiagnosticSource diagnosticSrc = getDiagnosticSource(sourceEntry, packageID);
         BLangCompilationUnit compUnit = (BLangCompilationUnit) TreeBuilder.createCompilationUnit();
         compUnit.setName(sourceEntry.getEntryName());
         compUnit.pos = new DiagnosticPos(diagnosticSrc, 1, 1, 1, 1);
-
-        CommonTokenStream tokenStream = createTokenStream(sourceEntry, diagnosticSrc);
-        BallerinaParser parser = new BallerinaParser(tokenStream);
-        parser.setErrorHandler(getErrorStrategy(diagnosticSrc));
-        parser.addParseListener(newListener(tokenStream, compUnit, diagnosticSrc));
-        parser.compilationUnit();
         return compUnit;
     }
 
-    private CommonTokenStream createTokenStream(CompilerInput sourceEntry, BDiagnosticSource diagnosticSrc)
+    private boolean populateCompilationUnit(BLangCompilationUnit compUnit, String entryName, byte[] code)
+            throws IOException {
+
+        BDiagnosticSource diagnosticSrc = compUnit.pos.getSource();
+        CommonTokenStream tokenStream = createTokenStream(entryName, code, diagnosticSrc);
+        BallerinaParser parser = new BallerinaParser(tokenStream);
+        parser.setErrorHandler(getErrorStrategy(diagnosticSrc));
+        BLangParserListener parserListener = newListener(tokenStream, compUnit, diagnosticSrc);
+        parser.addParseListener(parserListener);
+        parser.compilationUnit();
+        return parserListener.isInErrorState();
+    }
+
+    private CommonTokenStream createTokenStream(String entryName, byte[] code, BDiagnosticSource diagnosticSrc)
             throws IOException {
 
         ANTLRInputStream ais = new ANTLRInputStream(
-                new InputStreamReader(new ByteArrayInputStream(sourceEntry.getCode()), StandardCharsets.UTF_8));
-        ais.name = sourceEntry.getEntryName();
+                new InputStreamReader(new ByteArrayInputStream(code), StandardCharsets.UTF_8));
+        ais.name = entryName;
         BallerinaLexer lexer = new BallerinaLexer(ais);
         lexer.removeErrorListeners();
         lexer.addErrorListener(new BallerinaParserErrorListener(context, diagnosticSrc));
@@ -170,5 +184,16 @@ public class Parser {
             ((BallerinaParserErrorStrategy) customErrorStrategy).setDiagnosticSrc(diagnosticSrc);
         }
         return customErrorStrategy;
+    }
+
+    private static byte[] getMD5Digest(byte[] code) {
+
+        MessageDigest md;
+        try {
+            md = MessageDigest.getInstance("MD5");
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException("error generating hash for input: " + e.getMessage(), e);
+        }
+        return md.digest(code);
     }
 }
