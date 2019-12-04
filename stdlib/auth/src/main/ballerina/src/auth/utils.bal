@@ -77,7 +77,7 @@ public function extractUsernameAndPassword(string credential) returns [string, s
 # + message - Error message
 # + err - `error` instance
 # + return - Prepared `Error` instance
-public function prepareError(string message, error? err = ()) returns Error {
+function prepareError(string message, error? err = ()) returns Error {
     log:printError(message, err);
     Error authError;
     if (err is error) {
@@ -109,10 +109,10 @@ public function setAuthenticationContext(string scheme, string authToken) {
 public function setPrincipal(public string? userId = (), public string? username = (), public string[]? scopes = (),
                              public map<any>? claims = ()) {
     runtime:InvocationContext invocationContext = runtime:getInvocationContext();
-    if (!(userId is ())) {
+    if (!(userId is ()) && userId != "") {
         invocationContext.principal.userId = userId;
     }
-    if (!(username is ())) {
+    if (!(username is ()) && username != "") {
         invocationContext.principal.username = username;
     }
     if (!(scopes is ())) {

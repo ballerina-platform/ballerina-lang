@@ -32,6 +32,8 @@ dependencies {
     bir project(path: ':ballerina-io',  configuration: 'bir')
     bir project(path: ':testerina:testerina-core',  configuration: 'bir')
 
+    testCompile project(':ballerina-io')
+
     implementation project(':ballerina-lang')
     implementation project(':ballerina-config')
     implementation project(':ballerina-logging')
@@ -54,7 +56,7 @@ dependencies {
     testRuntime project(path: ':ballerina-jvm', configuration: 'birJar')
     testRuntime project(path: ':ballerina-bir', configuration: 'birJar')
 
-    birJarCompile project(path: ':ballerina-bootstrapper', configuration: 'pack3')
+    birJarCompile project(path: ':ballerina-bootstrapper', configuration: 'pack4')
 }
 
 task createBirCache {

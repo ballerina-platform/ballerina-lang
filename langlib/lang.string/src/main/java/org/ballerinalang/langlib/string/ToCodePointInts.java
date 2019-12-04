@@ -20,6 +20,7 @@ package org.ballerinalang.langlib.string;
 
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -40,6 +41,6 @@ public class ToCodePointInts {
 
     public static ArrayValue toCodePointInts(Strand strand, String str) {
         long[] ints = str.codePoints().asLongStream().toArray();
-        return new ArrayValue(ints);
+        return new ArrayValueImpl(ints);
     }
 }

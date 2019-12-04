@@ -20,6 +20,7 @@ package org.ballerinalang.test.functions;
 import org.ballerinalang.jvm.types.BTupleType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.TupleValueImpl;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
@@ -435,7 +436,7 @@ public class FunctionSignatureTest {
                                                                 long d, String e) {
         BTupleType tupleType = new BTupleType(
                 Arrays.asList(BTypes.typeInt, BTypes.typeFloat, BTypes.typeString, BTypes.typeInt, BTypes.typeString));
-        ArrayValue tuple = new ArrayValue(tupleType);
+        ArrayValue tuple = new TupleValueImpl(tupleType);
         tuple.add(0, Long.valueOf(a));
         tuple.add(1, Double.valueOf(b));
         tuple.add(2, (Object) c);

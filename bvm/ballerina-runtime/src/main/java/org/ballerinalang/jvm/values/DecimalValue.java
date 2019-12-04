@@ -23,6 +23,7 @@ import org.ballerinalang.jvm.DecimalValueKind;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.util.BLangConstants;
+import org.ballerinalang.jvm.values.api.BDecimal;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -37,7 +38,7 @@ import java.math.MathContext;
  * </p> 
  * @since 0.995.0
  */
-public class DecimalValue {
+public class DecimalValue implements BDecimal {
 
     private static final DecimalValue POSITIVE_INF =
             new DecimalValue("9.999999999999999999999999999999999E6144", DecimalValueKind.POSITIVE_INFINITY);
@@ -48,6 +49,7 @@ public class DecimalValue {
     private static final DecimalValue NaN = new DecimalValue("-1", DecimalValueKind.NOT_A_NUMBER);
 
     // Variable used to track the kind of a decimal value.
+    @Deprecated
     public DecimalValueKind valueKind = DecimalValueKind.OTHER;
 
     private BigDecimal value;
@@ -133,10 +135,19 @@ public class DecimalValue {
         return new BigDecimal(hexEquivalentNumber).multiply(exponentValue, MathContext.DECIMAL128);
     }
 
+    /**
+     * Get value of the decimal.
+     * @return the value
+     */
     public BigDecimal decimalValue() {
         return this.value;
     }
 
+    /**
+     * Get the int value of the decimal.
+     * May result in a {@code ErrorValue}
+     * @return the integer value
+     */
     public long intValue() {
         switch (valueKind) {
             case NOT_A_NUMBER:
@@ -153,11 +164,21 @@ public class DecimalValue {
         return (long) Math.rint(value.doubleValue());
     }
 
+    /**
+     * Check the given value is in int range.
+     * @param decimalValue value to be checked
+     * @return true if the value is in int range
+     */
     public static boolean isDecimalWithinIntRange(BigDecimal decimalValue) {
         return decimalValue.compareTo(BLangConstants.BINT_MAX_VALUE_BIG_DECIMAL_RANGE_MAX) < 0 &&
                decimalValue.compareTo(BLangConstants.BINT_MIN_VALUE_BIG_DECIMAL_RANGE_MIN) > 0;
     }
 
+    /**
+     * Get the byte value.
+     * May result in a {@code ErrorValue}
+     * @return the byte value
+     */
     public int byteValue() {
         switch (valueKind) {
             case NOT_A_NUMBER:
@@ -179,6 +200,10 @@ public class DecimalValue {
         return (longValue >= BLangConstants.BBYTE_MIN_VALUE && longValue <= BLangConstants.BBYTE_MAX_VALUE);
     }
 
+    /**
+     * Get the float value.
+     * @return the double value
+     */
     public double floatValue() {
         if (this.valueKind == DecimalValueKind.NOT_A_NUMBER) {
             return Double.NaN;
@@ -186,10 +211,18 @@ public class DecimalValue {
         return value.doubleValue();
     }
 
+    /**
+     * Check the given value represents true or false.
+     * @return true if the value is non zero
+     */
     public boolean booleanValue() {
         return value.compareTo(BigDecimal.ZERO) != 0;
     }
 
+    /**
+     * Get the string value.
+     * @return string value
+     */
     public String stringValue() {
         if (this.valueKind != DecimalValueKind.OTHER) {
             return this.valueKind.getValue();
@@ -197,16 +230,29 @@ public class DecimalValue {
         return value.toString();
     }
 
+    /**
+     * Get the  {@code BigDecimal} value.
+     * @return the decimal value
+     */
     public BigDecimal value() {
         return this.value;
     }
 
+    /**
+     * Get the {@code BType} of the value.
+     * @return the type
+     */
     public BType getType() {
         return BTypes.typeDecimal;
     }
 
     //========================= Mathematical operations supported ===============================
 
+    /**
+     * Returns a {decimal whose value is {@code (this + augend)}.
+     * @param augend value to be added.
+     * @return new value
+     */
     public DecimalValue add(DecimalValue augend) {
         switch (this.valueKind) {
             case ZERO:
@@ -236,6 +282,11 @@ public class DecimalValue {
         }
     }
 
+    /**
+     * Returns a decimal whose value is {@code (this - subtrahend)}.
+     * @param subtrahend value to be subtracted
+     * @return value after subtraction
+     */
     public DecimalValue subtract(DecimalValue subtrahend) {
         switch (this.valueKind) {
             case ZERO:
@@ -270,6 +321,12 @@ public class DecimalValue {
         }
     }
 
+    /**
+     * Returns a decimal whose value is <tt>(this &times;
+     * multiplicand)</tt>.
+     * @param multiplicand value to be multiplied
+     * @return value after multiplication
+     */
     public DecimalValue multiply(DecimalValue multiplicand) {
         switch (this.valueKind) {
             case ZERO:
@@ -310,6 +367,12 @@ public class DecimalValue {
         }
     }
 
+    /**
+     * Returns a decimal whose value is {@code (this /
+     * divisor)}.
+     * @param divisor value by which this decimal is to be divided
+     * @return value after division
+     */
     public DecimalValue divide(DecimalValue divisor) {
         switch (this.valueKind) {
             case ZERO:
@@ -356,6 +419,12 @@ public class DecimalValue {
         }
     }
 
+    /**
+     * Returns a decimal whose value is {@code (this %
+     * divisor)}.
+     * @param divisor value by which this decimal is to be divided
+     * @return {@code this % divisor}
+     */
     public DecimalValue remainder(DecimalValue divisor) {
         switch (this.valueKind) {
             case ZERO:
@@ -373,6 +442,10 @@ public class DecimalValue {
         }
     }
 
+    /**
+     * Returns a decimal whose value is {@code (-this)}.
+     * @return {@code -this}
+     */
     public DecimalValue negate() {
         switch (this.valueKind) {
             case OTHER:
@@ -384,6 +457,39 @@ public class DecimalValue {
             default:
                 return this;
         }
+    }
+
+    @Override
+    public BDecimal add(BDecimal augend) {
+        return add((DecimalValue) augend);
+    }
+
+    @Override
+    public BDecimal subtract(BDecimal subtrahend) {
+        return subtract((DecimalValue) subtrahend);
+    }
+
+    @Override
+    public BDecimal multiply(BDecimal multiplicand) {
+        return multiply((DecimalValue) multiplicand);
+    }
+
+    @Override
+    public BDecimal divide(BDecimal divisor) {
+        return divide((DecimalValue) divisor);
+    }
+
+    @Override
+    public BDecimal remainder(BDecimal divisor) {
+        return remainder((DecimalValue) divisor);
+    }
+
+    /**
+     * Returns value kind of {@code (-this)}.
+     * @return value kind
+     */
+    public DecimalValueKind getValueKind() {
+        return valueKind;
     }
 
     //===========================================================================================
@@ -407,24 +513,83 @@ public class DecimalValue {
         return value.hashCode();
     }
 
+    /**
+     * Get the string value.
+     * @return string value
+     */
+    @Override
     public String toString() {
         return this.stringValue();
     }
 
+    /**
+     * Returns decimal of given int value.
+     * @param value integer value
+     * @return decimal value
+     */
     public static DecimalValue valueOf(int value) {
         return new DecimalValue(new BigDecimal(value, MathContext.DECIMAL128).setScale(1, BigDecimal.ROUND_HALF_EVEN));
     }
 
+    /**
+     * Returns decimal of given long value.
+     * @param value long value
+     * @return decimal value
+     */
     public static DecimalValue valueOf(long value) {
         return new DecimalValue(new BigDecimal(value, MathContext.DECIMAL128).setScale(1, BigDecimal.ROUND_HALF_EVEN));
     }
 
+    /**
+     * Returns decimal of given double value.
+     * @param value double value
+     * @return decimal value
+     */
     public static DecimalValue valueOf(double value) {
         return new DecimalValue(new BigDecimal(value, MathContext.DECIMAL128));
     }
 
+    /**
+     * Returns decimal of given boolean value.
+     * @param value boolean value
+     * @return decimal value
+     */
     public static DecimalValue valueOf(boolean value) {
         return new DecimalValue(value ? BigDecimal.ONE.setScale(1, BigDecimal.ROUND_HALF_EVEN) :
                                         BigDecimal.ZERO.setScale(1, BigDecimal.ROUND_HALF_EVEN));
+    }
+
+    public static DecimalValue valueOfJ(byte value) {
+        return new DecimalValue(new BigDecimal(value, MathContext.DECIMAL128).setScale(1, BigDecimal.ROUND_HALF_EVEN));
+    }
+
+    public static DecimalValue valueOfJ(char value) {
+        return new DecimalValue(new BigDecimal(value, MathContext.DECIMAL128).setScale(1, BigDecimal.ROUND_HALF_EVEN));
+    }
+
+    public static DecimalValue valueOfJ(short value) {
+        return new DecimalValue(new BigDecimal(value, MathContext.DECIMAL128).setScale(1, BigDecimal.ROUND_HALF_EVEN));
+    }
+
+    public static DecimalValue valueOfJ(int value) {
+        return new DecimalValue(new BigDecimal(value, MathContext.DECIMAL128).setScale(1, BigDecimal.ROUND_HALF_EVEN));
+    }
+
+    public static DecimalValue valueOfJ(long value) {
+        return new DecimalValue(new BigDecimal(value, MathContext.DECIMAL128).setScale(1, BigDecimal.ROUND_HALF_EVEN));
+    }
+
+    public static DecimalValue valueOfJ(float value) {
+        return new DecimalValue(new BigDecimal(value, MathContext.DECIMAL128).setScale(1, BigDecimal.ROUND_HALF_EVEN));
+    }
+
+    public static DecimalValue valueOfJ(double value) {
+        return new DecimalValue(new BigDecimal(value, MathContext.DECIMAL128).setScale(1, BigDecimal.ROUND_HALF_EVEN));
+    }
+
+    public static DecimalValue valueOfJ(BigDecimal value) {
+        // TODO check whether we need to create a new BigDecimal again(or use the same value)
+        return new DecimalValue(new BigDecimal(value.toString(), MathContext.DECIMAL128)
+                .setScale(1, BigDecimal.ROUND_HALF_EVEN));
     }
 }

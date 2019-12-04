@@ -19,7 +19,9 @@
 package org.ballerinalang.langlib.array;
 
 import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.FPValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
@@ -44,7 +46,7 @@ public class Sort {
 
     public static ArrayValue sort(Strand strand, ArrayValue arr, FPValue<Object, Long> func) {
         checkIsArrayOnlyOperation(arr.getType(), "sort()");
-        ArrayValue aux = new ArrayValue(arr.getType());
+        ArrayValue aux = new ArrayValueImpl((BArrayType) arr.getType());
         mergesort(arr, aux, 0, arr.size() - 1, strand, func);
         return arr;
     }
@@ -66,7 +68,7 @@ public class Sort {
 
     private static void merge(ArrayValue input, ArrayValue aux, int lo, int mid, int hi, Strand strand,
                               FPValue<Object, Long> comparator) {
-        int elemTypeTag = input.elementType.getTag();
+        int elemTypeTag = input.getElementType().getTag();
 
         for (int i = lo; i <= hi; i++) {
             add(aux, elemTypeTag, i, input.get(i));

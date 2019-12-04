@@ -22,7 +22,7 @@ import com.google.protobuf.Descriptors;
 import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.types.BPackage;
 import org.ballerinalang.jvm.types.BRecordType;
-import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.net.grpc.Message;
 import org.ballerinalang.net.grpc.MessageParser;
@@ -114,14 +114,14 @@ public class ProtoMessageTestCase {
     public void testArrayFieldTypeProtoMessage() {
         // convert message to byte array.
         MapValue<String, Object> bMapValue = BallerinaValues.createRecordValue(defaultPkg, "Test3");
-        bMapValue.put("a", new ArrayValue(new String[]{"John"}));
-        bMapValue.put("b", new ArrayValue(new double[]{1.2}));
-        bMapValue.put("c", new ArrayValue(new double[]{2.5F}));
-        bMapValue.put("d", new ArrayValue(new long[]{1}));
-        bMapValue.put("e", new ArrayValue(new long[]{2L}));
-        bMapValue.put("f", new ArrayValue(new long[]{3L}));
-        bMapValue.put("g", new ArrayValue(new long[]{4}));
-        bMapValue.put("h", new ArrayValue(new long[]{5L}));
+        bMapValue.put("a", new ArrayValueImpl(new String[]{"John"}));
+        bMapValue.put("b", new ArrayValueImpl(new double[]{1.2}));
+        bMapValue.put("c", new ArrayValueImpl(new double[]{2.5F}));
+        bMapValue.put("d", new ArrayValueImpl(new long[]{1}));
+        bMapValue.put("e", new ArrayValueImpl(new long[]{2L}));
+        bMapValue.put("f", new ArrayValueImpl(new long[]{3L}));
+        bMapValue.put("g", new ArrayValueImpl(new long[]{4}));
+        bMapValue.put("h", new ArrayValueImpl(new long[]{5L}));
         Message message = new Message("Test3", bMapValue);
         Assert.assertEquals(message.getSerializedSize(), 40);
         byte[] msgArray = message.toByteArray();

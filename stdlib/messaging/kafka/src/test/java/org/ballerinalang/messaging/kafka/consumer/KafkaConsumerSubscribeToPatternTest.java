@@ -57,7 +57,7 @@ public class KafkaConsumerSubscribeToPatternTest {
 
     @Test(description = "Test functionality of getAvailableTopics() function")
     public void testKafkaConsumerSubscribeToPattern() {
-        result = BCompileUtil.compile(getFilePath(
+        result = BCompileUtil.compileOffline(getFilePath(
                 Paths.get(TEST_SRC, TEST_CONSUMER, "kafka_consumer_subscribe_to_pattern.bal")));
         await().atMost(15000, TimeUnit.MILLISECONDS).until(() -> {
             // Unsubscribe from topics first

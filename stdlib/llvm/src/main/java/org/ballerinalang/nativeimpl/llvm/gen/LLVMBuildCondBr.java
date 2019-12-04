@@ -1,4 +1,4 @@
-// Copyright (c) 2018 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+// Copyright (c) 2019 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 //
 // WSO2 Inc. licenses this file to you under the Apache License,
 // Version 2.0 (the "License"); you may not use this file except
@@ -16,10 +16,9 @@
 
 package org.ballerinalang.nativeimpl.llvm.gen;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.types.BPackage;
+import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.nativeimpl.llvm.FFIUtil;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -32,10 +31,12 @@ import static org.bytedeco.javacpp.LLVM.LLVMBuildCondBr;
 
 /**
  * Auto generated class.
+ *
+ * @since 1.0.3
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "llvm",
-        functionName = "LLVMBuildCondBr",
+        functionName = "llvmBuildCondBr",
         args = {
                 @Argument(name = "arg0", type = RECORD, structType = "LLVMBuilderRef"),
                 @Argument(name = "ifValue", type = RECORD, structType = "LLVMValueRef"),
@@ -46,17 +47,21 @@ import static org.bytedeco.javacpp.LLVM.LLVMBuildCondBr;
                 @ReturnType(type = RECORD, structType = "LLVMValueRef", structPackage = "ballerina/llvm"),
         }
 )
-public class LLVMBuildCondBr extends BlockingNativeCallableUnit {
+public class LLVMBuildCondBr {
 
-    @Override
-    public void execute(Context context) {
-        LLVM.LLVMBuilderRef arg0 = FFIUtil.getRecodeArgumentNative(context, 0);
-        LLVM.LLVMValueRef ifValue = FFIUtil.getRecodeArgumentNative(context, 1);
-        LLVM.LLVMBasicBlockRef then = FFIUtil.getRecodeArgumentNative(context, 2);
-        LLVM.LLVMBasicBlockRef elseValue = FFIUtil.getRecodeArgumentNative(context, 3);
-        LLVMValueRef returnValue = LLVMBuildCondBr(arg0, ifValue, then, elseValue);
-        BMap<String, BValue> rerunWrapperRecode = FFIUtil.newRecord(context, "LLVMValueRef");
-        FFIUtil.addNativeToRecode(returnValue, rerunWrapperRecode);
-        context.setReturnValues(rerunWrapperRecode);
+    public static MapValue<String, Object> llvmBuildCondBr(Strand strand, MapValue<String, Object> arg0,
+                                                           MapValue<String, Object> ifValue,
+                                                           MapValue<String, Object> then,
+                                                           MapValue<String, Object> elseValue) {
+
+        LLVM.LLVMBuilderRef arg0Ref = (LLVM.LLVMBuilderRef) FFIUtil.getRecodeArgumentNative(arg0);
+        LLVM.LLVMValueRef ifValueRef = (LLVMValueRef) FFIUtil.getRecodeArgumentNative(ifValue);
+        LLVM.LLVMBasicBlockRef thenRef = (LLVM.LLVMBasicBlockRef) FFIUtil.getRecodeArgumentNative(then);
+        LLVM.LLVMBasicBlockRef elseValueRef = (LLVM.LLVMBasicBlockRef) FFIUtil.getRecodeArgumentNative(elseValue);
+        LLVMValueRef returnValue = LLVMBuildCondBr(arg0Ref, ifValueRef, thenRef, elseValueRef);
+        MapValue<String, Object> returnWrappedRecord = FFIUtil.newRecord(new BPackage("ballerina",
+                "llvm"), "LLVMValueRef");
+        FFIUtil.addNativeToRecode(returnValue, returnWrappedRecord);
+        return returnWrappedRecord;
     }
 }

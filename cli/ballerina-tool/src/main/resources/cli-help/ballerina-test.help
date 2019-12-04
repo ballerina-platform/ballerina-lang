@@ -2,8 +2,8 @@ NAME
        ballerina-test - Run module tests
 
 SYNOPSIS
-       ballerina test [<options>] <module-name> [(--key=value)...]
-       ballerina test -a | --all [<options>]
+       ballerina test [<options>] <module-name> [<config properties>]
+       ballerina test -a | --all [<options>] [--] [<config properties>]
 
 
 DESCRIPTION
@@ -36,9 +36,7 @@ OPTIONS
        --debug
            Start Ballerina in remote debugging mode.
 
-       --config
-           Path to the configuration file when running tests.
-
+CONFIG PROPERTIES
        (--key=value)...
            Set Ballerina environment parameters as key/value pairs.
            If multiple parameters need to be provided, each parameter

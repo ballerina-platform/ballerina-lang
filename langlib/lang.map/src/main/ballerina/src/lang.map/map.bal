@@ -70,11 +70,11 @@ public function entries(map<Type> m) returns map<[string, Type]> = external;
 #
 # + m - the map
 # + func - a function to apply to each member
-# + return - new map containing result of applying function `func` to each member
+# + return - new map containing result of applying function 'func' to each member
 public function 'map(map<Type> m, function(Type val) returns Type1 func) returns map<Type1> = external;
 
 # Applies a function to each member of a map.
-# The function `func` is applied to each member of `m`.
+# The function 'func' is applied to each member of `m`.
 #
 # + m - the map
 # + func - a function to apply to each member
@@ -93,7 +93,7 @@ public function filter(map<Type> m, function(Type val) returns boolean func) ret
 #
 # + m - the map
 # + func - combining function
-# + initial - initial value for the first argument of combining function `func`
+# + initial - initial value for the first argument of combining parameter `func`
 # + return - result of combining the members of `m` using `func`
 public function reduce(map<Type> m, function(Type1 accum, Type val) returns Type1 func, Type1 initial) returns Type1 = external;
 

@@ -53,6 +53,14 @@ dependencies {
     baloImplementation project(path: ':ballerina-auth', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-lang:annotations', configuration: 'baloImplementation')
 
+    interopImports project(':ballerina-config-api')
+    interopImports project(':ballerina-io')
+    interopImports project(':ballerina-log-api')
+    interopImports project(':ballerina-math')
+    interopImports project(':ballerina-system')
+    interopImports project(':ballerina-task')
+    interopImports project(':ballerina-time')
+
     implementation project(':ballerina-system')
     implementation project(':ballerina-tool')
     implementation project(':ballerina-lang')
@@ -63,7 +71,6 @@ dependencies {
     implementation project(':ballerina-observability')
     implementation project(":ballerina-config-api")
     implementation project(':ballerina-math')
-    implementation project(":ballerina-crypto")
     implementation project(':ballerina-time')
     implementation project(':ballerina-mime')
     implementation project(':ballerina-io')
@@ -76,6 +83,8 @@ dependencies {
     implementation project(':ballerina-utils')
     implementation project(':ballerina-config')
     implementation project(':ballerina-runtime')
+
+    interopImports project(':ballerina-crypto')
 }
 
 artifacts {

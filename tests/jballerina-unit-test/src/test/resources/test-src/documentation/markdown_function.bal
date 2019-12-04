@@ -39,3 +39,16 @@ function updatePeople ([string, int, float] aTuple, int anInt) {
 function searchPeople () returns [string, int, float] {
     return ["", 1, 1.0];
 }
+
+# Test type `typeDef`
+# Test service `helloWorld`
+# Test variable `testVar`
+# Test var `testVar`
+# Test function `add`
+# Test parameter `x`
+# Test const `constant`
+# Test annotation `annot`
+# + x - one thing to be added
+# + y - another thing to be added
+# + return - the sum of them
+function add (int x, int y) returns int  { return x + y; }

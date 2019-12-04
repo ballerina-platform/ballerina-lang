@@ -5,10 +5,19 @@
 # `.bal` file, and execute the `ballerina run` command.
 $ ballerina run publisher.bal
 Starting up the Ballerina Hub Service
+[ballerina/websub] Ballerina WebSub Hub started up.
+[ballerina/websub] Publish URL: http://localhost:9191/websub/publish
+[ballerina/websub] Subscription URL: http://localhost:9191/websub/hub
 [ballerina/http] started HTTP/WS listener 0.0.0.0:9191
-[ballerina/websub] Default Ballerina WebSub Hub started up at http://localhost:9191/websub/hub
 Topic registration successful!
-2018-04-26 22:40:35,678 INFO  [ballerina/websub] - Intent verification successful for mode: [subscribe], for callback URL: [http://localhost:8181/websub]
+2019-11-01 14:06:38,035 INFO  [ballerina/websub] - Subscription request received for topic[http://websubpubtopic.com] with callback[http://localhost:8181/websub]
+2019-11-01 14:06:38,255 INFO  [ballerina/websub] - Sending intent verification request to callback[http://localhost:8181/websub] for topic[http://websubpubtopic.com]
+2019-11-01 14:06:38,781 INFO  [ballerina/websub] - Intent verification successful for mode: [subscribe], for callback URL: [http://localhost:8181/websub]
 Update notification successful!
-2018-04-26 22:40:50,493 INFO  [ballerina/websub] - Intent verification successful for mode: [unsubscribe], for callback URL: [http://localhost:8181/websub]
+2019-11-01 14:06:40,572 INFO  [ballerina/websub] - Subscription request received for topic[http://websubpubtopic.com] with callback[http://localhost:8181/websub]
+2019-11-01 14:06:40,576 INFO  [ballerina/websub] - Sending intent verification request to callback[http://localhost:8181/websub] for topic[http://websubpubtopic.com]
+2019-11-01 14:06:40,627 INFO  [ballerina/websub] - Intent verification successful for mode: [subscribe], for callback URL: [http://localhost:8181/websub]
 Update notification successful!
+2019-11-01 14:06:45,628 INFO  [ballerina/websub] - Subscription request received for topic[http://websubpubtopic.com] with callback[http://localhost:8181/websub]
+2019-11-01 14:06:45,637 INFO  [ballerina/websub] - Sending intent verification request to callback[http://localhost:8181/websub] for topic[http://websubpubtopic.com]
+2019-11-01 14:06:45,695 INFO  [ballerina/websub] - Intent verification successful for mode: [unsubscribe], for callback URL: [http://localhost:8181/websub]

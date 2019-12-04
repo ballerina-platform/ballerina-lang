@@ -32,8 +32,10 @@ import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.util.RuntimeUtils.ParamInfo;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.DecimalValue;
 import org.ballerinalang.jvm.values.ErrorValue;
+import org.ballerinalang.jvm.values.TupleValueImpl;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -307,37 +309,37 @@ public class ArgumentParser {
             switch (elementType.getTag()) {
                 case TypeTags.ANY_TAG:
                 case TypeTags.STRING_TAG:
-                    ArrayValue stringArrayArgs = new ArrayValue(BTypes.typeString);
+                    ArrayValue stringArrayArgs = new ArrayValueImpl(new BArrayType(BTypes.typeString));
                     for (int i = 0; i < args.size(); i++) {
                         stringArrayArgs.add(i, args.get(i));
                     }
                     return stringArrayArgs;
                 case TypeTags.INT_TAG:
-                    ArrayValue intArrayArgs = new ArrayValue(BTypes.typeInt);
+                    ArrayValue intArrayArgs = new ArrayValueImpl(new BArrayType(BTypes.typeInt));
                     for (int i = 0; i < args.size(); i++) {
                         intArrayArgs.add(i, getIntegerValue(args.get(i)));
                     }
                     return intArrayArgs;
                 case TypeTags.FLOAT_TAG:
-                    ArrayValue floatArrayArgs = new ArrayValue(BTypes.typeFloat);
+                    ArrayValue floatArrayArgs = new ArrayValueImpl(new BArrayType(BTypes.typeFloat));
                     for (int i = 0; i < args.size(); i++) {
                         floatArrayArgs.add(i, getFloatValue(args.get(i)));
                     }
                     return floatArrayArgs;
                 case TypeTags.BOOLEAN_TAG:
-                    ArrayValue booleanArrayArgs = new ArrayValue(BTypes.typeBoolean);
+                    ArrayValue booleanArrayArgs = new ArrayValueImpl(new BArrayType(BTypes.typeBoolean));
                     for (int i = 0; i < args.size(); i++) {
                         booleanArrayArgs.add(i, getBooleanValue(args.get(i)) ? 1 : 0);
                     }
                     return booleanArrayArgs;
                 case TypeTags.BYTE_TAG:
-                    ArrayValue byteArrayArgs = new ArrayValue(BTypes.typeByte);
+                    ArrayValue byteArrayArgs = new ArrayValueImpl(new BArrayType(BTypes.typeByte));
                     for (int i = 0; i < args.size(); i++) {
                         byteArrayArgs.add(i, (byte) getByteValue(args.get(i)));
                     }
                     return byteArrayArgs;
                 default:
-                    ArrayValue refValueArray = new ArrayValue();
+                    ArrayValue refValueArray = new ArrayValueImpl((BArrayType) type);
                     for (int i = 0; i < args.size(); i++) {
                         refValueArray.add(i, getBValue(elementType, args.get(i)));
                     }
@@ -361,7 +363,7 @@ public class ArgumentParser {
                     + "]', element count mismatch for tuple " + "type: '" + type + "'");
         }
 
-        ArrayValue tupleValues = new ArrayValue(type);
+        ArrayValue tupleValues = new TupleValueImpl(type);
         int index = 0;
         for (BType elementType : type.getTupleTypes()) {
             String tupleElement = tupleElements[index].trim();

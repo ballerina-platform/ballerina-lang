@@ -21,13 +21,9 @@ package org.ballerinalang.nats.basic.producer;
 import io.nats.client.Connection;
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.TypeChecker;
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.nats.Constants;
 import org.ballerinalang.nats.Utils;
 
@@ -38,19 +34,9 @@ import static org.ballerinalang.nats.Utils.convertDataIntoByteArray;
  *
  * @since 0.995
  */
-@BallerinaFunction(
-        orgName = Constants.ORG_NAME,
-        packageName = Constants.NATS,
-        functionName = "externPublish",
-        receiver = @Receiver(type = TypeKind.OBJECT,
-                structType = "Producer",
-                structPackage = Constants.NATS_PACKAGE),
-        isPublic = true
-)
 public class Publish {
 
-    public static Object externPublish(Strand strand, ObjectValue producerObject, String subject, Object data,
-                                       Object replyTo) {
+    public static Object externPublish(ObjectValue producerObject, String subject, Object data, Object replyTo) {
         Object connection = producerObject.get("conn");
 
         if (TypeChecker.getType(connection).getTag() == TypeTags.OBJECT_TYPE_TAG) {

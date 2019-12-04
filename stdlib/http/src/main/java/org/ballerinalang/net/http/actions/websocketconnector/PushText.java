@@ -25,6 +25,8 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.http.websocket.WebSocketConstants;
 import org.ballerinalang.net.http.websocket.WebSocketUtil;
+import org.ballerinalang.net.http.websocket.observability.WebSocketObservabilityConstants;
+import org.ballerinalang.net.http.websocket.observability.WebSocketObservabilityUtil;
 import org.ballerinalang.net.http.websocket.server.WebSocketConnectionInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,13 +49,21 @@ public class PushText {
 
     public static Object externPushText(Strand strand, ObjectValue wsConnection, String text, boolean finalFrame) {
         NonBlockingCallback callback = new NonBlockingCallback(strand);
+        WebSocketConnectionInfo connectionInfo = (WebSocketConnectionInfo) wsConnection
+                .getNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_CONNECTION_INFO);
+        WebSocketObservabilityUtil.observeResourceInvocation(strand, connectionInfo,
+                                                             WebSocketConstants.RESOURCE_NAME_PUSH_TEXT);
         try {
-            WebSocketConnectionInfo connectionInfo = (WebSocketConnectionInfo) wsConnection
-                    .getNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_CONNECTION_INFO);
             ChannelFuture future = connectionInfo.getWebSocketConnection().pushText(text, finalFrame);
             WebSocketUtil.handleWebSocketCallback(callback, future, log);
+            WebSocketObservabilityUtil.observeSend(WebSocketObservabilityConstants.MESSAGE_TYPE_TEXT,
+                                                   connectionInfo);
         } catch (Exception e) {
             log.error("Error occurred when pushing text data", e);
+            WebSocketObservabilityUtil.observeError(WebSocketObservabilityUtil.getConnectionInfo(wsConnection),
+                                                    WebSocketObservabilityConstants.ERROR_TYPE_MESSAGE_SENT,
+                                                    WebSocketObservabilityConstants.MESSAGE_TYPE_TEXT,
+                                                    e.getMessage());
             callback.notifyFailure(WebSocketUtil.createErrorByType(e));
         }
         return null;

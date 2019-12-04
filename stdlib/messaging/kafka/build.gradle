@@ -43,8 +43,11 @@ dependencies {
     baloImplementation project(path: ':ballerina-system', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-runtime-api', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-time', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-java', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-lang:internal', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-transactions', configuration: 'baloImplementation')
+
+    interopImports project(':ballerina-io')
 
     testCompile 'org.awaitility:awaitility'
     testCompile 'org.testng:testng'
@@ -73,6 +76,10 @@ dependencies {
     baloImplementation project(path: ':ballerina-config-api', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-lang:annotations', configuration: 'baloImplementation')
 
+    interopImports project(':ballerina-io')
+    interopImports project(':ballerina-filepath')
+    interopImports project(':ballerina-system')
+
     implementation project(':ballerina-auth')
     implementation project(':ballerina-http')
     implementation project(':ballerina-crypto')
@@ -84,7 +91,6 @@ dependencies {
     implementation project(':ballerina-reflect')
     implementation project(':ballerina-config-api')
     implementation project(':ballerina-lang:annotations')
-
 }
 
 configurations {

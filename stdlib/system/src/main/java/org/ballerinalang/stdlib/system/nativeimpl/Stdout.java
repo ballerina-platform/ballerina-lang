@@ -18,16 +18,10 @@
 
 package org.ballerinalang.stdlib.system.nativeimpl;
 
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.stdlib.io.channels.AbstractNativeChannel;
 import org.ballerinalang.stdlib.io.channels.BlobChannel;
 import org.ballerinalang.stdlib.io.channels.BlobIOChannel;
-import org.ballerinalang.stdlib.system.utils.SystemConstants;
 import org.ballerinalang.stdlib.system.utils.SystemUtils;
 
 import java.io.InputStream;
@@ -39,21 +33,12 @@ import java.nio.channels.ReadableByteChannel;
  *
  * @since 1.0.0
  */
-@BallerinaFunction(
-        orgName = SystemConstants.ORG_NAME,
-        packageName = SystemConstants.PACKAGE_NAME,
-        functionName = "stdout",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = "Process",
-        structPackage = "ballerina/system"),
-        returnType = { @ReturnType(type = TypeKind.OBJECT) }
-)
 public class Stdout extends AbstractNativeChannel {
 
-    public static ObjectValue stdout(Strand strand, ObjectValue objVal) {
+    public static ObjectValue stdout(ObjectValue objVal) {
         Process process = SystemUtils.processFromObject(objVal);
         InputStream in = process.getInputStream();
         ReadableByteChannel readableByteChannel = Channels.newChannel(in);        
         return createChannel(new BlobIOChannel(new BlobChannel(readableByteChannel)));
     }
-
 }

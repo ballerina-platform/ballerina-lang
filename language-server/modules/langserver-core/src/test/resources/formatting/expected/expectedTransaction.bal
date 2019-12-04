@@ -30,11 +30,14 @@ function name3() {
 function name4() {
     transaction with retries = 0 {
         int h = 0;
-    } onretry {
+    }
+    onretry {
         a = a + " retry";
-    } committed {
+    }
+    committed {
         a = a + " committed";
-    } aborted {
+    }
+    aborted {
         a = a + " aborted";
     }
 }

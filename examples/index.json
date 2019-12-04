@@ -346,16 +346,16 @@
         "column": 2,
         "category": "Language concepts",
         "samples": [ {
-                "name": "Tuple Type Binding Pattern",
-                "url": "tuple-type-binding-pattern"
+                "name": "Tuple-Typed Binding Pattern",
+                "url": "tuple-typed-binding-pattern"
             },
             {
-                "name": "Record Type Binding Pattern",
-                "url": "record-type-binding-pattern"
+                "name": "Record-Typed Binding Pattern",
+                "url": "record-typed-binding-pattern"
             },
             {
-                "name": "Error Type Binding Pattern",
-                "url": "error-type-binding-pattern"
+                "name": "Error-Typed Binding Pattern",
+                "url": "error-typed-binding-pattern"
             },
             {
                 "name": "Tuple Destructure Binding Pattern",
@@ -432,10 +432,6 @@
                 "url": "byte-io"
             },
             {
-                "name": "Character I/O",
-                "url": "character-io"
-            },
-            {
                 "name": "Record I/O",
                 "url": "record-io"
             },
@@ -450,6 +446,10 @@
             {
                 "name": "XML I/O",
                 "url": "xml-io"
+            },
+            {
+                "name": "Read/Write Files",
+                "url": "character-io"
             },
             {
                 "name": "JSON to CSV Transform",
@@ -787,6 +787,37 @@
         ]
     },
     {
+        "title": "WebSub",
+        "column": 1,
+        "category": "Working over the network",
+        "samples": [{
+            "name": "Internal Hub Sample",
+            "url": "websub-internal-hub-sample"
+        },
+            {
+                "name": "Remote Hub Sample",
+                "url": "websub-remote-hub-sample"
+            },
+            {
+                "name": "Hub Client Sample",
+                "url": "websub-hub-client-sample"
+            },
+            {
+                "name": "Service Integration Sample",
+                "url": "websub-service-integration-sample"
+            }
+        ]
+    },
+    {
+        "title": "Listeners",
+        "column": 1,
+        "category": "Working over the network",
+        "samples": [{
+            "name": "Directory Listener",
+            "url": "directory-listener"
+        }]
+    },
+    {
         "title": "Database",
         "column": 2,
         "category": "Working over the network",
@@ -938,6 +969,33 @@
         ]
     },
     {
+        "title": "RabbitMQ",
+        "column": 3,
+        "category": "Working over the network",
+        "samples": [
+            {
+                "name": "Producer",
+                "url": "rabbitmq-producer"
+            },
+            {
+                "name": "Consumer",
+                "url": "rabbitmq-consumer"
+            },
+            {
+                "name": "Client Acknowledgements",
+                "url": "rabbitmq-consumer-with-client-acknowledgement"
+            },
+            {
+                "name": "Data Binding",
+                "url": "rabbitmq-consumer-with-data-binding"
+            },
+            {
+                "name": "QoS Settings",
+                "url": "rabbitmq-consumer-with-qos-settings"
+            }
+        ]
+    },
+    {
         "title": "Socket",
         "column": 3,
         "category": "Working over the network",
@@ -1044,8 +1102,32 @@
         "column": 3,
         "category": "Experimental features",
         "samples": [{
-                "name": "Table Queries",
+                "name": "Select all the fields",
                 "url": "table-queries"
+            },
+            {
+                "name": "Select a few field for the output",
+                "url": "table-queries-select-with-few-output-fields"
+            },
+            {
+                "name": "Select with filtering",
+                "url": "table-queries-select-with-filtering"
+            },
+            {
+                "name": "Select with order-by clause",
+                "url": "table-queries-select-with-order-by"
+            },
+            {
+                "name": "Select with group-by clause",
+                "url": "table-queries-select-with-group-by"
+            },
+            {
+                "name": "Join two tables",
+                "url": "table-queries-join"
+            },
+            {
+                "name": "Join two tables with filtering",
+                "url": "table-queries-join-with-filtering"
             }
         ]
     }

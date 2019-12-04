@@ -17,7 +17,6 @@
  */
 package org.ballerinax.jdbc.functions;
 
-import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
@@ -37,15 +36,14 @@ import java.util.UUID;
  * @since 0.970
  */
 
-@BallerinaFunction(
-        orgName = "ballerinax", packageName = "java.jdbc",
-        functionName = "createClient",
-        isPublic = true
-)
+@BallerinaFunction(orgName = "ballerinax",
+                   packageName = "java.jdbc",
+                   functionName = "createClient",
+                   isPublic = true)
 public class CreateClient {
 
-    public static ObjectValue createClient(Strand strand, MapValue<String, Object> config, MapValue<String,
-                Object> globalPoolOptions) {
+    public static void createClient(Strand strand, ObjectValue client, MapValue<String, Object> config,
+            MapValue<String, Object> globalPoolOptions) {
         String url = config.getStringValue(Constants.EndpointConfig.URL);
 
         if (!isJdbcUrlValid(url)) {
@@ -72,10 +70,8 @@ public class CreateClient {
 
         SQLDatasource sqlDatasource = sqlDatasourceParams.getPoolOptionsWrapper()
                 .retrieveDatasource(sqlDatasourceParams);
-        ObjectValue sqlClient = BallerinaValues.createObjectValue(Constants.JDBC_PACKAGE_ID, Constants.JDBC_CLIENT);
-        sqlClient.addNativeData(Constants.JDBC_CLIENT, sqlDatasource);
-        sqlClient.addNativeData(Constants.CONNECTOR_ID_KEY, UUID.randomUUID().toString());
-        return sqlClient;
+        client.addNativeData(Constants.JDBC_CLIENT, sqlDatasource);
+        client.addNativeData(Constants.CONNECTOR_ID_KEY, UUID.randomUUID().toString());
     }
 
     // Unable to perform a complete validation since URL differs based on the database.

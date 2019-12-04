@@ -53,3 +53,11 @@ function tar1(Foo | map<Foo> | int f) returns string {
 
     return "Value is 'Default'";
 }
+
+function functionWithParams(Foo param1, Foo param2 = {x: 12, y: "Hello"}, Foo... param3) returns Foo {
+    Foo testVar1 = param1;
+    Foo testVar2 = param2;
+    Foo[] restVar = param3;
+    
+    return testVar1;
+}

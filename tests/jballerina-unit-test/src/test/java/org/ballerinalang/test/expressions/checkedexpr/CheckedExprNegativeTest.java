@@ -28,8 +28,8 @@ import org.testng.annotations.Test;
  */
 public class CheckedExprNegativeTest {
 
-    private static final String ERROR_MISMATCH_ERR_MSG = "invalid usage of the 'check' expression " +
-            "operator: no matching error return type(s) in the enclosing invokable";
+    private static final String ERROR_MISMATCH_ERR_MSG = "invalid usage of the 'check' expression operator: no " +
+            "matching error return type(s) in the enclosing invokable";
 
     @Test
     public void testSemanticErrors() {

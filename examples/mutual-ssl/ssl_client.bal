@@ -3,7 +3,7 @@ import ballerina/log;
 
 // Create a client configuration to be passed to the client endpoint.
 // Configure the `keyStoreFile`, `keyStorePassword`, `trustStoreFile`, and
-// The`trustStorePassword`, which is required to enable mutual SSL.
+// the`trustStorePassword`, which are required to enable mutual SSL.
 http:ClientConfiguration clientEPConfig = {
     secureSocket: {
         keyStore: {
@@ -39,7 +39,7 @@ public function main() {
             log:printError(<string>payload.detail()["message"]);
         }
     } else {
-        // If an error occurs when getting the response, log the error.
+        // If an error occurs while getting the response, log the error.
         log:printError(<string>resp.detail()["message"]);
     }
 }

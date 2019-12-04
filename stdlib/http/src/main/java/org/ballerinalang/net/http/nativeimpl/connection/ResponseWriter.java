@@ -177,9 +177,8 @@ public class ResponseWriter {
             ErrorValue httpConnectorError = HttpUtil.createHttpError(throwable.getMessage(),
                     HttpErrorType.GENERIC_LISTENER_ERROR);
             if (outboundMsgDataStreamer != null) {
-                if (throwable instanceof IOException) {
-                    this.dataContext.getOutboundRequest().setIoException((IOException) throwable);
-                } else {
+                // Relevant transport state should set the IO Exception. Following code snippet is for other exceptions
+                if (!(throwable instanceof IOException)) {
                     this.dataContext.getOutboundRequest()
                             .setIoException(new IOException(throwable.getMessage(), throwable));
                 }

@@ -28,6 +28,7 @@ import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.types.TypeFlags;
 import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.utils.StringUtils;
@@ -99,6 +100,55 @@ public class Message {
             bMapValue = new MapValueImpl<>(bType);
             bMessage = bMapValue;
         }
+
+        if (input == null) {
+            if (bMapValue != null) {
+                for (Map.Entry<Integer, Descriptors.FieldDescriptor> entry : fieldDescriptors.entrySet()) {
+                    if (entry.getValue().getType().toProto().getNumber() ==
+                            DescriptorProtos.FieldDescriptorProto.Type.TYPE_MESSAGE_VALUE &&
+                            !entry.getValue().isRepeated()) {
+                        bMapValue.put(entry.getValue().getName(), null);
+                    } else if (entry.getValue().getType().toProto().getNumber() ==
+                            DescriptorProtos.FieldDescriptorProto.Type.TYPE_ENUM_VALUE) {
+                        bMapValue.put(entry.getValue().getName(),
+                                entry.getValue().getEnumType().findValueByNumber(0).toString());
+                    }
+                }
+            } else {
+                // Here fieldDescriptors map size should be one. Because the value can assign to one scalar field.
+                for (Map.Entry<Integer, Descriptors.FieldDescriptor> entry : fieldDescriptors.entrySet()) {
+                    switch (entry.getValue().getType().toProto().getNumber()) {
+                        case DescriptorProtos.FieldDescriptorProto.Type.TYPE_DOUBLE_VALUE:
+                        case DescriptorProtos.FieldDescriptorProto.Type.TYPE_FLOAT_VALUE: {
+                            bMessage = (double) 0;
+                            break;
+                        }
+                        case DescriptorProtos.FieldDescriptorProto.Type.TYPE_INT64_VALUE:
+                        case DescriptorProtos.FieldDescriptorProto.Type.TYPE_UINT64_VALUE:
+                        case DescriptorProtos.FieldDescriptorProto.Type.TYPE_INT32_VALUE:
+                        case DescriptorProtos.FieldDescriptorProto.Type.TYPE_FIXED64_VALUE:
+                        case DescriptorProtos.FieldDescriptorProto.Type.TYPE_FIXED32_VALUE: {
+                            bMessage = (long) 0;
+                            break;
+                        }
+                        case DescriptorProtos.FieldDescriptorProto.Type.TYPE_STRING_VALUE: {
+                            bMessage = "";
+                            break;
+                        }
+                        case DescriptorProtos.FieldDescriptorProto.Type.TYPE_BOOL_VALUE: {
+                            bMessage = Boolean.FALSE;
+                            break;
+                        }
+                        default: {
+                            throw Status.Code.INTERNAL.toStatus().withDescription("Error while decoding request " +
+                                    "message. Field type is not supported : " +
+                                    entry.getValue().getType()).asRuntimeException();
+                        }
+                    }
+                }
+            }
+            return;
+        }
         boolean done = false;
         while (!done) {
             int tag = input.readTag();
@@ -111,7 +161,7 @@ public class Message {
                     case DescriptorProtos.FieldDescriptorProto.Type.TYPE_DOUBLE_VALUE: {
                         if (bMapValue != null) {
                             if (fieldDescriptor.isRepeated()) {
-                                ArrayValue floatArray = new ArrayValue(new BArrayType(BTypes.typeFloat));
+                                ArrayValue floatArray = new ArrayValueImpl(new BArrayType(BTypes.typeFloat));
                                 if (bMapValue.containsKey(name)) {
                                     floatArray = (ArrayValue) bMapValue.get(name);
                                 } else {
@@ -131,7 +181,7 @@ public class Message {
                     case DescriptorProtos.FieldDescriptorProto.Type.TYPE_FLOAT_VALUE: {
                         if (bMapValue != null) {
                             if (fieldDescriptor.isRepeated()) {
-                                ArrayValue floatArray = new ArrayValue(new BArrayType(BTypes.typeFloat));
+                                ArrayValue floatArray = new ArrayValueImpl(new BArrayType(BTypes.typeFloat));
                                 if (bMapValue.containsKey(name)) {
                                     floatArray = (ArrayValue) bMapValue.get(name);
                                 } else {
@@ -153,7 +203,7 @@ public class Message {
                     case DescriptorProtos.FieldDescriptorProto.Type.TYPE_INT64_VALUE: {
                         if (bMapValue != null) {
                             if (fieldDescriptor.isRepeated()) {
-                                ArrayValue intArray = new ArrayValue(new BArrayType(BTypes.typeInt));
+                                ArrayValue intArray = new ArrayValueImpl(new BArrayType(BTypes.typeInt));
                                 if (bMapValue.containsKey(name)) {
                                     intArray = (ArrayValue) bMapValue.get(name);
                                 } else {
@@ -173,7 +223,7 @@ public class Message {
                     case DescriptorProtos.FieldDescriptorProto.Type.TYPE_UINT64_VALUE: {
                         if (bMapValue != null) {
                             if (fieldDescriptor.isRepeated()) {
-                                ArrayValue intArray = new ArrayValue(new BArrayType(BTypes.typeInt));
+                                ArrayValue intArray = new ArrayValueImpl(new BArrayType(BTypes.typeInt));
                                 if (bMapValue.containsKey(name)) {
                                     intArray = (ArrayValue) bMapValue.get(name);
                                 } else {
@@ -193,7 +243,7 @@ public class Message {
                     case DescriptorProtos.FieldDescriptorProto.Type.TYPE_INT32_VALUE: {
                         if (bMapValue != null) {
                             if (fieldDescriptor.isRepeated()) {
-                                ArrayValue intArray = new ArrayValue(new BArrayType(BTypes.typeInt));
+                                ArrayValue intArray = new ArrayValueImpl(new BArrayType(BTypes.typeInt));
                                 if (bMapValue.containsKey(name)) {
                                     intArray = (ArrayValue) bMapValue.get(name);
                                 } else {
@@ -213,7 +263,7 @@ public class Message {
                     case DescriptorProtos.FieldDescriptorProto.Type.TYPE_FIXED64_VALUE: {
                         if (bMapValue != null) {
                             if (fieldDescriptor.isRepeated()) {
-                                ArrayValue intArray = new ArrayValue(new BArrayType(BTypes.typeInt));
+                                ArrayValue intArray = new ArrayValueImpl(new BArrayType(BTypes.typeInt));
                                 if (bMapValue.containsKey(name)) {
                                     intArray = (ArrayValue) bMapValue.get(name);
                                 } else {
@@ -233,7 +283,7 @@ public class Message {
                     case DescriptorProtos.FieldDescriptorProto.Type.TYPE_FIXED32_VALUE: {
                         if (bMapValue != null) {
                             if (fieldDescriptor.isRepeated()) {
-                                ArrayValue intArray = new ArrayValue(new BArrayType(BTypes.typeInt));
+                                ArrayValue intArray = new ArrayValueImpl(new BArrayType(BTypes.typeInt));
                                 if (bMapValue.containsKey(name)) {
                                     intArray = (ArrayValue) bMapValue.get(name);
                                 } else {
@@ -253,7 +303,7 @@ public class Message {
                     case DescriptorProtos.FieldDescriptorProto.Type.TYPE_BOOL_VALUE: {
                         if (bMapValue != null) {
                             if (fieldDescriptor.isRepeated()) {
-                                ArrayValue booleanArray = new ArrayValue(new BArrayType(BTypes.typeBoolean));
+                                ArrayValue booleanArray = new ArrayValueImpl(new BArrayType(BTypes.typeBoolean));
                                 if (bMapValue.containsKey(name)) {
                                     booleanArray = (ArrayValue) bMapValue.get(name);
                                 } else {
@@ -273,7 +323,7 @@ public class Message {
                     case DescriptorProtos.FieldDescriptorProto.Type.TYPE_STRING_VALUE: {
                         if (bMapValue != null) {
                             if (fieldDescriptor.isRepeated()) {
-                                ArrayValue stringArray = new ArrayValue(new BArrayType(BTypes.typeString));
+                                ArrayValue stringArray = new ArrayValueImpl(new BArrayType(BTypes.typeString));
                                 if (bMapValue.containsKey(name)) {
                                     stringArray = (ArrayValue) bMapValue.get(name);
                                 } else {
@@ -294,7 +344,7 @@ public class Message {
                     case DescriptorProtos.FieldDescriptorProto.Type.TYPE_ENUM_VALUE: {
                         if (bMapValue != null) {
                             if (fieldDescriptor.isRepeated()) {
-                                ArrayValue stringArray = new ArrayValue(new BArrayType(BTypes.typeString));
+                                ArrayValue stringArray = new ArrayValueImpl(new BArrayType(BTypes.typeString));
                                 if (bMapValue.containsKey(name)) {
                                     stringArray = (ArrayValue) bMapValue.get(name);
                                 } else {
@@ -319,13 +369,13 @@ public class Message {
                     case DescriptorProtos.FieldDescriptorProto.Type.TYPE_BYTES_VALUE: {
                         if (bMapValue != null) {
                              if (fieldDescriptor.getContainingOneof() != null) {
-                                Object bValue = new ArrayValue(input.readByteArray());
+                                Object bValue = new ArrayValueImpl(input.readByteArray());
                                 updateBMapValue(bType, bMapValue, fieldDescriptor, bValue);
                              } else {
-                                 bMapValue.put(name, new ArrayValue(input.readByteArray()));
+                                 bMapValue.put(name, new ArrayValueImpl(input.readByteArray()));
                              }
                         } else {
-                            bMessage = new ArrayValue(input.readByteArray());
+                            bMessage = new ArrayValueImpl(input.readByteArray());
                         }
                         break;
                     }
@@ -342,11 +392,11 @@ public class Message {
                             if (fieldDescriptor.isRepeated()) {
                                 ArrayValue structArray = bMapValue.get(name) != null ?
                                         (ArrayValue) bMapValue.get(name) : null;
+                                BType fieldType = recordType.getFields().get(name).getFieldType();
                                 if (structArray == null || structArray.size() == 0) {
-                                    structArray = new ArrayValue(new BArrayType(bType));
+                                    structArray = new ArrayValueImpl((BArrayType) fieldType);
                                     bMapValue.put(name, structArray);
                                 }
-                                BType fieldType = recordType.getFields().get(name).getFieldType();
                                 structArray.add(structArray.size(), readMessage(fieldDescriptor,
                                         ((BArrayType) fieldType).getElementType(), input).bMessage);
                             } else if (fieldDescriptor.getContainingOneof() != null) {

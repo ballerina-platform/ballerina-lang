@@ -56,7 +56,7 @@ type RemoteParticipant object {
         self.participantProtocols = participantProtocols;
     }
 
-    function prepare(string protocol) returns [(PrepareResult|error)?, Participant] {
+    function prepare(string protocol) returns @tainted [(PrepareResult|error)?, Participant] {
         foreach var remoteProto in self.participantProtocols {
             if (remoteProto.name == protocol) {
                 // We are assuming a participant will have only one instance of a protocol
@@ -89,7 +89,7 @@ type RemoteParticipant object {
         return (); // No matching protocol
     }
 
-    function prepareMe(string protocolUrl) returns PrepareResult|error {
+    function prepareMe(string protocolUrl) returns @tainted PrepareResult|error {
         Participant2pcClientEP participantEP  = getParticipant2pcClient(protocolUrl);
 
         // Let's set this to true and change it to false only if a participant aborted or an error occurred while trying

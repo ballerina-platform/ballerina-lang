@@ -110,7 +110,6 @@ public class InitEndpoint {
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             throw new WebSocketException("Error occurred: " + e.getMessage());
-
         }
     }
 
@@ -144,8 +143,8 @@ public class InitEndpoint {
 
     private static Map<String, String> getCustomHeaders(MapValue<String, Object> headers) {
         Map<String, String> customHeaders = new HashMap<>();
-        headers.keySet().forEach(
-                key -> customHeaders.put(key, headers.get(key).toString())
+        headers.entrySet().forEach(
+                entry -> customHeaders.put(entry.getKey(), headers.get(entry.getKey()).toString())
         );
         return customHeaders;
     }

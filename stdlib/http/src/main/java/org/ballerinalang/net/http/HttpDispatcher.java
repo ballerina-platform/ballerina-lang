@@ -18,7 +18,6 @@
 package org.ballerinalang.net.http;
 
 import io.netty.handler.codec.http.HttpHeaderNames;
-import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.TypeTags;
@@ -41,12 +40,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.ballerinalang.mime.util.MimeConstants.ENTITY;
-import static org.ballerinalang.mime.util.MimeConstants.PROTOCOL_MIME_PKG_ID;
-import static org.ballerinalang.net.http.HttpConstants.CALLER;
 import static org.ballerinalang.net.http.HttpConstants.DEFAULT_HOST;
-import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_HTTP_PKG_ID;
-import static org.ballerinalang.net.http.HttpConstants.REQUEST;
 import static org.ballerinalang.net.http.compiler.ResourceSignatureValidator.COMPULSORY_PARAM_COUNT;
 
 /**
@@ -79,7 +73,7 @@ public class HttpDispatcher {
 
             URI validatedUri = getValidatedURI(uriWithoutMatrixParams);
 
-            String basePath = servicesRegistry.findTheMostSpecificBasePath(validatedUri.getPath(),
+            String basePath = servicesRegistry.findTheMostSpecificBasePath(validatedUri.getRawPath(),
                     servicesOnInterface, sortedServiceURIs);
 
             if (basePath == null) {
@@ -97,7 +91,7 @@ public class HttpDispatcher {
     }
 
     private static void setInboundReqProperties(HttpCarbonMessage inboundReqMsg, URI requestUri, String basePath) {
-        String subPath = URIUtil.getSubPath(requestUri.getPath(), basePath);
+        String subPath = URIUtil.getSubPath(requestUri.getRawPath(), basePath);
         inboundReqMsg.setProperty(HttpConstants.BASE_PATH, basePath);
         inboundReqMsg.setProperty(HttpConstants.SUB_PATH, subPath);
         inboundReqMsg.setProperty(HttpConstants.QUERY_STR, requestUri.getQuery());
@@ -145,9 +139,9 @@ public class HttpDispatcher {
 
     public static Object[] getSignatureParameters(HttpResource httpResource, HttpCarbonMessage httpCarbonMessage,
                                                   MapValue endpointConfig) {
-        ObjectValue httpCaller = BallerinaValues.createObjectValue(PROTOCOL_HTTP_PKG_ID, CALLER);
-        ObjectValue inRequest = BallerinaValues.createObjectValue(PROTOCOL_HTTP_PKG_ID, REQUEST);
-        ObjectValue inRequestEntity = BallerinaValues.createObjectValue(PROTOCOL_MIME_PKG_ID, ENTITY);
+        ObjectValue httpCaller = ValueCreatorUtils.createCallerObject();
+        ObjectValue inRequest = ValueCreatorUtils.createRequestObject();
+        ObjectValue inRequestEntity = ValueCreatorUtils.createEntityObject();
 
         HttpUtil.enrichHttpCallerWithConnectionInfo(httpCaller, httpCarbonMessage, httpResource, endpointConfig);
         HttpUtil.enrichHttpCallerWithNativeData(httpCaller, httpCarbonMessage, endpointConfig);

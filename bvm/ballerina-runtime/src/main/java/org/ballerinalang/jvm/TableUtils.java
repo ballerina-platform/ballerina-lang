@@ -189,7 +189,7 @@ public class TableUtils {
         if (value == null) {
             return new Object[] {null};
         }
-        int typeTag = value.elementType.getTag();
+        int typeTag = value.getElementType().getTag();
         Object[] arrayData;
         int arrayLength;
         switch (typeTag) {

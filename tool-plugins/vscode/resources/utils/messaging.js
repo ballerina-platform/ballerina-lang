@@ -19,7 +19,7 @@ class WebViewRPCHandler {
                     .then((response) => {
                         vscode.postMessage({
                             originId: msg.id,
-                            response: response
+                            response: JSON.stringify(response)
                         });
                     });
             }
@@ -27,7 +27,7 @@ class WebViewRPCHandler {
             // this is a response from remote
             const seqId = msg.originId;
             if (this._callbacks[seqId]) {
-                this._callbacks[seqId](msg.response);
+                this._callbacks[seqId](JSON.parse(msg.response));
                 delete this._callbacks[seqId];
             }
         }

@@ -313,7 +313,7 @@ public class TransactionResourceManager {
         FPValue fp = committedFuncRegistry.get(transactionBlockId);
         Object[] args = { strand, (transactionId + ":" + transactionBlockId), true };
         if (fp != null) {
-            strand.scheduler.schedule(args, fp.getConsumer(), strand, null);
+            strand.scheduler.schedule(args, fp.getFunction(), strand, null);
         }
     }
 

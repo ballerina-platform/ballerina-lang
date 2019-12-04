@@ -915,8 +915,8 @@ public class BIRGen extends BLangNodeVisitor {
         syncSend.expr.accept(this);
         BIROperand dataOp = this.env.targetOperand;
 
-        BIRVariableDcl tempVarDcl = new BIRVariableDcl(syncSend.type, this.env.nextLocalVarId(names),
-                VarScope.FUNCTION, VarKind.TEMP);
+        BIRVariableDcl tempVarDcl = new BIRVariableDcl(syncSend.receive.matchingSendsError,
+                                                       this.env.nextLocalVarId(names), VarScope.FUNCTION, VarKind.TEMP);
         this.env.enclFunc.localVars.add(tempVarDcl);
         BIROperand lhsOp = new BIROperand(tempVarDcl);
         this.env.targetOperand = lhsOp;
@@ -1059,9 +1059,10 @@ public class BIRGen extends BLangNodeVisitor {
             this.env.enclBB.terminator = new BIRTerminator.FPCall(invocationExpr.pos, InstructionKind.FP_CALL,
                     fp, args, lhsOp, invocationExpr.async, thenBB);
         } else if (invocationExpr.async) {
+            List<BIRAnnotationAttachment> annots = getStatementAnnotations(invocationExpr.annAttachments, this.env);
             this.env.enclBB.terminator = new BIRTerminator.AsyncCall(invocationExpr.pos, InstructionKind.ASYNC_CALL,
                     isVirtual, invocationExpr.symbol.pkgID, getFuncName((BInvokableSymbol) invocationExpr.symbol),
-                    args, lhsOp, thenBB);
+                    args, lhsOp, thenBB, annots);
         } else {
             this.env.enclBB.terminator = new BIRTerminator.Call(invocationExpr.pos, InstructionKind.CALL, isVirtual,
                     invocationExpr.symbol.pkgID, getFuncName((BInvokableSymbol) invocationExpr.symbol), args, lhsOp,
@@ -2412,5 +2413,17 @@ public class BIRGen extends BLangNodeVisitor {
             return;
         }
         this.env.trapBlocks.peek().add(birBasicBlock);
+    }
+
+    private List<BIRAnnotationAttachment> getStatementAnnotations(List<BLangAnnotationAttachment> astAnnotAttachments,
+                                                                  BIRGenEnv currentEnv) {
+        //preserve function annotations
+        List<BIRAnnotationAttachment> functionAnnotAttachments = currentEnv.enclAnnotAttachments;
+        currentEnv.enclAnnotAttachments = new ArrayList<>();
+        astAnnotAttachments.forEach(annotAttach -> annotAttach.accept(this));
+        List<BIRAnnotationAttachment> statementAnnots = currentEnv.enclAnnotAttachments;
+        //reset function annotations
+        currentEnv.enclAnnotAttachments = functionAnnotAttachments;
+        return statementAnnots;
     }
 }

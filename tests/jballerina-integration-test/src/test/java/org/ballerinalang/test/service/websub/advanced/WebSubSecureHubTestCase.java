@@ -22,6 +22,8 @@ import org.apache.commons.text.StringEscapeUtils;
 import org.ballerinalang.test.context.BServerInstance;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.context.LogLeecher;
+import org.ballerinalang.test.util.HttpResponse;
+import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -37,6 +39,7 @@ import static org.ballerinalang.test.service.websub.WebSubTestUtils.PATH_SEPARAT
 import static org.ballerinalang.test.service.websub.WebSubTestUtils.PUBLISHER_NOTIFY_URL;
 import static org.ballerinalang.test.service.websub.WebSubTestUtils.PUBLISHER_NOTIFY_URL_THREE;
 import static org.ballerinalang.test.service.websub.WebSubTestUtils.requestUpdate;
+import static org.ballerinalang.test.service.websub.WebSubTestUtils.requestUpdateAndGetResponse;
 
 /**
  * This class tests basic auth support for WebSub Hub.
@@ -50,6 +53,7 @@ public class WebSubSecureHubTestCase extends WebSubAdvancedBaseTest {
     private static final int LOG_LEECHER_TIMEOUT = 45000;
     private static final int WEBSUB_PORT = 23484;
     private BServerInstance webSubSubscriber;
+    private HttpResponse httpResponse = null;
 
     private static final String INTENT_VERIFICATION_SUBSCRIBER_ONE_LOG = "ballerina: Intent Verification agreed - " +
             "Mode [subscribe], Topic [http://one.persistence.topic.com], Lease Seconds [3600]";
@@ -65,7 +69,7 @@ public class WebSubSecureHubTestCase extends WebSubAdvancedBaseTest {
             "Mode [subscribe], Topic [http://one.websub.topic.com], Lease Seconds [1200]";
     private static final String INTERNAL_HUB_NOTIFICATION_SUBSCRIBER_ONE_LOG =
             "WebSub Notification Received by One: {\"mode\":\"internal\", \"content_type\":\"json\"}";
-    private static final String INTERNAL_HUB_NOTIFICATION_SUBSCRIBER_TWO_LOG =
+    private static final String REMOTE_HUB_NOTIFICATION_SUBSCRIBER_TWO_LOG =
             "WebSub Notification Received by Four: {\"mode\":\"remote\", \"content_type\":\"xml\"}";
 
     private LogLeecher intentVerificationLogLeecherOne = new LogLeecher(INTENT_VERIFICATION_SUBSCRIBER_ONE_LOG);
@@ -74,8 +78,8 @@ public class WebSubSecureHubTestCase extends WebSubAdvancedBaseTest {
     private LogLeecher intentVerificationLogLeecherFour = new LogLeecher(INTENT_VERIFICATION_SUBSCRIBER_FOUR_LOG);
     private LogLeecher internalHubNotificationLogLeecherOne =
             new LogLeecher(INTERNAL_HUB_NOTIFICATION_SUBSCRIBER_ONE_LOG);
-    private LogLeecher internalHubNotificationLogLeecherTwo =
-            new LogLeecher(INTERNAL_HUB_NOTIFICATION_SUBSCRIBER_TWO_LOG);
+    private LogLeecher remoteHubNotificationLogLeecherTwo =
+            new LogLeecher(REMOTE_HUB_NOTIFICATION_SUBSCRIBER_TWO_LOG);
 
     @BeforeClass
     public void setup() throws BallerinaTestException {
@@ -93,7 +97,7 @@ public class WebSubSecureHubTestCase extends WebSubAdvancedBaseTest {
         webSubSubscriber.addErrorLogLeecher(intentVerificationLogLeecherThree);
         webSubSubscriber.addLogLeecher(intentVerificationLogLeecherFour);
         webSubSubscriber.addLogLeecher(internalHubNotificationLogLeecherOne);
-        webSubSubscriber.addLogLeecher(internalHubNotificationLogLeecherTwo);
+        webSubSubscriber.addLogLeecher(remoteHubNotificationLogLeecherTwo);
 
         webSubSubscriber.startServer(subscriberBal, new String[0], args, new int[]{WEBSUB_PORT});
     }
@@ -105,13 +109,15 @@ public class WebSubSecureHubTestCase extends WebSubAdvancedBaseTest {
         intentVerificationLogLeecherThree.waitForText(LOG_LEECHER_TIMEOUT);
         intentVerificationLogLeecherFour.waitForText(LOG_LEECHER_TIMEOUT);
         requestUpdate(PUBLISHER_NOTIFY_URL + PATH_SEPARATOR + WEBSUB_PORT, HUB_MODE_INTERNAL, CONTENT_TYPE_JSON);
-        requestUpdate(PUBLISHER_NOTIFY_URL_THREE, HUB_MODE_REMOTE, CONTENT_TYPE_XML);
+        httpResponse = requestUpdateAndGetResponse(PUBLISHER_NOTIFY_URL_THREE, HUB_MODE_REMOTE, CONTENT_TYPE_XML);
     }
 
     @Test(dependsOnMethods = "testDiscoveryAndIntentVerification")
     public void testContentReceipt() throws BallerinaTestException {
         internalHubNotificationLogLeecherOne.waitForText(LOG_LEECHER_TIMEOUT);
-        internalHubNotificationLogLeecherTwo.waitForText(LOG_LEECHER_TIMEOUT);
+        remoteHubNotificationLogLeecherTwo.waitForText(LOG_LEECHER_TIMEOUT);
+        Assert.assertEquals(httpResponse.getData(), "Error occurred publishing update: Authentication failure." +
+                "Error occurred publishing update: Authorization failure.");
     }
 
     @AfterClass

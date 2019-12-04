@@ -18,13 +18,11 @@ package org.ballerinalang.jvm.values;
 
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.OMNode;
-import org.ballerinalang.jvm.TypeConverter;
 import org.ballerinalang.jvm.XMLNodeType;
-import org.ballerinalang.jvm.commons.TypeValuePair;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
-import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
+import org.ballerinalang.jvm.values.api.BXml;
 import org.ballerinalang.jvm.values.freeze.State;
 import org.ballerinalang.jvm.values.freeze.Status;
 
@@ -49,7 +47,7 @@ import javax.xml.namespace.QName;
  * @param <T> Type of the underlying impl
  * @since 0.995.0
  */
-public abstract class XMLValue<T> implements RefValue, CollectionValue {
+public abstract class XMLValue<T> implements RefValue, BXml<T> {
 
     BType type = BTypes.typeXML;
 
@@ -281,13 +279,6 @@ public abstract class XMLValue<T> implements RefValue, CollectionValue {
         return type;
     }
 
-    @Override
-    public void stamp(BType type, List<TypeValuePair> unresolvedValues) {
-        if (type.getTag() == TypeTags.ANYDATA_TAG) {
-            type = TypeConverter.resolveMatchingTypeForUnion(this, type);
-        }
-        this.type = type;
-    }
     // private methods
 
     protected static void handleXmlException(String message, Throwable t) {

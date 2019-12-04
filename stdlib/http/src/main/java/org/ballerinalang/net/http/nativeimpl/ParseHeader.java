@@ -21,8 +21,8 @@ import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BTupleType;
 import org.ballerinalang.jvm.types.BTypes;
-import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ErrorValue;
+import org.ballerinalang.jvm.values.TupleValueImpl;
 import org.ballerinalang.mime.util.HeaderUtil;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -67,7 +67,7 @@ public class ParseHeader {
                 if (headerValue.contains(SEMICOLON)) {
                     value = HeaderUtil.getHeaderValue(value);
                 }
-                ArrayValue contentTuple = new ArrayValue(parseHeaderTupleType);
+                TupleValueImpl contentTuple = new TupleValueImpl(parseHeaderTupleType);
                 contentTuple.add(0, (Object) value);
                 contentTuple.add(1, HeaderUtil.getParamMap(headerValue));
                 return contentTuple;

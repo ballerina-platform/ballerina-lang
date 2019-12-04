@@ -121,7 +121,7 @@ public function interopWithAnyReturn() returns boolean {
         return false;
     }
     var b = acceptIntAnyReturn(2);
-    if (!(b is string)) {
+    if (!(b is handle)) {
         return false;
     }
     var c = acceptIntAnyReturn(3);
@@ -190,3 +190,165 @@ public function getArrayValueFromMapWhichThrowsCheckedException(handle key, map<
     class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
 } external;
 
+
+// JSON interop
+
+function testJsonReturns() returns [json, json, json, json, json] {
+	return [getJson(), getInt(), getJsonObject(), getJsonArray(), getNullJson()];
+}
+
+function testJsonParams() returns json {
+	return getIntFromJson(7);
+}
+
+public function getJson() returns json = @java:Method {
+    class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
+} external;
+
+public function getInt() returns json = @java:Method {
+    class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
+} external;
+
+public function getJsonObject() returns json = @java:Method {
+    class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
+} external;
+
+public function getJsonArray() returns json = @java:Method {
+    class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
+} external;
+
+function getIntFromJson(json j) returns int = @java:Method {
+    class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
+} external;
+
+public function getNullJson() returns json = @java:Method {
+    class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
+} external;
+
+// XML interop
+
+function testPassingXML() returns string {
+    return <string> java:toString(getStringFromXML(xml `<foo/>`));
+}
+
+function getXML() returns xml = @java:Method {
+    class:"org/ballerinalang/test/javainterop/RefTypeTests"
+} external;
+
+function getStringFromXML(xml x) returns handle = @java:Method {
+    class:"org/ballerinalang/test/javainterop/RefTypeTests"
+} external;
+
+
+// Finite type interop
+
+type ALL_INT 1|2|3|4|5;
+type MIX_TYPE 1 | 2 | 5 | "hello" | true | false;
+
+function testAcceptAllInts() returns [int, float, int] {
+    ALL_INT i = 4;
+    return [acceptAllInts(i), acceptAllFloats(i), <int> acceptAny(i)];
+}
+
+function testAcceptMixTypes() returns [any, any, any] {
+    ALL_INT i = 4;
+    return [acceptMixType(2), acceptMixType("hello"), acceptMixType(false)];
+}
+
+function getAllInts() returns ALL_INT = @java:Method {
+    class:"org/ballerinalang/test/javainterop/RefTypeTests"
+} external;
+
+function acceptAllInts(ALL_INT x) returns int = @java:Method {
+    class:"org/ballerinalang/test/javainterop/RefTypeTests"
+} external;
+
+function acceptAllFloats(ALL_INT x) returns float = @java:Method {
+    class:"org/ballerinalang/test/javainterop/RefTypeTests"
+} external;
+
+function acceptAny(ALL_INT x) returns any = @java:Method {
+    class:"org/ballerinalang/test/javainterop/RefTypeTests"
+} external;
+
+function getMixType() returns MIX_TYPE = @java:Method {
+    name:"getAny",
+    class:"org/ballerinalang/test/javainterop/RefTypeTests"
+} external;
+
+function getIntegersAsMixType() returns MIX_TYPE = @java:Method {
+    name:"getAllInts",
+    class:"org/ballerinalang/test/javainterop/RefTypeTests"
+} external;
+
+function acceptMixType(MIX_TYPE x) returns any = @java:Method {
+    name:"acceptAny",
+    class:"org/ballerinalang/test/javainterop/RefTypeTests"
+} external;
+
+function getInvalidIntegerAsMixType() returns MIX_TYPE = @java:Method {
+    name:"getInvalidMixType",
+    class:"org/ballerinalang/test/javainterop/RefTypeTests"
+} external;
+
+// Function pointers with interop
+
+function testUseFunctionPointer() returns int {
+    return useFunctionPointer(function (int a, int b) returns int { return a + b; } );
+}
+
+function testGetFunctionPointer() returns int {
+    var fp = getFunctionPointer(function (int a, int b) returns int { return a + b; } );
+    return fp(4, 6);
+}
+
+function useFunctionPointer((function (int a, int b) returns int) fp) returns int = @java:Method {
+    class:"org/ballerinalang/test/javainterop/RefTypeTests"
+} external;
+
+function getFunctionPointer(any x) returns (function (int a, int b) returns int) = @java:Method {
+    class:"org/ballerinalang/test/javainterop/RefTypeTests"
+} external;
+
+
+// Type desc with interop
+
+function testUseTypeDesc() returns handle {
+    return useTypeDesc(json);
+}
+
+function testGetTypeDesc() returns typedesc<any> {
+    typedesc<any> td = getTypeDesc();
+    return td;
+}
+
+function useTypeDesc(typedesc<any> t) returns handle = @java:Method {
+    class:"org/ballerinalang/test/javainterop/RefTypeTests"
+} external;
+
+function getTypeDesc() returns typedesc<any> = @java:Method {
+    class:"org/ballerinalang/test/javainterop/RefTypeTests"
+} external;
+
+
+// future with interop
+
+function testUseFuture() returns any {
+    future<any> f = start getInt();
+    _ = wait f;
+    return useFuture(f);
+}
+
+function testGetFuture() returns any {
+    future<any> f1 = start getInt();
+    future<any> f2 = getFuture(f1);
+    return wait f2;
+}
+
+function useFuture(future<any> f) returns any = @java:Method {
+    class:"org/ballerinalang/test/javainterop/RefTypeTests"
+} external;
+
+function getFuture(any a) returns future<any> = @java:Method {
+    class:"org/ballerinalang/test/javainterop/RefTypeTests"
+} external;

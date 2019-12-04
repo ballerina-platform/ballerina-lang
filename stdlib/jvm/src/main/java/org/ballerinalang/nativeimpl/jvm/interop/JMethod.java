@@ -20,6 +20,7 @@ package org.ballerinalang.nativeimpl.jvm.interop;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.ArrayValueImpl;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Executable;
@@ -27,6 +28,8 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.List;
+
+import static org.ballerinalang.nativeimpl.jvm.interop.JInteropException.CLASS_NOT_FOUND_REASON;
 
 /**
  * Represents a java method in this implementation.
@@ -100,15 +103,21 @@ class JMethod {
         }
     }
 
-    ArrayValue getExceptionTypes() {
+    ArrayValue getExceptionTypes(ClassLoader classLoader) {
         List<Class> checkedExceptions = new ArrayList<>();
-        for (Class<?> exceptionType : method.getExceptionTypes()) {
-            if (!RuntimeException.class.isAssignableFrom(exceptionType)) {
-                checkedExceptions.add(exceptionType);
+        try {
+            Class<?> runtimeException = classLoader.loadClass(RuntimeException.class.getCanonicalName());
+            for (Class<?> exceptionType : method.getExceptionTypes()) {
+                if (!runtimeException.isAssignableFrom(exceptionType)) {
+                    checkedExceptions.add(exceptionType);
+                }
             }
+        } catch (ClassNotFoundException | NoClassDefFoundError e) {
+            throw new JInteropException(CLASS_NOT_FOUND_REASON, e.getMessage(), e);
         }
 
-        ArrayValue arrayValue = new ArrayValue(new BArrayType(BTypes.typeString), checkedExceptions.size());
+
+        ArrayValue arrayValue = new ArrayValueImpl(new BArrayType(BTypes.typeString), checkedExceptions.size());
         int i = 0;
         for (Class<?> exceptionType : checkedExceptions) {
             arrayValue.add(i++, exceptionType.getName().replace(".", "/"));

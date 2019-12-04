@@ -1,9 +1,9 @@
 import ballerina/http;
 
 # Documentation for Tst struct
-# + a - annotation `field a` documentation
-# + b - annotation `field b` documentation
-# + c - annotation `field c` documentation
+# + a - `field a` documentation
+# + b - `field b` documentation
+# + c - `field c` documentation
 type Tst record {
     string a;
     string b;

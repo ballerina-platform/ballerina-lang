@@ -174,6 +174,8 @@ public class FunctionDefinitionCompletionTest extends CompletionTest {
                 {"typeDescSuggestions2.json", "function"},
                 {"delimiterBasedCompletionOverArrays.json", "function"},
                 {"delimiterBasedCompletionOverXML.json", "function"},
+                {"langLibPackageSuggestion1.json", "function"},
+                {"langLibPackageSuggestion2.json", "function"},
 //                {"statementWithMissingSemiColon1.json", "function"},
 //                {"statementWithMissingSemiColon2.json", "function"},
 //                {"statementWithMissingSemiColon3.json", "function"},

@@ -46,8 +46,8 @@ public type Listener object {
     }
 
     public function __start() returns error? {
+        check self.startWebSubSubscriberServiceEndpoint();
         // TODO: handle data and return error on error
-        self.startWebSubSubscriberServiceEndpoint();
         self.sendSubscriptionRequests();
     }
 
@@ -152,7 +152,9 @@ public type Listener object {
     }
 
     # Start the registered WebSub Subscriber service.
-    function startWebSubSubscriberServiceEndpoint() = external;
+    #
+    # + return - An `error` if there is any error occurred during the listener start process
+    function startWebSubSubscriberServiceEndpoint() returns error? = external;
 
     # Sets the topic to which this service is subscribing, for auto intent verification.
     #
@@ -258,7 +260,7 @@ function retrieveHubAndTopicUrl(string resourceUrl, http:ClientConfiguration? pu
 # + subscriptionDetails - Map containing subscription details
 function invokeClientConnectorForSubscription(string hub, http:ClientConfiguration? hubClientConfig,
                                               map<any> subscriptionDetails) {
-    Client websubHubClientEP = new Client(hub, hubClientConfig);
+    SubscriptionClient websubHubClientEP = new (hub, hubClientConfig);
     [string, string][_, topic] = <[string, string]> subscriptionDetails[ANNOT_FIELD_TARGET];
     string callback = <string> subscriptionDetails[ANNOT_FIELD_CALLBACK];
 
@@ -274,8 +276,15 @@ function invokeClientConnectorForSubscription(string hub, http:ClientConfigurati
 
     var subscriptionResponse = websubHubClientEP->subscribe(subscriptionChangeRequest);
     if (subscriptionResponse is SubscriptionChangeResponse) {
-        log:printInfo("Subscription Request successful at Hub[" + subscriptionResponse.hub +
-                "], for Topic[" + subscriptionResponse.topic + "], with Callback [" + callback + "]");
+        string subscriptionSuccessMsg = "Subscription Request successfully sent to Hub[" + subscriptionResponse.hub +
+                                "], for Topic[" + subscriptionResponse.topic + "], with Callback [" + callback + "]";
+
+        boolean expectIntentVerification = <boolean> subscriptionDetails[ANNOT_FIELD_EXPECT_INTENT_VERIFICATION];
+        if (expectIntentVerification) {
+            log:printInfo(subscriptionSuccessMsg + ". Awaiting intent verification.");
+            return;
+        }
+        log:printInfo(subscriptionSuccessMsg);
     } else {
         string errCause = <string> subscriptionResponse.detail()?.message;
         log:printError("Subscription Request failed at Hub[" + hub + "], for Topic[" + topic + "]: " + errCause);

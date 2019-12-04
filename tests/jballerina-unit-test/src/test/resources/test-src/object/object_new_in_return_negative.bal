@@ -26,3 +26,15 @@ function returnDifferentObectInit2() {
     Person | () person = new (5);
     var person1 = new (5);
 }
+
+type Student object {
+    string name = "";
+};
+
+function returnDifferentObectInit3() {
+    Student? student = new("student-1");
+}
+
+function returnDifferentObectInit4() {
+    Student student = new("student-2");
+}

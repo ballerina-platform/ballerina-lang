@@ -30,6 +30,7 @@ import static org.wso2.ballerinalang.programfile.ProgramFileConstants.STRING_OFF
  *
  * @since 0.90
  */
+@Deprecated
 public class VarTypeCountAttributeInfo implements AttributeInfo {
 
     // Index to a UTF8CPEntry

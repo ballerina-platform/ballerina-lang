@@ -1,9 +1,9 @@
 import ballerina/http;
 import ballerina/log;
 
-//The HTTP client's chunking behaviour can be configured as auto, always, or never.
-//In this example, it is set to as never, which means that chunking never happens irrespective of how it is specified
-//in the request. When chunking is set to auto, chunking is done as specified in the request.
+//The HTTP client's chunking behaviour can be configured as `CHUNKING_AUTO`, `CHUNKING_ALWAYS`, or `CHUNKING_NEVER`.
+//In this example, it is set to `CHUNKING_NEVER`, which means that chunking never happens irrespective of how it is specified
+//in the request. When chunking is set to `CHUNKING_AUTO`, chunking is done as specified in the request.
 
 http:Client clientEndpoint = new("http://localhost:9090",
                                  { http1Settings : { chunking: http:CHUNKING_NEVER }});
@@ -13,14 +13,12 @@ service chunkingSample on new http:Listener(9092) {
     @http:ResourceConfig {
         path: "/"
     }
-    //Parameters include a reference to the caller endpoint and an object with the request data.
     resource function invokeEndpoint(http:Caller caller, http:Request req) {
         //Create a new outbound request and set the payload.
         http:Request newReq = new;
         newReq.setPayload({ "name": "Ballerina" });
         var clientResponse = clientEndpoint->post("/echo/", newReq);
         if (clientResponse is http:Response) {
-            //send the response back to the caller.
             var result = caller->respond(clientResponse);
             if (result is error) {
                log:printError("Error sending response", err = result);
@@ -37,7 +35,7 @@ service chunkingSample on new http:Listener(9092) {
     }
 }
 
-// A sample backend that responds according to chunking behaviour.
+// A sample backend, which responds according to the chunking behaviour.
 service echo on new http:Listener(9090) {
     @http:ResourceConfig {
         path: "/"
@@ -66,7 +64,7 @@ service echo on new http:Listener(9090) {
         }
 
         if (!validationErrorFound) {
-            // Since there is no validation error, mark the `value` as trusted data and set to the response.
+            // Since there is no validation error, mark the `value` as trusted data and set it to the response.
             res.setPayload({ "Outbound request content": <@untainted> value });
         }
         var result = caller->respond(res);

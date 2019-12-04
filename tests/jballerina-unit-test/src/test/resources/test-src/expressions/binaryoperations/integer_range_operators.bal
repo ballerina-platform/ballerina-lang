@@ -12,7 +12,9 @@ function testClosedIntRangeAsArray(int startValue, int endValue) returns int[] {
     int[] returnArray = [];
     int returnArrayIndex = 0;
     abstract object {
-        public function next () returns (record {| int value; |}?);
+        public function __iterator() returns abstract object {
+                public function next () returns (record {| int value; |}?);
+        };
     } rangeAsArray = startValue ... endValue;
     foreach var val in rangeAsArray {
         returnArray[returnArrayIndex] = val;
@@ -35,8 +37,10 @@ function testHalfOpenIntRangeAsArray(int startValue, int endValue) returns int[]
     int[] returnArray = [];
     int returnArrayIndex = 0;
     abstract object {
-        public function next () returns (record {| int value; |}?);
-    } rangeAsArray = startValue ..< endValue;
+            public function __iterator() returns abstract object {
+                    public function next () returns (record {| int value; |}?);
+            };
+        } rangeAsArray = startValue ..< endValue;
     foreach var val in rangeAsArray {
         returnArray[returnArrayIndex] = val;
         returnArrayIndex += 1;

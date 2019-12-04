@@ -23,7 +23,6 @@ import org.ballerinalang.langserver.codeaction.CodeActionUtil;
 import org.ballerinalang.langserver.codelenses.CodeLensUtil;
 import org.ballerinalang.langserver.codelenses.LSCodeLensesProviderFactory;
 import org.ballerinalang.langserver.command.CommandUtil;
-import org.ballerinalang.langserver.command.ExecuteCommandKeys;
 import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
@@ -162,7 +161,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
             Optional<Lock> lock = documentManager.lockFile(compilationPath);
             context.put(DocumentServiceKeys.POSITION_KEY, position);
             context.put(DocumentServiceKeys.FILE_URI_KEY, fileUri);
-            context.put(CompletionKeys.DOC_MANAGER_KEY, documentManager);
+            context.put(CommonKeys.DOC_MANAGER_KEY, documentManager);
             context.put(CompletionKeys.CLIENT_CAPABILITIES_KEY, this.clientCapabilities.getCompletion());
             context.put(LSGlobalContextKeys.LS_INDEX_KEY, this.lsIndex);
 
@@ -210,10 +209,11 @@ class BallerinaTextDocumentService implements TextDocumentService {
             try {
                 context.put(DocumentServiceKeys.IS_CACHE_SUPPORTED, true);
                 context.put(DocumentServiceKeys.IS_CACHE_OUTDATED_SUPPORTED, true);
-                List<BLangPackage> modules = ReferencesUtil.compileModulesAndFindReferences(fileUri, documentManager,
-                                                                                            position.getPosition(),
-                                                                                            context, false);
-                hover = ReferencesUtil.getHover(modules, context, position.getPosition());
+                context.put(DocumentServiceKeys.POSITION_KEY, position);
+                context.put(DocumentServiceKeys.FILE_URI_KEY, fileUri);
+                context.put(DocumentServiceKeys.COMPILE_FULL_PROJECT, false);
+                context.put(CommonKeys.DOC_MANAGER_KEY, documentManager);
+                hover = ReferencesUtil.getHover(context);
             } catch (Throwable e) {
                 // Note: Not catching UserErrorException separately to avoid flooding error msgs popups
                 String msg = "Operation 'text/hover' failed!";
@@ -242,7 +242,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
             context.put(DocumentServiceKeys.POSITION_KEY, position);
             context.put(DocumentServiceKeys.FILE_URI_KEY, uri);
             context.put(SignatureKeys.SIGNATURE_HELP_CAPABILITIES_KEY, clientCapabilities.getSignatureHelp());
-            context.put(CompletionKeys.DOC_MANAGER_KEY, documentManager);
+            context.put(CommonKeys.DOC_MANAGER_KEY, documentManager);
 
             try {
                 // Prepare content for source-prune
@@ -302,10 +302,12 @@ class BallerinaTextDocumentService implements TextDocumentService {
         return CompletableFuture.supplyAsync(() -> {
             String fileUri = position.getTextDocument().getUri();
             LSServiceOperationContext context = new LSServiceOperationContext(LSContextOperation.TXT_DEFINITION);
+            context.put(DocumentServiceKeys.POSITION_KEY, position);
+            context.put(DocumentServiceKeys.FILE_URI_KEY, fileUri);
+            context.put(DocumentServiceKeys.COMPILE_FULL_PROJECT, true);
+            context.put(CommonKeys.DOC_MANAGER_KEY, documentManager);
             try {
-                List<BLangPackage> modules = ReferencesUtil.compileModulesAndFindReferences(fileUri, documentManager,
-                        position.getPosition(), context, true);
-                return Either.forLeft(ReferencesUtil.getDefinition(modules, context, position.getPosition()));
+                return Either.forLeft(ReferencesUtil.getDefinition(context));
             } catch (UserErrorException e) {
                 notifyUser("Goto Definition", e);
                 return Either.forLeft(new ArrayList<>());
@@ -322,12 +324,15 @@ class BallerinaTextDocumentService implements TextDocumentService {
         return CompletableFuture.supplyAsync(() -> {
             String fileUri = params.getTextDocument().getUri();
             LSServiceOperationContext context = new LSServiceOperationContext(LSContextOperation.TXT_REFERENCES);
+            TextDocumentPositionParams pos = new TextDocumentPositionParams(params.getTextDocument(),
+                    params.getPosition());
+            context.put(DocumentServiceKeys.POSITION_KEY, pos);
+            context.put(DocumentServiceKeys.FILE_URI_KEY, fileUri);
+            context.put(DocumentServiceKeys.COMPILE_FULL_PROJECT, true);
+            context.put(CommonKeys.DOC_MANAGER_KEY, documentManager);
             try {
-                List<BLangPackage> modules = ReferencesUtil.compileModulesAndFindReferences(fileUri, documentManager,
-                                                                                            params.getPosition(),
-                                                                                            context, true);
                 boolean includeDeclaration = params.getContext().isIncludeDeclaration();
-                return ReferencesUtil.getReferences(modules, context, params.getPosition(), includeDeclaration);
+                return ReferencesUtil.getReferences(context, includeDeclaration);
             } catch (UserErrorException e) {
                 notifyUser("Find References", e);
                 return new ArrayList<>();
@@ -399,7 +404,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
             Path compilationPath = getUntitledFilePath(filePath.get().toString()).orElse(filePath.get());
             Optional<Lock> lock = documentManager.lockFile(compilationPath);
             LSContext context = new LSServiceOperationContext(LSContextOperation.TXT_CODE_ACTION);
-            context.put(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY, documentManager);
+            context.put(CommonKeys.DOC_MANAGER_KEY, documentManager);
             try {
                 LSDocument document = documentManager.getLSDocument(filePath.get());
                 int line = params.getRange().getStart().getLine();
@@ -559,10 +564,13 @@ class BallerinaTextDocumentService implements TextDocumentService {
             String fileUri = params.getTextDocument().getUri();
             LSServiceOperationContext context = new LSServiceOperationContext(LSContextOperation.TXT_RENAME);
             Position position = params.getPosition();
+            TextDocumentPositionParams pos = new TextDocumentPositionParams(params.getTextDocument(), position);
+            context.put(DocumentServiceKeys.POSITION_KEY, pos);
+            context.put(DocumentServiceKeys.FILE_URI_KEY, fileUri);
+            context.put(DocumentServiceKeys.COMPILE_FULL_PROJECT, true);
+            context.put(CommonKeys.DOC_MANAGER_KEY, documentManager);
             try {
-                List<BLangPackage> modules = ReferencesUtil.compileModulesAndFindReferences(fileUri, documentManager,
-                                                                                            position, context, true);
-                return ReferencesUtil.getRenameWorkspaceEdits(modules, context, params.getNewName(), position);
+                return ReferencesUtil.getRenameWorkspaceEdits(context, params.getNewName());
             } catch (UserErrorException e) {
                 notifyUser("Rename", e);
                 return null;

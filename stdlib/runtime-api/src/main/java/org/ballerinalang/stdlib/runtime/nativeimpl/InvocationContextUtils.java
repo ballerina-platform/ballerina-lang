@@ -18,10 +18,10 @@
 
 package org.ballerinalang.stdlib.runtime.nativeimpl;
 
-import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
+import org.ballerinalang.jvm.values.ValueCreator;
 
 import java.util.UUID;
 
@@ -38,6 +38,7 @@ public class InvocationContextUtils {
     private static final String STRUCT_TYPE_INVOCATION_CONTEXT = "InvocationContext";
     private static final String INVOCATION_ID_KEY = "id";
     private static final String INVOCATION_ATTRIBUTES = "attributes";
+    private static final ValueCreator valueCreator = ValueCreator.getValueCreator(BALLERINA_RUNTIME_PKG_ID.toString());
 
     public static MapValue<String, Object> getInvocationContextRecord(Strand strand) {
         MapValue<String, Object> invocationContext =
@@ -50,8 +51,7 @@ public class InvocationContextUtils {
     }
 
     private static MapValue<String, Object> initInvocationContext(Strand strand) {
-        MapValue<String, Object> invocationContextInfo = BallerinaValues.
-                createRecordValue(BALLERINA_RUNTIME_PKG_ID, STRUCT_TYPE_INVOCATION_CONTEXT);
+        MapValue<String, Object> invocationContextInfo = valueCreator.createRecordValue(STRUCT_TYPE_INVOCATION_CONTEXT);
         UUID invocationId = UUID.randomUUID();
         invocationContextInfo.put(INVOCATION_ID_KEY, invocationId.toString());
         invocationContextInfo.put(INVOCATION_ATTRIBUTES, new MapValueImpl());
