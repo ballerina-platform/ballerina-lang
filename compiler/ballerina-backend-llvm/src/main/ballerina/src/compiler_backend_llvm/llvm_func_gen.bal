@@ -89,7 +89,6 @@ type FuncGenrator object {
                 }
             }
         }
-        createTypePointerForTaggedStructType(self.builder);
     }
 
     function cacheLocVarValue(bir:VariableDcl? localVar, llvm:LLVMValueRef localVarRef) {

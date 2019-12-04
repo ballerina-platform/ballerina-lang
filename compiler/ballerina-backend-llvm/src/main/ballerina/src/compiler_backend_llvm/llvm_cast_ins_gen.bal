@@ -62,7 +62,7 @@ type CastInsGenerator object {
     function buildBitCastedUnion(bir:VarRef variable, bir:BType bitcastType) returns llvm:LLVMValueRef {
         string castInsName = self.genStructCastName(localVariableNameWithPrefix(variable), getTypeStringName(bitcastType));
         llvm:LLVMValueRef genericUnion = self.parent.getLocalVarRef(variable);
-        llvm:LLVMTypeRef toType = getTypePointerForTaggedStructType((bitcastType));
+        llvm:LLVMTypeRef toType = getTypePointerForTaggedStructType(bitcastType, self.builder);
         return llvm:llvmBuildBitCast(self.builder, genericUnion, toType, castInsName);
     }
 

@@ -207,8 +207,11 @@ function appendAllTo(any[] toArr, any[] fromArr) {
 function getTaggedStructType(string typeName) returns llvm:LLVMTypeRef {
     boolean hasType = structMap.hasKey(typeName);
     if (!hasType) {
-        error typeNotInMapError = error("SimpleErrorType", message = "Type : " + typeName + " Not in structMap");
-        panic typeNotInMapError;
+        if (typeName == "int") {
+            createTaggedInt();
+        } else if (typeName == "boolean") {
+            createTaggedBool();
+        }    
     }
     return <llvm:LLVMTypeRef>structMap[typeName];
 }
@@ -218,13 +221,11 @@ function createUnion(bir:BUnionType bType) returns llvm:LLVMTypeRef {
     foreach var member in bType.members {
         if (member is bir:BTypeInt) {
             largestType = getLargerType(largestType, "int");
-            createTaggedInt();
         } else if (member is bir:BTypeBoolean) {
             largestType = getLargerType(largestType, "boolean");
-            createTaggedBool();
         }
     }
-    return <llvm:LLVMTypeRef>structMap[largestType];
+    return getTaggedStructType(largestType);
 }
 
 function getLargerType(string first, string second) returns string { 
@@ -314,22 +315,17 @@ function getTypeStringName(bir:BType typeValue) returns string {
     return "null";
 }
 
-function createTypePointerForTaggedStructType(llvm:LLVMBuilderRef builder) {
-    foreach var taggedType in structMap.keys() {
-        if (!taggedTypeToTypePointerMap.hasKey(taggedType))  {
-            llvm:LLVMTypeRef taggedUnionType = getTaggedStructType(taggedType);
-            llvm:LLVMValueRef tempStructAllocation = llvm:llvmBuildAlloca(builder, taggedUnionType, ("temoStructOf"+taggedType));
-            llvm:LLVMTypeRef typePointerToTaggedUnion = llvm:llvmTypeOf(tempStructAllocation);
-            taggedTypeToTypePointerMap[taggedType] = typePointerToTaggedUnion;
-        }
-    }
+function createTypePointerForTaggedStructType(string taggedType, llvm:LLVMBuilderRef builder) {
+    llvm:LLVMTypeRef taggedUnionType = getTaggedStructType(taggedType);
+    llvm:LLVMValueRef tempStructAllocation = llvm:llvmBuildAlloca(builder, taggedUnionType, ("tempStructOf"+taggedType));
+    llvm:LLVMTypeRef typePointerToTaggedUnion = llvm:llvmTypeOf(tempStructAllocation);
+    taggedTypeToTypePointerMap[taggedType] = typePointerToTaggedUnion;
 }
 
-function getTypePointerForTaggedStructType(bir:BType typeValue) returns llvm:LLVMTypeRef {
+function getTypePointerForTaggedStructType(bir:BType typeValue, llvm:LLVMBuilderRef builder) returns llvm:LLVMTypeRef {
     string typeName = getTypeStringName(typeValue);
-    if (taggedTypeToTypePointerMap.hasKey(typeName)) {
-        return <llvm:LLVMTypeRef>taggedTypeToTypePointerMap[typeName];
+    if (!taggedTypeToTypePointerMap.hasKey(typeName)) {
+        createTypePointerForTaggedStructType(typeName, builder);
     }
-    error noPointerTypeFoundError = error("SimpleError", message = "NoTaggedValuePOinterType found for type : " + typeName);
-    panic noPointerTypeFoundError;
+    return <llvm:LLVMTypeRef>taggedTypeToTypePointerMap[typeName];
 }
