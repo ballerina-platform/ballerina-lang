@@ -67,6 +67,7 @@ dependencies {
     interopImports project(':ballerina-config-api')
     interopImports project(':ballerina-filepath')
     interopImports project(':ballerina-io')
+    interopImports project(':ballerina-log-api')
     interopImports project(':ballerina-math')
     interopImports project(':ballerina-system')
     interopImports project(':ballerina-task')

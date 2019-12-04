@@ -17,11 +17,6 @@
  */
 package org.ballerinalang.stdlib.io.nativeimpl;
 
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
-
 import java.nio.charset.Charset;
 import java.util.Scanner;
 
@@ -30,17 +25,11 @@ import java.util.Scanner;
  *
  * @since 0.97
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "io",
-        functionName = "readln",
-        returnType = {@ReturnType(type = TypeKind.STRING)},
-        isPublic = true
-)
 public class ReadlnAny {
 
     private static Scanner sc = new Scanner(System.in, Charset.defaultCharset().displayName());
 
-    public static String readln(Strand strand, Object result) {
+    public static String readln(Object result) {
         if (result != null) {
             System.out.print(result.toString());
         }

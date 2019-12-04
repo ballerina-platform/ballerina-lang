@@ -56,7 +56,7 @@ public class KafkaProducerTest {
 
     @BeforeClass
     public void setup() throws IOException {
-        result = BCompileUtil.compile(getFilePath(Paths.get(TEST_SRC, TEST_PRODUCER, "kafka_producer.bal")));
+        result = BCompileUtil.compileOffline(getFilePath(Paths.get(TEST_SRC, TEST_PRODUCER, "kafka_producer.bal")));
         dataDir = Testing.Files.createTestingDirectory("cluster-kafka-producer-test");
         kafkaCluster = createKafkaCluster(dataDir, 14009, 14109).addBrokers(1).startup();
     }

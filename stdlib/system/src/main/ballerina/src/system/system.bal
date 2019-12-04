@@ -88,12 +88,10 @@ function nativeExec(handle command, map<string> env, string? dir, string[] args)
 } external;
 
 function covertToString(handle value) returns string {
-    string output = "";
     var result = java:toString(value);
     if (result is string) {
-        output = result;
+        return result;
     } else {
         panic error("Error occured when converting the value to string.");
     }
-    return output;
 }

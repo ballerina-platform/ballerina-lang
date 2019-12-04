@@ -653,12 +653,15 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         }
 
         String workerName = null;
+        DiagnosticPos workerNamePos = null;
         if (ctx.workerDefinition() != null) {
             workerName = escapeQuotedIdentifier(ctx.workerDefinition().Identifier().getText());
+            workerNamePos = getCurrentPos(ctx.workerDefinition().Identifier());
         }
         boolean retParamsAvail = ctx.workerDefinition().returnParameter() != null;
         int numAnnotations = ctx.annotationAttachment().size();
-        this.pkgBuilder.addWorker(getCurrentPos(ctx), getWS(ctx), workerName, retParamsAvail, numAnnotations);
+        this.pkgBuilder.addWorker(
+                getCurrentPos(ctx), getWS(ctx), workerName, workerNamePos, retParamsAvail, numAnnotations);
     }
 
     /**
