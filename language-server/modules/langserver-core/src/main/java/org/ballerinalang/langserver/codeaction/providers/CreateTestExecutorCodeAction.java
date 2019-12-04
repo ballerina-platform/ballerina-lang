@@ -25,6 +25,7 @@ import org.ballerinalang.langserver.command.CommandUtil;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.compiler.exception.CompilationFailedException;
+import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.Diagnostic;
 
 import java.util.Arrays;
@@ -44,14 +45,14 @@ public class CreateTestExecutorCodeAction implements BallerinaCodeActionProvider
      * {@inheritDoc}
      */
     @Override
-    public List<org.eclipse.lsp4j.CodeAction> getCodeActions(CodeActionNodeType nodeType, LSContext lsContext,
-                                                             List<Diagnostic> diagnostics) {
+    public List<CodeAction> getCodeActions(CodeActionNodeType nodeType, LSContext lsContext,
+                                           List<Diagnostic> diagnostics) {
         try {
             return CommandUtil.getTestGenerationCommand(nodeType.name(),
                                                         lsContext.get(DocumentServiceKeys.FILE_URI_KEY),
                                                         lsContext);
         } catch (CompilationFailedException e) {
-            e.printStackTrace();
+            // ignore
         }
         return null;
     }

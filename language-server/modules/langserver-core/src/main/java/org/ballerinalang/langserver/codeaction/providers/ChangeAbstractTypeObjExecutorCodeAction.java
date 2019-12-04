@@ -45,7 +45,7 @@ public class ChangeAbstractTypeObjExecutorCodeAction implements BallerinaCodeAct
     @Override
     public List<org.eclipse.lsp4j.CodeAction> getCodeActions(CodeActionNodeType nodeType, LSContext lsContext,
                                                              List<org.eclipse.lsp4j.Diagnostic> diagnostics) {
-        List<org.eclipse.lsp4j.CodeAction> actions = new ArrayList<>();
+        List<CodeAction> actions = new ArrayList<>();
 
         for (Diagnostic diagnostic : diagnostics) {
             if (diagnostic.getMessage().contains(ABSTRACT_OBJECT)) {

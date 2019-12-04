@@ -43,23 +43,23 @@ import java.util.Optional;
  */
 @JavaSPIService("org.ballerinalang.langserver.codeaction.BallerinaCodeActionProvider")
 public class ImportModuleExecutorCodeAction implements BallerinaCodeActionProvider {
-    private final String UNDEFINED_FUNCTION = "undefined function";
-    private final String UNDEFINED_MODULE = "undefined module";
-    private final String UNRESOLVED_MODULE = "cannot resolve module";
+    private static final String UNDEFINED_FUNCTION = "undefined function";
+    private static final String UNDEFINED_MODULE = "undefined module";
+    private static final String UNRESOLVED_MODULE = "cannot resolve module";
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public List<org.eclipse.lsp4j.CodeAction> getCodeActions(CodeActionNodeType nodeType, LSContext lsContext,
-                                                             List<Diagnostic> diagnostics) {
+    public List<CodeAction> getCodeActions(CodeActionNodeType nodeType, LSContext lsContext,
+                                           List<Diagnostic> diagnostics) {
         WorkspaceDocumentManager documentManager = lsContext.get(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY);
         Optional<Path> filePath = CommonUtil.getPathFromURI(lsContext.get(ExecuteCommandKeys.FILE_URI_KEY));
         LSDocument document = null;
         try {
             document = documentManager.getLSDocument(filePath.get());
         } catch (WorkspaceDocumentException e) {
-            e.printStackTrace();
+            // ignore
         }
         List<CodeAction> actions = new ArrayList<>();
 

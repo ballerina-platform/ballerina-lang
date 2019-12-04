@@ -23,6 +23,7 @@ import org.ballerinalang.langserver.codeaction.BallerinaCodeActionProvider;
 import org.ballerinalang.langserver.codeaction.CodeActionNodeType;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSContext;
+import org.eclipse.lsp4j.CodeAction;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -47,8 +48,8 @@ public class AddAllDocumentationCodeAction implements BallerinaCodeActionProvide
      * {@inheritDoc}
      */
     @Override
-    public List<org.eclipse.lsp4j.CodeAction> getCodeActions(CodeActionNodeType nodeType, LSContext lsContext,
-                                                             List<org.eclipse.lsp4j.Diagnostic> diagnostics) {
+    public List<CodeAction> getCodeActions(CodeActionNodeType nodeType, LSContext lsContext,
+                                           List<org.eclipse.lsp4j.Diagnostic> diagnostics) {
         return Collections.singletonList(getAllDocGenerationCommand(lsContext.get(DocumentServiceKeys.FILE_URI_KEY)));
     }
 

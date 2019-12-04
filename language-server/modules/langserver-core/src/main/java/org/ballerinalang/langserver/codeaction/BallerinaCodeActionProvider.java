@@ -32,7 +32,7 @@ import java.util.List;
 public interface BallerinaCodeActionProvider {
 
     /**
-     * returns the list of code actions based on node type or diagnostics
+     * returns the list of code actions based on node type or diagnostics.
      *
      * @param nodeType    code action node type
      * @param lsContext   language server context
@@ -44,7 +44,7 @@ public interface BallerinaCodeActionProvider {
     boolean isNodeBased();
 
     /**
-     * returns the list of node types that the code action belongs to
+     * returns the list of node types that the code action belongs to.
      *
      * @return list of code action node type
      */

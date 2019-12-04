@@ -52,7 +52,7 @@ public class BallerinaCodeActionProviderFactory {
 
     /**
      * Initialize the code action provider factory Adding all node based providers in to the Hash Map and diagnostic
-     * based providers in to the List
+     * based providers in to the List.
      */
     public void initiate() {
         if (isInitialized) {
