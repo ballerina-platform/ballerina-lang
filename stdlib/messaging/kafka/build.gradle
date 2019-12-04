@@ -75,6 +75,7 @@ dependencies {
     baloImplementation project(path: ':ballerina-lang:annotations', configuration: 'baloImplementation')
 
     interopImports project(':ballerina-filepath')
+    interopImports project(':ballerina-reflect')
 
     implementation project(':ballerina-auth')
     implementation project(':ballerina-http')

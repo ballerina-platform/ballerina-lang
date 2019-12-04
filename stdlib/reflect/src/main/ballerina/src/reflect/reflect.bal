@@ -14,6 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerinax/java;
+
 const COLON = ":";
 
 # Function to retrieve the service's annotation.
@@ -23,7 +25,13 @@ const COLON = ":";
 # + moduleName - Name of the module
 # + return - Returns the service annotation data
 public function getServiceAnnotations(service serviceType, string annotName, string? moduleName = ()) returns any {
-    return getServiceAnnotationsExternal(serviceType, getAnnotQualifiedIdentifier(annotName, moduleName));
+    var result = externGetServiceAnnotations(serviceType,
+                                            java:fromString(getAnnotQualifiedIdentifier(annotName, moduleName)));
+    if (result is handle) {
+        return java:toString(result);
+    } else {
+        return result;
+    }
 }
 
 # Function to retrieve the resource's annotation.
@@ -35,14 +43,24 @@ public function getServiceAnnotations(service serviceType, string annotName, str
 # + return - Returns the resource annotation data
 public function getResourceAnnotations(service serviceType, string resourceName, string annotName,
                                         string? moduleName = ()) returns any {
-    return getResourceAnnotationsExternal(serviceType, resourceName,
-                                          getAnnotQualifiedIdentifier(annotName, moduleName));
+    var result = externGetResourceAnnotations(serviceType, java:fromString(resourceName),
+                                          java:fromString(getAnnotQualifiedIdentifier(annotName, moduleName)));
+    if (result is handle) {
+      return java:toString(result);
+    } else {
+      return result;
+    }
 }
 
-function getServiceAnnotationsExternal(service serviceType, string annot) returns any = external;
+function externGetServiceAnnotations(service serviceType, handle annot) returns any =
+@java:Method {
+    class: "org.ballerinalang.stdlib.reflect.AnnotationUtils"
+} external;
 
-function getResourceAnnotationsExternal(service serviceType, string resourceName, string annot)
-    returns any = external;
+function externGetResourceAnnotations(service serviceType, handle resourceName, handle annot) returns any =
+@java:Method {
+    class: "org.ballerinalang.stdlib.reflect.AnnotationUtils"
+} external;
 
 function getAnnotQualifiedIdentifier(string annotName, string? moduleName = ()) returns string {
     if (moduleName is string) {

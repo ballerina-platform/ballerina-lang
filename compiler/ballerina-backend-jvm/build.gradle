@@ -47,6 +47,7 @@ dependencies {
     baloImplementation project(path: ':ballerina-runtime-api', configuration: 'baloImplementation')
 
     interopImports project(':ballerina-time')
+    interopImports project(':ballerina-reflect')
 
     baloCreat project(':lib-creator')
 }

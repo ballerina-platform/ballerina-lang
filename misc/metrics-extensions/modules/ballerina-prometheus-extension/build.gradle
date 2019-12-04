@@ -81,6 +81,8 @@ dependencies {
     implementation project(':ballerina-utils')
     implementation project(':ballerina-config')
     implementation project(':ballerina-runtime')
+
+    interopImports project(':ballerina-reflect')
 }
 
 artifacts {
