@@ -1048,8 +1048,17 @@ public class SymbolResolver extends BLangNodeVisitor {
         List<BVarSymbol> params = new ArrayList<>();
 
         boolean foundDefaultableParam = false;
+        List<String> paramNames = new ArrayList<>();
         for (BLangVariable paramNode :  paramVars) {
             BLangSimpleVariable param = (BLangSimpleVariable) paramNode;
+            Name paramName = names.fromIdNode(param.name);
+            if (paramName != Names.EMPTY) {
+                if (paramNames.contains(paramName.value)) {
+                    dlog.error(param.name.pos, DiagnosticCode.REDECLARED_SYMBOL, paramName.value);
+                } else {
+                    paramNames.add(paramName.value);
+                }
+            }
             BType type = resolveTypeNode(param.getTypeNode(), env);
             paramNode.type = type;
             paramTypes.add(type);
@@ -1058,7 +1067,7 @@ public class SymbolResolver extends BLangNodeVisitor {
                 foundDefaultableParam = true;
             }
 
-            BVarSymbol symbol = new BVarSymbol(type.flags, names.fromIdNode(param.name),
+            BVarSymbol symbol = new BVarSymbol(type.flags, paramName,
                     env.enclPkg.symbol.pkgID, type, env.scope.owner);
             param.symbol = symbol;
 

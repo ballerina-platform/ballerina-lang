@@ -3305,9 +3305,7 @@ public class TypeChecker extends BLangNodeVisitor {
         Map<String, BVarSymbol> params = new HashMap<>();
         for (BVarSymbol a : ((BInvokableSymbol) iExpr.symbol).params) {
             if (!a.name.equals(Names.EMPTY)) {
-                if (params.put(a.name.getValue(), a) != null) {
-                    throw new IllegalStateException("Duplicate key");
-                }
+                params.put(a.name.getValue(), a);
             }
         }
 
