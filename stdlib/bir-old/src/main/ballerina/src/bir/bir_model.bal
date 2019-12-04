@@ -73,6 +73,7 @@ public type BasicBlock record {|
 
 public type ErrorEntry record {|
     BasicBlock trapBB;
+    BasicBlock endBB;
     VarRef errorOp;
     BasicBlock targetBB;
     anydata...; // This is to type match with platform specific error entries

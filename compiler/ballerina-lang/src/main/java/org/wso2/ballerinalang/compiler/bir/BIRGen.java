@@ -1003,11 +1003,6 @@ public class BIRGen extends BLangNodeVisitor {
     }
 
     private void createCall(BLangInvocation invocationExpr, boolean isVirtual) {
-        // Lets create a block the jump after successful function return
-        BIRBasicBlock thenBB = new BIRBasicBlock(this.env.nextBBId(names));
-        addToTrapStack(thenBB);
-        this.env.enclBasicBlocks.add(thenBB);
-
         List<BLangExpression> requiredArgs = invocationExpr.requiredArgs;
         List<BLangExpression> restArgs = invocationExpr.restArgs;
         List<BIROperand> args = new ArrayList<>();
@@ -1036,23 +1031,18 @@ public class BIRGen extends BLangNodeVisitor {
             fp = this.env.targetOperand;
         }
 
-        BIROperand lhsOp = null;
-        if (invocationExpr.type.tag != TypeTags.NIL) {
-            // Create a temporary variable to store the return operation result.
-            BIRVariableDcl tempVarDcl = new BIRVariableDcl(invocationExpr.type, this.env.nextLocalVarId(names),
-                    VarScope.FUNCTION, VarKind.TEMP);
-            this.env.enclFunc.localVars.add(tempVarDcl);
-            lhsOp = new BIROperand(tempVarDcl);
-            this.env.targetOperand = lhsOp;
-        } else {
-            BIRVariableDcl tempVarDcl = new BIRVariableDcl(symTable.nilType,
-                    this.env.nextLocalVarId(names), VarScope.FUNCTION, VarKind.TEMP);
-            this.env.enclFunc.localVars.add(tempVarDcl);
-            BIROperand toVarRef = new BIROperand(tempVarDcl);
-            emit(new BIRNonTerminator.ConstantLoad(null,
-                    null, symTable.nilType, toVarRef));
-            this.env.targetOperand = toVarRef;
-        }
+        // Create a temporary variable to store the return operation result.
+        BIRVariableDcl tempVarDcl = new BIRVariableDcl(invocationExpr.type, this.env.nextLocalVarId(names),
+                VarScope.FUNCTION, VarKind.TEMP);
+        this.env.enclFunc.localVars.add(tempVarDcl);
+        BIROperand lhsOp = new BIROperand(tempVarDcl);
+        this.env.targetOperand = lhsOp;
+
+        // Lets create a block the jump after successful function return
+        BIRBasicBlock thenBB = new BIRBasicBlock(this.env.nextBBId(names));
+        addToTrapStack(thenBB);
+        this.env.enclBasicBlocks.add(thenBB);
+
 
         // TODO: make vCall a new instruction to avoid package id in vCall
         if (invocationExpr.functionPointerInvocation) {
@@ -1606,21 +1596,10 @@ public class BIRGen extends BLangNodeVisitor {
         env.enclBasicBlocks.add(nextBB);
         this.env.enclBB.terminator = new BIRTerminator.GOTO(trapExpr.pos, nextBB);
 
-        if (trapExpr.expr.type.tag == TypeTags.NIL) {
-            BIRVariableDcl tempVarDcl = new BIRVariableDcl(trapExpr.type, this.env.nextLocalVarId(names),
-                                                           VarScope.FUNCTION, VarKind.TEMP);
-            this.env.enclFunc.localVars.add(tempVarDcl);
-            this.env.targetOperand = new BIROperand(tempVarDcl);
-        }
-
-        for (BIRBasicBlock bb : trappedBlocks) {
-            env.enclFunc.errorTable.add(new BIRNode.BIRErrorEntry(bb, env.targetOperand, nextBB));
-        }
+        env.enclFunc.errorTable.add(new BIRNode.BIRErrorEntry(trappedBlocks.get(0),
+                trappedBlocks.get(trappedBlocks.size() - 1), env.targetOperand, nextBB));
 
         this.env.enclBB = nextBB;
-        // Once trap expression is visited,  we need to back track all basic blocks which is covered by the trap
-        // and add error entry for each and every basic block.
-//        genIntermediateErrorEntries(birTerminatorVisitor, trapBB);
     }
 
     @Override

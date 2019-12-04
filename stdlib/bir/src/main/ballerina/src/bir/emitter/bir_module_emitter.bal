@@ -174,13 +174,16 @@ function emitLocalVars(VariableDcl?[] localVars, int tabs) returns string {
 }
 
 function emitLocalVar(VariableDcl lVar, int tabs) returns string {
-    string lVarStr = "";
-    lVarStr += emitTabs(tabs);
-    lVarStr += emitName(lVar.name);
-    lVarStr += emitSpaces(1);
-    lVarStr += emitTypeRef(lVar.typeValue);
-    lVarStr += ";";
-    return lVarStr;
+    string str = "";
+    str += emitTabs(tabs);
+    str += emitName(lVar.name);
+    str += "(";
+    str += lVar.kind.toString();
+    str += ")";
+    str += emitSpaces(1);
+    str += emitTypeRef(lVar.typeValue);
+    str += ";";
+    return str;
 }
 
 function emitBasicBlocks(BasicBlock?[] basicBlocks, int tabs) returns string {
@@ -224,7 +227,7 @@ function emitErrorEntries(ErrorEntry?[] errorEntries, int tabs) returns string {
         return str;
     }
     str += emitTabs(tabs);
-    str += "-------------------------------";
+    str += "---------------------------------------------";
     str += emitLBreaks(1);
     str += emitTabs(tabs);
     str += "|";
@@ -233,12 +236,16 @@ function emitErrorEntries(ErrorEntry?[] errorEntries, int tabs) returns string {
     str += emitSpaces(7);
     str += "|";
     str += emitSpaces(1);
+    str += "endBB";
+    str += emitSpaces(8);
+    str += "|";
+    str += emitSpaces(1);
     str += "errorOp";
     str += emitSpaces(6);
     str += "|";
     str += emitLBreaks(1);
     str += emitTabs(tabs);
-    str += "-------------------------------";
+    str += "---------------------------------------------";
     str += emitLBreaks(1);
     foreach ErrorEntry? err in errorEntries {
         if err is ErrorEntry {
@@ -247,7 +254,7 @@ function emitErrorEntries(ErrorEntry?[] errorEntries, int tabs) returns string {
         }
     }
     str += emitTabs(tabs);
-    str += "-------------------------------";
+    str += "---------------------------------------------";
     return str;
 }
 
@@ -260,6 +267,12 @@ function emitErrorEntry(ErrorEntry err, int tabs) returns string {
     int bbSpaces = calculateSpaces(bbRef);
     str += bbRef;
     str += emitSpaces(bbSpaces);
+    str += "|";
+    str += emitSpaces(1);
+    string endBBRef = emitBasicBlockRef(err.endBB);
+    int endBBSpaces = calculateSpaces(endBBRef);
+    str += endBBRef;
+    str += emitSpaces(endBBSpaces);
     str += "|";
     str += emitSpaces(1);
     string varRef = emitVarRef(err.errorOp);

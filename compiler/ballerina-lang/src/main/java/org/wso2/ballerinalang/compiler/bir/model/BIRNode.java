@@ -428,13 +428,17 @@ public abstract class BIRNode {
 
         public BIRBasicBlock trapBB;
 
+        // this is inclusive
+        public BIRBasicBlock endBB;
+
         public BIROperand errorOp;
 
         public BIRBasicBlock targetBB;
 
-        public BIRErrorEntry(BIRBasicBlock trapBB, BIROperand errorOp, BIRBasicBlock targetBB) {
+        public BIRErrorEntry(BIRBasicBlock trapBB, BIRBasicBlock endBB, BIROperand errorOp, BIRBasicBlock targetBB) {
             super(null);
             this.trapBB = trapBB;
+            this.endBB = endBB;
             this.errorOp = errorOp;
             this.targetBB = targetBB;
         }
