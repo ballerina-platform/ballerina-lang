@@ -1499,9 +1499,17 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         // Taintedness of a service variable depends on taintedness of listeners attached to this service.
         // If any listener is tainted then the service variable is tainted.
 
-        boolean anyListenerstainted = serviceConstructorExpr.serviceNode.attachedExprs.stream()
-                .filter(expr -> expr.getKind() == NodeKind.SIMPLE_VARIABLE_REF)
-                .anyMatch(attached -> ((BLangSimpleVarRef) attached).symbol.tainted);
+        boolean anyListenerstainted = false;
+        for (BLangExpression expr : serviceConstructorExpr.serviceNode.attachedExprs) {
+            if (expr.getKind() == NodeKind.SIMPLE_VARIABLE_REF && ((BLangSimpleVarRef) expr).symbol.tainted) {
+                anyListenerstainted = true;
+                break;
+            }
+            if (expr.getKind() == NodeKind.TYPE_INIT_EXPR) {
+                anyListenerstainted = true;
+                break;
+            }
+        }
 
         if (anyListenerstainted || serviceConstructorExpr.type.tsymbol.tainted) {
             // Service type tainted due to listeners being tainted.

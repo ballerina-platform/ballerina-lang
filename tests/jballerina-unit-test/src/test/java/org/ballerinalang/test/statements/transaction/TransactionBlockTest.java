@@ -211,6 +211,12 @@ public class TransactionBlockTest {
     }
 
     @Test
+    public void testAssignmentToUninitializedVariableOfOuterScopeFromTrxBlock() {
+        BValue[] result = BRunUtil.invoke(programFile, "testAssignmentToUninitializedVariableOfOuterScopeFromTrxBlock");
+        Assert.assertEquals(result[0].stringValue(), "init-in-transaction-block");
+    }
+
+    @Test
     public void testMultipleCommittedAbortedBlocks() {
         Assert.assertTrue(negativeProgramFile.getErrorCount() > 0);
     }

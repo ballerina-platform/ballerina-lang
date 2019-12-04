@@ -19,7 +19,6 @@ package org.ballerinalang.jvm.values;
 
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.TypeChecker;
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BTupleType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
@@ -276,10 +275,10 @@ public class TupleValueImpl extends AbstractArrayValue {
     }
 
     @Override
-    public String stringValue(Strand strand) {
+    public String stringValue() {
         StringJoiner sj = new StringJoiner(" ");
         for (int i = 0; i < this.size; i++) {
-            sj.add(StringUtils.getStringValue(strand, this.refValues[i]));
+            sj.add(StringUtils.getStringValue(this.refValues[i]));
         }
         return sj.toString();
     }

@@ -22,7 +22,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * This map will hold all the read ready sockets until it is read through the
- * {@link org.ballerinalang.stdlib.socket.endpoint.tcp.ClientUtils} action.
+ * {@link org.ballerinalang.stdlib.socket.endpoint.tcp.ClientUtils} read action.
  *
  * @since 0.995.0
  */

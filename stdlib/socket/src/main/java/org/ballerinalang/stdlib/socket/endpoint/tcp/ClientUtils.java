@@ -56,26 +56,6 @@ import static java.nio.channels.SelectionKey.OP_READ;
 public class ClientUtils {
     private static final Logger log = LoggerFactory.getLogger(ClientUtils.class);
 
-    public static Object close(ObjectValue client) {
-        final SocketChannel socketChannel = (SocketChannel) client.getNativeData(SocketConstants.SOCKET_KEY);
-        try {
-            // SocketChannel can be null if something happen during the onConnect. Hence the null check.
-            if (socketChannel != null) {
-                socketChannel.close();
-                SelectorManager.getInstance().unRegisterChannel(socketChannel);
-            }
-            // This need to handle to support multiple client close.
-            Object isClient = client.getNativeData(SocketConstants.IS_CLIENT);
-            if (isClient != null && Boolean.parseBoolean(isClient.toString())) {
-                SelectorManager.getInstance().stop(true);
-            }
-        } catch (IOException e) {
-            log.error("Unable to close the connection", e);
-            return SocketUtils.createSocketError("unable to close the client socket connection");
-        }
-        return null;
-    }
-
     public static Object initEndpoint(ObjectValue client, MapValue<String, Object> config) {
         Object returnValue = null;
         try {
@@ -98,11 +78,31 @@ public class ClientUtils {
         return returnValue;
     }
 
+    public static Object close(ObjectValue client) {
+        final SocketChannel socketChannel = (SocketChannel) client.getNativeData(SocketConstants.SOCKET_KEY);
+        try {
+            // SocketChannel can be null if something happen during the onConnect. Hence the null check.
+            if (socketChannel != null) {
+                socketChannel.close();
+                SelectorManager.getInstance().unRegisterChannel(socketChannel);
+            }
+            // This need to handle to support multiple client close.
+            Object isClient = client.getNativeData(SocketConstants.IS_CLIENT);
+            if (isClient != null && Boolean.parseBoolean(isClient.toString())) {
+                SelectorManager.getInstance().stop(true);
+            }
+        } catch (IOException e) {
+            log.error("Unable to close the connection", e);
+            return SocketUtils.createSocketError("unable to close the client socket connection");
+        }
+        return null;
+    }
+
     public static Object read(ObjectValue client, long length) {
         final NonBlockingCallback callback = new NonBlockingCallback(Scheduler.getStrand());
         if (length != SocketConstants.DEFAULT_EXPECTED_READ_LENGTH && length < 1) {
             String msg = "requested byte length need to be 1 or more";
-            callback.setReturnValues(SocketUtils.createSocketError(msg));
+            callback.setReturnValues(SocketUtils.createSocketError(SocketConstants.ErrorCode.ReadTimedOutError, msg));
             callback.notifySuccess();
             return null;
         }

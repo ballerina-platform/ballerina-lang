@@ -31,7 +31,7 @@ public type Listener object {
     }
 
     public function __start() returns error? {
-        return serviceStart(self);
+        return startService(self);
     }
 
     public function __gracefulStop() returns error? {
@@ -72,7 +72,7 @@ function externRegister(Listener lis, service s) returns error? =
     class: "org.ballerinalang.stdlib.socket.endpoint.tcp.ServerUtils"
 } external;
 
-function serviceStart(Listener lis) returns error? =
+function startService(Listener lis) returns error? =
 @java:Method {
     name: "start",
     class: "org.ballerinalang.stdlib.socket.endpoint.tcp.ServerUtils"

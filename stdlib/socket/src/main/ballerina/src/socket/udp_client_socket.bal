@@ -35,7 +35,7 @@ public type UdpClient client object {
     # + config - Configure additional details like read timeout etc.
     public function __init(Address? localAddress = (), UdpClientConfig? config = ()) {
         UdpClientConfig configuration = config ?: {};
-        var initResult = udpInitEndpoint(self, localAddress, configuration);
+        var initResult = initUdpClientEndpoint(self, localAddress, configuration);
         if (initResult is error) {
             panic initResult;
         }
@@ -68,7 +68,7 @@ public type UdpClient client object {
     #
     # + return - - an error if encounters an error while closing the connection or returns nil otherwise
     public remote function close() returns Error? {
-        return udpClientClose(self);
+        return closeUdpClient(self);
     }
 };
 
@@ -88,13 +88,13 @@ public type UdpClientConfig record {|
     int readTimeoutInMillis = 300000;
 |};
 
-function udpInitEndpoint(UdpClient udpClient, Address? localAddress, UdpClientConfig config) returns error? =
+function initUdpClientEndpoint(UdpClient udpClient, Address? localAddress, UdpClientConfig config) returns error? =
 @java:Method {
     name: "initEndpoint",
     class: "org.ballerinalang.stdlib.socket.endpoint.udp.client.Utils"
 } external;
 
-function udpClientClose(UdpClient udpClient) returns Error? =
+function closeUdpClient(UdpClient udpClient) returns Error? =
 @java:Method {
     name: "close",
     class: "org.ballerinalang.stdlib.socket.endpoint.udp.client.Utils"

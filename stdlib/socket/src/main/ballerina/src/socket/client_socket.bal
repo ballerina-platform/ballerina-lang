@@ -35,11 +35,11 @@ public type Client client object {
     public function __init(ClientConfig? clientConfig) {
         if (clientConfig is ClientConfig) {
             self.config = clientConfig;
-            var initResult = initEndpoint(self, clientConfig);
+            var initResult = initClientEndpoint(self, clientConfig);
             if (initResult is error) {
                 panic initResult;
             }
-            var startResult = clientStart(self);
+            var startResult = startClient(self);
             if (startResult is error) {
                 panic startResult;
             }
@@ -71,7 +71,7 @@ public type Client client object {
     #
     # + return - - an error if encounters an error while closing the connection or returns nil otherwise
     public remote function close() returns Error? {
-        return clientClose(self);
+        return closeClient(self);
     }
 
     # Shutdowns the further read from socket.
@@ -102,12 +102,13 @@ public type ClientConfig record {|
     service callbackService?;
 |};
 
-function initEndpoint(Client clientObj, ClientConfig clientConfig) returns error? =
+function initClientEndpoint(Client clientObj, ClientConfig clientConfig) returns error? =
 @java:Method {
+    name: "initEndpoint",
     class: "org.ballerinalang.stdlib.socket.endpoint.tcp.ClientUtils"
 } external;
 
-function clientStart(Client clientObj) returns error? =
+function startClient(Client clientObj) returns error? =
 @java:Method {
     name: "start",
     class: "org.ballerinalang.stdlib.socket.endpoint.tcp.ClientUtils"
@@ -125,7 +126,7 @@ function externRead(Client clientObj, int length) returns [byte[], int]|ReadTime
     class: "org.ballerinalang.stdlib.socket.endpoint.tcp.ClientUtils"
 } external;
 
-function clientClose(Client clientObj) returns Error? =
+function closeClient(Client clientObj) returns Error? =
 @java:Method {
     name: "close",
     class: "org.ballerinalang.stdlib.socket.endpoint.tcp.ClientUtils"
