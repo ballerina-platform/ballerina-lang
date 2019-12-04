@@ -4,7 +4,7 @@
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License.
- * you may obtain a copy of the License at
+ * You may obtain a copy of the License at
  *
  *   http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -33,7 +33,7 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * External function implementations of the JDBC client.
  *
- * @since 1.0.5
+ * @since 1.1.0
  */
 public class ExternFunctions {
 
