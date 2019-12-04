@@ -6540,8 +6540,9 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     private BLangFunction createRecordInitFunction(BLangRecordTypeNode recordTypeNode, SymbolEnv env) {
+        String recordTypeName = recordTypeNode.type.tsymbol.name.value;
         BLangFunction initFunction = ASTBuilderUtil
-                .createInitFunctionWithNilReturn(recordTypeNode.pos, Names.EMPTY.value, Names.INIT_FUNCTION_SUFFIX);
+                .createInitFunctionWithNilReturn(recordTypeNode.pos, recordTypeName, Names.INIT_FUNCTION_SUFFIX);
 
         // Create the receiver
         initFunction.receiver = ASTBuilderUtil.createReceiver(recordTypeNode.pos, recordTypeNode.type);
@@ -6557,8 +6558,8 @@ public class Desugar extends BLangNodeVisitor {
         initFunction.type = initFnType;
 
         // Create function symbol
-        Name funcSymbolName = names.fromString(Symbols.getAttachedFuncSymbolName(
-                recordTypeNode.type.tsymbol.name.value, Names.INIT_FUNCTION_SUFFIX.value));
+        Name funcSymbolName = names.fromString(
+                Symbols.getAttachedFuncSymbolName(recordTypeName, Names.INIT_FUNCTION_SUFFIX.value));
         initFunction.symbol = Symbols
                 .createFunctionSymbol(Flags.asMask(initFunction.flagSet), funcSymbolName, env.enclPkg.symbol.pkgID,
                                       initFunction.type, recordTypeNode.symbol, initFunction.body != null);
@@ -6603,7 +6604,7 @@ public class Desugar extends BLangNodeVisitor {
 
         // Update the record type with attached function details
         BRecordTypeSymbol typeSymbol = (BRecordTypeSymbol) recordTypeNode.type.tsymbol;
-        typeSymbol.initializerFunc = new BAttachedFunction(Names.INIT_FUNCTION_SUFFIX, initFunction.symbol,
+        typeSymbol.initializerFunc = new BAttachedFunction(names.fromIdNode(initFunction.name), initFunction.symbol,
                                                            (BInvokableType) initFunction.type);
         recordTypeNode.initFunction = initFunction;
         return rewrite(initFunction, env);
