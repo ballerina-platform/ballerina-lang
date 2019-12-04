@@ -17,17 +17,37 @@
   */
  package org.ballerinalang.jvm.values;
 
-/**
- * Interface representing ballerina strings.
- *
- * @since 1.0.5
- */
-public interface StringValue {
-    String getValue();
+ import org.ballerinalang.jvm.types.BType;
+ import org.ballerinalang.jvm.types.BTypes;
 
-    int getCodePoint(int index);
+ import java.util.Map;
 
-    int length();
+ /**
+  * Interface representing ballerina strings.
+  *
+  * @since 1.0.5
+  */
+ public interface StringValue extends RefValue {
+     String getValue();
 
-    StringValue concat(StringValue str);
-}
+     int getCodePoint(int index);
+
+     int length();
+
+     StringValue concat(StringValue str);
+
+     @Override
+     default BType getType() {
+         return BTypes.typeString;
+     }
+
+     @Override
+     default Object copy(Map<Object, Object> refs) {
+         return null;
+     }
+
+     @Override
+     default Object frozenCopy(Map<Object, Object> refs) {
+         return null;
+     }
+ }

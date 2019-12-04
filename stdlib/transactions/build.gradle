@@ -45,6 +45,7 @@ dependencies {
 
     interopImports project(':ballerina-config-api')
     interopImports project(':ballerina-io')
+    interopImports project(':ballerina-log-api')
     interopImports project(':ballerina-math')
     interopImports project(':ballerina-system')
     interopImports project(':ballerina-task')
@@ -58,6 +59,8 @@ dependencies {
     baloImplementation project(path: ':ballerina-runtime-api', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-reflect', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-auth', configuration: 'baloImplementation')
+
+    interopImports project(':ballerina-io')
 
     baloCreat project(':lib-creator')
     implementation project(':ballerina-lang')

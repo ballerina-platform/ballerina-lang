@@ -40,19 +40,25 @@ import static org.ballerinalang.packerina.cmd.Constants.CLEAN_COMMAND;
                                                          "project.")
 public class CleanCommand implements BLauncherCmd {
     private final PrintStream outStream;
-    private final Path sourceRootPath;
+    private boolean exitWhenFinish;
     
     @CommandLine.Option(names = {"--help", "-h"}, hidden = true)
     private boolean helpFlag;
+    
+    @CommandLine.Option(names = {"--sourceroot"},
+                        description = "Path to the directory containing the ballerina project")
+    private String sourceRootPath;
 
-    public CleanCommand(Path sourceRoot) {
-        this.sourceRootPath = sourceRoot;
+    public CleanCommand(Path sourceRoot, boolean exitWhenFinish) {
+        this.sourceRootPath = sourceRoot.toAbsolutePath().toString();
         this.outStream = System.out;
+        this.exitWhenFinish = exitWhenFinish;
     }
 
     public CleanCommand() {
-        this.sourceRootPath = Paths.get(System.getProperty("user.dir"));
+        this.sourceRootPath = Paths.get(System.getProperty("user.dir")).toString();
         this.outStream = System.out;
+        this.exitWhenFinish = true;
     }
     
     @Override
@@ -63,18 +69,20 @@ public class CleanCommand implements BLauncherCmd {
             return;
         }
     
-        if (ProjectDirs.isProject(this.sourceRootPath)) {
+        if (ProjectDirs.isProject(Paths.get(this.sourceRootPath))) {
             TaskExecutor taskExecutor = new TaskExecutor.TaskBuilder()
                     .addTask(new CleanTargetDirTask())
                     .build();
     
-            BuildContext buildContext = new BuildContext(this.sourceRootPath);
+            BuildContext buildContext = new BuildContext(Paths.get(this.sourceRootPath));
             taskExecutor.executeTasks(buildContext);
     
-            Runtime.getRuntime().exit(0);
+            if (this.exitWhenFinish) {
+                Runtime.getRuntime().exit(0);
+            }
         } else {
-            this.outStream.println("'clean' command can only be executed from a Ballerina project");
-            Runtime.getRuntime().exit(1);
+            this.outStream.println("'clean' command can only be executed for a Ballerina project.");
+            CommandUtil.exitError(this.exitWhenFinish);
         }
     }
     

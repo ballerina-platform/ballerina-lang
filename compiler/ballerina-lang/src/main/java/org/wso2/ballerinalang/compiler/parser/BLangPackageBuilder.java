@@ -1793,8 +1793,8 @@ public class BLangPackageBuilder {
         this.startBlock();
     }
 
-    void addWorker(DiagnosticPos pos, Set<Whitespace> ws, String workerName, boolean retParamsAvail,
-                   int numAnnotations) {
+    void addWorker(DiagnosticPos pos, Set<Whitespace> ws, String workerName, DiagnosticPos workerNamePos,
+                   boolean retParamsAvail, int numAnnotations) {
         // Merge worker definition whitespaces and worker declaration whitespaces.
         if (this.workerDefinitionWSStack.size() > 0 && ws != null) {
             ws.addAll(this.workerDefinitionWSStack.pop());
@@ -1805,6 +1805,9 @@ public class BLangPackageBuilder {
         BLangFunction bLangFunction = (BLangFunction) this.invokableNodeStack.peek();
         // change default worker name
         bLangFunction.defaultWorkerName.value = workerName;
+        if (workerNamePos != null) {
+            bLangFunction.defaultWorkerName.pos = workerNamePos;
+        }
 
         // Attach worker annotation to the function node.
         attachAnnotations(bLangFunction, numAnnotations, true);
@@ -1825,11 +1828,12 @@ public class BLangPackageBuilder {
             }
         }
 
-        addNameReference(pos, null, null, workerLambdaName);
+        DiagnosticPos namePos = workerNamePos != null ? workerNamePos : pos;
+        addNameReference(namePos, null, null, workerLambdaName);
         startInvocationNode(null);
-        createWorkerLambdaInvocationNode(pos, null, workerLambdaName);
-        markLastInvocationAsAsync(pos, numAnnotations);
-        addWorkerVariableDefStatement(pos, workerName);
+        createWorkerLambdaInvocationNode(namePos, null, workerLambdaName);
+        markLastInvocationAsAsync(namePos, numAnnotations);
+        addWorkerVariableDefStatement(namePos, workerName);
         BLangSimpleVariableDef invocationStmt = getLastVarDefStmtFromBlock();
         if (invocationStmt != null) {
             invocationStmt.isWorker = true;

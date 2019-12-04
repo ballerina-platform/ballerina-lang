@@ -75,6 +75,7 @@ dependencies {
 
     interopImports project(':ballerina-config-api')
     interopImports project(':ballerina-io')
+    interopImports project(':ballerina-log-api')
     interopImports project(':ballerina-math')
     interopImports project(':ballerina-system')
     interopImports project(':ballerina-task')
@@ -83,6 +84,8 @@ dependencies {
 
     // transitive
     baloImplementation project(path: ':ballerina-task', configuration: 'baloImplementation')
+
+    interopImports project(':ballerina-io')
 
     implementation 'io.netty:netty-codec-http'
     implementation 'org.wso2.transport.http:org.wso2.transport.http.netty'
