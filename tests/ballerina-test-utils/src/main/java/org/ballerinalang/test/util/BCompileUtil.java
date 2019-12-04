@@ -508,7 +508,6 @@ public class BCompileUtil {
         return sb.toString();
     }
 
-
     public static boolean jBallerinaTestsEnabled() {
         String value = System.getProperty(ENABLE_JBALLERINA_TESTS);
         return Boolean.parseBoolean(value);
@@ -531,8 +530,8 @@ public class BCompileUtil {
         return compileOnJBallerina(context, sourceRoot, packageName, temp, init, false);
     }
 
-    public static CompileResult compileOnJBallerina(CompilerContext context, String sourceRoot, String packageName,
-                                                    boolean temp, boolean init, boolean inProc) {
+    private static CompileResult compileOnJBallerina(CompilerContext context, String sourceRoot, String packageName,
+                                                     boolean temp, boolean init, boolean inProc) {
         CompilerOptions options = CompilerOptions.getInstance(context);
         options.put(PROJECT_DIR, sourceRoot);
         options.put(COMPILER_PHASE, CompilerPhase.BIR_GEN.toString());
