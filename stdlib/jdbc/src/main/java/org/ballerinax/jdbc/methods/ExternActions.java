@@ -31,7 +31,7 @@ import org.ballerinax.jdbc.statement.SelectStatement;
 import org.ballerinax.jdbc.statement.UpdateStatement;
 
 /**
- * External function implementations of the JDBC client.
+ * External remote method implementations of the JDBC client.
  *
  * @since 1.1.0
  */
