@@ -27,7 +27,6 @@ import org.ballerinalang.langserver.command.executors.CreateFunctionExecutor;
 import org.ballerinalang.langserver.command.executors.CreateTestExecutor;
 import org.ballerinalang.langserver.command.executors.ImportModuleExecutor;
 import org.ballerinalang.langserver.command.executors.PullModuleExecutor;
-import org.ballerinalang.langserver.command.executors.UnusedVariableExecutor;
 import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.constants.NodeContextKeys;
@@ -854,21 +853,6 @@ public class CommandUtil {
             return action;
         }
         return null;
-    }
-
-    public static CodeAction getRemoveUnusedVariableCommand(Diagnostic diagnostic, LSContext context) {
-        Position position = diagnostic.getRange().getStart();
-        int line = position.getLine();
-        int column = position.getCharacter();
-        String uri = context.get(ExecuteCommandKeys.FILE_URI_KEY);
-        CommandArgument lineArg = new CommandArgument(CommandConstants.ARG_KEY_NODE_LINE, "" + line);
-        CommandArgument colArg = new CommandArgument(CommandConstants.ARG_KEY_NODE_COLUMN, "" + column);
-        CommandArgument uriArg = new CommandArgument(CommandConstants.ARG_KEY_DOC_URI, uri);
-
-        List<Object> args = Arrays.asList(lineArg, colArg, uriArg);
-        CodeAction action = new CodeAction(CommandConstants.REMOVE_UNUSED_VARIABLE);
-        action.setCommand(new Command(CommandConstants.REMOVE_UNUSED_VARIABLE, UnusedVariableExecutor.COMMAND, args));
-        return action;
     }
 
     public static CodeAction getIncompatibleTypesCommand(LSDocument document, Diagnostic diagnostic,
