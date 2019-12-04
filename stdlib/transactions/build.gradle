@@ -50,6 +50,7 @@ dependencies {
     interopImports project(':ballerina-system')
     interopImports project(':ballerina-task')
     interopImports project(':ballerina-time')
+    interopImports project(':ballerina-reflect')
 
     // transitive
     baloImplementation project(path: ':ballerina-math', configuration: 'baloImplementation')

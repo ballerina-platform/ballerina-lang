@@ -15,26 +15,28 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.stdlib.reflect.nativeimpl;
 
-import org.ballerinalang.jvm.scheduling.Strand;
+package org.ballerinalang.stdlib.reflect;
+
 import org.ballerinalang.jvm.types.AttachedFunction;
 import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
 
 /**
- * Get a resource's annotations.
+ * Utility class represents annotation related functionality.
  *
- * @since 1.0
+ * @since 1.0.0
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "reflect",
-        functionName = "getResourceAnnotationsExternal"
-)
-public class GetResourceAnnotationsExternal {
+public class AnnotationUtils {
 
-    public static Object getResourceAnnotationsExternal(Strand strand, ObjectValue service, String resourceName,
-                                                        String annot) {
+    /**
+     * Returns resource annotation value.
+     *
+     * @param service service name.
+     * @param resourceName resource name.
+     * @param annot annotation name.
+     * @return annotation value object.
+     */
+    public static Object externGetResourceAnnotations(ObjectValue service, String resourceName, String annot) {
         AttachedFunction[] functions = service.getType().getAttachedFunctions();
 
         for (AttachedFunction function : functions) {
@@ -45,4 +47,14 @@ public class GetResourceAnnotationsExternal {
         return null;
     }
 
+    /**
+     * Returns service annotation value.
+     *
+     * @param service service name.
+     * @param annot annotation name.
+     * @return annotation value object.
+     */
+    public static Object externGetServiceAnnotations(ObjectValue service, String annot) {
+        return service.getType().getAnnotation(annot);
+    }
 }
