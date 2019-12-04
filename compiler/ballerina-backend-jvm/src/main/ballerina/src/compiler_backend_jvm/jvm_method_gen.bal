@@ -827,7 +827,7 @@ function generateBasicBlocks(jvm:MethodVisitor mv, bir:BasicBlock?[] basicBlocks
             termGen.genTerminator(terminator, func, funcName, localVarOffset, returnVarRefIndex, attachedType, isObserved);
         }
 
-        errorGen.generateTryCatch(mv, func, funcName, bb, instGen, termGen, labelGen);
+        errorGen.generateTryCatch(func, funcName, bb, instGen, termGen, labelGen);
 
         var thenBB = terminator["thenBB"];
         if (thenBB is bir:BasicBlock) {
