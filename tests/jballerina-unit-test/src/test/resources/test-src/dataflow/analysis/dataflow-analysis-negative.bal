@@ -697,8 +697,9 @@ function testUninitializedVarWithContinueAndBreakInWhile() {
     int k = b; // variable 'b' may not have been initialized
 }
 
-function testUninitializedVarWithWhile() {
+function testUninitializedVarWithWhile1() {
     int a;
+    string b;
     boolean e = false;
     while e {
         if e {
@@ -709,4 +710,14 @@ function testUninitializedVarWithWhile() {
         a = 10;
     }
     int j = a; // variable 'a' may not have been initialized
+    string k = b; // variable 'b' is not initialized
+}
+
+function testUninitializedVarWithWhile2() {
+    int a;
+
+    while true {
+        break;
+    }
+    int j = a; // variable 'a' is not initialized
 }
