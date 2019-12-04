@@ -15,20 +15,20 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.jvm.values;
+package org.ballerinalang.jvm.values.api;
 
-import org.ballerinalang.jvm.values.api.BRefValue;
+import org.ballerinalang.jvm.types.BType;
 
 /**
  * <p>
- * Interface to be implemented by all the reference types.
- * </p>
- * <p>
- * <i>Note: This is an internal API and may change in future versions.</i>
+ * Represents all the ballerina values.
  * </p>
  * 
- * @since 0.995.0
+ * @since 1.1.0
  */
-public interface RefValue extends SimpleValue, BRefValue {
+public interface BValue {
 
+    String stringValue();
+
+    BType getType();
 }

@@ -11,24 +11,25 @@
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied. See the License for the
+ * KIND, either express or implied.  See the License for the
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.jvm.values;
-
-import org.ballerinalang.jvm.values.api.BRefValue;
+package org.ballerinalang.jvm.values.api;
 
 /**
  * <p>
- * Interface to be implemented by all the reference types.
- * </p>
- * <p>
- * <i>Note: This is an internal API and may change in future versions.</i>
+ * {@code {@link BCollection}} represents a collection in Ballerina.
  * </p>
  * 
- * @since 0.995.0
+ * @since 1.1.0
  */
-public interface RefValue extends SimpleValue, BRefValue {
+public interface BCollection {
 
+    /**
+     * Create new Iterator for this collection.
+     *
+     * @return iterator created.
+     */
+    BIterator<?> getIterator();
 }
