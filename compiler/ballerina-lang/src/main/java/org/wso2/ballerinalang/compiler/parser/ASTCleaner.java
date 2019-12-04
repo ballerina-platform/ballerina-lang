@@ -771,7 +771,6 @@ class ASTCleaner extends BLangNodeVisitor {
         clearNode(workerReceiveNode.keyExpr);
         clearNode(workerReceiveNode.sendExpression);
         workerReceiveNode.env = null;
-        workerReceiveNode.workerIdentifier = null;
         workerReceiveNode.matchingSendsError = null;
         resetBLangExpression(workerReceiveNode);
     }
@@ -876,6 +875,7 @@ class ASTCleaner extends BLangNodeVisitor {
         // if this is a langlib invocation, we need to reset arg nodes.
         if (invocationExpr.langLibInvocation) {
             invocationExpr.argExprs.remove(0);
+            invocationExpr.langLibInvocation = false;
         }
         clearNodeList(invocationExpr.argExprs);
         invocationExpr.exprSymbol = null;
