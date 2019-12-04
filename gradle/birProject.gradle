@@ -1,6 +1,10 @@
 import org.gradle.internal.os.OperatingSystem;
 import org.apache.tools.ant.filters.*;
 
+import java.util.jar.JarOutputStream
+import java.util.jar.Manifest;
+import java.util.jar.Attributes;
+
 apply from: "$rootDir/gradle/birTestableProject.gradle"
 
 configurations {
@@ -69,7 +73,7 @@ task createBirJar(type: Exec) {
     onlyIf { file(generatedBirDir + project.ext.moduleName + '.bir').exists() }
 
     doFirst {
-        def jarsToBeLoaded = [];
+        Set jarsToBeLoaded = [];
         def mapPath = OperatingSystem.current().isWindows() ? "\"\"" : ""
         if (!sourceSets.main.allJava.isEmpty()) {
             def generatedMapPath = generatedBirDir + project.ext.moduleName + '.map.json'
@@ -92,6 +96,7 @@ task createBirJar(type: Exec) {
 
         configurations.birJarCompile.each {
             printJarCreationCommand(it, generatedBirDir, mapPath, jarsToBeLoaded)
+            createClassPathJar("$buildDir/classpath/" + project.ext.moduleName + ".jar", jarsToBeLoaded)
             commandLine getJarCreationCommand(it, generatedBirDir, mapPath, jarsToBeLoaded)
         }
     }
@@ -160,8 +165,19 @@ def getJarCreationCommand(it, generatedBirDir, mapPath, jarsToBeLoaded) {
         commands = [ 'java', '-cp', classPath];
     }
     commands.addAll(getCompilerBackendArgs(it, generatedBirDir, mapPath))
-    commands.addAll(jarsToBeLoaded)
+    commands.add("$buildDir/classpath/" + project.ext.moduleName + ".jar")
     return commands
+}
+
+static def createClassPathJar(outputName, jarsToBeLoaded) {
+    Manifest manifest = new Manifest()
+    manifest.getMainAttributes().put(Attributes.Name.MANIFEST_VERSION, "1.0");
+    manifest.getMainAttributes().put(Attributes.Name.CLASS_PATH,
+            jarsToBeLoaded.toString().replaceAll("\\[|\\]","").replaceAll(","," "))
+    File classpathJarFile = new File(outputName)
+    classpathJarFile.parentFile.mkdir()
+    JarOutputStream jarOutputStream = new JarOutputStream(new FileOutputStream(classpathJarFile), manifest)
+    jarOutputStream.finish()
 }
 
 def printJarCreationCommand(it, generatedBirDir, mapPath, jarsToBeLoaded) {
