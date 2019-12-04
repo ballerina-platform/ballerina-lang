@@ -32,17 +32,61 @@ import java.io.IOException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
+import java.security.PrivateKey;
 import java.security.PublicKey;
+import java.security.UnrecoverableKeyException;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 
 /**
- * Function for decoding public key.
+ * Extern functions ballerina decoding keys.
  *
  * @since 0.990.3
  */
-public class DecodePublicKey {
+public class Decode {
+
+    @SuppressWarnings("unchecked")
+    public static Object decodePrivateKey(Object keyStoreValue, String keyAlias, String keyPassword) {
+        MapValue<String, Object> keyStore = (MapValue<String, Object>) keyStoreValue;
+
+        PrivateKey privateKey;
+
+        File keyStoreFile = new File(CryptoUtils.substituteVariables(
+                keyStore.get(Constants.KEY_STORE_RECORD_PATH_FIELD).toString()));
+        try (FileInputStream fileInputStream = new FileInputStream(keyStoreFile)) {
+            KeyStore keystore = KeyStore.getInstance(Constants.KEYSTORE_TYPE_PKCS12);
+            try {
+                keystore.load(fileInputStream, keyStore.get(Constants.KEY_STORE_RECORD_PASSWORD_FIELD).toString()
+                        .toCharArray());
+            } catch (NoSuchAlgorithmException e) {
+                return CryptoUtils.createError("Keystore integrity check algorithm is not found: " + e.getMessage());
+            }
+
+            try {
+                privateKey = (PrivateKey) keystore.getKey(keyAlias, keyPassword.toCharArray());
+            } catch (NoSuchAlgorithmException e) {
+                return CryptoUtils.createError("algorithm for key recovery is not found: " + e.getMessage());
+            } catch (UnrecoverableKeyException e) {
+                return CryptoUtils.createError("key cannot be recovered: " + e.getMessage());
+            }
+
+            //TODO: Add support for DSA/ECDSA keys and associated crypto operations
+            if (privateKey.getAlgorithm().equals("RSA")) {
+                MapValue<String, Object> privateKeyRecord = BallerinaValues.
+                        createRecordValue(Constants.CRYPTO_PACKAGE_ID, Constants.PRIVATE_KEY_RECORD);
+                privateKeyRecord.addNativeData(Constants.NATIVE_DATA_PRIVATE_KEY, privateKey);
+                privateKeyRecord.put(Constants.PRIVATE_KEY_RECORD_ALGORITHM_FIELD, privateKey.getAlgorithm());
+                return privateKeyRecord;
+            } else {
+                return CryptoUtils.createError("Not a valid RSA key");
+            }
+        } catch (FileNotFoundException e) {
+            throw CryptoUtils.createError("PKCS12 key store not found at: " + keyStoreFile.getAbsoluteFile());
+        } catch (KeyStoreException | CertificateException | IOException e) {
+            throw CryptoUtils.createError("Unable to open keystore: " + e.getMessage());
+        }
+    }
 
     @SuppressWarnings("unchecked")
     public static Object decodePublicKey(Object keyStoreValue, String keyAlias) {
@@ -65,22 +109,22 @@ public class DecodePublicKey {
             if (certificate instanceof X509Certificate) {
                 X509Certificate x509Certificate = (X509Certificate) certificate;
                 certificateBMap.put(Constants.CERTIFICATE_RECORD_ISSUER_FIELD,
-                                    x509Certificate.getIssuerX500Principal().getName());
+                        x509Certificate.getIssuerX500Principal().getName());
                 certificateBMap.put(Constants.CERTIFICATE_RECORD_SUBJECT_FIELD,
-                                    x509Certificate.getSubjectX500Principal().getName());
+                        x509Certificate.getSubjectX500Principal().getName());
                 certificateBMap.put(Constants.CERTIFICATE_RECORD_VERSION_FIELD, x509Certificate.getVersion());
                 certificateBMap.put(Constants.CERTIFICATE_RECORD_SERIAL_FIELD,
-                                    x509Certificate.getSerialNumber().longValue());
+                        x509Certificate.getSerialNumber().longValue());
 
                 certificateBMap.put(Constants.CERTIFICATE_RECORD_NOT_BEFORE_FIELD, TimeUtils
                         .createTimeRecord(TimeUtils.getTimeZoneRecord(), TimeUtils.getTimeRecord(),
-                                          x509Certificate.getNotBefore().getTime(), Constants.TIMEZONE_GMT));
+                                x509Certificate.getNotBefore().getTime(), Constants.TIMEZONE_GMT));
                 certificateBMap.put(Constants.CERTIFICATE_RECORD_NOT_AFTER_FIELD, TimeUtils
                         .createTimeRecord(TimeUtils.getTimeZoneRecord(), TimeUtils.getTimeRecord(),
-                                          x509Certificate.getNotAfter().getTime(), Constants.TIMEZONE_GMT));
+                                x509Certificate.getNotAfter().getTime(), Constants.TIMEZONE_GMT));
 
                 certificateBMap.put(Constants.CERTIFICATE_RECORD_SIGNATURE_FIELD,
-                                    new ArrayValueImpl(x509Certificate.getSignature()));
+                        new ArrayValueImpl(x509Certificate.getSignature()));
                 certificateBMap.put(Constants.CERTIFICATE_RECORD_SIGNATURE_ALG_FIELD, x509Certificate.getSigAlgName());
             }
             PublicKey publicKey = certificate.getPublicKey();
