@@ -14,11 +14,20 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerinax/java;
+
 # Retrieves a ReadableByteChannel from a given file path.
 #
 # + path - Relative/absolute path string to locate the file
 # + return - ByteChannel representation of the file resource or `Error` if any error occurred
-public function openReadableFile(@untainted string path) returns @tainted ReadableByteChannel|Error = external;
+public function openReadableFile(@untainted string path) returns @tainted ReadableByteChannel|Error {
+    return openReadableFileExtern(java:fromString(path));
+}
+
+function openReadableFileExtern(@untainted handle path) returns @tainted ReadableByteChannel|Error = @java:Method {
+    name: "openReadableFile",
+    class: "org.ballerinalang.stdlib.io.nativeimpl.ByteChannelUtils"
+} external;
 
 # Retrieves a WritableByteChannel from a given file path.
 #
@@ -26,13 +35,28 @@ public function openReadableFile(@untainted string path) returns @tainted Readab
 # + append - Append to end of file.
 # + return - ByteChannel representation of the file resource or `Error` if any error occurred
 public function openWritableFile(@untainted string path, boolean append = false)
-    returns @tainted WritableByteChannel|Error = external;
+    returns @tainted WritableByteChannel|Error {
+    return openWritableFileExtern(java:fromString(path), append);
+}
+
+function openWritableFileExtern(@untainted handle path, boolean append)
+    returns @tainted WritableByteChannel|Error = @java:Method {
+    name: "openWritableFile",
+    class: "org.ballerinalang.stdlib.io.nativeimpl.ByteChannelUtils"
+} external;
 
 # Creates an in-memory channel which will reference stream of bytes.
 #
 # + content - Content which should be exposed as channel
 # + return - ByteChannel representation to read the memory content or `Error` if any error occurred
-public function createReadableChannel(byte[] content) returns ReadableByteChannel|Error = external;
+public function createReadableChannel(byte[] content) returns ReadableByteChannel|Error {
+    return createReadableChannelExtern(content);
+}
+
+function createReadableChannelExtern(byte[] content) returns ReadableByteChannel|Error = @java:Method {
+    name: "createReadableChannel",
+    class: "org.ballerinalang.stdlib.io.nativeimpl.ByteChannelUtils"
+} external;
 
 # Retrieves a readable CSV channel from a give file path.
 #

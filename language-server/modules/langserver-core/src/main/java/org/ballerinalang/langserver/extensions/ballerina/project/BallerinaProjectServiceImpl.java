@@ -96,7 +96,11 @@ public class BallerinaProjectServiceImpl implements BallerinaProjectService {
             Map<BLangNode, List<SymbolMetaInfo>> visibleEPsByNode = visibleEndpointVisitor.getVisibleEPsByNode();
 
             JsonObject jsonCUnits = new JsonObject();
-            for (BLangCompilationUnit cUnit: module.getCompilationUnits()) {
+            List<BLangCompilationUnit> compilationUnits = module.getCompilationUnits();
+            // add all cunits in testable package as well
+            module.testablePkgs.forEach(bLangTestablePackage ->
+                    compilationUnits.addAll(bLangTestablePackage.getCompilationUnits()));
+            for (BLangCompilationUnit cUnit: compilationUnits) {
                 JsonObject jsonCUnit = new JsonObject();
                 jsonCUnit.addProperty("name", cUnit.name);
                 Path sourceRoot = Paths.get(new URI(astContext.get(DocumentServiceKeys.SOURCE_ROOT_KEY)));

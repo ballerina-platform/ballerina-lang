@@ -47,6 +47,9 @@ dependencies {
     implementation project(':ballerina-stringutils')
 
     interopImports project(':ballerina-config-api')
+    interopImports project(':ballerina-io')
+    interopImports project(':ballerina-log-api')
+    interopImports project(':ballerina-system')
     interopImports project(':ballerina-task')
     interopImports project(':ballerina-time')
 
@@ -65,6 +68,8 @@ dependencies {
     testCompile project(':ballerina-crypto')
     testCompile project(':ballerina-file')
     testCompile project(':ballerina-auth')
+
+    interopImports project(':ballerina-crypto')
 }
 
 configurations.all {

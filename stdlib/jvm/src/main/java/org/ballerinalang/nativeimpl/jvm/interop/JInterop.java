@@ -63,6 +63,9 @@ class JInterop {
     static final String RETURN_TYPE_FIELD = "retType";
     static final String METHOD_FIELD = "method";
     static final String TAG_FIELD = "tag";
+    static final String VALUES_FIELD = "values";
+    static final String VALUE_FIELD = "value";
+
     static final String HANDLE_TYPE_NAME = "handle";
     static final String METHOD_TYPE_NAME = "Method";
     static final String FIELD_TYPE_NAME = "Field";
