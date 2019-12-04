@@ -5,7 +5,7 @@ apply from: "$rootDir/gradle/birTestableProject.gradle"
 
 configurations {
     interopImports {
-        transitive(false)
+        transitive(true)
     }
 }
 
