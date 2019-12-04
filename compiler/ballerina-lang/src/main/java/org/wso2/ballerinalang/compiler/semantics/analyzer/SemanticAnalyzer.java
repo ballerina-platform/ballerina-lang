@@ -143,6 +143,7 @@ import org.wso2.ballerinalang.util.Lists;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -1342,10 +1343,11 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
 
         BRecordType recordType = (BRecordType) errorType.detailType;
-        Map<String, BField> fieldMap = recordType.fields.stream()
-                .collect(Collectors.toMap(f -> f.name.value, f -> f));
+        Map<String, BField> fieldMap = recordType.fields.stream().collect(Collectors.toMap(f -> f.name.value, f -> f));
+        Set<String> matchedDetailFields = new HashSet<>();
         for (BLangErrorVariable.BLangErrorDetailEntry errorDetailEntry : errorVariable.detail) {
             String entryName = errorDetailEntry.key.getValue();
+            matchedDetailFields.add(entryName);
             BField entryField = fieldMap.get(entryName);
 
             BLangVariable boundVar = errorDetailEntry.valueBindingPattern;
@@ -1373,8 +1375,17 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
 
         if (isRestDetailBindingAvailable(errorVariable)) {
+            // Type of rest pattern is a map type where constraint type is,
+            // union of keys whose values are not matched in error binding/match pattern.
             BTypeSymbol typeSymbol = createTypeSymbol(SymTag.TYPE);
-            BMapType restType = new BMapType(TypeTags.MAP, recordType.restFieldType, typeSymbol);
+            BUnionType restFieldType = BUnionType.create(null, recordType.restFieldType);
+            for (Map.Entry<String, BField> entry : fieldMap.entrySet()) {
+                if (!matchedDetailFields.contains(entry.getKey())) {
+                    restFieldType.add(entry.getValue().getType());
+                }
+            }
+
+            BMapType restType = new BMapType(TypeTags.MAP, restFieldType, typeSymbol);
             typeSymbol.type = restType;
             errorVariable.restDetail.type = restType;
             errorVariable.restDetail.accept(this);
