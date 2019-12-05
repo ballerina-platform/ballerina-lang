@@ -4531,9 +4531,8 @@ public class FormattingNodeTree {
             boolean packageAliasAvailableBeforeColon = false;
             for (int i = 0; i < ws.size(); i++) {
                 JsonObject currentWS = ws.get(i).getAsJsonObject();
+                String text = currentWS.get(FormattingConstants.TEXT).getAsString();
                 if (this.noHeightAvailable(currentWS.get(FormattingConstants.WS).getAsString())) {
-                    String text = currentWS.get(FormattingConstants.TEXT).getAsString();
-
                     if (i == 0 && !text.equals(Tokens.COLON)) {
                         if (text.equals(packageAlias)) {
                             packageAliasAvailableBeforeColon = true;
@@ -4569,6 +4568,8 @@ public class FormattingNodeTree {
                             }
                         }
                     }
+                } else if (i == 0 && !text.equals(Tokens.COLON) && text.equals(packageAlias)) {
+                    packageAliasAvailableBeforeColon = true;
                 }
             }
         }
