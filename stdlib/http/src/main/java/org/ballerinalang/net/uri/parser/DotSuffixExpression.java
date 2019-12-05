@@ -21,6 +21,8 @@ package org.ballerinalang.net.uri.parser;
 import org.ballerinalang.net.uri.URITemplateException;
 import org.ballerinalang.net.uri.URIUtil;
 
+import java.util.Map;
+
 /**
  * DotSuffixExpression represents path segments that have string suffix concatenated by dot.
  * ex - /{foo}.bar/
@@ -33,6 +35,40 @@ public class DotSuffixExpression<DataType, InboundMsgType> extends SimpleStringE
     public DotSuffixExpression(DataElement<DataType, InboundMsgType> dataElement, String token)
             throws URITemplateException {
         super(dataElement, token);
+    }
+
+    @Override
+    int match(String uriFragment, Map<String, String> variables) {
+        String pathSegment = uriFragment;
+        if (uriFragment.contains(URIUtil.URI_PATH_DELIMITER)) {
+            pathSegment = uriFragment.substring(0, uriFragment.indexOf(URIUtil.URI_PATH_DELIMITER));
+        }
+        String[] subSegments = pathSegment.split("\\.");
+
+        int endCharacterCount = subSegments.length - 1;
+        int dotSegmentCounter = 0;
+        int length = uriFragment.length();
+
+        for (int i = 0; i < length; i++) {
+            char ch = uriFragment.charAt(i);
+            if (isEndCharacter(ch)) {
+                dotSegmentCounter++;
+                if (dotSegmentCounter != endCharacterCount) {
+                    continue;
+                }
+
+                if (!setVariables(uriFragment.substring(0, i), variables)) {
+                    return -1;
+                }
+                return i;
+            } else if (i == length - 1) {
+                if (!setVariables(uriFragment, variables)) {
+                    return -1;
+                }
+                return length;
+            }
+        }
+        return 0;
     }
 
     protected boolean isEndCharacter(Character endCharacter) {
