@@ -27,8 +27,8 @@ import java.io.PrintStream;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -74,9 +74,7 @@ public class BootstrapRunner {
 
     public static void buildDirectoryFromPath(Path directory) {
         try {
-            if (!Files.exists(directory)) {
-                Files.createDirectories(directory);
-            }
+            Files.createDirectories(directory);
         } catch (IOException e) {
             throw new BLangCompilerException("could not create native folder inside target folder", e);
         }
