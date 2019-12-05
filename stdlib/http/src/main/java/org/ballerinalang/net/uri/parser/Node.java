@@ -133,18 +133,21 @@ public abstract class Node<DataType, InboundMsgType> {
     @SuppressWarnings("unchecked")
     private Node<DataType, InboundMsgType> getMatchingChildNode(Node<DataType, InboundMsgType> prospectiveChild,
             List<Node<DataType, InboundMsgType>> existingChildren) throws URITemplateException {
-//        boolean isExpression = prospectiveChild instanceof Expression;
-        boolean isDotSuffixExpression = prospectiveChild instanceof DotSuffixExpression;
-        boolean isSimpleStringExpression = prospectiveChild instanceof SimpleStringExpression;
+        boolean dotSuffixExpression = prospectiveChild instanceof DotSuffixExpression;
+        boolean simpleStringExpression = prospectiveChild instanceof SimpleStringExpression;
         String prospectiveChildToken = prospectiveChild.getToken();
 
         for (Node<DataType, InboundMsgType> existingChild : existingChildren) {
-            if ((isDotSuffixExpression && existingChild instanceof DotSuffixExpression) ||
-                    (isSimpleStringExpression && existingChild instanceof SimpleStringExpression)) {
-//            if (isExpression && existingChild instanceof Expression) {
-                ((Expression) existingChild).variableList.add(new Variable(prospectiveChild.token));
-                existingChild.token = existingChild.token + "+" + prospectiveChild.token;
-                return existingChild;
+            if (dotSuffixExpression) {
+                if (existingChild instanceof DotSuffixExpression) {
+                    return getExistingChildNode(prospectiveChild, existingChild);
+                } else {
+                    continue;
+                }
+            }
+            if (simpleStringExpression && existingChild instanceof Expression
+                    && !(existingChild instanceof DotSuffixExpression)) {
+                return getExistingChildNode(prospectiveChild, existingChild);
             }
             if (existingChild.getToken().equals(prospectiveChildToken)) {
                 return existingChild;
@@ -154,12 +157,22 @@ public abstract class Node<DataType, InboundMsgType> {
         return null;
     }
 
+    private Node<DataType, InboundMsgType> getExistingChildNode(Node<DataType, InboundMsgType> prospectiveChild,
+                                                                Node<DataType, InboundMsgType> existingChild)
+            throws URITemplateException {
+        ((Expression) existingChild).variableList.add(new Variable(prospectiveChild.token));
+        existingChild.token = existingChild.token + "+" + prospectiveChild.token;
+        return existingChild;
+    }
+
     private int getIntValue(Node node) {
         if (node instanceof Literal) {
             if (node.getToken().equals("*")) {
                 return 0;
             }
             return node.getToken().length() + 5;
+        } else if (node instanceof DotSuffixExpression){
+            return 2;
         } else {
             return 1;
         }

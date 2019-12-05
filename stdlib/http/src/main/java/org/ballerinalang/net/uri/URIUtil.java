@@ -35,7 +35,7 @@ import java.util.Map;
  */
 public class URIUtil {
 
-    private static final String URI_PATH_DELIMITER = "/";
+    public static final String URI_PATH_DELIMITER = "/";
     public static final char DOT_SEGMENT = '.';
 
     public static String[] getPathSegments(String path) {
