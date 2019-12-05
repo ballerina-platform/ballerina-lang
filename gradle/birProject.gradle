@@ -175,15 +175,20 @@ def getJarCreationCommand(it, generatedBirDir, mapPath, jarsToBeLoaded) {
  that will be passed with java cmd as class path entries. This is added to avoid cmd too long issue that can come
  in windows build environment.
 */
-static def createClassPathJar(outputName, jarsToBeLoaded) {
+static def createClassPathJar(outputName, Set jarsToBeLoaded) {
     Manifest manifest = new Manifest()
-    manifest.getMainAttributes().put(Attributes.Name.MANIFEST_VERSION, "1.0");
-    String classPathEntry = "";
-    for (String jarFileLocation : jarsToBeLoaded) {
-        File jarFile = new File(jarFileLocation);
-        classPathEntry = classPathEntry.concat(" ").concat(jarFile.getCanonicalPath());
+    manifest.getMainAttributes().put(Attributes.Name.MANIFEST_VERSION, "1.0")
+    String classPathEntry = ""
+    Iterator iterator = jarsToBeLoaded.iterator();
+    while (iterator.hasNext()) {
+        File jarFile = new File(iterator.next().toString())
+        classPathEntry = classPathEntry.concat(jarFile.getCanonicalPath());
+        if (iterator.hasNext()) {
+            classPathEntry = classPathEntry.concat(" ");
+        }
     }
-    manifest.getMainAttributes().put(Attributes.Name.CLASS_PATH, classPathEntry);
+    println "Class-Path : " + classPathEntry
+    manifest.getMainAttributes().put(Attributes.Name.CLASS_PATH, classPathEntry)
     File classpathJarFile = new File(outputName)
     classpathJarFile.parentFile.mkdir()
     JarOutputStream jarOutputStream = new JarOutputStream(new FileOutputStream(classpathJarFile), manifest)
@@ -200,7 +205,7 @@ def printJarCreationCommand(it, generatedBirDir, mapPath, jarsToBeLoaded) {
 
     commands.add('"' + new File(it, '/bre/lib/*"'))
     commands.addAll(getCompilerBackendArgs(it, generatedBirDir, mapPath))
-    commands.addAll(jarsToBeLoaded)
+    commands.add("$buildDir/classpath/" + project.ext.moduleName + ".jar")
     println commands
 }
 
