@@ -17,9 +17,9 @@
  */
 package org.ballerinalang.stdlib.runtime.nativeimpl;
 
+import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
 
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -30,19 +30,14 @@ import java.util.concurrent.TimeUnit;
  *
  * @since 0.94.1
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "runtime",
-        functionName = "sleep",
-        isPublic = true
-)
 public class Sleep {
 
     private static final int CORE_THREAD_POOL_SIZE = 1;
 
     private static ScheduledExecutorService executor = Executors.newScheduledThreadPool(CORE_THREAD_POOL_SIZE);
 
-    public static void sleep(Strand strand, long delayMillis) {
-        schedule(new NonBlockingCallback(strand)::notifySuccess, delayMillis);
+    public static void sleep(long delayMillis) {
+        schedule(new NonBlockingCallback(Scheduler.getStrand())::notifySuccess, delayMillis);
     }
 
     /**

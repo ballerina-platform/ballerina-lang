@@ -17,23 +17,16 @@
  */
 package org.ballerinalang.stdlib.runtime.nativeimpl;
 
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BTypes;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
 
 /**
  * Extern function ballerina.runtime:getProperty.
  *
  * @since 0.94.1
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "runtime",
-        functionName = "getProperty",
-        isPublic = true
-)
 public class GetProperty {
 
-    public static String getProperty(Strand strand, String name) {
+    public static String getProperty(String name) {
         String value = System.getProperty(name);
         if (value == null) {
             return BTypes.typeString.getZeroValue();

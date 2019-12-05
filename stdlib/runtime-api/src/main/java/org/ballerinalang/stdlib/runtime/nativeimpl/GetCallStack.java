@@ -18,22 +18,16 @@
 package org.ballerinalang.stdlib.runtime.nativeimpl;
 
 import org.ballerinalang.jvm.BallerinaErrors;
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ArrayValue;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
 
 /**
  * Native implementation for get error's call stack.
  *
  * @since 0.963.0
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "runtime",
-        functionName = "getCallStack"
-)
 public class GetCallStack {
 
-    public static ArrayValue getCallStack(Strand strand) {
+    public static ArrayValue getCallStack() {
         return BallerinaErrors.generateCallStack();
     }
 }
