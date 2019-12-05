@@ -15,6 +15,7 @@
 // under the License.
 
 import ballerina/log;
+import ballerinax/java;
 
 # NATS `Producer` would act as a basic client allowing to publish messages to the NATS server.
 # Producer needs the NATS `Connection` to be initialized.
@@ -27,10 +28,8 @@ public type Producer client object {
     # + connection - An already-established connection.
     public function __init(Connection connection) {
         self.conn = connection;
-        self.init(connection);
+        producerInit(connection);
     }
-
-    private function init(Connection c) = external;
 
     # Produces a message to a NATS basic server for the given subject.
     #
@@ -44,11 +43,9 @@ public type Producer client object {
         if (converted is error) {
             return prepareError("Error in data conversion", err = converted);
         } else {
-            return self.externPublish(subject, converted, replyTo);
+            return externPublish(self, java:fromString(subject), converted, replyTo);
         }
     }
-
-    function externPublish(string subject, string | byte[] data, (string | service)? replyTo = ()) returns Error? = external;
 
     # Produces a message and would wait for a response.
     #
@@ -61,23 +58,39 @@ public type Producer client object {
         if (converted is error) {
             return prepareError("Error in data conversion", converted);
         } else {
-            return self.externRequest(subject, converted, duration);
+            return externRequest(self, java:fromString(subject), converted, duration);
         }
     }
-
-    function externRequest(string subject, Content data, int? duration = ()) returns Message|Error = external;
 
     # Close a given connection.
     #
     # + return - Retruns () or the error if unable to complete the close operation.
     public function close() returns Error? {
-        self.closeConnection();
+        closeConnection(self);
         if (self.conn is Connection) {
             self.conn = ();
             log:printInfo("Close the logical connection between producer and connection.");
         }
 
     }
-
-    private function closeConnection() = external;
 };
+
+function producerInit(Connection c) =
+@java:Method {
+    class: "org.ballerinalang.nats.basic.producer.Init"
+} external;
+
+function closeConnection(Producer producer) =
+@java:Method {
+    class: "org.ballerinalang.nats.basic.producer.CloseConnection"
+} external;
+
+function externRequest(Producer producer, handle subject, Content data, int? duration = ()) returns Message | Error =
+@java:Method {
+    class: "org.ballerinalang.nats.basic.producer.Request"
+} external;
+
+function externPublish(Producer producer, handle subject, string | byte[] data, (string | service)? replyTo = ())
+returns Error? = @java:Method {
+    class: "org.ballerinalang.nats.basic.producer.Publish"
+} external;

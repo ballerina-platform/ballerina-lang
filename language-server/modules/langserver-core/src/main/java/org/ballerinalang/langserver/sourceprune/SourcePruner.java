@@ -20,6 +20,7 @@ import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.TokenStream;
 import org.ballerinalang.langserver.LSContextOperation;
+import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSContext;
@@ -84,7 +85,7 @@ public class SourcePruner {
      */
     public static void pruneSource(LSContext lsContext) throws SourcePruneException, WorkspaceDocumentException {
         Position cursorPosition = lsContext.get(DocumentServiceKeys.POSITION_KEY).getPosition();
-        WorkspaceDocumentManager documentManager = lsContext.get(CompletionKeys.DOC_MANAGER_KEY);
+        WorkspaceDocumentManager documentManager = lsContext.get(CommonKeys.DOC_MANAGER_KEY);
         String uri = lsContext.get(DocumentServiceKeys.FILE_URI_KEY);
 
         if (cursorPosition == null || documentManager == null || uri == null) {

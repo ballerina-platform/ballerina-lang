@@ -22,6 +22,7 @@ package org.wso2.ballerinalang.programfile.cpentries;
  *
  * @since 0.87
  */
+@Deprecated
 public interface ConstantPoolEntry {
 
     EntryType getEntryType();

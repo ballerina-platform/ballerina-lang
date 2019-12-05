@@ -22,6 +22,7 @@ package org.wso2.ballerinalang.programfile.cpentries;
  *
  * @since 0.90
  */
+@Deprecated
 public class ForkJoinCPEntry implements ConstantPoolEntry {
     
     public int forkJoinInfoIndex;

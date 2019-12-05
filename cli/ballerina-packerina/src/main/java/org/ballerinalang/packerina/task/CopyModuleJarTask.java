@@ -66,7 +66,7 @@ public class CopyModuleJarTask implements Task {
         for (BLangPackage module : moduleBirMap) {
             // get the jar path of the module.
             Path jarOutput = buildContext.getJarPathFromTargetCache(module.packageID);
-            buildContext.moduleDependencyPathMap.get(module.packageID).add(jarOutput);
+            buildContext.moduleDependencyPathMap.get(module.packageID).moduleJar = jarOutput;
         }
     }
 
@@ -76,7 +76,7 @@ public class CopyModuleJarTask implements Task {
         Map<PackageID, Path> alreadyImportedMap = new HashMap<>();
         for (BLangPackage pkg : moduleBirMap) {
             copyImportedJars(pkg.symbol.imports, buildContext, sourceRootPath, balHomePath,
-                             buildContext.moduleDependencyPathMap.get(pkg.packageID), alreadyImportedMap);
+                             buildContext.moduleDependencyPathMap.get(pkg.packageID).platformLibs, alreadyImportedMap);
         }
     }
 

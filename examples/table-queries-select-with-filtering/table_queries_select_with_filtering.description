@@ -1,0 +1,5 @@
+// Ballerina allows users to select rows, which match specific filtering criteria, from a table using query syntax
+// similar to SQL. In this example, the person whose name is "Jane" is filtered out. This query syntax can only be used
+// to query a table. The modification of an existing table is not supported. When an existing table is queried using
+// Ballerina SQL, a new in-memory table is created with the queried data and that table is returned. Executing these
+// SQL-like queries on tables returned through Ballerina database clients is not supported yet.

@@ -14,10 +14,10 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/io;
-import ballerina/internal;
-import ballerina/jvm;
 import ballerina/bir;
+import ballerina/io;
+import ballerina/jvm;
+import ballerina/stringutils;
 
 public type ObjectGenerator object {
 
@@ -74,7 +74,7 @@ public type ObjectGenerator object {
         self.createObjectGetMethod(cw, fields, className);
         self.createObjectSetMethod(cw, fields, className);
         self.createLambdas(cw);
-        
+
         cw.visitEnd();
         var result = cw.toByteArray();
         if !(result is byte[]) {
@@ -125,7 +125,7 @@ public type ObjectGenerator object {
         mv.visitVarInsn(ALOAD, 1);
         // invoke super(type);
         mv.visitMethodInsn(INVOKESPECIAL, ABSTRACT_OBJECT_VALUE, "<init>", io:sprintf("(L%s;)V", OBJECT_TYPE), false);
-        
+
         string lockClass = "L" + LOCK_VALUE + ";";
         foreach var field in fields {
             if (field is bir:BObjectField) {
@@ -140,7 +140,7 @@ public type ObjectGenerator object {
         }
 
         mv.visitInsn(RETURN);
-        mv.visitMaxs(0, 0);
+        mv.visitMaxs(5, 5);
         mv.visitEnd();
     }
 
@@ -215,7 +215,7 @@ public type ObjectGenerator object {
         }
 
         createDefaultCase(mv, defaultCaseLabel, funcNameRegIndex);
-        mv.visitMaxs(0, 0);
+        mv.visitMaxs(funcs.length() + 10, funcs.length() + 10);
         mv.visitEnd();
     }
 
@@ -265,7 +265,7 @@ public type ObjectGenerator object {
         mv.visitVarInsn(ALOAD, 0);
         mv.visitVarInsn(ALOAD, fieldNameRegIndex);
         mv.visitVarInsn(ALOAD, valueRegIndex);
-        mv.visitMethodInsn(INVOKEVIRTUAL, className, "checkFieldUpdate", 
+        mv.visitMethodInsn(INVOKEVIRTUAL, className, "checkFieldUpdate",
                 io:sprintf("(L%s;L%s;)V", STRING_VALUE, OBJECT), false);
 
         // sort the fields before generating switch case
@@ -311,8 +311,8 @@ public type ObjectGenerator object {
         cw.visitSource(typeDef.pos.sourceFileName);
         currentClass = <@untainted> className;
         cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, className,
-                    io:sprintf("<K:L%s;V:L%s;>L%s<TK;TV;>;L%s<TK;TV;>;", OBJECT, OBJECT, MAP_VALUE_IMPL, MAP_VALUE),
-                    MAP_VALUE_IMPL, [MAP_VALUE]);
+                io:sprintf("<K:L%s;V:L%s;>L%s<TK;TV;>;L%s<TK;TV;>;", OBJECT, OBJECT, MAP_VALUE_IMPL, MAP_VALUE),
+                MAP_VALUE_IMPL, [MAP_VALUE]);
 
         bir:Function?[]? attachedFuncs = typeDef.attachedFuncs;
         if (attachedFuncs is bir:Function?[]) {
@@ -369,7 +369,7 @@ public type ObjectGenerator object {
     }
 
     private function createRecordInitWrapper(jvm:ClassWriter cw, string className, bir:TypeDef typeDef) {
-        jvm:MethodVisitor mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, "$init", 
+        jvm:MethodVisitor mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, "$init",
                                               io:sprintf("(L%s;L%s;)V", STRAND, MAP_VALUE), (), ());
         mv.visitCode();
         // load strand
@@ -377,7 +377,7 @@ public type ObjectGenerator object {
         // load value
         mv.visitVarInsn(ALOAD, 1);
 
-        // Invoke the init-functions of referenced types. This is done to initialize the 
+        // Invoke the init-functions of referenced types. This is done to initialize the
         // defualt values of the fields coming from the referenced types.
         foreach (bir:BType? typeRef in typeDef.typeRefs) {
             if (typeRef is bir:BRecordType) {
@@ -406,10 +406,12 @@ public type ObjectGenerator object {
 
         mv.visitMethodInsn(INVOKESTATIC, valueClassName, initFuncName, 
                             io:sprintf("(L%s;L%s;)L%s;", STRAND, MAP_VALUE, OBJECT), false);
+        mv.visitInsn(POP);
         mv.visitInsn(RETURN);
         mv.visitMaxs(0, 0);
         mv.visitEnd();
     }
+
     private function createRecordFields(jvm:ClassWriter cw, bir:BRecordField?[] fields) {
         foreach var field in fields {
             if (field is bir:BRecordField) {
@@ -617,7 +619,7 @@ public type ObjectGenerator object {
         mv.visitMethodInsn(INVOKESPECIAL, LINKED_HASH_MAP, "entrySet", io:sprintf("()L%s;", SET), false);
         mv.visitMethodInsn(INVOKEINTERFACE, SET, "addAll", io:sprintf("(L%s;)Z", COLLECTION), true);
         mv.visitInsn(POP);
-
+        
         mv.visitVarInsn(ALOAD, entrySetVarIndex);
         mv.visitInsn(ARETURN);
         mv.visitMaxs(0, 0);
@@ -628,7 +630,7 @@ public type ObjectGenerator object {
     private function createRecordContainsKeyMethod(jvm:ClassWriter cw, bir:BRecordField?[] fields, string className) {
         jvm:MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "containsKey", io:sprintf("(L%s;)Z", OBJECT), (), ());
         mv.visitCode();
-
+ 
         int fieldNameRegIndex = 1;
         int strKeyVarIndex = 2;
 
@@ -877,7 +879,7 @@ function createLabelsforSwitch(jvm:MethodVisitor mv, int nameRegIndex, NamedNode
     foreach var node in nodes {
         if (node is NamedNode) {
             labels[i] = new jvm:Label();
-            hashCodes[i] = internal:hashCode(getName(node));
+            hashCodes[i] = stringutils:hashCode(getName(node));
             i += 1;
         }
     }
@@ -948,9 +950,10 @@ function getName(any node) returns string {
 
 // --------------------- Sorting ---------------------------
 
-type NamedNode record {
+type NamedNode record {|
     bir:Name name = {};
-};
+    any...;
+|};
 
 type NodeSorter object {
 
@@ -958,15 +961,15 @@ type NodeSorter object {
         self.quickSort(arr, 0, arr.length() - 1);
     }
 
-    private function quickSort(NamedNode?[] arr, int low, int high) { 
-        if (low < high) { 
+    private function quickSort(NamedNode?[] arr, int low, int high) {
+        if (low < high) {
             // pi is partitioning index, arr[pi] is now at right place
-            int pi = self.partition(arr, low, high); 
+            int pi = self.partition(arr, low, high);
 
-            // Recursively sort elements before partition and after partition 
-            self.quickSort(arr, low, pi - 1); 
-            self.quickSort(arr, pi + 1, high); 
-        } 
+            // Recursively sort elements before partition and after partition
+            self.quickSort(arr, low, pi - 1);
+            self.quickSort(arr, pi + 1, high);
+        }
     }
 
     private function partition(NamedNode?[] arr, int begin, int end) returns int {
@@ -986,7 +989,7 @@ type NodeSorter object {
     }
 
     private function getHash(any node) returns int {
-        return internal:hashCode(getName(node));
+        return stringutils:hashCode(getName(node));
     }
 
     private function swap(NamedNode?[] arr, int i, int j) {

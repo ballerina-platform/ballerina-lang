@@ -808,12 +808,17 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 break;
             case TUPLE_VARIABLE:
                 if (variable.isDeclaredWithVar && variable.expr.getKind() == NodeKind.LIST_CONSTRUCTOR_EXPR) {
-                    dlog.error(varRefExpr.pos, DiagnosticCode.INVALID_LITERAL_FOR_TYPE, "tuple binding pattern");
+                    List<String> bindingPatternVars = new ArrayList<>();
+                    List<BLangVariable> members = ((BLangTupleVariable) variable).memberVariables;
+                    for (BLangVariable var : members) {
+                        bindingPatternVars.add(((BLangSimpleVariable) var).name.value);
+                    }
+                    dlog.error(varRefExpr.pos, DiagnosticCode.CANNOT_INFER_TYPES_FOR_TUPLE_BINDING, bindingPatternVars);
                     variable.type = symTable.semanticError;
                     return;
                 }
                 if (TypeTags.TUPLE != rhsType.tag) {
-                    dlog.error(varRefExpr.pos, DiagnosticCode.INVALID_TYPE_DEFINITION_FOR_TUPLE_VAR, rhsType);
+                    dlog.error(varRefExpr.pos, DiagnosticCode.INVALID_TUPLE_BINDING_PATTERN_INFERENCE, rhsType);
                     variable.type = symTable.semanticError;
                     return;
                 }
@@ -884,7 +889,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             case TUPLE_VARIABLE:
                 BLangTupleVariable tupleVariable = (BLangTupleVariable) variable;
                 if (TypeTags.TUPLE != rhsType.tag && TypeTags.UNION != rhsType.tag) {
-                    dlog.error(variable.pos, DiagnosticCode.INVALID_TYPE_DEFINITION_FOR_TUPLE_VAR, rhsType);
+                    dlog.error(variable.pos, DiagnosticCode.INVALID_TUPLE_BINDING_PATTERN_INFERENCE, rhsType);
                     recursivelyDefineVariables(tupleVariable, blockEnv);
                     return;
                 }
@@ -1007,7 +1012,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                             .collect(Collectors.toList());
 
                     if (possibleTypes.isEmpty()) {
-                        dlog.error(varNode.pos, DiagnosticCode.INVALID_TYPE_DEFINITION_FOR_TUPLE_VAR, varNode.type);
+                        dlog.error(varNode.pos, DiagnosticCode.INVALID_TUPLE_BINDING_PATTERN_DECL, varNode.type);
                         return false;
                     }
 
@@ -1059,7 +1064,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                     tupleTypeNode = (BTupleType) varNode.type;
                     break;
                 default:
-                    dlog.error(varNode.pos, DiagnosticCode.INVALID_TYPE_DEFINITION_FOR_TUPLE_VAR, varNode.type);
+                    dlog.error(varNode.pos, DiagnosticCode.INVALID_TUPLE_BINDING_PATTERN_DECL, varNode.type);
                     return false;
             }
         }
@@ -1688,11 +1693,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             // set reason var refs type to no type if the variable name is '_'
             errorDeStmt.varRef.reason.type = symTable.noType;
         }
-        if (errorDeStmt.expr.getKind() == NodeKind.INVOCATION
-                && ((BLangInvocation) errorDeStmt.expr).name.value.equals(Names.ERROR.value)) {
-            dlog.error(errorDeStmt.expr.pos, DiagnosticCode.INVALID_ERROR_LITERAL_BINDING_PATTERN);
-            return;
-        }
+
         typeChecker.checkExpr(errorDeStmt.expr, this.env);
         checkErrorVarRefEquivalency(errorDeStmt.pos, errorDeStmt.varRef, errorDeStmt.expr.type, errorDeStmt.expr.pos);
     }

@@ -20,18 +20,16 @@ package org.ballerinalang.nats.basic.consumer;
 
 import io.nats.client.Connection;
 import io.nats.client.Dispatcher;
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.nats.Constants;
 import org.ballerinalang.nats.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
-import java.util.List;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -42,20 +40,11 @@ import static org.ballerinalang.nats.Constants.DISPATCHER_LIST;
  *
  * @since 1.0.0
  */
-@BallerinaFunction(
-        orgName = Constants.ORG_NAME,
-        packageName = Constants.NATS,
-        functionName = "gracefulStop",
-        receiver = @Receiver(type = TypeKind.OBJECT,
-                structType = Constants.NATS_LISTENER,
-                structPackage = Constants.NATS_PACKAGE),
-        isPublic = true
-)
 public class GracefulStop {
 
     private static final Logger LOG = LoggerFactory.getLogger(GracefulStop.class);
 
-    public static void gracefulStop(Strand strand, ObjectValue listenerObject) {
+    public static void basicGracefulStop(ObjectValue listenerObject) {
         ObjectValue connectionObject = (ObjectValue) listenerObject.get(Constants.CONNECTION_OBJ);
         if (connectionObject == null) {
             LOG.debug("Connection object reference does not exist. Possibly the connection is already closed.");
@@ -68,8 +57,14 @@ public class GracefulStop {
             return;
         }
         @SuppressWarnings("unchecked")
-        List<Dispatcher> dispatcherList = (List<Dispatcher>) listenerObject.getNativeData(DISPATCHER_LIST);
-        dispatcherList.forEach(natsConnection::closeDispatcher);
+        ConcurrentHashMap<String, Dispatcher> dispatcherList = (ConcurrentHashMap<String, Dispatcher>)
+                listenerObject.getNativeData(DISPATCHER_LIST);
+        Iterator dispatchers = dispatcherList.entrySet().iterator();
+        while (dispatchers.hasNext()) {
+            Map.Entry pair = (Map.Entry) dispatchers.next();
+            natsConnection.closeDispatcher((Dispatcher) pair.getValue());
+            dispatchers.remove(); // avoids a ConcurrentModificationException
+        }
 
         int clientsCount =
                 ((AtomicInteger) connectionObject.getNativeData(Constants.CONNECTED_CLIENTS)).decrementAndGet();

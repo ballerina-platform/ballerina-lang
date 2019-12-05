@@ -17,7 +17,6 @@
 
 package org.ballerinalang.stdlib.io.channels.base;
 
-import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.stdlib.io.csv.Format;
 import org.ballerinalang.stdlib.io.utils.BallerinaIOException;
 import org.slf4j.Logger;
@@ -92,6 +91,8 @@ public class DelimitedRecordChannel implements IOChannel {
      * Specifies the format for the record. This will be optional
      */
     private Format format;
+
+    private static final String DOUBLE_QUOTE_REGEX = "\"([^\"]*)\"";
 
     private static final Logger log = LoggerFactory.getLogger(DelimitedRecordChannel.class);
 
@@ -304,8 +305,13 @@ public class DelimitedRecordChannel implements IOChannel {
         Pattern reg = Pattern.compile(regex);
         String[] split = reg.split(record);
         for (int i = 0; i < split.length; i++) {
-            if (split[i].isEmpty()) {
+            String field = split[i];
+            if (field.isEmpty()) {
                 split[i] = null;
+                continue;
+            }
+            if (field.matches(DOUBLE_QUOTE_REGEX)) {
+                split[i] = field.substring(field.indexOf('\"') + 1, field.lastIndexOf('\"'));
             }
         }
         return split;
@@ -387,17 +393,17 @@ public class DelimitedRecordChannel implements IOChannel {
      * @param fields the list of fields in the record.
      * @return the record constructed through the fields.
      */
-    private String composeRecord(ArrayValue fields) {
+    private String composeRecord(String[] fields) {
         StringBuilder recordConsolidator = new StringBuilder();
         String finalizedRecord;
-        long numberOfFields = fields.size();
+        long numberOfFields = fields.length;
         final int fieldStartIndex = 0;
         final long secondLastFieldIndex = numberOfFields - 1;
         if (log.isDebugEnabled()) {
             log.debug(String.format("Number of fields to be composed %d", numberOfFields));
         }
         for (int fieldCount = fieldStartIndex; fieldCount < numberOfFields; fieldCount++) {
-            String currentFieldString = fields.getString(fieldCount);
+            String currentFieldString = fields[fieldCount];
             if (currentFieldString.contains(getFieldSeparatorForWriting())) {
                 currentFieldString = encloseField(currentFieldString);
             }
@@ -417,7 +423,7 @@ public class DelimitedRecordChannel implements IOChannel {
      * @param fields the list of fields composing the record.
      * @throws IOException during I/O error.
      */
-    public void write(ArrayValue fields) throws IOException {
+    public void write(String[] fields) throws IOException {
         final int writeOffset = 0;
         String record = composeRecord(fields);
         record = record + getRecordSeparatorForWriting();

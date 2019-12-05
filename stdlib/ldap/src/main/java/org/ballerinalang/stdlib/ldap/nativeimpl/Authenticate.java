@@ -18,9 +18,7 @@
 
 package org.ballerinalang.stdlib.ldap.nativeimpl;
 
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.stdlib.ldap.CommonLdapConfiguration;
 import org.ballerinalang.stdlib.ldap.LdapConnectionContext;
 import org.ballerinalang.stdlib.ldap.LdapConstants;
@@ -39,16 +37,12 @@ import javax.naming.ldap.LdapContext;
  *
  * @since 0.983.0
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "ldap",
-        functionName = "doAuthenticate", isPublic = true)
 public class Authenticate {
 
     private static final Logger LOG = LoggerFactory.getLogger(Authenticate.class);
     private static LdapConnectionContext connectionSource;
 
-    public static Object doAuthenticate(Strand strand, MapValue<?, ?> ldapConnection, String userName,
-                                        String password) {
+    public static Object doAuthenticate(MapValue<?, ?> ldapConnection, String userName, String password) {
         if (userName == null || userName.isEmpty()) {
             return LdapUtils.createError("Username is null or empty.");
         }

@@ -102,11 +102,18 @@ public class TestCommand implements BLauncherCmd {
     @CommandLine.Parameters
     private List<String> argList;
 
+    @CommandLine.Option(names = {"--native"}, hidden = true,
+            description = "Compile Ballerina program to a native binary")
+    private boolean nativeBinary;
+
     @CommandLine.Option(names = "--dump-bir", hidden = true)
     private boolean dumpBIR;
 
     @CommandLine.Option(names = "--dump-llvm-ir", hidden = true)
     private boolean dumpLLVMIR;
+
+    @CommandLine.Option(names = "--no-optimize-llvm", hidden = true)
+    private boolean noOptimizeLLVM;
 
     @CommandLine.Option(names = {"--help", "-h"}, hidden = true)
     private boolean helpFlag;
@@ -265,7 +272,9 @@ public class TestCommand implements BLauncherCmd {
                 .addTask(new CreateBaloTask(), isSingleFileBuild)   // create the balos for modules(projects only)
                 .addTask(new CreateBirTask())   // create the bir
                 .addTask(new CopyNativeLibTask(skipCopyLibsFromDist))    // copy the native libs(projects only)
-                .addTask(new CreateJarTask(this.dumpBIR))    // create the jar
+                // create the jar.
+                .addTask(new CreateJarTask(this.dumpBIR, this.skipCopyLibsFromDist, this.nativeBinary, this.dumpLLVMIR,
+                        this.noOptimizeLLVM))
                 .addTask(new CopyModuleJarTask(skipCopyLibsFromDist))
                 .addTask(new RunTestsTask()) // run tests
                 .build();

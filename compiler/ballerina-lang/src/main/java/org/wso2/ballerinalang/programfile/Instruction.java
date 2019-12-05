@@ -25,6 +25,7 @@ import java.util.StringJoiner;
  *
  * @since 0.87
  */
+@Deprecated
 public class Instruction {
 
     public int opcode;

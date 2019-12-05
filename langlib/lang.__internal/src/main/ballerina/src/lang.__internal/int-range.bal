@@ -46,6 +46,10 @@ type IntRange object {
 
         return ();
     }
+
+    public function __iterator() returns abstract object {public function next() returns record {|int value;|}?;} {
+            return self;
+    }
 };
 
 # The `createIntRange` function creates a `IntRange` object and returns it. This function is used to replace the binary
@@ -55,7 +59,13 @@ type IntRange object {
 # + e - The upper bound if the integer range inclusive
 # + return - `IntRange` object
 public function createIntRange(int s, int e) returns
-        abstract object {public function next() returns record {|int value;|}?;} {
+        abstract object {
+            public function __iterator() returns
+                abstract object {
+                    public function next() returns
+                        record {|int value;|}?;
+                };
+        } {
     IntRange intRange = new(s, e);
     return intRange;
 }

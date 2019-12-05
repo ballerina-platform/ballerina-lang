@@ -118,6 +118,14 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "ballerina/bir",
+      "kind": "Module",
+      "detail": "Package",
+      "sortText": "140",
+      "insertText": "ballerina/bir",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "ballerina/config",
       "kind": "Module",
       "detail": "Package",

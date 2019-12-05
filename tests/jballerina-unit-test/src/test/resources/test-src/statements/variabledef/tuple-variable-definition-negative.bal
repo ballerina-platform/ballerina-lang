@@ -105,3 +105,7 @@ function fn1(any t) returns [string, int, boolean, int, float, int] {
 function testIgnoredVariables() {
     [string, int, float] [_, _, _] = ["D", 4, 6.7]; // no new variables on left side
 }
+
+function testInvalidTupleVarDef3() {
+    string|int [p, q] = [0, 0];
+}

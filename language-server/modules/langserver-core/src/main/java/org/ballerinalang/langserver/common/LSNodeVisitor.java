@@ -70,6 +70,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess.BLangStructFunctionVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangIgnoreExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangArrayAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangJSONAccessExpr;
@@ -1044,6 +1045,26 @@ public class LSNodeVisitor extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangRecordLiteral.BLangRecordKeyValue recordKeyValue) {
+        // no implementation
+    }
+
+    @Override
+    public void visit(BLangLock.BLangLockStmt lockStmtNode) {
+        // no implementation
+    }
+
+    @Override
+    public void visit(BLangLock.BLangUnLockStmt unLockNode) {
+        // no implementation
+    }
+
+    @Override
+    public void visit(BLangIgnoreExpr ignoreExpr) {
+        // no implementation
+    }
+
+    @Override
+    public void visit(BLangWaitForAllExpr.BLangWaitKeyValue waitKeyValue) {
         // no implementation
     }
 }

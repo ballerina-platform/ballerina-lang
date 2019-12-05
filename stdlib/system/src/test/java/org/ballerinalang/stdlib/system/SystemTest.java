@@ -37,7 +37,7 @@ public class SystemTest {
 
     @BeforeClass
     public void setup() {
-        compileResult = BCompileUtil.compile("test-src/system-test.bal");
+        compileResult = BCompileUtil.compileOffline("test-src/system-test.bal");
     }
 
     @Test

@@ -304,6 +304,24 @@ public class BallerinaFileBuilder {
 
             return result;
         });
+        handlebars.registerHelper("isNotNull", (object, options) -> {
+            CharSequence result;
+            if (object != null) {
+                result = options.fn(options.context);
+            } else {
+                result = null;
+            }
+            return result;
+        });
+        handlebars.registerHelper("isNull", (object, options) -> {
+            CharSequence result;
+            if (object == null) {
+                result = options.fn(options.context);
+            } else {
+                result = null;
+            }
+            return result;
+        });
         // This is enable nested messages. There won't be any infinite scenarios in nested messages.
         handlebars.infiniteLoops(true);
         try {

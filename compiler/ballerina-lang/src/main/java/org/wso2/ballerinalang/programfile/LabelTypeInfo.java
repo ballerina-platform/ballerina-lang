@@ -29,6 +29,7 @@ import java.util.Map;
  *
  * @since 0.974.0
  */
+@Deprecated
 public class LabelTypeInfo implements TypeInfo {
 
     public int typeSigCPIndex;

@@ -100,6 +100,55 @@ public class Message {
             bMapValue = new MapValueImpl<>(bType);
             bMessage = bMapValue;
         }
+
+        if (input == null) {
+            if (bMapValue != null) {
+                for (Map.Entry<Integer, Descriptors.FieldDescriptor> entry : fieldDescriptors.entrySet()) {
+                    if (entry.getValue().getType().toProto().getNumber() ==
+                            DescriptorProtos.FieldDescriptorProto.Type.TYPE_MESSAGE_VALUE &&
+                            !entry.getValue().isRepeated()) {
+                        bMapValue.put(entry.getValue().getName(), null);
+                    } else if (entry.getValue().getType().toProto().getNumber() ==
+                            DescriptorProtos.FieldDescriptorProto.Type.TYPE_ENUM_VALUE) {
+                        bMapValue.put(entry.getValue().getName(),
+                                entry.getValue().getEnumType().findValueByNumber(0).toString());
+                    }
+                }
+            } else {
+                // Here fieldDescriptors map size should be one. Because the value can assign to one scalar field.
+                for (Map.Entry<Integer, Descriptors.FieldDescriptor> entry : fieldDescriptors.entrySet()) {
+                    switch (entry.getValue().getType().toProto().getNumber()) {
+                        case DescriptorProtos.FieldDescriptorProto.Type.TYPE_DOUBLE_VALUE:
+                        case DescriptorProtos.FieldDescriptorProto.Type.TYPE_FLOAT_VALUE: {
+                            bMessage = (double) 0;
+                            break;
+                        }
+                        case DescriptorProtos.FieldDescriptorProto.Type.TYPE_INT64_VALUE:
+                        case DescriptorProtos.FieldDescriptorProto.Type.TYPE_UINT64_VALUE:
+                        case DescriptorProtos.FieldDescriptorProto.Type.TYPE_INT32_VALUE:
+                        case DescriptorProtos.FieldDescriptorProto.Type.TYPE_FIXED64_VALUE:
+                        case DescriptorProtos.FieldDescriptorProto.Type.TYPE_FIXED32_VALUE: {
+                            bMessage = (long) 0;
+                            break;
+                        }
+                        case DescriptorProtos.FieldDescriptorProto.Type.TYPE_STRING_VALUE: {
+                            bMessage = "";
+                            break;
+                        }
+                        case DescriptorProtos.FieldDescriptorProto.Type.TYPE_BOOL_VALUE: {
+                            bMessage = Boolean.FALSE;
+                            break;
+                        }
+                        default: {
+                            throw Status.Code.INTERNAL.toStatus().withDescription("Error while decoding request " +
+                                    "message. Field type is not supported : " +
+                                    entry.getValue().getType()).asRuntimeException();
+                        }
+                    }
+                }
+            }
+            return;
+        }
         boolean done = false;
         while (!done) {
             int tag = input.readTag();

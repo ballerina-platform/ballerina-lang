@@ -28,6 +28,7 @@ import java.util.List;
  *
  * @since 0.90
  */
+@Deprecated
 public class LineNumberTableAttributeInfo implements AttributeInfo {
 
     // Index to a UTF8CPEntry

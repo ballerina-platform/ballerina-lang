@@ -372,17 +372,16 @@ public class TupleVariableDefinitionTest {
 
     @Test
     public void testNegativeTupleVariables() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 24);
         int i = -1;
         String errorMsg1 = "invalid tuple binding pattern; member variable count mismatch with member type count";
-        String errorMsg2 = "invalid tuple variable; expecting a tuple type but found ";
+        String errorMsg2 = "invalid tuple binding pattern: expected a tuple type, but found ";
         String errorMsg3 = "tuple and expression size does not match";
         String errorMsg4 = "incompatible types: expected ";
 
         BAssertUtil.validateError(resultNegative, ++i, errorMsg1, 19, 26);
         BAssertUtil.validateError(resultNegative, ++i, errorMsg1, 23, 26);
         BAssertUtil.validateError(resultNegative, ++i, errorMsg1, 24, 26);
-        BAssertUtil.validateError(resultNegative, ++i, errorMsg2 + "'int' in type definition", 25, 34);
+        BAssertUtil.validateError(resultNegative, ++i, errorMsg2 + "'int'", 25, 34);
         BAssertUtil.validateError(resultNegative, ++i, errorMsg3, 29, 41);
         BAssertUtil.validateError(resultNegative, ++i, errorMsg3, 30, 41);
         BAssertUtil.validateError(resultNegative, ++i, errorMsg4 + "'string', found 'int'", 31, 42);
@@ -406,5 +405,10 @@ public class TupleVariableDefinitionTest {
                 "incompatible types: expected '[[string,[int,[boolean,int]]],[float,int]]', found 'any'", 101, 84);
         BAssertUtil.validateError(resultNegative, ++i,
                 "no new variables on left side", 106, 26);
+        BAssertUtil.validateError(resultNegative, ++i,
+                                  "invalid tuple binding pattern: expected a tuple type, but found '(string|int)'",
+                                  110, 16);
+
+        Assert.assertEquals(resultNegative.getErrorCount(), i + 1);
     }
 }

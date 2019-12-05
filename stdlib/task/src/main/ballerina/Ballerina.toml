@@ -18,10 +18,3 @@ target = "java8"
     path = "./lib/quartz-2.3.0.jar"
     groupId = "org.quartz-scheduler"
     modules = ["task"]
-
-    [[platform.libraries]]
-    artifactId = "HikariCP"
-    version = "3.3.1"
-    path = "./lib/HikariCP-3.3.1.jar"
-    groupId = "com.zaxxer"
-    modules = ["task"]

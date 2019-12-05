@@ -137,4 +137,13 @@ public class Utils {
         }
         return function;
     }
+
+    @SuppressWarnings("unchecked")
+    public static MapValue<String, Object> getSubscriptionConfig(Object annotationData) {
+        MapValue annotationRecord = null;
+        if (TypeChecker.getType(annotationData).getTag() == TypeTags.RECORD_TYPE_TAG) {
+            annotationRecord = (MapValue) annotationData;
+        }
+        return annotationRecord;
+    }
 }

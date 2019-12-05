@@ -29,7 +29,7 @@ public enum Format {
     /**
      * CSV should conform with RFC4180 specification.
      */
-    CSV(",(?=([^\"]*\"[^\"]*\")*[^\"]*$)", "\\r?\\n", ",", "\n", true),
+    CSV(",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)", "\\r?\\n", ",", "\n", true),
     /**
      * Tab delimited records.
      */

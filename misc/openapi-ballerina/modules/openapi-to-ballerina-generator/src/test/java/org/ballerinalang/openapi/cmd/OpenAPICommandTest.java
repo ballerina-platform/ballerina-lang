@@ -86,7 +86,7 @@ public abstract class OpenAPICommandTest {
         return Paths.get("src/test/resources/").toAbsolutePath();
     }
 
-    public static OpenAPIBallerinaProject createBalProject(String directory, String moduleName) throws IOException {
+    public static OpenAPIBallerinaProject createBalProject(String directory) throws IOException {
         OpenAPIBallerinaProject openAPIBallerinaProject = new OpenAPIBallerinaProject();
         Path projectPath = Paths.get(directory);
         if (Files.notExists(projectPath)) {
@@ -105,19 +105,22 @@ public abstract class OpenAPICommandTest {
         }
         openAPIBallerinaProject.setSrcPath(srcPath);
 
+        return openAPIBallerinaProject;
+    }
+
+    public static void createBalProjectModule(OpenAPIBallerinaProject openApiProject, String moduleName)
+            throws IOException {
         if (moduleName != null) {
-            Path implPath = srcPath.resolve(moduleName);
+            Path implPath = openApiProject.getSrcPath().resolve(moduleName);
             if (Files.notExists(implPath)) {
                 Files.createDirectory(implPath);
             }
-            openAPIBallerinaProject.setImplPath(implPath);
+            openApiProject.setImplPath(implPath);
 
             Path resourcePath = implPath.resolve("resources");
             if (Files.notExists(resourcePath)) {
                 Files.createDirectory(resourcePath);
             }
         }
-
-        return openAPIBallerinaProject;
     }
 }

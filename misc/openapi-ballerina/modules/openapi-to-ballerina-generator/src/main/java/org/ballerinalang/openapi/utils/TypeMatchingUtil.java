@@ -224,9 +224,7 @@ public class TypeMatchingUtil {
     }
 
     public static void getTypesFromSchema(Schema schema, OpenApiSchemaType schemaType) {
-        if (schema.getProperties() != null) {
-            schemaType.setSchemaProperties(getSchemaPropertyTypes(schema.getProperties()));
-        }
+
 
         if (schema.getType() != null) {
 
@@ -253,23 +251,27 @@ public class TypeMatchingUtil {
                         }
                     }
                     break;
+                case "object":
+                    if (schema.getProperties() != null) {
+                        schemaType.setInline(true);
+                        schemaType.setSchemaProperties(getSchemaPropertyTypes(schema.getProperties()));
+                    }
+                    break;
                 default:
                     schemaType.setSchemaType(delimeterizeUnescapedIdentifires(schema.getType(), false));
                     break;
             }
-        }
-
-        if (schema.getRequired() != null) {
-            schemaType.setRequired(schema.getRequired());
-        }
-
-        if (schema.get$ref() != null) {
+        } else if (schema.get$ref() != null) {
             String[] refArray = schema.get$ref().split("/");
-            schemaType.setreference(delimeterizeUnescapedIdentifires(
+            schemaType.setItemType(delimeterizeUnescapedIdentifires(
                     StringUtils.capitalize(refArray[refArray.length - 1]), false));
             schemaType.setUnescapedItemName(refArray[refArray.length - 1].toLowerCase(Locale.ENGLISH));
             schemaType.setItemName(delimeterizeUnescapedIdentifires(
                     refArray[refArray.length - 1].toLowerCase(Locale.ENGLISH), true));
+        }
+
+        if (schema.getRequired() != null) {
+            schemaType.setRequired(schema.getRequired());
         }
     }
 

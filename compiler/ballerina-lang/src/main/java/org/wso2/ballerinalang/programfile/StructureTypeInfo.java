@@ -27,6 +27,7 @@ import java.util.Map;
 /**
  * @since 0.87
  */
+@Deprecated
 public class StructureTypeInfo implements AttributeInfoPool {
 
     public int pkgNameCPIndex;

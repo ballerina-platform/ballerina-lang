@@ -15,7 +15,12 @@
  *
  */
 
-apply from: "$rootDir/gradle/javaProject.gradle"
+//apply from: "$rootDir/gradle/javaProject.gradle"
+apply plugin: 'java'
+apply plugin: 'checkstyle'
+apply plugin: "com.github.spotbugs"
+
+apply from: "$rootDir/gradle/repositories.gradle"
 
 configurations {
     dist {
@@ -65,14 +70,6 @@ dependencies {
     dist project(':ballerina-lang:value')
     dist project(':ballerina-lang:xml')
     dist project(':ballerina-observability')
-
-    // Other Runtime Libs
-    dist project(':ballerina-runtime')
-    dist project(':ballerina-core')
-    dist project(':ballerina-config')
-    dist project(':ballerina-utils')
-    dist project(':ballerina-logging')
-    dist project(':toml-parser')
     
     // Third party jars
     // config
@@ -86,9 +83,9 @@ dependencies {
 
     // runtime
     dist 'org.apache.ws.commons.axiom:axiom-c14n:1.2.22'
-    dist 'org.apache.ws.commons.axiom:axiom-dom:1.2.22'
     dist 'org.apache.ws.commons.axiom:axiom-impl:1.2.22'
     dist 'org.apache.ws.commons.axiom:axiom-api:1.2.20'
+    dist 'org.apache.ws.commons.axiom:axiom-dom:1.2.22'
     dist 'commons-logging:commons-logging:1.1.1'
     dist 'io.opentracing:opentracing-api:0.31.0'
     dist 'io.opentracing:opentracing-util:0.31.0'
@@ -104,17 +101,27 @@ dependencies {
     dist project(path: ':metrics-extensions:ballerina-prometheus-extension', configuration: 'prometheusJar')
     //// tracing
     dist project(':tracing-extensions:ballerina-jaeger-extension')
-    dist 'com.uber.jaeger:jaeger-core:0.27.0'
-    dist 'com.uber.jaeger:jaeger-thrift:0.27.0'
+    dist 'io.jaegertracing:jaeger-core:0.31.0'
+    dist 'io.jaegertracing:jaeger-thrift:0.31.0'
     dist 'org.apache.thrift:libthrift:0.12.0'
     dist 'com.squareup.okhttp3:okhttp:3.14.0'
     dist 'com.squareup.okio:okio:2.2.2'
 
     // Temporary adding . Need to Remove once fix #17878
     dist 'com.google.code.gson:gson:2.7'
+
+    // Other Runtime Libs
+    dist project(':ballerina-runtime')
+    dist project(':ballerina-core')
+    dist project(':ballerina-config')
+    dist project(':ballerina-utils')
+    dist project(':ballerina-logging')
+    dist project(':toml-parser')
+
 }
 
 jar {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     dependsOn configurations.dist
     from { configurations.dist.collect { it.isDirectory() ? it : zipTree(it) } }
 }

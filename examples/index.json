@@ -969,6 +969,33 @@
         ]
     },
     {
+        "title": "RabbitMQ",
+        "column": 3,
+        "category": "Working over the network",
+        "samples": [
+            {
+                "name": "Producer",
+                "url": "rabbitmq-producer"
+            },
+            {
+                "name": "Consumer",
+                "url": "rabbitmq-consumer"
+            },
+            {
+                "name": "Client Acknowledgements",
+                "url": "rabbitmq-consumer-with-client-acknowledgement"
+            },
+            {
+                "name": "Data Binding",
+                "url": "rabbitmq-consumer-with-data-binding"
+            },
+            {
+                "name": "QoS Settings",
+                "url": "rabbitmq-consumer-with-qos-settings"
+            }
+        ]
+    },
+    {
         "title": "Socket",
         "column": 3,
         "category": "Working over the network",
@@ -1075,8 +1102,32 @@
         "column": 3,
         "category": "Experimental features",
         "samples": [{
-                "name": "Table Queries",
+                "name": "Select all the fields",
                 "url": "table-queries"
+            },
+            {
+                "name": "Select a few field for the output",
+                "url": "table-queries-select-with-few-output-fields"
+            },
+            {
+                "name": "Select with filtering",
+                "url": "table-queries-select-with-filtering"
+            },
+            {
+                "name": "Select with order-by clause",
+                "url": "table-queries-select-with-order-by"
+            },
+            {
+                "name": "Select with group-by clause",
+                "url": "table-queries-select-with-group-by"
+            },
+            {
+                "name": "Join two tables",
+                "url": "table-queries-join"
+            },
+            {
+                "name": "Join two tables with filtering",
+                "url": "table-queries-join-with-filtering"
             }
         ]
     }

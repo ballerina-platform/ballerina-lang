@@ -40,7 +40,7 @@ public function main(string... args) {
     string targetPath = args[2];
     boolean dumpBir = stringutils:equalsIgnoreCase(args[3], "true");
     boolean useSystemClassLoader = stringutils:equalsIgnoreCase(args[4], "true");
-    int numCacheDirs =  <int>lint:fromString(args[5]);
+    int numCacheDirs =  checkpanic lint:fromString(args[5]);
 
     int i = 0;
     while (i < numCacheDirs) {
@@ -69,7 +69,7 @@ public function main(string... args) {
 
 function generateJarBinary(string pathToEntryBir, string mapPath, boolean dumpBir,
                            string[] jarLibraries, boolean useSystemClassLoader) returns JarFile {
-    if (mapPath != "") {
+    if (!isEmpty(mapPath)) {
         externalMapCache = readMap(mapPath);
     }
 
@@ -86,6 +86,10 @@ function generateJarBinary(string pathToEntryBir, string mapPath, boolean dumpBi
     generatePackage(createModuleId(entryMod.org.value, entryMod.name.value,
                                         entryMod.versionValue.value), <@untainted> jarFile, interopValidator, true);
     return jarFile;
+}
+
+function isEmpty(string s) returns boolean {
+    return s.trim() == "";
 }
 
 function readMap(string path) returns map<string> {

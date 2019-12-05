@@ -20,6 +20,7 @@ package org.wso2.ballerinalang.programfile;
 /**
  * Describes an error handing section defined using try block in a Ballerina program.
  */
+@Deprecated
 public class ErrorTableEntry {
 
     protected int ipFrom;

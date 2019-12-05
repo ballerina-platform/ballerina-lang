@@ -16,7 +16,7 @@
 package org.ballerinalang.langserver.codeaction;
 
 import org.ballerinalang.langserver.LSContextOperation;
-import org.ballerinalang.langserver.command.ExecuteCommandKeys;
+import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSCompilerCache;
@@ -73,7 +73,7 @@ public class CodeActionUtil {
             LSContext context = new LSServiceOperationContext(LSContextOperation.TXT_CODE_ACTION);
             context.put(DocumentServiceKeys.IS_CACHE_SUPPORTED, true);
             context.put(DocumentServiceKeys.FILE_URI_KEY, identifier.getUri());
-            context.put(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY, docManager);
+            context.put(CommonKeys.DOC_MANAGER_KEY, docManager);
             BLangPackage bLangPackage = LSModuleCompiler.getBLangPackage(context, docManager,
                     LSCustomErrorStrategy.class, false, false);
             String relativeSourcePath = context.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY);
