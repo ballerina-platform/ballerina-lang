@@ -532,3 +532,15 @@ function panicFunc() {
     }
     int k = <- w5;
 }
+
+function waitInReturn() returns any {
+    worker w1 returns string {
+        return "w1";
+    }
+
+    worker w2 returns string {
+        return "w2";
+    }
+
+    return wait {w1, w2};
+}

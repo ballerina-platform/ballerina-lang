@@ -17,11 +17,10 @@
  */
 package org.ballerinalang.jvm.values;
 
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
+import org.ballerinalang.jvm.values.api.BIterator;
 
-import java.util.Iterator;
 import java.util.Map;
 
 /**
@@ -34,7 +33,7 @@ import java.util.Map;
  *  
  * @since 0.995.0
  */
-public interface IteratorValue extends RefValue, Iterator {
+public interface IteratorValue extends RefValue, BIterator {
 
     /* Default implementation */
 
@@ -44,7 +43,7 @@ public interface IteratorValue extends RefValue, Iterator {
     }
 
     @Override
-    default String stringValue(Strand strand) {
+    default String stringValue() {
         return "iterator " + getType().toString();
     }
 

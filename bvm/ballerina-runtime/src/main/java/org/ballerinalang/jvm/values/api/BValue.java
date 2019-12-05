@@ -15,23 +15,20 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.stdlib.reflect.nativeimpl;
+package org.ballerinalang.jvm.values.api;
 
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
+import org.ballerinalang.jvm.types.BType;
 
 /**
- * Retrieve a service's annotations.
- *
- * @since 1.0
+ * <p>
+ * Represents all the ballerina values.
+ * </p>
+ * 
+ * @since 1.1.0
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "reflect",
-        functionName = "getServiceAnnotationsExternal"
-)
-public class GetServiceAnnotationsExternal {
-    public static Object getServiceAnnotationsExternal(Strand strand, ObjectValue service, String annot) {
-        return service.getType().getAnnotation(annot);
-    }
+public interface BValue {
+
+    String stringValue();
+
+    BType getType();
 }

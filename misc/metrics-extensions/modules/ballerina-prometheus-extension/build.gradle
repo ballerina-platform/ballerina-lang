@@ -60,6 +60,8 @@ dependencies {
     interopImports project(':ballerina-system')
     interopImports project(':ballerina-task')
     interopImports project(':ballerina-time')
+    interopImports project(':ballerina-reflect')
+    interopImports project(':ballerina-crypto')
     interopImports project(':ballerina-mime')
 
     implementation project(':ballerina-system')
@@ -84,8 +86,6 @@ dependencies {
     implementation project(':ballerina-utils')
     implementation project(':ballerina-config')
     implementation project(':ballerina-runtime')
-
-    interopImports project(':ballerina-crypto')
 }
 
 artifacts {
