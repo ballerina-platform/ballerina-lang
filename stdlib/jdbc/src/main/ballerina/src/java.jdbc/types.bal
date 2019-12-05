@@ -15,6 +15,7 @@
 // under the License.
 
 import ballerina/config;
+import ballerinax/java;
 
 # Provides a set of configurations for the JDBC Client.
 #
@@ -92,12 +93,18 @@ type GlobalPoolConfigContainer object {
         self.initGlobalPoolContainer(frozenConfig);
     }
 
-    function initGlobalPoolContainer(PoolOptions poolConfig) = external;
+    function initGlobalPoolContainer(PoolOptions poolConfig) {
+        return initGlobalPoolContainer(self, poolConfig);
+    }
 
     function getGlobalPoolConfig() returns PoolOptions {
         return self.poolConfig;
     }
 };
+
+function initGlobalPoolContainer(GlobalPoolConfigContainer poolConfigContainer, PoolOptions poolConfig) = @java:Method {
+    class: "org.ballerinax.jdbc.methods.ExternFunctions"
+} external;
 
 // This is an instance of GlobalPoolConfigContainer object type. The __init functions of database clients pass
 // poolConfig member of this instance to the external client creation logic in order to access the internal map
