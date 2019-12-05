@@ -37,7 +37,7 @@ import java.util.List;
 public class BLangSelectClause extends BLangNode implements SelectClauseNode {
 
     public List<SelectExpressionNode> selectExpressions = new ArrayList<>();
-    private boolean isSelectAll;
+    public boolean isSelectAll;
     public BLangGroupBy groupBy;
     public BLangHaving having;
 

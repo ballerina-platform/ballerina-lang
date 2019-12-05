@@ -32,7 +32,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
  */
 public class BLangSelectExpression extends BLangNode implements SelectExpressionNode {
 
-    private String identifier;
+    public String identifier;
     public BLangExpression expression;
 
     @Override

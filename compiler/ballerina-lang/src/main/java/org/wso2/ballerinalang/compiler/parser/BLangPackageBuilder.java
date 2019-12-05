@@ -769,8 +769,6 @@ public class BLangPackageBuilder {
         if (constReasonMatchPattern) {
             BLangLiteral reasonLiteral = (BLangLiteral) TreeBuilder.createLiteralExpression();
             reasonLiteral.setValue(reason.substring(1, reason.length() - 1));
-            reasonLiteral.literalType = symTable.stringType;
-            reasonLiteral.literalValue = reasonLiteral.value;
             errorVariable.reasonMatchConst = reasonLiteral;
             errorVariable.reason = (BLangSimpleVariable)
                     generateBasicVarNodeWithoutType(pos, null, "$reason$", pos, false);
@@ -1274,7 +1272,6 @@ public class BLangPackageBuilder {
                 initNode.argsExpr.add((BLangExpression) exprNode);
 
             });
-            invocationNode.originalArgExprs.addAll(invocationNode.argExprs);
             invocationNode.addWS(cws);
             initNode.addWS(cws);
         }
@@ -1414,9 +1411,9 @@ public class BLangPackageBuilder {
         }
         litExpr.addWS(ws);
         litExpr.pos = pos;
-        litExpr.type = litExpr.literalType = symTable.getTypeFromTag(typeTag);
+        litExpr.type = symTable.getTypeFromTag(typeTag);
         litExpr.type.tag = typeTag;
-        litExpr.value = litExpr.literalValue = value;
+        litExpr.value = value;
         litExpr.originalValue = originalValue;
         addExpressionNode(litExpr);
     }
@@ -1582,7 +1579,6 @@ public class BLangPackageBuilder {
         if (argsAvailable) {
             List<ExpressionNode> exprNodes = exprNodeListStack.pop();
             exprNodes.forEach(exprNode -> invocationNode.argExprs.add((BLangExpression) exprNode));
-            invocationNode.originalArgExprs.addAll(invocationNode.argExprs);
             invocationNode.addWS(commaWsStack.pop());
         }
 
@@ -1607,7 +1603,6 @@ public class BLangPackageBuilder {
         if (argsAvailable) {
             List<ExpressionNode> exprNodes = exprNodeListStack.pop();
             exprNodes.forEach(exprNode -> invocationNode.argExprs.add((BLangExpression) exprNode));
-            invocationNode.originalArgExprs.addAll(invocationNode.argExprs);
             invocationNode.addWS(commaWsStack.pop());
         }
 
@@ -2028,8 +2023,7 @@ public class BLangPackageBuilder {
                     (BLangLiteral) TreeBuilder.createLiteralExpression() :
                     (BLangLiteral) TreeBuilder.createNumericLiteralExpression();
             literal.setValue(((BLangLiteral) constantNode.expr).value);
-            literal.literalValue = literal.value;
-            literal.type = literal.literalType = constantNode.expr.type;
+            literal.type = constantNode.expr.type;
             literal.isConstant = true;
 
             // Create a new finite type node.
@@ -2186,7 +2180,7 @@ public class BLangPackageBuilder {
                     BLangLiteral literal = (BLangLiteral) expressionNode;
                     String strVal = String.valueOf(literal.value);
                     if (literal.type.tag == TypeTags.FLOAT || literal.type.tag == TypeTags.DECIMAL) {
-                        literal.value = literal.literalValue = NumericLiteralSupport.stripDiscriminator(strVal);
+                        literal.value = NumericLiteralSupport.stripDiscriminator(strVal);
                     }
                 }
                 finiteTypeNode.valueSpace.add((BLangExpression) expressionNode);
@@ -2649,8 +2643,8 @@ public class BLangPackageBuilder {
         } else {
             BLangLiteral nilLiteral = (BLangLiteral) TreeBuilder.createLiteralExpression();
             nilLiteral.pos = pos;
-            nilLiteral.value = nilLiteral.literalValue = Names.NIL_VALUE;
-            nilLiteral.type = nilLiteral.literalType = symTable.nilType;
+            nilLiteral.value = Names.NIL_VALUE;
+            nilLiteral.type = symTable.nilType;
             retStmt.expr = nilLiteral;
         }
         addStmtToCurrentBlock(retStmt);
@@ -3875,34 +3869,6 @@ public class BLangPackageBuilder {
             topLevelNodes.add(0, importDcl);
             this.imports.add(importDcl);
         }
-    }
-
-    BLangLambdaFunction getScopesFunctionDef(DiagnosticPos pos, Set<Whitespace> ws, boolean bodyExists, String name) {
-        BLangFunction function = (BLangFunction) this.invokableNodeStack.pop();
-        function.pos = pos;
-        function.addWS(ws);
-
-        //always a public function
-        function.flagSet.add(Flag.PUBLIC);
-        function.flagSet.add(Flag.LAMBDA);
-
-        if (!bodyExists) {
-            function.body = null;
-        }
-
-        BLangIdentifier nameId = new BLangIdentifier();
-        nameId.setValue(Names.GEN_VAR_PREFIX + name);
-        function.name = nameId;
-
-        BLangValueType typeNode = (BLangValueType) TreeBuilder.createValueTypeNode();
-        typeNode.pos = pos;
-        typeNode.typeKind = TypeKind.NIL;
-        function.returnTypeNode = typeNode;
-
-        function.receiver = null;
-        BLangLambdaFunction lambda = (BLangLambdaFunction) TreeBuilder.createLambdaFunctionNode();
-        lambda.function = function;
-        return lambda;
     }
 
     public void addTypeReference(DiagnosticPos currentPos, Set<Whitespace> ws) {

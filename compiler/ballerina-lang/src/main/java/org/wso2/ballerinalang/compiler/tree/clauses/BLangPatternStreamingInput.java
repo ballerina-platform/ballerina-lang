@@ -37,15 +37,15 @@ public class BLangPatternStreamingInput extends BLangNode implements PatternStre
 
     public BLangPatternStreamingInput patternStreamingInput;
     public List<PatternStreamingEdgeInputNode> patternStreamingEdgeInputNodeList = new ArrayList<>();
-    private boolean isFollowedBy;
-    private boolean isEnclosedInParenthesis;
-    private boolean isNotWithFor;
-    private boolean isNotWithAnd;
-    private boolean isAndOnly;
-    private boolean isOrOnly;
-    private boolean isCommaSeparated;
-    private String timeScale;
-    private String timeDurationValue;
+    public boolean isFollowedBy;
+    public boolean isEnclosedInParenthesis;
+    public boolean isNotWithFor;
+    public boolean isNotWithAnd;
+    public boolean isAndOnly;
+    public boolean isOrOnly;
+    public boolean isCommaSeparated;
+    public String timeScale;
+    public String timeDurationValue;
 
     @Override
     public NodeKind getKind() {

@@ -35,7 +35,7 @@ public class BLangPatternStreamingEdgeInput extends BLangNode implements Pattern
 
     public BLangExpression streamRef;
 
-    private String alias;
+    public String alias;
 
     public BLangExpression expressionNode;
 

@@ -42,8 +42,8 @@ public class BLangStreamingInput extends BLangNode implements StreamingInput {
     public BLangWindow windowClause;
     public BLangWhere afterStreamingCondition;
     public BLangExpression streamReference;
-    private String alias;
-    private boolean isWindowTraversedAfterWhere;
+    public String alias;
+    public boolean isWindowTraversedAfterWhere;
     public List<ExpressionNode> preInvocations = new ArrayList<>();
     public List<ExpressionNode> postInvocations = new ArrayList<>();
 

@@ -27,10 +27,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
  */
 public class BLangLiteral extends BLangExpression implements LiteralNode {
 
-    // Original values created at parser builder.
-    public BType literalType;
-    public Object literalValue;
-
     public Object value;
     public String originalValue;
     public boolean isJSONContext;
@@ -42,7 +38,7 @@ public class BLangLiteral extends BLangExpression implements LiteralNode {
 
     public BLangLiteral(Object value, BType type) {
         this.value = value;
-        this.type = this.literalType = type;
+        this.type = type;
     }
 
     @Override

@@ -46,8 +46,8 @@ public class BLangTableQuery extends BLangNode implements TableQuery {
     public BLangLimit limitNode;
 
     //This will be generated in desugar phase
-    private String sqlQuery;
-    private List<BLangExpression> params = new ArrayList<>();
+    public String sqlQuery;
+    public List<BLangExpression> params = new ArrayList<>();
 
     @Override
     public void setStreamingInput(StreamingInput streamingInput) {

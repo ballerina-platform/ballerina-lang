@@ -35,9 +35,9 @@ public class BLangJoinStreamingInput extends BLangNode implements JoinStreamingI
 
     public BLangStreamingInput streamingInput;
     public BLangExpression onExpression;
-    private String joinType;
-    private boolean isUnidirectionalBeforeJoin;
-    private boolean isUnidirectionalAfterJoin;
+    public String joinType;
+    public boolean isUnidirectionalBeforeJoin;
+    public boolean isUnidirectionalAfterJoin;
 
     @Override
     public String getJoinType() {
