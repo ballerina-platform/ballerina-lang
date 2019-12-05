@@ -57,7 +57,7 @@ public class BootstrapRunner {
             jarFilePaths.add(path.toString());
         }
         List<String> commands =
-                createArgsForJBalCompilerBackend(entryBir, jarOutputPath, dumpBir, true, jarFilePaths, birCachePaths);
+                createArgsForJBalCompilerBackend(entryBir, jarOutputPath, dumpBir, jarFilePaths, birCachePaths);
         generateJarBinaryInProc(commands);
     }
 
@@ -175,12 +175,12 @@ public class BootstrapRunner {
     }
 
     public static List<String> createArgsForJBalCompilerBackend(String entryBir, String jarOutputPath, boolean dumpBir,
-            boolean useSystemClassLoader, List<String> jarFilePaths, String... birCachePaths) {
+            List<String> jarFilePaths, String... birCachePaths) {
         List<String> commands = new ArrayList<>();
         commands.add("java");
         setSystemProperty(commands, "ballerina.bstring");
         commands.add(COMPILER_BACKEND_JVM);
-        commands.addAll(createArgsForCompilerBackend(entryBir, jarOutputPath, dumpBir, useSystemClassLoader,
+        commands.addAll(createArgsForCompilerBackend(entryBir, jarOutputPath, dumpBir, true,
                 birCachePaths, jarFilePaths));
         return commands;
     }
