@@ -1,10 +1,9 @@
 import org.gradle.internal.os.OperatingSystem;
 import org.apache.tools.ant.filters.*;
 
+import java.util.jar.Attributes
 import java.util.jar.JarOutputStream
 import java.util.jar.Manifest;
-import java.util.jar.Attributes
-import java.util.stream.Collectors;
 
 apply from: "$rootDir/gradle/birTestableProject.gradle"
 
@@ -179,12 +178,16 @@ static def createClassPathJar(outputName, Set jarsToBeLoaded) {
     Manifest manifest = new Manifest()
     manifest.getMainAttributes().put(Attributes.Name.MANIFEST_VERSION, "1.0")
     String classPathEntry = ""
-    Iterator iterator = jarsToBeLoaded.iterator();
+    Iterator iterator = jarsToBeLoaded.iterator()
     while (iterator.hasNext()) {
         File jarFile = new File(iterator.next().toString())
-        classPathEntry = classPathEntry.concat(jarFile.getCanonicalPath());
+        if (OperatingSystem.current().isWindows()) {
+            classPathEntry = classPathEntry.concat("/").concat(jarFile.getCanonicalPath().replace("\\", "/"))
+        } else {
+            classPathEntry = classPathEntry.concat(jarFile.getCanonicalPath())
+        }
         if (iterator.hasNext()) {
-            classPathEntry = classPathEntry.concat(" ");
+            classPathEntry = classPathEntry.concat(" ")
         }
     }
     println "Class-Path : " + classPathEntry
