@@ -78,6 +78,7 @@ dependencies {
 
     interopImports project(':ballerina-io')
     interopImports project(':ballerina-filepath')
+    interopImports project(':ballerina-reflect')
     interopImports project(':ballerina-system')
 
     implementation project(':ballerina-auth')

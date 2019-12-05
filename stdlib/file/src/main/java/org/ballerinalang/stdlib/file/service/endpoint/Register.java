@@ -20,7 +20,7 @@ package org.ballerinalang.stdlib.file.service.endpoint;
 
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.AttachedFunction;
-import org.ballerinalang.jvm.values.MapValueImpl;
+import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -54,7 +54,7 @@ import static org.ballerinalang.stdlib.file.service.DirectoryListenerConstants.F
 public class Register {
 
     public static Object register(Strand strand, ObjectValue listener, ObjectValue service, Object name) {
-        MapValueImpl serviceEndpointConfig = listener.getMapValue(DirectoryListenerConstants.SERVICE_ENDPOINT_CONFIG);
+        MapValue serviceEndpointConfig = listener.getMapValue(DirectoryListenerConstants.SERVICE_ENDPOINT_CONFIG);
         try {
             final Map<String, AttachedFunction> resourceRegistry = getResourceRegistry(service);
             final String events = String.join(",", resourceRegistry.keySet());
@@ -100,7 +100,7 @@ public class Register {
         return registry;
     }
 
-    private static Map<String, String> getParamMap(MapValueImpl serviceEndpointConfig, String events) {
+    private static Map<String, String> getParamMap(MapValue serviceEndpointConfig, String events) {
         final String path = serviceEndpointConfig.getStringValue(DirectoryListenerConstants.ANNOTATION_PATH);
         final boolean recursive = serviceEndpointConfig
                 .getBooleanValue(DirectoryListenerConstants.ANNOTATION_DIRECTORY_RECURSIVE);

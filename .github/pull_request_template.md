@@ -14,7 +14,6 @@ Fixes #<Issue Number>
 
 ## Check List 
 - [ ] Read the [Contributing Guide](https://github.com/ballerina-platform/ballerina-lang/blob/master/CONTRIBUTING.md)
-- [ ] Required Balo version update
 - [ ] Updated Change Log
 - [ ] Checked Tooling Support (#<Issue Number>)
 - [ ] Added necessary tests

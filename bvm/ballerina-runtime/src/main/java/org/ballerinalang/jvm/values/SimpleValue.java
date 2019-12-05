@@ -17,18 +17,18 @@
  */
 package org.ballerinalang.jvm.values;
 
-import org.ballerinalang.jvm.values.api.BRefValue;
+import org.ballerinalang.jvm.values.api.BValue;
 
 /**
  * <p>
- * Interface to be implemented by all the reference types.
+ * Interface to be implemented by all the ballerina values.
  * </p>
  * <p>
  * <i>Note: This is an internal API and may change in future versions.</i>
  * </p>
  * 
- * @since 0.995.0
+ * @since 1.1.0
  */
-public interface RefValue extends SimpleValue, BRefValue {
+public interface SimpleValue extends BValue {
 
 }

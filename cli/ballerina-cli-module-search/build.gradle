@@ -68,6 +68,7 @@ dependencies {
     interopImports project(':ballerina-system')
     interopImports project(':ballerina-task')
     interopImports project(':ballerina-time')
+    interopImports project(':ballerina-reflect')
     interopImports project(':ballerina-http')
 
     implementation project(':ballerina-lang')

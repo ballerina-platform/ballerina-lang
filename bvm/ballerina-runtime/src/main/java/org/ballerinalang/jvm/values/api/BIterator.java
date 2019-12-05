@@ -15,21 +15,31 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.jvm.values;
-
-import org.ballerinalang.jvm.values.api.BCollection;
+package org.ballerinalang.jvm.values.api;
 
 /**
  * <p>
- * {@code {@link CollectionValue}} represents a collection in Ballerina.
- * </p>
- * <p>
- * <i>Note: This is an internal API and may change in future versions.</i>
+ * Represents an iterator of a Ballerina {@code {@link BCollection}}.
  * </p>
  * 
- * @since 0.995.0
+ * @param <T> The type of elements returned by this iterator
+ * @since 1.1.0
  */
-public interface CollectionValue extends BCollection {
+public interface BIterator<T> extends BRefValue {
 
-    IteratorValue getIterator();
+    /**
+     * Returns {@code true} if the iteration has more elements.
+     * (In other words, returns {@code true} if {@link #next} would
+     * return an element rather than throwing an exception.)
+     *
+     * @return {@code true} if the iteration has more elements
+     */
+    boolean hasNext();
+
+    /**
+     * Returns the next element in the iteration.
+     *
+     * @return the next element in the iteration
+     */
+    T next();
 }
