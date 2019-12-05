@@ -84,10 +84,14 @@ for %%x in (%*) do (
    set "argValue[!argCount!]=%%~x"
 )
 
-set /a counter=1
 for /l %%i in (1, 1, %argCount%) do (
-   set /a counter=!counter!+1
-   if "!argValue[%%i]!"=="--debug" call set BAL_JAVA_DEBUG=%%!counter!
+   if "!argValue[%%i]!"=="test" (
+      set /a counter=1
+      for /l %%j in (1, 1, %argCount%) do (
+         set /a counter=!counter!+1
+         if "!argValue[%%j]!"=="--debug" call set BAL_JAVA_DEBUG=%%!counter!
+      )
+   )
 )
 
 if defined BAL_JAVA_DEBUG goto commandDebug

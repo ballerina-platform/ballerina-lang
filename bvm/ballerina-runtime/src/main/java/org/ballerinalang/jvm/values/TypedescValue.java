@@ -17,7 +17,6 @@
  */
 package org.ballerinalang.jvm.values;
 
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.values.api.BTypedesc;
@@ -58,7 +57,7 @@ public class TypedescValue implements RefValue, BTypedesc {
     }
 
     @Override
-    public String stringValue(Strand strand) {
+    public String stringValue() {
         return "typedesc " + describingType.toString();
     }
 

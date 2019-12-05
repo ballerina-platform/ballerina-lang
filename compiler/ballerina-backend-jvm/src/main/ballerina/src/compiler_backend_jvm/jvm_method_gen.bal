@@ -117,9 +117,11 @@ function genJMethodForBFunc(bir:Function func,
     // set channel details to strand.
     // these channel info is required to notify datachannels, when there is a panic
     // we cannot set this during strand creation, because function call do not have this info.
-    mv.visitVarInsn(ALOAD, localVarOffset);
-    loadChannelDetails(mv, func.workerChannels);
-    mv.visitMethodInsn(INVOKEVIRTUAL, STRAND, "updateChannelDetails", io:sprintf("([L%s;)V", CHANNEL_DETAILS), false);
+    if (func.workerChannels.length() > 0) {
+        mv.visitVarInsn(ALOAD, localVarOffset);
+        loadChannelDetails(mv, func.workerChannels);
+        mv.visitMethodInsn(INVOKEVIRTUAL, STRAND, "updateChannelDetails", io:sprintf("([L%s;)V", CHANNEL_DETAILS), false);
+    }
 
     // panic if this strand is cancelled
     checkStrandCancelled(mv, localVarOffset);
@@ -134,6 +136,11 @@ function genJMethodForBFunc(bir:Function func,
         }
         k += 1;
     }
+
+    bir:VariableDcl varDcl = getVariableDcl(localVars[0]);
+    returnVarRefIndex = indexMap.getIndex(varDcl);
+    bir:BType returnType = <bir:BType> func.typeValue?.retType;
+    genDefaultValue(mv, returnType, returnVarRefIndex);
 
     bir:VariableDcl stateVar = { typeValue: "string", //should  be javaInt
                                  name: { value: "state" },
@@ -150,11 +157,6 @@ function genJMethodForBFunc(bir:Function func,
     jvm:Label varinitLable = labelGen.getLabel(funcName + "varinit");
     mv.visitLabel(varinitLable);
 
-    bir:VariableDcl varDcl = getVariableDcl(localVars[0]);
-    returnVarRefIndex = indexMap.getIndex(varDcl);
-    bir:BType returnType = <bir:BType> func.typeValue?.retType;
-    genDefaultValue(mv, returnType, returnVarRefIndex);
-
     // uncomment to test yield
     // mv.visitFieldInsn(GETSTATIC, className, "i", "I");
     // mv.visitInsn(ICONST_1);
@@ -168,14 +170,17 @@ function genJMethodForBFunc(bir:Function func,
     int[] states = [];
 
     int i = 0;
+    int caseIndex = 0;
     while (i < basicBlocks.length()) {
         bir:BasicBlock bb = getBasicBlock(basicBlocks[i]);
         if(i == 0){
-            lables[i] = labelGen.getLabel(funcName + bb.id.value);
-        } else {
-            lables[i] = labelGen.getLabel(funcName + bb.id.value + "beforeTerm");
+            lables[caseIndex] = labelGen.getLabel(funcName + bb.id.value);
+            states[caseIndex] = caseIndex;
+            caseIndex += 1;
         }
-        states[i] = i;
+        lables[caseIndex] = labelGen.getLabel(funcName + bb.id.value + "beforeTerm");
+        states[caseIndex] = caseIndex;
+        caseIndex += 1;
         i = i + 1;
     }
 
@@ -681,6 +686,8 @@ function generateBasicBlocks(jvm:MethodVisitor mv, bir:BasicBlock?[] basicBlocks
         currentEE = errorEntries[errorEntryCnt];
     }
 
+    int caseIndex = 0;
+
     while (j < basicBlocks.length()) {
         bir:BasicBlock bb = getBasicBlock(basicBlocks[j]);
         string currentBBName = io:sprintf("%s", bb.id.value);
@@ -688,6 +695,12 @@ function generateBasicBlocks(jvm:MethodVisitor mv, bir:BasicBlock?[] basicBlocks
         // create jvm label
         jvm:Label bbLabel = labelGen.getLabel(funcName + bb.id.value);
         mv.visitLabel(bbLabel);
+        if (j == 0 && !isArg) {
+            // SIPUSH range is (-32768 to 32767) so if the state index goes beyond that, need to use visitLdcInsn
+            mv.visitIntInsn(SIPUSH, caseIndex);
+            mv.visitVarInsn(ISTORE, stateVarIndex);
+            caseIndex += 1;
+        }
 
         string serviceOrConnectorName = serviceName;
         if (isObserved && j == 0) {
@@ -826,8 +839,9 @@ function generateBasicBlocks(jvm:MethodVisitor mv, bir:BasicBlock?[] basicBlocks
         bir:Terminator terminator = bb.terminator;
         if (!isArg) {
             // SIPUSH range is (-32768 to 32767) so if the state index goes beyond that, need to use visitLdcInsn
-            mv.visitIntInsn(SIPUSH, j);
+            mv.visitIntInsn(SIPUSH, caseIndex);
             mv.visitVarInsn(ISTORE, stateVarIndex);
+            caseIndex += 1;
         }
 
         // process terminator
