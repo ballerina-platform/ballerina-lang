@@ -55,6 +55,20 @@ function testByteDowncastFromInt() returns boolean {
     return b0 == 0 && b178 == 178 && b255 == 255;
 }
 
+function testByteArrayDowncastFromIntArray() returns boolean {
+    byte b0 = 0;
+    byte[] barr = [b0, 1, globalByte255];
+    int[] iarr = barr;
+
+    byte b178 = 178;
+    iarr.push(b178);
+
+    byte[] barr2 = <byte[]> iarr;
+
+    return barr2.length() == 4 &&
+            barr2[0] == 0 && barr2[1] == <byte> 1 && barr2[2] == globalByte255 && barr2[3] == b178;
+}
+
 function testBytesInIntArray() returns boolean {
     byte b0 = 0;
     byte b178 = 178;

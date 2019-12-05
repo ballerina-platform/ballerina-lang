@@ -66,6 +66,7 @@ public class ByteAsIntTest {
         return new Object[][]{
                 {"testByteAsInt"},
                 {"testByteDowncastFromInt"},
+                {"testByteArrayDowncastFromIntArray"},
                 {"testBytesInIntArray"},
                 {"testBytesInIntMap"},
                 {"testByteStructuredTypeAsIntStructuredType"}
