@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.stdlib.socket.endpoint.udp.client;
+package org.ballerinalang.stdlib.socket.endpoint.udp;
 
 import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.values.ArrayValue;
@@ -52,8 +52,8 @@ import static org.ballerinalang.stdlib.socket.SocketConstants.SOCKET_SERVICE;
  *
  * @since 1.1.0
  */
-public class Utils {
-    private static final Logger log = LoggerFactory.getLogger(Utils.class);
+public class ClientActions {
+    private static final Logger log = LoggerFactory.getLogger(ClientActions.class);
 
     public static Object close(ObjectValue client) {
         final DatagramChannel socketChannel = (DatagramChannel) client.getNativeData(SOCKET_KEY);

@@ -49,8 +49,8 @@ import static org.ballerinalang.stdlib.socket.SocketConstants.READ_TIMEOUT;
  *
  * @since 1.1.0
  */
-public class ServerUtils {
-    private static final Logger log = LoggerFactory.getLogger(ServerUtils.class);
+public class ServerActions {
+    private static final Logger log = LoggerFactory.getLogger(ServerActions.class);
 
     public static Object initServer(ObjectValue listener, long port, MapValue<String, Object> config) {
         try {

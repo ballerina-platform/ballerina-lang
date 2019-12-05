@@ -91,23 +91,23 @@ public type UdpClientConfig record {|
 function initUdpClientEndpoint(UdpClient udpClient, Address? localAddress, UdpClientConfig config) returns error? =
 @java:Method {
     name: "initEndpoint",
-    class: "org.ballerinalang.stdlib.socket.endpoint.udp.client.Utils"
+    class: "org.ballerinalang.stdlib.socket.endpoint.udp.ClientActions"
 } external;
 
 function closeUdpClient(UdpClient udpClient) returns Error? =
 @java:Method {
     name: "close",
-    class: "org.ballerinalang.stdlib.socket.endpoint.udp.client.Utils"
+    class: "org.ballerinalang.stdlib.socket.endpoint.udp.ClientActions"
 } external;
 
 function externReceiveFrom(UdpClient udpClient, int length) returns [byte[], int, Address]|ReadTimedOutError =
 @java:Method {
     name: "receiveFrom",
-    class: "org.ballerinalang.stdlib.socket.endpoint.udp.client.Utils"
+    class: "org.ballerinalang.stdlib.socket.endpoint.udp.ClientActions"
 } external;
 
 function udpClientSendTo(UdpClient udpClient, byte[] content, Address address) returns int|Error =
 @java:Method {
     name: "sendTo",
-    class: "org.ballerinalang.stdlib.socket.endpoint.udp.client.Utils"
+    class: "org.ballerinalang.stdlib.socket.endpoint.udp.ClientActions"
 } external;

@@ -53,8 +53,8 @@ import static java.nio.channels.SelectionKey.OP_READ;
  *
  * @since 1.1.0
  */
-public class ClientUtils {
-    private static final Logger log = LoggerFactory.getLogger(ClientUtils.class);
+public class ClientActions {
+    private static final Logger log = LoggerFactory.getLogger(ClientActions.class);
 
     public static Object initEndpoint(ObjectValue client, MapValue<String, Object> config) {
         Object returnValue = null;
