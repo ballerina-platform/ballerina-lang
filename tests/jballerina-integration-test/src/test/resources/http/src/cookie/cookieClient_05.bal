@@ -36,9 +36,12 @@ public function main() {
         var response = cookieClientEndpoint->get("/cookie/cookieBackend", req);
     }
     _ = wait {w1, w2, w3, w4};
-    http:Cookie[] cookies = cookieClientEndpoint.getCookieStore().getAllCookies();
-    io:println(cookies.length());
-    foreach var item in cookies {
-        io:println(item.name);
+    http:CookieStore? myCookieStore = cookieClientEndpoint.getCookieStore();
+    if (myCookieStore is http:CookieStore) {
+        http:Cookie[] cookies = myCookieStore.getAllCookies();
+        io:println(cookies.length());
+        foreach var item in cookies {
+            io:println(item.name);
+        }
     }
 }

@@ -23,9 +23,10 @@ public function main() {
     // Server sends the session cookies in the response for the first request.
     var response = cookieClientEndpoint->get("/cookie/cookieBackend", req);
     // Removes a session cookie.
-    http:CookieStore myCookieStore = new;
-    myCookieStore = cookieClientEndpoint.getCookieStore();
-    boolean isRemoved = myCookieStore.removeCookie("SID001", "localhost:9253", "/cookie" );
+    http:CookieStore? myCookieStore = cookieClientEndpoint.getCookieStore();
+    if (myCookieStore is http:CookieStore) {
+        boolean isRemoved = myCookieStore.removeCookie("SID001", "localhost:9253", "/cookie");
+    }
     // Sends a request again after one session cookie is removed.
     response = cookieClientEndpoint->get("/cookie/cookieBackend", req);
     if (response is http:Response) {

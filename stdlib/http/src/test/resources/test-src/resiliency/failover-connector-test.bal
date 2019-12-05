@@ -79,13 +79,13 @@ public type MockClient client object {
     public string url = "";
     public http:ClientConfiguration config = {};
     public http:Client httpClient;
-    public http:CookieStore cookieStore;
+    public http:CookieStore? cookieStore = ();
 
     public function __init(string url, http:ClientConfiguration? config = ()) {
         http:Client simpleClient = new(url);
         self.url = url;
         self.config = config ?: {};
-        self.cookieStore = new;
+        self.cookieStore = ();
         self.httpClient = simpleClient;
     }
 
@@ -176,7 +176,7 @@ public type MockClient client object {
     public remote function rejectPromise(http:PushPromise promise) {
     }
 
-    public function getCookieStore() returns http:CookieStore {
+    public function getCookieStore() returns http:CookieStore? {
         return self.cookieStore;
     }
 };

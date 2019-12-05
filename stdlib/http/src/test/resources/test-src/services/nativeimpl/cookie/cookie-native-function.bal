@@ -157,29 +157,34 @@ function testAddCookiesConcurrentlyToCookieStore() returns @tainted http:Cookie[
     cookie1.domain = "google.com";
     http:Cookie[] cookiesToadd = [cookie1];
     http:Client cookieClientEndpoint = new("http://google.com", { cookieConfig: { enabled: true } } );
+    http:CookieStore? cookieStore = cookieClientEndpoint.getCookieStore();
     var cookieConfigVal = cookieClientEndpoint.config.cookieConfig;
     worker w1 {
-        if (cookieConfigVal is http:CookieConfig) {
-            cookieClientEndpoint.getCookieStore().addCookies(cookiesToadd, cookieConfigVal, "http://google.com", "/sample");
+        if (cookieConfigVal is http:CookieConfig && cookieStore is http:CookieStore) {
+            cookieStore.addCookies(cookiesToadd, cookieConfigVal, "http://google.com", "/sample");
         }
     }
     worker w2 {
-        if (cookieConfigVal is http:CookieConfig) {
-            cookieClientEndpoint.getCookieStore().addCookies(cookiesToadd, cookieConfigVal, "http://google.com", "/sample");
+        if (cookieConfigVal is http:CookieConfig && cookieStore is http:CookieStore) {
+            cookieStore.addCookies(cookiesToadd, cookieConfigVal, "http://google.com", "/sample");
         }
     }
     worker w3 {
-        if (cookieConfigVal is http:CookieConfig) {
-            cookieClientEndpoint.getCookieStore().addCookies(cookiesToadd, cookieConfigVal, "http://google.com", "/sample");
+        if (cookieConfigVal is http:CookieConfig && cookieStore is http:CookieStore) {
+            cookieStore.addCookies(cookiesToadd, cookieConfigVal, "http://google.com", "/sample");
         }
     }
     worker w4 {
-        if (cookieConfigVal is http:CookieConfig) {
-            cookieClientEndpoint.getCookieStore().addCookies(cookiesToadd, cookieConfigVal, "http://google.com", "/sample");
+        if (cookieConfigVal is http:CookieConfig && cookieStore is http:CookieStore) {
+            cookieStore.addCookies(cookiesToadd, cookieConfigVal, "http://google.com", "/sample");
         }
     }
     _ = wait {w1, w2, w3, w4};
-    return cookieClientEndpoint.getCookieStore().getAllCookies();
+    http:Cookie[] cookies = [];
+    if (cookieStore is http:CookieStore) {
+        cookies = cookieStore.getAllCookies();
+    }
+    return cookies;
 }
 
 function testGetCookiesFromCookieStore1() returns @tainted http:Cookie[] {

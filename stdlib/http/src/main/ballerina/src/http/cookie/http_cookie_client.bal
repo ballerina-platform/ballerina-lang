@@ -27,7 +27,7 @@ public type CookieClient object {
     public ClientConfiguration config;
     public CookieConfig cookieConfig;
     public HttpClient httpClient;
-    public CookieStore cookieStore;
+    public CookieStore? cookieStore = ();
 
     # Creates a cookie client with the given configurations.
     #
@@ -36,12 +36,14 @@ public type CookieClient object {
     # + cookieConfig - Configurations associated with the cookies
     # + httpClient - HTTP client for outbound HTTP requests
     # + cookieStore - Stores the cookies of the client
-     public function __init(string url, ClientConfiguration config, CookieConfig cookieConfig, HttpClient httpClient, CookieStore cookieStore) {
+     public function __init(string url, ClientConfiguration config, CookieConfig cookieConfig, HttpClient httpClient, CookieStore? cookieStore) {
          self.url = url;
          self.config = config;
          self.cookieConfig = cookieConfig;
          self.httpClient = httpClient;
-         self.cookieStore = cookieStore;
+         if (cookieStore is CookieStore) {
+             self.cookieStore = cookieStore;
+         }
     }
 
     # The `CookieClient.get()` function wraps the underlying HTTP remote functions in a way to provide
@@ -225,8 +227,11 @@ public type CookieClient object {
 };
 
 // Gets the relevant cookies from the cookieStore and adds them to the request.
-function addStoredCookiesToRequest(string url, string path, CookieStore cookieStore, Request request) {
-    Cookie[] cookiesToSend = cookieStore.getCookies(url, path);
+function addStoredCookiesToRequest(string url, string path, CookieStore? cookieStore, Request request) {
+    Cookie[] cookiesToSend = [];
+    if (cookieStore is CookieStore) {
+        cookiesToSend = cookieStore.getCookies(url, path);
+    }
     if (cookiesToSend.length() != 0) {
         // The client has requested to this url before and has stored cookies.
         request.addCookies(cookiesToSend);
@@ -234,8 +239,8 @@ function addStoredCookiesToRequest(string url, string path, CookieStore cookieSt
 }
 
 // Gets the cookies from the inbound response, adds them to the cookies store, and returns the response.
-function addCookiesInResponseToStore(Response|ClientError inboundResponse, @tainted CookieStore cookieStore, CookieConfig cookieConfig, string url, string path) returns Response|ClientError {
-    if (inboundResponse is Response) {
+function addCookiesInResponseToStore(Response|ClientError inboundResponse, @tainted CookieStore? cookieStore, CookieConfig cookieConfig, string url, string path) returns Response|ClientError {
+    if (cookieStore is CookieStore && inboundResponse is Response) {
         Cookie[] cookiesInResponse = inboundResponse.getCookies();
         cookieStore.addCookies(cookiesInResponse, cookieConfig, url, path );
     }

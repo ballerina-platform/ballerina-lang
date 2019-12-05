@@ -51,7 +51,7 @@ public type CookieStore object {
                 return;
             }
             if (cookie.isPersistent()) {
-                if (!cookieConfig.enablePersistent) {
+                if (!cookieConfig.enablePersistence) {
                     return;
                 }
                 addPersistentCookie(identicalCookie, cookie, url, self);
@@ -97,11 +97,11 @@ public type CookieStore object {
                 }
                 if (cookie.hostOnly == true) {
                     if (cookie.domain == domain && checkPath(path, cookie)) {
-                        cookiesToReturn[cookiesToReturn.length()] = cookie;
+                        cookiesToReturn.push(cookie);
                     }
                 } else {
                     if ((domain.endsWith("." + cookie.domain) || cookie.domain == domain ) && checkPath(path, cookie)) {
-                        cookiesToReturn[cookiesToReturn.length()] = cookie;
+                        cookiesToReturn.push(cookie);
                     }
                 }
             }
@@ -133,7 +133,7 @@ public type CookieStore object {
                          self.allSessionCookies[j] = self.allSessionCookies[j + 1];
                          j = j + 1;
                      }
-                     Cookie lastCookie = self.allSessionCookies.pop();
+                     _ = self.allSessionCookies.pop();
                      return true;
                  }
                  k = k + 1;
@@ -152,31 +152,32 @@ public type CookieStore object {
 
 const string HTTP = "http";
 const string HTTPS = "https";
+const string URL_TYPE_1 = "https://www.";
+const string URL_TYPE_2 = "http://www.";
+const string URL_TYPE_3 = "http://";
+const string URL_TYPE_4 = "https://";
 
 // Extracts domain name from the request URL.
 function getDomain(string url) returns string {
     string domain = url;
-    string urlType1 = "https://www.";
-    string urlType2 = "http://www.";
-    string urlType3 = "http://";
-    string urlType4 = "https://";
-    if (url.startsWith(urlType1)) {
-        domain = url.substring(urlType1.length(), url.length());
-    }
-    else if (url.startsWith(urlType2)) {
-        domain = url.substring(urlType2.length(), url.length());
-    }
-    else if (url.startsWith(urlType3)) {
-        domain = url.substring(urlType3.length(), url.length());
-    }
-    else if (url.startsWith(urlType4)) {
-        domain = url.substring(urlType4.length(), url.length());
+    if (url.startsWith(URL_TYPE_1)) {
+        domain = url.substring(URL_TYPE_1.length(), url.length());
+    } else if (url.startsWith(URL_TYPE_2)) {
+        domain = url.substring(URL_TYPE_2.length(), url.length());
+    } else if (url.startsWith(URL_TYPE_3)) {
+        domain = url.substring(URL_TYPE_3.length(), url.length());
+    } else if (url.startsWith(URL_TYPE_4)) {
+        domain = url.substring(URL_TYPE_4.length(), url.length());
     }
     return domain;
 }
 
-// Returns the identical cookie for a given cookie if one exists.
-// Identical cookie is the cookie, which has the same name, domain and path as the given cookie.
+# Gets the identical cookie for a given cookie if one exists.
+# Identical cookie is the cookie, which has the same name, domain and path as the given cookie.
+#
+# + cookieToCompare - Cookie to be compared
+# + allSessionCookies - Array which stores all the session cookies
+# + return - Identical cookie if one exists, else `()`
 function getIdenticalCookie(Cookie cookieToCompare, Cookie[] allSessionCookies) returns Cookie? {
     // Searches for the session cookies.
     int k = 0 ;
@@ -259,11 +260,11 @@ function isExpiresAttributeValid(Cookie cookie) returns boolean {
 function addPersistentCookie(Cookie? identicalCookie, Cookie cookie, string url, CookieStore cookieStore) {
     if (identicalCookie is Cookie) {
         if (isExpired(cookie)) {
-             boolean isRemoved = cookieStore.removeCookie(identicalCookie.name, identicalCookie.domain, identicalCookie.path);
+            _ = cookieStore.removeCookie(identicalCookie.name, identicalCookie.domain, identicalCookie.path);
         } else {
             // Removes the old cookie and adds the new persistent cookie.
-            if ((identicalCookie.httpOnly == true && url.startsWith(HTTP)) || identicalCookie.httpOnly == false) {
-                boolean isRemoved = cookieStore.removeCookie(identicalCookie.name, identicalCookie.domain, identicalCookie.path);
+            if ((identicalCookie.httpOnly && url.startsWith(HTTP)) || identicalCookie.httpOnly == false) {
+                _ = cookieStore.removeCookie(identicalCookie.name, identicalCookie.domain, identicalCookie.path);
                 cookie.creationTime = identicalCookie.creationTime;
                 cookie.lastAccessedTime = time:currentTime();
                 // TODO:insert into the database.
@@ -304,16 +305,16 @@ function isExpired(Cookie cookie) returns boolean {
 function addSessionCookie(Cookie? identicalCookie, Cookie cookie, string url, CookieStore cookieStore) {
     if (identicalCookie is Cookie) {
         // Removes the old cookie and adds the new session cookie.
-        if ((identicalCookie.httpOnly == true && url.startsWith(HTTP)) || identicalCookie.httpOnly == false) {
-            boolean isRemoved = cookieStore.removeCookie(identicalCookie.name, identicalCookie.domain, identicalCookie.path);
+        if ((identicalCookie.httpOnly && url.startsWith(HTTP)) || identicalCookie.httpOnly == false) {
+            _ = cookieStore.removeCookie(identicalCookie.name, identicalCookie.domain, identicalCookie.path);
             cookie.creationTime = identicalCookie.creationTime;
             cookie.lastAccessedTime = time:currentTime();
-            cookieStore.allSessionCookies[cookieStore.allSessionCookies.length()] = cookie;
+            cookieStore.allSessionCookies.push(cookie);
        }
     } else {
         // Adds the session cookie.
         cookie.creationTime = time:currentTime();
         cookie.lastAccessedTime = time:currentTime();
-        cookieStore.allSessionCookies[cookieStore.allSessionCookies.length()] = cookie;
+        cookieStore.allSessionCookies.push(cookie);
     }
 }

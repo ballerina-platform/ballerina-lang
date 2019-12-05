@@ -35,7 +35,7 @@ public type Client client object {
     public string url;
     public ClientConfiguration config = {};
     public HttpClient httpClient;
-    public CookieStore cookieStore;
+    public CookieStore? cookieStore = ();
 
     # Gets invoked to initialize the client. During initialization, the configurations provided through the `config`
     # record is used to determine which type of additional behaviours are added to the endpoint (e.g., caching,
@@ -47,7 +47,12 @@ public type Client client object {
     public function __init(string url, public ClientConfiguration? config = ()) {
         self.config = config ?: {};
         self.url = url;
-        self.cookieStore = new;
+        var cookieConfigVal = self.config.cookieConfig;
+        if (cookieConfigVal is CookieConfig) {
+            if (cookieConfigVal.enabled) {
+                self.cookieStore = new;
+            }
+        }
         var result = initialize(url, self.config, self.cookieStore);
         if (result is error) {
             panic result;
@@ -211,7 +216,7 @@ public type Client client object {
     # Retrieves the cookie store of the client.
     #
     # + return - The cookie store related to the client
-    public function getCookieStore() returns CookieStore {
+    public function getCookieStore() returns CookieStore? {
         return self.cookieStore;
     }
 };
@@ -255,7 +260,7 @@ public type ClientConfiguration record {|
     OutboundAuthConfig? auth = ();
     CircuitBreakerConfig? circuitBreaker = ();
     RetryConfig? retryConfig = ();
-    CookieConfig? cookieConfig = {};
+    CookieConfig? cookieConfig = ();
 |};
 
 # Provides settings related to HTTP/1.x protocol.
@@ -365,7 +370,7 @@ public type OutboundAuthConfig record {|
 # + maxCookiesPerDomain - Maximum number of cookies per domain, which is 50
 # + maxTotalCookieCount - Maximum number of total cookies allowed to be stored in cookie store, which is 3000
 # + blockThirdPartyCookies - User can block cookies from third party responses and refuse to send cookies for third party requests, if needed
-# + enablePersistent - Users are provided with a mechanism for enabling or disabling persistent cookies, which are stored until a specific expiration date.
+# + enablePersistence - Users are provided with a mechanism for enabling or disabling persistent cookies, which are stored until a specific expiration date.
 #                     If false, only session cookies are used
 public type CookieConfig record {|
      boolean enabled = false;
@@ -373,10 +378,10 @@ public type CookieConfig record {|
      int maxCookiesPerDomain = 50;
      int maxTotalCookieCount = 3000;
      boolean blockThirdPartyCookies = true;
-     boolean enablePersistent = false;
+     boolean enablePersistence = false;
 |};
 
-function initialize(string serviceUrl, ClientConfiguration config, CookieStore cookieStore) returns HttpClient|error {
+function initialize(string serviceUrl, ClientConfiguration config, CookieStore? cookieStore) returns HttpClient|error {
     boolean httpClientRequired = false;
     string url = serviceUrl;
     if (url.endsWith("/")) {
@@ -404,7 +409,7 @@ function initialize(string serviceUrl, ClientConfiguration config, CookieStore c
     }
 }
 
-function createRedirectClient(string url, ClientConfiguration configuration, CookieStore cookieStore) returns HttpClient|ClientError {
+function createRedirectClient(string url, ClientConfiguration configuration, CookieStore? cookieStore) returns HttpClient|ClientError {
     var redirectConfig = configuration.followRedirects;
     if (redirectConfig is FollowRedirects) {
         if (redirectConfig.enabled) {
@@ -422,7 +427,7 @@ function createRedirectClient(string url, ClientConfiguration configuration, Coo
     }
 }
 
-function checkForRetry(string url, ClientConfiguration config, CookieStore cookieStore) returns HttpClient|ClientError {
+function checkForRetry(string url, ClientConfiguration config, CookieStore? cookieStore) returns HttpClient|ClientError {
     var retryConfigVal = config.retryConfig;
     if (retryConfigVal is RetryConfig) {
         return createRetryClient(url, config, cookieStore);
@@ -431,7 +436,7 @@ function checkForRetry(string url, ClientConfiguration config, CookieStore cooki
     }
 }
 
-function createCircuitBreakerClient(string uri, ClientConfiguration configuration, CookieStore cookieStore) returns HttpClient|ClientError {
+function createCircuitBreakerClient(string uri, ClientConfiguration configuration, CookieStore? cookieStore) returns HttpClient|ClientError {
     HttpClient cbHttpClient;
     var cbConfig = configuration.circuitBreaker;
     if (cbConfig is CircuitBreakerConfig) {
@@ -483,7 +488,7 @@ function createCircuitBreakerClient(string uri, ClientConfiguration configuratio
     }
 }
 
-function createRetryClient(string url, ClientConfiguration configuration, CookieStore cookieStore) returns HttpClient|ClientError {
+function createRetryClient(string url, ClientConfiguration configuration, CookieStore? cookieStore) returns HttpClient|ClientError {
     var retryConfig = configuration.retryConfig;
     if (retryConfig is RetryConfig) {
         boolean[] statusCodes = populateErrorCodeIndex(retryConfig.statusCodes);
@@ -497,15 +502,13 @@ function createRetryClient(string url, ClientConfiguration configuration, Cookie
         var httpCookieClient = createCookieClient(url, configuration, cookieStore);
         if (httpCookieClient is HttpClient) {
             return new RetryClient(url, configuration, retryInferredConfig, httpCookieClient);
-        } else {
-            return httpCookieClient;
         }
-    } else {
-        return createCookieClient(url, configuration, cookieStore);
+        return httpCookieClient;
     }
+    return createCookieClient(url, configuration, cookieStore);
 }
 
-function createCookieClient(string url, ClientConfiguration configuration, CookieStore cookieStore) returns HttpClient|ClientError {
+function createCookieClient(string url, ClientConfiguration configuration, CookieStore? cookieStore) returns HttpClient|ClientError {
     var cookieConfigVal = configuration.cookieConfig;
     if (cookieConfigVal is CookieConfig) {
         if (!cookieConfigVal.enabled) {

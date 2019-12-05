@@ -18,7 +18,7 @@ import ballerina/http;
 import ballerina/io;
 
 public function main() {
-    http:Client cookieClientEndpoint = new ("http://localhost:9253", { cookieConfig: {enabled: true, enablePersistent:true}});
+    http:Client cookieClientEndpoint = new ("http://localhost:9253", { cookieConfig: {enabled: true, enablePersistence:true}});
     http:Request req = new;
     // Server sends the session cookies in the response for the first request.
     var response = cookieClientEndpoint->get("/cookie/cookieBackend_3", req);
