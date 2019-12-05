@@ -55,7 +55,7 @@ public abstract class AbstractTokenTraverser implements TokenTraverser {
         }
     }
 
-    private static String getNCharLengthEmptyLine(int n) {
+    protected static String getNCharLengthEmptyLine(int n) {
         return String.join("", Collections.nCopies(n, " "));
     }
 
