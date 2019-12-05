@@ -131,7 +131,7 @@ public class URITemplateParser<DataType, InboundMgsType> {
         } else if (maxIndex > pointerIndex && segment.charAt(pointerIndex + 1) == URIUtil.DOT_SEGMENT) {
             node = new DotSuffixExpression<>(createElement(), expression);
         } else {
-            throw new URITemplateException("Template expression: " + segment + " not implemented");
+            throw new URITemplateException("Template expression: " + segment + " is not implemented");
         }
 
         if (expression.length() < 1) {

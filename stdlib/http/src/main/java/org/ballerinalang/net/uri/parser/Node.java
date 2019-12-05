@@ -130,7 +130,6 @@ public abstract class Node<DataType, InboundMsgType> {
 
     abstract char getFirstCharacter();
 
-    @SuppressWarnings("unchecked")
     private Node<DataType, InboundMsgType> getMatchingChildNode(Node<DataType, InboundMsgType> prospectiveChild,
             List<Node<DataType, InboundMsgType>> existingChildren) throws URITemplateException {
         boolean dotSuffixExpression = prospectiveChild instanceof DotSuffixExpression;
@@ -157,6 +156,7 @@ public abstract class Node<DataType, InboundMsgType> {
         return null;
     }
 
+    @SuppressWarnings("unchecked")
     private Node<DataType, InboundMsgType> getExistingChildNode(Node<DataType, InboundMsgType> prospectiveChild,
                                                                 Node<DataType, InboundMsgType> existingChild)
             throws URITemplateException {
@@ -171,7 +171,7 @@ public abstract class Node<DataType, InboundMsgType> {
                 return 0;
             }
             return node.getToken().length() + 5;
-        } else if (node instanceof DotSuffixExpression){
+        } else if (node instanceof DotSuffixExpression) {
             return 2;
         } else {
             return 1;
