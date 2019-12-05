@@ -62,6 +62,7 @@ dependencies {
     implementation project(':ballerina-runtime')
     implementation project(':ballerina-test-utils')
     implementation project(':ballerina-time')
+    implementation project(':ballerina-java')
 
     testCompile project(path: ':ballerina-test-common', configuration: 'tests')
     testCompile project(':ballerina-io')
