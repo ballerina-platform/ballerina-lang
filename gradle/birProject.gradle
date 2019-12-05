@@ -170,11 +170,20 @@ def getJarCreationCommand(it, generatedBirDir, mapPath, jarsToBeLoaded) {
     return commands
 }
 
+/*
+ This method generates a jar file which has only the MANIFEST file with a Class-Path entry to have all the jars
+ that will be passed with java cmd as class path entries. This is added to avoid cmd too long issue that can come
+ in windows build environment.
+*/
 static def createClassPathJar(outputName, jarsToBeLoaded) {
     Manifest manifest = new Manifest()
     manifest.getMainAttributes().put(Attributes.Name.MANIFEST_VERSION, "1.0");
-    manifest.getMainAttributes().put(Attributes.Name.CLASS_PATH,
-            jarsToBeLoaded.stream().map{f -> f.toString()}.collect(Collectors.joining(" ")))
+    String classPathEntry = "";
+    for (String jarFileLocation : jarsToBeLoaded) {
+        File jarFile = new File(jarFileLocation);
+        classPathEntry = classPathEntry.concat(" ").concat(jarFile.getCanonicalPath());
+    }
+    manifest.getMainAttributes().put(Attributes.Name.CLASS_PATH, classPathEntry);
     File classpathJarFile = new File(outputName)
     classpathJarFile.parentFile.mkdir()
     JarOutputStream jarOutputStream = new JarOutputStream(new FileOutputStream(classpathJarFile), manifest)
