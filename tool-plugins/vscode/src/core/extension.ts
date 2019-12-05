@@ -129,8 +129,8 @@ export class BallerinaExtension {
                 log(`Plugin version: ${pluginVersion}\nBallerina version: ${ballerinaVersion}`);
                 this.checkCompatibleVersion(pluginVersion, ballerinaVersion);
 
-                // versions less than 1.0.2 are incapable of handling cli commands for langserver and debug-adapter
-                this.isNewCLICmdSupported = this.compareVersions(ballerinaVersion, "1.0.3", true) >= 0;
+                // versions less than 1.1.0 are incapable of handling cli commands for langserver and debug-adapter
+                this.isNewCLICmdSupported = this.compareVersions(ballerinaVersion, "1.1.0", true) >= 0;
 
                 // if Home is found load Language Server.
                 let serverOptions:ServerOptions;
