@@ -1170,7 +1170,7 @@ public class Types {
         List<BField> fields = recordType.fields;
         BUnionType unionType = BUnionType.create(null);
 
-        if (recordType.restFieldType.tag != TypeTags.NONE) {
+        if (!recordType.sealed) {
             unionType.add(recordType.restFieldType);
         }
 
