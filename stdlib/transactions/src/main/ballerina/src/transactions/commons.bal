@@ -15,8 +15,8 @@
 // under the License.
 
 import ballerina/cache;
-import ballerina/log;
 import ballerina/http;
+import ballerina/log;
 import ballerina/system;
 import ballerina/task;
 import ballerina/time;
