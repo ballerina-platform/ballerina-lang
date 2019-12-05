@@ -1316,7 +1316,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 dlog.error(errorVariable.pos, DiagnosticCode.NO_NEW_VARIABLES_VAR_ASSIGNMENT);
                 return false;
             }
-            return validateErrorReasonMatchPatternSyntax(errorVariable, true);
+            return validateErrorReasonMatchPatternSyntax(errorVariable);
         }
 
         if (errorType.detailType.getKind() == TypeKind.RECORD) {
@@ -1338,7 +1338,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     }
 
     private boolean validateErrorVariable(BLangErrorVariable errorVariable, BErrorType errorType) {
-        if (!validateErrorReasonMatchPatternSyntax(errorVariable, false)) {
+        if (!validateErrorReasonMatchPatternSyntax(errorVariable)) {
             return false;
         }
 
@@ -1399,8 +1399,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         return true;
     }
 
-    // todo: warn parameter is a hack to fix patch compatibility by using dlog.warn, remove for minor release
-    private boolean validateErrorReasonMatchPatternSyntax(BLangErrorVariable errorVariable, boolean warn) {
+    private boolean validateErrorReasonMatchPatternSyntax(BLangErrorVariable errorVariable) {
         if (errorVariable.isInMatchStmt
                 && !errorVariable.reasonVarPrefixAvailable
                 && errorVariable.reasonMatchConst == null
@@ -1409,11 +1408,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             BSymbol reasonConst = symResolver.lookupSymbol(
                     this.env.enclEnv, names.fromString(errorVariable.reason.name.value), SymTag.CONSTANT);
             if (reasonConst == symTable.notFoundSymbol) {
-                if (warn) {
-                    dlog.warning(errorVariable.reason.pos, DiagnosticCode.INVALID_ERROR_REASON_BINDING_PATTERN,
-                            errorVariable.reason.name);
-                    return true;
-                }
                 dlog.error(errorVariable.reason.pos, DiagnosticCode.INVALID_ERROR_REASON_BINDING_PATTERN,
                         errorVariable.reason.name);
             } else {
