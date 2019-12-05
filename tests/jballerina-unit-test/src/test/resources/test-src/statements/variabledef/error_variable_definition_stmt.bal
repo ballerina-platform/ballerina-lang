@@ -173,3 +173,16 @@ function testIndirectErrorDestructuring() returns [string?, boolean, map<anydata
     var FooError(message=m, fatal=f, ...rest) = e;
     return [m, f, rest];
 }
+
+type SealedErrorDetail record {|
+    string message;
+    error cause?;
+|};
+
+type SealedError error<string, SealedErrorDetail>;
+
+function testSealedDetailDestructuring() returns [string, map<anydata|error>] {
+    SealedError e = error("sealed", message="Msg");
+    var error(reason, ...rest) = e;
+    return [reason, rest];
+}

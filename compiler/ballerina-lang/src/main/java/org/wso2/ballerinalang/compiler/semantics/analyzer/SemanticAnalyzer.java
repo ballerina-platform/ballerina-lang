@@ -1378,11 +1378,14 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             // Type of rest pattern is a map type where constraint type is,
             // union of keys whose values are not matched in error binding/match pattern.
             BTypeSymbol typeSymbol = createTypeSymbol(SymTag.TYPE);
-            BUnionType restFieldType = BUnionType.create(null, recordType.restFieldType);
+            BUnionType restFieldType = BUnionType.create(null);
+            if (!recordType.sealed) {
+                restFieldType.add(recordType.restFieldType);
+            }
             for (Map.Entry<String, BField> entry : fieldMap.entrySet()) {
                 if (!matchedDetailFields.contains(entry.getKey())) {
                     BType type = entry.getValue().getType();
-                    if (!type.equals(symTable.nilType)) {
+                    if (!types.isAssignable(type, restFieldType)) {
                         restFieldType.add(type);
                     }
                 }
