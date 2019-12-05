@@ -121,56 +121,7 @@ import static org.ballerinalang.mime.util.MimeConstants.MULTIPART_AS_PRIMARY_TYP
 import static org.ballerinalang.mime.util.MimeConstants.OCTET_STREAM;
 import static org.ballerinalang.mime.util.MimeConstants.REQUEST_ENTITY_FIELD;
 import static org.ballerinalang.mime.util.MimeConstants.RESPONSE_ENTITY_FIELD;
-import static org.ballerinalang.net.http.HttpConstants.ALWAYS;
-import static org.ballerinalang.net.http.HttpConstants.ANN_CONFIG_ATTR_COMPRESSION_CONTENT_TYPES;
-import static org.ballerinalang.net.http.HttpConstants.ANN_CONFIG_ATTR_COMPRESSION_ENABLE;
-import static org.ballerinalang.net.http.HttpConstants.ANN_CONFIG_ATTR_SSL_ENABLED_PROTOCOLS;
-import static org.ballerinalang.net.http.HttpConstants.AUTO;
-import static org.ballerinalang.net.http.HttpConstants.CONNECTION_MANAGER;
-import static org.ballerinalang.net.http.HttpConstants.CONNECTION_POOLING_MAX_ACTIVE_STREAMS_PER_CONNECTION;
-import static org.ballerinalang.net.http.HttpConstants.ENABLED_PROTOCOLS;
-import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_CERTIFICATE;
-import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_DISABLE_SSL;
-import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_HANDSHAKE_TIMEOUT;
-import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_KEY;
-import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_KEY_PASSWORD;
-import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_KEY_STORE;
-import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_OCSP_STAPLING;
-import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_PROTOCOLS;
-import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_SESSION_TIMEOUT;
-import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_TRUST_CERTIFICATES;
-import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_TRUST_STORE;
-import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_VALIDATE_CERT;
-import static org.ballerinalang.net.http.HttpConstants.FILE_PATH;
-import static org.ballerinalang.net.http.HttpConstants.HTTP_ERROR_CODE;
-import static org.ballerinalang.net.http.HttpConstants.HTTP_ERROR_DETAIL_RECORD;
-import static org.ballerinalang.net.http.HttpConstants.HTTP_ERROR_MESSAGE;
-import static org.ballerinalang.net.http.HttpConstants.HTTP_MODULE_VERSION;
-import static org.ballerinalang.net.http.HttpConstants.LISTENER_CONFIGURATION;
-import static org.ballerinalang.net.http.HttpConstants.MODULE;
-import static org.ballerinalang.net.http.HttpConstants.MUTUAL_SSL_HANDSHAKE_RECORD;
-import static org.ballerinalang.net.http.HttpConstants.NEVER;
-import static org.ballerinalang.net.http.HttpConstants.PACKAGE;
-import static org.ballerinalang.net.http.HttpConstants.PASSWORD;
-import static org.ballerinalang.net.http.HttpConstants.PKCS_STORE_TYPE;
-import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_HTTPS;
-import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_HTTP_PKG_ID;
-import static org.ballerinalang.net.http.HttpConstants.REASON_RECORD;
-import static org.ballerinalang.net.http.HttpConstants.REQUEST;
-import static org.ballerinalang.net.http.HttpConstants.REQUEST_CACHE_CONTROL_FIELD;
-import static org.ballerinalang.net.http.HttpConstants.REQUEST_MUTUAL_SSL_HANDSHAKE_FIELD;
-import static org.ballerinalang.net.http.HttpConstants.REQUEST_MUTUAL_SSL_HANDSHAKE_STATUS;
-import static org.ballerinalang.net.http.HttpConstants.RESOLVED_REQUESTED_URI;
-import static org.ballerinalang.net.http.HttpConstants.RESOLVED_REQUESTED_URI_FIELD;
-import static org.ballerinalang.net.http.HttpConstants.RESPONSE_CACHE_CONTROL;
-import static org.ballerinalang.net.http.HttpConstants.RESPONSE_CACHE_CONTROL_FIELD;
-import static org.ballerinalang.net.http.HttpConstants.RESPONSE_REASON_PHRASE_FIELD;
-import static org.ballerinalang.net.http.HttpConstants.RESPONSE_STATUS_CODE_FIELD;
-import static org.ballerinalang.net.http.HttpConstants.SERVER_NAME;
-import static org.ballerinalang.net.http.HttpConstants.SSL_CONFIG_ENABLE_SESSION_CREATION;
-import static org.ballerinalang.net.http.HttpConstants.SSL_CONFIG_SSL_VERIFY_CLIENT;
-import static org.ballerinalang.net.http.HttpConstants.SSL_PROTOCOL_VERSION;
-import static org.ballerinalang.net.http.HttpConstants.TRANSPORT_MESSAGE;
+import static org.ballerinalang.net.http.HttpConstants.*;
 import static org.ballerinalang.net.http.nativeimpl.pipelining.PipeliningHandler.sendPipelinedResponse;
 import static org.ballerinalang.stdlib.io.utils.IOConstants.DETAIL_RECORD_TYPE_NAME;
 import static org.ballerinalang.stdlib.io.utils.IOConstants.IO_PACKAGE_ID;
@@ -207,8 +158,6 @@ public class HttpUtil {
     private static final String METHOD_ACCESSED = "isMethodAccessed";
     private static final String IO_EXCEPTION_OCCURED = "I/O exception occurred";
     private static final String CHUNKING_CONFIG = "chunking_config";
-    private static BType detailType = BValueCreator.createRecordValue(new BPackage("ballerina", "http"), "Detail")
-            .getType();
 
     /**
      * Set new entity to in/out request/response struct.
@@ -1691,7 +1640,8 @@ public class HttpUtil {
     }
 
     public static ErrorValue createHttpError(String reason, String errorName, String reasonType, String errorMsg) {
-
+        BType detailType = BValueCreator.createRecordValue(new BPackage(PACKAGE, MODULE), HTTP_ERROR_DETAIL_RECORD)
+                .getType();
         int mask = TypeFlags.asMask(TypeFlags.ANYDATA, TypeFlags.PURETYPE);
         Set<Object> valueSpace = new HashSet<>();
         valueSpace.add(reason);
