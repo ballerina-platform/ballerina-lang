@@ -261,6 +261,17 @@ service echo44 on testEP {
         res.setJsonPayload(responseJson);
         _ = caller->respond(res);
     }
+
+    @http:ResourceConfig {
+        methods:["GET"],
+        path:"/echo2/{xyz}.id"
+    }
+    resource function echo6(http:Caller caller, http:Request req, string xyz) {
+        http:Response res = new;
+        json responseJson = {"echo6":xyz};
+        res.setJsonPayload(<@untainted json> responseJson);
+        checkpanic caller->respond(res);
+    }
 }
 
 
