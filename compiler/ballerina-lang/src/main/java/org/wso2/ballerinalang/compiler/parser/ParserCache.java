@@ -40,7 +40,7 @@ class ParserCache {
 
     private static final CompilerContext.Key<ParserCache> PARSER_CACHE_KEY = new CompilerContext.Key<>();
     private boolean cacheEnabled;
-    private ASTCleaner astCleaner;
+    private NodeCloner nodeCloner;
 
     private Map<PackageID, Map<String, BLangCompilationUnit>> pkgCache = new HashMap<>();
 
@@ -50,7 +50,7 @@ class ParserCache {
         CompilerOptions options = CompilerOptions.getInstance(context);
         CompilerPhase compilerPhase = options.getCompilerPhase();
         this.cacheEnabled = compilerPhase.compareTo(CompilerPhase.DESUGAR) < 0;
-        this.astCleaner = ASTCleaner.getInstance(context);
+        this.nodeCloner = NodeCloner.getInstance(context);
     }
 
     static ParserCache getInstance(CompilerContext context) {
@@ -77,14 +77,14 @@ class ParserCache {
         if (compilationUnit == null || compilationUnit.hash == null || !Arrays.equals(compilationUnit.hash, hash)) {
             return null;
         }
-        astCleaner.visit(compilationUnit);
-        return compilationUnit;
+        return nodeCloner.clone(compilationUnit);
     }
 
-    void put(PackageID packageID, String entryName, byte[] hash, BLangCompilationUnit newCompUnit) {
+    BLangCompilationUnit updateAndGet(PackageID packageID, String entryName, byte[] hash,
+                                      BLangCompilationUnit newCompUnit) {
 
         if (!cacheEnabled) {
-            return;
+            return newCompUnit;
         }
         Map<String, BLangCompilationUnit> sourceEntryCache;
         if ((sourceEntryCache = this.pkgCache.get(packageID)) == null || !this.pkgCache.containsKey(packageID)) {
@@ -94,6 +94,7 @@ class ParserCache {
 
         newCompUnit.hash = hash;
         sourceEntryCache.put(entryName, newCompUnit);
+        return nodeCloner.clone(newCompUnit);
     }
 
     void invalidate(List<CompilerInput> sourceEntries, PackageID packageID) {
