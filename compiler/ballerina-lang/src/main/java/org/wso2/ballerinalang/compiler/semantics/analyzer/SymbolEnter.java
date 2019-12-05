@@ -258,8 +258,10 @@ public class SymbolEnter extends BLangNodeVisitor {
                 importPkgHolder.get(qualifiedName).unresolved.add(importNode);
                 return;
             }
-            importPkgHolder.put(qualifiedName, new ImportResolveHolder(importNode));
             defineNode(importNode, pkgEnv);
+            if (importNode.symbol != null) {
+                importPkgHolder.put(qualifiedName, new ImportResolveHolder(importNode));
+            }
         });
     
         for (ImportResolveHolder importHolder : importPkgHolder.values()) {
