@@ -131,8 +131,8 @@ public class CommandUtil {
      * Get the command for generate test class.
      *
      * @param topLevelNodeType top level node
-     * @param docUri Document URI
-     * @param context {@link LSContext}
+     * @param docUri           Document URI
+     * @param context          {@link LSContext}
      * @return {@link Command} Test Generation command
      * @throws CompilationFailedException thrown when compilation failed
      */
@@ -181,6 +181,28 @@ public class CommandUtil {
 
         // Only supported for top-level nodes
         return (bLangNode.getLeft() != null && bLangNode.getLeft().parent instanceof BLangPackage);
+    }
+
+    public static Pair<BLangNode, Object> getBLangNode(int line, int column, String uri,
+                                                       WorkspaceDocumentManager documentManager, LSContext context)
+            throws CompilationFailedException {
+        Position position = new Position();
+        position.setLine(line);
+        position.setCharacter(column + 1);
+        context.put(DocumentServiceKeys.FILE_URI_KEY, uri);
+        TextDocumentIdentifier identifier = new TextDocumentIdentifier(uri);
+        context.put(DocumentServiceKeys.POSITION_KEY, new TextDocumentPositionParams(identifier, position));
+        List<BLangPackage> bLangPackages = LSModuleCompiler.getBLangPackages(context, documentManager,
+                                                                             LSCustomErrorStrategy.class, true, false,
+                                                                             true);
+        context.put(DocumentServiceKeys.BLANG_PACKAGES_CONTEXT_KEY, bLangPackages);
+        // Get the current package.
+        BLangPackage currentBLangPackage = context.get(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY);
+        // Run the position calculator for the current package.
+        PositionTreeVisitor positionTreeVisitor = new PositionTreeVisitor(context);
+        currentBLangPackage.accept(positionTreeVisitor);
+        return new ImmutablePair<>(context.get(NodeContextKeys.NODE_KEY),
+                                   context.get(NodeContextKeys.PREVIOUSLY_VISITED_NODE_KEY));
     }
 
     /**
@@ -280,379 +302,6 @@ public class CommandUtil {
         }
     }
 
-    public static BLangInvocation getFunctionInvocationNode(int line, int column, String uri,
-                                                            WorkspaceDocumentManager documentManager, LSContext context)
-            throws CompilationFailedException {
-        Pair<BLangNode, Object> bLangNode = getBLangNode(line, column, uri, documentManager, context);
-        if (bLangNode.getLeft() instanceof BLangInvocation) {
-            return (BLangInvocation) bLangNode.getLeft();
-        } else if (bLangNode.getRight() instanceof BLangInvocation) {
-            return (BLangInvocation) bLangNode.getRight();
-        } else {
-            BLangNode parent = bLangNode.getLeft().parent;
-            while (parent != null) {
-                if (parent instanceof BLangInvocation) {
-                    return (BLangInvocation) parent;
-                }
-                parent = parent.parent;
-            }
-            return null;
-        }
-    }
-
-    /**
-     * Find statement by location.
-     *
-     * @param statements list of statements
-     * @param line       line
-     * @param column     column
-     * @return {@link BLangStatement} if found, NULL otherwise
-     */
-    public static BLangStatement getStatementByLocation(List<BLangStatement> statements, int line, int column) {
-        BLangStatement node = null;
-        for (BLangStatement statement : statements) {
-            BLangStatement rv;
-            if ((rv = getStatementByLocation(statement, line, column)) != null) {
-                return rv;
-            }
-        }
-        return node;
-    }
-
-    /**
-     * Find statements by location.
-     *
-     * @param node   lookup {@link BLangNode}
-     * @param line   line
-     * @param column column
-     * @return {@link BLangStatement} if found, NULL otherwise
-     */
-    public static BLangStatement getStatementByLocation(BLangNode node, int line, int column) {
-        try {
-            if (checkNodeWithin(node, line, column) && node instanceof BLangStatement) {
-                return (BLangStatement) node;
-            }
-            for (Field field : node.getClass().getDeclaredFields()) {
-                Object obj = field.get(node);
-                if (obj instanceof BLangBlockStmt) {
-                    // Found a block-statement field, drilling down further
-                    BLangStatement rv;
-                    if ((rv = getStatementByLocation(((BLangBlockStmt) obj).getStatements(), line, column)) != null) {
-                        return rv;
-                    }
-                } else if (obj instanceof BLangStatement) {
-                    if (checkNodeWithin((BLangStatement) obj, line, column)) {
-                        return (BLangStatement) obj;
-                    }
-                    // Found a statement field, drilling down further
-                    BLangStatement rv;
-                    if ((rv = getStatementByLocation((BLangStatement) obj, line, column)) != null) {
-                        return rv;
-                    }
-                }
-            }
-        } catch (IllegalArgumentException | IllegalAccessException e) {
-            return null;
-        }
-        return null;
-    }
-
-    public static Pair<BLangNode, Object> getBLangNode(int line, int column, String uri,
-                                                       WorkspaceDocumentManager documentManager, LSContext context)
-            throws CompilationFailedException {
-        Position position = new Position();
-        position.setLine(line);
-        position.setCharacter(column + 1);
-        context.put(DocumentServiceKeys.FILE_URI_KEY, uri);
-        TextDocumentIdentifier identifier = new TextDocumentIdentifier(uri);
-        context.put(DocumentServiceKeys.POSITION_KEY, new TextDocumentPositionParams(identifier, position));
-        List<BLangPackage> bLangPackages = LSModuleCompiler.getBLangPackages(context, documentManager,
-                                                                             LSCustomErrorStrategy.class, true, false,
-                                                                             true);
-        context.put(DocumentServiceKeys.BLANG_PACKAGES_CONTEXT_KEY, bLangPackages);
-        // Get the current package.
-        BLangPackage currentBLangPackage = context.get(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY);
-        // Run the position calculator for the current package.
-        PositionTreeVisitor positionTreeVisitor = new PositionTreeVisitor(context);
-        currentBLangPackage.accept(positionTreeVisitor);
-        return new ImmutablePair<>(context.get(NodeContextKeys.NODE_KEY),
-                                   context.get(NodeContextKeys.PREVIOUSLY_VISITED_NODE_KEY));
-    }
-
-    private static boolean checkNodeWithin(BLangNode node, int line, int column) {
-        int sLine = node.getPosition().getStartLine();
-        int eLine = node.getPosition().getEndLine();
-        int sCol = node.getPosition().getStartColumn();
-        int eCol = node.getPosition().getEndColumn();
-        return (line > sLine || (line == sLine && column >= sCol)) &&
-                (line < eLine || (line == eLine && column <= eCol));
-    }
-
-    private static String extractTypeName(LSContext context, Matcher matcher, String foundType, List<TextEdit> edits) {
-        if (matcher.find() && matcher.groupCount() > 2) {
-            String orgName = matcher.group(1);
-            String alias = matcher.group(2);
-            String typeName = matcher.group(3);
-            String pkgId = orgName + "/" + alias;
-            PackageID currentPkgId = context.get(
-                    DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY).packageID;
-            if (pkgId.equals(currentPkgId.toString())) {
-                foundType = typeName;
-            } else {
-                List<BLangImportPackage> currentDocImports = CommonUtil.getCurrentFileImports(context);
-                boolean pkgAlreadyImported = currentDocImports.stream()
-                        .anyMatch(importPkg -> importPkg.orgName.value.equals(orgName)
-                                && importPkg.alias.value.equals(alias));
-                if (!pkgAlreadyImported) {
-                    edits.addAll(CommonUtil.getAutoImportTextEdits(orgName, alias, context));
-                }
-                foundType = alias + CommonKeys.PKG_DELIMITER_KEYWORD + typeName;
-            }
-        }
-        return foundType;
-    }
-
-    private static String getContentOfRange(WorkspaceDocumentManager documentManager, String uri, Range range)
-            throws WorkspaceDocumentException, IOException {
-        Optional<Path> filePath = CommonUtil.getPathFromURI(uri);
-        if (!filePath.isPresent()) {
-            return "";
-        }
-        Path compilationPath = getUntitledFilePath(filePath.toString()).orElse(filePath.get());
-        String fileContent = documentManager.getFileContent(compilationPath);
-
-        BufferedReader reader = new BufferedReader(new StringReader(fileContent));
-        StringBuilder capture = new StringBuilder();
-        int lineNum = 1;
-        int sLine = range.getStart().getLine() + 1;
-        int eLine = range.getEnd().getLine() + 1;
-        int sChar = range.getStart().getCharacter();
-        int eChar = range.getEnd().getCharacter();
-        String line;
-        while ((line = reader.readLine()) != null && lineNum <= eLine) {
-            if (lineNum >= sLine) {
-                if (sLine == eLine) {
-                    // single line range
-                    capture.append(line, sChar, eChar);
-                    if (line.length() == eChar) {
-                        capture.append(System.lineSeparator());
-                    }
-                } else if (lineNum == sLine) {
-                    // range start line
-                    capture.append(line.substring(sChar)).append(System.lineSeparator());
-                } else if (lineNum == eLine) {
-                    // range end line
-                    capture.append(line, 0, eChar);
-                    if (line.length() == eChar) {
-                        capture.append(System.lineSeparator());
-                    }
-                } else {
-                    // range middle line
-                    capture.append(line).append(System.lineSeparator());
-                }
-            }
-            lineNum++;
-        }
-        return capture.toString();
-    }
-
-    private static String getDiagnosedContent(Diagnostic diagnostic, LSContext context, LSDocument document) {
-        WorkspaceDocumentManager docManager = context.get(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY);
-        StringBuilder content = new StringBuilder();
-        Position start = diagnostic.getRange().getStart();
-        Position end = diagnostic.getRange().getEnd();
-        try (BufferedReader reader = new BufferedReader(
-                new StringReader(docManager.getFileContent(document.getPath())))) {
-            String strLine;
-            int count = 0;
-            while ((strLine = reader.readLine()) != null) {
-                if (count >= start.getLine() && count <= end.getLine()) {
-                    if (count == start.getLine()) {
-                        content.append(strLine.substring(start.getCharacter()));
-                        if (start.getLine() != end.getLine()) {
-                            content.append(System.lineSeparator());
-                        }
-                    } else if (count == end.getLine()) {
-                        content.append(strLine.substring(0, end.getCharacter()));
-                    } else {
-                        content.append(strLine).append(System.lineSeparator());
-                    }
-                }
-                if (count == end.getLine()) {
-                    break;
-                }
-                count++;
-            }
-        } catch (WorkspaceDocumentException | IOException e) {
-            // ignore error
-        }
-        return content.toString();
-    }
-
-    private static Position offsetInvocation(String diagnosedContent, Position position) {
-        // Diagnosed message only contains the erroneous part of the line
-        // Thus we offset into last
-        String quotesRemoved = diagnosedContent
-                .replaceAll(".*:", "") // package invocation
-                .replaceAll(".*->", "") // action invocation
-                .replaceAll(".*\\.", ""); // object access invocation
-        int bal = diagnosedContent.length() - quotesRemoved.length();
-        if (bal > 0) {
-            position.setCharacter(position.getCharacter() + bal + 1);
-        }
-        return position;
-    }
-
-    private static TextEdit addPackage(String pkgName, LSContext context) {
-        DiagnosticPos pos = null;
-
-        // Filter the imports except the runtime import
-        List<BLangImportPackage> imports = CommonUtil.getCurrentModuleImports(context);
-
-        if (!imports.isEmpty()) {
-            BLangImportPackage lastImport = CommonUtil.getLastItem(imports);
-            pos = lastImport.getPosition();
-        }
-
-        int endCol = 0;
-        int endLine = pos == null ? 0 : pos.getEndLine();
-
-        String editText = "import " + pkgName + ";\n";
-        Range range = new Range(new Position(endLine, endCol), new Position(endLine, endCol));
-        return new TextEdit(range, editText);
-    }
-
-    private static List<TextEdit> getCreateVariableCodeActionEdits(LSContext context, String uri,
-                                                                   SymbolReferencesModel.Reference referenceAtCursor,
-                                                                   boolean hasDefaultInitFunction,
-                                                                   boolean hasCustomInitFunction) {
-        BLangNode bLangNode = referenceAtCursor.getbLangNode();
-        List<TextEdit> edits = new ArrayList<>();
-        CompilerContext compilerContext = context.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY);
-        Set<String> nameEntries = CommonUtil.getAllNameEntries(bLangNode, compilerContext);
-        String variableName = CommonUtil.generateVariableName(bLangNode, nameEntries);
-
-        PackageID currentPkgId = bLangNode.pos.src.pkgID;
-        BiConsumer<String, String> importsAcceptor = (orgName, alias) -> {
-            boolean notFound = CommonUtil.getCurrentModuleImports(context).stream().noneMatch(
-                    pkg -> (pkg.orgName.value.equals(orgName) && pkg.alias.value.equals(alias))
-            );
-            if (notFound) {
-                String pkgName = orgName + "/" + alias;
-                edits.add(addPackage(pkgName, context));
-            }
-        };
-        String variableType;
-        if (hasDefaultInitFunction) {
-            BType bType = referenceAtCursor.getSymbol().type;
-            variableType = FunctionGenerator.generateTypeDefinition(importsAcceptor, currentPkgId, bType);
-            variableName = CommonUtil.generateVariableName(bType, nameEntries);
-        } else if (hasCustomInitFunction) {
-            BType bType = referenceAtCursor.getSymbol().owner.type;
-            variableType = FunctionGenerator.generateTypeDefinition(importsAcceptor, currentPkgId, bType);
-            variableName = CommonUtil.generateVariableName(bType, nameEntries);
-        } else {
-            variableType = FunctionGenerator.generateTypeDefinition(importsAcceptor, currentPkgId, bLangNode.type);
-        }
-        // Remove brackets of the unions
-        variableType = variableType.replaceAll("^\\((.*)\\)$", "$1");
-        String editText = createVariableDeclaration(variableName, variableType);
-        Position position = new Position(bLangNode.pos.sLine - 1, bLangNode.pos.sCol - 1);
-        edits.add(new TextEdit(new Range(position, position), editText));
-        return edits;
-    }
-
-    private static List<TextEdit> getTypeGuardCodeActionEdits(LSContext context, String uri,
-                                                              SymbolReferencesModel.Reference referenceAtCursor,
-                                                              BUnionType unionType)
-            throws WorkspaceDocumentException, IOException {
-        WorkspaceDocumentManager docManager = context.get(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY);
-        BLangNode bLangNode = referenceAtCursor.getbLangNode();
-        Position startPos = new Position(bLangNode.pos.sLine - 1, bLangNode.pos.sCol - 1);
-        Position endPosWithSemiColon = new Position(bLangNode.pos.eLine - 1, bLangNode.pos.eCol);
-        Position endPos = new Position(bLangNode.pos.eLine - 1, bLangNode.pos.eCol - 1);
-        Range newTextRange = new Range(startPos, endPosWithSemiColon);
-
-        List<TextEdit> edits = new ArrayList<>();
-        String spaces = StringUtils.repeat(' ', bLangNode.pos.sCol - 1);
-        String padding = LINE_SEPARATOR + LINE_SEPARATOR + spaces;
-        String content = getContentOfRange(docManager, uri, new Range(startPos, endPos));
-        boolean hasError = unionType.getMemberTypes().stream().anyMatch(s -> s instanceof BErrorType);
-
-        List<BType> members = new ArrayList<>((unionType).getMemberTypes());
-        long errorTypesCount = unionType.getMemberTypes().stream().filter(t -> t instanceof BErrorType).count();
-        boolean transitiveBinaryUnion = unionType.getMemberTypes().size() - errorTypesCount == 1;
-        if (transitiveBinaryUnion) {
-            members.removeIf(s -> s instanceof BErrorType);
-        }
-        // Check is binary union type with error type
-        if ((unionType.getMemberTypes().size() == 2 || transitiveBinaryUnion) && hasError) {
-            members.forEach(bType -> {
-                if (bType instanceof BNilType) {
-                    // if (foo() is error) {...}
-                    String newText = String.format("if (%s is error) {%s}", content, padding);
-                    edits.add(new TextEdit(newTextRange, newText));
-                } else {
-                    // if (foo() is int) {...} else {...}
-                    String type = CommonUtil.getBTypeName(bType, context, true);
-                    String newText = String.format("if (%s is %s) {%s} else {%s}",
-                                                   content, type, padding, padding);
-                    edits.add(new TextEdit(newTextRange, newText));
-                }
-            });
-        } else {
-            CompilerContext compilerContext = context.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY);
-            Set<String> nameEntries = CommonUtil.getAllNameEntries(bLangNode, compilerContext);
-            String varName = CommonUtil.generateVariableName(bLangNode, nameEntries);
-            String typeDef = CommonUtil.getBTypeName(unionType, context, true);
-            boolean addErrorTypeAtEnd;
-
-            List<BType> tMembers = new ArrayList<>((unionType).getMemberTypes());
-            if (errorTypesCount > 1) {
-                tMembers.removeIf(s -> s instanceof BErrorType);
-                addErrorTypeAtEnd = true;
-            } else {
-                addErrorTypeAtEnd = false;
-            }
-            List<String> memberTypes = new ArrayList<>();
-            IntStream.range(0, tMembers.size())
-                    .forEachOrdered(value -> {
-                        BType bType = tMembers.get(value);
-                        String bTypeName = CommonUtil.getBTypeName(bType, context, true);
-                        boolean isErrorType = bType instanceof BErrorType;
-                        if (isErrorType && !addErrorTypeAtEnd) {
-                            memberTypes.add(bTypeName);
-                        } else if (!isErrorType) {
-                            memberTypes.add(bTypeName);
-                        }
-                    });
-
-            if (addErrorTypeAtEnd) {
-                memberTypes.add("error");
-            }
-
-            String newText = String.format("%s %s = %s;%s", typeDef, varName, content, LINE_SEPARATOR);
-            newText += spaces + IntStream.range(0, memberTypes.size() - 1)
-                    .mapToObj(value -> {
-                        return String.format("if (%s is %s) {%s}", varName, memberTypes.get(value), padding);
-                    })
-                    .collect(Collectors.joining(" else "));
-            newText += String.format(" else {%s}", padding);
-            edits.add(new TextEdit(newTextRange, newText));
-        }
-        return edits;
-    }
-
-    private static List<TextEdit> getIgnoreCodeActionEdits(SymbolReferencesModel.Reference referenceAtCursor) {
-        String editText = "_ = ";
-        BLangNode bLangNode = referenceAtCursor.getbLangNode();
-        Position position = new Position(bLangNode.pos.sLine - 1, bLangNode.pos.sCol - 1);
-        List<TextEdit> edits = new ArrayList<>();
-        edits.add(new TextEdit(new Range(position, position), editText));
-        return edits;
-
-    }
-
     public static CodeAction getDocGenerationCommand(String nodeType, String docUri, int line) {
         CommandArgument nodeTypeArg = new CommandArgument(CommandConstants.ARG_KEY_NODE_TYPE, nodeType);
         CommandArgument docUriArg = new CommandArgument(CommandConstants.ARG_KEY_DOC_URI, docUri);
@@ -713,6 +362,26 @@ public class CommandUtil {
             // ignore
         }
         return null;
+    }
+
+    public static BLangInvocation getFunctionInvocationNode(int line, int column, String uri,
+                                                            WorkspaceDocumentManager documentManager, LSContext context)
+            throws CompilationFailedException {
+        Pair<BLangNode, Object> bLangNode = getBLangNode(line, column, uri, documentManager, context);
+        if (bLangNode.getLeft() instanceof BLangInvocation) {
+            return (BLangInvocation) bLangNode.getLeft();
+        } else if (bLangNode.getRight() instanceof BLangInvocation) {
+            return (BLangInvocation) bLangNode.getRight();
+        } else {
+            BLangNode parent = bLangNode.getLeft().parent;
+            while (parent != null) {
+                if (parent instanceof BLangInvocation) {
+                    return (BLangInvocation) parent;
+                }
+                parent = parent.parent;
+            }
+            return null;
+        }
     }
 
     public static List<CodeAction> getModuleImportCommand(Diagnostic diagnostic,
@@ -918,6 +587,170 @@ public class CommandUtil {
         return null;
     }
 
+    private static BLangFunction getFunctionNode(int line, int column, LSDocument document,
+                                                 WorkspaceDocumentManager docManager, LSContext context)
+            throws CompilationFailedException {
+        String uri = document.getURIString();
+        Position position = new Position();
+        position.setLine(line);
+        position.setCharacter(column + 1);
+        context.put(DocumentServiceKeys.FILE_URI_KEY, uri);
+        TextDocumentIdentifier identifier = new TextDocumentIdentifier(uri);
+        context.put(DocumentServiceKeys.POSITION_KEY, new TextDocumentPositionParams(identifier, position));
+        LSModuleCompiler.getBLangPackages(context, docManager, LSCustomErrorStrategy.class, true, false, false);
+
+        // Get the current package.
+        BLangPackage currentPackage = context.get(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY);
+
+        // If package is testable package process as tests
+        // else process normally
+        String relativeFilePath = context.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY);
+        BLangCompilationUnit compilationUnit;
+        if (relativeFilePath.startsWith("tests" + File.separator)) {
+            compilationUnit = currentPackage.getTestablePkg().getCompilationUnits().stream().
+                    filter(compUnit -> (relativeFilePath).equals(compUnit.getName()))
+                    .findFirst().orElse(null);
+        } else {
+            compilationUnit = currentPackage.getCompilationUnits().stream().
+                    filter(compUnit -> relativeFilePath.equals(compUnit.getName())).findFirst().orElse(null);
+        }
+        if (compilationUnit == null) {
+            return null;
+        }
+        Iterator<TopLevelNode> nodeIterator = compilationUnit.getTopLevelNodes().iterator();
+        BLangFunction result = null;
+        TopLevelNode next = (nodeIterator.hasNext()) ? nodeIterator.next() : null;
+        Function<org.ballerinalang.util.diagnostic.Diagnostic.DiagnosticPosition, Boolean> isWithinPosition =
+                diagnosticPosition -> {
+                    int sLine = diagnosticPosition.getStartLine();
+                    int eLine = diagnosticPosition.getEndLine();
+                    int sCol = diagnosticPosition.getStartColumn();
+                    int eCol = diagnosticPosition.getEndColumn();
+                    return ((line > sLine || (line == sLine && column >= sCol)) &&
+                            (line < eLine || (line == eLine && column <= eCol)));
+                };
+        while (next != null) {
+            if (isWithinPosition.apply(next.getPosition())) {
+                if (next instanceof BLangFunction) {
+                    result = (BLangFunction) next;
+                    break;
+                } else if (next instanceof BLangTypeDefinition) {
+                    BLangTypeDefinition typeDefinition = (BLangTypeDefinition) next;
+                    if (typeDefinition.typeNode instanceof BLangObjectTypeNode) {
+                        BLangObjectTypeNode typeNode = (BLangObjectTypeNode) typeDefinition.typeNode;
+                        for (BLangFunction function : typeNode.functions) {
+                            if (isWithinPosition.apply(function.getPosition())) {
+                                result = function;
+                                break;
+                            }
+                        }
+                    }
+                } else if (next instanceof BLangService) {
+                    BLangService bLangService = (BLangService) next;
+                    for (BLangFunction function : bLangService.resourceFunctions) {
+                        if (isWithinPosition.apply(function.getPosition())) {
+                            result = function;
+                            break;
+                        }
+                    }
+                }
+                break;
+            }
+            next = (nodeIterator.hasNext()) ? nodeIterator.next() : null;
+        }
+        return result;
+    }
+
+    /**
+     * Find statement by location.
+     *
+     * @param statements list of statements
+     * @param line       line
+     * @param column     column
+     * @return {@link BLangStatement} if found, NULL otherwise
+     */
+    private static BLangStatement getStatementByLocation(List<BLangStatement> statements, int line, int column) {
+        BLangStatement node = null;
+        for (BLangStatement statement : statements) {
+            BLangStatement rv;
+            if ((rv = getStatementByLocation(statement, line, column)) != null) {
+                return rv;
+            }
+        }
+        return node;
+    }
+
+    /**
+     * Find statements by location.
+     *
+     * @param node   lookup {@link BLangNode}
+     * @param line   line
+     * @param column column
+     * @return {@link BLangStatement} if found, NULL otherwise
+     */
+    private static BLangStatement getStatementByLocation(BLangNode node, int line, int column) {
+        try {
+            if (checkNodeWithin(node, line, column) && node instanceof BLangStatement) {
+                return (BLangStatement) node;
+            }
+            for (Field field : node.getClass().getDeclaredFields()) {
+                Object obj = field.get(node);
+                if (obj instanceof BLangBlockStmt) {
+                    // Found a block-statement field, drilling down further
+                    BLangStatement rv;
+                    if ((rv = getStatementByLocation(((BLangBlockStmt) obj).getStatements(), line, column)) != null) {
+                        return rv;
+                    }
+                } else if (obj instanceof BLangStatement) {
+                    if (checkNodeWithin((BLangStatement) obj, line, column)) {
+                        return (BLangStatement) obj;
+                    }
+                    // Found a statement field, drilling down further
+                    BLangStatement rv;
+                    if ((rv = getStatementByLocation((BLangStatement) obj, line, column)) != null) {
+                        return rv;
+                    }
+                }
+            }
+        } catch (IllegalArgumentException | IllegalAccessException e) {
+            return null;
+        }
+        return null;
+    }
+
+    private static boolean checkNodeWithin(BLangNode node, int line, int column) {
+        int sLine = node.getPosition().getStartLine();
+        int eLine = node.getPosition().getEndLine();
+        int sCol = node.getPosition().getStartColumn();
+        int eCol = node.getPosition().getEndColumn();
+        return (line > sLine || (line == sLine && column >= sCol)) &&
+                (line < eLine || (line == eLine && column <= eCol));
+    }
+
+    private static String extractTypeName(LSContext context, Matcher matcher, String foundType, List<TextEdit> edits) {
+        if (matcher.find() && matcher.groupCount() > 2) {
+            String orgName = matcher.group(1);
+            String alias = matcher.group(2);
+            String typeName = matcher.group(3);
+            String pkgId = orgName + "/" + alias;
+            PackageID currentPkgId = context.get(
+                    DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY).packageID;
+            if (pkgId.equals(currentPkgId.toString())) {
+                foundType = typeName;
+            } else {
+                List<BLangImportPackage> currentDocImports = CommonUtil.getCurrentFileImports(context);
+                boolean pkgAlreadyImported = currentDocImports.stream()
+                        .anyMatch(importPkg -> importPkg.orgName.value.equals(orgName)
+                                && importPkg.alias.value.equals(alias));
+                if (!pkgAlreadyImported) {
+                    edits.addAll(CommonUtil.getAutoImportTextEdits(orgName, alias, context));
+                }
+                foundType = alias + CommonKeys.PKG_DELIMITER_KEYWORD + typeName;
+            }
+        }
+        return foundType;
+    }
+
     public static CodeAction getTaintedParamCommand(Diagnostic diagnostic, LSContext context) {
         String diagnosticMessage = diagnostic.getMessage();
         List<Diagnostic> diagnostics = new ArrayList<>();
@@ -950,6 +783,50 @@ public class CommandUtil {
             //do nothing
         }
         return null;
+    }
+
+    private static String getContentOfRange(WorkspaceDocumentManager documentManager, String uri, Range range)
+            throws WorkspaceDocumentException, IOException {
+        Optional<Path> filePath = CommonUtil.getPathFromURI(uri);
+        if (!filePath.isPresent()) {
+            return "";
+        }
+        Path compilationPath = getUntitledFilePath(filePath.toString()).orElse(filePath.get());
+        String fileContent = documentManager.getFileContent(compilationPath);
+
+        BufferedReader reader = new BufferedReader(new StringReader(fileContent));
+        StringBuilder capture = new StringBuilder();
+        int lineNum = 1;
+        int sLine = range.getStart().getLine() + 1;
+        int eLine = range.getEnd().getLine() + 1;
+        int sChar = range.getStart().getCharacter();
+        int eChar = range.getEnd().getCharacter();
+        String line;
+        while ((line = reader.readLine()) != null && lineNum <= eLine) {
+            if (lineNum >= sLine) {
+                if (sLine == eLine) {
+                    // single line range
+                    capture.append(line, sChar, eChar);
+                    if (line.length() == eChar) {
+                        capture.append(System.lineSeparator());
+                    }
+                } else if (lineNum == sLine) {
+                    // range start line
+                    capture.append(line.substring(sChar)).append(System.lineSeparator());
+                } else if (lineNum == eLine) {
+                    // range end line
+                    capture.append(line, 0, eChar);
+                    if (line.length() == eChar) {
+                        capture.append(System.lineSeparator());
+                    }
+                } else {
+                    // range middle line
+                    capture.append(line).append(System.lineSeparator());
+                }
+            }
+            lineNum++;
+        }
+        return capture.toString();
     }
 
     public static List<CodeAction> getVariableAssignmentCommand(LSDocument document, Diagnostic diagnostic,
@@ -1031,88 +908,202 @@ public class CommandUtil {
         }
         return actions;
     }
-//    private static CodeAction getInitializerGenerationCommand(String docUri, int line) {
-//        CommandArgument docUriArg = new CommandArgument(CommandConstants.ARG_KEY_DOC_URI, docUri);
-//        CommandArgument startLineArg = new CommandArgument(CommandConstants.ARG_KEY_NODE_LINE, String.valueOf(line));
-//        List<Object> args = new ArrayList<>(Arrays.asList(docUriArg, startLineArg));
-//        CodeAction codeAction = new CodeAction(CommandConstants.CREATE_INITIALIZER_TITLE);
-//        codeAction.setCommand(new Command(CommandConstants.CREATE_INITIALIZER_TITLE,
-//                                          CreateObjectInitializerExecutor.COMMAND, args));
-//        return codeAction;
-//    }
 
-    private static BLangFunction getFunctionNode(int line, int column, LSDocument document,
-                                                 WorkspaceDocumentManager docManager, LSContext context)
-            throws CompilationFailedException {
-        String uri = document.getURIString();
-        Position position = new Position();
-        position.setLine(line);
-        position.setCharacter(column + 1);
-        context.put(DocumentServiceKeys.FILE_URI_KEY, uri);
-        TextDocumentIdentifier identifier = new TextDocumentIdentifier(uri);
-        context.put(DocumentServiceKeys.POSITION_KEY, new TextDocumentPositionParams(identifier, position));
-        LSModuleCompiler.getBLangPackages(context, docManager, LSCustomErrorStrategy.class, true, false, false);
-
-        // Get the current package.
-        BLangPackage currentPackage = context.get(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY);
-
-        // If package is testable package process as tests
-        // else process normally
-        String relativeFilePath = context.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY);
-        BLangCompilationUnit compilationUnit;
-        if (relativeFilePath.startsWith("tests" + File.separator)) {
-            compilationUnit = currentPackage.getTestablePkg().getCompilationUnits().stream().
-                    filter(compUnit -> (relativeFilePath).equals(compUnit.getName()))
-                    .findFirst().orElse(null);
-        } else {
-            compilationUnit = currentPackage.getCompilationUnits().stream().
-                    filter(compUnit -> relativeFilePath.equals(compUnit.getName())).findFirst().orElse(null);
-        }
-        if (compilationUnit == null) {
-            return null;
-        }
-        Iterator<TopLevelNode> nodeIterator = compilationUnit.getTopLevelNodes().iterator();
-        BLangFunction result = null;
-        TopLevelNode next = (nodeIterator.hasNext()) ? nodeIterator.next() : null;
-        Function<org.ballerinalang.util.diagnostic.Diagnostic.DiagnosticPosition, Boolean> isWithinPosition =
-                diagnosticPosition -> {
-                    int sLine = diagnosticPosition.getStartLine();
-                    int eLine = diagnosticPosition.getEndLine();
-                    int sCol = diagnosticPosition.getStartColumn();
-                    int eCol = diagnosticPosition.getEndColumn();
-                    return ((line > sLine || (line == sLine && column >= sCol)) &&
-                            (line < eLine || (line == eLine && column <= eCol)));
-                };
-        while (next != null) {
-            if (isWithinPosition.apply(next.getPosition())) {
-                if (next instanceof BLangFunction) {
-                    result = (BLangFunction) next;
-                    break;
-                } else if (next instanceof BLangTypeDefinition) {
-                    BLangTypeDefinition typeDefinition = (BLangTypeDefinition) next;
-                    if (typeDefinition.typeNode instanceof BLangObjectTypeNode) {
-                        BLangObjectTypeNode typeNode = (BLangObjectTypeNode) typeDefinition.typeNode;
-                        for (BLangFunction function : typeNode.functions) {
-                            if (isWithinPosition.apply(function.getPosition())) {
-                                result = function;
-                                break;
-                            }
+    private static String getDiagnosedContent(Diagnostic diagnostic, LSContext context, LSDocument document) {
+        WorkspaceDocumentManager docManager = context.get(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY);
+        StringBuilder content = new StringBuilder();
+        Position start = diagnostic.getRange().getStart();
+        Position end = diagnostic.getRange().getEnd();
+        try (BufferedReader reader = new BufferedReader(
+                new StringReader(docManager.getFileContent(document.getPath())))) {
+            String strLine;
+            int count = 0;
+            while ((strLine = reader.readLine()) != null) {
+                if (count >= start.getLine() && count <= end.getLine()) {
+                    if (count == start.getLine()) {
+                        content.append(strLine.substring(start.getCharacter()));
+                        if (start.getLine() != end.getLine()) {
+                            content.append(System.lineSeparator());
                         }
-                    }
-                } else if (next instanceof BLangService) {
-                    BLangService bLangService = (BLangService) next;
-                    for (BLangFunction function : bLangService.resourceFunctions) {
-                        if (isWithinPosition.apply(function.getPosition())) {
-                            result = function;
-                            break;
-                        }
+                    } else if (count == end.getLine()) {
+                        content.append(strLine.substring(0, end.getCharacter()));
+                    } else {
+                        content.append(strLine).append(System.lineSeparator());
                     }
                 }
-                break;
+                if (count == end.getLine()) {
+                    break;
+                }
+                count++;
             }
-            next = (nodeIterator.hasNext()) ? nodeIterator.next() : null;
+        } catch (WorkspaceDocumentException | IOException e) {
+            // ignore error
         }
-        return result;
+        return content.toString();
+    }
+
+    private static Position offsetInvocation(String diagnosedContent, Position position) {
+        // Diagnosed message only contains the erroneous part of the line
+        // Thus we offset into last
+        String quotesRemoved = diagnosedContent
+                .replaceAll(".*:", "") // package invocation
+                .replaceAll(".*->", "") // action invocation
+                .replaceAll(".*\\.", ""); // object access invocation
+        int bal = diagnosedContent.length() - quotesRemoved.length();
+        if (bal > 0) {
+            position.setCharacter(position.getCharacter() + bal + 1);
+        }
+        return position;
+    }
+
+    private static List<TextEdit> getCreateVariableCodeActionEdits(LSContext context, String uri,
+                                                                   SymbolReferencesModel.Reference referenceAtCursor,
+                                                                   boolean hasDefaultInitFunction,
+                                                                   boolean hasCustomInitFunction) {
+        BLangNode bLangNode = referenceAtCursor.getbLangNode();
+        List<TextEdit> edits = new ArrayList<>();
+        CompilerContext compilerContext = context.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY);
+        Set<String> nameEntries = CommonUtil.getAllNameEntries(bLangNode, compilerContext);
+        String variableName = CommonUtil.generateVariableName(bLangNode, nameEntries);
+
+        PackageID currentPkgId = bLangNode.pos.src.pkgID;
+        BiConsumer<String, String> importsAcceptor = (orgName, alias) -> {
+            boolean notFound = CommonUtil.getCurrentModuleImports(context).stream().noneMatch(
+                    pkg -> (pkg.orgName.value.equals(orgName) && pkg.alias.value.equals(alias))
+            );
+            if (notFound) {
+                String pkgName = orgName + "/" + alias;
+                edits.add(addPackage(pkgName, context));
+            }
+        };
+        String variableType;
+        if (hasDefaultInitFunction) {
+            BType bType = referenceAtCursor.getSymbol().type;
+            variableType = FunctionGenerator.generateTypeDefinition(importsAcceptor, currentPkgId, bType);
+            variableName = CommonUtil.generateVariableName(bType, nameEntries);
+        } else if (hasCustomInitFunction) {
+            BType bType = referenceAtCursor.getSymbol().owner.type;
+            variableType = FunctionGenerator.generateTypeDefinition(importsAcceptor, currentPkgId, bType);
+            variableName = CommonUtil.generateVariableName(bType, nameEntries);
+        } else {
+            variableType = FunctionGenerator.generateTypeDefinition(importsAcceptor, currentPkgId, bLangNode.type);
+        }
+        // Remove brackets of the unions
+        variableType = variableType.replaceAll("^\\((.*)\\)$", "$1");
+        String editText = createVariableDeclaration(variableName, variableType);
+        Position position = new Position(bLangNode.pos.sLine - 1, bLangNode.pos.sCol - 1);
+        edits.add(new TextEdit(new Range(position, position), editText));
+        return edits;
+    }
+
+    private static TextEdit addPackage(String pkgName, LSContext context) {
+        DiagnosticPos pos = null;
+
+        // Filter the imports except the runtime import
+        List<BLangImportPackage> imports = CommonUtil.getCurrentModuleImports(context);
+
+        if (!imports.isEmpty()) {
+            BLangImportPackage lastImport = CommonUtil.getLastItem(imports);
+            pos = lastImport.getPosition();
+        }
+
+        int endCol = 0;
+        int endLine = pos == null ? 0 : pos.getEndLine();
+
+        String editText = "import " + pkgName + ";\n";
+        Range range = new Range(new Position(endLine, endCol), new Position(endLine, endCol));
+        return new TextEdit(range, editText);
+    }
+
+    private static List<TextEdit> getTypeGuardCodeActionEdits(LSContext context, String uri,
+                                                              SymbolReferencesModel.Reference referenceAtCursor,
+                                                              BUnionType unionType)
+            throws WorkspaceDocumentException, IOException {
+        WorkspaceDocumentManager docManager = context.get(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY);
+        BLangNode bLangNode = referenceAtCursor.getbLangNode();
+        Position startPos = new Position(bLangNode.pos.sLine - 1, bLangNode.pos.sCol - 1);
+        Position endPosWithSemiColon = new Position(bLangNode.pos.eLine - 1, bLangNode.pos.eCol);
+        Position endPos = new Position(bLangNode.pos.eLine - 1, bLangNode.pos.eCol - 1);
+        Range newTextRange = new Range(startPos, endPosWithSemiColon);
+
+        List<TextEdit> edits = new ArrayList<>();
+        String spaces = StringUtils.repeat(' ', bLangNode.pos.sCol - 1);
+        String padding = LINE_SEPARATOR + LINE_SEPARATOR + spaces;
+        String content = getContentOfRange(docManager, uri, new Range(startPos, endPos));
+        boolean hasError = unionType.getMemberTypes().stream().anyMatch(s -> s instanceof BErrorType);
+
+        List<BType> members = new ArrayList<>((unionType).getMemberTypes());
+        long errorTypesCount = unionType.getMemberTypes().stream().filter(t -> t instanceof BErrorType).count();
+        boolean transitiveBinaryUnion = unionType.getMemberTypes().size() - errorTypesCount == 1;
+        if (transitiveBinaryUnion) {
+            members.removeIf(s -> s instanceof BErrorType);
+        }
+        // Check is binary union type with error type
+        if ((unionType.getMemberTypes().size() == 2 || transitiveBinaryUnion) && hasError) {
+            members.forEach(bType -> {
+                if (bType instanceof BNilType) {
+                    // if (foo() is error) {...}
+                    String newText = String.format("if (%s is error) {%s}", content, padding);
+                    edits.add(new TextEdit(newTextRange, newText));
+                } else {
+                    // if (foo() is int) {...} else {...}
+                    String type = CommonUtil.getBTypeName(bType, context, true);
+                    String newText = String.format("if (%s is %s) {%s} else {%s}",
+                                                   content, type, padding, padding);
+                    edits.add(new TextEdit(newTextRange, newText));
+                }
+            });
+        } else {
+            CompilerContext compilerContext = context.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY);
+            Set<String> nameEntries = CommonUtil.getAllNameEntries(bLangNode, compilerContext);
+            String varName = CommonUtil.generateVariableName(bLangNode, nameEntries);
+            String typeDef = CommonUtil.getBTypeName(unionType, context, true);
+            boolean addErrorTypeAtEnd;
+
+            List<BType> tMembers = new ArrayList<>((unionType).getMemberTypes());
+            if (errorTypesCount > 1) {
+                tMembers.removeIf(s -> s instanceof BErrorType);
+                addErrorTypeAtEnd = true;
+            } else {
+                addErrorTypeAtEnd = false;
+            }
+            List<String> memberTypes = new ArrayList<>();
+            IntStream.range(0, tMembers.size())
+                    .forEachOrdered(value -> {
+                        BType bType = tMembers.get(value);
+                        String bTypeName = CommonUtil.getBTypeName(bType, context, true);
+                        boolean isErrorType = bType instanceof BErrorType;
+                        if (isErrorType && !addErrorTypeAtEnd) {
+                            memberTypes.add(bTypeName);
+                        } else if (!isErrorType) {
+                            memberTypes.add(bTypeName);
+                        }
+                    });
+
+            if (addErrorTypeAtEnd) {
+                memberTypes.add("error");
+            }
+
+            String newText = String.format("%s %s = %s;%s", typeDef, varName, content, LINE_SEPARATOR);
+            newText += spaces + IntStream.range(0, memberTypes.size() - 1)
+                    .mapToObj(value -> {
+                        return String.format("if (%s is %s) {%s}", varName, memberTypes.get(value), padding);
+                    })
+                    .collect(Collectors.joining(" else "));
+            newText += String.format(" else {%s}", padding);
+            edits.add(new TextEdit(newTextRange, newText));
+        }
+        return edits;
+    }
+
+    private static List<TextEdit> getIgnoreCodeActionEdits(SymbolReferencesModel.Reference referenceAtCursor) {
+        String editText = "_ = ";
+        BLangNode bLangNode = referenceAtCursor.getbLangNode();
+        Position position = new Position(bLangNode.pos.sLine - 1, bLangNode.pos.sCol - 1);
+        List<TextEdit> edits = new ArrayList<>();
+        edits.add(new TextEdit(new Range(position, position), editText));
+        return edits;
+
     }
 
     /**
@@ -1135,5 +1126,6 @@ public class CommandUtil {
         public String getArgumentV() {
             return argumentV;
         }
+
     }
 }

@@ -1,5 +1,4 @@
 /*
-
  * Copyright (c) 2019, WSO2 Inc. (http://wso2.com) All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,9 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
-
  */
-
 package org.ballerinalang.langserver.codeaction.providers;
 
 import org.ballerinalang.annotation.JavaSPIService;
@@ -34,15 +31,16 @@ import static org.ballerinalang.langserver.command.CommandUtil.getAllDocGenerati
 /**
  * Code Action provider for adding all documentation for top level items.
  *
- * @since 1.0.4
+ * @since 1.1.0
  */
 @JavaSPIService("org.ballerinalang.langserver.codeaction.BallerinaCodeActionProvider")
 public class AddAllDocumentationCodeAction implements BallerinaCodeActionProvider {
-    List<CodeActionNodeType> codeActionNodeTypes = Arrays.asList(CodeActionNodeType.FUNCTION, CodeActionNodeType.OBJECT,
-                                                                 CodeActionNodeType.SERVICE,
-                                                                 CodeActionNodeType.RESOURCE,
-                                                                 CodeActionNodeType.RECORD,
-                                                                 CodeActionNodeType.OBJECT_FUNCTION);
+    private List<CodeActionNodeType> codeActionNodeTypes = Arrays.asList(CodeActionNodeType.FUNCTION,
+                                                                         CodeActionNodeType.OBJECT,
+                                                                         CodeActionNodeType.SERVICE,
+                                                                         CodeActionNodeType.RESOURCE,
+                                                                         CodeActionNodeType.RECORD,
+                                                                         CodeActionNodeType.OBJECT_FUNCTION);
 
     /**
      * {@inheritDoc}
