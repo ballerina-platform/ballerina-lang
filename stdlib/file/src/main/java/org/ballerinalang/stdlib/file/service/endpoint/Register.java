@@ -19,13 +19,9 @@
 package org.ballerinalang.stdlib.file.service.endpoint;
 
 import org.ballerinalang.jvm.BRuntime;
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.AttachedFunction;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.stdlib.file.service.DirectoryListenerConstants;
 import org.ballerinalang.stdlib.file.service.FSListener;
 import org.ballerinalang.stdlib.file.utils.FileConstants;
