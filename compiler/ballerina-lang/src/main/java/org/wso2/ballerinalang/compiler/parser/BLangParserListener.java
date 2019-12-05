@@ -28,8 +28,12 @@ import org.ballerinalang.model.tree.CompilationUnitNode;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser.FieldContext;
+import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser.GroupStringFunctionInvocationReferenceContext;
+import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser.IndexContext;
+import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser.InvocationContext;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser.ObjectTypeNameLabelContext;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser.StringTemplateContentContext;
+import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser.VariableReferenceContext;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParserBaseListener;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.FieldKind;
@@ -1869,6 +1873,31 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     }
 
     @Override
+    public void exitGroupStringFunctionInvocationReference(GroupStringFunctionInvocationReferenceContext ctx) {
+        if (isInErrorState) {
+            return;
+        }
+
+        TerminalNode node = ctx.QuotedStringLiteral();
+        DiagnosticPos pos = getCurrentPos(ctx);
+        Set<Whitespace> ws = getWS(ctx);
+
+        String actualText = node.getText();
+        actualText = actualText.substring(1, actualText.length() - 1);
+        actualText = StringEscapeUtils.unescapeJava(actualText);
+        this.pkgBuilder.addLiteralValue(pos, ws, TypeTags.STRING, actualText, node.getText());
+
+        InvocationContext invocation = ctx.invocation();
+        boolean argsAvailable = invocation.invocationArgList() != null;
+        BallerinaParser.AnyIdentifierNameContext identifierContext = invocation.anyIdentifierName();
+        String invocationText = identifierContext.getText();
+        this.pkgBuilder.createInvocationNode(getCurrentPos(invocation), getWS(invocation), invocationText,
+                argsAvailable, getCurrentPos(identifierContext));
+        this.pkgBuilder.createGroupExpression(getCurrentPos(node), getWS(ctx));
+    }
+
+
+    @Override
     public void exitFunctionInvocation(BallerinaParser.FunctionInvocationContext ctx) {
         if (isInErrorState) {
             return;
@@ -1883,8 +1912,21 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         if (isInErrorState) {
             return;
         }
+        createFieldBasedAccessNode(ctx, ctx.field());
+    }
 
+    @Override
+    public void exitGroupFieldVariableReference(BallerinaParser.GroupFieldVariableReferenceContext ctx) {
+        if (isInErrorState) {
+            return;
+        }
         FieldContext field = ctx.field();
+        VariableReferenceContext groupExpression = ctx.variableReference();
+        createFieldBasedAccessNode(field, field);
+        this.pkgBuilder.createGroupExpression(getCurrentPos(groupExpression), getWS(groupExpression));
+    }
+
+    private void createFieldBasedAccessNode(ParserRuleContext ctx, FieldContext field) {
         String fieldName;
         DiagnosticPos fieldNamePos;
         FieldKind fieldType;
@@ -1900,7 +1942,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             fieldType = FieldKind.ALL;
         }
         this.pkgBuilder.createFieldBasedAccessNode(getCurrentPos(ctx), getWS(ctx), fieldName, fieldNamePos,
-                fieldType, ctx.field().OPTIONAL_FIELD_ACCESS() != null);
+                fieldType, field.OPTIONAL_FIELD_ACCESS() != null);
     }
 
     @Override
@@ -1910,6 +1952,17 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         }
 
         this.pkgBuilder.createIndexBasedAccessNode(getCurrentPos(ctx), getWS(ctx));
+    }
+
+    @Override
+    public void exitGroupMapArrayVariableReference(BallerinaParser.GroupMapArrayVariableReferenceContext ctx) {
+        if (isInErrorState) {
+            return;
+        }
+        IndexContext index = ctx.index();
+        VariableReferenceContext groupExpression = ctx.variableReference();
+        this.pkgBuilder.createIndexBasedAccessNode(getCurrentPos(index), getWS(index));
+        this.pkgBuilder.createGroupExpression(getCurrentPos(groupExpression), getWS(groupExpression));
     }
 
     @Override
@@ -1943,6 +1996,22 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         String invocation = identifierContext.getText();
         this.pkgBuilder.createInvocationNode(getCurrentPos(ctx), getWS(ctx), invocation, argsAvailable,
                 getCurrentPos(identifierContext));
+    }
+
+    @Override
+    public void exitGroupInvocationReference(BallerinaParser.GroupInvocationReferenceContext ctx) {
+        if (isInErrorState) {
+            return;
+        }
+
+        InvocationContext invocation = ctx.invocation();
+        VariableReferenceContext groupExpression = ctx.variableReference();
+        boolean argsAvailable = invocation.invocationArgList() != null;
+        BallerinaParser.AnyIdentifierNameContext identifierContext = invocation.anyIdentifierName();
+        String invocationText = identifierContext.getText();
+        this.pkgBuilder.createInvocationNode(getCurrentPos(invocation), getWS(invocation),
+                invocationText, argsAvailable, getCurrentPos(identifierContext));
+        this.pkgBuilder.createGroupExpression(getCurrentPos(groupExpression), getWS(groupExpression));
     }
 
     @Override
