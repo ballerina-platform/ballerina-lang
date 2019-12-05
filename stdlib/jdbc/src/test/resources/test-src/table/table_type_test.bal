@@ -871,7 +871,7 @@ function testCloseConnectionPool(string jdbcURL) returns int {
     });
 
     var selectRet = testDB->select("SELECT COUNT(*) FROM INFORMATION_SCHEMA.SESSIONS", ResultCount);
-    int retVal;
+    int retVal = -3;
     if (selectRet is table<ResultCount>) {
         while (selectRet.hasNext()) {
             var rs = selectRet.getNext();

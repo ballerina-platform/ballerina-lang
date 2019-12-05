@@ -2272,6 +2272,11 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             dlog.error(checkedExpr.pos, DiagnosticCode.CHECKED_EXPR_NO_MATCHING_ERROR_RETURN_IN_ENCL_INVOKABLE);
         }
 
+        if (checkReturnValidityInTransaction()) {
+            this.dlog.error(checkedExpr.pos, DiagnosticCode.CHECK_EXPRESSION_INVALID_USAGE_WITHIN_TRANSACTION_BLOCK);
+            return;
+        }
+
         returnTypes.peek().add(exprType);
     }
 

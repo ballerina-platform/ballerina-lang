@@ -1,49 +1,57 @@
 /*
- *  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- *  WSO2 Inc. licenses this file to you under the Apache License,
- *  Version 2.0 (the "License"); you may not use this file except
- *  in compliance with the License.
- *  You may obtain a copy of the License at
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *  http://www.apache.org/licenses/LICENSE-2.0
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
- *  Unless required by applicable law or agreed to in writing,
- *  software distributed under the License is distributed on an
- *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- *  KIND, either express or implied.  See the License for the
- *  specific language governing permissions and limitations
- *  under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
-package org.ballerinax.jdbc.functions;
+package org.ballerinax.jdbc.methods;
 
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinax.jdbc.Constants;
 import org.ballerinax.jdbc.datasource.PoolKey;
 import org.ballerinax.jdbc.datasource.PoolOptionsWrapper;
 import org.ballerinax.jdbc.datasource.SQLDatasource;
+import org.ballerinax.jdbc.datasource.SQLDatasourceUtils;
 import org.ballerinax.jdbc.exceptions.ErrorGenerator;
 
 import java.util.Locale;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Returns the JDBC Client.
+ * External function implementations of the JDBC client.
  *
- * @since 0.970
+ * @since 1.1.0
  */
+public class ExternFunctions {
 
-@BallerinaFunction(orgName = "ballerinax",
-                   packageName = "java.jdbc",
-                   functionName = "createClient",
-                   isPublic = true)
-public class CreateClient {
+    private ExternFunctions() {}
 
-    public static void createClient(Strand strand, ObjectValue client, MapValue<String, Object> config,
-            MapValue<String, Object> globalPoolOptions) {
+    public static Object close(ObjectValue client) {
+        SQLDatasource datasource = (SQLDatasource) client.getNativeData(Constants.JDBC_CLIENT);
+        // When an exception is thrown during database endpoint init (eg: driver not present) stop operation
+        // of the endpoint is automatically called. But at this point, datasource is null therefore to handle that
+        // situation following null check is needed.
+        if (datasource != null && !datasource.isGlobalDatasource()) {
+            datasource.decrementClientCounterAndAttemptPoolShutdown();
+        }
+        return null;
+    }
+
+    public static void createClient(ObjectValue client, MapValue<String, Object> config,
+                                    MapValue<String, Object> globalPoolOptions) {
         String url = config.getStringValue(Constants.EndpointConfig.URL);
 
         if (!isJdbcUrlValid(url)) {
@@ -82,7 +90,8 @@ public class CreateClient {
                 .equals(splitComponents[0].toLowerCase(Locale.getDefault()));
     }
 
-    private CreateClient() {
-
+    public static void initGlobalPoolContainer(ObjectValue globalPoolConfigContainer,
+                                               MapValue<String, Object> poolConfig) {
+        SQLDatasourceUtils.addDatasourceContainer(poolConfig, new ConcurrentHashMap<>());
     }
 }
