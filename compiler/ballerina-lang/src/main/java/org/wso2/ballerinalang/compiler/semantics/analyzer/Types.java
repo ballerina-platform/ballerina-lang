@@ -1175,27 +1175,20 @@ public class Types {
         }
 
         for (BField field : fields) {
-            boolean fieldAssignableToUnionType = isAssignable(field.type, unionType);
-            boolean unionTypeAssignableField = isAssignable(unionType, field.type);
-
-            if (fieldAssignableToUnionType) {
+            if (isAssignable(field.type, unionType)) {
                 continue;
             }
 
-            if (unionTypeAssignableField) {
+            if (isAssignable(unionType, field.type)) {
                 unionType = BUnionType.create(null);
-                unionType.add(field.type);
             }
 
-            if (!unionTypeAssignableField) {
-                unionType.add(field.type);
-            }
+            unionType.add(field.type);
         }
 
         if (unionType.getMemberTypes().size() > 1) {
-            unionType.tsymbol = Symbols.createTypeSymbol(SymTag.UNION_TYPE, Flags
-                    .asMask(EnumSet.of(Flag.PUBLIC)), Names.EMPTY, recordType.tsymbol.pkgID,
-                                                         null, recordType.tsymbol.owner);
+            unionType.tsymbol = Symbols.createTypeSymbol(SymTag.UNION_TYPE, Flags.asMask(EnumSet.of(Flag.PUBLIC)),
+                    Names.EMPTY, recordType.tsymbol.pkgID, null, recordType.tsymbol.owner);
             return unionType;
         }
 
