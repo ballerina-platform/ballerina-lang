@@ -18,7 +18,6 @@
 package org.ballerinalang.stdlib.runtime.nativeimpl;
 
 import org.ballerinalang.jvm.scheduling.Scheduler;
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
 
 import java.util.concurrent.Executors;
