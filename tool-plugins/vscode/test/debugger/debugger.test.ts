@@ -29,13 +29,6 @@ import { DebugClientEx } from './debugClient';
 
 import { getBallerinaHome } from '../test-util';
 
-function isUnix(): boolean {
-	let platform = process.platform;
-	return platform === "linux"
-		|| platform === "darwin"
-		|| platform === "freebsd"
-		|| platform === "openbsd";
-}
 // const ballerinaHome = getBallerinaHome();
 
 suite('Ballerina Debug Adapter', () => {
@@ -50,18 +43,20 @@ suite('Ballerina Debug Adapter', () => {
     const ballerinaHome = getBallerinaHome();
     const DEBUG_PORT = 4711;
     setup(function () {
-        this.timeout(60000)
-        let startScriptPath = path.resolve(ballerinaHome, "lib", "tools", "debug-adapter", "launcher", "debug-adapter-launcher.sh");
-        // Ensure that start script can be executed
-        if (isUnix()) {
-            child_process.exec("chmod +x " + startScriptPath);
+        this.timeout(60000);
+        const cwd = path.join(ballerinaHome, "bin");
+        
+        let cmd = 'sh';
+        let args : string[] = [];
+        if (process.platform === 'win32') {
+            cmd = path.join(cwd, 'ballerina.bat');
         } else {
-            startScriptPath = path.resolve(ballerinaHome, "lib", "tools", "debug-adapter", "launcher", "debug-adapter-launcher.bat");
+            cmd = 'sh';
+            args.push(path.join(cwd, 'ballerina'));
         }
-
-        serverProcess = child_process.spawn(startScriptPath, [
-            DEBUG_PORT.toString()
-        ]);
+        args.push('start-debugger-adapter');
+        args.push(DEBUG_PORT.toString());
+        serverProcess = child_process.spawn(cmd, args);
         dc = new DebugClientEx("", "", 'ballerina', { cwd: PROJECT_ROOT });
         dc.defaultTimeout = 60000;
 
@@ -115,7 +110,7 @@ suite('Ballerina Debug Adapter', () => {
                     "debuggeePort": "5010" 
                 }),
                 dc.waitForEvent("initialized", 10000)
-            ])
+            ]);
 
         }).timeout(10000);
 
