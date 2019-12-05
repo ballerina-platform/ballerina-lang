@@ -1175,17 +1175,19 @@ public class Types {
         }
 
         for (BField field : fields) {
-            if (!isAssignable(unionType, field.type) && !isAssignable(field.type, unionType)) {
-                unionType.add(field.type);
+            boolean fieldAssignableToUnionType = isAssignable(field.type, unionType);
+            boolean unionTypeAssignableField = isAssignable(unionType, field.type);
+
+            if (fieldAssignableToUnionType) {
                 continue;
             }
 
-            if (isAssignable(field.type, unionType)) {
-                continue;
-            }
-
-            if (isAssignable(unionType, field.type)) {
+            if (unionTypeAssignableField) {
                 unionType = BUnionType.create(null);
+                unionType.add(field.type);
+            }
+
+            if (!unionTypeAssignableField) {
                 unionType.add(field.type);
             }
         }
