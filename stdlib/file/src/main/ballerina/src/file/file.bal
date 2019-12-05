@@ -72,7 +72,7 @@ public function remove(@untainted string path, boolean recursive = false) return
 }
 
 function externRemove(handle path, boolean recursive) returns Error? = @java:Method {
-    class: "org.ballerinalang.stdlib.file.nativeimpl.Remove",
+    class: "org.ballerinalang.stdlib.file.nativeimpl.Utils",
     name: "remove"
 } external;
 
@@ -145,7 +145,7 @@ public function readDir(@untainted string path, int maxDepth = -1) returns FileI
 }
 
 function externReadDir(handle path, int maxDepth) returns FileInfo[]|Error = @java:Method {
-    class: "org.ballerinalang.stdlib.file.nativeimpl.ReadDir",
+    class: "org.ballerinalang.stdlib.file.nativeimpl.Utils",
     name: "readDir"
 } external;
 
@@ -163,6 +163,6 @@ public function copy(@untainted string sourcePath, @untainted string destination
 
 function externCopy(handle path, handle destinationPath, boolean replaceExisting) returns Error? =
 @java:Method {
-    class: "org.ballerinalang.stdlib.file.nativeimpl.Copy",
+    class: "org.ballerinalang.stdlib.file.nativeimpl.Utils",
     name: "copy"
 } external;

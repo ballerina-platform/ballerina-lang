@@ -32,7 +32,6 @@ dependencies {
     implementation project(':ballerina-time')
     implementation project(':ballerina-lang:internal')
     implementation project(':ballerina-io')
-    implementation project(':ballerina-java')
     implementation 'org.wso2.transport.file:org.wso2.transport.local-file-system'
 
     baloImplementation project(path: ':ballerina-lang:annotations', configuration: 'baloImplementation')
