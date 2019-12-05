@@ -220,7 +220,7 @@ public class BallerinaDocGenerator {
                 ModulePageContext modulePageContext = new ModulePageContext(module, project,
                         rootPathModuleLevel,
                         "API Docs - " + (project.isSingleFile ? project.sourceFileName
-                                : project.organization + "/" + module.id));
+                                : module.orgName + "/" + module.id));
                 String modIndexPath = modDir + File.separator + "index" + HTML;
                 Writer.writeHtmlDocument(modulePageContext, moduleTemplateName, modIndexPath);
 
