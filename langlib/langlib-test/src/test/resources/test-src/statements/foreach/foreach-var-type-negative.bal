@@ -1,3 +1,8 @@
+public type Person record {
+    string name;
+    int age;
+};
+
 public type Foo record {|
     float f;
     int d;
@@ -56,6 +61,13 @@ function test5() {
     map<int> m = {"1" : 1, "2" : 2, "3" : 3};
     Bar bar = {f: 1.0, d: 23, s: "Shalala", j: true, a: m};
     foreach xml j in bar {
+
+    }
+}
+
+function test6() {
+    Person person = {name: "Aryaa", age: 22};
+    foreach (boolean|float|xml) bf in person {
 
     }
 }
