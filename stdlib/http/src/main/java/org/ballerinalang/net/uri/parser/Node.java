@@ -133,11 +133,15 @@ public abstract class Node<DataType, InboundMsgType> {
     @SuppressWarnings("unchecked")
     private Node<DataType, InboundMsgType> getMatchingChildNode(Node<DataType, InboundMsgType> prospectiveChild,
             List<Node<DataType, InboundMsgType>> existingChildren) throws URITemplateException {
-        boolean isExpression = prospectiveChild instanceof Expression;
+//        boolean isExpression = prospectiveChild instanceof Expression;
+        boolean isDotSuffixExpression = prospectiveChild instanceof DotSuffixExpression;
+        boolean isSimpleStringExpression = prospectiveChild instanceof SimpleStringExpression;
         String prospectiveChildToken = prospectiveChild.getToken();
 
         for (Node<DataType, InboundMsgType> existingChild : existingChildren) {
-            if (isExpression && existingChild instanceof Expression) {
+            if ((isDotSuffixExpression && existingChild instanceof DotSuffixExpression) ||
+                    (isSimpleStringExpression && existingChild instanceof SimpleStringExpression)) {
+//            if (isExpression && existingChild instanceof Expression) {
                 ((Expression) existingChild).variableList.add(new Variable(prospectiveChild.token));
                 existingChild.token = existingChild.token + "+" + prospectiveChild.token;
                 return existingChild;
