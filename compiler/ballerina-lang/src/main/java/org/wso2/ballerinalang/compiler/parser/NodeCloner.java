@@ -17,6 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler.parser;
 
+import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.Node;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.model.tree.clauses.PatternStreamingEdgeInputNode;
@@ -182,6 +183,7 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Node Visitor for cloning AST nodes.
@@ -252,7 +254,7 @@ class NodeCloner extends BLangNodeVisitor {
         clone.returnTypeAnnAttachments = cloneList(source.returnTypeAnnAttachments);
         clone.externalAnnAttachments = cloneList(source.externalAnnAttachments);
         clone.body = clone(source.body);
-        clone.flagSet = EnumSet.copyOf(source.flagSet);
+        clone.flagSet = cloneSet(source.flagSet, Flag.class);
         clone.markdownDocumentationAttachment = clone(source.markdownDocumentationAttachment);
 
         clone.annAttachments = cloneList(source.annAttachments);
@@ -262,7 +264,7 @@ class NodeCloner extends BLangNodeVisitor {
 
         clone.typeNode = clone(source.typeNode);
         clone.expr = clone(source.expr);
-        clone.flagSet = EnumSet.copyOf(source.flagSet);
+        clone.flagSet = cloneSet(source.flagSet, Flag.class);
         clone.annAttachments = cloneList(source.annAttachments);
         clone.markdownDocumentationAttachment = clone(source.markdownDocumentationAttachment);
         clone.isDeclaredWithVar = source.isDeclaredWithVar;
@@ -308,6 +310,15 @@ class NodeCloner extends BLangNodeVisitor {
         clone.body = clone(source.body);
         clone.matchExpr = clone(source.matchExpr);
         clone.isLastPattern = source.isLastPattern;
+    }
+
+    private <T extends Enum<T>> EnumSet<T> cloneSet(Set<T> source, Class<T> elementType) {
+
+        if (source == null || source.isEmpty()) {
+            return EnumSet.noneOf(elementType);
+        } else {
+            return EnumSet.copyOf(source);
+        }
     }
 
     /* Visitor Methods */
@@ -374,7 +385,7 @@ class NodeCloner extends BLangNodeVisitor {
     public void visit(BLangService source) {
 
         BLangService clone = new BLangService();
-        clone.flagSet = EnumSet.copyOf(source.flagSet);
+        clone.flagSet = cloneSet(source.flagSet, Flag.class);
         clone.annAttachments = cloneList(source.annAttachments);
         clone.markdownDocumentationAttachment = clone(source.markdownDocumentationAttachment);
 
@@ -402,7 +413,7 @@ class NodeCloner extends BLangNodeVisitor {
         clone.typeNode = clone(source.typeNode);
         clone.annAttachments = cloneList(source.annAttachments);
         clone.markdownDocumentationAttachment = clone(source.markdownDocumentationAttachment);
-        clone.flagSet = EnumSet.copyOf(source.flagSet);
+        clone.flagSet = cloneSet(source.flagSet, Flag.class);
         clone.precedence = source.precedence;
 
         result = clone;
@@ -450,7 +461,7 @@ class NodeCloner extends BLangNodeVisitor {
 
         BLangAnnotation clone = new BLangAnnotation();
         clone.name = source.name;
-        clone.flagSet = EnumSet.copyOf(source.flagSet);
+        clone.flagSet = cloneSet(source.flagSet, Flag.class);
         clone.annAttachments = cloneList(source.annAttachments);
         clone.markdownDocumentationAttachment = clone(source.markdownDocumentationAttachment);
         clone.typeNode = clone(source.typeNode);
@@ -1080,7 +1091,7 @@ class NodeCloner extends BLangNodeVisitor {
         clone.async = source.async;
         clone.builtinMethodInvocation = source.builtinMethodInvocation;
         clone.builtInMethod = source.builtInMethod;
-        clone.flagSet = EnumSet.copyOf(source.flagSet);
+        clone.flagSet = cloneSet(source.flagSet, Flag.class);
         clone.annAttachments = cloneList(source.annAttachments);
 
         cloneBLangAccessExpression(source, clone);
@@ -1224,7 +1235,7 @@ class NodeCloner extends BLangNodeVisitor {
         clone.typeNode = clone(source.typeNode);
         clone.targetType = source.targetType;
         clone.annAttachments = cloneList(source.annAttachments);
-        clone.flagSet = EnumSet.copyOf(source.flagSet);
+        clone.flagSet = cloneSet(source.flagSet, Flag.class);
         clone.checkTypes = source.checkTypes;
 
         result = clone;
@@ -1564,7 +1575,7 @@ class NodeCloner extends BLangNodeVisitor {
         BLangUserDefinedType clone = new BLangUserDefinedType();
         clone.pkgAlias = source.pkgAlias;
         clone.typeName = source.typeName;
-        clone.flagSet = EnumSet.copyOf(source.flagSet);
+        clone.flagSet = cloneSet(source.flagSet, Flag.class);
 
         result = clone;
     }
@@ -1596,7 +1607,7 @@ class NodeCloner extends BLangNodeVisitor {
         clone.functions = cloneList(source.functions);
         clone.initFunction = clone(source.initFunction);
         clone.receiver = clone(source.receiver);
-        clone.flagSet = EnumSet.copyOf(source.flagSet);
+        clone.flagSet = cloneSet(source.flagSet, Flag.class);
         cloneBLangStructureTypeNode(source, clone);
 
         result = clone;
