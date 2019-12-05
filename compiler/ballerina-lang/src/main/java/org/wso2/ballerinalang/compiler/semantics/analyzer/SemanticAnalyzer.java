@@ -1378,25 +1378,31 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             // Type of rest pattern is a map type where constraint type is,
             // union of keys whose values are not matched in error binding/match pattern.
             BTypeSymbol typeSymbol = createTypeSymbol(SymTag.TYPE);
-            BUnionType restFieldType = BUnionType.create(null);
-            if (!recordType.sealed) {
-                restFieldType.add(recordType.restFieldType);
-            }
-            for (Map.Entry<String, BField> entry : fieldMap.entrySet()) {
-                if (!matchedDetailFields.contains(entry.getKey())) {
-                    BType type = entry.getValue().getType();
-                    if (!types.isAssignable(type, restFieldType)) {
-                        restFieldType.add(type);
-                    }
-                }
-            }
-
-            BMapType restType = new BMapType(TypeTags.MAP, restFieldType, typeSymbol);
+            BUnionType restUnionType = addUntouchedFieldTypes(fieldMap, matchedDetailFields, recordType);
+            BMapType restType = new BMapType(TypeTags.MAP, restUnionType.normalize(), typeSymbol);
             typeSymbol.type = restType;
             errorVariable.restDetail.type = restType;
             errorVariable.restDetail.accept(this);
         }
         return true;
+    }
+
+    private BUnionType addUntouchedFieldTypes(Map<String, BField> fieldMap, Set<String> matchedDetailFields,
+                                              BRecordType recordType) {
+        BUnionType restUnionType = BUnionType.create(null);
+        if (!recordType.sealed) {
+            restUnionType.add(recordType.restFieldType);
+        }
+        for (Map.Entry<String, BField> entry : fieldMap.entrySet()) {
+            if (!matchedDetailFields.contains(entry.getKey())) {
+                BType type = entry.getValue().getType();
+                if (!types.isAssignable(type, restUnionType)) {
+                    restUnionType.add(type);
+                }
+            }
+        }
+
+        return restUnionType;
     }
 
     private boolean validateErrorReasonMatchPatternSyntax(BLangErrorVariable errorVariable) {
