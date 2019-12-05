@@ -118,7 +118,7 @@ public class Parser {
                 compilationUnit = createCompilationUnit(sourceEntry, packageID);
                 boolean inError = populateCompilationUnit(compilationUnit, entryName, code);
                 if (!inError) {
-                    return parserCache.updateAndGet(packageID, entryName, hash, compilationUnit);
+                    compilationUnit = parserCache.updateAndGet(packageID, entryName, hash, compilationUnit);
                 }
             }
             return compilationUnit;

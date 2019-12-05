@@ -230,6 +230,7 @@ class NodeCloner extends BLangNodeVisitor {
             return null;
         }
         BLangNode currentClone = this.result;
+        this.result = null;
 
         BLangNode bLangNode = (BLangNode) node;
         bLangNode.accept(this);
@@ -250,14 +251,15 @@ class NodeCloner extends BLangNodeVisitor {
 
         clone.name = source.name;
         clone.defaultWorkerName = source.defaultWorkerName;
+        clone.requiredParams = cloneList(source.requiredParams);
         clone.returnTypeNode = clone(source.returnTypeNode);
         clone.returnTypeAnnAttachments = cloneList(source.returnTypeAnnAttachments);
         clone.externalAnnAttachments = cloneList(source.externalAnnAttachments);
         clone.body = clone(source.body);
         clone.flagSet = cloneSet(source.flagSet, Flag.class);
         clone.markdownDocumentationAttachment = clone(source.markdownDocumentationAttachment);
-
         clone.annAttachments = cloneList(source.annAttachments);
+        clone.restParam = clone(source.restParam);
     }
 
     private void cloneBLangVariable(BLangVariable source, BLangVariable clone) {
@@ -361,7 +363,6 @@ class NodeCloner extends BLangNodeVisitor {
     public void visit(BLangXMLNS source) {
 
         BLangXMLNS clone = new BLangXMLNS();
-        ;
         clone.namespaceURI = clone(source.namespaceURI);
         clone.prefix = source.prefix;
         this.result = clone;
