@@ -1,5 +1,4 @@
 /*
-
  * Copyright (c) 2019, WSO2 Inc. (http://wso2.com) All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,9 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
-
  */
-
 package org.ballerinalang.langserver.codeaction;
 
 import org.ballerinalang.langserver.compiler.LSContext;
@@ -24,11 +21,12 @@ import org.eclipse.lsp4j.Diagnostic;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Represents the Code Action router.
  *
- * @since 1.0.4
+ * @since 1.1.0
  */
 public class BallerinaCodeActionRouter implements CodeActionRouter {
 
@@ -43,15 +41,17 @@ public class BallerinaCodeActionRouter implements CodeActionRouter {
         List<CodeAction> codeActions = new ArrayList<>();
 
         if (nodeType != null) {
-            if (BallerinaCodeActionProviderFactory.nodeBasedProviders.containsKey(nodeType)) {
-                BallerinaCodeActionProviderFactory.nodeBasedProviders.get(nodeType).forEach(ballerinaCodeAction -> {
+            Map<CodeActionNodeType, List<BallerinaCodeActionProvider>> nodeBasedProviders =
+                    BallerinaCodeActionProviderFactory.getNodeBasedProviders();
+            if (nodeBasedProviders.containsKey(nodeType)) {
+                nodeBasedProviders.get(nodeType).forEach(ballerinaCodeAction -> {
                     codeActions.addAll(ballerinaCodeAction.getCodeActions(nodeType, context, null));
                 });
 
             }
         }
         if (diagnostics != null && diagnostics.size() > 0) {
-            BallerinaCodeActionProviderFactory.diagnosticsBasedProviders.forEach(ballerinaCodeAction -> {
+            BallerinaCodeActionProviderFactory.getDiagnosticsBasedProviders().forEach(ballerinaCodeAction -> {
                 List<CodeAction> codeActionList = ballerinaCodeAction.getCodeActions(nodeType, context, diagnostics);
                 if (codeActionList != null) {
                     codeActions.addAll(codeActionList);

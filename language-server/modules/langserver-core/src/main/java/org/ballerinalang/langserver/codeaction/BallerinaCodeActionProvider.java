@@ -1,5 +1,4 @@
 /*
-
  * Copyright (c) 2019, WSO2 Inc. (http://wso2.com) All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,9 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
-
  */
-
 package org.ballerinalang.langserver.codeaction;
 
 import org.ballerinalang.langserver.compiler.LSContext;
@@ -27,7 +24,7 @@ import java.util.List;
 /**
  * Represents the SPI interface for the Ballerina Code Action Provider.
  *
- * @since 1.0.4
+ * @since 1.1.0
  */
 public interface BallerinaCodeActionProvider {
 

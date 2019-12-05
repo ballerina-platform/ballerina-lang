@@ -1,5 +1,4 @@
 /*
-
  * Copyright (c) 2019, WSO2 Inc. (http://wso2.com) All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,9 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
-
  */
-
 package org.ballerinalang.langserver.codeaction;
 
 import java.util.ArrayList;
@@ -27,11 +24,11 @@ import java.util.ServiceLoader;
 /**
  * Represents the Code Action provider factory.
  *
- * @since 1.0.4
+ * @since 1.1.0
  */
 public class BallerinaCodeActionProviderFactory {
-    public static Map<CodeActionNodeType, List<BallerinaCodeActionProvider>> nodeBasedProviders;
-    public static List<BallerinaCodeActionProvider> diagnosticsBasedProviders;
+    private static Map<CodeActionNodeType, List<BallerinaCodeActionProvider>> nodeBasedProviders;
+    private static List<BallerinaCodeActionProvider> diagnosticsBasedProviders;
     private static BallerinaCodeActionProviderFactory codeActionProviderInstance;
     private ServiceLoader<BallerinaCodeActionProvider> serviceLoader;
     private boolean isInitialized = false;
@@ -40,14 +37,41 @@ public class BallerinaCodeActionProviderFactory {
         serviceLoader = ServiceLoader.load(BallerinaCodeActionProvider.class);
     }
 
+    static {
+        codeActionProviderInstance = new BallerinaCodeActionProviderFactory();
+    }
+
     /**
      * @return code action provider factory instance
      */
     public static BallerinaCodeActionProviderFactory getInstance() {
-        if (codeActionProviderInstance == null) {
-            codeActionProviderInstance = new BallerinaCodeActionProviderFactory();
-        }
         return codeActionProviderInstance;
+    }
+
+    /**
+     *
+     * @return node based providers
+     */
+    public static Map<CodeActionNodeType, List<BallerinaCodeActionProvider>> getNodeBasedProviders() {
+        return nodeBasedProviders;
+    }
+
+    public static void setNodeBasedProviders(
+            Map<CodeActionNodeType, List<BallerinaCodeActionProvider>> nodeBasedProviders) {
+        BallerinaCodeActionProviderFactory.nodeBasedProviders = nodeBasedProviders;
+    }
+
+    /**
+     *
+     * @return diagnostic based providers
+     */
+    public static List<BallerinaCodeActionProvider> getDiagnosticsBasedProviders() {
+        return diagnosticsBasedProviders;
+    }
+
+    public static void setDiagnosticsBasedProviders(
+            List<BallerinaCodeActionProvider> diagnosticsBasedProviders) {
+        BallerinaCodeActionProviderFactory.diagnosticsBasedProviders = diagnosticsBasedProviders;
     }
 
     /**
@@ -58,10 +82,10 @@ public class BallerinaCodeActionProviderFactory {
         if (isInitialized) {
             return;
         }
-        nodeBasedProviders = new HashMap<>();
-        diagnosticsBasedProviders = new ArrayList<>();
+        BallerinaCodeActionProviderFactory.setNodeBasedProviders(new HashMap<>());
+        BallerinaCodeActionProviderFactory.setDiagnosticsBasedProviders(new ArrayList<>());
         for (CodeActionNodeType nodeType : CodeActionNodeType.values()) {
-            nodeBasedProviders.put(nodeType, new ArrayList<>());
+            BallerinaCodeActionProviderFactory.getNodeBasedProviders().put(nodeType, new ArrayList<>());
         }
         for (BallerinaCodeActionProvider codeAction : serviceLoader) {
             if (codeAction.isNodeBased()) {
@@ -87,7 +111,7 @@ public class BallerinaCodeActionProviderFactory {
                     }
                 }
             } else if (!codeAction.isNodeBased()) {
-                diagnosticsBasedProviders.add(codeAction);
+                BallerinaCodeActionProviderFactory.getDiagnosticsBasedProviders().add(codeAction);
             }
         }
         isInitialized = true;
