@@ -141,6 +141,19 @@ if [ -z "$JAVA_HOME" ]; then
   exit 1
 fi
 
+# Ballerina test/debug command
+argsLength=$#
+args=($@)
+for (( i=0; i<argsLength; i++ )); do
+  if [  "${args[$i]}" = "test" ]; then
+    for (( j=0; j<argsLength; j++ )); do
+      if [ "${args[$j]}" = "--debug" ]; then
+        BAL_JAVA_DEBUG=${args[$j+1]}
+      fi
+    done
+  fi
+done
+
 # ----- Process the input command ----------------------------------------------
 
 if [ -n "${BAL_JAVA_DEBUG+set}" ]; then

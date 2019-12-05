@@ -18,6 +18,7 @@ package org.ballerinalang.docgen.generator.model;
 import org.ballerinalang.docgen.docs.BallerinaDocDataHolder;
 import org.ballerinalang.model.elements.Flag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
@@ -34,6 +35,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUnionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
+import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -54,6 +56,7 @@ public class Type {
     public boolean isNullable;
     public boolean isTuple;
     public boolean isLambda;
+    public boolean generateUserDefinedTypeLink = true;
     public List<Type> memberTypes = new ArrayList<>();
     public List<Type> paramTypes = new ArrayList<>();
     public Type returnType;
@@ -68,7 +71,7 @@ public class Type {
         setCategory(type);
     }
 
-    public Type(BLangType type) {
+    public Type(BLangType type, String currentModule) {
         BTypeSymbol typeSymbol = type.type.tsymbol;
         if (typeSymbol != null && !typeSymbol.name.value.equals("")) {
             if (type instanceof BLangUserDefinedType) {
@@ -93,7 +96,7 @@ public class Type {
                 } else if (type instanceof BLangUnionTypeNode) {
                     this.isAnonymousUnionType = true;
                     ((BLangUnionTypeNode) type).memberTypeNodes.forEach(memberType -> {
-                        this.memberTypes.add(Type.fromTypeNode(memberType));
+                        this.memberTypes.add(Type.fromTypeNode(memberType, currentModule));
                     });
                     if (typeSymbol != null) {
                         this.orgName = typeSymbol.pkgID.orgName.value;
@@ -112,15 +115,15 @@ public class Type {
         this.description = description;
     }
 
-    public static Type fromTypeNode(BLangType type) {
+    public static Type fromTypeNode(BLangType type, String currentModule) {
         Type typeModel = null;
         if (type instanceof BLangFunctionTypeNode) {
             typeModel = new Type();
             typeModel.isLambda = true;
             typeModel.paramTypes = ((BLangFunctionTypeNode) type).params.stream()
-                    .map((p) -> Type.fromTypeNode(p.typeNode))
+                    .map((p) -> Type.fromTypeNode(p.typeNode, currentModule))
                     .collect(Collectors.toList());
-            typeModel.returnType = Type.fromTypeNode(((BLangFunctionTypeNode) type).returnTypeNode);
+            typeModel.returnType = Type.fromTypeNode(((BLangFunctionTypeNode) type).returnTypeNode, currentModule);
         } else if (type instanceof BLangFiniteTypeNode) {
             List<BLangExpression> valueSpace = ((BLangFiniteTypeNode) type).valueSpace;
             if (valueSpace.size() == 1) {
@@ -128,22 +131,32 @@ public class Type {
             }
         } else if (type instanceof BLangArrayType) {
             BLangType elemtype = ((BLangArrayType) type).elemtype;
-            typeModel = fromTypeNode(elemtype);
+            String moduleName = elemtype.type.tsymbol.pkgID.name.toString();
+            typeModel = fromTypeNode(elemtype, currentModule);
             typeModel.isArrayType = true;
+            if (moduleName.equals(currentModule) && elemtype instanceof BLangUserDefinedType
+                    && !((BLangUserDefinedType) elemtype).flagSet.contains(Flag.PUBLIC)) {
+                typeModel.generateUserDefinedTypeLink = false;
+            }
         } else if (type instanceof BLangTupleTypeNode) {
             List<BLangType> memberTypeNodes = ((BLangTupleTypeNode) type).memberTypeNodes;
-            typeModel = new Type(type);
+            typeModel = new Type(type, currentModule);
             typeModel.isTuple = true;
             typeModel.memberTypes = memberTypeNodes.stream()
-                                    .map(Type::fromTypeNode)
+                                    .map(typeVal -> Type.fromTypeNode(typeVal, currentModule))
                                     .collect(Collectors.toList());
         } else if (type.nullable && type instanceof BLangUnionTypeNode
                 && ((BLangUnionTypeNode) type).getMemberTypeNodes().size() == 2) {
             BLangUnionTypeNode unionType = (BLangUnionTypeNode) type;
-            typeModel = fromTypeNode((BLangType) unionType.getMemberTypeNodes().toArray()[0]);
+            typeModel = fromTypeNode((BLangType) unionType.getMemberTypeNodes().toArray()[0], currentModule);
         }
         if (typeModel == null) {
-            typeModel = new Type(type);
+            typeModel = new Type(type, currentModule);
+            if (type.type.tsymbol != null && type.type.tsymbol.pkgID.name.toString().equals(currentModule)
+                    && type instanceof BLangUserDefinedType
+                    && (type.type.tsymbol.flags & Flags.PUBLIC) != Flags.PUBLIC) {
+                typeModel.generateUserDefinedTypeLink = false;
+            }
         }
         typeModel.isNullable = type.nullable;
         if (type.type instanceof BNilType) {
@@ -157,7 +170,7 @@ public class Type {
             BObjectTypeSymbol objSymbol = (BObjectTypeSymbol) type.tsymbol;
             if (objSymbol.getFlags().contains(Flag.CLIENT)) {
                 this.category = "clients";
-            } else if (objSymbol.getFlags().contains(Flag.LISTENER)) {
+            } else if (objSymbol.getFlags().contains(Flag.LISTENER) || isListenerObject(objSymbol)) {
                 this.category = "listeners";
             } else {
                 this.category = "objects";
@@ -208,5 +221,22 @@ public class Type {
 
         }
 
+    }
+
+    /**
+     * Check whether the symbol is a listener object.
+     *
+     * @param bSymbol Symbol to evaluate
+     * @return {@link Boolean}  whether listener or not
+     */
+    private static boolean isListenerObject(BSymbol bSymbol) {
+        if (!(bSymbol instanceof BObjectTypeSymbol)) {
+            return false;
+        }
+        List<String> attachedFunctions = ((BObjectTypeSymbol) bSymbol).attachedFuncs.stream()
+                .map(function -> function.funcName.getValue())
+                .collect(Collectors.toList());
+        return attachedFunctions.contains("__start") && attachedFunctions.contains("__immediateStop")
+                && attachedFunctions.contains("__attach");
     }
 }

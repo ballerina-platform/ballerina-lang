@@ -14,6 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerinax/java;
+
 # Represents a JDBC client endpoint.
 #
 public type Client client object {
@@ -36,7 +38,7 @@ public type Client client object {
         if (!self.clientActive) {
             return self.handleStoppedClientInvocation();
         }
-        return nativeCall(self, sqlQuery, recordType, ...parameters);
+        return nativeCall(self, java:fromString(sqlQuery), recordType, parameters);
     }
 
     # The select remote function implementation for JDBC Client to select data from tables.
@@ -50,7 +52,7 @@ public type Client client object {
         if (!self.clientActive) {
             return self.handleStoppedClientInvocation();
         }
-        return nativeSelect(self, sqlQuery, recordType, ...parameters);
+        return nativeSelect(self, java:fromString(sqlQuery), recordType, parameters);
     }
 
     # The update remote function implementation for JDBC Client to insert/delete/modify data and schema of the database.
@@ -64,7 +66,7 @@ public type Client client object {
         if (!self.clientActive) {
             return self.handleStoppedClientInvocation();
         }
-        return nativeUpdate(self, sqlQuery, ...parameters);
+        return nativeUpdate(self, java:fromString(sqlQuery), parameters);
     }
 
     # The batchUpdate remote function implementation for JDBC Client to execute batch operations.
@@ -87,7 +89,7 @@ public type Client client object {
         if (!self.clientActive) {
             return self.handleStoppedClientInvocationForBatchUpdate();
         }
-        return nativeBatchUpdate(self, sqlQuery, rollbackAllInFailure, ...parameters);
+        return nativeBatchUpdate(self, java:fromString(sqlQuery), rollbackAllInFailure, ...parameters);
     }
 
     # Stops the JDBC client.
@@ -111,18 +113,30 @@ public type Client client object {
     }
 };
 
-function nativeSelect(Client jdbcClient,@untainted string sqlQuery, typedesc<record {}>? recordType,
-    Param... parameters) returns @tainted table<record {}>|Error = external;
+function nativeSelect(Client jdbcClient, @untainted handle sqlQuery, typedesc<record {}>? recordType,
+    Param[] parameters) returns @tainted table<record {}>|Error = @java:Method {
+        class: "org.ballerinax.jdbc.methods.ExternActions"
+    } external;
 
-function nativeCall(Client jdbcClient,@untainted string sqlQuery, typedesc<record {}>[]? recordType,
-    Param... parameters) returns @tainted table<record {}>[]|()|Error = external;
+function nativeCall(Client jdbcClient, @untainted handle sqlQuery, typedesc<record {}>[]? recordType,
+    Param[] parameters) returns @tainted table<record {}>[]|()|Error = @java:Method {
+       class: "org.ballerinax.jdbc.methods.ExternActions"
+    } external;
 
-function nativeUpdate(Client jdbcClient,@untainted string sqlQuery, Param... parameters)
-    returns UpdateResult|Error = external;
+function nativeUpdate(Client jdbcClient, @untainted handle sqlQuery, Param[] parameters)
+    returns UpdateResult|Error = @java:Method {
+        class: "org.ballerinax.jdbc.methods.ExternActions"
+    } external;
 
-function nativeBatchUpdate(Client jdbcClient,@untainted string sqlQuery, boolean rollbackAllInFailure,
-    Param?[]... parameters) returns BatchUpdateResult = external;
+function nativeBatchUpdate(Client jdbcClient, @untainted handle sqlQuery, boolean rollbackAllInFailure,
+    Param?[]... parameters) returns BatchUpdateResult = @java:Method {
+        class: "org.ballerinax.jdbc.methods.ExternActions"
+    } external;
 
-function createClient(Client jdbcClient, ClientConfiguration config, PoolOptions globalPoolOptions) = external;
+function createClient(Client jdbcClient, ClientConfiguration config, PoolOptions globalPoolOptions) = @java:Method {
+    class: "org.ballerinax.jdbc.methods.ExternFunctions"
+} external;
 
-function close(Client jdbcClient) returns error? = external;
+function close(Client jdbcClient) returns error? = @java:Method {
+    class: "org.ballerinax.jdbc.methods.ExternFunctions"
+} external;
