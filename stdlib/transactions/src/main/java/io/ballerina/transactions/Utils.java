@@ -35,7 +35,6 @@ import java.net.ServerSocket;
 import java.net.UnknownHostException;
 import java.util.Enumeration;
 
-import static io.ballerina.transactions.RegisterLocalParticipant.STRUCT_TYPE_TRANSACTION_CONTEXT;
 import static org.ballerinalang.jvm.runtime.RuntimeConstants.GLOBAL_TRANSACTION_ID;
 import static org.ballerinalang.jvm.runtime.RuntimeConstants.TRANSACTION_URL;
 import static org.ballerinalang.jvm.transactions.TransactionConstants.TRANSACTION_PACKAGE_ID;
@@ -46,6 +45,8 @@ import static org.ballerinalang.jvm.transactions.TransactionConstants.TRANSACTIO
  * @since 1.1.0
  */
 public class Utils {
+    private static final String STRUCT_TYPE_TRANSACTION_CONTEXT = "TransactionContext";
+
     public static void notifyResourceManagerOnAbort(String transactionBlockId) {
         Strand strand = Scheduler.getStrand();
         org.ballerinalang.jvm.transactions.TransactionLocalContext transactionLocalContext =

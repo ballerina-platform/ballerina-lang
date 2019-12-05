@@ -114,7 +114,8 @@ public type Certificate record {|
 # + input - Value to be hashed
 # + return - Hashed output
 public function hashMd5(byte[] input) returns byte[] = @java:Method {
-    class: "org.ballerinalang.stdlib.crypto.nativeimpl.HashMd5"
+    name: "hashMd5",
+    class: "org.ballerinalang.stdlib.crypto.nativeimpl.Hash"
 } external;
 
 # Returns the SHA-1 hash of the given data.
@@ -122,7 +123,8 @@ public function hashMd5(byte[] input) returns byte[] = @java:Method {
 # + input - Value to be hashed
 # + return - Hashed output
 public function hashSha1(byte[] input) returns byte[] = @java:Method {
-    class: "org.ballerinalang.stdlib.crypto.nativeimpl.HashSha1"
+    name: "hashSha1",
+    class: "org.ballerinalang.stdlib.crypto.nativeimpl.Hash"
 } external;
 
 # Returns the SHA-256 hash of the given data.
@@ -130,7 +132,8 @@ public function hashSha1(byte[] input) returns byte[] = @java:Method {
 # + input - Value to be hashed
 # + return - Hashed output
 public function hashSha256(byte[] input) returns byte[] = @java:Method {
-    class: "org.ballerinalang.stdlib.crypto.nativeimpl.HashSha256"
+    name: "hashSha256",
+    class: "org.ballerinalang.stdlib.crypto.nativeimpl.Hash"
 } external;
 
 # Returns the SHA-384 hash of the given data.
@@ -138,7 +141,8 @@ public function hashSha256(byte[] input) returns byte[] = @java:Method {
 # + input - Value to be hashed
 # + return - Hashed output
 public function hashSha384(byte[] input) returns byte[] = @java:Method {
-    class: "org.ballerinalang.stdlib.crypto.nativeimpl.HashSha384"
+    name: "hashSha384",
+    class: "org.ballerinalang.stdlib.crypto.nativeimpl.Hash"
 } external;
 
 # Returns the SHA-512 hash of the given data.
@@ -146,7 +150,8 @@ public function hashSha384(byte[] input) returns byte[] = @java:Method {
 # + input - Value to be hashed
 # + return - Hashed output
 public function hashSha512(byte[] input) returns byte[] = @java:Method {
-    class: "org.ballerinalang.stdlib.crypto.nativeimpl.HashSha512"
+    name: "hashSha512",
+    class: "org.ballerinalang.stdlib.crypto.nativeimpl.Hash"
 } external;
 
 # Returns the HMAC using MD-5 hash function of the given data.
@@ -155,7 +160,8 @@ public function hashSha512(byte[] input) returns byte[] = @java:Method {
 # + key - Key used for HMAC generation
 # + return - HMAC output
 public function hmacMd5(byte[] input, byte[] key) returns byte[] = @java:Method {
-    class: "org.ballerinalang.stdlib.crypto.nativeimpl.HmacMd5"
+    name: "hmacMd5",
+    class: "org.ballerinalang.stdlib.crypto.nativeimpl.Hmac"
 } external;
 
 # Returns the HMAC using SHA-1 hash function of the given data.
@@ -164,7 +170,8 @@ public function hmacMd5(byte[] input, byte[] key) returns byte[] = @java:Method 
 # + key - Key used for HMAC generation
 # + return - HMAC output
 public function hmacSha1(byte[] input, byte[] key) returns byte[] = @java:Method {
-    class: "org.ballerinalang.stdlib.crypto.nativeimpl.HmacSha1"
+    name: "hmacSha1",
+    class: "org.ballerinalang.stdlib.crypto.nativeimpl.Hmac"
 } external;
 
 # Returns the HMAC using SHA-256 hash function of the given data.
@@ -173,7 +180,8 @@ public function hmacSha1(byte[] input, byte[] key) returns byte[] = @java:Method
 # + key - Key used for HMAC generation
 # + return - HMAC output
 public function hmacSha256(byte[] input, byte[] key) returns byte[] = @java:Method {
-    class: "org.ballerinalang.stdlib.crypto.nativeimpl.HmacSha256"
+    name: "hmacSha256",
+    class: "org.ballerinalang.stdlib.crypto.nativeimpl.Hmac"
 } external;
 
 # Returns the HMAC using SHA-384 hash function of the given data.
@@ -182,7 +190,8 @@ public function hmacSha256(byte[] input, byte[] key) returns byte[] = @java:Meth
 # + key - Key used for HMAC generation
 # + return - HMAC output
 public function hmacSha384(byte[] input, byte[] key) returns byte[] = @java:Method {
-    class: "org.ballerinalang.stdlib.crypto.nativeimpl.HmacSha384"
+    name: "hmacSha384",
+    class: "org.ballerinalang.stdlib.crypto.nativeimpl.Hmac"
 } external;
 
 # Returns the HMAC using SHA-512 hash function of the given data.
@@ -191,7 +200,8 @@ public function hmacSha384(byte[] input, byte[] key) returns byte[] = @java:Meth
 # + key - Key used for HMAC generation
 # + return - HMAC output
 public function hmacSha512(byte[] input, byte[] key) returns byte[] = @java:Method {
-    class: "org.ballerinalang.stdlib.crypto.nativeimpl.HmacSha512"
+    name: "hmacSha512",
+    class: "org.ballerinalang.stdlib.crypto.nativeimpl.Hmac"
 } external;
 
 # Returns Hex encoded CRC32B value for the provided element.
@@ -204,7 +214,7 @@ public function crc32b(byte[] input) returns string {
 
 function externCrc32b(byte[] input) returns handle = @java:Method {
     name: "crc32b",
-    class: "org.ballerinalang.stdlib.crypto.nativeimpl.Crc32b"
+    class: "org.ballerinalang.stdlib.crypto.nativeimpl.Hash"
 } external;
 
 # Returns RSA-MD5 based signature value for the given data.
@@ -213,7 +223,8 @@ function externCrc32b(byte[] input) returns handle = @java:Method {
 # + privateKey - Private key used for signing
 # + return - The generated signature or `Error` if private key is invalid
 public function signRsaMd5(byte[] input, PrivateKey privateKey) returns byte[]|Error = @java:Method {
-    class: "org.ballerinalang.stdlib.crypto.nativeimpl.SignRsaMd5"
+    name: "signRsaMd5",
+    class: "org.ballerinalang.stdlib.crypto.nativeimpl.Sign"
 } external;
 
 # Returns RSA-SHA1 based signature value for the given data.
@@ -222,7 +233,8 @@ public function signRsaMd5(byte[] input, PrivateKey privateKey) returns byte[]|E
 # + privateKey - Private key used for signing
 # + return - The generated signature or `Error` if private key is invalid
 public function signRsaSha1(byte[] input, PrivateKey privateKey) returns byte[]|Error = @java:Method {
-    class: "org.ballerinalang.stdlib.crypto.nativeimpl.SignRsaSha1"
+    name: "signRsaSha1",
+    class: "org.ballerinalang.stdlib.crypto.nativeimpl.Sign"
 } external;
 
 # Returns RSA-SHA256 based signature value for the given data.
@@ -231,7 +243,8 @@ public function signRsaSha1(byte[] input, PrivateKey privateKey) returns byte[]|
 # + privateKey - Private key used for signing
 # + return - The generated signature or `Error` if private key is invalid
 public function signRsaSha256(byte[] input, PrivateKey privateKey) returns byte[]|Error = @java:Method {
-    class: "org.ballerinalang.stdlib.crypto.nativeimpl.SignRsaSha256"
+    name: "signRsaSha256",
+    class: "org.ballerinalang.stdlib.crypto.nativeimpl.Sign"
 } external;
 
 # Returns RSA-SHA384 based signature value for the given data.
@@ -240,7 +253,8 @@ public function signRsaSha256(byte[] input, PrivateKey privateKey) returns byte[
 # + privateKey - Private key used for signing.
 # + return - The generated signature or `Error` if private key is invalid
 public function signRsaSha384(byte[] input, PrivateKey privateKey) returns byte[]|Error = @java:Method {
-    class: "org.ballerinalang.stdlib.crypto.nativeimpl.SignRsaSha384"
+    name: "signRsaSha384",
+    class: "org.ballerinalang.stdlib.crypto.nativeimpl.Sign"
 } external;
 
 # Returns RSA-SHA512 based signature value for the given data.
@@ -249,7 +263,8 @@ public function signRsaSha384(byte[] input, PrivateKey privateKey) returns byte[
 # + privateKey - Private key used for signing
 # + return - The generated signature or `Error` if private key is invalid
 public function signRsaSha512(byte[] input, PrivateKey privateKey) returns byte[]|Error = @java:Method {
-    class: "org.ballerinalang.stdlib.crypto.nativeimpl.SignRsaSha512"
+    name: "signRsaSha512",
+    class: "org.ballerinalang.stdlib.crypto.nativeimpl.Sign"
 } external;
 
 # Verify RSA-MD5 based signature.
@@ -260,7 +275,8 @@ public function signRsaSha512(byte[] input, PrivateKey privateKey) returns byte[
 # + return - Validity of the signature or `Error` if public key is invalid
 public function verifyRsaMd5Signature(byte[] data, byte[] signature, PublicKey publicKey)
                                       returns boolean|Error = @java:Method {
-    class: "org.ballerinalang.stdlib.crypto.nativeimpl.VerifyRsaMd5Signature"
+    name: "verifyRsaMd5Signature",
+    class: "org.ballerinalang.stdlib.crypto.nativeimpl.Sign"
 } external;
 
 # Verify RSA-SHA1 based signature.
@@ -271,7 +287,8 @@ public function verifyRsaMd5Signature(byte[] data, byte[] signature, PublicKey p
 # + return - Validity of the signature or `Error` if public key is invalid
 public function verifyRsaSha1Signature(byte[] data, byte[] signature, PublicKey publicKey)
                                        returns boolean|Error = @java:Method {
-    class: "org.ballerinalang.stdlib.crypto.nativeimpl.VerifyRsaSha1Signature"
+    name: "verifyRsaSha1Signature",
+    class: "org.ballerinalang.stdlib.crypto.nativeimpl.Sign"
 } external;
 
 # Verify RSA-SHA256 based signature.
@@ -282,7 +299,8 @@ public function verifyRsaSha1Signature(byte[] data, byte[] signature, PublicKey 
 # + return - Validity of the signature or `Error` if public key is invalid
 public function verifyRsaSha256Signature(byte[] data, byte[] signature, PublicKey publicKey)
                                          returns boolean|Error = @java:Method {
-    class: "org.ballerinalang.stdlib.crypto.nativeimpl.VerifyRsaSha256Signature"
+    name: "verifyRsaSha256Signature",
+    class: "org.ballerinalang.stdlib.crypto.nativeimpl.Sign"
 } external;
 
 # Verify RSA-SHA384 based signature.
@@ -293,7 +311,8 @@ public function verifyRsaSha256Signature(byte[] data, byte[] signature, PublicKe
 # + return - Validity of the signature or `Error` if public key is invalid
 public function verifyRsaSha384Signature(byte[] data, byte[] signature, PublicKey publicKey)
                                          returns boolean|Error = @java:Method {
-    class: "org.ballerinalang.stdlib.crypto.nativeimpl.VerifyRsaSha384Signature"
+    name: "verifyRsaSha384Signature",
+    class: "org.ballerinalang.stdlib.crypto.nativeimpl.Sign"
 } external;
 
 # Verify RSA-SHA512 based signature.
@@ -304,7 +323,8 @@ public function verifyRsaSha384Signature(byte[] data, byte[] signature, PublicKe
 # + return - Validity of the signature or `Error` if public key is invalid
 public function verifyRsaSha512Signature(byte[] data, byte[] signature, PublicKey publicKey)
                                          returns boolean|Error = @java:Method {
-    class: "org.ballerinalang.stdlib.crypto.nativeimpl.VerifyRsaSha512Signature"
+    name: "verifyRsaSha512Signature",
+    class: "org.ballerinalang.stdlib.crypto.nativeimpl.Sign"
 } external;
 
 # Read a private key from the provided PKCS#12 archive file.
@@ -321,7 +341,7 @@ public function decodePrivateKey(KeyStore|TrustStore keyStore, string keyAlias, 
 function externDecodePrivateKey(KeyStore|TrustStore keyStore, handle keyAlias, handle keyPassword)
                                 returns PrivateKey|Error = @java:Method {
     name: "decodePrivateKey",
-    class: "org.ballerinalang.stdlib.crypto.nativeimpl.DecodePrivateKey"
+    class: "org.ballerinalang.stdlib.crypto.nativeimpl.Decode"
 } external;
 
 # Read a public key from the provided PKCS#12 archive file.
@@ -336,7 +356,7 @@ public function decodePublicKey(KeyStore|TrustStore keyStore, string keyAlias) r
 public function externDecodePublicKey(KeyStore|TrustStore keyStore, handle keyAlias)
                                       returns PublicKey|Error = @java:Method {
     name: "decodePublicKey",
-    class: "org.ballerinalang.stdlib.crypto.nativeimpl.DecodePublicKey"
+    class: "org.ballerinalang.stdlib.crypto.nativeimpl.Decode"
 } external;
 
 # Returns RSA encrypted value for the given data.
@@ -353,7 +373,7 @@ public function encryptRsaEcb(byte[] input, PrivateKey|PublicKey key, RsaPadding
 function externEncryptRsaEcb(byte[] input, PrivateKey|PublicKey key, handle padding)
                              returns byte[]|Error = @java:Method {
     name: "encryptRsaEcb",
-    class: "org.ballerinalang.stdlib.crypto.nativeimpl.EncryptRsaEcb"
+    class: "org.ballerinalang.stdlib.crypto.nativeimpl.Encrypt"
 } external;
 
 # Returns AES CBC encrypted value for the given data.
@@ -369,7 +389,7 @@ public function encryptAesCbc(byte[] input, byte[] key, byte[] iv, AesPadding pa
 
 function externEncryptAesCbc(byte[] input, byte[] key, byte[] iv, handle padding) returns byte[]|Error = @java:Method {
     name: "encryptAesCbc",
-    class: "org.ballerinalang.stdlib.crypto.nativeimpl.EncryptAesCbc"
+    class: "org.ballerinalang.stdlib.crypto.nativeimpl.Encrypt"
 } external;
 
 # Returns AES ECB encrypted value for the given data.
@@ -384,7 +404,7 @@ public function encryptAesEcb(byte[] input, byte[] key, AesPadding padding = "PK
 
 function externEncryptAesEcb(byte[] input, byte[] key, handle padding) returns byte[]|Error = @java:Method {
     name: "encryptAesEcb",
-    class: "org.ballerinalang.stdlib.crypto.nativeimpl.EncryptAesEcb"
+    class: "org.ballerinalang.stdlib.crypto.nativeimpl.Encrypt"
 } external;
 
 # Returns AES GCM encrypted value for the given data.
@@ -404,7 +424,7 @@ public function encryptAesGcm(byte[] input, byte[] key, byte[] iv, AesPadding pa
 function externEncryptAesGcm(byte[] input, byte[] key, byte[] iv, handle padding, int tagSize = 128)
                              returns byte[]|Error = @java:Method {
     name: "encryptAesGcm",
-    class: "org.ballerinalang.stdlib.crypto.nativeimpl.EncryptAesGcm"
+    class: "org.ballerinalang.stdlib.crypto.nativeimpl.Encrypt"
 } external;
 
 # Returns RSA decrypted value for the given RSA encrypted data.
@@ -421,7 +441,7 @@ public function decryptRsaEcb(byte[] input, PrivateKey|PublicKey key, RsaPadding
 function externDecryptRsaEcb(byte[] input, PrivateKey|PublicKey key, handle padding)
                              returns byte[]|Error = @java:Method {
     name: "decryptRsaEcb",
-    class: "org.ballerinalang.stdlib.crypto.nativeimpl.DecryptRsaEcb"
+    class: "org.ballerinalang.stdlib.crypto.nativeimpl.Decrypt"
 } external;
 
 # Returns AES CBC decrypted value for the given AES CBC encrypted data.
@@ -437,7 +457,7 @@ public function decryptAesCbc(byte[] input, byte[] key, byte[] iv, AesPadding pa
 
 function externDecryptAesCbc(byte[] input, byte[] key, byte[] iv, handle padding) returns byte[]|Error = @java:Method {
     name: "decryptAesCbc",
-    class: "org.ballerinalang.stdlib.crypto.nativeimpl.DecryptAesCbc"
+    class: "org.ballerinalang.stdlib.crypto.nativeimpl.Decrypt"
 } external;
 
 # Returns AES ECB decrypted value for the given AES ECB encrypted data.
@@ -452,7 +472,7 @@ public function decryptAesEcb(byte[] input, byte[] key, AesPadding padding = "PK
 
 function externDecryptAesEcb(byte[] input, byte[] key, handle padding) returns byte[]|Error = @java:Method {
     name: "decryptAesEcb",
-    class: "org.ballerinalang.stdlib.crypto.nativeimpl.DecryptAesEcb"
+    class: "org.ballerinalang.stdlib.crypto.nativeimpl.Decrypt"
 } external;
 
 # Returns AES GCM decrypted value for the given AES GCM encrypted data.
@@ -471,5 +491,5 @@ public function decryptAesGcm(byte[] input, byte[] key, byte[] iv, AesPadding pa
 function externDecryptAesGcm(byte[] input, byte[] key, byte[] iv, handle padding, int tagSize = 128)
                              returns byte[]|Error = @java:Method {
     name: "decryptAesGcm",
-    class: "org.ballerinalang.stdlib.crypto.nativeimpl.DecryptAesGcm"
+    class: "org.ballerinalang.stdlib.crypto.nativeimpl.Decrypt"
 } external;

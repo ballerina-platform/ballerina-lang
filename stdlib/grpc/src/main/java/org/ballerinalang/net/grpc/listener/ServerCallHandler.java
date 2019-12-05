@@ -27,7 +27,6 @@ import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.connector.CallableUnitCallback;
-import org.ballerinalang.jvm.values.connector.Executor;
 import org.ballerinalang.net.grpc.CallStreamObserver;
 import org.ballerinalang.net.grpc.GrpcConstants;
 import org.ballerinalang.net.grpc.Message;
@@ -189,7 +188,7 @@ public abstract class ServerCallHandler {
             properties.put(ObservabilityConstants.KEY_OBSERVER_CONTEXT, context);
         }
         CallableUnitCallback callback = new StreamingCallableUnitCallBack(null, context);
-        Executor.submit(resource.getScheduler(), resource.getService(), resource.getFunctionName(), callback,
+        resource.getRuntime().invokeMethodAsync(resource.getService(), resource.getFunctionName(), callback,
                 properties, paramValues);
     }
 
@@ -201,7 +200,7 @@ public abstract class ServerCallHandler {
         if (ObserveUtils.isObservabilityEnabled()) {
             properties.put(ObservabilityConstants.KEY_OBSERVER_CONTEXT, context);
         }
-        Executor.submit(resource.getScheduler(), resource.getService(), resource.getFunctionName(), callback,
+        resource.getRuntime().invokeMethodAsync(resource.getService(), resource.getFunctionName(), callback,
                 properties, requestParams);
     }
 

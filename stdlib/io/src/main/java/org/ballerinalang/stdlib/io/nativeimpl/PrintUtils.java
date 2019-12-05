@@ -18,7 +18,6 @@
 
 package org.ballerinalang.stdlib.io.nativeimpl;
 
-import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.values.utils.StringUtils;
 
 import java.io.PrintStream;
@@ -41,7 +40,7 @@ public class PrintUtils {
         }
         for (Object value : values) {
             if (value != null) {
-                out.print(StringUtils.getStringValue(Scheduler.getStrand(), value));
+                out.print(StringUtils.getStringValue(value));
             }
         }
     }
@@ -55,7 +54,7 @@ public class PrintUtils {
         StringBuilder content = new StringBuilder();
         for (Object value : values) {
             if (value != null) {
-                content.append(StringUtils.getStringValue(Scheduler.getStrand(), value));
+                content.append(StringUtils.getStringValue(value));
             }
         }
         out.println(content);
