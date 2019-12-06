@@ -168,7 +168,7 @@ public class ErrorTest {
         BValue[] returns = BRunUtil.invoke(errorTestResult, "getCallStackTest");
         Assert.assertEquals(returns[0].stringValue(), "{callableName:\"getCallStack\", " +
                                                       "moduleName:\"ballerina.runtime.errors\"," +
-                                                      " fileName:\"errors.bal\", lineNumber:33}");
+                                                      " fileName:\"errors.bal\", lineNumber:35}");
     }
 
     @Test
