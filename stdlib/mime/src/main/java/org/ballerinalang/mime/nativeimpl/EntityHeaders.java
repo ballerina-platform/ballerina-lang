@@ -46,9 +46,7 @@ public class EntityHeaders {
         if (headerName == null || headerValue == null) {
             return;
         }
-        HttpHeaders httpHeaders;
-        httpHeaders = getHeaders(entityObj);
-        httpHeaders.add(headerName, headerValue);
+        getHeaders(entityObj).add(headerName, headerValue);
     }
 
     public static String getHeader(ObjectValue entityObj, String headerName) {
