@@ -45,7 +45,7 @@ public class ArrayUtils {
                 arr.add(index, (boolean) value);
                 break;
             case TypeTags.BYTE_TAG:
-                arr.add(index, (byte) value);
+                arr.add(index, ((Integer) value).byteValue());
                 break;
             case TypeTags.FLOAT_TAG:
                 arr.add(index, (double) value);

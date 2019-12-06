@@ -50,5 +50,26 @@ function testAssignmentStatement2() {
     // Error Binding Pattern
     {name: coName, capital: {name: caName}} = getCountry();
     {age, name} = getStudent();
-    // Todo: Need to add the Error Binding Pattern
+    
+    error err = error("errorCode", message = "");
+    error eCause = error("errorCode", message = ":D");
+    string eMessage = "Sample Message";
+
+    string reason;
+    string? msg;
+    error? errCause;
+    map<anydata|error> rest;
+
+    error(reason, message = msg, cause = errCause, ...rest) = err;
+    ErrorTypeDesc1(message = msg, cause = errCause, ...rest) = ErrorTypeDesc1(message = eMessage, cause = eCause);
 }
+
+type TestDetail record {|
+    string message?;
+    error cause?;
+    anydata|error...;
+|};
+
+public type ErrorTypeDesc1 error<REASON_CONST, TestDetail>;
+
+public const string REASON_CONST = "REASON_CONST_VAL";
