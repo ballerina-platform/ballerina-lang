@@ -109,8 +109,9 @@ public class BallerinaDocGenerator {
         String userDir = System.getProperty("user.dir");
         // If output directory is empty
         if (output == null) {
-            output = System.getProperty(BallerinaDocConstants.HTML_OUTPUT_PATH_KEY, userDir + File.separator +
-                    ProjectDirConstants.TARGET_DIR_NAME + File.separator + "api-docs");
+            output = System.getProperty(BallerinaDocConstants.HTML_OUTPUT_PATH_KEY, userDir + File.separator
+                + ProjectDirConstants.TARGET_DIR_NAME + File.separator + "api-docs" + File.separator
+                + BallerinaDocDataHolder.getInstance().getVersion());
         }
 
         if (BallerinaDocUtils.isDebugEnabled()) {
@@ -156,13 +157,13 @@ public class BallerinaDocGenerator {
         }
         project.name = "";
         project.description = "";
-        project.version = BallerinaDocDataHolder.getInstance().getVersion();
-        project.organization = BallerinaDocDataHolder.getInstance().getOrgName();
         project.modules = moduleDocList.stream().map(moduleDoc -> {
 
             // Generate module models
             Module module = new Module();
             module.id = moduleDoc.bLangPackage.packageID.name.toString();
+            module.orgName = moduleDoc.bLangPackage.packageID.orgName.toString();
+            module.version = moduleDoc.bLangPackage.packageID.version.toString();
             module.summary = moduleDoc.summary;
             module.description = moduleDoc.description;
 
@@ -219,7 +220,7 @@ public class BallerinaDocGenerator {
                 ModulePageContext modulePageContext = new ModulePageContext(module, project,
                         rootPathModuleLevel,
                         "API Docs - " + (project.isSingleFile ? project.sourceFileName
-                                : project.organization + "/" + module.id));
+                                : module.orgName + "/" + module.id));
                 String modIndexPath = modDir + File.separator + "index" + HTML;
                 Writer.writeHtmlDocument(modulePageContext, moduleTemplateName, modIndexPath);
 
