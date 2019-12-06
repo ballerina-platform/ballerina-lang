@@ -1343,12 +1343,13 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
 
         BRecordType recordType = (BRecordType) errorType.detailType;
-        Map<String, BField> fieldMap = recordType.fields.stream().collect(Collectors.toMap(f -> f.name.value, f -> f));
+        Map<String, BField> detailFields =
+                recordType.fields.stream().collect(Collectors.toMap(f -> f.name.value, f -> f));
         Set<String> matchedDetailFields = new HashSet<>();
         for (BLangErrorVariable.BLangErrorDetailEntry errorDetailEntry : errorVariable.detail) {
             String entryName = errorDetailEntry.key.getValue();
             matchedDetailFields.add(entryName);
-            BField entryField = fieldMap.get(entryName);
+            BField entryField = detailFields.get(entryName);
 
             BLangVariable boundVar = errorDetailEntry.valueBindingPattern;
             if (entryField != null) {
@@ -1378,8 +1379,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             // Type of rest pattern is a map type where constraint type is,
             // union of keys whose values are not matched in error binding/match pattern.
             BTypeSymbol typeSymbol = createTypeSymbol(SymTag.TYPE);
-            BUnionType restUnionType = addUntouchedFieldTypes(fieldMap, matchedDetailFields, recordType);
-            BMapType restType = new BMapType(TypeTags.MAP, restUnionType.normalize(), typeSymbol);
+            BType constraint = getRestMapConstraintType(detailFields, matchedDetailFields, recordType);
+            BMapType restType = new BMapType(TypeTags.MAP, constraint, typeSymbol);
             typeSymbol.type = restType;
             errorVariable.restDetail.type = restType;
             errorVariable.restDetail.accept(this);
@@ -1387,19 +1388,24 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         return true;
     }
 
-    private BUnionType addUntouchedFieldTypes(Map<String, BField> fieldMap, Set<String> matchedDetailFields,
-                                              BRecordType recordType) {
+    private BType getRestMapConstraintType(Map<String, BField> errorDetailFields, Set<String> matchedDetailFields,
+                                           BRecordType recordType) {
         BUnionType restUnionType = BUnionType.create(null);
         if (!recordType.sealed) {
             restUnionType.add(recordType.restFieldType);
         }
-        for (Map.Entry<String, BField> entry : fieldMap.entrySet()) {
+        for (Map.Entry<String, BField> entry : errorDetailFields.entrySet()) {
             if (!matchedDetailFields.contains(entry.getKey())) {
                 BType type = entry.getValue().getType();
                 if (!types.isAssignable(type, restUnionType)) {
                     restUnionType.add(type);
                 }
             }
+        }
+
+        Set<BType> memberTypes = restUnionType.getMemberTypes();
+        if (memberTypes.size() == 1) {
+            return memberTypes.iterator().next();
         }
 
         return restUnionType;

@@ -222,10 +222,4 @@ public class BUnionType extends BType implements UnionType {
                 .collect(Collectors.toCollection(LinkedHashSet::new));
     }
 
-    public BType normalize() {
-        if (memberTypes.size() == 1) {
-            return memberTypes.iterator().next();
-        }
-        return this;
-    }
 }
