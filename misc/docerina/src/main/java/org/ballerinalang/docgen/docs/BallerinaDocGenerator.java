@@ -163,7 +163,11 @@ public class BallerinaDocGenerator {
             Module module = new Module();
             module.id = moduleDoc.bLangPackage.packageID.name.toString();
             module.orgName = moduleDoc.bLangPackage.packageID.orgName.toString();
-            module.version = moduleDoc.bLangPackage.packageID.version.toString();
+            String moduleVersion = moduleDoc.bLangPackage.packageID.version.toString();
+            // get version from system property if not found in bLangPackage
+            module.version = moduleVersion.equals("")
+                    ? System.getProperty(BallerinaDocConstants.VERSION)
+                    : moduleVersion;
             module.summary = moduleDoc.summary;
             module.description = moduleDoc.description;
 
