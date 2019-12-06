@@ -631,8 +631,11 @@ public class BIRPackageSymbolEnter {
         boolean hasReceiver = dataInStream.readBoolean(); // if receiver is written, read and ignore
         if (hasReceiver) {
             dataInStream.readByte();
-            readBType(dataInStream);
-            getStringCPEntryValue(dataInStream);
+            BType attachedType = readBType(dataInStream);
+            String receiverName = getStringCPEntryValue(dataInStream);
+            invokableSymbol.receiverSymbol = new BVarSymbol(0, names.fromString(receiverName), this.env.pkgSymbol.pkgID,
+                                                            attachedType, invokableSymbol);
+
         }
     }
 
