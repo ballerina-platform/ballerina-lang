@@ -14,9 +14,14 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerinax/java;
+
 # Transforms the single-rooted XML content to another XML/HTML/plain text using XSL transformations.
 #
 # + input - An XML object, which needs to be transformed
 # + xsl - The XSL style sheet represented in an XML object
 # + return - The transformed result represented in an XML object or the `error` in case of an error
-public function transform(xml input, xml xsl) returns xml|error = external;
+public function transform(xml input, xml xsl) returns xml|error =
+@java:Method {
+    class: "org.ballerinalang.xslt.XsltTransformer"
+} external;

@@ -40,3 +40,35 @@ function testVarDef() {
     refVar3 = "Ballerina";
     refVar2 = refVar3;
 }
+
+type TestDetail record {|
+    string message?;
+    error cause?;
+    anydata|error...;
+|};
+
+public function testFunction(string args) {
+    error err = error("errorCode", message = "");
+    error eCause = error("errorCode", message = "");
+    string eMessage = "Sample Message";
+    TestDetail td = {};
+
+    var error(reason, message = msg, cause = errCause, ...rest) = err;
+    var ErrorTypeDesc1(message = msg2, cause = errCause2, ...rest2) = ErrorTypeDesc1(message = eMessage, cause = eCause);
+    ErrorTypeDesc1 error(reason3, message = msg3, cause = errCause3, ...rest3) = ErrorTypeDesc1(message = eMessage, cause = eCause);
+
+    string resonVal = reason;
+    string? messageVal = msg;
+    map<anydata|error> restVal = rest;
+
+    string? messageVal2 = msg2;
+    map<anydata|error> restVal2 = rest2;
+
+    string resonVal3 = reason3;
+    string? messageVal3 = msg3;
+    map<anydata|error> restVal3 = rest3;
+}
+
+public type ErrorTypeDesc1 error<REASON_CONST, TestDetail>;
+
+public const string REASON_CONST = "REASON_CONST_VAL";

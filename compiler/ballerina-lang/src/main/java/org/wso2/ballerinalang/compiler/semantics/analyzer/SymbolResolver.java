@@ -31,6 +31,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BCastOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BErrorTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
@@ -57,6 +58,8 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
+import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
+import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
@@ -1035,12 +1038,79 @@ public class SymbolResolver extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangFunctionTypeNode functionTypeNode) {
-        List<BType> paramTypes = new ArrayList<>();
-        functionTypeNode.getParams().forEach(t -> paramTypes.add(resolveTypeNode((BLangType) t.getTypeNode(), env)));
-        BType retParamType = resolveTypeNode(functionTypeNode.returnTypeNode, this.env);
-        resultType = new BInvokableType(paramTypes, retParamType, null);
+        resultType = createInvokableType(functionTypeNode.getParams(), functionTypeNode.restParam,
+                functionTypeNode.returnTypeNode, Flags.asMask(functionTypeNode.flagSet), env);
     } 
 
+    public BInvokableType createInvokableType(List<? extends BLangVariable> paramVars, BLangVariable restVariable,
+                               BLangType retTypeVar, int flags, SymbolEnv env) {
+        List<BType> paramTypes = new ArrayList<>();
+        List<BVarSymbol> params = new ArrayList<>();
+
+        boolean foundDefaultableParam = false;
+        List<String> paramNames = new ArrayList<>();
+        for (BLangVariable paramNode :  paramVars) {
+            BLangSimpleVariable param = (BLangSimpleVariable) paramNode;
+            Name paramName = names.fromIdNode(param.name);
+            if (paramName != Names.EMPTY) {
+                if (paramNames.contains(paramName.value)) {
+                    dlog.error(param.name.pos, DiagnosticCode.REDECLARED_SYMBOL, paramName.value);
+                } else {
+                    paramNames.add(paramName.value);
+                }
+            }
+            BType type = resolveTypeNode(param.getTypeNode(), env);
+            paramNode.type = type;
+            paramTypes.add(type);
+
+            if (param.expr != null) {
+                foundDefaultableParam = true;
+            }
+
+            BVarSymbol symbol = new BVarSymbol(type.flags, paramName,
+                    env.enclPkg.symbol.pkgID, type, env.scope.owner);
+            param.symbol = symbol;
+
+            if (param.expr == null && foundDefaultableParam) {
+                dlog.error(param.pos, DiagnosticCode.REQUIRED_PARAM_DEFINED_AFTER_DEFAULTABLE_PARAM);
+            }
+
+            if (param.flagSet.contains(Flag.PUBLIC)) {
+                symbol.flags |= Flags.PUBLIC;
+            }
+            if (param.expr != null) {
+                symbol.flags |= Flags.OPTIONAL;
+                symbol.defaultableParam = true;
+            }
+            params.add(symbol);
+        }
+
+        BType retType = resolveTypeNode(retTypeVar, this.env);
+
+        BVarSymbol restParam = null;
+        BType restType = null;
+
+        if (restVariable != null) {
+            restType = resolveTypeNode(restVariable.typeNode, env);
+            restVariable.type = restType;
+            restParam = new BVarSymbol(restType.flags, names.fromIdNode(((BLangSimpleVariable) restVariable).name),
+                    env.enclPkg.symbol.pkgID, restType, env.scope.owner);
+        }
+
+        BInvokableType bInvokableType = new BInvokableType(paramTypes, restType, retType, null);
+        bInvokableType.flags = flags;
+        BInvokableTypeSymbol tsymbol = Symbols.createInvokableTypeSymbol(SymTag.FUNCTION_TYPE,
+                flags,
+                env.enclPkg.symbol.pkgID,
+                bInvokableType, env.scope.owner);
+
+        tsymbol.params = params;
+        tsymbol.restParam = restParam;
+        tsymbol.returnType = retType;
+        bInvokableType.tsymbol = tsymbol;
+
+        return bInvokableType;
+    }
     /**
      * Lookup all the visible in-scope symbols for a given environment scope.
      *

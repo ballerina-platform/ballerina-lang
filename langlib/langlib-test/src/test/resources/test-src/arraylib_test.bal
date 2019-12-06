@@ -254,6 +254,13 @@ function testRemoveAllFixedLengthArray() returns int[] {
     return ar;
 }
 
+function testBytePush() returns boolean {
+    byte[] arr = [1, 2];
+    byte b = 255;
+    arr.push(b);
+    return arr.length() == 3 && arr[2] == <byte> 255;
+}
+
 function testTupleResize() returns [int, string] {
     [int, string] t = [1, "hello"];
     t.setLength(3);

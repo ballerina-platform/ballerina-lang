@@ -1,5 +1,5 @@
 Ballerina File(0,948)
-  PsiComment(LINE_COMMENT)('// This is the server implementation for the secured connection (HTTPS) scenario.')(0,81)
+  PsiComment(LINE_COMMENT)('// This is the client implementation for the secured connection (HTTPS) scenario.')(0,81)
   PsiWhiteSpace('\n')(81,82)
   BallerinaImportDeclarationImpl(IMPORT_DECLARATION)(82,104)
     PsiElement(import)('import')(82,88)

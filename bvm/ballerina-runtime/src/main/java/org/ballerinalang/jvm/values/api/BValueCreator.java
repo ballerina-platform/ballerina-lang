@@ -305,7 +305,7 @@ import java.util.function.Function;
       *
       * @return {@code XMLItem}
       */
-     public static BXml createXMLItem() {
+     public static BXML createXMLItem() {
          return new XMLItem();
      }
 
@@ -315,7 +315,7 @@ import java.util.function.Function;
       * @param xmlValue A XML string
       * @return {@code XMLItem}
       */
-     public static BXml<OMNode> createXMLItem(String xmlValue) {
+     public static BXML<OMNode> createXMLItem(String xmlValue) {
          return new XMLItem(xmlValue);
      }
 
@@ -325,7 +325,7 @@ import java.util.function.Function;
       * @param value xml object
       * @return {@code XMLItem}
       */
-     public static BXml<OMNode> createXMLItem(OMNode value) {
+     public static BXML<OMNode> createXMLItem(OMNode value) {
          return new XMLItem(value);
      }
 
@@ -335,7 +335,7 @@ import java.util.function.Function;
       * @param inputStream Input Stream
       * @return {@code XMLItem}
       */
-     public static BXml<OMNode> ctreateXMLItem(InputStream inputStream) {
+     public static BXML<OMNode> ctreateXMLItem(InputStream inputStream) {
          return new XMLItem(inputStream);
      }
 
@@ -366,7 +366,7 @@ import java.util.function.Function;
       *
       * @return xml sequence
       */
-     public static BXml createXMLSequence() {
+     public static BXML createXMLSequence() {
          return new XMLSequence();
      }
 
@@ -376,7 +376,7 @@ import java.util.function.Function;
       * @param sequence xml sequence array
       * @return xml sequence
       */
-     public static BXml createXMLSequence(ArrayValue sequence) {
+     public static BXML createXMLSequence(ArrayValue sequence) {
          return new XMLSequence(sequence);
      }
 
