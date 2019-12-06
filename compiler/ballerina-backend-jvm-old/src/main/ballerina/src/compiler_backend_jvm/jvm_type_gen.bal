@@ -316,7 +316,7 @@ function generateObjectValueCreateMethod(jvm:ClassWriter cw, bir:TypeDef?[] obje
         mv.visitVarInsn(ALOAD, tempVarIndex);
         mv.visitVarInsn(ALOAD, strandVarIndex);
 
-        mv.visitLdcInsn("__init");
+        mv.visitLdcInsn("$__init$");
         mv.visitVarInsn(ALOAD, argsIndex);
 
         string methodDesc = io:sprintf("(L%s;L%s;[L%s;)L%s;", STRAND, STRING_VALUE, OBJECT, OBJECT);
@@ -643,7 +643,7 @@ function addObjectAttachedFunctions(jvm:MethodVisitor mv, bir:BAttachedFunction?
             mv.visitVarInsn(ASTORE, attachedFunctionVarIndex);
 
             // if this initializer function, set it to the object type
-            if (stringutils:contains(attachedFunc.name.value, "__init")) {
+            if (stringutils:contains(attachedFunc.name.value, "$__init$")) {
                 mv.visitInsn(DUP2);
                 mv.visitInsn(POP);
                 mv.visitVarInsn(ALOAD, attachedFunctionVarIndex);
@@ -674,7 +674,7 @@ function addObjectAttachedFunctions(jvm:MethodVisitor mv, bir:BAttachedFunction?
 # + initFunction - init functions to be added
 function addObjectInitFunction(jvm:MethodVisitor mv, bir:BAttachedFunction? initFunction,
                                     bir:BObjectType objType, BalToJVMIndexMap indexMap) {
-    if (initFunction is bir:BAttachedFunction && stringutils:contains(initFunction.name.value, "__init")) {
+    if (initFunction is bir:BAttachedFunction && stringutils:contains(initFunction.name.value, "$__init$")) {
         mv.visitInsn(DUP);
         createObjectAttachedFunction(mv, initFunction, objType);
         bir:VariableDcl attachedFuncVar = { typeValue: "any",
