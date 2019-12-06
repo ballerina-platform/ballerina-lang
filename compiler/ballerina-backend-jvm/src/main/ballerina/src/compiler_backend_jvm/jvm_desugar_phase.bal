@@ -19,7 +19,8 @@ import ballerina/bir;
 function addDefaultableBooleanVarsToSignature(bir:Function? func) {
     bir:Function currentFunc = getFunction(<@untainted> func);
     currentFunc.typeValue = currentFunc.typeValue.clone();
-    currentFunc.typeValue.paramTypes = updateParamTypesWithDefaultableBooleanVar(currentFunc.typeValue.paramTypes);
+    currentFunc.typeValue.paramTypes = updateParamTypesWithDefaultableBooleanVar(currentFunc.typeValue.paramTypes,
+    currentFunc.typeValue?.restType);
     int index = 0;
     bir:VariableDcl?[] updatedVars = [];
     bir:VariableDcl?[] localVars = currentFunc.localVars;
@@ -124,7 +125,7 @@ function getNextDesugarBBId(string prefix) returns bir:Name {
     return {value:bbIdPrefix + nextId.toString()};
 }
 
-function updateParamTypesWithDefaultableBooleanVar(bir:BType?[] funcParams) returns bir:BType?[] {
+function updateParamTypesWithDefaultableBooleanVar(bir:BType?[] funcParams, bir:BType? restType) returns bir:BType?[] {
     bir:BType?[] paramTypes = [];
 
     int counter = 0;
@@ -135,6 +136,10 @@ function updateParamTypesWithDefaultableBooleanVar(bir:BType?[] funcParams) retu
         paramTypes[index+1] = "boolean";
         index += 2;
         counter += 1;
+    }
+    if (!(restType is ())) {
+        paramTypes[index] = restType;
+        paramTypes[index+1] = "boolean";
     }
     return paramTypes;
 }

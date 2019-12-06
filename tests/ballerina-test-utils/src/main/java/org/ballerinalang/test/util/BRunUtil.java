@@ -313,6 +313,11 @@ public class BRunUtil {
             bvmParamTypes.add(
                     new org.wso2.ballerinalang.compiler.semantics.model.types.BType(TypeTags.BOOLEAN_TAG, null));
         }
+        if (function.type.restType != null) {
+            bvmParamTypes.add(function.type.restType);
+            bvmParamTypes.add(
+                    new org.wso2.ballerinalang.compiler.semantics.model.types.BType(TypeTags.BOOLEAN_TAG, null));
+        }
         Class<?>[] jvmParamTypes = new Class[bvmParamTypes.size() + 1];
         Object[] jvmArgs = new Object[bvmArgs.length + 1];
         jvmParamTypes[0] = Strand.class;
@@ -1084,7 +1089,11 @@ public class BRunUtil {
                     bParamTypes[i] = getBVMType(jvmBFunctionType.paramTypes[i], selfTypeStack);
                 }
                 BType bRetType = getBVMType(jvmBFunctionType.retType, selfTypeStack);
-                return new BFunctionType(bParamTypes, new BType[]{bRetType});
+                BType bRestType = null;
+                if (jvmBFunctionType.restType != null) {
+                    bRestType = getBVMType(jvmBFunctionType.restType, selfTypeStack);
+                }
+                return new BFunctionType(bParamTypes, bRestType, new BType[]{bRetType});
             case org.ballerinalang.jvm.types.TypeTags.HANDLE_TAG:
                 return BTypes.typeHandle;
             case org.ballerinalang.jvm.types.TypeTags.SERVICE_TAG:

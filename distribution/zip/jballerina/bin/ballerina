@@ -183,7 +183,7 @@ do
     fi
 done
 
-BALLERINA_CLASSPATH=""
+BALLERINA_CLASSPATH="$CUSTOM_CLASSPATH"
 if [ -e "$BALLERINA_HOME/bre/lib/bootstrap/tools.jar" ]; then
     BALLERINA_CLASSPATH="$JAVA_HOME/lib/tools.jar"
 fi
@@ -196,6 +196,16 @@ do
 done
 
 for j in "$BALLERINA_HOME"/bre/lib/*.jar
+do
+    BALLERINA_CLASSPATH="$BALLERINA_CLASSPATH":$j
+done
+
+for j in "$BALLERINA_HOME"/lib/tools/lang-server/lib/*.jar
+do
+    BALLERINA_CLASSPATH="$BALLERINA_CLASSPATH":$j
+done
+
+for j in "$BALLERINA_HOME"/lib/tools/debug-adapter/lib/*.jar
 do
     BALLERINA_CLASSPATH="$BALLERINA_CLASSPATH":$j
 done
