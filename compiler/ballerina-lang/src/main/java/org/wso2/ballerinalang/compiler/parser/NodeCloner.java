@@ -1524,7 +1524,9 @@ class NodeCloner extends BLangNodeVisitor {
         BLangFunctionTypeNode clone = new BLangFunctionTypeNode();
         source.cloneRef = clone;
         clone.params = cloneList(source.params);
+        clone.restParam = clone(source.restParam);
         clone.returnTypeNode = clone(source.returnTypeNode);
+        clone.flagSet = cloneSet(source.flagSet, Flag.class);
         clone.returnsKeywordExists = source.returnsKeywordExists;
         cloneBLangType(source, clone);
     }
