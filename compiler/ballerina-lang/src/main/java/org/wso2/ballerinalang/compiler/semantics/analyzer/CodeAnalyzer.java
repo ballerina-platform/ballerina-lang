@@ -38,6 +38,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
@@ -1270,6 +1271,18 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                 if (streamType.constraint != null) {
                     checkForExportableType(streamType.constraint.tsymbol, pos);
                 }
+                return;
+            case TypeTags.INVOKABLE:
+                BInvokableType invokableType = (BInvokableType) symbol.type;
+                if (invokableType.paramTypes != null) {
+                    for (BType paramType : invokableType.paramTypes) {
+                        checkForExportableType(paramType.tsymbol, pos);
+                    }
+                }
+                if (invokableType.restType != null) {
+                    checkForExportableType(invokableType.restType.tsymbol, pos);
+                }
+                checkForExportableType(invokableType.retType.tsymbol, pos);
                 return;
             // TODO : Add support for other types. such as union and objects
         }

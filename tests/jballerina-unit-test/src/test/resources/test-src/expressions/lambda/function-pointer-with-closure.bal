@@ -25,14 +25,16 @@ function testArrayFunctionInfer() returns string {
     return word;
 }
 
-function apply((function (any) returns any) f1, (function (any) returns any) f2) returns (function (any) returns any) {
-    return (arg) => f2(f1(arg));
+function apply((function (int) returns int) f1, (function (int) returns any) f2) returns (function (int) returns any) {
+    return function (int arg) returns any {
+        return f2(f1(arg));
+    };
 }
 
 public function invokeApplyFunction() returns any {
     function (int) returns int add1 = a => a + 1;
     function (int) returns int mult2 = a => a * 2;
-    function (any) returns any composed = apply(add1, mult2);
+    function (int) returns any composed = apply(add1, mult2);
     any res = composed(2);
     return res;
 }
