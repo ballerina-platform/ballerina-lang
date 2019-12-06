@@ -2800,6 +2800,18 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterRestParameterTypeName(BallerinaParser.RestParameterTypeNameContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitRestParameterTypeName(BallerinaParser.RestParameterTypeNameContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterFormalParameterList(BallerinaParser.FormalParameterListContext ctx) { }
 	/**
 	 * {@inheritDoc}

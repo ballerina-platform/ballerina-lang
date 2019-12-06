@@ -2466,6 +2466,16 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitRestParameter(BallerinaParser.RestParameterContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#restParameterTypeName}.
+	 * @param ctx the parse tree
+	 */
+	void enterRestParameterTypeName(BallerinaParser.RestParameterTypeNameContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#restParameterTypeName}.
+	 * @param ctx the parse tree
+	 */
+	void exitRestParameterTypeName(BallerinaParser.RestParameterTypeNameContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#formalParameterList}.
 	 * @param ctx the parse tree
 	 */

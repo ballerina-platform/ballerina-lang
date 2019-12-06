@@ -42,40 +42,10 @@ public class FunctionPointersWithOptionalArgsTest {
     }
 
     @Test
-    public void testFunctionPointerAssignmentWithRestParams() {
-        BValue[] returns = BRunUtil.invoke(result, "testFunctionPointerAssignmentWithRestParams");
-        Assert.assertNotNull(returns);
-        Assert.assertEquals(returns.length, 3);
-        Assert.assertNotNull(returns[0]);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
-
-        Assert.assertNotNull(returns[1]);
-        Assert.assertEquals(((BInteger) returns[1]).intValue(), 2);
-
-        Assert.assertNotNull(returns[2]);
-        Assert.assertEquals(returns[2].stringValue(), "[3, 4]");
-    }
-
-    @Test
-    public void testFunctionPointersWithRestArgs() {
-        CompileResult result =
-                BCompileUtil.compile("test-src/expressions/lambda/function-pointers-with-rest-args-negative.bal");
-        BAssertUtil.validateError(result, 0, "invalid token '...'", 6, 28);
-    }
-
-    @Test
     public void testFunctionPointersWithNamedArgs() {
         CompileResult result =
                 BCompileUtil.compile("test-src/expressions/lambda/function-pointers-with-named-args-negative.bal");
         BAssertUtil.validateError(result, 0, "invalid token 'c'", 6, 29);
-    }
-
-    @Test
-    public void testInvokingFuncPointerWithRestArgs() {
-        CompileResult result =
-                BCompileUtil.compile("test-src/expressions/lambda/function-pointers-with-optional-args-negative.bal");
-        BAssertUtil.validateError(result, 0, "too many arguments in call to 'func()'", 7, 12);
-        BAssertUtil.validateError(result, 1, "incompatible types: expected 'int[]', found 'int'", 7, 23);
     }
 
     @Test
