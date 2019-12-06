@@ -111,6 +111,7 @@ public class MimeEntityBody {
                 multipartDataSource.serialize(outputStream);
                 EntityBodyChannel entityBodyChannel = new EntityBodyChannel(new ByteArrayInputStream(
                         outputStream.toByteArray()));
+                MimeUtil.closeOutputStream(outputStream);
                 ObjectValue byteChannelObj = BallerinaValues.createObjectValue(IOConstants.IO_PACKAGE_ID,
                                                                                READABLE_BYTE_CHANNEL_STRUCT);
                 byteChannelObj.addNativeData(IOConstants.BYTE_CHANNEL_NAME, new EntityWrapper(entityBodyChannel));

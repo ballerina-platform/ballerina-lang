@@ -142,8 +142,7 @@ public class EntityHeaders {
     }
 
     private static HttpHeaders setEntityHeaders(ObjectValue entityObj) {
-        HttpHeaders httpHeaders;
-        httpHeaders = new DefaultHttpHeaders();
+        HttpHeaders httpHeaders = new DefaultHttpHeaders();
         entityObj.addNativeData(ENTITY_HEADERS, httpHeaders);
         return httpHeaders;
     }
