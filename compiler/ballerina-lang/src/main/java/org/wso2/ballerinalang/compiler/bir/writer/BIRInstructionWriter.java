@@ -124,7 +124,8 @@ public class BIRInstructionWriter extends BIRVisitor {
     public void visit(BIRTerminator.FieldLock lock) {
         writePosition(lock.pos);
         buf.writeByte(lock.kind.getValue());
-        addCpAndWriteString(lock.localVar.name.value);
+        // TODO properly use operand instead of variablDcl.name here
+        addCpAndWriteString(lock.localVar.variableDcl.name.value);
         addCpAndWriteString(lock.field);
         addCpAndWriteString(lock.lockedBB.id.value);
     }
@@ -142,8 +143,9 @@ public class BIRInstructionWriter extends BIRVisitor {
             writeType(globalVar.type);
         }
         buf.writeInt(unlock.fieldLocks.size());
-        for (Map.Entry<BIRNode.BIRVariableDcl, Set<String>> entry : unlock.fieldLocks.entrySet()) {
-            addCpAndWriteString(entry.getKey().name.value);
+        for (Map.Entry<BIROperand, Set<String>> entry : unlock.fieldLocks.entrySet()) {
+            // TODO properly use operand instead of variablDcl.name here
+            addCpAndWriteString(entry.getKey().variableDcl.name.value);
             buf.writeInt(entry.getValue().size());
             for (String field : entry.getValue()) {
                 addCpAndWriteString(field);
