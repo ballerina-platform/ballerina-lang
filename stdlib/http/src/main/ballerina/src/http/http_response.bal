@@ -426,10 +426,8 @@ public type Response object {
     public function getCookies() returns @tainted Cookie[] {
         Cookie[] cookiesInResponse = [];
         string[] cookiesStringValues = self.getHeaders("Set-Cookie");
-        int i = 0;
         foreach string cookiesStringValue in cookiesStringValues {
-            cookiesInResponse[i] = parseSetCookieHeader(cookiesStringValue);
-            i = i + 1;
+            cookiesInResponse.push(parseSetCookieHeader(cookiesStringValue));
         }
         return cookiesInResponse;
     }

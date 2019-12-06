@@ -199,33 +199,20 @@ function parseCookieHeader(string cookieStringValue) returns Cookie[] {
     return cookiesInRequest;
 }
 
-// Sorts an array of cookies in order to make the "Cookie" header in the request according to the rules in [RFC-6265](https://tools.ietf.org/html/rfc6265#section-5.4).
-function sortCookies(Cookie[] cookies) {
-    int i = 0;
-    int j = 0;
-    Cookie temp = new ();
-    while (i < cookies.length()) {
-        j = i + 1;
-        while (j < cookies.length()) {
-            if (cookies[i].path.length() < cookies[j].path.length()) {
-                temp = cookies[i];
-                cookies[i] = cookies[j];
-                cookies[j] = temp;
-            }
-            if (cookies[i].path.length() == cookies[j].path.length()) {
-                // Sorts according to time.
-                time:Time | error t1 = cookies[i].creationTime;
-                time:Time | error t2 = cookies[j].creationTime;
-                if (t1 is time:Time && t2 is time:Time) {
-                    if (t1.time > t2.time) {
-                        temp = cookies[i];
-                        cookies[i] = cookies[j];
-                        cookies[j] = temp;
-                    }
-                }
-            }
-            j = j + 1;
-        }
-        i = i + 1;
+// Returns a value to be used for sorting an array of cookies in order to create the "Cookie" header in the request.
+// This value is returned according to the rules in [RFC-6265](https://tools.ietf.org/html/rfc6265#section-5.4).
+function comparator(Cookie c1, Cookie c2) returns int {
+    if (c1.path.length() > c2.path.length()) {
+        return -1;
     }
+    if (c1.path.length() < c2.path.length()) {
+        return 1;
+    }
+    if (c1.creationTime.time > c2.creationTime.time) {
+        return 1;
+    }
+    if (c1.creationTime.time < c2.creationTime.time) {
+        return -1;
+    }
+    return 0;
 }

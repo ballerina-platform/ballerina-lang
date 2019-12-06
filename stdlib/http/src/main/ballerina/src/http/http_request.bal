@@ -523,14 +523,14 @@ public type Request object {
     # + cookiesToAdd - Represents the cookies to be added
     public function addCookies(Cookie[] cookiesToAdd) {
         string cookieheader = "";
-        sortCookies(cookiesToAdd);
-        foreach var cookie in cookiesToAdd {
-            cookieheader = cookieheader + cookie.name + "=" + cookie.value + ";" + " ";
+        Cookie[] sortedCookies = cookiesToAdd.sort(comparator);
+        foreach var cookie in sortedCookies {
+            cookieheader = cookieheader + cookie.name + EQUALS + cookie.value + SEMICOLON + SPACE;
             cookie.lastAccessedTime = time:currentTime();
         }
-        if(cookieheader != "") {
+        if (cookieheader != "") {
             cookieheader = cookieheader.substring(0, cookieheader.length() - 2);
-            if(self.hasHeader("Cookie")) {
+            if (self.hasHeader("Cookie")) {
                 self.setHeader("Cookie", cookieheader);
             } else {
                 self.addHeader("Cookie", cookieheader);
@@ -544,7 +544,7 @@ public type Request object {
     public function getCookies() returns Cookie[] {
         string cookiesStringValue = "";
         Cookie[] cookiesInRequest = [];
-        if(self.hasHeader("Cookie")) {
+        if (self.hasHeader("Cookie")) {
             cookiesInRequest = parseCookieHeader(self.getHeader("Cookie"));
         }
         return cookiesInRequest;
