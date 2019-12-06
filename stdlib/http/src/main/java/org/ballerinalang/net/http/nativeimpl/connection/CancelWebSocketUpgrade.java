@@ -18,13 +18,9 @@ package org.ballerinalang.net.http.nativeimpl.connection;
 
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
-import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.websocket.WebSocketConstants;
 import org.ballerinalang.net.http.websocket.WebSocketException;
 import org.ballerinalang.net.http.websocket.WebSocketUtil;
@@ -37,22 +33,12 @@ import org.wso2.transport.http.netty.contract.websocket.WebSocketHandshaker;
  *
  * @since 0.970
  */
-@BallerinaFunction(
-        orgName = WebSocketConstants.BALLERINA_ORG,
-        packageName = WebSocketConstants.PACKAGE_HTTP,
-        functionName = "cancelWebSocketUpgrade",
-        receiver = @Receiver(
-                type = TypeKind.OBJECT,
-                structType = HttpConstants.CALLER,
-                structPackage = WebSocketConstants.FULL_PACKAGE_HTTP
-        )
-)
 public class CancelWebSocketUpgrade {
     private static final Logger log = LoggerFactory.getLogger(CancelWebSocketUpgrade.class);
 
-    public static Object cancelWebSocketUpgrade(Strand strand, ObjectValue connectionObj, long statusCode,
+    public static Object cancelWebSocketUpgrade(ObjectValue connectionObj, long statusCode,
                                                 String reason) {
-        NonBlockingCallback callback = new NonBlockingCallback(strand);
+        NonBlockingCallback callback = new NonBlockingCallback(Scheduler.getStrand());
         try {
             WebSocketHandshaker webSocketHandshaker =
                     (WebSocketHandshaker) connectionObj.getNativeData(WebSocketConstants.WEBSOCKET_HANDSHAKER);

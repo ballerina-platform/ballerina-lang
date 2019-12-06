@@ -58,6 +58,7 @@ dependencies {
     baloImplementation project(path: ':ballerina-java', configuration: 'baloImplementation')
 
     interopImports project(':ballerina-config-api')
+    interopImports project(':ballerina-http')
     interopImports project(':ballerina-io')
     interopImports project(':ballerina-log-api')
     interopImports project(':ballerina-math')

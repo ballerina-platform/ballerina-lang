@@ -16,11 +16,11 @@
 
 package org.ballerinalang.net.http.actions.httpclient;
 
+import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.net.http.DataContext;
 import org.ballerinalang.net.http.HttpConstants;
 import org.wso2.transport.http.netty.contract.HttpClientConnector;
@@ -32,14 +32,11 @@ import static org.ballerinalang.net.http.HttpConstants.CLIENT_ENDPOINT_SERVICE_U
 /**
  * {@code Submit} action can be used to invoke a http call with any httpVerb in asynchronous manner.
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "http",
-        functionName = "nativeSubmit"
-)
 public class Submit extends Execute {
     @SuppressWarnings("unchecked")
-    public static Object nativeSubmit(Strand strand, ObjectValue httpClient, String httpVerb, String path,
+    public static Object submit(ObjectValue httpClient, String httpVerb, String path,
                                       ObjectValue requestObj) {
+        Strand strand = Scheduler.getStrand();
         String url = httpClient.getStringValue(CLIENT_ENDPOINT_SERVICE_URI);
         MapValue<String, Object> config = (MapValue<String, Object>) httpClient.get(CLIENT_ENDPOINT_CONFIG);
         HttpClientConnector clientConnector = (HttpClientConnector) httpClient.getNativeData(HttpConstants.CLIENT);

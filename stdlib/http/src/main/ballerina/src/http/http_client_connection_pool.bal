@@ -15,6 +15,7 @@
 // under the License.
 
 import ballerina/config;
+import ballerinax/java;
 
 # Configurations for managing HTTP client connection pool.
 #
@@ -35,8 +36,16 @@ type ConnectionManager object {
     public function __init() {
         self.initGlobalPool(self.poolConfig);
     }
-    function initGlobalPool(PoolConfiguration poolConfig) = external;
+    function initGlobalPool(PoolConfiguration poolConfig) {
+        return externInitGlobalPool(poolConfig);
+    }
 };
+
+function externInitGlobalPool(PoolConfiguration poolConfig) =
+@java:Method {
+    class: "org.ballerinalang.net.http.clientendpoint.InitGlobalPool",
+    name: "initGlobalPool"
+} external;
 
 ConnectionManager connectionManager = new;
 PoolConfiguration globalHttpClientConnPool = connectionManager.poolConfig;
