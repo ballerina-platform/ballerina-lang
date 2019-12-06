@@ -241,3 +241,176 @@ function testCheckPanicInObjectInitArg() returns error {
 function testObjectInitPanic() returns error|PanicReceiver {
     return trap new PanicReceiver("Mr. Panic");
 }
+
+type Student1 object {
+     public int marks = 75;
+
+     public function __init() {
+         string grade = "B";
+     }
+
+     public function getMarks() returns int {
+         self.__init();
+         return self.marks;
+     }
+ };
+
+function testInitInvocationInsideObject() returns ([int, int]) {
+    Student1 student = new;
+    int marksBeforeChange = student.getMarks();
+    student.marks = 80;
+    int marksAfterChange = student.getMarks();
+    return [marksBeforeChange, marksAfterChange];
+}
+
+type Student2 object {
+    public int marks = 75;
+    public string grade;
+
+    public function __init(string grade) {
+        self.grade = grade;
+    }
+
+    public function getMarks() returns int {
+        self.__init("B+");
+        return self.marks;
+    }
+};
+
+function testInitInvocationInsideObjectWithArgs() returns ([int, int]) {
+    Student2 student = new("B");
+    int marksBeforeChange = student.getMarks();
+    student.marks = 82;
+    int marksAfterChange = student.getMarks();
+    return [marksBeforeChange, marksAfterChange];
+}
+
+type Student3 object {
+    public string name;
+    public int marks = 90;
+
+    public function __init(int id) returns error? {
+        self.name = check getName(id);
+    }
+
+    public function getMarks() returns int {
+        var v = self.__init(0);
+        return self.marks;
+    }
+};
+
+function getName(int id) returns string|error {
+    if (id == -1) {
+        return error("failed to return a name");
+    } else {
+        return "Smith";
+    }
+}
+
+function testInitInvocationWithReturn1() returns ([Student3|error, int, int]) {
+    int marksBeforeChange = 0;
+    int marksAfterChange = 0;
+
+    Student3|error student = new(-1);
+    if (student is error) {
+        return [student, marksBeforeChange, marksAfterChange];
+    }
+
+    Student3 s = <Student3> student;
+    marksBeforeChange = s.getMarks();
+    s.marks = 95;
+    marksAfterChange = s.getMarks();
+    return [s, marksBeforeChange, marksAfterChange];
+}
+
+function testInitInvocationWithReturn2() returns ([Student3|error, int, int]) {
+    int marksBeforeChange = 0;
+    int marksAfterChange = 0;
+
+    Student3|error student = new(10);
+    if (student is error) {
+        return [student, marksBeforeChange, marksAfterChange];
+    }
+
+    Student3 s = <Student3> student;
+    marksBeforeChange = s.getMarks();
+    s.marks = 95;
+    marksAfterChange = s.getMarks();
+    return [s, marksBeforeChange, marksAfterChange];
+}
+
+type Student4 object {
+    string[] modules;
+    string name = "Bob";
+
+    public function __init(string... modules) {
+        self.modules = modules;
+    }
+
+    public function getName() returns string {
+        string[] modules = ["Math", "Physics"];
+        self.__init(...modules);
+        return self.name;
+    }
+};
+
+function testInitInvocationWithRestArgs() returns ([string, string]) {
+    string[] modules = ["Math", "Physics"];
+    Student4 student = new(...modules);
+    string nameBeforeChange = student.getName();
+
+    student.name = "Ann";
+    string nameAfterChange = student.getName();
+
+    return [nameBeforeChange, nameAfterChange];
+}
+
+type Student5 object {
+    public string name;
+    string[] modules;
+    public int marks = 90;
+
+    public function __init(int id, string... modules) returns error? {
+        self.name = check getName(id);
+        self.modules = modules;
+    }
+
+    public function getMarks() returns int {
+        var v = self.__init(0);
+        return self.marks;
+    }
+};
+
+function testInitInvocationWithReturnAndRestParams1() returns ([Student5|error, int, int]) {
+    int marksBeforeChange = 0;
+    int marksAfterChange = 0;
+    string[] modules = ["Math", "Physics"];
+
+    Student5|error student = new(-1, ...modules);
+    if (student is error) {
+        return [student, marksBeforeChange, marksAfterChange];
+    }
+
+    Student5 s = <Student5> student;
+    marksBeforeChange = s.getMarks();
+    s.marks = 95;
+    marksAfterChange = s.getMarks();
+    return [s, marksBeforeChange, marksAfterChange];
+}
+
+function testInitInvocationWithReturnAndRestParams2() returns ([Student5|error, int, int]) {
+    int marksBeforeChange = 0;
+    int marksAfterChange = 0;
+    string[] modules = ["Math", "Physics"];
+
+    Student5|error student = new(10, ...modules);
+    if (student is error) {
+        return [student, marksBeforeChange, marksAfterChange];
+    }
+
+    Student5 s = <Student5> student;
+    marksBeforeChange = s.getMarks();
+    s.marks = 95;
+    marksAfterChange = s.getMarks();
+    return [s, marksBeforeChange, marksAfterChange];
+}
