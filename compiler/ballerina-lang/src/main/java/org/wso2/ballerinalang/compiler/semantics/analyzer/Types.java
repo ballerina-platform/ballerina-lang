@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import org.ballerinalang.model.Name;
 import org.ballerinalang.model.TreeBuilder;
+import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.BLangCompilerConstants;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
@@ -75,6 +76,7 @@ import org.wso2.ballerinalang.util.Lists;
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
@@ -1179,26 +1181,31 @@ public class Types {
 
     public BType inferRecordFieldType(BRecordType recordType) {
         List<BField> fields = recordType.fields;
+        BUnionType unionType = BUnionType.create(null);
 
-        // If there are no fields in the record, return the rest field type as the inferred type.
-        if (fields.isEmpty()) {
-            return recordType.restFieldType;
+        if (!recordType.sealed) {
+            unionType.add(recordType.restFieldType);
         }
 
-        BType inferredType = fields.get(0).type; // If all the fields are the same, doesn't matter which one we pick
-
-        // If it's an open record, the rest field type should also be of the same type as the mandatory fields.
-        if (!recordType.sealed && recordType.restFieldType.tag != inferredType.tag) {
-            return symTable.anyType;
-        }
-
-        for (int i = 1; i < fields.size(); i++) {
-            if (inferredType.tag != fields.get(i).type.tag) {
-                return symTable.anyType;
+        for (BField field : fields) {
+            if (isAssignable(field.type, unionType)) {
+                continue;
             }
+
+            if (isAssignable(unionType, field.type)) {
+                unionType = BUnionType.create(null);
+            }
+
+            unionType.add(field.type);
         }
 
-        return inferredType;
+        if (unionType.getMemberTypes().size() > 1) {
+            unionType.tsymbol = Symbols.createTypeSymbol(SymTag.UNION_TYPE, Flags.asMask(EnumSet.of(Flag.PUBLIC)),
+                    Names.EMPTY, recordType.tsymbol.pkgID, null, recordType.tsymbol.owner);
+            return unionType;
+        }
+
+        return unionType.getMemberTypes().iterator().next();
     }
 
     public BSymbol getImplicitCastOpSymbol(BType actualType, BType expType) {

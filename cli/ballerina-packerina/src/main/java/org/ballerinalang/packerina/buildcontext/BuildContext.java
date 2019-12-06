@@ -34,6 +34,7 @@ import org.ballerinalang.toml.parser.ManifestProcessor;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
+import org.wso2.ballerinalang.compiler.util.Constants;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 import org.wso2.ballerinalang.programfile.ProgramFileConstants;
 import org.wso2.ballerinalang.util.RepoUtils;
@@ -537,5 +538,15 @@ public class BuildContext extends HashMap<BuildContextField, Object> {
     public Path getLockFilePath() {
         Path sourceRootPath = this.get(BuildContextField.SOURCE_ROOT);
         return sourceRootPath.resolve(ProjectDirConstants.LOCK_FILE_NAME);
+    }
+
+    public boolean skipTests() {
+        CompilerContext context = this.get(BuildContextField.COMPILER_CONTEXT);
+        if (context == null) {
+            return false;
+        }
+        CompilerOptions compilerOptions = CompilerOptions.getInstance(context);
+        String skipTestsArg = compilerOptions.get(CompilerOptionName.SKIP_TESTS);
+        return (skipTestsArg != null && !skipTestsArg.equals(Constants.SKIP_TESTS));
     }
 }
