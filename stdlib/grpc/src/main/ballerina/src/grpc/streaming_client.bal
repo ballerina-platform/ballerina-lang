@@ -21,7 +21,7 @@ public type StreamingClient client object {
     #
     # + res - The inbound request message.
     # + return - Returns an error if encounters an error while sending the response, returns nil otherwise.
-    public remote function send(any res) returns Error? = external;
+    public remote function send(anydata res) returns Error? = external;
 
     # Informs the server, caller finished sending messages.
     #

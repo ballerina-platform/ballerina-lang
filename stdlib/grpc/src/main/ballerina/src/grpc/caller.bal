@@ -35,7 +35,7 @@ public type Caller client object {
     # + res - - The outbound response message.
     # + headers - - Optional headers parameter. Passes header value if needed. Default sets to nil.
     # + return - - Returns an error if encounters an error while sending the response, returns nil otherwise.
-    public remote function send(any res, Headers? headers = ()) returns Error? = external;
+    public remote function send(anydata res, Headers? headers = ()) returns Error? = external;
 
     # Informs the caller, server finished sending messages.
     #
