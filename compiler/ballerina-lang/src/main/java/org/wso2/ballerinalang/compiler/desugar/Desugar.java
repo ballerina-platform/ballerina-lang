@@ -350,13 +350,13 @@ public class Desugar extends BLangNodeVisitor {
                     continue;
                 }
 
-                objectTypeNode.defaultInitFunction = createGeneratedInitializerFunction(objectTypeNode, env);
+                objectTypeNode.generatedInitFunction = createGeneratedInitializerFunction(objectTypeNode, env);
                 BObjectTypeSymbol objectSymbol = ((BObjectTypeSymbol) objectTypeNode.type.tsymbol);
 
                 // Add default init function to the attached function list
-                objectSymbol.attachedFuncs.add(objectSymbol.defaultInitializerFunc);
-                pkgNode.functions.add(objectTypeNode.defaultInitFunction);
-                pkgNode.topLevelNodes.add(objectTypeNode.defaultInitFunction);
+                objectSymbol.attachedFuncs.add(objectSymbol.generatedInitializerFunc);
+                pkgNode.functions.add(objectTypeNode.generatedInitFunction);
+                pkgNode.topLevelNodes.add(objectTypeNode.generatedInitFunction);
 
                 // Add init function to the attached function list
                 if (objectTypeNode.initFunction != null) {
@@ -381,7 +381,7 @@ public class Desugar extends BLangNodeVisitor {
 
         BAttachedFunction initializerFunc = ((BObjectTypeSymbol) objectTypeNode.symbol).initializerFunc;
         BAttachedFunction generatedInitializerFunc =
-                ((BObjectTypeSymbol) objectTypeNode.symbol).defaultInitializerFunc;
+                ((BObjectTypeSymbol) objectTypeNode.symbol).generatedInitializerFunc;
         generatedInitializerFunc.symbol.params = initializerFunc.symbol.params;
         generatedInitializerFunc.symbol.restParam = initializerFunc.symbol.restParam;
         generatedInitializerFunc.symbol.retType = initializerFunc.symbol.retType;
@@ -642,25 +642,25 @@ public class Desugar extends BLangNodeVisitor {
         }
 
         // Add object level variables to the init function.
-        Map<BSymbol, BLangStatement> initFunctionStmts = objectTypeNode.defaultInitFunction.initFunctionStmts;
+        Map<BSymbol, BLangStatement> initFunctionStmts = objectTypeNode.generatedInitFunction.initFunctionStmts;
         objectTypeNode.fields.stream()
                 // skip if the field is already have an value set by the constructor.
                 .filter(field -> !initFunctionStmts.containsKey(field.symbol))
                 .filter(field -> field.expr != null)
                 .forEachOrdered(field -> {
                     initFunctionStmts.put(field.symbol,
-                            createStructFieldUpdate(objectTypeNode.defaultInitFunction, field));
+                            createStructFieldUpdate(objectTypeNode.generatedInitFunction, field));
                 });
 
         // Adding init statements to the init function.
         BLangStatement[] initStmts = initFunctionStmts.values().toArray(new BLangStatement[0]);
         int i;
         for (i = 0; i < initFunctionStmts.size(); i++) {
-            objectTypeNode.defaultInitFunction.body.stmts.add(i, initStmts[i]);
+            objectTypeNode.generatedInitFunction.body.stmts.add(i, initStmts[i]);
         }
 
         if (objectTypeNode.initFunction != null) {
-            ((BLangReturn) objectTypeNode.defaultInitFunction.body.stmts.get(i)).expr =
+            ((BLangReturn) objectTypeNode.generatedInitFunction.body.stmts.get(i)).expr =
                     createUserDefinedInitInvocation(objectTypeNode);
         }
         result = objectTypeNode;
@@ -669,20 +669,20 @@ public class Desugar extends BLangNodeVisitor {
     private BLangInvocation createUserDefinedInitInvocation(BLangObjectTypeNode objectTypeNode) {
 
         ArrayList<BLangExpression> paramRefs = new ArrayList<>();
-        for (BLangSimpleVariable var : objectTypeNode.defaultInitFunction.requiredParams) {
+        for (BLangSimpleVariable var : objectTypeNode.generatedInitFunction.requiredParams) {
             paramRefs.add(ASTBuilderUtil.createVariableRef(objectTypeNode.pos, var.symbol));
         }
 
         BLangInvocation invocation = ASTBuilderUtil.createInvocationExprMethod(objectTypeNode.pos,
                 ((BObjectTypeSymbol) objectTypeNode.symbol).initializerFunc.symbol,
                 paramRefs, Collections.emptyList(), symResolver);
-        if (objectTypeNode.defaultInitFunction.restParam != null) {
+        if (objectTypeNode.generatedInitFunction.restParam != null) {
             BLangSimpleVarRef restVarRef = ASTBuilderUtil.createVariableRef(objectTypeNode.pos,
-                    objectTypeNode.defaultInitFunction.restParam.symbol);
+                    objectTypeNode.generatedInitFunction.restParam.symbol);
             BLangRestArgsExpression bLangRestArgsExpression = new BLangRestArgsExpression();
             bLangRestArgsExpression.expr = restVarRef;
-            bLangRestArgsExpression.pos = objectTypeNode.defaultInitFunction.pos;
-            bLangRestArgsExpression.type = objectTypeNode.defaultInitFunction.restParam.type;
+            bLangRestArgsExpression.pos = objectTypeNode.generatedInitFunction.pos;
+            bLangRestArgsExpression.type = objectTypeNode.generatedInitFunction.restParam.type;
             bLangRestArgsExpression.expectedType = bLangRestArgsExpression.type;
             invocation.restArgs.add(bLangRestArgsExpression);
         }
@@ -3543,7 +3543,7 @@ public class Desugar extends BLangNodeVisitor {
         BLangSimpleVarRef objVarRef = ASTBuilderUtil.createVariableRef(typeInitExpr.pos, objVarDef.var.symbol);
         blockStmt.addStatement(objVarDef);
         typeInitExpr.initInvocation.exprSymbol = objVarDef.var.symbol;
-        typeInitExpr.initInvocation.symbol = ((BObjectTypeSymbol) objType.tsymbol).defaultInitializerFunc.symbol;
+        typeInitExpr.initInvocation.symbol = ((BObjectTypeSymbol) objType.tsymbol).generatedInitializerFunc.symbol;
 
         // __init() returning nil is the common case and the type test is not needed for it.
         if (typeInitExpr.initInvocation.type.tag == TypeTags.NIL) {
@@ -6503,9 +6503,9 @@ public class Desugar extends BLangNodeVisitor {
         BLangFunction initFunction = createInitFunctionForStructureType(structureTypeNode, env,
                 Names.GENERATED_INIT_SUFFIX);
         BObjectTypeSymbol typeSymbol = ((BObjectTypeSymbol) structureTypeNode.type.tsymbol);
-        typeSymbol.defaultInitializerFunc = new BAttachedFunction(Names.GENERATED_INIT_SUFFIX, initFunction.symbol,
+        typeSymbol.generatedInitializerFunc = new BAttachedFunction(Names.GENERATED_INIT_SUFFIX, initFunction.symbol,
                 (BInvokableType) initFunction.type);
-        structureTypeNode.defaultInitFunction = initFunction;
+        structureTypeNode.generatedInitFunction = initFunction;
         return rewrite(initFunction, env);
     }
 

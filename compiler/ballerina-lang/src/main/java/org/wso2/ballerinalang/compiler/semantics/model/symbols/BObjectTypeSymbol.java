@@ -36,7 +36,7 @@ public class BObjectTypeSymbol extends BStructureTypeSymbol {
 
     // This is a cache of the functions referred through the type references
     public List<BAttachedFunction> referencedFunctions;
-    public BAttachedFunction defaultInitializerFunc;
+    public BAttachedFunction generatedInitializerFunc;
 
     // The scope in which the object methods are defined
     public Scope methodScope;
