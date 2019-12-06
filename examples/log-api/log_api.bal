@@ -38,11 +38,11 @@ public function main() {
 
     log:printDebug("Name of the fruit is Strawberry.");
     log:printDebug(io:sprintf("Names of the fruits are %s, %s.", apple.getName(), orange.getName()));
+    // Logic constructing log messages with expensive operations can alternatively be passed as a function
+    // pointer implementation. The function will be executed if and only if that particular log level is enabled.
     log:printDebug(function() returns string {
         return io:sprintf("Name of the fruit is is %s", apple.getName());
     });
-    // Retrieving log messages through complex operations is allowed through an optional function pointer
-    // parameter that will be executed if and only if that particular log level is activated.
 }
 
 public type Fruit object {

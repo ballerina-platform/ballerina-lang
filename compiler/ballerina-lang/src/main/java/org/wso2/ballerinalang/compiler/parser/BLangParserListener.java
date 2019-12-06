@@ -143,6 +143,14 @@ public class BLangParserListener extends BallerinaParserBaseListener {
                                      getCurrentPos(ctx.Identifier()), ctx.annotationAttachment().size());
     }
 
+    @Override
+    public void exitRestParameterTypeName(BallerinaParser.RestParameterTypeNameContext ctx) {
+        if (isInErrorState) {
+            return;
+        }
+        pkgBuilder.addRestParam(getCurrentPos(ctx), getWS(ctx), null, null, 0);
+    }
+
     /**
      * {@inheritDoc}
      */
@@ -869,19 +877,23 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        boolean paramsAvail = false, paramsTypeOnly = false, retParamAvail = false;
+        boolean paramsAvail = false, retParamAvail = false, restParamAvail = false;
         if (ctx.parameterList() != null) {
             paramsAvail = ctx.parameterList().parameter().size() > 0;
+            if (ctx.parameterList().restParameter() != null) {
+                restParamAvail = true;
+            }
         } else if (ctx.parameterTypeNameList() != null) {
             paramsAvail = ctx.parameterTypeNameList().parameterTypeName().size() > 0;
-            paramsTypeOnly = true;
+            if (ctx.parameterTypeNameList().restParameterTypeName() != null) {
+                restParamAvail = true;
+            }
         }
 
         if (ctx.returnParameter() != null) {
             retParamAvail = true;
         }
-
-        this.pkgBuilder.addFunctionType(getCurrentPos(ctx), getWS(ctx), paramsAvail, retParamAvail);
+        this.pkgBuilder.addFunctionType(getCurrentPos(ctx), getWS(ctx), paramsAvail, restParamAvail, retParamAvail);
     }
 
     /**

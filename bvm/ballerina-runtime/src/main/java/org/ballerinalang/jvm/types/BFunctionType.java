@@ -27,6 +27,7 @@ import java.util.Arrays;
 public class BFunctionType extends AnnotatableType {
 
     public BType[] paramTypes;
+    public BType restType;
     public BType retType;
 
     public BFunctionType() {
@@ -35,9 +36,10 @@ public class BFunctionType extends AnnotatableType {
         this.retType = BTypes.typeNull;
     }
 
-    public BFunctionType(BType[] paramTypes, BType retType) {
+    public BFunctionType(BType[] paramTypes, BType restType, BType retType) {
         super("function ()", null, Object.class);
         this.paramTypes = paramTypes;
+        this.restType = restType;
         this.retType = retType;
     }
 

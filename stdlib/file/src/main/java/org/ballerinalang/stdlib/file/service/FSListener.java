@@ -18,12 +18,11 @@
 
 package org.ballerinalang.stdlib.file.service;
 
+import org.ballerinalang.jvm.BRuntime;
 import org.ballerinalang.jvm.BallerinaValues;
-import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.types.AttachedFunction;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.jvm.values.connector.Executor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.localfilesystem.server.connector.contract.LocalFileSystemEvent;
@@ -42,12 +41,12 @@ import static org.ballerinalang.stdlib.file.utils.FileConstants.FILE_PACKAGE_ID;
 public class FSListener implements LocalFileSystemListener {
 
     private static final Logger log = LoggerFactory.getLogger(FSListener.class);
-    private Scheduler scheduler;
+    private BRuntime runtime;
     private ObjectValue service;
     private Map<String, AttachedFunction> attachedFunctionRegistry;
 
-    public FSListener(Scheduler scheduler, ObjectValue service, Map<String, AttachedFunction> resourceRegistry) {
-        this.scheduler = scheduler;
+    public FSListener(BRuntime runtime, ObjectValue service, Map<String, AttachedFunction> resourceRegistry) {
+        this.runtime = runtime;
         this.service = service;
         this.attachedFunctionRegistry = resourceRegistry;
     }
@@ -57,7 +56,7 @@ public class FSListener implements LocalFileSystemListener {
         Object[] parameters = getJvmSignatureParameters(fileEvent);
         AttachedFunction resource = getAttachedFunction(fileEvent.getEvent());
         if (resource != null) {
-            Executor.submit(scheduler, service, resource.getName(), new DirectoryCallback(), null, parameters);
+            runtime.invokeMethodAsync(service, resource.getName(), new DirectoryCallback(), parameters);
         } else {
             log.warn(String.format("FileEvent received for unregistered resource: [%s] %s", fileEvent.getEvent(),
                     fileEvent.getFileName()));

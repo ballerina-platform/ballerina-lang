@@ -602,8 +602,7 @@ public class BLangPackageBuilder {
     }
 
     void addFunctionType(DiagnosticPos pos, Set<Whitespace> ws, boolean paramsAvail,
-                         boolean retParamsAvail) {
-        // TODO : Fix function main ()(boolean , function(string x)(float, int)){} issue
+                         boolean restParamAvail, boolean retParamsAvail) {
         BLangFunctionTypeNode functionTypeNode = (BLangFunctionTypeNode) TreeBuilder.createFunctionTypeNode();
         functionTypeNode.pos = pos;
         functionTypeNode.returnsKeywordExists = true;
@@ -620,8 +619,13 @@ public class BLangPackageBuilder {
 
         if (paramsAvail) {
             functionTypeNode.addWS(commaWsStack.pop());
-            this.varListStack.pop().forEach(v -> functionTypeNode.params.add(v));
+            functionTypeNode.params.addAll(this.varListStack.pop());
         }
+
+        if (restParamAvail) {
+            functionTypeNode.restParam = (BLangSimpleVariable) this.restParamStack.pop();
+        }
+        functionTypeNode.flagSet.add(Flag.PUBLIC);
 
         functionTypeNode.addWS(ws);
         addType(functionTypeNode);

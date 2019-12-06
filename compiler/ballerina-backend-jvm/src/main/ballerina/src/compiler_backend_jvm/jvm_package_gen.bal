@@ -546,6 +546,7 @@ function getFunctionWrapper(bir:Function currentFunc, string orgName ,string mod
     bir:BType? attachedType = receiver is bir:VariableDcl ? receiver.typeValue : ();
     string jvmMethodDescription = getMethodDesc(functionTypeDesc.paramTypes, functionTypeDesc?.retType,
                                                 attachedType = attachedType);
+
     return {
         orgName : orgName,
         moduleName : moduleName,

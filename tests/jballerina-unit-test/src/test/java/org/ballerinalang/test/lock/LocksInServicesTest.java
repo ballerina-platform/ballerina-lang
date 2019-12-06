@@ -50,7 +50,7 @@ public class LocksInServicesTest {
                 .compile(true, "test-src/lock/locks-in-services.bal");
     }
 
-    @Test(description = "Test locking service level variable basic")
+    @Test(description = "Test locking service level variable basic", enabled = false)
     public void testServiceLvlVarLockBasic() {
         Semaphore semaphore = new Semaphore(-9999);
 

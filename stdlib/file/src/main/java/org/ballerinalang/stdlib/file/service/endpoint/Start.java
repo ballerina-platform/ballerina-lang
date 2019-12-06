@@ -18,11 +18,7 @@
 
 package org.ballerinalang.stdlib.file.service.endpoint;
 
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.stdlib.file.service.DirectoryListenerConstants;
 import org.ballerinalang.stdlib.file.utils.FileConstants;
 import org.ballerinalang.stdlib.file.utils.FileUtils;
@@ -33,16 +29,9 @@ import org.wso2.transport.localfilesystem.server.exception.LocalFileSystemServer
  * Start server connector.
  */
 
-@BallerinaFunction(
-        orgName = "ballerina",
-        packageName = "file",
-        functionName = "start",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = "Listener", structPackage = "ballerina/file"),
-        isPublic = true
-)
 public class Start {
 
-    public static Object start(Strand strand, ObjectValue listener) {
+    public static Object start(ObjectValue listener) {
         LocalFileSystemServerConnector serverConnector = (LocalFileSystemServerConnector) listener
                 .getNativeData(DirectoryListenerConstants.FS_SERVER_CONNECTOR);
         try {
