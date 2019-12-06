@@ -101,8 +101,13 @@ public type HelloWorldClient client object {
         }
     }
 
+    public function getGrpcClient() returns grpc:Client {
+        return <grpc:Client> self.grpcClient;
+    }
+
     public remote function lotsOfGreetings(service msgListener, grpc:Headers? headers = ()) returns (grpc:StreamingClient|grpc:Error) {
-        return self.grpcClient->streamingExecute("grpcservices.HelloWorld7/lotsOfGreetings", msgListener, headers);
+        grpc:Client tempGrpcClient = self.getGrpcClient();
+        return tempGrpcClient->streamingExecute("grpcservices.HelloWorld7/lotsOfGreetings", msgListener, headers);
     }
 };
 

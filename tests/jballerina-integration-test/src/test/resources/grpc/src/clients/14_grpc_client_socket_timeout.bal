@@ -58,9 +58,14 @@ public type HelloWorld14BlockingClient client object {
         }
     }
 
+    public function getGrpcClient() returns grpc:Client {
+        return <grpc:Client> self.grpcClient;
+    }
+
     public remote function hello(string req, grpc:Headers? headers = ()) returns ([string, grpc:Headers]|grpc:Error) {
 
-        var payload = check self.grpcClient->blockingExecute("HelloWorld14/hello", req, headers);
+        grpc:Client tempGrpcClient = self.getGrpcClient();
+        var payload = check tempGrpcClient->blockingExecute("HelloWorld14/hello", req, headers);
         grpc:Headers resHeaders = new;
         any result = ();
         [result, resHeaders] = payload;
@@ -87,9 +92,14 @@ public type HelloWorld14Client client object {
         }
     }
 
+    public function getGrpcClient() returns grpc:Client {
+        return <grpc:Client> self.grpcClient;
+    }
+
     public remote function hello(string req, service msgListener, grpc:Headers? headers = ()) returns (grpc:Error?) {
 
-        return self.grpcClient->nonBlockingExecute("HelloWorld14/hello", req, msgListener, headers);
+        grpc:Client tempGrpcClient = self.getGrpcClient();
+        return tempGrpcClient->nonBlockingExecute("HelloWorld14/hello", req, msgListener, headers);
     }
 
 };

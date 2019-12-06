@@ -84,8 +84,13 @@ public type byteServiceBlockingClient client object {
         }
     }
 
+    public function getGrpcClient() returns grpc:Client {
+        return <grpc:Client> self.grpcClient;
+    }
+
     public remote function checkBytes (byte[] req, grpc:Headers? headers = ()) returns ([byte[], grpc:Headers]|grpc:Error) {
-        var unionResp = check self.grpcClient->blockingExecute("grpcservices.byteService/checkBytes", req, headers);
+        grpc:Client tempGrpcClient = self.getGrpcClient();
+        var unionResp = check tempGrpcClient->blockingExecute("grpcservices.byteService/checkBytes", req, headers);
         grpc:Headers resHeaders = new;
         anydata result = ();
         [result, resHeaders] = unionResp;
@@ -116,8 +121,13 @@ public type byteServiceClient client object {
         }
     }
 
+    public function getGrpcClient() returns grpc:Client {
+        return <grpc:Client> self.grpcClient;
+    }
+
     public remote function checkBytes (byte[] req, service msgListener, grpc:Headers? headers = ()) returns (grpc:Error?) {
-        return self.grpcClient->nonBlockingExecute("grpcservices.byteService/checkBytes", req, msgListener, headers);
+        grpc:Client tempGrpcClient = self.getGrpcClient();
+        return tempGrpcClient->nonBlockingExecute("grpcservices.byteService/checkBytes", req, msgListener, headers);
     }
 };
 

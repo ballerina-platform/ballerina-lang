@@ -54,8 +54,13 @@ public type testEnumServiceBlockingClient client object {
         }
     }
 
+    public function getGrpcClient() returns grpc:Client {
+        return <grpc:Client> self.grpcClient;
+    }
+
     public remote function testEnum (orderInfo req, grpc:Headers? headers = ()) returns ([string, grpc:Headers]|grpc:Error) {
-        var unionResp = check self.grpcClient->blockingExecute("grpcservices.testEnumService/testEnum", req, headers);
+        grpc:Client tempGrpcClient = self.getGrpcClient();
+        var unionResp = check tempGrpcClient->blockingExecute("grpcservices.testEnumService/testEnum", req, headers);
         grpc:Headers resHeaders = new;
         anydata result = ();
         [result, resHeaders] = unionResp;
@@ -81,8 +86,13 @@ public type testEnumServiceClient client object {
         }
     }
 
+    public function getGrpcClient() returns grpc:Client {
+        return <grpc:Client> self.grpcClient;
+    }
+
     public remote function testEnum (orderInfo req, service msgListener, grpc:Headers? headers = ()) returns (grpc:Error?) {
-        return self.grpcClient->nonBlockingExecute("grpcservices.testEnumService/testEnum", req, msgListener, headers);
+        grpc:Client tempGrpcClient = self.getGrpcClient();
+        return tempGrpcClient->nonBlockingExecute("grpcservices.testEnumService/testEnum", req, msgListener, headers);
     }
 };
 

@@ -89,8 +89,13 @@ public type HelloWorldBlockingClient client object {
         }
     }
 
+    public function getGrpcClient() returns grpc:Client {
+        return <grpc:Client> self.grpcClient;
+    }
+
     public remote function hello(string req, grpc:Headers? headers = ()) returns ([string, grpc:Headers]|grpc:Error) {
-        var unionResp = check self.grpcClient->blockingExecute("grpcservices.HelloWorld98/hello1", req, headers);
+        grpc:Client tempGrpcClient = self.getGrpcClient();
+        var unionResp = check tempGrpcClient->blockingExecute("grpcservices.HelloWorld98/hello1", req, headers);
         anydata result = ();
         grpc:Headers resHeaders = new;
         [result, resHeaders] = unionResp;
@@ -98,7 +103,8 @@ public type HelloWorldBlockingClient client object {
     }
 
     public remote function testInt(int req, grpc:Headers? headers = ()) returns ([int, grpc:Headers]|grpc:Error) {
-        var unionResp = check self.grpcClient->blockingExecute("grpcservices.HelloWorld98/testInt", req, headers);
+        grpc:Client tempGrpcClient = self.getGrpcClient();
+        var unionResp = check tempGrpcClient->blockingExecute("grpcservices.HelloWorld98/testInt", req, headers);
         anydata result = ();
         grpc:Headers resHeaders = new;
         [result, resHeaders] = unionResp;
@@ -111,7 +117,8 @@ public type HelloWorldBlockingClient client object {
     }
 
     public remote function testFloat(float req, grpc:Headers? headers = ()) returns ([float, grpc:Headers]|grpc:Error) {
-        var unionResp = check self.grpcClient->blockingExecute("grpcservices.HelloWorld98/testFloat", req, headers);
+        grpc:Client tempGrpcClient = self.getGrpcClient();
+        var unionResp = check tempGrpcClient->blockingExecute("grpcservices.HelloWorld98/testFloat", req, headers);
         anydata result = ();
         grpc:Headers resHeaders = new;
         [result, resHeaders] = unionResp;
