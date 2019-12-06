@@ -33,6 +33,7 @@ import org.ballerinalang.jvm.types.BPackage;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.types.TypeConstants;
+import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
@@ -46,8 +47,14 @@ import org.ballerinalang.jvm.values.XMLText;
 import org.ballerinalang.jvm.values.XMLValue;
 import org.ballerinalang.jvm.values.api.BXml;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.PipedInputStream;
+import java.io.PipedOutputStream;
 import java.io.Reader;
 import java.io.StringReader;
 import java.util.ArrayList;
@@ -58,7 +65,9 @@ import java.util.Map;
 
 import javax.xml.XMLConstants;
 import javax.xml.namespace.QName;
+import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamWriter;
 
 /**
  * Common utility methods used for XML manipulation.
@@ -210,15 +219,21 @@ public class XMLFactory {
      * @param table {@link org.ballerinalang.jvm.values.TableValue} to convert
      * @return converted {@link XMLValue}
      */
-    @SuppressWarnings("rawtypes")
     public static XMLValue tableToXML(TableValue table) {
         // todo: Implement table to xml (issue #19910)
 
-//        OMSourcedElementImpl omSourcedElement = new OMSourcedElementImpl();
-//        omSourcedElement.init(new TableOMDataSource(table, null, null));
-//        return new XMLItem(omSourcedElement);
-        assert false;
-        return null;
+        try {
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            XMLStreamWriter streamWriter = XMLOutputFactory.newInstance().createXMLStreamWriter(outputStream);
+            TableOMDataSource tableOMDataSource = new TableOMDataSource(table, null, null);
+            tableOMDataSource.serialize(streamWriter);
+            streamWriter.flush();
+            outputStream.flush();
+            ByteArrayInputStream inputStream = new ByteArrayInputStream(outputStream.toByteArray());
+            return parse(inputStream);
+        } catch (IOException | XMLStreamException e) {
+            throw new BallerinaException(e);
+        }
     }
 
     /**
