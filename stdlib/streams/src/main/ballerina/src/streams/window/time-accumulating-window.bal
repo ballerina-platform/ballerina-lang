@@ -44,7 +44,7 @@ public type TimeAccumulatingWindow object {
     public StreamEvent? resetEvent;
     public function (StreamEvent?[])? nextProcessPointer;
     public int lastTimestamp = -1;
-    public Scheduler scheduler;
+    public Scheduler? scheduler = ();
 
     public function __init(function (StreamEvent?[])? nextProcessPointer, any[] windowParameters) {
         self.nextProcessPointer = nextProcessPointer;
@@ -56,6 +56,10 @@ public type TimeAccumulatingWindow object {
         self.scheduler = new(function (StreamEvent?[] events) {
                 self.process(events);
             });
+    }
+
+    public function getScheduler() returns Scheduler {
+        return <Scheduler> self.scheduler;
     }
 
     public function initParameters(any[] parameters) {
@@ -99,7 +103,7 @@ public type TimeAccumulatingWindow object {
             }
 
             self.currentEventQueue.addLast(clonedEvent);
-            self.scheduler.notifyAt(self.lastTimestamp + self.timeInMillis);
+            self.getScheduler().notifyAt(self.lastTimestamp + self.timeInMillis);
         }
 
         if (!(self.currentEventQueue.getLast() is ())) {
