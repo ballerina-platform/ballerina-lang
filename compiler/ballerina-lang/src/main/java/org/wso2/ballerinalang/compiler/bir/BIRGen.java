@@ -1127,7 +1127,6 @@ public class BIRGen extends BLangNodeVisitor {
 
         // This basic block will contain statement that comes right after this 'if' statement.
         BIRBasicBlock nextBB = new BIRBasicBlock(this.env.nextBBId(names));
-        addToTrapStack(nextBB);
 
         // Add the branch instruction to the current basic block.
         // This is the end of the current basic block.
@@ -1165,6 +1164,7 @@ public class BIRGen extends BLangNodeVisitor {
         }
 
         // Set the elseBB as the basic block for the rest of statements followed by this if.
+        addToTrapStack(nextBB);
         this.env.enclBasicBlocks.add(nextBB);
         this.env.enclBB = nextBB;
     }
@@ -1932,11 +1932,13 @@ public class BIRGen extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangUnLockStmt unLockStmt) {
+        BIRLockDetailsHolder lockDetailsHolder = this.env.unlockVars.peek().pop();
+        if (lockDetailsHolder.isEmpty()) {
+            return;
+        }
         BIRBasicBlock unLockedBB = new BIRBasicBlock(this.env.nextBBId(names));
         addToTrapStack(unLockedBB);
         this.env.enclBasicBlocks.add(unLockedBB);
-
-        BIRLockDetailsHolder lockDetailsHolder = this.env.unlockVars.peek().pop();
         this.env.enclBB.terminator = new BIRTerminator.Unlock(null, lockDetailsHolder.globalLocks,
                 lockDetailsHolder.fieldLocks, unLockedBB);
         this.env.enclBB = unLockedBB;

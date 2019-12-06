@@ -697,5 +697,9 @@ public abstract class BIRNode {
             this.globalLocks = globalLocks;
             this.fieldLocks = fieldLocks;
         }
+
+        public boolean isEmpty() {
+            return globalLocks.isEmpty() && fieldLocks.isEmpty();
+        }
     }
 }
