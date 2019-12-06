@@ -6485,6 +6485,15 @@ public class Desugar extends BLangNodeVisitor {
         initFunction.symbol.scope = new Scope(initFunction.symbol);
         initFunction.symbol.scope.define(receiverSymbol.name, receiverSymbol);
         initFunction.symbol.receiverSymbol = receiverSymbol;
+
+        BInvokableTypeSymbol tsymbol = Symbols.createInvokableTypeSymbol(SymTag.FUNCTION_TYPE,
+                initFunction.symbol.flags, env.enclPkg.packageID, null,
+                initFunction.symbol);
+        initFunction.type.tsymbol = tsymbol;
+        tsymbol.params = initFunction.symbol.params;
+        tsymbol.restParam = initFunction.symbol.restParam;
+        tsymbol.returnType = initFunction.symbol.retType;
+
         receiverSymbol.owner = initFunction.symbol;
 
         // Add return type as nil to the symbol
