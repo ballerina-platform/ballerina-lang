@@ -378,9 +378,6 @@
         "samples": [{
                 "name": "Error Handling",
                 "url": "error-handling"
-            },{
-                "name": "Error type",
-                "url": "error-user-defined"
             },
             {
                 "name": "Check",
@@ -397,6 +394,10 @@
             {
                 "name": "Trap",
                 "url": "trap"
+            },
+            {
+                "name": "User-defined Error types",
+                "url": "error-user-defined"
             }
         ]
     },
