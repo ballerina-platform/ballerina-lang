@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.parser;
 
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.Node;
+import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.model.tree.clauses.PatternStreamingEdgeInputNode;
 import org.ballerinalang.model.tree.clauses.SelectExpressionNode;
@@ -175,6 +176,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangStructureTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangTupleTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUnionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
@@ -324,6 +326,12 @@ class NodeCloner extends BLangNodeVisitor {
         clone.body = clone(source.body);
         clone.matchExpr = clone(source.matchExpr);
         clone.isLastPattern = source.isLastPattern;
+    }
+
+    private void cloneBLangType(BLangType source, BLangType clone) {
+
+        clone.nullable = source.nullable;
+        clone.grouped = source.grouped;
     }
 
     private <T extends Enum<T>> EnumSet<T> cloneSet(Set<T> source, Class<T> elementType) {
@@ -807,11 +815,17 @@ class NodeCloner extends BLangNodeVisitor {
         clone.streamReference = clone(source.streamReference);
         clone.alias = source.alias;
         clone.isWindowTraversedAfterWhere = source.isWindowTraversedAfterWhere;
-        for (ExpressionNode e : source.preInvocations) {
-            clone.preInvocations.add((ExpressionNode) clone((BLangNode) e));
+        if (source.preInvocations != null) {
+            clone.preInvocations = new ArrayList<>();
+            for (ExpressionNode e : source.preInvocations) {
+                clone.preInvocations.add((ExpressionNode) clone((BLangNode) e));
+            }
         }
-        for (ExpressionNode e : source.postInvocations) {
-            clone.postInvocations.add((ExpressionNode) clone((BLangNode) e));
+        if (source.postInvocations != null) {
+            clone.postInvocations = new ArrayList<>();
+            for (ExpressionNode e : source.postInvocations) {
+                clone.postInvocations.add((ExpressionNode) clone((BLangNode) e));
+            }
         }
     }
 
@@ -940,6 +954,10 @@ class NodeCloner extends BLangNodeVisitor {
     @Override
     public void visit(BLangLiteral source) {
 
+        if (source.getKind() == NodeKind.NUMERIC_LITERAL) {
+            visit((BLangNumericLiteral) source);
+            return;
+        }
         BLangLiteral clone = new BLangLiteral();
         source.cloneRef = clone;
         cloneBLangLiteral(source, clone);
@@ -1456,6 +1474,7 @@ class NodeCloner extends BLangNodeVisitor {
         BLangValueType clone = new BLangValueType();
         source.cloneRef = clone;
         clone.typeKind = source.typeKind;
+        cloneBLangType(source, clone);
     }
 
     @Override
@@ -1466,6 +1485,7 @@ class NodeCloner extends BLangNodeVisitor {
         clone.elemtype = clone(source.elemtype);
         clone.dimensions = source.dimensions;
         clone.sizes = source.sizes;
+        cloneBLangType(source, clone);
     }
 
     @Override
@@ -1474,6 +1494,7 @@ class NodeCloner extends BLangNodeVisitor {
         BLangBuiltInRefTypeNode clone = new BLangBuiltInRefTypeNode();
         source.cloneRef = clone;
         clone.typeKind = source.typeKind;
+        cloneBLangType(source, clone);
     }
 
     @Override
@@ -1483,6 +1504,7 @@ class NodeCloner extends BLangNodeVisitor {
         source.cloneRef = clone;
         clone.type = clone(source.type);
         clone.constraint = clone(source.constraint);
+        cloneBLangType(source, clone);
     }
 
     @Override
@@ -1493,6 +1515,7 @@ class NodeCloner extends BLangNodeVisitor {
         clone.pkgAlias = source.pkgAlias;
         clone.typeName = source.typeName;
         clone.flagSet = cloneSet(source.flagSet, Flag.class);
+        cloneBLangType(source, clone);
     }
 
     @Override
@@ -1503,6 +1526,7 @@ class NodeCloner extends BLangNodeVisitor {
         clone.params = cloneList(source.params);
         clone.returnTypeNode = clone(source.returnTypeNode);
         clone.returnsKeywordExists = source.returnsKeywordExists;
+        cloneBLangType(source, clone);
     }
 
     @Override
@@ -1511,6 +1535,7 @@ class NodeCloner extends BLangNodeVisitor {
         BLangUnionTypeNode clone = new BLangUnionTypeNode();
         source.cloneRef = clone;
         clone.memberTypeNodes = cloneList(source.memberTypeNodes);
+        cloneBLangType(source, clone);
     }
 
     @Override
@@ -1523,6 +1548,7 @@ class NodeCloner extends BLangNodeVisitor {
         clone.receiver = clone(source.receiver);
         clone.flagSet = cloneSet(source.flagSet, Flag.class);
         cloneBLangStructureTypeNode(source, clone);
+        cloneBLangType(source, clone);
     }
 
     @Override
@@ -1533,6 +1559,7 @@ class NodeCloner extends BLangNodeVisitor {
         clone.sealed = source.sealed;
         clone.restFieldType = clone(source.restFieldType);
         cloneBLangStructureTypeNode(source, clone);
+        cloneBLangType(source, clone);
     }
 
     @Override
@@ -1541,6 +1568,7 @@ class NodeCloner extends BLangNodeVisitor {
         BLangFiniteTypeNode clone = new BLangFiniteTypeNode();
         source.cloneRef = clone;
         clone.valueSpace = cloneList(source.valueSpace);
+        cloneBLangType(source, clone);
     }
 
     @Override
@@ -1550,6 +1578,7 @@ class NodeCloner extends BLangNodeVisitor {
         source.cloneRef = clone;
         clone.memberTypeNodes = cloneList(source.memberTypeNodes);
         clone.restParamType = clone(source.restParamType);
+        cloneBLangType(source, clone);
     }
 
     @Override
@@ -1559,6 +1588,7 @@ class NodeCloner extends BLangNodeVisitor {
         source.cloneRef = clone;
         clone.reasonType = clone(source.reasonType);
         clone.detailType = clone(source.detailType);
+        cloneBLangType(source, clone);
     }
 
     @Override
