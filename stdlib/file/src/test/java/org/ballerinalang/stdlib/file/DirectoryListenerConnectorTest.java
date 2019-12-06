@@ -112,7 +112,7 @@ public class DirectoryListenerConnectorTest {
             String actualMsg = e.getMessage();
             String expectedErrorMsg = "At least a single resource required from following: "
                     + "onCreate ,onDelete ,onModify. Parameter should be of type - file:FileEvent";
-            Assert.assertEquals(actualMsg, expectedErrorMsg, "Didn't get expected error msg for not having resources");
+            Assert.assertTrue(actualMsg.contains(expectedErrorMsg));
         }
     }
 
