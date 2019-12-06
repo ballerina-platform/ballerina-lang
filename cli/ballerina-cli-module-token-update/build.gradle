@@ -71,6 +71,7 @@ dependencies {
     interopImports project(':ballerina-time')
     interopImports project(':ballerina-reflect')
     interopImports project(':ballerina-file')
+    interopImports project(':ballerina-runtime-api')
 
     implementation project(':ballerina-lang')
     implementation project(':ballerina-runtime')

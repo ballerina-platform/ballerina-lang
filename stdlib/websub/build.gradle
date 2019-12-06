@@ -67,6 +67,7 @@ dependencies {
     interopImports project(':ballerina-encoding')
     interopImports project(':ballerina-time')
     interopImports project(':ballerina-crypto')
+    interopImports project(':ballerina-runtime-api')
 
     // transitive
     baloImplementation project(path: ':ballerina-math', configuration: 'baloImplementation')

@@ -53,6 +53,7 @@ dependencies {
     interopImports project(':ballerina-time')
     interopImports project(':ballerina-reflect')
     interopImports project(':ballerina-crypto')
+    interopImports project(':ballerina-runtime-api')
 
     //transitive
     baloImplementation project(path: ':ballerina-cache', configuration: 'baloImplementation')
