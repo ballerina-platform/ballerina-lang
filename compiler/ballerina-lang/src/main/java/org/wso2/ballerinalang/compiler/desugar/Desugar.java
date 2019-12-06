@@ -3550,8 +3550,6 @@ public class Desugar extends BLangNodeVisitor {
             BLangExpressionStmt initInvExpr = ASTBuilderUtil.createExpressionStmt(typeInitExpr.pos, blockStmt);
             initInvExpr.expr = typeInitExpr.initInvocation;
             typeInitExpr.initInvocation.name.value = Names.GENERATED_INIT_SUFFIX.value;
-            // TODO : should check whether following line is correct or not
-//            typeInitExpr.initInvocation.symbol = ((BObjectTypeSymbol) objType.tsymbol).defaultInitializerFunc.symbol;
             BLangStatementExpression stmtExpr = ASTBuilderUtil.createStatementExpression(blockStmt, objVarRef);
             stmtExpr.type = objVarRef.symbol.type;
             return stmtExpr;
