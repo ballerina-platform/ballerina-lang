@@ -285,13 +285,6 @@ public class TableLiteralSyntaxTest {
                 + "<element>true</element></booleanArrData></result></results>");
     }
 
-    @Test(description = "Test add data with  mismatched types")
-    public void testTableAddInvalid() {
-        BValue[] returns = BRunUtil.invoke(result, "testTableAddInvalid");
-        Assert.assertEquals((returns[0]).stringValue(),
-                "incompatible types: record of type:Company cannot be added to a table with type:Person");
-    }
-
     @Test
     public void testToJson() {
         BValue[] returns = BRunUtil.invokeFunction(result, "testToJson");
@@ -445,14 +438,6 @@ public class TableLiteralSyntaxTest {
                         + " from a table with type:Person");
     }
 
-    @Test(description = "Test remove data with mismatched input parameter types")
-    public void testRemoveWithInvalidParamType() {
-        BValue[] returns = BRunUtil.invoke(result, "testRemoveWithInvalidParamType");
-        Assert.assertEquals((returns[0]).stringValue(),
-                "incompatible types: function with record type:int cannot be used to remove records from a "
-                        + "table with type:Person");
-    }
-
     @Test(description = "Test removing data from a table using a given lambda as a filter")
     public void testRemoveOpAnonymousFilter() {
         BValue[] returns = BRunUtil.invoke(result, "testRemoveOpAnonymousFilter");
@@ -503,8 +488,8 @@ public class TableLiteralSyntaxTest {
         BAssertUtil.validateError(resultNegative, i++, "unknown type 'Student'", 96, 11);
         BAssertUtil.validateError(resultNegative, i++, "table type constraint must be a record type", 96, 25);
         BAssertUtil.validateError(resultNegative, i++,
-                                  "incompatible types: expected 'function (any) returns (boolean)', found 'function " +
-                                          "(Person) returns ()'",
+                                  "incompatible types: expected 'function (ballerina/lang.table:RowType) " +
+                                          "returns (boolean)', found 'function (Person) returns ()'",
                                   109, 25);
         BAssertUtil.validateError(resultNegative, i++,
                                   "column 'name' of type 'float' is not allowed as key, use an 'int' or 'string' " +
@@ -521,7 +506,7 @@ public class TableLiteralSyntaxTest {
         BAssertUtil.validateError(resultNegative, i++,
                                   "field 'bar' of type 'error' is not allowed as a table column", 196, 31);
         BAssertUtil.validateError(resultNegative, i++,
-                "incompatible types: expected 'record {| anydata...; |}', found 'ErrorInRecord'", 202, 23);
+                "incompatible types: expected 'ballerina/lang.table:RowType', found 'ErrorInRecord'", 202, 23);
         BAssertUtil.validateError(resultNegative, i++,
                 "field 'eArr' of type 'error?[]' is not allowed as a table column", 212, 29);
         BAssertUtil.validateError(resultNegative, i++,
