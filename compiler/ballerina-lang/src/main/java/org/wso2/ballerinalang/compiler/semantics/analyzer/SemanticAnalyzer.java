@@ -901,11 +901,13 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
                 if (rhsType.tag == TypeTags.TUPLE && !(checkTypeAndVarCountConsistency(tupleVariable,
                         (BTupleType) tupleVariable.type, blockEnv))) {
+                    recursivelyDefineVariables(tupleVariable, blockEnv);
                     return;
                 }
 
                 if (rhsType.tag == TypeTags.UNION && !(checkTypeAndVarCountConsistency(tupleVariable, null,
                         blockEnv))) {
+                    recursivelyDefineVariables(tupleVariable, blockEnv);
                     return;
                 }
 
