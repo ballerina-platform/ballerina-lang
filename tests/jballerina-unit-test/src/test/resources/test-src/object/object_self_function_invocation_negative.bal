@@ -156,6 +156,23 @@ type Person7 object {
 function modify(Person7 person) {
 
 }
+
 public function testSelfKeywordInvocationWithModuleLevelFunctionInvocation() {
     Person7 person = new("person");
+}
+
+type Person8 object {
+    string name;
+
+    public function __init(string name) {
+        change(self);
+        self.name = name;
+    }
+};
+
+function change(Person8... person) {
+}
+
+public function testSelfKeywordInvocationWithModuleLevelFunctionInvocationWithRestArgs() {
+    Person8 person = new("person");
 }

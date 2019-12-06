@@ -21,6 +21,7 @@ import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.TopLevelNode;
+import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.cyclefind.GlobalVariableRefAnalyzer;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
@@ -587,12 +588,16 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangInvocation invocationExpr) {
         analyzeNode(invocationExpr.expr, env);
-        if (!isFieldsInitializedForSelfKeyWordExpression(invocationExpr)) {
+        if (!isFieldsInitializedForSelfArgument(invocationExpr)) {
             return;
         }
-        if (!isFieldsInitializedForSelfKeyWordMethodInvocation(invocationExpr)) {
+        if (!isFieldsInitializedForSelfInvocation(invocationExpr.requiredArgs, invocationExpr.pos)) {
             return;
         }
+        if (!isFieldsInitializedForSelfInvocation(invocationExpr.restArgs, invocationExpr.pos)) {
+            return;
+        }
+
         invocationExpr.requiredArgs.forEach(expr -> analyzeNode(expr, env));
         invocationExpr.restArgs.forEach(expr -> analyzeNode(expr, env));
         BSymbol owner = this.env.scope.owner;
@@ -618,7 +623,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         }
     }
 
-    private boolean isFieldsInitializedForSelfKeyWordExpression(BLangInvocation invocationExpr) {
+    private boolean isFieldsInitializedForSelfArgument(BLangInvocation invocationExpr) {
 
         if (invocationExpr.expr == null || !isSelfKeyWordExpr(invocationExpr.expr)) {
             return true;
@@ -634,14 +639,14 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         return true;
     }
 
-    private boolean isFieldsInitializedForSelfKeyWordMethodInvocation(BLangInvocation invocationExpr) {
+    private boolean isFieldsInitializedForSelfInvocation(List<BLangExpression> argExpressions, DiagnosticPos pos) {
 
-        for (BLangExpression expr : invocationExpr.requiredArgs) {
+        for (BLangExpression expr : argExpressions) {
             if (isSelfKeyWordExpr(expr)) {
                 StringBuilder uninitializedFields =
                         getUninitializedFieldsForSelfKeyword((BObjectType) ((BLangSimpleVarRef) expr).symbol.type);
                 if (uninitializedFields.length() != 0) {
-                    this.dlog.error(invocationExpr.pos, DiagnosticCode.CONTAINS_UNINITIALIZED_FIELDS,
+                    this.dlog.error(pos, DiagnosticCode.CONTAINS_UNINITIALIZED_FIELDS,
                             uninitializedFields.toString());
                     return false;
                 }
