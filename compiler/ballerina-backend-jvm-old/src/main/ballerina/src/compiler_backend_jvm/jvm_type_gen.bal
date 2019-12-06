@@ -227,8 +227,11 @@ function generateRecordValueCreateMethod(jvm:ClassWriter cw, bir:TypeDef?[] reco
         mv.visitInsn(ACONST_NULL);
         mv.visitMethodInsn(INVOKESPECIAL, STRAND, "<init>", io:sprintf("(L%s;)V", SCHEDULER) , false);
         mv.visitInsn(SWAP);
-        mv.visitMethodInsn(INVOKESTATIC, className, "$init", io:sprintf("(L%s;L%s;)V", STRAND, MAP_VALUE), false);
-        
+
+        string initMethodName = cleanupTypeName(typeDef.name.value) + "__init_";
+        mv.visitMethodInsn(INVOKESTATIC, className, initMethodName,
+                            io:sprintf("(L%s;L%s;)L%s;", STRAND, MAP_VALUE, OBJECT), false);
+        mv.visitInsn(POP);
         mv.visitInsn(ARETURN);
         i += 1;
     }
