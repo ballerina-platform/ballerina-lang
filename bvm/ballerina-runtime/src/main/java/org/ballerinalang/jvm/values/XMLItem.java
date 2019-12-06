@@ -26,6 +26,8 @@ import org.ballerinalang.jvm.XMLFactory;
 import org.ballerinalang.jvm.XMLNodeType;
 import org.ballerinalang.jvm.XMLValidator;
 import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.types.BMapType;
+import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.values.api.BXml;
 import org.ballerinalang.jvm.values.freeze.FreezeUtils;
 import org.ballerinalang.jvm.values.freeze.State;
@@ -68,7 +70,7 @@ public final class XMLItem extends XMLValue {
     public XMLItem(QName name, XMLSequence children) {
         this.name = name;
         this.children = children;
-        attributes = new MapValueImpl<>();
+        attributes = new MapValueImpl<>(new BMapType(BTypes.typeString));
     }
 
     /**
@@ -151,7 +153,10 @@ public final class XMLItem extends XMLValue {
     public String getAttribute(String localName, String namespace, String prefix) {
         if (prefix != null && !prefix.isEmpty()) {
             String ns = attributes.get(XMLNS_URL_PREFIX + prefix);
-            return attributes.get("{" + ns + "}" + localName);
+            String attrVal = attributes.get("{" + ns + "}" + localName);
+            if (attrVal != null) {
+                return attrVal;
+            }
         }
         if (namespace != null && !namespace.isEmpty()) {
             return attributes.get("{" + namespace + "}" + localName);
@@ -199,6 +204,13 @@ public final class XMLItem extends XMLValue {
                     "failed to add attribute '%s:%s'. prefix '%s' is already bound to namespace '%s'",
                     prefix, localName, prefix, nsOfPrefix);
             throw BallerinaErrors.createError(errorMsg);
+        }
+
+        if ((namespaceUri == null || namespaceUri.isEmpty())) {
+            String ns = attributes.get("{" + XMLConstants.XMLNS_ATTRIBUTE_NS_URI + "}" + XMLConstants.XMLNS_ATTRIBUTE);
+            if (ns != null) {
+                namespaceUri = ns;
+            }
         }
 
         // If the attribute already exists, update the value.

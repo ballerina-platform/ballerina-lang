@@ -202,7 +202,7 @@ public class BallerinaXMLSerializer extends OutputStream {
         String defaultNS = xmlStreamWriter.getNamespaceContext().getNamespaceURI("xmlns");
         for (Map.Entry<String, String> attributeEntry : xmlValue.getAttributesMap().entrySet()) {
             String key = attributeEntry.getKey();
-            int closingCurlyPos = key.indexOf('}');
+            int closingCurlyPos = key.lastIndexOf('}');
             // Attribute on elements default namespace
             if (closingCurlyPos == -1) {
                 xmlStreamWriter.writeAttribute(key, attributeEntry.getValue());
