@@ -30,7 +30,10 @@ import java.util.List;
 public class BLangCompilationUnit extends BLangNode implements CompilationUnitNode {
 
     public String name;
-    public byte[] hash;
+
+    // Fields for caching.
+    public int hash;
+    public int length;
 
     public List<TopLevelNode> topLevelNodes;
 

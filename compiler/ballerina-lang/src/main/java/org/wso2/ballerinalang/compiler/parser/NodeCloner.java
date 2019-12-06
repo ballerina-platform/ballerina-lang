@@ -195,9 +195,9 @@ class NodeCloner extends BLangNodeVisitor {
     private static final CompilerContext.Key<NodeCloner> NODE_CLONER_KEY =
             new CompilerContext.Key<>();
 
-    BLangNode result;
+    int currentCloneAttempt;
 
-    NodeCloner(CompilerContext context) {
+    private NodeCloner() {
 
     }
 
@@ -205,9 +205,20 @@ class NodeCloner extends BLangNodeVisitor {
 
         NodeCloner cleaner = context.get(NODE_CLONER_KEY);
         if (cleaner == null) {
-            cleaner = new NodeCloner(context);
+            cleaner = new NodeCloner();
         }
         return cleaner;
+    }
+
+    synchronized BLangCompilationUnit cloneCUnit(BLangCompilationUnit source) {
+
+        source.cloneAttempt += 1;
+        currentCloneAttempt = source.cloneAttempt;
+        source.accept(this);
+        BLangCompilationUnit clone = (BLangCompilationUnit) source.cloneRef;
+        clone.pos = source.pos;
+        clone.addWS(source.getWS());
+        return clone;
     }
 
     private <T extends BLangNode> List<T> cloneList(List<T> nodes) {
@@ -224,24 +235,25 @@ class NodeCloner extends BLangNodeVisitor {
     }
 
     @SuppressWarnings("unchecked")
-    <T extends Node> T clone(T node) {
+    private <T extends Node> T clone(T source) {
 
-        if (node == null) {
+        if (source == null) {
             return null;
         }
-        BLangNode currentClone = this.result;
-        this.result = null;
-
-        BLangNode bLangNode = (BLangNode) node;
-        bLangNode.accept(this);
-        BLangNode result = this.result;
-        BLangNode source = (BLangNode) node;
-
-        result.pos = source.pos;
-        result.addWS(source.getWS());
-        result.type = source.type;
-
-        this.result = currentClone;
+        BLangNode result;
+        BLangNode sourceNode = (BLangNode) source;
+        if (sourceNode.cloneRef != null && ((BLangNode) source).cloneAttempt == this.currentCloneAttempt) {
+            // This is already cloned.
+            result = sourceNode.cloneRef;
+        } else {
+            sourceNode.cloneAttempt = this.currentCloneAttempt;
+            sourceNode.cloneRef = null;
+            sourceNode.accept(this);
+            result = sourceNode.cloneRef;
+            result.pos = sourceNode.pos;
+            result.addWS(source.getWS());
+            result.type = sourceNode.type;
+        }
         return (T) result;
     }
 
@@ -338,40 +350,40 @@ class NodeCloner extends BLangNodeVisitor {
     @Override
     public void visit(BLangCompilationUnit source) {
 
-        BLangCompilationUnit compilationUnit = new BLangCompilationUnit();
-        compilationUnit.name = source.name;
-        compilationUnit.hash = source.hash;
+        BLangCompilationUnit clone = new BLangCompilationUnit();
+        source.cloneRef = clone;
+        clone.name = source.name;
         for (TopLevelNode node : source.topLevelNodes) {
-            compilationUnit.topLevelNodes.add(clone(node));
+            clone.topLevelNodes.add(clone(node));
         }
-        result = compilationUnit;
     }
 
     @Override
     public void visit(BLangImportPackage source) {
 
         BLangImportPackage clone = new BLangImportPackage();
+        source.cloneRef = clone;
         clone.pkgNameComps = source.pkgNameComps;
         clone.version = source.version;
         clone.alias = source.alias;
         clone.orgName = source.orgName;
         clone.compUnit = source.compUnit;
-        this.result = clone;
     }
 
     @Override
     public void visit(BLangXMLNS source) {
 
         BLangXMLNS clone = new BLangXMLNS();
+        source.cloneRef = clone;
         clone.namespaceURI = clone(source.namespaceURI);
         clone.prefix = source.prefix;
-        this.result = clone;
     }
 
     @Override
     public void visit(BLangFunction source) {
 
         BLangFunction clone = new BLangFunction();
+        source.cloneRef = clone;
 
         clone.attachedFunction = source.attachedFunction;
         clone.objInitFunction = source.objInitFunction;
@@ -379,13 +391,14 @@ class NodeCloner extends BLangNodeVisitor {
         clone.anonForkName = source.anonForkName;
 
         cloneBLangInvokableNode(source, clone);
-        this.result = clone;
     }
 
     @Override
     public void visit(BLangService source) {
 
         BLangService clone = new BLangService();
+        source.cloneRef = clone;
+
         clone.flagSet = cloneSet(source.flagSet, Flag.class);
         clone.annAttachments = cloneList(source.annAttachments);
         clone.markdownDocumentationAttachment = clone(source.markdownDocumentationAttachment);
@@ -394,11 +407,8 @@ class NodeCloner extends BLangNodeVisitor {
         clone.serviceTypeDefinition = clone(source.serviceTypeDefinition);
         clone.attachedExprs = cloneList(source.attachedExprs);
 
-        // TODO : Handle this properly.
         clone.variableNode = clone(source.variableNode);
         clone.isAnonymousServiceValue = source.isAnonymousServiceValue;
-
-        this.result = clone;
     }
 
     @Override
@@ -410,35 +420,34 @@ class NodeCloner extends BLangNodeVisitor {
     public void visit(BLangTypeDefinition source) {
 
         BLangTypeDefinition clone = new BLangTypeDefinition();
+        source.cloneRef = clone;
         clone.name = source.name;
         clone.typeNode = clone(source.typeNode);
         clone.annAttachments = cloneList(source.annAttachments);
         clone.markdownDocumentationAttachment = clone(source.markdownDocumentationAttachment);
         clone.flagSet = cloneSet(source.flagSet, Flag.class);
         clone.precedence = source.precedence;
-
-        result = clone;
     }
 
     @Override
     public void visit(BLangConstant source) {
 
         BLangConstant clone = new BLangConstant();
+        source.cloneRef = clone;
         clone.name = source.name;
         clone.associatedTypeDefinition = clone(source.associatedTypeDefinition);
 
         cloneBLangVariable(source, clone);
-        result = clone;
     }
 
     @Override
     public void visit(BLangSimpleVariable source) {
 
         BLangSimpleVariable clone = new BLangSimpleVariable();
+        source.cloneRef = clone;
         clone.name = source.name;
 
         cloneBLangVariable(source, clone);
-        result = clone;
     }
 
     @Override
@@ -452,44 +461,41 @@ class NodeCloner extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangIdentifier identifierNode) {
+    public void visit(BLangIdentifier source) {
 
-        result = identifierNode;
+        source.cloneRef = source;
     }
 
     @Override
     public void visit(BLangAnnotation source) {
 
         BLangAnnotation clone = new BLangAnnotation();
+        source.cloneRef = clone;
         clone.name = source.name;
         clone.flagSet = cloneSet(source.flagSet, Flag.class);
         clone.annAttachments = cloneList(source.annAttachments);
         clone.markdownDocumentationAttachment = clone(source.markdownDocumentationAttachment);
         clone.typeNode = clone(source.typeNode);
         clone.getAttachPoints().addAll(source.getAttachPoints());
-
-        result = clone;
     }
 
     @Override
     public void visit(BLangAnnotationAttachment source) {
 
         BLangAnnotationAttachment clone = new BLangAnnotationAttachment();
+        source.cloneRef = clone;
         clone.expr = clone(source.expr);
         clone.annotationName = source.annotationName;
         clone.attachPoints.addAll(source.attachPoints);
         clone.pkgAlias = source.pkgAlias;
-
-        result = clone;
     }
 
     @Override
     public void visit(BLangBlockStmt source) {
 
         BLangBlockStmt clone = new BLangBlockStmt();
+        source.cloneRef = clone;
         clone.stmts = cloneList(source.stmts);
-
-        result = clone;
     }
 
     @Override
@@ -506,189 +512,173 @@ class NodeCloner extends BLangNodeVisitor {
     public void visit(BLangSimpleVariableDef source) {
 
         BLangSimpleVariableDef clone = new BLangSimpleVariableDef();
+        source.cloneRef = clone;
         clone.var = clone(source.var);
         clone.isInFork = source.isInFork;
         clone.isWorker = source.isWorker;
-
-        result = clone;
     }
 
     @Override
     public void visit(BLangAssignment source) {
 
         BLangAssignment clone = new BLangAssignment();
+        source.cloneRef = clone;
         clone.varRef = clone(source.varRef);
         clone.expr = clone(source.expr);
         clone.declaredWithVar = source.declaredWithVar;
-
-        result = clone;
     }
 
     @Override
     public void visit(BLangCompoundAssignment source) {
 
         BLangCompoundAssignment clone = new BLangCompoundAssignment();
+        source.cloneRef = clone;
         clone.varRef = clone(source.varRef);
         clone.expr = clone(source.expr);
         clone.opKind = source.opKind;
-
-        result = clone;
     }
 
     @Override
-    public void visit(BLangAbort abortNode) {
+    public void visit(BLangAbort source) {
 
-        result = new BLangAbort();
+        source.cloneRef = new BLangAbort();
     }
 
     @Override
-    public void visit(BLangRetry retryNode) {
+    public void visit(BLangRetry source) {
 
-        result = new BLangRetry();
+        source.cloneRef = new BLangRetry();
     }
 
     @Override
-    public void visit(BLangContinue continueNode) {
+    public void visit(BLangContinue source) {
 
-        result = new BLangContinue();
+        source.cloneRef = new BLangContinue();
     }
 
     @Override
-    public void visit(BLangBreak breakNode) {
+    public void visit(BLangBreak source) {
 
-        result = new BLangBreak();
+        source.cloneRef = new BLangBreak();
     }
 
     @Override
     public void visit(BLangReturn source) {
 
         BLangReturn clone = new BLangReturn();
+        source.cloneRef = clone;
         clone.expr = clone(source.expr);
-
-        result = clone;
     }
 
     @Override
-    public void visit(BLangPanic panicNode) {
+    public void visit(BLangPanic source) {
 
         BLangPanic clone = new BLangPanic();
-        clone.expr = clone(panicNode.expr);
-
-        result = clone;
+        source.cloneRef = clone;
+        clone.expr = clone(source.expr);
     }
 
     @Override
-    public void visit(BLangXMLNSStatement xmlnsStmtNode) {
+    public void visit(BLangXMLNSStatement source) {
 
         BLangXMLNSStatement clone = new BLangXMLNSStatement();
-        clone.xmlnsDecl = clone(xmlnsStmtNode.xmlnsDecl);
-
-        result = clone;
+        source.cloneRef = clone;
+        clone.xmlnsDecl = clone(source.xmlnsDecl);
     }
 
     @Override
-    public void visit(BLangExpressionStmt exprStmtNode) {
+    public void visit(BLangExpressionStmt source) {
 
         BLangExpressionStmt clone = new BLangExpressionStmt();
-        clone.expr = clone(exprStmtNode.expr);
-
-        result = clone;
+        source.cloneRef = clone;
+        clone.expr = clone(source.expr);
     }
 
     @Override
     public void visit(BLangIf source) {
 
         BLangIf clone = new BLangIf();
+        source.cloneRef = clone;
         clone.expr = clone(source.expr);
         clone.body = clone(source.body);
         clone.elseStmt = clone(source.elseStmt);
-
-        result = clone;
     }
 
     @Override
     public void visit(BLangMatch source) {
 
         BLangMatch clone = new BLangMatch();
+        source.cloneRef = clone;
         clone.expr = clone(source.expr);
         clone.patternClauses = cloneList(source.patternClauses);
-
-        result = clone;
     }
 
     @Override
     public void visit(BLangMatchTypedBindingPatternClause source) {
 
         BLangMatchTypedBindingPatternClause clone = new BLangMatchTypedBindingPatternClause();
+        source.cloneRef = clone;
         clone.variable = clone(source.variable);
         cloneBLangMatchBindingPatternClause(source, clone);
-
-        result = clone;
     }
 
     @Override
     public void visit(BLangMatchStaticBindingPatternClause source) {
 
         BLangMatchStaticBindingPatternClause clone = new BLangMatchStaticBindingPatternClause();
+        source.cloneRef = clone;
         clone.literal = clone(source.literal);
         cloneBLangMatchBindingPatternClause(source, clone);
-
-        result = clone;
     }
 
     @Override
     public void visit(BLangMatchStructuredBindingPatternClause source) {
 
         BLangMatchStructuredBindingPatternClause clone = new BLangMatchStructuredBindingPatternClause();
+        source.cloneRef = clone;
         clone.bindingPatternVariable = clone(source.bindingPatternVariable);
         clone.typeGuardExpr = clone(source.typeGuardExpr);
         cloneBLangMatchBindingPatternClause(source, clone);
-
-        result = clone;
     }
 
     @Override
     public void visit(BLangForeach source) {
 
         BLangForeach clone = new BLangForeach();
+        source.cloneRef = clone;
         clone.collection = clone(source.collection);
         clone.body = clone(source.body);
         clone.variableDefinitionNode = (VariableDefinitionNode) clone((BLangNode) source.variableDefinitionNode);
         clone.isDeclaredWithVar = source.isDeclaredWithVar;
-
-        result = clone;
     }
 
     @Override
     public void visit(BLangWhile source) {
 
         BLangWhile clone = new BLangWhile();
+        source.cloneRef = clone;
         clone.expr = clone(source.expr);
         clone.body = clone(source.body);
-
-        result = clone;
     }
 
     @Override
     public void visit(BLangLock source) {
 
         BLangLock clone = new BLangLock();
+        source.cloneRef = clone;
         clone.body = clone(source.body);
-
-        result = clone;
     }
 
     @Override
     public void visit(BLangTransaction source) {
 
         BLangTransaction clone = new BLangTransaction();
+        source.cloneRef = clone;
         clone.transactionBody = clone(source.transactionBody);
         clone.onRetryBody = clone(source.onRetryBody);
         clone.committedBody = clone(source.committedBody);
         clone.abortedBody = clone(source.abortedBody);
         clone.retryCount = clone(source.retryCount);
-
-        result = clone;
     }
 
     @Override
@@ -700,31 +690,28 @@ class NodeCloner extends BLangNodeVisitor {
     public void visit(BLangTupleDestructure source) {
 
         BLangTupleDestructure clone = new BLangTupleDestructure();
+        source.cloneRef = clone;
         clone.varRef = clone(source.varRef);
         clone.expr = clone(source.expr);
-
-        result = clone;
     }
 
     @Override
     public void visit(BLangRecordDestructure source) {
 
         BLangRecordDestructure clone = new BLangRecordDestructure();
+        source.cloneRef = clone;
         clone.varRef = clone(source.varRef);
         clone.expr = clone(source.expr);
         clone.declaredWithVar = source.declaredWithVar;
-
-        result = clone;
     }
 
     @Override
-    public void visit(BLangErrorDestructure stmt) {
+    public void visit(BLangErrorDestructure source) {
 
         BLangErrorDestructure clone = new BLangErrorDestructure();
-        clone.varRef = clone(stmt.varRef);
-        clone.expr = clone(stmt.expr);
-
-        result = clone;
+        source.cloneRef = clone;
+        clone.varRef = clone(source.varRef);
+        clone.expr = clone(source.expr);
     }
 
     @Override
@@ -733,94 +720,87 @@ class NodeCloner extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangForkJoin forkJoin) {
+    public void visit(BLangForkJoin source) {
 
         BLangForkJoin clone = new BLangForkJoin();
-        clone.workers = cloneList(forkJoin.workers);
-
-        result = clone;
+        source.cloneRef = clone;
+        clone.workers = cloneList(source.workers);
     }
 
     @Override
-    public void visit(BLangOrderBy orderBy) {
+    public void visit(BLangOrderBy source) {
 
         BLangOrderBy clone = new BLangOrderBy();
-        clone.varRefs = cloneList(orderBy.varRefs);
-
-        result = clone;
+        source.cloneRef = clone;
+        clone.varRefs = cloneList(source.varRefs);
     }
 
     @Override
-    public void visit(BLangOrderByVariable orderByVariable) {
+    public void visit(BLangOrderByVariable source) {
 
         BLangOrderByVariable clone = new BLangOrderByVariable();
-        clone.varRef = (ExpressionNode) clone((BLangNode) orderByVariable.varRef);
-        clone.orderByType = orderByVariable.orderByType;
-
-        result = clone;
+        source.cloneRef = clone;
+        clone.varRef = (ExpressionNode) clone((BLangNode) source.varRef);
+        clone.orderByType = source.orderByType;
     }
 
     @Override
-    public void visit(BLangLimit limit) {
+    public void visit(BLangLimit source) {
 
-        result = limit;
+        source.cloneRef = source;
     }
 
     @Override
-    public void visit(BLangGroupBy groupBy) {
+    public void visit(BLangGroupBy source) {
 
         BLangGroupBy clone = new BLangGroupBy();
-        clone.varRefs = cloneList(groupBy.varRefs);
-
-        result = clone;
+        source.cloneRef = clone;
+        clone.varRefs = cloneList(source.varRefs);
     }
 
     @Override
-    public void visit(BLangHaving having) {
+    public void visit(BLangHaving source) {
 
         BLangHaving clone = new BLangHaving();
-        clone.expression = clone(having.expression);
-
-        result = clone;
+        source.cloneRef = clone;
+        clone.expression = clone(source.expression);
     }
 
     @Override
-    public void visit(BLangSelectExpression selectExpression) {
+    public void visit(BLangSelectExpression source) {
 
         BLangSelectExpression clone = new BLangSelectExpression();
-        clone.identifier = selectExpression.identifier;
-        clone.expression = clone(selectExpression.expression);
-
-        result = clone;
+        source.cloneRef = clone;
+        clone.identifier = source.identifier;
+        clone.expression = clone(source.expression);
     }
 
     @Override
-    public void visit(BLangSelectClause selectClause) {
+    public void visit(BLangSelectClause source) {
 
         BLangSelectClause clone = new BLangSelectClause();
-        for (SelectExpressionNode e : selectClause.selectExpressions) {
+        source.cloneRef = clone;
+        for (SelectExpressionNode e : source.selectExpressions) {
             clone.selectExpressions.add(clone((BLangSelectExpression) e));
         }
-        clone.isSelectAll = selectClause.isSelectAll;
-        clone.groupBy = clone(selectClause.groupBy);
-        clone.having = clone(selectClause.having);
-
-        result = clone;
+        clone.isSelectAll = source.isSelectAll;
+        clone.groupBy = clone(source.groupBy);
+        clone.having = clone(source.having);
     }
 
     @Override
-    public void visit(BLangWhere whereClause) {
+    public void visit(BLangWhere source) {
 
         BLangWhere clone = new BLangWhere();
-        clone.expression = clone(whereClause.expression);
-
-        result = clone;
+        source.cloneRef = clone;
+        clone.expression = clone(source.expression);
     }
 
     @Override
     public void visit(BLangStreamingInput source) {
 
         BLangStreamingInput clone = new BLangStreamingInput();
+        source.cloneRef = clone;
         clone.beforeStreamingCondition = clone(source.beforeStreamingCondition);
         clone.windowClause = clone(source.windowClause);
         clone.afterStreamingCondition = clone(source.afterStreamingCondition);
@@ -833,89 +813,81 @@ class NodeCloner extends BLangNodeVisitor {
         for (ExpressionNode e : source.postInvocations) {
             clone.postInvocations.add((ExpressionNode) clone((BLangNode) e));
         }
-
-        result = clone;
     }
 
     @Override
     public void visit(BLangJoinStreamingInput source) {
 
         BLangJoinStreamingInput clone = new BLangJoinStreamingInput();
+        source.cloneRef = clone;
         clone.streamingInput = clone(source.streamingInput);
         clone.onExpression = clone(source.onExpression);
         clone.joinType = source.joinType;
         clone.isUnidirectionalBeforeJoin = source.isUnidirectionalBeforeJoin;
         clone.isUnidirectionalAfterJoin = source.isUnidirectionalAfterJoin;
-
-        result = clone;
     }
 
     @Override
-    public void visit(BLangTableQuery tableQuery) {
+    public void visit(BLangTableQuery source) {
 
         BLangTableQuery clone = new BLangTableQuery();
-        clone.streamingInput = clone(tableQuery.streamingInput);
-        clone.joinStreamingInput = clone(tableQuery.joinStreamingInput);
-        clone.selectClauseNode = clone(tableQuery.selectClauseNode);
-        clone.orderByNode = clone(tableQuery.orderByNode);
-        clone.limitNode = clone(tableQuery.limitNode);
-
-        result = clone;
+        source.cloneRef = clone;
+        clone.streamingInput = clone(source.streamingInput);
+        clone.joinStreamingInput = clone(source.joinStreamingInput);
+        clone.selectClauseNode = clone(source.selectClauseNode);
+        clone.orderByNode = clone(source.orderByNode);
+        clone.limitNode = clone(source.limitNode);
     }
 
     @Override
-    public void visit(BLangStreamAction streamAction) {
+    public void visit(BLangStreamAction source) {
 
         BLangStreamAction clone = new BLangStreamAction();
-        clone.lambdaFunction = clone(streamAction.lambdaFunction);
-
-        result = clone;
+        source.cloneRef = clone;
+        clone.lambdaFunction = clone(source.lambdaFunction);
     }
 
     @Override
-    public void visit(BLangFunctionClause functionClause) {
+    public void visit(BLangFunctionClause source) {
 
         BLangFunctionClause clone = new BLangFunctionClause();
-        clone.functionInvocation = clone(functionClause.functionInvocation);
-
-        result = clone;
+        source.cloneRef = clone;
+        clone.functionInvocation = clone(source.functionInvocation);
     }
 
     @Override
-    public void visit(BLangSetAssignment setAssignmentClause) {
+    public void visit(BLangSetAssignment source) {
 
         BLangSetAssignment clone = new BLangSetAssignment();
-        clone.variableReferenceNode = clone(setAssignmentClause.variableReferenceNode);
-        clone.expressionNode = clone(setAssignmentClause.expressionNode);
-
-        result = clone;
+        source.cloneRef = clone;
+        clone.variableReferenceNode = clone(source.variableReferenceNode);
+        clone.expressionNode = clone(source.expressionNode);
     }
 
     @Override
     public void visit(BLangPatternStreamingEdgeInput source) {
 
         BLangPatternStreamingEdgeInput clone = new BLangPatternStreamingEdgeInput();
+        source.cloneRef = clone;
         clone.streamRef = clone(source.streamRef);
         clone.alias = source.alias;
         clone.expressionNode = clone(source.expressionNode);
         clone.whereNode = clone(source.whereNode);
-
-        result = clone;
     }
 
     @Override
-    public void visit(BLangWindow windowClause) {
+    public void visit(BLangWindow source) {
 
         BLangWindow clone = new BLangWindow();
-        clone.functionInvocation = clone(windowClause.functionInvocation);
-
-        result = clone;
+        source.cloneRef = clone;
+        clone.functionInvocation = clone(source.functionInvocation);
     }
 
     @Override
     public void visit(BLangPatternStreamingInput source) {
 
         BLangPatternStreamingInput clone = new BLangPatternStreamingInput();
+        source.cloneRef = clone;
         clone.patternStreamingInput = clone(source.patternStreamingInput);
 
         for (PatternStreamingEdgeInputNode node : source.patternStreamingEdgeInputNodeList) {
@@ -931,99 +903,90 @@ class NodeCloner extends BLangNodeVisitor {
         clone.isCommaSeparated = source.isCommaSeparated;
         clone.timeScale = source.timeScale;
         clone.timeDurationValue = source.timeDurationValue;
-
-        result = clone;
     }
 
     @Override
     public void visit(BLangWorkerSend source) {
 
         BLangWorkerSend clone = new BLangWorkerSend();
+        source.cloneRef = clone;
         clone.expr = clone(source.expr);
         clone.workerIdentifier = source.workerIdentifier;
         clone.keyExpr = clone(source.keyExpr);
-
-        result = clone;
     }
 
     @Override
     public void visit(BLangWorkerReceive source) {
 
         BLangWorkerReceive clone = new BLangWorkerReceive();
+        source.cloneRef = clone;
 
         clone.workerIdentifier = source.workerIdentifier;
         clone.keyExpr = clone(source.keyExpr);
         clone.isChannel = source.isChannel;
-
-        result = clone;
     }
 
     @Override
-    public void visit(BLangForever foreverStatement) {
+    public void visit(BLangForever source) {
 
         BLangForever clone = new BLangForever();
-        for (StreamingQueryStatementNode node : foreverStatement.streamingQueryStatementNodeList) {
+        source.cloneRef = clone;
+        for (StreamingQueryStatementNode node : source.streamingQueryStatementNodeList) {
             clone.addStreamingQueryStatement(clone((BLangStreamingQueryStatement) node));
         }
-        clone.params = cloneList(foreverStatement.params);
-
-        result = clone;
+        clone.params = cloneList(source.params);
     }
 
     @Override
     public void visit(BLangLiteral source) {
 
         BLangLiteral clone = new BLangLiteral();
+        source.cloneRef = clone;
         cloneBLangLiteral(source, clone);
-
-        result = clone;
     }
 
     @Override
     public void visit(BLangNumericLiteral source) {
 
         BLangNumericLiteral clone = new BLangNumericLiteral();
+        source.cloneRef = clone;
         cloneBLangLiteral(source, clone);
-
-        result = clone;
     }
 
     @Override
     public void visit(BLangTableLiteral source) {
 
         BLangTableLiteral clone = new BLangTableLiteral();
+        source.cloneRef = clone;
         clone.columns.addAll(source.columns);
         clone.tableDataRows = cloneList(source.tableDataRows);
         clone.indexColumnsArrayLiteral = clone(source.indexColumnsArrayLiteral);
         clone.keyColumnsArrayLiteral = clone(source.keyColumnsArrayLiteral);
-
-        result = clone;
     }
 
     @Override
-    public void visit(BLangRecordLiteral recordLiteral) {
+    public void visit(BLangRecordLiteral source) {
 
         BLangRecordLiteral clone = new BLangRecordLiteral();
-        clone.keyValuePairs = cloneList(recordLiteral.keyValuePairs);
-
-        result = clone;
+        source.cloneRef = clone;
+        clone.keyValuePairs = cloneList(source.keyValuePairs);
     }
 
     @Override
     public void visit(BLangTupleVarRef source) {
 
         BLangTupleVarRef clone = new BLangTupleVarRef();
+        source.cloneRef = clone;
         clone.pkgAlias = source.pkgAlias;
         clone.expressions = cloneList(source.expressions);
         clone.restParam = (ExpressionNode) clone((BLangNode) source.restParam);
-
-        result = clone;
     }
 
     @Override
     public void visit(BLangRecordVarRef source) {
 
         BLangRecordVarRef clone = new BLangRecordVarRef();
+        source.cloneRef = clone;
         clone.pkgAlias = source.pkgAlias;
         for (BLangRecordVarRefKeyValue field : source.recordRefFields) {
             BLangRecordVarRefKeyValue keyValue = new BLangRecordVarRefKeyValue();
@@ -1032,57 +995,52 @@ class NodeCloner extends BLangNodeVisitor {
             clone.recordRefFields.add(keyValue);
         }
         clone.restParam = (ExpressionNode) clone((BLangNode) source.restParam);
-
-        result = clone;
     }
 
     @Override
     public void visit(BLangErrorVarRef source) {
 
         BLangErrorVarRef clone = new BLangErrorVarRef();
+        source.cloneRef = clone;
         clone.pkgAlias = source.pkgAlias;
         clone.reason = clone(source.reason);
         clone.detail = cloneList(source.detail);
         clone.restVar = clone(source.restVar);
         clone.typeNode = clone(source.typeNode);
-
-        result = clone;
     }
 
     @Override
     public void visit(BLangSimpleVarRef source) {
 
         BLangSimpleVarRef clone = new BLangSimpleVarRef();
+        source.cloneRef = clone;
         clone.pkgAlias = source.pkgAlias;
         clone.variableName = source.variableName;
-
-        result = clone;
     }
 
     @Override
     public void visit(BLangFieldBasedAccess source) {
 
         BLangFieldBasedAccess clone = new BLangFieldBasedAccess();
+        source.cloneRef = clone;
         clone.field = source.field;
         clone.fieldKind = source.fieldKind;
         cloneBLangAccessExpression(source, clone);
-
-        result = clone;
     }
 
     @Override
     public void visit(BLangIndexBasedAccess source) {
 
         BLangIndexBasedAccess clone = new BLangIndexBasedAccess();
+        source.cloneRef = clone;
         cloneBLangIndexBasedAccess(source, clone);
-
-        result = clone;
     }
 
     @Override
     public void visit(BLangInvocation source) {
 
         BLangInvocation clone = new BLangInvocation();
+        source.cloneRef = clone;
         clone.pkgAlias = source.pkgAlias;
         clone.name = source.name;
         clone.argExprs = cloneList(source.argExprs);
@@ -1096,19 +1054,16 @@ class NodeCloner extends BLangNodeVisitor {
         clone.annAttachments = cloneList(source.annAttachments);
 
         cloneBLangAccessExpression(source, clone);
-
-        result = clone;
     }
 
     @Override
     public void visit(BLangTypeInit source) {
 
         BLangTypeInit clone = new BLangTypeInit();
+        source.cloneRef = clone;
         clone.userDefinedType = clone(source.userDefinedType);
         clone.argsExpr = cloneList(source.argsExpr);
         clone.initInvocation = clone(source.initInvocation);
-
-        result = clone;
     }
 
     @Override
@@ -1127,73 +1082,66 @@ class NodeCloner extends BLangNodeVisitor {
     public void visit(BLangTernaryExpr source) {
 
         BLangTernaryExpr clone = new BLangTernaryExpr();
+        source.cloneRef = clone;
         clone.expr = clone(source.expr);
         clone.thenExpr = clone(source.thenExpr);
         clone.elseExpr = clone(source.elseExpr);
-
-        result = clone;
     }
 
     @Override
     public void visit(BLangWaitExpr source) {
 
         BLangWaitExpr clone = new BLangWaitExpr();
+        source.cloneRef = clone;
         clone.exprList = cloneList(source.exprList);
-
-        result = clone;
     }
 
     @Override
-    public void visit(BLangTrapExpr trapExpr) {
+    public void visit(BLangTrapExpr source) {
 
         BLangTrapExpr clone = new BLangTrapExpr();
-        clone.expr = clone(trapExpr.expr);
-
-        result = clone;
+        source.cloneRef = clone;
+        clone.expr = clone(source.expr);
     }
 
     @Override
-    public void visit(BLangBinaryExpr binaryExpr) {
+    public void visit(BLangBinaryExpr source) {
 
         BLangBinaryExpr clone = new BLangBinaryExpr();
-        clone.lhsExpr = clone(binaryExpr.lhsExpr);
-        clone.rhsExpr = clone(binaryExpr.rhsExpr);
-        clone.opKind = binaryExpr.opKind;
-        clone.opSymbol = binaryExpr.opSymbol;
-
-        result = clone;
+        source.cloneRef = clone;
+        clone.lhsExpr = clone(source.lhsExpr);
+        clone.rhsExpr = clone(source.rhsExpr);
+        clone.opKind = source.opKind;
+        clone.opSymbol = source.opSymbol;
     }
 
     @Override
     public void visit(BLangElvisExpr source) {
 
         BLangElvisExpr clone = new BLangElvisExpr();
+        source.cloneRef = clone;
         clone.lhsExpr = clone(source.lhsExpr);
         clone.rhsExpr = clone(source.rhsExpr);
-
-        result = clone;
     }
 
     @Override
     public void visit(BLangGroupExpr source) {
 
         BLangGroupExpr clone = new BLangGroupExpr();
+        source.cloneRef = clone;
         clone.expression = clone(source.expression);
         clone.isTypedescExpr = source.isTypedescExpr;
         clone.typedescType = source.typedescType;
-
-        result = clone;
     }
 
     @Override
     public void visit(BLangListConstructorExpr source) {
 
         BLangListConstructorExpr clone = new BLangListConstructorExpr();
+        source.cloneRef = clone;
         clone.exprs = cloneList(source.exprs);
         clone.isTypedescExpr = source.isTypedescExpr;
         clone.typedescType = source.typedescType;
-
-        result = clone;
     }
 
     @Override
@@ -1212,64 +1160,59 @@ class NodeCloner extends BLangNodeVisitor {
     public void visit(BLangUnaryExpr source) {
 
         BLangUnaryExpr clone = new BLangUnaryExpr();
+        source.cloneRef = clone;
         clone.expr = clone(source.expr);
         clone.operator = source.operator;
-
-        result = clone;
     }
 
     @Override
     public void visit(BLangTypedescExpr source) {
 
         BLangTypedescExpr clone = new BLangTypedescExpr();
+        source.cloneRef = clone;
         clone.typeNode = clone(source.typeNode);
         clone.resolvedType = source.resolvedType;
-
-        result = clone;
     }
 
     @Override
     public void visit(BLangTypeConversionExpr source) {
 
         BLangTypeConversionExpr clone = new BLangTypeConversionExpr();
+        source.cloneRef = clone;
         clone.expr = clone(source.expr);
         clone.typeNode = clone(source.typeNode);
         clone.targetType = source.targetType;
         clone.annAttachments = cloneList(source.annAttachments);
         clone.flagSet = cloneSet(source.flagSet, Flag.class);
         clone.checkTypes = source.checkTypes;
-
-        result = clone;
     }
 
     @Override
     public void visit(BLangXMLQName source) {
 
         BLangXMLQName clone = new BLangXMLQName();
+        source.cloneRef = clone;
         clone.localname = source.localname;
         clone.prefix = source.prefix;
         clone.namespaceURI = source.namespaceURI;
         clone.isUsedInXML = source.isUsedInXML;
-
-        result = clone;
     }
 
     @Override
     public void visit(BLangXMLAttribute source) {
 
         BLangXMLAttribute clone = new BLangXMLAttribute();
+        source.cloneRef = clone;
         clone.name = clone(source.name);
-        ;
         clone.value = clone(source.value);
         clone.isNamespaceDeclr = source.isNamespaceDeclr;
-
-        result = clone;
     }
 
     @Override
     public void visit(BLangXMLElementLiteral source) {
 
         BLangXMLElementLiteral clone = new BLangXMLElementLiteral();
+        source.cloneRef = clone;
         clone.startTagName = clone(source.startTagName);
         clone.endTagName = clone(source.endTagName);
         clone.attributes = cloneList(source.attributes);
@@ -1277,135 +1220,122 @@ class NodeCloner extends BLangNodeVisitor {
 
         clone.inlineNamespaces = cloneList(source.inlineNamespaces);
         clone.isRoot = source.isRoot;
-
-        result = clone;
     }
 
     @Override
     public void visit(BLangXMLTextLiteral source) {
 
         BLangXMLTextLiteral clone = new BLangXMLTextLiteral();
+        source.cloneRef = clone;
         clone.textFragments = cloneList(source.textFragments);
         clone.concatExpr = clone(source.concatExpr);
-
-        result = clone;
     }
 
     @Override
     public void visit(BLangXMLCommentLiteral source) {
 
         BLangXMLCommentLiteral clone = new BLangXMLCommentLiteral();
+        source.cloneRef = clone;
         clone.textFragments = cloneList(source.textFragments);
         clone.concatExpr = clone(source.concatExpr);
-
-        result = clone;
     }
 
     @Override
     public void visit(BLangXMLProcInsLiteral source) {
 
         BLangXMLProcInsLiteral clone = new BLangXMLProcInsLiteral();
+        source.cloneRef = clone;
         clone.target = clone(source.target);
         clone.dataFragments = cloneList(source.dataFragments);
         clone.dataConcatExpr = clone(source.dataConcatExpr);
-
-        result = clone;
     }
 
     @Override
-    public void visit(BLangXMLQuotedString xmlQuotedString) {
+    public void visit(BLangXMLQuotedString source) {
 
         BLangXMLQuotedString clone = new BLangXMLQuotedString();
-        clone.textFragments = cloneList(xmlQuotedString.textFragments);
-        clone.quoteType = xmlQuotedString.quoteType;
-        clone.concatExpr = clone(xmlQuotedString.concatExpr);
-
-        result = clone;
+        source.cloneRef = clone;
+        clone.textFragments = cloneList(source.textFragments);
+        clone.quoteType = source.quoteType;
+        clone.concatExpr = clone(source.concatExpr);
     }
 
     @Override
-    public void visit(BLangStringTemplateLiteral stringTemplateLiteral) {
+    public void visit(BLangStringTemplateLiteral source) {
 
         BLangStringTemplateLiteral clone = new BLangStringTemplateLiteral();
-        clone.exprs = cloneList(stringTemplateLiteral.exprs);
-
-        result = clone;
+        source.cloneRef = clone;
+        clone.exprs = cloneList(source.exprs);
     }
 
     @Override
-    public void visit(BLangLambdaFunction lambdaFunction) {
+    public void visit(BLangLambdaFunction source) {
 
         BLangLambdaFunction clone = new BLangLambdaFunction();
-        clone.function = clone(lambdaFunction.function);
-
-        result = clone;
+        source.cloneRef = clone;
+        clone.function = clone(source.function);
     }
 
     @Override
     public void visit(BLangArrowFunction source) {
 
         BLangArrowFunction clone = new BLangArrowFunction();
+        source.cloneRef = clone;
         clone.params = cloneList(source.params);
         clone.expression = clone(source.expression);
         clone.funcType = source.funcType;
         clone.functionName = source.functionName;
-
-        result = clone;
     }
 
     @Override
     public void visit(BLangXMLAttributeAccess source) {
 
         BLangXMLAttributeAccess clone = new BLangXMLAttributeAccess();
+        source.cloneRef = clone;
         cloneBLangIndexBasedAccess(source, clone);
-
-        result = clone;
     }
 
     @Override
     public void visit(BLangIntRangeExpression source) {
 
         BLangIntRangeExpression clone = new BLangIntRangeExpression();
+        source.cloneRef = clone;
         clone.includeStart = source.includeStart;
         clone.includeEnd = source.includeEnd;
         clone.startExpr = clone(source.startExpr);
         clone.endExpr = clone(source.endExpr);
-
-        result = clone;
     }
 
     @Override
-    public void visit(BLangTableQueryExpression tableQueryExpression) {
+    public void visit(BLangTableQueryExpression source) {
 
         BLangTableQueryExpression clone = new BLangTableQueryExpression();
-        clone.tableQuery = clone((BLangTableQuery) tableQueryExpression.tableQuery);
-
-        result = clone;
+        source.cloneRef = clone;
+        clone.tableQuery = clone((BLangTableQuery) source.tableQuery);
     }
 
     @Override
-    public void visit(BLangRestArgsExpression bLangVarArgsExpression) {
+    public void visit(BLangRestArgsExpression source) {
 
         BLangRestArgsExpression clone = new BLangRestArgsExpression();
-        clone.expr = clone(bLangVarArgsExpression.expr);
-
-        result = clone;
+        source.cloneRef = clone;
+        clone.expr = clone(source.expr);
     }
 
     @Override
     public void visit(BLangNamedArgsExpression source) {
 
         BLangNamedArgsExpression clone = new BLangNamedArgsExpression();
+        source.cloneRef = clone;
         clone.name = source.name;
         clone.expr = clone(source.expr);
-
-        result = clone;
     }
 
     @Override
     public void visit(BLangStreamingQueryStatement source) {
 
         BLangStreamingQueryStatement clone = new BLangStreamingQueryStatement();
+        source.cloneRef = clone;
         clone.streamingInput = clone((BLangStreamingInput) source.streamingInput);
         clone.joinStreamingInput = clone((BLangJoinStreamingInput) source.joinStreamingInput);
         clone.patternClause = clone((BLangPatternClause) source.patternClause);
@@ -1413,52 +1343,46 @@ class NodeCloner extends BLangNodeVisitor {
         clone.orderByNode = clone((BLangOrderBy) source.orderByNode);
         clone.streamActionNode = clone((BLangStreamAction) source.streamActionNode);
         clone.outputRateLimitNode = clone((BLangOutputRateLimit) source.outputRateLimitNode);
-
-        result = clone;
     }
 
     @Override
     public void visit(BLangWithinClause source) {
 
         BLangWithinClause clone = new BLangWithinClause();
+        source.cloneRef = clone;
         clone.timeScale = source.timeScale;
         clone.timeDurationValue = source.timeDurationValue;
-
-        result = clone;
     }
 
     @Override
     public void visit(BLangOutputRateLimit source) {
 
         BLangOutputRateLimit clone = new BLangOutputRateLimit();
+        source.cloneRef = clone;
         clone.outputRateType = source.outputRateType;
         clone.timeScale = source.timeScale;
         clone.rateLimitValue = source.rateLimitValue;
         clone.isSnapshot = source.isSnapshot;
-
-        result = clone;
     }
 
     @Override
     public void visit(BLangPatternClause source) {
 
         BLangPatternClause clone = new BLangPatternClause();
+        source.cloneRef = clone;
         clone.patternStreamingInput = clone((BLangPatternStreamingInput) source.patternStreamingInput);
         clone.forAllEvents = source.forAllEvents;
         clone.withinClause = clone((BLangWithinClause) source.withinClause);
-
-        result = clone;
     }
 
     @Override
     public void visit(BLangIsAssignableExpr source) {
 
         BLangIsAssignableExpr clone = new BLangIsAssignableExpr();
+        source.cloneRef = clone;
         clone.lhsExpr = clone(source.lhsExpr);
         clone.targetType = source.targetType;
         clone.typeNode = clone(source.typeNode);
-
-        result = clone;
     }
 
     @Override
@@ -1474,40 +1398,36 @@ class NodeCloner extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangCheckedExpr checkedExpr) {
+    public void visit(BLangCheckedExpr source) {
 
         BLangCheckedExpr clone = new BLangCheckedExpr();
-        clone.expr = clone(checkedExpr.expr);
-
-        result = clone;
+        source.cloneRef = clone;
+        clone.expr = clone(source.expr);
     }
 
     @Override
-    public void visit(BLangCheckPanickedExpr checkPanickedExpr) {
+    public void visit(BLangCheckPanickedExpr source) {
 
         BLangCheckPanickedExpr clone = new BLangCheckPanickedExpr();
-        clone.expr = clone(checkPanickedExpr.expr);
-
-        result = clone;
+        source.cloneRef = clone;
+        clone.expr = clone(source.expr);
     }
 
     @Override
     public void visit(BLangServiceConstructorExpr source) {
 
         BLangServiceConstructorExpr clone = new BLangServiceConstructorExpr();
+        source.cloneRef = clone;
         clone.serviceNode = clone(source.serviceNode);
-
-        result = clone;
     }
 
     @Override
     public void visit(BLangTypeTestExpr source) {
 
         BLangTypeTestExpr clone = new BLangTypeTestExpr();
+        source.cloneRef = clone;
         clone.expr = clone(source.expr);
         clone.typeNode = clone(source.typeNode);
-
-        result = clone;
     }
 
     @Override
@@ -1524,361 +1444,317 @@ class NodeCloner extends BLangNodeVisitor {
     public void visit(BLangAnnotAccessExpr source) {
 
         BLangAnnotAccessExpr clone = new BLangAnnotAccessExpr();
+        source.cloneRef = clone;
         clone.pkgAlias = source.pkgAlias;
         clone.annotationName = source.annotationName;
         cloneBLangAccessExpression(source, clone);
-
-        result = clone;
     }
 
     @Override
     public void visit(BLangValueType source) {
 
         BLangValueType clone = new BLangValueType();
+        source.cloneRef = clone;
         clone.typeKind = source.typeKind;
-
-        result = clone;
     }
 
     @Override
-    public void visit(BLangArrayType arrayType) {
+    public void visit(BLangArrayType source) {
 
         BLangArrayType clone = new BLangArrayType();
-        clone.elemtype = clone(arrayType.elemtype);
-        clone.dimensions = arrayType.dimensions;
-        clone.sizes = arrayType.sizes;
-
-        result = clone;
+        source.cloneRef = clone;
+        clone.elemtype = clone(source.elemtype);
+        clone.dimensions = source.dimensions;
+        clone.sizes = source.sizes;
     }
 
     @Override
     public void visit(BLangBuiltInRefTypeNode source) {
 
         BLangBuiltInRefTypeNode clone = new BLangBuiltInRefTypeNode();
+        source.cloneRef = clone;
         clone.typeKind = source.typeKind;
-
-        result = clone;
     }
 
     @Override
     public void visit(BLangConstrainedType source) {
 
         BLangConstrainedType clone = new BLangConstrainedType();
+        source.cloneRef = clone;
         clone.type = clone(source.type);
         clone.constraint = clone(source.constraint);
-
-        result = clone;
     }
 
     @Override
     public void visit(BLangUserDefinedType source) {
 
         BLangUserDefinedType clone = new BLangUserDefinedType();
+        source.cloneRef = clone;
         clone.pkgAlias = source.pkgAlias;
         clone.typeName = source.typeName;
         clone.flagSet = cloneSet(source.flagSet, Flag.class);
-
-        result = clone;
     }
 
     @Override
     public void visit(BLangFunctionTypeNode source) {
 
         BLangFunctionTypeNode clone = new BLangFunctionTypeNode();
+        source.cloneRef = clone;
         clone.params = cloneList(source.params);
         clone.returnTypeNode = clone(source.returnTypeNode);
         clone.returnsKeywordExists = source.returnsKeywordExists;
-
-        result = clone;
     }
 
     @Override
     public void visit(BLangUnionTypeNode source) {
 
         BLangUnionTypeNode clone = new BLangUnionTypeNode();
+        source.cloneRef = clone;
         clone.memberTypeNodes = cloneList(source.memberTypeNodes);
-
-        result = clone;
     }
 
     @Override
     public void visit(BLangObjectTypeNode source) {
 
         BLangObjectTypeNode clone = new BLangObjectTypeNode();
+        source.cloneRef = clone;
         clone.functions = cloneList(source.functions);
         clone.initFunction = clone(source.initFunction);
         clone.receiver = clone(source.receiver);
         clone.flagSet = cloneSet(source.flagSet, Flag.class);
         cloneBLangStructureTypeNode(source, clone);
-
-        result = clone;
     }
 
     @Override
     public void visit(BLangRecordTypeNode source) {
 
         BLangRecordTypeNode clone = new BLangRecordTypeNode();
+        source.cloneRef = clone;
         clone.sealed = source.sealed;
         clone.restFieldType = clone(source.restFieldType);
         cloneBLangStructureTypeNode(source, clone);
-
-        result = clone;
     }
 
     @Override
-    public void visit(BLangFiniteTypeNode finiteTypeNode) {
+    public void visit(BLangFiniteTypeNode source) {
 
         BLangFiniteTypeNode clone = new BLangFiniteTypeNode();
-        clone.valueSpace = cloneList(finiteTypeNode.valueSpace);
-
-        result = clone;
+        source.cloneRef = clone;
+        clone.valueSpace = cloneList(source.valueSpace);
     }
 
     @Override
-    public void visit(BLangTupleTypeNode tupleTypeNode) {
+    public void visit(BLangTupleTypeNode source) {
 
         BLangTupleTypeNode clone = new BLangTupleTypeNode();
-        clone.memberTypeNodes = cloneList(tupleTypeNode.memberTypeNodes);
-        clone.restParamType = clone(tupleTypeNode.restParamType);
-
-        result = clone;
+        source.cloneRef = clone;
+        clone.memberTypeNodes = cloneList(source.memberTypeNodes);
+        clone.restParamType = clone(source.restParamType);
     }
 
     @Override
-    public void visit(BLangErrorType errorType) {
+    public void visit(BLangErrorType source) {
 
         BLangErrorType clone = new BLangErrorType();
-        clone.reasonType = clone(errorType.reasonType);
-        clone.detailType = clone(errorType.detailType);
-
-        result = clone;
+        source.cloneRef = clone;
+        clone.reasonType = clone(source.reasonType);
+        clone.detailType = clone(source.detailType);
     }
 
     @Override
     public void visit(BLangSimpleVarRef.BLangLocalVarRef localVarRef) {
-
         // Ignore
     }
 
     @Override
     public void visit(BLangSimpleVarRef.BLangFieldVarRef fieldVarRef) {
-
         // Ignore
     }
 
     @Override
     public void visit(BLangSimpleVarRef.BLangPackageVarRef packageVarRef) {
-
         // Ignore
     }
 
     @Override
     public void visit(BLangSimpleVarRef.BLangConstRef constRef) {
-
         // Ignore
     }
 
     @Override
     public void visit(BLangSimpleVarRef.BLangFunctionVarRef functionVarRef) {
-
         // Ignore
     }
 
     @Override
     public void visit(BLangSimpleVarRef.BLangTypeLoad typeLoad) {
-
         // Ignore
     }
 
     @Override
     public void visit(BLangIndexBasedAccess.BLangStructFieldAccessExpr fieldAccessExpr) {
-
         // Ignore
     }
 
     @Override
     public void visit(BLangFieldBasedAccess.BLangStructFunctionVarRef functionVarRef) {
-
         // Ignore
     }
 
     @Override
     public void visit(BLangIndexBasedAccess.BLangMapAccessExpr mapKeyAccessExpr) {
-
         // Ignore
     }
 
     @Override
     public void visit(BLangIndexBasedAccess.BLangArrayAccessExpr arrayIndexAccessExpr) {
-
         // Ignore
     }
 
     @Override
     public void visit(BLangIndexBasedAccess.BLangTupleAccessExpr arrayIndexAccessExpr) {
-
         // Ignore
     }
 
     @Override
     public void visit(BLangIndexBasedAccess.BLangXMLAccessExpr xmlAccessExpr) {
-
         // Ignore
     }
 
     @Override
     public void visit(BLangRecordLiteral.BLangJSONLiteral jsonLiteral) {
-
         // Ignore
     }
 
     @Override
     public void visit(BLangRecordLiteral.BLangMapLiteral mapLiteral) {
-
         // Ignore
     }
 
     @Override
     public void visit(BLangRecordLiteral.BLangStructLiteral structLiteral) {
-
         // Ignore
     }
 
     @Override
     public void visit(BLangRecordLiteral.BLangStreamLiteral streamLiteral) {
-
         // Ignore
     }
 
     @Override
     public void visit(BLangRecordLiteral.BLangChannelLiteral channelLiteral) {
-
         // Ignore
     }
 
     @Override
     public void visit(BLangInvocation.BFunctionPointerInvocation bFunctionPointerInvocation) {
-
         // Ignore
     }
 
     @Override
     public void visit(BLangInvocation.BLangAttachedFunctionInvocation iExpr) {
-
         // Ignore
     }
 
     @Override
     public void visit(BLangListConstructorExpr.BLangJSONArrayLiteral jsonArrayLiteral) {
-
         // Ignore
     }
 
     @Override
     public void visit(BLangIndexBasedAccess.BLangJSONAccessExpr jsonAccessExpr) {
-
         // Ignore
     }
 
     @Override
     public void visit(BLangIndexBasedAccess.BLangStringAccessExpr stringAccessExpr) {
-
         // Ignore
     }
 
     @Override
     public void visit(BLangXMLNS.BLangLocalXMLNS xmlnsNode) {
-
         // Ignore
     }
 
     @Override
     public void visit(BLangXMLNS.BLangPackageXMLNS xmlnsNode) {
-
         // Ignore
     }
 
     @Override
     public void visit(BLangXMLSequenceLiteral bLangXMLSequenceLiteral) {
-
         // Ignore
     }
 
     @Override
-    public void visit(BLangStatementExpression bLangStatementExpression) {
+    public void visit(BLangStatementExpression source) {
 
         BLangStatementExpression clone = new BLangStatementExpression();
-        clone.expr = clone(bLangStatementExpression.expr);
-        clone.stmt = clone(bLangStatementExpression.stmt);
-
-        result = clone;
+        source.cloneRef = clone;
+        clone.expr = clone(source.expr);
+        clone.stmt = clone(source.stmt);
     }
 
     @Override
     public void visit(BLangMarkdownDocumentationLine source) {
 
         BLangMarkdownDocumentationLine clone = new BLangMarkdownDocumentationLine();
+        source.cloneRef = clone;
         clone.text = source.text;
-
-        result = clone;
     }
 
     @Override
     public void visit(BLangMarkdownParameterDocumentation source) {
 
         BLangMarkdownParameterDocumentation clone = new BLangMarkdownParameterDocumentation();
+        source.cloneRef = clone;
         clone.parameterName = source.parameterName;
         clone.parameterDocumentationLines = source.parameterDocumentationLines;
-
-        result = clone;
     }
 
     @Override
     public void visit(BLangMarkdownReturnParameterDocumentation source) {
 
         BLangMarkdownReturnParameterDocumentation clone = new BLangMarkdownReturnParameterDocumentation();
+        source.cloneRef = clone;
         clone.returnParameterDocumentationLines = source.returnParameterDocumentationLines;
         clone.type = source.type;
-
-        result = clone;
     }
 
     @Override
     public void visit(BLangMarkdownDocumentation source) {
 
         BLangMarkdownDocumentation clone = new BLangMarkdownDocumentation();
+        source.cloneRef = clone;
         clone.documentationLines.addAll(cloneList(source.documentationLines));
         clone.parameters.addAll(cloneList(source.parameters));
         clone.references.addAll(cloneList(source.references));
         clone.returnParameter = clone(source.returnParameter);
-
-        result = clone;
     }
 
     @Override
     public void visit(BLangTupleVariable source) {
 
         BLangTupleVariable clone = new BLangTupleVariable();
+        source.cloneRef = clone;
         clone.memberVariables = cloneList(source.memberVariables);
         clone.restVariable = clone(source.restVariable);
         cloneBLangVariable(source, clone);
-
-        result = clone;
     }
 
     @Override
-    public void visit(BLangTupleVariableDef bLangTupleVariableDef) {
+    public void visit(BLangTupleVariableDef source) {
 
         BLangTupleVariableDef clone = new BLangTupleVariableDef();
-        clone.var = clone(bLangTupleVariableDef.var);
-
-        result = clone;
+        source.cloneRef = clone;
+        clone.var = clone(source.var);
     }
 
     @Override
     public void visit(BLangRecordVariable source) {
 
         BLangRecordVariable clone = new BLangRecordVariable();
+        source.cloneRef = clone;
         for (BLangRecordVariableKeyValue keyValue : source.variableList) {
             BLangRecordVariableKeyValue newKeyValue = new BLangRecordVariableKeyValue();
             newKeyValue.key = keyValue.key;
@@ -1887,23 +1763,21 @@ class NodeCloner extends BLangNodeVisitor {
         }
         clone.restParam = clone((BLangVariable) source.restParam);
         cloneBLangVariable(source, clone);
-
-        result = clone;
     }
 
     @Override
-    public void visit(BLangRecordVariableDef bLangRecordVariableDef) {
+    public void visit(BLangRecordVariableDef source) {
 
         BLangRecordVariableDef clone = new BLangRecordVariableDef();
-        clone.var = clone(bLangRecordVariableDef.var);
-
-        result = clone;
+        source.cloneRef = clone;
+        clone.var = clone(source.var);
     }
 
     @Override
     public void visit(BLangErrorVariable source) {
 
         BLangErrorVariable clone = new BLangErrorVariable();
+        source.cloneRef = clone;
         clone.reason = clone(source.reason);
         for (BLangErrorDetailEntry entry : source.detail) {
             clone.detail.add(new BLangErrorDetailEntry(entry.key, clone(entry.valueBindingPattern)));
@@ -1914,68 +1788,55 @@ class NodeCloner extends BLangNodeVisitor {
         clone.reasonMatchConst = source.reasonMatchConst;
         clone.isInMatchStmt = source.isInMatchStmt;
         cloneBLangVariable(source, clone);
-
-        result = clone;
     }
 
     @Override
     public void visit(BLangErrorVariableDef source) {
 
         BLangErrorVariableDef clone = new BLangErrorVariableDef();
+        source.cloneRef = clone;
         clone.errorVariable = clone(source.errorVariable);
-
-        result = clone;
     }
 
     @Override
     public void visit(BLangWorkerFlushExpr source) {
 
         BLangWorkerFlushExpr clone = new BLangWorkerFlushExpr();
+        source.cloneRef = clone;
         clone.workerIdentifier = source.workerIdentifier;
         clone.workerIdentifierList.addAll(source.workerIdentifierList);
-
-        result = clone;
     }
 
     @Override
     public void visit(BLangWorkerSyncSendExpr source) {
 
         BLangWorkerSyncSendExpr clone = new BLangWorkerSyncSendExpr();
+        source.cloneRef = clone;
         clone.workerIdentifier = source.workerIdentifier;
         clone.expr = clone(source.expr);
-
-        result = clone;
     }
 
     @Override
     public void visit(BLangWaitForAllExpr source) {
 
         BLangWaitForAllExpr clone = new BLangWaitForAllExpr();
+        source.cloneRef = clone;
         for (BLangWaitKeyValue keyValue : source.keyValuePairs) {
-            BLangWaitKeyValue newKeyValue = new BLangWaitKeyValue();
-            newKeyValue.pos = keyValue.pos;
-            newKeyValue.addWS(keyValue.getWS());
-            newKeyValue.key = keyValue.key;
-            newKeyValue.keyExpr = clone(keyValue.keyExpr);
-            newKeyValue.valueExpr = clone(keyValue.valueExpr);
-            clone.keyValuePairs.add(newKeyValue);
+            clone.keyValuePairs.add(clone(keyValue));
         }
-
-        result = clone;
     }
 
     @Override
     public void visit(BLangMarkdownReferenceDocumentation source) {
 
         BLangMarkdownReferenceDocumentation clone = new BLangMarkdownReferenceDocumentation();
+        source.cloneRef = clone;
         clone.qualifier = source.qualifier;
         clone.typeName = source.typeName;
         clone.identifier = source.identifier;
         clone.referenceName = source.referenceName;
         clone.kind = source.kind;
         clone.type = source.type;
-
-        result = clone;
     }
 
     @Override
@@ -1988,6 +1849,7 @@ class NodeCloner extends BLangNodeVisitor {
     public void visit(BLangRecordKeyValue source) {
 
         BLangRecordKeyValue clone = new BLangRecordKeyValue();
+        source.cloneRef = clone;
         clone.pos = source.pos;
         clone.addWS(source.getWS());
 
@@ -1996,20 +1858,17 @@ class NodeCloner extends BLangNodeVisitor {
         clone.key = newKey;
 
         clone.valueExpr = clone(source.valueExpr);
-
-        result = clone;
     }
 
     @Override
     public void visit(BLangWaitKeyValue source) {
 
         BLangWaitKeyValue clone = new BLangWaitKeyValue();
+        source.cloneRef = clone;
         clone.pos = source.pos;
         clone.addWS(source.getWS());
         clone.key = source.key;
         clone.valueExpr = clone(source.valueExpr);
         clone.keyExpr = clone(source.keyExpr);
-
-        result = clone;
     }
 }

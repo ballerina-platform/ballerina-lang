@@ -47,8 +47,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
 
 /**
  * This class is responsible for parsing Ballerina source files.
@@ -112,13 +111,14 @@ public class Parser {
         try {
             byte[] code = sourceEntry.getCode();
             String entryName = sourceEntry.getEntryName();
-            byte[] hash = getMD5Digest(code);
-            BLangCompilationUnit compilationUnit = parserCache.get(packageID, entryName, hash);
+            int hash = getHash(code);
+            int length = code.length;
+            BLangCompilationUnit compilationUnit = parserCache.get(packageID, entryName, hash, length);
             if (compilationUnit == null) {
                 compilationUnit = createCompilationUnit(sourceEntry, packageID);
                 boolean inError = populateCompilationUnit(compilationUnit, entryName, code);
                 if (!inError) {
-                    compilationUnit = parserCache.updateAndGet(packageID, entryName, hash, compilationUnit);
+                    compilationUnit = parserCache.updateAndGet(packageID, entryName, hash, length, compilationUnit);
                 }
             }
             return compilationUnit;
@@ -177,6 +177,7 @@ public class Parser {
     }
 
     private DefaultErrorStrategy getErrorStrategy(BDiagnosticSource diagnosticSrc) {
+
         DefaultErrorStrategy customErrorStrategy = context.get(DefaultErrorStrategy.class);
         if (customErrorStrategy == null) {
             customErrorStrategy = new BallerinaParserErrorStrategy(context, diagnosticSrc);
@@ -186,14 +187,9 @@ public class Parser {
         return customErrorStrategy;
     }
 
-    private static byte[] getMD5Digest(byte[] code) {
-
-        MessageDigest md;
-        try {
-            md = MessageDigest.getInstance("MD5");
-        } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException("error generating hash for input: " + e.getMessage(), e);
-        }
-        return md.digest(code);
+    private static int getHash(byte[] code) {
+        // Assuming hash collision is unlikely in a modified source.
+        // Additionaly code.Length is considered to avoid hash collision.
+        return Arrays.hashCode(code);
     }
 }

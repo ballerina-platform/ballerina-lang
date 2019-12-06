@@ -19,17 +19,12 @@ package org.wso2.ballerinalang.compiler.parser;
 
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.elements.PackageID;
-import org.ballerinalang.repository.CompilerInput;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * Compiler Context Aware Token Cache.
@@ -63,7 +58,7 @@ class ParserCache {
         return cache;
     }
 
-    BLangCompilationUnit get(PackageID packageID, String entryName, byte[] hash) {
+    BLangCompilationUnit get(PackageID packageID, String entryName, int hash, int length) {
 
         if (!cacheEnabled) {
             return null;
@@ -74,13 +69,13 @@ class ParserCache {
         }
 
         BLangCompilationUnit compilationUnit = sourceEntryCache.get(entryName);
-        if (compilationUnit == null || compilationUnit.hash == null || !Arrays.equals(compilationUnit.hash, hash)) {
+        if (compilationUnit == null || compilationUnit.hash != hash || compilationUnit.length != length) {
             return null;
         }
-        return nodeCloner.clone(compilationUnit);
+        return nodeCloner.cloneCUnit(compilationUnit);
     }
 
-    BLangCompilationUnit updateAndGet(PackageID packageID, String entryName, byte[] hash,
+    BLangCompilationUnit updateAndGet(PackageID packageID, String entryName, int hash, int length,
                                       BLangCompilationUnit newCompUnit) {
 
         if (!cacheEnabled) {
@@ -93,25 +88,9 @@ class ParserCache {
         }
 
         newCompUnit.hash = hash;
+        newCompUnit.length = length;
         sourceEntryCache.put(entryName, newCompUnit);
-        return nodeCloner.clone(newCompUnit);
+        return nodeCloner.cloneCUnit(newCompUnit);
     }
 
-    void invalidate(List<CompilerInput> sourceEntries, PackageID packageID) {
-
-        Map<String, BLangCompilationUnit> sourceEntryCache = pkgCache.get(packageID);
-        if (sourceEntryCache == null) {
-            return;
-        }
-        Set<String> keys = new HashSet<>();
-        for (CompilerInput sourceEntry : sourceEntries) {
-            String entryName = sourceEntry.getEntryName();
-            keys.add(entryName);
-        }
-        for (String s : sourceEntryCache.keySet()) {
-            if (!keys.contains(s)) {
-                sourceEntryCache.remove(s);
-            }
-        }
-    }
 }
