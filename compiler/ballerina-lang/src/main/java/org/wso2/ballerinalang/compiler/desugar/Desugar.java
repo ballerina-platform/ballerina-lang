@@ -2444,7 +2444,7 @@ public class Desugar extends BLangNodeVisitor {
         if (errorType.detailType.getKind() == TypeKind.RECORD) {
             // Create empty record init attached func
             BRecordTypeSymbol tsymbol = (BRecordTypeSymbol) errorType.detailType.tsymbol;
-            tsymbol.initializerFunc = createRecordInitFunc();
+            tsymbol.initializerFunc = createRecordInitFunc((BRecordType) errorType.detailType, tsymbol.name);
             tsymbol.scope.define(tsymbol.initializerFunc.funcName, tsymbol.initializerFunc.symbol);
         }
     }
@@ -5414,11 +5414,7 @@ public class Desugar extends BLangNodeVisitor {
             BRecordTypeSymbol recordSymbol =
                     Symbols.createRecordSymbol(0, names.fromString(getAnonymousRecordName()),
                                                env.enclPkg.symbol.pkgID, null, env.scope.owner);
-            recordSymbol.initializerFunc = createRecordInitFunc();
             recordSymbol.scope = new Scope(recordSymbol);
-            recordSymbol.scope.define(
-                    names.fromString(recordSymbol.name.value + "." + recordSymbol.initializerFunc.funcName.value),
-                    recordSymbol.initializerFunc.symbol);
 
             List<BField> fields = new ArrayList<>();
             List<BLangSimpleVariable> typeDefFields = new ArrayList<>();
@@ -5450,7 +5446,7 @@ public class Desugar extends BLangNodeVisitor {
             recordSymbol.type = recordVarType;
             recordVarType.tsymbol = recordSymbol;
             recordTypeNode.symbol = recordSymbol;
-            recordTypeNode.initFunction = createInitFunctionForRecordType(recordTypeNode, env);
+            recordTypeNode.initFunction = createRecordInitFunction(recordTypeNode, env);
             recordSymbol.scope.define(recordSymbol.initializerFunc.symbol.name, recordSymbol.initializerFunc.symbol);
             createTypeDefinition(recordVarType, recordSymbol, recordTypeNode);
 
@@ -5521,7 +5517,6 @@ public class Desugar extends BLangNodeVisitor {
                 names.fromString("$anonErrorType$" + errorNo + "$detailType"),
                 env.enclPkg.symbol.pkgID, null, null);
 
-        detailRecordTypeSymbol.initializerFunc = createRecordInitFunc();
         detailRecordTypeSymbol.scope = new Scope(detailRecordTypeSymbol);
         detailRecordTypeSymbol.scope.define(
                 names.fromString(detailRecordTypeSymbol.name.value + "." +
@@ -5534,6 +5529,7 @@ public class Desugar extends BLangNodeVisitor {
         if (restDetail == null) {
             detailRecordType.sealed = true;
         }
+        detailRecordTypeSymbol.initializerFunc = createRecordInitFunc(detailRecordType, detailRecordTypeSymbol.name);
 
         for (BLangErrorVariable.BLangErrorDetailEntry detailEntry : detail) {
             Name fieldName = names.fromIdNode(detailEntry.key);
@@ -5547,12 +5543,18 @@ public class Desugar extends BLangNodeVisitor {
         return detailRecordType;
     }
 
-    private BAttachedFunction createRecordInitFunc() {
+    private BAttachedFunction createRecordInitFunc(BRecordType recordType, Name name) {
         BInvokableType bInvokableType = new BInvokableType(new ArrayList<>(), symTable.nilType, null);
+        // TODO: pass the env as a param instead of taking the package level env
+        BVarSymbol receiverSymbol = new BVarSymbol(Flags.asMask(EnumSet.noneOf(Flag.class)), Names.SELF,
+                                                   env.enclPkg.symbol.pkgID, recordType, null);
+        String fnName = Symbols.getAttachedFuncSymbolName(name.value, Names.INIT_FUNCTION_SUFFIX.value);
         BInvokableSymbol initFuncSymbol = Symbols.createFunctionSymbol(
-                Flags.PUBLIC, Names.EMPTY, env.enclPkg.symbol.pkgID, bInvokableType, env.scope.owner, false);
+                Flags.PUBLIC, names.fromString(fnName), env.enclPkg.symbol.pkgID, bInvokableType, env.scope.owner,
+                false);
+        initFuncSymbol.receiverSymbol = receiverSymbol;
         initFuncSymbol.retType = symTable.nilType;
-        return new BAttachedFunction(Names.INIT_FUNCTION_SUFFIX, initFuncSymbol, bInvokableType);
+        return new BAttachedFunction(initFuncSymbol.name, initFuncSymbol, bInvokableType);
     }
 
     private BLangRecordTypeNode createRecordTypeNode(List<BLangSimpleVariable> typeDefFields,
@@ -6399,7 +6401,7 @@ public class Desugar extends BLangNodeVisitor {
 
         // Update the record type with attached function details
         BRecordTypeSymbol typeSymbol = (BRecordTypeSymbol) recordTypeNode.type.tsymbol;
-        typeSymbol.initializerFunc = new BAttachedFunction(names.fromIdNode(initFunction.name), initFunction.symbol,
+        typeSymbol.initializerFunc = new BAttachedFunction(initFunction.symbol.name, initFunction.symbol,
                                                            (BInvokableType) initFunction.type);
         recordTypeNode.initFunction = initFunction;
         return rewrite(initFunction, env);
