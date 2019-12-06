@@ -18,34 +18,23 @@
 package org.ballerinalang.util;
 
 import org.ballerinalang.compiler.BLangCompilerException;
-import org.ballerinalang.model.elements.PackageID;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
-import org.wso2.ballerinalang.compiler.tree.BLangPackage;
-import org.wso2.ballerinalang.compiler.util.Name;
-import org.wso2.ballerinalang.programfile.PackageFileWriter;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.net.URL;
-import java.net.URLClassLoader;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Optional;
 import java.util.StringJoiner;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -149,7 +138,7 @@ public class BootstrapRunner {
         }
     }
 
-    private static void generateJarBinaryInProc(String entryBir, String jarOutputPath, boolean dumpBir,
+    public static void generateJarBinaryInProc(String entryBir, String jarOutputPath, boolean dumpBir,
                                                 List<String> jarFilePaths, String... birCachePaths) {
         try {
             List<String> commands = new ArrayList<>();
@@ -197,7 +186,7 @@ public class BootstrapRunner {
         return sj.toString();
     }
 
-    private static List<String> createArgsForCompilerBackend(String entryBir, String jarOutputPath, boolean dumpBir,
+    public static List<String> createArgsForCompilerBackend(String entryBir, String jarOutputPath, boolean dumpBir,
                                                              boolean useSystemClassLoader, String[] birCachePaths,
                                                              List<String> jarFilePaths) {
         List<String> commands = new ArrayList<>();
@@ -226,84 +215,6 @@ public class BootstrapRunner {
     private static String getMapPath() {
         String ballerinaNativeMap = System.getenv("BALLERINA_NATIVE_MAP");
         return ballerinaNativeMap == null ? " " : ballerinaNativeMap;
-    }
-
-    private static void writeNonEntryPkgs(List<BPackageSymbol> imports, Path birCache, Path importsBirCache,
-                                          Path jarTargetDir, boolean dumpBir)
-            throws IOException {
-        for (BPackageSymbol pkg : imports) {
-            PackageID id = pkg.pkgID;
-            //Todo: ballerinax check shouldn't be here. This should be fixed by having a proper package hierarchy.
-            //Todo: Remove ballerinax check after fixing it by the packerina team
-            if (!"ballerina".equals(id.orgName.value) && !"ballerinax".equals(id.orgName.value)) {
-                writeNonEntryPkgs(pkg.imports, birCache, importsBirCache, jarTargetDir, dumpBir);
-                Path pkgBir = getModuleBir(pkg, importsBirCache);
-                String jarOutputPath = jarTargetDir.resolve(id.name.value + ".jar").toString();
-                generateJarBinaryInProc(pkgBir.toString(), jarOutputPath, dumpBir, Collections.emptyList(),
-                        birCache.toString(), importsBirCache.toString());
-            }
-        }
-    }
-
-    private static Path getModuleBir(BPackageSymbol pkg, Path importsBirCache) throws IOException {
-        PackageID id = pkg.pkgID;
-        byte[] bytes = PackageFileWriter.writePackage(pkg.birPackageFile);
-        Path pkgBirDir = importsBirCache.resolve(id.orgName.value)
-                .resolve(id.name.value)
-                .resolve(id.version.value.isEmpty() ? "0.0.0" : id.version.value);
-        Files.createDirectories(pkgBirDir);
-        Path pkgBir = pkgBirDir.resolve(id.name.value + ".bir");
-        Files.write(pkgBir, bytes);
-        return pkgBir;
-    }
-
-    public static URLClassLoader createClassLoaders(BLangPackage bLangPackage,
-                                                 Path systemBirCache,
-                                                 Path buildRoot,
-                                                 Optional<Path> jarTargetRoot,
-                                                 boolean dumpBir) throws IOException {
-        byte[] bytes = PackageFileWriter.writePackage(bLangPackage.symbol.birPackageFile);
-        String fileName = calcFileNameForJar(bLangPackage);
-        Files.createDirectories(buildRoot);
-        Path intermediates = Files.createTempDirectory(buildRoot, fileName + "-");
-        Path entryBir = intermediates.resolve(fileName + ".bir");
-        Path jarTarget = jarTargetRoot.orElse(intermediates).resolve(fileName + ".jar");
-        Files.write(entryBir, bytes);
-
-        Path importsBirCache = intermediates.resolve("imports").resolve("bir-cache");
-        Path importsTarget = importsBirCache.getParent().resolve("generated-bir-jar");
-        Files.createDirectories(importsTarget);
-
-        writeNonEntryPkgs(bLangPackage.symbol.imports, systemBirCache, importsBirCache, importsTarget, dumpBir);
-        generateJarBinaryInProc(entryBir.toString(), jarTarget.toString(), dumpBir, Collections.emptyList(),
-                systemBirCache.toString(), importsBirCache.toString());
-
-        if (!Files.exists(jarTarget)) {
-            throw new RuntimeException("Compiled binary jar is not found: " + jarTarget);
-        }
-        int index = 0;
-        URL[] urls;
-        File importsCache = importsTarget.toFile();
-        if (importsCache.isDirectory()) {
-            String[] jarFIles = importsCache.list();
-            urls = new URL[jarFIles.length + 1];
-            for (String file : jarFIles) {
-                urls[index++] = Paths.get(importsCache.getPath(), file).toUri().toURL();
-            }
-        } else {
-            urls = new URL[1];
-        }
-        urls[index] = jarTarget.toFile().toURI().toURL();
-        return new URLClassLoader(urls);
-    }
-
-    private static String calcFileNameForJar(BLangPackage bLangPackage) {
-        PackageID pkgID = bLangPackage.pos.src.pkgID;
-        Name sourceFileName = pkgID.sourceFileName;
-        if (sourceFileName != null) {
-            return sourceFileName.value.replaceAll("\\.bal$", "");
-        }
-        return pkgID.name.value;
     }
 }
 

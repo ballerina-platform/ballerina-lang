@@ -18,7 +18,7 @@
 # Has the special semantic that when used in a declaration
 # all uses in the declaration must refer to same type.
 @typeParam
-type RowType map<anydata|error>;
+type RowType record{};
 
 # Returns an iterator over the members of `tbl`.
 # The iterator will iterate over the rows of the table in order.

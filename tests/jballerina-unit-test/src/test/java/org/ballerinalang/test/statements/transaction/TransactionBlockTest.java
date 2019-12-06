@@ -21,6 +21,7 @@ import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.test.util.BAssertUtil;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
@@ -218,6 +219,12 @@ public class TransactionBlockTest {
 
     @Test
     public void testMultipleCommittedAbortedBlocks() {
-        Assert.assertTrue(negativeProgramFile.getErrorCount() > 0);
+        int i = 0;
+        BAssertUtil.validateError(negativeProgramFile, i++,
+                "transaction statement cannot be nested within another transaction block", 17, 9);
+        BAssertUtil.validateError(negativeProgramFile, i++,
+                "'check' expression cannot be used within transaction block", 30, 17);
+
+        Assert.assertEquals(negativeProgramFile.getErrorCount(), i);
     }
 }

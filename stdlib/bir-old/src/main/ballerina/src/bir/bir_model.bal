@@ -489,6 +489,7 @@ public type ModuleID record {|
 public type BInvokableType record {
     FUNCTION_TYPE_NAME typeName = FUNCTION_TYPE_NAME;
     BType?[] paramTypes = [];
+    BType? restType = ();
     BType retType?;
 };
 

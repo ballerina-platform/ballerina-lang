@@ -42,6 +42,12 @@ export function getBallerinaHome(): string {
     return fs.realpathSync(path);
 }
 
+export function getBallerinaCmd(): string {
+    const ballerinaDistribution = TEST_RESOURCES + findBallerinaDistribution();
+    const prefix = path.join(fs.realpathSync(ballerinaDistribution), "bin") + path.sep;
+    return prefix + (process.platform === 'win32' ? 'ballerina.bat' : 'ballerina');
+}
+
 export function getBallerinaVersion() {
     return findBallerinaDistribution().replace(PLATFORM_PREFIX, '').replace('\n','').trim();
 }

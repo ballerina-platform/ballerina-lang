@@ -30,6 +30,7 @@ import java.util.Arrays;
 public class BFunctionType extends BType {
 
     public BType[] paramTypes;
+    public BType restType;
     public BType[] retParamTypes;
 
     private boolean hasReturnsKeyword;
@@ -42,9 +43,10 @@ public class BFunctionType extends BType {
         this.retParamTypes = new BType[0];
     }
 
-    public BFunctionType(BType[] paramTypes, BType[] retParamType) {
+    public BFunctionType(BType[] paramTypes, BType restType,  BType[] retParamType) {
         super("function ()", null, BFunctionPointer.class);
         this.paramTypes = paramTypes;
+        this.restType = restType;
         this.retParamTypes = retParamType;
     }
 

@@ -838,10 +838,16 @@ public class Types {
         }
 
         for (int i = 0; i < source.paramTypes.size(); i++) {
-            if (target.paramTypes.get(i).tag != TypeTags.ANY
-                    && !equality.test(source.paramTypes.get(i), target.paramTypes.get(i), unresolvedTypes)) {
+            if (!equality.test(source.paramTypes.get(i), target.paramTypes.get(i), unresolvedTypes)) {
                 return false;
             }
+        }
+
+        if ((source.restType != null && target.restType == null) ||
+                target.restType != null && source.restType == null) {
+            return false;
+        } else if (source.restType != null && !equality.test(source.restType, target.restType, unresolvedTypes)) {
+            return false;
         }
 
         if (source.retType == null && target.retType == null) {
