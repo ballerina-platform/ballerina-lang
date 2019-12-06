@@ -587,16 +587,11 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangInvocation invocationExpr) {
         analyzeNode(invocationExpr.expr, env);
-        if (invocationExpr.expr != null && invocationExpr.expr.getKind() == NodeKind.SIMPLE_VARIABLE_REF
-                && ((BLangSimpleVarRef) invocationExpr.expr).getVariableName().value.equals(Names.SELF.value)) {
-            StringBuilder uninitializedFields =
-                    getUninitializedFieldsForSelfKeyword((BObjectType) ((BLangSimpleVarRef)
-                            invocationExpr.expr).symbol.type);
-            if (uninitializedFields.length() != 0) {
-                this.dlog.error(invocationExpr.pos, DiagnosticCode.CONTAINS_UNINITIALIZED_FIELDS,
-                        uninitializedFields.toString());
-                return;
-            }
+        if (!isFieldsInitializedForSelfKeyWordExpression(invocationExpr)) {
+            return;
+        }
+        if (!isFieldsInitializedForSelfKeyWordMethodInvocation(invocationExpr)) {
+            return;
         }
         invocationExpr.requiredArgs.forEach(expr -> analyzeNode(expr, env));
         invocationExpr.restArgs.forEach(expr -> analyzeNode(expr, env));
@@ -621,6 +616,38 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
                 addDependency(curDependent, invokableProviderSymbol);
             }
         }
+    }
+
+    private boolean isFieldsInitializedForSelfKeyWordExpression(BLangInvocation invocationExpr) {
+        if (invocationExpr.expr != null && invocationExpr.expr.getKind() == NodeKind.SIMPLE_VARIABLE_REF
+                && ((BLangSimpleVarRef) invocationExpr.expr).getVariableName().value.equals(Names.SELF.value)) {
+            StringBuilder uninitializedFields =
+                    getUninitializedFieldsForSelfKeyword((BObjectType) ((BLangSimpleVarRef)
+                            invocationExpr.expr).symbol.type);
+            if (uninitializedFields.length() != 0) {
+                this.dlog.error(invocationExpr.pos, DiagnosticCode.CONTAINS_UNINITIALIZED_FIELDS,
+                        uninitializedFields.toString());
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private boolean isFieldsInitializedForSelfKeyWordMethodInvocation(BLangInvocation invocationExpr) {
+
+        for (BLangExpression expr : invocationExpr.requiredArgs) {
+            if (expr.getKind() == NodeKind.SIMPLE_VARIABLE_REF && ((BLangSimpleVarRef) expr).getVariableName()
+                    .getValue().equals(Names.SELF.getValue())) {
+                StringBuilder uninitializedFields =
+                        getUninitializedFieldsForSelfKeyword((BObjectType) ((BLangSimpleVarRef) expr).symbol.type);
+                if (uninitializedFields.length() != 0) {
+                    this.dlog.error(invocationExpr.pos, DiagnosticCode.CONTAINS_UNINITIALIZED_FIELDS,
+                            uninitializedFields.toString());
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 
     private StringBuilder getUninitializedFieldsForSelfKeyword(BObjectType objType) {
