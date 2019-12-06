@@ -20,7 +20,6 @@ package org.ballerinalang.jvm.values.api;
 
 import org.ballerinalang.jvm.DecimalValueKind;
 import org.ballerinalang.jvm.types.BType;
-import org.ballerinalang.jvm.util.BLangConstants;
 import org.ballerinalang.jvm.values.DecimalValue;
 
 import java.math.BigDecimal;
@@ -48,17 +47,6 @@ public interface BDecimal {
      * @return integer representation of the decimal
      */
     long intValue();
-
-    /**
-     * Check the given value is in int range.
-     *
-     * @param decimalValue value to be checked
-     * @return true if the value is in int range
-     */
-    static boolean isDecimalWithinIntRange(BigDecimal decimalValue) {
-        return decimalValue.compareTo(BLangConstants.BINT_MAX_VALUE_BIG_DECIMAL_RANGE_MAX) < 0 &&
-               decimalValue.compareTo(BLangConstants.BINT_MIN_VALUE_BIG_DECIMAL_RANGE_MIN) > 0;
-    }
 
     /**
      * Returns the byte value.

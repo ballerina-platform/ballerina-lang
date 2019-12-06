@@ -17,7 +17,6 @@
  */
 package org.ballerinalang.jvm.values.api;
 
-import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.util.exceptions.BLangFreezeException;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.freeze.State;
@@ -36,9 +35,7 @@ import java.util.Map;
  * 
  * @since 1.1.0
  */
-public interface BRefValue {
-
-    BType getType();
+public interface BRefValue extends BValue {
 
     /**
      * Method to perform a deep copy, recursively copying all structural values and their members.

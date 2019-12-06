@@ -60,12 +60,15 @@ dependencies {
     baloImplementation project(path: ':ballerina-log-api', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-runtime-api', configuration: 'baloImplementation')
 
+    interopImports project(':ballerina-log-api')
     interopImports project(':ballerina-time')
 
     testCompile 'org.testng:testng'
     testCompile project(path: ':ballerina-test-utils', configuration: 'shadow')
     testCompile project(':ballerina-file')
     testCompile project(':ballerina-core')
+
+    interopImports project(':ballerina-crypto')
 }
 
 createBalo {

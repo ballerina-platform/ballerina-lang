@@ -99,7 +99,7 @@
         DECIMAL_INTEGER_LITERAL = "regexp:\d+"
   ]
 
-    extends("(FunctionInvocation|SimpleVariable|MapArrayVariable|FieldVariable|XmlAttribVariable|Invocation|TypeDescExprInvocation|StringFunctionInvocation)Reference") = VariableReference
+    extends("(FunctionInvocation|SimpleVariable|MapArrayVariable|FieldVariable|XmlAttribVariable|Invocation|AnnotationAccess|TypeDescExprInvocation|StringFunctionInvocation)Reference") = VariableReference
 
     extends("((Simple|Record|Xml|StringTemplate)Literal|(ValueType|BuiltInReferenceType)Type|VariableReference|LambdaFunction|ArrowFunction|Type(Init|Conversion|Desc|Test)|Group|Wait|WorkerSendSync|WorkerReceive|FlushWorker|TableQuery|Checked|CheckPanic|TableLiteral|Elvis|ActionInvocation|IntegerRange|ArrowFunction|ServiceConstructor|ListConstructor|BinaryRefEqual|Trap|AnnotationAction)Expression") = Expression
     extends("(Unary|Binary|Ternary|Bitwise|BitwiseShift)Expression") = Expression
@@ -129,9 +129,13 @@ CompletePackageName ::= PackageName (DOT PackageName)* {
 }
 
 PackageName ::= identifier
-PackageVersion ::= version identifier {
-    pin=1
-}
+PackageVersion ::= version VersionPattern {pin=1}
+
+VersionPattern
+    ::=   DECIMAL_INTEGER_LITERAL
+    |   DECIMAL_FLOATING_POINT_NUMBER
+    |   DECIMAL_EXTENDED_FLOATING_POINT_NUMBER
+    ;
 
 // Todo - Cache
 ImportDeclaration ::= import (OrgName DIV)? CompletePackageName PackageVersion? Alias? SEMICOLON {
@@ -559,6 +563,7 @@ VariableReference ::= MapArrayVariableReference
                       | FunctionInvocationReference
                       | SimpleVariableReference
                       | TypeDescExprInvocationReference
+                      | AnnotationAccessReference
 
 InvocationReference ::= VariableReference Invocation
 MapArrayVariableReference ::= VariableReference Index
@@ -568,6 +573,7 @@ FunctionInvocationReference ::= FunctionInvocation
 SimpleVariableReference ::=  NameReference
 TypeDescExprInvocationReference ::=  TypeDescExpression Invocation
 StringFunctionInvocationReference ::= QUOTED_STRING_LITERAL Invocation
+AnnotationAccessReference ::= VariableReference ANNOTATION_ACCESS NameReference
 
 // Todo - Adding pin will mess function invocation.
 Invocation ::= DOT AnyIdentifierName LEFT_PARENTHESIS InvocationArgList? RIGHT_PARENTHESIS

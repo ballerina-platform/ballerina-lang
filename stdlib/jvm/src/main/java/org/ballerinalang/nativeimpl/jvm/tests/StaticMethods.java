@@ -28,12 +28,14 @@ import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.BmpStringValue;
+import org.ballerinalang.jvm.values.DecimalValue;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.StringValue;
 import org.ballerinalang.jvm.values.TupleValueImpl;
+import org.ballerinalang.jvm.values.api.BDecimal;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -106,7 +108,7 @@ public class StaticMethods {
     }
 
     public static ErrorValue acceptStringErrorReturn(String msg) {
-        return new ErrorValue(msg, null);
+        return new ErrorValue(msg, new MapValueImpl<>(BTypes.typeErrorDetail));
     }
 
     public static Object acceptIntUnionReturn(int flag) {
@@ -221,7 +223,7 @@ public class StaticMethods {
 
     public static ErrorValue acceptStringErrorReturnWhichThrowsCheckedException(String msg)
             throws JavaInteropTestCheckedException {
-        return new ErrorValue(msg, null);
+        return new ErrorValue(msg, new MapValueImpl<>(BTypes.typeErrorDetail));
     }
 
     public static Object acceptIntUnionReturnWhichThrowsCheckedException(int flag)
@@ -290,16 +292,20 @@ public class StaticMethods {
         return a + (b * 3);
     }
 
-    public static BigDecimal decimalParamAndReturn(BigDecimal a) {
-        return new BigDecimal("99.7").add(a);
+    public static BDecimal decimalParamAndReturn(BDecimal a) {
+        return new DecimalValue(new BigDecimal("99.7")).add(a);
     }
 
-    public static Object decimalParamAndReturnAsObject(BigDecimal a) {
-        return new BigDecimal("99.6").add((BigDecimal) a);
+    public static Object decimalParamAndReturnAsObject(BDecimal a) {
+        return new DecimalValue(new BigDecimal("99.6")).add(a);
     }
 
-    public static BigDecimal decimalParamAsObjectAndReturn(Object a) {
-        return new BigDecimal("99.4").add((BigDecimal) a);
+    public static BDecimal decimalParamAndWithBigDecimal(BigDecimal a) {
+        return new DecimalValue(new BigDecimal("99.6")).add(new DecimalValue(a));
+    }
+
+    public static BDecimal decimalParamAsObjectAndReturn(Object a) {
+        return new DecimalValue(new BigDecimal("99.4").add((BigDecimal) a));
     }
 
     public static String returnStringForBUnionFromJava() {
@@ -342,6 +348,10 @@ public class StaticMethods {
         ArrayValue array = new ArrayValueImpl(new BArrayType(BTypes.typeJSON));
         array.add(0, (Object) "John");
         return array;
+    }
+
+    public static Object getNullJson() {
+        return null;
     }
 
     public static int getInt() {

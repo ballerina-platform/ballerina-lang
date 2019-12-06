@@ -2909,7 +2909,7 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         // Iterate through parent nodes until a function node is met to find if the variable is used inside
-        // a transaction block to mark it as a closure
+        // a transaction block to mark it as a closure, blocks inside transactions are desugared into functions later.
         BLangNode node = env.node;
         SymbolEnv cEnv = env;
         while (node != null && node.getKind() != NodeKind.FUNCTION) {

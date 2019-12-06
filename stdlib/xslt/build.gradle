@@ -40,6 +40,7 @@ dependencies {
     testCompile 'org.testng:testng'
 
     baloImplementation project(path: ':ballerina-io', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-java', configuration: 'baloImplementation')
 }
 
 createBalo {

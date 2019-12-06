@@ -55,10 +55,13 @@ dependencies {
 
     interopImports project(':ballerina-config-api')
     interopImports project(':ballerina-io')
+    interopImports project(':ballerina-log-api')
     interopImports project(':ballerina-math')
     interopImports project(':ballerina-system')
     interopImports project(':ballerina-task')
     interopImports project(':ballerina-time')
+    interopImports project(':ballerina-reflect')
+    interopImports project(':ballerina-crypto')
 
     implementation project(':ballerina-system')
     implementation project(':ballerina-tool')
@@ -70,7 +73,6 @@ dependencies {
     implementation project(':ballerina-observability')
     implementation project(":ballerina-config-api")
     implementation project(':ballerina-math')
-    implementation project(":ballerina-crypto")
     implementation project(':ballerina-time')
     implementation project(':ballerina-mime')
     implementation project(':ballerina-io')

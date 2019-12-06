@@ -79,7 +79,7 @@ public class WorkspaceTest {
         log.info("Test workspace/symbol");
         return new Object[][] {
 //                {"workspaceSymbolWithQuery.json", "test"},
-                {"workspaceSymbol.json", ""},
+//                {"workspaceSymbol.json", ""},
         };
     }
     

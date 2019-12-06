@@ -222,6 +222,12 @@ public class BuildCommand implements BLauncherCmd {
             }
         
             targetPath = this.sourceRootPath.resolve(ProjectDirConstants.TARGET_DIR_NAME);
+
+            if (args.length > 0) {
+                CommandUtil.printError(this.errStream, "too many arguments.", buildCmd, false);
+                CommandUtil.exitError(this.exitWhenFinish);
+                return;
+            }
         } else if (this.argList.get(0).endsWith(BLangConstants.BLANG_SRC_FILE_SUFFIX)) {
             // when a single bal file is provided.
             if (this.compile) {
