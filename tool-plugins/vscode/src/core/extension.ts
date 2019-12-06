@@ -313,7 +313,11 @@ export class BallerinaExtension {
                     return;
                 }
                 try {
-                    const parsedVersion = cmdOutput.split('\n')[0].replace(/Ballerina /, '').replace(/[\n\t\r]/g, '');
+                    const implVersionLine = cmdOutput.split('\n')[0];
+                    const replacePrefix = implVersionLine.startsWith("jBallerina")
+                            ? /jBallerina /
+                            : /Ballerina /;
+                    const parsedVersion = implVersionLine.replace(replacePrefix, '').replace(/[\n\t\r]/g, '');
                     resolve(parsedVersion);
                 } catch (error) {
                     reject(error);
