@@ -17,7 +17,6 @@
  */
 package org.wso2.ballerinalang.compiler.bir;
 
-import jdk.nashorn.internal.ir.annotations.Ignore;
 import org.wso2.ballerinalang.compiler.bir.model.BIRAbstractInstruction;
 import org.wso2.ballerinalang.compiler.bir.model.BIRInstruction;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
