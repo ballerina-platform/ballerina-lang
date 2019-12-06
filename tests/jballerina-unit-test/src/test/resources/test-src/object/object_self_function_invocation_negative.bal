@@ -118,3 +118,44 @@ public function testSelfKeywordInvocationWithForEachNegative() {
     string[] persons = ["person1", "person2", "person3"];
     Person5 person = new(persons, "city");
 }
+
+type Person6 object {
+    string name;
+    string city;
+
+    public function __init(string[] names, string city) {
+        foreach string n in names {
+            if (n == "person1") {
+                self.modify("person1");
+            }
+            self.name = n;
+        }
+        self.city = city;
+    }
+
+    function modify(string name) {
+        self.name = name;
+    }
+};
+
+public function testSelfKeywordInvocationWithInvocationArg() {
+    string[] persons = ["person1", "person2", "person3"];
+    Person5 person = new(persons, "city");
+}
+
+
+type Person7 object {
+    string name;
+
+    public function __init(string name) {
+        modify(self);
+        self.name = name;
+    }
+};
+
+function modify(Person7 person) {
+
+}
+public function testSelfKeywordInvocationWithModuleLevelFunctionInvocation() {
+    Person7 person = new("person");
+}
