@@ -619,16 +619,17 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     }
 
     private boolean isFieldsInitializedForSelfKeyWordExpression(BLangInvocation invocationExpr) {
-        if (invocationExpr.expr != null && invocationExpr.expr.getKind() == NodeKind.SIMPLE_VARIABLE_REF
-                && ((BLangSimpleVarRef) invocationExpr.expr).getVariableName().value.equals(Names.SELF.value)) {
-            StringBuilder uninitializedFields =
-                    getUninitializedFieldsForSelfKeyword((BObjectType) ((BLangSimpleVarRef)
-                            invocationExpr.expr).symbol.type);
-            if (uninitializedFields.length() != 0) {
-                this.dlog.error(invocationExpr.pos, DiagnosticCode.CONTAINS_UNINITIALIZED_FIELDS,
-                        uninitializedFields.toString());
-                return false;
-            }
+
+        if (invocationExpr.expr == null || !isSelfKeyWordExpr(invocationExpr.expr)) {
+            return true;
+        }
+        StringBuilder uninitializedFields =
+                getUninitializedFieldsForSelfKeyword((BObjectType) ((BLangSimpleVarRef)
+                        invocationExpr.expr).symbol.type);
+        if (uninitializedFields.length() != 0) {
+            this.dlog.error(invocationExpr.pos, DiagnosticCode.CONTAINS_UNINITIALIZED_FIELDS,
+                    uninitializedFields.toString());
+            return false;
         }
         return true;
     }
@@ -636,8 +637,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     private boolean isFieldsInitializedForSelfKeyWordMethodInvocation(BLangInvocation invocationExpr) {
 
         for (BLangExpression expr : invocationExpr.requiredArgs) {
-            if (expr.getKind() == NodeKind.SIMPLE_VARIABLE_REF && ((BLangSimpleVarRef) expr).getVariableName()
-                    .getValue().equals(Names.SELF.getValue())) {
+            if (isSelfKeyWordExpr(expr)) {
                 StringBuilder uninitializedFields =
                         getUninitializedFieldsForSelfKeyword((BObjectType) ((BLangSimpleVarRef) expr).symbol.type);
                 if (uninitializedFields.length() != 0) {
@@ -650,15 +650,24 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         return true;
     }
 
+    private boolean isSelfKeyWordExpr(BLangExpression expr) {
+
+        return expr.getKind() == NodeKind.SIMPLE_VARIABLE_REF &&
+                Names.SELF.value.equals(((BLangSimpleVarRef) expr).getVariableName().getValue());
+    }
+
     private StringBuilder getUninitializedFieldsForSelfKeyword(BObjectType objType) {
+
         boolean isFirstUninitializedField = true;
         StringBuilder uninitializedFields = new StringBuilder();
         for (BField field : objType.fields) {
-            if (this.uninitializedVars.containsKey(field.symbol) && isFirstUninitializedField) {
-                uninitializedFields = new StringBuilder(field.symbol.getName().value);
-                isFirstUninitializedField = false;
-            } else if (this.uninitializedVars.containsKey(field.symbol)) {
-                uninitializedFields.append(", ").append(field.symbol.getName().value);
+            if (this.uninitializedVars.containsKey(field.symbol)) {
+                if (isFirstUninitializedField) {
+                    uninitializedFields = new StringBuilder(field.symbol.getName().value);
+                    isFirstUninitializedField = false;
+                } else {
+                    uninitializedFields.append(", ").append(field.symbol.getName().value);
+                }
             }
         }
         return uninitializedFields;
