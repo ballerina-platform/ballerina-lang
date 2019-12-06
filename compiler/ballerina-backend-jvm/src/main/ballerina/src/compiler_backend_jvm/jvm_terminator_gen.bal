@@ -510,6 +510,8 @@ type TerminatorGenerator object {
         bir:VariableDcl selfArg = getVariableDcl(callIns.args[0]?.variableDcl);
         if (selfArg.typeValue is bir:BObjectType || selfArg.typeValue is bir:BServiceType) {
             self.genVirtualCall(callIns, orgName, moduleName, localVarOffset);
+        } else if (selfArg.typeValue is bir:BRecordType) {
+            self.genRecordInitCall(callIns, <bir:BRecordType> selfArg.typeValue, orgName, moduleName, localVarOffset);
         } else {
             // then this is a function attached to a built-in type
             self.genBuiltinTypeAttachedFuncCall(callIns, orgName, moduleName, localVarOffset);
@@ -548,6 +550,31 @@ type TerminatorGenerator object {
         string methodDesc = lookupJavaMethodDescription(lookupKey);
         string jvmClass = lookupFullQualifiedClassName(lookupKey);
         self.mv.visitMethodInsn(INVOKESTATIC, jvmClass, cleanupFunctionName(methodName), methodDesc, false);
+    }
+
+    private function genRecordInitCall(bir:Call callIns, bir:BRecordType recType, string orgName, string moduleName,
+                                        int localVarOffset) {
+        // load strand
+        self.mv.visitVarInsn(ALOAD, localVarOffset);
+        string attachedMethodName = recType.name.value + "." + callIns.name.value;
+        string lookupKey = getPackageName(orgName, moduleName) + attachedMethodName;
+
+        // load record
+        _ = self.visitArg(callIns.args[0]);
+
+        // load the params
+        int argsCount = callIns.args.length();
+        int i = 1;
+        while (i < argsCount) {
+            _ = self.visitArg(callIns.args[i]);
+            i += 1;
+        }
+
+        string methodDesc = lookupJavaMethodDescription(lookupKey);
+        string jvmClass = lookupFullQualifiedClassName(lookupKey);
+        string cleanedMethodName = recType.name.value + cleanupFunctionName(callIns.name.value);
+
+        self.mv.visitMethodInsn(INVOKESTATIC, jvmClass, cleanedMethodName, methodDesc, false);
     }
 
     private function genVirtualCall(bir:Call callIns, string orgName, string moduleName, int localVarOffset) {

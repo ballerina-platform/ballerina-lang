@@ -842,8 +842,6 @@ function injectDefaultParamInitsToAttachedFuncs(bir:Package module) {
             desugarObjectMethods(module, bType, typeDef.attachedFuncs);
         } else if (bType is bir:BServiceType) {
             desugarObjectMethods(module, bType, typeDef.attachedFuncs);
-        } else if (bType is bir:BRecordType) {
-            desugarObjectMethods(module, bType, typeDef.attachedFuncs);
         }
     }
 }
