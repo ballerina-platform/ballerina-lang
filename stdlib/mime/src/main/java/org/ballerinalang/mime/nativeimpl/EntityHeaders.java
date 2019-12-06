@@ -24,9 +24,9 @@ import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.values.ArrayValue;
-import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.HandleValue;
 import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.api.BValueCreator;
 import org.ballerinalang.mime.util.MimeUtil;
 
 import java.util.List;
@@ -62,21 +62,22 @@ public class EntityHeaders {
     }
 
     public static ArrayValue getHeaderNames(ObjectValue entityObj) {
-        ArrayValue stringArray = new ArrayValueImpl(new BArrayType(BTypes.typeHandle));
+        HandleValue[] handleValues = new HandleValue[0];
         if (entityObj.getNativeData(ENTITY_HEADERS) == null) {
-            return stringArray;
+            return (ArrayValue) BValueCreator.createArrayValue(handleValues, new BArrayType(BTypes.typeHandle));
         }
         HttpHeaders httpHeaders = (HttpHeaders) entityObj.getNativeData(ENTITY_HEADERS);
         if (httpHeaders != null && !httpHeaders.isEmpty()) {
             int i = 0;
             Set<String> distinctNames = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
             distinctNames.addAll(httpHeaders.names());
+            handleValues = new HandleValue[distinctNames.size()];
             for (String headerName : distinctNames) {
-                stringArray.add(i, new HandleValue(headerName));
+                handleValues[i] = new HandleValue(headerName);
                 i++;
             }
         }
-        return stringArray;
+        return (ArrayValue) BValueCreator.createArrayValue(handleValues, new BArrayType(BTypes.typeHandle));
     }
 
     public static ArrayValue getHeaders(ObjectValue entityObj, String headerName) {
@@ -89,12 +90,12 @@ public class EntityHeaders {
             throw MimeUtil.createError(HEADER_NOT_FOUND, "Http header does not exist");
         }
         int i = 0;
-        ArrayValue stringArray = new ArrayValueImpl(new BArrayType(BTypes.typeHandle));
+        HandleValue[] handleValues = new HandleValue[headerValueList.size()];
         for (String headerValue : headerValueList) {
-            stringArray.add(i, new HandleValue(headerValue));
+            handleValues[i] = new HandleValue(headerValue);
             i++;
         }
-        return stringArray;
+        return (ArrayValue) BValueCreator.createArrayValue(handleValues, new BArrayType(BTypes.typeHandle));
     }
 
     public static boolean hasHeader(ObjectValue entityObj, String headerName) {
