@@ -17,6 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler.bir;
 
+import jdk.nashorn.internal.ir.annotations.Ignore;
 import org.wso2.ballerinalang.compiler.bir.model.BIRAbstractInstruction;
 import org.wso2.ballerinalang.compiler.bir.model.BIRInstruction;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
@@ -85,9 +86,13 @@ public class BIROptimizer {
 
         @Override
         public void visit(BIRPackage birPackage) {
-            for (BIRFunction func : birPackage.functions) {
-                func.accept(this);
-            }
+            birPackage.typeDefs.forEach(tDef -> tDef.accept(this));
+            birPackage.functions.forEach(func -> func.accept(this));
+        }
+
+        @Override
+        public void visit(BIRNode.BIRTypeDefinition birTypeDefinition) {
+            birTypeDefinition.attachedFuncs.forEach(func -> func.accept(this));
         }
 
         @Override
@@ -215,9 +220,8 @@ public class BIROptimizer {
 
         @Override
         public void visit(BIRPackage birPackage) {
-            for (BIRFunction func : birPackage.functions) {
-                func.accept(this);
-            }
+            birPackage.typeDefs.forEach(tDef ->  this.optimizeNode(tDef, this.env));
+            birPackage.functions.forEach(func -> this.optimizeNode(func, this.env));
         }
 
         public void optimizeNode(BIRNode node, OptimizerEnv env) {
@@ -243,6 +247,11 @@ public class BIROptimizer {
         }
 
         @Override
+        public void visit(BIRNode.BIRTypeDefinition birTypeDefinition) {
+            birTypeDefinition.attachedFuncs.forEach(func -> this.optimizeNode(func, this.env));
+        }
+
+        @Override
         public void visit(BIRFunction birFunction) {
             OptimizerEnv funcOpEnv = new OptimizerEnv();
             birFunction.basicBlocks.forEach(bb -> this.optimizeNode(bb, funcOpEnv));
@@ -256,7 +265,7 @@ public class BIROptimizer {
         }
 
         @Override
-        public void visit(BIRBasicBlock birBasicBlock) {
+        public void visit(BIRNode.BIRBasicBlock birBasicBlock) {
             this.env.newInstructions = new ArrayList<>();
             birBasicBlock.instructions.forEach(i -> this.optimizeNonTerm(i, this.env));
             birBasicBlock.instructions = this.env.newInstructions;
@@ -265,74 +274,90 @@ public class BIROptimizer {
 
         //////////////////////////////////////////////
 
+        @Override
         public void visit(BIRNode.BIRErrorEntry birErrorEntry) {
             this.optimizeNode(birErrorEntry.errorOp, this.env);
         }
 
         // Terminating instructions
 
+        @Override
         public void visit(BIRTerminator.GOTO birGoto) {
             // DO nothing
         }
 
+        @Override
         public void visit(BIRTerminator.Call birCall) {
             this.optimizeNode(birCall.lhsOp, this.env);
             birCall.args.forEach(a -> this.optimizeNode(a, this.env));
         }
 
+        @Override
         public void visit(BIRTerminator.AsyncCall birCall) {
             this.optimizeNode(birCall.lhsOp, this.env);
             birCall.args.forEach(a -> this.optimizeNode(a, this.env));
         }
 
+        @Override
         public void visit(BIRTerminator.Return birReturn) {
             // Do nothing
         }
 
+        @Override
         public void visit(BIRTerminator.Branch birBranch) {
             this.optimizeNode(birBranch.op, this.env);
         }
 
+        @Override
         public void visit(BIRTerminator.FPCall fpCall) {
             this.optimizeNode(fpCall.lhsOp, this.env);
             this.optimizeNode(fpCall.fp, this.env);
             fpCall.args.forEach(a -> this.optimizeNode(a, this.env));
         }
 
+        @Override
         public void visit(BIRTerminator.Lock lock) {
             // Do nothing
         }
 
+        @Override
         public void visit(BIRTerminator.FieldLock lock) {
             this.optimizeNode(lock.localVar, this.env);
         }
 
+        @Override
         public void visit(BIRTerminator.Unlock unlock) {
             unlock.fieldLocks.keySet().forEach(k -> this.optimizeNode(k, this.env));
         }
 
+        @Override
         public void visit(BIRTerminator.Panic birPanic) {
             this.optimizeNode(birPanic.errorOp, this.env);
         }
 
+        @Override
         public void visit(BIRTerminator.Wait birWait) {
             this.optimizeNode(birWait.lhsOp, this.env);
             birWait.exprList.forEach(e -> this.optimizeNode(e, this.env));
         }
 
+        @Override
         public void visit(BIRTerminator.WaitAll waitAll) {
             this.optimizeNode(waitAll.lhsOp, this.env);
             waitAll.valueExprs.forEach(v -> this.optimizeNode(v, this.env));
         }
 
+        @Override
         public void visit(BIRTerminator.Flush birFlush) {
             this.optimizeNode(birFlush.lhsOp, this.env);
         }
 
+        @Override
         public void visit(BIRTerminator.WorkerReceive workerReceive) {
             this.optimizeNode(workerReceive.lhsOp, this.env);
         }
 
+        @Override
         public void visit(BIRTerminator.WorkerSend workerSend) {
             this.optimizeNode(workerSend.lhsOp, this.env);
             this.optimizeNode(workerSend.data, this.env);
@@ -340,6 +365,7 @@ public class BIROptimizer {
 
         // Non-terminating instructions
 
+        @Override
         public void visit(BIRNonTerminator.Move birMove) {
             if (birMove.lhsOp.variableDcl.kind != VarKind.TEMP) {
                 this.env.newInstructions.add(birMove);
@@ -350,66 +376,79 @@ public class BIROptimizer {
             }
         }
 
+        @Override
         public void visit(BIRNonTerminator.BinaryOp birBinaryOp) {
             this.optimizeNode(birBinaryOp.lhsOp, this.env);
             birBinaryOp.rhsOp1.accept(this);
             birBinaryOp.rhsOp2.accept(this);
         }
 
+        @Override
         public void visit(BIRNonTerminator.UnaryOP birUnaryOp) {
             this.optimizeNode(birUnaryOp.lhsOp, this.env);
             this.optimizeNode(birUnaryOp.rhsOp, this.env);
         }
 
+        @Override
         public void visit(BIRNonTerminator.ConstantLoad birConstantLoad) {
             this.optimizeNode(birConstantLoad.lhsOp, this.env);
         }
 
+        @Override
         public void visit(BIRNonTerminator.NewStructure birNewStructure) {
             this.optimizeNode(birNewStructure.lhsOp, this.env);
         }
 
+        @Override
         public void visit(BIRNonTerminator.NewArray birNewArray) {
             this.optimizeNode(birNewArray.lhsOp, this.env);
             this.optimizeNode(birNewArray.sizeOp, this.env);
         }
 
+        @Override
         public void visit(BIRNonTerminator.FieldAccess birFieldAccess) {
             this.optimizeNode(birFieldAccess.lhsOp, this.env);
             this.optimizeNode(birFieldAccess.rhsOp, this.env);
             this.optimizeNode(birFieldAccess.keyOp, this.env);
         }
 
+        @Override
         public void visit(BIRNonTerminator.NewError birNewError) {
             this.optimizeNode(birNewError.lhsOp, this.env);
             this.optimizeNode(birNewError.reasonOp, this.env);
             this.optimizeNode(birNewError.detailOp, this.env);
         }
 
+        @Override
         public void visit(BIRNonTerminator.FPLoad fpLoad) {
             this.optimizeNode(fpLoad.lhsOp, this.env);
             //TODO check this
         }
 
+        @Override
         public void visit(BIRNonTerminator.TypeCast birTypeCast) {
             this.optimizeNode(birTypeCast.lhsOp, this.env);
             this.optimizeNode(birTypeCast.rhsOp, this.env);
         }
 
+        @Override
         public void visit(BIRNonTerminator.NewInstance newInstance) {
             this.optimizeNode(newInstance.lhsOp, this.env);
         }
 
+        @Override
         public void visit(BIRNonTerminator.IsLike birIsLike) {
             this.optimizeNode(birIsLike.lhsOp, this.env);
             this.optimizeNode(birIsLike.rhsOp, this.env);
         }
 
+        @Override
         public void visit(BIRNonTerminator.TypeTest birTypeTest) {
             this.optimizeNode(birTypeTest.lhsOp, this.env);
             this.optimizeNode(birTypeTest.rhsOp, this.env);
         }
 
+        @Override
         public void visit(BIRNonTerminator.NewTable newTable) {
             this.optimizeNode(newTable.lhsOp, this.env);
             this.optimizeNode(newTable.dataOp, this.env);
@@ -417,40 +456,48 @@ public class BIROptimizer {
             this.optimizeNode(newTable.columnsOp, this.env);
         }
 
+        @Override
         public void visit(BIRNonTerminator.NewStream newStream) {
             this.optimizeNode(newStream.lhsOp, this.env);
         }
 
+        @Override
         public void visit(BIRNonTerminator.NewTypeDesc newTypeDesc) {
             this.optimizeNode(newTypeDesc.lhsOp, this.env);
         }
 
+        @Override
         public void visit(BIRNonTerminator.NewStringXMLQName newStringXMLQName) {
             this.optimizeNode(newStringXMLQName.lhsOp, this.env);
             this.optimizeNode(newStringXMLQName.stringQNameOP, this.env);
         }
 
+        @Override
         public void visit(BIRNonTerminator.NewXMLProcIns newXMLProcIns) {
             this.optimizeNode(newXMLProcIns.lhsOp, this.env);
             this.optimizeNode(newXMLProcIns.dataOp, this.env);
             this.optimizeNode(newXMLProcIns.targetOp, this.env);
         }
 
+        @Override
         public void visit(BIRNonTerminator.NewXMLComment newXMLComment) {
             this.optimizeNode(newXMLComment.lhsOp, this.env);
             this.optimizeNode(newXMLComment.textOp, this.env);
         }
 
+        @Override
         public void visit(BIRNonTerminator.XMLAccess xmlAccess) {
             this.optimizeNode(xmlAccess.lhsOp, this.env);
             this.optimizeNode(xmlAccess.rhsOp, this.env);
         }
 
+        @Override
         public void visit(BIRNonTerminator.NewXMLText newXMLText) {
             this.optimizeNode(newXMLText.lhsOp, this.env);
             this.optimizeNode(newXMLText.textOp, this.env);
         }
 
+        @Override
         public void visit(BIRNonTerminator.NewXMLQName newXMLQName) {
             this.optimizeNode(newXMLQName.lhsOp, this.env);
             this.optimizeNode(newXMLQName.localnameOp, this.env);
@@ -458,6 +505,7 @@ public class BIROptimizer {
             this.optimizeNode(newXMLQName.prefixOp, this.env);
         }
 
+        @Override
         public void visit(BIRNonTerminator.NewXMLElement newXMLElement) {
             this.optimizeNode(newXMLElement.lhsOp, this.env);
             this.optimizeNode(newXMLElement.startTagOp, this.env);
@@ -466,6 +514,7 @@ public class BIROptimizer {
         }
 
         // Operands
+        @Override
         public void visit(BIROperand birVarRef) {
             BIRVariableDcl realVar = this.env.tempVars.get(birVarRef.variableDcl);
             if (realVar != null) {

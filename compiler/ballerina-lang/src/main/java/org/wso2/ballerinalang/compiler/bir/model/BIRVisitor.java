@@ -32,6 +32,10 @@ public abstract class BIRVisitor {
         throw new AssertionError();
     }
 
+    public void visit(BIRNode.BIRTypeDefinition birTypeDefinition) {
+        throw new AssertionError();
+    }
+
     public void visit(BIRNode.BIRVariableDcl birVariableDcl) {
         throw new AssertionError();
     }

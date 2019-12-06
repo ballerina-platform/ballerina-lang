@@ -415,7 +415,7 @@ public abstract class BIRNode {
 
         @Override
         public void accept(BIRVisitor visitor) {
-
+            visitor.visit(this);
         }
 
         @Override
