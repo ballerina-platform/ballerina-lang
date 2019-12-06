@@ -62,6 +62,7 @@ public class Parser {
     private CompilerContext context;
     private PackageCache pkgCache;
     private ParserCache parserCache;
+    private NodeCloner nodeCloner;
 
     public static Parser getInstance(CompilerContext context) {
         Parser parser = context.get(PARSER_KEY);
@@ -80,6 +81,7 @@ public class Parser {
         this.preserveWhitespace = Boolean.parseBoolean(options.get(CompilerOptionName.PRESERVE_WHITESPACE));
         this.pkgCache = PackageCache.getInstance(context);
         this.parserCache = ParserCache.getInstance(context);
+        this.nodeCloner = NodeCloner.getInstance(context);
     }
 
     public BLangPackage parse(PackageSource pkgSource, Path sourceRootPath) {
@@ -118,7 +120,10 @@ public class Parser {
                 compilationUnit = createCompilationUnit(sourceEntry, packageID);
                 boolean inError = populateCompilationUnit(compilationUnit, entryName, code);
                 if (!inError) {
-                    compilationUnit = parserCache.updateAndGet(packageID, entryName, hash, length, compilationUnit);
+                    parserCache.put(packageID, entryName, hash, length, compilationUnit);
+                    // Node cloner will run for valid ASTs.
+                    // This will verify, any modification done to the AST will get handled properly.
+                    compilationUnit = nodeCloner.cloneCUnit(compilationUnit);
                 }
             }
             return compilationUnit;

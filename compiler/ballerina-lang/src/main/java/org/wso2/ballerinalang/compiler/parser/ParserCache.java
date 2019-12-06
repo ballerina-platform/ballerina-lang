@@ -75,11 +75,10 @@ class ParserCache {
         return nodeCloner.cloneCUnit(compilationUnit);
     }
 
-    BLangCompilationUnit updateAndGet(PackageID packageID, String entryName, int hash, int length,
-                                      BLangCompilationUnit newCompUnit) {
+    void put(PackageID packageID, String entryName, int hash, int length, BLangCompilationUnit newCompUnit) {
 
         if (!cacheEnabled) {
-            return newCompUnit;
+            return;
         }
         Map<String, BLangCompilationUnit> sourceEntryCache;
         if ((sourceEntryCache = this.pkgCache.get(packageID)) == null || !this.pkgCache.containsKey(packageID)) {
@@ -90,7 +89,6 @@ class ParserCache {
         newCompUnit.hash = hash;
         newCompUnit.length = length;
         sourceEntryCache.put(entryName, newCompUnit);
-        return nodeCloner.cloneCUnit(newCompUnit);
     }
 
 }
