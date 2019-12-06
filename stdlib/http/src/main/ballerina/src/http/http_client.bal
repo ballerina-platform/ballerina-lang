@@ -40,7 +40,7 @@ public type HttpClient client object {
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The response for the request or an `http:ClientError` if failed to establish communication with the upstream server
     public remote function post(@untainted string path, RequestMessage message) returns Response|ClientError {
-        return externPost(self, java:fromString(path), <Request>message);
+        return externExecuteClientAction(self, java:fromString(path), <Request>message, java:fromString(HTTP_POST));
     }
 
     # The `HttpClient.head()` function can be used to send HTTP HEAD requests to HTTP endpoints.
@@ -50,7 +50,7 @@ public type HttpClient client object {
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The response for the request or an `ClientError` if failed to establish communication with the upstream server
     public remote function head(@untainted string path, public RequestMessage message = ()) returns Response|ClientError {
-        return externHead(self, java:fromString(path), <Request>message);
+        return externExecuteClientAction(self, java:fromString(path), <Request>message, java:fromString(HTTP_HEAD));
     }
 
     # The `HttpClient.put()` function can be used to send HTTP PUT requests to HTTP endpoints.
@@ -60,7 +60,7 @@ public type HttpClient client object {
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The response for the request or an `ClientError` if failed to establish communication with the upstream server
     public remote function put(@untainted string path, RequestMessage message) returns Response|ClientError {
-        return externPut(self, java:fromString(path), <Request>message);
+        return externExecuteClientAction(self, java:fromString(path), <Request>message, java:fromString(HTTP_PUT));
     }
 
     # Invokes an HTTP call with the specified HTTP verb.
@@ -81,7 +81,7 @@ public type HttpClient client object {
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The response for the request or an `ClientError` if failed to establish communication with the upstream server
     public remote function patch(@untainted string path, RequestMessage message) returns Response|ClientError {
-        return externPatch(self, java:fromString(path), <Request>message);
+        return externExecuteClientAction(self, java:fromString(path), <Request>message, java:fromString(HTTP_PATCH));
     }
 
     # The `HttpClient.delete()` function can be used to send HTTP DELETE requests to HTTP endpoints.
@@ -91,7 +91,7 @@ public type HttpClient client object {
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The response for the request or an `ClientError` if failed to establish communication with the upstream server
     public remote function delete(@untainted string path, public RequestMessage message = ()) returns Response|ClientError {
-        return externDelete(self, java:fromString(path), <Request>message);
+        return externExecuteClientAction(self, java:fromString(path), <Request>message, java:fromString(HTTP_DELETE));
     }
 
     # The `HttpClient.get()` function can be used to send HTTP GET requests to HTTP endpoints.
@@ -101,7 +101,7 @@ public type HttpClient client object {
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The response for the request or an `ClientError` if failed to establish communication with the upstream server
     public remote function get(@untainted string path, public RequestMessage message = ()) returns Response|ClientError {
-        return externGet(self, java:fromString(path), <Request>message);
+        return externExecuteClientAction(self, java:fromString(path), <Request>message, java:fromString(HTTP_GET));
     }
 
     # The `HttpClient.options()` function can be used to send HTTP OPTIONS requests to HTTP endpoints.
@@ -111,7 +111,7 @@ public type HttpClient client object {
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The response for the request or an `ClientError` if failed to establish communication with the upstream server
     public remote function options(@untainted string path, public RequestMessage message = ()) returns Response|ClientError {
-        return externOptions(self, java:fromString(path), <Request>message);
+        return externExecuteClientAction(self, java:fromString(path), <Request>message, java:fromString(HTTP_OPTIONS));
     }
 
     # The `HttpClient.forward()` function can be used to invoke an HTTP call with inbound request's HTTP verb
@@ -207,54 +207,11 @@ function externRejectPromise(HttpClient httpClient, PushPromise promise) =
     name: "rejectPromise"
 } external;
 
-//Since the struct equivalency doesn't work with private keyword, following functions are defined outside the object
-function externPost(HttpClient caller , handle path, Request req) returns Response|ClientError =
-@java:Method {
-    class: "org.ballerinalang.net.http.actions.httpclient.HttpClientAction",
-    name: "post"
-} external;
-
-function externHead(HttpClient caller , handle path, Request req) returns Response|ClientError =
-@java:Method {
-    class: "org.ballerinalang.net.http.actions.httpclient.HttpClientAction",
-    name: "head"
-} external;
-
-function externPut(HttpClient caller , handle path, Request req) returns Response|ClientError =
-@java:Method {
-    class: "org.ballerinalang.net.http.actions.httpclient.HttpClientAction",
-    name: "put"
-} external;
-
 function externExecute(HttpClient caller , handle httpVerb, handle path,
                                                         Request req) returns Response|ClientError =
 @java:Method {
     class: "org.ballerinalang.net.http.actions.httpclient.Execute",
     name: "execute"
-} external;
-
-function externPatch(HttpClient caller , handle path, Request req) returns Response|ClientError =
-@java:Method {
-    class: "org.ballerinalang.net.http.actions.httpclient.HttpClientAction",
-    name: "patch"
-} external;
-
-function externDelete(HttpClient caller , handle path, Request req) returns Response|ClientError =
-@java:Method {
-    class: "org.ballerinalang.net.http.actions.httpclient.HttpClientAction",
-    name: "delete"
-} external;
-
-function externGet(HttpClient caller , handle path, Request req) returns Response|ClientError =
-@java:Method {
-    class: "org.ballerinalang.net.http.actions.httpclient.HttpClientAction",
-    name: "get"
-} external;
-
-function externOptions(HttpClient caller , handle path, Request req) returns Response|ClientError =
-@java:Method {
-    class: "org.ballerinalang.net.http.actions.httpclient.HttpClientAction",
-    name: "options"
 } external;
 
 function externSubmit(HttpClient caller , handle httpVerb, handle path, Request req)
@@ -268,6 +225,12 @@ function externForward(HttpClient caller , handle path, Request req) returns Res
 @java:Method {
     class: "org.ballerinalang.net.http.actions.httpclient.Forward",
     name: "forward"
+} external;
+
+function externExecuteClientAction(HttpClient caller , handle path, Request req, handle httpMethod) returns Response|ClientError =
+@java:Method {
+    class: "org.ballerinalang.net.http.actions.httpclient.HttpClientAction",
+    name: "executeClientAction"
 } external;
 
 # Defines a timeout error occurred during service invocation.

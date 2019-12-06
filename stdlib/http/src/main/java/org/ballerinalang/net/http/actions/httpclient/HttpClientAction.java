@@ -41,91 +41,14 @@ import static org.ballerinalang.net.http.HttpConstants.CLIENT_ENDPOINT_SERVICE_U
  */
 public class HttpClientAction extends AbstractHTTPAction {
 
-    public static Object delete(ObjectValue httpClient, String path, ObjectValue requestObj) {
-        String url = httpClient.getStringValue(CLIENT_ENDPOINT_SERVICE_URI);
-        Strand strand = Scheduler.getStrand();
-        MapValue<String, Object> config = (MapValue<String, Object>) httpClient.get(CLIENT_ENDPOINT_CONFIG);
-        HttpCarbonMessage outboundRequestMsg = createOutboundRequestMsg(strand, url, config, path, requestObj);
-        outboundRequestMsg.setHttpMethod(HttpConstants.HTTP_METHOD_DELETE);
-        HttpClientConnector clientConnector = (HttpClientConnector) httpClient.getNativeData(HttpConstants.CLIENT);
-        DataContext dataContext = new DataContext(strand, clientConnector, new NonBlockingCallback(strand), requestObj,
-                                                  outboundRequestMsg);
-        executeNonBlockingAction(dataContext, false);
-        return null;
-    }
-
-    public static Object get(ObjectValue httpClient, String path, ObjectValue requestObj) {
-        String url = httpClient.getStringValue(CLIENT_ENDPOINT_SERVICE_URI);
-        Strand strand = Scheduler.getStrand();
-        MapValue<String, Object> config = (MapValue<String, Object>) httpClient.get(CLIENT_ENDPOINT_CONFIG);
-        HttpCarbonMessage outboundRequestMsg = createOutboundRequestMsg(strand, url, config, path, requestObj);
-        outboundRequestMsg.setHttpMethod(HttpConstants.HTTP_METHOD_GET);
-        HttpClientConnector clientConnector = (HttpClientConnector) httpClient.getNativeData(HttpConstants.CLIENT);
-        DataContext dataContext = new DataContext(strand, clientConnector, new NonBlockingCallback(strand), requestObj,
-                                                  outboundRequestMsg);
-        executeNonBlockingAction(dataContext, false);
-        return null;
-    }
-
-    public static Object head(ObjectValue httpClient, String path, ObjectValue requestObj) {
+    public static Object executeClientAction(ObjectValue httpClient, String path,
+                                             ObjectValue requestObj, String httpMethod) {
         Strand strand = Scheduler.getStrand();
         String url = httpClient.getStringValue(CLIENT_ENDPOINT_SERVICE_URI);
         MapValue<String, Object> config = (MapValue<String, Object>) httpClient.get(CLIENT_ENDPOINT_CONFIG);
         HttpClientConnector clientConnector = (HttpClientConnector) httpClient.getNativeData(HttpConstants.CLIENT);
         HttpCarbonMessage outboundRequestMsg = createOutboundRequestMsg(strand, url, config, path, requestObj);
-        outboundRequestMsg.setHttpMethod(HttpConstants.HTTP_METHOD_HEAD);
-        DataContext dataContext = new DataContext(strand, clientConnector, new NonBlockingCallback(strand), requestObj,
-                                                  outboundRequestMsg);
-        executeNonBlockingAction(dataContext, false);
-        return null;
-    }
-
-    public static Object options(ObjectValue httpClient, String path, ObjectValue requestObj) {
-        Strand strand = Scheduler.getStrand();
-        String url = httpClient.getStringValue(CLIENT_ENDPOINT_SERVICE_URI);
-        MapValue<String, Object> config = (MapValue<String, Object>) httpClient.get(CLIENT_ENDPOINT_CONFIG);
-        HttpClientConnector clientConnector = (HttpClientConnector) httpClient.getNativeData(HttpConstants.CLIENT);
-        HttpCarbonMessage outboundRequestMsg = createOutboundRequestMsg(strand, url, config, path, requestObj);
-        outboundRequestMsg.setHttpMethod(HttpConstants.HTTP_METHOD_OPTIONS);
-        DataContext dataContext = new DataContext(strand, clientConnector, new NonBlockingCallback(strand), requestObj,
-                                                  outboundRequestMsg);
-        executeNonBlockingAction(dataContext, false);
-        return null;
-    }
-
-    public static Object patch(ObjectValue httpClient, String path, ObjectValue requestObj) {
-        Strand strand = Scheduler.getStrand();
-        String url = httpClient.getStringValue(CLIENT_ENDPOINT_SERVICE_URI);
-        MapValue<String, Object> config = (MapValue<String, Object>) httpClient.get(CLIENT_ENDPOINT_CONFIG);
-        HttpClientConnector clientConnector = (HttpClientConnector) httpClient.getNativeData(HttpConstants.CLIENT);
-        HttpCarbonMessage outboundRequestMsg = createOutboundRequestMsg(strand, url, config, path, requestObj);
-        outboundRequestMsg.setHttpMethod(HttpConstants.HTTP_METHOD_PATCH);
-        DataContext dataContext = new DataContext(strand, clientConnector, new NonBlockingCallback(strand), requestObj,
-                                                  outboundRequestMsg);
-        executeNonBlockingAction(dataContext, false);
-        return null;
-    }
-
-    public static Object post(ObjectValue httpClient, String path, ObjectValue requestObj) {
-        Strand strand = Scheduler.getStrand();
-        String url = httpClient.getStringValue(CLIENT_ENDPOINT_SERVICE_URI);
-        MapValue<String, Object> config = (MapValue<String, Object>) httpClient.get(CLIENT_ENDPOINT_CONFIG);
-        HttpClientConnector clientConnector = (HttpClientConnector) httpClient.getNativeData(HttpConstants.CLIENT);
-        HttpCarbonMessage outboundRequestMsg = createOutboundRequestMsg(strand, url, config, path, requestObj);
-        outboundRequestMsg.setHttpMethod(HttpConstants.HTTP_METHOD_POST);
-        DataContext dataContext = new DataContext(strand, clientConnector, new NonBlockingCallback(strand), requestObj,
-                                                  outboundRequestMsg);
-        executeNonBlockingAction(dataContext, false);
-        return null;
-    }
-
-    public static Object put(ObjectValue httpClient, String path, ObjectValue requestObj) {
-        Strand strand = Scheduler.getStrand();
-        String url = httpClient.getStringValue(CLIENT_ENDPOINT_SERVICE_URI);
-        MapValue<String, Object> config = (MapValue<String, Object>) httpClient.get(CLIENT_ENDPOINT_CONFIG);
-        HttpClientConnector clientConnector = (HttpClientConnector) httpClient.getNativeData(HttpConstants.CLIENT);
-        HttpCarbonMessage outboundRequestMsg = createOutboundRequestMsg(strand, url, config, path, requestObj);
-        outboundRequestMsg.setHttpMethod(HttpConstants.HTTP_METHOD_PUT);
+        outboundRequestMsg.setHttpMethod(httpMethod);
         DataContext dataContext = new DataContext(strand, clientConnector, new NonBlockingCallback(strand), requestObj,
                                                   outboundRequestMsg);
         executeNonBlockingAction(dataContext, false);
