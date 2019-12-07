@@ -18,7 +18,9 @@ import ballerina/http;
 import ballerina/io;
 
 public function main() {
-    http:Client cookieClientEndpoint = new ("http://localhost:9253", { cookieConfig: {enabled: true } } );
+    http:Client cookieClientEndpoint = new ("http://localhost:9253", {
+            cookieConfig: { enabled: true }
+        });
     worker w1 {
         http:Request req = new;
         var response = cookieClientEndpoint->get("/cookie/cookieBackend", req);

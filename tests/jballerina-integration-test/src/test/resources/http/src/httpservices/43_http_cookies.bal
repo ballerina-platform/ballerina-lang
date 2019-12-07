@@ -27,25 +27,19 @@ service cookie on new http:Listener(9253) {
    }
     resource function addSessionCookies(http:Caller caller, http:Request req) {
         // Creates the cookies.
-        http:Cookie cookie1 = new;
-        cookie1.name = "SID001";
-        cookie1.value = "239d4dmnmsddd34";
+        http:Cookie cookie1 = new("SID001", "239d4dmnmsddd34");
         cookie1.path = "/cookie";
         cookie1.domain = "localhost:9253";
         cookie1.httpOnly = true;
         cookie1.secure = false;
 
-        http:Cookie cookie2 = new;
-        cookie2.name = "SID002";
-        cookie2.value = "178gd4dmnmsddd34";
+        http:Cookie cookie2 = new("SID002", "178gd4dmnmsddd34");
         cookie2.path = "/cookie/cookieBackend";
         cookie2.domain = "localhost:9253";
         cookie2.httpOnly = true;
         cookie2.secure = false;
 
-        http:Cookie cookie3 = new;
-        cookie3.name = "SID003";
-        cookie3.value = "895gd4dmnmsddd34";
+        http:Cookie cookie3 = new("SID003", "895gd4dmnmsddd34");
         cookie3.path = "/cookie/cookieBackend";
         cookie3.domain = "localhost:9253";
         cookie3.httpOnly = true;
@@ -74,16 +68,12 @@ service cookie on new http:Listener(9253) {
     }
     resource function addSimilarSessionCookie(http:Caller caller, http:Request req) {
         // Creates the cookies.
-        http:Cookie cookie1 = new;
-        cookie1.name = "SID002";
-        cookie1.value = "239d4dmnmsddd34";
+        http:Cookie cookie1 = new("SID002", "239d4dmnmsddd34");
         cookie1.path = "/cookie";
         cookie1.domain = "localhost:9253";
         cookie1.httpOnly = true;
 
-        http:Cookie cookie2 = new;
-        cookie2.name = "SID002";
-        cookie2.value = "178gd4dmnmsddd34";
+        http:Cookie cookie2 = new("SID002", "178gd4dmnmsddd34");
         cookie2.path = "/cookie";
         cookie2.domain = "localhost:9253";
         cookie2.httpOnly = false;
@@ -108,16 +98,12 @@ service cookie on new http:Listener(9253) {
     }
     resource function removeSessionCookie(http:Caller caller, http:Request req) {
         // Creates the cookies.
-        http:Cookie cookie1 = new;
-        cookie1.name = "SID001";
-        cookie1.value = "239d4dmnmsddd34";
+        http:Cookie cookie1 = new("SID001", "239d4dmnmsddd34");
         cookie1.path = "/cookie";
         cookie1.domain = "localhost:9253";
         cookie1.httpOnly = true;
 
-        http:Cookie cookie2 = new;
-        cookie2.name = "SID002";
-        cookie2.value = "178gd4dmnmsddd34";
+        http:Cookie cookie2 = new("SID002", "178gd4dmnmsddd34");
         cookie2.path = "/cookie/cookieBackend_3";
         cookie2.domain = "localhost:9253";
         cookie2.httpOnly = true;

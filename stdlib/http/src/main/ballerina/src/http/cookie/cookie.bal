@@ -46,8 +46,8 @@ public type Cookie object {
     public boolean hostOnly = false;
 
     public function __init(string name, string value) {
-        self.name = name.trim();
-        self.value = value.trim();
+        self.name = name;
+        self.value = value;
     }
 
     // Returns false if the cookie will be discarded at the end of the "session"; true otherwise.
@@ -61,11 +61,25 @@ public type Cookie object {
     // Returns true if the attributes of the cookie are in the correct format; false otherwise.
     public function isValid() returns boolean | error {
         error invalidCookieError;
-        if (self.name == "" || self.value == "") {
-            invalidCookieError = error("Invalid name value pair");
-            return invalidCookieError;
+        var temp = self.name;
+        if (temp is string) {
+            temp = temp.trim();
+            if (temp == "") {
+                invalidCookieError = error("Invalid name");
+                return invalidCookieError;
+            }
+            self.name = temp;
         }
-        var temp = self.domain;
+        temp = self.value;
+        if (temp is string) {
+            temp = temp.trim();
+            if (temp == "") {
+                invalidCookieError = error("Invalid value");
+                return invalidCookieError;
+            }
+            self.value = temp;
+        }
+        temp = self.domain;
         if (temp is string) {
             temp = temp.trim().toLowerAscii();
             if (temp == "") {
