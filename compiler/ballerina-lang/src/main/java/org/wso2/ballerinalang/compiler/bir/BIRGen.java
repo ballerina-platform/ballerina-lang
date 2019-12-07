@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.bir;
 
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
+import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
@@ -1073,9 +1074,16 @@ public class BIRGen extends BLangNodeVisitor {
                     isVirtual, invocationExpr.symbol.pkgID, getFuncName((BInvokableSymbol) invocationExpr.symbol),
                     args, lhsOp, thenBB, annots);
         } else {
+            Name funcOwnerName = null;
+            PackageID funcOwnerModule = null;
+            BInvokableSymbol funcSymbol = (BInvokableSymbol) invocationExpr.symbol;
+            if (funcSymbol.receiverSymbol != null) {
+                funcOwnerName = invocationExpr.symbol.owner.name;
+                funcOwnerModule = invocationExpr.symbol.owner.pkgID;
+            }
             this.env.enclBB.terminator = new BIRTerminator.Call(invocationExpr.pos, InstructionKind.CALL, isVirtual,
-                    invocationExpr.symbol.pkgID, getFuncName((BInvokableSymbol) invocationExpr.symbol), args, lhsOp,
-                    thenBB);
+                                                                invocationExpr.symbol.pkgID, getFuncName(funcSymbol),
+                                                                funcOwnerModule, funcOwnerName, args, lhsOp, thenBB);
         }
 
         this.env.enclBB = thenBB;

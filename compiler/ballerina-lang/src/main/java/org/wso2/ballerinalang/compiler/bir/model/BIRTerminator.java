@@ -82,12 +82,16 @@ public abstract class BIRTerminator extends BIRAbstractInstruction implements BI
         public List<BIROperand> args;
         public Name name;
         public PackageID calleePkg;
+        public Name ownerName;
+        public PackageID ownerModule;
 
         public Call(DiagnosticPos pos,
                     InstructionKind kind,
                     boolean isVirtual,
                     PackageID calleePkg,
                     Name name,
+                    PackageID ownerModule,
+                    Name ownerName,
                     List<BIROperand> args,
                     BIROperand lhsOp,
                     BIRBasicBlock thenBB) {
@@ -98,6 +102,8 @@ public abstract class BIRTerminator extends BIRAbstractInstruction implements BI
             this.thenBB = thenBB;
             this.name = name;
             this.calleePkg = calleePkg;
+            this.ownerName = ownerName;
+            this.ownerModule = ownerModule;
         }
 
         @Override
@@ -130,7 +136,8 @@ public abstract class BIRTerminator extends BIRAbstractInstruction implements BI
                          BIROperand lhsOp,
                          BIRBasicBlock thenBB,
                          List<BIRAnnotationAttachment> annotAttachments) {
-            super(pos, kind, isVirtual, calleePkg, name, args, lhsOp, thenBB);
+            // TODO: Check if async calls are valid for attached func calls as well
+            super(pos, kind, isVirtual, calleePkg, name, null, null, args, lhsOp, thenBB);
             this.annotAttachments = annotAttachments;
         }
 

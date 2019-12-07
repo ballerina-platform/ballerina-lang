@@ -1877,7 +1877,7 @@ function addInitAndTypeInitInstructions(bir:Package pkg, bir:Function func) {
     basicBlocks[basicBlocks.length()] = typeOwnerCreateBB;
 
     bir:Call createTypesCallTerm = {pos:{}, args:[], kind:bir:TERMINATOR_CALL, lhsOp:(), pkgID:modID,
-                        name:{value:CURRENT_MODULE_INIT}, isVirtual:false, thenBB:typeOwnerCreateBB};
+                        name:{value:CURRENT_MODULE_INIT}, funcOwner:(), isVirtual:false, thenBB:typeOwnerCreateBB};
     nextBB.terminator = createTypesCallTerm;
 
     if (func.basicBlocks.length() == 0) {
@@ -1959,12 +1959,12 @@ function addCheckedInvocation(bir:Function func, bir:ModuleID modId, string init
     // TODO remove once lang.annotation is fixed
     if (modId.org == BALLERINA && modId.name == BUILT_IN_PACKAGE_NAME) {
         bir:Call initCallTerm = {pos:{}, args:[], kind:bir:TERMINATOR_CALL, lhsOp:(), pkgID:modId,
-                            name:{value:initFuncName}, isVirtual:false, thenBB:nextBB};
+                            name:{value:initFuncName}, funcOwner:(), isVirtual:false, thenBB:nextBB};
         lastBB.terminator = initCallTerm;
         return nextBB;
     }
     bir:Call initCallTerm = {pos:{}, args:[], kind:bir:TERMINATOR_CALL, lhsOp:retVar, pkgID:modId,
-                        name:{value:initFuncName}, isVirtual:false, thenBB:nextBB};
+                        name:{value:initFuncName}, funcOwner:(), isVirtual:false, thenBB:nextBB};
     lastBB.terminator = initCallTerm;
 
     bir:TypeTest typeTest = {pos:{}, kind:bir:INS_KIND_TYPE_TEST,

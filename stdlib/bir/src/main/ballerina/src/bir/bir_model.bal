@@ -65,6 +65,11 @@ public type Function record {|
     AnnotationAttachment?[] annotAttachments = [];
 |};
 
+public type FunctionOwner record {|
+    Name name;
+    ModuleID module;
+|};
+
 public type BasicBlock record {|
     Name id = {};
     Instruction?[] instructions = [];
@@ -677,6 +682,7 @@ public type Call record {|
     VarRef? lhsOp;
     ModuleID pkgID;
     Name name;
+    FunctionOwner? funcOwner;
     boolean isVirtual;
     BasicBlock thenBB;
 |};
