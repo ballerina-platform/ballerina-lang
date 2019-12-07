@@ -1076,6 +1076,7 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     private void defineRecordTypeNode(BLangRecordTypeNode recordTypeNode, SymbolEnv env) {
         BRecordType recordType = (BRecordType) recordTypeNode.symbol.type;
+        recordTypeNode.type = recordType;
 
         // Resolve and add the fields of the referenced types to this object.
         resolveReferencedFields(recordTypeNode, env);
