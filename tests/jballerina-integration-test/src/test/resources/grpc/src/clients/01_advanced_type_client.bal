@@ -162,12 +162,12 @@ public type HelloWorldBlockingClient client object {
         }
     }
 
-    public function getGrpcClient() returns grpc:Client {
-        return <grpc:Client> self.grpcClient;
-    }
-
     public remote function testInputNestedStruct(Person req, grpc:Headers? headers = ()) returns ([string, grpc:Headers]|grpc:Error) {
-        grpc:Client tempGrpcClient = self.getGrpcClient();
+        if !(self.grpcClient is grpc:Client) {
+            error err = error("UninitializedFieldsErrorType", message = "Field(s) are not initialized");
+            return grpc:prepareError(grpc:INTERNAL_ERROR, "Field(s) are not initialized", err);
+        }
+        grpc:Client tempGrpcClient = <grpc:Client> self.grpcClient;
         [anydata, grpc:Headers] payload = check tempGrpcClient->blockingExecute("grpcservices.HelloWorld/testInputNestedStruct", req, headers);
         anydata result = ();
         grpc:Headers resHeaders;
@@ -177,7 +177,11 @@ public type HelloWorldBlockingClient client object {
     }
 
     public remote function testOutputNestedStruct(string req, grpc:Headers? headers = ()) returns ([Person, grpc:Headers]|grpc:Error) {
-        grpc:Client tempGrpcClient = self.getGrpcClient();
+        if !(self.grpcClient is grpc:Client) {
+            error err = error("UninitializedFieldsErrorType", message = "Field(s) are not initialized");
+            return grpc:prepareError(grpc:INTERNAL_ERROR, "Field(s) are not initialized", err);
+        }
+        grpc:Client tempGrpcClient = <grpc:Client> self.grpcClient;
         [anydata, grpc:Headers] payload = check tempGrpcClient->blockingExecute("grpcservices.HelloWorld/testOutputNestedStruct", req, headers);
         anydata result = ();
         grpc:Headers resHeaders;
@@ -191,7 +195,11 @@ public type HelloWorldBlockingClient client object {
     }
 
     public remote function testInputStructOutputStruct(StockRequest req, grpc:Headers? headers = ()) returns ([StockQuote, grpc:Headers]|grpc:Error) {
-        grpc:Client tempGrpcClient = self.getGrpcClient();
+        if !(self.grpcClient is grpc:Client) {
+            error err = error("UninitializedFieldsErrorType", message = "Field(s) are not initialized");
+            return grpc:prepareError(grpc:INTERNAL_ERROR, "Field(s) are not initialized", err);
+        }
+        grpc:Client tempGrpcClient = <grpc:Client> self.grpcClient;
         [anydata, grpc:Headers] payload = check tempGrpcClient->blockingExecute("grpcservices.HelloWorld/testInputStructOutputStruct", req, headers);
         anydata result = ();
         grpc:Headers resHeaders;
@@ -205,7 +213,11 @@ public type HelloWorldBlockingClient client object {
     }
 
     public remote function testInputStructNoOutput(StockQuote req, grpc:Headers? headers = ()) returns ((grpc:Headers)|grpc:Error) {
-        grpc:Client tempGrpcClient = self.getGrpcClient();
+        if !(self.grpcClient is grpc:Client) {
+            error err = error("UninitializedFieldsErrorType", message = "Field(s) are not initialized");
+            return grpc:prepareError(grpc:INTERNAL_ERROR, "Field(s) are not initialized", err);
+        }
+        grpc:Client tempGrpcClient = <grpc:Client> self.grpcClient;
         [anydata, grpc:Headers] payload = check tempGrpcClient->blockingExecute("grpcservices.HelloWorld/testInputStructNoOutput", req, headers);
         anydata result = ();
         grpc:Headers resHeaders;
@@ -215,7 +227,11 @@ public type HelloWorldBlockingClient client object {
 
     public remote function testNoInputOutputStruct(grpc:Headers? headers = ()) returns ([StockQuotes, grpc:Headers]|grpc:Error) {
         Empty req = {};
-        grpc:Client tempGrpcClient = self.getGrpcClient();
+        if !(self.grpcClient is grpc:Client) {
+            error err = error("UninitializedFieldsErrorType", message = "Field(s) are not initialized");
+            return grpc:prepareError(grpc:INTERNAL_ERROR, "Field(s) are not initialized", err);
+        }
+        grpc:Client tempGrpcClient = <grpc:Client> self.grpcClient;
         [anydata, grpc:Headers] payload = check tempGrpcClient->blockingExecute("grpcservices.HelloWorld/testNoInputOutputStruct", req, headers);
         anydata result = ();
         grpc:Headers resHeaders;
@@ -230,7 +246,11 @@ public type HelloWorldBlockingClient client object {
 
     public remote function testNoInputOutputArray(grpc:Headers? headers = ()) returns ([StockNames, grpc:Headers]|grpc:Error) {
         Empty req = {};
-        grpc:Client tempGrpcClient = self.getGrpcClient();
+        if !(self.grpcClient is grpc:Client) {
+            error err = error("UninitializedFieldsErrorType", message = "Field(s) are not initialized");
+            return grpc:prepareError(grpc:INTERNAL_ERROR, "Field(s) are not initialized", err);
+        }
+        grpc:Client tempGrpcClient = <grpc:Client> self.grpcClient;
         [anydata, grpc:Headers] payload = check tempGrpcClient->blockingExecute("grpcservices.HelloWorld/testNoInputOutputArray", req, headers);
         anydata result = ();
         grpc:Headers resHeaders;
@@ -262,42 +282,62 @@ public type HelloWorldClient client object {
         }
     }
 
-    public function getGrpcClient() returns grpc:Client {
-        return <grpc:Client> self.grpcClient;
-    }
-
     public remote function testInputNestedStruct(Person req, service msgListener, grpc:Headers? headers = ()) returns (grpc:Error?) {
-        grpc:Client tempGrpcClient = self.getGrpcClient();
+        if !(self.grpcClient is grpc:Client) {
+            error err = error("UninitializedFieldsErrorType", message = "Field(s) are not initialized");
+            return grpc:prepareError(grpc:INTERNAL_ERROR, "Field(s) are not initialized", err);
+        }
+        grpc:Client tempGrpcClient = <grpc:Client> self.grpcClient;
         return tempGrpcClient->nonBlockingExecute("grpcservices.HelloWorld/testInputNestedStruct", req, msgListener,
          headers);
     }
 
     public remote function testOutputNestedStruct(string req, service msgListener, grpc:Headers? headers = ()) returns (grpc:Error?) {
-        grpc:Client tempGrpcClient = self.getGrpcClient();
+        if !(self.grpcClient is grpc:Client) {
+            error err = error("UninitializedFieldsErrorType", message = "Field(s) are not initialized");
+            return grpc:prepareError(grpc:INTERNAL_ERROR, "Field(s) are not initialized", err);
+        }
+        grpc:Client tempGrpcClient = <grpc:Client> self.grpcClient;
         return tempGrpcClient->nonBlockingExecute("grpcservices.HelloWorld/testOutputNestedStruct", req, msgListener,
             headers);
     }
 
     public remote function testInputStructOutputStruct(StockRequest req, service msgListener, grpc:Headers? headers = ()) returns (grpc:Error?) {
-        grpc:Client tempGrpcClient = self.getGrpcClient();
+        if !(self.grpcClient is grpc:Client) {
+            error err = error("UninitializedFieldsErrorType", message = "Field(s) are not initialized");
+            return grpc:prepareError(grpc:INTERNAL_ERROR, "Field(s) are not initialized", err);
+        }
+        grpc:Client tempGrpcClient = <grpc:Client> self.grpcClient;
         return tempGrpcClient->nonBlockingExecute("grpcservices.HelloWorld/testInputStructOutputStruct", req, msgListener,
             headers);
     }
 
     public remote function testInputStructNoOutput(StockQuote req, service msgListener, grpc:Headers? headers = ()) returns (grpc:Error?) {
-        grpc:Client tempGrpcClient = self.getGrpcClient();
+        if !(self.grpcClient is grpc:Client) {
+            error err = error("UninitializedFieldsErrorType", message = "Field(s) are not initialized");
+            return grpc:prepareError(grpc:INTERNAL_ERROR, "Field(s) are not initialized", err);
+        }
+        grpc:Client tempGrpcClient = <grpc:Client> self.grpcClient;
         return tempGrpcClient->nonBlockingExecute("grpcservices.HelloWorld/testInputStructNoOutput", req, msgListener,
             headers);
     }
 
     public remote function testNoInputOutputStruct(Empty req, service msgListener, grpc:Headers? headers = ()) returns (grpc:Error?) {
-        grpc:Client tempGrpcClient = self.getGrpcClient();
+        if !(self.grpcClient is grpc:Client) {
+            error err = error("UninitializedFieldsErrorType", message = "Field(s) are not initialized");
+            return grpc:prepareError(grpc:INTERNAL_ERROR, "Field(s) are not initialized", err);
+        }
+        grpc:Client tempGrpcClient = <grpc:Client> self.grpcClient;
         return tempGrpcClient->nonBlockingExecute("grpcservices.HelloWorld/testNoInputOutputStruct", req, msgListener,
             headers);
     }
 
     public remote function testNoInputOutputArray(Empty req, service msgListener, grpc:Headers? headers = ()) returns (grpc:Error?) {
-        grpc:Client tempGrpcClient = self.getGrpcClient();
+        if !(self.grpcClient is grpc:Client) {
+            error err = error("UninitializedFieldsErrorType", message = "Field(s) are not initialized");
+            return grpc:prepareError(grpc:INTERNAL_ERROR, "Field(s) are not initialized", err);
+        }
+        grpc:Client tempGrpcClient = <grpc:Client> self.grpcClient;
         return tempGrpcClient->nonBlockingExecute("grpcservices.HelloWorld/testNoInputOutputArray", req, msgListener,
             headers);
     }

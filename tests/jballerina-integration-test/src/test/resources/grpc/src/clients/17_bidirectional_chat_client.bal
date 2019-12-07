@@ -116,12 +116,13 @@ public type ChatClient client object {
         }
     }
 
-    public function getGrpcClient() returns grpc:Client {
-        return <grpc:Client> self.grpcClient;
-    }
 
     public remote function chat(service msgListener, grpc:Headers? headers = ()) returns (grpc:StreamingClient|grpc:Error) {
-        grpc:Client tempGrpcClient = self.getGrpcClient();
+        if !(self.grpcClient is grpc:Client) {
+            error err = error("UninitializedFieldsErrorType", message = "Field(s) are not initialized");
+            return grpc:prepareError(grpc:INTERNAL_ERROR, "Field(s) are not initialized", err);
+        }
+        grpc:Client tempGrpcClient = <grpc:Client> self.grpcClient;
         return tempGrpcClient->streamingExecute("Chat/chat", msgListener, headers);
     }
 };

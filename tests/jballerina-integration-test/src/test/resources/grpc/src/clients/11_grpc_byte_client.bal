@@ -84,12 +84,12 @@ public type byteServiceBlockingClient client object {
         }
     }
 
-    public function getGrpcClient() returns grpc:Client {
-        return <grpc:Client> self.grpcClient;
-    }
-
     public remote function checkBytes (byte[] req, grpc:Headers? headers = ()) returns ([byte[], grpc:Headers]|grpc:Error) {
-        grpc:Client tempGrpcClient = self.getGrpcClient();
+        if !(self.grpcClient is grpc:Client) {
+            error err = error("UninitializedFieldsErrorType", message = "Field(s) are not initialized");
+            return grpc:prepareError(grpc:INTERNAL_ERROR, "Field(s) are not initialized", err);
+        }
+        grpc:Client tempGrpcClient = <grpc:Client> self.grpcClient;
         var unionResp = check tempGrpcClient->blockingExecute("grpcservices.byteService/checkBytes", req, headers);
         grpc:Headers resHeaders = new;
         anydata result = ();
@@ -121,12 +121,12 @@ public type byteServiceClient client object {
         }
     }
 
-    public function getGrpcClient() returns grpc:Client {
-        return <grpc:Client> self.grpcClient;
-    }
-
     public remote function checkBytes (byte[] req, service msgListener, grpc:Headers? headers = ()) returns (grpc:Error?) {
-        grpc:Client tempGrpcClient = self.getGrpcClient();
+        if !(self.grpcClient is grpc:Client) {
+            error err = error("UninitializedFieldsErrorType", message = "Field(s) are not initialized");
+            return grpc:prepareError(grpc:INTERNAL_ERROR, "Field(s) are not initialized", err);
+        }
+    	grpc:Client tempGrpcClient = <grpc:Client> self.grpcClient;
         return tempGrpcClient->nonBlockingExecute("grpcservices.byteService/checkBytes", req, msgListener, headers);
     }
 };
