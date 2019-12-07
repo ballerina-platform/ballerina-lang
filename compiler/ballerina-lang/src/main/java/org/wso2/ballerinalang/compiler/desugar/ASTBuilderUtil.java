@@ -283,6 +283,13 @@ public class ASTBuilderUtil {
         return exprStmt;
     }
 
+    static BLangExpressionStmt createExpressionStmt(DiagnosticPos pos, BLangBlockStmt target, int stmtIndx) {
+        final BLangExpressionStmt exprStmt = (BLangExpressionStmt) TreeBuilder.createExpressionStatementNode();
+        exprStmt.pos = pos;
+        target.stmts.add(stmtIndx, exprStmt);
+        return exprStmt;
+    }
+
     static BLangReturn createReturnStmt(DiagnosticPos pos, BLangBlockStmt target) {
         final BLangReturn returnStmt = (BLangReturn) TreeBuilder.createReturnNode();
         returnStmt.pos = pos;

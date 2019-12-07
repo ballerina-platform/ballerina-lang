@@ -744,13 +744,31 @@ public class Desugar extends BLangNodeVisitor {
         //Adding init statements to the init function.
         BLangStatement[] initStmts = recordTypeNode.initFunction.initFunctionStmts
                 .values().toArray(new BLangStatement[0]);
-        for (int i = 0; i < recordTypeNode.initFunction.initFunctionStmts.size(); i++) {
+        int i = 0;
+        for (; i < recordTypeNode.initFunction.initFunctionStmts.size(); i++) {
             recordTypeNode.initFunction.body.stmts.add(i, initStmts[i]);
         }
 
-        // TODO:
         // Add invocations for the initializers of each of the type referenced records. Here, the initializers of the
-        // referenced types are invoked on the current record type.
+        // referenced types are invoked on the current record type. The assumption here is that only **globally
+        // defined** named record types can be referenced.
+        for (BLangType typeRef : recordTypeNode.typeRefs) {
+            BVarSymbol receiverSym = recordTypeNode.initFunction.receiver.symbol;
+            BInvokableSymbol dupInitFuncSym = ASTBuilderUtil.duplicateInvokableSymbol(
+                    ((BRecordTypeSymbol) typeRef.type.tsymbol).initializerFunc.symbol);
+            dupInitFuncSym.receiverSymbol = receiverSym;
+
+            BLangInvocation initInv = ASTBuilderUtil.createInvocationExpr(typeRef.pos, dupInitFuncSym,
+                                                                          new ArrayList<>(), symResolver);
+            initInv.expr = ASTBuilderUtil.createVariableRef(recordTypeNode.initFunction.receiver.pos, receiverSym);
+            initInv = rewriteExpr(initInv);
+
+            BLangExpressionStmt exprStmt = ASTBuilderUtil.createExpressionStmt(typeRef.pos,
+                                                                               recordTypeNode.initFunction.body, i++);
+            exprStmt.expr = initInv;
+            initInv.parent = exprStmt;
+            exprStmt.parent = recordTypeNode.initFunction.body;
+        }
 
         if (recordTypeNode.isAnonymous && recordTypeNode.isLocal) {
             BLangUserDefinedType userDefinedType = desugarLocalAnonRecordTypeNode(recordTypeNode);
