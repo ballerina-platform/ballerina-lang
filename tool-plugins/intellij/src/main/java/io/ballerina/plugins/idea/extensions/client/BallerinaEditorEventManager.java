@@ -298,8 +298,9 @@ public class BallerinaEditorEventManager extends EditorEventManager {
                 withIcon(icon).withAutoCompletionPolicy(AutoCompletionPolicy.SETTINGS_DEPENDENT);
     }
 
-    private LookupElementBuilder addCompletionInsertHandlers(CompletionItem item, LookupElementBuilder builder,
-                                                             String lookupString) {
+    @Override
+    public LookupElementBuilder addCompletionInsertHandlers(CompletionItem item, LookupElementBuilder builder,
+                                                            String lookupString) {
         String label = item.getLabel();
         Command command = item.getCommand();
         List<TextEdit> addTextEdits = item.getAdditionalTextEdits();
@@ -357,7 +358,8 @@ public class BallerinaEditorEventManager extends EditorEventManager {
         return insertText.replaceAll(LSP_SNIPPET_VAR_REGEX, "");
     }
 
-    private void prepareAndRunSnippet(String insertText) {
+    @Override
+    public void prepareAndRunSnippet(String insertText) {
         // Holds variable text (including the snippet syntax) against the starting index.
         List<SnippetVariable> variables = new ArrayList<>();
         // Fetches variables with place holders.
