@@ -92,17 +92,15 @@ function testGetXmlPayload(http:Request req) returns @tainted xml|error {
 }
 
 function testAddCookies(http:Request req) returns http:Request {
-    http:Cookie cookie1 = new;
-    cookie1.name = "SID1";
-    cookie1.value = "31d4d96e407aad42";
+    http:Cookie cookie1 = new("SID1", "31d4d96e407aad42");
     cookie1.domain = "google.com";
     cookie1.path = "/sample";
-    http:Cookie cookie2 = new;
+    http:Cookie cookie2 = new("SID2", "2638747623468bce72");
     cookie2.name = "SID2";
     cookie2.value = "2638747623468bce72";
     cookie2.domain = "google.com";
     cookie2.path = "/sample/about";
-    http:Cookie cookie3 = new;
+    http:Cookie cookie3 = new("SID3", "782638747668bce72");
     cookie3.name = "SID3";
     cookie3.value = "782638747668bce72";
     cookie3.domain = "google.com";
@@ -113,9 +111,7 @@ function testAddCookies(http:Request req) returns http:Request {
 }
 
 function testGetCookies(http:Request req) returns http:Cookie[] {
-    http:Cookie cookie1 = new;
-    cookie1.name = "SID1";
-    cookie1.value = "31d4d96e407aad42";
+    http:Cookie cookie1 = new("SID1", "31d4d96e407aad42");
     cookie1.domain = "google.com";
     cookie1.path = "/sample";
     http:Cookie[] cookiesToAdd = [cookie1];
@@ -395,19 +391,13 @@ service hello on mockEP {
     }
     resource function addCookies(http:Caller caller, http:Request inReq) {
         http:Request req = new;
-        http:Cookie cookie1 = new;
-        cookie1.name = "SID1";
-        cookie1.value = "31d4d96e407aad42";
+        http:Cookie cookie1 = new("SID1", "31d4d96e407aad42");
         cookie1.domain = "google.com";
         cookie1.path = "/sample";
-        http:Cookie cookie2 = new;
-        cookie2.name = "SID2";
-        cookie2.value = "2638747623468bce72";
+        http:Cookie cookie2 = new("SID2", "2638747623468bce72");
         cookie2.domain = "google.com";
         cookie2.path = "/sample/about";
-        http:Cookie cookie3 = new;
-        cookie3.name = "SID3";
-        cookie3.value = "782638747668bce72";
+        http:Cookie cookie3 = new("SID3", "782638747668bce72");
         cookie3.domain = "google.com";
         cookie3.path = "/sample";
         http:Cookie[] cookiesToAdd = [cookie1, cookie2, cookie3];
@@ -423,9 +413,7 @@ service hello on mockEP {
     }
     resource function getCookies(http:Caller caller, http:Request req) {
         http:Response res = new;
-        http:Cookie cookie1 = new;
-        cookie1.name = "SID1";
-        cookie1.value = "31d4d96e407aad42";
+        http:Cookie cookie1 = new("SID1", "31d4d96e407aad42");
         cookie1.domain = "google.com";
         cookie1.path = "/sample";
         http:Cookie[] cookiesToAdd = [cookie1];

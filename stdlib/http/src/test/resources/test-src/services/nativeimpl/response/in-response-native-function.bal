@@ -83,9 +83,7 @@ function testSetXmlPayload(xml value) returns http:Response {
 }
 
 function testAddCookie(http:Response res) returns http:Response {
-     http:Cookie cookie = new;
-     cookie.name = "SID3";
-     cookie.value = "31d4d96e407aad42";
+     http:Cookie cookie = new("SID3", "31d4d96e407aad42");
      cookie.domain = "google.com";
      cookie.path = "/sample";
      cookie.maxAge = 3600 ;
@@ -97,18 +95,14 @@ function testAddCookie(http:Response res) returns http:Response {
 }
 
 function testRemoveCookiesFromRemoteStore(http:Response res)  returns http:Response {
-     http:Cookie cookie = new;
-     cookie.name = "SID3";
-     cookie.value = "31d4d96e407aad42";
+     http:Cookie cookie = new("SID3", "31d4d96e407aad42");
      cookie.expires = "2017-06-26 05:46:22";
      res.removeCookiesFromRemoteStore(cookie);
      return res;
 }
 
 function testGetCookies(http:Response res) returns @tainted http:Cookie[] {
-     http:Cookie cookie1 = new;
-     cookie1.name = "SID002";
-     cookie1.value = "239d4dmnmsddd34";
+     http:Cookie cookie1 = new("SID002", "239d4dmnmsddd34");
      cookie1.path = "/sample";
      cookie1.domain = ".GOOGLE.com.";
      cookie1.maxAge = 3600 ;
@@ -261,9 +255,7 @@ service hello on mockEP {
     }
     resource function addCookie (http:Caller caller, http:Request req) {
         http:Response res = new;
-        http:Cookie cookie = new;
-        cookie.name = "SID3";
-        cookie.value = "31d4d96e407aad42";
+        http:Cookie cookie = new("SID3", "31d4d96e407aad42");
         cookie.domain = "google.com";
         cookie.path = "/sample";
         cookie.maxAge = 3600 ;
@@ -281,9 +273,7 @@ service hello on mockEP {
     }
     resource function removeCookieByServer (http:Caller caller, http:Request req) {
         http:Response res = new;
-        http:Cookie cookie = new;
-        cookie.name="SID3";
-        cookie.value="31d4d96e407aad42";
+        http:Cookie cookie = new("SID3", "31d4d96e407aad42");
         cookie.expires="2017-06-26 05:46:22";
         res.removeCookiesFromRemoteStore(cookie);
         string result = <@untainted string> res.getHeader(<@untainted string> "Set-Cookie");
@@ -296,9 +286,7 @@ service hello on mockEP {
     }
     resource function getCookies (http:Caller caller, http:Request req) {
         http:Response res = new;
-        http:Cookie cookie1 = new;
-        cookie1.name = "SID002";
-        cookie1.value = "239d4dmnmsddd34";
+        http:Cookie cookie1 = new("SID002", "239d4dmnmsddd34");
         cookie1.path = "/sample";
         cookie1.domain = ".GOOGLE.com.";
         cookie1.maxAge = 3600 ;

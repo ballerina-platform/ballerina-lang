@@ -38,9 +38,7 @@ function testRemoveAllHeaders(http:Response ress) returns (http:Response) {
 }
 
 function testAddCookieWithInvalidName(http:Response res) returns http:Response {
-    http:Cookie cookie = new;
-    cookie.name = "";
-    cookie.value = "AD4567323";
+    http:Cookie cookie = new("    ", "AD4567323");
     cookie.path = "/sample";
     cookie.expires = "2017-06-26 05:46:22";
     res.addCookie(cookie);
@@ -48,9 +46,7 @@ function testAddCookieWithInvalidName(http:Response res) returns http:Response {
 }
 
 function testAddCookieWithInvalidValue(http:Response res) returns http:Response {
-     http:Cookie cookie = new;
-     cookie.name = "SID002";
-     cookie.value = "";
+     http:Cookie cookie = new("SID002", "");
      cookie.path = "/sample";
      cookie.expires = "2017-06-26 05:46:22";
      res.addCookie(cookie);
@@ -58,9 +54,7 @@ function testAddCookieWithInvalidValue(http:Response res) returns http:Response 
 }
 
 function testAddCookieWithInvalidPath1(http:Response res) returns http:Response {
-     http:Cookie cookie = new;
-     cookie.name = "SID002";
-     cookie.value = "AD4567323";
+     http:Cookie cookie = new("SID002", "AD4567323");
      cookie.path = "sample";
      cookie.expires = "2017-06-26 05:46:22";
      res.addCookie(cookie);
@@ -68,29 +62,48 @@ function testAddCookieWithInvalidPath1(http:Response res) returns http:Response 
 }
 
 function testAddCookieWithInvalidPath2(http:Response res) returns http:Response {
-     http:Cookie cookie = new;
-     cookie.name = "SID002";
-     cookie.value = "AD4567323";
+     http:Cookie cookie = new("SID002", "AD4567323");
      cookie.path = "/sample?test=123";
      cookie.expires = "2017-06-26 05:46:22";
      res.addCookie(cookie);
      return res;
 }
 
-function testAddCookieWithInvalidExpires(http:Response res) returns http:Response {
-     http:Cookie cookie = new;
-     cookie.name = "SID002";
-     cookie.value = "AD4567323";
+function testAddCookieWithInvalidPath3(http:Response res) returns http:Response {
+     http:Cookie cookie = new("SID002", "AD4567323");
+     cookie.path = " ";
+     cookie.expires = "2017-06-26 05:46:22";
+     res.addCookie(cookie);
+     return res;
+}
+
+function testAddCookieWithInvalidDomain(http:Response res) returns http:Response {
+     http:Cookie cookie = new("SID002", "AD4567323");
+     cookie.domain = " ";
+     cookie.path = "/sample";
+     cookie.expires = "2017-06-26 05:46:22";
+     res.addCookie(cookie);
+     return res;
+}
+
+function testAddCookieWithInvalidExpires1(http:Response res) returns http:Response {
+     http:Cookie cookie = new("SID002", "AD4567323");
      cookie.path = "/sample";
      cookie.expires = "2017 13 42 05:70:22";
      res.addCookie(cookie);
      return res;
 }
 
+function testAddCookieWithInvalidExpires2(http:Response res) returns http:Response {
+     http:Cookie cookie = new("SID002", "AD4567323");
+     cookie.path = "/sample";
+     cookie.expires = " ";
+     res.addCookie(cookie);
+     return res;
+}
+
 function testAddCookieWithInvalidMaxAge(http:Response res) returns http:Response {
-     http:Cookie cookie = new;
-     cookie.name = "SID002";
-     cookie.value = "AD4567323";
+     http:Cookie cookie = new("SID002", "AD4567323");
      cookie.path = "/sample";
      cookie.expires = "2017-06-26 05:46:22";
      cookie.maxAge = -3600;

@@ -523,9 +523,15 @@ public type Request object {
     # + cookiesToAdd - Represents the cookies to be added
     public function addCookies(Cookie[] cookiesToAdd) {
         string cookieheader = "";
+        string? temp1 = ();
+        string? temp2 = ();
         Cookie[] sortedCookies = cookiesToAdd.sort(comparator);
         foreach var cookie in sortedCookies {
-            cookieheader = cookieheader + cookie.name + EQUALS + cookie.value + SEMICOLON + SPACE;
+            temp1 = cookie.name;
+            temp2 = cookie.value;
+            if (temp1 is string && temp2 is string) {
+                cookieheader = cookieheader + temp1 + EQUALS + temp2 + SEMICOLON + SPACE;
+            }
             cookie.lastAccessedTime = time:currentTime();
         }
         if (cookieheader != "") {

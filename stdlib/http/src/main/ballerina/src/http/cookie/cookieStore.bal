@@ -100,7 +100,8 @@ public type CookieStore object {
                         cookiesToReturn.push(cookie);
                     }
                 } else {
-                    if ((domain.endsWith("." + cookie.domain) || cookie.domain == domain ) && checkPath(path, cookie)) {
+                    var temp = cookie.domain;
+                    if (((temp is string && domain.endsWith("." + temp)) || cookie.domain == domain ) && checkPath(path, cookie)) {
                         cookiesToReturn.push(cookie);
                     }
                 }
@@ -191,7 +192,7 @@ function getIdenticalCookie(Cookie cookieToCompare, Cookie[] allSessionCookies) 
 
 // Returns true if the cookie domain matches with the request domain according to [RFC-6265](https://tools.ietf.org/html/rfc6265#section-5.1.3).
 function isDomainMatched(Cookie cookie, string domain, CookieConfig cookieConfig) returns boolean {
-    if (cookie.domain == "") {
+    if (cookie.domain == ()) {
         cookie.domain = domain;
         cookie.hostOnly = true;
         return true;
@@ -200,7 +201,8 @@ function isDomainMatched(Cookie cookie, string domain, CookieConfig cookieConfig
     if (!cookieConfig.blockThirdPartyCookies) {
         return true;
     }
-    if (cookie.domain == domain || domain.endsWith("." + cookie.domain)) {
+    var temp = cookie.domain;
+    if (cookie.domain == domain || (temp is string && domain.endsWith("." + temp))) {
         return true;
     }
     return false;
@@ -208,7 +210,7 @@ function isDomainMatched(Cookie cookie, string domain, CookieConfig cookieConfig
 
 // Returns true if the cookie path matches the request path according to [RFC-6265](https://tools.ietf.org/html/rfc6265#section-5.1.4).
 function isPathMatched(Cookie cookie, string path, CookieConfig cookieConfig) returns boolean {
-    if (cookie.path == "") {
+    if (cookie.path == ()) {
         cookie.path = path;
         return true;
     }
@@ -225,10 +227,11 @@ function checkPath(string path, Cookie cookie) returns boolean {
     if (cookie.path == path) {
         return true;
     }
-    if (path.startsWith(cookie.path) && cookie.path.endsWith("/")) {
+    var temp = cookie.path;
+    if (temp is string && path.startsWith(temp) && temp.endsWith("/")) {
         return true;
     }
-    if (path.startsWith(cookie.path) && path[cookie.path.length()] == "/" ) {
+    if (temp is string && path.startsWith(temp) && path[temp.length()] == "/" ) {
         return true;
     }
     return false;
@@ -236,35 +239,40 @@ function checkPath(string path, Cookie cookie) returns boolean {
 
 // Returns true if the cookie expires attribute value is valid according to [RFC-6265](https://tools.ietf.org/html/rfc6265#section-5.1.1).
 function isExpiresAttributeValid(Cookie cookie) returns boolean {
-    if (cookie.expires == "") {
+    var temp = cookie.expires;
+    if (temp is ()) {
          return true;
-    }
-    time:Time|error t1 = time:parse(cookie.expires.substring(0, cookie.expires.length() - 4), "E, dd MMM yyyy HH:mm:ss");
-    if (t1 is time:Time) {
-        int year = time:getYear(t1);
-        if (year <= 69 && year >= 0) {
-            time:Time tmAdd = time:addDuration(t1, 2000, 0, 0, 0, 0, 0, 0);
-            string|error timeString = time:format(tmAdd, "E, dd MMM yyyy HH:mm:ss");
-            if (timeString is string) {
-                cookie.expires = timeString + " GMT";
-                return true;
+    } else {
+        time:Time|error t1 = time:parse(temp.substring(0, temp.length() - 4), "E, dd MMM yyyy HH:mm:ss");
+        if (t1 is time:Time) {
+            int year = time:getYear(t1);
+            if (year <= 69 && year >= 0) {
+                time:Time tmAdd = time:addDuration(t1, 2000, 0, 0, 0, 0, 0, 0);
+                string|error timeString = time:format(tmAdd, "E, dd MMM yyyy HH:mm:ss");
+                if (timeString is string) {
+                    cookie.expires = timeString + " GMT";
+                    return true;
+                }
+                return false;
             }
-            return false;
+            return true;
         }
-        return true;
+        return false;
     }
-    return false;
 }
 
 // Adds a persistent cookie to the cookie store according to the rules in [RFC-6265](https://tools.ietf.org/html/rfc6265#section-5.3 , https://tools.ietf.org/html/rfc6265#section-4.1.2).
 function addPersistentCookie(Cookie? identicalCookie, Cookie cookie, string url, CookieStore cookieStore) {
     if (identicalCookie is Cookie) {
-        if (isExpired(cookie)) {
-            _ = cookieStore.removeCookie(identicalCookie.name, identicalCookie.domain, identicalCookie.path);
+        var temp1 = identicalCookie.name;
+        var temp2 = identicalCookie.domain;
+        var temp3 = identicalCookie.path;
+        if (isExpired(cookie) && temp1 is string && temp2 is string && temp3 is string) {
+            _ = cookieStore.removeCookie(temp1, temp2, temp3);
         } else {
             // Removes the old cookie and adds the new persistent cookie.
-            if ((identicalCookie.httpOnly && url.startsWith(HTTP)) || identicalCookie.httpOnly == false) {
-                _ = cookieStore.removeCookie(identicalCookie.name, identicalCookie.domain, identicalCookie.path);
+            if (((identicalCookie.httpOnly && url.startsWith(HTTP)) || identicalCookie.httpOnly == false) && temp1 is string && temp2 is string && temp3 is string) {
+                _ = cookieStore.removeCookie(temp1, temp2, temp3);
                 cookie.creationTime = identicalCookie.creationTime;
                 cookie.lastAccessedTime = time:currentTime();
                 // TODO:insert into the database.
@@ -290,8 +298,9 @@ function isExpired(Cookie cookie) returns boolean {
         }
         return false;
     }
-    if (cookie.expires != "") {
-        time:Time|error cookieExpires = time:parse(cookie.expires.substring(0, cookie.expires.length() - 4), "E, dd MMM yyyy HH:mm:ss");
+    var temp = cookie.expires;
+    if (temp is string) {
+        time:Time|error cookieExpires = time:parse(temp.substring(0, temp.length() - 4), "E, dd MMM yyyy HH:mm:ss");
         time:Time curTime = time:currentTime();
         if ((cookieExpires is time:Time) && cookieExpires.time < curTime.time) {
             return true;
@@ -304,9 +313,12 @@ function isExpired(Cookie cookie) returns boolean {
 // Adds a session cookie to the cookie store according to the rules in [RFC-6265](https://tools.ietf.org/html/rfc6265#section-5.3 , https://tools.ietf.org/html/rfc6265#section-4.1.2).
 function addSessionCookie(Cookie? identicalCookie, Cookie cookie, string url, CookieStore cookieStore) {
     if (identicalCookie is Cookie) {
+        var temp1 = identicalCookie.name;
+        var temp2 = identicalCookie.domain;
+        var temp3 = identicalCookie.path;
         // Removes the old cookie and adds the new session cookie.
-        if ((identicalCookie.httpOnly && url.startsWith(HTTP)) || identicalCookie.httpOnly == false) {
-            _ = cookieStore.removeCookie(identicalCookie.name, identicalCookie.domain, identicalCookie.path);
+        if (((identicalCookie.httpOnly && url.startsWith(HTTP)) || identicalCookie.httpOnly == false) && temp1 is string && temp2 is string && temp3 is string) {
+            _ = cookieStore.removeCookie(temp1, temp2, temp3);
             cookie.creationTime = identicalCookie.creationTime;
             cookie.lastAccessedTime = time:currentTime();
             cookieStore.allSessionCookies.push(cookie);
