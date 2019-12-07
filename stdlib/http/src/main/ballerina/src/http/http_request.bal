@@ -614,7 +614,7 @@ function externCheckReqEntityBodyAvailability(Request request) returns boolean =
     name: "checkEntityBodyAvailability"
 } external;
 
-# A record for providing mutual ssl handshake results.
+# A record for providing mutual SSL handshake results.
 #
 # + status - Status of the handshake.
 public type MutualSslHandshake record {|

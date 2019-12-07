@@ -851,7 +851,7 @@
             "kind": "Struct",
             "detail": "Record",
             "documentation": {
-                "left": "A record for providing mutual SSL handshake results.\n"
+                "left": "A record for providing mutual ssl handshake results.\n"
             },
             "sortText": "180",
             "insertText": "MutualSslHandshake",
