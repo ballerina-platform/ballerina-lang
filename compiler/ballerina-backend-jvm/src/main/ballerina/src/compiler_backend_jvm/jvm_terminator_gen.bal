@@ -556,8 +556,6 @@ type TerminatorGenerator object {
                                         int localVarOffset) {
         // load strand
         self.mv.visitVarInsn(ALOAD, localVarOffset);
-        string attachedMethodName = recType.name.value + "." + callIns.name.value;
-        string lookupKey = getPackageName(orgName, moduleName) + attachedMethodName;
 
         // load record
         _ = self.visitArg(callIns.args[0]);
@@ -570,9 +568,20 @@ type TerminatorGenerator object {
             i += 1;
         }
 
-        string methodDesc = lookupJavaMethodDescription(lookupKey);
-        string jvmClass = lookupFullQualifiedClassName(lookupKey);
-        string cleanedMethodName = recType.name.value + cleanupFunctionName(callIns.name.value);
+        string methodKey;
+        string cleanedMethodName;
+        string methodName = callIns.name.value;
+        bir:FunctionOwner? owner = callIns.funcOwner;
+        if (owner is ()) {
+            methodKey = getPackageName(orgName, moduleName) + recType.name.value + "." + methodName;
+            cleanedMethodName = recType.name.value + cleanupFunctionName(methodName);
+        } else {
+            methodKey = getPackageName(owner.module.org, owner.module.name) + owner.name.value + "." + methodName;
+            cleanedMethodName = owner.name.value + cleanupFunctionName(methodName);
+        }
+
+        string methodDesc = lookupJavaMethodDescription(methodKey);
+        string jvmClass = lookupFullQualifiedClassName(methodKey);
 
         self.mv.visitMethodInsn(INVOKESTATIC, jvmClass, cleanedMethodName, methodDesc, false);
     }

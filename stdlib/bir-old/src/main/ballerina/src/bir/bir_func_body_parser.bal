@@ -416,6 +416,15 @@ public type FuncBodyParser object {
             var isVirtual = self.reader.readBoolean();
             var pkgId = self.reader.readModuleIDCpRef();
             var name = self.reader.readStringCpRef();
+
+            var isAttached = self.reader.readBoolean();
+            FunctionOwner? funcOwner = ();
+            if (isAttached) {
+                ModuleID funcOwnerModule = self.reader.readModuleIDCpRef();
+                Name funcOwnerName = {value: self.reader.readStringCpRef()};
+                funcOwner = {name: funcOwnerName, module: funcOwnerModule};
+            }
+
             var argsCount = self.reader.readInt32();
             VarRef?[] args = [];
             int i = 0;
@@ -431,8 +440,7 @@ public type FuncBodyParser object {
 
             BasicBlock thenBB = self.parseBBRef();
             Call call = {pos:pos, args:args, kind:kind, isVirtual: isVirtual,
-                         lhsOp:lhsOp, pkgID:pkgId,
-                         name:{ value: name }, thenBB:thenBB};
+                         lhsOp:lhsOp, pkgID:pkgId, name:{value: name}, funcOwner:funcOwner, thenBB:thenBB};
             return call;
         } else if (kindTag == INS_ASYNC_CALL){
             TerminatorKind kind = TERMINATOR_ASYNC_CALL;

@@ -243,6 +243,19 @@ public class BIRInstructionWriter extends BIRVisitor {
         buf.writeBoolean(birCall.isVirtual);
         buf.writeInt(pkgIndex);
         buf.writeInt(addStringCPEntry(birCall.name.getValue()));
+
+        if (birCall.ownerModule != null && birCall.ownerName != null) {
+            buf.writeByte(1);
+            int ownerModuleIndex = addPkgCPEntry(birCall.ownerModule);
+            buf.writeInt(ownerModuleIndex);
+            buf.writeInt((addStringCPEntry(birCall.ownerName.getValue())));
+        } else if (birCall.ownerModule == null && birCall.ownerName == null) {
+            buf.writeByte(0);
+        } else {
+            throw new IllegalStateException(
+                    "Invalid function owner info: " + birCall.ownerModule + "/" + birCall.ownerName);
+        }
+
         buf.writeInt(birCall.args.size());
         for (BIROperand arg : birCall.args) {
             arg.accept(this);
