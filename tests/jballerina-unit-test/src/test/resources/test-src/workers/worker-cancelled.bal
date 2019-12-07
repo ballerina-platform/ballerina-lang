@@ -2,6 +2,7 @@ import ballerina/runtime;
 
 // Test if worker actions are panicked if the worker is cancelled before sending
 function workerCancelledBeforeSend() {
+        @concurrent{}
         worker wy {
             string aa = <- default;
             "message" -> default;

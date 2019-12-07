@@ -22,7 +22,7 @@ import { expect } from 'chai';
 import * as path from 'path';
 import { ExtendedLangClient } from "../../src/core/extended-language-client";
 import { getServerOptions } from "../../src/server/server";
-import { getBallerinaHome, getBBEPath } from "../test-util";
+import { getBallerinaCmd, getBBEPath } from "../test-util";
 import { Uri } from "vscode";
 
 suite("Language Server Tests", function () {
@@ -33,7 +33,7 @@ suite("Language Server Tests", function () {
         langClient = new ExtendedLangClient(
             'ballerina-vscode',
             'Ballerina LS Client',
-            getServerOptions(getBallerinaHome(), true, true, true),
+            getServerOptions(getBallerinaCmd(), true, true, true),
             { documentSelector: [{ scheme: 'file', language: 'ballerina' }] },
             false
         );

@@ -1,4 +1,4 @@
-public int const CONST_VAL = 1;
+public const int CONST_VAL = 1;
 
 function testMatchStatement1() {
     int refVar = 0;
@@ -64,7 +64,7 @@ function testMatchStatement2() {
 function testConstPattern() {
     int refVal = -1;
     match getIntVal() {
-        1 => {
+        100 => {
             refVal = 1;
         }
         CONST_VAL => {
@@ -111,3 +111,52 @@ type Capital record {
     string name;
     int code;
 };
+
+type TestDetail record {|
+    string message?;
+    error cause?;
+    anydata|error...;
+|};
+
+public function testFunction(string args) {
+    error eCause = error("errorCode", message = ":D");
+    string eMessage = "Sample Message";
+
+    error err = error("errorCode", message = "");
+    
+    match err {
+        var ErrorTypeDesc1(message = msg, cause = errCause, ...rest) => {
+            var msgVal = msg;
+            var causeVal = errCause;
+            var restVal = rest;
+        }
+        var error(reason, message = msg, cause = errCause, ...rest) => {
+            var reasonVal = reason;
+            var msgVal = msg;
+            var causeVal = errCause;
+            var restVal = rest;
+        }
+    }
+
+    match err {
+        error(var reason, message = msg, cause = errCause, ...var rest) => {
+            var reasonVal = reason;
+            var msgVal = msg;
+            var causeVal = errCause;
+            var restVal = rest;
+        }
+    }
+
+    match err {
+        error("", message = msg, cause = errCause, ...var rest) => {
+            var msgVal = msg;
+            var causeVal = errCause;
+            var restVal = rest;
+
+        }
+    }    
+}
+
+public type ErrorTypeDesc1 error<REASON_CONST, TestDetail>;
+
+public const string REASON_CONST = "REASON_CONST_VAL";

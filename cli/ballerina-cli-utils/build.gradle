@@ -26,7 +26,6 @@ configurations.testCompileClasspath {
 dependencies {
     implementation project(':ballerina-lang')
     implementation project(':ballerina-core')
-    implementation project(":ballerina-crypto")
     implementation project(':ballerina-log-api')
     implementation project(":ballerina-auth")
     implementation project(":ballerina-cache")

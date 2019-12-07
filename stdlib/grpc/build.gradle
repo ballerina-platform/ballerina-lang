@@ -44,6 +44,9 @@ dependencies {
     implementation project(':ballerina-crypto')
     implementation project(':ballerina-http')
     implementation project(':ballerina-runtime')
+    implementation project(':ballerina-java')
+
+    interopImports project(':ballerina-io')
 
     implementation 'org.apache.commons:commons-lang3'
     implementation 'com.google.protobuf:protobuf-java'
@@ -52,7 +55,10 @@ dependencies {
     implementation 'org.wso2.transport.http:org.wso2.transport.http.netty'
 
     interopImports project(':ballerina-config-api')
+    interopImports project(':ballerina-io')
+    interopImports project(':ballerina-system')
     interopImports project(':ballerina-time')
+    interopImports project(':ballerina-crypto')
 
     //testCompile project(':ballerina-tool')
     testCompile project(path: ':ballerina-test-common', configuration: 'tests')
@@ -74,6 +80,7 @@ dependencies {
     baloImplementation project(path: ':ballerina-crypto', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-time', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-http', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-java', configuration: 'baloImplementation')
 }
 
 createBalo {

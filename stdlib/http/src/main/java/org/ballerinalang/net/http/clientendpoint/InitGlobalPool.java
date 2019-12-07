@@ -18,13 +18,7 @@
 
 package org.ballerinalang.net.http.clientendpoint;
 
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.Receiver;
 import org.wso2.transport.http.netty.contractimpl.sender.channel.pool.ConnectionManager;
 import org.wso2.transport.http.netty.contractimpl.sender.channel.pool.PoolConfiguration;
 
@@ -36,16 +30,8 @@ import static org.ballerinalang.net.http.HttpUtil.populatePoolingConfig;
  *
  * @since 0.995.0
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "http",
-        functionName = "initGlobalPool",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = "ConnectionManager", structPackage = "ballerina"
-                + "/http"),
-        args = {@Argument(name = "poolConfig", type = TypeKind.RECORD, structType = "PoolConfiguration")},
-        isPublic = true
-)
 public class InitGlobalPool {
-    public static void initGlobalPool(Strand strand, ObjectValue receiver, MapValue<String, Long> globalPoolConfig) {
+    public static void initGlobalPool(MapValue<String, Long> globalPoolConfig) {
         PoolConfiguration globalPool = new PoolConfiguration();
         populatePoolingConfig(globalPoolConfig, globalPool);
         ConnectionManager connectionManager = new ConnectionManager(globalPool);

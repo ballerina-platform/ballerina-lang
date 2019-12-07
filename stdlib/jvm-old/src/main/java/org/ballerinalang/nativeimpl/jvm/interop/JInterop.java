@@ -59,9 +59,12 @@ class JInterop {
     static final String METHOD_TYPE_FIELD = "mType";
     static final String FIELD_TYPE_FIELD = "fType";
     static final String PARAM_TYPES_FIELD = "paramTypes";
+    static final String REST_TYPE_FIELD = "restType";
     static final String RETURN_TYPE_FIELD = "retType";
     static final String METHOD_FIELD = "method";
     static final String TAG_FIELD = "tag";
+    static final String VALUES_FIELD = "values";
+    static final String VALUE_FIELD = "value";
     static final String HANDLE_TYPE_NAME = "handle";
     static final String METHOD_TYPE_NAME = "Method";
     static final String FIELD_TYPE_NAME = "Field";
@@ -83,6 +86,8 @@ class JInterop {
     static final String UNION_TNAME = "union";
     static final String TUPLE_TNAME = "tuple";
     static final String ARRAY_TNAME = "array";
+    static final String FINITE_TNAME = "finite";
+    static final String FUNCTION_TNAME = "function";
 
     static final String PLATFORM_TYPE_NAME = "platform";
     static final String J_TYPE_KIND = "jTypeKind";

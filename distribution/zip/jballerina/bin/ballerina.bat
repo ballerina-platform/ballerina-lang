@@ -67,6 +67,8 @@ FOR %%C in ("%BALLERINA_HOME%\bre\lib\bootstrap\*.jar") DO set BALLERINA_CLASSPA
 set BALLERINA_CLASSPATH="%JAVA_HOME%\lib\tools.jar";%BALLERINA_CLASSPATH%;
 
 set BALLERINA_CLASSPATH=!BALLERINA_CLASSPATH!;"%BALLERINA_HOME%\bre\lib\*"
+set BALLERINA_CLASSPATH=!BALLERINA_CLASSPATH!;"%BALLERINA_HOME%\lib\tools\lang-server\lib\*"
+set BALLERINA_CLASSPATH=!BALLERINA_CLASSPATH!;"%BALLERINA_HOME%\lib\tools\debug-adapter\lib\*"
 
 set BALLERINA_CLI_HEIGHT=
 set BALLERINA_CLI_WIDTH=
@@ -84,10 +86,14 @@ for %%x in (%*) do (
    set "argValue[!argCount!]=%%~x"
 )
 
-set /a counter=1
 for /l %%i in (1, 1, %argCount%) do (
-   set /a counter=!counter!+1
-   if "!argValue[%%i]!"=="--debug" call set BAL_JAVA_DEBUG=%%!counter!
+   if "!argValue[%%i]!"=="test" (
+      set /a counter=1
+      for /l %%j in (1, 1, %argCount%) do (
+         set /a counter=!counter!+1
+         if "!argValue[%%j]!"=="--debug" call set BAL_JAVA_DEBUG=%%!counter!
+      )
+   )
 )
 
 if defined BAL_JAVA_DEBUG goto commandDebug

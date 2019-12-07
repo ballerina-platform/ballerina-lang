@@ -47,6 +47,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BErrorTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
@@ -440,8 +441,8 @@ public class Desugar extends BLangNodeVisitor {
     private void createInvokableSymbol(BLangFunction bLangFunction, SymbolEnv env) {
         BType returnType = bLangFunction.returnTypeNode.type == null ?
                 symResolver.resolveTypeNode(bLangFunction.returnTypeNode, env) : bLangFunction.returnTypeNode.type;
-
-        BInvokableType invokableType = new BInvokableType(new ArrayList<>(), returnType, null);
+        BInvokableType invokableType = new BInvokableType(new ArrayList<>(), getRestType(bLangFunction),
+                returnType, null);
         BInvokableSymbol functionSymbol = Symbols.createFunctionSymbol(Flags.asMask(bLangFunction.flagSet),
                 new Name(bLangFunction.name.value), env.enclPkg.packageID, invokableType, env.enclPkg.symbol, true);
         functionSymbol.retType = returnType;
@@ -1743,7 +1744,7 @@ public class Desugar extends BLangNodeVisitor {
                 .collect(Collectors.toList());
         functionSymbol.scope = env.scope;
         functionSymbol.type = new BInvokableType(Collections.singletonList(getStringAnyTupleType()),
-                symTable.booleanType, null);
+                getRestType(functionSymbol), symTable.booleanType, null);
         function.symbol = functionSymbol;
         rewrite(function, env);
         env.enclPkg.addFunction(function);
@@ -2862,7 +2863,7 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     private String getTransactionBlockId() {
-        return String.valueOf(env.enclPkg.packageID.orgName) + "$" + env.enclPkg.packageID.name + "$"
+        return env.enclPkg.packageID.orgName + "$" + env.enclPkg.packageID.name + "$"
                 + transactionIndex++;
     }
 
@@ -3904,11 +3905,12 @@ public class Desugar extends BLangNodeVisitor {
         }).map(varNode -> varNode.symbol).collect(Collectors.toList());
 
         funcSymbol.params = paramSymbols;
+        funcSymbol.restParam = getRestSymbol(funcNode);
         funcSymbol.retType = funcNode.returnTypeNode.type;
 
         // Create function type.
         List<BType> paramTypes = paramSymbols.stream().map(paramSym -> paramSym.type).collect(Collectors.toList());
-        funcNode.type = new BInvokableType(paramTypes, funcNode.returnTypeNode.type, null);
+        funcNode.type = new BInvokableType(paramTypes, getRestType(funcSymbol), funcNode.returnTypeNode.type, null);
 
         lambdaFunction.function.pos = bLangArrowFunction.pos;
         lambdaFunction.function.body.pos = bLangArrowFunction.pos;
@@ -6345,6 +6347,15 @@ public class Desugar extends BLangNodeVisitor {
         initFunction.symbol.scope = new Scope(initFunction.symbol);
         initFunction.symbol.scope.define(receiverSymbol.name, receiverSymbol);
         initFunction.symbol.receiverSymbol = receiverSymbol;
+
+        BInvokableTypeSymbol tsymbol = Symbols.createInvokableTypeSymbol(SymTag.FUNCTION_TYPE,
+                initFunction.symbol.flags, env.enclPkg.packageID, null,
+                initFunction.symbol);
+        initFunction.type.tsymbol = tsymbol;
+        tsymbol.params = initFunction.symbol.params;
+        tsymbol.restParam = initFunction.symbol.restParam;
+        tsymbol.returnType = initFunction.symbol.retType;
+
         receiverSymbol.owner = initFunction.symbol;
 
         // Add return type as nil to the symbol
@@ -6549,5 +6560,26 @@ public class Desugar extends BLangNodeVisitor {
         // Create invokable symbol for init function
         createInvokableSymbol(initFunction, env);
         return initFunction;
+    }
+
+    private BType getRestType(BInvokableSymbol invokableSymbol) {
+        if (invokableSymbol != null && invokableSymbol.restParam != null) {
+            return invokableSymbol.restParam.type;
+        }
+        return null;
+    }
+
+    private BType getRestType(BLangFunction function) {
+        if (function != null && function.restParam != null) {
+            return function.restParam.type;
+        }
+        return null;
+    }
+
+    private BVarSymbol getRestSymbol(BLangFunction function) {
+        if (function != null && function.restParam != null) {
+            return function.restParam.symbol;
+        }
+        return null;
     }
 }

@@ -471,8 +471,14 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangWhile whileNode) {
+        Map<BSymbol, InitStatus> prevUninitializedVars = this.uninitializedVars;
         analyzeNode(whileNode.expr, env);
         analyzeNode(whileNode.body, env);
+        for (BSymbol symbol : prevUninitializedVars.keySet()) {
+            if (!this.uninitializedVars.containsKey(symbol)) {
+                this.uninitializedVars.put(symbol, InitStatus.PARTIAL_INIT);
+            }
+        }
     }
 
     @Override

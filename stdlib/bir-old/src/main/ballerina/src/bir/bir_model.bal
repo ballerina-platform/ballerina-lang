@@ -73,6 +73,7 @@ public type BasicBlock record {|
 
 public type ErrorEntry record {|
     BasicBlock trapBB;
+    BasicBlock endBB;
     VarRef errorOp;
     BasicBlock targetBB;
     anydata...; // This is to type match with platform specific error entries
@@ -347,6 +348,7 @@ const TUPLE_TYPE_NAME = "tuple";
 const FUTURE_TYPE_NAME = "future";
 const FINITE_TYPE_NAME = "finite";
 const TYPEDESC_TYPE_NAME = "typedesc";
+const FUNCTION_TYPE_NAME = "function";
 
 public type BPlatformType record {|
     PLATFORM_TYPE_NAME typeName = PLATFORM_TYPE_NAME;
@@ -485,7 +487,9 @@ public type ModuleID record {|
 |};
 
 public type BInvokableType record {
+    FUNCTION_TYPE_NAME typeName = FUNCTION_TYPE_NAME;
     BType?[] paramTypes = [];
+    BType? restType = ();
     BType retType?;
 };
 
