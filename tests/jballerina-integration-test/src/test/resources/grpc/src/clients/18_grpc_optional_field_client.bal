@@ -50,23 +50,23 @@ public type CheckoutServiceBlockingClient client object {
 
     *grpc:AbstractClientEndpoint;
 
-    private grpc:Client grpcClient;
+    private grpc:Client? grpcClient = ();
 
     public function __init(string url, grpc:ClientConfiguration? config = ()) {
         // initialize client endpoint.
         grpc:Client c = new(url, config);
-        grpc:Error? result = c.initStub(self, "blocking", ROOT_DESCRIPTOR, getDescriptorMap());
-        if (result is grpc:Error) {
-            error err = result;
-            panic err;
-        } else {
-            self.grpcClient = c;
-        }
+        checkpanic c.initStub(self, "blocking", ROOT_DESCRIPTOR, getDescriptorMap());
+        self.grpcClient = c;
     }
 
-    public remote function PlaceOrder(PlaceOrderRequest req, grpc:Headers? headers = ()) returns ([PlaceOrderResponse, grpc:Headers]|grpc:Error) {
-
-        var payload = check self.grpcClient->blockingExecute("grpcservices.CheckoutService/PlaceOrder", req, headers);
+    public remote function PlaceOrder(PlaceOrderRequest req, grpc:Headers? headers = ()) returns
+                                                                    ([PlaceOrderResponse, grpc:Headers]|grpc:Error) {
+        if (self.grpcClient is ()) {
+            error err = error("UninitializedClientError", message = "Field(s) are not initialized");
+            return grpc:prepareError(grpc:INTERNAL_ERROR, "gRPC client endpoint is not initialized", err);
+        }
+        grpc:Client 'client = <grpc:Client> self.grpcClient;
+        var payload = check 'client->blockingExecute("grpcservices.CheckoutService/PlaceOrder", req, headers);
         grpc:Headers resHeaders = new;
         anydata result = ();
         [result, resHeaders] = payload;
@@ -79,22 +79,22 @@ public type CheckoutServiceClient client object {
 
     *grpc:AbstractClientEndpoint;
 
-    private grpc:Client grpcClient;
+    private grpc:Client? grpcClient = ();
 
     public function __init(string url, grpc:ClientConfiguration? config = ()) {
         // initialize client endpoint.
         grpc:Client c = new(url, config);
-        grpc:Error? result = c.initStub(self, "non-blocking", ROOT_DESCRIPTOR, getDescriptorMap());
-        if (result is grpc:Error) {
-            error err = result;
-            panic err;
-        } else {
-            self.grpcClient = c;
-        }
+        checkpanic c.initStub(self, "non-blocking", ROOT_DESCRIPTOR, getDescriptorMap());
+        self.grpcClient = c;
     }
 
     public remote function PlaceOrder(PlaceOrderRequest req, service msgListener, grpc:Headers? headers = ()) returns (grpc:Error?) {
-        return self.grpcClient->nonBlockingExecute("grpcservices.CheckoutService/PlaceOrder", req, msgListener, headers);
+        if (self.grpcClient is ()) {
+            error err = error("UninitializedClientError", message = "Field(s) are not initialized");
+            return grpc:prepareError(grpc:INTERNAL_ERROR, "gRPC client endpoint is not initialized", err);
+        }
+        grpc:Client 'client = <grpc:Client> self.grpcClient;
+        return 'client->nonBlockingExecute("grpcservices.CheckoutService/PlaceOrder", req, msgListener, headers);
     }
 
 };
