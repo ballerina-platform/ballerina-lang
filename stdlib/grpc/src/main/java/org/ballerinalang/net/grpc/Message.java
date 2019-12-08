@@ -25,15 +25,18 @@ import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BRecordType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
+import org.ballerinalang.jvm.types.BUnionType;
 import org.ballerinalang.jvm.types.TypeFlags;
 import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
+import org.ballerinalang.jvm.values.api.BValueCreator;
 import org.ballerinalang.jvm.values.utils.StringUtils;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 
 import static org.ballerinalang.net.grpc.builder.utils.BalGenerationUtils.toCamelCase;
@@ -95,6 +98,22 @@ public class Message {
             Map<Integer, Descriptors.FieldDescriptor> fieldDescriptors)
             throws IOException {
         this(messageName);
+
+        if (bType instanceof BUnionType && ((BUnionType) bType).isNullable()) {
+            List<BType> memberTypes = ((BUnionType) bType).getMemberTypes();
+            if (memberTypes.size() != 2) {
+                throw Status.Code.INTERNAL.toStatus().withDescription("Error while decoding request " +
+                        "message. Field type is not a valid optional field type : " +
+                        bType.getName()).asRuntimeException();
+            }
+            for (BType memberType : memberTypes) {
+                if (memberType.getTag() != TypeTags.NULL_TAG) {
+                    bType = memberType;
+                    break;
+                }
+            }
+        }
+
         MapValue<String, Object> bMapValue = null;
         if (bType.getTag() == TypeTags.RECORD_TYPE_TAG) {
             bMapValue = new MapValueImpl<>(bType);
@@ -369,7 +388,7 @@ public class Message {
                     case DescriptorProtos.FieldDescriptorProto.Type.TYPE_BYTES_VALUE: {
                         if (bMapValue != null) {
                              if (fieldDescriptor.getContainingOneof() != null) {
-                                Object bValue = new ArrayValueImpl(input.readByteArray());
+                                Object bValue = BValueCreator.createArrayValue(input.readByteArray());
                                 updateBMapValue(bType, bMapValue, fieldDescriptor, bValue);
                              } else {
                                  bMapValue.put(name, new ArrayValueImpl(input.readByteArray()));
