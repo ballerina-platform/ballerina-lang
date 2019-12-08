@@ -130,10 +130,10 @@ public type MediaType object {
 # + cDisposition - Represents values related to `Content-Disposition` header
 public type Entity object {
 
-    private MediaType cType;
-    private string cId;
-    private int cLength;
-    private ContentDisposition cDisposition;
+    private MediaType? cType = ();
+    private string cId = "";
+    private int cLength = 0;
+    private ContentDisposition? cDisposition = ();
 
     # Sets the content-type to entity.
     #

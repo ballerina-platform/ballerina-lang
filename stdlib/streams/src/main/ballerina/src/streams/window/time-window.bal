@@ -41,7 +41,7 @@ public type TimeWindow object {
     public LinkedList expiredEventQueue;
     public function (StreamEvent?[])? nextProcessPointer;
     public int lastTimestamp = -0x8000000000000000;
-    public Scheduler scheduler;
+    public Scheduler? scheduler = ();
 
     public function __init(function (StreamEvent?[])? nextProcessPointer, any[] windowParameters) {
         self.nextProcessPointer = nextProcessPointer;
@@ -52,6 +52,10 @@ public type TimeWindow object {
         self.scheduler = new(function (StreamEvent?[] events) {
                 self.process(events);
             });
+    }
+
+    public function getScheduler() returns Scheduler {
+        return <Scheduler> self.scheduler;
     }
 
     public function initParameters(any[] parameters) {
@@ -104,7 +108,7 @@ public type TimeWindow object {
                     self.expiredEventQueue.addLast(clonedEvent);
 
                     if (self.lastTimestamp < clonedEvent.timestamp) {
-                        self.scheduler.notifyAt(clonedEvent.timestamp + self.timeInMillis);
+                        self.getScheduler().notifyAt(clonedEvent.timestamp + self.timeInMillis);
                         self.lastTimestamp = clonedEvent.timestamp;
                     }
                 } else {

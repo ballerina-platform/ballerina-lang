@@ -27,6 +27,8 @@ public type ReadableCharacterChannel object {
     # + channel - ReadableByteChannel which would be used to read characters
     # + charset - Character-Set which would be used to encode/decode given bytes to characters
     public function __init(ReadableByteChannel byteChannel, string charset) {
+        self.byteChannel = byteChannel;
+        self.charset = charset;
         initReadableCharacterChannel(self, byteChannel, java:fromString(charset));
     }
 
