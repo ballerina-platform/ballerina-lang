@@ -614,6 +614,11 @@ public class Desugar extends BLangNodeVisitor {
             objectTypeNode.initFunction.body.stmts.add(i, initStmts[i]);
         }
 
+        // Rewrite the object methods to ensure that any anonymous types defined in method params, return type etc.
+        // gets defined before its first use. 
+        objectTypeNode.functions.forEach(fn -> rewrite(fn, this.env));
+        rewrite(objectTypeNode.initFunction, this.env);
+
         result = objectTypeNode;
     }
 
