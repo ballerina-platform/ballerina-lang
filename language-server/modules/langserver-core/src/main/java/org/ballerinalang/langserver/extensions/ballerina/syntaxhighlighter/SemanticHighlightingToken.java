@@ -19,7 +19,7 @@ package org.ballerinalang.langserver.extensions.ballerina.syntaxhighlighter;
 /**
  * Represents the data model for a Semantic Highlighting Token.
  *
- * @since 1.0.2
+ * @since 1.1.0
  */
 public class SemanticHighlightingToken {
     public int character;

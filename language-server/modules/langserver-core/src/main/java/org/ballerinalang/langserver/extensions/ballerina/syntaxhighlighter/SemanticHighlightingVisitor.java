@@ -39,7 +39,7 @@ import java.util.List;
 /**
  * Finds the symbols for Semantic Syntax Highlighting.
  *
- * @since 1.0.2
+ * @since 1.1.0
  */
 public class SemanticHighlightingVisitor extends LSNodeVisitor {
 

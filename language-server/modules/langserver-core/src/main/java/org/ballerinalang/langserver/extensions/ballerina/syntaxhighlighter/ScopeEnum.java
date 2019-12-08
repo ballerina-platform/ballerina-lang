@@ -18,6 +18,8 @@
 package org.ballerinalang.langserver.extensions.ballerina.syntaxhighlighter;
 /**
  * Enum for the scopes.
+ *
+ * @since 1.1.0
  */
 public enum ScopeEnum {
 

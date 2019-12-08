@@ -24,7 +24,7 @@ import java.util.List;
 /**
  * Syntax Highlight Keys for semantic syntax highlighting.
  *
- * @since 1.0.2
+ * @since 1.1.0
  */
 
 public class SemanticHighlightKeys {

@@ -16,18 +16,27 @@
 *  under the License.
 */
 import { BallerinaExtension } from '../core';
-import { setEditorDecorations } from './highlighter';
+import { Highlighter } from './highlighter';
 import { SemanticHighlightingInformation } from './model';
 import { ExtendedLangClient } from '../core/extended-language-client';
-import { window } from 'vscode';
+import { window, workspace } from 'vscode';
 
 export function activate(ballerinaExtInstance: BallerinaExtension) {
 
     const langClient = <ExtendedLangClient>ballerinaExtInstance.langClient;
+    const highlighter: Highlighter = new Highlighter();
+
+    workspace.onDidChangeTextDocument(change => {
+        if (change.contentChanges.length > 0) {
+            change.contentChanges.forEach(each => {
+                highlighter.dispose(each.range.start.line, each.range.end.line);
+            });
+        }
+    });
 
     ballerinaExtInstance.onReady().then(() => {
         langClient.onNotification('window/highlighting', (highlights: SemanticHighlightingInformation) => {
-            setEditorDecorations(highlights);
+            highlighter.setEditorDecorations(highlights);
         });
     })
         .catch((e) => {

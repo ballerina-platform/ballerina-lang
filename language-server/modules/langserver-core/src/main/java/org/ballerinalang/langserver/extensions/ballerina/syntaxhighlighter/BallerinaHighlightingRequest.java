@@ -19,7 +19,7 @@ package org.ballerinalang.langserver.extensions.ballerina.syntaxhighlighter;
 /**
  * Represents a request for Ballerina Syntax Highlighter.
  *
- * @since 1.0.2
+ * @since 1.1.0
  */
 
 public class BallerinaHighlightingRequest {

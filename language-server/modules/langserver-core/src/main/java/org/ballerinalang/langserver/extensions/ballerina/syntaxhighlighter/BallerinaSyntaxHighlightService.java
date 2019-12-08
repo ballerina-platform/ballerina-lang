@@ -25,7 +25,7 @@ import java.util.concurrent.CompletableFuture;
 /**
  * An extension interface for Language server to fetch information about ballerina syntax highlighter.
  *
- * @since 1.0.2
+ * @since 1.1.0
  */
 @JsonSegment("ballerinaSyntaxHighlighter")
 public interface BallerinaSyntaxHighlightService {

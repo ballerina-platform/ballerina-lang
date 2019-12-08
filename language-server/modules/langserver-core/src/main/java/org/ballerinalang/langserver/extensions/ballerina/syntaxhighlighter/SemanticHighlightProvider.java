@@ -37,6 +37,8 @@ import java.util.Map;
 
 /**
  * Highlight provider for Semantic Highlighting.
+ *
+ * @since 1.1.0
  */
 
 public class SemanticHighlightProvider {
@@ -55,32 +57,40 @@ public void getHighlights(ExtendedLanguageClient client, LSContext context, Work
     if (bLangPackage != null) {
         bLangPackage.accept(semanticHighlightingVisitor);
     }
-
-    Map<Integer, int[]> lineInfo = new HashMap<>();
-    context.get(SemanticHighlightKeys.SEMANTIC_HIGHLIGHTING_KEY)
-            .forEach(element-> {
-                SemanticHighlightingToken semanticHighlightingToken = new SemanticHighlightingToken
-                        (element.identifier.pos.sCol - 1, element.identifier.pos.eCol - element.identifier.pos.sCol,
-                                element.scopeEnum.getScopeId());
-                int line = element.identifier.pos.sLine - 1;
-                int[] token = {semanticHighlightingToken.getCharacter(),
-                        semanticHighlightingToken.getLength(), semanticHighlightingToken.getScope()};
-                if (lineInfo.get(line) != null) {
-                    int[] cur = lineInfo.get(line);
-                    lineInfo.put(line, Ints.concat(cur, token));
-                } else {
-                    lineInfo.put(line, token);
-                }
-                String tokenArr = Arrays.toString(lineInfo.get(line));
-                String encodedToken = Base64.getEncoder().encodeToString(tokenArr.getBytes(Charset.forName("UTF-8")));
-                SemanticHighlightingInformation semanticHighlightingInformation
-                        = new SemanticHighlightingInformation(line, encodedToken);
-                client.publishTextHighlighting(semanticHighlightingInformation);
-            });
+    sendHighlights(client, context);
 }
+
+    public void sendHighlights(ExtendedLanguageClient client, LSContext context) {
+
+        Map<Integer, int[]> lineInfo = new HashMap<>();
+        context.get(SemanticHighlightKeys.SEMANTIC_HIGHLIGHTING_KEY)
+                .forEach(element-> {
+                    SemanticHighlightingToken semanticHighlightingToken = new SemanticHighlightingToken
+                            (element.identifier.pos.sCol - 1, element.identifier.pos.eCol - element.identifier.pos.sCol,
+                                    element.scopeEnum.getScopeId());
+                    int line = element.identifier.pos.sLine - 1;
+                    int[] token = {semanticHighlightingToken.getCharacter(),
+                            semanticHighlightingToken.getLength(), semanticHighlightingToken.getScope()};
+                    if (lineInfo.get(line) != null) {
+                        int[] cur = lineInfo.get(line);
+                        lineInfo.put(line, Ints.concat(cur, token));
+                    } else {
+                        lineInfo.put(line, token);
+                    }
+                    String tokenArr = Arrays.toString(lineInfo.get(line));
+                    String encodedToken = Base64.getEncoder()
+                            .encodeToString(tokenArr.getBytes(Charset.forName("UTF-8")));
+                    SemanticHighlightingInformation semanticHighlightingInformation
+                            = new SemanticHighlightingInformation(line, encodedToken);
+                    client.publishTextHighlighting(semanticHighlightingInformation);
+                });
+
+    }
 
 /**
  * Highlight information for each token.
+ *
+ * @since 1.1.0
  */
 public static class HighlightInfo {
 

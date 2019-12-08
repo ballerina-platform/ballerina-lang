@@ -24,7 +24,7 @@ import java.util.List;
 /**
  * Represents a response for Ballerina Syntax Highlighter.
  *
- * @since 1.0.2
+ * @since 1.1.0
  */
 
 public class BallerinaHighlightingResponse {

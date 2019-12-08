@@ -22,7 +22,7 @@ import java.util.concurrent.CompletableFuture;
 /**
  * Implementation of Ballerina Syntax Highlighter extension for Language Server.
  *
- * @since 1.0.2
+ * @since 1.1.0
  */
 public class BallerinaSyntaxHighlightServiceImpl implements BallerinaSyntaxHighlightService {
 
