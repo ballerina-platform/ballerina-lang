@@ -17,12 +17,10 @@
 package org.ballerinalang.net.http.actions.websocketconnector;
 
 import io.netty.channel.ChannelFuture;
+import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.http.websocket.WebSocketConstants;
 import org.ballerinalang.net.http.websocket.WebSocketException;
 import org.ballerinalang.net.http.websocket.WebSocketUtil;
@@ -41,21 +39,12 @@ import static org.ballerinalang.net.http.websocket.WebSocketConstants.ErrorCode;
 /**
  * {@code Get} is the GET action implementation of the HTTP Connector.
  */
-@BallerinaFunction(
-        orgName = WebSocketConstants.BALLERINA_ORG,
-        packageName = WebSocketConstants.PACKAGE_HTTP,
-        functionName = "externClose",
-        receiver = @Receiver(
-                type = TypeKind.OBJECT,
-                structType = WebSocketConstants.WEBSOCKET_CONNECTOR,
-                structPackage = WebSocketConstants.FULL_PACKAGE_HTTP
-        )
-)
 public class Close {
     private static final Logger log = LoggerFactory.getLogger(Close.class);
 
-    public static Object externClose(Strand strand, ObjectValue wsConnection, long statusCode, String reason,
+    public static Object externClose(ObjectValue wsConnection, long statusCode, String reason,
                                      long timeoutInSecs) {
+        Strand strand = Scheduler.getStrand();
         NonBlockingCallback callback = new NonBlockingCallback(strand);
         WebSocketConnectionInfo connectionInfo = (WebSocketConnectionInfo) wsConnection
                 .getNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_CONNECTION_INFO);

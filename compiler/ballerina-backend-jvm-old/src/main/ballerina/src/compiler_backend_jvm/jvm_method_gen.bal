@@ -673,18 +673,6 @@ function generateBasicBlocks(jvm:MethodVisitor mv, bir:BasicBlock?[] basicBlocks
     int j = 0;
     string funcName = cleanupFunctionName(<@untainted> func.name.value);
 
-    // process error entries
-    bir:ErrorEntry?[] errorEntries = func.errorEntries;
-    bir:ErrorEntry? currentEE = ();
-    string previousTargetBB = "";
-    jvm:Label startLabel = new;
-    jvm:Label endLabel = new;
-    jvm:Label jumpLabel = new;
-    int errorEntryCnt = 0;
-    if (errorEntries.length() > errorEntryCnt) {
-        currentEE = errorEntries[errorEntryCnt];
-    }
-
     int caseIndex = 0;
 
     while (j < basicBlocks.length()) {
@@ -715,17 +703,6 @@ function generateBasicBlocks(jvm:MethodVisitor mv, bir:BasicBlock?[] basicBlocks
         // generate instructions
         int m = 0;
         int insCount = bb.instructions.length();
-        boolean isTrapped = currentEE is bir:ErrorEntry  && currentEE.trapBB.id.value == currentBBName;
-
-        // Cases will be generate between instructions and terminator of the basic block. So if basic block is
-        // trapped we need to generate two try catches as for instructions and terminator.
-        if (isTrapped && insCount > 0) {
-            startLabel = new;
-            endLabel = new;
-            jumpLabel = new;
-            // start try for instructions.
-            errorGen.generateTryInsForTrap(<bir:ErrorEntry>currentEE, previousTargetBB, startLabel, jumpLabel);
-        }
 
         int insKind;
         while (m < insCount) {
@@ -828,10 +805,6 @@ function generateBasicBlocks(jvm:MethodVisitor mv, bir:BasicBlock?[] basicBlocks
             m += 1;
         }
 
-        // close the started try block with a catch statement for instructions.
-        if (isTrapped && insCount > 0) {
-            errorGen.generateCatchInsForTrap(func, <bir:ErrorEntry>currentEE, startLabel, endLabel, jumpLabel, instGen, termGen);
-        }
         jvm:Label bbEndLable = labelGen.getLabel(funcName + bb.id.value + "beforeTerm");
         mv.visitLabel(bbEndLable);
 
@@ -846,33 +819,14 @@ function generateBasicBlocks(jvm:MethodVisitor mv, bir:BasicBlock?[] basicBlocks
         // process terminator
         boolean isTerminatorTrapped = false;
         if (!isArg || (isArg && !(terminator is bir:Return))) {
-            if (isTrapped && !(terminator is bir:GOTO)) {
-                isTerminatorTrapped = true;
-                startLabel = new;
-                endLabel = new;
-                jumpLabel = new;
-                // start try for terminator if current block is trapped.
-                errorGen.generateTryInsForTrap(<bir:ErrorEntry>currentEE, previousTargetBB, startLabel, jumpLabel);
-            }
             generateDiagnosticPos(terminator.pos, mv);
             if (isModuleInitFunction(module, func) && terminator is bir:Return) {
                 generateAnnotLoad(mv, module.typeDefs, getPackageName(module.org.value, module.name.value));
             }
             termGen.genTerminator(terminator, func, funcName, localVarOffset, returnVarRefIndex, attachedType, isObserved);
-            if (isTerminatorTrapped) {
-                // close the started try block with a catch statement for terminator.
-                errorGen.generateCatchInsForTrap(func, <bir:ErrorEntry>currentEE, startLabel, endLabel, jumpLabel, instGen, termGen);
-            }
         }
 
-        // set next error entry after visiting current error entry.
-        if (isTrapped) {
-            errorEntryCnt = errorEntryCnt + 1;
-            if (errorEntries.length() > errorEntryCnt && currentEE is bir:ErrorEntry) {
-                previousTargetBB = currentEE.targetBB.id.value;
-                currentEE = errorEntries[errorEntryCnt];
-            }
-        }
+        errorGen.generateTryCatch(func, funcName, bb, instGen, termGen, labelGen);
 
         var thenBB = terminator["thenBB"];
         if (thenBB is bir:BasicBlock) {

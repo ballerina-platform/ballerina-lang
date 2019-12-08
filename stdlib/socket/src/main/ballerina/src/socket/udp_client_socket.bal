@@ -24,7 +24,7 @@ import ballerinax/java;
 # + id - a unique identifier to identify each client
 public type UdpClient client object {
 
-    private Address localAddress;
+    private Address? localAddress = ();
     public int localPort = 0;
     public string? interface = ();
     public int id = 0;
@@ -35,6 +35,7 @@ public type UdpClient client object {
     # + config - Configure additional details like read timeout etc.
     public function __init(Address? localAddress = (), UdpClientConfig? config = ()) {
         UdpClientConfig configuration = config ?: {};
+        self.localAddress = localAddress;
         var initResult = initUdpClientEndpoint(self, localAddress, configuration);
         if (initResult is error) {
             panic initResult;

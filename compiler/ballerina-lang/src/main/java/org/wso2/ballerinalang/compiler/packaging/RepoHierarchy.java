@@ -24,8 +24,10 @@ import org.wso2.ballerinalang.compiler.packaging.converters.Converter;
 import org.wso2.ballerinalang.compiler.packaging.repo.Repo;
 
 import java.io.PrintStream;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
 /**
@@ -53,9 +55,14 @@ public class RepoHierarchy {
             Repo repo = repos[i];
             Patten patten = repo.calculate(pkg);
             if (patten != Patten.NULL) {
+                List<CompilerInput> paths = new ArrayList<>();
                 Converter converter = repo.getConverterInstance();
-                List<CompilerInput> paths = patten.convertToSources(converter, pkg)
-                                                  .collect(Collectors.toList());
+                try {
+                    paths = patten.convertToSources(converter, pkg).collect(Collectors.toList());
+                } catch (NoSuchElementException e) {
+                    //TODO: This happens on some operating system intermittently when an unknown module is imported
+                    //TODO: Fix this properly issue #20215
+                }
                 log2(repo, patten, paths);
                 if (!paths.isEmpty()) {
                     return new Resolution(getChildHierarchyForRepo(i), paths);

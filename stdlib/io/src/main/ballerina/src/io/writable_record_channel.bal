@@ -29,6 +29,9 @@ public type WritableTextRecordChannel object {
     # + fs - Field separator (this could be a regex)
     public function __init(WritableCharacterChannel characterChannel, public string fs = "", public string rs = "",
                            public string fmt = "default") {
+        self.characterChannel = characterChannel;
+        self.fs = fs;
+        self.rs = rs;
         initWritableTextRecordChannel(self, characterChannel, java:fromString(fs), java:fromString(rs), java:fromString(fmt));
     }
 

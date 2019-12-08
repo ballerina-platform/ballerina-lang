@@ -60,7 +60,8 @@ type RemoteParticipant object {
         foreach var remoteProto in self.participantProtocols {
             if (remoteProto.name == protocol) {
                 // We are assuming a participant will have only one instance of a protocol
-                return [self.prepareMe(remoteProto.url), self];
+                var preparedResult  = self.prepareMe(remoteProto.url);
+                return [preparedResult, self];
             }
         }
         return [(), self]; // No matching protocol

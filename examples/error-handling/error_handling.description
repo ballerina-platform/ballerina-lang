@@ -1,2 +1,19 @@
-// In Ballerina, errors can be returned or can cause abrupt completion via panic.
-// This example demonstrates how errors can be created, returned and how returned errors can be handled.
+// Ballerina distinguishes ordinary errors such as failing to open a file or
+// failing to send a network response, from an exceptional condition
+// in the code, such as type cast errors.
+// Error handling in Ballerina incorporates two different strategies
+// depending on the type of error. For ordinary errors such as failing to
+// open a file or failing to send a network response,
+// the error value is returned.
+// When the Ballerina runtime encounters exceptional conditions the runtime
+// panics resulting in abrupt completion of execution,
+// unless the error is explicitly handled.
+
+// Ballerina provides language constructs to handle both returned error values
+// and panics. This example demonstrates how errors can be created,
+// returned and how returned errors can be handled.
+
+// Ballerina error values are immutable structured values composed of
+// an error reason string, a stack trace representing the execution stack
+// at the point at which the error value was created,
+// and an error detail record.

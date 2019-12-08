@@ -14,6 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerinax/java;
 import ballerina/cache;
 import ballerina/crypto;
 import ballerina/lang.'object as lang;
@@ -110,31 +111,66 @@ public type Listener object {
         }
     }
 
-    public function initEndpoint() returns error? = external;
+    public function initEndpoint() returns error? {
+        return externInitEndpoint(self);
+    }
 
     # Gets invoked when attaching a service to the endpoint.
     #
     # + s - The service that needs to be attached
     # + name - Name of the service
     # + return - An `error` if an error occurred during the service attachment process or else nil
-    function register(service s, string? name) returns error? = external;
+    function register(service s, string? name) returns error? {
+        return externRegister(self, s, name);
+    }
 
     # Starts the registered service.
     #
     # + return - An `error` if an error occurred during the listener start process
-    function start() returns error? = external;
+    function start() returns error? {
+        return externStart(self);
+    }
 
     # Stops the service listener gracefully.
     #
     # + return - An `error` if an error occurred during the listener stop process
-    function gracefulStop() returns error? = external;
+    function gracefulStop() returns error? {
+        return externGracefulStop(self);
+    }
 
     # Disengage an attached service from the listener.
     #
     # + s - The service that needs to be detached
     # + return - An `error` if an error occurred during the service detachment process or else nil
-    function detach(service s) returns error? = external;
+    function detach(service s) returns error? {
+        return externDetach(self, s);
+    }
 };
+
+function externInitEndpoint(Listener listenerObj) returns error? = @java:Method {
+    class: "org.ballerinalang.net.http.serviceendpoint.InitEndpoint",
+    name: "initEndpoint"
+} external;
+
+function externRegister(Listener listenerObj, service s, string? name) returns error? = @java:Method {
+   class: "org.ballerinalang.net.http.serviceendpoint.Register",
+   name: "register"
+} external;
+
+function externStart(Listener listenerObj) returns error? = @java:Method {
+    class: "org.ballerinalang.net.http.serviceendpoint.Start",
+    name: "start"
+} external;
+
+function externGracefulStop(Listener listenerObj) returns error? = @java:Method {
+    class: "org.ballerinalang.net.http.serviceendpoint.GracefulStop",
+    name: "gracefulStop"
+} external;
+
+function externDetach(Listener listenerObj, service s) returns error? = @java:Method {
+    class: "org.ballerinalang.net.http.serviceendpoint.Detach",
+    name: "detach"
+} external;
 
 # Presents a read-only view of the remote address.
 #
