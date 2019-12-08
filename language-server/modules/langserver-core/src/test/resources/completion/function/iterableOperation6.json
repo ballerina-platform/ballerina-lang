@@ -6,13 +6,13 @@
   "source": "function/source/iterableOperation6.bal",
   "items": [
     {
-      "label": "add(record {\n\n} data)((()|error))",
+      "label": "add(RowType data)((()|error))",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.table_  \n  \nAdd record to the table.\n  \n**Params**  \n- `record {\n\n}` data: A record with data  \n  \n**Returns** `(()|error)`   \n- An `error` will be returned if there is any error occurred during adding data or else nil is returned  \n  \n"
+          "value": "**Package:** _ballerina/lang.table_  \n  \nAdd record to the table.\n  \n**Params**  \n- `RowType` data: A record with data  \n  \n**Returns** `(()|error)`   \n- An `error` will be returned if there is any error occurred during adding data or else nil is returned  \n  \n"
         }
       },
       "sortText": "120",
@@ -52,13 +52,13 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "getNext()(record {\n\n})",
+      "label": "getNext()(RowType)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.table_  \n  \nRetrives the current row and return a record with the data in the columns.\n  \n  \n  \n**Returns** `record {\n\n}`   \n- The resulting row as a record  \n  \n"
+          "value": "**Package:** _ballerina/lang.table_  \n  \nRetrives the current row and return a record with the data in the columns.\n  \n  \n  \n**Returns** `RowType`   \n- The resulting row as a record  \n  \n"
         }
       },
       "sortText": "120",
@@ -66,13 +66,13 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "remove(function (any) returns (boolean) func)((int|error))",
+      "label": "remove(function (ballerina/lang.table:RowType) returns (boolean) func)((int|error))",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.table_  \n  \nRemove data from the table.\n  \n**Params**  \n- `function (any) returns (boolean)` func: The function pointer for delete crieteria  \n  \n**Returns** `(int|error)`   \n- An `int` the number of deleted record count or `error` if any error occurred during removing data  \n  \n"
+          "value": "**Package:** _ballerina/lang.table_  \n  \nRemove data from the table.\n  \n**Params**  \n- `function (ballerina/lang.table:RowType) returns (boolean)` func: The function pointer for delete crieteria  \n  \n**Returns** `(int|error)`   \n- An `int` the number of deleted record count or `error` if any error occurred during removing data  \n  \n"
         }
       },
       "sortText": "120",

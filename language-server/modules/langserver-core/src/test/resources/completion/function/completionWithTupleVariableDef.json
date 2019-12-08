@@ -39,7 +39,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `[string,float,string]` g"
+          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `[string,float,string]` g  \n  \n**Returns** `function (string,[string,float,string]) returns (string)`   \n  \n"
         }
       },
       "sortText": "120",
