@@ -643,14 +643,28 @@ public type Hub object {
     # Retrieves topics currently recognized by the Hub.
     #
     # + return - An array of available topics
-    public function getAvailableTopics() returns string[] = external;
+    public function getAvailableTopics() returns string[] {
+        return externGetAvailableTopics(self);
+    }
 
     # Retrieves details of subscribers registered to receive updates for a particular topic.
     #
     # + topic - The topic for which details need to be retrieved
     # + return - An array of subscriber details
-    public function getSubscribers(string topic) returns SubscriberDetails[] = external;
+    public function getSubscribers(string topic) returns SubscriberDetails[] {
+        return externGetSubscribers(self, java:fromString(topic));
+    }
 };
+
+function externGetAvailableTopics(Hub hub) returns string[] = @java:Method {
+    name: "getAvailableTopics",
+    class: "org.ballerinalang.net.websub.nativeimpl.HubNativeOperationHandler"
+} external;
+
+function externGetSubscribers(Hub hub, handle topic) returns string[] = @java:Method {
+    name: "getSubscribers",
+    class: "org.ballerinalang.net.websub.nativeimpl.HubNativeOperationHandler"
+} external;
 
 ///////////////////////////////////////////////////////////////////
 //////////////////// WebSub Publisher Commons /////////////////////
