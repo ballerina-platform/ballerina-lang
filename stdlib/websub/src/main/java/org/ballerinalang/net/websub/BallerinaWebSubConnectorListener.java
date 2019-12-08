@@ -94,7 +94,7 @@ public class BallerinaWebSubConnectorListener extends BallerinaHTTPConnectorList
     private Scheduler scheduler;
 
     public BallerinaWebSubConnectorListener(Strand strand, WebSubServicesRegistry webSubServicesRegistry,
-                                            MapValueImpl endpointConfig) {
+                                            MapValue endpointConfig) {
         super(webSubServicesRegistry, endpointConfig);
         this.scheduler = strand.scheduler;
         this.webSubServicesRegistry = webSubServicesRegistry;

@@ -73,6 +73,7 @@ public type BasicBlock record {|
 
 public type ErrorEntry record {|
     BasicBlock trapBB;
+    BasicBlock endBB;
     VarRef errorOp;
     BasicBlock targetBB;
     anydata...; // This is to type match with platform specific error entries
@@ -488,6 +489,7 @@ public type ModuleID record {|
 public type BInvokableType record {
     FUNCTION_TYPE_NAME typeName = FUNCTION_TYPE_NAME;
     BType?[] paramTypes = [];
+    BType? restType = ();
     BType retType?;
 };
 

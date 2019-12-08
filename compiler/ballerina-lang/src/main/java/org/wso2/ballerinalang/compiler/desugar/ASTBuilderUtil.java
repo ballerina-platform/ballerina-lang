@@ -681,7 +681,6 @@ public class ASTBuilderUtil {
         BLangFieldBasedAccess fieldAccessExpr = (BLangFieldBasedAccess) TreeBuilder.createFieldBasedAccessNode();
         fieldAccessExpr.expr = varRef;
         fieldAccessExpr.field = field;
-        fieldAccessExpr.except = except;
         return fieldAccessExpr;
     }
 
@@ -795,7 +794,7 @@ public class ASTBuilderUtil {
 
         BInvokableType prevFuncType = (BInvokableType) invokableSymbol.type;
         dupFuncSymbol.type = new BInvokableType(new ArrayList<>(prevFuncType.paramTypes),
-                prevFuncType.retType, prevFuncType.tsymbol);
+                prevFuncType.restType, prevFuncType.retType, prevFuncType.tsymbol);
         return dupFuncSymbol;
     }
 
@@ -820,8 +819,8 @@ public class ASTBuilderUtil {
         dupFuncSymbol.markdownDocumentation = invokableSymbol.markdownDocumentation;
 
         BInvokableType prevFuncType = (BInvokableType) invokableSymbol.type;
-        dupFuncSymbol.type = new BInvokableType(new ArrayList<>(prevFuncType.paramTypes), prevFuncType.retType,
-                prevFuncType.tsymbol);
+        dupFuncSymbol.type = new BInvokableType(new ArrayList<>(prevFuncType.paramTypes), prevFuncType.restType,
+                prevFuncType.retType, prevFuncType.tsymbol);
         return dupFuncSymbol;
     }
 

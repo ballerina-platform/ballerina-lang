@@ -1,3 +1,11 @@
+
+{{#if project.isSingleFile}}
+{{else}}
+    {{#if module.version}}
+        <div class="version">v{{ module.version }}</div>
+    {{/if}}
+{{/if}}
+
 <div class="primary-list module">
     {{#if project.isSingleFile}}
         <h3>{{project.sourceFileName}}</h3>

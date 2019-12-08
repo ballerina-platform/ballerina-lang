@@ -216,7 +216,7 @@ type ObjFuncUsingWorkersAsFutureValues object {
                     _ = wait wix; // illegal peer worker ref within a worker
                     _ = wait wx; // illegal peer worker ref within a worker
                     function (future<int>) returns future<int> f = (a) => wx; // illegal peer worker ref within a worker
-                    future<int> wxRef = f();
+                    future<int> wxRef = f(p);
                 }
             }
 
@@ -228,3 +228,9 @@ type ObjFuncUsingWorkersAsFutureValues object {
         return wait wy;
     }
 };
+
+future<int> p = start bar();
+
+function bar() returns int {
+    return  1;
+}

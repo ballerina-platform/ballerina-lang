@@ -14,6 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerinax/java;
+
 # Representation of `CallStackElement`
 #
 # + callableName - Callable name
@@ -30,4 +32,6 @@ public type CallStackElement record {|
 # Retrieves the Call Stack
 #
 # + return - Array of `CallStackElement` elements
-public function getCallStack() returns CallStackElement[] = external;
+public function getCallStack() returns CallStackElement[] = @java:Method {
+    class: "org.ballerinalang.stdlib.runtime.nativeimpl.GetCallStack"
+} external;

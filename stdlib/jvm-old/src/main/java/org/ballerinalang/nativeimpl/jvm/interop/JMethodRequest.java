@@ -50,6 +50,7 @@ import static org.ballerinalang.nativeimpl.jvm.interop.JInterop.PARAM_TYPES_FIEL
 import static org.ballerinalang.nativeimpl.jvm.interop.JInterop.PARAM_TYPE_CONSTRAINTS_FIELD;
 import static org.ballerinalang.nativeimpl.jvm.interop.JInterop.RECORD_TNAME;
 import static org.ballerinalang.nativeimpl.jvm.interop.JInterop.REST_PARAM_EXIST_FIELD;
+import static org.ballerinalang.nativeimpl.jvm.interop.JInterop.REST_TYPE_FIELD;
 import static org.ballerinalang.nativeimpl.jvm.interop.JInterop.RETURN_TYPE_FIELD;
 import static org.ballerinalang.nativeimpl.jvm.interop.JInterop.TUPLE_TNAME;
 import static org.ballerinalang.nativeimpl.jvm.interop.JInterop.TUPLE_TYPE_MEMBERS_FIELD;
@@ -90,8 +91,15 @@ class JMethodRequest {
 
         MapValue bFuncType = (MapValue) jMethodReqBValue.get(B_FUNC_TYPE_FIELD);
         ArrayValue paramTypes = (ArrayValue) bFuncType.get(PARAM_TYPES_FIELD);
+
+        Object restType = bFuncType.get(REST_TYPE_FIELD);
+        if (restType != null) {
+            paramTypes.append(restType);
+        }
+
         jMethodReq.bFuncParamCount = paramTypes.size();
         jMethodReq.bParamTypes = getBParamTypes(paramTypes);
+
         BType returnType = getBType(bFuncType.get(RETURN_TYPE_FIELD));
         jMethodReq.bReturnType = returnType;
         jMethodReq.returnsBErrorType = returnType.toString().contains(TypeConstants.ERROR);

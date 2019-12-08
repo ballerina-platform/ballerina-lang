@@ -18,7 +18,6 @@ import ballerina/stringutils;
 
 public type PackageParser object {
     BirChannelReader reader;
-    boolean addInterimBB = true;
     boolean symbolsOnly;
 
     public function __init(BirChannelReader reader, boolean symbolsOnly) {
@@ -298,15 +297,9 @@ public type PackageParser object {
         BasicBlock?[] basicBlocks = [];
         var numBB = self.reader.readInt32();
         int i = 0;
-        int j = 0;
         while (i < numBB) {
-            BasicBlock[] blocks = bodyParser.parseBB(self.addInterimBB);
-            basicBlocks[j] = blocks[0];
-            j += 1;
-            if (self.addInterimBB) {
-                basicBlocks[j] = blocks[1];
-                j += 1;
-            }
+            BasicBlock[] blocks = bodyParser.parseBB();
+            basicBlocks[i] = blocks[0];
             i += 1;
         }
         return basicBlocks;
@@ -316,20 +309,9 @@ public type PackageParser object {
         ErrorEntry?[] errorEntries = [];
         var numEE = self.reader.readInt32();
         int i = 0;
-        int j = 0;
         while (i < numEE) {
             ErrorEntry errorEntry = bodyParser.parseEE();
-            errorEntries[j] = errorEntry;
-
-            if (self.addInterimBB) {
-                ErrorEntry? interimEntry = errorEntry.clone();
-                j += 1;
-                if (interimEntry is ErrorEntry) {
-                    interimEntry.trapBB.id.value = interimEntry.trapBB.id.value + "interim";
-                    errorEntries[j] = interimEntry;
-                }
-            }
-            j += 1;
+            errorEntries[i] = errorEntry;
             i += 1;
         }
         return errorEntries;

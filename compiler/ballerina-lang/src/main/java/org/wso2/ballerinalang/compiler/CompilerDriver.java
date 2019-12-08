@@ -207,9 +207,11 @@ public class CompilerDriver {
         if (testsEnabled != null && testsEnabled.equals(Constants.SKIP_TESTS)) {
             pkgNode.getTestablePkgs().forEach(testablePackage -> importPkgList.addAll(testablePackage.imports));
         }
-        importPkgList.stream()
-                .filter(pkg -> pkg.symbol != null)
-                .forEach(importPkgNode -> this.compilePackageSymbol(importPkgNode.symbol));
+        for (BLangImportPackage pkg : importPkgList) {
+            if (pkg.symbol != null) {
+                this.compilePackageSymbol(pkg.symbol);
+            }
+        }
         compile(pkgNode);
     }
 
