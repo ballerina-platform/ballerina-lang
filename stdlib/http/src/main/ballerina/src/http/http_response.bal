@@ -40,7 +40,7 @@ public type Response object {
 
     int receivedTime = 0;
     int requestTime = 0;
-    private mime:Entity entity;
+    private mime:Entity? entity = ();
 
     public function __init() {
         self.entity = self.createNewEntity();

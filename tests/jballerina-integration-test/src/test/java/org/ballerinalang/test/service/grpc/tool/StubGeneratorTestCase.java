@@ -89,7 +89,7 @@ public class StubGeneratorTestCase {
         assertEquals(compileResult.getDiagnostics()[1].toString(),
                      "ERROR: .::helloWorldWithDependency_pb.bal:21:90:: unknown type 'HelloResponse'");
         assertEquals(compileResult.getDiagnostics()[5].toString(),
-                     "ERROR: .::helloWorldWithDependency_pb.bal:39:18:: unknown type 'ByeResponse'");
+                     "ERROR: .::helloWorldWithDependency_pb.bal:49:18:: unknown type 'ByeResponse'");
     }
 
     @Test(description = "Test service stub generation for service definition with enum messages")

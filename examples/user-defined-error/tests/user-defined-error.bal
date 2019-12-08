@@ -1,6 +1,8 @@
 import ballerina/test;
 import ballerina/io;
 
+# todo: add correct tests
+
 any[] outputs = [];
 int counter = 0;
 
@@ -21,11 +23,14 @@ function testFunc() {
     // Invoke the main function.
     main();
     test:assertEquals(outputs[0], "Error: ");
-    test:assertEquals(outputs[1], "SimpleErrorType");
-    test:assertEquals(outouts[2], ", Message: ");
-    test:assertEquals(outputs[3], "Simple error occured");
+    test:assertEquals(outputs[1], "InvalidAccountType");
+    test:assertEquals(outputs[2], ", Account type: ");
+    test:assertEquals(outputs[3], "Joined");
     test:assertEquals(outputs[4], "Error: ");
     test:assertEquals(outputs[5], "InvalidAccountID");
     test:assertEquals(outputs[6], ", Account ID: ");
     test:assertEquals(outputs[7], -1);
+    test:assertEquals(outputs[8], "Error: ");
+    test:assertEquals(outputs[9], "AccountInquiryFailed, ");
+    test:assertEquals(outputs[10], "Message: ");
 }

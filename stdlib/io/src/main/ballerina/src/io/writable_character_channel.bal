@@ -27,6 +27,8 @@ public type WritableCharacterChannel object {
     # + bChannel - WritableByteChannel which would be used to write characters
     # + charset - Character-Set which would be used to encode given bytes to characters
     public function __init(WritableByteChannel bChannel, string charset) {
+        self.bChannel = bChannel;
+        self.charset = charset;
         initWritableCharacterChannel(self, bChannel, java:fromString(charset));
     }
 

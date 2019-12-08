@@ -16,7 +16,10 @@
  */
 package org.ballerinax.jdbc.actions;
 
+import org.ballerinalang.model.values.BBoolean;
+import org.ballerinalang.model.values.BDecimal;
 import org.ballerinalang.model.values.BError;
+import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
@@ -29,6 +32,7 @@ import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import java.math.BigDecimal;
 import java.nio.file.Paths;
 
 /**
@@ -52,9 +56,24 @@ public class CallTest {
         result = BCompileUtil.compile(Paths.get("test-src", "actions", "call_test.bal").toString());
     }
 
+    //Test String Types
     @Test(groups = CALL_TEST)
     public void testCallWithStringTypes() {
         BValue[] returns = BRunUtil.invoke(result, "testCallWithStringTypes", args);
+        Assert.assertEquals(returns[0].stringValue(), "test1");
+        Assert.assertEquals(returns[1].stringValue(), "test2     ");
+        Assert.assertEquals(returns[2].stringValue(), "c");
+        Assert.assertEquals(returns[3].stringValue(), "test3     ");
+        Assert.assertEquals(returns[4].stringValue(), "d");
+        Assert.assertEquals(returns[5].stringValue(), "test4");
+        Assert.assertEquals(returns[6].stringValue(), "test5");
+        Assert.assertEquals(returns[7].stringValue(), "hello ballerina code");
+        Assert.assertNull(returns[8]);
+    }
+
+    @Test(groups = CALL_TEST)
+    public void testCallWithStringTypesInParams() {
+        BValue[] returns = BRunUtil.invoke(result, "testCallWithStringTypesInParams", args);
         Assert.assertEquals(returns[0].stringValue(), "test1");
         Assert.assertEquals(returns[1].stringValue(), "test2     ");
         Assert.assertEquals(returns[2].stringValue(), "c");
@@ -95,6 +114,38 @@ public class CallTest {
         Assert.assertEquals(returns[8].stringValue(), "test0");
     }
 
+    @Test(groups = CALL_TEST)
+    public void testCallWithStringTypesOutParams() {
+        BValue[] returns = BRunUtil.invoke(result, "testCallWithStringTypesOutParams", args);
+        Assert.assertEquals(returns[0].stringValue(), "test0");
+        Assert.assertEquals(returns[1].stringValue(), "test1     ");
+        Assert.assertEquals(returns[2].stringValue(), "a");
+        Assert.assertEquals(returns[3].stringValue(), "test2     ");
+        Assert.assertEquals(returns[4].stringValue(), "b");
+        Assert.assertEquals(returns[5].stringValue(), "test3");
+        Assert.assertEquals(returns[6].stringValue(), "test4");
+        Assert.assertEquals(returns[7].stringValue(), "hello ballerina");
+        Assert.assertNull(returns[8]);
+    }
+
+    //Test Numeric Typs
+    @Test(groups = CALL_TEST)
+    public void testCallWithNumericTypesOutParams() {
+        BValue[] returns = BRunUtil.invoke(result, "testCallWithNumericTypesOutParams", args);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 2147483647);
+        Assert.assertEquals(((BInteger) returns[1]).intValue(), 9223372036854774807L);
+        Assert.assertEquals(((BInteger) returns[2]).intValue(), 32767);
+        Assert.assertEquals(((BInteger) returns[3]).intValue(), 127);
+        Assert.assertTrue(((BBoolean) returns[4]).booleanValue());
+        Assert.assertEquals(((BDecimal) returns[5]).decimalValue(), new BigDecimal("1234.56"));
+        Assert.assertEquals(((BDecimal) returns[6]).decimalValue(), new BigDecimal("1234.56"));
+        Assert.assertEquals(((BFloat) returns[7]).floatValue(), 1234.56, 0.01);
+        Assert.assertEquals(((BFloat) returns[8]).floatValue(), 1234.56, 0.01);
+        Assert.assertEquals(((BFloat) returns[9]).floatValue(), 1234.56, 0.01);
+        Assert.assertNull(returns[10]);
+    }
+
+    //Test Errors
     @Test(groups = CALL_TEST)
     public void testCallWithApplicationError() {
         BValue[] returns = BRunUtil.invoke(result, "testCallWithApplicationError", args);

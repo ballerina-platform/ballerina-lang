@@ -394,6 +394,10 @@
             {
                 "name": "Trap",
                 "url": "trap"
+            },
+            {
+                "name": "User-defined Error types",
+                "url": "error-user-defined"
             }
         ]
     },
