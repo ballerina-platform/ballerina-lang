@@ -3652,4 +3652,9 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     public void unsetErrorState() {
         this.isInErrorState = false;
     }
+
+    boolean isInErrorState() {
+
+        return this.isInErrorState;
+    }
 }

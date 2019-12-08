@@ -23,6 +23,7 @@ import org.ballerinalang.model.tree.clauses.HavingNode;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 
 /**
  * @since 0.965.0
@@ -32,7 +33,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
  */
 public class BLangHaving extends BLangNode implements HavingNode {
 
-    private ExpressionNode expression;
+    public BLangExpression expression;
     @Override
     public void accept(BLangNodeVisitor visitor) {
         visitor.visit(this);
@@ -45,7 +46,8 @@ public class BLangHaving extends BLangNode implements HavingNode {
 
     @Override
     public void setExpression(ExpressionNode expression) {
-        this.expression = expression;
+
+        this.expression = (BLangExpression) expression;
     }
 
     @Override
