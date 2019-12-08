@@ -675,6 +675,12 @@ public class Desugar extends BLangNodeVisitor {
             ((BLangReturn) objectTypeNode.generatedInitFunction.body.stmts.get(i)).expr =
                     createUserDefinedInitInvocation(objectTypeNode);
         }
+
+        // Rewrite the object methods to ensure that any anonymous types defined in method params, return type etc.
+        // gets defined before its first use.
+        objectTypeNode.functions.forEach(fn -> rewrite(fn, this.env));
+        rewrite(objectTypeNode.initFunction, this.env);
+
         result = objectTypeNode;
     }
 
