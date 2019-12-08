@@ -64,7 +64,7 @@ class ParserCache {
             return null;
         }
         Map<String, BLangCompilationUnit> sourceEntryCache;
-        if ((sourceEntryCache = pkgCache.get(packageID)) == null || !pkgCache.containsKey(packageID)) {
+        if ((sourceEntryCache = pkgCache.get(packageID)) == null) {
             return null;
         }
 

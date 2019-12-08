@@ -194,8 +194,7 @@ import java.util.Set;
  */
 class NodeCloner extends BLangNodeVisitor {
 
-    private static final CompilerContext.Key<NodeCloner> NODE_CLONER_KEY =
-            new CompilerContext.Key<>();
+    private static final CompilerContext.Key<NodeCloner> NODE_CLONER_KEY = new CompilerContext.Key<>();
 
     int currentCloneAttempt;
 
@@ -205,11 +204,12 @@ class NodeCloner extends BLangNodeVisitor {
 
     public static NodeCloner getInstance(CompilerContext context) {
 
-        NodeCloner cleaner = context.get(NODE_CLONER_KEY);
-        if (cleaner == null) {
-            cleaner = new NodeCloner();
+        NodeCloner nodeCloner = context.get(NODE_CLONER_KEY);
+        if (nodeCloner == null) {
+            nodeCloner = new NodeCloner();
+            context.put(NODE_CLONER_KEY, nodeCloner);
         }
-        return cleaner;
+        return nodeCloner;
     }
 
     synchronized BLangCompilationUnit cloneCUnit(BLangCompilationUnit source) {
