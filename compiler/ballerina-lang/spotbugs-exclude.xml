@@ -101,9 +101,6 @@
         <Class name="org.wso2.ballerinalang.compiler.bir.BIRGen"/>
     </Match>
     <Match>
-        <Class name="org.wso2.ballerinalang.compiler.bir.BIROptimizer"/>
-    </Match>
-    <Match>
         <Class name="org.wso2.ballerinalang.compiler.bir.model.BIRTerminator"/>
     </Match>
     <Match>

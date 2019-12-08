@@ -160,6 +160,11 @@ public abstract class BIRNode {
             // Here we assume names are unique.
             return this.name.equals(otherVarDecl.name);
         }
+
+        @Override
+        public int hashCode() {
+            return this.name.value.hashCode();
+        }
         
         @Override
         public String toString() {
@@ -348,7 +353,7 @@ public abstract class BIRNode {
      */
     public static class BIRBasicBlock extends BIRNode {
         public Name id;
-        public List<BIRInstruction> instructions;
+        public List<BIRNonTerminator> instructions;
         public BIRTerminator terminator;
 
         public BIRBasicBlock(Name id) {
@@ -410,7 +415,7 @@ public abstract class BIRNode {
 
         @Override
         public void accept(BIRVisitor visitor) {
-
+            visitor.visit(this);
         }
 
         @Override
@@ -690,10 +695,10 @@ public abstract class BIRNode {
      */
     public static class BIRLockDetailsHolder {
         public Set<BIRGlobalVariableDcl> globalLocks;
-        public Map<BIRVariableDcl, Set<String>> fieldLocks;
+        public Map<BIROperand, Set<String>> fieldLocks;
 
         public BIRLockDetailsHolder(Set<BIRGlobalVariableDcl> globalLocks,
-                                    Map<BIRVariableDcl, Set<String>> fieldLocks) {
+                                    Map<BIROperand, Set<String>> fieldLocks) {
             this.globalLocks = globalLocks;
             this.fieldLocks = fieldLocks;
         }
