@@ -416,7 +416,8 @@ public class SymbolEnter extends BLangNodeVisitor {
                 String pkgName = importPkgNode.getPackageName().stream()
                         .map(id -> id.value)
                         .collect(Collectors.joining("."));
-                if (this.sourceDirectory.getSourcePackageNames().contains(pkgName)) {
+                if (this.sourceDirectory.getSourcePackageNames().contains(pkgName)
+                        && orgName.value.equals(enclPackageID.orgName.value)) {
                     version = enclPackageID.version;
                 } else {
                     version = Names.EMPTY;
