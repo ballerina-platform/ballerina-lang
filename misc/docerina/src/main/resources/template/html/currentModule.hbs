@@ -1,7 +1,9 @@
+
 {{#if project.isSingleFile}}
 {{else}}
-    <div class="org">org:{{ module.orgName }}</div>
-    <div class="version">v{{ module.version }}</div>
+    {{#if module.version}}
+        <div class="version">v{{ module.version }}</div>
+    {{/if}}
 {{/if}}
 
 <div class="primary-list module">

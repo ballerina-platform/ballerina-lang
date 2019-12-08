@@ -16,11 +16,11 @@
 
 package org.ballerinalang.net.http.actions.httpclient;
 
+import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.net.http.DataContext;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpUtil;
@@ -35,15 +35,12 @@ import static org.ballerinalang.net.http.HttpConstants.CLIENT_ENDPOINT_SERVICE_U
 /**
  * {@code Execute} action can be used to invoke execute a http call with any httpVerb.
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "http",
-        functionName = "nativeExecute"
-)
 public class Execute extends AbstractHTTPAction {
     @SuppressWarnings("unchecked")
-    public static Object nativeExecute(Strand strand, ObjectValue httpClient, String verb, String path,
+    public static Object execute(ObjectValue httpClient, String verb, String path,
                                        ObjectValue requestObj) {
         String url = httpClient.getStringValue(CLIENT_ENDPOINT_SERVICE_URI);
+        Strand strand = Scheduler.getStrand();
         MapValue<String, Object> config = (MapValue<String, Object>) httpClient.get(CLIENT_ENDPOINT_CONFIG);
         HttpClientConnector clientConnector = (HttpClientConnector) httpClient.getNativeData(HttpConstants.CLIENT);
         HttpCarbonMessage outboundRequestMsg = createOutboundRequestMsg(strand, config, url, verb, path, requestObj);

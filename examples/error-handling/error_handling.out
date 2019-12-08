@@ -2,5 +2,4 @@
 # `.bal` file, and execute the `ballerina run` command.
 $ ballerina run error_handling.bal
 Error: SimpleErrorType, Message: Simple error occured
-Error: InvalidAccountType, Account type: Joined
 Error: InvalidAccountID, Account ID: -1

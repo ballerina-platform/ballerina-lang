@@ -44,6 +44,7 @@ dependencies {
     baloImplementation project(path: ':ballerina-time', configuration: 'baloImplementation')
 
     interopImports project(':ballerina-config-api')
+    interopImports project(':ballerina-http')
     interopImports project(':ballerina-io')
     interopImports project(':ballerina-log-api')
     interopImports project(':ballerina-math')
@@ -52,6 +53,7 @@ dependencies {
     interopImports project(':ballerina-time')
     interopImports project(':ballerina-reflect')
     interopImports project(':ballerina-runtime-api')
+    interopImports project(':ballerina-mime')
 
     // transitive
     baloImplementation project(path: ':ballerina-math', configuration: 'baloImplementation')

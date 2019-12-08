@@ -93,6 +93,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Path;
@@ -175,6 +176,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
                     return Either.forLeft(completions);
                 }
                 LSModuleCompiler.getBLangPackage(context, documentManager, null, false, false);
+                documentManager.resetPrunedContent(Paths.get(URI.create(fileUri)));
                 // Fill the current file imports
                 context.put(DocumentServiceKeys.CURRENT_DOC_IMPORTS_KEY, CommonUtil.getCurrentFileImports(context));
                 CompletionUtil.resolveSymbols(context);

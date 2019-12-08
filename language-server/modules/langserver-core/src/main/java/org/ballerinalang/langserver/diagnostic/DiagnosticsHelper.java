@@ -86,7 +86,7 @@ public class DiagnosticsHelper {
         diagnosticMap.forEach((key, value) -> client.publishDiagnostics(new PublishDiagnosticsParams(key, value)));
 
         // Publish text highlighting
-        diagnosticMap.forEach((key, value) -> client.publishTextHighlighting());
+        // diagnosticMap.forEach((key, value) -> client.publishTextHighlighting());
 
         // Replace old map
         lastDiagnosticMap = diagnosticMap;

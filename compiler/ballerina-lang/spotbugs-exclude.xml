@@ -56,6 +56,9 @@
         <Package name="org.wso2.ballerinalang.compiler.tree.types" />
     </Match>
     <Match>
+        <Package name="org.wso2.ballerinalang.compiler.packaging.converters" />
+    </Match>
+    <Match>
         <Package name="org.wso2.ballerinalang.programfile" />
     </Match>
     <Match>
