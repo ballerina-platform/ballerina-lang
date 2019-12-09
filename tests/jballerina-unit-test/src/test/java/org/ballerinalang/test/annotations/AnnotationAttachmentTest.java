@@ -26,11 +26,17 @@ import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangStatementExpression;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -71,7 +77,7 @@ public class AnnotationAttachmentTest {
         List<BLangAnnotationAttachment> attachments = function.annAttachments;
         Assert.assertEquals(attachments.size(), 2);
         assertNameAndKeyValuePair(attachments.get(0), "v3", "val", "v31 value");
-        assertNameAndKeyValuePair(attachments.get(1), "v4", "val", 41L);
+        assertNameAndKeyValuePairInMaps(attachments.get(1), "v4", "val", 41L);
 
         attachments = function.requiredParams.get(0).annAttachments;
         Assert.assertEquals(attachments.size(), 1);
@@ -126,7 +132,7 @@ public class AnnotationAttachmentTest {
                         .findFirst()
                         .get().getAnnotationAttachments();
         Assert.assertEquals(attachments.size(), 1);
-        assertNameAndKeyValuePair(attachments.get(0), "v9", "val", "v91");
+        assertNameAndKeyValuePairInMaps(attachments.get(0), "v9", "val", "v91");
     }
 
     @Test
@@ -196,7 +202,7 @@ public class AnnotationAttachmentTest {
                 .findFirst()
                 .get().getAnnotationAttachments();
         Assert.assertEquals(attachments.size(), 1);
-        assertNameAndKeyValuePair(attachments.get(0), "v10", "str", "v10 value");
+        assertNameAndKeyValuePairInMaps(attachments.get(0), "v10", "str", "v10 value");
     }
 
     @Test
@@ -207,7 +213,7 @@ public class AnnotationAttachmentTest {
                         .findFirst()
                         .get().getAnnotationAttachments();
         Assert.assertEquals(attachments.size(), 1);
-        assertNameAndKeyValuePair(attachments.get(0), "v11", "val", 11L);
+        assertNameAndKeyValuePairInMaps(attachments.get(0), "v11", "val", 11L);
     }
 
     @Test
@@ -219,7 +225,7 @@ public class AnnotationAttachmentTest {
                         .get())
                         .getAnnotationAttachments();
         Assert.assertEquals(attachments.size(), 1);
-        assertNameAndKeyValuePair(attachments.get(0), "v12", "str", "v12 value");
+        assertNameAndKeyValuePairInMaps(attachments.get(0), "v12", "str", "v12 value");
     }
 
     @Test(enabled = false)
@@ -240,8 +246,19 @@ public class AnnotationAttachmentTest {
         assertNameAndKeyValuePair(attachments.get(0), "v13", "strTwo", "two");
     }
 
-    private void assertNameAndKeyValuePair(BLangAnnotationAttachment attachment, String annotName, String fieldName,
-                                           Object value) {
+    private List<BLangAssignment> getRecordFieldAssignments(BLangStatementExpression record) {
+        List<BLangAssignment> fields = new ArrayList<>();
+        List<BLangStatement> stmts = ((BLangBlockStmt) record.stmt).stmts;
+        for (int i = 2, stmtsSize = stmts.size(); i < stmtsSize; i++) {
+            BLangStatement stmt = stmts.get(i);
+            fields.add((BLangAssignment) stmt);
+        }
+        // Dropping the first two since they are for creating the empty literal and invoking the init() method.
+        return fields;
+    }
+
+    private void assertNameAndKeyValuePairInMaps(BLangAnnotationAttachment attachment, String annotName,
+                                                 String fieldName, Object value) {
         Assert.assertEquals(attachment.annotationName.getValue(), annotName);
         Assert.assertEquals(attachment.expr.getKind(), NodeKind.RECORD_LITERAL_EXPR);
 
@@ -253,10 +270,29 @@ public class AnnotationAttachmentTest {
         Assert.assertEquals(((BLangLiteral) keyValuePair.getValue()).value, value);
     }
 
+    private void assertNameAndKeyValuePair(BLangAnnotationAttachment attachment, String annotName,
+                                           String fieldName, Object value) {
+        Assert.assertEquals(attachment.annotationName.getValue(), annotName);
+        Assert.assertEquals(attachment.expr.getKind(), NodeKind.STATEMENT_EXPRESSION);
+
+        BLangStatementExpression recordLiteral = (BLangStatementExpression) attachment.expr;
+        List<BLangAssignment> fields = getRecordFieldAssignments(recordLiteral);
+        Assert.assertEquals(fields.size(), 1);
+
+        BLangAssignment field = fields.get(0);
+        Assert.assertEquals(getKeyString(field), fieldName);
+        Assert.assertEquals(((BLangLiteral) field.expr).value, value);
+    }
+
     private String getKeyString(BLangRecordLiteral.BLangRecordKeyValue keyValuePair) {
         return keyValuePair.getKey() instanceof BLangSimpleVarRef ?
                     ((BLangSimpleVarRef) keyValuePair.key.expr).variableName.value :
                     ((BLangLiteral) keyValuePair.getKey()).value.toString();
+    }
+
+    private String getKeyString(BLangAssignment field) {
+        return ((BLangLiteral) ((BLangIndexBasedAccess.BLangStructFieldAccessExpr) field.varRef).indexExpr).value
+                .toString();
     }
 
     private BLangFunction getFunction(String functionName) {
@@ -277,57 +313,60 @@ public class AnnotationAttachmentTest {
         Assert.assertEquals(attachments.size(), 1);
         BLangAnnotationAttachment attachment = attachments.get(0);
         Assert.assertEquals(attachment.annotationName.getValue(), "v1");
-        Assert.assertEquals(attachment.expr.getKind(), NodeKind.RECORD_LITERAL_EXPR);
+        Assert.assertEquals(attachment.expr.getKind(), NodeKind.STATEMENT_EXPRESSION);
 
-        BLangRecordLiteral recordLiteral = (BLangRecordLiteral) attachment.expr;
-        Assert.assertEquals(recordLiteral.getKeyValuePairs().size(), 2);
+        List<BLangAssignment> fields = getRecordFieldAssignments((BLangStatementExpression) attachment.expr);
+        Assert.assertEquals(fields.size(), 2);
 
-        BLangRecordLiteral.BLangRecordKeyValue keyValuePair = recordLiteral.getKeyValuePairs().get(0);
-        Assert.assertEquals(getKeyString(keyValuePair), "f1");
-        BLangExpression expression = keyValuePair.valueExpr;
+        BLangAssignment field = fields.get(0);
+        Assert.assertEquals(getKeyString(field), "f1");
+        BLangExpression expression = field.expr;
         Assert.assertEquals(expression.getKind(), NodeKind.ARRAY_LITERAL_EXPR);
         BLangListConstructorExpr listConstructorExpr = (BLangListConstructorExpr) expression;
         Assert.assertEquals(listConstructorExpr.exprs.size(), 2);
 
         BLangExpression element = listConstructorExpr.exprs.get(0);
-        Assert.assertEquals(element.getKind(), NodeKind.RECORD_LITERAL_EXPR);
-        BLangRecordLiteral elementRecordLiteral = (BLangRecordLiteral) element;
-        Assert.assertEquals(elementRecordLiteral.getKeyValuePairs().size(), 2);
-        keyValuePair = elementRecordLiteral.getKeyValuePairs().get(0);
-        Assert.assertEquals(getKeyString(keyValuePair), "s");
-        Assert.assertEquals(((BLangLiteral) keyValuePair.getValue()).value, "s");
-        keyValuePair = elementRecordLiteral.getKeyValuePairs().get(1);
-        Assert.assertEquals(getKeyString(keyValuePair), "t");
-        Assert.assertEquals(((BLangLiteral) keyValuePair.getValue()).value, "t");
+        Assert.assertEquals(element.getKind(), NodeKind.STATEMENT_EXPRESSION);
+        BLangStatementExpression elementRecordLiteral = (BLangStatementExpression) element;
+        List<BLangAssignment> elementRecFields = getRecordFieldAssignments(elementRecordLiteral);
+        Assert.assertEquals(elementRecFields.size(), 2);
+        field = elementRecFields.get(0);
+        Assert.assertEquals(getKeyString(field), "s");
+        Assert.assertEquals(((BLangLiteral) field.expr).value, "s");
+        field = elementRecFields.get(1);
+        Assert.assertEquals(getKeyString(field), "t");
+        Assert.assertEquals(((BLangLiteral) field.expr).value, "t");
 
         element = listConstructorExpr.exprs.get(1);
-        Assert.assertEquals(element.getKind(), NodeKind.RECORD_LITERAL_EXPR);
-        elementRecordLiteral = (BLangRecordLiteral) element;
-        Assert.assertEquals(elementRecordLiteral.getKeyValuePairs().size(), 2);
-        keyValuePair = elementRecordLiteral.getKeyValuePairs().get(0);
-        Assert.assertEquals(getKeyString(keyValuePair), "s");
-        Assert.assertEquals(((BLangLiteral) keyValuePair.getValue()).value, "s2");
-        keyValuePair = elementRecordLiteral.getKeyValuePairs().get(1);
-        Assert.assertEquals(getKeyString(keyValuePair), "t");
-        Assert.assertEquals(((BLangLiteral) keyValuePair.getValue()).value, "t2");
+        Assert.assertEquals(element.getKind(), NodeKind.STATEMENT_EXPRESSION);
+        elementRecordLiteral = (BLangStatementExpression) element;
+        elementRecFields = getRecordFieldAssignments(elementRecordLiteral);
+        Assert.assertEquals(elementRecFields.size(), 2);
+        field = elementRecFields.get(0);
+        Assert.assertEquals(getKeyString(field), "s");
+        Assert.assertEquals(((BLangLiteral) field.expr).value, "s2");
+        field = elementRecFields.get(1);
+        Assert.assertEquals(getKeyString(field), "t");
+        Assert.assertEquals(((BLangLiteral) field.expr).value, "t2");
 
-        keyValuePair = recordLiteral.getKeyValuePairs().get(1);
-        Assert.assertEquals(getKeyString(keyValuePair), "f2");
-        expression = keyValuePair.valueExpr;
+        field = fields.get(1);
+        Assert.assertEquals(getKeyString(field), "f2");
+        expression = field.expr;
         Assert.assertEquals(expression.getKind(), NodeKind.TUPLE_LITERAL_EXPR);
         listConstructorExpr = (BLangListConstructorExpr) expression;
         Assert.assertEquals(listConstructorExpr.exprs.size(), 2);
 
         element = listConstructorExpr.exprs.get(0);
-        Assert.assertEquals(element.getKind(), NodeKind.RECORD_LITERAL_EXPR);
-        elementRecordLiteral = (BLangRecordLiteral) element;
-        Assert.assertEquals(elementRecordLiteral.getKeyValuePairs().size(), 2);
-        keyValuePair = elementRecordLiteral.getKeyValuePairs().get(0);
-        Assert.assertEquals(getKeyString(keyValuePair), "s");
-        Assert.assertEquals(((BLangLiteral) keyValuePair.getValue()).value, "s3");
-        keyValuePair = elementRecordLiteral.getKeyValuePairs().get(1);
-        Assert.assertEquals(getKeyString(keyValuePair), "t");
-        Assert.assertEquals(((BLangLiteral) keyValuePair.getValue()).value, "t3");
+        Assert.assertEquals(element.getKind(), NodeKind.STATEMENT_EXPRESSION);
+        elementRecordLiteral = (BLangStatementExpression) element;
+        elementRecFields = getRecordFieldAssignments(elementRecordLiteral);
+        Assert.assertEquals(elementRecFields.size(), 2);
+        field = elementRecFields.get(0);
+        Assert.assertEquals(getKeyString(field), "s");
+        Assert.assertEquals(((BLangLiteral) field.expr).value, "s3");
+        field = elementRecFields.get(1);
+        Assert.assertEquals(getKeyString(field), "t");
+        Assert.assertEquals(((BLangLiteral) field.expr).value, "t3");
 
         element = listConstructorExpr.exprs.get(1);
         Assert.assertEquals(element.getKind(), NodeKind.LITERAL);
