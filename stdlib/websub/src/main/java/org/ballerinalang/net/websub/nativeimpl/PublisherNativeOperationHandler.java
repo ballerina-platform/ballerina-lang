@@ -35,9 +35,8 @@ import static org.ballerinalang.stdlib.io.utils.IOConstants.BYTE_CHANNEL_NAME;
 /**
  * This class contains interop external functions related to Publisher.
  *
- * @since 0.965.0
+ * @since 1.1.0
  */
-
 public class PublisherNativeOperationHandler {
 
     /**

@@ -45,7 +45,7 @@ import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB_PACK
 /**
  * This class contains interop external functions related to Hub.
  *
- * @since 0.965.0
+ * @since 1.1.0
  */
 public class HubNativeOperationHandler {
 

@@ -80,9 +80,8 @@ import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB_SERV
 /**
  * This class contains interop external functions related to WebSub Subscriber listener.
  *
- * @since 0.965.0
+ * @since 1.1.0
  */
-
 public class SubscriberNativeOperationHandler {
 
     /**

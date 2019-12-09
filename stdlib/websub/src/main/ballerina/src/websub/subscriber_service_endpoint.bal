@@ -19,6 +19,8 @@ import ballerina/http;
 import ballerina/lang.'object as lang;
 import ballerina/log;
 
+import ballerinax/java;
+
 //////////////////////////////////////////
 /// WebSub Subscriber Service Endpoint ///
 //////////////////////////////////////////
@@ -170,7 +172,7 @@ function externRegisterWebSubSubscriberService(Listener subscriberListener, serv
     class: "org.ballerinalang.net.websub.nativeimpl.SubscriberNativeOperationHandler"
 } external;
 
-function externStartWebSubSubscriberServiceEndpoint(Listener subscriberListener, service serviceType) = @java:Method {
+function externStartWebSubSubscriberServiceEndpoint(Listener subscriberListener) returns error? = @java:Method {
     name: "startWebSubSubscriberServiceEndpoint",
     class: "org.ballerinalang.net.websub.nativeimpl.SubscriberNativeOperationHandler"
 } external;
@@ -180,7 +182,7 @@ function externSetTopic(Listener subscriberListener, handle webSubServiceName, h
     class: "org.ballerinalang.net.websub.nativeimpl.SubscriberNativeOperationHandler"
 } external;
 
-function externRetrieveSubscriptionParameters(Listener subscriberListener) = @java:Method {
+function externRetrieveSubscriptionParameters(Listener subscriberListener) returns map<any>[] = @java:Method {
     name: "retrieveSubscriptionParameters",
     class: "org.ballerinalang.net.websub.nativeimpl.SubscriberNativeOperationHandler"
 } external;

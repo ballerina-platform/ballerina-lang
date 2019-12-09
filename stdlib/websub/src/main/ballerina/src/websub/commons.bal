@@ -22,6 +22,8 @@ import ballerina/log;
 import ballerina/mime;
 import ballerina/stringutils;
 
+import ballerinax/java;
+
 # Intent verification request parameter 'hub.challenge' representing the challenge that needs to be echoed by
 # susbscribers to verify intent.
 const string HUB_CHALLENGE = "hub.challenge";
@@ -661,7 +663,7 @@ function externGetAvailableTopics(Hub hub) returns string[] = @java:Method {
     class: "org.ballerinalang.net.websub.nativeimpl.HubNativeOperationHandler"
 } external;
 
-function externGetSubscribers(Hub hub, handle topic) returns string[] = @java:Method {
+function externGetSubscribers(Hub hub, handle topic) returns SubscriberDetails[] = @java:Method {
     name: "getSubscribers",
     class: "org.ballerinalang.net.websub.nativeimpl.HubNativeOperationHandler"
 } external;
