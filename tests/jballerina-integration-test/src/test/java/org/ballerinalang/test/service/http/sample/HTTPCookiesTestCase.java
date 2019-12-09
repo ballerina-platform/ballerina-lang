@@ -33,7 +33,7 @@ import java.io.File;
 public class HTTPCookiesTestCase extends HttpBaseTest {
 
     @Test(description = "Test send requests by cookie client for first, second and third times")
-    public void testRequestsByCookieClient() throws BallerinaTestException {
+    public void testSendRequestsByCookieClient() throws BallerinaTestException {
         String balFilepath = (new File("src" + File.separator + "test" + File.separator + "resources" +
                                                File.separator + "http" + File.separator + "src" + File.separator +
                                                "cookie")).getAbsolutePath();
@@ -87,5 +87,17 @@ public class HTTPCookiesTestCase extends HttpBaseTest {
                 "cookieClient_05.bal"}, balFilepath);
         // Since same two cookies are sent for all concurrent requests, only two cookies are stored in the cookie store.
         Assert.assertTrue(output.contains("SID001") && output.contains("SID003") && output.contains("2"));
+    }
+
+    @Test(description = "Test send requests by a client with Circuit Breaker, Retry and Cookie configurations are " +
+            "enabled")
+    public void testSendRequestsByClient() throws BallerinaTestException {
+        String balFilepath = (new File("src" + File.separator + "test" + File.separator + "resources" +
+                                               File.separator + "http" + File.separator + "src" + File.separator +
+                                               "cookie")).getAbsolutePath();
+        BMainInstance bMainInstance = new BMainInstance(balServer);
+        String output = bMainInstance.runMainAndReadStdOut("run", new String[]{
+                "cookieClient_06.bal"}, balFilepath);
+        Assert.assertTrue(output.contains("SID003=895gd4dmnmsddd34; SID002=178gd4dmnmsddd34; SID001=239d4dmnmsddd34"));
     }
 }
