@@ -15,8 +15,8 @@ public function main() {
     table<Employee> tbEmployee = table {
         {key id, name, salary},
         [
-            {1, "Mary",  300.5},
-            {2, "John",  200.5},
+            {1, "Mary", 300.5},
+            {2, "John", 200.5},
             {3, "Jim", 330.5}
         ]
     };
@@ -64,11 +64,7 @@ public function main() {
     io:println("Using while loop: ");
     while (tb.hasNext()) {
         var ret = tb.getNext();
-        if (ret is Employee) {
-            io:println("Name: ", ret.name);
-        } else {
-            io:println("Error in get employee from table");
-        }
+        io:println("Name: ", ret.name);
     }
 
     // This converts the `table` to JSON format.
