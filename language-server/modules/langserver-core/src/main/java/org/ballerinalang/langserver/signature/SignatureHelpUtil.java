@@ -529,7 +529,7 @@ public class SignatureHelpUtil {
         }
         // Add parameters and rest params
         bInvokableSymbol.getParameters().forEach(
-                p -> parameters.add(new Parameter(p.name.value, p.type, false, Symbols.isOptional(p)))
+                p -> parameters.add(new Parameter(p.name.value, p.type, Symbols.isOptional(p), false))
         );
         BVarSymbol restParam = bInvokableSymbol.restParam;
         if (restParam != null) {

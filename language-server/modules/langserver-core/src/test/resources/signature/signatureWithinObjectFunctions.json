@@ -11,25 +11,29 @@
           "documentation": {
             "right": {
               "kind": "markdown",
-              "value": "This function shows the hover and signature content"
+              "value": "**Description**  \nThis function shows the hover and signature content"
             }
           },
           "parameters": [
             {
-              "label": "param1",
+              "label": {
+                "left": "int param1"
+              },
               "documentation": {
                 "right": {
                   "kind": "markdown",
-                  "value": "This is the description for `param1`"
+                  "value": "**Parameter**  \n**`int`param1**: This is the description for `param1`"
                 }
               }
             },
             {
-              "label": "param2",
+              "label": {
+                "left": "string param2"
+              },
               "documentation": {
                 "right": {
                   "kind": "markdown",
-                  "value": "This is the description for `param2`"
+                  "value": "**Parameter**  \n**`string`param2**: This is the description for `param2`"
                 }
               }
             }
