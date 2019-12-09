@@ -147,8 +147,8 @@ public class LHSCompletionsTokenTraverser extends AbstractTokenTraverser {
             typedesc<record {}> x = t
          */
         if (type == BallerinaParser.RIGHT_BRACE
-                && (this.lastProcessedToken == BallerinaParser.ASSIGN
-                || this.lastProcessedToken == BallerinaParser.EQUAL_GT || this.rightBraceCount > 0
+                && (this.lastProcessedToken.getType() == BallerinaParser.ASSIGN
+                || this.lastProcessedToken.getType() == BallerinaParser.EQUAL_GT || this.rightBraceCount > 0
                 || this.gtSymbolCount > 0)) {
             this.processToken(token);
             this.forcedProcessedToken = true;
