@@ -27,6 +27,7 @@ import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManagerImpl;
+import org.ballerinalang.langserver.completions.sourceprune.CompletionsTokenTraverserFactory;
 import org.ballerinalang.langserver.completions.util.SourcePruneException;
 import org.ballerinalang.langserver.util.FileUtils;
 import org.eclipse.lsp4j.Position;
@@ -80,8 +81,11 @@ public class SourcePruneTest {
 
         this.documentManager.openFile(filePath.get(), documentContent);
         try {
-            SourcePruner.pruneSource(lsContext);
-            String prunedSource = documentManager.getFileContent(filePath.get());
+            TokenTraverserFactory traverserFactory = new CompletionsTokenTraverserFactory(filePath.get(),
+                                                                                          documentManager,
+                                                                                          SourcePruner.newContext());
+            SourcePruner.pruneSource(lsContext, traverserFactory);
+            String prunedSource = traverserFactory.getTokenStream().getText();
             Path expectedPath = expectedRoot.resolve(configObject.getAsJsonPrimitive("expected").getAsString());
             String expected = new String(Files.readAllBytes(expectedPath)).replaceAll("\r?\n", LINE_SEPARATOR);
             boolean sourceMatch = prunedSource.equals(expected);
