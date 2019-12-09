@@ -1,3 +1,10 @@
+function foo() returns int[][] {
+    int[][] x = [];
+    //x[0] = [];
+    x[0][1] = 2;
+    return x;
+}
+
 function testNonInitArrayAccess() returns (string){
     string[] fruits = [];
     return fruits[5];

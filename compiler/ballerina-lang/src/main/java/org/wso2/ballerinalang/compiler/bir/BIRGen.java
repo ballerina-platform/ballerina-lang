@@ -833,9 +833,10 @@ public class BIRGen extends BLangNodeVisitor {
     public void visit(BLangAssignment astAssignStmt) {
         astAssignStmt.expr.accept(this);
 
+        boolean prevVarAssignmentStatus = this.varAssignment;
         this.varAssignment = true;
         astAssignStmt.varRef.accept(this);
-        this.varAssignment = false;
+        this.varAssignment = prevVarAssignmentStatus;
     }
 
     @Override
