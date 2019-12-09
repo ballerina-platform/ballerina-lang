@@ -117,6 +117,14 @@ public class ArrayAccessExprTest {
         Assert.assertEquals(actual, expected);
     }
 
+    @Test
+    public void testFoo() {
+        BValue[] args = {};
+        BValue[] returns = BRunUtil.invoke(compileResult, "foo", args);
+
+        Assert.assertEquals(returns[0], "");
+    }
+
     @Test(description = "Test accessing an out of bound arrays-index",
           expectedExceptions = { BLangRuntimeException.class },
           expectedExceptionsMessageRegExp = ".*array index out of range: index: 5, size: 2.*")
