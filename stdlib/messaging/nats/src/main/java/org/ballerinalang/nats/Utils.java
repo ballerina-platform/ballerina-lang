@@ -23,6 +23,7 @@ import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.JSONParser;
 import org.ballerinalang.jvm.JSONUtils;
+import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.XMLFactory;
 import org.ballerinalang.jvm.types.AttachedFunction;
@@ -32,7 +33,6 @@ import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ArrayValueImpl;
-import org.ballerinalang.jvm.values.BmpStringValue;
 import org.ballerinalang.jvm.values.DecimalValue;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
@@ -65,12 +65,12 @@ public class Utils {
         Object dispatchedData;
         switch (dataParamTypeTag) {
             case TypeTags.STRING_TAG:
-                dispatchedData = new BmpStringValue(new String(data, StandardCharsets.UTF_8));
+                dispatchedData = StringUtils.fromString(new String(data, StandardCharsets.UTF_8));
                 break;
             case TypeTags.JSON_TAG:
                 try {
                     Object json = JSONParser.parse(new String(data, StandardCharsets.UTF_8));
-                    dispatchedData = json instanceof String ? new BmpStringValue((String) json) : json;
+                    dispatchedData = json instanceof String ? StringUtils.fromString((String) json) : json;
                 } catch (BallerinaException e) {
                     throw createNatsError("Error occurred in converting message content to json: " +
                             e.getMessage());
