@@ -32,7 +32,7 @@ import java.util.Optional;
  * @since 0.995.0
  */
 public abstract class AbstractTokenTraverser implements TokenTraverser {
-    protected int lastProcessedToken = -1;
+    protected Token lastProcessedToken = null;
     protected boolean pruneTokens;
     protected List<CommonToken> processedTokens = new ArrayList<>();
 
@@ -40,19 +40,21 @@ public abstract class AbstractTokenTraverser implements TokenTraverser {
         this.pruneTokens = pruneTokens;
     }
 
-    protected void processToken(Token token) {
+    protected boolean processToken(Token token) {
         this.processedTokens.add(new CommonToken(token));
         if (token.getType() == BallerinaParser.NEW_LINE || token.getType() == BallerinaParser.EOF ||
                 token.getChannel() != Token.DEFAULT_CHANNEL || token.getType() == BallerinaParser.WS) {
-            return;
+            return false;
         }
         // Otherwise only capture the processed tokens
-        this.lastProcessedToken = token.getType();
+        this.lastProcessedToken = token;
         if (pruneTokens) {
             // If the pruneTokens flag is true, replace the token text with empty spaces
             ((CommonToken) token).setText(getNCharLengthEmptyLine(token.getText().length()));
             ((CommonToken) token).setType(BallerinaParser.WS);
+            return true;
         }
+        return false;
     }
 
     protected static String getNCharLengthEmptyLine(int n) {
