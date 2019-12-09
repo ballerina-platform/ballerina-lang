@@ -32,6 +32,7 @@ import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ArrayValueImpl;
+import org.ballerinalang.jvm.values.BmpStringValue;
 import org.ballerinalang.jvm.values.DecimalValue;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
@@ -64,11 +65,12 @@ public class Utils {
         Object dispatchedData;
         switch (dataParamTypeTag) {
             case TypeTags.STRING_TAG:
-                dispatchedData = new String(data, StandardCharsets.UTF_8);
+                dispatchedData = new BmpStringValue(new String(data, StandardCharsets.UTF_8));
                 break;
             case TypeTags.JSON_TAG:
                 try {
-                    dispatchedData = JSONParser.parse(new String(data, StandardCharsets.UTF_8));
+                    Object json = JSONParser.parse(new String(data, StandardCharsets.UTF_8));
+                    dispatchedData = json instanceof String ? new BmpStringValue((String) json) : json;
                 } catch (BallerinaException e) {
                     throw createNatsError("Error occurred in converting message content to json: " +
                             e.getMessage());
@@ -94,7 +96,7 @@ public class Utils {
                 break;
             case TypeTags.RECORD_TYPE_TAG:
                 dispatchedData = JSONUtils.convertJSONToRecord(JSONParser.parse(new String(data,
-                                StandardCharsets.UTF_8)), (BRecordType) intendedType);
+                        StandardCharsets.UTF_8)), (BRecordType) intendedType);
                 break;
             default:
                 throw Utils.createNatsError("Unable to find a supported data type to bind the message data");
