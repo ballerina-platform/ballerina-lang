@@ -652,8 +652,10 @@ public class BCompileUtil {
 
         writeNonEntryPkgs(bLangPackage.symbol.imports, systemBirCache, importsBirCache, importsTarget, dumpBir);
         if (inProc) {
-            BootstrapRunner.generateJarBinaryInProc(entryBir.toString(), jarTarget.toString(), dumpBir,
-                    Collections.emptyList(), systemBirCache.toString(), importsBirCache.toString());
+            List<String> commands = BootstrapRunner.createArgsForJBalCompilerBackend(entryBir.toString(),
+                    jarTarget.toString(), dumpBir, Collections.emptyList(), systemBirCache.toString(),
+                    importsBirCache.toString());
+            BootstrapRunner.generateJarBinaryInProc(commands);
         } else {
             generateJarBinary(entryBir.toString(), jarTarget.toString(), dumpBir, Collections.emptyList(),
                     systemBirCache.toString(), importsBirCache.toString());

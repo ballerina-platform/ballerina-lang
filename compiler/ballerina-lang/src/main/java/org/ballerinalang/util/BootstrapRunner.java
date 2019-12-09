@@ -24,11 +24,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -48,36 +46,48 @@ public class BootstrapRunner {
     private static final PrintStream err = System.err;
     private static final String CLASSPATH = "CLASSPATH";
     private static final String TMP_OBJECT_FILE_NAME = "ballerina_native_objf.o";
+    private static final String COMPILER_BACKEND_JVM = "ballerina.compiler_backend_jvm.___init";
+    private static final String COMPILER_BACKEND_LLVM = "ballerina.compiler_backend_llvm.___init";
 
     public static void loadTargetAndGenerateJarBinary(String entryBir, String jarOutputPath, boolean dumpBir,
                                                       HashSet<Path> moduleDependencySet, String... birCachePaths) {
         //Load all Jars from module dependency set.
         List<String> jarFilePaths = new ArrayList<>(moduleDependencySet.size());
-        moduleDependencySet.forEach(path -> jarFilePaths.add(path.toString()));
-        generateJarBinaryInProc(entryBir, jarOutputPath, dumpBir, jarFilePaths, birCachePaths);
+        for (Path path : moduleDependencySet) {
+            jarFilePaths.add(path.toString());
+        }
+        List<String> commands =
+                createArgsForJBalCompilerBackend(entryBir, jarOutputPath, dumpBir, jarFilePaths, birCachePaths);
+        generateJarBinaryInProc(commands);
     }
 
-    public static void genNativeCode(String entryBir, boolean dumpLLVM, boolean noOptimizeLLVM) {
-        Path osTempDirPath = Paths.get(System.getProperty("java.io.tmpdir"));
-        Path objectFilePath = osTempDirPath.resolve(TMP_OBJECT_FILE_NAME);
+    public static void genNativeCode(String entryBir, Path targetDir, boolean dumpLLVM, boolean noOptimizeLLVM) {
+        Path nativeFolder = genNativeForlderInTarget(targetDir);
+        Path objectFilePath = nativeFolder.resolve(TMP_OBJECT_FILE_NAME);
         genObjectFile(entryBir, objectFilePath.toString(), dumpLLVM, noOptimizeLLVM);
         genExecutable(objectFilePath, "llvm");
 
         Runtime.getRuntime().exit(0);
     }
 
+    public static Path genNativeForlderInTarget(Path targetDir) {
+        Path nativeFolder = targetDir.resolve("native");
+        buildDirectoryFromPath(nativeFolder);
+        return nativeFolder;
+    }
+
+    public static void buildDirectoryFromPath(Path directory) {
+        try {
+            Files.createDirectories(directory);
+        } catch (IOException e) {
+            throw new BLangCompilerException("could not create native folder inside target folder", e);
+        }
+    }
+
     private static void genObjectFile(String entryBir, String objFileOutputPath, boolean dumpLLVM,
             boolean noOptimizeLLVM) {
-        try {
-            Class<?> backendMain = Class.forName("ballerina.compiler_backend_llvm.___init");
-            Method backendMainMethod = backendMain.getMethod("main", String[].class);
-            List<String> params = createArgsForCompilerBackend(entryBir, objFileOutputPath, dumpLLVM, noOptimizeLLVM);
-            backendMainMethod.invoke(null, new Object[]{params.toArray(new String[0])});
-        } catch (InvocationTargetException e) {
-            throw new BLangCompilerException(e.getTargetException().getMessage(), e);
-        } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException e) {
-            throw new BLangCompilerException("could not invoke compiler backend", e);
-        }
+        List<String> commands = createArgsForNBalCompilerBackend(entryBir, objFileOutputPath, dumpLLVM, noOptimizeLLVM);
+        generateJarBinaryInProc(commands);
     }
 
     private static void genExecutable(Path objectFilePath, String execFilename) {
@@ -138,16 +148,8 @@ public class BootstrapRunner {
         }
     }
 
-    public static void generateJarBinaryInProc(String entryBir, String jarOutputPath, boolean dumpBir,
-                                                List<String> jarFilePaths, String... birCachePaths) {
+    public static void generateJarBinaryInProc(List<String> commands) {
         try {
-            List<String> commands = new ArrayList<>();
-            commands.add("java");
-            setSystemProperty(commands, "ballerina.bstring");
-            commands.add("ballerina.compiler_backend_jvm.___init");
-            commands.addAll(createArgsForCompilerBackend(entryBir, jarOutputPath, dumpBir, true, birCachePaths,
-                    jarFilePaths));
-
             // pass the classpath for the sub-process
             ProcessBuilder pb = new ProcessBuilder(commands);
             Map<String, String> env = pb.environment();
@@ -186,9 +188,19 @@ public class BootstrapRunner {
         return sj.toString();
     }
 
+    public static List<String> createArgsForJBalCompilerBackend(String entryBir, String jarOutputPath, boolean dumpBir,
+            List<String> jarFilePaths, String... birCachePaths) {
+        List<String> commands = new ArrayList<>();
+        commands.add("java");
+        setSystemProperty(commands, "ballerina.bstring");
+        commands.add(COMPILER_BACKEND_JVM);
+        commands.addAll(createArgsForCompilerBackend(entryBir, jarOutputPath, dumpBir, true,
+                birCachePaths, jarFilePaths));
+        return commands;
+    }
+
     public static List<String> createArgsForCompilerBackend(String entryBir, String jarOutputPath, boolean dumpBir,
-                                                             boolean useSystemClassLoader, String[] birCachePaths,
-                                                             List<String> jarFilePaths) {
+            boolean useSystemClassLoader, String[] birCachePaths, List<String> jarFilePaths) {
         List<String> commands = new ArrayList<>();
         commands.add(entryBir);
         commands.add(getMapPath());
@@ -201,9 +213,11 @@ public class BootstrapRunner {
         return commands;
     }
 
-    private static List<String> createArgsForCompilerBackend(String entryBir, String objFileOutputPath,
+    private static List<String> createArgsForNBalCompilerBackend(String entryBir, String objFileOutputPath,
             boolean dumpLLVM, boolean noOptimizeLLVM) {
         List<String> commands = new ArrayList<>();
+        commands.add("java");
+        commands.add(COMPILER_BACKEND_LLVM);
         commands.add(entryBir);
         commands.add(objFileOutputPath);
         commands.add(dumpLLVM ? "true" : "false"); // dump LLVM-IR

@@ -43,6 +43,49 @@ service echo11 on testEP {
         checkpanic caller->respond(res);
     }
 
+    @http:ResourceConfig {
+        methods:["GET"],
+        path:"/echo2/{xyz}.id"
+    }
+    resource function echo6(http:Caller caller, http:Request req, string xyz) {
+        http:Response res = new;
+        json responseJson = {"echo6":xyz};
+        res.setJsonPayload(<@untainted json> responseJson);
+        checkpanic caller->respond(res);
+    }
+
+    @http:ResourceConfig {
+        methods:["GET"],
+        path:"/echo2/literal.id"
+    }
+    resource function echo6_1(http:Caller caller, http:Request req) {
+        http:Response res = new;
+        json responseJson = {"echo6":"literal invoked"};
+        res.setJsonPayload(<@untainted json> responseJson);
+        checkpanic caller->respond(res);
+    }
+
+    @http:ResourceConfig {
+        methods:["GET"],
+        path:"/echo2/{zz}.id/foo"
+    }
+    resource function echo6_2(http:Caller caller, http:Request req, string zz) {
+        http:Response res = new;
+        json responseJson = {"echo6":"specific path invoked"};
+        res.setJsonPayload(<@untainted json> responseJson);
+        checkpanic caller->respond(res);
+    }
+
+    @http:ResourceConfig {
+        methods:["GET"],
+        path:"/echo2/{xyz}.identity"
+    }
+    resource function echo6_3(http:Caller caller, http:Request req, string xyz) {
+        http:Response res = new;
+        json responseJson = {"echo6":"identity"};
+        res.setJsonPayload(<@untainted json> responseJson);
+        checkpanic caller->respond(res);
+    }
 
     @http:ResourceConfig {
         methods:["GET"],
@@ -313,7 +356,6 @@ service echo44 on testEP {
         checkpanic caller->respond(res);
     }
 }
-
 
 service echo55 on testEP {
     @http:ResourceConfig {

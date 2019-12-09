@@ -3,6 +3,7 @@ function testMultiInteractions(int k) returns int{
 }
 
 function test (int k) returns int {
+    @concurrent{}
     worker mainW returns int {
         int x = 1100;
         x -> w1;
@@ -10,6 +11,7 @@ function test (int k) returns int {
         return x;
     }
 
+    @concurrent{}
     worker w1 {
         int x = 0;
         x = <- mainW;
@@ -17,6 +19,7 @@ function test (int k) returns int {
         x -> w2;
     }
 
+    @concurrent{}
     worker w2 {
         int x = 0;
         x = <- w1;
@@ -24,6 +27,7 @@ function test (int k) returns int {
         x -> w3;
     }
 
+    @concurrent{}
     worker w3 {
         int x = 0;
         x = <- w2;

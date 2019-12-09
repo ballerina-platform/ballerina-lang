@@ -42,3 +42,52 @@ function append(string[] arr, string msg) {
     arr[len] = msg;
     len = len + 1;
 }
+
+function testMergeSort(int[] array) returns int[] {
+    int[] helper = [];
+    doParallelMergesort(array, helper, 0, array.length() - 1);
+    return array;
+}
+
+function doParallelMergesort(int[] array, int[] helper, int low, int high) {
+    if (low < high) {
+        int middle = (low + high) / 2;
+        fork {
+            worker w1 {
+                doParallelMergesort(array, helper, low, middle);
+            }
+            worker w2 {
+                doParallelMergesort(array, helper, middle + 1, high);
+            }
+        }
+        _ = wait {w1,w2};
+        merge(array, helper, low, middle, high);
+    }
+}
+
+public function merge(int[] array, int[] helper, int low, int middle, int high) {
+    foreach var i in low ... high {
+        helper[i] = array[i];
+    }
+
+    int helperLeft = low;
+    int helperRight = middle + 1;
+    int current = low;
+
+    while (helperLeft <= middle && helperRight <= high) {
+        if (helper[helperLeft] <= helper[helperRight]) {
+            array[current] = helper[helperLeft];
+            helperLeft = helperLeft + 1;
+        } else {
+            array[current] = helper[helperRight];
+            helperRight = helperRight + 1;
+        }
+        current = current + 1;
+    }
+
+    while (helperLeft <= middle) {
+        array[current] = helper[helperLeft];
+        current = current + 1;
+        helperLeft = helperLeft + 1;
+    }
+}

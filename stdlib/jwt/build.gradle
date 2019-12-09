@@ -81,6 +81,7 @@ dependencies {
     interopImports project(':ballerina-task')
     interopImports project(':ballerina-time')
     interopImports project(':ballerina-crypto')
+    interopImports project(':ballerina-runtime-api')
 }
 
 configurations.all {

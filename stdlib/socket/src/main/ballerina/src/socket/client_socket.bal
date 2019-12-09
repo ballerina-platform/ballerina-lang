@@ -25,7 +25,7 @@ import ballerinax/java;
 # + id - a unique identifier to identify each client
 public type Client client object {
 
-    private ClientConfig config;
+    private ClientConfig? config = ();
     public int remotePort = 0;
     public int localPort = 0;
     public string? remoteAddress = ();

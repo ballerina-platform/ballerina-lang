@@ -32,7 +32,7 @@ import java.util.List;
  */
 public class BLangForever extends BLangExpressionStmt implements ForeverNode {
 
-    private List<StreamingQueryStatementNode> streamingQueryStatementNodeList = new ArrayList<>();
+    public List<StreamingQueryStatementNode> streamingQueryStatementNodeList = new ArrayList<>();
     public List<BLangSimpleVariable> params;
 
     @Override

@@ -257,15 +257,17 @@ public class SymbolEnter extends BLangNodeVisitor {
                 importPkgHolder.get(qualifiedName).unresolved.add(importNode);
                 return;
             }
-            importPkgHolder.put(qualifiedName, new ImportResolveHolder(importNode));
             defineNode(importNode, pkgEnv);
+            if (importNode.symbol != null) {
+                importPkgHolder.put(qualifiedName, new ImportResolveHolder(importNode));
+            }
         });
 
         for (ImportResolveHolder importHolder : importPkgHolder.values()) {
-            for (BLangImportPackage unresolvedPkg : importHolder.unresolved) {
-                BPackageSymbol pkgSymbol = importHolder.resolved.symbol; // get a copy of the package symbol, add
-                                                                         // compilation unit info to it,
+            BPackageSymbol pkgSymbol = importHolder.resolved.symbol; // get a copy of the package symbol, add
+            // compilation unit info to it,
 
+            for (BLangImportPackage unresolvedPkg : importHolder.unresolved) {
                 BPackageSymbol importSymbol = importHolder.resolved.symbol;
                 Name resolvedPkgAlias = names.fromIdNode(importHolder.resolved.alias);
                 Name unresolvedPkgAlias = names.fromIdNode(unresolvedPkg.alias);
@@ -414,7 +416,8 @@ public class SymbolEnter extends BLangNodeVisitor {
                 String pkgName = importPkgNode.getPackageName().stream()
                         .map(id -> id.value)
                         .collect(Collectors.joining("."));
-                if (this.sourceDirectory.getSourcePackageNames().contains(pkgName)) {
+                if (this.sourceDirectory.getSourcePackageNames().contains(pkgName)
+                        && orgName.value.equals(enclPackageID.orgName.value)) {
                     version = enclPackageID.version;
                 } else {
                     version = Names.EMPTY;

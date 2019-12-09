@@ -14,6 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerinax/java;
+
 # Represents the InvocationContext.
 #
 # + id - Unique id generated when initiating the invocation context.
@@ -52,4 +54,6 @@ public type Principal record {
 # Creates a InvocationContext instance.
 #
 # + return - InvocationContext instance
-public function getInvocationContext() returns InvocationContext = external;
+public function getInvocationContext() returns InvocationContext = @java:Method {
+    class: "org.ballerinalang.stdlib.runtime.nativeimpl.GetInvocationContext"
+} external;
