@@ -105,8 +105,7 @@ rem ----- commandDebug ---------------------------------------------------------
 :commandDebug
 if "%BAL_JAVA_DEBUG%"=="" goto noDebugPort
 if not "%JAVA_OPTS%"=="" echo Warning !!!. User specified JAVA_OPTS will be ignored, once you give the BAL_JAVA_DEBUG variable.
-set JAVA_OPTS=-Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=%BAL_JAVA_DEBUG%
-echo Please start the remote debugging client to continue...
+set JAVA_OPTS=-Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=%BAL_JAVA_DEBUG%,quiet=y
 goto runServer
 
 :noDebugPort
