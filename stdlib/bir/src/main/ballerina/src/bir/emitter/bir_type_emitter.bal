@@ -14,8 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/io;
-
 map<BType> bTypes = {};
 
 type BTypeBasicType BTypeInt | BTypeBoolean | BTypeAny | BTypeNil | BTypeByte | BTypeFloat 
@@ -23,17 +21,15 @@ type BTypeBasicType BTypeInt | BTypeBoolean | BTypeAny | BTypeNil | BTypeByte | 
 
 type BTypeComplexType BUnionType | BTupleType | BInvokableType | BArrayType | BRecordType | BObjectType 
                           | BMapType | BErrorType | BFutureType | Self | BTypeDesc | BServiceType | BPlatformType 
-			  | BFiniteType | BTableType | BStreamType;
+			  | BFiniteType | BTableType | BStreamType | BTypeHandle;
 
 
 function emitType(BType bType, int tabs = 0) returns string {
     if bType is BTypeBasicType {
         return emitBasicType(bType);
-    } else if bType is BTypeComplexType {
+    } else { //if bType is BTypeComplexType {
         return emitComplexType(bType, tabs);
     }
-    error e = error(io:sprintf("cannot emmit type, invalid type: %s", bType));
-    panic e;
 }
 
 function emitBasicType(BTypeBasicType bType) returns string {
@@ -97,6 +93,8 @@ function emitComplexType(BTypeComplexType bType, int tabs) returns string {
         return emitBFiniteType(bType, tabs);
     } else if bType is BTableType {
         return emitBTableType(bType, tabs);
+    } else if bType is BTypeHandle {
+        return emitBTypeHandle(bType, tabs);
     } else { //if bType is BStreamType {
         return emitBStreamType(bType, tabs);
     }
@@ -283,7 +281,16 @@ function emitBServiceType(BServiceType bType, int tabs) returns string {
 function emitBFiniteType(BFiniteType bType, int tabs) returns string {
     string str = "";
     str += "[";
-    // TODO fill finite type
+    int i = 0;
+    int length = bType.values.length();
+    foreach var v in bType.values {
+        str += v.toString();
+        i += 1;
+        if i < length {
+            str += ",";
+            str += emitSpaces(1);
+        }
+    }
     str += "]";
     return str;
 }
@@ -292,6 +299,18 @@ function emitBTableType(BTableType bType, int tabs) returns string {
     string str = "table";
     str += "<";
     str += emitTypeRef(bType.tConstraint);
+    str += ">";
+    return str;
+}
+
+function emitBTypeHandle(BTypeHandle bType, int tabs) returns string {
+    string str = "handle";
+    str += "<";
+    if bType.constraint is () {
+        str += "()";
+    } else {
+        str += bType.constraint.toString();
+    }
     str += ">";
     return str;
 }
@@ -307,11 +326,9 @@ function emitBStreamType(BStreamType bType, int tabs) returns string {
 function emitTypeRef(BType bType, int tabs = 0) returns string {
     if bType is BTypeBasicType {
         return emitBasicType(bType);
-    } else if bType is BTypeComplexType {
+    } else { //if bType is BTypeComplexType {
         return emitComplextTypeRef(bType, tabs);
     }
-    error e = error(io:sprintf("cannot emit type ref, invalid type: %s", bType));
-    panic e;
 }
 
 function emitComplextTypeRef(BTypeComplexType bType, int tabs) returns string {
@@ -321,6 +338,12 @@ function emitComplextTypeRef(BTypeComplexType bType, int tabs) returns string {
     }
     if bType is BErrorType {
         bTypes[bType.name.value] = bType;
+    }
+    if bType is BRecordType {
+        return bType.name.value;
+    }
+    if bType is BObjectType {
+        return bType.name.value;
     }
     return emitType(bType, tabs);
 }   

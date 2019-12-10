@@ -23,6 +23,7 @@ import org.ballerinalang.model.tree.clauses.SetAssignmentNode;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 
 /**
  * Implementation of {@link SetAssignmentNode}.
@@ -31,8 +32,8 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
  */
 public class BLangSetAssignment extends BLangNode implements SetAssignmentNode {
 
-    private ExpressionNode variableReferenceNode;
-    private ExpressionNode expressionNode;
+    public BLangExpression variableReferenceNode;
+    public BLangExpression expressionNode;
 
     @Override
     public void accept(BLangNodeVisitor visitor) {
@@ -46,7 +47,8 @@ public class BLangSetAssignment extends BLangNode implements SetAssignmentNode {
 
     @Override
     public void setVariableReference(ExpressionNode variableReference) {
-        this.variableReferenceNode = variableReference;
+
+        this.variableReferenceNode = (BLangExpression) variableReference;
     }
 
     @Override
@@ -56,7 +58,8 @@ public class BLangSetAssignment extends BLangNode implements SetAssignmentNode {
 
     @Override
     public void setExpression(ExpressionNode expressionNode) {
-        this.expressionNode = expressionNode;
+
+        this.expressionNode = (BLangExpression) expressionNode;
     }
 
     @Override

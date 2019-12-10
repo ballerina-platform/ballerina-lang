@@ -217,12 +217,16 @@ public type TypeParser object {
         return obj;
     }
 
-    function parseInvokableType() returns BInvokableType {
-        BInvokableType obj = { paramTypes:[], retType: TYPE_NIL };
-        obj.paramTypes = self.parseTypes();
-        obj.retType = self.parseTypeCpRef();
-        return obj;
-    }
+     function parseInvokableType() returns BInvokableType {
+                BInvokableType obj = { paramTypes:[], retType: TYPE_NIL };
+                obj.paramTypes = self.parseTypes();
+                boolean hasRest = self.readBoolean();
+                if (hasRest) {
+                    obj.restType = self.parseTypeCpRef();
+                }
+                obj.retType = self.parseTypeCpRef();
+                return obj;
+     }
 
     function parseRecordType(int typeFlags) returns BRecordType {
         BRecordType obj = { moduleId: self.cp.packages[self.readInt32()],

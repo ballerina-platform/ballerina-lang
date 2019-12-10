@@ -42,7 +42,7 @@ public type TimeBatchWindow object {
     public LinkedList currentEventQueue;
     public StreamEvent? resetEvent;
     public function (StreamEvent?[])? nextProcessPointer;
-    public task:Scheduler scheduler;
+    public task:Scheduler? scheduler = ();
 
     public function __init(function (StreamEvent?[])? nextProcessPointer, any[] windowParameters) {
         self.nextProcessPointer = nextProcessPointer;
@@ -55,8 +55,12 @@ public type TimeBatchWindow object {
             intervalInMillis: self.timeInMilliSeconds,
             initialDelayInMillis: self.timeInMilliSeconds
         });
-        checkpanic self.scheduler.attach(eventInjectorService, self);
-        checkpanic self.scheduler.start();
+        checkpanic self.getScheduler().attach(eventInjectorService, self);
+        checkpanic self.getScheduler().start();
+    }
+
+    public function getScheduler() returns task:Scheduler {
+        return <task:Scheduler> self.scheduler;
     }
 
     public function initParameters(any[] parameters) {

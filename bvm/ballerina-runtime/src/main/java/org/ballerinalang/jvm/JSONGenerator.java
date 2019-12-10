@@ -303,6 +303,9 @@ public class JSONGenerator {
             case TypeTags.INT_TAG:
                 this.writeNumber(((Number) json).longValue());
                 break;
+            case TypeTags.BYTE_TAG:
+                this.writeNumber(((Number) json).intValue());
+                break;
             case TypeTags.MAP_TAG:
             case TypeTags.JSON_TAG:
                 this.startObject();
