@@ -46,17 +46,18 @@ public class FiniteTypeNegativeTest {
 
     @Test()
     public void testInvalidLiteralAssignment() {
+
         CompileResult result = BCompileUtil.compile("test-src/types/finite/finite_type_negative.bal");
-        Assert.assertEquals(result.getErrorCount(), 9, "Error count mismatch");
+        Assert.assertEquals(result.getErrorCount(), 13, "Error count mismatch");
         int i = 0;
         validateError(result, i++, "incompatible types: expected '(5|100)', found 'string'", 33, 16);
-//        validateError(result, i++, "incompatible types: expected '5', found '5'", 40, 18); // TODO : Fix me #20257
+        validateError(result, i++, "incompatible types: expected '5', found '5'", 40, 18);
         validateError(result, i++, "incompatible types: expected '5', found '5'", 47, 17);
         validateError(result, i++, "incompatible types: expected '5', found 'float'", 52, 17);
-//        validateError(result, i++, "incompatible types: expected '5f', found '5'", 59, 19); // TODO : Fix me #20257
+        validateError(result, i++, "incompatible types: expected '5f', found '5'", 59, 19);
         validateError(result, i++, "incompatible types: expected '5f', found '5d'", 64, 19);
-//        validateError(result, i++, "incompatible types: expected '5d', found '5'", 71, 21); // TODO : Fix me #20257
-//        validateError(result, i++, "incompatible types: expected '5d', found '5f'", 76, 21); // TODO : Fix me #20257
+        validateError(result, i++, "incompatible types: expected '5d', found '5'", 71, 21);
+        validateError(result, i++, "incompatible types: expected '5d', found '5f'", 76, 21);
         validateError(result, i++, "incompatible types: expected '5', found 'int'", 81, 17);
         validateError(result, i++, "incompatible types: expected 'string', found 'foo|1'", 89, 17);
         validateError(result, i++, "incompatible types: expected 'int', found '(string|int)'", 92, 14);
