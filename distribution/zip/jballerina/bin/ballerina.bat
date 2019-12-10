@@ -105,6 +105,7 @@ rem ----- commandDebug ---------------------------------------------------------
 :commandDebug
 if "%BAL_JAVA_DEBUG%"=="" goto noDebugPort
 if not "%JAVA_OPTS%"=="" echo Warning !!!. User specified JAVA_OPTS will be ignored, once you give the BAL_JAVA_DEBUG variable.
+rem 'quiet=y' avoids breaking LSP protocol in debug mode
 set JAVA_OPTS=-Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=%BAL_JAVA_DEBUG%,quiet=y
 goto runServer
 
