@@ -3,4 +3,5 @@
 $ ballerina run anonymous_functions.bal
 Output: Hello World.!!!
 Output: Hello World.!!!
+Output: 2
 Output: Hello World.!!!

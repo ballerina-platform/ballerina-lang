@@ -14,6 +14,12 @@ public function main() {
                         };
     io:println("Output: ", anonFunction2("Hello ", "World.!!!"));
 
+    // Defines an anonymous function with rest parameter.
+    var anonFunction3 = function (string... a) returns int {
+                            return  a.length();
+                        };
+    io:println("Output: ", anonFunction3("Hello ", "Ballerina!!"));
+
     // If an anonymous function contains only the return statement in the body,
     // you can use the `arrow function expression` instead of the anonymous function.
     // The types of the input parameters are inferred from the left-hand side.
