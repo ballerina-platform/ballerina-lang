@@ -338,8 +338,6 @@ public abstract class AbstractArrayValue implements ArrayValue {
         }
     }
 
-    protected abstract void prepareForAdd(long index, Object value, int currentArraySize);
-
     /**
      * Same as {@code prepareForAdd}, except fillerValueCheck is not performed as we are guaranteed to add
      * elements to consecutive positions.
