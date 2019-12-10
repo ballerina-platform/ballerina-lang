@@ -47,7 +47,7 @@ public type TimeOrderWindow object {
     public int lastTimestamp;
     public boolean dropOlderEvents;
     public MergeSort mergeSort;
-    public Scheduler scheduler;
+    public Scheduler? scheduler = ();
 
     public function __init(function (StreamEvent?[])? nextProcessPointer, any[] windowParameters) {
         self.nextProcessPointer = nextProcessPointer;
@@ -62,6 +62,10 @@ public type TimeOrderWindow object {
         self.scheduler = new(function (StreamEvent?[] events) {
                 self.process(events);
             });
+    }
+
+    public function getScheduler() returns Scheduler {
+        return <Scheduler> self.scheduler;
     }
 
     public function initParameters(any[] parameters) {
@@ -153,8 +157,8 @@ public type TimeOrderWindow object {
                     }
 
                     if (self.lastTimestamp < self.getTimestamp(streamEvent.data[self.timestamp])) {
-                        self.scheduler.notifyAt(self.getTimestamp(streamEvent.data[self.timestamp]) + self
-                                .timeInMillis);
+                        self.getScheduler().notifyAt(self.getTimestamp(streamEvent.data[self.timestamp]) + self
+                                                         .timeInMillis);
                         self.lastTimestamp = self.getTimestamp(streamEvent.data[self.timestamp]);
                     }
                 } else {

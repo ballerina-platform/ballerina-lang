@@ -37,7 +37,7 @@ public class ConnectionNativeFunctionTest {
 
     @BeforeClass
     public void setup() {
-        BCompileUtil.compile("test-src/services/nativeimpl/connection/connection-native-function.bal");
+        BCompileUtil.compileOffline("test-src/services/nativeimpl/connection/connection-native-function.bal");
     }
 
     @Test(description = "Test whether the headers and status codes are set correctly.")

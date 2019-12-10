@@ -1,0 +1,6 @@
+# To run this sample, navigate to the directory that contains the
+# `.bal` file, and execute the `ballerina run` command.
+$ ballerina run error_user_defined.bal
+Error: InvalidAccountType, Account type: Joined
+Error: InvalidAccountID, Account ID: -1
+Error: AccountInquiryFailed, Message: InvalidAccountID, Cause: error InvalidAccountID accountID=-1

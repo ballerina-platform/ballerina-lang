@@ -23,10 +23,12 @@ function testStackOverflowInFunction() {
 }
 
 function stackOverflowInWorker() {
+    @concurrent{}
     worker w1 returns int {
         return getInt();
     }
 
+    @concurrent{}
     worker w2 returns int {
         return 10;
     }

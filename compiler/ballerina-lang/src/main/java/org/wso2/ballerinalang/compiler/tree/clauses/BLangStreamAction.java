@@ -23,6 +23,7 @@ import org.ballerinalang.model.tree.clauses.StreamActionNode;
 import org.ballerinalang.model.tree.expressions.LambdaFunctionNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 
 /**
  * Implementation of {@link StreamActionNode}.
@@ -30,11 +31,13 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
  * @since 0.965.0
  */
 public class BLangStreamAction extends BLangNode implements StreamActionNode {
-    private LambdaFunctionNode lambdaFunction;
+
+    public BLangLambdaFunction lambdaFunction;
 
     @Override
     public void setInvokableBody(LambdaFunctionNode lambdaFunction) {
-        this.lambdaFunction = lambdaFunction;
+
+        this.lambdaFunction = (BLangLambdaFunction) lambdaFunction;
     }
 
     @Override
