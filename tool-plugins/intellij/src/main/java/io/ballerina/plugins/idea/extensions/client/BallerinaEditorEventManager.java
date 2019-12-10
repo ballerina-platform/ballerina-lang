@@ -280,9 +280,7 @@ public class BallerinaEditorEventManager extends EditorEventManager {
 
         // Fixes IDEA internal assertion failure in windows.
         lookupString = lookupString.replace(DocumentUtils.WIN_SEPARATOR, DocumentUtils.LINUX_SEPARATOR);
-        if (lookupString.contains(DocumentUtils.LINUX_SEPARATOR)) {
-            lookupString = insertIndents(lookupString, position);
-        }
+
         if (shouldRunInSnippetMode(item, lookupString)) {
             lookupElementBuilder = LookupElementBuilder.create(convertPlaceHolders(lookupString));
         } else {
