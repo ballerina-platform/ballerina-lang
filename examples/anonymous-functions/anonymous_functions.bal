@@ -9,16 +9,15 @@ public function main() {
     io:println("Output: ", anonFunction("Hello ", "World.!!!"));
 
     // Defines an anonymous function with `var`.
-    var anonFunction2 = function (string x, string y) returns string {
-                            return x + y;
+    var anonFunction2 = function (string x, string y, string... z) returns string {
+                            string value = x + y;
+                            foreach var item in z {
+                                value += item;
+                            }
+                            return value;
                         };
-    io:println("Output: ", anonFunction2("Hello ", "World.!!!"));
-
-    // Defines an anonymous function with rest parameter.
-    var anonFunction3 = function (string... a) returns int {
-                            return  a.length();
-                        };
-    io:println("Output: ", anonFunction3("Hello ", "Ballerina!!"));
+    io:println("Output: ", anonFunction2("Ballerina ", "is ", "an ", "open ",
+     "source ", "programming ", "language."));
 
     // If an anonymous function contains only the return statement in the body,
     // you can use the `arrow function expression` instead of the anonymous function.
