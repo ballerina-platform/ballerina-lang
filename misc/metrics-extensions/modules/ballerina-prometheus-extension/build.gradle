@@ -33,7 +33,6 @@ dependencies {
     baloImplementation project(path: ':ballerina-http', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-observability', configuration: 'baloImplementation')
     baloImplementation project(path: ":ballerina-config-api", configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-utils', configuration: 'baloImplementation')
 
     // transitive
     baloImplementation project(path: ":ballerina-system", configuration: 'baloImplementation')
@@ -85,7 +84,6 @@ dependencies {
     implementation project(':ballerina-log-api')
     implementation project(':ballerina-reflect')
     implementation project(':ballerina-auth')
-    implementation project(':ballerina-utils')
     implementation project(':ballerina-config')
     implementation project(':ballerina-runtime')
 }

@@ -18,7 +18,7 @@
 apply plugin: 'java'
 apply plugin: 'checkstyle'
 apply plugin: "com.github.spotbugs"
-apply plugin: 'jacoco'
+//apply plugin: 'jacoco'
 
 apply from: "$rootDir/gradle/repositories.gradle"
 
@@ -165,12 +165,12 @@ test {
         exceptionFormat "full"
     }
 }
-
-jacocoTestReport {
-    reports {
-        xml.enabled true
-    }
-}
+//
+//jacocoTestReport {
+//    reports {
+//        xml.enabled true
+//    }
+//}
 
 task createJavadoc(type: Javadoc) {
     source = sourceSets.main.java

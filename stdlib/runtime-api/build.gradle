@@ -38,13 +38,10 @@ dependencies {
     baloImplementation project(path: ':ballerina-java', configuration: 'baloImplementation')
 
     testCompile project(':ballerina-test-utils')
-    testCompile project(':ballerina-utils')
     testCompile project(':ballerina-core')
     testCompile project(':ballerina-file')
 
-    bir project(path: ':ballerina-utils', configuration: 'bir')
     bir project(path: ':ballerina-lang:annotations', configuration: 'bir')
-    birJar project(path: ':ballerina-utils', configuration: 'birJar')
 }
 
 createBalo {

@@ -3350,6 +3350,10 @@ public class Desugar extends BLangNodeVisitor {
                 if (!iExpr.langLibInvocation) {
                     List<BLangExpression> argExprs = new ArrayList<>(iExpr.requiredArgs);
                     argExprs.add(0, iExpr.expr);
+                    //                    // If already the first arg, don't add it again
+                    //                    if (argExprs.isEmpty() || (argExprs.size() > 1 && argExprs.get(0) != iExpr.expr)) {
+                    //                        argExprs.add(0, iExpr.expr);
+                    //                    }
                     BLangAttachedFunctionInvocation attachedFunctionInvocation =
                             new BLangAttachedFunctionInvocation(iExpr.pos, argExprs, iExpr.restArgs, iExpr.symbol,
                                                                 iExpr.type, iExpr.expr, iExpr.async);
@@ -3410,8 +3414,9 @@ public class Desugar extends BLangNodeVisitor {
                 .filter(a -> a.getKind() == NodeKind.NAMED_ARGS_EXPR)
                 .collect(Collectors.toList());
         if (namedArgs.isEmpty()) {
-            errorDetail = visitUtilMethodInvocation(iExpr.pos,
-                    BLangBuiltInMethod.FREEZE, Lists.of(rewriteExpr(recordLiteral)));
+            errorDetail = visitCloneReadonly(rewriteExpr(recordLiteral), recordLiteral.type);
+//                    visitUtilMethodInvocation(iExpr.pos,
+//                    BLangBuiltInMethod.FREEZE, Lists.of());
         } else {
             for (BLangExpression arg : namedArgs) {
                 BLangNamedArgsExpression namedArg = (BLangNamedArgsExpression) arg;
@@ -3428,8 +3433,12 @@ public class Desugar extends BLangNodeVisitor {
                 iExpr.requiredArgs.remove(arg);
             }
             recordLiteral = rewriteExpr(recordLiteral);
-            BLangExpression cloned = visitCloneInvocation(recordLiteral, ((BErrorType) iExpr.symbol.type).detailType);
-            errorDetail = visitUtilMethodInvocation(iExpr.pos, BLangBuiltInMethod.FREEZE, Lists.of(cloned));
+            //BLangExpression cloned = visitCloneInvocation(recordLiteral, ((BErrorType) iExpr.symbol.type).detailType);
+            //errorDetail = visitUtilMethodInvocation(iExpr.pos, BLangBuiltInMethod.FREEZE, Lists.of(cloned));
+            // cmnt cmnt
+            // this is more lines
+            // and more comments
+            errorDetail = visitCloneReadonly(recordLiteral, ((BErrorType) iExpr.symbol.type).detailType);
         }
         iExpr.requiredArgs.add(errorDetail);
         return iExpr;
@@ -4525,6 +4534,30 @@ public class Desugar extends BLangNodeVisitor {
         return invocationNode;
     }
 
+    private BLangInvocation createLangLibInvocationNode(String functionName,
+                                                        BLangExpression onExpr,
+                                                        List<BLangExpression> args, BType retType,
+                                                        DiagnosticPos pos) {
+        BLangInvocation invocationNode = (BLangInvocation) TreeBuilder.createInvocationNode();
+        invocationNode.pos = pos;
+        BLangIdentifier name = (BLangIdentifier) TreeBuilder.createIdentifierNode();
+        name.setLiteral(false);
+        name.setValue(functionName);
+        name.pos = pos;
+        invocationNode.name = name;
+        invocationNode.pkgAlias = (BLangIdentifier) TreeBuilder.createIdentifierNode();
+
+        invocationNode.expr = onExpr;
+        invocationNode.symbol = symResolver.lookupLangLibMethod(onExpr.type, names.fromString(functionName));
+        ArrayList<BLangExpression> requiredArgs = new ArrayList<>();
+        requiredArgs.add(onExpr);
+        requiredArgs.addAll(args);
+        invocationNode.requiredArgs = requiredArgs;
+        invocationNode.type = retType;
+        invocationNode.langLibInvocation = true;
+        return invocationNode;
+    }
+
     private BLangLiteral getSQLPreparedStatement(BLangTableQueryExpression
                                                          tableQueryExpression) {
         //create a literal to represent the sql query.
@@ -4808,24 +4841,23 @@ public class Desugar extends BLangNodeVisitor {
         if (types.isValueType(expr.type)) {
             return expr;
         }
-        return addConversionExprIfRequired(visitUtilMethodInvocation(expr.pos, BLangBuiltInMethod.CLONE,
-                                                                     Lists.of(expr)), lhsType);
+        if (expr.type.tag == TypeTags.ERROR) {
+            return expr;
+        }
+        BLangInvocation cloneInvok = createLangLibInvocationNode("clone", expr, new ArrayList(), expr.type, expr.pos);
+        return addConversionExprIfRequired(cloneInvok, lhsType);
     }
 
-    private BLangExpression visitCloneAndStampInvocation(BLangExpression expr, BType lhsType) {
+    private BLangExpression visitCloneReadonly(BLangExpression expr, BType lhsType) {
         if (types.isValueType(expr.type)) {
             return expr;
         }
-        BLangInvocation cloned = visitUtilMethodInvocation(expr.pos, BLangBuiltInMethod.CLONE, Lists.of(expr));
-        return addConversionExprIfRequired(visitStampInvocation(cloned, lhsType, expr.pos), lhsType);
-    }
-
-    private BLangInvocation visitStampInvocation(BLangExpression expression, BType typeToStamp, DiagnosticPos pos) {
-        BLangTypedescExpr typedescExpr = new BLangTypedescExpr();
-        typedescExpr.resolvedType = typeToStamp;
-        typedescExpr.type = symTable.typeDesc;
-
-        return visitUtilMethodInvocation(pos, BLangBuiltInMethod.STAMP, Lists.of(typedescExpr, expression));
+        if (expr.type.tag == TypeTags.ERROR) {
+            return expr;
+        }
+        BLangInvocation cloneInvok = createLangLibInvocationNode("cloneReadOnly", expr, new ArrayList(), expr.type,
+                expr.pos);
+        return addConversionExprIfRequired(cloneInvok, lhsType);
     }
 
     private BLangExpression visitConvertInvocation(BLangInvocation iExpr) {
