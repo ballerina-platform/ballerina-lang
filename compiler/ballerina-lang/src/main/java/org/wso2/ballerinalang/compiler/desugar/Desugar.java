@@ -686,7 +686,8 @@ public class Desugar extends BLangNodeVisitor {
             bLangRestArgsExpression.expectedType = bLangRestArgsExpression.type;
             invocation.restArgs.add(bLangRestArgsExpression);
         }
-        invocation.exprSymbol = ((BObjectTypeSymbol) objectTypeNode.symbol).initializerFunc.symbol.receiverSymbol;
+        invocation.exprSymbol =
+                ((BObjectTypeSymbol) objectTypeNode.symbol).generatedInitializerFunc.symbol.receiverSymbol;
 
         return rewriteExpr(invocation);
     }
