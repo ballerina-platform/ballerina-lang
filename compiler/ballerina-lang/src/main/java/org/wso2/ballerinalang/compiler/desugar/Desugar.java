@@ -402,29 +402,31 @@ public class Desugar extends BLangNodeVisitor {
 
     private void addRequiredParamsToGeneratedInitFunction(BLangFunction initFunction, BLangFunction generatedInitFunc) {
 
-        if (initFunction.requiredParams.size() != 0) {
-            for (BLangSimpleVariable requiredParameter : initFunction.requiredParams) {
-                BLangSimpleVariable var =
-                        ASTBuilderUtil.createVariable(initFunction.pos,
-                                requiredParameter.name.getValue(), requiredParameter.type, requiredParameter.expr
-                                , new BVarSymbol(0, names.fromString(requiredParameter.name.getValue()),
-                                        requiredParameter.symbol.pkgID,
-                                        requiredParameter.type, requiredParameter.symbol.owner));
-                generatedInitFunc.requiredParams.add(var);
-            }
+        if (initFunction.requiredParams.isEmpty()) {
+            return;
+        }
+        for (BLangSimpleVariable requiredParameter : initFunction.requiredParams) {
+            BLangSimpleVariable var =
+                    ASTBuilderUtil.createVariable(initFunction.pos,
+                            requiredParameter.name.getValue(), requiredParameter.type, requiredParameter.expr,
+                            new BVarSymbol(0, names.fromString(requiredParameter.name.getValue()),
+                                    requiredParameter.symbol.pkgID,
+                                    requiredParameter.type, requiredParameter.symbol.owner));
+            generatedInitFunc.requiredParams.add(var);
         }
     }
 
     private void addRestParamsToGeneratedInitFunction(BLangFunction initFunction, BLangFunction generatedInitFunc) {
 
-        if (initFunction.restParam != null) {
-            BLangSimpleVariable restParam = initFunction.restParam;
-            generatedInitFunc.restParam =
-                    ASTBuilderUtil.createVariable(initFunction.pos,
-                            restParam.name.getValue(), restParam.type, null, new BVarSymbol(0,
-                                    names.fromString(restParam.name.getValue()), restParam.symbol.pkgID,
-                                    restParam.type, restParam.symbol.owner));
+        if (initFunction.restParam == null) {
+            return;
         }
+        BLangSimpleVariable restParam = initFunction.restParam;
+        generatedInitFunc.restParam =
+                ASTBuilderUtil.createVariable(initFunction.pos,
+                        restParam.name.getValue(), restParam.type, null, new BVarSymbol(0,
+                                names.fromString(restParam.name.getValue()), restParam.symbol.pkgID,
+                                restParam.type, restParam.symbol.owner));
     }
 
     /**
