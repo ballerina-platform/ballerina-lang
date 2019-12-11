@@ -52,7 +52,6 @@ public class KafkaConstants {
 
     public static final String NATIVE_CONSUMER = "KafkaConsumer";
     public static final String NATIVE_PRODUCER = "KafkaProducer";
-    public static final String NATIVE_PRODUCER_CONFIG = "KafkaProducerConfig";
     public static final String NATIVE_CONSUMER_CONFIG = "KafkaConsumerConfig";
     public static final String CONNECTOR_ID = "connectorId";
 
@@ -203,16 +202,6 @@ public class KafkaConstants {
     public static final String STRING_DESERIALIZER = "org.apache.kafka.common.serialization.StringDeserializer";
     public static final String INT_DESERIALIZER = "org.apache.kafka.common.serialization.LongDeserializer";
     public static final String FLOAT_DESERIALIZER = "org.apache.kafka.common.serialization.DoubleDeserializer";
-
-    public static final String DEFAULT_KEY_DESERIALIZER
-            = "org.apache.kafka.common.serialization.ByteArrayDeserializer";
-    public static final String DEFAULT_VALUE_DESERIALIZER
-            = "org.apache.kafka.common.serialization.ByteArrayDeserializer";
-
-    public static final String DEFAULT_KEY_SERIALIZER
-            = "org.apache.kafka.common.serialization.ByteArraySerializer";
-    public static final String DEFAULT_VALUE_SERIALIZER
-            = "org.apache.kafka.common.serialization.ByteArraySerializer";
 
     // Warning suppression
     public static final String UNCHECKED = "unchecked";

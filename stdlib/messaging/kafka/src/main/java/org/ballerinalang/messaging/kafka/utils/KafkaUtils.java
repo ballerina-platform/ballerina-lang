@@ -644,7 +644,6 @@ public class KafkaUtils {
     public static void createKafkaProducer(Properties producerProperties, ObjectValue producerObject) {
         KafkaProducer kafkaProducer = new KafkaProducer<>(producerProperties);
         producerObject.addNativeData(KafkaConstants.NATIVE_PRODUCER, kafkaProducer);
-        producerObject.addNativeData(KafkaConstants.NATIVE_PRODUCER_CONFIG, producerProperties);
     }
 
     public static String getBrokerNames(ObjectValue listener) {
