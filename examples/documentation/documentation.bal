@@ -47,5 +47,5 @@ public type DummyRecord record {
 # + return - the sum of input parameters.
 # This function add parameter `x` and parameter `y`.
 public function dummyFunction(int x, int y) returns int {
-    return x+y;
+    return x + y;
 }
