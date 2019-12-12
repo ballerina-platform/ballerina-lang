@@ -142,7 +142,7 @@ public class Writer {
             label += " </code>";
         } else if ("builtin".equals(type.category) || "lang.annotations".equals(type.moduleName)
                 || !type.generateUserDefinedTypeLink) {
-            label = "<span class=\"builtin-type\">" + type.name + "</span>";
+            label = "<span class=\"builtin-type\">" + type.name + getSuffixes(type) + "</span>";
         } else {
             label = getHtmlLink(type, root);
         }
@@ -168,9 +168,12 @@ public class Writer {
                 || "errors".equals(type.category)) {
             link = root + type.moduleName + "/" + type.category + ".html#" + type.name;
         }
+        return "<a href=\"" + link + "\">" + type.name + "</a>" + getSuffixes(type);
+    }
+
+    private static String getSuffixes(Type type) {
         String suffix = type.isArrayType ? "[]" : "";
         suffix += type.isNullable ? "?" : "";
-
-        return "<a href=\"" + link + "\">" + type.name + "</a>" + suffix;
+        return suffix;
     }
 }
