@@ -41,11 +41,10 @@ public type DummyRecord record {
 };
 
 // This is the documentation attachment of the `dummyFunction` function.
-# The function `dummyFunction` is a user-defined function with
-# + x - One input parameter.
-# + y - Another input parameter.
-# + return - the sum of input parameters.
-# This function add parameter `x` and parameter `y`.
+# This function adds parameter `x` and parameter `y`.
+# + x - First parameter.
+# + y - Second parameter.
+# + return - The sum of the two parameters.
 public function dummyFunction(int x, int y) returns int {
     return x + y;
 }
