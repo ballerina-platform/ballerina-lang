@@ -4,9 +4,9 @@ import ballerinax/java.jdbc;
 // Client for MySQL database. This client can be used with any JDBC
 // supported database by providing the corresponding JDBC URL.
 jdbc:Client testDB = new ({
-    url: "jdbc:mysql://localhost:3306/testdb?allowPublicKeyRetrieval=true",
-    username: "root",
-    password: "password",
+    url: "jdbc:mysql://localhost:3306/testdb",
+    username: "test",
+    password: "test",
     poolOptions: {maximumPoolSize: 5},
     dbOptions: {useSSL: false}
 });
