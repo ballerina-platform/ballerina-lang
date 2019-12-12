@@ -248,17 +248,8 @@ function comparator(Cookie c1, Cookie c2) returns int {
     if (temp2 is string) {
         l2 = temp2.length();
     }
-    if (l1 > l2) {
-        return -1;
+    if (l1 != l2) {
+        return l2 - l1;
     }
-    if (l1 < l2) {
-        return 1;
-    }
-    if (c1.creationTime.time > c2.creationTime.time) {
-        return 1;
-    }
-    if (c1.creationTime.time < c2.creationTime.time) {
-        return -1;
-    }
-    return 0;
+    return c1.creationTime.time - c2.creationTime.time;
 }
