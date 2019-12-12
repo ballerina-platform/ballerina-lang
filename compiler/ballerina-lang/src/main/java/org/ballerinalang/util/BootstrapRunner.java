@@ -166,7 +166,9 @@ public class BootstrapRunner {
                 throw new BLangCompilerException(consoleError);
             }
         } catch (InterruptedException | IOException e) {
-            throw new BLangCompilerException("failed running jvm code gen phase.", e);
+            // these are un-handled errors at the jvm-codegen phase. Hence should not throw 
+            // compiler-exceptions. These should cause a bad-sad error.
+            throw new RuntimeException("failed running jvm code gen phase.", e);
         }
     }
 
