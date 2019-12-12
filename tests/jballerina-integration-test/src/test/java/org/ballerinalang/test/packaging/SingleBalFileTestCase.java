@@ -43,7 +43,6 @@ import static org.ballerinalang.test.packaging.PackerinaTestUtils.deleteFiles;
 public class SingleBalFileTestCase extends BaseTest {
 
     private BMainInstance balClient;
-    private Path testProjectPath;
     private Path serverBreLibPath;
     private static final String DB_NAME_HSQL = "JDBC_SINGLE_BAL_FILE_TEST_DB";
     private SQLDBUtils.TestDatabase testDatabase;
@@ -87,7 +86,7 @@ public class SingleBalFileTestCase extends BaseTest {
     @Test(description = "Test building and running TestProject")
     public void testSingleBalFileWithJDBCUsage() throws BallerinaTestException {
         String sqlBalFile = "jdbc_select.bal";
-        testProjectPath = Paths.get("src", "test", "resources", "packaging", "singleBalFile", "sql")
+        Path testProjectPath = Paths.get("src", "test", "resources", "packaging", "singleBalFile", "sql")
                 .toAbsolutePath();
         // Run and see output
         String msg = "Customer name is :Peter";

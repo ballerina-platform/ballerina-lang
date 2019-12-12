@@ -175,10 +175,11 @@ public class RunExecutableTask implements Task {
      * @param executableModule The module to run.
      */
     private void runGeneratedExecutableWithSameClassLoader(BLangPackage executableModule, BuildContext buildContext) {
+
         ExecutableJar executableJar = buildContext.moduleDependencyPathMap.get(executableModule.packageID);
         String initClassName = BFileUtil.getQualifiedClassName(executableModule.packageID.orgName.value,
-                                                               executableModule.packageID.name.value, MODULE_INIT_CLASS_NAME);
-
+                                                               executableModule.packageID.name.value,
+                                                               MODULE_INIT_CLASS_NAME);
         try {
             URL[] urls = new URL[]{executableJar.moduleJar.toUri().toURL()};
             URLClassLoader classLoader = new URLClassLoader(urls);
@@ -188,11 +189,15 @@ public class RunExecutableTask implements Task {
             if (!initClazz.getField("serviceEPAvailable").getBoolean(initClazz)) {
                 Runtime.getRuntime().exit(0);
             }
+        } catch (MalformedURLException e) {
+            throw createLauncherException("loading jar file failed with given source path " + this.executablePath);
+        } catch (ClassNotFoundException e) {
+            throw createLauncherException("module init class with name " + initClassName + " cannot be found ");
         } catch (NoSuchMethodException e) {
             throw createLauncherException("main method cannot be found for init class " + initClassName);
         } catch (IllegalAccessException | IllegalArgumentException e) {
             throw createLauncherException("invoking main method failed due to " + e.getMessage());
-        } catch (MalformedURLException | ClassNotFoundException | InvocationTargetException | NoSuchFieldException e) {
+        } catch (InvocationTargetException | NoSuchFieldException e) {
             throw createLauncherException("invoking main method failed due to ", e.getCause());
         }
     }
