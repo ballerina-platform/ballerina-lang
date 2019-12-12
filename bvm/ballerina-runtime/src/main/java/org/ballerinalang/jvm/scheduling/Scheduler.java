@@ -174,8 +174,10 @@ public class Scheduler {
         SchedulerItem item = new SchedulerItem(function, params, future);
         future.strand.schedulerItem = item;
         for (int i = 0; i < numThreads; i++) {
-            totalStrands.incrementAndGet();
-            blockingQueues[i].add(item);
+            if (parent != null && parent.threadId != i) {
+                totalStrands.incrementAndGet();
+                blockingQueues[i].add(item);
+            }
         }
         return future;
     }
