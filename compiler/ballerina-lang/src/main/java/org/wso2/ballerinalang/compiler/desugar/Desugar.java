@@ -1275,7 +1275,7 @@ public class Desugar extends BLangNodeVisitor {
         }
 
         parentErrorVariable.detailExpr = generateErrorDetailBuiltinFunction(
-                parentErrorVariable.pos, detailMapType, parentBlockStmt,
+                parentErrorVariable.pos,
                 convertedErrorVarSymbol, null);
 
         BLangSimpleVariableDef detailTempVarDef = createVarDef("$error$detail",
@@ -1457,10 +1457,9 @@ public class Desugar extends BLangNodeVisitor {
         invocationNode.symbol = symResolver.lookupLangLibMethod(entriesInvocationVar.type, names.fromString("filter"));
         invocationNode.requiredArgs = Lists.of(ASTBuilderUtil.createVariableRef(pos, entriesInvocationVar.symbol));
         invocationNode.type = invocationNode.symbol.type.getReturnType();
-        BLangInvocation filterInvoke = invocationNode;
-        filterInvoke.requiredArgs.add(filter);
+        invocationNode.requiredArgs.add(filter);
 
-        return filterInvoke;
+        return invocationNode;
     }
 
     private BLangSimpleVariable defVariable(DiagnosticPos pos, BType varType, BLangBlockStmt parentBlockStmt,
@@ -1551,17 +1550,13 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     // TODO: Move the logic on binding patterns to a seperate class
-    private BLangInvocation generateErrorDetailBuiltinFunction(DiagnosticPos pos, BType detailType,
-                                                               BLangBlockStmt parentBlockStmt,
-                                                               BVarSymbol errorVarySymbol,
+    private BLangInvocation generateErrorDetailBuiltinFunction(DiagnosticPos pos, BVarSymbol errorVarySymbol,
                                                                BLangIndexBasedAccess parentIndexBasedAccess) {
         BLangExpression onExpr =
                 parentIndexBasedAccess != null
                         ? parentIndexBasedAccess : ASTBuilderUtil.createVariableRef(pos, errorVarySymbol);
 
-        BLangInvocation detailInvocation = createLangLibInvocationNode(ERROR_DETAIL_FUNCTION_NAME,
-                        onExpr, new ArrayList<>(), null, pos);
-        return detailInvocation;
+        return createLangLibInvocationNode(ERROR_DETAIL_FUNCTION_NAME, onExpr, new ArrayList<>(), null, pos);
     }
 
     private BLangInvocation generateErrorReasonBuiltinFunction(DiagnosticPos pos, BType reasonType,
@@ -1570,9 +1565,7 @@ public class Desugar extends BLangNodeVisitor {
         BLangExpression onExpr =
                 parentIndexBasedAccess != null
                         ? parentIndexBasedAccess : ASTBuilderUtil.createVariableRef(pos, errorVarSymbol);
-        BLangInvocation reasonInvocation = createLangLibInvocationNode(ERROR_REASON_FUNCTION_NAME,
-                        onExpr, new ArrayList<>(), reasonType, pos);
-        return reasonInvocation;
+        return createLangLibInvocationNode(ERROR_REASON_FUNCTION_NAME, onExpr, new ArrayList<>(), reasonType, pos);
     }
 
     private BLangInvocation generateConstructFromInvocation(DiagnosticPos pos,
@@ -2203,7 +2196,7 @@ public class Desugar extends BLangNodeVisitor {
         }
 
         BLangInvocation errorDetailBuiltinFunction = generateErrorDetailBuiltinFunction(parentErrorVarRef.pos,
-                ((BErrorType) parentErrorVarRef.type).detailType, parentBlockStmt, errorVarySymbol,
+                errorVarySymbol,
                 parentIndexAccessExpr);
 
         BLangSimpleVariableDef detailTempVarDef = createVarDef("$error$detail$" + errorCount++,
@@ -4402,38 +4395,12 @@ public class Desugar extends BLangNodeVisitor {
 
     private BAttachedFunction getNextFunc(BObjectType iteratorType) {
         BObjectTypeSymbol iteratorSymbol = (BObjectTypeSymbol) iteratorType.tsymbol;
-        Optional<BAttachedFunction> nextFunc = iteratorSymbol.attachedFuncs.stream()
-                .filter(bAttachedFunction -> bAttachedFunction.funcName.value.equals("next"))
-                .findFirst();
-        return nextFunc.orElse(null);
-    }
-
-    // Foreach desugar helper method.
-    private BLangIf getIfStatement(BLangForeach foreach, BVarSymbol resultSymbol,
-                                   BLangTypeTestExpr typeTestExpressionNode, BLangBlockStmt ifStatementBody) {
-        BLangIf ifStatement = (BLangIf) TreeBuilder.createIfElseStatementNode();
-        ifStatement.pos = foreach.pos;
-        ifStatement.type = symTable.booleanType;
-        ifStatement.expr = typeTestExpressionNode;
-        ifStatement.body = ifStatementBody;
-        return ifStatement;
-    }
-
-    // Foreach desugar helper method.
-    private BLangTypeTestExpr getTypeTestExpression(BLangForeach foreach, BVarSymbol resultSymbol) {
-        BLangSimpleVarRef resultReferenceInTypeTest = ASTBuilderUtil.createVariableRef(foreach.pos, resultSymbol);
-
-        BLangValueType nilTypeNode = (BLangValueType) TreeBuilder.createValueTypeNode();
-        nilTypeNode.pos = foreach.pos;
-        nilTypeNode.type = symTable.nilType;
-        nilTypeNode.typeKind = TypeKind.NIL;
-
-        BLangTypeTestExpr typeTestExpressionNode = (BLangTypeTestExpr) TreeBuilder.createTypeTestExpressionNode();
-        typeTestExpressionNode.pos = foreach.pos;
-        typeTestExpressionNode.expr = resultReferenceInTypeTest;
-        typeTestExpressionNode.typeNode = nilTypeNode;
-        typeTestExpressionNode.type = symTable.booleanType;
-        return typeTestExpressionNode;
+        for (BAttachedFunction bAttachedFunction : iteratorSymbol.attachedFuncs) {
+            if (bAttachedFunction.funcName.value.equals("next")) {
+                return bAttachedFunction;
+            }
+        }
+        return null;
     }
 
     // Foreach desugar helper method.
@@ -4611,7 +4578,7 @@ public class Desugar extends BLangNodeVisitor {
         if (expr.type.tag == TypeTags.ERROR) {
             return expr;
         }
-        BLangInvocation cloneInvok = createLangLibInvocationNode("clone", expr, new ArrayList(), expr.type, expr.pos);
+        BLangInvocation cloneInvok = createLangLibInvocationNode("clone", expr, new ArrayList<>(), expr.type, expr.pos);
         return addConversionExprIfRequired(cloneInvok, lhsType);
     }
 
@@ -4622,7 +4589,7 @@ public class Desugar extends BLangNodeVisitor {
         if (expr.type.tag == TypeTags.ERROR) {
             return expr;
         }
-        BLangInvocation cloneInvok = createLangLibInvocationNode("cloneReadOnly", expr, new ArrayList(), expr.type,
+        BLangInvocation cloneInvok = createLangLibInvocationNode("cloneReadOnly", expr, new ArrayList<>(), expr.type,
                 expr.pos);
         return addConversionExprIfRequired(cloneInvok, lhsType);
     }
@@ -4995,8 +4962,7 @@ public class Desugar extends BLangNodeVisitor {
             }
         }
 
-        BLangIf ifNode = ASTBuilderUtil.createIfElseStmt(pattern.pos, ifCondition, pattern.body, null);
-        return ifNode;
+        return ASTBuilderUtil.createIfElseStmt(pattern.pos, ifCondition, pattern.body, null);
     }
 
     private BLangBlockStmt getMatchPatternBody(BLangMatchBindingPatternClause pattern,
@@ -5857,7 +5823,7 @@ public class Desugar extends BLangNodeVisitor {
                 kind == NodeKind.INVOCATION) {
             varRef = cloneAccessExpr((BLangAccessExpression) originalAccessExpr.expr);
         } else {
-            varRef = cloneExpression((BLangVariableReference) originalAccessExpr.expr);
+            varRef = cloneExpression(originalAccessExpr.expr);
         }
         varRef.type = types.getSafeType(originalAccessExpr.expr.type, true, false);
 
@@ -6171,8 +6137,7 @@ public class Desugar extends BLangNodeVisitor {
         BLangFunction initFunction = packageNode.initFunction;
 
         List<BLangFunction> generatedFunctions = new ArrayList<>();
-        List<BLangStatement> stmts = new ArrayList<>();
-        stmts.addAll(initFunction.body.stmts);
+        List<BLangStatement> stmts = new ArrayList<>(initFunction.body.stmts);
         initFunction.body.stmts.clear();
         BLangFunction newFunc = initFunction;
 
