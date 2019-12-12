@@ -19,7 +19,7 @@ public function main() {
         io:println("sum of first ", n, " positive numbers = ", sum);
     }
 
-    // By default workers run on the same physical thread of the parent strand.
+    // By default, workers run on the same physical thread of the parent strand.
     // By adding @concurrent annotation, this worker's strand is allowed to run
     // on any available physical thread.
     @concurrent{}
