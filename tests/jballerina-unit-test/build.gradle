@@ -87,7 +87,6 @@ dependencies {
     baloTestImplementation project(path: ':ballerina-streams', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-observability', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-system', configuration: 'baloImplementation')
-    baloTestImplementation project(path: ':ballerina-utils', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-xmlutils', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-jsonutils', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-backend-jvm', configuration: 'baloImplementation')

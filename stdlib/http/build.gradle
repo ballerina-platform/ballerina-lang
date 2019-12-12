@@ -50,14 +50,12 @@ dependencies {
     implementation project(':ballerina-config')
     implementation project(':ballerina-config-api')
     implementation project(':ballerina-system')
-    implementation project(':ballerina-utils')
     implementation project(':ballerina-task')
     implementation project(':ballerina-stringutils')
     testCompile project(':ballerina-tool')
     testCompile 'org.slf4j:slf4j-simple'
 
     baloImplementation project(path: ':ballerina-lang:annotations', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-utils', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-auth', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-cache', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-config-api', configuration: 'baloImplementation')

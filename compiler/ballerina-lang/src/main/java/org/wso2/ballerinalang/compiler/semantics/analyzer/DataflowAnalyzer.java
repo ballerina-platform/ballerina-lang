@@ -89,7 +89,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIntRangeExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation.BLangActionInvocation;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation.BLangBuiltInMethodInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIsAssignableExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
@@ -1151,12 +1150,6 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         // panic statement will terminate the flow. There will be no uninitialized
         // variables left after the panic statement.
         terminateFlow();
-    }
-
-    @Override
-    public void visit(BLangBuiltInMethodInvocation builtInMethodInvocation) {
-        analyzeNode(builtInMethodInvocation.expr, env);
-        builtInMethodInvocation.argExprs.forEach(argExpr -> analyzeNode(argExpr, env));
     }
 
     @Override

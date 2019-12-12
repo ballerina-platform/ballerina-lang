@@ -28,7 +28,6 @@ configurations {
 
 dependencies {
 
-    bir project(path: ':ballerina-utils',  configuration: 'bir')
     bir project(path: ':ballerina-io',  configuration: 'bir')
     bir project(path: ':testerina:testerina-core',  configuration: 'bir')
 
