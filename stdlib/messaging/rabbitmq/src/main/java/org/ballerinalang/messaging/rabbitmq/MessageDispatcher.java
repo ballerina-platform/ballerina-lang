@@ -118,7 +118,7 @@ public class MessageDispatcher {
         } else {
             return;
         }
-        BType[] paramTypes = onMessageFunction.paramTypes;
+        BType[] paramTypes = onMessageFunction.getParameterType();
         int paramSize = paramTypes.length;
         if (paramSize > 1) {
             dispatchMessageWithDataBinding(message, deliveryTag, onMessageFunction, properties);
@@ -144,7 +144,7 @@ public class MessageDispatcher {
 
     private void dispatchMessageWithDataBinding(byte[] message, long deliveryTag, AttachedFunction onMessage,
                                                 AMQP.BasicProperties properties) {
-        BType[] paramTypes = onMessage.paramTypes;
+        BType[] paramTypes = onMessage.getParameterType();
         try {
             Object forContent = getMessageContentForType(message, paramTypes[1]);
             ObjectValue messageObjectValue = getMessageObjectValue(message, deliveryTag, properties);
