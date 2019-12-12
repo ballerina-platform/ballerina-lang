@@ -1066,8 +1066,6 @@ class NodeCloner extends BLangNodeVisitor {
         clone.actionInvocation = source.actionInvocation;
         clone.langLibInvocation = source.langLibInvocation;
         clone.async = source.async;
-        clone.builtinMethodInvocation = source.builtinMethodInvocation;
-        clone.builtInMethod = source.builtInMethod;
         clone.flagSet = cloneSet(source.flagSet, Flag.class);
         clone.annAttachments = cloneList(source.annAttachments);
 
@@ -1086,12 +1084,6 @@ class NodeCloner extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangInvocation.BLangActionInvocation actionInvocationExpr) {
-
-        // Ignore
-    }
-
-    @Override
-    public void visit(BLangInvocation.BLangBuiltInMethodInvocation builtInMethodInvocation) {
 
         // Ignore
     }

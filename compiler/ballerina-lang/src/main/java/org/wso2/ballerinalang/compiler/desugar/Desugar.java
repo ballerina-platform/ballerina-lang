@@ -39,7 +39,6 @@ import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.TaintAnalyzer;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.TypeParamAnalyzer;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
-import org.wso2.ballerinalang.compiler.semantics.model.BLangBuiltInMethod;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
@@ -119,7 +118,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangIntRangeExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation.BFunctionPointerInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation.BLangAttachedFunctionInvocation;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation.BLangBuiltInMethodInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIsAssignableExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIsLikeExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
@@ -497,17 +495,18 @@ public class Desugar extends BLangNodeVisitor {
 
         BLangBlockStmt serviceAttachments = serviceDesugar.rewriteServiceVariables(pkgNode.services, env);
 
-        pkgNode.constants.stream()
-                .filter(constant -> constant.symbol.type.tag == TypeTags.MAP)
-                .forEach(constant -> {
-                    BLangSimpleVarRef constVarRef = ASTBuilderUtil.createVariableRef(constant.pos, constant.symbol);
-                    constant.expr = rewriteExpr(constant.expr);
-                    BLangInvocation frozenConstValExpr =
-                            visitUtilMethodInvocation(constant.pos, BLangBuiltInMethod.FREEZE, Lists.of(constant.expr));
-                    BLangAssignment constInit =
-                            ASTBuilderUtil.createAssignmentStmt(constant.pos, constVarRef, frozenConstValExpr);
-                    pkgNode.initFunction.body.stmts.add(constInit);
-                });
+        for (BLangConstant constant : pkgNode.constants) {
+            if (constant.symbol.type.tag == TypeTags.MAP) {
+                BLangSimpleVarRef constVarRef = ASTBuilderUtil.createVariableRef(constant.pos, constant.symbol);
+                constant.expr = rewriteExpr(constant.expr);
+                BLangInvocation frozenConstValExpr =
+                        createLangLibInvocationNode(
+                                "cloneReadOnly", constant.expr, new ArrayList<>(), constant.expr.type, constant.pos);
+                BLangAssignment constInit =
+                        ASTBuilderUtil.createAssignmentStmt(constant.pos, constVarRef, frozenConstValExpr);
+                pkgNode.initFunction.body.stmts.add(constInit);
+            }
+        }
 
         pkgNode.globalVars.forEach(globalVar -> {
             BLangAssignment assignment = createAssignmentStmt(globalVar);
@@ -1556,43 +1555,23 @@ public class Desugar extends BLangNodeVisitor {
                                                                BLangBlockStmt parentBlockStmt,
                                                                BVarSymbol errorVarySymbol,
                                                                BLangIndexBasedAccess parentIndexBasedAccess) {
-        BLangInvocation detailInvocation = createInvocationNode(
-                ERROR_DETAIL_FUNCTION_NAME, new ArrayList<>(), detailType);
-        detailInvocation.builtInMethod = BLangBuiltInMethod.getFromString(ERROR_DETAIL_FUNCTION_NAME);
-        if (parentIndexBasedAccess != null) {
-            detailInvocation.expr = addConversionExprIfRequired(parentIndexBasedAccess, symTable.errorType);
-            detailInvocation.symbol = symResolver.lookupLangLibMethod(parentIndexBasedAccess.type,
-                    names.fromString(ERROR_DETAIL_FUNCTION_NAME));
-            detailInvocation.requiredArgs = Lists.of(parentIndexBasedAccess);
-        } else {
-            detailInvocation.expr = ASTBuilderUtil.createVariableRef(pos, errorVarySymbol);
-            detailInvocation.symbol = symResolver.lookupLangLibMethod(errorVarySymbol.type,
-                    names.fromString(ERROR_DETAIL_FUNCTION_NAME));
-            detailInvocation.requiredArgs = Lists.of(ASTBuilderUtil.createVariableRef(pos, errorVarySymbol));
-        }
-        detailInvocation.type = detailInvocation.symbol.type.getReturnType();
+        BLangExpression onExpr =
+                parentIndexBasedAccess != null
+                        ? parentIndexBasedAccess : ASTBuilderUtil.createVariableRef(pos, errorVarySymbol);
+
+        BLangInvocation detailInvocation = createLangLibInvocationNode(ERROR_DETAIL_FUNCTION_NAME,
+                        onExpr, new ArrayList<>(), null, pos);
         return detailInvocation;
     }
 
     private BLangInvocation generateErrorReasonBuiltinFunction(DiagnosticPos pos, BType reasonType,
                                                                BVarSymbol errorVarSymbol,
                                                                BLangIndexBasedAccess parentIndexBasedAccess) {
-        BLangInvocation reasonInvocation = createInvocationNode(ERROR_REASON_FUNCTION_NAME,
-                new ArrayList<>(), reasonType);
-        reasonInvocation.builtInMethod = BLangBuiltInMethod.getFromString(ERROR_REASON_FUNCTION_NAME);
-        if (parentIndexBasedAccess != null) {
-            reasonInvocation.expr = addConversionExprIfRequired(parentIndexBasedAccess, symTable.errorType);
-            reasonInvocation.symbol = symResolver.lookupLangLibMethod(parentIndexBasedAccess.type,
-                    names.fromString(ERROR_REASON_FUNCTION_NAME));
-            reasonInvocation.requiredArgs = Lists.of(parentIndexBasedAccess);
-        } else {
-            reasonInvocation.expr = ASTBuilderUtil.createVariableRef(pos, errorVarSymbol);
-            reasonInvocation.symbol = symResolver.lookupLangLibMethod(errorVarSymbol.type,
-                                                                      names.fromString(ERROR_REASON_FUNCTION_NAME));
-            reasonInvocation.requiredArgs = Lists.of(ASTBuilderUtil.createVariableRef(pos, errorVarSymbol));
-        }
-
-        reasonInvocation.type = reasonInvocation.symbol.type.getReturnType();
+        BLangExpression onExpr =
+                parentIndexBasedAccess != null
+                        ? parentIndexBasedAccess : ASTBuilderUtil.createVariableRef(pos, errorVarSymbol);
+        BLangInvocation reasonInvocation = createLangLibInvocationNode(ERROR_REASON_FUNCTION_NAME,
+                        onExpr, new ArrayList<>(), reasonType, pos);
         return reasonInvocation;
     }
 
@@ -2679,14 +2658,6 @@ public class Desugar extends BLangNodeVisitor {
         return recordType;
     }
 
-    private BAttachedFunction getNextFunc(BObjectType iteratorType) {
-        BObjectTypeSymbol iteratorSymbol = (BObjectTypeSymbol) iteratorType.tsymbol;
-        Optional<BAttachedFunction> nextFunc = iteratorSymbol.attachedFuncs.stream()
-                .filter(bAttachedFunction -> bAttachedFunction.funcName.value.equals(BLangBuiltInMethod.NEXT.getName()))
-                .findFirst();
-        return nextFunc.orElse(null);
-    }
-
     @Override
     public void visit(BLangWhile whileNode) {
         whileNode.expr = rewriteExpr(whileNode.expr);
@@ -3329,10 +3300,6 @@ public class Desugar extends BLangNodeVisitor {
             return;
         }
         iExpr.expr = rewriteExpr(iExpr.expr);
-        if (iExpr.builtinMethodInvocation) {
-            visitBuiltInMethodInvocation(iExpr);
-            return;
-        }
         result = genIExpr;
 
 
@@ -3350,10 +3317,6 @@ public class Desugar extends BLangNodeVisitor {
                 if (!iExpr.langLibInvocation) {
                     List<BLangExpression> argExprs = new ArrayList<>(iExpr.requiredArgs);
                     argExprs.add(0, iExpr.expr);
-                    //                    // If already the first arg, don't add it again
-                    //                    if (argExprs.isEmpty() || (argExprs.size() > 1 && argExprs.get(0) != iExpr.expr)) {
-                    //                        argExprs.add(0, iExpr.expr);
-                    //                    }
                     BLangAttachedFunctionInvocation attachedFunctionInvocation =
                             new BLangAttachedFunctionInvocation(iExpr.pos, argExprs, iExpr.restArgs, iExpr.symbol,
                                                                 iExpr.type, iExpr.expr, iExpr.async);
@@ -3415,8 +3378,6 @@ public class Desugar extends BLangNodeVisitor {
                 .collect(Collectors.toList());
         if (namedArgs.isEmpty()) {
             errorDetail = visitCloneReadonly(rewriteExpr(recordLiteral), recordLiteral.type);
-//                    visitUtilMethodInvocation(iExpr.pos,
-//                    BLangBuiltInMethod.FREEZE, Lists.of());
         } else {
             for (BLangExpression arg : namedArgs) {
                 BLangNamedArgsExpression namedArg = (BLangNamedArgsExpression) arg;
@@ -3433,11 +3394,6 @@ public class Desugar extends BLangNodeVisitor {
                 iExpr.requiredArgs.remove(arg);
             }
             recordLiteral = rewriteExpr(recordLiteral);
-            //BLangExpression cloned = visitCloneInvocation(recordLiteral, ((BErrorType) iExpr.symbol.type).detailType);
-            //errorDetail = visitUtilMethodInvocation(iExpr.pos, BLangBuiltInMethod.FREEZE, Lists.of(cloned));
-            // cmnt cmnt
-            // this is more lines
-            // and more comments
             errorDetail = visitCloneReadonly(recordLiteral, ((BErrorType) iExpr.symbol.type).detailType);
         }
         iExpr.requiredArgs.add(errorDetail);
@@ -4430,8 +4386,7 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     private BLangInvocation createIteratorNextInvocation(BLangForeach foreach, BVarSymbol iteratorSymbol) {
-        BLangIdentifier nextIdentifier =
-                ASTBuilderUtil.createIdentifier(foreach.pos, BLangBuiltInMethod.NEXT.getName());
+        BLangIdentifier nextIdentifier = ASTBuilderUtil.createIdentifier(foreach.pos, "next");
         BLangSimpleVarRef iteratorReferenceInNext = ASTBuilderUtil.createVariableRef(foreach.pos, iteratorSymbol);
         BInvokableSymbol nextFuncSymbol = getNextFunc((BObjectType) iteratorSymbol.type).symbol;
         BLangInvocation nextInvocation = (BLangInvocation) TreeBuilder.createInvocationNode();
@@ -4443,6 +4398,14 @@ public class Desugar extends BLangNodeVisitor {
         nextInvocation.symbol = nextFuncSymbol;
         nextInvocation.type = nextFuncSymbol.retType;
         return nextInvocation;
+    }
+
+    private BAttachedFunction getNextFunc(BObjectType iteratorType) {
+        BObjectTypeSymbol iteratorSymbol = (BObjectTypeSymbol) iteratorType.tsymbol;
+        Optional<BAttachedFunction> nextFunc = iteratorSymbol.attachedFuncs.stream()
+                .filter(bAttachedFunction -> bAttachedFunction.funcName.value.equals("next"))
+                .findFirst();
+        return nextFunc.orElse(null);
     }
 
     // Foreach desugar helper method.
@@ -4536,7 +4499,8 @@ public class Desugar extends BLangNodeVisitor {
 
     private BLangInvocation createLangLibInvocationNode(String functionName,
                                                         BLangExpression onExpr,
-                                                        List<BLangExpression> args, BType retType,
+                                                        List<BLangExpression> args,
+                                                        BType retType,
                                                         DiagnosticPos pos) {
         BLangInvocation invocationNode = (BLangInvocation) TreeBuilder.createInvocationNode();
         invocationNode.pos = pos;
@@ -4553,7 +4517,7 @@ public class Desugar extends BLangNodeVisitor {
         requiredArgs.add(onExpr);
         requiredArgs.addAll(args);
         invocationNode.requiredArgs = requiredArgs;
-        invocationNode.type = retType;
+        invocationNode.type = retType != null ? retType : ((BInvokableSymbol) invocationNode.symbol).retType;
         invocationNode.langLibInvocation = true;
         return invocationNode;
     }
@@ -4640,203 +4604,6 @@ public class Desugar extends BLangNodeVisitor {
         result = new BFunctionPointerInvocation(iExpr, rewritten);
     }
 
-    private void visitBuiltInMethodInvocation(BLangInvocation iExpr) {
-        switch (iExpr.builtInMethod) {
-            case IS_NAN:
-                if (iExpr.expr.type.tag == TypeTags.FLOAT) {
-                    BOperatorSymbol notEqSymbol = (BOperatorSymbol) symResolver.resolveBinaryOperator(
-                            OperatorKind.NOT_EQUAL, symTable.floatType, symTable.floatType);
-                    BLangBinaryExpr binaryExprNaN = ASTBuilderUtil.createBinaryExpr(iExpr.pos, iExpr.expr, iExpr.expr,
-                                                                                    symTable.booleanType,
-                                                                                    OperatorKind.NOT_EQUAL,
-                                                                                    notEqSymbol);
-                    result = rewriteExpr(binaryExprNaN);
-                } else {
-                    BOperatorSymbol greaterEqualSymbol = (BOperatorSymbol) symResolver.resolveBinaryOperator(
-                            OperatorKind.GREATER_EQUAL, symTable.decimalType, symTable.decimalType);
-                    BOperatorSymbol lessThanSymbol = (BOperatorSymbol) symResolver.resolveBinaryOperator(
-                            OperatorKind.LESS_THAN, symTable.decimalType, symTable.decimalType);
-                    BOperatorSymbol orSymbol = (BOperatorSymbol) symResolver.resolveBinaryOperator(
-                            OperatorKind.OR, symTable.booleanType, symTable.booleanType);
-                    BOperatorSymbol notSymbol = (BOperatorSymbol) symResolver.resolveUnaryOperator(
-                            iExpr.pos, OperatorKind.NOT, symTable.booleanType);
-                    BLangLiteral literalZero = ASTBuilderUtil.createLiteral(iExpr.pos, symTable.decimalType, "0");
-                    // v >= 0
-                    BLangBinaryExpr binaryExprLHS = ASTBuilderUtil.createBinaryExpr(iExpr.pos, iExpr.expr, literalZero,
-                                                                                    symTable.booleanType,
-                                                                                    OperatorKind.GREATER_EQUAL,
-                                                                                    greaterEqualSymbol);
-                    // v < 0
-                    BLangBinaryExpr binaryExprRHS = ASTBuilderUtil.createBinaryExpr(iExpr.pos, iExpr.expr, literalZero,
-                                                                                    symTable.booleanType,
-                                                                                    OperatorKind.LESS_THAN,
-                                                                                    lessThanSymbol);
-                    // v >= 0 || v < 0
-                    BLangBinaryExpr binaryExpr = ASTBuilderUtil.createBinaryExpr(iExpr.pos, binaryExprLHS,
-                                                                                    binaryExprRHS,
-                                                                                    symTable.booleanType,
-                                                                                    OperatorKind.OR, orSymbol);
-                    // Final expression: !(v >= 0 || v < 0)
-                    BLangUnaryExpr finalExprNaN = ASTBuilderUtil.createUnaryExpr(iExpr.pos, binaryExpr,
-                                                                                    symTable.booleanType,
-                                                                                    OperatorKind.NOT, notSymbol);
-                    result = rewriteExpr(finalExprNaN);
-                }
-                break;
-            case IS_FINITE:
-                if (iExpr.expr.type.tag == TypeTags.FLOAT) {
-                    BOperatorSymbol equalSymbol = (BOperatorSymbol) symResolver.resolveBinaryOperator(
-                            OperatorKind.EQUAL, symTable.floatType, symTable.floatType);
-                    BOperatorSymbol notEqualSymbol = (BOperatorSymbol) symResolver.resolveBinaryOperator(
-                            OperatorKind.NOT_EQUAL, symTable.floatType, symTable.floatType);
-                    BOperatorSymbol andEqualSymbol = (BOperatorSymbol) symResolver.resolveBinaryOperator(
-                            OperatorKind.AND, symTable.booleanType, symTable.booleanType);
-                    // v==v
-                    BLangBinaryExpr binaryExprLHS = ASTBuilderUtil.createBinaryExpr(iExpr.pos, iExpr.expr, iExpr.expr,
-                                                                                    symTable.booleanType,
-                                                                                    OperatorKind.EQUAL, equalSymbol);
-                    // v != positive_infinity
-                    BLangLiteral posInfLiteral = ASTBuilderUtil.createLiteral(iExpr.pos, symTable.floatType,
-                                                                                    Double.POSITIVE_INFINITY);
-                    BLangBinaryExpr nestedLHSExpr = ASTBuilderUtil.createBinaryExpr(iExpr.pos, posInfLiteral,
-                                                                                    iExpr.expr, symTable.booleanType,
-                                                                                    OperatorKind.NOT_EQUAL,
-                                                                                    notEqualSymbol);
-
-                    // v != negative_infinity
-                    BLangLiteral negInfLiteral = ASTBuilderUtil.createLiteral(iExpr.pos, symTable.floatType,
-                                                                                    Double.NEGATIVE_INFINITY);
-                    BLangBinaryExpr nestedRHSExpr = ASTBuilderUtil.createBinaryExpr(iExpr.pos, negInfLiteral,
-                                                                                    iExpr.expr, symTable.booleanType,
-                                                                                    OperatorKind.NOT_EQUAL,
-                                                                                    notEqualSymbol);
-                    // v != positive_infinity && v != negative_infinity
-                    BLangBinaryExpr binaryExprRHS = ASTBuilderUtil.createBinaryExpr(iExpr.pos, nestedLHSExpr,
-                                                                                    nestedRHSExpr,
-                                                                                    symTable.booleanType,
-                                                                                    OperatorKind.AND, andEqualSymbol);
-                    // Final expression : v==v && v != positive_infinity && v != negative_infinity
-                    BLangBinaryExpr binaryExpr = ASTBuilderUtil.createBinaryExpr(iExpr.pos, binaryExprLHS,
-                                                                                    binaryExprRHS, symTable.booleanType,
-                                                                                    OperatorKind.AND, andEqualSymbol);
-                    result = rewriteExpr(binaryExpr);
-                } else {
-                    BOperatorSymbol isEqualSymbol = (BOperatorSymbol) symResolver.resolveBinaryOperator(
-                            OperatorKind.EQUAL, symTable.decimalType, symTable.decimalType);
-                    // v == v
-                    BLangBinaryExpr finalExprFinite = ASTBuilderUtil.createBinaryExpr(iExpr.pos, iExpr.expr, iExpr.expr,
-                                                                                    symTable.booleanType,
-                                                                                    OperatorKind.EQUAL, isEqualSymbol);
-                    result = rewriteExpr(finalExprFinite);
-                }
-                break;
-            case IS_INFINITE:
-                if (iExpr.expr.type.tag == TypeTags.FLOAT) {
-                    BOperatorSymbol eqSymbol = (BOperatorSymbol) symResolver.resolveBinaryOperator(
-                            OperatorKind.EQUAL, symTable.floatType, symTable.floatType);
-                    BOperatorSymbol orSymbol = (BOperatorSymbol) symResolver.resolveBinaryOperator(
-                            OperatorKind.OR, symTable.booleanType, symTable.booleanType);
-                    // v == positive_infinity
-                    BLangLiteral posInflitExpr = ASTBuilderUtil.createLiteral(iExpr.pos, symTable.floatType,
-                                                                                    Double.POSITIVE_INFINITY);
-                    BLangBinaryExpr binaryExprPosInf = ASTBuilderUtil.createBinaryExpr(iExpr.pos, iExpr.expr,
-                                                                                    posInflitExpr, symTable.booleanType,
-                                                                                    OperatorKind.EQUAL, eqSymbol);
-                    // v == negative_infinity
-                    BLangLiteral negInflitExpr = ASTBuilderUtil.createLiteral(iExpr.pos, symTable.floatType,
-                                                                                    Double.NEGATIVE_INFINITY);
-                    BLangBinaryExpr binaryExprNegInf = ASTBuilderUtil.createBinaryExpr(iExpr.pos, iExpr.expr,
-                                                                                    negInflitExpr, symTable.booleanType,
-                                                                                    OperatorKind.EQUAL, eqSymbol);
-                    // v == positive_infinity || v == negative_infinity
-                    BLangBinaryExpr binaryExprInf = ASTBuilderUtil.createBinaryExpr(iExpr.pos, binaryExprPosInf,
-                                                                                    binaryExprNegInf,
-                                                                                    symTable.booleanType,
-                                                                                    OperatorKind.OR, orSymbol);
-                    result = rewriteExpr(binaryExprInf);
-                } else {
-                    BLangLiteral literalZero = ASTBuilderUtil.createLiteral(iExpr.pos, symTable.decimalType, "0");
-                    BLangLiteral literalOne = ASTBuilderUtil.createLiteral(iExpr.pos, symTable.decimalType, "1");
-                    BOperatorSymbol isEqualSymbol = (BOperatorSymbol) symResolver.resolveBinaryOperator(
-                            OperatorKind.EQUAL, symTable.decimalType, symTable.decimalType);
-                    BOperatorSymbol divideSymbol = (BOperatorSymbol) symResolver.resolveBinaryOperator(
-                            OperatorKind.DIV, symTable.decimalType, symTable.decimalType);
-                    // 1/v
-                    BLangBinaryExpr divideExpr = ASTBuilderUtil.createBinaryExpr(iExpr.pos, literalOne, iExpr.expr,
-                                                                                    symTable.decimalType,
-                                                                                    OperatorKind.DIV, divideSymbol);
-                    // Final expression: 1/v == 0
-                    BLangBinaryExpr finalExprInf = ASTBuilderUtil.createBinaryExpr(iExpr.pos, divideExpr, literalZero,
-                                                                                    symTable.booleanType,
-                                                                                    OperatorKind.EQUAL, isEqualSymbol);
-                    result = rewriteExpr(finalExprInf);
-                }
-                break;
-            case CLONE:
-                result = visitCloneInvocation(iExpr.expr, iExpr.type);
-                break;
-            case LENGTH:
-                result = visitLengthInvocation(iExpr);
-                break;
-            case FREEZE:
-            case IS_FROZEN:
-                visitFreezeBuiltInMethodInvocation(iExpr);
-                break;
-            case STAMP:
-                result = visitTypeConversionInvocation(iExpr.expr.pos, iExpr.builtInMethod, iExpr.expr,
-                                                       iExpr.requiredArgs.get(0), iExpr.type);
-                break;
-            case CONVERT:
-                result = visitConvertInvocation(iExpr);
-                break;
-            case DETAIL:
-                result = visitDetailInvocation(iExpr);
-                break;
-            case REASON:
-            case ITERATE:
-                result = visitUtilMethodInvocation(iExpr.expr.pos, iExpr.builtInMethod, Lists.of(iExpr.expr));
-                break;
-            case CALL:
-                visitCallBuiltInMethodInvocation(iExpr);
-                break;
-            case NEXT:
-                if (isJvmTarget) {
-                    result = visitNextBuiltInMethodInvocation(iExpr);
-                } else {
-                    result = new BLangBuiltInMethodInvocation(iExpr, iExpr.builtInMethod);
-                }
-                break;
-            default:
-                throw new IllegalStateException();
-        }
-    }
-
-    BLangInvocation visitUtilMethodInvocation(DiagnosticPos pos, BLangBuiltInMethod builtInMethod,
-                                                      List<BLangExpression> requiredArgs) {
-        BInvokableSymbol invokableSymbol
-                = (BInvokableSymbol) symResolver.lookupSymbol(symTable.pkgEnvMap.get(symTable.utilsPackageSymbol),
-                                                              names.fromString(builtInMethod.getName()),
-                                                              SymTag.FUNCTION);
-        for (int i = 0; i < invokableSymbol.params.size(); i++) {
-            requiredArgs.set(i, addConversionExprIfRequired(requiredArgs.get(i), invokableSymbol.params.get(i).type));
-        }
-        BLangInvocation invocationExprMethod = ASTBuilderUtil
-                .createInvocationExprMethod(pos, invokableSymbol, requiredArgs,
-                                            new ArrayList<>(), symResolver);
-        return rewrite(invocationExprMethod, env);
-    }
-
-    private BLangExpression visitNextBuiltInMethodInvocation(BLangInvocation iExpr) {
-        BInvokableSymbol invokableSymbol =
-                (BInvokableSymbol) symResolver.lookupSymbol(symTable.pkgEnvMap.get(symTable.utilsPackageSymbol),
-                        names.fromString(iExpr.builtInMethod.getName()), SymTag.FUNCTION);
-        List<BLangExpression> requiredArgs = Lists.of(iExpr.expr);
-        BLangExpression invocationExprMethod = ASTBuilderUtil.createInvocationExprMethod(iExpr.pos, invokableSymbol,
-                requiredArgs, new ArrayList<>(), symResolver);
-        invocationExprMethod = addConversionExprIfRequired(invocationExprMethod, iExpr.type);
-        return rewriteExpr(invocationExprMethod);
-    }
-
     private BLangExpression visitCloneInvocation(BLangExpression expr, BType lhsType) {
         if (types.isValueType(expr.type)) {
             return expr;
@@ -4858,85 +4625,6 @@ public class Desugar extends BLangNodeVisitor {
         BLangInvocation cloneInvok = createLangLibInvocationNode("cloneReadOnly", expr, new ArrayList(), expr.type,
                 expr.pos);
         return addConversionExprIfRequired(cloneInvok, lhsType);
-    }
-
-    private BLangExpression visitConvertInvocation(BLangInvocation iExpr) {
-        BType targetType = iExpr.type;
-        if (iExpr.expr instanceof BLangTypedescExpr) {
-            targetType = ((BLangTypedescExpr) iExpr.expr).resolvedType;
-        }
-
-        // TODO: We need to cast the conversion input and output values because simple convert method use anydata.
-        // We can improve code by adding specific convert function so we can get rid of those below casting.
-        BLangExpression inputTypeCastExpr = iExpr.requiredArgs.get(0);
-        if (types.isValueType(iExpr.requiredArgs.get(0).type)) {
-            inputTypeCastExpr = createTypeCastExpr(iExpr.requiredArgs.get(0), iExpr.requiredArgs.get(0).type,
-                                                   symTable.anydataType);
-        }
-
-        BLangBuiltInMethod convertMethod;
-        if (types.isValueType(targetType)) {
-            convertMethod = BLangBuiltInMethod.SIMPLE_VALUE_CONVERT;
-        } else {
-            convertMethod = BLangBuiltInMethod.CONVERT;
-        }
-
-        BLangExpression invocationExpr =
-                visitTypeConversionInvocation(iExpr.expr.pos, convertMethod, iExpr.expr, inputTypeCastExpr, iExpr.type);
-        return invocationExpr;
-    }
-
-    private BLangExpression visitDetailInvocation(BLangInvocation iExpr) {
-        BLangInvocation utilMethod = visitUtilMethodInvocation(iExpr.expr.pos, iExpr.builtInMethod,
-                                                               Lists.of(iExpr.expr));
-        utilMethod.type = iExpr.type;
-        return utilMethod;
-    }
-
-    private BLangExpression visitTypeConversionInvocation(DiagnosticPos pos, BLangBuiltInMethod builtInMethod,
-                                                          BLangExpression typeDesc, BLangExpression valExpr,
-                                                          BType lhType) {
-        return addConversionExprIfRequired(visitUtilMethodInvocation(pos, builtInMethod, Lists.of(typeDesc, valExpr)),
-                                           lhType);
-    }
-
-    private BLangExpression visitLengthInvocation(BLangInvocation iExpr) {
-        return visitUtilMethodInvocation(iExpr.pos, BLangBuiltInMethod.LENGTH, Lists.of(iExpr.expr));
-    }
-
-    private void visitFreezeBuiltInMethodInvocation(BLangInvocation iExpr) {
-        if (types.isValueType(iExpr.expr.type)) {
-            if (iExpr.builtInMethod == BLangBuiltInMethod.FREEZE) {
-                // since x.freeze() === x, replace the invocation with the invocation expression
-                result = iExpr.expr;
-            } else {
-                // iExpr.builtInMethod == BLangBuiltInMethod.IS_FROZEN, set true since value types are always frozen
-                result = ASTBuilderUtil.createLiteral(iExpr.pos, symTable.booleanType, true);
-            }
-            return;
-        }
-        result = addConversionExprIfRequired(visitUtilMethodInvocation(iExpr.pos, iExpr.builtInMethod,
-                                                                       Lists.of(iExpr.expr)), iExpr.type);
-    }
-
-    private void visitCallBuiltInMethodInvocation(BLangInvocation iExpr) {
-        BLangExpression expr = iExpr.expr;
-        if (iExpr.expr.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
-            iExpr.symbol = ((BLangVariableReference) iExpr.expr).symbol;
-            iExpr.expr = null;
-        } else if (iExpr.expr.getKind() == NodeKind.TYPE_CONVERSION_EXPR) {
-            iExpr.symbol = ((BLangVariableReference) ((BLangTypeConversionExpr) iExpr.expr).expr).symbol;
-            iExpr.expr = null;
-        } else {
-            iExpr.expr = ((BLangAccessExpression) iExpr.expr).expr;
-        }
-
-        Name funcPointerName = iExpr.symbol.name;
-        iExpr.name = ASTBuilderUtil.createIdentifier(iExpr.pos, funcPointerName.value);
-        iExpr.builtinMethodInvocation = false;
-        iExpr.functionPointerInvocation = true;
-
-        result = new BFunctionPointerInvocation(iExpr, expr);
     }
 
     @SuppressWarnings("unchecked")
