@@ -66,24 +66,24 @@ public class Writer {
             handlebars.registerHelpers(StringHelpers.class);
             handlebars.registerHelper("paramSummary", (Helper<List<DefaultableVarible>>)
                     (varList, options) -> varList.stream()
-                            .map(variable -> getTypeLabel(variable.type, options) + " " + variable.name)
+                            .map(variable -> getTypeLabel(variable.type, options.context) + " " + variable.name)
                             .collect(Collectors.joining(", "))
             );
             handlebars.registerHelper("returnParamSummary", (Helper<List<Variable>>)
                     (varList, options) -> varList.stream()
-                            .map(variable -> getTypeLabel(variable.type, options) + " " + variable.name)
+                            .map(variable -> getTypeLabel(variable.type, options.context) + " " + variable.name)
                             .collect(Collectors.joining(", "))
             );
             handlebars.registerHelper("unionTypeSummary", (Helper<List<Type>>)
                     (typeList, options) -> typeList.stream()
-                            .map(type -> getTypeLabel(type, options))
+                            .map(type -> getTypeLabel(type, options.context))
                             .collect(Collectors.joining(" | "))
             );
             handlebars.registerHelper("pipeJoin", (Helper<List<String>>)
-                    (typeList, options) -> typeList.stream()
-                            .collect(Collectors.joining(" | "))
+                    (typeList, options) -> String.join(" | ", typeList)
             );
-            handlebars.registerHelper("typeName", Writer::getTypeLabel);
+            handlebars.registerHelper("typeName", (Helper<Type>)
+                    (type, options) -> getTypeLabel(type, options.context));
 
             handlebars.registerHelper("equals", (arg1, options) -> {
                 CharSequence result;
@@ -117,25 +117,25 @@ public class Writer {
         }
     }
 
-    private static String getTypeLabel(Type type, Options options) {
-        String root = getRootPath(options);
+    public static String getTypeLabel(Type type, Context context) {
+        String root = getRootPath(context);
         String label;
         if (type.isAnonymousUnionType) {
             label = type.memberTypes.stream()
-                    .map(type1 -> getTypeLabel(type1, options))
+                    .map(type1 -> getTypeLabel(type1, context))
                     .collect(Collectors.joining(" | "));
         } else if (type.isTuple) {
             label = "<span>[</span>" + type.memberTypes.stream()
-                    .map(type1 -> getTypeLabel(type1, options))
+                    .map(type1 -> getTypeLabel(type1, context))
                     .collect(Collectors.joining(", "))
                     + "<span>]</span>";
         } else if (type.isLambda) {
             label = "<code> <span>function(</span>" + type.paramTypes.stream()
-                    .map(type1 -> getTypeLabel(type1, options))
+                    .map(type1 -> getTypeLabel(type1, context))
                     .collect(Collectors.joining(", "))
                     + "<span>) </span>";
             if (type.returnType != null) {
-                label += "<span>returns (</span>" + getTypeLabel(type.returnType, options) + "<span>)</span>";
+                label += "<span>returns (</span>" + getTypeLabel(type.returnType, context) + "<span>)</span>";
             } else {
                 label += "<span>() </span>";
             }
@@ -149,8 +149,8 @@ public class Writer {
         return label;
     }
 
-    private static String getRootPath(Options options) {
-        return getNearestPageContext(options.context).rootPath;
+    private static String getRootPath(Context context) {
+        return getNearestPageContext(context).rootPath;
     }
 
     private static PageContext getNearestPageContext(Context context) {
