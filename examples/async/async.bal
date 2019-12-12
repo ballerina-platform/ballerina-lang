@@ -27,7 +27,7 @@ public function main() {
     // Asynchronously invokes the action call `get()`.
     // By default, this async call runs on the same physical thread of the caller.
     // The `@concurrent{}` annotation allows the invocation to run parallel.
-    future<http:Response | error> f3 = @concurrent{} start clientEndpoint-> get("/get?test=123");
+    future<http:Response | error> f3 = @concurrent{} start clientEndpoint->get("/get?test=123");
 
     // Waits for action call `f3` to finish.
     http:Response | error response = wait f3;
