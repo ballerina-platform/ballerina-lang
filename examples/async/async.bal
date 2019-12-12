@@ -25,7 +25,7 @@ public function main() {
     io:println("Counting done in one second: ", count);
 
     // Asynchronously invokes the action call `get()`.
-    // By default this async call runs on the same physical thread of the caller.
+    // By default, this async call runs on the same physical thread of the caller.
     // @concurrent{} annotation allows the invocation to run parallel.
     future<http:Response | error> f3 = @concurrent{} start clientEndpoint-> get("/get?test=123");
 
