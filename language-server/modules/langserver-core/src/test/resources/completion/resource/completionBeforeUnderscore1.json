@@ -620,24 +620,6 @@
         "title": "editor.action.triggerParameterHints",
         "command": "editor.action.triggerParameterHints"
       }
-    },
-    {
-      "label": "readlnExtern(any a)(handle)",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/io_  \n  \n  \n**Params**  \n- `any` a  \n  \n**Returns** `handle`   \n  \n"
-        }
-      },
-      "sortText": "120",
-      "insertText": "readlnExtern(${1})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
     }
   ]
 }
