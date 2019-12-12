@@ -63,7 +63,6 @@ public class SingleBalFileTestCase extends BaseTest {
                                        Paths.get("src", "test", "resources", "packaging", "singleBalFile", "sql",
                                                  "resources", "select_test_data.sql").toString(),
                                        SQLDBUtils.DB_DIRECTORY, DB_NAME_HSQL);
-        System.out.println(testDatabase.getJDBCUrl());
         serverBreLibPath = Paths.get(balServer.getServerHome(), "bre", "lib");
         Path breLibPath = Paths.get("build", "libs");
         FilenameFilter getHsqlDBJar = new FilenameFilter() {
@@ -74,7 +73,6 @@ public class SingleBalFileTestCase extends BaseTest {
 
         File[] files = breLibPath.toFile().listFiles(getHsqlDBJar);
         hsqlDBJar = files[0];
-        System.out.println(hsqlDBJar.getAbsolutePath());
         Files.copy(hsqlDBJar.toPath(), Paths.get(serverBreLibPath.toString(), hsqlDBJar.getName()));
     }
 
