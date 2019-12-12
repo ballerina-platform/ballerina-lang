@@ -292,6 +292,7 @@ class NodeCloner extends BLangNodeVisitor {
         clone.originalValue = source.originalValue;
         clone.isJSONContext = source.isJSONContext;
         clone.isFiniteContext = source.isFiniteContext;
+        clone.isConstant = source.isConstant;
         clone.type = source.type;
     }
 
