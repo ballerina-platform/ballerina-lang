@@ -4,9 +4,9 @@ import ballerinax/java.jdbc;
 // Client for MySQL database. This client can be used with any JDBC
 // supported database by providing the corresponding JDBC URL.
 jdbc:Client testDB = new ({
-    url: "jdbc:mysql://localhost:3306/testdb",
-    username: "test",
-    password: "test",
+    url: "jdbc:mysql://localhost:3306/testdb?allowPublicKeyRetrieval=true",
+    username: "root",
+    password: "password",
     poolOptions: {maximumPoolSize: 5},
     dbOptions: {useSSL: false}
 });
@@ -43,6 +43,10 @@ public function main() {
         "END");
     handleUpdate(ret, "Stored procedure with INOUT/OUT param creation");
 
+    ret = testDB->update("CREATE PROCEDURE GETSTUDENTS() " +
+        "BEGIN SELECT * FROM student; END");
+    handleUpdate(ret, "Stored procedure with result set return");
+
     // The remote function `call` is used to invoke a stored procedure.
     // Here the stored procedure with IN parameters is invoked.
     io:println("\nThe call operation - With IN params");
@@ -78,8 +82,21 @@ public function main() {
         io:println("Student count with age of 20: ", pCount.value);
     }
 
-    // Check the data in the database.
-    checkData();
+    // Invoke the stored procedure which returns data.
+    retCall = testDB->call("{CALL GETSTUDENTS()}", [Student]);
+    if (retCall is error) {
+        io:println("Stored procedure call failed: ",
+                    <string>retCall.detail()?.message);
+
+    } else if retCall is table<record {}>[] {
+        table<Student> studentTable = retCall[0];
+        io:println("Data in students table:");
+        foreach var row in studentTable {
+            io:println(row);
+        }
+    } else {
+        io:println("Call operation is not returning data");
+    }
 
     // Drop the table and procedures.
     io:println("\nThe update operation - Drop the tables and procedures");
@@ -91,6 +108,9 @@ public function main() {
 
     ret = testDB->update("DROP PROCEDURE GETCOUNT");
     handleUpdate(ret, "Drop stored procedure GETCOUNT");
+
+    ret = testDB->update("DROP PROCEDURE GETSTUDENTS");
+    handleUpdate(ret, "Drop stored procedure GETSTUDENTS");
 }
 
 // Function to handle the return value of the `update` remote function.
@@ -99,20 +119,5 @@ function handleUpdate(jdbc:UpdateResult|jdbc:Error returned, string message) {
         io:println(message, " status: ", returned.updatedRowCount);
     } else {
         io:println(message, " failed: ", <string>returned.detail()?.message);
-    }
-}
-
-// Select data from the table and print.
-function checkData() {
-    var dtReturned = testDB->select("SELECT * FROM student", Student);
-    if (dtReturned is table<Student>) {
-        // Iterating data.
-        io:println("Data in students table:");
-        foreach var row in dtReturned {
-            io:println(row.toString());
-        }
-    } else {
-        io:println("Select data from student table failed: ",
-                    <string>dtReturned.detail()?.message);
     }
 }
