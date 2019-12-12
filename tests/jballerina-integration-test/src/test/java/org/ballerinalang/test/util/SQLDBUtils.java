@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Paths;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -75,6 +76,9 @@ public class SQLDBUtils {
     private static String readFileToString(String path) {
         URL fileResource = BCompileUtil.class.getClassLoader().getResource(path);
         try {
+            if (fileResource == null) {
+                fileResource = Paths.get(path).toUri().toURL();
+            }
             return FileUtils.readFileToString(new File(fileResource.toURI()), StandardCharsets.UTF_8);
         } catch (IOException | URISyntaxException e) {
             LOG.error("Error ", e);
