@@ -9,6 +9,7 @@ public function main() {
 # This `DummyObject` has two `string` data fields and a
 # function definition (i.e., `doThatOnObject`), which performs a certain
 # functionality on the associated `DummyObject` instance.
+# This is a reference to the type `DummyRecord`
 #
 # + fieldOne - This is the description of the `DummyObject`'s `fieldOne` field.
 # + fieldTwo - This is the description of the `DummyObject`'s `fieldTwo` field.
@@ -30,6 +31,7 @@ public type DummyObject abstract object {
 // This is the documentation attachment of the `DummyRecord` record.
 # `DummyRecord` is a user-defined record.
 # This `DummyRecord` has a `string` data field and an `int` data field.
+# This is a reference to a function `dummyFunction`.
 #
 # + fieldOne - This is the description of the `DummyRecord`'s `fieldOne` field.
 # + fieldTwo - This is the description of the `DummyRecord`'s `fieldTwo` field.
@@ -37,3 +39,13 @@ public type DummyRecord record {
     string fieldOne;
     int fieldTwo;
 };
+
+// This is the documentation attachment of the `dummyFunction`.
+# The function `dummyFunction` is a user-defined function with
+# + x - One input parameter.
+# + y - Another input parameter.
+# + return - the sum of input parameters.
+# This function add parameter `x` and parameter `y`.
+public function dummyFunction(int x, int y) returns int {
+    return x+y;
+}
