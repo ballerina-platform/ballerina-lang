@@ -20,6 +20,7 @@ import ballerina/crypto;
 import ballerina/time;
 import ballerina/stringutils;
 import ballerinax/java;
+import ballerina/log;
 
 # Represents an HTTP response.
 #
@@ -403,6 +404,41 @@ public type Response object {
         } else {
             self.setBodyParts(payload);
         }
+    }
+
+    # Adds the cookie to response.
+    #
+    # + cookie - The cookie, which is added to response
+    public function addCookie(Cookie cookie) {
+        var result = cookie.isValid();
+        if (result is boolean) {
+            self.addHeader("Set-Cookie", cookie.toStringValue());
+        } else {
+            log:printError("Invalid Cookie", result);
+        }
+    }
+
+    # Deletes the cookies in the client's cookie store.
+    #
+    # + cookiesToRemove - Cookies to be deleted
+    public function removeCookiesFromRemoteStore(Cookie...cookiesToRemove) {
+        foreach var cookie in cookiesToRemove {
+            cookie.expires = "1994-03-12 08:12:22";
+            cookie.maxAge = 0;
+            self.addCookie(cookie);
+        }
+    }
+
+    # Gets cookies from the response.
+    #
+    # + return - An array of cookie objects, which are included in the response
+    public function getCookies() returns @tainted Cookie[] {
+        Cookie[] cookiesInResponse = [];
+        string[] cookiesStringValues = self.getHeaders("Set-Cookie");
+        foreach string cookiesStringValue in cookiesStringValues {
+            cookiesInResponse.push(parseSetCookieHeader(cookiesStringValue));
+        }
+        return cookiesInResponse;
     }
 };
 
