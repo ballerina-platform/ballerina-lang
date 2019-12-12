@@ -20,7 +20,7 @@ public function main() {
     }
 
     // By default, workers run on the same physical thread of the parent strand.
-    // By adding @concurrent annotation, this worker's strand is allowed to run
+    // By adding the `@concurrent` annotation, this worker's strand is allowed to run
     // on any available physical thread.
     @concurrent{}
     // This block belongs to the worker `w2`.
