@@ -222,14 +222,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "ballerina/utils",
-      "kind": "Module",
-      "detail": "Package",
-      "sortText": "140",
-      "insertText": "ballerina/utils",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "ballerina/rabbitmq",
       "kind": "Module",
       "detail": "Package",
