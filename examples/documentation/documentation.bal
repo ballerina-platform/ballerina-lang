@@ -40,7 +40,7 @@ public type DummyRecord record {
     int fieldTwo;
 };
 
-// This is the documentation attachment of the `dummyFunction`.
+// This is the documentation attachment of the `dummyFunction` function.
 # The function `dummyFunction` is a user-defined function with
 # + x - One input parameter.
 # + y - Another input parameter.
