@@ -23,12 +23,10 @@
 # + labels - Map of labels for the resource.
 # + annotations - Map of annotations for resource.
 public type Metadata record {|
-
     string name?;
     map<string> labels?;
     map<string> annotations?;
 |};
-
 # External file type for docker.
 #
 # + sourceFile - source path of the file (in your machine)
@@ -37,26 +35,20 @@ public type FileConfig record {|
     string sourceFile;
     string target;
 |};
-
-
 # Value for a field.
 #
 # + fieldPath - Path of the field
 public type FieldValue record{|
-
     string fieldPath;
 |};
-
 # Value for a secret key.
 #
 # + name - Name of the secret.
 # + key - Key of the secret.
 public type SecretKeyValue record {|
-
     string name;
     string key;
 |};
-
 # Value for config map key.
 #
 # + name - name of the config.
@@ -65,55 +57,43 @@ public type ConfigMapKeyValue record {|
     string name;
     string key;
 |};
-
-
 # Value for resource field.
 #
 # + containerName - Name of the container.
 # + resource - Resource field
 public type ResourceFieldValue record {|
-
    string containerName?;
    string 'resource;
 |};
-
 # Value from config map key.
 #
 # + configMapKeyRef - Reference for config map key.
 public type ConfigMapKeyRef record {|
-
     ConfigMapKeyValue configMapKeyRef;
 |};
-
 # Value from field.
 #
 # + fieldRef - Reference for a field.
 public type FieldRef record {|
-
     FieldValue fieldRef;
 |};
-
 # Value from secret key.
 #
 # + secretKeyRef - Reference for secret key.
 public type SecretKeyRef record {|
     SecretKeyValue secretKeyRef;
 |};
-
 # Value from resource field.
 #
 # + resourceFieldRef - Reference for resource field.
 public type ResourceFieldRef record {|
     ResourceFieldValue resourceFieldRef;
 |};
-
 public const string IMAGE_PULL_POLICY_IF_NOT_PRESENT = "IfNotPresent";
 public const string IMAGE_PULL_POLICY_ALWAYS = "Always";
 public const string IMAGE_PULL_POLICY_NEVER = "Never";
-
 # Image pull policy type field for kubernetes deployment and jobs.
 public type ImagePullPolicy "IfNotPresent"|"Always"|"Never";
-
 # Probing configuration.
 #
 # + port - Port to check for tcp connection.
@@ -124,13 +104,10 @@ public type ProbeConfiguration record {|
     int initialDelaySeconds?;
     int periodSeconds?;
 |};
-
 # Type of operations between key and value of a toleration.
 public type TolerationOperator "Exists"|"Equal";
-
 # Types of toleration effects for pods.
 public type TolerationEffect "NoSchedule"|"PreferNoSchedule"|"NoExecute";
-
 # Pod toleration configuration.
 #
 # + key - Taint key of the toleration.
@@ -145,7 +122,6 @@ public type PodTolerationConfiguration record {|
     TolerationEffect effect?;
     int tolerationSeconds = 0;
 |};
-
 # Knative service configuration.
 #
 # + dockerHost - Docker host IP and docker PORT. ( e.g minikube IP and docker PORT).
@@ -174,7 +150,7 @@ public type PodTolerationConfiguration record {|
 # + imagePullSecrets - Image pull secrets.
 # + containerConcurrency - concurent request handle by one container instance
 # + timeoutSeconds - max time the instance is allowed for responding to a request
-
+# + port - containerPort value for Knative service
 public type ServiceConfiguration record{|
         *Metadata;
         string dockerHost?;
@@ -200,11 +176,9 @@ public type ServiceConfiguration record{|
         string[] imagePullSecrets?;
         int containerConcurrency=100;
         int timeoutSeconds=60;
-
+        int port=8080;
 |};
-
 public const annotation ServiceConfiguration Service on source service, source function, source listener;
-
 # Knative Horizontal Pod Autoscaler configuration
 #
 # + minReplicas - Minimum number of replicas.
@@ -214,10 +188,8 @@ public type PodAutoscalerConfig record {|
     int minReplicas?;
     int maxReplicas?;
 |};
-
 # @knative:HPA annotation to configure horizontal pod autoscaler yaml.
 public const annotation PodAutoscalerConfig HPA on source service, source function;
-
 # Knative secret volume mount.
 #
 # + mountPath - Mount path.
@@ -229,17 +201,14 @@ public type Secret record {|
     boolean readOnly = true;
     string[] data;
 |};
-
 #Secret volume mount configurations for kubernetes.
 #
 # + secrets - Array of [Secret](kubernetes.html#Secret)
 public type SecretMount record {|
     Secret[] secrets;
 |};
-
 # @knative:Secret annotation to configure secrets.
 public const annotation SecretMount Secret on source service, source function;
-
 # Knative Config Map volume mount.
 #
 # + mountPath - Mount path.
@@ -251,7 +220,6 @@ public type ConfigMap record {|
     boolean readOnly = true;
     string[] data;
 |};
-
 # Secret volume mount configurations for kubernetes.
 #
 # + conf - path to ballerina configuration file
@@ -260,11 +228,5 @@ public type ConfigMapMount record {|
     string conf;
     ConfigMap[] configMaps?;
 |};
-
 # @knative:ConfigMap annotation to configure config maps.
 public const annotation ConfigMapMount ConfigMap on source service, source function;
-
-
-
-
-

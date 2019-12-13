@@ -1,25 +1,19 @@
 ## Module Overview
 
-This module offers an annotation based Kubernetes extension implementation for ballerina. 
+This module offers an annotation based Knative extension implementation for ballerina.
 
 ### Annotation Usage Sample:
 
 ```ballerina
 import ballerina/http;
 import ballerina/log;
-import ballerinax/kubernetes;
+import ballerina/knative;
 
-@kubernetes:Ingress{
-    hostname: "abc.com"
-}
-@kubernetes:Service {
+@knative:Service {
     name:"hello"
 }
 listener http:Listener helloEP = new(9090);
 
-@kubernetes:Deployment {
-    livenessProbe: true
-}
 @http:ServiceConfig {
     basePath: "/helloWorld"
 }
