@@ -23,7 +23,6 @@ import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.expressions.InvocationNode;
-import org.wso2.ballerinalang.compiler.semantics.model.BLangBuiltInMethod;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
@@ -52,9 +51,6 @@ public class BLangInvocation extends BLangAccessExpression implements Invocation
     public boolean actionInvocation;
     public boolean langLibInvocation;
     public boolean async;
-    /* Cached values for Built-in function invocation */
-    public boolean builtinMethodInvocation;
-    public BLangBuiltInMethod builtInMethod;
     public Set<Flag> flagSet;
     public List<BLangAnnotationAttachment> annAttachments = new ArrayList<>();
 
@@ -236,30 +232,4 @@ public class BLangInvocation extends BLangAccessExpression implements Invocation
             visitor.visit(this);
         }
     }
-
-    /**
-     * @since 0.983.0
-     */
-    public static class BLangBuiltInMethodInvocation extends BLangInvocation {
-
-        public BLangBuiltInMethodInvocation(BLangInvocation iExpr, BLangBuiltInMethod builtInFunction) {
-            this.expr = iExpr.expr;
-            this.type = iExpr.type;
-            this.pkgAlias = iExpr.pkgAlias;
-            this.name = iExpr.name;
-            this.pos = iExpr.pos;
-            this.requiredArgs = iExpr.requiredArgs;
-            this.restArgs = iExpr.restArgs;
-            this.async = iExpr.async;
-            this.builtInMethod = builtInFunction;
-            this.impConversionExpr = iExpr.impConversionExpr;
-            this.symbol = iExpr.symbol;
-        }
-
-        @Override
-        public void accept(BLangNodeVisitor visitor) {
-            visitor.visit(this);
-        }
-    }
-
 }

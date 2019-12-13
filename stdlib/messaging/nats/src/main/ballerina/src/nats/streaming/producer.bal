@@ -51,7 +51,7 @@ public type StreamingProducer client object {
         if (converted is error) {
             return prepareError("Error in data conversion", err = converted);
         } else {
-            var result = externStreamingPublish(self, java:fromString(subject), converted);
+            handle | Error result = externStreamingPublish(self, java:fromString(subject), converted);
             if (result is handle) {
                 var stringResult = java:toString(result);
                 if (stringResult is string) {

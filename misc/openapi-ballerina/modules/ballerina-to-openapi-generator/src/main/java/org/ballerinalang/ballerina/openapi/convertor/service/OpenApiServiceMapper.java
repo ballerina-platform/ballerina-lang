@@ -37,7 +37,7 @@ import org.slf4j.LoggerFactory;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr.BLangArrayLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 
 import java.util.LinkedList;
@@ -189,7 +189,7 @@ public class OpenApiServiceMapper {
     private void createTagModel(BLangExpression annotationExpression, Swagger openApi) {
         if (null != annotationExpression) {
             List<Tag> tags = new LinkedList<>();
-            BLangArrayLiteral tagArray = (BLangArrayLiteral) annotationExpression;
+            BLangListConstructorExpr tagArray = (BLangListConstructorExpr) annotationExpression;
 
             for (ExpressionNode expr : tagArray.getExpressions()) {
                 List<BLangRecordKeyValue> tagList = ((BLangRecordLiteral) expr).getKeyValuePairs();

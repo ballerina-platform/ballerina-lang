@@ -49,9 +49,6 @@ dependencies {
     dist project(path: ':ballerina-lang:xml', configuration: 'birJar')
     dist project(path: ':ballerina-observability', configuration: 'birJar')
 
-    // Utils Bir
-    dist project(path: ':ballerina-utils', configuration: 'birJar')
-
     // Lang libs
     dist project(':ballerina-lang:internal')
     dist project(':ballerina-lang:annotations')
@@ -114,7 +111,6 @@ dependencies {
     dist project(':ballerina-runtime')
     dist project(':ballerina-core')
     dist project(':ballerina-config')
-    dist project(':ballerina-utils')
     dist project(':ballerina-logging')
     dist project(':toml-parser')
 
