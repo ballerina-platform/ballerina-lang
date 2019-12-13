@@ -4,3 +4,4 @@ $ ballerina build websocket_client.bal
 
 # Run the sample using the `run` command on the generated .jar file:
 $ ballerina run websocket_client-executable.jar
+Hello World!

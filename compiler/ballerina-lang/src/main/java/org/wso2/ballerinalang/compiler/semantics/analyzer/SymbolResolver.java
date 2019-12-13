@@ -23,14 +23,12 @@ import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
-import org.wso2.ballerinalang.compiler.semantics.model.BLangBuiltInMethod;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope.ScopeEntry;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BCastOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BErrorTypeSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
@@ -101,7 +99,6 @@ import java.util.stream.Stream;
 
 import static java.lang.String.format;
 import static org.wso2.ballerinalang.compiler.semantics.model.Scope.NOT_FOUND_ENTRY;
-import static org.wso2.ballerinalang.compiler.semantics.model.SymbolTable.UTILS;
 import static org.wso2.ballerinalang.compiler.util.Constants.OPEN_SEALED_ARRAY_INDICATOR;
 import static org.wso2.ballerinalang.compiler.util.Constants.UNSEALED_ARRAY_INDICATOR;
 
@@ -364,13 +361,6 @@ public class SymbolResolver extends BLangNodeVisitor {
         BType retType = symTable.booleanType;
         BInvokableType opType = new BInvokableType(paramTypes, retType, null);
         return new BOperatorSymbol(names.fromString(opKind.value()), null, opType, null);
-    }
-
-    BInvokableSymbol createBuiltinMethodSymbol(BLangBuiltInMethod method, BType type, BType retType) {
-        List<BType> paramTypes = Lists.of(type);
-        BInvokableType opType = new BInvokableType(paramTypes, retType, null);
-        return new BInvokableSymbol(SymTag.INVOKABLE, Flags.PUBLIC, names.fromString
-                (method.getName()), UTILS, opType, null);
     }
 
     BOperatorSymbol createTypeCastSymbol(BType type, BType retType) {

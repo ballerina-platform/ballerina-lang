@@ -7,9 +7,9 @@ Batch 1 update counts: 1
 Batch 2 update counts: 1
 Generated keys are: 1, 2 and 3
 Data in students table:
-Student:1|Peter|10
-Student:2|John|15
-Student:3|James|12
+id=1 age=10 name=Peter
+id=2 age=15 name=John
+id=3 age=12 name=James
 
 The update operation - Drop the student table
 Drop table student status: 0

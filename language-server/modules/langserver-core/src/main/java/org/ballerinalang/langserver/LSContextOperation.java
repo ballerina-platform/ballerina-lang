@@ -23,6 +23,7 @@ package org.ballerinalang.langserver;
 public enum LSContextOperation implements org.ballerinalang.langserver.compiler.LSOperation {
     TXT_COMPLETION("text/completion"),
     TXT_DID_CHANGE("text/didChange"),
+    DIAGNOSTICS("debouncer/diagnostics"),
     TXT_DID_OPEN("text/didOpen"),
     TXT_HOVER("text/hover"),
     TXT_SIGNATURE("text/signature"),
