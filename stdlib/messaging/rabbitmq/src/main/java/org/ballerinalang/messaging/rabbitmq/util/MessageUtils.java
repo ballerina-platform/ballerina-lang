@@ -106,7 +106,7 @@ public class MessageUtils {
         try {
             Object json = JSONParser.parse(new String(messageContent.getBytes(), StandardCharsets.UTF_8.name()));
             if (json instanceof String) {
-                return StringUtils.fromString((String)json);
+                return StringUtils.fromString((String) json);
             }
             return json;
         } catch (UnsupportedEncodingException exception) {
