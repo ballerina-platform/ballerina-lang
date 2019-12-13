@@ -16,6 +16,7 @@
 
 import ballerina/llvm;
 import ballerina/bir;
+import ballerina/io;
 
 // TODO: make non-global
 llvm:LLVMValueRef? printfRef = ();
@@ -160,10 +161,17 @@ function genBType(bir:BType? bType) returns llvm:LLVMTypeRef {
         return llvm:llvmVoidType();
     } else if (bType is ()) {
         return llvm:llvmVoidType();
-    } else if (bType is bir:BArrayType) { 
-        return llvm:llvmVoidType();
     } else if (bType is bir:BUnionType) {
         return createUnion(<bir:BUnionType>bType);
+    } else if (bType is bir:BArrayType) {
+        bir:BArrayType arrayType = <bir:BArrayType>bType;
+        if (arrayType.eType is bir:BTypeInt) {
+            io:println("int found");
+        } else {
+            io:println("absurd type");
+        }
+        io:println(arrayType.size);
+        return llvm:llvmVoidType();
     }
     typedesc<any> T = typeof bType;
     error err = error( "Undefined type :" + T.toString());

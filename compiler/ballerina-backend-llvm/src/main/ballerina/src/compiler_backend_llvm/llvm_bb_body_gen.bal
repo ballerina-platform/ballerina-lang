@@ -1,5 +1,6 @@
 import ballerina/llvm;
 import ballerina/bir;
+import ballerina/io;
 
 type BbBodyGenrator object {
 
@@ -41,6 +42,8 @@ type BbBodyGenrator object {
             self.genTypeCast(instruction);
         } else if (instruction is bir:TypeTest) {
             self.genTypeTest(instruction);
+        } else if (instruction is bir:NewArray) {
+            io:println("NewArray");
         }
     }
 
