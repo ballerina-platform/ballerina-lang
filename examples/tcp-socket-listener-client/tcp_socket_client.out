@@ -2,8 +2,6 @@
 # `.bal` file and use the `ballerina run` command.
 $ ballerina run tcp_socket_client.bal
 
-# `onConnect` invokes and prints the remote server port once the connection to the server is successful.
-Connect to: 61598
-# Print the response that is obtained from the server through the callback service.
+# Print the response that is obtained from the server.
 Hello Ballerina back
 Client connection closed successfully.
