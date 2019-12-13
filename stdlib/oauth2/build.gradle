@@ -30,7 +30,6 @@ dependencies {
     implementation project(':ballerina-mime')
     implementation project(':ballerina-runtime-api')
     implementation project(':ballerina-time')
-    implementation project(':ballerina-utils')
     implementation project(':ballerina-stringutils')
 
     baloImplementation project(path: ':ballerina-lang:annotations', configuration: 'baloImplementation')
@@ -40,7 +39,6 @@ dependencies {
     baloImplementation project(path: ':ballerina-mime', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-runtime-api', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-time', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-utils', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-stringutils', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-java', configuration: 'baloImplementation')
 

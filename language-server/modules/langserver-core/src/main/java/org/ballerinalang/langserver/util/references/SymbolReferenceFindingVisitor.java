@@ -590,8 +590,10 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
         BLangFunction funcNode = bLangLambdaFunction.function;
         funcNode.annAttachments.forEach(this::acceptNode);
         funcNode.requiredParams.forEach(this::acceptNode);
-        this.acceptNode(funcNode.restParam);
-        this.acceptNode(funcNode.restParam.typeNode);
+        if (funcNode.restParam != null) {
+            this.acceptNode(funcNode.restParam);
+            this.acceptNode(funcNode.restParam.typeNode);
+        }
         funcNode.externalAnnAttachments.forEach(this::acceptNode);
         funcNode.returnTypeAnnAttachments.forEach(this::acceptNode);
         this.acceptNode(funcNode.returnTypeNode);

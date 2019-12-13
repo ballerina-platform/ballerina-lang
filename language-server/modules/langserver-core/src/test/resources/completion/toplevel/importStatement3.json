@@ -190,14 +190,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "utils",
-      "kind": "Module",
-      "detail": "Package",
-      "sortText": "140",
-      "insertText": "utils",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "rabbitmq",
       "kind": "Module",
       "detail": "Package",

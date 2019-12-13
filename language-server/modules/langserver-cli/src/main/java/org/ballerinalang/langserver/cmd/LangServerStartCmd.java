@@ -51,9 +51,6 @@ public class LangServerStartCmd implements BLauncherCmd {
         BALLERINA_HOME = System.getProperty("ballerina.home");
     }
 
-    @CommandLine.Option(names = "--debug", description = "start language server in remote debugging mode")
-    private String debugPort;
-
     @CommandLine.Option(names = "--classpath", description = "custom class path for language server")
     private String customClasspath;
 
