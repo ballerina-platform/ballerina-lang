@@ -5,6 +5,7 @@ The update operation - Creating table and procedures:
 Create student table status: 0
 Stored procedure with IN param creation status: 0
 Stored procedure with INOUT/OUT param creation status: 0
+Stored procedure with result set return status: 0
 
 The call operation - With IN params
 Call operation with IN params successful
@@ -20,3 +21,4 @@ The update operation - Drop the tables and procedures
 Drop table student status: 0
 Drop stored procedure INSERTDATA status: 0
 Drop stored procedure GETCOUNT status: 0
+Drop stored procedure GETSTUDENTS status: 0

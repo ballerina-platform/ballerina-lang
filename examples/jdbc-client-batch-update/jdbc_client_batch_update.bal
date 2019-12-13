@@ -18,7 +18,7 @@ type Student record {
     string name;
 };
 
-type myBatchType int | string;
+type myBatchType int|string;
 
 public function main() {
     // Create a table using the `update` remote function.
