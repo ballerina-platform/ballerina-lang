@@ -91,6 +91,35 @@ function testGetXmlPayload(http:Request req) returns @tainted xml|error {
     return req.getXmlPayload();
 }
 
+function testAddCookies(http:Request req) returns http:Request {
+    http:Cookie cookie1 = new("SID1", "31d4d96e407aad42");
+    cookie1.domain = "google.com";
+    cookie1.path = "/sample";
+    http:Cookie cookie2 = new("SID2", "2638747623468bce72");
+    cookie2.name = "SID2";
+    cookie2.value = "2638747623468bce72";
+    cookie2.domain = "google.com";
+    cookie2.path = "/sample/about";
+    http:Cookie cookie3 = new("SID3", "782638747668bce72");
+    cookie3.name = "SID3";
+    cookie3.value = "782638747668bce72";
+    cookie3.domain = "google.com";
+    cookie3.path = "/sample";
+    http:Cookie[] cookiesToAdd = [cookie1, cookie2, cookie3];
+    req.addCookies(cookiesToAdd);
+    return req;
+}
+
+function testGetCookies(http:Request req) returns http:Cookie[] {
+    http:Cookie cookie1 = new("SID1", "31d4d96e407aad42");
+    cookie1.domain = "google.com";
+    cookie1.path = "/sample";
+    http:Cookie[] cookiesToAdd = [cookie1];
+    req.addCookies(cookiesToAdd);
+    http:Cookie[] cookiesInRequest = req.getCookies();
+    return cookiesInRequest;
+}
+
 listener http:MockListener mockEP = new(9090);
 
 @http:ServiceConfig { basePath: "/hello" }
@@ -354,6 +383,43 @@ service hello on mockEP {
                 res.statusCode = 500;
             }
         }
+        checkpanic caller->respond(res);
+    }
+
+    @http:ResourceConfig {
+        path: "/addCookies"
+    }
+    resource function addCookies(http:Caller caller, http:Request inReq) {
+        http:Request req = new;
+        http:Cookie cookie1 = new("SID1", "31d4d96e407aad42");
+        cookie1.domain = "google.com";
+        cookie1.path = "/sample";
+        http:Cookie cookie2 = new("SID2", "2638747623468bce72");
+        cookie2.domain = "google.com";
+        cookie2.path = "/sample/about";
+        http:Cookie cookie3 = new("SID3", "782638747668bce72");
+        cookie3.domain = "google.com";
+        cookie3.path = "/sample";
+        http:Cookie[] cookiesToAdd = [cookie1, cookie2, cookie3];
+        req.addCookies(cookiesToAdd);
+        string result = <@untainted string> req.getHeader("Cookie");
+        http:Response res = new;
+        res.setJsonPayload({ cookieHeader: result });
+        checkpanic caller->respond(res);
+    }
+
+    @http:ResourceConfig {
+        path: "/getCookies"
+    }
+    resource function getCookies(http:Caller caller, http:Request req) {
+        http:Response res = new;
+        http:Cookie cookie1 = new("SID1", "31d4d96e407aad42");
+        cookie1.domain = "google.com";
+        cookie1.path = "/sample";
+        http:Cookie[] cookiesToAdd = [cookie1];
+        req.addCookies(cookiesToAdd);
+        http:Cookie[] cookiesInRequest = req.getCookies();
+        res.setTextPayload(<@untainted string>  cookiesInRequest[0].name );
         checkpanic caller->respond(res);
     }
 }

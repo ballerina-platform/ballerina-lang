@@ -33,7 +33,6 @@ configurations {
 
 dependencies {
     baloImplementation project(path: ':ballerina-lang:annotations', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-utils', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-file', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-io', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-java', configuration: 'baloImplementation')
@@ -47,7 +46,6 @@ dependencies {
     implementation project(':ballerina-io')
     implementation project(':ballerina-log-api')
     implementation project(':ballerina-runtime-api')
-    implementation project(':ballerina-utils')
     implementation project(':ballerina-lang:annotations')
     implementation project(':ballerina-file')
 
