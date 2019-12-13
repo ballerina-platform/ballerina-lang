@@ -181,7 +181,12 @@ public class RunExecutableTask implements Task {
                                                                executableModule.packageID.name.value,
                                                                MODULE_INIT_CLASS_NAME);
         try {
-            URL[] urls = new URL[]{executableJar.moduleJar.toUri().toURL()};
+            URL[] urls = new URL[executableJar.platformLibs.size() + 1];
+            urls[0] = executableJar.moduleJar.toUri().toURL();
+            int i = 1;
+            for (Path platformLib : executableJar.platformLibs) {
+                urls[i++] = platformLib.toUri().toURL();
+            }
             URLClassLoader classLoader = new URLClassLoader(urls);
             Class<?> initClazz = classLoader.loadClass(initClassName);
             Method mainMethod = initClazz.getDeclaredMethod(JAVA_MAIN, String[].class);
