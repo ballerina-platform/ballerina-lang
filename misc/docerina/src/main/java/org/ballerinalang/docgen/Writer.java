@@ -27,6 +27,7 @@ import com.github.jknack.handlebars.context.FieldValueResolver;
 import com.github.jknack.handlebars.helper.StringHelpers;
 import com.github.jknack.handlebars.io.ClassPathTemplateLoader;
 import com.github.jknack.handlebars.io.FileTemplateLoader;
+import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.docgen.docs.BallerinaDocConstants;
 import org.ballerinalang.docgen.generator.model.DefaultableVarible;
 import org.ballerinalang.docgen.generator.model.PageContext;
@@ -140,6 +141,9 @@ public class Writer {
                 label += "<span>() </span>";
             }
             label += " </code>";
+        } else if (type.isArrayType) {
+            label = "<span class=\"array-type\">" + getTypeLabel(type.elementType, context) + getSuffixes(type)
+                    + "</span>";
         } else if ("builtin".equals(type.category) || "lang.annotations".equals(type.moduleName)
                 || !type.generateUserDefinedTypeLink) {
             label = "<span class=\"builtin-type\">" + type.name + getSuffixes(type) + "</span>";
@@ -172,7 +176,7 @@ public class Writer {
     }
 
     private static String getSuffixes(Type type) {
-        String suffix = type.isArrayType ? "[]" : "";
+        String suffix = type.isArrayType ? StringUtils.repeat("[]", type.arrayDimensions) : "";
         suffix += type.isNullable ? "?" : "";
         return suffix;
     }
