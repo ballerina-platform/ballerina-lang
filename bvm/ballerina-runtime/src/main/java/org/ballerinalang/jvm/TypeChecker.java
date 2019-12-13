@@ -841,7 +841,8 @@ public class TypeChecker {
         }
 
         for (AttachedFunction lhsFunc : targetFuncs) {
-            if (lhsFunc == targetType.initializer || lhsFunc == targetType.defaultsValuesInitFunc) {
+            if (lhsFunc == targetType.initializer || lhsFunc == targetType.defaultsValuesInitFunc
+                    || lhsFunc == targetType.generatedInitializer) {
                 continue;
             }
 

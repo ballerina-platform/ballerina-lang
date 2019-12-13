@@ -379,6 +379,7 @@ public class Desugar extends BLangNodeVisitor {
             return generatedInitFunc;
         }
 
+        // TODO : check this symbol assignment
         BAttachedFunction initializerFunc = ((BObjectTypeSymbol) objectTypeNode.symbol).initializerFunc;
         BAttachedFunction generatedInitializerFunc =
                 ((BObjectTypeSymbol) objectTypeNode.symbol).generatedInitializerFunc;
@@ -392,8 +393,10 @@ public class Desugar extends BLangNodeVisitor {
         List<BType> paramTypes =
                 ((BObjectTypeSymbol) objectTypeNode.symbol).initializerFunc.type.paramTypes;
         BType returnType = ((BObjectTypeSymbol) objectTypeNode.symbol).initializerFunc.type.retType;
+        BType restParamType = ((BObjectTypeSymbol) objectTypeNode.symbol).initializerFunc.type.restType;
         ((BInvokableType) generatedInitFunc.symbol.type).paramTypes = paramTypes;
         ((BInvokableType) generatedInitFunc.symbol.type).retType = returnType;
+        ((BInvokableType) generatedInitFunc.symbol.type).restType = restParamType;
 
         generatedInitFunc.returnTypeNode = objectTypeNode.initFunction.returnTypeNode;
 
@@ -6406,59 +6409,6 @@ public class Desugar extends BLangNodeVisitor {
             default:
                 return false;
         }
-    }
-
-    private BLangFunction createInitFunctionForStructureType2(BLangStructureTypeNode structureTypeNode, SymbolEnv env,
-                                                             Name suffix) {
-        BLangFunction initFunction = ASTBuilderUtil
-                .createInitFunctionWithNilReturn(structureTypeNode.pos, Names.EMPTY.value, suffix);
-
-        // Create the receiver
-        initFunction.receiver = ASTBuilderUtil.createReceiver(structureTypeNode.pos, structureTypeNode.type);
-        BVarSymbol receiverSymbol = new BVarSymbol(Flags.asMask(EnumSet.noneOf(Flag.class)),
-                                                   names.fromIdNode(initFunction.receiver.name),
-                                                   env.enclPkg.symbol.pkgID, structureTypeNode.type, null);
-        initFunction.receiver.symbol = receiverSymbol;
-
-        initFunction.type = new BInvokableType(new ArrayList<>(), symTable.nilType, null);
-        initFunction.attachedFunction = true;
-        initFunction.flagSet.add(Flag.ATTACHED);
-
-        // Create function symbol
-        Name funcSymbolName = names.fromString(Symbols.getAttachedFuncSymbolName(
-                structureTypeNode.type.tsymbol.name.value, Names.USER_DEFINED_INIT_SUFFIX.value));
-        initFunction.symbol = Symbols
-                .createFunctionSymbol(Flags.asMask(initFunction.flagSet), funcSymbolName, env.enclPkg.symbol.pkgID,
-                                      initFunction.type, structureTypeNode.symbol.scope.owner,
-                                      initFunction.body != null);
-        initFunction.symbol.scope = new Scope(initFunction.symbol);
-        initFunction.symbol.scope.define(receiverSymbol.name, receiverSymbol);
-        initFunction.symbol.receiverSymbol = receiverSymbol;
-
-        BInvokableTypeSymbol tsymbol = Symbols.createInvokableTypeSymbol(SymTag.FUNCTION_TYPE,
-                initFunction.symbol.flags, env.enclPkg.packageID, null,
-                initFunction.symbol);
-        initFunction.type.tsymbol = tsymbol;
-        tsymbol.params = initFunction.symbol.params;
-        tsymbol.restParam = initFunction.symbol.restParam;
-        tsymbol.returnType = initFunction.symbol.retType;
-
-        receiverSymbol.owner = initFunction.symbol;
-
-        // Add return type as nil to the symbol
-        initFunction.symbol.retType = symTable.nilType;
-
-        // Set the taint information to the constructed init function
-        initFunction.symbol.taintTable = new HashMap<>();
-        TaintRecord taintRecord = new TaintRecord(TaintRecord.TaintedStatus.UNTAINTED, new ArrayList<>());
-        initFunction.symbol.taintTable.put(TaintAnalyzer.ALL_UNTAINTED_TABLE_ENTRY_INDEX, taintRecord);
-
-        // Update Object type with attached function details
-        BStructureTypeSymbol typeSymbol = ((BStructureTypeSymbol) structureTypeNode.type.tsymbol);
-        typeSymbol.initializerFunc = new BAttachedFunction(suffix, initFunction.symbol,
-                                                           (BInvokableType) initFunction.type);
-        structureTypeNode.initFunction = initFunction;
-        return rewrite(initFunction, env);
     }
 
     private BLangFunction createInitFunctionForStructureType(BLangStructureTypeNode structureTypeNode, SymbolEnv env,

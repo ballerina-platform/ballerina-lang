@@ -647,8 +647,16 @@ function addObjectAttachedFunctions(jvm:MethodVisitor mv, bir:BAttachedFunction?
                 mv.visitInsn(DUP2);
                 mv.visitInsn(POP);
                 mv.visitVarInsn(ALOAD, attachedFunctionVarIndex);
-                mv.visitMethodInsn(INVOKEVIRTUAL, OBJECT_TYPE, "setInitializer",
+                mv.visitMethodInsn(INVOKEVIRTUAL, OBJECT_TYPE, "setGeneratedInitializer",
                                     io:sprintf("(L%s;)V", ATTACHED_FUNCTION), false);
+            }
+
+            if (stringutils:contains(attachedFunc.name.value, "__init")) {
+                mv.visitInsn(DUP2);
+                mv.visitInsn(POP);
+                mv.visitVarInsn(ALOAD, attachedFunctionVarIndex);
+                mv.visitMethodInsn(INVOKEVIRTUAL, OBJECT_TYPE, "setInitializer",
+                                                io:sprintf("(L%s;)V", ATTACHED_FUNCTION), false);
             }
 
             mv.visitInsn(DUP);
@@ -685,7 +693,7 @@ function addObjectInitFunction(jvm:MethodVisitor mv, bir:BAttachedFunction? init
         mv.visitVarInsn(ALOAD, attachedFunctionVarIndex);
         mv.visitInsn(DUP);
         mv.visitInsn(POP);
-        mv.visitMethodInsn(INVOKEVIRTUAL, OBJECT_TYPE, "setInitializer",
+        mv.visitMethodInsn(INVOKEVIRTUAL, OBJECT_TYPE, "setGeneratedInitializer",
             io:sprintf("(L%s;)V", ATTACHED_FUNCTION), false);
     }
 }
