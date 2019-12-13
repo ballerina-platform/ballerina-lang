@@ -2,12 +2,12 @@ import ballerina/io;
 
 function sendToFork(){
   fork {
-      @concurrent{}
+      @strand{thread:"any"}
       worker w1 {
         int i = 23;
         i -> w2;
       }
-      @concurrent{}
+      @strand{thread:"any"}
       worker w2{
         int j = <- w1;
         io:print(j + 1);
@@ -19,12 +19,12 @@ function sendToFork(){
 function forkInWorker() {
     worker wx {
         fork {
-            @concurrent{}
+            @strand{thread:"any"}
             worker w1 {
                 int i = 86;
                 i -> w2;
             }
-            @concurrent{}
+            @strand{thread:"any"}
             worker w2 {
                 int j = <- w1;
                 io:print(j + 1);

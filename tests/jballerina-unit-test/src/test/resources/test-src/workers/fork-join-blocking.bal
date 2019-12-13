@@ -7,7 +7,7 @@ function testForkJoin() returns [int, int]|error {
     http:Client c = new ("http://example.com");
 
     fork {
-        @concurrent{}
+        @strand{thread:"any"}
         worker w1 returns int {
             var clientResponse = c -> get("");
             int code = 0;
@@ -16,7 +16,7 @@ function testForkJoin() returns [int, int]|error {
             }
             return code;
         }
-        @concurrent{}
+        @strand{thread:"any"}
         worker w2 {
             runtime:sleep(3000);
             i = 100;
