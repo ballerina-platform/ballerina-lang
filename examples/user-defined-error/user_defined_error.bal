@@ -3,7 +3,7 @@ import ballerina/io;
 const INVALID_ACC_TYPE = "InvalidAccountType";
 
 // Define a record to represent the error details.
-// This record can have fields of `anydata|error` types and should be a sub type of the built-in error's detail type.
+// This record can have fields of `anydata|error` types and should be a subtype of the built-in error's detail type.
 type InvalidAccountTypeErrorData record {
     string message?;
     error cause?;
@@ -19,8 +19,8 @@ function getTypeId(string accountType) returns int | InvalidAccountTypeError {
         "savings" => { return 2; }
     }
 
-    // When a constant reason is used in the error definition we can use error type name as the error constructor,
-    // and error details are provided as named arguments.
+    // When a constant reason is used in the error definition the error type name can be used as the error constructor,
+    // and the error details can be provided as named arguments, without specifying the reason.
     InvalidAccountTypeError e = InvalidAccountTypeError(accountType = accountType);
     return e;
 }
@@ -34,24 +34,23 @@ type AccountNotFoundErrorData record {
 const INVALID_ACCOUNT_ID = "InvalidAccountID";
 const ACCOUNT_NOT_FOUND = "AccountNotFound";
 
-// Define error where error reason must be one of `ACCOUNT_NOT_FOUND` or `INVALID_ACCOUNT_ID`.
+// Define an `error` type where error reason must be either `ACCOUNT_NOT_FOUND` or `INVALID_ACCOUNT_ID`.
 type AccountNotFoundError error<ACCOUNT_NOT_FOUND | INVALID_ACCOUNT_ID, AccountNotFoundErrorData>;
 
 function getAccountBalance(int accountID) returns int|AccountNotFoundError {
-    // Values for the error detail mapping should be passed as named arguments.
     if (accountID < 0) {
         // Return an error with "InvalidAccountID" as the reason if the `accountID` is less than zero.
-        // Default error constructor can be used to construct error values of user defined types.
+        // The default error constructor can be used to construct the error value.
         AccountNotFoundError accountNotFoundError =
                                             error(INVALID_ACCOUNT_ID, accountID = accountID);
         return accountNotFoundError;
     } else if (accountID > 100) {
-        // Return an error with "AccountNotFound" as the reason if the `accountID` is above hundred.
+        // Return an error with "AccountNotFound" as the reason if the `accountID` is greater than hundred.
         AccountNotFoundError accountNotFoundError =
                                             error(ACCOUNT_NOT_FOUND, accountID = accountID);
         return accountNotFoundError;
     }
-    // Return the value if the `accountID` is in between zero and hundred inclusive.
+    // Return a value if the `accountID` is in between zero and hundred inclusive.
     return 600;
 }
 
@@ -67,6 +66,7 @@ type AccountInquiryFailed error<string, InquiryFailedErrorData>;
 function transferToAccount(int fromAccountId, int toAccountId, int amount) returns int|AccountInquiryFailed {
     var balance = getAccountBalance(fromAccountId);
     if (balance is error) {
+        // Create a new error, with the error returned from `getAccountBalance()` as the cause.
         AccountInquiryFailed e = error("AccountInquiryFailed", message = balance.reason(), cause = balance, accountID = fromAccountId);
         return e;
     } else {
