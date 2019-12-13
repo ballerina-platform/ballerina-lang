@@ -16,7 +16,7 @@
 # Knative annotation configuration.
 #
 #
-# # metadata for artifacts
+#
 # Metadata for artifacts
 #
 # + name - Name of the resource. Default is `"<OUPUT_FILE_NAME>-<RESOURCE_TYPE>"`.
@@ -26,6 +26,7 @@ public type Metadata record {|
     string name?;
     map<string> labels?;
     map<string> annotations?;
+
 |};
 # External file type for docker.
 #
@@ -34,12 +35,14 @@ public type Metadata record {|
 public type FileConfig record {|
     string sourceFile;
     string target;
+
 |};
 # Value for a field.
 #
 # + fieldPath - Path of the field
 public type FieldValue record{|
     string fieldPath;
+
 |};
 # Value for a secret key.
 #
@@ -48,6 +51,7 @@ public type FieldValue record{|
 public type SecretKeyValue record {|
     string name;
     string key;
+
 |};
 # Value for config map key.
 #
@@ -56,6 +60,7 @@ public type SecretKeyValue record {|
 public type ConfigMapKeyValue record {|
     string name;
     string key;
+
 |};
 # Value for resource field.
 #
@@ -64,30 +69,35 @@ public type ConfigMapKeyValue record {|
 public type ResourceFieldValue record {|
    string containerName?;
    string 'resource;
+
 |};
 # Value from config map key.
 #
 # + configMapKeyRef - Reference for config map key.
 public type ConfigMapKeyRef record {|
     ConfigMapKeyValue configMapKeyRef;
+
 |};
 # Value from field.
 #
 # + fieldRef - Reference for a field.
 public type FieldRef record {|
     FieldValue fieldRef;
+
 |};
 # Value from secret key.
 #
 # + secretKeyRef - Reference for secret key.
 public type SecretKeyRef record {|
     SecretKeyValue secretKeyRef;
+
 |};
 # Value from resource field.
 #
 # + resourceFieldRef - Reference for resource field.
 public type ResourceFieldRef record {|
     ResourceFieldValue resourceFieldRef;
+
 |};
 public const string IMAGE_PULL_POLICY_IF_NOT_PRESENT = "IfNotPresent";
 public const string IMAGE_PULL_POLICY_ALWAYS = "Always";
@@ -97,12 +107,13 @@ public type ImagePullPolicy "IfNotPresent"|"Always"|"Never";
 # Probing configuration.
 #
 # + port - Port to check for tcp connection.
-# + initialDelaySeconds - Initial delay for pobing in seconds.
+# + initialDelayInSeconds - Initial delay for pobing in seconds.
 # + periodSeconds - Interval between probes in seconds.
 public type ProbeConfiguration record {|
     int port?;
-    int initialDelaySeconds?;
+    int initialDelayInSeconds?;
     int periodSeconds?;
+
 |};
 # Type of operations between key and value of a toleration.
 public type TolerationOperator "Exists"|"Equal";
@@ -121,6 +132,7 @@ public type PodTolerationConfiguration record {|
     string value;
     TolerationEffect effect?;
     int tolerationSeconds = 0;
+
 |};
 # Knative service configuration.
 #
@@ -177,6 +189,7 @@ public type ServiceConfiguration record{|
         int containerConcurrency=100;
         int timeoutSeconds=60;
         int port=8080;
+
 |};
 public const annotation ServiceConfiguration Service on source service, source function, source listener;
 # Knative Horizontal Pod Autoscaler configuration
@@ -187,6 +200,7 @@ public type PodAutoscalerConfig record {|
     *Metadata;
     int minReplicas?;
     int maxReplicas?;
+
 |};
 # @knative:HPA annotation to configure horizontal pod autoscaler yaml.
 public const annotation PodAutoscalerConfig HPA on source service, source function;
@@ -200,12 +214,14 @@ public type Secret record {|
     string mountPath;
     boolean readOnly = true;
     string[] data;
+
 |};
-#Secret volume mount configurations for kubernetes.
+#Secret volume mount configurations for knative.
 #
-# + secrets - Array of [Secret](kubernetes.html#Secret)
+# + secrets - Array of [Secret](knative.html#Secret)
 public type SecretMount record {|
     Secret[] secrets;
+
 |};
 # @knative:Secret annotation to configure secrets.
 public const annotation SecretMount Secret on source service, source function;
@@ -219,14 +235,16 @@ public type ConfigMap record {|
     string mountPath;
     boolean readOnly = true;
     string[] data;
+
 |};
-# Secret volume mount configurations for kubernetes.
+# Secret volume mount configurations for knative.
 #
 # + conf - path to ballerina configuration file
 # + configMaps - Array of [ConfigMap](kubernetes.html#ConfigMap)
 public type ConfigMapMount record {|
     string conf;
     ConfigMap[] configMaps?;
+
 |};
 # @knative:ConfigMap annotation to configure config maps.
 public const annotation ConfigMapMount ConfigMap on source service, source function;
