@@ -363,12 +363,13 @@ public class BIRPackageSymbolEnter {
                 BAttachedFunction attachedFunc =
                         new BAttachedFunction(names.fromString(funcName), invokableSymbol, funcType);
                 BStructureTypeSymbol structureTypeSymbol = (BStructureTypeSymbol) attachedType.tsymbol;
-                structureTypeSymbol.attachedFuncs.add(attachedFunc);
                 if (Names.USER_DEFINED_INIT_SUFFIX.value.equals(funcName)
                         || funcName.equals(Names.INIT_FUNCTION_SUFFIX.value)) {
                     structureTypeSymbol.initializerFunc = attachedFunc;
                 } else if (funcName.equals(Names.GENERATED_INIT_SUFFIX.value)) {
                     ((BObjectTypeSymbol) structureTypeSymbol).generatedInitializerFunc = attachedFunc;
+                } else {
+                    structureTypeSymbol.attachedFuncs.add(attachedFunc);
                 }
             }
         }
@@ -1065,6 +1066,10 @@ public class BIRPackageSymbolEnter {
                         BField structField = new BField(objectVarSymbol.name, null, objectVarSymbol);
                         objectType.fields.add(structField);
                         objectSymbol.scope.define(objectVarSymbol.name, objectVarSymbol);
+                    }
+                    boolean generatedConstructorPresent = inputStream.readBoolean();
+                    if (generatedConstructorPresent) {
+                        ignoreAttachedFunc();
                     }
                     boolean constructorPresent = inputStream.readBoolean();
                     if (constructorPresent) {

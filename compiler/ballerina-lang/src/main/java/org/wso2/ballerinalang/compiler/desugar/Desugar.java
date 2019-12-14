@@ -354,13 +354,11 @@ public class Desugar extends BLangNodeVisitor {
                 BObjectTypeSymbol objectSymbol = ((BObjectTypeSymbol) objectTypeNode.type.tsymbol);
 
                 // Add generated init function to the attached function list
-                objectSymbol.attachedFuncs.add(objectSymbol.generatedInitializerFunc);
                 pkgNode.functions.add(objectTypeNode.generatedInitFunction);
                 pkgNode.topLevelNodes.add(objectTypeNode.generatedInitFunction);
 
                 // Add init function to the attached function list
                 if (objectTypeNode.initFunction != null) {
-                    objectSymbol.attachedFuncs.add(objectSymbol.initializerFunc);
                     pkgNode.functions.add(objectTypeNode.initFunction);
                     pkgNode.topLevelNodes.add(objectTypeNode.initFunction);
                 }

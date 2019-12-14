@@ -335,19 +335,23 @@ public class BIRTypeWriter implements TypeVisitor {
         List<BAttachedFunction> attachedFuncs;
         //TODO cleanup, there cannot be objects without attached function list and symbol kind other than object
         if (tSymbol.kind == SymbolKind.OBJECT) {
-            Map<Boolean, List<BAttachedFunction>> partitions = ((BObjectTypeSymbol) tSymbol).attachedFuncs.stream()
-                    .collect(Collectors.partitioningBy(n -> n.funcName.equals(Names.GENERATED_INIT_SUFFIX)));
-            attachedFuncs = partitions.get(false);
-            List<BAttachedFunction> constructor = partitions.get(true);
-            if (constructor.size() != 0) {
-                buff.writeByte(1); // constructor present
-                writeAttachFunction(partitions.get(true).get(0));
+            attachedFuncs = new ArrayList<>(((BObjectTypeSymbol) tSymbol).attachedFuncs);
+            if (((BObjectTypeSymbol) tSymbol).generatedInitializerFunc != null) {
+                buff.writeByte(1);
+                writeAttachFunction(((BObjectTypeSymbol) tSymbol).generatedInitializerFunc);
             } else {
-                buff.writeByte(0); // constructor not present
+                buff.writeByte(0);
+            }
+            if (((BObjectTypeSymbol) tSymbol).initializerFunc != null) {
+                buff.writeByte(1);
+                writeAttachFunction(((BObjectTypeSymbol) tSymbol).initializerFunc);
+            } else {
+                buff.writeByte(0);
             }
         } else {
             attachedFuncs = new ArrayList<>();
-            buff.writeByte(0); // constructor not present
+            buff.writeByte(0);
+            buff.writeByte(0);
         }
         buff.writeInt(attachedFuncs.size());
         for (BAttachedFunction attachedFunc : attachedFuncs) {

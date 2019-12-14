@@ -416,6 +416,7 @@ public type BObjectType record {|
     BObjectField?[] fields = [];
     BAttachedFunction?[] attachedFunctions = [];
     BAttachedFunction? constructor;
+    BAttachedFunction? generatedConstructor;
 |};
 
 public type BTypeHandle record {
