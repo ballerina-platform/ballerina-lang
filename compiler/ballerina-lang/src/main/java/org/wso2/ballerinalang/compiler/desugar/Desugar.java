@@ -377,31 +377,25 @@ public class Desugar extends BLangNodeVisitor {
             return generatedInitFunc;
         }
 
-        // TODO : check this symbol assignment
         BAttachedFunction initializerFunc = ((BObjectTypeSymbol) objectTypeNode.symbol).initializerFunc;
         BAttachedFunction generatedInitializerFunc =
                 ((BObjectTypeSymbol) objectTypeNode.symbol).generatedInitializerFunc;
-        generatedInitializerFunc.symbol.params = initializerFunc.symbol.params;
-        generatedInitializerFunc.symbol.restParam = initializerFunc.symbol.restParam;
-        generatedInitializerFunc.symbol.retType = initializerFunc.symbol.retType;
-
-        addRequiredParamsToGeneratedInitFunction(objectTypeNode.initFunction, generatedInitFunc);
-        addRestParamsToGeneratedInitFunction(objectTypeNode.initFunction, generatedInitFunc);
-
-        List<BType> paramTypes =
-                ((BObjectTypeSymbol) objectTypeNode.symbol).initializerFunc.type.paramTypes;
-        BType returnType = ((BObjectTypeSymbol) objectTypeNode.symbol).initializerFunc.type.retType;
-        BType restParamType = ((BObjectTypeSymbol) objectTypeNode.symbol).initializerFunc.type.restType;
-        ((BInvokableType) generatedInitFunc.symbol.type).paramTypes = paramTypes;
-        ((BInvokableType) generatedInitFunc.symbol.type).retType = returnType;
-        ((BInvokableType) generatedInitFunc.symbol.type).restType = restParamType;
+        addRequiredParamsToGeneratedInitFunction(objectTypeNode.initFunction, generatedInitFunc,
+                generatedInitializerFunc);
+        addRestParamsToGeneratedInitFunction(objectTypeNode.initFunction, generatedInitFunc, generatedInitializerFunc);
 
         generatedInitFunc.returnTypeNode = objectTypeNode.initFunction.returnTypeNode;
+        generatedInitializerFunc.symbol.retType = generatedInitFunc.returnTypeNode.type;
+
+        ((BInvokableType) generatedInitFunc.symbol.type).paramTypes = initializerFunc.type.paramTypes;
+        ((BInvokableType) generatedInitFunc.symbol.type).retType = initializerFunc.type.retType;
+        ((BInvokableType) generatedInitFunc.symbol.type).restType = initializerFunc.type.restType;
 
         return generatedInitFunc;
     }
 
-    private void addRequiredParamsToGeneratedInitFunction(BLangFunction initFunction, BLangFunction generatedInitFunc) {
+    private void addRequiredParamsToGeneratedInitFunction(BLangFunction initFunction, BLangFunction generatedInitFunc,
+                                                          BAttachedFunction generatedInitializerFunc) {
 
         if (initFunction.requiredParams.isEmpty()) {
             return;
@@ -414,10 +408,12 @@ public class Desugar extends BLangNodeVisitor {
                                     requiredParameter.symbol.pkgID,
                                     requiredParameter.type, requiredParameter.symbol.owner));
             generatedInitFunc.requiredParams.add(var);
+            generatedInitializerFunc.symbol.params.add(var.symbol);
         }
     }
 
-    private void addRestParamsToGeneratedInitFunction(BLangFunction initFunction, BLangFunction generatedInitFunc) {
+    private void addRestParamsToGeneratedInitFunction(BLangFunction initFunction, BLangFunction generatedInitFunc,
+                                                      BAttachedFunction generatedInitializerFunc) {
 
         if (initFunction.restParam == null) {
             return;
@@ -428,6 +424,7 @@ public class Desugar extends BLangNodeVisitor {
                         restParam.name.getValue(), restParam.type, null, new BVarSymbol(0,
                                 names.fromString(restParam.name.getValue()), restParam.symbol.pkgID,
                                 restParam.type, restParam.symbol.owner));
+        generatedInitializerFunc.symbol.restParam = generatedInitFunc.restParam.symbol;
     }
 
     /**
