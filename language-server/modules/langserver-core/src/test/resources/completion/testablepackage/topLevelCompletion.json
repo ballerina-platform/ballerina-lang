@@ -293,17 +293,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "Dispatcher",
-      "kind": "Struct",
-      "detail": "Record",
-      "documentation": {
-        "left": "Defines a disptcher to be used for concurrent execution of strands.\n"
-      },
-      "sortText": "160",
-      "insertText": "Dispatcher",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "error",
       "kind": "Event",
       "detail": "Error",
@@ -328,6 +317,17 @@
       "detail": "Json",
       "sortText": "160",
       "insertText": "json",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "StrandData",
+      "kind": "Struct",
+      "detail": "Record",
+      "documentation": {
+        "left": "Describes Strand execution details for the runtime.\n"
+      },
+      "sortText": "160",
+      "insertText": "StrandData",
       "insertTextFormat": "Snippet"
     },
     {
@@ -368,6 +368,14 @@
       "detail": "Int",
       "sortText": "160",
       "insertText": "int",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Thread",
+      "kind": "TypeParameter",
+      "detail": "Finite",
+      "sortText": "160",
+      "insertText": "Thread",
       "insertTextFormat": "Snippet"
     },
     {
