@@ -18,30 +18,22 @@
 
 package org.ballerinalang.nativeimpl;
 
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
  * ballerina.model.streams:deserialize(string str).
  *
  * @since 0.990.5
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "streams",
-        functionName = "deserialize",
-        args = {@Argument(name = "serializedString", type = TypeKind.STRING)},
-        returnType = {@ReturnType(type = TypeKind.MAP)},
-        isPublic = true
-)
 public class Deserialize {
 
-    public static MapValue deserialize(Strand strand, Object object, String str) {
+    public static MapValue deserialize(String str) {
         return new MapValueImpl();
+    }
+
+    private Deserialize() {
+
     }
 }
 

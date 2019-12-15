@@ -22,6 +22,7 @@ import ballerina/lang.'int as langint;
 import ballerina/log;
 import ballerina/task;
 import ballerina/time;
+import ballerinax/java;
 
 # Abstract Snapshotable to be referenced by all snapshotable objects.
 public type Snapshotable abstract object {
@@ -49,12 +50,26 @@ map<boolean> loadedStates = {};
 # Native function to deserialize a serialized snapshot.
 # + str - A `string` of serialized content.
 # + return - A deserialized `map<any>` state.
-function deserialize(string str) returns map<any> = external;
+function deserialize(string str) returns map<any> {
+    return externDeserialize(java:fromString(str));
+}
+
+function externDeserialize(handle str) returns map<any> = @java:Method {
+    name: "deserialize",
+    class: "org.ballerinalang.nativeimpl.Deserialize"
+} external;
 
 # Native function to serialize a snapshot.
 # + data - A `map<any>` state to be serialized.
 # + return - A `string` of serialized state.
-function serialize(map<any> data) returns string = external;
+function serialize(map<any> data) returns string {
+    return <string>java:toString(externSerialize(data));
+}
+
+function externSerialize(map<any> data) returns handle = @java:Method {
+    name: "serialize",
+    class: "org.ballerinalang.nativeimpl.Serialize"
+} external;
 
 # Function to read given number of characters from an io:ReadableCharacterChannel.
 # + rch - A `ReadableCharacterChannel` instance.
