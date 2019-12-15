@@ -43,7 +43,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
         args = {
                 @Argument(name = "stream", type = TypeKind.STREAM)
         },
-        returnType = {@ReturnType(type = TypeKind.ARRAY, elementType = TypeKind.FUNCTION)}
+        returnType = {@ReturnType(type = TypeKind.ARRAY, elementType = TypeKind.OBJECT)}
 )
 public class GetSubscriptionFuncs {
     public static ArrayValue getSubscriptionFuncs(Strand strand, ObjectValue subscriptionMgr, StreamValue stream) {

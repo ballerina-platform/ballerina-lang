@@ -21,7 +21,7 @@ import ballerina/lang.'value as values;
 # Has the special semantic that when used in a declaration
 # all uses in the declaration must refer to same type.
 @typeParam
-type PureType anydata|error;
+type PureType anydata | error;
 
 # Publishes data to the stream.
 #
@@ -30,20 +30,13 @@ type PureType anydata|error;
 #
 # Each subscriber receives a separate clone of the data.
 public function publish(stream<PureType> strm, PureType data) {
-    function (PureType)[] funcs = streamManager.getSubscriptionFuncs(strm);
-    future<any>[] ftrs = [];
-    arrays:forEach(funcs, function(function (PureType) func) {
-        future<any> ftr;
+    Subscription[] funcs = streamManager.getSubscriptionFuncs(strm);
+    arrays:forEach(funcs, function (Subscription func) {
         if (data is anydata) {
-            ftr = start func(values:clone(data));
+            func.publishMessage(values:clone(data));
         } else {
-            ftr = start func(data);
+            func.publishMessage(data);
         }
-        arrays:push(ftrs, ftr);
-    });
-
-    arrays:forEach(ftrs, function(future<any> ftr) {
-        _ = wait ftr;
     });
 }
 
@@ -51,6 +44,7 @@ public function publish(stream<PureType> strm, PureType data) {
 #
 # + strm - the stream to subscribe to
 # + func - the function pointer for the subscription, which will be invoked with data published to the stream
-public function subscribe(stream<PureType> strm, function (PureType) func) {
-    streamManager.addSubscriptionFunc(strm, func);
+public function subscribe(stream<PureType> strm, function(PureType) func) {
+    Subscription sub = new ();
+    streamManager.addSubscriptionFunc(strm, sub, func);
 }

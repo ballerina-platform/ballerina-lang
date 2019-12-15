@@ -21,6 +21,7 @@ package org.ballerinalang.langlib.stream;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BFunctionType;
+import org.ballerinalang.jvm.types.BObjectType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.values.ArrayValue;
@@ -28,6 +29,8 @@ import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.FPValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.StreamValue;
+import org.ballerinalang.jvm.values.api.BFunctionPointer;
+import org.ballerinalang.jvm.values.api.BValueCreator;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -45,22 +48,32 @@ import org.ballerinalang.natives.annotations.ReturnType;
                 structPackage = "ballerina/lang.stream"),
         args = {
                 @Argument(name = "stream", type = TypeKind.STREAM),
-                @Argument(name = "func", type = TypeKind.FUNCTION)
+                @Argument(name = "subscription", type = TypeKind.OBJECT),
+                @Argument(name = "func", type = TypeKind.ANY)
         },
         returnType = {@ReturnType(type = TypeKind.ARRAY, elementType = TypeKind.FUNCTION)}
 )
 public class AddSubscriptionFunc {
+
+    private static final String SUBCRIPTION_FUNC_NAME = "func";
+
     public static void addSubscriptionFunc(Strand strand, ObjectValue subscriptionMgr, StreamValue stream,
-                                           FPValue<Object[], Object> subscriptionFunc) {
-        ArrayValue funcArray = (ArrayValue) subscriptionMgr.getNativeData(stream.streamId);
-        BFunctionType functionType = (BFunctionType) subscriptionFunc.getType();
-        //TODO: This is a hack to make typeParam work
-        functionType.paramTypes = new BType[] {BTypes.typePureType};
-        if (funcArray == null) {
-            funcArray = new ArrayValueImpl(new BArrayType(subscriptionFunc.getType()));
-            subscriptionMgr.addNativeData(stream.streamId, funcArray);
+                                           ObjectValue subscriptionObj, Object func) {
+        ArrayValue subcriptionObjArray = (ArrayValue) subscriptionMgr.getNativeData(stream.streamId);
+
+        rewriteSubscriptionFunc(subscriptionObj, (FPValue) func);
+
+        if (subcriptionObjArray == null) {
+            BObjectType subscriptionObjType = subscriptionObj.getType();
+            subcriptionObjArray = new ArrayValueImpl(new BArrayType(subscriptionObjType));
+            subscriptionMgr.addNativeData(stream.streamId, subcriptionObjArray);
         }
 
-        funcArray.append(subscriptionFunc);
+        subcriptionObjArray.append(subscriptionObj);
+    }
+
+    private static void rewriteSubscriptionFunc(ObjectValue subscriptionObj, FPValue func) {
+        subscriptionObj.getType().getFields().get(SUBCRIPTION_FUNC_NAME).type = func.getType();
+        subscriptionObj.set(SUBCRIPTION_FUNC_NAME, func);
     }
 }
