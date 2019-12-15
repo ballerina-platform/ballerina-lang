@@ -30,14 +30,13 @@ function test2() returns (int){
 
 
 public function getCombinedString() returns string {
-    var unifier = function (function () returns string get) returns string {
+    var sampleMethod = function (function () returns string get) returns string {
         var j = get();
         return j;
     };
-    // works as expected if only one of the unifier() functions is called
     string res = "";
-    res += unifier(foo:data);
+    res += sampleMethod(foo:data);
     res += " ";
-    res += unifier(bar:data);
+    res += sampleMethod(bar:data);
     return res;
 }
