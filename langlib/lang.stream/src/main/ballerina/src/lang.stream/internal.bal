@@ -14,7 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 import ballerina/lang.'array as arrays;
-import ballerina/lang.'future as futures;
 import ballerina/lang.'value as values;
 
 # Singleton Instance of SubscriptionManager.
@@ -53,7 +52,7 @@ type Subscription object {
             arrays:push(self.queue, message);
             if (self.status == false) {
                 self.status = true;
-                _ = @concurrent {}start self.startProcessingEvents(arrays:remove(self.queue, 0));
+                _ = @concurrent{} start self.startProcessingEvents(arrays:remove(self.queue, 0));
             }
         }
     }
