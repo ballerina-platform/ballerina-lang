@@ -16,7 +16,7 @@
 
 # Knative annotation configuration.
 
-# Metadata for artifacts
+# Metadata for artifacts.
 #
 # + name - Name of the resource. Default is `"<OUPUT_FILE_NAME>-<RESOURCE_TYPE>"`
 # + labels - Map of labels for the resource
