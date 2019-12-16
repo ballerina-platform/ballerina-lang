@@ -217,6 +217,7 @@ public type PodAutoscalerConfig record {|
 
 # @knative:HPA annotation to configure horizontal pod autoscaler yaml.
 public const annotation PodAutoscalerConfig HPA on source service, source function;
+
 # Knative secret volume mount.
 #
 # + mountPath - Mount path
@@ -238,6 +239,7 @@ public type SecretMount record {|
 
 # @knative:Secret annotation to configure secrets.
 public const annotation SecretMount Secret on source service, source function;
+
 # Knative Config Map volume mount.
 #
 # + mountPath - Mount path
