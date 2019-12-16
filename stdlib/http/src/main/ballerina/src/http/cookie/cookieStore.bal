@@ -90,10 +90,10 @@ public type CookieStore object {
             // Gets the session cookies.
             foreach var cookie in self.allSessionCookies {
                 if (!((url.startsWith(HTTPS) && cookie.secure) || cookie.secure == false)) {
-                    return cookiesToReturn;
+                    continue;
                 }
                 if (!((url.startsWith(HTTP) && cookie.httpOnly) || cookie.httpOnly == false)) {
-                    return cookiesToReturn;
+                    continue;
                 }
                 if (cookie.hostOnly == true) {
                     if (cookie.domain == domain && checkPath(path, cookie)) {
