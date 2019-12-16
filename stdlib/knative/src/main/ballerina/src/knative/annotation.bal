@@ -18,9 +18,9 @@
 
 # Metadata for artifacts
 #
-# + name - Name of the resource. Default is `"<OUPUT_FILE_NAME>-<RESOURCE_TYPE>"`.
-# + labels - Map of labels for the resource.
-# + annotations - Map of annotations for resource.
+# + name - Name of the resource. Default is `"<OUPUT_FILE_NAME>-<RESOURCE_TYPE>"`
+# + labels - Map of labels for the resource
+# + annotations - Map of annotations for resource
 public type Metadata record {|
     string name?;
     map<string> labels?;
@@ -29,8 +29,8 @@ public type Metadata record {|
 
 # External file type for docker.
 #
-# + sourceFile - source path of the file (in your machine).
-# + target - target path (inside container).
+# + sourceFile - source path of the file (in your machine)
+# + target - target path (inside container)
 public type FileConfig record {|
     string sourceFile;
     string target;
@@ -38,15 +38,15 @@ public type FileConfig record {|
 
 # Value for a field.
 #
-# + fieldPath - Path of the field.
+# + fieldPath - Path of the field
 public type FieldValue record {|
     string fieldPath;
 |};
 
 # Value for a secret key.
 #
-# + name - Name of the secret.
-# + key - Key of the secret.
+# + name - Name of the secret
+# + key - Key of the secret
 public type SecretKeyValue record {|
     string name;
     string key;
@@ -54,8 +54,8 @@ public type SecretKeyValue record {|
 
 # Value for config map key.
 #
-# + name - name of the config.
-# + key - key of the config.
+# + name - name of the config
+# + key - key of the config
 public type ConfigMapKeyValue record {|
     string name;
     string key;
@@ -63,7 +63,7 @@ public type ConfigMapKeyValue record {|
 
 # Value for resource field.
 #
-# + containerName - Name of the container.
+# + containerName - Name of the container
 # + resource - Resource field
 public type ResourceFieldValue record {|
    string containerName?;
@@ -72,28 +72,28 @@ public type ResourceFieldValue record {|
 
 # Value from config map key.
 #
-# + configMapKeyRef - Reference for config map key.
+# + configMapKeyRef - Reference for config map key
 public type ConfigMapKeyRef record {|
     ConfigMapKeyValue configMapKeyRef;
 |};
 
 # Value from field.
 #
-# + fieldRef - Reference for a field.
+# + fieldRef - Reference for a field
 public type FieldRef record {|
     FieldValue fieldRef;
 |};
 
 # Value from secret key.
 #
-# + secretKeyRef - Reference for secret key.
+# + secretKeyRef - Reference for secret key
 public type SecretKeyRef record {|
     SecretKeyValue secretKeyRef;
 |};
 
 # Value from resource field.
 #
-# + resourceFieldRef - Reference for resource field.
+# + resourceFieldRef - Reference for resource field
 public type ResourceFieldRef record {|
     ResourceFieldValue resourceFieldRef;
 |};
@@ -107,9 +107,9 @@ public type ImagePullPolicy IMAGE_PULL_POLICY_IF_NOT_PRESENT|IMAGE_PULL_POLICY_A
 
 # Probing configuration.
 #
-# + port - Port to check for tcp connection.
-# + initialDelayInSeconds - Initial delay for pobing in seconds.
-# + periodSeconds - Interval between probes in seconds.
+# + port - Port to check for tcp connection
+# + initialDelayInSeconds - Initial delay for pobing in seconds
+# + periodSeconds - Interval between probes in seconds
 public type ProbeConfiguration record {|
     int port?;
     int initialDelayInSeconds?;
@@ -131,11 +131,11 @@ public type TolerationEffect TOLERATION_EFFECT_NO_SCHEDULE|TOLERATION_EFFECT_PRE
 
 # Pod toleration configuration.
 #
-# + key - Taint key of the toleration.
-# + operator - Operator between the key and value. Default is `"Equal"`.
-# + value - Taint value of the toleration.
-# + effect - The taint effect.
-# + tolerationSeconds - Time period of toleration in seconds. Default is `0`.
+# + key - Taint key of the toleration
+# + operator - Operator between the key and value. Default is `"Equal"`
+# + value - Taint value of the toleration
+# + effect - The taint effect
+# + tolerationSeconds - Time period of toleration in seconds. Default is `0`
 public type PodTolerationConfiguration record {|
     string key;
     TolerationOperator operator = "Equal";
@@ -146,35 +146,35 @@ public type PodTolerationConfiguration record {|
 
 # Knative service configuration.
 #
-# + dockerHost - Docker host IP and docker PORT. ( e.g minikube IP and docker PORT).
-# Default is to use DOCKER_HOST environment variable.
+# + dockerHost - Docker host IP and docker PORT. ( e.g minikube IP and docker PORT)
+# Default is to use DOCKER_HOST environment variable
 # If DOCKER_HOST is unavailable, use `"unix:///var/run/docker.sock"` for Unix or
-# use `"npipe:////./pipe/docker_engine"` for Windows 10 or use `"localhost:2375"`.
-# + dockerCertPath - Docker certificate path. Default is "DOCKER_CERT_PATH" environment variable.
-# + registry - Docker registry url.
-# + username - Username for docker registry.
-# + password - Password for docker registry.
-# + baseImage - Base image for docker image building. Default value is `"ballerina/ballerina-runtime:<BALLERINA_VERSION>"`.
-# Use `"ballerina/ballerina-runtime:latest"` to use the latest stable ballerina runtime docker image.
+# use `"npipe:////./pipe/docker_engine"` for Windows 10 or use `"localhost:2375"`
+# + dockerCertPath - Docker certificate path. Default is "DOCKER_CERT_PATH" environment variable
+# + registry - Docker registry url
+# + username - Username for docker registry
+# + password - Password for docker registry
+# + baseImage - Base image for docker image building. Default value is `"ballerina/ballerina-runtime:<BALLERINA_VERSION>"`
+# Use `"ballerina/ballerina-runtime:latest"` to use the latest stable ballerina runtime docker image
 # + image - Docker image name with tag. Default is `"<OUTPUT_FILE_NAME>:latest"`. If field `registry` is set then
-# it will be prepended to the docker image name as `<registry>/<OUTPUT_FILE_NAME>:latest`.
-# + buildImage - Docker image to be build or not. Default is `true`.
-# + push - Enable pushing docker image to registry. Field `buildImage` must be set to `true` to be effective. Default value is `false`.
-# + copyFiles - Array of [External files](kubernetes#FileConfig) for docker image.
-# + singleYAML - Generate a single yaml file with all kubernetes artifacts (services, deployment, ingress and etc). Default is `true`.
-# + namespace - Kubernetes namespace to be used on all artifacts.
-# + replicas - Number of replicas. Default is `1`.
-# + livenessProbe - Enable/Disable liveness probe and configure it. Default is `false`.
-# + readinessProbe - Enable/Disable readiness probe and configure it. Default is `false`.
-# + imagePullPolicy - Image pull policy. Default is `"IfNotPresent"`.
-# + env - Environment variable map for containers.
-# + podAnnotations - Map of annotations for pods.
-# + podTolerations - Toleration for pods.
-# + dependsOn - Services this deployment depends on.
-# + imagePullSecrets - Image pull secrets.
-# + containerConcurrency - concurent request handle by one container instance.
-# + timeoutSeconds - max time the instance is allowed for responding to a request.
-# + port - containerPort value for Knative service.
+# it will be prepended to the docker image name as `<registry>/<OUTPUT_FILE_NAME>:latest`
+# + buildImage - Docker image to be build or not. Default is `true`
+# + push - Enable pushing docker image to registry. Field `buildImage` must be set to `true` to be effective. Default value is `false`
+# + copyFiles - Array of [External files](kubernetes#FileConfig) for docker image
+# + singleYAML - Generate a single yaml file with all kubernetes artifacts (services, deployment, ingress and etc). Default is `true`
+# + namespace - Kubernetes namespace to be used on all artifacts
+# + replicas - Number of replicas. Default is `1`
+# + livenessProbe - Enable/Disable liveness probe and configure it. Default is `false`
+# + readinessProbe - Enable/Disable readiness probe and configure it. Default is `false`
+# + imagePullPolicy - Image pull policy. Default is `"IfNotPresent"`
+# + env - Environment variable map for containers
+# + podAnnotations - Map of annotations for pods
+# + podTolerations - Toleration for pods
+# + dependsOn - Services this deployment depends on
+# + imagePullSecrets - Image pull secrets
+# + containerConcurrency - concurent request handle by one container instance
+# + timeoutSeconds - max time the instance is allowed for responding to a request
+# + port - containerPort value for Knative service
 public type ServiceConfiguration record{|
         *Metadata;
         string dockerHost?;
@@ -207,8 +207,8 @@ public const annotation ServiceConfiguration Service on source service, source f
 
 # Knative Horizontal Pod Autoscaler configuration
 #
-# + minReplicas - Minimum number of replicas.
-# + maxReplicas - Maximum number of replicas.
+# + minReplicas - Minimum number of replicas
+# + maxReplicas - Maximum number of replicas
 public type PodAutoscalerConfig record {|
     *Metadata;
     int minReplicas?;
@@ -219,9 +219,9 @@ public type PodAutoscalerConfig record {|
 public const annotation PodAutoscalerConfig HPA on source service, source function;
 # Knative secret volume mount.
 #
-# + mountPath - Mount path.
-# + readOnly - Is mount read only. Default is `true`.
-# + data - Paths to data files as an array.
+# + mountPath - Mount path
+# + readOnly - Is mount read only. Default is `true`
+# + data - Paths to data files as an array
 public type Secret record {|
     *Metadata;
     string mountPath;
@@ -231,7 +231,7 @@ public type Secret record {|
 
 # Secret volume mount configurations for knative.
 #
-# + secrets - Array of [Secret](knative.html#Secret).
+# + secrets - Array of [Secret](knative.html#Secret)
 public type SecretMount record {|
     Secret[] secrets;
 |};
@@ -240,9 +240,9 @@ public type SecretMount record {|
 public const annotation SecretMount Secret on source service, source function;
 # Knative Config Map volume mount.
 #
-# + mountPath - Mount path.
-# + readOnly - Is mount read only. Default is `true`.
-# + data - Paths to data files.+ port - port value for the containerPort.
+# + mountPath - Mount path
+# + readOnly - Is mount read only. Default is `true`
+# + data - Paths to data files.+ port - port value for the containerPort
 public type ConfigMap record {|
     *Metadata;
     string mountPath;
@@ -252,8 +252,8 @@ public type ConfigMap record {|
 
 # Secret volume mount configurations for knative.
 #
-# + conf - path to ballerina configuration file.
-# + configMaps - Array of [ConfigMap](kubernetes.html#ConfigMap).
+# + conf - path to ballerina configuration file
+# + configMaps - Array of [ConfigMap](kubernetes.html#ConfigMap)
 public type ConfigMapMount record {|
     string conf;
     ConfigMap[] configMaps?;
