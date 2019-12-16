@@ -102,4 +102,11 @@ task copyHighlighter(type: Copy) {
     into("$buildDir/resources/main/syntax-highlighter")
 }
 
+
+test {
+    useTestNG() {
+        suites 'src/test/resources/testng.xml'
+    }
+}
+
 description = 'Ballerina - Docerina'
