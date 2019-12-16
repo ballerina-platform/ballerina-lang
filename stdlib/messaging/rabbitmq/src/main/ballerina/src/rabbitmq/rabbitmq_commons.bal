@@ -51,9 +51,9 @@ public const CLIENT_ACK = "client";
 # + correlationId - Client-specific ID that can be used to mark or identify messages between clients.
 public type BasicProperties record {|
     string? replyTo;
-    string? contentType;
-    string? contentEncoding;
-    string? correlationId;
+    string? contentType = ();
+    string? contentEncoding = ();
+    string? correlationId = ();
 |};
 
 # Holds the parameters used to declare a queue.

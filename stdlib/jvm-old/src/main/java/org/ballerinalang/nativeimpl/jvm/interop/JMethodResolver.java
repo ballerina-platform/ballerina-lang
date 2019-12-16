@@ -25,20 +25,21 @@ import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.types.BUnionType;
 import org.ballerinalang.jvm.types.TypeTags;
-import org.ballerinalang.jvm.values.ArrayValue;
-import org.ballerinalang.jvm.values.ErrorValue;
-import org.ballerinalang.jvm.values.FPValue;
-import org.ballerinalang.jvm.values.FutureValue;
-import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.jvm.values.StreamValue;
-import org.ballerinalang.jvm.values.TableValue;
-import org.ballerinalang.jvm.values.TypedescValue;
-import org.ballerinalang.jvm.values.XMLValue;
+import org.ballerinalang.jvm.values.api.BArray;
+import org.ballerinalang.jvm.values.api.BDecimal;
+import org.ballerinalang.jvm.values.api.BError;
+import org.ballerinalang.jvm.values.api.BFunctionPointer;
+import org.ballerinalang.jvm.values.api.BFuture;
+import org.ballerinalang.jvm.values.api.BMap;
+import org.ballerinalang.jvm.values.api.BObject;
+import org.ballerinalang.jvm.values.api.BStream;
+import org.ballerinalang.jvm.values.api.BString;
+import org.ballerinalang.jvm.values.api.BTable;
+import org.ballerinalang.jvm.values.api.BTypedesc;
+import org.ballerinalang.jvm.values.api.BXML;
 
 import java.lang.reflect.Executable;
 import java.lang.reflect.Method;
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -162,7 +163,7 @@ class JMethodResolver {
                 }
             }
             returnsErrorValue = method instanceof Method && (this.classLoader
-                    .loadClass(ErrorValue.class.getCanonicalName())
+                    .loadClass(BError.class.getCanonicalName())
                     .isAssignableFrom(((Method) method).getReturnType()) ||
                     this.classLoader.loadClass(Object.class.getCanonicalName())
                             .isAssignableFrom(((Method) method).getReturnType()));
@@ -262,32 +263,31 @@ class JMethodResolver {
                     }
                     return jType.isPrimitive() && jTypeName.equals(J_PRIMITIVE_BOOLEAN_TNAME);
                 case TypeTags.DECIMAL_TAG:
-                    return this.classLoader.loadClass(BigDecimal.class.getCanonicalName()).isAssignableFrom(jType);
+                    return this.classLoader.loadClass(BDecimal.class.getCanonicalName()).isAssignableFrom(jType);
                 case TypeTags.STRING_TAG:
-                    // Currently no java type matches to ballerina string type.
-                    return false;
+                    return this.classLoader.loadClass(BString.class.getCanonicalName()).isAssignableFrom(jType);
                 case TypeTags.MAP_TAG:
                 case TypeTags.RECORD_TYPE_TAG:
-                    return this.classLoader.loadClass(MapValue.class.getCanonicalName()).isAssignableFrom(jType);
+                    return this.classLoader.loadClass(BMap.class.getCanonicalName()).isAssignableFrom(jType);
                 case TypeTags.JSON_TAG:
                     return jTypeName.equals(J_OBJECT_TNAME);
                 case TypeTags.OBJECT_TYPE_TAG:
                 case TypeTags.SERVICE_TAG:
-                    return this.classLoader.loadClass(ObjectValue.class.getCanonicalName()).isAssignableFrom(jType);
+                    return this.classLoader.loadClass(BObject.class.getCanonicalName()).isAssignableFrom(jType);
                 case TypeTags.ERROR_TAG:
-                    return this.classLoader.loadClass(ErrorValue.class.getCanonicalName()).isAssignableFrom(jType);
+                    return this.classLoader.loadClass(BError.class.getCanonicalName()).isAssignableFrom(jType);
                 case TypeTags.STREAM_TAG:
-                    return this.classLoader.loadClass(StreamValue.class.getCanonicalName()).isAssignableFrom(jType);
+                    return this.classLoader.loadClass(BStream.class.getCanonicalName()).isAssignableFrom(jType);
                 case TypeTags.TABLE_TAG:
-                    return this.classLoader.loadClass(TableValue.class.getCanonicalName()).isAssignableFrom(jType);
+                    return this.classLoader.loadClass(BTable.class.getCanonicalName()).isAssignableFrom(jType);
                 case TypeTags.XML_TAG:
-                    return this.classLoader.loadClass(XMLValue.class.getCanonicalName()).isAssignableFrom(jType);
+                    return this.classLoader.loadClass(BXML.class.getCanonicalName()).isAssignableFrom(jType);
                 case TypeTags.TUPLE_TAG:
                 case TypeTags.ARRAY_TAG:
                     if (jMethodRequest.restParamExist) {
                         return jType.isArray();
                     }
-                    return this.classLoader.loadClass(ArrayValue.class.getCanonicalName()).isAssignableFrom(jType);
+                    return this.classLoader.loadClass(BArray.class.getCanonicalName()).isAssignableFrom(jType);
                 case TypeTags.UNION_TAG:
                     if (jTypeName.equals(J_OBJECT_TNAME)) {
                         return true;
@@ -315,11 +315,12 @@ class JMethodResolver {
                     }
                     return true;
                 case TypeTags.FUNCTION_POINTER_TAG:
-                    return this.classLoader.loadClass(FPValue.class.getCanonicalName()).isAssignableFrom(jType);
+                    return this.classLoader.loadClass(BFunctionPointer.class.getCanonicalName())
+                            .isAssignableFrom(jType);
                 case TypeTags.FUTURE_TAG:
-                    return this.classLoader.loadClass(FutureValue.class.getCanonicalName()).isAssignableFrom(jType);
+                    return this.classLoader.loadClass(BFuture.class.getCanonicalName()).isAssignableFrom(jType);
                 case TypeTags.TYPEDESC_TAG:
-                    return this.classLoader.loadClass(TypedescValue.class.getCanonicalName()).isAssignableFrom(jType);
+                    return this.classLoader.loadClass(BTypedesc.class.getCanonicalName()).isAssignableFrom(jType);
                 default:
                     return false;
             }
@@ -383,13 +384,12 @@ class JMethodResolver {
                     }
                     return jType.isPrimitive() && jTypeName.equals(J_PRIMITIVE_BOOLEAN_TNAME);
                 case TypeTags.DECIMAL_TAG:
-                    return this.classLoader.loadClass(BigDecimal.class.getCanonicalName()).isAssignableFrom(jType);
+                    return this.classLoader.loadClass(BDecimal.class.getCanonicalName()).isAssignableFrom(jType);
                 case TypeTags.STRING_TAG:
-                    // Currently no java type matches to ballerina string type.
-                    return false;
+                    return this.classLoader.loadClass(BString.class.getCanonicalName()).isAssignableFrom(jType);
                 case TypeTags.MAP_TAG:
                 case TypeTags.RECORD_TYPE_TAG:
-                    return this.classLoader.loadClass(MapValue.class.getCanonicalName()).isAssignableFrom(jType);
+                    return this.classLoader.loadClass(BMap.class.getCanonicalName()).isAssignableFrom(jType);
                 case TypeTags.JSON_TAG:
                     if (jTypeName.equals(J_OBJECT_TNAME)) {
                         return true;
@@ -404,21 +404,21 @@ class JMethodResolver {
                     return false;
                 case TypeTags.OBJECT_TYPE_TAG:
                 case TypeTags.SERVICE_TAG:
-                    return this.classLoader.loadClass(ObjectValue.class.getCanonicalName()).isAssignableFrom(jType);
+                    return this.classLoader.loadClass(BObject.class.getCanonicalName()).isAssignableFrom(jType);
                 case TypeTags.ERROR_TAG:
-                    return this.classLoader.loadClass(ErrorValue.class.getCanonicalName()).isAssignableFrom(jType);
+                    return this.classLoader.loadClass(BError.class.getCanonicalName()).isAssignableFrom(jType);
                 case TypeTags.STREAM_TAG:
-                    return this.classLoader.loadClass(StreamValue.class.getCanonicalName()).isAssignableFrom(jType);
+                    return this.classLoader.loadClass(BStream.class.getCanonicalName()).isAssignableFrom(jType);
                 case TypeTags.TABLE_TAG:
-                    return this.classLoader.loadClass(TableValue.class.getCanonicalName()).isAssignableFrom(jType);
+                    return this.classLoader.loadClass(BTable.class.getCanonicalName()).isAssignableFrom(jType);
                 case TypeTags.XML_TAG:
-                    return this.classLoader.loadClass(XMLValue.class.getCanonicalName()).isAssignableFrom(jType);
+                    return this.classLoader.loadClass(BXML.class.getCanonicalName()).isAssignableFrom(jType);
                 case TypeTags.TUPLE_TAG:
                 case TypeTags.ARRAY_TAG:
                     if (jMethodRequest.restParamExist) {
                         return jType.isArray();
                     }
-                    return this.classLoader.loadClass(ArrayValue.class.getCanonicalName()).isAssignableFrom(jType);
+                    return this.classLoader.loadClass(BArray.class.getCanonicalName()).isAssignableFrom(jType);
                 case TypeTags.UNION_TAG:
                     if (jTypeName.equals(J_OBJECT_TNAME)) {
                         return true;
@@ -446,11 +446,12 @@ class JMethodResolver {
                     }
                     return false;
                 case TypeTags.FUNCTION_POINTER_TAG:
-                    return this.classLoader.loadClass(FPValue.class.getCanonicalName()).isAssignableFrom(jType);
+                    return this.classLoader.loadClass(BFunctionPointer.class.getCanonicalName())
+                            .isAssignableFrom(jType);
                 case TypeTags.FUTURE_TAG:
-                    return this.classLoader.loadClass(FutureValue.class.getCanonicalName()).isAssignableFrom(jType);
+                    return this.classLoader.loadClass(BFuture.class.getCanonicalName()).isAssignableFrom(jType);
                 case TypeTags.TYPEDESC_TAG:
-                    return this.classLoader.loadClass(TypedescValue.class.getCanonicalName()).isAssignableFrom(jType);
+                    return this.classLoader.loadClass(BTypedesc.class.getCanonicalName()).isAssignableFrom(jType);
                 default:
                     return false;
             }

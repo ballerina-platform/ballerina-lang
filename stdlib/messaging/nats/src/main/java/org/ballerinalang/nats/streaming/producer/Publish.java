@@ -41,8 +41,7 @@ public class Publish {
         try {
             NonBlockingCallback nonBlockingCallback = new NonBlockingCallback(Scheduler.getStrand());
             AckListener ackListener = new AckListener(nonBlockingCallback);
-            streamingConnection.publish(subject, byteData, ackListener);
-            return null;
+            return streamingConnection.publish(subject, byteData, ackListener);
         } catch (InterruptedException e) {
             return Utils.createNatsError("Failed to publish due to an internal error");
         } catch (IOException | TimeoutException e) {

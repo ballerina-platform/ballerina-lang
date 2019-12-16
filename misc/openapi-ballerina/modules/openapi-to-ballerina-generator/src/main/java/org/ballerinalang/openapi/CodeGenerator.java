@@ -89,17 +89,14 @@ public class CodeGenerator {
             throws IOException, BallerinaOpenApiException {
 
         if (!CodegenUtils.isBallerinaProject(Paths.get(outPath))) {
-            throw new BallerinaOpenApiException("Output path is not a valid ballerina project directory. Use "
-                    + "'ballerina init' to generate a new project");
+            throw new BallerinaOpenApiException(OpenApiMesseges.GEN_CLIENT_PROJECT_ROOT);
         }
 
         //Check if the selected path is a ballerina root for service generation
         //TODO check with team for root check
         Path projectRoot = ProjectDirs.findProjectRoot(Paths.get(executionPath));
         if (type.equals(GenType.GEN_SERVICE) && projectRoot == null) {
-            throw LauncherUtils.createUsageExceptionWithHelp("Ballerina service generation should be done " +
-                    "from the project root. If you like to start with a new project use `ballerina init` command to " +
-                    "create a new project.");
+            throw LauncherUtils.createUsageExceptionWithHelp(OpenApiMesseges.GEN_SERVICE_PROJECT_ROOT);
         }
 
         Path srcPath = CodegenUtils.getSourcePath(srcPackage, outPath);

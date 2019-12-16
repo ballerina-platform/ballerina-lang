@@ -37,3 +37,13 @@ public type DummyRecord record {
     string fieldOne;
     int fieldTwo;
 };
+
+// This is the documentation attachment of the `dummyFunction` function.
+# This function returns the `fieldTwo` field of the `DummyRecord`-typed 
+# record value passed as an argument.
+#
+# + recordValue - Parameter of type `DummyRecord`.
+# + return - The `fieldTwo` field of the record value passed as an argument.
+public function dummyFunction(DummyRecord recordValue) returns int {
+    return recordValue.fieldTwo;
+}
