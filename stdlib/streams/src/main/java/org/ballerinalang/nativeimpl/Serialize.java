@@ -20,25 +20,15 @@ package org.ballerinalang.nativeimpl;
 
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
  * ballerina.model.streams:serialize(map obj).
  *
  * @since 0.990.5
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "streams",
-        functionName = "serialize",
-        args = {@Argument(name = "data", type = TypeKind.MAP)},
-        returnType = {@ReturnType(type = TypeKind.STRING)},
-        isPublic = true
-)
 public class Serialize {
 
+    @Deprecated
     public static String serialize(Strand strand, Object value, MapValue data) {
         //TODO: implement serializers for JBAL values
         return "";
