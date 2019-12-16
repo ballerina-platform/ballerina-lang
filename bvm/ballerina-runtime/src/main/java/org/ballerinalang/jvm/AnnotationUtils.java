@@ -96,11 +96,16 @@ public class AnnotationUtils {
 
     /**
      * Returns true if given {@link FPValue} is annotated to be run concurrently.
+     *
      * @param fpValue function pointer to be invoked
      * @return true if should run concurrently
      */
     public static boolean isConcurrent(FPValue fpValue) {
-        return  ((BFunctionType) fpValue.getType()).getAnnotation("ballerina/lang.annotations",
-                "concurrent") != null ? true : false;
+        Object value = ((BFunctionType) fpValue.getType()).getAnnotation("ballerina/lang" +
+                ".annotations", "strand");
+        if (value != null) {
+            return ((MapValue) value).get("thread") == "any";
+        }
+        return false;
     }
 }

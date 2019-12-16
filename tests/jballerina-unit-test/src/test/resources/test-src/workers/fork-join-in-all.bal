@@ -3,13 +3,13 @@ function testForkAndWaitForAll() returns int[]|error {
     int[] results = [];
 
     fork {
-        @concurrent{}
+        @strand{thread:"any"}
         worker ABC_Airline returns int {
             int x = 234;
             return x;
         }
 
-        @concurrent{}
+        @strand{thread:"any"}
         worker XYZ_Airline returns int {
             int x = 500;
             return x;

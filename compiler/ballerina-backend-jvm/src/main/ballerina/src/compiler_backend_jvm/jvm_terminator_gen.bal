@@ -681,24 +681,26 @@ type TerminatorGenerator object {
         boolean concurrent = false;
         // check for concurrent annotation
         if (callIns.annotAttachments.length() > 0 ) {
-            foreach var v in callIns.annotAttachments {
+            foreach var v in callIns.annotAttachments {                
                 if (v is bir:AnnotationAttachment && 
-                v.annotTagRef.value == "concurrent" && 
-                v.moduleId.org == "ballerina" && 
-                v.moduleId.name == "lang.annotations") {
-                    concurrent = true;
-                    if (v.annotValues.length() > 0) {
-                        if (v.annotValues[0] is ()){
-                            break;
+                    v.annotTagRef.value == "strand" && 
+                    v.moduleId.org == "ballerina" && 
+                    v.moduleId.name == "lang.annotations") {
+                        if (v.annotValues.length() > 0) {
+                            bir:AnnotationValue val = <bir:AnnotationValue> v.annotValues[0];
+                            if (val is bir:AnnotationRecordValue) {
+                                if (val.annotValueMap.hasKey("thread") && 
+                                    val.annotValueMap.get("thread")["literalValue"] == "any") {
+                                        concurrent = true;
+                                }
+
+                                if (val.annotValueMap.hasKey("name") &&
+                                    val.annotValueMap.get("name")["literalValue"] != "DEFAULT") {
+                                        panic error("Unsupported policy. Only 'DEFAULT' policy is supported by jballerina runtime.");
+                                }
+                            }
                         }
-                        bir:AnnotationValue val = <bir:AnnotationValue> v.annotValues[0];
-                        if (val is bir:AnnotationRecordValue &&
-                                val.annotValueMap.hasKey("dispatcher") &&
-                                val.annotValueMap.get("dispatcher")["literalValue"] != "DEFAULT") {
-                            panic error("Unsupported dispatcher. Only 'DEFAULT' dispatcher is supported by jballerina runtime.");
-                        }
-                        break;
-                    } 
+                    break;
                 } 
             }
         }

@@ -7,7 +7,7 @@ public type ClientEndpointConfiguration record {
 public type ABCClient client object {
 
     remote function testAction1() returns string {
-        @concurrent{}
+        @strand{thread:"any"}
         worker sampleWorker {
             string m = "";
             m = <- default;
@@ -22,7 +22,7 @@ public type ABCClient client object {
     }
 
     remote function testAction2() returns string {
-        @concurrent{}
+        @strand{thread:"any"}
         worker sampleWorker {
             "request" -> default;
         }
@@ -77,7 +77,7 @@ public function testDefaultError () returns string{
 }
 
 function test1(int c) returns error|() {
-    @concurrent{}
+    @strand{thread:"any"}
     worker w1 returns int {
         int|error a = <- default;
         //need to verify this line is reached

@@ -1,7 +1,7 @@
 import ballerina/runtime;
 string append = "";
 function singleFlush () returns string {
-    @concurrent{}
+    @strand{thread:"any"}
     worker w1 {
         int a = 10;
         a -> w2;
@@ -10,7 +10,7 @@ function singleFlush () returns string {
             append = append + "w1";
         }
     }
-    @concurrent{}
+    @strand{thread:"any"}
     worker w2 {
         foreach var i in 1 ... 5 {
             append = append + "w2";
@@ -25,7 +25,7 @@ function singleFlush () returns string {
 
 string append1 = "";
 function flushReturn() returns error? {
-    @concurrent{}
+    @strand{thread:"any"}
     worker w1 returns error? {
             int a = 10;
             a -> w2;
@@ -36,7 +36,7 @@ function flushReturn() returns error? {
             }
             return result;
         }
-        @concurrent{}
+        @strand{thread:"any"}
         worker w2 {
             foreach var i in 1 ... 5 {
                 append1 = append1 + "w2";
@@ -52,7 +52,7 @@ function flushReturn() returns error? {
 
 string append2 = "";
 function flushAll() returns string {
-    @concurrent{}
+    @strand{thread:"any"}
     worker w1 {
             int a = 10;
 
@@ -64,7 +64,7 @@ function flushAll() returns string {
                 append2 = append2 + "w1";
             }
         }
-        @concurrent{}
+        @strand{thread:"any"}
         worker w2 returns error?{
             if(false){
                  error err = error("err", message = "err msg");
@@ -79,7 +79,7 @@ function flushAll() returns string {
             b = <- w1;
             return;
         }
-        @concurrent{}
+        @strand{thread:"any"}
         worker w3 {
             runtime:sleep(5);
             foreach var i in 1 ... 5 {
@@ -94,7 +94,7 @@ function flushAll() returns string {
 }
 
 function errorTest() returns error? {
-    @concurrent{}
+    @strand{thread:"any"}
     worker w1 returns error?{
             int a = 10;
 
@@ -107,7 +107,7 @@ function errorTest() returns error? {
             }
             return result;
         }
-        @concurrent{}
+        @strand{thread:"any"}
         worker w2 returns error?{
             if(false){
                  error err = error("err", message = "err msg");
@@ -122,7 +122,7 @@ function errorTest() returns error? {
             b = <- w1;
             return;
         }
-        @concurrent{}
+        @strand{thread:"any"}
         worker w3 returns error|string{
             runtime:sleep(5);
             int k;
@@ -146,7 +146,7 @@ function errorTest() returns error? {
 }
 
 function panicTest() returns error? {
-    @concurrent{}
+    @strand{thread:"any"}
     worker w1 returns error?{
             int a = 10;
 
@@ -159,7 +159,7 @@ function panicTest() returns error? {
             }
             return result;
         }
-        @concurrent{}
+        @strand{thread:"any"}
         worker w2 returns error?{
             if(false){
                  error err = error("err", message = "err msg");
@@ -174,7 +174,7 @@ function panicTest() returns error? {
             b = <- w1;
             return;
         }
-        @concurrent{}
+        @strand{thread:"any"}
         worker w3 returns error|string{
             runtime:sleep(5);
             int k;
@@ -198,7 +198,7 @@ function panicTest() returns error? {
 }
 
 function flushInDefaultError() returns error? {
-   @concurrent{}
+   @strand{thread:"any"}
    worker w2 returns error? {
      int a = 0;
      int b = 15;
@@ -219,7 +219,7 @@ function flushInDefaultError() returns error? {
 }
 
 function flushInDefault() returns int {
-   @concurrent{}
+   @strand{thread:"any"}
    worker w2 {
      int a = 0;
      int b = 15;
