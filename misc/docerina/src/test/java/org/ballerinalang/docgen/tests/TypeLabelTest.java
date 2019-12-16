@@ -16,7 +16,7 @@
 package org.ballerinalang.docgen.tests;
 
 /**
- * TypeLabelTest
+ * TypeLabelTest.
  */
 public class TypeLabelTest {
 }
