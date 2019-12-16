@@ -48,6 +48,7 @@ public class BootstrapRunner {
     private static final String TMP_OBJECT_FILE_NAME = "ballerina_native_objf.o";
     private static final String COMPILER_BACKEND_JVM = "ballerina.compiler_backend_jvm.___init";
     private static final String COMPILER_BACKEND_LLVM = "ballerina.compiler_backend_llvm.___init";
+    private static String javaCommand = System.getProperty("java.command");
 
     public static void loadTargetAndGenerateJarBinary(String entryBir, String jarOutputPath, boolean dumpBir,
                                                       HashSet<Path> moduleDependencySet, String... birCachePaths) {
@@ -191,7 +192,11 @@ public class BootstrapRunner {
     public static List<String> createArgsForJBalCompilerBackend(String entryBir, String jarOutputPath, boolean dumpBir,
             List<String> jarFilePaths, String... birCachePaths) {
         List<String> commands = new ArrayList<>();
-        commands.add("java");
+        // Below code only runs for test cases, for all other scenarios, this value should be there when we start
+        if (javaCommand == null) {
+            javaCommand = System.getProperty("java.command");
+        }
+        commands.add(javaCommand);
         setSystemProperty(commands, "ballerina.bstring");
         commands.add(COMPILER_BACKEND_JVM);
         commands.addAll(createArgsForCompilerBackend(entryBir, jarOutputPath, dumpBir, true,
@@ -216,7 +221,11 @@ public class BootstrapRunner {
     private static List<String> createArgsForNBalCompilerBackend(String entryBir, String objFileOutputPath,
             boolean dumpLLVM, boolean noOptimizeLLVM) {
         List<String> commands = new ArrayList<>();
-        commands.add("java");
+        // Below code only runs for test cases, for all other scenarios, this value should be there when we start
+        if (javaCommand == null) {
+            javaCommand = System.getProperty("java.command");
+        }
+        commands.add(javaCommand);
         commands.add(COMPILER_BACKEND_LLVM);
         commands.add(entryBir);
         commands.add(objFileOutputPath);
