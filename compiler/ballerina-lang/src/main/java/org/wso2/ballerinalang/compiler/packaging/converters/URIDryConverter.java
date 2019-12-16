@@ -103,12 +103,10 @@ public class URIDryConverter extends URIConverter {
             if ("".equals(moduleID.version.value) || "*".equals(moduleID.version.value) || matcher.matches()) {
                 HttpURLConnection conn;
                 // set proxy if exists.
-                String remoteUrl  = remoteURI.toString();
-                URI remoteUri = URI.create(remoteUrl.replace("*/", ""));
                 if (null == this.proxy) {
-                    conn = (HttpURLConnection) remoteUri.toURL().openConnection();
+                    conn = (HttpURLConnection) remoteURI.toURL().openConnection();
                 } else {
-                    conn = (HttpURLConnection) remoteUri.toURL().openConnection(this.proxy);
+                    conn = (HttpURLConnection) remoteURI.toURL().openConnection(this.proxy);
                 }
                 conn.setInstanceFollowRedirects(false);
                 conn.setRequestMethod("GET");

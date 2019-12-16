@@ -159,7 +159,8 @@ public class PackagingTestCase extends BaseTest {
 
     @Test(description = "Test pullCount of a package from central", dependsOnMethods = "testPull")
     public void testPullCount() throws IOException {
-        URI remoteUri = URI.create(RepoUtils.getRemoteRepoURL() + "/modules/info/" + orgName + "/" + moduleName);
+        URI remoteUri = URI.create(RepoUtils.getRemoteRepoURL() + "/modules/info/" + orgName + "/" + moduleName
+                + "/*/");
         HttpURLConnection conn;
         conn = (HttpURLConnection) remoteUri.toURL().openConnection();
         int statusCode = conn.getResponseCode();
