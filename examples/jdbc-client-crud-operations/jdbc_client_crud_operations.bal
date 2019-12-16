@@ -9,7 +9,6 @@ jdbc:Client testDB = new ({
     url: "jdbc:mysql://localhost:3306/testdb",
     username: "test",
     password: "test",
-    poolOptions: {maximumPoolSize: 5},
     dbOptions: {useSSL: false}
 });
 
@@ -105,7 +104,6 @@ public function main() {
         // the result is streamed to the service instead of building the full
         // result in the server and returning it. This allows unlimited payload
         // sizes in the result and the response is instantaneous to the client.
-        // Convert a table to `json`.
         json jsonConversionRet = jsonutils:fromTable(selectRet);
         io:println("JSON: ", jsonConversionRet.toJsonString());
     } else {
@@ -120,7 +118,7 @@ public function main() {
 }
 
 // Function to handle the return value of the `update` remote function.
-function handleUpdate(jdbc:UpdateResult | jdbc:Error returned, string message) {
+function handleUpdate(jdbc:UpdateResult|jdbc:Error returned, string message) {
     if (returned is jdbc:UpdateResult) {
         io:println(message, " status: ", returned.updatedRowCount);
     } else {

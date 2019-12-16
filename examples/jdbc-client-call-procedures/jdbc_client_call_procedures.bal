@@ -7,7 +7,6 @@ jdbc:Client testDB = new ({
     url: "jdbc:mysql://localhost:3306/testdb",
     username: "test",
     password: "test",
-    poolOptions: {maximumPoolSize: 5},
     dbOptions: {useSSL: false}
 });
 
@@ -29,7 +28,7 @@ public function main() {
     ret = testDB->update("CREATE PROCEDURE INSERTDATA(IN pAge INT, " +
         "IN pName VARCHAR(255)) " +
         "BEGIN " +
-        "INSERT INTO student(age, name) values (pAge, pName); " +
+        "INSERT INTO student(age, name) VALUES (pAge, pName); " +
         "END");
     handleUpdate(ret, "Stored procedure with IN param creation");
 
