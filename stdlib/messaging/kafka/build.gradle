@@ -48,6 +48,7 @@ dependencies {
     baloImplementation project(path: ':ballerina-transactions', configuration: 'baloImplementation')
 
     interopImports project(':ballerina-io')
+    interopImports project(':ballerina-java')
 
     testCompile 'org.awaitility:awaitility'
     testCompile 'org.testng:testng'

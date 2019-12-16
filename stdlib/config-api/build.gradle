@@ -44,6 +44,7 @@ dependencies {
 
     interopImports project(':ballerina-io')
     interopImports project(':ballerina-system')
+    interopImports project(':ballerina-java')
 
     testCompile project(':ballerina-tool')
     testCompile project(':ballerina-lang:annotations')

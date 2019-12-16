@@ -47,6 +47,7 @@ dependencies {
     baloImplementation project(path: ':ballerina-java', configuration: 'baloImplementation')
 
     interopImports project(':ballerina-io')
+    interopImports project(':ballerina-java')
 
     testCompile 'org.slf4j:slf4j-simple'
     testCompile 'org.testng:testng'

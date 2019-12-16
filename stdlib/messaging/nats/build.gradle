@@ -59,6 +59,7 @@ dependencies {
 
     interopImports project(':ballerina-log-api')
     interopImports project(':ballerina-time')
+    interopImports project(':ballerina-java')
 
     testCompile 'org.testng:testng'
     testCompile project(path: ':ballerina-test-utils', configuration: 'shadow')

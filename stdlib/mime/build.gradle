@@ -50,6 +50,7 @@ dependencies {
     implementation project(':ballerina-file')
 
     interopImports project(':ballerina-io')
+    interopImports project(':ballerina-java')
 
     implementation 'org.wso2.transport.http:org.wso2.transport.http.netty'
     implementation 'org.apache.ws.commons.axiom:axiom-dom'

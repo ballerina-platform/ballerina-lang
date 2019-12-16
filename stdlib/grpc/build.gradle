@@ -59,6 +59,7 @@ dependencies {
     interopImports project(':ballerina-system')
     interopImports project(':ballerina-time')
     interopImports project(':ballerina-crypto')
+    interopImports project(':ballerina-java')
 
     //testCompile project(':ballerina-tool')
     testCompile project(path: ':ballerina-test-common', configuration: 'tests')

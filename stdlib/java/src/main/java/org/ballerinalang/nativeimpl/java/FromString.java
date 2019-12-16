@@ -32,6 +32,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 )
 public class FromString {
 
+    @Deprecated
     public static HandleValue fromString(Strand strand, String strValue) {
         return new HandleValue(strValue);
     }

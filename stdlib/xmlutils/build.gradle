@@ -41,6 +41,8 @@ dependencies {
 
     baloTestImplementation project(path: ':ballerina-time', configuration: 'baloImplementation')
 
+    interopImports project(':ballerina-java')
+
     testCompile project(path: ':ballerina-test-common', configuration: 'tests')
     testCompile project(path: ':ballerina-test-utils', configuration: 'shadow')
     testCompile project(':ballerina-test-utils')

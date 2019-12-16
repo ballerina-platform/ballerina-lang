@@ -64,6 +64,7 @@ dependencies {
     interopImports project(':ballerina-crypto')
     interopImports project(':ballerina-runtime-api')
     interopImports project(':ballerina-mime')
+    interopImports project(':ballerina-java')
 
     implementation project(':ballerina-system')
     implementation project(':ballerina-tool')

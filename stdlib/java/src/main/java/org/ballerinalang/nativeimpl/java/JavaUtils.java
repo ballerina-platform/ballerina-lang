@@ -18,9 +18,8 @@
 package org.ballerinalang.nativeimpl.java;
 
 import org.ballerinalang.jvm.BallerinaErrors;
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.HandleValue;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
+import org.ballerinalang.jvm.values.StringValue;
 
 import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.JAVA_CLASS_NOT_FOUND_ERROR;
 
@@ -29,10 +28,6 @@ import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.JAVA_C
  *
  * @since 1.0.0
  */
-@BallerinaFunction(
-        orgName = "ballerinax", packageName = "java",
-        functionName = "getClass"
-)
 public class JavaUtils {
     private static final String booleanTypeName = "boolean";
     private static final String byteTypeName = "byte";
@@ -47,21 +42,20 @@ public class JavaUtils {
     /**
      * Returns the Java Class object associated with the class or interface with the given string name.
      *
-     * @param strand current strand
      * @param name   class name
      * @return a Java Class object instance
      */
-    public static Object getClass(Strand strand, String name) {
-        Class<?> clazz = getPrimitiveTypeClass(name);
+    public static Object getClass(StringValue name) {
+        Class<?> clazz = getPrimitiveTypeClass(String.valueOf(name));
         if (clazz != null) {
             return new HandleValue(clazz);
         }
 
         try {
-            clazz = Class.forName(name);
+            clazz = Class.forName(String.valueOf(name));
             return new HandleValue(clazz);
         } catch (ClassNotFoundException e) {
-            return BallerinaErrors.createError(JAVA_CLASS_NOT_FOUND_ERROR, name);
+            return BallerinaErrors.createError(JAVA_CLASS_NOT_FOUND_ERROR, String.valueOf(name));
         }
     }
 

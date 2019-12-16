@@ -41,6 +41,8 @@ dependencies {
 
     baloImplementation project(path: ':ballerina-io', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-java', configuration: 'baloImplementation')
+
+    interopImports project(':ballerina-java')
 }
 
 createBalo {

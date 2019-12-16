@@ -42,6 +42,7 @@ dependencies {
     interopImports project(':ballerina-task')
     interopImports project(':ballerina-time')
     interopImports project(':ballerina-runtime-api')
+    interopImports project(':ballerina-java')
 
     //transitive
     baloImplementation project(path: ':ballerina-log-api', configuration: 'baloImplementation')
