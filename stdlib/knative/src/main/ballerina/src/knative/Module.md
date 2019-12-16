@@ -19,9 +19,7 @@ listener http:Listener helloEP = new(9090);
 }
 service helloWorld on helloEP {
     resource function sayHello(http:Caller caller, http:Request request) {
-        http:Response response = new;
-        response.setTextPayload("Hello, World from service helloWorld ! ");
-        var responseResult = caller->respond(response);
+        var responseResult = caller->respond("Hello, World from service helloWorld ! ");
         if (responseResult is error) {
             log:printError("error responding", responseResult);
         }
