@@ -205,7 +205,7 @@ public type ServiceConfiguration record{|
 |};
 public const annotation ServiceConfiguration Service on source service, source function, source listener;
 
-# Knative Horizontal Pod Autoscaler configuration
+# Knative Horizontal Pod Autoscaler configuration.
 #
 # + minReplicas - Minimum number of replicas
 # + maxReplicas - Maximum number of replicas
