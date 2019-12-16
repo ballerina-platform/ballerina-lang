@@ -229,7 +229,7 @@ public type Secret record {|
     string[] data;
 |};
 
-#Secret volume mount configurations for knative.
+# Secret volume mount configurations for knative.
 #
 # + secrets - Array of [Secret](knative.html#Secret).
 public type SecretMount record {|
