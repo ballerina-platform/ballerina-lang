@@ -25,7 +25,7 @@ public function main() {
     } iterableObj = 25 ..< 28;
 
     abstract object {
-            public function next() returns (record {| int value; |}?);
+            public function next() returns (record {|int value;|}?);
     } iterator = iterableObj.__iterator();
 
     io:println("\niterable object for 25 ..< 28");
