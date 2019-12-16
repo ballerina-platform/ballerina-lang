@@ -1727,12 +1727,12 @@ public class TypeChecker {
         if (type.getTag() == TypeTags.SERVICE_TAG) {
             return false;
         } else {
-            AttachedFunction initializerFunc = type.initializer;
-            if (initializerFunc == null) {
+            AttachedFunction generatedInitializer = type.generatedInitializer;
+            if (generatedInitializer == null) {
                 // abstract objects doesn't have a filler value.
                 return false;
             }
-            BFunctionType initFuncType = initializerFunc.type;
+            BFunctionType initFuncType = generatedInitializer.type;
             // Todo: check defaultable params of the init func as well
             boolean noParams = initFuncType.paramTypes.length == 0;
             boolean nilReturn = initFuncType.retType.getTag() == TypeTags.NULL_TAG;
