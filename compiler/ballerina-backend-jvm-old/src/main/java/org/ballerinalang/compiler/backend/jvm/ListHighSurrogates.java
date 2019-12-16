@@ -19,37 +19,45 @@
 package org.ballerinalang.compiler.backend.jvm;
 
 import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ArrayValueImpl;
+import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
+import org.ballerinalang.natives.annotations.ReturnType;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.ballerinalang.model.types.TypeKind.STRING;
 
 /**
- * @since 0.995.0
+ * @since 1.1.0-beta
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "compiler_backend_jvm",
-        functionName = "readFileFully",
+        functionName = "listHighSurrogates",
         args = {
-                @Argument(name = "path", type = STRING),
+                @Argument(name = "str", type = STRING),
         }
+        , returnType = {@ReturnType(type = TypeKind.ARRAY, elementType = TypeKind.INT)}
 )
-public class ReadFileFully {
+public class ListHighSurrogates {
 
-
-    public static ArrayValue readFileFully(Strand strand, String path) {
-        try {
-            return new ArrayValueImpl(Files.readAllBytes(Paths.get(path)));
-        } catch (IOException e) {
-            throw new BallerinaException(e);
+    public static ArrayValue listHighSurrogates(Strand strand, String str) {
+        List<Integer> highSurrogates = new ArrayList<>();
+        for (int i = 0; i < str.length(); i++) {
+            char c = str.charAt(i);
+            if (Character.isHighSurrogate(c)) {
+                highSurrogates.add(i - highSurrogates.size());
+            }
         }
+        long[] highSurrogatesArr = new long[highSurrogates.size()];
+        for (int i = 0; i < highSurrogates.size(); i++) {
+            Integer highSurrogate = highSurrogates.get(i);
+            highSurrogatesArr[i] = highSurrogate;
+        }
+        return new ArrayValueImpl(highSurrogatesArr);
     }
 
 }
