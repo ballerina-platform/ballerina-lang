@@ -7,7 +7,6 @@ jdbc:Client testDB = new ({
     url: "jdbc:mysql://localhost:3306/testdb",
     username: "test",
     password: "test",
-    poolOptions: {maximumPoolSize: 5},
     dbOptions: {useSSL: false}
 });
 
