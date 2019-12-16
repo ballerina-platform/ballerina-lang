@@ -190,30 +190,30 @@ public class MessageDispatcher {
     }
 
     private ObjectValue getMessageObjectValue(byte[] message, long deliveryTag, AMQP.BasicProperties properties) {
-            ObjectValue messageObjectValue = BallerinaValues.createObjectValue(RabbitMQConstants.PACKAGE_ID_RABBITMQ,
-                    RabbitMQConstants.MESSAGE_OBJECT);
-            messageObjectValue.set(RabbitMQConstants.DELIVERY_TAG, deliveryTag);
-            messageObjectValue.set(RabbitMQConstants.JAVA_CLIENT_CHANNEL, new HandleValue(channel));
-            messageObjectValue.set(RabbitMQConstants.MESSAGE_CONTENT, BValueCreator.createArrayValue(message));
-            messageObjectValue.set(RabbitMQConstants.AUTO_ACK_STATUS, autoAck);
-            messageObjectValue.set(RabbitMQConstants.MESSAGE_ACK_STATUS, false);
-            if (properties != null) {
-                String replyTo = properties.getReplyTo();
-                String contentType = properties.getContentType();
-                String contentEncoding = properties.getContentEncoding();
-                String correlationId = properties.getCorrelationId();
-                MapValue<String, Object> basicProperties =
-                        BallerinaValues.createRecordValue(RabbitMQConstants.PACKAGE_ID_RABBITMQ,
-                                RabbitMQConstants.RECORD_BASIC_PROPERTIES);
-                Object[] values = new Object[4];
-                values[0] = replyTo;
-                values[1] = contentType;
-                values[2] = contentEncoding;
-                values[3] = correlationId;
-                messageObjectValue.set(RabbitMQConstants.BASIC_PROPERTIES,
-                        BallerinaValues.createRecord(basicProperties, values));
-            }
-            return messageObjectValue;
+        ObjectValue messageObjectValue = BallerinaValues.createObjectValue(RabbitMQConstants.PACKAGE_ID_RABBITMQ,
+                RabbitMQConstants.MESSAGE_OBJECT);
+        messageObjectValue.set(RabbitMQConstants.DELIVERY_TAG, deliveryTag);
+        messageObjectValue.set(RabbitMQConstants.JAVA_CLIENT_CHANNEL, new HandleValue(channel));
+        messageObjectValue.set(RabbitMQConstants.MESSAGE_CONTENT, BValueCreator.createArrayValue(message));
+        messageObjectValue.set(RabbitMQConstants.AUTO_ACK_STATUS, autoAck);
+        messageObjectValue.set(RabbitMQConstants.MESSAGE_ACK_STATUS, false);
+        if (properties != null) {
+            String replyTo = properties.getReplyTo();
+            String contentType = properties.getContentType();
+            String contentEncoding = properties.getContentEncoding();
+            String correlationId = properties.getCorrelationId();
+            MapValue<String, Object> basicProperties =
+                    BallerinaValues.createRecordValue(RabbitMQConstants.PACKAGE_ID_RABBITMQ,
+                            RabbitMQConstants.RECORD_BASIC_PROPERTIES);
+            Object[] values = new Object[4];
+            values[0] = replyTo;
+            values[1] = contentType;
+            values[2] = contentEncoding;
+            values[3] = correlationId;
+            messageObjectValue.set(RabbitMQConstants.BASIC_PROPERTIES,
+                    BallerinaValues.createRecord(basicProperties, values));
+        }
+        return messageObjectValue;
     }
 
     private void handleError(byte[] message, long deliveryTag, AMQP.BasicProperties properties) {
