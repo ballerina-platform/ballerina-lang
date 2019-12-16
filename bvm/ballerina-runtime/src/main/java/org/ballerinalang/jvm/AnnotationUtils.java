@@ -35,10 +35,10 @@ import org.ballerinalang.jvm.values.MapValue;
  */
 public class AnnotationUtils {
 
-    static String LANG_ANNOT_PKG = "ballerina/lang.annotations";
-    static String STRAND_ANNOT_NAME = "strand";
-    static String THREAD_ANNOT_FIELD = "thread";
-    static String ANY_THREAD_VALUE = "any";
+    private static final String LANG_ANNOT_PKG = "ballerina/lang.annotations";
+    private static final String STRAND_ANNOT_NAME = "strand";
+    private static final String THREAD_ANNOT_FIELD = "thread";
+    private static final String ANY_THREAD_VALUE = "any";
 
     /**
      * Method to retrieve annotations of the type from the global annotation map and set it to the type.
