@@ -392,6 +392,7 @@ public class Desugar extends BLangNodeVisitor {
         ((BInvokableType) generatedInitFunc.symbol.type).restType = initializerFunc.type.restType;
 
         generatedInitializerFunc.type = initializerFunc.type;
+        generatedInitFunc.desugared = false;
         return generatedInitFunc;
     }
 
