@@ -25,6 +25,7 @@ import org.ballerinalang.packerina.buildcontext.sourcecontext.SingleModuleContex
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.util.Lists;
 
+import java.io.BufferedOutputStream;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -37,6 +38,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
+import java.util.zip.Deflater;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
@@ -50,6 +52,7 @@ public class CreateExecutableTask implements Task {
     
     private static HashSet<String> excludeExtensions =  new HashSet<>(Lists.of("DSA", "SF"));
     private static Field namesField;
+    private byte[] buffer = null;
 
     static {
         try {
@@ -83,12 +86,16 @@ public class CreateExecutableTask implements Task {
                       get rid of with accessing names field as well.
                       */
                     try (ZipOutputStream outStream =
-                                 new ZipOutputStream(new FileOutputStream(String.valueOf(executablePath)))) {
+                         new ZipOutputStream(new BufferedOutputStream(new FileOutputStream(executablePath.toFile())))) {
+                        outStream.setLevel(Deflater.NO_COMPRESSION);
+                        buffer = new byte[1024 * 50];
                         assembleExecutable(jarFromCachePath,
                                            buildContext.moduleDependencyPathMap.get(module.packageID).platformLibs,
                                            outStream);
                     } catch (IOException e) {
                         throw createLauncherException("unable to extract the uber jar :" + e.getMessage());
+                    } finally {
+                        buffer = null;
                     }
                 }
             }
@@ -149,7 +156,6 @@ public class CreateExecutableTask implements Task {
     private void copyJarToJar(ZipOutputStream outStream, String sourceJarFile, HashSet<String> entries,
                               HashMap<String, StringBuilder> services) throws IOException {
 
-        byte[] buffer = new byte[1024];
         int len;
         try (ZipInputStream inStream = new ZipInputStream(new FileInputStream(sourceJarFile))) {
             for (ZipEntry e; (e = inStream.getNextEntry()) != null; ) {
@@ -176,7 +182,11 @@ public class CreateExecutableTask implements Task {
                     }
                     continue;
                 }
-                outStream.putNextEntry(e);
+                ZipEntry entry = new ZipEntry(e);
+                if (e.getMethod() == ZipEntry.DEFLATED) {
+                    entry.setCompressedSize(-1);
+                }
+                outStream.putNextEntry(entry);
                 while ((len = inStream.read(buffer)) > 0) {
                     outStream.write(buffer, 0, len);
                 }
