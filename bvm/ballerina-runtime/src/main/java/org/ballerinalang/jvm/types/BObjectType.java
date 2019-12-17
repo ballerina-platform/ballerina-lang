@@ -32,7 +32,6 @@ public class BObjectType extends BStructureType {
     private AttachedFunction[] attachedFunctions;
     public AttachedFunction initializer;
     public AttachedFunction generatedInitializer;
-    public AttachedFunction defaultsValuesInitFunc;
 
     /**
      * Create a {@code BObjectType} which represents the user defined struct type.

@@ -841,11 +841,6 @@ public class TypeChecker {
         }
 
         for (AttachedFunction lhsFunc : targetFuncs) {
-            if (lhsFunc == targetType.initializer || lhsFunc == targetType.defaultsValuesInitFunc
-                    || lhsFunc == targetType.generatedInitializer) {
-                continue;
-            }
-
             AttachedFunction rhsFunc = getMatchingInvokableType(sourceFuncs, lhsFunc, unresolvedTypes);
             if (rhsFunc == null ||
                     !isInSameVisibilityRegion(Optional.ofNullable(lhsFunc.type.getPackage())
