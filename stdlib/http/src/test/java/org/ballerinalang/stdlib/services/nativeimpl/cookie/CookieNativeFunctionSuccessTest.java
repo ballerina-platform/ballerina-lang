@@ -198,6 +198,16 @@ public class CookieNativeFunctionSuccessTest {
         Assert.assertEquals(bvalue.get("name").stringValue(), "SID002");
     }
 
+    @Test(description = "Test get cookies when both matched and unmatched cookies are available in the cookie store.")
+    public void testGetCookiesFromCookieStore6() {
+        BValue[] returnVals = BRunUtil.invoke(result, "testGetCookiesFromCookieStore6");
+        Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
+                           "No cookie objects in the return values");
+        Assert.assertTrue(returnVals.length == 1);
+        BMap<String, BValue> bvalue = (BMap) returnVals[0];
+        Assert.assertEquals(bvalue.get("name").stringValue(), "SID002");
+    }
+
     @Test(description = "Test get a secure cookie to a secure url from cookie store")
     public void testGetSecureCookieFromCookieStore() {
         BValue[] returnVals = BRunUtil.invoke(result, "testGetSecureCookieFromCookieStore");

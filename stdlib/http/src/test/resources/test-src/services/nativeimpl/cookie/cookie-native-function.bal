@@ -230,6 +230,24 @@ function testGetCookiesFromCookieStore5() returns @tainted http:Cookie[] {
     return cookieStore.getCookies("http://google.com", "/sample");
 }
 
+function testGetCookiesFromCookieStore6() returns @tainted http:Cookie[] {
+    http:CookieStore cookieStore = new;
+    http:Cookie cookie1 = new("SID001", "7Av239d4dmnmsddd34");
+    cookie1.path = "/sample";
+    cookie1.domain = "google.com";
+    cookie1.secure = true;
+    http:Cookie cookie2 = new("SID002", "239d4dmnmsddd34");
+    cookie2.path = "/sample";
+    cookie2.domain = "google.com";
+    http:Client cookieClientEndpoint = new("http://google.com", { cookieConfig: { enabled: true } } );
+    var cookieConfigVal = cookieClientEndpoint.config.cookieConfig;
+    if (cookieConfigVal is http:CookieConfig) {
+        cookieStore.addCookie(cookie1, cookieConfigVal, "http://google.com", "/sample");
+        cookieStore.addCookie(cookie2, cookieConfigVal, "http://google.com", "/sample");
+    }
+    return cookieStore.getCookies("http://google.com", "/sample");
+}
+
 function testGetSecureCookieFromCookieStore() returns @tainted http:Cookie[] {
     http:CookieStore cookieStore = new;
     http:Cookie cookie1 = new("SID002", "239d4dmnmsddd34");
