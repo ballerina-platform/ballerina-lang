@@ -78,7 +78,7 @@ public class SystemTest {
                 "Invalid return value");
     }
     
-    @Test(enabled = false)
+    @Test
     public void testExecInUnixLike1() {
         if (SystemUtils.IS_OS_UNIX) {
             BValue[] returns = BRunUtil.invoke(compileResult, "testExecInUnixLike1");
@@ -104,7 +104,7 @@ public class SystemTest {
         }
     }
     
-    @Test(enabled = false)
+    @Test
     public void testExecInUnixLike4() {
         if (SystemUtils.IS_OS_UNIX) {
             BValue[] returns = BRunUtil.invoke(compileResult, "testExecInUnixLike4");
