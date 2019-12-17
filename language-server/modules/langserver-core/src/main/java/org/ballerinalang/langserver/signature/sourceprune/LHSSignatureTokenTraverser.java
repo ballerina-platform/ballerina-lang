@@ -53,6 +53,7 @@ public class LHSSignatureTokenTraverser extends AbstractTokenTraverser {
     private static final Pattern IMPORT_PATTERN = Pattern.compile("import\\s+.*\\/([^as]*)(\\s+as\\s+(.*))?;");
     private boolean isCapturingEnabled = true;
     private boolean captureStatement = false;
+    private boolean addSemiColon = false;
 
     LHSSignatureTokenTraverser(SourcePruneContext sourcePruneContext, boolean pruneTokens) {
         super(pruneTokens);
@@ -97,6 +98,8 @@ public class LHSSignatureTokenTraverser extends AbstractTokenTraverser {
                     break;
                 }
             }
+            // If match statement, avoid adding semi-colon
+            this.addSemiColon = this.addSemiColon || token.get().getType() == BallerinaParser.MATCH;
             if (!this.forcedProcessedToken) {
                 processToken(token.get());
             }
@@ -107,6 +110,7 @@ public class LHSSignatureTokenTraverser extends AbstractTokenTraverser {
         sourcePruneContext.put(SourcePruneKeys.LEFT_PARAN_COUNT_KEY, this.pendingLeftParenthesis);
         sourcePruneContext.put(SourcePruneKeys.RIGHT_PARAN_COUNT_KEY, this.pendingRightParenthesis);
         sourcePruneContext.put(SourcePruneKeys.LEFT_BRACE_COUNT_KEY, this.pendingLeftBrace);
+        sourcePruneContext.put(SourcePruneKeys.ADD_SEMICOLON_COUNT_KEY, this.addSemiColon);
         Collections.reverse(this.processedTokens);
 
         removeProceedingNonDefaultTokens(this.processedTokens);
