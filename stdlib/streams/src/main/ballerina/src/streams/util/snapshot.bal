@@ -53,7 +53,7 @@ map<boolean> loadedStates = {};
 function deserialize(string str) returns map<any> {
     error e = error("Deserializing is not supported.");
     panic e;
-};
+}
 
 # Native function to serialize a snapshot.
 # This function is deprecated since v1.1.
@@ -62,7 +62,7 @@ function deserialize(string str) returns map<any> {
 function serialize(map<any> data) returns string {
     error e = error("Serializing is not supported.");
     panic e;
-};
+}
 
 # Function to read given number of characters from an io:ReadableCharacterChannel.
 # + rch - A `ReadableCharacterChannel` instance.
