@@ -23,6 +23,7 @@ import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -44,5 +45,12 @@ public class WebSubSubscriberStartTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertTrue(returns[0].stringValue().contains("failed to start server connector '0.0.0.0:8387': " +
                                                                     "Address already in use"));
+    }
+
+    @AfterClass
+    public void shutdown() {
+        BValue[] returns = BRunUtil.invoke(result, "stopSubscriberService");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertTrue(returns[0].stringValue().contains("Successfully stopped"));
     }
 }
