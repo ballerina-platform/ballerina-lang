@@ -59,6 +59,8 @@ public class Scheduler {
      */
     private BlockingQueue<SchedulerItem>[] blockingQueues;
 
+    private BlockingQueue<SchedulerItem> commonQueue = new LinkedBlockingDeque();
+
     private static final ThreadLocal<StrandHolder> strandHolder = ThreadLocal.withInitial(StrandHolder::new);
 
     private AtomicInteger totalStrands = new AtomicInteger();
@@ -67,13 +69,15 @@ public class Scheduler {
 
     /**
      * This can be changed by setting the BALLERINA_MAX_POOL_SIZE system variable.
-     * Default is 100.
+     * Default is available processors * 2.
      */
     private final int numThreads;
 
     private static int poolSize = Runtime.getRuntime().availableProcessors() * 2;
 
     private Semaphore mainBlockSem;
+
+    private AtomicBoolean isPollingOnCommonQueue = new AtomicBoolean(false);
 
     public Scheduler(boolean immortal) {
         try {
@@ -165,7 +169,8 @@ public class Scheduler {
         SchedulerItem item = new SchedulerItem(function, params, future);
         future.strand.schedulerItem = item;
         totalStrands.incrementAndGet();
-        blockingQueues[id].add(item);
+        future.strand.threadId = id;
+        commonQueue.add(item);
         return future;
     }
 
@@ -173,13 +178,8 @@ public class Scheduler {
         params[0] = future.strand;
         SchedulerItem item = new SchedulerItem(function, params, future);
         future.strand.schedulerItem = item;
-        for (int i = 0; i < numThreads; i++) {
-            if (parent != null && parent.threadId == i) {
-                continue;
-            }
-            totalStrands.incrementAndGet();
-            blockingQueues[i].add(item);
-        }
+        totalStrands.incrementAndGet();
+        commonQueue.add(item);
         return future;
     }
 
@@ -207,13 +207,8 @@ public class Scheduler {
         params[0] = future.strand;
         SchedulerItem item = new SchedulerItem(consumer, params, future);
         future.strand.schedulerItem = item;
-        for (int i = 0; i < numThreads; i++) {
-            if (parent != null && parent.threadId == i) {
-                continue;
-            }
-            totalStrands.incrementAndGet();
-            blockingQueues[i].add(item);
-        }
+        totalStrands.incrementAndGet();
+        commonQueue.add(item);
         return future;
     }
 
@@ -261,6 +256,25 @@ public class Scheduler {
         while (true) {
             SchedulerItem item;
             try {
+                // If local queue is empty try to poll on the common queue.
+                // If somebody is already polling, wait for it to submit a local task.
+                if (blockingQueues[id].isEmpty()) {
+                    if (isPollingOnCommonQueue.compareAndSet(false, true)) {
+                        // double checking local queue since there could be a parallel insert
+                        if (blockingQueues[id].isEmpty()) {
+                            SchedulerItem newItem = commonQueue.take();
+                            if (newItem.future.strand.threadId > -1) {
+                                // this item has an assigned thread
+                                blockingQueues[newItem.future.strand.threadId].put(newItem);
+                            } else {
+                                for (int i = 0; i < numThreads; i++) {
+                                    blockingQueues[i].add(newItem);
+                                }
+                            }
+                        }
+                        isPollingOnCommonQueue.set(false);
+                    }
+                }
                 item = blockingQueues[id].take();
             } catch (InterruptedException ignored) {
                 continue;
@@ -272,12 +286,10 @@ public class Scheduler {
             }
 
             if (item.future.strand.threadId >= 0 && item.future.strand.threadId != id) {
-                ignoreItem();
                 continue;
             }
 
             if (!item.picked.compareAndSet(false, true)) {
-                ignoreItem();
                 continue;
             }
 
@@ -375,28 +387,13 @@ public class Scheduler {
                     if (strandsLeft == 0) {
                         // (number of started stands - finished stands) = 0, all the work is done
                         if (!immortal) {
-                            for (int i = 0; i < numThreads; i++) {
-                                assert blockingQueues[i].size() == 0;
-                                blockingQueues[i].add(POISON_PILL);
-                            }
+                            assert commonQueue.size() == 0;
+                            commonQueue.add(POISON_PILL);
                         }
                     }
                     break;
                 default:
                     assert false : "illegal strand state during execute " + item.getState();
-            }
-        }
-    }
-
-    private void ignoreItem() {
-        int strandsLeft = totalStrands.decrementAndGet();
-        if (strandsLeft == 0) {
-            // (number of started stands - finished stands) = 0, all the work is done
-            if (!immortal) {
-                for (int i = 0; i < numThreads; i++) {
-                    assert blockingQueues[i].size() == 0;
-                    blockingQueues[i].add(POISON_PILL);
-                }
             }
         }
     }
@@ -455,7 +452,7 @@ public class Scheduler {
                 // release if the same strand is waiting for others as well (wait multiple)
                 item.setState(State.RUNNABLE);
                 item.picked.set(false);
-                blockingQueues[item.future.strand.threadId].add(item);
+                commonQueue.add(item);
             }
     }
 
@@ -502,8 +499,13 @@ class SchedulerItem {
         this.params = params;
     }
 
+    /**
+     * Only used for POISON_PILL.
+     */
     private SchedulerItem() {
-        future = null;
+        Strand strand = new Strand(null);
+        strand.threadId = -1;
+        future = new FutureValue(strand, null, null);
     }
 
     public Object execute() {
