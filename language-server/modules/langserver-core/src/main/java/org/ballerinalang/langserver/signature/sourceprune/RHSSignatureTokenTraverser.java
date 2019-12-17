@@ -34,6 +34,7 @@ import java.util.Optional;
  */
 public class RHSSignatureTokenTraverser extends AbstractTokenTraverser {
     private final List<Integer> rhsTraverseTerminals;
+    private final boolean addSemiColon;
     private int pendingLeftParenthesis;
     private int pendingRightParenthesis;
     private int pendingLeftBrace;
@@ -46,6 +47,7 @@ public class RHSSignatureTokenTraverser extends AbstractTokenTraverser {
         this.pendingRightParenthesis = sourcePruneContext.get(SourcePruneKeys.RIGHT_PARAN_COUNT_KEY);
         this.rhsTraverseTerminals = sourcePruneContext.get(SourcePruneKeys.RHS_TRAVERSE_TERMINALS_KEY);
         this.pendingLeftBrace = sourcePruneContext.get(SourcePruneKeys.LEFT_BRACE_COUNT_KEY);
+        this.addSemiColon = sourcePruneContext.get(SourcePruneKeys.ADD_SEMICOLON_COUNT_KEY);
         this.forcedProcessedToken = false;
         this.capturedLastRightParenthesis = false;
         this.processedTokens = new ArrayList<>();
@@ -73,7 +75,9 @@ public class RHSSignatureTokenTraverser extends AbstractTokenTraverser {
             token = tokenIndex > tokenStream.size() - 1 ? Optional.empty() : Optional.of(tokenStream.get(tokenIndex));
         }
         // Check for semi-colon[:], if not found add
-        checkForSemiColon(tokenStream, tokenIndex, token);
+        if (token.isPresent() && this.addSemiColon) {
+            checkForSemiColon(tokenStream, tokenIndex, token.get());
+        }
         return this.processedTokens;
     }
 
@@ -105,21 +109,27 @@ public class RHSSignatureTokenTraverser extends AbstractTokenTraverser {
 
     /**
      * Check and add semi-colon to the end
-     *
-     * @param tokenStream token stream
+     *  @param tokenStream token stream
      * @param tokenIndex  token index
      * @param token       current token
      */
-    private void checkForSemiColon(TokenStream tokenStream, int tokenIndex, Optional<Token> token) {
-        while (token.isPresent() && token.get().getChannel() != Token.DEFAULT_CHANNEL) {
-            tokenIndex++;
-            token = tokenIndex < 0 ? Optional.empty() : Optional.of(tokenStream.get(tokenIndex));
+    private void checkForSemiColon(TokenStream tokenStream, int tokenIndex, Token token) {
+        if (token == null || this.lastProcessedToken == null) {
+            return;
         }
-        if (token.isPresent() && token.get().getType() != BallerinaParser.SEMICOLON
-                && lastProcessedToken != null && lastProcessedToken.getType() == BallerinaParser.WS) {
-            ((CommonToken) lastProcessedToken).setText(";");
-            ((CommonToken) lastProcessedToken).setType(BallerinaParser.SEMICOLON);
-            ((CommonToken) lastProcessedToken).setChannel(Token.DEFAULT_CHANNEL);
+        while (token.getChannel() != Token.DEFAULT_CHANNEL) {
+            tokenIndex++;
+            if (tokenIndex < 0) {
+                return;
+            }
+            token = tokenStream.get(tokenIndex);
+        }
+        boolean isWS = this.lastProcessedToken.getType() == BallerinaParser.WS;
+        if (token.getType() != BallerinaParser.SEMICOLON && isWS) {
+            CommonToken lastProcessedToken = (CommonToken) this.lastProcessedToken;
+            lastProcessedToken.setText(";");
+            lastProcessedToken.setType(BallerinaParser.SEMICOLON);
+            lastProcessedToken.setChannel(Token.DEFAULT_CHANNEL);
         }
     }
 }
