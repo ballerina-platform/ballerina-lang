@@ -26,10 +26,15 @@ import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.nats.Constants;
 import org.ballerinalang.nats.Utils;
+import org.ballerinalang.nats.observability.NatsMetricsUtil;
+import org.ballerinalang.nats.observability.NatsObservabilityConstants;
 
 import java.io.PrintStream;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
+
+import static org.ballerinalang.nats.Constants.BASIC_SUBSCRIPTION_LIST;
 
 /**
  * Creates a subscription with the NATS server.
@@ -52,13 +57,16 @@ public class Register {
         MapValue<String, Object> subscriptionConfig = Utils.getSubscriptionConfig(service.getType()
                 .getAnnotation(Constants.NATS_PACKAGE, Constants.SUBSCRIPTION_CONFIG));
         if (subscriptionConfig == null) {
+            NatsMetricsUtil.reportConsumerError(NatsObservabilityConstants.ERROR_TYPE_SUBSCRIPTION);
             return BallerinaErrors.createError(Constants.NATS_ERROR_CODE,
                     errorMessage + " Cannot find subscription configuration.");
         }
         String queueName = subscriptionConfig.getStringValue(Constants.QUEUE_NAME);
         String subject = subscriptionConfig.getStringValue(Constants.SUBJECT);
         BRuntime runtime = BRuntime.getCurrentRuntime();
-        Dispatcher dispatcher = natsConnection.createDispatcher(new DefaultMessageHandler(service, runtime));
+        Dispatcher dispatcher = natsConnection.createDispatcher(new DefaultMessageHandler(
+                service, runtime, natsConnection.getConnectedUrl()));
+
         // Add dispatcher. This is needed when closing the connection.
         @SuppressWarnings("unchecked")
         ConcurrentHashMap<String, Dispatcher> dispatcherList = (ConcurrentHashMap<String, Dispatcher>)
@@ -74,12 +82,19 @@ public class Register {
                 dispatcher.subscribe(subject);
             }
         } catch (IllegalArgumentException | IllegalStateException ex) {
+            NatsMetricsUtil.reportConsumerError(natsConnection.getConnectedUrl(), subject,
+                                                NatsObservabilityConstants.ERROR_TYPE_SUBSCRIPTION);
             return BallerinaErrors.createError(Constants.NATS_ERROR_CODE,
                     errorMessage + ex.getMessage());
         }
         serviceList.add(service);
         String consoleOutput = "subject " + subject + (queueName != null ? " & queue " + queueName : "");
         console.println(Constants.NATS_CLIENT_SUBSCRIBED + consoleOutput);
+        ArrayList<String> subscriptionsList =
+                (ArrayList<String>) listenerObject
+                        .getNativeData(BASIC_SUBSCRIPTION_LIST);
+        subscriptionsList.add(subject);
+        NatsMetricsUtil.reportSubscription(natsConnection.getConnectedUrl(), subject);
         return null;
     }
 

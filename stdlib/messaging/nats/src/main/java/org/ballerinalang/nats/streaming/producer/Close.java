@@ -16,26 +16,25 @@
  * under the License.
  */
 
-package org.ballerinalang.nats.basic.producer;
+package org.ballerinalang.nats.streaming.producer;
 
+import io.nats.streaming.StreamingConnection;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.nats.Constants;
+import org.ballerinalang.nats.connection.NatsStreamingConnection;
 import org.ballerinalang.nats.observability.NatsMetricsUtil;
 
-import java.util.concurrent.atomic.AtomicInteger;
-
-import static org.ballerinalang.nats.Constants.CONNECTED_CLIENTS;
-
 /**
- * Initialize NATS producer using the connection.
+ * Close NATS producer using the connection.
  *
- * @since 0.995
+ * @since 1.1.0
  */
-public class Init {
+public class Close {
 
-    public static void producerInit(ObjectValue connectionObject) {
-        // This is to add producer to the connected client list in connection object.
-        ((AtomicInteger) connectionObject.getNativeData(CONNECTED_CLIENTS)).incrementAndGet();
-        NatsMetricsUtil.reportNewProducer(connectionObject.getStringValue(Constants.URL));
+    public static Object streamingProducerClose(ObjectValue streamingClientObject, Object natsConnection) {
+        StreamingConnection streamingConnection = (StreamingConnection) streamingClientObject.getNativeData(
+                Constants.NATS_STREAMING_CONNECTION);
+        NatsMetricsUtil.reportProducerClose(streamingConnection.getNatsConnection().getConnectedUrl());
+        return NatsStreamingConnection.closeConnection(streamingClientObject, natsConnection);
     }
 }
