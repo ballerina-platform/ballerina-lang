@@ -27,9 +27,7 @@ public function fromString(string value) returns handle = external;
 # + value - the `handle` whose referred value to be converted to Ballerina `string`
 # + return - the Ballerina `string` representation of the Java object referred by the `handle` or
 #            returns `nil` of the `handle` refers to Java null
-public function toString(handle value) returns string? = @Method {
-    class: "org.ballerinalang.nativeimpl.java.ToString"
-} external;
+public function toString(handle value) returns string? = external;
 
 # Returns `true` if this handle refers to Java null.
 #
