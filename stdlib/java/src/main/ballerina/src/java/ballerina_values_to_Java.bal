@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-# Returns a `handle` that refers to the Java string representation of the Ballerina `string`.
+#  **Deprecated API**. Returns a `handle` that refers to the Java string representation of the Ballerina `string`.
 #
 # + value - the Ballerina `string` with which the `handle` is created
 # + return - the `handle` that refers to the Java String representation of the Ballerina `string`
