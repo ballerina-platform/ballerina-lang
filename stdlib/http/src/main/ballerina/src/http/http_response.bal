@@ -19,7 +19,6 @@ import ballerina/mime;
 import ballerina/crypto;
 import ballerina/time;
 import ballerina/stringutils;
-import ballerinax/java;
 
 # Represents an HTTP response.
 #
@@ -49,28 +48,20 @@ public type Response object {
     # Create a new `Entity` and link it with the response.
     #
     # + return - Newly created `Entity` that has been set to the response
-    function createNewEntity() returns mime:Entity {
-        return externCreateNewResEntity(self);
-    }
+    function createNewEntity() returns mime:Entity = external;
 
     # Gets the `Entity` associated with the response.
     #
     # + return - The `Entity` of the response. An `http:ClientError` is returned, if entity construction fails
-    public function getEntity() returns mime:Entity|ClientError {
-        return externGetResEntity(self);
-    }
+    public function getEntity() returns mime:Entity|ClientError = external;
 
     //Gets the `Entity` from the response without the entity body. This function is exposed only to be used internally.
-    function getEntityWithoutBody() returns mime:Entity {
-        return externGetResEntityWithoutBody(self);
-    }
+    function getEntityWithoutBody() returns mime:Entity = external;
 
     # Sets the provided `Entity` to the response.
     #
     # + e - The `Entity` to be set to the response
-    public function setEntity(mime:Entity e) {
-        return externSetResEntity(self, e);
-    }
+    public function setEntity(mime:Entity e) = external;
 
     # Checks whether the requested header key exists in the header map.
     #
@@ -405,27 +396,3 @@ public type Response object {
         }
     }
 };
-
-function externCreateNewResEntity(Response response) returns mime:Entity =
-@java:Method {
-    class: "org.ballerinalang.net.http.nativeimpl.ExternResponse",
-    name: "createNewEntity"
-} external;
-
-function externSetResEntity(Response response, mime:Entity entity) =
-@java:Method {
-    class: "org.ballerinalang.net.http.nativeimpl.ExternResponse",
-    name: "setEntity"
-} external;
-
-function externGetResEntity(Response response) returns mime:Entity|ClientError =
-@java:Method {
-    class: "org.ballerinalang.net.http.nativeimpl.ExternResponse",
-    name: "getEntity"
-} external;
-
-function externGetResEntityWithoutBody(Response response) returns mime:Entity =
-@java:Method {
-    class: "org.ballerinalang.net.http.nativeimpl.ExternResponse",
-    name: "getEntityWithoutBody"
-} external;

@@ -19,11 +19,15 @@
 package org.ballerinalang.net.http.nativeimpl.connection;
 
 import org.ballerinalang.jvm.BallerinaErrors;
-import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
 import org.ballerinalang.mime.util.EntityBodyHandler;
+import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.natives.annotations.Argument;
+import org.ballerinalang.natives.annotations.BallerinaFunction;
+import org.ballerinalang.natives.annotations.Receiver;
+import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.http.DataContext;
 import org.ballerinalang.net.http.HttpUtil;
 import org.wso2.transport.http.netty.contract.HttpConnectorListener;
@@ -34,17 +38,30 @@ import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 
 import java.io.OutputStream;
 
+import static org.ballerinalang.net.http.HttpConstants.CALLER;
 import static org.ballerinalang.net.http.HttpUtil.extractEntity;
 
 /**
  * {@code PushPromisedResponse} is the extern function to respond back the client with Server Push response.
  */
+@BallerinaFunction(
+        orgName = "ballerina", packageName = "http",
+        functionName = "pushPromisedResponse",
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = CALLER,
+                structPackage = "ballerina/http"),
+        args = {@Argument(name = "promise", type = TypeKind.OBJECT, structType = "PushPromise",
+                structPackage = "ballerina/http"),
+                @Argument(name = "res", type = TypeKind.OBJECT, structType = "OutResponse",
+                        structPackage = "ballerina/http")},
+        returnType = @ReturnType(type = TypeKind.RECORD, structType = "HttpConnectorError",
+                structPackage = "ballerina/http"),
+        isPublic = true
+)
 public class PushPromisedResponse extends ConnectionAction {
 
-    public static Object pushPromisedResponse(ObjectValue connectionObj, ObjectValue pushPromiseObj,
+    public static Object pushPromisedResponse(Strand strand, ObjectValue connectionObj, ObjectValue pushPromiseObj,
                                      ObjectValue outboundResponseObj) {
         HttpCarbonMessage inboundRequestMsg = HttpUtil.getCarbonMsg(connectionObj, null);
-        Strand strand = Scheduler.getStrand();
         DataContext dataContext = new DataContext(strand, new NonBlockingCallback(strand), inboundRequestMsg);
         HttpUtil.serverConnectionStructCheck(inboundRequestMsg);
 

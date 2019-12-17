@@ -18,8 +18,12 @@
 
 package org.ballerinalang.net.http.clientendpoint;
 
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.natives.annotations.Argument;
+import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.net.http.HttpConnectionManager;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpErrorType;
@@ -45,9 +49,17 @@ import static org.wso2.transport.http.netty.contract.Constants.HTTP_2_0_VERSION;
  *
  * @since 0.966
  */
+
+@BallerinaFunction(
+        orgName = "ballerina", packageName = "http",
+        functionName = "createSimpleHttpClient",
+        args = {@Argument(name = "uri", type = TypeKind.STRING),
+                @Argument(name = "client", type = TypeKind.OBJECT, structType = "Client")},
+        isPublic = true
+)
 public class CreateSimpleHttpClient {
     @SuppressWarnings("unchecked")
-    public static void createSimpleHttpClient(ObjectValue httpClient,
+    public static void createSimpleHttpClient(Strand strand, ObjectValue httpClient,
                                               MapValue<String, Long> globalPoolConfig) {
         String urlString = httpClient.getStringValue(CLIENT_ENDPOINT_SERVICE_URI);
         MapValue<String, Object> clientEndpointConfig = (MapValue<String, Object>) httpClient.get(

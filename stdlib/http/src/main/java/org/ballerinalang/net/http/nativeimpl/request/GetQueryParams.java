@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -16,42 +16,43 @@
  * under the License.
  */
 
-package org.ballerinalang.net.http.nativeimpl;
+package org.ballerinalang.net.http.nativeimpl.request;
 
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BMapType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.mime.util.EntityBodyHandler;
+import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.natives.annotations.BallerinaFunction;
+import org.ballerinalang.natives.annotations.Receiver;
+import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpErrorType;
 import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.net.uri.URIUtil;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
-import static org.ballerinalang.mime.util.MimeConstants.REQUEST_ENTITY_FIELD;
 import static org.ballerinalang.net.http.HttpConstants.QUERY_PARAM_MAP;
-import static org.ballerinalang.net.http.HttpConstants.TRANSPORT_MESSAGE;
-import static org.ballerinalang.net.http.HttpUtil.checkRequestBodySizeHeadersAvailability;
 
 /**
- * Utilities related to HTTP request.
+ * Get the Query params from HTTP message and return a map.
  *
- * @since 1.1.0
+ * @since 0.94
  */
-public class ExternRequest {
-
-    public static ObjectValue createNewEntity(ObjectValue requestObj) {
-        return HttpUtil.createNewEntity(requestObj);
-    }
-
-    public static void setEntity(ObjectValue requestObj, ObjectValue entityObj) {
-        HttpUtil.setEntity(requestObj, entityObj, true);
-    }
-
-    public static MapValue<String, Object> getQueryParams(ObjectValue requestObj) {
+@BallerinaFunction(
+        orgName = "ballerina", packageName = "http",
+        functionName = "getQueryParams",
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = "Request",
+                             structPackage = "ballerina/http"),
+        returnType = {@ReturnType(type = TypeKind.MAP, elementType = TypeKind.STRING)},
+        isPublic = true
+)
+public class GetQueryParams {
+    @SuppressWarnings("unchecked")
+    public static MapValue<String, Object> getQueryParams(Strand strand, ObjectValue requestObj) {
         try {
             Object queryParams = requestObj.getNativeData(QUERY_PARAM_MAP);
             if (queryParams != null) {
@@ -71,31 +72,5 @@ public class ExternRequest {
             throw HttpUtil.createHttpError("error while retrieving query param from message: " + e.getMessage(),
                                            HttpErrorType.GENERIC_LISTENER_ERROR);
         }
-    }
-
-    public static MapValue<String, Object> getMatrixParams(ObjectValue requestObj, String path) {
-        HttpCarbonMessage httpCarbonMessage = HttpUtil.getCarbonMsg(requestObj, null);
-        return URIUtil.getMatrixParamsMap(path, httpCarbonMessage);
-    }
-
-    public static Object getEntity(ObjectValue requestObj) {
-        return HttpUtil.getEntity(requestObj, true, true);
-    }
-
-    public static ObjectValue getEntityWithoutBody(ObjectValue requestObj) {
-        return HttpUtil.getEntity(requestObj, true, false);
-    }
-
-    public static boolean checkEntityBodyAvailability(ObjectValue requestObj) {
-        ObjectValue entityObj = (ObjectValue) requestObj.get(REQUEST_ENTITY_FIELD);
-        return lengthHeaderCheck(requestObj) || EntityBodyHandler.checkEntityBodyAvailability(entityObj);
-    }
-
-    private static boolean lengthHeaderCheck(ObjectValue requestObj) {
-        Object outboundMsg = requestObj.getNativeData(TRANSPORT_MESSAGE);
-        if (outboundMsg == null) {
-            return false;
-        }
-        return checkRequestBodySizeHeadersAvailability((HttpCarbonMessage) outboundMsg);
     }
 }

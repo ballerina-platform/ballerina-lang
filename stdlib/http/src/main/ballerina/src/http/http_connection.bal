@@ -14,8 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerinax/java;
-
 # The caller actions for responding to client requests.
 #
 # + remoteAddress - The remote address
@@ -60,9 +58,7 @@ public type Caller client object {
     #
     # + promise - Push promise message
     # + return - An `http:ListenerError` in case of failures
-    public remote function promise(PushPromise promise) returns ListenerError? {
-        return externPromise(self, promise);
-    }
+    public remote function promise(PushPromise promise) returns ListenerError? = external;
 
     # Sends a promised push response to the caller.
     #
@@ -70,18 +66,14 @@ public type Caller client object {
     # + response - The outbound response
     # + return - An `http:ListenerError` in case of failures while responding with the promised response
     public remote function pushPromisedResponse(PushPromise promise, Response response)
-                                                                returns ListenerError? {
-        return externPushPromisedResponse(self, promise, response);
-    }
+                                                                returns ListenerError? = external;
 
     # Sends an upgrade request with custom headers.
     #
     # + headers - A `map` of custom headers for handshake
     # + return - `WebSocketCaller` or error on failure to upgrade
     public remote function acceptWebSocketUpgrade(map<string> headers) 
-                                                returns WebSocketCaller | WebSocketError {
-        return externAcceptWebSocketUpgrade(self, headers);
-    }
+                                                returns WebSocketCaller | WebSocketError = external;
 
     # Cancels the handshake.
     #
@@ -89,9 +81,7 @@ public type Caller client object {
     #            This error status code need to be 4xx or 5xx else the default status code would be 400.
     # + reason - Reason for cancelling the upgrade
     # + return - An `error` if an error occurs during cancelling the upgrade or nil
-    public remote function cancelWebSocketUpgrade(int status, string reason) returns WebSocketError? {
-        return externCancelWebSocketUpgrade(self, status, java:fromString(reason));
-    }
+    public remote function cancelWebSocketUpgrade(int status, string reason) returns WebSocketError? = external;
 
     # Sends a `100-continue` response to the caller.
     #
@@ -174,11 +164,7 @@ public type Caller client object {
     }
 };
 
-function nativeRespond(Caller caller, Response response) returns ListenerError? = @java:Method {
-    class: "org.ballerinalang.net.http.nativeimpl.connection.Respond",
-    name: "nativeRespond"
-} external;
-
+function nativeRespond(Caller caller, Response response) returns ListenerError? = external;
 
 /////////////////////////////////
 /// Ballerina Implementations ///
@@ -203,28 +189,3 @@ public const REDIRECT_USE_PROXY_305 = 305;
 public const REDIRECT_TEMPORARY_REDIRECT_307 = 307;
 # Represents the HTTP redirect status code `308 - Permanent Redirect`.
 public const REDIRECT_PERMANENT_REDIRECT_308 = 308;
-
-function externPromise(Caller caller, PushPromise promise) returns ListenerError? =
-@java:Method {
-    class: "org.ballerinalang.net.http.nativeimpl.connection.Promise",
-    name: "promise"
-} external;
-
-function externPushPromisedResponse(Caller caller, PushPromise promise, Response response) returns ListenerError? =
-@java:Method {
-    class: "org.ballerinalang.net.http.nativeimpl.connection.PushPromisedResponse",
-    name: "pushPromisedResponse"
-} external;
-
-function externAcceptWebSocketUpgrade(Caller caller, map<string> headers) returns WebSocketCaller | WebSocketError =
-@java:Method {
-    class: "org.ballerinalang.net.http.nativeimpl.connection.AcceptWebSocketUpgrade",
-    name: "acceptWebSocketUpgrade"
-} external;
-
-function externCancelWebSocketUpgrade(Caller caller, int status, handle reason) returns WebSocketError? =
-@java:Method {
-    class: "org.ballerinalang.net.http.nativeimpl.connection.CancelWebSocketUpgrade",
-    name: "cancelWebSocketUpgrade",
-    paramTypes: ["org.ballerinalang.jvm.values.ObjectValue", "long", "java.lang.String"]
-} external;

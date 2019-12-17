@@ -18,7 +18,11 @@
 
 package org.ballerinalang.net.http.serviceendpoint;
 
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.natives.annotations.BallerinaFunction;
+import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.http.BallerinaHTTPConnectorListener;
 import org.ballerinalang.net.http.HttpConnectorPortBindingListener;
 import org.ballerinalang.net.http.HttpConstants;
@@ -28,6 +32,7 @@ import org.ballerinalang.net.http.websocket.server.WebSocketServerListener;
 import org.wso2.transport.http.netty.contract.ServerConnector;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 
+import static org.ballerinalang.net.http.HttpConstants.HTTP_LISTENER_ENDPOINT;
 import static org.ballerinalang.net.http.HttpConstants.SERVICE_ENDPOINT_CONFIG;
 
 /**
@@ -35,8 +40,16 @@ import static org.ballerinalang.net.http.HttpConstants.SERVICE_ENDPOINT_CONFIG;
  *
  * @since 0.966
  */
+
+@BallerinaFunction(
+        orgName = "ballerina", packageName = "http",
+        functionName = "start",
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = HTTP_LISTENER_ENDPOINT,
+                             structPackage = "ballerina/http"),
+        isPublic = true
+)
 public class Start extends AbstractHttpNativeFunction {
-    public static Object start(ObjectValue listener) {
+    public static Object start(Strand strand, ObjectValue listener) {
         if (!isConnectorStarted(listener)) {
             return startServerConnector(listener);
         }

@@ -18,6 +18,11 @@
 
 package org.ballerinalang.net.uri.nativeimpl;
 
+import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.natives.annotations.Argument;
+import org.ballerinalang.natives.annotations.BallerinaFunction;
+import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.http.HttpUtil;
 
 import java.net.URI;
@@ -28,8 +33,15 @@ import java.net.URISyntaxException;
  *
  * @since 0.975.0
  */
+@BallerinaFunction(
+        orgName = "ballerina", packageName = "http",
+        functionName = "resolve",
+        args = {@Argument(name = "uri", type = TypeKind.STRING), @Argument(name = "path", type = TypeKind.STRING)},
+        returnType = {@ReturnType(type = TypeKind.STRING), @ReturnType(type = TypeKind.RECORD, structType = "Error")},
+        isPublic = true
+)
 public class Resolve {
-    public static Object resolve(String url, String path) {
+    public static Object resolve(Strand strand, String url, String path) {
         URI uri;
         try {
             uri = new URI(path);

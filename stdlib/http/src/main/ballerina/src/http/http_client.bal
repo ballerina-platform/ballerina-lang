@@ -14,7 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerinax/java;
 
 # Provides the HTTP actions for interacting with an HTTP server. Apart from the standard HTTP methods,
 # `HttpClient.forward()` and `HttpClient.execute()` functions are provided. More complex and specific endpoint types
@@ -40,7 +39,7 @@ public type HttpClient client object {
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The response for the request or an `http:ClientError` if failed to establish communication with the upstream server
     public remote function post(@untainted string path, RequestMessage message) returns Response|ClientError {
-        return externExecuteClientAction(self, java:fromString(path), <Request>message, java:fromString(HTTP_POST));
+        return nativePost(self, path, <Request>message);
     }
 
     # The `HttpClient.head()` function can be used to send HTTP HEAD requests to HTTP endpoints.
@@ -50,7 +49,7 @@ public type HttpClient client object {
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The response for the request or an `ClientError` if failed to establish communication with the upstream server
     public remote function head(@untainted string path, public RequestMessage message = ()) returns Response|ClientError {
-        return externExecuteClientAction(self, java:fromString(path), <Request>message, java:fromString(HTTP_HEAD));
+        return nativeHead(self, path, <Request>message);
     }
 
     # The `HttpClient.put()` function can be used to send HTTP PUT requests to HTTP endpoints.
@@ -60,7 +59,7 @@ public type HttpClient client object {
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The response for the request or an `ClientError` if failed to establish communication with the upstream server
     public remote function put(@untainted string path, RequestMessage message) returns Response|ClientError {
-        return externExecuteClientAction(self, java:fromString(path), <Request>message, java:fromString(HTTP_PUT));
+        return nativePut(self, path, <Request>message);
     }
 
     # Invokes an HTTP call with the specified HTTP verb.
@@ -71,7 +70,7 @@ public type HttpClient client object {
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The response for the request or an `ClientError` if failed to establish communication with the upstream server
     public remote function execute(@untainted string httpVerb, @untainted string path, RequestMessage message) returns Response|ClientError {
-        return externExecute(self, java:fromString(httpVerb), java:fromString(path), <Request>message);
+        return nativeExecute(self, httpVerb, path, <Request>message);
     }
 
     # The `HttpClient.patch()` function can be used to send HTTP PATCH requests to HTTP endpoints.
@@ -81,7 +80,7 @@ public type HttpClient client object {
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The response for the request or an `ClientError` if failed to establish communication with the upstream server
     public remote function patch(@untainted string path, RequestMessage message) returns Response|ClientError {
-        return externExecuteClientAction(self, java:fromString(path), <Request>message, java:fromString(HTTP_PATCH));
+        return nativePatch(self, path, <Request>message);
     }
 
     # The `HttpClient.delete()` function can be used to send HTTP DELETE requests to HTTP endpoints.
@@ -91,7 +90,7 @@ public type HttpClient client object {
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The response for the request or an `ClientError` if failed to establish communication with the upstream server
     public remote function delete(@untainted string path, public RequestMessage message = ()) returns Response|ClientError {
-        return externExecuteClientAction(self, java:fromString(path), <Request>message, java:fromString(HTTP_DELETE));
+        return nativeDelete(self, path, <Request>message);
     }
 
     # The `HttpClient.get()` function can be used to send HTTP GET requests to HTTP endpoints.
@@ -101,7 +100,7 @@ public type HttpClient client object {
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The response for the request or an `ClientError` if failed to establish communication with the upstream server
     public remote function get(@untainted string path, public RequestMessage message = ()) returns Response|ClientError {
-        return externExecuteClientAction(self, java:fromString(path), <Request>message, java:fromString(HTTP_GET));
+        return nativeGet(self, path, <Request>message);
     }
 
     # The `HttpClient.options()` function can be used to send HTTP OPTIONS requests to HTTP endpoints.
@@ -111,7 +110,7 @@ public type HttpClient client object {
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The response for the request or an `ClientError` if failed to establish communication with the upstream server
     public remote function options(@untainted string path, public RequestMessage message = ()) returns Response|ClientError {
-        return externExecuteClientAction(self, java:fromString(path), <Request>message, java:fromString(HTTP_OPTIONS));
+        return nativeOptions(self, path, <Request>message);
     }
 
     # The `HttpClient.forward()` function can be used to invoke an HTTP call with inbound request's HTTP verb
@@ -120,7 +119,7 @@ public type HttpClient client object {
     # + request - An HTTP inbound request message
     # + return - The response for the request or an `ClientError` if failed to establish communication with the upstream server
     public remote function forward(@untainted string path, Request request) returns Response|ClientError {
-        return externForward(self, java:fromString(path), request);
+        return nativeForward(self, path, request);
     }
 
     # Submits an HTTP request to a service with the specified HTTP verb.
@@ -133,105 +132,62 @@ public type HttpClient client object {
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - An `HttpFuture` that represents an asynchronous service invocation, or an `ClientError` if the submission fails
     public remote function submit(@untainted string httpVerb, string path, RequestMessage message) returns HttpFuture|ClientError {
-        return externSubmit(self, java:fromString(httpVerb), java:fromString(path), <Request>message);
+        return nativeSubmit(self, httpVerb, path, <Request>message);
     }
 
     # Retrieves the `Response` for a previously submitted request.
     #
     # + httpFuture - The `HttpFuture` related to a previous asynchronous invocation
     # + return - An HTTP response message, or an `ClientError` if the invocation fails
-    public remote function getResponse(HttpFuture httpFuture) returns Response|ClientError {
-        return externGetResponse(self, httpFuture);
-    }
+    public remote function getResponse(HttpFuture httpFuture) returns Response|ClientError = external;
 
     # Checks whether a `PushPromise` exists for a previously submitted request.
     #
     # + httpFuture - The `HttpFuture` relates to a previous asynchronous invocation
     # + return - A `boolean` that represents whether a `PushPromise` exists
-    public remote function hasPromise(HttpFuture httpFuture) returns boolean {
-        return externHasPromise(self, httpFuture);
-    }
+    public remote function hasPromise(HttpFuture httpFuture) returns boolean = external;
 
     # Retrieves the next available `PushPromise` for a previously submitted request.
     #
     # + httpFuture - The `HttpFuture` relates to a previous asynchronous invocation
     # + return - An HTTP Push Promise message, or an `ClientError` if the invocation fails
-    public remote function getNextPromise(HttpFuture httpFuture) returns PushPromise|ClientError {
-        return externGetNextPromise(self, httpFuture);
-    }
+    public remote function getNextPromise(HttpFuture httpFuture) returns PushPromise|ClientError = external;
 
     # Retrieves the promised server push `Response` message.
     #
     # + promise - The related `PushPromise`
     # + return - A promised HTTP `Response` message, or an `ClientError` if the invocation fails
-    public remote function getPromisedResponse(PushPromise promise) returns Response|ClientError {
-        return externGetPromisedResponse(self, promise);
-    }
+    public remote function getPromisedResponse(PushPromise promise) returns Response|ClientError = external;
 
     # Rejects a `PushPromise`. When a `PushPromise` is rejected, there is no chance of fetching a promised
     # response using the rejected promise.
     #
     # + promise - The Push Promise to be rejected
-    public remote function rejectPromise(PushPromise promise) {
-        return externRejectPromise(self, promise);
-    }
+    public remote function rejectPromise(PushPromise promise) = external;
 };
 
-function externGetResponse(HttpClient httpClient, HttpFuture httpFuture) returns Response|ClientError =
-@java:Method {
-    class: "org.ballerinalang.net.http.actions.httpclient.GetResponse",
-    name: "getResponse"
-} external;
+//Since the struct equivalency doesn't work with private keyword, following functions are defined outside the object
+function nativePost(HttpClient caller , @untainted string path, Request req) returns Response|ClientError = external;
 
-function externHasPromise(HttpClient httpClient, HttpFuture httpFuture) returns boolean =
-@java:Method {
-    class: "org.ballerinalang.net.http.actions.httpclient.HasPromise",
-    name: "hasPromise"
-} external;
+function nativeHead(HttpClient caller , @untainted string path, Request req) returns Response|ClientError = external;
 
-function externGetNextPromise(HttpClient httpClient, HttpFuture httpFuture) returns PushPromise|ClientError =
-@java:Method {
-    class: "org.ballerinalang.net.http.actions.httpclient.GetNextPromise",
-    name: "getNextPromise"
-} external;
+function nativePut(HttpClient caller , @untainted string path, Request req) returns Response|ClientError = external;
 
-function externGetPromisedResponse(HttpClient httpClient, PushPromise promise) returns Response|ClientError =
-@java:Method {
-    class: "org.ballerinalang.net.http.actions.httpclient.GetPromisedResponse",
-    name: "getPromisedResponse"
-} external;
+function nativeExecute(HttpClient caller , @untainted string httpVerb, @untainted string path,
+                                                        Request req) returns Response|ClientError = external;
 
-function externRejectPromise(HttpClient httpClient, PushPromise promise) =
-@java:Method {
-    class: "org.ballerinalang.net.http.actions.httpclient.HttpClientAction",
-    name: "rejectPromise"
-} external;
+function nativePatch(HttpClient caller , @untainted string path, Request req) returns Response|ClientError = external;
 
-function externExecute(HttpClient caller , handle httpVerb, handle path,
-                                                        Request req) returns Response|ClientError =
-@java:Method {
-    class: "org.ballerinalang.net.http.actions.httpclient.Execute",
-    name: "execute"
-} external;
+function nativeDelete(HttpClient caller , @untainted string path, Request req) returns Response|ClientError = external;
 
-function externSubmit(HttpClient caller , handle httpVerb, handle path, Request req)
-                                                            returns HttpFuture|ClientError =
-@java:Method {
-    class: "org.ballerinalang.net.http.actions.httpclient.Submit",
-    name: "submit"
-} external;
+function nativeGet(HttpClient caller , @untainted string path, Request req) returns Response|ClientError = external;
 
-function externForward(HttpClient caller , handle path, Request req) returns Response|ClientError =
-@java:Method {
-    class: "org.ballerinalang.net.http.actions.httpclient.Forward",
-    name: "forward"
-} external;
+function nativeOptions(HttpClient caller , @untainted string path, Request req) returns Response|ClientError = external;
 
-function externExecuteClientAction(HttpClient caller , handle path, Request req, handle httpMethod) returns Response|ClientError =
-@java:Method {
-    class: "org.ballerinalang.net.http.actions.httpclient.HttpClientAction",
-    name: "executeClientAction"
-} external;
+function nativeSubmit(HttpClient caller , @untainted string httpVerb, string path, Request req)
+                                                            returns HttpFuture|ClientError = external;
+
+function nativeForward(HttpClient caller , @untainted string path, Request req) returns Response|ClientError = external;
 
 # Defines a timeout error occurred during service invocation.
 #

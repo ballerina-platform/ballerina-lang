@@ -15,7 +15,6 @@
 // under the License.
 
 import ballerina/lang.'string as strings;
-import ballerinax/java;
 
 # Represents a WebSocket connection in Ballerina. This includes all connection-oriented operations.
 type WebSocketConnector object {
@@ -40,33 +39,29 @@ type WebSocketConnector object {
         } else {
             text = data.toString();
         }
-        return externPushText(self, java:fromString(text), finalFrame);
+        return self.externPushText(text, finalFrame);
     }
+
+    function externPushText(string text, boolean finalFrame) returns WebSocketError? = external;
 
     # Push binary data to the connection.
     #
     # + data - Binary data to be sent
     # + finalFrame - Set to `true` if this is a final frame of a (long) message
     # + return - `error` if an error occurs when sending
-    public function pushBinary(byte[] data, boolean finalFrame) returns WebSocketError? {
-        return externPushBinary(self, data, finalFrame);
-    }
+    public function pushBinary(byte[] data, boolean finalFrame) returns WebSocketError? = external;
 
     # Ping the connection.
     #
     # + data - Binary data to be sent.
     # + return - `error` if an error occurs when sending
-    public function ping(byte[] data) returns WebSocketError? {
-        return externPing(self, data);
-    }
+    public function ping(byte[] data) returns WebSocketError? = external;
 
     # Send pong message to the connection.
     #
     # + data - Binary data to be sent
     # + return - `error` if an error occurs when sending
-    public function pong(byte[] data) returns WebSocketError? {
-        return externPong(self, data);
-    }
+    public function pong(byte[] data) returns WebSocketError? = external;
 
     # Close the connection.
     #
@@ -87,37 +82,12 @@ type WebSocketConnector object {
                 statusCode.toString());
                 return err;
             }
-            return externClose(self, statusCode, reason is () ? java:fromString("") : java:fromString(reason) , timeoutInSecs);
+            return self.externClose(statusCode, reason ?: "", timeoutInSecs);
         } else {
-            return externClose(self, -1, java:fromString(""), timeoutInSecs);
+            return self.externClose(-1, "", timeoutInSecs);
         }
     }
+
+    function externClose(int statusCode, string reason, int timeoutInSecs) returns WebSocketError? = external;
+
 };
-
-function externPushText(WebSocketConnector wsConnector, handle text, boolean finalFrame) returns WebSocketError? =
-@java:Method {
-    class: "org.ballerinalang.net.http.actions.websocketconnector.WebSocketConnector"
-} external;
-
-function externPushBinary(WebSocketConnector wsConnector, byte[] data, boolean finalFrame) returns WebSocketError? =
-@java:Method {
-    class: "org.ballerinalang.net.http.actions.websocketconnector.WebSocketConnector",
-    name: "pushBinary"
-} external;
-
-function externPing(WebSocketConnector wsConnector, byte[] data) returns WebSocketError? =
-@java:Method {
-    class: "org.ballerinalang.net.http.actions.websocketconnector.WebSocketConnector",
-    name: "ping"
-} external;
-
-function externPong(WebSocketConnector wsConnector, byte[] data) returns WebSocketError? =
-@java:Method {
-    class: "org.ballerinalang.net.http.actions.websocketconnector.WebSocketConnector",
-    name: "pong"
-} external;
-
-function externClose(WebSocketConnector wsConnector, int statusCode, handle reason, int timeoutInSecs) returns WebSocketError? =
-@java:Method {
-    class: "org.ballerinalang.net.http.actions.websocketconnector.Close"
-} external;

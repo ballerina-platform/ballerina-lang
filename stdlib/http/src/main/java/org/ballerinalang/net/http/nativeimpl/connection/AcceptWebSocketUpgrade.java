@@ -17,10 +17,13 @@
 package org.ballerinalang.net.http.nativeimpl.connection;
 
 import io.netty.handler.codec.http.DefaultHttpHeaders;
-import org.ballerinalang.jvm.scheduling.Scheduler;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
+import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.natives.annotations.BallerinaFunction;
+import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.websocket.WebSocketConstants;
 import org.ballerinalang.net.http.websocket.WebSocketException;
@@ -37,12 +40,22 @@ import org.wso2.transport.http.netty.contract.websocket.WebSocketHandshaker;
 /**
  * {@code AcceptWebSocketUpgrade} is the AcceptWebSocketUpgrade action implementation of the HTTP Connector.
  */
+@BallerinaFunction(
+        orgName = WebSocketConstants.BALLERINA_ORG,
+        packageName = WebSocketConstants.PACKAGE_HTTP,
+        functionName = "acceptWebSocketUpgrade",
+        receiver = @Receiver(
+                type = TypeKind.OBJECT,
+                structType = HttpConstants.CALLER,
+                structPackage = WebSocketConstants.FULL_PACKAGE_HTTP
+        )
+)
 public class AcceptWebSocketUpgrade {
     private static final Logger log = LoggerFactory.getLogger(AcceptWebSocketUpgrade.class);
 
-    public static Object acceptWebSocketUpgrade(ObjectValue httpCaller,
+    public static Object acceptWebSocketUpgrade(Strand strand, ObjectValue httpCaller,
                                                 MapValue<String, String> headers) {
-        NonBlockingCallback callback = new NonBlockingCallback(Scheduler.getStrand());
+        NonBlockingCallback callback = new NonBlockingCallback(strand);
         try {
             WebSocketHandshaker webSocketHandshaker =
                     (WebSocketHandshaker) httpCaller.getNativeData(WebSocketConstants.WEBSOCKET_HANDSHAKER);

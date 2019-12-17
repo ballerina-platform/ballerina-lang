@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -18,49 +18,37 @@
 
 package org.ballerinalang.net.http.actions.httpclient;
 
-import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
+import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.net.http.DataContext;
 import org.ballerinalang.net.http.HttpConstants;
-import org.ballerinalang.net.http.HttpUtil;
 import org.wso2.transport.http.netty.contract.HttpClientConnector;
-import org.wso2.transport.http.netty.message.Http2PushPromise;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 import static org.ballerinalang.net.http.HttpConstants.CLIENT_ENDPOINT_CONFIG;
 import static org.ballerinalang.net.http.HttpConstants.CLIENT_ENDPOINT_SERVICE_URI;
 
 /**
- * Utilities related to HTTP client actions.
- *
- * @since 1.1.0
+ * {@code Options} is the OPTIONS action implementation of the HTTP Connector.
  */
-public class HttpClientAction extends AbstractHTTPAction {
-
-    public static Object executeClientAction(ObjectValue httpClient, String path,
-                                             ObjectValue requestObj, String httpMethod) {
-        Strand strand = Scheduler.getStrand();
+@BallerinaFunction(
+        orgName = "ballerina", packageName = "http",
+        functionName = "nativeOptions"
+)
+public class Options extends AbstractHTTPAction {
+    @SuppressWarnings("unchecked")
+    public static Object nativeOptions(Strand strand, ObjectValue httpClient, String path, ObjectValue requestObj) {
         String url = httpClient.getStringValue(CLIENT_ENDPOINT_SERVICE_URI);
         MapValue<String, Object> config = (MapValue<String, Object>) httpClient.get(CLIENT_ENDPOINT_CONFIG);
         HttpClientConnector clientConnector = (HttpClientConnector) httpClient.getNativeData(HttpConstants.CLIENT);
         HttpCarbonMessage outboundRequestMsg = createOutboundRequestMsg(strand, url, config, path, requestObj);
-        outboundRequestMsg.setHttpMethod(httpMethod);
+        outboundRequestMsg.setHttpMethod(HttpConstants.HTTP_METHOD_OPTIONS);
         DataContext dataContext = new DataContext(strand, clientConnector, new NonBlockingCallback(strand), requestObj,
                                                   outboundRequestMsg);
         executeNonBlockingAction(dataContext, false);
         return null;
-    }
-
-    public static void rejectPromise(ObjectValue clientObj, ObjectValue pushPromiseObj) {
-        Http2PushPromise http2PushPromise = HttpUtil.getPushPromise(pushPromiseObj, null);
-        if (http2PushPromise == null) {
-            throw new BallerinaException("invalid push promise");
-        }
-        HttpClientConnector clientConnector = (HttpClientConnector) clientObj.getNativeData(HttpConstants.CLIENT);
-        clientConnector.rejectPushResponse(http2PushPromise);
     }
 }

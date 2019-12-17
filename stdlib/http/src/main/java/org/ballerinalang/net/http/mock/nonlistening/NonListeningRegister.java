@@ -18,23 +18,41 @@
 
 package org.ballerinalang.net.http.mock.nonlistening;
 
-import org.ballerinalang.jvm.scheduling.Scheduler;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.AttachedFunction;
 import org.ballerinalang.jvm.types.BType;
+import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.natives.annotations.Argument;
+import org.ballerinalang.natives.annotations.BallerinaFunction;
+import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.http.HTTPServicesRegistry;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.websocket.WebSocketConstants;
 import org.ballerinalang.net.http.websocket.server.WebSocketServerService;
 import org.ballerinalang.net.http.websocket.server.WebSocketServicesRegistry;
 
+import static org.ballerinalang.net.http.HttpConstants.MOCK_LISTENER_ENDPOINT;
+
 /**
  * Register a service to the mock listener.
  *
  * @since 0.966
  */
+
+@BallerinaFunction(
+        orgName = "ballerina", packageName = "http",
+        functionName = "register",
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = MOCK_LISTENER_ENDPOINT,
+                structPackage = "ballerina.http"),
+        args = {@Argument(name = "serviceType", type = TypeKind.TYPEDESC),
+                @Argument(name = "annotationData", type = TypeKind.MAP)},
+        isPublic = true
+)
 public class NonListeningRegister extends org.ballerinalang.net.http.serviceendpoint.Register {
-    public static void register(ObjectValue serviceEndpoint, ObjectValue service) {
+    public static void register(Strand strand, ObjectValue serviceEndpoint, ObjectValue service,
+                                MapValue annotationData) {
         HTTPServicesRegistry httpServicesRegistry = getHttpServicesRegistry(serviceEndpoint);
         WebSocketServicesRegistry webSocketServicesRegistry = getWebSocketServicesRegistry(serviceEndpoint);
 
@@ -45,8 +63,7 @@ public class NonListeningRegister extends org.ballerinalang.net.http.serviceendp
             if (HttpConstants.HTTP_CALLER_NAME.equals(callerType)) {
                 httpServicesRegistry.registerService(service);
             } else if (WebSocketConstants.FULL_WEBSOCKET_CALLER_NAME.equals(callerType)) {
-                webSocketServicesRegistry.registerService(
-                        new WebSocketServerService(service, Scheduler.getStrand().scheduler));
+                webSocketServicesRegistry.registerService(new WebSocketServerService(service, strand.scheduler));
             }
         } else {
             httpServicesRegistry.registerService(service);
