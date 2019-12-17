@@ -14,19 +14,37 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/log;
 import ballerina/websub;
 
-function startSubscriberService() returns string {
-    websub:Listener l1 = new(8387);
-    websub:Listener l2 = new(8387);
+websub:Listener l1 = new(8387);
+websub:Listener l2 = new(8387);
 
+function startSubscriberService() returns string {
     var l1Error = l1.__start();
     if (l1Error is error) {
+        log:printError("listener_1 has not started");
         return l1Error.detail()?.message ?: "l1 error unavailable";
+    } else {
+        log:printInfo("listener_1 has started");
     }
+
     var l2Error = l2.__start();
     if (l2Error is error) {
+        log:printError("listener_2 has not started");
         return <string>l2Error.detail()?.message;
+    } else {
+        log:printInfo("listener_2 has started");
     }
     return "no error";
+}
+
+function stopSubscriberService() returns string {
+    var l1Error = l1.__gracefulStop();
+    if (l1Error is error) {
+        log:printError("listener_1 has not stopped");
+        return <string>l1Error.detail()?.message;
+    }
+    log:printError("listener_1 has stopped");
+    return "Successfully stopped";
 }
