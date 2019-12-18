@@ -686,23 +686,20 @@ type TerminatorGenerator object {
                     v.annotTagRef.value == "strand" && 
                     v.moduleId.org == "ballerina" && 
                     v.moduleId.name == "lang.annotations") {
+                        if (v.annotValues.length() > 0) {
+                            bir:AnnotationValue val = <bir:AnnotationValue> v.annotValues[0];
+                            if (val is bir:AnnotationRecordValue) {
+                                if (val.annotValueMap.hasKey("thread") && 
+                                    val.annotValueMap.get("thread")["literalValue"] == "any") {
+                                        concurrent = true;
+                                }
 
-                    if (v.annotValues.length() == 0) {
-                        break;
-                    }
-                    
-                    bir:AnnotationValue val = <bir:AnnotationValue> v.annotValues[0];
-                    if (val is bir:AnnotationRecordValue) {
-                        if (val.annotValueMap.hasKey("thread") && 
-                            val.annotValueMap.get("thread")["literalValue"] == "any") {
-                                concurrent = true;
+                                if (val.annotValueMap.hasKey("name") &&
+                                    val.annotValueMap.get("name")["literalValue"] != "DEFAULT") {
+                                        panic error("Unsupported policy. Only 'DEFAULT' policy is supported by jballerina runtime.");
+                                }
+                            }
                         }
-
-                        if (val.annotValueMap.hasKey("name") &&
-                            val.annotValueMap.get("name")["literalValue"] != "DEFAULT") {
-                                panic error("Unsupported policy. Only 'DEFAULT' policy is supported by jballerina runtime.");
-                        }
-                    }
                     break;
                 } 
             }
