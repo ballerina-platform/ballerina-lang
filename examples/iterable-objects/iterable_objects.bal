@@ -49,7 +49,7 @@ type FibGenerator object {
     private int n;
 
     public function __init(int n) {
-            self.n = n;
+        self.n = n;
     }
 
     // __iterator built-in function always returns a new iterator<int>
