@@ -17,27 +17,27 @@
 import ballerina/runtime;
 
 function waitTest1() returns int {
-    future<int> f1 = @concurrent{} start add(5, 2);
+    future<int> f1 = start add(5, 2);
     int result = wait f1;
     return result;
 }
 
 function waitTest2() returns boolean {
-    future<boolean> f6 = @concurrent{} start status();
+    future<boolean> f6 = start status();
     boolean result = wait f6;
     return result;
 }
 
 function waitTest3() returns any {
-    future<string> f4 = @concurrent{} start concat("foo");
+    future<string> f4 = start concat("foo");
     any result = wait f4;
     return result;
 }
 
 function waitTest4() returns any[] {
-    future<int> f2 = @concurrent{} start add(10, 12);
-    future<string> f5 = @concurrent{} start concat("bar");
-    future<int|string> f7 =  @concurrent{} start concat("xyz");
+    future<int> f2 = start add(10, 12);
+    future<string> f5 = start concat("bar");
+    future<int|string> f7 =  start concat("xyz");
 
     int|string result1 = wait f2;
     int|string result2 = wait f5;
@@ -51,13 +51,13 @@ function waitTest4() returns any[] {
 }
 
 function waitTest5() returns map<string> {
-    future<map<string>> f9 = @concurrent{} start getEmpMap();
+    future<map<string>> f9 = start getEmpMap();
     map<string> m = wait f9;
     return m;
 }
 
 function waitTest6() returns int|float {
-    future<int|float> f8 = @concurrent{} start add(66, 33);
+    future<int|float> f8 = start add(66, 33);
     int|float result = wait f8;
     return result;
 }
@@ -68,7 +68,7 @@ function waitTest7() returns int {
 }
 
 function waitTest8() returns int {
-    future<int> f1 = @concurrent{} start add_panic(5, 2);
+    future<int> f1 = start add_panic(5, 2);
     int result = wait f1;
     return result;
 }
@@ -103,7 +103,7 @@ function status() returns boolean {
 }
 
 function fuInt() returns future<int> {
-    future <int> i = @concurrent{} start add(11, 55);
+    future <int> i = start add(11, 55);
     return i;
 }
 
