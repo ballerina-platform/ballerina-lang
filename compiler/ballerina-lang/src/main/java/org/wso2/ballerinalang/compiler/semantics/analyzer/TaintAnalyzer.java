@@ -25,7 +25,6 @@ import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
-import org.wso2.ballerinalang.compiler.semantics.model.BLangBuiltInMethod;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
@@ -1092,16 +1091,6 @@ public class TaintAnalyzer extends BLangNodeVisitor {
                     analyzerPhase = AnalyzerPhase.LOOP_ANALYSIS_COMPLETE;
                     ignoredInvokableSymbol.add(invokableSymbol);
                     blocked = false;
-                } else if (analyzerPhase == AnalyzerPhase.LOOP_ANALYSIS_COMPLETE
-                        && invocationExpr.builtinMethodInvocation
-                        && invocationExpr.builtInMethod == BLangBuiltInMethod.CALL) {
-                    // When "call" is use to invoke function pointers, taint-table of the actual function to be invoked
-                    // is not known. Therefore, if the analyzer is blocked on such function pointer invocation, skip
-                    // taint analysis and consider the outcome of the invocation as untainted.
-                    // TODO: Resolving function pointers and perform analysis.
-                    getCurrentAnalysisState().taintedStatus = TaintedStatus.IGNORED;
-                    ignoredInvokableSymbol.add(invokableSymbol);
-                    blocked = false;
                 }
                 if (blocked) {
                     // If taint-table of invoked function is not generated yet, add it to the blocked list for latter
@@ -1159,35 +1148,6 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         }
 
         return taintTable;
-    }
-
-    private void analyzeBuiltInMethodInvocation(BLangInvocation invocationExpr) {
-        BLangBuiltInMethod builtInMethod = invocationExpr.builtInMethod;
-        switch (builtInMethod) {
-            case IS_NAN:
-            case IS_INFINITE:
-            case IS_FINITE:
-            case LENGTH:
-            case IS_FROZEN:
-                getCurrentAnalysisState().taintedStatus = TaintedStatus.UNTAINTED;
-                break;
-            case FREEZE:
-            case CLONE:
-                invocationExpr.expr.accept(this);
-                break;
-            case STAMP:
-            case CONVERT:
-            case CALL:
-                invocationExpr.argExprs.forEach(expression -> expression.accept(this));
-                break;
-            case REASON:
-            case DETAIL:
-            case STACKTRACE:
-                invocationExpr.expr.accept(this);
-                break;
-            default:
-                throw new AssertionError("Taint checking failed for built-in method: " + builtInMethod);
-        }
     }
 
     @Override
@@ -2479,7 +2439,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         }
         // When an invocation like stringValue.trim() happens, if stringValue is tainted, the result should also be
         // tainted.
-        if (!invocationExpr.builtinMethodInvocation && invocationExpr.expr != null) {
+        if (invocationExpr.expr != null) {
             //TODO: TaintedIf annotation, so that it's possible to define what can taint or untaint the return.
             invocationExpr.expr.accept(this);
             if (getCurrentAnalysisState().taintedStatus == TaintedStatus.IGNORED) {
@@ -2581,10 +2541,6 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     }
 
     private boolean isTaintAnalyzableAttachedFunction(BLangInvocation invocationExpr) {
-        if (invocationExpr.builtinMethodInvocation) {
-            return false;
-        }
-
         boolean isAttachedFunction = (invocationExpr.symbol.flags & Flags.ATTACHED) == Flags.ATTACHED;
         boolean hasExpr = invocationExpr.expr != null;
         boolean isTypeInit = invocationExpr.parent != null

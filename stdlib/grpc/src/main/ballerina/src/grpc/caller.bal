@@ -37,7 +37,7 @@ public type Caller client object {
     # + res - - The outbound response message.
     # + headers - - Optional headers parameter. Passes header value if needed. Default sets to nil.
     # + return - - Returns an error if encounters an error while sending the response, returns nil otherwise.
-    public remote function send(any res, Headers? headers = ()) returns Error? {
+    public remote function send(anydata res, Headers? headers = ()) returns Error? {
         return externSend(self, res, headers);
     }
 
@@ -66,7 +66,7 @@ public type Caller client object {
     }
 };
 
-function externSend(Caller endpointClient, any res, Headers? headers) returns Error? =
+function externSend(Caller endpointClient, anydata res, Headers? headers) returns Error? =
 @java:Method {
     class: "org.ballerinalang.net.grpc.nativeimpl.caller.FunctionUtils"
 } external;

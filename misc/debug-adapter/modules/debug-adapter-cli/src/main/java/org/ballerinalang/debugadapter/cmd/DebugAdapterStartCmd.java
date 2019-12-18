@@ -39,9 +39,6 @@ public class DebugAdapterStartCmd implements BLauncherCmd {
     @CommandLine.Parameters
     private List<String> argList;
 
-    @CommandLine.Option(names = "--debug", description = "start language server in remote debugging mode")
-    private String debugPort;
-
     @CommandLine.Option(names = {"-h", "--help"}, hidden = true)
     private boolean helpFlag;
 

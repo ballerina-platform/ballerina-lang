@@ -59,7 +59,6 @@ dependencies {
     baloImplementation project(path: ":ballerina-system", configuration: 'baloImplementation')
     baloImplementation project(path: ":ballerina-task", configuration: 'baloImplementation')
     baloImplementation project(path: ":ballerina-time", configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-utils', configuration: 'baloImplementation')
 
     interopImports project(':ballerina-config-api')
     interopImports project(':ballerina-http')
@@ -77,7 +76,6 @@ dependencies {
     implementation project(':ballerina-lang')
     implementation project(':ballerina-runtime')
     implementation project(':ballerina-runtime-api')
-    implementation project(':ballerina-utils')
 
     interopImports project(':ballerina-crypto')
 }

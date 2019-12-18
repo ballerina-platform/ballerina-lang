@@ -47,10 +47,10 @@ import org.ballerinalang.jvm.values.HandleValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.RefValue;
 import org.ballerinalang.jvm.values.StreamValue;
-import org.ballerinalang.jvm.values.StringValue;
 import org.ballerinalang.jvm.values.TableValue;
 import org.ballerinalang.jvm.values.TypedescValue;
 import org.ballerinalang.jvm.values.XMLValue;
+import org.ballerinalang.jvm.values.api.BValue;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -299,17 +299,13 @@ public class TypeChecker {
             } else if (value instanceof Integer || value instanceof Byte) {
                 return BTypes.typeByte;
             }
-        } else if (value instanceof DecimalValue) {
-            return BTypes.typeDecimal;
         } else if (value instanceof String) {
-            return BTypes.typeString;
-        } else if (value instanceof StringValue) {
             return BTypes.typeString;
         } else if (value instanceof Boolean) {
             return BTypes.typeBoolean;
         }
 
-        return ((RefValue) value).getType();
+        return ((BValue) value).getType();
     }
 
     /**

@@ -1,32 +1,33 @@
 import ballerina/io;
 import ballerinax/java.jdbc;
 
-// Creates an endpoint for the H2 database. Changes the DB details before running the example.
+// JDBC Client for H2 database.
 jdbc:Client testDB = new ({
     url: "jdbc:h2:file:./local-transactions/testdb",
     username: "test",
-    password: "test",
-    poolOptions: { maximumPoolSize: 5 }
+    password: "test"
 });
 
 public function main() {
-    // Creates the tables that are required for the transaction.
+    // Create the tables that are required for the transaction.
     var ret = testDB->update("CREATE TABLE CUSTOMER (ID INTEGER, NAME " +
                               "VARCHAR(30))");
     handleUpdate(ret, "Create CUSTOMER table");
 
+    // Populate table with data.
     ret = testDB->update("CREATE TABLE SALARY (ID INTEGER, MON_SALARY FLOAT)");
     handleUpdate(ret, "Create SALARY table");
 
-    // The below is a `transaction` block. Any transacted action within the `transaction` block
-    // may return errors such as backend DB errors, connection pool errors etc. The user can
-    // decide whether to `abort` or `retry` based on the returned error. If you do not
-    // explicitly `abort` or `retry` a returned error, the transaction will be automatically
+    // This is a `transaction` block. If you do not explicitly `abort` or
+    // `retry` a returned error, the transaction will be automatically
     // retried until the retry count is reached and aborted.
-    // The retry count that is given via `retries` is the number of times the transaction
-    // is retried before it being aborted. By default, a transaction is tried three times before
-    // aborting it. Only integer literals or constants are allowed as the `retry count`.
+    // The retry count that is given via `retries` is the number of times the
+    // transaction is retried before it being aborted and the default value is 3.
     transaction with retries = 4 {
+        // Any transacted action within the `transaction` block may return
+        // errors such as backend DB errors, connection pool errors etc.
+        // The user can decide whether to `abort` or `retry` based on the
+        // returned error.
         // This is the first remote function participant of the transaction.
         ret = testDB->update("INSERT INTO CUSTOMER(ID,NAME) " +
                                      "VALUES (1, 'Anne')");
@@ -54,32 +55,28 @@ public function main() {
         // exception or throw statement or from an explicit retry statement.
         io:println("Retrying transaction");
     } committed {
-        // Any action that needs to be performed once the transaction is committed should be added as shown below.
+        // Any action that needs to be performed after the transaction is
+        // committed should be added here.
         io:println("Transaction committed");
     } aborted {
-        // Any action that needs to perform if the transaction is aborted should be added as shown below.
+        // If the transaction is aborted, any action that needs to perform after
+        // the abortion should be added here.
         io:println("Transaction aborted");
     }
 
-    //Drops the tables.
+    // Drop the tables.
     ret = testDB->update("DROP TABLE CUSTOMER");
     handleUpdate(ret, "Drop table CUSTOMER");
 
     ret = testDB->update("DROP TABLE SALARY");
     handleUpdate(ret, "Drop table SALARY");
-
-    // Closes the connection pool.
-    var stopRet = testDB.stop();
-    if (stopRet is error) {
-        io:println(stopRet.detail()["message"]);
-    }
 }
 
-// This function handles the return of the update operation.
+// Function to handle the return value of the `update` remote function.
 function handleUpdate(jdbc:UpdateResult|error returned, string message) {
     if (returned is jdbc:UpdateResult) {
         io:println(message + " status: ", returned.updatedRowCount);
     } else {
-        io:println(message + " failed: ", returned.reason());
+        io:println(message + " failed: ", <string>returned.detail()?.message);
     }
 }

@@ -43,7 +43,6 @@ dependencies {
     implementation 'org.wso2.transport.http:org.wso2.transport.http.netty'
 
     baloImplementation project(path: ':ballerina-lang:annotations', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-utils', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-config-api', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-crypto', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-jdbc', configuration: 'baloImplementation')

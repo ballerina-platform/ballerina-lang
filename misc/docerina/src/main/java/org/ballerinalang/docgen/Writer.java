@@ -21,12 +21,12 @@ package org.ballerinalang.docgen;
 import com.github.jknack.handlebars.Context;
 import com.github.jknack.handlebars.Handlebars;
 import com.github.jknack.handlebars.Helper;
-import com.github.jknack.handlebars.Options;
 import com.github.jknack.handlebars.Template;
 import com.github.jknack.handlebars.context.FieldValueResolver;
 import com.github.jknack.handlebars.helper.StringHelpers;
 import com.github.jknack.handlebars.io.ClassPathTemplateLoader;
 import com.github.jknack.handlebars.io.FileTemplateLoader;
+import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.docgen.docs.BallerinaDocConstants;
 import org.ballerinalang.docgen.generator.model.DefaultableVarible;
 import org.ballerinalang.docgen.generator.model.PageContext;
@@ -66,24 +66,24 @@ public class Writer {
             handlebars.registerHelpers(StringHelpers.class);
             handlebars.registerHelper("paramSummary", (Helper<List<DefaultableVarible>>)
                     (varList, options) -> varList.stream()
-                            .map(variable -> getTypeLabel(variable.type, options) + " " + variable.name)
+                            .map(variable -> getTypeLabel(variable.type, options.context) + " " + variable.name)
                             .collect(Collectors.joining(", "))
             );
             handlebars.registerHelper("returnParamSummary", (Helper<List<Variable>>)
                     (varList, options) -> varList.stream()
-                            .map(variable -> getTypeLabel(variable.type, options) + " " + variable.name)
+                            .map(variable -> getTypeLabel(variable.type, options.context) + " " + variable.name)
                             .collect(Collectors.joining(", "))
             );
             handlebars.registerHelper("unionTypeSummary", (Helper<List<Type>>)
                     (typeList, options) -> typeList.stream()
-                            .map(type -> getTypeLabel(type, options))
+                            .map(type -> getTypeLabel(type, options.context))
                             .collect(Collectors.joining(" | "))
             );
             handlebars.registerHelper("pipeJoin", (Helper<List<String>>)
-                    (typeList, options) -> typeList.stream()
-                            .collect(Collectors.joining(" | "))
+                    (typeList, options) -> String.join(" | ", typeList)
             );
-            handlebars.registerHelper("typeName", Writer::getTypeLabel);
+            handlebars.registerHelper("typeName", (Helper<Type>)
+                    (type, options) -> getTypeLabel(type, options.context));
 
             handlebars.registerHelper("equals", (arg1, options) -> {
                 CharSequence result;
@@ -117,40 +117,43 @@ public class Writer {
         }
     }
 
-    private static String getTypeLabel(Type type, Options options) {
-        String root = getRootPath(options);
+    public static String getTypeLabel(Type type, Context context) {
+        String root = getRootPath(context);
         String label;
         if (type.isAnonymousUnionType) {
             label = type.memberTypes.stream()
-                    .map(type1 -> getTypeLabel(type1, options))
+                    .map(type1 -> getTypeLabel(type1, context))
                     .collect(Collectors.joining(" | "));
         } else if (type.isTuple) {
             label = "<span>[</span>" + type.memberTypes.stream()
-                    .map(type1 -> getTypeLabel(type1, options))
+                    .map(type1 -> getTypeLabel(type1, context))
                     .collect(Collectors.joining(", "))
                     + "<span>]</span>";
         } else if (type.isLambda) {
             label = "<code> <span>function(</span>" + type.paramTypes.stream()
-                    .map(type1 -> getTypeLabel(type1, options))
+                    .map(type1 -> getTypeLabel(type1, context))
                     .collect(Collectors.joining(", "))
                     + "<span>) </span>";
             if (type.returnType != null) {
-                label += "<span>returns (</span>" + getTypeLabel(type.returnType, options) + "<span>)</span>";
+                label += "<span>returns (</span>" + getTypeLabel(type.returnType, context) + "<span>)</span>";
             } else {
                 label += "<span>() </span>";
             }
             label += " </code>";
+        } else if (type.isArrayType) {
+            label = "<span class=\"array-type\">" + getTypeLabel(type.elementType, context) + getSuffixes(type)
+                    + "</span>";
         } else if ("builtin".equals(type.category) || "lang.annotations".equals(type.moduleName)
                 || !type.generateUserDefinedTypeLink) {
-            label = "<span class=\"builtin-type\">" + type.name + "</span>";
+            label = "<span class=\"builtin-type\">" + type.name + getSuffixes(type) + "</span>";
         } else {
             label = getHtmlLink(type, root);
         }
         return label;
     }
 
-    private static String getRootPath(Options options) {
-        return getNearestPageContext(options.context).rootPath;
+    private static String getRootPath(Context context) {
+        return getNearestPageContext(context).rootPath;
     }
 
     private static PageContext getNearestPageContext(Context context) {
@@ -168,9 +171,12 @@ public class Writer {
                 || "errors".equals(type.category)) {
             link = root + type.moduleName + "/" + type.category + ".html#" + type.name;
         }
-        String suffix = type.isArrayType ? "[]" : "";
-        suffix += type.isNullable ? "?" : "";
+        return "<a href=\"" + link + "\">" + type.name + "</a>" + getSuffixes(type);
+    }
 
-        return "<a href=\"" + link + "\">" + type.name + "</a>" + suffix;
+    private static String getSuffixes(Type type) {
+        String suffix = type.isArrayType ? StringUtils.repeat("[]", type.arrayDimensions) : "";
+        suffix += type.isNullable ? "?" : "";
+        return suffix;
     }
 }

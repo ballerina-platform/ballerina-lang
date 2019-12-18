@@ -317,17 +317,6 @@
       }
     },
     {
-      "label": "Dispatcher",
-      "kind": "Struct",
-      "detail": "Record",
-      "documentation": {
-        "left": "Defines a disptcher to be used for concurrent execution of strands.\n"
-      },
-      "sortText": "180",
-      "insertText": "Dispatcher",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "error",
       "kind": "Event",
       "detail": "Error",
@@ -352,6 +341,17 @@
       "detail": "Json",
       "sortText": "230",
       "insertText": "json",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "StrandData",
+      "kind": "Struct",
+      "detail": "Record",
+      "documentation": {
+        "left": "Describes Strand execution details for the runtime.\n"
+      },
+      "sortText": "180",
+      "insertText": "StrandData",
       "insertTextFormat": "Snippet"
     },
     {
@@ -416,6 +416,14 @@
       "detail": "Int",
       "sortText": "230",
       "insertText": "int",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Thread",
+      "kind": "TypeParameter",
+      "detail": "Finite",
+      "sortText": "170",
+      "insertText": "Thread",
       "insertTextFormat": "Snippet"
     },
     {
@@ -1046,29 +1054,6 @@
             }
           },
           "newText": "import ballerina/encoding;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/utils",
-      "kind": "Module",
-      "detail": "Package",
-      "sortText": "140",
-      "insertText": "utils",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 1,
-              "character": 0
-            },
-            "end": {
-              "line": 1,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/utils;\n"
         }
       ]
     },
