@@ -57,21 +57,21 @@ DEFAULT BEHAVIOR
 
 EXAMPLES
        Print usage details for the OpenAPI command.
-          → ballerina openapi
-          → ballerina openapi -h
+          $ ballerina openapi
+          $ ballerina openapi -h
 
        Print usage details of the OpenAPI sub commands.
-          → ballerina openapi gen-service -h
-          → ballerina openapi gen-client -h
-          → ballerina openapi gen-contract -h
+          $ ballerina openapi gen-service -h
+          $ ballerina openapi gen-client -h
+          $ ballerina openapi gen-contract -h
 
        Generate a Ballerina mock service with module name hellomock
        and service name hello using hello.yaml OpenAPI contract.
-          → ballerina openapi gen-service hellomock:hello hello.yaml
+          $ ballerina openapi gen-service hellomock:hello hello.yaml
 
        Generate a Ballerina client with client name helloclient
        and write the output to the client_project folder.
-          → ballerina openapi gen-client helloclient hello.yaml -o client_project
+          $ ballerina openapi gen-client helloclient hello.yaml -o client_project
 
        Export an OpenAPI definition for hello_service.bal for the hello service.
-          → ballerina openapi gen-contract hello -i hello_service.bal
+          $ ballerina openapi gen-contract hello -i hello_service.bal
