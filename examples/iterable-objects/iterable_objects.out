@@ -1,0 +1,13 @@
+# To run this sample, navigate to the directory that contains the
+# `.bal` file, and execute the `ballerina run` command.
+$ ballerina run iterable_objects.bal
+1th fib number: 0
+2th fib number: 1
+3th fib number: 1
+4th fib number: 2
+5th fib number: 3
+6th fib number: 5
+7th fib number: 8
+8th fib number: 13
+9th fib number: 21
+10th fib number: 34
