@@ -1,6 +1,6 @@
 import ballerina/http;
-import ballerina/jwt;
 import ballerina/log;
+import ballerina/oauth2;
 
 // Creates an inbound OAuth2 authentication provider with the relevant
 // configurations of the introspection server.
@@ -22,7 +22,7 @@ listener http:Listener ep = new(9090, {
     // The secure hello world sample uses HTTPS.
     secureSocket: {
         keyStore: {
-            path: config:getAsString("keystore"),
+            path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
             password: "ballerina"
         }
     }
@@ -32,7 +32,7 @@ service hello on ep {
     resource function sayHello(http:Caller caller, http:Request req) {
         error? result = caller->respond("Hello, World!!!");
         if (result is error) {
-            log:printError("Error in responding to caller", err = result);
+            log:printError("Error in responding to caller", result);
         }
     }
 }
