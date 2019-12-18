@@ -65,5 +65,5 @@ public function main() {
     foreach var item in fibGen {
 	    i += 1;
 	    io:println(i, "th fib number: ", item);
-	}
+    }
 }
