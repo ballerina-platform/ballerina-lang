@@ -81,17 +81,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "Dispatcher",
-      "kind": "Struct",
-      "detail": "Record",
-      "documentation": {
-        "left": "Defines a disptcher to be used for concurrent execution of strands.\n"
-      },
-      "sortText": "180",
-      "insertText": "Dispatcher",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "error",
       "kind": "Event",
       "detail": "Error",
