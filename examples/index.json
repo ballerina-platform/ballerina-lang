@@ -1026,6 +1026,10 @@
                 "url": "secured-service-with-basic-auth"
             },
             {
+                "name": "Secured Service with OAuth2",
+                "url": "secured-service-with-oauth2"
+            },
+            {
                 "name": "Secured Client with Basic Auth",
                 "url": "secured-client-with-basic-auth"
             },
