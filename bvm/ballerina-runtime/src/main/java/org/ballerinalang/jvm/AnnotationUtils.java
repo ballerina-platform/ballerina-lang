@@ -35,11 +35,6 @@ import org.ballerinalang.jvm.values.MapValue;
  */
 public class AnnotationUtils {
 
-    private static final String LANG_ANNOT_PKG = "ballerina/lang.annotations";
-    private static final String STRAND_ANNOT_NAME = "strand";
-    private static final String THREAD_ANNOT_FIELD = "thread";
-    private static final String ANY_THREAD_VALUE = "any";
-
     /**
      * Method to retrieve annotations of the type from the global annotation map and set it to the type.
      *
@@ -106,9 +101,10 @@ public class AnnotationUtils {
      * @return true if should run concurrently
      */
     public static boolean isConcurrent(FPValue fpValue) {
-        Object value = ((BFunctionType) fpValue.getType()).getAnnotation(LANG_ANNOT_PKG, STRAND_ANNOT_NAME);
+        Object value = ((BFunctionType) fpValue.getType()).getAnnotation("ballerina/lang" +
+                ".annotations", "strand");
         if (value != null) {
-            return ((MapValue) value).get(THREAD_ANNOT_FIELD) == ANY_THREAD_VALUE;
+            return ((MapValue) value).get("thread") == "any";
         }
         return false;
     }
