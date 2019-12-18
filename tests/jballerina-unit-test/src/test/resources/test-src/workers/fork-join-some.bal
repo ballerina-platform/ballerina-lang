@@ -1,10 +1,10 @@
 function testForkAndWaitForAny() returns string {
         fork {
-            @strand{thread:"any"}
+            @concurrent{}
             worker ABC_Airline returns string {
                 return "abc";
             }
-            @strand{thread:"any"}
+            @concurrent{}
             worker XYZ_Airline returns string {
                 return "xyz";
             }

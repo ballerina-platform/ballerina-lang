@@ -23,12 +23,12 @@ function testStackOverflowInFunction() {
 }
 
 function stackOverflowInWorker() {
-    @strand{thread:"any"}
+    @concurrent{}
     worker w1 returns int {
         return getInt();
     }
 
-    @strand{thread:"any"}
+    @concurrent{}
     worker w2 returns int {
         return 10;
     }

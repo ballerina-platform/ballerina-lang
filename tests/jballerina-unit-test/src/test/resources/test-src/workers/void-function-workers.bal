@@ -9,12 +9,12 @@ function testVoidFunction() returns int {
 }
 
 function testVoid() {
-    @strand{thread:"any"}
+    @concurrent{}
     worker w1 {
         runtime:sleep(3000);
         testNew();
     }
-    @strand{thread:"any"}
+    @concurrent{}
     worker w2 {
          int x = i + 10;
          i = 10;
@@ -22,11 +22,11 @@ function testVoid() {
 }
 
 function testNew(){
-    @strand{thread:"any"}
+    @concurrent{}
     worker w1 {
         runtime:sleep(2000);
     }
-    @strand{thread:"any"}
+    @concurrent{}
     worker w2 {
         i = 5;
     }

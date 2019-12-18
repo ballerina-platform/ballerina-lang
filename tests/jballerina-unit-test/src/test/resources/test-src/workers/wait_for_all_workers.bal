@@ -12,12 +12,12 @@ public function testWaitForAllWorkers() {
 }
 
 function test() {
-    @strand{thread:"any"}
+    @concurrent{}
     worker w1 {
         return;
     }
 
-    @strand{thread:"any"}
+    @concurrent{}
     worker w2 {
         runtime:sleep(2000);
         io:println("Finishing Worker w2");
