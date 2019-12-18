@@ -34,4 +34,4 @@ OPTIONS
 
 EXAMPLES
        Push the 'math' module to Ballerina Central after building it.
-          → ballerina push math
+          $ ballerina push math

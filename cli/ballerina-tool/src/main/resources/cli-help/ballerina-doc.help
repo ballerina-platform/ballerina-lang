@@ -45,10 +45,10 @@ OPTIONS
 
 EXAMPLES
        Generate API documentation for all modules in the current project.
-          → ballerina doc -a
+          $ ballerina doc -a
 
        Generate API documentation for a single module.
-          → ballerina doc hello
+          $ ballerina doc hello
 
        Generate API documentation for a Ballerina source file.
-          → ballerina doc -o ./apidocs helloworld.bal
+          $ ballerina doc -o ./apidocs helloworld.bal
