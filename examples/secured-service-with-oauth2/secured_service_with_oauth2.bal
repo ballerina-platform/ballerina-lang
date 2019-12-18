@@ -3,7 +3,7 @@ import ballerina/jwt;
 import ballerina/log;
 
 // Creates an inbound OAuth2 authentication provider with the relevant
-// configurations of introspection server.
+// configurations of the introspection server.
 oauth2:InboundOAuth2Provider oauth2Provider = new({
     url: "https://localhost:9095/oauth2/token/introspect"
 });
@@ -11,7 +11,7 @@ oauth2:InboundOAuth2Provider oauth2Provider = new({
 // Creates a Bearer Auth handler with the created OAuth2 provider.
 http:BearerAuthHandler oauth2Handler = new(oauth2Provider);
 
-// The endpoint used here is the `http:Listener`. The oauth2 handler is
+// The endpoint used here is the `http:Listener`. The OAuth2 handler 
 // is set to this endpoint using the `authHandlers` attribute.
 // It is optional to override the authentication and authorization at the
 // service and resource levels.
