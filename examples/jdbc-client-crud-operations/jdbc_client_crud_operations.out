@@ -20,8 +20,8 @@ Inserted row count: 1
 Generated key: 4
 
 The select operation - Select data from a table
-JSON: [{"id":1, "age":23, "name":"Jones"}, {"id":3, "age":25, "name":"James"}, {"id":4, "age":31, "name":"Kate"}]
-JSON: [{"id":1, "age":23, "name":"Jones"}, {"id":3, "age":25, "name":"James"}, {"id":4, "age":31, "name":"Kate"}]
+JSON: [{"id":1, "age":23, "name":"jane", "insertedTime":"2019-12-10 17:07:35.0"}, {"id":3, "age":25, "name":"James",
+"insertedTime":"2019-12-10 17:07:36.0"}, {"id":4, "age":31, "name":"Kate", "insertedTime":"2019-12-10 17:07:35.0"}]
 
 The update operation - Drop the student table
 Drop table student status: 0

@@ -17,7 +17,7 @@
 string simpleLockCounter = "not-started";
 
 function simpleLock() returns string {
-    @concurrent{}
+    @strand{thread:"any"}
     worker w1 {
         lock {
             simpleLockCounter = "w1 in critical";

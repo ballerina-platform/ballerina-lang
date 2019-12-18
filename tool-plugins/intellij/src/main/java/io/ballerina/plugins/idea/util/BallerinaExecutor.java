@@ -36,16 +36,12 @@ import com.intellij.notification.Notifications;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.module.Module;
-import com.intellij.openapi.progress.ProgressIndicator;
-import com.intellij.openapi.progress.ProgressManager;
-import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Disposer;
 import com.intellij.openapi.util.Ref;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.openapi.vfs.CharsetToolkit;
 import com.intellij.openapi.vfs.VfsUtilCore;
-import com.intellij.util.Consumer;
 import com.intellij.util.EnvironmentUtil;
 import com.intellij.util.ObjectUtils;
 import com.intellij.util.containers.ContainerUtil;
@@ -271,46 +267,6 @@ public class BallerinaExecutor {
                     commandLineInfo, e);
             return false;
         }
-    }
-
-    public void executeWithProgress(boolean modal) {
-        //noinspection unchecked
-        executeWithProgress(modal, Consumer.EMPTY_CONSUMER);
-    }
-
-    public void executeWithProgress(boolean modal, @NotNull Consumer<Boolean> consumer) {
-        ProgressManager.getInstance().run(new Task.Backgroundable(myProject, getPresentableName(), true) {
-
-            private boolean doNotStart;
-
-            @Override
-            public void onCancel() {
-                doNotStart = true;
-                ProcessHandler handler = getProcessHandler();
-                if (handler != null) {
-                    handler.destroyProcess();
-                }
-            }
-
-            @Override
-            public boolean shouldStartInBackground() {
-                return !modal;
-            }
-
-            @Override
-            public boolean isConditionalModal() {
-                return modal;
-            }
-
-            @Override
-            public void run(@NotNull ProgressIndicator indicator) {
-                if (doNotStart || myProject == null || myProject.isDisposed()) {
-                    return;
-                }
-                indicator.setIndeterminate(true);
-                consumer.consume(execute());
-            }
-        });
     }
 
     @Nullable

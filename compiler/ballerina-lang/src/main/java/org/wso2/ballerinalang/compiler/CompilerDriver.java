@@ -59,7 +59,6 @@ import static org.ballerinalang.model.elements.PackageID.TABLE;
 import static org.ballerinalang.model.elements.PackageID.TYPEDESC;
 import static org.ballerinalang.model.elements.PackageID.VALUE;
 import static org.ballerinalang.model.elements.PackageID.XML;
-import static org.wso2.ballerinalang.compiler.semantics.model.SymbolTable.UTILS;
 import static org.wso2.ballerinalang.util.RepoUtils.LOAD_BUILTIN_FROM_SOURCE;
 
 /**
@@ -127,11 +126,6 @@ public class CompilerDriver {
     public BLangPackage compilePackage(BLangPackage packageNode) {
         compilePackageSymbol(packageNode.symbol);
         return packageNode;
-    }
-
-    void loadUtilsPackage() {
-        // Load utils package.
-        symbolTable.utilsPackageSymbol = pkgLoader.loadPackageSymbol(UTILS, null, null);
     }
 
     void loadLangModules(List<PackageID> pkgIdList) {

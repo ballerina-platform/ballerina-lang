@@ -164,8 +164,8 @@ if [ -n "${BAL_JAVA_DEBUG+set}" ]; then
 	if [ -n "$JAVA_OPTS" ]; then
 	  echo "Warning !!!. User specified JAVA_OPTS may interfere with BAL_JAVA_DEBUG"
 	fi
-	JAVA_OPTS="$JAVA_OPTS -Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=$BAL_JAVA_DEBUG"
-	echo "Please start the remote debugging client to continue..."
+	# 'quiet=y' avoids breaking LSP protocol in debug mode
+	JAVA_OPTS="$JAVA_OPTS -Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=$BAL_JAVA_DEBUG,quiet=y"
     fi
 fi
 
@@ -275,6 +275,7 @@ elif [[ $1 == "run" ]] && [[ $2 == *.jar ]]; then # if 1st arg is "run" and 2nd 
         -Djava.security.egd=file:/dev/./urandom \
         -Dfile.encoding=UTF8 \
         -Dballerina.target=jvm \
+        -Djava.command=$JAVACMD \
         -jar "${@:2}" # ignores "run"
 else
     $JAVACMD \
@@ -292,5 +293,6 @@ else
         -Djava.security.egd=file:/dev/./urandom \
         -Dfile.encoding=UTF8 \
         -Dballerina.target=jvm \
+        -Djava.command=$JAVACMD \
         org.ballerinalang.tool.Main "$@"
 fi

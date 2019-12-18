@@ -15,30 +15,25 @@ service ParticipantService on new http:Listener(8889) {
         path: "/update"
     }
     @transactions:Participant {
-        oncommit:printParticipantCommit,
-        onabort:printParticipantAbort
+        oncommit: printParticipantCommit,
+        onabort: printParticipantAbort
     }
     resource function updateStockQuote(http:Caller conn, http:Request req) {
+        // Since a transaction context has been received, this resource will
+        // register with the initiator as a participant.
         log:printInfo("Received update stockquote request");
-        http:Response res = new;
-
-        // At the beginning of the `transaction` statement, since a transaction
-        // context has been received, this service will register with the
-        // initiator as a participant.
-
-        // Print the current transaction ID
+        // Print the current transaction ID.
         log:printInfo("Joined transaction: " +
-                       transactions:getCurrentTransactionId());
-
-        var updateReq = <@untainted> req.getJsonPayload();
+        transactions:getCurrentTransactionId());
+        // Get the json payload.
+        var updateReq = <@untainted>req.getJsonPayload();
+        // Generate the response.
+        http:Response res = new;
         if (updateReq is json) {
-            string msg =
-                io:sprintf("Update stock quote request received. " +
-                            "symbol:%s, price:%s",
-                            updateReq.symbol, updateReq.price);
+            string msg = io:sprintf("Update stock quote request received. " +
+                    "symbol:%s, price:%s", updateReq.symbol, updateReq.price);
             log:printInfo(msg);
-
-            json jsonRes = { "message": "updating stock" };
+            json jsonRes = {"message": "updating stock"};
             res.statusCode = http:STATUS_OK;
             res.setJsonPayload(jsonRes);
         } else {
@@ -46,11 +41,11 @@ service ParticipantService on new http:Listener(8889) {
             res.setPayload(updateReq.reason());
             log:printError("Payload error occurred!", err = updateReq);
         }
-
+        // Send the response back to the initiator.
         var result = conn->respond(res);
         if (result is error) {
             log:printError("Could not send response back to initiator",
-                                 err = result);
+                            err = result);
         } else {
             log:printInfo("Sent response back to initiator");
         }
@@ -58,13 +53,13 @@ service ParticipantService on new http:Listener(8889) {
 }
 
 // The participant function that will get called when the distributed
-// transaction is aborted
+// transaction is aborted.
 function printParticipantAbort(string transactionId) {
     log:printInfo("Participated transaction: " + transactionId + " aborted");
 }
 
 // The participant function that will get called when the distributed
-// transaction is committed
+// transaction is committed.
 function printParticipantCommit(string transactionId) {
     log:printInfo("Participated transaction: " + transactionId + " committed");
 }

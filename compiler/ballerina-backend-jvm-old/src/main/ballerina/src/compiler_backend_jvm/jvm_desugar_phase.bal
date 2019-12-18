@@ -20,7 +20,7 @@ function addDefaultableBooleanVarsToSignature(bir:Function? func) {
     bir:Function currentFunc = getFunction(<@untainted> func);
     currentFunc.typeValue = currentFunc.typeValue.clone();
     currentFunc.typeValue.paramTypes = updateParamTypesWithDefaultableBooleanVar(currentFunc.typeValue.paramTypes,
-     currentFunc.typeValue?.restType);
+    currentFunc.typeValue?.restType);
     int index = 0;
     bir:VariableDcl?[] updatedVars = [];
     bir:VariableDcl?[] localVars = currentFunc.localVars;

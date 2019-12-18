@@ -51,7 +51,17 @@ public type StreamingProducer client object {
         if (converted is error) {
             return prepareError("Error in data conversion", err = converted);
         } else {
-            return externStreamingPublish(self, java:fromString(subject), converted);
+            handle | Error result = externStreamingPublish(self, java:fromString(subject), converted);
+            if (result is handle) {
+                var stringResult = java:toString(result);
+                if (stringResult is string) {
+                    return stringResult;
+                } else {
+                    return prepareError("Error in value returned while publishing.");
+                }
+            } else {
+                return result;
+            }
         }
     }
 
@@ -79,7 +89,7 @@ handle clusterId, string? clientId, StreamingConfig? streamingConfig) =
     class: "org.ballerinalang.nats.streaming.producer.CreateStreamingConnection"
 } external;
 
-function externStreamingPublish(StreamingProducer producer, handle subject, string | byte[] data) returns string | Error =
+function externStreamingPublish(StreamingProducer producer, handle subject, string | byte[] data) returns handle | Error =
 @java:Method {
     class: "org.ballerinalang.nats.streaming.producer.Publish"
 } external;
