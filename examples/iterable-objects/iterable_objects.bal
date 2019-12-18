@@ -1,69 +1,38 @@
 import ballerina/io;
 
 // The subtype of Iterator<int>
-type FibIterator object {
-    private int fib1;
-    private int fib2;
-    private int n;
-    private int currentFib;
-    private int cursor;
-
-    public function __init(int n) {
-        self.cursor = 0;
-        self.n = n;
-        self.fib1 = 0;
-        self.fib2 = 1;
-        self.currentFib = 0;
-    }
-
-    public function hasNext() returns boolean {
-        return self.cursor < self.n;
-    }
+type ArrayIterator object {
+    private int[] integers = [0, 1, 1, 2, 3, 5, 8, 13, 21, 34];
+    private int cursor = -1;
 
     // `next` function which generate the sequence of values of type `int`
     public function next() returns record {|
         int value;
     |}? {
-        // Fibonacci series generation logic
-        if (self.hasNext()) {
-            if (self.cursor == 0) {
-                self.currentFib = self.fib1;
-            } else if (self.cursor == 1) {
-                self.currentFib = self.fib2;
-            } else {
-                self.currentFib = self.fib1 + self.fib2;
-                self.fib1 = self.fib2;
-                self.fib2 = self.currentFib;
-            }
-            record {|int value;|} nextVal = {value : self.currentFib};
-            self.cursor += 1;
+        self.cursor += 1;
+        if (self.cursor < self.integers.length()) {
+            record {|int value;|} nextVal = {value : self.integers[self.cursor]};
             return nextVal;
         }
-
         return ();
     }
 };
 
 // The subtype of Iterable<int>
-type FibGenerator object {
-    private int n;
-
-    public function __init(int n) {
-        self.n = n;
-    }
+type IteratorGenerator object {
 
     // __iterator built-in function always returns a new iterator<int>
     public function __iterator() returns abstract object {
             public function next() returns record {|int value;|}?;} {
-        return new FibIterator(self.n);
+        return new ArrayIterator();
     }
 };
 
 public function main() {
-    FibGenerator fibGen = new(10);
+    IteratorGenerator itrGen = new;
     int i = 0;
-    foreach var item in fibGen {
+    foreach var item in itrGen {
 	    i += 1;
-	    io:println(i, "th fib number: ", item);
+	    io:println(i, "th element: ", item);
     }
 }
