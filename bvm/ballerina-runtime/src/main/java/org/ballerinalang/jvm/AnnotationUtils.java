@@ -20,7 +20,6 @@ package org.ballerinalang.jvm;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.AnnotatableType;
 import org.ballerinalang.jvm.types.AttachedFunction;
-import org.ballerinalang.jvm.types.BFunctionType;
 import org.ballerinalang.jvm.types.BObjectType;
 import org.ballerinalang.jvm.types.BServiceType;
 import org.ballerinalang.jvm.types.BType;
@@ -92,15 +91,5 @@ public class AnnotationUtils {
         if (globalAnnotMap.containsKey(name)) {
             type.setAnnotations((MapValue<String, Object>) globalAnnotMap.get(name));
         }
-    }
-
-    /**
-     * Returns true if given {@link FPValue} is annotated to be run concurrently.
-     * @param fpValue function pointer to be invoked
-     * @return true if should run concurrently
-     */
-    public static boolean isConcurrent(FPValue fpValue) {
-        return  ((BFunctionType) fpValue.getType()).getAnnotation("ballerina/lang.annotations",
-                "concurrent") != null ? true : false;
     }
 }
