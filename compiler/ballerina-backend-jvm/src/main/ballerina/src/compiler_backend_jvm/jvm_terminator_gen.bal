@@ -692,10 +692,12 @@ type TerminatorGenerator object {
                             break;
                         }
                         bir:AnnotationValue val = <bir:AnnotationValue> v.annotValues[0];
-                        if (val is bir:AnnotationRecordValue &&
-                                val.annotValueMap.hasKey("dispatcher") &&
-                                val.annotValueMap.get("dispatcher")["literalValue"] != "DEFAULT") {
-                            panic error("Unsupported dispatcher. Only 'DEFAULT' dispatcher is supported by jballerina runtime.");
+                        if (val is bir:AnnotationRecordValue) {
+                            if (val.annotValueMap.hasKey("dispatcher")) {
+                                if (val.annotValueMap.get("dispatcher")["literalValue"] != "DEFAULT") {
+                                    panic error("Unsupported dispatcher. Only 'DEFAULT' dispatcher is supported by jballerina runtime.");
+                                }
+                            }
                         }
                         break;
                     } 
