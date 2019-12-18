@@ -11,8 +11,8 @@ oauth2:InboundOAuth2Provider oauth2Provider = new({
 // Creates a Bearer Auth handler with the created OAuth2 provider.
 http:BearerAuthHandler oauth2Handler = new(oauth2Provider);
 
-// The endpoint used here is the `http:Listener`. The OAuth2 handler 
-// is set to this endpoint using the `authHandlers` attribute.
+// The endpoint used here is the `http:Listener`. The OAuth2 handler is
+// set to this endpoint using the `authHandlers` attribute.
 // It is optional to override the authentication and authorization at the
 // service and resource levels.
 listener http:Listener ep = new(9090, {
