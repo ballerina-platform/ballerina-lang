@@ -62,7 +62,7 @@ type FibGenerator object {
 public function main() {
     FibGenerator fibGen = new(10);
     int i = 0;
-	foreach var item in fibGen {
+    foreach var item in fibGen {
 	    i += 1;
 	    io:println(i, "th fib number: ", item);
 	}
