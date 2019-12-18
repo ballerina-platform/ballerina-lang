@@ -1,7 +1,7 @@
 import ballerina/io;
 
 public function main() {
-    // Calling the `divide()` with `0` as the divisor results in a panic. A panic will cause the
+    // Calling the `divide()` function with `0` as the divisor results in a panic. A panic will cause the
     // runtime to exit. If needed, `trap` can be used to capture panics and treat them as errors thereafter.
     int|error result = trap divide(1, 0);
     if (result is int) {

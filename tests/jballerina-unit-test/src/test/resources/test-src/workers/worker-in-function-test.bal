@@ -8,7 +8,7 @@ type TStruct record {
 };
 
 function testSimpleWorkerVM(string msg) returns string {
-    @concurrent{}
+    @strand{thread:"any"}
     worker first returns string {
         "a" -> sampleWorker;
         string result = "";
@@ -16,7 +16,7 @@ function testSimpleWorkerVM(string msg) returns string {
         return result;
     }
 
-    @concurrent{}
+    @strand{thread:"any"}
     worker sampleWorker {
         string m = "";
         m = <- first;

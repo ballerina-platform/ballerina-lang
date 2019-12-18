@@ -28,7 +28,6 @@ dependencies {
 
     testCompile project(':ballerina-runtime-api')
     testCompile project(':ballerina-lang:annotations')
-    testCompile project(':ballerina-utils')
     testCompile project(':ballerina-io')
     testCompile project(':ballerina-log-api')
     testCompile project(':ballerina-test-utils')
@@ -44,7 +43,6 @@ dependencies {
     baloImplementation project(path: ':ballerina-lang:annotations', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-log-api', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-runtime-api', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-utils', configuration: 'baloImplementation')
 }
 
 configurations {

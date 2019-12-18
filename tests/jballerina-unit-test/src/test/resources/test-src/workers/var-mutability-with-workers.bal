@@ -16,13 +16,13 @@
 
 public function basicWorkerTest() returns int {
     int i = 10;
-    @concurrent{}
+    @strand{thread:"any"}
     worker w1 {
       i = i + 40;
       i -> w2;
     }
 
-    @concurrent{}
+    @strand{thread:"any"}
     worker w2 returns int {
       int j = 25;
       j = <- w1;
@@ -38,14 +38,14 @@ public function basicWorkerTest() returns int {
 public function testWithTuples() returns [string, int] {
     string str = "Hello Ballerina!!!";
     int i = 10;
-    @concurrent{}
+    @strand{thread:"any"}
     worker w1 {
       str = "Changed inside worker 1!!!";
       i = i + 40;
       i -> w2;
     }
 
-    @concurrent{}
+    @strand{thread:"any"}
     worker w2 returns int {
       int j = <- w1;
       i = 100 + i;
@@ -60,21 +60,21 @@ public function testWithTuples() returns [string, int] {
 const TOKEN = "token";
 public function testWithMaps() returns map<string> {
     map<string> m1 = {a: "A", b: "B", c: "C", d: "D"};
-    @concurrent{}
+    @strand{thread:"any"}
     worker w1 {
       m1["e"] = "EE";
       m1["a"] = "AA";
       TOKEN -> w3;
     }
 
-    @concurrent{}
+    @strand{thread:"any"}
     worker w2 {
        m1["a"] = "AAA";
        m1["n"] = "N";
        TOKEN -> w3;
     }
 
-     @concurrent{}
+     @strand{thread:"any"}
      worker w3 {
         _ = <- w1;
         _ = <- w2;
@@ -92,7 +92,7 @@ public function complexWorkerTest() returns [int, map<string>] {
     int i = 5;
     map<string> m1 = {a: "A", b: "B", c: "C", d: "D"};
 
-    @concurrent{}
+    @strand{thread:"any"}
     worker w1 {
       m1["e"] = "EE";
       m1["a"] = "AA";
@@ -136,12 +136,12 @@ public type Student record {|
 
 public function testWithRecords() returns Student {
     Student stu = {name: "John Doe", age: 17};
-    @concurrent{}
+    @strand{thread:"any"}
     worker w1 {
        stu.name = "Adam Page";
     }
 
-    @concurrent{}
+    @strand{thread:"any"}
     worker w2 {
        stu = {name: "Adam Page", age: 24};
        stu.email = "adamp@gmail.com";
@@ -156,7 +156,7 @@ public function testWithRecords() returns Student {
         wait w2;
         stu.email = "adamp@wso2.com";
     };
-    var fw = @concurrent{} start f();
+    var fw = @strand{thread:"any"} start f();
     _ = wait {w1, w2, fw};
 
     return stu;
@@ -176,13 +176,13 @@ public type Person object {
 
 public function testWithObjects() returns Person {
     Person p1 = new(5, "John", "John Doe");
-    @concurrent{}
+    @strand{thread:"any"}
     worker w1 {
        p1.age = 10;
        p1.name = "Joe";
     }
 
-    @concurrent{}
+    @strand{thread:"any"}
     worker w2 {
        p1.age = 25;
     }
@@ -191,7 +191,7 @@ public function testWithObjects() returns Person {
         _ = wait {w1, w2};
         p1 = new(40, "Adam", "Adam Adam Page");
     };
-    future<()> w3 = @concurrent{} start f();
+    future<()> w3 = @strand{thread:"any"} start f();
 
     _ = wait {w1, w2, w3};
     return p1;

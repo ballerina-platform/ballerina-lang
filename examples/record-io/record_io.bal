@@ -6,9 +6,9 @@ import ballerina/log;
 // content in the file. The `rs` parameter defines a record separator
 // (e.g., a new line) and the `fs` parameter is a field separator
 // (e.g., a comma).
-function getReadableRecordChannel(string filePath, string encoding, string rs,
-                                  string fs)
-                                        returns @tainted io:ReadableTextRecordChannel|error {
+function getReadableRecordChannel(string filePath, string encoding,
+                        string rs, string fs)
+                        returns @tainted io:ReadableTextRecordChannel|error {
     io:ReadableByteChannel byteChannel = check io:openReadableFile(filePath);
     // Creates a readable character channel
     // from the readable byte channel to read the content as text.
@@ -27,8 +27,8 @@ function getReadableRecordChannel(string filePath, string encoding, string rs,
 // (e.g., a new line) and the `fs` parameter is a field separator
 // (e.g., a comma).
 function getWritableRecordChannel(string filePath, string encoding, string rs,
-                                  string fs)
-                                        returns @tainted io:WritableTextRecordChannel|error {
+                    string fs)
+                    returns @tainted io:WritableTextRecordChannel|error {
     io:WritableByteChannel byteChannel = check io:openWritableFile(filePath);
     // Creates a writable character channel
     // from the writable byte channel to read the content as text.
@@ -44,7 +44,8 @@ function getWritableRecordChannel(string filePath, string encoding, string rs,
 // This function processes the `.CSV` file and
 // writes the content back as text with the `|` delimiter.
 function process(io:ReadableTextRecordChannel srcRecordChannel,
-                 io:WritableTextRecordChannel dstRecordChannel) returns error? {
+                 io:WritableTextRecordChannel dstRecordChannel)
+                 returns @tainted error? {
     // Reads all the records from the provided file until there are
     // no more records.
     while (srcRecordChannel.hasNext()) {

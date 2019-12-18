@@ -339,18 +339,27 @@ public class NatsMetricsUtil {
     }
 
     private static void incrementCounter(NatsObserverContext observerContext, String name, String desc, int amount) {
+        if (metricRegistry == null) {
+            return;
+        }
         metricRegistry.counter(new MetricId(
                 NatsObservabilityConstants.CONNECTOR_NAME + "_" + name, desc, observerContext.getAllTags()))
                 .increment(amount);
     }
 
     private static void incrementGauge(NatsObserverContext observerContext, String name, String desc) {
+        if (metricRegistry == null) {
+            return;
+        }
         metricRegistry.gauge(new MetricId(
                 NatsObservabilityConstants.CONNECTOR_NAME + "_" + name, desc, observerContext.getAllTags()))
                 .increment();
     }
 
     private static void decrementGauge(NatsObserverContext observerContext, String name, String desc) {
+        if (metricRegistry == null) {
+            return;
+        }
         metricRegistry.gauge(new MetricId(
                 NatsObservabilityConstants.CONNECTOR_NAME + "_" + name, desc, observerContext.getAllTags()))
                 .decrement();

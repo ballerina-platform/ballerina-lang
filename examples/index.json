@@ -396,8 +396,8 @@
                 "url": "trap"
             },
             {
-                "name": "User-defined Error types",
-                "url": "error-user-defined"
+                "name": "User-defined Error Types",
+                "url": "user-defined-error"
             }
         ]
     },
@@ -1024,6 +1024,10 @@
             {
                 "name": "Secured Service with Basic Auth",
                 "url": "secured-service-with-basic-auth"
+            },
+            {
+                "name": "Secured Service with OAuth2",
+                "url": "secured-service-with-oauth2"
             },
             {
                 "name": "Secured Client with Basic Auth",

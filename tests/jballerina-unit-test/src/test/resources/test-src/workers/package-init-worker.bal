@@ -3,11 +3,11 @@ import ballerina/runtime;
 int i = getInt();
 
 function getInt() returns int {
-    @concurrent{}
+    @strand{thread:"any"}
     worker w1 returns int {
         return 1;
     }
-    @concurrent{}
+    @strand{thread:"any"}
     worker w2 {
         runtime:sleep(10000);
     }

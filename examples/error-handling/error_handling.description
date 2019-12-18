@@ -8,11 +8,11 @@
 // When the Ballerina runtime encounters exceptional conditions the runtime
 // panics resulting in abrupt completion of execution,
 // unless the error is explicitly handled.
-
+//
 // Ballerina provides language constructs to handle both returned error values
 // and panics. This example demonstrates how errors can be created,
-// returned and how returned errors can be handled.
-
+// returned, and how returned errors can be handled.
+//
 // Ballerina error values are immutable structured values composed of
 // an error reason string, a stack trace representing the execution stack
 // at the point at which the error value was created,
