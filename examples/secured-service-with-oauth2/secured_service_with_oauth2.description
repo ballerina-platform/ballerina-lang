@@ -1,0 +1,4 @@
+// A service can be secured using OAuth2 and optionally, by enforcing
+// authorization. The OAuth2 auth provider verifies the token against
+// with the configured introspection server. Returned result from the
+// introspection server is used for token expiration, authorization etc.
