@@ -6,9 +6,7 @@ type ArrayIterator object {
     private int cursor = -1;
 
     // `next` method which generates the sequence of values of type `int`.
-    public function next() returns record {|
-        int value;
-    |}? {
+    public function next() returns record {|int value;|}? {
         self.cursor += 1;
         if (self.cursor < self.integers.length()) {
             record {|int value;|} nextVal = {value: self.integers[self.cursor]};
@@ -32,7 +30,7 @@ public function main() {
     IteratorGenerator itrGen = new;
     int i = 0;
     foreach var item in itrGen {
-	    i += 1;
-	    io:println("Element ", i, ": ", item);
+        i += 1;
+        io:println("Element ", i, ": ", item);
     }
 }

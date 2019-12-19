@@ -1,13 +1,13 @@
 # To run this sample, navigate to the directory that contains the
 # `.bal` file, and execute the `ballerina run` command.
 $ ballerina run iterable_objects.bal
-1th element: 0
-2th element: 1
-3th element: 1
-4th element: 2
-5th element: 3
-6th element: 5
-7th element: 8
-8th element: 13
-9th element: 21
-10th element: 34
+Element 1: 0
+Element 2: 1
+Element 3: 1
+Element 4: 2
+Element 5: 3
+Element 6: 5
+Element 7: 8
+Element 8: 13
+Element 9: 21
+Element 10: 34
