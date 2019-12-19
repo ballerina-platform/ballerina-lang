@@ -70,6 +70,9 @@ public class Constants {
     // Represents the object which holds the connection.
     public static final String CONNECTION_OBJ = "conn";
 
+    // Represents the connection url
+    public static final String URL = "url";
+
     // Represents the NATS Streaming message.
     public static final String NATS_STREAMING_MSG = "nats_streaming_message";
 
@@ -80,6 +83,8 @@ public class Constants {
     public static final String NATS_STREAMING_MESSAGE_OBJ_NAME = "StreamingMessage";
 
     public static final String NATS_STREAMING_LISTENER = "StreamingListener";
+
+    public static final String BASIC_SUBSCRIPTION_LIST = "BasicSubscriptionList";
 
     public static final String STREAMING_DISPATCHER_LIST = "StreamingDispatcherList";
     public static final String STREAMING_SUBSCRIPTION_LIST = "StreamingSubscriptionsList";

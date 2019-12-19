@@ -17,7 +17,6 @@
  */
 package org.ballerinalang.nats.streaming.consumer;
 
-import io.nats.streaming.StreamingConnection;
 import io.nats.streaming.Subscription;
 import io.nats.streaming.SubscriptionOptions;
 import org.ballerinalang.jvm.TypeChecker;
@@ -28,6 +27,9 @@ import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.nats.Constants;
 import org.ballerinalang.nats.Utils;
+import org.ballerinalang.nats.connection.NatsStreamingConnection;
+import org.ballerinalang.nats.observability.NatsMetricsUtil;
+import org.ballerinalang.nats.observability.NatsObservabilityConstants;
 
 import java.io.IOException;
 import java.io.PrintStream;
@@ -56,9 +58,13 @@ public class Subscribe {
     private static final String MANUAL_ACK_ANNOTATION_FIELD = "manualAck";
     private static final String START_POSITION_ANNOTATION_FIELD = "startPosition";
 
-    public static void streamingSubscribe(ObjectValue streamingListener) {
-        StreamingConnection streamingConnection = (StreamingConnection) streamingListener
-                .getNativeData(Constants.NATS_STREAMING_CONNECTION);
+    public static void streamingSubscribe(ObjectValue streamingListener, Object conn,
+                                          String clusterId, Object clientIdNillable, Object streamingConfig) {
+        NatsStreamingConnection.createConnection(streamingListener, conn, clusterId, clientIdNillable,
+                                                 streamingConfig);
+        io.nats.streaming.StreamingConnection streamingConnection =
+                (io.nats.streaming.StreamingConnection) streamingListener
+                        .getNativeData(Constants.NATS_STREAMING_CONNECTION);
         ConcurrentHashMap<ObjectValue, StreamingListener> serviceListenerMap =
                 (ConcurrentHashMap<ObjectValue, StreamingListener>) streamingListener
                         .getNativeData(STREAMING_DISPATCHER_LIST);
@@ -70,14 +76,14 @@ public class Subscribe {
             Map.Entry pair = (Map.Entry) serviceListeners.next();
             Subscription sub =
                     createSubscription((ObjectValue) pair.getKey(),
-                            (StreamingListener) pair.getValue(), streamingConnection);
+                                       (StreamingListener) pair.getValue(), streamingConnection);
             subscriptionsMap.put((ObjectValue) pair.getKey(), sub);
             serviceListeners.remove(); // avoids a ConcurrentModificationException
         }
     }
 
     private static Subscription createSubscription(ObjectValue service, StreamingListener messageHandler,
-                                                   StreamingConnection streamingConnection) {
+                                                   io.nats.streaming.StreamingConnection streamingConnection) {
         MapValue<String, Object> annotation = (MapValue<String, Object>) service.getType()
                 .getAnnotation(Constants.NATS_PACKAGE, STREAMING_SUBSCRIPTION_CONFIG);
         assertNull(annotation, "Streaming configuration annotation not present.");
@@ -90,10 +96,15 @@ public class Subscribe {
             Subscription subscription =
                     streamingConnection.subscribe(subject, queueName, messageHandler, subscriptionOptions);
             console.println(NATS_CLIENT_SUBSCRIBED + consoleOutput);
+            NatsMetricsUtil.reportSubscription(streamingConnection.getNatsConnection().getConnectedUrl(), subject);
             return subscription;
         } catch (IOException | InterruptedException e) {
+            NatsMetricsUtil.reportConsumerError(streamingConnection.getNatsConnection().getConnectedUrl(), subject,
+                                                NatsObservabilityConstants.ERROR_TYPE_SUBSCRIPTION);
             throw Utils.createNatsError(e.getMessage());
         } catch (TimeoutException e) {
+            NatsMetricsUtil.reportConsumerError(streamingConnection.getNatsConnection().getConnectedUrl(), subject,
+                                                NatsObservabilityConstants.ERROR_TYPE_SUBSCRIPTION);
             throw Utils.createNatsError("Error while creating the subscription");
         }
     }
