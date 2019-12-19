@@ -92,7 +92,7 @@ public class TestCommand implements BLauncherCmd {
     @CommandLine.Option(names = {"--all", "-a"}, description = "Build or compile all the modules of the project.")
     private boolean buildAll;
 
-    @CommandLine.Option(names = {"--off-line"}, description = "Builds/Compiles offline without downloading " +
+    @CommandLine.Option(names = {"--offline"}, description = "Builds/Compiles offline without downloading " +
             "dependencies.")
     private boolean offline;
 
