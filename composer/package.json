@@ -1,7 +1,7 @@
 {
     "private": true,
     "name": "@ballerina/composer",
-    "version": "1.1.0-beta2",
+    "version": "1.1.0",
     "description": "",
     "scripts": {
         "prebuild": "npm i && lerna bootstrap",

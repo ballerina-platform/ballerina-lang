@@ -1,6 +1,6 @@
 {
   "name": "@ballerina/distribution",
-  "version": "1.1.0-beta2",
+  "version": "1.1.0",
   "description": "",
   "main": "build/composer.js",
   "scripts": {
@@ -15,15 +15,15 @@
   "author": "ballerina.io",
   "license": "Apache-2.0",
   "dependencies": {
-    "@ballerina/api-designer": "^1.1.0-beta2",
-    "@ballerina/ballerina-by-examples": "^1.1.0-beta2",
-    "@ballerina/diagram": "^1.1.0-beta2",
-    "@ballerina/documentation": "^1.1.0-beta2",
-    "@ballerina/font": "^1.1.0-beta2",
-    "@ballerina/theme": "^1.1.0-beta2",
-    "@ballerina/tracing": "^1.1.0-beta2"
+    "@ballerina/api-designer": "^1.1.0",
+    "@ballerina/ballerina-by-examples": "^1.1.0",
+    "@ballerina/diagram": "^1.1.0",
+    "@ballerina/documentation": "^1.1.0",
+    "@ballerina/font": "^1.1.0",
+    "@ballerina/theme": "^1.1.0",
+    "@ballerina/tracing": "^1.1.0"
   },
   "devDependencies": {
-    "@ballerina/composer-cli": "^1.1.0-beta2"
+    "@ballerina/composer-cli": "^1.1.0"
   }
 }
