@@ -16,25 +16,29 @@
  *  under the License.
  */
 package org.ballerinalang.langserver.extensions.ballerina.syntaxhighlighter;
+
+import java.util.ArrayList;
+
 /**
- * Represents the data model for Semantic Highlighting Information.
+ * Represents the data model for Semantic Highlighting params.
  *
- * @since 1.1.0
+ * @since 1.0.2
  */
-public class SemanticHighlightingInformation {
-    private int line;
-    private String token;
+public class SemanticHighlightingParams {
 
-    public SemanticHighlightingInformation(int line, String token) {
-        this.line = line;
-        this.token = token;
+    private String textDocument;
+    private ArrayList<SemanticHighlightingInformation> lines;
+
+    public SemanticHighlightingParams(String textDocument, ArrayList<SemanticHighlightingInformation> lines) {
+        this.textDocument = textDocument;
+        this.lines = lines;
     }
 
-    public String getToken() {
-        return token;
+    public String getTextDocument() {
+        return textDocument;
     }
 
-    public int getLine() {
-        return line;
+    public ArrayList<SemanticHighlightingInformation> getLines() {
+        return lines;
     }
 }

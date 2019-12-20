@@ -1,0 +1,11 @@
+{
+  "source": {
+    "file": "service.bal"
+  },
+  "result": [
+    {
+      "line":8,
+      "token":"WzIwLCA4LCAwXQ=="
+    }
+  ]
+}

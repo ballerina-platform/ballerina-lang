@@ -34,24 +34,31 @@ export class Highlighter {
         return highlightByScope;
     }
 
-    public setEditorDecorations(highlightingInfo: SemanticHighlightingInformation) {
-        const scopeObj = this.highlightLines(highlightingInfo);
-        let activeEditor = window.activeTextEditor;
-        if (!activeEditor) { return; }
-        for (let key in scopeObj) {
-            let decorationType = window.createTextEditorDecorationType({
-                color: getScopeColor(getScopeName(Number(key)))
-            });
-            if (!this.decorationTypes[highlightingInfo.line]) {
-                this.decorationTypes[highlightingInfo.line] = decorationType;
-                activeEditor.setDecorations(decorationType, scopeObj[key]);
+    public setEditorDecorations(highlightingInformation: SemanticHighlightingInformation[]) {
+        highlightingInformation.forEach(highlightingInfo => {
+            const scopeObj = this.highlightLines(highlightingInfo);
+            let activeEditor = window.activeTextEditor;
+            if (!activeEditor) { return; }
+            for (let key in scopeObj) {
+                let decorationType = window.createTextEditorDecorationType({
+                    color: getScopeColor(getScopeName(Number(key)))
+                });
+                if (!this.decorationTypes[highlightingInfo.line]) {
+                    this.decorationTypes[highlightingInfo.line] = decorationType;
+                    activeEditor.setDecorations(decorationType, scopeObj[key]);
+                }
+                else
+                {
+                    activeEditor.setDecorations(this.decorationTypes[highlightingInfo.line],scopeObj[key]);
+                }
             }
-        }
+        });
     }
 
+    public remove() {
+        this.decorationTypes = {};
+    }
     public dispose(start: number, end: number) {
-        let activeEditor = window.activeTextEditor;
-        if (!activeEditor) { return; }
 
         for (let line = start; line <= end; line++) {
             if (this.decorationTypes[line]) {

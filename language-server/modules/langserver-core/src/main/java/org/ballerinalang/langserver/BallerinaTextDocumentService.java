@@ -637,8 +637,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 context.put(DocumentServiceKeys.FILE_URI_KEY, docUri);
                 LSDocument lsDocument = new LSDocument(context.get(DocumentServiceKeys.FILE_URI_KEY));
                 diagnosticsHelper.compileAndSendDiagnostics(client, context, lsDocument, documentManager);
-                SemanticHighlightProvider semanticHighlightProvider = new SemanticHighlightProvider();
-                semanticHighlightProvider.getHighlights(client, context, documentManager);
+                SemanticHighlightProvider.sendHighlights(client, context, documentManager);
             } catch (CompilationFailedException e) {
                 String msg = "Computing 'diagnostics' failed!";
                 TextDocumentIdentifier identifier = new TextDocumentIdentifier(params.getTextDocument().getUri());
@@ -680,8 +679,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
                     ctx.put(DocumentServiceKeys.FILE_URI_KEY, fileURI);
                     LSDocument lsDocument = new LSDocument(fileURI);
                     diagnosticsHelper.compileAndSendDiagnostics(client, ctx, lsDocument, documentManager);
-                    SemanticHighlightProvider semanticHighlightProvider = new SemanticHighlightProvider();
-                    semanticHighlightProvider.getHighlights(client, ctx, documentManager);
+                    SemanticHighlightProvider.sendHighlights(client, ctx, documentManager);
                     // Clear current cache upon successfull compilation
                     // If the compiler fails, still we'll have the cached entry(marked as outdated)
                     LSCompilerCache.clear(ctx, lsDocument.getProjectRoot());

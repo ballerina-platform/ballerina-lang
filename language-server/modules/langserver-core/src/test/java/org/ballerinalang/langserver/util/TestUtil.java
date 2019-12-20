@@ -21,7 +21,16 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import org.ballerinalang.langserver.BallerinaLanguageServer;
+import org.ballerinalang.langserver.LSContextOperation;
+import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSPackageLoader;
+import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
+import org.ballerinalang.langserver.compiler.exception.CompilationFailedException;
+import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentException;
+import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
+import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManagerImpl;
+import org.ballerinalang.langserver.extensions.ballerina.syntaxhighlighter.SemanticHighlightProvider;
+import org.ballerinalang.langserver.extensions.ballerina.syntaxhighlighter.SemanticHighlightingParams;
 import org.eclipse.lsp4j.ClientCapabilities;
 import org.eclipse.lsp4j.CodeActionContext;
 import org.eclipse.lsp4j.CodeActionParams;
@@ -53,12 +62,19 @@ import org.eclipse.lsp4j.jsonrpc.messages.ResponseMessage;
 import org.eclipse.lsp4j.jsonrpc.services.ServiceEndpoints;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.locks.Lock;
+
+import static org.ballerinalang.langserver.compiler.LSClientLogger.logError;
 
 /**
  * Common utils that are reused within test suits.
@@ -123,6 +139,48 @@ public class TestUtil {
         return getResponseString(result);
     }
 
+    /**
+     * Get semantic highlighting response.
+     *
+     * @param filePath        Path of the Bal file
+     * @return {@link SemanticHighlightingParams}   Response as SemanticHighlightingParams
+     */
+    public static SemanticHighlightingParams getHighlightingResponse(Path filePath)
+            throws CompilationFailedException, IOException {
+
+        String docUri = filePath.toUri().toString();
+        byte[] encodedContent = Files.readAllBytes(filePath);
+        WorkspaceDocumentManager docManager = WorkspaceDocumentManagerImpl.getInstance();
+        SemanticHighlightingParams semanticHighlightingParams = null;
+
+        Path compilationPath;
+        try {
+            compilationPath = Paths.get(new URL(docUri).toURI());
+        } catch (URISyntaxException | MalformedURLException e) {
+            compilationPath = null;
+        }
+        if (compilationPath != null) {
+            String content = new String(encodedContent);
+            Optional<Lock> lock = docManager.lockFile(compilationPath);
+            try {
+                docManager.openFile(Paths.get(new URL(docUri).toURI()), content);
+                LSServiceOperationContext context = new LSServiceOperationContext(LSContextOperation.TXT_DID_OPEN);
+                context.put(DocumentServiceKeys.FILE_URI_KEY, docUri);
+                semanticHighlightingParams = SemanticHighlightProvider.getHighlights(context, docManager);
+            } catch (WorkspaceDocumentException e) {
+                String msg = "Document Manager encountered error!";
+                TextDocumentIdentifier identifier = new TextDocumentIdentifier(docUri);
+                logError(msg, e, identifier, (Position) null);
+            } catch (URISyntaxException e) {
+                String msg = "URI syntax error!";
+                TextDocumentIdentifier identifier = new TextDocumentIdentifier(docUri);
+                logError(msg, e, identifier, (Position) null);
+            } finally {
+                lock.ifPresent(Lock::unlock);
+            }
+        }
+        return semanticHighlightingParams;
+    }
     /**
      * Get the textDocument/completion response.
      *

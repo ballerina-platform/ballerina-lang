@@ -1,0 +1,15 @@
+{
+  "source": {
+    "file": "record.bal"
+  },
+  "result": [
+    {
+      "line":10,
+      "token":"WzIwLCA5LCAwXQ=="
+    },
+    {
+      "line": 5,
+      "token": "WzE2LCA4LCAwXQ=="
+    }
+  ]
+}

@@ -139,5 +139,4 @@ public class SemanticHighlightingVisitor extends LSNodeVisitor {
     private void acceptNode(BLangNode node) {
         node.accept(this);
     }
-
 }

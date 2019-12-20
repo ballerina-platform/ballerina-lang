@@ -1,0 +1,11 @@
+{
+  "source": {
+    "file": "toplevel.bal"
+  },
+  "result": [
+    {
+      "line":2,
+      "token": "WzEyLCA4LCAwXQ=="
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "source": {
+    "file": "fork.bal"
+  },
+  "result": [
+    {
+      "line":7,
+      "token":"WzI0LCA4LCAwXQ=="
+    }
+  ]
+}

@@ -1,4 +1,6 @@
 import { Range } from "vscode";
+import { VersionedTextDocumentIdentifier } from 'vscode-languageserver-types';
+
 
 export interface SemanticHighlightingInformation{
     line: number;
@@ -16,4 +18,9 @@ export interface SemanticHighlightingCapabilities{
 
 export interface SemanticHighlighting{
     scopes: string[][];
+}
+
+export interface SemanticHighlightingParams{
+    versionedTextDocumentIdentifier: VersionedTextDocumentIdentifier;
+    lines: SemanticHighlightingInformation[] 
 }
