@@ -23,6 +23,7 @@ import org.ballerinalang.model.tree.clauses.WindowClauseNode;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 
 /**
  * @since 0.965.0
@@ -31,11 +32,11 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
  */
 public class BLangWindow extends BLangNode implements WindowClauseNode {
 
-    private ExpressionNode functionInvocation;
+    public BLangExpression functionInvocation;
 
     @Override
     public void setFunctionInvocation(ExpressionNode functionInvocation) {
-        this.functionInvocation = functionInvocation;
+        this.functionInvocation = (BLangExpression) functionInvocation;
     }
 
     @Override

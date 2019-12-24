@@ -24,7 +24,6 @@ import org.apache.axiom.om.OMNode;
 import org.apache.axiom.om.impl.llom.OMDocumentImpl;
 import org.apache.axiom.om.util.AXIOMUtil;
 import org.ballerinalang.jvm.BallerinaErrors;
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.values.ArrayValue;
@@ -33,10 +32,6 @@ import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.XMLItem;
 import org.ballerinalang.jvm.values.XMLSequence;
 import org.ballerinalang.jvm.values.XMLValue;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -54,14 +49,6 @@ import javax.xml.transform.stream.StreamResult;
  *
  * @since 0.995.0
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "xslt",
-        functionName = "transform",
-        args = {@Argument(name = "input", type = TypeKind.XML),
-                @Argument(name = "xsl", type = TypeKind.XML)},
-        returnType = {@ReturnType(type = TypeKind.XML)},
-        isPublic = true
-)
 public class XsltTransformer {
     
     private static final Logger log = LoggerFactory.getLogger(XsltTransformer.class);
@@ -69,7 +56,7 @@ public class XsltTransformer {
     private static final String XSLT_ERROR_CODE = "{ballerina/xslt}" + XSLT_ERROR_RECORD;
     private static final String OPERATION = "Failed to perform XSL transformation: ";
 
-    public static Object transform(Strand strand, XMLValue xmlInput, XMLValue xslInput) {
+    public static Object transform(XMLValue xmlInput, XMLValue xslInput) {
         try {
             String input = xmlInput.toString();
             String xsl = xslInput.toString();

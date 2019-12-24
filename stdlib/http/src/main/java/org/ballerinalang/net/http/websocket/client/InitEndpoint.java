@@ -18,13 +18,11 @@
 
 package org.ballerinalang.net.http.websocket.client;
 
+import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.net.http.websocket.WebSocketConstants;
@@ -51,23 +49,13 @@ import static org.ballerinalang.stdlib.io.utils.IOConstants.IO_PACKAGE_ID;
  *
  * @since 0.966
  */
-
-@BallerinaFunction(
-        orgName = WebSocketConstants.BALLERINA_ORG,
-        packageName = WebSocketConstants.PACKAGE_HTTP,
-        functionName = "initEndpoint",
-        receiver = @Receiver(
-                type = TypeKind.OBJECT,
-                structType = WebSocketConstants.WEBSOCKET_CLIENT,
-                structPackage = WebSocketConstants.FULL_PACKAGE_HTTP
-        )
-)
 public class InitEndpoint {
 
-    public static void initEndpoint(Strand strand, ObjectValue webSocketClient) {
+    public static void initEndpoint(ObjectValue webSocketClient) {
         @SuppressWarnings(WebSocketConstants.UNCHECKED)
         MapValue<String, Object> clientEndpointConfig = (MapValue<String, Object>) webSocketClient.getMapValue(
                 HttpConstants.CLIENT_ENDPOINT_CONFIG);
+        Strand strand = Scheduler.getStrand();
 
         String remoteUrl = webSocketClient.getStringValue(WebSocketConstants.CLIENT_URL_CONFIG);
         String scheme = URI.create(remoteUrl).getScheme();

@@ -20,7 +20,6 @@ package org.ballerinalang.jvm.values;
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.commons.ArrayState;
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
@@ -177,7 +176,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
             case TypeTags.BOOLEAN_TAG:
                 return booleanValues[(int) index];
             case TypeTags.BYTE_TAG:
-                return byteValues[(int) index];
+                return Byte.toUnsignedInt(byteValues[(int) index]);
             case TypeTags.FLOAT_TAG:
                 return floatValues[(int) index];
             case TypeTags.STRING_TAG:
@@ -213,8 +212,10 @@ public class ArrayValueImpl extends AbstractArrayValue {
         rangeCheckForGet(index, size);
         if (intValues != null) {
             return intValues[(int) index];
+        } else if (refValues != null) {
+            return (Long) refValues[(int) index];
         }
-        return (Long) refValues[(int) index];
+        return Byte.toUnsignedInt(byteValues[(int) index]);
     }
 
     /**
@@ -324,8 +325,15 @@ public class ArrayValueImpl extends AbstractArrayValue {
     @Override
     public void add(long index, long value) {
         handleFrozenArrayValue();
-        prepareForAdd(index, value, intValues.length);
-        intValues[(int) index] = value;
+
+        if (intValues != null) {
+            prepareForAdd(index, value, intValues.length);
+            intValues[(int) index] = value;
+            return;
+        }
+
+        prepareForAdd(index, value, byteValues.length);
+        byteValues[(int) index] = (byte) ((Long) value).intValue();
     }
 
     /**
@@ -416,11 +424,6 @@ public class ArrayValueImpl extends AbstractArrayValue {
 
     @Override
     public String stringValue() {
-        return stringValue(null);
-    }
-
-    @Override
-    public String stringValue(Strand strand) {
         StringJoiner sj = new StringJoiner(" ");
         switch (this.elementType.getTag()) {
             case TypeTags.INT_TAG:
@@ -450,7 +453,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
                 break;
             default:
                 for (int i = 0; i < size; i++) {
-                    sj.add(StringUtils.getStringValue(strand, refValues[i]));
+                    sj.add(StringUtils.getStringValue(refValues[i]));
                 }
                 break;
         }

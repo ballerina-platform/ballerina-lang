@@ -30,8 +30,8 @@ import {
 import * as path from 'path';
 import * as fs from 'fs';
 import { exec, execSync } from 'child_process';
-import { LanguageClientOptions, State as LS_STATE, RevealOutputChannelOn, DidChangeConfigurationParams } from "vscode-languageclient";
-import { getServerOptions } from '../server/server';
+import { LanguageClientOptions, State as LS_STATE, RevealOutputChannelOn, DidChangeConfigurationParams, ServerOptions } from "vscode-languageclient";
+import { getServerOptions, getOldServerOptions } from '../server/server';
 import { ExtendedLangClient } from './extended-language-client';
 import { log, getOutputChannel } from '../utils/index';
 import { AssertionError } from "assert";
@@ -52,6 +52,8 @@ export interface ConstructIdentifier {
 export class BallerinaExtension {
     public telemetryReporter: TelemetryReporter;
     public ballerinaHome: string;
+    public ballerinaCmd: string;
+    public isNewCLICmdSupported: boolean = true;
     public extension: Extension<any>;
     private clientOptions: LanguageClientOptions;
     public langClient?: ExtendedLangClient;
@@ -63,6 +65,7 @@ export class BallerinaExtension {
 
     constructor() {
         this.ballerinaHome = '';
+        this.ballerinaCmd = '';
         this.webviewPanels = {};
         // Load the extension
         this.extension = extensions.getExtension(EXTENSION_ID)!;
@@ -87,6 +90,7 @@ export class BallerinaExtension {
             if (this.overrideBallerinaHome()) {
                 log("Ballerina home is configured in settings.");
                 this.ballerinaHome = this.getConfiguredBallerinaHome();
+                this.ballerinaCmd = this.getBallerinaCmd(this.ballerinaHome);
                 // Lets check if ballerina home is valid.
                 if (!this.isValidBallerinaHome(this.ballerinaHome)) {
                     const msg = "Configured Ballerina home is not valid.";
@@ -100,8 +104,9 @@ export class BallerinaExtension {
             } else {
                 log("Auto detecting Ballerina home.");
                 // If ballerina home is not set try to auto detect ballerina home.
-                const { isBallerinaNotFound, isOldBallerinaDist, home } = this.autoDetectBallerinaHome();
+                const { isBallerinaNotFound, isOldBallerinaDist, home, cmd } = this.autoDetectBallerinaHome();
                 this.ballerinaHome = home;
+                this.ballerinaCmd = cmd;
 
                 if (isBallerinaNotFound) {
                     this.showMessageInstallBallerina();
@@ -117,17 +122,24 @@ export class BallerinaExtension {
                     return Promise.reject(msg);
                 }
             }
-            log("Using " + this.ballerinaHome + " as the Ballerina home.");
             // Validate the ballerina version.
             const pluginVersion = this.extension.packageJSON.version.split('-')[0];
             return this.getBallerinaVersion(this.ballerinaHome, this.overrideBallerinaHome()).then(ballerinaVersion => {
                 ballerinaVersion = ballerinaVersion.split('-')[0];
                 log(`Plugin version: ${pluginVersion}\nBallerina version: ${ballerinaVersion}`);
                 this.checkCompatibleVersion(pluginVersion, ballerinaVersion);
+
+                // versions less than 1.1.0 are incapable of handling cli commands for langserver and debug-adapter
+                this.isNewCLICmdSupported = this.compareVersions(ballerinaVersion, "1.1.0", true) >= 0;
+
                 // if Home is found load Language Server.
-                this.langClient = new ExtendedLangClient('ballerina-vscode', 'Ballerina LS Client',
-                    getServerOptions(this.getBallerinaHome(), this.isExperimental(), this.isDebugLogsEnabled(), this.isTraceLogsEnabled()),
-                                                         this.clientOptions, false);
+                let serverOptions:ServerOptions;
+                if (this.isNewCLICmdSupported) {
+                    serverOptions = getServerOptions(this.ballerinaCmd, this.isExperimental(), this.isDebugLogsEnabled(), this.isTraceLogsEnabled());
+                } else {
+                    serverOptions = getOldServerOptions(this.ballerinaHome, this.isExperimental(), this.isDebugLogsEnabled(), this.isTraceLogsEnabled());
+                }
+                this.langClient = new ExtendedLangClient('ballerina-vscode', 'Ballerina LS Client', serverOptions, this.clientOptions, false);
 
                 // 0.983.0 and 0.982.0 versions are incapable of handling client capabilities 
                 if (ballerinaVersion !== "0.983.0" && ballerinaVersion !== "0.982.0") {
@@ -229,14 +241,14 @@ export class BallerinaExtension {
      *
      * @returns {number}
      */
-    compareVersions(pluginVersion: string, ballerinaVersion: string): number {
+    compareVersions(pluginVersion: string, ballerinaVersion: string, comparePatchVer: boolean = false): number {
         const toInt = (i: string) => {
             return parseInt(i, 10);
         };
         const numMatchRegexp = /\d+/g;
-        
-        const [pluginMajor, pluginMinor] = pluginVersion.match(numMatchRegexp)!.map(toInt);
-        const [ballerinaMajor, ballerinaMinor] = ballerinaVersion.match(numMatchRegexp)!.map(toInt);
+
+        const [pluginMajor, pluginMinor, pluginPatch] = pluginVersion.match(numMatchRegexp)!.map(toInt);
+        const [ballerinaMajor, ballerinaMinor, ballerinaPatch] = ballerinaVersion.match(numMatchRegexp)!.map(toInt);
 
         if (pluginMajor > ballerinaMajor) {
             return 1;
@@ -252,6 +264,16 @@ export class BallerinaExtension {
 
         if (pluginMinor < ballerinaMinor) {
             return -1;
+        }
+
+        if (comparePatchVer) {
+            if (pluginPatch > ballerinaPatch) {
+                return 1;
+            }
+
+            if (pluginPatch < ballerinaPatch) {
+                return -1;
+            }
         }
 
         return 0;
@@ -291,10 +313,14 @@ export class BallerinaExtension {
                     return;
                 }
                 try {
-                    const parsedVersion = cmdOutput.split('\n')[0].replace(/Ballerina /, '').replace(/[\n\t\r]/g, '');
+                    const implVersionLine = cmdOutput.split('\n')[0];
+                    const replacePrefix = implVersionLine.startsWith("jBallerina")
+                            ? /jBallerina /
+                            : /Ballerina /;
+                    const parsedVersion = implVersionLine.replace(replacePrefix, '').replace(/[\n\t\r]/g, '');
                     resolve(parsedVersion);
-                } catch (error) {   
-                    reject(error); 
+                } catch (error) {
+                    reject(error);
                 }
             });
         });
@@ -424,7 +450,7 @@ export class BallerinaExtension {
         return <boolean>workspace.getConfiguration().get(ENABLE_TRACE_LOG);
     }
 
-    autoDetectBallerinaHome(): { home: string, isOldBallerinaDist: boolean, isBallerinaNotFound: boolean } {
+    autoDetectBallerinaHome(): { home: string, cmd: string, isOldBallerinaDist: boolean, isBallerinaNotFound: boolean } {
         let balHomeOutput = "",
             isBallerinaNotFound = false,
             isOldBallerinaDist = false;
@@ -441,12 +467,13 @@ export class BallerinaExtension {
             isBallerinaNotFound = message.includes('command not found')
                 || message.includes('unknown command')
                 || message.includes('is not recognized as an internal or external command');
-            log("Error executing `ballerina home`. " + "\n<---- cmd output ---->\n" 
+            log("Error executing `ballerina home`. " + "\n<---- cmd output ---->\n"
                 + message + "<---- cmd output ---->\n");
         }
-       
+
         return {
             home: isBallerinaNotFound || isOldBallerinaDist ? '' : balHomeOutput,
+            cmd: this.getBallerinaCmd(this.overrideBallerinaHome()? balHomeOutput: ''),
             isBallerinaNotFound,
             isOldBallerinaDist
         };
@@ -468,7 +495,7 @@ export class BallerinaExtension {
 
     public addWebviewPanel(name: string, panel: WebviewPanel) {
         this.webviewPanels[name] = panel;
-        
+
         panel.onDidDispose(() => {
             delete this.webviewPanels[name];
         });

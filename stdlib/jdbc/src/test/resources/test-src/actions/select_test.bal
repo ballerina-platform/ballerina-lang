@@ -240,9 +240,7 @@ function testBlobArrayOfQueryParameter(string jdbcURL) returns string {
     if (dt1 is table<ResultBlob>) {
         while (dt1.hasNext()) {
             var rs = dt1.getNext();
-            if (rs is ResultBlob) {
-                blobData = rs.BLOB_TYPE;
-            }
+            blobData = rs.BLOB_TYPE;
         }
     }
     byte[][] blobDataArray = [blobData, blobData];

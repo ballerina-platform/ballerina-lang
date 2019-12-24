@@ -84,7 +84,7 @@ public class DiagnosticsHelper {
 
         // Publish diagnostics
         diagnosticMap.forEach((key, value) -> client.publishDiagnostics(new PublishDiagnosticsParams(key, value)));
-
+      
         // Replace old map
         lastDiagnosticMap = diagnosticMap;
     }

@@ -156,18 +156,12 @@ function isEmpty(Name nameVal) returns boolean {
 }
 
 function emitValue(int | string | boolean | float | byte | () | Decimal value) returns string {
-    if value is int {
-        return value.toString();
-    } else if value is string {
+    if value is string {
         return value;
-    } else if value is boolean {
-        return value.toString();
-    } else if value is float {
-        return value.toString();
-    } else if value is byte {
-        return value.toString();
-    } else { //if value is () {
+    } else if value is () {
         return "()";
-    } 
+    } else {
+        return value.toString();
+    }
 }
 

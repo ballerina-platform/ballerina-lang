@@ -474,6 +474,6 @@ public class TestUtil {
             jsonrpcResponse.setError(responseError);
         }
 
-        return GSON.toJson(jsonrpcResponse);
+        return GSON.toJson(jsonrpcResponse).replace("\r\n", "\n").replace("\\r\\n", "\\n");
     }
 }

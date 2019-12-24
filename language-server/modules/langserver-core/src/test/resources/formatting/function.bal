@@ -62,3 +62,18 @@ class: "a.b.Foo"
    }    external  ;
 
     function name19() =  @ java : Method  {   name :  "dfadfa",class:"a.b.Foo"   }   external;
+
+public function main1() {
+            _=start     foo  (  )  ;
+ }
+
+function foo() returns int {
+           return 1;
+  }
+
+  public function main2() {
+     _
+        =
+         start
+    foo();
+  }

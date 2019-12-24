@@ -114,6 +114,8 @@ public interface WorkspaceDocumentManager {
      */
     void setPrunedContent(Path filePath, String prunedSource) throws WorkspaceDocumentException;
 
+    void resetPrunedContent(Path filePath) throws WorkspaceDocumentException;
+
     /**
      * Returns the code lenses of the file.
      *
