@@ -65,7 +65,7 @@ public function main() {
     io:println("Using while loop: ");
     while (tb.hasNext()) {
         var ret = tb.getNext();
-        io:println("Name: ", ret.name);
+        io:println("Name: ", ret.get("name"));
     }
 
     // Convert the `table` to JSON format.
