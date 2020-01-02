@@ -28,9 +28,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.Scanner;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * LHS token traverser.
@@ -47,10 +44,8 @@ public class LHSSignatureTokenTraverser extends AbstractTokenTraverser {
     private int pendingLeftParenthesis = 1;
     private int pendingLeftBrace = 0;
     private int pendingLeftBracket = 0;
-    private int pendingRightBrace = 0;
     private boolean isCommaTerminal = true;
 
-    private static final Pattern IMPORT_PATTERN = Pattern.compile("import\\s+.*\\/([^as]*)(\\s+as\\s+(.*))?;");
     private boolean isCapturingEnabled = true;
     private boolean captureStatement = false;
     private boolean addSemiColon = false;
@@ -244,51 +239,6 @@ public class LHSSignatureTokenTraverser extends AbstractTokenTraverser {
                 return true;
             }
             return false;
-        }
-    }
-
-    private void removeNonPackagePrefixes(TokenStream tokenStream) {
-        boolean packagePrefixCandidateFound = false;
-        // Check for package prefix candidates i.e. '<Identifier>[:]'
-        List<CommonToken> candidateTokens = new ArrayList<>();
-        for (int i = 0; i < this.processedTokens.size(); i++) {
-            CommonToken commonToken = this.processedTokens.get(i);
-            if (commonToken.getType() == BallerinaParser.COLON) {
-                candidateTokens.add(commonToken);
-                int j = i - 1;
-                while (j >= 0) {
-                    CommonToken prevToken = this.processedTokens.get(j);
-                    candidateTokens.add(prevToken);
-                    if (prevToken.getType() == BallerinaParser.Identifier) {
-                        packagePrefixCandidateFound = true;
-                        break;
-                    }
-                    j--;
-                }
-                break;
-            }
-        }
-        if (packagePrefixCandidateFound) {
-            Scanner scanner = new Scanner(tokenStream.getText());
-            boolean isPackagePrefix = false;
-            while (scanner.hasNextLine()) {
-                String line = scanner.nextLine();
-                Matcher matcher = IMPORT_PATTERN.matcher(line);
-                if (matcher.find()) {
-                    // Compare package alias with the candidate
-                    String compareStr = (matcher.group(3) != null) ? matcher.group(3) : matcher.group(1);
-                    if (compareStr.equals(candidateTokens.get(candidateTokens.size() - 1).getText())) {
-                        isPackagePrefix = true;
-                    }
-                }
-                if (line.startsWith("function")) {
-                    break;
-                }
-            }
-            if (!isPackagePrefix) {
-                // Remove candidate tokens
-                candidateTokens.forEach(t -> this.processedTokens.remove(t));
-            }
         }
     }
 }

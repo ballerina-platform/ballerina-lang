@@ -48,7 +48,7 @@ public abstract class AbstractTokenTraverser implements TokenTraverser {
         }
         // Otherwise only capture the processed tokens
         this.lastProcessedToken = token;
-        if (pruneTokens) {
+        if (this.pruneTokens) {
             // If the pruneTokens flag is true, replace the token text with empty spaces
             ((CommonToken) token).setText(getNCharLengthEmptyLine(token.getText().length()));
             ((CommonToken) token).setType(BallerinaParser.WS);
