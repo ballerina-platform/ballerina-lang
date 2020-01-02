@@ -53,8 +53,7 @@ public class RHSCompletionsTokenTraverser extends AbstractTokenTraverser {
         this.processedTokens = new ArrayList<>();
     }
 
-    @Override
-    public List<CommonToken> traverse(TokenStream tokenStream, int tokenIndex) {
+    public List<CommonToken>  traverse(TokenStream tokenStream, int tokenIndex) {
         Optional<Token> token = Optional.of(tokenStream.get(tokenIndex));
         while (token.isPresent()) {
             int type = token.get().getType();
@@ -81,7 +80,7 @@ public class RHSCompletionsTokenTraverser extends AbstractTokenTraverser {
             tokenIndex = token.get().getTokenIndex() + 1;
             token = tokenIndex > tokenStream.size() - 1 ? Optional.empty() : Optional.of(tokenStream.get(tokenIndex));
         }
-        
+
         return this.processedTokens;
     }
 
@@ -113,20 +112,20 @@ public class RHSCompletionsTokenTraverser extends AbstractTokenTraverser {
         /*
         If the last altered token is => or :, and the current token is Left Brace then the following match pattern
         clause and the annotation cases will be addressed and remove the whole block within the braces
-        Eg: 
+        Eg:
         match expr {
-            12 => 
+            12 =>
             // this whole clause will remove var (a, b) => {printMessage();}
         }
         @hello:ServiceConfig {
             basePath: mod2:<cursor>
             cors: {
-            
+
             }
         }
         otherwise the pruned source will be
         match expr {
-            
+
             {printMessage();}
         }
          */
@@ -152,7 +151,7 @@ public class RHSCompletionsTokenTraverser extends AbstractTokenTraverser {
             this.processToken(token);
             this.forcedProcessedToken = true;
         }
-        
+
         return true;
     }
 }

@@ -35,7 +35,6 @@ import java.util.Optional;
 public class RHSSignatureTokenTraverser extends AbstractTokenTraverser {
     private final List<Integer> rhsTraverseTerminals;
     private final boolean addSemiColon;
-    private int pendingLeftParenthesis;
     private int pendingRightParenthesis;
     private int pendingLeftBrace;
     private boolean forcedProcessedToken;
@@ -43,7 +42,6 @@ public class RHSSignatureTokenTraverser extends AbstractTokenTraverser {
 
     RHSSignatureTokenTraverser(SourcePruneContext sourcePruneContext, boolean pruneTokens) {
         super(pruneTokens);
-        this.pendingLeftParenthesis = sourcePruneContext.get(SourcePruneKeys.LEFT_PARAN_COUNT_KEY);
         this.pendingRightParenthesis = sourcePruneContext.get(SourcePruneKeys.RIGHT_PARAN_COUNT_KEY);
         this.rhsTraverseTerminals = sourcePruneContext.get(SourcePruneKeys.RHS_TRAVERSE_TERMINALS_KEY);
         this.pendingLeftBrace = sourcePruneContext.get(SourcePruneKeys.LEFT_BRACE_COUNT_KEY);
@@ -108,7 +106,8 @@ public class RHSSignatureTokenTraverser extends AbstractTokenTraverser {
     }
 
     /**
-     * Check and add semi-colon to the end
+     * Check and add semi-colon to the end.
+     *
      *  @param tokenStream token stream
      * @param tokenIndex  token index
      * @param token       current token
