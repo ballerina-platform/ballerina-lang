@@ -37,6 +37,7 @@ public class BLangTypeInit extends BLangExpression implements TypeInitNode {
 
     public BLangUserDefinedType userDefinedType;
     public List<BLangExpression> argsExpr;
+    // TODO : delete this invocation node create it in desugar level.
     public BLangInvocation initInvocation;
 
     public BLangTypeInit() {
