@@ -14,6 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+public const DEFAULT_URL = "nats://localhost:4222";
+
 public type Content byte[] | boolean | string | int | float | decimal | xml | json | record {};
 
 function convertData(Content data) returns string | byte[] | error {
