@@ -2,6 +2,6 @@
 # `.bal` file, and use the `ballerina run` command.
 $ ballerina run subscriber.bal
 [ballerina/http] started HTTP/WS listener 0.0.0.0:8181
-2018-04-26 22:20:45,790 INFO  [ballerina/websub] - Subscription Request successful at Hub[http://localhost:9191/websub/hub], for Topic[http://websubpubtopic.com], with Callback [http://localhost:8181/websub]
-2018-04-26 22:20:45,888 INFO  [] - Intent verified for subscription request
-2018-04-26 22:20:53,456 INFO  [] - WebSub Notification Received: {"action":"publish", "mode":"remote-hub"}
+2019-11-01 14:36:42,797 INFO  [ballerina/websub] - Subscription Request successfully sent to Hub[http://localhost:9191/websub/hub], for Topic[http://websubpubtopic.com], with Callback [http://localhost:8181/websub]
+2019-11-01 14:36:43,050 INFO  [] - Intent verified for subscription request
+2019-11-01 14:36:47,098 INFO  [] - WebSub Notification Received: {"action":"publish", "mode":"remote-hub"}

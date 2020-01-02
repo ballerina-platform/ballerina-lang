@@ -1,4 +1,7 @@
+import ballerina/runtime;
+import ballerina/io;
 import ballerinax/java;
+import ballerina/lang.'value;
 
 function testAcceptNothingAndReturnNothing() {
     acceptNothingAndReturnNothing();
@@ -10,6 +13,12 @@ function testInteropFunctionWithDifferentName() {
 
 function testAcceptNothingButReturnDate() returns handle {
     return acceptNothingButReturnDate();
+}
+
+function testAcceptNothingButReturnString() returns string {
+    io:println("lolo");
+    io:println(acceptNothingButReturnString());
+    return acceptNothingButReturnString();
 }
 
 function testAcceptSomethingAndReturnSomething(handle h) returns handle {
@@ -24,6 +33,32 @@ function testAcceptThreeParamsAndReturnSomething(handle h1, handle h2, handle h3
     return acceptThreeParamsAndReturnSomething(h1, h2, h3);
 }
 
+function testErrorOrTupleReturn() returns error|[string,string] {
+   [string,string] ret = check getArrayValue();
+   return ret;
+}
+
+function testFuncWithAsyncDefaultParamExpression() returns int {
+    return funcWithAsyncDefaultParamExpression() + funcWithAsyncDefaultParamExpression(5) + funcWithAsyncDefaultParamExpression(50, 20);
+}
+
+function asyncRet() returns int {
+    runtime:sleep(50);
+    return 10;
+}
+
+function asyncRetWithVal(int a = 30) returns int {
+    runtime:sleep(50);
+    return a + 20;
+}
+
+function testUsingParamValues() returns int {
+    return usingParamValues() + usingParamValues(5) + usingParamValues(50, 20);
+}
+
+function testDecimalParamAndReturn(decimal a1) returns decimal {
+    return decimalParamAndReturn(a1);
+}
 
 // Interop functions
 public function acceptNothingAndReturnNothing() = @java:Method {
@@ -36,6 +71,14 @@ public function interopFunctionWithDifferentName() = @java:Method {
 } external;
 
 public function acceptNothingButReturnDate() returns handle = @java:Method {
+    class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
+} external;
+
+public function acceptNothingButReturnString() returns string = @java:Method {
+    class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
+} external;
+
+function stringParamAndReturn(string a1) returns string = @java:Method {
     class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
 } external;
 
@@ -106,7 +149,44 @@ public type Person object {
     }
 };
 
+public type ResourceDefinition record {|
+    string path;
+    string method;
+|};
+
+public type ApiDefinition record {|
+    ResourceDefinition[] resources;
+|};
+
+public function testUnionReturn() returns string {
+    ResourceDefinition resourceDef = {path:"path", method:"method"};
+    ResourceDefinition[] resources = [resourceDef];
+    ApiDefinition apiDef = {resources:resources};
+    return value:toString(getMapOrError(java:fromString("swagger"), apiDef));
+}
+
+function getMapOrError(handle swaggerFilePath, ApiDefinition apiDef) returns ApiDefinition | error  = @java:Method {
+    class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
+} external;
+
 public function getObjectOrError() returns Person|error = @java:Method {
     name: "returnObjectOrError",
     class: "org.ballerinalang.test.javainterop.basic.StaticMethodTest"
 } external;
+
+function getArrayValue() returns [string, string] | error = @java:Method {
+    class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
+} external;
+
+function funcWithAsyncDefaultParamExpression(int a1 = asyncRet(), int a2 = asyncRet()) returns int = @java:Method {
+    class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
+} external;
+
+function usingParamValues(int a1 = asyncRet(), int a2 = asyncRetWithVal(a1)) returns int = @java:Method {
+    class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
+} external;
+
+function decimalParamAndReturn(decimal a1) returns decimal = @java:Method {
+    class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
+} external;
+

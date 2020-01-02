@@ -217,6 +217,7 @@ public class MatchStructuredErrorPatternsTest {
         BAssertUtil.validateError(result, i++, "unknown type 'ErrorDataABC'", 52, 24);
         BAssertUtil.validateError(result, i++, "undefined symbol 'm'", 57, 62);
         Assert.assertEquals(result.getErrorCount(), i);
+
     }
 
     @Test()

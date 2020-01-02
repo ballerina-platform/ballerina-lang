@@ -34,9 +34,6 @@ public class BConstantSymbol extends BVarSymbol implements ConstantSymbol {
     public BLangConstantValue value;
     public BType literalType;
 
-    // Keep the cp entry index in the symbol so it can be easily accessed in constant references.
-    public int cpEntryIndex = -1;
-
     public BConstantSymbol(int flags, Name name, PackageID pkgID, BType literalType, BType type, BSymbol owner) {
         super(flags, name, pkgID, type, owner);
         this.tag = CONSTANT;

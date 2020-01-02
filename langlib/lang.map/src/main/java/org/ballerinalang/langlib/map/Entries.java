@@ -23,9 +23,9 @@ import org.ballerinalang.jvm.types.BMapType;
 import org.ballerinalang.jvm.types.BTupleType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
-import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
+import org.ballerinalang.jvm.values.TupleValueImpl;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -33,7 +33,6 @@ import org.ballerinalang.natives.annotations.ReturnType;
 
 import java.util.Arrays;
 
-import static org.ballerinalang.jvm.values.utils.ArrayUtils.add;
 import static org.ballerinalang.langlib.map.util.MapLibUtils.getFieldType;
 
 /**
@@ -56,13 +55,13 @@ public class Entries {
         BType newFieldType = getFieldType(m.getType(), "entries()");
         BTupleType entryType = new BTupleType(Arrays.asList(BTypes.typeString, newFieldType));
         BMapType entryMapConstraint = new BMapType(entryType);
-        MapValue<Object, ArrayValue> entries = new MapValueImpl<>(entryMapConstraint);
+        MapValue<Object, TupleValueImpl> entries = new MapValueImpl<>(entryMapConstraint);
 
-        m.forEach((key, value) -> {
-            ArrayValue entryTuple = new ArrayValue(entryType);
-            add(entryTuple, refType, 0, key);
-            add(entryTuple, refType, 1, value);
-            entries.put(key, entryTuple);
+        m.entrySet().forEach(entry -> {
+            TupleValueImpl entryTuple = new TupleValueImpl(entryType);
+            entryTuple.add(0, entry.getKey());
+            entryTuple.add(1, entry.getValue());
+            entries.put(entry.getKey(), entryTuple);
         });
 
         return entries;

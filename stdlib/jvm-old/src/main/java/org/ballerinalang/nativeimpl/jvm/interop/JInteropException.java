@@ -31,6 +31,7 @@ class JInteropException extends RuntimeException {
     static final String OVERLOADED_METHODS_REASON = "OVERLOADED_METHODS";
     static final String UNSUPPORTED_PRIMITIVE_TYPE_REASON = "UNSUPPORTED_PRIMITIVE_TYPE";
     static final String METHOD_SIGNATURE_NOT_MATCH_REASON = "METHOD_SIGNATURE_DOES_NOT_MATCH";
+    static final String CLASS_LOADER_INIT_FAILED_REASON = "CLASS_LOADER_INIT_FAILED";
 
     private String reason;
 

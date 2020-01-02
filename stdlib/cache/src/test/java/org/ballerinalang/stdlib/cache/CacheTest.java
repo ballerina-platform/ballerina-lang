@@ -44,7 +44,7 @@ public class CacheTest {
 
     @BeforeClass
     public void setup() {
-        compileResult = BCompileUtil.compile("test-src/cache/cache-test.bal");
+        compileResult = BCompileUtil.compileOffline("test-src/cache/cache-test.bal");
         CommonTestUtils.printDiagnostics(compileResult, log);
     }
 

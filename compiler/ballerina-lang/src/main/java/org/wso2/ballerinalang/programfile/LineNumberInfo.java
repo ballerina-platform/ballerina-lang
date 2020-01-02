@@ -26,6 +26,7 @@ import java.util.Objects;
  *
  * @since 0.87
  */
+@Deprecated
 public class LineNumberInfo {
 
     private int lineNumber = -1;

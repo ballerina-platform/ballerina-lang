@@ -59,11 +59,12 @@ service hello on new http:Listener(9090) {
     }
     resource function bindStruct(http:Caller caller, http:Request req,
                                  Student student) {
-        //Accesses the fields of the record `Student`.
-        string name = student.Name;
-        int grade = student.Grade;
+        //Accesses the fields of the `Student` record.
+        string name = <@untainted> student.Name;
+        int grade = <@untainted> student.Grade;
+        string english = <@untained> <string> student.Marks["English"];
         http:Response res = new;
-        res.setPayload({ Name: <@untainted> name, Grade: <@untainted> grade });
+        res.setPayload({ Name: name, Grade: grade, English: english });
 
         var result = caller->respond(res);
         if (result is error) {
@@ -71,4 +72,3 @@ service hello on new http:Listener(9090) {
         }
     }
 }
-

@@ -19,6 +19,8 @@ import ballerina/http;
 import ballerina/lang.'object as lang;
 import ballerina/log;
 
+import ballerinax/java;
+
 //////////////////////////////////////////
 /// WebSub Subscriber Service Endpoint ///
 //////////////////////////////////////////
@@ -39,15 +41,15 @@ public type Listener object {
 
     public function __attach(service s, string? name = ()) returns error? {
         // TODO: handle data and return error on error
-        self.registerWebSubSubscriberService(s);
+        externRegisterWebSubSubscriberService(self, s);
     }
 
     public function __detach(service s) returns error? {
     }
 
     public function __start() returns error? {
+        check externStartWebSubSubscriberServiceEndpoint(self);
         // TODO: handle data and return error on error
-        self.startWebSubSubscriberServiceEndpoint();
         self.sendSubscriptionRequests();
     }
 
@@ -78,16 +80,12 @@ public type Listener object {
         http:Listener httpEndpoint = new(port, serviceConfig);
         self.serviceEndpoint = httpEndpoint;
 
-        self.initWebSubSubscriberServiceEndpoint();
+        externInitWebSubSubscriberServiceEndpoint(self);
     }
-
-    function initWebSubSubscriberServiceEndpoint() = external;
-
-    function registerWebSubSubscriberService(service serviceType) = external;
 
     # Sends subscription requests to the specified/discovered hubs if specified to subscribe on startup.
     function sendSubscriptionRequests() {
-        map<any>[] subscriptionDetailsArray = self.retrieveSubscriptionParameters();
+        map<any>[] subscriptionDetailsArray = externRetrieveSubscriptionParameters(self);
 
         foreach map<any> subscriptionDetails in subscriptionDetailsArray {
             if (subscriptionDetails.keys().length() == 0) {
@@ -151,21 +149,44 @@ public type Listener object {
         }
     }
 
-    # Start the registered WebSub Subscriber service.
-    function startWebSubSubscriberServiceEndpoint() = external;
-
     # Sets the topic to which this service is subscribing, for auto intent verification.
     #
     # + webSubServiceName - The name of the service for which subscription happened for a topic
     # + topic - The topic the subscription happened for
-    function setTopic(string webSubServiceName, string topic) = external;
-
-    # Retrieves the parameters specified for subscription as annotations and the callback URL to which notification
-    # should happen for the services bound to the endpoint.
-    #
-    # + return - `map[]` array of maps containing subscription details for each service
-    function retrieveSubscriptionParameters() returns map<any>[] = external;
+    function setTopic(string webSubServiceName, string topic) {
+        externSetTopic(self, java:fromString(webSubServiceName), java:fromString(topic));
+    }
 };
+
+///////////////////////////////////////////////////////////////////
+//////////////////// WebSub Subscriber Natives ////////////////////
+///////////////////////////////////////////////////////////////////
+
+function externInitWebSubSubscriberServiceEndpoint(Listener subscriberListener) = @java:Method {
+    name: "initWebSubSubscriberServiceEndpoint",
+    class: "org.ballerinalang.net.websub.nativeimpl.SubscriberNativeOperationHandler"
+} external;
+
+function externRegisterWebSubSubscriberService(Listener subscriberListener, service serviceType) = @java:Method {
+    name: "registerWebSubSubscriberService",
+    class: "org.ballerinalang.net.websub.nativeimpl.SubscriberNativeOperationHandler"
+} external;
+
+function externStartWebSubSubscriberServiceEndpoint(Listener subscriberListener) returns error? = @java:Method {
+    name: "startWebSubSubscriberServiceEndpoint",
+    class: "org.ballerinalang.net.websub.nativeimpl.SubscriberNativeOperationHandler"
+} external;
+
+function externSetTopic(Listener subscriberListener, handle webSubServiceName, handle topic) = @java:Method {
+    name: "setTopic",
+    class: "org.ballerinalang.net.websub.nativeimpl.SubscriberNativeOperationHandler"
+} external;
+
+function externRetrieveSubscriptionParameters(Listener subscriberListener) returns map<any>[] = @java:Method {
+    name: "retrieveSubscriptionParameters",
+    class: "org.ballerinalang.net.websub.nativeimpl.SubscriberNativeOperationHandler"
+} external;
+
 
 # Object representing the configuration for the WebSub Subscriber Service Endpoint.
 #
@@ -258,7 +279,7 @@ function retrieveHubAndTopicUrl(string resourceUrl, http:ClientConfiguration? pu
 # + subscriptionDetails - Map containing subscription details
 function invokeClientConnectorForSubscription(string hub, http:ClientConfiguration? hubClientConfig,
                                               map<any> subscriptionDetails) {
-    Client websubHubClientEP = new Client(hub, hubClientConfig);
+    SubscriptionClient websubHubClientEP = new (hub, hubClientConfig);
     [string, string][_, topic] = <[string, string]> subscriptionDetails[ANNOT_FIELD_TARGET];
     string callback = <string> subscriptionDetails[ANNOT_FIELD_CALLBACK];
 
@@ -274,8 +295,15 @@ function invokeClientConnectorForSubscription(string hub, http:ClientConfigurati
 
     var subscriptionResponse = websubHubClientEP->subscribe(subscriptionChangeRequest);
     if (subscriptionResponse is SubscriptionChangeResponse) {
-        log:printInfo("Subscription Request successful at Hub[" + subscriptionResponse.hub +
-                "], for Topic[" + subscriptionResponse.topic + "], with Callback [" + callback + "]");
+        string subscriptionSuccessMsg = "Subscription Request successfully sent to Hub[" + subscriptionResponse.hub +
+                                "], for Topic[" + subscriptionResponse.topic + "], with Callback [" + callback + "]";
+
+        boolean expectIntentVerification = <boolean> subscriptionDetails[ANNOT_FIELD_EXPECT_INTENT_VERIFICATION];
+        if (expectIntentVerification) {
+            log:printInfo(subscriptionSuccessMsg + ". Awaiting intent verification.");
+            return;
+        }
+        log:printInfo(subscriptionSuccessMsg);
     } else {
         string errCause = <string> subscriptionResponse.detail()?.message;
         log:printError("Subscription Request failed at Hub[" + hub + "], for Topic[" + topic + "]: " + errCause);

@@ -26,6 +26,7 @@ import java.util.Map;
  *
  * @since 0.90
  */
+@Deprecated
 public interface WorkerInfoPool {
 
     void addWorkerDataChannelInfo(WorkerDataChannelInfo workerDataChannelInfo);

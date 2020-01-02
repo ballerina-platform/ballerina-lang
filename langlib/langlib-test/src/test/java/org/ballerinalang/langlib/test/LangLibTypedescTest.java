@@ -75,6 +75,12 @@ public class LangLibTypedescTest {
     }
 
     @Test
+    public void testConvertingToUnionConstrainedType() {
+        BValue[] returns = BRunUtil.invokeFunction(compileResult, "testConvertingToUnionConstrainedType");
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test
     public void testConstructFromForNil() {
         BValue[] returns = BRunUtil.invokeFunction(compileResult, "testConstructFromForNilPositive");
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());

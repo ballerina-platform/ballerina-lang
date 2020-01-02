@@ -14,6 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerinax/java;
+
 # Represents socket client and related remote functions.
 #
 # + remotePort - the remote port number to which this socket is connected
@@ -23,7 +25,7 @@
 # + id - a unique identifier to identify each client
 public type Client client object {
 
-    private ClientConfig config;
+    private ClientConfig? config = ();
     public int remotePort = 0;
     public int localPort = 0;
     public string? remoteAddress = ();
@@ -33,11 +35,11 @@ public type Client client object {
     public function __init(ClientConfig? clientConfig) {
         if (clientConfig is ClientConfig) {
             self.config = clientConfig;
-            var initResult = self.initEndpoint(clientConfig);
+            var initResult = initClientEndpoint(self, clientConfig);
             if (initResult is error) {
                 panic initResult;
             }
-            var startResult = self.start();
+            var startResult = startClient(self);
             if (startResult is error) {
                 panic startResult;
             }
@@ -45,15 +47,13 @@ public type Client client object {
         return ();
     }
 
-    function initEndpoint(ClientConfig clientConfig) returns error? = external;
-
-    function start() returns error? = external;
-
     # Writes given data to the client socket.
     #
     # + content - - the content that wish to send to the client socket
     # + return - - number of bytes got written or an error if encounters an error while writing
-    public remote function write(byte[] content) returns int|Error = external;
+    public remote function write(byte[] content) returns int|Error {
+        return externWrite(self, content);
+    }
 
     # Reads data from the client socket. If the data has the specified length, then wait until that number of bytes
     # are received from the client. Else, return the data available in the OS buffer.
@@ -63,22 +63,30 @@ public type Client client object {
     #
     # + length - - Positive integer. Represents the number of bytes which should be read
     # + return - - Content as a byte array and the number of bytes read or an error if encounters an error while reading
-    public remote function read(public int length = -100) returns @tainted [byte[], int]|ReadTimedOutError = external;
+    public remote function read(public int length = -100) returns @tainted [byte[], int]|ReadTimedOutError {
+        return externRead(self, length);
+    }
 
     # Closes the client socket connection.
     #
     # + return - - an error if encounters an error while closing the connection or returns nil otherwise
-    public remote function close() returns Error? = external;
+    public remote function close() returns Error? {
+        return closeClient(self);
+    }
 
     # Shutdowns the further read from socket.
     #
     # + return - an error if encounters an error while shutdown the read from socket or returns nil otherwise
-    public remote function shutdownRead() returns Error? = external;
+    public remote function shutdownRead() returns Error? {
+        return externShutdownRead(self);
+    }
 
     # Shutdowns the further write from socket.
     #
     # + return - an error if encounters an error while shutdown the write from socket or returns nil otherwise
-    public remote function shutdownWrite() returns Error? = external;
+    public remote function shutdownWrite() returns Error? {
+        return externShutdownWrite(self);
+    }
 };
 
 # Configuration for socket client endpoint.
@@ -93,3 +101,45 @@ public type ClientConfig record {|
     int readTimeoutInMillis = 300000;
     service callbackService?;
 |};
+
+function initClientEndpoint(Client clientObj, ClientConfig clientConfig) returns error? =
+@java:Method {
+    name: "initEndpoint",
+    class: "org.ballerinalang.stdlib.socket.endpoint.tcp.ClientActions"
+} external;
+
+function startClient(Client clientObj) returns error? =
+@java:Method {
+    name: "start",
+    class: "org.ballerinalang.stdlib.socket.endpoint.tcp.ClientActions"
+} external;
+
+function externWrite(Client clientObj, byte[] content) returns int|Error =
+@java:Method {
+    name: "write",
+    class: "org.ballerinalang.stdlib.socket.endpoint.tcp.ClientActions"
+} external;
+
+function externRead(Client clientObj, int length) returns [byte[], int]|ReadTimedOutError =
+@java:Method {
+    name: "read",
+    class: "org.ballerinalang.stdlib.socket.endpoint.tcp.ClientActions"
+} external;
+
+function closeClient(Client clientObj) returns Error? =
+@java:Method {
+    name: "close",
+    class: "org.ballerinalang.stdlib.socket.endpoint.tcp.ClientActions"
+} external;
+
+function externShutdownRead(Client clientObj) returns Error? =
+@java:Method {
+    name: "shutdownRead",
+    class: "org.ballerinalang.stdlib.socket.endpoint.tcp.ClientActions"
+} external;
+
+function externShutdownWrite(Client clientObj) returns Error? =
+@java:Method {
+    name: "shutdownWrite",
+    class: "org.ballerinalang.stdlib.socket.endpoint.tcp.ClientActions"
+} external;

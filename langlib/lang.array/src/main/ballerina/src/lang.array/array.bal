@@ -67,7 +67,7 @@ public function enumerate(Type[] arr) returns [int, Type][] = external;
 public function 'map(Type[] arr, function(Type val) returns Type1 func) returns Type1[] = external;
 
 # Applies a function to each member of an array.
-# The function `func` is applied to each member of array `arr` in order.
+# The parameter `func` is applied to each member of array `arr` in order.
 #
 # + arr - the array
 # + func - a function to apply to each member
@@ -86,7 +86,7 @@ public function filter(Type[] arr, function(Type val) returns boolean func) retu
 #
 # + arr - the array
 # + func - combining function
-# + initial - initial value for the first argument of combining function `func`
+# + initial - initial value for the first argument of combining parameter `func`
 # + return - result of combining the members of `arr` using `func`
 #
 # For example

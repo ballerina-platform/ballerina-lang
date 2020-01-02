@@ -159,3 +159,32 @@ function testSubTypingWithAny() returns any {
     any s = ff();
     return s;
 }
+
+var f1 = function() returns string {
+    return "f1";
+};
+
+public function testGlobalFunctionPointerVar() returns string {
+   return f1();
+}
+
+function() returns string f2 = function() returns string {
+    return "f2";
+};
+
+public function testGlobalFunctionPointerTyped() returns string {
+   return f2();
+}
+
+public function testVoidFunctionAsUnionReturnFunction() returns string {
+    string s = "value";
+    xyz(function () {
+        s += " - updated through lambda";
+    });
+
+    return s;
+}
+
+function xyz(function() returns any|error func) {
+    var result = func();
+}

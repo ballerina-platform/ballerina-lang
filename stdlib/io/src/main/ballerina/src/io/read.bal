@@ -14,8 +14,17 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerinax/java;
+
 # Returns the input read from STDIN.
 #
 # + a - Any value to be printed
 # + return - Input read from STDIN
-public function readln(any a) returns @tainted string = external;
+public function readln(any a) returns @tainted string {
+    return <string>java:toString(readlnExtern(a));
+}
+
+function readlnExtern(any a) returns @tainted handle = @java:Method {
+    name: "readln",
+    class: "org.ballerinalang.stdlib.io.nativeimpl.ReadlnAny"
+} external;

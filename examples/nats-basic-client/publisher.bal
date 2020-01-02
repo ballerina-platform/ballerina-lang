@@ -14,14 +14,12 @@ public function main() {
     nats:Producer producer = new(connection);
     while (message != ESCAPE) {
         message = io:readln("Message : ");
-        if (message != ESCAPE) {
-            // Produces a message to the specified subject.
-            nats:Error? result = producer->publish(subject, <@untainted>message);
-            if (result is nats:Error) {
-                io:println("Error occurred while producing the message.");
-            } else {
-                io:println("Message published successfully.");
-            }
+        // Produces a message to the specified subject.
+        nats:Error? result = producer->publish(subject, <@untainted>message);
+        if (result is nats:Error) {
+            io:println("Error occurred while producing the message.");
+        } else {
+            io:println("Message published successfully.");
         }
     }
     // Closes the publisher connection.

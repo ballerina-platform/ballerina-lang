@@ -62,14 +62,14 @@ public type RetryClient client object {
         self.httpClient = httpClient;
     }
 
-    # The `post()` function wraps the underlying HTTP remote functions in a way to provide
+    # The `RetryClient.post()` function wraps the underlying HTTP remote functions in a way to provide
     # retrying functionality for a given endpoint to recover from network level failures.
     #
     # + path - Resource path
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The HTTP `Response` message, or an error if the invocation fails
-    public remote function post(string path, RequestMessage message) returns Response|ClientError {
+    public remote function post(string path, RequestMessage message) returns @tainted Response|ClientError {
         var result = performRetryAction(path, <Request>message, HTTP_POST, self);
         if (result is HttpFuture) {
             return getInvalidTypeError();
@@ -78,14 +78,14 @@ public type RetryClient client object {
         }
     }
 
-    # The `head()` function wraps the underlying HTTP remote functions in a way to provide
+    # The `RetryClient.head()` function wraps the underlying HTTP remote functions in a way to provide
     # retrying functionality for a given endpoint to recover from network level failures.
     #
     # + path - Resource path
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The HTTP `Response` message, or an error if the invocation fails
-    public remote function head(string path, public RequestMessage message = ()) returns Response|ClientError {
+    public remote function head(string path, public RequestMessage message = ()) returns @tainted Response|ClientError {
         var result = performRetryAction(path, <Request>message, HTTP_HEAD, self);
         if (result is HttpFuture) {
             return getInvalidTypeError();
@@ -94,14 +94,14 @@ public type RetryClient client object {
         }
     }
 
-    # The `put()` function wraps the underlying HTTP remote function in a way to provide
+    # The `RetryClient.put()` function wraps the underlying HTTP remote function in a way to provide
     # retrying functionality for a given endpoint to recover from network level failures.
     #
     # + path - Resource path
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The HTTP `Response` message, or an error if the invocation fails
-    public remote function put(string path, RequestMessage message) returns Response|ClientError {
+    public remote function put(string path, RequestMessage message) returns @tainted Response|ClientError {
         var result = performRetryAction(path, <Request>message, HTTP_PUT, self);
         if (result is HttpFuture) {
             return getInvalidTypeError();
@@ -110,13 +110,13 @@ public type RetryClient client object {
         }
     }
 
-    # The `forward()` function wraps the underlying HTTP remote function in a way to provide retrying functionality
-    # for a given endpoint with inbound request's HTTP verb to recover from network level failures.
+    # The `RetryClient.forward()` function wraps the underlying HTTP remote function in a way to provide retrying
+    # functionality for a given endpoint with inbound request's HTTP verb to recover from network level failures.
     #
     # + path - Resource path
     # + request - An HTTP inbound request message
     # + return - The HTTP `Response` message, or an error if the invocation fails
-    public remote function forward(string path, Request request) returns Response|ClientError {
+    public remote function forward(string path, Request request) returns @tainted Response|ClientError {
         var result = performRetryAction(path, request, HTTP_FORWARD, self);
         if (result is HttpFuture) {
             return getInvalidTypeError();
@@ -125,8 +125,8 @@ public type RetryClient client object {
         }
     }
 
-    # The `execute()` sends an HTTP request to a service with the specified HTTP verb. The function wraps the
-    # underlying HTTP remote function in a way to provide retrying functionality for a given endpoint to recover
+    # The `RetryClient.execute()` sends an HTTP request to a service with the specified HTTP verb. The function wraps
+    # the underlying HTTP remote function in a way to provide retrying functionality for a given endpoint to recover
     # from network level failures.
     #
     # + httpVerb - The HTTP verb value
@@ -134,7 +134,8 @@ public type RetryClient client object {
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The HTTP `Response` message, or an error if the invocation fails
-    public remote function execute(string httpVerb, string path, RequestMessage message) returns Response|ClientError {
+    public remote function execute(string httpVerb, string path, RequestMessage message) returns
+            @tainted Response|ClientError {
         var result = performRetryClientExecuteAction(path, <Request>message, httpVerb, self);
         if (result is HttpFuture) {
             return getInvalidTypeError();
@@ -143,14 +144,14 @@ public type RetryClient client object {
         }
     }
 
-    # The `patch()` function wraps the underlying HTTP remote function in a way to provide
+    # The `RetryClient.patch()` function wraps the underlying HTTP remote function in a way to provide
     # retrying functionality for a given endpoint to recover from network level failures.
     #
     # + path - Resource path
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The HTTP `Response` message, or an error if the invocation fails
-    public remote function patch(string path, RequestMessage message) returns Response|ClientError {
+    public remote function patch(string path, RequestMessage message) returns @tainted Response|ClientError {
         var result = performRetryAction(path, <Request>message, HTTP_PATCH, self);
         if (result is HttpFuture) {
             return getInvalidTypeError();
@@ -159,14 +160,15 @@ public type RetryClient client object {
         }
     }
 
-    # The `delete()` function wraps the underlying HTTP remote function in a way to provide
+    # The `RetryClient.delete()` function wraps the underlying HTTP remote function in a way to provide
     # retrying functionality for a given endpoint to recover from network level failures.
     #
     # + path - Resource path
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The HTTP `Response` message, or an error if the invocation fails
-    public remote function delete(string path, public RequestMessage message = ()) returns Response|ClientError {
+    public remote function delete(string path, public RequestMessage message = ()) returns
+            @tainted Response|ClientError {
         var result = performRetryAction(path, <Request>message, HTTP_DELETE, self);
         if (result is HttpFuture) {
             return getInvalidTypeError();
@@ -175,14 +177,14 @@ public type RetryClient client object {
         }
     }
 
-    # The `get()` function wraps the underlying HTTP remote function in a way to provide
+    # The `RetryClient.get()` function wraps the underlying HTTP remote function in a way to provide
     # retrying functionality for a given endpoint to recover from network level failures.
     #
     # + path - Resource path
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The HTTP `Response` message, or an error if the invocation fails
-    public remote function get(string path, public RequestMessage message = ()) returns Response|ClientError {
+    public remote function get(string path, public RequestMessage message = ()) returns @tainted Response|ClientError {
         var result = performRetryAction(path, <Request>message, HTTP_GET, self);
         if (result is HttpFuture) {
             return getInvalidTypeError();
@@ -191,14 +193,15 @@ public type RetryClient client object {
         }
     }
 
-    # The `options()` function wraps the underlying HTTP remote function in a way to provide
+    # The `RetryClient.options()` function wraps the underlying HTTP remote function in a way to provide
     # retrying functionality for a given endpoint to recover from network level failures.
     #
     # + path - Resource path
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The HTTP `Response` message, or an error if the invocation fails
-    public remote function options(string path, public RequestMessage message = ()) returns Response|ClientError {
+    public remote function options(string path, public RequestMessage message = ()) returns
+            @tainted Response|ClientError {
         var result = performRetryAction(path, <Request>message, HTTP_OPTIONS, self);
         if (result is HttpFuture) {
             return getInvalidTypeError();
@@ -208,7 +211,7 @@ public type RetryClient client object {
     }
 
     # Submits an HTTP request to a service with the specified HTTP verb.
-	#cThe `submit()` function does not give out a `Response` as the result,
+	#cThe `RetryClient.submit()` function does not give out a `Response` as the result,
 	#crather it returns an `HttpFuture` which can be used to do further interactions with the endpoint.
     #
     # + httpVerb - The HTTP verb value
@@ -216,7 +219,8 @@ public type RetryClient client object {
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - An `HttpFuture` that represents an asynchronous service invocation, or an error if the submission fails
-    public remote function submit(string httpVerb, string path, RequestMessage message) returns HttpFuture|ClientError {
+    public remote function submit(string httpVerb, string path, RequestMessage message) returns
+            @tainted HttpFuture|ClientError {
         var result = performRetryClientExecuteAction(path, <Request>message, HTTP_SUBMIT, self, verb = httpVerb);
         if (result is Response) {
             return getInvalidTypeError();
@@ -272,14 +276,14 @@ public type RetryClient client object {
 // of the http verb and invokes the perform action method.
 // verb is used for submit methods only.
 function performRetryClientExecuteAction(@untainted string path, Request request, @untainted string httpVerb,
-                                         RetryClient retryClient, string verb = "") returns HttpResponse|ClientError {
+                                         RetryClient retryClient, string verb = "") returns @tainted HttpResponse|ClientError {
     HttpOperation connectorAction = extractHttpOperation(httpVerb);
     return performRetryAction(path, request, connectorAction, retryClient, verb = verb);
 }
 
 // Handles all the actions exposed through the retry client.
 function performRetryAction(@untainted string path, Request request, HttpOperation requestAction,
-                            RetryClient retryClient, string verb = "") returns HttpResponse|ClientError {
+                            RetryClient retryClient, string verb = "") returns @tainted HttpResponse|ClientError {
     HttpClient httpClient = retryClient.httpClient;
     int currentRetryCount = 0;
     int retryCount = retryClient.retryInferredConfig.count;

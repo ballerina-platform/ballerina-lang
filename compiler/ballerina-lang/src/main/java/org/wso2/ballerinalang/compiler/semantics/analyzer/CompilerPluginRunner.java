@@ -56,10 +56,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.ServiceLoader;
+import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 
@@ -84,7 +86,7 @@ public class CompilerPluginRunner extends BLangNodeVisitor {
     private DiagnosticPos defaultPos;
     private CompilerContext context;
     private List<CompilerPlugin> pluginList;
-    private Map<DefinitionID, List<CompilerPlugin>> processorMap;
+    private Map<DefinitionID, Set<CompilerPlugin>> processorMap;
     private Map<CompilerPlugin, List<DefinitionID>> resourceTypeProcessorMap;
     private Map<CompilerPlugin, BType> serviceListenerMap;
 
@@ -234,9 +236,8 @@ public class CompilerPluginRunner extends BLangNodeVisitor {
             List<BAnnotationSymbol> annotationSymbols = getAnnotationSymbols(annPackage);
             annotationSymbols.forEach(annSymbol -> {
                 DefinitionID definitionID = new DefinitionID(annSymbol.pkgID.name.value, annSymbol.name.value);
-                List<CompilerPlugin> processorList = processorMap.computeIfAbsent(
-                        definitionID, k -> new ArrayList<>());
-                processorList.add(plugin);
+                Set<CompilerPlugin> processors = processorMap.computeIfAbsent(definitionID, k -> new HashSet<>());
+                processors.add(plugin);
             });
         }
     }
@@ -270,12 +271,11 @@ public class CompilerPluginRunner extends BLangNodeVisitor {
                 continue;
             }
 
-            List<CompilerPlugin> procList = processorMap.get(aID);
-            procList.forEach(proc -> {
+            for (CompilerPlugin proc : processorMap.get(aID)) {
                 List<AnnotationAttachmentNode> attachmentNodes =
                         attachmentMap.computeIfAbsent(proc, k -> new ArrayList<>());
                 attachmentNodes.add(attachment);
-            });
+            }
         }
 
 

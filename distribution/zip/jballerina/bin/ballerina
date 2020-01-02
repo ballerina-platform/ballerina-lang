@@ -141,12 +141,16 @@ if [ -z "$JAVA_HOME" ]; then
   exit 1
 fi
 
-# Ballerina run/debug command
+# Ballerina test/debug command
 argsLength=$#
 args=($@)
-for (( i=0; i<$argsLength; i++ )); do 
-  if [  "${args[$i]}" = "--debug" ]; then
-    BAL_JAVA_DEBUG=${args[$i+1]}
+for (( i=0; i<argsLength; i++ )); do
+  if [  "${args[$i]}" = "test" ]; then
+    for (( j=0; j<argsLength; j++ )); do
+      if [ "${args[$j]}" = "--debug" ]; then
+        BAL_JAVA_DEBUG=${args[$j+1]}
+      fi
+    done
   fi
 done
 
@@ -160,8 +164,8 @@ if [ -n "${BAL_JAVA_DEBUG+set}" ]; then
 	if [ -n "$JAVA_OPTS" ]; then
 	  echo "Warning !!!. User specified JAVA_OPTS may interfere with BAL_JAVA_DEBUG"
 	fi
-	JAVA_OPTS="$JAVA_OPTS -Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=$BAL_JAVA_DEBUG"
-	echo "Please start the remote debugging client to continue..."
+	# 'quiet=y' avoids breaking LSP protocol in debug mode
+	JAVA_OPTS="$JAVA_OPTS -Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=$BAL_JAVA_DEBUG,quiet=y"
     fi
 fi
 
@@ -179,7 +183,7 @@ do
     fi
 done
 
-BALLERINA_CLASSPATH=""
+BALLERINA_CLASSPATH="$CUSTOM_CLASSPATH"
 if [ -e "$BALLERINA_HOME/bre/lib/bootstrap/tools.jar" ]; then
     BALLERINA_CLASSPATH="$JAVA_HOME/lib/tools.jar"
 fi
@@ -192,6 +196,16 @@ do
 done
 
 for j in "$BALLERINA_HOME"/bre/lib/*.jar
+do
+    BALLERINA_CLASSPATH="$BALLERINA_CLASSPATH":$j
+done
+
+for j in "$BALLERINA_HOME"/lib/tools/lang-server/lib/*.jar
+do
+    BALLERINA_CLASSPATH="$BALLERINA_CLASSPATH":$j
+done
+
+for j in "$BALLERINA_HOME"/lib/tools/debug-adapter/lib/*.jar
 do
     BALLERINA_CLASSPATH="$BALLERINA_CLASSPATH":$j
 done
@@ -261,6 +275,7 @@ elif [[ $1 == "run" ]] && [[ $2 == *.jar ]]; then # if 1st arg is "run" and 2nd 
         -Djava.security.egd=file:/dev/./urandom \
         -Dfile.encoding=UTF8 \
         -Dballerina.target=jvm \
+        -Djava.command=$JAVACMD \
         -jar "${@:2}" # ignores "run"
 else
     $JAVACMD \
@@ -278,5 +293,6 @@ else
         -Djava.security.egd=file:/dev/./urandom \
         -Dfile.encoding=UTF8 \
         -Dballerina.target=jvm \
+        -Djava.command=$JAVACMD \
         org.ballerinalang.tool.Main "$@"
 fi

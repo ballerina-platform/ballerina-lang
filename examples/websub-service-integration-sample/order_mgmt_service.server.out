@@ -2,8 +2,12 @@
 # To start the service, navigate to the directory that contains the
 # `.bal` file, and use the `ballerina run` command.
 $ ballerina run order_mgmt_service.bal
+[ballerina/websub] Ballerina WebSub Hub started up.
+[ballerina/websub] Publish URL: http://localhost:9191/websub/publish
+[ballerina/websub] Subscription URL: http://localhost:9191/websub/hub
 [ballerina/http] started HTTP/WS listener 0.0.0.0:9191
-[ballerina/websub] Default Ballerina WebSub Hub started up at http://localhost:9191/websub/hub
 [ballerina/http] started HTTP/WS listener 0.0.0.0:9090
-2018-08-08 10:56:50,220 INFO  [ballerina/websub] - Intent verification successful for mode: [subscribe], for callback URL: [http://localhost:8181/ordereventsubscriber]
-2018-08-08 10:57:00,921 INFO  [] - New Order Added: 1001
+2019-11-01 14:15:05,814 INFO  [ballerina/websub] - Subscription request received for topic[http://localhost:9090/ordermgt/ordertopic] with callback[http://localhost:8181/ordereventsubscriber]
+2019-11-01 14:15:05,858 INFO  [ballerina/websub] - Sending intent verification request to callback[http://localhost:8181/ordereventsubscriber] for topic[http://localhost:9090/ordermgt/ordertopic]
+2019-11-01 14:15:06,037 INFO  [ballerina/websub] - Intent verification successful for mode: [subscribe], for callback URL: [http://localhost:8181/ordereventsubscriber]
+2019-11-01 14:15:58,756 INFO  [] - New Order Added: 1001

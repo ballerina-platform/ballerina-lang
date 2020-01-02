@@ -40,6 +40,6 @@ public class Unshift {
 
     public static void unshift(Strand strand, ArrayValue arr, ArrayValue vals) {
         checkIsArrayOnlyOperation(arr.getType(), "unshift()");
-        arr.unshift(0, vals);
+        arr.unshift(vals);
     }
 }

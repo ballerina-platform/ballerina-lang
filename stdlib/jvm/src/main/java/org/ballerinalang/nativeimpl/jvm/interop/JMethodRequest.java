@@ -19,6 +19,8 @@ package org.ballerinalang.nativeimpl.jvm.interop;
 
 import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.types.BArrayType;
+import org.ballerinalang.jvm.types.BFiniteType;
+import org.ballerinalang.jvm.types.BFunctionType;
 import org.ballerinalang.jvm.types.BObjectType;
 import org.ballerinalang.jvm.types.BRecordType;
 import org.ballerinalang.jvm.types.BTupleType;
@@ -31,7 +33,9 @@ import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.MapValue;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import static org.ballerinalang.nativeimpl.jvm.interop.JInterop.ARRAY_ELEMENT_TYPE_FIELD;
 import static org.ballerinalang.nativeimpl.jvm.interop.JInterop.ARRAY_TNAME;
@@ -44,12 +48,15 @@ import static org.ballerinalang.nativeimpl.jvm.interop.JInterop.PARAM_TYPES_FIEL
 import static org.ballerinalang.nativeimpl.jvm.interop.JInterop.PARAM_TYPE_CONSTRAINTS_FIELD;
 import static org.ballerinalang.nativeimpl.jvm.interop.JInterop.RECORD_TNAME;
 import static org.ballerinalang.nativeimpl.jvm.interop.JInterop.REST_PARAM_EXIST_FIELD;
+import static org.ballerinalang.nativeimpl.jvm.interop.JInterop.REST_TYPE_FIELD;
 import static org.ballerinalang.nativeimpl.jvm.interop.JInterop.RETURN_TYPE_FIELD;
 import static org.ballerinalang.nativeimpl.jvm.interop.JInterop.TUPLE_TNAME;
 import static org.ballerinalang.nativeimpl.jvm.interop.JInterop.TUPLE_TYPE_MEMBERS_FIELD;
 import static org.ballerinalang.nativeimpl.jvm.interop.JInterop.TYPE_NAME_FIELD;
 import static org.ballerinalang.nativeimpl.jvm.interop.JInterop.UNION_TNAME;
 import static org.ballerinalang.nativeimpl.jvm.interop.JInterop.UNION_TYPE_MEMBERS_FIELD;
+import static org.ballerinalang.nativeimpl.jvm.interop.JInterop.VALUES_FIELD;
+import static org.ballerinalang.nativeimpl.jvm.interop.JInterop.VALUE_FIELD;
 
 /**
  * {@code JMethodRequest} represents Java method request bean issued by the Java interop logic written in Ballerina.
@@ -72,18 +79,25 @@ class JMethodRequest {
     private JMethodRequest() {
     }
 
-    static JMethodRequest build(MapValue jMethodReqBValue) {
+    static JMethodRequest build(MapValue jMethodReqBValue, ClassLoader classLoader) {
         JMethodRequest jMethodReq = new JMethodRequest();
         jMethodReq.kind = JMethodKind.getKind((String) jMethodReqBValue.get(KIND_FIELD));
         jMethodReq.methodName = (String) jMethodReqBValue.get(NAME_FIELD);
-        jMethodReq.declaringClass = JInterop.loadClass((String) jMethodReqBValue.get(CLASS_FIELD));
+        jMethodReq.declaringClass = JInterop.loadClass((String) jMethodReqBValue.get(CLASS_FIELD), classLoader);
         jMethodReq.paramTypeConstraints = JInterop.buildParamTypeConstraints(
-                (ArrayValue) jMethodReqBValue.get(PARAM_TYPE_CONSTRAINTS_FIELD));
+                (ArrayValue) jMethodReqBValue.get(PARAM_TYPE_CONSTRAINTS_FIELD), classLoader);
 
         MapValue bFuncType = (MapValue) jMethodReqBValue.get(B_FUNC_TYPE_FIELD);
         ArrayValue paramTypes = (ArrayValue) bFuncType.get(PARAM_TYPES_FIELD);
+
+        Object restType = bFuncType.get(REST_TYPE_FIELD);
+        if (restType != null) {
+            paramTypes.append(restType);
+        }
+
         jMethodReq.bFuncParamCount = paramTypes.size();
         jMethodReq.bParamTypes = getBParamTypes(paramTypes);
+
         BType returnType = getBType(bFuncType.get(RETURN_TYPE_FIELD));
         jMethodReq.bReturnType = returnType;
         jMethodReq.returnsBErrorType = returnType.toString().contains(TypeConstants.ERROR);
@@ -134,8 +148,8 @@ class JMethodRequest {
 
         if (bType.getTag() == TypeTags.RECORD_TYPE_TAG) {
             BRecordType bRecordType = ((BRecordType) bType);
-            MapValue arrayTypeValue = ((MapValue) bTypeValue);
-            String typeName = arrayTypeValue.getStringValue(TYPE_NAME_FIELD);
+            MapValue typeValue = ((MapValue) bTypeValue);
+            String typeName = typeValue.getStringValue(TYPE_NAME_FIELD);
             switch (typeName) {
                 case TypeConstants.HANDLE_TNAME:
                     return BTypes.typeHandle;
@@ -154,7 +168,7 @@ class JMethodRequest {
                 case TypeConstants.FUTURE_TNAME:
                     return BTypes.typeFuture;
                 case UNION_TNAME:
-                    ArrayValue members = ((MapValue) bTypeValue).getArrayValue(UNION_TYPE_MEMBERS_FIELD);
+                    ArrayValue members = typeValue.getArrayValue(UNION_TYPE_MEMBERS_FIELD);
                     List<BType> memberTypes = new ArrayList<>();
                     for (int i = 0; i < members.size(); i++) {
                         memberTypes.add(getBType(members.get(i)));
@@ -163,7 +177,7 @@ class JMethodRequest {
                 case OBJECT_TNAME:
                     return new BObjectType(bRecordType.getName(), bRecordType.getPackage(), bRecordType.flags);
                 case TUPLE_TNAME:
-                    members = ((MapValue) bTypeValue).getArrayValue(TUPLE_TYPE_MEMBERS_FIELD);
+                    members = typeValue.getArrayValue(TUPLE_TYPE_MEMBERS_FIELD);
                     memberTypes = new ArrayList<>();
                     for (int i = 0; i < members.size(); i++) {
                         memberTypes.add(getBType(members.get(i)));
@@ -173,12 +187,37 @@ class JMethodRequest {
                     return new BRecordType(bRecordType.getName(), bRecordType.getPackage(), bRecordType.flags,
                             bRecordType.sealed, bRecordType.typeFlags);
                 case ARRAY_TNAME:
-                    return new BArrayType(getBType(arrayTypeValue.get(ARRAY_ELEMENT_TYPE_FIELD)));
+                    return new BArrayType(getBType(typeValue.get(ARRAY_ELEMENT_TYPE_FIELD)));
+                case TypeConstants.FINITE_TNAME:
+                    String finiteTypeName = (String) ((MapValue) typeValue.get(NAME_FIELD)).get(VALUE_FIELD);
+                    return new BFiniteType(finiteTypeName, getValueSpace((ArrayValue) typeValue.get(VALUES_FIELD)),
+                            bRecordType.typeFlags);
+                case TypeConstants.FUNCTION_TNAME:
+                    ArrayValue params = (ArrayValue) typeValue.get(PARAM_TYPES_FIELD);
+                    BType restType = null;
+                    BType[] paramTypes = new BType[params.size()];
+                    for (int i = 0; i < params.size(); i++) {
+                        paramTypes[i] = getBType(params.get(i));
+                    }
+                    Object restVar = typeValue.get(REST_TYPE_FIELD);
+                    if (restVar != null) {
+                        restType = getBType(restVar);
+                    }
+                    return new BFunctionType(paramTypes, restType, getBType(typeValue.get(RETURN_TYPE_FIELD)));
                 default:
                     throw new UnsupportedOperationException("JInterop does not support type '" + bType + "'");
             }
         }
 
         throw new UnsupportedOperationException("JInterop does not support type '" + bType + "'");
+    }
+
+    private static Set<Object> getValueSpace(ArrayValue values) {
+        Set<Object> valueSpace = new HashSet<>();
+        for (int i = 0; i < values.size(); i++) {
+            ArrayValue value = (ArrayValue) values.get(i);
+            valueSpace.add(value.get(0));
+        }
+        return valueSpace;
     }
 }

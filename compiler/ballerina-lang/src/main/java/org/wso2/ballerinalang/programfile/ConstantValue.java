@@ -25,6 +25,7 @@ import java.util.Map;
  *
  * @since 0.990.4
  */
+@Deprecated
 public class ConstantValue {
 
     public int finiteTypeSigCPIndex = -1;

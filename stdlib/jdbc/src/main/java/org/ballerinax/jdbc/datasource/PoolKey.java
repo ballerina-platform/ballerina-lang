@@ -20,6 +20,7 @@ package org.ballerinax.jdbc.datasource;
 import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.TypeTags;
+import org.ballerinalang.jvm.values.MapValue;
 
 import java.util.Map;
 
@@ -30,9 +31,9 @@ import java.util.Map;
  */
 public class PoolKey {
     private String jdbcUrl;
-    private Map<String, ?> dbOptions;
+    private MapValue<String, ?> dbOptions;
 
-    public PoolKey(String jdbcUrl, Map<String, ?> dbOptions) {
+    public PoolKey(String jdbcUrl, MapValue<String, ?> dbOptions) {
         this.jdbcUrl = jdbcUrl;
         this.dbOptions = dbOptions;
     }
@@ -93,7 +94,7 @@ public class PoolKey {
     }
 
     private boolean dbOptionsEqual(PoolKey anotherPoolKey) {
-        Map<String, ?> anotherDbOptions = anotherPoolKey.dbOptions;
+        MapValue<String, ?> anotherDbOptions = anotherPoolKey.dbOptions;
         if (dbOptions == null && anotherDbOptions == null) {
             return true;
         }

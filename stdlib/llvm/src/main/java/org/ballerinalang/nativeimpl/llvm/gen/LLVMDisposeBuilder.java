@@ -1,4 +1,4 @@
-// Copyright (c) 2018 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+// Copyright (c) 2019 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 //
 // WSO2 Inc. licenses this file to you under the Apache License,
 // Version 2.0 (the "License"); you may not use this file except
@@ -16,8 +16,8 @@
 
 package org.ballerinalang.nativeimpl.llvm.gen;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.nativeimpl.llvm.FFIUtil;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -28,18 +28,20 @@ import static org.bytedeco.javacpp.LLVM.LLVMDisposeBuilder;
 
 /**
  * Auto generated class.
+ *
+ * @since 1.0.3
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "llvm",
-        functionName = "LLVMDisposeBuilder",
+        functionName = "llvmDisposeBuilder",
         args = {
                 @Argument(name = "builder", type = RECORD, structType = "LLVMBuilderRef"),
         })
-public class LLVMDisposeBuilder extends BlockingNativeCallableUnit {
+public class LLVMDisposeBuilder {
 
-    @Override
-    public void execute(Context context) {
-        LLVM.LLVMBuilderRef builder = FFIUtil.getRecodeArgumentNative(context, 0);
+    public static void llvmDisposeBuilder(Strand strand, MapValue<String, Object> fn) {
+
+        LLVM.LLVMBuilderRef builder = (LLVM.LLVMBuilderRef) FFIUtil.getRecodeArgumentNative(fn);
         LLVMDisposeBuilder(builder);
     }
 }

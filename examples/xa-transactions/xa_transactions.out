@@ -3,12 +3,13 @@
 $ ballerina run --experimental xa_transactions.bal
 Create CUSTOMER table status: 0
 Create SALARY table status: 0
-2018-12-04 20:12:03,507 INFO  [ballerina/transactions] - Created transaction: aec7b091-cbac-4d61-8834-bed8e1a3c9ec
+2019-12-16 10:25:35,658 INFO  [ballerina/transactions] - Created transaction: ab7cc71e-30f0-45ac-982e-01e0a0e39875
 Inserted row count: 1
 Generated key: 1
 Insert to SALARY table status: 1
-2018-12-04 20:12:03,541 INFO  [ballerina/transactions] - Running 2-phase commit for transaction: aec7b091-cbac-4d61-8834-bed8e1a3c9ec:$anon$.$1
+2019-12-16 10:25:35,672 INFO  [ballerina/transactions] - Running 2-phase commit for transaction: ab7cc71e-30f0-45ac-982e-01e0a0e39875:$anon$.$0
 Transaction committed
 Drop Table CUSTOMER status: 0
 Drop Table SALARY status: 0
-[ballerina/http] started HTTP/WS listener 10.100.7.118:64331
+[ballerina/http] started HTTP/WS listener 10.100.7.118:52159
+[ballerina/http] stopped HTTP/WS listener 10.100.7.118:52159

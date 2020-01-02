@@ -29,9 +29,9 @@ const string WEBSUB_TOPIC_SIX = "http://two.redir.topic.com";
 
 boolean remoteTopicRegistered = false;
 
-websub:WebSubHub webSubHub = startHubAndRegisterTopic();
+websub:Hub webSubHub = startHubAndRegisterTopic();
 
-websub:Client websubHubClientEP = new websub:Client(webSubHub.hubUrl);
+websub:PublisherClient websubHubClientEP = new (webSubHub.publishUrl);
 
 listener http:Listener publisherServiceEP = new http:Listener(23080);
 
@@ -42,7 +42,7 @@ service publisher on publisherServiceEP {
     resource function discover(http:Caller caller, http:Request req) {
         http:Response response = new;
         // Add a link header indicating the hub and topic
-        websub:addWebSubLinkHeader(response, [webSubHub.hubUrl], WEBSUB_TOPIC_ONE);
+        websub:addWebSubLinkHeader(response, [webSubHub.subscriptionUrl], WEBSUB_TOPIC_ONE);
         var err = caller->accepted(response);
         if (err is error) {
             log:printError("Error responding on ordering", err);
@@ -110,6 +110,15 @@ service publisher on publisherServiceEP {
             }
         }
     }
+
+    resource function unsubscribe(http:Caller caller, http:Request req) returns error? {
+        check webSubHub.removeSubscription("http://one.websub.topic.com",
+                                           "http://localhost:23181/websubThree?topic=http://one.websub.topic.com&fooVal=barVal");
+        var err = caller->respond("unsubscription successful");
+        if (err is error) {
+            log:printError("Error responding on unsubscription request", err);
+        }
+    }
 }
 
 service publisherTwo on publisherServiceEP {
@@ -119,7 +128,7 @@ service publisherTwo on publisherServiceEP {
     resource function discover(http:Caller caller, http:Request req) {
         http:Response response = new;
         // Add a link header indicating the hub and topic
-        websub:addWebSubLinkHeader(response, [webSubHub.hubUrl], WEBSUB_TOPIC_FOUR);
+        websub:addWebSubLinkHeader(response, [webSubHub.subscriptionUrl], WEBSUB_TOPIC_FOUR);
         var err = caller->accepted(response);
         if (err is error) {
             log:printError("Error responding on ordering", err);
@@ -186,8 +195,8 @@ function checkSubscrberAvailabilityAndPublishDirectly(string topic, string subsc
     }
 }
 
-function startHubAndRegisterTopic() returns websub:WebSubHub {
-    websub:WebSubHub internalHub = startWebSubHub();
+function startHubAndRegisterTopic() returns websub:Hub {
+    websub:Hub internalHub = startWebSubHub();
     var err = internalHub.registerTopic(WEBSUB_TOPIC_ONE);
     if (err is error) {
         log:printError("Error registering topic directly", err);
@@ -211,12 +220,15 @@ function startHubAndRegisterTopic() returns websub:WebSubHub {
     return internalHub;
 }
 
-function startWebSubHub() returns websub:WebSubHub {
-    var result = websub:startHub(new http:Listener(23191), { remotePublish : { enabled : true }});
-    if (result is websub:WebSubHub) {
+function startWebSubHub() returns websub:Hub {
+    var result = websub:startHub(new http:Listener(23191), "/websub", "/hub",
+                                 hubConfiguration = { remotePublish : { enabled : true }});
+    if (result is websub:Hub) {
         return result;
-    } else {
+    } else if (result is websub:HubStartedUpError) {
         return result.startedUpHub;
+    } else {
+        panic result;
     }
 }
 

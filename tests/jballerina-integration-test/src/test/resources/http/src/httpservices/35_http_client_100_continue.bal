@@ -79,7 +79,7 @@ service continueClientTest on new http:Listener(9242)  {
         req.addHeader("content-type", "text/plain");
         req.addHeader("Expect", "100-continue");
         req.setPayload("Hi");
-        var response = continueClient->post("/continue", req);
+        var response = continueClient->post("/continue", <@untainted> req);
         if (response is http:Response) {
             checkpanic caller->respond(<@untainted> response);
         } else {
@@ -95,7 +95,7 @@ service continueClientTest on new http:Listener(9242)  {
         req.addHeader("Expect", "100-continue");
         req.addHeader("content-type", "application/json");
         req.setPayload({ name: "apple", color: "red" });
-        var response = continueClient->post("/continue", req);
+        var response = continueClient->post("/continue", <@untainted> req);
         if (response is http:Response) {
             checkpanic caller->respond(<@untainted> response);
         } else {

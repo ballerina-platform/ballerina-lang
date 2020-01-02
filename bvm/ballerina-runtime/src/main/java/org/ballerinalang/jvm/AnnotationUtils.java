@@ -20,6 +20,7 @@ package org.ballerinalang.jvm;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.AnnotatableType;
 import org.ballerinalang.jvm.types.AttachedFunction;
+import org.ballerinalang.jvm.types.BFunctionType;
 import org.ballerinalang.jvm.types.BObjectType;
 import org.ballerinalang.jvm.types.BServiceType;
 import org.ballerinalang.jvm.types.BType;
@@ -33,6 +34,11 @@ import org.ballerinalang.jvm.values.MapValue;
  * @since 0.995.0
  */
 public class AnnotationUtils {
+
+    private static final String LANG_ANNOT_PKG = "ballerina/lang.annotations";
+    private static final String STRAND_ANNOT_NAME = "strand";
+    private static final String THREAD_ANNOT_FIELD = "thread";
+    private static final String ANY_THREAD_VALUE = "any";
 
     /**
      * Method to retrieve annotations of the type from the global annotation map and set it to the type.
@@ -66,7 +72,7 @@ public class AnnotationUtils {
         String annotationKey = bType.getAnnotationKey();
         if (globalAnnotMap.containsKey(annotationKey)) {
             bType.setAnnotations((MapValue<String, Object>)
-                                         ((FPValue) globalAnnotMap.get(annotationKey)).apply(new Object[]{strand}));
+                                         ((FPValue) globalAnnotMap.get(annotationKey)).call(new Object[]{strand}));
         }
 
         for (AttachedFunction attachedFunction : bType.getAttachedFunctions()) {
@@ -74,7 +80,7 @@ public class AnnotationUtils {
             if (globalAnnotMap.containsKey(annotationKey)) {
                 attachedFunction.setAnnotations((MapValue<String, Object>)
                                                         ((FPValue) globalAnnotMap.get(annotationKey))
-                                                                .apply(new Object[]{strand}));
+                                                                .call(new Object[]{strand}));
             }
         }
     }
@@ -91,5 +97,19 @@ public class AnnotationUtils {
         if (globalAnnotMap.containsKey(name)) {
             type.setAnnotations((MapValue<String, Object>) globalAnnotMap.get(name));
         }
+    }
+
+    /**
+     * Returns true if given {@link FPValue} is annotated to be run concurrently.
+     *
+     * @param fpValue function pointer to be invoked
+     * @return true if should run concurrently
+     */
+    public static boolean isConcurrent(FPValue fpValue) {
+        Object value = ((BFunctionType) fpValue.getType()).getAnnotation(LANG_ANNOT_PKG, STRAND_ANNOT_NAME);
+        if (value != null) {
+            return ((MapValue) value).get(THREAD_ANNOT_FIELD) == ANY_THREAD_VALUE;
+        }
+        return false;
     }
 }

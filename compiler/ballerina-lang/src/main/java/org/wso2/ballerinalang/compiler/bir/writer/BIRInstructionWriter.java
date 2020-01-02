@@ -60,10 +60,13 @@ public class BIRInstructionWriter extends BIRVisitor {
     private ByteBuf buf;
     private BIRTypeWriter typeWriter;
     private ConstantPool cp;
+    private BIRBinaryWriter binaryWriter;
 
-    public BIRInstructionWriter(ByteBuf buf, BIRTypeWriter typeWriter, ConstantPool cp) {
+    public BIRInstructionWriter(ByteBuf buf, BIRTypeWriter typeWriter, ConstantPool cp,
+                                BIRBinaryWriter birBinaryWriter) {
         this.buf = buf;
         this.typeWriter = typeWriter;
+        this.binaryWriter = birBinaryWriter;
         this.cp = cp;
     }
 
@@ -92,6 +95,7 @@ public class BIRInstructionWriter extends BIRVisitor {
 
     public void visit(BIRNode.BIRErrorEntry errorEntry) {
         addCpAndWriteString(errorEntry.trapBB.id.value);
+        addCpAndWriteString(errorEntry.endBB.id.value);
         errorEntry.errorOp.accept(this);
         addCpAndWriteString(errorEntry.targetBB.id.value);
     }
@@ -120,7 +124,8 @@ public class BIRInstructionWriter extends BIRVisitor {
     public void visit(BIRTerminator.FieldLock lock) {
         writePosition(lock.pos);
         buf.writeByte(lock.kind.getValue());
-        addCpAndWriteString(lock.localVar.name.value);
+        // TODO properly use operand instead of variablDcl.name here
+        addCpAndWriteString(lock.localVar.variableDcl.name.value);
         addCpAndWriteString(lock.field);
         addCpAndWriteString(lock.lockedBB.id.value);
     }
@@ -138,8 +143,9 @@ public class BIRInstructionWriter extends BIRVisitor {
             writeType(globalVar.type);
         }
         buf.writeInt(unlock.fieldLocks.size());
-        for (Map.Entry<BIRNode.BIRVariableDcl, Set<String>> entry : unlock.fieldLocks.entrySet()) {
-            addCpAndWriteString(entry.getKey().name.value);
+        for (Map.Entry<BIROperand, Set<String>> entry : unlock.fieldLocks.entrySet()) {
+            // TODO properly use operand instead of variablDcl.name here
+            addCpAndWriteString(entry.getKey().variableDcl.name.value);
             buf.writeInt(entry.getValue().size());
             for (String field : entry.getValue()) {
                 addCpAndWriteString(field);
@@ -268,6 +274,8 @@ public class BIRInstructionWriter extends BIRVisitor {
         } else {
             buf.writeByte(0);
         }
+
+        binaryWriter.writeAnnotAttachments(buf, this, birAsyncCall.annotAttachments);
         addCpAndWriteString(birAsyncCall.thenBB.id.value);
     }
 

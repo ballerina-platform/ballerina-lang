@@ -23,6 +23,7 @@ import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.JSONParser;
 import org.ballerinalang.jvm.JSONUtils;
+import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.XMLFactory;
 import org.ballerinalang.jvm.types.AttachedFunction;
@@ -31,6 +32,7 @@ import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.DecimalValue;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
@@ -63,11 +65,12 @@ public class Utils {
         Object dispatchedData;
         switch (dataParamTypeTag) {
             case TypeTags.STRING_TAG:
-                dispatchedData = new String(data, StandardCharsets.UTF_8);
+                dispatchedData = StringUtils.fromString(new String(data, StandardCharsets.UTF_8));
                 break;
             case TypeTags.JSON_TAG:
                 try {
-                    dispatchedData = JSONParser.parse(new String(data, StandardCharsets.UTF_8));
+                    Object json = JSONParser.parse(new String(data, StandardCharsets.UTF_8));
+                    dispatchedData = json instanceof String ? StringUtils.fromString((String) json) : json;
                 } catch (BallerinaException e) {
                     throw createNatsError("Error occurred in converting message content to json: " +
                             e.getMessage());
@@ -86,14 +89,14 @@ public class Utils {
                 dispatchedData = new DecimalValue(new String(data, StandardCharsets.UTF_8));
                 break;
             case TypeTags.ARRAY_TAG:
-                dispatchedData = new ArrayValue(data);
+                dispatchedData = new ArrayValueImpl(data);
                 break;
             case TypeTags.XML_TAG:
                 dispatchedData = XMLFactory.parse(new String(data, StandardCharsets.UTF_8));
                 break;
             case TypeTags.RECORD_TYPE_TAG:
                 dispatchedData = JSONUtils.convertJSONToRecord(JSONParser.parse(new String(data,
-                                StandardCharsets.UTF_8)), (BRecordType) intendedType);
+                        StandardCharsets.UTF_8)), (BRecordType) intendedType);
                 break;
             default:
                 throw Utils.createNatsError("Unable to find a supported data type to bind the message data");
@@ -104,11 +107,11 @@ public class Utils {
     public static ObjectValue getMessageObject(Message message) {
         ObjectValue msgObj;
         if (message != null) {
-            ArrayValue msgData = new ArrayValue(message.getData());
+            ArrayValue msgData = new ArrayValueImpl(message.getData());
             msgObj = BallerinaValues.createObjectValue(Constants.NATS_PACKAGE_ID,
                     Constants.NATS_MESSAGE_OBJ_NAME, message.getSubject(), msgData, message.getReplyTo());
         } else {
-            ArrayValue msgData = new ArrayValue(new byte[0]);
+            ArrayValue msgData = new ArrayValueImpl(new byte[0]);
             msgObj = BallerinaValues.createObjectValue(Constants.NATS_PACKAGE_ID,
                     Constants.NATS_MESSAGE_OBJ_NAME, "", msgData, "");
         }
@@ -135,5 +138,14 @@ public class Utils {
             }
         }
         return function;
+    }
+
+    @SuppressWarnings("unchecked")
+    public static MapValue<String, Object> getSubscriptionConfig(Object annotationData) {
+        MapValue annotationRecord = null;
+        if (TypeChecker.getType(annotationData).getTag() == TypeTags.RECORD_TYPE_TAG) {
+            annotationRecord = (MapValue) annotationData;
+        }
+        return annotationRecord;
     }
 }

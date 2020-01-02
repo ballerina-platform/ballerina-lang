@@ -1,0 +1,438 @@
+/*
+ * Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
+plugins {
+    id 'base'
+}
+
+apply from: "$rootDir/gradle/repositories.gradle"
+
+configurations.all {
+    resolutionStrategy.preferProjectModules()
+}
+
+configurations {
+    dist {
+      transitive false
+    }
+    distBal {
+        transitive false
+    }
+    langserverLib {
+        transitive false
+    }
+    ballerinaZip {
+        transitive false
+    }
+    debugAdapterLauncher {
+        transitive false
+    }
+    debugAdapterDistribution {
+        transitive false
+    }
+    composerDistribution {
+        transitive false
+    }
+    composerFonts {
+        transitive false
+    }
+    docerina
+    bin
+    bir
+    birJar
+    balSource
+    balxSource
+    balxBir {
+        transitive false
+    }
+    zip
+    balo
+    resourceFiles
+    staticFiles
+    balx
+    unzipped
+    langserverResources
+}
+
+dependencies {
+    dist 'org.bytedeco:javacpp:1.4.2'
+
+    dist 'org.bytedeco.javacpp-presets:llvm-platform:6.0.1-1.4.2'
+    dist 'org.bytedeco.javacpp-presets:llvm:6.0.1-1.4.2:linux-x86'
+    dist 'org.bytedeco.javacpp-presets:llvm:6.0.1-1.4.2:windows-x86'
+    dist 'org.bytedeco.javacpp-presets:llvm:6.0.1-1.4.2:macosx-x86_64'
+    dist 'org.bytedeco.javacpp-presets:llvm:6.0.1-1.4.2:windows-x86_64'
+    dist 'org.bytedeco.javacpp-presets:llvm:6.0.1-1.4.2:linux-x86_64'
+    dist 'org.bytedeco.javacpp-presets:llvm:6.0.1-1.4.2'
+
+    dist project(':ballerina-tool')
+    dist project(':ballerina-llvm')
+    birJar project(path: ':ballerina-llvm', configuration: 'birJar')
+    dist project(':ballerina-bir')
+    birJar project(path: ':ballerina-bir', configuration: 'birJar')
+
+    dist project(':ballerina-java')
+    dist project(':ballerina-lang')
+    dist project(':ballerina-grpc')
+    dist project(':ballerina-io')
+    dist project(':ballerina-log-api')
+    dist project(':ballerina-logging')
+    dist project(':ballerina-rt')
+    dist 'io.netty:netty-buffer:4.1.39.Final'
+    dist 'io.netty:netty-common:4.1.39.Final'
+    dist 'info.picocli:picocli:4.0.1'
+    dist project(':ballerina-stringutils')
+
+    distBal project(path: ':jballerina', configuration: 'balo')
+    dist project(':ballerina-backend-llvm')
+    birJar project(path: ':ballerina-backend-llvm', configuration: 'birJar')
+    dist project(':language-server:language-server-compiler')
+    dist project(':ballerina-packerina')
+    dist project(':docerina')
+    docerina project(':docerina-gradle-plugin')
+
+    bin project(path: ':jballerina', configuration: 'bin')
+    staticFiles project(path: ':jballerina', configuration: 'staticFiles')
+    resourceFiles project(path: ':jballerina', configuration: 'resourceFiles')
+
+    balSource project(path: ':ballerina-bir', configuration: 'balSource')
+    balSource project(path: ':ballerina-llvm', configuration: 'balSource')
+}
+
+
+
+task configured {
+    configurations.distBal.allDependencies.withType(ProjectDependency) {
+        def path = it.getDependencyProject().path
+        dependencies.add("bir", dependencies.project(path: path, configuration: 'bir'))
+        dependencies.add("birJar", dependencies.project(path: path, configuration: 'birJar'))
+    }
+
+}
+
+
+def copyJarSpec = {
+    base -> copySpec {
+        from configurations.dist
+        into(base + 'bre/lib')
+    }
+}
+
+def copyBaloSpec = {
+    path -> copySpec {
+        from configurations.distBal
+        into(path + 'lib')
+    }
+}
+
+def copyBirSpec = {
+    path -> copySpec {
+        from configurations.bir
+        into(path + 'bir-cache')
+    }
+}
+
+def copyBirJarSpec = {
+    path -> copySpec {
+        from configurations.birJar
+        into(path + 'bre/lib')
+    }
+}
+
+def copyBalxSpec = {
+    path -> copySpec {
+        from configurations.balx
+        into(path + 'lib/balx')
+    }
+}
+
+def copyStaticSpec = {
+    path -> copySpec {
+        from configurations.staticFiles
+        into(path)
+    }
+}
+
+def copyResourceSpec = {
+    path -> copySpec {
+        from configurations.resourceFiles
+        into("$path/bre")
+    }
+}
+
+//def copySrcBaloSpec = {
+//    path -> copySpec {
+//        from configurations.balSource.files
+//        into("$path/src")
+//    }
+//}
+
+def copyBinSpec = {
+    path -> copySpec {
+        from configurations.bin
+        filter { line -> line.replace('${project.version}', "$project.version") }
+        into(path + 'bin')
+    }
+}
+
+def copyKraalLib = {
+    path -> copySpec {
+        from('lib')
+        into("$path/bre/lib")
+    }
+}
+
+def copyLangServerBinSpec = {
+    path -> copySpec {
+        from('resources/language-server-launcher.sh')
+        from('resources/language-server-launcher.bat')
+        into(path + 'lib/tools/lang-server/launcher')
+    }
+}
+
+def copyLangSeverIndexSpec = {
+    path -> copySpec {
+        from configurations.langserverResources
+        into(path + 'lib/tools/lang-server/resources')
+     }
+}
+def copyDebugAdapterLauncher = {
+    path -> copySpec {
+        from('resources/debug-adapter-launcher.sh')
+        from('resources/debug-adapter-launcher.bat')
+        into(path + 'lib/tools/debug-adapter/launcher')
+    }
+}
+
+def copydebugAdapterDistributionSpec = {
+    path -> copySpec {
+        from configurations.debugAdapterDistribution
+        into(path + 'lib/tools/debug-adapter/lib')
+     }
+}
+
+def copyBallerinaZipSpec = {
+    path -> copySpec {
+        configurations.ballerinaZip.asFileTree.each {
+            from(zipTree(it)) { includeEmptyDirs false }
+            eachFile { f ->
+                f.path = f.path.replaceFirst("ballerina-${project.version}/", '')
+            }
+        }
+        into(path)
+    }
+}
+
+def copyLangServerLibsSpec = {
+    path -> copySpec {
+        from configurations.langserverLib
+        into(path + 'lib/tools/lang-server/lib')
+    }
+}
+
+def copyComposerDistributionSpec = {
+    path -> copySpec {
+        from(configurations.composerDistribution)
+        into(path + 'lib/tools/composer-library')
+        exclude('**/*.d.ts')
+        exclude('**/*.map')
+    }
+}
+
+def copyComposerFontsSpec = {
+    path -> copySpec {
+        from configurations.composerFonts
+        into(path + 'lib/tools/composer-library')
+        exclude('**/*.d.ts')
+        exclude('**/*.map')
+    }
+}
+
+def examplesSpec = {
+    path -> copySpec {
+        from fileTree(project.rootDir.path + '/examples');
+        into(path + '/examples')
+        exclude('**/**/tests')
+    }
+}
+
+def apiDocsSpec = {
+    path -> copySpec {
+        from generateDocs.outputs.files
+        into("$path/docs")
+    }
+}
+
+task extractLibs(type: Copy) {
+    def path = "$buildDir/ballerina";
+    from configurations.balSource.files
+    into path
+}
+
+task extractBalxLibs(type: Copy) {
+    def path = "$buildDir/ballerinax"
+    from configurations.balxSource.files
+    into path
+}
+
+task extractBalxBirs(type: Copy) {
+    def path = "$buildDir/bir-cache"
+    from configurations.balxBir.files
+    into path
+}
+
+// Fix for windows class path too long issue
+task pathingJar(type: Jar) {
+    appendix = "pathing"
+    doFirst {
+        manifest {
+            attributes "Class-Path": configurations.docerina.files.collect {
+                it.toURL().toString().replaceFirst("file:/", "/")
+            }.join(' ')
+        }
+    }
+}
+
+task generateDocs(type: JavaExec) {
+    dependsOn pathingJar
+    dependsOn extractLibs
+    dependsOn extractBalxBirs
+    dependsOn ':docerina-gradle-plugin:build'
+    inputs.dir("$buildDir/ballerina/");
+    outputs.dir("$buildDir/api-docs")
+    outputs.cacheIf { true }
+
+    systemProperty("BALLERINA_DEV_COMPILE_BALLERINA_ORG", true)
+    systemProperty("version", project.version)
+    def basePath = '/' + project.name + '-' + project.version + '/'
+    systemProperty("ballerina.home", "$buildDir")
+    
+    classpath = files(pathingJar.archivePath)
+    main = 'org.ballerinalang.plugin.gradle.doc.DocerinaGen'
+    def libs = "$buildDir/ballerina/"
+    args("$libs", "$buildDir/api-docs", "lang.__internal,lang.annotations,llvm,bir,jvm,utils,ldap")
+}
+
+task createApiDocsZip(type: Zip) {
+    from generateDocs.outputs.files
+    archiveName "ballerina-api-docs-${project.version}.zip"
+}
+
+task createZip(type: Zip) {
+    def basePath = '/' + project.name + '-' + project.version + '/'
+    with copyJarSpec(basePath)
+    with copyBirSpec(basePath)
+    with copyBirJarSpec(basePath)
+    with copyBaloSpec(basePath)
+    with copyBalxSpec(basePath)
+    with copyBinSpec(basePath)
+    with copyLangServerLibsSpec(basePath)
+    with copyLangSeverIndexSpec(basePath)
+    with copyLangServerBinSpec(basePath)
+    with copyComposerDistributionSpec(basePath)
+    with copyComposerFontsSpec(basePath)
+    with copyBallerinaZipSpec(basePath)
+    with copydebugAdapterDistributionSpec(basePath)
+    with copyDebugAdapterLauncher(basePath)
+    with examplesSpec(basePath)
+    with copyStaticSpec(basePath)
+    with copyResourceSpec(basePath)
+//    with copySrcBaloSpec(basePath)
+    with copyKraalLib(basePath)
+}
+
+task updateBalHome(type: Copy) {
+    def installDir = ""
+    with copyJarSpec(installDir)
+    with copyBirSpec(installDir)
+    with copyBirJarSpec(installDir)
+    with copyBaloSpec(installDir)
+    with copyBalxSpec(installDir)
+    with copyBinSpec(installDir)
+    with copyLangServerLibsSpec(installDir)
+    with copyLangSeverIndexSpec(installDir)
+    with copyLangServerBinSpec(installDir)
+    with copyComposerDistributionSpec(installDir)
+    with copyComposerFontsSpec(installDir)
+    with copyBallerinaZipSpec(installDir)
+    with copydebugAdapterDistributionSpec(installDir)
+    with copyDebugAdapterLauncher(installDir)
+    with examplesSpec(installDir)
+    with copyStaticSpec(installDir)
+    with copyResourceSpec(installDir)
+    with copyKraalLib(installDir)
+//    with copySrcBaloSpec(installDir)
+    into System.getenv('BAL_HOME')
+}
+
+task createDistribution(type: Copy) {
+    mustRunAfter(':language-server:language-server-core:createZip')
+    def filePath = "$buildDir/extracted-distributions/${project.name}-${project.version}"
+    file(filePath).mkdirs()
+    with copyJarSpec("")
+    with copyBirSpec("")
+    with copyBirJarSpec("")
+    with copyBaloSpec("")
+    with copyBalxSpec("")
+    with copyBinSpec("")
+    with copyLangServerLibsSpec("")
+    with copyLangSeverIndexSpec("")
+    with copyLangServerBinSpec("")
+    with copyComposerDistributionSpec("")
+    with copyComposerFontsSpec("")
+    with copyBallerinaZipSpec("")
+    with copydebugAdapterDistributionSpec("")
+    with copyDebugAdapterLauncher("")
+    with examplesSpec("")
+    with copyStaticSpec("")
+    with copyResourceSpec("")
+//    with copySrcBaloSpec("")
+    with copyKraalLib("")
+    destinationDir=file(filePath)
+}
+
+build {
+    dependsOn createZip
+    dependsOn createDistribution
+    // finalizedBy ':ballerina-tools-integration-test:test'
+}
+
+artifacts {
+    balo configurations.distBal.files
+    zip file: file("$buildDir/distributions/${project.name}-${project.version}.zip"), builtBy: createZip
+    unzipped file: file("$buildDir/extracted-distributions/${project.name}-${project.version}"), builtBy: createDistribution
+}
+
+// This section makes sure that checkstyle/spotbug runs when dist is build.
+project.afterEvaluate {
+    configurations.dist.dependencies
+        .findAll { it instanceof ProjectDependency }
+        .each {
+            it.dependencyProject.afterEvaluate {
+                def dependencyCheck = it.tasks.find { it.name == 'check' }
+                check.dependsOn dependencyCheck
+            }
+        }
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            artifact source: createZip, extension: 'zip'
+        }
+    }
+}

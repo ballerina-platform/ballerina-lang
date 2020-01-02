@@ -61,8 +61,8 @@ public class CodeGeneratorTest {
         Path pathRelative = basePath.relativize(absPath);
 
         try {
-            OpenAPIBallerinaProject ballerinaProject = OpenAPICommandTest.createBalProject(projectPath.toString(),
-                    pkgName);
+            OpenAPIBallerinaProject ballerinaProject = OpenAPICommandTest.createBalProject(projectPath.toString());
+            OpenAPICommandTest.createBalProjectModule(ballerinaProject, pkgName);
             Path outFile = ballerinaProject.getImplPath().resolve(Paths.get("openapi_petstore.bal"));
             generator.generateService(projectPath.toString(), definitionPath, pathRelative.toString(), serviceName,
                     projectPath.toString());
@@ -112,8 +112,8 @@ public class CodeGeneratorTest {
         CodeGenerator generator = new CodeGenerator();
         generator.setSrcPackage(pkgName);
         try {
-            OpenAPIBallerinaProject ballerinaProject = OpenAPICommandTest.createBalProject(projectPath.toString(),
-                    pkgName);
+            OpenAPIBallerinaProject ballerinaProject = OpenAPICommandTest.createBalProject(projectPath.toString()
+            );
             Path outFile = ballerinaProject.getImplPath().resolve("client")
                     .resolve(Paths.get("openapi_petstore.bal"));
             generator.generateClient(projectPath.toString(), definitionPath, projectPath.toString());

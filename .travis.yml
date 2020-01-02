@@ -33,6 +33,7 @@ jobs:
       install:
         - choco install jdk8 -params 'installdir=c:\\java8'
         - export JAVA_HOME="c:\\java8"
+        - export PATH="$PATH;$JAVA_HOME\\bin"
       script:
         - while sleep 9m; do echo "=====[ $SECONDS seconds still running ]====="; done &
         - ./gradlew.bat build -x test -x createJavadoc --stacktrace -scan --console=plain --no-daemon
@@ -50,6 +51,7 @@ jobs:
       jdk: openjdk8
       node_js: 8
       before_install:
+          - nvm install 8
           - nvm use 8
           - npm install -g npm@'5.6.0'
     - stage: "Tests"
@@ -64,6 +66,7 @@ jobs:
       jdk: openjdk8
       node_js: 8
       before_install:
+          - nvm install 8
           - nvm use 8
           - npm install -g npm@'5.6.0'
       install: 
@@ -75,7 +78,7 @@ jobs:
     - script:
         - while sleep 9m; do echo "=====[ $SECONDS seconds still running ]====="; done &
         # TODO enable tests for all projects
-        - ./gradlew.bat build -Dorg.gradle.parallel=false -x :language-server:language-server-core:test -x :ballerina-packerina:test -x :ballerina-lang:test -x :jballerina-unit-test:test -x :jballerina-integration-test:test -x :plugin-vscode:test -x createJavadoc --stacktrace -scan --console=plain --no-daemon
+        - ./gradlew.bat build -Dorg.gradle.parallel=false -x :ballerina-packerina:test -x :ballerina-lang:test -x :ballerina-file:test -x :ballerina-socket:test -x :jballerina-unit-test:test -x :jballerina-integration-test:test -x :plugin-vscode:test -x createJavadoc --stacktrace -scan --console=plain --no-daemon
         # Killing background sleep loop
         - kill %1
       name:  "Tests - windows"
@@ -85,6 +88,7 @@ jobs:
       install:
         - choco install jdk8 -params 'installdir=c:\\java8'
         - export JAVA_HOME="c:\\java8"
+        - export PATH="$PATH;$JAVA_HOME\\bin"
     - script:
         - while sleep 9m; do echo "=====[ $SECONDS seconds still running ]====="; done &
         - ./gradlew :jballerina-integration-test:test -x createJavadoc --stacktrace -scan --console=plain --no-daemon
@@ -93,6 +97,11 @@ jobs:
       os: linux
       language: java
       jdk: openjdk8
+      node_js: 8
+      before_install:
+          - nvm install 8
+          - nvm use 8
+          - npm install -g npm@'5.6.0'
       name:  "Integration tests - Linux"
 
 
@@ -115,3 +124,4 @@ branches:
     - packerina-dev
     - next-release
     - ballerina-1.0.x
+    - release-stage

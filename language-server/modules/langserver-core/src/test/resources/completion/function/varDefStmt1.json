@@ -34,6 +34,17 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "Detail",
+      "kind": "Struct",
+      "detail": "Record",
+      "documentation": {
+        "left": "Record type to hold the details of an error.\n"
+      },
+      "sortText": "221",
+      "insertText": "Detail",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "Error",
       "kind": "Event",
       "detail": "Error",
@@ -96,13 +107,13 @@
       }
     },
     {
-      "label": "format(time:Time time, (string|RFC_1123) timeFormat)((string|time:Error))",
+      "label": "format(time:Time time, string timeFormat)((string|time:Error))",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/time_  \n  \nReturns formatted string representation of the given time.\n  \n**Params**  \n- `time:Time` time: The Time record to be formatted  \n- `(string|RFC_1123)` timeFormat: The format which is used to format the time represented by this object  \n  \n**Returns** `(string|time:Error)`   \n- The formatted string of the given time or an `time:Error` if failed to format the time  \n  \n"
+          "value": "**Package:** _ballerina/time_  \n  \nReturns formatted string representation of the given time.\n  \n**Params**  \n- `time:Time` time: The Time record to be formatted  \n- `string` timeFormat: The format which is used to format the time represented by this object  \n  \n**Returns** `(string|time:Error)`   \n- The formatted string of the given time or an `time:Error` if failed to format the time  \n  \n"
         }
       },
       "sortText": "121",
@@ -394,13 +405,13 @@
       }
     },
     {
-      "label": "parse(string data, (string|RFC_1123) timeFormat)((time:Time|time:Error))",
+      "label": "parse(string data, string timeFormat)((time:Time|time:Error))",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/time_  \n  \nReturns the time for the given string representation based on the given format string.\n  \n**Params**  \n- `string` data: The time text to parse  \n- `(string|RFC_1123)` timeFormat: The format which is used to parse the given text  \n  \n**Returns** `(time:Time|time:Error)`   \n- Time object containing time and zone information or an `time:Error` if failed to parse the given string  \n  \n"
+          "value": "**Package:** _ballerina/time_  \n  \nReturns the time for the given string representation based on the given format string.\n  \n**Params**  \n- `string` data: The time text to parse  \n- `string` timeFormat: The format which is used to parse the given text  \n  \n**Returns** `(time:Time|time:Error)`   \n- Time object containing time and zone information or an `time:Error` if failed to parse the given string  \n  \n"
         }
       },
       "sortText": "121",

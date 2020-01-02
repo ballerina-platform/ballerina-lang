@@ -4,7 +4,7 @@ import ballerina/log;
 // This function reads content from a file,
 // appends the additional `string`, and writes the content.
 function process(io:ReadableCharacterChannel sc,
-                 io:WritableCharacterChannel dc) returns error? {
+                 io:WritableCharacterChannel dc) returns @tainted error? {
     string intermediateCharacterString = " my name is ";
     // Reads the characters from the source channel.
     string greetingText = check sc.read(5);
@@ -32,14 +32,22 @@ function closeWc(io:WritableCharacterChannel ch) {
     }
 }
 
-
-public function main() returns error? {
-    io:ReadableByteChannel readableFieldResult = check io:openReadableFile("./files/sample.txt");
+public function main() returns @tainted error? {
+    // This example uses the <BALLERINA_LANG>/examples/character-io/files/sample.txt file as the 
+    // source file, which includes the text "Hello Ballerina!!".
+    // You can replace this with the file path of a preferred text file. 
+    io:ReadableByteChannel readableFieldResult =
+                                check io:openReadableFile("./files/sample.txt");
     io:ReadableCharacterChannel sourceChannel =
-            new(readableFieldResult, "UTF-8");
-    io:WritableByteChannel writableFileResult = check io:openWritableFile("./files/sampleResponse.txt");
+                                new(readableFieldResult, "UTF-8");
+
+    // This example creates the <BALLERINA_LANG>/examples/character-io/files/sampleResponse.txt
+    // destination file and writes the text "Hello my name is Ballerina!!"".  
+    // You can replace this with the file path of a preferred text file.
+    io:WritableByteChannel writableFileResult =
+                check io:openWritableFile("./files/sampleResponse.txt");
     io:WritableCharacterChannel destinationChannel =
-            new(writableFileResult, "UTF-8");
+                                new(writableFileResult, "UTF-8");
     io:println("Started to process the file.");
     // Processes the given `string`.
     var result = process(sourceChannel, destinationChannel);

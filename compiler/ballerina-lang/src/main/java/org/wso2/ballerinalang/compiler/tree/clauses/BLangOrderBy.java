@@ -35,11 +35,12 @@ import java.util.List;
  */
 public class BLangOrderBy extends BLangNode implements OrderByNode {
 
-    private List<OrderByVariableNode> varRefs = new ArrayList<>();
+    public List<BLangOrderByVariable> varRefs = new ArrayList<>();
 
     @Override
     public void addOrderByVariable(OrderByVariableNode varRef) {
-        varRefs.add(varRef);
+
+        varRefs.add((BLangOrderByVariable) varRef);
     }
 
     @Override

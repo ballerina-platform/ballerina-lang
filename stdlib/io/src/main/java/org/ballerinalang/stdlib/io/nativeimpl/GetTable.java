@@ -18,7 +18,6 @@
 
 package org.ballerinalang.stdlib.io.nativeimpl;
 
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BField;
 import org.ballerinalang.jvm.types.BStructureType;
 import org.ballerinalang.jvm.types.BTableType;
@@ -30,11 +29,7 @@ import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.TableValue;
 import org.ballerinalang.jvm.values.TypedescValue;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.natives.annotations.ReturnType;
+import org.ballerinalang.jvm.values.api.BValueCreator;
 import org.ballerinalang.stdlib.io.channels.base.DelimitedRecordChannel;
 import org.ballerinalang.stdlib.io.utils.BallerinaIOException;
 import org.ballerinalang.stdlib.io.utils.IOConstants;
@@ -52,22 +47,15 @@ import java.util.Map;
  *
  * @since 0.970.0
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "io",
-        functionName = "getTable",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = "ReadableCSVChannel", structPackage = "ballerina/io"),
-        args = {@Argument(name = "structType", type = TypeKind.TYPEDESC)},
-        returnType = {
-                @ReturnType(type = TypeKind.TABLE),
-                @ReturnType(type = TypeKind.ERROR)},
-        isPublic = true
-)
 public class GetTable {
 
     private static final Logger log = LoggerFactory.getLogger(GetTable.class);
     private static final String CSV_CHANNEL_DELIMITED_STRUCT_FIELD = "dc";
 
-    public static Object getTable(Strand strand, ObjectValue csvChannel, TypedescValue typedescValue) {
+    private GetTable() {
+    }
+
+    public static Object getTable(ObjectValue csvChannel, TypedescValue typedescValue) {
         try {
             final ObjectValue delimitedObj = (ObjectValue) csvChannel.get(CSV_CHANNEL_DELIMITED_STRUCT_FIELD);
             DelimitedRecordChannel delimitedChannel = (DelimitedRecordChannel) delimitedObj
@@ -87,12 +75,11 @@ public class GetTable {
         }
     }
 
-    private static TableValue getTable(TypedescValue typedescValue, List records) {
+    private static TableValue getTable(TypedescValue typedescValue, List<String[]> records) {
         BType describingType = typedescValue.getDescribingType();
-        TableValue table = new TableValue(new BTableType(describingType), null, null);
+        TableValue table = (TableValue) BValueCreator.createTableValue(new BTableType(describingType), null, null);
         BStructureType structType = (BStructureType) describingType;
-        for (Object obj : records) {
-            String[] fields = (String[]) obj;
+        for (String[] fields : records) {
             final MapValueImpl<String, Object> struct = getStruct(fields, structType);
             if (struct != null) {
                 table.addData(struct);

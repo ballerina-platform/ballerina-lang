@@ -26,6 +26,8 @@ import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.types.BUnionType;
 import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.ArrayValueImpl;
+import org.ballerinalang.jvm.values.TupleValueImpl;
 import org.ballerinalang.jvm.values.utils.GetFunction;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
@@ -57,7 +59,7 @@ public class Enumerate {
 
         switch (arrType.getTag()) {
             case TypeTags.ARRAY_TAG:
-                elemType = new BTupleType(Arrays.asList(BTypes.typeInt, arr.elementType));
+                elemType = new BTupleType(Arrays.asList(BTypes.typeInt, arr.getElementType()));
                 getFn = ArrayValue::get;
                 break;
             case TypeTags.TUPLE_TAG:
@@ -70,11 +72,11 @@ public class Enumerate {
                 throw createOpNotSupportedError(arrType, "enumerate()");
         }
 
-        BType newArrType = new BArrayType(elemType);
-        ArrayValue newArr = new ArrayValue(newArrType); // TODO: 7/8/19 Verify whether this needs to be sealed
+        BArrayType newArrType = new BArrayType(elemType);
+        ArrayValue newArr = new ArrayValueImpl(newArrType); // TODO: 7/8/19 Verify whether this needs to be sealed
 
         for (int i = 0; i < size; i++) {
-            ArrayValue entry = new ArrayValue(elemType);
+            TupleValueImpl entry = new TupleValueImpl(elemType);
             entry.add(0, Long.valueOf(i));
             entry.add(1, getFn.get(arr, i));
             newArr.add(i, entry);

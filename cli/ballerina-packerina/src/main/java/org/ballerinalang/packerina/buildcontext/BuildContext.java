@@ -26,6 +26,7 @@ import org.ballerinalang.packerina.buildcontext.sourcecontext.MultiModuleContext
 import org.ballerinalang.packerina.buildcontext.sourcecontext.SingleFileContext;
 import org.ballerinalang.packerina.buildcontext.sourcecontext.SingleModuleContext;
 import org.ballerinalang.packerina.buildcontext.sourcecontext.SourceType;
+import org.ballerinalang.packerina.model.ExecutableJar;
 import org.ballerinalang.packerina.utils.EmptyPrintStream;
 import org.ballerinalang.toml.model.Dependency;
 import org.ballerinalang.toml.model.Manifest;
@@ -33,6 +34,7 @@ import org.ballerinalang.toml.parser.ManifestProcessor;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
+import org.wso2.ballerinalang.compiler.util.Constants;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 import org.wso2.ballerinalang.programfile.ProgramFileConstants;
 import org.wso2.ballerinalang.util.RepoUtils;
@@ -46,6 +48,7 @@ import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BALLERINA_HOME;
@@ -68,6 +71,7 @@ public class BuildContext extends HashMap<BuildContextField, Object> {
     private SourceType srcType;
     private transient PrintStream out;
     private transient PrintStream err;
+    public transient Map<PackageID, ExecutableJar> moduleDependencyPathMap = new HashMap<>();
     
     /**
      * Create a build context with context fields.
@@ -270,11 +274,13 @@ public class BuildContext extends HashMap<BuildContextField, Object> {
     }
     
     public Path getBirCacheFromHome() {
-        return RepoUtils.createAndGetHomeReposPath().resolve(ProjectDirConstants.BIR_CACHE_DIR_NAME);
+        return RepoUtils.createAndGetHomeReposPath().resolve(ProjectDirConstants.BIR_CACHE_DIR_NAME + "-" +
+                                                             RepoUtils.getBallerinaVersion());
     }
     
     public Path getJarCacheFromHome() {
-        return RepoUtils.createAndGetHomeReposPath().resolve(ProjectDirConstants.JAR_CACHE_DIR_NAME);
+        return RepoUtils.createAndGetHomeReposPath().resolve(ProjectDirConstants.JAR_CACHE_DIR_NAME + "-" +
+                                                             RepoUtils.getBallerinaVersion());
     }
 
     public Path getBaloCacheFromHome() {
@@ -532,5 +538,15 @@ public class BuildContext extends HashMap<BuildContextField, Object> {
     public Path getLockFilePath() {
         Path sourceRootPath = this.get(BuildContextField.SOURCE_ROOT);
         return sourceRootPath.resolve(ProjectDirConstants.LOCK_FILE_NAME);
+    }
+
+    public boolean skipTests() {
+        CompilerContext context = this.get(BuildContextField.COMPILER_CONTEXT);
+        if (context == null) {
+            return false;
+        }
+        CompilerOptions compilerOptions = CompilerOptions.getInstance(context);
+        String skipTestsArg = compilerOptions.get(CompilerOptionName.SKIP_TESTS);
+        return (skipTestsArg != null && !skipTestsArg.equals(Constants.SKIP_TESTS));
     }
 }

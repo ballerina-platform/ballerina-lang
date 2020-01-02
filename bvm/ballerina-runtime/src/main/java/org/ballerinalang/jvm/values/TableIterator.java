@@ -269,7 +269,7 @@ public class TableIterator implements DataIterator {
                 if (arrayElementType.getTag() == TypeTags.BYTE_TAG) {
                     Blob blobValue = rs.getBlob(index);
                     if (blobValue != null) {
-                        value = new ArrayValue(blobValue.getBytes(1L, (int) blobValue.length()));
+                        value = new ArrayValueImpl(blobValue.getBytes(1L, (int) blobValue.length()));
                     }
                 } else {
                     Array arrayValue = rs.getArray(index);
@@ -305,7 +305,7 @@ public class TableIterator implements DataIterator {
 
         if (firstNonNullElement == null) {
             // Each element is null so a nil element array is returned
-            return new ArrayValue(new BArrayType(BTypes.typeNull));
+            return new ArrayValueImpl(new BArrayType(BTypes.typeNull));
         } else if (containsNull) {
             // If there are some null elements, return a union-type element array
             return createAndPopulateRefValueArray(firstNonNullElement, dataArray);
@@ -318,43 +318,43 @@ public class TableIterator implements DataIterator {
     private ArrayValue createAndPopulatePrimitiveValueArray(Object firstNonNullElement, Object[] dataArray) {
         int length = dataArray.length;
         if (firstNonNullElement instanceof String) {
-            ArrayValue stringDataArray = new ArrayValue(new BArrayType(BTypes.typeString));
+            ArrayValue stringDataArray = new ArrayValueImpl(new BArrayType(BTypes.typeString));
             for (int i = 0; i < length; i++) {
                 stringDataArray.add(i, (String) dataArray[i]);
             }
             return stringDataArray;
         } else if (firstNonNullElement instanceof Boolean) {
-            ArrayValue boolDataArray = new ArrayValue(new BArrayType(BTypes.typeBoolean));
+            ArrayValue boolDataArray = new ArrayValueImpl(new BArrayType(BTypes.typeBoolean));
             for (int i = 0; i < length; i++) {
                 boolDataArray.add(i, ((Boolean) dataArray[i]).booleanValue());
             }
             return boolDataArray;
         } else if (firstNonNullElement instanceof Integer) {
-            ArrayValue intDataArray = new ArrayValue(new BArrayType(BTypes.typeInt));
+            ArrayValue intDataArray = new ArrayValueImpl(new BArrayType(BTypes.typeInt));
             for (int i = 0; i < length; i++) {
                 intDataArray.add(i, ((Integer) dataArray[i]).intValue());
             }
             return intDataArray;
         } else if (firstNonNullElement instanceof Long) {
-            ArrayValue longDataArray = new ArrayValue(new BArrayType(BTypes.typeInt));
+            ArrayValue longDataArray = new ArrayValueImpl(new BArrayType(BTypes.typeInt));
             for (int i = 0; i < length; i++) {
                 longDataArray.add(i, ((Long) dataArray[i]).longValue());
             }
             return longDataArray;
         } else if (firstNonNullElement instanceof Float) {
-            ArrayValue floatDataArray = new ArrayValue(new BArrayType(BTypes.typeFloat));
+            ArrayValue floatDataArray = new ArrayValueImpl(new BArrayType(BTypes.typeFloat));
             for (int i = 0; i < length; i++) {
                 floatDataArray.add(i, ((Float) dataArray[i]).floatValue());
             }
             return floatDataArray;
         } else if (firstNonNullElement instanceof Double) {
-            ArrayValue doubleDataArray = new ArrayValue(new BArrayType(BTypes.typeFloat));
+            ArrayValue doubleDataArray = new ArrayValueImpl(new BArrayType(BTypes.typeFloat));
             for (int i = 0; i < dataArray.length; i++) {
                 doubleDataArray.add(i, ((Double) dataArray[i]).doubleValue());
             }
             return doubleDataArray;
         } else if ((firstNonNullElement instanceof BigDecimal)) {
-            ArrayValue decimalDataArray = new ArrayValue(new BArrayType(BTypes.typeDecimal));
+            ArrayValue decimalDataArray = new ArrayValueImpl(new BArrayType(BTypes.typeDecimal));
             for (int i = 0; i < dataArray.length; i++) {
                 decimalDataArray.add(i, new DecimalValue((BigDecimal) dataArray[i]));
             }
@@ -411,7 +411,7 @@ public class TableIterator implements DataIterator {
         memberTypes.add(type);
         memberTypes.add(BTypes.typeNull);
         BUnionType unionType = new BUnionType(memberTypes);
-        return new ArrayValue(new BArrayType(unionType));
+        return new ArrayValueImpl(new BArrayType(unionType));
     }
 
     private ArrayElementAttributes getArrayElementNullabilityInfo(Object[] objects) {

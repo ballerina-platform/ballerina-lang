@@ -56,6 +56,7 @@ import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
 import static org.ballerinalang.compiler.CompilerOptionName.EXPERIMENTAL_FEATURES_ENABLED;
 import static org.ballerinalang.compiler.CompilerOptionName.LOCK_ENABLED;
 import static org.ballerinalang.compiler.CompilerOptionName.OFFLINE;
+import static org.ballerinalang.compiler.CompilerOptionName.PRESERVE_WHITESPACE;
 import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
 import static org.ballerinalang.compiler.CompilerOptionName.SKIP_TESTS;
 import static org.ballerinalang.compiler.CompilerOptionName.TEST_ENABLED;
@@ -143,17 +144,17 @@ public class BuildCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--dump-llvm-ir", hidden = true)
     private boolean dumpLLVMIR;
 
+    @CommandLine.Option(names = "--no-optimize-llvm", hidden = true)
+    private boolean noOptimizeLlvm;
+
     @CommandLine.Option(names = {"--help", "-h"}, hidden = true)
     private boolean helpFlag;
 
     @CommandLine.Option(names = "--experimental", description = "Enable experimental language features.")
     private boolean experimentalFlag;
 
-    @CommandLine.Option(names = {"--config"}, description = "Path to the configuration file when running tests.")
-    private String configFilePath;
-
     private static final String buildCmd = "ballerina build [-o <output>] [--sourceroot] [--offline] [--skip-tests]\n" +
-            "                    [--skip-lock] {<ballerina-file | module-name> | -a | --all}";
+            "                    [--skip-lock] {<ballerina-file | module-name> | -a | --all} [--] [(--key=value)...]";
 
     public void execute() {
         if (this.helpFlag) {
@@ -168,15 +169,6 @@ public class BuildCommand implements BLauncherCmd {
         // check if there are too many arguments.
         if (args.length > 1) {
             CommandUtil.printError(this.errStream, "too many arguments.", buildCmd, false);
-            CommandUtil.exitError(this.exitWhenFinish);
-            return;
-        }
-        
-        if (this.nativeBinary) {
-            CommandUtil.printError(this.errStream,
-                    "LLVM native generation is not supported.",
-                    null,
-                    false);
             CommandUtil.exitError(this.exitWhenFinish);
             return;
         }
@@ -230,6 +222,12 @@ public class BuildCommand implements BLauncherCmd {
             }
         
             targetPath = this.sourceRootPath.resolve(ProjectDirConstants.TARGET_DIR_NAME);
+
+            if (args.length > 0) {
+                CommandUtil.printError(this.errStream, "too many arguments.", buildCmd, false);
+                CommandUtil.exitError(this.exitWhenFinish);
+                return;
+            }
         } else if (this.argList.get(0).endsWith(BLangConstants.BLANG_SRC_FILE_SUFFIX)) {
             // when a single bal file is provided.
             if (this.compile) {
@@ -336,11 +334,10 @@ public class BuildCommand implements BLauncherCmd {
             targetPath = this.sourceRootPath.resolve(ProjectDirConstants.TARGET_DIR_NAME);
         } else {
             CommandUtil.printError(this.errStream,
-                                   "invalid Ballerina source path, it should either be a module name in a Ballerina " +
-                                           "project or a " +
-                                           "file with a \'" + BLangConstants.BLANG_SRC_FILE_SUFFIX +
-                                           "\' extension. Use the -a or --all " +
-                                           "flag to build or compile all modules.",
+                                   "invalid Ballerina source path. It should either be a name of a module in a " +
+                                   "Ballerina project or a file with a \'" + BLangConstants.BLANG_SRC_FILE_SUFFIX +
+                                   "\' extension. Use the -a or --all " +
+                                   "flag to build or compile all modules.",
                                    "ballerina build {<ballerina-file> | <module-name> | -a | --all}",
                                    true);
             CommandUtil.exitError(this.exitWhenFinish);
@@ -362,6 +359,7 @@ public class BuildCommand implements BLauncherCmd {
         options.put(SKIP_TESTS, Boolean.toString(this.skipTests));
         options.put(TEST_ENABLED, "true");
         options.put(EXPERIMENTAL_FEATURES_ENABLED, Boolean.toString(this.experimentalFlag));
+        options.put(PRESERVE_WHITESPACE, "true");
         // create builder context
         BuildContext buildContext = new BuildContext(this.sourceRootPath, targetPath, sourcePath, compilerContext);
         buildContext.setOut(outStream);
@@ -380,11 +378,13 @@ public class BuildCommand implements BLauncherCmd {
                 .addTask(new CreateBaloTask(), isSingleFileBuild)   // create the balos for modules(projects only)
                 .addTask(new CreateBirTask())   // create the bir
                 .addTask(new CopyNativeLibTask(skipCopyLibsFromDist))    // copy the native libs(projects only)
-                .addTask(new CreateJarTask(this.dumpBIR))    // create the jar
+                // create the jar.
+                .addTask(new CreateJarTask(this.dumpBIR, skipCopyLibsFromDist, this.nativeBinary, this.dumpLLVMIR,
+                        this.noOptimizeLlvm))
                 .addTask(new CopyModuleJarTask(skipCopyLibsFromDist))
                 .addTask(new RunTestsTask(), this.skipTests || isSingleFileBuild) // run tests
                                                                                                 // (projects only)
-                .addTask(new CreateExecutableTask(skipCopyLibsFromDist), this.compile)  // create the executable.jar
+                .addTask(new CreateExecutableTask(), this.compile)  // create the executable.jar
                                                                                         // file
                 .addTask(new CopyExecutableTask(outputPath), !isSingleFileBuild)    // copy executable
                 .addTask(new PrintExecutablePathTask(), this.compile)   // print the location of the executable
@@ -423,7 +423,7 @@ public class BuildCommand implements BLauncherCmd {
     @Override
     public void printUsage(StringBuilder out) {
         out.append("  ballerina build [-o <output-file>] [--offline] [--skip-tests] [--skip-lock] " +
-                   "{<ballerina-file | module-name> | -a | --all} \n");
+                   "{<ballerina-file | module-name> | -a | --all} [--] [(--key=value)...]\n");
     }
 
     @Override

@@ -1,6 +1,6 @@
 
 
-public function main() {
+public function foo() {
     worker w1 {
       int i = 2;
       i -> w2;
@@ -11,3 +11,12 @@ public function main() {
     }
 }
 
+public function bar() {
+    worker w1 {
+      "hello" ->> w2;
+    }
+
+    worker w2 {
+      string j = trap <- w1;
+    }
+}

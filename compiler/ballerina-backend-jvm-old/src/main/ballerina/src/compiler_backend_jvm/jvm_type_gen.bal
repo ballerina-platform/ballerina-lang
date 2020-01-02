@@ -14,10 +14,10 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/io;
-import ballerina/internal;
-import ballerina/jvm;
 import ballerina/bir;
+import ballerina/io;
+import ballerina/jvm;
+import ballerina/stringutils;
 
 # Name of the class to which the types will be added as static fields.
 string typeOwnerClass = "";
@@ -43,7 +43,7 @@ public function generateUserDefinedTypeFields(jvm:ClassWriter cw, bir:TypeDef?[]
     }
 }
 
-# Create instances of runtime types. This will create one instance from each 
+# Create instances of runtime types. This will create one instance from each
 # runtime type and populate the static fields.
 #
 # + mv - method visitor
@@ -227,7 +227,7 @@ function generateRecordValueCreateMethod(jvm:ClassWriter cw, bir:TypeDef?[] reco
         mv.visitMethodInsn(INVOKESPECIAL, STRAND, "<init>", io:sprintf("(L%s;)V", SCHEDULER) , false);
         mv.visitInsn(SWAP);
         mv.visitMethodInsn(INVOKESTATIC, className, "$init", io:sprintf("(L%s;L%s;)V", STRAND, MAP_VALUE), false);
-
+        
         mv.visitInsn(ARETURN);
         i += 1;
     }
@@ -267,7 +267,7 @@ function generateObjectValueCreateMethod(jvm:ClassWriter cw, bir:TypeDef?[] obje
     int parentIndex = indexMap.getIndex(parent);
     int propertiesIndex = indexMap.getIndex(properties);
     int argsIndex = indexMap.getIndex(args);
-    
+
     mv.visitCode();
 
     jvm:Label defaultCaseLabel = new jvm:Label();
@@ -300,7 +300,7 @@ function generateObjectValueCreateMethod(jvm:ClassWriter cw, bir:TypeDef?[] obje
                                     kind: "LOCAL" };
         int tempVarIndex = indexMap.getIndex(tempVar);
         mv.visitVarInsn(ASTORE, tempVarIndex);
-        
+
         mv.visitTypeInsn(NEW, STRAND);
         mv.visitInsn(DUP);
         mv.visitVarInsn(ALOAD, schedulerIndex);
@@ -312,11 +312,11 @@ function generateObjectValueCreateMethod(jvm:ClassWriter cw, bir:TypeDef?[] obje
                                     kind: "LOCAL" };
         int strandVarIndex = indexMap.getIndex(strandVar);
         mv.visitVarInsn(ASTORE, strandVarIndex);
-        
+
         mv.visitVarInsn(ALOAD, tempVarIndex);
         mv.visitVarInsn(ALOAD, strandVarIndex);
 
-        mv.visitLdcInsn("__init");        
+        mv.visitLdcInsn("__init");
         mv.visitVarInsn(ALOAD, argsIndex);
 
         string methodDesc = io:sprintf("(L%s;L%s;[L%s;)L%s;", STRAND, STRING_VALUE, OBJECT, OBJECT);
@@ -393,7 +393,7 @@ function createRecordType(jvm:MethodVisitor mv, bir:BRecordType recordType, bir:
     return;
 }
 
-# Add the field type information of a record type. The record type is assumed 
+# Add the field type information of a record type. The record type is assumed
 # to be at the top of the stack.
 #
 # + mv - method visitor
@@ -415,8 +415,8 @@ function addRecordFields(jvm:MethodVisitor mv, bir:BRecordField?[] fields) {
         createRecordField(mv, field);
 
         // Add the field to the map
-        mv.visitMethodInsn(INVOKEINTERFACE, MAP, "put", 
-            io:sprintf("(L%s;L%s;)L%s;", OBJECT, OBJECT, OBJECT), 
+        mv.visitMethodInsn(INVOKEINTERFACE, MAP, "put",
+            io:sprintf("(L%s;L%s;)L%s;", OBJECT, OBJECT, OBJECT),
             true);
 
         // emit a pop, since we are not using the return value from the map.put()
@@ -537,7 +537,6 @@ function duplicateServiceTypeWithAnnots(jvm:MethodVisitor mv, bir:BObjectType ob
     string pkgClassName = pkgName == "." || pkgName == "" ? MODULE_INIT_CLASS_NAME :
                             lookupGlobalVarClassName(pkgName + ANNOTATION_MAP_NAME);
     mv.visitFieldInsn(GETSTATIC, pkgClassName, ANNOTATION_MAP_NAME, io:sprintf("L%s;", MAP_VALUE));
-    mv.visitTypeInsn(CHECKCAST, MAP_VALUE);
 
     mv.visitVarInsn(ALOAD, strandIndex);
 
@@ -644,7 +643,7 @@ function addObjectAttachedFunctions(jvm:MethodVisitor mv, bir:BAttachedFunction?
             mv.visitVarInsn(ASTORE, attachedFunctionVarIndex);
 
             // if this initializer function, set it to the object type
-            if (internal:contains(attachedFunc.name.value, "__init")) {
+            if (stringutils:contains(attachedFunc.name.value, "__init")) {
                 mv.visitInsn(DUP2);
                 mv.visitInsn(POP);
                 mv.visitVarInsn(ALOAD, attachedFunctionVarIndex);
@@ -664,7 +663,7 @@ function addObjectAttachedFunctions(jvm:MethodVisitor mv, bir:BAttachedFunction?
     }
 
     // Set the fields of the object
-    mv.visitMethodInsn(INVOKEVIRTUAL, OBJECT_TYPE, "setAttachedFunctions", 
+    mv.visitMethodInsn(INVOKEVIRTUAL, OBJECT_TYPE, "setAttachedFunctions",
             io:sprintf("([L%s;)V", ATTACHED_FUNCTION), false);
 }
 
@@ -675,7 +674,7 @@ function addObjectAttachedFunctions(jvm:MethodVisitor mv, bir:BAttachedFunction?
 # + initFunction - init functions to be added
 function addObjectInitFunction(jvm:MethodVisitor mv, bir:BAttachedFunction? initFunction,
                                     bir:BObjectType objType, BalToJVMIndexMap indexMap) {
-    if (initFunction is bir:BAttachedFunction && internal:contains(initFunction.name.value, "__init")) {
+    if (initFunction is bir:BAttachedFunction && stringutils:contains(initFunction.name.value, "__init")) {
         mv.visitInsn(DUP);
         createObjectAttachedFunction(mv, initFunction, objType);
         bir:VariableDcl attachedFuncVar = { typeValue: "any",
@@ -854,10 +853,14 @@ function loadType(jvm:MethodVisitor mv, bir:BType? bType) {
     } else if (bType is bir:BFiniteType) {
         loadFiniteType(mv, bType);
         return;
-    } else {
+    } else if (bType is bir:BFutureType) {
         loadFutureType(mv, bType);
         return;
+    } else {
+    	// TODO Fix properly - rajith
+        return;
     }
+
 
     mv.visitFieldInsn(GETSTATIC, BTYPES, typeFieldName, io:sprintf("L%s;", BTYPE));
 }
@@ -1000,7 +1003,7 @@ function loadUnionType(jvm:MethodVisitor mv, bir:BUnionType bType) {
 }
 
 # Load a Tuple type instance to the top of the stack.
-# 
+#
 # + mv - method visitor
 # + bType - tuple type to be loaded
 function loadTupleType(jvm:MethodVisitor mv, bir:BTupleType bType) {
@@ -1010,7 +1013,7 @@ function loadTupleType(jvm:MethodVisitor mv, bir:BTupleType bType) {
     mv.visitTypeInsn(NEW, ARRAY_LIST);
     mv.visitInsn(DUP);
     mv.visitMethodInsn(INVOKESPECIAL, ARRAY_LIST, "<init>", "()V", false);
-   
+
     bir:BType?[] tupleTypes = bType.tupleTypes;
     foreach var tupleType in tupleTypes {
         bir:BType tType = getType(tupleType);
@@ -1021,10 +1024,10 @@ function loadTupleType(jvm:MethodVisitor mv, bir:BTupleType bType) {
     }
 
     bir:BType? restType = bType.restType;
-    if (restType is bir:BType) {
-        loadType(mv, restType);
-    } else {
+    if (restType is ()) {
         mv.visitInsn(ACONST_NULL);
+    } else {
+        loadType(mv, restType);
     }
 
     // Load type flags
@@ -1098,11 +1101,19 @@ function loadInvokableType(jvm:MethodVisitor mv, bir:BInvokableType bType) {
         i += 1;
     }
 
+    bir:BType? restType = bType.restType;
+    if (restType is ()) {
+        mv.visitInsn(ACONST_NULL);
+    } else {
+        loadType(mv, restType);
+    }
+
     // load return type type
     loadType(mv, bType?.retType);
 
     // initialize the function type using the param types array and the return type
-    mv.visitMethodInsn(INVOKESPECIAL, FUNCTION_TYPE, "<init>", io:sprintf("([L%s;L%s;)V", BTYPE, BTYPE), false);
+    mv.visitMethodInsn(INVOKESPECIAL, FUNCTION_TYPE, "<init>", io:sprintf("([L%s;L%s;L%s;)V", BTYPE, BTYPE, BTYPE),
+     false);
 }
 
 function getTypeDesc(bir:BType bType) returns string {
@@ -1173,7 +1184,7 @@ function loadFiniteType(jvm:MethodVisitor mv, bir:BFiniteType finiteType) {
 
         if (valueType is bir:BTypeNil) {
             mv.visitInsn(ACONST_NULL);
-        } else if (value is bir:Decimal) { 
+        } else if (value is bir:Decimal) {
             // do nothing
         } else {
             mv.visitLdcInsn(value);

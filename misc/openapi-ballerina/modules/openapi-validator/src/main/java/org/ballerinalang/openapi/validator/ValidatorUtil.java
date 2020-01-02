@@ -59,17 +59,16 @@ class ValidatorUtil {
     static OpenAPI parseOpenAPIFile(String definitionURI) throws OpenApiValidatorException {
         Path contractPath = Paths.get(definitionURI);
         if (!Files.exists(contractPath)) {
-            throw new OpenApiValidatorException("OpenAPI contract doesn't exist in the given location:\n"
-                    + definitionURI);
+            throw new OpenApiValidatorException(ErrorMessages.invalidFilePath(definitionURI));
         }
 
         if (!(definitionURI.endsWith(".yaml") || definitionURI.endsWith(".json"))) {
-            throw new OpenApiValidatorException("Invalid file type. Provide either a .yaml or .json file.");
+            throw new OpenApiValidatorException(ErrorMessages.invalidFile());
         }
 
         OpenAPI api = new OpenAPIV3Parser().read(definitionURI);
         if (api == null) {
-            throw new OpenApiValidatorException("Couldn't read the definition from file: " + definitionURI);
+            throw new OpenApiValidatorException(ErrorMessages.parserException(definitionURI));
         }
 
         return api;
@@ -233,7 +232,7 @@ class ValidatorUtil {
                     openAPISummaryList);
             if (openAPIPathSummary == null) {
                 dLog.logDiagnostic(Diagnostic.Kind.ERROR, resourceSummary.getPathPosition(),
-                        "Mismatch with OpenAPI contract. Path: " + resourceSummary.getPath());
+                        ErrorMessages.undocumentedResourcePath(resourceSummary.getPath()));
             } else {
                 List<String> unmatchedMethods = new ArrayList<>();
                 if (!operationFilteringEnabled && !tagFilteringEnabled) {
@@ -265,22 +264,23 @@ class ValidatorUtil {
                                         Schema schema = openAPIComponentSummary
                                                 .getSchema(openAPIParameter.getLocalRef());
                                         if (schema != null) {
-                                            isExist = validateResourceAgainstOpenAPIParams(
-                                                    parameter.getParameter().symbol, schema, dLog, resourceMethod);
+                                            isExist = validateResourceAgainstOpenAPIParams(parameter,
+                                                    parameter.getParameter().symbol, schema, dLog, resourceMethod,
+                                                    resourceSummary.getPath());
                                         }
                                     }
                                 } else if (openAPIParameter.getName().equals(parameter.getName())) {
-                                    isExist = validateResourceAgainstOpenAPIParams(parameter.getParameter().symbol,
-                                            openAPIParameter.getParameter().getSchema(), dLog, resourceMethod);
+                                    isExist = validateResourceAgainstOpenAPIParams(parameter,
+                                            parameter.getParameter().symbol,
+                                            openAPIParameter.getParameter().getSchema(), dLog, resourceMethod,
+                                            resourceSummary.getPath());
                                 }
                             }
 
                             if (!isExist) {
                                 dLog.logDiagnostic(Diagnostic.Kind.ERROR, parameter.getParameter().getPosition(),
-                                        "Mismatch with OpenAPI contract. Couldn't " +
-                                                "find documentation for the parameter '"
-                                                + parameter.getName() + "' for the method '" + resourceMethod
-                                                + "' of the Path: " + resourceSummary.getPath());
+                                        ErrorMessages.undocumentedResourceParameter(parameter.getName(),
+                                                resourceMethod, resourceSummary.getPath()));
                             }
                         }
                     }
@@ -288,9 +288,7 @@ class ValidatorUtil {
                     String methods = getUnmatchedMethodList(unmatchedMethods);
                     if (!openAPIPathSummary.getAvailableOperations().containsAll(resourceSummary.getMethods())) {
                         dLog.logDiagnostic(Diagnostic.Kind.ERROR, resourceSummary.getMethodsPosition(),
-                                "Mismatch with OpenAPI contract. Couldn't find" +
-                                        " documentation for http method(s) '" + methods + "' for the Path: " +
-                                        resourceSummary.getPath());
+                                ErrorMessages.undocumentedResourceMethods(methods, resourceSummary.getPath()));
                     }
                 }
             }
@@ -320,9 +318,8 @@ class ValidatorUtil {
             List<ResourceSummary> resourceSummaries = getResourceSummaryByPath(openApiSummary.getPath(),
                     resourceSummaryList);
             if (resourceSummaries == null) {
-                dLog.logDiagnostic(Diagnostic.Kind.ERROR, serviceNode.getPosition(),
-                        "Mismatch with OpenAPI contract. Implementation is missing for the path: "
-                                + openApiSummary.getPath());
+                dLog.logDiagnostic(Diagnostic.Kind.ERROR, getServiceNamePosition(serviceNode),
+                        ErrorMessages.unimplementedOpenAPIPath(openApiSummary.getPath()));
             } else {
                 List<String> allAvailableResourceMethods = getAllMethodsInResourceSummaries(resourceSummaries);
                 List<String> unmatchedMethods = new ArrayList<>();
@@ -343,10 +340,9 @@ class ValidatorUtil {
 
                         if (unmatchedMethods.size() > 0) {
                             String methods = getUnmatchedMethodList(unmatchedMethods);
-                            dLog.logDiagnostic(Diagnostic.Kind.ERROR, serviceNode.getPosition(),
-                                    "Mismatch with OpenAPI contract. " +
-                                            "Implementation is missing for http method(s) '" +
-                                            methods + "' for the path: " + openApiSummary.getPath());
+                            dLog.logDiagnostic(Diagnostic.Kind.ERROR, getServiceNamePosition(serviceNode),
+                                    ErrorMessages.unimplementedOpenAPIOperationsForPath(methods,
+                                            openApiSummary.getPath()));
                         }
                     } else {
                         for (String method : openApiSummary.getAvailableOperations()) {
@@ -359,10 +355,9 @@ class ValidatorUtil {
 
                         if (unmatchedMethods.size() > 0) {
                             String methods = getUnmatchedMethodList(unmatchedMethods);
-                            dLog.logDiagnostic(Diagnostic.Kind.ERROR, serviceNode.getPosition(),
-                                    "Mismatch with OpenAPI contract. " +
-                                            "Implementation is missing for http method(s) '" +
-                                            methods + "' for the path: " + openApiSummary.getPath());
+                            dLog.logDiagnostic(Diagnostic.Kind.ERROR, getServiceNamePosition(serviceNode),
+                                    ErrorMessages.unimplementedOpenAPIOperationsForPath(methods,
+                                            openApiSummary.getPath()));
                         }
                     }
                 } else {
@@ -379,10 +374,9 @@ class ValidatorUtil {
 
                         if (unmatchedMethods.size() > 0) {
                             String methods = getUnmatchedMethodList(unmatchedMethods);
-                            dLog.logDiagnostic(Diagnostic.Kind.ERROR, serviceNode.getPosition(),
-                                    "Mismatch with OpenAPI contract. " +
-                                            "Implementation is missing for http method(s) '" +
-                                            methods + "' for the path: " + openApiSummary.getPath());
+                            dLog.logDiagnostic(Diagnostic.Kind.ERROR, getServiceNamePosition(serviceNode),
+                                    ErrorMessages.unimplementedOpenAPIOperationsForPath(methods,
+                                            openApiSummary.getPath()));
                         }
                     } else {
                         for (String method : openApiSummary.getAvailableOperations()) {
@@ -393,10 +387,9 @@ class ValidatorUtil {
 
                         String methods = getUnmatchedMethodList(unmatchedMethods);
                         if (!allAvailableResourceMethods.containsAll(openApiSummary.getAvailableOperations())) {
-                            dLog.logDiagnostic(Diagnostic.Kind.ERROR, serviceNode.getPosition(),
-                                    "Mismatch with OpenAPI contract. " +
-                                            "Implementation is missing for http method(s) '" +
-                                            methods + "' for the path: " + openApiSummary.getPath());
+                            dLog.logDiagnostic(Diagnostic.Kind.ERROR, getServiceNamePosition(serviceNode),
+                                    ErrorMessages.unimplementedOpenAPIOperationsForPath(methods,
+                                            openApiSummary.getPath()));
                         }
                     }
                 }
@@ -464,6 +457,7 @@ class ValidatorUtil {
             List<ResourceParameter> resourceParamNames = resourceSummaryForMethod.getParamNames();
             for (OpenAPIParameter openAPIParameter : operationParamNames) {
                 boolean isExist = false;
+                ResourceParameter nonExistingResourceParameter = null;
                 for (ResourceParameter parameter : resourceParamNames) {
                     if (openAPIParameter.isTypeAvailableAsRef()) {
                         if (openAPIParameter.getName().equals(parameter.getName())) {
@@ -471,28 +465,41 @@ class ValidatorUtil {
                             Schema schema = openAPIComponentSummary.getSchema(openAPIParameter.getLocalRef());
                             if (schema != null) {
                                 isExist = validateOpenAPIAgainResourceParams(parameter,
-                                        parameter.getParameter().symbol, schema, dLog, method);
+                                        parameter.getParameter().symbol, schema, dLog, method,
+                                        openApiSummary.getPath());
                             }
                         }
                     } else if (openAPIParameter.getName().equals(parameter.getName())) {
                         isExist = validateOpenAPIAgainResourceParams(parameter, parameter.getParameter().symbol,
-                                openAPIParameter.getParameter().getSchema(), dLog, method);
+                                openAPIParameter.getParameter().getSchema(), dLog, method, openApiSummary.getPath());
+                    }
+
+                    if (!isExist) {
+                        nonExistingResourceParameter = parameter;
+                        break;
                     }
                 }
 
                 if (!isExist) {
-                    dLog.logDiagnostic(Diagnostic.Kind.ERROR, serviceNode.getPosition(),
-                            "Mismatch with OpenAPI contract. Implementation " +
-                                    "is missing for parameter '" + openAPIParameter.getName() +
-                                    "' for the method '" + method + "' of the Path: " +
-                                    resourceSummaryForMethod.getPath());
+                    if (nonExistingResourceParameter != null) {
+                        dLog.logDiagnostic(Diagnostic.Kind.ERROR,
+                                nonExistingResourceParameter.getParameter().getPosition(),
+                                ErrorMessages.unimplementedParameterForOperation(openAPIParameter.getName(),
+                                        method, resourceSummaryForMethod.getPath()));
+                    } else {
+                        dLog.logDiagnostic(Diagnostic.Kind.ERROR, getServiceNamePosition(serviceNode),
+                                ErrorMessages.unimplementedParameterForOperation(openAPIParameter.getName(),
+                                        method, resourceSummaryForMethod.getPath()));
+                    }
+                    break;
                 }
             }
         }
     }
 
-    private static boolean validateResourceAgainstOpenAPIParams(BVarSymbol resourceParameterType, Schema openAPIParam,
-                                                                DiagnosticLog dLog, String method) {
+    private static boolean validateResourceAgainstOpenAPIParams(ResourceParameter resourceParameter,
+                                                                BVarSymbol resourceParameterType, Schema openAPIParam,
+                                                                DiagnosticLog dLog, String method, String path) {
         BType resourceParamType = resourceParameterType.getType();
 
         if (resourceParamType.getKind().typeName().equals("record")
@@ -509,17 +516,16 @@ class ValidatorUtil {
                             .equals(ValidatorUtil.convertOpenAPITypeToBallerina(entry.getValue().getType()))) {
                         isExist = true;
                         if (ValidatorUtil.convertOpenAPITypeToBallerina(entry.getValue().getType()).equals("record")) {
-                            isExist = validateResourceAgainstOpenAPIParams(field.symbol, entry.getValue(),
-                                    dLog, method);
+                            isExist = validateResourceAgainstOpenAPIParams(resourceParameter,
+                                    field.symbol, entry.getValue(), dLog, method, path);
                         }
                     }
                 }
 
                 if (!isExist) {
                     dLog.logDiagnostic(Diagnostic.Kind.ERROR, field.pos,
-                            "Mismatch with OpenAPI contract. Couldn't " +
-                                    "find documentation for the field '" + field.name.getValue() +
-                                    "' for '" + method + "' method");
+                            ErrorMessages.undocumentedFieldInRecordParam(field.name.getValue(),
+                                    resourceParameter.getName(), method, path));
                 }
             }
             return true;
@@ -546,7 +552,7 @@ class ValidatorUtil {
     private static boolean validateOpenAPIAgainResourceParams(ResourceParameter resourceParam,
                                                               BVarSymbol resourceParameterType,
                                                               Schema openAPIParam,
-                                                              DiagnosticLog dLog, String operation) {
+                                                              DiagnosticLog dLog, String operation, String path) {
         BType resourceParamType = resourceParameterType.getType();
         if (resourceParamType.getKind().typeName().equals("record")
                 && resourceParamType instanceof BRecordType
@@ -563,15 +569,15 @@ class ValidatorUtil {
                         isExist = true;
                         if (ValidatorUtil.convertOpenAPITypeToBallerina(entry.getValue().getType()).equals("record")) {
                             isExist = validateOpenAPIAgainResourceParams(resourceParam, field.symbol, entry.getValue(),
-                                    dLog, operation);
+                                    dLog, operation, path);
                         }
                     }
                 }
 
                 if (!isExist) {
                     dLog.logDiagnostic(Diagnostic.Kind.ERROR, resourceParam.getParameter().getPosition(),
-                            "Mismatch with OpenAPI contract. No implementation " +
-                                    "found for the field '" + entry.getKey() + "' for '" + operation + "' operation.");
+                            ErrorMessages.unimplementedFieldInOperation(entry.getKey(), resourceParam.getName(),
+                                    operation, path));
                 }
             }
             return true;
@@ -619,7 +625,7 @@ class ValidatorUtil {
                                                                   List<ResourceSummary> resourceSummaryList) {
         List<ResourceSummary> resourceSummaries = null;
         for (ResourceSummary resourceSummary : resourceSummaryList) {
-            if (resourceSummary.getPath().equals(path)) {
+            if (resourceSummary.getPath() != null && resourceSummary.getPath().equals(path)) {
                 if (resourceSummaries == null) {
                     resourceSummaries = new ArrayList<>();
                     resourceSummaries.add(resourceSummary);
@@ -657,5 +663,9 @@ class ValidatorUtil {
         }
 
         return convertedType;
+    }
+
+    private static Diagnostic.DiagnosticPosition getServiceNamePosition(ServiceNode serviceNode) {
+        return serviceNode.getName().getPosition();
     }
 }

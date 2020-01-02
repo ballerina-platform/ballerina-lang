@@ -20,6 +20,7 @@ package org.wso2.ballerinalang.programfile;
 /**
  * @since 0.94
  */
+@Deprecated
 public class ProgramFileConstants {
 
     public static final int MAGIC_NUMBER = 0xBA1DA4CE;

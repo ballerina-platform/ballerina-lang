@@ -15,11 +15,12 @@
 // under the License.
 
 import ballerina/cache;
-import ballerina/log;
 import ballerina/http;
+import ballerina/log;
 import ballerina/system;
 import ballerina/task;
 import ballerina/time;
+import ballerinax/java;
 
 # ID of the local participant used when registering with the initiator.
 string localParticipantId = system:uuid();
@@ -28,7 +29,7 @@ string localParticipantId = system:uuid();
 map<TwoPhaseCommitTransaction> initiatedTransactions = {};
 
 # This map is used for caching transaction that are this Ballerina instance participates in.
-map<TwoPhaseCommitTransaction> participatedTransactions = {};
+@tainted map<TwoPhaseCommitTransaction> participatedTransactions = {};
 
 # This cache is used for caching HTTP connectors against the URL, since creating connectors is expensive.
 cache:Cache httpClientCache = new;
@@ -371,6 +372,16 @@ function getParticipantId(string transactionBlockId) returns string {
     return participantId;
 }
 
-function getAvailablePort() returns int = external;
+function getAvailablePort() returns int = @java:Method {
+    class: "io.ballerina.transactions.Utils",
+    name: "getAvailablePort"
+} external;
 
-function getHostAddress() returns string = external;
+function getHostAddress() returns string {
+    return <string>java:toString(externGetHostAddress());
+}
+
+function externGetHostAddress() returns handle = @java:Method {
+    class: "io.ballerina.transactions.Utils",
+    name: "getHostAddress"
+} external;

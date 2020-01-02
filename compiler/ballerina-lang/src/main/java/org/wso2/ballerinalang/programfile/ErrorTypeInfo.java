@@ -29,6 +29,7 @@ import java.util.Map;
  *
  * @since 0.991.0
  */
+@Deprecated
 public class ErrorTypeInfo implements TypeInfo {
 
     public int reasonTypeSigCPIndex;

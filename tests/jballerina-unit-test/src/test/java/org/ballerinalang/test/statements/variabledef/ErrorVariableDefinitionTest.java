@@ -217,6 +217,13 @@ public class ErrorVariableDefinitionTest {
         Assert.assertEquals(returns[2].stringValue(), "{\"other\":\"k\"}");
     }
 
+    @Test(description = "Test error destruturing with sealed detail record")
+    public void testSealedDetailDestructuring() {
+        BValue[] returns = BRunUtil.invoke(result, "testSealedDetailDestructuring");
+        Assert.assertEquals(returns[0].stringValue(), "sealed");
+        Assert.assertEquals(returns[1].stringValue(), "{\"message\":\"Msg\"}");
+    }
+
     @Test
     public void testNegativeErrorVariables() {
         CompileResult resultNegative = BCompileUtil.

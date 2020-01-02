@@ -73,7 +73,7 @@ public class ConfigTestCase extends BaseTest {
     @Test(description = "Test running a ballerina file by specifying the config file path")
     public void testRunWithConfig() throws Exception {
         String confPath = (new File("src/test/resources/config/pkg/example.conf")).getAbsolutePath();
-        String[] clientArgs = {"--config", confPath, "read_from_config.bal"};
+        String[] clientArgs = {"read_from_config.bal", "--b7a.config.file=" + confPath};
         LogLeecher clientLeecher = new LogLeecher("localhost");
         balClient.runMain("run", clientArgs, envVariables, new String[0], new LogLeecher[]{clientLeecher},
                           balSourcePkgPath);
@@ -81,7 +81,7 @@ public class ConfigTestCase extends BaseTest {
 
     @Test(description = "Execute tests in a ballerina module by specifying the config file path")
     public void testModuleWithConfig() throws Exception {
-        String[] clientArgs = {"--config", "sample.conf"};
+        String[] clientArgs = {"--b7a.config.file=sample.conf"};
         String msg = "http://localhost:9090/sample/hello";
         LogLeecher clientLeecher = new LogLeecher(msg);
         balClient.runMain("test", clientArgs, envVariables, new String[0], new LogLeecher[]{clientLeecher},
@@ -100,7 +100,7 @@ public class ConfigTestCase extends BaseTest {
 
     @Test(description = "Execute tests in a ballerina module with a non-existing config file")
     public void testModuleWithInvalidConfig() throws Exception {
-        String[] clientArgs = {"--config", "invalid.conf"};
+        String[] clientArgs = {"--b7a.config.file=invalid.conf"};
         LogLeecher clientLeecher = new LogLeecher("configuration file not found: invalid.conf",
                                                   LogLeecher.LeecherType.ERROR);
         balClient.runMain("test", clientArgs, envVariables, new String[0], new LogLeecher[]{clientLeecher},
@@ -122,7 +122,7 @@ public class ConfigTestCase extends BaseTest {
     public void testRunWithInvalidConfig() throws Exception {
         Path sourcePath = Paths.get(balSourcePkgPath, "invalid");
         String confPath = (new File("src/test/resources/config/invalid/test.conf")).getAbsolutePath();
-        String[] clientArgs = {"--config", confPath, "read_from_config.bal"};
+        String[] clientArgs = {"read_from_config.bal", "--b7a.config.file="+ confPath"};
         LogLeecher clientLeecher = new LogLeecher("error: invalid toml syntax at test.conf:5",
                 LogLeecher.LeecherType.ERROR);
         balClient.runMain("run", clientArgs, envVariables, new String[0], new LogLeecher[]{clientLeecher},

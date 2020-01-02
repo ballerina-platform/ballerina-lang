@@ -19,9 +19,9 @@ package org.ballerinalang.jvm;
 
 import org.ballerinalang.jvm.types.BStructureType;
 import org.ballerinalang.jvm.values.DecimalValue;
+import org.ballerinalang.jvm.values.MapValue;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  *  This interface represents an data iterator operations.
@@ -54,7 +54,7 @@ public interface DataIterator {
 
     Object[] getArray(int columnIndex);
 
-    Map<?, ?> generateNext();
+    MapValue<?, ?> generateNext();
 
     List<ColumnDefinition> getColumnDefinitions();
 

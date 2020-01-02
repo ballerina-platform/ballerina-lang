@@ -33,3 +33,18 @@ type ArgsData record {|
 
 # Defaultable annotation data generated at compile time. This is for internal use.
 annotation ArgsData DefaultableArgs on function;
+
+public type Thread "parent" | "any";
+
+# Describes Strand execution details for the runtime.
+#
+# + name - name of the dispatching policy (not yet supported).
+# + thread - specifies whether strand should run on parent strand's thread or in any available thread.
+public type StrandData record {|
+	string name?;
+	Thread thread = "parent";
+|};
+
+# Denotes new Strand execution semantics.
+public annotation StrandData strand on worker, start;
+

@@ -46,7 +46,6 @@ public class ProjectDirConstants {
     public static final String BIN_DIR_NAME = "bin";
     public static final String TARGET_DIR_NAME = "target";
     public static final String TARGET_BALO_DIRECTORY = "balo";
-    public static final String TARGET_TMP_DIRECTORY = "tmp";
     public static final String TARGET_API_DOC_DIRECTORY = "apidocs";
 
     public static final String RESOURCE_DIR_NAME = "resources";
@@ -81,8 +80,6 @@ public class ProjectDirConstants {
     public static final String JAVA_MAIN = "main";
 
     public static final String FILE_NAME_DELIMITER = "-";
-    
-    public static final String BIR_BALLERINA_VERSION_CACHE_FILE_NAME = "ballerina-version";
 
     // Balo specific constants
     public static final String BALO_METADATA_DIR_NAME = "metadata";

@@ -71,6 +71,7 @@
             <class name="org.ballerinalang.test.service.http.sample.SslProtocolTest"/>
             <class name="org.ballerinalang.test.service.http.sample.SerializeComplexXmlTestCase"/>
             <class name="org.ballerinalang.test.service.http.sample.HTTPListenerMethodTestCase"/>
+            <class name="org.ballerinalang.test.service.http.sample.HTTPCookiesTestCase"/>
         </classes>
     </test>
 
@@ -119,7 +120,7 @@
             <class name="org.ballerinalang.test.auth.AuthnWithoutHTTPAnnotationsTest" />
             <class name="org.ballerinalang.test.auth.AuthzCacheTest" />
             <class name="org.ballerinalang.test.auth.AuthzConfigInheritanceTest"/>
-<!--            <class name="org.ballerinalang.test.auth.LdapAuthStoreTest"/>-->
+            <class name="org.ballerinalang.test.auth.LdapAuthStoreTest"/>
             <class name="org.ballerinalang.test.auth.OAuth2ConfigTest"/>
             <class name="org.ballerinalang.test.auth.ResourceLevelAuthTest"/>
             <class name="org.ballerinalang.test.auth.ServiceLevelAuthnTest"/>
@@ -232,34 +233,35 @@
 <!--        </classes>-->
 <!--    </test>-->
 
-<!--    <test name="ballerina-websub-tests" parallel="false">-->
-<!--        <parameter name="enableJBallerinaTests" value="true"/>-->
-<!--        <classes>-->
-<!--            <class name="org.ballerinalang.test.service.websub.basic.WebSubBaseTest"/>-->
-<!--            &lt;!&ndash; WebSubServiceExtensionTestCase or any other test which does not have @BeforeClass and belongs to the-->
-<!--                "websub-test" group needs to be the first test to run to ensure @BeforeGroup is executed before-->
-<!--                @BeforeClass in test classes which have @BeforeClass &ndash;&gt;-->
-<!--            <class name="org.ballerinalang.test.service.websub.basic.WebSubServiceExtensionTestCase"/>-->
-<!--            <class name="org.ballerinalang.test.service.websub.basic.WebSubServiceExtensionProjectTestCase"/>-->
-<!--            <class name="org.ballerinalang.test.service.websub.basic.WebSubCoreFunctionalityTestCase"/>-->
-<!--            <class name="org.ballerinalang.test.service.websub.basic.WebSubContentTypeSupportTestCase"/>-->
-<!--            <class name="org.ballerinalang.test.service.websub.basic.WebSubDiscoveryWithMultipleSubscribersTestCase"/>-->
-<!--            <class name="org.ballerinalang.test.service.websub.basic.WebSubRedirectionTestCase"/>-->
-<!--        </classes>-->
-<!--    </test>-->
+    <test name="ballerina-websub-tests" parallel="false">
+        <parameter name="enableJBallerinaTests" value="true"/>
+        <classes>
+            <class name="org.ballerinalang.test.service.websub.basic.WebSubBaseTest"/>
+            <!-- WebSubServiceExtensionTestCase or any other test which does not have @BeforeClass and belongs to the
+                "websub-test" group needs to be the first test to run to ensure @BeforeGroup is executed before
+                @BeforeClass in test classes which have @BeforeClass -->
+            <class name="org.ballerinalang.test.service.websub.basic.WebSubServiceExtensionTestCase"/>
+            <class name="org.ballerinalang.test.service.websub.basic.WebSubServiceExtensionProjectTestCase"/>
+            <class name="org.ballerinalang.test.service.websub.basic.WebSubCoreFunctionalityTestCase"/>
+            <class name="org.ballerinalang.test.service.websub.basic.WebSubContentTypeSupportTestCase"/>
+            <class name="org.ballerinalang.test.service.websub.basic.WebSubDiscoveryWithMultipleSubscribersTestCase"/>
+            <class name="org.ballerinalang.test.service.websub.basic.WebSubRedirectionTestCase"/>
+            <class name="org.ballerinalang.test.service.websub.basic.WebSubStartupFunctionalityTestCase"/>
+        </classes>
+    </test>
 
-<!--    <test name="ballerina-websub-advanced-config-tests" parallel="false">-->
-<!--        <parameter name="enableJBallerinaTests" value="true"/>-->
-<!--        <classes>-->
-<!--            <class name="org.ballerinalang.test.service.websub.advanced.WebSubAdvancedBaseTest"/>-->
-<!--            &lt;!&ndash; DummyTestCase or any other test which does not have @BeforeClass and belongs to the-->
-<!--                "websub-test" group needs to be the first test to run to ensure @BeforeGroup is executed before-->
-<!--                @BeforeClass in test classes which have @BeforeClass &ndash;&gt;-->
-<!--            <class name="org.ballerinalang.test.service.websub.advanced.WebSubDummyTestCase"/>-->
-<!--            <class name="org.ballerinalang.test.service.websub.advanced.WebSubSecureHubTestCase"/>-->
-<!--            &lt;!&ndash;<class name="org.ballerinalang.test.service.websub.advanced.WebSubPersistenceTestCase"/>&ndash;&gt;-->
-<!--        </classes>-->
-<!--    </test>-->
+    <test name="ballerina-websub-advanced-config-tests" parallel="false">
+        <parameter name="enableJBallerinaTests" value="true"/>
+        <classes>
+            <class name="org.ballerinalang.test.service.websub.advanced.WebSubAdvancedBaseTest"/>
+            <!-- DummyTestCase or any other test which does not have @BeforeClass and belongs to the
+                "websub-test" group needs to be the first test to run to ensure @BeforeGroup is executed before
+                @BeforeClass in test classes which have @BeforeClass -->
+            <class name="org.ballerinalang.test.service.websub.advanced.WebSubDummyTestCase"/>
+            <class name="org.ballerinalang.test.service.websub.advanced.WebSubSecureHubTestCase"/>
+            <!--<class name="org.ballerinalang.test.service.websub.advanced.WebSubPersistenceTestCase"/>-->
+        </classes>
+    </test>
 
     <test name="ballerina-data-streaming-tests" parallel="false">
         <classes>
@@ -279,6 +281,7 @@
         <classes>
             <class name="org.ballerinalang.test.observability.tracing.TracingTestCase"/>
             <class name="org.ballerinalang.test.observability.metrics.MetricsTestCase"/>
+            <class name="org.ballerinalang.test.observability.metrics.WebSocketMetricsTestCase"/>
         </classes>
     </test>
 
@@ -293,6 +296,7 @@
             <class name="org.ballerinalang.test.packaging.PathDependencyTestCase"/>
             <class name="org.ballerinalang.test.packaging.DirectoryTestCase"/>
             <class name="org.ballerinalang.test.packaging.SpiServicesTestCase"/>
+            <class name="org.ballerinalang.test.packaging.SingleBalFileTestCase"/>
         </classes>
     </test>
 

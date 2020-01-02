@@ -18,6 +18,7 @@
 package org.ballerinalang.langserver.common;
 
 import org.ballerinalang.langserver.compiler.LSContext;
+import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.completions.SymbolInfo;
 
 import java.util.List;
@@ -36,8 +37,6 @@ public class CommonKeys {
 
     public static final String OPEN_PARENTHESES_KEY = "(";
 
-    public static final String CLOSE_PARENTHESES_KEY = ")";
-
     public static final String OPEN_BRACKET_KEY = "[";
 
     public static final String CLOSE_BRACKET_KEY = "]";
@@ -53,31 +52,18 @@ public class CommonKeys {
     public static final String DOLLAR_SYMBOL_KEY = "$";
     // End non letter symbol keys
 
-    public static final String ITR_OP_LAMBDA_PARAM_REPLACE_TOKEN = "%params%";
-
-    public static final String ITR_OP_LAMBDA_KEY_REPLACE_TOKEN = "%key%";
-
-    public static final String ITR_OP_LAMBDA_VALUE_REPLACE_TOKEN = "%value%";
-
     public static final String FUNCTION_KEYWORD_KEY = "function";
 
     public static final String RESOURCE_KEYWORD_KEY = "resource";
 
     public static final String SERVICE_KEYWORD_KEY = "service";
 
-    public static final String OBJECT_KEYWORD_KEY = "object";
-
-    public static final String RECORD_KEYWORD_KEY = "record";
-
-    public static final String SELF_KEYWORD_KEY = "self";
-
     public static final String NEW_KEYWORD_KEY = "new";
     
     public static final String SLASH_KEYWORD_KEY = "/";
     
-    public static final String BALLERINA_KW = "ballerina";
-    
-    public static final String BUILTIN_KW = "builtin";
-
     public static final LSContext.Key<List<SymbolInfo>> VISIBLE_SYMBOLS_KEY = new LSContext.Key<>();
+
+    public static final LSContext.Key<WorkspaceDocumentManager> DOC_MANAGER_KEY
+            = new LSContext.Key<>();
 }
