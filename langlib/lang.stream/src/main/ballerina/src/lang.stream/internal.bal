@@ -52,7 +52,7 @@ type Subscription object {
             arrays:push(self.queue, message);
             if (self.status == false) {
                 self.status = true;
-                _ = @concurrent{} start self.startProcessingEvents(arrays:remove(self.queue, 0));
+                _ = start self.startProcessingEvents(arrays:remove(self.queue, 0));
             }
         }
     }
