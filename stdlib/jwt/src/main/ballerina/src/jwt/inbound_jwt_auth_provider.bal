@@ -50,8 +50,8 @@ public type InboundJwtAuthProvider object {
             return false;
         }
 
-        if (self.jwtCache.hasKey(credential)) {
-            var payload = authenticateFromCache(jwtCache, credential);
+        if (self.inboundJwtCache.hasKey(credential)) {
+            var payload = authenticateFromCache(self.inboundJwtCache, credential);
             if (payload is JwtPayload) {
                 auth:setAuthenticationContext("jwt", credential);
                 setPrincipal(payload);
@@ -65,7 +65,7 @@ public type InboundJwtAuthProvider object {
         if (validationResult is JwtPayload) {
             auth:setAuthenticationContext("jwt", credential);
             setPrincipal(validationResult);
-            addToAuthenticationCache(self.jwtCache, credential, <@untainted> validationResult?.exp,
+            addToAuthenticationCache(self.inboundJwtCache, credential, <@untainted> validationResult?.exp,
                 <@untainted> validationResult);
             return true;
         } else {
@@ -75,8 +75,8 @@ public type InboundJwtAuthProvider object {
 };
 
 function authenticateFromCache(cache:Cache jwtCache, string jwtToken) returns JwtPayload? {
-    var cachedJwtInfo = trap <CachedJwtInfo>jwtCache.get(jwtToken);
-    if (cachedJwtInfo is CachedJwtInfo) {
+    var cachedJwtInfo = trap <InboundCachedJwtInfo>jwtCache.get(jwtToken);
+    if (cachedJwtInfo is InboundCachedJwtInfo) {
         // convert to current time and check the expiry time
         if (cachedJwtInfo.expiryTime > (time:currentTime().time / 1000)) {
             JwtPayload payload = cachedJwtInfo.jwtPayload;
@@ -95,7 +95,7 @@ function authenticateFromCache(cache:Cache jwtCache, string jwtToken) returns Jw
 }
 
 function addToAuthenticationCache(cache:Cache jwtCache, string jwtToken, int? exp, JwtPayload payload) {
-    CachedJwtInfo cachedJwtInfo = {jwtPayload : payload, expiryTime : exp is () ? 0 : exp};
+    InboundCachedJwtInfo cachedJwtInfo = {jwtPayload : payload, expiryTime : exp is () ? 0 : exp};
     jwtCache.put(jwtToken, cachedJwtInfo);
     string? sub = payload?.sub;
     if (sub is string) {
