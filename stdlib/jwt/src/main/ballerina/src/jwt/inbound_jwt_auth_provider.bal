@@ -15,6 +15,7 @@
 // under the License.
 
 import ballerina/auth;
+import ballerina/cache;
 import ballerina/log;
 import ballerina/stringutils;
 import ballerina/time;
@@ -27,12 +28,16 @@ public type InboundJwtAuthProvider object {
     *auth:InboundAuthProvider;
 
     public JwtValidatorConfig jwtValidatorConfig;
+    cache:Cache inboundJwtCache;
 
     # Provides authentication based on the provided JWT token.
     #
     # + jwtValidatorConfig - JWT validator configurations
     public function __init(JwtValidatorConfig jwtValidatorConfig) {
         self.jwtValidatorConfig = jwtValidatorConfig;
+        self.inboundJwtCache = new(jwtValidatorConfig.jwtCache.capacity,
+                                   jwtValidatorConfig.jwtCache.expTimeInSeconds * 1000,
+                                   jwtValidatorConfig.jwtCache.evictionFactor);
     }
 
     # Authenticate with a JWT token.
@@ -45,8 +50,8 @@ public type InboundJwtAuthProvider object {
             return false;
         }
 
-        if (self.jwtValidatorConfig.jwtCache.hasKey(credential)) {
-            var payload = authenticateFromCache(self.jwtValidatorConfig, credential);
+        if (self.jwtCache.hasKey(credential)) {
+            var payload = authenticateFromCache(jwtCache, credential);
             if (payload is JwtPayload) {
                 auth:setAuthenticationContext("jwt", credential);
                 setPrincipal(payload);
@@ -60,7 +65,7 @@ public type InboundJwtAuthProvider object {
         if (validationResult is JwtPayload) {
             auth:setAuthenticationContext("jwt", credential);
             setPrincipal(validationResult);
-            addToAuthenticationCache(self.jwtValidatorConfig, credential, <@untainted> validationResult?.exp,
+            addToAuthenticationCache(self.jwtCache, credential, <@untainted> validationResult?.exp,
                 <@untainted> validationResult);
             return true;
         } else {
@@ -69,12 +74,12 @@ public type InboundJwtAuthProvider object {
     }
 };
 
-function authenticateFromCache(JwtValidatorConfig jwtValidatorConfig, string jwtToken) returns JwtPayload? {
-    var cachedJwt = trap <CachedJwt>jwtValidatorConfig.jwtCache.get(jwtToken);
-    if (cachedJwt is CachedJwt) {
+function authenticateFromCache(cache:Cache jwtCache, string jwtToken) returns JwtPayload? {
+    var cachedJwtInfo = trap <CachedJwtInfo>jwtCache.get(jwtToken);
+    if (cachedJwtInfo is CachedJwtInfo) {
         // convert to current time and check the expiry time
-        if (cachedJwt.expiryTime > (time:currentTime().time / 1000)) {
-            JwtPayload payload = cachedJwt.jwtPayload;
+        if (cachedJwtInfo.expiryTime > (time:currentTime().time / 1000)) {
+            JwtPayload payload = cachedJwtInfo.jwtPayload;
             string? sub = payload?.sub;
             if (sub is string) {
                 string printMsg = sub;
@@ -84,14 +89,14 @@ function authenticateFromCache(JwtValidatorConfig jwtValidatorConfig, string jwt
             }
             return payload;
         } else {
-            jwtValidatorConfig.jwtCache.remove(jwtToken);
+            jwtCache.remove(jwtToken);
         }
     }
 }
 
-function addToAuthenticationCache(JwtValidatorConfig jwtValidatorConfig, string jwtToken, int? exp, JwtPayload payload) {
-    CachedJwt cachedJwt = {jwtPayload : payload, expiryTime : exp is () ? 0 : exp};
-    jwtValidatorConfig.jwtCache.put(jwtToken, cachedJwt);
+function addToAuthenticationCache(cache:Cache jwtCache, string jwtToken, int? exp, JwtPayload payload) {
+    CachedJwtInfo cachedJwtInfo = {jwtPayload : payload, expiryTime : exp is () ? 0 : exp};
+    jwtCache.put(jwtToken, cachedJwtInfo);
     string? sub = payload?.sub;
     if (sub is string) {
         string printMsg = sub;
