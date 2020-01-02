@@ -18,6 +18,7 @@
 
 package org.ballerinalang.messaging.kafka.utils;
 
+import org.ballerinalang.compiler.plugins.AbstractCompilerPlugin;
 import org.ballerinalang.compiler.plugins.SupportedResourceParamTypes;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
@@ -26,9 +27,7 @@ import org.ballerinalang.model.tree.ServiceNode;
 import org.ballerinalang.model.tree.SimpleVariableNode;
 import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.ballerinalang.util.diagnostic.DiagnosticLog;
-import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
-import org.wso2.ballerinalang.util.AbstractTransportCompilerPlugin;
 
 import java.util.List;
 
@@ -53,7 +52,7 @@ import static org.ballerinalang.util.diagnostic.Diagnostic.Kind.ERROR;
                 @SupportedResourceParamTypes.Type(packageName = KAFKA_PACKAGE_NAME, name = CONSUMER_STRUCT_NAME)
         }
 )
-public class KafkaServiceCompilerPlugin extends AbstractTransportCompilerPlugin {
+public class KafkaServiceCompilerPlugin extends AbstractCompilerPlugin {
 
     private DiagnosticLog diagnosticLog = null;
 
@@ -102,13 +101,6 @@ public class KafkaServiceCompilerPlugin extends AbstractTransportCompilerPlugin 
         } else {
             logError("Invalid number of input parameters found in resource " + resourceName, position);
             return;
-        }
-        boolean isReturnTypeValid = isResourceReturnsErrorOrNil(resource);
-        if (!isReturnTypeValid) {
-            String message = "Invalid return type for the resource function:"
-                    + "Expected error? or subset of error? but found: "
-                    + ((BLangFunction) resource).returnTypeNode;
-            logError(message, position);
         }
     }
 

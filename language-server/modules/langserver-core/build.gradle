@@ -75,7 +75,6 @@ dependencies {
     implementation project(':ballerina-task')
     implementation project(':ballerina-time')
     implementation project(':ballerina-transactions')
-    implementation project(':ballerina-utils')
 //    implementation project(':ballerina-websub')
     implementation project(':testerina:testerina-core')
     implementation project(':ballerina-tool')
@@ -93,6 +92,7 @@ dependencies {
     implementation 'commons-io:commons-io'
 
     baloImplementation project(path: ':ballerina-auth', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-bir', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-lang:annotations', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-cache', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-config-api', configuration: 'baloImplementation')
@@ -124,15 +124,14 @@ dependencies {
     baloImplementation project(path: ':ballerina-task', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-time', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-transactions', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-utils', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-stringutils', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-java', configuration: 'baloImplementation')
 //    baloImplementation project(path: ':ballerina-websub', configuration: 'baloImplementation')
     baloImplementation project(path: ':testerina:testerina-core', configuration: 'baloImplementation')
 
     dependency 'com.h2database:h2:1.4.199'
-    dependency 'org.eclipse.lsp4j:org.eclipse.lsp4j:0.6.0'
-    dependency 'org.eclipse.lsp4j:org.eclipse.lsp4j.jsonrpc:0.6.0'
+    dependency 'org.eclipse.lsp4j:org.eclipse.lsp4j:0.8.1'
+    dependency 'org.eclipse.lsp4j:org.eclipse.lsp4j.jsonrpc:0.8.1'
     dependency 'commons-io:commons-io:2.6'
 
     testCompile 'org.testng:testng'
@@ -205,3 +204,13 @@ test {
         suites 'src/test/resources/testng.xml'
     }
 }
+
+task buildAndCopy(type: Copy) {
+    dependsOn build
+    from 'build/libs/language-server-core-' + project.version + '.jar'
+    into  project(':jballerina-tools').projectDir.absolutePath +
+        '/build/extracted-distributions/jballerina-tools-' + project.version +
+        '/bre/lib';
+}
+
+

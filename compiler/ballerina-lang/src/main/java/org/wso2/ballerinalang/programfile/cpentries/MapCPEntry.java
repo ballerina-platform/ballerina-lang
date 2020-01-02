@@ -29,6 +29,7 @@ import java.util.Map;
  *
  * @since 0.990.4
  */
+@Deprecated
 public class MapCPEntry implements ConstantPoolEntry {
 
     private BConstantSymbol constantSymbol;

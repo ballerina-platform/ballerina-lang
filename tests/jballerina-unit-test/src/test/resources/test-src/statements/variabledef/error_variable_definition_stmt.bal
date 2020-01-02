@@ -21,8 +21,8 @@ type CMA error <string, record {| string message?; error cause?; anydata...; |}>
 const ERROR1 = "Some Error One";
 const ERROR2 = "Some Error Two";
 
-function testBasicErrorVariableWithMapDetails() returns [string, string, string, string, map<string>, string?, string?,
-                                                            string?, map<any>, any, any, any] {
+function testBasicErrorVariableWithMapDetails() returns [string, string, string, string, map<string|error>, string?, string?,
+                                                            string?, map<any|error>, any, any, any] {
     SMS err1 = error("Error One", message = "Msg One", detail = "Detail Msg");
     SMA err2 = error("Error Two", message = "Msg Two", fatal = true);
     SMS error (reason11, message = m1, ... detail11) = err1;
@@ -34,8 +34,8 @@ function testBasicErrorVariableWithMapDetails() returns [string, string, string,
     detail22, extra22];
 }
 
-function testBasicErrorVariableWithConstAndMap() returns [string, string, string, string, map<string>, string?, string?,
-                                                             string?, map<any>, any, any, any] {
+function testBasicErrorVariableWithConstAndMap() returns [string, string, string, string, map<string|error>, string?, string?,
+                                                             string?, map<any|error>, any, any, any] {
     CMS err3 = error(ERROR1, message = "Msg Three", detail = "Detail Msg");
     CMA err4 = error(ERROR2, message = "Msg Four", fatal = true);
     CMS error (reason31, ... detail31) = err3;
@@ -47,8 +47,8 @@ function testBasicErrorVariableWithConstAndMap() returns [string, string, string
     detail42, extra42];
 }
 
-function testVarBasicErrorVariableWithMapDetails() returns [string, string, string, string, map<string>, string?,
-                                                               string?, string?, map<any>, any, any, any] {
+function testVarBasicErrorVariableWithMapDetails() returns [string, string, string, string, map<string|error>, string?,
+                                                               string?, string?, map<any|error>, any, any, any] {
     SMS err1 = error("Error One", message = "Msg One", detail = "Detail Msg");
     SMA err2 = error("Error Two", message = "Msg Two", fatal = true);
     var error (reason11, ... detail11) = err1;
@@ -60,8 +60,8 @@ function testVarBasicErrorVariableWithMapDetails() returns [string, string, stri
     detail22, extra22];
 }
 
-function testVarBasicErrorVariableWithConstAndMap() returns [string, string, string, string, map<string>, string?,
-                                                                string?, string?, map<any>, any, any, any] {
+function testVarBasicErrorVariableWithConstAndMap() returns [string, string, string, string, map<string|error>, string?,
+                                                                string?, string?, map<any|error>, any, any, any] {
     CMS err3 = error(ERROR1, message = "Msg Three", detail = "Detail Msg");
     CMA err4 = error(ERROR2, message = "Msg Four", fatal = true);
     var error (reason31, ... detail31) = err3;
@@ -135,7 +135,7 @@ function testErrorWithAnonErrorType() returns [string, string?] {
 }
 
 function testErrorWithUnderscore() returns [string, string, string, string, string, string, string, string,
-                                               string?, anydata|error?, anydata|error?] {
+                                               string|error?, anydata|error?, anydata|error?] {
     error <string, record {| string message?; error cause?; string...; |}> err = error("Error Code", message = "Fatal");
     error <string, record {| string message?; error cause?; string...; |}> error (reason, ... _) = err;
     error <string, record {| string message?; error cause?; string...; |}> error (reason2) = err;
@@ -168,8 +168,21 @@ const R = "r";
 
 type BeeError error <R, Bee>;
 
-function testIndirectErrorDestructuring() returns [string?, boolean, map<anydata>] {
+function testIndirectErrorDestructuring() returns [string?, boolean, map<anydata|error>] {
     FooError e = BeeError(message="Msg", fatal=false, other="k");
     var FooError(message=m, fatal=f, ...rest) = e;
     return [m, f, rest];
+}
+
+type SealedErrorDetail record {|
+    string message;
+    error cause?;
+|};
+
+type SealedError error<string, SealedErrorDetail>;
+
+function testSealedDetailDestructuring() returns [string, map<anydata|error>] {
+    SealedError e = error("sealed", message="Msg");
+    var error(reason, ...rest) = e;
+    return [reason, rest];
 }

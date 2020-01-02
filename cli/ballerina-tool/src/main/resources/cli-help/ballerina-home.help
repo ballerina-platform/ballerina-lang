@@ -11,4 +11,4 @@ DESCRIPTION
 
 EXAMPLES
        Print of Ballerina distribution which is currently configured.
-          → ballerina home
+          $ ballerina home

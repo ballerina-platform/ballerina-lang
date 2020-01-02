@@ -52,7 +52,7 @@ public class CryptoTest {
         String resourceRoot = Paths.get("src", "test", "resources").toAbsolutePath().toString();
         Path sourceRoot = Paths.get(resourceRoot, "test-src");
         confRoot = Paths.get(resourceRoot, "datafiles");
-        compileResult = BCompileUtil.compile(sourceRoot.resolve("crypto-test.bal").toString());
+        compileResult = BCompileUtil.compileOffline(sourceRoot.resolve("crypto-test.bal").toString());
     }
 
     @Test(description = "Test hmac generation functions")

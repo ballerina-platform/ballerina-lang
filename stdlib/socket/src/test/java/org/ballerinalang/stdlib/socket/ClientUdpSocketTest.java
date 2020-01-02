@@ -66,13 +66,13 @@ public class ClientUdpSocketTest {
         }
         String resourceRoot = Paths.get("src", "test", "resources").toAbsolutePath().toString();
         Path testResourceRoot = Paths.get(resourceRoot, "test-src");
-        socketClient = BCompileUtil.compile(testResourceRoot.resolve("udp_client_socket.bal").toString());
+        socketClient = BCompileUtil.compileOffline(testResourceRoot.resolve("udp_client_socket.bal").toString());
     }
 
     @AfterClass
     public void cleanup() {
         mockUdpServer.stop();
-        SocketUtils.shutdownExecutor(executor);
+        SocketUtils.shutdownExecutorGracefully(executor);
     }
 
     @Test()
@@ -93,7 +93,7 @@ public class ClientUdpSocketTest {
         final BValue[] echoResult = BRunUtil.invoke(socketClient, "contentReceive");
         String echo = echoResult[0].stringValue();
         Assert.assertEquals(echo, serverContent, "Client did not receive expected message");
-        SocketUtils.shutdownExecutor(client);
+        SocketUtils.shutdownExecutorGracefully(client);
     }
 
     @Test(dependsOnMethods = "testContentReceive")
@@ -104,7 +104,7 @@ public class ClientUdpSocketTest {
         final BValue[] echoResult = BRunUtil.invoke(socketClient, "contentReceiveWithLength");
         String echo = echoResult[0].stringValue();
         Assert.assertEquals(echo, serverContent + serverContent, "Client did not receive expected message");
-        SocketUtils.shutdownExecutor(client);
+        SocketUtils.shutdownExecutorGracefully(client);
     }
 
     private void sendContent(String serverContent, int port) {

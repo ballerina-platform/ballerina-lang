@@ -17,16 +17,16 @@
 package org.ballerinalang.net.http.actions.websocketconnector;
 
 import io.netty.channel.ChannelFuture;
+import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.net.http.WebSocketConstants;
-import org.ballerinalang.net.http.WebSocketOpenConnectionInfo;
-import org.ballerinalang.net.http.WebSocketUtil;
-import org.ballerinalang.net.http.exception.WebSocketException;
+import org.ballerinalang.net.http.websocket.WebSocketConstants;
+import org.ballerinalang.net.http.websocket.WebSocketException;
+import org.ballerinalang.net.http.websocket.WebSocketUtil;
+import org.ballerinalang.net.http.websocket.observability.WebSocketObservabilityConstants;
+import org.ballerinalang.net.http.websocket.observability.WebSocketObservabilityUtil;
+import org.ballerinalang.net.http.websocket.server.WebSocketConnectionInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketConnection;
@@ -34,51 +34,48 @@ import org.wso2.transport.http.netty.contract.websocket.WebSocketConnection;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import static org.ballerinalang.net.http.WebSocketConstants.ErrorCode.WsConnectionClosureError;
-import static org.ballerinalang.net.http.WebSocketConstants.ErrorCode.WsConnectionError;
+import static org.ballerinalang.net.http.websocket.WebSocketConstants.ErrorCode;
 
 /**
  * {@code Get} is the GET action implementation of the HTTP Connector.
  */
-@BallerinaFunction(
-        orgName = WebSocketConstants.BALLERINA_ORG,
-        packageName = WebSocketConstants.PACKAGE_HTTP,
-        functionName = "externClose",
-        receiver = @Receiver(
-                type = TypeKind.OBJECT,
-                structType = WebSocketConstants.WEBSOCKET_CONNECTOR,
-                structPackage = WebSocketConstants.FULL_PACKAGE_HTTP
-        )
-)
 public class Close {
     private static final Logger log = LoggerFactory.getLogger(Close.class);
 
-    public static Object externClose(Strand strand, ObjectValue wsConnection, long statusCode, String reason,
+    public static Object externClose(ObjectValue wsConnection, long statusCode, String reason,
                                      long timeoutInSecs) {
+        Strand strand = Scheduler.getStrand();
         NonBlockingCallback callback = new NonBlockingCallback(strand);
+        WebSocketConnectionInfo connectionInfo = (WebSocketConnectionInfo) wsConnection
+                .getNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_CONNECTION_INFO);
+        WebSocketObservabilityUtil.observeResourceInvocation(strand, connectionInfo,
+                                                             WebSocketConstants.RESOURCE_NAME_CLOSE);
         try {
-            WebSocketOpenConnectionInfo connectionInfo = (WebSocketOpenConnectionInfo) wsConnection
-                    .getNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_CONNECTION_INFO);
             CountDownLatch countDownLatch = new CountDownLatch(1);
             ChannelFuture closeFuture =
                     initiateConnectionClosure(callback, (int) statusCode, reason, connectionInfo, countDownLatch);
-            waitForTimeout(callback, (int) timeoutInSecs, countDownLatch);
+            waitForTimeout(callback, (int) timeoutInSecs, countDownLatch, connectionInfo);
             closeFuture.channel().close().addListener(future -> {
                 WebSocketUtil.setListenerOpenField(connectionInfo);
+                callback.setReturnValues(null);
                 callback.notifySuccess();
             });
+            WebSocketObservabilityUtil.observeSend(WebSocketObservabilityConstants.MESSAGE_TYPE_CLOSE,
+                                                   connectionInfo);
         } catch (Exception e) {
             log.error("Error occurred when closing the connection", e);
-            callback.setReturnValues(new WebSocketException(WsConnectionError, e.getMessage()));
-            callback.notifySuccess();
+            WebSocketObservabilityUtil.observeError(WebSocketObservabilityUtil.getConnectionInfo(wsConnection),
+                                                    WebSocketObservabilityConstants.ERROR_TYPE_MESSAGE_SENT,
+                                                    WebSocketObservabilityConstants.MESSAGE_TYPE_CLOSE,
+                                                    e.getMessage());
+            callback.notifyFailure(WebSocketUtil.createErrorByType(e));
         }
         return null;
     }
 
     private static ChannelFuture initiateConnectionClosure(NonBlockingCallback callback, int statusCode, String reason,
-                                                           WebSocketOpenConnectionInfo connectionInfo,
-                                                           CountDownLatch latch)
-            throws IllegalAccessException {
+                                                           WebSocketConnectionInfo connectionInfo,
+                                                           CountDownLatch latch) throws IllegalAccessException {
         WebSocketConnection webSocketConnection = connectionInfo.getWebSocketConnection();
         ChannelFuture closeFuture;
         if (statusCode < 0) {
@@ -89,7 +86,11 @@ public class Close {
         return closeFuture.addListener(future -> {
             Throwable cause = future.cause();
             if (!future.isSuccess() && cause != null) {
-                callback.setReturnValues(new WebSocketException(WsConnectionClosureError, cause.getMessage()));
+                callback.setReturnValues(
+                        new WebSocketException(ErrorCode.WsConnectionClosureError, cause.getMessage()));
+                WebSocketObservabilityUtil.observeError(connectionInfo,
+                                                        WebSocketObservabilityConstants.ERROR_TYPE_CLOSE,
+                                                        cause.getMessage());
             } else {
                 callback.setReturnValues(null);
             }
@@ -98,7 +99,7 @@ public class Close {
     }
 
     private static void waitForTimeout(NonBlockingCallback callback, int timeoutInSecs,
-                                       CountDownLatch latch) {
+                                       CountDownLatch latch, WebSocketConnectionInfo connectionInfo) {
         try {
             if (timeoutInSecs < 0) {
                 latch.await();
@@ -108,12 +109,16 @@ public class Close {
                     String errMsg = String.format(
                             "Could not receive a WebSocket close frame from remote endpoint within %d seconds",
                             timeoutInSecs);
-                    callback.setReturnValues(new WebSocketException(WsConnectionClosureError, errMsg));
+                    callback.setReturnValues(new WebSocketException(ErrorCode.WsConnectionClosureError, errMsg));
+                    WebSocketObservabilityUtil.observeError(connectionInfo,
+                                                            WebSocketObservabilityConstants.ERROR_TYPE_CLOSE, errMsg);
                 }
             }
         } catch (InterruptedException err) {
-            callback.setReturnValues(new WebSocketException(WsConnectionClosureError,
-                                                            "Connection interrupted while closing the connection"));
+            String errMsg = "Connection interrupted while closing the connection";
+            callback.setReturnValues(new WebSocketException(ErrorCode.WsConnectionClosureError, errMsg));
+            WebSocketObservabilityUtil.observeError(connectionInfo,
+                                                    WebSocketObservabilityConstants.ERROR_TYPE_CLOSE, errMsg);
             Thread.currentThread().interrupt();
         }
     }

@@ -48,7 +48,7 @@ import javax.net.ssl.TrustManagerFactory;
  * @since 0.995.0
  */
 public class ConnectionUtils {
-    private static final Logger logger = LoggerFactory.getLogger(ConnectionUtils.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ConnectionUtils.class);
 
     /**
      * Creates a RabbitMQ Connection using the given connection parameters.
@@ -68,7 +68,7 @@ public class ConnectionUtils {
                 if (secureSocket.getBooleanValue(RabbitMQConstants.RABBITMQ_CONNECTION_VERIFY_HOST)) {
                     connectionFactory.enableHostnameVerification();
                 }
-                logger.info("TLS enabled for the connection.");
+                LOGGER.info("TLS enabled for the connection.");
             }
 
             String host = connectionConfig.getStringValue(RabbitMQConstants.RABBITMQ_CONNECTION_HOST);
@@ -108,12 +108,6 @@ public class ConnectionUtils {
         }
     }
 
-    /**
-     * Creates and retrieves the initialized SSLContext.
-     *
-     * @param secureSocket secureSocket record.
-     * @return Initialized SSLContext.
-     */
     private static SSLContext getSSLContext(MapValue secureSocket) {
         try {
             MapValue cryptoKeyStore = secureSocket.getMapValue(RabbitMQConstants.RABBITMQ_CONNECTION_KEYSTORE);
@@ -178,17 +172,12 @@ public class ConnectionUtils {
         }
     }
 
-    /**
-     * Handles closing the given connection.
-     *
-     * @param connection   RabbitMQ Connection object.
-     * @param timeout      Timeout (in milliseconds) for completing all the close-related
-     *                     operations, use -1 for infinity.
-     * @param closeCode    The close code (See under "Reply Codes" in the AMQP specification).
-     * @param closeMessage A message indicating the reason for closing the connection.
-     */
-    public static void handleCloseConnection(Connection connection, Object closeCode, Object closeMessage,
-                                             Object timeout) {
+    public static boolean isClosed(Connection connection) {
+        return connection == null || !connection.isOpen();
+    }
+
+    public static Object handleCloseConnection(Object closeCode, Object closeMessage, Object timeout,
+                                               Connection connection) {
         boolean validTimeout = timeout != null && RabbitMQUtils.checkIfInt(timeout);
         boolean validCloseCode = (closeCode != null && RabbitMQUtils.checkIfInt(closeCode)) &&
                 (closeMessage != null && RabbitMQUtils.checkIfString(closeMessage));
@@ -204,22 +193,14 @@ public class ConnectionUtils {
                 connection.close();
             }
         } catch (IOException | ArithmeticException exception) {
-            throw new RabbitMQConnectorException(RabbitMQConstants.CLOSE_CONNECTION_ERROR + exception.getMessage(),
-                    exception);
+            return RabbitMQUtils.returnErrorValue("Error occurred while closing the connection: "
+                    + exception.getMessage());
         }
+        return null;
     }
 
-    /**
-     * Handles aborting the given connection.
-     *
-     * @param connection   RabbitMQ Connection object.
-     * @param timeout      Timeout (in milliseconds) for completing all the close-related
-     *                     operations, use -1 for infinity.
-     * @param closeCode    The close code (See under "Reply Codes" in the AMQP specification).
-     * @param closeMessage A message indicating the reason for closing the connection.
-     */
-    public static void handleAbortConnection(Connection connection, Object closeCode, Object closeMessage,
-                                             Object timeout) {
+    public static void handleAbortConnection(Object closeCode, Object closeMessage, Object timeout,
+                                             Connection connection) {
         boolean validTimeout = timeout != null && RabbitMQUtils.checkIfInt(timeout);
         boolean validCloseCode = (closeCode != null && RabbitMQUtils.checkIfInt(closeCode)) &&
                 (closeMessage != null && RabbitMQUtils.checkIfString(closeMessage));
@@ -233,20 +214,6 @@ public class ConnectionUtils {
         } else {
             connection.abort();
         }
-    }
-
-    /**
-     * Checks if close was already called on the connection.
-     *
-     * @param connection RabbitMQ Connection object.
-     * @return True if the connection is already closed and false otherwise.
-     */
-    public static boolean isClosed(Connection connection) {
-        boolean flag = false;
-        if (connection == null || !connection.isOpen()) {
-            flag = true;
-        }
-        return flag;
     }
 
     private ConnectionUtils() {

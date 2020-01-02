@@ -193,11 +193,11 @@ public class ErrorVariableReferenceTest {
         Assert.assertEquals(returns[i++].stringValue(), "/usr/bhah/a.log");
         Assert.assertEquals(returns[i++].stringValue(), "45221");
         Assert.assertEquals(returns[i++].stringValue(), "128");
-        Assert.assertEquals(returns[i++].stringValue(), "{\"message\":\"file open failed\", " +
-                "\"targetFileName\":\"/usr/bhah/a.log\", \"errorCode\":45221, \"flags\":128, \"cause\":c {}}");
+        Assert.assertEquals(returns[i++].stringValue(), "{\"message\":\"file open failed\", \"cause\":c {}, " +
+                "\"targetFileName\":\"/usr/bhah/a.log\", \"errorCode\":45221, \"flags\":128}");
         Assert.assertEquals(returns[i++].stringValue(), "file open failed");
-        Assert.assertEquals(returns[i++].stringValue(), "{\"targetFileName\":\"/usr/bhah/a.log\", " +
-                "\"errorCode\":45221, \"flags\":128, \"cause\":c {}}");
+        Assert.assertEquals(returns[i++].stringValue(), "{\"cause\":c {}, \"targetFileName\":\"/usr/bhah/a.log\", " +
+                "\"errorCode\":45221, \"flags\":128}");
     }
 
     @Test(description = "Test error varref inside a tupple ref")
@@ -230,7 +230,6 @@ public class ErrorVariableReferenceTest {
     public void testErrorVariablesSemanticsNegative() {
         CompileResult resultNegative = BCompileUtil.compile(
                 "test-src/expressions/varref/error_variable_reference_semantics_negative.bal");
-        Assert.assertEquals(resultNegative.getErrorCount(), 17);
         int i = -1;
         String incompatibleTypes = "incompatible types: ";
         BAssertUtil.validateError(resultNegative, ++i,
@@ -258,6 +257,8 @@ public class ErrorVariableReferenceTest {
                 incompatibleTypes + "expected 'boolean', found 'string'", 94, 20);
         BAssertUtil.validateError(resultNegative, ++i, "invalid binding pattern, variable reference " +
                 "'results[res1][reason]' cannot be used with binding pattern", 111, 12);
+        BAssertUtil.validateError(resultNegative, ++i, "invalid binding pattern, variable reference 'results[rec]' " +
+                "cannot be used with binding pattern", 111, 42);
         BAssertUtil.validateError(resultNegative, ++i, "invalid binding pattern, variable reference " +
                 "'results[res2][reason]' cannot be used with binding pattern", 112, 12);
         BAssertUtil.validateError(resultNegative, ++i,
@@ -270,6 +271,16 @@ public class ErrorVariableReferenceTest {
                                   "incompatible types: expected 'map', found 'map<(error|string|int)>'", 135, 32);
         BAssertUtil.validateError(resultNegative, ++i,
                 "incompatible types: expected 'string', found 'string?'", 145, 19);
+        BAssertUtil.validateError(resultNegative, ++i, "cannot assign a value to final 'r'", 157, 11);
+        BAssertUtil.validateError(resultNegative, ++i, "cannot assign a value to final 'message'", 157, 24);
+        BAssertUtil.validateError(resultNegative, ++i, "cannot assign a value to final 'abc'", 157, 39);
+        BAssertUtil.validateError(resultNegative, ++i, "cannot assign a value to final 'r2'", 160, 11);
+        BAssertUtil.validateError(resultNegative, ++i, "cannot assign a value to final 'message2'", 160, 25);
+        BAssertUtil.validateError(resultNegative, ++i, "cannot assign a value to final 'rest'", 160, 38);
+        BAssertUtil.validateError(resultNegative, ++i, "cannot assign a value to final 'message3'", 164, 21);
+        BAssertUtil.validateError(resultNegative, ++i, "cannot assign a value to final 'abc3'", 164, 37);
+
+        Assert.assertEquals(resultNegative.getErrorCount(), i + 1);
     }
 
     @Test

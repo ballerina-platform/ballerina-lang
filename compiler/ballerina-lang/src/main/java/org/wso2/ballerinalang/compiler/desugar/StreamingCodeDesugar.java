@@ -1405,12 +1405,13 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
                     variableName = streamAliasMap.get(variableName);
                     ((BLangSimpleVarRef) ((BLangFieldBasedAccess) expr).expr).variableName.value = variableName;
                 }
-                streamEventParameter = createStringLiteral(expr.pos, (expr).toString());
-                exprs.set(i, streamEventParameter);
+                streamEventParameter = createStringLiteral(expr.pos, expr.toString());
+                exprs.set(i, desugar.addConversionExprIfRequired(streamEventParameter, symTable.anyType));
             } else if (expr.getKind() == NodeKind.LIST_CONSTRUCTOR_EXPR) {
                 BLangListConstructorExpr arrayLiteral = (BLangListConstructorExpr) expr;
                 convertFieldAccessArgsToStringLiteral(arrayLiteral.exprs);
             } else {
+                exprs.set(i, desugar.addConversionExprIfRequired(expr, symTable.anyType));
                 expr.typeChecked = false;
             }
         }

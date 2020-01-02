@@ -30,4 +30,7 @@ public interface ExtendedLanguageClient extends LanguageClient {
 
     @JsonNotification("window/showTextDocument")
     void showTextDocument(Location location);
+
+    @JsonNotification("window/highlighting")
+    void publishTextHighlighting();
 }

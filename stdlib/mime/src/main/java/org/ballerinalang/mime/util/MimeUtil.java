@@ -32,6 +32,8 @@ import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.StreamingJsonValue;
 import org.ballerinalang.jvm.values.utils.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 import java.io.ByteArrayOutputStream;
@@ -83,6 +85,7 @@ import static org.ballerinalang.stdlib.io.utils.Utils.populateMimeErrorRecord;
  * @since 0.96
  */
 public class MimeUtil {
+    private static final Logger LOG = LoggerFactory.getLogger(MimeUtil.class);
 
     /**
      * Given a ballerina entity, get the content-type as a base type.
@@ -552,5 +555,11 @@ public class MimeUtil {
             throw MimeUtil.createError(INVALID_CONTENT_LENGTH, "Invalid content length");
         }
         return contentLength;
+    }
+
+    public static void closeOutputStream(OutputStream outputStream) throws IOException {
+        if (outputStream != null) {
+            outputStream.close();
+        }
     }
 }

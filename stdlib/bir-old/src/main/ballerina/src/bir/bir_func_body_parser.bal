@@ -28,7 +28,7 @@ public type FuncBodyParser object {
         self.receiver = receiver;
     }
 
-    public function parseBB(boolean addInterimBB) returns BasicBlock[] {
+    public function parseBB() returns BasicBlock[] {
         var id = self.reader.readStringCpRef();
         var numInstruction = self.reader.readInt32() - 1;
         Instruction?[] instructions = [];
@@ -36,16 +36,6 @@ public type FuncBodyParser object {
         while (i < numInstruction) {
             instructions[i] = self.parseInstruction();
             i += 1;
-        }
-
-        // Need to make sure terminators are at top of each switch case to avoid side effects due to reschedules.
-        if (addInterimBB) {
-            Terminator terminator = self.parseTerminator();
-            BasicBlock interimBB = {id: { value: id + "interim" }, instructions: [], terminator:terminator };
-            Terminator goto = self.createGOTO(terminator.pos, interimBB);
-            BasicBlock initialBB = { id: { value: id }, instructions: instructions, terminator: goto };
-            BasicBlock[2] bbs = [initialBB, interimBB];
-            return bbs;
         }
 
         BasicBlock[1] bb = [{ id: { value: id }, instructions: instructions, terminator: self.parseTerminator() }];
@@ -59,7 +49,7 @@ public type FuncBodyParser object {
     }
 
     public function parseEE() returns ErrorEntry {
-        return { trapBB: self.parseBBRef(), errorOp: self.parseVarRef(), targetBB: self.parseBBRef() };
+        return { trapBB: self.parseBBRef(), endBB: self.parseBBRef(), errorOp: self.parseVarRef(), targetBB: self.parseBBRef() };
     }
 
     public function parseInstruction() returns Instruction {
@@ -462,9 +452,12 @@ public type FuncBodyParser object {
                 lhsOp = self.parseVarRef();
             }
 
+            AnnotationAttachment?[] annots = [];
+            annots = parseAnnotAttachments(self.reader);
+
             BasicBlock thenBB = self.parseBBRef();
             AsyncCall call = {pos:pos, args:args, kind:kind, isVirtual: isVirtual, lhsOp:lhsOp, pkgID:pkgId, 
-                                name:{ value: name }, thenBB:thenBB};
+                                name:{ value: name }, thenBB:thenBB, annotAttachments:annots};
             return call;
         } else if (kindTag == INS_PANIC) {
             TerminatorKind kind = TERMINATOR_PANIC;
@@ -599,7 +592,7 @@ public type FuncBodyParser object {
                 j += 1;
             }
 
-            Unlock unlockIns = {pos:pos, kind:kind, globleVars:globleVars,
+            Unlock unlockIns = {pos:pos, kind:kind, globleVars:globleVars, 
                 localLocks:localLocks, unlockBB:self.parseBBRef()};
             return unlockIns;
         }

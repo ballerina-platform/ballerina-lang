@@ -1,11 +1,15 @@
 import org.gradle.internal.os.OperatingSystem;
 import org.apache.tools.ant.filters.*;
 
+import java.util.jar.Attributes
+import java.util.jar.JarOutputStream
+import java.util.jar.Manifest;
+
 apply from: "$rootDir/gradle/birTestableProject.gradle"
 
 configurations {
     interopImports {
-        transitive(false)
+        transitive(true)
     }
 }
 
@@ -14,7 +18,6 @@ project.ext.moduleName = files(file('src/main/ballerina/src').listFiles()).filte
 }.singleFile.name
 
 def generatedBirDir = "$buildDir/generated-bir/" + project.ext.orgName + "/" + project.ext.moduleName + "/0.0.0/"
-
 
 task copyExternalMappingNextToBir(type: Copy) {
     dependsOn compileJava
@@ -70,8 +73,7 @@ task createBirJar(type: Exec) {
     onlyIf { file(generatedBirDir + project.ext.moduleName + '.bir').exists() }
 
     doFirst {
-        def commands = [];
-        def jarsToBeLoaded = [];
+        Set jarsToBeLoaded = [];
         def mapPath = OperatingSystem.current().isWindows() ? "\"\"" : ""
         if (!sourceSets.main.allJava.isEmpty()) {
             def generatedMapPath = generatedBirDir + project.ext.moduleName + '.map.json'
@@ -93,34 +95,9 @@ task createBirJar(type: Exec) {
         }
 
         configurations.birJarCompile.each {
-            if (OperatingSystem.current().isWindows()) {
-                commands = [ 'cmd.exe', '/c',
-
-                        new File(it, '/bin/ballerina.bat'), 'run', new File(it, '/bre/lib/compiler_backend_jvm.jar'),
-
-                        generatedBirDir + project.ext.moduleName + '.bir',
-                        mapPath,
-                        "$buildDir/generated-bir-jar/" + project.ext.moduleName + ".jar",
-                        'false',
-                        'false',
-                        "1",
-                        "$buildDir/bir-cache"];
-            } else {
-                commands = [ 'sh',
-
-                        new File(it, '/bin/ballerina'), 'run', new File(it, '/bre/lib/compiler_backend_jvm.jar'),
-
-                        generatedBirDir + project.ext.moduleName + '.bir',
-                        mapPath,
-                        "$buildDir/generated-bir-jar/" + project.ext.moduleName + ".jar",
-                        'false',
-                        'false',
-                        "1",
-                        "$buildDir/bir-cache"];
-            }
-            commands.addAll(jarsToBeLoaded)
-            commandLine commands
-            println commandLine
+            printJarCreationCommand(it, generatedBirDir, mapPath, jarsToBeLoaded)
+            createClassPathJar("$buildDir/classpath/" + project.ext.moduleName + ".jar", jarsToBeLoaded)
+            commandLine getJarCreationCommand(it, generatedBirDir, mapPath, jarsToBeLoaded)
         }
     }
 
@@ -171,11 +148,77 @@ test {
     dependsOn copySelfToBirCache
     dependsOn createBirJar
 
-
     classpath += files("$buildDir/generated-bir-jar/" + moduleName + ".jar")
 }
 
 artifacts {
     bir file("$buildDir/generated-bir/"), { builtBy(createCacheEntries) }
     birJar file("$buildDir/generated-bir-jar/" + moduleName + ".jar"), { builtBy(createBirJar) }
+}
+
+def getJarCreationCommand(it, generatedBirDir, mapPath, jarsToBeLoaded) {
+    def commands = []
+    if (OperatingSystem.current().isWindows()) {
+        commands = [ 'cmd', '/c', 'java', '-cp', '"' + new File(it, '/bre/lib/*"')];
+    } else {
+        def classPath = fileTree(new File(it, '/bre/lib/')).filter{ it.isFile() }.files.path.join(':')
+        commands = [ 'java', '-cp', classPath];
+    }
+    commands.addAll(getCompilerBackendArgs(it, generatedBirDir, mapPath))
+    commands.add("$buildDir/classpath/" + project.ext.moduleName + ".jar")
+    return commands
+}
+
+/*
+ This method generates a jar file which has only the MANIFEST file with a Class-Path entry to have all the jars
+ that will be passed with java cmd as class path entries. This is added to avoid cmd too long issue that can come
+ in windows build environment.
+*/
+static def createClassPathJar(outputName, Set jarsToBeLoaded) {
+    Manifest manifest = new Manifest()
+    manifest.getMainAttributes().put(Attributes.Name.MANIFEST_VERSION, "1.0")
+    String classPathEntry = ""
+    Iterator iterator = jarsToBeLoaded.iterator()
+    while (iterator.hasNext()) {
+        File jarFile = new File(iterator.next().toString())
+        if (OperatingSystem.current().isWindows()) {
+            classPathEntry = classPathEntry.concat("/").concat(jarFile.getCanonicalPath().replace("\\", "/"))
+        } else {
+            classPathEntry = classPathEntry.concat(jarFile.getCanonicalPath())
+        }
+        if (iterator.hasNext()) {
+            classPathEntry = classPathEntry.concat(" ")
+        }
+    }
+    println "Class-Path : " + classPathEntry
+    manifest.getMainAttributes().put(Attributes.Name.CLASS_PATH, classPathEntry)
+    File classpathJarFile = new File(outputName)
+    classpathJarFile.parentFile.mkdir()
+    JarOutputStream jarOutputStream = new JarOutputStream(new FileOutputStream(classpathJarFile), manifest)
+    jarOutputStream.finish()
+}
+
+def printJarCreationCommand(it, generatedBirDir, mapPath, jarsToBeLoaded) {
+    def commands = []
+    if (OperatingSystem.current().isWindows()) {
+        commands = [ 'cmd', '/c', 'java', '-cp']
+    } else {
+        commands = [ 'java', '-cp']
+    }
+
+    commands.add('"' + new File(it, '/bre/lib/*"'))
+    commands.addAll(getCompilerBackendArgs(it, generatedBirDir, mapPath))
+    commands.add("$buildDir/classpath/" + project.ext.moduleName + ".jar")
+    println commands
+}
+
+def getCompilerBackendArgs(it, generatedBirDir, mapPath) {
+    return ['ballerina.compiler_backend_jvm.___init',
+            generatedBirDir + project.ext.moduleName + '.bir',
+            mapPath,
+            "$buildDir/generated-bir-jar/" + project.ext.moduleName + ".jar",
+            'false',
+            'false',
+            "1",
+            "$buildDir/bir-cache"]
 }

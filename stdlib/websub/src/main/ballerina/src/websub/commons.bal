@@ -22,25 +22,27 @@ import ballerina/log;
 import ballerina/mime;
 import ballerina/stringutils;
 
-# Intent verification request parameter `hub.challenge` representing the challenge that needs to be echoed by
+import ballerinax/java;
+
+# Intent verification request parameter 'hub.challenge' representing the challenge that needs to be echoed by
 # susbscribers to verify intent.
 const string HUB_CHALLENGE = "hub.challenge";
 
 # Parameter `hub.mode` representing the mode of the request from hub to subscriber or subscriber to hub.
 const string HUB_MODE = "hub.mode";
 
-# Subscription change or intent verification request parameter `hub.topic` representing the topic relevant to the for
+# Subscription change or intent verification request parameter 'hub.topic'' representing the topic relevant to the for
 # which the request is initiated.
 const string HUB_TOPIC = "hub.topic";
 
-# Subscription change request parameter `hub.callback` representing the callback to which notification should happen.
+# Subscription change request parameter 'hub.callback' representing the callback to which notification should happen.
 const string HUB_CALLBACK = "hub.callback";
 
-# Subscription request parameter `hub.lease_seconds` representing the period for which the subscription is expected to
+# Subscription request parameter 'hub.lease_seconds' representing the period for which the subscription is expected to
 # be active.
 const string HUB_LEASE_SECONDS = "hub.lease_seconds";
 
-# Subscription parameter `hub.secret` representing the secret key to use for authenticated content distribution.
+# Subscription parameter 'hub.secret' representing the secret key to use for authenticated content distribution.
 const string HUB_SECRET = "hub.secret";
 
 # `hub.mode` value indicating "subscription" mode, to subscribe to updates for a topic.
@@ -279,7 +281,7 @@ public type Notification object {
     #
     # + headerName - The header name
     # + return - The first header value for the specified header name. An exception is thrown if no header is found.
-    #            Ideally `hasHeader()` needs to be used to check the existence of header initially.
+    #            Ideally `Notification.hasHeader()` needs to be used to check the existence of header initially.
     public function getHeader(string headerName) returns @tainted string {
         return self.request.getHeader(headerName);
     }
@@ -288,7 +290,7 @@ public type Notification object {
     #
     # + headerName - The header name
     # + return - The header values the specified header key maps to. An exception is thrown if no header is found.
-    #            Ideally `hasHeader()` needs to be used to check the existence of header initially.
+    #            Ideally `Notification.hasHeader()` needs to be used to check the existence of header initially.
     public function getHeaders(string headerName) returns @tainted string[] {
         return self.request.getHeaders(headerName);
     }
@@ -482,9 +484,9 @@ public function startHub(http:Listener hubServiceListener,
                          public string basePath = "/",
                          public string subscriptionResourcePath = "/",
                          public string publishResourcePath = "/publish",
-                         public http:ServiceResourceAuth serviceAuth = {enabled:false},
-                         public http:ServiceResourceAuth subscriptionResourceAuth = {enabled:false},
-                         public http:ServiceResourceAuth publisherResourceAuth = {enabled:false},
+                         public http:ServiceAuth serviceAuth = {enabled:false},
+                         public http:ResourceAuth subscriptionResourceAuth = {enabled:false},
+                         public http:ResourceAuth publisherResourceAuth = {enabled:false},
                          public string? publicUrl = (),
                          public HubConfiguration hubConfiguration = {})
                             returns Hub|HubStartedUpError|HubStartupError {
@@ -643,14 +645,28 @@ public type Hub object {
     # Retrieves topics currently recognized by the Hub.
     #
     # + return - An array of available topics
-    public function getAvailableTopics() returns string[] = external;
+    public function getAvailableTopics() returns string[] {
+        return externGetAvailableTopics(self);
+    }
 
     # Retrieves details of subscribers registered to receive updates for a particular topic.
     #
     # + topic - The topic for which details need to be retrieved
     # + return - An array of subscriber details
-    public function getSubscribers(string topic) returns SubscriberDetails[] = external;
+    public function getSubscribers(string topic) returns SubscriberDetails[] {
+        return externGetSubscribers(self, java:fromString(topic));
+    }
 };
+
+function externGetAvailableTopics(Hub hub) returns string[] = @java:Method {
+    name: "getAvailableTopics",
+    class: "org.ballerinalang.net.websub.nativeimpl.HubNativeOperationHandler"
+} external;
+
+function externGetSubscribers(Hub hub, handle topic) returns SubscriberDetails[] = @java:Method {
+    name: "getSubscribers",
+    class: "org.ballerinalang.net.websub.nativeimpl.HubNativeOperationHandler"
+} external;
 
 ///////////////////////////////////////////////////////////////////
 //////////////////// WebSub Publisher Commons /////////////////////

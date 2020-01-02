@@ -39,11 +39,19 @@ dependencies {
     baloImplementation project(path: ':ballerina-system', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-runtime-api', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-transactions', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-utils', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-xmlutils', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-llvm', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-jsonutils', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-java', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-mime', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-cache', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-time', configuration: 'baloImplementation')
+
+    interopImports project(':ballerina-config-api')
+    interopImports project(':ballerina-io')
+    interopImports project(':ballerina-jsonutils')
+    interopImports project(':ballerina-system')
+    interopImports project(':ballerina-reflect')
 
     interopImports project(':ballerina-jsonutils')
 
@@ -54,6 +62,8 @@ dependencies {
     implementation project(':ballerina-cache')
     implementation project(':ballerina-runtime')
     implementation project(':ballerina-test-utils')
+    implementation project(':ballerina-time')
+    implementation project(':ballerina-java')
 
     testCompile project(path: ':ballerina-test-common', configuration: 'tests')
     testCompile project(':ballerina-io')
@@ -67,10 +77,12 @@ dependencies {
     testCompile project(':ballerina-config-api')
     testCompile project(':ballerina-system')
     testCompile project(':ballerina-runtime-api')
-    testCompile project(':ballerina-utils')
     testCompile project(':ballerina-core')
     testCompile project(':ballerina-jsonutils')
     testCompile project(':ballerina-xmlutils')
+    testCompile project(':ballerina-java')
+    testCompile project(':ballerina-llvm')
+    implementation project(':ballerina-time')
     testCompile project(':ballerina-mime')
     testCompile project(':ballerina-transactions')
 
@@ -78,8 +90,6 @@ dependencies {
     testCompile 'org.slf4j:slf4j-jdk14'
     testCompile 'com.h2database:h2'
     testCompile 'org.hsqldb:hsqldb'
-
-    baloImplementation project(path: ':ballerina-time', configuration: 'baloImplementation')
     
     implementation 'com.zaxxer:HikariCP'
 }

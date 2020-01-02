@@ -154,6 +154,67 @@ public class CompoundAssignmentTest {
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 10);
     }
 
+    @Test(description = "Test compound assignment with addition on array element where the index is an invocation.")
+    public void testCompoundAssignmentAdditionArrayElementFunctionInvocation() {
+        BValue[] returns = BRunUtil.invoke(result, "testCompoundAssignmentAdditionArrayElementFunctionInvocation");
+        Assert.assertEquals(returns.length, 3);
+        Assert.assertTrue(returns[0] instanceof BInteger);
+        Assert.assertTrue(returns[1] instanceof BInteger);
+        Assert.assertTrue(returns[2] instanceof BInteger);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 11);
+        Assert.assertEquals(((BInteger) returns[1]).intValue(), 1);
+        Assert.assertEquals(((BInteger) returns[2]).intValue(), 1);
+    }
+
+    @Test(description = "Test compound assignment with subtraction on array element where the index is an invocation.")
+    public void testCompoundAssignmentSubtractionArrayElementFunctionInvocation() {
+        BValue[] returns = BRunUtil.invoke(result, "testCompoundAssignmentSubtractionArrayElementFunctionInvocation");
+        Assert.assertEquals(returns.length, 3);
+        Assert.assertTrue(returns[0] instanceof BInteger);
+        Assert.assertTrue(returns[1] instanceof BInteger);
+        Assert.assertTrue(returns[2] instanceof BInteger);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
+        Assert.assertEquals(((BInteger) returns[1]).intValue(), 1);
+        Assert.assertEquals(((BInteger) returns[2]).intValue(), 1);
+    }
+
+    @Test(description = "Test compound assignment with division on array element where the index is an invocation.")
+    public void testCompoundAssignmentDivisionArrayElementFunctionInvocation() {
+        BValue[] returns = BRunUtil.invoke(result, "testCompoundAssignmentDivisionArrayElementFunctionInvocation");
+        Assert.assertEquals(returns.length, 3);
+        Assert.assertTrue(returns[0] instanceof BInteger);
+        Assert.assertTrue(returns[1] instanceof BInteger);
+        Assert.assertTrue(returns[2] instanceof BInteger);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
+        Assert.assertEquals(((BInteger) returns[1]).intValue(), 1);
+        Assert.assertEquals(((BInteger) returns[2]).intValue(), 1);
+    }
+
+    @Test(description = "Test compound assignment with multiplication on array element where the index is an " +
+            "invocation.")
+    public void testCompoundAssignmentMultiplicationArrayElementFunctionInvocation() {
+        BValue[] returns = BRunUtil.invoke(result,
+                "testCompoundAssignmentMultiplicationArrayElementFunctionInvocation");
+        Assert.assertEquals(returns.length, 3);
+        Assert.assertTrue(returns[0] instanceof BInteger);
+        Assert.assertTrue(returns[1] instanceof BInteger);
+        Assert.assertTrue(returns[2] instanceof BInteger);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 30);
+        Assert.assertEquals(((BInteger) returns[1]).intValue(), 1);
+        Assert.assertEquals(((BInteger) returns[2]).intValue(), 1);
+    }
+
+    @Test(description = "Test execution order of compound assignment on array element where the index is an " +
+            "invocation.")
+    public void testCompoundAssignmentArrayElementFunctionInvocationOrder() {
+        BValue[] returns = BRunUtil.invoke(result, "testCompoundAssignmentArrayElementFunctionInvocationOrder");
+        Assert.assertEquals(returns.length, 3);
+        Assert.assertTrue(returns[0] instanceof BInteger);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 30);
+        Assert.assertEquals(((BInteger) returns[1]).intValue(), 1);
+        Assert.assertEquals(((BInteger) returns[2]).intValue(), 1);
+    }
+
     @Test(description = "Test compound assignment with addition on struct element.")
     public void testCompoundAssignmentAdditionStructElement() {
         BValue[] returns = BRunUtil.invoke(result, "testCompoundAssignmentAdditionStructElement");
@@ -361,15 +422,18 @@ public class CompoundAssignmentTest {
         CompileResult compileResult = BCompileUtil.compile(
                 "test-src/statements/compoundassignment/compound_assignment_negative.bal");
         int i = 0;
-        Assert.assertEquals(compileResult.getErrorCount(), 21);
+        Assert.assertEquals(compileResult.getErrorCount(), 22);
         BAssertUtil.validateError(compileResult, i++, "operator '+' not defined for 'any' and 'int'", 5, 5);
         BAssertUtil.validateError(compileResult, i++, "operator '-' not defined for 'any' and 'int'", 13, 5);
-        BAssertUtil.validateError(compileResult, i++, "invalid assignment in variable 'getInt()'", 20, 5);
-        BAssertUtil.validateError(compileResult, i++, "invalid assignment in variable 'getInt()'", 25, 5);
+        BAssertUtil.validateError(compileResult, i++, "invocations are not supported on the left hand side of an " +
+                "assignment", 20, 5);
+        BAssertUtil.validateError(compileResult, i++, "invocations are not supported on the left hand side of an " +
+                "assignment", 25, 5);
         BAssertUtil.validateError(compileResult, i++, "operator '+' not defined for 'string' and 'int'", 35, 5);
         BAssertUtil.validateError(compileResult, i++, "operator '-' not defined for 'string' and 'int'", 41, 5);
         BAssertUtil.validateError(compileResult, i++, "operator '+' not defined for 'int' and '(int|error)'", 47, 5);
-        BAssertUtil.validateError(compileResult, i++, "invalid assignment in variable 'getInt()'", 53, 5);
+        BAssertUtil.validateError(compileResult, i++, "invocations are not supported on the left hand side of an " +
+                "assignment", 53, 5);
         BAssertUtil.validateError(compileResult, i++, "operator '+' not defined for 'json' and 'string'", 59, 5);
         BAssertUtil.validateError(compileResult, i++, "operator '+' not defined for 'int' and 'string'", 65, 5);
         BAssertUtil.validateError(compileResult, i++, "incompatible types: expected 'int', found 'float'", 72, 10);
@@ -382,6 +446,8 @@ public class CompoundAssignmentTest {
         BAssertUtil.validateError(compileResult, i++, "operator '>>>' not defined for 'int' and 'string'", 120, 5);
         BAssertUtil.validateError(compileResult, i++, "operator '+' not defined for 'int?' and 'int?'", 132, 5);
         BAssertUtil.validateError(compileResult, i++, "operator '+' not defined for 'int?' and 'int?'", 140, 5);
-        BAssertUtil.validateError(compileResult, i, "operator '+' not defined for 'int?' and 'int'", 150, 11);
+        BAssertUtil.validateError(compileResult, i++, "operator '+' not defined for 'int?' and 'int'", 150, 11);
+        BAssertUtil.validateError(compileResult, i, "invocations are not supported on the left hand side of an " +
+                "assignment", 156, 5);
     }
 }

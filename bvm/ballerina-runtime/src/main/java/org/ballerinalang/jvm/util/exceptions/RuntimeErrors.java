@@ -58,6 +58,7 @@ public enum RuntimeErrors {
     INVALID_RECORD_FIELD_ADDITION("invalid.record.field.addition", "RUNTIME_0033"),
     INVALID_OBJECT_FIELD_ADDITION("invalid.object.field.addition", "RUNTIME_0034"),
     TYPE_CAST_ERROR("incompatible.types.cannot.cast", "RUNTIME_0035"),
+    J_TYPE_CAST_ERROR("incompatible.jtypes.cannot.cast", "RUNTIME_0050"),
     INVALID_DYNAMICALLY_NESTED_TRANSACTION("dynamically.nested.transactions.are.not.allowed", "RUNTIME_0036"),
     CYCLIC_VALUE_REFERENCE("cyclic.value.reference", "RUNTIME_0037"),
     CANNOT_CONVERT_NIL("cannot.convert.nil", "RUNTIME_0038"),

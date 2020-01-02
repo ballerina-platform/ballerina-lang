@@ -40,7 +40,7 @@ public type DelayWindow object {
     public LinkedList delayedEventQueue;
     public int lastTimestamp = 0;
     public function (StreamEvent?[])? nextProcessPointer;
-    public Scheduler scheduler;
+    public Scheduler? scheduler = ();
 
     public function __init(function (StreamEvent?[])? nextProcessPointer, any[] windowParameters) {
         self.nextProcessPointer = nextProcessPointer;
@@ -52,6 +52,10 @@ public type DelayWindow object {
                 self.process(events);
             });
 
+    }
+
+    public function getScheduler() returns Scheduler {
+        return <Scheduler> self.scheduler;
     }
 
     public function initParameters(any[] parameters) {
@@ -107,7 +111,7 @@ public type DelayWindow object {
                     if (self.lastTimestamp < streamEvent.timestamp) {
                         //calculate the remaining time to delay the current event
                         int delayInMillis = self.delayInMilliSeconds - (currentTime - streamEvent.timestamp);
-                        self.scheduler.notifyAt(delayInMillis);
+                        self.getScheduler().notifyAt(delayInMillis);
                         self.lastTimestamp = streamEvent.timestamp;
                     }
                 }

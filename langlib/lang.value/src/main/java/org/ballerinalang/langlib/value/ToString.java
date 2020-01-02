@@ -39,6 +39,6 @@ import org.ballerinalang.natives.annotations.ReturnType;
 )
 public class ToString {
     public static String toString(Strand strand, Object value) {
-        return StringUtils.getStringValue(strand, value);
+        return StringUtils.getStringValue(value);
     }
 }

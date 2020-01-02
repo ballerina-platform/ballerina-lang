@@ -198,3 +198,41 @@ function testFieldAndIndexBasedVarRefs() returns [anydata, anydata] {
     {name: m["var1"], yearAndAge: [m["var2"], _]} = ch3;
     return [m["var1"], m["var2"]];
 }
+
+public function testAssigningValuesToFinalVars() {
+    record {
+        string s;
+        int i;
+        float f;
+    } rec1 = {
+        s: "hello",
+        i: 2,
+        f: 1.0
+    };
+    final Baz {s, i, f} = rec1;
+    {s, i, f} = rec1;
+
+    record {
+        string s2;
+        record {
+            int i3;
+            boolean b3;
+        } r2;
+        float f2;
+    } rec2 = {
+        s2: "hello",
+        r2: {
+            i3: 1,
+            b3: true
+        },
+        f2: 1.0
+    };
+    final var {s2, r2: {i3: iv, b3}, ...m2} = rec2;
+    {s2, r2: {i3: iv, b3}, ...m2} = rec2;
+}
+
+type Baz record {
+    string s;
+    int i;
+    float f;
+};

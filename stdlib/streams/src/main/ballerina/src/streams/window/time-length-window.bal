@@ -43,7 +43,7 @@ public type TimeLengthWindow object {
     public int count = 0;
     public LinkedList expiredEventChunk;
     public function (StreamEvent?[])? nextProcessPointer;
-    public Scheduler scheduler;
+    public Scheduler? scheduler = ();
 
     public function __init(function (StreamEvent?[])? nextProcessPointer, any[] windowParameters) {
         self.nextProcessPointer = nextProcessPointer;
@@ -55,6 +55,10 @@ public type TimeLengthWindow object {
         self.scheduler = new(function (StreamEvent?[] events) {
                 self.process(events);
             });
+    }
+
+    public function getScheduler() returns Scheduler {
+        return <Scheduler> self.scheduler;
     }
 
     public function initParameters(any[] parameters) {
@@ -128,7 +132,7 @@ public type TimeLengthWindow object {
                             self.expiredEventChunk.addLast(clonedEvent);
                         }
                     }
-                    self.scheduler.notifyAt(clonedEvent.timestamp + self.timeInMilliSeconds);
+                    self.getScheduler().notifyAt(clonedEvent.timestamp + self.timeInMilliSeconds);
                 } else {
                     streamEventChunk.removeCurrent();
                 }

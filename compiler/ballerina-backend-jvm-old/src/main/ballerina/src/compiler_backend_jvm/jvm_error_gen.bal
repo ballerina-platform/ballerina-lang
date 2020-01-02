@@ -17,13 +17,14 @@
 import ballerina/io;
 import ballerina/jvm;
 import ballerina/bir;
+import ballerinax/java;
 
 type ErrorHandlerGenerator object {
     jvm:MethodVisitor mv;
     BalToJVMIndexMap indexMap;
     string currentPackageName;
 
-    public function __init(jvm:MethodVisitor mv, BalToJVMIndexMap indexMap, string currentPackageName) {
+    function __init(jvm:MethodVisitor mv, BalToJVMIndexMap indexMap, string currentPackageName) {
         self.mv = mv;
         self.indexMap = indexMap;
         self.currentPackageName = currentPackageName;
@@ -36,41 +37,70 @@ type ErrorHandlerGenerator object {
         self.mv.visitInsn(ATHROW);
     }
 
-    function generateTryInsForTrap(bir:ErrorEntry currentEE, string previousTargetBB, jvm:Label endLabel,
-                                   jvm:Label handlerLabel, jvm:Label otherErrorLabel, jvm:Label jumpLabel) {
-        jvm:Label startLabel = new;
-        var varDcl = <bir:VariableDcl>currentEE.errorOp.variableDcl;
-        int lhsIndex = self.getJVMIndexOfVarRef(varDcl);
-        self.mv.visitTryCatchBlock(startLabel, endLabel, handlerLabel, ERROR_VALUE);
-        self.mv.visitTryCatchBlock(startLabel, endLabel, otherErrorLabel, STACK_OVERFLOW_ERROR);
-        // Handle cases where the same variable used to trap multiple expressions with single trap statement.
-        // Here we will check whether result error variable value and if it is null, we will skip the execution of
-        // rest of the expressions trapped by error variable.
-        if (previousTargetBB == currentEE.targetBB.id.value) {
-            generateVarLoad(self.mv, varDcl, self.currentPackageName, lhsIndex);
-            self.mv.visitJumpInsn(IFNONNULL, jumpLabel);
-            self.mv.visitLabel(startLabel);
-        } else {
-            // Handle cases where the same variable used to trap multiple expressions with multiple trap statements.
-            self.mv.visitLabel(startLabel);
-            self.mv.visitInsn(ACONST_NULL);
-            generateVarStore(self.mv, varDcl, self.currentPackageName, lhsIndex);
+    function generateTryCatch(bir:Function func, string funcName, bir:BasicBlock currentBB, 
+                            InstructionGenerator instGen, TerminatorGenerator termGen, LabelGenerator labelGen) {
+        bir:ErrorEntry? nilableEE = findErrorEntry(func.errorEntries, currentBB);
+        if nilableEE is () {
+            return; 
         }
-    }
-
-    function generateCatchInsForTrap(bir:ErrorEntry currentEE, jvm:Label endLabel,
-                                    jvm:Label errorValueLabel, jvm:Label otherErrorLabel, jvm:Label jumpLabel) {
+        bir:ErrorEntry currentEE = <bir:ErrorEntry> nilableEE;
+    
+        jvm:Label startLabel = labelGen.getLabel(funcName + currentEE.trapBB.id.value);
+        jvm:Label endLabel = new;
+        jvm:Label jumpLabel = new;
+    
+    
         self.mv.visitLabel(endLabel);
         self.mv.visitJumpInsn(GOTO, jumpLabel);
+        if (currentEE is JErrorEntry) {
+            var retVarDcl = <bir:VariableDcl>currentEE.errorOp.variableDcl;
+            int retIndex = self.indexMap.getIndex(retVarDcl);
+            boolean exeptionExist = false;
+            foreach CatchIns catchIns in currentEE.catchIns {
+                if catchIns.errorClass == ERROR_VALUE {
+                    exeptionExist = true;
+                }
+                jvm:Label errorValueLabel = new;
+                self.mv.visitTryCatchBlock(startLabel, endLabel, errorValueLabel, catchIns.errorClass);
+                self.mv.visitLabel(errorValueLabel);
+                self.mv.visitMethodInsn(INVOKESTATIC, BAL_ERRORS, "createInteropError", io:sprintf("(L%s;)L%s;", THROWABLE, ERROR_VALUE), false);
+                generateVarStore(self.mv, retVarDcl, self.currentPackageName, retIndex);
+                bir:Return term = catchIns.term;
+                termGen.genReturnTerm(term, retIndex, func);
+                self.mv.visitJumpInsn(GOTO, jumpLabel);
+            }
+            if !exeptionExist {
+                jvm:Label errorValErrorLabel = new;
+                self.mv.visitTryCatchBlock(startLabel, endLabel, errorValErrorLabel, ERROR_VALUE);
+        
+                self.mv.visitLabel(errorValErrorLabel);
+                self.mv.visitInsn(ATHROW);
+                self.mv.visitJumpInsn(GOTO, jumpLabel);
+            }
+            jvm:Label otherErrorLabel = new;
+            self.mv.visitTryCatchBlock(startLabel, endLabel, otherErrorLabel, THROWABLE);
+        
+            self.mv.visitLabel(otherErrorLabel);
+            self.mv.visitMethodInsn(INVOKESTATIC, BAL_ERRORS, "createInteropError", io:sprintf("(L%s;)L%s;", THROWABLE, ERROR_VALUE), false);
+            self.mv.visitInsn(ATHROW);
+            self.mv.visitJumpInsn(GOTO, jumpLabel);
+            self.mv.visitLabel(jumpLabel);
+            return;
+        }
+        
+        jvm:Label errorValueLabel = new;
+        jvm:Label otherErrorLabel = new;
+        self.mv.visitTryCatchBlock(startLabel, endLabel, errorValueLabel, ERROR_VALUE);
+        self.mv.visitTryCatchBlock(startLabel, endLabel, otherErrorLabel, STACK_OVERFLOW_ERROR);
         self.mv.visitLabel(errorValueLabel);
-
+        
         var varDcl = <bir:VariableDcl>currentEE.errorOp.variableDcl;
-        int lhsIndex = self.getJVMIndexOfVarRef(varDcl);
+        int lhsIndex = self.indexMap.getIndex(varDcl);
         generateVarStore(self.mv, varDcl, self.currentPackageName, lhsIndex);
         self.mv.visitJumpInsn(GOTO, jumpLabel);
         self.mv.visitLabel(otherErrorLabel);
         self.mv.visitMethodInsn(INVOKESTATIC, BAL_ERRORS, TRAP_ERROR_METHOD,
-                                        io:sprintf("(L%s;)L%s;", THROWABLE, ERROR_VALUE), false);
+                                                io:sprintf("(L%s;)L%s;", THROWABLE, ERROR_VALUE), false);
         self.mv.visitVarInsn(ASTORE, lhsIndex);
         self.mv.visitLabel(jumpLabel);
     }
@@ -124,12 +154,53 @@ type DiagnosticLogger object {
                 pkgIdStr = orgName + ":" + moduleName;
             }
 
-            string positionStr = io:sprintf("%s:%s:%s:%s", pkgIdStr, fileName, log.pos.sLine, log.pos.sCol);
-            string errorStr = io:sprintf("error: %s: %s %s", positionStr, log.err.reason(), log.err.detail());
-            io:println(errorStr);
+            string positionStr;
+            if (fileName == ".") {
+                positionStr = io:sprintf("%s:%s:%s", pkgIdStr, log.pos.sLine, log.pos.sCol);
+            } else {
+                positionStr = io:sprintf("%s:%s:%s:%s", pkgIdStr, fileName, log.pos.sLine, log.pos.sCol);
+            }
+
+            string errorStr;
+            string detail = log.err.detail().toString();
+            if (detail == "") {
+                errorStr = io:sprintf("error: %s: %s", positionStr, log.err.reason());
+            } else {
+                errorStr = io:sprintf("error: %s: %s %s", positionStr, log.err.reason(), detail);
+            }
+            print(errorStr);
         }
     }
 };
+
+function findErrorEntry(bir:ErrorEntry?[] errors, bir:BasicBlock currentBB) returns bir:ErrorEntry? {
+    foreach var err in errors {
+        if err is bir:ErrorEntry && err.endBB.id.value == currentBB.id.value {
+            return err;
+        }
+    }
+    return ();
+}
+
+function print(string message) {
+    handle errStream = getSystemErrorStream();
+    printToErrorStream(errStream, java:fromString(message));
+}
+
+public function getSystemErrorStream() returns handle = @java:FieldGet {
+    name:"err",
+    class:"java/lang/System"
+} external;
+
+public function printToErrorStream(handle receiver, handle message) = @java:Method {
+    name:"println",
+    class:"java/io/PrintStream",
+    paramTypes:["java.lang.String"]
+} external;
+
+public function exit(int status) = @java:Method {
+    class:"java/lang/System"
+} external;
 
 type DiagnosticLog record {|
     error err;

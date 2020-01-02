@@ -17,6 +17,8 @@
 import ballerina/io;
 import ballerina/mime;
 import ballerina/stringutils;
+import ballerinax/java;
+import ballerina/time;
 
 # Represents an HTTP request.
 #
@@ -38,7 +40,7 @@ public type Request object {
     public RequestCacheControl? cacheControl = ();
     public MutualSslHandshake? mutualSslHandshake = ();
 
-    private mime:Entity entity;
+    private mime:Entity? entity = ();
     private boolean dirtyRequest;
     boolean noEntityBody;
 
@@ -51,17 +53,23 @@ public type Request object {
     # Create a new `Entity` and link it with the request.
     #
     # + return - Newly created `Entity` that has been set to the request
-    function createNewEntity() returns mime:Entity = external;
+    function createNewEntity() returns mime:Entity {
+        return externCreateNewReqEntity(self);
+    }
 
     # Sets the provided `Entity` to the request.
     #
     # + e - The `Entity` to be set to the request
-    public function setEntity(mime:Entity e) = external;
+    public function setEntity(mime:Entity e) {
+        return externSetReqEntity(self, e);
+    }
 
     # Gets the query parameters of the request as a map consisting of a string array.
     #
     # + return - String array map of the query params
-    public function getQueryParams() returns map<string[]> = external;
+    public function getQueryParams() returns map<string[]> {
+        return externGetQueryParams(self);
+    }
 
     # Gets the query param value associated with the given key.
     #
@@ -88,15 +96,21 @@ public type Request object {
     #
     # + path - Path to the location of matrix parameters
     # + return - A map of matrix parameters which can be found for the given path
-    public function getMatrixParams(string path) returns map<any> = external;
+    public function getMatrixParams(string path) returns map<any> {
+        return externGetMatrixParams(self, java:fromString(path));
+    }
 
     # Gets the `Entity` associated with the request.
     #
     # + return - The `Entity` of the request. An `http:ClientError` is returned, if entity construction fails
-    public function getEntity() returns mime:Entity|ClientError = external;
+    public function getEntity() returns mime:Entity|ClientError {
+        return externGetReqEntity(self);
+    }
 
     //Gets the `Entity` from the request without the body. This function is exposed only to be used internally.
-    function getEntityWithoutBody() returns mime:Entity = external;
+    function getEntityWithoutBody() returns mime:Entity {
+        return externGetReqEntityWithoutBody(self);
+    }
 
     # Checks whether the requested header key exists in the header map.
     #
@@ -112,7 +126,7 @@ public type Request object {
     #
     # + headerName - The header name
     # + return - The first header value for the specified header name. An exception is thrown if no header is found. Use
-    #            `hasHeader()` beforehand to check the existence of header.
+    #            `Request.hasHeader()` beforehand to check the existence of header.
     public function getHeader(string headerName) returns @tainted string {
         mime:Entity entity = self.getEntityWithoutBody();
         return entity.getHeader(headerName);
@@ -122,7 +136,7 @@ public type Request object {
     #
     # + headerName - The header name
     # + return - The header values the specified header key maps to. An exception is thrown if no header is found. Use
-    #            `hasHeader()` beforehand to check the existence of header.
+    #            `Request.hasHeader()` beforehand to check the existence of header.
     public function getHeaders(string headerName) returns @tainted string[] {
         mime:Entity entity = self.getEntityWithoutBody();
         return entity.getHeaders(headerName);
@@ -266,7 +280,7 @@ public type Request object {
     }
 
     # Gets the request payload as a `ByteChannel` except in the case of multiparts. To retrieve multiparts, use
-    # `getBodyParts()`.
+    # `Request.getBodyParts()`.
     #
     # + return - A byte channel from which the message payload can be read or `http:ClientError` in case of errors
     public function getByteChannel() returns @tainted io:ReadableByteChannel|ClientError {
@@ -515,10 +529,92 @@ public type Request object {
     # Check whether the entity body is present.
     #
     # + return - a boolean indicating entity body availability
-    function checkEntityBodyAvailability() returns boolean = external;
+    function checkEntityBodyAvailability() returns boolean {
+        return externCheckReqEntityBodyAvailability(self);
+    }
+
+    # Adds cookies to the request.
+    #
+    # + cookiesToAdd - Represents the cookies to be added
+    public function addCookies(Cookie[] cookiesToAdd) {
+        string cookieheader = "";
+        string? temp1 = ();
+        string? temp2 = ();
+        Cookie[] sortedCookies = cookiesToAdd.sort(comparator);
+        foreach var cookie in sortedCookies {
+            temp1 = cookie.name;
+            temp2 = cookie.value;
+            if (temp1 is string && temp2 is string) {
+                cookieheader = cookieheader + temp1 + EQUALS + temp2 + SEMICOLON + SPACE;
+            }
+            cookie.lastAccessedTime = time:currentTime();
+        }
+        if (cookieheader != "") {
+            cookieheader = cookieheader.substring(0, cookieheader.length() - 2);
+            if (self.hasHeader("Cookie")) {
+                self.setHeader("Cookie", cookieheader);
+            } else {
+                self.addHeader("Cookie", cookieheader);
+            }
+        }
+    }
+
+    # Gets cookies from the request.
+    #
+    # + return - An array of cookie objects, which are included in the request
+    public function getCookies() returns Cookie[] {
+        string cookiesStringValue = "";
+        Cookie[] cookiesInRequest = [];
+        if (self.hasHeader("Cookie")) {
+            cookiesInRequest = parseCookieHeader(self.getHeader("Cookie"));
+        }
+        return cookiesInRequest;
+    }
 };
 
-# A record for providing mutual ssl handshake results.
+function externCreateNewReqEntity(Request request) returns mime:Entity =
+@java:Method {
+    class: "org.ballerinalang.net.http.nativeimpl.ExternRequest",
+    name: "createNewEntity"
+} external;
+
+function externSetReqEntity(Request request, mime:Entity entity) =
+@java:Method {
+    class: "org.ballerinalang.net.http.nativeimpl.ExternRequest",
+    name: "setEntity"
+} external;
+
+function externGetQueryParams(Request request) returns map<string[]> =
+@java:Method {
+    class: "org.ballerinalang.net.http.nativeimpl.ExternRequest",
+    name: "getQueryParams"
+} external;
+
+function externGetMatrixParams(Request request, handle path) returns map<any> =
+@java:Method {
+    class: "org.ballerinalang.net.http.nativeimpl.ExternRequest",
+    name: "getMatrixParams"
+} external;
+
+function externGetReqEntity(Request request) returns mime:Entity|ClientError =
+@java:Method {
+    class: "org.ballerinalang.net.http.nativeimpl.ExternRequest",
+    name: "getEntity"
+} external;
+
+function externGetReqEntityWithoutBody(Request request) returns mime:Entity =
+@java:Method {
+    class: "org.ballerinalang.net.http.nativeimpl.ExternRequest",
+    name: "getEntityWithoutBody"
+} external;
+
+function externCheckReqEntityBodyAvailability(Request request) returns boolean =
+@java:Method {
+    class: "org.ballerinalang.net.http.nativeimpl.ExternRequest",
+    name: "checkEntityBodyAvailability"
+} external;
+
+# A record for providing mutual SSL handshake results.
 #
 # + status - Status of the handshake.
 public type MutualSslHandshake record {|

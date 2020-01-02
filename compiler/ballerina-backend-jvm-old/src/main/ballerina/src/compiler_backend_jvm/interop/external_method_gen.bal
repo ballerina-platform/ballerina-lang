@@ -44,15 +44,15 @@ function genJMethodForBExternalFunc(bir:Function birFunc,
                                       bir:BType? attachedType = ()) {
     var extFuncWrapper = getExternalFunctionWrapper(birModule, birFunc, attachedType = attachedType);
 
-    if extFuncWrapper is OldStyleExternalFunctionWrapper {
-        genJMethodForBFunc(birFunc, cw, birModule, false, "", attachedType = attachedType);
+    if (extFuncWrapper is JFieldFunctionWrapper) {
+        genJFieldForInteropField(extFuncWrapper, cw, birModule);
     } else {
-        genJMethodForBExternalFuncInterop(extFuncWrapper, cw, birModule);
+        genJMethodForBFunc(birFunc, cw, birModule, false, "", attachedType = attachedType);
     }
 }
 
 function injectDefaultParamInits(bir:Package module) {
-
+    
     // filter out functions.
     bir:Function?[] functions = module.functions;
     if (functions.length() > 0) {
@@ -66,6 +66,9 @@ function injectDefaultParamInits(bir:Package module) {
             var extFuncWrapper = lookupBIRFunctionWrapper(module, birFunc, attachedType = ());
             if extFuncWrapper is OldStyleExternalFunctionWrapper {
                 desugarOldExternFuncs(module, extFuncWrapper, birFunc);
+                enrichWithDefaultableParamInits(birFunc);
+            } else if (extFuncWrapper is JMethodFunctionWrapper) {
+                desugarInteropFuncs(module, extFuncWrapper, birFunc);
                 enrichWithDefaultableParamInits(birFunc);
             } else if (!(extFuncWrapper is JMethodFunctionWrapper) && !(extFuncWrapper is JFieldFunctionWrapper)) {
                 enrichWithDefaultableParamInits(birFunc);
@@ -189,11 +192,16 @@ function createOldStyleExternalFunctionWrapper(bir:Function birFunc, string orgN
     addDefaultableBooleanVarsToSignature(birFunc);
     bir:BInvokableType functionTypeDesc = birFunc.typeValue;
 
+    bir:BType? restType = functionTypeDesc?.restType;
+
+    if (!(restType is ())) {
+        jMethodPramTypes.push(restType);
+    }
+
     bir:VariableDcl? receiver = birFunc.receiver;
     bir:BType? attachedType = receiver is bir:VariableDcl ? receiver.typeValue : ();
     string jvmMethodDescription = getMethodDesc(functionTypeDesc.paramTypes, <bir:BType?> functionTypeDesc?.retType,
                                                 attachedType = attachedType);
-
     string jMethodVMSig = getMethodDesc(jMethodPramTypes, <bir:BType?> functionTypeDesc?.retType,
                                         attachedType = attachedType, isExtern = true);
 

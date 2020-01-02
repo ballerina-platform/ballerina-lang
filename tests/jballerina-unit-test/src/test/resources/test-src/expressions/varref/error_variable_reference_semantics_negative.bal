@@ -150,3 +150,20 @@ function testDuplicateBinding() {
     SMS err1 = error("Error One", message = "Msg One", detail = "Detail Msg");
     error(s, message = s, detail = s) = err1;
 }
+
+public function testAssigningValuesToFinalVars() {
+    error e = error("ErrReason", message = "error message", abc = 1, def = 2.0);
+    final var error(r, message = message, abc = abc) = e;
+    error(r, message = message, abc = abc) = e;
+
+    final var error(r2, message = message2, ...rest) = e;
+    error(r2, message = message2, ...rest) = e;
+
+    BarError e3 = BarError(message = "error message", code = 1);
+    final var BarError(message = message3, abc = abc3) = e3;
+    error(message = message3, abc = abc3) = e3;
+}
+
+const BAR = "bar";
+
+type BarError error<BAR, record {string message?; error cause?; int code;}>;

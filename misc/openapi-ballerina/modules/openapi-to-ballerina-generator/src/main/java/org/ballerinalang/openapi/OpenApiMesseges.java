@@ -39,7 +39,8 @@ public class OpenApiMesseges {
             " order generate an OpenApi contract for the service \nballerina openapi gen-contract " +
             "[moduleName]:serviceName [-i: ballerinaFile]";
 
-
+    public static final String GEN_CLIENT_PROJECT_ROOT = "Output path is not a valid ballerina project directory." +
+            "\nUse 'ballerina new' to generate a new project";
     public static final String GEN_SERVICE_MODULE_ARGS_REQUIRED = "A module name and a service name is required " +
             "in order to generate the ballerina service for the provided OpenApi contract. \nE.g. ballerina " +
             "openapi gen-service <module_name>:<service_name> <openapi_contract>";

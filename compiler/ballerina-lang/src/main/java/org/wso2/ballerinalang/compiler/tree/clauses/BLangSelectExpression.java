@@ -23,6 +23,7 @@ import org.ballerinalang.model.tree.clauses.SelectExpressionNode;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 
 /**
  * @since 0.965.0
@@ -31,8 +32,8 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
  */
 public class BLangSelectExpression extends BLangNode implements SelectExpressionNode {
 
-    private String identifier;
-    private ExpressionNode expression;
+    public String identifier;
+    public BLangExpression expression;
 
     @Override
     public void setIdentifier(String identifier) {
@@ -41,7 +42,8 @@ public class BLangSelectExpression extends BLangNode implements SelectExpression
 
     @Override
     public void setExpression(ExpressionNode expression) {
-        this.expression = expression;
+
+        this.expression = (BLangExpression) expression;
     }
 
     @Override

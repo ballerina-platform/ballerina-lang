@@ -66,7 +66,7 @@ public type ExternalTimeBatchWindow object {
     public boolean storeExpiredEvents = false;
     public boolean outputExpectsExpiredEvents = false;
     public any[] windowParameters;
-    public Scheduler scheduler;
+    public Scheduler? scheduler = ();
 
     public function __init(function (StreamEvent?[])? nextProcessPointer, any[] windowParameters) {
         self.nextProcessPointer = nextProcessPointer;
@@ -86,6 +86,10 @@ public type ExternalTimeBatchWindow object {
         if (self.startTime != -1) {
             self.isStartTimeEnabled = true;
         }
+    }
+
+    public function getScheduler() returns Scheduler {
+        return <Scheduler> self.scheduler;
     }
 
     public function initParameters(any[] parameters) {
@@ -191,7 +195,7 @@ public type ExternalTimeBatchWindow object {
 
                         // rescheduling to emit the current batch after expiring it if no further events arrive.
                         self.lastScheduledTime = time:currentTime().time + self.schedulerTimeout;
-                        self.scheduler.notifyAt(self.lastScheduledTime);
+                        self.getScheduler().notifyAt(self.lastScheduledTime);
                     }
                     continue;
 
@@ -220,7 +224,7 @@ public type ExternalTimeBatchWindow object {
                     // triggering the last batch expiration.
                     if (self.schedulerTimeout > 0) {
                         self.lastScheduledTime = time:currentTime().time + self.schedulerTimeout;
-                        self.scheduler.notifyAt(self.lastScheduledTime);
+                        self.getScheduler().notifyAt(self.lastScheduledTime);
                     }
                 }
             }
@@ -493,7 +497,7 @@ public type ExternalTimeBatchWindow object {
             }
             if (self.schedulerTimeout > 0) {
                 self.lastScheduledTime = time:currentTime().time + self.schedulerTimeout;
-                self.scheduler.notifyAt(self.lastScheduledTime);
+                self.getScheduler().notifyAt(self.lastScheduledTime);
             }
         }
     }

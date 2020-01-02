@@ -21,6 +21,7 @@ package org.wso2.ballerinalang.programfile;
 /**
  * Represent serializable unit of Finite Type value space item.
  */
+@Deprecated
 public class ValueSpaceItemInfo {
 
     //TODO Generalize this properly across struct/annotation etc.

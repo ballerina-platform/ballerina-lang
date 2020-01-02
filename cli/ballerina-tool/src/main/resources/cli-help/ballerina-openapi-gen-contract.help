@@ -42,4 +42,4 @@ OPTIONS
 
 EXAMPLES
        Generate an OpenAPI contract for a service named hello.
-          → ballerina openapi gen-contact hello -i hello_service.bal
+          $ ballerina openapi gen-contact hello -i hello_service.bal

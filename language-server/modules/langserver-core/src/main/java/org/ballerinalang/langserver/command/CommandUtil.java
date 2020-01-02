@@ -19,6 +19,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.ballerinalang.jvm.util.BLangConstants;
+import org.ballerinalang.langserver.client.ExtendedLanguageClient;
 import org.ballerinalang.langserver.codeaction.CodeActionNodeType;
 import org.ballerinalang.langserver.command.executors.AddAllDocumentationExecutor;
 import org.ballerinalang.langserver.command.executors.AddDocumentationExecutor;
@@ -168,7 +169,7 @@ public class CommandUtil {
 
         boolean isService = CommonKeys.SERVICE_KEYWORD_KEY.equals(topLevelNodeType);
         boolean isFunction = CommonKeys.FUNCTION_KEYWORD_KEY.equals(topLevelNodeType);
-        WorkspaceDocumentManager documentManager = context.get(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY);
+        WorkspaceDocumentManager documentManager = context.get(CommonKeys.DOC_MANAGER_KEY);
         if ((isService || isFunction) && !isTopLevelNode(docUri, documentManager, context, position)) {
             return actions;
         }
@@ -257,7 +258,7 @@ public class CommandUtil {
             List<Object> args = Arrays.asList(lineArg, colArg, uriArg);
             Matcher matcher = CommandConstants.UNDEFINED_FUNCTION_PATTERN.matcher(diagnosticMessage);
             String functionName = (matcher.find() && matcher.groupCount() > 0) ? matcher.group(1) + "(...)" : "";
-            WorkspaceDocumentManager docManager = context.get(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY);
+            WorkspaceDocumentManager docManager = context.get(CommonKeys.DOC_MANAGER_KEY);
             try {
                 BLangInvocation node = getFunctionInvocationNode(line, column, document.getURIString(), docManager,
                                                                  context);
@@ -372,7 +373,7 @@ public class CommandUtil {
             Matcher matcher = CommandConstants.INCOMPATIBLE_TYPE_PATTERN.matcher(diagnosticMessage);
             if (matcher.find() && matcher.groupCount() > 1) {
                 String foundType = matcher.group(2);
-                WorkspaceDocumentManager documentManager = context.get(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY);
+                WorkspaceDocumentManager documentManager = context.get(CommonKeys.DOC_MANAGER_KEY);
                 try {
                     BLangFunction func = CommandUtil.getFunctionNode(line, column, document, documentManager, context);
                     if (func != null && !BLangConstants.MAIN_FUNCTION_NAME.equals(func.name.value)) {
@@ -431,7 +432,7 @@ public class CommandUtil {
                     action.setDiagnostics(diagnostics);
                     // Extract specific content range
                     Range range = diagnostic.getRange();
-                    WorkspaceDocumentManager documentManager = context.get(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY);
+                    WorkspaceDocumentManager documentManager = context.get(CommonKeys.DOC_MANAGER_KEY);
                     String content = getContentOfRange(documentManager, uri, range);
                     // Add `untaint` keyword
                     matcher = CommandConstants.NO_CONCAT_PATTERN.matcher(content);
@@ -496,7 +497,7 @@ public class CommandUtil {
     }
 
     private static String getDiagnosedContent(Diagnostic diagnostic, LSContext context, LSDocument document) {
-        WorkspaceDocumentManager docManager = context.get(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY);
+        WorkspaceDocumentManager docManager = context.get(CommonKeys.DOC_MANAGER_KEY);
         StringBuilder content = new StringBuilder();
         Position start = diagnostic.getRange().getStart();
         Position end = diagnostic.getRange().getEnd();
@@ -601,7 +602,7 @@ public class CommandUtil {
                                                               SymbolReferencesModel.Reference referenceAtCursor,
                                                               BUnionType unionType)
             throws WorkspaceDocumentException, IOException {
-        WorkspaceDocumentManager docManager = context.get(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY);
+        WorkspaceDocumentManager docManager = context.get(CommonKeys.DOC_MANAGER_KEY);
         BLangNode bLangNode = referenceAtCursor.getbLangNode();
         Position startPos = new Position(bLangNode.pos.sLine - 1, bLangNode.pos.sCol - 1);
         Position endPosWithSemiColon = new Position(bLangNode.pos.eLine - 1, bLangNode.pos.eCol);
@@ -743,10 +744,10 @@ public class CommandUtil {
      * @param documentUri Current text document URI
      * @param context   {@link LSContext}
      */
-    public static void clearDiagnostics(LanguageClient client, DiagnosticsHelper diagHelper, String documentUri,
+    public static void clearDiagnostics(ExtendedLanguageClient client, DiagnosticsHelper diagHelper, String documentUri,
                                         LSContext context) {
         context.put(DocumentServiceKeys.FILE_URI_KEY, documentUri);
-        WorkspaceDocumentManager docManager = context.get(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY);
+        WorkspaceDocumentManager docManager = context.get(CommonKeys.DOC_MANAGER_KEY);
         try {
             LSDocument lsDocument = new LSDocument(documentUri);
             diagHelper.compileAndSendDiagnostics(client, context, lsDocument, docManager);

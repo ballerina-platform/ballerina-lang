@@ -101,8 +101,7 @@ function functionWithATransactionStmt() returns string {
 string ss = "";
 function runtimeNestedTransactionErrorTraped() returns string {
     ss = "";
-    ss += runtimeNestedTransactions(true);
-    return ss;
+    return runtimeNestedTransactions(true);
 }
 
 function runtimeNestedTransactionsError() returns string {
@@ -304,4 +303,12 @@ public function testArrowFunctionInsideTransaction() returns int {
         }
     }
     return a;
+}
+
+public function testAssignmentToUninitializedVariableOfOuterScopeFromTrxBlock() returns int|string {
+    int|string s;
+    transaction with retries = 1 {
+      s = "init-in-transaction-block";
+    }
+    return s;
 }

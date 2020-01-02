@@ -18,6 +18,10 @@ public class FileSystemSourceInput implements CompilerInput {
     private final Path path;
     private Path packageRoot;
 
+    // Cached Value.
+    private byte[] code = null;
+    private String entryName = null;
+
     public FileSystemSourceInput(Path path) {
         this.path = path;
     }
@@ -29,6 +33,10 @@ public class FileSystemSourceInput implements CompilerInput {
 
     @Override
     public String getEntryName() {
+
+        if (entryName != null) {
+            return entryName;
+        }
         // We need to return the file path relative to the package root.
         // This is to distinguish files with the same name but in different folders.
         if (packageRoot != null) {
@@ -38,17 +46,21 @@ public class FileSystemSourceInput implements CompilerInput {
             return pkgRoot.toURI().relativize(file.toURI()).getPath();
         }
         Path fileName = path.getFileName();
-        return fileName != null ? fileName.toString() : path.toString();
+        return this.entryName = (fileName != null ? fileName.toString() : path.toString());
     }
 
     @Override
     public byte[] getCode() {
+
+        if (code != null) {
+            return code;
+        }
         try {
             byte[] code = Files.readAllBytes(path);
             if (isBLangBinaryFile(path)) {
                 path.getFileSystem().close();
             }
-            return code;
+            return this.code = code;
         } catch (IOException e) {
             throw new BLangCompilerException("Error reading source file " + path);
         }

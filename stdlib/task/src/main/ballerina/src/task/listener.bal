@@ -31,7 +31,10 @@ public type Listener object {
             }
         }
         self.listenerConfiguration = configs;
-        initExternal(self);
+        var result = initExternal(self);
+        if (result is ListenerError) {
+            panic result;
+        }
     }
 
     public function __attach(service s, string? name = ()) returns error? {
@@ -115,7 +118,7 @@ function startExternal(Listener task) returns ListenerError? = @java:Method {
     class: "org.ballerinalang.stdlib.task.actions.TaskActions"
 } external;
 
-function initExternal(Listener task) = @java:Method {
+function initExternal(Listener task) returns ListenerError? = @java:Method {
     name: "init",
     class: "org.ballerinalang.stdlib.task.actions.TaskActions"
 } external;

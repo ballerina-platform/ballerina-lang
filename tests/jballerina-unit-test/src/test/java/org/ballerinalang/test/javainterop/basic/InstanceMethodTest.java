@@ -104,7 +104,8 @@ public class InstanceMethodTest {
 
         BValue[] returns = BRunUtil.invoke(result, "handleOrErrorWithObjectReturn", args);
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(((BByte) returns[0]).intValue(), 70);
+        Object value = ((BHandleValue) returns[0]).getValue();
+        Assert.assertEquals((int) value, 70);
 
         returns = BRunUtil.invoke(result, "handleOrErrorWithObjectReturnThrows", args);
         Assert.assertEquals(returns.length, 1);
@@ -248,10 +249,4 @@ public class InstanceMethodTest {
         }
     }
 
-    @Test(description = "Test tuple return with null values")
-    public void testTupleReturn() {
-        BValue[] returns = BRunUtil.invoke(result, "testErrorOrTupleReturn");
-        Assert.assertEquals(returns.length, 2);
-        Assert.assertNull(returns[0]);
-    }
 }

@@ -25,6 +25,10 @@ public type WebSocketCaller client object {
 
     private WebSocketConnector conn = new;
 
+    function __init() {
+        // package private function to prevent object creation
+    }
+
     # Push text to the connection.
     #
     # + data - Data to be sent, if byte[] it is converted to a UTF-8 string for sending

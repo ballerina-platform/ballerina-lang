@@ -14,6 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerinax/java;
 import ballerina/lang.'object as lang;
 
 # Mock server endpoint which does not open a listening port.
@@ -29,11 +30,10 @@ public type MockListener object {
     }
 
     public function __gracefulStop() returns error? {
-        return ();
+        return self.gracefulStop();
     }
 
     public function __immediateStop() returns error? {
-        return self.stop();
     }
 
     public function __attach(service s, string? name = ()) returns error? {
@@ -57,13 +57,48 @@ public type MockListener object {
         }
     }
 
-    public function initEndpoint() returns error? = external;
+    public function initEndpoint() returns error? {
+        return externMockInitEndpoint(self);
+    }
 
-    public function register(service s, string? name) returns error? = external;
+    public function register(service s, string? name) returns error? {
+        return externMockRegister(self, s, name);
+    }
 
-    public function start() returns error? = external;
+    public function start() returns error? {
+        return externMockStart(self);
+    }
 
-    public function stop() = external;
+    public function gracefulStop() returns error? {
+        return externMockGracefulStop(self);
+    }
 
-    public function detach(service s) returns error? = external;
+    public function detach(service s) returns error? {
+        return externMockDetach(self, s);
+    }
 };
+
+function externMockInitEndpoint(MockListener mockListener) returns error? = @java:Method {
+    class: "org.ballerinalang.net.http.mock.nonlistening.NonListeningInitEndpoint",
+    name: "initEndpoint"
+} external;
+
+function externMockRegister(MockListener mockListener, service s, string? name) returns error? = @java:Method {
+   class: "org.ballerinalang.net.http.mock.nonlistening.NonListeningRegister",
+   name: "register"
+} external;
+
+function externMockStart(MockListener mockListener) returns error? = @java:Method {
+    class: "org.ballerinalang.net.http.mock.nonlistening.NonListeningStart",
+    name: "start"
+} external;
+
+function externMockGracefulStop(MockListener mockListener) returns error? = @java:Method {
+    class: "org.ballerinalang.net.http.mock.nonlistening.NonListeningGracefulStop",
+    name: "gracefulStop"
+} external;
+
+function externMockDetach(MockListener mockListener, service s) returns error? = @java:Method {
+    class: "org.ballerinalang.net.http.mock.nonlistening.NonListeningDetachEndpoint",
+    name: "detach"
+} external;

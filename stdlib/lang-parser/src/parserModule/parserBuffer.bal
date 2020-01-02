@@ -14,8 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/io;
-
 # The lexemes which are tokenized are pushed to the parser buffer reader.
 # ParserBufferReader functions as a circular buffer and the capacity of the buffer can be specified.
 public type ParserBufferReader object {

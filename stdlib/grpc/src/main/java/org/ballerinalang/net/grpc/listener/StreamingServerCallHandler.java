@@ -23,7 +23,6 @@ import org.ballerinalang.jvm.observability.ObservabilityConstants;
 import org.ballerinalang.jvm.observability.ObserveUtils;
 import org.ballerinalang.jvm.observability.ObserverContext;
 import org.ballerinalang.jvm.values.connector.CallableUnitCallback;
-import org.ballerinalang.jvm.values.connector.Executor;
 import org.ballerinalang.net.grpc.GrpcConstants;
 import org.ballerinalang.net.grpc.Message;
 import org.ballerinalang.net.grpc.ServerCall;
@@ -67,7 +66,7 @@ public class StreamingServerCallHandler extends ServerCallHandler {
         if (ObserveUtils.isObservabilityEnabled()) {
             properties.put(ObservabilityConstants.KEY_OBSERVER_CONTEXT, context);
         }
-        Executor.submit(onOpen.getScheduler(), onOpen.getService(), onOpen.getFunctionName(), callback, properties,
+        onOpen.getRuntime().invokeMethodAsync(onOpen.getService(), onOpen.getFunctionName(), callback, properties,
                 computeMessageParams(onOpen, null, responseObserver));
         callback.available.acquireUninterruptibly();
 
@@ -77,7 +76,7 @@ public class StreamingServerCallHandler extends ServerCallHandler {
                 ServiceResource onMessage = resourceMap.get(GrpcConstants.ON_MESSAGE_RESOURCE);
 
                 CallableUnitCallback callback = new StreamingCallableUnitCallBack(responseObserver, context);
-                Executor.submit(onMessage.getScheduler(), onMessage.getService(), onMessage.getFunctionName(),
+                onMessage.getRuntime().invokeMethodAsync(onMessage.getService(), onMessage.getFunctionName(),
                         callback, properties, computeMessageParams(onMessage, value, responseObserver));
             }
 
@@ -91,7 +90,7 @@ public class StreamingServerCallHandler extends ServerCallHandler {
             public void onCompleted() {
                 ServiceResource onCompleted = resourceMap.get(GrpcConstants.ON_COMPLETE_RESOURCE);
                 CallableUnitCallback callback = new UnaryCallableUnitCallBack(responseObserver, Boolean.FALSE, context);
-                Executor.submit(onCompleted.getScheduler(), onCompleted.getService(), onCompleted.getFunctionName(),
+                onCompleted.getRuntime().invokeMethodAsync(onCompleted.getService(), onCompleted.getFunctionName(),
                         callback, properties, computeMessageParams(onCompleted, null, responseObserver));
             }
         };

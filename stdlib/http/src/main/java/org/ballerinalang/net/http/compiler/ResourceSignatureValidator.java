@@ -220,12 +220,6 @@ public class ResourceSignatureValidator {
     private ResourceSignatureValidator() {
     }
 
-    static void validateResourceReturnType(boolean resourceReturnsErrorOrNil, DiagnosticLog dlog, DiagnosticPos pos) {
-        if (!resourceReturnsErrorOrNil) {
-            dlog.logDiagnostic(Diagnostic.Kind.ERROR, pos, "invalid return type: expected error?");
-        }
-    }
-
     private static String getAnnotationFieldKey(BLangRecordLiteral.BLangRecordKeyValue keyValue) {
         return ((BLangSimpleVarRef) (keyValue.key).expr).variableName.getValue();
     }

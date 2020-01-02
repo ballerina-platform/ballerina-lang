@@ -18,13 +18,13 @@ package org.ballerinalang.jvm.values;
 
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.OMNode;
-import org.ballerinalang.jvm.TypeConverter;
 import org.ballerinalang.jvm.XMLNodeType;
-import org.ballerinalang.jvm.commons.TypeValuePair;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
-import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
+import org.ballerinalang.jvm.values.api.BMap;
+import org.ballerinalang.jvm.values.api.BXML;
+import org.ballerinalang.jvm.values.api.BXMLQName;
 import org.ballerinalang.jvm.values.freeze.State;
 import org.ballerinalang.jvm.values.freeze.Status;
 
@@ -49,7 +49,7 @@ import javax.xml.namespace.QName;
  * @param <T> Type of the underlying impl
  * @since 0.995.0
  */
-public abstract class XMLValue<T> implements RefValue, CollectionValue {
+public abstract class XMLValue<T> implements RefValue, BXML<T>, CollectionValue {
 
     BType type = BTypes.typeXML;
 
@@ -135,7 +135,7 @@ public abstract class XMLValue<T> implements RefValue, CollectionValue {
      * @param attributeName Qualified name of the attribute
      * @return Value of the attribute
      */
-    public String getAttribute(XMLQName attributeName) {
+    public String getAttribute(BXMLQName attributeName) {
         return getAttribute(attributeName.getLocalName(), attributeName.getUri(), attributeName.getPrefix());
     }
 
@@ -157,7 +157,7 @@ public abstract class XMLValue<T> implements RefValue, CollectionValue {
      * @param attributeName Qualified name of the attribute
      * @param value Value of the attribute
      */
-    public void setAttribute(XMLQName attributeName, String value) {
+    public void setAttribute(BXMLQName attributeName, String value) {
         setAttribute(attributeName.getLocalName(), attributeName.getUri(), attributeName.getPrefix(), value);
     }
 
@@ -173,7 +173,7 @@ public abstract class XMLValue<T> implements RefValue, CollectionValue {
      * 
      * @param attributes Attributes to be set.
      */
-    public abstract void setAttributes(MapValue<String, ?> attributes);
+    public abstract void setAttributes(BMap<String, ?> attributes);
 
     /**
      * Get all the elements-type items, in the given sequence.
@@ -281,13 +281,6 @@ public abstract class XMLValue<T> implements RefValue, CollectionValue {
         return type;
     }
 
-    @Override
-    public void stamp(BType type, List<TypeValuePair> unresolvedValues) {
-        if (type.getTag() == TypeTags.ANYDATA_TAG) {
-            type = TypeConverter.resolveMatchingTypeForUnion(this, type);
-        }
-        this.type = type;
-    }
     // private methods
 
     protected static void handleXmlException(String message, Throwable t) {

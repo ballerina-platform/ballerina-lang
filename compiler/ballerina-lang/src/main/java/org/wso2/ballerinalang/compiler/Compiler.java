@@ -25,13 +25,11 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.ProjectDirs;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
-import org.wso2.ballerinalang.programfile.CompiledBinaryFile.ProgramFile;
 import org.wso2.ballerinalang.util.Lists;
 
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -129,13 +127,6 @@ public class Compiler {
         this.dependencyTree.listDependencyPackages(bLangPackage);
     }
 
-    public ProgramFile getExecutableProgram(BLangPackage entryPackageNode) {
-        if (dlog.errorCount > 0) {
-            return null;
-        }
-        return this.binaryFileWriter.genExecutable(entryPackageNode);
-    }
-
     public List<BLangPackage> compilePackages(boolean isBuild) {
         List<PackageID> pkgList = this.sourceDirectoryManager.listSourceFilesAndPackages().collect(Collectors.toList());
         if (pkgList.size() == 0) {
@@ -157,20 +148,24 @@ public class Compiler {
             this.compilerDriver.loadLangModules(pkgIdList);
             this.langLibsLoaded = true;
         }
-        this.compilerDriver.loadUtilsPackage();
 
         // 1) Load all source packages. i.e. source-code -> BLangPackageNode
         // 2) Define all package level symbols for all the packages including imported packages in the AST
-        List<BLangPackage> packages = pkgIdList.stream()
-                .map((PackageID pkgId) -> this.pkgLoader.loadEntryPackage(pkgId, null, this.outStream))
-                .filter(Objects::nonNull) // skip the packages that were not loaded properly
-                .collect(Collectors.toList());
+        List<BLangPackage> packages = new ArrayList<>();
+        for (PackageID pkgId : pkgIdList) {
+            BLangPackage bLangPackage = this.pkgLoader.loadEntryPackage(pkgId, null, this.outStream);
+            if (bLangPackage != null) {
+                // skip the packages that were not loaded properly
+                packages.add(bLangPackage);
+            }
+        }
 
         // 3) Invoke compiler phases. e.g. type_check, code_analyze, taint_analyze, desugar etc.
-        packages.stream()
-//                .filter(pkgNode -> !pkgNode.diagCollector.hasErrors())
-                .filter(pkgNode -> pkgNode.symbol != null)
-                .forEach(this.compilerDriver::compilePackage);
+        for (BLangPackage pkgNode : packages) {
+            if (pkgNode.symbol != null) {
+                this.compilerDriver.compilePackage(pkgNode);
+            }
+        }
         return packages;
     }
 

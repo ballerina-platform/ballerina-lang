@@ -243,7 +243,7 @@ public class UriTemplateDispatcherTest {
         Assert.assertEquals((int) response.getHttpStatusCode(), 200, "Response code mismatch");
 
         String allowHeader = cMsg.getHeader(HttpHeaderNames.ALLOW.toString());
-        Assert.assertEquals(allowHeader, "GET, HEAD, OPTIONS");
+        Assert.assertEquals(allowHeader, "GET, OPTIONS");
     }
 
     @Test(description = "Test dispatching with OPTIONS request with POST method")
@@ -303,7 +303,7 @@ public class UriTemplateDispatcherTest {
         Assert.assertEquals((int) response.getHttpStatusCode(), 200, "Response code mismatch");
 
         String allowHeader = response.getHeader(HttpHeaderNames.ALLOW.toString());
-        Assert.assertEquals(allowHeader, "POST, UPDATE, GET, PUT, HEAD, OPTIONS");
+        Assert.assertEquals(allowHeader, "POST, UPDATE, GET, PUT, OPTIONS");
     }
 
     @Test(description = "Test dispatching with OPTIONS request to Root")
@@ -317,7 +317,7 @@ public class UriTemplateDispatcherTest {
         Assert.assertEquals((int) response.getHttpStatusCode(), 200, "Response code mismatch");
 
         String allowHeader = response.getHeader(HttpHeaderNames.ALLOW.toString());
-        Assert.assertEquals(allowHeader, "POST, UPDATE, OPTIONS, GET, PUT, DELETE, HEAD");
+        Assert.assertEquals(allowHeader, "POST, UPDATE, OPTIONS, GET, PUT, DELETE");
     }
 
     @Test(description = "Test dispatching with OPTIONS request wrong Root")

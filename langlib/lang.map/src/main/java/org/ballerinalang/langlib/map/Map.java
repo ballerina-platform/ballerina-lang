@@ -46,9 +46,9 @@ public class Map {
         BMapType newMapType = new BMapType(((BFunctionType) func.getType()).retType);
         MapValue newMap = new MapValueImpl(newMapType);
 
-        m.forEach((key, value) -> {
-            Object newVal = func.apply(new Object[]{strand, value, true});
-            newMap.put(key, newVal);
+        m.entrySet().forEach(entry -> {
+            Object newVal = func.apply(new Object[]{strand, entry.getValue(), true});
+            newMap.put(entry.getKey(), newVal);
         });
 
         return newMap;

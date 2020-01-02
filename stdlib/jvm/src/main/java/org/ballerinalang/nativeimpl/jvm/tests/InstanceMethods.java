@@ -17,13 +17,7 @@
  */
 package org.ballerinalang.nativeimpl.jvm.tests;
 
-import org.ballerinalang.jvm.types.BTupleType;
-import org.ballerinalang.jvm.types.BType;
-import org.ballerinalang.jvm.types.BTypes;
-import org.ballerinalang.jvm.util.exceptions.BallerinaException;
-import org.ballerinalang.jvm.values.ArrayValue;
-
-import java.util.ArrayList;
+import org.ballerinalang.jvm.values.HandleValue;
 
 /**
  * This class contains a set of utility instance methods required for interoperability testing.
@@ -106,7 +100,7 @@ public class InstanceMethods {
         if (false) {
             throw new InterruptedException();
         }
-        return 70;
+        return new HandleValue(70);
     }
 
     public Object handleOrErrorWithObjectReturnThrows() throws InterruptedException {
@@ -165,18 +159,4 @@ public class InstanceMethods {
         return 10;
     }
 
-    public static ArrayValue getArrayValue() throws BallerinaException {
-        String name = null;
-        String type = null;
-        try {
-            return new ArrayValue(new String[]{name, type}, new BTupleType(new ArrayList<BType>() {
-                {
-                    add(BTypes.typeString);
-                    add(BTypes.typeString);
-                }
-            }));
-        } catch (BallerinaException e) {
-            throw new BallerinaException("Error occurred while creating ArrayValue.", e);
-        }
-    }
 }

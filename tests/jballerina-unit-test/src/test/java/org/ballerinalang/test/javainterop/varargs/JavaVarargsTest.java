@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.test.javainterop.varargs;
 
+import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BHandleValue;
 import org.ballerinalang.model.values.BInteger;
@@ -31,6 +32,7 @@ import org.testng.annotations.Test;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.StringJoiner;
 
 /**
  * Test cases for java interop with functions with varargs.
@@ -131,6 +133,28 @@ public class JavaVarargsTest {
         Assert.assertEquals(((BHandleValue) returns[2]).getValue(), "apples");
     }
 
+    @Test
+    public void testRefTypeVarArg() {
+        BValue[] returns = BRunUtil.invoke(result, "testRefTypeVarArg");
+        Assert.assertEquals(returns.length, 2);
+        Assert.assertEquals(returns[0].stringValue(), "[7, 2, 8]");
+        Assert.assertEquals(returns[1].stringValue(), "[error error one , error error two ]");
+    }
+
+    @Test
+    public void testIntArrayTypeVararg() {
+        BValue[] returns = BRunUtil.invoke(result, "testIntArrayTypeVararg");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].stringValue(), "[[7 2], [8]]");
+    }
+
+    @Test
+    public void testRefArrayTypeVararg() {
+        BValue[] returns = BRunUtil.invoke(result, "testRefArrayTypeVararg");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].stringValue(), "[[error error one ], [error error two ]]");
+    }
+
     // Java methods for interop
 
     public static int getSum(int... vals) {
@@ -179,5 +203,21 @@ public class JavaVarargsTest {
 
     public static <T> T getGenericValue(T value) {
         return value;
+    }
+
+    public static String getRefVararg(Object... values) {
+        StringJoiner sj = new StringJoiner(", ", "[", "]");
+        for (Object value : values) {
+            sj.add(value.toString());
+        }
+        return sj.toString();
+    }
+
+    public static String getArrayTypeVararg(ArrayValue... values) {
+        StringJoiner sj = new StringJoiner(", ", "[", "]");
+        for (ArrayValue value : values) {
+            sj.add("[" + value.toString() + "]");
+        }
+        return sj.toString();
     }
 }

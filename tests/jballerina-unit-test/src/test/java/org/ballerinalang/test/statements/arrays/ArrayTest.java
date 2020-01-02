@@ -19,6 +19,7 @@ package org.ballerinalang.test.statements.arrays;
 
 import org.ballerinalang.jvm.XMLFactory;
 import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.XMLValue;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BTypes;
@@ -117,23 +118,24 @@ public class ArrayTest {
     @Test
     public void testArrayToString() {
         String[] strArray = { "aaa", "bbb", "ccc" };
-        ArrayValue bStringArray = new ArrayValue(strArray);
+        ArrayValue bStringArray = new ArrayValueImpl(strArray);
         Assert.assertEquals(bStringArray.stringValue(), "aaa bbb ccc");
 
         long[] longArray = { 6, 3, 8, 4 };
-        ArrayValue bIntArray = new ArrayValue(longArray);
+        ArrayValue bIntArray = new ArrayValueImpl(longArray);
         Assert.assertEquals(bIntArray.stringValue(), "6 3 8 4");
 
         double[] doubleArray = { 6.4, 3.7, 8.8, 7.4 };
-        ArrayValue bFloatArray = new ArrayValue(doubleArray);
+        ArrayValue bFloatArray = new ArrayValueImpl(doubleArray);
         Assert.assertEquals(bFloatArray.stringValue(), "6.4 3.7 8.8 7.4");
 
         boolean[] boolArray = { true, true, false };
-        ArrayValue bBooleanArray = new ArrayValue(boolArray);
+        ArrayValue bBooleanArray = new ArrayValueImpl(boolArray);
         Assert.assertEquals(bBooleanArray.stringValue(), "true true false");
 
         XMLValue<?>[] xmlArray = { XMLFactory.parse("<foo> </foo>"), XMLFactory.parse("<bar>hello</bar>") };
-        ArrayValue bXmlArray = new ArrayValue(xmlArray, org.ballerinalang.jvm.types.BTypes.typeXML);
+        ArrayValue bXmlArray = new ArrayValueImpl(xmlArray,
+                new org.ballerinalang.jvm.types.BArrayType(org.ballerinalang.jvm.types.BTypes.typeXML));
         Assert.assertEquals(bXmlArray.stringValue(), "<foo> </foo> <bar>hello</bar>");
     }
 

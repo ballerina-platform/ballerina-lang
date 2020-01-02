@@ -23,6 +23,7 @@ import org.ballerinalang.model.tree.clauses.WhereNode;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 
 /**
  * @since 0.965.0
@@ -32,7 +33,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
  */
 public class BLangWhere extends BLangNode implements WhereNode {
 
-    private ExpressionNode expression;
+    public BLangExpression expression;
 
     @Override
     public void accept(BLangNodeVisitor visitor) {
@@ -46,7 +47,8 @@ public class BLangWhere extends BLangNode implements WhereNode {
 
     @Override
     public void setExpression(ExpressionNode expression) {
-        this.expression = expression;
+
+        this.expression = (BLangExpression) expression;
     }
 
     @Override

@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.nats;
 
+import org.ballerinalang.compiler.plugins.AbstractCompilerPlugin;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.ServiceNode;
 import org.ballerinalang.util.diagnostic.Diagnostic;
@@ -25,7 +26,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
-import org.wso2.ballerinalang.util.AbstractTransportCompilerPlugin;
 
 import java.util.List;
 
@@ -36,7 +36,7 @@ import static org.ballerinalang.util.diagnostic.Diagnostic.Kind.ERROR;
 /**
  * Abstract class providing/defining the functionality for compiler add-ons for NATS consumer services.
  */
-public abstract class AbstractNatsConsumerServiceCompilerPlugin extends AbstractTransportCompilerPlugin {
+public abstract class AbstractNatsConsumerServiceCompilerPlugin extends AbstractCompilerPlugin {
     @Override
     public void process(ServiceNode serviceNode, List<AnnotationAttachmentNode> annotations) {
         validateAnnotationPresence(serviceNode, annotations);

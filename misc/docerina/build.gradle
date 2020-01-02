@@ -95,10 +95,18 @@ processResources {
 }
 
 task copyHighlighter(type: Copy) {
+    dependsOn ":composer-library:npmBuild"
     from configurations.highlighterLib {
         include '*.js'
     }
     into("$buildDir/resources/main/syntax-highlighter")
+}
+
+
+test {
+    useTestNG() {
+        suites 'src/test/resources/testng.xml'
+    }
 }
 
 description = 'Ballerina - Docerina'

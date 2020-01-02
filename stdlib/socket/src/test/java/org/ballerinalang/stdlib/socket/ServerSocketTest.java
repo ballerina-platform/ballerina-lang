@@ -60,7 +60,7 @@ public class ServerSocketTest {
     public void setup() {
         String resourceRoot = Paths.get("src", "test", "resources").toAbsolutePath().toString();
         testResourceRoot = Paths.get(resourceRoot, "test-src");
-        compileResult = BCompileUtil.compile(true, testResourceRoot.resolve("server_socket.bal").toString());
+        compileResult = BCompileUtil.compileOffline(true, testResourceRoot.resolve("server_socket.bal").toString());
         boolean connectionStatus;
         int numberOfRetryAttempts = 20;
         connectionStatus = TestSocketUtils.isConnected(SERVER_HOST, SERVER1_PORT, numberOfRetryAttempts);
@@ -150,8 +150,8 @@ public class ServerSocketTest {
     @Test
     public void testOnDuplicatePortNegative() {
         try {
-            BCompileUtil
-                    .compile(true, testResourceRoot.resolve("server_socket_duplicate_port_negative.bal").toString());
+            BCompileUtil.compileOffline(true,
+                    testResourceRoot.resolve("server_socket_duplicate_port_negative.bal").toString());
         } catch (BLangRuntimeException e) {
             String errorStr = e.getMessage().substring(48, 48 + 58);
             Assert.assertEquals(errorStr, "Unable to start the socket service: Address already in use");
@@ -180,6 +180,6 @@ public class ServerSocketTest {
 
     @AfterClass
     public void cleanUp() {
-        SelectorManager.getInstance().stop();
+        SelectorManager.getInstance().stop(false);
     }
 }

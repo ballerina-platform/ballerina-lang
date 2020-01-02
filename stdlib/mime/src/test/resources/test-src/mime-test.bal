@@ -105,13 +105,13 @@ function testSetContentIdAndGetValueAsHeader() returns @tainted string {
     return entity.getHeader(mime:CONTENT_ID);
 }
 
-function testMimeBase64EncodeBlob(byte[] contentToBeEncoded) returns (byte[]|error) {
-    return mime:base64EncodeBlob(contentToBeEncoded);
-}
+//function testMimeBase64EncodeBlob(byte[] contentToBeEncoded) returns (byte[]|error) {
+//    return mime:base64EncodeBlob(contentToBeEncoded);
+//}
 
-function testMimeBase64DecodeBlob(byte[] contentToBeDecoded) returns (byte[]|error) {
-    return mime:base64DecodeBlob(contentToBeDecoded);
-}
+//function testMimeBase64DecodeBlob(byte[] contentToBeDecoded) returns (byte[]|error) {
+//    return mime:base64DecodeBlob(contentToBeDecoded);
+//}
 
 function testSetAndGetJson(json jsonContent) returns @tainted json|error {
     mime:Entity entity = new;

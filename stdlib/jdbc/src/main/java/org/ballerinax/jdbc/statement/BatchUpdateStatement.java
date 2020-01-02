@@ -22,6 +22,7 @@ import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
@@ -52,11 +53,11 @@ public class BatchUpdateStatement extends AbstractSQLStatement {
     private final ObjectValue client;
     private final SQLDatasource datasource;
     private final String query;
-    private final ArrayValue parameters;
+    private final ArrayValue[] parameters;
     private final boolean rollbackAllInFailure;
 
     public BatchUpdateStatement(ObjectValue client, SQLDatasource datasource, String query,
-                                ArrayValue parameters, boolean rollbackAllInFailure, Strand strand) {
+                                boolean rollbackAllInFailure, Strand strand, ArrayValue... parameters) {
         super(strand);
         this.client = client;
         this.datasource = datasource;
@@ -75,7 +76,7 @@ public class BatchUpdateStatement extends AbstractSQLStatement {
         int paramArrayCount = 0;
         checkAndObserveSQLAction(strand, datasource, query);
         if (parameters != null) {
-            paramArrayCount = parameters.size();
+            paramArrayCount = parameters.length;
         }
 
         boolean isInTransaction = strand.isInTransaction();
@@ -93,7 +94,7 @@ public class BatchUpdateStatement extends AbstractSQLStatement {
                 stmt.addBatch();
             }
             for (int index = 0; index < paramArrayCount; index++) {
-                ArrayValue params = (ArrayValue) parameters.getValue(index);
+                ArrayValue params = (ArrayValue) parameters[index];
                 ArrayValue generatedParams = constructParameters(params);
                 ProcessedStatement processedStatement = new ProcessedStatement(conn, stmt, generatedParams,
                         datasource.getDatabaseProductName());
@@ -162,7 +163,7 @@ public class BatchUpdateStatement extends AbstractSQLStatement {
         // those updates.
         long[] returnedCount = new long[paramArrayCount];
         Arrays.fill(returnedCount, Statement.EXECUTE_FAILED);
-        ArrayValue countArray = new ArrayValue(returnedCount);
+        ArrayValue countArray = new ArrayValueImpl(returnedCount);
         if (updatedCounts != null) {
             int iSize = updatedCounts.length;
             for (int i = 0; i < iSize; ++i) {
@@ -201,7 +202,7 @@ public class BatchUpdateStatement extends AbstractSQLStatement {
     private void addToMap(MapValue<String, ArrayValue> map, String columnName, Object value) {
         ArrayValue list = map.get(columnName);
         if (list == null) {
-            list = new ArrayValue(new BArrayType(BTypes.typeAnydata));
+            list = new ArrayValueImpl(new BArrayType(BTypes.typeAnydata));
             map.put(columnName, list);
         }
         list.append(value);

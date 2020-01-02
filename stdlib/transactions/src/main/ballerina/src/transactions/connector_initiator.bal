@@ -40,7 +40,7 @@ type InitiatorClientEP client object {
     }
 
     remote function register(string transactionId, string transactionBlockId, RemoteProtocol[] participantProtocols)
-                 returns RegistrationResponse|error {
+                 returns @tainted RegistrationResponse|error {
         http:Client httpClient = self.httpClient;
         string participantId = getParticipantId(transactionBlockId);
         RegistrationRequest regReq = {

@@ -35,13 +35,15 @@ public type Producer client object {
     #
     # + subject - The subject to send the message to.
     # + data - Data to publish.
+    # + replyTo - The subject or the callback service the receiver should send the response to.
     # + return -  A specific error if there is a problem when publishing the message. Returns () otherwise.
-    public remote function publish(string subject, @untainted Content data) returns Error? {
+    public remote function publish(string subject, @untainted Content data, (string | service)? replyTo = ())
+                    returns Error? {
         string | byte[] | error converted = convertData(data);
         if (converted is error) {
             return prepareError("Error in data conversion", err = converted);
         } else {
-            return externPublish(self, java:fromString(subject), converted);
+            return externPublish(self, java:fromString(subject), converted, replyTo);
         }
     }
 
@@ -88,7 +90,7 @@ function externRequest(Producer producer, handle subject, Content data, int? dur
     class: "org.ballerinalang.nats.basic.producer.Request"
 } external;
 
-function externPublish(Producer producer, handle subject, string | byte[] data, string? replyTo = ()) returns Error? =
-@java:Method {
+function externPublish(Producer producer, handle subject, string | byte[] data, (string | service)? replyTo = ())
+returns Error? = @java:Method {
     class: "org.ballerinalang.nats.basic.producer.Publish"
 } external;

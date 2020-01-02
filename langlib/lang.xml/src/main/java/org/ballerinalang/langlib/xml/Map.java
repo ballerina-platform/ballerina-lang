@@ -22,6 +22,7 @@ import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.FPValue;
 import org.ballerinalang.jvm.values.IteratorValue;
 import org.ballerinalang.jvm.values.XMLSequence;
@@ -61,7 +62,7 @@ public class Map {
             elements.add((XMLValue<?>) func.apply(new Object[]{strand, next, true}));
         }
 
-        ArrayValue elemArray = new ArrayValue(elements.toArray(), new BArrayType(BTypes.typeXML));
+        ArrayValue elemArray = new ArrayValueImpl(elements.toArray(), new BArrayType(BTypes.typeXML));
         return new XMLSequence(elemArray);
     }
 }

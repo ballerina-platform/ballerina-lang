@@ -276,7 +276,7 @@ function defineEndpointWithoutProxy(string url) returns http:Client{
 # + byteChannel - Byte channel
 # + numberOfBytes - Number of bytes to be read
 # + return - Read content as byte[] along with the number of bytes read, or error if read failed
-function readBytes(io:ReadableByteChannel byteChannel, int numberOfBytes) returns [byte[], int]|error {
+function readBytes(io:ReadableByteChannel byteChannel, int numberOfBytes) returns @tainted [byte[], int]|error {
     byte[] bytes = check (byteChannel.read(numberOfBytes));
     return <@untainted>[bytes, bytes.length()];
 }
