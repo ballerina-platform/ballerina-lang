@@ -35,9 +35,9 @@ public type InboundJwtAuthProvider object {
     # + jwtValidatorConfig - JWT validator configurations
     public function __init(JwtValidatorConfig jwtValidatorConfig) {
         self.jwtValidatorConfig = jwtValidatorConfig;
-        self.inboundJwtCache = new(jwtValidatorConfig.jwtCache.capacity,
-                                   jwtValidatorConfig.jwtCache.expTimeInSeconds * 1000,
-                                   jwtValidatorConfig.jwtCache.evictionFactor);
+        self.inboundJwtCache = new(jwtValidatorConfig.jwtCacheConfig.capacity,
+                                   jwtValidatorConfig.jwtCacheConfig.expTimeInSeconds * 1000,
+                                   jwtValidatorConfig.jwtCacheConfig.evictionFactor);
     }
 
     # Authenticate with a JWT token.

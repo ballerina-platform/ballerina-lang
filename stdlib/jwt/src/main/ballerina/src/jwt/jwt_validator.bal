@@ -28,13 +28,13 @@ import ballerina/time;
 # + audience - Expected audience
 # + clockSkewInSeconds - Clock skew in seconds
 # + trustStoreConfig - JWT trust store configurations
-# + jwtCache - Configurations for the cache used to store parsed JWT information
+# + jwtCacheConfig - Configurations for the cache used to store parsed JWT information
 public type JwtValidatorConfig record {|
     string issuer?;
     string|string[] audience?;
     int clockSkewInSeconds = 0;
     JwtTrustStoreConfig trustStoreConfig?;
-    InboundJwtCache jwtCache = {};
+    InboundJwtCacheConfig jwtCacheConfig = {};
 |};
 
 # Represents JWT trust store configurations.
@@ -51,7 +51,7 @@ public type JwtTrustStoreConfig record {|
 # + capacity - Maximum number of entries allowed
 # + expTimeInSeconds - Time since its last access in which the cache will be expired
 # + evictionFactor - The factor which the entries will be evicted once the cache full
-public type InboundJwtCache record {|
+public type InboundJwtCacheConfig record {|
     int capacity = 900000;
     int expTimeInSeconds = 1;
     float evictionFactor = 0.25;
