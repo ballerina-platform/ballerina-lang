@@ -148,7 +148,6 @@ public class Compiler {
             this.compilerDriver.loadLangModules(pkgIdList);
             this.langLibsLoaded = true;
         }
-        this.compilerDriver.loadUtilsPackage();
 
         // 1) Load all source packages. i.e. source-code -> BLangPackageNode
         // 2) Define all package level symbols for all the packages including imported packages in the AST

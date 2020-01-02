@@ -48,7 +48,7 @@ type IntRange object {
     }
 
     public function __iterator() returns abstract object {public function next() returns record {|int value;|}?;} {
-            return self;
+            return new IntRange(self.iStart, self.iEnd);
     }
 };
 

@@ -30,7 +30,7 @@ service failoverDemoService on new http:Listener(9090) {
     // Parameters include a reference to the caller and an object with the
     // request data.
     resource function invokeEndpoint(http:Caller caller, http:Request request) {
-        var backendResponse = foBackendEP->get("/", request);
+        var backendResponse = foBackendEP->get("/", <@untainted> request);
 
         // If `backendResponse` is an `http:Response`, it is sent back to the
         // client. If `backendResponse` is an `http:ClientError`, an internal

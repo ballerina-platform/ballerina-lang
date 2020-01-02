@@ -94,7 +94,6 @@ dependencies {
     dist project(':ballerina-encoding')
     dist project(':ballerina-bir')
     birJar project(path: ':ballerina-bir', configuration: 'birJar')
-    dist project(':ballerina-utils')
     dist project(':ballerina-rt')
 
     dist project(':testerina:testerina-core')
@@ -134,7 +133,6 @@ dependencies {
 
     distBal project(path: ':testerina:testerina-core', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-encoding', configuration: 'baloImplementation')
-    distBal project(path: ':ballerina-utils', configuration: 'baloImplementation')
 
     balSource project(path: ':ballerina-bir', configuration: 'balSource')
     balSource project(path: ':ballerina-jvm', configuration: 'balSource')

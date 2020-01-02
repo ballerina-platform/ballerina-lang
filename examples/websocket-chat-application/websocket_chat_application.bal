@@ -61,7 +61,7 @@ service chatApp = @http:WebSocketServiceConfig {} service {
         msg = getAttributeStr(caller, NAME) + " with age "
         + getAttributeStr(caller, AGE) + " connected to chat";
         broadcast(msg);
-        connectionsMap[caller.getConnectionId()] = caller;
+        connectionsMap[caller.getConnectionId()] = <@untainted>caller;
     }
 
     // Broadcast the messages sent by a user.

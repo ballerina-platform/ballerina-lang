@@ -24,7 +24,7 @@ service hello on ep {
     resource function sayHello(http:Caller caller, http:Request req) {
         error? result = caller->respond("Hello, World!!!");
         if (result is error) {
-            log:printError("Error in responding to caller", err = result);
+            log:printError("Error in responding to caller", result);
         }
     }
 }

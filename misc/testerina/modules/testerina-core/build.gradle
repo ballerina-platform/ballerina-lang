@@ -46,7 +46,6 @@ dependencies {
     implementation project(':openapi-ballerina:openapi-to-ballerina-generator')
     implementation project(':ballerina-tool')
     implementation project(':ballerina-cache')
-    implementation project(':ballerina-utils')
     implementation 'info.picocli:picocli'
     implementation 'org.wso2.orbit.org.antlr:antlr4-runtime'
     implementation 'org.testng:testng'
@@ -62,7 +61,6 @@ dependencies {
     baloImplementation project(path: ':ballerina-reflect', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-io', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-runtime-api', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-utils', configuration: 'baloImplementation')
 
     interopImports project(':ballerina-reflect')
 }

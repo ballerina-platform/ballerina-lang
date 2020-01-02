@@ -30,7 +30,7 @@ public type StreamingProducer client object {
     public function __init(Connection connection, public string? clientId = (), public string clusterId = "test-cluster",
     public StreamingConfig? streamingConfig = ()) {
         self.conn = connection;
-        createStreamingConnection(self, connection, java:fromString(clusterId), clientId, streamingConfig);
+        streamingProducerInit(self, connection, java:fromString(clusterId), clientId, streamingConfig);
     }
 
     # Publishes data to a given subject.
@@ -51,7 +51,17 @@ public type StreamingProducer client object {
         if (converted is error) {
             return prepareError("Error in data conversion", err = converted);
         } else {
-            return externStreamingPublish(self, java:fromString(subject), converted);
+            handle | Error result = externStreamingPublish(self, java:fromString(subject), converted);
+            if (result is handle) {
+                var stringResult = java:toString(result);
+                if (stringResult is string) {
+                    return stringResult;
+                } else {
+                    return prepareError("Error in value returned while publishing.");
+                }
+            } else {
+                return result;
+            }
         }
     }
 
@@ -62,24 +72,24 @@ public type StreamingProducer client object {
         if (self.conn is Connection) {
             Connection? natsConnection = self.conn;
             self.conn = ();
-            return detachFromNatsConnection(self, natsConnection);
+            return streamingProducerClose(self, natsConnection);
         }
     }
 };
 
-function detachFromNatsConnection(StreamingProducer|StreamingListener streamingClient, Connection? natsConnection)
-returns error? =
-@java:Method {
-    class: "org.ballerinalang.nats.streaming.producer.CloseConnection"
-} external;
-
-function createStreamingConnection(StreamingProducer|StreamingListener streamingClient, Connection? conn,
+function streamingProducerInit(StreamingProducer streamingClient, Connection? conn,
 handle clusterId, string? clientId, StreamingConfig? streamingConfig) =
 @java:Method {
-    class: "org.ballerinalang.nats.streaming.producer.CreateStreamingConnection"
+    class: "org.ballerinalang.nats.streaming.producer.Init"
 } external;
 
-function externStreamingPublish(StreamingProducer producer, handle subject, string | byte[] data) returns string | Error =
+function streamingProducerClose(StreamingProducer streamingClient, Connection? natsConnection)
+returns error? =
+@java:Method {
+    class: "org.ballerinalang.nats.streaming.producer.Close"
+} external;
+
+function externStreamingPublish(StreamingProducer producer, handle subject, string | byte[] data) returns handle | Error =
 @java:Method {
     class: "org.ballerinalang.nats.streaming.producer.Publish"
 } external;

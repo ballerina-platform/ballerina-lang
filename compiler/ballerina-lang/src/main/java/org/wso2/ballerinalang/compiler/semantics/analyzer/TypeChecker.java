@@ -30,7 +30,6 @@ import org.ballerinalang.model.tree.expressions.NamedArgNode;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.parser.BLangAnonymousModelHelper;
-import org.wso2.ballerinalang.compiler.semantics.model.BLangBuiltInMethod;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
@@ -4696,29 +4695,6 @@ public class TypeChecker extends BLangNodeVisitor {
 
         iExpr.symbol = varSymbol;
         return varSymbol;
-    }
-
-    private BSymbol getSymbolForAnydataReturningBuiltinMethods(BLangInvocation iExpr) {
-        BType type = iExpr.expr.type;
-        if (!types.isLikeAnydataOrNotNil(type)) {
-            return symTable.notFoundSymbol;
-        }
-
-        BType retType;
-        if (type.isAnydata()) {
-            retType = type;
-        } else {
-            retType = BUnionType.create(null, type, symTable.errorType);
-        }
-        return symResolver.createBuiltinMethodSymbol(BLangBuiltInMethod.FREEZE, type, retType);
-    }
-
-    private BSymbol getSymbolForIsFrozenBuiltinMethod(BLangInvocation iExpr) {
-        BType type = iExpr.expr.type;
-        if (!types.isLikeAnydataOrNotNil(type)) {
-            return symTable.notFoundSymbol;
-        }
-        return symResolver.createBuiltinMethodSymbol(BLangBuiltInMethod.IS_FROZEN, type, symTable.booleanType);
     }
 
     private boolean couldHoldTableValues(BType type, List<BType> encounteredTypes) {

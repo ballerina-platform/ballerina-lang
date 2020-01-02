@@ -46,6 +46,7 @@ public abstract class CommandTest {
     
     @BeforeClass
     public void setup() throws IOException {
+        System.setProperty("java.command", "java");
         this.tmpDir = Files.createTempDirectory("b7a-cmd-test-" + System.nanoTime());
         this.console = new ByteArrayOutputStream();
         this.printStream = new PrintStream(this.console);

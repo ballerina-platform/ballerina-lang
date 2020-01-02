@@ -960,7 +960,8 @@ type InstructionGenerator object {
         self.mv.visitTypeInsn(NEW, FUNCTION_POINTER);
         self.mv.visitInsn(DUP);
 
-        string lambdaName = inst.name.value + "$lambda$";
+        string lambdaName = inst.name.value + "$lambda" + lambdaIndex.toString() + "$";
+        lambdaIndex += 1;
         string pkgName = getPackageName(inst.pkgID.org, inst.pkgID.name);
         string lookupKey = pkgName + inst.name.value;
         string methodClass = lookupFullQualifiedClassName(lookupKey);

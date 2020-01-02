@@ -48,5 +48,5 @@ service UnsupportedMapType on ep {
 }
 
 type MapMessage record {
-    map<any> payload = {};
+    map<string> payload = {};
 };

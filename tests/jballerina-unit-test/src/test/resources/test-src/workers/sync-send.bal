@@ -8,7 +8,6 @@ function simpleSyncSend() returns string {
 }
 
 function process() returns string {
-    @concurrent{}
     worker w1 {
         int a = 10;
         a -> w2;
@@ -19,7 +18,6 @@ function process() returns string {
         }
     }
 
-    @concurrent{}
     worker w2 {
         int b = 15;
         runtime:sleep(10);
@@ -38,7 +36,6 @@ function process() returns string {
 
 string append2 = "";
 function multipleSyncSend() returns string {
-    @concurrent{}
     worker w1 {
         int a = 10;
         var result = a ->> w2;
@@ -51,7 +48,6 @@ function multipleSyncSend() returns string {
         }
     }
 
-    @concurrent{}
     worker w2 returns error? {
         int b = 15;
         runtime:sleep(10);
@@ -78,7 +74,6 @@ function process2() returns any|error {
 }
 
 function returnNil() returns any|error {
-    @concurrent{}
     worker w1 returns any|error {
         int a = 10;
         a -> w2;
@@ -89,7 +84,6 @@ function returnNil() returns any|error {
         return result;
     }
 
-    @concurrent{}
     worker w2 returns error? {
         if (false) {
             error err = error("err", message = "err msg");
@@ -111,7 +105,6 @@ function returnNil() returns any|error {
 
 string append3 = "";
 function multiWorkerSend() returns string {
-    @concurrent{}
     worker w1 {
         int a = 10;
         var result = a ->> w2;
@@ -126,7 +119,6 @@ function multiWorkerSend() returns string {
         }
     }
 
-    @concurrent{}
     worker w2 returns error? {
         if (false) {
             error err = error("err", message = "err msg");
@@ -153,7 +145,6 @@ function multiWorkerSend() returns string {
     }
 
 
-    @concurrent{}
     worker w3 returns error? {
         int|error x = <- w2;
         int b;
@@ -175,7 +166,6 @@ function multiWorkerSend() returns string {
 
 string append4 = "";
 function errorResult() returns error? {
-    @concurrent{}
     worker w1 returns error? {
         int a = 10;
         var result = a ->> w2;
@@ -192,7 +182,6 @@ function errorResult() returns error? {
         return result;
     }
 
-    @concurrent{}
     worker w2 returns error? {
         if (false) {
             error err = error("err", message = "err msg");
@@ -213,7 +202,6 @@ function errorResult() returns error? {
         return;
     }
 
-    @concurrent{}
     worker w3 returns error|string {
         if (false) {
             error err = error("err", message = "err msg");
@@ -250,7 +238,6 @@ function errorResult() returns error? {
 
 
 function panicTest() returns error? {
-    @concurrent{}
     worker w1 returns error? {
         int a = 10;
         a -> w2;
@@ -263,7 +250,6 @@ function panicTest() returns error? {
         return result;
     }
 
-    @concurrent{}
     worker w2 {
         int b = 15;
         runtime:sleep(10);
@@ -275,7 +261,6 @@ function panicTest() returns error? {
         b = <- w1;
     }
 
-    @concurrent{}
     worker w3 returns string|error {
         if (false) {
             error err = error("err", message = "err msg");
@@ -301,7 +286,6 @@ function panicTest() returns error? {
 }
 
 function basicSyncSendTest() returns int {
-    @concurrent{}
     worker w1 {
         int a = 10;
         int b = 20;
@@ -310,7 +294,6 @@ function basicSyncSendTest() returns int {
         a + b -> w2;
     }
 
-    @concurrent{}
     worker w2 returns int {
         int c = 0;
         c = <- w1;
@@ -325,7 +308,6 @@ function basicSyncSendTest() returns int {
 }
 
 function multipleSyncSendWithPanic() returns int {
-    @concurrent{}
     worker w1 returns int {
         int a = 10;
         () r1 = a ->> w2;
@@ -337,7 +319,6 @@ function multipleSyncSendWithPanic() returns int {
         return a;
     }
 
-    @concurrent{}
     worker w2 returns error? {
         int b = 0;
         if (true) {
@@ -352,7 +333,6 @@ function multipleSyncSendWithPanic() returns int {
 }
 
 function multipleSyncSendWithPanicInSend() returns int {
-    @concurrent{}
     worker w1 returns int {
         int a = 10;
         () r1 = a ->> w2;
@@ -368,7 +348,6 @@ function multipleSyncSendWithPanicInSend() returns int {
         return a;
     }
 
-    @concurrent{}
     worker w2 {
         int b = 0;
         b = <- w1;
@@ -378,14 +357,12 @@ function multipleSyncSendWithPanicInSend() returns int {
 }
 
 function syncSendWithPanicInReceive() {
-    @concurrent{}
     worker w1 {
         int a = 10;
         () r1 = a ->> w2;
         () r2 = a + a ->> w2;
     }
 
-    @concurrent{}
     worker w2 {
         int b1 = <- w1;
         if (true) {
@@ -398,7 +375,6 @@ function syncSendWithPanicInReceive() {
 }
 
 function panicWithMultipleSendStmtsTest() returns error? {
-    @concurrent{}
     worker w1 returns error? {
         int a = 10;
         a + 5 -> w2;
@@ -408,7 +384,6 @@ function panicWithMultipleSendStmtsTest() returns error? {
         return result;
     }
 
-    @concurrent{}
     worker w2 {
         int b1 = <- w1;
         b1 -> w3;
@@ -417,7 +392,6 @@ function panicWithMultipleSendStmtsTest() returns error? {
         runtime:sleep(1000);
     }
 
-    @concurrent{}
     worker w3 returns string {
         int b = <- w1;
         if (2 != 2) {
@@ -442,7 +416,6 @@ function panicWithMultipleSendStmtsTest() returns error? {
 }
 
 function errorResultWithMultipleWorkers() returns error? {
-    @concurrent{}
     worker w1 returns error? {
         int x = 30;
         () n = x ->> w2;
@@ -450,7 +423,6 @@ function errorResultWithMultipleWorkers() returns error? {
         return res;
     }
 
-    @concurrent{}
     worker w2 returns int|error {
         int x = 0;
         x = <- w1;
@@ -471,7 +443,6 @@ public type Rec record {
 };
 
 public function testComplexType() returns Rec {
-    @concurrent{}
     worker w1 {
         Rec rec = {};
         rec.k = 10;
@@ -481,7 +452,6 @@ public function testComplexType() returns Rec {
         sendRet = 5 ->> w2;
     }
 
-    @concurrent{}
     worker w2 returns Rec {
         int l = 25;
         Rec j = {};
@@ -494,7 +464,6 @@ public function testComplexType() returns Rec {
 }
 
 public function multipleSendsToErroredChannel() returns error? {
-    @concurrent{}
     worker w1 returns error? {
         error? a = 5 ->> w2;
 
@@ -503,7 +472,6 @@ public function multipleSendsToErroredChannel() returns error? {
         return b;
     }
 
-    @concurrent{}
     worker w2 returns error? {
         boolean b = true;
         if (b) {
@@ -526,7 +494,6 @@ public function multipleSendsToErroredChannel() returns error? {
 }
 
 public function testSyncSendAfterSend() returns error? {
-    @concurrent{}
     worker w1 returns error? {
         5 -> w2;
 
@@ -534,7 +501,6 @@ public function testSyncSendAfterSend() returns error? {
         return x;
     }
 
-    @concurrent{}
     worker w2 returns error? {
         if (true) {
             error e = error("w2 error");
@@ -555,7 +521,6 @@ type E1 error<R1>;
 type E2 error<R2>;
 
 public function testNoFailureForReceiveWithError() returns boolean {
-    @concurrent{}
     worker w1 returns boolean|E1|E2? {
         if (getFalse()) {
             return E1();
@@ -569,7 +534,6 @@ public function testNoFailureForReceiveWithError() returns boolean {
         return err is ();
     }
 
-    @concurrent{}
     worker w2 returns boolean|error? {
         int|E1 v1 = <- w1;
 
@@ -585,7 +549,6 @@ public function testNoFailureForReceiveWithError() returns boolean {
 }
 
 public function testFailureForReceiveWithError() returns boolean {
-    @concurrent{}
     worker w1 returns boolean|E1|E2? {
         if (getFalse()) {
             return E1();
@@ -599,7 +562,6 @@ public function testFailureForReceiveWithError() returns boolean {
         return err is ();
     }
 
-    @concurrent{}
     worker w2 returns boolean|error? {
         int|E1 v1 = <- w1;
 

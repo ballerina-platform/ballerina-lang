@@ -53,8 +53,7 @@ public type StreamingListener object {
     }
 
     public function __start() returns error? {
-         createStreamingConnection(self, self.connection, java:fromString(self.clusterId), self.clientId, self.streamingConfig);
-         streamingSubscribe(self);
+         streamingSubscribe(self, self.connection, java:fromString(self.clusterId), self.clientId, self.streamingConfig);
     }
 
     public function __gracefulStop() returns error? {
@@ -69,7 +68,7 @@ public type StreamingListener object {
         if (self.connection is Connection) {
             Connection? natsConnection = self.connection;
             self.connection = ();
-            return detachFromNatsConnection(self, natsConnection);
+            return streamingListenerClose(self, natsConnection);
         }
     }
 };
@@ -79,7 +78,8 @@ function streamingListenerInit(StreamingListener lis) =
     class: "org.ballerinalang.nats.streaming.consumer.Init"
 } external;
 
-function streamingSubscribe(StreamingListener lis) =
+function streamingSubscribe(StreamingListener streamingClient, Connection? conn,
+                            handle clusterId, string? clientId, StreamingConfig? streamingConfig) =
 @java:Method {
     class: "org.ballerinalang.nats.streaming.consumer.Subscribe"
 } external;
@@ -92,4 +92,9 @@ function streamingAttach(StreamingListener lis, service serviceType, Connection?
 function streamingDetach(StreamingListener lis, service serviceType) =
 @java:Method {
     class: "org.ballerinalang.nats.streaming.consumer.Detach"
+} external;
+
+function streamingListenerClose(StreamingListener lis,  Connection? natsConnection) returns error? =
+@java:Method {
+    class: "org.ballerinalang.nats.streaming.consumer.Close"
 } external;

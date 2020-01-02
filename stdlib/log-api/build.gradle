@@ -28,8 +28,6 @@ dependencies {
     implementation project(':ballerina-logging')
     implementation project(':ballerina-lang:annotations')
     testCompile 'org.testng:testng'
-
-    bir project(path: ':ballerina-utils', configuration: 'bir')
 }
 
 createBalo {

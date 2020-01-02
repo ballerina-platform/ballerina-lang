@@ -14,7 +14,7 @@ service Chat on new grpc:Listener(9090) {
     //This `resource` is triggered when a new caller connection is initialized.
     resource function onOpen(grpc:Caller caller) {
         log:printInfo(string `${caller.getId()} connected to chat`);
-        consMap[caller.getId().toString()] = caller;
+        consMap[caller.getId().toString()] = <@untainted> caller;
     }
 
     //This `resource` is triggered when the caller sends a request message to the `service`.
