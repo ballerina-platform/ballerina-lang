@@ -24,11 +24,11 @@ import org.ballerinalang.nativeimpl.llvm.FFIUtil;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.bytedeco.javacpp.LLVM;
+import org.bytedeco.llvm.LLVM.LLVMModuleRef;
 
 import static org.ballerinalang.model.types.TypeKind.RECORD;
 import static org.ballerinalang.model.types.TypeKind.STRING;
-import static org.bytedeco.javacpp.LLVM.LLVMModuleCreateWithName;
+import static org.bytedeco.llvm.global.LLVM.LLVMModuleCreateWithName;
 
 /**
  * Auto generated class.
@@ -50,7 +50,7 @@ public class LLVMModuleCreateWithName {
 
     public static MapValue<String, Object> llvmModuleCreateWithName(Strand strand, String moduleID) {
 
-        LLVM.LLVMModuleRef returnValue = LLVMModuleCreateWithName(moduleID);
+        LLVMModuleRef returnValue = LLVMModuleCreateWithName(moduleID);
         MapValue<String, Object> returnWrappedRecord = BallerinaValues.createRecordValue(new BPackage("ballerina",
                 "llvm"), "LLVMModuleRef");
         FFIUtil.addNativeToRecode(returnValue, returnWrappedRecord);

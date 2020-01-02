@@ -21,10 +21,10 @@ import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.nativeimpl.llvm.FFIUtil;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.bytedeco.javacpp.LLVM;
+import org.bytedeco.llvm.LLVM.LLVMTargetMachineRef;
+import static org.bytedeco.llvm.global.LLVM.LLVMDisposeTargetMachine;
 
 import static org.ballerinalang.model.types.TypeKind.RECORD;
-import static org.bytedeco.javacpp.LLVM.LLVMDisposeTargetMachine;
 
 /**
  * Auto generated class.
@@ -41,7 +41,7 @@ public class LLVMDisposeTargetMachine {
 
     public static void llvmDisposeTargetMachine(Strand strand, MapValue<String, Object> arg0) {
 
-        LLVM.LLVMTargetMachineRef t = (LLVM.LLVMTargetMachineRef) FFIUtil.getRecodeArgumentNative(arg0);
+        LLVMTargetMachineRef t = (LLVMTargetMachineRef) FFIUtil.getRecodeArgumentNative(arg0);
         LLVMDisposeTargetMachine(t);
     }
 }

@@ -23,8 +23,10 @@ import org.ballerinalang.nativeimpl.llvm.FFIUtil;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.bytedeco.javacpp.LLVM;
-import org.bytedeco.javacpp.LLVM.LLVMValueRef;
+import org.bytedeco.llvm.global.LLVM;
+import org.bytedeco.llvm.LLVM.LLVMValueRef;
+import org.bytedeco.llvm.LLVM.LLVMModuleRef;
+import org.bytedeco.llvm.LLVM.LLVMTypeRef;
 
 import static org.ballerinalang.model.types.TypeKind.RECORD;
 import static org.ballerinalang.model.types.TypeKind.STRING;
@@ -51,8 +53,8 @@ public class LLVMAddFunction {
     public static MapValue<String, Object> llvmAddFunction(Strand strand, MapValue<String, Object> m, String name,
                                                            MapValue<String, Object> functionTy) {
 
-        LLVM.LLVMModuleRef mRef = (LLVM.LLVMModuleRef) FFIUtil.getRecodeArgumentNative(m);
-        LLVM.LLVMTypeRef functionTyRef = (LLVM.LLVMTypeRef) FFIUtil.getRecodeArgumentNative(functionTy);
+        LLVMModuleRef mRef = (LLVMModuleRef) FFIUtil.getRecodeArgumentNative(m);
+        LLVMTypeRef functionTyRef = (LLVMTypeRef) FFIUtil.getRecodeArgumentNative(functionTy);
         LLVMValueRef returnValue = LLVM.LLVMAddFunction(mRef, name, functionTyRef);
         MapValue<String, Object> returnWrappedRecord = FFIUtil.newRecord(new BPackage("ballerina",
                 "llvm"), "LLVMValueRef");

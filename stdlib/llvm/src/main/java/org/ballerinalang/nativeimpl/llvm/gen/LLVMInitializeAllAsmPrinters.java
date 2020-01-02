@@ -19,7 +19,7 @@ package org.ballerinalang.nativeimpl.llvm.gen;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 
-import static org.bytedeco.javacpp.LLVM.LLVMInitializeAllAsmPrinters;
+import static org.bytedeco.llvm.global.LLVM.LLVMInitializeAllAsmPrinters;
 
 /**
  * Auto generated class.

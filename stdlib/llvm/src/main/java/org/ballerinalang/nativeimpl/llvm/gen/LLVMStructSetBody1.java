@@ -22,14 +22,14 @@ import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.nativeimpl.llvm.FFIUtil;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.bytedeco.javacpp.LLVM;
+import org.bytedeco.llvm.LLVM.LLVMTypeRef;
 import org.bytedeco.javacpp.Pointer;
 import org.bytedeco.javacpp.PointerPointer;
 
 import static org.ballerinalang.model.types.TypeKind.ARRAY;
 import static org.ballerinalang.model.types.TypeKind.INT;
 import static org.ballerinalang.model.types.TypeKind.RECORD;
-import static org.bytedeco.javacpp.LLVM.LLVMStructSetBody;
+import static org.bytedeco.llvm.global.LLVM.LLVMStructSetBody;
 
 /**
  * Auto generated class.
@@ -47,7 +47,7 @@ public class LLVMStructSetBody1 {
 
     public static void llvmStructSetBody1(Strand strand, MapValue<String, Object> structTy,
             ArrayValue elementTypes, long elementCount, long packed) {
-        LLVM.LLVMTypeRef structTyRef = (LLVM.LLVMTypeRef) FFIUtil.getRecodeArgumentNative(structTy);
+        LLVMTypeRef structTyRef = (LLVMTypeRef) FFIUtil.getRecodeArgumentNative(structTy);
         Pointer[] elementTypesRef = FFIUtil.getRecodeArrayArgumentNative(elementTypes);
         int elementCountRef = (int) elementCount;
         int packedRef = (int) packed;

@@ -21,10 +21,10 @@ import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.nativeimpl.llvm.FFIUtil;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.bytedeco.javacpp.LLVM;
+import org.bytedeco.llvm.LLVM.LLVMBuilderRef;
 
 import static org.ballerinalang.model.types.TypeKind.RECORD;
-import static org.bytedeco.javacpp.LLVM.LLVMDisposeBuilder;
+import static org.bytedeco.llvm.global.LLVM.LLVMDisposeBuilder;
 
 /**
  * Auto generated class.
@@ -41,7 +41,7 @@ public class LLVMDisposeBuilder {
 
     public static void llvmDisposeBuilder(Strand strand, MapValue<String, Object> fn) {
 
-        LLVM.LLVMBuilderRef builder = (LLVM.LLVMBuilderRef) FFIUtil.getRecodeArgumentNative(fn);
+        LLVMBuilderRef builder = (LLVMBuilderRef) FFIUtil.getRecodeArgumentNative(fn);
         LLVMDisposeBuilder(builder);
     }
 }
