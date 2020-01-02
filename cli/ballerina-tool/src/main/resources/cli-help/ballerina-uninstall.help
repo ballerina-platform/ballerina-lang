@@ -21,17 +21,17 @@ DEFAULT BEHAVIOR
 
 EXAMPLES
        Uninstall math module installed locally.
-          → ballerina uninstall org_name/math:0.0.1
-       This will remove the math module from the home repository
-       on a Mac or Linux machine in
-       ~/.ballerina/repo/org_name/math/0.0.1/math.zip
-       On a Windows machine the module will be placed in
-       \User\user_name\.ballerina\repo\org_name\math\0.0.1\math.zip
+          $ ballerina uninstall org_name/math:0.0.1
+             This will remove the math module from the home repository
+             on a Mac or Linux machine in
+             ~/.ballerina/repo/org_name/math/0.0.1/math.zip
+             On a Windows machine the module will be placed in
+             \User\user_name\.ballerina\repo\org_name\math\0.0.1\math.zip
 
        Uninstall math module pulled from central.
-          → ballerina uninstall org_name/math:0.0.1
-       This will remove the math module from the caches directory
-       on a Mac or Linux machine in
-       ~/.ballerina/caches/central.ballerina.io/org_name/math/0.0.1/math.zip
-       On a Windows machine the module will be placed in
-       \User\user_name\.ballerina\repo\org_name\math\0.0.1\math.zip
+          $ ballerina uninstall org_name/math:0.0.1
+             This will remove the math module from the caches directory
+             on a Mac or Linux machine in
+             ~/.ballerina/caches/central.ballerina.io/org_name/math/0.0.1/math.zip
+             On a Windows machine the module will be placed in
+             \User\user_name\.ballerina\repo\org_name\math\0.0.1\math.zip

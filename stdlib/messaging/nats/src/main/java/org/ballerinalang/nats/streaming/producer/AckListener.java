@@ -21,15 +21,21 @@ import io.nats.streaming.AckHandler;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
 import org.ballerinalang.nats.Utils;
+import org.ballerinalang.nats.observability.NatsMetricsUtil;
+import org.ballerinalang.nats.observability.NatsObservabilityConstants;
 
 /**
  * {@link AckHandler} implementation to listen to message acknowledgements from NATS streaming server.
  */
 public class AckListener implements AckHandler {
     private NonBlockingCallback nonBlockingCallback;
+    private String url;
+    private String subject;
 
-    public AckListener(NonBlockingCallback nonBlockingCallback) {
+    public AckListener(NonBlockingCallback nonBlockingCallback, String url, String subject) {
         this.nonBlockingCallback = nonBlockingCallback;
+        this.url = url;
+        this.subject = subject;
     }
 
     /**
@@ -38,8 +44,10 @@ public class AckListener implements AckHandler {
     @Override
     public void onAck(String nuid, Exception ex) {
       if (ex == null) {
+          NatsMetricsUtil.reportAcknowledgement(url, subject);
           nonBlockingCallback.setReturnValues(nuid);
       } else {
+          NatsMetricsUtil.reportProducerError(url, subject, NatsObservabilityConstants.ERROR_TYPE_ACKNOWLEDGEMENT);
           ErrorValue error = Utils.createNatsError(nuid, ex.getMessage());
           nonBlockingCallback.setReturnValues(error);
       }
