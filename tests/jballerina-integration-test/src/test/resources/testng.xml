@@ -246,6 +246,7 @@
             <class name="org.ballerinalang.test.service.websub.basic.WebSubContentTypeSupportTestCase"/>
             <class name="org.ballerinalang.test.service.websub.basic.WebSubDiscoveryWithMultipleSubscribersTestCase"/>
             <class name="org.ballerinalang.test.service.websub.basic.WebSubRedirectionTestCase"/>
+            <class name="org.ballerinalang.test.service.websub.basic.WebSubStartupFunctionalityTestCase"/>
         </classes>
     </test>
 
