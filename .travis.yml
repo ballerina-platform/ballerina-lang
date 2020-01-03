@@ -125,3 +125,4 @@ branches:
     - next-release
     - ballerina-1.0.x
     - release-stage
+    - ballerina-1.1.x
