@@ -129,8 +129,9 @@ public class RHSCompletionsTokenTraverser extends AbstractTokenTraverser {
             {printMessage();}
         }
          */
-        if (type == BallerinaParser.LEFT_BRACE && (this.lastProcessedToken.getType() == BallerinaParser.EQUAL_GT
-                || this.lastProcessedToken.getType() == BallerinaParser.COLON)) {
+        if (type == BallerinaParser.LEFT_BRACE &&
+                (this.lastProcessedToken != null && (this.lastProcessedToken.getType() == BallerinaParser.EQUAL_GT
+                        || this.lastProcessedToken.getType() == BallerinaParser.COLON))) {
             this.leftBraceCount++;
             this.processToken(token);
             this.forcedProcessedToken = true;
