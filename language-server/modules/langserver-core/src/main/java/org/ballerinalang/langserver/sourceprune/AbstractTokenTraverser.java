@@ -47,7 +47,7 @@ public abstract class AbstractTokenTraverser implements TokenTraverser {
             return false;
         }
         // Otherwise only capture the processed tokens
-        this.lastProcessedToken = token;
+        this.lastProcessedToken = new CommonToken(token);
         if (this.pruneTokens) {
             // If the pruneTokens flag is true, replace the token text with empty spaces
             ((CommonToken) token).setText(getNCharLengthEmptyLine(token.getText().length()));
