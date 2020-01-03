@@ -19,25 +19,29 @@ import ballerina/http;
 http:ListenerConfiguration urlLimitConfig = {
     http1Settings: {
         maxUriLength: 1024
-    }
+    },
+    httpVersion: "1.1"
 };
 
 http:ListenerConfiguration lowUrlLimitConfig = {
     http1Settings: {
         maxUriLength: 2
-    }
+    },
+    httpVersion: "1.1"
 };
 
 http:ListenerConfiguration lowHeaderConfig = {
     http1Settings: {
         maxHeaderSize: 30
-    }
+    },
+    httpVersion: "1.1"
 };
 
 http:ListenerConfiguration midSizeHeaderConfig = {
     http1Settings: {
         maxHeaderSize: 100
-    }
+    },
+    httpVersion: "1.1"
 };
 
 listener http:Listener normalRequestLimitEP = new(9234, urlLimitConfig);
