@@ -33,7 +33,7 @@ websub:Hub webSubHub = startHubAndRegisterTopic();
 
 websub:PublisherClient websubHubClientEP = new (webSubHub.publishUrl);
 
-listener http:Listener publisherServiceEP = new http:Listener(23080);
+listener http:Listener publisherServiceEP = new http:Listener(23080, { httpVersion : "1.1" });
 
 service publisher on publisherServiceEP {
     @http:ResourceConfig {
@@ -221,7 +221,7 @@ function startHubAndRegisterTopic() returns websub:Hub {
 }
 
 function startWebSubHub() returns websub:Hub {
-    var result = websub:startHub(new http:Listener(23191), "/websub", "/hub",
+    var result = websub:startHub(new http:Listener(23191, { httpVersion : "1.1" }), "/websub", "/hub",
                                  hubConfiguration = { remotePublish : { enabled : true }});
     if (result is websub:Hub) {
         return result;

@@ -30,7 +30,7 @@ http:BasicAuthHandler basicAuthHandler = new(basicAuthProvider);
 
 websub:Hub webSubHub = startHubAndRegisterTopic();
 
-listener http:Listener publisherServiceEP = new http:Listener(23080);
+listener http:Listener publisherServiceEP = new http:Listener(23080, { httpVersion : "1.1" });
 
 http:BasicAuthHandler outboundBasicAuthHandler = new(new auth:OutboundBasicAuthProvider({
                                                          username: "anne",
@@ -251,7 +251,8 @@ function startWebSubHub() returns websub:Hub {
                         path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
                         password: "ballerina"
                     }
-                }
+                },
+                httpVersion: "1.1"
             }), "/websub", "/hub",
                 serviceAuth = {enabled:true},
                 subscriptionResourceAuth = {enabled:true, scopes:["subscribe"]},

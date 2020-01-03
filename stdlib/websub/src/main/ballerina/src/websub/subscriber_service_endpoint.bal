@@ -73,10 +73,17 @@ public type Listener object {
         if (sseEpConfig is SubscriberListenerConfiguration) {
             http:ListenerConfiguration httpServiceConfig = {
                 host: sseEpConfig.host,
-                secureSocket: sseEpConfig.httpServiceSecureSocket
+                secureSocket: sseEpConfig.httpServiceSecureSocket,
+                httpVersion: http:HTTP_1_1
             };
             serviceConfig = httpServiceConfig;
         }
+
+        if (serviceConfig is ()) {
+            http:ListenerConfiguration serviceConfigg = { httpVersion: "1.1" };
+            serviceConfig = serviceConfigg;
+        }
+
         http:Listener httpEndpoint = new(port, serviceConfig);
         self.serviceEndpoint = httpEndpoint;
 

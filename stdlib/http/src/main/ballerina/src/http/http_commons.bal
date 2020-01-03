@@ -19,13 +19,13 @@ import ballerina/mime;
 import ballerina/io;
 
 # Represents HTTP/1.0 protocol
-const string HTTP_1_0 = "1.0";
+public const string HTTP_1_0 = "1.0";
 
 # Represents HTTP/1.1 protocol
-const string HTTP_1_1 = "1.1";
+public const string HTTP_1_1 = "1.1";
 
 # Represents HTTP/2.0 protocol
-const string HTTP_2_0 = "2.0";
+public const string HTTP_2_0 = "2.0";
 
 # Defines the supported HTTP protocols.
 #

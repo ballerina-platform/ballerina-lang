@@ -86,7 +86,7 @@ public class WebSubSecureHubTestCase extends WebSubAdvancedBaseTest {
         String trustStore = StringEscapeUtils.escapeJava(
                 Paths.get("src", "test", "resources", "certsAndKeys", "ballerinaTruststore.p12").toAbsolutePath()
                         .toString());
-        String[] args = new String[] { "--truststore=" + trustStore };
+        String[] args = new String[] { "--truststore=" + trustStore, "--b7a.http.tracelog.console=true"};
         webSubSubscriber = new BServerInstance(balServer);
         String subscriberBal = new File("src" + File.separator + "test" + File.separator + "resources" +
                                                 File.separator + "websub" + File.separator + "subscriber" +
