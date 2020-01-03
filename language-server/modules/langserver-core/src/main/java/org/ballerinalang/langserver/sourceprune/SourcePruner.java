@@ -43,12 +43,12 @@ public class SourcePruner {
      * Prune source.
      *
      * @param lsContext LS Context
-     * @param tokenTraverserFactory Token Traverser Factory
+     * @param traverserFactory Token Traverser Factory
      * @throws SourcePruneException  when source prune fails
      */
     public static void pruneSource(LSContext lsContext,
-                                   TokenTraverserFactory tokenTraverserFactory) throws SourcePruneException {
-        TokenStream tokenStream = tokenTraverserFactory.getTokenStream();
+                                   TokenTraverserFactory traverserFactory) throws SourcePruneException {
+        TokenStream tokenStream = traverserFactory.getTokenStream();
         Position cursorPosition = lsContext.get(DocumentServiceKeys.POSITION_KEY).getPosition();
         if (cursorPosition == null) {
             throw new SourcePruneException("Cursor position cannot be null!");
@@ -72,16 +72,14 @@ public class SourcePruner {
             return;
         }
 
-        SourcePruneContext sourcePruneCtx = tokenTraverserFactory.getSourcePruneCtx();
-        sourcePruneCtx.put(SourcePruneKeys.LHS_TRAVERSE_TERMINALS_KEY, tokenTraverserFactory.getLHSTraverseTerminals());
-        sourcePruneCtx.put(SourcePruneKeys.RHS_TRAVERSE_TERMINALS_KEY, tokenTraverserFactory.getRHSTraverseTerminals());
-        sourcePruneCtx.put(SourcePruneKeys.BLOCK_REMOVE_KW_TERMINALS_KEY,
-                           tokenTraverserFactory.getBlockRemoveTerminals());
+        SourcePruneContext sourcePruneCtx = traverserFactory.getSourcePruneCtx();
+        sourcePruneCtx.put(SourcePruneKeys.LHS_TRAVERSE_TERMINALS_KEY, traverserFactory.getLHSTraverseTerminals());
+        sourcePruneCtx.put(SourcePruneKeys.RHS_TRAVERSE_TERMINALS_KEY, traverserFactory.getRHSTraverseTerminals());
+        sourcePruneCtx.put(SourcePruneKeys.BLOCK_REMOVE_KW_TERMINALS_KEY, traverserFactory.getBlockRemoveTerminals());
 
         // Execute source pruning
-        List<CommonToken> lhsTokens = tokenTraverserFactory.createLHSTokenTraverser().traverse(tokenStream, tokenIndex);
-        List<CommonToken> rhsTokens = tokenTraverserFactory.createRHSTokenTraverser().traverse(tokenStream,
-                                                                                               tokenIndex + 1);
+        List<CommonToken> lhsTokens = traverserFactory.createLHSTokenTraverser().traverse(tokenStream, tokenIndex);
+        List<CommonToken> rhsTokens = traverserFactory.createRHSTokenTraverser().traverse(tokenStream, tokenIndex + 1);
         List<CommonToken> lhsDefaultTokens = lhsTokens.stream()
                 .filter(commonToken -> commonToken.getChannel() == Token.DEFAULT_CHANNEL)
                 .collect(Collectors.toList());
