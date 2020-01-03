@@ -35,3 +35,11 @@ function duplicateKeyTest2() {
         name: "hi"
     };
 }
+
+function duplicateKeyTest3() {
+     Song hola = {
+         name: "hola",
+         length: 1,
+         "name": "hola"
+     };
+}
