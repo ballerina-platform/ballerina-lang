@@ -24,7 +24,7 @@ http:ClientConfiguration clientEPConfig  = {
             port:9219
         }
     },
-    httpVersion: "1.1"
+    httpVersion: http:HTTP_1_1
 };
 
 public function main (string... args) {

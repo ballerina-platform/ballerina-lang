@@ -26,7 +26,7 @@ http:Client internalErrorEP = new("http://localhost:8080", {
         statusCodes: [501, 502, 503]
     },
     timeoutInMillis: 2000,
-    httpVersion: "1.1"
+    httpVersion: http:HTTP_1_1
 });
 
 @http:ServiceConfig {

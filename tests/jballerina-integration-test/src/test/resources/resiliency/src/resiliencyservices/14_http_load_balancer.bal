@@ -28,7 +28,7 @@ http:LoadBalanceClient lbBackendEP = new({
         { url: "http://localhost:8093/mock3" }
     ],
     timeoutInMillis: 5000,
-    httpVersion: "1.1"
+    httpVersion: http:HTTP_1_1
 });
 
 http:LoadBalanceClient lbFailoverBackendEP = new({
@@ -39,7 +39,7 @@ http:LoadBalanceClient lbFailoverBackendEP = new({
     ],
     failover: true,
     timeoutInMillis: 2000,
-    httpVersion: "1.1"
+    httpVersion: http:HTTP_1_1
 });
 
 http:LoadBalanceClient delayedBackendEP = new({
@@ -49,7 +49,7 @@ http:LoadBalanceClient delayedBackendEP = new({
     ],
     failover: true,
     timeoutInMillis: 2000,
-    httpVersion: "1.1"
+    httpVersion: http:HTTP_1_1
 });
 
 CustomLoadBalancerRule customLbRule = new CustomLoadBalancerRule(2);
@@ -62,7 +62,7 @@ http:LoadBalanceClient customLbBackendEP = new ({
     ],
     lbRule: customLbRule,
     timeoutInMillis: 5000,
-    httpVersion: "1.1"
+    httpVersion: http:HTTP_1_1
 });
 
 @http:ServiceConfig {

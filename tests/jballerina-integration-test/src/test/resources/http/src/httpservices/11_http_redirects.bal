@@ -34,15 +34,15 @@ http:ListenerConfiguration httpsEPConfig = {
 listener http:Listener httpsEP = new(9104, httpsEPConfig);
 
 http:ClientConfiguration endPoint1Config = {
-    followRedirects: { enabled: true, maxCount: 3 }, httpVersion: "1.1"
+    followRedirects: { enabled: true, maxCount: 3 }, httpVersion: http:HTTP_1_1
 };
 
 http:ClientConfiguration endPoint2Config = {
-    followRedirects: { enabled: true, maxCount: 5 }, httpVersion: "1.1"
+    followRedirects: { enabled: true, maxCount: 5 }, httpVersion: http:HTTP_1_1
 };
 
 http:ClientConfiguration endPoint3Config = {
-    followRedirects: { enabled: true }, httpVersion: "1.1"
+    followRedirects: { enabled: true }, httpVersion: http:HTTP_1_1
 };
 
 http:ClientConfiguration endPoint5Config = {
@@ -53,7 +53,7 @@ http:ClientConfiguration endPoint5Config = {
             password: "ballerina"
         }
     },
-    httpVersion: "1.1"
+    httpVersion: http:HTTP_1_1
 };
 
 @http:ServiceConfig {

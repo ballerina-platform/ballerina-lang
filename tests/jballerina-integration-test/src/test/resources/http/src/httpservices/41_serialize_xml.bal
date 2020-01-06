@@ -19,7 +19,7 @@ import ballerina/log;
 import ballerina/mime;
 
 listener http:Listener listenerEP = new(9250);
-http:Client clientEP = new("http://localhost:9250", { httpVersion: "1.1" } );
+http:Client clientEP = new("http://localhost:9250", { httpVersion: http:HTTP_1_1 } );
 
 @http:ServiceConfig {
     basePath:"/serialize"

@@ -18,7 +18,7 @@ import ballerina/http;
 import ballerina/log;
 import ballerina/mime;
 
-http:Client clientEndpoint = new("http://localhost:9224", { httpVersion: "1.1" } );
+http:Client clientEndpoint = new("http://localhost:9224", { httpVersion: http:HTTP_1_1 } );
 
 @http:ServiceConfig {
     basePath: "/continue"

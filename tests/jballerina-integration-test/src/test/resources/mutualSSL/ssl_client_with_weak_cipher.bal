@@ -30,7 +30,7 @@ public function main(string... args) {
             },
             ciphers: ["TLS_RSA_WITH_AES_128_CBC_SHA"]
         },
-        httpVersion: "1.1"
+        httpVersion: http:HTTP_1_1
     });
     http:Request req = new;
     var resp = clientEP->get("/echo/");

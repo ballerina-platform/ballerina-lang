@@ -28,7 +28,7 @@ http:ClientConfiguration sslProtocolClientConfig = {
             versions: ["TLSv1.2"]
         }
     },
-    httpVersion: "1.1"
+    httpVersion: http:HTTP_1_1
 };
 
 public function main (string... args) {

@@ -21,7 +21,7 @@ import ballerina/mime;
 
 listener http:Listener testEP = new(9115);
 
-http:Client clientEP1 = new("http://localhost:9115/test", { httpVersion: "1.1"} );
+http:Client clientEP1 = new("http://localhost:9115/test", { httpVersion: http:HTTP_1_1 } );
 
 @http:ServiceConfig {basePath:"/reuseObj"}
 service testService_1 on testEP {

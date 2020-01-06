@@ -80,8 +80,8 @@ public type Listener object {
         }
 
         if (serviceConfig is ()) {
-            http:ListenerConfiguration serviceConfigg = { httpVersion: "1.1" };
-            serviceConfig = serviceConfigg;
+            http:ListenerConfiguration listenerConfig = { httpVersion: http:HTTP_1_1 };
+            serviceConfig = listenerConfig;
         }
 
         http:Listener httpEndpoint = new(port, serviceConfig);

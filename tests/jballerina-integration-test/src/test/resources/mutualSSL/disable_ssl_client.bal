@@ -21,7 +21,7 @@ http:ClientConfiguration disableSslClientConf = {
     secureSocket:{
         disable:true
     },
-    httpVersion: "1.1"
+    httpVersion: http:HTTP_1_1
 };
 
 public function main() {

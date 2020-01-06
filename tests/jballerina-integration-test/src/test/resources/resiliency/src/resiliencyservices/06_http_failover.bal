@@ -35,7 +35,7 @@ http:FailoverClient foBackendEP05 = new({
         { url: "http://localhost:8085/delay" },
         { url: "http://localhost:8085/mock" }
     ],
-    httpVersion: "1.1"
+    httpVersion: http:HTTP_1_1
 });
 
 @http:ServiceConfig {

@@ -32,7 +32,7 @@ public type SubscriptionClient client object {
     # + config - The `http:ClientConfiguration` for the underlying client or `()`
     public function __init(string url, http:ClientConfiguration? config = ()) {
         if (config is http:ClientConfiguration) {
-            config.httpVersion = "1.1";
+            config.httpVersion = http:HTTP_1_1;
         }
         self.url = url;
         self.httpClient = new (self.url, config);

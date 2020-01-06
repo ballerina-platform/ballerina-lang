@@ -23,17 +23,17 @@ listener http:Listener passthroughEP2 = new(9091, {server: "Mysql"});
 
 http:Client acceptEncodingAutoEP = new("http://localhost:9091/hello", {
     compression:http:COMPRESSION_AUTO,
-    httpVersion: "1.1"
+    httpVersion: http:HTTP_1_1
 });
 
 http:Client acceptEncodingEnableEP = new("http://localhost:9091/hello", {
     compression:http:COMPRESSION_ALWAYS,
-    httpVersion: "1.1"
+    httpVersion: http:HTTP_1_1
 });
 
 http:Client acceptEncodingDisableEP = new("http://localhost:9091/hello", {
     compression:http:COMPRESSION_NEVER,
-    httpVersion: "1.1"
+    httpVersion: http:HTTP_1_1
 });
 
 service passthrough on passthroughEP2 {

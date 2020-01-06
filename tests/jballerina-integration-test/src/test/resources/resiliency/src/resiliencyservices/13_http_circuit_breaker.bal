@@ -36,7 +36,7 @@ http:ClientConfiguration conf06 = {
         statusCodes: [501, 502, 503]
     },
     timeoutInMillis: 2000,
-    httpVersion: "1.1"
+    httpVersion: http:HTTP_1_1
 };
 
 http:Client backendClientEP06 = new("http://localhost:8092", conf06);

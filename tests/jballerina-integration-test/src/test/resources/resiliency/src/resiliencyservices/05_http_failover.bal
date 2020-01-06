@@ -38,7 +38,7 @@ http:FailoverClient foBackendEP04 = new({
         { url: "http://localhost:8080/mock" },
         { url: "http://localhost:8080/mock" }
     ],
-    httpVersion: "1.1"
+    httpVersion: http:HTTP_1_1
 });
 
 http:FailoverClient foBackendFailureEP04 = new({
@@ -51,7 +51,7 @@ http:FailoverClient foBackendFailureEP04 = new({
         { url: "http://localhost:8080/echo" },
         { url: "http://localhost:8080/echo" }
     ],
-    httpVersion: "1.1"
+    httpVersion: http:HTTP_1_1
 });
 
 http:FailoverClient foStatusCodesEP04 = new({
@@ -64,7 +64,7 @@ http:FailoverClient foStatusCodesEP04 = new({
         { url: "http://localhost:8080/statuscodes" },
         { url: "http://localhost:8080/statuscodes" }
     ],
-    httpVersion: "1.1"
+    httpVersion: http:HTTP_1_1
 });
 
 @http:ServiceConfig {

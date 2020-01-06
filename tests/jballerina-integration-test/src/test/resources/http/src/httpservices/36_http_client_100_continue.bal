@@ -18,7 +18,7 @@ import ballerina/io;
 import ballerina/http;
 
 public function main() {
-    http:Client clientEP = new("http://localhost:9241", { httpVersion: "1.1" } );
+    http:Client clientEP = new("http://localhost:9241", { httpVersion: http:HTTP_1_1 } );
     http:Request req = new();
     req.addHeader("content-type", "text/plain");
     req.addHeader("Expect", "100-continue");

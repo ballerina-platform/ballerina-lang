@@ -18,7 +18,7 @@ import ballerina/http;
 import ballerina/log;
 import ballerina/websub;
 
-listener http:Listener publisherServiceEPTwo = new http:Listener(23081, { httpVersion : "1.1" });
+listener http:Listener publisherServiceEPTwo = new http:Listener(23081, { httpVersion : http:HTTP_1_1 });
 
 service original on publisherServiceEPTwo {
     resource function one(http:Caller caller, http:Request req) {
