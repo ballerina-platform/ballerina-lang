@@ -278,8 +278,8 @@ public class OpenApiGenServiceCmdTest extends OpenAPICommandTest {
     @Test(description = "Test open-api genservice for successful service generation with all of schema type")
     public void testAllOfSchemaGen() throws IOException {
         Path allOfYaml = RES_DIR.resolve(Paths.get("allof-petstore.yaml"));
-        createBalProjectModule(petProject, "allOfModule");
-        String[] args = {"allOfModule:allOfService", allOfYaml.toString()};
+        createBalProjectModule(petProject, "allofmodule");
+        String[] args = {"allofmodule:allofservice", allOfYaml.toString()};
 
         OpenApiGenServiceCmd cmd = new OpenApiGenServiceCmd(printStream, petProject.getBalProjectPath().toString());
         new CommandLine(cmd).parseArgs(args);
@@ -298,10 +298,10 @@ public class OpenApiGenServiceCmdTest extends OpenAPICommandTest {
         String expectedSchema = expectedServiceLines.collect(Collectors.joining("\n"));
 
         if (Files.exists(petProject.getResourcePath().resolve(allOfYaml.getFileName()))
-                && Files.exists(petProject.getSrcPath().resolve("allOfModule").resolve("allOfService.bal"))) {
+                && Files.exists(petProject.getSrcPath().resolve("allofmodule").resolve("allofservice.bal"))) {
 
             Stream<String> serviceLines = Files.lines(petProject.getSrcPath()
-                    .resolve("allOfModule").resolve("schema.bal"));
+                    .resolve("allofmodule").resolve("schema.bal"));
             String generatedSchema = serviceLines.collect(Collectors.joining("\n"));
             serviceLines.close();
 
@@ -325,7 +325,7 @@ public class OpenApiGenServiceCmdTest extends OpenAPICommandTest {
     public void testOneOfSchemaGen() throws IOException {
         Path allOfYaml = RES_DIR.resolve(Paths.get("oneof-petstore.yaml"));
         createBalProjectModule(petProject, "oneOfModule");
-        String[] args = {"oneOfModule:oneOfService", allOfYaml.toString()};
+        String[] args = {"oneofmodule:oneofservice", allOfYaml.toString()};
 
         OpenApiGenServiceCmd cmd = new OpenApiGenServiceCmd(printStream, petProject.getBalProjectPath().toString());
         new CommandLine(cmd).parseArgs(args);
@@ -338,16 +338,16 @@ public class OpenApiGenServiceCmdTest extends OpenAPICommandTest {
         }
 
         Path expectedServiceFile = RES_DIR.resolve(Paths.get("expected_gen",
-                "oneOf-schema-petstore.bal"));
+                "oneof-schema-petstore.bal"));
 
         Stream<String> expectedServiceLines = Files.lines(expectedServiceFile);
         String expectedService = expectedServiceLines.collect(Collectors.joining("\n"));
 
         if (Files.exists(petProject.getResourcePath().resolve(allOfYaml.getFileName()))
-                && Files.exists(petProject.getSrcPath().resolve("oneOfModule").resolve("oneOfService.bal"))) {
+                && Files.exists(petProject.getSrcPath().resolve("oneofmodule").resolve("oneofservice.bal"))) {
 
             Stream<String> serviceLines = Files.lines(petProject.getSrcPath()
-                    .resolve("oneOfModule").resolve("oneOfService.bal"));
+                    .resolve("oneofmodule").resolve("oneofservice.bal"));
             String generatedService = serviceLines.collect(Collectors.joining("\n"));
             serviceLines.close();
 

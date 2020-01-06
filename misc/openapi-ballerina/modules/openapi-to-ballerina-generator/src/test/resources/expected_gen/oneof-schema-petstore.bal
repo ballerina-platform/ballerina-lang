@@ -13,7 +13,7 @@ listener http:Listener ep1 = new(443, config = {host: "petstore.swagger.io"});
     basePath: "/v1"
 }
 
-service oneOfService on ep0, ep1 {
+service oneofservice on ep0, ep1 {
 
     @http:ResourceConfig {
         methods:["POST"],
