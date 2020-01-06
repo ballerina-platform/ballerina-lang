@@ -24,6 +24,7 @@ import org.ballerinalang.model.tree.clauses.WhereNode;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 
 /**
  * Implementation of {@link PatternStreamingEdgeInputNode}.
@@ -32,13 +33,13 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
  */
 public class BLangPatternStreamingEdgeInput extends BLangNode implements PatternStreamingEdgeInputNode {
 
-    private ExpressionNode streamRef;
+    public BLangExpression streamRef;
 
-    private String alias;
+    public String alias;
 
-    private ExpressionNode expressionNode;
+    public BLangExpression expressionNode;
 
-    private WhereNode whereNode;
+    public BLangWhere whereNode;
 
     @Override
     public void accept(BLangNodeVisitor visitor) {
@@ -52,17 +53,20 @@ public class BLangPatternStreamingEdgeInput extends BLangNode implements Pattern
 
     @Override
     public void setStreamReference(ExpressionNode ref) {
-        this.streamRef = ref;
+
+        this.streamRef = (BLangExpression) ref;
     }
 
     @Override
     public void setWhereClause(WhereNode whereNode) {
-        this.whereNode = whereNode;
+
+        this.whereNode = (BLangWhere) whereNode;
     }
 
     @Override
     public void setExpression(ExpressionNode expressionNode) {
-        this.expressionNode = expressionNode;
+
+        this.expressionNode = (BLangExpression) expressionNode;
     }
 
     @Override

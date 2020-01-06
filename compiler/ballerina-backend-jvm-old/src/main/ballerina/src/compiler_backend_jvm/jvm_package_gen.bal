@@ -547,6 +547,7 @@ function getFunctionWrapper(bir:Function currentFunc, string orgName ,string mod
     bir:BType? attachedType = receiver is bir:VariableDcl ? receiver.typeValue : ();
     string jvmMethodDescription = getMethodDesc(functionTypeDesc.paramTypes, functionTypeDesc?.retType,
                                                 attachedType = attachedType);
+
     return {
         orgName : orgName,
         moduleName : moduleName,
@@ -592,16 +593,6 @@ function addBuiltinImports(bir:ModuleID moduleId, bir:Package module) {
     }
 
     module.importModules[module.importModules.length()] = internalModule;
-
-    bir:ImportModule utilsModule = {modOrg : {value:"ballerina"},
-                                        modName : {value:"utils"},
-                                        modVersion : {value:""}};
-
-    if (isSameModule(moduleId, utilsModule)) {
-        return;
-    }
-
-    module.importModules[module.importModules.length()] = utilsModule;
 
     bir:ImportModule langArrayModule = {modOrg : {value:"ballerina"},
                                          modName : {value:"lang.array"},

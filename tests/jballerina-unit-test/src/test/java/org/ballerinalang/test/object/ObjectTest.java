@@ -792,4 +792,15 @@ public class ObjectTest {
         Assert.assertEquals(((BFloat) result[5]).floatValue(), 1.1);
         Assert.assertEquals(((BFloat) result[6]).floatValue(), 2.2);
     }
+
+    @Test(description = "Test object attach func returning tuple with non blocking call")
+    public void testObjectAttachFuncReturningTuple() {
+        CompileResult compileResult = BCompileUtil.compile("test-src/object/object_attach_func_ret_tuple.bal");
+        BValue[] result = BRunUtil.invoke(compileResult, "testReturningTuple");
+        Assert.assertEquals(result.length, 2);
+        Assert.assertTrue(result[0] instanceof BString);
+        Assert.assertTrue(result[1] instanceof BString);
+        Assert.assertEquals(result[0].stringValue(), "firstValue");
+        Assert.assertEquals(result[1].stringValue(), "secondValue");
+    }
 }

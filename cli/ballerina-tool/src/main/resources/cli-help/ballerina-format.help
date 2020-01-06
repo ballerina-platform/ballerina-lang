@@ -27,13 +27,13 @@ OPTIONS
 
 EXAMPLES
        Format the Ballerina project.
-          → ballerina format
+          $ ballerina format
 
        Format a Ballerina module.
-          → ballerina format hello
+          $ ballerina format hello
 
        Format a Ballerina file.
-          → ballerina format helloworld.bal
+          $ ballerina format helloworld.bal
 
        Perform a dry run to see which files will be formatted.
-          → ballerina format -d
+          $ ballerina format -d

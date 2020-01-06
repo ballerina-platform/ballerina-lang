@@ -15,6 +15,7 @@
 // under the License.
 
 import ballerina/lang.'object as lang;
+import ballerinax/java;
 
 ///////////////////////////////////
 /// Direcotry Listener Endpoint ///
@@ -28,14 +29,14 @@ public type Listener object {
 
     public function __init(ListenerConfig listenerConfig) {
         self.config = listenerConfig;
-        var result = self.initEndpoint();
+        var result = initEndpoint(self);
         if (result is error) {
             panic result;
         }
     }
 
     public function __start() returns error? {
-        return self.start();
+        return start(self);
     }
 
     public function __gracefulStop() returns error? {
@@ -47,17 +48,11 @@ public type Listener object {
     }
 
     public function __attach(service s, string? name = ()) returns error? {
-        return self.register(s, name);
+        return register(self, s, name);
     }
 
     public function __detach(service s) returns error? {
     }
-
-    function initEndpoint() returns error? = external;
-
-    function register(service serviceType, string? name) returns error? = external;
-
-    function start() returns error? = external;
 };
 
 # Represents configurations that required for directory listener.
@@ -68,3 +63,18 @@ public type ListenerConfig record {|
     string? path = ();
     boolean recursive = false;
 |};
+
+function initEndpoint(Listener fileListener) returns error? = @java:Method {
+    class: "org.ballerinalang.stdlib.file.service.endpoint.InitEndpoint",
+    name: "initEndpoint"
+} external;
+
+function register(Listener fileListener, service s, string? name) returns error? = @java:Method {
+    class: "org.ballerinalang.stdlib.file.service.endpoint.Register",
+    name: "register"
+} external;
+
+function start(Listener fileListener) returns error? = @java:Method {
+    class: "org.ballerinalang.stdlib.file.service.endpoint.Start",
+    name: "start"
+} external;

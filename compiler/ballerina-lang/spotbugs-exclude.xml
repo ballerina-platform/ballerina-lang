@@ -56,6 +56,9 @@
         <Package name="org.wso2.ballerinalang.compiler.tree.types" />
     </Match>
     <Match>
+        <Package name="org.wso2.ballerinalang.compiler.packaging.converters" />
+    </Match>
+    <Match>
         <Package name="org.wso2.ballerinalang.programfile" />
     </Match>
     <Match>
@@ -96,9 +99,6 @@
     </Match>
     <Match>
         <Class name="org.wso2.ballerinalang.compiler.bir.BIRGen"/>
-    </Match>
-    <Match>
-        <Class name="org.wso2.ballerinalang.compiler.bir.BIROptimizer"/>
     </Match>
     <Match>
         <Class name="org.wso2.ballerinalang.compiler.bir.model.BIRTerminator"/>

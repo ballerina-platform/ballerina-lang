@@ -40,7 +40,6 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.ProjectDirs;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BDiagnosticSource;
-import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.io.ByteArrayInputStream;
@@ -48,6 +47,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
+import java.util.Arrays;
 
 /**
  * This class is responsible for parsing Ballerina source files.
@@ -60,8 +60,9 @@ public class Parser {
     private final boolean preserveWhitespace;
 
     private CompilerContext context;
-    private BLangDiagnosticLog dlog;
     private PackageCache pkgCache;
+    private ParserCache parserCache;
+    private NodeCloner nodeCloner;
 
     public static Parser getInstance(CompilerContext context) {
         Parser parser = context.get(PARSER_KEY);
@@ -78,8 +79,9 @@ public class Parser {
 
         CompilerOptions options = CompilerOptions.getInstance(context);
         this.preserveWhitespace = Boolean.parseBoolean(options.get(CompilerOptionName.PRESERVE_WHITESPACE));
-        this.dlog = BLangDiagnosticLog.getInstance(context);
         this.pkgCache = PackageCache.getInstance(context);
+        this.parserCache = ParserCache.getInstance(context);
+        this.nodeCloner = NodeCloner.getInstance(context);
     }
 
     public BLangPackage parse(PackageSource pkgSource, Path sourceRootPath) {
@@ -109,28 +111,59 @@ public class Parser {
 
     private CompilationUnitNode generateCompilationUnit(CompilerInput sourceEntry, PackageID packageID) {
         try {
-            BDiagnosticSource diagnosticSrc = getDiagnosticSource(sourceEntry, packageID);
+            byte[] code = sourceEntry.getCode();
             String entryName = sourceEntry.getEntryName();
-
-            BLangCompilationUnit compUnit = (BLangCompilationUnit) TreeBuilder.createCompilationUnit();
-            compUnit.setName(sourceEntry.getEntryName());
-            compUnit.pos = new DiagnosticPos(diagnosticSrc, 1, 1, 1, 1);
-
-            ANTLRInputStream ais = new ANTLRInputStream(new InputStreamReader(new ByteArrayInputStream(sourceEntry
-                    .getCode()), StandardCharsets.UTF_8));
-            ais.name = entryName;
-            BallerinaLexer lexer = new BallerinaLexer(ais);
-            lexer.removeErrorListeners();
-            lexer.addErrorListener(new BallerinaParserErrorListener(context, diagnosticSrc));
-            CommonTokenStream tokenStream = new CommonTokenStream(lexer);
-            BallerinaParser parser = new BallerinaParser(tokenStream);
-            parser.setErrorHandler(getErrorStrategy(diagnosticSrc));
-            parser.addParseListener(newListener(tokenStream, compUnit, diagnosticSrc));
-            parser.compilationUnit();
-            return compUnit;
+            int hash = getHash(code);
+            int length = code.length;
+            BLangCompilationUnit compilationUnit = parserCache.get(packageID, entryName, hash, length);
+            if (compilationUnit == null) {
+                compilationUnit = createCompilationUnit(sourceEntry, packageID);
+                boolean inError = populateCompilationUnit(compilationUnit, entryName, code);
+                if (!inError) {
+                    parserCache.put(packageID, entryName, hash, length, compilationUnit);
+                    // Node cloner will run for valid ASTs.
+                    // This will verify, any modification done to the AST will get handled properly.
+                    compilationUnit = nodeCloner.cloneCUnit(compilationUnit);
+                }
+            }
+            return compilationUnit;
         } catch (IOException e) {
             throw new RuntimeException("error reading module: " + e.getMessage(), e);
         }
+    }
+
+    private BLangCompilationUnit createCompilationUnit(CompilerInput sourceEntry, PackageID packageID) {
+
+        BDiagnosticSource diagnosticSrc = getDiagnosticSource(sourceEntry, packageID);
+        BLangCompilationUnit compUnit = (BLangCompilationUnit) TreeBuilder.createCompilationUnit();
+        compUnit.setName(sourceEntry.getEntryName());
+        compUnit.pos = new DiagnosticPos(diagnosticSrc, 1, 1, 1, 1);
+        return compUnit;
+    }
+
+    private boolean populateCompilationUnit(BLangCompilationUnit compUnit, String entryName, byte[] code)
+            throws IOException {
+
+        BDiagnosticSource diagnosticSrc = compUnit.pos.getSource();
+        CommonTokenStream tokenStream = createTokenStream(entryName, code, diagnosticSrc);
+        BallerinaParser parser = new BallerinaParser(tokenStream);
+        parser.setErrorHandler(getErrorStrategy(diagnosticSrc));
+        BLangParserListener parserListener = newListener(tokenStream, compUnit, diagnosticSrc);
+        parser.addParseListener(parserListener);
+        parser.compilationUnit();
+        return parserListener.isInErrorState();
+    }
+
+    private CommonTokenStream createTokenStream(String entryName, byte[] code, BDiagnosticSource diagnosticSrc)
+            throws IOException {
+
+        ANTLRInputStream ais = new ANTLRInputStream(
+                new InputStreamReader(new ByteArrayInputStream(code), StandardCharsets.UTF_8));
+        ais.name = entryName;
+        BallerinaLexer lexer = new BallerinaLexer(ais);
+        lexer.removeErrorListeners();
+        lexer.addErrorListener(new BallerinaParserErrorListener(context, diagnosticSrc));
+        return new CommonTokenStream(lexer);
     }
 
     private BLangParserListener newListener(CommonTokenStream tokenStream,
@@ -149,6 +182,7 @@ public class Parser {
     }
 
     private DefaultErrorStrategy getErrorStrategy(BDiagnosticSource diagnosticSrc) {
+
         DefaultErrorStrategy customErrorStrategy = context.get(DefaultErrorStrategy.class);
         if (customErrorStrategy == null) {
             customErrorStrategy = new BallerinaParserErrorStrategy(context, diagnosticSrc);
@@ -156,5 +190,11 @@ public class Parser {
             ((BallerinaParserErrorStrategy) customErrorStrategy).setDiagnosticSrc(diagnosticSrc);
         }
         return customErrorStrategy;
+    }
+
+    private static int getHash(byte[] code) {
+        // Assuming hash collision is unlikely in a modified source.
+        // Additionaly code.Length is considered to avoid hash collision.
+        return Arrays.hashCode(code);
     }
 }

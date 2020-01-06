@@ -74,7 +74,7 @@ public type Channel client object {
     # + properties - Other properties for the message - routing headers etc.
     # + return - An error if an I/O error is encountered or nil if successful.
     public remote function basicPublish(@untainted MessageContent messageContent, string routingKey,
-                        string exchangeName = "", BasicProperties? properties = ()) returns Error? {
+                        string exchangeName = "", public BasicProperties? properties = ()) returns Error? {
         return nativeBasicPublish(messageContent, java:fromString(routingKey),
          java:fromString(exchangeName), properties, self.amqpChannel);
     }

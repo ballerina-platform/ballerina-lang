@@ -16,13 +16,18 @@
  */
 package org.ballerinalang.jvm;
 
+import org.ballerinalang.jvm.observability.ObservabilityConstants;
+import org.ballerinalang.jvm.observability.ObserveUtils;
+import org.ballerinalang.jvm.observability.ObserverContext;
 import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.scheduling.State;
 import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.connector.CallableUnitCallback;
 
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Semaphore;
 import java.util.function.Function;
@@ -60,9 +65,23 @@ public class BRuntime {
     }
 
     public void invokeMethodAsync(ObjectValue object, String methodName,
-                                  CallableUnitCallback callback, Object... args) {
+                                       CallableUnitCallback callback, Object... args) {
         Function<?, ?> func = o -> object.call((Strand) (((Object[]) o)[0]), methodName, args);
         scheduler.schedule(new Object[1], func, null, callback);
+    }
+
+    public void invokeMethodAsync(ObjectValue object, String methodName,
+                                  CallableUnitCallback callback, Map<String, Object> properties, Object... args) {
+        Function<Object[], Object> func = objects -> {
+            Strand strand = (Strand) objects[0];
+            if (ObserveUtils.isObservabilityEnabled() && properties != null &&
+                    properties.containsKey(ObservabilityConstants.KEY_OBSERVER_CONTEXT)) {
+                strand.observerContext =
+                        (ObserverContext) properties.remove(ObservabilityConstants.KEY_OBSERVER_CONTEXT);
+            }
+            return object.call(strand, methodName, args);
+        };
+        scheduler.schedule(new Object[1], func, null, callback, properties, BTypes.typeNull);
     }
 
     public void invokeMethodSync(ObjectValue object, String methodName, Object... args) {

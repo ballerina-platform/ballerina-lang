@@ -19,6 +19,7 @@
 package org.ballerinalang.net.uri.parser;
 
 import org.ballerinalang.net.uri.URITemplateException;
+import org.ballerinalang.net.uri.URIUtil;
 
 import java.io.UnsupportedEncodingException;
 
@@ -89,7 +90,7 @@ public class URITemplateParser<DataType, InboundMgsType> {
                         }
                         expression = false;
                         String token = segment.substring(startIndex, pointerIndex);
-                        createExpressionNode(token);
+                        createExpressionNode(token, segment, maxIndex, pointerIndex);
                         startIndex = pointerIndex + 1;
                         break;
                     case '*':
@@ -102,7 +103,7 @@ public class URITemplateParser<DataType, InboundMgsType> {
                         if (pointerIndex == maxIndex) {
                             String tokenVal = segment.substring(startIndex);
                             if (expression) {
-                                createExpressionNode(tokenVal);
+                                createExpressionNode(tokenVal, segment, maxIndex, pointerIndex);
                             } else {
                                 addNode(new Literal<>(createElement(), tokenVal));
                             }
@@ -122,9 +123,17 @@ public class URITemplateParser<DataType, InboundMgsType> {
         currentNode = currentNode.addChild(node);
     }
 
-    private void createExpressionNode(String expression) throws URITemplateException {
+    private void createExpressionNode(String expression, String segment, int maxIndex, int pointerIndex)
+            throws URITemplateException {
         Node<DataType, InboundMgsType> node;
-        node = new SimpleStringExpression<>(createElement(), expression);
+        if (maxIndex == pointerIndex) {
+            node = new SimpleStringExpression<>(createElement(), expression);
+        } else if (maxIndex > pointerIndex && segment.charAt(pointerIndex + 1) == URIUtil.DOT_SEGMENT) {
+            node = new DotSuffixExpression<>(createElement(), expression);
+        } else {
+            throw new URITemplateException("Template expression: " + segment + " is not implemented");
+        }
+
         if (expression.length() < 1) {
             throw new URITemplateException("Invalid template expression: {" + expression + "}");
         }

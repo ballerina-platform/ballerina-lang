@@ -29,6 +29,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
+import org.wso2.ballerinalang.compiler.tree.BLangErrorVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangRecordVariable;
@@ -44,6 +45,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckPanickedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
@@ -73,6 +75,8 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttributeAccess;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCompoundAssignment;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangErrorDestructure;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangErrorVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
@@ -350,6 +354,17 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
     }
 
     @Override
+    public void visit(BLangErrorVariable bLangErrorVariable) {
+        this.acceptNode(bLangErrorVariable.typeNode);
+        this.acceptNode(bLangErrorVariable.reason);
+        for (BLangErrorVariable.BLangErrorDetailEntry bLangErrorDetailEntry : bLangErrorVariable.detail) {
+            this.acceptNode(bLangErrorDetailEntry.valueBindingPattern);
+        }
+        this.acceptNode(bLangErrorVariable.restDetail);
+        this.acceptNode(bLangErrorVariable.expr);
+    }
+
+    @Override
     public void visit(BLangTupleVariable bLangTupleVariable) {
         bLangTupleVariable.memberVariables.forEach(this::acceptNode);
         this.acceptNode(bLangTupleVariable.getRestVariable());
@@ -379,6 +394,11 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
 
         // Visit the expression
         this.acceptNode(varDefNode.var.expr);
+    }
+
+    @Override
+    public void visit(BLangErrorVariableDef bLangErrorVariableDef) {
+        this.acceptNode(bLangErrorVariableDef.errorVariable);
     }
 
     @Override
@@ -426,7 +446,7 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
         if (varRefExpr.getVariableName().value.equals(this.tokenName)) {
             DiagnosticPos pos = varRefExpr.getVariableName().getPosition();
             this.addSymbol(varRefExpr, varRefExpr.symbol, false, pos);
-        } else if (varRefExpr.pkgAlias.value.equals(this.tokenName)) {
+        } else if (varRefExpr.pkgAlias != null && varRefExpr.pkgAlias.value.equals(this.tokenName)) {
             DiagnosticPos pos = varRefExpr.pkgAlias.getPosition();
             this.addSymbol(varRefExpr, varRefExpr.pkgSymbol, false, pos);
         }
@@ -548,7 +568,8 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
 
     @Override
     public void visit(BLangErrorType errorType) {
-        // TODO: Complete
+        this.acceptNode(errorType.reasonType);
+        this.acceptNode(errorType.detailType);
     }
 
     @Override
@@ -569,8 +590,10 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
         BLangFunction funcNode = bLangLambdaFunction.function;
         funcNode.annAttachments.forEach(this::acceptNode);
         funcNode.requiredParams.forEach(this::acceptNode);
-        this.acceptNode(funcNode.restParam);
-        this.acceptNode(funcNode.restParam.typeNode);
+        if (funcNode.restParam != null) {
+            this.acceptNode(funcNode.restParam);
+            this.acceptNode(funcNode.restParam.typeNode);
+        }
         funcNode.externalAnnAttachments.forEach(this::acceptNode);
         funcNode.returnTypeAnnAttachments.forEach(this::acceptNode);
         this.acceptNode(funcNode.returnTypeNode);
@@ -591,6 +614,7 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
             DiagnosticPos symbolPos = (DiagnosticPos) invocationExpr.getName().getPosition();
             this.addSymbol(invocationExpr, invocationExpr.symbol, false, symbolPos);
         }
+        invocationExpr.requiredArgs.forEach(this::acceptNode);
         invocationExpr.argExprs.forEach(this::acceptNode);
     }
 
@@ -766,6 +790,20 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
     public void visit(BLangWaitForAllExpr.BLangWaitKeyValue waitKeyValue) {
         this.acceptNode(waitKeyValue.keyExpr);
         this.acceptNode(waitKeyValue.valueExpr);
+    }
+
+    @Override
+    public void visit(BLangErrorDestructure stmt) {
+        this.acceptNode(stmt.varRef);
+        this.acceptNode(stmt.expr);
+    }
+
+    @Override
+    public void visit(BLangErrorVarRef varRefExpr) {
+        this.acceptNode(varRefExpr.typeNode);
+        this.acceptNode(varRefExpr.reason);
+        varRefExpr.detail.forEach(bLangNamedArgsExpression -> this.acceptNode(bLangNamedArgsExpression.expr));
+        this.acceptNode(varRefExpr.restVar);
     }
 
     private void acceptNode(BLangNode node) {

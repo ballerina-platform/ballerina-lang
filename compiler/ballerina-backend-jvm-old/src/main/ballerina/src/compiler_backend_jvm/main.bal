@@ -89,7 +89,7 @@ function generateJarBinary(string pathToEntryBir, string mapPath, boolean dumpBi
 }
 
 function isEmpty(string s) returns boolean {
-    return s == "" || s == " ";
+    return s.trim() == "";
 }
 
 function readMap(string path) returns map<string> {

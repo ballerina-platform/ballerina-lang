@@ -23,6 +23,7 @@ import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.JSONParser;
 import org.ballerinalang.jvm.JSONUtils;
+import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.XMLFactory;
 import org.ballerinalang.jvm.types.AttachedFunction;
@@ -68,7 +69,8 @@ public class Utils {
                 break;
             case TypeTags.JSON_TAG:
                 try {
-                    dispatchedData = JSONParser.parse(new String(data, StandardCharsets.UTF_8));
+                    Object json = JSONParser.parse(new String(data, StandardCharsets.UTF_8));
+                    dispatchedData = json instanceof String ? StringUtils.fromString((String) json) : json;
                 } catch (BallerinaException e) {
                     throw createNatsError("Error occurred in converting message content to json: " +
                             e.getMessage());
@@ -94,7 +96,7 @@ public class Utils {
                 break;
             case TypeTags.RECORD_TYPE_TAG:
                 dispatchedData = JSONUtils.convertJSONToRecord(JSONParser.parse(new String(data,
-                                StandardCharsets.UTF_8)), (BRecordType) intendedType);
+                        StandardCharsets.UTF_8)), (BRecordType) intendedType);
                 break;
             default:
                 throw Utils.createNatsError("Unable to find a supported data type to bind the message data");

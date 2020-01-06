@@ -248,9 +248,7 @@ function getTableCountValColumn(table<ResultCount> | error result) returns int {
     if (result is table<ResultCount>) {
         while (result.hasNext()) {
             var rs = result.getNext();
-            if (rs is ResultCount) {
-                count = rs.COUNTVAL;
-            }
+            count = rs.COUNTVAL;
         }
         return count;
     }

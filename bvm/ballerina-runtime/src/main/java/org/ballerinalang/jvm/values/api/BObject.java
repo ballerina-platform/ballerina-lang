@@ -19,10 +19,6 @@ package org.ballerinalang.jvm.values.api;
 
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BObjectType;
-import org.ballerinalang.jvm.values.ArrayValue;
-import org.ballerinalang.jvm.values.FutureValue;
-import org.ballerinalang.jvm.values.MapValueImpl;
-import org.ballerinalang.jvm.values.ObjectValue;
 
 import java.util.HashMap;
 
@@ -33,11 +29,11 @@ import java.util.HashMap;
  *
  * @since 1.1.0
  */
-public interface BObject extends ObjectValue {
+public interface BObject extends BRefValue {
 
     Object call(Strand strand, String funcName, Object... args);
 
-    FutureValue start(Strand strand, String funcName, Object... args);
+    BFuture start(Strand strand, String funcName, Object... args);
 
     BObjectType getType();
 
@@ -51,11 +47,11 @@ public interface BObject extends ObjectValue {
 
     boolean getBooleanValue(String fieldName);
 
-    MapValueImpl getMapValue(String fieldName);
+    BMap<?, ?> getMapValue(String fieldName);
 
     BObject getObjectValue(String fieldName);
 
-    ArrayValue getArrayValue(String fieldName);
+    BArray getArrayValue(String fieldName);
 
     void addNativeData(String key, Object data);
 

@@ -168,6 +168,8 @@ function emitInsNewArray(NewArray ins, int tabs) returns string {
     str += emitSpaces(1);
     str += "=";
     str += emitSpaces(1);
+    str += "newArray";
+    str += emitSpaces(1);
     str += emitTypeRef(ins.typeValue);
     str += "[";
     str += emitVarRef(ins.sizeOp);
@@ -197,21 +199,41 @@ function emitInsNewError(NewError ins, int tabs) returns string {
 }
  
 function emitInsFPLoad(FPLoad ins, int tabs) returns string {
-    // TODO fill this 
-    return "";
-}
- 
-function emitInsFieldAccess(FieldAccess ins, int tabs) returns string {
     string str = "";
     str += emitTabs(tabs);
     str += emitVarRef(ins.lhsOp);
     str += emitSpaces(1);
     str += "=";
     str += emitSpaces(1);
-    str += emitVarRef(ins.rhsOp);
-    str += "[";
-    str += emitVarRef(ins.keyOp);
-    str += "]";
+    str += "fp";
+    str += emitSpaces(1);
+    str += emitName(ins.name);
+    // TODO add params and closure maps
+    str += ";";
+    return str;
+}
+ 
+function emitInsFieldAccess(FieldAccess ins, int tabs) returns string {
+    string str = "";
+    str += emitTabs(tabs);
+    str += emitVarRef(ins.lhsOp);
+    if ins.kind is INS_KIND_MAP_LOAD | INS_KIND_ARRAY_LOAD {
+        str += emitSpaces(1);
+        str += "=";
+        str += emitSpaces(1);
+        str += emitVarRef(ins.rhsOp);
+        str += "[";
+        str += emitVarRef(ins.keyOp);
+        str += "]";
+    } else if ins.kind is INS_KIND_MAP_STORE | INS_KIND_ARRAY_STORE {
+        str += "[";
+        str += emitVarRef(ins.keyOp);
+        str += "]";
+        str += emitSpaces(1);
+        str += "=";
+        str += emitSpaces(1);
+        str += emitVarRef(ins.rhsOp);
+    }
     str += ";";
     return str;
 }
@@ -223,10 +245,11 @@ function emitInsTypeCast(TypeCast ins, int tabs) returns string {
     str += emitSpaces(1);
     str += "=";
     str += emitSpaces(1);
-    str += emitVarRef(ins.rhsOp);
     str += "<";
     str += emitTypeRef(ins.castType);
     str += ">";
+    str += emitSpaces(1);
+    str += emitVarRef(ins.rhsOp);
     str += ";";
     return str;
 }
@@ -340,8 +363,17 @@ function emitInsUnaryOp(UnaryOp ins, int tabs) returns string {
 }
  
 function emitInsNewTypeDesc(NewTypeDesc ins, int tabs) returns string {
-    // TODO fill this 
-    return "";
+    string str = "";
+    str += emitTabs(tabs);
+    str += emitVarRef(ins.lhsOp);
+    str += emitSpaces(1);
+    str += "=";
+    str += emitSpaces(1);
+    str += "newType";
+    str += emitSpaces(1);
+    str += emitTypeRef(ins.typeValue);
+    str += ";";
+    return str;
 }
  
 /////////////// Emit Terminator instructions ////////////////////
@@ -382,23 +414,107 @@ function emitTerminator(Terminator term, int tabs) returns string {
 }
 
 function emitWait(Wait term, int tabs) returns string { 
-    // TODO fill this 
-    return "";
+    string str = "";
+    str += emitTabs(tabs);
+    str += emitVarRef(term.lhsOp);
+    str += emitSpaces(1);
+    str += "=";
+    str += emitSpaces(1);
+    str += "wait";
+    str += emitSpaces(1);
+    int i = 0;
+    int argLength = term.exprList.length();
+    while i < argLength {
+        VarRef? ref = term.exprList[i];
+        if ref is VarRef {
+            str += emitVarRef(ref);
+            i += 1;
+            if i < argLength {
+                str += emitSpaces(1);
+                str += "|";
+                str += emitSpaces(1);
+            }
+        }
+    }
+    str += emitSpaces(1);
+    str += "->";
+    str += emitSpaces(1);
+    str += emitBasicBlockRef(term.thenBB);
+    str += ";";
+    return str;
 }
 
 function emitFlush(Flush term, int tabs) returns string { 
-    // TODO fill this 
-    return "";
+    string str = "";
+    str += emitTabs(tabs);
+    str += emitVarRef(term.lhsOp);
+    str += emitSpaces(1);
+    str += "=";
+    str += emitSpaces(1);
+    str += "flush";
+    str += emitSpaces(1);
+    int i = 0;
+    int argLength = term.workerChannels.length();
+    while i < argLength {
+        ChannelDetail ref = term.workerChannels[i];
+        str += emitName(ref.name);
+        i += 1;
+        if i < argLength {
+            str += ",";
+            str += emitSpaces(1);
+        }
+    }
+    str += emitSpaces(1);
+    str += "->";
+    str += emitSpaces(1);
+    str += emitBasicBlockRef(term.thenBB);
+    str += ";";
+    return str;
 }
 
 function emitWorkerReceive(WorkerReceive term, int tabs) returns string { 
-    // TODO fill this 
-    return "";
+    string str = "";
+    str += emitTabs(tabs);
+    str += emitVarRef(term.lhsOp);
+    str += emitSpaces(1);
+    str += "=";
+    str += emitSpaces(1);
+    str += "<=";
+    str += emitSpaces(1);
+    str += emitName(term.channelName);
+    str += emitSpaces(1);
+    str += "->";
+    str += emitSpaces(1);
+    str += emitBasicBlockRef(term.thenBB);
+    str += ";";
+    return str;
 }
 
 function emitWorkerSend(WorkerSend term, int tabs) returns string { 
-    // TODO fill this 
-    return "";
+    string str = "";
+    str += emitTabs(tabs);
+    VarRef? lhsOp = term.lhsOp;
+    if lhsOp is VarRef {
+        str += emitVarRef(lhsOp);
+        str += emitSpaces(1);
+        str += "=";
+        str += emitSpaces(1);
+    }
+    str += emitVarRef(term.dataOp);
+    str += emitSpaces(1);
+    if term.isSync {
+        str += "=>";
+    } else {
+        str += "=>>";
+    }
+    str += emitSpaces(1);
+    str += emitName(term.channelName);
+    str += emitSpaces(1);
+    str += "->";
+    str += emitSpaces(1);
+    str += emitBasicBlockRef(term.thenBB);
+    str += ";";
+    return str;
 }
 
 function emitCall(Call term, int tabs) returns string { 
@@ -495,18 +611,89 @@ function emitGOTO(GOTO term, int tabs) returns string {
 }
 
 function emitLock(Lock term, int tabs) returns string { 
-    // TODO fill this 
-    return "";
+    string str = "";
+    str += emitTabs(tabs);
+    str += "lock";
+    str += emitSpaces(1);
+    str += emitName(term.globleVar.name);
+    str += emitSpaces(1);
+    str += "->";
+    str += emitSpaces(1);
+    str += emitBasicBlockRef(term.lockBB);
+    str += ";";
+    return str;
 }
 
 function emitFieldLock(FieldLock term, int tabs) returns string { 
-    // TODO fill this 
-    return "";
+    string str = "";
+    str += emitTabs(tabs);
+    str += "lock";
+    str += emitSpaces(1);
+    str += emitName(term.localVar.name);
+    str += "[\"";
+    str += term.field;
+    str += "\"]";
+    str += emitSpaces(1);
+    str += "->";
+    str += emitSpaces(1);
+    str += emitBasicBlockRef(term.lockBB);
+    str += ";";
+    return str;
 }
 
 function emitUnlock(Unlock term, int tabs) returns string { 
-    // TODO fill this 
-    return "";
+    string str = "";
+    str += emitTabs(tabs);
+    str += "unlock";
+    str += emitSpaces(1);
+    str += "(";
+    int i = 0;
+    int argLength = term.globleVars.length();
+    foreach VariableDcl? ref in term.globleVars {
+        if ref is VariableDcl {
+            str += emitName(ref.name);
+            i += 1;
+            if i < argLength {
+                str += ",";
+                str += emitSpaces(1);
+            }
+        }
+    }
+    str += ")";
+    str += emitSpaces(1);
+    str += "(";
+    i = 0;
+    argLength = term.localLocks.length();
+    foreach LocalLocks? ref in term.localLocks {
+        if ref is LocalLocks {
+            int j = 0;
+            int length = ref.fields.length();
+            foreach string f in ref.fields {
+                str += emitName(ref.localVar.name);
+                str += "[\"";
+                str += f;
+                str += "\"]";
+                j += 1;
+                if j < length {
+                    str += ",";
+                    str += emitSpaces(1);
+                }
+            }
+            
+            i += 1;
+            if i < argLength {
+                str += ",";
+                str += emitSpaces(1);
+            }
+        }
+    }
+    str += ")";
+    str += emitSpaces(1);
+    str += "->";
+    str += emitSpaces(1);
+    str += emitBasicBlockRef(term.unlockBB);
+    str += ";";
+    return str;
 }
 
 function emitReturn(Return term, int tabs) returns string { 
@@ -528,13 +715,76 @@ function emitPanic(Panic term, int tabs) returns string {
 }
 
 function emitFPCall(FPCall term, int tabs) returns string { 
-    // TODO fill this 
-    return "";
+    string callStr = "";
+    callStr += emitTabs(tabs);
+    VarRef? lhsOp = term.lhsOp;
+    if lhsOp is VarRef {
+        callStr += emitVarRef(lhsOp);
+        callStr += emitSpaces(1);
+        callStr += "=";
+        callStr += emitSpaces(1);
+    }
+    callStr += "FPCall";
+    callStr += emitSpaces(1);
+    callStr += emitVarRef(term.fp);
+    callStr += "(";
+    int i = 0;
+    int argLength = term.args.length();
+    foreach VarRef? ref in term.args {
+        if ref is VarRef {
+            callStr += emitVarRef(ref);
+            i += 1;
+            if i < argLength {
+                callStr += ",";
+                callStr += emitSpaces(1);
+            }
+        }
+    }
+    callStr += ")";
+    callStr += emitSpaces(1);
+    callStr += "->";
+    callStr += emitSpaces(1);
+    callStr += emitBasicBlockRef(term.thenBB);
+    callStr += ";";
+    return callStr;
 }
 
 function emitWaitAll(WaitAll term, int tabs) returns string { 
-    // TODO fill this 
-    return "";
+    string str = "";
+    str += emitTabs(tabs);
+    str += emitVarRef(term.lhsOp);
+    str += emitSpaces(1);
+    str += "=";
+    str += emitSpaces(1);
+    str += "waitAll";
+    str += emitSpaces(1);
+    str += "{";
+    int i = 0;
+    int argLength = term.futures.length();
+    while i < argLength {
+        VarRef? ref = term.futures[i];
+        string key = term.keys[i];
+        if ref is VarRef {
+            str += "\"";
+            str += key;
+            str += "\"";
+            str += ":";
+            str += emitSpaces(1);
+            str += emitVarRef(ref);
+            i += 1;
+            if i < argLength {
+                str += ",";
+                str += emitSpaces(1);
+            }
+        }
+    }
+    str += "}";
+    str += emitSpaces(1);
+    str += "->";
+    str += emitSpaces(1);
+    str += emitBasicBlockRef(term.thenBB);
+    str += ";";
+    return str;
 }
 
 

@@ -20,9 +20,7 @@ service Hello on helloEp {
         path: "/hello"
     }
     resource function hello(http:Caller caller, http:Request req) {
-        http:Response res = new;
-        res.setPayload("Hello");
-        var result = caller->respond(res);
+        var result = caller->respond("Hello");
         if (result is error) {
             log:printError("Error when responding", err = result);
         }

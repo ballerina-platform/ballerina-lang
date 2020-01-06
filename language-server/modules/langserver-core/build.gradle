@@ -75,7 +75,6 @@ dependencies {
     implementation project(':ballerina-task')
     implementation project(':ballerina-time')
     implementation project(':ballerina-transactions')
-    implementation project(':ballerina-utils')
 //    implementation project(':ballerina-websub')
     implementation project(':testerina:testerina-core')
     implementation project(':ballerina-tool')
@@ -125,7 +124,6 @@ dependencies {
     baloImplementation project(path: ':ballerina-task', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-time', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-transactions', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-utils', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-stringutils', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-java', configuration: 'baloImplementation')
 //    baloImplementation project(path: ':ballerina-websub', configuration: 'baloImplementation')
@@ -206,3 +204,13 @@ test {
         suites 'src/test/resources/testng.xml'
     }
 }
+
+task buildAndCopy(type: Copy) {
+    dependsOn build
+    from 'build/libs/language-server-core-' + project.version + '.jar'
+    into  project(':jballerina-tools').projectDir.absolutePath +
+        '/build/extracted-distributions/jballerina-tools-' + project.version +
+        '/bre/lib';
+}
+
+

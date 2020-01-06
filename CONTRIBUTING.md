@@ -32,7 +32,7 @@ We appreciate your help!
 
 If you are unsure whether you have found a bug, please consider searching existing issues in github and asking in Ballerina-Dev Google Group.
 
-> IMPORTANT: Sensitive security-related issues should be reported to [security@ballerina.io](security@ballerina.io). See the security policy for details.
+> IMPORTANT: Sensitive security-related issues should be reported to [security@ballerina.io](security@ballerina.io). For details, see the [security policy](https://ballerina.io/security/).
 
 To file non-security issues:
 
@@ -192,5 +192,4 @@ Please find details at: [https://chris.beams.io/posts/git-commit/](https://chris
 Start with the discussion in the Ballerina-Dev Google Group.
 
 Once there is enough consensus around the proposal, you will likely be asked to file an Issue in GitHub and label it as Proposal, to continue the discussion on details there.
-
 

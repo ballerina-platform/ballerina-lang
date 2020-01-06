@@ -26,7 +26,7 @@ import org.ballerinalang.jvm.values.api.BArray;
  * 
  * @since 1.1.0
  */
-public interface ArrayValue extends RefValue, BArray {
+public interface ArrayValue extends RefValue, BArray, CollectionValue {
 
     String getJSONString();
 
