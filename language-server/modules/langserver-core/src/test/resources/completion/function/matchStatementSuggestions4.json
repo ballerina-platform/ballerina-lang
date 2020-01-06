@@ -152,7 +152,7 @@
             "documentation": {
                 "right": {
                     "kind": "markdown",
-                    "value": "Indicates that the client is only accepting responses whose freshness lifetime \u003e\u003d current age + min-fresh."
+                    "value": "Indicates that the client is only accepting responses whose freshness lifetime >= current age + min-fresh."
                 }
             },
             "sortText": "130",
@@ -283,6 +283,48 @@
             },
             "sortText": "130",
             "insertText": "RFC_7234",
+            "insertTextFormat": "Snippet"
+        },
+        {
+            "label": "HTTP_1_0",
+            "kind": "Variable",
+            "detail": "string",
+            "documentation": {
+                "right": {
+                    "kind": "markdown",
+                    "value": "Represents HTTP/1.0 protocol"
+                }
+            },
+            "sortText": "130",
+            "insertText": "HTTP_1_0",
+            "insertTextFormat": "Snippet"
+        },
+        {
+            "label": "HTTP_1_1",
+            "kind": "Variable",
+            "detail": "string",
+            "documentation": {
+                "right": {
+                    "kind": "markdown",
+                    "value": "Represents HTTP/1.1 protocol"
+                }
+            },
+            "sortText": "130",
+            "insertText": "HTTP_1_1",
+            "insertTextFormat": "Snippet"
+        },
+        {
+            "label": "HTTP_2_0",
+            "kind": "Variable",
+            "detail": "string",
+            "documentation": {
+                "right": {
+                    "kind": "markdown",
+                    "value": "Represents HTTP/2.0 protocol"
+                }
+            },
+            "sortText": "130",
+            "insertText": "HTTP_2_0",
             "insertTextFormat": "Snippet"
         },
         {
@@ -2503,7 +2545,7 @@
             "kind": "Struct",
             "detail": "Record",
             "documentation": {
-                "left": "Provides configurations for controlling the endpoint\u0027s behaviour in response to HTTP redirect related responses.\n"
+                "left": "Provides configurations for controlling the endpoint's behaviour in response to HTTP redirect related responses.\n"
             },
             "sortText": "180",
             "insertText": "FollowRedirects",
@@ -2580,7 +2622,7 @@
             "kind": "Interface",
             "detail": "Object",
             "documentation": {
-                "left": "Represents a \u0027future\u0027 that returns as a result of an asynchronous HTTP request submission.\nThis can be used as a reference to fetch the results of the submission."
+                "left": "Represents a 'future' that returns as a result of an asynchronous HTTP request submission.\nThis can be used as a reference to fetch the results of the submission."
             },
             "sortText": "190",
             "insertText": "HttpFuture",
@@ -3757,13 +3799,13 @@
             }
         },
         {
-            "label": "parseHeader(string headerValue)(([string,map\u003cany\u003e]|http:FailoverAllEndpointsFailedError|http:FailoverActionFailedError|http:UpstreamServiceUnavailableError|http:AllLoadBalanceEndpointsFailedError|http:AllRetryAttemptsFailed|http:IdleTimeoutError|http:AuthenticationError|http:AuthorizationError|http:InitializingOutboundRequestError|http:WritingOutboundRequestHeadersError|http:WritingOutboundRequestBodyError|http:InitializingInboundResponseError|http:ReadingInboundResponseHeadersError|http:ReadingInboundResponseBodyError|http:UnsupportedActionError|http:Http2ClientError|http:MaximumWaitTimeExceededError|http:SslError|http:GenericClientError))",
+            "label": "parseHeader(string headerValue)(([string,map<any>]|http:FailoverAllEndpointsFailedError|http:FailoverActionFailedError|http:UpstreamServiceUnavailableError|http:AllLoadBalanceEndpointsFailedError|http:AllRetryAttemptsFailed|http:IdleTimeoutError|http:AuthenticationError|http:AuthorizationError|http:InitializingOutboundRequestError|http:WritingOutboundRequestHeadersError|http:WritingOutboundRequestBodyError|http:InitializingInboundResponseError|http:ReadingInboundResponseHeadersError|http:ReadingInboundResponseBodyError|http:UnsupportedActionError|http:Http2ClientError|http:MaximumWaitTimeExceededError|http:SslError|http:GenericClientError))",
             "kind": "Function",
             "detail": "Function",
             "documentation": {
                 "right": {
                     "kind": "markdown",
-                    "value": "**Package:** _ballerina/http_  \n  \nParses the given header value to extract its value and parameter map.\n  \n**Params**  \n- `string` headerValue: The header value  \n  \n**Returns** `([string,map\u003cany\u003e]|http:FailoverAllEndpointsFailedError|http:FailoverActionFailedError|http:UpstreamServiceUnavailableError|http:AllLoadBalanceEndpointsFailedError|http:AllRetryAttemptsFailed|http:IdleTimeoutError|http:AuthenticationError|http:AuthorizationError|http:InitializingOutboundRequestError|http:WritingOutboundRequestHeadersError|http:WritingOutboundRequestBodyError|http:InitializingInboundResponseError|http:ReadingInboundResponseHeadersError|http:ReadingInboundResponseBodyError|http:UnsupportedActionError|http:Http2ClientError|http:MaximumWaitTimeExceededError|http:SslError|http:GenericClientError)`   \n- Returns a tuple containing the value and its parameter map  \n  \n"
+                    "value": "**Package:** _ballerina/http_  \n  \nParses the given header value to extract its value and parameter map.\n  \n**Params**  \n- `string` headerValue: The header value  \n  \n**Returns** `([string,map<any>]|http:FailoverAllEndpointsFailedError|http:FailoverActionFailedError|http:UpstreamServiceUnavailableError|http:AllLoadBalanceEndpointsFailedError|http:AllRetryAttemptsFailed|http:IdleTimeoutError|http:AuthenticationError|http:AuthorizationError|http:InitializingOutboundRequestError|http:WritingOutboundRequestHeadersError|http:WritingOutboundRequestBodyError|http:InitializingInboundResponseError|http:ReadingInboundResponseHeadersError|http:ReadingInboundResponseBodyError|http:UnsupportedActionError|http:Http2ClientError|http:MaximumWaitTimeExceededError|http:SslError|http:GenericClientError)`   \n- Returns a tuple containing the value and its parameter map  \n  \n"
                 }
             },
             "sortText": "120",
