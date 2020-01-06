@@ -275,4 +275,101 @@ public class OpenApiGenServiceCmdTest extends OpenAPICommandTest {
         }
     }
 
+    @Test(description = "Test open-api genservice for successful service generation with all of schema type")
+    public void testAllOfSchemaGen() throws IOException {
+        Path allOfYaml = RES_DIR.resolve(Paths.get("allof-petstore.yaml"));
+        createBalProjectModule(petProject, "allOfModule");
+        String[] args = {"allOfModule:allOfService", allOfYaml.toString()};
+
+        OpenApiGenServiceCmd cmd = new OpenApiGenServiceCmd(printStream, petProject.getBalProjectPath().toString());
+        new CommandLine(cmd).parseArgs(args);
+
+        String output = "";
+        try {
+            cmd.execute();
+        } catch (BLauncherException e) {
+            output = e.getDetailedMessages().get(0);
+        }
+
+        Path expectedServiceFile = RES_DIR.resolve(Paths.get("expected_gen",
+                "allOf-schema-petstore.bal"));
+
+        Stream<String> expectedServiceLines = Files.lines(expectedServiceFile);
+        String expectedSchema = expectedServiceLines.collect(Collectors.joining("\n"));
+
+        if (Files.exists(petProject.getResourcePath().resolve(allOfYaml.getFileName()))
+                && Files.exists(petProject.getSrcPath().resolve("allOfModule").resolve("allOfService.bal"))) {
+
+            Stream<String> serviceLines = Files.lines(petProject.getSrcPath()
+                    .resolve("allOfModule").resolve("schema.bal"));
+            String generatedSchema = serviceLines.collect(Collectors.joining("\n"));
+            serviceLines.close();
+
+            Pattern pattern = Pattern.compile("\\bcontract\\b: \"(.*?)\"");
+            Matcher matcher = pattern.matcher(generatedSchema);
+            matcher.find();
+
+            if (expectedSchema.trim().equals(generatedSchema.trim())) {
+                Assert.assertTrue(true);
+            } else {
+                Assert.fail("Expected content and actual generated content is mismatched for: "
+                        + allOfYaml.toString());
+            }
+
+        } else {
+            Assert.fail("Service generation for inline request body type failed.");
+        }
+    }
+
+    @Test(description = "Test open-api genservice for successful service generation with OneOf schema type")
+    public void testOneOfSchemaGen() throws IOException {
+        Path allOfYaml = RES_DIR.resolve(Paths.get("oneof-petstore.yaml"));
+        createBalProjectModule(petProject, "oneOfModule");
+        String[] args = {"oneOfModule:oneOfService", allOfYaml.toString()};
+
+        OpenApiGenServiceCmd cmd = new OpenApiGenServiceCmd(printStream, petProject.getBalProjectPath().toString());
+        new CommandLine(cmd).parseArgs(args);
+
+        String output = "";
+        try {
+            cmd.execute();
+        } catch (BLauncherException e) {
+            output = e.getDetailedMessages().get(0);
+        }
+
+        Path expectedServiceFile = RES_DIR.resolve(Paths.get("expected_gen",
+                "oneOf-schema-petstore.bal"));
+
+        Stream<String> expectedServiceLines = Files.lines(expectedServiceFile);
+        String expectedService = expectedServiceLines.collect(Collectors.joining("\n"));
+
+        if (Files.exists(petProject.getResourcePath().resolve(allOfYaml.getFileName()))
+                && Files.exists(petProject.getSrcPath().resolve("oneOfModule").resolve("oneOfService.bal"))) {
+
+            Stream<String> serviceLines = Files.lines(petProject.getSrcPath()
+                    .resolve("oneOfModule").resolve("oneOfService.bal"));
+            String generatedService = serviceLines.collect(Collectors.joining("\n"));
+            serviceLines.close();
+
+            Pattern pattern = Pattern.compile("\\bcontract\\b: \"(.*?)\"");
+            Matcher matcher = pattern.matcher(generatedService);
+            matcher.find();
+
+            String contractPath = "contract: " + "\"" + matcher.group(1)  + "\"";
+            expectedService = expectedService.replaceAll("\\bcontract\\b: \"(.*?)\"",
+                    Matcher.quoteReplacement(contractPath));
+            expectedServiceLines.close();
+
+            if (expectedService.trim().equals(generatedService.trim())) {
+                Assert.assertTrue(true);
+            } else {
+                Assert.fail("Expected content and actual generated content is mismatched for: "
+                        + allOfYaml.toString());
+            }
+
+        } else {
+            Assert.fail("Service generation for inline request body type failed.");
+        }
+    }
+
 }

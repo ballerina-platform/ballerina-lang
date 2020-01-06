@@ -11,11 +11,11 @@ import io.swagger.v3.oas.models.media.Schema;
 import io.swagger.v3.oas.models.parameters.Parameter;
 import io.swagger.v3.oas.models.parameters.RequestBody;
 import org.ballerinalang.openapi.exception.BallerinaOpenApiException;
-import org.ballerinalang.openapi.typemodel.BallerinaIOpennApiRequestBody;
 import org.ballerinalang.openapi.typemodel.BallerinaOpenApiComponent;
 import org.ballerinalang.openapi.typemodel.BallerinaOpenApiOperation;
 import org.ballerinalang.openapi.typemodel.BallerinaOpenApiParameter;
 import org.ballerinalang.openapi.typemodel.BallerinaOpenApiPath;
+import org.ballerinalang.openapi.typemodel.BallerinaOpenApiRequestBody;
 import org.ballerinalang.openapi.typemodel.BallerinaOpenApiSchema;
 import org.ballerinalang.openapi.typemodel.BallerinaOpenApiType;
 
@@ -180,9 +180,9 @@ public class TypeExtractorUtil {
      * @return - Ballerina compatible request body type
      * @throws BallerinaOpenApiException - throws exception if extraction fails.
      */
-    private static BallerinaIOpennApiRequestBody extractOpenApiRequestBody(RequestBody requestBody)
+    private static BallerinaOpenApiRequestBody extractOpenApiRequestBody(RequestBody requestBody)
             throws BallerinaOpenApiException {
-        BallerinaIOpennApiRequestBody requestType = new BallerinaIOpennApiRequestBody();
+        BallerinaOpenApiRequestBody requestType = new BallerinaOpenApiRequestBody();
 
         if (requestBody.get$ref() != null) {
             requestType.setRefType(extractReferenceType(requestBody.get$ref()));

@@ -3,7 +3,7 @@ package org.ballerinalang.openapi.typemodel;
 /**
  * This class contains the OpenApi RequestBody Type Object.
  */
-public class BallerinaIOpennApiRequestBody {
+public class BallerinaOpenApiRequestBody {
     private BallerinaOpenApiSchema contentType;
     private String refType;
 

@@ -9,13 +9,13 @@ public class BallerinaOpenApiOperation {
     private String opMethod;
     private String opName;
     private List<BallerinaOpenApiParameter> parameterList;
-    private BallerinaIOpennApiRequestBody requestBody;
+    private BallerinaOpenApiRequestBody requestBody;
 
-    public BallerinaIOpennApiRequestBody getRequestBody() {
+    public BallerinaOpenApiRequestBody getRequestBody() {
         return requestBody;
     }
 
-    public void setRequestBody(BallerinaIOpennApiRequestBody requestBody) {
+    public void setRequestBody(BallerinaOpenApiRequestBody requestBody) {
         this.requestBody = requestBody;
     }
 
