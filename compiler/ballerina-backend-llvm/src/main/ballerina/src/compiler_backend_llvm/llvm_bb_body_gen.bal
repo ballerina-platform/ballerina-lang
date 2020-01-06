@@ -95,21 +95,23 @@ type BbBodyGenrator object {
     function genConstantLoadIns(bir:ConstantLoad constLoad) {
         if (constLoad.value is int) {
             self.genIntConstLoadIns(constLoad);
-        } else {
+        } else if (constLoad.value is boolean) {
             self.genBoolConstLoadIns(constLoad);
+        } else {
+            panic error("InvalidDataTypeForConstLoad", message = "Unsupported Data type provided for constant load");
         }
     }
 
     function genIntConstLoadIns(bir:ConstantLoad constLoad) {
         llvm:LLVMValueRef lhsRef = self.parent.getLocalVarRef(constLoad.lhsOp);
         var constRef = llvm:llvmConstInt(llvm:llvmInt64Type(), <int>constLoad.value, 0);
-        var loaded = llvm:llvmBuildStore(self.builder, constRef, <llvm:LLVMValueRef>lhsRef);
+        _ = llvm:llvmBuildStore(self.builder, constRef, <llvm:LLVMValueRef>lhsRef);
     }
 
     function genBoolConstLoadIns(bir:ConstantLoad constLoad) {
         llvm:LLVMValueRef lhsRef = self.parent.getLocalVarRef(constLoad.lhsOp);
         var constRef = llvm:llvmConstInt(llvm:llvmInt1Type(), <boolean>constLoad.value?1:0, 0);
-        var loaded = llvm:llvmBuildStore(self.builder, constRef, <llvm:LLVMValueRef>lhsRef);
+        _ = llvm:llvmBuildStore(self.builder, constRef, <llvm:LLVMValueRef>lhsRef);
     }
 
     function genMoveIns(bir:Move moveIns) {
@@ -119,7 +121,7 @@ type BbBodyGenrator object {
         llvm:LLVMValueRef lhsRef = self.parent.getLocalVarRef(moveIns.lhsOp);
         var rhsVarOp = moveIns.rhsOp;
         llvm:LLVMValueRef rhsVarOpRef = self.parent.genLoadLocalToTempVar(rhsVarOp);
-        var loaded = <llvm:LLVMValueRef> llvm:llvmBuildStore(self.builder, rhsVarOpRef, lhsRef);
+        _ = llvm:llvmBuildStore(self.builder, rhsVarOpRef, lhsRef);
     }
 
     function castLhsOpForMoveIns (bir:Move moveIns) {
