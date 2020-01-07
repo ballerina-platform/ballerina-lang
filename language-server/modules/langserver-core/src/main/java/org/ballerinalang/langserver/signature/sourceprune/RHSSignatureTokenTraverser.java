@@ -32,7 +32,7 @@ import java.util.Optional;
  *
  * @since 1.1.1
  */
-public class RHSSignatureTokenTraverser extends AbstractTokenTraverser {
+class RHSSignatureTokenTraverser extends AbstractTokenTraverser {
     private final List<Integer> rhsTraverseTerminals;
     private final boolean addSemiColon;
     private int pendingRightParenthesis;

@@ -35,7 +35,7 @@ import java.util.stream.Collectors;
  * 
  * @since 0.995.0
  */
-public class LHSCompletionsTokenTraverser extends AbstractTokenTraverser {
+class LHSCompletionsTokenTraverser extends AbstractTokenTraverser {
     private List<Integer> lhsTraverseTerminals;
     private List<Integer> blockRemoveKWTerminals;
     private boolean removeBlock;

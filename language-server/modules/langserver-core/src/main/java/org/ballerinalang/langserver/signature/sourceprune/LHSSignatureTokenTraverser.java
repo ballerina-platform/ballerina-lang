@@ -34,7 +34,7 @@ import java.util.Optional;
  *
  * @since 1.1.1
  */
-public class LHSSignatureTokenTraverser extends AbstractTokenTraverser {
+class LHSSignatureTokenTraverser extends AbstractTokenTraverser {
     private List<Integer> lhsTraverseTerminals;
     private SourcePruneContext sourcePruneContext;
     private boolean forcedProcessedToken = false;
