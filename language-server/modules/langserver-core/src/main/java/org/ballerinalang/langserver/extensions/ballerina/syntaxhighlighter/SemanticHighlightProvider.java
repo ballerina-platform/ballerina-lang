@@ -80,13 +80,16 @@ public static SemanticHighlightingParams getHighlights
                 } else {
                     lineInfo.put(line, token);
                 }
-                String tokenArr = Arrays.toString(lineInfo.get(line));
-                String encodedToken = Base64.getEncoder()
-                        .encodeToString(tokenArr.getBytes(Charset.forName("UTF-8")));
-                SemanticHighlightingInformation semanticHighlightingInformation
-                        = new SemanticHighlightingInformation(line, encodedToken);
-                semanticHighlightingInformationArr.add(semanticHighlightingInformation);
             });
+    for (Map.Entry mapElement : lineInfo.entrySet()) {
+        Integer key = (Integer) mapElement.getKey();
+        String tokenArr = Arrays.toString(lineInfo.get(key));
+        String encodedToken = Base64.getEncoder()
+                .encodeToString(tokenArr.getBytes(Charset.forName("UTF-8")));
+        SemanticHighlightingInformation semanticHighlightingInformation
+                = new SemanticHighlightingInformation(key, encodedToken);
+        semanticHighlightingInformationArr.add(semanticHighlightingInformation);
+    }
     SemanticHighlightingParams semanticHighlightingParams = new SemanticHighlightingParams
             (context.get(DocumentServiceKeys.FILE_URI_KEY), semanticHighlightingInformationArr);
 

@@ -93,7 +93,9 @@ public class HighlightingTest {
                 {"match.json", "match.bal"},
                 {"object.json", "object.bal"},
                 {"record.json", "record.bal"},
-                {"service.json", "service.bal"}
+                {"assignment.json", "assignment.bal"},
+                {"return.json","return.bal"}
+//                {"service.json", "service.bal"}
         };
     }
 
