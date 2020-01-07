@@ -29,7 +29,7 @@ import java.util.Optional;
 /**
  * Test the source prune operation with specific sources individual from the signature operation.
  *
- * @since 1.0.5
+ * @since 1.1.0
  */
 public class SignatureSourcePruneTest {
     private Path configRoot;
