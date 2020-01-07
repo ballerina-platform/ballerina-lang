@@ -2,6 +2,9 @@
 
 Ballerina project maintainers take security issues very seriously and all the vulnerability reports are treated with the highest priority and confidentiality.
 
+- [Reporting a vulnerability](#reporting-a-vulnerability)
+- [Handling a vulnerability](#handling-a-vulnerability)
+
 ## Reporting a vulnerability
 
 Ensure you are using the latest Ballerina version before you run an automated security scan or perform a penetration test against them.
@@ -30,4 +33,3 @@ The below is an overview of the vulnerability handling process.
 2. The WSO2 security team works privately with the user to fix the vulnerability and QA verifies the solution.
 3. Apply the fix to the master branch and release a new version of the distribution if required.
 4. The reported user is kept updated on the progress of the process. 
-.
