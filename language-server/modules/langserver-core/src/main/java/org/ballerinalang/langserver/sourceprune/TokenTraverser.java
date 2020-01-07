@@ -23,7 +23,7 @@ import java.util.List;
 /**
  * Token traverser.
  * 
- * @since 1.0.5
+ * @since 1.1.1
  */
 public interface TokenTraverser {
     /**

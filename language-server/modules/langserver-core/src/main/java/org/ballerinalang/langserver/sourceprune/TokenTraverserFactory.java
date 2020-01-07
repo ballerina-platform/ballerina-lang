@@ -22,7 +22,7 @@ import java.util.List;
 /**
  * Interface for Token Traverser Factories.
  *
- * @since 1.0.5
+ * @since 1.1.1
  */
 public interface TokenTraverserFactory {
     /**

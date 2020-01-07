@@ -32,7 +32,7 @@ import java.util.Optional;
 /**
  * LHS token traverser.
  *
- * @since 1.0.4
+ * @since 1.1.1
  */
 public class LHSSignatureTokenTraverser extends AbstractTokenTraverser {
     private List<Integer> lhsTraverseTerminals;

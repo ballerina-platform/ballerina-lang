@@ -30,7 +30,7 @@ import java.util.Optional;
 /**
  * RHS Token Traverser.
  *
- * @since 1.0.4
+ * @since 1.1.1
  */
 public class RHSSignatureTokenTraverser extends AbstractTokenTraverser {
     private final List<Integer> rhsTraverseTerminals;

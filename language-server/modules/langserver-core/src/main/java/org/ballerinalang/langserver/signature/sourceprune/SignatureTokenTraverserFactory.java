@@ -31,7 +31,7 @@ import java.util.List;
 /**
  * Factory class for providing token traversers and related artifacts for 'completions' service operation.
  *
- * @since 1.0.4
+ * @since 1.1.1
  */
 public class SignatureTokenTraverserFactory implements TokenTraverserFactory {
     private final SourcePruneContext sourcePruneCtx;
