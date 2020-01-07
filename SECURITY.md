@@ -19,11 +19,11 @@ We will keep you informed of the progress towards a fix and disclosure of the vu
 
 Also, use the following template when reporting vulnerabilities so that it contains all the required information and helps expedite the analysis and mitigation process.
 
-Vulnerable Ballerina artifacts(s) and version(s)
-Overview: High-level overview of the issue and self-assessed severity
-Description: Include the steps to reproduce
-Impact: Self-assessed impact
-Solution: Any proposed solution
+- Vulnerable Ballerina artifacts(s) and version(s)
+- Overview: High-level overview of the issue and self-assessed severity
+- Description: Include the steps to reproduce
+- Impact: Self-assessed impact
+- Solution: Any proposed solution
 
 ## Handling a vulnerability
 
