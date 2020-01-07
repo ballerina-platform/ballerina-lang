@@ -136,6 +136,13 @@ public class CompletionUtil {
         context.put(CompletionKeys.INVOCATION_TOKEN_TYPE_KEY, resultToken);
     }
 
+    /**
+     * Prune source if syntax errors exists.
+     *
+     * @param lsContext {@link LSContext}
+     * @throws SourcePruneException when file uri is invalid
+     * @throws WorkspaceDocumentException when document read error occurs
+     */
     public static void pruneSource(LSContext lsContext) throws SourcePruneException, WorkspaceDocumentException {
         WorkspaceDocumentManager documentManager = lsContext.get(CommonKeys.DOC_MANAGER_KEY);
         String uri = lsContext.get(DocumentServiceKeys.FILE_URI_KEY);

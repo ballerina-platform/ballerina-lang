@@ -133,8 +133,7 @@ public class SignatureHelpUtil {
         return new ImmutablePair<>(parseAndGetFunctionInvocationPath(subRule, serviceContext), paramIndex);
     }
 
-    private static Pair<String, Integer> extractSourcePrunedInvocationDetails(
-            LSServiceOperationContext serviceContext) {
+    private static Pair<String, Integer> extractSourcePrunedInvocationDetails(LSContext context) {
         int parameterOffset = 0;
         // Collect source-pruned tokens
         List<String> tokenTexts = new ArrayList<>();
@@ -149,7 +148,7 @@ public class SignatureHelpUtil {
         };
 
         // Visit Left-Hand side tokens before cursor
-        List<CommonToken> lhsTokens = serviceContext.get(CompletionKeys.LHS_TOKENS_KEY);
+        List<CommonToken> lhsTokens = context.get(CompletionKeys.LHS_TOKENS_KEY);
         if (lhsTokens != null) {
             while (lhsTokens.get(0).getType() == BallerinaParser.COMMA) {
                 lhsTokens.remove(0);
@@ -165,7 +164,6 @@ public class SignatureHelpUtil {
                 if (tokenType == BallerinaParser.COMMA) {
                     if (i - 1 >= 0 && lhsTokens.get(i - 1).getType() == BallerinaParser.RIGHT_PARENTHESIS) {
                         // eg. func1(func2(10, 10, 5),[cursor]);
-//                        pendingRParenthesisCount[0]++;
                         parameterOffset = 1;
                     } else {
                         tokenTexts.add(commonToken.getText());
@@ -184,7 +182,7 @@ public class SignatureHelpUtil {
         Collections.reverse(tokenTexts);
 
         // Visit Right-Hand side tokens after cursor
-        List<CommonToken> rhsTokens = serviceContext.get(CompletionKeys.RHS_TOKENS_KEY);
+        List<CommonToken> rhsTokens = context.get(CompletionKeys.RHS_TOKENS_KEY);
         if (rhsTokens != null && !rhsTokens.isEmpty()) {
             // Remove if any comma[,] when RHS next immediate token is right parenthesis
             int lastIndex = tokenTexts.size() - 1;
@@ -567,6 +565,13 @@ public class SignatureHelpUtil {
         return new ParameterInformation(parameterInfoModel.toString(), paramDocumentation);
     }
 
+    /**
+     * Prune source if syntax errors exists.
+     *
+     * @param lsContext {@link LSContext}
+     * @throws SourcePruneException when file uri is invalid
+     * @throws WorkspaceDocumentException when document read error occurs
+     */
     public static void pruneSource(LSContext lsContext) throws SourcePruneException, WorkspaceDocumentException {
         WorkspaceDocumentManager documentManager = lsContext.get(CommonKeys.DOC_MANAGER_KEY);
         String uri = lsContext.get(DocumentServiceKeys.FILE_URI_KEY);
