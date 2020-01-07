@@ -328,17 +328,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "StrandData",
-      "kind": "Struct",
-      "detail": "Record",
-      "documentation": {
-        "left": "Describes Strand execution details for the runtime.\n"
-      },
-      "sortText": "180",
-      "insertText": "StrandData",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "map",
       "kind": "Unit",
       "detail": "Map",
@@ -400,14 +389,6 @@
       "detail": "int",
       "sortText": "130",
       "insertText": "testBinary",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "Thread",
-      "kind": "TypeParameter",
-      "detail": "Finite",
-      "sortText": "170",
-      "insertText": "Thread",
       "insertTextFormat": "Snippet"
     },
     {
