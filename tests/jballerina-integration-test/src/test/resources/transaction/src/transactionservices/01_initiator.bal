@@ -20,9 +20,9 @@ import ballerina/log;
 import ballerina/transactions;
 import ballerina/runtime;
 
-listener http:Listener initiatorEP00 = new(8888);
+listener http:Listener initiatorEP00 = new(8888, { httpVersion: http:HTTP_1_1 });
 
-http:Client participant1EP00 = new("http://localhost:8889");
+http:Client participant1EP00 = new("http://localhost:8889", { httpVersion: http:HTTP_1_1 });
 
 State0 state0 = new();
 

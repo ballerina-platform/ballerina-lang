@@ -21,7 +21,7 @@ final string REMOTE_BACKEND_URL = "ws://localhost:15000/websocket";
 @http:WebSocketServiceConfig {
     path: "/client/service"
 }
-service clientFailure200 on new http:Listener(21020) {
+service clientFailure200 on new http:Listener(21020, { httpVersion: http:HTTP_1_1 }) {
 
     resource function onOpen(http:WebSocketCaller wsEp) {
         http:WebSocketClient wsClientEp = new(

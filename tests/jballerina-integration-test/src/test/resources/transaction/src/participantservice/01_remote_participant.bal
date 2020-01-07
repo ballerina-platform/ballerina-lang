@@ -19,12 +19,12 @@ import ballerina/log;
 import ballerina/transactions;
 import ballerina/runtime;
 
-http:Client separateRMParticipant01 = new("http://localhost:8890");
+http:Client separateRMParticipant01 = new("http://localhost:8890", { httpVersion: http:HTTP_1_1 });
 
 @http:ServiceConfig {
     basePath: "/"
 }
-service hello on new http:Listener(8889) {
+service hello on new http:Listener(8889, { httpVersion: http:HTTP_1_1 }) {
     @http:ResourceConfig {
         methods: ["POST"],
         path: "/",
@@ -201,7 +201,7 @@ function initGlobalVar() {
 function initiatorFunc(boolean throw1, boolean throw2, 
                         boolean remote1, boolean remote2,
                         boolean blowRemote1, boolean blowRemote2) returns string {
-    http:Client participantEP = new("http://localhost:8889");
+    http:Client participantEP = new("http://localhost:8889", { httpVersion: http:HTTP_1_1 });
     initGlobalVar();
     S1 = "";
     boolean isAbort = false;
@@ -310,7 +310,7 @@ function blowUp()  returns int {
 }
 
 function initiateNestedTransactionInRemote(string nestingMethod) returns @tainted string {
-    http:Client remoteEp = new("http://localhost:8889");
+    http:Client remoteEp = new("http://localhost:8889", { httpVersion: http:HTTP_1_1 });
     string s = "";
     transaction {
         s += " in initiator-trx";
@@ -346,7 +346,7 @@ function initiateNestedTransactionInRemote(string nestingMethod) returns @tainte
 }
 
 function remoteErrorReturnInitiator() returns @tainted string {
-    http:Client remoteEp = new("http://localhost:8889");
+    http:Client remoteEp = new("http://localhost:8889", { httpVersion: http:HTTP_1_1 });
     string s = "";
     transaction {
         s += " in initiator-trx";
@@ -383,7 +383,7 @@ function remoteErrorReturnInitiator() returns @tainted string {
 
 
 function callParticipantMultipleTimes() returns string {
-    http:Client participantEP = new("http://localhost:8889");
+    http:Client participantEP = new("http://localhost:8889", { httpVersion: http:HTTP_1_1 });
     S1 = "";
     resourceCommited = false;
     transaction {

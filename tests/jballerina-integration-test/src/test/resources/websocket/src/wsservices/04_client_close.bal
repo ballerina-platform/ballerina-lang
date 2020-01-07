@@ -20,7 +20,7 @@ import ballerina/io;
 @http:WebSocketServiceConfig {
     path: "/"
 }
-service clientClose on new http:Listener(21004) {
+service clientClose on new http:Listener(21004, { httpVersion: http:HTTP_1_1 }) {
     resource function onClose(http:WebSocketCaller wsEp, int statusCode, string reason) {
         io:println("Status code: " + statusCode.toString());
     }

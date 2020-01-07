@@ -16,7 +16,7 @@
 
 import ballerina/http;
 
-listener http:Listener attachDetachEp = new (21029);
+listener http:Listener attachDetachEp = new (21029, { httpVersion: http:HTTP_1_1 });
 @http:WebSocketServiceConfig {
     path: "/attach/detach"
 }

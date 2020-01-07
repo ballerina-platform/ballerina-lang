@@ -21,7 +21,7 @@ import ballerina/system;
 import ballerina/transactions;
 import ballerina/log;
 
-listener http:Listener participant2EP02 = new(8890);
+listener http:Listener participant2EP02 = new(8890, { httpVersion: http:HTTP_1_1 });
 
 jdbc:Client testDB = new({
     url: "jdbc:h2:file:../../tempdb/TEST_SQL_CONNECTOR",

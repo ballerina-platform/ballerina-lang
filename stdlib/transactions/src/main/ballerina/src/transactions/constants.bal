@@ -52,4 +52,4 @@ const string OUTCOME_HAZARD = "hazard";
 
 const string TRANSACTION_UNKNOWN = "Transaction-Unknown";
 
-listener http:Listener coordinatorListener = new(coordinatorPort, { host: coordinatorHost });
+listener http:Listener coordinatorListener = new(coordinatorPort, { httpVersion: http:HTTP_1_1, host: coordinatorHost });

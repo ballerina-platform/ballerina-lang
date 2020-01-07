@@ -19,7 +19,7 @@ import ballerina/http;
 
 @http:WebSocketServiceConfig {
 }
-service on new http:Listener(21021) {
+service on new http:Listener(21021, { httpVersion: http:HTTP_1_1 }) {
     resource function onOpen(http:WebSocketCaller wsEp) {
         http:WebSocketClient wsClientEp = new("wss://localhost:15400/websocket", { callbackService:
             sslClientService, secureSocket: {

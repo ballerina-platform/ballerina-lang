@@ -35,7 +35,8 @@ type Participant2pcClientEP client object {
             timeoutInMillis: c.timeoutInMillis,
             retryConfig:{
                 count: c.retryConfig.count, intervalInMillis: c.retryConfig.intervalInMillis
-            }
+            },
+            httpVersion: http:HTTP_1_1
         });
         self.httpClient = httpEP;
         self.conf = c;

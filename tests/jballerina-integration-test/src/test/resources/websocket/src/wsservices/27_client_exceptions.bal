@@ -22,7 +22,7 @@ http:WebSocketCaller? serverCaller = ();
 @http:WebSocketServiceConfig {
     path: "/client/errors"
 }
-service clientError on new http:Listener(21027) {
+service clientError on new http:Listener(21027, { httpVersion: http:HTTP_1_1 }) {
 
     resource function onText(http:WebSocketCaller wsEp, string text) {
         http:WebSocketClientConfiguration config = {callbackService: errorResourceService, subProtocols: ["xml"]};

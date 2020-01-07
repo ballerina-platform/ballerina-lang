@@ -22,7 +22,7 @@ import ballerina/transactions;
 @http:ServiceConfig {
     basePath: "/"
 }
-service hello on new http:Listener(8890) {
+service hello on new http:Listener(8890, { httpVersion: http:HTTP_1_1 }) {
     @http:ResourceConfig {
         methods: ["POST"],
         path: "/success",

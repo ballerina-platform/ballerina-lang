@@ -50,7 +50,7 @@ service clientCallbackService2 = @http:WebSocketServiceConfig {} service {
 @http:WebSocketServiceConfig {
     path: "/pingpong/ws"
 }
-service PingPongTestService2 on new http:Listener(21014) {
+service PingPongTestService2 on new http:Listener(21014, { httpVersion: http:HTTP_1_1 }) {
 
     resource function onOpen(http:WebSocketCaller wsEp) {
         http:WebSocketClient wsClientEp = new("ws://localhost:15200/websocket", { callbackService:

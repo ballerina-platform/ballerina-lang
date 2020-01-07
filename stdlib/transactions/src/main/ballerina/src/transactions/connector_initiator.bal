@@ -34,7 +34,8 @@ type InitiatorClientEP client object {
                 retryConfig:{
                     count:conf.retryConfig.count,
                     intervalInMillis:conf.retryConfig.intervalInMillis
-                }
+                },
+                httpVersion: http:HTTP_1_1
             });
         self.httpClient = httpEP;
     }

@@ -20,7 +20,7 @@ import ballerina/io;
 @http:WebSocketServiceConfig {
     path: "/server/errors"
 }
-service serverError on new http:Listener(21028) {
+service serverError on new http:Listener(21028, { httpVersion: http:HTTP_1_1 }) {
 
     resource function onText(http:WebSocketCaller caller, string text) {
         if (text == "continuation") {

@@ -16,7 +16,7 @@
 
 import ballerina/http;
 
-service onTextString on new http:Listener(21003) {
+service onTextString on new http:Listener(21003, { httpVersion: http:HTTP_1_1 }) {
 
     resource function onText(http:WebSocketCaller caller, string data, boolean finalFrame) {
         var returnVal = caller->pushText(data);
@@ -26,7 +26,7 @@ service onTextString on new http:Listener(21003) {
     }
 }
 
-service onTextJSON on new http:Listener(21023) {
+service onTextJSON on new http:Listener(21023, { httpVersion: http:HTTP_1_1 }) {
 
 resource function onText(http:WebSocketCaller caller, json data) {
         var returnVal = caller->pushText(data);
@@ -36,7 +36,7 @@ resource function onText(http:WebSocketCaller caller, json data) {
     }
 }
 
-service onTextXML on new http:Listener(21024) {
+service onTextXML on new http:Listener(21024, { httpVersion: http:HTTP_1_1 }) {
 
     resource function onText(http:WebSocketCaller caller, xml data) {
         var returnVal = caller->pushText(data);
@@ -50,7 +50,7 @@ type Person record {|
     int id;
     string name;
 |};
-service onTextRecord on new http:Listener(21025) {
+service onTextRecord on new http:Listener(21025, { httpVersion: http:HTTP_1_1 }) {
 
     resource function onText(http:WebSocketCaller caller, Person data) {
         var personData = json.constructFrom(data);
@@ -65,7 +65,7 @@ service onTextRecord on new http:Listener(21025) {
     }
 }
 
-service onTextByteArray on new http:Listener(21026){
+service onTextByteArray on new http:Listener(21026, { httpVersion: http:HTTP_1_1 }){
 
     resource function onText(http:WebSocketCaller caller, byte[] data) {
         var returnVal = caller->pushText(data);

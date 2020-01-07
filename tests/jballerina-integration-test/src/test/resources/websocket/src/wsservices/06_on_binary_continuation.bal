@@ -17,7 +17,7 @@
 import ballerina/http;
 
 byte[] content = [];
-service onBinaryContinuation on new http:Listener(21007) {
+service onBinaryContinuation on new http:Listener(21007, { httpVersion: http:HTTP_1_1 }) {
     resource function onBinary(http:WebSocketCaller caller, byte[] data, boolean finalFrame) {
         if (finalFrame) {
             appendToArray(<@untainted> data, content);

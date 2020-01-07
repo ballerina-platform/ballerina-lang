@@ -16,7 +16,7 @@
 
 import ballerina/http;
 
-service simple7 on new http:Listener(21016) {
+service simple7 on new http:Listener(21016, { httpVersion: http:HTTP_1_1 }) {
 
     @http:ResourceConfig {
         webSocketUpgrade: {

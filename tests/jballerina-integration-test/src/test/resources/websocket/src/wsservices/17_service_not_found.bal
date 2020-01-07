@@ -25,7 +25,7 @@ service simpleProxy8 = @http:WebSocketServiceConfig {} service {
 @http:ServiceConfig {
     basePath: "/proxy"
 }
-service simple8 on new http:Listener(21017) {
+service simple8 on new http:Listener(21017, { httpVersion: http:HTTP_1_1 }) {
 
     @http:ResourceConfig {
         webSocketUpgrade: {

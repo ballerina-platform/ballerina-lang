@@ -17,7 +17,7 @@
 import ballerina/http;
 import ballerina/io;
 
-service on new http:Listener(21019) {
+service on new http:Listener(21019, { httpVersion: http:HTTP_1_1 }) {
     resource function onOpen(http:WebSocketCaller wsEp) {
         io:println("New Client Connected");
     }

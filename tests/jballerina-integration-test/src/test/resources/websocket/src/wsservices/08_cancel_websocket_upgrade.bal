@@ -16,7 +16,7 @@
 
 import ballerina/http;
 
-listener http:Listener ep1 = new(21009);
+listener http:Listener ep1 = new(21009, { httpVersion: http:HTTP_1_1 });
 
 service simpleProxy1 = @http:WebSocketServiceConfig {} service {
 

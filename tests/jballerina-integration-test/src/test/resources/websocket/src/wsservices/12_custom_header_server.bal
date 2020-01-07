@@ -18,7 +18,7 @@ import ballerina/http;
 
 final string CUSTOM_HEADER = "X-some-header";
 
-service simple3 on new http:Listener(21012) {
+service simple3 on new http:Listener(21012, { httpVersion: http:HTTP_1_1 }) {
 
     @http:ResourceConfig {
         webSocketUpgrade: {

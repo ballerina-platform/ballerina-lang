@@ -21,7 +21,7 @@ import ballerina/http;
 @http:WebSocketServiceConfig {
     path: "/error/ws"
 }
-service errorService on new http:Listener(21013) {
+service errorService on new http:Listener(21013, { httpVersion: http:HTTP_1_1 }) {
     resource function onOpen(http:WebSocketCaller ep) {
         log:printInfo("connection open");
     }

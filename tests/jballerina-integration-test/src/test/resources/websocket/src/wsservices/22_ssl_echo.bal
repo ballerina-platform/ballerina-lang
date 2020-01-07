@@ -17,7 +17,7 @@
 import ballerina/config;
 import ballerina/http;
 
-service sslEcho on new http:Listener(21022, { secureSocket: {
+service sslEcho on new http:Listener(21022, { httpVersion: http:HTTP_1_1, secureSocket: {
         keyStore: {
             path: config:getAsString("keystore"),
             password: "ballerina"

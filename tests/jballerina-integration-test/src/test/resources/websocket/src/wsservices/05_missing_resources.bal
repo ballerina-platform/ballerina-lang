@@ -19,7 +19,7 @@ import ballerina/http;
 @http:WebSocketServiceConfig {
     idleTimeoutInSeconds: 10
 }
-service onlyOnBinary on new http:Listener(21005) {
+service onlyOnBinary on new http:Listener(21005, { httpVersion: http:HTTP_1_1 }) {
     resource function onBinary(http:WebSocketCaller caller, byte[] data) {
         var returnVal = caller->pushBinary(data);
         if (returnVal is http:WebSocketError) {
@@ -28,7 +28,7 @@ service onlyOnBinary on new http:Listener(21005) {
     }
 }
 
-service onlyOnText on new http:Listener(21006) {
+service onlyOnText on new http:Listener(21006, { httpVersion: http:HTTP_1_1 }) {
     resource function onText(http:WebSocketCaller caller, string data) {
         var returnVal = caller->pushText(data);
         if (returnVal is http:WebSocketError) {

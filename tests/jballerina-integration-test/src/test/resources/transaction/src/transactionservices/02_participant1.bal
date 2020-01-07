@@ -19,9 +19,9 @@ import ballerina/http;
 import ballerina/transactions;
 import ballerina/log;
 
-listener http:Listener participant1EP01 = new(8889);
+listener http:Listener participant1EP01 = new(8889, { httpVersion: http:HTTP_1_1 });
 
-http:Client participant2EP01 = new("http://localhost:8890");
+http:Client participant2EP01 = new("http://localhost:8890", { httpVersion: http:HTTP_1_1 });
 
 State1 state1 = new();
 

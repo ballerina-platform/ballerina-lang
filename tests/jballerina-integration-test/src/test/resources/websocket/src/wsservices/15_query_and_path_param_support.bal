@@ -21,7 +21,7 @@ final string PATH2 = "PATH2";
 final string QUERY1 = "QUERY1";
 final string QUERY2 = "QUERY2";
 
-service simple6 on new http:Listener(21015) {
+service simple6 on new http:Listener(21015, { httpVersion: http:HTTP_1_1 }) {
 
     @http:ResourceConfig {
         webSocketUpgrade: {
