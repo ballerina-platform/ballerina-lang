@@ -20,6 +20,7 @@ package org.ballerinalang.compiler.backend.jvm;
 
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -31,7 +32,7 @@ import java.util.List;
 import static org.ballerinalang.model.types.TypeKind.STRING;
 
 /**
- * @since 0.995.0
+ * @since 1.1.0-beta
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "compiler_backend_jvm",
@@ -56,7 +57,7 @@ public class ListHighSurrogates {
             Integer highSurrogate = highSurrogates.get(i);
             highSurrogatesArr[i] = highSurrogate;
         }
-        return new ArrayValue(highSurrogatesArr);
+        return new ArrayValueImpl(highSurrogatesArr);
     }
 
 }

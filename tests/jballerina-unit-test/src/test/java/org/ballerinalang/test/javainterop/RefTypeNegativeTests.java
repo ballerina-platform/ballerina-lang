@@ -33,7 +33,7 @@ public class RefTypeNegativeTests {
     public void testInvalidMethodSignaturesForRefTypes() {
         String[] errors = null;
         try {
-            BCompileUtil.compile("test-src/javainterop/ballerina_ref_types_as_interop_negative.bal");
+            BCompileUtil.compileInProc("test-src/javainterop/ballerina_ref_types_as_interop_negative.bal");
         } catch (BLangCompilerException e) {
             errors = e.getMessage().split("\n");
         }

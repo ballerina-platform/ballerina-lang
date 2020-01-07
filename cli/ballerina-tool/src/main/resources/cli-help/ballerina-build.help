@@ -61,15 +61,14 @@ CONFIG PROPERTIES
 
 EXAMPLES
        Compile a Ballerina source file and create an executable jar.
-          → ballerina build hello.bal
+          $ ballerina build hello.bal
 
        Build the 'hello' module. This will generate a hello.jar file
        in the '<project-root>/target/bin' directory.
-          → ballerina build hello
-
+          $ ballerina build hello
 
        Build all the modules that have entry points in a project into
        executables. This will generate executable jar files and place
        them in the '<project-root>/target/bin' directory.
-          → ballerina build -a
+          $ ballerina build -a
 

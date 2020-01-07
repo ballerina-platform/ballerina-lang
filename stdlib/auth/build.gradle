@@ -48,9 +48,11 @@ dependencies {
 
     interopImports project(':ballerina-config-api')
     interopImports project(':ballerina-io')
+    interopImports project(':ballerina-log-api')
     interopImports project(':ballerina-system')
     interopImports project(':ballerina-task')
     interopImports project(':ballerina-time')
+    interopImports project(':ballerina-runtime-api')
 
     testCompile 'org.testng:testng'
     testCompile 'org.slf4j:slf4j-jdk14'
@@ -62,7 +64,6 @@ dependencies {
     testCompile project(':ballerina-runtime-api')
     testCompile project(':ballerina-task')
     testCompile project(':ballerina-time')
-    testCompile project(':ballerina-utils')
     testCompile project(':ballerina-reflect')
     testCompile project(':ballerina-crypto')
     testCompile project(':ballerina-file')

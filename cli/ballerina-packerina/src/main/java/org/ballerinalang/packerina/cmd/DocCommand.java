@@ -103,7 +103,7 @@ public class DocCommand implements BLauncherCmd {
         if (this.argList != null && this.argList.size() > 1) {
             CommandUtil.printError(this.errStream,
                     "too many arguments.",
-                    "ballerina doc [-o <output>] [--sourceroot] [--off-line]\n" +
+                    "ballerina doc [-o <output>] [--sourceroot] [--offline]\n" +
                            "                     {<ballerina-file | module-name> | -a | --all}",
                     false);
             CommandUtil.exitError(true);

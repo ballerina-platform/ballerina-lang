@@ -24,6 +24,7 @@ import org.ballerinalang.model.tree.clauses.StreamingInput;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 
 /**
  * @since 0.965.0
@@ -32,11 +33,11 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
  */
 public class BLangJoinStreamingInput extends BLangNode implements JoinStreamingInput {
 
-    private StreamingInput streamingInput;
-    private ExpressionNode onExpression;
-    private String joinType;
-    private boolean isUnidirectionalBeforeJoin;
-    private boolean isUnidirectionalAfterJoin;
+    public BLangStreamingInput streamingInput;
+    public BLangExpression onExpression;
+    public String joinType;
+    public boolean isUnidirectionalBeforeJoin;
+    public boolean isUnidirectionalAfterJoin;
 
     @Override
     public String getJoinType() {
@@ -70,7 +71,8 @@ public class BLangJoinStreamingInput extends BLangNode implements JoinStreamingI
 
     @Override
     public void setStreamingInput(StreamingInput streamingInput) {
-        this.streamingInput = streamingInput;
+
+        this.streamingInput = (BLangStreamingInput) streamingInput;
     }
 
     @Override
@@ -80,7 +82,8 @@ public class BLangJoinStreamingInput extends BLangNode implements JoinStreamingI
 
     @Override
     public void setOnExpression(ExpressionNode expression) {
-        this.onExpression = expression;
+
+        this.onExpression = (BLangExpression) expression;
     }
 
     @Override

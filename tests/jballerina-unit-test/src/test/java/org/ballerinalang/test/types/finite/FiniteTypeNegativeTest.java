@@ -46,6 +46,7 @@ public class FiniteTypeNegativeTest {
 
     @Test()
     public void testInvalidLiteralAssignment() {
+
         CompileResult result = BCompileUtil.compile("test-src/types/finite/finite_type_negative.bal");
         Assert.assertEquals(result.getErrorCount(), 13, "Error count mismatch");
         int i = 0;

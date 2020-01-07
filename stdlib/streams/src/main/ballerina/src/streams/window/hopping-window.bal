@@ -46,7 +46,7 @@ public type HoppingWindow object {
     public LinkedList currentEventQueue;
     public StreamEvent? resetEvent;
     public function (StreamEvent?[])? nextProcessPointer;
-    public Scheduler scheduler;
+    public Scheduler? scheduler = ();
 
     public function __init(function (StreamEvent?[])? nextProcessPointer, any[] windowParameters) {
         self.nextProcessPointer = nextProcessPointer;
@@ -59,6 +59,10 @@ public type HoppingWindow object {
         self.scheduler = new(function (StreamEvent?[] events) {
                 self.process(events);
             });
+    }
+
+    public function getScheduler() returns Scheduler {
+        return <Scheduler> self.scheduler;
     }
 
     public function initParameters(any[] parameters) {
@@ -91,7 +95,7 @@ public type HoppingWindow object {
         LinkedList outputStreamEvents = new();
         if (self.nextEmitTime == -1) {
             self.nextEmitTime = time:currentTime().time + self.hoppingTime;
-            self.scheduler.notifyAt(self.nextEmitTime);
+            self.getScheduler().notifyAt(self.nextEmitTime);
         }
 
         int currentTime = time:currentTime().time;
@@ -99,7 +103,7 @@ public type HoppingWindow object {
 
         if (currentTime >= self.nextEmitTime) {
             self.nextEmitTime += self.hoppingTime;
-            self.scheduler.notifyAt(self.nextEmitTime);
+            self.getScheduler().notifyAt(self.nextEmitTime);
             sendEvents = true;
         } else {
             sendEvents = false;

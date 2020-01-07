@@ -20,7 +20,6 @@ package org.ballerinalang.jvm.values.api;
 
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BType;
-import org.ballerinalang.jvm.values.FPValue;
 
 /**
  * <p>
@@ -51,5 +50,5 @@ public interface BStream extends BRefValue {
      * @param functionPointer represents the function pointer reference for the function to be invoked on receiving
      *                        messages
      */
-    void subscribe(FPValue<Object[], Object> functionPointer);
+    void subscribe(BFunctionPointer<Object[], Object> functionPointer);
 }

@@ -221,4 +221,5 @@ public class BUnionType extends BType implements UnionType {
                         ((BUnionType) type).memberTypes.stream() : Stream.of(type))
                 .collect(Collectors.toCollection(LinkedHashSet::new));
     }
+
 }

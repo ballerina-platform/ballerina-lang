@@ -27,7 +27,6 @@ import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.compiler.LSModuleCompiler;
-import org.ballerinalang.langserver.compiler.common.LSCustomErrorStrategy;
 import org.ballerinalang.langserver.compiler.common.LSDocument;
 import org.ballerinalang.langserver.compiler.common.modal.SymbolMetaInfo;
 import org.ballerinalang.langserver.compiler.exception.CompilationFailedException;
@@ -102,7 +101,7 @@ public class TextDocumentFormatUtil {
         String relativePath = breakFromPackage[breakFromPackage.length - 1];
 
         final BLangPackage bLangPackage = LSModuleCompiler.getBLangPackage(context, documentManager,
-                                                                           LSCustomErrorStrategy.class, false, false);
+                                                                    FormatterCustomErrorStrategy.class, false, false);
         final List<Diagnostic> diagnostics = new ArrayList<>();
         JsonArray errors = new JsonArray();
         JsonObject result = new JsonObject();

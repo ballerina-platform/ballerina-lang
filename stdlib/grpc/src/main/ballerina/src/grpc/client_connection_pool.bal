@@ -15,6 +15,7 @@
 // under the License.
 
 import ballerina/config;
+import ballerinax/java;
 
 # Configurations for managing gRPC client connection pool.
 #
@@ -36,12 +37,20 @@ type ConnectionManager object {
     public function __init() {
         self.initGlobalPool(self.poolConfig);
     }
-    function initGlobalPool(PoolConfiguration poolConfig) = external;
+
+    function initGlobalPool(PoolConfiguration poolConfig) {
+        return externInitGlobalPool(self, poolConfig);
+    }
 
     public function getPoolConfiguration() returns PoolConfiguration {
         return self.poolConfig;
     }
 };
+
+function externInitGlobalPool(ConnectionManager connectionManager, PoolConfiguration poolConfig) =
+@java:Method {
+    class: "org.ballerinalang.net.grpc.nativeimpl.client.FunctionUtils"
+} external;
 
 ConnectionManager connectionManager = new;
 PoolConfiguration globalGrpcClientConnPool = connectionManager.getPoolConfiguration();

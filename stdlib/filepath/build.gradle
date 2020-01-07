@@ -27,7 +27,6 @@ configurations.testCompileClasspath {
 dependencies {
     baloCreat project(':lib-creator')
     implementation project(':ballerina-lang')
-    implementation project(':ballerina-utils')
     implementation project(':ballerina-io')
     implementation project(':ballerina-runtime')
 
@@ -55,6 +54,7 @@ dependencies {
 
     interopImports project(':ballerina-system')
     interopImports project(':ballerina-io')
+    interopImports project(':ballerina-log-api')
 }
 
 createBalo {

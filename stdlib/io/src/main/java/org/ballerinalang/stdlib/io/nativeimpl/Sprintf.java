@@ -18,7 +18,6 @@
 package org.ballerinalang.stdlib.io.nativeimpl;
 
 import org.ballerinalang.jvm.TypeChecker;
-import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.TypeTags;
@@ -109,8 +108,7 @@ public class Sprintf {
                             break;
                         case 's':
                             if (ref != null) {
-                                result.append(String.format("%" + padding + "s",
-                                        StringUtils.getStringValue(Scheduler.getStrand(), ref)));
+                                result.append(String.format("%" + padding + "s", StringUtils.getStringValue(ref)));
                             }
                             break;
                         case '%':

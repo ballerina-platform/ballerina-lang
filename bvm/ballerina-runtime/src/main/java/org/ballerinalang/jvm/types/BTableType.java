@@ -21,8 +21,6 @@ package org.ballerinalang.jvm.types;
 import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.values.TableValue;
 
-import java.util.ArrayList;
-
 /**
  * {@code BTableType} represents a type of a table in Ballerina.
  * <p>
@@ -110,6 +108,6 @@ public class BTableType extends BType {
             return true;
         }
 
-        return TypeChecker.checkIsType(constraint, other.constraint, new ArrayList<>());
+        return TypeChecker.checkIsType(constraint, other.constraint);
     }
 }

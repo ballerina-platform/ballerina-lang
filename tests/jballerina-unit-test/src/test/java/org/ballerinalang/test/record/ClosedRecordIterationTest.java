@@ -54,9 +54,8 @@ public class ClosedRecordIterationTest {
 
         // Test invalid no. of args with foreach loop
         BAssertUtil.validateError(closedRecNegatives, index++,
-                                  "invalid tuple binding pattern: attempted to infer a tuple type, but found 'any'",
-                                  40, 17);
-
+                "invalid tuple binding pattern: expected a tuple type, but found '(string|int|ClosedAddress)'",
+                40, 17);
         // Test invalid foreach iterable operation
         BAssertUtil.validateError(closedRecNegatives, index++,
                 "incompatible types: expected '[string,any]', found '(string|int|ClosedAddress)'",

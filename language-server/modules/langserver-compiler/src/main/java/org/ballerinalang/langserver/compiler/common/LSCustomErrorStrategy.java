@@ -17,22 +17,18 @@
 */
 package org.ballerinalang.langserver.compiler.common;
 
+import org.antlr.v4.runtime.FailedPredicateException;
 import org.antlr.v4.runtime.InputMismatchException;
 import org.antlr.v4.runtime.NoViableAltException;
 import org.antlr.v4.runtime.Parser;
-import org.antlr.v4.runtime.ParserRuleContext;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSContext;
-import org.wso2.ballerinalang.compiler.parser.BLangParserListener;
-import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParserErrorStrategy;
 
 /**
  * Custom error strategy for language server.
  */
 public class LSCustomErrorStrategy extends BallerinaParserErrorStrategy {
-    private static final String ACTION_INVOCATION_SYMBOL = "->";
-    
     public LSCustomErrorStrategy(LSContext context) {
         super(context.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY), null);
     }
@@ -58,70 +54,7 @@ public class LSCustomErrorStrategy extends BallerinaParserErrorStrategy {
     }
 
     @Override
-    protected void setErrorState(Parser parser) {
-        BLangParserListener listener = getListener(parser);
-        // Here the type of the exception is not important.
-        ParserRuleContext context = parser.getContext();
-        // Note: Here we forcefully set the exception to null, in order to avoid the callable unit body being null at
-        // the run time
-        if (context instanceof BallerinaParser.CallableUnitBodyContext) {
-            listener.unsetErrorState();
-            return;
-        } else if (context instanceof BallerinaParser.SimpleVariableReferenceContext
-                && parser.getCurrentToken().getText().equals(ACTION_INVOCATION_SYMBOL)) {
-            listener.unsetErrorState();
-        }
-
-        // Note: Following check added, when the context is variable definition and the type name context is hit,
-        // We need to set the error for the variable definition as well.
-        if (context.getParent() instanceof BallerinaParser.VariableDefinitionStatementContext) {
-            listener.setErrorState();
-        } else if (context instanceof BallerinaParser.ExpressionContext) {
-            setContextIfConditionalStatement(context, listener);
-        } else {
-            setContextIfCheckedExpression(context, listener);
-        }
-    }
-
-    /**
-     * Check the context and identify if the particular context is a child of a connector init and set the exception.
-     *
-     * @param context       current parser rule context
-     * @param listener      Parser Listener instance
-     */
-    private void setContextIfCheckedExpression(ParserRuleContext context, BLangParserListener listener) {
-        ParserRuleContext parentContext = context.getParent();
-        if (parentContext != null && parentContext instanceof BallerinaParser.CheckedExpressionContext) {
-            listener.setErrorState();
-        } else if (parentContext instanceof BallerinaParser.VariableReferenceExpressionContext
-                && parentContext.getParent() instanceof BallerinaParser.CheckedExpressionContext) {
-            listener.setErrorState();
-        }
-    }
-
-    /**
-     * Set the context if the statement is a conditional statement such as if-else, while or catch.
-     *
-     * @param context       Current parser rule context
-     * @param listener      Parser Listener instance
-     */
-    private void setContextIfConditionalStatement(ParserRuleContext context, BLangParserListener listener) {
-        ParserRuleContext conditionalContext = context.getParent();
-        if (conditionalContext == null) {
-            return;
-        }
-        if (conditionalContext instanceof BallerinaParser.IfClauseContext) {
-            listener.setErrorState();
-        } else if (conditionalContext instanceof BallerinaParser.WhileStatementContext ||
-                conditionalContext instanceof BallerinaParser.TypeConversionExpressionContext) {
-            listener.setErrorState();
-        } else if (conditionalContext instanceof BallerinaParser.BinaryEqualExpressionContext) {
-            setContextIfConditionalStatement(conditionalContext, listener);
-        } else if (conditionalContext instanceof BallerinaParser.CheckedExpressionContext) {
-            setContextIfCheckedExpression(context, listener);
-        } else if (conditionalContext instanceof BallerinaParser.ThrowStatementContext) {
-            // TODO: need to migrate this check to a top layer
-            listener.setErrorState();
-        }
+    public void reportFailedPredicate(Parser parser, FailedPredicateException e) {
+        setErrorState(parser);
     }
 }

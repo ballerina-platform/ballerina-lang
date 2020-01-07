@@ -31,6 +31,10 @@ public class BLangCompilationUnit extends BLangNode implements CompilationUnitNo
 
     public String name;
 
+    // Fields for caching.
+    public int hash;
+    public int length;
+
     public List<TopLevelNode> topLevelNodes;
 
     public BLangCompilationUnit() {

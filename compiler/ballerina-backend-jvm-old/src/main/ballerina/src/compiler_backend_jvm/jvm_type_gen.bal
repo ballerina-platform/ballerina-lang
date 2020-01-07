@@ -1101,11 +1101,19 @@ function loadInvokableType(jvm:MethodVisitor mv, bir:BInvokableType bType) {
         i += 1;
     }
 
+    bir:BType? restType = bType.restType;
+    if (restType is ()) {
+        mv.visitInsn(ACONST_NULL);
+    } else {
+        loadType(mv, restType);
+    }
+
     // load return type type
     loadType(mv, bType?.retType);
 
     // initialize the function type using the param types array and the return type
-    mv.visitMethodInsn(INVOKESPECIAL, FUNCTION_TYPE, "<init>", io:sprintf("([L%s;L%s;)V", BTYPE, BTYPE), false);
+    mv.visitMethodInsn(INVOKESPECIAL, FUNCTION_TYPE, "<init>", io:sprintf("([L%s;L%s;L%s;)V", BTYPE, BTYPE, BTYPE),
+     false);
 }
 
 function getTypeDesc(bir:BType bType, boolean useBString = false) returns string {

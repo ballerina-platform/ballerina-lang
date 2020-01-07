@@ -1,4 +1,4 @@
 // This example generates a client for a Ballerina service.
-// Add the `@openapi:ClientEndpoint` annotation to mark the endpoint(s) that are used for client generation.
+// Add the `@openapi:ClientEndpoint` annotation to mark the listener(s) that are used for client generation.
 // Add the `@openapi:ClientConfig {generate: true}` annotation to the service to enable client generation.
 // The generated client can be found in the `<project.home>/target/bin/client/` or `<program.dir>/client/` directory.

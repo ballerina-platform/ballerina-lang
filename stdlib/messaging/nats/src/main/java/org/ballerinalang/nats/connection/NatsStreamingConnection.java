@@ -1,0 +1,90 @@
+/*
+ * Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+package org.ballerinalang.nats.connection;
+
+import io.nats.client.Connection;
+import io.nats.streaming.StreamingConnection;
+import org.ballerinalang.jvm.scheduling.Scheduler;
+import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.nats.Constants;
+import org.ballerinalang.nats.Utils;
+import org.ballerinalang.nats.observability.NatsMetricsUtil;
+import org.ballerinalang.nats.observability.NatsObservabilityConstants;
+import org.ballerinalang.nats.observability.NatsTracingUtil;
+import org.ballerinalang.nats.streaming.BallerinaNatsStreamingConnectionFactory;
+
+import java.io.IOException;
+import java.util.UUID;
+import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicInteger;
+
+/**
+ * Remote function implementation for NATS Streaming Connection creation.
+ */
+public class NatsStreamingConnection {
+
+    public static void createConnection(ObjectValue streamingClientObject, Object conn,
+                                        String clusterId, Object clientIdNillable, Object streamingConfig) {
+        ObjectValue connectionObject = (ObjectValue) conn;
+        Connection natsConnection = (Connection) connectionObject.getNativeData(Constants.NATS_CONNECTION);
+        String clientId = clientIdNillable == null ? UUID.randomUUID().toString() : (String) clientIdNillable;
+        BallerinaNatsStreamingConnectionFactory streamingConnectionFactory =
+                new BallerinaNatsStreamingConnectionFactory(
+                        natsConnection, clusterId, clientId, (MapValue<String, Object>) streamingConfig);
+        try {
+            io.nats.streaming.StreamingConnection streamingConnection = streamingConnectionFactory.createConnection();
+            streamingClientObject.addNativeData(Constants.NATS_STREAMING_CONNECTION, streamingConnection);
+            ((AtomicInteger) connectionObject.getNativeData(Constants.CONNECTED_CLIENTS)).incrementAndGet();
+        } catch (IOException e) {
+            NatsMetricsUtil.reportError(NatsObservabilityConstants.CONTEXT_STREAMING_CONNNECTION,
+                                        NatsObservabilityConstants.ERROR_TYPE_CONNECTION);
+            throw Utils.createNatsError(e.getMessage());
+        } catch (InterruptedException e) {
+            NatsMetricsUtil.reportError(NatsObservabilityConstants.CONTEXT_STREAMING_CONNNECTION,
+                                        NatsObservabilityConstants.ERROR_TYPE_CONNECTION);
+            throw Utils.createNatsError("Internal error while creating streaming connection");
+        }
+    }
+
+    public static Object closeConnection(ObjectValue streamingClientObject, Object natsConnection) {
+        StreamingConnection streamingConnection = (StreamingConnection) streamingClientObject
+                .getNativeData(Constants.NATS_STREAMING_CONNECTION);
+        NatsTracingUtil.traceResourceInvocation(Scheduler.getStrand(),
+                                                streamingConnection.getNatsConnection().getConnectedUrl());
+        try {
+            streamingConnection.close();
+            ObjectValue basicNatsConnection = (ObjectValue) natsConnection;
+            ((AtomicInteger) basicNatsConnection.getNativeData(Constants.CONNECTED_CLIENTS)).decrementAndGet();
+            return null;
+        } catch (IOException | TimeoutException e) {
+            NatsMetricsUtil.reportError(streamingConnection.getNatsConnection().getConnectedUrl(),
+                                        NatsObservabilityConstants.UNKNOWN,
+                                        NatsObservabilityConstants.CONTEXT_STREAMING_CONNNECTION,
+                                        NatsObservabilityConstants.ERROR_TYPE_CLOSE);
+            return Utils.createNatsError(e.getMessage());
+        } catch (InterruptedException e) {
+            NatsMetricsUtil.reportError(streamingConnection.getNatsConnection().getConnectedUrl(),
+                                        NatsObservabilityConstants.UNKNOWN,
+                                        NatsObservabilityConstants.CONTEXT_STREAMING_CONNNECTION,
+                                        NatsObservabilityConstants.ERROR_TYPE_CLOSE);
+            return Utils.createNatsError("Internal error while closing producer");
+        }
+    }
+
+}
