@@ -7,7 +7,7 @@ Ballerina project maintainers take security issues very seriously and all the vu
 
 ## Reporting a vulnerability
 
-Ensure you are using the latest Ballerina version before you run an automated security scan or perform a penetration test against them.
+Ensure you are using the latest Ballerina version before you test a security issue, run an automated security scan or perform a penetration test.
 
 If you have any concerns regarding the security aspects of the source code or any other resource in this repo or have uncovered a security vulnerability, we strongly encourage you to report that to our private and highly confidential security mailing list: **security@ballerina.io** first using the below key without disclosing them in any forums, sites, or other groups - public or private. 
 
