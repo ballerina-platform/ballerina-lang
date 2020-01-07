@@ -3678,8 +3678,8 @@ public class Desugar extends BLangNodeVisitor {
                 recordLiteral.keyValuePairs.add(member);
                 iExpr.requiredArgs.remove(arg);
             }
-            recordLiteral = rewriteExpr(recordLiteral);
-            errorDetail = visitCloneReadonly(recordLiteral, ((BErrorType) iExpr.symbol.type).detailType);
+            BLangExpression stmtExpr = rewriteExpr(recordLiteral);
+            errorDetail = visitCloneReadonly(stmtExpr, ((BErrorType) iExpr.symbol.type).detailType);
         }
         iExpr.requiredArgs.add(errorDetail);
         return iExpr;
