@@ -60,11 +60,11 @@ function genJMethodForBFunc(bir:Function func,
                            bir:Package module,
                            boolean isService,
                            string serviceName,
-                           bir:BType? attachedType = (),
-                           boolean useBString = false) {
+                           bir:BType? attachedType = ()) {
     string currentPackageName = getPackageName(module.org.value, module.name.value);
     BalToJVMIndexMap indexMap = new;
     string funcName = cleanupFunctionName(<@untainted> func.name.value);
+    boolean useBString = funcName.endsWith("$bstring");
     int returnVarRefIndex = -1;
 
     bir:VariableDcl stranVar = { typeValue: "string", // should be record
@@ -197,7 +197,7 @@ function genJMethodForBFunc(bir:Function func,
     mv.visitLookupSwitchInsn(yieldLable, states, lables);
 
     generateBasicBlocks(mv, basicBlocks, labelGen, errorGen, instGen, termGen, func, returnVarRefIndex, stateVarIndex,
-                            localVarOffset, false, module, currentPackageName, attachedType, isObserved, isService, serviceName);
+                            localVarOffset, false, module, currentPackageName, attachedType, isObserved, isService, serviceName, useBString = useBString);
 
     string frameName = getFrameClassName(currentPackageName, funcName, attachedType);
     mv.visitLabel(resumeLable);
@@ -665,7 +665,7 @@ function generateBasicBlocks(jvm:MethodVisitor mv, bir:BasicBlock?[] basicBlocks
             ErrorHandlerGenerator errorGen, InstructionGenerator instGen, TerminatorGenerator termGen,
             bir:Function func, int returnVarRefIndex, int stateVarIndex, int localVarOffset, boolean isArg,
             bir:Package module, string currentPackageName, bir:BType? attachedType, boolean isObserved = false,
-            boolean isService = false, string serviceName = "") {
+            boolean isService = false, string serviceName = "", boolean useBString = false) {
     int j = 0;
     string funcName = cleanupFunctionName(<@untainted> func.name.value);
 
@@ -733,7 +733,7 @@ function generateBasicBlocks(jvm:MethodVisitor mv, bir:BasicBlock?[] basicBlocks
                 if (insKind == bir:INS_KIND_MOVE) {
                     instGen.generateMoveIns(<bir:Move> inst);
                 } else if (insKind == bir:INS_KIND_CONST_LOAD) {
-                    instGen.generateConstantLoadIns(<bir:ConstantLoad> inst);
+                    instGen.generateConstantLoadIns(<bir:ConstantLoad> inst, useBString);
                 } else if (insKind == bir:INS_KIND_NEW_MAP) {
                     instGen.generateMapNewIns(<bir:NewMap> inst, localVarOffset);
                 } else if (insKind == bir:INS_KIND_NEW_INST) {
@@ -759,7 +759,7 @@ function generateBasicBlocks(jvm:MethodVisitor mv, bir:BasicBlock?[] basicBlocks
                 } else if (insKind == bir:INS_KIND_TYPE_TEST) {
                     instGen.generateTypeTestIns(<bir:TypeTest> inst);
                 } else if (insKind == bir:INS_KIND_OBJECT_STORE) {
-                    instGen.generateObjectStoreIns(<bir:FieldAccess> inst);
+                    instGen.generateObjectStoreIns(<bir:FieldAccess> inst, useBString);
                 } else if (insKind == bir:INS_KIND_OBJECT_LOAD) {
                     instGen.generateObjectLoadIns(<bir:FieldAccess> inst);
                 } else if (insKind == bir:INS_KIND_NEW_XML_ELEMENT) {

@@ -42,6 +42,8 @@ public interface ObjectValue extends RefValue {
 
     Object get(String fieldName);
 
+    Object get(StringValue fieldName);
+
     long getIntValue(String fieldName);
 
     double getFloatValue(String fieldName);
@@ -63,4 +65,6 @@ public interface ObjectValue extends RefValue {
     HashMap<String, Object> getNativeData();
 
     void set(String fieldName, Object value);
+
+    void set(StringValue fieldName, Object value);
 }

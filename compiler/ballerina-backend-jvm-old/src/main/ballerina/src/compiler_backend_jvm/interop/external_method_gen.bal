@@ -49,17 +49,7 @@ function genJMethodForBExternalFunc(bir:Function birFunc,
     if (extFuncWrapper is JFieldFunctionWrapper) {
         genJFieldForInteropField(extFuncWrapper, cw, birModule);
     } else {
-        // TODO: bstring - remove following extra call to genJMethodForBFunc
         genJMethodForBFunc(birFunc, cw, birModule, false, "", attachedType = attachedType);
-        if (IS_BSTRING) {
-            var func = birFunc.clone();
-            func.name = {value: birFunc.name.value + "$bstring"};
-            string desc = getMethodDesc(func.typeValue.paramTypes, <bir:BType?> func.typeValue?.retType);
-            string descWithBString = getMethodDesc(func.typeValue.paramTypes, <bir:BType?> func.typeValue?.retType, useBString = true);
-            if (desc != descWithBString) {
-                genJMethodForBFunc(func, cw, birModule, false, "", attachedType = attachedType, useBString = true);
-            }
-        }
     }
 }
 
@@ -76,6 +66,8 @@ function injectDefaultParamInits(bir:Package module) {
             bir:Function birFunc = <bir:Function>functions[count];
             count = count + 1;
             var extFuncWrapper = lookupBIRFunctionWrapper(module, birFunc, attachedType = ());
+
+
             if extFuncWrapper is OldStyleExternalFunctionWrapper {
                 desugarOldExternFuncs(module, extFuncWrapper, birFunc);
                 enrichWithDefaultableParamInits(birFunc);
@@ -125,6 +117,9 @@ function desugarOldExternFuncs(bir:Package module, OldStyleExternalFunctionWrapp
     }
 
     string jMethodName = birFunc.name.value;
+    if(jMethodName.endsWith("$bstring")) {
+        jMethodName = jMethodName.substring(0, jMethodName.length() - 8);
+    }
     JavaMethodCall jCall = {pos:birFunc.pos, args:args, kind:bir:TERMINATOR_PLATFORM, lhsOp:retRef,
                                 jClassName:extFuncWrapper.jClassName, name:jMethodName,
                                 jMethodVMSigBString: extFuncWrapper.jMethodVMSigBString ?: "<error>",
@@ -152,6 +147,9 @@ function lookupBIRFunctionWrapper(bir:Package birModule, bir:Function birFunc,
     string lookupKey;
     var currentPackageName = getPackageName(birModule.org.value, birModule.name.value);
     string birFuncName = birFunc.name.value;
+    if(birFuncName.endsWith("$bstring")) {
+        birFuncName = birFuncName.substring(0, birFuncName.length() - 8);
+    }
 
     if attachedType is () {
         lookupKey = currentPackageName + birFuncName;

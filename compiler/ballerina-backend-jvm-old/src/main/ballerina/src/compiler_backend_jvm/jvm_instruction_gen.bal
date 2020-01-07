@@ -39,7 +39,7 @@ type InstructionGenerator object {
         self.currentPackageName = getPackageName(moduleId.org.value, moduleId.name.value);
     }
 
-    function generateConstantLoadIns(bir:ConstantLoad loadIns) {
+    function generateConstantLoadIns(bir:ConstantLoad loadIns, boolean useBString) {
         bir:BType bType = loadIns.typeValue;
 
         if (bType is bir:BTypeInt || bType is bir:BTypeByte) {
@@ -50,7 +50,7 @@ type InstructionGenerator object {
             self.mv.visitLdcInsn(val);
         } else if (bType is bir:BTypeString) {
             string val = <string> loadIns.value;
-            if (IS_BSTRING) {
+            if (useBString) {
                 int[] highSurrogates = listHighSurrogates(val);
 
                 self.mv.visitTypeInsn(NEW, NON_BMP_STRING_VALUE);
@@ -759,7 +759,7 @@ type InstructionGenerator object {
         self.storeToVar(objectLoadIns.lhsOp.variableDcl);
     }
 
-    function generateObjectStoreIns(bir:FieldAccess objectStoreIns) {
+    function generateObjectStoreIns(bir:FieldAccess objectStoreIns, boolean useBString) {
         // visit object_ref
         self.loadVar(objectStoreIns.lhsOp.variableDcl);
         bir:BType varRefType = objectStoreIns.lhsOp.variableDcl.typeValue;
@@ -774,7 +774,7 @@ type InstructionGenerator object {
 
         // invoke set() method
         self.mv.visitMethodInsn(INVOKEINTERFACE, OBJECT_VALUE, "set",
-                io:sprintf("(L%s;L%s;)V", STRING_VALUE, OBJECT), true);
+                io:sprintf("(L%s;L%s;)V", useBString ? I_STRING_VALUE : STRING_VALUE, OBJECT), true);
     }
 
     function generateStringLoadIns(bir:FieldAccess stringLoadIns) {
@@ -1189,11 +1189,11 @@ function addBoxInsn(jvm:MethodVisitor mv, bir:BType? bType) {
     }
 }
 
-function addUnboxInsn(jvm:MethodVisitor mv, bir:BType? bType) {
+function addUnboxInsn(jvm:MethodVisitor mv, bir:BType? bType, boolean useBString = false) {
     if (bType is ()) {
         return;
     } else {
-        generateCast(mv, "any", bType);
+        generateCast(mv, "any", bType, useBString = useBString);
     }
 }
 

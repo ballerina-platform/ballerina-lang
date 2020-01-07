@@ -775,7 +775,7 @@ function generateCheckCastToFiniteType(jvm:MethodVisitor mv, bir:BType sourceTyp
 //   Generate Cast Methods - Performs cast without type checking
 // ------------------------------------------------------------------
 
-function generateCast(jvm:MethodVisitor mv, bir:BType sourceType, bir:BType targetType) {
+function generateCast(jvm:MethodVisitor mv, bir:BType sourceType, bir:BType targetType, boolean useBString = false) {
     if (targetType is bir:BTypeInt) {
         generateCastToInt(mv, sourceType);
         return;
@@ -783,7 +783,7 @@ function generateCast(jvm:MethodVisitor mv, bir:BType sourceType, bir:BType targ
         generateCastToFloat(mv, sourceType);
         return;
     } else if (targetType is bir:BTypeString) {
-        generateCastToString(mv, sourceType);
+        generateCastToString(mv, sourceType, useBString = useBString);
         return;
     } else if (targetType is bir:BTypeBoolean) {
         generateCastToBoolean(mv, sourceType);
@@ -847,7 +847,7 @@ function generateCastToFloat(jvm:MethodVisitor mv, bir:BType sourceType) {
     }
 }
 
-function generateCastToString(jvm:MethodVisitor mv, bir:BType sourceType) {
+function generateCastToString(jvm:MethodVisitor mv, bir:BType sourceType, boolean useBString = false) {
     if (sourceType is bir:BTypeString) {
         // do nothing
     } else if (sourceType is bir:BTypeInt) {
@@ -860,7 +860,11 @@ function generateCastToString(jvm:MethodVisitor mv, bir:BType sourceType) {
             sourceType is bir:BTypeAnyData ||
             sourceType is bir:BUnionType ||
             sourceType is bir:BJSONType) {
-        mv.visitTypeInsn(CHECKCAST, STRING_VALUE);
+        if(useBString) {
+            mv.visitTypeInsn(CHECKCAST, I_STRING_VALUE);
+        } else {
+            mv.visitTypeInsn(CHECKCAST, STRING_VALUE);
+        }
     } else {
         error err = error(io:sprintf("Casting is not supported from '%s' to 'string'", sourceType));
         panic err;

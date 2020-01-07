@@ -4,3 +4,8 @@ function concatBMP() returns (any) {
     return prefix + s;
 }
 
+function nonBMPLength() returns (int) {
+    string smiley = "h\u263Allo";
+    return smiley.length();
+}
+

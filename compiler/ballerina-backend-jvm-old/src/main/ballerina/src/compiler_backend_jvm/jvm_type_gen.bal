@@ -1108,7 +1108,7 @@ function loadInvokableType(jvm:MethodVisitor mv, bir:BInvokableType bType) {
     mv.visitMethodInsn(INVOKESPECIAL, FUNCTION_TYPE, "<init>", io:sprintf("([L%s;L%s;)V", BTYPE, BTYPE), false);
 }
 
-function getTypeDesc(bir:BType bType) returns string {
+function getTypeDesc(bir:BType bType, boolean useBString = false) returns string {
     if (bType is bir:BTypeInt) {
         return "J";
     } else if (bType is bir:BTypeByte) {
@@ -1116,7 +1116,7 @@ function getTypeDesc(bir:BType bType) returns string {
     } else if (bType is bir:BTypeFloat) {
         return "D";
     } else if (bType is bir:BTypeString) {
-        return io:sprintf("L%s;", STRING_VALUE);
+        return io:sprintf("L%s;", useBString ? I_STRING_VALUE : STRING_VALUE);
     } else if (bType is bir:BTypeBoolean) {
         return "Z";
     } else if (bType is bir:BTypeNil) {

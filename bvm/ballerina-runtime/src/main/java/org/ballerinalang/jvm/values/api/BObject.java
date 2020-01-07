@@ -23,6 +23,7 @@ import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.FutureValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.StringValue;
 
 import java.util.HashMap;
 
@@ -42,6 +43,8 @@ public interface BObject extends ObjectValue {
     BObjectType getType();
 
     Object get(String fieldName);
+
+    Object get(StringValue fieldName);
 
     long getIntValue(String fieldName);
 
@@ -64,4 +67,6 @@ public interface BObject extends ObjectValue {
     HashMap<String, Object> getNativeData();
 
     void set(String fieldName, Object value);
+
+    void set(StringValue fieldName, Object value);
 }

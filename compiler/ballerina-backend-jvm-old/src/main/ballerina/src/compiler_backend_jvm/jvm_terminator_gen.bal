@@ -331,6 +331,7 @@ type TerminatorGenerator object {
 
         string jClassName = callIns.jClassName;
         string jMethodName = callIns.name;
+
         string jMethodVMSig = funcName.endsWith("$bstring") ? callIns.jMethodVMSigBString : callIns.jMethodVMSig;
         self.mv.visitMethodInsn(INVOKESTATIC, jClassName, jMethodName, jMethodVMSig, false);
 
@@ -541,7 +542,7 @@ type TerminatorGenerator object {
         string lookupKey = getPackageName(orgName, moduleName) + methodLookupName;
         boolean useBString = lookupKey.endsWith("$bstring");
         if(useBString) {
-            lookupKey = lookupKey.substring(0, lookupKey.length() - 8); 
+            lookupKey = lookupKey.substring(0, lookupKey.length() - 8);
         }
         int argsCount = callIns.args.length();
         int i = 0;
@@ -554,6 +555,7 @@ type TerminatorGenerator object {
 
         string methodDesc = lookupJavaMethodDescription(lookupKey, useBString);
         string jvmClass = lookupFullQualifiedClassName(lookupKey);
+
         self.mv.visitMethodInsn(INVOKESTATIC, jvmClass, cleanupFunctionName(methodName), methodDesc, false);
     }
 

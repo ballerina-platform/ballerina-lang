@@ -27,6 +27,7 @@ type BIRFunctionWrapper record {
     bir:Function func;
     string fullQualifiedClassName;
     string jvmMethodDescription;
+    string? jvmMethodDescriptionBString = ();
 };
 
 DiagnosticLogger dlogger = new ();
@@ -76,10 +77,10 @@ function lookupTypeDef(bir:TypeDef|bir:TypeRef key) returns bir:TypeDef {
     }
 }
 
-function lookupJavaMethodDescription(string key) returns string {
+function lookupJavaMethodDescription(string key, boolean useBString) returns string {
     if (birFunctionMap.hasKey(key)) {
         BIRFunctionWrapper functionWrapper = getBIRFunctionWrapper(birFunctionMap[key]);
-        return functionWrapper.jvmMethodDescription;
+        return useBString ? ( functionWrapper.jvmMethodDescriptionBString ?: "<error>") : functionWrapper.jvmMethodDescription;
     } else {
         error err = error("cannot find jvm method description for : " + key);
         panic err;
@@ -124,6 +125,31 @@ function generateDependencyList(bir:ModuleID moduleId, @tainted JarFile jarFile,
     }
 }
 
+function injectBStringFunctions(bir:Package module) {
+
+    bir:Function?[] functions = module.functions;
+    if (functions.length() > 0) {
+        int funcSize = functions.length();
+        int count  = 3;
+
+        bir:Function[] bStringFuncs = [];
+        while (count < funcSize) {
+            bir:Function birFunc = <bir:Function>functions[count];
+            count = count + 1;
+            if (IS_BSTRING) {
+                var bStringFunc = birFunc.clone();
+                bStringFunc.name = {value: birFunc.name.value + "$bstring"};
+                bStringFuncs.push(bStringFunc);
+            }
+        }
+
+        foreach var func in bStringFuncs {
+            functions.push(func);
+        }
+    }
+
+}
+
 public function generatePackage(bir:ModuleID moduleId, @tainted JarFile jarFile,
                                 jvm:InteropValidator interopValidator, boolean isEntry) {
     string orgName = moduleId.org;
@@ -144,6 +170,8 @@ public function generatePackage(bir:ModuleID moduleId, @tainted JarFile jarFile,
             return;
         }
     }
+
+    injectBStringFunctions(module);
 
     typeOwnerClass = getModuleLevelClassName(<@untainted> orgName, <@untainted> moduleName, MODULE_INIT_CLASS_NAME);
     map<JavaClass> jvmClassMap = generateClassNameMappings(module, pkgName, typeOwnerClass,
@@ -546,12 +574,15 @@ function getFunctionWrapper(bir:Function currentFunc, string orgName ,string mod
     bir:BType? attachedType = receiver is bir:VariableDcl ? receiver.typeValue : ();
     string jvmMethodDescription = getMethodDesc(functionTypeDesc.paramTypes, functionTypeDesc?.retType,
                                                 attachedType = attachedType);
+    string jvmMethodDescriptionBString = getMethodDesc(functionTypeDesc.paramTypes, functionTypeDesc?.retType,
+                                                attachedType = attachedType, useBString = true);
     return {
         orgName : orgName,
         moduleName : moduleName,
         versionValue : versionValue,
         func : currentFunc,
         fullQualifiedClassName : moduleClass,
+        jvmMethodDescriptionBString : jvmMethodDescriptionBString,
         jvmMethodDescription : jvmMethodDescription
     };
 }
@@ -694,7 +725,11 @@ function isLangModule(bir:ModuleID moduleId) returns boolean{
 function readFileFully(string path) returns byte[]  = external;
 
 public function lookupExternClassName(string pkgName, string functionName) returns string? {
-    return externalMapCache[cleanupName(pkgName) + "/" + functionName];
+    var name = functionName;
+    if(functionName.endsWith("$bstring")) {
+        name = functionName.substring(0, functionName.length() - 8);
+    }
+    return externalMapCache[cleanupName(pkgName) + "/" + name];
 }
 
 function generateShutdownSignalListener(bir:Package pkg, string initClass, map<byte[]> jarEntries) {
