@@ -317,14 +317,14 @@ public class OpenApiGenServiceCmdTest extends OpenAPICommandTest {
             }
 
         } else {
-            Assert.fail("Service generation for inline request body type failed.");
+            Assert.fail("Service generation for All Of Schema type failed.");
         }
     }
 
     @Test(description = "Test open-api genservice for successful service generation with OneOf schema type")
     public void testOneOfSchemaGen() throws IOException {
         Path allOfYaml = RES_DIR.resolve(Paths.get("oneof-petstore.yaml"));
-        createBalProjectModule(petProject, "oneOfModule");
+        createBalProjectModule(petProject, "oneofmodule");
         String[] args = {"oneofmodule:oneofservice", allOfYaml.toString()};
 
         OpenApiGenServiceCmd cmd = new OpenApiGenServiceCmd(printStream, petProject.getBalProjectPath().toString());
@@ -368,7 +368,7 @@ public class OpenApiGenServiceCmdTest extends OpenAPICommandTest {
             }
 
         } else {
-            Assert.fail("Service generation for inline request body type failed.");
+            Assert.fail("Service generation for OneOf Schema type failed.");
         }
     }
 
