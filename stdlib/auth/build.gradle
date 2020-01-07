@@ -64,7 +64,6 @@ dependencies {
     testCompile project(':ballerina-runtime-api')
     testCompile project(':ballerina-task')
     testCompile project(':ballerina-time')
-    testCompile project(':ballerina-utils')
     testCompile project(':ballerina-reflect')
     testCompile project(':ballerina-crypto')
     testCompile project(':ballerina-file')

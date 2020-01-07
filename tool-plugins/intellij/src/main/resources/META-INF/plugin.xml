@@ -1,7 +1,7 @@
 <idea-plugin>
     <id>io.ballerina</id>
     <name>Ballerina</name>
-    <version>1.0.3</version>
+    <version>1.1.0</version>
     <vendor email="ballerinalang@wso2.com" url="https://ballerina.io/">BallerinaLang</vendor>
 
     <description><![CDATA[
@@ -13,8 +13,10 @@
 
     <change-notes><![CDATA[
       <ul>
-        <li> Added smart on-type-formatting for ballerina string splitting.</li>
-        <li> Fixed and improved double quotes handling.</li>
+        <li> Added goto definition support. </li>
+        <li> Added intellij live template support for ballerina code snippets. </li>
+        <li> Fixed compatibility for IntelliJ IDEA 2019.3 </li>
+        <li> Fixed indentation issues when adding ballerina code snippet templates in some contexts. </li>
       </ul>
     ]]>
     </change-notes>

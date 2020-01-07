@@ -115,7 +115,7 @@ public class WorkerFailTest {
     public void testSendReceiveMismatch() {
         CompileResult result = BCompileUtil.compile("test-src/workers/send_receive_mismatch_negative.bal");
         Assert.assertEquals(result.getErrorCount(), 1);
-        validateError(result, 0, "incompatible types: expected 'string', found 'int'", 25, 21);
+        validateError(result, 0, "incompatible types: expected 'string', found 'int'", 23, 21);
     }
 
     @Test

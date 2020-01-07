@@ -37,19 +37,19 @@ type ErrorHandlerGenerator object {
         self.mv.visitInsn(ATHROW);
     }
 
-    function generateTryCatch(bir:Function func, string funcName, bir:BasicBlock currentBB,
+    function generateTryCatch(bir:Function func, string funcName, bir:BasicBlock currentBB, 
                             InstructionGenerator instGen, TerminatorGenerator termGen, LabelGenerator labelGen) {
         bir:ErrorEntry? nilableEE = findErrorEntry(func.errorEntries, currentBB);
         if nilableEE is () {
-            return;
+            return; 
         }
         bir:ErrorEntry currentEE = <bir:ErrorEntry> nilableEE;
-
+    
         jvm:Label startLabel = labelGen.getLabel(funcName + currentEE.trapBB.id.value);
         jvm:Label endLabel = new;
         jvm:Label jumpLabel = new;
-
-
+    
+    
         self.mv.visitLabel(endLabel);
         self.mv.visitJumpInsn(GOTO, jumpLabel);
         if (currentEE is JErrorEntry) {
@@ -72,14 +72,14 @@ type ErrorHandlerGenerator object {
             if !exeptionExist {
                 jvm:Label errorValErrorLabel = new;
                 self.mv.visitTryCatchBlock(startLabel, endLabel, errorValErrorLabel, ERROR_VALUE);
-
+        
                 self.mv.visitLabel(errorValErrorLabel);
                 self.mv.visitInsn(ATHROW);
                 self.mv.visitJumpInsn(GOTO, jumpLabel);
             }
             jvm:Label otherErrorLabel = new;
             self.mv.visitTryCatchBlock(startLabel, endLabel, otherErrorLabel, THROWABLE);
-
+        
             self.mv.visitLabel(otherErrorLabel);
             self.mv.visitMethodInsn(INVOKESTATIC, BAL_ERRORS, "createInteropError", io:sprintf("(L%s;)L%s;", THROWABLE, ERROR_VALUE), false);
             self.mv.visitInsn(ATHROW);
@@ -87,13 +87,13 @@ type ErrorHandlerGenerator object {
             self.mv.visitLabel(jumpLabel);
             return;
         }
-
+        
         jvm:Label errorValueLabel = new;
         jvm:Label otherErrorLabel = new;
         self.mv.visitTryCatchBlock(startLabel, endLabel, errorValueLabel, ERROR_VALUE);
         self.mv.visitTryCatchBlock(startLabel, endLabel, otherErrorLabel, STACK_OVERFLOW_ERROR);
         self.mv.visitLabel(errorValueLabel);
-
+        
         var varDcl = <bir:VariableDcl>currentEE.errorOp.variableDcl;
         int lhsIndex = self.indexMap.getIndex(varDcl);
         generateVarStore(self.mv, varDcl, self.currentPackageName, lhsIndex);
@@ -184,7 +184,7 @@ function findErrorEntry(bir:ErrorEntry?[] errors, bir:BasicBlock currentBB) retu
 
 function print(string message) {
     handle errStream = getSystemErrorStream();
-    printToErrorStream(errStream, message);
+    printToErrorStream(errStream, java:fromString(message));
 }
 
 public function getSystemErrorStream() returns handle = @java:FieldGet {
@@ -192,7 +192,7 @@ public function getSystemErrorStream() returns handle = @java:FieldGet {
     class:"java/lang/System"
 } external;
 
-public function printToErrorStream(handle receiver, string message) = @java:Method {
+public function printToErrorStream(handle receiver, handle message) = @java:Method {
     name:"println",
     class:"java/io/PrintStream",
     paramTypes:["java.lang.String"]

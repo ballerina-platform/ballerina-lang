@@ -97,6 +97,7 @@ for /l %%i in (1, 1, %argCount%) do (
 )
 
 if defined BAL_JAVA_DEBUG goto commandDebug
+if defined BAL_DEBUG_OPTS goto commandDebugOpts
 
 rem ----- Process the input command -------------------------------------------
 goto doneStart
@@ -104,9 +105,13 @@ goto doneStart
 rem ----- commandDebug ---------------------------------------------------------
 :commandDebug
 if "%BAL_JAVA_DEBUG%"=="" goto noDebugPort
+:commandDebugOpts
 if not "%JAVA_OPTS%"=="" echo Warning !!!. User specified JAVA_OPTS will be ignored, once you give the BAL_JAVA_DEBUG variable.
-set JAVA_OPTS=-Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=%BAL_JAVA_DEBUG%
-echo Please start the remote debugging client to continue...
+if defined BAL_DEBUG_OPTS (
+    set JAVA_OPTS=%BAL_DEBUG_OPTS%
+) else (
+    set JAVA_OPTS=-Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=%BAL_JAVA_DEBUG%
+)
 goto runServer
 
 :noDebugPort

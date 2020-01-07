@@ -125,6 +125,7 @@ public class BCompileUtil {
      * @return Semantic errors
      */
     public static CompileResult compileInProc(String sourceFilePath) {
+        System.setProperty("java.command", "java");
         Path sourcePath = Paths.get(sourceFilePath);
         String packageName = sourcePath.getFileName().toString();
         Path sourceRoot = resourceDir.resolve(sourcePath.getParent());

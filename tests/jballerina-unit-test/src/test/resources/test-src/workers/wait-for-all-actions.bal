@@ -17,10 +17,10 @@
 import ballerina/runtime;
 
 function waitTest1() returns map<anydata> { // {f1: 7, f2: 22, f4: "hello foo", f6: true}
-    future<int> f1 = @concurrent{} start add_1(5, 2);
-    future<int> f2 = @concurrent{} start add_2(10, 12);
-    future<string> f3 = @concurrent{} start concat("foo");
-    future<boolean> f4 = @concurrent{} start status();
+    future<int> f1 = start add_1(5, 2);
+    future<int> f2 = start add_2(10, 12);
+    future<string> f3 = start concat("foo");
+    future<boolean> f4 = start status();
 
     map<anydata> result = wait {f1, f2, f3, f4};
     return result;
@@ -28,8 +28,8 @@ function waitTest1() returns map<anydata> { // {f1: 7, f2: 22, f4: "hello foo", 
 
 function waitTest2() returns map<int|string> { // {f1: 7, str1: "hello foo", f3: 150, str2: "hello xyz"}
     future<int> f1 = start add_1(5, 2);
-    future<string> f4 = @concurrent{} start concat("foo");
-    future<int> f3 = @concurrent{} start add_3(50, 100);
+    future<string> f4 = start concat("foo");
+    future<int> f3 = start add_3(50, 100);
     future<int|string> f7 =  start concat("xyz");
 
     map<int|string> result = wait {f1, str1: f4, f3: f3, str2: f7};
@@ -38,8 +38,8 @@ function waitTest2() returns map<int|string> { // {f1: 7, str1: "hello foo", f3:
 
 function waitTest3() returns any { // {f1: 7, f3: 150, f5: "hello bar"}
     future<int> f1 = start add_1(5, 2);
-    future<int> f3 = @concurrent{} start add_3(50, 100);
-    future<string> f5 = @concurrent{} start concat("bar");
+    future<int> f3 = start add_3(50, 100);
+    future<string> f5 = start concat("bar");
 
     any result = wait {f1, f3, f5};
     return result;
@@ -47,8 +47,8 @@ function waitTest3() returns any { // {f1: 7, f3: 150, f5: "hello bar"}
 
 function waitTest4() returns map<anydata> { // {f1: 7, f2: 22, f4: "hello foo"}
     future<int> f1 = start add_1(5, 2);
-    future<string> f4 = @concurrent{} start concat("foo");
-    future<int> f2 = @concurrent{} start add_2(10, 12);
+    future<string> f4 = start concat("foo");
+    future<int> f2 = start add_2(10, 12);
     record { int f1 = 0; int f2 = 0; string f4 = "";} anonRec = wait {f1, f4, f2};
 
     map<anydata> m = {};
@@ -59,7 +59,7 @@ function waitTest4() returns map<anydata> { // {f1: 7, f2: 22, f4: "hello foo"}
 }
 
 function waitTest5() returns map<anydata> { // {id: 66, name: "hello foo"}
-    future<string> f5 = @concurrent{} start concat("foo");
+    future<string> f5 = start concat("foo");
     record { int id; string name; } anonRec = wait {id: fuInt(), name: f5};
 
     map<anydata> m = {};
@@ -69,8 +69,8 @@ function waitTest5() returns map<anydata> { // {id: 66, name: "hello foo"}
 }
 
 function waitTest6() returns map<anydata> { // {idField: 150, stringField: "hello foo"}
-    future<int> f3 = @concurrent{} start add_3(50, 100);
-    future<string> f4 = @concurrent{} start concat("foo");
+    future<int> f3 = start add_3(50, 100);
+    future<string> f4 = start concat("foo");
     record { int idField; string stringField;} anonRec = wait {idField: f3, stringField: f4};
 
     map<anydata> m = {};
@@ -80,56 +80,56 @@ function waitTest6() returns map<anydata> { // {idField: 150, stringField: "hell
 }
 
 function waitTest7() returns int { // {f1: 7}
-    future<int> f1 = @concurrent{} start add_1(5, 2);
+    future<int> f1 = start add_1(5, 2);
     record { int f1; string f3?; } anonRec = wait {f1};
     int result = anonRec.f1;
     return result;
 }
 
 function waitTest8() returns firstRec { // {id: 8, name: "hello moo"}
-    future<int> f1 = @concurrent{} start add_1(4, 4);
-    future<string> f2 = @concurrent{} start concat("moo");
+    future<int> f1 = start add_1(4, 4);
+    future<string> f2 = start concat("moo");
     firstRec result = wait {id: f1, name: f2};
     return result;
 }
 
 function waitTest9() returns secondRec { // {f1: 20, f5: "hello foo"}
-    future<int> f1 = @concurrent{} start add_1(10, 10);
-    future<string> f5 = @concurrent{} start concat("foo");
+    future<int> f1 = start add_1(10, 10);
+    future<string> f5 = start concat("foo");
     secondRec result = wait {f1, f5};
     return result;
 }
 
 function waitTest10() returns secondRec { // {f1: 30, f5: "hello xyz"}
-    future<int> f1 = @concurrent{} start add_1(20, 10);
-    future<string> f5 = @concurrent{} start concat("xyz");
+    future<int> f1 = start add_1(20, 10);
+    future<string> f5 = start concat("xyz");
     secondRec result = wait {f1: f1, f5};
     return result;
 }
 
 function waitTest11() returns thirdRec { // {f1: 30, f5: "hello bar"}
-    future<int> f1 = @concurrent{} start add_1(20, 10);
-    future<string> f2 = @concurrent{} start concat("bar");
+    future<int> f1 = start add_1(20, 10);
+    future<string> f2 = start concat("bar");
     thirdRec result = wait {f1: f1, field: f2};
     return result;
 }
 
 function waitTest12() returns fourthRec { // {f1: 30, f5: "hello bar"}
-    future<int> f1 = @concurrent{} start add_1(20, 66);
+    future<int> f1 = start add_1(20, 66);
     fourthRec result = wait {id: f1};
     return result;
 }
 
 function waitTest13() returns fourthRec { // error
-    future<int> f1 = @concurrent{} start add_panic(20, 66);
+    future<int> f1 = start add_panic(20, 66);
     fourthRec result = wait {id: f1};
     return result;
 }
 
 
 function waitTest14() returns map<anydata> { // {idField: 150, stringField: "hello foo"}
-    future<string> f4 = @concurrent{} start concat("foo");
-    future<int> f3 = @concurrent{} start add_panic(50, 100);
+    future<string> f4 = start concat("foo");
+    future<int> f3 = start add_panic(50, 100);
     record { int i; string j;} anonRec = wait {i: f3, j: f4};
 
     map<anydata> m = {};
@@ -149,10 +149,10 @@ function waitTest15() returns map<anydata> { // {f1: 7, f2: 22, f4: "hello foo",
 }
 
 function waitTest16() returns int {
-    future<int> f1 = @concurrent{} start add_1(5, 2);
-    future<string> f3 =  @concurrent{}start concat("foo");
-    future<boolean> f4 = @concurrent{} start status();
-    future<int> f2 = @concurrent{} start add_panic(10, 12);
+    future<int> f1 = start add_1(5, 2);
+    future<string> f3 = start concat("foo");
+    future<boolean> f4 = start status();
+    future<int> f2 = start add_panic(10, 12);
 
     var result = trap wait {f1, f2, f3, f4};
     if (result is map<int|string|boolean>) {
@@ -164,14 +164,14 @@ function waitTest16() returns int {
 
 function waitTest17() returns any{
     worker w1  returns any {
-        future<int> f1 = @concurrent{} start add_1(5, 2);
-        future<int> f2 = @concurrent{} start add_3(50, 100);
+        future<int> f1 = start add_1(5, 2);
+        future<int> f2 = start add_3(50, 100);
         any result = wait {f1, f2};
         return result;
     }
     worker w2 returns any {
-        future<int> f1 = @concurrent{} start add_1(6, 6);
-        future<string> f2 = @concurrent{} start concat("foo");
+        future<int> f1 = start add_1(6, 6);
+        future<string> f2 = start concat("foo");
         map <int|string> m = wait {id: f1, name : f2};
         runtime:sleep(2000);
         return m;
@@ -183,8 +183,8 @@ function waitTest17() returns any{
 function waitTest18() returns secondRec{
     secondRec r = {};
     worker w1  returns secondRec {
-        future<int> f1 = @concurrent{} start add_1(5, 2);
-        future<string> f2 = @concurrent{} start concat("foo");
+        future<int> f1 = start add_1(5, 2);
+        future<string> f2 = start concat("foo");
         secondRec result = wait {f1, f5: f2};
         return result;
     }
@@ -198,7 +198,6 @@ function waitTest19() returns map<int>{
             int x = 30;
             return x;
         }
-        @concurrent{}
         worker w2 returns int{
             int y = 15;
             int g = y + 1;
@@ -212,14 +211,12 @@ function waitTest19() returns map<int>{
 
 function waitTest20() returns map<int|string> {
     fork {
-        @concurrent{}
         worker w1 returns int {
             string a = "hello world";
             a -> w2;
             int b = <- w2;
             return b;
         }
-        @concurrent{}
         worker w2 returns string {
             string a = "no message";
             int b = 15;
@@ -233,43 +230,43 @@ function waitTest20() returns map<int|string> {
 }
 
 function waitTest21() returns sealedRec {
-    future<int> f1 = @concurrent{} start add_1(5, 2);
-    future<string> f2 = @concurrent{} start concat("foo");
+    future<int> f1 = start add_1(5, 2);
+    future<string> f2 = start concat("foo");
 
     sealedRec rec = wait {id: f1, name : f2};
     return rec;
 }
 
 function waitTest22() returns openRec {
-    future<int> f1 = @concurrent{} start add_1(5, 2);
-    future<string> f2 = @concurrent{} start concat("foo");
-    future<string> f3 = @concurrent{} start concat("bar");
+    future<int> f1 = start add_1(5, 2);
+    future<string> f2 = start concat("foo");
+    future<string> f3 = start concat("bar");
 
     openRec rec = wait {id: f1, name : f2, status: f3};
     return rec;
 }
 
 function waitTest23() returns restRec1 {
-    future<int> f1 = @concurrent{} start add_1(5, 2);
-    future<string> f2 = @concurrent{} start concat("foo");
-    future<int> f3 = @concurrent{} start add_1(10, 10);
+    future<int> f1 = start add_1(5, 2);
+    future<string> f2 = start concat("foo");
+    future<int> f3 = start add_1(10, 10);
 
     restRec1 rec = wait {id: f1, name : f2, status: f3};
     return rec;
 }
 
 function waitTest24() returns restRec2 {
-    future<int> f1 = @concurrent{} start add_1(10, 2);
-    future<string> f2 = @concurrent{} start concat("foo");
-    future<string> f3 = @concurrent{} start concat("bar");
+    future<int> f1 = start add_1(10, 2);
+    future<string> f2 = start concat("foo");
+    future<string> f3 = start concat("bar");
 
     restRec2 rec = wait {id: f1, name : f2, status: f3};
     return rec;
 }
 
 function waitTest25() returns map<anydata> {
-    future<int> f1 = @concurrent{} start add_1(5, 2);
-    future<string> f2 = @concurrent{} start concat("foo");
+    future<int> f1 = start add_1(5, 2);
+    future<string> f2 = start concat("foo");
 
     record {| int id = 0; string name = "default"; |} anonRec = wait {id: f1, name : f2};
     map<anydata> m = {};
@@ -279,9 +276,9 @@ function waitTest25() returns map<anydata> {
 }
 
 function waitTest26() returns map<anydata|error> {
-    future<int> f1 = @concurrent{} start add_1(15, 15);
-    future<string> f2 = @concurrent{} start concat("world");
-    future<string> f3 = @concurrent{} start concat("moo");
+    future<int> f1 = start add_1(15, 15);
+    future<string> f2 = start concat("world");
+    future<string> f3 = start concat("moo");
 
     record { int id = 0; string name = "default";} anonRec = wait {id: f1, name : f2, status: f3};
     map<anydata|error> m = {};
@@ -292,9 +289,9 @@ function waitTest26() returns map<anydata|error> {
 }
 
 function waitTest27() returns map<anydata> {
-    future<int> f1 = @concurrent{} start add_1(100, 100);
-    future<string> f2 = @concurrent{} start concat("mello");
-    future<string> f3 = @concurrent{} start concat("sunshine");
+    future<int> f1 = start add_1(100, 100);
+    future<string> f2 = start concat("mello");
+    future<string> f3 = start concat("sunshine");
 
     record {| int id = 0; string name = "default"; string...; |} anonRec = wait {id: f1, name : f2, greet: f3};
     map<anydata> m = {};

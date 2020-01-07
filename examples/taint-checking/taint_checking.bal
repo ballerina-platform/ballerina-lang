@@ -52,28 +52,25 @@ public function main(string... args) {
     }
 
     while (dataTable.hasNext()) {
-        var jsonResult = dataTable.getNext();
-        if (jsonResult is Student) {
-            Student jsonData = jsonResult;
-            // The return values of certain functions built-in to Ballerina are decorated with the `@tainted` annotation to
-            // denote that the return value should be untrusted (tainted). One such example is the data read from a
-            // database.
-            //
-            // This line results in a compile error because a value derived from a database read (tainted) is passed to a
-            // sensitive parameter.
-            userDefinedSecureOperation(jsonData.firstname);
+        Student jsonData = dataTable.getNext();
+        // The return values of certain functions built-in to Ballerina are decorated with the `@tainted` annotation to
+        // denote that the return value should be untrusted (tainted). One such example is the data read from a
+        // database.
+        //
+        // This line results in a compile error because a value derived from a database read (tainted) is passed to a
+        // sensitive parameter.
+        userDefinedSecureOperation(jsonData.firstname);
 
-            string sanitizedData1 = sanitizeAndReturnTainted(jsonData.firstname);
-            // This line results in a compile error because the `sanitize` function returns a value derived from the tainted
-            // data. Therefore, the return of the `sanitize` function is also tainted.
-            userDefinedSecureOperation(sanitizedData1);
+        string sanitizedData1 = sanitizeAndReturnTainted(jsonData.firstname);
+        // This line results in a compile error because the `sanitize` function returns a value derived from the tainted
+        // data. Therefore, the return of the `sanitize` function is also tainted.
+        userDefinedSecureOperation(sanitizedData1);
 
-            string sanitizedData2 = sanitizeAndReturnUntainted(jsonData.firstname);
-            // This line successfully compiles. Although the `sanitize` function returns a value derived from tainted data,
-            // the return value is annotated with the `@untainted` annotation. This means that the return value is safe and can be
-            // trusted.
-            userDefinedSecureOperation(sanitizedData2);
-        }
+        string sanitizedData2 = sanitizeAndReturnUntainted(jsonData.firstname);
+        // This line successfully compiles. Although the `sanitize` function returns a value derived from tainted data,
+        // the return value is annotated with the `@untainted` annotation. This means that the return value is safe and can be
+        // trusted.
+        userDefinedSecureOperation(sanitizedData2);
     }
     checkpanic customerDBEP.stop();
     return;

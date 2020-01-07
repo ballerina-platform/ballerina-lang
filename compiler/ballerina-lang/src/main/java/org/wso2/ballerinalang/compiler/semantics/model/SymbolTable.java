@@ -78,8 +78,6 @@ public class SymbolTable {
     private static final CompilerContext.Key<SymbolTable> SYM_TABLE_KEY =
             new CompilerContext.Key<>();
 
-    public static final PackageID UTILS = new PackageID(Names.BUILTIN_ORG, Names.UTILS_PACKAGE, Names.EMPTY);
-
     public static final PackageID TRANSACTION = new PackageID(Names.BUILTIN_ORG, Names.TRANSACTION_PACKAGE, 
                                                               Names.EMPTY);
     
@@ -148,7 +146,6 @@ public class SymbolTable {
     public BPackageSymbol langTypedescModuleSymbol;
     public BPackageSymbol langValueModuleSymbol;
     public BPackageSymbol langXmlModuleSymbol;
-    public BPackageSymbol utilsPackageSymbol;
 
     private Names names;
     public Map<BPackageSymbol, SymbolEnv> pkgEnvMap = new HashMap<>();

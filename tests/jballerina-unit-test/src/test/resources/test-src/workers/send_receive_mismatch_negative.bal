@@ -15,12 +15,10 @@
 // under the License.
 
 public function main() {
-    @concurrent{}
     worker w1 {
         5 ->> w2;
     }
 
-    @concurrent{}
     worker w2 {
         string lw = <- w1;
     }

@@ -12,12 +12,10 @@ public function testWaitForAllWorkers() {
 }
 
 function test() {
-    @concurrent{}
     worker w1 {
         return;
     }
 
-    @concurrent{}
     worker w2 {
         runtime:sleep(2000);
         io:println("Finishing Worker w2");

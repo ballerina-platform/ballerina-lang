@@ -2,8 +2,9 @@ NAME
        The Ballerina build tool
 
 SYNOPSIS
-       ballerina [-v | --version] [-h | --help]
-                 <command> [<args>]
+       ballerina <-v | --version>
+       ballerina [command] <-h | --help>
+       ballerina <command> [<args>]
 
 
 DESCRIPTION
