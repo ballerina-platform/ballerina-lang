@@ -549,4 +549,12 @@ public class ConstrainedMapTest {
     public void testInherentTypeViolationWithNilType() {
         BRunUtil.invoke(compileResult, "testInherentTypeViolationWithNilType");
     }
+
+    @Test(description = "Test closed record assignment to map which is constrained to anydata.")
+    public void testMapAnyDataClosedRecordAssignment() {
+
+        BValue[] returns = BRunUtil.invoke(compileResult, "testMapAnyDataClosedRecordAssignment");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertEquals(returns[0].stringValue(), "Jack");
+    }
 }
