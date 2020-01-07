@@ -32,7 +32,7 @@ import java.util.Optional;
  * 
  * @since 0.995.0
  */
-public class RHSCompletionsTokenTraverser extends AbstractTokenTraverser {
+class RHSCompletionsTokenTraverser extends AbstractTokenTraverser {
     private int leftBraceCount;
     private int leftBracketCount;
     private int leftParenthesisCount;
