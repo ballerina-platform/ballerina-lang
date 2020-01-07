@@ -1,4 +1,5 @@
 import ballerina/bir;
+import ballerina/llvm;
 
 type NewArray object {
     llvm:LLVMBuilderRef builder;
@@ -11,17 +12,37 @@ type NewArray object {
         self.builder = builder;
         self.parent = parent;
         self.lhsOp = newArrayIns.lhsOp;
-        self.sizeO = newArrayIns.sizeOp;
+        self.sizeOp = newArrayIns.sizeOp;
         self.typeValue = <bir:BArrayType>newArrayIns.typeValue;
     }
 
     function allocateArray() returns llvm:LLVMValueRef {
-        if (self.typeValue.eType is bir:BIntType) {
-            self.createIntArray();
+        if (self.typeValue.eType is bir:BTypeInt) {
+            llvm:LLVMValueRef newArrayRef = self.createNewIntArray();
+            return newArrayRef;
+        } else {
+            panic error("InvalidDataTypeForArrayError", message = "Arrays only supports integers yet!");
         }
     }
 
-    function createIntArray() returns llvm:LLVMValueRef {
-        llvm:LLVMValueRef sizeOp = self.parent.genLoadLocalToTempVar(sizeOp);
+    function createNewIntArray() returns llvm:LLVMValueRef {
+        llvm:LLVMValueRef[] sizeOpValRef = [self.parent.genLoadLocalToTempVar(self.sizeOp)];
+        llvm:LLVMValueRef newIntArrayFunc = nativeFunctionBuilder.getFunctionValueRef("new_int_array");
+        llvm:LLVMValueRef newIntArrayRef = llvm:llvmBuildCall(self.builder, newIntArrayFunc, sizeOpValRef, 0, self.getNewArrayTempName());
+        return self.storeReferenceArray(newIntArrayRef);
     }
-}
+
+    function getNewArrayTempName() returns string{
+        return self.getLhsOpName() + "_temp";
+    }
+
+    function getLhsOpName() returns string {
+        return self.lhsOp.variableDcl.name.value;
+    }
+
+    function storeReferenceArray(llvm:LLVMValueRef referenceArray) returns llvm:LLVMValueRef {
+        llvm:LLVMValueRef lhsOp = llvm:llvmBuildAlloca(self.builder, llvm:llvmPointerType(llvm:llvmInt64Type(), 0), self.getLhsOpName());
+        _ = llvm:llvmBuildStore(self.builder, referenceArray, lhsOp);
+        return lhsOp;
+    }
+};
