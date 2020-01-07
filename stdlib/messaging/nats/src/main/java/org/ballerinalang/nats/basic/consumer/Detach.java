@@ -18,12 +18,14 @@
 
 package org.ballerinalang.nats.basic.consumer;
 
+import io.nats.client.Connection;
 import io.nats.client.Dispatcher;
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.nats.Constants;
 import org.ballerinalang.nats.Utils;
+import org.ballerinalang.nats.observability.NatsMetricsUtil;
 
 import java.io.PrintStream;
 import java.util.List;
@@ -62,6 +64,11 @@ public class Detach {
         console.println(Constants.NATS_CLIENT_UNSUBSCRIBED + subject);
         serviceList.remove(service);
         dispatcherList.remove(service.getType().getName());
+        Connection natsConnection = (Connection) ((ObjectValue) listener.get(Constants.CONNECTION_OBJ))
+                .getNativeData(Constants.NATS_CONNECTION);
+        if (natsConnection != null) {
+            NatsMetricsUtil.reportUnsubscription(natsConnection.getConnectedUrl(), subject);
+        }
         return null;
     }
 

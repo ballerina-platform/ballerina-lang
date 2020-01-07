@@ -89,7 +89,7 @@ public class MimeUtilityFunctionTest {
     @BeforeClass
     public void setup() {
         String sourceFilePath = "test-src/mime-test.bal";
-        compileResult = BCompileUtil.compile(sourceFilePath);
+        compileResult = BCompileUtil.compileOffline(sourceFilePath);
     }
 
     @Test(description = "Test 'getMediaType' function in ballerina/mime package")

@@ -143,6 +143,7 @@ import org.wso2.ballerinalang.util.Lists;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -854,6 +855,9 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                     return;
                 }
                 BLangErrorVariable errorVariable = (BLangErrorVariable) variable;
+                if (errorVariable.typeNode != null) {
+                    symResolver.resolveTypeNode(errorVariable.typeNode, env);
+                }
                 errorVariable.type = rhsType;
                 if (!validateErrorVariable(errorVariable)) {
                     errorVariable.type = symTable.semanticError;
@@ -898,11 +902,13 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
                 if (rhsType.tag == TypeTags.TUPLE && !(checkTypeAndVarCountConsistency(tupleVariable,
                         (BTupleType) tupleVariable.type, blockEnv))) {
+                    recursivelyDefineVariables(tupleVariable, blockEnv);
                     return;
                 }
 
                 if (rhsType.tag == TypeTags.UNION && !(checkTypeAndVarCountConsistency(tupleVariable, null,
                         blockEnv))) {
+                    recursivelyDefineVariables(tupleVariable, blockEnv);
                     return;
                 }
 
@@ -1315,7 +1321,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 dlog.error(errorVariable.pos, DiagnosticCode.NO_NEW_VARIABLES_VAR_ASSIGNMENT);
                 return false;
             }
-            return validateErrorReasonMatchPatternSyntax(errorVariable, true);
+            return validateErrorReasonMatchPatternSyntax(errorVariable);
         }
 
         if (errorType.detailType.getKind() == TypeKind.RECORD) {
@@ -1337,16 +1343,18 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     }
 
     private boolean validateErrorVariable(BLangErrorVariable errorVariable, BErrorType errorType) {
-        if (!validateErrorReasonMatchPatternSyntax(errorVariable, false)) {
+        if (!validateErrorReasonMatchPatternSyntax(errorVariable)) {
             return false;
         }
 
         BRecordType recordType = (BRecordType) errorType.detailType;
-        Map<String, BField> fieldMap = recordType.fields.stream()
-                .collect(Collectors.toMap(f -> f.name.value, f -> f));
+        Map<String, BField> detailFields =
+                recordType.fields.stream().collect(Collectors.toMap(f -> f.name.value, f -> f));
+        Set<String> matchedDetailFields = new HashSet<>();
         for (BLangErrorVariable.BLangErrorDetailEntry errorDetailEntry : errorVariable.detail) {
             String entryName = errorDetailEntry.key.getValue();
-            BField entryField = fieldMap.get(entryName);
+            matchedDetailFields.add(entryName);
+            BField entryField = detailFields.get(entryName);
 
             BLangVariable boundVar = errorDetailEntry.valueBindingPattern;
             if (entryField != null) {
@@ -1373,8 +1381,11 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
 
         if (isRestDetailBindingAvailable(errorVariable)) {
+            // Type of rest pattern is a map type where constraint type is,
+            // union of keys whose values are not matched in error binding/match pattern.
             BTypeSymbol typeSymbol = createTypeSymbol(SymTag.TYPE);
-            BMapType restType = new BMapType(TypeTags.MAP, recordType.restFieldType, typeSymbol);
+            BType constraint = getRestMapConstraintType(detailFields, matchedDetailFields, recordType);
+            BMapType restType = new BMapType(TypeTags.MAP, constraint, typeSymbol);
             typeSymbol.type = restType;
             errorVariable.restDetail.type = restType;
             errorVariable.restDetail.accept(this);
@@ -1382,8 +1393,30 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         return true;
     }
 
-    // todo: warn parameter is a hack to fix patch compatibility by using dlog.warn, remove for minor release
-    private boolean validateErrorReasonMatchPatternSyntax(BLangErrorVariable errorVariable, boolean warn) {
+    private BType getRestMapConstraintType(Map<String, BField> errorDetailFields, Set<String> matchedDetailFields,
+                                           BRecordType recordType) {
+        BUnionType restUnionType = BUnionType.create(null);
+        if (!recordType.sealed) {
+            restUnionType.add(recordType.restFieldType);
+        }
+        for (Map.Entry<String, BField> entry : errorDetailFields.entrySet()) {
+            if (!matchedDetailFields.contains(entry.getKey())) {
+                BType type = entry.getValue().getType();
+                if (!types.isAssignable(type, restUnionType)) {
+                    restUnionType.add(type);
+                }
+            }
+        }
+
+        Set<BType> memberTypes = restUnionType.getMemberTypes();
+        if (memberTypes.size() == 1) {
+            return memberTypes.iterator().next();
+        }
+
+        return restUnionType;
+    }
+
+    private boolean validateErrorReasonMatchPatternSyntax(BLangErrorVariable errorVariable) {
         if (errorVariable.isInMatchStmt
                 && !errorVariable.reasonVarPrefixAvailable
                 && errorVariable.reasonMatchConst == null
@@ -1392,11 +1425,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             BSymbol reasonConst = symResolver.lookupSymbol(
                     this.env.enclEnv, names.fromString(errorVariable.reason.name.value), SymTag.CONSTANT);
             if (reasonConst == symTable.notFoundSymbol) {
-                if (warn) {
-                    dlog.warning(errorVariable.reason.pos, DiagnosticCode.INVALID_ERROR_REASON_BINDING_PATTERN,
-                            errorVariable.reason.name);
-                    return true;
-                }
                 dlog.error(errorVariable.reason.pos, DiagnosticCode.INVALID_ERROR_REASON_BINDING_PATTERN,
                         errorVariable.reason.name);
             } else {

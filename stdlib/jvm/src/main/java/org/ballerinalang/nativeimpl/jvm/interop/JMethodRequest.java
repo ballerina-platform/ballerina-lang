@@ -48,6 +48,7 @@ import static org.ballerinalang.nativeimpl.jvm.interop.JInterop.PARAM_TYPES_FIEL
 import static org.ballerinalang.nativeimpl.jvm.interop.JInterop.PARAM_TYPE_CONSTRAINTS_FIELD;
 import static org.ballerinalang.nativeimpl.jvm.interop.JInterop.RECORD_TNAME;
 import static org.ballerinalang.nativeimpl.jvm.interop.JInterop.REST_PARAM_EXIST_FIELD;
+import static org.ballerinalang.nativeimpl.jvm.interop.JInterop.REST_TYPE_FIELD;
 import static org.ballerinalang.nativeimpl.jvm.interop.JInterop.RETURN_TYPE_FIELD;
 import static org.ballerinalang.nativeimpl.jvm.interop.JInterop.TUPLE_TNAME;
 import static org.ballerinalang.nativeimpl.jvm.interop.JInterop.TUPLE_TYPE_MEMBERS_FIELD;
@@ -88,8 +89,15 @@ class JMethodRequest {
 
         MapValue bFuncType = (MapValue) jMethodReqBValue.get(B_FUNC_TYPE_FIELD);
         ArrayValue paramTypes = (ArrayValue) bFuncType.get(PARAM_TYPES_FIELD);
+
+        Object restType = bFuncType.get(REST_TYPE_FIELD);
+        if (restType != null) {
+            paramTypes.append(restType);
+        }
+
         jMethodReq.bFuncParamCount = paramTypes.size();
         jMethodReq.bParamTypes = getBParamTypes(paramTypes);
+
         BType returnType = getBType(bFuncType.get(RETURN_TYPE_FIELD));
         jMethodReq.bReturnType = returnType;
         jMethodReq.returnsBErrorType = returnType.toString().contains(TypeConstants.ERROR);
@@ -186,11 +194,16 @@ class JMethodRequest {
                             bRecordType.typeFlags);
                 case TypeConstants.FUNCTION_TNAME:
                     ArrayValue params = (ArrayValue) typeValue.get(PARAM_TYPES_FIELD);
+                    BType restType = null;
                     BType[] paramTypes = new BType[params.size()];
                     for (int i = 0; i < params.size(); i++) {
                         paramTypes[i] = getBType(params.get(i));
                     }
-                    return new BFunctionType(paramTypes, getBType(typeValue.get(RETURN_TYPE_FIELD)));
+                    Object restVar = typeValue.get(REST_TYPE_FIELD);
+                    if (restVar != null) {
+                        restType = getBType(restVar);
+                    }
+                    return new BFunctionType(paramTypes, restType, getBType(typeValue.get(RETURN_TYPE_FIELD)));
                 default:
                     throw new UnsupportedOperationException("JInterop does not support type '" + bType + "'");
             }

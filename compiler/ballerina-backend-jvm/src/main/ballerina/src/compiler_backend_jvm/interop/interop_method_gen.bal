@@ -98,6 +98,7 @@ public type JCast record {|
 
 public type JErrorEntry record {|
     bir:BasicBlock trapBB;
+    bir:BasicBlock endBB;
     bir:VarRef errorOp;
     bir:BasicBlock targetBB;
     CatchIns[] catchIns;
@@ -411,7 +412,7 @@ function desugarInteropFuncs(bir:Package module, JMethodFunctionWrapper extFuncW
         }
 
         bir:BasicBlock catchBB = {id: getNextDesugarBBId(bbPrefix), instructions: []};
-        JErrorEntry ee = { trapBB:beginBB, errorOp:retRef, targetBB:catchBB, catchIns:[] };
+        JErrorEntry ee = { trapBB:beginBB, endBB:thenBB, errorOp:retRef, targetBB:catchBB, catchIns:[] };
         foreach var exception in extFuncWrapper.jMethod.throws {
             bir:Return exceptionRet = {pos:{}, kind:bir:TERMINATOR_RETURN};
             CatchIns catchIns = { errorClass:exception, term:exceptionRet };

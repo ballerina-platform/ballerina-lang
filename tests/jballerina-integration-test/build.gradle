@@ -96,7 +96,6 @@ dependencies {
     baloTestImplementation project(path: ':ballerina-http', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-jdbc', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-transactions', configuration: 'baloImplementation')
-    baloTestImplementation project(path: ':ballerina-utils', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-websub', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-grpc', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-socket', configuration: 'baloImplementation')

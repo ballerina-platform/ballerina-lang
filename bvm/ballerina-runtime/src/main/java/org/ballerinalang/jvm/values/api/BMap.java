@@ -33,7 +33,7 @@ import java.util.Set;
  *
  * @since 1.1.0
  */
-public interface BMap<K, V> extends BRefValue {
+public interface BMap<K, V> extends BRefValue, BCollection {
 
     /**
      * Returns the value to which the specified key is mapped, or {@code null} if this map contains no

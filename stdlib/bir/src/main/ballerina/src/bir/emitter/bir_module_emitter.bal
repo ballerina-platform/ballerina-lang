@@ -30,6 +30,8 @@ public function emitModule(Package mod) returns string {
     modStr += emitLBreaks(2);
     modStr += emitTypeDefs(mod.typeDefs);
     modStr += emitLBreaks(2);
+    modStr += emitGlobalVars(mod.globalVars);
+    modStr += emitLBreaks(2);
     modStr += emitFunctions(mod.functions);
 
     modStr += emitLBreaks(1);
@@ -115,8 +117,13 @@ function emitGlobalVars(GlobalVariableDcl?[] globleVars) returns string {
 function emitGlobalVar(GlobalVariableDcl globalVar) returns string {
     string globalVarStr = "";
     globalVarStr += emitFlags(globalVar.flags);
+    if globalVarStr != "" {
+        globalVarStr += emitSpaces(1);
+    }
     globalVarStr += emitName(globalVar.name);
+    globalVarStr += emitSpaces(1);
     globalVarStr += emitTypeRef(globalVar.typeValue);
+    globalVarStr += ";";
     return globalVarStr;
 }
 
@@ -148,6 +155,8 @@ function emitFunction(Function func, int tabs) returns string {
     funcString += emitLBreaks(1);
     funcString += emitBasicBlocks(func.basicBlocks, tabs + 1);
     funcString += emitLBreaks(1);
+    funcString += emitErrorEntries(func.errorEntries, tabs + 1);
+    funcString += emitLBreaks(1);
     funcString += emitTabs(tabs);
     funcString += "}";
     return funcString;
@@ -159,19 +168,22 @@ function emitLocalVars(VariableDcl?[] localVars, int tabs) returns string {
     	if lVar is VariableDcl {
             varStr += emitLocalVar(lVar, tabs);
             varStr += emitLBreaks(1);
-	}
+	    }
     }
     return varStr;
 }
 
 function emitLocalVar(VariableDcl lVar, int tabs) returns string {
-    string lVarStr = "";
-    lVarStr += emitTabs(tabs);
-    lVarStr += emitName(lVar.name);
-    lVarStr += emitSpaces(1);
-    lVarStr += emitTypeRef(lVar.typeValue);
-    lVarStr += ";";
-    return lVarStr;
+    string str = "";
+    str += emitTabs(tabs);
+    str += emitName(lVar.name);
+    str += "(";
+    str += lVar.kind.toString();
+    str += ")";
+    str += emitSpaces(1);
+    str += emitTypeRef(lVar.typeValue);
+    str += ";";
+    return str;
 }
 
 function emitBasicBlocks(BasicBlock?[] basicBlocks, int tabs) returns string {
@@ -180,7 +192,7 @@ function emitBasicBlocks(BasicBlock?[] basicBlocks, int tabs) returns string {
     	if bb is BasicBlock {
             bbStr += emitBasicBlock(bb, tabs);
             bbStr += emitLBreaks(1);
-	}
+	    }
     }
     return bbStr;
 }
@@ -200,4 +212,78 @@ function emitBasicBlock(BasicBlock basicBlock, int tabs) returns string {
     return bbStr;
 }
 
+//////////////////// emit error table entries ////////////
+// TODO improve this to be able to plug custom error emitters as there may be
+// TODO cnt - custom error entries @platform specific code gen sides
+//
+//   -------------------------------
+//   | trapBB       | errorOp      |
+//   -------------------------------
+//   | bb1          | op1          |
+
+function emitErrorEntries(ErrorEntry?[] errorEntries, int tabs) returns string {
+    string str = "";
+    if errorEntries.length() == 0 {
+        return str;
+    }
+    str += emitTabs(tabs);
+    str += "---------------------------------------------";
+    str += emitLBreaks(1);
+    str += emitTabs(tabs);
+    str += "|";
+    str += emitSpaces(1);
+    str += "trapBB";
+    str += emitSpaces(7);
+    str += "|";
+    str += emitSpaces(1);
+    str += "endBB";
+    str += emitSpaces(8);
+    str += "|";
+    str += emitSpaces(1);
+    str += "errorOp";
+    str += emitSpaces(6);
+    str += "|";
+    str += emitLBreaks(1);
+    str += emitTabs(tabs);
+    str += "---------------------------------------------";
+    str += emitLBreaks(1);
+    foreach ErrorEntry? err in errorEntries {
+        if err is ErrorEntry {
+            str += emitErrorEntry(err, tabs);
+            str += emitLBreaks(1);
+        }
+    }
+    str += emitTabs(tabs);
+    str += "---------------------------------------------";
+    return str;
+}
+
+function emitErrorEntry(ErrorEntry err, int tabs) returns string {
+    string str = "";
+    str += emitTabs(tabs);
+    str += "|";
+    str += emitSpaces(1);
+    string bbRef = emitBasicBlockRef(err.trapBB);
+    int bbSpaces = calculateSpaces(bbRef);
+    str += bbRef;
+    str += emitSpaces(bbSpaces);
+    str += "|";
+    str += emitSpaces(1);
+    string endBBRef = emitBasicBlockRef(err.endBB);
+    int endBBSpaces = calculateSpaces(endBBRef);
+    str += endBBRef;
+    str += emitSpaces(endBBSpaces);
+    str += "|";
+    str += emitSpaces(1);
+    string varRef = emitVarRef(err.errorOp);
+    int varRefSpaces = calculateSpaces(varRef);
+    str += varRef;
+    str += emitSpaces(varRefSpaces);
+    str += "|";
+    return str;
+}
+
+function calculateSpaces(string str) returns int {
+    return 13 - str.length();
+}
 

@@ -19,9 +19,6 @@
 
 package org.ballerinalang.test.lock;
 
-
-import org.ballerinalang.jvm.runtime.BLangThreadFactory;
-
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -34,8 +31,7 @@ public class TestThreadPool {
 
     private static TestThreadPool instance = new TestThreadPool();
 
-    private ExecutorService executorService = Executors.newFixedThreadPool(500,
-            new BLangThreadFactory("test-thread-pool"));
+    private ExecutorService executorService = Executors.newFixedThreadPool(500);
 
     private TestThreadPool() {
     }

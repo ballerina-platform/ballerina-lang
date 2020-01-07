@@ -108,7 +108,7 @@ public type ChatClient client object {
 
     *grpc:AbstractClientEndpoint;
 
-    private grpc:Client grpcClient;
+    private grpc:Client? grpcClient = ();
 
     public function __init(string url, grpc:ClientConfiguration? config = ()) {
         // initialize client endpoint.
@@ -124,7 +124,12 @@ public type ChatClient client object {
 
     public remote function chat(service msgListener, grpc:Headers? headers = ()) returns
     (grpc:StreamingClient|grpc:Error) {
-        return self.grpcClient->streamingExecute("Chat/chat", msgListener, headers);
+        if !(self.grpcClient is grpc:Client) {
+            error err = error("UninitializedFieldsErrorType", message = "Field(s) are not initialized");
+            return grpc:prepareError(grpc:INTERNAL_ERROR, "Field(s) are not initialized", err);
+        }
+        grpc:Client tempGrpcClient = <grpc:Client> self.grpcClient;
+        return tempGrpcClient->streamingExecute("Chat/chat", msgListener, headers);
     }
 };
 

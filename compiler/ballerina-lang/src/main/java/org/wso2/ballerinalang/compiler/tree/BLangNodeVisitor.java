@@ -484,10 +484,6 @@ public abstract class BLangNodeVisitor {
         throw new AssertionError();
     }
 
-    public void visit(BLangInvocation.BLangBuiltInMethodInvocation builtInMethodInvocation) {
-        throw new AssertionError();
-    }
-
     public void visit(BLangTernaryExpr ternaryExpr) {
         throw new AssertionError();
     }

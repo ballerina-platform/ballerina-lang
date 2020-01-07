@@ -602,8 +602,7 @@ public class BLangPackageBuilder {
     }
 
     void addFunctionType(DiagnosticPos pos, Set<Whitespace> ws, boolean paramsAvail,
-                         boolean retParamsAvail) {
-        // TODO : Fix function main ()(boolean , function(string x)(float, int)){} issue
+                         boolean restParamAvail, boolean retParamsAvail) {
         BLangFunctionTypeNode functionTypeNode = (BLangFunctionTypeNode) TreeBuilder.createFunctionTypeNode();
         functionTypeNode.pos = pos;
         functionTypeNode.returnsKeywordExists = true;
@@ -620,8 +619,13 @@ public class BLangPackageBuilder {
 
         if (paramsAvail) {
             functionTypeNode.addWS(commaWsStack.pop());
-            this.varListStack.pop().forEach(v -> functionTypeNode.params.add(v));
+            functionTypeNode.params.addAll(this.varListStack.pop());
         }
+
+        if (restParamAvail) {
+            functionTypeNode.restParam = (BLangSimpleVariable) this.restParamStack.pop();
+        }
+        functionTypeNode.flagSet.add(Flag.PUBLIC);
 
         functionTypeNode.addWS(ws);
         addType(functionTypeNode);
@@ -1793,8 +1797,8 @@ public class BLangPackageBuilder {
         this.startBlock();
     }
 
-    void addWorker(DiagnosticPos pos, Set<Whitespace> ws, String workerName, boolean retParamsAvail,
-                   int numAnnotations) {
+    void addWorker(DiagnosticPos pos, Set<Whitespace> ws, String workerName, DiagnosticPos workerNamePos,
+                   boolean retParamsAvail, int numAnnotations) {
         // Merge worker definition whitespaces and worker declaration whitespaces.
         if (this.workerDefinitionWSStack.size() > 0 && ws != null) {
             ws.addAll(this.workerDefinitionWSStack.pop());
@@ -1805,6 +1809,9 @@ public class BLangPackageBuilder {
         BLangFunction bLangFunction = (BLangFunction) this.invokableNodeStack.peek();
         // change default worker name
         bLangFunction.defaultWorkerName.value = workerName;
+        if (workerNamePos != null) {
+            bLangFunction.defaultWorkerName.pos = workerNamePos;
+        }
 
         // Attach worker annotation to the function node.
         attachAnnotations(bLangFunction, numAnnotations, true);
@@ -1825,11 +1832,12 @@ public class BLangPackageBuilder {
             }
         }
 
-        addNameReference(pos, null, null, workerLambdaName);
+        DiagnosticPos namePos = workerNamePos != null ? workerNamePos : pos;
+        addNameReference(namePos, null, null, workerLambdaName);
         startInvocationNode(null);
-        createWorkerLambdaInvocationNode(pos, null, workerLambdaName);
-        markLastInvocationAsAsync(pos, numAnnotations);
-        addWorkerVariableDefStatement(pos, workerName);
+        createWorkerLambdaInvocationNode(namePos, null, workerLambdaName);
+        markLastInvocationAsAsync(namePos, numAnnotations);
+        addWorkerVariableDefStatement(namePos, workerName);
         BLangSimpleVariableDef invocationStmt = getLastVarDefStmtFromBlock();
         if (invocationStmt != null) {
             invocationStmt.isWorker = true;
@@ -3861,34 +3869,6 @@ public class BLangPackageBuilder {
             topLevelNodes.add(0, importDcl);
             this.imports.add(importDcl);
         }
-    }
-
-    BLangLambdaFunction getScopesFunctionDef(DiagnosticPos pos, Set<Whitespace> ws, boolean bodyExists, String name) {
-        BLangFunction function = (BLangFunction) this.invokableNodeStack.pop();
-        function.pos = pos;
-        function.addWS(ws);
-
-        //always a public function
-        function.flagSet.add(Flag.PUBLIC);
-        function.flagSet.add(Flag.LAMBDA);
-
-        if (!bodyExists) {
-            function.body = null;
-        }
-
-        BLangIdentifier nameId = new BLangIdentifier();
-        nameId.setValue(Names.GEN_VAR_PREFIX + name);
-        function.name = nameId;
-
-        BLangValueType typeNode = (BLangValueType) TreeBuilder.createValueTypeNode();
-        typeNode.pos = pos;
-        typeNode.typeKind = TypeKind.NIL;
-        function.returnTypeNode = typeNode;
-
-        function.receiver = null;
-        BLangLambdaFunction lambda = (BLangLambdaFunction) TreeBuilder.createLambdaFunctionNode();
-        lambda.function = function;
-        return lambda;
     }
 
     public void addTypeReference(DiagnosticPos currentPos, Set<Whitespace> ws) {

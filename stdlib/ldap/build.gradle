@@ -24,22 +24,24 @@ dependencies {
     implementation project(':ballerina-lang')
     implementation project(':ballerina-lang:annotations')
     implementation project(':ballerina-runtime')
-    implementation project(':ballerina-utils')
     implementation project(':ballerina-auth')
     implementation project(':ballerina-crypto')
     implementation project(':ballerina-runtime-api')
+    implementation project(':ballerina-java')
 
     baloImplementation project(path: ':ballerina-lang:annotations', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-utils', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-auth', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-crypto', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-runtime-api', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-java', configuration: 'baloImplementation')
 
     interopImports project(':ballerina-config-api')
     interopImports project(':ballerina-io')
+    interopImports project(':ballerina-log-api')
     interopImports project(':ballerina-system')
     interopImports project(':ballerina-task')
     interopImports project(':ballerina-time')
+    interopImports project(':ballerina-runtime-api')
 
     //transitive
     baloImplementation project(path: ':ballerina-log-api', configuration: 'baloImplementation')

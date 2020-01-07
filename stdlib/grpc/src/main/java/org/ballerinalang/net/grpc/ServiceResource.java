@@ -18,7 +18,7 @@
 
 package org.ballerinalang.net.grpc;
 
-import org.ballerinalang.jvm.scheduling.Scheduler;
+import org.ballerinalang.jvm.BRuntime;
 import org.ballerinalang.jvm.types.AttachedFunction;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.values.ObjectValue;
@@ -40,14 +40,14 @@ public class ServiceResource {
     private final String functionName;
     private final BType[] paramTypes;
     private final boolean headerRequired;
-    private final Scheduler scheduler;
+    private final BRuntime runtime;
 
-    public ServiceResource(Scheduler scheduler, ObjectValue service, AttachedFunction function) {
+    public ServiceResource(BRuntime runtime, ObjectValue service, AttachedFunction function) {
         this.service = service;
         this.functionName = function.funcName;
         paramTypes = function.getParameterType();
         this.headerRequired = headersRequired(function);
-        this.scheduler = scheduler;
+        this.runtime = runtime;
     }
 
     public ObjectValue getService() {
@@ -66,7 +66,7 @@ public class ServiceResource {
         return functionName;
     }
 
-    public Scheduler getScheduler() {
-        return scheduler;
+    public BRuntime getRuntime() {
+        return runtime;
     }
 }
