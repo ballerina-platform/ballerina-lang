@@ -11,7 +11,7 @@ Ensure you are using the latest Ballerina version before you run an automated se
 
 If you have any concerns regarding the security aspects of the source code or any other resource in this repo or have uncovered a security vulnerability, we strongly encourage you to report that to our private and highly confidential security mailing list: **security@ballerina.io** first using the below key without disclosing them in any forums, sites, or other groups - public or private. 
 
-s0168 DA26 2989 0DB9 4ACD 8367 E683 061E 2F85 C381 pgp.mit.edu
+security@ballerina.io: 0168 DA26 2989 0DB9 4ACD 8367 E683 061E 2F85 C381 [pgp.mit.edu](https://pgp.surfnet.nl/pks/lookup?op=vindex&fingerprint=on&search=0xE683061E2F85C381)
 
 We will keep you informed of the progress towards a fix and disclosure of the vulnerability if reported issue is identified as a true positive. To protect the end-user security, these issues could be disclosed in other places only after it’s mitigation actions and disclosure process are completed.
 
