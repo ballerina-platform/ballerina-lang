@@ -629,7 +629,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
             Optional<Lock> lock = documentManager.lockFile(compilationPath);
             try {
                 documentManager.openFile(Paths.get(new URL(docUri).toURI()), content);
-                LSClientLogger.logTrace("Operation '" + LSContextOperation.TXT_DID_OPEN + "' {fileUri: '" +
+                LSClientLogger.logTrace("Operation '" + LSContextOperation.TXT_DID_OPEN.getName() + "' {fileUri: '" +
                                                 compilationPath + "'} updated}");
                 ExtendedLanguageClient client = this.languageServer.getClient();
                 LSServiceOperationContext context = new LSServiceOperationContext(LSContextOperation.TXT_DID_OPEN);
@@ -665,7 +665,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
             for (TextDocumentContentChangeEvent changeEvent : changes) {
                 documentManager.updateFile(compilationPath, changeEvent.getText());
             }
-            LSClientLogger.logTrace("Operation '" + LSContextOperation.TXT_DID_CHANGE + "' {fileUri: '" +
+            LSClientLogger.logTrace("Operation '" + LSContextOperation.TXT_DID_CHANGE.getName() + "' {fileUri: '" +
                                             compilationPath + "'} updated}");
 
             // Schedule diagnostics
