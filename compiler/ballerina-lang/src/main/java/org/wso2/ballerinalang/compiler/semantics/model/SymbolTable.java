@@ -464,6 +464,7 @@ public class SymbolTable {
         // Define both implicit and explicit conversion operators
         defineImplicitCastOperator(intType, jsonType, true);
         defineImplicitCastOperator(intType, anyType, true);
+        defineImplicitCastOperator(byteType, jsonType, true);
         defineImplicitCastOperator(byteType, anyType, true);
         defineImplicitCastOperator(floatType, jsonType, true);
         defineImplicitCastOperator(floatType, anyType, true);

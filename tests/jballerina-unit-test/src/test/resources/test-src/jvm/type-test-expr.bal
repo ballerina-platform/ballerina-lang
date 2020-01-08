@@ -117,3 +117,17 @@ function testSimpleRecordTypes_3() returns [boolean, boolean] {
     any a = b;
     return [a is A2, a is B2];
 }
+
+function testAnyJsonTypes() returns [boolean, boolean, boolean, boolean] {
+    int a = 1;
+    byte b = 1;
+    decimal d = 1;
+    float f = 1.0;
+
+    any aa = a;
+    any bb = b;
+    any dd = d;
+    any ff = f;
+
+    return [aa is json, bb is json, dd is json, ff is json];
+}

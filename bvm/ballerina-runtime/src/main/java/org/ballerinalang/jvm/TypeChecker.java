@@ -626,6 +626,7 @@ public class TypeChecker {
         switch (sourceType.getTag()) {
             case TypeTags.STRING_TAG:
             case TypeTags.INT_TAG:
+            case TypeTags.BYTE_TAG:
             case TypeTags.FLOAT_TAG:
             case TypeTags.DECIMAL_TAG:
             case TypeTags.BOOLEAN_TAG:
