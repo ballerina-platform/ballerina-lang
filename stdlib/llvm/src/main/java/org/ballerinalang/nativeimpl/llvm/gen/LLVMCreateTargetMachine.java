@@ -24,8 +24,8 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.bytedeco.javacpp.BytePointer;
-import org.bytedeco.llvm.LLVM.LLVMTargetRef;
 import org.bytedeco.llvm.LLVM.LLVMTargetMachineRef;
+import org.bytedeco.llvm.LLVM.LLVMTargetRef;
 
 import static org.ballerinalang.model.types.TypeKind.INT;
 import static org.ballerinalang.model.types.TypeKind.RECORD;

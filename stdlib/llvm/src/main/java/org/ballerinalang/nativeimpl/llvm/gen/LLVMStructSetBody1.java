@@ -22,9 +22,9 @@ import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.nativeimpl.llvm.FFIUtil;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.bytedeco.llvm.LLVM.LLVMTypeRef;
 import org.bytedeco.javacpp.Pointer;
 import org.bytedeco.javacpp.PointerPointer;
+import org.bytedeco.llvm.LLVM.LLVMTypeRef;
 
 import static org.ballerinalang.model.types.TypeKind.ARRAY;
 import static org.ballerinalang.model.types.TypeKind.INT;
