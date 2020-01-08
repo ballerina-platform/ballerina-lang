@@ -13,12 +13,15 @@
   See the License for the specific language governing permissions and
   limitations under the License.
  */
-package org.ballerinalang.langserver.sourceprune;
+package org.ballerinalang.langserver.completions.sourceprune;
 
 import org.antlr.v4.runtime.CommonToken;
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.TokenStream;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.sourceprune.AbstractTokenTraverser;
+import org.ballerinalang.langserver.sourceprune.SourcePruneContext;
+import org.ballerinalang.langserver.sourceprune.SourcePruneKeys;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
 
 import java.util.ArrayList;
@@ -32,7 +35,7 @@ import java.util.stream.Collectors;
  * 
  * @since 0.995.0
  */
-class LHSTokenTraverser extends AbstractTokenTraverser {
+class LHSCompletionsTokenTraverser extends AbstractTokenTraverser {
     private List<Integer> lhsTraverseTerminals;
     private List<Integer> blockRemoveKWTerminals;
     private boolean removeBlock;
@@ -46,7 +49,7 @@ class LHSTokenTraverser extends AbstractTokenTraverser {
     private SourcePruneContext sourcePruneContext;
     private boolean forcedProcessedToken;
 
-    LHSTokenTraverser(SourcePruneContext sourcePruneContext, boolean pruneTokens) {
+    LHSCompletionsTokenTraverser(SourcePruneContext sourcePruneContext, boolean pruneTokens) {
         super(pruneTokens);
         this.sourcePruneContext = sourcePruneContext;
         this.lhsTraverseTerminals = sourcePruneContext.get(SourcePruneKeys.LHS_TRAVERSE_TERMINALS_KEY);
@@ -64,7 +67,7 @@ class LHSTokenTraverser extends AbstractTokenTraverser {
         this.processedTokens = new ArrayList<>();
     }
 
-    List<CommonToken> traverseLHS(TokenStream tokenStream, int tokenIndex) {
+    public List<CommonToken> traverse(TokenStream tokenStream, int tokenIndex) {
         Optional<Token> token = Optional.of(tokenStream.get(tokenIndex));
         while (token.isPresent()) {
             int type = token.get().getType();
@@ -90,7 +93,7 @@ class LHSTokenTraverser extends AbstractTokenTraverser {
             tokenIndex = token.get().getTokenIndex() - 1;
             token = tokenIndex < 0 ? Optional.empty() : Optional.of(tokenStream.get(tokenIndex));
         }
-        
+
         sourcePruneContext.put(SourcePruneKeys.REMOVE_DEFINITION_KEY, this.removeBlock);
         sourcePruneContext.put(SourcePruneKeys.RIGHT_PARAN_COUNT_KEY, this.rightParenthesisCount);
         sourcePruneContext.put(SourcePruneKeys.LEFT_PARAN_COUNT_KEY, this.leftParenthesisCount);
@@ -125,7 +128,7 @@ class LHSTokenTraverser extends AbstractTokenTraverser {
                 this.forcedProcessedToken = true;
                 this.sourcePruneContext.put(SourcePruneKeys.FORCE_CAPTURED_STATEMENT_WITH_PARENTHESIS_KEY, true);
                 return false;
-            } else if (tokenToLeft.isPresent() && 
+            } else if (tokenToLeft.isPresent() &&
                     (BallerinaParser.IF == tokenToLeft.get().getType() ||
                             BallerinaParser.WHILE == tokenToLeft.get().getType())) {
                 // Cursor is within the if/ else if/ while condition
@@ -136,16 +139,16 @@ class LHSTokenTraverser extends AbstractTokenTraverser {
         /*
         Right brace is used as a terminal token and should be used as a terminating point for block statements.
         in cases such as following example,
-            xyz {f1:1, f2:{f3:4}} = 
+            xyz {f1:1, f2:{f3:4}} =
         right brace cannot consider as a terminal token, therefore we track the previous token and consider that to
         identify blocks. Until the right brace count is zero all the following right braces are altered (refer example)
         also gtSymbolCount check added to cover the following
             typedesc<record {}> x = t
          */
         if (type == BallerinaParser.RIGHT_BRACE
-                && (this.lastProcessedToken == BallerinaParser.ASSIGN
-                || this.lastProcessedToken == BallerinaParser.EQUAL_GT || this.rightBraceCount > 0
-                || this.gtSymbolCount > 0)) {
+                && (this.lastProcessedToken != null && (this.lastProcessedToken.getType() == BallerinaParser.ASSIGN
+                || this.lastProcessedToken.getType() == BallerinaParser.EQUAL_GT || this.rightBraceCount > 0
+                || this.gtSymbolCount > 0))) {
             this.processToken(token);
             this.forcedProcessedToken = true;
             this.rightBraceCount++;
@@ -195,7 +198,7 @@ class LHSTokenTraverser extends AbstractTokenTraverser {
             this.processToken(token);
             this.forcedProcessedToken = true;
             // TODO: signatureWithinAnnotations has been disabled
-            /* Following logic will invalidate the signatureWithinAnnotations.bal and Signature help has to find 
+            /* Following logic will invalidate the signatureWithinAnnotations.bal and Signature help has to find
             an alternative way of handling this case
              */
             if (isComma && this.incompleteStatementWithParenthesis(tokenStream, token)) {
@@ -203,10 +206,10 @@ class LHSTokenTraverser extends AbstractTokenTraverser {
                 return false;
             }
         }
-        
+
         return rightParenthesisCount == 0 && this.rightBraceCount == 0 && rightBracketCount == 0;
     }
-    
+
     private boolean removeFunctionSignatureOnReturnKWMatch(TokenStream tokenStream) {
         List<CommonToken> processedDefaultTokens = this.processedTokens.stream()
                 .filter(commonToken -> commonToken.getChannel() == Token.DEFAULT_CHANNEL)
@@ -224,7 +227,8 @@ class LHSTokenTraverser extends AbstractTokenTraverser {
                 Same applies for worker
              */
             Optional<Token> nextDefaultToken = CommonUtil.getNextDefaultToken(tokenStream,
-                    processedDefaultTokens.get(0).getTokenIndex());
+                                                                              processedDefaultTokens.get(0)
+                                                                                      .getTokenIndex());
             return nextDefaultToken.isPresent() && nextDefaultToken.get().getType() != BallerinaParser.ASSIGN
                     && nextDefaultToken.get().getType() != BallerinaParser.LEFT_BRACE;
         }
@@ -238,11 +242,12 @@ class LHSTokenTraverser extends AbstractTokenTraverser {
              */
 
             Optional<Token> nextDefaultToken = CommonUtil.getNextDefaultToken(tokenStream,
-                    processedDefaultTokens.get(0).getTokenIndex());
+                                                                              processedDefaultTokens.get(0)
+                                                                                      .getTokenIndex());
             return nextDefaultToken.isPresent() && nextDefaultToken.get().getType() != BallerinaParser.ASSIGN
                     && nextDefaultToken.get().getType() != BallerinaParser.LEFT_BRACE;
         }
-        
+
         return false;
     }
 
@@ -253,11 +258,11 @@ class LHSTokenTraverser extends AbstractTokenTraverser {
             return true;
         }
         int nextTokenType = tokenOneToRight.get().getType();
-        
+
         if (nextTokenType == BallerinaParser.RIGHT_PARENTHESIS) {
             Optional<Token> tokenTwoToRight = CommonUtil.getNextDefaultToken(tokenStream,
-                    tokenOneToRight.get().getTokenIndex());
-            
+                                                                             tokenOneToRight.get().getTokenIndex());
+
             if (tokenTwoToRight.isPresent()) {
                 /*
                 This is to cover the following case,
@@ -271,7 +276,8 @@ class LHSTokenTraverser extends AbstractTokenTraverser {
                 Eg: function (int , int ) returns (s<cursor>) sumFunction = ...
                  */
                 Optional<Token> tokenThreeToRight = CommonUtil.getNextDefaultToken(tokenStream,
-                        tokenTwoToRight.get().getTokenIndex());
+                                                                                   tokenTwoToRight.get()
+                                                                                           .getTokenIndex());
                 if (tokenThreeToRight.isPresent() && tokenThreeToRight.get().getType() == BallerinaParser.ASSIGN) {
                     return false;
                 }
