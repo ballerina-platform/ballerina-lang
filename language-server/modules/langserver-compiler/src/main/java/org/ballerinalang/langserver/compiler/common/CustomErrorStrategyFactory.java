@@ -18,6 +18,8 @@
 package org.ballerinalang.langserver.compiler.common;
 
 import org.ballerinalang.langserver.compiler.LSContext;
+import org.ballerinalang.langserver.compiler.format.FormatterCustomErrorStrategy;
+import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParserErrorStrategy;
 
 import java.lang.reflect.InvocationTargetException;
 
@@ -30,15 +32,19 @@ public class CustomErrorStrategyFactory {
      *
      * @param customErrorStrategyClass class to get the error strategy from
      * @param context                  language server context
-     * @return {@link LSCustomErrorStrategy} custom strategy
+     * @return {@link BallerinaParserErrorStrategy} custom strategy
      */
-    public static LSCustomErrorStrategy getCustomErrorStrategy(Class customErrorStrategyClass,
-                                                               LSContext context) {
+    public static BallerinaParserErrorStrategy getCustomErrorStrategy(Class customErrorStrategyClass,
+                                                                      LSContext context) {
         //TODO re-visit this to remove reflections
-        LSCustomErrorStrategy lsCustomErrorStrategy = null;
+        BallerinaParserErrorStrategy lsCustomErrorStrategy;
         try {
-            lsCustomErrorStrategy = (LSCustomErrorStrategy)
-                    customErrorStrategyClass.getConstructor(LSContext.class).newInstance(context);
+            Object errStrategy = customErrorStrategyClass.getConstructor(LSContext.class).newInstance(context);
+            if (errStrategy instanceof FormatterCustomErrorStrategy) {
+                lsCustomErrorStrategy = (FormatterCustomErrorStrategy) errStrategy;
+            } else {
+                lsCustomErrorStrategy = (LSCustomErrorStrategy) errStrategy;
+            }
         } catch (InvocationTargetException | InstantiationException | IllegalAccessException
                 | NoSuchMethodException e) {
             lsCustomErrorStrategy = new LSCustomErrorStrategy(context);

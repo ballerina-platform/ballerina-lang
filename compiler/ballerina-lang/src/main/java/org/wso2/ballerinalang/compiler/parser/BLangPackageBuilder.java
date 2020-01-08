@@ -3180,6 +3180,8 @@ public class BLangPackageBuilder {
         List<BLangVariable> params = this.varListStack.peek();
         BLangSimpleVariable var = (BLangSimpleVariable) params.get(params.size() - 1);
         var.expr = (BLangExpression) this.exprNodeStack.pop();
+        var.pos.eCol = var.expr.pos.eCol;
+        var.pos.eLine = var.expr.pos.eLine;
         var.addWS(ws);
     }
 

@@ -26,6 +26,7 @@ import org.ballerinalang.langserver.command.CommandUtil;
 import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
+import org.ballerinalang.langserver.compiler.LSClientLogger;
 import org.ballerinalang.langserver.compiler.LSCompilerCache;
 import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.compiler.LSModuleCompiler;
@@ -48,7 +49,6 @@ import org.ballerinalang.langserver.index.LSIndexImpl;
 import org.ballerinalang.langserver.signature.SignatureHelpUtil;
 import org.ballerinalang.langserver.signature.SignatureKeys;
 import org.ballerinalang.langserver.signature.SignatureTreeVisitor;
-import org.ballerinalang.langserver.sourceprune.SourcePruner;
 import org.ballerinalang.langserver.symbols.SymbolFindingVisitor;
 import org.ballerinalang.langserver.util.Debouncer;
 import org.ballerinalang.langserver.util.references.ReferencesUtil;
@@ -166,7 +166,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
             context.put(LSGlobalContextKeys.LS_INDEX_KEY, this.lsIndex);
 
             try {
-                SourcePruner.pruneSource(context);
+                CompletionUtil.pruneSource(context);
                 /*
                 If the token at cursor is within the hidden channel we stop calculating the completions. This will
                 avoid completions within the line comments
@@ -246,12 +246,8 @@ class BallerinaTextDocumentService implements TextDocumentService {
             context.put(CommonKeys.DOC_MANAGER_KEY, documentManager);
 
             try {
-                // Prepare content for source-prune
-                // This fix added to handle cases such as `foo(` that causes pruner to remove all RHS tokens.
-                SignatureHelpUtil.preprocessSourcePrune(context);
-
                 // Prune the source and compile
-                SourcePruner.pruneSource(context);
+                SignatureHelpUtil.pruneSource(context);
                 BLangPackage bLangPackage = LSModuleCompiler.getBLangPackage(context, documentManager,
                                                                              LSCustomErrorStrategy.class, false, false);
 
@@ -633,6 +629,8 @@ class BallerinaTextDocumentService implements TextDocumentService {
             Optional<Lock> lock = documentManager.lockFile(compilationPath);
             try {
                 documentManager.openFile(Paths.get(new URL(docUri).toURI()), content);
+                LSClientLogger.logTrace("Operation '" + LSContextOperation.TXT_DID_OPEN.getName() + "' {fileUri: '" +
+                                                compilationPath + "'} updated}");
                 ExtendedLanguageClient client = this.languageServer.getClient();
                 LSServiceOperationContext context = new LSServiceOperationContext(LSContextOperation.TXT_DID_OPEN);
                 context.put(DocumentServiceKeys.FILE_URI_KEY, docUri);
@@ -667,6 +665,8 @@ class BallerinaTextDocumentService implements TextDocumentService {
             for (TextDocumentContentChangeEvent changeEvent : changes) {
                 documentManager.updateFile(compilationPath, changeEvent.getText());
             }
+            LSClientLogger.logTrace("Operation '" + LSContextOperation.TXT_DID_CHANGE.getName() + "' {fileUri: '" +
+                                            compilationPath + "'} updated}");
 
             // Schedule diagnostics
             ExtendedLanguageClient client = this.languageServer.getClient();
@@ -674,7 +674,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 // Need to lock since debouncer triggers later
                 Optional<Lock> nLock = documentManager.lockFile(compilationPath);
                 try {
-                    LSServiceOperationContext ctx = new LSServiceOperationContext(LSContextOperation.TXT_DID_CHANGE);
+                    LSServiceOperationContext ctx = new LSServiceOperationContext(LSContextOperation.DIAGNOSTICS);
                     String fileURI = params.getTextDocument().getUri();
                     ctx.put(DocumentServiceKeys.FILE_URI_KEY, fileURI);
                     LSDocument lsDocument = new LSDocument(fileURI);

@@ -3,14 +3,12 @@ import ballerina/runtime;
 function forkWithTimeoutTest1() returns map<anydata> {
     map<any> m = {};
     fork {
-        @concurrent{}
         worker w1 {
             int a = 5;
             int b = 0;
             a -> w2;
             b = <- w2;
         }
-        @concurrent{}
         worker w2 {
             int a = 0;
             int b = 15;
@@ -19,14 +17,13 @@ function forkWithTimeoutTest1() returns map<anydata> {
             runtime:sleep(5000);
         }
     }
-    @concurrent{}
     worker w3 returns map<any> {
         map<any> results = wait {w1, w2};
         m["x"] = 25;
         return m;
     }
 
-    future<map<any>> f = @concurrent{} start timeoutFunction1(1000, m);
+    future<map<any>> f = start timeoutFunction1(1000, m);
     map<anydata> waitedResult = (wait w3 | f);
     var result = waitedResult.clone();
     return result;
@@ -35,26 +32,23 @@ function forkWithTimeoutTest1() returns map<anydata> {
 function forkWithTimeoutTest2() returns map<anydata> {
     map<any> m = {};
     fork {
-        @concurrent{}
         worker w1 {
             int a = 5;
             int b = 0;
         }
-        @concurrent{}
         worker w2 {
             int a = 0;
             int b = 15;
         }
     }
     map<any> results = wait {w1, w2};
-    @concurrent{}
     worker w3 returns map<any> {
         runtime:sleep(1000);
         m["x"] = 25;
         return m;
     }
 
-    future<map<any>> f = @concurrent{} start timeoutFunction1(5000, m);
+    future<map<any>> f = start timeoutFunction1(5000, m);
     map<anydata> waitedResult = (wait w3 | f);
     var result = waitedResult.clone();
     return result;
@@ -71,14 +65,12 @@ function complexForkWorkerSendReceive() returns map<any> {
     map<any> m = {};
     m["x"] = 10;
     fork {
-        @concurrent{}
         worker w1 {
             int a = 5;
             int b = 0;
             a -> w2;
             b = <- w2;
         }
-        @concurrent{}
         worker w2 {
             int a = 0;
             int b = 15;
@@ -94,7 +86,6 @@ function complexForkWorkerSendReceive() returns map<any> {
 function chainedWorkerSendReceive() returns map<any> {
     map<any> m = {};
     fork {
-        @concurrent{}
         worker w1 {
             int a = 3;
             int b = 0;
@@ -102,14 +93,12 @@ function chainedWorkerSendReceive() returns map<any> {
             b = <- w3;
             m["x"] = b;
         }
-        @concurrent{}
         worker w2 {
             int a = 0;
             int b = 15;
             a = <- w1;
             a * 2 -> w3;
         }
-        @concurrent{}
         worker w3 {
             int a = 0;
             int b = 0;
@@ -127,21 +116,18 @@ function forkWithWaitOnSomeSelectedWorkers1() returns int|error {
     m["x"] = 0;
     m["y"] = 0;
     fork {
-        @concurrent{}
         worker w1 {
             int a = 55;
             int b = 5;
             m["x"] = a;
             m["y"] = b;
         }
-        @concurrent{}
         worker w2 {
             int a = 5;
             int b = 15;
             runtime:sleep(2000);
             m["x"] = a;
         }
-        @concurrent{}
         worker w3 {
             int a = 0;
             int b = 15;
@@ -161,7 +147,6 @@ function forkWithWaitOnSomeSelectedWorkers2() returns map<any> {
     map<any> m = {};
     m["x"] = 0;
     fork {
-        @concurrent{}
         worker w1 {
             int x = 80;
             x -> w2;
@@ -169,7 +154,6 @@ function forkWithWaitOnSomeSelectedWorkers2() returns map<any> {
             m["x"] = x;
             10 -> w2;
         }
-        @concurrent{}
         worker w2 {
             int a = 0;
             a = <- w1;
@@ -177,7 +161,6 @@ function forkWithWaitOnSomeSelectedWorkers2() returns map<any> {
             a = <- w1;
             10 -> w3;
         }
-        @concurrent{}
         worker w3 {
             int a = 0;
             a = <- w2;
@@ -193,7 +176,6 @@ function forkWithWaitOnSomeSelectedWorkers3() returns map<any> {
     map<any> m = {};
     m["x"] = 0;
     fork {
-        @concurrent{}
         worker w1 {
             int x = 10;
             x -> w2;
@@ -201,7 +183,6 @@ function forkWithWaitOnSomeSelectedWorkers3() returns map<any> {
             a = <- w3;
             (a * 2) -> w2;
         }
-        @concurrent{}
         worker w2 {
             int a = 0;
             a = <- w1;
@@ -211,7 +192,6 @@ function forkWithWaitOnSomeSelectedWorkers3() returns map<any> {
             (a * 2) -> w3;
             runtime:sleep(1000);
         }
-        @concurrent{}
         worker w3 {
             int a = 0;
             a = <- w2;
@@ -227,7 +207,6 @@ function forkWithWaitOnAllSelectedWorkers1() returns map<any> {
     map<any> m = {};
     m["x"] = 0;
     fork {
-        @concurrent{}
         worker w1 {
             int x = 10;
             x -> w2;
@@ -235,7 +214,6 @@ function forkWithWaitOnAllSelectedWorkers1() returns map<any> {
             a = <- w3;
             (a * 2) -> w2;
         }
-        @concurrent{}
         worker w2 {
             int a = 0;
             a = <- w1;
@@ -246,7 +224,6 @@ function forkWithWaitOnAllSelectedWorkers1() returns map<any> {
             runtime:sleep(1000);
             m["x"] = 33;
         }
-        @concurrent{}
         worker w3 {
             int a = 0;
             a = <- w2;
@@ -261,7 +238,6 @@ function forkWithWaitOnAllSelectedWorkers1() returns map<any> {
 function forkWithWaitOnAllSelectedWorkers2() returns int {
     int result = 0;
     fork {
-        @concurrent{}
         worker w1 {
             int x = 10;
             x -> w2;
@@ -269,7 +245,6 @@ function forkWithWaitOnAllSelectedWorkers2() returns int {
             a = <- w3;
             (a * 2) -> w2;
         }
-        @concurrent{}
         worker w2 {
             int a = 0;
             a = <- w1;
@@ -280,7 +255,6 @@ function forkWithWaitOnAllSelectedWorkers2() returns int {
             runtime:sleep(2000);
             result = 33;
         }
-        @concurrent{}
         worker w3 {
             int a = 0;
             a = <- w2;
@@ -288,13 +262,12 @@ function forkWithWaitOnAllSelectedWorkers2() returns int {
             result = <- w2;
         }
     }
-    @concurrent{}
     worker w4 returns int {
         map<any> results = wait {w2, w3};
         return result;
     }
 
-    future<int> f = @concurrent{} start timeoutFunction2(1000);
+    future<int> f = start timeoutFunction2(1000);
     return (wait w4 | f);
 }
 
@@ -307,7 +280,6 @@ function timeoutFunction2(int milliSeconds) returns int {
 function forkWithMessagePassing() returns map<any>|error {
     map<any> m = {};
     fork {
-        @concurrent{}
         worker w1 returns int {
             int a = 5;
             a -> w2;
@@ -315,7 +287,6 @@ function forkWithMessagePassing() returns map<any>|error {
             b = <- w2;
             return b;
         }
-        @concurrent{}
         worker w2 returns int {
             int a = 0;
             a = <- w1;
@@ -333,16 +304,13 @@ function forkWithMessagePassing() returns map<any>|error {
 }
 
 function forkWithinWorkers() returns int|error {
-    @concurrent{}
     worker wx returns int|error {
         int x = 20;
         map<any> m = {};
         fork {
-            @concurrent{}
             worker wx1 {
                 m["a"] = 10;
             }
-            @concurrent{}
             worker wx2 {
                 m["b"] = 20;
             }
@@ -365,7 +333,6 @@ function largeForkCreationTest() returns int|error {
     while (c > 0) {
         m["x"] = 10;
         fork {
-            @concurrent{}
             worker w1 {
                 int a = 2;
                 int b = 0;
@@ -373,63 +340,54 @@ function largeForkCreationTest() returns int|error {
                 b = <- w10;
                 m["x"] = result + b;
             }
-            @concurrent{}
             worker w2 {
                 int a = 0;
                 int b = 3;
                 a = <- w1;
                 (a + b) -> w3;
             }
-            @concurrent{}
             worker w3 {
                 int a = 0;
                 int b = 4;
                 a = <- w2;
                 (a + b) -> w4;
             }
-            @concurrent{}
             worker w4 {
                 int a = 0;
                 int b = 5;
                 a = <- w3;
                 (a + b) -> w5;
             }
-            @concurrent{}
             worker w5 {
                 int a = 0;
                 int b = 6;
                 a = <- w4;
                 (a + b) -> w6;
             }
-            @concurrent{}
             worker w6 {
                 int a = 0;
                 int b = 7;
                 a = <- w5;
                 (a + b) -> w7;
             }
-            @concurrent{}
             worker w7 {
                 int a = 0;
                 int b = 8;
                 a = <- w6;
                 (a + b) -> w8;
             }
-            @concurrent{}
             worker w8 {
                 int a = 0;
                 int b = 9;
                 a = <- w7;
                 (a + b) -> w9;
             }
-            @concurrent{}
             worker w9 {
                 int a = 0;
                 int b = 10;
                 a = <- w8;
                 (a + b) -> w10;
             }
-            @concurrent{}
             worker w10 {
                 int a = 0;
                 int b = 11;
@@ -448,12 +406,10 @@ function largeForkCreationTest() returns int|error {
 function forkWithStruct() returns string|error {
     string result = "";
     fork {
-        @concurrent{}
         worker w1 returns foo {
             foo f = { x: 1, y: "w1" };
             return f;
         }
-        @concurrent{}
         worker w2 returns float {
             float f = 10.344;
             return f;
@@ -475,12 +431,10 @@ type foo record {
 function forkWithSameWorkerContent() returns string|error {
     string result = "";
     fork {
-        @concurrent{}
         worker w1 returns any[] {
             any[] a = [];
             return a;
         }
-        @concurrent{}
         worker w2 returns any[] {
             any[] b = [];
             return b;
@@ -490,12 +444,10 @@ function forkWithSameWorkerContent() returns string|error {
     map<any> results1 = wait {w1, w2};
 
     fork {
-        @concurrent{}
         worker w3 returns string[] {
             string[] a = ["data1"];
             return a;
         }
-        @concurrent{}
         worker w4 returns string[] {
             string[] a = ["data2"];
             return a;

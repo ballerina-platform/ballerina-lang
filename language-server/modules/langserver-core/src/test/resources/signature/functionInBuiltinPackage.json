@@ -11,16 +11,18 @@
           "documentation": {
             "right": {
               "kind": "markdown",
-              "value": "Parses the given header value to extract its value and parameter map."
+              "value": "**Description**  \nParses the given header value to extract its value and parameter map."
             }
           },
           "parameters": [
             {
-              "label": "headerValue",
+              "label": {
+                "left": "string headerValue"
+              },
               "documentation": {
                 "right": {
                   "kind": "markdown",
-                  "value": "The header value"
+                  "value": "**Parameter**  \n**`string`headerValue**: The header value"
                 }
               }
             }

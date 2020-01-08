@@ -1,0 +1,4 @@
+# To start the service, navigate to the directory that contains the
+# `.bal` file and execute the `ballerina run` command.
+$ ballerina run secured_service_with_oauth2.bal
+[ballerina/http] started HTTPS/WSS listener 0.0.0.0:9090

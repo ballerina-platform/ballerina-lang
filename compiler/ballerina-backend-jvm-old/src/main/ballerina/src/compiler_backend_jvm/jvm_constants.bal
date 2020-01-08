@@ -215,6 +215,8 @@ int T_SHORT = 9;
 int T_INT = 10;
 int T_LONG = 11;
 
+// javm values public API classes
+const string BXML_QNAME = "org/ballerinalang/jvm/values/api/BXMLQName";
 
 // jvm runtime values related classes
 const string MAP_VALUE = "org/ballerinalang/jvm/values/MapValue";
@@ -310,6 +312,7 @@ const string JAVA_RUNTIME = "java/lang/Runtime";
 const string MAP_ENTRY = "java/util/Map$Entry";
 const string MAP_SIMPLE_ENTRY = "java/util/AbstractMap$SimpleEntry";
 const string COLLECTION = "java/util/Collection";
+const string BIG_DECIMAL = "java/math/BigDecimal";
 const string NUMBER = "java/lang/Number";
 
 // service objects, annotation processing related classes

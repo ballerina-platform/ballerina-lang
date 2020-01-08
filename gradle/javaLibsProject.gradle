@@ -121,7 +121,6 @@ dependencies {
     dist project(':ballerina-java')
     dist project(':ballerina-java-arrays')
     dist project(':ballerina-xslt')
-    dist project(':ballerina-utils')
     dist project(':metrics-extensions:ballerina-metrics-extension')
     dist project(':metrics-extensions:ballerina-prometheus-extension')
     dist project(':tracing-extensions:ballerina-jaeger-extension')

@@ -76,14 +76,14 @@ public class VersionMismatchNotificationProvider extends EditorNotifications.Pro
             if (!Strings.isNullOrEmpty(sdkVersion) && !Strings.isNullOrEmpty(pluginVersion)) {
                 // Compares the major and minor version numbers between the auto detected ballerina version and
                 // the plugin.
-                if (!sdkVersion.trim().equals(pluginVersion.trim())) {
+                if (!getMajorVersion(sdkVersion).equals(getMajorVersion(pluginVersion))
+                        || !getMinorVersion(sdkVersion).equals(getMinorVersion(pluginVersion))) {
                     return createPanel(module, sdkVersion, pluginVersion, true);
                 }
             }
         }
         return null;
     }
-
 
     @NotNull
     private String getMajorVersion(@NotNull String version) {

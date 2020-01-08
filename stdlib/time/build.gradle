@@ -40,9 +40,7 @@ dependencies {
     testCompile project(':ballerina-core')
     testCompile project(':ballerina-file')
 
-    bir project(path: ':ballerina-utils', configuration: 'bir')
     bir project(path: ':ballerina-lang:annotations', configuration: 'bir')
-    birJar project(path: ':ballerina-utils', configuration: 'birJar')
 }
 
 createBalo {

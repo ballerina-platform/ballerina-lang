@@ -47,10 +47,10 @@ import org.ballerinalang.jvm.values.HandleValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.RefValue;
 import org.ballerinalang.jvm.values.StreamValue;
-import org.ballerinalang.jvm.values.StringValue;
 import org.ballerinalang.jvm.values.TableValue;
 import org.ballerinalang.jvm.values.TypedescValue;
 import org.ballerinalang.jvm.values.XMLValue;
+import org.ballerinalang.jvm.values.api.BValue;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -174,8 +174,19 @@ public class TypeChecker {
      * @return true if the value belongs to the given type, false otherwise
      */
     public static boolean checkIsType(Object sourceVal, BType targetType) {
-        BType sourceType = getType(sourceVal);
-        if (checkIsType(sourceType, targetType, new ArrayList<>())) {
+        return checkIsType(sourceVal, getType(sourceVal), targetType);
+    }
+
+    /**
+     * Check whether a given value belongs to the given type.
+     *
+     * @param sourceVal value to check the type
+     * @param sourceType type of the value
+     * @param targetType type to be test against
+     * @return true if the value belongs to the given type, false otherwise
+     */
+    public static boolean checkIsType(Object sourceVal, BType sourceType, BType targetType) {
+        if (checkIsType(sourceType, targetType)) {
             return true;
         }
 
@@ -288,17 +299,13 @@ public class TypeChecker {
             } else if (value instanceof Integer || value instanceof Byte) {
                 return BTypes.typeByte;
             }
-        } else if (value instanceof DecimalValue) {
-            return BTypes.typeDecimal;
         } else if (value instanceof String) {
-            return BTypes.typeString;
-        } else if (value instanceof StringValue) {
             return BTypes.typeString;
         } else if (value instanceof Boolean) {
             return BTypes.typeBoolean;
         }
 
-        return ((RefValue) value).getType();
+        return ((BValue) value).getType();
     }
 
     /**
@@ -451,6 +458,18 @@ public class TypeChecker {
         return ((AnnotatableType) describingType).getAnnotation(annotTag);
     }
 
+    /**
+     * Check whether a given type is equivalent to a target type.
+     * 
+     * @param sourceType type to check
+     * @param targetType type to compare with
+     * @return flag indicating the the equivalence of the two types
+     */
+    public static boolean checkIsType(BType sourceType, BType targetType) {
+        return checkIsType(sourceType, targetType, (List<TypePair>) null);
+    }
+
+    @Deprecated
     public static boolean checkIsType(BType sourceType, BType targetType, List<TypePair> unresolvedTypes) {
         // First check whether both types are the same.
         if (sourceType == targetType || sourceType.equals(targetType)) {
@@ -475,6 +494,24 @@ public class TypeChecker {
                             .allMatch(bValue -> checkIsType(bValue, targetType));
                 }
                 return sourceType.getTag() == TypeTags.BYTE_TAG || sourceType.getTag() == TypeTags.INT_TAG;
+            case TypeTags.ANY_TAG:
+                return checkIsAnyType(sourceType);
+            case TypeTags.ANYDATA_TAG:
+                return sourceType.isAnydata();
+            case TypeTags.SERVICE_TAG:
+                return checkIsServiceType(sourceType);
+            case TypeTags.HANDLE_TAG:
+                return sourceType.getTag() == TypeTags.HANDLE_TAG;
+            default:
+                return checkIsRecursiveType(sourceType, targetType,
+                        unresolvedTypes == null ? new ArrayList<>() : unresolvedTypes);
+        }
+    }
+
+    // Private methods
+
+    private static boolean checkIsRecursiveType(BType sourceType, BType targetType, List<TypePair> unresolvedTypes) {
+        switch (targetType.getTag()) {
             case TypeTags.MAP_TAG:
                 return checkIsMapType(sourceType, (BMapType) targetType, unresolvedTypes);
             case TypeTags.TABLE_TAG:
@@ -493,10 +530,6 @@ public class TypeChecker {
                 return checkIsTupleType(sourceType, (BTupleType) targetType, unresolvedTypes);
             case TypeTags.UNION_TAG:
                 return checkIsUnionType(sourceType, (BUnionType) targetType, unresolvedTypes);
-            case TypeTags.ANY_TAG:
-                return checkIsAnyType(sourceType);
-            case TypeTags.ANYDATA_TAG:
-                return sourceType.isAnydata();
             case TypeTags.OBJECT_TYPE_TAG:
                 return checkObjectEquivalency(sourceType, (BObjectType) targetType, unresolvedTypes);
             case TypeTags.FINITE_TYPE_TAG:
@@ -505,16 +538,11 @@ public class TypeChecker {
                 return checkIsFutureType(sourceType, (BFutureType) targetType, unresolvedTypes);
             case TypeTags.ERROR_TAG:
                 return checkIsErrorType(sourceType, (BErrorType) targetType, unresolvedTypes);
-            case TypeTags.SERVICE_TAG:
-                return checkIsServiceType(sourceType);
-            case TypeTags.HANDLE_TAG:
-                return sourceType.getTag() == TypeTags.HANDLE_TAG;
             default:
+                // other non-recursive types shouldn't reach here
                 return false;
         }
     }
-
-    // Private methods
 
     private static boolean isFiniteTypeMatch(BFiniteType sourceType, BType targetType) {
         for (Object bValue : sourceType.valueSpace) {
