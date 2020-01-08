@@ -36,6 +36,8 @@ import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.messaging.kafka.observability.KafkaMetricsUtil;
+import org.ballerinalang.messaging.kafka.observability.KafkaObservabilityConstants;
 import org.slf4j.Logger;
 
 import java.util.ArrayList;
@@ -191,9 +193,9 @@ public class KafkaUtils {
             for (ConsumerRecord<byte[], byte[]> record : records) {
                 MapValue<String, Object> consumerRecord = populateConsumerRecord(record);
                 MapValue<String, Object> topicPartition = populateTopicPartitionRecord(record.topic(),
-                        record.partition());
+                                                                                       record.partition());
                 MapValue<String, Object> partitionOffset = populatePartitionOffsetRecord(topicPartition,
-                        record.offset());
+                                                                                         record.offset());
                 consumerRecordsArray.add(i, consumerRecord);
                 partitionOffsetsArray.add(i, partitionOffset);
                 i++;
@@ -206,83 +208,83 @@ public class KafkaUtils {
         Properties properties = new Properties();
 
         addStringParamIfPresent(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, configurations, properties,
-                CONSUMER_BOOTSTRAP_SERVERS_CONFIG);
+                                CONSUMER_BOOTSTRAP_SERVERS_CONFIG);
         addStringParamIfPresent(ConsumerConfig.GROUP_ID_CONFIG, configurations, properties,
-                CONSUMER_GROUP_ID_CONFIG);
+                                CONSUMER_GROUP_ID_CONFIG);
         addStringParamIfPresent(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, configurations, properties,
-                CONSUMER_AUTO_OFFSET_RESET_CONFIG);
+                                CONSUMER_AUTO_OFFSET_RESET_CONFIG);
         addStringParamIfPresent(ConsumerConfig.PARTITION_ASSIGNMENT_STRATEGY_CONFIG, configurations, properties,
-                CONSUMER_PARTITION_ASSIGNMENT_STRATEGY_CONFIG);
+                                CONSUMER_PARTITION_ASSIGNMENT_STRATEGY_CONFIG);
         addStringParamIfPresent(ConsumerConfig.METRICS_RECORDING_LEVEL_CONFIG, configurations, properties,
-                CONSUMER_METRICS_RECORDING_LEVEL_CONFIG);
+                                CONSUMER_METRICS_RECORDING_LEVEL_CONFIG);
         addStringParamIfPresent(ConsumerConfig.METRIC_REPORTER_CLASSES_CONFIG, configurations, properties,
-                CONSUMER_METRIC_REPORTER_CLASSES_CONFIG);
+                                CONSUMER_METRIC_REPORTER_CLASSES_CONFIG);
         addStringParamIfPresent(ConsumerConfig.CLIENT_ID_CONFIG, configurations, properties,
-                CONSUMER_CLIENT_ID_CONFIG);
+                                CONSUMER_CLIENT_ID_CONFIG);
         addStringParamIfPresent(ConsumerConfig.INTERCEPTOR_CLASSES_CONFIG, configurations, properties,
-                CONSUMER_INTERCEPTOR_CLASSES_CONFIG);
+                                CONSUMER_INTERCEPTOR_CLASSES_CONFIG);
         addStringParamIfPresent(ConsumerConfig.ISOLATION_LEVEL_CONFIG, configurations, properties,
-                CONSUMER_ISOLATION_LEVEL_CONFIG);
+                                CONSUMER_ISOLATION_LEVEL_CONFIG);
 
         addStringArrayParamIfPresent(ALIAS_TOPICS, configurations, properties,
-                ALIAS_TOPICS);
+                                     ALIAS_TOPICS);
         addStringArrayParamIfPresent(PROPERTIES_ARRAY, configurations, properties, PROPERTIES_ARRAY);
 
         addIntParamIfPresent(ConsumerConfig.SESSION_TIMEOUT_MS_CONFIG, configurations, properties,
-                CONSUMER_SESSION_TIMEOUT_MS_CONFIG);
+                             CONSUMER_SESSION_TIMEOUT_MS_CONFIG);
         addIntParamIfPresent(ConsumerConfig.HEARTBEAT_INTERVAL_MS_CONFIG, configurations, properties,
-                CONSUMER_HEARTBEAT_INTERVAL_MS_CONFIG);
+                             CONSUMER_HEARTBEAT_INTERVAL_MS_CONFIG);
         addIntParamIfPresent(ConsumerConfig.METADATA_MAX_AGE_CONFIG, configurations, properties,
-                CONSUMER_METADATA_MAX_AGE_CONFIG);
+                             CONSUMER_METADATA_MAX_AGE_CONFIG);
         addIntParamIfPresent(ConsumerConfig.AUTO_COMMIT_INTERVAL_MS_CONFIG, configurations, properties,
-                CONSUMER_AUTO_COMMIT_INTERVAL_MS_CONFIG);
+                             CONSUMER_AUTO_COMMIT_INTERVAL_MS_CONFIG);
         addIntParamIfPresent(ConsumerConfig.MAX_PARTITION_FETCH_BYTES_CONFIG, configurations, properties,
-                CONSUMER_MAX_PARTITION_FETCH_BYTES_CONFIG);
+                             CONSUMER_MAX_PARTITION_FETCH_BYTES_CONFIG);
         addIntParamIfPresent(ConsumerConfig.SEND_BUFFER_CONFIG, configurations, properties,
-                CONSUMER_SEND_BUFFER_CONFIG);
+                             CONSUMER_SEND_BUFFER_CONFIG);
         addIntParamIfPresent(ConsumerConfig.RECEIVE_BUFFER_CONFIG, configurations, properties,
-                CONSUMER_RECEIVE_BUFFER_CONFIG);
+                             CONSUMER_RECEIVE_BUFFER_CONFIG);
         addIntParamIfPresent(ConsumerConfig.FETCH_MIN_BYTES_CONFIG, configurations, properties,
-                CONSUMER_FETCH_MIN_BYTES_CONFIG);
+                             CONSUMER_FETCH_MIN_BYTES_CONFIG);
         addIntParamIfPresent(ConsumerConfig.FETCH_MAX_BYTES_CONFIG, configurations, properties,
-                CONSUMER_FETCH_MAX_BYTES_CONFIG);
+                             CONSUMER_FETCH_MAX_BYTES_CONFIG);
         addIntParamIfPresent(ConsumerConfig.FETCH_MAX_WAIT_MS_CONFIG, configurations, properties,
-                CONSUMER_FETCH_MAX_WAIT_MS_CONFIG);
+                             CONSUMER_FETCH_MAX_WAIT_MS_CONFIG);
         addIntParamIfPresent(ConsumerConfig.RECONNECT_BACKOFF_MS_CONFIG, configurations, properties,
-                CONSUMER_RECONNECT_BACKOFF_MS_CONFIG);
+                             CONSUMER_RECONNECT_BACKOFF_MS_CONFIG);
         addIntParamIfPresent(ConsumerConfig.RETRY_BACKOFF_MS_CONFIG, configurations, properties,
-                CONSUMER_RETRY_BACKOFF_MS_CONFIG);
+                             CONSUMER_RETRY_BACKOFF_MS_CONFIG);
         addIntParamIfPresent(ConsumerConfig.METRICS_SAMPLE_WINDOW_MS_CONFIG, configurations, properties,
-                CONSUMER_METRICS_SAMPLE_WINDOW_MS_CONFIG);
+                             CONSUMER_METRICS_SAMPLE_WINDOW_MS_CONFIG);
 
         addIntParamIfPresent(ConsumerConfig.METRICS_NUM_SAMPLES_CONFIG, configurations, properties,
-                CONSUMER_METRICS_NUM_SAMPLES_CONFIG);
+                             CONSUMER_METRICS_NUM_SAMPLES_CONFIG);
         addIntParamIfPresent(ConsumerConfig.REQUEST_TIMEOUT_MS_CONFIG, configurations, properties,
-                CONSUMER_REQUEST_TIMEOUT_MS_CONFIG);
+                             CONSUMER_REQUEST_TIMEOUT_MS_CONFIG);
         addIntParamIfPresent(ConsumerConfig.CONNECTIONS_MAX_IDLE_MS_CONFIG, configurations, properties,
-                CONSUMER_CONNECTIONS_MAX_IDLE_MS_CONFIG);
+                             CONSUMER_CONNECTIONS_MAX_IDLE_MS_CONFIG);
         addIntParamIfPresent(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, configurations, properties,
-                CONSUMER_MAX_POLL_RECORDS_CONFIG);
+                             CONSUMER_MAX_POLL_RECORDS_CONFIG);
         addIntParamIfPresent(ConsumerConfig.MAX_POLL_INTERVAL_MS_CONFIG, configurations, properties,
-                CONSUMER_MAX_POLL_INTERVAL_MS_CONFIG);
+                             CONSUMER_MAX_POLL_INTERVAL_MS_CONFIG);
         addIntParamIfPresent(ConsumerConfig.RECONNECT_BACKOFF_MAX_MS_CONFIG, configurations, properties,
-                CONSUMER_RECONNECT_BACKOFF_MAX_MS_CONFIG);
+                             CONSUMER_RECONNECT_BACKOFF_MAX_MS_CONFIG);
         addIntParamIfPresent(ConsumerConfig.DEFAULT_API_TIMEOUT_MS_CONFIG, configurations, properties,
-                CONSUMER_DEFAULT_API_TIMEOUT_CONFIG);
+                             CONSUMER_DEFAULT_API_TIMEOUT_CONFIG);
 
         addIntParamIfPresent(ALIAS_POLLING_TIMEOUT, configurations, properties, ALIAS_POLLING_TIMEOUT);
         addIntParamIfPresent(ALIAS_POLLING_INTERVAL, configurations, properties, ALIAS_POLLING_INTERVAL);
         addIntParamIfPresent(ALIAS_CONCURRENT_CONSUMERS, configurations, properties, ALIAS_CONCURRENT_CONSUMERS);
 
         addBooleanParamIfPresent(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, configurations, properties,
-                CONSUMER_ENABLE_AUTO_COMMIT_CONFIG, true);
+                                 CONSUMER_ENABLE_AUTO_COMMIT_CONFIG, true);
         addBooleanParamIfPresent(ConsumerConfig.CHECK_CRCS_CONFIG, configurations, properties,
-                CONSUMER_CHECK_CRCS_CONFIG, true);
+                                 CONSUMER_CHECK_CRCS_CONFIG, true);
         addBooleanParamIfPresent(ConsumerConfig.EXCLUDE_INTERNAL_TOPICS_CONFIG, configurations, properties,
-                CONSUMER_EXCLUDE_INTERNAL_TOPICS_CONFIG, true);
+                                 CONSUMER_EXCLUDE_INTERNAL_TOPICS_CONFIG, true);
 
         addBooleanParamIfPresent(ALIAS_DECOUPLE_PROCESSING, configurations, properties,
-                ALIAS_DECOUPLE_PROCESSING, false);
+                                 ALIAS_DECOUPLE_PROCESSING, false);
         if (Objects.nonNull(configurations.get(SECURE_SOCKET))) {
             processSSLProperties(configurations, properties);
         }
@@ -294,48 +296,48 @@ public class KafkaUtils {
     private static void processSSLProperties(MapValue<String, Object> configurations, Properties configParams) {
         MapValue<String, Object> secureSocket = (MapValue<String, Object>) configurations.get(SECURE_SOCKET);
         addStringParamIfPresent(SslConfigs.SSL_KEYSTORE_TYPE_CONFIG,
-                (MapValue<String, Object>) secureSocket.get(KEYSTORE_CONFIG), configParams,
-                KEYSTORE_TYPE_CONFIG);
+                                (MapValue<String, Object>) secureSocket.get(KEYSTORE_CONFIG), configParams,
+                                KEYSTORE_TYPE_CONFIG);
         addStringParamIfPresent(SslConfigs.SSL_KEYSTORE_LOCATION_CONFIG,
-                (MapValue<String, Object>) secureSocket.get(KEYSTORE_CONFIG), configParams,
-                LOCATION_CONFIG);
+                                (MapValue<String, Object>) secureSocket.get(KEYSTORE_CONFIG), configParams,
+                                LOCATION_CONFIG);
         addStringParamIfPresent(SslConfigs.SSL_KEYSTORE_PASSWORD_CONFIG,
-                (MapValue<String, Object>) secureSocket.get(KEYSTORE_CONFIG), configParams,
-                PASSWORD_CONFIG);
+                                (MapValue<String, Object>) secureSocket.get(KEYSTORE_CONFIG), configParams,
+                                PASSWORD_CONFIG);
         addStringParamIfPresent(SslConfigs.SSL_KEYMANAGER_ALGORITHM_CONFIG,
-                (MapValue<String, Object>) secureSocket.get(KEYSTORE_CONFIG), configParams,
-                KEYMANAGER_ALGORITHM_CONFIG);
+                                (MapValue<String, Object>) secureSocket.get(KEYSTORE_CONFIG), configParams,
+                                KEYMANAGER_ALGORITHM_CONFIG);
         addStringParamIfPresent(SslConfigs.SSL_TRUSTSTORE_TYPE_CONFIG,
-                (MapValue<String, Object>) secureSocket.get(TRUSTSTORE_CONFIG), configParams,
-                TRUSTSTORE_TYPE_CONFIG);
+                                (MapValue<String, Object>) secureSocket.get(TRUSTSTORE_CONFIG), configParams,
+                                TRUSTSTORE_TYPE_CONFIG);
         addStringParamIfPresent(SslConfigs.SSL_TRUSTSTORE_LOCATION_CONFIG,
-                (MapValue<String, Object>) secureSocket.get(TRUSTSTORE_CONFIG), configParams,
-                LOCATION_CONFIG);
+                                (MapValue<String, Object>) secureSocket.get(TRUSTSTORE_CONFIG), configParams,
+                                LOCATION_CONFIG);
         addStringParamIfPresent(SslConfigs.SSL_TRUSTSTORE_PASSWORD_CONFIG,
-                (MapValue<String, Object>) secureSocket.get(TRUSTSTORE_CONFIG), configParams,
-                PASSWORD_CONFIG);
+                                (MapValue<String, Object>) secureSocket.get(TRUSTSTORE_CONFIG), configParams,
+                                PASSWORD_CONFIG);
         addStringParamIfPresent(SslConfigs.SSL_TRUSTMANAGER_ALGORITHM_CONFIG,
-                (MapValue<String, Object>) secureSocket.get(TRUSTSTORE_CONFIG), configParams,
-                TRUSTMANAGER_ALGORITHM_CONFIG);
+                                (MapValue<String, Object>) secureSocket.get(TRUSTSTORE_CONFIG), configParams,
+                                TRUSTMANAGER_ALGORITHM_CONFIG);
         addStringParamIfPresent(CommonClientConfigs.SECURITY_PROTOCOL_CONFIG,
-                (MapValue<String, Object>) secureSocket.get(PROTOCOL_CONFIG), configParams,
-                SECURITY_PROTOCOL_CONFIG);
+                                (MapValue<String, Object>) secureSocket.get(PROTOCOL_CONFIG), configParams,
+                                SECURITY_PROTOCOL_CONFIG);
         addStringParamIfPresent(SslConfigs.SSL_PROTOCOL_CONFIG,
-                (MapValue<String, Object>) secureSocket.get(PROTOCOL_CONFIG), configParams,
-                SSL_PROTOCOL_CONFIG);
+                                (MapValue<String, Object>) secureSocket.get(PROTOCOL_CONFIG), configParams,
+                                SSL_PROTOCOL_CONFIG);
         addStringParamIfPresent(SslConfigs.SSL_ENABLED_PROTOCOLS_CONFIG,
-                (MapValue<String, Object>) secureSocket.get(PROTOCOL_CONFIG), configParams,
-                ENABLED_PROTOCOLS_CONFIG);
+                                (MapValue<String, Object>) secureSocket.get(PROTOCOL_CONFIG), configParams,
+                                ENABLED_PROTOCOLS_CONFIG);
         addStringParamIfPresent(SslConfigs.SSL_PROVIDER_CONFIG, configurations, configParams,
-                SSL_PROVIDER_CONFIG);
+                                SSL_PROVIDER_CONFIG);
         addStringParamIfPresent(SslConfigs.SSL_KEY_PASSWORD_CONFIG, configurations, configParams,
-                SSL_KEY_PASSWORD_CONFIG);
+                                SSL_KEY_PASSWORD_CONFIG);
         addStringParamIfPresent(SslConfigs.SSL_CIPHER_SUITES_CONFIG, configurations, configParams,
-                SSL_CIPHER_SUITES_CONFIG);
+                                SSL_CIPHER_SUITES_CONFIG);
         addStringParamIfPresent(SslConfigs.SSL_ENDPOINT_IDENTIFICATION_ALGORITHM_CONFIG, configurations, configParams,
-                SSL_ENDPOINT_IDENTIFICATION_ALGORITHM_CONFIG);
+                                SSL_ENDPOINT_IDENTIFICATION_ALGORITHM_CONFIG);
         addStringParamIfPresent(SslConfigs.SSL_SECURE_RANDOM_IMPLEMENTATION_CONFIG, configurations, configParams,
-                SSL_SECURE_RANDOM_IMPLEMENTATION_CONFIG);
+                                SSL_SECURE_RANDOM_IMPLEMENTATION_CONFIG);
     }
 
     public static Properties processKafkaProducerConfig(MapValue<String, Object> configurations) {
@@ -345,63 +347,63 @@ public class KafkaUtils {
             return properties;
         }
         addStringParamIfPresent(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, configurations,
-                properties, PRODUCER_BOOTSTRAP_SERVERS_CONFIG);
+                                properties, PRODUCER_BOOTSTRAP_SERVERS_CONFIG);
         addStringParamIfPresent(ProducerConfig.ACKS_CONFIG, configurations,
-                properties, PRODUCER_ACKS_CONFIG);
+                                properties, PRODUCER_ACKS_CONFIG);
         addStringParamIfPresent(ProducerConfig.COMPRESSION_TYPE_CONFIG, configurations,
-                properties, PRODUCER_COMPRESSION_TYPE_CONFIG);
+                                properties, PRODUCER_COMPRESSION_TYPE_CONFIG);
         addStringParamIfPresent(ProducerConfig.CLIENT_ID_CONFIG, configurations,
-                properties, PRODUCER_CLIENT_ID_CONFIG);
+                                properties, PRODUCER_CLIENT_ID_CONFIG);
         addStringParamIfPresent(ProducerConfig.METRICS_RECORDING_LEVEL_CONFIG, configurations,
-                properties, PRODUCER_METRICS_RECORDING_LEVEL_CONFIG);
+                                properties, PRODUCER_METRICS_RECORDING_LEVEL_CONFIG);
         addStringParamIfPresent(ProducerConfig.METRIC_REPORTER_CLASSES_CONFIG, configurations,
-                properties, PRODUCER_METRIC_REPORTER_CLASSES_CONFIG);
+                                properties, PRODUCER_METRIC_REPORTER_CLASSES_CONFIG);
         addStringParamIfPresent(ProducerConfig.PARTITIONER_CLASS_CONFIG, configurations,
-                properties, PRODUCER_PARTITIONER_CLASS_CONFIG);
+                                properties, PRODUCER_PARTITIONER_CLASS_CONFIG);
         addStringParamIfPresent(ProducerConfig.INTERCEPTOR_CLASSES_CONFIG, configurations,
-                properties, PRODUCER_INTERCEPTOR_CLASSES_CONFIG);
+                                properties, PRODUCER_INTERCEPTOR_CLASSES_CONFIG);
         addStringParamIfPresent(ProducerConfig.TRANSACTIONAL_ID_CONFIG, configurations,
-                properties, PRODUCER_TRANSACTIONAL_ID_CONFIG);
+                                properties, PRODUCER_TRANSACTIONAL_ID_CONFIG);
 
         addIntParamIfPresent(ProducerConfig.BUFFER_MEMORY_CONFIG, configurations,
-                properties, PRODUCER_BUFFER_MEMORY_CONFIG);
+                             properties, PRODUCER_BUFFER_MEMORY_CONFIG);
         addIntParamIfPresent(ProducerConfig.RETRIES_CONFIG, configurations,
-                properties, PRODUCER_RETRIES_CONFIG);
+                             properties, PRODUCER_RETRIES_CONFIG);
         addIntParamIfPresent(ProducerConfig.BATCH_SIZE_CONFIG, configurations,
-                properties, PRODUCER_BATCH_SIZE_CONFIG);
+                             properties, PRODUCER_BATCH_SIZE_CONFIG);
         addIntParamIfPresent(ProducerConfig.LINGER_MS_CONFIG, configurations,
-                properties, PRODUCER_LINGER_MS_CONFIG);
+                             properties, PRODUCER_LINGER_MS_CONFIG);
         addIntParamIfPresent(ProducerConfig.SEND_BUFFER_CONFIG, configurations,
-                properties, PRODUCER_SEND_BUFFER_CONFIG);
+                             properties, PRODUCER_SEND_BUFFER_CONFIG);
         addIntParamIfPresent(ProducerConfig.RECEIVE_BUFFER_CONFIG, configurations,
-                properties, PRODUCER_RECEIVE_BUFFER_CONFIG);
+                             properties, PRODUCER_RECEIVE_BUFFER_CONFIG);
         addIntParamIfPresent(ProducerConfig.MAX_REQUEST_SIZE_CONFIG, configurations,
-                properties, PRODUCER_MAX_REQUEST_SIZE_CONFIG);
+                             properties, PRODUCER_MAX_REQUEST_SIZE_CONFIG);
         addIntParamIfPresent(ProducerConfig.RECONNECT_BACKOFF_MS_CONFIG, configurations,
-                properties, PRODUCER_RECONNECT_BACKOFF_MS_CONFIG);
+                             properties, PRODUCER_RECONNECT_BACKOFF_MS_CONFIG);
         addIntParamIfPresent(ProducerConfig.RECONNECT_BACKOFF_MAX_MS_CONFIG, configurations,
-                properties, PRODUCER_RECONNECT_BACKOFF_MAX_MS_CONFIG);
+                             properties, PRODUCER_RECONNECT_BACKOFF_MAX_MS_CONFIG);
         addIntParamIfPresent(ProducerConfig.RETRY_BACKOFF_MS_CONFIG, configurations,
-                properties, PRODUCER_RETRY_BACKOFF_MS_CONFIG);
+                             properties, PRODUCER_RETRY_BACKOFF_MS_CONFIG);
         addIntParamIfPresent(ProducerConfig.MAX_BLOCK_MS_CONFIG, configurations,
-                properties, PRODUCER_MAX_BLOCK_MS_CONFIG);
+                             properties, PRODUCER_MAX_BLOCK_MS_CONFIG);
         addIntParamIfPresent(ProducerConfig.REQUEST_TIMEOUT_MS_CONFIG, configurations,
-                properties, PRODUCER_REQUEST_TIMEOUT_MS_CONFIG);
+                             properties, PRODUCER_REQUEST_TIMEOUT_MS_CONFIG);
         addIntParamIfPresent(ProducerConfig.METADATA_MAX_AGE_CONFIG, configurations,
-                properties, PRODUCER_METADATA_MAX_AGE_CONFIG);
+                             properties, PRODUCER_METADATA_MAX_AGE_CONFIG);
         addIntParamIfPresent(ProducerConfig.METRICS_SAMPLE_WINDOW_MS_CONFIG, configurations,
-                properties, PRODUCER_METRICS_SAMPLE_WINDOW_MS_CONFIG);
+                             properties, PRODUCER_METRICS_SAMPLE_WINDOW_MS_CONFIG);
         addIntParamIfPresent(ProducerConfig.METRICS_NUM_SAMPLES_CONFIG, configurations,
-                properties, PRODUCER_METRICS_NUM_SAMPLES_CONFIG);
+                             properties, PRODUCER_METRICS_NUM_SAMPLES_CONFIG);
         addIntParamIfPresent(ProducerConfig.MAX_IN_FLIGHT_REQUESTS_PER_CONNECTION, configurations,
-                properties, PRODUCER_MAX_IN_FLIGHT_REQUESTS_PER_CONNECTION);
+                             properties, PRODUCER_MAX_IN_FLIGHT_REQUESTS_PER_CONNECTION);
         addIntParamIfPresent(ProducerConfig.CONNECTIONS_MAX_IDLE_MS_CONFIG, configurations,
-                properties, PRODUCER_CONNECTIONS_MAX_IDLE_MS_CONFIG);
+                             properties, PRODUCER_CONNECTIONS_MAX_IDLE_MS_CONFIG);
         addIntParamIfPresent(ProducerConfig.TRANSACTION_TIMEOUT_CONFIG, configurations,
-                properties, PRODUCER_TRANSACTION_TIMEOUT_CONFIG);
+                             properties, PRODUCER_TRANSACTION_TIMEOUT_CONFIG);
 
         addBooleanParamIfPresent(ProducerConfig.ENABLE_IDEMPOTENCE_CONFIG, configurations,
-                properties, PRODUCER_ENABLE_IDEMPOTENCE_CONFIG);
+                                 properties, PRODUCER_ENABLE_IDEMPOTENCE_CONFIG);
         if (Objects.nonNull(configurations.get(SECURE_SOCKET))) {
             processSSLProperties(configurations, properties);
         }
@@ -518,12 +520,12 @@ public class KafkaUtils {
             return null;
         }
         return createRecord(getConsumerRecord(),
-                getByteArrayValue(record.key()),
-                getByteArrayValue(record.value()),
-                record.offset(),
-                record.partition(),
-                record.timestamp(),
-                record.topic());
+                            getByteArrayValue(record.key()),
+                            getByteArrayValue(record.value()),
+                            record.offset(),
+                            record.partition(),
+                            record.timestamp(),
+                            record.topic());
     }
 
     private static ArrayValue getByteArrayValue(byte[] byteArray) {
@@ -644,7 +646,7 @@ public class KafkaUtils {
             return Math.toIntExact(longValue);
         } catch (ArithmeticException e) {
             logger.warn("The value set for {} needs to be less than {}. The {} value is set to {}", name,
-                    Integer.MAX_VALUE, name, Integer.MAX_VALUE);
+                        Integer.MAX_VALUE, name, Integer.MAX_VALUE);
             return Integer.MAX_VALUE;
         }
     }
@@ -679,6 +681,10 @@ public class KafkaUtils {
         KafkaProducer<byte[], byte[]> kafkaProducer = new KafkaProducer<>(producerProperties);
         producerObject.addNativeData(NATIVE_PRODUCER, kafkaProducer);
         producerObject.addNativeData(NATIVE_PRODUCER_CONFIG, producerProperties);
+        producerObject.addNativeData(KafkaConstants.BOOTSTRAP_SERVERS,
+                                     producerProperties.getProperty(KafkaConstants.BOOTSTRAP_SERVERS));
+        producerObject.addNativeData(KafkaConstants.CLIENT_ID, getClientIdFromProperties(producerProperties));
+        KafkaMetricsUtil.reportNewProducer(producerObject);
     }
 
     public static String getBrokerNames(ObjectValue listener) {
@@ -688,5 +694,38 @@ public class KafkaUtils {
 
     public static String getTopicNamesString(ArrayList<String> topicsList) {
         return String.join(", ", topicsList);
+    }
+
+    public static String getClientIdFromProperties(Properties properties) {
+        if (properties == null) {
+            return KafkaObservabilityConstants.UNKNOWN;
+        }
+        String clientId = properties.getProperty(KafkaConstants.CLIENT_ID);
+        if (clientId == null) {
+            return KafkaObservabilityConstants.UNKNOWN;
+        }
+        return  clientId;
+    }
+
+    public static String getBootstrapServers(ObjectValue object) {
+        if (object == null) {
+            return KafkaObservabilityConstants.UNKNOWN;
+        }
+        String bootstrapServers = (String) object.getNativeData(KafkaConstants.BOOTSTRAP_SERVERS);
+        if (bootstrapServers == null) {
+            return KafkaObservabilityConstants.UNKNOWN;
+        }
+        return bootstrapServers;
+    }
+
+    public static String getClientId(ObjectValue object) {
+        if (object == null) {
+            return KafkaObservabilityConstants.UNKNOWN;
+        }
+        String clientId = (String) object.getNativeData(KafkaConstants.CLIENT_ID);
+        if (clientId == null) {
+            return KafkaObservabilityConstants.UNKNOWN;
+        }
+        return clientId;
     }
 }

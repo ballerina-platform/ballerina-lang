@@ -22,11 +22,16 @@ import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.KafkaException;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.messaging.kafka.observability.KafkaMetricsUtil;
+import org.ballerinalang.messaging.kafka.observability.KafkaObservabilityConstants;
+import org.ballerinalang.messaging.kafka.utils.KafkaConstants;
+import org.ballerinalang.messaging.kafka.utils.KafkaUtils;
 
 import java.io.PrintStream;
 import java.util.Objects;
 import java.util.Properties;
 
+import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.BOOTSTRAP_SERVERS;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.CONSUMER_BOOTSTRAP_SERVERS_CONFIG;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.CONSUMER_CONFIG_FIELD_NAME;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.CONSUMER_ERROR;
@@ -46,8 +51,10 @@ public class Connect {
         // Check whether already native consumer is attached to the struct.
         // This can be happen either from Kafka service or via programmatically.
         if (Objects.nonNull(consumerObject.getNativeData(NATIVE_CONSUMER))) {
+            KafkaMetricsUtil.reportConsumerError(consumerObject, KafkaObservabilityConstants.ERROR_TYPE_CONNECTION);
             return createKafkaError("Kafka consumer is already connected to external broker. " +
-                    "Please close it before re-connecting the external broker again.", CONSUMER_ERROR);
+                                    "Please close it before re-connecting the external broker again.",
+                                    CONSUMER_ERROR);
         }
         MapValue<String, Object> configs = (MapValue<String, Object>) consumerObject.get(CONSUMER_CONFIG_FIELD_NAME);
         Properties consumerProperties = processKafkaConsumerConfig(configs);
@@ -55,7 +62,12 @@ public class Connect {
             KafkaConsumer<byte[], byte[]> kafkaConsumer = new KafkaConsumer<>(consumerProperties);
             consumerObject.addNativeData(NATIVE_CONSUMER, kafkaConsumer);
             consumerObject.addNativeData(NATIVE_CONSUMER_CONFIG, consumerProperties);
+            consumerObject.addNativeData(BOOTSTRAP_SERVERS, consumerProperties.getProperty(BOOTSTRAP_SERVERS));
+            consumerObject.addNativeData(KafkaConstants.CLIENT_ID,
+                                         KafkaUtils.getClientIdFromProperties(consumerProperties));
+            KafkaMetricsUtil.reportNewConsumer(consumerObject);
         } catch (KafkaException e) {
+            KafkaMetricsUtil.reportConsumerError(consumerObject, KafkaObservabilityConstants.ERROR_TYPE_CONNECTION);
             return createKafkaError("Cannot connect to the kafka server: " + e.getMessage(), CONSUMER_ERROR);
         }
         console.println(KAFKA_SERVERS + configs.get(CONSUMER_BOOTSTRAP_SERVERS_CONFIG));

@@ -23,6 +23,9 @@ import org.apache.kafka.common.KafkaException;
 import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.messaging.kafka.observability.KafkaMetricsUtil;
+import org.ballerinalang.messaging.kafka.observability.KafkaObservabilityConstants;
+import org.ballerinalang.messaging.kafka.observability.KafkaTracingUtil;
 
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.NATIVE_PRODUCER;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.PRODUCER_ERROR;
@@ -36,6 +39,7 @@ public class FlushRecords {
 
     public static Object flushRecords(ObjectValue producerObject) {
         Strand strand = Scheduler.getStrand();
+        KafkaTracingUtil.traceResourceInvocation(strand, producerObject);
         KafkaProducer<byte[], byte[]> kafkaProducer = (KafkaProducer) producerObject.getNativeData(NATIVE_PRODUCER);
         try {
             if (strand.isInTransaction()) {
@@ -43,6 +47,7 @@ public class FlushRecords {
             }
             kafkaProducer.flush();
         } catch (KafkaException e) {
+            KafkaMetricsUtil.reportProducerError(producerObject, KafkaObservabilityConstants.ERROR_TYPE_FLUSH);
             return createKafkaError("Failed to flush Kafka records: " + e.getMessage(), PRODUCER_ERROR);
         }
         return null;
