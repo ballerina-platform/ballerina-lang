@@ -1454,14 +1454,14 @@ public class HttpUtil {
         long idleTimeout = endpointConfig.getIntValue(HttpConstants.ENDPOINT_CONFIG_TIMEOUT);
 
         ListenerConfiguration listenerConfiguration = new ListenerConfiguration();
-        if (HTTP_1_1_VERSION.equals(httpVersion)) {
-            http1Settings = (MapValue<String, Object>) endpointConfig.get(HttpConstants.HTTP1_SETTINGS);
-            listenerConfiguration.setPipeliningLimit(http1Settings.getIntValue(HttpConstants.PIPELINING_REQUEST_LIMIT));
-            String keepAlive = http1Settings.getStringValue(HttpConstants.ENDPOINT_CONFIG_KEEP_ALIVE);
-            listenerConfiguration.setKeepAliveConfig(HttpUtil.getKeepAliveConfig(keepAlive));
-            // Set Request validation limits.
-            setRequestSizeValidationConfig(http1Settings, listenerConfiguration);
-        }
+//        if (HTTP_1_1_VERSION.equals(httpVersion)) {
+        http1Settings = (MapValue<String, Object>) endpointConfig.get(HttpConstants.HTTP1_SETTINGS);
+        listenerConfiguration.setPipeliningLimit(http1Settings.getIntValue(HttpConstants.PIPELINING_REQUEST_LIMIT));
+        String keepAlive = http1Settings.getStringValue(HttpConstants.ENDPOINT_CONFIG_KEEP_ALIVE);
+        listenerConfiguration.setKeepAliveConfig(HttpUtil.getKeepAliveConfig(keepAlive));
+        // Set Request validation limits.
+        setRequestSizeValidationConfig(http1Settings, listenerConfiguration);
+//        }
 
         if (host == null || host.trim().isEmpty()) {
             listenerConfiguration.setHost(ConfigRegistry.getInstance().getConfigOrDefault("b7a.http.host",

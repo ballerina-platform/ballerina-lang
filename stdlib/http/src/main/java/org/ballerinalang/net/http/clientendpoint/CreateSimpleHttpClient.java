@@ -71,20 +71,20 @@ public class CreateSimpleHttpClient {
         }
         senderConfiguration.setTLSStoreType(HttpConstants.PKCS_STORE_TYPE);
 
-        String httpVersion = clientEndpointConfig.getStringValue(HttpConstants.CLIENT_EP_HTTP_VERSION);
-        if (HTTP_2_0_VERSION.equals(httpVersion)) {
-            MapValue<String, Object> http2Settings = (MapValue<String, Object>) clientEndpointConfig.
-                    get(HttpConstants.HTTP2_SETTINGS);
-            boolean http2PriorKnowledge = (boolean) http2Settings.get(HTTP2_PRIOR_KNOWLEDGE);
-            senderConfiguration.setForceHttp2(http2PriorKnowledge);
-        } else {
-            MapValue<String, Object> http1Settings = (MapValue<String, Object>) clientEndpointConfig.get(
-                    HttpConstants.HTTP1_SETTINGS);
-            String chunking = http1Settings.getStringValue(HttpConstants.CLIENT_EP_CHUNKING);
-            senderConfiguration.setChunkingConfig(HttpUtil.getChunkConfig(chunking));
-            String keepAliveConfig = http1Settings.getStringValue(HttpConstants.CLIENT_EP_IS_KEEP_ALIVE);
-            senderConfiguration.setKeepAliveConfig(HttpUtil.getKeepAliveConfig(keepAliveConfig));
-        }
+//        String httpVersion = clientEndpointConfig.getStringValue(HttpConstants.CLIENT_EP_HTTP_VERSION);
+//        if (HTTP_2_0_VERSION.equals(httpVersion)) {
+        MapValue<String, Object> http2Settings = (MapValue<String, Object>) clientEndpointConfig.
+                get(HttpConstants.HTTP2_SETTINGS);
+        boolean http2PriorKnowledge = (boolean) http2Settings.get(HTTP2_PRIOR_KNOWLEDGE);
+        senderConfiguration.setForceHttp2(http2PriorKnowledge);
+//        } else {
+        MapValue<String, Object> http1Settings = (MapValue<String, Object>) clientEndpointConfig.get(
+                HttpConstants.HTTP1_SETTINGS);
+        String chunking = http1Settings.getStringValue(HttpConstants.CLIENT_EP_CHUNKING);
+        senderConfiguration.setChunkingConfig(HttpUtil.getChunkConfig(chunking));
+        String keepAliveConfig = http1Settings.getStringValue(HttpConstants.CLIENT_EP_IS_KEEP_ALIVE);
+        senderConfiguration.setKeepAliveConfig(HttpUtil.getKeepAliveConfig(keepAliveConfig));
+//        }
         try {
             populateSenderConfigurations(senderConfiguration, clientEndpointConfig, scheme);
         } catch (RuntimeException e) {

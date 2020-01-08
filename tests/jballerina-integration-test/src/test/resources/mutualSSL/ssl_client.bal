@@ -23,8 +23,7 @@ http:ClientConfiguration mutualSslCertClientConf = {
         keyFile: config:getAsString("certificate.key"),
         certFile: config:getAsString("public.cert"),
         trustedCertFile: config:getAsString("public.cert")
-    },
-    httpVersion: http:HTTP_1_1
+    }
 };
 
 public function main (string... args) {

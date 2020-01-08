@@ -20,8 +20,7 @@ import ballerina/io;
 http:ClientConfiguration disableSslClientConf = {
     secureSocket:{
         disable:true
-    },
-    httpVersion: http:HTTP_1_1
+    }
 };
 
 public function main() {
