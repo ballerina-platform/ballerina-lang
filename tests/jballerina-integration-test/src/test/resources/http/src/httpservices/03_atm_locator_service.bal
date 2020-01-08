@@ -19,9 +19,9 @@ import ballerina/http;
 
 listener http:Listener serviceEnpoint = new(9092);
 
-http:Client bankInfoService = new("http://localhost:9092/bankinfo/product", { httpVersion: http:HTTP_1_1 } );
+http:Client bankInfoService = new("http://localhost:9092/bankinfo/product");
 
-http:Client branchLocatorService = new("http://localhost:9092/branchlocator/product", { httpVersion: http:HTTP_1_1 } );
+http:Client branchLocatorService = new("http://localhost:9092/branchlocator/product");
 
 @http:ServiceConfig {
     basePath:"/ABCBank"

@@ -19,9 +19,9 @@ import ballerina/io;
 
 listener http:Listener serviceEP = new(9114);
 
-http:Client nasdaqEP = new("http://localhost:9114/nasdaqStocks", { httpVersion: http:HTTP_1_1 } );
+http:Client nasdaqEP = new("http://localhost:9114/nasdaqStocks");
 
-http:Client nyseEP2 = new("http://localhost:9114/nyseStocks", { httpVersion: http:HTTP_1_1 } );
+http:Client nyseEP2 = new("http://localhost:9114/nyseStocks");
 
 @http:ServiceConfig {basePath:"/cbr"}
 service contentBasedRouting on serviceEP {

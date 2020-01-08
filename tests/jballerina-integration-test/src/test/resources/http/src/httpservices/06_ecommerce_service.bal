@@ -43,7 +43,7 @@ service CustomerMgtService on serviceEndpoint5 {
     }
 }
 
-http:Client productsService = new("http://localhost:9095", { httpVersion: http:HTTP_1_1 } );
+http:Client productsService = new("http://localhost:9095");
 
 @http:ServiceConfig {
     basePath:"/ecommerceservice"

@@ -17,7 +17,7 @@
 import ballerina/log;
 import ballerina/http;
 
-http:Client continueClient = new ("http://localhost:9241", { cache: { enabled: false }, httpVersion: http:HTTP_1_1 });
+http:Client continueClient = new ("http://localhost:9241", { cache: { enabled: false }});
 
 @http:ServiceConfig {
     basePath: "/continue"

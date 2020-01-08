@@ -16,7 +16,7 @@
 
 import ballerina/http;
 
-http:Client stockqEP = new("http://localhost:9107", { httpVersion: http:HTTP_1_1 } );
+http:Client stockqEP = new("http://localhost:9107");
 
 @http:ServiceConfig {
     basePath:"/product"

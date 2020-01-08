@@ -42,8 +42,7 @@ http:ListenerConfiguration mutualSslServiceConf = {
         },
         handshakeTimeoutInSeconds: 20,
         sessionTimeoutInSeconds: 30
-    },
-    httpVersion: http:HTTP_1_1
+    }
 };
 
 listener http:Listener echo15 = new(9116, mutualSslServiceConf);
@@ -67,7 +66,7 @@ service helloWorld15 on echo15 {
     }
 }
 
-listener http:Listener echoDummy15 = new(9117, { httpVersion: http:HTTP_1_1 });
+listener http:Listener echoDummy15 = new(9117);
 
 @http:ServiceConfig {
     basePath: "/echoDummy"

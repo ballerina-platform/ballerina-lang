@@ -16,16 +16,16 @@
 
 import ballerina/http;
 
-http:Client http_1_1_default = new("http://localhost:9233", { httpVersion: http:HTTP_1_1 } );
+http:Client http_1_1_default = new("http://localhost:9233");
 
 http:Client http_1_1_auto = new("http://localhost:9233",
-                                 { http1Settings : { keepAlive: http:KEEPALIVE_AUTO }, httpVersion: http:HTTP_1_1 });
+                                 { http1Settings : { keepAlive: http:KEEPALIVE_AUTO }});
 
 http:Client http_1_1_always = new("http://localhost:9233",
-                                 { http1Settings : { keepAlive: http:KEEPALIVE_ALWAYS }, httpVersion: http:HTTP_1_1 });
+                                 { http1Settings : { keepAlive: http:KEEPALIVE_ALWAYS }});
 
 http:Client http_1_1_never = new("http://localhost:9233",
-                                 { http1Settings : { keepAlive: http:KEEPALIVE_NEVER }, httpVersion: http:HTTP_1_1 });
+                                 { http1Settings : { keepAlive: http:KEEPALIVE_NEVER }});
 
 http:Client http_1_0_default = new("http://localhost:9233", { httpVersion: "1.0" } );
 

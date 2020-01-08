@@ -30,8 +30,7 @@ http:Client backendClientEP = new ("http://localhost:9105", {
         count: 3,
         backOffFactor: 0.5
     },
-    timeoutInMillis: 2000,
-    httpVersion: http:HTTP_1_1
+    timeoutInMillis: 2000
 });
 
 @http:ServiceConfig {

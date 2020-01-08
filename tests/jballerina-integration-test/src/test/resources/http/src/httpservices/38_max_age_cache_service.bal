@@ -16,7 +16,7 @@
 
 import ballerina/http;
 
-http:Client maxAgeCacheEp = new("http://localhost:9246", { cache: { isShared: true }, httpVersion: http:HTTP_1_1 });
+http:Client maxAgeCacheEp = new("http://localhost:9246", { cache: { isShared: true } });
 
 @http:ServiceConfig {
     basePath: "/maxAge"

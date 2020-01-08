@@ -26,7 +26,7 @@ service passthroughService on passthroughEP1 {
         path: "/"
     }
     resource function passthrough(http:Caller caller, http:Request clientRequest) {
-        http:Client nyseEP1 = new("http://localhost:9113", { httpVersion: http:HTTP_1_1 } );
+        http:Client nyseEP1 = new("http://localhost:9113");
         var response = nyseEP1->get("/nyseStock/stocks", <@untainted> clientRequest);
         if (response is http:Response) {
             checkpanic caller->respond(response);
@@ -40,7 +40,7 @@ service passthroughService on passthroughEP1 {
         path: "/forwardMultipart"
     }
     resource function forwardMultipart(http:Caller caller, http:Request clientRequest) {
-        http:Client nyseEP1 = new("http://localhost:9113", { httpVersion: http:HTTP_1_1 } );
+        http:Client nyseEP1 = new("http://localhost:9113");
         var response = nyseEP1->forward("/nyseStock/stocksAsMultiparts", clientRequest);
         if (response is http:Response) {
             checkpanic caller->respond(response);

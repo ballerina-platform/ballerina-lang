@@ -18,7 +18,7 @@ import ballerina/io;
 import ballerina/http;
 import ballerina/mime;
 
-http:Client clientEP2 = new ("http://localhost:9097", { cache: { enabled: false }, httpVersion: http:HTTP_1_1 });
+http:Client clientEP2 = new ("http://localhost:9097", { cache: { enabled: false }});
 
 @http:ServiceConfig {
     basePath: "/test1"
