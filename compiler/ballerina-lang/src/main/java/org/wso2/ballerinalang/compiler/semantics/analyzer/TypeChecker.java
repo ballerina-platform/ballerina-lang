@@ -604,11 +604,11 @@ public class TypeChecker extends BLangNodeVisitor {
         // Check whether the expected type is an array type
         // var a = []; and var a = [1,2,3,4]; are illegal statements, because we cannot infer the type here.
         BType actualType = symTable.semanticError;
+        resultType = symTable.semanticError;
 
         if ((expType.tag == TypeTags.ANY || expType.tag == TypeTags.ANYDATA || expType.tag == TypeTags.NONE)
                 && listConstructor.exprs.isEmpty()) {
             dlog.error(listConstructor.pos, DiagnosticCode.INVALID_LIST_CONSTRUCTOR, expType);
-            resultType = symTable.semanticError;
             return;
         }
 
@@ -624,7 +624,6 @@ public class TypeChecker extends BLangNodeVisitor {
             } else if (arrayType.state != BArrayState.UNSEALED && arrayType.size != listConstructor.exprs.size()) {
                 dlog.error(listConstructor.pos,
                         DiagnosticCode.MISMATCHING_ARRAY_LITERAL_VALUES, arrayType.size, listConstructor.exprs.size());
-                resultType = symTable.semanticError;
                 return;
             }
             checkExprs(listConstructor.exprs, this.env, arrayType.eType);
@@ -658,7 +657,6 @@ public class TypeChecker extends BLangNodeVisitor {
                                 // tuple type size != list constructor exprs
                                 dlog.error(listConstructor.pos, DiagnosticCode.SYNTAX_ERROR,
                                         "tuple and expression size does not match");
-                                resultType = symTable.semanticError;
                                 return;
                             }
                         }

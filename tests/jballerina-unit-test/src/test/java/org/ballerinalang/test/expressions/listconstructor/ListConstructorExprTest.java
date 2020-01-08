@@ -32,9 +32,13 @@ public class ListConstructorExprTest {
     public void diagnosticsTest() {
         CompileResult result = BCompileUtil.compile(
                 "test-src/expressions/listconstructor/list_constructor_negative.bal");
-        Assert.assertEquals(result.getErrorCount(), 1);
-        BAssertUtil.validateError(result, 0,
-                                  "invalid list constructor expression: types cannot be inferred for '[v1, v2, v3]'",
-                                  18, 24);
+        int i = 0;
+        BAssertUtil.validateError(result, i++, "invalid list constructor expression: " +
+                "types cannot be inferred for '[v1, v2, v3]'", 18, 24);
+        BAssertUtil.validateError(result, i++, "tuple and expression size does not match",
+                22, 20);
+        BAssertUtil.validateError(result, i++, "tuple and expression size does not match",
+                23, 34);
+        Assert.assertEquals(result.getErrorCount(), i);
     }
 }
