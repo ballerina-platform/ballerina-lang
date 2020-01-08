@@ -24,6 +24,11 @@ git:
 services:
   - docker
 
+addons:
+  apt:
+    packages:
+      - lynx
+
 jobs:
   include:
     - stage: "Build and Check(Windows + Linux)"
@@ -69,6 +74,8 @@ jobs:
           - nvm install 8
           - nvm use 8
           - npm install -g npm@'5.6.0'
+      after_failure:
+          - find . -name index.html -path "*/build/reports/*" | xargs grep -l 'infoBox failures' | xargs lynx -dump
       install: 
         - |
           if [ $TRAVIS_OS_NAME == "linux" ]; then
@@ -102,6 +109,8 @@ jobs:
           - nvm install 8
           - nvm use 8
           - npm install -g npm@'5.6.0'
+      after_failure:
+          - find . -name index.html -path "*/build/reports/*" | xargs grep -l 'infoBox failures' | xargs lynx -dump
       name:  "Integration tests - Linux"
 
 
