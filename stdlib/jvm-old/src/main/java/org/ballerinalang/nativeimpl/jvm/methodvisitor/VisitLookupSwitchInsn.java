@@ -55,7 +55,7 @@ public class VisitLookupSwitchInsn {
                                                    ArrayValue oKeys, ArrayValue oLabels) {
         MethodVisitor mv = ASMUtil.getRefArgumentNativeData(oMv);
         Label defaultLabel = ASMUtil.getRefArgumentNativeData(oDefaultLabel);
-        long[] lKeys = oKeys.getLongArray();
+        long[] lKeys = oKeys.getIntArray();
         int[] iKeys = Arrays.stream(lKeys).mapToInt(l -> ((int) l)).toArray();
         Label[] labels = convertToLabel(oLabels);
         mv.visitLookupSwitchInsn(defaultLabel, iKeys, labels);

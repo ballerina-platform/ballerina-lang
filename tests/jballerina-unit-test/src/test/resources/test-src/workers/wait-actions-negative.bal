@@ -48,10 +48,10 @@ type restRec2 record {|
 |};
 
 function waitForOneTest() {
-    future< int > f1 = @concurrent{} start getId();
-    future< string > f2 = @concurrent{} start getName();
-    future< boolean > f3 = @concurrent{} start getStatus();
-    future< int > f4 = @concurrent{} start getId();
+    future< int > f1 = start getId();
+    future< string > f2 = start getName();
+    future< boolean > f3 = start getStatus();
+    future< int > f4 = start getId();
 
     string s3 = wait f1;
     wait f2;
@@ -59,8 +59,8 @@ function waitForOneTest() {
 
 function waitForAnyTest() {
     future<int> f1 = start getId();
-    future<string> f2 = @concurrent{} start getName();
-    future<boolean> f3 = @concurrent{} start getStatus();
+    future<string> f2 = start getName();
+    future<boolean> f3 = start getStatus();
     future<int> f4 = start getId();
 
     int result1 = wait f1|f4 |f2;
@@ -73,9 +73,9 @@ function waitForAnyTest() {
 }
 
 function waitForAllTest() {
-    future<int> f1 = @concurrent{} start getId();
+    future<int> f1 = start getId();
     future<string> f2 = start getName();
-    future<boolean> f3 = @concurrent{} start getStatus();
+    future<boolean> f3 = start getStatus();
     future<int> f4 = start getId();
 
     map<int> result7 = wait {f1, f2};
@@ -107,6 +107,6 @@ function getStatus() returns boolean {
 }
 
 function getStdId() returns future<int> {
-    future <int> id = @concurrent{} start getId();
+    future <int> id = start getId();
     return id;
 }

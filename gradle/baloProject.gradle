@@ -132,7 +132,7 @@ compileJava {
     dependsOn configurations.balo
     doFirst {
         configurations.balo.each {
-            sourceSets.main.compileClasspath += fileTree(dir : new File(it, '/bre/lib/').path)
+            sourceSets.main.compileClasspath = fileTree(dir : new File(it, '/bre/lib/').path)
         }
     }
 }

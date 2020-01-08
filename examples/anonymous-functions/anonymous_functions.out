@@ -2,5 +2,5 @@
 # `.bal` file, and execute the `ballerina run` command.
 $ ballerina run anonymous_functions.bal
 Output: Hello World.!!!
-Output: Hello World.!!!
+Output: Ballerina is an open source programming language.
 Output: Hello World.!!!

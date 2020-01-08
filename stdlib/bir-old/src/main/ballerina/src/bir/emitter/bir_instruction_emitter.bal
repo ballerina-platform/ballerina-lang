@@ -679,7 +679,7 @@ function emitUnlock(Unlock term, int tabs) returns string {
                     str += emitSpaces(1);
                 }
             }
-
+            
             i += 1;
             if i < argLength {
                 str += ",";

@@ -36,7 +36,7 @@ public function print(int value) = external;
 ////public function llvmDisposeMessage(ByteBuffer message) = external;
 ////public function llvmDisposeMessage(BytePointer message) = external;
 //public function llvmContextCreate() returns LLVMContextRef = external;
-//public function llvmGetGlobalContext() returns LLVMContextRef = external;
+public function llvmGetGlobalContext() returns LLVMContextRef = external;
 //public function llvmContextSetDiagnosticHandler(LLVMContextRef c, LLVMDiagnosticHandler handler, Pointer diagnosticContext) = external;
 //public function llvmContextGetDiagnosticHandler(LLVMContextRef c) returns LLVMDiagnosticHandler = external;
 //public function llvmContextGetDiagnosticContext(LLVMContextRef c) returns Pointer = external;
@@ -151,10 +151,10 @@ public function llvmFunctionType1(LLVMTypeRef returnType, LLVMTypeRef[] paramTyp
 //public function llvmStructType0(PointerPointer elementTypes, int elementCount, int packed) returns LLVMTypeRef = external;
 //public function llvmStructType1(LLVMTypeRef elementTypes, int elementCount, int packed) returns LLVMTypeRef = external;
 ////public function llvmStructCreateNamed(LLVMContextRef c, BytePointer name) returns LLVMTypeRef = external;
-//public function llvmStructCreateNamed(LLVMContextRef c, string name) returns LLVMTypeRef = external;
+public function llvmStructCreateNamed(LLVMContextRef c, string name) returns LLVMTypeRef = external;
 //public function llvmGetStructName(LLVMTypeRef ty) returns BytePointer = external;
 //public function llvmStructSetBody0(LLVMTypeRef structTy, LLVMTypeRef elementTypes, int elementCount, int packed) = external;
-//public function llvmStructSetBody1(LLVMTypeRef structTy, PointerPointer elementTypes, int elementCount, int packed) = external;
+public function llvmStructSetBody1(LLVMTypeRef structTy, LLVMTypeRef[] elementTypes, int elementCount, int packed) = external;
 //public function llvmCountStructElementTypes(LLVMTypeRef structTy) returns int = external;
 //public function llvmGetStructElementTypes0(LLVMTypeRef structTy, LLVMTypeRef dest) = external;
 //public function llvmGetStructElementTypes1(LLVMTypeRef structTy, PointerPointer dest) = external;
@@ -179,7 +179,7 @@ public function llvmPointerType(LLVMTypeRef elementType, int addressSpace) retur
 public function llvmVoidType() returns LLVMTypeRef = external;
 //public function llvmLabelType() returns LLVMTypeRef = external;
 //public function llvmX86MMXType() returns LLVMTypeRef = external;
-//public function llvmTypeOf(LLVMValueRef val) returns LLVMTypeRef = external;
+public function llvmTypeOf(LLVMValueRef val) returns LLVMTypeRef = external;
 //public function llvmGetValueKind(LLVMValueRef val) returns int = external;
 //public function llvmGetValueName(LLVMValueRef val) returns BytePointer = external;
 ////public function llvmSetValueName(LLVMValueRef val, BytePointer name) = external;
@@ -668,7 +668,7 @@ public function llvmBuildStore(LLVMBuilderRef arg0, LLVMValueRef val, LLVMValueR
 ////public function llvmBuildGEP(LLVMBuilderRef b, LLVMValueRef pointer, LLVMValueRef indices, int numIndices, BytePointer name) returns LLVMValueRef = external;
 ////public function llvmBuildInBoundsGEP(LLVMBuilderRef b, LLVMValueRef pointer, LLVMValueRef indices, int numIndices, BytePointer name) returns LLVMValueRef = external;
 //public function llvmBuildInBoundsGEP(LLVMBuilderRef b, LLVMValueRef pointer, PointerPointer indices, int numIndices, string name) returns LLVMValueRef = external;
-//public function llvmBuildStructGEP(LLVMBuilderRef b, LLVMValueRef pointer, int idx, string name) returns LLVMValueRef = external;
+public function llvmBuildStructGEP(LLVMBuilderRef b, LLVMValueRef pointer, int idx, string name) returns LLVMValueRef = external;
 ////public function llvmBuildStructGEP(LLVMBuilderRef b, LLVMValueRef pointer, int idx, BytePointer name) returns LLVMValueRef = external;
 ////public function llvmBuildGlobalString(LLVMBuilderRef b, BytePointer str, BytePointer name) returns LLVMValueRef = external;
 //public function llvmBuildGlobalString(LLVMBuilderRef b, string str, string name) returns LLVMValueRef = external;
@@ -700,7 +700,7 @@ public function llvmBuildGlobalStringPtr(LLVMBuilderRef b, string str, string na
 //public function llvmBuildPtrToInt(LLVMBuilderRef arg0, LLVMValueRef val, LLVMTypeRef destTy, string name) returns LLVMValueRef = external;
 ////public function llvmBuildIntToPtr(LLVMBuilderRef arg0, LLVMValueRef val, LLVMTypeRef destTy, BytePointer name) returns LLVMValueRef = external;
 //public function llvmBuildIntToPtr(LLVMBuilderRef arg0, LLVMValueRef val, LLVMTypeRef destTy, string name) returns LLVMValueRef = external;
-//public function llvmBuildBitCast(LLVMBuilderRef arg0, LLVMValueRef val, LLVMTypeRef destTy, string name) returns LLVMValueRef = external;
+public function llvmBuildBitCast(LLVMBuilderRef arg0, LLVMValueRef val, LLVMTypeRef destTy, string name) returns LLVMValueRef = external;
 ////public function llvmBuildBitCast(LLVMBuilderRef arg0, LLVMValueRef val, LLVMTypeRef destTy, BytePointer name) returns LLVMValueRef = external;
 ////public function llvmBuildAddrSpaceCast(LLVMBuilderRef arg0, LLVMValueRef val, LLVMTypeRef destTy, BytePointer name) returns LLVMValueRef = external;
 //public function llvmBuildAddrSpaceCast(LLVMBuilderRef arg0, LLVMValueRef val, LLVMTypeRef destTy, string name) returns LLVMValueRef = external;
@@ -1202,3 +1202,4 @@ public function llvmPassManagerBuilderPopulateModulePassManager(LLVMPassManagerB
 //public function llvmAddBBVectorizePass(LLVMPassManagerRef pm) = external;
 //public function llvmAddLoopVectorizePass(LLVMPassManagerRef pm) = external;
 //public function llvmAddSLPVectorizePass(LLVMPassManagerRef pm) = external;
+public function llvmCheckIfTypesMatch(LLVMTypeRef castType, LLVMTypeRef lhsType) returns boolean = external;

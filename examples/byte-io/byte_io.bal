@@ -41,7 +41,7 @@ function close(io:ReadableByteChannel|io:WritableByteChannel ch) {
     }
 }
 
-public function main() returns error? {
+public function main() returns @tainted error? {
     string srcPath = "./files/ballerina.jpg";
     string dstPath = "./files/ballerinaCopy.jpg";
     // Initializes the readable byte channel.

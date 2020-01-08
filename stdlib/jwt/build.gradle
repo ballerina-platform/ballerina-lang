@@ -32,7 +32,6 @@ dependencies {
     implementation project(':ballerina-crypto')
     implementation project(':ballerina-encoding')
     implementation project(':ballerina-io')
-    implementation project(':ballerina-utils')
     implementation project(':ballerina-stringutils')
 
     baloImplementation project(path: ':ballerina-lang:annotations', configuration: 'baloImplementation')
@@ -44,7 +43,6 @@ dependencies {
     baloImplementation project(path: ':ballerina-crypto', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-encoding', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-io', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-utils', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-stringutils', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-java', configuration: 'baloImplementation')
 
@@ -61,7 +59,6 @@ dependencies {
     testCompile project(':ballerina-runtime-api')
     testCompile project(':ballerina-task')
     testCompile project(':ballerina-time')
-    testCompile project(':ballerina-utils')
     testCompile project(':ballerina-reflect')
     testCompile project(':ballerina-crypto')
     testCompile project(':ballerina-cache')

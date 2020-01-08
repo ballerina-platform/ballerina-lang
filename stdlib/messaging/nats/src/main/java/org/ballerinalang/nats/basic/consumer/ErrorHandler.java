@@ -19,10 +19,14 @@
 package org.ballerinalang.nats.basic.consumer;
 
 import org.ballerinalang.jvm.BRuntime;
+import org.ballerinalang.jvm.services.ErrorHandlerUtils;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.connector.CallableUnitCallback;
 import org.ballerinalang.nats.Constants;
 import org.ballerinalang.nats.Utils;
+import org.ballerinalang.nats.observability.NatsMetricsUtil;
+import org.ballerinalang.nats.observability.NatsObservabilityConstants;
 
 import java.util.Arrays;
 import java.util.concurrent.CountDownLatch;
@@ -42,14 +46,19 @@ public class ErrorHandler {
      * @param serviceObject ObjectValue service
      * @param msgObj        Message object
      * @param e             ErrorValue
+     * @param connectedUrl  URL of the NATS server that the consumer is  currently connected to
      */
-    static void dispatchError(ObjectValue serviceObject, ObjectValue msgObj, ErrorValue e, BRuntime runtime) {
+    static void dispatchError(ObjectValue serviceObject, ObjectValue msgObj, ErrorValue e, BRuntime runtime,
+                              String connectedUrl) {
+
         boolean onErrorResourcePresent = Arrays.stream(serviceObject.getType().getAttachedFunctions())
                 .anyMatch(resource -> resource.getName().equals(ON_ERROR_RESOURCE));
         if (onErrorResourcePresent) {
             CountDownLatch countDownLatch = new CountDownLatch(1);
             runtime.invokeMethodAsync(serviceObject, ON_ERROR_RESOURCE,
-                    new DefaultMessageHandler.ResponseCallback(countDownLatch), msgObj, true, e, true);
+                                      new ResponseCallback(
+                                              countDownLatch, connectedUrl, msgObj.getStringValue(Constants.SUBJECT)),
+                                      msgObj, true, e, true);
             try {
                 countDownLatch.await();
             } catch (InterruptedException ex) {
@@ -61,4 +70,41 @@ public class ErrorHandler {
 
     private ErrorHandler() {
     }
+
+    /**
+     * Represents the callback which will be triggered upon submitting to resource.
+     */
+    public static class ResponseCallback implements CallableUnitCallback {
+        private CountDownLatch countDownLatch;
+        private String subject;
+        private String connectedUrl;
+
+        ResponseCallback(CountDownLatch countDownLatch, String connectedUrl, String subject) {
+            this.countDownLatch = countDownLatch;
+            this.connectedUrl = connectedUrl;
+            this.subject = subject;
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public void notifySuccess() {
+            countDownLatch.countDown();
+            NatsMetricsUtil.reportConsumerError(connectedUrl, subject,
+                                                NatsObservabilityConstants.ERROR_TYPE_MSG_RECEIVED);
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public void notifyFailure(ErrorValue error) {
+            ErrorHandlerUtils.printError(error);
+            NatsMetricsUtil.reportConsumerError(connectedUrl, subject,
+                                                NatsObservabilityConstants.ERROR_TYPE_ON_ERROR);
+            countDownLatch.countDown();
+        }
+    }
+
 }

@@ -60,7 +60,8 @@ function genJMethodForBFunc(bir:Function func,
                            bir:Package module,
                            boolean isService,
                            string serviceName,
-                           bir:BType? attachedType = ()) {
+                           bir:BType? attachedType = (),
+                           boolean useBString = false) {
     string currentPackageName = getPackageName(module.org.value, module.name.value);
     BalToJVMIndexMap indexMap = new;
     string funcName = cleanupFunctionName(<@untainted> func.name.value);
@@ -72,7 +73,7 @@ function genJMethodForBFunc(bir:Function func,
     _ = indexMap.getIndex(stranVar);
 
     // generate method desc
-    string desc = getMethodDesc(func.typeValue.paramTypes, <bir:BType?> func.typeValue?.retType);
+    string desc = getMethodDesc(func.typeValue.paramTypes, <bir:BType?> func.typeValue?.retType, useBString = useBString);
     int access = ACC_PUBLIC;
     int localVarOffset;
     if !(attachedType is ()) {
@@ -217,7 +218,7 @@ function genJMethodForBFunc(bir:Function func,
     mv.visitInsn(AALOAD);
     mv.visitTypeInsn(CHECKCAST, frameName);
 
-    geerateFrameClassFieldLoad(localVarOffset, localVars, mv, indexMap, frameName);
+    geerateFrameClassFieldLoad(localVars, mv, indexMap, frameName);
     mv.visitFieldInsn(GETFIELD, frameName, "state", "I");
     mv.visitVarInsn(ISTORE, stateVarIndex);
     mv.visitJumpInsn(GOTO, varinitLable);
@@ -229,7 +230,7 @@ function genJMethodForBFunc(bir:Function func,
     mv.visitMethodInsn(INVOKESPECIAL, frameName, "<init>", "()V", false);
 
 
-    geerateFrameClassFieldUpdate(localVarOffset, localVars, mv, indexMap, frameName);
+    geerateFrameClassFieldUpdate(localVars, mv, indexMap, frameName);
 
     mv.visitInsn(DUP);
     mv.visitVarInsn(ILOAD, stateVarIndex);
@@ -343,9 +344,9 @@ function genJMethodForBFunc(bir:Function func,
     mv.visitEnd();
 }
 
-function geerateFrameClassFieldLoad(int localVarOffset, bir:VariableDcl?[] localVars, jvm:MethodVisitor mv,
+function geerateFrameClassFieldLoad(bir:VariableDcl?[] localVars, jvm:MethodVisitor mv,
                                     BalToJVMIndexMap indexMap, string frameName) {
-    int k = localVarOffset;
+    int k = 0;
     while (k < localVars.length()) {
         bir:VariableDcl localVar = getVariableDcl(localVars[k]);
         var index = indexMap.getIndex(localVar);
@@ -363,7 +364,7 @@ function geerateFrameClassFieldLoad(int localVarOffset, bir:VariableDcl?[] local
             mv.visitVarInsn(DSTORE, index);
         } else if (bType is bir:BTypeString) {
             mv.visitFieldInsn(GETFIELD, frameName, stringutils:replace(localVar.name.value, "%","_"),
-                    io:sprintf("L%s;", STRING_VALUE));
+                    io:sprintf("L%s;", BSTRING_VALUE));
             mv.visitVarInsn(ASTORE, index);
         } else if (bType is bir:BTypeDecimal) {
             mv.visitFieldInsn(GETFIELD, frameName, stringutils:replace(localVar.name.value, "%","_"),
@@ -478,9 +479,9 @@ function generateFrameClassJFieldLoad(bir:VariableDcl localVar, jvm:MethodVisito
 
 }
 
-function geerateFrameClassFieldUpdate(int localVarOffset, bir:VariableDcl?[] localVars, jvm:MethodVisitor mv,
+function geerateFrameClassFieldUpdate(bir:VariableDcl?[] localVars, jvm:MethodVisitor mv,
                                       BalToJVMIndexMap indexMap, string frameName) {
-    int k = localVarOffset;
+    int k = 0;
     while (k < localVars.length()) {
         bir:VariableDcl localVar = getVariableDcl(localVars[k]);
         var index = indexMap.getIndex(localVar);
@@ -499,7 +500,7 @@ function geerateFrameClassFieldUpdate(int localVarOffset, bir:VariableDcl?[] loc
         } else if (bType is bir:BTypeString) {
             mv.visitVarInsn(ALOAD, index);
             mv.visitFieldInsn(PUTFIELD, frameName, stringutils:replace(localVar.name.value, "%","_"),
-                    io:sprintf("L%s;", STRING_VALUE));
+                    io:sprintf("L%s;", BSTRING_VALUE));
         } else if (bType is bir:BTypeDecimal) {
             mv.visitVarInsn(ALOAD, index);
             mv.visitFieldInsn(PUTFIELD, frameName, stringutils:replace(localVar.name.value, "%","_"),
@@ -1198,17 +1199,17 @@ function loadDefaultJValue(jvm:MethodVisitor mv, jvm:JType jType) {
 }
 
 function getMethodDesc(bir:BType?[] paramTypes, bir:BType? retType, bir:BType? attachedType = (),
-                        boolean isExtern = false) returns string {
+                        boolean isExtern = false, boolean useBString = false) returns string {
     string desc = "(Lorg/ballerinalang/jvm/scheduling/Strand;";
 
     if (attachedType is bir:BType) {
-        desc = desc + getArgTypeSignature(attachedType);
+        desc = desc + getArgTypeSignature(attachedType, useBString);
     }
 
     int i = 0;
     while (i < paramTypes.length()) {
         bir:BType paramType = getType(paramTypes[i]);
-        desc = desc + getArgTypeSignature(paramType);
+        desc = desc + getArgTypeSignature(paramType, useBString);
         i += 1;
     }
     string returnType = generateReturnType(retType, isExtern);
@@ -1237,7 +1238,7 @@ function getLambdaMethodDesc(bir:BType?[] paramTypes, bir:BType? retType, int cl
     return desc;
 }
 
-function getArgTypeSignature(bir:BType bType) returns string {
+function getArgTypeSignature(bir:BType bType, boolean useBString = false) returns string {
     if (bType is bir:BTypeInt) {
         return "J";
     } else if (bType is bir:BTypeByte) {
@@ -1245,7 +1246,7 @@ function getArgTypeSignature(bir:BType bType) returns string {
     } else if (bType is bir:BTypeFloat) {
         return "D";
     } else if (bType is bir:BTypeString) {
-        return io:sprintf("L%s;", STRING_VALUE);
+        return io:sprintf("L%s;", useBString ? I_STRING_VALUE : STRING_VALUE);
     } else if (bType is bir:BTypeDecimal) {
         return io:sprintf("L%s;", DECIMAL_VALUE);
     } else if (bType is bir:BTypeBoolean) {
@@ -2128,7 +2129,7 @@ function generateField(jvm:ClassWriter cw, bir:BType bType, string fieldName, bo
     } else if (bType is bir:BTypeFloat) {
         typeSig = "D";
     } else if (bType is bir:BTypeString) {
-        typeSig = io:sprintf("L%s;", STRING_VALUE);
+        typeSig = io:sprintf("L%s;", BSTRING_VALUE);
     } else if (bType is bir:BTypeDecimal) {
         typeSig = io:sprintf("L%s;", DECIMAL_VALUE);
     } else if (bType is bir:BTypeBoolean) {

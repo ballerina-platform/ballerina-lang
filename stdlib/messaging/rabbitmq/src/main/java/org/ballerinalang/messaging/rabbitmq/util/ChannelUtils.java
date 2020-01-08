@@ -56,7 +56,7 @@ public class ChannelUtils {
     public static Object queueDeclare(Object queueConfig, Channel channel) {
         try {
             if (queueConfig == null) {
-                return channel.queueDeclare();
+                return channel.queueDeclare().getQueue();
             }
             @SuppressWarnings(RabbitMQConstants.UNCHECKED)
             MapValue<String, Object> config = (MapValue<String, Object>) queueConfig;
@@ -106,7 +106,7 @@ public class ChannelUtils {
     }
 
     public static Object basicPublish(Object messageContent, String routingKey, String exchangeName,
-                                            Object properties, Channel channel) {
+                                      Object properties, Channel channel) {
         String defaultExchangeName = "";
         if (exchangeName != null) {
             defaultExchangeName = exchangeName;

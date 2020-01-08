@@ -8,14 +8,12 @@ function testForkJoinReturnAnyTypeVM()(int, string) {
     string r;
     float t;
     fork {
-        @concurrent{}
         worker W1 {
             println("Worker W1 started");
             int x = 23;
             string a = "aaaaa";
             x, a -> fork;
         }
-        @concurrent{}
         worker W2 {
             println("Worker W2 started");
             string s = "test";

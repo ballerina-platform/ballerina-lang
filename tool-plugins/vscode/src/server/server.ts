@@ -30,8 +30,7 @@ export function getServerOptions(ballerinaCmd: string, experimental: boolean, de
     opt.env = Object.assign({}, process.env);
     if (process.env.LSDEBUG === "true") {
         debug('Language Server is starting in debug mode.');
-        args.push('--debug');
-        args.push('5005');
+        opt.env.BAL_DEBUG_OPTS = "-Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5005,quiet=y";
     }
     if (debugLogsEnabled || traceLogsEnabled) {
         let str = [];

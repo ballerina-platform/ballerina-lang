@@ -43,8 +43,8 @@ DEFAULT BEHAVIOR
 
 EXAMPLES
        Print the usage details of the command.
-          → ballerina openapi gen-service -h
+          $ ballerina openapi gen-service -h
 
        Generate a Ballerina module (petstore) with a mock service
        named petstoreservice.
-          → ballerina openapi gen-service petstore:petstoreservice petstore.yaml
+          $ ballerina openapi gen-service petstore:petstoreservice petstore.yaml

@@ -66,7 +66,6 @@ dependencies {
     testCompile project(':ballerina-runtime-api')
     testCompile project(':ballerina-lang:annotations')
     testCompile project(':ballerina-system')
-    testCompile project(':ballerina-utils')
     testCompile project(':ballerina-core')
     testCompile 'org.slf4j:slf4j-simple'
     testCompile 'org.testng:testng'
@@ -76,7 +75,6 @@ dependencies {
     baloImplementation project(path: ':ballerina-system', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-io', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-runtime-api', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-utils', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-crypto', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-time', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-http', configuration: 'baloImplementation')

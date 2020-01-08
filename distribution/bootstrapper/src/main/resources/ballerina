@@ -246,6 +246,7 @@ elif [[ $1 == "run" ]] && [[ $2 == *.jar ]]; then # if 1st arg is "run" and 2nd 
         -Djava.security.egd=file:/dev/./urandom \
         -Dfile.encoding=UTF8 \
         -Dballerina.target=jvm \
+        -Djava.command=$JAVACMD \
         -DBALLERINA_DEV_COMPILE_BALLERINA_ORG=true \
         -jar "${@:2}" # ignores "run"
 else
@@ -264,6 +265,7 @@ else
         -Djava.security.egd=file:/dev/./urandom \
         -Dfile.encoding=UTF8 \
         -Dballerina.target=jvm \
+        -Djava.command=$JAVACMD \
         -DBALLERINA_DEV_COMPILE_BALLERINA_ORG=true \
         org.ballerinalang.tool.Main "$@"
 fi

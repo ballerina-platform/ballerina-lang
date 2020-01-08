@@ -22,7 +22,6 @@ import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
-import org.wso2.ballerinalang.compiler.bir.model.BIRInstruction;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRAnnotation;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRAnnotationAttachment;
@@ -1914,7 +1913,7 @@ public class BIRGen extends BLangNodeVisitor {
         }
 
         for (Map.Entry<BVarSymbol, Set<String>> entry : lockStmt.fieldVariables.entrySet()) {
-            BIRVariableDcl variableDcl = this.env.symbolVarMap.get(entry.getKey());
+            BIROperand variableDcl = new BIROperand(this.env.symbolVarMap.get(entry.getKey()));
             for (String field : entry.getValue()) {
                 BIRBasicBlock lockedBB = new BIRBasicBlock(this.env.nextBBId(names));
                 addToTrapStack(lockedBB);
@@ -1923,10 +1922,10 @@ public class BIRGen extends BLangNodeVisitor {
                 this.env.enclBB = lockedBB;
             }
         }
-        Map<BIRVariableDcl, Set<String>> fieldLocks = new TreeMap<>((o1, o2) -> o2.name.value
-                .compareTo(o1.name.value));
-        fieldLocks.putAll(lockStmt.fieldVariables.entrySet().stream()
-                .collect(Collectors.toMap(x -> this.env.symbolVarMap.get(x.getKey()), Map.Entry::getValue)));
+        Map<BIROperand, Set<String>> fieldLocks = new TreeMap<>((o1, o2) -> o2.variableDcl.name.value
+                .compareTo(o1.variableDcl.name.value));
+        fieldLocks.putAll(lockStmt.fieldVariables.entrySet().stream().collect(Collectors
+                .toMap(x -> new BIROperand(this.env.symbolVarMap.get(x.getKey())), Map.Entry::getValue)));
         this.env.unlockVars.peek().push(new BIRLockDetailsHolder(lockedOn, fieldLocks));
     }
 
@@ -1944,7 +1943,7 @@ public class BIRGen extends BLangNodeVisitor {
         this.env.enclBB = unLockedBB;
     }
 
-    private void emit(BIRInstruction instruction) {
+    private void emit(BIRNonTerminator instruction) {
         this.env.enclBB.instructions.add(instruction);
     }
 

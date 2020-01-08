@@ -218,7 +218,7 @@ function genJMethodForBFunc(bir:Function func,
     mv.visitInsn(AALOAD);
     mv.visitTypeInsn(CHECKCAST, frameName);
 
-    geerateFrameClassFieldLoad(localVarOffset, localVars, mv, indexMap, frameName);
+    geerateFrameClassFieldLoad(localVars, mv, indexMap, frameName);
     mv.visitFieldInsn(GETFIELD, frameName, "state", "I");
     mv.visitVarInsn(ISTORE, stateVarIndex);
     mv.visitJumpInsn(GOTO, varinitLable);
@@ -230,7 +230,7 @@ function genJMethodForBFunc(bir:Function func,
     mv.visitMethodInsn(INVOKESPECIAL, frameName, "<init>", "()V", false);
 
 
-    geerateFrameClassFieldUpdate(localVarOffset, localVars, mv, indexMap, frameName);
+    geerateFrameClassFieldUpdate(localVars, mv, indexMap, frameName);
 
     mv.visitInsn(DUP);
     mv.visitVarInsn(ILOAD, stateVarIndex);
@@ -344,9 +344,9 @@ function genJMethodForBFunc(bir:Function func,
     mv.visitEnd();
 }
 
-function geerateFrameClassFieldLoad(int localVarOffset, bir:VariableDcl?[] localVars, jvm:MethodVisitor mv,
+function geerateFrameClassFieldLoad(bir:VariableDcl?[] localVars, jvm:MethodVisitor mv,
                                     BalToJVMIndexMap indexMap, string frameName) {
-    int k = localVarOffset;
+    int k = 0;
     while (k < localVars.length()) {
         bir:VariableDcl localVar = getVariableDcl(localVars[k]);
         var index = indexMap.getIndex(localVar);
@@ -479,9 +479,9 @@ function generateFrameClassJFieldLoad(bir:VariableDcl localVar, jvm:MethodVisito
 
 }
 
-function geerateFrameClassFieldUpdate(int localVarOffset, bir:VariableDcl?[] localVars, jvm:MethodVisitor mv,
+function geerateFrameClassFieldUpdate(bir:VariableDcl?[] localVars, jvm:MethodVisitor mv,
                                       BalToJVMIndexMap indexMap, string frameName) {
-    int k = localVarOffset;
+    int k = 0;
     while (k < localVars.length()) {
         bir:VariableDcl localVar = getVariableDcl(localVars[k]);
         var index = indexMap.getIndex(localVar);

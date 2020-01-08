@@ -5,4 +5,4 @@ $ ballerina run checkpanic.bal
 error: {ballerina/lang.int}NumberParsingError message='string' value 'Invalid' cannot be converted to 'int'
         at ballerina.lang_int:fromString(int.bal:53)
            checkpanic:parse(checkpanic.bal:6)
-           checkpanic:main(checkpanic.bal:22)
+           checkpanic:main(checkpanic.bal:20)

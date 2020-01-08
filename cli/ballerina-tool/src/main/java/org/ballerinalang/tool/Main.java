@@ -63,6 +63,7 @@ public class Main {
                 // print the error message only if the exception was not thrown due to compilation errors
                 errStream.println(prepareCompilerErrorMessage(e.getMessage()));
             }
+            // These are compiler errors, and are already logged. Hence simply exit.
             Runtime.getRuntime().exit(1);
         } catch (BLauncherException e) {
             LauncherUtils.printLauncherException(e, errStream);

@@ -33,7 +33,6 @@ dependencies {
     implementation 'org.ow2.asm:asm-util'
     implementation 'org.ow2.asm:asm-tree'
 
-    baloImplementation project(path: ':ballerina-utils', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-io', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-bir', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-jvm', configuration: 'baloImplementation')

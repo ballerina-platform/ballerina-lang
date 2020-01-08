@@ -101,8 +101,7 @@ function functionWithATransactionStmt() returns string {
 string ss = "";
 function runtimeNestedTransactionErrorTraped() returns string {
     ss = "";
-    ss += runtimeNestedTransactions(true);
-    return ss;
+    return runtimeNestedTransactions(true);
 }
 
 function runtimeNestedTransactionsError() returns string {

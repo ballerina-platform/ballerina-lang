@@ -78,7 +78,7 @@ jobs:
     - script:
         - while sleep 9m; do echo "=====[ $SECONDS seconds still running ]====="; done &
         # TODO enable tests for all projects
-        - ./gradlew.bat build -Dorg.gradle.parallel=false -x :ballerina-packerina:test -x :ballerina-lang:test -x :ballerina-http:test -x :ballerina-file:test -x :ballerina-socket:test -x :jballerina-unit-test:test -x :jballerina-integration-test:test -x :plugin-vscode:test -x createJavadoc --stacktrace -scan --console=plain --no-daemon
+        - ./gradlew.bat build -Dorg.gradle.parallel=false -x :ballerina-packerina:test -x :ballerina-lang:test -x :ballerina-file:test -x :ballerina-socket:test -x :jballerina-unit-test:test -x :jballerina-integration-test:test -x :plugin-vscode:test -x createJavadoc --stacktrace -scan --console=plain --no-daemon
         # Killing background sleep loop
         - kill %1
       name:  "Tests - windows"
@@ -124,3 +124,4 @@ branches:
     - packerina-dev
     - next-release
     - ballerina-1.0.x
+    - release-stage
