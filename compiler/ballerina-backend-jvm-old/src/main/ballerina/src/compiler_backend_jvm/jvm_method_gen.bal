@@ -64,7 +64,7 @@ function genJMethodForBFunc(bir:Function func,
     string currentPackageName = getPackageName(module.org.value, module.name.value);
     BalToJVMIndexMap indexMap = new;
     string funcName = cleanupFunctionName(<@untainted> func.name.value);
-    boolean useBString = funcName.endsWith("$bstring");
+    boolean useBString = isBStringFunc(funcName);
     int returnVarRefIndex = -1;
 
     bir:VariableDcl stranVar = { typeValue: "string", // should be record
@@ -2550,6 +2550,21 @@ function getJavaVersion() returns string {
     } else {
         return "";
     }
+}
+
+function isBStringFunc(string funcName) returns boolean {
+    return funcName.endsWith("$bstring");
+}
+
+function nameOfBStringFunc(string nonBStringFuncName) returns string {
+    return nonBStringFuncName + "$bstring";
+}
+
+function nameOfNonBStringFunc(string funcName) returns string {
+    if(isBStringFunc(funcName)) {
+        return funcName.substring(0, funcName.length() - 8);
+    }
+    return funcName;
 }
 
 function getProperty(handle propertyName) returns handle = @java:Method {

@@ -138,7 +138,7 @@ function injectBStringFunctions(bir:Package module) {
             count = count + 1;
             if (IS_BSTRING) {
                 var bStringFunc = birFunc.clone();
-                bStringFunc.name = {value: birFunc.name.value + "$bstring"};
+                bStringFunc.name = {value: nameOfBStringFunc(birFunc.name.value)};
                 bStringFuncs.push(bStringFunc);
             }
         }
@@ -715,11 +715,7 @@ function isLangModule(bir:ModuleID moduleId) returns boolean{
 function readFileFully(string path) returns byte[]  = external;
 
 public function lookupExternClassName(string pkgName, string functionName) returns string? {
-    var name = functionName;
-    if(functionName.endsWith("$bstring")) {
-        name = functionName.substring(0, functionName.length() - 8);
-    }
-    return externalMapCache[cleanupName(pkgName) + "/" + name];
+    return externalMapCache[cleanupName(pkgName) + "/" + nameOfNonBStringFunc(functionName)];
 }
 
 function generateShutdownSignalListener(bir:Package pkg, string initClass, map<byte[]> jarEntries) {

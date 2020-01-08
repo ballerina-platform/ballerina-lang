@@ -271,8 +271,8 @@ type TerminatorGenerator object {
         string orgName = callIns.pkgID.org;
         string moduleName = callIns.pkgID.name;
         var callInsCopy = callIns.clone();
-        if(funcName.endsWith("$bstring")) {
-            callInsCopy.name.value = callIns.name.value + "$bstring";
+        if(isBStringFunc(funcName)) {
+            callInsCopy.name.value =  nameOfBStringFunc(callIns.name.value);
         }
         // invoke the function
         self.genCall(callInsCopy, orgName, moduleName, localVarOffset);
@@ -331,7 +331,7 @@ type TerminatorGenerator object {
 
         string jClassName = callIns.jClassName;
         string jMethodName = callIns.name;
-        string jMethodVMSig = funcName.endsWith("$bstring") ? callIns.jMethodVMSigBString : callIns.jMethodVMSig;
+        string jMethodVMSig = isBStringFunc(funcName) ? callIns.jMethodVMSigBString : callIns.jMethodVMSig;
         self.mv.visitMethodInsn(INVOKESTATIC, jClassName, jMethodName, jMethodVMSig, false);
 
         bir:VariableDcl? lhsOpVarDcl = callIns.lhsOp?.variableDcl;
@@ -538,11 +538,8 @@ type TerminatorGenerator object {
                                    string methodName, string methodLookupName) {
         // load strand
         self.mv.visitVarInsn(ALOAD, localVarOffset);
-        string lookupKey = getPackageName(orgName, moduleName) + methodLookupName;
-        boolean useBString = lookupKey.endsWith("$bstring");
-        if(useBString) {
-            lookupKey = lookupKey.substring(0, lookupKey.length() - 8); 
-        }
+        string lookupKey = nameOfNonBStringFunc(getPackageName(orgName, moduleName) + methodLookupName);
+
         int argsCount = callIns.args.length();
         int i = 0;
         while (i < argsCount) {
@@ -552,12 +549,14 @@ type TerminatorGenerator object {
             i += 1;
         }
 
-        string methodDesc = lookupJavaMethodDescription(lookupKey, IS_BSTRING);
         string jvmClass = lookupFullQualifiedClassName(lookupKey);
         string cleanMethodName = cleanupFunctionName(methodName);
-        if (IS_BSTRING && orgName == "ballerina" && moduleName == "lang.string" && !cleanMethodName.endsWith("_")) {
-             cleanMethodName += "$bstring";
+        boolean useBString = IS_BSTRING && orgName == "ballerina" &&
+                             moduleName == "lang.string" && !cleanMethodName.endsWith("_");
+        if (useBString) {
+            cleanMethodName = nameOfBStringFunc(cleanMethodName);
         }
+        string methodDesc = lookupJavaMethodDescription(lookupKey, useBString);
         self.mv.visitMethodInsn(INVOKESTATIC, jvmClass, cleanMethodName, methodDesc, false);
     }
 

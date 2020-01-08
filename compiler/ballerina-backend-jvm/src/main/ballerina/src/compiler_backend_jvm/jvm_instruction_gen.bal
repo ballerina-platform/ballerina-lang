@@ -1190,11 +1190,11 @@ function addBoxInsn(jvm:MethodVisitor mv, bir:BType? bType) {
     }
 }
 
-function addUnboxInsn(jvm:MethodVisitor mv, bir:BType? bType) {
+function addUnboxInsn(jvm:MethodVisitor mv, bir:BType? bType, boolean useBString = false) {
     if (bType is ()) {
         return;
     } else {
-        generateCast(mv, "any", bType);
+        generateCast(mv, "any", bType, useBString = useBString);
     }
 }
 

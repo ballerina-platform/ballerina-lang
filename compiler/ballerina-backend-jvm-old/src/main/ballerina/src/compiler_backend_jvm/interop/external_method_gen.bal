@@ -66,8 +66,6 @@ function injectDefaultParamInits(bir:Package module) {
             bir:Function birFunc = <bir:Function>functions[count];
             count = count + 1;
             var extFuncWrapper = lookupBIRFunctionWrapper(module, birFunc, attachedType = ());
-
-
             if extFuncWrapper is OldStyleExternalFunctionWrapper {
                 desugarOldExternFuncs(module, extFuncWrapper, birFunc);
                 enrichWithDefaultableParamInits(birFunc);
@@ -116,10 +114,7 @@ function desugarOldExternFuncs(bir:Package module, OldStyleExternalFunctionWrapp
         birFuncParamIndex += 1;
     }
 
-    string jMethodName = birFunc.name.value;
-    if(jMethodName.endsWith("$bstring")) {
-        jMethodName = jMethodName.substring(0, jMethodName.length() - 8);
-    }
+    string jMethodName = nameOfNonBStringFunc(birFunc.name.value);
     JavaMethodCall jCall = {pos:birFunc.pos, args:args, kind:bir:TERMINATOR_PLATFORM, lhsOp:retRef,
                                 jClassName:extFuncWrapper.jClassName, name:jMethodName,
                                 jMethodVMSigBString: extFuncWrapper.jMethodVMSigBString ?: "<error>",
@@ -146,10 +141,7 @@ function lookupBIRFunctionWrapper(bir:Package birModule, bir:Function birFunc,
                                     bir:BType? attachedType = ()) returns BIRFunctionWrapper {
     string lookupKey;
     var currentPackageName = getPackageName(birModule.org.value, birModule.name.value);
-    string birFuncName = birFunc.name.value;
-    if(birFuncName.endsWith("$bstring")) {
-        birFuncName = birFuncName.substring(0, birFuncName.length() - 8);
-    }
+    string birFuncName = nameOfNonBStringFunc(birFunc.name.value);
 
     if attachedType is () {
         lookupKey = currentPackageName + birFuncName;

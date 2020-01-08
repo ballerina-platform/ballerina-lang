@@ -103,7 +103,7 @@ public type ObjectGenerator object {
                 jvm:FieldVisitor fv = cw.visitField(0, field.name.value, getTypeDesc(field.typeValue));
                 fv.visitEnd();
                 if(IS_BSTRING) {
-                    jvm:FieldVisitor fvb = cw.visitField(0, field.name.value + "$bstring", getTypeDesc(field.typeValue, true));
+                    jvm:FieldVisitor fvb = cw.visitField(0, nameOfBStringFunc(field.name.value), getTypeDesc(field.typeValue, true));
                     fvb.visitEnd();
                 }
                 string lockClass = "L" + LOCK_VALUE + ";";
@@ -186,7 +186,7 @@ public type ObjectGenerator object {
             string methodSig = "";
 
             // use index access, since retType can be nil.
-            boolean useBString = methodName.endsWith("$bstring");
+            boolean useBString = isBStringFunc(methodName);
             methodSig = getMethodDesc(paramTypes, retType, useBString = useBString);
 
             // load self
@@ -303,7 +303,7 @@ public type ObjectGenerator object {
             addUnboxInsn(mv, field.typeValue, useBString);
             string filedName = field.name.value;
             if(useBString) {
-                filedName += "$bstring";
+                filedName = nameOfBStringFunc(filedName);
             }
             mv.visitFieldInsn(PUTFIELD, className, filedName, getTypeDesc(field.typeValue, useBString));
             mv.visitInsn(RETURN);
@@ -884,7 +884,7 @@ function desugarObjectMethods(bir:Package module, bir:BType bType, bir:Function?
                 enrichWithDefaultableParamInits(getFunction(<@untainted> func));
                 if (IS_BSTRING) {
                     var bStringFunc = func.clone();
-                    bStringFunc.name = {value: func.name.value + "$bstring"};
+                    bStringFunc.name = {value: nameOfBStringFunc(func.name.value)};
                     bStringFuncs.push(bStringFunc);
                 }
             }

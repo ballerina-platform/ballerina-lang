@@ -141,10 +141,7 @@ function lookupBIRFunctionWrapper(bir:Package birModule, bir:Function birFunc,
                                     bir:BType? attachedType = ()) returns BIRFunctionWrapper {
     string lookupKey;
     var currentPackageName = getPackageName(birModule.org.value, birModule.name.value);
-    string birFuncName = birFunc.name.value;
-    if(birFuncName.endsWith("$bstring")) {
-        birFuncName = birFuncName.substring(0, birFuncName.length() - 8);
-    }
+    string birFuncName = nameOfNonBStringFunc(birFunc.name.value);
 
     if attachedType is () {
         lookupKey = currentPackageName + birFuncName;

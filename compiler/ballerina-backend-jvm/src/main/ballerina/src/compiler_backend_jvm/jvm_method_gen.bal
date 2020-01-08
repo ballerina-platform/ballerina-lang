@@ -1212,7 +1212,7 @@ function getMethodDesc(bir:BType?[] paramTypes, bir:BType? retType, bir:BType? a
         desc = desc + getArgTypeSignature(paramType, useBString);
         i += 1;
     }
-    string returnType = generateReturnType(retType, isExtern);
+    string returnType = generateReturnType(retType, isExtern, useBString);
     desc =  desc + returnType;
 
     return desc;
@@ -1287,7 +1287,7 @@ function getArgTypeSignature(bir:BType bType, boolean useBString = false) return
     }
 }
 
-function generateReturnType(bir:BType? bType, boolean isExtern = false) returns string {
+function generateReturnType(bir:BType? bType, boolean isExtern = false, boolean useBString = false) returns string {
     if (bType is ()|bir:BTypeNil) {
         if (isExtern) {
             return ")V";
@@ -1300,7 +1300,7 @@ function generateReturnType(bir:BType? bType, boolean isExtern = false) returns 
     } else if (bType is bir:BTypeFloat) {
         return ")D";
     } else if (bType is bir:BTypeString) {
-        return io:sprintf(")L%s;", STRING_VALUE);
+        return io:sprintf(")L%s;", useBString ? I_STRING_VALUE : STRING_VALUE);
     } else if (bType is bir:BTypeDecimal) {
         return io:sprintf(")L%s;", DECIMAL_VALUE);
     } else if (bType is bir:BTypeBoolean) {
@@ -2550,6 +2550,21 @@ function getJavaVersion() returns string {
     } else {
         return "";
     }
+}
+
+function isBStringFunc(string funcName) returns boolean {
+    return funcName.endsWith("$bstring");
+}
+
+function nameOfBStringFunc(string nonBStringFuncName) returns string {
+    return nonBStringFuncName + "$bstring";
+}
+
+function nameOfNonBStringFunc(string funcName) returns string {
+    if(isBStringFunc(funcName)) {
+        return funcName.substring(0, funcName.length() - 8);
+    }
+    return funcName;
 }
 
 function getProperty(handle propertyName) returns handle = @java:Method {
