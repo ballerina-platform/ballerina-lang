@@ -1,9 +1,3 @@
-function foo() returns int[][] {
-    int[][] x = [];
-    //x[0] = [];
-    x[0][1] = 2;
-    return x;
-}
 
 function testNonInitArrayAccess() returns (string){
     string[] fruits = [];
@@ -112,4 +106,10 @@ function testArrayIndexOutOfRangeErrorWithUnionWithFiniteTypesIndex() {
     animals = ["Lion", "Cat"];
     OneToFive ot = 4;
     name = animals[ot];
+}
+
+function testAssignToNonExistingFirstDimensionOfTwoDimensionArray() returns int[][] {
+    int[][] x = [];
+    x[0][1] = 2;
+    return x;
 }

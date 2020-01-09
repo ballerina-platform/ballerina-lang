@@ -118,11 +118,11 @@ public class ArrayAccessExprTest {
     }
 
     @Test
-    public void testFoo() {
+    public void testAssignToNonExistingFirstDimensionOfTwoDimensionArray() {
         BValue[] args = {};
-        BValue[] returns = BRunUtil.invoke(compileResult, "foo", args);
+        BValue[] returns = BRunUtil.invoke(compileResult, "testAssignToNonExistingFirstDimensionOfTwoDimensionArray", args);
 
-        Assert.assertEquals(returns[0], "");
+        Assert.assertEquals(returns[0].stringValue(), "[0, 2]");
     }
 
     @Test(description = "Test accessing an out of bound arrays-index",
