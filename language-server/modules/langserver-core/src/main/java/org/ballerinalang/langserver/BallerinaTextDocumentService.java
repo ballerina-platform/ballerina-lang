@@ -251,6 +251,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 BLangPackage bLangPackage = LSModuleCompiler.getBLangPackage(context, documentManager,
                                                                              LSCustomErrorStrategy.class, false, false);
 
+                documentManager.resetPrunedContent(Paths.get(URI.create(uri)));
                 // Capture visible symbols of the cursor position
                 SignatureTreeVisitor signatureTreeVisitor = new SignatureTreeVisitor(context);
                 bLangPackage.accept(signatureTreeVisitor);
