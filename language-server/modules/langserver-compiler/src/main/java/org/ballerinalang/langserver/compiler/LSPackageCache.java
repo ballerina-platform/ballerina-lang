@@ -19,6 +19,7 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.PackageCache;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
@@ -114,6 +115,7 @@ public class LSPackageCache {
     static class ExtendedPackageCache extends PackageCache {
 
         private static final long MAX_CACHE_COUNT = 100L;
+        protected Map<String, BPackageSymbol> packageSymbolMap;
 
         private ExtendedPackageCache(CompilerContext context) {
             super(context);
