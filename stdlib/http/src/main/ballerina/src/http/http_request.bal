@@ -479,10 +479,10 @@ public type Request object {
             self.setTextPayload(payload);
         } else if (payload is xml) {
             self.setXmlPayload(payload);
-        } else if (payload is json) {
-            self.setJsonPayload(payload);
         } else if (payload is byte[]) {
             self.setBinaryPayload(payload);
+        } else if (payload is json) {
+            self.setJsonPayload(payload);
         } else if (payload is io:ReadableByteChannel) {
             self.setByteChannel(payload);
         } else {

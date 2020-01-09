@@ -220,10 +220,10 @@ function buildRequest(RequestMessage message) returns Request {
         request.setTextPayload(message);
     } else if (message is xml) {
         request.setXmlPayload(message);
-    } else if (message is json) {
-        request.setJsonPayload(message);
     } else if (message is byte[]) {
         request.setBinaryPayload(message);
+    } else if (message is json) {
+        request.setJsonPayload(message);
     } else if (message is io:ReadableByteChannel) {
         request.setByteChannel(message);
     } else {
@@ -242,10 +242,10 @@ function buildResponse(ResponseMessage message) returns Response {
         response.setTextPayload(message);
     } else if (message is xml) {
         response.setXmlPayload(message);
-    } else if (message is json) {
-        response.setJsonPayload(message);
     } else if (message is byte[]) {
         response.setBinaryPayload(message);
+    } else if (message is json) {
+        response.setJsonPayload(message);
     } else if (message is io:ReadableByteChannel) {
         response.setByteChannel(message);
     } else {

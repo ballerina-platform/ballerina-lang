@@ -96,6 +96,7 @@ public class StreamValue implements RefValue, BStream {
      * @param strand the strand in which the data being published
      * @param data the data to publish to the stream
      */
+    @Deprecated
     public void publish(Strand strand, Object data) {
         streamSubscriptionManager.sendMessage(this, strand, data);
     }
@@ -106,6 +107,7 @@ public class StreamValue implements RefValue, BStream {
      * @param functionPointer represents the function pointer reference for the function to be invoked on receiving
      *                        messages
      */
+    @Deprecated
     public void subscribe(BFunctionPointer<Object[], Object> functionPointer) {
         streamSubscriptionManager.registerMessageProcessor(this, (FPValue<Object[], Object>) functionPointer);
     }

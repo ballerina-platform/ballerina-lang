@@ -3315,6 +3315,7 @@ public class Desugar extends BLangNodeVisitor {
                                                                 iExpr.type, iExpr.expr, iExpr.async);
                     attachedFunctionInvocation.actionInvocation = iExpr.actionInvocation;
                     attachedFunctionInvocation.name = iExpr.name;
+                    attachedFunctionInvocation.annAttachments = iExpr.annAttachments;
                     result = genIExpr = attachedFunctionInvocation;
                 }
                 break;

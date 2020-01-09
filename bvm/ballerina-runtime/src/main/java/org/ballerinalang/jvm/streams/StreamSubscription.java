@@ -30,7 +30,7 @@ import java.util.Observer;
  *
  * @since 0.995.0
  */
-
+@Deprecated
 public abstract class StreamSubscription extends Observable {
 
     StreamSubscription(Observer observer) {
