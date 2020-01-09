@@ -64,6 +64,7 @@ public class PackagingTestCase extends BaseTest {
     private String orgName = "bcintegrationtest";
     private Map<String, String> envVariables;
     private BMainInstance balClient;
+    private int totalPullCount = 0;
     
     @BeforeClass()
     public void setUp() throws IOException, BallerinaTestException {
@@ -151,6 +152,7 @@ public class PackagingTestCase extends BaseTest {
             String[] clientArgs = {orgName + "/" + moduleName + ":0.1.0"};
             balClient.runMain("pull", clientArgs, envVariables, new String[]{},
                     new LogLeecher[]{}, balServer.getServerHome());
+            totalPullCount += 1;
             return Files.exists(tempHomeDirectory.resolve(baloPath).resolve(baloFileName));
         });
 
@@ -159,8 +161,7 @@ public class PackagingTestCase extends BaseTest {
 
     @Test(description = "Test pullCount of a package from central", dependsOnMethods = "testPull")
     public void testPullCount() throws IOException {
-        URI remoteUri = URI.create(RepoUtils.getRemoteRepoURL() + "/modules/info/" + orgName + "/" + moduleName
-                + "/*/");
+        URI remoteUri = URI.create(RepoUtils.getStagingURL() + "/modules/info/" + orgName + "/" + moduleName + "/*/");
         HttpURLConnection conn;
         conn = (HttpURLConnection) remoteUri.toURL().openConnection();
         int statusCode = conn.getResponseCode();
@@ -175,7 +176,7 @@ public class PackagingTestCase extends BaseTest {
                 Object payload = JSONParser.parse(result.toString());
                 if (payload instanceof MapValue) {
                     long pullCount = ((MapValue) payload).getIntValue("totalPullCount");
-                    Assert.assertEquals(pullCount, 1);
+                    Assert.assertEquals(pullCount, totalPullCount);
                 } else {
                     Assert.fail("error: invalid response received");
                 }
