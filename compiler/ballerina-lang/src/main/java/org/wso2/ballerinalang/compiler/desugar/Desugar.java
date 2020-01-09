@@ -3381,8 +3381,8 @@ public class Desugar extends BLangNodeVisitor {
         // First get the type and then visit the expr. Order matters, since the desugar
         // can change the type of the expression, if it is type narrowed.
         BType varRefType = indexAccessExpr.expr.type;
-        if (indexAccessExpr.lhsVar && varRefType.tag == TypeTags.ARRAY
-                && indexAccessExpr.indexExpr.type.tag == TypeTags.INT
+        if (indexAccessExpr.lhsVar
+                && varRefType.tag == TypeTags.ARRAY
                 && indexAccessExpr.expr.getKind() == NodeKind.INDEX_BASED_ACCESS_EXPR
                 && ((BLangIndexBasedAccess) indexAccessExpr.expr).indexExpr.type.tag == TypeTags.INT) {
             result = rewriteMultiDimensionalLValAccess(indexAccessExpr, varRefType);
@@ -3417,7 +3417,7 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     private BLangExpression rewriteMultiDimensionalLValAccess(BLangIndexBasedAccess indexAccessExpr, BType varRefType) {
-        // ar[i][j] = n; -> int $t = i; if $t < ar.length() { ar[$t] = []; } ar[$t][j] = n;
+        // ar[i][j] = n; -> int $t = i; if ($t < ar.length() + 1) { ar[$t] = []; } ar[$t][j] = n;
 
         DiagnosticPos pos = indexAccessExpr.pos;
         BLangIndexBasedAccess expr = (BLangIndexBasedAccess) indexAccessExpr.expr;
