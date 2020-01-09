@@ -120,7 +120,8 @@ public class ArrayAccessExprTest {
     @Test
     public void testAssignToNonExistingFirstDimensionOfTwoDimensionArray() {
         BValue[] args = {};
-        BValue[] returns = BRunUtil.invoke(compileResult, "testAssignToNonExistingFirstDimensionOfTwoDimensionArray", args);
+        BValue[] returns = BRunUtil.invoke(compileResult,
+                "testAssignToNonExistingFirstDimensionOfTwoDimensionArray", args);
 
         Assert.assertEquals(returns[0].stringValue(), "[0, 2]");
     }
