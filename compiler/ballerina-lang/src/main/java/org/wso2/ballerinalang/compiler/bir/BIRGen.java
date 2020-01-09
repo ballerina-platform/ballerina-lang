@@ -857,10 +857,13 @@ public class BIRGen extends BLangNodeVisitor {
     @Override
     public void visit(BLangStatementExpression statementExpression) {
         boolean variableStore = this.varAssignment;
+
+        // Bypass targetOperand to statementExpression.expr
         BIROperand prevTargetOperand = null;
         if (variableStore) {
             prevTargetOperand = this.env.targetOperand;
         }
+        // Stop varAssignment status propagation to statement block's code gen.
         this.varAssignment = false;
         statementExpression.stmt.accept(this);
         this.varAssignment = variableStore;
@@ -868,6 +871,7 @@ public class BIRGen extends BLangNodeVisitor {
         if (variableStore) {
             this.env.targetOperand = prevTargetOperand;
         }
+
         statementExpression.expr.accept(this);
     }
 
