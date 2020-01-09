@@ -3316,32 +3316,42 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     private BLangExpression rewriteMultiDimensionalLValAccess(BLangIndexBasedAccess indexAccessExpr, BType varRefType) {
-        // ar[i][j] = n; -> ar[i] = []; ar[i][j] = n;
+        // ar[i][j] = n; -> int $t = i; if $t < ar.length() { ar[$t] = []; } ar[$t][j] = n;
 
         DiagnosticPos pos = indexAccessExpr.pos;
         BLangIndexBasedAccess expr = (BLangIndexBasedAccess) indexAccessExpr.expr;
         BLangStatementExpression bLangStatementExpression = new BLangStatementExpression();
+
         BLangBlockStmt bLangBlockStmt = new BLangBlockStmt();
+        BLangSimpleVariableDef firstIndex =
+                createVarDef("$tempIndex$", expr.indexExpr.type, expr.indexExpr, expr.indexExpr.pos);
+        bLangBlockStmt.addStatement(firstIndex);
+
+        BLangInvocation invocationNode = createArrayLengthInvocation(expr);
+        BLangSimpleVariableDef lengthOfArray = createVarDef("$arrayLength$", symTable.intType, invocationNode, pos);
+        bLangBlockStmt.addStatement(lengthOfArray);
+
         BLangIf ifStmt = ASTBuilderUtil.createIfStmt(pos, bLangBlockStmt);
-
-        BLangInvocation invocationNode = createInvocationNode("length", new ArrayList<>(), symTable.intType);
-        invocationNode.expr = expr.expr;
-        invocationNode.symbol = symResolver.lookupLangLibMethod(symTable.arrayType, names.fromString("length"));
-        invocationNode.requiredArgs = Collections.singletonList(expr.expr);
-        invocationNode.type = symTable.intType;
-
+        // todo: extract index to a var, and then use that var here
+        BLangSimpleVarRef firstIndexVarRef = ASTBuilderUtil.createVariableRef(firstIndex.pos, firstIndex.var.symbol);
         BLangBinaryExpr addOneToIndex = ASTBuilderUtil.createBinaryExpr(pos,
-                expr.indexExpr,
+                firstIndexVarRef,
                 ASTBuilderUtil.createLiteral(pos, symTable.intType, Long.valueOf(1)),
                 symTable.intType,
                 OperatorKind.ADD, null);
-        ifStmt.expr = ASTBuilderUtil.createBinaryExpr(pos,
-                invocationNode,
+        BLangBinaryExpr condition = ASTBuilderUtil.createBinaryExpr(pos,
+                ASTBuilderUtil.createVariableRef(pos, lengthOfArray.var.symbol),
                 addOneToIndex,
                 symTable.booleanType, OperatorKind.LESS_THAN, null);
+        ifStmt.expr = rewriteExpr(condition);
 
-        BLangArrayAccessExpr arrayAccessExpr = new BLangArrayAccessExpr(pos, indexAccessExpr.expr,
-                indexAccessExpr.indexExpr);
+        BLangIndexBasedAccess arrayAccess = (BLangIndexBasedAccess) TreeBuilder.createIndexBasedAccessNode();
+        arrayAccess.pos = pos;
+        arrayAccess.expr = expr.expr;
+        arrayAccess.indexExpr = firstIndexVarRef;
+        arrayAccess.type = expr.type;
+
+        BLangArrayAccessExpr arrayAccessExpr = new BLangArrayAccessExpr(pos, arrayAccess, indexAccessExpr.indexExpr);
         arrayAccessExpr.lhsVar = true;
         arrayAccessExpr.type = varRefType;
         bLangStatementExpression.expr = arrayAccessExpr;
@@ -3349,9 +3359,8 @@ public class Desugar extends BLangNodeVisitor {
         BLangAssignment assignment = new BLangAssignment();
         ifStmt.body = ASTBuilderUtil.createBlockStmt(pos);
         ifStmt.body.addStatement(assignment);
-//        bLangBlockStmt.addStatement(assignment);
-        assignment.varRef = rewrite(expr, env);
 
+        assignment.varRef = rewrite(arrayAccess, env);
 
         BLangArrayLiteral arrayLiteral = new BLangArrayLiteral();
         arrayLiteral.pos = indexAccessExpr.expr.pos;
@@ -3361,6 +3370,23 @@ public class Desugar extends BLangNodeVisitor {
 
         bLangStatementExpression.type = indexAccessExpr.type;
         return rewriteExpr(bLangStatementExpression);
+    }
+
+    private BLangInvocation createArrayLengthInvocation(BLangIndexBasedAccess expr) {
+        BLangInvocation invocationNode = createInvocationNode("length", new ArrayList<>(), symTable.intType);
+        invocationNode.symbol = symResolver.lookupLangLibMethod(symTable.arrayType, names.fromString("length"));
+
+        BLangExpression arrayExpr = expr.expr;
+        // If the array ref is a simple variable ref, create a new variable ref as original one could be a LHS var ref.
+        if (expr.expr.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
+            BLangSimpleVarRef arrayRef = (BLangSimpleVarRef) arrayExpr;
+            BLangSimpleVarRef variableRef = ASTBuilderUtil.createVariableRef(arrayRef.pos, arrayRef.symbol);
+            arrayExpr = variableRef;
+        }
+        invocationNode.expr = arrayExpr;
+        invocationNode.requiredArgs = Collections.singletonList(expr.expr);
+        invocationNode.type = symTable.intType;
+        return invocationNode;
     }
 
     @Override
