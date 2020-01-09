@@ -16,14 +16,17 @@
 
 extern crate libc;
 
-//use std::io;
-//use std::io::prelude::*;
 use std::mem;
 use std::os::raw::c_longlong;
 
 #[no_mangle]
 pub extern "C" fn new_int_array(size: c_longlong) -> *mut Vec<*mut c_longlong> {
-    let foo: Box<Vec<*mut c_longlong>> = Box::new(Vec::with_capacity(8));
+    let mut size_t = size;
+    if size < 0 {
+        size_t = 8;
+    }
+    let size_t = size_t as usize;
+    let foo: Box<Vec<*mut c_longlong>> = Box::new(Vec::with_capacity(size_t));
     let vec_pointer = Box::into_raw(foo);
     return vec_pointer as *mut Vec<*mut c_longlong>;
 }
