@@ -83,19 +83,19 @@ public class BuildCommandTest extends CommandTest {
         BuildCommand buildCommand = new BuildCommand(nonBalFilePath, printStream, printStream, false, true);
         new CommandLine(buildCommand).parse("hello_world.txt");
         buildCommand.execute();
-    
+
         String buildLog = readOutput(true);
         Assert.assertEquals(buildLog.replaceAll("\r", ""),
                 "ballerina: invalid Ballerina source path. It should either be a name of a module " +
-                                      "in a Ballerina project or a file with a '.bal' extension. Use the -a or " +
-                                      "--all flag to build or compile all modules.\n" +
-                                      "\n" +
-                                      "USAGE:\n" +
-                                      "    ballerina build {<ballerina-file> | <module-name> | -a | --all}\n" +
-                                      "\n" +
-                                      "For more information try --help\n");
+                        "in a Ballerina project or a file with a '.bal' extension. Use the -a or " +
+                        "--all flag to build or compile all modules.\n" +
+                        "\n" +
+                        "USAGE:\n" +
+                        "    ballerina build {<ballerina-file> | <module-name> | -a | --all}\n" +
+                        "\n" +
+                        "For more information try --help\n");
     }
-    
+
     @Test(description = "Build a valid ballerina file")
     public void testBuildBalFile() throws IOException {
         Path validBalFilePath = this.testResources.resolve("valid-bal-file");
@@ -105,25 +105,25 @@ public class BuildCommandTest extends CommandTest {
         // name of the file as argument
         new CommandLine(buildCommand).parse("hello_world.bal");
         buildCommand.execute();
-        
+
         String buildLog = readOutput(true);
         Assert.assertEquals(buildLog.replaceAll("\r", ""), "Compiling source\n" +
-                                      "\thello_world.bal\n" +
-                                      "\n" +
-                                      "Generating executables\n" +
-                                      "\thello_world.jar\n");
-        
+                "\thello_world.bal\n" +
+                "\n" +
+                "Generating executables\n" +
+                "\thello_world.jar\n");
+
         Assert.assertTrue(Files.exists(this.testResources
                 .resolve("valid-bal-file")
                 .resolve("hello_world.jar")));
-    
+
         Files.delete(this.testResources
                 .resolve("valid-bal-file")
                 .resolve("hello_world.jar"));
-    
+
         readOutput(true);
     }
-    
+
     @Test(description = "Build a valid ballerina file with output flag")
     public void testBuildBalFileWithOutputFlag() throws IOException {
         Path validBalFilePath = this.testResources.resolve("valid-bal-file");
@@ -135,10 +135,10 @@ public class BuildCommandTest extends CommandTest {
 
         String buildLog = readOutput(true);
         Assert.assertEquals(buildLog.replaceAll("\r", ""), "Compiling source\n" +
-                                      "\thello_world.bal\n" +
-                                      "\n" +
-                                      "Generating executables\n" +
-                                      "\tfoo.jar\n");
+                "\thello_world.bal\n" +
+                "\n" +
+                "Generating executables\n" +
+                "\tfoo.jar\n");
 
         Assert.assertTrue(Files.exists(this.testResources.resolve("valid-bal-file").resolve("foo.jar")));
         long executableSize = Files.size(this.testResources.resolve("valid-bal-file").resolve("foo.jar"));
@@ -151,57 +151,57 @@ public class BuildCommandTest extends CommandTest {
 
         buildLog = readOutput(true);
         Assert.assertEquals(buildLog.replaceAll("\r", ""), "Compiling source\n" +
-                                      "\thello_world.bal\n" +
-                                      "\n" +
-                                      "Generating executables\n" +
-                                      "\tbar.jar\n");
+                "\thello_world.bal\n" +
+                "\n" +
+                "Generating executables\n" +
+                "\tbar.jar\n");
 
         Assert.assertTrue(Files.exists(this.testResources.resolve("valid-bal-file").resolve("bar.jar")));
         Assert.assertEquals(Files.size(this.testResources.resolve("valid-bal-file").resolve("bar.jar")),
                 executableSize);
         Files.delete(this.testResources.resolve("valid-bal-file").resolve("bar.jar"));
-    
-    
+
+
         // create executable in a different path
         buildCommand = new BuildCommand(validBalFilePath, printStream, printStream, false, true);
         Path helloExecutableTmpDir = Files.createTempDirectory("hello_executable-");
         new CommandLine(buildCommand).parse("-o", helloExecutableTmpDir.toAbsolutePath().toString(), "hello_world.bal");
         buildCommand.execute();
-    
+
         buildLog = readOutput(true);
         Assert.assertEquals(buildLog.replaceAll("\r", ""), "Compiling source\n" +
-                                      "\thello_world.bal\n" +
-                                      "\n" +
-                                      "Generating executables\n" +
-                                      "\t" +
-                                      helloExecutableTmpDir.toAbsolutePath().resolve("hello_world.jar") +
-                                      "\n");
-    
+                "\thello_world.bal\n" +
+                "\n" +
+                "Generating executables\n" +
+                "\t" +
+                helloExecutableTmpDir.toAbsolutePath().resolve("hello_world.jar") +
+                "\n");
+
         Assert.assertTrue(Files.exists(helloExecutableTmpDir.toAbsolutePath().resolve("hello_world.jar")));
-    
+
         // create executable in a different path with .jar extension
         buildCommand = new BuildCommand(validBalFilePath, printStream, printStream, false, true);
         new CommandLine(buildCommand).parse("-o",
                 helloExecutableTmpDir.toAbsolutePath().resolve("hippo.jar").toString(),
                 "hello_world.bal");
         buildCommand.execute();
-    
+
         buildLog = readOutput(true);
         Assert.assertEquals(buildLog.replaceAll("\r", ""), "Compiling source\n" +
-                                      "\thello_world.bal\n" +
-                                      "\n" +
-                                      "Generating executables\n" +
-                                      "\t" +
-                                      helloExecutableTmpDir.toAbsolutePath().resolve("hippo.jar") +
-                                      "\n");
-    
+                "\thello_world.bal\n" +
+                "\n" +
+                "Generating executables\n" +
+                "\t" +
+                helloExecutableTmpDir.toAbsolutePath().resolve("hippo.jar") +
+                "\n");
+
         Assert.assertTrue(Files.exists(helloExecutableTmpDir.toAbsolutePath().resolve("hippo.jar")));
-        
+
         deleteDirectory(helloExecutableTmpDir);
 
         readOutput(true);
     }
-    
+
     @Test(description = "Build a valid ballerina file by passing invalid source root path and absolute bal file path")
     public void testBuildBalFileWithAbsolutePath() throws IOException {
         Path validBalFilePath = this.testResources.resolve("valid-bal-file");
@@ -211,39 +211,39 @@ public class BuildCommandTest extends CommandTest {
         // give absolute path as arg
         new CommandLine(buildCommand).parse(validBalFilePath.resolve("hello_world.bal").toAbsolutePath().toString());
         buildCommand.execute();
-        
+
         String buildLog = readOutput(true);
         Assert.assertEquals(buildLog.replaceAll("\r", ""), "Compiling source\n" +
-                                      "\thello_world.bal\n" + "" +
-                                      "\n" +
-                                      "Generating executables\n" + "" +
-                                      "\thello_world.jar\n");
-        
+                "\thello_world.bal\n" + "" +
+                "\n" +
+                "Generating executables\n" + "" +
+                "\thello_world.jar\n");
+
         Assert.assertTrue(Files.exists(this.testResources
                 .resolve("valid-bal-file")
                 .resolve("hello_world.jar")));
-        
+
         Files.delete(this.testResources
                 .resolve("valid-bal-file")
                 .resolve("hello_world.jar"));
-    
+
         readOutput(true);
     }
-    
+
     @Test(description = "Build a valid ballerina file with invalid source root and bal file name")
     public void testBuildBalFileWithInvalidSourceRoot() throws IOException {
         // give an invalid source path
-        BuildCommand buildCommand = new BuildCommand(this.testResources.resolve("oo"), printStream, printStream, 
-                                                     false, true);
+        BuildCommand buildCommand = new BuildCommand(this.testResources.resolve("oo"), printStream, printStream,
+                false, true);
         // the name of the bal file
         new CommandLine(buildCommand).parse("hello_world.bal");
         buildCommand.execute();
         String buildLog = readOutput(true);
         Assert.assertEquals(buildLog.replaceAll("\r", ""), "ballerina: '" +
-                                      this.testResources.resolve("oo").resolve("hello_world.bal").toString() +
-                                      "' Ballerina file does not exist.\n");
+                this.testResources.resolve("oo").resolve("hello_world.bal").toString() +
+                "' Ballerina file does not exist.\n");
     }
-    
+
     @Test(description = "Build non existing bal file with a valid source root path")
     public void testNonExistingBalFile() throws IOException {
         // valid source root path
@@ -254,10 +254,10 @@ public class BuildCommandTest extends CommandTest {
         buildCommand.execute();
         String buildLog = readOutput(true);
         Assert.assertEquals(buildLog.replaceAll("\r", ""), "ballerina: '" +
-                                      validBalFilePath.resolve("xyz.bal").toString() +
-                                      "' Ballerina file does not exist.\n");
+                validBalFilePath.resolve("xyz.bal").toString() +
+                "' Ballerina file does not exist.\n");
     }
-    
+
     @Test(description = "Build a bal file without passing bal file name as arg")
     public void testBuildBalFileWithNoArg() throws IOException {
         // valid source root path
@@ -268,12 +268,12 @@ public class BuildCommandTest extends CommandTest {
         buildCommand.execute();
         String buildLog = readOutput(true);
         Assert.assertEquals(buildLog.replaceAll("\r", ""),
-                                      "ballerina: 'build' command requires a module name or a Ballerina file to " +
-                                      "build/compile. use '-a' or '--all' flag to build/compile all the modules of " +
-                                      "the project.\n" +
-                                      "\n" +
-                                      "USAGE:\n" +
-                                      "    ballerina build {<ballerina-file> | <module-name> | -a | --all}\n");
+                "ballerina: 'build' command requires a module name or a Ballerina file to " +
+                        "build/compile. use '-a' or '--all' flag to build/compile all the modules of " +
+                        "the project.\n" +
+                        "\n" +
+                        "USAGE:\n" +
+                        "    ballerina build {<ballerina-file> | <module-name> | -a | --all}\n");
     }
 
     @Test(description = "Build all modules with passing arguments")
@@ -287,6 +287,23 @@ public class BuildCommandTest extends CommandTest {
         Assert.assertTrue(buildLog.contains("too many arguments.\n"));
     }
 
+    @Test(description = "Build .bal files with the relative path")
+    public void testBuildWithRelativePath() throws IOException {
+        // valid source root path
+        Path validBalFilePath = this.testResources.resolve("valid-bal-file");
+        BuildCommand buildCommand = new BuildCommand(validBalFilePath, printStream, printStream, false, true);
+//        new CommandLine(buildCommand).parse( "../../../../../resources/test-resources/valid-bal-file/hello_world.bal");
+        new CommandLine(buildCommand).parse(String.valueOf(validBalFilePath.resolve("valid-relative-path-bal-file/hello_world.bal")));
+        buildCommand.execute();
+        String buildLog = readOutput(true);
+        readOutput(true);
+        Assert.assertTrue(buildLog.contains("Compiling source\n" +
+                "\thello_world.bal\n" +
+                "\n" +
+                "Generating executables\n" +
+                "\t"));
+    }
+
     @Test(description = "Build bal file with no entry")
     public void testBuildBalFileWithNoEntry() throws IOException {
         // valid source root path
@@ -294,45 +311,45 @@ public class BuildCommandTest extends CommandTest {
         BuildCommand buildCommand = new BuildCommand(sourceRoot, printStream, printStream, false, true);
         // non existing bal file
         new CommandLine(buildCommand).parse("hello_world.bal");
-        
+
         String exMsg = executeAndGetException(buildCommand);
         Assert.assertEquals(exMsg, "error: no entry points found in '" +
-                                   sourceRoot.resolve("hello_world.bal").toString() + "'.");
+                sourceRoot.resolve("hello_world.bal").toString() + "'.");
     }
-    
+
     @Test(description = "Build a valid ballerina file with toml")
     public void testBuildBalFileWithToml() throws IOException {
         Path sourceRoot = this.testResources.resolve("single-bal-file-with-toml");
         BuildCommand buildCommand = new BuildCommand(sourceRoot, printStream, printStream, false, true, sourceRoot);
         new CommandLine(buildCommand).parse("hello_world.bal");
         buildCommand.execute();
-        
+
         String buildLog = readOutput(true);
         Assert.assertEquals(buildLog.replaceAll("\r", ""), "Compiling source\n" +
-                                      "\thello_world.bal\n" + "" +
-                                      "\n" +
-                                      "Generating executables\n" + "" +
-                                      "\thello_world.jar\n");
-        
+                "\thello_world.bal\n" + "" +
+                "\n" +
+                "Generating executables\n" + "" +
+                "\thello_world.jar\n");
+
         Assert.assertTrue(Files.exists(sourceRoot.resolve("hello_world.jar")));
-    
+
         Files.delete(sourceRoot.resolve("hello_world.jar"));
-    
+
         readOutput(true);
     }
-    
+
     @Test(description = "Build a ballerina project with no modules.")
     public void testBuildBalProjWithNoModules() throws IOException {
         Path sourceRoot = this.testResources.resolve("project-with-no-modules");
         BuildCommand buildCommand = new BuildCommand(sourceRoot, printStream, printStream, false, true);
         new CommandLine(buildCommand).parse("-a");
-        
+
         String exMsg = executeAndGetException(buildCommand);
         Assert.assertEquals(exMsg, "cannot find module(s) to build/compile as 'src' " +
-                                   "directory is missing. modules should be placed inside " +
-                                   "an 'src' directory of the project.");
+                "directory is missing. modules should be placed inside " +
+                "an 'src' directory of the project.");
     }
-    
+
     @Test(description = "Build a ballerina project with non existing module.")
     public void testBuildBalProjectWithInvalidModule() throws IOException {
         Path sourceRoot = this.testResources.resolve("project-with-no-modules");
@@ -342,67 +359,67 @@ public class BuildCommandTest extends CommandTest {
         String buildLog = readOutput(true);
         Assert.assertEquals(buildLog.replaceAll("\r", ""),
                 "ballerina: invalid Ballerina source path. It should either be a name of a module " +
-                                      "in a Ballerina project or a file with a '.bal' extension. Use the -a or --all " +
-                                      "flag to build or compile all modules.\n" +
-                                      "\n" +
-                                      "USAGE:\n" +
-                                      "    ballerina build {<ballerina-file> | <module-name> | -a | --all}\n" +
-                                      "\n" +
-                                      "For more information try --help\n");
+                        "in a Ballerina project or a file with a '.bal' extension. Use the -a or --all " +
+                        "flag to build or compile all modules.\n" +
+                        "\n" +
+                        "USAGE:\n" +
+                        "    ballerina build {<ballerina-file> | <module-name> | -a | --all}\n" +
+                        "\n" +
+                        "For more information try --help\n");
     }
-    
+
     @Test(description = "Build a ballerina project with non existing module.")
     public void testBuildBalProjectToml() throws IOException {
         Path sourceRoot = this.testResources.resolve("ballerina-toml");
         BuildCommand buildCommand = new BuildCommand(sourceRoot, printStream, printStream, false, true);
         new CommandLine(buildCommand).parse("foo", "--skip-tests");
-    
+
         buildCommand.execute();
         String buildLog = readOutput(true);
         Assert.assertEquals(buildLog.replaceAll("\r", ""), "Compiling source\n" +
-                                      "\tbar/foo:1.2.0\n" +
-                                      "\nCreating balos\n" +
-                                      "\ttarget" + File.separator + "balo" + File.separator +
-                                      "foo-2019r3-any-1.2.0.balo\n" +
-                                      "\n" +
-                                      "Generating executables\n" +
-                                      "\ttarget" + File.separator + "bin" + File.separator + "foo.jar\n");
+                "\tbar/foo:1.2.0\n" +
+                "\nCreating balos\n" +
+                "\ttarget" + File.separator + "balo" + File.separator +
+                "foo-2019r3-any-1.2.0.balo\n" +
+                "\n" +
+                "Generating executables\n" +
+                "\ttarget" + File.separator + "bin" + File.separator + "foo.jar\n");
 
         // Commented out below since it does a system exit and prevent rest of the test running.
         // CleanCommand cleanCommand = new CleanCommand(sourceRoot);
         // new CommandLine(cleanCommand).parse();
         // cleanCommand.execute();
         // readOutput(true);
-    
+
         String tomlContent = "";
         Files.write(sourceRoot.resolve("Ballerina.toml"), tomlContent.getBytes(), StandardOpenOption.TRUNCATE_EXISTING);
         buildCommand = new BuildCommand(sourceRoot, printStream, printStream, false, true);
         new CommandLine(buildCommand).parse("foo");
         String exMsg = executeAndGetException(buildCommand);
         Assert.assertEquals(exMsg, "invalid Ballerina.toml file: organization name and the version of the project " +
-                                   "is missing. example: \n" +
-                                     "[project]\n" +
-                                     "org-name=\"my_org\"\n" +
-                                     "version=\"1.0.0\"\n");
-    
+                "is missing. example: \n" +
+                "[project]\n" +
+                "org-name=\"my_org\"\n" +
+                "version=\"1.0.0\"\n");
+
         tomlContent = "[project]";
         Files.write(sourceRoot.resolve("Ballerina.toml"), tomlContent.getBytes(), StandardOpenOption.TRUNCATE_EXISTING);
         exMsg = executeAndGetException(buildCommand);
         Assert.assertEquals(exMsg, "invalid Ballerina.toml file: cannot find 'org-name' under [project]");
-    
+
         tomlContent = "[project]\norg-name=\"bar\"";
         Files.write(sourceRoot.resolve("Ballerina.toml"), tomlContent.getBytes(), StandardOpenOption.TRUNCATE_EXISTING);
         exMsg = executeAndGetException(buildCommand);
         Assert.assertEquals(exMsg, "invalid Ballerina.toml file: cannot find 'version' under [project]");
-    
+
         tomlContent = "[project]\norg-name=\"bar\"\nversion=\"a.b.c\"";
         Files.write(sourceRoot.resolve("Ballerina.toml"), tomlContent.getBytes(), StandardOpenOption.TRUNCATE_EXISTING);
         exMsg = executeAndGetException(buildCommand);
         Assert.assertEquals(exMsg, "invalid Ballerina.toml file: 'version' under [project] is not semver");
-    
+
         readOutput(true);
     }
-    
+
     @Test(description = "Test Build Command in a Project")
     public void testBuildCommand() throws IOException {
 
@@ -482,7 +499,7 @@ public class BuildCommandTest extends CommandTest {
         // Build the project
         String[] compileArgs = {"--all", "--skip-tests"};
         BuildCommand buildCommand = new BuildCommand(this.testResources.resolve("stored-jar-dependency-project"),
-                                                     printStream, printStream, false, true);
+                printStream, printStream, false, true);
         new CommandLine(buildCommand).parse(compileArgs);
         buildCommand.execute();
         Path target = this.testResources.resolve("stored-jar-dependency-project")
@@ -508,15 +525,6 @@ public class BuildCommandTest extends CommandTest {
                 .resolve(ProjectDirConstants.BIN_DIR_NAME);
         Assert.assertTrue(Files.exists(bin));
         Assert.assertTrue(Files.exists(bin.resolve("mymodule" + BLANG_COMPILED_JAR_EXT)));
-    }
-    
-    @Test(dependsOnMethods = {"testBuildOutput"})
-    public void testCleanCommand() {
-        CleanCommand cleanCommand = new CleanCommand(Paths.get(System.getProperty("user.dir")), false);
-        new CommandLine(cleanCommand).parse("--sourceroot", this.testResources.resolve("valid-project").toString());
-        cleanCommand.execute();
-        Path target = this.testResources.resolve("valid-project").resolve(ProjectDirConstants.TARGET_DIR_NAME);
-        Assert.assertFalse(Files.exists(target), "Check if target directory is deleted");
     }
 
     @Test(dependsOnMethods = {"testBuildCommand"})
@@ -553,7 +561,7 @@ public class BuildCommandTest extends CommandTest {
 
                         Module module = new Toml().read(moduleTomlContent).to(Module.class);
                         BaloToml balo = new Toml().read(baloTomlContent).to(BaloToml.class);
-    
+
                         Assert.assertEquals(module.module_version, "0.1.0");
                         Assert.assertEquals(balo.balo_version, "1.0.0");
 
@@ -744,7 +752,7 @@ public class BuildCommandTest extends CommandTest {
         Path execJar = tmpDir.resolve("sample.jar");
         Assert.assertTrue(Files.exists(execJar), "Check if jar gets created");
     }
-    
+
     // Check compile command inside a module directory
 
 
