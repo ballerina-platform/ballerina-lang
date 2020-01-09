@@ -19,29 +19,32 @@ import ballerina/llvm;
 type NativeFunctionBuilder object {
     map<llvm:LLVMValueRef> functionMap = {};
     llvm:LLVMModuleRef module = {};
+    llvm:LLVMTypeRef int64PointerType = {};
 
     function setModule(llvm:LLVMModuleRef module) {
         self.module = module;
+        self.int64PointerType = llvm:llvmPointerType(llvm:llvmInt64Type(), 0);
     }
 
     function getFunctionValueRef(string key) returns llvm:LLVMValueRef {
         llvm:LLVMValueRef? functionValue = self.functionMap[key];
         if (functionValue is ()) {
-            var newFunctionValue = self.genFunction(key);
-            self.functionMap[key] = newFunctionValue;
-            return newFunctionValue;
+            panic error("NativeFunctionNotFound", message = "Native Function was not found in the map : " + key);
         }
         return <llvm:LLVMValueRef>functionValue;
     }
 
-    function genFunction(string key) returns llvm:LLVMValueRef {
-        if (key == "print") {
-            return self.genPrintfDeclration();
-        } else if (key == "new_int_array") {
-            return self.genNewIntArrayDeclaration();
-        } else {
-            panic error("InvalidNativeFunctionError", message = "Invalid native function name");
-        }
+    function genFunctions() {
+        self.functionMap["print"] = self.genPrintfDeclration();
+        self.functionMap["new_int_array"] =  self.genNewIntArrayDeclaration();
+        self.functionMap["int_array_store"] =  self.genIntArrayStoreDeclaration();
+        self.functionMap["int_array_load"] = self.genIntArrayLoadDeclaration();
+    }
+
+    function genIntArrayLoadDeclaration() returns llvm:LLVMValueRef {
+        llvm:LLVMTypeRef[] arguments = [self.int64PointerType, llvm:llvmInt64Type()];
+        llvm:LLVMTypeRef newIntArrayLoadFunctionType = llvm:llvmFunctionType1(self.int64PointerType, arguments, 2, 0);
+        return llvm:llvmAddFunction(self.module, "int_array_load", newIntArrayLoadFunctionType);
     }
 
     function genPrintfDeclration() returns llvm:LLVMValueRef {
@@ -52,7 +55,13 @@ type NativeFunctionBuilder object {
 
     function genNewIntArrayDeclaration() returns llvm:LLVMValueRef {
         llvm:LLVMTypeRef[] arguments = [llvm:llvmInt64Type()];
-        llvm:LLVMTypeRef newIntArrayFunctionType = llvm:llvmFunctionType1(llvm:llvmPointerType(llvm:llvmInt64Type(), 0), arguments, 1, 0);
+        llvm:LLVMTypeRef newIntArrayFunctionType = llvm:llvmFunctionType1(self.int64PointerType, arguments, 1, 0);
         return llvm:llvmAddFunction(self.module, "new_int_array", newIntArrayFunctionType);
+    }
+
+    function genIntArrayStoreDeclaration() returns llvm:LLVMValueRef {
+        llvm:LLVMTypeRef[] arguments = [self.int64PointerType, llvm:llvmInt64Type(), self.int64PointerType];
+        llvm:LLVMTypeRef newIntArrayStoreFunctionType = llvm:llvmFunctionType1(llvm:llvmVoidType(), arguments, 3, 0);
+        return llvm:llvmAddFunction(self.module, "int_array_store", newIntArrayStoreFunctionType);
     }
 };

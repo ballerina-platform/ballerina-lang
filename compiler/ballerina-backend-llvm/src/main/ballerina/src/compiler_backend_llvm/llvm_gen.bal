@@ -16,7 +16,7 @@
 
 import ballerina/llvm;
 import ballerina/bir;
-import ballerina/io;
+//import ballerina/io;
 
 // TODO: make non-global
 map<llvm:LLVMTypeRef> structMap = {"null" : llvm:llvmVoidType()};
@@ -48,6 +48,8 @@ function createModule(bir:Name orgName, bir:Name pkgName, bir:Name ver) returns 
 
 function genFunctions(llvm:LLVMModuleRef mod, bir:Function?[] funcs) {
     var builder = llvm:llvmCreateBuilder();
+
+    nativeFunctionBuilder.genFunctions();
 
     map<FuncGenrator> funcGenrators = mapFuncsToNameAndGenrator(mod, builder, funcs);
 
@@ -161,15 +163,9 @@ function genBType(bir:BType? bType) returns llvm:LLVMTypeRef {
     } else if (bType is bir:BUnionType) {
         return createUnion(<bir:BUnionType>bType);
     } else if (bType is bir:BArrayType) {
-        bir:BArrayType arrayType = <bir:BArrayType>bType;
-        if (arrayType.eType is bir:BTypeInt) {
-            io:println("int found");
-        } else {
-            io:println("Only Supports Int for array creation as of now");
-        }
-        io:println(arrayType.size);
-        return llvm:llvmVoidType();
-    }
+        var elementType = genBType(bType.eType);
+        return llvm:llvmPointerType(elementType, 0);
+    } 
     typedesc<any> T = typeof bType;
     error err = error( "Undefined type :" + T.toString());
     panic err;

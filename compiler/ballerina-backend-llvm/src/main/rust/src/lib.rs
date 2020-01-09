@@ -18,13 +18,33 @@ extern crate libc;
 
 //use std::io;
 //use std::io::prelude::*;
-//use std::mem;
+use std::mem;
 use std::os::raw::c_longlong;
 
 #[no_mangle]
-pub extern "C" fn new_ref_array(size: c_longlong) -> *mut Vec<*mut c_longlong> {
-    let size_val = size as usize;
-    let foo: Box<Vec<*mut c_longlong>> = Box::new(Vec::with_capacity(size_val));
+pub extern "C" fn new_int_array(size: c_longlong) -> *mut Vec<*mut c_longlong> {
+    let foo: Box<Vec<*mut c_longlong>> = Box::new(Vec::with_capacity(8));
     let vec_pointer = Box::into_raw(foo);
     return vec_pointer as *mut Vec<*mut c_longlong>;
+}
+
+#[no_mangle]
+pub extern "C" fn int_array_store(arr_ptr: *mut Vec<*mut c_longlong>, n: i64, ref_ptr: *mut c_longlong) {
+    let mut arr = unsafe { Box::from_raw(arr_ptr) };
+    let n_size = n as usize;
+    let len = n_size + 1;
+    if arr.len() < len {
+        arr.resize(len, 0 as *mut c_longlong);
+    }
+    arr[n_size] = ref_ptr;
+    mem::forget(arr);
+}
+
+#[no_mangle]
+pub extern "C" fn int_array_load(arr_ptr: *mut Vec<*mut c_longlong>, n: i64) -> *mut c_longlong {
+    let arr = unsafe { Box::from_raw(arr_ptr)};
+    let n_size = n as usize;
+    let return_val = arr[n_size];
+    mem::forget(arr);
+    return return_val;
 }
