@@ -3270,7 +3270,7 @@ public class Desugar extends BLangNodeVisitor {
         // Person $rec$ = {};
         BLangStructLiteral desugaredRec = new BLangStructLiteral(mappingConstructorExpr.pos, new ArrayList<>(),
                                                                  recType);
-        BLangSimpleVariableDef recVarDef = createVarDef("rec", recType, desugaredRec, mappingConstructorExpr.pos);
+        BLangSimpleVariableDef recVarDef = createNewVarDef("$rec$", recType, desugaredRec, mappingConstructorExpr.pos);
         BLangSimpleVarRef recVarRef = ASTBuilderUtil.createVariableRef(mappingConstructorExpr.pos,
                                                                        recVarDef.var.symbol);
         recVarDef.var.desugared = true; // Check with Maryam re: ArgsData
@@ -3299,6 +3299,7 @@ public class Desugar extends BLangNodeVisitor {
             BLangIndexBasedAccess field = ASTBuilderUtil.createIndexAccessExpr(recVarRef, keyVal.key.expr);
             field.symbol = keyVal.key.fieldSymbol;
             field.type = keyVal.valueExpr.type;
+            field.originalType = keyVal.valueExpr.type;
 
             BLangAssignment assignmentStmt = (BLangAssignment) TreeBuilder.createAssignmentNode();
             assignmentStmt.expr = keyVal.valueExpr;
@@ -3768,12 +3769,23 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     private BLangSimpleVariableDef createVarDef(String name, BType type, BLangExpression expr, DiagnosticPos pos) {
+        // TODO: Check why we need to create a new var def with an existing symbol
         BSymbol objSym = symResolver.lookupSymbol(env, names.fromString(name), SymTag.VARIABLE);
         if (objSym == null || objSym == symTable.notFoundSymbol) {
             objSym = new BVarSymbol(0, names.fromString(name), this.env.scope.owner.pkgID, type, this.env.scope.owner);
         }
         BLangSimpleVariable objVar = ASTBuilderUtil.createVariable(pos, "$" + name + "$", type, expr,
-                (BVarSymbol) objSym);
+                                                                   (BVarSymbol) objSym);
+        BLangSimpleVariableDef objVarDef = ASTBuilderUtil.createVariableDef(pos);
+        objVarDef.var = objVar;
+        objVarDef.type = objVar.type;
+        return objVarDef;
+    }
+
+    private BLangSimpleVariableDef createNewVarDef(String name, BType type, BLangExpression expr, DiagnosticPos pos) {
+        BVarSymbol symbol = new BVarSymbol(0, names.fromString(name), this.env.scope.owner.pkgID, type,
+                                           this.env.scope.owner);
+        BLangSimpleVariable objVar = ASTBuilderUtil.createVariable(pos, name, type, expr, symbol);
         BLangSimpleVariableDef objVarDef = ASTBuilderUtil.createVariableDef(pos);
         objVarDef.var = objVar;
         objVarDef.type = objVar.type;
