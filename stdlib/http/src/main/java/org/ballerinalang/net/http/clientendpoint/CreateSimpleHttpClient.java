@@ -38,7 +38,6 @@ import static org.ballerinalang.net.http.HttpConstants.CLIENT_ENDPOINT_SERVICE_U
 import static org.ballerinalang.net.http.HttpConstants.HTTP2_PRIOR_KNOWLEDGE;
 import static org.ballerinalang.net.http.HttpUtil.getConnectionManager;
 import static org.ballerinalang.net.http.HttpUtil.populateSenderConfigurations;
-import static org.wso2.transport.http.netty.contract.Constants.HTTP_2_0_VERSION;
 
 /**
  * Initialization of client endpoint.
