@@ -352,3 +352,24 @@ function useFuture(future<any> f) returns any = @java:Method {
 function getFuture(any a) returns future<any> = @java:Method {
     class:"org/ballerinalang/test/javainterop/RefTypeTests"
 } external;
+
+
+// handle type with interop
+
+function testGetHandle() returns handle {
+    return getHandle();
+}
+
+function testUseHandle() returns string {
+    handle h = getHandle();
+    return useHandle(h);
+}
+
+function useHandle(handle h) returns string = @java:Method {
+    class:"org/ballerinalang/test/javainterop/RefTypeTests"
+} external;
+
+function getHandle() returns handle = @java:Method {
+    class:"org/ballerinalang/test/javainterop/RefTypeTests"
+} external;
+

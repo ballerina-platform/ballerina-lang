@@ -17,13 +17,18 @@
  */
 package org.ballerinalang.test.javainterop;
 
+import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.values.FPValue;
 import org.ballerinalang.jvm.values.FutureValue;
+import org.ballerinalang.jvm.values.HandleValue;
+import org.ballerinalang.jvm.values.StringValue;
 import org.ballerinalang.jvm.values.TypedescValue;
 import org.ballerinalang.jvm.values.XMLItem;
 import org.ballerinalang.jvm.values.XMLValue;
+import org.ballerinalang.jvm.values.api.BHandle;
+import org.ballerinalang.jvm.values.api.BValueCreator;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BHandleValue;
@@ -42,6 +47,9 @@ import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Test cases for java interop with ballerina ref types.
@@ -277,6 +285,22 @@ public class RefTypeTests {
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 4);
     }
 
+    @Test
+    public void testGetHandle() {
+        BValue[] returns = BRunUtil.invoke(result, "testGetHandle");
+        Assert.assertTrue(returns[0] instanceof BHandleValue);
+        BHandle handle = (BHandle) ((BHandleValue) returns[0]).getValue();
+        Assert.assertTrue(handle.getValue() instanceof Map);
+        Assert.assertEquals(handle.getValue().toString(), "hello");
+    }
+
+    @Test
+    public void testUseHandle() {
+        BValue[] returns = BRunUtil.invoke(result, "testUseHandle");
+        Assert.assertTrue(returns[0] instanceof BString);
+        Assert.assertEquals(((BString) returns[0]).stringValue(), "John");
+    }
+
     // static methods
 
     public static XMLValue getXML() {
@@ -337,5 +361,16 @@ public class RefTypeTests {
 
     public static FutureValue getFuture(Object a) {
         return (FutureValue) a;
+    }
+
+    public static HandleValue getHandle() {
+        Map<String, String> m = new HashMap<>();
+        m.put("name", "John");
+        return new HandleValue(m);
+    }
+
+    public static StringValue useHandle(HandleValue h) {
+        Map<String, String> m = (Map<String, String>) h.getValue();
+        return StringUtils.fromString(m.get("name"));
     }
 }
