@@ -51,7 +51,7 @@ public type Client client object {
         var cookieConfigVal = self.config.cookieConfig;
         if (cookieConfigVal is CookieConfig) {
             if (cookieConfigVal.enabled) {
-                self.cookieStore = new;
+                self.cookieStore = new(cookieConfigVal?.persistentStore);
             }
         }
         var result = initialize(url, self.config, self.cookieStore);
@@ -374,15 +374,16 @@ public type OutboundAuthConfig record {|
 # + maxCookiesPerDomain - Maximum number of cookies per domain, which is 50
 # + maxTotalCookieCount - Maximum number of total cookies allowed to be stored in cookie store, which is 3000
 # + blockThirdPartyCookies - User can block cookies from third party responses and refuse to send cookies for third party requests, if needed
-# + enablePersistence - Users are provided with a mechanism for enabling or disabling persistent cookies, which are stored until a specific expiration date.
-#                     If false, only session cookies are used
+# + persistentStore - To manage persistent cookies, users are provided with a mechanism for specifying a persistent cookie store with thier own mechanism
+#                     which references the persistent cookie handler or specifying a file path name to be used in the default persistent cookie handler.
+#                     If not specified any, only session cookies are used
 public type CookieConfig record {|
      boolean enabled = false;
      int maxSizePerCookie = 4096;
      int maxCookiesPerDomain = 50;
      int maxTotalCookieCount = 3000;
      boolean blockThirdPartyCookies = true;
-     boolean enablePersistence = false;
+     PersistentCookieHandler | string persistentStore?;
 |};
 
 function initialize(string serviceUrl, ClientConfiguration config, CookieStore? cookieStore) returns HttpClient|error {

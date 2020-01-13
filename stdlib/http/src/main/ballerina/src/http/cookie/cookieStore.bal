@@ -15,13 +15,25 @@
 // under the License.
 
 import ballerina/time;
+import ballerina/log;
 
 # Represents the cookie store.
 #
 # + allSessionCookies - Array to store all the session cookies
+# + persistentCookieHandler - Persistent cookie handler to manage persistent cookies
 public type CookieStore object {
 
     Cookie[] allSessionCookies = [];
+    PersistentCookieHandler? persistentCookieHandler = ();
+
+    public function __init(PersistentCookieHandler | string? persistentStore) {
+        if (persistentStore is string) {
+            self.persistentCookieHandler = new DefaultPersistentCookieHandler(persistentStore);
+        }
+        if (persistentStore is PersistentCookieHandler) {
+            self.persistentCookieHandler = persistentStore;
+        }
+    }
 
     # Adds a cookie to the cookie store according to the rules in [RFC-6265](https://tools.ietf.org/html/rfc6265#section-5.3).
     #
@@ -37,7 +49,7 @@ public type CookieStore object {
             path = requestPath.substring(0,index);
         }
         lock {
-            Cookie? identicalCookie = getIdenticalCookie(cookie, self.allSessionCookies);
+            Cookie? identicalCookie = getIdenticalCookie(cookie, self);
             if (!isDomainMatched(cookie, domain, cookieConfig)) {
                 return;
             }
@@ -51,10 +63,10 @@ public type CookieStore object {
                 return;
             }
             if (cookie.isPersistent()) {
-                if (!cookieConfig.enablePersistence) {
-                    return;
+                var persistentCookieHandler = self.persistentCookieHandler;
+                if (persistentCookieHandler is PersistentCookieHandler) {
+                    addPersistentCookie(identicalCookie, cookie, url, persistentCookieHandler, self);
                 }
-                addPersistentCookie(identicalCookie, cookie, url, self);
             } else {
                 addSessionCookie(identicalCookie, cookie, url, self);
             }
@@ -86,9 +98,12 @@ public type CookieStore object {
         if (index is int) {
             path = requestPath.substring(0,index);
         }
+        Cookie[] allCookies = self.getAllCookies();
         lock {
-            // Gets the session cookies.
-            foreach var cookie in self.allSessionCookies {
+            foreach var cookie in allCookies {
+                if (isExpired(cookie)) {
+                    continue;
+                }
                 if (!((url.startsWith(HTTPS) && cookie.secure) || cookie.secure == false)) {
                     continue;
                 }
@@ -114,7 +129,18 @@ public type CookieStore object {
     #
     # + return - Array of all the cookie objects
     public function getAllCookies() returns Cookie[] {
-        return self.allSessionCookies;
+        var persistentCookieHandler = self.persistentCookieHandler;
+        Cookie[] allCookies = [];
+        foreach var cookie in self.allSessionCookies {
+            allCookies.push(cookie);
+        }
+        if (persistentCookieHandler is PersistentCookieHandler) {
+            Cookie[] persistentCookies = persistentCookieHandler.getCookies();
+            foreach var cookie in persistentCookies {
+                allCookies.push(cookie);
+            }
+        }
+        return allCookies;
     }
 
     # Removes a specific cookie.
@@ -124,29 +150,40 @@ public type CookieStore object {
     # + path - Path of the cookie to be removed
     # + return - Return true if the relevant cookie is removed, false otherwise
     public function removeCookie(string name, string domain, string path) returns boolean {
-         lock {
-             // Removes the session cookie in the cookie store, which is matched with the given name, domain and path.
-             int k = 0;
-             while (k < self.allSessionCookies.length()) {
-                 if (name == self.allSessionCookies[k].name && domain == self.allSessionCookies[k].domain && path ==  self.allSessionCookies[k].path) {
-                     int j = k;
-                     while (j < self.allSessionCookies.length()-1) {
-                         self.allSessionCookies[j] = self.allSessionCookies[j + 1];
-                         j = j + 1;
-                     }
-                     _ = self.allSessionCookies.pop();
-                     return true;
-                 }
-                 k = k + 1;
-             }
-             return false;
-         }
+        lock {
+            // Removes the session cookie if it is in the session cookies array, which is matched with the given name, domain and path.
+            int k = 0;
+            while (k < self.allSessionCookies.length()) {
+                if (name == self.allSessionCookies[k].name && domain == self.allSessionCookies[k].domain && path ==  self.allSessionCookies[k].path) {
+                    int j = k;
+                    while (j < self.allSessionCookies.length()-1) {
+                        self.allSessionCookies[j] = self.allSessionCookies[j + 1];
+                        j = j + 1;
+                    }
+                    _ = self.allSessionCookies.pop();
+                    return true;
+                }
+                k = k + 1;
+            }
+            // Removes the persistent cookie if it is in the persistent cookie store, which is matched with the given name, domain and path.
+            var persistentCookieHandler = self.persistentCookieHandler;
+            if (persistentCookieHandler is PersistentCookieHandler) {
+                return persistentCookieHandler.removeCookie(name, domain, path);
+            } else {
+                log:printError("No such cookie to remove");
+                return false;
+            }
+        }
     }
 
     # Removes all the cookies.
     public function clear() {
+        var persistentCookieHandler = self.persistentCookieHandler;
         lock {
             self.allSessionCookies = [];
+            if (persistentCookieHandler is PersistentCookieHandler) {
+                persistentCookieHandler.clearAllCookies();
+            }
         }
     }
 };
@@ -177,14 +214,14 @@ function getDomain(string url) returns string {
 # Identical cookie is the cookie, which has the same name, domain and path as the given cookie.
 #
 # + cookieToCompare - Cookie to be compared
-# + allSessionCookies - Array which stores all the session cookies
+# + cookieStore - Cookie store of the client
 # + return - Identical cookie if one exists, else `()`
-function getIdenticalCookie(Cookie cookieToCompare, Cookie[] allSessionCookies) returns Cookie? {
-    // Searches for the session cookies.
+function getIdenticalCookie(Cookie cookieToCompare, CookieStore cookieStore) returns Cookie? {
+    Cookie[] allCookies = cookieStore.getAllCookies();
     int k = 0 ;
-    while (k < allSessionCookies.length()) {
-        if (cookieToCompare.name == allSessionCookies[k].name && cookieToCompare.domain == allSessionCookies[k].domain  && cookieToCompare.path ==  allSessionCookies[k].path) {
-            return allSessionCookies[k];
+    while (k < allCookies.length()) {
+        if (cookieToCompare.name == allCookies[k].name && cookieToCompare.domain == allCookies[k].domain  && cookieToCompare.path ==  allCookies[k].path) {
+            return allCookies[k];
         }
         k = k + 1;
     }
@@ -262,7 +299,7 @@ function isExpiresAttributeValid(Cookie cookie) returns boolean {
 }
 
 // Adds a persistent cookie to the cookie store according to the rules in [RFC-6265](https://tools.ietf.org/html/rfc6265#section-5.3 , https://tools.ietf.org/html/rfc6265#section-4.1.2).
-function addPersistentCookie(Cookie? identicalCookie, Cookie cookie, string url, CookieStore cookieStore) {
+function addPersistentCookie(Cookie? identicalCookie, Cookie cookie, string url, PersistentCookieHandler persistentCookieHandler, CookieStore cookieStore) {
     if (identicalCookie is Cookie) {
         var temp1 = identicalCookie.name;
         var temp2 = identicalCookie.domain;
@@ -275,7 +312,7 @@ function addPersistentCookie(Cookie? identicalCookie, Cookie cookie, string url,
                 _ = cookieStore.removeCookie(temp1, temp2, temp3);
                 cookie.creationTime = identicalCookie.creationTime;
                 cookie.lastAccessedTime = time:currentTime();
-                // TODO:insert into the database.
+                persistentCookieHandler.storeCookie(cookie);
             }
         }
     } else {
@@ -283,7 +320,7 @@ function addPersistentCookie(Cookie? identicalCookie, Cookie cookie, string url,
         if (!isExpired(cookie)) {
             cookie.creationTime = time:currentTime();
             cookie.lastAccessedTime = time:currentTime();
-            // TODO:insert into the database.
+            persistentCookieHandler.storeCookie(cookie);
         }
     }
 }
@@ -322,7 +359,7 @@ function addSessionCookie(Cookie? identicalCookie, Cookie cookie, string url, Co
             cookie.creationTime = identicalCookie.creationTime;
             cookie.lastAccessedTime = time:currentTime();
             cookieStore.allSessionCookies.push(cookie);
-       }
+        }
     } else {
         // Adds the session cookie.
         cookie.creationTime = time:currentTime();
