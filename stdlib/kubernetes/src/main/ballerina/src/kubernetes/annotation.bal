@@ -155,8 +155,8 @@ public type PodTolerationConfiguration record {|
 # + image - Docker image name with tag. Default is `"<OUTPUT_FILE_NAME>:latest"`. If field `registry` is set then it will be prepended to the docker image name as `<registry>/<OUTPUT_FILE_NAME>:latest`.
 # + buildImage - Docker image to be build or not. Default is `true`.
 # + push - Enable pushing docker image to registry. Field `buildImage` must be set to `true` to be effective. Default value is `false`.
-# + cmd - Value for CMD for the generated Dockerfile. Default is `CMD java -jar ${APP} [--b7a.config.file=${CONFIG_FILE}] [--debug]`.
-# + copyFiles - Array of [External files](kubernetes#FileConfig) for docker image.
+# + cmd - Value for CMD for the generated docker file. Default is `CMD java -jar ${APP} [--b7a.config.file=${CONFIG_FILE}] [--debug]`.
+# + copyFiles - Array of external files for the docker image.
 # + singleYAML - Generate a single yaml file with all kubernetes artifacts (services, deployment, ingress and etc). Default is `true`.
 # + namespace - Kubernetes namespace to be used on all artifacts.
 # + replicas - Number of replicas. Default is `1`.
@@ -279,7 +279,7 @@ public type Secret record {|
 
 #Secret volume mount configurations for kubernetes.
 #
-# + secrets - Array of [Secret](kubernetes.html#Secret)
+# + secrets - Array of Secret
 public type SecretMount record {|
     Secret[] secrets;
 |};
@@ -302,7 +302,7 @@ public type ConfigMap record {|
 # Secret volume mount configurations for kubernetes.
 #
 # + conf - path to ballerina configuration file
-# + configMaps - Array of [ConfigMap](kubernetes.html#ConfigMap)
+# + configMaps - Array of ConfigMap
 public type ConfigMapMount record {|
     string conf;
     ConfigMap[] configMaps?;
@@ -327,7 +327,7 @@ public type PersistentVolumeClaimConfig record {|
 
 # Persistent Volume Claims configurations for kubernetes.
 #
-# + volumeClaims - Array of [PersistentVolumeClaimConfig](kubernetes.html#PersistentVolumeClaimConfig)
+# + volumeClaims - Array of PersistentVolumeClaimConfig
 public type PersistentVolumeClaims record {|
     PersistentVolumeClaimConfig[] volumeClaims;
 |};
@@ -350,7 +350,7 @@ public type ResourceQuotaConfig record {|
 
 # Resource Quota configuration for kubernetes.
 #
-# + resourceQuotas - Array of [ResourceQuotaConfig](kubernetes.html#ResourceQuotaConfig)
+# + resourceQuotas - Array of ResourceQuotaConfig
 public type ResourceQuotas record {|
     ResourceQuotaConfig[] resourceQuotas;
 |};
@@ -378,8 +378,8 @@ public type RestartPolicy "OnFailure"|"Always"|"Never";
 # + image - Docker image name with tag. Default is `"<OUTPUT_FILE_NAME>:latest"`. If field `registry` is set then it will be prepended to the docker image name as `<registry>/<OUTPUT_FILE_NAME>:latest`.
 # + buildImage - Docker image to be build or not. Default is `true`.
 # + push - Enable pushing docker image to registry. Field `buildImage` must be set to `true`. Default value is `false`.
-# + cmd - Value for CMD for the generated Dockerfile. Default is `CMD java -jar ${APP} [--b7a.config.file=${CONFIG_FILE}] [--debug]`.
-# + copyFiles - Array of [External files](kubernetes#FileConfig) for docker image.
+# + cmd - Value for CMD for the generated dockerfile. Default is `CMD java -jar ${APP} [--b7a.config.file=${CONFIG_FILE}] [--debug]`.
+# + copyFiles - Array of external files for the docker image.
 # + singleYAML - Generate a single yaml file with all kubernetes artifacts (ingress, configmaps, secrets and etc). Default is `true`.
 # + namespace - Kubernetes namespace to be used on all artifacts.
 # + imagePullPolicy - Image pull policy. Default is `"IfNotPresent"`.

@@ -83,15 +83,13 @@ public class StubGeneratorTestCase {
             InstantiationException {
         CompileResult compileResult = getStubCompileResult("helloWorldWithDependency.proto",
                 "helloWorldWithDependency_pb.bal");
-        assertEquals(compileResult.getDiagnostics().length, 12);
+        assertEquals(compileResult.getDiagnostics().length, 8);
         assertEquals(compileResult.getDiagnostics()[0].toString(),
-                "ERROR: .::helloWorldWithDependency_pb.bal:21:34:: unknown type 'HelloRequest'");
+                     "ERROR: .::helloWorldWithDependency_pb.bal:21:34:: unknown type 'HelloRequest'");
         assertEquals(compileResult.getDiagnostics()[1].toString(),
-                "ERROR: .::helloWorldWithDependency_pb.bal:21:90:: unknown type 'HelloResponse'");
+                     "ERROR: .::helloWorldWithDependency_pb.bal:21:90:: unknown type 'HelloResponse'");
         assertEquals(compileResult.getDiagnostics()[5].toString(),
-                "ERROR: .::helloWorldWithDependency_pb.bal:35:32:: unknown type 'ByeRequest'");
-        assertEquals(compileResult.getDiagnostics()[6].toString(),
-                "ERROR: .::helloWorldWithDependency_pb.bal:35:86:: unknown type 'ByeResponse'");
+                     "ERROR: .::helloWorldWithDependency_pb.bal:39:18:: unknown type 'ByeResponse'");
     }
 
     @Test(description = "Test service stub generation for service definition with enum messages")

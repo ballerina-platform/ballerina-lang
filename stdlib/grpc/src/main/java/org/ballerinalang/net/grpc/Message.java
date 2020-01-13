@@ -104,7 +104,8 @@ public class Message {
             if (bMapValue != null) {
                 for (Map.Entry<Integer, Descriptors.FieldDescriptor> entry : fieldDescriptors.entrySet()) {
                     if (entry.getValue().getType().toProto().getNumber() ==
-                            DescriptorProtos.FieldDescriptorProto.Type.TYPE_MESSAGE_VALUE) {
+                            DescriptorProtos.FieldDescriptorProto.Type.TYPE_MESSAGE_VALUE &&
+                            !entry.getValue().isRepeated()) {
                         bMapValue.put(entry.getValue().getName(), null);
                     } else if (entry.getValue().getType().toProto().getNumber() ==
                             DescriptorProtos.FieldDescriptorProto.Type.TYPE_ENUM_VALUE) {

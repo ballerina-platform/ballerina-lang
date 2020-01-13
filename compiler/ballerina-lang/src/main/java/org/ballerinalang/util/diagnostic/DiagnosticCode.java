@@ -206,6 +206,7 @@ public enum DiagnosticCode {
     INVALID_FUNCTION_POINTER_INVOCATION("invalid.function.pointer.invocation"),
     AMBIGUOUS_TYPES("ambiguous.type"),
 
+    ARRAY_PASSED_TO_REST_ARG("array.passed.to.rest.param"),
     TOO_MANY_ARGS_FUNC_CALL("too.many.args.call"),
     NON_PUBLIC_ARG_ACCESSED_WITH_NAMED_ARG("non.public.arg.accessed.with.named.arg"),
     ASSIGNMENT_COUNT_MISMATCH("assignment.count.mismatch"),
