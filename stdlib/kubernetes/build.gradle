@@ -30,7 +30,7 @@ dependencies {
     implementation project(':ballerina-runtime')
     implementation project(':ballerina-logging')
     implementation project(':ballerina-runtime-api')
-    
+
 
     testCompile project(path: ':ballerina-test-common', configuration: 'tests')
     testCompile 'org.testng:testng'
