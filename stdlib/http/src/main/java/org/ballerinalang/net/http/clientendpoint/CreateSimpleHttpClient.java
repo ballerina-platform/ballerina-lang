@@ -49,8 +49,8 @@ public class CreateSimpleHttpClient {
     @SuppressWarnings("unchecked")
     public static void createSimpleHttpClient(ObjectValue httpClient,
                                               MapValue<String, Long> globalPoolConfig) {
-        String urlString = httpClient.getStringValue(CLIENT_ENDPOINT_SERVICE_URI).replaceAll(
-                "(?<!(http:|https:))//", HttpConstants.SINGLE_SLASH);
+        String urlString = httpClient.getStringValue(CLIENT_ENDPOINT_SERVICE_URI).replaceAll(HttpConstants.REGEX,
+                HttpConstants.SINGLE_SLASH);
         httpClient.set(CLIENT_ENDPOINT_SERVICE_URI, urlString);
         MapValue<String, Object> clientEndpointConfig = (MapValue<String, Object>) httpClient.get(
                 CLIENT_ENDPOINT_CONFIG);

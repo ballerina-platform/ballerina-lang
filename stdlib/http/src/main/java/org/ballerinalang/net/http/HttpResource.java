@@ -26,6 +26,7 @@ import org.ballerinalang.net.uri.DispatcherUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -72,6 +73,7 @@ public class HttpResource {
 
     private boolean transactionAnnotated = false;
 
+    private static PrintStream console = System.out;
     protected HttpResource(AttachedFunction resource, HttpService parentService) {
         this.balResource = resource;
         this.parentService = parentService;
@@ -195,7 +197,7 @@ public class HttpResource {
         setupTransactionAnnotations(resource, httpResource);
         if (checkConfigAnnotationAvailability(resourceConfigAnnotation)) {
             httpResource.setPath(resourceConfigAnnotation.getStringValue(PATH_FIELD).replaceAll(
-                    HttpConstants.DOWBLE_SLASH, HttpConstants.SINGLE_SLASH));
+                    HttpConstants.REGEX, HttpConstants.SINGLE_SLASH));
             httpResource.setMethods(
                     getAsStringList(resourceConfigAnnotation.getArrayValue(METHODS_FIELD).getStringArray()));
             httpResource.setConsumes(
