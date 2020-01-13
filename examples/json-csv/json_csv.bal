@@ -12,7 +12,7 @@ function getFields(map<json> rec) returns [string[], string[]] {
 }
 
 // Writes `json` content to CSV.
-function writeCsv(json[] content, string path) returns error? {
+function writeCsv(json[] content, string path) returns @tainted error? {
     io:WritableCSVChannel csvch = check io:openWritableCsvFile(path);
     int recIndex = 0;
     int recLen = content.length();

@@ -18,8 +18,15 @@ public function main() {
     // The result of a range expression can also be used by assigning it to
     // an object belonging to the abstract object type `Iterable<int>`.
     abstract object {
-        public function next() returns (record {| int value; |}?);
-    } iterator = 25 ..< 28;
+        public function __iterator() returns
+            abstract object {
+                public function next() returns record {|int value;|}?;
+            };
+    } iterableObj = 25 ..< 28;
+
+    abstract object {
+            public function next() returns (record {|int value;|}?);
+    } iterator = iterableObj.__iterator();
 
     io:println("\niterable object for 25 ..< 28");
     while (true) {

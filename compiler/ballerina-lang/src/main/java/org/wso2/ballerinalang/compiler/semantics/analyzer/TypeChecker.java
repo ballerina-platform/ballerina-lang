@@ -30,7 +30,6 @@ import org.ballerinalang.model.tree.expressions.NamedArgNode;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.parser.BLangAnonymousModelHelper;
-import org.wso2.ballerinalang.compiler.semantics.model.BLangBuiltInMethod;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
@@ -39,6 +38,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BErrorTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
@@ -604,11 +604,11 @@ public class TypeChecker extends BLangNodeVisitor {
         // Check whether the expected type is an array type
         // var a = []; and var a = [1,2,3,4]; are illegal statements, because we cannot infer the type here.
         BType actualType = symTable.semanticError;
+        resultType = symTable.semanticError;
 
         if ((expType.tag == TypeTags.ANY || expType.tag == TypeTags.ANYDATA || expType.tag == TypeTags.NONE)
                 && listConstructor.exprs.isEmpty()) {
             dlog.error(listConstructor.pos, DiagnosticCode.INVALID_LIST_CONSTRUCTOR, expType);
-            resultType = symTable.semanticError;
             return;
         }
 
@@ -624,7 +624,6 @@ public class TypeChecker extends BLangNodeVisitor {
             } else if (arrayType.state != BArrayState.UNSEALED && arrayType.size != listConstructor.exprs.size()) {
                 dlog.error(listConstructor.pos,
                         DiagnosticCode.MISMATCHING_ARRAY_LITERAL_VALUES, arrayType.size, listConstructor.exprs.size());
-                resultType = symTable.semanticError;
                 return;
             }
             checkExprs(listConstructor.exprs, this.env, arrayType.eType);
@@ -658,7 +657,6 @@ public class TypeChecker extends BLangNodeVisitor {
                                 // tuple type size != list constructor exprs
                                 dlog.error(listConstructor.pos, DiagnosticCode.SYNTAX_ERROR,
                                         "tuple and expression size does not match");
-                                resultType = symTable.semanticError;
                                 return;
                             }
                         }
@@ -3301,17 +3299,14 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         List<BType> paramTypes = ((BInvokableType) iExpr.symbol.type).getParameterTypes();
-        Map<String, BVarSymbol> params = ((BInvokableSymbol) iExpr.symbol).params
-                .stream().collect(Collectors.toMap(a -> a.name.getValue(), a -> a));
-        int parameterCount;
-        if (iExpr.symbol.tag == SymTag.VARIABLE) {
-            // Here we assume function pointers can have only required params.
-            // And assume that named params and rest params are not supported.
-            parameterCount = paramTypes.size();
-        } else {
-            parameterCount = ((BInvokableSymbol) iExpr.symbol).params.size();
+        Map<String, BVarSymbol> params = new HashMap<>();
+        for (BVarSymbol a : ((BInvokableSymbol) iExpr.symbol).params) {
+            if (!a.name.equals(Names.EMPTY)) {
+                params.put(a.name.getValue(), a);
+            }
         }
 
+        int parameterCount = paramTypes.size();
         iExpr.requiredArgs = new ArrayList<>();
 
         // Split the different argument types: required args, named args and rest args
@@ -3364,17 +3359,19 @@ public class TypeChecker extends BLangNodeVisitor {
     private BType checkInvocationArgs(BLangInvocation iExpr, List<BType> paramTypes, BLangExpression vararg) {
         BType actualType = symTable.semanticError;
         BInvokableSymbol invokableSymbol = (BInvokableSymbol) iExpr.symbol;
-        List<BVarSymbol> nonRestParams = new ArrayList<>(invokableSymbol.params);
+        BInvokableType bInvokableType = (BInvokableType) invokableSymbol.type;
+        BInvokableTypeSymbol invokableTypeSymbol = (BInvokableTypeSymbol) bInvokableType.tsymbol;
+        List<BVarSymbol> nonRestParams = new ArrayList<>(invokableTypeSymbol.params);
         checkNonRestArgs(nonRestParams, iExpr, paramTypes);
 
         // Check whether the expected param count and the actual args counts are matching.
-        if (invokableSymbol.restParam == null && (vararg != null || !iExpr.restArgs.isEmpty())) {
+        if (invokableTypeSymbol.restParam == null && (vararg != null || !iExpr.restArgs.isEmpty())) {
             dlog.error(iExpr.pos, DiagnosticCode.TOO_MANY_ARGS_FUNC_CALL, iExpr.name.value);
             return actualType;
         }
 
-        checkRestArgs(iExpr.restArgs, vararg, invokableSymbol.restParam);
-        BType retType = typeParamAnalyzer.getReturnTypeParams(env, invokableSymbol.type.getReturnType());
+        checkRestArgs(iExpr.restArgs, vararg, invokableTypeSymbol.restParam);
+        BType retType = typeParamAnalyzer.getReturnTypeParams(env, bInvokableType.getReturnType());
 
         if (iExpr.async) {
             return this.generateFutureType(invokableSymbol, retType);
@@ -3407,19 +3404,6 @@ public class TypeChecker extends BLangNodeVisitor {
             if (i == 0 && arg.typeChecked && iExpr.expr != null && iExpr.expr == arg) {
                 types.checkType(arg.pos, arg.type, expectedType, DiagnosticCode.INCOMPATIBLE_TYPES);
                 types.setImplicitCastExpr(arg, arg.type, expectedType);
-            }
-
-            if (iExpr.symbol.tag == SymTag.VARIABLE) {
-                if (i < paramTypes.size()) {
-                    checkTypeParamExpr(arg, this.env, expectedType);
-                    if (nonRestParams.size() > i) {
-                        requiredParams.remove(nonRestParams.get(i));
-                    }
-                    continue;
-                }
-                // if no such parameter, too many arg have been given.
-                dlog.error(arg.pos, DiagnosticCode.TOO_MANY_ARGS_FUNC_CALL, iExpr.name.value);
-                return;
             }
 
             if (arg.getKind() != NodeKind.NAMED_ARGS_EXPR) {
@@ -3610,27 +3594,6 @@ public class TypeChecker extends BLangNodeVisitor {
         return false;
     }
 
-    private BType checkRecLiteralKeyExpr(BLangExpression keyExpr) {
-        // If the key is not at identifier (i.e: varRef), check the expression
-        if (keyExpr.getKind() != NodeKind.SIMPLE_VARIABLE_REF) {
-            return checkExpr(keyExpr, this.env, symTable.stringType);
-        }
-
-        // If the key expression is an identifier then we simply set the type as string.
-        keyExpr.type = symTable.stringType;
-        return keyExpr.type;
-    }
-
-    private BType checkIndexExprForObjectFieldAccess(BLangExpression indexExpr) {
-        if (indexExpr.getKind() != NodeKind.LITERAL && indexExpr.getKind() != NodeKind.NUMERIC_LITERAL) {
-            indexExpr.type = symTable.semanticError;
-            dlog.error(indexExpr.pos, DiagnosticCode.INVALID_INDEX_EXPR_STRUCT_FIELD_ACCESS);
-            return indexExpr.type;
-        }
-
-        return checkExpr(indexExpr, this.env, symTable.stringType);
-    }
-
     private BType addNilForNillableIndexBasedAccess(BType actualType) {
         // index based map/record access always returns a nil-able type for optional/rest fields.
         if (actualType.isNullable()) {
@@ -3811,23 +3774,6 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         return newChildren;
-    }
-
-    private BLangExpression getBinaryAddExpr(BLangExpression lExpr, BLangExpression rExpr, BSymbol opSymbol) {
-        BLangBinaryExpr binaryExpressionNode = (BLangBinaryExpr) TreeBuilder.createBinaryExpressionNode();
-        binaryExpressionNode.lhsExpr = lExpr;
-        binaryExpressionNode.rhsExpr = rExpr;
-        binaryExpressionNode.pos = rExpr.pos;
-        binaryExpressionNode.opKind = OperatorKind.ADD;
-        if (opSymbol != symTable.notFoundSymbol) {
-            binaryExpressionNode.type = opSymbol.type.getReturnType();
-            binaryExpressionNode.opSymbol = (BOperatorSymbol) opSymbol;
-        } else {
-            binaryExpressionNode.type = symTable.semanticError;
-        }
-
-        types.checkType(binaryExpressionNode, binaryExpressionNode.type, symTable.stringType);
-        return binaryExpressionNode;
     }
 
     private BLangExpression getXMLTextLiteral(List<BLangExpression> exprs) {
@@ -4747,29 +4693,6 @@ public class TypeChecker extends BLangNodeVisitor {
 
         iExpr.symbol = varSymbol;
         return varSymbol;
-    }
-
-    private BSymbol getSymbolForAnydataReturningBuiltinMethods(BLangInvocation iExpr) {
-        BType type = iExpr.expr.type;
-        if (!types.isLikeAnydataOrNotNil(type)) {
-            return symTable.notFoundSymbol;
-        }
-
-        BType retType;
-        if (type.isAnydata()) {
-            retType = type;
-        } else {
-            retType = BUnionType.create(null, type, symTable.errorType);
-        }
-        return symResolver.createBuiltinMethodSymbol(BLangBuiltInMethod.FREEZE, type, retType);
-    }
-
-    private BSymbol getSymbolForIsFrozenBuiltinMethod(BLangInvocation iExpr) {
-        BType type = iExpr.expr.type;
-        if (!types.isLikeAnydataOrNotNil(type)) {
-            return symTable.notFoundSymbol;
-        }
-        return symResolver.createBuiltinMethodSymbol(BLangBuiltInMethod.IS_FROZEN, type, symTable.booleanType);
     }
 
     private boolean couldHoldTableValues(BType type, List<BType> encounteredTypes) {

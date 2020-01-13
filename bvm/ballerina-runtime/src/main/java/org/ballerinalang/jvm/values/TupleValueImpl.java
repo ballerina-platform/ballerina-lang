@@ -19,7 +19,6 @@ package org.ballerinalang.jvm.values;
 
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.TypeChecker;
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BTupleType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
@@ -276,10 +275,10 @@ public class TupleValueImpl extends AbstractArrayValue {
     }
 
     @Override
-    public String stringValue(Strand strand) {
+    public String stringValue() {
         StringJoiner sj = new StringJoiner(" ");
         for (int i = 0; i < this.size; i++) {
-            sj.add(StringUtils.getStringValue(strand, this.refValues[i]));
+            sj.add(StringUtils.getStringValue(this.refValues[i]));
         }
         return sj.toString();
     }
@@ -497,32 +496,6 @@ public class TupleValueImpl extends AbstractArrayValue {
         }
     }
 
-    @Override
-    protected void prepareForAdd(long index, Object value, int currentArraySize) {
-        int intIndex = (int) index;
-        rangeCheck(index, size);
-
-        // check types
-        BType elemType;
-        if (index >= this.minSize) {
-            elemType = this.tupleType.getRestType();
-        } else {
-            elemType = this.tupleType.getTupleTypes().get((int) index);
-        }
-
-        if (!TypeChecker.checkIsType(value, elemType)) {
-            throw BallerinaErrors.createError(
-                    getModulePrefixedReason(ARRAY_LANG_LIB, INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER),
-                    BLangExceptionHelper.getErrorMessage(RuntimeErrors.INCOMPATIBLE_TYPE, elemType,
-                            TypeChecker.getType(value)));
-        }
-
-        fillerValueCheck(intIndex, size);
-        ensureCapacity(intIndex + 1, currentArraySize);
-        fillValues(intIndex);
-        resetSize(intIndex);
-    }
-
     /**
      * Same as {@code prepareForAdd}, except fillerValueCheck is not performed as we are guaranteed to add
      * elements to consecutive positions.
@@ -576,6 +549,31 @@ public class TupleValueImpl extends AbstractArrayValue {
     }
 
     // private methods
+
+    private void prepareForAdd(long index, Object value, int currentArraySize) {
+        int intIndex = (int) index;
+        rangeCheck(index, size);
+
+        // check types
+        BType elemType;
+        if (index >= this.minSize) {
+            elemType = this.tupleType.getRestType();
+        } else {
+            elemType = this.tupleType.getTupleTypes().get((int) index);
+        }
+
+        if (!TypeChecker.checkIsType(value, elemType)) {
+            throw BallerinaErrors.createError(
+                    getModulePrefixedReason(ARRAY_LANG_LIB, INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER),
+                    BLangExceptionHelper.getErrorMessage(RuntimeErrors.INCOMPATIBLE_TYPE, elemType,
+                            TypeChecker.getType(value)));
+        }
+
+        fillerValueCheck(intIndex, size);
+        ensureCapacity(intIndex + 1, currentArraySize);
+        fillValues(intIndex);
+        resetSize(intIndex);
+    }
 
     private void shiftArray(int index) {
         int nElemsToBeMoved = this.size - 1 - index;

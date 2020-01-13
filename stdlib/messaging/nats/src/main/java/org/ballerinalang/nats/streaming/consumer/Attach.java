@@ -17,7 +17,7 @@
  */
 package org.ballerinalang.nats.streaming.consumer;
 
-import org.ballerinalang.jvm.scheduling.Scheduler;
+import org.ballerinalang.jvm.BRuntime;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.nats.Constants;
 
@@ -34,13 +34,15 @@ import static org.ballerinalang.nats.Constants.STREAMING_DISPATCHER_LIST;
 public class Attach {
 
     public static void streamingAttach(ObjectValue streamingListener, ObjectValue service,
-                              Object connection) {
+                                       Object connection) {
         List<ObjectValue> serviceList = (List<ObjectValue>) ((ObjectValue) connection)
                 .getNativeData(Constants.SERVICE_LIST);
         serviceList.add(service);
         ConcurrentHashMap<ObjectValue, StreamingListener> serviceListenerMap =
                 (ConcurrentHashMap<ObjectValue, StreamingListener>) streamingListener
                         .getNativeData(STREAMING_DISPATCHER_LIST);
-        serviceListenerMap.put(service, new StreamingListener(service, Scheduler.getStrand().scheduler));
+        serviceListenerMap.put(service, new StreamingListener(service, BRuntime.getCurrentRuntime(),
+                                                              streamingListener.getObjectValue("connection")
+                                                                      .getStringValue(Constants.URL)));
     }
 }

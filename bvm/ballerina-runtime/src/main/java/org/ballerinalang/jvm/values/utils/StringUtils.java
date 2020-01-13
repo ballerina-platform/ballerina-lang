@@ -19,7 +19,7 @@
 package org.ballerinalang.jvm.values.utils;
 
 import org.ballerinalang.jvm.TypeChecker;
-import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.types.AttachedFunction;
 import org.ballerinalang.jvm.types.BObjectType;
 import org.ballerinalang.jvm.types.BType;
@@ -39,11 +39,11 @@ public class StringUtils {
 
     /**
      * Returns the human-readable string value of Ballerina values.
-     * @param strand  the strand in which the value reside
+     * 
      * @param value The value on which the function is invoked
      * @return String value of the value
      */
-    public static String getStringValue(Strand strand, Object value) {
+    public static String getStringValue(Object value) {
         if (value == null) {
             return "";
         }
@@ -61,12 +61,12 @@ public class StringUtils {
 
         if (type.getTag() == TypeTags.MAP_TAG || type.getTag() == TypeTags.RECORD_TYPE_TAG) {
             MapValueImpl mapValue = (MapValueImpl) value;
-            return mapValue.stringValue(strand);
+            return mapValue.stringValue();
         }
 
         if (type.getTag() == TypeTags.ARRAY_TAG || type.getTag() == TypeTags.TUPLE_TAG) {
             ArrayValue arrayValue = (ArrayValue) value;
-            return arrayValue.stringValue(strand);
+            return arrayValue.stringValue();
         }
 
         if (type.getTag() == TypeTags.OBJECT_TYPE_TAG) {
@@ -75,14 +75,14 @@ public class StringUtils {
             for (AttachedFunction func : objectType.getAttachedFunctions()) {
                 if (func.funcName.equals("toString") && func.paramTypes.length == 0 &&
                     func.type.retType.getTag() == TypeTags.STRING_TAG) {
-                    return (String) objectValue.call(strand, "toString");
+                    return (String) objectValue.call(Scheduler.getStrand(), "toString");
                 }
             }
         }
 
         if (type.getTag() == TypeTags.ERROR_TAG) {
             RefValue errorValue = (RefValue) value;
-            return errorValue.stringValue(strand);
+            return errorValue.stringValue();
         }
 
         RefValue refValue = (RefValue) value;

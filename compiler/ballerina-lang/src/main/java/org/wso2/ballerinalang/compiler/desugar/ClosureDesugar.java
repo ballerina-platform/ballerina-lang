@@ -774,8 +774,10 @@ public class ClosureDesugar extends BLangNodeVisitor {
                     // Create mapSymbol in outer function node when it contain workers and it's not already created.
                     // We need this to allow worker identifier to be used as a future.
                     if (bLangLambdaFunction.function.flagSet.contains(Flag.WORKER)) {
-                        ((BLangBlockStmt) env.node).mapSymbol =
-                                createMapSymbol("$map$block$" + blockClosureMapCount, env);
+                        if (((BLangBlockStmt) env.node).mapSymbol == null) {
+                            ((BLangBlockStmt) env.node).mapSymbol =
+                                    createMapSymbol("$map$block$" + blockClosureMapCount, env);
+                        }
                         enclMapSymbols.putIfAbsent(symbolEnv.envCount, ((BLangBlockStmt) symbolEnv.node).mapSymbol);
                     }
                 }
@@ -1265,14 +1267,6 @@ public class ClosureDesugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangInvocation.BLangActionInvocation aIExpr) {
         result = aIExpr;
-    }
-
-    @Override
-    public void visit(BLangInvocation.BLangBuiltInMethodInvocation iExpr) {
-        iExpr.expr = rewriteExpr(iExpr.expr);
-        iExpr.requiredArgs = rewriteExprs(iExpr.requiredArgs);
-        iExpr.restArgs = rewriteExprs(iExpr.restArgs);
-        result = iExpr;
     }
 
     @Override

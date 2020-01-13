@@ -11,248 +11,258 @@ provided to you.
 At the bottom of this file is a table that shows what each license indicated
 below is and where the actual text of the license can be found.
 
-Name                                                                            Type           License   
----------------------------------------------------------------------------------------------------------
-annotations-1.0.0.jar                                                           jar            apache2   4254      
-array-1.0.0.jar                                                                 jar            apache2   4315      
-asm-7.1.jar                                                                     bundle         bsd       4118      
-asm-analysis-7.1.jar                                                            bundle         bsd       4092      
-asm-tree-7.1.jar                                                                bundle         bsd       4099      
-asm-util-7.1.jar                                                                bundle         bsd       4149      
-auth.jar                                                                        jar            apache2   4382      
-awslambda-extension-1.0.0.jar                                                   jar            apache2   4355      
-ballerina-auth-1.0.0.jar                                                        jar            apache2   4264      
-ballerina-backend-jvm-1.0.0.jar                                                 jar            apache2   4326      
-ballerina-bir-1.0.0.jar                                                         jar            apache2   4269      
-ballerina-cli-utils-1.0.0.jar                                                   jar            apache2   4338      
-ballerina-client-generator-1.0.0.jar                                            jar            apache2   4295      
-ballerina-config-api-1.0.0.jar                                                  jar            apache2   4313      
-ballerina-core-1.0.0.jar                                                        jar            apache2   4274      
-ballerina-crypto-1.0.0.jar                                                      jar            apache2   4316      
-ballerina-docker-1.0.0.jar                                                      jar            apache2   4365      
-ballerina-encoding-1.0.0.jar                                                    jar            apache2   4284      
-ballerina-file-1.0.0.jar                                                        jar            apache2   4378      
-ballerina-filepath-1.0.0.jar                                                    jar            apache2   4259      
-ballerina-formatter-1.0.0.jar                                                   jar            apache2   4379      
-ballerina-grpc-1.0.0.jar                                                        jar            apache2   4253      
-ballerina-http-1.0.0.jar                                                        jar            apache2   4270      
-ballerina-io-1.0.0.jar                                                          jar            apache2   4314      
-ballerina-istio-1.0.0.jar                                                       jar            apache2   4267      
-ballerina-jaeger-extension-1.0.0.jar                                            jar            apache2   4307      
-ballerina-java-1.0.0.jar                                                        jar            apache2   4250      
-ballerina-java-arrays-1.0.0.jar                                                 jar            apache2   4279      
-ballerina-jdbc-1.0.0.jar                                                        jar            apache2   4368      
-ballerina-jsonutils-1.0.0.jar                                                   jar            apache2   4261      
-ballerina-jvm-1.0.0.jar                                                         jar            apache2   4244      
-ballerina-jwt-1.0.0.jar                                                         jar            apache2   4361      
-ballerina-kafka-1.0.0.jar                                                       jar            apache2   4380      
-ballerina-kubernetes-1.0.0.jar                                                  jar            apache2   4273      
-ballerina-lang-1.0.0.jar                                                        jar            apache2   4366      
-ballerina-log-api-1.0.0.jar                                                     jar            apache2   4386      
-ballerina-logging-1.0.0.jar                                                     jar            apache2   4233      
-ballerina-math-1.0.0.jar                                                        jar            apache2   4347      
-ballerina-metrics-extension-1.0.0.jar                                           jar            apache2   4286      
-ballerina-mime-1.0.0.jar                                                        jar            apache2   4228      
-ballerina-nats-1.0.0.jar                                                        jar            apache2   4354      
-ballerina-oauth2-1.0.0.jar                                                      jar            apache2   4362      
-ballerina-observability-1.0.0.jar                                               jar            apache2   4371      
-ballerina-openapi-1.0.0.jar                                                     jar            apache2   4226      
-ballerina-openshift-1.0.0.jar                                                   jar            apache2   4293      
-ballerina-packerina-1.0.0.jar                                                   jar            apache2   4374      
-ballerina-prometheus-extension-1.0.0.jar                                        jar            apache2   4243      
-ballerina-reflect-1.0.0.jar                                                     jar            apache2   4281      
-ballerina-rt-1.0.0.jar                                                          jar            apache2   4288      
-ballerina-runtime-api-1.0.0.jar                                                 jar            apache2   4346      
-ballerina-socket-1.0.0.jar                                                      jar            apache2   4302      
-ballerina-streams-1.0.0.jar                                                     jar            apache2   4373      
-ballerina-stringutils-1.0.0.jar                                                 jar            apache2   4364      
-ballerina-system-1.0.0.jar                                                      jar            apache2   4311      
-ballerina-task-1.0.0.jar                                                        jar            apache2   4263      
-ballerina-time-1.0.0.jar                                                        jar            apache2   4257      
-ballerina-to-openapi-generator-1.0.0.jar                                        jar            apache2   4291      
-ballerina-tool-1.0.0.jar                                                        jar            apache2   4312      
-ballerina-transactions-1.0.0.jar                                                jar            apache2   4299      
-ballerina-utils-1.0.0.jar                                                       jar            apache2   4277      
-ballerina-xmlutils-1.0.0.jar                                                    jar            apache2   4297      
-ballerina-xslt-1.0.0.jar                                                        jar            apache2   4282      
-ballerinax-awslambda-0.0.0.jar                                                  jar            apache2   4356      
-bcpkix-jdk15on-1.61.jar                                                         bundle         bouncy    4073      
-bcprov-jdk15on-1.61.jar                                                         bundle         bouncy    4090      
-bir.jar                                                                         jar            apache2   4333      
-broker-auth-0.970.0.jar                                                         bundle         apache2   2993      
-broker-common-0.970.0.jar                                                       bundle         apache2   2990      
-broker-coordination-0.970.0.jar                                                 bundle         apache2   2989      
-broker-core-0.970.5.jar                                                         bundle         apache2   3861      
-broker-rest-runner-0.970.0.jar                                                  bundle         apache2   2985      
-cache.jar                                                                       jar            apache2   4322      
-commons-beanutils-1.9.3.jar                                                     bundle         apache2   4079      
-commons-collections-3.2.2.jar                                                   bundle         apache2   2042      
-commons-io-2.6.jar                                                              bundle         apache2   3508      
-commons-pool-1.5.6.wso2v1.jar                                                   bundle         apache2   5589      
-compiler_backend_jvm.jar                                                        jar            apache2   4289      
-config.jar                                                                      jar            apache2   4328      
-crypto.jar                                                                      jar            apache2   4345      
-debug-adapter-1.0.0.jar                                                         jar            apache2   4388      
-decimal-1.0.0.jar                                                               jar            apache2   4283      
-docerina-1.0.0.jar                                                              jar            apache2   4363      
-docker-extension-1.0.0.jar                                                      jar            apache2   4278      
-docker.jar                                                                      jar            apache2   4383      
-encoding.jar                                                                    jar            apache2   4340      
-error-1.0.0.jar                                                                 jar            apache2   4276      
-file.jar                                                                        jar            apache2   4317      
-filepath.jar                                                                    jar            apache2   4304      
-floatingpoint-1.0.0.jar                                                         jar            apache2   4308      
-future-1.0.0.jar                                                                jar            apache2   4300      
-geronimo-activation_1.1_spec-1.1.jar                                            bundle         apache2   2103      
-geronimo-json_1.0_spec-1.0-alpha-1.jar                                          bundle         apache2   4135      
-geronimo-stax-api_1.0_spec-1.0.1.jar                                            bundle         apache2   635       
-grpc.jar                                                                        jar            apache2   4323      
-gson-2.7.jar                                                                    bundle         apache2   2102      
-guava-19.0.jar                                                                  bundle         apache2   3032      
-h2-1.4.199.jar                                                                  bundle         apache2   4078      
-handlebars-4.0.6.jar                                                            bundle         apache2   3030      
-HikariCP-3.3.1.jar                                                              bundle         apache2   4160      
-http.jar                                                                        jar            apache2   4337      
-integer-1.0.0.jar                                                               jar            apache2   4320      
-internal-1.0.0.jar                                                              jar            apache2   4252      
-io.jar                                                                          jar            apache2   4319      
-istio.jar                                                                       jar            apache2   4318      
-jackson-annotations-2.8.0.jar                                                   bundle         apache2   2100      
-jackson-core-2.8.6.jar                                                          bundle         apache2   2099      
-jackson-databind-2.8.6.jar                                                      bundle         apache2   2098      
-jackson-dataformat-yaml-2.8.8.jar                                               bundle         apache2   2203      
-jackson-datatype-jsr310-2.9.5.jar                                               bundle         apache2   4343      
-jaeger-core-0.24.0.jar                                                          jar            apache2   3024      
-jaeger-thrift-0.24.0.jar                                                        jar            apache2   3023      
-java-nats-streaming-2.2.1.jar                                                   bundle         apache2   4238      
-java.arrays.jar                                                                 jar            apache2   4349      
-java.jar                                                                        jar            apache2   4309      
-java.jdbc.jar                                                                   jar            apache2   4294      
-javacpp-1.4.2.jar                                                               jar            apache2   3445      
-javax.transaction-api-1.2.jar                                                   bundle         cddl+gpl  2200      
-jaxen-1.1.6.jar                                                                 bundle         apache2   2095      
-jboss-logging-3.3.1.Final.jar                                                   bundle         apache2   4127      
-jnats-2.6.0.jar                                                                 bundle         apache2   4260      
-jsonutils.jar                                                                   jar            apache2   4247      
-jvm.jar                                                                         jar            apache2   4375      
-jwt.jar                                                                         jar            apache2   4245      
-jzlib-1.1.3.jar                                                                 jar            bsd       3873      
-kafka-clients-2.0.1.jar                                                         jar            apache2   4248      
-kafka.jar                                                                       jar            apache2   4235      
-kafka_2.11-2.0.1.jar                                                            jar            apache2   4332      
-kotlin-stdlib-1.3.31.jar                                                        jar            apache2   4134      
-kotlin-stdlib-common-1.3.31.jar                                                 jar            apache2   4147      
-kraal-0.0.16.jar                                                                jar            mit       4100      
-kubernetes-extension-1.0.0.jar                                                  jar            apache2   4242      
-kubernetes.jar                                                                  jar            apache2   4387      
-lang.annotations.jar                                                            jar            apache2   4369      
-lang.array.jar                                                                  jar            apache2   4342      
-lang.decimal.jar                                                                jar            apache2   4237      
-lang.error.jar                                                                  jar            apache2   4231      
-lang.float.jar                                                                  jar            apache2   4353      
-lang.future.jar                                                                 jar            apache2   4280      
-lang.int.jar                                                                    jar            apache2   4357      
-lang.map.jar                                                                    jar            apache2   4258      
-lang.object.jar                                                                 jar            apache2   4376      
-lang.stream.jar                                                                 jar            apache2   4225      
-lang.string.jar                                                                 jar            apache2   4350      
-lang.table.jar                                                                  jar            apache2   4301      
-lang.typedesc.jar                                                               jar            apache2   4275      
-lang.value.jar                                                                  jar            apache2   4367      
-lang.xml.jar                                                                    jar            apache2   4234      
-lang.__internal.jar                                                             jar            apache2   4372      
-language-server-compiler-1.0.0.jar                                              jar            apache2   4227      
-language-server-core-1.0.0.jar                                                  jar            apache2   4389      
-language-server-stdio-launcher-1.0.0.jar                                        jar            apache2   4390      
-libthrift-0.10.0.jar                                                            bundle         apache2   3020      
-log.jar                                                                         jar            apache2   4239      
-map-1.0.0.jar                                                                   jar            apache2   4377      
-math.jar                                                                        jar            apache2   4268      
-metrics-core-3.1.0.jar                                                          bundle         apache2   3019      
-mime.jar                                                                        jar            apache2   4296      
-mimepull-1.9.7.jar                                                              bundle         cddl1     3016      
-module_cli_token_updater.jar                                                    jar            apache2   4246      
-module_pull.jar                                                                 jar            apache2   4255      
-module_push.jar                                                                 jar            apache2   4266      
-module_search.jar                                                               jar            apache2   4287      
-nats.jar                                                                        jar            apache2   4236      
-netty-buffer-4.1.39.Final.jar                                                   bundle         apache2   4256      
-netty-codec-4.1.39.Final.jar                                                    bundle         apache2   4351      
-netty-codec-http-4.1.39.Final.jar                                               bundle         apache2   4324      
-netty-codec-http2-4.1.39.Final.jar                                              bundle         apache2   4381      
-netty-common-4.1.39.Final.jar                                                   bundle         apache2   4331      
-netty-handler-4.1.39.Final.jar                                                  bundle         apache2   4290      
-netty-handler-proxy-4.1.39.Final.jar                                            bundle         apache2   4370      
-netty-resolver-4.1.39.Final.jar                                                 bundle         apache2   4305      
-netty-tcnative-boringssl-static-2.0.25.Final.jar                                bundle         apache2   4352      
-netty-transport-4.1.39.Final.jar                                                bundle         apache2   4339      
-netty-transport-native-epoll-4.1.39.Final.jar                                   bundle         apache2   4298      
-netty-transport-native-kqueue-4.1.39.Final.jar                                  bundle         apache2   4310      
-oauth2.jar                                                                      jar            apache2   4265      
-object-1.0.0.jar                                                                jar            apache2   4230      
-observe.jar                                                                     jar            apache2   4336      
-okhttp-3.9.1.jar                                                                jar            apache2   3014      
-okio-1.13.0.jar                                                                 jar            apache2   3013      
-openapi-to-ballerina-generator-1.0.0.jar                                        jar            apache2   4240      
-openapi-validator-1.0.0.jar                                                     jar            apache2   4321      
-openapi.jar                                                                     jar            apache2   4232      
-openshift.jar                                                                   jar            apache2   4251      
-org.eclipse.lsp4j-0.6.0.jar                                                     bundle         epl1      3901      
-org.eclipse.lsp4j.jsonrpc-0.6.0.jar                                             bundle         apache2   3899      
-org.wso2.carbon.core-5.1.0.jar                                                  bundle         apache2   11763     
-org.wso2.carbon.messaging-2.3.7.jar                                             bundle         apache2   12373     
-org.wso2.carbon.metrics.core-2.3.7.jar                                          bundle         apache2   16765     
-org.wso2.securevault-1.0.0-wso2v2.jar                                           bundle         apache2   3537      
-org.wso2.transport.http.netty-6.2.25.jar                                        bundle         apache2   21891
-org.wso2.transport.local-file-system-6.0.55.jar                                 bundle         apache2   21400     
-picocli-4.0.1.jar                                                               bundle         apache2   4330      
-prometheus.jar                                                                  jar            apache2   4385      
-protobuf-ballerina-1.0.0.jar                                                    jar            apache2   4334      
-protobuf-java-3.9.1.jar                                                         bundle         bsd3      4285      
-quartz-2.3.0.jar                                                                bundle         apache2   2337      
-quartz-jobs-2.3.0.jar                                                           jar            apache2   2338      
-reflect.jar                                                                     jar            apache2   4229      
-runtime.jar                                                                     jar            apache2   4360      
-snakeyaml-1.16.0.wso2v1.jar                                                     bundle         apache2   11755     
-socket.jar                                                                      jar            apache2   4262      
-stax2-api-3.1.1.jar                                                             bundle         bsd       545       
-staxon-core-1.2.0.wso2v2.jar                                                    bundle         apache2   11754     
-stream-1.0.0.jar                                                                jar            apache2   4359      
-streams.jar                                                                     jar            apache2   4341      
-string-1.0.0.jar                                                                jar            apache2   4358      
-stringutils.jar                                                                 jar            apache2   4292      
-system.jar                                                                      jar            apache2   4327      
-table-1.0.0.jar                                                                 jar            apache2   4249      
-task.jar                                                                        jar            apache2   4329      
-test.jar                                                                        jar            apache2   4271      
-testerina-core-1.0.0.jar                                                        jar            apache2   4344      
-time.jar                                                                        jar            apache2   4384      
-transactions.jar                                                                jar            apache2   4348      
-typedesc-1.0.0.jar                                                              jar            apache2   4303      
-utils.jar                                                                       jar            apache2   4241      
-value-1.0.0.jar                                                                 jar            apache2   4306      
-woodstox-core-asl-4.2.0.jar                                                     bundle         apache2   537       
-xml-1.0.0.jar                                                                   jar            apache2   4325      
-xmlutils.jar                                                                    jar            apache2   4272      
-xslt.jar                                                                        jar            apache2   4335      
 
+Name                                                                                                Version        License
+_________________________________________________________________________________________________________________________________________________
+lang.stream.jar                                                                                     jar            apache2
+ballerina-core-1.1.0.jar                                                                            jar            apache2
+ballerina-http-1.1.0.jar                                                                            jar            apache2
+metrics-core-3.1.0.jar                                                                              bundle         apache2
+ballerina-kubernetes-1.1.0.jar                                                                      jar            apache2
+ballerina-bir-1.1.0.jar                                                                             jar            apache2
+bcpkix-jdk15on-1.61.jar                                                                             bundle         bouncy
+decimal-1.1.0.jar                                                                                   jar            apache2
+ballerina-encoding-1.1.0.jar                                                                        jar            apache2
+reflect.jar                                                                                         jar            apache2
+ballerina-metrics-extension-1.1.0.jar                                                               jar            apache2
+ballerina-reflect-1.1.0.jar                                                                         jar            apache2
+lang.error.jar                                                                                      jar            apache2
+ballerina-xslt-1.1.0.jar                                                                            jar            apache2
+org.wso2.carbon.metrics.core-2.3.7.jar                                                              bundle         apache2
+error-1.1.0.jar                                                                                     jar            apache2
+ballerina-java-arrays-1.1.0.jar                                                                     jar            apache2
+docker-extension-1.1.0.jar                                                                          jar            apache2
+openapi.jar                                                                                         jar            apache2
+lang.xml.jar                                                                                        jar            apache2
+okio-1.13.0.jar                                                                                     jar            apache2
+ballerina-task-1.1.0.jar                                                                            jar            apache2
+kafka.jar                                                                                           jar            apache2
+ballerina-auth-1.1.0.jar                                                                            jar            apache2
+commons-beanutils-1.9.3.jar                                                                         bundle         apache2
+nats.jar                                                                                            jar            apache2
+ballerina-jsonutils-1.1.0.jar                                                                       jar            apache2
+lang.decimal.jar                                                                                    jar            apache2
+broker-auth-0.970.0.jar                                                                             bundle         apache2
+staxon-core-1.2.0.wso2v2.jar                                                                        bundle         apache2
+java-nats-streaming-2.2.1.jar                                                                       bundle         apache2
+ballerina-istio-1.1.0.jar                                                                           jar            apache2
+log.jar                                                                                             jar            apache2
+geronimo-activation_1.1_spec-1.1.jar                                                                bundle         apache2
+libthrift-0.10.0.jar                                                                                bundle         apache2
+ballerina-rabbitmq-1.1.0.jar                                                                        jar            apache2
+ballerina-socket-1.1.0.jar                                                                          jar            apache2
+typedesc-1.1.0.jar                                                                                  jar            apache2
+jwt.jar                                                                                             jar            apache2
+woodstox-core-asl-4.2.0.jar                                                                         bundle         apache2
+bcprov-jdk15on-1.61.jar                                                                             bundle         bouncy
+broker-rest-runner-0.970.0.jar                                                                      bundle         apache2
+ballerina-jaeger-extension-1.1.0.jar                                                                jar            apache2
+value-1.1.0.jar                                                                                     jar            apache2
+module_cli_token_updater.jar                                                                        jar            apache2
+jsonutils.jar                                                                                       jar            apache2
+asm-analysis-7.1.jar                                                                                bundle         bsd
+ballerina-openshift-1.1.0.jar                                                                       jar            apache2
+kafka-clients-2.0.1.jar                                                                             jar            apache2
+openshift.jar                                                                                       jar            apache2
+ballerina-to-openapi-generator-1.1.0.jar                                                            jar            apache2
+ballerina-rt-1.1.0.jar                                                                              jar            apache2
+rabbitmq.jar                                                                                        jar            apache2
+gson-2.7.jar                                                                                        bundle         apache2
+module_pull.jar                                                                                     jar            apache2
+ballerina-transactions-1.1.0.jar                                                                    jar            apache2
+future-1.1.0.jar                                                                                    jar            apache2
+netty-buffer-4.1.39.Final.jar                                                                       bundle         apache2
+lang.map.jar                                                                                        jar            apache2
+ballerina-xmlutils-1.1.0.jar                                                                        jar            apache2
+amqp-client-5.7.3.jar                                                                               bundle         apache2 + mpl11
+ballerina-client-generator-1.1.0.jar                                                                jar            apache2
+jnats-2.6.0.jar                                                                                     bundle         apache2
+jackson-core-2.8.6.jar                                                                              bundle         apache2
+socket.jar                                                                                          jar            apache2
+stax2-api-3.1.1.jar                                                                                 bundle         bsd
+jackson-databind-2.8.6.jar                                                                          bundle         apache2
+oauth2.jar                                                                                          jar            apache2
+module_push.jar                                                                                     jar            apache2
+openapi-to-ballerina-generator-1.1.0.jar                                                            jar            apache2
+kubernetes-extension-1.1.0.jar                                                                      jar            apache2
+jaxen-1.1.6.jar                                                                                     bundle         apache2
+math.jar                                                                                            jar            apache2
+asm-tree-7.1.jar                                                                                    bundle         bsd
+test.jar                                                                                            jar            apache2
+xmlutils.jar                                                                                        jar            apache2
+ballerina-openapi-1.1.0.jar                                                                         jar            apache2
+ldap.jar                                                                                            jar            apache2
+language-server-compiler-1.1.0.jar                                                                  jar            apache2
+commons-collections-3.2.2.jar                                                                       bundle         apache2
+ballerina-mime-1.1.0.jar                                                                            jar            apache2
+lang.typedesc.jar                                                                                   jar            apache2
+kraal-0.0.16.jar                                                                                    jar            mit
+ballerina-ldap-1.1.0.jar                                                                            jar            apache2
+ballerina-logging-1.1.0.jar                                                                         jar            apache2
+lang.future.jar                                                                                     jar            apache2
+object-1.1.0.jar                                                                                    jar            apache2
+protobuf-java-3.9.1.jar                                                                             bundle         apache2
+module_search.jar                                                                                   jar            apache2
+broker-core-0.970.5.jar                                                                             bundle         apache2
+ballerina-grpc-1.1.0.jar                                                                            jar            apache2
+mimepull-1.9.7.jar                                                                                  bundle         cddl1
+annotations-1.1.0.jar                                                                               jar            apache2
+compiler_backend_jvm.jar                                                                            jar            apache2
+netty-handler-4.1.39.Final.jar                                                                      bundle         apache2
+stringutils.jar                                                                                     jar            apache2
+internal-1.1.0.jar                                                                                  jar            apache2
+table-1.1.0.jar                                                                                     jar            apache2
+ballerina-java-1.1.0.jar                                                                            jar            apache2
+java.jdbc.jar                                                                                       jar            apache2
+ballerina-filepath-1.1.0.jar                                                                        jar            apache2
+ballerina-time-1.1.0.jar                                                                            jar            apache2
+mime.jar                                                                                            jar            apache2
+netty-transport-native-epoll-4.1.39.Final.jar                                                       bundle         apache2
+lang.table.jar                                                                                      jar            apache2
+ballerina-prometheus-extension-1.1.0.jar                                                            jar            apache2
+ballerina-jvm-1.1.0.jar                                                                             jar            apache2
+filepath.jar                                                                                        jar            apache2
+asm-7.1.jar                                                                                         bundle         bsd
+netty-resolver-4.1.39.Final.jar                                                                     bundle         apache2
+llvm.jar                                                                                            jar            apache2
+java.jar                                                                                            jar            apache2
+awslambda-extension-1.1.0.jar                                                                       jar            apache2
+jaeger-thrift-0.31.0.jar                                                                            jar            apache2
+netty-transport-native-kqueue-4.1.39.Final.jar                                                      bundle         apache2
+ballerina-nats-1.1.0.jar                                                                            jar            apache2
+jboss-logging-3.3.1.Final.jar                                                                       bundle         apache2
+ballerina-jwt-1.1.0.jar                                                                             jar            apache2
+ballerina-oauth2-1.1.0.jar                                                                          jar            apache2
+stream-1.1.0.jar                                                                                    jar            apache2
+string-1.1.0.jar                                                                                    jar            apache2
+file.jar                                                                                            jar            apache2
+jaeger-core-0.31.0.jar                                                                              jar            apache2
+istio.jar                                                                                           jar            apache2
+io.jar                                                                                              jar            apache2
+testerina-core-1.1.0.jar                                                                            jar            apache2
+geronimo-stax-api_1.0_spec-1.0.1.jar                                                                bundle         apache2
+cache.jar                                                                                           jar            apache2
+grpc.jar                                                                                            jar            apache2
+jzlib-1.1.3.jar                                                                                     jar            bsd
+netty-codec-http-4.1.39.Final.jar                                                                   bundle         apache2
+kotlin-stdlib-1.3.31.jar                                                                            jar            apache2
+okhttp-3.9.1.jar                                                                                    jar            apache2
+geronimo-json_1.0_spec-1.0-alpha-1.jar                                                              bundle         apache2
+ballerina-math-1.1.0.jar                                                                            jar            apache2
+ballerina-runtime-api-1.1.0.jar                                                                     jar            apache2
+ballerina-file-1.1.0.jar                                                                            jar            apache2
+system.jar                                                                                          jar            apache2
+map-1.1.0.jar                                                                                       jar            apache2
+websub.jar                                                                                          jar            apache2
+ballerina-streams-1.1.0.jar                                                                         jar            apache2
+ballerina-packerina-1.1.0.jar                                                                       jar            apache2
+jackson-dataformat-yaml-2.8.8.jar                                                                   bundle         apache2
+config.jar                                                                                          jar            apache2
+task.jar                                                                                            jar            apache2
+picocli-4.0.1.jar                                                                                   bundle         apache2
+ballerina-log-api-1.1.0.jar                                                                         jar            apache2
+netty-common-4.1.39.Final.jar                                                                       bundle         apache2
+ballerina-formatter-1.1.0.jar                                                                       jar            apache2
+quartz-jobs-2.3.0.jar                                                                               jar            apache2
+ballerina-kafka-1.1.0.jar                                                                           jar            apache2
+kafka_2.11-2.0.1.jar                                                                                jar            apache2
+broker-coordination-0.970.0.jar                                                                     bundle         apache2
+org.wso2.carbon.messaging-2.3.7.jar                                                                 bundle         apache2
+bir.jar                                                                                             jar            apache2
+xslt.jar                                                                                            jar            apache2
+observe.jar                                                                                         jar            apache2
+axiom-api-1.2.22.jar                                                                                bundle         apache2
+ballerina-lang-1.1.0.jar                                                                            jar            apache2
+javax.transaction-api-1.2.jar                                                                       bundle         cddl1
+ballerina-docker-1.1.0.jar                                                                          jar            apache2
+snakeyaml-1.16.0.wso2v1.jar                                                                         bundle         apache2
+ballerina-stringutils-1.1.0.jar                                                                     jar            apache2
+docerina-1.1.0.jar                                                                                  jar            apache2
+ballerina-observability-1.1.0.jar                                                                   jar            apache2
+http.jar                                                                                            jar            apache2
+kotlin-stdlib-common-1.3.31.jar                                                                     jar            apache2
+netty-transport-4.1.39.Final.jar                                                                    bundle         apache2
+encoding.jar                                                                                        jar            apache2
+axiom-impl-1.2.22.jar                                                                               bundle         apache2
+ballerina-jdbc-1.1.0.jar                                                                            jar            apache2
+asm-util-7.1.jar                                                                                    bundle         bsd
+streams.jar                                                                                         jar            apache2
+broker-common-0.970.0.jar                                                                           bundle         apache2
+integer-1.1.0.jar                                                                                   jar            apache2
+openapi-validator-1.1.0.jar                                                                         jar            apache2
+lang.array.jar                                                                                      jar            apache2
+jackson-datatype-jsr310-2.9.5.jar                                                                   bundle         apache2
+array-1.1.0.jar                                                                                     jar            apache2
+crypto.jar                                                                                          jar            apache2
+ballerina-crypto-1.1.0.jar                                                                          jar            apache2
+jackson-annotations-2.8.0.jar                                                                       bundle         apache2
+ballerina-backend-jvm-1.1.0.jar                                                                     jar            apache2
+org.wso2.carbon.core-5.1.0.jar                                                                      bundle         apache2
+transactions.jar                                                                                    jar            apache2
+java.arrays.jar                                                                                     jar            apache2
+xml-1.1.0.jar                                                                                       jar            apache2
+lang.string.jar                                                                                     jar            apache2
+netty-codec-4.1.39.Final.jar                                                                        bundle         apache2
+netty-tcnative-boringssl-static-2.0.25.Final.jar                                                    bundle         apache2
+axiom-dom-1.2.22.jar                                                                                bundle         apache2
+ballerina-system-1.1.0.jar                                                                          jar            apache2
+lang.float.jar                                                                                      jar            apache2
+commons-pool-1.5.6.wso2v1.jar                                                                       bundle         apache2
+javacpp-1.4.2.jar                                                                                   jar            apache2
+floatingpoint-1.1.0.jar                                                                             jar            apache2
+handlebars-4.0.6.jar                                                                                bundle         apache2
+ballerinax-awslambda-0.0.0.jar                                                                      jar            apache2
+lang.int.jar                                                                                        jar            apache2
+ballerina-io-1.1.0.jar                                                                              jar            apache2
+ballerina-tool-1.1.0.jar                                                                            jar            apache2
+axiom-c14n-1.2.22.jar                                                                               bundle         apache2
+ballerina-config-api-1.1.0.jar                                                                      jar            apache2
+HikariCP-3.3.1.jar                                                                                  bundle         apache2
+runtime.jar                                                                                         jar            apache2
+org.wso2.transport.local-file-system-6.0.55.jar                                                     bundle         apache2
+ballerina-websub-1.1.0.jar                                                                          jar            apache2
+protobuf-ballerina-1.1.0.jar                                                                        jar            apache2
+lang.value.jar                                                                                      jar            apache2
+ballerina-cli-utils-1.1.0.jar                                                                       jar            apache2
+lang.annotations.jar                                                                                jar            apache2
+netty-handler-proxy-4.1.39.Final.jar                                                                bundle         apache2
+guava-19.0.jar                                                                                      bundle         apache2
+lang.__internal.jar                                                                                 jar            apache2
+jvm.jar                                                                                             jar            apache2
+org.wso2.transport.http.netty-6.2.34.jar                                                            bundle         apache2
+lang.object.jar                                                                                     jar            apache2
+netty-codec-http2-4.1.39.Final.jar                                                                  bundle         apache2
+auth.jar                                                                                            jar            apache2
+quartz-2.3.0.jar                                                                                    bundle         apache2
+docker.jar                                                                                          jar            apache2
+time.jar                                                                                            jar            apache2
+prometheus.jar                                                                                      jar            apache2
+org.wso2.securevault-1.0.0-wso2v2.jar                                                               bundle         apache2
+kubernetes.jar                                                                                      jar            apache2
+debug-adapter-core-1.1.0.jar                                                                        jar            apache2
+debug-adapter-cli-1.1.0.jar                                                                         jar            apache2
+h2-1.4.199.jar                                                                                      bundle         apache2
+org.eclipse.lsp4j-0.8.1.jar                                                                         bundle         epl1
+commons-io-2.6.jar                                                                                  bundle         apache2
+language-server-stdio-launcher-1.1.0.jar                                                            jar            apache2
+language-server-cli-1.1.0.jar                                                                       jar            apache2
+org.eclipse.lsp4j.jsonrpc-0.8.1.jar                                                                 bundle         epl1
+language-server-core-1.1.0.jar                                                                      jar            apache2
 
 
 The license types used by the above libraries and their information is given below:
 
+apache2        Apache License Version 2.0
+               http://www.apache.org/licenses/LICENSE-2.0.html
 bouncy         Bouncy Castle License
                http://www.bouncycastle.org/licence.html
 bsd            Berkeley License
                http://www.opensource.org/licenses/bsd-license.php
-apache2        Apache License Version 2.0
-               http://www.apache.org/licenses/LICENSE-2.0.html
+mpl11          Mozilla Public License Version 1.1
+               http://www.mozilla.org/MPL/MPL-1.1.html
 mit            MIT License
                http://www.opensource.org/licenses/mit-license.php
 cddl1          Common Development and Distribution License
                http://www.opensource.org/licenses/cddl1.php
-cddl+gpl       CDDL + GPLv2
-               https://glassfish.dev.java.net/public/CDDL+GPL.html
-bsd3           BSD-3
-               http://opensource.org/licenses/BSD-3-Clause
 epl1           Eclipse Public License
                http://www.eclipse.org/legal/epl-v10.html

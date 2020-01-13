@@ -22,6 +22,7 @@ import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.packerina.buildcontext.BuildContext;
 import org.ballerinalang.packerina.buildcontext.BuildContextField;
 import org.ballerinalang.packerina.writer.BirFileWriter;
+import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -38,6 +39,8 @@ public class CreateBirTask implements Task {
     @Override
     public void execute(BuildContext buildContext) {
         CompilerContext context = buildContext.get(BuildContextField.COMPILER_CONTEXT);
+        PackageCache packageCache = PackageCache.getInstance(context);
+        boolean skipTests = buildContext.skipTests();
         Path sourceRootPath = buildContext.get(BuildContextField.SOURCE_ROOT);
 
         // generate bir for modules
@@ -50,7 +53,15 @@ public class CreateBirTask implements Task {
                 birFileWriter.write(module.testablePkgs.get(0),
                         buildContext.getTestBirPathFromTargetCache(module.packageID));
             }
-            writeImportBir(buildContext, module.symbol.imports, sourceRootPath, birFileWriter);
+            BLangPackage bLangPackage = packageCache.get(module.packageID);
+            if (bLangPackage == null) {
+                continue;
+            }
+            writeImportBir(buildContext, bLangPackage.symbol.imports, sourceRootPath, birFileWriter);
+            if (!skipTests && bLangPackage.hasTestablePackage()) {
+                bLangPackage.getTestablePkgs().forEach(testablePackage -> writeImportBir(buildContext,
+                        testablePackage.symbol.imports, sourceRootPath, birFileWriter));
+            }
         }
     }
 

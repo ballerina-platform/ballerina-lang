@@ -1,0 +1,8 @@
+// Ballerina allows defining custom error types to match
+// the errors being modeled. User defined error types in Ballerina should have
+// a reason type which is a subtype of `string`, and a detail type which
+// is a subtype of
+// `record {| string message?; error cause?; (anydata|error)...; |}`.
+//
+// The nature of the default error detail record is that each field is optional
+// and can contain additional `anydata|error` fields as required.

@@ -15,7 +15,6 @@
 // under the License.
 
 import ballerina/test;
-import ballerina/utils;
 
 // A table is iterable as a sequence of mapping values, one for each row, where each mapping
 // value has a field for each column, with the column as the field name and the value of that

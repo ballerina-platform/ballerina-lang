@@ -163,6 +163,12 @@ public class BIRTypeWriter implements TypeVisitor {
         for (BType params : bInvokableType.paramTypes) {
             writeTypeCpIndex(params);
         }
+
+        boolean restTypeExist = bInvokableType.restType != null;
+        buff.writeBoolean(restTypeExist);
+        if (restTypeExist) {
+           writeTypeCpIndex(bInvokableType.restType);
+        }
         writeTypeCpIndex(bInvokableType.retType);
     }
 

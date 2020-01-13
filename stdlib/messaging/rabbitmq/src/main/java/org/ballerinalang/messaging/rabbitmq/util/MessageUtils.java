@@ -21,6 +21,7 @@ package org.ballerinalang.messaging.rabbitmq.util;
 import com.rabbitmq.client.AlreadyClosedException;
 import com.rabbitmq.client.Channel;
 import org.ballerinalang.jvm.JSONParser;
+import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.XMLFactory;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.messaging.rabbitmq.RabbitMQConstants;
@@ -102,9 +103,12 @@ public class MessageUtils {
     }
 
     public static Object getJSONContent(ArrayValue messageContent) {
-
         try {
-            return JSONParser.parse(new String(messageContent.getBytes(), StandardCharsets.UTF_8.name()));
+            Object json = JSONParser.parse(new String(messageContent.getBytes(), StandardCharsets.UTF_8.name()));
+            if (json instanceof String) {
+                return StringUtils.fromString((String) json);
+            }
+            return json;
         } catch (UnsupportedEncodingException exception) {
             return RabbitMQUtils.returnErrorValue
                     (RabbitMQConstants.JSON_CONTENT_ERROR + exception.getMessage());

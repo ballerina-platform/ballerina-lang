@@ -75,4 +75,9 @@ public class NonBmpStringValue implements StringValue {
             throw new RuntimeException("not impl yet");
         }
     }
+
+    @Override
+    public String stringValue() {
+        return value;
+    }
 }

@@ -30,8 +30,8 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
  */
 public class BLangWithinClause extends BLangNode implements WithinClause {
 
-    private String timeScale;
-    private String timeDurationValue;
+    public String timeScale;
+    public String timeDurationValue;
 
     @Override
     public String getTimeScale() {

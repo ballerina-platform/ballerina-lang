@@ -1,3 +1,4 @@
+
 parser grammar BallerinaParser;
 
 options {
@@ -640,6 +641,10 @@ variableReference
     |   variableReference ANNOTATION_ACCESS nameReference                       # annotAccessExpression
     |   variableReference xmlAttrib                                             # xmlAttribVariableReference
     |   functionInvocation                                                      # functionInvocationReference
+    |   LEFT_PARENTHESIS variableReference RIGHT_PARENTHESIS field              # groupFieldVariableReference
+    |   LEFT_PARENTHESIS variableReference RIGHT_PARENTHESIS invocation         # groupInvocationReference
+    |   LEFT_PARENTHESIS variableReference RIGHT_PARENTHESIS index              # groupMapArrayVariableReference
+    |   LEFT_PARENTHESIS QuotedStringLiteral RIGHT_PARENTHESIS invocation       # groupStringFunctionInvocationReference
     |   typeDescExpr invocation                                                 # typeDescExprInvocationReference
     |   QuotedStringLiteral invocation                                          # stringFunctionInvocationReference
     |   variableReference invocation                                            # invocationReference
@@ -836,7 +841,8 @@ lambdaReturnParameter
     ;
 
 parameterTypeNameList
-    :   parameterTypeName (COMMA parameterTypeName)*
+    :   parameterTypeName (COMMA parameterTypeName)* (COMMA restParameterTypeName)?
+    |   restParameterTypeName
     ;
 
 parameterTypeName
@@ -844,7 +850,8 @@ parameterTypeName
     ;
 
 parameterList
-    :   parameter (COMMA parameter)*
+    :   parameter (COMMA parameter)* (COMMA restParameter)?
+    |   restParameter
     ;
 
 parameter
@@ -857,6 +864,10 @@ defaultableParameter
 
 restParameter
     :   annotationAttachment* typeName ELLIPSIS Identifier
+    ;
+
+restParameterTypeName
+    : typeName restDescriptorPredicate ELLIPSIS
     ;
 
 formalParameterList

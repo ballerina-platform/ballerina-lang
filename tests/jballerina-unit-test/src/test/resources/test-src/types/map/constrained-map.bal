@@ -577,3 +577,9 @@ function testInherentTypeViolationWithNilType() {
 function insertNilToMap(map<any> m) {
     m["two"] = (); // panic
 }
+
+function testMapAnyDataClosedRecordAssignment() returns (anydata) {
+    Person p = {name:"Jack", age:25, address:"Usa"};
+    map<anydata> m = p;
+    return m["name"];
+}

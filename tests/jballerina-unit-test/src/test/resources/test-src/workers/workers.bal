@@ -437,13 +437,11 @@ public function testComplexType() returns Rec {
 // First cancel the future and then wait
 public function workerWithFutureTest1() returns int {
     future<int> f1 = start add2(5, 5);
-    @concurrent{}
     worker w1 {
       int i = 40;
       f1.cancel();
     }
 
-    @concurrent{}
     worker w2 returns int {
       // Delay the execution of worker w2
       runtime:sleep(200);
@@ -531,4 +529,16 @@ function panicFunc() {
        10 -> default;
     }
     int k = <- w5;
+}
+
+function waitInReturn() returns any {
+    worker w1 returns string {
+        return "w1";
+    }
+
+    worker w2 returns string {
+        return "w2";
+    }
+
+    return wait {w1, w2};
 }

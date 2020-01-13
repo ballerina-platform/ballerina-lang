@@ -42,7 +42,7 @@ public type HelloWorldBlockingClient client object {
 
     *grpc:AbstractClientEndpoint;
 
-    private grpc:Client grpcClient;
+    private grpc:Client? grpcClient = ();
 
     public function __init(string url, grpc:ClientConfiguration? config = ()) {
         // initialize client endpoint.
@@ -57,7 +57,12 @@ public type HelloWorldBlockingClient client object {
     }
 
     public remote function hello(string req, grpc:Headers? headers = ()) returns ([string, grpc:Headers]|grpc:Error) {
-        var unionResp = check self.grpcClient->blockingExecute("HelloWorld/hello", req, headers);
+        if !(self.grpcClient is grpc:Client) {
+            error err = error("UninitializedFieldsErrorType", message = "Field(s) are not initialized");
+            return grpc:prepareError(grpc:INTERNAL_ERROR, "Field(s) are not initialized", err);
+        }
+        grpc:Client tempGrpcClient = <grpc:Client> self.grpcClient;
+        var unionResp = check tempGrpcClient->blockingExecute("HelloWorld/hello", req, headers);
         anydata result;
         grpc:Headers resHeaders;
         [result, resHeaders] = unionResp;
@@ -69,7 +74,7 @@ public type helloWorldClient client object {
 
     *grpc:AbstractClientEndpoint;
 
-    private grpc:Client grpcClient;
+    private grpc:Client? grpcClient = ();
 
     public function __init(string url, grpc:ClientConfiguration? config = ()) {
         // initialize client endpoint.
@@ -84,7 +89,12 @@ public type helloWorldClient client object {
     }
 
     public remote function hello(string req, service msgListener, grpc:Headers? headers = ()) returns (grpc:Error?) {
-        return self.grpcClient->nonBlockingExecute("HelloWorld/hello", req, msgListener, headers);
+        if !(self.grpcClient is grpc:Client) {
+            error err = error("UninitializedFieldsErrorType", message = "Field(s) are not initialized");
+            return grpc:prepareError(grpc:INTERNAL_ERROR, "Field(s) are not initialized", err);
+        }
+        grpc:Client tempGrpcClient = <grpc:Client> self.grpcClient;
+        return tempGrpcClient->nonBlockingExecute("HelloWorld/hello", req, msgListener, headers);
     }
 };
 const string ROOT_DESCRIPTOR = "0A1668656C6C6F576F726C64537472696E672E70726F746F1A1E676F6F676C652F70726F746F6275662F77726170706572732E70726F746F32510A0A48656C6C6F576F726C6412430A0568656C6C6F121C2E676F6F676C652E70726F746F6275662E537472696E6756616C75651A1C2E676F6F676C652E70726F746F6275662E537472696E6756616C7565620670726F746F33";

@@ -107,6 +107,9 @@ public class SignatureTreeVisitor extends LSNodeVisitor {
 
     @Override
     public void visit(BLangTypeDefinition typeDefinition) {
+        if (typeDefinition.annAttachments != null) {
+            typeDefinition.annAttachments.forEach(s -> acceptNode(s, symbolEnv));
+        }
         acceptNode(typeDefinition.typeNode, symbolEnv);
     }
 

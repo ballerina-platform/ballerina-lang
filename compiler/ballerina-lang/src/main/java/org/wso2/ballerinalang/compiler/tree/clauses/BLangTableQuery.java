@@ -39,19 +39,20 @@ import java.util.List;
  */
 public class BLangTableQuery extends BLangNode implements TableQuery {
 
-    private StreamingInput streamingInput;
-    private JoinStreamingInput joinStreamingInput;
-    private SelectClauseNode selectClauseNode;
-    private OrderByNode orderByNode;
-    private LimitNode limitNode;
+    public BLangStreamingInput streamingInput;
+    public BLangJoinStreamingInput joinStreamingInput;
+    public BLangSelectClause selectClauseNode;
+    public BLangOrderBy orderByNode;
+    public BLangLimit limitNode;
 
     //This will be generated in desugar phase
-    private String sqlQuery;
-    private List<BLangExpression> params = new ArrayList<>();
+    public String sqlQuery;
+    public List<BLangExpression> params = new ArrayList<>();
 
     @Override
     public void setStreamingInput(StreamingInput streamingInput) {
-        this.streamingInput = streamingInput;
+
+        this.streamingInput = (BLangStreamingInput) streamingInput;
     }
 
     @Override
@@ -61,7 +62,8 @@ public class BLangTableQuery extends BLangNode implements TableQuery {
 
     @Override
     public void setJoinStreamingInput(JoinStreamingInput joinStreamingInput) {
-        this.joinStreamingInput = joinStreamingInput;
+
+        this.joinStreamingInput = (BLangJoinStreamingInput) joinStreamingInput;
     }
 
     @Override
@@ -71,7 +73,8 @@ public class BLangTableQuery extends BLangNode implements TableQuery {
 
     @Override
     public void setSelectClause(SelectClauseNode selectClause) {
-        this.selectClauseNode = selectClause;
+
+        this.selectClauseNode = (BLangSelectClause) selectClause;
     }
 
     @Override
@@ -81,7 +84,8 @@ public class BLangTableQuery extends BLangNode implements TableQuery {
 
     @Override
     public void setOrderByClause(OrderByNode orderByClause) {
-        this.orderByNode = orderByClause;
+
+        this.orderByNode = (BLangOrderBy) orderByClause;
     }
 
     @Override
@@ -91,7 +95,8 @@ public class BLangTableQuery extends BLangNode implements TableQuery {
 
     @Override
     public void setLimitClause(LimitNode limitClause) {
-        this.limitNode = limitClause;
+
+        this.limitNode = (BLangLimit) limitClause;
     }
 
     @Override

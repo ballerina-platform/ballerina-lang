@@ -19,25 +19,17 @@ package org.ballerinalang.langlib.stream;
 
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.StreamValue;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
 
 /**
  * {@code Publish} is the function to publish data to a stream.
  *
  * @since 0.964.0
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.stream",
-        functionName = "publish",
-        args = {
-                @Argument(name = "strm", type = TypeKind.STREAM),
-                @Argument(name = "data", type = TypeKind.ANY)
-        },
-        isPublic = true)
+
+@Deprecated
 public class Publish {
 
+    @Deprecated
     public static void publish(Strand strand, StreamValue strm, Object data) {
         strm.publish(strand, data);
     }

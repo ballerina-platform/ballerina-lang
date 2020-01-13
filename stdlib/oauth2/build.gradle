@@ -30,7 +30,6 @@ dependencies {
     implementation project(':ballerina-mime')
     implementation project(':ballerina-runtime-api')
     implementation project(':ballerina-time')
-    implementation project(':ballerina-utils')
     implementation project(':ballerina-stringutils')
 
     baloImplementation project(path: ':ballerina-lang:annotations', configuration: 'baloImplementation')
@@ -40,17 +39,21 @@ dependencies {
     baloImplementation project(path: ':ballerina-mime', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-runtime-api', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-time', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-utils', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-stringutils', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-java', configuration: 'baloImplementation')
 
     interopImports project(':ballerina-config-api')
+    interopImports project(':ballerina-http')
     interopImports project(':ballerina-io')
     interopImports project(':ballerina-log-api')
     interopImports project(':ballerina-math')
     interopImports project(':ballerina-system')
     interopImports project(':ballerina-task')
     interopImports project(':ballerina-time')
+    interopImports project(':ballerina-reflect')
+    interopImports project(':ballerina-crypto')
+    interopImports project(':ballerina-runtime-api')
+    interopImports project(':ballerina-mime')
 
     //transitive
     baloImplementation project(path: ':ballerina-cache', configuration: 'baloImplementation')
@@ -62,8 +65,6 @@ dependencies {
     baloImplementation project(path: ':ballerina-reflect', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-jwt', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-config-api', configuration: 'baloImplementation')
-
-    interopImports project(':ballerina-crypto')
 }
 
 configurations.all {

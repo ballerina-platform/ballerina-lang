@@ -17,13 +17,11 @@
 package org.ballerinalang.net.http.actions.httpclient;
 
 import org.ballerinalang.jvm.BallerinaValues;
+import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.http.DataContext;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpUtil;
@@ -36,15 +34,10 @@ import org.wso2.transport.http.netty.message.ResponseHandle;
  * {@code GetNextPromise} action can be used to get the next available push promise message associated with
  * a previous asynchronous invocation.
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "http",
-        functionName = "getNextPromise",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = HttpConstants.HTTP_CLIENT,
-                structPackage = "ballerina/http")
-)
 public class GetNextPromise extends AbstractHTTPAction {
 
-    public static Object getNextPromise(Strand strand, ObjectValue clientObj, ObjectValue handleObj) {
+    public static Object getNextPromise(ObjectValue clientObj, ObjectValue handleObj) {
+        Strand strand = Scheduler.getStrand();
         HttpClientConnector clientConnector = (HttpClientConnector) clientObj.getNativeData(HttpConstants.CLIENT);
         DataContext dataContext = new DataContext(strand, clientConnector, new NonBlockingCallback(strand), handleObj,
                                                   null);

@@ -1,6 +1,5 @@
 import ballerina/io;
 import ballerina/runtime;
-import ballerinax/java;
 
 function workerDeclTest() {
      int a = 20;
@@ -105,31 +104,3 @@ function workerReturnTest() returns int {
     }
     return (wait wx);
 }
-
-function workerSameThreadTest() returns any {
-    worker w1 returns string {
-        return getCurrentThreadName();
-    }
-
-    worker w2 returns string {
-        return getCurrentThreadName();
-    }
-    map<string> res = wait {w1, w2};
-    res["w"] = getCurrentThreadName();
-
-    return res;
-}
-
-function getCurrentThreadName() returns string {
-    handle t = currentThread();
-    handle tName = getName(t);
-    return java:toString(tName) ?: "";
-}
-
-function currentThread() returns handle = @java:Method {
-    class: "java.lang.Thread"
-} external;
-
-function getName(handle thread) returns handle = @java:Method {
-    class: "java.lang.Thread"
-} external;
