@@ -21,6 +21,7 @@ http:Client urlClient = new ("http://localhost:9254//url", { cache: { enabled: f
     basePath: "/url//test"
 }
 service urlBackend on new http:Listener(9254) {
+
     @http:ResourceConfig {
         path: "//"
     }
