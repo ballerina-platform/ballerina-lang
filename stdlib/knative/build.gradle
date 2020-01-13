@@ -31,7 +31,7 @@ dependencies {
     implementation project(':ballerina-logging')
     implementation project(':ballerina-runtime-api')
     
-    baloImplementation project(path: ':ballerina-utils', configuration: 'baloImplementation')
+    
 
     testCompile project(path: ':ballerina-test-common', configuration: 'tests')
     testCompile 'org.testng:testng'
