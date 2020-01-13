@@ -93,7 +93,8 @@ public class XMLAccessTest {
     //public void testFieldBasedAccess() {
     //    BValue[] returns = BRunUtil.invoke(result, "testFieldBasedAccess");
     //    Assert.assertEquals(returns[0].stringValue(),
-    //            "<fname><foo>1</foo><bar>2</bar></fname><lname1><foo>3</foo><bar>4</bar></lname1><fname><foo>5</foo>" +
+    //            "<fname><foo>1</foo><bar>2</bar></fname><lname1><foo>3</foo><bar>4</bar></lname1><fname><foo>5</foo>"
+    //            +
     //                    "<bar>6</bar></fname><lname2><foo>7</foo><bar>8</bar></lname2>apple");
     //    Assert.assertEquals(returns[1].stringValue(), "<fname><foo>1</foo><bar>2</bar></fname>");
     //    Assert.assertEquals(returns[2].stringValue(), "<foo>5</foo>");
