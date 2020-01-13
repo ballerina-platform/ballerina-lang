@@ -41,7 +41,7 @@ import java.util.Optional;
  * @since 1.1.0
  */
 @JavaSPIService("org.ballerinalang.langserver.codeaction.BallerinaCodeActionProvider")
-public class IncompatibleTypesCodeAction implements BallerinaCodeActionProvider {
+public class IncompatibleTypesCodeAction extends BallerinaCodeActionProvider {
 
     /**
      * {@inheritDoc}
@@ -59,30 +59,16 @@ public class IncompatibleTypesCodeAction implements BallerinaCodeActionProvider 
             // ignore
         }
 
-        for (Diagnostic diagnostic : diagnostics) {
-            if (diagnostic.getMessage().toLowerCase(Locale.ROOT).contains(CommandConstants.INCOMPATIBLE_TYPES)) {
-                CodeAction codeAction = CommandUtil.getIncompatibleTypesCommand(document, diagnostic, lsContext);
-                if (codeAction != null) {
-                    actions.add(codeAction);
+        if (document != null) {
+            for (Diagnostic diagnostic : diagnostics) {
+                if (diagnostic.getMessage().toLowerCase(Locale.ROOT).contains(CommandConstants.INCOMPATIBLE_TYPES)) {
+                    CodeAction codeAction = CommandUtil.getIncompatibleTypesCommand(document, diagnostic, lsContext);
+                    if (codeAction != null) {
+                        actions.add(codeAction);
+                    }
                 }
             }
         }
         return actions;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public boolean isNodeBased() {
-        return false;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public List<CodeActionNodeType> getCodeActionNodeTypes() {
-        return null;
     }
 }

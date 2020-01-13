@@ -32,7 +32,7 @@ import java.util.List;
  * @since 1.1.0
  */
 @JavaSPIService("org.ballerinalang.langserver.codeaction.BallerinaCodeActionProvider")
-public class PullModeExecutorCodeAction implements BallerinaCodeActionProvider {
+public class PullModeExecutorCodeAction extends BallerinaCodeActionProvider {
     private static final String UNRESOLVED_MODULE = "cannot resolve module";
 
     /**
@@ -50,21 +50,5 @@ public class PullModeExecutorCodeAction implements BallerinaCodeActionProvider {
             }
         }
         return actions;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public boolean isNodeBased() {
-        return false;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public List<CodeActionNodeType> getCodeActionNodeTypes() {
-        return null;
     }
 }

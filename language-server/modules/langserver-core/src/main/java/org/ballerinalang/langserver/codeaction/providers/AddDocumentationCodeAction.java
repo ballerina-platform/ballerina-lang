@@ -34,13 +34,15 @@ import static org.ballerinalang.langserver.command.CommandUtil.getDocGenerationC
  * @since 1.1.0
  */
 @JavaSPIService("org.ballerinalang.langserver.codeaction.BallerinaCodeActionProvider")
-public class AddDocumentationCodeAction implements BallerinaCodeActionProvider {
-    private List<CodeActionNodeType> codeActionNodeTypes = Arrays.asList(CodeActionNodeType.FUNCTION,
-                                                                         CodeActionNodeType.OBJECT,
-                                                                         CodeActionNodeType.SERVICE,
-                                                                         CodeActionNodeType.RESOURCE,
-                                                                         CodeActionNodeType.RECORD,
-                                                                         CodeActionNodeType.OBJECT_FUNCTION);
+public class AddDocumentationCodeAction extends BallerinaCodeActionProvider {
+    public AddDocumentationCodeAction() {
+        super(Arrays.asList(CodeActionNodeType.FUNCTION,
+                            CodeActionNodeType.OBJECT,
+                            CodeActionNodeType.SERVICE,
+                            CodeActionNodeType.RESOURCE,
+                            CodeActionNodeType.RECORD,
+                            CodeActionNodeType.OBJECT_FUNCTION));
+    }
 
     /**
      * {@inheritDoc}
@@ -52,21 +54,5 @@ public class AddDocumentationCodeAction implements BallerinaCodeActionProvider {
         return Collections.singletonList(
                 getDocGenerationCommand(nodeType.name(), docUri,
                                         lsContext.get(ExecuteCommandKeys.POSITION_START_KEY).getLine()));
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public boolean isNodeBased() {
-        return true;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public List<CodeActionNodeType> getCodeActionNodeTypes() {
-        return codeActionNodeTypes;
     }
 }

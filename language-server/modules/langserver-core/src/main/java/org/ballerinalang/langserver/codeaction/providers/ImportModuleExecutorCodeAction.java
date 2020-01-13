@@ -39,7 +39,7 @@ import java.util.Optional;
  * @since 1.1.0
  */
 @JavaSPIService("org.ballerinalang.langserver.codeaction.BallerinaCodeActionProvider")
-public class ImportModuleExecutorCodeAction implements BallerinaCodeActionProvider {
+public class ImportModuleExecutorCodeAction extends BallerinaCodeActionProvider {
     private static final String UNDEFINED_FUNCTION = "undefined function";
     private static final String UNDEFINED_MODULE = "undefined module";
     private static final String UNRESOLVED_MODULE = "cannot resolve module";
@@ -60,38 +60,24 @@ public class ImportModuleExecutorCodeAction implements BallerinaCodeActionProvid
         }
         List<CodeAction> actions = new ArrayList<>();
 
-        for (Diagnostic diagnostic : diagnostics) {
-            if (diagnostic.getMessage().startsWith(UNDEFINED_MODULE)) {
-                actions.addAll(CommandUtil.getModuleImportCommand(diagnostic, lsContext));
-            } else if (diagnostic.getMessage().startsWith(UNRESOLVED_MODULE)) {
-                CodeAction codeAction = CommandUtil.getUnresolvedModulesCommand(diagnostic, lsContext);
-                if (codeAction != null) {
-                    actions.add(codeAction);
-                }
-            } else if (diagnostic.getMessage().startsWith(UNDEFINED_FUNCTION)) {
-                CodeAction codeAction = CommandUtil.getFunctionImportCommand(document, diagnostic, lsContext);
-                if (codeAction != null) {
-                    actions.add(codeAction);
+        if (document != null) {
+            for (Diagnostic diagnostic : diagnostics) {
+                if (diagnostic.getMessage().startsWith(UNDEFINED_MODULE)) {
+                    actions.addAll(CommandUtil.getModuleImportCommand(diagnostic, lsContext));
+                } else if (diagnostic.getMessage().startsWith(UNRESOLVED_MODULE)) {
+                    CodeAction codeAction = CommandUtil.getUnresolvedModulesCommand(diagnostic, lsContext);
+                    if (codeAction != null) {
+                        actions.add(codeAction);
+                    }
+                } else if (diagnostic.getMessage().startsWith(UNDEFINED_FUNCTION)) {
+                    CodeAction codeAction = CommandUtil.getFunctionImportCommand(document, diagnostic, lsContext);
+                    if (codeAction != null) {
+                        actions.add(codeAction);
+                    }
                 }
             }
         }
 
         return actions;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public boolean isNodeBased() {
-        return false;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public List<CodeActionNodeType> getCodeActionNodeTypes() {
-        return null;
     }
 }

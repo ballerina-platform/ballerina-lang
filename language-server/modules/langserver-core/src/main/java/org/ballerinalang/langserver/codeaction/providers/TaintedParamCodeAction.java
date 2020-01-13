@@ -34,7 +34,7 @@ import java.util.Locale;
  * @since 1.1.0
  */
 @JavaSPIService("org.ballerinalang.langserver.codeaction.BallerinaCodeActionProvider")
-public class TaintedParamCodeAction implements BallerinaCodeActionProvider {
+public class TaintedParamCodeAction extends BallerinaCodeActionProvider {
 
     /**
      * {@inheritDoc}
@@ -53,21 +53,5 @@ public class TaintedParamCodeAction implements BallerinaCodeActionProvider {
             }
         }
         return actions;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public boolean isNodeBased() {
-        return false;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public List<CodeActionNodeType> getCodeActionNodeTypes() {
-        return null;
     }
 }

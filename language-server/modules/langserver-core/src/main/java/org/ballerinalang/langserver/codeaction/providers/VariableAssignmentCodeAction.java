@@ -41,7 +41,7 @@ import java.util.Optional;
  * @since 1.1.0
  */
 @JavaSPIService("org.ballerinalang.langserver.codeaction.BallerinaCodeActionProvider")
-public class VariableAssignmentCodeAction implements BallerinaCodeActionProvider {
+public class VariableAssignmentCodeAction extends BallerinaCodeActionProvider {
 
     /**
      * {@inheritDoc}
@@ -59,27 +59,14 @@ public class VariableAssignmentCodeAction implements BallerinaCodeActionProvider
             // ignore
         }
 
-        for (Diagnostic diagnostic : diagnostics) {
-            if (diagnostic.getMessage().toLowerCase(Locale.ROOT).contains(CommandConstants.VAR_ASSIGNMENT_REQUIRED)) {
-                actions.addAll(CommandUtil.getVariableAssignmentCommand(document, diagnostic, lsContext));
+        if (document != null) {
+            for (Diagnostic diagnostic : diagnostics) {
+                if (diagnostic.getMessage().toLowerCase(Locale.ROOT).contains(
+                        CommandConstants.VAR_ASSIGNMENT_REQUIRED)) {
+                    actions.addAll(CommandUtil.getVariableAssignmentCommand(document, diagnostic, lsContext));
+                }
             }
         }
         return actions;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public boolean isNodeBased() {
-        return false;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public List<CodeActionNodeType> getCodeActionNodeTypes() {
-        return null;
     }
 }

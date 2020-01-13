@@ -49,7 +49,6 @@ public class BallerinaCodeActionProviderFactory {
     }
 
     /**
-     *
      * @return node based providers
      */
     public static Map<CodeActionNodeType, List<BallerinaCodeActionProvider>> getNodeBasedProviders() {
@@ -62,7 +61,6 @@ public class BallerinaCodeActionProviderFactory {
     }
 
     /**
-     *
      * @return diagnostic based providers
      */
     public static List<BallerinaCodeActionProvider> getDiagnosticsBasedProviders() {
@@ -89,24 +87,25 @@ public class BallerinaCodeActionProviderFactory {
         }
         for (BallerinaCodeActionProvider codeAction : serviceLoader) {
             if (codeAction.isNodeBased()) {
-                for (CodeActionNodeType nodeType : codeAction.getCodeActionNodeTypes()) {
+                for (CodeActionNodeType nodeType : codeAction.
+                        getCodeActionNodeTypes()) {
 
-                    if (nodeType.equals(CodeActionNodeType.FUNCTION)) {
+                    if (nodeType == (CodeActionNodeType.FUNCTION)) {
                         nodeBasedProviders.get(CodeActionNodeType.FUNCTION).add(codeAction);
 
-                    } else if (nodeType.equals(CodeActionNodeType.OBJECT)) {
+                    } else if (nodeType == (CodeActionNodeType.OBJECT)) {
                         nodeBasedProviders.get(CodeActionNodeType.OBJECT).add(codeAction);
 
-                    } else if (nodeType.equals(CodeActionNodeType.SERVICE)) {
+                    } else if (nodeType == (CodeActionNodeType.SERVICE)) {
                         nodeBasedProviders.get(CodeActionNodeType.SERVICE).add(codeAction);
 
-                    } else if (nodeType.equals(CodeActionNodeType.RECORD)) {
+                    } else if (nodeType == (CodeActionNodeType.RECORD)) {
                         nodeBasedProviders.get(CodeActionNodeType.RECORD).add(codeAction);
 
-                    } else if (nodeType.equals(CodeActionNodeType.RESOURCE)) {
+                    } else if (nodeType == (CodeActionNodeType.RESOURCE)) {
                         nodeBasedProviders.get(CodeActionNodeType.RESOURCE).add(codeAction);
 
-                    } else if (nodeType.equals(CodeActionNodeType.OBJECT_FUNCTION)) {
+                    } else if (nodeType == (CodeActionNodeType.OBJECT_FUNCTION)) {
                         nodeBasedProviders.get(CodeActionNodeType.OBJECT_FUNCTION).add(codeAction);
                     }
                 }

@@ -19,6 +19,7 @@ import org.ballerinalang.langserver.compiler.LSContext;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.Diagnostic;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -26,7 +27,21 @@ import java.util.List;
  *
  * @since 1.1.0
  */
-public interface BallerinaCodeActionProvider {
+public abstract class BallerinaCodeActionProvider {
+    List<CodeActionNodeType> codeActionNodeTypes;
+    private boolean isNodeBased = true;
+
+    public BallerinaCodeActionProvider() {
+        this(new ArrayList<>());
+        this.isNodeBased = false;
+    }
+
+    /**
+     * @param nodeTypes code action node types list
+     */
+    public BallerinaCodeActionProvider(List<CodeActionNodeType> nodeTypes) {
+        this.codeActionNodeTypes = nodeTypes;
+    }
 
     /**
      * returns the list of code actions based on node type or diagnostics.
@@ -36,14 +51,19 @@ public interface BallerinaCodeActionProvider {
      * @param diagnostics diagnostics list
      * @return list of Code Actions
      */
-    List<CodeAction> getCodeActions(CodeActionNodeType nodeType, LSContext lsContext, List<Diagnostic> diagnostics);
+    protected abstract List<CodeAction> getCodeActions(CodeActionNodeType nodeType, LSContext lsContext,
+                                                       List<Diagnostic> diagnostics);
 
-    boolean isNodeBased();
+    protected final boolean isNodeBased() {
+        return this.isNodeBased;
+    }
 
     /**
      * returns the list of node types that the code action belongs to.
      *
      * @return list of code action node type
      */
-    List<CodeActionNodeType> getCodeActionNodeTypes();
+    protected final List<CodeActionNodeType> getCodeActionNodeTypes() {
+        return this.codeActionNodeTypes;
+    }
 }

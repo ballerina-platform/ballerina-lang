@@ -34,13 +34,16 @@ import static org.ballerinalang.langserver.command.CommandUtil.getAllDocGenerati
  * @since 1.1.0
  */
 @JavaSPIService("org.ballerinalang.langserver.codeaction.BallerinaCodeActionProvider")
-public class AddAllDocumentationCodeAction implements BallerinaCodeActionProvider {
-    private List<CodeActionNodeType> codeActionNodeTypes = Arrays.asList(CodeActionNodeType.FUNCTION,
-                                                                         CodeActionNodeType.OBJECT,
-                                                                         CodeActionNodeType.SERVICE,
-                                                                         CodeActionNodeType.RESOURCE,
-                                                                         CodeActionNodeType.RECORD,
-                                                                         CodeActionNodeType.OBJECT_FUNCTION);
+public class AddAllDocumentationCodeAction extends BallerinaCodeActionProvider {
+    public AddAllDocumentationCodeAction() {
+        super(Arrays.asList(CodeActionNodeType.FUNCTION,
+                            CodeActionNodeType.OBJECT,
+                            CodeActionNodeType.SERVICE,
+                            CodeActionNodeType.RESOURCE,
+                            CodeActionNodeType.RECORD,
+                            CodeActionNodeType.OBJECT_FUNCTION));
+
+    }
 
     /**
      * {@inheritDoc}
@@ -49,21 +52,5 @@ public class AddAllDocumentationCodeAction implements BallerinaCodeActionProvide
     public List<CodeAction> getCodeActions(CodeActionNodeType nodeType, LSContext lsContext,
                                            List<org.eclipse.lsp4j.Diagnostic> diagnostics) {
         return Collections.singletonList(getAllDocGenerationCommand(lsContext.get(DocumentServiceKeys.FILE_URI_KEY)));
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public boolean isNodeBased() {
-        return true;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public List<CodeActionNodeType> getCodeActionNodeTypes() {
-        return codeActionNodeTypes;
     }
 }

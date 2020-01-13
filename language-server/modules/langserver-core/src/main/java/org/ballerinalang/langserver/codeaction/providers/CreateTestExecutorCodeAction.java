@@ -34,9 +34,11 @@ import java.util.List;
  * @since 1.1.0
  */
 @JavaSPIService("org.ballerinalang.langserver.codeaction.BallerinaCodeActionProvider")
-public class CreateTestExecutorCodeAction implements BallerinaCodeActionProvider {
-    private List<CodeActionNodeType> codeActionNodeTypes = Arrays.asList(CodeActionNodeType.FUNCTION,
-                                                                 CodeActionNodeType.OBJECT);
+public class CreateTestExecutorCodeAction extends BallerinaCodeActionProvider {
+    public CreateTestExecutorCodeAction() {
+        super(Arrays.asList(CodeActionNodeType.FUNCTION,
+                            CodeActionNodeType.OBJECT));
+    }
 
     /**
      * {@inheritDoc}
@@ -52,21 +54,5 @@ public class CreateTestExecutorCodeAction implements BallerinaCodeActionProvider
             // ignore
         }
         return null;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public boolean isNodeBased() {
-        return true;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public List<CodeActionNodeType> getCodeActionNodeTypes() {
-        return codeActionNodeTypes;
     }
 }

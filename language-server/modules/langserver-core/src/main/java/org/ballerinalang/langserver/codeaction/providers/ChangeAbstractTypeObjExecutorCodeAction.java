@@ -32,7 +32,7 @@ import java.util.List;
  * @since 1.1.0
  */
 @JavaSPIService("org.ballerinalang.langserver.codeaction.BallerinaCodeActionProvider")
-public class ChangeAbstractTypeObjExecutorCodeAction implements BallerinaCodeActionProvider {
+public class ChangeAbstractTypeObjExecutorCodeAction extends BallerinaCodeActionProvider {
     private static final String NO_IMPL_FOUND_FOR_FUNCTION = "no implementation found for the function";
     private static final String ABSTRACT_OBJECT = "in abstract object";
 
@@ -59,21 +59,5 @@ public class ChangeAbstractTypeObjExecutorCodeAction implements BallerinaCodeAct
         }
 
         return actions;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public boolean isNodeBased() {
-        return false;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public List<CodeActionNodeType> getCodeActionNodeTypes() {
-        return null;
     }
 }
