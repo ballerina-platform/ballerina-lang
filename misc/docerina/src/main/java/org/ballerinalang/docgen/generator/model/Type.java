@@ -59,6 +59,8 @@ public class Type {
     public boolean generateUserDefinedTypeLink = true;
     public List<Type> memberTypes = new ArrayList<>();
     public List<Type> paramTypes = new ArrayList<>();
+    public int arrayDimensions;
+    public Type elementType;
     public Type returnType;
 
     private Type() {
@@ -132,7 +134,10 @@ public class Type {
         } else if (type instanceof BLangArrayType) {
             BLangType elemtype = ((BLangArrayType) type).elemtype;
             String moduleName = elemtype.type.tsymbol.pkgID.name.toString();
-            typeModel = fromTypeNode(elemtype, currentModule);
+            Type elementType = fromTypeNode(elemtype, moduleName);
+            typeModel = new Type(type, currentModule);
+            typeModel.elementType = elementType;
+            typeModel.arrayDimensions = ((BLangArrayType) type).dimensions;
             typeModel.isArrayType = true;
             if (moduleName.equals(currentModule) && elemtype instanceof BLangUserDefinedType
                     && !((BLangUserDefinedType) elemtype).flagSet.contains(Flag.PUBLIC)) {

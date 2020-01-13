@@ -207,6 +207,8 @@ function emitInsFPLoad(FPLoad ins, int tabs) returns string {
     str += emitSpaces(1);
     str += "fp";
     str += emitSpaces(1);
+    str += emitModuleID(ins.pkgID);
+    str += "::";
     str += emitName(ins.name);
     // TODO add params and closure maps
     str += ";";

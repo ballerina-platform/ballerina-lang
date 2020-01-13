@@ -30,7 +30,6 @@ import org.ballerinalang.model.tree.expressions.NamedArgNode;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.parser.BLangAnonymousModelHelper;
-import org.wso2.ballerinalang.compiler.semantics.model.BLangBuiltInMethod;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
@@ -605,11 +604,11 @@ public class TypeChecker extends BLangNodeVisitor {
         // Check whether the expected type is an array type
         // var a = []; and var a = [1,2,3,4]; are illegal statements, because we cannot infer the type here.
         BType actualType = symTable.semanticError;
+        resultType = symTable.semanticError;
 
         if ((expType.tag == TypeTags.ANY || expType.tag == TypeTags.ANYDATA || expType.tag == TypeTags.NONE)
                 && listConstructor.exprs.isEmpty()) {
             dlog.error(listConstructor.pos, DiagnosticCode.INVALID_LIST_CONSTRUCTOR, expType);
-            resultType = symTable.semanticError;
             return;
         }
 
@@ -625,7 +624,6 @@ public class TypeChecker extends BLangNodeVisitor {
             } else if (arrayType.state != BArrayState.UNSEALED && arrayType.size != listConstructor.exprs.size()) {
                 dlog.error(listConstructor.pos,
                         DiagnosticCode.MISMATCHING_ARRAY_LITERAL_VALUES, arrayType.size, listConstructor.exprs.size());
-                resultType = symTable.semanticError;
                 return;
             }
             checkExprs(listConstructor.exprs, this.env, arrayType.eType);
@@ -659,7 +657,6 @@ public class TypeChecker extends BLangNodeVisitor {
                                 // tuple type size != list constructor exprs
                                 dlog.error(listConstructor.pos, DiagnosticCode.SYNTAX_ERROR,
                                         "tuple and expression size does not match");
-                                resultType = symTable.semanticError;
                                 return;
                             }
                         }
@@ -4696,29 +4693,6 @@ public class TypeChecker extends BLangNodeVisitor {
 
         iExpr.symbol = varSymbol;
         return varSymbol;
-    }
-
-    private BSymbol getSymbolForAnydataReturningBuiltinMethods(BLangInvocation iExpr) {
-        BType type = iExpr.expr.type;
-        if (!types.isLikeAnydataOrNotNil(type)) {
-            return symTable.notFoundSymbol;
-        }
-
-        BType retType;
-        if (type.isAnydata()) {
-            retType = type;
-        } else {
-            retType = BUnionType.create(null, type, symTable.errorType);
-        }
-        return symResolver.createBuiltinMethodSymbol(BLangBuiltInMethod.FREEZE, type, retType);
-    }
-
-    private BSymbol getSymbolForIsFrozenBuiltinMethod(BLangInvocation iExpr) {
-        BType type = iExpr.expr.type;
-        if (!types.isLikeAnydataOrNotNil(type)) {
-            return symTable.notFoundSymbol;
-        }
-        return symResolver.createBuiltinMethodSymbol(BLangBuiltInMethod.IS_FROZEN, type, symTable.booleanType);
     }
 
     private boolean couldHoldTableValues(BType type, List<BType> encounteredTypes) {

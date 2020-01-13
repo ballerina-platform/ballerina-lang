@@ -29,7 +29,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 import org.wso2.ballerinalang.util.Lists;
 
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -40,16 +39,13 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.jar.Attributes;
-import java.util.jar.JarInputStream;
-import java.util.jar.Manifest;
 
 import static org.ballerinalang.jvm.runtime.RuntimeConstants.SYSTEM_PROP_BAL_DEBUG;
 import static org.ballerinalang.jvm.util.BLangConstants.MODULE_INIT_CLASS_NAME;
+import static org.ballerinalang.packerina.buildcontext.sourcecontext.SourceType.SINGLE_BAL_FILE;
 import static org.ballerinalang.tool.LauncherUtils.createLauncherException;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_COMPILED_JAR_EXT;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.JAVA_MAIN;
-import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.MAIN_CLASS_MANIFEST_ENTRY;
 
 /**
  * Task for running the executable.
@@ -58,7 +54,6 @@ public class RunExecutableTask implements Task {
 
     private final String[] args;
     private Path executablePath;
-    private boolean isGeneratedExecutable = false;
     private boolean isInDebugMode = false;
     private static final String DEBUG_ARGS_JAVA8 = "-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=";
 
@@ -70,7 +65,6 @@ public class RunExecutableTask implements Task {
      */
     public RunExecutableTask(String[] args, boolean isInDebugMode) {
         this(null, args);
-        this.isGeneratedExecutable = true;
         this.isInDebugMode = isInDebugMode;
     }
 
@@ -88,11 +82,6 @@ public class RunExecutableTask implements Task {
     @Override
     public void execute(BuildContext buildContext) {
         Path sourceRootPath = buildContext.get(BuildContextField.SOURCE_ROOT);
-        if (!this.isGeneratedExecutable) {
-            this.runExecutable();
-            return;
-        }
-
         BLangPackage executableModule = null;
         // set executable path from an executable built on the go
         if (null == this.executablePath) {
@@ -144,6 +133,10 @@ public class RunExecutableTask implements Task {
 
         // set the source root path relative to the source path i.e. set the parent directory of the source path
         System.setProperty(ProjectDirConstants.BALLERINA_SOURCE_ROOT, sourceRootPath.toString());
+        if (buildContext.getSourceType() == SINGLE_BAL_FILE) {
+            this.runGeneratedExecutableWithSameClassLoader(executableModule, buildContext);
+            return;
+        }
         this.runGeneratedExecutable(executableModule, buildContext);
     }
 
@@ -168,10 +161,7 @@ public class RunExecutableTask implements Task {
             }
             commands.add(initClassName);
             commands.addAll(Lists.of(args));
-
-            ProcessBuilder pb = new ProcessBuilder(commands);
-            pb.redirectOutput(ProcessBuilder.Redirect.INHERIT);
-            pb.redirectError(ProcessBuilder.Redirect.INHERIT);
+            ProcessBuilder pb = new ProcessBuilder(commands).inheritIO();
             Process process = pb.start();
             process.waitFor();
         } catch (IOException | InterruptedException e) {
@@ -180,15 +170,24 @@ public class RunExecutableTask implements Task {
     }
 
     /**
-     * Run a given executable .jar file.
+     * Run an executable that is generated from 'run bal' command.
+     *
+     * @param executableModule The module to run.
      */
-    private void runExecutable() {
-        String initClassName = null;
-        try {
-            URLClassLoader classLoader = new URLClassLoader(new URL[]{this.executablePath.toUri().toURL()},
-                    ClassLoader.getSystemClassLoader());
+    private void runGeneratedExecutableWithSameClassLoader(BLangPackage executableModule, BuildContext buildContext) {
 
-            initClassName = getModuleInitClassName(this.executablePath);
+        ExecutableJar executableJar = buildContext.moduleDependencyPathMap.get(executableModule.packageID);
+        String initClassName = BFileUtil.getQualifiedClassName(executableModule.packageID.orgName.value,
+                                                               executableModule.packageID.name.value,
+                                                               MODULE_INIT_CLASS_NAME);
+        try {
+            URL[] urls = new URL[executableJar.platformLibs.size() + 1];
+            urls[0] = executableJar.moduleJar.toUri().toURL();
+            int i = 1;
+            for (Path platformLib : executableJar.platformLibs) {
+                urls[i++] = platformLib.toUri().toURL();
+            }
+            URLClassLoader classLoader = new URLClassLoader(urls);
             Class<?> initClazz = classLoader.loadClass(initClassName);
             Method mainMethod = initClazz.getDeclaredMethod(JAVA_MAIN, String[].class);
             mainMethod.invoke(null, (Object) this.args);
@@ -205,26 +204,6 @@ public class RunExecutableTask implements Task {
             throw createLauncherException("invoking main method failed due to " + e.getMessage());
         } catch (InvocationTargetException | NoSuchFieldException e) {
             throw createLauncherException("invoking main method failed due to ", e.getCause());
-        }
-    }
-
-    /**
-     * Get the clazz name with the main method. The name of the clazz is found through the Manifest file in the .jar.
-     *
-     * @param executablePath The path to the executable .jar file.
-     * @return The name of the clazz
-     */
-    private static String getModuleInitClassName(Path executablePath) {
-        try (JarInputStream jarStream = new JarInputStream(new FileInputStream((executablePath.toString())))) {
-            Manifest mf = jarStream.getManifest();
-            Attributes attributes = mf.getMainAttributes();
-            String initClassName = attributes.getValue(MAIN_CLASS_MANIFEST_ENTRY);
-            if (initClassName == null) {
-                throw createLauncherException("Main-class manifest entry cannot be found in the jar.");
-            }
-            return initClassName.replaceAll("/", ".");
-        } catch (IOException e) {
-            throw createLauncherException("error while getting init class name from manifest due to " + e.getMessage());
         }
     }
 

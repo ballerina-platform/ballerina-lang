@@ -159,17 +159,20 @@ done
 if [ -n "${BAL_JAVA_DEBUG+set}" ]; then
     if [ -z "$BAL_JAVA_DEBUG" ]; then
         echo "Please specify the debug port for the BAL_JAVA_DEBUG variable"
-	exit 1
+        exit 1
     else
-	if [ -n "$JAVA_OPTS" ]; then
-	  echo "Warning !!!. User specified JAVA_OPTS may interfere with BAL_JAVA_DEBUG"
-	fi
-	JAVA_OPTS="$JAVA_OPTS -Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=$BAL_JAVA_DEBUG"
-	echo "Please start the remote debugging client to continue..."
+      if [ -n "$JAVA_OPTS" ]; then
+        echo "Warning !!!. User specified JAVA_OPTS may interfere with BAL_JAVA_DEBUG"
+      fi
+      if [ -n "${BAL_DEBUG_OPTS+set}" ]; then
+        JAVA_OPTS="$JAVA_OPTS $BAL_DEBUG_OPTS"
+      else
+        JAVA_OPTS="$JAVA_OPTS -Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=$BAL_JAVA_DEBUG"
+      fi
     fi
 fi
 
-JDK_18=`$JAVA_HOME/bin/java -version 2>&1 | grep -e "1.8."`
+JDK_18=`$JAVA_HOME/bin/java -version 2>&1 | grep "1.8."`
 if [ "$JDK_18" = "" ]; then
     echo "Error: Ballerina is supported only on JDK 1.8"
     exit 1
@@ -275,6 +278,7 @@ elif [[ $1 == "run" ]] && [[ $2 == *.jar ]]; then # if 1st arg is "run" and 2nd 
         -Djava.security.egd=file:/dev/./urandom \
         -Dfile.encoding=UTF8 \
         -Dballerina.target=jvm \
+        -Djava.command=$JAVACMD \
         -jar "${@:2}" # ignores "run"
 else
     $JAVACMD \
@@ -292,5 +296,6 @@ else
         -Djava.security.egd=file:/dev/./urandom \
         -Dfile.encoding=UTF8 \
         -Dballerina.target=jvm \
+        -Djava.command=$JAVACMD \
         org.ballerinalang.tool.Main "$@"
 fi

@@ -16,10 +16,7 @@
 package org.ballerinalang.langserver.signature;
 
 import org.antlr.v4.runtime.CommonToken;
-import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.Token;
-import org.antlr.v4.runtime.TokenStream;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.ballerinalang.compiler.CompilerPhase;
@@ -34,13 +31,16 @@ import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentExceptio
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.SymbolInfo;
-import org.ballerinalang.langserver.sourceprune.SourcePruneKeys;
+import org.ballerinalang.langserver.completions.util.SourcePruneException;
+import org.ballerinalang.langserver.signature.sourceprune.SignatureTokenTraverserFactory;
+import org.ballerinalang.langserver.sourceprune.SourcePruner;
+import org.ballerinalang.langserver.sourceprune.TokenTraverserFactory;
 import org.ballerinalang.model.elements.MarkdownDocAttachment;
+import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.eclipse.lsp4j.MarkupContent;
 import org.eclipse.lsp4j.ParameterInformation;
-import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.SignatureInformation;
 import org.eclipse.lsp4j.SignatureInformationCapabilities;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
@@ -49,13 +49,21 @@ import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
@@ -65,8 +73,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
-import java.io.BufferedReader;
-import java.io.StringReader;
 import java.lang.reflect.Field;
 import java.net.URI;
 import java.nio.file.Path;
@@ -78,14 +84,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Stack;
+import java.util.StringJoiner;
 import java.util.function.Consumer;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static org.ballerinalang.langserver.common.utils.CommonUtil.getLastItem;
 import static org.ballerinalang.langserver.common.utils.FilterUtils.getLangLibScopeEntries;
-import static org.ballerinalang.langserver.util.TokensUtil.searchTokenAtCursor;
 
 /**
  * Utility functions for the signature help.
@@ -95,8 +100,6 @@ public class SignatureHelpUtil {
     private static final String SEMI_COLON = ";";
     private static final String EQUAL = "=";
     private static final String INIT_SYMBOL = ".__init";
-    private static final Pattern KEY_VALUE_PATTERN = Pattern.compile(".*(?:\\:\\s)([^\\(\\)]+\\(.*\\))[,]?");
-    private static final Pattern EMPTY_FUNCTION_PATTERN = Pattern.compile("^(.*\\(\\))[;]{0,1}$", Pattern.DOTALL);
 
     private SignatureHelpUtil() {
     }
@@ -110,90 +113,10 @@ public class SignatureHelpUtil {
      */
     public static Pair<Optional<String>, Integer> getFunctionInvocationDetails(LSServiceOperationContext serviceContext)
             throws CompilationFailedException {
-        int paramIndex = 0;
-        int cursorTokenIndex = serviceContext.get(SourcePruneKeys.CURSOR_TOKEN_INDEX_KEY);
-
         // Generate function invocation from the source pruned text
-        String funcInvocation = String.join("", getSourcePrunedFunctionInvocation(serviceContext));
-        boolean isInsideFuncInvocation = COMMA.equals(funcInvocation);
-        Matcher m = EMPTY_FUNCTION_PATTERN.matcher(funcInvocation);
-        boolean isEmptyFuncInvocation = funcInvocation.isEmpty(); // matches functions like 'io:println('
-        boolean isEmptyFuncInovcPattern = m.matches(); // matches functions like 'io:println()'
-        if (isEmptyFuncInovcPattern && funcInvocation.endsWith(SEMI_COLON)) {
-            // Remove semi-colon(;) if not exists
-            funcInvocation = funcInvocation.substring(0, funcInvocation.lastIndexOf(SEMI_COLON));
-        }
-
-        // Visit LHS of the tokens to get function invocation statement
-        int rightParenthesisCount = (isInsideFuncInvocation || isEmptyFuncInvocation) ? 1 : 0;
-        if (isInsideFuncInvocation || isEmptyFuncInvocation) {
-            List<Token> tokens = serviceContext.get(SourcePruneKeys.TOKEN_LIST_KEY);
-            List<Token> collected = new ArrayList<>();
-            int traverser = cursorTokenIndex;
-            while (traverser >= 0) {
-                Token token = tokens.get(traverser);
-                int type = token.getType();
-                boolean leftParenthesisPending = rightParenthesisCount > 0;
-                boolean isWhiteSpace = token.getChannel() == 1;
-                boolean isSpecialToken = type == BallerinaParser.COLON || type == BallerinaParser.DOT ||
-                        type == BallerinaParser.NOT || type == BallerinaParser.NEW || type == BallerinaParser.ASSIGN ||
-                        type == BallerinaParser.RARROW || type == BallerinaParser.LARROW;
-                if (type == BallerinaParser.RIGHT_PARENTHESIS) {
-                    rightParenthesisCount++;
-                    collected.add(token);
-                    traverser--;
-                } else if (type == BallerinaParser.LEFT_PARENTHESIS && leftParenthesisPending) {
-                    rightParenthesisCount--;
-                    collected.add(token);
-                    traverser--;
-                } else if (isSpecialToken) {
-                    collected.add(token);
-                    traverser--;
-                } else if (type == BallerinaParser.Identifier && !leftParenthesisPending) {
-                    collected.add(token);
-                    traverser--;
-                } else if (type == BallerinaParser.COMMA) {
-                    if (!isEmptyFuncInvocation) {
-                        paramIndex++;
-                        collected.add(token);
-                    }
-                    traverser--;
-                } else if (leftParenthesisPending) {
-                    collected.add(token);
-                    traverser--;
-                } else if (isWhiteSpace) {
-                    collected.add(token);
-                    traverser--;
-                } else {
-                    break;
-                }
-            }
-            paramIndex += StringUtils.countMatches(funcInvocation, ',');
-            Collections.reverse(collected);
-            List<String> flatTokensText = collected.stream().map(Token::getText).collect(Collectors.toList());
-            funcInvocation = String.join("", flatTokensText) + ")";
-        }
-
-        // Set parameter index
-        serviceContext.put(SignatureKeys.PARAMETER_INDEX, paramIndex);
-
-        // If it is a key-value pair, remove key to avoid ambiguity with package prefix
-        Matcher matcher = KEY_VALUE_PATTERN.matcher(funcInvocation);
-        if (matcher.find()) {
-            funcInvocation = matcher.group(1);
-            // Try to derive param count when *not* in a nested invocation
-            int leftParenthesisCnt = StringUtils.countMatches(funcInvocation, "(");
-            int rightParenthesisCnt = StringUtils.countMatches(funcInvocation, ")");
-            if (leftParenthesisCnt == 1 && leftParenthesisCnt == rightParenthesisCnt) {
-                int leftPos = funcInvocation.indexOf("(");
-                int rightPos = funcInvocation.indexOf(")");
-                if (rightPos - leftPos > 1) {
-                    String substring = funcInvocation.substring(leftPos, rightPos);
-                    paramIndex = StringUtils.countMatches(substring, ",");
-                    paramIndex++;
-                }
-            }
-        }
+        Pair<String, Integer> functionInvocationAndParamOffset = extractSourcePrunedInvocationDetails(serviceContext);
+        String funcInvocation = functionInvocationAndParamOffset.getLeft();
+        int paramIndex = functionInvocationAndParamOffset.getRight();
 
         // Get right hand side of the assignment
         int equalSymbolIndex = funcInvocation.lastIndexOf(EQUAL);
@@ -210,31 +133,64 @@ public class SignatureHelpUtil {
         return new ImmutablePair<>(parseAndGetFunctionInvocationPath(subRule, serviceContext), paramIndex);
     }
 
-    private static List<String> getSourcePrunedFunctionInvocation(LSServiceOperationContext serviceContext) {
+    private static Pair<String, Integer> extractSourcePrunedInvocationDetails(LSContext context) {
+        int parameterOffset = 0;
         // Collect source-pruned tokens
-        List<String> tokenText = new ArrayList<>();
+        List<String> tokenTexts = new ArrayList<>();
 
         final int[] pendingRParenthesisCount = new int[]{0};
         Consumer<Integer> tokenAcceptor = type -> {
-            if (type == BallerinaParser.RIGHT_PARENTHESIS) {
-                pendingRParenthesisCount[0]++;
-            } else if (type == BallerinaParser.LEFT_PARENTHESIS) {
+            if (type == BallerinaParser.LEFT_PARENTHESIS) {
                 pendingRParenthesisCount[0]--;
+            } else if (type == BallerinaParser.RIGHT_PARENTHESIS) {
+                pendingRParenthesisCount[0]++;
             }
         };
 
-        // Visit Left-Hand side tokens
-        List<CommonToken> lhsTokens = serviceContext.get(CompletionKeys.LHS_TOKENS_KEY);
+        // Visit Left-Hand side tokens before cursor
+        List<CommonToken> lhsTokens = context.get(CompletionKeys.LHS_TOKENS_KEY);
         if (lhsTokens != null) {
-            for (Token commonToken : lhsTokens) {
-                tokenAcceptor.accept(commonToken.getType());
-                tokenText.add(commonToken.getText());
+            while (lhsTokens.get(0).getType() == BallerinaParser.COMMA) {
+                lhsTokens.remove(0);
+            }
+            boolean isLastLeftParenthesisProcessed = false;
+            for (int i = lhsTokens.size() - 1; i >= 0; i--) {
+                Token commonToken = lhsTokens.get(i);
+                int tokenType = commonToken.getType();
+                if (tokenType == BallerinaParser.LEFT_PARENTHESIS) {
+                    // Since we are traversing reverse order, we'll get the last LParenthesis first
+                    isLastLeftParenthesisProcessed = true;
+                }
+                if (tokenType == BallerinaParser.COMMA) {
+                    if (i - 1 >= 0 && lhsTokens.get(i - 1).getType() == BallerinaParser.RIGHT_PARENTHESIS) {
+                        // eg. func1(func2(10, 10, 5),[cursor]);
+                        parameterOffset = 1;
+                    } else {
+                        tokenTexts.add(commonToken.getText());
+                        if (pendingRParenthesisCount[0] == 0 && !isLastLeftParenthesisProcessed) {
+                            parameterOffset++;
+                        }
+                    }
+                } else {
+                    tokenAcceptor.accept(tokenType);
+                    tokenTexts.add(commonToken.getText());
+                }
             }
         }
 
-        // Visit Right-Hand side tokens
-        List<CommonToken> rhsTokens = serviceContext.get(CompletionKeys.RHS_TOKENS_KEY);
-        if (rhsTokens != null) {
+        // Reverse the order of tokens
+        Collections.reverse(tokenTexts);
+
+        // Visit Right-Hand side tokens after cursor
+        List<CommonToken> rhsTokens = context.get(CompletionKeys.RHS_TOKENS_KEY);
+        if (rhsTokens != null && !rhsTokens.isEmpty()) {
+            // Remove if any comma[,] when RHS next immediate token is right parenthesis
+            int lastIndex = tokenTexts.size() - 1;
+            while (lastIndex >= 0 && COMMA.equals(tokenTexts.get(lastIndex))
+                    && rhsTokens.get(0).getType() == BallerinaParser.RIGHT_PARENTHESIS) {
+                tokenTexts.remove(lastIndex);
+                lastIndex--;
+            }
             // Collect tokens until we find a Whitespace or Newline
             for (Token commonToken : rhsTokens) {
                 int tokenType = commonToken.getType();
@@ -243,20 +199,34 @@ public class SignatureHelpUtil {
                     break;
                 }
                 tokenAcceptor.accept(commonToken.getType());
-                tokenText.add(commonToken.getText());
+                tokenTexts.add(commonToken.getText());
             }
+        }
+
+        // Remove if any comma[,] when pendingRParenthesis is less than zero
+        int lastIndex = tokenTexts.size() - 1;
+        if (COMMA.equals(tokenTexts.get(lastIndex)) && pendingRParenthesisCount[0] <= 0) {
+            tokenTexts.remove(lastIndex);
+        }
+
+        //  Remove if any semi-colon[;]
+        lastIndex = tokenTexts.size() - 1;
+        if (SEMI_COLON.equals(tokenTexts.get(lastIndex))) {
+            tokenTexts.remove(lastIndex);
         }
 
         // Add Missing Parenthesis
         while (pendingRParenthesisCount[0] < 0) {
-            tokenText.add(")");
+            tokenTexts.add(")");
             pendingRParenthesisCount[0]++;
         }
-        return tokenText;
+        return Pair.of(String.join("", tokenTexts), parameterOffset);
     }
 
     private static Optional<String> parseAndGetFunctionInvocationPath(String subRule, LSServiceOperationContext context)
             throws CompilationFailedException {
+        // Replace 'optional field access' with 'field access' to avoid empty top-level nodes
+        subRule = subRule.replaceAll("\\?.", ".");
         Optional<BLangPackage> bLangPackage = ExtendedLSCompiler.compileContent(subRule, CompilerPhase.CODE_ANALYZE)
                 .getBLangPackage();
 
@@ -265,6 +235,9 @@ public class SignatureHelpUtil {
         }
 
         List<TopLevelNode> topLevelNodes = bLangPackage.get().getCompilationUnits().get(0).getTopLevelNodes();
+        if (topLevelNodes.isEmpty()) {
+            return Optional.empty();
+        }
         BLangStatement evalStatement = ((BLangFunction) topLevelNodes.get(0)).getBody().stmts.get(0);
 
         // Handle object new constructor
@@ -278,27 +251,43 @@ public class SignatureHelpUtil {
                     return Optional.of(addPackagePrefix(typeNode.pkgAlias, context, typeNode.typeName + INIT_SYMBOL));
                 }
                 return Optional.of(varDef.var.typeNode.toString() + INIT_SYMBOL);
+            } else if (stmt instanceof BLangExpressionStmt &&
+                    ((BLangExpressionStmt) stmt).expr instanceof BLangTypeInit) {
+                BLangTypeInit bLangTypeInit = (BLangTypeInit) ((BLangExpressionStmt) stmt).expr;
+                return Optional.of(addPackagePrefix(bLangTypeInit.userDefinedType.pkgAlias, context,
+                                                    bLangTypeInit.userDefinedType.typeName + INIT_SYMBOL));
             }
         }
 
-        return resolveSymbolPath(context, evalStatement, "");
+        return resolveSymbolPath(context, evalStatement, new Stack<>());
     }
 
     private static Optional<String> resolveSymbolPath(LSServiceOperationContext context,
-                                                      BLangNode bLangNode, String path) {
+                                                      BLangNode bLangNode, Stack<String> path) {
         if (bLangNode instanceof BLangInvocation) {
             BLangInvocation invocationNode = (BLangInvocation) bLangNode;
             String value = getFullyQualifiedName(invocationNode, context);
-            return resolveSymbolPath(context, invocationNode.getExpression(),
-                                     path.isEmpty() ? value : path + "." + value);
+            path.push(value);
+            return resolveSymbolPath(context, invocationNode.getExpression(), path);
+        } else if (bLangNode instanceof BLangSimpleVarRef) {
+            // If there's a object ref
+            path.push(((BLangSimpleVarRef) bLangNode).variableName.value);
         } else {
+            // If there's a field access
+            if (bLangNode instanceof BLangFieldBasedAccess) {
+                path.push(((BLangFieldBasedAccess) bLangNode).field.value);
+            }
             // Extract inner expression of 'check', 'checkpanic', 'trap' ...etc
             BLangExpression innerExpression = getInnerExpression(bLangNode);
             if (innerExpression != null) {
                 return resolveSymbolPath(context, innerExpression, path);
             }
         }
-        return Optional.of(path);
+        StringJoiner pathStr = new StringJoiner(".");
+        while (!path.empty()) {
+            pathStr.add(path.pop());
+        }
+        return Optional.of(pathStr.toString());
     }
 
     private static BLangExpression getInnerExpression(BLangNode node) {
@@ -400,9 +389,30 @@ public class SignatureHelpUtil {
             } else if (isVariable && hasNextNameComp) {
                 BVarSymbol bVarSymbol = (BVarSymbol) searchSymbol.get().getScopeEntry().symbol;
                 BTypeSymbol typeSymbol = bVarSymbol.type.tsymbol;
+                if (typeSymbol.type instanceof BUnionType) {
+                    // Check for optional field accesses.
+                    BUnionType bUnionType = (BUnionType) typeSymbol.type;
+                    List<BType> memberTypes = new ArrayList<>(bUnionType.getMemberTypes());
+                    if (memberTypes.size() == 2) {
+                        boolean isLeftNil = memberTypes.get(0) instanceof BNilType;
+                        boolean isRightNil = memberTypes.get(1) instanceof BNilType;
+                        if (isLeftNil || isRightNil) {
+                            // either left or right should be NIL
+                            typeSymbol = (isLeftNil) ? memberTypes.get(1).tsymbol : memberTypes.get(0).tsymbol;
+                        }
+                    }
+                }
                 if (typeSymbol instanceof BObjectTypeSymbol) {
                     BObjectTypeSymbol objectTypeSymbol = (BObjectTypeSymbol) typeSymbol;
                     visibleSymbols = objectTypeSymbol.methodScope.entries.entrySet().stream()
+                            .map(e -> new SymbolInfo(e.getKey().value, e.getValue()))
+                            .collect(Collectors.toList());
+                    visibleSymbols.addAll(objectTypeSymbol.scope.entries.entrySet().stream()
+                                                  .map(e -> new SymbolInfo(e.getKey().value, e.getValue()))
+                                                  .collect(Collectors.toList()));
+                } else if (typeSymbol instanceof BRecordTypeSymbol) {
+                    BRecordTypeSymbol bRecordTypeSymbol = (BRecordTypeSymbol) typeSymbol;
+                    visibleSymbols = bRecordTypeSymbol.scope.entries.entrySet().stream()
                             .map(e -> new SymbolInfo(e.getKey().value, e.getValue()))
                             .collect(Collectors.toList());
                 } else {
@@ -427,13 +437,6 @@ public class SignatureHelpUtil {
         List<ParameterInformation> parameterInformationList = new ArrayList<>();
         SignatureInformation signatureInformation = new SignatureInformation();
         SignatureInfoModel signatureInfoModel = getSignatureInfoModel(bInvokableSymbol, context);
-        // Join the function parameters to generate the function's signature
-        String paramsJoined = signatureInfoModel.getParameterInfoModels().stream().map(parameterInfoModel -> {
-            // For each of the parameters, create a parameter info instance
-            parameterInformationList.add(getParameterInformation(parameterInfoModel));
-
-            return parameterInfoModel.toString();
-        }).collect(Collectors.joining(", "));
 
         // Override label for 'new' constructor
         String label = bInvokableSymbol.name.value;
@@ -441,6 +444,14 @@ public class SignatureHelpUtil {
         if (initIndex > -1) {
             label = "new " + label.substring(0, initIndex);
         }
+
+        // Join the function parameters to generate the function's signature
+        String paramsJoined = signatureInfoModel.getParameterInfoModels().stream().map(parameterInfoModel -> {
+            // For each of the parameters, create a parameter info instance
+            parameterInformationList.add(getParameterInformation(parameterInfoModel));
+
+            return parameterInfoModel.toString();
+        }).collect(Collectors.joining(", "));
 
         signatureInformation.setLabel(label + "(" + paramsJoined + ")");
         signatureInformation.setParameters(parameterInformationList);
@@ -451,11 +462,6 @@ public class SignatureHelpUtil {
 
     private static String getFullyQualifiedName(BLangInvocation bLangInvocation, LSServiceOperationContext context) {
         String result = bLangInvocation.getName().getValue();
-        // If there's a object ref
-        if (bLangInvocation.getExpression() instanceof BLangSimpleVarRef) {
-            result = ((BLangSimpleVarRef) bLangInvocation.getExpression()).variableName + "." + result;
-        }
-
         // Add module import prefix, if necessary
         return addPackagePrefix(bLangInvocation.getPackageAlias(), context, result);
     }
@@ -467,7 +473,7 @@ public class SignatureHelpUtil {
             Optional<BLangImportPackage> optImport = CommonUtil.getCurrentFileImports(context).stream()
                     .filter(p -> pkgAlias.equals(p.alias.value))
                     .findFirst();
-            nodeName = (optImport.isPresent() ? optImport.get().getQualifiedPackageName() : pkgAlias) + ":" + nodeName;
+            nodeName = optImport.map(pkg -> pkg.getQualifiedPackageName() + ":").orElse("") + nodeName;
         }
         return nodeName;
     }
@@ -480,144 +486,123 @@ public class SignatureHelpUtil {
      * @return {@link SignatureInfoModel}       SignatureInfoModel containing signature information
      */
     private static SignatureInfoModel getSignatureInfoModel(BInvokableSymbol bInvokableSymbol, LSContext signatureCtx) {
-        Map<String, String> paramDescMap = new HashMap<>();
+        Map<String, String> paramToDesc = new HashMap<>();
         SignatureInfoModel signatureInfoModel = new SignatureInfoModel();
         List<ParameterInfoModel> paramModels = new ArrayList<>();
         MarkdownDocAttachment docAttachment = bInvokableSymbol.getMarkdownDocAttachment();
-
-        if (docAttachment.description != null) {
-            signatureInfoModel.setSignatureDescription(docAttachment.description.trim(), signatureCtx);
-        }
-        docAttachment.parameters.forEach(attribute ->
-                paramDescMap.put(attribute.getName(), attribute.getDescription()));
-
-        List<BVarSymbol> parameters = bInvokableSymbol.getParameters();
-        if (bInvokableSymbol.restParam != null) {
-            parameters.add(bInvokableSymbol.restParam);
-        }
-
-        parameters.forEach(bVarSymbol -> {
-            ParameterInfoModel parameterInfoModel = new ParameterInfoModel();
-            parameterInfoModel.setParamType(bVarSymbol.getType().toString());
-            parameterInfoModel.setParamValue(bVarSymbol.getName().getValue());
-            if (paramDescMap.containsKey(bVarSymbol.getName().getValue())) {
-                parameterInfoModel.setDescription(paramDescMap.get(bVarSymbol.getName().getValue()));
+        List<Parameter> parameters = new ArrayList<>();
+        // Handle error constructors
+        if (bInvokableSymbol.kind == SymbolKind.ERROR_CONSTRUCTOR) {
+            docAttachment = bInvokableSymbol.type.tsymbol.markdownDocumentation;
+            if (bInvokableSymbol.type instanceof BErrorType) {
+                BErrorType bErrorType = (BErrorType) bInvokableSymbol.type;
+                boolean isDirectErrorConstructor = bInvokableSymbol.type.tsymbol.kind == null;
+                if (isDirectErrorConstructor) {
+                    // If it is direct error constructor, `reason` is mandatory
+                    BType reasonType = bErrorType.reasonType;
+                    parameters.add(new Parameter(" ", reasonType, false, false));
+                }
+                if (bErrorType.detailType instanceof BRecordType) {
+                    BRecordType bRecordType = (BRecordType) bErrorType.detailType;
+                    bRecordType.fields.forEach(p -> {
+                        BVarSymbol symbol = p.symbol;
+                        parameters.add(
+                                new Parameter(symbol.name.getValue(), symbol.type, Symbols.isOptional(symbol), false));
+                    });
+                    BType restFieldType = bRecordType.restFieldType;
+                    if (restFieldType != null) {
+                        parameters.add(new Parameter(restFieldType.name.getValue(), restFieldType, false, true));
+                    }
+                }
             }
-            paramModels.add(parameterInfoModel);
+        }
+        // Check for documentations of the function and parameters
+        if (docAttachment != null) {
+            if (docAttachment.description != null) {
+                signatureInfoModel.setSignatureDescription(docAttachment.description.trim(), signatureCtx);
+            }
+            docAttachment.parameters.forEach(
+                    attribute -> paramToDesc.put(attribute.getName(), attribute.getDescription())
+            );
+        }
+        // Add parameters and rest params
+        bInvokableSymbol.getParameters().forEach(
+                p -> parameters.add(new Parameter(p.name.value, p.type, Symbols.isOptional(p), false))
+        );
+        BVarSymbol restParam = bInvokableSymbol.restParam;
+        if (restParam != null) {
+            parameters.add(new Parameter(restParam.name.value, restParam.type, false, true));
+        }
+        // Create a list of param info models
+        parameters.forEach(param -> {
+            String name = param.isOptional ? param.name + "?" : param.name;
+            String desc = "";
+            if (paramToDesc.containsKey(param.name)) {
+                desc = paramToDesc.get(param.name);
+            }
+            String type = CommonUtil.getBTypeName(param.type, signatureCtx, true);
+            if (param.isRestArg && !"".equals(type)) {
+                // Rest Arg type sometimes appear as array [], sometimes not eg. 'error()'
+                if (type.contains("[]")) {
+                    type = type.substring(0, type.length() - 2);
+                }
+                type += "...";
+            }
+            paramModels.add(new ParameterInfoModel(name, type, desc));
         });
-
         signatureInfoModel.setParameterInfoModels(paramModels);
-
         return signatureInfoModel;
     }
 
     private static ParameterInformation getParameterInformation(ParameterInfoModel parameterInfoModel) {
         MarkupContent paramDocumentation = new MarkupContent();
         paramDocumentation.setKind(CommonUtil.MARKDOWN_MARKUP_KIND);
-        paramDocumentation.setValue(parameterInfoModel.description);
-
-        return new ParameterInformation(parameterInfoModel.paramValue, paramDocumentation);
+        String type = parameterInfoModel.paramType;
+        String markupContent = "**Parameter**" + CommonUtil.MD_LINE_SEPARATOR;
+        markupContent += "**" + ((!type.isEmpty()) ? "`" + type + "`" : "");
+        markupContent += parameterInfoModel.paramValue + "**: ";
+        paramDocumentation.setValue(markupContent + parameterInfoModel.description);
+        return new ParameterInformation(parameterInfoModel.toString(), paramDocumentation);
     }
 
-    public static void preprocessSourcePrune(LSContext lsContext) throws WorkspaceDocumentException {
-        Position cursorPosition = lsContext.get(DocumentServiceKeys.POSITION_KEY).getPosition();
+    /**
+     * Prune source if syntax errors exists.
+     *
+     * @param lsContext {@link LSContext}
+     * @throws SourcePruneException when file uri is invalid
+     * @throws WorkspaceDocumentException when document read error occurs
+     */
+    public static void pruneSource(LSContext lsContext) throws SourcePruneException, WorkspaceDocumentException {
         WorkspaceDocumentManager documentManager = lsContext.get(CommonKeys.DOC_MANAGER_KEY);
         String uri = lsContext.get(DocumentServiceKeys.FILE_URI_KEY);
-
-        if (cursorPosition == null || documentManager == null || uri == null) {
-            throw new WorkspaceDocumentException("Cursor position, docManager and fileUri cannot be null!");
+        if (uri == null) {
+            throw new SourcePruneException("fileUri cannot be null!");
         }
 
-        // Read file content
-        Path path = Paths.get(URI.create(uri));
-        String documentContent = documentManager.getFileContent(path);
+        Path filePath = Paths.get(URI.create(uri));
 
-        // Execute Ballerina Parser
-        BallerinaParser parser = CommonUtil.prepareParser(documentContent);
-        parser.removeErrorListeners();
-        parser.compilationUnit();
+        TokenTraverserFactory tokenTraverserFactory = new SignatureTokenTraverserFactory(filePath, documentManager,
+                                                                                         SourcePruner.newContext());
+        SourcePruner.pruneSource(lsContext, tokenTraverserFactory);
 
-        // Process tokens
-        TokenStream tokenStream = parser.getTokenStream();
-        List<Token> tokenList = new ArrayList<>(((CommonTokenStream) tokenStream).getTokens());
-        Optional<Token> tokenAtCursor = searchTokenAtCursor(tokenList, cursorPosition.getLine(),
-                                                                         cursorPosition.getCharacter(), false);
+        // Update document manager
+        documentManager.setPrunedContent(filePath, tokenTraverserFactory.getTokenStream().getText());
+    }
 
-        if (!tokenAtCursor.isPresent()) {
-            return;
-        }
+    /**
+     * Parameter model to hold the parameter information meta data.
+     */
+    private static class Parameter {
+        private final String name;
+        private final BType type;
+        private final boolean isRestArg;
+        private final boolean isOptional;
 
-        Token token = tokenAtCursor.get();
-
-        // Check cursor token is a Left Parenthesis
-        if (token.getType() != BallerinaParser.LEFT_PARENTHESIS) {
-            return;
-        }
-
-        int currentTokenIndex = tokenList.indexOf(token);
-        int pendingRightParenthesis = 0;
-
-        int traversor = currentTokenIndex;
-
-        // Traverse LHS
-        while (traversor > -1) {
-            switch (tokenList.get(traversor).getType()) {
-                case BallerinaParser.LEFT_BRACE:
-                    traversor = 0;
-                    break;
-                case BallerinaParser.RIGHT_PARENTHESIS:
-                    pendingRightParenthesis--;
-                    break;
-                case BallerinaParser.LEFT_PARENTHESIS:
-                    pendingRightParenthesis++;
-                    break;
-            }
-            traversor--;
-        }
-
-        // Reset to cursor position
-        traversor = currentTokenIndex + 1;
-
-        // Traverse RHS
-        while (traversor < tokenList.size()) {
-            switch (tokenList.get(traversor).getType()) {
-                case BallerinaParser.RIGHT_BRACE:
-                    traversor = tokenList.size();
-                    break;
-                case BallerinaParser.RIGHT_PARENTHESIS:
-                    pendingRightParenthesis--;
-                    break;
-                case BallerinaParser.LEFT_PARENTHESIS:
-                    pendingRightParenthesis++;
-                    break;
-            }
-            traversor++;
-        }
-
-        // Add Missing Right Parenthesis
-        if (pendingRightParenthesis == 1) {
-            List<String> lines = new BufferedReader(new StringReader(documentContent)).lines().collect(
-                    Collectors.toList());
-
-            int lhsLen = 0;
-            for (int i = 0; i < lines.size(); i++) {
-                if (i == token.getLine() - 1) {
-                    break;
-                }
-                lhsLen += lines.get(i).length() + System.lineSeparator().length();
-            }
-            lhsLen += token.getCharPositionInLine() + 1;
-
-            // Calculate suffix
-            Token nextToken = tokenList.get(currentTokenIndex + 1);
-            String insertion = ")";
-//            if (nextToken.getType() == BallerinaParser.NEW_LINE) {
-//                insertion = ");";
-//            }
-
-            // Set new content
-            String newContent = documentContent.substring(0, lhsLen) + insertion + documentContent.substring(lhsLen);
-            documentManager.setPrunedContent(path, newContent);
+        public Parameter(String name, BType type, boolean isOptional, boolean isRestArg) {
+            this.name = name;
+            this.type = type;
+            this.isOptional = isOptional;
+            this.isRestArg = isRestArg;
         }
     }
 
@@ -625,23 +610,14 @@ public class SignatureHelpUtil {
      * Parameter information model to hold the parameter information meta data.
      */
     private static class ParameterInfoModel {
+        private final String paramValue;
+        private final String paramType;
+        private final String description;
 
-        private String paramValue;
-
-        private String paramType;
-
-        private String description;
-
-        void setParamValue(String paramValue) {
-            this.paramValue = paramValue;
-        }
-
-        void setParamType(String paramType) {
-            this.paramType = paramType;
-        }
-
-        void setDescription(String description) {
-            this.description = description;
+        public ParameterInfoModel(String name, String type, String desc) {
+            this.paramValue = name;
+            this.paramType = type;
+            this.description = desc;
         }
 
         @Override
@@ -677,10 +653,12 @@ public class SignatureHelpUtil {
                     && documentationFormat.get(0).equals(CommonUtil.MARKDOWN_MARKUP_KIND)) {
                 MarkupContent signatureMarkupContent = new MarkupContent();
                 signatureMarkupContent.setKind(CommonUtil.MARKDOWN_MARKUP_KIND);
-                signatureMarkupContent.setValue(signatureDescription);
+                signatureMarkupContent.setValue(
+                        "**Description**" + CommonUtil.MD_LINE_SEPARATOR + signatureDescription);
                 this.signatureDescription = Either.forRight(signatureMarkupContent);
             } else {
-                this.signatureDescription = Either.forLeft(signatureDescription);
+                this.signatureDescription = Either.forLeft(
+                        "Description" + CommonUtil.LINE_SEPARATOR + signatureDescription);
             }
         }
     }

@@ -67,7 +67,9 @@ function getAuthHandlers(FilterContext context) returns InboundAuthHandler[]|Inb
     if (resourceSecured is boolean) {
         // if resource is not secured, no need to check further.
         if (!resourceSecured) {
-            log:printWarn("Resource is not secured. `enabled: false`.");
+            log:printDebug(function () returns string {
+                return "Resource is not secured. `enabled: false`.";
+            });
             return false;
         }
         // checks if Auth providers are given at the resource level.
@@ -109,7 +111,9 @@ function getAuthHandlers(FilterContext context) returns InboundAuthHandler[]|Inb
         }
         // if service is not secured, no need to check further.
         if (!serviceSecured) {
-            log:printWarn("Service is not secured. `enabled: false`.");
+            log:printDebug(function () returns string {
+                return "Service is not secured. `enabled: false`.";
+            });
             return false;
         }
         // Checks if Auth providers are given at the service level.
@@ -139,7 +143,9 @@ function getScopes(FilterContext context) returns string[]|string[][]|boolean {
     if (resourceSecured is boolean) {
         // if resource is not secured, no need to check further.
         if (!resourceSecured) {
-            log:printWarn("Resource is not secured. `enabled: false`.");
+            log:printDebug(function () returns string {
+                return "Resource is not secured. `enabled: false`.";
+            });
             return false;
         }
         // checks if scopes are given at the resource level.
@@ -181,7 +187,9 @@ function getScopes(FilterContext context) returns string[]|string[][]|boolean {
         }
         // if service is not secured, no need to check further.
         if (!serviceSecured) {
-            log:printWarn("Service is not secured. `enabled: false`.");
+            log:printDebug(function () returns string {
+                return "Service is not secured. `enabled: false`.";
+            });
             return false;
         }
         // Checks if scopes are given at the service level.

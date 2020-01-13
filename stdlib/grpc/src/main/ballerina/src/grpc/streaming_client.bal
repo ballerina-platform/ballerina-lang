@@ -23,7 +23,7 @@ public type StreamingClient client object {
     #
     # + res - The inbound request message.
     # + return - Returns an error if encounters an error while sending the response, returns nil otherwise.
-    public remote function send(any res) returns Error? {
+    public remote function send(anydata res) returns Error? {
         return streamSend(self, res);
     }
 
@@ -44,7 +44,7 @@ public type StreamingClient client object {
     }
 };
 
-function streamSend(StreamingClient streamConnection, any res) returns Error? =
+function streamSend(StreamingClient streamConnection, anydata res) returns Error? =
 @java:Method {
     class: "org.ballerinalang.net.grpc.nativeimpl.streamingclient.FunctionUtils"
 } external;

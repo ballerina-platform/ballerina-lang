@@ -26,56 +26,58 @@ public type Process object {
     # Waits for the process to finish it's work and exit.
     #
     # + return - Returns the exit code for the process, or an `Error` if a failure occurs
-    public function waitForExit() returns int|Error {
+    public function waitForExit() returns int | Error {
         return nativeWaitForExit(self);
     }
-    
+
     # Returns the exit code of the process when it has finished the execution.
     # Error if the process has not exited yet.
     #
     # + return - Returns the exit code of the process, or an `Error` if the process hasn't exited yet
-    public function exitCode() returns int|Error {
+    public function exitCode() returns int | Error {
         return nativeExitCode(self);
     }
-    
+
     # Destroys the process.
     public function destroy() {
         return nativeDestroy(self);
     }
-    
+
     # Provides a channel (to write into), which is made available as the 'standard input' for the process.
     #
     # + return - The `io:WritableByteChannel` which represents the process's 'standard input'
     public function stdin() returns io:WritableByteChannel {
         return nativeStdin(self);
     }
-    
+
     # Provides a channel (to read from), which is made available as the 'standard output' of the process.
     #
     # + return - The `io:ReadableByteChannel` which represents the process's 'standard output'
     public function stdout() returns io:ReadableByteChannel {
         return nativeStdout(self);
     }
-    
+
     # Provides a channel (to read from), which is made available as the 'standard error' of the process.
     #
     # + return - The `io:ReadableByteChannel` which represents the process's 'standard error'
     public function stderr() returns io:ReadableByteChannel {
         return nativeStderr(self);
     }
-    
+
     # Pipes the standard output of the current process to the standard input of the given process.
     #
     # + process - The process to pipe the data to
     # + return - The process that is passed in, which is used to help chain pipe operations
     public function pipe(Process process) returns Process {
-        _ = start self.doPipe(self.stdout(), process.stdin());
+        io:ReadableByteChannel input = self.stdout();
+        io:WritableByteChannel output = process.stdin();
+        _ = start self.doPipe(input, output);
         return process;
     }
-    
+
     private function doPipe(io:ReadableByteChannel input, io:WritableByteChannel output) {
         while (true) {
-            byte[]|io:Error result = input.read(self.BUF_SIZE);
+            byte[] | io:Error result = input.read(self.BUF_SIZE);
             if (result is io:EofError) {
                 break;
             } else if (result is io:Error) {
@@ -101,17 +103,17 @@ public type Process object {
         var cr2 = output.close();
         if (cr2 is error) {
             io:println("Error closing pipe output: ", cr2);
-        }        
+        }
     }
 
 };
 
-function nativeWaitForExit(Process process) returns int|Error = @java:Method {
+function nativeWaitForExit(Process process) returns int | Error = @java:Method {
     name: "waitForExit",
     class: "org.ballerinalang.stdlib.system.nativeimpl.WaitForExit"
 } external;
 
-function nativeExitCode(Process process) returns int|Error = @java:Method {
+function nativeExitCode(Process process) returns int | Error = @java:Method {
     name: "exitCode",
     class: "org.ballerinalang.stdlib.system.nativeimpl.ExitCode"
 } external;

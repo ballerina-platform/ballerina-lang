@@ -1799,7 +1799,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                 String fieldName = keyRef.variableName.value;
 
                 if (names.contains(fieldName)) {
-                    String assigneeType = recordLiteral.parent.type.getKind().typeName();
+                    String assigneeType = recordLiteral.expectedType.getKind().typeName();
                     this.dlog.error(key.pos, DiagnosticCode.DUPLICATE_KEY_IN_RECORD_LITERAL, assigneeType, keyRef);
                 }
 

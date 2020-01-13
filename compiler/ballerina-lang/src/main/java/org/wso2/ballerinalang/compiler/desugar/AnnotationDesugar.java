@@ -26,7 +26,6 @@ import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
-import org.wso2.ballerinalang.compiler.semantics.model.BLangBuiltInMethod;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
@@ -157,7 +156,7 @@ public class AnnotationDesugar {
 
             BLangLambdaFunction lambdaFunction = defineAnnotations(typeDef, typeDef.pos, pkgNode, env, pkgID, owner);
             if (lambdaFunction != null) {
-                addInvocationToGlobalAnnotMap(typeDef.name.value, lambdaFunction, initFunction.body, pkgID, owner);
+                addInvocationToGlobalAnnotMap(typeDef.name.value, lambdaFunction, initFunction.body);
             }
         }
     }
@@ -203,7 +202,7 @@ public class AnnotationDesugar {
                     addLambdaToGlobalAnnotMap(identifier, lambdaFunction, target);
                     index = calculateIndex(initFunction.body.stmts, function.receiver.type.tsymbol);
                 } else {
-                    addInvocationToGlobalAnnotMap(identifier, lambdaFunction, target, pkgID, owner);
+                    addInvocationToGlobalAnnotMap(identifier, lambdaFunction, target);
                     index = initFunction.body.stmts.size();
                 }
 
@@ -269,7 +268,7 @@ public class AnnotationDesugar {
                 }
 
                 addInvocationToLiteral(mapLiteral, PARAM + DOT + param.name.value,
-                                       param.annAttachments.get(0).pos, paramAnnotLambda, pkgID, owner);
+                                       param.annAttachments.get(0).pos, paramAnnotLambda);
             }
         }
 
@@ -286,7 +285,7 @@ public class AnnotationDesugar {
             BLangLambdaFunction returnAnnotLambda = addReturnAndDefineLambda(retFunction, retMapLiteral, pkgNode,
                                                                              env, pkgID, owner);
             addInvocationToLiteral(mapLiteral, RETURNS, bLangFunction.returnTypeAnnAttachments.get(0).pos,
-                                   returnAnnotLambda, pkgID, owner);
+                                   returnAnnotLambda);
         }
 
         if (annotFunctionDefined) {
@@ -563,10 +562,10 @@ public class AnnotationDesugar {
     }
 
     private void addInvocationToGlobalAnnotMap(String identifier, BLangLambdaFunction lambdaFunction,
-                                               BLangBlockStmt target, PackageID packageID, BSymbol owner) {
+                                               BLangBlockStmt target) {
         // create: $annotation_data["identifier"] = $annot_func$.call();
         addAnnotValueAssignmentToMap(annotationMap, identifier, target,
-                                     getInvocation(lambdaFunction, packageID, owner));
+                                     getInvocation(lambdaFunction));
     }
 
     private void addLambdaToGlobalAnnotMap(String identifier, BLangLambdaFunction lambdaFunction,
@@ -578,9 +577,8 @@ public class AnnotationDesugar {
     }
 
     private void addInvocationToLiteral(BLangRecordLiteral recordLiteral, String identifier,
-                                        DiagnosticPos pos, BLangLambdaFunction lambdaFunction,
-                                        PackageID packageID, BSymbol owner) {
-        BLangInvocation annotFuncInvocation = getInvocation(lambdaFunction, packageID, owner);
+                                        DiagnosticPos pos, BLangLambdaFunction lambdaFunction) {
+        BLangInvocation annotFuncInvocation = getInvocation(lambdaFunction);
         recordLiteral.keyValuePairs.add(ASTBuilderUtil.createBLangRecordKeyValue(
                 ASTBuilderUtil.createLiteral(pos, symTable.stringType, identifier), annotFuncInvocation));
     }
@@ -604,17 +602,13 @@ public class AnnotationDesugar {
                 ASTBuilderUtil.createLiteral(pos, symTable.stringType, identifier), expression));
     }
 
-    private BLangInvocation getInvocation(BLangLambdaFunction lambdaFunction, PackageID packageID, BSymbol owner) {
+    private BLangInvocation getInvocation(BLangLambdaFunction lambdaFunction) {
         BLangInvocation funcInvocation = (BLangInvocation) TreeBuilder.createInvocationNode();
-        funcInvocation.builtinMethodInvocation = true;
-        funcInvocation.builtInMethod = BLangBuiltInMethod.CALL;
         funcInvocation.type = symTable.mapType;
-        funcInvocation.expr = ASTBuilderUtil.createVariableRef(lambdaFunction.pos, lambdaFunction.function.symbol);
-        BSymbol varSymbol = new BInvokableSymbol(SymTag.VARIABLE, 0, lambdaFunction.function.symbol.name,
-                                                 packageID, lambdaFunction.function.type, owner);
-        varSymbol.kind = SymbolKind.FUNCTION;
-        funcInvocation.symbol = varSymbol;
-        funcInvocation.name = ASTBuilderUtil.createIdentifier(lambdaFunction.pos, BLangBuiltInMethod.CALL.getName());
+        funcInvocation.expr = null;
+        BInvokableSymbol lambdaSymbol = lambdaFunction.function.symbol;
+        funcInvocation.symbol = lambdaSymbol;
+        funcInvocation.name = ASTBuilderUtil.createIdentifier(lambdaFunction.pos, lambdaSymbol.name.value);
         return funcInvocation;
     }
 

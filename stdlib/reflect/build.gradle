@@ -27,8 +27,6 @@ dependencies {
     implementation project(':ballerina-runtime')
     implementation project(':ballerina-lang:annotations')
     implementation project(':ballerina-java')
-
-    bir project(path: ':ballerina-utils', configuration: 'bir')
 }
 
 createBalo {

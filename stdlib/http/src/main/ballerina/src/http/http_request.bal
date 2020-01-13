@@ -18,6 +18,7 @@ import ballerina/io;
 import ballerina/mime;
 import ballerina/stringutils;
 import ballerinax/java;
+import ballerina/time;
 
 # Represents an HTTP request.
 #
@@ -478,10 +479,10 @@ public type Request object {
             self.setTextPayload(payload);
         } else if (payload is xml) {
             self.setXmlPayload(payload);
-        } else if (payload is json) {
-            self.setJsonPayload(payload);
         } else if (payload is byte[]) {
             self.setBinaryPayload(payload);
+        } else if (payload is json) {
+            self.setJsonPayload(payload);
         } else if (payload is io:ReadableByteChannel) {
             self.setByteChannel(payload);
         } else {
@@ -531,6 +532,44 @@ public type Request object {
     function checkEntityBodyAvailability() returns boolean {
         return externCheckReqEntityBodyAvailability(self);
     }
+
+    # Adds cookies to the request.
+    #
+    # + cookiesToAdd - Represents the cookies to be added
+    public function addCookies(Cookie[] cookiesToAdd) {
+        string cookieheader = "";
+        string? temp1 = ();
+        string? temp2 = ();
+        Cookie[] sortedCookies = cookiesToAdd.sort(comparator);
+        foreach var cookie in sortedCookies {
+            temp1 = cookie.name;
+            temp2 = cookie.value;
+            if (temp1 is string && temp2 is string) {
+                cookieheader = cookieheader + temp1 + EQUALS + temp2 + SEMICOLON + SPACE;
+            }
+            cookie.lastAccessedTime = time:currentTime();
+        }
+        if (cookieheader != "") {
+            cookieheader = cookieheader.substring(0, cookieheader.length() - 2);
+            if (self.hasHeader("Cookie")) {
+                self.setHeader("Cookie", cookieheader);
+            } else {
+                self.addHeader("Cookie", cookieheader);
+            }
+        }
+    }
+
+    # Gets cookies from the request.
+    #
+    # + return - An array of cookie objects, which are included in the request
+    public function getCookies() returns Cookie[] {
+        string cookiesStringValue = "";
+        Cookie[] cookiesInRequest = [];
+        if (self.hasHeader("Cookie")) {
+            cookiesInRequest = parseCookieHeader(self.getHeader("Cookie"));
+        }
+        return cookiesInRequest;
+    }
 };
 
 function externCreateNewReqEntity(Request request) returns mime:Entity =
@@ -575,7 +614,7 @@ function externCheckReqEntityBodyAvailability(Request request) returns boolean =
     name: "checkEntityBodyAvailability"
 } external;
 
-# A record for providing mutual ssl handshake results.
+# A record for providing mutual SSL handshake results.
 #
 # + status - Status of the handshake.
 public type MutualSslHandshake record {|

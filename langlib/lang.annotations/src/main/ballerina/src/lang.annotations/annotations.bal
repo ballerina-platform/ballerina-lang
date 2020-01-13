@@ -33,13 +33,3 @@ type ArgsData record {|
 
 # Defaultable annotation data generated at compile time. This is for internal use.
 annotation ArgsData DefaultableArgs on function;
-
-# Defines a disptcher to be used for concurrent execution of strands.
-#
-# + dispatcher - Dispatcher identifier.
-type Dispatcher record {|
-    string dispatcher = "DEFAULT";
-|};
-
-# Denotes that the new strand should run concurrently.
-public annotation Dispatcher concurrent on worker,start;
