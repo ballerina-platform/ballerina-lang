@@ -70,7 +70,7 @@ public type byteServiceBlockingClient client object {
 
     *grpc:AbstractClientEndpoint;
 
-    private grpc:Client grpcClient;
+    private grpc:Client? grpcClient = ();
 
     public function __init(string url, grpc:ClientConfiguration? config = ()) {
         // initialize client endpoint.
@@ -85,7 +85,12 @@ public type byteServiceBlockingClient client object {
     }
 
     public remote function checkBytes (byte[] req, grpc:Headers? headers = ()) returns ([byte[], grpc:Headers]|grpc:Error) {
-        var unionResp = check self.grpcClient->blockingExecute("grpcservices.byteService/checkBytes", req, headers);
+        if !(self.grpcClient is grpc:Client) {
+            error err = error("UninitializedFieldsErrorType", message = "Field(s) are not initialized");
+            return grpc:prepareError(grpc:INTERNAL_ERROR, "Field(s) are not initialized", err);
+        }
+        grpc:Client tempGrpcClient = <grpc:Client> self.grpcClient;
+        var unionResp = check tempGrpcClient->blockingExecute("grpcservices.byteService/checkBytes", req, headers);
         grpc:Headers resHeaders = new;
         anydata result = ();
         [result, resHeaders] = unionResp;
@@ -102,7 +107,7 @@ public type byteServiceClient client object {
 
     *grpc:AbstractClientEndpoint;
 
-    private grpc:Client grpcClient;
+    private grpc:Client? grpcClient = ();
 
     public function __init(string url, grpc:ClientConfiguration? config = ()) {
         // initialize client endpoint.
@@ -117,7 +122,12 @@ public type byteServiceClient client object {
     }
 
     public remote function checkBytes (byte[] req, service msgListener, grpc:Headers? headers = ()) returns (grpc:Error?) {
-        return self.grpcClient->nonBlockingExecute("grpcservices.byteService/checkBytes", req, msgListener, headers);
+        if !(self.grpcClient is grpc:Client) {
+            error err = error("UninitializedFieldsErrorType", message = "Field(s) are not initialized");
+            return grpc:prepareError(grpc:INTERNAL_ERROR, "Field(s) are not initialized", err);
+        }
+    	grpc:Client tempGrpcClient = <grpc:Client> self.grpcClient;
+        return tempGrpcClient->nonBlockingExecute("grpcservices.byteService/checkBytes", req, msgListener, headers);
     }
 };
 

@@ -22,6 +22,7 @@ import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.streams.StreamSubscriptionManager;
 import org.ballerinalang.jvm.types.BStreamType;
 import org.ballerinalang.jvm.types.BType;
+import org.ballerinalang.jvm.values.api.BFunctionPointer;
 import org.ballerinalang.jvm.values.api.BStream;
 
 import java.util.Map;
@@ -64,7 +65,7 @@ public class StreamValue implements RefValue, BStream {
     /**
      * {@inheritDoc}
      */
-    public String stringValue(Strand strand) {
+    public String stringValue() {
         return "stream " + streamId + " " + getType().toString();
     }
 
@@ -95,6 +96,7 @@ public class StreamValue implements RefValue, BStream {
      * @param strand the strand in which the data being published
      * @param data the data to publish to the stream
      */
+    @Deprecated
     public void publish(Strand strand, Object data) {
         streamSubscriptionManager.sendMessage(this, strand, data);
     }
@@ -105,8 +107,9 @@ public class StreamValue implements RefValue, BStream {
      * @param functionPointer represents the function pointer reference for the function to be invoked on receiving
      *                        messages
      */
-    public void subscribe(FPValue<Object[], Object> functionPointer) {
-        streamSubscriptionManager.registerMessageProcessor(this, functionPointer);
+    @Deprecated
+    public void subscribe(BFunctionPointer<Object[], Object> functionPointer) {
+        streamSubscriptionManager.registerMessageProcessor(this, (FPValue<Object[], Object>) functionPointer);
     }
 
     @Override

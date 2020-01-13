@@ -1,0 +1,5 @@
+// An object can be made iterable as a sequence of values of type `T` by providing a method named `__iterator` which
+// returns a value that is a subtype of `Iterator<T>`. We refer to this type as `Iterable<T>`. Any subtype
+// of `abstract object {public next() returns record {| T value; |}?;}`, is called Iterator<T>. An iterable object can be
+// iterated over using a `foreach` loop. In this example, `IteratorGenerator` is a subtype of `Iterable<int>` and
+// `ArrayIterator` is a subtype of `Iterator<int>`.

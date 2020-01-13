@@ -17,6 +17,14 @@
 import ballerina/io;
 import ballerina/bir;
 import ballerina/jvm;
+import ballerina/runtime;
+
+boolean IS_BSTRING = runtime:getProperty("ballerina.bstring") != "";
+string BSTRING_VALUE = runtime:getProperty("ballerina.bstring") == "" ? STRING_VALUE : I_STRING_VALUE;
+
+const string I_STRING_VALUE = "org/ballerinalang/jvm/values/StringValue";
+const string BMP_STRING_VALUE = "org/ballerinalang/jvm/values/BmpStringValue";
+const string NON_BMP_STRING_VALUE = "org/ballerinalang/jvm/values/NonBmpStringValue";
 
 type InstructionGenerator object {
     jvm:MethodVisitor mv;
@@ -41,8 +49,28 @@ type InstructionGenerator object {
             any val = loadIns.value;
             self.mv.visitLdcInsn(val);
         } else if (bType is bir:BTypeString) {
-            any val = loadIns.value;
-            self.mv.visitLdcInsn(val);
+            string val = <string> loadIns.value;
+            if (IS_BSTRING) {
+                int[] highSurrogates = listHighSurrogates(val);
+
+                self.mv.visitTypeInsn(NEW, NON_BMP_STRING_VALUE);
+                self.mv.visitInsn(DUP);
+                self.mv.visitLdcInsn(val);
+                self.mv.visitIntInsn(BIPUSH, highSurrogates.length());
+                self.mv.visitIntInsn(NEWARRAY, T_INT);
+
+                int i = 0;
+                foreach var char in highSurrogates {
+                    self.mv.visitInsn(DUP);
+                    self.mv.visitIntInsn(BIPUSH, i);
+                    self.mv.visitIntInsn(BIPUSH, char);
+                    i = i + 1;
+                    self.mv.visitInsn(IASTORE);
+                }
+                self.mv.visitMethodInsn(INVOKESPECIAL, NON_BMP_STRING_VALUE, "<init>", io:sprintf("(L%s;[I)V", STRING_VALUE), false);
+            } else {
+                self.mv.visitLdcInsn(val);
+            }
         } else if (bType is bir:BTypeDecimal) {
             any val = loadIns.value;
             self.mv.visitTypeInsn(NEW, DECIMAL_VALUE);
@@ -397,8 +425,13 @@ type InstructionGenerator object {
         } else if (bType is bir:BTypeByte) {
             self.mv.visitInsn(IADD);
         } else if (bType is bir:BTypeString) {
-            self.mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/String", "concat",
-                                    io:sprintf("(L%s;)L%s;", STRING_VALUE, STRING_VALUE) , false);
+            if(IS_BSTRING){
+                self.mv.visitMethodInsn(INVOKEINTERFACE, BSTRING_VALUE, "concat",
+                                        io:sprintf("(L%s;)L%s;", BSTRING_VALUE, BSTRING_VALUE) , true);
+            } else {
+                self.mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/String", "concat",
+                                        io:sprintf("(L%s;)L%s;", STRING_VALUE, STRING_VALUE) , false);
+            }
         } else if (bType is bir:BTypeDecimal) {
             self.mv.visitMethodInsn(INVOKEVIRTUAL, DECIMAL_VALUE, "add",
                 io:sprintf("(L%s;)L%s;", DECIMAL_VALUE, DECIMAL_VALUE) , false);
@@ -927,7 +960,8 @@ type InstructionGenerator object {
         self.mv.visitTypeInsn(NEW, FUNCTION_POINTER);
         self.mv.visitInsn(DUP);
 
-        string lambdaName = inst.name.value + "$lambda$";
+        string lambdaName = inst.name.value + "$lambda" + lambdaIndex.toString() + "$";
+        lambdaIndex += 1;
         string pkgName = getPackageName(inst.pkgID.org, inst.pkgID.name);
         string lookupKey = pkgName + inst.name.value;
         string methodClass = lookupFullQualifiedClassName(lookupKey);
@@ -1039,7 +1073,7 @@ type InstructionGenerator object {
 
         // invoke getAttribute() method
         self.mv.visitMethodInsn(INVOKEVIRTUAL, XML_VALUE, "getAttribute",
-                io:sprintf("(L%s;)L%s;", XML_QNAME, STRING_VALUE), false);
+                io:sprintf("(L%s;)L%s;", BXML_QNAME, STRING_VALUE), false);
 
         // store in the target reg
         bir:BType targetType = xmlAttrStoreIns.lhsOp.variableDcl.typeValue;
@@ -1059,7 +1093,7 @@ type InstructionGenerator object {
 
         // invoke setAttribute() method
         self.mv.visitMethodInsn(INVOKEVIRTUAL, XML_VALUE, "setAttribute",
-                io:sprintf("(L%s;L%s;)V", XML_QNAME, STRING_VALUE), false);
+                io:sprintf("(L%s;L%s;)V", BXML_QNAME, STRING_VALUE), false);
     }
 
     function generateXMLLoadIns(bir:FieldAccess xmlLoadIns) {
@@ -1369,3 +1403,5 @@ function generateJVarStore(jvm:MethodVisitor mv, jvm:JType jType, string current
         panic err;
     }
 }
+
+function listHighSurrogates(string str) returns int[]  = external;

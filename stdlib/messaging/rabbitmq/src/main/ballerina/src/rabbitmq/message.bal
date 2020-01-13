@@ -42,7 +42,7 @@ public type Message client object {
    #                `false` to reject just the message called on.
    # + requeue - `true` if the rejected message(s) should be re-queued rather than discarded/dead-lettered.
    # + return - An error if an I/O error is encountered or nil if successful.
-   public remote function basicNack(boolean multiple = false, boolean requeue = true)
+   public remote function basicNack(boolean multiple = false, public boolean requeue = true)
                             returns Error? {
         var result = nativeBasicNack(self.amqpChannel, self.deliveryTag, self.autoAck, self.ackStatus,
                                 multiple, requeue);

@@ -63,6 +63,7 @@ public class Main {
                 // print the error message only if the exception was not thrown due to compilation errors
                 errStream.println(prepareCompilerErrorMessage(e.getMessage()));
             }
+            // These are compiler errors, and are already logged. Hence simply exit.
             Runtime.getRuntime().exit(1);
         } catch (BLauncherException e) {
             LauncherUtils.printLauncherException(e, errStream);
@@ -157,7 +158,7 @@ public class Main {
             Properties properties = new Properties();
             properties.load(inputStream);
 
-            String output = "Ballerina " + properties.getProperty("ballerina.version") + "\n";
+            String output = "jBallerina " + properties.getProperty("ballerina.version") + "\n";
             output += "Language specification " + properties.getProperty("spec.version") + "\n";
             outStream.print(output);
         } catch (Throwable ignore) {

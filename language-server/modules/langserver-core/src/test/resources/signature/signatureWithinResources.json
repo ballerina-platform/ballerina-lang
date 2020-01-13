@@ -7,20 +7,22 @@
     "result": {
       "signatures": [
         {
-          "label": "Caller.respond((ballerina/http:Response|string|xml|json|byte[]|ballerina/io:ReadableByteChannel|ballerina/mime:Entity[]) message)",
+          "label": "Caller.respond((http:Response|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]) message?)",
           "documentation": {
             "right": {
               "kind": "markdown",
-              "value": "Sends the outbound response to the caller."
+              "value": "**Description**  \nSends the outbound response to the caller."
             }
           },
           "parameters": [
             {
-              "label": "message",
+              "label": {
+                "left": "(http:Response|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]) message?"
+              },
               "documentation": {
                 "right": {
                   "kind": "markdown",
-                  "value": "The outbound response or any payload of type `string`, `xml`, `json`, `byte[]`,\n            `io:ReadableByteChannel` or `mime:Entity[]`"
+                  "value": "**Parameter**  \n**`(http:Response|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[])`message?**: The outbound response or any payload of type `string`, `xml`, `json`, `byte[]`,\n            `io:ReadableByteChannel` or `mime:Entity[]`"
                 }
               }
             }

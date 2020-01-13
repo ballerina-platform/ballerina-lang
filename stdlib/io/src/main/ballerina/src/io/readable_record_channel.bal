@@ -30,6 +30,9 @@ public type ReadableTextRecordChannel object {
     # + rs - Record separator (this could be a regex)
     public function __init(ReadableCharacterChannel charChannel, public string fs = "", public string rs = "",
                            public string fmt = "default") {
+        self.charChannel = charChannel;
+        self.rs = rs;
+        self.fs = fs;
         initReadableTextRecordChannel(self, charChannel, java:fromString(fs), java:fromString(rs), java:fromString(fmt));
     }
 

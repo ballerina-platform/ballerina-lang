@@ -25,7 +25,5 @@ public class Project {
     public String sourceFileName;
     public String name;
     public String description;
-    public String organization;
-    public String version;
     public List<Module> modules;
 }
