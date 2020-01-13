@@ -27,3 +27,7 @@ function testGetAsFloat(string key) returns float {
 function testGetAsBoolean(string key) returns boolean {
     return config:getAsBoolean(key);
 }
+
+function testGetAsArray(string key) returns any[] {
+    return config:getAsArray(key);
+}
