@@ -75,11 +75,11 @@ public type InboundJwtAuthProvider object {
 };
 
 function authenticateFromCache(cache:Cache jwtCache, string jwtToken) returns JwtPayload? {
-    var cachedJwtInfo = trap <InboundCachedJwtInfo>jwtCache.get(jwtToken);
-    if (cachedJwtInfo is InboundCachedJwtInfo) {
+    var jwtCacheEntry = trap <InboundJwtCacheEntry>jwtCache.get(jwtToken);
+    if (jwtCacheEntry is InboundJwtCacheEntry) {
         // convert to current time and check the expiry time
-        if (cachedJwtInfo.expiryTime > (time:currentTime().time / 1000)) {
-            JwtPayload payload = cachedJwtInfo.jwtPayload;
+        if (jwtCacheEntry.expiryTime > (time:currentTime().time / 1000)) {
+            JwtPayload payload = jwtCacheEntry.jwtPayload;
             string? sub = payload?.sub;
             if (sub is string) {
                 string printMsg = sub;
@@ -95,8 +95,8 @@ function authenticateFromCache(cache:Cache jwtCache, string jwtToken) returns Jw
 }
 
 function addToAuthenticationCache(cache:Cache jwtCache, string jwtToken, int? exp, JwtPayload payload) {
-    InboundCachedJwtInfo cachedJwtInfo = {jwtPayload : payload, expiryTime : exp is () ? 0 : exp};
-    jwtCache.put(jwtToken, cachedJwtInfo);
+    InboundJwtCacheEntry jwtCacheEntry = {jwtPayload : payload, expiryTime : exp is () ? 0 : exp};
+    jwtCache.put(jwtToken, jwtCacheEntry);
     string? sub = payload?.sub;
     if (sub is string) {
         string printMsg = sub;
