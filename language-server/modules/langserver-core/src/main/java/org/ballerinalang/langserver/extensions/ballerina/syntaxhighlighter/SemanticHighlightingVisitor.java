@@ -26,10 +26,15 @@ import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
@@ -57,6 +62,7 @@ public class SemanticHighlightingVisitor extends LSNodeVisitor {
 
     @Override
     public void visit(BLangFunction funcNode) {
+        funcNode.requiredParams.forEach(this::acceptNode);
         this.acceptNode(funcNode.body);
     }
 
@@ -101,6 +107,12 @@ public class SemanticHighlightingVisitor extends LSNodeVisitor {
     }
 
     @Override
+    public void visit(BLangAssignment assignNode) {
+        this.acceptNode(assignNode.varRef);
+        this.acceptNode(assignNode.expr);
+    }
+
+    @Override
     public void visit(BLangTypeDefinition typeDefinition) {
         if (typeDefinition.typeNode != null) {
             this.acceptNode(typeDefinition.typeNode);
@@ -128,13 +140,44 @@ public class SemanticHighlightingVisitor extends LSNodeVisitor {
     }
 
     @Override
+    public void visit(BLangLambdaFunction bLangLambdaFunction) {
+        this.acceptNode(bLangLambdaFunction.function);
+    }
+
+    @Override
     public void visit(BLangSimpleVariable varNode) {
         if (CommonUtil.isClientObject(varNode.symbol)) {
             SemanticHighlightProvider.HighlightInfo highlightInfo =
                     new SemanticHighlightProvider.HighlightInfo(ScopeEnum.ENDPOINT, varNode.name);
             highlights.add(highlightInfo);
+        } else {
+            if (varNode.expr != null) {
+                this.acceptNode(varNode.expr);
+            }
         }
     }
+
+    @Override
+    public void visit(BLangSimpleVarRef varRefExpr) {
+        if (CommonUtil.isClientObject(varRefExpr.symbol)) {
+            SemanticHighlightProvider.HighlightInfo highlightInfo =
+                    new SemanticHighlightProvider.HighlightInfo(ScopeEnum.ENDPOINT, varRefExpr.variableName);
+            highlights.add(highlightInfo);
+        }
+    }
+
+    @Override
+    public void visit(BLangInvocation invocationExpr) {
+        if (invocationExpr.expr != null) {
+            this.acceptNode(invocationExpr.expr);
+        }
+    }
+
+    @Override
+    public void visit(BLangReturn returnNode) {
+        this.acceptNode(returnNode.expr);
+    }
+
 
     private void acceptNode(BLangNode node) {
         node.accept(this);
