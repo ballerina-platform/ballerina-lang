@@ -5,7 +5,7 @@ function concatBMP() returns (any) {
 }
 
 function nonBMPLength() returns (int) {
-    string smiley = "h\u263Allo";
+    string smiley = "h😀llo";
     return smiley.length();
 }
 
