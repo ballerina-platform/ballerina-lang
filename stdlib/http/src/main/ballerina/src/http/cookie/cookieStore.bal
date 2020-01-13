@@ -143,6 +143,36 @@ public type CookieStore object {
         return allCookies;
     }
 
+    # Gets all the cookies which have the given name as the name of the cookie.
+    #
+    # + cookieName - Name of the cookie
+    # + return - Array of all the matched cookie objects
+    public function getCookiesByName(string cookieName) returns Cookie[] {
+        Cookie[] cookiesToReturn = [];
+        Cookie[] allCookies = self.getAllCookies();
+        foreach var cookie in allCookies {
+            if (cookie.name == cookieName) {
+                cookiesToReturn.push(cookie);
+            }
+        }
+        return cookiesToReturn;
+    }
+
+    # Gets all the cookies which have the given name as the domain of the cookie.
+    #
+    # + domain - name of the domain
+    # + return - Array of all the matched cookie objects
+    public function getCookiesByDomain(string domain) returns Cookie[] {
+        Cookie[] cookiesToReturn = [];
+        Cookie[] allCookies = self.getAllCookies();
+        foreach var cookie in allCookies {
+            if (cookie.domain == domain) {
+                cookiesToReturn.push(cookie);
+            }
+        }
+        return cookiesToReturn;
+    }
+
     # Removes a specific cookie.
     #
     # + name - Name of the cookie to be removed
@@ -173,6 +203,51 @@ public type CookieStore object {
                 log:printError("No such cookie to remove");
                 return false;
             }
+        }
+    }
+
+    # Removes cookies which match with the given domain.
+    #
+    # + domain - Domain of the cookie to be removed
+    public function removeCookiesByDomain(string domain) {
+        Cookie[] allCookies = self.getAllCookies();
+        string? temp1 = ();
+        string? temp2 = ();
+        lock {
+            foreach var cookie in allCookies {
+                if (cookie.domain == domain ) {
+                    temp1 = cookie.name;
+                    temp2 = cookie.path;
+                    if (temp1 is string && temp2 is string) {
+                        _ = self.removeCookie(temp1, domain, temp2);
+                    }
+                }
+            }
+        }
+    }
+
+    # Removes all expired cookies.
+    public function removeExpiredCookies() {
+        var persistentCookieHandler = self.persistentCookieHandler;
+        if (persistentCookieHandler is PersistentCookieHandler) {
+            Cookie[] persistentCookies = persistentCookieHandler.getCookies();
+            string? temp1 = ();
+            string? temp2 = ();
+            string? temp3 = ();
+            lock {
+                foreach var cookie in persistentCookies {
+                    if (isExpired(cookie)) {
+                        temp1 = cookie.name;
+                        temp2 = cookie.domain;
+                        temp3 = cookie.path;
+                        if (temp1 is string && temp2 is string && temp3 is string) {
+                            _ = persistentCookieHandler.removeCookie(temp1, temp2, temp3);
+                        }
+                    }
+                }
+            }
+        } else {
+            log:printError("No persistent cookie store to remove expired cookies");
         }
     }
 
