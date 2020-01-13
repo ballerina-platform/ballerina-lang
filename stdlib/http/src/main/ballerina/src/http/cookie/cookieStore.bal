@@ -42,7 +42,15 @@ public type CookieStore object {
     # + url - Target service URL
     # + requestPath - Resource path
     public function addCookie(Cookie cookie, CookieConfig cookieConfig, string url, string requestPath) {
+        if (self.getAllCookies().length() == cookieConfig.maxTotalCookieCount) {
+            log:printInfo("Number of total cookies in the cookie store can not exceed the maximum amount");
+            return;
+        }
         string domain = getDomain(url);
+        if (self.getCookiesByDomain(domain).length() == cookieConfig.maxCookiesPerDomain) {
+            log:printInfo("Number of total cookies for the domain: " + domain + "in the cookie store can not exceed the maximum amount per domain");
+            return;
+        }
         string path  = requestPath;
         int? index = requestPath.indexOf("?");
         if (index is int) {
