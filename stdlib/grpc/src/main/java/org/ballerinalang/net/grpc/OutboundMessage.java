@@ -25,7 +25,7 @@ import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 import java.io.InputStream;
 import java.nio.ByteBuffer;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
 import static org.ballerinalang.net.grpc.GrpcConstants.GRPC_MESSAGE_KEY;
@@ -41,12 +41,12 @@ public class OutboundMessage {
     private static final int NULL_STATUS_CODE = -1;
     private final HttpCarbonMessage responseMessage;
     private int statusCode = NULL_STATUS_CODE;
-    private MessageFramer framer;
     private boolean outboundClosed;
+    private final ThreadLocal<MessageFramer> framer;
 
     public OutboundMessage(HttpCarbonMessage responseMessage) {
         this.responseMessage = responseMessage;
-        this.framer = new MessageFramer(responseMessage);
+        this.framer = ThreadLocal.withInitial(() -> new MessageFramer(responseMessage));
     }
 
     OutboundMessage(InboundMessage inboundMessage) {
@@ -193,25 +193,25 @@ public class OutboundMessage {
         trailers.remove(GRPC_STATUS_KEY);
         trailers.remove(GRPC_MESSAGE_KEY);
         byte[] bytes = Status.CODE_MARSHALLER.toAsciiString(status);
-        trailers.add(GRPC_STATUS_KEY, new String(bytes, Charset.forName("US-ASCII")));
+        trailers.add(GRPC_STATUS_KEY, new String(bytes, StandardCharsets.US_ASCII));
         if (status.getDescription() != null) {
-            trailers.add(GRPC_MESSAGE_KEY, new String(Status.MESSAGE_MARSHALLER.toAsciiString(status.getDescription()
-            ), Charset.forName("US-ASCII")));
+            trailers.add(GRPC_MESSAGE_KEY, new String(
+                    Status.MESSAGE_MARSHALLER.toAsciiString(status.getDescription()), StandardCharsets.US_ASCII));
         }
     }
 
     /**
      * Invoked when stream is closed by other parties.
      */
-    public final void halfClose() {
+    final void halfClose() {
         if (!outboundClosed) {
             outboundClosed = true;
             framer().close();
         }
     }
 
-    protected final MessageFramer framer() {
-        return framer;
+    final MessageFramer framer() {
+        return framer.get();
     }
 
     public boolean isReady() {
@@ -236,19 +236,7 @@ public class OutboundMessage {
         responseMessage.setHttpVersion(httpVersion);
     }
 
-    public String getHttpMethod() {
-        return responseMessage.getHttpMethod();
-    }
-
-    public void setHttpMethod(String httpMethod) {
-        responseMessage.setHttpMethod(httpMethod);
-    }
-
-    public String getRequestUrl() {
-        return responseMessage.getRequestUrl();
-    }
-
-    public void setRequestUrl(String requestUrl) {
-        responseMessage.setRequestUrl(requestUrl);
+    void setHttpMethod() {
+        responseMessage.setHttpMethod(GrpcConstants.HTTP_METHOD);
     }
 }
