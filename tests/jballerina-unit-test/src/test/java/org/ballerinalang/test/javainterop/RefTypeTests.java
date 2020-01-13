@@ -27,8 +27,6 @@ import org.ballerinalang.jvm.values.StringValue;
 import org.ballerinalang.jvm.values.TypedescValue;
 import org.ballerinalang.jvm.values.XMLItem;
 import org.ballerinalang.jvm.values.XMLValue;
-import org.ballerinalang.jvm.values.api.BHandle;
-import org.ballerinalang.jvm.values.api.BValueCreator;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BHandleValue;
@@ -289,14 +287,22 @@ public class RefTypeTests {
     public void testGetHandle() {
         BValue[] returns = BRunUtil.invoke(result, "testGetHandle");
         Assert.assertTrue(returns[0] instanceof BHandleValue);
-        BHandle handle = (BHandle) ((BHandleValue) returns[0]).getValue();
+        BHandleValue handle = (BHandleValue) returns[0];
         Assert.assertTrue(handle.getValue() instanceof Map);
-        Assert.assertEquals(handle.getValue().toString(), "hello");
+        Map map = (Map) handle.getValue();
+        Assert.assertEquals(map.size(), 1);
+        Assert.assertEquals(map.get("name"), "John");
     }
 
     @Test
     public void testUseHandle() {
         BValue[] returns = BRunUtil.invoke(result, "testUseHandle");
+        Assert.assertTrue(returns[0] instanceof BString);
+        Assert.assertEquals(((BString) returns[0]).stringValue(), "John");
+    }
+
+    public void testUseHandleInUnion() {
+        BValue[] returns = BRunUtil.invoke(result, "testUseHandleInUnion");
         Assert.assertTrue(returns[0] instanceof BString);
         Assert.assertEquals(((BString) returns[0]).stringValue(), "John");
     }
