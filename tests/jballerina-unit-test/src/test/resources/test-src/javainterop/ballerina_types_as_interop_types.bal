@@ -373,3 +373,16 @@ function getHandle() returns handle = @java:Method {
     class:"org/ballerinalang/test/javainterop/RefTypeTests"
 } external;
 
+function testUseHandleInUnion() returns string {
+    handle|error h = getHandleOrError();
+    if (h is handle) {
+        return useHandle(h);
+    } else {
+        return "hello";
+    }
+}
+
+function getHandleOrError() returns handle|error = @java:Method {
+    class:"org/ballerinalang/test/javainterop/RefTypeTests",
+    name: "getHandle"
+} external;
