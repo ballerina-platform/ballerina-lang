@@ -43,27 +43,16 @@ public type HelloWorldBlockingClient client object {
 
     *grpc:AbstractClientEndpoint;
 
-    private grpc:Client? grpcClient = ();
+    private grpc:Client grpcClient;
 
     public function __init(string url, grpc:ClientConfiguration? config = ()) {
         // initialize client endpoint.
-        grpc:Client c = new(url, config);
-        grpc:Error? result = c.initStub(self, "blocking", ROOT_DESCRIPTOR, getDescriptorMap());
-        if (result is grpc:Error) {
-            error err = result;
-            panic err;
-        } else {
-            self.grpcClient = c;
-        }
+        self.grpcClient = new(url, config);
+        checkpanic self.grpcClient.initStub(self, "blocking", ROOT_DESCRIPTOR, getDescriptorMap());
     }
 
     public remote function hello(string req, grpc:Headers? headers = ()) returns ([string, grpc:Headers]|grpc:Error) {
-        if !(self.grpcClient is grpc:Client) {
-            error err = error("UninitializedFieldsErrorType", message = "Field(s) are not initialized");
-            return grpc:prepareError(grpc:INTERNAL_ERROR, "Field(s) are not initialized", err);
-        }
-        grpc:Client tempGrpcClient = <grpc:Client> self.grpcClient;
-        var payload = check tempGrpcClient->blockingExecute("HelloWorld13/hello", req, headers);
+        var payload = check self.grpcClient->blockingExecute("HelloWorld13/hello", req, headers);
         grpc:Headers resHeaders = new;
         any result = ();
         [result, resHeaders] = payload;
@@ -76,27 +65,16 @@ public type HelloWorldClient client object {
 
     *grpc:AbstractClientEndpoint;
 
-    private grpc:Client? grpcClient = ();
+    private grpc:Client grpcClient;
 
     public function __init(string url, grpc:ClientConfiguration? config = ()) {
         // initialize client endpoint.
-        grpc:Client c = new(url, config);
-        grpc:Error? result = c.initStub(self, "non-blocking", ROOT_DESCRIPTOR, getDescriptorMap());
-        if (result is grpc:Error) {
-            error err = result;
-            panic err;
-        } else {
-            self.grpcClient = c;
-        }
+        self.grpcClient = new(url, config);
+        checkpanic self.grpcClient.initStub(self, "non-blocking", ROOT_DESCRIPTOR, getDescriptorMap());
     }
 
     public remote function hello(string req, service msgListener, grpc:Headers? headers = ()) returns (grpc:Error?) {
-        if !(self.grpcClient is grpc:Client) {
-            error err = error("UninitializedFieldsErrorType", message = "Field(s) are not initialized");
-            return grpc:prepareError(grpc:INTERNAL_ERROR, "Field(s) are not initialized", err);
-        }
-        grpc:Client tempGrpcClient = <grpc:Client> self.grpcClient;
-        return tempGrpcClient->nonBlockingExecute("HelloWorld13/hello", req, msgListener, headers);
+        return self.grpcClient->nonBlockingExecute("HelloWorld13/hello", req, msgListener, headers);
     }
 
 };
