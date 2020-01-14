@@ -39,7 +39,7 @@ public type InboundOAuth2Provider object {
         var oauth2CacheConfig = config.oauth2CacheConfig;
         if (oauth2CacheConfig is InboundOAuth2CacheConfig) {
             self.inboundOAuth2Cache = new(oauth2CacheConfig.capacity, oauth2CacheConfig.expTimeInSeconds * 1000,
-                                          auth2CacheConfig.evictionFactor);
+                                          oauth2CacheConfig.evictionFactor);
             self.defaultTokenExpTimeInSeconds = oauth2CacheConfig.defaultTokenExpTimeInSeconds;
         }
     }
