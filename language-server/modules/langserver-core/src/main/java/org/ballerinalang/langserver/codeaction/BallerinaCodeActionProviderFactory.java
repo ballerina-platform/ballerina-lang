@@ -24,7 +24,7 @@ import java.util.ServiceLoader;
 /**
  * Represents the Code Action provider factory.
  *
- * @since 1.1.0
+ * @since 1.1.1
  */
 public class BallerinaCodeActionProviderFactory {
     private static Map<CodeActionNodeType, List<BallerinaCodeActionProvider>> nodeBasedProviders;
