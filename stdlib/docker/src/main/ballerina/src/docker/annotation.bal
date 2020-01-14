@@ -23,7 +23,7 @@
 # + password - Password for the Docker registry.
 # + baseImage - Base image to create the Docker image. Default value is `"openjdk:8-jre-alpine"`.
 # + buildImage - Enable building the Docker image. Default value is `true`.
-# + push - Enable pushing the Docker image to registry. The value of the `buildImage` field must be set to `true` to be effective. Default value is `false`.
+# + push - Enable pushing the Docker image to the registry. The value of the `buildImage` field must be set to `true` to be effective. Default value is `false`.
 # + cmd - CMD value for the generated Docker file. Default is `CMD java -jar ${APP} [--b7a.config.file=${CONFIG_FILE}] [--debug]`.
 # + enableDebug - Enable Ballerina debugging. Default is `false`.
 # + debugPort - Ballerina remote debugging port. Default is `5005`.
