@@ -25,7 +25,7 @@ import java.util.List;
 /**
  * Represents the SPI interface for the Ballerina Code Action Provider.
  *
- * @since 1.1.0
+ * @since 1.1.1
  */
 public abstract class BallerinaCodeActionProvider {
     List<CodeActionNodeType> codeActionNodeTypes;
