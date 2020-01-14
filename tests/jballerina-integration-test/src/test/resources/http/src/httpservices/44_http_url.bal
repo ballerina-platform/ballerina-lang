@@ -41,13 +41,12 @@ service urlClientTest on new http:Listener(9255)  {
     }
     resource function hello(http:Caller caller, http:Request request) {
         string value = "";
-        var response1 = urlClient->get("//test");
-        if (response1 is http:Response) {
-            var result = response1.getTextPayload();
+        var response = urlClient->get("//test");
+        if (response is http:Response) {
+            var result = response.getTextPayload();
             if (result is string) {
                 value = result;
             } else {
-                error err = result;
                 value = result.reason();
             }
         }
