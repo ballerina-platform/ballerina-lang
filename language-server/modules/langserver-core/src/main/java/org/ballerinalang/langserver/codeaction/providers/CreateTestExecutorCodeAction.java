@@ -31,7 +31,7 @@ import java.util.List;
 /**
  * Code Action provider for create variable command.
  *
- * @since 1.1.0
+ * @since 1.1.1
  */
 @JavaSPIService("org.ballerinalang.langserver.codeaction.BallerinaCodeActionProvider")
 public class CreateTestExecutorCodeAction extends BallerinaCodeActionProvider {
