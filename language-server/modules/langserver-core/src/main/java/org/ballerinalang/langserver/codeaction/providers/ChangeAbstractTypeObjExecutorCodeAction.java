@@ -29,7 +29,7 @@ import java.util.List;
 /**
  * Code Action provider for change abstract type.
  *
- * @since 1.1.0
+ * @since 1.1.1
  */
 @JavaSPIService("org.ballerinalang.langserver.codeaction.BallerinaCodeActionProvider")
 public class ChangeAbstractTypeObjExecutorCodeAction extends BallerinaCodeActionProvider {
