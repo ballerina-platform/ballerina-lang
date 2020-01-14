@@ -77,7 +77,7 @@ public class Slice {
 
         switch (arrType.getTag()) {
             case TypeTags.ARRAY_TAG:
-                slicedArr = new ArrayValueImpl((BArrayType) arrType);
+                slicedArr = new ArrayValueImpl((BArrayType) arrType, sliceSize);
                 elemTypeTag = ((BArrayType) arrType).getElementType().getTag();
                 getFn = ArrayValue::get;
                 break;

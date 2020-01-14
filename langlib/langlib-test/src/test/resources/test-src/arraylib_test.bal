@@ -63,12 +63,12 @@ function testForeach() returns string {
     return result;
 }
 
-function testSlice() returns [float[], float[], float[]] {
+function testSlice() returns [float[], int, float[], int, float[], int] {
     float[] arr = [12.34, 23.45, 34.56, 45.67, 56.78];
     float[] r1 = arr.slice(1, 4);
     float[] r2 = arr.slice(2);
     float[] r3 = array:slice(arr, 3);
-    return [r1, r2, r3];
+    return [r1, r1.length(), r2, r2.length(), r3, r3.length()];
 }
 
 function testRemove() returns [string, string[]] {
