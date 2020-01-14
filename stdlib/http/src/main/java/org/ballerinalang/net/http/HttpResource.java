@@ -26,7 +26,6 @@ import org.ballerinalang.net.uri.DispatcherUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -73,7 +72,6 @@ public class HttpResource {
 
     private boolean transactionAnnotated = false;
 
-    private static PrintStream console = System.out;
     protected HttpResource(AttachedFunction resource, HttpService parentService) {
         this.balResource = resource;
         this.parentService = parentService;
