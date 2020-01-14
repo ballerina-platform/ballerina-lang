@@ -15,6 +15,7 @@
 // under the License.
 
 import ballerina/auth;
+import ballerina/cache;
 import ballerina/http;
 import ballerina/mime;
 import ballerina/stringutils;
