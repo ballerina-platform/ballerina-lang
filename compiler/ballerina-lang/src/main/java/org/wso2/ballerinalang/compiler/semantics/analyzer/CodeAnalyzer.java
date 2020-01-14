@@ -378,6 +378,13 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         if (isPublicInvokableNode(funcNode)) {
             analyzeNode(funcNode.returnTypeNode, invokableEnv);
         }
+        for (BLangSimpleVariable requiredParam : funcNode.requiredParams) {
+            analyzeNode(requiredParam, env);
+        }
+
+        if (funcNode.restParam != null) {
+            analyzeNode(funcNode.restParam, env);
+        }
         /* the body can be null in the case of Object type function declarations */
         if (funcNode.body != null) {
             analyzeNode(funcNode.body, invokableEnv);
@@ -1292,7 +1299,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangSimpleVariable varNode) {
-
         analyzeTypeNode(varNode.typeNode, this.env);
         analyzeExpr(varNode.expr);
 
@@ -1349,6 +1355,9 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             analyzeNode(bLangTupleVariable.typeNode, this.env);
         }
         analyzeExpr(bLangTupleVariable.expr);
+        for (BLangVariable variable : bLangTupleVariable.memberVariables) {
+            analyzeNode(variable, env);
+        }
     }
 
     @Override
@@ -1358,6 +1367,11 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             analyzeNode(bLangRecordVariable.typeNode, this.env);
         }
         analyzeExpr(bLangRecordVariable.expr);
+        if (bLangRecordVariable.variableList != null) {
+            for (BLangRecordVariableKeyValue variable: bLangRecordVariable.variableList) {
+                analyzeNode(variable.valueBindingPattern, env);
+            }
+        }
     }
 
     @Override
