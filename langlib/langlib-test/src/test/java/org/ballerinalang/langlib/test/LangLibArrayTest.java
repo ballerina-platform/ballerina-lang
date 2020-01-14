@@ -117,20 +117,23 @@ public class LangLibArrayTest {
         BValueArray arr = (BValueArray) result.getRefValue(0);
         assertEquals(arr.elementType.getTag(), TypeTags.FLOAT_TAG);
         assertEquals(arr.size(), 3);
+        assertEquals(((BInteger) result.getRefValue(1)).intValue(), 3);
         assertEquals(arr.getFloat(0), 23.45);
         assertEquals(arr.getFloat(1), 34.56);
         assertEquals(arr.getFloat(2), 45.67);
 
-        arr = (BValueArray) result.getRefValue(1);
+        arr = (BValueArray) result.getRefValue(2);
         assertEquals(arr.elementType.getTag(), TypeTags.FLOAT_TAG);
         assertEquals(arr.size(), 3);
+        assertEquals(((BInteger) result.getRefValue(3)).intValue(), 3);
         assertEquals(arr.getFloat(0), 34.56);
         assertEquals(arr.getFloat(1), 45.67);
         assertEquals(arr.getFloat(2), 56.78);
 
-        arr = (BValueArray) result.getRefValue(2);
+        arr = (BValueArray) result.getRefValue(4);
         assertEquals(arr.elementType.getTag(), TypeTags.FLOAT_TAG);
         assertEquals(arr.size(), 2);
+        assertEquals(((BInteger) result.getRefValue(5)).intValue(), 2);
         assertEquals(arr.getFloat(0), 45.67);
         assertEquals(arr.getFloat(1), 56.78);
     }
