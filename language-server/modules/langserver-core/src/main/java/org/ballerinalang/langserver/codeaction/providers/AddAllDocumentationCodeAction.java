@@ -31,7 +31,7 @@ import static org.ballerinalang.langserver.command.CommandUtil.getAllDocGenerati
 /**
  * Code Action provider for adding all documentation for top level items.
  *
- * @since 1.1.0
+ * @since 1.1.1
  */
 @JavaSPIService("org.ballerinalang.langserver.codeaction.BallerinaCodeActionProvider")
 public class AddAllDocumentationCodeAction extends BallerinaCodeActionProvider {
