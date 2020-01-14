@@ -29,10 +29,18 @@ public type InboundOAuth2Provider object {
 
     public http:Client introspectionClient;
     public string? tokenTypeHint;
+    cache:Cache? inboundOAuth2Cache;
+    int? defaultTokenExpTimeInSeconds;
 
     public function __init(IntrospectionServerConfig config) {
         self.tokenTypeHint = config?.tokenTypeHint;
         self.introspectionClient = new(config.url, config.clientConfig);
+        var oauth2CacheConfig = config.oauth2CacheConfig;
+        if (oauth2CacheConfig is InboundOAuth2CacheConfig) {
+            self.inboundOAuth2Cache = new(oauth2CacheConfig.capacity, oauth2CacheConfig.expTimeInSeconds * 1000,
+                                          auth2CacheConfig.evictionFactor);
+            self.defaultTokenExpTimeInSeconds = oauth2CacheConfig.defaultTokenExpTimeInSeconds;
+        }
     }
 
     # Attempts to authenticate with credential.
@@ -43,9 +51,16 @@ public type InboundOAuth2Provider object {
         if (credential == "") {
             return false;
         }
-        boolean authenticated = false;
-        string username = "";
-        string scopes = "";
+
+        var oauth2Cache = self.inboundOAuth2Cache;
+        if (oauth2Cache is cache:Cache && oauth2Cache.hasKey(credential)) {
+            var cachedOAuth2Info = authenticateFromCache(oauth2Cache, credential);
+            if (cachedOAuth2Info is CachedOAuth2Info) {
+                auth:setAuthenticationContext("oauth2", credential);
+                auth:setPrincipal(cachedOAuth2Info?.username, cachedOAuth2Info?.username, getScopes(cachedOAuth2Info?.scopes));
+                return true;
+            }
+        }
 
         // Build the request to be send to the introspection endpoint.
         // Refer: https://tools.ietf.org/html/rfc7662#section-2.1
@@ -63,28 +78,60 @@ public type InboundOAuth2Provider object {
                 return <@untainted> prepareAuthError(result.reason(), result);
             }
 
-            json payload = <json> result;
+            json payload = <json>result;
             boolean active = <boolean>payload.active;
             if (active) {
-                authenticated = true;
+                string? username;
+                string? scopes;
+                int? exp;
+
                 if (payload.username is string) {
                     username = <string>payload.username;
                 }
                 if (payload.scope is string) {
                     scopes = <string>payload.scope;
                 }
+                if (payload.exp is int) {
+                    exp = <int>payload.exp;
+                } else {
+                    int? defaultTokenExpTimeInSeconds = self.defaultTokenExpTimeInSeconds;
+                    if (defaultTokenExpTimeInSeconds is int) {
+                        exp = oauth2Cache.defaultTokenExpTimeInSeconds +  (time:currentTime().time / 1000);
+                    }
+                }
+
+                if (oauth2Cache is cache:Cache) {
+                    addToAuthenticationCache(oauth2Cache, credential, username, scopes, exp);
+                }
+                auth:setAuthenticationContext("oauth2", credential);
+                auth:setPrincipal(username, username, getScopes(scopes));
+                return true;
             }
+            return false;
         } else {
             return prepareAuthError("Failed to call the introspection endpoint.", response);
         }
-
-        if (authenticated) {
-            auth:setAuthenticationContext("oauth2", credential);
-            auth:setPrincipal(username, username, getScopes(scopes));
-        }
-        return authenticated;
     }
 };
+
+function addToAuthenticationCache(cache:Cache oauth2Cache, string token, string? username, string? scopes, int? exp) {
+    InboundOAuth2CacheEntry oauth2CacheEntry = {username: username, scopes: scopes, expiryTime: exp};
+    oauth2Cache.put(token, oauth2CacheEntry);
+    log:printDebug(function() returns string {
+        return "Add authenticated user :" + username + " to the cache.";
+    });
+}
+
+function authenticateFromCache(cache:Cache oauth2Cache, string token) returns CachedOAuth2Info? {
+    var oauth2CacheEntry = <InboundOAuth2CacheEntry>oauth2Cache.get(token);
+    if (oauth2CacheEntry is InboundOAuth2CacheEntry) {
+        if (oauth2CacheEntry.expTime > (time:currentTime().time / 1000)) {
+            return oauth2CacheEntry;
+        } else {
+            oauth2Cache.remove(token);
+        }
+    }
+}
 
 # Reads the scope(s) for the user with the given username.
 #
@@ -92,6 +139,9 @@ public type InboundOAuth2Provider object {
 # + return - Array of groups for the user denoted by the username
 public function getScopes(string scopes) returns string[] {
     string scopeVal = scopes.trim();
+    if (scopeVal == "") {
+        return [];
+    }
     return stringutils:split(scopeVal, " ");
 }
 
@@ -99,10 +149,35 @@ public function getScopes(string scopes) returns string[] {
 #
 # + url - URL of the introspection server
 # + tokenTypeHint - A hint about the type of the token submitted for introspection
+# + oauth2CacheConfig - Configurations for the OAuth2 cache
 # + clientConfig - HTTP client configurations which calls the introspection server
 public type IntrospectionServerConfig record {|
     string url;
     string tokenTypeHint?;
+    InboundOAuth2CacheConfig oauth2CacheConfig?;
     http:ClientConfiguration clientConfig = {};
 |};
 
+# Represents inbound OAuth2 cache configurations.
+#
+# + capacity - Maximum number of entries allowed
+# + expTimeInSeconds - Time since its last access in which the cache will be expired
+# + evictionFactor - The factor which the entries will be evicted once the cache full
+# + defaultTokenExpTimeInSeconds - Expiration time of the tokens if introspection response does not contain `exp` field
+public type InboundOAuth2CacheConfig record {|
+    int capacity;
+    int expTimeInSeconds;
+    float evictionFactor;
+    int defaultTokenExpTimeInSeconds = 3600;
+|};
+
+# Represents cached OAuth2 information.
+#
+# + username - Username of the OAuth2 validated user
+# + scopes - Scopes of the OAuth2 validated user
+# + expTime - Expiration time, identifies the expiration time on or after which the OAuth2 token must not be accepted
+public type InboundOAuth2CacheEntry record {|
+    string username?;
+    string scopes?;
+    int expTime?;
+|};
