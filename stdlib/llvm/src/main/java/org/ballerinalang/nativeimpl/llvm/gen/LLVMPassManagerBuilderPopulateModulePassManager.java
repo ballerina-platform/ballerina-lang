@@ -21,10 +21,11 @@ import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.nativeimpl.llvm.FFIUtil;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.bytedeco.javacpp.LLVM;
+import org.bytedeco.llvm.LLVM.LLVMPassManagerBuilderRef;
+import org.bytedeco.llvm.LLVM.LLVMPassManagerRef;
 
 import static org.ballerinalang.model.types.TypeKind.RECORD;
-import static org.bytedeco.javacpp.LLVM.LLVMPassManagerBuilderPopulateModulePassManager;
+import static org.bytedeco.llvm.global.LLVM.LLVMPassManagerBuilderPopulateModulePassManager;
 
 /**
  * Auto generated class.
@@ -43,8 +44,8 @@ public class LLVMPassManagerBuilderPopulateModulePassManager {
     public static void llvmPassManagerBuilderPopulateModulePassManager(Strand strand, MapValue<String, Object> arg0,
                                                                        MapValue<String, Object> arg1) {
 
-        LLVM.LLVMPassManagerBuilderRef pmb = (LLVM.LLVMPassManagerBuilderRef) FFIUtil.getRecodeArgumentNative(arg0);
-        LLVM.LLVMPassManagerRef pm = (LLVM.LLVMPassManagerRef) FFIUtil.getRecodeArgumentNative(arg1);
+        LLVMPassManagerBuilderRef pmb = (LLVMPassManagerBuilderRef) FFIUtil.getRecodeArgumentNative(arg0);
+        LLVMPassManagerRef pm = (LLVMPassManagerRef) FFIUtil.getRecodeArgumentNative(arg1);
         LLVMPassManagerBuilderPopulateModulePassManager(pmb, pm);
     }
 }

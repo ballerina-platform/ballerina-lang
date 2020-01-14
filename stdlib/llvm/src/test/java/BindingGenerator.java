@@ -1,4 +1,4 @@
-import org.bytedeco.javacpp.LLVM;
+import org.bytedeco.llvm.global.LLVM;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -64,8 +64,8 @@ public class BindingGenerator {
                                          "import org.ballerinalang.natives.annotations.ReturnType;\n" +
                                          "import org.bytedeco.javacpp.BytePointer;\n" +
                                          "import org.bytedeco.javacpp.IntPointer;\n" +
-                                         "import org.bytedeco.javacpp.LLVM.*;\n" +
-                                         "import org.bytedeco.javacpp.LLVM;\n" +
+                                         "import org.bytedeco.LLVM*;\n" +
+                                         "import org.bytedeco.llvm.LLVM;\n" +
                                          "import org.bytedeco.javacpp.Pointer;\n" +
                                          "import org.bytedeco.javacpp.PointerPointer;\n" +
                                          "import org.bytedeco.javacpp.SizeTPointer;\n" +
@@ -73,7 +73,7 @@ public class BindingGenerator {
                                          "import java.nio.ByteBuffer;\n" +
                                          "\n" +
                                          "import static org.ballerinalang.model.types.TypeKind.*;\n" +
-                                         "import static org.bytedeco.javacpp.LLVM.%s;\n" +
+                                         "import static org.bytedeco.LLVM%s;\n" +
                                          "\n" +
                                          "/**\n" +
                                          " * Auto generated class.\n" +
@@ -271,7 +271,7 @@ public class BindingGenerator {
             throw new RuntimeException("array arg type not supported yet");
         } else if (!paramType.isPrimitive()) {
             String typeName = paramType.getSimpleName();
-            if (paramType.getName().startsWith("org.bytedeco.javacpp.LLVM")) {
+            if (paramType.getName().startsWith("org.bytedeco.llvm.LLVM")) {
                 typeName = "LLVM." + typeName;
             }
             body.append(String.format(RECODE_BODY, typeName, paramName, regs[REG_REG]++));

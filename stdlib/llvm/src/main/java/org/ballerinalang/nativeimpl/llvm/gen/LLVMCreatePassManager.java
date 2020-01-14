@@ -22,10 +22,10 @@ import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.nativeimpl.llvm.FFIUtil;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.bytedeco.javacpp.LLVM;
+import org.bytedeco.llvm.LLVM.LLVMPassManagerRef;
 
 import static org.ballerinalang.model.types.TypeKind.RECORD;
-import static org.bytedeco.javacpp.LLVM.LLVMCreatePassManager;
+import static org.bytedeco.llvm.global.LLVM.LLVMCreatePassManager;
 
 /**
  * Auto generated class.
@@ -43,7 +43,7 @@ public class LLVMCreatePassManager {
 
     public static MapValue<String, Object> llvmCreatePassManager(Strand strand) {
 
-        LLVM.LLVMPassManagerRef returnValue = LLVMCreatePassManager();
+        LLVMPassManagerRef returnValue = LLVMCreatePassManager();
         MapValue<String, Object> rerunWrapperRecode = FFIUtil.newRecord(new BPackage("ballerina",
                 "llvm"), "LLVMPassManagerRef");
         FFIUtil.addNativeToRecode(returnValue, rerunWrapperRecode);

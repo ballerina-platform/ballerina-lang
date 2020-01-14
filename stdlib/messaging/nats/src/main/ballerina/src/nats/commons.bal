@@ -20,7 +20,9 @@ public type Content byte[] | boolean | string | int | float | decimal | xml | js
 
 function convertData(Content data) returns string | byte[] | error {
     string | byte[] | error converted;
-    if (data is boolean) {
+    if (data is byte[]) {
+        converted = data;
+    } else if (data is boolean) {
         converted = data.toString();
     } else if (data is string) {
         converted = data.toString();
@@ -34,15 +36,13 @@ function convertData(Content data) returns string | byte[] | error {
         converted = data.toString();
     } else if (data is json) {
         converted = data.toJsonString();
-    } else if (data is record{}) {
+    } else {
         json | error jsonConverted = typedesc<json>.constructFrom(data);
         if (jsonConverted is json) {
             converted = jsonConverted.toString();
         } else {
             converted = jsonConverted;
         }
-    } else {
-        converted = data;
     }
     return converted;
 }

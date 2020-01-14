@@ -13,11 +13,14 @@
   See the License for the specific language governing permissions and
   limitations under the License.
  */
-package org.ballerinalang.langserver.sourceprune;
+package org.ballerinalang.langserver.completions.sourceprune;
 
 import org.antlr.v4.runtime.CommonToken;
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.TokenStream;
+import org.ballerinalang.langserver.sourceprune.AbstractTokenTraverser;
+import org.ballerinalang.langserver.sourceprune.SourcePruneContext;
+import org.ballerinalang.langserver.sourceprune.SourcePruneKeys;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
 
 import java.util.ArrayList;
@@ -29,7 +32,7 @@ import java.util.Optional;
  * 
  * @since 0.995.0
  */
-class RHSTokenTraverser extends AbstractTokenTraverser {
+class RHSCompletionsTokenTraverser extends AbstractTokenTraverser {
     private int leftBraceCount;
     private int leftBracketCount;
     private int leftParenthesisCount;
@@ -38,7 +41,7 @@ class RHSTokenTraverser extends AbstractTokenTraverser {
     private boolean definitionRemoved;
     private boolean forcedProcessedToken;
 
-    RHSTokenTraverser(SourcePruneContext sourcePruneContext, boolean pruneTokens) {
+    RHSCompletionsTokenTraverser(SourcePruneContext sourcePruneContext, boolean pruneTokens) {
         super(pruneTokens);
         this.leftBraceCount = sourcePruneContext.get(SourcePruneKeys.LEFT_BRACE_COUNT_KEY);
         this.leftParenthesisCount = sourcePruneContext.get(SourcePruneKeys.LEFT_PARAN_COUNT_KEY);
@@ -50,7 +53,7 @@ class RHSTokenTraverser extends AbstractTokenTraverser {
         this.processedTokens = new ArrayList<>();
     }
 
-    List<CommonToken>  traverseRHS(TokenStream tokenStream, int tokenIndex) {
+    public List<CommonToken>  traverse(TokenStream tokenStream, int tokenIndex) {
         Optional<Token> token = Optional.of(tokenStream.get(tokenIndex));
         while (token.isPresent()) {
             int type = token.get().getType();
@@ -77,7 +80,7 @@ class RHSTokenTraverser extends AbstractTokenTraverser {
             tokenIndex = token.get().getTokenIndex() + 1;
             token = tokenIndex > tokenStream.size() - 1 ? Optional.empty() : Optional.of(tokenStream.get(tokenIndex));
         }
-        
+
         return this.processedTokens;
     }
 
@@ -109,25 +112,26 @@ class RHSTokenTraverser extends AbstractTokenTraverser {
         /*
         If the last altered token is => or :, and the current token is Left Brace then the following match pattern
         clause and the annotation cases will be addressed and remove the whole block within the braces
-        Eg: 
+        Eg:
         match expr {
-            12 => 
+            12 =>
             // this whole clause will remove var (a, b) => {printMessage();}
         }
         @hello:ServiceConfig {
             basePath: mod2:<cursor>
             cors: {
-            
+
             }
         }
         otherwise the pruned source will be
         match expr {
-            
+
             {printMessage();}
         }
          */
-        if (type == BallerinaParser.LEFT_BRACE && (this.lastProcessedToken == BallerinaParser.EQUAL_GT
-                || this.lastProcessedToken == BallerinaParser.COLON)) {
+        if (type == BallerinaParser.LEFT_BRACE &&
+                (this.lastProcessedToken != null && (this.lastProcessedToken.getType() == BallerinaParser.EQUAL_GT
+                        || this.lastProcessedToken.getType() == BallerinaParser.COLON))) {
             this.leftBraceCount++;
             this.processToken(token);
             this.forcedProcessedToken = true;
@@ -148,7 +152,7 @@ class RHSTokenTraverser extends AbstractTokenTraverser {
             this.processToken(token);
             this.forcedProcessedToken = true;
         }
-        
+
         return true;
     }
 }

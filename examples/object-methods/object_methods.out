@@ -1,4 +1,4 @@
 # To run this sample, navigate to the directory that contains the
 # `.bal` file, and execute the `ballerina run` command.
-$ ballerina run object_member_functions.bal
+$ ballerina run object_methods.bal
 John Doe

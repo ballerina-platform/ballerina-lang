@@ -18,6 +18,7 @@
 package org.ballerinalang.test.types.json;
 
 import org.ballerinalang.model.values.BBoolean;
+import org.ballerinalang.model.values.BByte;
 import org.ballerinalang.model.values.BDecimal;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BFloat;
@@ -101,6 +102,13 @@ public class BJSONValueTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "testFloatAsJsonVal");
         Assert.assertTrue(returns[0] instanceof BFloat);
         Assert.assertEquals(((BFloat) returns[0]).floatValue(), 7.65);
+    }
+
+    @Test(description = "Test initializing json with a byte")
+    public void testByteAsJsonVal() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testByteAsJsonVal");
+        Assert.assertTrue(returns[0] instanceof BByte);
+        Assert.assertEquals(((BByte) returns[0]).byteValue(), 5);
     }
 
     @Test(description = "Test initializing json with a decimal")

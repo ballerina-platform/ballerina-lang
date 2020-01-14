@@ -21,10 +21,10 @@ import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.nativeimpl.llvm.FFIUtil;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.bytedeco.javacpp.LLVM;
+import org.bytedeco.llvm.LLVM.LLVMPassManagerBuilderRef;
 
 import static org.ballerinalang.model.types.TypeKind.RECORD;
-import static org.bytedeco.javacpp.LLVM.LLVMPassManagerBuilderDispose;
+import static org.bytedeco.llvm.global.LLVM.LLVMPassManagerBuilderDispose;
 
 /**
  * Auto generated class.
@@ -41,7 +41,7 @@ public class LLVMPassManagerBuilderDispose {
 
     public static void llvmPassManagerBuilderDispose(Strand strand, MapValue<String, Object> arg0) {
 
-        LLVM.LLVMPassManagerBuilderRef pmb = (LLVM.LLVMPassManagerBuilderRef) FFIUtil.getRecodeArgumentNative(arg0);
+        LLVMPassManagerBuilderRef pmb = (LLVMPassManagerBuilderRef) FFIUtil.getRecodeArgumentNative(arg0);
         LLVMPassManagerBuilderDispose(pmb);
     }
 }

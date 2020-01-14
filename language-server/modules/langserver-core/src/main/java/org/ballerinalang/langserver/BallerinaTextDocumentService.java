@@ -49,7 +49,6 @@ import org.ballerinalang.langserver.index.LSIndexImpl;
 import org.ballerinalang.langserver.signature.SignatureHelpUtil;
 import org.ballerinalang.langserver.signature.SignatureKeys;
 import org.ballerinalang.langserver.signature.SignatureTreeVisitor;
-import org.ballerinalang.langserver.sourceprune.SourcePruner;
 import org.ballerinalang.langserver.symbols.SymbolFindingVisitor;
 import org.ballerinalang.langserver.util.Debouncer;
 import org.ballerinalang.langserver.util.references.ReferencesUtil;
@@ -167,7 +166,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
             context.put(LSGlobalContextKeys.LS_INDEX_KEY, this.lsIndex);
 
             try {
-                SourcePruner.pruneSource(context);
+                CompletionUtil.pruneSource(context);
                 /*
                 If the token at cursor is within the hidden channel we stop calculating the completions. This will
                 avoid completions within the line comments
@@ -247,15 +246,12 @@ class BallerinaTextDocumentService implements TextDocumentService {
             context.put(CommonKeys.DOC_MANAGER_KEY, documentManager);
 
             try {
-                // Prepare content for source-prune
-                // This fix added to handle cases such as `foo(` that causes pruner to remove all RHS tokens.
-                SignatureHelpUtil.preprocessSourcePrune(context);
-
                 // Prune the source and compile
-                SourcePruner.pruneSource(context);
+                SignatureHelpUtil.pruneSource(context);
                 BLangPackage bLangPackage = LSModuleCompiler.getBLangPackage(context, documentManager,
                                                                              LSCustomErrorStrategy.class, false, false);
 
+                documentManager.resetPrunedContent(Paths.get(URI.create(uri)));
                 // Capture visible symbols of the cursor position
                 SignatureTreeVisitor signatureTreeVisitor = new SignatureTreeVisitor(context);
                 bLangPackage.accept(signatureTreeVisitor);

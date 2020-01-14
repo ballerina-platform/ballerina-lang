@@ -23,12 +23,12 @@ import org.ballerinalang.nativeimpl.llvm.FFIUtil;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.bytedeco.javacpp.LLVM;
-import org.bytedeco.javacpp.LLVM.LLVMValueRef;
+import org.bytedeco.llvm.LLVM.LLVMTypeRef;
+import org.bytedeco.llvm.LLVM.LLVMValueRef;
 
 import static org.ballerinalang.model.types.TypeKind.INT;
 import static org.ballerinalang.model.types.TypeKind.RECORD;
-import static org.bytedeco.javacpp.LLVM.LLVMConstInt;
+import static org.bytedeco.llvm.global.LLVM.LLVMConstInt;
 
 /**
  * Auto generated class.
@@ -52,7 +52,7 @@ public class LLVMConstInt {
     public static MapValue<String, Object> llvmConstInt(Strand strand, MapValue<String, Object> intTy,
                                                         long n, long signExtend) {
 
-        LLVM.LLVMTypeRef intTyRef = (LLVM.LLVMTypeRef) FFIUtil.getRecodeArgumentNative(intTy);
+        LLVMTypeRef intTyRef = (LLVMTypeRef) FFIUtil.getRecodeArgumentNative(intTy);
         int signExtendRef = (int) signExtend;
         LLVMValueRef returnValue = LLVMConstInt(intTyRef, n, signExtendRef);
         MapValue<String, Object> returnWrappedRecord = FFIUtil.newRecord(new BPackage("ballerina",

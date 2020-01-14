@@ -37,6 +37,8 @@ public class SourcePruneKeys {
             = new LSContext.Key<>();
     public static final LSContext.Key<Integer> LEFT_BRACE_COUNT_KEY
             = new LSContext.Key<>();
+    public static final LSContext.Key<Boolean> ADD_SEMICOLON_COUNT_KEY
+            = new LSContext.Key<>();
     public static final LSContext.Key<Integer> RIGHT_BRACE_COUNT_KEY
             = new LSContext.Key<>();
     public static final LSContext.Key<Integer> LEFT_BRACKET_COUNT_KEY
