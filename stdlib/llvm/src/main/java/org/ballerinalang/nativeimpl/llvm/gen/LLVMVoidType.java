@@ -23,10 +23,10 @@ import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.nativeimpl.llvm.FFIUtil;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.bytedeco.javacpp.LLVM;
-import org.bytedeco.javacpp.LLVM.LLVMTypeRef;
+import org.bytedeco.llvm.LLVM.LLVMTypeRef;
 
 import static org.ballerinalang.model.types.TypeKind.RECORD;
+import static org.bytedeco.llvm.global.LLVM.LLVMVoidType;
 
 /**
  * Auto generated class.
@@ -43,7 +43,7 @@ import static org.ballerinalang.model.types.TypeKind.RECORD;
 public class LLVMVoidType {
 
     public static MapValue<String, Object> llvmVoidType(Strand strand) {
-        LLVMTypeRef returnValue = LLVM.LLVMVoidType();
+        LLVMTypeRef returnValue = LLVMVoidType();
         MapValue<String, Object> returnWrapperRecord = BallerinaValues.createRecordValue(new BPackage("ballerina",
                 "llvm"), "LLVMTypeRef");
         FFIUtil.addNativeToRecode(returnValue, returnWrapperRecord);
