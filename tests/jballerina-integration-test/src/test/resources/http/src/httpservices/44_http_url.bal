@@ -48,7 +48,7 @@ service urlClientTest on new http:Listener(9255)  {
                 value = result;
             } else {
                 error err = result;
-                value = err.reason();
+                value = result.reason();
             }
         }
         checkpanic caller->respond(<@untainted> value);
