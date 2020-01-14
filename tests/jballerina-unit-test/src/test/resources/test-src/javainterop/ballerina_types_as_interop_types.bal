@@ -386,3 +386,18 @@ function getHandleOrError() returns handle|error = @java:Method {
     class:"org/ballerinalang/test/javainterop/RefTypeTests",
     name: "getHandle"
 } external;
+
+public function testThrowJavaException2() returns any|error {
+    handle javaStack = createJavaStack();
+    return trap javaStackPop(javaStack);
+}
+
+function createJavaStack() returns handle = @java:Constructor {
+    class: "java/util/Stack",
+    paramTypes: []
+} external;
+
+function javaStackPop(handle stack) returns any = @java:Method {
+    class: "java/util/Stack",
+    name: "pop"
+} external;

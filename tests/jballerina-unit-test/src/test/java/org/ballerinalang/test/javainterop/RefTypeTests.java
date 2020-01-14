@@ -20,6 +20,7 @@ package org.ballerinalang.test.javainterop;
 import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.types.BTypes;
+import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.FPValue;
 import org.ballerinalang.jvm.values.FutureValue;
 import org.ballerinalang.jvm.values.HandleValue;
@@ -301,10 +302,22 @@ public class RefTypeTests {
         Assert.assertEquals(((BString) returns[0]).stringValue(), "John");
     }
 
+    @Test
     public void testUseHandleInUnion() {
         BValue[] returns = BRunUtil.invoke(result, "testUseHandleInUnion");
         Assert.assertTrue(returns[0] instanceof BString);
         Assert.assertEquals(((BString) returns[0]).stringValue(), "John");
+    }
+
+    @Test
+    public void testThrowJavaException() {
+        Object returns = BRunUtil.invokeAndGetJVMResult(result, "testThrowJavaException2");
+        Assert.assertTrue(returns instanceof ErrorValue);
+        ErrorValue error = (ErrorValue) returns;
+        Assert.assertEquals(error.getPrintableStackTrace(), "java.util.EmptyStackException \n" +
+                "\tat ballerina_types_as_interop_types:javaStackPop(ballerina_types_as_interop_types.bal:400)\n" +
+                "\t   ballerina_types_as_interop_types:testThrowJavaException2(ballerina_types_as_interop_types.bal:" +
+                "392)");
     }
 
     // static methods
