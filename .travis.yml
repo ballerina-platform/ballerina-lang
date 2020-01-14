@@ -123,5 +123,5 @@ branches:
     - master
     - packerina-dev
     - next-release
-    - ballerina-1.0.x
     - release-stage
+    - ^ballerina-\d*[.]\d*[.]x$
