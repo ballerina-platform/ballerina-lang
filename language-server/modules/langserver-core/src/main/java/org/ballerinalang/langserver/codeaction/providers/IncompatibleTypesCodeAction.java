@@ -38,7 +38,7 @@ import java.util.Optional;
 /**
  * Code Action provider for incompatible types.
  *
- * @since 1.1.0
+ * @since 1.1.1
  */
 @JavaSPIService("org.ballerinalang.langserver.codeaction.BallerinaCodeActionProvider")
 public class IncompatibleTypesCodeAction extends BallerinaCodeActionProvider {
