@@ -26,7 +26,7 @@ import java.util.Map;
 /**
  * Represents the Code Action router.
  *
- * @since 1.1.0
+ * @since 1.1.1
  */
 public class BallerinaCodeActionRouter implements CodeActionRouter {
 
