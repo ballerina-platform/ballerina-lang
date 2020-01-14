@@ -17,8 +17,10 @@
 import ballerina/auth;
 import ballerina/cache;
 import ballerina/http;
+import ballerina/log;
 import ballerina/mime;
 import ballerina/stringutils;
+import ballerina/time;
 
 # Represents inbound OAuth2 provider, which calls the introspection server and validate the received credentials.
 #
@@ -30,13 +32,13 @@ public type InboundOAuth2Provider object {
 
     public http:Client introspectionClient;
     public string? tokenTypeHint;
-    cache:Cache? inboundOAuth2Cache;
-    int? defaultTokenExpTimeInSeconds;
+    cache:Cache? inboundOAuth2Cache = ();
+    int? defaultTokenExpTimeInSeconds = ();
 
     public function __init(IntrospectionServerConfig config) {
         self.tokenTypeHint = config?.tokenTypeHint;
         self.introspectionClient = new(config.url, config.clientConfig);
-        var oauth2CacheConfig = config.oauth2CacheConfig;
+        var oauth2CacheConfig = config?.oauth2CacheConfig;
         if (oauth2CacheConfig is InboundOAuth2CacheConfig) {
             self.inboundOAuth2Cache = new(oauth2CacheConfig.capacity, oauth2CacheConfig.expTimeInSeconds * 1000,
                                           oauth2CacheConfig.evictionFactor);
@@ -55,10 +57,10 @@ public type InboundOAuth2Provider object {
 
         var oauth2Cache = self.inboundOAuth2Cache;
         if (oauth2Cache is cache:Cache && oauth2Cache.hasKey(credential)) {
-            var cachedOAuth2Info = authenticateFromCache(oauth2Cache, credential);
-            if (cachedOAuth2Info is CachedOAuth2Info) {
+            var oauth2CacheEntry = authenticateFromCache(oauth2Cache, credential);
+            if (oauth2CacheEntry is InboundOAuth2CacheEntry) {
                 auth:setAuthenticationContext("oauth2", credential);
-                auth:setPrincipal(cachedOAuth2Info?.username, cachedOAuth2Info?.username, getScopes(cachedOAuth2Info?.scopes));
+                auth:setPrincipal(oauth2CacheEntry.username, oauth2CacheEntry.username, getScopes(oauth2CacheEntry.scopes));
                 return true;
             }
         }
@@ -82,22 +84,22 @@ public type InboundOAuth2Provider object {
             json payload = <json>result;
             boolean active = <boolean>payload.active;
             if (active) {
-                string? username;
-                string? scopes;
-                int? exp;
+                string? username = ();
+                string? scopes = ();
+                int? exp = ();
 
                 if (payload.username is string) {
-                    username = <string>payload.username;
+                    username = <@untainted> <string>payload.username;
                 }
                 if (payload.scope is string) {
-                    scopes = <string>payload.scope;
+                    scopes = <@untainted> <string>payload.scope;
                 }
                 if (payload.exp is int) {
-                    exp = <int>payload.exp;
+                    exp = <@untainted> <int>payload.exp;
                 } else {
                     int? defaultTokenExpTimeInSeconds = self.defaultTokenExpTimeInSeconds;
                     if (defaultTokenExpTimeInSeconds is int) {
-                        exp = oauth2Cache.defaultTokenExpTimeInSeconds +  (time:currentTime().time / 1000);
+                        exp = defaultTokenExpTimeInSeconds +  (time:currentTime().time / 1000);
                     }
                 }
 
@@ -105,7 +107,7 @@ public type InboundOAuth2Provider object {
                     addToAuthenticationCache(oauth2Cache, credential, username, scopes, exp);
                 }
                 auth:setAuthenticationContext("oauth2", credential);
-                auth:setPrincipal(username, username, getScopes(scopes));
+                auth:setPrincipal(username, username, getScopes(scopes ?: ""));
                 return true;
             }
             return false;
@@ -116,21 +118,22 @@ public type InboundOAuth2Provider object {
 };
 
 function addToAuthenticationCache(cache:Cache oauth2Cache, string token, string? username, string? scopes, int? exp) {
-    InboundOAuth2CacheEntry oauth2CacheEntry = {username: username, scopes: scopes, expiryTime: exp};
+    InboundOAuth2CacheEntry oauth2CacheEntry = {username: username ?: "", scopes: scopes ?: "", expTime: exp ?: 0};
     oauth2Cache.put(token, oauth2CacheEntry);
-    log:printDebug(function() returns string {
-        return "Add authenticated user :" + username + " to the cache.";
-    });
+    if (username is string) {
+        string user = username;
+        log:printDebug(function() returns string {
+            return "Add authenticated user: " + user + " to the cache.";
+        });
+    }
 }
 
-function authenticateFromCache(cache:Cache oauth2Cache, string token) returns CachedOAuth2Info? {
-    var oauth2CacheEntry = <InboundOAuth2CacheEntry>oauth2Cache.get(token);
-    if (oauth2CacheEntry is InboundOAuth2CacheEntry) {
-        if (oauth2CacheEntry.expTime > (time:currentTime().time / 1000)) {
-            return oauth2CacheEntry;
-        } else {
-            oauth2Cache.remove(token);
-        }
+function authenticateFromCache(cache:Cache oauth2Cache, string token) returns InboundOAuth2CacheEntry? {
+    InboundOAuth2CacheEntry oauth2CacheEntry = <InboundOAuth2CacheEntry>oauth2Cache.get(token);
+    if (oauth2CacheEntry.expTime > (time:currentTime().time / 1000)) {
+        return oauth2CacheEntry;
+    } else {
+        oauth2Cache.remove(token);
     }
 }
 
@@ -178,7 +181,7 @@ public type InboundOAuth2CacheConfig record {|
 # + scopes - Scopes of the OAuth2 validated user
 # + expTime - Expiration time, identifies the expiration time on or after which the OAuth2 token must not be accepted
 public type InboundOAuth2CacheEntry record {|
-    string username?;
-    string scopes?;
-    int expTime?;
+    string username;
+    string scopes;
+    int expTime;
 |};
