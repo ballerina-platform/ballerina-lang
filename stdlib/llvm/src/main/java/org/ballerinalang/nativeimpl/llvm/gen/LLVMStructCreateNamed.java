@@ -23,12 +23,12 @@ import org.ballerinalang.nativeimpl.llvm.FFIUtil;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.bytedeco.javacpp.LLVM;
-import org.bytedeco.javacpp.LLVM.LLVMTypeRef;
+import org.bytedeco.llvm.LLVM.LLVMContextRef;
+import org.bytedeco.llvm.LLVM.LLVMTypeRef;
 
 import static org.ballerinalang.model.types.TypeKind.RECORD;
 import static org.ballerinalang.model.types.TypeKind.STRING;
-import static org.bytedeco.javacpp.LLVM.LLVMStructCreateNamed;
+import static org.bytedeco.llvm.global.LLVM.LLVMStructCreateNamed;
 
 /**
  * Auto generated class.
@@ -48,7 +48,7 @@ public class LLVMStructCreateNamed {
 
     public static MapValue<String, Object> llvmStructCreateNamed(Strand strand, MapValue<String, Object> c,
             String name) {
-        LLVM.LLVMContextRef cRef = (LLVM.LLVMContextRef) FFIUtil.getRecodeArgumentNative(c);
+        LLVMContextRef cRef = (LLVMContextRef) FFIUtil.getRecodeArgumentNative(c);
         LLVMTypeRef returnValue = LLVMStructCreateNamed(cRef, name);
         MapValue<String, Object> returnWrappedValue = FFIUtil.newRecord(new BPackage("ballerina",
                 "llvm"), "LLVMTypeRef");

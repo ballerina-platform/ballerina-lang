@@ -25,7 +25,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 import org.bytedeco.javacpp.BytePointer;
 
 import static org.ballerinalang.model.types.TypeKind.RECORD;
-import static org.bytedeco.javacpp.LLVM.LLVMGetDefaultTargetTriple;
+import static org.bytedeco.llvm.global.LLVM.LLVMGetDefaultTargetTriple;
 
 /**
  * Auto generated class.
