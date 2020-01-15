@@ -17,10 +17,14 @@
  */
 package org.ballerinalang.test.expressions.listconstructor;
 
+import org.ballerinalang.model.values.BBoolean;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.util.BAssertUtil;
 import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 /**
@@ -28,17 +32,31 @@ import org.testng.annotations.Test;
  */
 public class ListConstructorExprTest {
 
+    private CompileResult result, resultNegative;
+
+    @BeforeClass
+    public void setup() {
+        result = BCompileUtil.compile("test-src/expressions/listconstructor/list_constructor.bal");
+        resultNegative = BCompileUtil.compile(
+                "test-src/expressions/listconstructor/list_constructor_negative.bal");
+    }
+
+    @Test
+    public void testListConstructorExpr() {
+        BValue[] returns = BRunUtil.invoke(result, "testListConstructorExpr");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
     @Test
     public void diagnosticsTest() {
-        CompileResult result = BCompileUtil.compile(
-                "test-src/expressions/listconstructor/list_constructor_negative.bal");
         int i = 0;
-        BAssertUtil.validateError(result, i++, "invalid list constructor expression: " +
+        BAssertUtil.validateError(resultNegative, i++, "invalid list constructor expression: " +
                 "types cannot be inferred for '[v1, v2, v3]'", 18, 24);
-        BAssertUtil.validateError(result, i++, "tuple and expression size does not match",
+        BAssertUtil.validateError(resultNegative, i++, "tuple and expression size does not match",
                 22, 20);
-        BAssertUtil.validateError(result, i++, "tuple and expression size does not match",
+        BAssertUtil.validateError(resultNegative, i++, "tuple and expression size does not match",
                 23, 34);
-        Assert.assertEquals(result.getErrorCount(), i);
+        Assert.assertEquals(resultNegative.getErrorCount(), i);
     }
 }
