@@ -23,13 +23,13 @@ import org.ballerinalang.nativeimpl.llvm.FFIUtil;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.bytedeco.javacpp.LLVM;
-import org.bytedeco.javacpp.LLVM.LLVMValueRef;
+import org.bytedeco.llvm.LLVM.LLVMBuilderRef;
+import org.bytedeco.llvm.LLVM.LLVMValueRef;
 
 import static org.ballerinalang.model.types.TypeKind.INT;
 import static org.ballerinalang.model.types.TypeKind.RECORD;
 import static org.ballerinalang.model.types.TypeKind.STRING;
-import static org.bytedeco.javacpp.LLVM.LLVMBuildStructGEP;
+import static org.bytedeco.llvm.global.LLVM.LLVMBuildStructGEP;
 
 /**
  * Auto generated class.
@@ -51,8 +51,8 @@ public class LLVMBuildStructGEP {
 
     public static MapValue<String, Object> llvmBuildStructGEP(Strand strand, MapValue<String, Object> b,
             MapValue<String, Object> pointer, long idx, String name) {
-        LLVM.LLVMBuilderRef bRef = (LLVM.LLVMBuilderRef) FFIUtil.getRecodeArgumentNative(b);
-        LLVM.LLVMValueRef pointerRef = (LLVM.LLVMValueRef) FFIUtil.getRecodeArgumentNative(pointer);
+        LLVMBuilderRef bRef = (LLVMBuilderRef) FFIUtil.getRecodeArgumentNative(b);
+        LLVMValueRef pointerRef = (LLVMValueRef) FFIUtil.getRecodeArgumentNative(pointer);
         int idxRef = (int) idx;
         LLVMValueRef returnValue = LLVMBuildStructGEP(bRef, pointerRef, idxRef, name);
         MapValue<String, Object> returnWrappedRecord = FFIUtil.newRecord(new BPackage("ballerina",

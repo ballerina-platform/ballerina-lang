@@ -41,6 +41,7 @@ public class BLangObjectTypeNode extends BLangStructureTypeNode implements Objec
 
     public List<BLangFunction> functions;
     public BLangFunction initFunction;
+    public BLangFunction generatedInitFunction;
     public BLangSimpleVariable receiver;
 
     public Set<Flag> flagSet;
