@@ -78,7 +78,7 @@ function authenticateFromCache(cache:Cache jwtCache, string jwtToken) returns Jw
     var jwtCacheEntry = trap <InboundJwtCacheEntry>jwtCache.get(jwtToken);
     if (jwtCacheEntry is InboundJwtCacheEntry) {
         // convert to current time and check the expiry time
-        if (jwtCacheEntry.expiryTime > (time:currentTime().time / 1000)) {
+        if (jwtCacheEntry.expTime > (time:currentTime().time / 1000)) {
             JwtPayload payload = jwtCacheEntry.jwtPayload;
             string? sub = payload?.sub;
             if (sub is string) {
@@ -95,7 +95,7 @@ function authenticateFromCache(cache:Cache jwtCache, string jwtToken) returns Jw
 }
 
 function addToAuthenticationCache(cache:Cache jwtCache, string jwtToken, int? exp, JwtPayload payload) {
-    InboundJwtCacheEntry jwtCacheEntry = {jwtPayload : payload, expiryTime : exp is () ? 0 : exp};
+    InboundJwtCacheEntry jwtCacheEntry = {jwtPayload : payload, expTime : exp is () ? 0 : exp};
     jwtCache.put(jwtToken, jwtCacheEntry);
     string? sub = payload?.sub;
     if (sub is string) {

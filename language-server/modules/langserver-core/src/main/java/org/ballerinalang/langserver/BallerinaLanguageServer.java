@@ -103,7 +103,7 @@ public class BallerinaLanguageServer implements ExtendedLanguageServer, Extended
         this.ballerinaTraceService = new BallerinaTraceServiceImpl(lsGlobalContext);
         this.ballerinaTraceListener = new Listener(this.ballerinaTraceService);
         this.ballerinaSymbolService = new BallerinaSymbolServiceImpl(lsGlobalContext);
-        this.ballerinaFragmentService = new BallerinaFragmentServiceImpl(lsGlobalContext);
+        this.ballerinaFragmentService = new BallerinaFragmentServiceImpl();
         this.ballerinaSyntaxHighlightService = new BallerinaSyntaxHighlightServiceImpl();
 
         LSAnnotationCache.initiate();

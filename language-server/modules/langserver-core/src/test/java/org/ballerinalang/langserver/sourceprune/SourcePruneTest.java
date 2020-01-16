@@ -20,11 +20,10 @@ package org.ballerinalang.langserver.sourceprune;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import org.ballerinalang.langserver.LSContextOperation;
-import org.ballerinalang.langserver.common.CommonKeys;
+import org.ballerinalang.langserver.LSTestOperationContext;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSContext;
-import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManagerImpl;
 import org.ballerinalang.langserver.completions.sourceprune.CompletionsTokenTraverserFactory;
@@ -110,15 +109,14 @@ public class SourcePruneTest {
     }
     
     private LSContext getLSContext(String source, Position position) {
-        LSContext lsContext = new LSServiceOperationContext(LSContextOperation.SOURCE_PRUNER);
         URI fileUri = sourceRoot.resolve(source).toUri();
         TextDocumentPositionParams positionParams = new TextDocumentPositionParams();
         positionParams.setPosition(position);
-        lsContext.put(CommonKeys.DOC_MANAGER_KEY, documentManager);
-        lsContext.put(DocumentServiceKeys.POSITION_KEY, positionParams);
-        lsContext.put(DocumentServiceKeys.FILE_URI_KEY, fileUri.toString());
-        
-        return lsContext;
+
+        return new LSTestOperationContext
+                .LSTestOperationContextBuilder(LSContextOperation.SOURCE_PRUNER)
+                .withCommonParams(positionParams, fileUri.toString(), documentManager)
+                .build();
     }
 
     @DataProvider
