@@ -48,7 +48,7 @@ import static org.wso2.ballerinalang.programfile.ProgramFileConstants.SUPPORTED_
 public class URIConverter implements Converter<URI> {
 
     private HomeBaloRepo homeBaloRepo;
-    private final URI base;
+    protected URI base;
     protected final Map<PackageID, Manifest> dependencyManifests;
     private boolean isBuild = true;
     private PrintStream errStream = System.err;

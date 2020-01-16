@@ -69,15 +69,15 @@ configurations {
 }
 
 dependencies {
-    dist 'org.bytedeco:javacpp:1.4.2'
+    dist 'org.bytedeco:javacpp:1.5.2'
 
-    dist 'org.bytedeco.javacpp-presets:llvm-platform:6.0.1-1.4.2'
-    dist 'org.bytedeco.javacpp-presets:llvm:6.0.1-1.4.2:linux-x86'
-    dist 'org.bytedeco.javacpp-presets:llvm:6.0.1-1.4.2:windows-x86'
-    dist 'org.bytedeco.javacpp-presets:llvm:6.0.1-1.4.2:macosx-x86_64'
-    dist 'org.bytedeco.javacpp-presets:llvm:6.0.1-1.4.2:windows-x86_64'
-    dist 'org.bytedeco.javacpp-presets:llvm:6.0.1-1.4.2:linux-x86_64'
-    dist 'org.bytedeco.javacpp-presets:llvm:6.0.1-1.4.2'
+    dist 'org.bytedeco:llvm-platform:9.0.0-1.5.2'
+    dist 'org.bytedeco:llvm:9.0.0-1.5.2:linux-x86'
+    dist 'org.bytedeco:llvm:9.0.0-1.5.2:windows-x86'
+    dist 'org.bytedeco:llvm:9.0.0-1.5.2:macosx-x86_64'
+    dist 'org.bytedeco:llvm:9.0.0-1.5.2:windows-x86_64'
+    dist 'org.bytedeco:llvm:9.0.0-1.5.2:linux-x86_64'
+    dist 'org.bytedeco:llvm:9.0.0-1.5.2'
 
     dist project(':ballerina-tool')
     dist project(':ballerina-llvm')

@@ -356,11 +356,53 @@ public class HTTPCorsTest {
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "OPTIONS", "Hello there");
         cMsg.setHeader(HttpHeaderNames.ORIGIN.toString(), "http://www.wso2.com");
         cMsg.setHeader(HttpHeaderNames.ACCESS_CONTROL_REQUEST_METHOD.toString(), HttpConstants.HTTP_METHOD_POST);
-        cMsg.setHeader(HttpHeaderNames.ACCESS_CONTROL_REQUEST_HEADERS.toString(), "X-PINGOTHER");
+        cMsg.setHeader(HttpHeaderNames.ACCESS_CONTROL_REQUEST_HEADERS.toString(), "X-pingOTHER");
         HttpCarbonMessage response = Services.invoke(TEST_EP_PORT, cMsg);
 
         Assert.assertNotNull(response);
         assertEqualsCorsResponse(response, 200, "http://www.wso2.com", "true"
+                , "X-pingOTHER", "POST", "-1");
+    }
+
+    @Test(description = "Test for serviceLevel wildcard/default CORS configs")
+    public void testPreFlightReqwithWildCardServiceConfigs() {
+        String path = "/hello5/info1";
+        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "OPTIONS", "Hello there");
+        cMsg.setHeader(HttpHeaderNames.ORIGIN.toString(), "http://www.wso2Ballerina.com");
+        cMsg.setHeader(HttpHeaderNames.ACCESS_CONTROL_REQUEST_METHOD.toString(), "POST");
+        cMsg.setHeader(HttpHeaderNames.ACCESS_CONTROL_REQUEST_HEADERS.toString(), "X-PINGOTHER");
+        HttpCarbonMessage response = Services.invoke(TEST_EP_PORT, cMsg);
+
+        Assert.assertNotNull(response);
+        assertEqualsCorsResponse(response, 200, "http://www.wso2Ballerina.com", null
                 , "X-PINGOTHER", "POST", "-1");
+    }
+
+    @Test(description = "Test for resource Level wildcard/default CORS configs")
+    public void testPreFlightReqwithWildCardResourceConfigs() {
+        String path = "/echo4/info3";
+        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "OPTIONS", "Hello there");
+        cMsg.setHeader(HttpHeaderNames.ORIGIN.toString(), "http://www.wso2Ballerina456.com");
+        cMsg.setHeader(HttpHeaderNames.ACCESS_CONTROL_REQUEST_METHOD.toString(), "POST");
+        cMsg.setHeader(HttpHeaderNames.ACCESS_CONTROL_REQUEST_HEADERS.toString(), "X-PINGOTHER");
+        HttpCarbonMessage response = Services.invoke(TEST_EP_PORT, cMsg);
+
+        Assert.assertNotNull(response);
+        assertEqualsCorsResponse(response, 200, "http://www.wso2Ballerina456.com", "true"
+                , "X-PINGOTHER", "POST", "-1");
+    }
+
+    @Test(description = "Test for resource Level wildcard/default CORS configs override")
+    public void testPreFlightReqwithWildCardResourceConfigsOverride() {
+        String path = "/hello1/test4";
+        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "OPTIONS", "Hello there");
+        cMsg.setHeader(HttpHeaderNames.ORIGIN.toString(), "http://www.wso2Ballerina123.com");
+        cMsg.setHeader(HttpHeaderNames.ACCESS_CONTROL_REQUEST_METHOD.toString(), "PUT");
+        cMsg.setHeader(HttpHeaderNames.ACCESS_CONTROL_REQUEST_HEADERS.toString(), "X-PONGOTHER");
+        HttpCarbonMessage response = Services.invoke(TEST_EP_PORT, cMsg);
+
+        Assert.assertNotNull(response);
+        assertEqualsCorsResponse(response, 200, "http://www.wso2Ballerina123.com", "true"
+                , "X-PONGOTHER", "PUT", "-1");
     }
 }
