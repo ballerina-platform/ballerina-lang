@@ -194,75 +194,48 @@ public class ObjectInitializerTest {
 
     @Test(description = "Test invoking '__init' function in a function inside object descriptor.")
     public void testInitInvocationInsideObject() {
-
         BValue[] returns = BRunUtil.invoke(compileResult, "testInitInvocationInsideObject");
-
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 75);
-        Assert.assertEquals(((BInteger) returns[1]).intValue(), 80);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue(), "Expected booleans to be identified as equal");
     }
 
     @Test(description = "Test invoking '__init' function with args in a function inside object descriptor with args.")
     public void testInitInvocationInsideObjectWithArgs() {
-
         BValue[] returns = BRunUtil.invoke(compileResult, "testInitInvocationInsideObjectWithArgs");
-
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 75);
-        Assert.assertEquals(((BInteger) returns[1]).intValue(), 82);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue(), "Expected booleans to be identified as equal");
     }
 
     @Test(description = "Test invoking '__init' function with args in a function inside object descriptor with error " +
             "return.")
-    public void testInitInvocationWithReturn1() {
-
-        BValue[] returns = BRunUtil.invoke(compileResult, "testInitInvocationWithReturn1");
-
-        Assert.assertEquals(returns[0].getType().getTag(), TypeTags.ERROR);
-        Assert.assertEquals(((BError) returns[0]).getReason(), "failed to return a name");
-        Assert.assertEquals(((BInteger) returns[1]).intValue(), 0);
-        Assert.assertEquals(((BInteger) returns[2]).intValue(), 0);
+    public void testObjInitWithCheck1() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testObjInitWithCheck1");
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue(), "Expected booleans to be identified as equal");
     }
 
     @Test(description = "Test invoking '__init' function with args in a function inside object descriptor with error " +
             "nil.")
-    public void testInitInvocationWithReturn2() {
-
-        BValue[] returns = BRunUtil.invoke(compileResult, "testInitInvocationWithReturn2");
-
-        Assert.assertEquals(returns[0].getType().getTag(), TypeTags.OBJECT);
-        Assert.assertEquals(((BInteger) returns[1]).intValue(), 90);
-        Assert.assertEquals(((BInteger) returns[2]).intValue(), 95);
+    public void testObjInitWithCheck2() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testObjInitWithCheck2");
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue(), "Expected booleans to be identified as equal");
     }
 
     @Test(description = "Test invoking '__init' function with args in a function inside object descriptor with rest " +
             "args.")
     public void testInitInvocationWithRestArgs() {
-
         BValue[] returns = BRunUtil.invoke(compileResult, "testInitInvocationWithRestArgs");
-
-        Assert.assertEquals(returns[0].stringValue(), "Bob");
-        Assert.assertEquals(returns[1].stringValue(), "Ann");
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue(), "Expected booleans to be identified as equal");
     }
 
     @Test(description = "Test invoking '__init' function with args in a function inside object descriptor with error " +
             "return and rest params.")
-    public void testInitInvocationWithReturnAndRestParams1() {
-
-        BValue[] returns = BRunUtil.invoke(compileResult, "testInitInvocationWithReturnAndRestParams1");
-
-        Assert.assertEquals(returns[0].getType().getTag(), TypeTags.ERROR);
-        Assert.assertEquals(((BError) returns[0]).getReason(), "failed to return a name");
-        Assert.assertEquals(((BInteger) returns[1]).intValue(), 0);
-        Assert.assertEquals(((BInteger) returns[2]).intValue(), 0);
+    public void testInitInvocationWithCheckAndRestParams1() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testInitInvocationWithCheckAndRestParams1");
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue(), "Expected booleans to be identified as equal");
     }
 
     @Test(description = "Test invoking '__init' function with args in a function inside object descriptor with error " +
             "nil and rest param.")
-    public void testInitInvocationWithReturnAndRestParams2() {
-
-        BValue[] returns = BRunUtil.invoke(compileResult, "testInitInvocationWithReturnAndRestParams2");
-
-        Assert.assertEquals(returns[0].getType().getTag(), TypeTags.OBJECT);
-        Assert.assertEquals(((BInteger) returns[1]).intValue(), 90);
-        Assert.assertEquals(((BInteger) returns[2]).intValue(), 95);
+    public void testInitInvocationWithCheckAndRestParams2() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testInitInvocationWithCheckAndRestParams2");
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue(), "Expected booleans to be identified as equal");
     }
 }

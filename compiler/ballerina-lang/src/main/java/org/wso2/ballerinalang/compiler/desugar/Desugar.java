@@ -349,7 +349,6 @@ public class Desugar extends BLangNodeVisitor {
                 }
 
                 objectTypeNode.generatedInitFunction = createGeneratedInitializerFunction(objectTypeNode, env);
-                BObjectTypeSymbol objectSymbol = ((BObjectTypeSymbol) objectTypeNode.type.tsymbol);
 
                 // Add generated init function to the attached function list
                 pkgNode.functions.add(objectTypeNode.generatedInitFunction);
@@ -369,7 +368,6 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     private BLangFunction createGeneratedInitializerFunction(BLangObjectTypeNode objectTypeNode, SymbolEnv env) {
-
         BLangFunction generatedInitFunc = createInitFunctionForObjectType(objectTypeNode, env);
         if (objectTypeNode.initFunction == null) {
             return generatedInitFunc;
@@ -396,7 +394,6 @@ public class Desugar extends BLangNodeVisitor {
 
     private void addRequiredParamsToGeneratedInitFunction(BLangFunction initFunction, BLangFunction generatedInitFunc,
                                                           BAttachedFunction generatedInitializerFunc) {
-
         if (initFunction.requiredParams.isEmpty()) {
             return;
         }
@@ -414,7 +411,6 @@ public class Desugar extends BLangNodeVisitor {
 
     private void addRestParamsToGeneratedInitFunction(BLangFunction initFunction, BLangFunction generatedInitFunc,
                                                       BAttachedFunction generatedInitializerFunc) {
-
         if (initFunction.restParam == null) {
             return;
         }
@@ -668,7 +664,6 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     private BLangInvocation createUserDefinedInitInvocation(BLangObjectTypeNode objectTypeNode) {
-
         ArrayList<BLangExpression> paramRefs = new ArrayList<>();
         for (BLangSimpleVariable var : objectTypeNode.generatedInitFunction.requiredParams) {
             paramRefs.add(ASTBuilderUtil.createVariableRef(objectTypeNode.pos, var.symbol));
@@ -6097,7 +6092,6 @@ public class Desugar extends BLangNodeVisitor {
 
     private BLangFunction createInitFunctionForStructureType(BLangStructureTypeNode structureTypeNode, SymbolEnv env,
                                                              Name suffix) {
-
         BLangFunction initFunction = ASTBuilderUtil
                 .createInitFunctionWithNilReturn(structureTypeNode.pos, Names.EMPTY.value, suffix);
 
@@ -6145,7 +6139,6 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     private BLangFunction createInitFunctionForObjectType(BLangObjectTypeNode structureTypeNode, SymbolEnv env) {
-
         BLangFunction initFunction = createInitFunctionForStructureType(structureTypeNode, env,
                 Names.GENERATED_INIT_SUFFIX);
         BObjectTypeSymbol typeSymbol = ((BObjectTypeSymbol) structureTypeNode.type.tsymbol);
@@ -6156,7 +6149,6 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     private BLangFunction createInitFunctionForRecordType(BLangRecordTypeNode structureTypeNode, SymbolEnv env) {
-
         BLangFunction initFunction = createInitFunctionForStructureType(structureTypeNode, env,
                 Names.INIT_FUNCTION_SUFFIX);
         BStructureTypeSymbol typeSymbol = ((BStructureTypeSymbol) structureTypeNode.type.tsymbol);

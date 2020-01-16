@@ -246,7 +246,6 @@ type Student1 object {
      public int marks = 75;
 
      public function __init() {
-         string grade = "B";
      }
 
      public function getMarks() returns int {
@@ -255,34 +254,32 @@ type Student1 object {
      }
  };
 
-function testInitInvocationInsideObject() returns ([int, int]) {
+function testInitInvocationInsideObject() returns (boolean) {
     Student1 student = new;
     int marksBeforeChange = student.getMarks();
     student.marks = 80;
     int marksAfterChange = student.getMarks();
-    return [marksBeforeChange, marksAfterChange];
+    return marksBeforeChange == 75 && marksAfterChange == 80;
 }
 
 type Student2 object {
-    public int marks = 75;
     public string grade;
 
     public function __init(string grade) {
         self.grade = grade;
     }
 
-    public function getMarks() returns int {
-        self.__init("B+");
-        return self.marks;
+    public function resetGrade(string grade) returns string {
+        self.__init(grade);
+        return self.grade;
     }
 };
 
-function testInitInvocationInsideObjectWithArgs() returns ([int, int]) {
+function testInitInvocationInsideObjectWithArgs() returns (boolean) {
     Student2 student = new("B");
-    int marksBeforeChange = student.getMarks();
-    student.marks = 82;
-    int marksAfterChange = student.getMarks();
-    return [marksBeforeChange, marksAfterChange];
+    string marksBeforeChange = student.grade;
+    string marksAfterChange = student.resetGrade("B+");
+    return marksBeforeChange == "B" && marksAfterChange == "B+";
 }
 
 type Student3 object {
@@ -307,11 +304,11 @@ function getName(int id) returns string|error {
     }
 }
 
-function testInitInvocationWithReturn1() returns ([Student3|error, int, int]) {
+function testObjInitWithCheck(int id) returns ([Student3|error, int, int]) {
     int marksBeforeChange = 0;
     int marksAfterChange = 0;
 
-    Student3|error student = new(-1);
+    Student3|error student = new(id);
     if (student is error) {
         return [student, marksBeforeChange, marksAfterChange];
     }
@@ -323,46 +320,39 @@ function testInitInvocationWithReturn1() returns ([Student3|error, int, int]) {
     return [s, marksBeforeChange, marksAfterChange];
 }
 
-function testInitInvocationWithReturn2() returns ([Student3|error, int, int]) {
-    int marksBeforeChange = 0;
-    int marksAfterChange = 0;
+function testObjInitWithCheck1() returns (boolean) {
+    var [s, marksBeforeChange, marksAfterChange] = testObjInitWithCheck(-1);
+    return s is error && marksBeforeChange == 0 && marksAfterChange == 0;
+}
 
-    Student3|error student = new(10);
-    if (student is error) {
-        return [student, marksBeforeChange, marksAfterChange];
-    }
-
-    Student3 s = <Student3> student;
-    marksBeforeChange = s.getMarks();
-    s.marks = 95;
-    marksAfterChange = s.getMarks();
-    return [s, marksBeforeChange, marksAfterChange];
+function testObjInitWithCheck2() returns (boolean) {
+    var [s, marksBeforeChange, marksAfterChange] = testObjInitWithCheck(10);
+    return !(s is error) && marksBeforeChange == 90 && marksAfterChange == 95;
 }
 
 type Student4 object {
     string[] modules;
-    string name = "Bob";
 
     public function __init(string... modules) {
         self.modules = modules;
     }
 
-    public function getName() returns string {
-        string[] modules = ["Math", "Physics"];
+    public function changeModules(string... modules) {
         self.__init(...modules);
-        return self.name;
     }
 };
 
-function testInitInvocationWithRestArgs() returns ([string, string]) {
-    string[] modules = ["Math", "Physics"];
+function testInitInvocationWithRestArgs() returns (boolean) {
+    string[] modules = ["Science", "History"];
     Student4 student = new(...modules);
-    string nameBeforeChange = student.getName();
+    string[] nameBeforeChange = student.modules;
 
-    student.name = "Ann";
-    string nameAfterChange = student.getName();
+    string[] newModules = ["Maths", "Physics"];
+    student.changeModules(...newModules);
 
-    return [nameBeforeChange, nameAfterChange];
+    string[] nameAfterChange = student.modules;
+    return nameBeforeChange[0] == "Science" && nameBeforeChange[1] == "History" &&
+        nameAfterChange[0] == "Maths" && nameAfterChange[1] == "Physics";
 }
 
 type Student5 object {
@@ -381,12 +371,11 @@ type Student5 object {
     }
 };
 
-function testInitInvocationWithReturnAndRestParams1() returns ([Student5|error, int, int]) {
+function testInitInvocationWithCheckAndRestParams(int id, string... modules) returns ([Student5|error, int, int]) {
     int marksBeforeChange = 0;
     int marksAfterChange = 0;
-    string[] modules = ["Math", "Physics"];
 
-    Student5|error student = new(-1, ...modules);
+    Student5|error student = new(id, ...modules);
     if (student is error) {
         return [student, marksBeforeChange, marksAfterChange];
     }
@@ -398,19 +387,14 @@ function testInitInvocationWithReturnAndRestParams1() returns ([Student5|error, 
     return [s, marksBeforeChange, marksAfterChange];
 }
 
-function testInitInvocationWithReturnAndRestParams2() returns ([Student5|error, int, int]) {
-    int marksBeforeChange = 0;
-    int marksAfterChange = 0;
+function testInitInvocationWithCheckAndRestParams1() returns (boolean) {
     string[] modules = ["Math", "Physics"];
+    var [s, marksBeforeChange, marksAfterChange] = testInitInvocationWithCheckAndRestParams(-1, ...modules);
+    return s is error && marksBeforeChange == 0 && marksAfterChange == 0;
+}
 
-    Student5|error student = new(10, ...modules);
-    if (student is error) {
-        return [student, marksBeforeChange, marksAfterChange];
-    }
-
-    Student5 s = <Student5> student;
-    marksBeforeChange = s.getMarks();
-    s.marks = 95;
-    marksAfterChange = s.getMarks();
-    return [s, marksBeforeChange, marksAfterChange];
+function testInitInvocationWithCheckAndRestParams2() returns (boolean) {
+    string[] modules = ["Math", "Physics"];
+    var [s, marksBeforeChange, marksAfterChange] = testInitInvocationWithCheckAndRestParams(10, ...modules);
+    return !(s is error) && marksBeforeChange == 90 && marksAfterChange == 95;
 }
