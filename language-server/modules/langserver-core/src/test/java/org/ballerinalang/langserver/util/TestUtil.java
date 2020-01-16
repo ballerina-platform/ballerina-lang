@@ -21,10 +21,10 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import org.ballerinalang.langserver.BallerinaLanguageServer;
+import org.ballerinalang.langserver.DocumentServiceOperationContext;
 import org.ballerinalang.langserver.LSContextOperation;
-import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
+import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.compiler.LSPackageLoader;
-import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.compiler.exception.CompilationFailedException;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
@@ -164,8 +164,10 @@ public class TestUtil {
             Optional<Lock> lock = docManager.lockFile(compilationPath);
             try {
                 docManager.openFile(Paths.get(new URL(docUri).toURI()), content);
-                LSServiceOperationContext context = new LSServiceOperationContext(LSContextOperation.TXT_DID_OPEN);
-                context.put(DocumentServiceKeys.FILE_URI_KEY, docUri);
+                LSContext context = new DocumentServiceOperationContext
+                        .ServiceOperationContextBuilder(LSContextOperation.TXT_DID_OPEN)
+                        .withCommonParams(null, docUri, docManager)
+                        .build();
                 semanticHighlightingParams = SemanticHighlightProvider.getHighlights(context, docManager);
             } catch (WorkspaceDocumentException e) {
                 String msg = "Document Manager encountered error!";

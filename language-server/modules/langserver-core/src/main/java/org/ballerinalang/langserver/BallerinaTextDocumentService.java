@@ -676,8 +676,8 @@ class BallerinaTextDocumentService implements TextDocumentService {
                     String fileURI = params.getTextDocument().getUri();
 
                     LSDocument lsDocument = new LSDocument(fileURI);
-                    diagnosticsHelper.compileAndSendDiagnostics(client, ctx, lsDocument, documentManager);
-                    SemanticHighlightProvider.sendHighlights(client, ctx, documentManager);
+                    diagnosticsHelper.compileAndSendDiagnostics(client, context, lsDocument, documentManager);
+                    SemanticHighlightProvider.sendHighlights(client, context, documentManager);
                     // Clear current cache upon successfull compilation
                     // If the compiler fails, still we'll have the cached entry(marked as outdated)
                     LSCompilerCache.clear(context, lsDocument.getProjectRoot());

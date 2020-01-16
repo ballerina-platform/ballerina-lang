@@ -17,7 +17,6 @@
 */
 import { BallerinaExtension } from '../core';
 import { Highlighter } from './highlighter';
-// import { SemanticHighlightingInformation } from './model';
 import { ExtendedLangClient } from '../core/extended-language-client';
 import { window, workspace } from 'vscode';
 import { SemanticHighlightingParams } from './model';
