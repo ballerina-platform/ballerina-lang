@@ -191,7 +191,7 @@ public type DirectTokenRefreshConfig record {|
 #
 # + accessToken - Access token for the  authorization endpoint
 # + refreshToken - Refresh token for the refresh token server
-# + expiryTime - Expiry time of the access token in milliseconds
+# + expiryTime - Expiry time (milliseconds since the Epoch) of the access token
 public type OutboundOAuth2CacheEntry record {
     string accessToken;
     string refreshToken;

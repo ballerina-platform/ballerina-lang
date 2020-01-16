@@ -60,7 +60,7 @@ public type InboundJwtCacheConfig record {|
 # Represents an entry of JWT cache.
 #
 # + jwtPayload - Parsed JWT payload
-# + expTime - Expiry time of the parsed JWT
+# + expTime - Expiry time (milliseconds since the Epoch) of the parsed JWT
 public type InboundJwtCacheEntry record {|
     JwtPayload jwtPayload;
     int expTime;
