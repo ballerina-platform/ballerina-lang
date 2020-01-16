@@ -71,6 +71,24 @@ function testSlice() returns [float[], int, float[], int, float[], int] {
     return [r1, r1.length(), r2, r2.length(), r3, r3.length()];
 }
 
+function testPushAfterSlice() returns [int, int, float[]] {
+     float[] arr = [12.34, 23.45, 34.56, 45.67, 56.78];
+     float[] s = arr.slice(1, 4);
+     int sl = s.length();
+     s.push(20.1);
+     int slp = s.length();
+     return [sl, slp, s];
+}
+
+function testPushAfterSliceFixed() returns [int, int, int[]] {
+     int[5] arr = [1, 2, 3, 4, 5];
+     int[] s = arr.slice(3);
+     int sl = s.length();
+     s.push(88);
+     int slp = s.length();
+     return [sl, slp, s];
+}
+
 function testRemove() returns [string, string[]] {
     string[] arr = ["Foo", "Bar", "FooFoo", "BarBar"];
     string elem = arr.remove(2);
