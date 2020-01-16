@@ -32,12 +32,14 @@ import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BTypes;
+import org.ballerinalang.jvm.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.api.BArray;
 import org.ballerinalang.jvm.values.api.BValueCreator;
 import org.slf4j.Logger;
+import scala.collection.immutable.Stream;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -69,6 +71,8 @@ import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.PROPERTIES_
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.PROTOCOL_CONFIG;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.SECURE_SOCKET;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.SERDES_BYTE_ARRAY;
+import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.SERDES_FLOAT;
+import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.SERDES_INT;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.SERDES_STRING;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.TOPIC_PARTITION_STRUCT_NAME;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.TRUSTSTORE_CONFIG;
@@ -82,7 +86,7 @@ public class KafkaUtils {
     }
 
     public static Object[] getResourceParameters(ObjectValue service, ObjectValue listener,
-                                                 ConsumerRecords<byte[], byte[]> records, String groupId) {
+                                                 ConsumerRecords records, String groupId) {
 
         BArray consumerRecordsArray = BValueCreator.createArrayValue(new BArrayType(getConsumerRecord().getType()));
         String keyType = listener.getStringValue(CONSUMER_KEY_DESERIALIZER_CONFIG);
@@ -90,7 +94,8 @@ public class KafkaUtils {
 
         if (service.getType().getAttachedFunctions()[0].getParameterType().length == 2) {
             records.forEach(record -> {
-                MapValue<String, Object> consumerRecord = populateConsumerRecord(record, keyType, valueType);
+                ConsumerRecord kafkaRecord = (ConsumerRecord) record;
+                MapValue<String, Object> consumerRecord = populateConsumerRecord(kafkaRecord, keyType, valueType);
                 consumerRecordsArray.append(consumerRecord);
             });
             return new Object[]{listener, true, consumerRecordsArray, true, null, false, null, false};
@@ -98,11 +103,12 @@ public class KafkaUtils {
             BArray partitionOffsetsArray = BValueCreator.createArrayValue(new BArrayType(
                     getPartitionOffsetRecord().getType()));
             records.forEach(record -> {
-                MapValue<String, Object> consumerRecord = populateConsumerRecord(record, keyType, valueType);
-                MapValue<String, Object> topicPartition = populateTopicPartitionRecord(record.topic(),
-                        record.partition());
+                ConsumerRecord kafkaRecord = (ConsumerRecord) record;
+                MapValue<String, Object> consumerRecord = populateConsumerRecord(kafkaRecord, keyType, valueType);
+                MapValue<String, Object> topicPartition = populateTopicPartitionRecord(kafkaRecord.topic(),
+                        kafkaRecord.partition());
                 MapValue<String, Object> partitionOffset = populatePartitionOffsetRecord(topicPartition,
-                        record.offset());
+                        kafkaRecord.offset());
 
                 consumerRecordsArray.append(consumerRecord);
                 partitionOffsetsArray.append(partitionOffset);
@@ -491,12 +497,31 @@ public class KafkaUtils {
 
     private static Object getBValues(Object value, String type) {
         if (SERDES_BYTE_ARRAY.equals(type)) {
-            return BValueCreator.createArrayValue((byte[]) value);
+            if (value instanceof byte[]) {
+                return BValueCreator.createArrayValue((byte[]) value);
+            } else {
+                throw new BLangRuntimeException("Invalid type - expected: byte[]");
+            }
         } else if (SERDES_STRING.equals(type)) {
-            return StringUtils.fromString((String) value);
-        } else {
-            return value;
+            if (value instanceof String) {
+                return StringUtils.fromString((String) value);
+            } else {
+                throw new BLangRuntimeException("Invalid type - expected: string");
+            }
+        } else if (SERDES_INT.equals(type)) {
+            if (value instanceof Long) {
+                return value;
+            } else {
+                throw new BLangRuntimeException("Invalid type - expected: int");
+            }
+        } else if (SERDES_FLOAT.equals(type)) {
+            if (value instanceof Double) {
+                return value;
+            } else {
+                throw new BLangRuntimeException("Invalid type - expected: float");
+            }
         }
+        throw new BLangRuntimeException("Unexpected type");
     }
 
     public static MapValue<String, Object> getConsumerRecord() {

@@ -97,7 +97,7 @@ public class KafkaRecordConsumer {
 
     private void poll() {
         try {
-            ConsumerRecords<byte[], byte[]> recordsRetrieved = null;
+            ConsumerRecords recordsRetrieved = null;
             try {
                 // Make thread-safe as kafka does not support multiple thread access
                 if (!closed.get()) {
@@ -122,7 +122,7 @@ public class KafkaRecordConsumer {
         }
     }
 
-    private void processRetrievedRecords(ConsumerRecords<byte[], byte[]> consumerRecords) {
+    private void processRetrievedRecords(ConsumerRecords consumerRecords) {
         if (Objects.nonNull(consumerRecords) && !consumerRecords.isEmpty()) {
             // When decoupleProcessing == 'true' Kafka records set will be dispatched and processed in
             // Parallel threads.

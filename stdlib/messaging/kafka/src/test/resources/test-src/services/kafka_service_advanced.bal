@@ -24,7 +24,8 @@ kafka:ConsumerConfig consumerConfigs = {
     clientId: "advanced-service-consumer",
     offsetReset: "earliest",
     topics: [topic],
-    autoCommit:false
+    autoCommit:false,
+    valueDeserializer: kafka:DES_INT
 };
 
 listener kafka:Consumer kafkaConsumer = new(consumerConfigs);
@@ -33,7 +34,8 @@ kafka:ProducerConfig producerConfigs = {
     bootstrapServers: "localhost:14110",
     clientId: "advanced-service-producer",
     acks: kafka:ACKS_ALL,
-    retryCount: 3
+    retryCount: 3,
+    valueSerializer: kafka:SER_INT
 };
 
 kafka:Producer kafkaProducer = new(producerConfigs);
@@ -48,8 +50,13 @@ service kafkaService on kafkaConsumer {
         string groupId
     ) {
         if (records.length() > 0 && groupId == "advanced-service-test-group") {
-            foreach var offset in offsets {
-                isSuccess = true;
+            foreach var kafkaRecord in records {
+                var value = kafkaRecord.value;
+                if (value is int) {
+                    if (value == 1135) {
+                        isSuccess = true;
+                    }
+                }
             }
         }
     }
@@ -60,7 +67,6 @@ function funcKafkaGetResultText() returns boolean {
 }
 
 function funcKafkaProduce() {
-    string msg = "test_string";
-    byte[] byteMsg = msg.toBytes();
-    var result = kafkaProducer->send(byteMsg, topic);
+    int msg = 1135;
+    var result = kafkaProducer->send(msg, topic);
 }
