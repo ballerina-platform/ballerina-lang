@@ -331,7 +331,7 @@ function performRedirection(string location, RedirectClient redirectClient, Http
     var cookieConfigVal = redirectClient.config.cookieConfig;
     if (cookieConfigVal is CookieConfig) {
         if (cookieConfigVal.enabled) {
-            cookieStore = new(cookieConfigVal?.persistentStore);
+            cookieStore = new(cookieConfigVal?.persistentCookieHandler);
         }
     }
     var retryClient = createRetryClient(location, createNewEndpointConfig(redirectClient.config), cookieStore);

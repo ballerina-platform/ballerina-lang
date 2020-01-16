@@ -26,12 +26,9 @@ public type CookieStore object {
     Cookie[] allSessionCookies = [];
     PersistentCookieHandler? persistentCookieHandler = ();
 
-    public function __init(PersistentCookieHandler | string? persistentStore) {
-        if (persistentStore is string) {
-            self.persistentCookieHandler = new DefaultPersistentCookieHandler(persistentStore);
-        }
-        if (persistentStore is PersistentCookieHandler) {
-            self.persistentCookieHandler = persistentStore;
+    public function __init(PersistentCookieHandler? persistentCookieHandler) {
+        if (persistentCookieHandler is PersistentCookieHandler) {
+            self.persistentCookieHandler = persistentCookieHandler;
         }
     }
 
@@ -48,7 +45,7 @@ public type CookieStore object {
         }
         string domain = getDomain(url);
         if (self.getCookiesByDomain(domain).length() == cookieConfig.maxCookiesPerDomain) {
-            log:printInfo("Number of total cookies for the domain: " + domain + "in the cookie store can not exceed the maximum amount per domain");
+            log:printInfo("Number of total cookies for the domain: " + domain + " in the cookie store can not exceed the maximum amount per domain");
             return;
         }
         string path  = requestPath;
