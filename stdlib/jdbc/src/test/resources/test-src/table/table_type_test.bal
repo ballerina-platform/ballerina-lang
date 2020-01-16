@@ -1564,15 +1564,15 @@ function testSelectQueryWithCursorTable(string jdbcURL) returns @tainted error? 
         poolOptions: {maximumPoolSize: 1}
     });
 
-    table<IntData> t1 = check testDB->select("SELECT int_type from DataTable WHERE row_id = 1", IntData);
+    table<record {}> t1 = check testDB->select("SELECT int_type from DataTable WHERE row_id = 1", IntData);
     error? e = trap testSelectQueryWithCursorTableHelper(t1);
     t1.close();
     checkpanic testDB.stop();
     return e;
 }
 
-function testSelectQueryWithCursorTableHelper(table<IntData> t1) {
-    table<IntData> t1Copy = from t1
+function testSelectQueryWithCursorTableHelper(table<record {}> t1) {
+    table<record {}> t1Copy = from t1
     select *;
 }
 
@@ -1584,8 +1584,8 @@ function testJoinQueryWithCursorTable(string jdbcURL) returns @tainted error? {
         poolOptions: {maximumPoolSize: 2}
     });
 
-    table<IntData> t1 = check testDB->select("SELECT int_type from DataTable WHERE row_id = 1", IntData);
-    table<IntData> t2 = check testDB->select("SELECT int_type from DataTable WHERE row_id = 1", IntData);
+    table<record {}> t1 = check testDB->select("SELECT int_type from DataTable WHERE row_id = 1", IntData);
+    table<record {}> t2 = check testDB->select("SELECT int_type from DataTable WHERE row_id = 1", IntData);
 
     error? e = trap testJoinQueryWithCursorTableHelper(t1, t2);
     t1.close();
@@ -1626,7 +1626,7 @@ function testTypeCheckingConstrainedCursorTableWithClosedConstraint(string jdbcU
     return [i, l, f, d, b, s];
 }
 
-function testJoinQueryWithCursorTableHelper(table<IntData> t1, table<IntData> t2) {
+function testJoinQueryWithCursorTableHelper(table<record {}> t1, table<record {}> t2) {
     table<IntData> joinedTable = from t1 as table1
     join t2 as table2 on
     table1.int_type == table2.int_type
