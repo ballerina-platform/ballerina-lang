@@ -2554,6 +2554,14 @@ public class TypeChecker extends BLangNodeVisitor {
     @Override
     public void visit(BLangTableQuery tableQuery) {
         BLangStreamingInput streamingInput = (BLangStreamingInput) tableQuery.getStreamingInput();
+
+        if (expType.tag == TypeTags.TABLE) {
+            BRecordType recordType = new BRecordType(new BRecordTypeSymbol(SymTag.RECORD, 0, Names.EMPTY, null, null,
+                                                                           null));
+            recordType.restFieldType = symTable.anydataType;
+            expType = new BTableType(TypeTags.TABLE, recordType, null);
+        }
+
         streamingInput.accept(this);
 
         BLangJoinStreamingInput joinStreamingInput = (BLangJoinStreamingInput) tableQuery.getJoinStreamingInput();
