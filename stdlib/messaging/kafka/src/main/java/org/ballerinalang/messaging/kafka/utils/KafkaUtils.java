@@ -29,13 +29,14 @@ import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.config.SslConfigs;
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.BallerinaValues;
+import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BTypes;
-import org.ballerinalang.jvm.values.ArrayValue;
-import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.api.BArray;
+import org.ballerinalang.jvm.values.api.BValueCreator;
 import org.slf4j.Logger;
 
 import java.util.ArrayList;
@@ -57,7 +58,9 @@ import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.ALIAS_TOPIC
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.CONSUMER_BOOTSTRAP_SERVERS_CONFIG;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.CONSUMER_CONFIG_FIELD_NAME;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.CONSUMER_ERROR;
+import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.CONSUMER_KEY_DESERIALIZER_CONFIG;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.CONSUMER_RECORD_STRUCT_NAME;
+import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.CONSUMER_VALUE_DESERIALIZER_CONFIG;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.DETAIL_RECORD_NAME;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.KAFKA_PROTOCOL_PACKAGE_ID;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.KEYSTORE_CONFIG;
@@ -65,6 +68,8 @@ import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.OFFSET_STRU
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.PROPERTIES_ARRAY;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.PROTOCOL_CONFIG;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.SECURE_SOCKET;
+import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.SERDES_BYTE_ARRAY;
+import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.SERDES_STRING;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.TOPIC_PARTITION_STRUCT_NAME;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.TRUSTSTORE_CONFIG;
 
@@ -79,44 +84,29 @@ public class KafkaUtils {
     public static Object[] getResourceParameters(ObjectValue service, ObjectValue listener,
                                                  ConsumerRecords<byte[], byte[]> records, String groupId) {
 
-        ArrayValue consumerRecordsArray = new ArrayValueImpl(new BArrayType(getConsumerRecord().getType()));
+        BArray consumerRecordsArray = BValueCreator.createArrayValue(new BArrayType(getConsumerRecord().getType()));
+        String keyType = listener.getStringValue(CONSUMER_KEY_DESERIALIZER_CONFIG);
+        String valueType = listener.getStringValue(CONSUMER_VALUE_DESERIALIZER_CONFIG);
 
         if (service.getType().getAttachedFunctions()[0].getParameterType().length == 2) {
-//            records.forEach(record -> {
-//                MapValue<String, Object> consumerRecord = populateConsumerRecord(record);
-//                consumerRecordsArray.append(consumerRecord);
-//            });
-            // TODO: Use the above commented code instead of the for loop once #17075 fixed.
-            int i = 0;
-            for (ConsumerRecord<byte[], byte[]> record : records) {
-                MapValue<String, Object> consumerRecord = populateConsumerRecord(record);
-                consumerRecordsArray.add(i++, consumerRecord);
-            }
+            records.forEach(record -> {
+                MapValue<String, Object> consumerRecord = populateConsumerRecord(record, keyType, valueType);
+                consumerRecordsArray.append(consumerRecord);
+            });
             return new Object[]{listener, true, consumerRecordsArray, true, null, false, null, false};
         } else {
-            ArrayValue partitionOffsetsArray = new ArrayValueImpl(new BArrayType(getPartitionOffsetRecord().getType()));
-//            records.forEach(record -> {
-//                MapValue<String, Object> consumerRecord = populateConsumerRecord(record);
-//                MapValue<String, Object> topicPartition = populateTopicPartitionRecord(record.topic(),
-//                        record.partition());
-//                MapValue<String, Object> partitionOffset = populatePartitionOffsetRecord(topicPartition,
-//                        record.offset());
-//
-//                consumerRecordsArray.append(consumerRecord);
-//                partitionOffsetsArray.append(partitionOffset);
-//            });
-            // TODO: Use the above commented code instead of the for loop once #17075 fixed.
-            int i = 0;
-            for (ConsumerRecord<byte[], byte[]> record : records) {
-                MapValue<String, Object> consumerRecord = populateConsumerRecord(record);
+            BArray partitionOffsetsArray = BValueCreator.createArrayValue(new BArrayType(
+                    getPartitionOffsetRecord().getType()));
+            records.forEach(record -> {
+                MapValue<String, Object> consumerRecord = populateConsumerRecord(record, keyType, valueType);
                 MapValue<String, Object> topicPartition = populateTopicPartitionRecord(record.topic(),
                         record.partition());
                 MapValue<String, Object> partitionOffset = populatePartitionOffsetRecord(topicPartition,
                         record.offset());
-                consumerRecordsArray.add(i, consumerRecord);
-                partitionOffsetsArray.add(i, partitionOffset);
-                i++;
-            }
+
+                consumerRecordsArray.append(consumerRecord);
+                partitionOffsetsArray.append(partitionOffset);
+            });
             return new Object[]{listener, true, consumerRecordsArray, true, partitionOffsetsArray, true, groupId, true};
         }
     }
@@ -236,7 +226,6 @@ public class KafkaUtils {
 
         addSerializerConfigs(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, configurations,
                 properties, KafkaConstants.PRODUCER_KEY_SERIALIZER_CONFIG);
-        ;
         addSerializerConfigs(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, configurations,
                 properties, KafkaConstants.PRODUCER_VALUE_SERIALIZER_CONFIG);
 
@@ -401,7 +390,7 @@ public class KafkaUtils {
                                                      MapValue<String, Object> configs,
                                                      Properties configParams,
                                                      String key) {
-        ArrayValue stringArray = (ArrayValue) configs.get(key);
+        BArray stringArray = (BArray) configs.get(key);
         List<String> values = getStringListFromStringArrayValue(stringArray);
         configParams.put(paramName, values);
     }
@@ -435,7 +424,7 @@ public class KafkaUtils {
         configParams.put(paramName, value);
     }
 
-    public static ArrayList<TopicPartition> getTopicPartitionList(ArrayValue partitions, Logger logger) {
+    public static ArrayList<TopicPartition> getTopicPartitionList(BArray partitions, Logger logger) {
         ArrayList<TopicPartition> partitionList = new ArrayList<>();
         if (partitions != null) {
             for (int counter = 0; counter < partitions.size(); counter++) {
@@ -448,7 +437,7 @@ public class KafkaUtils {
         return partitionList;
     }
 
-    public static ArrayList<String> getStringListFromStringArrayValue(ArrayValue stringArray) {
+    public static List<String> getStringListFromStringArrayValue(BArray stringArray) {
         ArrayList<String> values = new ArrayList<>();
         if ((Objects.isNull(stringArray)) ||
                 (!((BArrayType) stringArray.getType()).getElementType().equals(BTypes.typeString))) {
@@ -479,24 +468,35 @@ public class KafkaUtils {
         return createRecord(getPartitionOffsetRecord(), topicPartition, offset);
     }
 
-    public static MapValue<String, Object> populateConsumerRecord(ConsumerRecord<byte[], byte[]> record) {
+    public static MapValue<String, Object> populateConsumerRecord(ConsumerRecord record, String keyType,
+                                                                  String valueType) {
         if (Objects.isNull(record)) {
             return null;
         }
+
+        Object key = null;
+        if (Objects.nonNull(record.key())) {
+            key = getBValues(record.key(), keyType);
+        }
+        Object value = getBValues(record.value(), valueType);
+
         return createRecord(getConsumerRecord(),
-                getByteArrayValue(record.key()),
-                getByteArrayValue(record.value()),
+                key,
+                value,
                 record.offset(),
                 record.partition(),
                 record.timestamp(),
                 record.topic());
     }
 
-    private static ArrayValue getByteArrayValue(byte[] byteArray) {
-        if (Objects.isNull(byteArray)) {
-            return null;
+    private static Object getBValues(Object value, String type) {
+        if (SERDES_BYTE_ARRAY.equals(type)) {
+            return BValueCreator.createArrayValue((byte[]) value);
+        } else if (SERDES_STRING.equals(type)) {
+            return StringUtils.fromString((String) value);
+        } else {
+            return value;
         }
-        return new ArrayValueImpl(byteArray);
     }
 
     public static MapValue<String, Object> getConsumerRecord() {
@@ -533,8 +533,9 @@ public class KafkaUtils {
         return BallerinaValues.createRecordValue(KAFKA_PROTOCOL_PACKAGE_ID, recordName);
     }
 
-    public static ArrayValue getPartitionOffsetArrayFromOffsetMap(Map<TopicPartition, Long> offsetMap) {
-        ArrayValue partitionOffsetArray = new ArrayValueImpl(new BArrayType(getPartitionOffsetRecord().getType()));
+    public static BArray getPartitionOffsetArrayFromOffsetMap(Map<TopicPartition, Long> offsetMap) {
+        BArray partitionOffsetArray = BValueCreator.createArrayValue(new BArrayType(
+                getPartitionOffsetRecord().getType()));
         if (!offsetMap.entrySet().isEmpty()) {
             // TODO: remove the counter variable and use append method once #17075 fixed.
             int i = 0;
@@ -555,7 +556,7 @@ public class KafkaUtils {
      * @param offsets ArrayValue of Ballerina {@code PartitionOffset} records
      * @return {@code Map<TopicPartition, OffsetAndMetadata>} created using Ballerina {@code PartitionOffset}
      */
-    public static Map<TopicPartition, OffsetAndMetadata> getPartitionToMetadataMap(ArrayValue offsets) {
+    public static Map<TopicPartition, OffsetAndMetadata> getPartitionToMetadataMap(BArray offsets) {
         Map<TopicPartition, OffsetAndMetadata> partitionToMetadataMap = new HashMap<>();
         for (int i = 0; i < offsets.size(); i++) {
             MapValue offset = (MapValue) offsets.get(i);
@@ -651,7 +652,7 @@ public class KafkaUtils {
         return (String) listenerConfigurations.get(CONSUMER_BOOTSTRAP_SERVERS_CONFIG);
     }
 
-    public static String getTopicNamesString(ArrayList<String> topicsList) {
+    public static String getTopicNamesString(List<String> topicsList) {
         return String.join(", ", topicsList);
     }
 }

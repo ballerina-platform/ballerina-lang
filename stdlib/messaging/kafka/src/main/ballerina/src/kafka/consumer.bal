@@ -151,12 +151,16 @@ public type Consumer client object {
     *'object:Listener;
 
     public ConsumerConfig? consumerConfig = ();
+    private string keyDeserializer = "";
+    private string valueDeserializer = "";
 
     # Creates a new Kafka `Consumer`.
     #
     # + config - Configurations related to consumer endpoint.
     public function __init (ConsumerConfig config) {
         self.consumerConfig = config;
+        self.keyDeserializer = config.keyDeserializer;
+        self.valueDeserializer = config.valueDeserializer;
         var initResult = self.init(config);
         if (initResult is error) {
             panic initResult;

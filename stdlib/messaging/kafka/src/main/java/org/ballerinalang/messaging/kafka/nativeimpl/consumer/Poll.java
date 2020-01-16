@@ -18,6 +18,7 @@
 
 package org.ballerinalang.messaging.kafka.nativeimpl.consumer;
 
+import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.KafkaException;
@@ -33,6 +34,8 @@ import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
 import java.time.Duration;
 
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.CONSUMER_ERROR;
+import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.CONSUMER_KEY_DESERIALIZER_CONFIG;
+import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.CONSUMER_VALUE_DESERIALIZER_CONFIG;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.NATIVE_CONSUMER;
 import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.createKafkaError;
 import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.getConsumerRecord;
@@ -47,14 +50,21 @@ public class Poll {
         Strand strand = Scheduler.getStrand();
         NonBlockingCallback callback = new NonBlockingCallback(strand);
         KafkaConsumer kafkaConsumer = (KafkaConsumer) consumerObject.getNativeData(NATIVE_CONSUMER);
+        String keyType = consumerObject.getStringValue(CONSUMER_KEY_DESERIALIZER_CONFIG);
+        String valueType = consumerObject.getStringValue(CONSUMER_VALUE_DESERIALIZER_CONFIG);
         Duration duration = Duration.ofMillis(timeout);
+
         ArrayValue consumerRecordsArray =
                 (ArrayValue) BValueCreator.createArrayValue(new BArrayType(getConsumerRecord().getType()));
         try {
-            ConsumerRecords<byte[], byte[]> recordsRetrieved = kafkaConsumer.poll(duration);
+            ConsumerRecords recordsRetrieved = kafkaConsumer.poll(duration);
             if (!recordsRetrieved.isEmpty()) {
                 recordsRetrieved.forEach(record -> {
-                    MapValue<String, Object> recordValue = populateConsumerRecord(record);
+                    MapValue<String, Object> recordValue = populateConsumerRecord(
+                            (ConsumerRecord) record,
+                            keyType,
+                            valueType
+                    );
                     consumerRecordsArray.append(recordValue);
                 });
             }

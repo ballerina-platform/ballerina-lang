@@ -26,17 +26,18 @@ import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.values.ArrayValue;
-import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.FPValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.api.BArray;
+import org.ballerinalang.jvm.values.api.BValueCreator;
 import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 
-import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.CONSUMER_ERROR;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.CONSUMER_STRUCT_NAME;
@@ -71,7 +72,7 @@ public class SubscribeWithPartitionRebalance {
 
         NonBlockingCallback callback = new NonBlockingCallback(strand);
         KafkaConsumer kafkaConsumer = (KafkaConsumer) consumerObject.getNativeData(NATIVE_CONSUMER);
-        ArrayList<String> topicsList = getStringListFromStringArrayValue(topics);
+        List<String> topicsList = getStringListFromStringArrayValue(topics);
         ConsumerRebalanceListener consumer = new KafkaRebalanceListener(strand, strand.scheduler, onPartitionsRevoked,
                 onPartitionsAssigned, consumerObject);
 
@@ -129,20 +130,14 @@ public class SubscribeWithPartitionRebalance {
             this.scheduler.schedule(inputArgs, onPartitionsAssigned.getConsumer(), strand, null);
         }
 
-        private ArrayValue getPartitionsArray(Collection<TopicPartition> partitions) {
-            ArrayValue topicPartitionArray = new ArrayValueImpl(new BArrayType(getTopicPartitionRecord().getType()));
-//            partitions.forEach(partition -> {
-//                MapValue<String, Object> topicPartition = populateTopicPartitionRecord(partition.topic(),
-//                        partition.partition());
-//                topicPartitionArray.append(topicPartition);
-//            });
-            // TODO: Use the above commented code instead of the for loop once #17075 fixed.
-            int i = 0;
-            for (TopicPartition partition : partitions) {
+        private BArray getPartitionsArray(Collection<TopicPartition> partitions) {
+            BArray topicPartitionArray = BValueCreator.createArrayValue(
+                    new BArrayType(getTopicPartitionRecord().getType()));
+            partitions.forEach(partition -> {
                 MapValue<String, Object> topicPartition = populateTopicPartitionRecord(partition.topic(),
                         partition.partition());
-                topicPartitionArray.add(i++, topicPartition);
-            }
+                topicPartitionArray.append(topicPartition);
+            });
             return topicPartitionArray;
         }
     }

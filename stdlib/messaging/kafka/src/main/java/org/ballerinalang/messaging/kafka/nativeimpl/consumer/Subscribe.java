@@ -24,7 +24,7 @@ import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 
 import java.io.PrintStream;
-import java.util.ArrayList;
+import java.util.List;
 
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.CONSUMER_ERROR;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.NATIVE_CONSUMER;
@@ -41,7 +41,7 @@ public class Subscribe {
 
     public static Object subscribe(ObjectValue consumerObject, ArrayValue topics) {
         KafkaConsumer kafkaConsumer = (KafkaConsumer) consumerObject.getNativeData(NATIVE_CONSUMER);
-        ArrayList<String> topicsList = getStringListFromStringArrayValue(topics);
+        List<String> topicsList = getStringListFromStringArrayValue(topics);
         try {
             kafkaConsumer.subscribe(topicsList);
         } catch (IllegalArgumentException | IllegalStateException | KafkaException e) {
