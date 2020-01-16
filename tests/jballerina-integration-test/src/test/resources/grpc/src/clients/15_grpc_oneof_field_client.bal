@@ -258,16 +258,28 @@ public type OneofFieldServiceBlockingClient client object {
 
     *grpc:AbstractClientEndpoint;
 
-    private grpc:Client grpcClient;
+    private grpc:Client? grpcClient = ();
 
     public function __init(string url, grpc:ClientConfiguration? config = ()) {
         // initialize client endpoint.
-        self.grpcClient = new(url, config);
-        checkpanic self.grpcClient.initStub(self, "blocking", ROOT_DESCRIPTOR, getDescriptorMap());
+        grpc:Client c = new(url, config);
+        grpc:Error? result = c.initStub(self, "blocking", ROOT_DESCRIPTOR, getDescriptorMap());
+        if (result is grpc:Error) {
+            error err = result;
+            panic err;
+        } else {
+            self.grpcClient = c;
+        }
     }
 
     public remote function hello(Request1 req, grpc:Headers? headers = ()) returns ([Response1, grpc:Headers]|grpc:Error) {
-        var payload = check self.grpcClient->blockingExecute("grpcservices.OneofFieldService/hello", req, headers);
+
+        if !(self.grpcClient is grpc:Client) {
+            error err = error("UninitializedFieldsErrorType", message = "Field(s) are not initialized");
+            return grpc:prepareError(grpc:INTERNAL_ERROR, "Field(s) are not initialized", err);
+        }
+        grpc:Client tempGrpcClient = <grpc:Client> self.grpcClient;
+        var payload = check tempGrpcClient->blockingExecute("grpcservices.OneofFieldService/hello", req, headers);
         grpc:Headers resHeaders = new;
         anydata result = ();
         [result, resHeaders] = payload;
@@ -281,7 +293,13 @@ public type OneofFieldServiceBlockingClient client object {
     }
 
     public remote function testOneofField(ZZZ req, grpc:Headers? headers = ()) returns ([ZZZ, grpc:Headers]|grpc:Error) {
-        var payload = check self.grpcClient->blockingExecute("grpcservices.OneofFieldService/testOneofField", req, headers);
+
+        if !(self.grpcClient is grpc:Client) {
+            error err = error("UninitializedFieldsErrorType", message = "Field(s) are not initialized");
+            return grpc:prepareError(grpc:INTERNAL_ERROR, "Field(s) are not initialized", err);
+        }
+        grpc:Client tempGrpcClient = <grpc:Client> self.grpcClient;
+        var payload = check tempGrpcClient->blockingExecute("grpcservices.OneofFieldService/testOneofField", req, headers);
         grpc:Headers resHeaders = new;
         anydata result = ();
         [result, resHeaders] = payload;
@@ -300,20 +318,38 @@ public type OneofFieldServiceClient client object {
 
     *grpc:AbstractClientEndpoint;
 
-    private grpc:Client grpcClient;
+    private grpc:Client? grpcClient = ();
 
     public function __init(string url, grpc:ClientConfiguration? config = ()) {
         // initialize client endpoint.
-        self.grpcClient = new(url, config);
-        checkpanic self.grpcClient.initStub(self, "non-blocking", ROOT_DESCRIPTOR, getDescriptorMap());
+        grpc:Client c = new(url, config);
+        grpc:Error? result = c.initStub(self, "non-blocking", ROOT_DESCRIPTOR, getDescriptorMap());
+        if (result is grpc:Error) {
+            error err = result;
+            panic err;
+        } else {
+            self.grpcClient = c;
+        }
     }
 
     public remote function hello(Request1 req, service msgListener, grpc:Headers? headers = ()) returns (grpc:Error?) {
-        return self.grpcClient->nonBlockingExecute("grpcservices.OneofFieldService/hello", req, msgListener, headers);
+
+        if !(self.grpcClient is grpc:Client) {
+            error err = error("UninitializedFieldsErrorType", message = "Field(s) are not initialized");
+            return grpc:prepareError(grpc:INTERNAL_ERROR, "Field(s) are not initialized", err);
+        }
+        grpc:Client tempGrpcClient = <grpc:Client> self.grpcClient;
+        return tempGrpcClient->nonBlockingExecute("grpcservices.OneofFieldService/hello", req, msgListener, headers);
     }
 
     public remote function testOneofField(ZZZ req, service msgListener, grpc:Headers? headers = ()) returns (grpc:Error?) {
-        return self.grpcClient->nonBlockingExecute("grpcservices.OneofFieldService/testOneofField", req, msgListener, headers);
+
+        if !(self.grpcClient is grpc:Client) {
+            error err = error("UninitializedFieldsErrorType", message = "Field(s) are not initialized");
+            return grpc:prepareError(grpc:INTERNAL_ERROR, "Field(s) are not initialized", err);
+        }
+        grpc:Client tempGrpcClient = <grpc:Client> self.grpcClient;
+        return tempGrpcClient->nonBlockingExecute("grpcservices.OneofFieldService/testOneofField", req, msgListener, headers);
     }
 };
 

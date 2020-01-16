@@ -114,10 +114,10 @@ public class BuiltinOperationsTest {
     @Test(description = "Test negative tests")
     public void testNegativeTests() {
         Assert.assertEquals(resNegative.getErrorCount(), 5);
-        BAssertUtil.validateError(resNegative, 0, "undefined function 'isNaN'", 20, 28);
-        BAssertUtil.validateError(resNegative, 1, "undefined function 'isInfinite'", 21, 33);
-        BAssertUtil.validateError(resNegative, 2, "undefined function 'isFinite'", 22, 28);
-        BAssertUtil.validateError(resNegative, 3, "undefined function 'isNaN'", 24, 25);
-        BAssertUtil.validateError(resNegative, 4, "undefined function 'isInfinite'", 25, 34);
+        BAssertUtil.validateError(resNegative, 0, "undefined function 'isNaN'", 20, 21);
+        BAssertUtil.validateError(resNegative, 1, "undefined function 'isInfinite'", 21, 21);
+        BAssertUtil.validateError(resNegative, 2, "undefined function 'isFinite'", 22, 21);
+        BAssertUtil.validateError(resNegative, 3, "undefined function 'isNaN'", 24, 18);
+        BAssertUtil.validateError(resNegative, 4, "undefined function 'isInfinite'", 25, 22);
     }
 }

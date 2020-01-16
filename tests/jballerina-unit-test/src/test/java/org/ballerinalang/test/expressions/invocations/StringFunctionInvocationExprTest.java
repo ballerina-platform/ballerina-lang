@@ -64,6 +64,6 @@ public class StringFunctionInvocationExprTest {
     @Test
     public void testStringFunctionInvocationNegative() {
         Assert.assertEquals(compileResultNegative.getErrorCount(), 1);
-        BAssertUtil.validateError(compileResultNegative, 0, "undefined function 'randomFunction'", 2, 27);
+        BAssertUtil.validateError(compileResultNegative, 0, "undefined function 'randomFunction'", 2, 18);
     }
 }
