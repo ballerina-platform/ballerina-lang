@@ -32,7 +32,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangErrorVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
-import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangRecordVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
@@ -112,7 +111,6 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -754,14 +752,9 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
 
     @Override
     public void visit(BLangWorkerFlushExpr workerFlushExpr) {
-        // Do not modify the worker list. If needed to modify, create a new copy
-        List<BLangIdentifier> workers = workerFlushExpr.workerIdentifier == null ? workerFlushExpr.workerIdentifierList
-                : Collections.singletonList(workerFlushExpr.workerIdentifier);
-        for (BLangIdentifier worker : workers) {
-            if (worker.value.equals(this.tokenName)) {
-                DiagnosticPos pos = worker.getPosition();
-                this.addSymbol(workerFlushExpr, this.getWorkerSymbolForName(this.tokenName), false, pos);
-            }
+        if (workerFlushExpr.workerIdentifier.value.equals(this.tokenName)) {
+            DiagnosticPos pos = workerFlushExpr.workerIdentifier.getPosition();
+            this.addSymbol(workerFlushExpr, this.getWorkerSymbolForName(this.tokenName), false, pos);
         }
     }
 
