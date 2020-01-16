@@ -211,8 +211,8 @@ public class HttpService implements Cloneable {
             httpService.setCorsHeaders(CorsHeaders.buildCorsHeaders(serviceConfig.getMapValue(CORS_FIELD)));
             httpService.setHostName(serviceConfig.getStringValue(HOST_FIELD).trim());
 
-            String basePath = serviceConfig.getStringValue(BASE_PATH_FIELD).replaceAll(
-                    HttpConstants.REGEX, HttpConstants.SINGLE_SLASH);
+            String basePath = serviceConfig.getStringValue(BASE_PATH_FIELD).replaceAll(HttpConstants.REGEX,
+                    HttpConstants.SINGLE_SLASH);
             if (basePath.contains(HttpConstants.VERSION)) {
                 prepareBasePathList(serviceConfig.getMapValue(VERSIONING_FIELD),
                                     serviceConfig.getStringValue(BASE_PATH_FIELD), basePathList,
