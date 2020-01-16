@@ -20,13 +20,8 @@ package org.ballerinalang.messaging.kafka.nativeimpl.consumer;
 
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.KafkaException;
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.messaging.kafka.utils.KafkaConstants;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.Receiver;
 
 import java.io.PrintStream;
 import java.util.Objects;
@@ -35,33 +30,19 @@ import java.util.Properties;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.CONSUMER_BOOTSTRAP_SERVERS_CONFIG;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.CONSUMER_CONFIG_FIELD_NAME;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.CONSUMER_ERROR;
-import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.KAFKA_PACKAGE_NAME;
-import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.KAFKA_PROTOCOL_PACKAGE;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.KAFKA_SERVERS;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.NATIVE_CONSUMER;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.NATIVE_CONSUMER_CONFIG;
-import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.ORG_NAME;
 import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.createKafkaError;
 import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.processKafkaConsumerConfig;
 
 /**
  * Native function connects consumer to remote cluster.
  */
-@BallerinaFunction(
-        orgName = ORG_NAME,
-        packageName = KAFKA_PACKAGE_NAME,
-        functionName = "connect",
-        receiver = @Receiver(
-                type = TypeKind.OBJECT,
-                structType = KafkaConstants.CONSUMER_STRUCT_NAME,
-                structPackage = KAFKA_PROTOCOL_PACKAGE
-        ),
-        isPublic = true
-)
 public class Connect {
     private static final PrintStream console = System.out;
 
-    public static Object connect(Strand strand, ObjectValue consumerObject) {
+    public static Object connect(ObjectValue consumerObject) {
         // Check whether already native consumer is attached to the struct.
         // This can be happen either from Kafka service or via programmatically.
         if (Objects.nonNull(consumerObject.getNativeData(NATIVE_CONSUMER))) {

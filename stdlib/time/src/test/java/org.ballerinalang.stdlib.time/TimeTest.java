@@ -202,9 +202,13 @@ public class TimeTest {
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 2017);
     }
 
-    @Test(expectedExceptions = BLangRuntimeException.class,
-          expectedExceptionsMessageRegExp = ".*TimeError message=invalid timezone id: test\n"
-                  + "\tat ballerina.time:getYear.*")
+    // TODO: Re-enable this when #19893 fixed
+    @Test(
+            expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = ".*TimeError message=invalid timezone id: test\n"
+                  + "\tat ballerina.time:getYear.*",
+            enabled = false
+    )
     public void testManualTimeCreateWithInvalidZone() {
         BValue[] returns = BRunUtil.invoke(result, "testManualTimeCreateWithInvalidZone");
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 2017);

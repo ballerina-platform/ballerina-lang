@@ -171,3 +171,41 @@ function testIndirectErrorVariableDef2() {
     e
     ;
 }
+
+type ErrorData record {
+    string message?;
+    error cause?;
+};
+
+type ER error<string, ErrorData>;
+
+function testIndirectErrorMatchPattern1() returns string {
+    ER err1 = error("Error Code", message = "Msg");
+    match err1 {
+        ER (message = m, ...var rest) => {
+            return <string>m;
+        }
+    }
+    return "Default";
+}
+
+function testIndirectErrorMatchPattern2() returns string {
+    ER err1 = error("Error Code", message = "Msg");
+    match err1 {
+        ER
+        (
+        message
+        =
+        m
+        ,
+        ...
+        var
+        rest
+        )
+        =>
+        {
+            return <string>m;
+        }
+    }
+    return "Default";
+}

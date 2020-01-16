@@ -31,13 +31,13 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
  */
 public class BLangOutputRateLimit extends BLangNode implements OutputRateLimitNode {
 
-    private String outputRateType;
+    public String outputRateType;
 
-    private String timeScale;
+    public String timeScale;
 
-    private String rateLimitValue;
+    public String rateLimitValue;
 
-    private boolean isSnapshot;
+    public boolean isSnapshot;
 
     @Override
     public String getOutputRateType() {

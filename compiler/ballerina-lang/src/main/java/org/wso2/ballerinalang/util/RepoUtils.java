@@ -142,6 +142,15 @@ public class RepoUtils {
         return PRODUCTION_URL;
     }
 
+    /**
+     * Get the staging URL.
+     *
+     * @return URL of the remote repository
+     */
+    public static String getStagingURL() {
+            return STAGING_URL;
+    }
+
     public static Path getLibDir() {
         return Paths.get(System.getProperty(BALLERINA_INSTALL_DIR_PROP, ".")).resolve("lib");
     }

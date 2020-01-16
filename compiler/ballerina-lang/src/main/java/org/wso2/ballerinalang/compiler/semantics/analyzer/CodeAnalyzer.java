@@ -38,6 +38,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
@@ -133,6 +134,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchBindingPatternClause;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStaticBindingPatternClause;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStructuredBindingPatternClause;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangPanic;
@@ -188,7 +190,6 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import static org.wso2.ballerinalang.compiler.tree.BLangInvokableNode.DEFAULT_WORKER_NAME;
-import static org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchBindingPatternClause;
 import static org.wso2.ballerinalang.compiler.util.Constants.MAIN_FUNCTION_NAME;
 import static org.wso2.ballerinalang.compiler.util.Constants.WORKER_LAMBDA_VAR_PREFIX;
 
@@ -1271,6 +1272,18 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                     checkForExportableType(streamType.constraint.tsymbol, pos);
                 }
                 return;
+            case TypeTags.INVOKABLE:
+                BInvokableType invokableType = (BInvokableType) symbol.type;
+                if (invokableType.paramTypes != null) {
+                    for (BType paramType : invokableType.paramTypes) {
+                        checkForExportableType(paramType.tsymbol, pos);
+                    }
+                }
+                if (invokableType.restType != null) {
+                    checkForExportableType(invokableType.restType.tsymbol, pos);
+                }
+                checkForExportableType(invokableType.retType.tsymbol, pos);
+                return;
             // TODO : Add support for other types. such as union and objects
         }
         if (!Symbols.isPublic(symbol)) {
@@ -1601,7 +1614,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         if (type == symTable.semanticError) {
             // Error of this is already printed as undef-var
             was.hasErrors = true;
-        } else if (!types.isAnydata(type)) {
+        } else if (!type.isAnydata()) {
             this.dlog.error(workerSendNode.pos, DiagnosticCode.INVALID_TYPE_FOR_SEND, type);
         }
 
@@ -1617,13 +1630,13 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             was.hasErrors = true;
         }
 
-        workerSendNode.type = createAccumulatedErrorTypeForMatchingRecive(workerSendNode);
+        workerSendNode.type = createAccumulatedErrorTypeForMatchingRecive(workerSendNode.pos, workerSendNode.expr.type);
         was.addWorkerAction(workerSendNode);
         analyzeExpr(workerSendNode.expr);
         validateActionParentNode(workerSendNode.pos, workerSendNode.expr);
     }
 
-    private BType createAccumulatedErrorTypeForMatchingRecive(BLangWorkerSend workerSendNode) {
+    private BType createAccumulatedErrorTypeForMatchingRecive(DiagnosticPos pos, BType exprType) {
         Set<BType> returnTypesUpToNow = this.returnTypes.peek();
         LinkedHashSet<BType> returnTypeAndSendType = new LinkedHashSet<BType>() {
             {
@@ -1634,14 +1647,14 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             if (returnType.tag == TypeTags.ERROR) {
                 returnTypeAndSendType.add(returnType);
             } else {
-                this.dlog.error(workerSendNode.pos, DiagnosticCode.WORKER_SEND_AFTER_RETURN);
+                this.dlog.error(pos, DiagnosticCode.WORKER_SEND_AFTER_RETURN);
             }
         }
-        returnTypeAndSendType.add(workerSendNode.expr.type);
+        returnTypeAndSendType.add(exprType);
         if (returnTypeAndSendType.size() > 1) {
             return BUnionType.create(null, returnTypeAndSendType);
         } else {
-            return workerSendNode.expr.type;
+            return exprType;
         }
     }
 
@@ -1666,6 +1679,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             this.dlog.error(syncSendExpr.pos, DiagnosticCode.UNDEFINED_WORKER, workerName);
             was.hasErrors = true;
         }
+        syncSendExpr.type = createAccumulatedErrorTypeForMatchingRecive(syncSendExpr.pos, syncSendExpr.expr.type);
         was.addWorkerAction(syncSendExpr);
         analyzeExpr(syncSendExpr.expr);
     }
@@ -1785,7 +1799,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                 String fieldName = keyRef.variableName.value;
 
                 if (names.contains(fieldName)) {
-                    String assigneeType = recordLiteral.parent.type.getKind().typeName();
+                    String assigneeType = recordLiteral.expectedType.getKind().typeName();
                     this.dlog.error(key.pos, DiagnosticCode.DUPLICATE_KEY_IN_RECORD_LITERAL, assigneeType, keyRef);
                 }
 
@@ -1901,7 +1915,9 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                     || kind == NodeKind.EXPRESSION_STATEMENT || kind == NodeKind.RETURN
                     || kind == NodeKind.RECORD_DESTRUCTURE || kind == NodeKind.ERROR_DESTRUCTURE
                     || kind == NodeKind.TUPLE_DESTRUCTURE || kind == NodeKind.VARIABLE
-                    || kind == NodeKind.MATCH || kind == NodeKind.FOREACH) {
+                    || kind == NodeKind.RECORD_VARIABLE || kind == NodeKind.TUPLE_VARIABLE
+                    || kind == NodeKind.ERROR_VARIABLE || kind == NodeKind.MATCH
+                    || kind == NodeKind.FOREACH) {
                 return;
             } else if (kind == NodeKind.CHECK_PANIC_EXPR || kind == NodeKind.CHECK_EXPR
                     || kind == NodeKind.WORKER_RECEIVE || kind == NodeKind.WORKER_FLUSH
@@ -2244,7 +2260,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangCheckedExpr checkedExpr) {
         analyzeExpr(checkedExpr.expr);
-        boolean enclInvokableHasErrorReturn = false;
 
         if (this.env.scope.owner.getKind() == SymbolKind.PACKAGE) {
             // Check at module level.
@@ -2252,16 +2267,14 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
 
         BType exprType = env.enclInvokable.getReturnTypeNode().type;
-        if (exprType.tag == TypeTags.UNION) {
-            BUnionType unionType = (BUnionType) env.enclInvokable.getReturnTypeNode().type;
-            enclInvokableHasErrorReturn = unionType.getMemberTypes().stream()
-                    .anyMatch(memberType -> types.isAssignable(memberType, symTable.errorType));
-        } else if (types.isAssignable(exprType, symTable.errorType)) {
-            enclInvokableHasErrorReturn = true;
+
+        if (!types.isAssignable(getErrorTypes(checkedExpr.expr.type), exprType)) {
+            dlog.error(checkedExpr.pos, DiagnosticCode.CHECKED_EXPR_NO_MATCHING_ERROR_RETURN_IN_ENCL_INVOKABLE);
         }
 
-        if (!enclInvokableHasErrorReturn) {
-            dlog.error(checkedExpr.pos, DiagnosticCode.CHECKED_EXPR_NO_ERROR_RETURN_IN_ENCL_INVOKABLE);
+        if (checkReturnValidityInTransaction()) {
+            this.dlog.error(checkedExpr.pos, DiagnosticCode.CHECK_EXPRESSION_INVALID_USAGE_WITHIN_TRANSACTION_BLOCK);
+            return;
         }
 
         returnTypes.peek().add(exprType);
@@ -2466,18 +2479,42 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         types.checkType(receive, send.type, receive.type);
         addImplicitCast(send.type, receive);
         NodeKind kind = receive.parent.getKind();
-        if (kind == NodeKind.TRAP_EXPR || kind == NodeKind.CHECK_EXPR) {
+        if (kind == NodeKind.TRAP_EXPR || kind == NodeKind.CHECK_EXPR || kind == NodeKind.CHECK_PANIC_EXPR) {
             typeChecker.checkExpr((BLangExpression) receive.parent, receive.env);
         }
         receive.sendExpression = send.expr;
     }
 
     private void validateWorkerActionParameters(BLangWorkerSyncSendExpr send, BLangWorkerReceive receive) {
-        types.checkType(send.pos, receive.matchingSendsError, send.type, DiagnosticCode.INCOMPATIBLE_TYPES);
-        types.checkType(receive, send.expr.type, receive.type);
-        addImplicitCast(send.expr.type, receive);
+        send.receive = receive;
+        NodeKind parentNodeKind = send.parent.getKind();
+        if (parentNodeKind == NodeKind.VARIABLE) {
+            BLangSimpleVariable variable = (BLangSimpleVariable) send.parent;
+
+            if (variable.isDeclaredWithVar) {
+                variable.type = variable.symbol.type = send.expectedType = receive.matchingSendsError;
+            }
+        } else if (parentNodeKind == NodeKind.ASSIGNMENT) {
+            BLangAssignment assignment = (BLangAssignment) send.parent;
+            if (assignment.varRef.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
+                BSymbol varSymbol = ((BLangSimpleVarRef) assignment.varRef).symbol;
+                if (varSymbol != null) {
+                    send.expectedType = varSymbol.type;
+                }
+            }
+        }
+
+        if (receive.matchingSendsError != symTable.nilType && parentNodeKind == NodeKind.EXPRESSION_STATEMENT) {
+            dlog.error(send.pos, DiagnosticCode.ASSIGNMENT_REQUIRED);
+        } else {
+            types.checkType(send.pos, receive.matchingSendsError, send.expectedType, DiagnosticCode.INCOMPATIBLE_TYPES);
+        }
+
+        types.checkType(receive, send.type, receive.type);
+
+        addImplicitCast(send.type, receive);
         NodeKind kind = receive.parent.getKind();
-        if (kind == NodeKind.TRAP_EXPR || kind == NodeKind.CHECK_EXPR) {
+        if (kind == NodeKind.TRAP_EXPR || kind == NodeKind.CHECK_EXPR || kind == NodeKind.CHECK_PANIC_EXPR) {
             typeChecker.checkExpr((BLangExpression) receive.parent, receive.env);
         }
         receive.sendExpression = send;
@@ -2513,12 +2550,12 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
 
         funcNode.requiredParams.forEach(param -> {
-            if (!types.isAnydata(param.type)) {
+            if (!param.type.isAnydata()) {
                 this.dlog.error(param.pos, DiagnosticCode.MAIN_PARAMS_SHOULD_BE_ANYDATA, param.type);
             }
         });
 
-        if (funcNode.restParam != null && !types.isAnydata(funcNode.restParam.type)) {
+        if (funcNode.restParam != null && !funcNode.restParam.type.isAnydata()) {
             this.dlog.error(funcNode.restParam.pos, DiagnosticCode.MAIN_PARAMS_SHOULD_BE_ANYDATA,
                             funcNode.restParam.type);
         }
@@ -2542,17 +2579,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         types.validateErrorOrNilReturn(funcNode, DiagnosticCode.MODULE_INIT_RETURN_SHOULD_BE_ERROR_OR_NIL);
     }
 
-    private void checkDuplicateNamedArgs(List<BLangExpression> args) {
-        List<BLangIdentifier> existingArgs = new ArrayList<>();
-        args.forEach(arg -> {
-            BLangNamedArgsExpression namedArg = (BLangNamedArgsExpression) arg;
-            if (existingArgs.contains(namedArg.name)) {
-                dlog.error(namedArg.pos, DiagnosticCode.DUPLICATE_NAMED_ARGS, namedArg.name);
-            }
-            existingArgs.add(namedArg.name);
-        });
-    }
-
     private boolean getIsJSONContext(BType... arg) {
         if (this.isJSONContext) {
             return true;
@@ -2563,6 +2589,27 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             }
         }
         return false;
+    }
+
+    private BType getErrorTypes(BType bType) {
+        BType errorType = symTable.semanticError;
+
+        int tag = bType.tag;
+        if (tag == TypeTags.ERROR) {
+            errorType = bType;
+        } else if (tag == TypeTags.UNION) {
+            LinkedHashSet<BType> errTypes = new LinkedHashSet<>();
+            Set<BType> memTypes = ((BUnionType) bType).getMemberTypes();
+            for (BType memType : memTypes) {
+                if (memType.tag == TypeTags.ERROR) {
+                    errTypes.add(memType);
+                }
+            }
+
+            errorType = errTypes.size() == 1 ? errTypes.iterator().next() : BUnionType.create(null, errTypes);
+        }
+
+        return errorType;
     }
 
     /**

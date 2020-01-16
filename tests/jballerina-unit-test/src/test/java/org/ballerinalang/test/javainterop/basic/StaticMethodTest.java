@@ -17,7 +17,14 @@
  */
 package org.ballerinalang.test.javainterop.basic;
 
+import org.ballerinalang.jvm.types.BTypes;
+import org.ballerinalang.jvm.values.ErrorValue;
+import org.ballerinalang.jvm.values.MapValueImpl;
+import org.ballerinalang.model.values.BDecimal;
+import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BHandleValue;
+import org.ballerinalang.model.values.BInteger;
+import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
@@ -68,6 +75,23 @@ public class StaticMethodTest {
         Assert.assertTrue(((BHandleValue) returns[0]).getValue() instanceof Date);
     }
 
+    @Test(description = "Test invoking a java static function that accepts nothing and returns a string")
+    public void testAcceptNothingButReturnString() {
+        BValue[] returns = BRunUtil.invoke(result, "testAcceptNothingButReturnString");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].getClass(), BString.class);
+        Assert.assertEquals(returns[0].stringValue(), "hello world");
+    }
+
+    @Test
+    public void testStringParamAndReturn() {
+        BValue[] args = new BValue[1];
+        args[0] = new BString("Royce");
+        BValue[] returns = BRunUtil.invoke(result, "stringParamAndReturn", args);
+        Assert.assertTrue(returns[0] instanceof BString);
+        Assert.assertEquals(returns[0].stringValue(), "Royce and Hadrian");
+    }
+
     @Test(description = "Test invoking a java static function that accepts and returns a Date")
     public void testAcceptSomethingAndReturnSomething() {
         BValue[] args = new BValue[1];
@@ -98,5 +122,53 @@ public class StaticMethodTest {
         BValue[] returns = BRunUtil.invoke(result, "testAcceptThreeParamsAndReturnSomething", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(((BHandleValue) returns[0]).getValue(), 6);
+    }
+
+    @Test(description = "Test static java method that returns error value as objects")
+    public void testReturnObjectValueOrError() {
+        BValue[] returns = BRunUtil.invoke(result, "getObjectOrError");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(((BError) returns[0]).getReason(), "some reason");
+    }
+
+    @Test(description = "Test static java method that returns error value or MapValue")
+    public void testMapValueOrErrorReturn() {
+        BValue[] returns = BRunUtil.invoke(result, "testUnionReturn");
+        Assert.assertEquals(returns[0].stringValue(), "resources=path=basePath method=Method string");
+
+    }
+
+    public static Object returnObjectOrError() {
+        return new ErrorValue("some reason", new MapValueImpl<>(BTypes.typeErrorDetail));
+    }
+
+    @Test(description = "Test tuple return with null values")
+    public void testTupleReturn() {
+        BValue[] returns = BRunUtil.invoke(result, "testErrorOrTupleReturn");
+        Assert.assertEquals(returns.length, 2);
+        Assert.assertNull(returns[0]);
+    }
+
+    @Test
+    public void testFuncWithAsyncDefaultParamExpression() {
+        BValue[] returns = BRunUtil.invoke(result, "testFuncWithAsyncDefaultParamExpression");
+        Assert.assertTrue(returns[0] instanceof BInteger);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 145);
+    }
+
+    @Test
+    public void testUsingParamValues() {
+        BValue[] returns = BRunUtil.invoke(result, "testUsingParamValues");
+        Assert.assertTrue(returns[0] instanceof BInteger);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 290);
+    }
+
+    @Test
+    public void testDecimalParamAndReturn() {
+        BValue[] args = new BValue[1];
+        args[0] = new BDecimal("100");
+        BValue[] returns = BRunUtil.invoke(result, "testDecimalParamAndReturn", args);
+        Assert.assertTrue(returns[0] instanceof BDecimal);
+        Assert.assertEquals(returns[0].stringValue(), "199.7");
     }
 }

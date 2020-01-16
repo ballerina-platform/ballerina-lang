@@ -18,13 +18,9 @@
 
 package org.ballerinalang.net.http.serviceendpoint;
 
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.http.HttpConnectionManager;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpErrorType;
@@ -33,24 +29,15 @@ import org.wso2.transport.http.netty.contract.ServerConnector;
 import org.wso2.transport.http.netty.contract.config.ListenerConfiguration;
 
 import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_PORT;
-import static org.ballerinalang.net.http.HttpConstants.HTTP_LISTENER_ENDPOINT;
 import static org.ballerinalang.net.http.HttpUtil.getListenerConfig;
 
 /**
- * Get the ID of the connection.
+ * Initialize the HTTP listener.
  *
  * @since 0.966
  */
-
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "http",
-        functionName = "initEndpoint",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = HTTP_LISTENER_ENDPOINT,
-                             structPackage = "ballerina/http"),
-        isPublic = true
-)
 public class InitEndpoint extends AbstractHttpNativeFunction {
-    public static Object initEndpoint(Strand strand, ObjectValue serviceEndpoint) {
+    public static Object initEndpoint(ObjectValue serviceEndpoint) {
         try {
             // Creating server connector
             MapValue serviceEndpointConfig = serviceEndpoint.getMapValue(HttpConstants.SERVICE_ENDPOINT_CONFIG);

@@ -238,7 +238,7 @@ public class TableLiteralSyntaxTest {
         BValue[] returns = BRunUtil.invoke(result, "testStructWithDefaultDataToStruct");
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 0);
         Assert.assertEquals(((BFloat) returns[1]).floatValue(), 0.0);
-        Assert.assertEquals(returns[2].stringValue(), "");
+        Assert.assertEquals(returns[2].stringValue(), "empty");
         Assert.assertFalse(((BBoolean) returns[3]).booleanValue());
     }
 
@@ -285,13 +285,6 @@ public class TableLiteralSyntaxTest {
                 + "<element>true</element></booleanArrData></result></results>");
     }
 
-    @Test(description = "Test add data with  mismatched types")
-    public void testTableAddInvalid() {
-        BValue[] returns = BRunUtil.invoke(result, "testTableAddInvalid");
-        Assert.assertEquals((returns[0]).stringValue(),
-                "incompatible types: record of type:Company cannot be added to a table with type:Person");
-    }
-
     @Test
     public void testToJson() {
         BValue[] returns = BRunUtil.invokeFunction(result, "testToJson");
@@ -334,17 +327,25 @@ public class TableLiteralSyntaxTest {
     }
 
     @Test
+    public void testTableLiteralWithDefaultableRecord() {
+        BValue[] returns = BRunUtil.invokeFunction(result, "testTableLiteralWithDefaultableRecord");
+        Assert.assertEquals((returns[0]).stringValue(),
+                "[{\"id\":1, \"age\":23, \"salary\":340.5, \"name\":\"John\", \"married\":false}, "
+                        + "{\"id\":2, \"age\":34, \"salary\":345.32, \"name\":\"empty\", \"married\":false}]");
+    }
+
+    @Test
     public void testStructWithDefaultDataToJson() {
         BValue[] returns = BRunUtil.invokeFunction(result, "testStructWithDefaultDataToJson");
         Assert.assertEquals((returns[0]).stringValue(),
-                "[{\"id\":1, \"age\":0, \"salary\":0.0, \"name\":\"\", " + "\"married\":false}]");
+                "[{\"id\":1, \"age\":0, \"salary\":0.0, \"name\":\"empty\", " + "\"married\":false}]");
     }
 
     @Test
     public void testStructWithDefaultDataToXml() {
         BValue[] returns = BRunUtil.invoke(result, "testStructWithDefaultDataToXml");
         Assert.assertEquals((returns[0]).stringValue(),
-                "<results><result><id>1</id><age>0</age><salary>0.0</salary><name></name>"
+                "<results><result><id>1</id><age>0</age><salary>0.0</salary><name>empty</name>"
                         + "<married>false</married></result></results>");
     }
 
@@ -437,14 +438,6 @@ public class TableLiteralSyntaxTest {
                         + " from a table with type:Person");
     }
 
-    @Test(description = "Test remove data with mismatched input parameter types")
-    public void testRemoveWithInvalidParamType() {
-        BValue[] returns = BRunUtil.invoke(result, "testRemoveWithInvalidParamType");
-        Assert.assertEquals((returns[0]).stringValue(),
-                "incompatible types: function with record type:int cannot be used to remove records from a "
-                        + "table with type:Person");
-    }
-
     @Test(description = "Test removing data from a table using a given lambda as a filter")
     public void testRemoveOpAnonymousFilter() {
         BValue[] returns = BRunUtil.invoke(result, "testRemoveOpAnonymousFilter");
@@ -495,8 +488,8 @@ public class TableLiteralSyntaxTest {
         BAssertUtil.validateError(resultNegative, i++, "unknown type 'Student'", 96, 11);
         BAssertUtil.validateError(resultNegative, i++, "table type constraint must be a record type", 96, 25);
         BAssertUtil.validateError(resultNegative, i++,
-                                  "incompatible types: expected 'function (any) returns (boolean)', found 'function " +
-                                          "(Person) returns ()'",
+                                  "incompatible types: expected 'function (ballerina/lang.table:RowType) " +
+                                          "returns (boolean)', found 'function (Person) returns ()'",
                                   109, 25);
         BAssertUtil.validateError(resultNegative, i++,
                                   "column 'name' of type 'float' is not allowed as key, use an 'int' or 'string' " +
@@ -513,7 +506,7 @@ public class TableLiteralSyntaxTest {
         BAssertUtil.validateError(resultNegative, i++,
                                   "field 'bar' of type 'error' is not allowed as a table column", 196, 31);
         BAssertUtil.validateError(resultNegative, i++,
-                "incompatible types: expected 'record {| anydata...; |}', found 'ErrorInRecord'", 202, 23);
+                "incompatible types: expected 'ballerina/lang.table:RowType', found 'ErrorInRecord'", 202, 23);
         BAssertUtil.validateError(resultNegative, i++,
                 "field 'eArr' of type 'error?[]' is not allowed as a table column", 212, 29);
         BAssertUtil.validateError(resultNegative, i++,
@@ -522,6 +515,8 @@ public class TableLiteralSyntaxTest {
                                   "cannot infer table type", 223, 14);
         BAssertUtil.validateError(resultNegative, i++,
                                   "table type constraint must be a record type", 233, 20);
+        BAssertUtil.validateError(resultNegative, i++,
+                "missing non-defaultable required record field 'name'", 251, 9);
         Assert.assertEquals(resultNegative.getErrorCount(), i);
     }
 

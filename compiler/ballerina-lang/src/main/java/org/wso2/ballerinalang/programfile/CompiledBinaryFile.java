@@ -36,6 +36,7 @@ import static org.wso2.ballerinalang.programfile.ProgramFileConstants.VERSION_NU
  *
  * @since 0.963.0
  */
+@Deprecated
 public class CompiledBinaryFile implements ConstantPool, AttributeInfoPool {
 
     private List<ConstantPoolEntry> constPool = new ArrayList<>();

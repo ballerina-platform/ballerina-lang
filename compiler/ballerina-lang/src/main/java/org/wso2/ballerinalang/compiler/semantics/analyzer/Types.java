@@ -19,9 +19,10 @@ package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import org.ballerinalang.model.Name;
 import org.ballerinalang.model.TreeBuilder;
+import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.util.BLangCompilerConstants;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
-import org.wso2.ballerinalang.compiler.semantics.model.BLangBuiltInMethod;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BCastOperatorSymbol;
@@ -69,14 +70,13 @@ import org.wso2.ballerinalang.compiler.util.NumericLiteralSupport;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
-import org.wso2.ballerinalang.programfile.InstructionCodes;
 import org.wso2.ballerinalang.util.Flags;
 import org.wso2.ballerinalang.util.Lists;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
@@ -196,10 +196,10 @@ public class Types {
     }
 
     public boolean isSameType(BType source, BType target) {
-        return isSameType(source, target, new ArrayList<>());
+        return isSameType(source, target, new HashSet<>());
     }
 
-    private boolean isSameType(BType source, BType target, List<TypePair> unresolvedTypes) {
+    private boolean isSameType(BType source, BType target, Set<TypePair> unresolvedTypes) {
         // If we encounter two types that we are still resolving, then skip it.
         // This is done to avoid recursive checking of the same type.
         TypePair pair = new TypePair(source, target);
@@ -241,68 +241,8 @@ public class Types {
         return type.tag == TypeTags.ERROR;
     }
 
-    public boolean isAnydata(BType type) {
-        return isAnydata(type, new HashSet<>());
-    }
-
-    public boolean isAnydata(BType type, Set<BType> unresolvedTypes) {
-        if (type.tag <= TypeTags.ANYDATA) {
-            return true;
-        }
-
-        switch (type.tag) {
-            case TypeTags.MAP:
-                return isPureType(((BMapType) type).constraint, unresolvedTypes);
-            case TypeTags.RECORD:
-                if (unresolvedTypes.contains(type)) {
-                    return true;
-                }
-                unresolvedTypes.add(type);
-                BRecordType recordType = (BRecordType) type;
-                List<BType> fieldTypes = recordType.fields.stream()
-                                                          .map(field -> field.type)
-                                                          .collect(Collectors.toList());
-                return isPureType(fieldTypes, unresolvedTypes) &&
-                        (recordType.sealed || isPureType(recordType.restFieldType, unresolvedTypes));
-            case TypeTags.UNION:
-                return isAnydata(((BUnionType) type).getMemberTypes(), unresolvedTypes);
-            case TypeTags.TUPLE:
-                return isPureType(((BTupleType) type).tupleTypes, unresolvedTypes);
-            case TypeTags.ARRAY:
-                return isPureType(((BArrayType) type).eType, unresolvedTypes);
-            case TypeTags.FINITE:
-                Set<BType> valSpaceTypes = ((BFiniteType) type).valueSpace.stream()
-                                                                          .map(val -> val.type).collect(
-                                Collectors.toSet());
-                return isAnydata(valSpaceTypes, unresolvedTypes);
-            default:
-                return false;
-        }
-    }
-
-    private boolean isAnydata(Collection<BType> types, Set<BType> unresolvedTypes) {
-        return types.stream().allMatch(bType -> isAnydata(bType, unresolvedTypes));
-    }
-
-    boolean isPureType(BType type) {
-        return isPureType(type, new HashSet<>());
-    }
-
-    private boolean isPureType(BType type, Set<BType> unresolvedTypes) {
-        if (type.tag == TypeTags.UNION) {
-            return ((BUnionType) type).getMemberTypes().stream()
-                    .allMatch(memType -> isPureType(memType, unresolvedTypes));
-        }
-
-        return type.tag == TypeTags.ERROR || isAnydata(type, unresolvedTypes);
-    }
-
-    private boolean isPureType(Collection<BType> types, Set<BType> unresolvedTypes) {
-        return types.stream().allMatch(bType -> isPureType(bType, unresolvedTypes));
-    }
-
     public boolean isLikeAnydataOrNotNil(BType type) {
-        return type.tag != TypeTags.NIL && (isAnydata(type) || isLikeAnydata(type));
+        return type.tag != TypeTags.NIL && (type.isAnydata() || isLikeAnydata(type));
     }
 
     private boolean isLikeAnydata(BType type) {
@@ -321,11 +261,11 @@ public class Types {
                 return true;
             } else {
                 unresolvedTypes.add(type);
-                if (isAnydata(type)) {
+                if (type.isAnydata()) {
                     return true;
                 }
             }
-        } else if (isAnydata(type)) {
+        } else if (type.isAnydata()) {
             return true;
         }
 
@@ -377,10 +317,6 @@ public class Types {
         return ((BUnionType) type).getMemberTypes().stream().allMatch(memType -> memType.tag == baseTypeTag);
     }
 
-    public boolean isBrandedType(BType type) {
-        return type.tag < TypeTags.ANY;
-    }
-
     /**
      * Checks whether source type is assignable to the target type.
      * <p>
@@ -396,7 +332,7 @@ public class Types {
      * @return true if source type is assignable to the target type.
      */
     public boolean isAssignable(BType source, BType target) {
-        return isAssignable(source, target, new ArrayList<>());
+        return isAssignable(source, target, new HashSet<>());
     }
 
     boolean isStampingAllowed(BType source, BType target) {
@@ -408,7 +344,7 @@ public class Types {
         if (target.tag == TypeTags.RECORD) {
             if (source.tag == TypeTags.RECORD) {
                 TypePair pair = new TypePair(source, target);
-                List<TypePair> unresolvedTypes = new ArrayList<>();
+                Set<TypePair> unresolvedTypes = new HashSet<>();
                 unresolvedTypes.add(pair);
                 return checkRecordEquivalencyForStamping((BRecordType) source, (BRecordType) target, unresolvedTypes);
             } else if (source.tag == TypeTags.MAP) {
@@ -455,7 +391,7 @@ public class Types {
     }
 
     private boolean checkRecordEquivalencyForStamping(BRecordType rhsType, BRecordType lhsType,
-                                                      List<TypePair> unresolvedTypes) {
+                                                      Set<TypePair> unresolvedTypes) {
         // Both records should be public or private.
         // Get the XOR of both flags(masks)
         // If both are public, then public bit should be 0;
@@ -484,7 +420,7 @@ public class Types {
     }
 
     private boolean checkFieldEquivalencyForStamping(BStructureType lhsType, BStructureType rhsType,
-                                                     List<TypePair> unresolvedTypes) {
+                                                     Set<TypePair> unresolvedTypes) {
         Map<Name, BField> rhsFields = rhsType.fields.stream().collect(
                 Collectors.toMap(BField::getName, field -> field));
 
@@ -557,35 +493,41 @@ public class Types {
         return true;
     }
 
-    private boolean isAssignable(BType source, BType target, List<TypePair> unresolvedTypes) {
+    private boolean isAssignable(BType source, BType target, Set<TypePair> unresolvedTypes) {
 
         if (isSameType(source, target)) {
             return true;
         }
 
-        if (source.tag == TypeTags.ERROR && target.tag == TypeTags.ERROR) {
+        int sourceTag = source.tag;
+        int targetTag = target.tag;
+
+        if (sourceTag == TypeTags.BYTE && targetTag == TypeTags.INT) {
+            return true;
+        }
+
+        if (sourceTag == TypeTags.ERROR && targetTag == TypeTags.ERROR) {
             return isErrorTypeAssignable((BErrorType) source, (BErrorType) target, unresolvedTypes);
-        } else if (source.tag == TypeTags.ERROR && target.tag == TypeTags.ANY) {
+        } else if (sourceTag == TypeTags.ERROR && targetTag == TypeTags.ANY) {
             return false;
         }
 
-        if (source.tag == TypeTags.NIL && (isNullable(target) || target.tag == TypeTags.JSON)) {
+        if (sourceTag == TypeTags.NIL && (isNullable(target) || targetTag == TypeTags.JSON)) {
             return true;
         }
 
         // TODO: Remove the isValueType() check
-        if (target.tag == TypeTags.ANY && !containsErrorType(source) && !isValueType(source)) {
+        if (targetTag == TypeTags.ANY && !containsErrorType(source) && !isValueType(source)) {
             return true;
         }
 
-        if (target.tag == TypeTags.ANYDATA && !containsErrorType(source) && isAnydata(source)) {
+        if (targetTag == TypeTags.ANYDATA && !containsErrorType(source) && source.isAnydata()) {
             return true;
         }
 
-        if (target.tag == TypeTags.MAP && source.tag == TypeTags.RECORD) {
+        if (targetTag == TypeTags.MAP && sourceTag == TypeTags.RECORD) {
             BRecordType recordType = (BRecordType) source;
-            BMapType mapType = (BMapType) target;
-            return isAssignableRecordType(recordType, mapType);
+            return isAssignableRecordType(recordType, (BMapType) target);
         }
 
         if (target.getKind() == TypeKind.SERVICE && source.getKind() == TypeKind.SERVICE) {
@@ -593,18 +535,18 @@ public class Types {
             return true;
         }
 
-        if (target.tag == TypeTags.TYPEDESC && source.tag == TypeTags.TYPEDESC) {
+        if (targetTag == TypeTags.TYPEDESC && sourceTag == TypeTags.TYPEDESC) {
             return isAssignable(((BTypedescType) source).constraint, (((BTypedescType) target).constraint),
                     unresolvedTypes);
         }
 
         // This doesn't compare constraints as there is a requirement to be able to return raw table type and assign
         // it to a constrained table reference.
-        if (target.tag == TypeTags.TABLE && source.tag == TypeTags.TABLE) {
+        if (targetTag == TypeTags.TABLE && sourceTag == TypeTags.TABLE) {
             return true;
         }
 
-        if (target.tag == TypeTags.STREAM && source.tag == TypeTags.STREAM) {
+        if (targetTag == TypeTags.STREAM && sourceTag == TypeTags.STREAM) {
             return isAssignable(((BStreamType) source).constraint, ((BStreamType) target).constraint, unresolvedTypes);
         }
 
@@ -613,37 +555,37 @@ public class Types {
             return true;
         }
 
-        if (source.tag == TypeTags.FINITE) {
+        if (sourceTag == TypeTags.FINITE) {
             return isFiniteTypeAssignable((BFiniteType) source, target, unresolvedTypes);
         }
 
-        if ((target.tag == TypeTags.UNION || source.tag == TypeTags.UNION) &&
+        if ((targetTag == TypeTags.UNION || sourceTag == TypeTags.UNION) &&
                 isAssignableToUnionType(source, target, unresolvedTypes)) {
             return true;
         }
 
-        if (target.tag == TypeTags.JSON) {
-            if (source.tag == TypeTags.JSON) {
+        if (targetTag == TypeTags.JSON) {
+            if (sourceTag == TypeTags.JSON) {
                 return true;
             }
 
-            if (source.tag == TypeTags.ARRAY) {
+            if (sourceTag == TypeTags.ARRAY) {
                 return isArrayTypesAssignable(source, target, unresolvedTypes);
             }
 
-            if (source.tag == TypeTags.MAP) {
+            if (sourceTag == TypeTags.MAP) {
                 return isAssignable(((BMapType) source).constraint, target, unresolvedTypes);
             }
         }
 
-        if (target.tag == TypeTags.FUTURE && source.tag == TypeTags.FUTURE) {
+        if (targetTag == TypeTags.FUTURE && sourceTag == TypeTags.FUTURE) {
             if (((BFutureType) target).constraint.tag == TypeTags.NONE) {
                 return true;
             }
             return isAssignable(((BFutureType) source).constraint, ((BFutureType) target).constraint, unresolvedTypes);
         }
 
-        if (target.tag == TypeTags.MAP && source.tag == TypeTags.MAP) {
+        if (targetTag == TypeTags.MAP && sourceTag == TypeTags.MAP) {
             // Here source condition is added for prevent assigning map union constrained
             // to map any constrained.
             if (((BMapType) target).constraint.tag == TypeTags.ANY &&
@@ -654,7 +596,7 @@ public class Types {
             return isAssignable(((BMapType) source).constraint, ((BMapType) target).constraint, unresolvedTypes);
         }
 
-        if (target.tag == TypeTags.MAP && source.tag == TypeTags.RECORD) {
+        if (targetTag == TypeTags.MAP && sourceTag == TypeTags.RECORD) {
             BType mapConstraint = ((BMapType) target).constraint;
             BRecordType srcRec = (BRecordType) source;
             boolean hasIncompatibleType = srcRec.fields
@@ -662,37 +604,45 @@ public class Types {
             return !hasIncompatibleType && isAssignable(srcRec.restFieldType, mapConstraint);
         }
 
-        if ((source.tag == TypeTags.OBJECT || source.tag == TypeTags.RECORD)
-                && (target.tag == TypeTags.OBJECT || target.tag == TypeTags.RECORD)) {
+        if ((sourceTag == TypeTags.OBJECT || sourceTag == TypeTags.RECORD)
+                && (targetTag == TypeTags.OBJECT || targetTag == TypeTags.RECORD)) {
             return checkStructEquivalency(source, target, unresolvedTypes);
         }
 
-        if (source.tag == TypeTags.TUPLE && target.tag == TypeTags.ARRAY) {
+        if (sourceTag == TypeTags.TUPLE && targetTag == TypeTags.ARRAY) {
             return isTupleTypeAssignableToArrayType((BTupleType) source, (BArrayType) target, unresolvedTypes);
         }
 
-        if (source.tag == TypeTags.ARRAY && target.tag == TypeTags.TUPLE) {
+        if (sourceTag == TypeTags.ARRAY && targetTag == TypeTags.TUPLE) {
             return isArrayTypeAssignableToTupleType((BArrayType) source, (BTupleType) target, unresolvedTypes);
         }
 
-        if (source.tag == TypeTags.TUPLE || target.tag == TypeTags.TUPLE) {
+        if (sourceTag == TypeTags.TUPLE || targetTag == TypeTags.TUPLE) {
             return isTupleTypeAssignable(source, target, unresolvedTypes);
         }
 
-        if (source.tag == TypeTags.INVOKABLE && target.tag == TypeTags.INVOKABLE) {
-            return isFunctionTypeAssignable((BInvokableType) source, (BInvokableType) target, new ArrayList<>());
+        if (sourceTag == TypeTags.INVOKABLE && targetTag == TypeTags.INVOKABLE) {
+            return isFunctionTypeAssignable((BInvokableType) source, (BInvokableType) target, new HashSet<>());
         }
 
-        return source.tag == TypeTags.ARRAY && target.tag == TypeTags.ARRAY &&
+        return sourceTag == TypeTags.ARRAY && targetTag == TypeTags.ARRAY &&
                 isArrayTypesAssignable(source, target, unresolvedTypes);
     }
 
-    private boolean isAssignableRecordType(BRecordType recordType, BMapType mapType) {
-        return  recordType.fields.stream().allMatch(field -> isAssignable(field.type, mapType.constraint)) &&
-                isAssignable(recordType.restFieldType, mapType.constraint);
+    private boolean isAssignableRecordType(BRecordType recordType, BMapType targetMapType) {
+        if (recordType.sealed) {
+            return recordFieldsAssignableToMap(recordType, targetMapType);
+        } else {
+            return isAssignable(recordType.restFieldType, targetMapType.constraint)
+                    && recordFieldsAssignableToMap(recordType, targetMapType);
+        }
     }
 
-    private boolean isErrorTypeAssignable(BErrorType source, BErrorType target, List<TypePair> unresolvedTypes) {
+    private boolean recordFieldsAssignableToMap(BRecordType recordType, BMapType targetMapType) {
+        return recordType.fields.stream().allMatch(field -> isAssignable(field.type, targetMapType.constraint));
+    }
+
+    private boolean isErrorTypeAssignable(BErrorType source, BErrorType target, Set<TypePair> unresolvedTypes) {
         if (target == symTable.errorType) {
             return true;
         }
@@ -705,7 +655,7 @@ public class Types {
                 isAssignable(source.detailType, target.detailType, unresolvedTypes);
     }
 
-    private boolean isTupleTypeAssignable(BType source, BType target, List<TypePair> unresolvedTypes) {
+    private boolean isTupleTypeAssignable(BType source, BType target, Set<TypePair> unresolvedTypes) {
         if (source.tag != TypeTags.TUPLE || target.tag != TypeTags.TUPLE) {
             return false;
         }
@@ -738,7 +688,7 @@ public class Types {
     }
 
     private boolean isTupleTypeAssignableToArrayType(BTupleType source, BArrayType target,
-                                                     List<TypePair> unresolvedTypes) {
+                                                     Set<TypePair> unresolvedTypes) {
         if (target.state != BArrayState.UNSEALED
                 && (source.restType != null || source.tupleTypes.size() != target.size)) {
             return false;
@@ -753,7 +703,7 @@ public class Types {
     }
 
     private boolean isArrayTypeAssignableToTupleType(BArrayType source, BTupleType target,
-                                                     List<TypePair> unresolvedTypes) {
+                                                     Set<TypePair> unresolvedTypes) {
         if (!target.tupleTypes.isEmpty()) {
             if (source.state == BArrayState.UNSEALED) {
                 // [int, int, int...] = int[] || [int, int] = int[]
@@ -780,7 +730,7 @@ public class Types {
                 .allMatch(tupleElemType -> isAssignable(source.eType, tupleElemType, unresolvedTypes));
     }
 
-    public boolean isArrayTypesAssignable(BType source, BType target, List<TypePair> unresolvedTypes) {
+    public boolean isArrayTypesAssignable(BType source, BType target, Set<TypePair> unresolvedTypes) {
         if (target.tag == TypeTags.ARRAY && source.tag == TypeTags.ARRAY) {
             // Both types are array types
             BArrayType lhsArrayType = (BArrayType) target;
@@ -826,7 +776,7 @@ public class Types {
     }
 
     private boolean isFunctionTypeAssignable(BInvokableType source, BInvokableType target,
-                                             List<TypePair> unresolvedTypes) {
+                                             Set<TypePair> unresolvedTypes) {
         // For invokable types with typeParam parameters, we have to check whether the source param types are
         // covariant with the target param types.
         if (containsTypeParams(target)) {
@@ -886,21 +836,27 @@ public class Types {
         return TypeParamAnalyzer.isTypeParam(type.retType);
     }
 
-    private boolean isSameFunctionType(BInvokableType source, BInvokableType target, List<TypePair> unresolvedTypes) {
+    private boolean isSameFunctionType(BInvokableType source, BInvokableType target, Set<TypePair> unresolvedTypes) {
         return checkFunctionTypeEquality(source, target, unresolvedTypes, this::isSameType);
     }
 
     private boolean checkFunctionTypeEquality(BInvokableType source, BInvokableType target,
-                                              List<TypePair> unresolvedTypes, TypeEqualityPredicate equality) {
+                                              Set<TypePair> unresolvedTypes, TypeEqualityPredicate equality) {
         if (source.paramTypes.size() != target.paramTypes.size()) {
             return false;
         }
 
         for (int i = 0; i < source.paramTypes.size(); i++) {
-            if (target.paramTypes.get(i).tag != TypeTags.ANY
-                    && !equality.test(source.paramTypes.get(i), target.paramTypes.get(i), unresolvedTypes)) {
+            if (!equality.test(source.paramTypes.get(i), target.paramTypes.get(i), unresolvedTypes)) {
                 return false;
             }
+        }
+
+        if ((source.restType != null && target.restType == null) ||
+                target.restType != null && source.restType == null) {
+            return false;
+        } else if (source.restType != null && !equality.test(source.restType, target.restType, unresolvedTypes)) {
+            return false;
         }
 
         if (source.retType == null && target.retType == null) {
@@ -913,7 +869,7 @@ public class Types {
         return isAssignable(source.retType, target.retType, unresolvedTypes);
     }
 
-    public boolean checkArrayEquality(BType source, BType target, List<TypePair> unresolvedTypes) {
+    public boolean checkArrayEquality(BType source, BType target, Set<TypePair> unresolvedTypes) {
         if (target.tag == TypeTags.ARRAY && source.tag == TypeTags.ARRAY) {
             // Both types are array types
             BArrayType lhsArrayType = (BArrayType) target;
@@ -934,10 +890,10 @@ public class Types {
     }
 
     public boolean checkStructEquivalency(BType rhsType, BType lhsType) {
-        return checkStructEquivalency(rhsType, lhsType, new ArrayList<>());
+        return checkStructEquivalency(rhsType, lhsType, new HashSet<>());
     }
 
-    private boolean checkStructEquivalency(BType rhsType, BType lhsType, List<TypePair> unresolvedTypes) {
+    private boolean checkStructEquivalency(BType rhsType, BType lhsType, Set<TypePair> unresolvedTypes) {
         // If we encounter two types that we are still resolving, then skip it.
         // This is done to avoid recursive checking of the same type.
         TypePair pair = new TypePair(rhsType, lhsType);
@@ -957,7 +913,7 @@ public class Types {
         return false;
     }
 
-    public boolean checkObjectEquivalency(BObjectType rhsType, BObjectType lhsType, List<TypePair> unresolvedTypes) {
+    public boolean checkObjectEquivalency(BObjectType rhsType, BObjectType lhsType, Set<TypePair> unresolvedTypes) {
         BObjectTypeSymbol lhsStructSymbol = (BObjectTypeSymbol) lhsType.tsymbol;
         BObjectTypeSymbol rhsStructSymbol = (BObjectTypeSymbol) rhsType.tsymbol;
         List<BAttachedFunction> lhsFuncs = lhsStructSymbol.attachedFuncs;
@@ -1013,7 +969,7 @@ public class Types {
         return sym.attachedFuncs.size();
     }
 
-    public boolean checkRecordEquivalency(BRecordType rhsType, BRecordType lhsType, List<TypePair> unresolvedTypes) {
+    public boolean checkRecordEquivalency(BRecordType rhsType, BRecordType lhsType, Set<TypePair> unresolvedTypes) {
         // If the LHS record is closed and the RHS record is open, the records aren't equivalent
         if (lhsType.sealed && !rhsType.sealed) {
             return false;
@@ -1068,21 +1024,22 @@ public class Types {
                 }
                 varType = tableType.constraint;
                 break;
+            case TypeTags.OBJECT:
+                // check for iterable objects
+                BUnionType nextMethodReturnType = getVarTypeFromIterableObject((BObjectType) collectionType);
+                if (nextMethodReturnType != null) {
+                    foreachNode.resultType = getRecordType(nextMethodReturnType);
+                    foreachNode.nillableResultType = nextMethodReturnType;
+                    foreachNode.varType = ((BRecordType) foreachNode.resultType).fields.get(0).type;
+                    return;
+                }
+                dlog.error(foreachNode.collection.pos, DiagnosticCode.INCOMPATIBLE_ITERATOR_FUNCTION_SIGNATURE);
+                // fallthrough
             case TypeTags.SEMANTIC_ERROR:
                 foreachNode.varType = symTable.semanticError;
                 foreachNode.resultType = symTable.semanticError;
                 foreachNode.nillableResultType = symTable.semanticError;
                 return;
-            case TypeTags.OBJECT:
-                if (isAssignable(symTable.intRangeType, collectionType)) {
-                    foreachNode.varType = symTable.intType;
-                    BUnionType nextMethodReturnType =
-                            (BUnionType) getResultTypeOfNextInvocation((BObjectType) collectionType);
-                    foreachNode.resultType = getRecordType(nextMethodReturnType);
-                    foreachNode.nillableResultType = nextMethodReturnType;
-                    return;
-                }
-                // fallthrough
             default:
                 foreachNode.varType = symTable.semanticError;
                 foreachNode.resultType = symTable.semanticError;
@@ -1093,7 +1050,7 @@ public class Types {
         }
 
         BInvokableSymbol iteratorSymbol = (BInvokableSymbol) symResolver.lookupLangLibMethod(collectionType,
-                names.fromBuiltInMethod(BLangBuiltInMethod.ITERATE));
+                names.fromString(BLangCompilerConstants.ITERABLE_COLLECTION_ITERATOR_FUNC));
         BUnionType nextMethodReturnType =
                 (BUnionType) getResultTypeOfNextInvocation((BObjectType) iteratorSymbol.retType);
         foreachNode.varType = varType;
@@ -1101,9 +1058,109 @@ public class Types {
         foreachNode.nillableResultType = nextMethodReturnType;
     }
 
+    private BUnionType getVarTypeFromIterableObject(BObjectType collectionType) {
+        BObjectTypeSymbol objectTypeSymbol = (BObjectTypeSymbol) collectionType.tsymbol;
+        for (BAttachedFunction func : objectTypeSymbol.attachedFuncs) {
+            if (func.funcName.value.equals(BLangCompilerConstants.ITERABLE_OBJECT_ITERATOR_FUNC)) {
+                return getVarTypeFromIteratorFunc(func);
+            }
+        }
+
+        return null;
+    }
+
+    private BUnionType getVarTypeFromIteratorFunc(BAttachedFunction candidateIteratorFunc) {
+        if (!candidateIteratorFunc.type.paramTypes.isEmpty()) {
+            return null;
+        }
+
+        BType returnType = candidateIteratorFunc.type.retType;
+        // abstract object {public function next() returns record {|int value;|}?;}
+        return getVarTypeFromIteratorFuncReturnType(returnType);
+    }
+
+    private BUnionType getVarTypeFromIteratorFuncReturnType(BType returnType) {
+        BObjectTypeSymbol objectTypeSymbol;
+        if (returnType.tag != TypeTags.OBJECT) {
+            return null;
+        }
+
+        objectTypeSymbol = (BObjectTypeSymbol) returnType.tsymbol;
+        for (BAttachedFunction func : objectTypeSymbol.attachedFuncs) {
+            if (func.funcName.value.equals(BLangCompilerConstants.NEXT_FUNC)) {
+                return getVarTypeFromNextFunc(func);
+            }
+        }
+
+        return null;
+    }
+
+    private BUnionType getVarTypeFromNextFunc(BAttachedFunction nextFunc) {
+        BType returnType;
+        if (!nextFunc.type.paramTypes.isEmpty()) {
+            return null;
+        }
+
+        returnType = nextFunc.type.retType;
+        // Check if the next function return type has the union type,
+        // record {|int value;|}|();
+        if (checkNextFuncReturnType(returnType)) {
+            return (BUnionType) returnType;
+        }
+
+        return null;
+    }
+
+    private boolean checkNextFuncReturnType(BType returnType) {
+        if (returnType.tag != TypeTags.UNION) {
+            return false;
+        }
+
+        List<BType> types = new ArrayList<>(((BUnionType) returnType).getMemberTypes());
+
+        if (!types.removeIf(type -> type.tag == TypeTags.NIL)) {
+            return false;
+        }
+
+        if (types.size() != 1) {
+            return false;
+        }
+
+        if (types.get(0).tag != TypeTags.RECORD) {
+            return false;
+        }
+
+        BRecordType recordType = (BRecordType) types.get(0);
+        // Check if the union type has the record type,
+        // record {|int value;|};
+        return checkRecordTypeInNextFuncReturnType(recordType);
+    }
+
+    private boolean checkRecordTypeInNextFuncReturnType(BRecordType recordType) {
+        if (!recordType.sealed) {
+            return false;
+        }
+
+        if (recordType.fields.size() != 1) {
+            return false;
+        }
+
+        for (BField field : recordType.fields) {
+            if (field.name.value.equals(BLangCompilerConstants.VALUE_FIELD)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     private BRecordType getRecordType(BUnionType type) {
-        return (BRecordType) type.getMemberTypes()
-                .stream().filter(member -> member.tag == TypeTags.RECORD).findFirst().orElse(null);
+        for (BType member : type.getMemberTypes()) {
+            if (member.tag == TypeTags.RECORD) {
+                return (BRecordType) member;
+            }
+        }
+        return null;
     }
 
     private BType getResultTypeOfNextInvocation(BObjectType iteratorType) {
@@ -1113,34 +1170,42 @@ public class Types {
 
     private BAttachedFunction getNextFunc(BObjectType iteratorType) {
         BObjectTypeSymbol iteratorSymbol = (BObjectTypeSymbol) iteratorType.tsymbol;
-        Optional<BAttachedFunction> nextFunc = iteratorSymbol.attachedFuncs.stream()
-                .filter(bAttachedFunction -> bAttachedFunction.funcName.value.equals(BLangBuiltInMethod.NEXT.getName()))
-                .findFirst();
-        return nextFunc.orElse(null);
+        for (BAttachedFunction bAttachedFunction : iteratorSymbol.attachedFuncs) {
+            if (bAttachedFunction.funcName.value
+                    .equals(BLangCompilerConstants.NEXT_FUNC)) {
+                return bAttachedFunction;
+            }
+        }
+        return null;
     }
 
     public BType inferRecordFieldType(BRecordType recordType) {
         List<BField> fields = recordType.fields;
+        BUnionType unionType = BUnionType.create(null);
 
-        // If there are no fields in the record, return the rest field type as the inferred type.
-        if (fields.isEmpty()) {
-            return recordType.restFieldType;
+        if (!recordType.sealed) {
+            unionType.add(recordType.restFieldType);
         }
 
-        BType inferredType = fields.get(0).type; // If all the fields are the same, doesn't matter which one we pick
-
-        // If it's an open record, the rest field type should also be of the same type as the mandatory fields.
-        if (!recordType.sealed && recordType.restFieldType.tag != inferredType.tag) {
-            return symTable.anyType;
-        }
-
-        for (int i = 1; i < fields.size(); i++) {
-            if (inferredType.tag != fields.get(i).type.tag) {
-                return symTable.anyType;
+        for (BField field : fields) {
+            if (isAssignable(field.type, unionType)) {
+                continue;
             }
+
+            if (isAssignable(unionType, field.type)) {
+                unionType = BUnionType.create(null);
+            }
+
+            unionType.add(field.type);
         }
 
-        return inferredType;
+        if (unionType.getMemberTypes().size() > 1) {
+            unionType.tsymbol = Symbols.createTypeSymbol(SymTag.UNION_TYPE, Flags.asMask(EnumSet.of(Flag.PUBLIC)),
+                    Names.EMPTY, recordType.tsymbol.pkgID, null, recordType.tsymbol.owner);
+            return unionType;
+        }
+
+        return unionType.getMemberTypes().iterator().next();
     }
 
     public BSymbol getImplicitCastOpSymbol(BType actualType, BType expType) {
@@ -1153,36 +1218,22 @@ public class Types {
             return symbol;
         }
 
-        if (isValueType(expType) &&
+        if (actualType.tag == TypeTags.BYTE && expType.tag == TypeTags.INT) {
+            symbol = createCastOperatorSymbol(actualType, expType, true);
+        } else if (isValueType(expType) &&
                 (actualType.tag == TypeTags.FINITE ||
                          (actualType.tag == TypeTags.UNION && ((BUnionType) actualType).getMemberTypes().stream()
                                  .anyMatch(type -> type.tag == TypeTags.FINITE && isAssignable(type, expType))))) {
-            int code;
-            switch (expType.tag) {
-                case TypeTags.INT:
-                    code = InstructionCodes.ANY2I;
-                    break;
-                case TypeTags.BYTE:
-                    code = InstructionCodes.ANY2BI;
-                    break;
-                case TypeTags.FLOAT:
-                    code = InstructionCodes.ANY2F;
-                    break;
-                case TypeTags.STRING:
-                    code = InstructionCodes.ANY2S;
-                    break;
-                case TypeTags.BOOLEAN:
-                    code = InstructionCodes.ANY2B;
-                    break;
-                default:
-                    // for decimal or nil, no cast is required
-                    return symbol;
+            if (expType.tag != TypeTags.INT && expType.tag != TypeTags.BYTE && expType.tag != TypeTags.FLOAT
+                    && expType.tag != TypeTags.STRING && expType.tag != TypeTags.BOOLEAN) {
+                // for decimal or nil, no cast is required
+                return symbol;
             }
-            symbol = createCastOperatorSymbol(symTable.anyType, expType, true, code);
+            symbol = createCastOperatorSymbol(symTable.anyType, expType, true);
         } else if (expType.tag == TypeTags.ERROR
                 && (actualType.tag == TypeTags.UNION
                 && isAllErrorMembers((BUnionType) actualType))) {
-            symbol = createCastOperatorSymbol(symTable.anyType, symTable.errorType, true, InstructionCodes.ANY2E);
+            symbol = createCastOperatorSymbol(symTable.anyType, symTable.errorType, true);
 
         }
         return symbol;
@@ -1213,19 +1264,19 @@ public class Types {
     public BSymbol getCastOperator(BLangExpression expr, BType sourceType, BType targetType) {
         if (sourceType.tag == TypeTags.SEMANTIC_ERROR || targetType.tag == TypeTags.SEMANTIC_ERROR ||
                 sourceType == targetType) {
-            return createCastOperatorSymbol(sourceType, targetType, true, InstructionCodes.NOP);
+            return createCastOperatorSymbol(sourceType, targetType, true);
         }
         BSymbol bSymbol = symResolver.resolveTypeCastOperator(expr, sourceType, targetType);
         if (bSymbol != null && bSymbol != symTable.notFoundSymbol) {
             return bSymbol;
         }
-        return createCastOperatorSymbol(sourceType, targetType, true, InstructionCodes.NOP);
+        return createCastOperatorSymbol(sourceType, targetType, true);
     }
 
     public BSymbol getConversionOperator(BType sourceType, BType targetType) {
         if (sourceType.tag == TypeTags.SEMANTIC_ERROR || targetType.tag == TypeTags.SEMANTIC_ERROR ||
                 sourceType == targetType) {
-            return createCastOperatorSymbol(sourceType, targetType, true, InstructionCodes.NOP);
+            return createCastOperatorSymbol(sourceType, targetType, true);
         }
         BSymbol bSymbol = symResolver.resolveOperator(Names.CONVERSION_OP, Lists.of(sourceType, targetType));
         if (bSymbol != null && bSymbol != symTable.notFoundSymbol) {
@@ -1237,14 +1288,14 @@ public class Types {
     BSymbol getTypeCastOperator(BLangExpression expr, BType sourceType, BType targetType) {
         if (sourceType.tag == TypeTags.SEMANTIC_ERROR || targetType.tag == TypeTags.SEMANTIC_ERROR ||
                 sourceType == targetType) {
-            return createCastOperatorSymbol(sourceType, targetType, true, InstructionCodes.NOP);
+            return createCastOperatorSymbol(sourceType, targetType, true);
         }
 
         if (isAssignable(sourceType, targetType)) {
             if (isValueType(sourceType) || isValueType(targetType)) {
                 return getImplicitCastOpSymbol(sourceType, targetType);
             }
-            return createCastOperatorSymbol(sourceType, targetType, true, InstructionCodes.NOP);
+            return createCastOperatorSymbol(sourceType, targetType, true);
         }
 
         if (isAssignable(targetType, sourceType)) {
@@ -1341,7 +1392,7 @@ public class Types {
                 return false;
             }
 
-            BAttachedFunction rhsFunc = getMatchingInvokableType(rhsFuncs, lhsFunc, new ArrayList<>());
+            BAttachedFunction rhsFunc = getMatchingInvokableType(rhsFuncs, lhsFunc, new HashSet<>());
             if (rhsFunc == null || !Symbols.isPublic(rhsFunc.symbol)) {
                 return false;
             }
@@ -1363,336 +1414,23 @@ public class Types {
 
     private BCastOperatorSymbol createCastOperatorSymbol(BType sourceType,
                                                          BType targetType,
-                                                         boolean safe,
-                                                         int opcode) {
+                                                         boolean safe) {
         return Symbols.createCastOperatorSymbol(sourceType, targetType, symTable.errorType,
-                                                false, safe, opcode, null, null);
-    }
-
-    private BSymbol getExplicitArrayCastOperator(BType t, BType s, BType origT, BType origS) {
-        return getExplicitArrayCastOperator(t, s, origT, origS, new ArrayList<>());
-    }
-
-    private BSymbol getExplicitArrayCastOperator(BType t, BType s, BType origT, BType origS,
-                                                 List<TypePair> unresolvedTypes) {
-        if (t.tag == TypeTags.ARRAY && s.tag == TypeTags.ARRAY) {
-            return getExplicitArrayCastOperator(((BArrayType) t).eType, ((BArrayType) s).eType, origT, origS,
-                                                unresolvedTypes);
-        } else if (t.tag == TypeTags.ARRAY) {
-            if (s.tag == TypeTags.JSON) {
-                // If the target type is JSON array, and the source type is a JSON
-                if (getElementType(t).tag == TypeTags.JSON) {
-                    return createCastOperatorSymbol(origS, origT, false, InstructionCodes.CHECKCAST);
-                } else {
-                    return createCastOperatorSymbol(origS, origT, false, InstructionCodes.JSON2ARRAY);
-                }
-            }
-
-            // If only the target type is an array type, then the source type must be of type 'any' or 'anydata'
-            if (s.tag == TypeTags.ANY || s.tag == TypeTags.ANYDATA) {
-                return createCastOperatorSymbol(origS, origT, false, InstructionCodes.CHECKCAST);
-            }
-            return symTable.notFoundSymbol;
-
-        } else if (s.tag == TypeTags.ARRAY) {
-            if (t.tag == TypeTags.JSON) {
-                if (getElementType(s).tag == TypeTags.JSON) {
-                    return createCastOperatorSymbol(origS, origT, true, InstructionCodes.NOP);
-                } else {
-                    // the conversion visitor below may report back a conversion symbol, which is
-                    // unsafe (e.g. T2JSON), so we must make our one also unsafe
-                    if (castVisitor.visit((BJSONType) t, ((BArrayType) s).eType) != symTable.notFoundSymbol) {
-                        return createCastOperatorSymbol(origS, origT, false, InstructionCodes.ARRAY2JSON);
-                    }
-                }
-            }
-
-            // If only the source type is an array type, then the target type must be of type 'any'
-            if (t.tag == TypeTags.ANY) {
-                return createCastOperatorSymbol(origS, origT, true, InstructionCodes.NOP);
-            }
-            return symTable.notFoundSymbol;
-        }
-
-        // Now both types are not array types
-        if (s == t) {
-            return createCastOperatorSymbol(origS, origT, true, InstructionCodes.NOP);
-        }
-
-        if ((s.tag == TypeTags.OBJECT || s.tag == TypeTags.RECORD)
-                && (t.tag == TypeTags.OBJECT || t.tag == TypeTags.RECORD)) {
-            if (checkStructEquivalency(s, t, unresolvedTypes)) {
-                return createCastOperatorSymbol(origS, origT, true, InstructionCodes.NOP);
-            } else {
-                return createCastOperatorSymbol(origS, origT, false, InstructionCodes.CHECKCAST);
-            }
-        }
-
-        if (isAssignable(s, t)) {
-            return createCastOperatorSymbol(origS, origT, true, InstructionCodes.NOP);
-        }
-
-        if (isAssignable(t, s)) {
-            return createCastOperatorSymbol(origS, origT, false, InstructionCodes.CHECKCAST);
-        }
-
-        return symTable.notFoundSymbol;
+                false, safe, null, null);
     }
 
     private boolean isNullable(BType fieldType) {
         return fieldType.isNullable();
     }
 
-    private boolean checkUnionTypeToJSONConvertibility(BUnionType type, BJSONType target) {
-        // Check whether all the member types are convertible to JSON
-        return type.getMemberTypes().stream()
-                .anyMatch(memberType -> castVisitor.visit(memberType, target) == symTable.notFoundSymbol);
-    }
-
-    private boolean checkJsonToMapConvertibility(BJSONType src, BMapType target) {
-        return true;
-    }
-
-    private boolean checkMapToJsonConvertibility(BMapType src, BJSONType target) {
-        return true;
-    }
-
-    private BTypeVisitor<BType, BSymbol> castVisitor = new BTypeVisitor<BType, BSymbol>() {
-
-        @Override
-        public BSymbol visit(BType t, BType s) {
-            return symResolver.resolveOperator(Names.CAST_OP, Lists.of(s, t));
-        }
-
-        @Override
-        public BSymbol visit(BBuiltInRefType t, BType s) {
-            return symResolver.resolveOperator(Names.CAST_OP, Lists.of(s, t));
-        }
-
-        @Override
-        public BSymbol visit(BAnyType t, BType s) {
-            if (isValueType(s)) {
-                return symResolver.resolveOperator(Names.CAST_OP, Lists.of(s, t));
-            }
-
-            // TODO: 11/1/18 Remove the below check after verifying it doesn't break anything
-            // Here condition is added for prevent explicit cast assigning map union constrained
-            // to map any constrained.
-            if (s.tag == TypeTags.MAP &&
-                    ((BMapType) s).constraint.tag == TypeTags.UNION) {
-                return symTable.notFoundSymbol;
-            }
-
-            return createCastOperatorSymbol(s, t, true, InstructionCodes.NOP);
-        }
-
-        @Override
-        public BSymbol visit(BAnydataType t, BType s) {
-            if (isValueType(s)) {
-                return symResolver.resolveOperator(Names.CAST_OP, Lists.of(s, t));
-            }
-
-            return createCastOperatorSymbol(s, t, true, InstructionCodes.NOP);
-        }
-
-        @Override
-        public BSymbol visit(BMapType t, BType s) {
-            if (isSameType(s, t)) {
-                return createCastOperatorSymbol(s, t, true, InstructionCodes.NOP);
-            } else if (s.tag == TypeTags.MAP) {
-                if (t.constraint.tag == TypeTags.ANY) {
-                    return createCastOperatorSymbol(s, t, true, InstructionCodes.NOP);
-                } else if (((BMapType) s).constraint.tag == TypeTags.ANY) {
-                    return createCastOperatorSymbol(s, t, false, InstructionCodes.CHECKCAST);
-                } else if (checkStructEquivalency(((BMapType) s).constraint,
-                        t.constraint)) {
-                    return createCastOperatorSymbol(s, t, true, InstructionCodes.NOP);
-                } else {
-                    return symTable.notFoundSymbol;
-                }
-            } else if (s.tag == TypeTags.OBJECT || s.tag == TypeTags.RECORD) {
-                return createCastOperatorSymbol(s, t, true, InstructionCodes.T2MAP);
-            } else if (s.tag == TypeTags.JSON) {
-                if (!checkJsonToMapConvertibility((BJSONType) s, t)) {
-                    return symTable.notFoundSymbol;
-                }
-                return createCastOperatorSymbol(s, t, false, InstructionCodes.JSON2MAP);
-            } else if (s.tag == TypeTags.ANYDATA) {
-                return createCastOperatorSymbol(s, t, false, InstructionCodes.ANY2MAP);
-            }
-
-            return symResolver.resolveOperator(Names.CAST_OP, Lists.of(s, t));
-        }
-
-        @Override
-        public BSymbol visit(BXMLType t, BType s) {
-            return visit((BBuiltInRefType) t, s);
-        }
-
-        @Override
-        public BSymbol visit(BJSONType t, BType s) {
-            if (isSameType(s, t)) {
-                return createCastOperatorSymbol(s, t, true, InstructionCodes.NOP);
-            } else if (s.tag == TypeTags.OBJECT) {
-//                TODO: do type checking and fail for obvious incompatible types
-//                if (checkStructToJSONConvertibility(s)) {
-//                    return createCastOperatorSymbol(s, t, false, InstructionCodes.T2JSON);
-//                } else {
-//                    return symTable.notFoundSymbol;
-//                }
-                return createCastOperatorSymbol(s, t, false, InstructionCodes.T2JSON);
-            } else if (s.tag == TypeTags.JSON) {
-                return createCastOperatorSymbol(s, t, true, InstructionCodes.NOP);
-            } else if (s.tag == TypeTags.ARRAY) {
-                return getExplicitArrayCastOperator(t, s, t, s);
-            } else if (s.tag == TypeTags.UNION) {
-                if (checkUnionTypeToJSONConvertibility((BUnionType) s, t)) {
-                    return createCastOperatorSymbol(s, t, false, InstructionCodes.O2JSON);
-                }
-                return symTable.notFoundSymbol;
-            } else if (s.tag == TypeTags.MAP) {
-                if (!checkMapToJsonConvertibility((BMapType) s, t)) {
-                    return symTable.notFoundSymbol;
-                }
-                return createCastOperatorSymbol(s, t, false, InstructionCodes.MAP2JSON);
-            }
-
-            return symResolver.resolveOperator(Names.CAST_OP, Lists.of(s, t));
-        }
-
-        @Override
-        public BSymbol visit(BArrayType t, BType s) {
-            return getExplicitArrayCastOperator(t, s, t, s);
-        }
-
-        @Override
-        public BSymbol visit(BObjectType t, BType s) {
-            if (s == symTable.anyType) {
-                return createCastOperatorSymbol(s, t, false, InstructionCodes.ANY2T);
-            }
-
-            if ((s.tag == TypeTags.OBJECT || s.tag == TypeTags.RECORD) && checkStructEquivalency(s, t)) {
-                return createCastOperatorSymbol(s, t, true, InstructionCodes.NOP);
-            } else if (s.tag == TypeTags.OBJECT || s.tag == TypeTags.RECORD || s.tag == TypeTags.ANY) {
-                return createCastOperatorSymbol(s, t, false, InstructionCodes.CHECKCAST);
-            } else if (s.tag == TypeTags.MAP) {
-                return createCastOperatorSymbol(s, t, false, InstructionCodes.MAP2T);
-            } else if (s.tag == TypeTags.JSON) {
-                return createCastOperatorSymbol(s, t, false, InstructionCodes.JSON2T);
-            }
-
-            return symTable.notFoundSymbol;
-        }
-
-        @Override
-        public BSymbol visit(BRecordType t, BType s) {
-            if (s == symTable.anyType || s == symTable.anydataType) {
-                return createCastOperatorSymbol(s, t, false, InstructionCodes.ANY2T);
-            }
-
-            if ((s.tag == TypeTags.RECORD || s.tag == TypeTags.OBJECT) && checkStructEquivalency(s, t)) {
-                return createCastOperatorSymbol(s, t, true, InstructionCodes.NOP);
-            } else if (s.tag == TypeTags.RECORD || s.tag == TypeTags.OBJECT || s.tag == TypeTags.ANY) {
-                return createCastOperatorSymbol(s, t, false, InstructionCodes.CHECKCAST);
-            } else if (s.tag == TypeTags.MAP) {
-                return createCastOperatorSymbol(s, t, false, InstructionCodes.MAP2T);
-            } else if (s.tag == TypeTags.JSON) {
-                return createCastOperatorSymbol(s, t, false, InstructionCodes.JSON2T);
-            }
-
-            return symTable.notFoundSymbol;
-        }
-
-        @Override
-        public BSymbol visit(BTableType t, BType s) {
-            if (s == symTable.anyType || s.tag == symTable.anydataType.tag) {
-                return createCastOperatorSymbol(s, t, false, InstructionCodes.ANY2DT);
-            }
-
-            return symTable.notFoundSymbol;
-        }
-
-        @Override
-        public BSymbol visit(BTupleType t, BType s) {
-            if (s == symTable.anyType || s == symTable.anydataType) {
-                return createCastOperatorSymbol(s, t, false, InstructionCodes.CHECKCAST);
-            }
-            return symTable.notFoundSymbol;
-        }
-
-        @Override
-        public BSymbol visit(BStreamType t, BType s) {
-            return symTable.notFoundSymbol;
-        }
-
-        @Override
-        public BSymbol visit(BInvokableType t, BType s) {
-            if (s == symTable.anyType) {
-                return createCastOperatorSymbol(s, t, false, InstructionCodes.CHECKCAST);
-            } else if (s.tag == TypeTags.INVOKABLE && isFunctionTypeAssignable((BInvokableType) s, t,
-                                                                               new ArrayList<>())) {
-                return createCastOperatorSymbol(s, t, true, InstructionCodes.NOP);
-            }
-
-            return symTable.notFoundSymbol;
-        }
-
-        @Override
-        public BSymbol visit(BUnionType t, BType s) {
-
-            // TODO handle union type to
-            return symTable.notFoundSymbol;
-        }
-
-        @Override
-        public BSymbol visit(BSemanticErrorType t, BType s) {
-            // TODO Implement. Not needed for now.
-            throw new AssertionError();
-        }
-
-        @Override
-        public BSymbol visit(BErrorType t, BType s) {
-            // TODO Implement. Not needed for now.
-            throw new AssertionError();
-        }
-
-        @Override
-        public BSymbol visit(BFutureType t, BType s) {
-            return null;
-        }
-
-        @Override
-        public BSymbol visit(BFiniteType t, BType s) {
-            if (s.tag == symTable.anyType.tag || s.tag == symTable.anydataType.tag) {
-                return createCastOperatorSymbol(s, t, false, InstructionCodes.CHECKCAST);
-            }
-
-            return symTable.notFoundSymbol;
-        }
-
-        @Override
-        public BSymbol visit(BServiceType t, BType s) {
-
-            return symTable.notFoundSymbol;
-        }
-
-        @Override
-        public BSymbol visit(BTypedescType t, BType s) {
-
-            return symTable.notFoundSymbol;
-        }
-
-    };
-
     private class BSameTypeVisitor implements BTypeVisitor<BType, Boolean> {
 
-        List<TypePair> unresolvedTypes;
+        Set<TypePair> unresolvedTypes;
 
-        BSameTypeVisitor(List<TypePair> unresolvedTypes) {
+        BSameTypeVisitor(Set<TypePair> unresolvedTypes) {
             this.unresolvedTypes = unresolvedTypes;
         }
 
-//    private BTypeVisitor<BType, Boolean> sameTypeVisitor = new BTypeVisitor<BType, Boolean>() {
         @Override
         public Boolean visit(BType t, BType s) {
 
@@ -1760,7 +1498,7 @@ public class Types {
 
         @Override
         public Boolean visit(BArrayType t, BType s) {
-            return s.tag == TypeTags.ARRAY && checkArrayEquality(s, t, new ArrayList<>());
+            return s.tag == TypeTags.ARRAY && checkArrayEquality(s, t, new HashSet<>());
         }
 
         @Override
@@ -1839,7 +1577,7 @@ public class Types {
 
         @Override
         public Boolean visit(BInvokableType t, BType s) {
-            return s.tag == TypeTags.INVOKABLE && isSameFunctionType((BInvokableType) s, t, new ArrayList<>());
+            return s.tag == TypeTags.INVOKABLE && isSameFunctionType((BInvokableType) s, t, new HashSet<>());
         }
 
         @Override
@@ -1914,7 +1652,7 @@ public class Types {
 
     };
 
-    private boolean checkFieldEquivalency(BRecordType lhsType, BRecordType rhsType, List<TypePair> unresolvedTypes) {
+    private boolean checkFieldEquivalency(BRecordType lhsType, BRecordType rhsType, Set<TypePair> unresolvedTypes) {
         Map<Name, BField> rhsFields = rhsType.fields.stream().collect(Collectors.toMap(BField::getName, f -> f));
 
         // Check if the RHS record has corresponding fields to those of the LHS record.
@@ -1946,7 +1684,7 @@ public class Types {
     }
 
     private BAttachedFunction getMatchingInvokableType(List<BAttachedFunction> rhsFuncList, BAttachedFunction lhsFunc,
-                                                       List<TypePair> unresolvedTypes) {
+                                                       Set<TypePair> unresolvedTypes) {
         return rhsFuncList.stream()
                 .filter(rhsFunc -> lhsFunc.funcName.equals(rhsFunc.funcName))
                 .filter(rhsFunc -> isFunctionTypeAssignable(rhsFunc.type, lhsFunc.type, unresolvedTypes))
@@ -1964,7 +1702,7 @@ public class Types {
         return !Symbols.isPrivate(rhsSym) && !Symbols.isPublic(rhsSym) && lhsSym.pkgID.equals(rhsSym.pkgID);
     }
 
-    private boolean isAssignableToUnionType(BType source, BType target, List<TypePair> unresolvedTypes) {
+    private boolean isAssignableToUnionType(BType source, BType target, Set<TypePair> unresolvedTypes) {
         Set<BType> sourceTypes = new LinkedHashSet<>();
         Set<BType> targetTypes = new LinkedHashSet<>();
 
@@ -1988,7 +1726,7 @@ public class Types {
                         (s.tag == TypeTags.FINITE  && isAssignable(s, target, unresolvedTypes)));
     }
 
-    private boolean isFiniteTypeAssignable(BFiniteType finiteType, BType targetType, List<TypePair> unresolvedTypes) {
+    private boolean isFiniteTypeAssignable(BFiniteType finiteType, BType targetType, Set<TypePair> unresolvedTypes) {
         if (targetType.tag == TypeTags.FINITE) {
             return finiteType.valueSpace.stream()
                     .allMatch(expression -> isAssignableToFiniteType(targetType, (BLangLiteral) expression));
@@ -2193,7 +1931,7 @@ public class Types {
     }
 
     boolean validEqualityIntersectionExists(BType lhsType, BType rhsType) {
-        if (!isPureType(lhsType) || !isPureType(rhsType)) {
+        if (!lhsType.isPureType() || !rhsType.isPureType()) {
             return false;
         }
 
@@ -2718,6 +2456,6 @@ public class Types {
      * @since 0.995.0
      */
     private interface TypeEqualityPredicate {
-        boolean test(BType source, BType target, List<TypePair> unresolvedTypes);
+        boolean test(BType source, BType target, Set<TypePair> unresolvedTypes);
     }
 }

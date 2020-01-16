@@ -80,9 +80,16 @@ public const IDLE_TIMEOUT_TRIGGERED = "{ballerina/mime}IdleTimeoutTriggeredError
 # Represents a `IdleTimeoutTriggeredError` with a detailed message.
 public type IdleTimeoutTriggeredError error<IDLE_TIMEOUT_TRIGGERED, Detail>;
 
+// Identifies no content errors in payload.
+public const NO_CONTENT_ERROR_CODE = "{ballerina/mime}NoContentError";
+
+# Represents a `NoContentError` with a detailed message.
+public type NoContentError error<NO_CONTENT_ERROR_CODE, Detail>;
+
 # Represents MIME related errors.
 public type Error ParserError|EncodeError|DecodeError|GenericMimeError|SetHeaderError|InvalidContentTypeError
-                |ReadingHeaderFailed|InvalidContentTypeError|HeaderUnavailableError|IdleTimeoutTriggeredError;
+                |ReadingHeaderFailed|InvalidContentTypeError|HeaderUnavailableError|IdleTimeoutTriggeredError
+                |NoContentError;
 
 # Constructs an `EncodeError` with the given details.
 # + detail - error details

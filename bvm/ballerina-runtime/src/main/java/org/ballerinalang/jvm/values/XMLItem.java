@@ -33,10 +33,11 @@ import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.XMLFactory;
 import org.ballerinalang.jvm.XMLNodeType;
 import org.ballerinalang.jvm.XMLValidator;
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BMapType;
 import org.ballerinalang.jvm.types.BTypes;
+import org.ballerinalang.jvm.values.api.BMap;
+import org.ballerinalang.jvm.values.api.BXML;
 import org.ballerinalang.jvm.values.freeze.FreezeUtils;
 import org.ballerinalang.jvm.values.freeze.State;
 import org.ballerinalang.jvm.values.freeze.Status;
@@ -85,6 +86,7 @@ public final class XMLItem extends XMLValue<OMNode> {
     /**
      * Create an empty XMLValue.
      */
+    @Deprecated
     public XMLItem() {
         omNode = new OMElementImpl();
         setXMLNodeType();
@@ -95,6 +97,7 @@ public final class XMLItem extends XMLValue<OMNode> {
      *
      * @param xmlValue A XML string
      */
+    @Deprecated
     public XMLItem(String xmlValue) {
         if (xmlValue == null) {
             return;
@@ -113,6 +116,7 @@ public final class XMLItem extends XMLValue<OMNode> {
      *
      * @param value xml object
      */
+    @Deprecated
     public XMLItem(OMNode value) {
         this.omNode = value;
         setXMLNodeType();
@@ -123,6 +127,7 @@ public final class XMLItem extends XMLValue<OMNode> {
      *
      * @param inputStream Input Stream
      */
+    @Deprecated
     public XMLItem(InputStream inputStream) {
         if (inputStream == null) {
             return;
@@ -281,7 +286,7 @@ public final class XMLItem extends XMLValue<OMNode> {
      * {@inheritDoc}
      */
     @Override
-    public void setAttributes(MapValue<String, ?> attributes) {
+    public void setAttributes(BMap<String, ?> attributes) {
         synchronized (this) {
             if (freezeStatus.getState() != State.UNFROZEN) {
                 FreezeUtils.handleInvalidUpdate(freezeStatus.getState(), XML_LANG_LIB);
@@ -328,7 +333,7 @@ public final class XMLItem extends XMLValue<OMNode> {
      */
     @Override
     public XMLValue<?> elements() {
-        ArrayValue elementsSeq = new ArrayValue(new BArrayType(BTypes.typeXML));
+        ArrayValue elementsSeq = new ArrayValueImpl(new BArrayType(BTypes.typeXML));
         switch (nodeType) {
             case ELEMENT:
                 elementsSeq.add(0, this);
@@ -344,7 +349,7 @@ public final class XMLItem extends XMLValue<OMNode> {
      */
     @Override
     public XMLValue<?> elements(String qname) {
-        ArrayValue elementsSeq = new ArrayValue(new BArrayType(BTypes.typeXML));
+        ArrayValue elementsSeq = new ArrayValueImpl(new BArrayType(BTypes.typeXML));
         switch (nodeType) {
             case ELEMENT:
                 if (getElementName().toString().equals(getQname(qname).toString())) {
@@ -362,7 +367,7 @@ public final class XMLItem extends XMLValue<OMNode> {
      */
     @Override
     public XMLValue<?> children() {
-        ArrayValue elementsSeq = new ArrayValue(new BArrayType(BTypes.typeXML));
+        ArrayValue elementsSeq = new ArrayValueImpl(new BArrayType(BTypes.typeXML));
         switch (nodeType) {
             case ELEMENT:
                 Iterator<OMNode> childrenItr = ((OMElement) omNode).getChildren();
@@ -383,7 +388,7 @@ public final class XMLItem extends XMLValue<OMNode> {
      */
     @Override
     public XMLValue<?> children(String qname) {
-        ArrayValue elementsSeq = new ArrayValue(new BArrayType(BTypes.typeXML));
+        ArrayValue elementsSeq = new ArrayValueImpl(new BArrayType(BTypes.typeXML));
         switch (nodeType) {
             case ELEMENT:
                 /*
@@ -446,6 +451,10 @@ public final class XMLItem extends XMLValue<OMNode> {
         }
     }
 
+    public void setChildren(BXML<?> seq) {
+        setChildren((XMLValue<?>) seq);
+    }
+
     /**
      * {@inheritDoc}
      */
@@ -480,6 +489,10 @@ public final class XMLItem extends XMLValue<OMNode> {
         } else {
             currentNode.addChild((OMNode) seq.value());
         }
+    }
+
+    public void addChildren(BXML<?> seq) {
+        addChildren((XMLValue) seq);
     }
 
     /**
@@ -537,7 +550,7 @@ public final class XMLItem extends XMLValue<OMNode> {
         }
 
         XMLValue<?>[] array = descendants.toArray(new XMLValue[descendants.size()]);
-        return new XMLSequence(new ArrayValue(array, new BArrayType(BTypes.typeXML)));
+        return new XMLSequence(new ArrayValueImpl(array, new BArrayType(BTypes.typeXML)));
     }
 
     /**
@@ -579,7 +592,7 @@ public final class XMLItem extends XMLValue<OMNode> {
      * {@inheritDoc}
      */
     @Override
-    public String stringValue(Strand strand) {
+    public String stringValue() {
         try {
             switch (this.omNode.getType()) {
                 case OMNode.TEXT_NODE:
@@ -1077,11 +1090,6 @@ public final class XMLItem extends XMLValue<OMNode> {
         }
 
         @Override
-        public String stringValue(Strand strand) {
-            return stringValue();
-        }
-
-        @Override
         public synchronized void attemptFreeze(Status freezeStatus) {
             this.bXmlItem.attemptFreeze(freezeStatus);
         }
@@ -1094,6 +1102,33 @@ public final class XMLItem extends XMLValue<OMNode> {
         @Override
         public synchronized boolean isFrozen() {
             return this.bXmlItem.isFrozen();
+        }
+
+        @Override
+        public Set<Map.Entry<String, String>> entrySet() {
+            Set<Map.Entry<String, String>> keys = new LinkedHashSet<>();
+            if (this.bXmlItem.nodeType != XMLNodeType.ELEMENT) {
+                return keys;
+            }
+
+            String namespaceOfPrefix = getNamespaceOfPrefix();
+            Iterator<OMNamespace> namespaceIterator = ((OMElement) this.bXmlItem.omNode).getAllDeclaredNamespaces();
+            while (namespaceIterator.hasNext()) {
+                OMNamespace namespace = namespaceIterator.next();
+                String prefix = namespace.getPrefix();
+                if (prefix.isEmpty()) {
+                    continue;
+                }
+                keys.add(new SimpleEntry<>(namespaceOfPrefix + prefix, namespace.getNamespaceURI()));
+            }
+
+            Iterator<OMAttribute> attrIterator = ((OMElement) this.bXmlItem.omNode).getAllAttributes();
+            while (attrIterator.hasNext()) {
+                OMAttribute attr = attrIterator.next();
+                keys.add(new SimpleEntry<>(attr.getQName().toString(), attr.getAttributeValue()));
+            }
+
+            return keys;
         }
 
         // private methods

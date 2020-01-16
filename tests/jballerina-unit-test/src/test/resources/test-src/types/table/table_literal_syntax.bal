@@ -26,12 +26,11 @@ type Person record {
     boolean married;
 };
 
-
 type DefaultablePerson record {
     int id = 0;
     int age = 0;
     float salary = 0.0;
-    string name = "";
+    string name = "empty";
     boolean married = false;
 };
 
@@ -395,9 +394,7 @@ function testAddData() returns [int, int, int, int[], int[], int[]] {
     int i = 0;
     while (dt3.hasNext()) {
         var p = dt3.getNext();
-        if (p is Person) {
-            dt1data[i] = p.id;
-        }
+        dt1data[i] = p.id;
         i = i + 1;
     }
 
@@ -410,9 +407,7 @@ function testAddData() returns [int, int, int, int[], int[], int[]] {
     i = 0;
     while (dt4.hasNext()) {
         var p = dt4.getNext();
-        if (p is Person) {
-            dt2data[i] = p.id;
-        }
+        dt2data[i] = p.id;
         i = i + 1;
     }
 
@@ -425,9 +420,7 @@ function testAddData() returns [int, int, int, int[], int[], int[]] {
     i = 0;
     while (ct1.hasNext()) {
         var p = ct1.getNext();
-        if (p is Company) {
-            ct1data[i] = p.id;
-        }
+        ct1data[i] = p.id;
         i = i + 1;
     }
     return [count1, count2, count3, dt1data, dt2data, ct1data];
@@ -451,9 +444,7 @@ function testMultipleAccess() returns [int, int, int[], int[]] {
     int i = 0;
     while (dt3.hasNext()) {
         var p = dt3.getNext();
-        if (p is Person) {
-            dtdata1[i] = p.id;
-        }
+        dtdata1[i] = p.id;
         i = i + 1;
     }
 
@@ -465,9 +456,7 @@ function testMultipleAccess() returns [int, int, int[], int[]] {
     i = 0;
     while (dt3.hasNext()) {
         var p = dt3.getNext();
-        if (p is Person) {
-            dtdata2[i] = p.id;
-        }
+        dtdata2[i] = p.id;
         i = i + 1;
     }
     return [count1, count2, dtdata1, dtdata2];
@@ -488,9 +477,7 @@ function testLoopingTable() returns (string) {
 
     while (dt.hasNext()) {
         var p = dt.getNext();
-        if (p is Person) {
-            names = names + p.name + "_";
-        }
+        names = names + p.name + "_";
     }
     return names;
 }
@@ -507,10 +494,8 @@ function testTableWithAllDataToStruct() returns [json, xml]|error {
     xml xData = xml ` `;
     while (dt3.hasNext()) {
         var x = dt3.getNext();
-        if (x is TypeTest) {
-            jData = x.jsonData;
-            xData = x.xmlData;
-        }
+        jData = x.jsonData;
+        xData = x.xmlData;
     }
     return [jData, xData];
 }
@@ -526,9 +511,7 @@ function testTableWithBlobDataToStruct() returns (byte[]|error) {
     byte[] bData = [];
     while (dt3.hasNext()) {
         var x = dt3.getNext();
-        if (x is BlobTypeTest) {
-            bData = x.blobData;
-        }
+        bData = x.blobData;
     }
     return bData;
 }
@@ -572,12 +555,10 @@ function testTableWithArrayDataToStruct() returns [int[], float[], string[], boo
 
     while (dt3.hasNext()) {
         var x = dt3.getNext();
-        if (x is ArraTypeTest) {
-            intArr = x.intArrData;
-            floatArr = x.floatArrData;
-            stringArr = x.stringArrData;
-            boolArr = x.booleanArrData;
-        }
+        intArr = x.intArrData;
+        floatArr = x.floatArrData;
+        stringArr = x.stringArrData;
+        boolArr = x.booleanArrData;
     }
     return [intArr, floatArr, stringArr, boolArr];
 }
@@ -617,15 +598,6 @@ function testTableWithArrayDataToXml() returns (xml|error) {
 
     xml x = xmlutils:fromTable(dt3);
     return x;
-}
-
-function testTableAddInvalid() returns string {
-    Company c1 = { id: 100, name: "ABC" };
-
-    table<Person> dt3 = table{};
-    var ret = dt3.add(c1);
-    string s = ret is error ? <string>ret.detail()["message"] : "nil";
-    return s;
 }
 
 function testToJson() returns (json|error) {
@@ -692,6 +664,18 @@ function testTableWithBlobDataToXml() returns (xml|error) {
 
     xml x = xmlutils:fromTable(dt3);
     return x;
+}
+
+function testTableLiteralWithDefaultableRecord() returns (json|error) {
+    table<DefaultablePerson> t1 = table {
+        { key id, age, salary, name, married },
+        [{ 1, 23, 340.50, "John" },
+         { 2, 34, 345.32 }
+        ]
+    };
+
+    json j = jsonutils:fromTable(t1);
+    return j;
 }
 
 function testStructWithDefaultDataToJson() returns (json|error) {
@@ -846,27 +830,6 @@ function testRemoveWithInvalidRecordType() returns string {
     return returnStr;
 }
 
-function testRemoveWithInvalidParamType() returns string {
-    Person p1 = { id: 1, age: 35, salary: 300.50, name: "jane", married: true };
-    Person p2 = { id: 2, age: 40, salary: 200.50, name: "martin", married: true };
-    Person p3 = { id: 3, age: 42, salary: 100.50, name: "john", married: false };
-
-
-    table<Person> dt = table{};
-    checkpanic dt.add(p1);
-    checkpanic dt.add(p2);
-    checkpanic dt.add(p3);
-
-    string returnStr = "";
-    var ret = dt.remove(isBelow35InvalidParam);
-    if (ret is int) {
-        returnStr = ret.toString();
-    } else {
-        returnStr = <string>ret.detail()["message"];
-    }
-    return returnStr;
-}
-
 function testRemoveOpAnonymousFilter() returns table<Order> {
     table<Order> orderTable = table {
         { id, name },
@@ -949,8 +912,4 @@ function isJohn(Person p) returns (boolean) {
 
 function isBelow35Invalid(Company p) returns (boolean) {
     return p.id < 35;
-}
-
-function isBelow35InvalidParam(int p) returns (boolean) {
-    return true;
 }

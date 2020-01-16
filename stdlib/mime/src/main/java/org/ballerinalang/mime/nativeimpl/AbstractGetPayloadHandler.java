@@ -39,6 +39,7 @@ import static org.ballerinalang.mime.util.EntityBodyHandler.constructJsonDataSou
 import static org.ballerinalang.mime.util.EntityBodyHandler.constructStringDataSource;
 import static org.ballerinalang.mime.util.EntityBodyHandler.constructXmlDataSource;
 import static org.ballerinalang.mime.util.MimeConstants.ENTITY_BYTE_CHANNEL;
+import static org.ballerinalang.mime.util.MimeConstants.NO_CONTENT_ERROR_CODE;
 import static org.ballerinalang.mime.util.MimeConstants.PARSING_ENTITY_BODY_FAILED;
 import static org.ballerinalang.mime.util.MimeConstants.TRANSPORT_MESSAGE;
 
@@ -79,8 +80,9 @@ public abstract class AbstractGetPayloadHandler {
                     }
                     updateDataSourceAndNotify(callback, entity, dataSource);
                 } catch (Exception e) {
-                    createParsingEntityBodyFailedErrorAndNotify(callback, "Error occurred while extracting " +
-                            sourceType.toString().toLowerCase(Locale.ENGLISH) + " data from entity: " + getErrorMsg(e));
+                    createParsingEntityBodyFailedErrorAndNotify(callback,
+                            "Error occurred while extracting " + sourceType.toString().toLowerCase(Locale.ENGLISH)
+                                    + " data from entity: " + getErrorMsg(e), null);
                 } finally {
                     try {
                         inputStream.close();
@@ -93,7 +95,7 @@ public abstract class AbstractGetPayloadHandler {
             @Override
             public void onError(Exception ex) {
                 createParsingEntityBodyFailedErrorAndNotify(callback,
-                                     "Error occurred while extracting content from message : " + ex.getMessage());
+                        "Error occurred while extracting content from message : " + ex.getMessage(), null);
             }
         });
     }
@@ -103,8 +105,9 @@ public abstract class AbstractGetPayloadHandler {
         callback.notifySuccess();
     }
 
-    static Object createParsingEntityBodyFailedErrorAndNotify(NonBlockingCallback callback, String errMsg) {
-        ErrorValue error = MimeUtil.createError(PARSING_ENTITY_BODY_FAILED, errMsg);
+    static Object createParsingEntityBodyFailedErrorAndNotify(NonBlockingCallback callback, String errMsg,
+            ErrorValue errorValue) {
+        ErrorValue error = MimeUtil.createError(PARSING_ENTITY_BODY_FAILED, errMsg, errorValue);
         return returnErrorValue(callback, error);
     }
 
@@ -153,7 +156,7 @@ public abstract class AbstractGetPayloadHandler {
         if (message != null) {
             return message;
         } else {
-            throw BallerinaErrors.createError("Empty content");
+            throw BallerinaErrors.createError(NO_CONTENT_ERROR_CODE, "Empty content");
         }
     }
 

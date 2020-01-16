@@ -20,7 +20,6 @@ package org.ballerinalang.stdlib.io.channels;
 import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.stdlib.io.channels.base.Channel;
-import org.ballerinalang.stdlib.io.nativeimpl.OpenWritableFile;
 import org.ballerinalang.stdlib.io.utils.IOConstants;
 
 import static org.ballerinalang.stdlib.io.utils.IOConstants.IO_PACKAGE_ID;
@@ -32,8 +31,6 @@ import static org.ballerinalang.stdlib.io.utils.IOConstants.IO_PACKAGE_ID;
  * <p>
  * This will prepare the ByteChannel to perform I/O operations.
  * </p>
- *
- * @see OpenWritableFile
  */
 public abstract class AbstractNativeChannel {
     /**

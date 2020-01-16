@@ -222,7 +222,7 @@ public class ServiceTest {
         HttpCarbonMessage responseMsg = Services.invoke(TEST_ENDPOINT_1_PORT, requestMsg);
 
         assertResponseMessage(responseMsg,
-                              "Error occurred while extracting text data from entity : error Empty content ");
+                              "Error occurred while extracting text data from entity");
     }
 
     @Test(description = "Test GetFormParams with unsupported media type")

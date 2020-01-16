@@ -29,6 +29,7 @@ import java.io.IOException;
  *
  * @since 0.963.0
  */
+@Deprecated
 public class PackageFileWriter {
 
     public static byte[] writePackage(PackageFile packageFile) throws IOException {

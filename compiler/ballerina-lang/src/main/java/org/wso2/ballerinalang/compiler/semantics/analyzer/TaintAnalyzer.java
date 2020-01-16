@@ -25,7 +25,6 @@ import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
-import org.wso2.ballerinalang.compiler.semantics.model.BLangBuiltInMethod;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
@@ -513,7 +512,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     }
 
     private boolean isModuleVariable(BSymbol symbol) {
-        return symbol.owner.getKind() == SymbolKind.PACKAGE;
+        return symbol.tag == SymTag.VARIABLE && symbol.owner.getKind() == SymbolKind.PACKAGE;
     }
 
     @Override
@@ -587,22 +586,22 @@ public class TaintAnalyzer extends BLangNodeVisitor {
             if (varTaintedStatus == TaintedStatus.TAINTED && varRefExpr instanceof BLangVariableReference) {
                 BLangVariableReference varRef = (BLangVariableReference) varRefExpr;
                 if (isMutableVariable(varRef) && isGlobalVarOrServiceVar(varRef) && !isMarkedTainted(varRef)) {
-                    if (varRef.symbol.type.tag == TypeTags.OBJECT) {
-                        addTaintError(pos, varRef.symbol.name.value,
+                    if (varRef.symbol != null && varRef.symbol.type.tag == TypeTags.OBJECT) {
+                        addTaintError(pos, getVariableName(varRef),
                                 DiagnosticCode.TAINTED_VALUE_PASSED_TO_MODULE_OBJECT);
                     } else {
-                        addTaintError(pos, varRef.symbol.name.value,
+                        addTaintError(pos, getVariableName(varRef),
                                 DiagnosticCode.TAINTED_VALUE_PASSED_TO_GLOBAL_VARIABLE);
                     }
                     return;
-                } else if (varRef.symbol != null && varRef.symbol.closure && varTaintedStatus == TaintedStatus.TAINTED
+                } else if (varRef.symbol != null && varRef.symbol.closure
                         && !varRef.symbol.tainted && notInSameScope(varRef, env)) {
-                    addTaintError(pos, varRef.symbol.name.value,
+                    addTaintError(pos, getVariableName(varRef),
                             DiagnosticCode.TAINTED_VALUE_PASSED_TO_CLOSURE_VARIABLE);
                     return;
                 } else if (varRef.symbol != null && isMarkedUntainted(varRef)
                         && (varRef.symbol.flags & Flags.FUNCTION_FINAL) == Flags.FUNCTION_FINAL) {
-                    addTaintError(pos, varRef.symbol.name.value,
+                    addTaintError(pos, getVariableName(varRef),
                             DiagnosticCode.TAINTED_VALUE_PASSED_TO_UNTAINTED_PARAMETER);
                 }
             }
@@ -639,16 +638,16 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         }
     }
 
+    private String getVariableName(BLangVariableReference varRef) {
+        if (isStructuredAccessOnVariableReference(varRef)) {
+            return getVariableName((BLangVariableReference) ((BLangAccessExpression) varRef).expr);
+        }
+        return varRef.symbol.name.value;
+    }
+
     private boolean isMutableVariable(BLangVariableReference varRef) {
-        if (varRef.symbol == null) {
-            if (varRef.getKind() == NodeKind.INDEX_BASED_ACCESS_EXPR
-                    || varRef.getKind() == NodeKind.FIELD_BASED_ACCESS_EXPR) {
-                BLangExpression expr = ((BLangAccessExpression) varRef).expr;
-                if (expr.getKind() == NodeKind.SIMPLE_VARIABLE_REF || varRef.getKind() == NodeKind.CONSTANT_REF) {
-                    return isMutableVariable((BLangVariableReference) expr);
-                }
-            }
-            return false;
+        if (isStructuredAccessOnVariableReference(varRef)) {
+            return isMutableVariable((BLangVariableReference) ((BLangAccessExpression) varRef).expr);
         }
         if (varRef.symbol.getKind() == SymbolKind.CONSTANT || (varRef.symbol.flags & Flags.FINAL) == Flags.FINAL) {
             return false;
@@ -661,14 +660,29 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     }
 
     private boolean isMarkedTainted(BLangVariableReference varRef) {
+        if (isStructuredAccessOnVariableReference(varRef)) {
+            return isMarkedTainted((BLangVariableReference) ((BLangAccessExpression) varRef).expr);
+        }
         return ((BVarSymbol) varRef.symbol).taintabilityAllowance == BVarSymbol.TaintabilityAllowance.TAINTED;
     }
 
+    private boolean isStructuredAccessOnVariableReference(BLangVariableReference variableReference) {
+        return (variableReference.getKind() == NodeKind.INDEX_BASED_ACCESS_EXPR
+                || variableReference.getKind() == NodeKind.FIELD_BASED_ACCESS_EXPR
+                || variableReference.getKind() == NodeKind.XML_ATTRIBUTE_ACCESS_EXPR);
+    }
+
     private boolean isMarkedUntainted(BLangVariableReference varRef) {
+        if (isStructuredAccessOnVariableReference(varRef)) {
+            return isMarkedUntainted((BLangVariableReference) ((BLangAccessExpression) varRef).expr);
+        }
         return ((BVarSymbol) varRef.symbol).taintabilityAllowance == BVarSymbol.TaintabilityAllowance.UNTAINTED;
     }
 
     private boolean isGlobalVarOrServiceVar(BLangVariableReference varRef) {
+        if (isStructuredAccessOnVariableReference(varRef)) {
+            return isGlobalVarOrServiceVar((BLangVariableReference) ((BLangAccessExpression) varRef).expr);
+        }
         return varRef.symbol != null && varRef.symbol.owner != null
                 && (isModuleVariable(varRef.symbol)
                 || (varRef.symbol.owner.flags & Flags.SERVICE) == Flags.SERVICE);
@@ -1077,16 +1091,6 @@ public class TaintAnalyzer extends BLangNodeVisitor {
                     analyzerPhase = AnalyzerPhase.LOOP_ANALYSIS_COMPLETE;
                     ignoredInvokableSymbol.add(invokableSymbol);
                     blocked = false;
-                } else if (analyzerPhase == AnalyzerPhase.LOOP_ANALYSIS_COMPLETE
-                        && invocationExpr.builtinMethodInvocation
-                        && invocationExpr.builtInMethod == BLangBuiltInMethod.CALL) {
-                    // When "call" is use to invoke function pointers, taint-table of the actual function to be invoked
-                    // is not known. Therefore, if the analyzer is blocked on such function pointer invocation, skip
-                    // taint analysis and consider the outcome of the invocation as untainted.
-                    // TODO: Resolving function pointers and perform analysis.
-                    getCurrentAnalysisState().taintedStatus = TaintedStatus.IGNORED;
-                    ignoredInvokableSymbol.add(invokableSymbol);
-                    blocked = false;
                 }
                 if (blocked) {
                     // If taint-table of invoked function is not generated yet, add it to the blocked list for latter
@@ -1125,12 +1129,16 @@ public class TaintAnalyzer extends BLangNodeVisitor {
                 && Symbols.isNative(invocationExpr.symbol);
     }
 
+    private int receiverIfAttachedFunction(BLangInvocation invocationExpr) {
+        return isTaintAnalyzableAttachedFunction(invocationExpr) ? 1 : 0;
+    }
+
     private Map<Integer, TaintRecord> createIdentityTaintTable(BLangInvocation invocationExpr) {
         Map<Integer, TaintRecord> taintTable = new HashMap<>();
 
         int requiredParamCount = invocationExpr.requiredArgs.size();
         int restCount = invocationExpr.restArgs == null || invocationExpr.restArgs.isEmpty() ? 0 : 1;
-        int totalParamCount = requiredParamCount + restCount;
+        int totalParamCount = requiredParamCount + restCount + receiverIfAttachedFunction(invocationExpr);
 
         for (int i = ALL_UNTAINTED_TABLE_ENTRY_INDEX; i < totalParamCount; i++) {
             TaintRecord record = new TaintRecord(
@@ -1144,35 +1152,6 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         }
 
         return taintTable;
-    }
-
-    private void analyzeBuiltInMethodInvocation(BLangInvocation invocationExpr) {
-        BLangBuiltInMethod builtInMethod = invocationExpr.builtInMethod;
-        switch (builtInMethod) {
-            case IS_NAN:
-            case IS_INFINITE:
-            case IS_FINITE:
-            case LENGTH:
-            case IS_FROZEN:
-                getCurrentAnalysisState().taintedStatus = TaintedStatus.UNTAINTED;
-                break;
-            case FREEZE:
-            case CLONE:
-                invocationExpr.expr.accept(this);
-                break;
-            case STAMP:
-            case CONVERT:
-            case CALL:
-                invocationExpr.argExprs.forEach(expression -> expression.accept(this));
-                break;
-            case REASON:
-            case DETAIL:
-            case STACKTRACE:
-                invocationExpr.expr.accept(this);
-                break;
-            default:
-                throw new AssertionError("Taint checking failed for built-in method: " + builtInMethod);
-        }
     }
 
     @Override
@@ -1469,6 +1448,9 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangCheckedExpr match) {
         match.expr.accept(this);
+        if (getCurrentAnalysisState().taintedStatus == TaintedStatus.TAINTED) {
+            getCurrentAnalysisState().returnTaintedStatus = TaintedStatus.TAINTED;
+        }
     }
 
     @Override
@@ -1481,9 +1463,17 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         // Taintedness of a service variable depends on taintedness of listeners attached to this service.
         // If any listener is tainted then the service variable is tainted.
 
-        boolean anyListenerstainted = serviceConstructorExpr.serviceNode.attachedExprs.stream()
-                .filter(expr -> expr.getKind() == NodeKind.SIMPLE_VARIABLE_REF)
-                .anyMatch(attached -> ((BLangSimpleVarRef) attached).symbol.tainted);
+        boolean anyListenerstainted = false;
+        for (BLangExpression expr : serviceConstructorExpr.serviceNode.attachedExprs) {
+            if (expr.getKind() == NodeKind.SIMPLE_VARIABLE_REF && ((BLangSimpleVarRef) expr).symbol.tainted) {
+                anyListenerstainted = true;
+                break;
+            }
+            if (expr.getKind() == NodeKind.TYPE_INIT_EXPR) {
+                anyListenerstainted = true;
+                break;
+            }
+        }
 
         if (anyListenerstainted || serviceConstructorExpr.type.tsymbol.tainted) {
             // Service type tainted due to listeners being tainted.
@@ -2453,7 +2443,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         }
         // When an invocation like stringValue.trim() happens, if stringValue is tainted, the result should also be
         // tainted.
-        if (!invocationExpr.builtinMethodInvocation && invocationExpr.expr != null) {
+        if (invocationExpr.expr != null) {
             //TODO: TaintedIf annotation, so that it's possible to define what can taint or untaint the return.
             invocationExpr.expr.accept(this);
             if (getCurrentAnalysisState().taintedStatus == TaintedStatus.IGNORED) {
@@ -2555,10 +2545,6 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     }
 
     private boolean isTaintAnalyzableAttachedFunction(BLangInvocation invocationExpr) {
-        if (invocationExpr.builtinMethodInvocation) {
-            return false;
-        }
-
         boolean isAttachedFunction = (invocationExpr.symbol.flags & Flags.ATTACHED) == Flags.ATTACHED;
         boolean hasExpr = invocationExpr.expr != null;
         boolean isTypeInit = invocationExpr.parent != null

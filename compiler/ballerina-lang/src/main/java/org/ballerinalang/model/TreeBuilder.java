@@ -26,6 +26,7 @@ import org.ballerinalang.model.tree.FunctionNode;
 import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.ImportPackageNode;
 import org.ballerinalang.model.tree.MarkdownDocumentationNode;
+import org.ballerinalang.model.tree.MarkdownDocumentationReferenceAttributeNode;
 import org.ballerinalang.model.tree.PackageNode;
 import org.ballerinalang.model.tree.RecordVariableNode;
 import org.ballerinalang.model.tree.ResourceNode;
@@ -153,6 +154,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangMarkdownDocumentation;
+import org.wso2.ballerinalang.compiler.tree.BLangMarkdownReferenceDocumentation;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangRecordVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
@@ -612,6 +614,10 @@ public class TreeBuilder {
 
     public static MarkdownDocumentationParameterAttributeNode createMarkdownParameterDocumentationNode() {
         return new BLangMarkdownParameterDocumentation();
+    }
+
+    public static MarkdownDocumentationReferenceAttributeNode createMarkdownReferenceDocumentationNode() {
+        return new BLangMarkdownReferenceDocumentation();
     }
 
     public static MarkdownDocumentationReturnParameterAttributeNode createMarkdownReturnParameterDocumentationNode() {

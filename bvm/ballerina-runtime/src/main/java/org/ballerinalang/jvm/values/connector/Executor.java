@@ -26,6 +26,7 @@ import org.ballerinalang.jvm.types.AttachedFunction;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.types.BUnionType;
+import org.ballerinalang.jvm.types.TypeFlags;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.FutureValue;
@@ -46,6 +47,10 @@ import java.util.function.Function;
  * @since 0.995.0
  */
 public class Executor {
+
+    private static final BUnionType OPTIONAL_ERROR_TYPE = new BUnionType(
+            new BType[] { BTypes.typeError, BTypes.typeNull },
+            TypeFlags.asMask(TypeFlags.NILABLE, TypeFlags.PURETYPE));
 
     /**
      * This method will execute Ballerina resource in non-blocking manner. It will use Ballerina worker-pool for the
@@ -70,8 +75,7 @@ public class Executor {
             }
             return service.call(strand, resourceName, args);
         };
-        BUnionType unionType = new BUnionType(new BType[]{BTypes.typeError, BTypes.typeNull});
-        scheduler.schedule(new Object[1], func, null, callback, properties, unionType);
+        scheduler.schedule(new Object[1], func, null, callback, properties, OPTIONAL_ERROR_TYPE);
     }
 
     /**

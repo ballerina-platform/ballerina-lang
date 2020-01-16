@@ -91,7 +91,7 @@ public class BArrayType extends BType implements ArrayType {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder(eType.toString());
-        String tempSize = (state == BArrayState.OPEN_SEALED) ? "!..." : String.valueOf(size);
+        String tempSize = (state == BArrayState.OPEN_SEALED) ? "*" : String.valueOf(size);
         if (eType.tag == TypeTags.ARRAY) {
             return (state != BArrayState.UNSEALED) ?
                     sb.insert(sb.indexOf("["), "[" + tempSize + "]").toString() :
@@ -100,5 +100,10 @@ public class BArrayType extends BType implements ArrayType {
             return (state != BArrayState.UNSEALED) ?
                     sb.append("[").append(tempSize).append("]").toString() : sb.append("[]").toString();
         }
+    }
+
+    @Override
+    public final boolean isAnydata() {
+        return this.eType.isPureType();
     }
 }

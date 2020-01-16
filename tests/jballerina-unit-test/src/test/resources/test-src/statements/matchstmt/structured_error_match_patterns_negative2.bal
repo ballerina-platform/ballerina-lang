@@ -39,3 +39,22 @@ function testIndirectErrorMatchPattern() returns string {
     }
     return "Default";
 }
+
+function noVarReasonErrorMatch(any|error a) returns string {
+    match a {
+        error(r) => { return <string> r;} // should be error(var r);
+		12 => { return "matched 12";}
+    }
+
+    return "default";
+}
+
+type ER2 error<string, ErrorDataABC>; // ErrorData undefined
+
+function testIndirectErrorMatchPattern1() returns string {
+    ER2 err =  error ("Error Code" , message  =  "Msg");
+    match err {
+        ER2  (message = m, ... var rest) => { return <string>m; }
+    }
+    return "Default";
+}

@@ -80,8 +80,10 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 
 import java.io.IOException;
+import java.io.OutputStream;
 import java.io.PrintStream;
 import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -556,6 +558,13 @@ public class OpenApiConverterUtils {
     private static BLangPackage compileModule(Path sourceRoot, String moduleName) {
         CompilerContext context = getCompilerContext(sourceRoot);
         Compiler compiler = Compiler.getInstance(context);
+
+        try {
+            compiler.setOutStream(new EmptyPrintStream());
+        } catch (UnsupportedEncodingException e) {
+            // Ignore the exception as not setting OutStream won't break the functionality.
+        }
+
         return compiler.compile(moduleName);
     }
 
@@ -580,4 +589,13 @@ public class OpenApiConverterUtils {
         return context;
     }
 
+    static class EmptyPrintStream extends PrintStream {
+        EmptyPrintStream() throws UnsupportedEncodingException {
+            super(new OutputStream() {
+                @Override
+                public void write(int b) {
+                }
+            }, true, "UTF-8");
+        }
+    }
 }

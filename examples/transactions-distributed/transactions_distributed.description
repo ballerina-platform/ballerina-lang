@@ -4,4 +4,4 @@
 // This example demonstrates the Ballerina distributed transactions protocol
 // in action.
 // Ballerina transactions are at experimental stage,
-// please use  --experimental flag to enable them.
+// please use the --experimental flag to enable them.

@@ -290,3 +290,90 @@ function testCompoundAssignmentAdditionWithRecordAccess() returns int {
     x += (ibm["count"] + arr[0]);
     return x;
 }
+
+function testCompoundAssignmentAdditionArrayElementFunctionInvocation() returns [int, int, int] {
+    var x = 5;
+    Girl girl = {};
+    Boy boy = {};
+    int[][][] b = [[[1, 2, 3], [3, 2, 1], [3, 2, 1]], [[10, 20, 30], [30, 20, 10], [30, 20, 10]],
+    [[5, 6, 7], [7, 6, 5], [7, 6, 5]]];
+
+    b[incrementAgeOfGirl(1, girl)][2][incrementAgeOfBoy(0, boy)] += x;
+    return [b[2][2][1], girl.age, boy.age];
+}
+
+function testCompoundAssignmentSubtractionArrayElementFunctionInvocation() returns [int, int, int] {
+    var x = 5;
+    Girl girl = {};
+    Boy boy = {};
+    int[][][] b = [[[1, 2, 3], [3, 2, 1], [3, 2, 1]], [[10, 20, 30], [30, 20, 10], [30, 20, 10]],
+    [[5, 6, 7], [7, 6, 5], [7, 6, 5]]];
+
+    b[incrementAgeOfGirl(1, girl)][2][incrementAgeOfBoy(0, boy)] -= x;
+    return [b[2][2][1], girl.age, boy.age];
+}
+
+function testCompoundAssignmentDivisionArrayElementFunctionInvocation() returns [int, int, int] {
+    var x = 5;
+    Girl girl = {};
+    Boy boy = {};
+    int[][][] b = [[[1, 2, 3], [3, 2, 1], [3, 2, 1]], [[10, 20, 30], [30, 20, 10], [30, 20, 10]],
+    [[5, 6, 7], [7, 6, 5], [7, 6, 5]]];
+
+    b[incrementAgeOfGirl(1, girl)][2][incrementAgeOfBoy(0, boy)] /= x;
+    return [b[2][2][1], girl.age, boy.age];
+}
+
+function testCompoundAssignmentMultiplicationArrayElementFunctionInvocation() returns [int, int, int] {
+    var x = 5;
+    Girl girl = {};
+    Boy boy = {};
+    int[][][] b = [[[1, 2, 3], [3, 2, 1], [3, 2, 1]], [[10, 20, 30], [30, 20, 10], [30, 20, 10]],
+    [[5, 6, 7], [7, 6, 5], [7, 6, 5]]];
+
+    b[incrementAgeOfGirl(1, girl)][2][incrementAgeOfBoy(0, boy)] *= x;
+    return [b[2][2][1], girl.age, boy.age];
+}
+
+function testCompoundAssignmentArrayElementFunctionInvocationOrder() returns [int, int, int] {
+    var x = 3;
+    Girl girl = {};
+    Boy boy = {};
+    int[][][] b = [[[1, 2, 3], [3, 2, 1], [3, 2, 1]], [[10, 20, 30], [30, 20, 10], [30, 20, 10]],
+    [[5, 6, 7], [7, 6, 5], [7, 6, 5]]];
+
+    b[incrementIndexOfGirl(girl)][2][incrementIndexOfBoy(boy)] *= x;
+    return [b[1][2][2], girl.age, boy.age];
+}
+
+function incrementAgeOfGirl(int i, Girl g) returns (int) {
+    g.age += 1;
+    return i + 1;
+}
+
+function incrementAgeOfBoy(int i, Boy b) returns (int) {
+    b.age += 1;
+    return i + 1;
+}
+
+int index = 0;
+
+function incrementIndexOfGirl(Girl g) returns (int) {
+    g.age += 1;
+    index = index + 1;
+    return index;
+}
+
+function incrementIndexOfBoy(Boy b) returns (int) {
+    b.age += 1;
+    index = index + 1;
+    return index;
+}
+
+type Girl record  {
+    int age = 0;
+};
+
+type Boy record  {
+    int age = 0;
+};

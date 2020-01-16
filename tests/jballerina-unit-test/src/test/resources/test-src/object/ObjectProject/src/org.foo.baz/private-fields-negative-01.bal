@@ -11,7 +11,7 @@ public type ParentFoo object {
     }
 };
 
-type ChildFoo object {
+public type ChildFoo object {
     private string name = "";
 
     function __init (string name) {
@@ -19,7 +19,7 @@ type ChildFoo object {
     }
 };
 
-type PrivatePerson object {
+public type PrivatePerson object {
 
     public int age = 0;
     public string name = "";

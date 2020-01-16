@@ -1,0 +1,8 @@
+// A service can be secured using OAuth2 and optionally by enforcing
+// authorization. The OAuth2 auth provider verifies the token against the
+// configured introspection server. The result returned from the introspection
+// server is used for token expiration, authorization etc.
+// Ballerina uses the concept of scopes for authorization. A resource declared
+// in a service can be bound to one/more scope(s). The scopes are included in
+// the introspection response and the scopes of the resource are compared
+// against those for at least one match between the two sets.

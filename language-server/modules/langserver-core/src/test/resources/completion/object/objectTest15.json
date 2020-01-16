@@ -1,0 +1,64 @@
+{
+  "position": {
+    "line": 7,
+    "character": 10
+  },
+  "source": "object/source/objectTest15.bal",
+  "items": [
+    {
+      "label": "InboundAuthHandler",
+      "kind": "Interface",
+      "detail": "Object",
+      "documentation": {
+        "left": "The representation of an inbound authentication handler for HTTP traffic."
+      },
+      "sortText": "190",
+      "insertText": "InboundAuthHandler",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "OutboundAuthHandler",
+      "kind": "Interface",
+      "detail": "Object",
+      "documentation": {
+        "left": "The representation of an outbound authentication handler for HTTP traffic."
+      },
+      "sortText": "190",
+      "insertText": "OutboundAuthHandler",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "RequestFilter",
+      "kind": "Interface",
+      "detail": "Object",
+      "documentation": {
+        "left": "Abstract Representation of a HTTP Request Filter.\nThis filter will be applied before the request is dispatched to the relevant resource.\nAny RequestFilter implementation should be structurally similar to or implement the RequestFilter object."
+      },
+      "sortText": "190",
+      "insertText": "RequestFilter",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ResponseFilter",
+      "kind": "Interface",
+      "detail": "Object",
+      "documentation": {
+        "left": "Abstract Representation of a HTTP Response Filter.\nThis filter will be applied in the response path.\nAny ResponseFilter implementation should be structurally similar to or implement the ResponseFilter object."
+      },
+      "sortText": "190",
+      "insertText": "ResponseFilter",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "LoadBalancerRule",
+      "kind": "Interface",
+      "detail": "Object",
+      "documentation": {
+        "left": "\nLoadBalancerRule provides a required interfaces to implement different algorithms.\n"
+      },
+      "sortText": "190",
+      "insertText": "LoadBalancerRule",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

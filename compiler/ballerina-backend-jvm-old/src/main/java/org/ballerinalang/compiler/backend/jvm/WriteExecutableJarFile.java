@@ -75,7 +75,8 @@ public class WriteExecutableJarFile {
 
         if (entries.containsKey(MANIFEST_ENTRIES)) {
             MapValue<String, String> manifestEntries = entries.get(MANIFEST_ENTRIES);
-            manifestEntries.forEach((k, v) -> manifest.getMainAttributes().put(new Attributes.Name(k), v));
+            manifestEntries.entrySet().forEach(
+                    entry -> manifest.getMainAttributes().put(new Attributes.Name(entry.getKey()), entry.getValue()));
         }
 
         try (JarOutputStream target = new JarOutputStream(out, manifest)) {
@@ -83,7 +84,7 @@ public class WriteExecutableJarFile {
                 throw new BLangCompilerException("no class file entries found in the record");
             }
 
-            Map<String, ArrayValue> jarEntries = entries.get(PKG_ENTRIES);
+            MapValue<String, ArrayValue> jarEntries = entries.get(PKG_ENTRIES);
             for (Map.Entry<String, ArrayValue> keyVal : jarEntries.entrySet()) {
                 byte[] entryContent = keyVal.getValue().getBytes();
                 JarEntry entry = new JarEntry(keyVal.getKey());

@@ -29,12 +29,12 @@ function initReadableChannel(string filePath, string encoding) returns @tainted 
     }
 }
 
-function initWritableChannel(string filePath, string encoding) returns io:Error? {
+function initWritableChannel(string filePath, string encoding) returns @tainted io:Error? {
     io:WritableByteChannel byteChannel = check io:openWritableFile(filePath);
     wch = <@untainted> new io:WritableCharacterChannel(byteChannel, encoding);
 }
 
-function initWritableChannelToAppend(string filePath, string encoding) returns io:Error? {
+function initWritableChannelToAppend(string filePath, string encoding) returns @tainted io:Error? {
     io:WritableByteChannel byteChannel = check io:openWritableFile(filePath, true);
     wca = <@untainted> new io:WritableCharacterChannel(byteChannel, encoding);
 }

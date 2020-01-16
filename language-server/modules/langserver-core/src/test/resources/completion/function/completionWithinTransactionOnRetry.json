@@ -70,6 +70,14 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "final",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "220",
+      "insertText": "final ",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "foreach",
       "kind": "Snippet",
       "detail": "Statement",
@@ -148,7 +156,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n  \n  \n**Returns** `string`   \n  \n"
+          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `string` nestingMethod  \n  \n**Returns** `string`   \n  \n"
         }
       },
       "sortText": "120",
@@ -217,7 +225,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n  \n  \n**Returns** `(int|error)`   \n  \n"
+          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `int` a  \n- `int` b  \n  \n**Returns** `(int|error)`   \n  \n"
         }
       },
       "sortText": "120",
@@ -690,6 +698,29 @@
       ]
     },
     {
+      "label": "ballerina/bir",
+      "kind": "Module",
+      "detail": "Package",
+      "sortText": "140",
+      "insertText": "bir",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 3,
+              "character": 0
+            },
+            "end": {
+              "line": 3,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/bir;\n"
+        }
+      ]
+    },
+    {
       "label": "ballerina/config",
       "kind": "Module",
       "detail": "Package",
@@ -939,29 +970,6 @@
             }
           },
           "newText": "import ballerina/encoding;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/utils",
-      "kind": "Module",
-      "detail": "Package",
-      "sortText": "140",
-      "insertText": "utils",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 3,
-              "character": 0
-            },
-            "end": {
-              "line": 3,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/utils;\n"
         }
       ]
     },

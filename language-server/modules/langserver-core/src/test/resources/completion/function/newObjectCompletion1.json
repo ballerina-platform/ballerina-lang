@@ -318,6 +318,29 @@
       ]
     },
     {
+      "label": "ballerina/bir",
+      "kind": "Module",
+      "detail": "Package",
+      "sortText": "140",
+      "insertText": "bir",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 1,
+              "character": 0
+            },
+            "end": {
+              "line": 1,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/bir;\n"
+        }
+      ]
+    },
+    {
       "label": "ballerina/config",
       "kind": "Module",
       "detail": "Package",
@@ -590,29 +613,6 @@
             }
           },
           "newText": "import ballerina/encoding;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/utils",
-      "kind": "Module",
-      "detail": "Package",
-      "sortText": "140",
-      "insertText": "utils",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 1,
-              "character": 0
-            },
-            "end": {
-              "line": 1,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/utils;\n"
         }
       ]
     },
@@ -1193,7 +1193,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n"
+          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `int` arg1  \n- `string` arg2  \n- `http:Response` arg3"
         }
       },
       "sortText": "120",
@@ -1205,13 +1205,21 @@
       }
     },
     {
+      "label": "new",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "220",
+      "insertText": "new ",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "ObjectName(int arg1, string arg2, http:Response arg3)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n"
+          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `int` arg1  \n- `string` arg2  \n- `http:Response` arg3"
         }
       },
       "sortText": "120",

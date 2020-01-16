@@ -53,8 +53,8 @@ public class MessageParser {
      * Returns message instance without bValue.
      * @return message instance without bValue.
      */
-    Message getDefaultInstance() {
-        return new Message(messageName, null);
+    Message getDefaultInstance() throws IOException {
+        return new Message(messageName, bType, null, fieldDescriptors);
     }
 
     private Map<Integer, Descriptors.FieldDescriptor> computeFieldTagValues() {

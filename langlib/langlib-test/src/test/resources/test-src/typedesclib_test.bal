@@ -178,3 +178,21 @@ function testSettingRecordDefaultValuesOnConversion() returns boolean {
     A|error d = A.constructFrom(c);
     return d is A && d.i == 4 && d.s == "test" && d.b.p == "hello" && d.b.q == "world" && d.f == 34.0;
 }
+
+type D record {
+    int i;
+};
+
+type E record {
+    string s;
+};
+
+type F record {
+    float f;
+};
+
+function testConvertingToUnionConstrainedType() returns boolean {
+    map<D> f = {x:{i:1}};
+    json j = <json> json.constructFrom(f);
+    return map<D|E|F>.constructFrom(j) == f;
+}

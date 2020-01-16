@@ -11,13 +11,13 @@
 // which has the required format of usernames, passwords and scopes, including
 // their mapping.
 //
-//      ["b7a.users"]
+//      [b7a.users]
 //
-//      ["b7a.users.tom"]
+//      [b7a.users.tom]
 //      password="password1"
 //      scopes="scope2,scope3"
 //
-//      ["b7a.users.dick"]
+//      [b7a.users.dick]
 //      password="password2"
 //      scopes="scope1"
 //

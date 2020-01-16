@@ -27,13 +27,13 @@ import org.ballerinalang.langserver.command.executors.AddAllDocumentationExecuto
 import org.ballerinalang.langserver.command.executors.AddDocumentationExecutor;
 import org.ballerinalang.langserver.command.executors.ChangeAbstractTypeObjExecutor;
 import org.ballerinalang.langserver.command.executors.CreateFunctionExecutor;
-import org.ballerinalang.langserver.command.executors.CreateObjectInitializerExecutor;
 import org.ballerinalang.langserver.command.executors.CreateTestExecutor;
 import org.ballerinalang.langserver.command.executors.CreateVariableExecutor;
 import org.ballerinalang.langserver.command.executors.ImportModuleExecutor;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.compiler.ExtendedLSCompiler;
 import org.ballerinalang.langserver.compiler.LSCompilerUtil;
+import org.ballerinalang.langserver.compiler.LSContextManager;
 import org.ballerinalang.langserver.compiler.common.modal.BallerinaFile;
 import org.ballerinalang.langserver.compiler.exception.CompilationFailedException;
 import org.ballerinalang.langserver.util.FileUtils;
@@ -91,6 +91,7 @@ public class CommandExecutionTest {
 
     @Test(dataProvider = "package-import-data-provider")
     public void testImportPackageCommand(String config, String source) {
+        LSContextManager.getInstance().clearAllContexts();
         String configJsonPath = "command" + File.separator + config;
         Path sourcePath = sourcesPath.resolve("source").resolve(source);
         JsonObject configJsonObject = FileUtils.fileContentAsObject(configJsonPath);
@@ -106,6 +107,7 @@ public class CommandExecutionTest {
 
     @Test(dataProvider = "add-doc-data-provider")
     public void testAddSingleDocumentation(String config, String source) {
+        LSContextManager.getInstance().clearAllContexts();
         String configJsonPath = "command" + File.separator + config;
         Path sourcePath = sourcesPath.resolve("source").resolve(source);
         JsonObject configJsonObject = FileUtils.fileContentAsObject(configJsonPath);
@@ -122,6 +124,7 @@ public class CommandExecutionTest {
 
     @Test(dataProvider = "add-all-doc-data-provider")
     public void testAddAllDocumentation(String config, String source) {
+        LSContextManager.getInstance().clearAllContexts();
         String configJsonPath = "command" + File.separator + config;
         Path sourcePath = sourcesPath.resolve("source").resolve(source);
         JsonObject configJsonObject = FileUtils.fileContentAsObject(configJsonPath);
@@ -134,25 +137,9 @@ public class CommandExecutionTest {
         Assert.assertEquals(responseJson, expected, "Test Failed for: " + config);
     }
 
-    @Test(description = "Test Create Initializer for object", enabled = false)
-    public void testCreateInitializer() {
-        log.info("Test workspace/executeCommand for command {}", CreateObjectInitializerExecutor.COMMAND);
-        String configJsonPath = "command" + File.separator + "createInitializer.json";
-        Path sourcePath = sourcesPath.resolve("source").resolve("commonDocumentation.bal");
-        JsonObject configJsonObject = FileUtils.fileContentAsObject(configJsonPath);
-        JsonObject expected = configJsonObject.get("expected").getAsJsonObject();
-        List<Object> args = Arrays.asList(
-                new CommandArgument("node.type", configJsonObject.get("nodeType").getAsString()),
-                new CommandArgument("doc.uri", sourcePath.toUri().toString()),
-                new CommandArgument("node.line", configJsonObject.get("nodeLine").getAsString()));
-        JsonObject responseJson = getCommandResponse(args, CreateObjectInitializerExecutor.COMMAND);
-        responseJson.get("result").getAsJsonObject().get("edit").getAsJsonObject().getAsJsonArray("documentChanges")
-                .forEach(element -> element.getAsJsonObject().remove("textDocument"));
-        Assert.assertEquals(responseJson, expected, "Test Failed for: createInitializer.json");
-    }
-
     @Test(dataProvider = "create-function-data-provider")
     public void testCreateFunction(String config, String source) {
+        LSContextManager.getInstance().clearAllContexts();
         String configJsonPath = "command" + File.separator + config;
         Path sourcePath = sourcesPath.resolve("source").resolve(source);
         JsonObject configJsonObject = FileUtils.fileContentAsObject(configJsonPath);
@@ -170,6 +157,7 @@ public class CommandExecutionTest {
 
     @Test(dataProvider = "create-variable-data-provider")
     public void testCreateVariable(String config, String source) {
+        LSContextManager.getInstance().clearAllContexts();
         String configJsonPath = "command" + File.separator + config;
         Path sourcePath = sourcesPath.resolve("source").resolve(source);
         JsonObject configJsonObject = FileUtils.fileContentAsObject(configJsonPath);
@@ -187,6 +175,7 @@ public class CommandExecutionTest {
 
     @Test(dataProvider = "change-abstract-type-data-provider")
     public void testChangeAbstractTypeObj(String config, String source) {
+        LSContextManager.getInstance().clearAllContexts();
         String configJsonPath = "command" + File.separator + config;
         Path sourcePath = sourcesPath.resolve("source").resolve(source);
         JsonObject configJsonObject = FileUtils.fileContentAsObject(configJsonPath);
@@ -202,7 +191,7 @@ public class CommandExecutionTest {
         Assert.assertEquals(responseJson, expected, "Test Failed for: " + config);
     }
 
-    @Test(dataProvider = "testgen-fail-data-provider")
+    @Test(dataProvider = "testgen-fail-data-provider", enabled = false)
     public void testTestGenerationFailCases(String config, Path source) throws IOException {
         String configJsonPath = "command" + File.separator + config;
         Path sourcePath = sourcesPath.resolve("source").resolve(source);
@@ -231,7 +220,7 @@ public class CommandExecutionTest {
         }
     }
 
-    @Test(dataProvider = "testgen-data-provider")
+    @Test(dataProvider = "testgen-data-provider", enabled = false)
     public void testTestGeneration(String config, Path source) throws IOException, CompilationFailedException {
         String configJsonPath = "command" + File.separator + config;
         Path sourcePath = sourcesPath.resolve("source").resolve(source);
@@ -367,6 +356,10 @@ public class CommandExecutionTest {
         return new Object[][] {
                 {"createUndefinedFunction1.json", "createUndefinedFunction.bal"},
                 {"createUndefinedFunction2.json", "createUndefinedFunction.bal"},
+                {"createUndefinedFunction3.json", "createUndefinedFunction.bal"},
+                {"createUndefinedFunction4.json", "createUndefinedFunction2.bal"},
+                {"createUndefinedFunction5.json", "createUndefinedFunction3.bal"},
+                {"createUndefinedFunction6.json", "createUndefinedFunction4.bal"},
         };
     }
 
@@ -386,6 +379,15 @@ public class CommandExecutionTest {
         return new Object[][]{
 //                {"testGenerationForFunctions.json", Paths.get("testgen", "module1", "functions.bal")},
                 {"testGenerationForServices.json", Paths.get("testgen", "module2", "services.bal")}
+        };
+    }
+
+    @DataProvider(name = "change-abstract-type-data-provider")
+    public Object[][] testChangeAbstractTypeDataProvider() {
+        log.info("Test workspace/executeCommand for command {}", CreateTestExecutor.COMMAND);
+        return new Object[][]{
+                {"changeAbstractTypeObj1.json", "changeAbstractType.bal"},
+                {"changeAbstractTypeObj2.json", "changeAbstractType.bal"},
         };
     }
 

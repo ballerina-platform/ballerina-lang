@@ -284,12 +284,18 @@ function initiatorFunc(boolean throw1, boolean throw2,
         log:printInfo("aborted ran");
         S1 = S1 + " aborted-block";
     }
-    if (!isAbort && remote2) {
+    // Commit order of transaction initiator and participants cannot be guaranteed.
+    // Hence following logic will wait until participant function get committed.
+    // We need to skip cases like abort and retry without running remote participant second time.
+    if (!isAbort && !(trx_ran_once && !remote2)) {
         boolean waitResult = waitForCondition(5000, 20, function () returns boolean { return resourceCommited; });
         if (!waitResult) {
               error err = error("Participants failed to commit");
               panic err;
         }
+    } else if (remote2 && !trx_ran_once) {
+         error err = error("Cannot have a state with remote2 = true without any transaction retry");
+         panic err;
     }
     S1 = S1 + commitedString + " after-trx";
     return S1;
@@ -373,6 +379,45 @@ function remoteErrorReturnInitiator() returns @tainted string {
         s += " aborted";
     }
     return s;
+}
+
+
+function callParticipantMultipleTimes() returns string {
+    http:Client participantEP = new("http://localhost:8889");
+    S1 = "";
+    resourceCommited = false;
+    transaction {
+        log:printInfo("trx-first-line");
+        // calling local and remote participants multiple times.
+        foreach var item in 1...4 {
+            var resp = participantEP->post("/","");
+            if (resp is http:Response) {
+                log:printInfo("remote response status code: " + resp.statusCode.toString());
+                if (resp.statusCode == 500) {
+                    S1 = S1 + " remote error";
+                } else {
+                    var payload = resp.getTextPayload();
+                    if (payload is string) {
+                        log:printInfo(payload);
+                        S1 += " <" + <@untainted>  payload + ">";
+                        S1 += localParticipant();
+                    } else {
+                        log:printError(payload.reason());
+                    }
+                }
+            } else {
+                log:printError(resp.reason());
+            }
+        }
+        S1 += " in-trx-lastline";
+        log:printInfo("trx-last-line");
+    }
+    boolean waitResult = waitForCondition(5000, 20, function () returns boolean { return resourceCommited; });
+    if (!waitResult) {
+          error err = error("Participants failed to commit");
+          panic err;
+    }
+    return S1;
 }
 
 @http:ServiceConfig {
@@ -554,6 +599,19 @@ service initiatorService on new http:Listener(8888) {
 
         var stt = res.setTextPayload(<@untainted> s);
         checkpanic ep->respond(res);
+    }
+
+    @http:ResourceConfig {
+        methods: ["POST"]
+    }
+    resource function participantMultipleExecution(http:Caller caller, http:Request req) {
+        string result = callParticipantMultipleTimes();
+        http:Response res = new;
+        res.setPayload(result);
+        var r = caller->respond(res);
+        if (r is error) {
+            log:printError("Error sending response: " + result, r);
+        }
     }
 }
 

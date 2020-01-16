@@ -37,7 +37,7 @@ public class BServiceType extends BObjectType {
         this.setAttachedFunctions(attachedFunctions);
         this.setFields(originalType.getFields());
         this.initializer = originalType.initializer;
-        this.defaultsValuesInitFunc = originalType.defaultsValuesInitFunc;
+        this.generatedInitializer = originalType.generatedInitializer;
 
         processServiceAnnotations(globalAnnotationMap, this, strand);
     }

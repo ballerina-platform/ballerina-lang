@@ -42,12 +42,14 @@ public class BallerinaStreamsV2AggregatorWithGroupByAndWindowTest {
 
     @BeforeClass
     public void setup() {
-        result = BCompileUtil.compile("test-src/streamingv2-aggregate-with-groupby-and-window-test.bal");
-        result2 = BCompileUtil.compile("test-src/streamingv2-aggregate-in-func-with-groupby-and-window-test.bal");
-        result3 = BCompileUtil
-                .compile("test-src/streamingv2-aggregate-with-groupby-and-window-with-langlib-func-test.bal");
+        result =
+                BCompileUtil.compileOffline("test-src/streamingv2-aggregate-with-groupby-and-window-test.bal");
+        result2 =
+                BCompileUtil.compileOffline("test-src/streamingv2-aggregate-in-func-with-groupby-and-window-test.bal");
+        result3 = BCompileUtil.
+                compileOffline("test-src/streamingv2-aggregate-with-groupby-and-window-with-langlib-func-test.bal");
         resultWithAlias = BCompileUtil.
-                compile("test-src/alias/streamingv2-aggregate-with-groupby-and-window-test.bal");
+                compileOffline("test-src/alias/streamingv2-aggregate-with-groupby-and-window-test.bal");
     }
 
     @Test(description = "Test groupby with windows streaming query")

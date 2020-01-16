@@ -14,8 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/io;
-
 function fnSignatureValid() returns json {
     json fnJson = {"nodeKind":"package", "tokenList":[{"tokenType":51, "text":"EOF", "startPos":1, "endPos":1, "lineNumber":3, "index":7, "whiteSpace":"\n"}], "definitionList":[{"nodeKind":"function", "tokenList":[{"tokenType":53, "text":"function", "startPos":1, "endPos":8, "lineNumber":1, "index":1, "whiteSpace":null}], "fnSignature":{"nodeKind":"functionSignature", "tokenList":[{"tokenType":6, "text":"(", "startPos":13, "endPos":13, "lineNumber":1, "index":3, "whiteSpace":null}, {"tokenType":7, "text":")", "startPos":14, "endPos":14, "lineNumber":1, "index":4, "whiteSpace":null}], "functionIdentifier":{"nodeKind":"identifier", "tokenList":[{"tokenType":46, "text":"foo", "startPos":10, "endPos":12, "lineNumber":1, "index":2, "whiteSpace":" "}], "identifier":"foo"}}, "blockNode":{"nodeKind":"blockNode", "tokenList":[{"tokenType":0, "text":"{", "startPos":15, "endPos":15, "lineNumber":1, "index":5, "whiteSpace":null}, {"tokenType":1, "text":"}", "startPos":1, "endPos":1, "lineNumber":2, "index":6, "whiteSpace":"\n"}], "statementList":[]}}]};
     return fnJson;

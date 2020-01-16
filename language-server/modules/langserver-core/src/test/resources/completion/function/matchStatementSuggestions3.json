@@ -16,7 +16,7 @@
         }
       },
       "sortText": "120",
-      "insertText": "fromJsonString(str) {\n${1:value} \u003d\u003e {${2}}\n}",
+      "insertText": "fromJsonString(str) {\n${1:value} => {${2}}\n}",
       "insertTextFormat": "Snippet"
     },
     {
@@ -30,7 +30,7 @@
         }
       },
       "sortText": "120",
-      "insertText": "getCodePoint(str,index) {\n${1:value} \u003d\u003e {${2}}\n}",
+      "insertText": "getCodePoint(str,index) {\n${1:value} => {${2}}\n}",
       "insertTextFormat": "Snippet",
       "command": {
         "title": "editor.action.triggerParameterHints",
@@ -48,7 +48,7 @@
         }
       },
       "sortText": "120",
-      "insertText": "toCodePointInts(str) {\n${1:value} \u003d\u003e {${2}}\n}",
+      "insertText": "toCodePointInts(str) {\n${1:value} => {${2}}\n}",
       "insertTextFormat": "Snippet"
     },
     {
@@ -62,7 +62,7 @@
         }
       },
       "sortText": "120",
-      "insertText": "toUpperAscii(str) {\n${1:value} \u003d\u003e {${2}}\n}",
+      "insertText": "toUpperAscii(str) {\n${1:value} => {${2}}\n}",
       "insertTextFormat": "Snippet"
     },
     {
@@ -72,11 +72,11 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.string_  \n  \nReturns a substring of a string.\n  \n**Params**  \n- `int` startIndex: the starting index, inclusive  \n- `int` endIndex: the ending index, exclusive  \n  \n**Returns** `string`   \n- substring consisting of characters with index \u003e\u003d startIndex and \u003c endIndex  \n  \n"
+          "value": "**Package:** _ballerina/lang.string_  \n  \nReturns a substring of a string.\n  \n**Params**  \n- `int` startIndex: the starting index, inclusive  \n- `int` endIndex: the ending index, exclusive(Defaultable)  \n  \n**Returns** `string`   \n- substring consisting of characters with index >= startIndex and < endIndex  \n  \n"
         }
       },
       "sortText": "120",
-      "insertText": "substring(str,startIndex,endIndex) {\n${1:value} \u003d\u003e {${2}}\n}",
+      "insertText": "substring(str,startIndex,endIndex) {\n${1:value} => {${2}}\n}",
       "insertTextFormat": "Snippet",
       "command": {
         "title": "editor.action.triggerParameterHints",
@@ -94,7 +94,7 @@
         }
       },
       "sortText": "120",
-      "insertText": "iterator(str) {\n${1:value} \u003d\u003e {${2}}\n}",
+      "insertText": "iterator(str) {\n${1:value} => {${2}}\n}",
       "insertTextFormat": "Snippet"
     },
     {
@@ -108,7 +108,7 @@
         }
       },
       "sortText": "120",
-      "insertText": "isReadOnly(v) {\n${1:value} \u003d\u003e {${2}}\n}",
+      "insertText": "isReadOnly(v) {\n${1:value} => {${2}}\n}",
       "insertTextFormat": "Snippet"
     },
     {
@@ -122,7 +122,7 @@
         }
       },
       "sortText": "120",
-      "insertText": "trim(str) {\n${1:value} \u003d\u003e {${2}}\n}",
+      "insertText": "trim(str) {\n${1:value} => {${2}}\n}",
       "insertTextFormat": "Snippet"
     },
     {
@@ -132,11 +132,11 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.string_  \n  \nJoins zero or more strings together with a separator.\n  \n**Params**  \n- strs: strings to be joined  \n  \n**Returns** `string`   \n- a string consisting of all of `strs` concatenated in order  \n    with `separator` in between them  \n  \n"
+          "value": "**Package:** _ballerina/lang.string_  \n  \nJoins zero or more strings together with a separator.\n  \n**Params**  \n- `string[]` strs: strings to be joined  \n  \n**Returns** `string`   \n- a string consisting of all of `strs` concatenated in order  \n    with `separator` in between them  \n  \n"
         }
       },
       "sortText": "120",
-      "insertText": "join(separator) {\n${1:value} \u003d\u003e {${2}}\n}",
+      "insertText": "join(separator) {\n${1:value} => {${2}}\n}",
       "insertTextFormat": "Snippet",
       "command": {
         "title": "editor.action.triggerParameterHints",
@@ -150,11 +150,11 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.string_  \n  \nSearches for one string in another string.\n  \n**Params**  \n- `string` substr: the string to search for  \n- `int` startIndex: index to start searching from(Defaultable)  \n- `int` startIndex: index to start searching from  \n  \n**Returns** `(int|())`   \n- index of the first occurrence of `substr` in `str` that is \u003e\u003d `startIndex`,  \n   or `()` if there is no such occurrence  \n  \n"
+          "value": "**Package:** _ballerina/lang.string_  \n  \nSearches for one string in another string.\n  \n**Params**  \n- `string` substr: the string to search for  \n- `int` startIndex: index to start searching from(Defaultable)  \n  \n**Returns** `(int|())`   \n- index of the first occurrence of `substr` in `str` that is >= `startIndex`,  \n   or `()` if there is no such occurrence  \n  \n"
         }
       },
       "sortText": "120",
-      "insertText": "indexOf(str,substr,startIndex) {\n${1:value} \u003d\u003e {${2}}\n}",
+      "insertText": "indexOf(str,substr,startIndex) {\n${1:value} => {${2}}\n}",
       "insertTextFormat": "Snippet",
       "command": {
         "title": "editor.action.triggerParameterHints",
@@ -172,7 +172,7 @@
         }
       },
       "sortText": "120",
-      "insertText": "toLowerAscii(str) {\n${1:value} \u003d\u003e {${2}}\n}",
+      "insertText": "toLowerAscii(str) {\n${1:value} => {${2}}\n}",
       "insertTextFormat": "Snippet"
     },
     {
@@ -186,7 +186,7 @@
         }
       },
       "sortText": "120",
-      "insertText": "toJsonString(v) {\n${1:value} \u003d\u003e {${2}}\n}",
+      "insertText": "toJsonString(v) {\n${1:value} => {${2}}\n}",
       "insertTextFormat": "Snippet"
     },
     {
@@ -200,7 +200,7 @@
         }
       },
       "sortText": "120",
-      "insertText": "toBytes(str) {\n${1:value} \u003d\u003e {${2}}\n}",
+      "insertText": "toBytes(str) {\n${1:value} => {${2}}\n}",
       "insertTextFormat": "Snippet"
     },
     {
@@ -214,7 +214,7 @@
         }
       },
       "sortText": "120",
-      "insertText": "cloneReadOnly(v) {\n${1:value} \u003d\u003e {${2}}\n}",
+      "insertText": "cloneReadOnly(v) {\n${1:value} => {${2}}\n}",
       "insertTextFormat": "Snippet"
     },
     {
@@ -228,7 +228,7 @@
         }
       },
       "sortText": "120",
-      "insertText": "length(str) {\n${1:value} \u003d\u003e {${2}}\n}",
+      "insertText": "length(str) {\n${1:value} => {${2}}\n}",
       "insertTextFormat": "Snippet"
     },
     {
@@ -242,7 +242,7 @@
         }
       },
       "sortText": "120",
-      "insertText": "concat() {\n${1:value} \u003d\u003e {${2}}\n}",
+      "insertText": "concat() {\n${1:value} => {${2}}\n}",
       "insertTextFormat": "Snippet",
       "command": {
         "title": "editor.action.triggerParameterHints",
@@ -260,7 +260,7 @@
         }
       },
       "sortText": "120",
-      "insertText": "mergeJson(j1,j2) {\n${1:value} \u003d\u003e {${2}}\n}",
+      "insertText": "mergeJson(j1,j2) {\n${1:value} => {${2}}\n}",
       "insertTextFormat": "Snippet",
       "command": {
         "title": "editor.action.triggerParameterHints",
@@ -278,7 +278,7 @@
         }
       },
       "sortText": "120",
-      "insertText": "clone(v) {\n${1:value} \u003d\u003e {${2}}\n}",
+      "insertText": "clone(v) {\n${1:value} => {${2}}\n}",
       "insertTextFormat": "Snippet"
     },
     {
@@ -292,7 +292,7 @@
         }
       },
       "sortText": "120",
-      "insertText": "endsWith(str,substr) {\n${1:value} \u003d\u003e {${2}}\n}",
+      "insertText": "endsWith(str,substr) {\n${1:value} => {${2}}\n}",
       "insertTextFormat": "Snippet",
       "command": {
         "title": "editor.action.triggerParameterHints",
@@ -306,11 +306,11 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.value_  \n  \nPerforms a minimal conversion of a value to a string.\nThe conversion is minimal in particular in the sense\nthat the conversion applied to a value that is already\na string does nothing.  \n  \n  \n**Returns** `string`   \n- a string resulting from the conversion  \n  \nThe result of `toString(v)` is as follows:  \n  \n- if `v` is a string, then returns `v`  \n- if `v` is `()`, then returns an empty string  \n- if `v` is boolean, then the string `true` or `false`  \n- if `v` is an int, then return `v` represented as a decimal string  \n- if `v` is a float or decimal, then return `v` represented as a decimal string,  \n  with a decimal point only if necessary, but without any suffix indicating the type of `v`;  \n  return `NaN`, `Infinity` for positive infinity, and `-Infinity` for negative infinity  \n- if `v` is a list, then returns the results toString on each member of the list  \n  separated by a space character  \n- if `v` is a map, then returns key\u003dvalue for each member separated by a space character  \n- if `v` is xml, then returns `v` in XML format (as if it occurred within an XML element)  \n- if `v` is table, TBD  \n- if `v` is an error, then a string consisting of the following in order  \n    1. the string `error`  \n    2. a space character  \n    3. the reason string  \n    4. if the detail record is non-empty  \n        1. a space character  \n        2. the result of calling toString on the detail record  \n- if `v` is an object, then  \n    - if `v` provides a `toString` method with a string return type and no required methods,  \n      then the result of calling that method on `v`  \n    - otherwise, `object` followed by some implementation-dependent string  \n- if `v` is any other behavioral type, then the identifier for the behavioral type  \n  (`function`, `future`, `service`, `typedesc` or `handle`)  \n  followed by some implementation-dependent string  \n  \nNote that `toString` may produce the same string for two Ballerina values  \nthat are not equal (in the sense of the `\u003d\u003d` operator).  \n  \n"
+          "value": "**Package:** _ballerina/lang.value_  \n  \nPerforms a minimal conversion of a value to a string.\nThe conversion is minimal in particular in the sense\nthat the conversion applied to a value that is already\na string does nothing.  \n  \n  \n**Returns** `string`   \n- a string resulting from the conversion  \n  \nThe result of `toString(v)` is as follows:  \n  \n- if `v` is a string, then returns `v`  \n- if `v` is `()`, then returns an empty string  \n- if `v` is boolean, then the string `true` or `false`  \n- if `v` is an int, then return `v` represented as a decimal string  \n- if `v` is a float or decimal, then return `v` represented as a decimal string,  \n  with a decimal point only if necessary, but without any suffix indicating the type of `v`;  \n  return `NaN`, `Infinity` for positive infinity, and `-Infinity` for negative infinity  \n- if `v` is a list, then returns the results toString on each member of the list  \n  separated by a space character  \n- if `v` is a map, then returns key=value for each member separated by a space character  \n- if `v` is xml, then returns `v` in XML format (as if it occurred within an XML element)  \n- if `v` is table, TBD  \n- if `v` is an error, then a string consisting of the following in order  \n    1. the string `error`  \n    2. a space character  \n    3. the reason string  \n    4. if the detail record is non-empty  \n        1. a space character  \n        2. the result of calling toString on the detail record  \n- if `v` is an object, then  \n    - if `v` provides a `toString` method with a string return type and no required methods,  \n      then the result of calling that method on `v`  \n    - otherwise, `object` followed by some implementation-dependent string  \n- if `v` is any other behavioral type, then the identifier for the behavioral type  \n  (`function`, `future`, `service`, `typedesc` or `handle`)  \n  followed by some implementation-dependent string  \n  \nNote that `toString` may produce the same string for two Ballerina values  \nthat are not equal (in the sense of the `==` operator).  \n  \n"
         }
       },
       "sortText": "120",
-      "insertText": "toString(v) {\n${1:value} \u003d\u003e {${2}}\n}",
+      "insertText": "toString(v) {\n${1:value} => {${2}}\n}",
       "insertTextFormat": "Snippet"
     },
     {
@@ -324,7 +324,7 @@
         }
       },
       "sortText": "120",
-      "insertText": "codePointCompare(str1,str2) {\n${1:value} \u003d\u003e {${2}}\n}",
+      "insertText": "codePointCompare(str1,str2) {\n${1:value} => {${2}}\n}",
       "insertTextFormat": "Snippet",
       "command": {
         "title": "editor.action.triggerParameterHints",
@@ -342,7 +342,7 @@
         }
       },
       "sortText": "120",
-      "insertText": "startsWith(str,substr) {\n${1:value} \u003d\u003e {${2}}\n}",
+      "insertText": "startsWith(str,substr) {\n${1:value} => {${2}}\n}",
       "insertTextFormat": "Snippet",
       "command": {
         "title": "editor.action.triggerParameterHints",

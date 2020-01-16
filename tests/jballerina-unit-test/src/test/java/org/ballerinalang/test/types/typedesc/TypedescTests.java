@@ -115,4 +115,18 @@ public class TypedescTests {
         BValue[] returns = BRunUtil.invoke(result, "testAnyToTypedesc");
         Assert.assertEquals(returns[0].stringValue(), "int");
     }
+
+    @Test(description = "Test module level typedesc definition")
+    public void testModuleLevelTypeDesc() {
+        BValue[] returns = BRunUtil.invoke(result, "testModuleLevelTypeDesc");
+        Assert.assertTrue(returns[0] instanceof BTypeDescValue);
+        Assert.assertEquals(TypeTags.JSON_TAG, ((BTypeDescValue) returns[0]).value().getTag());
+    }
+
+    @Test(description = "Test method level typedesc definition")
+    public void testMethodLevelTypeDesc() {
+        BValue[] returns = BRunUtil.invoke(result, "testMethodLevelTypeDesc");
+        Assert.assertTrue(returns[0] instanceof BTypeDescValue);
+        Assert.assertEquals(TypeTags.JSON_TAG, ((BTypeDescValue) returns[0]).value().getTag());
+    }
 }

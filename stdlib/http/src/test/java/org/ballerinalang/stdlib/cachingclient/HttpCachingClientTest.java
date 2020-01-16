@@ -48,10 +48,10 @@ import java.util.List;
 
 import static org.ballerinalang.mime.util.MimeConstants.REQUEST_ENTITY_FIELD;
 import static org.ballerinalang.net.http.HttpConstants.REQUEST_CACHE_CONTROL_FIELD;
-import static org.ballerinalang.stdlib.utils.ValueCreatorUtils.createEntityObject;
-import static org.ballerinalang.stdlib.utils.ValueCreatorUtils.createRequestCacheControlObject;
-import static org.ballerinalang.stdlib.utils.ValueCreatorUtils.createResponseCacheControlObject;
-import static org.ballerinalang.stdlib.utils.ValueCreatorUtils.createResponseObject;
+import static org.ballerinalang.net.http.ValueCreatorUtils.createEntityObject;
+import static org.ballerinalang.net.http.ValueCreatorUtils.createRequestCacheControlObject;
+import static org.ballerinalang.net.http.ValueCreatorUtils.createResponseCacheControlObject;
+import static org.ballerinalang.net.http.ValueCreatorUtils.createResponseObject;
 
 /**
  * Test cases for the HTTP caching client.

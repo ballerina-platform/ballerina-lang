@@ -73,11 +73,11 @@ import static org.ballerinalang.mime.util.MimeConstants.OCTET_STREAM;
 import static org.ballerinalang.mime.util.MimeConstants.REQUEST_ENTITY_FIELD;
 import static org.ballerinalang.mime.util.MimeConstants.TEXT_PLAIN;
 import static org.ballerinalang.mime.util.MimeUtil.isNotNullAndEmpty;
+import static org.ballerinalang.net.http.ValueCreatorUtils.createEntityObject;
+import static org.ballerinalang.net.http.ValueCreatorUtils.createRequestObject;
 import static org.ballerinalang.stdlib.utils.TestEntityUtils.enrichEntityWithDefaultMsg;
 import static org.ballerinalang.stdlib.utils.TestEntityUtils.enrichTestEntity;
 import static org.ballerinalang.stdlib.utils.TestEntityUtils.enrichTestEntityHeaders;
-import static org.ballerinalang.stdlib.utils.ValueCreatorUtils.createEntityObject;
-import static org.ballerinalang.stdlib.utils.ValueCreatorUtils.createRequestObject;
 
 /**
  * Test cases for ballerina/http request success native functions.
@@ -716,5 +716,33 @@ public class RequestNativeFunctionSuccessTest {
         HTTPTestRequest requestMsg = MessageUtils.generateHTTPMessage("/foo/bar", "POST", headers, payload);
         HttpCarbonMessage responseMsg = Services.invoke(9093, requestMsg);
         Assert.assertEquals(ResponseReader.getReturnValue(responseMsg), "bar");
+    }
+
+    @Test
+    public void testAddCookies() {
+        String headerName = "Cookie";
+        String headerValue = "SID2=2638747623468bce72; SID1=31d4d96e407aad42; SID3=782638747668bce72";
+        ObjectValue inRequest = createRequestObject();
+        ObjectValue entity = createEntityObject();
+        inRequest.set(REQUEST_ENTITY_FIELD, entity);
+        BValue[] returnVals = BRunUtil.invoke(compileResult, "testAddCookies", new Object[]{inRequest});
+        Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
+                           "Invalid Return Values.");
+        Assert.assertTrue(returnVals[0] instanceof BMap);
+        BMap<String, BValue> entityStruct =
+                (BMap<String, BValue>) ((BMap<String, BValue>) returnVals[0]).get(REQUEST_ENTITY_FIELD);
+        HttpHeaders httpHeaders = (HttpHeaders) entityStruct.getNativeData(ENTITY_HEADERS);
+        Assert.assertEquals(httpHeaders.getAll(headerName).get(0), headerValue);
+    }
+
+    @Test
+    public void testGetCookies() {
+        ObjectValue inRequest = createRequestObject();
+        ObjectValue entity = createEntityObject();
+        inRequest.set(REQUEST_ENTITY_FIELD, entity);
+        BValue[] returnVals = BRunUtil.invoke(compileResult, "testGetCookies", new Object[]{inRequest});
+        Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
+                           "No cookie objects in the Return Values");
+        Assert.assertTrue(returnVals.length == 1);
     }
 }

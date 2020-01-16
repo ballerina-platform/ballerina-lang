@@ -171,13 +171,13 @@
       }
     },
     {
-      "label": "print(...(any|error))",
+      "label": "print((any|error)... values)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/io_  \n  \nPrints `any` or `error` value(s) to the STDOUT.  \n**Params**  \n- values: The value(s) to be printed."
+          "value": "**Package:** _ballerina/io_  \n  \nPrints `any` or `error` value(s) to the STDOUT.  \n**Params**  \n- `(any|error)[]` values: The value(s) to be printed."
         }
       },
       "sortText": "120",
@@ -204,13 +204,13 @@
       }
     },
     {
-      "label": "println(...(any|error))",
+      "label": "println((any|error)... values)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/io_  \n  \nPrints `any` or `error` value(s) to the STDOUT followed by a new line.  \n**Params**  \n- values: The value(s) to be printed."
+          "value": "**Package:** _ballerina/io_  \n  \nPrints `any` or `error` value(s) to the STDOUT followed by a new line.  \n**Params**  \n- `(any|error)[]` values: The value(s) to be printed."
         }
       },
       "sortText": "120",
@@ -237,13 +237,13 @@
       }
     },
     {
-      "label": "sprintf(string format, ...(any|error))(string)",
+      "label": "sprintf(string format, (any|error)... args)(string)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/io_  \n  \nReturns a formatted string using the specified format string and arguments. Following format specifiers are allowed.\n   b              boolean\n   B              boolean (ALL_CAPS)\n   d              int\n   f              float\n   x              hex\n   X              HEX (ALL_CAPS)\n   s              string (This specifier is applicable for any of the supported types in Ballerina.\n                  These values will be converted to their string representation.)\n  \n**Params**  \n- `string` format: A format string  \n- args: Arguments referenced by the format specifiers in the format string.  \n  \n**Returns** `string`   \n- Formatted string  \n  \n"
+          "value": "**Package:** _ballerina/io_  \n  \nReturns a formatted string using the specified format string and arguments. Following format specifiers are allowed.\n\nb - boolean\n\nB - boolean (ALL_CAPS)\n\nd - int\n\nf - float\n\nx - hex\n\nX - HEX (ALL_CAPS)\n\ns - string (This specifier is applicable for any of the supported types in Ballerina.\n            These values will be converted to their string representation.)\n  \n**Params**  \n- `string` format: A format string  \n- `(any|error)[]` args: Arguments referenced by the format specifiers in the format string.  \n  \n**Returns** `string`   \n- Formatted string  \n  \n"
         }
       },
       "sortText": "120",
@@ -303,11 +303,70 @@
       }
     },
     {
+      "label": "readlnExtern(any a)(handle)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/io_  \n  \n  \n**Params**  \n- `any` a  \n  \n**Returns** `handle`   \n  \n"
+        }
+      },
+      "sortText": "120",
+      "insertText": "readlnExtern(${1})",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/io;\n"
+        }
+      ],
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "Detail",
+      "kind": "Struct",
+      "detail": "Record",
+      "documentation": {
+        "left": "Record type to hold the details of an error.\n"
+      },
+      "sortText": "180",
+      "insertText": "Detail",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/io;\n"
+        }
+      ]
+    },
+    {
       "label": "ReadableByteChannel",
       "kind": "Interface",
       "detail": "Object",
       "documentation": {
-        "left": "ReadableByteChannel represents an input resource (i.e file, socket). which could be used to source bytes."
+        "left": "ReadableByteChannel represents an input resource (i.e file). which could be used to source bytes."
       },
       "sortText": "190",
       "insertText": "ReadableByteChannel",
@@ -463,7 +522,7 @@
       "kind": "Interface",
       "detail": "Object",
       "documentation": {
-        "left": "WritableByteChannel represents an output resource (i.e file, socket). which could be used to sink bytes."
+        "left": "WritableByteChannel represents an output resource (i.e file). which could be used to sink bytes."
       },
       "sortText": "190",
       "insertText": "WritableByteChannel",
@@ -618,7 +677,7 @@
       "kind": "Enum",
       "detail": "Union",
       "documentation": {
-        "left": "Field separators which are supported by DelimitedTextRecordChannel."
+        "left": "Field separators which are supported by DelimitedTextRecordChannel.\n\nCOMMA - Delimited text records would be separated using a comma.\n\nTAB - Delimited text records would be separated using a tab.\n\nCOLON - Delimited text records would be separated using a colon(:)."
       },
       "sortText": "160",
       "insertText": "Separator",
@@ -643,6 +702,9 @@
       "label": "Error",
       "kind": "Event",
       "detail": "Union",
+      "documentation": {
+        "left": "Represents IO module related errors."
+      },
       "sortText": "200",
       "insertText": "Error",
       "insertTextFormat": "Snippet",

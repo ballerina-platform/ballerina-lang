@@ -28,6 +28,7 @@ import java.util.Map;
  *
  * @since 0.985.0
  */
+@Deprecated
 public class ConstantInfo implements AttributeInfoPool {
 
     // Contains the details of the constant name.

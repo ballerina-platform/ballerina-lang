@@ -20,11 +20,13 @@ package org.ballerinalang.net.grpc.listener;
 import com.google.protobuf.Descriptors;
 import io.netty.handler.codec.http.DefaultHttpHeaders;
 import org.ballerinalang.jvm.BallerinaValues;
+import org.ballerinalang.jvm.observability.ObservabilityConstants;
+import org.ballerinalang.jvm.observability.ObserveUtils;
+import org.ballerinalang.jvm.observability.ObserverContext;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.connector.CallableUnitCallback;
-import org.ballerinalang.jvm.values.connector.Executor;
 import org.ballerinalang.net.grpc.CallStreamObserver;
 import org.ballerinalang.net.grpc.GrpcConstants;
 import org.ballerinalang.net.grpc.Message;
@@ -36,7 +38,9 @@ import org.ballerinalang.net.grpc.StreamObserver;
 import org.ballerinalang.net.grpc.callback.StreamingCallableUnitCallBack;
 import org.ballerinalang.net.grpc.callback.UnaryCallableUnitCallBack;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static org.ballerinalang.net.grpc.GrpcConstants.CALLER_ID;
 import static org.ballerinalang.net.grpc.GrpcConstants.MESSAGE_HEADERS;
@@ -156,7 +160,8 @@ public abstract class ServerCallHandler {
         return methodDescriptor != null && MessageUtils.isEmptyResponse(methodDescriptor.getOutputType());
     }
 
-    void onErrorInvoke(ServiceResource resource, StreamObserver responseObserver, Message error) {
+    void onErrorInvoke(ServiceResource resource, StreamObserver responseObserver, Message error,
+                       ObserverContext context) {
         List<BType> signatureParams = resource.getParamTypes();
         Object[] paramValues = new Object[signatureParams.size() * 2];
         paramValues[0] = getConnectionParameter(responseObserver);
@@ -167,6 +172,7 @@ public abstract class ServerCallHandler {
         paramValues[3] = true;
 
         ObjectValue headerStruct = null;
+
         if (resource.isHeaderRequired()) {
             headerStruct = getHeaderObject();
             headerStruct.addNativeData(MESSAGE_HEADERS, error.getHeaders());
@@ -176,16 +182,26 @@ public abstract class ServerCallHandler {
             paramValues[4] = headerStruct;
             paramValues[5] = true;
         }
-        CallableUnitCallback callback = new StreamingCallableUnitCallBack(null);
-        Executor.submit(resource.getScheduler(), resource.getService(), resource.getFunctionName(), callback, null,
-                paramValues);
+
+        Map<String, Object> properties = new HashMap<>();
+        if (ObserveUtils.isObservabilityEnabled()) {
+            properties.put(ObservabilityConstants.KEY_OBSERVER_CONTEXT, context);
+        }
+        CallableUnitCallback callback = new StreamingCallableUnitCallBack(null, context);
+        resource.getRuntime().invokeMethodAsync(resource.getService(), resource.getFunctionName(), callback,
+                properties, paramValues);
     }
 
-    void onMessageInvoke(ServiceResource resource, Message request, StreamObserver responseObserver) {
-        CallableUnitCallback callback = new UnaryCallableUnitCallBack(responseObserver, isEmptyResponse());
+    void onMessageInvoke(ServiceResource resource, Message request, StreamObserver responseObserver,
+                         ObserverContext context) {
+        CallableUnitCallback callback = new UnaryCallableUnitCallBack(responseObserver, isEmptyResponse(), context);
         Object[] requestParams = computeMessageParams(resource, request, responseObserver);
-        Executor.submit(resource.getScheduler(), resource.getService(), resource.getFunctionName(), callback, null,
-                requestParams);
+        Map<String, Object> properties = new HashMap<>();
+        if (ObserveUtils.isObservabilityEnabled()) {
+            properties.put(ObservabilityConstants.KEY_OBSERVER_CONTEXT, context);
+        }
+        resource.getRuntime().invokeMethodAsync(resource.getService(), resource.getFunctionName(), callback,
+                properties, requestParams);
     }
 
     Object[] computeMessageParams(ServiceResource resource, Message request, StreamObserver responseObserver) {

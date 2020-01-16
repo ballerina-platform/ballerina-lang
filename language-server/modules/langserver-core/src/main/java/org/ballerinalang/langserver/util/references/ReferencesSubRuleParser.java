@@ -15,17 +15,12 @@
  */
 package org.ballerinalang.langserver.util.references;
 
-import org.antlr.v4.runtime.CommonTokenStream;
-import org.antlr.v4.runtime.DefaultErrorStrategy;
 import org.antlr.v4.runtime.Token;
-import org.antlr.v4.runtime.TokenStream;
 import org.ballerinalang.langserver.common.constants.NodeContextKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.LSContext;
 import org.eclipse.lsp4j.Position;
-import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -42,11 +37,7 @@ class ReferencesSubRuleParser {
 
     static void parseCompilationUnit(String content, LSContext context, Position pos) {
         // TODO: 1/23/19 Check what happens when the content is not a valid compilation unit and when there are errors
-        BallerinaParser parser = CommonUtil.prepareParser(content);
-        parser.setErrorHandler(new DefaultErrorStrategy());
-        parser.compilationUnit();
-        TokenStream tokenStream = parser.getTokenStream();
-        List<Token> tokenList = new ArrayList<>(((CommonTokenStream) tokenStream).getTokens());
+        List<Token> tokenList = CommonUtil.getTokenList(content);
         Optional<Token> tokenAtCursor = searchTokenAtCursor(tokenList, pos.getLine(), pos.getCharacter(), true);
         tokenAtCursor.ifPresent(token -> {
             context.put(NodeContextKeys.NODE_NAME_KEY, token.getText());

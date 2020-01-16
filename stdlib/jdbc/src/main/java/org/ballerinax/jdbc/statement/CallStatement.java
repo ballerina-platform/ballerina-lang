@@ -26,8 +26,10 @@ import org.ballerinalang.jvm.types.BRecordType;
 import org.ballerinalang.jvm.types.BStructureType;
 import org.ballerinalang.jvm.types.BTableType;
 import org.ballerinalang.jvm.types.BTypes;
+import org.ballerinalang.jvm.types.TypeFlags;
 import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.DecimalValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
@@ -142,9 +144,10 @@ public class CallStatement extends AbstractSQLStatement {
     private ArrayValue constructTablesForResultSets(List<ResultSet> resultSets, TableResourceManager rm,
                                                      ArrayValue structTypes, String databaseProductName)
             throws SQLException, ApplicationException {
-        BRecordType tableConstraint = new BRecordType("$table$anon$constraint$", null, 0, false);
+        int typeFlags = TypeFlags.asMask(TypeFlags.ANYDATA, TypeFlags.PURETYPE);
+        BRecordType tableConstraint = new BRecordType("$table$anon$constraint$", null, 0, false, typeFlags);
         tableConstraint.restFieldType = BTypes.typeAnydata;
-        ArrayValue bTables = new ArrayValue(new BArrayType(new BTableType(tableConstraint)));
+        ArrayValue bTables = new ArrayValueImpl(new BArrayType(new BTableType(tableConstraint)));
         // TODO: "mysql" equality condition is part of the temporary fix to support returning the result set in the case
         // of stored procedures returning only one result set in MySQL. Refer ballerina-platform/ballerina-lang#8643
         if (databaseProductName.contains(Constants.DatabaseNames.MYSQL)
@@ -158,7 +161,7 @@ public class CallStatement extends AbstractSQLStatement {
                             + "returned result set count " + resultSets.size() + " from the stored procedure");
         }
         for (int i = 0; i < resultSets.size(); i++) {
-            TypedescValue typedescValue = (TypedescValue) structTypes.getValue(i);
+            TypedescValue typedescValue = (TypedescValue) structTypes.get(i);
             BStructureType structureType = (BStructureType) typedescValue.getDescribingType();
             bTables.add(i, constructTable(rm, resultSets.get(i), structureType, databaseProductName));
         }
@@ -212,11 +215,11 @@ public class CallStatement extends AbstractSQLStatement {
         }
         int paramCount = params.size();
         for (int index = 0; index < paramCount; index++) {
-            org.ballerinalang.jvm.types.BType type = TypeChecker.getType(params.getValue(index));
+            org.ballerinalang.jvm.types.BType type = TypeChecker.getType(params.get(index));
             if (type.getTag() != TypeTags.RECORD_TYPE_TAG) {
                 continue;
             }
-            MapValue<String, Object> paramValue = (MapValue<String, Object>) params.getValue(index);
+            MapValue<String, Object> paramValue = (MapValue<String, Object>) params.get(index);
             if (paramValue != null) {
                 String sqlType = StatementProcessUtils.getSQLType(paramValue);
                 int direction = StatementProcessUtils.getParameterDirection(paramValue);
@@ -243,13 +246,14 @@ public class CallStatement extends AbstractSQLStatement {
                 }
                 break;
                 case Constants.SQLDataTypes.NVARCHAR:
+                case Constants.SQLDataTypes.LONGNVARCHAR:
                 case Constants.SQLDataTypes.NCHAR: {
                     String value = stmt.getNString(index + 1);
                     paramValue.put(PARAMETER_VALUE_FIELD, value);
                 }
                 break;
                 case Constants.SQLDataTypes.CHAR:
-                case Constants.SQLDataTypes.LONGNVARCHAR:
+                case Constants.SQLDataTypes.LONGVARCHAR:
                 case Constants.SQLDataTypes.VARCHAR: {
                     String value = stmt.getString(index + 1);
                     paramValue.put(PARAMETER_VALUE_FIELD, value);
@@ -271,11 +275,7 @@ public class CallStatement extends AbstractSQLStatement {
                     paramValue.put(PARAMETER_VALUE_FIELD, value);
                 }
                 break;
-                case Constants.SQLDataTypes.TINYINT: {
-                    byte value = stmt.getByte(index + 1);
-                    paramValue.put(PARAMETER_VALUE_FIELD, value);
-                }
-                break;
+                case Constants.SQLDataTypes.TINYINT:
                 case Constants.SQLDataTypes.SMALLINT: {
                     short value = stmt.getShort(index + 1);
                     paramValue.put(PARAMETER_VALUE_FIELD, (long) value);

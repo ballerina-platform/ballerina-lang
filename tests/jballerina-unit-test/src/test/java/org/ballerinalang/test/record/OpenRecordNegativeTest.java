@@ -20,7 +20,6 @@ package org.ballerinalang.test.record;
 
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.CompileResult;
-import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import static org.ballerinalang.test.util.BAssertUtil.validateError;
@@ -61,6 +60,13 @@ public class OpenRecordNegativeTest {
         assertEquals(result.getErrorCount(), indx);
     }
 
+    @Test(description = "Test invalid record assignment error message")
+    public void invalidRecordAssignment() {
+        CompileResult result = BCompileUtil.compile("test-src/record/record-assignment-negative.bal");
+        validateError(result, 0, "incompatible types: expected 'record {| int i; record {| string name;" +
+                " anydata...; |} j; anydata...; |}', found 'int'", 4, 9);
+    }
+
     @Test(description = "Test white space between the type name and ellipsis in rest descriptor")
     public void testRestDescriptorSyntax() {
         CompileResult result = BCompileUtil.compile("test-src/record/open_record_invalid_rest_desc.bal");
@@ -68,16 +74,6 @@ public class OpenRecordNegativeTest {
         validateError(result, 0, "invalid record rest descriptor", 5, 12);
         validateError(result, 1, "invalid record rest descriptor", 12, 14);
         validateError(result, 2, "invalid record rest descriptor", 20, 5);
-    }
-
-    @Test(description = "Test record literal with repeated keys")
-    public void testDuplicatedKeysInRecordLiteral() {
-        CompileResult compileResult = BCompileUtil.compile("test-src/record/open_record_duplicated_key.bal");
-        Assert.assertEquals(compileResult.getErrorCount(), 3);
-        String duplicateKey = "invalid usage of record literal: duplicate key ";
-        validateError(compileResult, 0, duplicateKey + "'noOfChildren'", 13, 58);
-        validateError(compileResult, 1, duplicateKey + "'x'", 14, 43);
-        validateError(compileResult, 2, duplicateKey + "'x'", 15, 57);
     }
 
     @Test(description = "Test function invocation on a nil-able function pointer")

@@ -33,15 +33,17 @@ import java.util.Set;
 public class BFiniteType extends BType {
 
     public Set<Object> valueSpace;
+    private int typeFlags;
 
     public BFiniteType(String typeName) {
         super(typeName, null, RefValue.class);
         this.valueSpace = new LinkedHashSet<>();
     }
 
-    public BFiniteType(String typeName, Set<Object> values) {
+    public BFiniteType(String typeName, Set<Object> values, int typeFlags) {
         super(typeName, null, RefValue.class);
         this.valueSpace = values;
+        this.typeFlags = typeFlags;
     }
 
     @Override
@@ -106,5 +108,15 @@ public class BFiniteType extends BType {
 
     private boolean isSingletonType() {
         return valueSpace.size() == 1;
+    }
+
+    @Override
+    public boolean isAnydata() {
+        return TypeFlags.isFlagOn(this.typeFlags, TypeFlags.ANYDATA);
+    }
+
+    @Override
+    public boolean isPureType() {
+        return TypeFlags.isFlagOn(this.typeFlags, TypeFlags.PURETYPE);
     }
 }

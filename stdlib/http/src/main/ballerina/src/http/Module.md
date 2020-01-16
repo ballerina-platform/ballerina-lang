@@ -76,7 +76,7 @@ See [Listener Endpoint Example](https://ballerina.io/learn/by-example/http-data-
 
 For more information, see [Mutual SSL Example](https://ballerina.io/learn/by-example/mutual-ssl.html).
 
-For more information, see [Caching Example](https://ballerina.io/learn/by-example/caching.html), [HTTP Disable Chunking Example](https://ballerina.io/learn/by-example/http-disable-chunking.html).
+For more information, see [Caching Example](https://ballerina.io/learn/by-example/cache.html), [HTTP Disable Chunking Example](https://ballerina.io/learn/by-example/http-disable-chunking.html).
 
 ### WebSocket
 

@@ -70,8 +70,7 @@ public type UniqueLengthWindow object {
             if(parameter1 is int) {
                 self.length = parameter1;
             } else {
-                error err = error("UniqueLength window's second parameter, windowLength should be of type
-                    int");
+                error err = error("UniqueLength window's second parameter, windowLength should be of type int");
                 panic err;
             }
         } else {

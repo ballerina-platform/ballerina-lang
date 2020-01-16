@@ -76,7 +76,13 @@ public class ResourceFailureTest extends WebSocketTestCommons {
     @Test(description = "Tests failure of onClose resource")
     public void testOnCloseResource() throws InterruptedException {
         client.shutDown();
-        assertCloseFrame();
+        countDownLatch.await(TIMEOUT_IN_SECS, TimeUnit.SECONDS);
+        CloseWebSocketFrame closeWebSocketFrame = client.getReceivedCloseFrame();
+
+        Assert.assertNotNull(closeWebSocketFrame);
+        Assert.assertEquals(closeWebSocketFrame.statusCode(), -1);
+
+        closeWebSocketFrame.release();
     }
 
     @AfterMethod(description = "Shuts down the client")

@@ -21,6 +21,7 @@ package org.ballerinalang.test.service.websub;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.util.HttpClientRequest;
+import org.ballerinalang.test.util.HttpResponse;
 import org.ballerinalang.test.util.TestConstant;
 
 import java.io.IOException;
@@ -43,15 +44,20 @@ public class WebSubTestUtils {
     public static final String CONTENT_TYPE_STRING = "string";
     public static final String PATH_SEPARATOR = "/";
 
-    public static void requestUpdate(String url, String mode, String contentType) throws BallerinaTestException {
+    public static HttpResponse requestUpdateAndGetResponse(String url, String mode, String contentType)
+            throws BallerinaTestException {
         try {
             HashMap<String, String> headers = new HashMap<>(1);
             headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_JSON);
-            HttpClientRequest.doPost(url, "{\"mode\":\"" + mode + "\",\"content_type\":\"" + contentType + "\"}",
+            return HttpClientRequest.doPost(url, "{\"mode\":\"" + mode + "\",\"content_type\":\"" + contentType + "\"}",
                                      headers);
         } catch (IOException e) {
             throw new BallerinaTestException("Error requesting content delivery");
         }
+    }
+
+    public static void requestUpdate(String url, String mode, String contentType) throws BallerinaTestException {
+        requestUpdateAndGetResponse(url, mode, contentType);
     }
 
     public static void requestUpdateWithContent(String url, String content) throws BallerinaTestException {

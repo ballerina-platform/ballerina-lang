@@ -320,8 +320,8 @@ function testAssignNullArrayToNonNillableWithNonNillableElements(string jdbcURL)
         poolOptions: {maximumPoolSize: 1}
     });
 
-    var dt = testDB->select("SELECT int_array, long_array, float_array, boolean_array,
-              string_array from ArrayTypes where row_id = ?", ResultMap, 3);
+    var dt = testDB->select("SELECT int_array, long_array, float_array, boolean_array," +
+              "string_array from ArrayTypes where row_id = ?", ResultMap, 3);
     string errorMessage = "";
     if (dt is table<ResultMap>) {
         while (dt.hasNext()) {
@@ -343,8 +343,8 @@ function testAssignNullArrayToNonNillableTypeWithNillableElements(string jdbcURL
         poolOptions: {maximumPoolSize: 1}
     });
 
-    var dt = testDB->select("SELECT int_array, long_array, float_array, boolean_array,
-              string_array from ArrayTypes where row_id = ?", ResultMapNonNillableTypeNillableElements, 3);
+    var dt = testDB->select("SELECT int_array, long_array, float_array, boolean_array," +
+              "string_array from ArrayTypes where row_id = ?", ResultMapNonNillableTypeNillableElements, 3);
     string errorMessage = "";
     if (dt is table<ResultMapNonNillableTypeNillableElements>) {
         while (dt.hasNext()) {
@@ -366,8 +366,8 @@ function testAssignNullElementArrayToNonNillableTypeWithNonNillableElements(stri
         poolOptions: {maximumPoolSize: 1}
     });
 
-    var dt = testDB->select("SELECT int_array, long_array, float_array, boolean_array,
-              string_array from ArrayTypes where row_id = ?", ResultMap, 2);
+    var dt = testDB->select("SELECT int_array, long_array, float_array, boolean_array," +
+              "string_array from ArrayTypes where row_id = ?", ResultMap, 2);
     string errorMessage = "";
     if (dt is table<ResultMap>) {
         while (dt.hasNext()) {
@@ -389,8 +389,8 @@ function testAssignNullElementArrayToNillableTypeWithNonNillableElements(string 
         poolOptions: {maximumPoolSize: 1}
     });
 
-    var dt = testDB->select("SELECT int_array, long_array, float_array, boolean_array,
-              string_array from ArrayTypes where row_id = ?", ResultMapNillableTypeNonNillableElements, 2);
+    var dt = testDB->select("SELECT int_array, long_array, float_array, boolean_array," +
+              "string_array from ArrayTypes where row_id = ?", ResultMapNillableTypeNonNillableElements, 2);
     string errorMessage = "";
     if (dt is table<ResultMapNillableTypeNonNillableElements>) {
         while (dt.hasNext()) {

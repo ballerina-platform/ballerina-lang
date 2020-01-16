@@ -50,8 +50,7 @@ public class HTTP2ClientActionsTestCase extends Http2BaseTest {
         HttpResponse response = HttpClientRequest.doGet(serverInstance.getServiceURLHttp(servicePort,
                 "test2/clientPostWithoutBody"));
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
-        Assert.assertEquals(response.getData(), "Error occurred while retrieving the text payload from the response",
-                "Message content mismatched");
+        Assert.assertEquals(response.getData(), "No payload");
     }
 
     @Test

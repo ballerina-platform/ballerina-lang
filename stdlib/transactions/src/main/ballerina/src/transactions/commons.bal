@@ -15,11 +15,12 @@
 // under the License.
 
 import ballerina/cache;
-import ballerina/log;
 import ballerina/http;
+import ballerina/log;
 import ballerina/system;
 import ballerina/task;
 import ballerina/time;
+import ballerinax/java;
 
 # ID of the local participant used when registering with the initiator.
 string localParticipantId = system:uuid();
@@ -28,7 +29,7 @@ string localParticipantId = system:uuid();
 map<TwoPhaseCommitTransaction> initiatedTransactions = {};
 
 # This map is used for caching transaction that are this Ballerina instance participates in.
-map<TwoPhaseCommitTransaction> participatedTransactions = {};
+@tainted map<TwoPhaseCommitTransaction> participatedTransactions = {};
 
 # This cache is used for caching HTTP connectors against the URL, since creating connectors is expensive.
 cache:Cache httpClientCache = new;
@@ -233,8 +234,12 @@ function registerLocalParticipantWithInitiator(string transactionId, string tran
         return err;
     } else {
         if (isRegisteredParticipant(participantId, initiatedTxn.participants)) { // Already-Registered
-            error err = error("Already-Registered. TID:" + transactionId + ",participant ID:" + participantId);
-            return err;
+            log:printDebug("Already-Registered. TID:" + transactionId + ",participant ID:" + participantId);
+            TransactionContext txnCtx = {
+                transactionId:transactionId, transactionBlockId:transactionBlockId,
+                coordinationType:TWO_PHASE_COMMIT, registerAtURL:registerAtURL
+            };
+            return txnCtx;
         } else if (!protocolCompatible(initiatedTxn.coordinationType, [participantProtocol])) { // Invalid-Protocol
             error err = error("Invalid-Protocol in local participant. TID:" + transactionId + ",participant ID:" +
             participantId);
@@ -317,7 +322,7 @@ function getParticipant2pcClient(string participantURL) returns Participant2pcCl
 # + registerAtURL - The URL of the coordinator.
 # + participantProtocols - The coordination protocals supported by the participant.
 # + return - TransactionContext if the registration is successful or an error in case of a failure.
-public function registerParticipantWithRemoteInitiator(string transactionId, string transactionBlockId,
+function registerParticipantWithRemoteInitiator(string transactionId, string transactionBlockId,
                                                        string registerAtURL, RemoteProtocol[] participantProtocols)
     returns TransactionContext|error {
 
@@ -326,8 +331,7 @@ public function registerParticipantWithRemoteInitiator(string transactionId, str
 
     // Register with the coordinator only if the participant has not already done so
     if (participatedTransactions.hasKey(participatedTxnId)) {
-        string msg = "Already registered with initiator for transaction:" + participatedTxnId;
-        log:printInfo(msg);
+        log:printDebug("Already registered with initiator for transaction:" + participatedTxnId);
         TransactionContext txnCtx = {
             transactionId:transactionId, transactionBlockId:transactionBlockId,
             coordinationType:TWO_PHASE_COMMIT, registerAtURL:registerAtURL
@@ -368,6 +372,16 @@ function getParticipantId(string transactionBlockId) returns string {
     return participantId;
 }
 
-function getAvailablePort() returns int = external;
+function getAvailablePort() returns int = @java:Method {
+    class: "io.ballerina.transactions.Utils",
+    name: "getAvailablePort"
+} external;
 
-function getHostAddress() returns string = external;
+function getHostAddress() returns string {
+    return <string>java:toString(externGetHostAddress());
+}
+
+function externGetHostAddress() returns handle = @java:Method {
+    class: "io.ballerina.transactions.Utils",
+    name: "getHostAddress"
+} external;

@@ -1,4 +1,4 @@
-// Copyright (c) 2018 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+// Copyright (c) 2019 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 //
 // WSO2 Inc. licenses this file to you under the Apache License,
 // Version 2.0 (the "License"); you may not use this file except
@@ -16,27 +16,28 @@
 
 package org.ballerinalang.nativeimpl.llvm.gen;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.types.BPackage;
+import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.nativeimpl.llvm.FFIUtil;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.bytedeco.javacpp.LLVM;
-import org.bytedeco.javacpp.LLVM.LLVMValueRef;
+import org.bytedeco.llvm.LLVM.LLVMBuilderRef;
+import org.bytedeco.llvm.LLVM.LLVMValueRef;
 
 import static org.ballerinalang.model.types.TypeKind.RECORD;
 import static org.ballerinalang.model.types.TypeKind.STRING;
-import static org.bytedeco.javacpp.LLVM.LLVMBuildGlobalStringPtr;
+import static org.bytedeco.llvm.global.LLVM.LLVMBuildGlobalStringPtr;
 
 /**
  * Auto generated class.
+ *
+ * @since 1.0.3
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "llvm",
-        functionName = "LLVMBuildGlobalStringPtr",
+        functionName = "llvmBuildGlobalStringPtr",
         args = {
                 @Argument(name = "b", type = RECORD, structType = "LLVMBuilderRef"),
                 @Argument(name = "str", type = STRING),
@@ -46,16 +47,15 @@ import static org.bytedeco.javacpp.LLVM.LLVMBuildGlobalStringPtr;
                 @ReturnType(type = RECORD, structType = "LLVMValueRef", structPackage = "ballerina/llvm"),
         }
 )
-public class LLVMBuildGlobalStringPtr extends BlockingNativeCallableUnit {
+public class LLVMBuildGlobalStringPtr {
 
-    @Override
-    public void execute(Context context) {
-        LLVM.LLVMBuilderRef b = FFIUtil.getRecodeArgumentNative(context, 0);
-        String str = context.getStringArgument(0);
-        String name = context.getStringArgument(1);
-        LLVMValueRef returnValue = LLVMBuildGlobalStringPtr(b, str, name);
-        BMap<String, BValue> rerunWrapperRecode = FFIUtil.newRecord(context, "LLVMValueRef");
-        FFIUtil.addNativeToRecode(returnValue, rerunWrapperRecode);
-        context.setReturnValues(rerunWrapperRecode);
+    public static MapValue<String, Object> llvmBuildGlobalStringPtr(Strand strand, MapValue<String, Object> b,
+            String str, String name) {
+        LLVMBuilderRef bRef = (LLVMBuilderRef) FFIUtil.getRecodeArgumentNative(b);
+        LLVMValueRef returnValue = LLVMBuildGlobalStringPtr(bRef, str, name);
+        MapValue<String, Object> returnWrappedRecord = FFIUtil.newRecord(new BPackage("ballerina",
+                "llvm"), "LLVMValueRef");
+        FFIUtil.addNativeToRecode(returnValue, returnWrappedRecord);
+        return returnWrappedRecord;
     }
 }

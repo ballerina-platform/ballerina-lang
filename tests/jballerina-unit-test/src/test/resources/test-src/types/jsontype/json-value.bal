@@ -13,6 +13,12 @@ function testFloatAsJsonVal () returns (json) {
     return j;
 }
 
+function testByteAsJsonVal() returns json {
+    byte b = 5;
+    json j = b;
+    return j;
+}
+
 function testDecimalAsJsonVal() returns (json) {
     decimal d = 7.65;
     json j = d;
@@ -278,8 +284,9 @@ function testGetElementFromPrimitive () returns (json|error) {
 
 function testUpdateNestedElement () returns (json) {
     json j = {details:{fname:"Supun", lname:"Thilina"}};
-    map<map<json>> jm = <map<map<json>>> j;
-    jm["details"]["lname"] = "Setunga";
+    map<json> jm = <map<json>> j;
+    map<json> jmDetails = <map<json>>jm["details"];
+    jmDetails["lname"] = "Setunga";
     return j;
 }
 
@@ -335,7 +342,7 @@ function testGetFromNull () returns (json|error) {
 
 function testAddToNull () returns (json) {
     json j = {name:"Supun", address:null};
-    map<map<json>> jm = <map<map<json>>> j;
+    map<json> jm = <map<json>> j;
     jm["address"] = {country: "SriLanka"};
     return j;
 }
@@ -413,4 +420,9 @@ function testBooleanArrayToJsonAssignment() returns [json, json] {
     json[] j = b;
     j[3] = true;
     return [j, j[1]];
+}
+
+function testMapJsonToJsonArray() {
+    json[] j = [2];
+    map<json>[] p = <map<json>[]> j;
 }

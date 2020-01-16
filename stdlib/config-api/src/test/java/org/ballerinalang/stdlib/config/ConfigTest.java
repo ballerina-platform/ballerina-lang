@@ -26,6 +26,7 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
+import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -247,6 +248,21 @@ public class ConfigTest {
         Assert.assertEquals(((BFloat) returnVals[0]).floatValue(), 0.3455);
     }
 
+    @Test(description = "Test for getAsFloat for scientific notation")
+    public void testGetAsFloat2() throws IOException {
+        BString key = new BString("expirationPeriod");
+        BValue[] inputArg = {key};
+
+        registry.initRegistry(new HashMap<>(), null, ballerinaConfPath);
+
+        BValue[] returnVals = BRunUtil.invoke(compileResult, "testGetAsFloat", inputArg);
+
+        Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
+                           "Invalid Return Values.");
+        Assert.assertTrue(returnVals[0] instanceof BFloat);
+        Assert.assertEquals(((BFloat) returnVals[0]).floatValue(), 1800000.0D);
+    }
+
     @Test(description = "Test for getting an int as a float")
     public void testGetIntAsFloat() throws IOException {
         BString key = new BString("http1.request_limit");
@@ -351,6 +367,42 @@ public class ConfigTest {
                 "Invalid Return Values.");
         Assert.assertTrue(returnVals[0] instanceof BString);
         Assert.assertEquals(returnVals[0].stringValue(), "abcd");
+    }
+
+    @Test(description = "Test retrieving an invalid int config", expectedExceptions = BLangRuntimeException.class,
+          expectedExceptionsMessageRegExp = ".*error: \\{ballerina/config\\}LookupError message=config key " +
+                  "'expirationPeriod' does not map to a valid 'int'.*")
+    public void testGetAsIntNegative() throws IOException {
+        BString key = new BString("expirationPeriod");
+        BValue[] inputArg = {key};
+
+        registry.initRegistry(new HashMap<>(), null, ballerinaConfPath);
+
+        BRunUtil.invoke(compileResult, "testGetAsInt", inputArg);
+    }
+
+    @Test(description = "Test retrieving an invalid float config", expectedExceptions = BLangRuntimeException.class,
+          expectedExceptionsMessageRegExp = ".*error: \\{ballerina/config\\}LookupError message=config key " +
+                  "'\"ballerina.http.host\"' does not map to a valid 'float'.*")
+    public void testGetAsFloatNegative() throws IOException {
+        BString key = new BString("\"ballerina.http.host\"");
+        BValue[] inputArg = {key};
+
+        registry.initRegistry(new HashMap<>(), null, ballerinaConfPath);
+
+        BRunUtil.invoke(compileResult, "testGetAsFloat", inputArg);
+    }
+
+    @Test(description = "Test retrieving an invalid boolean config", expectedExceptions = BLangRuntimeException.class,
+          expectedExceptionsMessageRegExp = ".*error: \\{ballerina/config\\}LookupError message=config key " +
+                  "'expirationPeriod' does not map to a valid 'boolean'.*")
+    public void testGetAsBooleanNegative() throws IOException {
+        BString key = new BString("expirationPeriod");
+        BValue[] inputArg = {key};
+
+        registry.initRegistry(new HashMap<>(), null, ballerinaConfPath);
+
+        BRunUtil.invoke(compileResult, "testGetAsBoolean", inputArg);
     }
 
     private Map<String, String> getRuntimeProperties() {

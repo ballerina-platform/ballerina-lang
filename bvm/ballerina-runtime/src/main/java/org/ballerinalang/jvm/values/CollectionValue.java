@@ -17,6 +17,8 @@
  */
 package org.ballerinalang.jvm.values;
 
+import org.ballerinalang.jvm.values.api.BCollection;
+
 /**
  * <p>
  * {@code {@link CollectionValue}} represents a collection in Ballerina.
@@ -27,12 +29,7 @@ package org.ballerinalang.jvm.values;
  * 
  * @since 0.995.0
  */
-public interface CollectionValue {
+public interface CollectionValue extends BCollection {
 
-    /**
-     * Create new Iterator for this collection.
-     *
-     * @return iterator created.
-     */
     IteratorValue getIterator();
 }

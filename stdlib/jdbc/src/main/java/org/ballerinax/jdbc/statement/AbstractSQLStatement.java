@@ -35,8 +35,10 @@ import org.ballerinalang.jvm.types.BRecordType;
 import org.ballerinalang.jvm.types.BStructureType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
+import org.ballerinalang.jvm.types.TypeFlags;
 import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.DecimalValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
@@ -83,6 +85,9 @@ import static org.ballerinax.jdbc.Constants.PARAMETER_VALUE_FIELD;
  * @since 1.0.0
  */
 public abstract class AbstractSQLStatement implements SQLStatement {
+
+    private static final BType SQL_PARAMETER_TYPE =
+            BallerinaValues.createRecordValue(Constants.JDBC_PACKAGE_ID, Constants.SQL_PARAMETER).getType();
     Calendar utcCalendar = Calendar.getInstance(TimeZone.getTimeZone(Constants.TIMEZONE_UTC));
     Strand strand;
 
@@ -91,10 +96,10 @@ public abstract class AbstractSQLStatement implements SQLStatement {
     }
 
     ArrayValue constructParameters(ArrayValue parameters) throws ApplicationException {
-        ArrayValue parametersNew = new ArrayValue();
+        ArrayValue parametersNew = new ArrayValueImpl(new BArrayType(SQL_PARAMETER_TYPE));
         int paramCount = parameters.size();
         for (int i = 0; i < paramCount; ++i) {
-            Object value = parameters.getValue(i);
+            Object value = parameters.get(i);
             MapValue<String, Object> paramRecord;
             BType type = TypeChecker.getType(value);
             if (type.getTag() == TypeTags.OBJECT_TYPE_TAG
@@ -156,7 +161,8 @@ public abstract class AbstractSQLStatement implements SQLStatement {
         BStructureType tableConstraint = structType;
         if (structType == null) {
             tableConstraint = new BRecordType("$table$anon$constraint$",
-                                              new BPackage("ballerina", "lang.annotations", "0.0.0"), 0, false);
+                    new BPackage("ballerina", "lang.annotations", "0.0.0"), 0, false,
+                    TypeFlags.asMask(TypeFlags.ANYDATA, TypeFlags.PURETYPE));
             ((BRecordType) tableConstraint).restFieldType = BTypes.typeAnydata;
         }
         return new BCursorTable(
@@ -342,7 +348,7 @@ public abstract class AbstractSQLStatement implements SQLStatement {
     }
 
     void handleErrorOnTransaction(Strand strand) {
-        TransactionLocalContext transactionLocalContext = strand.getLocalTransactionContext();
+        TransactionLocalContext transactionLocalContext = strand.transactionLocalContext;
         if (transactionLocalContext == null) {
             return;
         }
@@ -359,14 +365,14 @@ public abstract class AbstractSQLStatement implements SQLStatement {
             } else {
                 //This is when there is an infected transaction block. But this is not participated to the transaction
                 //since the action call is outside of the transaction block.
-                if (!strand.getLocalTransactionContext().hasTransactionBlock()) {
+                if (!strand.transactionLocalContext.hasTransactionBlock()) {
                     conn = datasource.getSQLConnection();
                     return conn;
                 }
             }
             String connectorId = retrieveConnectorId(client);
             boolean isXAConnection = datasource.isXAConnection();
-            TransactionLocalContext transactionLocalContext = strand.getLocalTransactionContext();
+            TransactionLocalContext transactionLocalContext = strand.transactionLocalContext;
             String globalTxId = transactionLocalContext.getGlobalTransactionId();
             String currentTxBlockId = transactionLocalContext.getCurrentTransactionBlockId();
             BallerinaTransactionContext txContext = transactionLocalContext.getTransactionContext(connectorId);

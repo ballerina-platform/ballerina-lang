@@ -239,6 +239,34 @@ public class BByteValueTest {
         Assert.assertEquals(4, bInteger1.intValue(), "Invalid array size");
     }
 
+    @Test(description = "Test byte array iteration")
+    public void testByteArrayIteration() {
+        byte input1 = 1;
+        byte input2 = 2;
+        byte input3 = 3;
+        byte input4 = 4;
+        byte input5 = 5;
+
+        BValueArray bByteArrayIn = new BValueArray(BTypes.typeByte);
+        bByteArrayIn.add(0, input1);
+        bByteArrayIn.add(1, input2);
+        bByteArrayIn.add(2, input3);
+        bByteArrayIn.add(3, input4);
+        bByteArrayIn.add(4, input5);
+        BValue[] args = {bByteArrayIn};
+
+        BValue[] returns = BRunUtil.invoke(result, "testByteArrayIteration", args);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BValueArray.class);
+        BValueArray bByteArrayOut = (BValueArray) returns[0];
+
+        Assert.assertEquals(bByteArrayOut.getByte(0), input1);
+        Assert.assertEquals(bByteArrayOut.getByte(1), input2);
+        Assert.assertEquals(bByteArrayOut.getByte(2), input3);
+        Assert.assertEquals(bByteArrayOut.getByte(3), input4);
+        Assert.assertEquals(bByteArrayOut.getByte(4), input5);
+    }
+
     @Test(description = "Test byte equal operation")
     public void testByteEqual() {
         byte b1 = 2;

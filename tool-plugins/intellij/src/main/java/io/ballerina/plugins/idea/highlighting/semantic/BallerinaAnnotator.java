@@ -72,7 +72,14 @@ public class BallerinaAnnotator implements Annotator {
                 }
             }
         } else if (element instanceof BallerinaPackageReference) {
-            annotateKeyword(element, holder, BallerinaSyntaxHighlightingColors.ENTITY_NAME, false);
+            // If the package reference resides inside a annotation attachment, package reference should also be
+            // highlighted as a part of the annotation.
+            if (parent != null && parent.getParent() instanceof BallerinaAnnotationAttachment) {
+                Annotation annotation = holder.createInfoAnnotation(element, null);
+                annotation.setTextAttributes(BallerinaSyntaxHighlightingColors.ANNOTATION);
+            } else {
+                annotateKeyword(element, holder, BallerinaSyntaxHighlightingColors.ENTITY_NAME, false);
+            }
         } else if (element instanceof LeafPsiElement) {
             IElementType elementType = ((LeafPsiElement) element).getElementType();
             if (elementType == BallerinaTypes.AT || elementType == BallerinaTypes.ANNOTATION_ACCESS) {

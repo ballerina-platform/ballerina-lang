@@ -58,12 +58,12 @@ public class LogAPITestCase extends BaseTest {
         String output = bMainInstance.runMainAndReadStdOut("run", new String[]{"mainmod"}, new HashMap<>(),
                                                            projectDirPath, true);
         String[] logLines = output.split("\n");
-        assertEquals(logLines.length, 4);
+        assertEquals(logLines.length, 15);
 
-        validateLogLevel(logLines[0], "INFO", "[logorg/foo]", "Logging from inside `foo` module");
-        validateLogLevel(logLines[1], "INFO", "[logorg/bar]", "Logging from inside `bar` module");
-        validateLogLevel(logLines[2], "ERROR", "[logorg/baz]", "Logging at ERROR level inside `baz`");
-        validateLogLevel(logLines[3], "INFO", "[logorg/mainmod]", "Logging from inside `mainmod` module");
+        validateLogLevel(logLines[11], "INFO", "[logorg/foo]", "Logging from inside `foo` module");
+        validateLogLevel(logLines[12], "INFO", "[logorg/bar]", "Logging from inside `bar` module");
+        validateLogLevel(logLines[13], "ERROR", "[logorg/baz]", "Logging at ERROR level inside `baz`");
+        validateLogLevel(logLines[14], "INFO", "[logorg/mainmod]", "Logging from inside `mainmod` module");
     }
 
     @Test
@@ -71,7 +71,9 @@ public class LogAPITestCase extends BaseTest {
         BMainInstance bMainInstance = new BMainInstance(balServer);
         String[] args = new String[]{testFileName, "--" + logLevelProperty + "=OFF"};
         String output = bMainInstance.runMainAndReadStdOut("run", args, new HashMap<>(), testFileLocation, true);
-        assertTrue(output.isEmpty());
+        String[] logLines = output.split("\n");
+    
+        assertEquals(logLines.length, 5);
     }
 
     @Test
@@ -81,13 +83,13 @@ public class LogAPITestCase extends BaseTest {
         String output = bMainInstance.runMainAndReadStdOut("run", args, new HashMap<>(), testFileLocation, true);
         String[] logLines = output.split("\n");
 
-        assertEquals(logLines.length, 2);
+        assertEquals(logLines.length, 8);
 
-        console.println(logLines[0]);
-        validateLogLevel(logLines[0], "ERROR", "[]", errLog);
+        console.println(logLines[6]);
+        validateLogLevel(logLines[6], "ERROR", "[]", errLog);
 
-        console.println(logLines[1]);
-        validateLogLevel(logLines[1], "ERROR", "[]", errLogWithErr);
+        console.println(logLines[7]);
+        validateLogLevel(logLines[7], "ERROR", "[]", errLogWithErr);
     }
 
     @Test
@@ -97,16 +99,16 @@ public class LogAPITestCase extends BaseTest {
         String output = bMainInstance.runMainAndReadStdOut("run", args, new HashMap<>(), testFileLocation, true);
         String[] logLines = output.split("\n");
 
-        assertEquals(logLines.length, 3);
+        assertEquals(logLines.length, 9);
 
-        console.println(logLines[0]);
-        validateLogLevel(logLines[0], "ERROR", "[]", errLog);
+        console.println(logLines[6]);
+        validateLogLevel(logLines[6], "ERROR", "[]", errLog);
 
-        console.println(logLines[1]);
-        validateLogLevel(logLines[1], "ERROR", "[]", errLogWithErr);
+        console.println(logLines[7]);
+        validateLogLevel(logLines[7], "ERROR", "[]", errLogWithErr);
 
-        console.println(logLines[2]);
-        validateLogLevel(logLines[2], "WARN", "[]", warnLog);
+        console.println(logLines[8]);
+        validateLogLevel(logLines[8], "WARN", "[]", warnLog);
     }
 
     @Test
@@ -116,19 +118,19 @@ public class LogAPITestCase extends BaseTest {
         String output = bMainInstance.runMainAndReadStdOut("run", args, new HashMap<>(), testFileLocation, true);
         String[] logLines = output.split("\n");
 
-        assertEquals(logLines.length, 4);
+        assertEquals(logLines.length, 10);
 
-        console.println(logLines[0]);
-        validateLogLevel(logLines[0], "ERROR", "[]", errLog);
+        console.println(logLines[6]);
+        validateLogLevel(logLines[6], "ERROR", "[]", errLog);
 
-        console.println(logLines[1]);
-        validateLogLevel(logLines[1], "ERROR", "[]", errLogWithErr);
+        console.println(logLines[7]);
+        validateLogLevel(logLines[7], "ERROR", "[]", errLogWithErr);
 
-        console.println(logLines[2]);
-        validateLogLevel(logLines[2], "WARN", "[]", warnLog);
+        console.println(logLines[8]);
+        validateLogLevel(logLines[8], "WARN", "[]", warnLog);
 
-        console.println(logLines[3]);
-        validateLogLevel(logLines[3], "INFO", "[]", infoLog);
+        console.println(logLines[9]);
+        validateLogLevel(logLines[9], "INFO", "[]", infoLog);
     }
 
     @Test
@@ -138,22 +140,22 @@ public class LogAPITestCase extends BaseTest {
         String output = bMainInstance.runMainAndReadStdOut("run", args, new HashMap<>(), testFileLocation, true);
         String[] logLines = output.split("\n");
 
-        assertEquals(logLines.length, 5);
+        assertEquals(logLines.length, 11);
 
-        console.println(logLines[0]);
-        validateLogLevel(logLines[0], "ERROR", "[]", errLog);
+        console.println(logLines[6]);
+        validateLogLevel(logLines[6], "ERROR", "[]", errLog);
 
-        console.println(logLines[1]);
-        validateLogLevel(logLines[1], "ERROR", "[]", errLogWithErr);
+        console.println(logLines[7]);
+        validateLogLevel(logLines[7], "ERROR", "[]", errLogWithErr);
 
-        console.println(logLines[2]);
-        validateLogLevel(logLines[2], "WARN", "[]", warnLog);
+        console.println(logLines[8]);
+        validateLogLevel(logLines[8], "WARN", "[]", warnLog);
 
-        console.println(logLines[3]);
-        validateLogLevel(logLines[3], "INFO", "[]", infoLog);
+        console.println(logLines[9]);
+        validateLogLevel(logLines[9], "INFO", "[]", infoLog);
 
-        console.println(logLines[4]);
-        validateLogLevel(logLines[4], "DEBUG", "[]", debugLog);
+        console.println(logLines[10]);
+        validateLogLevel(logLines[10], "DEBUG", "[]", debugLog);
     }
 
     @Test
@@ -163,25 +165,25 @@ public class LogAPITestCase extends BaseTest {
         String output = bMainInstance.runMainAndReadStdOut("run", args, new HashMap<>(), testFileLocation, true);
         String[] logLines = output.split("\n");
 
-        assertEquals(logLines.length, 6);
+        assertEquals(logLines.length, 12);
 
-        console.println(logLines[0]);
-        validateLogLevel(logLines[0], "ERROR", "[]", errLog);
+        console.println(logLines[6]);
+        validateLogLevel(logLines[6], "ERROR", "[]", errLog);
 
-        console.println(logLines[1]);
-        validateLogLevel(logLines[1], "ERROR", "[]", errLogWithErr);
+        console.println(logLines[7]);
+        validateLogLevel(logLines[7], "ERROR", "[]", errLogWithErr);
 
-        console.println(logLines[2]);
-        validateLogLevel(logLines[2], "WARN", "[]", warnLog);
+        console.println(logLines[8]);
+        validateLogLevel(logLines[8], "WARN", "[]", warnLog);
 
-        console.println(logLines[3]);
-        validateLogLevel(logLines[3], "INFO", "[]", infoLog);
+        console.println(logLines[9]);
+        validateLogLevel(logLines[9], "INFO", "[]", infoLog);
 
-        console.println(logLines[4]);
-        validateLogLevel(logLines[4], "DEBUG", "[]", debugLog);
+        console.println(logLines[10]);
+        validateLogLevel(logLines[10], "DEBUG", "[]", debugLog);
 
-        console.println(logLines[5]);
-        validateLogLevel(logLines[5], "TRACE", "[]", traceLog);
+        console.println(logLines[11]);
+        validateLogLevel(logLines[11], "TRACE", "[]", traceLog);
     }
 
     @Test
@@ -191,25 +193,25 @@ public class LogAPITestCase extends BaseTest {
         String output = bMainInstance.runMainAndReadStdOut("run", args, new HashMap<>(), testFileLocation, true);
         String[] logLines = output.split("\n");
 
-        assertEquals(logLines.length, 6);
+        assertEquals(logLines.length, 12);
 
-        console.println(logLines[0]);
-        validateLogLevel(logLines[0], "ERROR", "[]", errLog);
+        console.println(logLines[6]);
+        validateLogLevel(logLines[6], "ERROR", "[]", errLog);
 
-        console.println(logLines[1]);
-        validateLogLevel(logLines[1], "ERROR", "[]", errLogWithErr);
+        console.println(logLines[7]);
+        validateLogLevel(logLines[7], "ERROR", "[]", errLogWithErr);
 
-        console.println(logLines[2]);
-        validateLogLevel(logLines[2], "WARN", "[]", warnLog);
+        console.println(logLines[8]);
+        validateLogLevel(logLines[8], "WARN", "[]", warnLog);
 
-        console.println(logLines[3]);
-        validateLogLevel(logLines[3], "INFO", "[]", infoLog);
+        console.println(logLines[9]);
+        validateLogLevel(logLines[9], "INFO", "[]", infoLog);
 
-        console.println(logLines[4]);
-        validateLogLevel(logLines[4], "DEBUG", "[]", debugLog);
+        console.println(logLines[10]);
+        validateLogLevel(logLines[10], "DEBUG", "[]", debugLog);
 
-        console.println(logLines[5]);
-        validateLogLevel(logLines[5], "TRACE", "[]", traceLog);
+        console.println(logLines[11]);
+        validateLogLevel(logLines[11], "TRACE", "[]", traceLog);
     }
 
     @Test
@@ -219,19 +221,19 @@ public class LogAPITestCase extends BaseTest {
                 "--logorg/mainmod.loglevel=OFF" };
         String output = bMainInstance.runMainAndReadStdOut("run", args, new HashMap<>(), projectDirPath, true);
         String[] logLines = output.split("\n");
-        assertEquals(logLines.length, 4, printLogLines(logLines));
+        assertEquals(logLines.length, 15, printLogLines(logLines));
 
-        console.println(logLines[0]);
-        validateLogLevel(logLines[0], "INFO", "[logorg/foo]", "Logging from inside `foo` module");
+        console.println(logLines[11]);
+        validateLogLevel(logLines[11], "INFO", "[logorg/foo]", "Logging from inside `foo` module");
 
-        console.println(logLines[1]);
-        validateLogLevel(logLines[1], "DEBUG", "[logorg/foo]", "Logging at DEBUG level inside `foo`");
+        console.println(logLines[12]);
+        validateLogLevel(logLines[12], "DEBUG", "[logorg/foo]", "Logging at DEBUG level inside `foo`");
 
-        console.println(logLines[2]);
-        validateLogLevel(logLines[2], "INFO", "[logorg/bar]", "Logging from inside `bar` module");
+        console.println(logLines[13]);
+        validateLogLevel(logLines[13], "INFO", "[logorg/bar]", "Logging from inside `bar` module");
 
-        console.println(logLines[3]);
-        validateLogLevel(logLines[3], "ERROR", "[logorg/baz]", "Logging at ERROR level inside `baz`");
+        console.println(logLines[14]);
+        validateLogLevel(logLines[14], "ERROR", "[logorg/baz]", "Logging at ERROR level inside `baz`");
     }
 
     private void validateLogLevel(String log, String logLevel, String logLocation, String logMsg) {

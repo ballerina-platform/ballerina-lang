@@ -38,7 +38,11 @@ import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.services.ErrorHandlerUtils;
 import org.ballerinalang.jvm.transactions.TransactionConstants;
 import org.ballerinalang.jvm.types.AttachedFunction;
+import org.ballerinalang.jvm.types.BErrorType;
+import org.ballerinalang.jvm.types.BFiniteType;
 import org.ballerinalang.jvm.types.BPackage;
+import org.ballerinalang.jvm.types.BType;
+import org.ballerinalang.jvm.types.TypeFlags;
 import org.ballerinalang.jvm.util.exceptions.BallerinaConnectorException;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ErrorValue;
@@ -48,6 +52,7 @@ import org.ballerinalang.jvm.values.RefValue;
 import org.ballerinalang.jvm.values.StreamingJsonValue;
 import org.ballerinalang.jvm.values.XMLItem;
 import org.ballerinalang.jvm.values.XMLSequence;
+import org.ballerinalang.jvm.values.api.BValueCreator;
 import org.ballerinalang.mime.util.EntityBodyChannel;
 import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.mime.util.EntityWrapper;
@@ -57,6 +62,7 @@ import org.ballerinalang.mime.util.MultipartDataSource;
 import org.ballerinalang.mime.util.MultipartDecoder;
 import org.ballerinalang.net.http.caching.RequestCacheControlObj;
 import org.ballerinalang.net.http.caching.ResponseCacheControlObj;
+import org.ballerinalang.net.http.websocket.WebSocketConstants;
 import org.ballerinalang.stdlib.io.utils.IOConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -91,9 +97,11 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static io.netty.handler.codec.http.HttpHeaderNames.CACHE_CONTROL;
@@ -106,13 +114,11 @@ import static org.ballerinalang.jvm.observability.ObservabilityConstants.TAG_KEY
 import static org.ballerinalang.jvm.runtime.RuntimeConstants.BALLERINA_VERSION;
 import static org.ballerinalang.mime.util.EntityBodyHandler.checkEntityBodyAvailability;
 import static org.ballerinalang.mime.util.MimeConstants.BOUNDARY;
-import static org.ballerinalang.mime.util.MimeConstants.ENTITY;
 import static org.ballerinalang.mime.util.MimeConstants.ENTITY_BYTE_CHANNEL;
 import static org.ballerinalang.mime.util.MimeConstants.ENTITY_HEADERS;
 import static org.ballerinalang.mime.util.MimeConstants.IS_BODY_BYTE_CHANNEL_ALREADY_SET;
 import static org.ballerinalang.mime.util.MimeConstants.MULTIPART_AS_PRIMARY_TYPE;
 import static org.ballerinalang.mime.util.MimeConstants.OCTET_STREAM;
-import static org.ballerinalang.mime.util.MimeConstants.PROTOCOL_MIME_PKG_ID;
 import static org.ballerinalang.mime.util.MimeConstants.REQUEST_ENTITY_FIELD;
 import static org.ballerinalang.mime.util.MimeConstants.RESPONSE_ENTITY_FIELD;
 import static org.ballerinalang.net.http.HttpConstants.ALWAYS;
@@ -139,15 +145,18 @@ import static org.ballerinalang.net.http.HttpConstants.FILE_PATH;
 import static org.ballerinalang.net.http.HttpConstants.HTTP_ERROR_CODE;
 import static org.ballerinalang.net.http.HttpConstants.HTTP_ERROR_DETAIL_RECORD;
 import static org.ballerinalang.net.http.HttpConstants.HTTP_ERROR_MESSAGE;
+import static org.ballerinalang.net.http.HttpConstants.HTTP_MODULE_VERSION;
 import static org.ballerinalang.net.http.HttpConstants.LISTENER_CONFIGURATION;
+import static org.ballerinalang.net.http.HttpConstants.MODULE;
 import static org.ballerinalang.net.http.HttpConstants.MUTUAL_SSL_HANDSHAKE_RECORD;
 import static org.ballerinalang.net.http.HttpConstants.NEVER;
+import static org.ballerinalang.net.http.HttpConstants.PACKAGE;
 import static org.ballerinalang.net.http.HttpConstants.PASSWORD;
 import static org.ballerinalang.net.http.HttpConstants.PKCS_STORE_TYPE;
 import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_HTTPS;
 import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_HTTP_PKG_ID;
+import static org.ballerinalang.net.http.HttpConstants.REASON_RECORD;
 import static org.ballerinalang.net.http.HttpConstants.REQUEST;
-import static org.ballerinalang.net.http.HttpConstants.REQUEST_CACHE_CONTROL;
 import static org.ballerinalang.net.http.HttpConstants.REQUEST_CACHE_CONTROL_FIELD;
 import static org.ballerinalang.net.http.HttpConstants.REQUEST_MUTUAL_SSL_HANDSHAKE_FIELD;
 import static org.ballerinalang.net.http.HttpConstants.REQUEST_MUTUAL_SSL_HANDSHAKE_STATUS;
@@ -206,7 +215,7 @@ public class HttpUtil {
      * @return created entity.
      */
     public static ObjectValue createNewEntity(ObjectValue httpMessageStruct) {
-        ObjectValue entity = BallerinaValues.createObjectValue(PROTOCOL_MIME_PKG_ID, ENTITY);
+        ObjectValue entity = ValueCreatorUtils.createEntityObject();
         HttpCarbonMessage httpCarbonMessage = HttpUtil.getCarbonMsg(httpMessageStruct,
                 HttpUtil.createHttpCarbonMessage(isRequest(httpMessageStruct)));
         entity.addNativeData(ENTITY_HEADERS, httpCarbonMessage.getHeaders());
@@ -640,8 +649,7 @@ public class HttpUtil {
         inboundRequest.addNativeData(REQUEST, true);
 
         if (inboundRequestMsg.getProperty(HttpConstants.MUTUAL_SSL_RESULT) != null) {
-            MapValue mutualSslRecord = BallerinaValues.createRecordValue(PROTOCOL_HTTP_PKG_ID,
-                                                                         MUTUAL_SSL_HANDSHAKE_RECORD);
+            MapValue mutualSslRecord = ValueCreatorUtils.createHTTPRecordValue(MUTUAL_SSL_HANDSHAKE_RECORD);
             mutualSslRecord.put(REQUEST_MUTUAL_SSL_HANDSHAKE_STATUS,
                                 inboundRequestMsg.getProperty(HttpConstants.MUTUAL_SSL_RESULT));
             inboundRequest.set(REQUEST_MUTUAL_SSL_HANDSHAKE_FIELD, mutualSslRecord);
@@ -656,8 +664,7 @@ public class HttpUtil {
 
         String cacheControlHeader = inboundRequestMsg.getHeader(CACHE_CONTROL.toString());
         if (cacheControlHeader != null) {
-            ObjectValue cacheControlObj = BallerinaValues.createObjectValue(PROTOCOL_HTTP_PKG_ID,
-                                                                               REQUEST_CACHE_CONTROL);
+            ObjectValue cacheControlObj = ValueCreatorUtils.createRequestCacheControlObject();
             RequestCacheControlObj requestCacheControl = new RequestCacheControlObj(cacheControlObj);
             requestCacheControl.populateStruct(cacheControlHeader);
             inboundRequest.set(REQUEST_CACHE_CONTROL_FIELD, requestCacheControl.getObj());
@@ -708,16 +715,13 @@ public class HttpUtil {
      */
     public static void enrichHttpCallerWithConnectionInfo(ObjectValue httpCaller, HttpCarbonMessage inboundMsg,
                                                           HttpResource httpResource, MapValue config) {
-        MapValue<String, Object> remote = BallerinaValues.createRecordValue(PROTOCOL_HTTP_PKG_ID,
-                                                                            HttpConstants.REMOTE);
-        MapValue<String, Object> local = BallerinaValues.createRecordValue(PROTOCOL_HTTP_PKG_ID, HttpConstants.LOCAL);
+        MapValue<String, Object> remote = ValueCreatorUtils.createHTTPRecordValue(HttpConstants.REMOTE);
+        MapValue<String, Object> local = ValueCreatorUtils.createHTTPRecordValue(HttpConstants.LOCAL);
 
         Object remoteSocketAddress = inboundMsg.getProperty(HttpConstants.REMOTE_ADDRESS);
         if (remoteSocketAddress instanceof InetSocketAddress) {
             InetSocketAddress inetSocketAddress = (InetSocketAddress) remoteSocketAddress;
-            String remoteHost = inetSocketAddress.getHostName();
             long remotePort = inetSocketAddress.getPort();
-            remote.put(HttpConstants.REMOTE_HOST_FIELD, remoteHost);
             remote.put(HttpConstants.REMOTE_PORT_FIELD, remotePort);
         }
         httpCaller.set(HttpConstants.REMOTE_STRUCT_FIELD, remote);
@@ -1047,10 +1051,6 @@ public class HttpUtil {
                 reqMsg.getHeader(HttpHeaderNames.EXPECT.toString())) || statusCode == 100;
     }
 
-    public static MapValue getResourceConfigAnnotation(AttachedFunction resource, String pkgPath) {
-        return (MapValue) resource.getAnnotation(pkgPath, HttpConstants.ANN_NAME_RESOURCE_CONFIG);
-    }
-
     public static MapValue getTransactionConfigAnnotation(AttachedFunction resource, String transactionPackagePath) {
         return (MapValue) resource.getAnnotation(transactionPackagePath,
                                                  TransactionConstants.ANN_NAME_TRX_PARTICIPANT_CONFIG);
@@ -1144,9 +1144,8 @@ public class HttpUtil {
      * @return the Response struct
      */
     public static ObjectValue createResponseStruct(HttpCarbonMessage httpCarbonMessage) {
-        ObjectValue responseObj = BallerinaValues.createObjectValue(HttpConstants.PROTOCOL_HTTP_PKG_ID,
-                                                                    HttpConstants.RESPONSE);
-        ObjectValue entity = BallerinaValues.createObjectValue(PROTOCOL_MIME_PKG_ID, HttpConstants.ENTITY);
+        ObjectValue responseObj = ValueCreatorUtils.createResponseObject();
+        ObjectValue entity = ValueCreatorUtils.createEntityObject();
 
         HttpUtil.populateInboundResponse(responseObj, entity, httpCarbonMessage);
         return responseObj;
@@ -1266,6 +1265,9 @@ public class HttpUtil {
         List<Parameter> clientParams = new ArrayList<>();
         if (disableSslValidation) {
             sslConfiguration.disableSsl();
+            return;
+        } else if (StringUtils.isEmpty(trustCerts) && trustStore == null) {
+            sslConfiguration.useJavaDefaults();
             return;
         }
         if (trustStore != null && StringUtils.isNotBlank(trustCerts)) {
@@ -1684,6 +1686,18 @@ public class HttpUtil {
         String serviceTypeName = balService.getType().getName();
         int serviceIndex = serviceTypeName.lastIndexOf("$$service$");
         return serviceTypeName.substring(0, serviceIndex);
+    }
+
+    public static ErrorValue createHttpError(String reason, String errorName, String reasonType, String errorMsg) {
+        BType detailType = BValueCreator.createRecordValue(new BPackage(PACKAGE, MODULE), HTTP_ERROR_DETAIL_RECORD)
+                .getType();
+        int mask = TypeFlags.asMask(TypeFlags.ANYDATA, TypeFlags.PURETYPE);
+        Set<Object> valueSpace = new HashSet<>();
+        valueSpace.add(reason);
+        return BallerinaErrors.createError(
+                new BErrorType(errorName, new BPackage(PACKAGE, MODULE, HTTP_MODULE_VERSION),
+                               new BFiniteType(REASON_RECORD, valueSpace, mask), detailType),
+                reasonType, errorMsg);
     }
 
     private HttpUtil() {

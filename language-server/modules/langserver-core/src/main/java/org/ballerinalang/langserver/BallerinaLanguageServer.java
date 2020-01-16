@@ -37,6 +37,8 @@ import org.ballerinalang.langserver.extensions.ballerina.project.BallerinaProjec
 import org.ballerinalang.langserver.extensions.ballerina.project.BallerinaProjectServiceImpl;
 import org.ballerinalang.langserver.extensions.ballerina.symbol.BallerinaSymbolService;
 import org.ballerinalang.langserver.extensions.ballerina.symbol.BallerinaSymbolServiceImpl;
+import org.ballerinalang.langserver.extensions.ballerina.syntaxhighlighter.BallerinaSyntaxHighlightService;
+import org.ballerinalang.langserver.extensions.ballerina.syntaxhighlighter.BallerinaSyntaxHighlightServiceImpl;
 import org.ballerinalang.langserver.extensions.ballerina.traces.BallerinaTraceService;
 import org.ballerinalang.langserver.extensions.ballerina.traces.BallerinaTraceServiceImpl;
 import org.ballerinalang.langserver.extensions.ballerina.traces.Listener;
@@ -47,6 +49,7 @@ import org.eclipse.lsp4j.ExecuteCommandOptions;
 import org.eclipse.lsp4j.InitializeParams;
 import org.eclipse.lsp4j.InitializeResult;
 import org.eclipse.lsp4j.ServerCapabilities;
+import org.eclipse.lsp4j.SignatureHelpOptions;
 import org.eclipse.lsp4j.TextDocumentClientCapabilities;
 import org.eclipse.lsp4j.TextDocumentSyncKind;
 import org.eclipse.lsp4j.services.TextDocumentService;
@@ -76,6 +79,7 @@ public class BallerinaLanguageServer implements ExtendedLanguageServer, Extended
     private Listener ballerinaTraceListener;
     private BallerinaSymbolService ballerinaSymbolService;
     private BallerinaFragmentService ballerinaFragmentService;
+    private BallerinaSyntaxHighlightService ballerinaSyntaxHighlightService;
     private int shutdown = 1;
 
     public BallerinaLanguageServer() {
@@ -99,7 +103,8 @@ public class BallerinaLanguageServer implements ExtendedLanguageServer, Extended
         this.ballerinaTraceService = new BallerinaTraceServiceImpl(lsGlobalContext);
         this.ballerinaTraceListener = new Listener(this.ballerinaTraceService);
         this.ballerinaSymbolService = new BallerinaSymbolServiceImpl(lsGlobalContext);
-        this.ballerinaFragmentService = new BallerinaFragmentServiceImpl(lsGlobalContext);
+        this.ballerinaFragmentService = new BallerinaFragmentServiceImpl();
+        this.ballerinaSyntaxHighlightService = new BallerinaSyntaxHighlightServiceImpl();
 
         LSAnnotationCache.initiate();
         LSCodeLensesProviderFactory.getInstance().initiate();
@@ -112,7 +117,7 @@ public class BallerinaLanguageServer implements ExtendedLanguageServer, Extended
 
     public CompletableFuture<InitializeResult> initialize(InitializeParams params) {
         final InitializeResult res = new InitializeResult(new ServerCapabilities());
-//        final SignatureHelpOptions signatureHelpOptions = new SignatureHelpOptions(Arrays.asList("(", ","));
+        final SignatureHelpOptions signatureHelpOptions = new SignatureHelpOptions(Arrays.asList("(", ","));
         final List<String> commandList = LSCommandExecutorProvider.getInstance().getCommandsList();
         final ExecuteCommandOptions executeCommandOptions = new ExecuteCommandOptions(commandList);
         final CompletionOptions completionOptions = new CompletionOptions();
@@ -120,10 +125,10 @@ public class BallerinaLanguageServer implements ExtendedLanguageServer, Extended
 
         res.getCapabilities().setCompletionProvider(completionOptions);
         res.getCapabilities().setTextDocumentSync(TextDocumentSyncKind.Full);
-//        res.getCapabilities().setSignatureHelpProvider(signatureHelpOptions);
+        res.getCapabilities().setSignatureHelpProvider(signatureHelpOptions);
         res.getCapabilities().setHoverProvider(true);
         res.getCapabilities().setDocumentSymbolProvider(false);
-        res.getCapabilities().setDefinitionProvider(false);
+        res.getCapabilities().setDefinitionProvider(true);
         res.getCapabilities().setReferencesProvider(false);
         res.getCapabilities().setCodeActionProvider(true);
         res.getCapabilities().setExecuteCommandProvider(executeCommandOptions);
@@ -194,6 +199,11 @@ public class BallerinaLanguageServer implements ExtendedLanguageServer, Extended
     @Override
     public BallerinaTraceService getBallerinaTraceService() {
         return this.ballerinaTraceService;
+    }
+
+    @Override
+    public  BallerinaSyntaxHighlightService getBallerinaSyntaxHighlightService() {
+        return this.ballerinaSyntaxHighlightService;
     }
 
     @Override

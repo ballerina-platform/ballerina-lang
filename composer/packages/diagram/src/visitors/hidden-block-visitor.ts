@@ -11,6 +11,8 @@ export const visitor: Visitor = {
         let hiddenSetNodes: ASTNode[] = [];
         let resetBlock = false;
 
+        node.viewState.hidden = false;
+
         node.statements.forEach((stmt) => {
             if (ASTUtil.isWorker(stmt) || ASTUtil.isWorkerFuture(stmt)) {
                 return;

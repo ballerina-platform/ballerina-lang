@@ -287,7 +287,7 @@ public class JSONGenerator {
                 this.writeStartArray();
                 ArrayValue jsonArray = (ArrayValue) json;
                 for (int i = 0; i < jsonArray.size(); i++) {
-                    this.serialize(jsonArray.getValue(i));
+                    this.serialize(jsonArray.get(i));
                 }
                 this.writeEndArray();
                 break;
@@ -302,6 +302,9 @@ public class JSONGenerator {
                 break;
             case TypeTags.INT_TAG:
                 this.writeNumber(((Number) json).longValue());
+                break;
+            case TypeTags.BYTE_TAG:
+                this.writeNumber(((Number) json).intValue());
                 break;
             case TypeTags.MAP_TAG:
             case TypeTags.JSON_TAG:

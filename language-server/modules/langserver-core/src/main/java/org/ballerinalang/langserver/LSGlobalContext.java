@@ -15,7 +15,7 @@
  */
 package org.ballerinalang.langserver;
 
-import org.ballerinalang.langserver.compiler.LSContext;
+import org.ballerinalang.langserver.compiler.LSContextImpl;
 import org.ballerinalang.langserver.compiler.LSOperation;
 
 import java.util.HashMap;
@@ -26,12 +26,11 @@ import java.util.Map;
  * 
  * @since 0.970.0
  */
-public class LSGlobalContext implements LSContext {
-    private final LSOperation operation;
+public class LSGlobalContext extends LSContextImpl {
     private final Map<Key<?>, Object> props = new HashMap<>();
 
     public LSGlobalContext(LSOperation operation) {
-        this.operation = operation;
+        super(operation);
     }
 
     @Override
@@ -43,10 +42,5 @@ public class LSGlobalContext implements LSContext {
     @SuppressWarnings("unchecked")
     public <V> V get(Key<V> key) {
         return (V) props.get(key);
-    }
-
-    @Override
-    public LSOperation getOperation() {
-        return operation;
     }
 }

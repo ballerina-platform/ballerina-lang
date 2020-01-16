@@ -230,13 +230,13 @@ service serviceHello on testEP {
 }
 
 @http:ServiceConfig {
-    basePath:"/ech[o"
+    basePath:"/ech%5Bo"
 }
 service echo113 on testEP {
 
     @http:ResourceConfig {
         methods:["GET"],
-        path:"/ech[o/{foo}"
+        path:"/ech%5Bo/{foo}"
     }
     resource function productsInfo (http:Caller caller, http:Request req, string foo) {
         http:Response res = new;

@@ -203,8 +203,8 @@ public type MergeSort object {
                     panic err;
                 }
             } else {
-                error err = error("Values of types other than strings and numbers cannot be sorted in fieldIndex:
-                     " + fieldIndex.toString() + ", sortType: " + self.sortTypes[fieldIndex]);
+                error err = error("Values of types other than strings and numbers cannot be sorted in fieldIndex:"
+                                            + fieldIndex.toString() + ", sortType: " + self.sortTypes[fieldIndex]);
                 panic err;
             }
         } else {

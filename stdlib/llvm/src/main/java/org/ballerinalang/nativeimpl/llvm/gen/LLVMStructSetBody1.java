@@ -16,38 +16,43 @@
 
 package org.ballerinalang.nativeimpl.llvm.gen;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.nativeimpl.llvm.FFIUtil;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.bytedeco.javacpp.LLVM;
+import org.bytedeco.javacpp.Pointer;
 import org.bytedeco.javacpp.PointerPointer;
+import org.bytedeco.llvm.LLVM.LLVMTypeRef;
 
+import static org.ballerinalang.model.types.TypeKind.ARRAY;
 import static org.ballerinalang.model.types.TypeKind.INT;
 import static org.ballerinalang.model.types.TypeKind.RECORD;
-import static org.bytedeco.javacpp.LLVM.LLVMStructSetBody;
+import static org.bytedeco.llvm.global.LLVM.LLVMStructSetBody;
 
 /**
  * Auto generated class.
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "llvm",
-        functionName = "LLVMStructSetBody1",
+        functionName = "llvmStructSetBody1",
         args = {
                 @Argument(name = "structTy", type = RECORD, structType = "LLVMTypeRef"),
-                @Argument(name = "elementTypes", type = RECORD, structType = "PointerPointer"),
+                @Argument(name = "elementTypes", type = ARRAY, structType = "PointerPointer"),
                 @Argument(name = "elementCount", type = INT),
                 @Argument(name = "packed", type = INT),
         })
-public class LLVMStructSetBody1 extends BlockingNativeCallableUnit {
+public class LLVMStructSetBody1 {
 
-    @Override
-    public void execute(Context context) {
-        LLVM.LLVMTypeRef structTy = FFIUtil.getRecodeArgumentNative(context, 0);
-        PointerPointer elementTypes = FFIUtil.getRecodeArgumentNative(context, 1);
-        int elementCount = (int) context.getIntArgument(0);
-        int packed = (int) context.getIntArgument(1);
-        LLVMStructSetBody(structTy, elementTypes, elementCount, packed);
+    public static void llvmStructSetBody1(Strand strand, MapValue<String, Object> structTy,
+            ArrayValue elementTypes, long elementCount, long packed) {
+        LLVMTypeRef structTyRef = (LLVMTypeRef) FFIUtil.getRecodeArgumentNative(structTy);
+        Pointer[] elementTypesRef = FFIUtil.getRecodeArrayArgumentNative(elementTypes);
+        int elementCountRef = (int) elementCount;
+        int packedRef = (int) packed;
+
+        PointerPointer pointerPointer = new PointerPointer(elementTypesRef);
+        LLVMStructSetBody(structTyRef, pointerPointer, elementCountRef, packedRef);
     }
 }

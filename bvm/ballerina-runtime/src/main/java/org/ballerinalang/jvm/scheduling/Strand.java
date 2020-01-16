@@ -66,7 +66,7 @@ public class Strand {
     WaitContext waitContext;
 
     private Map<String, Object> globalProps;
-    private TransactionLocalContext transactionStrandContext;
+    public TransactionLocalContext transactionLocalContext;
     private State state;
     private final ReentrantLock strandLock;
 
@@ -114,19 +114,11 @@ public class Strand {
     }
 
     public boolean isInTransaction() {
-        return this.transactionStrandContext != null;
-    }
-
-    public void setLocalTransactionContext(TransactionLocalContext transactionLocalContext) {
-        this.transactionStrandContext = transactionLocalContext;
-    }
-
-    public TransactionLocalContext getLocalTransactionContext() {
-        return this.transactionStrandContext;
+        return this.transactionLocalContext != null;
     }
 
     public void removeLocalTransactionContext() {
-        this.transactionStrandContext = null;
+        this.transactionLocalContext = null;
     }
 
     public ErrorValue handleFlush(ChannelDetails[] channels) throws Throwable {

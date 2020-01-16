@@ -14,7 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/cache;
 import ballerina/crypto;
 import ballerina/encoding;
 import ballerina/io;
@@ -29,13 +28,13 @@ import ballerina/time;
 # + audience - Expected audience
 # + clockSkewInSeconds - Clock skew in seconds
 # + trustStoreConfig - JWT trust store configurations
-# + jwtCache - Cache used to store parsed JWT information as CachedJwt
+# + jwtCacheConfig - Configurations for the JWT cache
 public type JwtValidatorConfig record {|
     string issuer?;
     string|string[] audience?;
     int clockSkewInSeconds = 0;
     JwtTrustStoreConfig trustStoreConfig?;
-    cache:Cache jwtCache = new(900000, 1000, 0.25);
+    InboundJwtCacheConfig jwtCacheConfig = {};
 |};
 
 # Represents JWT trust store configurations.
@@ -47,13 +46,24 @@ public type JwtTrustStoreConfig record {|
     string certificateAlias;
 |};
 
-# Represents parsed and cached JWT.
+# Represents inbound JWT cache configurations.
+#
+# + capacity - Maximum number of entries allowed
+# + expTimeInSeconds - Time since its last access in which the cache will be expired
+# + evictionFactor - The factor which the entries will be evicted once the cache full
+public type InboundJwtCacheConfig record {|
+    int capacity = 900000;
+    int expTimeInSeconds = 1;
+    float evictionFactor = 0.25;
+|};
+
+# Represents an entry of JWT cache.
 #
 # + jwtPayload - Parsed JWT payload
-# + expiryTime - Expiry time of the JWT
-public type CachedJwt record {|
+# + expTime - Expiry time of the parsed JWT
+public type InboundJwtCacheEntry record {|
     JwtPayload jwtPayload;
-    int expiryTime;
+    int expTime;
 |};
 
 # Validate the given JWT string.
@@ -108,14 +118,26 @@ function getDecodedJwtComponents(string[] encodedJwtComponents) returns @tainted
 
     var decodeResult = encoding:decodeBase64Url(encodedJwtComponents[0]);
     if (decodeResult is byte[]) {
-        jwtHeader = check strings:fromBytes(decodeResult);
+        string|error result = strings:fromBytes(decodeResult);
+
+        if (result is error) {
+            return prepareError(result.reason(), result);
+        }
+
+        jwtHeader = <string> result;
     } else {
         return prepareError("Base64 url decode failed for JWT header.", decodeResult);
     }
 
     decodeResult = encoding:decodeBase64Url(encodedJwtComponents[1]);
     if (decodeResult is byte[]) {
-        jwtPayload = check strings:fromBytes(decodeResult);
+        string|error result = strings:fromBytes(decodeResult);
+
+        if (result is error) {
+            return prepareError(result.reason(), result);
+        }
+
+        jwtPayload = <string> result;
     } else {
         return prepareError("Base64 url decode failed for JWT payload.", decodeResult);
     }
@@ -268,7 +290,12 @@ function validateMandatoryJwtHeaderFields(JwtHeader jwtHeader) returns boolean {
 function validateCertificate(JwtTrustStoreConfig trustStoreConfig) returns boolean|Error {
     var publicKey = crypto:decodePublicKey(trustStoreConfig.trustStore, trustStoreConfig.certificateAlias);
     if (publicKey is crypto:PublicKey) {
-        time:Time currTimeInGmt = check time:toTimeZone(time:currentTime(), "GMT");
+        time:Time|error result = time:toTimeZone(time:currentTime(), "GMT");
+        if (result is error) {
+            return prepareError(result.reason(), result);
+        }
+
+        time:Time currTimeInGmt = <time:Time> result;
         int currTimeInGmtMillis = currTimeInGmt.time;
 
         var certificate = publicKey?.certificate;

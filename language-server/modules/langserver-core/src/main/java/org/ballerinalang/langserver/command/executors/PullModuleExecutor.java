@@ -18,6 +18,7 @@ package org.ballerinalang.langserver.command.executors;
 import com.google.gson.JsonObject;
 import org.apache.commons.io.IOUtils;
 import org.ballerinalang.annotation.JavaSPIService;
+import org.ballerinalang.langserver.client.ExtendedLanguageClient;
 import org.ballerinalang.langserver.command.ExecuteCommandKeys;
 import org.ballerinalang.langserver.command.LSCommandExecutor;
 import org.ballerinalang.langserver.command.LSCommandExecutorException;
@@ -26,7 +27,6 @@ import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.diagnostic.DiagnosticsHelper;
 import org.eclipse.lsp4j.MessageType;
-import org.eclipse.lsp4j.services.LanguageClient;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -79,7 +79,7 @@ public class PullModuleExecutor implements LSCommandExecutor {
             // Execute `ballerina pull` command
             String ballerinaCmd = Paths.get(CommonUtil.BALLERINA_CMD).toString();
             ProcessBuilder processBuilder = new ProcessBuilder(ballerinaCmd, "pull", moduleName);
-            LanguageClient client = context.get(ExecuteCommandKeys.LANGUAGE_SERVER_KEY).getClient();
+            ExtendedLanguageClient client = context.get(ExecuteCommandKeys.LANGUAGE_SERVER_KEY).getClient();
             DiagnosticsHelper diagnosticsHelper = context.get(ExecuteCommandKeys.DIAGNOSTICS_HELPER_KEY);
             try {
                 notifyClient(client, MessageType.Info, "Pulling '" + moduleName + "' from the Ballerina Central...");

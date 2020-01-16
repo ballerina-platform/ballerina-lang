@@ -20,19 +20,23 @@ package org.ballerinalang.nats.basic.consumer;
 
 import io.nats.client.Connection;
 import io.nats.client.Dispatcher;
-import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.nats.Constants;
 import org.ballerinalang.nats.Utils;
+import org.ballerinalang.nats.observability.NatsMetricsUtil;
+import org.ballerinalang.nats.observability.NatsObservabilityConstants;
+import org.ballerinalang.nats.observability.NatsTracingUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.List;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import static org.ballerinalang.nats.Constants.BASIC_SUBSCRIPTION_LIST;
 import static org.ballerinalang.nats.Constants.DISPATCHER_LIST;
 
 /**
@@ -40,34 +44,38 @@ import static org.ballerinalang.nats.Constants.DISPATCHER_LIST;
  *
  * @since 0.995
  */
-@BallerinaFunction(
-        orgName = Constants.ORG_NAME,
-        packageName = Constants.NATS,
-        functionName = "immediateStop",
-        receiver = @Receiver(type = TypeKind.OBJECT,
-                structType = Constants.NATS_LISTENER,
-                structPackage = Constants.NATS_PACKAGE),
-        isPublic = true
-)
 public class ImmediateStop {
 
     private static final Logger LOG = LoggerFactory.getLogger(ImmediateStop.class);
 
-    public static void immediateStop(Strand strand, ObjectValue listenerObject) {
+    public static void basicImmediateStop(ObjectValue listenerObject) {
+        NatsTracingUtil.traceResourceInvocation(Scheduler.getStrand(), listenerObject);
         ObjectValue connectionObject = (ObjectValue) listenerObject.get(Constants.CONNECTION_OBJ);
         if (connectionObject == null) {
+            NatsMetricsUtil.reportConsumerError(NatsObservabilityConstants.ERROR_TYPE_CLOSE);
             LOG.debug("Connection object reference does not exist. Possibly the connection is already closed.");
             return;
         }
         Connection natsConnection =
                 (Connection) connectionObject.getNativeData(Constants.NATS_CONNECTION);
         if (natsConnection == null) {
+            NatsMetricsUtil.reportConsumerError(NatsObservabilityConstants.ERROR_TYPE_CLOSE);
             LOG.debug("NATS connection does not exist. Possibly the connection is already closed.");
             return;
         }
         @SuppressWarnings("unchecked")
-        List<Dispatcher> dispatcherList = (List<Dispatcher>) listenerObject.getNativeData(DISPATCHER_LIST);
-        dispatcherList.forEach(natsConnection::closeDispatcher);
+        ConcurrentHashMap<String, Dispatcher> dispatcherList = (ConcurrentHashMap<String, Dispatcher>)
+                listenerObject.getNativeData(DISPATCHER_LIST);
+        Iterator dispatchers = dispatcherList.entrySet().iterator();
+        while (dispatchers.hasNext()) {
+            Map.Entry pair = (Map.Entry) dispatchers.next();
+            natsConnection.closeDispatcher((Dispatcher) pair.getValue());
+            dispatchers.remove(); // avoids a ConcurrentModificationException
+        }
+        ArrayList<String> subscriptionsList =
+                (ArrayList<String>) listenerObject
+                        .getNativeData(BASIC_SUBSCRIPTION_LIST);
+        NatsMetricsUtil.reportBulkUnsubscription(natsConnection.getConnectedUrl(), subscriptionsList);
 
         int clientsCount =
                 ((AtomicInteger) connectionObject.getNativeData(Constants.CONNECTED_CLIENTS)).decrementAndGet();
@@ -78,6 +86,9 @@ public class ImmediateStop {
                 natsConnection.close();
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
+                NatsMetricsUtil.reportConsumerError(natsConnection.getConnectedUrl(),
+                                                    NatsObservabilityConstants.UNKNOWN,
+                                                    NatsObservabilityConstants.ERROR_TYPE_CLOSE);
                 throw Utils.createNatsError("Listener interrupted while closing NATS connection");
             }
         }

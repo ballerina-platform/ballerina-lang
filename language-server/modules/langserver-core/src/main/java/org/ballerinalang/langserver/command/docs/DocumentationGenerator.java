@@ -15,7 +15,7 @@
  */
 package org.ballerinalang.langserver.command.docs;
 
-import org.ballerinalang.langserver.common.CommonKeys;
+import org.ballerinalang.langserver.codeaction.CodeActionNodeType;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.model.elements.Flag;
@@ -100,18 +100,20 @@ public class DocumentationGenerator {
                                                                           BLangPackage bLangPkg, int line,
                                                                           LSContext context) {
         DocAttachmentInfo docAttachmentInfo = null;
-        switch (topLevelNodeType) {
-            case CommonKeys.FUNCTION_KEYWORD_KEY:
+        CodeActionNodeType codeActionNodeType = CodeActionNodeType.getNodeTypeByName(topLevelNodeType);
+        switch (codeActionNodeType) {
+            case FUNCTION:
+            case OBJECT_FUNCTION:
                 docAttachmentInfo = getFunctionDocumentationByPosition(bLangPkg, line, context);
                 break;
-            case CommonKeys.SERVICE_KEYWORD_KEY:
+            case SERVICE:
                 docAttachmentInfo = getServiceDocumentationByPosition(bLangPkg, line, context);
                 break;
-            case CommonKeys.RESOURCE_KEYWORD_KEY:
+            case RESOURCE:
                 docAttachmentInfo = getResourceDocumentationByPosition(bLangPkg, line, context);
                 break;
-            case CommonKeys.RECORD_KEYWORD_KEY:
-            case CommonKeys.OBJECT_KEYWORD_KEY:
+            case RECORD:
+            case OBJECT:
                 docAttachmentInfo = getTypeNodeDocumentationByPosition(bLangPkg, line, context);
                 break;
             default:

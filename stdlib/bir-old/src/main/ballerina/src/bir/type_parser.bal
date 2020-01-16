@@ -91,8 +91,8 @@ public type TypeParser object {
 
     function parseTypeAndAddToCp() returns BType {
         if (self.cpI < self.cp.types.length()){
-            var parsedType = self.cp.types[self.cpI];
-            if (parsedType is BType) {
+            BType? parsedType = self.cp.types[self.cpI];
+            if !(parsedType is ()) {
                 return parsedType;
             }
         }
@@ -106,6 +106,7 @@ public type TypeParser object {
         // Ignoring name and flags
         _ = self.readInt32();
         _ = self.readInt32();
+        int typeFlags = self.readInt32();
         if (typeTag == self.TYPE_TAG_ANY){
             return TYPE_ANY;
         } else if (typeTag == self.TYPE_TAG_ANYDATA ){
@@ -129,9 +130,9 @@ public type TypeParser object {
         } else if (typeTag == self.TYPE_TAG_TYPEDESC) {
             return self.parseTypedescType();
         } else if (typeTag == self.TYPE_TAG_UNION){
-            return self.parseUnionType();
+            return self.parseUnionType(typeFlags);
         } else if (typeTag == self.TYPE_TAG_TUPLE){
-            return self.parseTupleType();
+            return self.parseTupleType(typeFlags);
         } else if (typeTag == self.TYPE_TAG_ARRAY){
             return self.parseArrayType();
         } else if (typeTag == self.TYPE_TAG_MAP){
@@ -143,7 +144,7 @@ public type TypeParser object {
         } else if (typeTag == self.TYPE_TAG_INVOKABLE){
             return self.parseInvokableType();
         } else if (typeTag == self.TYPE_TAG_RECORD){
-            return self.parseRecordType();
+            return self.parseRecordType(typeFlags);
         } else if (typeTag == self.TYPE_TAG_OBJECT){
             return self.parseObjectType();
         } else if (typeTag == self.TYPE_TAG_ERROR){
@@ -155,7 +156,7 @@ public type TypeParser object {
         } else if (typeTag == self.TYPE_TAG_XML){
             return TYPE_XML;
         } else if(typeTag == self.TYPE_TAG_FINITE) {
-            return self.parseFiniteType();
+            return self.parseFiniteType(typeFlags);
         } else if (typeTag == self.TYPE_TAG_HANDLE){
             return <BTypeHandle> {};
         }
@@ -200,14 +201,14 @@ public type TypeParser object {
         return obj;
     }
 
-    function parseUnionType() returns BUnionType {
-        BUnionType obj = { members:[] }; 
+    function parseUnionType(int typeFlags) returns BUnionType {
+        BUnionType obj = { members:[], typeFlags:typeFlags }; 
         obj.members = self.parseTypes();
         return obj;
     }
 
-    function parseTupleType() returns BTupleType {
-        BTupleType obj = { tupleTypes:[] };
+    function parseTupleType(int typeFlags) returns BTupleType {
+        BTupleType obj = { tupleTypes:[], typeFlags:typeFlags };
         obj.tupleTypes = self.parseTypes();
         boolean restPresent = self.readBoolean();
         if (restPresent) {
@@ -216,18 +217,25 @@ public type TypeParser object {
         return obj;
     }
 
-    function parseInvokableType() returns BInvokableType {
-        BInvokableType obj = { paramTypes:[], retType: TYPE_NIL };
-        obj.paramTypes = self.parseTypes();
-        obj.retType = self.parseTypeCpRef();
-        return obj;
-    }
+     function parseInvokableType() returns BInvokableType {
+                BInvokableType obj = { paramTypes:[], retType: TYPE_NIL };
+                obj.paramTypes = self.parseTypes();
+                boolean hasRest = self.readBoolean();
+                if (hasRest) {
+                    obj.restType = self.parseTypeCpRef();
+                }
+                obj.retType = self.parseTypeCpRef();
+                return obj;
+     }
 
-    function parseRecordType() returns BRecordType {
-        BRecordType obj = { moduleId:self.cp.packages[self.readInt32()], name:{value:self.readStringCpRef()},
-                                sealed:self.readBoolean(),
-                    restFieldType: TYPE_NIL, fields: [],
-                    initFunction: {funcType: {}, flags: PRIVATE } };
+    function parseRecordType(int typeFlags) returns BRecordType {
+        BRecordType obj = { moduleId: self.cp.packages[self.readInt32()],
+                            name: { value: self.readStringCpRef() },
+                            sealed: self.readBoolean(),
+                            restFieldType: TYPE_NIL,
+                            fields: [],
+                            initFunction: { funcType: {}, flags: PRIVATE },
+                            typeFlags: typeFlags };
         self.cp.types[self.cpI] = obj;
         obj.restFieldType = self.parseTypeCpRef();
         obj.fields = self.parseRecordFields();
@@ -283,10 +291,15 @@ public type TypeParser object {
             isAbstract: isAbstract,
             fields: [],
             attachedFunctions: [],
-            constructor: () };
+            constructor: (),
+            generatedConstructor: () };
         self.cp.types[self.cpI] = obj;
         obj.fields = self.parseObjectFields();
 
+        boolean generatedConstructorPresent = self.readBoolean();
+        if (generatedConstructorPresent) {
+            obj.generatedConstructor = self.readAttachFunction();
+        }
         boolean constructorPresent = self.readBoolean();
         if (constructorPresent) {
             obj.constructor = self.readAttachFunction();
@@ -378,9 +391,11 @@ public type TypeParser object {
         panic err;
     }
 
-    function parseFiniteType() returns BFiniteType {
+    function parseFiniteType(int typeFlags) returns BFiniteType {
         BFiniteType finiteType = {name: { value: self.readStringCpRef()},
-                                    flags:self.readInt32(), values:[]};
+                                    flags:self.readInt32(),
+                                    values:[],
+                                    typeFlags:typeFlags};
         int size = self.readInt32();
         int c = 0;
         while c < size {

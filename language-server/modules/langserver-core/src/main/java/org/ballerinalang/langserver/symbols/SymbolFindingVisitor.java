@@ -22,7 +22,7 @@ import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.common.LSNodeVisitor;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
-import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
+import org.ballerinalang.langserver.compiler.LSContext;
 import org.eclipse.lsp4j.DocumentSymbol;
 import org.eclipse.lsp4j.Location;
 import org.eclipse.lsp4j.Position;
@@ -57,7 +57,7 @@ public class SymbolFindingVisitor extends LSNodeVisitor {
     private String uri;
     private String query;
 
-    public SymbolFindingVisitor(LSServiceOperationContext documentServiceContext) {
+    public SymbolFindingVisitor(LSContext documentServiceContext) {
         this.symbols = documentServiceContext.get(DocumentServiceKeys.SYMBOL_LIST_KEY);
         this.uri = documentServiceContext.get(DocumentServiceKeys.FILE_URI_KEY);
         this.query = documentServiceContext.get(DocumentServiceKeys.SYMBOL_QUERY);

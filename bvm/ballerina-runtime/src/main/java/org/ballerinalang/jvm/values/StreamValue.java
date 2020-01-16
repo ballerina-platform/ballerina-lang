@@ -22,6 +22,8 @@ import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.streams.StreamSubscriptionManager;
 import org.ballerinalang.jvm.types.BStreamType;
 import org.ballerinalang.jvm.types.BType;
+import org.ballerinalang.jvm.values.api.BFunctionPointer;
+import org.ballerinalang.jvm.values.api.BStream;
 
 import java.util.Map;
 import java.util.UUID;
@@ -36,7 +38,7 @@ import java.util.UUID;
  * 
  * @since 0.995.0
  */
-public class StreamValue implements RefValue {
+public class StreamValue implements RefValue, BStream {
 
     private BType type;
     private BType constraintType;
@@ -48,6 +50,7 @@ public class StreamValue implements RefValue {
      */
     public String streamId;
 
+    @Deprecated
     public StreamValue(BType type) {
         this.streamSubscriptionManager = StreamSubscriptionManager.getInstance();
         this.constraintType = ((BStreamType) type).getConstrainedType();
@@ -59,7 +62,10 @@ public class StreamValue implements RefValue {
         return streamId;
     }
 
-    public String stringValue(Strand strand) {
+    /**
+     * {@inheritDoc}
+     */
+    public String stringValue() {
         return "stream " + streamId + " " + getType().toString();
     }
 
@@ -90,6 +96,7 @@ public class StreamValue implements RefValue {
      * @param strand the strand in which the data being published
      * @param data the data to publish to the stream
      */
+    @Deprecated
     public void publish(Strand strand, Object data) {
         streamSubscriptionManager.sendMessage(this, strand, data);
     }
@@ -100,7 +107,13 @@ public class StreamValue implements RefValue {
      * @param functionPointer represents the function pointer reference for the function to be invoked on receiving
      *                        messages
      */
-    public void subscribe(FPValue<Object[], Object> functionPointer) {
-        streamSubscriptionManager.registerMessageProcessor(this, functionPointer);
+    @Deprecated
+    public void subscribe(BFunctionPointer<Object[], Object> functionPointer) {
+        streamSubscriptionManager.registerMessageProcessor(this, (FPValue<Object[], Object>) functionPointer);
+    }
+
+    @Override
+    public String toString() {
+        return stringValue();
     }
 }

@@ -103,9 +103,11 @@ public class StatementContextProvider extends LSCompletionProvider {
                     .filterItems(context);
             completionItems.addAll(this.getCompletionItemList(itemList, context));
             completionItems.addAll(this.getTypeguardDestructuredItems(filteredList, context));
+        } else {
+            return this.getProvider(InvocationArgsContextProvider.class).getCompletions(context);
         }
 
-        filteredList.removeIf(this.attachedOrSelfKeywordFilter());
+        filteredList.removeIf(this.attachedSymbolFilter());
         completionItems.addAll(this.getCompletionItemList(filteredList, context));
         completionItems.addAll(this.getPackagesCompletionItems(context));
         // Now we need to sort the completion items and populate the completion items specific to the scope owner
@@ -136,6 +138,8 @@ public class StatementContextProvider extends LSCompletionProvider {
         completionItems.add(Snippet.DEF_ERROR.get().build(context));
         // Add the checkpanic keyword
         completionItems.add(Snippet.KW_CHECK_PANIC.get().build(context));
+        // Add the final keyword
+        completionItems.add(Snippet.KW_FINAL.get().build(context));
 
         return completionItems;
     }

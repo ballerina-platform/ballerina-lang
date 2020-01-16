@@ -484,10 +484,6 @@ public abstract class BLangNodeVisitor {
         throw new AssertionError();
     }
 
-    public void visit(BLangInvocation.BLangBuiltInMethodInvocation builtInMethodInvocation) {
-        throw new AssertionError();
-    }
-
     public void visit(BLangTernaryExpr ternaryExpr) {
         throw new AssertionError();
     }
@@ -874,6 +870,14 @@ public abstract class BLangNodeVisitor {
     }
 
     public void visit(BLangRecordLiteral.BLangRecordKeyValue recordKeyValue) {
+        throw new AssertionError();
+    }
+
+    public void visit(BLangMarkdownReferenceDocumentation bLangMarkdownReferenceDocumentation) {
+        throw new AssertionError();
+    }
+
+    public void visit(BLangWaitForAllExpr.BLangWaitKeyValue waitKeyValue) {
         throw new AssertionError();
     }
 }

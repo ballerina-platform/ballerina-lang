@@ -92,7 +92,7 @@ public class TestCommand implements BLauncherCmd {
     @CommandLine.Option(names = {"--all", "-a"}, description = "Build or compile all the modules of the project.")
     private boolean buildAll;
 
-    @CommandLine.Option(names = {"--off-line"}, description = "Builds/Compiles offline without downloading " +
+    @CommandLine.Option(names = {"--offline"}, description = "Builds/Compiles offline without downloading " +
             "dependencies.")
     private boolean offline;
 
@@ -102,11 +102,18 @@ public class TestCommand implements BLauncherCmd {
     @CommandLine.Parameters
     private List<String> argList;
 
+    @CommandLine.Option(names = {"--native"}, hidden = true,
+            description = "Compile Ballerina program to a native binary")
+    private boolean nativeBinary;
+
     @CommandLine.Option(names = "--dump-bir", hidden = true)
     private boolean dumpBIR;
 
     @CommandLine.Option(names = "--dump-llvm-ir", hidden = true)
     private boolean dumpLLVMIR;
+
+    @CommandLine.Option(names = "--no-optimize-llvm", hidden = true)
+    private boolean noOptimizeLLVM;
 
     @CommandLine.Option(names = {"--help", "-h"}, hidden = true)
     private boolean helpFlag;
@@ -117,9 +124,6 @@ public class TestCommand implements BLauncherCmd {
     // --debug flag is handled by ballerina.sh/ballerina.bat. It will launch ballerina with java debug options.
     @CommandLine.Option(names = "--debug", description = "start Ballerina in remote debugging mode")
     private String debugPort;
-
-    @CommandLine.Option(names = {"--config"}, description = "Path to the configuration file when running tests.")
-    private String configFilePath;
 
     public void execute() {
         if (this.helpFlag) {
@@ -136,7 +140,7 @@ public class TestCommand implements BLauncherCmd {
             CommandUtil.printError(this.errStream,
                     "too many arguments.",
                     "ballerina test [--offline] [--sourceroot <path>] [--experimental] [--skip-lock]\n" +
-                           "                      [--config <config_file>] [<module-name> | -a | --all]",
+                           "                      [<module-name> | -a | --all]  [--] [(--key=value)...]",
                     false);
 
             CommandUtil.exitError(this.exitWhenFinish);
@@ -268,7 +272,9 @@ public class TestCommand implements BLauncherCmd {
                 .addTask(new CreateBaloTask(), isSingleFileBuild)   // create the balos for modules(projects only)
                 .addTask(new CreateBirTask())   // create the bir
                 .addTask(new CopyNativeLibTask(skipCopyLibsFromDist))    // copy the native libs(projects only)
-                .addTask(new CreateJarTask(this.dumpBIR))    // create the jar
+                // create the jar.
+                .addTask(new CreateJarTask(this.dumpBIR, this.skipCopyLibsFromDist, this.nativeBinary, this.dumpLLVMIR,
+                        this.noOptimizeLLVM))
                 .addTask(new CopyModuleJarTask(skipCopyLibsFromDist))
                 .addTask(new RunTestsTask()) // run tests
                 .build();
@@ -292,7 +298,8 @@ public class TestCommand implements BLauncherCmd {
 
     @Override
     public void printUsage(StringBuilder out) {
-        out.append("  ballerina test [<module-name>] \n");
+        out.append(" ballerina test [--offline] [--sourceroot <path>] [--experimental] [--skip-lock]\n" +
+                           "[<module-name> | -a | --all] [--] [(--key=value)...]\n");
     }
 
     @Override

@@ -26,6 +26,7 @@ import org.ballerinalang.jvm.values.StreamValue;
  *
  * @since 0.995.0
  */
+@Deprecated
 public class DefaultStreamSubscription extends StreamSubscription {
 
     private StreamValue stream;
@@ -40,7 +41,7 @@ public class DefaultStreamSubscription extends StreamSubscription {
 
     public void execute(Object[] fpParams) {
         //Cannot use scheduler, as the order of events should be preserved
-        functionPointer.accept(fpParams);
+        functionPointer.call(fpParams);
     }
 
     public StreamValue getStream() {

@@ -46,8 +46,8 @@ function testBatchUpdate(string jdbcURL) returns [int[], jdbc:Error?, int, int] 
     para5 = {sqlType: jdbc:TYPE_VARCHAR, value: "Colombo"};
     jdbc:Parameter?[] parameters2 = [para1, para2, para3, para4, para5];
 
-    jdbc:BatchUpdateResult ret = testDB->batchUpdate("Insert into Customers (firstName,lastName,registrationID,
-                                     creditLimit,country) values (?,?,?,?,?)", false, parameters1, parameters2);
+    jdbc:BatchUpdateResult ret = testDB->batchUpdate("Insert into Customers (firstName,lastName,registrationID," +
+                                     "creditLimit,country) values (?,?,?,?,?)", false, parameters1, parameters2);
     anydata[]? generatedKeys = ret.generatedKeys["CUSTOMERID"];
     int key1 = -1;
     int key2 = -1;
@@ -95,8 +95,8 @@ function testBatchUpdateWithValues(string jdbcURL) returns int[] {
     //Batch 2
     myBatchType?[] parameters2 = ["John", "Gates", 45, 2400.5, "NY"];
 
-    jdbc:BatchUpdateResult ret = testDB->batchUpdate("Insert into Customers (firstName,lastName,registrationID,
-                            creditLimit,country) values (?,?,?,?,?)", false, parameters1, parameters2);
+    jdbc:BatchUpdateResult ret = testDB->batchUpdate("Insert into Customers (firstName,lastName,registrationID," +
+                            "creditLimit,country) values (?,?,?,?,?)", false, parameters1, parameters2);
     checkpanic testDB.stop();
     return ret.updatedRowCount;
 }
@@ -121,8 +121,8 @@ function testBatchUpdateWithVariables(string jdbcURL) returns int[] {
     //Batch 2
     myBatchType?[] parameters2 = ["John", "Gates", 45, 2400.5, "NY"];
 
-    jdbc:BatchUpdateResult ret = testDB->batchUpdate("Insert into Customers (firstName,lastName,registrationID,
-                            creditLimit,country) values (?,?,?,?,?)", false, parameters1, parameters2);
+    jdbc:BatchUpdateResult ret = testDB->batchUpdate("Insert into Customers (firstName,lastName,registrationID," +
+                            "creditLimit,country) values (?,?,?,?,?)", false, parameters1, parameters2);
     checkpanic testDB.stop();
     return ret.updatedRowCount;
 }
@@ -171,8 +171,8 @@ function testBatchUpdateWithFailure(string jdbcURL) returns @tainted [int[], int
     para5 = {sqlType: jdbc:TYPE_VARCHAR, value: "Colombo"};
     jdbc:Parameter?[] parameters4 = [para0, para1, para2, para3, para4, para5];
 
-    jdbc:BatchUpdateResult ret = testDB->batchUpdate("Insert into Customers (customerId, firstName,lastName,registrationID,
-        creditLimit, country) values (?,?,?,?,?,?)", false, parameters1, parameters2, parameters3, parameters4);
+    jdbc:BatchUpdateResult ret = testDB->batchUpdate("Insert into Customers (customerId, firstName,lastName,registrationID," +
+        "creditLimit, country) values (?,?,?,?,?,?)", false, parameters1, parameters2, parameters3, parameters4);
     int[] updateCount = ret.updatedRowCount;
     var dt = testDB->select("SELECT count(*) as countval from Customers where customerId in (111,222,333)",
         ResultCount);
@@ -194,8 +194,8 @@ function testBatchUpdateWithNullParam(string jdbcURL) returns int[] {
         poolOptions: {maximumPoolSize: 1}
     });
 
-    jdbc:BatchUpdateResult ret = testDB->batchUpdate("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
-                                     values ('Alex','Smith',20,3400.5,'Colombo')", false);
+    jdbc:BatchUpdateResult ret = testDB->batchUpdate("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)" +
+                                     "values ('Alex','Smith',20,3400.5,'Colombo')", false);
     int[] updateCount = ret.updatedRowCount;
     checkpanic testDB.stop();
     return updateCount;
@@ -227,8 +227,8 @@ function testFailedBatchUpdate(string jdbcURL) returns [string, int, int] {
     para5 = {sqlType: jdbc:TYPE_VARCHAR, value: "Colombo"};
     jdbc:Parameter?[] parameters2 = [para1, para2, para3, para4, para5];
 
-    jdbc:BatchUpdateResult x = testDB->batchUpdate("Insert into CustData (firstName,lastName,registrationID,
-                                     creditLimit,country) values (?,?,?,?,?)", false, parameters1, parameters2);
+    jdbc:BatchUpdateResult x = testDB->batchUpdate("Insert into CustData (firstName,lastName,registrationID," +
+                                     "creditLimit,country) values (?,?,?,?,?)", false, parameters1, parameters2);
 
     int batch1Status = 0;
     int batch2Status = 0;
@@ -274,8 +274,8 @@ function testErrorWithBatchUpdate(string jdbcURL) returns @tainted [string, stri
     para5 = {sqlType: jdbc:TYPE_VARCHAR, value: "Colombo"};
     jdbc:Parameter?[] parameters2 = [para1, para2, para3, para4, para5];
 
-    jdbc:BatchUpdateResult x = testDB->batchUpdate("Insert into CustData (firstName,lastName,registrationID,creditLimit,country)
-                                     values (?,?,?,?,?)", false, parameters1, parameters2);
+    jdbc:BatchUpdateResult x = testDB->batchUpdate("Insert into CustData (firstName,lastName,registrationID,creditLimit,country)" +
+                                     "values (?,?,?,?,?)", false, parameters1, parameters2);
 
     string returnVal = "";
     int[] updateCount = x.updatedRowCount;

@@ -5,18 +5,20 @@ The update operation - Creating table and procedures:
 Create student table status: 0
 Stored procedure with IN param creation status: 0
 Stored procedure with INOUT/OUT param creation status: 0
+Stored procedure with result set return status: 0
 
 The call operation - With IN params
 Call operation with IN params successful
 
 The call operation - With INOUT/OUT params
 Call operation with INOUT and OUT params successful
-Student ID of the student with age = 20: 1
-Student count with age = 20: 1
+Student ID of the student with age of 20: 1
+Student count with age of 20: 1
 Data in students table:
-Student:1|George|20
+id=1 age=20 name=George
 
 The update operation - Drop the tables and procedures
 Drop table student status: 0
 Drop stored procedure INSERTDATA status: 0
 Drop stored procedure GETCOUNT status: 0
+Drop stored procedure GETSTUDENTS status: 0

@@ -15,10 +15,10 @@
 // under the License.
 
 import ballerina/lang.'string as strings;
+import ballerinax/java;
 
 # Represents a WebSocket connection in Ballerina. This includes all connection-oriented operations.
 type WebSocketConnector object {
-    private boolean isReady = false;
 
     # Push text to the connection.
     #
@@ -29,35 +29,44 @@ type WebSocketConnector object {
     returns WebSocketError? {
         string text = "";
         if (data is byte[]) {
-            text = check strings:fromBytes(data);
+            string|error result = strings:fromBytes(data);
+
+            if (result is error) {
+                return WsGenericError(message = result.reason(), cause = result);
+            }
+            text = <string> result;
         } else if (data is json) {
             text = data.toJsonString();
         } else {
             text = data.toString();
         }
-        return self.externPushText(text, finalFrame);
+        return externPushText(self, java:fromString(text), finalFrame);
     }
-
-    function externPushText(string text, boolean finalFrame) returns WebSocketError? = external;
 
     # Push binary data to the connection.
     #
     # + data - Binary data to be sent
     # + finalFrame - Set to `true` if this is a final frame of a (long) message
     # + return - `error` if an error occurs when sending
-    public function pushBinary(byte[] data, boolean finalFrame) returns WebSocketError? = external;
+    public function pushBinary(byte[] data, boolean finalFrame) returns WebSocketError? {
+        return externPushBinary(self, data, finalFrame);
+    }
 
     # Ping the connection.
     #
     # + data - Binary data to be sent.
     # + return - `error` if an error occurs when sending
-    public function ping(byte[] data) returns WebSocketError? = external;
+    public function ping(byte[] data) returns WebSocketError? {
+        return externPing(self, data);
+    }
 
     # Send pong message to the connection.
     #
     # + data - Binary data to be sent
     # + return - `error` if an error occurs when sending
-    public function pong(byte[] data) returns WebSocketError? = external;
+    public function pong(byte[] data) returns WebSocketError? {
+        return externPong(self, data);
+    }
 
     # Close the connection.
     #
@@ -78,18 +87,37 @@ type WebSocketConnector object {
                 statusCode.toString());
                 return err;
             }
-            return self.externClose(statusCode, reason ?: "", timeoutInSecs);
+            return externClose(self, statusCode, reason is () ? java:fromString("") : java:fromString(reason) , timeoutInSecs);
         } else {
-            return self.externClose(-1, "", timeoutInSecs);
+            return externClose(self, -1, java:fromString(""), timeoutInSecs);
         }
     }
-
-    function externClose(int statusCode, string reason, int timeoutInSecs) returns WebSocketError? = external;
-
-    # Called when the endpoint is ready to receive messages. Can be called only once per endpoint. For the
-    # WebSocketListener can be called only in upgrade or onOpen resources.
-    #
-    # + return - `error` if an error occurs when sending
-    public function ready() returns WebSocketError? = external;
-
 };
+
+function externPushText(WebSocketConnector wsConnector, handle text, boolean finalFrame) returns WebSocketError? =
+@java:Method {
+    class: "org.ballerinalang.net.http.actions.websocketconnector.WebSocketConnector"
+} external;
+
+function externPushBinary(WebSocketConnector wsConnector, byte[] data, boolean finalFrame) returns WebSocketError? =
+@java:Method {
+    class: "org.ballerinalang.net.http.actions.websocketconnector.WebSocketConnector",
+    name: "pushBinary"
+} external;
+
+function externPing(WebSocketConnector wsConnector, byte[] data) returns WebSocketError? =
+@java:Method {
+    class: "org.ballerinalang.net.http.actions.websocketconnector.WebSocketConnector",
+    name: "ping"
+} external;
+
+function externPong(WebSocketConnector wsConnector, byte[] data) returns WebSocketError? =
+@java:Method {
+    class: "org.ballerinalang.net.http.actions.websocketconnector.WebSocketConnector",
+    name: "pong"
+} external;
+
+function externClose(WebSocketConnector wsConnector, int statusCode, handle reason, int timeoutInSecs) returns WebSocketError? =
+@java:Method {
+    class: "org.ballerinalang.net.http.actions.websocketconnector.Close"
+} external;

@@ -44,7 +44,7 @@ service testService on testEP {
 
     @http:ResourceConfig {
         methods:["GET"],
-        path:"/t2/{person}/foo;a=5;b=10"
+        path:"/t2/{person}/foo%3Ba%3D5%3Bb%3D10"
     }
     resource function testEncoded(http:Caller caller, http:Request req, string person) {
         http:Response res = new;

@@ -18,7 +18,6 @@
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import org.ballerinalang.compiler.CompilerPhase;
-import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.TopLevelNode;
@@ -30,6 +29,8 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
@@ -88,7 +89,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIntRangeExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation.BLangActionInvocation;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation.BLangBuiltInMethodInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIsAssignableExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
@@ -472,8 +472,14 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangWhile whileNode) {
+        Map<BSymbol, InitStatus> prevUninitializedVars = this.uninitializedVars;
         analyzeNode(whileNode.expr, env);
         analyzeNode(whileNode.body, env);
+        for (BSymbol symbol : prevUninitializedVars.keySet()) {
+            if (!this.uninitializedVars.containsKey(symbol)) {
+                this.uninitializedVars.put(symbol, InitStatus.PARTIAL_INIT);
+            }
+        }
     }
 
     @Override
@@ -580,6 +586,16 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangInvocation invocationExpr) {
         analyzeNode(invocationExpr.expr, env);
+        if (!isFieldsInitializedForSelfArgument(invocationExpr)) {
+            return;
+        }
+        if (!isFieldsInitializedForSelfInvocation(invocationExpr.requiredArgs, invocationExpr.pos)) {
+            return;
+        }
+        if (!isFieldsInitializedForSelfInvocation(invocationExpr.restArgs, invocationExpr.pos)) {
+            return;
+        }
+
         invocationExpr.requiredArgs.forEach(expr -> analyzeNode(expr, env));
         invocationExpr.restArgs.forEach(expr -> analyzeNode(expr, env));
         BSymbol owner = this.env.scope.owner;
@@ -603,6 +619,61 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
                 addDependency(curDependent, invokableProviderSymbol);
             }
         }
+    }
+
+    private boolean isFieldsInitializedForSelfArgument(BLangInvocation invocationExpr) {
+
+        if (invocationExpr.expr == null || !isSelfKeyWordExpr(invocationExpr.expr)) {
+            return true;
+        }
+        StringBuilder uninitializedFields =
+                getUninitializedFieldsForSelfKeyword((BObjectType) ((BLangSimpleVarRef)
+                        invocationExpr.expr).symbol.type);
+        if (uninitializedFields.length() != 0) {
+            this.dlog.error(invocationExpr.pos, DiagnosticCode.CONTAINS_UNINITIALIZED_FIELDS,
+                    uninitializedFields.toString());
+            return false;
+        }
+        return true;
+    }
+
+    private boolean isFieldsInitializedForSelfInvocation(List<BLangExpression> argExpressions, DiagnosticPos pos) {
+
+        for (BLangExpression expr : argExpressions) {
+            if (isSelfKeyWordExpr(expr)) {
+                StringBuilder uninitializedFields =
+                        getUninitializedFieldsForSelfKeyword((BObjectType) ((BLangSimpleVarRef) expr).symbol.type);
+                if (uninitializedFields.length() != 0) {
+                    this.dlog.error(pos, DiagnosticCode.CONTAINS_UNINITIALIZED_FIELDS,
+                            uninitializedFields.toString());
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    private boolean isSelfKeyWordExpr(BLangExpression expr) {
+
+        return expr.getKind() == NodeKind.SIMPLE_VARIABLE_REF &&
+                Names.SELF.value.equals(((BLangSimpleVarRef) expr).getVariableName().getValue());
+    }
+
+    private StringBuilder getUninitializedFieldsForSelfKeyword(BObjectType objType) {
+
+        boolean isFirstUninitializedField = true;
+        StringBuilder uninitializedFields = new StringBuilder();
+        for (BField field : objType.fields) {
+            if (this.uninitializedVars.containsKey(field.symbol)) {
+                if (isFirstUninitializedField) {
+                    uninitializedFields = new StringBuilder(field.symbol.getName().value);
+                    isFirstUninitializedField = false;
+                } else {
+                    uninitializedFields.append(", ").append(field.symbol.getName().value);
+                }
+            }
+        }
+        return uninitializedFields;
     }
 
     private boolean isGlobalVarSymbol(BSymbol symbol) {
@@ -731,17 +802,21 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangLambdaFunction bLangLambdaFunction) {
-        if (bLangLambdaFunction.function.flagSet.contains(Flag.LAMBDA)) {
-            bLangLambdaFunction.function.closureVarSymbols.forEach(closureVarSymbol -> {
-                if (this.uninitializedVars.keySet().contains(closureVarSymbol.bSymbol)) {
-                    this.dlog.error(closureVarSymbol.diagnosticPos, DiagnosticCode.UNINITIALIZED_VARIABLE,
-                            closureVarSymbol.bSymbol);
-                }
-            });
-            return;
-        }
+        Map<BSymbol, InitStatus> prevUninitializedVars = this.uninitializedVars;
 
-        analyzeNode(bLangLambdaFunction.function, env);
+        BLangFunction funcNode = bLangLambdaFunction.function;
+        SymbolEnv funcEnv = SymbolEnv.createFunctionEnv(funcNode, funcNode.symbol.scope, env);
+
+        // Get a snapshot of the current uninitialized vars before visiting the node.
+        // This is done so that the original set of uninitialized vars will not be
+        // updated/marked as initialized.
+        this.uninitializedVars = copyUninitializedVars();
+        this.flowTerminated = false;
+
+        analyzeNode(funcNode.body, funcEnv);
+
+        // Restore the original set of uninitialized vars
+        this.uninitializedVars = prevUninitializedVars;
     }
 
     @Override
@@ -1075,12 +1150,6 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         // panic statement will terminate the flow. There will be no uninitialized
         // variables left after the panic statement.
         terminateFlow();
-    }
-
-    @Override
-    public void visit(BLangBuiltInMethodInvocation builtInMethodInvocation) {
-        analyzeNode(builtInMethodInvocation.expr, env);
-        builtInMethodInvocation.argExprs.forEach(argExpr -> analyzeNode(argExpr, env));
     }
 
     @Override

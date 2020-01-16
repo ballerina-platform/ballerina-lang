@@ -21,10 +21,14 @@ import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.eclipse.lsp4j.CompletionItem;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * Utility operations on the BLangRecordLiterals.
@@ -41,13 +45,30 @@ public class BLangRecordLiteralUtil {
      * @return {@link CompletionItem}   List of Completion Items
      */
     public static ArrayList<CompletionItem> getFieldsForMatchingRecord(BLangRecordLiteral recordLiteral) {
-        if (!(recordLiteral.type instanceof BRecordType)) {
+        BType expectedType = recordLiteral.expectedType;
+        Optional<BType> evalType = expectedType instanceof BUnionType ? getRecordTypeFromUnionType(expectedType)
+                : Optional.ofNullable(expectedType);
+        if (!evalType.isPresent() || !(evalType.get() instanceof BRecordType)) {
             return new ArrayList<>();
         }
-        List<BField> fields = ((BRecordType) recordLiteral.type).fields;
+        List<BField> fields = ((BRecordType) evalType.get()).fields;
         ArrayList<CompletionItem> completionItems = new ArrayList<>(CommonUtil.getRecordFieldCompletionItems(fields));
         completionItems.add(CommonUtil.getFillAllStructFieldsItem(fields));
 
         return completionItems;
+    }
+    
+    private static Optional<BType> getRecordTypeFromUnionType(BType bType) {
+        if (!(bType instanceof BUnionType)) {
+            return Optional.empty();
+        }
+        List<BType> filteredRecords = ((BUnionType) bType).getMemberTypes().stream()
+                .filter(type -> type instanceof BRecordType)
+                .collect(Collectors.toList());
+        
+        if (filteredRecords.size() == 1) {
+            return Optional.ofNullable(filteredRecords.get(0));
+        }
+        return Optional.empty();
     }
 }

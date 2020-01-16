@@ -18,54 +18,42 @@
 
 package org.ballerinalang.net.http.actions.websocketconnector;
 
-import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.net.http.WebSocketConstants;
-import org.ballerinalang.net.http.WebSocketOpenConnectionInfo;
-import org.ballerinalang.net.http.WebSocketUtil;
-import org.ballerinalang.net.http.exception.WebSocketException;
+import org.ballerinalang.net.http.websocket.WebSocketConstants;
+import org.ballerinalang.net.http.websocket.WebSocketException;
+import org.ballerinalang.net.http.websocket.WebSocketUtil;
+import org.ballerinalang.net.http.websocket.observability.WebSocketObservabilityConstants;
+import org.ballerinalang.net.http.websocket.observability.WebSocketObservabilityUtil;
+import org.ballerinalang.net.http.websocket.server.WebSocketConnectionInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import static org.ballerinalang.net.http.WebSocketConstants.ErrorCode.WsConnectionError;
 
 /**
  * {@code Get} is the GET action implementation of the HTTP Connector.
  */
-@BallerinaFunction(
-        orgName = WebSocketConstants.BALLERINA_ORG,
-        packageName = WebSocketConstants.PACKAGE_HTTP,
-        functionName = "ready",
-        receiver = @Receiver(
-                type = TypeKind.OBJECT,
-                structType = WebSocketConstants.WEBSOCKET_CONNECTOR,
-                structPackage = WebSocketConstants.FULL_PACKAGE_HTTP
-        )
-)
 public class Ready {
     private static final Logger log = LoggerFactory.getLogger(Ready.class);
 
-    public static Object ready(Strand strand, ObjectValue wsConnection) {
-        NonBlockingCallback callback = new NonBlockingCallback(strand);
+    public static Object ready(ObjectValue wsClient) {
+        ObjectValue wsConnection = (ObjectValue) wsClient.get(WebSocketConstants.CLIENT_CONNECTOR_FIELD);
+        WebSocketConnectionInfo connectionInfo = (WebSocketConnectionInfo) wsConnection
+                .getNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_CONNECTION_INFO);
+        WebSocketObservabilityUtil.observeResourceInvocation(Scheduler.getStrand(), connectionInfo,
+                                                             WebSocketConstants.RESOURCE_NAME_READY);
         try {
-            WebSocketOpenConnectionInfo connectionInfo = (WebSocketOpenConnectionInfo) wsConnection
-                    .getNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_CONNECTION_INFO);
-            boolean isReady = wsConnection.getBooleanValue(WebSocketConstants.CONNECTOR_IS_READY_FIELD);
+            boolean isReady = wsClient.getBooleanValue(WebSocketConstants.CONNECTOR_IS_READY_FIELD);
             if (!isReady) {
-                WebSocketUtil.readFirstFrame(connectionInfo.getWebSocketConnection(), wsConnection);
-                callback.setReturnValues(null);
+                WebSocketUtil.readFirstFrame(connectionInfo.getWebSocketConnection(), wsClient);
             } else {
-                callback.setReturnValues(new WebSocketException("Already started reading frames"));
+                return new WebSocketException("Already started reading frames");
             }
-            callback.notifySuccess();
         } catch (Exception e) {
             log.error("Error occurred when calling ready", e);
-            callback.setReturnValues(new WebSocketException(WsConnectionError, e.getMessage()));
-            callback.notifySuccess();
+            WebSocketObservabilityUtil.observeError(WebSocketObservabilityUtil.getConnectionInfo(wsConnection),
+                                                    WebSocketObservabilityConstants.ERROR_TYPE_READY,
+                                                    e.getMessage());
+            return WebSocketUtil.createErrorByType(e);
         }
         return null;
     }

@@ -101,8 +101,7 @@ function functionWithATransactionStmt() returns string {
 string ss = "";
 function runtimeNestedTransactionErrorTraped() returns string {
     ss = "";
-    ss += runtimeNestedTransactions(true);
-    return ss;
+    return runtimeNestedTransactions(true);
 }
 
 function runtimeNestedTransactionsError() returns string {
@@ -279,4 +278,37 @@ function multipleTrxSequence(boolean abort1, boolean abort2, boolean fail1, bool
     }
     a += " end-2";
     return a;
+}
+
+public function testTransactionInsideIfStmt() returns int {
+    int a = 10;
+    if (a == 10) {
+        int c = 8;
+        transaction with retries = 0 {
+                int b = a + c;
+                a = b;
+         }
+    }
+    return a;
+}
+
+public function testArrowFunctionInsideTransaction() returns int {
+    int a = 10;
+    if (a == 10) {
+        int b = 11;
+        transaction with retries = 0 {
+            int c = a + b;
+            function (int, int) returns int arrow = (x, y) => x + y + a + b + c;
+            a = arrow(1, 1);
+        }
+    }
+    return a;
+}
+
+public function testAssignmentToUninitializedVariableOfOuterScopeFromTrxBlock() returns int|string {
+    int|string s;
+    transaction with retries = 1 {
+      s = "init-in-transaction-block";
+    }
+    return s;
 }

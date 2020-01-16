@@ -54,7 +54,7 @@ public class HTTPClientActionsTestCase extends HttpBaseTest {
     @Test
     public void testPostAction() throws IOException {
         sendAndAssert("clientPostWithoutBody",
-                      "Error occurred while retrieving the text payload from the response");
+                      "No payload");
     }
 
     @Test
@@ -110,6 +110,12 @@ public class HTTPClientActionsTestCase extends HttpBaseTest {
     @Test(description = "Call setJsonPayload followed by setTextPayload for payload string with new lines")
     public void testPostWithStringJsonAlternate() throws IOException {
         sendAndAssert("handleStringJsonAlternate", "ab");
+    }
+
+    @Test(description = "Test client path with whitespaces")
+    public void testClientPathWithWhitespaces() throws IOException {
+        sendAndAssert("literal", "dispatched to white_spaced literal");
+        sendAndAssert("expression", "dispatched to white_spaced expression");
     }
 
     private void sendAndAssert(String path, String expectedResponse) throws IOException {

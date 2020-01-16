@@ -44,10 +44,8 @@ function testSelect(string jdbcURL) returns @tainted int[] {
         int i = 0;
         while (val.hasNext()) {
             var rs = val.getNext();
-            if (rs is Customer) {
-                customerIds[i] = rs.customerId;
-                i += 1;
-            }
+            customerIds[i] = rs.customerId;
+            i += 1;
         }
     }
     checkpanic testDB.stop();
@@ -62,8 +60,8 @@ function testUpdate(string jdbcURL) returns int {
         poolOptions: {maximumPoolSize: 1}
     });
 
-    var insertCountRet = testDB->update("insert into Customers (customerId, name, creditLimit, country)
-                                values (15, 'Anne', 1000, 'UK')");
+    var insertCountRet = testDB->update("insert into Customers (customerId, name, creditLimit, country)" +
+                                "values (15, 'Anne', 1000, 'UK')");
     int insertCount = 0;
     if (insertCountRet is jdbc:UpdateResult) {
         insertCount = insertCountRet.updatedRowCount;
@@ -163,11 +161,11 @@ function testUpdateInMemory(string jdbcURL) returns @tainted [int, string] {
         poolOptions: {maximumPoolSize: 1}
     });
 
-    _ = checkpanic testDB->update("CREATE TABLE Customers2(customerId INTEGER NOT NULL IDENTITY,name  VARCHAR(300),
-    creditLimit DOUBLE, country  VARCHAR(300), PRIMARY KEY (customerId))");
+    _ = checkpanic testDB->update("CREATE TABLE Customers2(customerId INTEGER NOT NULL IDENTITY,name  VARCHAR(300)," +
+    "creditLimit DOUBLE, country  VARCHAR(300), PRIMARY KEY (customerId))");
 
-    var insertCountRet = testDB->update("insert into Customers2 (customerId, name, creditLimit, country)
-                                values (15, 'Anne', 1000, 'UK')");
+    var insertCountRet = testDB->update("insert into Customers2 (customerId, name, creditLimit, country) " +
+                                "values (15, 'Anne', 1000, 'UK')");
     int insertCount = 0;
     if (insertCountRet is jdbc:UpdateResult) {
         insertCount = insertCountRet.updatedRowCount;
@@ -235,9 +233,7 @@ returns @tainted int {
     if (result is table<Result>) {
         while (result.hasNext()) {
             var rs = result.getNext();
-            if (rs is Result) {
-                count = rs.val;
-            }
+            count = rs.val;
         }
     }
     checkpanic testDB.stop();
@@ -252,10 +248,8 @@ function selectFunction(jdbc:Client testDB) returns int[] {
         int i = 0;
         while (val.hasNext()) {
             var rs = val.getNext();
-            if (rs is Customer) {
-                customerIds[i] = rs.customerId;
-                i += 1;
-            }
+            customerIds[i] = rs.customerId;
+            i += 1;
         }
     } else {
         customerIds = [];

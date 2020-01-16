@@ -161,7 +161,7 @@ public class CreateTestExecutor implements LSCommandExecutor {
             throw new LSCommandExecutorException("Invalid parameters received for the create test command!");
         }
 
-        WorkspaceDocumentManager docManager = context.get(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY);
+        WorkspaceDocumentManager docManager = context.get(DocumentServiceKeys.DOC_MANAGER_KEY);
 
         // Compile the source file
         BLangPackage builtSourceFile;

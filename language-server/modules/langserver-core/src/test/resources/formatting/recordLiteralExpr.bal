@@ -50,3 +50,37 @@ function name4() {
     anydata adr = foo;
     Foo convertedFoo = adr is Foo ? adr : {a: -1};
 }
+
+function testMapInitWithStringTemplateAsKey() returns (map<any>) {
+    string prefix = "first";
+    map<any> m = {  [ string `${prefix}name` ] :"John"  ,[   string `${prefix}name` ]:"sd" ,"dd" :"dd" ,prefix :"asd" } ;
+    return m;
+}
+
+function testMapInitWithStringTemplateAsKey1() returns (map<any>) {
+    string prefix = "first";
+    map<any> m = {
+ [ string `${prefix}name` ] :"John" ,
+               [ string `${prefix}name` ] : "sd" ,
+  "dd"  : "dd",
+                 prefix:"asd"
+    };
+    return m;
+}
+
+function testMapInitWithStringTemplateAsKey2() returns (map<any>) {
+    string prefix = "first";
+    map<any> m = {   "dd" :"dd"  ,[ string `${prefix}name` ] :  "John"   ,[ string `${prefix}name` ] :  "sd" ,prefix : "asd" } ;
+    return m;
+}
+
+function testMapInitWithStringTemplateAsKey3() returns (map<any>) {
+    string prefix = "first";
+    map<any> m = {
+                       "dd":    "dd" ,
+[  string `${prefix}name`   ]:"John",
+                    [   string `${prefix}name`   ]:"sd" ,
+   prefix:"asd"
+    };
+    return m;
+}

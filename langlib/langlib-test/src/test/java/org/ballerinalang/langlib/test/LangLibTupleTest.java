@@ -31,6 +31,7 @@ import org.ballerinalang.test.util.CompileResult;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import static org.ballerinalang.test.util.BAssertUtil.validateError;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNull;
 import static org.testng.Assert.assertTrue;
@@ -42,11 +43,12 @@ import static org.testng.Assert.assertTrue;
  */
 public class LangLibTupleTest {
 
-    private CompileResult compileResult;
+    private CompileResult compileResult, negativeResult;
 
     @BeforeClass
     public void setup() {
         compileResult = BCompileUtil.compile("test-src/tuplelib_test.bal");
+        negativeResult = BCompileUtil.compile("test-src/tuplelib_test_negative.bal");
     }
 
     @Test
@@ -130,4 +132,24 @@ public class LangLibTupleTest {
         assertEquals(((BInteger) returns[0]).intValue(), 4);
         assertNull(returns[1]);
     }
+
+    @Test
+    public void testPush1() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testPush1");
+        assertEquals(((BInteger) returns[0]).intValue(), 4);
+    }
+
+    @Test
+    public void testPush2() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testPush2");
+        assertEquals(((BInteger) returns[0]).intValue(), 4);
+    }
+
+    @Test
+    public void testNegativeCases() {
+        assertEquals(negativeResult.getErrorCount(), 1);
+        validateError(negativeResult, 0, "incompatible types: expected '[int,string][]', " +
+                "found '[int,(string|int)][]'", 20, 25);
+    }
+
 }

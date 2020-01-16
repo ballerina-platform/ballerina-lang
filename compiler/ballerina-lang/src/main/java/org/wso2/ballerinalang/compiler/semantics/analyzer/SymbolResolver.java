@@ -20,18 +20,16 @@ package org.wso2.ballerinalang.compiler.semantics.analyzer;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
-import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
-import org.wso2.ballerinalang.compiler.semantics.model.BLangBuiltInMethod;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope.ScopeEntry;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BCastOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BErrorTypeSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
@@ -57,14 +55,12 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
-import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
+import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
+import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypedescExpr;
 import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangBuiltInRefTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangConstrainedType;
@@ -85,7 +81,6 @@ import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
-import org.wso2.ballerinalang.programfile.InstructionCodes;
 import org.wso2.ballerinalang.util.Flags;
 import org.wso2.ballerinalang.util.Lists;
 
@@ -104,7 +99,6 @@ import java.util.stream.Stream;
 
 import static java.lang.String.format;
 import static org.wso2.ballerinalang.compiler.semantics.model.Scope.NOT_FOUND_ENTRY;
-import static org.wso2.ballerinalang.compiler.semantics.model.SymbolTable.UTILS;
 import static org.wso2.ballerinalang.compiler.util.Constants.OPEN_SEALED_ARRAY_INDICATOR;
 import static org.wso2.ballerinalang.compiler.util.Constants.UNSEALED_ARRAY_INDICATOR;
 
@@ -362,214 +356,17 @@ public class SymbolResolver extends BLangNodeVisitor {
         return resolveOperator(method, argsList);
     }
 
-    BSymbol createSymbolForStampOperator(DiagnosticPos pos, Name name, List<BLangExpression> functionArgList,
-                                         BLangExpression targetTypeExpression) {
-        // If there are more than one argument for stamp in-built function then fail.
-        if (functionArgList.size() < 1) {
-            dlog.error(pos, DiagnosticCode.NOT_ENOUGH_ARGS_FUNC_CALL, name);
-            return symTable.invalidUsageSymbol;
-        }
-
-        if (functionArgList.size() > 1) {
-            dlog.error(pos, DiagnosticCode.TOO_MANY_ARGS_FUNC_CALL, name);
-            return symTable.invalidUsageSymbol;
-        }
-
-        BLangExpression argumentExpression = functionArgList.get(0);
-        BType variableSourceType = argumentExpression.type;
-        if (!types.isLikeAnydataOrNotNil(variableSourceType) || !isStampSupportedForSourceType(variableSourceType)) {
-            dlog.error(pos, DiagnosticCode.NOT_SUPPORTED_SOURCE_TYPE_FOR_STAMP, variableSourceType.toString());
-            return symTable.invalidUsageSymbol;
-        }
-
-        // Stamp in-built function can only called on typedesc.
-        if (targetTypeExpression.type.tag != TypeTags.TYPEDESC) {
-            dlog.error(pos, DiagnosticCode.FUNC_DEFINED_ON_NOT_SUPPORTED_TYPE, name,
-                    variableSourceType.toString());
-            return symTable.invalidUsageSymbol;
-        }
-
-        BType targetType = resolveTargetType(targetTypeExpression);
-        if (targetType == null) {
-            return symTable.notFoundSymbol;
-        }
-
-        if (!types.isAnydata(targetType)) {
-            dlog.error(pos, DiagnosticCode.INCOMPATIBLE_STAMP_TYPE, variableSourceType, targetType);
-            return symTable.invalidUsageSymbol;
-        }
-
-        return resolveTargetSymbolForStamping(targetType, variableSourceType, name, pos);
-    }
-
-
-    public BSymbol createSymbolForDetailBuiltInMethod(BLangIdentifier name, BType type) {
-        if (type.tag != TypeTags.ERROR) {
-            return symTable.notFoundSymbol;
-        }
-        return symTable.createOperator(names.fromIdNode(name), new ArrayList<>(), ((BErrorType) type).detailType,
-                                       InstructionCodes.NOP);
-    }
-
-    public BSymbol createSymbolForConvertOperator(DiagnosticPos pos, Name name, List<BLangExpression> functionArgList,
-                                          BLangExpression targetTypeExpression) {
-        // If there are more than one argument for convert in-built function then fail.
-        if (functionArgList.size() < 1) {
-            dlog.error(pos, DiagnosticCode.NOT_ENOUGH_ARGS_FUNC_CALL, name);
-            return symTable.invalidUsageSymbol;
-        }
-        if (functionArgList.size() > 1) {
-            dlog.error(pos, DiagnosticCode.TOO_MANY_ARGS_FUNC_CALL, name);
-            return symTable.invalidUsageSymbol;
-        }
-
-        BLangExpression argumentExpression = functionArgList.get(0);
-        BType variableSourceType = argumentExpression.type;
-        // Convert in-built function can only called on typedesc.
-        if (targetTypeExpression.type.tag != TypeTags.TYPEDESC) {
-            dlog.error(pos, DiagnosticCode.FUNC_DEFINED_ON_NOT_SUPPORTED_TYPE, name, variableSourceType.toString());
-            return symTable.invalidUsageSymbol;
-        }
-
-        BType targetType = resolveTargetType(targetTypeExpression);
-        if (targetType == null) {
-            return symTable.notFoundSymbol;
-        }
-        // Check whether the types are anydata, since conversion is supported only for any data types.
-        if (!isConvertSupportedForSourceType(variableSourceType) || !types.isAnydata(targetType)) {
-            dlog.error(pos, DiagnosticCode.INCOMPATIBLE_TYPES_CONVERSION, variableSourceType, targetType);
-            return symTable.invalidUsageSymbol;
-        }
-        
-        BSymbol convSymbol;
-        // Check whether we can stamp the source and target types.
-        if (isStampSupportedForSourceType(variableSourceType) && isStampSupportedForTargetType(targetType)) {
-            convSymbol = generateStampSymbol(name, variableSourceType, targetType);
-            if (convSymbol != symTable.invalidUsageSymbol) {
-                return convSymbol;
-            }
-        }
-        // Check explicit type conversion support if stamp not available.
-        convSymbol = resolveConversionOperator(variableSourceType, targetType);
-        if (convSymbol != symTable.notFoundSymbol) {
-            return convSymbol;
-        }
-        dlog.error(pos, DiagnosticCode.INCOMPATIBLE_TYPES_CONVERSION, variableSourceType, targetType);
-        return symTable.invalidUsageSymbol;
-    }
-
-    private BType resolveTargetType(BLangExpression targetTypeExpression) {
-        BType targetType = null;
-
-        if (targetTypeExpression.getKind() == NodeKind.TYPEDESC_EXPRESSION) {
-            targetType = ((BLangTypedescExpr) targetTypeExpression).resolvedType;
-        } else if (targetTypeExpression.getKind() == NodeKind.LIST_CONSTRUCTOR_EXPR) {
-            List<BLangExpression> expressionList = ((BLangListConstructorExpr) targetTypeExpression).
-                    getExpressions();
-            List<BType> tupleTypeList = new ArrayList<>();
-            for (BLangExpression expression : expressionList) {
-                if (expression.getKind() == NodeKind.TYPEDESC_EXPRESSION) {
-                    tupleTypeList.add(((BLangTypedescExpr) expression).resolvedType);
-                } else {
-                    tupleTypeList.add(((BLangSimpleVarRef) expression).symbol.type);
-                }
-            }
-            targetType = new BTupleType(tupleTypeList);
-        } else {
-            BSymbol symbol = ((BLangSimpleVarRef) targetTypeExpression).symbol;
-            if (symbol != null) {
-                targetType = symbol.type;
-            }
-        }
-
-        return targetType;
-    }
-
-    private BSymbol resolveTargetSymbolForStamping(BType targetType, BType variableSourceType, Name name,
-                                                   DiagnosticPos pos) {
-        if (!isStampSupportedForTargetType(targetType)) {
-            dlog.error(pos, DiagnosticCode.INCOMPATIBLE_STAMP_TYPE, variableSourceType, targetType);
-            return symTable.invalidUsageSymbol;
-        }
-
-        BSymbol stampSymbol = generateStampSymbol(name, variableSourceType, targetType);
-        if (stampSymbol == symTable.invalidUsageSymbol) {
-            dlog.error(pos, DiagnosticCode.INCOMPATIBLE_STAMP_TYPE, variableSourceType, targetType);
-        }
-        return stampSymbol;
-    }
-
-    private BSymbol generateStampSymbol(Name name, BType variableSourceType, BType targetType) {
-        if (types.isAssignable(variableSourceType, targetType)) {
-            List<BType> paramTypes = new ArrayList<>();
-            paramTypes.add(variableSourceType);
-            return symTable.createOperator(name, paramTypes, targetType, InstructionCodes.NOP);
-        }
-        if (types.isStampingAllowed(variableSourceType, targetType)) {
-            BType returnType = BUnionType.create(null, targetType, symTable.errorType);
-            List<BType> paramTypes = new ArrayList<>();
-            paramTypes.add(variableSourceType);
-            return symTable.createOperator(name, paramTypes, returnType, InstructionCodes.NOP);
-        }
-        return symTable.invalidUsageSymbol;
-    }
-
-    private BSymbol getBinaryOpForNullChecks(OperatorKind opKind, BType lhsType,
-                                             BType rhsType) {
-        if (opKind != OperatorKind.EQUAL && opKind != OperatorKind.NOT_EQUAL) {
-            return symTable.notFoundSymbol;
-        }
-
-        int opcode = (opKind == OperatorKind.EQUAL) ? InstructionCodes.REQ_NULL : InstructionCodes.RNE_NULL;
-        if (lhsType.tag == TypeTags.NIL &&
-                (rhsType.tag == TypeTags.OBJECT ||
-                        rhsType.tag == TypeTags.RECORD ||
-                        rhsType.tag == TypeTags.INVOKABLE)) {
-            BInvokableType opType = new BInvokableType(Lists.of(lhsType, rhsType), symTable.booleanType, null);
-            return new BOperatorSymbol(names.fromString(opKind.value()), null, opType, null, opcode);
-        }
-
-        if ((lhsType.tag == TypeTags.OBJECT ||
-                lhsType.tag == TypeTags.RECORD ||
-                lhsType.tag == TypeTags.INVOKABLE)
-                && rhsType.tag == TypeTags.NIL) {
-            BInvokableType opType = new BInvokableType(Lists.of(lhsType, rhsType), symTable.booleanType, null);
-            return new BOperatorSymbol(names.fromString(opKind.value()), null, opType, null, opcode);
-        }
-
-        return symTable.notFoundSymbol;
-    }
-
     BSymbol createEqualityOperator(OperatorKind opKind, BType lhsType, BType rhsType) {
-        int opcode;
-        if (opKind == OperatorKind.REF_EQUAL) {
-            opcode = InstructionCodes.REF_EQ;
-        } else if (opKind == OperatorKind.REF_NOT_EQUAL) {
-            opcode = InstructionCodes.REF_NEQ;
-        } else if (opKind == OperatorKind.EQUAL) {
-            opcode = InstructionCodes.REQ;
-        } else {
-            // OperatorKind.NOT_EQUAL
-            opcode = InstructionCodes.RNE;
-        }
-
         List<BType> paramTypes = Lists.of(lhsType, rhsType);
         BType retType = symTable.booleanType;
         BInvokableType opType = new BInvokableType(paramTypes, retType, null);
-        return new BOperatorSymbol(names.fromString(opKind.value()), null, opType, null, opcode);
-    }
-
-    BInvokableSymbol createBuiltinMethodSymbol(BLangBuiltInMethod method, BType type, BType retType) {
-        List<BType> paramTypes = Lists.of(type);
-        BInvokableType opType = new BInvokableType(paramTypes, retType, null);
-        return new BInvokableSymbol(SymTag.INVOKABLE, Flags.PUBLIC, names.fromString
-                (method.getName()), UTILS, opType, null);
+        return new BOperatorSymbol(names.fromString(opKind.value()), null, opType, null);
     }
 
     BOperatorSymbol createTypeCastSymbol(BType type, BType retType) {
         List<BType> paramTypes = Lists.of(type);
         BInvokableType opType = new BInvokableType(paramTypes, retType, null);
-        return new BOperatorSymbol(Names.CAST_OP, null, opType, null, InstructionCodes.TYPE_CAST);
+        return new BOperatorSymbol(Names.CAST_OP, null, opType, null);
     }
 
     BSymbol getNumericConversionOrCastSymbol(BLangExpression expr, BType sourceType,
@@ -978,9 +775,9 @@ public class SymbolResolver extends BLangNodeVisitor {
             }
             symTable.intRangeType = (BObjectType) ((BInvokableType) entry.symbol.type).retType;
             symTable.defineBinaryOperator(OperatorKind.CLOSED_RANGE, symTable.intType, symTable.intType,
-                    symTable.intRangeType, InstructionCodes.INT_RANGE);
+                    symTable.intRangeType);
             symTable.defineBinaryOperator(OperatorKind.HALF_OPEN_RANGE, symTable.intType, symTable.intType,
-                    symTable.intRangeType, InstructionCodes.INT_RANGE);
+                    symTable.intRangeType);
             return;
         }
         throw new IllegalStateException("built-in Integer Range type not found ?");
@@ -1168,7 +965,7 @@ public class SymbolResolver extends BLangNodeVisitor {
             resultType = new BTableType(TypeTags.TABLE, constraintType, type.tsymbol);
             return;
         } else if (type.tag == TypeTags.STREAM) {
-            if (!types.isPureType(constraintType)) {
+            if (!constraintType.isPureType()) {
                 dlog.error(constrainedTypeNode.constraint.pos, DiagnosticCode.STREAM_INVALID_CONSTRAINT,
                            constraintType);
                 resultType = symTable.semanticError;
@@ -1231,12 +1028,79 @@ public class SymbolResolver extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangFunctionTypeNode functionTypeNode) {
-        List<BType> paramTypes = new ArrayList<>();
-        functionTypeNode.getParams().forEach(t -> paramTypes.add(resolveTypeNode((BLangType) t.getTypeNode(), env)));
-        BType retParamType = resolveTypeNode(functionTypeNode.returnTypeNode, this.env);
-        resultType = new BInvokableType(paramTypes, retParamType, null);
+        resultType = createInvokableType(functionTypeNode.getParams(), functionTypeNode.restParam,
+                functionTypeNode.returnTypeNode, Flags.asMask(functionTypeNode.flagSet), env);
     } 
 
+    public BInvokableType createInvokableType(List<? extends BLangVariable> paramVars, BLangVariable restVariable,
+                               BLangType retTypeVar, int flags, SymbolEnv env) {
+        List<BType> paramTypes = new ArrayList<>();
+        List<BVarSymbol> params = new ArrayList<>();
+
+        boolean foundDefaultableParam = false;
+        List<String> paramNames = new ArrayList<>();
+        for (BLangVariable paramNode :  paramVars) {
+            BLangSimpleVariable param = (BLangSimpleVariable) paramNode;
+            Name paramName = names.fromIdNode(param.name);
+            if (paramName != Names.EMPTY) {
+                if (paramNames.contains(paramName.value)) {
+                    dlog.error(param.name.pos, DiagnosticCode.REDECLARED_SYMBOL, paramName.value);
+                } else {
+                    paramNames.add(paramName.value);
+                }
+            }
+            BType type = resolveTypeNode(param.getTypeNode(), env);
+            paramNode.type = type;
+            paramTypes.add(type);
+
+            if (param.expr != null) {
+                foundDefaultableParam = true;
+            }
+
+            BVarSymbol symbol = new BVarSymbol(type.flags, paramName,
+                    env.enclPkg.symbol.pkgID, type, env.scope.owner);
+            param.symbol = symbol;
+
+            if (param.expr == null && foundDefaultableParam) {
+                dlog.error(param.pos, DiagnosticCode.REQUIRED_PARAM_DEFINED_AFTER_DEFAULTABLE_PARAM);
+            }
+
+            if (param.flagSet.contains(Flag.PUBLIC)) {
+                symbol.flags |= Flags.PUBLIC;
+            }
+            if (param.expr != null) {
+                symbol.flags |= Flags.OPTIONAL;
+                symbol.defaultableParam = true;
+            }
+            params.add(symbol);
+        }
+
+        BType retType = resolveTypeNode(retTypeVar, this.env);
+
+        BVarSymbol restParam = null;
+        BType restType = null;
+
+        if (restVariable != null) {
+            restType = resolveTypeNode(restVariable.typeNode, env);
+            restVariable.type = restType;
+            restParam = new BVarSymbol(restType.flags, names.fromIdNode(((BLangSimpleVariable) restVariable).name),
+                    env.enclPkg.symbol.pkgID, restType, env.scope.owner);
+        }
+
+        BInvokableType bInvokableType = new BInvokableType(paramTypes, restType, retType, null);
+        bInvokableType.flags = flags;
+        BInvokableTypeSymbol tsymbol = Symbols.createInvokableTypeSymbol(SymTag.FUNCTION_TYPE,
+                flags,
+                env.enclPkg.symbol.pkgID,
+                bInvokableType, env.scope.owner);
+
+        tsymbol.params = params;
+        tsymbol.restParam = restParam;
+        tsymbol.returnType = retType;
+        bInvokableType.tsymbol = tsymbol;
+
+        return bInvokableType;
+    }
     /**
      * Lookup all the visible in-scope symbols for a given environment scope.
      *
@@ -1381,60 +1245,5 @@ public class SymbolResolver extends BLangNodeVisitor {
                 && env.enclInvokable.symbol.receiverSymbol != null
                 && env.enclInvokable.symbol.receiverSymbol.type.tsymbol == symbol.owner
                 || isMemberAllowed(env.enclEnv, symbol));
-    }
-
-    /**
-     * Returns the eligibility to use 'stamp' inbuilt function against the respective expression.
-     *
-     * @param targetType target type that 'stamp' function is used
-     * @return eligibility to use 'stamp' function
-     */
-    private boolean isStampSupportedForTargetType(BType targetType) {
-
-        switch (targetType.tag) {
-            case TypeTags.INT:
-            case TypeTags.BOOLEAN:
-            case TypeTags.STRING:
-            case TypeTags.FLOAT:
-            case TypeTags.DECIMAL:
-            case TypeTags.BYTE:
-            case TypeTags.TABLE:
-                return false;
-            default:
-                return true;
-        }
-    }
-
-    /**
-     * Returns the eligibility whether stamp can be on the given value type.
-     *
-     * @param sourceType source type used for the stamp operation
-     * @return eligibility to use as the target type for 'stamp' function
-     */
-    private boolean isStampSupportedForSourceType(BType sourceType) {
-
-        switch (sourceType.tag) {
-            case TypeTags.INT:
-            case TypeTags.BOOLEAN:
-            case TypeTags.STRING:
-            case TypeTags.FLOAT:
-            case TypeTags.DECIMAL:
-            case TypeTags.BYTE:
-            case TypeTags.TABLE:
-                return false;
-            default:
-                return true;
-        }
-
-    }
-
-    /**
-     * Returns the eligibility whether convert can be used on the given value type.
-     *
-     * @param sourceType source type used for the convert operation
-     * @return eligibility to use as the source type for 'convert' function
-     */
-    private boolean isConvertSupportedForSourceType(BType sourceType) {
-        return types.isLikeAnydataOrNotNil(sourceType);
     }
 }

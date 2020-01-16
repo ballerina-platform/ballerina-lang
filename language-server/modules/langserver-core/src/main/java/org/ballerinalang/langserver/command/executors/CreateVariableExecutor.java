@@ -94,7 +94,7 @@ public class CreateVariableExecutor implements LSCommandExecutor {
             throw new LSCommandExecutorException("Invalid parameters received for the create variable command!");
         }
 
-        WorkspaceDocumentManager documentManager = context.get(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY);
+        WorkspaceDocumentManager documentManager = context.get(DocumentServiceKeys.DOC_MANAGER_KEY);
         BLangInvocation functionNode;
         try {
             functionNode = getFunctionInvocationNode(sLine, sCol, documentUri, documentManager, context);

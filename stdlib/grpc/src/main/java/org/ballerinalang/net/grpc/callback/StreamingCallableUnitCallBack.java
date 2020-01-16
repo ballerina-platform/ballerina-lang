@@ -17,8 +17,13 @@
  */
 package org.ballerinalang.net.grpc.callback;
 
+import org.ballerinalang.jvm.observability.ObserverContext;
 import org.ballerinalang.jvm.values.ErrorValue;
+import org.ballerinalang.net.grpc.Status;
 import org.ballerinalang.net.grpc.StreamObserver;
+
+import static org.ballerinalang.jvm.observability.ObservabilityConstants.TAG_KEY_HTTP_STATUS_CODE;
+import static org.ballerinalang.net.grpc.MessageUtils.getMappingHttpStatusCode;
 
 /**
  * Call back class registered for streaming gRPC service in B7a executor.
@@ -28,10 +33,12 @@ import org.ballerinalang.net.grpc.StreamObserver;
 public class StreamingCallableUnitCallBack extends AbstractCallableUnitCallBack {
 
     private StreamObserver responseSender;
+    private ObserverContext observerContext;
 
-    public StreamingCallableUnitCallBack(StreamObserver responseSender) {
+    public StreamingCallableUnitCallBack(StreamObserver responseSender, ObserverContext context) {
         available.acquireUninterruptibly();
         this.responseSender = responseSender;
+        this.observerContext = context;
     }
     
     @Override
@@ -43,6 +50,10 @@ public class StreamingCallableUnitCallBack extends AbstractCallableUnitCallBack 
     public void notifyFailure(ErrorValue error) {
         if (responseSender != null) {
             handleFailure(responseSender, error);
+        }
+        if (observerContext != null) {
+            observerContext.addTag(TAG_KEY_HTTP_STATUS_CODE,
+                    String.valueOf(getMappingHttpStatusCode(Status.Code.INTERNAL.value())));
         }
         super.notifyFailure(error);
     }

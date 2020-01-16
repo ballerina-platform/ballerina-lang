@@ -46,6 +46,7 @@ public class PrintRunningExecutableTask implements Task {
             }
             
             buildContext.out().println("Running executables");
+            buildContext.out().println();
         }
     }
 }

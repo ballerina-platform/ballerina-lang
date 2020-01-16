@@ -41,4 +41,3 @@ public type PendingLimits record {|
 
 # Basic Subscription config annotation.
 public annotation SubscriptionConfigData SubscriptionConfig on service;
-

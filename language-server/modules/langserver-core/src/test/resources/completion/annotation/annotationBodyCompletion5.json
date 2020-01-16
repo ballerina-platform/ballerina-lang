@@ -9,15 +9,15 @@
       "label": "enable",
       "kind": "Field",
       "detail": "Field",
-      "sortText": "120",
-      "insertText": "enable: ${1:\"AUTO\"} // Values allowed: AUTO|ALWAYS|NEVER",
+      "sortText": "210",
+      "insertText": "enable: ${1:\"AUTO\"}",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "contentTypes",
       "kind": "Field",
       "detail": "Field",
-      "sortText": "120",
+      "sortText": "210",
       "insertText": "contentTypes: [${1}]",
       "insertTextFormat": "Snippet"
     },
@@ -26,7 +26,7 @@
       "kind": "Property",
       "detail": "none",
       "sortText": "110",
-      "insertText": "enable: \"AUTO\", // Values allowed: AUTO|ALWAYS|NEVER,\ncontentTypes: []",
+      "insertText": "enable: \"AUTO\",\ncontentTypes: []",
       "insertTextFormat": "Snippet"
     }
   ]

@@ -86,7 +86,7 @@ public class MatchStructuredPatternsTest {
     public void testPatternNotMatchedSemanticsNegative() {
         int i = -1;
         String invalidRecordPattern = "invalid record binding pattern; ";
-        String invalidTuplePattern = "invalid tuple variable; ";
+        String invalidTuplePattern = "invalid tuple binding pattern: ";
 
         BAssertUtil.validateError(resultSemanticsNegative, ++i,
                 invalidRecordPattern + "unknown field 'f' in record type 'ClosedFoo'", 33, 13);
@@ -95,15 +95,15 @@ public class MatchStructuredPatternsTest {
         BAssertUtil.validateError(resultSemanticsNegative, ++i,
                 invalidRecordPattern + "unknown field 'a' in record type 'ClosedFoo'", 37, 13);
         BAssertUtil.validateError(resultSemanticsNegative, ++i,
-                invalidTuplePattern + "expecting a tuple type but found 'ClosedFoo' in type definition", 39, 13);
+                invalidTuplePattern + "expected a tuple type, but found 'ClosedFoo'", 39, 13);
         BAssertUtil.validateError(resultSemanticsNegative, ++i,
-                invalidTuplePattern + "expecting a tuple type but found 'OpenedFoo' in type definition", 50, 13);
+                invalidTuplePattern + "expected a tuple type, but found 'OpenedFoo'", 50, 13);
         BAssertUtil.validateError(resultSemanticsNegative, ++i,
                 "invalid tuple binding pattern; member variable count mismatch with member type count", 60, 13);
         BAssertUtil.validateError(resultSemanticsNegative, ++i,
                 "invalid record binding pattern with type '[string,int,ClosedFoo]'", 61, 13);
         BAssertUtil.validateError(resultSemanticsNegative, ++i,
-                invalidTuplePattern + "expecting a tuple type but found 'ClosedFoo' in type definition", 63, 20);
+                invalidTuplePattern + "expected a tuple type, but found 'ClosedFoo'", 63, 20);
         BAssertUtil.validateError(resultSemanticsNegative, ++i,
                 invalidRecordPattern + "unknown field 'f' in record type 'ClosedFoo'", 65, 20);
         Assert.assertEquals(resultSemanticsNegative.getErrorCount(), i + 1);

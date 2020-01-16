@@ -22,6 +22,7 @@ package org.ballerinalang.natives;
  * 
  * @since 0.94
  */
+@Deprecated
 public enum NativeElementType {
 
     FUNCTION,

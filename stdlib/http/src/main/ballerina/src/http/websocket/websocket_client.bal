@@ -14,8 +14,12 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerinax/java;
+
 # Represents a WebSocket client endpoint.
 public type WebSocketClient client object {
+    // This is to keep track if the ready() function has been called
+    private boolean isReady = false;
 
     private string id = "";
     private string? negotiatedSubProtocol = ();
@@ -38,7 +42,9 @@ public type WebSocketClient client object {
     }
 
     # Initializes the endpoint.
-    public function initEndpoint() = external;
+    public function initEndpoint() {
+        return externWSInitEndpoint(self);
+    }
 
     # Push text to the connection.
     #
@@ -90,12 +96,11 @@ public type WebSocketClient client object {
         return self.conn.close(statusCode, reason, timeoutInSeconds);
     }
 
-    # Called when the endpoint is ready to receive messages. Can be called only once per endpoint. For the
-    # WebSocketListener can be called only in upgrade or onOpen resources.
+    # Called when the client is ready to receive messages. Can be called only once.
     #
     # + return - `error` if an error occurs when sending
     public remote function ready() returns WebSocketError? {
-        return self.conn.ready();
+        return externWSReady(self);
     }
 
     # Sets a connection related attribute.
@@ -184,3 +189,13 @@ public type WebSocketClientConfiguration record {|
     int maxFrameSize = 0;
     boolean webSocketCompressionEnabled = true;
 |};
+
+function externWSInitEndpoint(WebSocketClient wsClient) = @java:Method {
+    class: "org.ballerinalang.net.http.websocket.client.InitEndpoint",
+    name: "initEndpoint"
+} external;
+
+function externWSReady(WebSocketClient wsClient) returns WebSocketError? = @java:Method {
+    class: "org.ballerinalang.net.http.actions.websocketconnector.Ready",
+    name: "ready"
+} external;

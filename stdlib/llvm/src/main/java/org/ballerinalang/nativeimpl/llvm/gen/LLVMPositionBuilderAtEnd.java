@@ -1,4 +1,4 @@
-// Copyright (c) 2018 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+// Copyright (c) 2019 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 //
 // WSO2 Inc. licenses this file to you under the Apache License,
 // Version 2.0 (the "License"); you may not use this file except
@@ -16,32 +16,36 @@
 
 package org.ballerinalang.nativeimpl.llvm.gen;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.nativeimpl.llvm.FFIUtil;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.bytedeco.javacpp.LLVM;
+import org.bytedeco.llvm.LLVM.LLVMBasicBlockRef;
+import org.bytedeco.llvm.LLVM.LLVMBuilderRef;
 
 import static org.ballerinalang.model.types.TypeKind.RECORD;
-import static org.bytedeco.javacpp.LLVM.LLVMPositionBuilderAtEnd;
+import static org.bytedeco.llvm.global.LLVM.LLVMPositionBuilderAtEnd;
 
 /**
  * Auto generated class.
+ *
+ * @since 1.0.3
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "llvm",
-        functionName = "LLVMPositionBuilderAtEnd",
+        functionName = "llvmPositionBuilderAtEnd",
         args = {
                 @Argument(name = "builder", type = RECORD, structType = "LLVMBuilderRef"),
                 @Argument(name = "block", type = RECORD, structType = "LLVMBasicBlockRef"),
         })
-public class LLVMPositionBuilderAtEnd extends BlockingNativeCallableUnit {
+public class LLVMPositionBuilderAtEnd {
 
-    @Override
-    public void execute(Context context) {
-        LLVM.LLVMBuilderRef builder = FFIUtil.getRecodeArgumentNative(context, 0);
-        LLVM.LLVMBasicBlockRef block = FFIUtil.getRecodeArgumentNative(context, 1);
-        LLVMPositionBuilderAtEnd(builder, block);
+    public static void llvmPositionBuilderAtEnd(Strand strand, MapValue<String, Object> builder,
+                                                MapValue<String, Object> block) {
+
+        LLVMBuilderRef builderRef = (LLVMBuilderRef) FFIUtil.getRecodeArgumentNative(builder);
+        LLVMBasicBlockRef blockRef = (LLVMBasicBlockRef) FFIUtil.getRecodeArgumentNative(block);
+        LLVMPositionBuilderAtEnd(builderRef, blockRef);
     }
 }

@@ -26,7 +26,6 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
-import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -198,12 +197,6 @@ public class CheckedExpressionOperatorTest {
         BMap<String, BValue> errorDetails = (BMap<String, BValue>) errorStruct.getDetails();
         Assert.assertEquals(errorDetails.get(ERROR_DATA_FIELD).stringValue(), "foo.txt",
                 "Invalid error message value returned.");
-    }
-
-    @Test(description = "Test basics of safe assignment statement", expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*error: io error.*")
-    public void testCheckExprInBinaryExpr7() {
-        BRunUtil.invoke(result, "testCheckExprInBinaryExpr7", new BValue[]{});
     }
 
     @Test(description = "Test basics of safe assignment statement")

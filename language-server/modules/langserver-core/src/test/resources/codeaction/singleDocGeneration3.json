@@ -1,11 +1,11 @@
 {
   "range": {
     "start": {
-      "line": 18,
+      "line": 20,
       "character": 10
     },
     "end": {
-      "line": 18,
+      "line": 20,
       "character": 10
     }
   },
@@ -18,11 +18,11 @@
         "arguments": [
           {
             "argumentK": "node.type",
-            "argumentV": "record"
+            "argumentV": "RECORD"
           },
           {
             "argumentK": "node.line",
-            "argumentV": "18"
+            "argumentV": "20"
           }
         ]
       },

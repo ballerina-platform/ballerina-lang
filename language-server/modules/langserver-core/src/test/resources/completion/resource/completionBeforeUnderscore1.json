@@ -12,7 +12,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": ""
+          "value": " Would default to the format specified by CSVChannel. Precedence will be given to field separator and record separator."
         }
       },
       "sortText": "130",
@@ -26,7 +26,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": ""
+          "value": "Field separator would be \",\" and the record separator would be new line."
         }
       },
       "sortText": "130",
@@ -40,7 +40,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": ""
+          "value": "Field separator will be tab and record separator will be new line."
         }
       },
       "sortText": "130",
@@ -54,7 +54,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": ""
+          "value": "Comma (,) will be used as the field separator."
         }
       },
       "sortText": "130",
@@ -68,7 +68,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": ""
+          "value": "Tab (/t) will be use as the field separator."
         }
       },
       "sortText": "130",
@@ -82,7 +82,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": ""
+          "value": "Colon (:) will be use as the field separator."
         }
       },
       "sortText": "130",
@@ -96,7 +96,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": ""
+          "value": "This will be used to construct a ConnectionTimedOutError."
         }
       },
       "sortText": "130",
@@ -110,7 +110,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": ""
+          "value": "This will be used to construct an IO GenericError."
         }
       },
       "sortText": "130",
@@ -124,7 +124,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": ""
+          "value": "This will be used to construct a AccessDeniedError."
         }
       },
       "sortText": "130",
@@ -138,7 +138,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": ""
+          "value": "This will be used to construct a FileNotFoundError."
         }
       },
       "sortText": "130",
@@ -152,7 +152,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": ""
+          "value": "This will be used to construct an EofError."
         }
       },
       "sortText": "130",
@@ -208,7 +208,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": ""
+          "value": "Specifies the bytes to be in the order of most significant byte first."
         }
       },
       "sortText": "130",
@@ -222,7 +222,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": ""
+          "value": "Specifies the byte order to be the least significant byte first."
         }
       },
       "sortText": "130",
@@ -244,16 +244,30 @@
       "kind": "Enum",
       "detail": "Union",
       "documentation": {
-        "left": "Field separators which are supported by DelimitedTextRecordChannel."
+        "left": "Field separators which are supported by DelimitedTextRecordChannel.\n\nCOMMA - Delimited text records would be separated using a comma.\n\nTAB - Delimited text records would be separated using a tab.\n\nCOLON - Delimited text records would be separated using a colon(:)."
       },
       "sortText": "160",
       "insertText": "Separator",
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "Detail",
+      "kind": "Struct",
+      "detail": "Record",
+      "documentation": {
+        "left": "Record type to hold the details of an error.\n"
+      },
+      "sortText": "180",
+      "insertText": "Detail",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "ConnectionTimedOutError",
       "kind": "Event",
       "detail": "Error",
+      "documentation": {
+        "left": "This will return when connection timed out happen when try to connect to a remote host."
+      },
       "sortText": "200",
       "insertText": "ConnectionTimedOutError",
       "insertTextFormat": "Snippet"
@@ -262,6 +276,9 @@
       "label": "GenericError",
       "kind": "Event",
       "detail": "Error",
+      "documentation": {
+        "left": "Represents generic IO error. The detail record contains the information related to the error."
+      },
       "sortText": "200",
       "insertText": "GenericError",
       "insertTextFormat": "Snippet"
@@ -270,6 +287,9 @@
       "label": "AccessDeniedError",
       "kind": "Event",
       "detail": "Error",
+      "documentation": {
+        "left": "This will get returned due to file permission issues."
+      },
       "sortText": "200",
       "insertText": "AccessDeniedError",
       "insertTextFormat": "Snippet"
@@ -278,6 +298,9 @@
       "label": "FileNotFoundError",
       "kind": "Event",
       "detail": "Error",
+      "documentation": {
+        "left": "This will get returned if the file is not available in the given file path."
+      },
       "sortText": "200",
       "insertText": "FileNotFoundError",
       "insertTextFormat": "Snippet"
@@ -286,6 +309,9 @@
       "label": "EofError",
       "kind": "Event",
       "detail": "Error",
+      "documentation": {
+        "left": "This will get returned if read operations are performed on a channel after it closed."
+      },
       "sortText": "200",
       "insertText": "EofError",
       "insertTextFormat": "Snippet"
@@ -294,6 +320,9 @@
       "label": "Error",
       "kind": "Event",
       "detail": "Union",
+      "documentation": {
+        "left": "Represents IO module related errors."
+      },
       "sortText": "200",
       "insertText": "Error",
       "insertTextFormat": "Snippet"
@@ -303,7 +332,7 @@
       "kind": "Interface",
       "detail": "Object",
       "documentation": {
-        "left": "ReadableByteChannel represents an input resource (i.e file, socket). which could be used to source bytes."
+        "left": "ReadableByteChannel represents an input resource (i.e file). which could be used to source bytes."
       },
       "sortText": "190",
       "insertText": "ReadableByteChannel",
@@ -369,7 +398,7 @@
       "kind": "Interface",
       "detail": "Object",
       "documentation": {
-        "left": "WritableByteChannel represents an output resource (i.e file, socket). which could be used to sink bytes."
+        "left": "WritableByteChannel represents an output resource (i.e file). which could be used to sink bytes."
       },
       "sortText": "190",
       "insertText": "WritableByteChannel",
@@ -521,13 +550,13 @@
       }
     },
     {
-      "label": "print(...(any|error))",
+      "label": "print((any|error)... values)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/io_  \n  \nPrints `any` or `error` value(s) to the STDOUT.  \n**Params**  \n- values: The value(s) to be printed."
+          "value": "**Package:** _ballerina/io_  \n  \nPrints `any` or `error` value(s) to the STDOUT.  \n**Params**  \n- `(any|error)[]` values: The value(s) to be printed."
         }
       },
       "sortText": "120",
@@ -539,13 +568,13 @@
       }
     },
     {
-      "label": "println(...(any|error))",
+      "label": "println((any|error)... values)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/io_  \n  \nPrints `any` or `error` value(s) to the STDOUT followed by a new line.  \n**Params**  \n- values: The value(s) to be printed."
+          "value": "**Package:** _ballerina/io_  \n  \nPrints `any` or `error` value(s) to the STDOUT followed by a new line.  \n**Params**  \n- `(any|error)[]` values: The value(s) to be printed."
         }
       },
       "sortText": "120",
@@ -557,13 +586,13 @@
       }
     },
     {
-      "label": "sprintf(string format, ...(any|error))(string)",
+      "label": "sprintf(string format, (any|error)... args)(string)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/io_  \n  \nReturns a formatted string using the specified format string and arguments. Following format specifiers are allowed.\n   b              boolean\n   B              boolean (ALL_CAPS)\n   d              int\n   f              float\n   x              hex\n   X              HEX (ALL_CAPS)\n   s              string (This specifier is applicable for any of the supported types in Ballerina.\n                  These values will be converted to their string representation.)\n  \n**Params**  \n- `string` format: A format string  \n- args: Arguments referenced by the format specifiers in the format string.  \n  \n**Returns** `string`   \n- Formatted string  \n  \n"
+          "value": "**Package:** _ballerina/io_  \n  \nReturns a formatted string using the specified format string and arguments. Following format specifiers are allowed.\n\nb - boolean\n\nB - boolean (ALL_CAPS)\n\nd - int\n\nf - float\n\nx - hex\n\nX - HEX (ALL_CAPS)\n\ns - string (This specifier is applicable for any of the supported types in Ballerina.\n            These values will be converted to their string representation.)\n  \n**Params**  \n- `string` format: A format string  \n- `(any|error)[]` args: Arguments referenced by the format specifiers in the format string.  \n  \n**Returns** `string`   \n- Formatted string  \n  \n"
         }
       },
       "sortText": "120",

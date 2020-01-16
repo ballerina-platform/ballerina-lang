@@ -117,3 +117,7 @@ function panicOnNonErrorMemberUnion() {
     error|int e = 5;
     panic e;
 }
+
+function errorDefinitionNegative() {
+    error<string, record { string message?; error cause?; int i;}> e  = 1;
+}

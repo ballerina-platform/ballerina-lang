@@ -356,10 +356,10 @@ function testInsertNumericDataWithParameters(string jdbcURL) returns [int, int, 
     jdbc:Parameter para8 = {sqlType: jdbc:TYPE_FLOAT, value: 5000.77, direction: jdbc:DIRECTION_IN};
     jdbc:Parameter para9 = {sqlType: jdbc:TYPE_REAL, value: 5000.78, direction: jdbc:DIRECTION_IN};
 
-    var result = testDB->update("Insert into NumericTypes (int_type, bigint_type, smallint_type, tinyint_type,
-                                                    bit_type, decimal_type, numeric_type, float_type, real_type)
-                                                    values (?,?,?,?,?,?,?,?,?)", para1, para2, para3, para4, para5,
-    para6, para7, para8, para9);
+    var result = testDB->update("Insert into NumericTypes (int_type, bigint_type, smallint_type, tinyint_type," +
+                                                    "bit_type, decimal_type, numeric_type, float_type, real_type) " +
+                                                    "values (?,?,?,?,?,?,?,?,?)", para1, para2, para3, para4, para5,
+                                                    para6, para7, para8, para9);
     int insertCount = 0;
     int generatedKey = -1;
     if (result is jdbc:UpdateResult) {
@@ -368,9 +368,9 @@ function testInsertNumericDataWithParameters(string jdbcURL) returns [int, int, 
     }
 
     jdbc:Parameter p1 = {sqlType: jdbc:TYPE_INTEGER, value: generatedKey};
-    var dt = testDB->select("SELECT int_type, bigint_type, smallint_type, tinyint_type,
-                                  bit_type, decimal_type, numeric_type, float_type, real_type from
-                                  NumericTypes where id = ?", NumericData, generatedKey);
+    var dt = testDB->select("SELECT int_type, bigint_type, smallint_type, tinyint_type," +
+                                  "bit_type, decimal_type, numeric_type, float_type, real_type from " +
+                                  "NumericTypes where id = ?", NumericData, generatedKey);
     int intType = -1;
     int bigintType = -1;
     int smallintType = -1;
@@ -408,9 +408,9 @@ function testInsertNumericDataWithDirectValues(string jdbcURL) returns [int, int
         poolOptions: {maximumPoolSize: 1}
     });
 
-    var result = testDB->update("Insert into NumericTypes (int_type, bigint_type, smallint_type, tinyint_type,
-                                                    bit_type, decimal_type, numeric_type, float_type, real_type)
-                                                    values (?,?,?,?,?,?,?,?,?)", -2147483648, -2147483650, -32768, 0,
+    var result = testDB->update("Insert into NumericTypes (int_type, bigint_type, smallint_type, tinyint_type," +
+                                                    "bit_type, decimal_type, numeric_type, float_type, real_type) " +
+                                                    "values (?,?,?,?,?,?,?,?,?)", -2147483648, -2147483650, -32768, 0,
     false, -5000.75, -5000.76, -5000.77, -5000.78);
     int insertCount = 0;
     int generatedKey = -1;
@@ -419,9 +419,9 @@ function testInsertNumericDataWithDirectValues(string jdbcURL) returns [int, int
         generatedKey = <int>result.generatedKeys["ID"];
     }
 
-    var dt = testDB->select("SELECT int_type, bigint_type, smallint_type, tinyint_type,
-                                  bit_type, decimal_type, numeric_type, float_type, real_type from
-                                  NumericTypes where id = ?", NumericData, generatedKey);
+    var dt = testDB->select("SELECT int_type, bigint_type, smallint_type, tinyint_type," +
+                                  "bit_type, decimal_type, numeric_type, float_type, real_type from " +
+                                  "NumericTypes where id = ?", NumericData, generatedKey);
     int intType = -1;
     int bigintType = -1;
     int smallintType = -1;
@@ -469,9 +469,9 @@ function testInsertNumericDataWithNilValues(string jdbcURL) returns [int?, int?,
     jdbc:Parameter para8 = {sqlType: jdbc:TYPE_FLOAT, value: (), direction: jdbc:DIRECTION_IN};
     jdbc:Parameter para9 = {sqlType: jdbc:TYPE_REAL, value: (), direction: jdbc:DIRECTION_IN};
 
-    var result = testDB->update("Insert into NumericTypes (int_type, bigint_type, smallint_type, tinyint_type,
-                                                    bit_type, decimal_type, numeric_type, float_type, real_type)
-                                                    values (?,?,?,?,?,?,?,?,?)", para1, para2, para3, para4, para5,
+    var result = testDB->update("Insert into NumericTypes (int_type, bigint_type, smallint_type, tinyint_type," +
+                                                    "bit_type, decimal_type, numeric_type, float_type, real_type) " +
+                                                    "values (?,?,?,?,?,?,?,?,?)", para1, para2, para3, para4, para5,
     para6, para7, para8, para9);
     int insertCount = 0;
     int generatedKey = -1;
@@ -480,9 +480,9 @@ function testInsertNumericDataWithNilValues(string jdbcURL) returns [int?, int?,
         generatedKey = <int>result.generatedKeys["ID"];
     }
 
-    var dt = testDB->select("SELECT int_type, bigint_type, smallint_type, tinyint_type,
-                                  bit_type, decimal_type, numeric_type, float_type, real_type from
-                                  NumericTypes where id = ?", NumericDataWithNil, generatedKey);
+    var dt = testDB->select("SELECT int_type, bigint_type, smallint_type, tinyint_type," +
+                                  "bit_type, decimal_type, numeric_type, float_type, real_type from " +
+                                  "NumericTypes where id = ?", NumericDataWithNil, generatedKey);
     int? intType = -1;
     int? bigintType = -1;
     int? smallintType = -1;
@@ -531,18 +531,18 @@ function testInsertStringDataWithParameters(string jdbcURL) returns [int, string
     jdbc:Parameter para8 = {sqlType: jdbc:TYPE_LONGNVARCHAR, value: "test5", direction: jdbc:DIRECTION_IN};
     jdbc:Parameter para9 = {sqlType: jdbc:TYPE_CLOB, value: "hello ballerina code", direction: jdbc:DIRECTION_IN};
 
-    var result = testDB->update("Insert into StringTypes (id, varchar_type, charmax_type, char_type,
-                                                    charactermax_type, character_type, nvarcharmax_type,
-                                                    longvarchar_type, clob_type) values (?,?,?,?,?,?,?,?,?)",
+    var result = testDB->update("Insert into StringTypes (id, varchar_type, charmax_type, char_type," +
+                                                    "charactermax_type, character_type, nvarcharmax_type," +
+                                                    "longvarchar_type, clob_type) values (?,?,?,?,?,?,?,?,?)",
     para1, para2, para3, para4, para5, para6, para7, para8, para9);
     int insertCount = 0;
     if (result is jdbc:UpdateResult) {
         insertCount = result.updatedRowCount;
     }
 
-    var dt = testDB->select("SELECT varchar_type, charmax_type, char_type, charactermax_type, character_type,
-                             nvarcharmax_type, longvarchar_type, clob_type from
-                             StringTypes where id = ?", StringData, intIDVal);
+    var dt = testDB->select("SELECT varchar_type, charmax_type, char_type, charactermax_type, character_type," +
+                             "nvarcharmax_type, longvarchar_type, clob_type from " +
+                             "StringTypes where id = ?", StringData, intIDVal);
     string varcharType = "";
     string charmaxType = "";
     string charType = "";
@@ -580,9 +580,9 @@ function testInsertStringDataWithDirectParams(string jdbcURL) returns [int, stri
 
     int intIDVal = 25;
 
-    var result = testDB->update("Insert into StringTypes (id, varchar_type, charmax_type, char_type,
-                                                    charactermax_type, character_type, nvarcharmax_type,
-                                                    longvarchar_type, clob_type) values (?,?,?,?,?,?,?,?,?)",
+    var result = testDB->update("Insert into StringTypes (id, varchar_type, charmax_type, char_type," +
+                                                    "charactermax_type, character_type, nvarcharmax_type," +
+                                                    "longvarchar_type, clob_type) values (?,?,?,?,?,?,?,?,?)",
     intIDVal, "str1", "str2", "A", "str3", "B", "str4", "str5",
     "hello ballerina code");
     int insertCount = 0;
@@ -590,9 +590,9 @@ function testInsertStringDataWithDirectParams(string jdbcURL) returns [int, stri
         insertCount = result.updatedRowCount;
     }
 
-    var dt = testDB->select("SELECT varchar_type, charmax_type, char_type, charactermax_type, character_type,
-                             nvarcharmax_type, longvarchar_type, clob_type from
-                             StringTypes where id = ?", StringData, intIDVal);
+    var dt = testDB->select("SELECT varchar_type, charmax_type, char_type, charactermax_type, character_type," +
+                             "nvarcharmax_type, longvarchar_type, clob_type from " +
+                             "StringTypes where id = ?", StringData, intIDVal);
     string varcharType = "";
     string charmaxType = "";
     string charType = "";
@@ -638,18 +638,18 @@ function testInsertStringDataWithNilValues(string jdbcURL) returns [int, string?
     jdbc:Parameter para8 = {sqlType: jdbc:TYPE_LONGNVARCHAR, value: (), direction: jdbc:DIRECTION_IN};
     jdbc:Parameter para9 = {sqlType: jdbc:TYPE_CLOB, value: (), direction: jdbc:DIRECTION_IN};
 
-    var result = testDB->update("Insert into StringTypes (id, varchar_type, charmax_type, char_type,
-                                                    charactermax_type, character_type, nvarcharmax_type,
-                                                    longvarchar_type, clob_type) values (?,?,?,?,?,?,?,?,?)",
+    var result = testDB->update("Insert into StringTypes (id, varchar_type, charmax_type, char_type," +
+                                                    "charactermax_type, character_type, nvarcharmax_type," +
+                                                    "longvarchar_type, clob_type) values (?,?,?,?,?,?,?,?,?)",
     para1, para2, para3, para4, para5, para6, para7, para8, para9);
     int insertCount = 0;
     if (result is jdbc:UpdateResult) {
         insertCount = result.updatedRowCount;
     }
 
-    var dt = testDB->select("SELECT varchar_type, charmax_type, char_type, charactermax_type, character_type,
-                             nvarcharmax_type, longvarchar_type, clob_type from
-                             StringTypes where id = ?", StringDataWithNil, 26);
+    var dt = testDB->select("SELECT varchar_type, charmax_type, char_type, charactermax_type, character_type," +
+                             "nvarcharmax_type, longvarchar_type, clob_type from " +
+                             "StringTypes where id = ?", StringDataWithNil, 26);
     string? varcharType = "";
     string? charmaxType = "";
     string? charType = "";
@@ -687,18 +687,18 @@ function testInsertStringDataWithEmptyValues(string jdbcURL) returns [int, strin
 
     int intIDVal = 27;
 
-    var result = testDB->update("Insert into StringTypes (id, varchar_type, charmax_type, char_type,
-                                                    charactermax_type, character_type, nvarcharmax_type,
-                                                    longvarchar_type, clob_type) values (?,?,?,?,?,?,?,?,?)",
+    var result = testDB->update("Insert into StringTypes (id, varchar_type, charmax_type, char_type," +
+                                                    "charactermax_type, character_type, nvarcharmax_type," +
+                                                    "longvarchar_type, clob_type) values (?,?,?,?,?,?,?,?,?)",
                         intIDVal, "", "", "", "", "", "", "", "");
     int insertCount = 0;
     if (result is jdbc:UpdateResult) {
         insertCount = result.updatedRowCount;
     }
 
-    var dt = testDB->select("SELECT varchar_type, charmax_type, char_type, charactermax_type, character_type,
-                             nvarcharmax_type, longvarchar_type, clob_type from
-                             StringTypes where id = ?", StringData, intIDVal);
+    var dt = testDB->select("SELECT varchar_type, charmax_type, char_type, charactermax_type, character_type," +
+                             "nvarcharmax_type, longvarchar_type, clob_type from " +
+                             "StringTypes where id = ?", StringData, intIDVal);
     string varcharType = "a";
     string charmaxType = "a";
     string charType = "a";
@@ -890,17 +890,17 @@ function testInsertBinaryDataWithParameters(string jdbcURL) returns [int, byte[]
     jdbc:Parameter para6 = {sqlType: jdbc:TYPE_BINARY, value: "YmxvYiBkYXRh"};
     jdbc:Parameter para7 = {sqlType: jdbc:TYPE_BINARY, value: "YmxvYiBkYXRh"};
 
-    var result = testDB->update("Insert into BinaryTypes (id, binary_type, varbinary_type, blob_type,
-                                                    longvarbinary_type, binaryvarying_type, binarylargetobj_type)
-                                                    values (?,?,?,?,?,?,?)",
+    var result = testDB->update("Insert into BinaryTypes (id, binary_type, varbinary_type, blob_type," +
+                                                    "longvarbinary_type, binaryvarying_type, binarylargetobj_type) " +
+                                                    "values (?,?,?,?,?,?,?)",
     para1, para2, para3, para4, para5, para6, para7);
     int insertCount = 0;
     if (result is jdbc:UpdateResult) {
         insertCount = result.updatedRowCount;
     }
 
-    var dt = testDB->select("SELECT binary_type, varbinary_type, blob_type, longvarbinary_type, binaryvarying_type,
-                            binarylargetobj_type from BinaryTypes where id = ?", BinaryData, 11);
+    var dt = testDB->select("SELECT binary_type, varbinary_type, blob_type, longvarbinary_type, binaryvarying_type," +
+                            "binarylargetobj_type from BinaryTypes where id = ?", BinaryData, 11);
     byte[] binaryType = [];
     byte[] varbinaryType = [];
     byte[] blobType = [];
@@ -940,17 +940,17 @@ function testInsertBinaryDataWithNilValues(string jdbcURL) returns [int, byte[]?
     jdbc:Parameter para6 = {sqlType: jdbc:TYPE_BINARY, value: ()};
     jdbc:Parameter para7 = {sqlType: jdbc:TYPE_BINARY, value: ()};
 
-    var result = testDB->update("Insert into BinaryTypes (id, binary_type, varbinary_type, blob_type,
-                                                    longvarbinary_type, binaryvarying_type, binarylargetobj_type)
-                                                    values (?,?,?,?,?,?,?)",
+    var result = testDB->update("Insert into BinaryTypes (id, binary_type, varbinary_type, blob_type," +
+                                                    "longvarbinary_type, binaryvarying_type, binarylargetobj_type) " +
+                                                    "values (?,?,?,?,?,?,?)",
     para1, para2, para3, para4, para5, para6, para7);
     int insertCount = 0;
     if (result is jdbc:UpdateResult) {
         insertCount = result.updatedRowCount;
     }
 
-    var dt = testDB->select("SELECT binary_type, varbinary_type, blob_type, longvarbinary_type, binaryvarying_type,
-                            binarylargetobj_type from BinaryTypes where id = ?", BinaryDataWithNil, 12);
+    var dt = testDB->select("SELECT binary_type, varbinary_type, blob_type, longvarbinary_type, binaryvarying_type," +
+                            "binarylargetobj_type from BinaryTypes where id = ?", BinaryDataWithNil, 12);
     byte[]? binaryType = [];
     byte[]? varbinaryType = [];
     byte[]? blobType = [];
@@ -990,17 +990,17 @@ function testInsertTimeDataAsString(string jdbcURL) returns [int, string, string
     jdbc:Parameter para6 = {sqlType: jdbc:TYPE_TIME, value: "20:08:08.034900-08:00"};
     jdbc:Parameter para7 = {sqlType: jdbc:TYPE_TIMESTAMP, value: "2019-08-09T20:08:08.034900-08:00"};
 
-    var result = testDB->update("Insert into TimeTypes (id, date_type, timenz_type, timestampnz_type,
-                                                    datetime_type, timez_type, timestampz_type)
-                                                    values (?,?,?,?,?,?,?)",
+    var result = testDB->update("Insert into TimeTypes (id, date_type, timenz_type, timestampnz_type," +
+                                                    "datetime_type, timez_type, timestampz_type) " +
+                                                    "values (?,?,?,?,?,?,?)",
     para1, para2, para3, para4, para5, para6, para7);
 
     int insertCount = 0;
     if (result is jdbc:UpdateResult) {
         insertCount = result.updatedRowCount;
     }
-    var dt = testDB->select("SELECT date_type, timenz_type, timestampnz_type, datetime_type, timez_type, timestampz_type
-                             from TimeTypes where id = ?", TimeDataAsString, 11);
+    var dt = testDB->select("SELECT date_type, timenz_type, timestampnz_type, datetime_type, timez_type, timestampz_type " +
+                             "from TimeTypes where id = ?", TimeDataAsString, 11);
     string dateType = "";
     string timenzType = "";
     string timestampnzType = "";
@@ -1071,17 +1071,17 @@ function testInsertTimeDataAsBallerinaTime(string jdbcURL) returns [int, boolean
     jdbc:Parameter para6 = {sqlType: jdbc:TYPE_TIME, value: timeValWithZoneVal};
     jdbc:Parameter para7 = {sqlType: jdbc:TYPE_TIMESTAMP, value: timeStampValWithZoneVal};
 
-    var result = testDB->update("Insert into TimeTypes (id, date_type, timenz_type, timestampnz_type,
-                                                    datetime_type, timez_type, timestampz_type)
-                                                    values (?,?,?,?,?,?,?)",
+    var result = testDB->update("Insert into TimeTypes (id, date_type, timenz_type, timestampnz_type," +
+                                                    "datetime_type, timez_type, timestampz_type)" +
+                                                    "values (?,?,?,?,?,?,?)",
     para1, para2, para3, para4, para5, para6, para7);
 
     int insertCount = 0;
     if (result is jdbc:UpdateResult) {
         insertCount = result.updatedRowCount;
     }
-    var dt = testDB->select("SELECT date_type, timenz_type, timestampnz_type, datetime_type, timez_type, timestampz_type
-                             from TimeTypes where id = ?", TimeDataAsTime, 12);
+    var dt = testDB->select("SELECT date_type, timenz_type, timestampnz_type, datetime_type, timez_type, timestampz_type " +
+                             "from TimeTypes where id = ?", TimeDataAsTime, 12);
 
     boolean dateEquals = false;
     boolean timeEquals = false;
@@ -1129,17 +1129,16 @@ function testInsertTimeDataAsInt(string jdbcURL) returns [int, int, int, int] {
     jdbc:Parameter para3 = {sqlType: jdbc:TYPE_TIMESTAMP, value: 1565381288};
     jdbc:Parameter para4 = {sqlType: jdbc:TYPE_DATETIME, value: 1565381288};
 
-    var result = testDB->update("Insert into TimeTypes (id, timenz_type, timestampnz_type,
-                                                    datetime_type)
-                                                    values (?,?,?,?)",
+    var result = testDB->update("Insert into TimeTypes (id, timenz_type, timestampnz_type," +
+                                                    "datetime_type) values (?,?,?,?)",
     para1, para2, para3, para4);
 
     int insertCount = 0;
     if (result is jdbc:UpdateResult) {
         insertCount = result.updatedRowCount;
     }
-    var dt = testDB->select("SELECT timenz_type, timestampnz_type, datetime_type
-                             from TimeTypes where id = ?", TimeDataAsInt, 13);
+    var dt = testDB->select("SELECT timenz_type, timestampnz_type, datetime_type " +
+                             "from TimeTypes where id = ?", TimeDataAsInt, 13);
 
     int timenzType = -1;
     int timestampnzType = -1;
@@ -1175,17 +1174,17 @@ function testInsertTimeDataAsBallerinaTimeWithNil(string jdbcURL) returns [int, 
     jdbc:Parameter para6 = {sqlType: jdbc:TYPE_TIME, value: ()};
     jdbc:Parameter para7 = {sqlType: jdbc:TYPE_TIMESTAMP, value: ()};
 
-    var result = testDB->update("Insert into TimeTypes (id, date_type, timenz_type, timestampnz_type,
-                                                    datetime_type, timez_type, timestampz_type)
-                                                    values (?,?,?,?,?,?,?)",
+    var result = testDB->update("Insert into TimeTypes (id, date_type, timenz_type, timestampnz_type," +
+                                                    "datetime_type, timez_type, timestampz_type) " +
+                                                    "values (?,?,?,?,?,?,?)",
     para1, para2, para3, para4, para5, para6, para7);
 
     int insertCount = 0;
     if (result is jdbc:UpdateResult) {
         insertCount = result.updatedRowCount;
     }
-    var dt = testDB->select("SELECT date_type, timenz_type, timestampnz_type, datetime_type, timez_type, timestampz_type
-                             from TimeTypes where id = ?", TimeDataWithNil, 14);
+    var dt = testDB->select("SELECT date_type, timenz_type, timestampnz_type, datetime_type, timez_type, timestampz_type " +
+                             "from TimeTypes where id = ?", TimeDataWithNil, 14);
 
     time:Time currentTime = time:currentTime();
 

@@ -18,46 +18,31 @@
 
 package org.ballerinalang.net.http.serviceendpoint;
 
+import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.AttachedFunction;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.http.HTTPServicesRegistry;
 import org.ballerinalang.net.http.HttpConstants;
-import org.ballerinalang.net.http.HttpErrorType;
 import org.ballerinalang.net.http.HttpUtil;
-import org.ballerinalang.net.http.WebSocketConstants;
-import org.ballerinalang.net.http.WebSocketService;
-import org.ballerinalang.net.http.WebSocketServicesRegistry;
-import org.ballerinalang.net.http.exception.WebSocketException;
-
-import static org.ballerinalang.net.http.HttpConstants.HTTP_LISTENER_ENDPOINT;
+import org.ballerinalang.net.http.websocket.WebSocketConstants;
+import org.ballerinalang.net.http.websocket.WebSocketException;
+import org.ballerinalang.net.http.websocket.server.WebSocketServerService;
+import org.ballerinalang.net.http.websocket.server.WebSocketServicesRegistry;
 
 /**
  * Register a service to the listener.
  *
  * @since 0.966
  */
-
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "http",
-        functionName = "register",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = HTTP_LISTENER_ENDPOINT,
-                             structPackage = "ballerina/http"),
-        args = {@Argument(name = "serviceType", type = TypeKind.SERVICE),
-                @Argument(name = "annotationData", type = TypeKind.MAP)},
-        isPublic = true
-)
 public class Register extends AbstractHttpNativeFunction {
-    public static Object register(Strand strand, ObjectValue serviceEndpoint, ObjectValue service,
+    public static Object register(ObjectValue serviceEndpoint, ObjectValue service,
                                   Object annotationData) {
 
         HTTPServicesRegistry httpServicesRegistry = getHttpServicesRegistry(serviceEndpoint);
         WebSocketServicesRegistry webSocketServicesRegistry = getWebSocketServicesRegistry(serviceEndpoint);
+        Strand strand = Scheduler.getStrand();
         httpServicesRegistry.setScheduler(strand.scheduler);
 
         BType param;
@@ -69,14 +54,17 @@ public class Register extends AbstractHttpNativeFunction {
                         callerType)) { // TODO fix should work with equals - rajith
                     httpServicesRegistry.registerService(service);
                 } else if (WebSocketConstants.FULL_WEBSOCKET_CALLER_NAME.equals(callerType)) {
-                    WebSocketService webSocketService = new WebSocketService(service, strand.scheduler);
-                    webSocketServicesRegistry.registerService(webSocketService);
+                    webSocketServicesRegistry.registerService(new WebSocketServerService(service, strand.scheduler));
+                } else if (WebSocketConstants.FULL_WEBSOCKET_CLIENT_NAME.equals(callerType)) {
+                    return new WebSocketException("Client service cannot be attached to the Listener");
+                } else {
+                    return HttpUtil.createHttpError("Invalid http Service");
                 }
             } else {
                 httpServicesRegistry.registerService(service);
             }
         } catch (WebSocketException ex) {
-            return HttpUtil.createHttpError(ex.getMessage(), HttpErrorType.GENERIC_LISTENER_ERROR);
+            return ex;
         }
         return null;
     }

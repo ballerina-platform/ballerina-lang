@@ -29,12 +29,14 @@ import java.io.PrintStream;
  *
  * Command usage will change according to the sub-command.
  */
-@CommandLine.Command(name = "openapi", description = "Generate ballerina service/client using an OpenApi definition" +
-        " or export an OpenApi contract for given Ballerina service.",
+@CommandLine.Command(
+        name = "openapi",
+        description = "Generates Ballerina service/client for OpenApi contract and OpenApi contract for Ballerina" +
+                "Service.",
         subcommands = {
-                OpenApiGenServiceCmd.class,
+                OpenApiGenContractCmd.class,
                 OpenApiGenClientCmd.class,
-                OpenApiGenContractCmd.class
+                OpenApiGenServiceCmd.class
         }
 )
 public class OpenApiCmd implements BLauncherCmd {
