@@ -581,29 +581,6 @@
       ]
     },
     {
-      "label": "ballerina/utils",
-      "kind": "Module",
-      "detail": "Package",
-      "sortText": "140",
-      "insertText": "utils",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/utils;\n"
-        }
-      ]
-    },
-    {
       "label": "ballerina/rabbitmq",
       "kind": "Module",
       "detail": "Package",
@@ -1197,17 +1174,6 @@
       "detail": "String",
       "sortText": "230",
       "insertText": "string",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "Dispatcher",
-      "kind": "Struct",
-      "detail": "Record",
-      "documentation": {
-        "left": "Defines a disptcher to be used for concurrent execution of strands.\n"
-      },
-      "sortText": "180",
-      "insertText": "Dispatcher",
       "insertTextFormat": "Snippet"
     },
     {

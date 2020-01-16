@@ -23,8 +23,10 @@ import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.packerina.buildcontext.BuildContext;
 import org.ballerinalang.packerina.buildcontext.BuildContextField;
 import org.ballerinalang.util.BootstrapRunner;
+import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
+import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.ProjectDirs;
 import org.wso2.ballerinalang.util.RepoUtils;
 
@@ -42,21 +44,30 @@ import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_COM
 public class CreateJarTask implements Task {
 
     private boolean dumpBir;
+    private boolean buildNative;
+    private boolean dumpLlvmIr;
+    private boolean noOptimizeLlvm;
 
     private boolean skipCopyLibsFromDist = false;
 
-    public CreateJarTask(boolean dumpBir) {
+    public CreateJarTask(boolean dumpBir, boolean buildNative, boolean dumpLlvmIr, boolean noOptimizeLlvm) {
         this.dumpBir = dumpBir;
+        this.buildNative = buildNative;
+        this.dumpLlvmIr = dumpLlvmIr;
+        this.noOptimizeLlvm = noOptimizeLlvm;
     }
 
-    public CreateJarTask(boolean dumpBir, boolean skipCopyLibsFromDist) {
+    public CreateJarTask(boolean dumpBir, boolean skipCopyLibsFromDist, boolean buildNative, boolean dumpLlvmIr,
+            boolean noOptimizeLlvm) {
         this.dumpBir = dumpBir;
         this.skipCopyLibsFromDist = skipCopyLibsFromDist;
+        this.buildNative = buildNative;
+        this.dumpLlvmIr = dumpLlvmIr;
+        this.noOptimizeLlvm = noOptimizeLlvm;
     }
-    
+
     @Override
     public void execute(BuildContext buildContext) {
-        
         // This will avoid initializing Config registry during jar creation.
         ConfigRegistry.getInstance().setInitialized(true);
         Path sourceRoot = buildContext.get(BuildContextField.SOURCE_ROOT);
@@ -64,15 +75,28 @@ public class CreateJarTask implements Task {
         Path homeBIRCache = buildContext.getBirCacheFromHome();
         Path systemBIRCache = buildContext.getSystemRepoBirCache();
         Path runtimeJar = getRuntimeAllJar(buildContext);
+        Path targetDir = buildContext.get(BuildContextField.TARGET_DIR);
+
+        CompilerContext context = buildContext.get(BuildContextField.COMPILER_CONTEXT);
+        PackageCache packageCache = PackageCache.getInstance(context);
 
         List<BLangPackage> moduleBirMap = buildContext.getModules();
         for (BLangPackage module : moduleBirMap) {
-            HashSet<Path> moduleDependencySet = buildContext.moduleDependencyPathMap.get(module.packageID).platformLibs;
+
+            BLangPackage bLangPackage = packageCache.get(module.packageID);
+            if (bLangPackage == null) {
+                continue;
+            }
+
+            PackageID packageID = bLangPackage.packageID;
+
+            HashSet<Path> moduleDependencySet = buildContext.moduleDependencyPathMap.get(packageID).platformLibs;
             if (!skipCopyLibsFromDist) {
                 moduleDependencySet.add(runtimeJar);
             }
-            writeImportJar(module.symbol.imports, sourceRoot, buildContext, runtimeJar,
-                           projectBIRCache.toString(), homeBIRCache.toString(), systemBIRCache.toString());
+            // write module child imports jars
+            writeImportJar(bLangPackage.symbol.imports, sourceRoot, buildContext, runtimeJar,
+                    projectBIRCache.toString(), homeBIRCache.toString(), systemBIRCache.toString());
 
             // get the bir path of the module
             Path entryBir = buildContext.getBirPathFromTargetCache(module.packageID);
@@ -80,25 +104,34 @@ public class CreateJarTask implements Task {
             // get the jar path of the module.
             Path jarOutput = buildContext.getJarPathFromTargetCache(module.packageID);
             if (!Files.exists(jarOutput)) {
-                BootstrapRunner
-                        .loadTargetAndGenerateJarBinary(entryBir.toString(), jarOutput.toString(), this.dumpBir,
-                                                        moduleDependencySet, projectBIRCache.toString(),
-                                                        homeBIRCache.toString(), systemBIRCache.toString());
+                if (buildNative) {
+                    BootstrapRunner.genNativeCode(entryBir.toString(), targetDir, this.dumpLlvmIr, this.noOptimizeLlvm);
+                } else {
+                    BootstrapRunner.loadTargetAndGenerateJarBinary(entryBir.toString(), jarOutput.toString(),
+                            this.dumpBir, moduleDependencySet, projectBIRCache.toString(), homeBIRCache.toString(),
+                            systemBIRCache.toString());
+                }
             }
 
             // If there is a testable package we will create testable jar.
-            if (module.hasTestablePackage()) {
-                // get the bir path of the module
-                Path testBir = buildContext.getTestBirPathFromTargetCache(module.packageID);
+            if (!buildContext.skipTests() && bLangPackage.hasTestablePackage()) {
+                for (BLangPackage testPkg : bLangPackage.getTestablePkgs()) {
+                    // write its child imports jar file to cache
+                    writeImportJar(testPkg.symbol.imports, sourceRoot, buildContext, runtimeJar,
+                            projectBIRCache.toString(), homeBIRCache.toString(), systemBIRCache.toString());
 
-                // get the jar path of the module.
-                Path testJarOutput = buildContext.getTestJarPathFromTargetCache(module.packageID);
-                BootstrapRunner
-                        .loadTargetAndGenerateJarBinary(testBir.toString(), testJarOutput.toString(), this.dumpBir,
-                                                        moduleDependencySet, projectBIRCache.toString(),
-                                                        homeBIRCache.toString(), systemBIRCache.toString());
+                    // get the bir path of the module
+                    Path testBir = buildContext.getTestBirPathFromTargetCache(testPkg.packageID);
+
+                    // get the jar path of the module.
+                    Path testJarOutput = buildContext.getTestJarPathFromTargetCache(testPkg.packageID);
+                    if (!Files.exists(testJarOutput)) {
+                        BootstrapRunner.loadTargetAndGenerateJarBinary(testBir.toString(), testJarOutput.toString(),
+                                this.dumpBir, moduleDependencySet, projectBIRCache.toString(), homeBIRCache.toString(),
+                                systemBIRCache.toString());
+                    }
+                }
             }
-
         }
         ConfigRegistry.getInstance().setInitialized(false);
     }
@@ -115,21 +148,21 @@ public class CreateJarTask implements Task {
             // If the module is part of the project write it to project jar cache check if file exist
             // If not write it to home jar cache
             // skip ballerina and ballerinax
-            if (ProjectDirs.isModuleExist(sourceRoot, id.name.value)  ||
-                                                                buildContext.getImportPathDependency(id).isPresent()) {
+            if (ProjectDirs.isModuleExist(sourceRoot, id.name.value) ||
+                    buildContext.getImportPathDependency(id).isPresent()) {
                 jarFilePath = buildContext.getJarPathFromTargetCache(id);
                 birFilePath = buildContext.getBirPathFromTargetCache(id);
             } else {
                 jarFilePath = buildContext.getJarPathFromHomeCache(id);
                 birFilePath = buildContext.getBirPathFromHomeCache(id);
             }
-            if (!Files.exists(jarFilePath)) {
+            if (!Files.exists(jarFilePath) && buildContext.moduleDependencyPathMap.containsKey(id)) {
                 HashSet<Path> moduleDependencySet = buildContext.moduleDependencyPathMap.get(id).platformLibs;
                 if (!skipCopyLibsFromDist) {
                     moduleDependencySet.add(runtimeJar);
                 }
                 BootstrapRunner.loadTargetAndGenerateJarBinary(birFilePath.toString(), jarFilePath.toString(),
-                                                  this.dumpBir, moduleDependencySet, reps);
+                        this.dumpBir, moduleDependencySet, reps);
             }
             writeImportJar(bimport.imports, sourceRoot, buildContext, runtimeJar, reps);
         }

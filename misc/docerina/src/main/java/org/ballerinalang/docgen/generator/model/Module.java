@@ -26,6 +26,8 @@ public class Module {
     public String id;
     public String summary;
     public String description;
+    public String orgName;
+    public String version;
 
     // constructs
     public List<Record> records = new ArrayList<>();

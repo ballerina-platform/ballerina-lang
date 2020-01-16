@@ -23,12 +23,9 @@ import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.MarkdownDocumentationNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.ServiceNode;
-import org.ballerinalang.model.tree.expressions.SimpleVariableReferenceNode;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
 
 import java.util.ArrayList;
 import java.util.EnumSet;
@@ -50,24 +47,14 @@ public class BLangService extends BLangNode implements ServiceNode {
     public BLangIdentifier name;
     public BLangTypeDefinition serviceTypeDefinition;
     public List<BLangExpression> attachedExprs;
+
+    // Reference to global variable of this is a module level service.
     public BLangVariable variableNode;
     public boolean isAnonymousServiceValue;
 
     // Cached values.
     public BType listenerType;
     public List<BLangFunction> resourceFunctions;
-
-    // Old values. TODO : Remove this.
-    @Deprecated
-    public List<BLangResource> resources = new ArrayList<>();
-    @Deprecated
-    public List<BLangSimpleVariableDef> vars = new ArrayList<>();
-    @Deprecated
-    public List<BLangEndpoint> endpoints = new ArrayList<>();
-    @Deprecated
-    public BLangRecordLiteral anonymousEndpointBind = null;
-    @Deprecated
-    public List<? extends SimpleVariableReferenceNode> boundEndpoints = new ArrayList<>();
 
     public BLangService() {
         this.flagSet = EnumSet.noneOf(Flag.class);

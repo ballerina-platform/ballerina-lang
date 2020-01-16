@@ -43,7 +43,6 @@ dependencies {
     implementation 'org.wso2.transport.http:org.wso2.transport.http.netty'
 
     baloImplementation project(path: ':ballerina-lang:annotations', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-utils', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-config-api', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-crypto', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-jdbc', configuration: 'baloImplementation')
@@ -57,8 +56,19 @@ dependencies {
     baloImplementation project(path: ':ballerina-stringutils', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-java', configuration: 'baloImplementation')
 
-    interopImports project(':ballerina-task')
+    interopImports project(':ballerina-config-api')
+    interopImports project(':ballerina-http')
+    interopImports project(':ballerina-io')
+    interopImports project(':ballerina-log-api')
     interopImports project(':ballerina-math')
+    interopImports project(':ballerina-system')
+    interopImports project(':ballerina-task')
+    interopImports project(':ballerina-reflect')
+    interopImports project(':ballerina-encoding')
+    interopImports project(':ballerina-time')
+    interopImports project(':ballerina-crypto')
+    interopImports project(':ballerina-runtime-api')
+    interopImports project(':ballerina-mime')
 
     // transitive
     baloImplementation project(path: ':ballerina-math', configuration: 'baloImplementation')
@@ -75,9 +85,6 @@ dependencies {
     testCompile project(':ballerina-core')
     testCompile 'org.slf4j:slf4j-simple'
     testCompile 'org.testng:testng'
-
-    interopImports project(':ballerina-encoding')
-    interopImports project(':ballerina-time')
 }
 
 createBalo {

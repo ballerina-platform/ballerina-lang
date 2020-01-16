@@ -2,7 +2,7 @@ public type {{serviceName}}{{#equals stubType "blocking"}}Blocking{{/equals}}Cli
 
     *grpc:AbstractClientEndpoint;
 
-    private grpc:Client grpcClient;
+    private grpc:Client? grpcClient = ();
 
     public function __init(string url, grpc:ClientConfiguration? config = ()) {
         // initialize client endpoint.
@@ -18,7 +18,12 @@ public type {{serviceName}}{{#equals stubType "blocking"}}Blocking{{/equals}}Cli
 {{#blockingFunctions}}
     public remote function {{methodName}}({{#if inputType}}{{inputType}} req, {{/if}}grpc:Headers? headers = ()) returns ({{#if outputType}}[{{outputType}}, grpc:Headers]{{else}}grpc:Headers{{/if}}|grpc:Error) {
         {{#unless inputType}}Empty req = {};{{/unless}}
-        var payload = check self.grpcClient->blockingExecute("{{methodId}}", req, headers);
+        if !(self.grpcClient is grpc:Client) {
+            error err = error("UninitializedFieldsErrorType", message = "Field(s) are not initialized");
+            return grpc:prepareError(grpc:INTERNAL_ERROR, "Field(s) are not initialized", err);
+        }
+        grpc:Client tempGrpcClient = <grpc:Client> self.grpcClient;
+        var payload = check tempGrpcClient->blockingExecute("{{methodId}}", req, headers);
         grpc:Headers resHeaders = new;
         {{#if outputType}}anydata result = ();
         [result, resHeaders] = payload;
@@ -30,10 +35,20 @@ public type {{serviceName}}{{#equals stubType "blocking"}}Blocking{{/equals}}Cli
 {{/blockingFunctions}}{{#nonBlockingFunctions}}
     public remote function {{methodName}}({{#if inputType}}{{inputType}} req, {{/if}}service msgListener, grpc:Headers? headers = ()) returns (grpc:Error?) {
         {{#unless inputType}}Empty req = {};{{/unless}}
-        return self.grpcClient->nonBlockingExecute("{{methodId}}", req, msgListener, headers);
+        if !(self.grpcClient is grpc:Client) {
+            error err = error("UninitializedFieldsErrorType", message = "Field(s) are not initialized");
+            return grpc:prepareError(grpc:INTERNAL_ERROR, "Field(s) are not initialized", err);
+        }
+        grpc:Client tempGrpcClient = <grpc:Client> self.grpcClient;
+        return tempGrpcClient->nonBlockingExecute("{{methodId}}", req, msgListener, headers);
     }
 {{/nonBlockingFunctions}}{{#streamingFunctions}}
     public remote function {{methodName}}(service msgListener, grpc:Headers? headers = ()) returns (grpc:StreamingClient|grpc:Error) {
-        return self.grpcClient->streamingExecute("{{methodId}}", msgListener, headers);
+        if !(self.grpcClient is grpc:Client) {
+            error err = error("UninitializedFieldsErrorType", message = "Field(s) are not initialized");
+            return grpc:prepareError(grpc:INTERNAL_ERROR, "Field(s) are not initialized", err);
+        }
+        grpc:Client tempGrpcClient = <grpc:Client> self.grpcClient;
+        return tempGrpcClient->streamingExecute("{{methodId}}", msgListener, headers);
     }{{/streamingFunctions}}
 };

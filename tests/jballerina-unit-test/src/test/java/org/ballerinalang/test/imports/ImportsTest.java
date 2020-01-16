@@ -18,8 +18,11 @@
 
 package org.ballerinalang.test.imports;
 
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
+import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import static org.ballerinalang.test.util.BAssertUtil.validateError;
@@ -52,5 +55,12 @@ public class ImportsTest {
         validateError(result, 2, "cyclic module imports detected 'cyclic-imports/abc:1.0.0 -> " +
                                  "cyclic-imports/def:1.0.0 -> cyclic-imports/ghi:1.0.0 -> cyclic-imports/abc:1.0.0'",
                 3, 1);
+    }
+
+    @Test(description = "Test importing same module name but with different org names")
+    public void testSameModuleNameDifferentOrgImports() {
+        CompileResult result = BCompileUtil.compile("test-src/imports/same-module-different-org-import", "math");
+        BValue[] returns = BRunUtil.invoke(result, "getStringValueOfPI");
+        Assert.assertTrue((returns[0]).stringValue().startsWith("3.14"));
     }
 }

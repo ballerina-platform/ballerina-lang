@@ -16,26 +16,25 @@
 
 package org.ballerinalang.nativeimpl.llvm.gen;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.types.BPackage;
+import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.nativeimpl.llvm.FFIUtil;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.bytedeco.javacpp.LLVM;
-import org.bytedeco.javacpp.LLVM.LLVMTypeRef;
+import org.bytedeco.llvm.LLVM.LLVMTypeRef;
+import org.bytedeco.llvm.LLVM.LLVMValueRef;
 
 import static org.ballerinalang.model.types.TypeKind.RECORD;
-import static org.bytedeco.javacpp.LLVM.LLVMTypeOf;
+import static org.bytedeco.llvm.global.LLVM.LLVMTypeOf;
 
 /**
  * Auto generated class.
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "llvm",
-        functionName = "LLVMTypeOf",
+        functionName = "llvmTypeOf",
         args = {
                 @Argument(name = "val", type = RECORD, structType = "LLVMValueRef"),
         },
@@ -43,14 +42,14 @@ import static org.bytedeco.javacpp.LLVM.LLVMTypeOf;
                 @ReturnType(type = RECORD, structType = "LLVMTypeRef", structPackage = "ballerina/llvm"),
         }
 )
-public class LLVMTypeOf extends BlockingNativeCallableUnit {
+public class LLVMTypeOf {
 
-    @Override
-    public void execute(Context context) {
-        LLVM.LLVMValueRef val = FFIUtil.getRecodeArgumentNative(context, 0);
-        LLVMTypeRef returnValue = LLVMTypeOf(val);
-        BMap<String, BValue> rerunWrapperRecode = FFIUtil.newRecord(context, "LLVMTypeRef");
-        FFIUtil.addNativeToRecode(returnValue, rerunWrapperRecode);
-        context.setReturnValues(rerunWrapperRecode);
+    public static MapValue<String, Object> llvmTypeOf(Strand strand, MapValue<String, Object> val) {
+        LLVMValueRef valRef = (LLVMValueRef) FFIUtil.getRecodeArgumentNative(val);
+        LLVMTypeRef returnValue = LLVMTypeOf(valRef);
+        MapValue<String, Object> returnWrappedRecord = FFIUtil.newRecord(new BPackage("ballerina",
+                "llvm"), "LLVMTypeRef");
+        FFIUtil.addNativeToRecode(returnValue, returnWrappedRecord);
+        return returnWrappedRecord;
     }
 }

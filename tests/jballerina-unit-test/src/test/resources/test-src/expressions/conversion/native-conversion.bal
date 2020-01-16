@@ -431,12 +431,13 @@ type Info record {|
 |};
 
 type Info2 record {|
-    byte[] infoBlob = [];
+    xml[] infoBlob = [];
 |};
 
 function testStructWithIncompatibleTypeMapToJson () returns (json) {
-    byte[] b = [];
-    map<anydata> m = {bar:b};
+    xml xml1 = xml `ballerina`;
+    xml[] x = [xml1];
+    map<anydata> m = {bar:x};
     Info info = {foo:m};
 
     var j = json.constructFrom(info);
@@ -738,8 +739,9 @@ function testComplexMapToJson () returns json|error {
 }
 
 function testStructWithIncompatibleTypeToJson () returns json {
+    xml xml1 = xml `Hello, world!`;
     Info2 info = {
-        infoBlob : [1, 2, 3, 4, 5]
+        infoBlob : [xml1]
     };
     var j = json.constructFrom(info);
     if (j is json) {

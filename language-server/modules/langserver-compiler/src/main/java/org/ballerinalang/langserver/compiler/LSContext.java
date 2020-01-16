@@ -19,9 +19,15 @@ package org.ballerinalang.langserver.compiler;
 
 /**
  * Ballerina Language server context.
+ *
  * @since 0.970.0
  */
-public interface LSContext {
+public abstract class LSContext {
+    private LSOperation operation;
+
+    protected LSContext(LSOperation operation) {
+        this.operation = operation;
+    }
 
     /**
      * Add new Context property.
@@ -29,7 +35,7 @@ public interface LSContext {
      * @param value Property value
      * @param <V>   Key Type
      */
-    <V> void put(Key<V> key, V value);
+    public abstract <V> void put(Key<V> key, V value);
 
     /**
      * Get property by Key.
@@ -37,19 +43,21 @@ public interface LSContext {
      * @param <V>   Key Type
      * @return {@link Object}   Property
      */
-    <V> V get(Key<V> key);
+    public abstract <V> V get(Key<V> key);
 
     /**
      * Returns operation name.
      *
      * @return  operation name
      */
-    LSOperation getOperation();
+    LSOperation getOperation() {
+        return this.operation;
+    }
 
     /**
      * @param <K> Property Key
      * @since 0.95.5
      */
-    class Key<K> {
+    public static class Key<K> {
     }
 }

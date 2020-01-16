@@ -22,15 +22,12 @@ import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import org.ballerinalang.jvm.observability.ObserveUtils;
 import org.ballerinalang.jvm.observability.ObserverContext;
+import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.scheduling.State;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.http.DataContext;
 import org.ballerinalang.net.http.HttpErrorType;
 import org.ballerinalang.net.http.HttpUtil;
@@ -55,23 +52,14 @@ import static org.ballerinalang.net.http.nativeimpl.pipelining.PipeliningHandler
  *
  * @since 0.96
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "http",
-        functionName = "nativeRespond",
-        args = {@Argument(name = "connection", type = TypeKind.OBJECT),
-                @Argument(name = "res", type = TypeKind.OBJECT, structType = "Response",
-                        structPackage = "ballerina/http")},
-        returnType = @ReturnType(type = TypeKind.RECORD, structType = "HttpConnectorError",
-                structPackage = "ballerina/http"),
-        isPublic = true
-)
 public class Respond extends ConnectionAction {
 
     private static final Logger log = LoggerFactory.getLogger(Respond.class);
 
-    public static Object nativeRespond(Strand strand, ObjectValue connectionObj, ObjectValue outboundResponseObj) {
+    public static Object nativeRespond(ObjectValue connectionObj, ObjectValue outboundResponseObj) {
 
         HttpCarbonMessage inboundRequestMsg = HttpUtil.getCarbonMsg(connectionObj, null);
+        Strand strand = Scheduler.getStrand();
         DataContext dataContext = new DataContext(strand, new NonBlockingCallback(strand), inboundRequestMsg);
         HttpCarbonMessage outboundResponseMsg = HttpUtil
                 .getCarbonMsg(outboundResponseObj, HttpUtil.createHttpCarbonMessage(false));

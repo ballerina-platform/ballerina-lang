@@ -25,6 +25,7 @@ import org.ballerinalang.model.tree.clauses.WindowClauseNode;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 
 import java.util.List;
 
@@ -36,18 +37,19 @@ import java.util.List;
 
 public class BLangStreamingInput extends BLangNode implements StreamingInput {
 
-    private WhereNode beforeStreamingCondition;
-    private WindowClauseNode windowClause;
-    private WhereNode afterStreamingCondition;
-    private ExpressionNode streamReference;
-    private String alias;
-    private boolean isWindowTraversedAfterWhere;
-    private List<ExpressionNode> preInvocations;
-    private List<ExpressionNode> postInvocations;
+    public BLangWhere beforeStreamingCondition;
+    public BLangWindow windowClause;
+    public BLangWhere afterStreamingCondition;
+    public BLangExpression streamReference;
+    public String alias;
+    public boolean isWindowTraversedAfterWhere;
+    public List<ExpressionNode> preInvocations;
+    public List<ExpressionNode> postInvocations;
 
     @Override
     public void setBeforeStreamingCondition(WhereNode where) {
-        this.beforeStreamingCondition = where;
+
+        this.beforeStreamingCondition = (BLangWhere) where;
     }
 
     @Override
@@ -57,7 +59,8 @@ public class BLangStreamingInput extends BLangNode implements StreamingInput {
 
     @Override
     public void setAfterStreamingCondition(WhereNode where) {
-        this.afterStreamingCondition = where;
+
+        this.afterStreamingCondition = (BLangWhere) where;
     }
 
     @Override
@@ -77,7 +80,8 @@ public class BLangStreamingInput extends BLangNode implements StreamingInput {
 
     @Override
     public void setWindowClause(WindowClauseNode windowClause) {
-        this.windowClause = windowClause;
+
+        this.windowClause = (BLangWindow) windowClause;
     }
 
     @Override
@@ -90,7 +94,8 @@ public class BLangStreamingInput extends BLangNode implements StreamingInput {
     }
 
     public void setStreamReference(ExpressionNode streamReference) {
-        this.streamReference = streamReference;
+
+        this.streamReference = (BLangExpression) streamReference;
     }
 
     @Override

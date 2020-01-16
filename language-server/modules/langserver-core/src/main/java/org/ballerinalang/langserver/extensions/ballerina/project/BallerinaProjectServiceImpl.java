@@ -23,7 +23,6 @@ import org.ballerinalang.langserver.LSGlobalContextKeys;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.compiler.LSModuleCompiler;
-import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.compiler.common.LSCustomErrorStrategy;
 import org.ballerinalang.langserver.compiler.common.modal.SymbolMetaInfo;
 import org.ballerinalang.langserver.compiler.exception.CompilationFailedException;
@@ -63,8 +62,10 @@ public class BallerinaProjectServiceImpl implements BallerinaProjectService {
             ModulesResponse reply = new ModulesResponse();
             String sourceRoot = request.getSourceRoot();
             try {
-                LSContext astContext = new LSServiceOperationContext(LSContextOperation.PROJ_MODULES);
-                astContext.put(DocumentServiceKeys.SOURCE_ROOT_KEY, sourceRoot);
+                LSContext astContext = new ProjectServiceOperationContext
+                        .ProjectServiceContextBuilder(LSContextOperation.PROJ_MODULES)
+                        .withModulesParams(sourceRoot, documentManager)
+                        .build();
                 List<BLangPackage> modules = LSModuleCompiler.getBLangModules(astContext, this.documentManager,
                                                                               LSCustomErrorStrategy.class, false);
                 JsonObject jsonModulesInfo = getJsonReply(astContext, modules);
@@ -96,7 +97,11 @@ public class BallerinaProjectServiceImpl implements BallerinaProjectService {
             Map<BLangNode, List<SymbolMetaInfo>> visibleEPsByNode = visibleEndpointVisitor.getVisibleEPsByNode();
 
             JsonObject jsonCUnits = new JsonObject();
-            for (BLangCompilationUnit cUnit: module.getCompilationUnits()) {
+            List<BLangCompilationUnit> compilationUnits = module.getCompilationUnits();
+            // add all cunits in testable package as well
+            module.testablePkgs.forEach(bLangTestablePackage ->
+                    compilationUnits.addAll(bLangTestablePackage.getCompilationUnits()));
+            for (BLangCompilationUnit cUnit: compilationUnits) {
                 JsonObject jsonCUnit = new JsonObject();
                 jsonCUnit.addProperty("name", cUnit.name);
                 Path sourceRoot = Paths.get(new URI(astContext.get(DocumentServiceKeys.SOURCE_ROOT_KEY)));

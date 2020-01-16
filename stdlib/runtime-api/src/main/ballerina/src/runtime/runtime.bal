@@ -14,18 +14,29 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerinax/java;
 
 # Halts the current worker for a predefined amount of time.
 #
 # + millis - Amount of time to sleep in milliseconds
-public function sleep(int millis) = external;
+public function sleep(int millis) = @java:Method {
+    class: "org.ballerinalang.stdlib.runtime.nativeimpl.Sleep"
+} external;
+
 
 // Todo - Remove
 # Returns the value associated with the specified property name.
 #
 # + name - Name of the property
 # + return - Value of the property if the property exists, an empty string otherwise
-public function getProperty(@untainted string name) returns string = external;
+public function getProperty(@untainted string name) returns string {
+    return externGetProperty(java:fromString(name)).toString();
+}
+
+public function externGetProperty(@untainted handle name) returns handle = @java:Method {
+    name: "getProperty",
+    class: "org.ballerinalang.stdlib.runtime.nativeimpl.GetProperty"
+} external;
 
 # Gives a timeout to the current worker for a predefined amount of time.
 #

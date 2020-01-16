@@ -52,10 +52,6 @@ public interface MapValue<K, V> extends RefValue, CollectionValue, BMap<K, V> {
 
     Object merge(MapValue v2, boolean checkMergeability);
 
-    default int size() {
-        return -1;
-    }
-
     void addNativeData(String key, Object data);
 
     Object getNativeData(String key);

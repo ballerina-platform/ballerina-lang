@@ -1,4 +1,4 @@
-// Copyright (c) 2018 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+// Copyright (c) 2019 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 //
 // WSO2 Inc. licenses this file to you under the Apache License,
 // Version 2.0 (the "License"); you may not use this file except
@@ -16,22 +16,23 @@
 
 package org.ballerinalang.nativeimpl.llvm.gen;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 
-import static org.bytedeco.javacpp.LLVM.LLVMInitializeAllAsmParsers;
+import static org.bytedeco.llvm.global.LLVM.LLVMInitializeAllAsmParsers;
 
 /**
  * Auto generated class.
+ *
+ * @since 1.0.3
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "llvm",
-        functionName = "LLVMInitializeAllAsmParsers")
-public class LLVMInitializeAllAsmParsers extends BlockingNativeCallableUnit {
+        functionName = "llvmInitializeAllAsmParsers")
+public class LLVMInitializeAllAsmParsers {
 
-    @Override
-    public void execute(Context context) {
+    public static void llvmInitializeAllAsmParsers(Strand strand) {
+
         LLVMInitializeAllAsmParsers();
     }
 }
