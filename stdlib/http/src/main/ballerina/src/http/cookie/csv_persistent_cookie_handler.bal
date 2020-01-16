@@ -37,13 +37,16 @@ string? cookieNameToRemove = ();
 string? cookieDomainToRemove = ();
 string? cookiePathToRemove = ();
 
-public type DefaultPersistentCookieHandler  object {
+# Represents a default persistent cookie handler which stores persistent cookies in a CSV file.
+#
+# + fileName - Name of the CSV file to store persistent cookies
+public type CsvPersistentCookieHandler object {
     *PersistentCookieHandler;
 
     string fileName = "";
 
     public function __init(string fileName) {
-        self.fileName = fileName + ".csv";
+        self.fileName = checkpanic validateFileExtension(fileName);
     }
     # Adds a persistent cookie to the cookie store.
     #
@@ -135,6 +138,14 @@ public type DefaultPersistentCookieHandler  object {
         }
     }
 };
+
+function validateFileExtension(string fileName) returns string|error {
+    if (fileName.toLowerAscii().endsWith(".csv")) {
+        return fileName;
+    }
+    error invExtension = error("Invalid file format");
+    return invExtension;
+}
 
 // Reads file and gets earlier data into a table.
 function getFileDataIntoTable(string fileName) returns @tainted table<myCookie> {
