@@ -21,11 +21,11 @@ import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.nativeimpl.llvm.FFIUtil;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.bytedeco.javacpp.LLVM;
+import org.bytedeco.llvm.LLVM.LLVMPassManagerBuilderRef;
 
 import static org.ballerinalang.model.types.TypeKind.INT;
 import static org.ballerinalang.model.types.TypeKind.RECORD;
-import static org.bytedeco.javacpp.LLVM.LLVMPassManagerBuilderSetOptLevel;
+import static org.bytedeco.llvm.global.LLVM.LLVMPassManagerBuilderSetOptLevel;
 
 /**
  * Auto generated class.
@@ -43,7 +43,7 @@ public class LLVMPassManagerBuilderSetOptLevel {
 
     public static void llvmPassManagerBuilderSetOptLevel(Strand strand, MapValue<String, Object> m, long optLevel) {
 
-        LLVM.LLVMPassManagerBuilderRef pmb = (LLVM.LLVMPassManagerBuilderRef) FFIUtil.getRecodeArgumentNative(m);
+        LLVMPassManagerBuilderRef pmb = (LLVMPassManagerBuilderRef) FFIUtil.getRecodeArgumentNative(m);
         LLVMPassManagerBuilderSetOptLevel(pmb, (int) optLevel);
     }
 }

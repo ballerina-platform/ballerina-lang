@@ -20,7 +20,6 @@ import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.command.ExecuteCommandKeys;
 import org.ballerinalang.langserver.command.LSCommandExecutor;
 import org.ballerinalang.langserver.command.LSCommandExecutorException;
-import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSContext;
@@ -88,7 +87,7 @@ public class ChangeAbstractTypeObjExecutor implements LSCommandExecutor {
             throw new LSCommandExecutorException("Invalid parameters received for the change abstract type command!");
         }
 
-        WorkspaceDocumentManager documentManager = context.get(CommonKeys.DOC_MANAGER_KEY);
+        WorkspaceDocumentManager documentManager = context.get(DocumentServiceKeys.DOC_MANAGER_KEY);
 
         BLangObjectTypeNode objectNode;
         try {

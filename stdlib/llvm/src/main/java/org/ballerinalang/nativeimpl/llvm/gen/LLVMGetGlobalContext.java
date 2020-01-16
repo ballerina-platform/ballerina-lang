@@ -22,10 +22,10 @@ import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.nativeimpl.llvm.FFIUtil;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.bytedeco.javacpp.LLVM.LLVMContextRef;
+import org.bytedeco.llvm.LLVM.LLVMContextRef;
 
 import static org.ballerinalang.model.types.TypeKind.RECORD;
-import static org.bytedeco.javacpp.LLVM.LLVMGetGlobalContext;
+import static org.bytedeco.llvm.global.LLVM.LLVMGetGlobalContext;
 
 /**
  * Auto generated class.

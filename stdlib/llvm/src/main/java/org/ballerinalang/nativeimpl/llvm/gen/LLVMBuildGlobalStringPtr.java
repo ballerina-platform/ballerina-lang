@@ -23,12 +23,12 @@ import org.ballerinalang.nativeimpl.llvm.FFIUtil;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.bytedeco.javacpp.LLVM;
-import org.bytedeco.javacpp.LLVM.LLVMValueRef;
+import org.bytedeco.llvm.LLVM.LLVMBuilderRef;
+import org.bytedeco.llvm.LLVM.LLVMValueRef;
 
 import static org.ballerinalang.model.types.TypeKind.RECORD;
 import static org.ballerinalang.model.types.TypeKind.STRING;
-import static org.bytedeco.javacpp.LLVM.LLVMBuildGlobalStringPtr;
+import static org.bytedeco.llvm.global.LLVM.LLVMBuildGlobalStringPtr;
 
 /**
  * Auto generated class.
@@ -51,7 +51,7 @@ public class LLVMBuildGlobalStringPtr {
 
     public static MapValue<String, Object> llvmBuildGlobalStringPtr(Strand strand, MapValue<String, Object> b,
             String str, String name) {
-        LLVM.LLVMBuilderRef bRef = (LLVM.LLVMBuilderRef) FFIUtil.getRecodeArgumentNative(b);
+        LLVMBuilderRef bRef = (LLVMBuilderRef) FFIUtil.getRecodeArgumentNative(b);
         LLVMValueRef returnValue = LLVMBuildGlobalStringPtr(bRef, str, name);
         MapValue<String, Object> returnWrappedRecord = FFIUtil.newRecord(new BPackage("ballerina",
                 "llvm"), "LLVMValueRef");

@@ -23,6 +23,7 @@ import org.ballerinalang.langserver.common.LSNodeVisitor;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSContext;
+import org.ballerinalang.langserver.completions.exceptions.CompletionContextNotSupportedException;
 import org.ballerinalang.langserver.completions.util.CompletionVisitorUtil;
 import org.ballerinalang.langserver.completions.util.CursorPositionResolvers;
 import org.ballerinalang.langserver.completions.util.positioning.resolvers.BlockStatementScopeResolver;
@@ -832,8 +833,7 @@ public class TreeVisitor extends LSNodeVisitor {
         int eCol = pos.eCol;
         
         if ((sLine < cLine && eLine > cLine) || (sLine == cLine && eLine == cLine && cCol >= sCol && cCol <= eCol)) {
-            this.terminateVisitor = true;
-            this.lsContext.put(DocumentServiceKeys.TERMINATE_OPERATION_KEY, true);
+            throw new CompletionContextNotSupportedException("Completion within Literals are not Supported");
         }
     }
 

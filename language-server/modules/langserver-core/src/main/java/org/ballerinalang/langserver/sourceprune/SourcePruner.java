@@ -23,6 +23,7 @@ import org.ballerinalang.langserver.LSContextOperation;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
+import org.ballerinalang.langserver.completions.exceptions.CompletionContextNotSupportedException;
 import org.ballerinalang.langserver.completions.util.SourcePruneException;
 import org.eclipse.lsp4j.Position;
 
@@ -59,8 +60,7 @@ public class SourcePruner {
         Optional<Token> tokenAtCursor = searchTokenAtCursor(tokenList, cursorPosition.getLine(),
                                                             cursorPosition.getCharacter(), false);
         if (tokenAtCursor.isPresent() && tokenAtCursor.get().getText().startsWith("//")) {
-            lsContext.put(DocumentServiceKeys.TERMINATE_OPERATION_KEY, true);
-            return;
+            throw new CompletionContextNotSupportedException("Operations within Comments are not Supported");
         }
         tokenAtCursor.ifPresent(token ->
                 lsContext.put(SourcePruneKeys.CURSOR_TOKEN_INDEX_KEY, tokenList.indexOf(token)));

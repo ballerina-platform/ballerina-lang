@@ -21,10 +21,10 @@ import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.nativeimpl.llvm.FFIUtil;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.bytedeco.javacpp.LLVM;
+import org.bytedeco.llvm.LLVM.LLVMModuleRef;
 
 import static org.ballerinalang.model.types.TypeKind.RECORD;
-import static org.bytedeco.javacpp.LLVM.LLVMDumpModule;
+import static org.bytedeco.llvm.global.LLVM.LLVMDumpModule;
 
 /**
  * Auto generated class.
@@ -41,7 +41,7 @@ public class LLVMDumpModule {
 
     public static void llvmDumpModule(Strand strand, MapValue<String, Object> fn) {
 
-        LLVM.LLVMModuleRef m = (LLVM.LLVMModuleRef) FFIUtil.getRecodeArgumentNative(fn);
+        LLVMModuleRef m = (LLVMModuleRef) FFIUtil.getRecodeArgumentNative(fn);
         LLVMDumpModule(m);
     }
 }

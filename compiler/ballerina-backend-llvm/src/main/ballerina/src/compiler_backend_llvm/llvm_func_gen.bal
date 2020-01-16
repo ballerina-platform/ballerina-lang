@@ -91,6 +91,7 @@ type FuncGenrator object {
         }
     }
 
+    //TODO : Refactor these two methods
     function cacheLocVarValue(bir:VariableDcl? localVar, llvm:LLVMValueRef localVarRef) {
         map<llvm:LLVMValueRef> localVarRefsTemp = self.localVarRefs;
         string localVarRefName = localVariableName(localVar);

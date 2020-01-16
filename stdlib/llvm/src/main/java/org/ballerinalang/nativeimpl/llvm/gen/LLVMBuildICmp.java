@@ -23,13 +23,13 @@ import org.ballerinalang.nativeimpl.llvm.FFIUtil;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.bytedeco.javacpp.LLVM;
-import org.bytedeco.javacpp.LLVM.LLVMValueRef;
+import org.bytedeco.llvm.LLVM.LLVMBuilderRef;
+import org.bytedeco.llvm.LLVM.LLVMValueRef;
 
 import static org.ballerinalang.model.types.TypeKind.INT;
 import static org.ballerinalang.model.types.TypeKind.RECORD;
 import static org.ballerinalang.model.types.TypeKind.STRING;
-import static org.bytedeco.javacpp.LLVM.LLVMBuildICmp;
+import static org.bytedeco.llvm.global.LLVM.LLVMBuildICmp;
 
 /**
  * Auto generated class.
@@ -56,7 +56,7 @@ public class LLVMBuildICmp {
                                                          MapValue<String, Object> lhs,
                                                          MapValue<String, Object> rhs, String name) {
 
-        LLVM.LLVMBuilderRef arg0Ref = (LLVM.LLVMBuilderRef) FFIUtil.getRecodeArgumentNative(arg0);
+        LLVMBuilderRef arg0Ref = (LLVMBuilderRef) FFIUtil.getRecodeArgumentNative(arg0);
         int opRef = (int) op;
         LLVMValueRef lhsRef = (LLVMValueRef) FFIUtil.getRecodeArgumentNative(lhs);
         LLVMValueRef rhsRef = (LLVMValueRef) FFIUtil.getRecodeArgumentNative(rhs);

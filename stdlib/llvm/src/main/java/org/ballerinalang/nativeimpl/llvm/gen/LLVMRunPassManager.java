@@ -22,11 +22,12 @@ import org.ballerinalang.nativeimpl.llvm.FFIUtil;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.bytedeco.javacpp.LLVM;
+import org.bytedeco.llvm.LLVM.LLVMModuleRef;
+import org.bytedeco.llvm.LLVM.LLVMPassManagerRef;
 
 import static org.ballerinalang.model.types.TypeKind.INT;
 import static org.ballerinalang.model.types.TypeKind.RECORD;
-import static org.bytedeco.javacpp.LLVM.LLVMRunPassManager;
+import static org.bytedeco.llvm.global.LLVM.LLVMRunPassManager;
 
 /**
  * Auto generated class.
@@ -48,8 +49,8 @@ public class LLVMRunPassManager {
 
     public static long llvmRunPassManager(Strand strand, MapValue<String, Object> arg0, MapValue<String, Object> arg1) {
 
-        LLVM.LLVMPassManagerRef pm = (LLVM.LLVMPassManagerRef) FFIUtil.getRecodeArgumentNative(arg0);
-        LLVM.LLVMModuleRef m = (LLVM.LLVMModuleRef) FFIUtil.getRecodeArgumentNative(arg1);
+        LLVMPassManagerRef pm = (LLVMPassManagerRef) FFIUtil.getRecodeArgumentNative(arg0);
+        LLVMModuleRef m = (LLVMModuleRef) FFIUtil.getRecodeArgumentNative(arg1);
         return LLVMRunPassManager(pm, m);
     }
 }
