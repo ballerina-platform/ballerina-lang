@@ -37,7 +37,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.Arrays;
 import java.util.Locale;
 
@@ -74,13 +73,23 @@ public class UpdateStatement extends AbstractSQLStatement {
             ArrayValue generatedParams = constructParameters(parameters);
             conn = getDatabaseConnection(strand, client, datasource);
             String processedQuery = createProcessedQueryString(query, generatedParams);
-            stmt = conn.prepareStatement(processedQuery, Statement.RETURN_GENERATED_KEYS);
+
+            boolean generatedKeyReturningSupported = datasource.supportsGetGeneratedKeys();
+
+            if (generatedKeyReturningSupported) {
+                stmt = conn.prepareStatement(processedQuery, PreparedStatement.RETURN_GENERATED_KEYS);
+            } else {
+                stmt = conn.prepareStatement(processedQuery);
+            }
+
             ProcessedStatement processedStatement = new ProcessedStatement(conn, stmt, generatedParams,
                     datasource.getDatabaseProductName());
             stmt = processedStatement.prepare();
             int count = stmt.executeUpdate();
+
             MapValue<String, Object> generatedKeys;
-            if (!isDdlStatement()) {
+
+            if (generatedKeyReturningSupported && !isDdlStatement()) {
                 rs = stmt.getGeneratedKeys();
                 //This result set contains the auto generated keys.
                 if (rs.next()) {
@@ -91,7 +100,9 @@ public class UpdateStatement extends AbstractSQLStatement {
             } else {
                 generatedKeys = new MapValueImpl<>();
             }
+
             return createFrozenUpdateResultRecord(count, generatedKeys);
+
         } catch (SQLException e) {
             handleErrorOnTransaction(this.strand);
             checkAndObserveSQLError(strand, "execute update failed: " + e.getMessage());
