@@ -62,10 +62,10 @@ public class DefinitionTest {
 
     @Test(description = "Test goto definitions", dataProvider = "testDataProvider")
     public void test(String configPath, String configDir) throws IOException {
-        if (configPath.equals("defTypeDesc1")) {
+        if (configPath.contains("defTypeDesc1")) {
             Path path = FileUtils.RES_DIR.resolve(configRoot.resolve(configDir)
                     .resolve(configPath).toString());
-            log.debug("------------- [" + path.toString() + "]");
+            log.info("------------- [" + path.toString() + "]");
         }
         JsonObject configObject = FileUtils.fileContentAsObject(configRoot.resolve(configDir)
                 .resolve(configPath).toString());
