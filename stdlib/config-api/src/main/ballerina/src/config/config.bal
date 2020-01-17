@@ -153,8 +153,8 @@ public function getAsMap(@untainted string key) returns map<any> {
 #
 # + key - The configuration to be retrieved
 # + return - Configuration value mapped by the key
-public function getAsArray(@untainted string key) returns any[] {
-    return <any[]>get(key, ARRAY);
+public function getAsArray(@untainted string key) returns anydata[] {
+    return <anydata[]>get(key, ARRAY);
 }
 
 function lookupEnvVar(string key) returns string {

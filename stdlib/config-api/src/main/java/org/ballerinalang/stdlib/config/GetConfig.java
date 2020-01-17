@@ -75,6 +75,6 @@ public class GetConfig {
     }
 
     private static BArray buildArrayValue(List value) {
-        return BValueCreator.createArrayValue(value.toArray(), new BArrayType(BTypes.typeAny));
+        return BValueCreator.createArrayValue(value.toArray(), new BArrayType(BTypes.typeAnydata));
     }
 }
