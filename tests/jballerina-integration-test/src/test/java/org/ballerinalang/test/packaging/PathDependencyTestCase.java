@@ -39,13 +39,14 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
-import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.awaitility.Awaitility.given;
 import static org.ballerinalang.test.packaging.PackerinaTestUtils.deleteFiles;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_COMPILED_JAR_EXT;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_COMPILED_PKG_BINARY_EXT;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_SOURCE_EXT;
+
+import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
+import static java.util.concurrent.TimeUnit.SECONDS;
 
 /**
  * Test cases related to solving dependencies using paths in Ballerina.toml.
@@ -485,6 +486,42 @@ public class PathDependencyTestCase extends BaseTest {
         balClient.runMain("run", new String[]{interopBalFileName}, envVariables, new String[]{},
                           new LogLeecher[]{balRunLeecher}, caseResources.toString());
         balRunLeecher.waitForText(10000);
+    }
+
+    /**
+     * Case9: Build TestProject1 which has a native module with java libraries in the resources directory.
+     * Then build TestProject2 which refer to the native module balo. Run the jar of TestProject2
+     *
+     * @throws BallerinaTestException Error when executing the commands.
+     */
+    @Test(description = "Case9: Test path between 2 projects which the import is a native and libraries are in " +
+            "resources directory.")
+    public void testBaloPathCase9() throws BallerinaTestException {
+        Path caseResources = tempTestResources.resolve("case9");
+        // Build bee module of TestProject1
+        String toml4jModuleBaloFileName = "toml4j-" + ProgramFileConstants.IMPLEMENTATION_VERSION + "-java8-0.7.2"
+                + BLANG_COMPILED_PKG_BINARY_EXT;
+
+        String toml4jBuildMsg = "target" + File.separator + "balo" + File.separator + toml4jModuleBaloFileName;
+        LogLeecher toml4jBuildLeecher = new LogLeecher(toml4jBuildMsg);
+        balClient.runMain("build", new String[]{"--all", "-c"}, envVariables, new String[]{},
+                          new LogLeecher[]{toml4jBuildLeecher}, caseResources.resolve("TestProject1").toString());
+        toml4jBuildLeecher.waitForText(5000);
+
+        // Build foo module of TestProject2
+        String bazModuleBaloFileName = "baz" + BLANG_COMPILED_JAR_EXT;
+
+        String bazBuildMsg = "target" + File.separator + "bin" + File.separator + bazModuleBaloFileName;
+        LogLeecher bazModuleBuildLeecher = new LogLeecher(bazBuildMsg);
+        balClient.runMain("build", new String[]{"-a"}, envVariables, new String[]{},
+                          new LogLeecher[]{bazModuleBuildLeecher}, caseResources.resolve("TestProject2").toString());
+        bazModuleBuildLeecher.waitForText(5000);
+
+        // Run and see output
+        LogLeecher bazRunLeecher = new LogLeecher("cat");
+        balClient.runMain("run", new String[]{bazBuildMsg}, envVariables, new String[0],
+                          new LogLeecher[]{bazRunLeecher}, caseResources.resolve("TestProject2").toString());
+        bazRunLeecher.waitForText(10000);
     }
 
     /**
