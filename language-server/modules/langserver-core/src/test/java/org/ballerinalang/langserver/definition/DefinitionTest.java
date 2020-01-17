@@ -62,11 +62,6 @@ public class DefinitionTest {
 
     @Test(description = "Test goto definitions", dataProvider = "testDataProvider")
     public void test(String configPath, String configDir) throws IOException {
-        if (configPath.contains("defTypeDesc1")) {
-            Path path = FileUtils.RES_DIR.resolve(configRoot.resolve(configDir)
-                    .resolve(configPath).toString());
-            log.info("------------- [" + path.toString() + "]");
-        }
         JsonObject configObject = FileUtils.fileContentAsObject(configRoot.resolve(configDir)
                 .resolve(configPath).toString());
         JsonObject source = configObject.getAsJsonObject("source");
@@ -138,68 +133,68 @@ public class DefinitionTest {
                 {"defFunction12.json", "function"},
                 // Following tests covers the type descriptor and Module Type Definitions
                 // Covers Simple Type Descriptor
-                {"defTypeDesc1.json", "typedescriptor"},
-                {"defTypeDesc2.json", "typedescriptor"},
+                {"defTypeDesc1.json", "typedesc"},
+                {"defTypeDesc2.json", "typedesc"},
                 // Covers List Type Descriptor
-                {"defTypeDesc3.json", "typedescriptor"},
-                {"defTypeDesc4.json", "typedescriptor"},
-                {"defTypeDesc5.json", "typedescriptor"},
-                {"defTypeDesc6.json", "typedescriptor"},
-                {"defTypeDesc7.json", "typedescriptor"},
-                {"defTypeDesc8.json", "typedescriptor"},
+                {"defTypeDesc3.json", "typedesc"},
+                {"defTypeDesc4.json", "typedesc"},
+                {"defTypeDesc5.json", "typedesc"},
+                {"defTypeDesc6.json", "typedesc"},
+                {"defTypeDesc7.json", "typedesc"},
+                {"defTypeDesc8.json", "typedesc"},
                 // Covers Map Type Descriptor
-                {"defTypeDesc9.json", "typedescriptor"},
-                {"defTypeDesc10.json", "typedescriptor"},
-                {"defTypeDesc11.json", "typedescriptor"},
-                {"defTypeDesc12.json", "typedescriptor"},
-                {"defTypeDesc13.json", "typedescriptor"},
-                {"defTypeDesc14.json", "typedescriptor"},
-                {"defTypeDesc15.json", "typedescriptor"},
-                {"defTypeDesc16.json", "typedescriptor"},
+                {"defTypeDesc9.json", "typedesc"},
+                {"defTypeDesc10.json", "typedesc"},
+                {"defTypeDesc11.json", "typedesc"},
+                {"defTypeDesc12.json", "typedesc"},
+                {"defTypeDesc13.json", "typedesc"},
+                {"defTypeDesc14.json", "typedesc"},
+                {"defTypeDesc15.json", "typedesc"},
+                {"defTypeDesc16.json", "typedesc"},
                 // Covers Function Type Descriptor
-                {"defTypeDesc17.json", "typedescriptor"},
-                {"defTypeDesc18.json", "typedescriptor"},
-                {"defTypeDesc19.json", "typedescriptor"},
-                {"defTypeDesc20.json", "typedescriptor"},
-                {"defTypeDesc21.json", "typedescriptor"},
+                {"defTypeDesc17.json", "typedesc"},
+                {"defTypeDesc18.json", "typedesc"},
+                {"defTypeDesc19.json", "typedesc"},
+                {"defTypeDesc20.json", "typedesc"},
+                {"defTypeDesc21.json", "typedesc"},
                 // Covers Object Type Descriptor
-                {"defTypeDesc22.json", "typedescriptor"},
-                {"defTypeDesc23.json", "typedescriptor"},
-                {"defTypeDesc24.json", "typedescriptor"},
-                {"defTypeDesc25.json", "typedescriptor"},
-                {"defTypeDesc26.json", "typedescriptor"},
-                {"defTypeDesc27.json", "typedescriptor"},
-                {"defTypeDesc28.json", "typedescriptor"},
-                {"defTypeDesc29.json", "typedescriptor"},
-                {"defTypeDesc30.json", "typedescriptor"},
-                {"defTypeDesc31.json", "typedescriptor"},
-                {"defTypeDesc32.json", "typedescriptor"},
-                {"defTypeDesc33.json", "typedescriptor"},
-                {"defTypeDesc34.json", "typedescriptor"},
-                {"defTypeDesc35.json", "typedescriptor"},
-                {"defTypeDesc36.json", "typedescriptor"},
-                {"defTypeDesc37.json", "typedescriptor"},
+                {"defTypeDesc22.json", "typedesc"},
+                {"defTypeDesc23.json", "typedesc"},
+                {"defTypeDesc24.json", "typedesc"},
+                {"defTypeDesc25.json", "typedesc"},
+                {"defTypeDesc26.json", "typedesc"},
+                {"defTypeDesc27.json", "typedesc"},
+                {"defTypeDesc28.json", "typedesc"},
+                {"defTypeDesc29.json", "typedesc"},
+                {"defTypeDesc30.json", "typedesc"},
+                {"defTypeDesc31.json", "typedesc"},
+                {"defTypeDesc32.json", "typedesc"},
+                {"defTypeDesc33.json", "typedesc"},
+                {"defTypeDesc34.json", "typedesc"},
+                {"defTypeDesc35.json", "typedesc"},
+                {"defTypeDesc36.json", "typedesc"},
+                {"defTypeDesc37.json", "typedesc"},
                 // Covers Future type Descriptor
-                {"defTypeDesc38.json", "typedescriptor"},
-                {"defTypeDesc39.json", "typedescriptor"},
-                {"defTypeDesc40.json", "typedescriptor"},
+                {"defTypeDesc38.json", "typedesc"},
+                {"defTypeDesc39.json", "typedesc"},
+                {"defTypeDesc40.json", "typedesc"},
                 // Covers TypeDesc Type Descriptor
-                {"defTypeDesc41.json", "typedescriptor"},
-                {"defTypeDesc42.json", "typedescriptor"},
-                {"defTypeDesc43.json", "typedescriptor"},
+                {"defTypeDesc41.json", "typedesc"},
+                {"defTypeDesc42.json", "typedesc"},
+                {"defTypeDesc43.json", "typedesc"},
                 // Covers Handle Type Descriptor
-                {"defTypeDesc44.json", "typedescriptor"},
+                {"defTypeDesc44.json", "typedesc"},
                 // Covers Union Type Descriptor
-                {"defTypeDesc45.json", "typedescriptor"},
-                {"defTypeDesc46.json", "typedescriptor"},
-                {"defTypeDesc47.json", "typedescriptor"},
+                {"defTypeDesc45.json", "typedesc"},
+                {"defTypeDesc46.json", "typedesc"},
+                {"defTypeDesc47.json", "typedesc"},
                 // Optional Type Descriptor
-                {"defTypeDesc48.json", "typedescriptor"},
-                {"defTypeDesc49.json", "typedescriptor"},
-                {"defTypeDesc50.json", "typedescriptor"},
+                {"defTypeDesc48.json", "typedesc"},
+                {"defTypeDesc49.json", "typedesc"},
+                {"defTypeDesc50.json", "typedesc"},
                 // Error Type Descriptor
-                {"defTypeDesc51.json", "typedescriptor"},
-                {"defTypeDesc52.json", "typedescriptor"},
+                {"defTypeDesc51.json", "typedesc"},
+                {"defTypeDesc52.json", "typedesc"},
                 // Covers the Module Level variable declarations
                 {"defModuleVar1.json", "modulevardecl"},
                 {"defModuleVar2.json", "modulevardecl"},
