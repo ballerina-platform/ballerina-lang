@@ -24,7 +24,6 @@ import org.ballerinalang.langserver.codeaction.CodeActionUtil;
 import org.ballerinalang.langserver.codelenses.CodeLensUtil;
 import org.ballerinalang.langserver.codelenses.LSCodeLensesProviderFactory;
 import org.ballerinalang.langserver.command.ExecuteCommandKeys;
-import org.ballerinalang.langserver.command.ExecuteCommandKeys;
 import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
@@ -394,7 +393,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
             context.put(ExecuteCommandKeys.FILE_URI_KEY, fileUri);
             context.put(DocumentServiceKeys.FILE_URI_KEY, fileUri);
             context.put(ExecuteCommandKeys.POSITION_START_KEY, params.getRange().getStart());
-            context.put(CommonKeys.DOC_MANAGER_KEY, documentManager);
+            context.put(DocumentServiceKeys.DOC_MANAGER_KEY, documentManager);
             try {
                 int line = params.getRange().getStart().getLine();
                 int col = params.getRange().getStart().getCharacter();

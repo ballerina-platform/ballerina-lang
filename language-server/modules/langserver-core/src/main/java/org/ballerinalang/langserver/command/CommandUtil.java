@@ -148,7 +148,7 @@ public class CommandUtil {
 
         boolean isService = CommonKeys.SERVICE_KEYWORD_KEY.equals(topLevelNodeType);
         boolean isFunction = CommonKeys.FUNCTION_KEYWORD_KEY.equals(topLevelNodeType);
-        WorkspaceDocumentManager documentManager = context.get(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY);
+        WorkspaceDocumentManager documentManager = context.get(DocumentServiceKeys.DOC_MANAGER_KEY);
         if ((isService || isFunction) && !isTopLevelNode(docUri, documentManager, context, position)) {
             return actions;
         }
@@ -536,7 +536,7 @@ public class CommandUtil {
         Matcher matcher = CommandConstants.INCOMPATIBLE_TYPE_PATTERN.matcher(diagnosticMessage);
         if (matcher.find() && matcher.groupCount() > 1) {
             String foundType = matcher.group(2);
-            WorkspaceDocumentManager documentManager = context.get(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY);
+            WorkspaceDocumentManager documentManager = context.get(DocumentServiceKeys.DOC_MANAGER_KEY);
             try {
                 BLangFunction func = CommandUtil.getFunctionNode(line, column, document, documentManager, context);
                 if (func != null && !BLangConstants.MAIN_FUNCTION_NAME.equals(func.name.value)) {
@@ -766,7 +766,7 @@ public class CommandUtil {
                 action.setDiagnostics(diagnostics);
                 // Extract specific content range
                 Range range = diagnostic.getRange();
-                WorkspaceDocumentManager documentManager = context.get(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY);
+                WorkspaceDocumentManager documentManager = context.get(DocumentServiceKeys.DOC_MANAGER_KEY);
                 String content = getContentOfRange(documentManager, uri, range);
                 // Add `untaint` keyword
                 matcher = CommandConstants.NO_CONCAT_PATTERN.matcher(content);
