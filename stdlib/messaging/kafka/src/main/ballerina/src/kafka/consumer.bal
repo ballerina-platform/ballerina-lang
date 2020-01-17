@@ -30,10 +30,8 @@ import ballerinax/java;
 # + isolationLevel - Transactional message reading method. Use "read_committed" to read the committed messages
 #       only in transactional mode when poll() is called. Use "read_uncommitted" to read all the messages,
 #       even the aborted ones.
-# + keyDeserializer - Deserializer used for the Kafka record key. This can be either `kafka:DeserializerType` or an
-#       user-defined deserializer.
-# + valueDeserializer - Deserializer used for the Kafka record value. This can be either `kafka:DeserializerType` or an
-#       user-defined deserializer.
+# + keyDeserializer - Deserializer used for the Kafka record key. This should be a `kafka:DeserializerType`
+# + valueDeserializer - Deserializer used for the Kafka record value. This should be a `kafka:DeserializerType`
 # + topics - Topics to be subscribed by the consumer.
 # + properties - Additional properties if required.
 # + sessionTimeoutInMillis - Timeout used to detect consumer failures when heartbeat threshold is reached.
@@ -121,8 +119,8 @@ public type ConsumerConfig record {|
 # + timestamp - Timestamp of the record, in milliseconds since epoch.
 # + topic - Topic to which the record belongs to.
 public type ConsumerRecord record {|
-    KafkaData key;
-    KafkaData value;
+    Data key;
+    Data value;
     int offset;
     int partition;
     int timestamp;

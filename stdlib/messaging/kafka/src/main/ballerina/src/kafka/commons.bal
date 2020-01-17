@@ -102,4 +102,4 @@ public type Protocols record {|
 |};
 
 # Union data type used in Kafka clients.
-public type KafkaData byte[]|int|float|string;
+public type Data byte[]|int|float|string;

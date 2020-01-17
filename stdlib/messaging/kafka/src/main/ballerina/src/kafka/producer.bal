@@ -199,7 +199,7 @@ public type Producer client object {
     # + partition - Partition to which the record should be sent.
     # + timestamp - Timestamp of the record, in milliseconds since epoch.
     # + return - Returns `kafka:ProducerError` if send action fails to send data, nil otherwise.
-    public remote function send(KafkaData value, string topic, public KafkaData? key = (), public int? partition = (),
+    public remote function send(Data value, string topic, public Data? key = (), public int? partition = (),
                                 public int? timestamp = ()) returns ProducerError? {
 
         handle topicHandle = java:fromString(topic);

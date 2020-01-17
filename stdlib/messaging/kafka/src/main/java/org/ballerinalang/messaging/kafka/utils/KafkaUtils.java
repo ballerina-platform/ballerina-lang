@@ -39,7 +39,6 @@ import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.api.BArray;
 import org.ballerinalang.jvm.values.api.BValueCreator;
 import org.slf4j.Logger;
-import scala.collection.immutable.Stream;
 
 import java.util.ArrayList;
 import java.util.HashMap;
