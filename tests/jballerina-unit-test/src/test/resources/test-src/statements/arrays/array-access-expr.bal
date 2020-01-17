@@ -113,3 +113,9 @@ function testAssignToNonExistingFirstDimensionOfTwoDimensionArray() returns int[
     x[0][1] = 2;
     return x;
 }
+
+function testAssignToNonExistingFirstDimensionOfThreeDimensionalArray() returns int[][][] {
+    int[][][] x = [];
+    x[0][0][1] = 2;
+    return x;
+}

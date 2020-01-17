@@ -126,6 +126,15 @@ public class ArrayAccessExprTest {
         Assert.assertEquals(returns[0].stringValue(), "[0, 2]");
     }
 
+    @Test
+    public void testAssignToNonExistingFirstDimensionOfThreeDimensionalArray() {
+        BValue[] args = {};
+        BValue[] returns = BRunUtil.invoke(compileResult,
+                "testAssignToNonExistingFirstDimensionOfThreeDimensionalArray", args);
+
+        Assert.assertEquals(returns[0].stringValue(), "[[0, 2]]");
+    }
+
     @Test(description = "Test accessing an out of bound arrays-index",
           expectedExceptions = { BLangRuntimeException.class },
           expectedExceptionsMessageRegExp = ".*array index out of range: index: 5, size: 2.*")
