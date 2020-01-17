@@ -67,7 +67,7 @@ public class StubGeneratorTestCase {
         assertEquals(compileResult.getDiagnostics().length, 0);
         assertEquals(((BLangPackage) compileResult.getAST()).typeDefinitions.size(), 7,
                 "Expected type definitions not found in compile results.");
-        assertEquals(((BLangPackage) compileResult.getAST()).functions.size(), 11,
+        assertEquals(((BLangPackage) compileResult.getAST()).functions.size(), 13,
                 "Expected functions not found in compile results.");
         validatePublicAttachedFunctions(compileResult);
         assertEquals(((BLangPackage) compileResult.getAST()).globalVars.size(), 1,
@@ -161,7 +161,7 @@ public class StubGeneratorTestCase {
         assertEquals(compileResult.getDiagnostics().length, 0);
         assertEquals(((BLangPackage) compileResult.getAST()).typeDefinitions.size(), 7,
                 "Expected type definitions not found in compile results.");
-        assertEquals(((BLangPackage) compileResult.getAST()).functions.size(), 11,
+        assertEquals(((BLangPackage) compileResult.getAST()).functions.size(), 13,
                 "Expected functions not found in compile results.");
         validatePublicAttachedFunctions(compileResult);
         assertEquals(((BLangPackage) compileResult.getAST()).globalVars.size(), 1,
@@ -186,7 +186,7 @@ public class StubGeneratorTestCase {
             assertEquals(compileResult.getDiagnostics().length, 0);
             assertEquals(((BLangPackage) compileResult.getAST()).typeDefinitions.size(), 7,
                     "Expected type definitions not found in compile results.");
-            assertEquals(((BLangPackage) compileResult.getAST()).functions.size(), 11,
+            assertEquals(((BLangPackage) compileResult.getAST()).functions.size(), 13,
                     "Expected functions not found in compile results.");
             validatePublicAttachedFunctions(compileResult);
             assertEquals(((BLangPackage) compileResult.getAST()).globalVars.size(), 1,
@@ -210,7 +210,7 @@ public class StubGeneratorTestCase {
         assertEquals(compileResult.getDiagnostics().length, 0);
         assertEquals(((BLangPackage) compileResult.getAST()).typeDefinitions.size(), 4,
                 "Expected type definitions not found in compile results.");
-        assertEquals(((BLangPackage) compileResult.getAST()).functions.size(), 5,
+        assertEquals(((BLangPackage) compileResult.getAST()).functions.size(), 6,
                 "Expected functions not found in compile results.");
         assertEquals(((BLangPackage) compileResult.getAST()).globalVars.size(), 1,
                 "Expected global variables not found in compile results.");
@@ -228,7 +228,7 @@ public class StubGeneratorTestCase {
         assertEquals(compileResult.getDiagnostics().length, 0);
         assertEquals(((BLangPackage) compileResult.getAST()).typeDefinitions.size(), 4,
                 "Expected type definitions not found in compile results.");
-        assertEquals(((BLangPackage) compileResult.getAST()).functions.size(), 5,
+        assertEquals(((BLangPackage) compileResult.getAST()).functions.size(), 6,
                 "Expected functions not found in compile results.");
         assertEquals(((BLangPackage) compileResult.getAST()).globalVars.size(), 1,
                 "Expected global variables not found in compile results.");
@@ -245,7 +245,7 @@ public class StubGeneratorTestCase {
         assertEquals(compileResult.getDiagnostics().length, 0);
         assertEquals(((BLangPackage) compileResult.getAST()).typeDefinitions.size(), 3,
                 "Expected type definitions not found in compile results.");
-        assertEquals(((BLangPackage) compileResult.getAST()).functions.size(), 5,
+        assertEquals(((BLangPackage) compileResult.getAST()).functions.size(), 7,
                 "Expected functions not found in compile results.");
         assertEquals(((BLangPackage) compileResult.getAST()).globalVars.size(), 1,
                 "Expected global variables not found in compile results.");
@@ -271,7 +271,7 @@ public class StubGeneratorTestCase {
         assertEquals(compileResult.getDiagnostics().length, 0);
         assertEquals(((BLangPackage) compileResult.getAST()).typeDefinitions.size(), 7,
                 "Expected type definitions not found in compile results.");
-        assertEquals(((BLangPackage) compileResult.getAST()).functions.size(), 11,
+        assertEquals(((BLangPackage) compileResult.getAST()).functions.size(), 13,
                 "Expected functions not found in compile results.");
         validatePublicAttachedFunctions(compileResult);
         assertEquals(((BLangPackage) compileResult.getAST()).globalVars.size(), 1,
@@ -322,7 +322,7 @@ public class StubGeneratorTestCase {
         assertEquals(compileResult.getDiagnostics().length, 0);
         assertEquals(((BLangPackage) compileResult.getAST()).typeDefinitions.size(), 30,
                 "Expected type definitions not found in compile results.");
-        assertEquals(((BLangPackage) compileResult.getAST()).functions.size(), 30,
+        assertEquals(((BLangPackage) compileResult.getAST()).functions.size(), 32,
                 "Expected functions not found in compile results.");
         validatePublicAttachedFunctions(compileResult);
         assertEquals(((BLangPackage) compileResult.getAST()).globalVars.size(), 1,
