@@ -187,6 +187,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     private DiagnosticCode diagCode;
     private BType resType;
 
+    private Map<BVarSymbol, BType.NarrowedTypes> narrowedTypeInfo;
     // Stack holding the fall-back environments. fall-back env is the env to go back
     // after visiting the current env.
     private Stack<SymbolEnv> prevEnvs = new Stack<>();
@@ -2100,13 +2101,27 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             dlog.error(ifNode.expr.pos, DiagnosticCode.INCOMPATIBLE_TYPES, symTable.booleanType, actualType);
         }
 
+        Map<BVarSymbol, BType.NarrowedTypes> prevNarrowedTypeInfo = this.narrowedTypeInfo;
+
         SymbolEnv ifEnv = typeNarrower.evaluateTruth(ifNode.expr, ifNode.body, env);
+
+        this.narrowedTypeInfo = new HashMap<>();
+
         analyzeStmt(ifNode.body, ifEnv);
+
+        if (ifNode.expr.narrowedTypeInfo == null || ifNode.expr.narrowedTypeInfo.isEmpty()) {
+            ifNode.expr.narrowedTypeInfo = this.narrowedTypeInfo;
+        }
+
+        if (prevNarrowedTypeInfo != null) {
+            prevNarrowedTypeInfo.putAll(this.narrowedTypeInfo);
+        }
 
         if (ifNode.elseStmt != null) {
             SymbolEnv elseEnv = typeNarrower.evaluateFalsity(ifNode.expr, ifNode.elseStmt, env);
             analyzeStmt(ifNode.elseStmt, elseEnv);
         }
+        this.narrowedTypeInfo = prevNarrowedTypeInfo;
     }
 
     @Override
@@ -2859,7 +2874,14 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         // then the type narrowing will no longer hold. Thus define the original
         // symbol in all the scopes that are affected by this assignment.
         if (!types.isAssignable(rhsType, varSymbol.type)) {
-            defineOriginalSymbol(lhsExpr, varSymbol.originalSymbol, env);
+            if (this.narrowedTypeInfo != null) {
+                // Record the vars for which type narrowing was unset, to define relevant shadowed symbols in branches.
+                BType currentType = ((BLangSimpleVarRef) lhsExpr).symbol.type;
+                this.narrowedTypeInfo.put(typeNarrower.getOriginalVarSymbol(varSymbol),
+                                          new BType.NarrowedTypes(currentType, currentType));
+            }
+
+            defineOriginalSymbol(lhsExpr, typeNarrower.getOriginalVarSymbol(varSymbol), env);
             env = prevEnvs.peek();
         }
     }
@@ -2867,8 +2889,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     private void defineOriginalSymbol(BLangExpression lhsExpr, BVarSymbol varSymbol, SymbolEnv env) {
         BSymbol foundSym = symResolver.lookupSymbol(env, varSymbol.name, varSymbol.tag);
 
-        // Terminate if we reach the env where the original symbol available
-        if (foundSym == varSymbol) {
+        // Terminate if we reach the env where the original symbol is available or the symbol is not available.
+        if (foundSym == varSymbol || foundSym == symTable.notFoundSymbol) {
             return;
         }
 
