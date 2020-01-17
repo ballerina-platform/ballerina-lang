@@ -41,8 +41,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.util.Arrays;
-import java.util.Objects;
 
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
@@ -393,7 +391,7 @@ public class FileTest {
             BRunUtil.invoke(compileResult, "testCopy", args);
             assertTrue(Files.exists(tempDestPath));
             assertTrue(Files.exists(srcDirPath));
-            assertTrue(compareFiles(tempDestPath, srcDirPath));
+            assertEquals(tempDestPath.toFile().length(), srcDirPath.toFile().length());
         } finally {
             FileUtils.deleteDirectory(tempDestPath.toFile());
         }
@@ -405,28 +403,5 @@ public class FileTest {
         Assert.assertTrue(returns[0] instanceof BString);
         String expectedValue = System.getProperty("user.dir");
         Assert.assertEquals(returns[0].stringValue(), expectedValue);
-    }
-
-    private static boolean compareFiles(Path tempDestPath, Path srcDirPath) throws IOException {
-        if ((Objects.requireNonNull(tempDestPath.toFile().list()).length !=
-                Objects.requireNonNull(srcDirPath.toFile().list()).length)) {
-            return false;
-        }
-        for (File file : Objects.requireNonNull(tempDestPath.toFile().listFiles())) {
-            Path path = Paths.get(srcDirPath.toString(), file.getName());
-            if (!Files.exists(path)) {
-                return false;
-            }
-            if (file.isFile()) {
-                if (!Arrays.equals(Files.readAllBytes(file.toPath()), Files.readAllBytes(path))) {
-                    return false;
-                }
-            } else {
-                if (Objects.requireNonNull(file.list()).length > 0) {
-                    compareFiles(file.toPath(), path);
-                }
-            }
-        }
-        return true;
     }
 }
