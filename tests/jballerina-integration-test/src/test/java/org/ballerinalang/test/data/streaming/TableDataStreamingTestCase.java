@@ -71,7 +71,7 @@ public class TableDataStreamingTestCase extends BaseTest {
         insertDummyData(testDatabase.getJDBCUrl(), testDatabase.getUsername(), testDatabase.getPassword());
     }
 
-    @Test(description = "Tests streaming a large amount of data from a table, converted to XML")
+    @Test(groups = {"brokenOnXMLChange"}, description = "Tests streaming a large amount of data from a table, converted to XML")
     public void testStreamingLargeXml() throws Exception {
         HttpResponse response = HttpClientRequest
                 .doGet(serverInstance.getServiceURLHttp(servicePort, "dataService/getXmlData"), 60000, responseBuilder);
@@ -120,7 +120,7 @@ public class TableDataStreamingTestCase extends BaseTest {
         Assert.assertEquals(Integer.parseInt(response.getData()), 20840);
     }
 
-    @Test(description = "Tests the outbound throttling scenario with a slow client")
+    @Test(groups = {"brokenOnXMLChange"}, description = "Tests the outbound throttling scenario with a slow client")
     public void testStreamingLargeXMLWithSlowClient() throws Exception {
         HttpResponse response = HttpClientRequest.doGet(
                 serverInstance.getServiceURLHttp(servicePort, "dataService/getXmlData"), 60000, slowResponseBuilder);

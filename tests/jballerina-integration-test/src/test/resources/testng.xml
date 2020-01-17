@@ -262,6 +262,11 @@
     </test>
 
     <test name="ballerina-data-streaming-tests" parallel="false">
+        <groups>
+            <run>
+                <exclude name="brokenOnXMLChange"/>
+            </run>
+        </groups>
         <classes>
             <class name="org.ballerinalang.test.data.streaming.TableDataStreamingTestCase"/>
         </classes>

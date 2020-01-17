@@ -199,6 +199,7 @@ public interface BXml extends BRefValue, CollectionValue {
      * 
      * @param seq XML Sequence to be added as the children
      */
+    @Deprecated // XML sequences are immutable
     void addChildren(BXml seq);
 
     /**
@@ -266,6 +267,7 @@ public interface BXml extends BRefValue, CollectionValue {
      * 
      * @param qname Namespace qualified name of the children to be removed.
      */
+    @Deprecated
     void removeChildren(String qname);
 
     /**

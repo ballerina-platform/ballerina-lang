@@ -127,7 +127,9 @@ public final class XMLSequence extends XMLValue {
     public String getTextValue() {
         StringBuilder seqTextBuilder = new StringBuilder();
         for (BXml x : children) {
-            seqTextBuilder.append(x.getTextValue());
+            if (x.getNodeType() == XMLNodeType.ELEMENT || x.getNodeType() == XMLNodeType.TEXT) {
+                seqTextBuilder.append(x.getTextValue());
+            }
         }
         return seqTextBuilder.toString();
     }
@@ -272,6 +274,7 @@ public final class XMLSequence extends XMLValue {
      * {@inheritDoc}
      */
     @Override
+    @Deprecated
     public void addChildren(BXml seq) {
         synchronized (this) {
             if (freezeStatus.getState() != State.UNFROZEN) {
@@ -522,6 +525,7 @@ public final class XMLSequence extends XMLValue {
     }
 
     @Override
+    @Deprecated
     public void removeChildren(String qname) {
         synchronized (this) {
             if (freezeStatus.getState() != State.UNFROZEN) {

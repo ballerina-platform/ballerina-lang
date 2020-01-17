@@ -24,7 +24,7 @@ import org.ballerinalang.jvm.XMLNodeType;
 /**
  * XML nodes containing comment data.
  *
- * @since 1.1.0
+ * @since 1.2.0
  */
 public class XMLComment extends XMLNonElementItem {
 

@@ -326,6 +326,7 @@ public final class XMLItem extends XMLValue {
      * {@inheritDoc}
      */
     @Override
+    @Deprecated
     public void addChildren(BXml seq) {
         synchronized (this) {
             if (freezeStatus.getState() != State.UNFROZEN || children.freezeStatus.getState() != State.UNFROZEN) {

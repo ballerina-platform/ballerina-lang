@@ -190,7 +190,7 @@ public class WebSocketResourceDispatcher {
                     return JSONParser.parse(aggregateString);
                 case TypeTags.XML_TAG:
                     XMLValue bxml = XMLFactory.parse(aggregateString);
-                    if (bxml.getNodeType() != XMLNodeType.ELEMENT) {
+                    if (bxml.getNodeType() != XMLNodeType.SEQUENCE) {
                         throw new WebSocketException("Invalid XML data");
                     }
                     return bxml;
@@ -211,7 +211,11 @@ public class WebSocketResourceDispatcher {
         } catch (WebSocketException ex) {
             webSocketConnection.terminateConnection(1003, ex.detailMessage());
         } catch (Exception ex) {
-            webSocketConnection.terminateConnection(1003, WebSocketUtil.getErrorMessage(ex));
+            String errorMessage = WebSocketUtil.getErrorMessage(ex);
+            if (errorMessage.length() > 123) {
+                errorMessage = errorMessage.substring(0, 120) + "...";
+            }
+            webSocketConnection.terminateConnection(1003, errorMessage);
             log.error("Data binding failed. Hence connection terminated. ", ex);
         }
         return null;

@@ -35,7 +35,7 @@ import static org.ballerinalang.jvm.util.BLangConstants.STRING_NULL_VALUE;
 /**
  * Functionality common to PI, COMMENT and TEXT nodes.
  *
- * @since 1.1.0
+ * @since 1.2.0
  */
 public abstract class XMLNonElementItem extends XMLValue {
     @Override
@@ -109,6 +109,7 @@ public abstract class XMLNonElementItem extends XMLValue {
     }
 
     @Override
+    @Deprecated
     public void addChildren(BXml seq) {
     }
 
@@ -162,6 +163,7 @@ public abstract class XMLNonElementItem extends XMLValue {
     }
 
     @Override
+    @Deprecated
     public void removeChildren(String qname) {
 
     }

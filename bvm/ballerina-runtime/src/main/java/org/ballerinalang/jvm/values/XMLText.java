@@ -29,7 +29,7 @@ import static org.ballerinalang.jvm.util.BLangConstants.STRING_NULL_VALUE;
 /**
  * XML nodes containing atomic content such as text, comment and processing instructions.
  *
- * @since 1.1.0
+ * @since 1.2.0
  */
 public class XMLText extends XMLNonElementItem {
 
