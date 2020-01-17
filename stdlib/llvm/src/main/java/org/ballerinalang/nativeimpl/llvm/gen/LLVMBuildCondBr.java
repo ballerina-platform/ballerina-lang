@@ -23,11 +23,12 @@ import org.ballerinalang.nativeimpl.llvm.FFIUtil;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.bytedeco.javacpp.LLVM;
-import org.bytedeco.javacpp.LLVM.LLVMValueRef;
+import org.bytedeco.llvm.LLVM.LLVMBasicBlockRef;
+import org.bytedeco.llvm.LLVM.LLVMBuilderRef;
+import org.bytedeco.llvm.LLVM.LLVMValueRef;
 
 import static org.ballerinalang.model.types.TypeKind.RECORD;
-import static org.bytedeco.javacpp.LLVM.LLVMBuildCondBr;
+import static org.bytedeco.llvm.global.LLVM.LLVMBuildCondBr;
 
 /**
  * Auto generated class.
@@ -54,10 +55,10 @@ public class LLVMBuildCondBr {
                                                            MapValue<String, Object> then,
                                                            MapValue<String, Object> elseValue) {
 
-        LLVM.LLVMBuilderRef arg0Ref = (LLVM.LLVMBuilderRef) FFIUtil.getRecodeArgumentNative(arg0);
-        LLVM.LLVMValueRef ifValueRef = (LLVMValueRef) FFIUtil.getRecodeArgumentNative(ifValue);
-        LLVM.LLVMBasicBlockRef thenRef = (LLVM.LLVMBasicBlockRef) FFIUtil.getRecodeArgumentNative(then);
-        LLVM.LLVMBasicBlockRef elseValueRef = (LLVM.LLVMBasicBlockRef) FFIUtil.getRecodeArgumentNative(elseValue);
+        LLVMBuilderRef arg0Ref = (LLVMBuilderRef) FFIUtil.getRecodeArgumentNative(arg0);
+        LLVMValueRef ifValueRef = (LLVMValueRef) FFIUtil.getRecodeArgumentNative(ifValue);
+        LLVMBasicBlockRef thenRef = (LLVMBasicBlockRef) FFIUtil.getRecodeArgumentNative(then);
+        LLVMBasicBlockRef elseValueRef = (LLVMBasicBlockRef) FFIUtil.getRecodeArgumentNative(elseValue);
         LLVMValueRef returnValue = LLVMBuildCondBr(arg0Ref, ifValueRef, thenRef, elseValueRef);
         MapValue<String, Object> returnWrappedRecord = FFIUtil.newRecord(new BPackage("ballerina",
                 "llvm"), "LLVMValueRef");

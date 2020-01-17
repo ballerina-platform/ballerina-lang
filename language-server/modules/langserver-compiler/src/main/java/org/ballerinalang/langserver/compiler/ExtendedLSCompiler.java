@@ -111,10 +111,10 @@ public class ExtendedLSCompiler extends LSModuleCompiler {
         options.put(SKIP_TESTS, String.valueOf(false));
         BLangDiagnosticLog.getInstance(context).errorCount = 0;
         Compiler compiler = Compiler.getInstance(context);
-
-        LSServiceOperationContext lsContext = new LSServiceOperationContext(() -> "extendedCompiler/compileFile");
-        lsContext.put(DocumentServiceKeys.COMPILER_CONTEXT_KEY, context);
-        lsContext.put(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY, packageName);
+        LSContext lsContext = new LSCompilerOperationContext
+                .CompilerOperationContextBuilder(CompileFileContextOperation.COMPILE_FILE)
+                .withCompileFileParams(context, packageName)
+                .build();
 
         try {
             compiler.setOutStream(new LSCompilerUtil.EmptyPrintStream());

@@ -131,7 +131,7 @@ public class IterableArrowExprTest {
         BAssertUtil.validateError(resultNegative, i++,
                 "incompatible types: expected 'string', found 'int'", 27, 19);
         BAssertUtil.validateError(resultNegative, i++,
-                "undefined function 'toUpperAscii'", 27, 40);
+                "undefined function 'toUpperAscii'", 27, 46);
         BAssertUtil.validateError(resultNegative, i++,
                 "incompatible types: expected 'string', found 'string[]'", 28, 19);
         BAssertUtil.validateError(resultNegative, i++,

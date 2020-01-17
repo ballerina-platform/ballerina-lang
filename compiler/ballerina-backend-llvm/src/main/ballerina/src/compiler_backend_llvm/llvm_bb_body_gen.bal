@@ -1,5 +1,6 @@
 import ballerina/llvm;
 import ballerina/bir;
+import ballerina/io;
 
 type BbBodyGenrator object {
 
@@ -41,7 +42,25 @@ type BbBodyGenrator object {
             self.genTypeCast(instruction);
         } else if (instruction is bir:TypeTest) {
             self.genTypeTest(instruction);
+        } else if (instruction is bir:NewArray) {
+            self.genNewArray(instruction);
+        } else if (instruction is bir:FieldAccess) {
+            self.genFieldAccess(instruction);
+        } else {
+            io:print("Other Instruction Found : ");
+            typedesc<any> T = typeof instruction;
+            io:println(T.toString());
         }
+    }
+
+    function genFieldAccess(bir:FieldAccess fieldAccessIns) {
+        FieldAccess fieldAccessInsObj = new(self.builder, self.parent, fieldAccessIns);
+        fieldAccessInsObj.genInstruction();
+    }
+
+    function genNewArray(bir:NewArray newArrayIns) {
+        NewArray newArrayInsObj = new(self.builder, self.parent, newArrayIns);
+        newArrayInsObj.genInstruction();
     }
 
     function genTypeTest(bir:TypeTest typeTestIns) {
@@ -153,5 +172,3 @@ function findFuncRefByName(map<FuncGenrator> funcGenrators, bir:Name name) retur
     }
     return <llvm:LLVMValueRef>genrator.funcRef;
 }
-
-
