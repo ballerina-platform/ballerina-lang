@@ -253,8 +253,12 @@ public function isReservedName(string name) returns boolean {
 # + path - String value of file path.
 # + return - Returns the extension of the file. Empty string if no extension.
 public function extension(string path) returns string|Error {
-    if (path.endsWith(pathSeparator)) {
+    if (isWindows && (path.endsWith("/") || path.endsWith("\\"))) {
         return "";
+    } else {
+        if (path.endsWith(pathSeparator) ) {
+            return "";
+        }
     }
     string validatedPath = check parse(path);
     int count = validatedPath.length();
