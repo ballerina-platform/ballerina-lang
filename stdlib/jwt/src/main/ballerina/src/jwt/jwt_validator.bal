@@ -50,7 +50,7 @@ public type JwtTrustStoreConfig record {|
 # Represents parsed and cached JWT.
 #
 # + jwtPayload - Parsed JWT payload
-# + expiryTime - Expiry time of the JWT
+# + expiryTime - Expiry time (milliseconds since the Epoch) of the parsed JWT
 public type CachedJwt record {|
     JwtPayload jwtPayload;
     int expiryTime;
