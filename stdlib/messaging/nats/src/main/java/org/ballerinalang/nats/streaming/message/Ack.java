@@ -31,8 +31,14 @@ public class Ack {
 
     public static Object externAck(ObjectValue message) {
         Message streamingMessage = (Message) message.getNativeData(Constants.NATS_STREAMING_MSG);
+        boolean manualAck = (Boolean) message.getNativeData(Constants.NATS_STREAMING_MANUAL_ACK);
         try {
-            streamingMessage.ack();
+            if (manualAck) {
+                streamingMessage.ack();
+            } else {
+                return BallerinaErrors.createError(Constants.NATS_ERROR_CODE, "error in trying to manually" +
+                        " acknowledge the message in auto ack mode.");
+            }
             return null;
         } catch (IOException e) {
             return BallerinaErrors.createError(Constants.NATS_ERROR_CODE, e.getMessage());
