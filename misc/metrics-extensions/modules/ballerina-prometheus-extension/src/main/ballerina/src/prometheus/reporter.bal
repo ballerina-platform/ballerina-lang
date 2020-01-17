@@ -51,7 +51,7 @@ service PrometheusReporter on prometheusListener {
         string payload = EMPTY_STRING;
         foreach var m in metrics {
             observe:Metric metric = <observe:Metric> m;
-            string qualifiedMetricName = getQualifiedMetricName(metric.name);
+            string qualifiedMetricName = getEscapedName(metric.name);
             string metricReportName = getMetricName(qualifiedMetricName, "value");
             payload += generateMetricHelp(metricReportName, metric.desc);
             payload += generateMetricInfo(metricReportName, metric.metricType);
@@ -135,8 +135,8 @@ function generateMetric(string name, map<string>? labels, int|float value) retur
 function getLabelsString(map<string> labels) returns string {
     string stringLabel = "{";
     foreach var [key, value] in labels.entries() {
-        string labelKey = stringutils:replaceAll(key, "\\.", "_");
-        string entry = labelKey + "=\"" + value + "\"";
+        string labelKey = getEscapedName(key);
+        string entry = labelKey + "=\"" + getEscapedLabelValue(value) + "\"";
         stringLabel += (entry + ",");
     }
     if (stringLabel != "{") {
@@ -146,12 +146,23 @@ function getLabelsString(map<string> labels) returns string {
     }
 }
 
-function getQualifiedMetricName(string metricName) returns string {
-    string s1 = stringutils:replaceAll(metricName, "/", "_");
-    string s2 = stringutils:replaceAll(s1, "\\.", "_");
-    string s3 = stringutils:replaceAll(s2, "\\$", "_");
-    string s4 = stringutils:replaceAll(s3, "\\\"", "_");
-    return s4;
+# Only [a-zA-Z0-9:_] are valid in metric names, any other characters
+# should be sanitized to an underscore. ref: Metrics Naming[1].
+# [1] https://prometheus.io/docs/instrumenting/writing_exporters/#naming
+#
+# + str - string to be escaped.
+# + return - escaped string.
+function getEscapedName(string str) returns string {
+    return stringutils:replaceAll(str, "[^a-zA-Z0-9:_]", "_");
+}
+
+# Only [^a-zA-Z0-9\\/.:_] are valid in metric lable values, any other characters
+# should be sanitized to an underscore.
+#
+# + str - string to be escaped.
+# + return - escaped string.
+function getEscapedLabelValue(string str) returns string {
+    return stringutils:replaceAll(str, "[^a-zA-Z0-9\\/.:_]", "_");
 }
 
 function getMetricName(string name, string summaryType) returns string {
