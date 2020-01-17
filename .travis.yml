@@ -58,6 +58,7 @@ jobs:
       name: "Run Build + tests (without integration) - Linux"
       script:
         - while sleep 9m; do echo "=====[ $SECONDS seconds still running ]====="; done &
+        - ls language-server/modules/langserver-core/src/test/resources/definition/expected/typedescriptor/defTypeDesc1.json
         - ./gradlew build -x :jballerina-integration-test:test -x createJavadoc --stacktrace -scan --console=plain --no-daemon
         # Killing background sleep loop
         - kill %1
