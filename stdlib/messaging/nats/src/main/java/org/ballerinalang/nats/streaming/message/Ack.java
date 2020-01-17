@@ -36,8 +36,8 @@ public class Ack {
             if (manualAck) {
                 streamingMessage.ack();
             } else {
-                return BallerinaErrors.createError(Constants.NATS_ERROR_CODE, "error in trying to manually" +
-                        " acknowledge the message in auto ack mode.");
+                return BallerinaErrors.createError(Constants.NATS_ERROR_CODE, "Invalid operation, " +
+                        "manual acknowledgement is not supported in auto ACK mode.");
             }
             return null;
         } catch (IOException e) {

@@ -44,8 +44,7 @@ public class Attach {
                         .getNativeData(STREAMING_DISPATCHER_LIST);
         boolean manualAck = getAckMode(service);
         serviceListenerMap.put(service, new StreamingListener(service, manualAck, BRuntime.getCurrentRuntime(),
-                streamingListener.getObjectValue("connection")
-                        .getStringValue(Constants.URL)));
+                streamingListener.getObjectValue("connection").getStringValue(Constants.URL)));
     }
 
     private static boolean getAckMode(ObjectValue service) {
