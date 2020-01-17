@@ -60,9 +60,9 @@ public class SingleBalFileTestCase extends BaseTest {
         balClient = new BMainInstance(balServer);
         testDatabase = new SQLDBUtils
                 .FileBasedTestDatabase(SQLDBUtils.DBType.HSQLDB,
-                                       Paths.get("src", "test", "resources", "packaging", "singleBalFile", "sql",
-                                                 "resources", "select_test_data.sql").toString(),
-                                       SQLDBUtils.DB_DIRECTORY, DB_NAME_HSQL);
+                Paths.get("src", "test", "resources", "packaging", "singleBalFile", "sql",
+                        "resources", "select_test_data.sql").toString(),
+                SQLDBUtils.DB_DIRECTORY, DB_NAME_HSQL);
         serverBreLibPath = Paths.get(balServer.getServerHome(), "bre", "lib");
         Path breLibPath = Paths.get("build", "libs");
         FilenameFilter getHsqlDBJar = new FilenameFilter() {
@@ -90,7 +90,7 @@ public class SingleBalFileTestCase extends BaseTest {
         String msg = "Customer name is :Peter";
         LogLeecher fooRunLeecher = new LogLeecher(msg);
         balClient.runMain("run", new String[]{sqlBalFile, JDBC_URL}, new HashMap<>(), new String[0],
-                          new LogLeecher[]{fooRunLeecher}, testProjectPath.toString());
+                new LogLeecher[]{fooRunLeecher}, testProjectPath.toString());
         fooRunLeecher.waitForText(10000);
     }
 

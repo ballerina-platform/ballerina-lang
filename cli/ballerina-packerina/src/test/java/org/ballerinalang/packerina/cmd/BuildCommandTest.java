@@ -292,8 +292,8 @@ public class BuildCommandTest extends CommandTest {
         // valid source root path
         Path validBalFilePath = this.testResources.resolve("valid-bal-file");
         BuildCommand buildCommand = new BuildCommand(validBalFilePath, printStream, printStream, false, true);
-//        new CommandLine(buildCommand).parse( "../../../../../resources/test-resources/valid-bal-file/hello_world.bal");
-        new CommandLine(buildCommand).parse(String.valueOf(validBalFilePath.resolve("valid-relative-path-bal-file/hello_world.bal")));
+        new CommandLine(buildCommand).parse(String.valueOf(validBalFilePath.resolve
+                ("valid-relative-path-bal-file/hello_world.bal")));
         buildCommand.execute();
         String buildLog = readOutput(true);
         readOutput(true);

@@ -45,18 +45,12 @@ import org.wso2.ballerinalang.compiler.util.ProjectDirs;
 import org.wso2.ballerinalang.util.RepoUtils;
 import picocli.CommandLine;
 
-import java.io.File;
-import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.PrintStream;
-import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
 import static org.ballerinalang.compiler.CompilerOptionName.EXPERIMENTAL_FEATURES_ENABLED;
@@ -179,15 +173,6 @@ public class BuildCommand implements BLauncherCmd {
             return;
         }
 
-        if (this.nativeBinary) {
-            CommandUtil.printError(this.errStream,
-                    "LLVM native generation is not supported.",
-                    null,
-                    false);
-            CommandUtil.exitError(this.exitWhenFinish);
-            return;
-        }
-
         // if -a or --all flag is not given, then it is mandatory to give a module name or ballerina file as arg.
         if (!this.buildAll && (this.argList == null || this.argList.size() == 0)) {
             CommandUtil.printError(this.errStream,
@@ -238,9 +223,6 @@ public class BuildCommand implements BLauncherCmd {
 
             targetPath = this.sourceRootPath.resolve(ProjectDirConstants.TARGET_DIR_NAME);
 
-            /*
-            MY CHANGES
-             */
             if (args.length > 0) {
                 CommandUtil.printError(this.errStream, "too many arguments.", buildCmd, false);
                 CommandUtil.exitError(this.exitWhenFinish);
@@ -248,7 +230,6 @@ public class BuildCommand implements BLauncherCmd {
             }
         } else if (this.argList.get(0).endsWith(BLangConstants.BLANG_SRC_FILE_SUFFIX)) {
             // when a single bal file is provided.
-            System.out.println("argList: " + this.argList.get(0));
             if (this.compile) {
                 CommandUtil.printError(this.errStream,
                         "'-c' or '--compile' flag cannot be used on Ballerina files. the flag can only" +
