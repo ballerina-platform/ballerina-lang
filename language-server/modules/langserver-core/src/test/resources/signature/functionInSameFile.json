@@ -11,25 +11,29 @@
           "documentation": {
             "right": {
               "kind": "markdown",
-              "value": "Returns a sample greeting with the given content"
+              "value": "**Description**  \nReturns a sample greeting with the given content"
             }
           },
           "parameters": [
             {
-              "label": "year",
+              "label": {
+                "left": "int year"
+              },
               "documentation": {
                 "right": {
                   "kind": "markdown",
-                  "value": "Year to print "
+                  "value": "**Parameter**  \n**`int`year**: Year to print "
                 }
               }
             },
             {
-              "label": "message",
+              "label": {
+                "left": "string message"
+              },
               "documentation": {
                 "right": {
                   "kind": "markdown",
-                  "value": "Greeting message to print "
+                  "value": "**Parameter**  \n**`string`message**: Greeting message to print "
                 }
               }
             }

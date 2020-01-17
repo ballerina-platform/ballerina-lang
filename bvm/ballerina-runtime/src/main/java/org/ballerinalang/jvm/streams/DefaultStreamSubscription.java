@@ -26,6 +26,7 @@ import org.ballerinalang.jvm.values.StreamValue;
  *
  * @since 0.995.0
  */
+@Deprecated
 public class DefaultStreamSubscription extends StreamSubscription {
 
     private StreamValue stream;

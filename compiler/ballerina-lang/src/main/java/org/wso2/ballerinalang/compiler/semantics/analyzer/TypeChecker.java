@@ -604,11 +604,11 @@ public class TypeChecker extends BLangNodeVisitor {
         // Check whether the expected type is an array type
         // var a = []; and var a = [1,2,3,4]; are illegal statements, because we cannot infer the type here.
         BType actualType = symTable.semanticError;
+        resultType = symTable.semanticError;
 
         if ((expType.tag == TypeTags.ANY || expType.tag == TypeTags.ANYDATA || expType.tag == TypeTags.NONE)
                 && listConstructor.exprs.isEmpty()) {
             dlog.error(listConstructor.pos, DiagnosticCode.INVALID_LIST_CONSTRUCTOR, expType);
-            resultType = symTable.semanticError;
             return;
         }
 
@@ -624,7 +624,6 @@ public class TypeChecker extends BLangNodeVisitor {
             } else if (arrayType.state != BArrayState.UNSEALED && arrayType.size != listConstructor.exprs.size()) {
                 dlog.error(listConstructor.pos,
                         DiagnosticCode.MISMATCHING_ARRAY_LITERAL_VALUES, arrayType.size, listConstructor.exprs.size());
-                resultType = symTable.semanticError;
                 return;
             }
             checkExprs(listConstructor.exprs, this.env, arrayType.eType);
@@ -658,7 +657,6 @@ public class TypeChecker extends BLangNodeVisitor {
                                 // tuple type size != list constructor exprs
                                 dlog.error(listConstructor.pos, DiagnosticCode.SYNTAX_ERROR,
                                         "tuple and expression size does not match");
-                                resultType = symTable.semanticError;
                                 return;
                             }
                         }
@@ -729,17 +727,18 @@ public class TypeChecker extends BLangNodeVisitor {
             ((BTupleType) actualType).restType = restType;
         } else if (listConstructor.exprs.size() > 1) {
             // This is an array.
-            List<BType> narrowTypes = new ArrayList<>();
-            for (int i = 0; i < listConstructor.exprs.size(); i++) {
-                narrowTypes.add(checkExpr(listConstructor.exprs.get(i), env, symTable.noType));
-            }
-            Set<BType> narrowTypesSet = new LinkedHashSet<>(narrowTypes);
+            LinkedHashSet<BType> narrowTypes = new LinkedHashSet<>();
             LinkedHashSet<BType> broadTypesSet = new LinkedHashSet<>();
-            BType[] uniqueNarrowTypes = narrowTypesSet.toArray(new BType[0]);
+            BType[] inferredTypes = checkArrayExpr(listConstructor, env);
+            for (BType type : inferredTypes) {
+                if (narrowTypes.stream().noneMatch(nType -> types.isSameType(type, nType))) {
+                    narrowTypes.add(type);
+                }
+            }
             BType broadType;
-            for (BType t1 : uniqueNarrowTypes) {
+            for (BType t1 : narrowTypes) {
                 broadType = t1;
-                for (BType t2 : uniqueNarrowTypes) {
+                for (BType t2 : narrowTypes) {
                     if (types.isAssignable(t2, t1)) {
                         broadType = t1;
                     } else if (types.isAssignable(t1, t2)) {
@@ -761,7 +760,6 @@ public class TypeChecker extends BLangNodeVisitor {
         } else if (expTypeTag != TypeTags.SEMANTIC_ERROR) {
             actualType = checkArrayLiteralExpr(listConstructor);
         }
-
         resultType = types.checkType(listConstructor, actualType, expType);
     }
 
@@ -1637,7 +1635,7 @@ public class TypeChecker extends BLangNodeVisitor {
     private void checkInLangLib(BLangInvocation iExpr, BType varRefType) {
         boolean langLibMethodExists = checkLangLibMethodInvocationExpr(iExpr, varRefType);
         if (!langLibMethodExists) {
-            dlog.error(iExpr.pos, DiagnosticCode.UNDEFINED_FUNCTION, iExpr.name.value);
+            dlog.error(iExpr.name.pos, DiagnosticCode.UNDEFINED_FUNCTION, iExpr.name.value);
             resultType = symTable.semanticError;
         }
     }
@@ -3282,7 +3280,9 @@ public class TypeChecker extends BLangNodeVisitor {
         iExpr.langLibInvocation = true;
         SymbolEnv enclEnv = this.env;
         this.env = SymbolEnv.createInvocationEnv(iExpr, this.env);
-        iExpr.argExprs.add(0, iExpr.expr);
+        if (iExpr.argExprs.isEmpty() || !iExpr.argExprs.get(0).equals(iExpr.expr)) {
+            iExpr.argExprs.add(0, iExpr.expr);
+        }
         checkInvocationParamAndReturnType(iExpr);
         this.env = enclEnv;
 

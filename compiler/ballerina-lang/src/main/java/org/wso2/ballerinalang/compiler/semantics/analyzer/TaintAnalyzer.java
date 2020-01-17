@@ -1129,12 +1129,16 @@ public class TaintAnalyzer extends BLangNodeVisitor {
                 && Symbols.isNative(invocationExpr.symbol);
     }
 
+    private int receiverIfAttachedFunction(BLangInvocation invocationExpr) {
+        return isTaintAnalyzableAttachedFunction(invocationExpr) ? 1 : 0;
+    }
+
     private Map<Integer, TaintRecord> createIdentityTaintTable(BLangInvocation invocationExpr) {
         Map<Integer, TaintRecord> taintTable = new HashMap<>();
 
         int requiredParamCount = invocationExpr.requiredArgs.size();
         int restCount = invocationExpr.restArgs == null || invocationExpr.restArgs.isEmpty() ? 0 : 1;
-        int totalParamCount = requiredParamCount + restCount;
+        int totalParamCount = requiredParamCount + restCount + receiverIfAttachedFunction(invocationExpr);
 
         for (int i = ALL_UNTAINTED_TABLE_ENTRY_INDEX; i < totalParamCount; i++) {
             TaintRecord record = new TaintRecord(
