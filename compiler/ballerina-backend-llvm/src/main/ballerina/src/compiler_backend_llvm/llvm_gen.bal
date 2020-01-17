@@ -16,17 +16,21 @@
 
 import ballerina/llvm;
 import ballerina/bir;
+//import ballerina/io;
 
 // TODO: make non-global
-llvm:LLVMValueRef? printfRef = ();
 map<llvm:LLVMTypeRef> structMap = {"null" : llvm:llvmVoidType()};
 map<llvm:LLVMTypeRef> taggedTypeToTypePointerMap = {};
 map<int> precedenceMap = { "null":0, "boolean":1, "int":2};
 const int TAGGED_UNION_FLAG_INDEX = 0;
 const int TAGGED_UNION_VALUE_INDEX = 1;
 
+NativeFunctionBuilder nativeFunctionBuilder = new(); //This is used to declare the native functions implemented in RUST
+
 function genPackage(bir:Package pkg, string targetObjectFilePath, boolean dumpLLVMIR, boolean noOptimize) {
     var mod = createModule(pkg.org, pkg.name, pkg.versionValue);
+    nativeFunctionBuilder.setModule(mod);
+
     genFunctions(mod, pkg.functions);
     if (!noOptimize) { // Don't optimize for debugging usage.
         optimize(mod);
@@ -45,7 +49,7 @@ function createModule(bir:Name orgName, bir:Name pkgName, bir:Name ver) returns 
 function genFunctions(llvm:LLVMModuleRef mod, bir:Function?[] funcs) {
     var builder = llvm:llvmCreateBuilder();
 
-    genPrintfDeclration(mod);
+    nativeFunctionBuilder.genFunctions();
 
     map<FuncGenrator> funcGenrators = mapFuncsToNameAndGenrator(mod, builder, funcs);
 
@@ -99,11 +103,7 @@ function initAllTargets() {
 
 function readFileFully(string path) returns byte[] = external;
 
-function genPrintfDeclration(llvm:LLVMModuleRef mod) {
-    llvm:LLVMTypeRef[] pointer_to_char_type = [llvm:llvmPointerType(llvm:llvmInt8Type(), 0)];
-    llvm:LLVMTypeRef printfType = llvm:llvmFunctionType1(llvm:llvmInt32Type(), pointer_to_char_type, 1, 1);
-    printfRef = llvm:llvmAddFunction(mod, "printf", printfType);
-}
+
 
 function mapFuncsToNameAndGenrator(llvm:LLVMModuleRef mod, llvm:LLVMBuilderRef builder, bir:Function?[] funcs)
              returns map<FuncGenrator> {
@@ -160,11 +160,12 @@ function genBType(bir:BType? bType) returns llvm:LLVMTypeRef {
         return llvm:llvmVoidType();
     } else if (bType is ()) {
         return llvm:llvmVoidType();
-    } else if (bType is bir:BArrayType) { 
-        return llvm:llvmVoidType();
     } else if (bType is bir:BUnionType) {
         return createUnion(<bir:BUnionType>bType);
-    }
+    } else if (bType is bir:BArrayType) {
+        var elementType = genBType(bType.eType);
+        return llvm:llvmPointerType(elementType, 0);
+    } 
     typedesc<any> T = typeof bType;
     error err = error( "Undefined type :" + T.toString());
     panic err;

@@ -1372,7 +1372,7 @@ public class CommonUtil {
     }
 
     public static BPackageSymbolDTO getPackageSymbolDTO(LSContext ctx, String pkgName) {
-        Optional bLangImport = getCurrentFileImports(ctx).stream()
+        Optional<BLangImportPackage> bLangImport = getCurrentFileImports(ctx).stream()
                 .filter(importPkg -> importPkg.getAlias().getValue().equals(pkgName))
                 .findFirst();
         String realPkgName;
@@ -1380,8 +1380,8 @@ public class CommonUtil {
 
         if (bLangImport.isPresent()) {
             // There is an added import statement.
-            realPkgName = CommonUtil.getPackageNameComponentsCombined(((BLangImportPackage) bLangImport.get()));
-            realOrgName = ((BLangImportPackage) bLangImport.get()).getOrgName().getValue();
+            realPkgName = CommonUtil.getPackageNameComponentsCombined(bLangImport.get());
+            realOrgName = bLangImport.get().getOrgName().getValue();
         } else {
             realPkgName = pkgName;
             realOrgName = "";
@@ -1401,7 +1401,7 @@ public class CommonUtil {
      */
     public static Optional<Path> getPathFromURI(String uri) {
         try {
-            return Optional.ofNullable(Paths.get(new URL(uri).toURI()));
+            return Optional.of(Paths.get(new URL(uri).toURI()));
         } catch (URISyntaxException | MalformedURLException e) {
             // ignore
         }

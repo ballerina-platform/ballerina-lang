@@ -211,7 +211,8 @@ public class HttpService implements Cloneable {
             httpService.setCorsHeaders(CorsHeaders.buildCorsHeaders(serviceConfig.getMapValue(CORS_FIELD)));
             httpService.setHostName(serviceConfig.getStringValue(HOST_FIELD).trim());
 
-            String basePath = serviceConfig.getStringValue(BASE_PATH_FIELD);
+            String basePath = serviceConfig.getStringValue(BASE_PATH_FIELD).replaceAll(
+                    HttpConstants.REGEX, HttpConstants.SINGLE_SLASH);
             if (basePath.contains(HttpConstants.VERSION)) {
                 prepareBasePathList(serviceConfig.getMapValue(VERSIONING_FIELD),
                                     serviceConfig.getStringValue(BASE_PATH_FIELD), basePathList,
@@ -329,7 +330,8 @@ public class HttpService implements Cloneable {
 
     protected static MapValue getServiceConfigAnnotation(ObjectValue service, String packagePath,
                                                          String annotationName) {
-        return (MapValue) service.getType().getAnnotation(packagePath, annotationName);
+        return (MapValue) service.getType().getAnnotation(packagePath.replaceAll(HttpConstants.REGEX,
+                HttpConstants.SINGLE_SLASH), annotationName);
     }
 
     private static boolean hasInterruptibleAnnotation(ObjectValue service) {

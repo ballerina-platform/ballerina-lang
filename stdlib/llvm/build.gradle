@@ -21,8 +21,8 @@ apply from: "$rootDir/gradle/baseNativeStdLibProject.gradle"
 dependencies {
     baloImplementation project(path: ':ballerina-lang:annotations', configuration: 'baloImplementation')
 
-    implementation 'org.bytedeco.javacpp-presets:llvm-platform'
-    implementation 'org.bytedeco.javacpp-presets:llvm'
+    implementation 'org.bytedeco:llvm-platform:9.0.0-1.5.2'
+    implementation 'org.bytedeco:llvm:9.0.0-1.5.2'
     baloCreat project(':lib-creator')
     implementation project(':ballerina-lang')
     implementation project(':ballerina-runtime')

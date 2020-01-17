@@ -23,10 +23,10 @@ import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.nativeimpl.llvm.FFIUtil;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.bytedeco.javacpp.LLVM;
+import org.bytedeco.llvm.LLVM.LLVMTypeRef;
 
 import static org.ballerinalang.model.types.TypeKind.RECORD;
-import static org.bytedeco.javacpp.LLVM.LLVMInt8Type;
+import static org.bytedeco.llvm.global.LLVM.LLVMInt8Type;
 
 /**
  * Auto generated class.
@@ -44,7 +44,7 @@ public class LLVMInt8Type {
 
     public static MapValue<String, Object> llvmInt8Type(Strand strand) {
 
-        LLVM.LLVMTypeRef returnValue = LLVMInt8Type();
+        LLVMTypeRef returnValue = LLVMInt8Type();
         MapValue<String, Object> returnWrappedRecord = BallerinaValues.createRecordValue(new BPackage("ballerina",
                 "llvm"), "LLVMTypeRef");
         FFIUtil.addNativeToRecode(returnValue, returnWrappedRecord);

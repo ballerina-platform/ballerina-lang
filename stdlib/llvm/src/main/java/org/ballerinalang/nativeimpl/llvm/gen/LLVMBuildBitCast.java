@@ -23,12 +23,13 @@ import org.ballerinalang.nativeimpl.llvm.FFIUtil;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.bytedeco.javacpp.LLVM;
-import org.bytedeco.javacpp.LLVM.LLVMValueRef;
+import org.bytedeco.llvm.LLVM.LLVMBuilderRef;
+import org.bytedeco.llvm.LLVM.LLVMTypeRef;
+import org.bytedeco.llvm.LLVM.LLVMValueRef;
+import org.bytedeco.llvm.global.LLVM;
 
 import static org.ballerinalang.model.types.TypeKind.RECORD;
 import static org.ballerinalang.model.types.TypeKind.STRING;
-import static org.bytedeco.javacpp.LLVM.LLVMBuildBitCast;
 
 /**
  * Auto generated class.
@@ -50,10 +51,10 @@ public class LLVMBuildBitCast {
 
     public static MapValue<String, Object> llvmBuildBitCast(Strand strand, MapValue<String, Object> arg0,
             MapValue<String, Object> val, MapValue<String, Object> destTy, String name) {
-        LLVM.LLVMBuilderRef arg0Ref = (LLVM.LLVMBuilderRef) FFIUtil.getRecodeArgumentNative(arg0);
-        LLVM.LLVMValueRef valRef = (LLVMValueRef) FFIUtil.getRecodeArgumentNative(val);
-        LLVM.LLVMTypeRef destTyRef = (LLVM.LLVMTypeRef) FFIUtil.getRecodeArgumentNative(destTy);
-        LLVMValueRef returnValue = LLVMBuildBitCast(arg0Ref, valRef, destTyRef, name);
+        LLVMBuilderRef arg0Ref = (LLVMBuilderRef) FFIUtil.getRecodeArgumentNative(arg0);
+        LLVMValueRef valRef = (LLVMValueRef) FFIUtil.getRecodeArgumentNative(val);
+        LLVMTypeRef destTyRef = (LLVMTypeRef) FFIUtil.getRecodeArgumentNative(destTy);
+        LLVMValueRef returnValue = LLVM.LLVMBuildBitCast(arg0Ref, valRef, destTyRef, name);
         MapValue<String, Object> returnWrappedRecord = FFIUtil.newRecord(new BPackage("ballerina",
                 "llvm"), "LLVMValueRef");
         FFIUtil.addNativeToRecode(returnValue, returnWrappedRecord);

@@ -23,9 +23,10 @@ import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.nativeimpl.llvm.FFIUtil;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.bytedeco.javacpp.LLVM;
+import org.bytedeco.llvm.LLVM.LLVMTypeRef;
 
 import static org.ballerinalang.model.types.TypeKind.RECORD;
+import static org.bytedeco.llvm.global.LLVM.LLVMGetStructName;
 
 /**
  *
@@ -42,10 +43,10 @@ import static org.ballerinalang.model.types.TypeKind.RECORD;
 public class TypeCheck {
     public static boolean llvmCheckIfTypesMatch(Strand strand, MapValue<String, Object> castType,
             MapValue<String, Object> lhsType) {
-        LLVM.LLVMTypeRef castTypeRef = (LLVM.LLVMTypeRef) FFIUtil.getRecodeArgumentNative(castType);
-        LLVM.LLVMTypeRef lhsTypeRef = (LLVM.LLVMTypeRef) FFIUtil.getRecodeArgumentNative(lhsType);
-        String castTypeName = LLVM.LLVMGetStructName(castTypeRef).getString();
-        String lhsTypeName = LLVM.LLVMGetStructName(lhsTypeRef).getString();
+        LLVMTypeRef castTypeRef = (LLVMTypeRef) FFIUtil.getRecodeArgumentNative(castType);
+        LLVMTypeRef lhsTypeRef = (LLVMTypeRef) FFIUtil.getRecodeArgumentNative(lhsType);
+        String castTypeName = LLVMGetStructName(castTypeRef).getString();
+        String lhsTypeName = LLVMGetStructName(lhsTypeRef).getString();
         return castTypeName.compareTo(lhsTypeName) == 0;
     }
 }

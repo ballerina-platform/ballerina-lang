@@ -21,10 +21,11 @@ import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.nativeimpl.llvm.FFIUtil;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.bytedeco.javacpp.LLVM;
+import org.bytedeco.llvm.LLVM.LLVMBasicBlockRef;
+import org.bytedeco.llvm.LLVM.LLVMBuilderRef;
 
 import static org.ballerinalang.model.types.TypeKind.RECORD;
-import static org.bytedeco.javacpp.LLVM.LLVMPositionBuilderAtEnd;
+import static org.bytedeco.llvm.global.LLVM.LLVMPositionBuilderAtEnd;
 
 /**
  * Auto generated class.
@@ -43,8 +44,8 @@ public class LLVMPositionBuilderAtEnd {
     public static void llvmPositionBuilderAtEnd(Strand strand, MapValue<String, Object> builder,
                                                 MapValue<String, Object> block) {
 
-        LLVM.LLVMBuilderRef builderRef = (LLVM.LLVMBuilderRef) FFIUtil.getRecodeArgumentNative(builder);
-        LLVM.LLVMBasicBlockRef blockRef = (LLVM.LLVMBasicBlockRef) FFIUtil.getRecodeArgumentNative(block);
+        LLVMBuilderRef builderRef = (LLVMBuilderRef) FFIUtil.getRecodeArgumentNative(builder);
+        LLVMBasicBlockRef blockRef = (LLVMBasicBlockRef) FFIUtil.getRecodeArgumentNative(block);
         LLVMPositionBuilderAtEnd(builderRef, blockRef);
     }
 }
