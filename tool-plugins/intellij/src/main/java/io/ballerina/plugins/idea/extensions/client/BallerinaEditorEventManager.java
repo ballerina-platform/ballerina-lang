@@ -68,6 +68,7 @@ import org.wso2.lsp4intellij.client.languageserver.requestmanager.RequestManager
 import org.wso2.lsp4intellij.client.languageserver.wrapper.LanguageServerWrapper;
 import org.wso2.lsp4intellij.contributors.icon.LSPIconProvider;
 import org.wso2.lsp4intellij.editor.EditorEventManager;
+import org.wso2.lsp4intellij.listeners.LSPCaretListenerImpl;
 import org.wso2.lsp4intellij.requests.Timeouts;
 import org.wso2.lsp4intellij.utils.ApplicationUtils;
 import org.wso2.lsp4intellij.utils.DocumentUtils;
@@ -107,9 +108,10 @@ public class BallerinaEditorEventManager extends EditorEventManager {
 
     public BallerinaEditorEventManager(Editor editor, DocumentListener documentListener,
                                        EditorMouseListener mouseListener, EditorMouseMotionListener mouseMotionListener,
-                                       RequestManager requestManager, ServerOptions serverOptions,
-                                       LanguageServerWrapper wrapper) {
-        super(editor, documentListener, mouseListener, mouseMotionListener, requestManager, serverOptions, wrapper);
+                                       LSPCaretListenerImpl caretListener, RequestManager requestManager,
+                                       ServerOptions serverOptions, LanguageServerWrapper wrapper) {
+        super(editor, documentListener, mouseListener, mouseMotionListener, caretListener, requestManager,
+                serverOptions, wrapper);
     }
 
     @Nullable
