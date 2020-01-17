@@ -47,7 +47,8 @@ public class HttpClientAction extends AbstractHTTPAction {
         String url = httpClient.getStringValue(CLIENT_ENDPOINT_SERVICE_URI);
         MapValue<String, Object> config = (MapValue<String, Object>) httpClient.get(CLIENT_ENDPOINT_CONFIG);
         HttpClientConnector clientConnector = (HttpClientConnector) httpClient.getNativeData(HttpConstants.CLIENT);
-        HttpCarbonMessage outboundRequestMsg = createOutboundRequestMsg(strand, url, config, path, requestObj);
+        HttpCarbonMessage outboundRequestMsg = createOutboundRequestMsg(strand, url, config, path.
+                replaceAll(HttpConstants.REGEX, HttpConstants.SINGLE_SLASH), requestObj);
         outboundRequestMsg.setHttpMethod(httpMethod);
         DataContext dataContext = new DataContext(strand, clientConnector, new NonBlockingCallback(strand), requestObj,
                                                   outboundRequestMsg);
