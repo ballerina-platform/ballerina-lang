@@ -31,7 +31,7 @@ import java.util.Locale;
 /**
  * Code Action provider for tainted parameters.
  *
- * @since 1.1.0
+ * @since 1.1.1
  */
 @JavaSPIService("org.ballerinalang.langserver.codeaction.BallerinaCodeActionProvider")
 public class TaintedParamCodeAction extends BallerinaCodeActionProvider {

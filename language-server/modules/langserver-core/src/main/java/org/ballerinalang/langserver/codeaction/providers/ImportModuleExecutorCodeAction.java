@@ -36,7 +36,7 @@ import java.util.Optional;
 /**
  * Code Action provider for importing a package.
  *
- * @since 1.1.0
+ * @since 1.1.1
  */
 @JavaSPIService("org.ballerinalang.langserver.codeaction.BallerinaCodeActionProvider")
 public class ImportModuleExecutorCodeAction extends BallerinaCodeActionProvider {

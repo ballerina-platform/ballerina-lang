@@ -24,7 +24,7 @@ import java.util.List;
 /**
  * Represents the interface for the Ballerina Code Action Router.
  *
- * @since 1.1.0
+ * @since 1.1.1
  */
 public interface CodeActionRouter {
 

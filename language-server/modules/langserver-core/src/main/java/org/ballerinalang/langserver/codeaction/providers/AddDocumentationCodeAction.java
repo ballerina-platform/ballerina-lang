@@ -31,7 +31,7 @@ import static org.ballerinalang.langserver.command.CommandUtil.getDocGenerationC
 /**
  * Code Action provider for adding single documentation.
  *
- * @since 1.1.0
+ * @since 1.1.1
  */
 @JavaSPIService("org.ballerinalang.langserver.codeaction.BallerinaCodeActionProvider")
 public class AddDocumentationCodeAction extends BallerinaCodeActionProvider {
