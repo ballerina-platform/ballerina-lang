@@ -158,14 +158,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "ballerina/streams",
-      "kind": "Module",
-      "detail": "Package",
-      "sortText": "140",
-      "insertText": "ballerina/streams",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "ballerina/reflect",
       "kind": "Module",
       "detail": "Package",

@@ -24,8 +24,6 @@ import org.ballerinalang.model.elements.TableColumnFlag;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
-import org.ballerinalang.model.tree.clauses.OrderByVariableNode;
-import org.ballerinalang.model.tree.clauses.SelectExpressionNode;
 import org.ballerinalang.model.tree.expressions.NamedArgNode;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
@@ -68,15 +66,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangInvokableNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangGroupBy;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangHaving;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangJoinStreamingInput;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangOrderBy;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangOrderByVariable;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectExpression;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangStreamingInput;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangTableQuery;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAccessExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
@@ -106,7 +95,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangServiceConstructorE
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableLiteral;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableQueryExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTrapExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTupleVarRef;
@@ -2532,92 +2520,6 @@ public class TypeChecker extends BLangNodeVisitor {
         checkExpr(intRangeExpression.startExpr, env, symTable.intType);
         checkExpr(intRangeExpression.endExpr, env, symTable.intType);
         resultType = new BArrayType(symTable.intType);
-    }
-
-    @Override
-    public void visit(BLangTableQueryExpression tableQueryExpression) {
-        BType actualType = symTable.semanticError;
-        int expTypeTag = expType.tag;
-
-        if (expTypeTag == TypeTags.TABLE) {
-            actualType = expType;
-        } else if (expTypeTag != TypeTags.SEMANTIC_ERROR) {
-            dlog.error(tableQueryExpression.pos, DiagnosticCode.INCOMPATIBLE_TYPES_CONVERSION, expType);
-        }
-
-        BLangTableQuery tableQuery = (BLangTableQuery) tableQueryExpression.getTableQuery();
-        tableQuery.accept(this);
-
-        resultType = types.checkType(tableQueryExpression, actualType, expType);
-    }
-
-    @Override
-    public void visit(BLangTableQuery tableQuery) {
-        BLangStreamingInput streamingInput = (BLangStreamingInput) tableQuery.getStreamingInput();
-        streamingInput.accept(this);
-
-        BLangJoinStreamingInput joinStreamingInput = (BLangJoinStreamingInput) tableQuery.getJoinStreamingInput();
-        if (joinStreamingInput != null) {
-            joinStreamingInput.accept(this);
-        }
-    }
-
-    @Override
-    public void visit(BLangSelectClause selectClause) {
-        List<? extends SelectExpressionNode> selectExprList = selectClause.getSelectExpressions();
-        selectExprList.forEach(selectExpr -> ((BLangSelectExpression) selectExpr).accept(this));
-
-        BLangGroupBy groupBy = (BLangGroupBy) selectClause.getGroupBy();
-        if (groupBy != null) {
-            groupBy.accept(this);
-        }
-
-        BLangHaving having = (BLangHaving) selectClause.getHaving();
-        if (having != null) {
-            having.accept(this);
-        }
-    }
-
-    @Override
-    public void visit(BLangSelectExpression selectExpression) {
-        BLangExpression expr = (BLangExpression) selectExpression.getExpression();
-        expr.accept(this);
-    }
-
-    @Override
-    public void visit(BLangGroupBy groupBy) {
-        groupBy.getVariables().forEach(expr -> ((BLangExpression) expr).accept(this));
-    }
-
-    @Override
-    public void visit(BLangHaving having) {
-        BLangExpression expr = (BLangExpression) having.getExpression();
-        expr.accept(this);
-    }
-
-    @Override
-    public void visit(BLangOrderBy orderBy) {
-        for (OrderByVariableNode orderByVariableNode : orderBy.getVariables()) {
-            ((BLangOrderByVariable) orderByVariableNode).accept(this);
-        }
-    }
-
-    @Override
-    public void visit(BLangOrderByVariable orderByVariable) {
-        BLangExpression expression = (BLangExpression) orderByVariable.getVariableReference();
-        expression.accept(this);
-    }
-
-    @Override
-    public void visit(BLangJoinStreamingInput joinStreamingInput) {
-        BLangStreamingInput streamingInput = (BLangStreamingInput) joinStreamingInput.getStreamingInput();
-        streamingInput.accept(this);
-    }
-
-    @Override
-    public void visit(BLangStreamingInput streamingInput) {
-        BLangExpression varRef = (BLangExpression) streamingInput.getStreamReference();
-        varRef.accept(this);
     }
 
     @Override
