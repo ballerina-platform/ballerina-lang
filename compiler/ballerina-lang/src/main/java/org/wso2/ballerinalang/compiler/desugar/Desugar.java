@@ -2481,8 +2481,10 @@ public class Desugar extends BLangNodeVisitor {
         if (errorType.detailType.getKind() == TypeKind.RECORD) {
             // Create empty record init attached func
             BRecordTypeSymbol tsymbol = (BRecordTypeSymbol) errorType.detailType.tsymbol;
-            tsymbol.initializerFunc = createRecordInitFunc((BRecordType) errorType.detailType, tsymbol.name);
-            tsymbol.scope.define(tsymbol.initializerFunc.funcName, tsymbol.initializerFunc.symbol);
+            if (tsymbol.initializerFunc == null) {
+                tsymbol.initializerFunc = createRecordInitFunc((BRecordType) errorType.detailType, tsymbol.name);
+                tsymbol.scope.define(tsymbol.initializerFunc.funcName, tsymbol.initializerFunc.symbol);
+            }
         }
     }
 
@@ -5566,12 +5568,6 @@ public class Desugar extends BLangNodeVisitor {
                 names.fromString("$anonErrorType$" + errorNo + "$detailType"),
                 env.enclPkg.symbol.pkgID, null, null);
 
-        detailRecordTypeSymbol.scope = new Scope(detailRecordTypeSymbol);
-        detailRecordTypeSymbol.scope.define(
-                names.fromString(detailRecordTypeSymbol.name.value + "." +
-                        detailRecordTypeSymbol.initializerFunc.funcName.value),
-                detailRecordTypeSymbol.initializerFunc.symbol);
-
         BRecordType detailRecordType = new BRecordType(detailRecordTypeSymbol);
         detailRecordType.restFieldType = symTable.anydataType;
 
@@ -5580,11 +5576,16 @@ public class Desugar extends BLangNodeVisitor {
         }
         detailRecordTypeSymbol.initializerFunc = createRecordInitFunc(detailRecordType, detailRecordTypeSymbol.name);
 
+        detailRecordTypeSymbol.scope = new Scope(detailRecordTypeSymbol);
+        detailRecordTypeSymbol.scope.define(names.fromString(
+                detailRecordTypeSymbol.name.value + "." + detailRecordTypeSymbol.initializerFunc.funcName.value),
+                                            detailRecordTypeSymbol.initializerFunc.symbol);
+
         for (BLangErrorVariable.BLangErrorDetailEntry detailEntry : detail) {
             Name fieldName = names.fromIdNode(detailEntry.key);
             BType fieldType = getStructuredBindingPatternType(detailEntry.valueBindingPattern);
             BVarSymbol fieldSym = new BVarSymbol(
-                        Flags.PUBLIC, fieldName, detailRecordTypeSymbol.pkgID, fieldType, detailRecordTypeSymbol);
+                    Flags.PUBLIC, fieldName, detailRecordTypeSymbol.pkgID, fieldType, detailRecordTypeSymbol);
             detailRecordType.fields.add(new BField(fieldName, detailEntry.key.pos, fieldSym));
             detailRecordTypeSymbol.scope.define(fieldName, fieldSym);
         }

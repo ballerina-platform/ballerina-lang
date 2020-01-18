@@ -864,6 +864,14 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     }
 
     @Override
+    public void enterErrorTypeName(BallerinaParser.ErrorTypeNameContext ctx) {
+        if (isInErrorState) {
+            return;
+        }
+        this.pkgBuilder.startErrorType();
+    }
+
+    @Override
     public void exitErrorTypeName(BallerinaParser.ErrorTypeNameContext ctx) {
         if (isInErrorState) {
             return;
@@ -871,7 +879,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         boolean reasonTypeExists = !ctx.typeName().isEmpty();
         boolean detailsTypeExists = ctx.typeName().size() > 1;
         boolean isAnonymous = !(ctx.parent.parent.parent.parent.parent.parent
-                                        instanceof BallerinaParser.FiniteTypeContext) && reasonTypeExists;
+                instanceof BallerinaParser.FiniteTypeContext) && reasonTypeExists;
         this.pkgBuilder.addErrorType(getCurrentPos(ctx), getWS(ctx), reasonTypeExists, detailsTypeExists, isAnonymous);
     }
 
