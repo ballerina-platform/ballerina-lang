@@ -149,8 +149,8 @@ public type Consumer client object {
     *'object:Listener;
 
     public ConsumerConfig? consumerConfig = ();
-    private string keyDeserializer = "";
-    private string valueDeserializer = "";
+    private string keyDeserializer;
+    private string valueDeserializer;
 
     # Creates a new Kafka `Consumer`.
     #

@@ -126,8 +126,8 @@ public type SerializerType SER_BYTE_ARRAY|SER_STRING|SER_INT|SER_FLOAT;
 public type Producer client object {
 
     public ProducerConfig? producerConfig = ();
-    private string keySerializer = "";
-    private string valueSerializer = "";
+    private string keySerializer;
+    private string valueSerializer;
 
     # Creates a new Kafka `Producer`.
     #
