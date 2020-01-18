@@ -106,6 +106,7 @@ public enum NodeKind {
     IGNORE_EXPR,
     DOCUMENTATION_DESCRIPTION,
     DOCUMENTATION_PARAMETER,
+    DOCUMENTATION_REFERENCE,
     SERVICE_CONSTRUCTOR,
 
     /* streams/tables expressions */

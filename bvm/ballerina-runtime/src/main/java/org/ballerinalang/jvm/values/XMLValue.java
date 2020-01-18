@@ -18,12 +18,12 @@ package org.ballerinalang.jvm.values;
 
 import org.ballerinalang.jvm.TypeConverter;
 import org.ballerinalang.jvm.XMLNodeType;
-import org.ballerinalang.jvm.commons.TypeValuePair;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
-import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
-import org.ballerinalang.jvm.values.api.BXml;
+import org.ballerinalang.jvm.values.api.BMap;
+import org.ballerinalang.jvm.values.api.BXML;
+import org.ballerinalang.jvm.values.api.BXMLQName;
 import org.ballerinalang.jvm.values.freeze.State;
 import org.ballerinalang.jvm.values.freeze.Status;
 
@@ -43,10 +43,10 @@ import javax.xml.namespace.QName;
  * <p>
  * <i>Note: This is an internal API and may change in future versions.</i>
  * </p>
- * 
+ *
  * @since 0.995.0
  */
-public abstract class XMLValue implements RefValue, BXml {
+public abstract class XMLValue implements RefValue, BXML, CollectionValue {
 
     BType type = BTypes.typeXML;
 
@@ -60,7 +60,7 @@ public abstract class XMLValue implements RefValue, BXml {
      * @param attributeName Qualified name of the attribute
      * @return Value of the attribute
      */
-    public String getAttribute(XMLQName attributeName) {
+    public String getAttribute(BXMLQName attributeName) {
         return getAttribute(attributeName.getLocalName(), attributeName.getUri(), attributeName.getPrefix());
     }
 
@@ -71,7 +71,7 @@ public abstract class XMLValue implements RefValue, BXml {
      * @param attributeName Qualified name of the attribute
      * @param value Value of the attribute
      */
-    public void setAttribute(XMLQName attributeName, String value) {
+    public void setAttribute(BXMLQName attributeName, String value) {
         setAttribute(attributeName.getLocalName(), attributeName.getUri(), attributeName.getPrefix(), value);
     }
 
@@ -83,13 +83,6 @@ public abstract class XMLValue implements RefValue, BXml {
         return type;
     }
 
-    @Override
-    public void stamp(BType type, List<TypeValuePair> unresolvedValues) {
-        if (type.getTag() == TypeTags.ANYDATA_TAG) {
-            type = TypeConverter.resolveMatchingTypeForUnion(this, type);
-        }
-        this.type = type;
-    }
     // private methods
 
     protected static void handleXmlException(String message, Throwable t) {
@@ -130,8 +123,8 @@ public abstract class XMLValue implements RefValue, BXml {
      * @param currentElement Current node
      * @param qname Qualified name of the descendants to search
      */
-    protected void addDescendants(List<BXml> descendants, XMLItem currentElement, String qname) {
-        for (BXml child : currentElement.getChildrenSeq().children) {
+    protected void addDescendants(List<BXML> descendants, XMLItem currentElement, String qname) {
+        for (BXML child : currentElement.getChildrenSeq().children) {
             if (child.getNodeType() == XMLNodeType.ELEMENT) {
                 if (((XMLItem) child).getQName().toString().equals(qname)) {
                     descendants.add(child);
@@ -150,14 +143,14 @@ public abstract class XMLValue implements RefValue, BXml {
         return this.freezeStatus.isFrozen();
     }
 
-    // TODO: These are bridge methods to invoke methods in BXml interface
-    // Fix in the JVM code gen to directly call overridden BXml methods
+    // TODO: These are bridge methods to invoke methods in BXML interface
+    // Fix in the JVM code gen to directly call overridden BXML methods
     public void addChildren(XMLValue seq) {
-        addChildren((BXml) seq);
+        addChildren((BXML) seq);
     }
 
     public void setChildren(XMLValue seq) {
-        setChildren((BXml) seq);
+        setChildren((BXML) seq);
     }
 
     public abstract XMLValue children();

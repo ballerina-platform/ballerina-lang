@@ -61,6 +61,7 @@ import java.util.Optional;
  *
  * @since 0.90
  */
+@Deprecated
 public class PackageInfoWriter {
 
     // Size to be written to tag a null value

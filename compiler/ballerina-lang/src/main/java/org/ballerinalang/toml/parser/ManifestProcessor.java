@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.toml.parser;
 
+import com.google.gson.JsonSyntaxException;
 import com.moandjiezana.toml.Toml;
 import com.moandjiezana.toml.TomlWriter;
 import org.ballerinalang.compiler.BLangCompilerException;
@@ -121,8 +122,9 @@ public class ManifestProcessor {
             validateManifestProject(manifest);
             validateManifestDependencies(manifest);
             return manifest;
-        } catch (IllegalStateException ise) {
-            String tomlErrMsg = lowerCaseFirstLetter(ise.getMessage().toLowerCase(Locale.getDefault()));
+        } catch (IllegalStateException | JsonSyntaxException ise) {
+            String tomlErrMsg = lowerCaseFirstLetter(
+                    ise.getMessage().replace("java.lang.IllegalStateException: ", "").toLowerCase(Locale.getDefault()));
             throw new TomlException("invalid Ballerina.toml file: " + tomlErrMsg);
         }
     }
@@ -154,8 +156,9 @@ public class ManifestProcessor {
             validateManifestProject(manifest);
             validateManifestDependencies(manifest);
             return manifest;
-        } catch (IllegalStateException ise) {
-            String tomlErrMsg = lowerCaseFirstLetter(ise.getMessage().toLowerCase(Locale.getDefault()));
+        } catch (IllegalStateException | JsonSyntaxException ise) {
+            String tomlErrMsg = lowerCaseFirstLetter(
+                    ise.getMessage().replace("java.lang.IllegalStateException: ", "").toLowerCase(Locale.getDefault()));
             throw new TomlException("invalid Ballerina.toml file: " + tomlErrMsg);
         }
     }

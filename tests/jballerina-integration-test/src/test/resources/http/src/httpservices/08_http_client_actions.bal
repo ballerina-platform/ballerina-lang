@@ -111,6 +111,20 @@ service backEndService on new http:Listener(9097) {
     resource function respond(http:Caller caller, http:Request request) {
         checkpanic caller->respond(checkpanic <@untainted> request.getTextPayload());
     }
+
+    @http:ResourceConfig {
+            path: "/{id}"
+    }
+    resource function withWhitespacedExpression(http:Caller caller, http:Request request, string id) {
+        var res = caller->respond(<@untainted> id);
+    }
+
+    @http:ResourceConfig {
+            path: "/a/b%20c/d"
+    }
+    resource function withWhitespacedLiteral(http:Caller caller, http:Request request) {
+        var res = caller->respond("dispatched to white_spaced literal");
+    }
 }
 
 @http:ServiceConfig {
@@ -394,5 +408,23 @@ service testService on new http:Listener(9098) {
             value = err.reason();
         }
         checkpanic caller->respond(<@untainted> value);
+    }
+
+    @http:ResourceConfig {
+        methods: ["GET"],
+        path: "/literal"
+    }
+    resource function testPathWithWhitespacesForLiteral(http:Caller caller, http:Request request) returns error? {
+        http:Response response = check clientEP2->get("/test1/a/b c/d ");
+        var res = caller->respond(<@untainted> response);
+    }
+
+    @http:ResourceConfig {
+        methods: ["GET"],
+        path: "/expression"
+    }
+    resource function testClientPathWithWhitespacesForExpression(http:Caller caller, http:Request request) returns error? {
+        http:Response response = check clientEP2->get("/test1/dispatched to white_spaced expression ");
+        var res = caller->respond(<@untainted> response);
     }
 }

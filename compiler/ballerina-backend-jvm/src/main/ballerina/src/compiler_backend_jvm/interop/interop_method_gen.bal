@@ -98,6 +98,7 @@ public type JCast record {|
 
 public type JErrorEntry record {|
     bir:BasicBlock trapBB;
+    bir:BasicBlock endBB;
     bir:VarRef errorOp;
     bir:BasicBlock targetBB;
     CatchIns[] catchIns;
@@ -311,7 +312,7 @@ function genJFieldForInteropField(JFieldFunctionWrapper jFieldFuncWrapper,
     jvm:Label retLabel = labelGen.getLabel("return_lable");
     mv.visitLabel(retLabel);
     mv.visitLineNumber(birFunc.pos.sLine, retLabel);
-    termGen.genReturnTerm({pos:{}, kind:"RETURN"}, returnVarRefIndex, birFunc);
+    termGen.genReturnTerm({pos:birFunc.pos, kind:"RETURN"}, returnVarRefIndex, birFunc);
     mv.visitMaxs(200, 400);
     mv.visitEnd();
 }
@@ -396,7 +397,7 @@ function desugarInteropFuncs(bir:Package module, JMethodFunctionWrapper extFuncW
     bir:VarRef? jRetVarRef = ();
 
     bir:BasicBlock thenBB = insertAndGetNextBasicBlock(birFunc.basicBlocks, prefix = bbPrefix);
-    bir:GOTO gotoRet = {pos:{}, kind:bir:TERMINATOR_GOTO, targetBB:retBB};
+    bir:GOTO gotoRet = {pos:birFunc.pos, kind:bir:TERMINATOR_GOTO, targetBB:retBB};
     thenBB.terminator = gotoRet;
 
     if (!(retType is bir:BTypeNil)) {
@@ -411,9 +412,9 @@ function desugarInteropFuncs(bir:Package module, JMethodFunctionWrapper extFuncW
         }
 
         bir:BasicBlock catchBB = {id: getNextDesugarBBId(bbPrefix), instructions: []};
-        JErrorEntry ee = { trapBB:beginBB, errorOp:retRef, targetBB:catchBB, catchIns:[] };
+        JErrorEntry ee = { trapBB:beginBB, endBB:thenBB, errorOp:retRef, targetBB:catchBB, catchIns:[] };
         foreach var exception in extFuncWrapper.jMethod.throws {
-            bir:Return exceptionRet = {pos:{}, kind:bir:TERMINATOR_RETURN};
+            bir:Return exceptionRet = {pos:birFunc.pos, kind:bir:TERMINATOR_RETURN};
             CatchIns catchIns = { errorClass:exception, term:exceptionRet };
             ee.catchIns[ee.catchIns.length()] = catchIns;
         }
@@ -591,7 +592,7 @@ function genVarArg(jvm:MethodVisitor mv, BalToJVMIndexMap indexMap, bir:BType bT
 
     // get the number of var args provided
     mv.visitVarInsn(ALOAD, varArgIndex);
-    mv.visitMethodInsn(INVOKEVIRTUAL, ARRAY_VALUE, "size", "()I", false);
+    mv.visitMethodInsn(INVOKEINTERFACE, ARRAY_VALUE, "size", "()I", true);
     mv.visitInsn(DUP);  // duplicate array size - needed for array new
     mv.visitVarInsn(ISTORE, varArgsLenVarIndex);
 
@@ -620,18 +621,20 @@ function genVarArg(jvm:MethodVisitor mv, BalToJVMIndexMap indexMap, bir:BType bT
     mv.visitInsn(I2L);
 
     if (bElementType is bir:BTypeInt) {
-        mv.visitMethodInsn(INVOKEVIRTUAL, ARRAY_VALUE, "getInt", "(J)J", false);
+        mv.visitMethodInsn(INVOKEINTERFACE, ARRAY_VALUE, "getInt", "(J)J", true);
     } else if (bElementType is bir:BTypeString) {
-        mv.visitMethodInsn(INVOKEVIRTUAL, ARRAY_VALUE, "getString", io:sprintf("(J)L%s;", STRING_VALUE), false);
+        mv.visitMethodInsn(INVOKEINTERFACE, ARRAY_VALUE, "getString", io:sprintf("(J)L%s;", STRING_VALUE), true);
     } else if (bElementType is bir:BTypeBoolean) {
-        mv.visitMethodInsn(INVOKEVIRTUAL, ARRAY_VALUE, "getJBoolean", "(J)Z", false);
+        mv.visitMethodInsn(INVOKEINTERFACE, ARRAY_VALUE, "getBoolean", "(J)Z", true);
     } else if (bElementType is bir:BTypeByte) {
-        mv.visitMethodInsn(INVOKEVIRTUAL, ARRAY_VALUE, "getJByte", "(J)B", false);
+        mv.visitMethodInsn(INVOKEINTERFACE, ARRAY_VALUE, "getByte", "(J)B", true);
     } else if (bElementType is bir:BTypeFloat) {
-        mv.visitMethodInsn(INVOKEVIRTUAL, ARRAY_VALUE, "getJFloat", "(J)D", false);
-    } else {
-        mv.visitMethodInsn(INVOKEVIRTUAL, ARRAY_VALUE, "getRefValue", io:sprintf("(J)L%s;", OBJECT), false);
+        mv.visitMethodInsn(INVOKEINTERFACE, ARRAY_VALUE, "getFloat", "(J)D", true);
+    } else if (bElementType is bir:BTypeHandle) {
+        mv.visitMethodInsn(INVOKEINTERFACE, ARRAY_VALUE, "getRefValue", io:sprintf("(J)L%s;", OBJECT), true);
         mv.visitTypeInsn(CHECKCAST, HANDLE_VALUE);
+    } else {
+        mv.visitMethodInsn(INVOKEINTERFACE, ARRAY_VALUE, "getRefValue", io:sprintf("(J)L%s;", OBJECT), true);
     }
 
     // unwrap from handleValue

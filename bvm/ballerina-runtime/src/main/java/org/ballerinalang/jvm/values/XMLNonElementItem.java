@@ -21,7 +21,8 @@ import org.apache.axiom.om.OMNode;
 import org.ballerinalang.jvm.BallerinaXMLSerializer;
 import org.ballerinalang.jvm.XMLNodeType;
 import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.values.api.BXml;
+import org.ballerinalang.jvm.values.api.BMap;
+import org.ballerinalang.jvm.values.api.BXML;
 import org.ballerinalang.jvm.values.freeze.Status;
 
 import java.io.ByteArrayOutputStream;
@@ -80,17 +81,17 @@ public abstract class XMLNonElementItem extends XMLValue {
     }
 
     @Override
-    public void setAttributes(MapValue<String, ?> attributes) {
+    public void setAttributes(BMap<String, ?> attributes) {
 
     }
 
     @Override
-    public BXml elements() {
+    public BXML elements() {
         return new XMLSequence();
     }
 
     @Override
-    public BXml elements(String qname) {
+    public BXML elements(String qname) {
         return null;
     }
 
@@ -105,16 +106,16 @@ public abstract class XMLNonElementItem extends XMLValue {
     }
 
     @Override
-    public void setChildren(BXml seq) {
+    public void setChildren(BXML seq) {
     }
 
     @Override
     @Deprecated
-    public void addChildren(BXml seq) {
+    public void addChildren(BXML seq) {
     }
 
     @Override
-    public BXml strip() {
+    public BXML strip() {
         return new XMLText("");
     }
 
@@ -122,12 +123,12 @@ public abstract class XMLNonElementItem extends XMLValue {
     public abstract XMLNodeType getNodeType();
 
     @Override
-    public BXml slice(long startIndex, long endIndex) {
+    public BXML slice(long startIndex, long endIndex) {
         return null;
     }
 
     @Override
-    public BXml descendants(String qname) {
+    public BXML descendants(String qname) {
         return null;
     }
 
@@ -214,11 +215,6 @@ public abstract class XMLNonElementItem extends XMLValue {
             handleXmlException("failed to get xml as string: ", t);
         }
         return STRING_NULL_VALUE;
-    }
-
-    @Override
-    public String stringValue(Strand strand) {
-        return stringValue();
     }
 
     @Override

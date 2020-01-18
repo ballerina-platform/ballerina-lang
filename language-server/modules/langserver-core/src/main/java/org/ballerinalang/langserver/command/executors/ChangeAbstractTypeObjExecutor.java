@@ -87,7 +87,7 @@ public class ChangeAbstractTypeObjExecutor implements LSCommandExecutor {
             throw new LSCommandExecutorException("Invalid parameters received for the change abstract type command!");
         }
 
-        WorkspaceDocumentManager documentManager = context.get(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY);
+        WorkspaceDocumentManager documentManager = context.get(DocumentServiceKeys.DOC_MANAGER_KEY);
 
         BLangObjectTypeNode objectNode;
         try {

@@ -54,7 +54,7 @@ public class JInteropFieldValidator {
         try {
             // 1) Load Java class  - validate
             ClassLoader classLoader = (ClassLoader) interopValidatorStruct.getNativeData(CLASS_LOADER_DATA);
-            JFieldMethod method = getFieldMethod(jFieldValidationRequest);
+            JavaField.JFieldMethod method = getFieldMethod(jFieldValidationRequest);
             String className = (String) jFieldValidationRequest.get(CLASS_FIELD);
             Class clazz = JInterop.loadClass(className, classLoader);
 
@@ -67,7 +67,7 @@ public class JInteropFieldValidator {
                 javaField = new JavaField(method, field);
             } catch (NoSuchFieldException e) {
                 throw new JInteropException(JInteropException.FIELD_NOT_FOUND_REASON,
-                        "No such field '" + fieldName + "' found in class '" + className + "'");
+                                            "No such field '" + fieldName + "' found in class '" + className + "'");
             }
             return createJFieldBValue(javaField);
         } catch (JInteropException e) {

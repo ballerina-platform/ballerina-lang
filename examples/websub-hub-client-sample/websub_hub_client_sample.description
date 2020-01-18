@@ -4,7 +4,7 @@
 // The subscription/unsubscription process could also be initiated via the Ballerina WebSub Hub Client Endpoint.
 //
 // This example demonstrates the usage of the WebSub Hub Client Endpoint to subscribe and unsubscribe to updates for
-// a particular topic at the hub. Alos, it demonstrates auto intent verification in which intent verification for subscription or
+// a particular topic at the hub. Also, it demonstrates auto intent verification in which intent verification for subscription or
 // unsubscription requests would happen automatically (against the annotated topic) if the onIntentVerification request
 // is not included.
 //

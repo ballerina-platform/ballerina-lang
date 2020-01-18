@@ -71,6 +71,8 @@
             <class name="org.ballerinalang.test.service.http.sample.SslProtocolTest"/>
             <class name="org.ballerinalang.test.service.http.sample.SerializeComplexXmlTestCase"/>
             <class name="org.ballerinalang.test.service.http.sample.HTTPListenerMethodTestCase"/>
+            <class name="org.ballerinalang.test.service.http.sample.HTTPCookiesTestCase"/>
+            <class name="org.ballerinalang.test.service.http.sample.HttpUrlTestCase"/>
         </classes>
     </test>
 
@@ -245,6 +247,7 @@
             <class name="org.ballerinalang.test.service.websub.basic.WebSubContentTypeSupportTestCase"/>
             <class name="org.ballerinalang.test.service.websub.basic.WebSubDiscoveryWithMultipleSubscribersTestCase"/>
             <class name="org.ballerinalang.test.service.websub.basic.WebSubRedirectionTestCase"/>
+            <class name="org.ballerinalang.test.service.websub.basic.WebSubStartupFunctionalityTestCase"/>
         </classes>
     </test>
 
@@ -284,6 +287,7 @@
         <classes>
             <class name="org.ballerinalang.test.observability.tracing.TracingTestCase"/>
             <class name="org.ballerinalang.test.observability.metrics.MetricsTestCase"/>
+            <class name="org.ballerinalang.test.observability.metrics.WebSocketMetricsTestCase"/>
         </classes>
     </test>
 
@@ -298,6 +302,7 @@
             <class name="org.ballerinalang.test.packaging.PathDependencyTestCase"/>
             <class name="org.ballerinalang.test.packaging.DirectoryTestCase"/>
             <class name="org.ballerinalang.test.packaging.SpiServicesTestCase"/>
+            <class name="org.ballerinalang.test.packaging.SingleBalFileTestCase"/>
         </classes>
     </test>
 

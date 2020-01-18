@@ -115,6 +115,15 @@ public class FunctionPointersTest {
         invokeFunctionPointerProgram(privateFPProgram, "test2", 3);
     }
 
+    @Test
+    public void testInvokingLambdasWithSameName() {
+        BValue[] returns = BRunUtil.invoke(privateFPProgram, "getCombinedString");
+        Assert.assertNotNull(returns);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertNotNull(returns[0]);
+        Assert.assertEquals(returns[0].stringValue(), "foo bar");
+    }
+
     private void invokeFunctionPointerProgram(CompileResult programToRun, String functionName, int valueToAssert) {
         BValue[] returns = BRunUtil.invoke(programToRun, functionName);
         Assert.assertNotNull(returns);
@@ -276,6 +285,18 @@ public class FunctionPointersTest {
     public void testSubTypingWithAny() {
         BValue[] returns = BRunUtil.invoke(fpProgram, "testSubTypingWithAny");
         Assert.assertEquals(returns[0].stringValue(), "12");
+    }
+
+    @Test(description = "Test global function pointers defined using var")
+    public void testGlobalFunctionPointerVar() {
+        BValue[] returns = BRunUtil.invoke(fpProgram, "testGlobalFunctionPointerVar");
+        Assert.assertEquals(returns[0].stringValue(), "f1");
+    }
+
+    @Test(description = "Test global function pointers that are defined with type")
+    public void testGlobalFunctionPointerTyped() {
+        BValue[] returns = BRunUtil.invoke(fpProgram, "testGlobalFunctionPointerTyped");
+        Assert.assertEquals(returns[0].stringValue(), "f2");
     }
 
     @Test(description = "Test passing a no-return function pointer as a nil-returning function pointer")

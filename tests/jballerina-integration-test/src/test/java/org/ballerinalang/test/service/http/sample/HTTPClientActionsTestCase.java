@@ -112,6 +112,12 @@ public class HTTPClientActionsTestCase extends HttpBaseTest {
         sendAndAssert("handleStringJsonAlternate", "ab");
     }
 
+    @Test(description = "Test client path with whitespaces")
+    public void testClientPathWithWhitespaces() throws IOException {
+        sendAndAssert("literal", "dispatched to white_spaced literal");
+        sendAndAssert("expression", "dispatched to white_spaced expression");
+    }
+
     private void sendAndAssert(String path, String expectedResponse) throws IOException {
         HttpResponse response = HttpClientRequest.doGet(
                 serverInstance.getServiceURLHttp(servicePort, SERVICE_URL_PART + path));

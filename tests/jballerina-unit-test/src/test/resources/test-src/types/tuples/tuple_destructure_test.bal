@@ -90,3 +90,22 @@ function tupleDestructureTest8() returns [int, string, string[]] {
     [a, b, ...c] = x;
     return [a, b, c];
 }
+
+type FooRecord record {|
+    string field1;
+    [int, float] field2;
+|};
+
+function tupleDestructureTest9() returns [boolean, string, [int, float]] {
+    FooRecord foo = {
+        field1: "string value",
+        field2: [25, 12.5]
+    };
+
+    boolean a;
+    string b;
+    [int, float] c;
+    [a, { field1: b, field2: c }] = [true, foo];
+
+    return [a, b, c];
+}

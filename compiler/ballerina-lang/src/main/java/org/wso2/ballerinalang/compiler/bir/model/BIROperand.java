@@ -53,4 +53,9 @@ public class BIROperand extends BIRNode {
     public String toString() {
         return variableDcl.toString();
     }
+
+    @Override
+    public int hashCode() {
+        return this.variableDcl.hashCode();
+    }
 }

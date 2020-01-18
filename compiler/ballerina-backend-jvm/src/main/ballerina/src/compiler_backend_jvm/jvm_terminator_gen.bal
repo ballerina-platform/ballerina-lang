@@ -993,4 +993,3 @@ function isExternStaticFunctionCall(bir:Call|bir:AsyncCall|bir:FPLoad callIns) r
 
     return false;
 }
-

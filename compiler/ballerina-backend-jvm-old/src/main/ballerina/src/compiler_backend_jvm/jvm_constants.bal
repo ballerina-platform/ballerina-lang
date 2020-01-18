@@ -215,6 +215,8 @@ int T_SHORT = 9;
 int T_INT = 10;
 int T_LONG = 11;
 
+// javm values public API classes
+const string BXML_QNAME = "org/ballerinalang/jvm/values/api/BXMLQName";
 
 // jvm runtime values related classes
 const string MAP_VALUE = "org/ballerinalang/jvm/values/MapValue";
@@ -239,6 +241,11 @@ const string TYPEDESC_VALUE = "org/ballerinalang/jvm/values/TypedescValue";
 const string HANDLE_VALUE = "org/ballerinalang/jvm/values/HandleValue";
 const string LOCK_VALUE = "org/ballerinalang/jvm/BLock";
 const string FUNCTION_POINTER = "org/ballerinalang/jvm/values/FPValue";
+const string ARRAY_VALUE_IMPL = "org/ballerinalang/jvm/values/ArrayValueImpl";
+const string TUPLE_VALUE_IMPL = "org/ballerinalang/jvm/values/TupleValueImpl";
+const string SIMPLE_VALUE = "org/ballerinalang/jvm/values/SimpleValue";
+
+const string BHANDLE = "org/ballerinalang/jvm/values/api/BHandle";
 
 // types related classes
 const string BTYPE = "org/ballerinalang/jvm/types/BType";
@@ -285,6 +292,7 @@ const string MATH_UTILS = "org/ballerinalang/jvm/MathUtils";
 const string BAL_ERROR_REASONS = "org/ballerinalang/jvm/util/exceptions/BallerinaErrorReasons";
 const string RUNTIME_ERRORS = "org/ballerinalang/jvm/util/exceptions/RuntimeErrors";
 const string BLANG_EXCEPTION_HELPER = "org/ballerinalang/jvm/util/exceptions/BLangExceptionHelper";
+const string COMPATIBILITY_CHECKER = "org/ballerinalang/jvm/util/CompatibilityChecker";
 
 // other java classes
 const string OBJECT = "java/lang/Object";
@@ -306,6 +314,8 @@ const string JAVA_RUNTIME = "java/lang/Runtime";
 const string MAP_ENTRY = "java/util/Map$Entry";
 const string MAP_SIMPLE_ENTRY = "java/util/AbstractMap$SimpleEntry";
 const string COLLECTION = "java/util/Collection";
+const string BIG_DECIMAL = "java/math/BigDecimal";
+const string NUMBER = "java/lang/Number";
 
 // service objects, annotation processing related classes
 const string ANNOTATION_UTILS = "org/ballerinalang/jvm/AnnotationUtils";

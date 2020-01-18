@@ -32,7 +32,7 @@ import org.ballerinalang.jvm.values.XMLItem;
 import org.ballerinalang.jvm.values.XMLQName;
 import org.ballerinalang.jvm.values.XMLSequence;
 import org.ballerinalang.jvm.values.XMLValue;
-import org.ballerinalang.jvm.values.api.BXml;
+import org.ballerinalang.jvm.values.api.BXML;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -68,7 +68,7 @@ public class JSONToXMLConverter {
         if (xmlElemList.size() == 1) {
             return xmlElemList.get(0);
         } else {
-            ArrayList<BXml> seq = new ArrayList<>(xmlElemList);
+            ArrayList<BXML> seq = new ArrayList<>(xmlElemList);
             return new XMLSequence(seq);
         }
     }

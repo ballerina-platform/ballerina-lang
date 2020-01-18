@@ -185,6 +185,84 @@ public class UriTemplateBestMatchTest {
                 , "Resource dispatched to wrong template");
     }
 
+    @Test(description = "Test dispatching with URL. /hello/echo2/suffix.id")
+    public void testPathParamWithSuffix() {
+        String path = "/hello/echo2/suffix.id";
+        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "GET");
+        HttpCarbonMessage response = Services.invoke(TEST_EP_PORT, cMsg);
+
+        Assert.assertNotNull(response, "Response message not found");
+        BValue bJson = JsonParser.parse(new HttpMessageDataStreamer(response).getInputStream());
+
+        Assert.assertEquals(((BMap<String, BValue>) bJson).get("echo6").stringValue(), "suffix"
+                , "Resource dispatched to wrong template");
+    }
+
+    @Test(description = "Test dispatching with URL. /hello/echo2/literal.id")
+    public void testBestMatchWhenPathLiteralHasSameSuffix() {
+        String path = "/hello/echo2/literal.id";
+        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "GET");
+        HttpCarbonMessage response = Services.invoke(TEST_EP_PORT, cMsg);
+
+        Assert.assertNotNull(response, "Response message not found");
+        BValue bJson = JsonParser.parse(new HttpMessageDataStreamer(response).getInputStream());
+
+        Assert.assertEquals(((BMap<String, BValue>) bJson).get("echo6").stringValue(), "literal invoked"
+                , "Resource dispatched to wrong template");
+    }
+
+    @Test(description = "Test dispatching with URL. /hello/echo2/ballerina.id/foo")
+    public void testSpecificMatchForPathParamWithSuffix() {
+        String path = "/hello/echo2/ballerina.id/foo";
+        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "GET");
+        HttpCarbonMessage response = Services.invoke(TEST_EP_PORT, cMsg);
+
+        Assert.assertNotNull(response, "Response message not found");
+        BValue bJson = JsonParser.parse(new HttpMessageDataStreamer(response).getInputStream());
+
+        Assert.assertEquals(((BMap<String, BValue>) bJson).get("echo6").stringValue(), "specific path invoked"
+                , "Resource dispatched to wrong template");
+    }
+
+    @Test(description = "Test dispatching with URL. /hello/echo2/suffix.hello")
+    public void testPathParamWithInvalidSuffix() {
+        String path = "/hello/echo2/suffix.hello";
+        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "GET");
+        HttpCarbonMessage response = Services.invoke(TEST_EP_PORT, cMsg);
+
+        Assert.assertNotNull(response, "Response message not found");
+        BValue bJson = JsonParser.parse(new HttpMessageDataStreamer(response).getInputStream());
+
+        Assert.assertEquals(((BMap<String, BValue>) bJson).get("echo3").stringValue(), "suffix.hello"
+                , "Resource dispatched to wrong template");
+    }
+
+    @Test(description = "Test dispatching with URL. /hello/echo2/rs.654.58.id")
+    public void testPathSegmentContainsBothLeadingDotsAndSuffix() {
+        String path = "/hello/echo2/Rs.654.58.id";
+        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "GET");
+        HttpCarbonMessage response = Services.invoke(TEST_EP_PORT, cMsg);
+
+        Assert.assertNotNull(response, "Response message not found");
+        BValue bJson = JsonParser.parse(new HttpMessageDataStreamer(response).getInputStream());
+
+        Assert.assertEquals(((BMap<String, BValue>) bJson).get("echo6").stringValue(), "Rs.654.58"
+                , "Resource dispatched to wrong template");
+    }
+
+    @Test(description = "Test dispatching with URL. /hello/echo2/hello.identity")
+    public void testSpecificPathParamSuffix() {
+        String path = "/hello/echo2/hello.identity";
+        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "GET");
+        HttpCarbonMessage response = Services.invoke(TEST_EP_PORT, cMsg);
+
+        Assert.assertNotNull(response, "Response message not found");
+        BValue bJson = JsonParser.parse(new HttpMessageDataStreamer(response).getInputStream());
+
+        Assert.assertEquals(((BMap<String, BValue>) bJson).get("echo6").stringValue(), "identity"
+                , "Resource dispatched to wrong template");
+    }
+
     @Test(description = "Test dispatching with URL. /hello")
     public void testRootPathDefaultValues() {
         String path = "/hello?foo=zzz";
@@ -693,5 +771,29 @@ public class UriTemplateBestMatchTest {
         Assert.assertEquals(((BMap<String, BValue>) bJson).get("Lang").stringValue(), "hello false"
                 , "Request dispatched to wrong resource");
 
+    }
+
+    @Test(description = "Test best match with encoded path params.")
+    public void testEncodedPathParams() {
+        String path = "/uri/go/1%2F1/ballerina/1%2F3";
+        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "GET");
+        HttpCarbonMessage response = Services.invoke(TEST_EP_PORT, cMsg);
+
+        Assert.assertNotNull(response, "Response message not found.");
+        BValue bJson = JsonParser.parse(new HttpMessageDataStreamer(response).getInputStream());
+
+        Assert.assertEquals(((BMap<String, BValue>) bJson).get("aaa").stringValue(), "1/1", "wrong param value");
+        Assert.assertEquals(((BMap<String, BValue>) bJson).get("bbb").stringValue(), "ballerina", "wrong param value");
+        Assert.assertEquals(((BMap<String, BValue>) bJson).get("ccc").stringValue(), "1/3", "wrong param value");
+
+        path = "/uri/go/123/456";
+        cMsg = MessageUtils.generateHTTPMessage(path, "GET");
+        response = Services.invoke(TEST_EP_PORT, cMsg);
+
+        Assert.assertNotNull(response, "Response message not found");
+        bJson = JsonParser.parse(new HttpMessageDataStreamer(response).getInputStream());
+
+        Assert.assertEquals(((BMap<String, BValue>) bJson).get("xxx").stringValue(), "123", "wrong param value");
+        Assert.assertEquals(((BMap<String, BValue>) bJson).get("yyy").stringValue(), "456", "wrong param value");
     }
 }

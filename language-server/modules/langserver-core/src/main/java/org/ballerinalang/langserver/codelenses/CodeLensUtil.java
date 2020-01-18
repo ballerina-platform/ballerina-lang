@@ -15,11 +15,12 @@
  */
 package org.ballerinalang.langserver.codelenses;
 
+import org.ballerinalang.langserver.DocumentServiceOperationContext;
 import org.ballerinalang.langserver.LSContextOperation;
 import org.ballerinalang.langserver.compiler.CollectDiagnosticListener;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
+import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.compiler.LSModuleCompiler;
-import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.compiler.common.LSCustomErrorStrategy;
 import org.ballerinalang.langserver.compiler.exception.CompilationFailedException;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
@@ -55,8 +56,10 @@ public class CodeLensUtil {
     public static List<CodeLens> compileAndGetCodeLenses(String fileUri, WorkspaceDocumentManager documentManager)
             throws CompilationFailedException {
         List<CodeLens> lenses = new ArrayList<>();
-        LSServiceOperationContext codeLensContext = new LSServiceOperationContext(LSContextOperation.TXT_CODE_LENS);
-        codeLensContext.put(DocumentServiceKeys.FILE_URI_KEY, fileUri);
+        LSContext codeLensContext = new DocumentServiceOperationContext
+                .ServiceOperationContextBuilder(LSContextOperation.TXT_CODE_LENS)
+                .withCommonParams(null, fileUri, documentManager)
+                .build();
         BLangPackage bLangPackage = LSModuleCompiler.getBLangPackage(codeLensContext, documentManager,
                                                                LSCustomErrorStrategy.class, false, false);
         // Source compilation has no errors, continue

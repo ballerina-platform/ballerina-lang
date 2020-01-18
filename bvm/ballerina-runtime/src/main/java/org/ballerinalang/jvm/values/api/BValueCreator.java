@@ -30,6 +30,7 @@ import org.ballerinalang.jvm.types.BStructureType;
 import org.ballerinalang.jvm.types.BTupleType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.DecimalValue;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.FPValue;
@@ -37,6 +38,7 @@ import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.StreamValue;
 import org.ballerinalang.jvm.values.StreamingJsonValue;
 import org.ballerinalang.jvm.values.TableValue;
+import org.ballerinalang.jvm.values.TupleValueImpl;
 import org.ballerinalang.jvm.values.TypedescValue;
 import org.ballerinalang.jvm.values.XMLItem;
 import org.ballerinalang.jvm.values.XMLQName;
@@ -64,7 +66,7 @@ import javax.xml.namespace.QName;
       * @return the new array
       */
      public static BArray createArrayValue(BArrayType type) {
-         return new ArrayValue(type);
+         return new ArrayValueImpl(type);
      }
 
      /**
@@ -74,7 +76,7 @@ import javax.xml.namespace.QName;
       * @return the new array
       */
      public static BArray createTupleValue(BTupleType type) {
-         return new ArrayValue(type);
+         return new TupleValueImpl(type);
      }
 
      /**
@@ -84,7 +86,7 @@ import javax.xml.namespace.QName;
       * @return integer array
       */
      public static BArray createArrayValue(long[] values) {
-         return new ArrayValue(values);
+         return new ArrayValueImpl(values);
      }
 
      /**
@@ -94,7 +96,7 @@ import javax.xml.namespace.QName;
       * @return boolean array
       */
      public static  BArray createArrayValue(boolean[] values) {
-         return new ArrayValue(values);
+         return new ArrayValueImpl(values);
      }
 
      /**
@@ -104,7 +106,7 @@ import javax.xml.namespace.QName;
       * @return byte array
       */
      public static BArray createArrayValue(byte[] values) {
-         return new ArrayValue(values);
+         return new ArrayValueImpl(values);
      }
 
      /**
@@ -114,7 +116,7 @@ import javax.xml.namespace.QName;
       * @return float array
       */
      public static BArray createArrayValue(double[] values) {
-         return new ArrayValue(values);
+         return new ArrayValueImpl(values);
      }
 
      /**
@@ -124,7 +126,7 @@ import javax.xml.namespace.QName;
       * @return string array
       */
      public static BArray createArrayValue(String[] values) {
-         return new ArrayValue(values);
+         return new ArrayValueImpl(values);
      }
 
      /**
@@ -135,7 +137,7 @@ import javax.xml.namespace.QName;
       * @return ref Value array
       */
      public static BArray createArrayValue(Object[] values, BArrayType type) {
-         return new ArrayValue(values, type);
+         return new ArrayValueImpl(values, type);
      }
 
      /**
@@ -147,7 +149,7 @@ import javax.xml.namespace.QName;
       * @return fixed length ref value array
       */
      public static BArray createArrayValue(Object[] values, BArrayType type, int length) {
-         return new ArrayValue(type, length);
+         return new ArrayValueImpl(type, length);
      }
 
      /**
@@ -308,7 +310,7 @@ import javax.xml.namespace.QName;
       * @return {@code XMLItem}
       */
      // todo: who uses this? verify or delete!!!
-     public static BXml createXMLItem() {
+     public static BXML createXMLItem() {
          return new XMLItem(new QName(null), new XMLSequence());
      }
 
@@ -318,7 +320,7 @@ import javax.xml.namespace.QName;
       * @param xmlValue A XML string
       * @return {@code XMLItem}
       */
-     public static BXml createXMLItem(String xmlValue) {
+     public static BXML createXMLItem(String xmlValue) {
          return XMLFactory.parse(xmlValue);
      }
 
@@ -328,7 +330,7 @@ import javax.xml.namespace.QName;
       * @param inputStream Input Stream
       * @return {@code XMLItem}
       */
-     public static BXml ctreateXMLItem(InputStream inputStream) {
+     public static BXML ctreateXMLItem(InputStream inputStream) {
          return XMLFactory.parse(inputStream);
      }
 
@@ -359,7 +361,7 @@ import javax.xml.namespace.QName;
       *
       * @return xml sequence
       */
-     public static BXml createXMLSequence() {
+     public static BXML createXMLSequence() {
          return new XMLSequence();
      }
 
@@ -369,10 +371,10 @@ import javax.xml.namespace.QName;
       * @param sequence xml sequence array
       * @return xml sequence
       */
-     public static BXml createXMLSequence(ArrayValue sequence) {
-         List<BXml> children = new ArrayList<>();
+     public static BXML createXMLSequence(ArrayValue sequence) {
+         List<BXML> children = new ArrayList<>();
          for (Object value : sequence.getValues()) {
-             children.add((BXml) value);
+             children.add((BXML) value);
          }
          return new XMLSequence(children);
      }

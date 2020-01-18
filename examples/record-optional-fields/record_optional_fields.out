@@ -1,7 +1,7 @@
 # To run this sample, navigate to the directory that contains the
 # `.bal` file, and execute the `ballerina run` command.
 $ ballerina run record_optional_fields.bal
-Person with the non-defaultable required field set: lname= fname=John gender=male
-Age before setting:
+Person with the non-defaultable required field set: fname=John lname= gender=male
+Age before setting: 
 Age after setting: 25
-Person with values assigned to required fields: lname=Doe fname=Jane gender=female
+Person with values assigned to required fields: fname=Jane lname=Doe gender=female

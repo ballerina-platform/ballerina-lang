@@ -35,25 +35,32 @@ public class ForeachNegativeTests {
         CompileResult compile = BCompileUtil.compile("test-src/statements/foreach/foreach-semantics-negative.bal");
         Assert.assertEquals(compile.getErrorCount(), 21);
         int index = 0;
-        BAssertUtil.validateError(compile, index++, "invalid tuple variable; expecting a tuple type but found " +
-                "'string' in type definition", 37, 17);
-        BAssertUtil.validateError(compile, index++, "invalid tuple variable; expecting a tuple type but found " +
-                "'string' in type definition", 46, 17);
+        BAssertUtil.validateError(compile, index++,
+                                  "invalid tuple binding pattern: attempted to infer a tuple type, but found 'string'",
+                                  37, 17);
+        BAssertUtil.validateError(compile, index++,
+                                  "invalid tuple binding pattern: attempted to infer a tuple type, but found 'string'",
+                                  46, 17);
         BAssertUtil.validateError(compile, index++, "redeclared symbol 'i'", 46, 18);
         BAssertUtil.validateError(compile, index++, "redeclared symbol 's'", 46, 21);
-        BAssertUtil.validateError(compile, index++, "invalid tuple variable; expecting a tuple type but found " +
-                "'string' in type definition", 53, 17);
+        BAssertUtil.validateError(compile, index++,
+                                  "invalid tuple binding pattern: attempted to infer a tuple type, but found 'string'",
+                                  53, 17);
         BAssertUtil.validateError(compile, index++, "undefined symbol 'i'", 56, 13);
         BAssertUtil.validateError(compile, index++, "incompatible types: 'int' is not an iterable collection", 61,
                 22);
-        BAssertUtil.validateError(compile, index++, "invalid tuple variable; expecting a tuple type but found " +
-                "'string' in type definition", 74, 17);
-        BAssertUtil.validateError(compile, index++, "invalid tuple variable; expecting a tuple type but found " +
-                "'string' in type definition", 82, 17);
-        BAssertUtil.validateError(compile, index++, "invalid tuple variable; expecting a tuple type but found " +
-                "'json' in type definition", 91, 17);
-        BAssertUtil.validateError(compile, index++, "invalid tuple variable; expecting a tuple type but found " +
-                "'string' in type definition", 117, 17);
+        BAssertUtil.validateError(compile, index++,
+                                  "invalid tuple binding pattern: attempted to infer a tuple type, but found 'string'",
+                                  74, 17);
+        BAssertUtil.validateError(compile, index++,
+                                  "invalid tuple binding pattern: attempted to infer a tuple type, but found 'string'",
+                                  82, 17);
+        BAssertUtil.validateError(compile, index++,
+                                  "invalid tuple binding pattern: attempted to infer a tuple type, but found 'json'",
+                                  91, 17);
+        BAssertUtil.validateError(compile, index++,
+                                  "invalid tuple binding pattern: attempted to infer a tuple type, but found 'string'",
+                                  117, 17);
         BAssertUtil.validateError(compile, index++, "cannot assign a value to final 'v'", 127, 9);
         BAssertUtil.validateError(compile, index++, "cannot assign a value to final 'reason'", 146, 9);
         BAssertUtil.validateError(compile, index++, "cannot assign a value to final 'fatal'", 147, 9);
@@ -67,7 +74,6 @@ public class ForeachNegativeTests {
     }
 
     @Test
-
     public void testForeachNegative() {
         CompileResult compile = BCompileUtil.compile("test-src/statements/foreach/foreach-negative.bal");
         Assert.assertEquals(compile.getErrorCount(), 3);
@@ -75,5 +81,24 @@ public class ForeachNegativeTests {
         BAssertUtil.validateError(compile, index++, "unreachable code", 8, 9);
         BAssertUtil.validateError(compile, index++, "unreachable code", 13, 9);
         BAssertUtil.validateError(compile, index, "continue cannot be used outside of a loop", 15, 5);
+    }
+
+    @Test
+    public void testForeachVarTypeNegative() {
+        CompileResult compile = BCompileUtil.compile("test-src/statements/foreach/foreach-var-type-negative.bal");
+        Assert.assertEquals(compile.getErrorCount(), 6);
+        int index = 0;
+        BAssertUtil.validateError(compile, index++,
+                "incompatible types: expected 'anydata', found 'json'", 34, 13);
+        BAssertUtil.validateError(compile, index++,
+                "incompatible types: expected '(string|float|int|boolean)', found 'boolean'", 41, 13);
+        BAssertUtil.validateError(compile, index++,
+                "incompatible types: expected '(string|float|int|boolean)', found '(boolean|float)'", 48, 14);
+        BAssertUtil.validateError(compile, index++,
+                "incompatible types: expected 'xml', found '(string|float|int|boolean)'", 56, 17);
+        BAssertUtil.validateError(compile, index++, "incompatible types: expected 'json', found 'xml'", 63, 13);
+        BAssertUtil.validateError(compile, index, "incompatible types: expected 'anydata', " +
+                "found '(boolean|float|xml)'", 70, 14);
+
     }
 }

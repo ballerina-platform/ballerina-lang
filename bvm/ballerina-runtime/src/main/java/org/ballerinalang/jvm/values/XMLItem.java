@@ -28,7 +28,8 @@ import org.ballerinalang.jvm.XMLValidator;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BMapType;
 import org.ballerinalang.jvm.types.BTypes;
-import org.ballerinalang.jvm.values.api.BXml;
+import org.ballerinalang.jvm.values.api.BMap;
+import org.ballerinalang.jvm.values.api.BXML;
 import org.ballerinalang.jvm.values.freeze.FreezeUtils;
 import org.ballerinalang.jvm.values.freeze.State;
 import org.ballerinalang.jvm.values.freeze.Status;
@@ -237,7 +238,7 @@ public final class XMLItem extends XMLValue {
      * {@inheritDoc}
      */
     @Override
-    public void setAttributes(MapValue<String, ?> attributes) {
+    public void setAttributes(BMap<String, ?> attributes) {
         synchronized (this) {
             if (freezeStatus.getState() != State.UNFROZEN) {
                 FreezeUtils.handleInvalidUpdate(freezeStatus.getState(), XML_LANG_LIB);
@@ -266,7 +267,7 @@ public final class XMLItem extends XMLValue {
      */
     @Override
     public XMLValue elements() {
-        ArrayList<BXml> children = new ArrayList<>();
+        ArrayList<BXML> children = new ArrayList<>();
         children.add(this);
         return new XMLSequence(children);
     }
@@ -276,7 +277,7 @@ public final class XMLItem extends XMLValue {
      */
     @Override
     public XMLValue elements(String qname) {
-        ArrayList<BXml> children = new ArrayList<>();
+        ArrayList<BXML> children = new ArrayList<>();
         if (getElementName().equals(getQname(qname).toString())) {
             children.add(this);
         }
@@ -303,7 +304,7 @@ public final class XMLItem extends XMLValue {
      * {@inheritDoc}
      */
     @Override
-    public void setChildren(BXml seq) {
+    public void setChildren(BXML seq) {
         synchronized (this) {
             if (freezeStatus.getState() != State.UNFROZEN) {
                 FreezeUtils.handleInvalidUpdate(freezeStatus.getState(), XML_LANG_LIB);
@@ -327,7 +328,7 @@ public final class XMLItem extends XMLValue {
      */
     @Override
     @Deprecated
-    public void addChildren(BXml seq) {
+    public void addChildren(BXML seq) {
         synchronized (this) {
             if (freezeStatus.getState() != State.UNFROZEN || children.freezeStatus.getState() != State.UNFROZEN) {
                 FreezeUtils.handleInvalidUpdate(freezeStatus.getState(), XML_LANG_LIB);
@@ -338,10 +339,10 @@ public final class XMLItem extends XMLValue {
             return;
         }
 
-        List<BXml> leftList = new ArrayList<>(children.children);
+        List<BXML> leftList = new ArrayList<>(children.children);
 
         if (seq.getNodeType() == XMLNodeType.SEQUENCE) {
-            List<BXml> appendingList = ((XMLSequence) seq).getChildrenList();
+            List<BXML> appendingList = ((XMLSequence) seq).getChildrenList();
             if (isLastChildIsTextNode(leftList) && !appendingList.isEmpty()
                     && appendingList.get(0).getNodeType() == TEXT) {
                 mergeAdjoiningTextNodesIntoList(leftList, appendingList);
@@ -354,7 +355,7 @@ public final class XMLItem extends XMLValue {
         this.children = new XMLSequence(leftList);
     }
 
-    private void mergeAdjoiningTextNodesIntoList(List leftList, List<BXml> appendingList) {
+    private void mergeAdjoiningTextNodesIntoList(List leftList, List<BXML> appendingList) {
         XMLPi lastChild = (XMLPi) leftList.get(leftList.size() - 1);
         String firstChildContent = ((XMLPi) appendingList.get(0)).getData();
         String mergedTextContent = lastChild.getData() + firstChildContent;
@@ -365,7 +366,7 @@ public final class XMLItem extends XMLValue {
         }
     }
 
-    private boolean isLastChildIsTextNode(List<BXml> childList) {
+    private boolean isLastChildIsTextNode(List<BXML> childList) {
         return !childList.isEmpty() && childList.get(childList.size() - 1).getNodeType() == TEXT;
     }
 
@@ -444,7 +445,7 @@ public final class XMLItem extends XMLValue {
      * {@inheritDoc}
      */
     @Override
-    public String stringValue(Strand strand) {
+    public String stringValue() {
         try {
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
             BallerinaXMLSerializer ballerinaXMLSerializer = new BallerinaXMLSerializer(outputStream);
@@ -553,10 +554,10 @@ public final class XMLItem extends XMLValue {
             }
         }
 
-        List<BXml> children = this.children.children;
+        List<BXML> children = this.children.children;
         List<Integer> toRemove = new ArrayList<>();
         for (int i = 0; i < children.size(); i++) {
-            BXml child = children.get(i);
+            BXML child = children.get(i);
             if (child.getNodeType() == ELEMENT && ((XMLItem) child).getElementName().equals(qname)) {
                 toRemove.add(i);
             }

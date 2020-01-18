@@ -32,12 +32,18 @@ import java.util.List;
 public class BInvokableType extends BType implements InvokableType {
 
     public List<BType> paramTypes;
+    public BType restType;
     public BType retType;
 
-    public BInvokableType(List<BType> paramTypes, BType retType, BTypeSymbol tsymbol) {
+    public BInvokableType(List<BType> paramTypes, BType restType, BType retType, BTypeSymbol tsymbol) {
         super(TypeTags.INVOKABLE, tsymbol);
         this.paramTypes = paramTypes;
+        this.restType = restType;
         this.retType = retType;
+    }
+
+    public BInvokableType(List<BType> paramTypes, BType retType, BTypeSymbol tsymbol) {
+        this(paramTypes, null, retType, tsymbol);
     }
 
     @Override
@@ -84,7 +90,7 @@ public class BInvokableType extends BType implements InvokableType {
             return false;
         }
 
-        return true;
+        return restType != null ? restType.equals(that.restType) : that.restType == null;
     }
 
     @Override
@@ -99,8 +105,15 @@ public class BInvokableType extends BType implements InvokableType {
         if (retType.getKind() != TypeKind.NIL) {
             retTypeWithParam = "(" + retTypeWithParam + ")";
         }
-        return "(" + (paramTypes.size() != 0 ? getBTypeListAsString(paramTypes) : "") + ")"
-               + " returns " + retTypeWithParam;
+        String restParam = "";
+        if (restType != null && restType instanceof BArrayType) {
+            if (!paramTypes.isEmpty()) {
+                restParam += ", ";
+            }
+            restParam += ((BArrayType) restType).eType + "...";
+        }
+        return "(" + (paramTypes.size() != 0 ? getBTypeListAsString(paramTypes) : "") + restParam + ")"
+                + " returns " + retTypeWithParam;
     }
 
     private static String getBTypeListAsString(List<BType> typeNames) {

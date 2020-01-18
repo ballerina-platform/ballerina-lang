@@ -25,6 +25,7 @@ import java.util.Objects;
  *
  * @since 0.971.0
  */
+@Deprecated
 public class TypeDefInfo extends StructureTypeInfo {
 
     public TypeInfo typeInfo;

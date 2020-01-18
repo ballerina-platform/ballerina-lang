@@ -59,7 +59,7 @@ public class Next {
             ArrayValue keyValueTuple = (ArrayValue) mapIterator.next();
             BFunctionType nextFuncType = m.getType().getAttachedFunctions()[0].type;
             BRecordType recordType = (BRecordType) ((BUnionType) nextFuncType.retType).getMemberTypes().get(0);
-            return BallerinaValues.createRecord(new MapValueImpl<>(recordType), keyValueTuple.getValue(1));
+            return BallerinaValues.createRecord(new MapValueImpl<>(recordType), keyValueTuple.get(1));
         }
 
         return null;

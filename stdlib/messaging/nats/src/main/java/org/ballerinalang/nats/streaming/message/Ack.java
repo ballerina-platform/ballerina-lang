@@ -19,11 +19,7 @@ package org.ballerinalang.nats.streaming.message;
 
 import io.nats.streaming.Message;
 import org.ballerinalang.jvm.BallerinaErrors;
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.nats.Constants;
 
 import java.io.IOException;
@@ -31,15 +27,9 @@ import java.io.IOException;
 /**
  * Remote function implementation for acknowledging a message from a NATS streaming server.
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "nats",
-        functionName = "ack",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = "StreamingMessage", structPackage = "ballerina/nats"),
-        isPublic = true
-)
 public class Ack {
 
-    public static Object ack(Strand strand, ObjectValue message) {
+    public static Object externAck(ObjectValue message) {
         Message streamingMessage = (Message) message.getNativeData(Constants.NATS_STREAMING_MSG);
         try {
             streamingMessage.ack();

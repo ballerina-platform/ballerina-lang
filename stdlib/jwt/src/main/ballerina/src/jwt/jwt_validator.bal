@@ -14,7 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/cache;
 import ballerina/crypto;
 import ballerina/encoding;
 import ballerina/io;
@@ -29,13 +28,13 @@ import ballerina/time;
 # + audience - Expected audience
 # + clockSkewInSeconds - Clock skew in seconds
 # + trustStoreConfig - JWT trust store configurations
-# + jwtCache - Cache used to store parsed JWT information as CachedJwt
+# + jwtCacheConfig - Configurations for the JWT cache
 public type JwtValidatorConfig record {|
     string issuer?;
     string|string[] audience?;
     int clockSkewInSeconds = 0;
     JwtTrustStoreConfig trustStoreConfig?;
-    cache:Cache jwtCache = new(900000, 1000, 0.25);
+    InboundJwtCacheConfig jwtCacheConfig = {};
 |};
 
 # Represents JWT trust store configurations.
@@ -47,13 +46,24 @@ public type JwtTrustStoreConfig record {|
     string certificateAlias;
 |};
 
-# Represents parsed and cached JWT.
+# Represents inbound JWT cache configurations.
+#
+# + capacity - Maximum number of entries allowed
+# + expTimeInSeconds - Time since its last access in which the cache will be expired
+# + evictionFactor - The factor which the entries will be evicted once the cache full
+public type InboundJwtCacheConfig record {|
+    int capacity = 900000;
+    int expTimeInSeconds = 1;
+    float evictionFactor = 0.25;
+|};
+
+# Represents an entry of JWT cache.
 #
 # + jwtPayload - Parsed JWT payload
-# + expiryTime - Expiry time of the JWT
-public type CachedJwt record {|
+# + expTime - Expiry time (milliseconds since the Epoch) of the parsed JWT
+public type InboundJwtCacheEntry record {|
     JwtPayload jwtPayload;
-    int expiryTime;
+    int expTime;
 |};
 
 # Validate the given JWT string.

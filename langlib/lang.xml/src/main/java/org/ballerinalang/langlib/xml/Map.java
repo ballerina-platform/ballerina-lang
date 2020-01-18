@@ -23,7 +23,7 @@ import org.ballerinalang.jvm.values.FPValue;
 import org.ballerinalang.jvm.values.IteratorValue;
 import org.ballerinalang.jvm.values.XMLSequence;
 import org.ballerinalang.jvm.values.XMLValue;
-import org.ballerinalang.jvm.values.api.BXml;
+import org.ballerinalang.jvm.values.api.BXML;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -53,7 +53,7 @@ public class Map {
         }
 
         IteratorValue iterator = ((XMLSequence) x).getIterator();
-        List<BXml> elements = new ArrayList<>();
+        List<BXML> elements = new ArrayList<>();
         while (iterator.hasNext()) {
             XMLValue next = (XMLValue) iterator.next();
             elements.add((XMLValue) func.apply(new Object[]{strand, next, true}));

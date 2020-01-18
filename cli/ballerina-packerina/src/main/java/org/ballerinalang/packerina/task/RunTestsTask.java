@@ -18,25 +18,21 @@
 
 package org.ballerinalang.packerina.task;
 
-import org.ballerinalang.config.ConfigRegistry;
-import org.ballerinalang.logging.BLogManager;
+import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.packerina.buildcontext.BuildContext;
 import org.ballerinalang.packerina.buildcontext.BuildContextField;
 import org.ballerinalang.testerina.util.TestarinaClassLoader;
 import org.ballerinalang.testerina.util.TesterinaUtils;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
+import org.wso2.ballerinalang.compiler.tree.BLangTestablePackage;
 
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.LogManager;
-
-import static org.ballerinalang.tool.LauncherUtils.createLauncherException;
 
 /**
  * Task for executing tests.
@@ -53,6 +49,12 @@ public class RunTestsTask implements Task {
         // as "." are ignored. This is to be consistent with the "ballerina test" command which only executes tests
         // in packages.
         for (BLangPackage bLangPackage : moduleBirMap) {
+            PackageID packageID = bLangPackage.packageID;
+
+            if (!buildContext.moduleDependencyPathMap.containsKey(packageID)) {
+                continue;
+            }
+
             // todo following is some legacy logic check if we need to do this.
             // if (bLangPackage.containsTestablePkg()) {
             // } else {
@@ -62,41 +64,53 @@ public class RunTestsTask implements Task {
             //     <org-name>/<package-name>:<version>
             //         No tests found
             // }
-            Path jarPath = buildContext.getTestJarPathFromTargetCache(bLangPackage.packageID);
-            Path modulejarPath = buildContext.getJarPathFromTargetCache(bLangPackage.packageID).getFileName();
+            Path jarPath = buildContext.getTestJarPathFromTargetCache(packageID);
+            Path modulejarPath = buildContext.getJarPathFromTargetCache(packageID);
             // subsitute test jar if module jar if tests not exists
             if (Files.notExists(jarPath)) {
                 jarPath = modulejarPath;
             }
-            String modulejarName = modulejarPath != null ? modulejarPath.toString() : "";
-            HashSet<Path> dependencyJarPaths = buildContext.moduleDependencyPathMap.get(bLangPackage.packageID);
-            TestarinaClassLoader classLoader = new TestarinaClassLoader(jarPath, dependencyJarPaths, modulejarName);
+
+            HashSet<Path> moduleDependencies = buildContext.moduleDependencyPathMap.get(packageID).platformLibs;
+            // create a new set so that original set is not affected with test dependencies
+            HashSet<Path> dependencyJarPaths = new HashSet<>(moduleDependencies);
+
+            if (bLangPackage.containsTestablePkg()) {
+                for (BLangTestablePackage testablePackage : bLangPackage.getTestablePkgs()) {
+                    // find the set of dependency jar paths for running test for this module and update
+                    updateDependencyJarPaths(testablePackage.symbol.imports, buildContext, dependencyJarPaths);
+                }
+            }
+
+            // Create a class loader to run tests.
+            TestarinaClassLoader classLoader = new TestarinaClassLoader(jarPath, dependencyJarPaths);
             programFileMap.put(bLangPackage, classLoader);
         }
-        // Create a class loader to
-
         if (programFileMap.size() > 0) {
             TesterinaUtils.executeTests(sourceRootPath, programFileMap, buildContext.out(), buildContext.err());
         }
     }
 
-    /**
-     * Initializes the {@link ConfigRegistry} and loads {@link LogManager} configs.
-     *
-     * @param sourceRootPath source directory
-     * @param configFilePath config file path
-     */
-    public static void loadConfigurations(Path sourceRootPath, String configFilePath) {
-        Path ballerinaConfPath = sourceRootPath.resolve("ballerina.conf");
-        try {
-            ConfigRegistry.getInstance().initRegistry(new LinkedHashMap<>(), configFilePath,
-                                                      ballerinaConfPath);
-            ((BLogManager) LogManager.getLogManager()).loadUserProvidedLogConfiguration();
-        } catch (IOException e) {
-            throw createLauncherException("failed to read the specified configuration file: " +
-                                                  ballerinaConfPath.toString());
-        } catch (RuntimeException e) {
-            throw createLauncherException(e.getMessage());
+    private void updateDependencyJarPaths(List<BPackageSymbol> importPackageSymbols, BuildContext buildContext,
+                                          HashSet<Path> dependencyJarPaths) {
+        for (BPackageSymbol importPackageSymbol : importPackageSymbols) {
+            PackageID importPkgId = importPackageSymbol.pkgID;
+            if (!buildContext.moduleDependencyPathMap.containsKey(importPkgId)) {
+                continue;
+            }
+            // add imported module's dependent jar paths
+            HashSet<Path> testDependencies = buildContext.moduleDependencyPathMap.get(importPkgId).platformLibs;
+            dependencyJarPaths.addAll(testDependencies);
+
+            // add imported module's jar path
+            Path testJarPath = buildContext.getTestJarPathFromTargetCache(importPkgId);
+            Path moduleJarPath = buildContext.getJarPathFromTargetCache(importPkgId);
+            if (Files.exists(testJarPath)) {
+                dependencyJarPaths.add(testJarPath);
+            } else if (Files.exists(moduleJarPath)) {
+                dependencyJarPaths.add(moduleJarPath);
+            }
+            updateDependencyJarPaths(importPackageSymbol.imports, buildContext, dependencyJarPaths);
         }
     }
 }

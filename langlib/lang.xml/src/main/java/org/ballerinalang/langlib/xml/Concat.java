@@ -24,7 +24,7 @@ import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.XMLPi;
 import org.ballerinalang.jvm.values.XMLSequence;
 import org.ballerinalang.jvm.values.XMLValue;
-import org.ballerinalang.jvm.values.api.BXml;
+import org.ballerinalang.jvm.values.api.BXML;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -48,7 +48,7 @@ import java.util.List;
 public class Concat {
 
     public static XMLValue concat(Strand strand, ArrayValue arrayValue) {
-        List<BXml> backingArray = new ArrayList<>();
+        List<BXML> backingArray = new ArrayList<>();
         XMLValue lastItem = null;
         for (int i = 0; i < arrayValue.size(); i++) {
             Object refValue = arrayValue.getRefValue(i);

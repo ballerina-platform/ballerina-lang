@@ -431,8 +431,15 @@ public class HttpConstants {
 
     public static final String COLON = ":";
     public static final String DOLLAR = "$";
+    public static final String SINGLE_SLASH = "/";
+    public static final String REGEX = "(?<!(http:|https:))//";
 
     public static final String HTTP_VERSION_1_1 = "1.1";
+
+    public static final String HTTP_MODULE_VERSION = "1.0.0";
+    public static final String REASON_RECORD = "Reason";
+    public static final String PACKAGE = "ballerina";
+    public static final String MODULE = "http";
 
     // Ballerina error types related constants
     public static final String HTTP_ERROR_DETAIL_RECORD = "Detail";

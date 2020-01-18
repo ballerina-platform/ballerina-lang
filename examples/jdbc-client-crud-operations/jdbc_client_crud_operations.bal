@@ -1,15 +1,15 @@
 import ballerina/io;
 import ballerina/jsonutils;
+import ballerina/time;
 import ballerinax/java.jdbc;
 
 // JDBC Client for MySQL database. This client can be used with any JDBC
 // supported database by providing the corresponding JDBC URL.
-jdbc:Client testDB = new({
+jdbc:Client testDB = new ({
     url: "jdbc:mysql://localhost:3306/testdb",
     username: "test",
     password: "test",
-    poolOptions: { maximumPoolSize: 5 },
-    dbOptions: { useSSL: false }
+    dbOptions: {useSSL: false}
 });
 
 // This is the `type` created to represent a data row.
@@ -17,6 +17,7 @@ type Student record {
     int id;
     int age;
     string name;
+    time:Time insertedTime;
 };
 
 public function main() {
@@ -25,7 +26,8 @@ public function main() {
     // returns 0.
     io:println("The update operation - Creating a table");
     var ret = testDB->update("CREATE TABLE student(id INT AUTO_INCREMENT, " +
-                         "age INT, name VARCHAR(255), PRIMARY KEY (id))");
+        "age INT, name VARCHAR(255), insertedTime TIMESTAMP DEFAULT " +
+        "CURRENT_TIMESTAMP, PRIMARY KEY (id))");
     handleUpdate(ret, "Create student table");
 
     // Insert data to the table using the `update` remote function. If the DML
@@ -38,28 +40,34 @@ public function main() {
     handleUpdate(ret, "Insert to student table with no parameters");
 
     // The query parameters are given as variables for the `update` remote
-    // function. Only `int`, `float`, `boolean`, and `string` values are
-    // supported as direct variables.
+    // function. Only `int`, `float`, `decimal`, `boolean`, `string`  and
+    // `byte[]` values are supported as direct variables any remote function
+    // of the `java.jdbc` module.
     int age = 24;
     string name = "Anne";
     ret = testDB->update("INSERT INTO student(age, name) values (?, ?)",
         age, name);
     handleUpdate(ret, "Insert to student table with variable parameters");
 
-    // The query parameters are given as arguments of the type `jdbc:Parameter`
-    // for the `update` remote function.
-    // Default direction is IN.
+    // The query parameters can be given as arguments of the type
+    // `jdbc:Parameter` for the any remote function. This is useful if
+    // we want to set the SQL type explicitly or for the parameter types
+    // other than `int`, `float`, `decimal`, `boolean`, `string`  or
+    // `byte[]` (e.g. time). Default direction is IN.
     jdbc:Parameter p1 = {sqlType: jdbc:TYPE_INTEGER, value: 25};
     jdbc:Parameter p2 = {sqlType: jdbc:TYPE_VARCHAR, value: "James"};
-    ret = testDB->update("INSERT INTO student(age, name) values (?, ?)",
-        p1, p2);
+    jdbc:Parameter p3 = {
+        sqlType: jdbc:TYPE_TIMESTAMP,
+        value: time:currentTime()
+    };
+    ret = testDB->update("INSERT INTO student(age, name, insertedTime) " +
+                         "values (?, ?, ?)", p1, p2, p3);
     handleUpdate(ret, "Insert to student table with jdbc:parameter values");
 
 
     // Update data in the table using the `update` remote function.
     io:println("\nThe Update operation - Update data in a table");
-    ret = testDB->update("UPDATE student SET name = 'Jones' WHERE age = ?",
-        23);
+    ret = testDB->update("UPDATE student SET name = 'jane' WHERE age = ?", 23);
     handleUpdate(ret, "Update a row in student table");
 
     // Delete data in a table using the `update` remote function.
@@ -75,55 +83,32 @@ public function main() {
     // Similar to the `update` remote function, the inserted row count is also
     // returned.
     io:println("\nThe Update operation - Inserting data");
-    age = 31;
-    name = "Kate";
     var retWithKey = testDB->update("INSERT INTO student " +
-                        "(age, name) values (?, ?)", age, name);
+                    "(age, name) values (?, ?)", 31, "Kate");
     if (retWithKey is jdbc:UpdateResult) {
-        int count = retWithKey.updatedRowCount;
-        int generatedKey = <int>retWithKey.generatedKeys["GENERATED_KEY"];
-        io:println("Inserted row count: ", count);
-        io:println("Generated key: ", generatedKey);
+        io:println("Inserted row count: ", retWithKey.updatedRowCount);
+        io:println("Generated key: ",
+                    <int>retWithKey.generatedKeys["GENERATED_KEY"]);
     } else {
-        error err = retWithKey;
-        io:println("Insert failed: ", <string> err.detail()["message"]);
+        io:println("Insert failed: ", <string>retWithKey.detail()?.message);
     }
 
     // Select data using the `select` remote function. The `select` remote
-    // function returns a `table`. See the `table` ballerina example for
-    // more details on how to access data.
+    // function returns a `table`.
     io:println("\nThe select operation - Select data from a table");
-    var selectRet = testDB->select("SELECT * FROM student where age < ?", Student, 35);
+    var selectRet = testDB->select("SELECT * FROM student where age < ?",
+                                    Student, 35);
     if (selectRet is table<Student>) {
         // `table` can be converted to either `json` or `xml`. The actual
         // conversion happens on-demand. When a service client makes a request,
         // the result is streamed to the service instead of building the full
         // result in the server and returning it. This allows unlimited payload
         // sizes in the result and the response is instantaneous to the client.
-        // Convert a table to `json`.
         json jsonConversionRet = jsonutils:fromTable(selectRet);
-        io:print("JSON: ");
-        io:println(jsonConversionRet.toJsonString());
+        io:println("JSON: ", jsonConversionRet.toJsonString());
     } else {
-        error err = selectRet;
         io:println("Select data from student table failed: ",
-                <string> err.detail()["message"]);
-    }
-
-    // The query parameters are given as arguments of the type `jdbc:Parameter`
-    // for the `select` remote function.
-    // Default direction is IN.
-    jdbc:Parameter p3 = {sqlType: jdbc:TYPE_INTEGER, value: 35};
-
-    var selectRet2 = testDB->select("SELECT * FROM student where age < ?", Student, p3);
-    if (selectRet2 is table<Student>) {
-        json jsonConversionRet = jsonutils:fromTable(selectRet2);
-        io:print("JSON: ");
-        io:println(jsonConversionRet.toJsonString());
-    } else {
-        error err = selectRet2;
-        io:println("Select data from student table failed: ",
-                <string> err.detail()["message"]);
+        <string>selectRet.detail()?.message);
     }
 
     // Drop the table and procedures.
@@ -137,7 +122,6 @@ function handleUpdate(jdbc:UpdateResult|jdbc:Error returned, string message) {
     if (returned is jdbc:UpdateResult) {
         io:println(message, " status: ", returned.updatedRowCount);
     } else {
-        error err = returned;
-        io:println(message, " failed: ", <string> err.detail()["message"]);
+        io:println(message, " failed: ", <string>returned.detail()?.message);
     }
 }

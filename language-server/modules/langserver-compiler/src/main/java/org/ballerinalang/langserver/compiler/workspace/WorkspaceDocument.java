@@ -71,10 +71,7 @@ public class WorkspaceDocument {
         pruned source within the operation as well as rhe flag
          */
         if (this.usePrunedSource) {
-            this.usePrunedSource = false;
-            String prunedSourceCopy = this.prunedContent;
-            this.prunedContent = null;
-            return prunedSourceCopy;
+            return this.prunedContent;
         }
         return content;
     }
@@ -86,6 +83,12 @@ public class WorkspaceDocument {
     public void setPrunedContent(String prunedContent) {
         this.prunedContent = prunedContent;
         this.usePrunedSource = true;
+    }
+
+    public void resetPrunedContent() {
+
+        this.prunedContent = null;
+        this.usePrunedSource = false;
     }
 
     public LSDocument getLSDocument() {

@@ -25,10 +25,12 @@ import org.ballerinalang.packerina.model.BaloToml;
 import org.ballerinalang.toml.exceptions.TomlException;
 import org.ballerinalang.toml.model.Dependency;
 import org.ballerinalang.toml.model.DependencyMetadata;
+import org.ballerinalang.toml.model.Library;
 import org.ballerinalang.toml.model.LockFile;
 import org.ballerinalang.toml.model.LockFileImport;
 import org.ballerinalang.toml.model.Manifest;
 import org.ballerinalang.toml.model.Module;
+import org.ballerinalang.toml.model.Platform;
 import org.ballerinalang.toml.parser.LockFileProcessor;
 import org.ballerinalang.toml.parser.ManifestProcessor;
 import org.wso2.ballerinalang.compiler.SourceDirectory;
@@ -258,6 +260,17 @@ public class BaloFileWriter {
                                                          dependencyToAdd.getMetadata().getVersion() + "'. you can " +
                                                          "either update the Ballerina.toml or remove the " +
                                                          "Ballerina.lock file.");
+                    }
+                }
+            }
+
+            // validate platform dependencies
+            Platform platform = manifest.getPlatform();
+            if (platform.libraries != null) {
+                for (Library platformLib : platform.libraries) {
+                    if (platformLib.getPath() == null) {
+                        throw new BLangCompilerException("path is not specified for given platform library " +
+                                "dependency.");
                     }
                 }
             }

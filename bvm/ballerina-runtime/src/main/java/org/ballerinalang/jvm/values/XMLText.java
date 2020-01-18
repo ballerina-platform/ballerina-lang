@@ -20,7 +20,7 @@ package org.ballerinalang.jvm.values;
 import org.apache.axiom.om.OMNode;
 import org.apache.axiom.om.impl.llom.CharacterDataImpl;
 import org.ballerinalang.jvm.XMLNodeType;
-import org.ballerinalang.jvm.values.api.BXml;
+import org.ballerinalang.jvm.values.api.BXML;
 
 import java.util.NoSuchElementException;
 
@@ -59,7 +59,7 @@ public class XMLText extends XMLNonElementItem {
     }
 
     @Override
-    public BXml strip() {
+    public BXML strip() {
         if (!data.trim().isEmpty()) {
             return this;
         }

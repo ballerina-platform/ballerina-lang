@@ -25,7 +25,6 @@ import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
-import org.wso2.ballerinalang.compiler.semantics.model.BLangBuiltInMethod;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BCastOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
@@ -88,7 +87,6 @@ import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
-import org.wso2.ballerinalang.programfile.InstructionCodes;
 import org.wso2.ballerinalang.util.Lists;
 
 import java.util.ArrayList;
@@ -165,31 +163,9 @@ public class ASTBuilderUtil {
     }
 
     private static BCastOperatorSymbol createUnboxValueOpSymbolToAnyType(BType sourceType, SymbolTable symTable) {
-        int opcode;
-        switch (sourceType.tag) {
-            case TypeTags.INT:
-                opcode = InstructionCodes.I2ANY;
-                break;
-            case TypeTags.BYTE:
-                opcode = InstructionCodes.BI2ANY;
-                break;
-            case TypeTags.FLOAT:
-                opcode = InstructionCodes.F2ANY;
-                break;
-            case TypeTags.STRING:
-                opcode = InstructionCodes.S2ANY;
-                break;
-            case TypeTags.DECIMAL:
-                opcode = InstructionCodes.NOP;
-                break;
-            default:
-                opcode = InstructionCodes.B2ANY;
-                break;
-        }
-
         List<BType> paramTypes = Lists.of(sourceType, symTable.anyType);
         BInvokableType opType = new BInvokableType(paramTypes, symTable.anyType, null);
-        return new BCastOperatorSymbol(null, opType, sourceType, null, false, true, opcode);
+        return new BCastOperatorSymbol(null, opType, sourceType, null, false, true);
     }
 
     static BLangFunction createFunction(DiagnosticPos pos, String name) {
@@ -418,18 +394,6 @@ public class ASTBuilderUtil {
         return conversion;
     }
 
-    static BLangInvocation.BLangBuiltInMethodInvocation createBuiltInMethod(DiagnosticPos pos,
-                                                                            BLangExpression expr,
-                                                                            BInvokableSymbol invokableSymbol,
-                                                                            List<BLangExpression> requiredArgs,
-                                                                            SymbolResolver symResolver,
-                                                                            BLangBuiltInMethod builtInFunction) {
-        BLangInvocation invokeLambda = createInvocationExprMethod(pos, invokableSymbol, requiredArgs,
-                                                                  new ArrayList<>(), symResolver);
-        invokeLambda.expr = expr;
-        return new BLangInvocation.BLangBuiltInMethodInvocation(invokeLambda, builtInFunction);
-    }
-
     static List<BLangExpression> generateArgExprs(DiagnosticPos pos, List<BLangSimpleVariable> args,
                                                   List<BVarSymbol> formalParams, SymbolResolver symResolver) {
         List<BLangExpression> argsExpr = new ArrayList<>();
@@ -597,7 +561,7 @@ public class ASTBuilderUtil {
         assignableExpr.targetType = targetType;
         assignableExpr.type = type;
         assignableExpr.opSymbol = new BOperatorSymbol(names.fromString(assignableExpr.opKind.value()),
-                null, targetType, null, InstructionCodes.IS_ASSIGNABLE);
+                null, targetType, null);
         return assignableExpr;
     }
 
@@ -650,14 +614,14 @@ public class ASTBuilderUtil {
         objectInitNode.type = type;
 
         BLangInvocation invocationNode = (BLangInvocation) TreeBuilder.createInvocationNode();
-        invocationNode.symbol = ((BObjectTypeSymbol) type.tsymbol).initializerFunc.symbol;
+        invocationNode.symbol = ((BObjectTypeSymbol) type.tsymbol).generatedInitializerFunc.symbol;
         invocationNode.type = type;
 
         BLangIdentifier pkgNameNode = (BLangIdentifier) TreeBuilder.createIdentifierNode();
         BLangIdentifier nameNode = (BLangIdentifier)  TreeBuilder.createIdentifierNode();
 
         nameNode.setLiteral(false);
-        nameNode.setValue(Names.USER_DEFINED_INIT_SUFFIX.getValue());
+        nameNode.setValue(Names.GENERATED_INIT_SUFFIX.getValue());
         invocationNode.name = nameNode;
         invocationNode.pkgAlias = pkgNameNode;
 
@@ -704,7 +668,6 @@ public class ASTBuilderUtil {
         BLangFieldBasedAccess fieldAccessExpr = (BLangFieldBasedAccess) TreeBuilder.createFieldBasedAccessNode();
         fieldAccessExpr.expr = varRef;
         fieldAccessExpr.field = field;
-        fieldAccessExpr.except = except;
         return fieldAccessExpr;
     }
 
@@ -818,7 +781,7 @@ public class ASTBuilderUtil {
 
         BInvokableType prevFuncType = (BInvokableType) invokableSymbol.type;
         dupFuncSymbol.type = new BInvokableType(new ArrayList<>(prevFuncType.paramTypes),
-                prevFuncType.retType, prevFuncType.tsymbol);
+                prevFuncType.restType, prevFuncType.retType, prevFuncType.tsymbol);
         return dupFuncSymbol;
     }
 
@@ -843,8 +806,8 @@ public class ASTBuilderUtil {
         dupFuncSymbol.markdownDocumentation = invokableSymbol.markdownDocumentation;
 
         BInvokableType prevFuncType = (BInvokableType) invokableSymbol.type;
-        dupFuncSymbol.type = new BInvokableType(new ArrayList<>(prevFuncType.paramTypes), prevFuncType.retType,
-                prevFuncType.tsymbol);
+        dupFuncSymbol.type = new BInvokableType(new ArrayList<>(prevFuncType.paramTypes), prevFuncType.restType,
+                prevFuncType.retType, prevFuncType.tsymbol);
         return dupFuncSymbol;
     }
 

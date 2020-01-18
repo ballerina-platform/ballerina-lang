@@ -91,8 +91,8 @@ public type TypeParser object {
 
     function parseTypeAndAddToCp() returns BType {
         if (self.cpI < self.cp.types.length()){
-            var parsedType = self.cp.types[self.cpI];
-            if (parsedType is BType) {
+            BType? parsedType = self.cp.types[self.cpI];
+            if !(parsedType is ()) {
                 return parsedType;
             }
         }
@@ -202,7 +202,7 @@ public type TypeParser object {
     }
 
     function parseUnionType(int typeFlags) returns BUnionType {
-        BUnionType obj = { members:[], typeFlags:typeFlags };
+        BUnionType obj = { members:[], typeFlags:typeFlags }; 
         obj.members = self.parseTypes();
         return obj;
     }
@@ -217,12 +217,16 @@ public type TypeParser object {
         return obj;
     }
 
-    function parseInvokableType() returns BInvokableType {
-        BInvokableType obj = { paramTypes:[], retType: TYPE_NIL };
-        obj.paramTypes = self.parseTypes();
-        obj.retType = self.parseTypeCpRef();
-        return obj;
-    }
+     function parseInvokableType() returns BInvokableType {
+                BInvokableType obj = { paramTypes:[], retType: TYPE_NIL };
+                obj.paramTypes = self.parseTypes();
+                boolean hasRest = self.readBoolean();
+                if (hasRest) {
+                    obj.restType = self.parseTypeCpRef();
+                }
+                obj.retType = self.parseTypeCpRef();
+                return obj;
+     }
 
     function parseRecordType(int typeFlags) returns BRecordType {
         BRecordType obj = { moduleId: self.cp.packages[self.readInt32()],
@@ -287,10 +291,15 @@ public type TypeParser object {
             isAbstract: isAbstract,
             fields: [],
             attachedFunctions: [],
-            constructor: () };
+            constructor: (),
+            generatedConstructor: () };
         self.cp.types[self.cpI] = obj;
         obj.fields = self.parseObjectFields();
 
+        boolean generatedConstructorPresent = self.readBoolean();
+        if (generatedConstructorPresent) {
+            obj.generatedConstructor = self.readAttachFunction();
+        }
         boolean constructorPresent = self.readBoolean();
         if (constructorPresent) {
             obj.constructor = self.readAttachFunction();

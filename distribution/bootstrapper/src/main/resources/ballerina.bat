@@ -33,6 +33,11 @@ rem ----- if JAVA_HOME is not set we're not happy ------------------------------
 
 :checkJava
 
+set BALLERINA_HOME=%~sdp0..
+if exist %BALLERINA_HOME%\..\..\dependencies\jdk8u202-b08-jre (
+   set "JAVA_HOME=%BALLERINA_HOME%\..\..\dependencies\jdk8u202-b08-jre"
+)
+
 if "%JAVA_HOME%" == "" goto noJavaHome
 if not exist "%JAVA_HOME%\bin\java.exe" goto noJavaHome
 goto checkServer
@@ -71,6 +76,18 @@ for /F "tokens=2 delims=:" %%a in ('mode con') do for %%b in (%%a) do (
   ) else if not defined BALLERINA_CLI_WIDTH (
      set "BALLERINA_CLI_WIDTH=%%b"
   )
+)
+
+set argCount=0
+for %%x in (%*) do (
+   set /A argCount+=1
+   set "argValue[!argCount!]=%%~x"
+)
+
+set /a counter=1
+for /l %%i in (1, 1, %argCount%) do (
+   set /a counter=!counter!+1
+   if "!argValue[%%i]!"=="--debug" call set BAL_JAVA_DEBUG=%%!counter!
 )
 
 if defined BAL_JAVA_DEBUG goto commandDebug
@@ -125,11 +142,19 @@ rem BALLERINA_CLASSPATH_EXT is for outsiders to additionally add
 rem classpath locations, e.g. AWS Lambda function libraries.
 set BALLERINA_CLASSPATH=%BALLERINA_CLASSPATH%;%BALLERINA_CLASSPATH_EXT%
 
-set CMD_LINE_ARGS=-Xbootclasspath/a:%BALLERINA_XBOOTCLASSPATH% -Xms256m -Xmx1024m -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath="%BALLERINA_HOME%\heap-dump.hprof"  -Dcom.sun.management.jmxremote -classpath %BALLERINA_CLASSPATH% %JAVA_OPTS% -Dballerina.home="%BALLERINA_HOME%" -Dballerina.target="jvm" -Djava.command="%JAVA_HOME%\bin\java" -Djava.opts="%JAVA_OPTS%" -Denable.nonblocking=false -Dfile.encoding=UTF8 -Dballerina.version=1.0.0-alpha2 -Djava.util.logging.config.class="org.ballerinalang.logging.util.LogConfigReader" -Djava.util.logging.manager="org.ballerinalang.logging.BLogManager" -DBALLERINA_DEV_COMPILE_BALLERINA_ORG=true
+set CMD_LINE_ARGS=-Xbootclasspath/a:%BALLERINA_XBOOTCLASSPATH% -Xms256m -Xmx1024m -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath="%BALLERINA_HOME%\heap-dump.hprof"  -Dcom.sun.management.jmxremote -classpath %BALLERINA_CLASSPATH% %JAVA_OPTS% -Dballerina.home="%BALLERINA_HOME%" -Dballerina.target="jvm" -Djava.command="%JAVA_HOME%\bin\java" -Djava.opts="%JAVA_OPTS%" -Denable.nonblocking=false -Dfile.encoding=UTF8 -Dballerina.version=1.0.3 -Djava.util.logging.config.class="org.ballerinalang.logging.util.LogConfigReader" -Djava.util.logging.manager="org.ballerinalang.logging.BLogManager" -DBALLERINA_DEV_COMPILE_BALLERINA_ORG=true
 
-
+set jar=%2
+if "%1" == "run" if not "%2" == "" if "%jar:~-4%" == ".jar" goto runJarFile
 :runJava
 "%JAVA_HOME%\bin\java" %CMD_LINE_ARGS% org.ballerinalang.tool.Main %CMD%
+goto end
+
+:runJarFile
+for /f "tokens=1,*" %%a in ("%*") do set ARGS=%%b
+"%JAVA_HOME%\bin\java" %CMD_LINE_ARGS% -jar %ARGS%
+goto end
+
 :end
 goto endlocal
 

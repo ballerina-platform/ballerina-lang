@@ -77,7 +77,7 @@ public function extractUsernameAndPassword(string credential) returns [string, s
 # + message - Error message
 # + err - `error` instance
 # + return - Prepared `Error` instance
-public function prepareError(string message, error? err = ()) returns Error {
+function prepareError(string message, error? err = ()) returns Error {
     log:printError(message, err);
     Error authError;
     if (err is error) {

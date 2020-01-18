@@ -24,7 +24,7 @@ import org.ballerinalang.jvm.values.XMLItem;
 import org.ballerinalang.jvm.values.XMLPi;
 import org.ballerinalang.jvm.values.XMLSequence;
 import org.ballerinalang.jvm.values.XMLValue;
-import org.ballerinalang.jvm.values.api.BXml;
+import org.ballerinalang.jvm.values.api.BXML;
 
 import java.io.Reader;
 import java.io.StringReader;
@@ -69,7 +69,7 @@ public class XMLTreeBuilder {
     private XMLStreamReader xmlStreamReader;
     private Map<String, String> namespaces; // xml ns declarations from Bal source [xmlns "http://ns.com" as ns]
     private Deque<XMLSequence> seqDeque;
-    private Deque<List<BXml>> siblingDeque; // we can remove this by opening up children list in XMLSeq
+    private Deque<List<BXML>> siblingDeque; // we can remove this by opening up children list in XMLSeq
 
     public XMLTreeBuilder(String str) {
         this(new StringReader(str));
@@ -164,7 +164,7 @@ public class XMLTreeBuilder {
         setupXmlDocument();
 
         QName elemName = xmlStreamReader.getName();
-        ArrayList<BXml> children = new ArrayList<>();
+        ArrayList<BXML> children = new ArrayList<>();
         XMLSequence seq = new XMLSequence(children);
         seqDeque.push(seq);
         XMLItem xmlItem = new XMLItem(elemName, seq);
@@ -177,7 +177,7 @@ public class XMLTreeBuilder {
 
     private void setupXmlDocument() {
         if (seqDeque.isEmpty()) {
-            ArrayList<BXml> children = new ArrayList<>();
+            ArrayList<BXML> children = new ArrayList<>();
             siblingDeque.push(children);
             XMLSequence xmlSequence = new XMLSequence(children);
             seqDeque.push(xmlSequence);

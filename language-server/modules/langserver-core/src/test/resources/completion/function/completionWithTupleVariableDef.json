@@ -39,7 +39,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `[string,float,string]` g"
+          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `[string,float,string]` g  \n  \n**Returns** `function (string,[string,float,string]) returns (string)`   \n  \n"
         }
       },
       "sortText": "120",
@@ -694,29 +694,6 @@
             }
           },
           "newText": "import ballerina/encoding;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/utils",
-      "kind": "Module",
-      "detail": "Package",
-      "sortText": "140",
-      "insertText": "utils",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/utils;\n"
         }
       ]
     },

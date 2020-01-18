@@ -9,7 +9,7 @@ DESCRIPTION
        Version prints the Ballerina distribution version and the supported
        language specification version.
 
-       Note that 'ballerina -v' and 'ballerina –-version' are
+       Note that 'ballerina -v' and 'ballerina --version' are
        identical to 'ballerina version'.
 
 

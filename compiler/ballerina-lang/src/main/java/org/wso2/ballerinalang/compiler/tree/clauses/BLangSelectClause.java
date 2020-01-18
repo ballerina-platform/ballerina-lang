@@ -26,6 +26,7 @@ import org.ballerinalang.model.tree.clauses.SelectExpressionNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -35,10 +36,10 @@ import java.util.List;
  */
 public class BLangSelectClause extends BLangNode implements SelectClauseNode {
 
-    private List<SelectExpressionNode> selectExpressions;
-    private boolean isSelectAll;
-    private GroupByNode groupBy;
-    private HavingNode having;
+    public List<SelectExpressionNode> selectExpressions = new ArrayList<>();
+    public boolean isSelectAll;
+    public BLangGroupBy groupBy;
+    public BLangHaving having;
 
     @Override
     public void setSelectExpressions(List<SelectExpressionNode> selectExpressions) {
@@ -62,7 +63,7 @@ public class BLangSelectClause extends BLangNode implements SelectClauseNode {
 
     @Override
     public void setGroupBy(GroupByNode groupByNode) {
-        this.groupBy = groupByNode;
+        this.groupBy = (BLangGroupBy) groupByNode;
     }
 
     @Override
@@ -72,7 +73,7 @@ public class BLangSelectClause extends BLangNode implements SelectClauseNode {
 
     @Override
     public void setHaving(HavingNode havingNode) {
-        this.having = havingNode;
+        this.having = (BLangHaving) havingNode;
     }
 
     @Override

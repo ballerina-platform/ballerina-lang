@@ -337,4 +337,14 @@ public class WorkerTest {
             Assert.assertTrue(e.getMessage().contains("worker w5 panic"));
         }
     }
+
+    @Test
+    public void waitInReturn() {
+        BValue[] returns = BRunUtil.invoke(result, "waitInReturn");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertTrue(returns[0] instanceof BMap);
+        BMap mapResult = (BMap) returns[0];
+        Assert.assertEquals(mapResult.get("w1").stringValue(), "w1");
+        Assert.assertEquals(mapResult.get("w2").stringValue(), "w2");
+    }
 }

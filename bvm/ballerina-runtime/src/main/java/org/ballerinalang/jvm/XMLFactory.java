@@ -31,6 +31,7 @@ import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.types.TypeConstants;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.TableValue;
@@ -41,7 +42,7 @@ import org.ballerinalang.jvm.values.XMLQName;
 import org.ballerinalang.jvm.values.XMLSequence;
 import org.ballerinalang.jvm.values.XMLText;
 import org.ballerinalang.jvm.values.XMLValue;
-import org.ballerinalang.jvm.values.api.BXml;
+import org.ballerinalang.jvm.values.api.BXML;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -160,7 +161,7 @@ public class XMLFactory {
      * @return Concatenated XML sequence
      */
     public static XMLValue concatenate(XMLValue firstSeq, XMLValue secondSeq) {
-        ArrayList<BXml> concatenatedList = new ArrayList<>();
+        ArrayList<BXML> concatenatedList = new ArrayList<>();
 
         if (firstSeq.getNodeType() == XMLNodeType.TEXT && secondSeq.getNodeType() == XMLNodeType.TEXT) {
             return new XMLText(firstSeq.getTextValue() + secondSeq.getTextValue());
@@ -177,11 +178,11 @@ public class XMLFactory {
         // text node.
         if (!concatenatedList.isEmpty()) {
             int lastIndexOFLeftChildren = concatenatedList.size() - 1;
-            BXml lastItem = concatenatedList.get(lastIndexOFLeftChildren);
+            BXML lastItem = concatenatedList.get(lastIndexOFLeftChildren);
             if (lastItem.getNodeType() == XMLNodeType.TEXT && secondSeq.getNodeType() == XMLNodeType.SEQUENCE) {
-                List<BXml> rightChildren = ((XMLSequence) secondSeq).getChildrenList();
+                List<BXML> rightChildren = ((XMLSequence) secondSeq).getChildrenList();
                 if (!rightChildren.isEmpty()) {
-                    BXml firsOfRightSeq = rightChildren.get(0);
+                    BXML firsOfRightSeq = rightChildren.get(0);
                     if (firsOfRightSeq.getNodeType() == XMLNodeType.TEXT) {
                         concatenatedList.remove(lastIndexOFLeftChildren); // remove last item, from already copied list
                         concatenatedList.addAll(rightChildren);
@@ -325,7 +326,7 @@ public class XMLFactory {
             case SEQUENCE:
                 XMLSequence xmlSequence = (XMLSequence) xml;
                 if (xmlSequence.isEmpty()) {
-                    return new ArrayValue(new BArrayType(BTypes.typeJSON));
+                    return new ArrayValueImpl(new BArrayType(BTypes.typeJSON));
                 }
                 return traverseXMLSequence(xmlSequence, attributePrefix, preserveNamespaces);
             default:
@@ -360,7 +361,7 @@ public class XMLFactory {
                                                                    boolean preserveNamespaces) {
         MapValueImpl<String, Object> rootNode = new MapValueImpl<>(jsonMapType);
         LinkedHashMap<String, String> attributeMap = collectAttributesAndNamespaces(xmlItem, preserveNamespaces);
-        Iterator<BXml> iterator = getChildrenIterator(xmlItem);
+        Iterator<BXML> iterator = getChildrenIterator(xmlItem);
         String keyValue = getElementKey(xmlItem, preserveNamespaces);
         if (iterator.hasNext()) {
             MapValueImpl<String, Object> currentRoot = new MapValueImpl<>(jsonMapType);
@@ -368,7 +369,7 @@ public class XMLFactory {
             LinkedHashMap<String, ArrayList<Object>> rootMap = new LinkedHashMap<>();
             while (iterator.hasNext()) {
                 // Process all child elements, skip non element children.
-                BXml child = iterator.next();
+                BXML child = iterator.next();
                 if (child.getNodeType() != XMLNodeType.ELEMENT) {
                     continue;
                 }
@@ -377,7 +378,7 @@ public class XMLFactory {
                 LinkedHashMap<String, String> childAttributeMap =
                         collectAttributesAndNamespaces(item, preserveNamespaces);
                 String childKeyValue = getElementKey(item, preserveNamespaces);
-                Iterator<BXml> childrenIterator = getChildrenIterator(item);
+                Iterator<BXML> childrenIterator = getChildrenIterator(item);
                 if (childrenIterator.hasNext()) {
                     // The child element itself has more child elements
                     MapValueImpl<String, ?> nodeIntermediate =
@@ -416,7 +417,7 @@ public class XMLFactory {
         return rootNode;
     }
 
-    private static Iterator<BXml> getChildrenIterator(XMLItem xmlItem) {
+    private static Iterator<BXML> getChildrenIterator(XMLItem xmlItem) {
         return xmlItem.getChildrenSeq().getChildrenList().iterator();
     }
 
@@ -430,12 +431,12 @@ public class XMLFactory {
      */
     private static Object traverseXMLSequence(XMLSequence xmlSequence, String attributePrefix,
                                               boolean preserveNamespaces) {
-        List<BXml> sequence = xmlSequence.getChildrenList();
+        List<BXML> sequence = xmlSequence.getChildrenList();
         long count = sequence.size();
         ArrayList<XMLItem> childArray = new ArrayList<>();
         ArrayList<XMLText> textArray = new ArrayList<>();
         for (int i = 0; i < count; ++i) {
-            BXml xmlVal = sequence.get(i);
+            BXML xmlVal = sequence.get(i);
             if (xmlVal.getNodeType() == XMLNodeType.ELEMENT) {
                 childArray.add((XMLItem) xmlVal);
             } else if (xmlVal.getNodeType() == XMLNodeType.TEXT) {
@@ -497,7 +498,7 @@ public class XMLFactory {
                     }
                 } else {
                     // Child elements with similar keys are put into an array
-                    ArrayValue arrayNode = new ArrayValue(new BArrayType(BTypes.typeJSON));
+                    ArrayValue arrayNode = new ArrayValueImpl(new BArrayType(BTypes.typeJSON));
                     for (XMLItem element : elementList) {
                         arrayNode.append(element.getTextValue());
                     }
@@ -523,7 +524,7 @@ public class XMLFactory {
                 root.put(key, elementList.get(0));
             } else {
                 // When there are multiple nodes with the same key they are set into an array
-                ArrayValue arrayNode = new ArrayValue(new BArrayType(BTypes.typeJSON));
+                ArrayValue arrayNode = new ArrayValueImpl(new BArrayType(BTypes.typeJSON));
                 for (Object node : elementList) {
                     arrayNode.append(node);
                 }
@@ -609,7 +610,7 @@ public class XMLFactory {
      */
     private static ArrayValue processTextArray(ArrayList<XMLText> childArray) {
         // Create array based on xml text elements
-        ArrayValue arrayNode = new ArrayValue(new BArrayType(BTypes.typeJSON));
+        ArrayValue arrayNode = new ArrayValueImpl(new BArrayType(BTypes.typeJSON));
         for (XMLText element : childArray) {
             arrayNode.append(element.getTextValue());
         }

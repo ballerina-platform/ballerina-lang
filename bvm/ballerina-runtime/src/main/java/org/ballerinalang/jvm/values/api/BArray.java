@@ -18,7 +18,6 @@
 package org.ballerinalang.jvm.values.api;
 
 import org.ballerinalang.jvm.types.BType;
-import org.ballerinalang.jvm.values.CollectionValue;
 
 /**
  * <p>
@@ -27,14 +26,14 @@ import org.ballerinalang.jvm.values.CollectionValue;
  * 
  * @since 1.1.0
  */
-public interface BArray extends BRefValue, CollectionValue {
+public interface BArray extends BRefValue, BCollection {
 
     /**
      * Get value in the given array index.
      * @param index array index
      * @return array value
      */
-   Object getValue(long index);
+   Object get(long index);
 
     /**
      * Get ref value in the given index.
@@ -162,12 +161,6 @@ public interface BArray extends BRefValue, CollectionValue {
      * @return int array
      */
     long[] getIntArray();
-
-    /**
-     * Get {@code BType} of the array.
-     * @return array type.
-     */
-    BType getArrayType();
 
     /**
      * Get {@code BType} of the array elements.

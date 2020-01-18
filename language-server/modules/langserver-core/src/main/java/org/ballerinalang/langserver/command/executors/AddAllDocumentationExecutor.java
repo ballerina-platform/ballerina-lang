@@ -77,7 +77,7 @@ public class AddAllDocumentationExecutor implements LSCommandExecutor {
 
         BLangPackage bLangPackage;
         try {
-            WorkspaceDocumentManager docManager = context.get(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY);
+            WorkspaceDocumentManager docManager = context.get(DocumentServiceKeys.DOC_MANAGER_KEY);
             bLangPackage = LSModuleCompiler.getBLangPackage(context, docManager, LSCustomErrorStrategy.class, false,
                     false);
         } catch (CompilationFailedException e) {

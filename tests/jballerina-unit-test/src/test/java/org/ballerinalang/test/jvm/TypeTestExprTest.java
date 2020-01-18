@@ -112,4 +112,18 @@ public class TypeTestExprTest {
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
         Assert.assertTrue(((BBoolean) returns[1]).booleanValue());
     }
+
+    @Test
+    public void testAnyJsonTypes() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testAnyJsonTypes");
+        Assert.assertEquals(returns.length, 4);
+        Assert.assertSame(returns[0].getClass(), BBoolean.class);
+        Assert.assertSame(returns[1].getClass(), BBoolean.class);
+        Assert.assertSame(returns[2].getClass(), BBoolean.class);
+        Assert.assertSame(returns[3].getClass(), BBoolean.class);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Assert.assertTrue(((BBoolean) returns[1]).booleanValue());
+        Assert.assertTrue(((BBoolean) returns[2]).booleanValue());
+        Assert.assertTrue(((BBoolean) returns[3]).booleanValue());
+    }
 }

@@ -29,6 +29,7 @@ import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.jvm.values.AbstractObjectValue;
 import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.FutureValue;
 import org.ballerinalang.jvm.values.MapValue;
@@ -74,7 +75,7 @@ public class StackTrace {
         for (int i = 0; i < stackTrace.length; i++) {
             array[i] = getStackFrame(stackTrace[i]);
         }
-        return new ArrayValue(array, new BArrayType(recordType));
+        return new ArrayValueImpl(array, new BArrayType(recordType));
     }
 
     static MapValue<String, Object> getStackFrame(StackTraceElement stackTraceElement) {

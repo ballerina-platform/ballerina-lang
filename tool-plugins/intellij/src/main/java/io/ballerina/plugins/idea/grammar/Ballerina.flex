@@ -65,6 +65,8 @@ SignedInteger = {Sign}? {Digits}
 Sign = [+-]
 DecimalFloatSelector = [dDfF]
 
+DecimalExtendedFloatingPointNumber = {DecimalFloatingPointNumber} "." {DecimalNumeral}
+
 HexFloatingPointNumber = {HexDigits} {BinaryExponent} | {DottedHexNumber} {BinaryExponent}?
 BinaryExponent = {BinaryExponentIndicator} {SignedInteger}
 BinaryExponentIndicator = [pP]
@@ -124,9 +126,6 @@ LINE_COMMENT = "/" "/" [^\r\n]*
 
 XML_LITERAL_START = xml[ \t\n\x0B\f\r]*`
 
-STRING_TEMPLATE_LITERAL_START = string[ \t\n\x0B\f\r]*`
-STRING_TEMPLATE_LITERAL_END = "`"
-
 INTERPOLATION_START = "${"
 
 HEX_DIGITS = {HEX_DIGIT} ({HEX_DIGIT_OR_UNDERSCORE}* {HEX_DIGIT})?
@@ -178,9 +177,12 @@ DESCRIPTION_SEPARATOR = {DOCUMENTATION_SPACE}* {SUB} {DOCUMENTATION_SPACE}*
 PARAMETER_DOCUMENTATION_END = [\n]
 
 // STRING_TEMPLATE
+STRING_TEMPLATE_LITERAL_START = string[ \t\n\x0B\f\r]*`
+STRING_TEMPLATE_LITERAL_END = "`"
 STRING_LITERAL_ESCAPED_SEQUENCE = {DOLLAR}** \\ [\\'\"bnftr\{`]
 STRING_TEMPLATE_VALID_CHAR_SEQUENCE = [^`$\\] | {DOLLAR}+ [^`$\{\\] | {WHITE_SPACE} | {STRING_LITERAL_ESCAPED_SEQUENCE}
 STRING_TEMPLATE_EXPRESSION_START = {STRING_TEMPLATE_TEXT}? {INTERPOLATION_START}
+STRING_TEMPLATE_EXPRESSION_END = "}"
 STRING_TEMPLATE_TEXT = {STRING_TEMPLATE_VALID_CHAR_SEQUENCE}+ {DOLLAR}* | {DOLLAR}+
 DOLLAR = \$
 
@@ -311,9 +313,24 @@ DOLLAR = \$
     "."                                         { return DOT; }
     ","                                         { return COMMA; }
     "{"                                         { return LEFT_BRACE; }
-    "}"                                         { if (inStringTemplateExpression) { inStringTemplateExpression = false; inStringTemplate = true; yybegin(STRING_TEMPLATE_MODE); }
-                                                  if (inXmlExpressionMode) { inXmlExpressionMode = false; yybegin(XML_MODE); }
-                                                  if (inXmlCommentMode) { inXmlCommentMode = false; yybegin(XML_COMMENT_MODE); } return RIGHT_BRACE; }
+    "}"                                         { if (inStringTemplateExpression) {
+                                                        inStringTemplateExpression = false;
+                                                        inStringTemplate = true;
+                                                        yybegin(STRING_TEMPLATE_MODE);
+                                                        return STRING_TEMPLATE_EXPRESSION_END;
+                                                  }
+                                                  if (inXmlExpressionMode) {
+                                                      inXmlExpressionMode = false;
+                                                      yybegin(XML_MODE);
+                                                      return RIGHT_BRACE;
+                                                  }
+                                                  if (inXmlCommentMode) {
+                                                      inXmlCommentMode = false;
+                                                      yybegin(XML_COMMENT_MODE);
+                                                      return RIGHT_BRACE;
+                                                  }
+                                                  return RIGHT_BRACE;
+                                                }
     "("                                         { return LEFT_PARENTHESIS; }
     ")"                                         { return RIGHT_PARENTHESIS; }
     "["                                         { return LEFT_BRACKET; }
@@ -422,6 +439,7 @@ DOLLAR = \$
     {QUOTED_STRING_LITERAL}                     { return QUOTED_STRING_LITERAL; }
 
     {DecimalFloatingPointNumber}                { return DECIMAL_FLOATING_POINT_NUMBER; }
+    {DecimalExtendedFloatingPointNumber}        { return DECIMAL_EXTENDED_FLOATING_POINT_NUMBER; }
     {HexadecimalFloatingPointLiteral}           { return HEXADECIMAL_FLOATING_POINT_LITERAL; }
 
 

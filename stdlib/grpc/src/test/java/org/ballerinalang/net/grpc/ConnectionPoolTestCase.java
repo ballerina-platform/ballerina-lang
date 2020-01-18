@@ -46,7 +46,7 @@ public class ConnectionPoolTestCase {
     public void setup() {
         Path sourceFilePath = Paths.get("src", "test", "resources", "test-src",
                 "client_connection_pool.bal");
-        compileResult = BCompileUtil.compile(sourceFilePath.toAbsolutePath().toString());
+        compileResult = BCompileUtil.compileOffline(sourceFilePath.toAbsolutePath().toString());
     }
 
     @Test

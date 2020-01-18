@@ -18,9 +18,11 @@
 package org.ballerinalang.nativeimpl.jvm.interop;
 
 import org.ballerinalang.jvm.BallerinaValues;
+import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BPackage;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
@@ -58,9 +60,13 @@ class JInterop {
     static final String METHOD_TYPE_FIELD = "mType";
     static final String FIELD_TYPE_FIELD = "fType";
     static final String PARAM_TYPES_FIELD = "paramTypes";
+    static final String REST_TYPE_FIELD = "restType";
     static final String RETURN_TYPE_FIELD = "retType";
     static final String METHOD_FIELD = "method";
     static final String TAG_FIELD = "tag";
+    static final String VALUES_FIELD = "values";
+    static final String VALUE_FIELD = "value";
+
     static final String HANDLE_TYPE_NAME = "handle";
     static final String METHOD_TYPE_NAME = "Method";
     static final String FIELD_TYPE_NAME = "Field";
@@ -137,7 +143,7 @@ class JInterop {
     static MapValue<String, Object> createJMethodTypeBValue(JMethod jMethod) {
         MapValue<String, Object> jMethodTypeBRecord = createRecordBValue(METHOD_TYPE_TYPE_NAME);
 
-        ArrayValue paramBTypeArray = new ArrayValue(BTypes.typeAnydata);
+        ArrayValue paramBTypeArray = new ArrayValueImpl(new BArrayType(BTypes.typeAnydata));
         Class<?>[] paramClassTypes = jMethod.getParamTypes();
         for (int paramIndex = 0; paramIndex < paramClassTypes.length; paramIndex++) {
             Class<?> paramClassType = paramClassTypes[paramIndex];

@@ -47,7 +47,7 @@ CONFIG PROPERTIES
 
 EXAMPLES
         Run all tests in the current project.
-           → ballerina test --all
+           $ ballerina test --all
 
         Run tests in math module.
-           → ballerina test math
+           $ ballerina test math

@@ -47,14 +47,22 @@ boolean stateLoaded = false;
 map<boolean> loadedStates = {};
 
 # Native function to deserialize a serialized snapshot.
+# This function is deprecated since v1.1.
 # + str - A `string` of serialized content.
 # + return - A deserialized `map<any>` state.
-function deserialize(string str) returns map<any> = external;
+function deserialize(string str) returns map<any> {
+    error e = error("Deserializing is not supported.");
+    panic e;
+}
 
 # Native function to serialize a snapshot.
+# This function is deprecated since v1.1.
 # + data - A `map<any>` state to be serialized.
 # + return - A `string` of serialized state.
-function serialize(map<any> data) returns string = external;
+function serialize(map<any> data) returns string {
+    error e = error("Serializing is not supported.");
+    panic e;
+}
 
 # Function to read given number of characters from an io:ReadableCharacterChannel.
 # + rch - A `ReadableCharacterChannel` instance.

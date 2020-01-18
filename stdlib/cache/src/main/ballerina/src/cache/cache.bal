@@ -18,9 +18,6 @@ import ballerina/system;
 import ballerina/task;
 import ballerina/time;
 
-# Cache cleanup task starting delay in ms.
-const int CACHE_CLEANUP_START_DELAY = 0;
-
 # Cache cleanup task invoking interval in ms.
 const int CACHE_CLEANUP_INTERVAL = 5000;
 
@@ -29,7 +26,7 @@ map<Cache> cacheMap = {};
 
 task:TimerConfiguration cacheCleanupTimerConfiguration = {
     intervalInMillis: CACHE_CLEANUP_INTERVAL,
-    initialDelayInMillis: CACHE_CLEANUP_START_DELAY
+    initialDelayInMillis: CACHE_CLEANUP_INTERVAL
 };
 
 task:Scheduler cacheCleanupTimer = new(cacheCleanupTimerConfiguration);

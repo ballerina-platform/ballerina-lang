@@ -24,7 +24,7 @@ import org.ballerinalang.jvm.values.XMLItem;
 import org.ballerinalang.jvm.values.XMLPi;
 import org.ballerinalang.jvm.values.XMLSequence;
 import org.ballerinalang.jvm.values.XMLText;
-import org.ballerinalang.jvm.values.api.BXml;
+import org.ballerinalang.jvm.values.api.BXML;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -86,7 +86,7 @@ public class BallerinaXMLSerializer extends OutputStream {
         }
     }
 
-    public void write(BXml xmlValue) {
+    public void write(BXML xmlValue) {
         if (xmlValue == null) {
             return;
         }
@@ -317,7 +317,7 @@ public class BallerinaXMLSerializer extends OutputStream {
     }
 
     private void writeSeq(XMLSequence xmlValue) {
-        for (BXml value : xmlValue.getChildrenList()) {
+        for (BXML value : xmlValue.getChildrenList()) {
             this.write(value);
         }
     }

@@ -107,13 +107,13 @@ class ProcessedStatement {
                         case TypeTags.STRING_TAG:
                         case TypeTags.DECIMAL_TAG:
                         case TypeTags.BOOLEAN_TAG:
-                            paramValue = ((ArrayValue) value).getValue(i);
+                            paramValue = ((ArrayValue) value).get(i);
                             break;
                         // The value parameter of the struct is an array of arrays. Only possibility that should be
                         // supported is, this being an array of byte arrays (blob)
                         // eg: [blob1, blob2, blob3] == [byteArray1, byteArray2, byteArray3]
                         case TypeTags.ARRAY_TAG:
-                            Object array = ((ArrayValue) value).getValue(i);
+                            Object array = ((ArrayValue) value).get(i);
                             BType arrayElementType = TypeChecker.getType(array);
                             // array cannot be null because the type tag is not union
                             if (((BArrayType) arrayElementType).getElementType().getTag() == TypeTags.BYTE_TAG) {
