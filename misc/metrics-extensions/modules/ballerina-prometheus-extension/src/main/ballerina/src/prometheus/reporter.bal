@@ -156,13 +156,13 @@ function getEscapedName(string str) returns string {
     return stringutils:replaceAll(str, "[^a-zA-Z0-9:_]", "_");
 }
 
-# Only [^a-zA-Z0-9\\/.:_] are valid in metric lable values, any other characters
+# Only [^a-zA-Z0-9\\/.:_* ] are valid in metric lable values, any other characters
 # should be sanitized to an underscore.
 #
 # + str - string to be escaped.
 # + return - escaped string.
 function getEscapedLabelValue(string str) returns string {
-    return stringutils:replaceAll(str, "[^a-zA-Z0-9\\/.:_]", "_");
+    return stringutils:replaceAll(str, "[^a-zA-Z0-9\\/.:_* ]", "_");
 }
 
 function getMetricName(string name, string summaryType) returns string {
