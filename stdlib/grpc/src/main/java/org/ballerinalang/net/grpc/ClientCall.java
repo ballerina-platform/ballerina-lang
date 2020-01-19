@@ -92,7 +92,7 @@ public final class ClientCall {
                 x -> observerContext.ifPresent(ctx -> ctx.addTag(x.getKey(), x.getValue())));
 
         outboundMessage.setProperty(Constants.TO, "/" + method.getFullMethodName());
-        outboundMessage.setHttpMethod(GrpcConstants.HTTP_METHOD);
+        outboundMessage.setHttpMethod();
         outboundMessage.setHttpVersion("2.0");
         outboundMessage.setHeader(CONTENT_TYPE_KEY, GrpcConstants.CONTENT_TYPE_GRPC);
         outboundMessage.setHeader(TE_KEY, GrpcConstants.TE_TRAILERS);
