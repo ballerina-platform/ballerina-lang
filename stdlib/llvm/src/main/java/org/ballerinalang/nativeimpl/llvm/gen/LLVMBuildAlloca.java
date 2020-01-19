@@ -23,8 +23,10 @@ import org.ballerinalang.nativeimpl.llvm.FFIUtil;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.bytedeco.javacpp.LLVM;
-import org.bytedeco.javacpp.LLVM.LLVMValueRef;
+import org.bytedeco.llvm.LLVM.LLVMBuilderRef;
+import org.bytedeco.llvm.LLVM.LLVMTypeRef;
+import org.bytedeco.llvm.LLVM.LLVMValueRef;
+import org.bytedeco.llvm.global.LLVM;
 
 import static org.ballerinalang.model.types.TypeKind.RECORD;
 import static org.ballerinalang.model.types.TypeKind.STRING;
@@ -51,8 +53,8 @@ public class LLVMBuildAlloca {
     public static MapValue<String, Object> llvmBuildAlloca(Strand strand, MapValue<String, Object> arg0,
                                                            MapValue<String, Object> ty, String name) {
 
-        LLVM.LLVMBuilderRef arg0Ref = (LLVM.LLVMBuilderRef) FFIUtil.getRecodeArgumentNative(arg0);
-        LLVM.LLVMTypeRef tyRef = (LLVM.LLVMTypeRef) FFIUtil.getRecodeArgumentNative(ty);
+        LLVMBuilderRef arg0Ref = (LLVMBuilderRef) FFIUtil.getRecodeArgumentNative(arg0);
+        LLVMTypeRef tyRef = (LLVMTypeRef) FFIUtil.getRecodeArgumentNative(ty);
         LLVMValueRef returnValue = LLVM.LLVMBuildAlloca(arg0Ref, tyRef, name);
         MapValue<String, Object> returnWrapperRecord = FFIUtil.newRecord(new BPackage("ballerina",
                 "llvm"), "LLVMValueRef");

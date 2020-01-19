@@ -159,6 +159,21 @@ public class PackagingTestCase extends BaseTest {
         Assert.assertTrue(Files.exists(tempHomeDirectory.resolve(baloPath).resolve(baloFileName)));
     }
 
+    @Test(description = "Test searching a package from central", dependsOnMethods = "testPush")
+    public void testSearch() throws BallerinaTestException {
+        String actualMsg = balClient.runMainAndReadStdOut("search", new String[]{moduleName}, envVariables,
+                balServer.getServerHome(), false);
+
+        // Check if the search results contains the following.
+        Assert.assertTrue(actualMsg.contains("Ballerina Central"));
+        Assert.assertTrue(actualMsg.contains("NAME"));
+        Assert.assertTrue(actualMsg.contains("DESCRIPTION"));
+        Assert.assertTrue(actualMsg.contains("DATE"));
+        Assert.assertTrue(actualMsg.contains("VERSION"));
+        Assert.assertTrue(actualMsg.contains(datePushed));
+        Assert.assertTrue(actualMsg.contains("0.1.0"));
+    }
+
     @Test(description = "Test pullCount of a package from central", dependsOnMethods = "testPull")
     public void testPullCount() throws IOException {
         URI remoteUri = URI.create(RepoUtils.getStagingURL() + "/modules/info/" + orgName + "/" + moduleName + "/*/");
@@ -185,21 +200,6 @@ public class PackagingTestCase extends BaseTest {
             Assert.fail("error: could not connect to remote repository to find the latest version of module");
         }
     }
-
-//    @Test(description = "Test searching a package from central", dependsOnMethods = "testPush")
-//    public void testSearch() throws BallerinaTestException {
-//        String actualMsg = balClient.runMainAndReadStdOut("search", new String[]{moduleName}, envVariables,
-//                balServer.getServerHome(), false);
-//
-//        // Check if the search results contains the following.
-//        Assert.assertTrue(actualMsg.contains("Ballerina Central"));
-//        Assert.assertTrue(actualMsg.contains("NAME"));
-//        Assert.assertTrue(actualMsg.contains("DESCRIPTION"));
-//        Assert.assertTrue(actualMsg.contains("DATE"));
-//        Assert.assertTrue(actualMsg.contains("VERSION"));
-//        Assert.assertTrue(actualMsg.contains(datePushed));
-//        Assert.assertTrue(actualMsg.contains("0.1.0"));
-//    }
 
     @Test(description = "Test push all packages in project to central")
     public void testPushAllPackages() throws Exception {

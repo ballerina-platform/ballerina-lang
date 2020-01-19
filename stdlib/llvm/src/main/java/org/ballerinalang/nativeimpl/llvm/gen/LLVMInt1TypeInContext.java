@@ -24,10 +24,11 @@ import org.ballerinalang.nativeimpl.llvm.FFIUtil;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.bytedeco.javacpp.LLVM;
-import org.bytedeco.javacpp.LLVM.LLVMTypeRef;
+import org.bytedeco.llvm.LLVM.LLVMContextRef;
+import org.bytedeco.llvm.LLVM.LLVMTypeRef;
 
 import static org.ballerinalang.model.types.TypeKind.RECORD;
+import static org.bytedeco.llvm.global.LLVM.LLVMInt1TypeInContext;
 
 /**
  * Auto generated class.
@@ -48,8 +49,8 @@ public class LLVMInt1TypeInContext {
 
     public static MapValue<String, Object> llvmInt1TypeInContext(Strand strand, MapValue<String, Object> c) {
 
-        LLVM.LLVMContextRef cRef = (LLVM.LLVMContextRef) FFIUtil.getRecodeArgumentNative(c);
-        LLVMTypeRef returnValue = LLVM.LLVMInt1TypeInContext(cRef);
+        LLVMContextRef cRef = (LLVMContextRef) FFIUtil.getRecodeArgumentNative(c);
+        LLVMTypeRef returnValue = LLVMInt1TypeInContext(cRef);
         MapValue<String, Object> returnWrappedRecord = BallerinaValues.createRecordValue(new BPackage("ballerina",
                 "llvm"), "LLVMTypeRef");
         FFIUtil.addNativeToRecode(returnValue, returnWrappedRecord);
