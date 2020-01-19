@@ -42,7 +42,7 @@ import org.ballerinalang.langserver.completions.exceptions.CompletionContextNotS
 import org.ballerinalang.langserver.completions.util.CompletionUtil;
 import org.ballerinalang.langserver.diagnostic.DiagnosticsHelper;
 import org.ballerinalang.langserver.exception.UserErrorException;
-import org.ballerinalang.langserver.extensions.ballerina.syntaxhighlighter.SemanticHighlightProvider;
+import org.ballerinalang.langserver.extensions.ballerina.semantichighlighter.SemanticHighlightProvider;
 import org.ballerinalang.langserver.implementation.GotoImplementationCustomErrorStrategy;
 import org.ballerinalang.langserver.implementation.GotoImplementationUtil;
 import org.ballerinalang.langserver.index.LSIndexImpl;

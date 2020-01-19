@@ -23,7 +23,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import org.ballerinalang.langserver.compiler.exception.CompilationFailedException;
-import org.ballerinalang.langserver.extensions.ballerina.syntaxhighlighter.SemanticHighlightingParams;
+import org.ballerinalang.langserver.extensions.ballerina.semantichighlighter.SemanticHighlightingParams;
 import org.ballerinalang.langserver.util.FileUtils;
 import org.ballerinalang.langserver.util.TestUtil;
 import org.eclipse.lsp4j.jsonrpc.Endpoint;

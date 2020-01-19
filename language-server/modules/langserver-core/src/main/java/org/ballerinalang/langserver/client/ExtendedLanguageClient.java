@@ -16,7 +16,7 @@
 
 package org.ballerinalang.langserver.client;
 
-import org.ballerinalang.langserver.extensions.ballerina.syntaxhighlighter.SemanticHighlightingParams;
+import org.ballerinalang.langserver.extensions.ballerina.semantichighlighter.SemanticHighlightingParams;
 import org.ballerinalang.langserver.extensions.ballerina.traces.TraceRecord;
 import org.eclipse.lsp4j.Location;
 import org.eclipse.lsp4j.jsonrpc.services.JsonNotification;

@@ -29,8 +29,8 @@ import org.ballerinalang.langserver.compiler.exception.CompilationFailedExceptio
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManagerImpl;
-import org.ballerinalang.langserver.extensions.ballerina.syntaxhighlighter.SemanticHighlightProvider;
-import org.ballerinalang.langserver.extensions.ballerina.syntaxhighlighter.SemanticHighlightingParams;
+import org.ballerinalang.langserver.extensions.ballerina.semantichighlighter.SemanticHighlightProvider;
+import org.ballerinalang.langserver.extensions.ballerina.semantichighlighter.SemanticHighlightingParams;
 import org.eclipse.lsp4j.ClientCapabilities;
 import org.eclipse.lsp4j.CodeActionContext;
 import org.eclipse.lsp4j.CodeActionParams;

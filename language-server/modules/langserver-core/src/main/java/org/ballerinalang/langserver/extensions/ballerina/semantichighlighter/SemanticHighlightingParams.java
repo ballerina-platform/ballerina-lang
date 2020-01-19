@@ -15,18 +15,18 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerinalang.langserver.extensions.ballerina.syntaxhighlighter;
+package org.ballerinalang.langserver.extensions.ballerina.semantichighlighter;
 
 import java.util.ArrayList;
 
 /**
  * Represents the data model for Semantic Highlighting params.
  *
- * @since 1.0.2
+ * @since 1.1.0
  */
 public class SemanticHighlightingParams {
 
-    private String textDocument;
+    private final String textDocument;
     private ArrayList<SemanticHighlightingInformation> lines;
 
     public SemanticHighlightingParams(String textDocument, ArrayList<SemanticHighlightingInformation> lines) {
@@ -40,5 +40,9 @@ public class SemanticHighlightingParams {
 
     public ArrayList<SemanticHighlightingInformation> getLines() {
         return lines;
+    }
+
+    public void setLines(ArrayList<SemanticHighlightingInformation> lines) {
+        this.lines = lines;
     }
 }

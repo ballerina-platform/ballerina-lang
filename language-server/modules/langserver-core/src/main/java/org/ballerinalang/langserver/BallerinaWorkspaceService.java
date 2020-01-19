@@ -187,8 +187,7 @@ public class BallerinaWorkspaceService implements WorkspaceService {
      * Experimental capabilities.
      */
     public enum Experimental {
-        INTROSPECTION("introspection"), SHOW_TEXT_DOCUMENT("showTextDocument"),
-        SEMANTIC_SYNTAX_HIGHLIGHTER("semanticSyntaxHighlighter");
+        SHOW_TEXT_DOCUMENT("showTextDocument");
 
         private final String value;
 

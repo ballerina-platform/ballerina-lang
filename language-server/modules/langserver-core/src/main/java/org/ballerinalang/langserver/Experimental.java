@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  WSO2 Inc. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -15,30 +15,27 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerinalang.langserver.extensions.ballerina.syntaxhighlighter;
+package org.ballerinalang.langserver;
 /**
- * Enum for the scopes.
+ * Enum for experimental server capabilities in language server.
  *
  * @since 1.1.0
  */
-public enum ScopeEnum {
+public enum Experimental {
+    INTROSPECTION("introspection"),
+    AST_PROVIDER("astProvider"),
+    EXAMPLES_PROVIDER("examplesProvider"),
+    API_EDITOR_PROVIDER("apiEditorProvider"),
+    SEMANTIC_SYNTAX_HIGHLIGHTER("semanticSyntaxHighlighter"),
+    SEMANTIC_SCOPES("semanticScopes");
 
+    private final String value;
 
-    ENDPOINT("endpoint.ballerina", 0), UNUSED("unused.ballerina", 1);
-
-    private String scopeName;
-    private int scopeId;
-
-    ScopeEnum(String scopeName, int scopeId) {
-        this.scopeName = scopeName;
-        this.scopeId = scopeId;
+    Experimental(String value) {
+        this.value = value;
     }
 
-    public String getScopeName() {
-        return scopeName;
+    public String getValue() {
+        return value;
     }
-
-    public int getScopeId() {
-        return scopeId;
-    }
-};
+}

@@ -15,20 +15,30 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerinalang.langserver.extensions.ballerina.syntaxhighlighter;
-
-import java.util.concurrent.CompletableFuture;
-
+package org.ballerinalang.langserver.extensions.ballerina.semantichighlighter;
 /**
- * Implementation of Ballerina Syntax Highlighter extension for Language Server.
+ * Enum for the scopes.
  *
  * @since 1.1.0
  */
-public class BallerinaSyntaxHighlightServiceImpl implements BallerinaSyntaxHighlightService {
+public enum ScopeEnum {
 
-    public CompletableFuture<BallerinaHighlightingResponse> list(BallerinaHighlightingRequest request) {
 
-        BallerinaHighlightingResponse reply = new BallerinaHighlightingResponse();
-        return CompletableFuture.supplyAsync(() -> reply);
+    ENDPOINT("endpoint.ballerina", 0), UNUSED("unused.ballerina", 1);
+
+    private final String scopeName;
+    private final int scopeId;
+
+    ScopeEnum(String scopeName, int scopeId) {
+        this.scopeName = scopeName;
+        this.scopeId = scopeId;
     }
-}
+
+    public String getScopeName() {
+        return scopeName;
+    }
+
+    public int getScopeId() {
+        return scopeId;
+    }
+};

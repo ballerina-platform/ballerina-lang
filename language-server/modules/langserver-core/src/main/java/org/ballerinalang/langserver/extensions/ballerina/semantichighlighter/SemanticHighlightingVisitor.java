@@ -15,7 +15,7 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerinalang.langserver.extensions.ballerina.syntaxhighlighter;
+package org.ballerinalang.langserver.extensions.ballerina.semantichighlighter;
 
 import org.ballerinalang.langserver.common.LSNodeVisitor;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
@@ -46,12 +46,12 @@ import java.util.List;
  *
  * @since 1.1.0
  */
-public class SemanticHighlightingVisitor extends LSNodeVisitor {
+class SemanticHighlightingVisitor extends LSNodeVisitor {
 
-    private List<SemanticHighlightProvider.HighlightInfo> highlights;
+    private final List<SemanticHighlightProvider.HighlightInfo> highlights;
 
-    public SemanticHighlightingVisitor(LSContext context) {
-        this.highlights = context.get(SemanticHighlightKeys.SEMANTIC_HIGHLIGHTING_KEY);
+    SemanticHighlightingVisitor(LSContext context) {
+        this.highlights = context.get(SemanticHighlightingKeys.SEMANTIC_HIGHLIGHTING_KEY);
     }
 
     @Override
@@ -76,10 +76,7 @@ public class SemanticHighlightingVisitor extends LSNodeVisitor {
     @Override
     public void visit(BLangIf ifNode) {
         this.acceptNode(ifNode.body);
-
-        if (ifNode.elseStmt != null) {
-            this.acceptNode(ifNode.elseStmt);
-        }
+        this.acceptNode(ifNode.elseStmt);
     }
 
     @Override
@@ -114,9 +111,7 @@ public class SemanticHighlightingVisitor extends LSNodeVisitor {
 
     @Override
     public void visit(BLangTypeDefinition typeDefinition) {
-        if (typeDefinition.typeNode != null) {
-            this.acceptNode(typeDefinition.typeNode);
-        }
+        this.acceptNode(typeDefinition.typeNode);
     }
 
     @Override
@@ -150,27 +145,27 @@ public class SemanticHighlightingVisitor extends LSNodeVisitor {
             SemanticHighlightProvider.HighlightInfo highlightInfo =
                     new SemanticHighlightProvider.HighlightInfo(ScopeEnum.ENDPOINT, varNode.name);
             highlights.add(highlightInfo);
-        } else {
-            if (varNode.expr != null) {
-                this.acceptNode(varNode.expr);
-            }
+            return;
+        }
+        if (varNode.expr != null) {
+            this.acceptNode(varNode.expr);
         }
     }
 
     @Override
     public void visit(BLangSimpleVarRef varRefExpr) {
-        if (CommonUtil.isClientObject(varRefExpr.symbol)) {
-            SemanticHighlightProvider.HighlightInfo highlightInfo =
-                    new SemanticHighlightProvider.HighlightInfo(ScopeEnum.ENDPOINT, varRefExpr.variableName);
-            highlights.add(highlightInfo);
+        if (!CommonUtil.isClientObject(varRefExpr.symbol)) {
+            return;
         }
+        SemanticHighlightProvider.HighlightInfo highlightInfo =
+                    new SemanticHighlightProvider.HighlightInfo(ScopeEnum.ENDPOINT, varRefExpr.variableName);
+        highlights.add(highlightInfo);
+
     }
 
     @Override
     public void visit(BLangInvocation invocationExpr) {
-        if (invocationExpr.expr != null) {
-            this.acceptNode(invocationExpr.expr);
-        }
+        this.acceptNode(invocationExpr.expr);
     }
 
     @Override
@@ -180,6 +175,8 @@ public class SemanticHighlightingVisitor extends LSNodeVisitor {
 
 
     private void acceptNode(BLangNode node) {
-        node.accept(this);
+        if (node != null) {
+            node.accept(this);
+        }
     }
 }

@@ -15,15 +15,15 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerinalang.langserver.extensions.ballerina.syntaxhighlighter;
+package org.ballerinalang.langserver.extensions.ballerina.semantichighlighter;
 /**
  * Represents the data model for Semantic Highlighting Information.
  *
  * @since 1.1.0
  */
-public class SemanticHighlightingInformation {
-    private int line;
-    private String token;
+class SemanticHighlightingInformation {
+    private final int line;
+    private final String token;
 
     public SemanticHighlightingInformation(int line, String token) {
         this.line = line;

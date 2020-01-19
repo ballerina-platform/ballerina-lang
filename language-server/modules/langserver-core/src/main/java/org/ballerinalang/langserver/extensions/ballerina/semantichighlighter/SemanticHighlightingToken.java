@@ -15,16 +15,16 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerinalang.langserver.extensions.ballerina.syntaxhighlighter;
+package org.ballerinalang.langserver.extensions.ballerina.semantichighlighter;
 /**
  * Represents the data model for a Semantic Highlighting Token.
  *
  * @since 1.1.0
  */
-public class SemanticHighlightingToken {
-    public int character;
-    public int length;
-    public int scope;
+class SemanticHighlightingToken {
+    private final int character;
+    private final  int length;
+    private final int scope;
 
     public SemanticHighlightingToken(int character, int length, int scope) {
         this.character = character;
@@ -36,24 +36,11 @@ public class SemanticHighlightingToken {
         return character;
     }
 
-    public void setCharacter(int character) {
-        this.character = character;
-    }
-
     public int getLength() {
         return length;
-    }
-
-    public void setLength(int length) {
-        this.length = length;
     }
 
     public int getScope() {
         return scope;
     }
-
-    public void setScope(int scope) {
-        this.scope = scope;
-    }
-
 }
