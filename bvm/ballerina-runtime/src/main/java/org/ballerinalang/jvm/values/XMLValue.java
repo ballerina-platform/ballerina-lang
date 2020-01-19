@@ -75,6 +75,11 @@ public abstract class XMLValue implements RefValue, BXML, CollectionValue {
         setAttribute(attributeName.getLocalName(), attributeName.getUri(), attributeName.getPrefix(), value);
     }
 
+    @Override
+    public MapValue<String, ?> getAttributesMap() {
+        return new MapValueImpl<>();
+    }
+
     /**
      * {@inheritDoc}
      */

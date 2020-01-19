@@ -967,7 +967,7 @@ public class BRunUtil {
                         ArrayValue arrayValue = new ArrayValueImpl(((XMLSequence) value).getChildrenList().toArray(),
                                 bArrayType);
 
-                        bvmValue = getBVMValue(arrayValue);
+                        bvmValue = new BXMLSequence((BValueArray) getBVMValue(arrayValue));
                         break;
                     }
                 }
