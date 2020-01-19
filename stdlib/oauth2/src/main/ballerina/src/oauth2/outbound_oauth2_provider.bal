@@ -40,7 +40,7 @@ public type OutboundOAuth2Provider object {
         self.oauth2CacheEntry = {
             accessToken: "",
             refreshToken: "",
-            expiryTime: 0
+            expTime: 0
         };
     }
 
@@ -191,11 +191,11 @@ public type DirectTokenRefreshConfig record {|
 #
 # + accessToken - Access token for the  authorization endpoint
 # + refreshToken - Refresh token for the refresh token server
-# + expiryTime - Expiry time of the access token in milliseconds
+# + expTime - Expiry time (milliseconds since the Epoch) of the access token
 public type OutboundOAuth2CacheEntry record {
     string accessToken;
     string refreshToken;
-    int expiryTime;
+    int expTime;
 };
 
 # The `RequestConfig` record prepares the HTTP request, which is to be sent to the authorization endpoint.
@@ -391,15 +391,15 @@ function getAuthTokenForOAuth2DirectTokenMode(DirectTokenConfig grantTypeConfig,
 # + oauth2CacheEntry - OAuth2 cache entry
 # + return - Whether the access token is valid or not
 function isOAuth2CacheEntryValid(OutboundOAuth2CacheEntry oauth2CacheEntry) returns boolean {
-    int expiryTime = oauth2CacheEntry.expiryTime;
-    if (expiryTime == 0) {
+    int expTime = oauth2CacheEntry.expTime;
+    if (expTime == 0) {
         log:printDebug(function () returns string {
             return "Expiry time is 0, which means cached access token is always valid.";
         });
         return true;
     }
     int currentSystemTime = time:currentTime().time;
-    if (currentSystemTime < expiryTime) {
+    if (currentSystemTime < expTime) {
         log:printDebug(function () returns string {
             return "Current time < expiry time, which means cached access token is valid.";
         });
@@ -636,7 +636,7 @@ function updateOAuth2CacheEntry(json responsePayload, OutboundOAuth2CacheEntry o
     oauth2CacheEntry.accessToken = accessToken;
     var expiresIn = responsePayload.expires_in;
     if (expiresIn is int) {
-        oauth2CacheEntry.expiryTime = issueTime + (expiresIn - clockSkewInSeconds) * 1000;
+        oauth2CacheEntry.expTime = issueTime + (expiresIn - clockSkewInSeconds) * 1000;
     }
     if (responsePayload.refresh_token is string) {
         string refreshToken = responsePayload.refresh_token.toString();
