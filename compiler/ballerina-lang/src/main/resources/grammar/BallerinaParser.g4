@@ -639,6 +639,8 @@ variableReference
     |   variableReference field                                                 # fieldVariableReference
     |   variableReference ANNOTATION_ACCESS nameReference                       # annotAccessExpression
     |   variableReference xmlAttrib                                             # xmlAttribVariableReference
+    |   variableReference xmlElementAccess                                      # xmlElementAccessReference
+    |   variableReference xmlNavigationAccess                                   # xmlNavigationAccessReference
     |   functionInvocation                                                      # functionInvocationReference
     |   LEFT_PARENTHESIS variableReference RIGHT_PARENTHESIS field              # groupFieldVariableReference
     |   LEFT_PARENTHESIS variableReference RIGHT_PARENTHESIS invocation         # groupInvocationReference
@@ -652,6 +654,18 @@ variableReference
 
 field
     :   (DOT | OPTIONAL_FIELD_ACCESS) (Identifier | MUL)
+    ;
+
+xmlElementAccess
+    :   DOT LT xmlElementAccessFilter (PIPE xmlElementAccessFilter)*  GT
+    ;
+
+xmlElementAccessFilter
+    : (Identifier COLON)? (Identifier | MUL)
+    ;
+
+xmlNavigationAccess
+    : DIV LT xmlElementAccessFilter (PIPE xmlElementAccessFilter)*  GT
     ;
 
 index

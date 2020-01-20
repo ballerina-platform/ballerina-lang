@@ -1466,6 +1466,18 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitTypeDescExprInvocationReference(BallerinaParser.TypeDescExprInvocationReferenceContext ctx);
 	/**
+	 * Enter a parse tree produced by the {@code xmlNavigationAccessReference}
+	 * labeled alternative in {@link BallerinaParser#variableReference}.
+	 * @param ctx the parse tree
+	 */
+	void enterXmlNavigationAccessReference(BallerinaParser.XmlNavigationAccessReferenceContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code xmlNavigationAccessReference}
+	 * labeled alternative in {@link BallerinaParser#variableReference}.
+	 * @param ctx the parse tree
+	 */
+	void exitXmlNavigationAccessReference(BallerinaParser.XmlNavigationAccessReferenceContext ctx);
+	/**
 	 * Enter a parse tree produced by the {@code simpleVariableReference}
 	 * labeled alternative in {@link BallerinaParser#variableReference}.
 	 * @param ctx the parse tree
@@ -1477,6 +1489,18 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitSimpleVariableReference(BallerinaParser.SimpleVariableReferenceContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code xmlElementAccessReference}
+	 * labeled alternative in {@link BallerinaParser#variableReference}.
+	 * @param ctx the parse tree
+	 */
+	void enterXmlElementAccessReference(BallerinaParser.XmlElementAccessReferenceContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code xmlElementAccessReference}
+	 * labeled alternative in {@link BallerinaParser#variableReference}.
+	 * @param ctx the parse tree
+	 */
+	void exitXmlElementAccessReference(BallerinaParser.XmlElementAccessReferenceContext ctx);
 	/**
 	 * Enter a parse tree produced by the {@code invocationReference}
 	 * labeled alternative in {@link BallerinaParser#variableReference}.
@@ -1571,6 +1595,36 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitField(BallerinaParser.FieldContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#xmlElementAccess}.
+	 * @param ctx the parse tree
+	 */
+	void enterXmlElementAccess(BallerinaParser.XmlElementAccessContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#xmlElementAccess}.
+	 * @param ctx the parse tree
+	 */
+	void exitXmlElementAccess(BallerinaParser.XmlElementAccessContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#xmlElementAccessFilter}.
+	 * @param ctx the parse tree
+	 */
+	void enterXmlElementAccessFilter(BallerinaParser.XmlElementAccessFilterContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#xmlElementAccessFilter}.
+	 * @param ctx the parse tree
+	 */
+	void exitXmlElementAccessFilter(BallerinaParser.XmlElementAccessFilterContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#xmlNavigationAccess}.
+	 * @param ctx the parse tree
+	 */
+	void enterXmlNavigationAccess(BallerinaParser.XmlNavigationAccessContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#xmlNavigationAccess}.
+	 * @param ctx the parse tree
+	 */
+	void exitXmlNavigationAccess(BallerinaParser.XmlNavigationAccessContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#index}.
 	 * @param ctx the parse tree
