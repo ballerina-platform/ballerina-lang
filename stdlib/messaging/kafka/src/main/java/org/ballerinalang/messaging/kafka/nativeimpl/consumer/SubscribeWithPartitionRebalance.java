@@ -85,8 +85,8 @@ public class SubscribeWithPartitionRebalance {
         } catch (IllegalArgumentException | IllegalStateException | KafkaException e) {
             KafkaMetricsUtil.reportConsumerError(consumerObject,
                                                  KafkaObservabilityConstants.ERROR_TYPE_SUBSCRIBE_PARTITION_REBALANCE);
-            callback.setReturnValues(
-                    createKafkaError("Failed to subscribe the consumer: " + e.getMessage(), CONSUMER_ERROR));
+            callback.notifyFailure(createKafkaError("Failed to subscribe the consumer: " + e.getMessage(),
+                                                    CONSUMER_ERROR));
         }
         callback.notifySuccess();
         return null;
