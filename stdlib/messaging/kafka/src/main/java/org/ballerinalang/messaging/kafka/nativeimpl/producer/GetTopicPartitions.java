@@ -28,6 +28,9 @@ import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.messaging.kafka.observability.KafkaMetricsUtil;
+import org.ballerinalang.messaging.kafka.observability.KafkaObservabilityConstants;
+import org.ballerinalang.messaging.kafka.observability.KafkaTracingUtil;
 
 import java.util.List;
 
@@ -45,6 +48,7 @@ public class GetTopicPartitions {
 
     public static Object getTopicPartitions(ObjectValue producerObject, String topic) {
         Strand strand = Scheduler.getStrand();
+        KafkaTracingUtil.traceResourceInvocation(strand, producerObject, topic);
         KafkaProducer<byte[], byte[]> kafkaProducer = (KafkaProducer) producerObject.getNativeData(NATIVE_PRODUCER);
         try {
             if (strand.isInTransaction()) {
@@ -68,6 +72,8 @@ public class GetTopicPartitions {
 
             return topicPartitionArray;
         } catch (KafkaException e) {
+            KafkaMetricsUtil.reportProducerError(producerObject,
+                                                 KafkaObservabilityConstants.ERROR_TYPE_TOPIC_PARTITIONS);
             return createKafkaError("Failed to fetch partitions from the producer " + e.getMessage(), PRODUCER_ERROR);
         }
     }
