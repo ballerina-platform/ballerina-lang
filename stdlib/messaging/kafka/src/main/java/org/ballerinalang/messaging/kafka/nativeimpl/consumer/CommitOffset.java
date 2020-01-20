@@ -22,8 +22,12 @@ import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.clients.consumer.OffsetAndMetadata;
 import org.apache.kafka.common.KafkaException;
 import org.apache.kafka.common.TopicPartition;
+import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.messaging.kafka.observability.KafkaMetricsUtil;
+import org.ballerinalang.messaging.kafka.observability.KafkaObservabilityConstants;
+import org.ballerinalang.messaging.kafka.observability.KafkaTracingUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,9 +50,10 @@ import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.getPartitionToM
  */
 public class CommitOffset {
 
-    private static final Logger logger = LoggerFactory.getLogger(Close.class);
+    private static final Logger logger = LoggerFactory.getLogger(CommitOffset.class);
 
     public static Object commitOffset(ObjectValue consumerObject, ArrayValue offsets, long duration) {
+        KafkaTracingUtil.traceResourceInvocation(Scheduler.getStrand(), consumerObject);
         KafkaConsumer<byte[], byte[]> kafkaConsumer = (KafkaConsumer) consumerObject.getNativeData(NATIVE_CONSUMER);
 
         Properties consumerProperties = (Properties) consumerObject.getNativeData(NATIVE_CONSUMER_CONFIG);
@@ -64,6 +69,7 @@ public class CommitOffset {
                 kafkaConsumer.commitSync(partitionToMetadataMap);
             }
         } catch (KafkaException e) {
+            KafkaMetricsUtil.reportConsumerError(consumerObject, KafkaObservabilityConstants.ERROR_TYPE_COMMIT);
             return createKafkaError("Failed to commit the offset: " + e.getMessage(), CONSUMER_ERROR);
         }
         return null;

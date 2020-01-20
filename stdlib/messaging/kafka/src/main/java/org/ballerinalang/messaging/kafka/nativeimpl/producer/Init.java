@@ -23,6 +23,8 @@ import org.apache.kafka.common.KafkaException;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.messaging.kafka.impl.KafkaTransactionContext;
+import org.ballerinalang.messaging.kafka.observability.KafkaMetricsUtil;
+import org.ballerinalang.messaging.kafka.observability.KafkaObservabilityConstants;
 
 import java.util.Objects;
 import java.util.Properties;
@@ -41,12 +43,11 @@ public class Init {
 
     public static Object init(ObjectValue producerObject, MapValue<String, Object> configs) {
         Properties producerProperties = processKafkaProducerConfig(configs);
-
         try {
             if (Objects.nonNull(producerProperties.get(ProducerConfig.TRANSACTIONAL_ID_CONFIG))) {
                 if (!((boolean) producerProperties.get(ProducerConfig.ENABLE_IDEMPOTENCE_CONFIG))) {
                     throw new IllegalStateException("configuration enableIdempotence must be set to true to enable " +
-                            "transactional producer");
+                                                            "transactional producer");
                 }
                 createKafkaProducer(producerProperties, producerObject);
                 KafkaTransactionContext transactionContext = createKafkaTransactionContext(producerObject);
@@ -55,6 +56,8 @@ public class Init {
                 createKafkaProducer(producerProperties, producerObject);
             }
         } catch (IllegalStateException | KafkaException e) {
+            KafkaMetricsUtil.reportProducerError(producerObject,
+                                                 KafkaObservabilityConstants.ERROR_TYPE_CONNECTION);
             return createKafkaError("Failed to initialize the producer: " + e.getMessage(), PRODUCER_ERROR);
         }
         return null;

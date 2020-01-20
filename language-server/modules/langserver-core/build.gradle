@@ -31,9 +31,7 @@ configurations {
     dependency {
         transitive false
     }
-    index
     libs
-    langserverResources
 }
 
 dependencies {
@@ -144,11 +142,6 @@ CopySpec copyJarSpec = copySpec {
     into("lib")
 }
 
-CopySpec copyResourceSpec = copySpec {
-    from file("$buildDir/ballerina-home/main/lib/tools/lang-server/resources/lang-server-index.sql")
-    into("resources")
-}
-
 // Fix for windows class path too long issue
 task pathingJar(type: Jar) {
     appendix = "pathing"
@@ -165,30 +158,14 @@ task clearPathingJar(type: Delete) {
     delete pathingJar.archiveFile
 }
 
-task generateIndex(type: JavaExec) {
-    dependsOn pathingJar
-    dependsOn createBalHome
-    outputs.dir("$buildDir/ballerina-home/main/lib/tools/lang-server/resources")
-    outputs.cacheIf { true }
-    systemProperty("ballerina.home", "$buildDir/ballerina-home/main/")
-    classpath = files(pathingJar.archivePath) + sourceSets.main.output
-    main = 'org.ballerinalang.langserver.index.tools.IndexGenerator'
-    finalizedBy 'clearPathingJar'
-    // Uncomment the following to run the index generator in the debug mode while build
-    // debug = true
-}
-
 task createZip(type: Zip) {
     dependsOn createBalHome
-    dependsOn generateIndex
     with copyJarSpec
-    with copyResourceSpec
 }
 
 artifacts {
     dist file: file(createZip.archiveFile), builtBy: createZip
     libs configurations.dependency.files
-    langserverResources file: file("$buildDir/ballerina-home/main/lib/tools/lang-server/resources/lang-server-index.sql"), builtBy: generateIndex
 }
 
 createJavadoc {
@@ -197,7 +174,6 @@ createJavadoc {
 }
 
 test {
-    dependsOn generateIndex
     systemProperty "ballerina.home", "$buildDir/ballerina-home/main/"
     systemProperty "experimental", "true"
     useTestNG() {

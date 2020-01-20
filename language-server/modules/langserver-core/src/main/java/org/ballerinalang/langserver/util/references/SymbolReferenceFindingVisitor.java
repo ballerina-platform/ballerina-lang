@@ -25,6 +25,7 @@ import org.ballerinalang.model.tree.TopLevelNode;
 import org.eclipse.lsp4j.TextDocumentPositionParams;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
@@ -69,6 +70,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypedescExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWaitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWaitForAllExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerFlushExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerSyncSendExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttributeAccess;
@@ -111,6 +113,7 @@ import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -131,8 +134,7 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
     private List<TopLevelNode> topLevelNodes = new ArrayList<>();
     private List<BLangFunction> workerLambdas = new ArrayList<>();
     private List<BLangTypeDefinition> anonTypeDefinitions = new ArrayList<>();
-    private HashMap<DiagnosticPos, BSymbol> workerVarDefPositionMap = new HashMap<>();
-    private HashMap<String, BSymbol> workerNamesMap = new HashMap<>();
+    private HashMap<BSymbol, DiagnosticPos> workerVarDefMap = new HashMap<>();
 
     SymbolReferenceFindingVisitor(LSContext lsContext, String pkgName, boolean currentCUnitMode) {
         this.lsContext = lsContext;
@@ -236,8 +238,7 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
         this.acceptNode(funcNode.body);
         if (!isWorker) {
             // Clear the worker varDefs in the current function scope
-            this.workerVarDefPositionMap.clear();
-            this.workerNamesMap.clear();
+            this.workerVarDefMap.clear();
         }
     }
 
@@ -728,7 +729,7 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
         this.acceptNode(workerSendNode.expr);
         if (workerSendNode.workerIdentifier.value.equals(this.tokenName)) {
             DiagnosticPos pos = workerSendNode.getWorkerName().getPosition();
-            this.addSymbol(workerSendNode, workerNamesMap.get(this.tokenName), false, pos);
+            this.addSymbol(workerSendNode, this.getWorkerSymbolForName(this.tokenName), false, pos);
         }
     }
 
@@ -737,7 +738,7 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
         this.acceptNode(syncSendExpr.expr);
         if (syncSendExpr.workerIdentifier.value.equals(this.tokenName)) {
             DiagnosticPos pos = (DiagnosticPos) syncSendExpr.getWorkerName().getPosition();
-            this.addSymbol(syncSendExpr, workerNamesMap.get(this.tokenName), false, pos);
+            this.addSymbol(syncSendExpr, this.getWorkerSymbolForName(this.tokenName), false, pos);
         }
     }
 
@@ -745,7 +746,15 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
     public void visit(BLangWorkerReceive workerReceiveNode) {
         if (workerReceiveNode.workerIdentifier.value.equals(this.tokenName)) {
             DiagnosticPos pos = workerReceiveNode.getWorkerName().getPosition();
-            this.addSymbol(workerReceiveNode, workerNamesMap.get(this.tokenName), false, pos);
+            this.addSymbol(workerReceiveNode, this.getWorkerSymbolForName(this.tokenName), false, pos);
+        }
+    }
+
+    @Override
+    public void visit(BLangWorkerFlushExpr workerFlushExpr) {
+        if (workerFlushExpr.workerIdentifier.value.equals(this.tokenName)) {
+            DiagnosticPos pos = workerFlushExpr.workerIdentifier.getPosition();
+            this.addSymbol(workerFlushExpr, this.getWorkerSymbolForName(this.tokenName), false, pos);
         }
     }
 
@@ -862,15 +871,18 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
     
     private void addBLangFunctionSymbol(BLangFunction funcNode) {
         boolean isDefinition = !funcNode.flagSet.contains(Flag.INTERFACE);
-        DiagnosticPos pos = funcNode.getName().getPosition();
+        DiagnosticPos pos = funcNode.flagSet.contains(Flag.WORKER) ? funcNode.defaultWorkerName.pos
+                : funcNode.getName().getPosition();
 
         BSymbol symbol = funcNode.flagSet.contains(Flag.WORKER)
-                ? this.workerVarDefPositionMap.get(funcNode.pos) : funcNode.symbol;
+                ? this.getWorkerSymbolForPosition(funcNode.defaultWorkerName.pos) : funcNode.symbol;
         this.addSymbol(funcNode, symbol, isDefinition, pos);
     }
     
     private Optional<BLangFunction> getWorkerFunctionFromPosition(DiagnosticPos position) {
-        return this.workerLambdas.stream().filter(function -> function.getPosition() == position).findAny();
+        return this.workerLambdas.stream()
+                .filter(function -> function.defaultWorkerName.getPosition() == position)
+                .findAny();
     }
     
     private Optional<BLangTypeDefinition> getAnonTypeFromPosition(DiagnosticPos position) {
@@ -879,12 +891,26 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
     
     private void fillVisibleWorkerVarDefMaps(List<BLangStatement> statements) {
         statements.forEach(bLangStatement -> {
-            if (bLangStatement instanceof BLangSimpleVariableDef && bLangStatement.getWS() == null) {
+            if (bLangStatement instanceof BLangSimpleVariableDef
+                    && ((BLangSimpleVariableDef) bLangStatement).var.type instanceof BFutureType) {
                 BLangSimpleVariable variable = ((BLangSimpleVariableDef) bLangStatement).var;
-                this.workerVarDefPositionMap.put(bLangStatement.pos, variable.symbol);
-                this.workerNamesMap.put(variable.name.value, variable.symbol);
+                this.workerVarDefMap.put(variable.symbol, bLangStatement.pos);
             }
         });
+    }
+
+    private BSymbol getWorkerSymbolForPosition(DiagnosticPos pos) {
+        return this.workerVarDefMap.entrySet().stream()
+                .filter(entry -> entry.getValue() == pos)
+                .findAny()
+                .map(Map.Entry::getKey)
+                .orElse(null);
+    }
+
+    private BSymbol getWorkerSymbolForName(String name) {
+        return this.workerVarDefMap.keySet().stream()
+                .filter(symbol -> symbol.name.getValue().equals(name))
+                .findAny().orElse(null);
     }
     
     private void addObjectReferenceType(BLangType bLangType) {

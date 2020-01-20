@@ -20,11 +20,16 @@ package org.ballerinalang.messaging.kafka.nativeimpl.consumer;
 
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.KafkaException;
+import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.messaging.kafka.observability.KafkaMetricsUtil;
+import org.ballerinalang.messaging.kafka.observability.KafkaObservabilityConstants;
+import org.ballerinalang.messaging.kafka.observability.KafkaTracingUtil;
 
 import java.io.PrintStream;
 import java.util.ArrayList;
+import java.util.Set;
 
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.CONSUMER_ERROR;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.NATIVE_CONSUMER;
@@ -40,11 +45,15 @@ public class Subscribe {
     private static final PrintStream console = System.out;
 
     public static Object subscribe(ObjectValue consumerObject, ArrayValue topics) {
+        KafkaTracingUtil.traceResourceInvocation(Scheduler.getStrand(), consumerObject);
         KafkaConsumer<byte[], byte[]> kafkaConsumer = (KafkaConsumer) consumerObject.getNativeData(NATIVE_CONSUMER);
         ArrayList<String> topicsList = getStringListFromStringArrayValue(topics);
         try {
             kafkaConsumer.subscribe(topicsList);
+            Set<String> subscribedTopics = kafkaConsumer.subscription();
+            KafkaMetricsUtil.reportBulkSubscription(consumerObject, subscribedTopics);
         } catch (IllegalArgumentException | IllegalStateException | KafkaException e) {
+            KafkaMetricsUtil.reportConsumerError(consumerObject, KafkaObservabilityConstants.ERROR_TYPE_SUBSCRIBE);
             return createKafkaError("Failed to subscribe to the provided topics: " + e.getMessage(), CONSUMER_ERROR);
         }
         console.println(SUBSCRIBED_TOPICS + getTopicNamesString(topicsList));

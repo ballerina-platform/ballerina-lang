@@ -21,12 +21,16 @@ package org.ballerinalang.messaging.kafka.nativeimpl.consumer;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.KafkaException;
 import org.apache.kafka.common.TopicPartition;
+import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.messaging.kafka.observability.KafkaMetricsUtil;
+import org.ballerinalang.messaging.kafka.observability.KafkaObservabilityConstants;
+import org.ballerinalang.messaging.kafka.observability.KafkaTracingUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
+import java.util.List;
 
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.CONSUMER_ERROR;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.NATIVE_CONSUMER;
@@ -41,11 +45,13 @@ public class Assign {
     private static final Logger logger = LoggerFactory.getLogger(Assign.class);
 
     public static Object assign(ObjectValue consumerObject, ArrayValue topicPartitions) {
+        KafkaTracingUtil.traceResourceInvocation(Scheduler.getStrand(), consumerObject);
         KafkaConsumer<byte[], byte[]> kafkaConsumer = (KafkaConsumer) consumerObject.getNativeData(NATIVE_CONSUMER);
-        ArrayList<TopicPartition> partitions = getTopicPartitionList(topicPartitions, logger);
+        List<TopicPartition> partitions = getTopicPartitionList(topicPartitions, logger);
         try {
             kafkaConsumer.assign(partitions);
         } catch (IllegalArgumentException | IllegalStateException | KafkaException e) {
+            KafkaMetricsUtil.reportConsumerError(consumerObject, KafkaObservabilityConstants.ERROR_TYPE_ASSIGN);
             return createKafkaError("Failed to assign topics for the consumer: " + e.getMessage(), CONSUMER_ERROR);
         }
         return null;

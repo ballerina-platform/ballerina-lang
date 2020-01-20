@@ -20,7 +20,11 @@ package org.ballerinalang.messaging.kafka.nativeimpl.consumer;
 
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.KafkaException;
+import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.messaging.kafka.observability.KafkaMetricsUtil;
+import org.ballerinalang.messaging.kafka.observability.KafkaObservabilityConstants;
+import org.ballerinalang.messaging.kafka.observability.KafkaTracingUtil;
 
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.CONSUMER_ERROR;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.NATIVE_CONSUMER;
@@ -32,10 +36,12 @@ import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.createKafkaErro
 public class Commit {
 
     public static Object commit(ObjectValue consumerObject) {
+        KafkaTracingUtil.traceResourceInvocation(Scheduler.getStrand(), consumerObject);
         KafkaConsumer<byte[], byte[]> kafkaConsumer = (KafkaConsumer) consumerObject.getNativeData(NATIVE_CONSUMER);
         try {
             kafkaConsumer.commitSync();
         } catch (KafkaException e) {
+            KafkaMetricsUtil.reportConsumerError(consumerObject, KafkaObservabilityConstants.ERROR_TYPE_COMMIT);
             return createKafkaError("Failed to commit offsets: " + e.getMessage(), CONSUMER_ERROR);
         }
         return null;
