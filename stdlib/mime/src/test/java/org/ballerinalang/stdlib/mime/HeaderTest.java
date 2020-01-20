@@ -40,7 +40,7 @@ public class HeaderTest {
     @BeforeClass
     public void setup() {
         String sourceFilePath = "test-src/header-test.bal";
-        compileResult = BCompileUtil.compile(sourceFilePath);
+        compileResult = BCompileUtil.compileOffline(sourceFilePath);
     }
 
     @Test(description = "Test whether the correct http header value is returned when the header exist as requested")

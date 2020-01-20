@@ -1,4 +1,4 @@
-// Copyright (c) 2018 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+// Copyright (c) 2019 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 //
 // WSO2 Inc. licenses this file to you under the Apache License,
 // Version 2.0 (the "License"); you may not use this file except
@@ -16,35 +16,34 @@
 
 package org.ballerinalang.nativeimpl.llvm.gen;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.types.BPackage;
+import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.nativeimpl.llvm.FFIUtil;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.bytedeco.javacpp.LLVM.LLVMContextRef;
+import org.bytedeco.llvm.LLVM.LLVMContextRef;
 
 import static org.ballerinalang.model.types.TypeKind.RECORD;
-import static org.bytedeco.javacpp.LLVM.LLVMGetGlobalContext;
+import static org.bytedeco.llvm.global.LLVM.LLVMGetGlobalContext;
 
 /**
  * Auto generated class.
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "llvm",
-        functionName = "LLVMGetGlobalContext",
+        functionName = "llvmGetGlobalContext",
         returnType = {
                 @ReturnType(type = RECORD, structType = "LLVMContextRef", structPackage = "ballerina/llvm"),
         }
 )
-public class LLVMGetGlobalContext extends BlockingNativeCallableUnit {
+public class LLVMGetGlobalContext {
 
-    @Override
-    public void execute(Context context) {
+    public static MapValue<String, Object> llvmGetGlobalContext(Strand strand) {
         LLVMContextRef returnValue = LLVMGetGlobalContext();
-        BMap<String, BValue> rerunWrapperRecode = FFIUtil.newRecord(context, "LLVMContextRef");
-        FFIUtil.addNativeToRecode(returnValue, rerunWrapperRecode);
-        context.setReturnValues(rerunWrapperRecode);
+        MapValue<String, Object> returnWrappedRecord = FFIUtil.newRecord(new BPackage("ballerina",
+                "llvm"), "LLVMContextRef");
+        FFIUtil.addNativeToRecode(returnValue, returnWrappedRecord);
+        return returnWrappedRecord;
     }
 }

@@ -874,7 +874,7 @@ type InstructionGenerator object {
             self.mv.visitMethodInsn(INVOKEINTERFACE, ARRAY_VALUE, "getFloat", "(J)D", true);
         } else {
             self.mv.visitMethodInsn(INVOKEINTERFACE, ARRAY_VALUE, "getRefValue", io:sprintf("(J)L%s;", OBJECT), true);
-            string? targetTypeClass = getTargetClass(varRefType, bType);
+            string? targetTypeClass = getTargetClass(bType);
             if (targetTypeClass is string) {
                 self.mv.visitTypeInsn(CHECKCAST, targetTypeClass);
             } else {
@@ -960,7 +960,8 @@ type InstructionGenerator object {
         self.mv.visitTypeInsn(NEW, FUNCTION_POINTER);
         self.mv.visitInsn(DUP);
 
-        string lambdaName = inst.name.value + "$lambda$";
+        string lambdaName = inst.name.value + "$lambda" + lambdaIndex.toString() + "$";
+        lambdaIndex += 1;
         string pkgName = getPackageName(inst.pkgID.org, inst.pkgID.name);
         string lookupKey = pkgName + inst.name.value;
         string methodClass = lookupFullQualifiedClassName(lookupKey);
@@ -1072,7 +1073,7 @@ type InstructionGenerator object {
 
         // invoke getAttribute() method
         self.mv.visitMethodInsn(INVOKEVIRTUAL, XML_VALUE, "getAttribute",
-                io:sprintf("(L%s;)L%s;", XML_QNAME, STRING_VALUE), false);
+                io:sprintf("(L%s;)L%s;", BXML_QNAME, STRING_VALUE), false);
 
         // store in the target reg
         bir:BType targetType = xmlAttrStoreIns.lhsOp.variableDcl.typeValue;
@@ -1092,7 +1093,7 @@ type InstructionGenerator object {
 
         // invoke setAttribute() method
         self.mv.visitMethodInsn(INVOKEVIRTUAL, XML_VALUE, "setAttribute",
-                io:sprintf("(L%s;L%s;)V", XML_QNAME, STRING_VALUE), false);
+                io:sprintf("(L%s;L%s;)V", BXML_QNAME, STRING_VALUE), false);
     }
 
     function generateXMLLoadIns(bir:FieldAccess xmlLoadIns) {

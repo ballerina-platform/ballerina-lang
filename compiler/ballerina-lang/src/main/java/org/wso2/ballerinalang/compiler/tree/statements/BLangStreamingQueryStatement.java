@@ -27,6 +27,7 @@ import org.ballerinalang.model.tree.clauses.SelectClauseNode;
 import org.ballerinalang.model.tree.clauses.StreamActionNode;
 import org.ballerinalang.model.tree.clauses.StreamingInput;
 import org.ballerinalang.model.tree.statements.StreamingQueryStatementNode;
+import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
 /**
@@ -34,13 +35,14 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
  */
 public class BLangStreamingQueryStatement extends BLangStatement implements StreamingQueryStatementNode {
 
-    private StreamingInput streamingInput;
-    private JoinStreamingInput joinStreamingInput;
-    private PatternClause patternClause;
-    private SelectClauseNode selectClauseNode;
-    private OrderByNode orderByNode;
-    private StreamActionNode streamActionNode;
-    private OutputRateLimitNode outputRateLimitNode;
+    public StreamingInput streamingInput;
+    public JoinStreamingInput joinStreamingInput;
+    public PatternClause patternClause;
+    public SelectClauseNode selectClauseNode;
+    public OrderByNode orderByNode;
+    public StreamActionNode streamActionNode;
+    public OutputRateLimitNode outputRateLimitNode;
+    public SymbolEnv cachedEnv;
 
     @Override
     public void accept(BLangNodeVisitor visitor) {

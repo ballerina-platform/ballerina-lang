@@ -32,7 +32,6 @@ dependencies {
     implementation project(':ballerina-crypto')
     implementation project(':ballerina-encoding')
     implementation project(':ballerina-io')
-    implementation project(':ballerina-utils')
     implementation project(':ballerina-stringutils')
 
     baloImplementation project(path: ':ballerina-lang:annotations', configuration: 'baloImplementation')
@@ -44,9 +43,10 @@ dependencies {
     baloImplementation project(path: ':ballerina-crypto', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-encoding', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-io', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-utils', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-stringutils', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-java', configuration: 'baloImplementation')
+
+    interopImports project(':ballerina-io')
 
     testCompile 'org.slf4j:slf4j-simple'
     testCompile 'org.testng:testng'
@@ -59,7 +59,6 @@ dependencies {
     testCompile project(':ballerina-runtime-api')
     testCompile project(':ballerina-task')
     testCompile project(':ballerina-time')
-    testCompile project(':ballerina-utils')
     testCompile project(':ballerina-reflect')
     testCompile project(':ballerina-crypto')
     testCompile project(':ballerina-cache')
@@ -70,6 +69,16 @@ dependencies {
     baloImplementation project(path: ':ballerina-config-api', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-system', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-task', configuration: 'baloImplementation')
+
+    interopImports project(':ballerina-config-api')
+    interopImports project(':ballerina-encoding')
+    interopImports project(':ballerina-io')
+    interopImports project(':ballerina-log-api')
+    interopImports project(':ballerina-system')
+    interopImports project(':ballerina-task')
+    interopImports project(':ballerina-time')
+    interopImports project(':ballerina-crypto')
+    interopImports project(':ballerina-runtime-api')
 }
 
 configurations.all {

@@ -38,6 +38,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
@@ -1271,6 +1272,18 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                     checkForExportableType(streamType.constraint.tsymbol, pos);
                 }
                 return;
+            case TypeTags.INVOKABLE:
+                BInvokableType invokableType = (BInvokableType) symbol.type;
+                if (invokableType.paramTypes != null) {
+                    for (BType paramType : invokableType.paramTypes) {
+                        checkForExportableType(paramType.tsymbol, pos);
+                    }
+                }
+                if (invokableType.restType != null) {
+                    checkForExportableType(invokableType.restType.tsymbol, pos);
+                }
+                checkForExportableType(invokableType.retType.tsymbol, pos);
+                return;
             // TODO : Add support for other types. such as union and objects
         }
         if (!Symbols.isPublic(symbol)) {
@@ -1786,7 +1799,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                 String fieldName = keyRef.variableName.value;
 
                 if (names.contains(fieldName)) {
-                    String assigneeType = recordLiteral.parent.type.getKind().typeName();
+                    String assigneeType = recordLiteral.expectedType.getKind().typeName();
                     this.dlog.error(key.pos, DiagnosticCode.DUPLICATE_KEY_IN_RECORD_LITERAL, assigneeType, keyRef);
                 }
 
@@ -2255,10 +2268,13 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
         BType exprType = env.enclInvokable.getReturnTypeNode().type;
 
-        if (!hasError(exprType)) {
-            dlog.error(checkedExpr.pos, DiagnosticCode.CHECKED_EXPR_NO_ERROR_RETURN_IN_ENCL_INVOKABLE);
-        } else if (!types.isAssignable(getErrorTypes(checkedExpr.expr.type), exprType)) {
-            dlog.warning(checkedExpr.pos, DiagnosticCode.CHECKED_EXPR_NO_MATCHING_ERROR_RETURN_IN_ENCL_INVOKABLE);
+        if (!types.isAssignable(getErrorTypes(checkedExpr.expr.type), exprType)) {
+            dlog.error(checkedExpr.pos, DiagnosticCode.CHECKED_EXPR_NO_MATCHING_ERROR_RETURN_IN_ENCL_INVOKABLE);
+        }
+
+        if (checkReturnValidityInTransaction()) {
+            this.dlog.error(checkedExpr.pos, DiagnosticCode.CHECK_EXPRESSION_INVALID_USAGE_WITHIN_TRANSACTION_BLOCK);
+            return;
         }
 
         returnTypes.peek().add(exprType);
@@ -2351,17 +2367,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         analyzeTypeNode(constant.typeNode, env);
         analyzeNode(constant.expr, env);
         analyzeExportableTypeRef(constant.symbol, constant.symbol.type.tsymbol, false, constant.pos);
-    }
-
-    private boolean hasError(BType type) {
-        switch (type.tag) {
-            case TypeTags.ERROR:
-                return true;
-            case TypeTags.UNION:
-                return ((BUnionType) type).getMemberTypes().stream().anyMatch(memType -> memType.tag == TypeTags.ERROR);
-            default:
-                return false;
-        }
     }
 
     /**

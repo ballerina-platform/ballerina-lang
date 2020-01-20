@@ -1,5 +1,6 @@
 import ballerina/io;
-// Imports the `ballerina/transactions` module to use the participant annotation.
+// Import the `ballerina/transactions` module to use the
+// `@transactions:Participant` annotation.
 import ballerina/transactions;
 
 
@@ -21,8 +22,8 @@ public function main() {
     }
 }
 
-// The `@transactions:Participant` annotation from the 
-// `transactions` package is used to indicate the function as a local participant.
+// The `@transactions:Participant` annotation from the
+// `transactions` module is used to indicate the function as a local participant.
 @transactions:Participant {
     oncommit: participantOnCommit
 }

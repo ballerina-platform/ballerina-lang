@@ -18,10 +18,10 @@
 
 package org.ballerinalang.observe.trace.extension.jaeger;
 
-import com.uber.jaeger.Configuration;
-import com.uber.jaeger.samplers.ConstSampler;
-import com.uber.jaeger.samplers.ProbabilisticSampler;
-import com.uber.jaeger.samplers.RateLimitingSampler;
+import io.jaegertracing.Configuration;
+import io.jaegertracing.internal.samplers.ConstSampler;
+import io.jaegertracing.internal.samplers.ProbabilisticSampler;
+import io.jaegertracing.internal.samplers.RateLimitingSampler;
 import io.opentracing.Tracer;
 import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.jvm.observability.tracer.InvalidConfigurationException;
@@ -97,13 +97,20 @@ public class OpenTracingExtension implements OpenTracer {
             throw new IllegalStateException("Tracer not initialized with configurations");
         }
 
-        return new Configuration(
-                serviceName,
-                new Configuration.SamplerConfiguration(samplerType, samplerParam),
-                new Configuration.ReporterConfiguration(
-                        Boolean.FALSE, hostname, port, reporterFlushInterval, reporterBufferSize
-                )
-        ).getTracerBuilder().withScopeManager(NoOpScopeManager.INSTANCE).build();
+        return new Configuration(serviceName)
+                .withSampler(new Configuration.SamplerConfiguration()
+                        .withType(samplerType)
+                        .withParam(samplerParam))
+                .withReporter(new Configuration.ReporterConfiguration()
+                        .withLogSpans(Boolean.FALSE)
+                        .withSender(new Configuration.SenderConfiguration()
+                                .withAgentHost(hostname)
+                                .withAgentPort(port))
+                        .withFlushInterval(reporterFlushInterval)
+                        .withMaxQueueSize(reporterBufferSize))
+                .getTracerBuilder()
+                .withScopeManager(NoOpScopeManager.INSTANCE)
+                .build();
     }
 
     @Override

@@ -19,7 +19,6 @@ package org.ballerinalang.jvm.values;
 
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.JSONGenerator;
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.util.exceptions.BLangFreezeException;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
@@ -220,12 +219,7 @@ public abstract class AbstractArrayValue implements ArrayValue {
     }
 
     @Override
-    public String stringValue() {
-        return stringValue(null);
-    }
-
-    @Override
-    public abstract String stringValue(Strand strand);
+    public abstract String stringValue();
 
     @Override
     public abstract BType getType();
@@ -343,8 +337,6 @@ public abstract class AbstractArrayValue implements ArrayValue {
             }
         }
     }
-
-    protected abstract void prepareForAdd(long index, Object value, int currentArraySize);
 
     /**
      * Same as {@code prepareForAdd}, except fillerValueCheck is not performed as we are guaranteed to add

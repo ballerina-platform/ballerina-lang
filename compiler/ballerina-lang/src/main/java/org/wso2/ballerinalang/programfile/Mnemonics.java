@@ -20,6 +20,7 @@ package org.wso2.ballerinalang.programfile;
 /**
  * @since 0.87
  */
+@Deprecated
 public class Mnemonics {
 
     private static final String[] mnemonics = new String[InstructionCodes.INSTRUCTION_CODE_COUNT];

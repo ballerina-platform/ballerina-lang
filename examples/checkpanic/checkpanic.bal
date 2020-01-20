@@ -7,16 +7,16 @@ function parse(string num) returns int|error {
 }
 
 public function main() {
-    // The `checkpanic` unary operator can be used to lift errors.
-    // In this instance, `checkpanic` is used to lift the (potential) error
-    // returned by the `parse()` function. If the actual value returned
+    // The `checkpanic` unary operator can be used to terminate execution on error.
+    // Here, `checkpanic` is used to panic if the `parse()`
+    // function evaluates to `error`. If the actual value returned
     // by the function is an `error`, the function immediately panics
     // with the error.
     // Passing a valid integer as a `string` will return an `int`.
     int y = checkpanic parse("120");
     io:println(y);
 
-    // Passing a random `string` will result in a `panic`.
+    // Passing a random `string` will result in a panic.
     int z = checkpanic parse("Invalid");
     io:println(z);
 }

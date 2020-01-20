@@ -25,6 +25,7 @@ import org.wso2.ballerinalang.programfile.attributes.AttributeInfoPool;
  *
  * @since 0.971.0
  */
+@Deprecated
 public interface TypeInfo extends AttributeInfoPool {
 }
 

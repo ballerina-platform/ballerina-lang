@@ -31,31 +31,33 @@ import java.util.Optional;
  * 
  * @since 0.995.0
  */
-abstract class AbstractTokenTraverser {
-    int lastProcessedToken = -1;
+public abstract class AbstractTokenTraverser implements TokenTraverser {
+    protected Token lastProcessedToken = null;
     protected boolean pruneTokens;
-    List<CommonToken> processedTokens = new ArrayList<>();
+    protected List<CommonToken> processedTokens = new ArrayList<>();
 
-    AbstractTokenTraverser(boolean pruneTokens) {
+    public AbstractTokenTraverser(boolean pruneTokens) {
         this.pruneTokens = pruneTokens;
     }
 
-    void processToken(Token token) {
+    protected boolean processToken(Token token) {
         this.processedTokens.add(new CommonToken(token));
         if (token.getType() == BallerinaParser.NEW_LINE || token.getType() == BallerinaParser.EOF ||
                 token.getChannel() != Token.DEFAULT_CHANNEL || token.getType() == BallerinaParser.WS) {
-            return;
+            return false;
         }
         // Otherwise only capture the processed tokens
-        this.lastProcessedToken = token.getType();
-        if (pruneTokens) {
+        this.lastProcessedToken = new CommonToken(token);
+        if (this.pruneTokens) {
             // If the pruneTokens flag is true, replace the token text with empty spaces
             ((CommonToken) token).setText(getNCharLengthEmptyLine(token.getText().length()));
             ((CommonToken) token).setType(BallerinaParser.WS);
+            return true;
         }
+        return false;
     }
 
-    private static String getNCharLengthEmptyLine(int n) {
+    protected static String getNCharLengthEmptyLine(int n) {
         return String.join("", Collections.nCopies(n, " "));
     }
 
@@ -64,7 +66,7 @@ abstract class AbstractTokenTraverser {
      * @param tokenStream   Current token stream
      * @param tokenIndex    Token index of the if token or open parenthesis
      */
-    void replaceCondition(TokenStream tokenStream, int tokenIndex) {
+    protected void replaceCondition(TokenStream tokenStream, int tokenIndex) {
         Optional<Token> nextDefaultToken = CommonUtil.getNextDefaultToken(tokenStream, tokenIndex);
         nextDefaultToken.ifPresent(token -> ((CommonToken) token)
                 .setText(String.join("_", Collections.nCopies(token.getText().length() / 2, "a"))));

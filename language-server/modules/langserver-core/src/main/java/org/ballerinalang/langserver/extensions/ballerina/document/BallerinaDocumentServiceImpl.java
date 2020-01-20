@@ -31,7 +31,6 @@ import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.ExtendedLSCompiler;
 import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.compiler.LSModuleCompiler;
-import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.compiler.common.LSCustomErrorStrategy;
 import org.ballerinalang.langserver.compiler.common.modal.BallerinaFile;
 import org.ballerinalang.langserver.compiler.common.modal.SymbolMetaInfo;
@@ -267,8 +266,10 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
         Path compilationPath = getUntitledFilePath(filePath.get().toString()).orElse(filePath.get());
         Optional<Lock> lock = documentManager.lockFile(compilationPath);
         try {
-            LSContext astContext = new LSServiceOperationContext(LSContextOperation.DOC_SERVICE_AST);
-            astContext.put(DocumentServiceKeys.FILE_URI_KEY, fileUri);
+            LSContext astContext = new DocumentOperationContext
+                    .DocumentOperationContextBuilder(LSContextOperation.DOC_SERVICE_AST)
+                    .withCommonParams(null, fileUri, documentManager)
+                    .build();
             LSModuleCompiler.getBLangPackage(astContext, this.documentManager, LSCustomErrorStrategy.class, false,
                     false);
             reply.setAst(getTreeForContent(astContext));

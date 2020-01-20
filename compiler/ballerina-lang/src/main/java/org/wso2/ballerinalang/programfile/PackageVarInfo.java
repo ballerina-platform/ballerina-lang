@@ -29,6 +29,7 @@ import java.util.Map;
  *
  * @since 0.90
  */
+@Deprecated
 public class PackageVarInfo implements AttributeInfoPool {
 
     public int nameCPIndex;

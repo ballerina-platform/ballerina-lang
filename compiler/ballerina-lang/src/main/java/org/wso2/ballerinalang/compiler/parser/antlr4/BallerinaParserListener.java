@@ -1406,6 +1406,30 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitWaitKeyValue(BallerinaParser.WaitKeyValueContext ctx);
 	/**
+	 * Enter a parse tree produced by the {@code groupMapArrayVariableReference}
+	 * labeled alternative in {@link BallerinaParser#variableReference}.
+	 * @param ctx the parse tree
+	 */
+	void enterGroupMapArrayVariableReference(BallerinaParser.GroupMapArrayVariableReferenceContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code groupMapArrayVariableReference}
+	 * labeled alternative in {@link BallerinaParser#variableReference}.
+	 * @param ctx the parse tree
+	 */
+	void exitGroupMapArrayVariableReference(BallerinaParser.GroupMapArrayVariableReferenceContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code groupInvocationReference}
+	 * labeled alternative in {@link BallerinaParser#variableReference}.
+	 * @param ctx the parse tree
+	 */
+	void enterGroupInvocationReference(BallerinaParser.GroupInvocationReferenceContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code groupInvocationReference}
+	 * labeled alternative in {@link BallerinaParser#variableReference}.
+	 * @param ctx the parse tree
+	 */
+	void exitGroupInvocationReference(BallerinaParser.GroupInvocationReferenceContext ctx);
+	/**
 	 * Enter a parse tree produced by the {@code xmlAttribVariableReference}
 	 * labeled alternative in {@link BallerinaParser#variableReference}.
 	 * @param ctx the parse tree
@@ -1417,6 +1441,30 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitXmlAttribVariableReference(BallerinaParser.XmlAttribVariableReferenceContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code groupFieldVariableReference}
+	 * labeled alternative in {@link BallerinaParser#variableReference}.
+	 * @param ctx the parse tree
+	 */
+	void enterGroupFieldVariableReference(BallerinaParser.GroupFieldVariableReferenceContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code groupFieldVariableReference}
+	 * labeled alternative in {@link BallerinaParser#variableReference}.
+	 * @param ctx the parse tree
+	 */
+	void exitGroupFieldVariableReference(BallerinaParser.GroupFieldVariableReferenceContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code typeDescExprInvocationReference}
+	 * labeled alternative in {@link BallerinaParser#variableReference}.
+	 * @param ctx the parse tree
+	 */
+	void enterTypeDescExprInvocationReference(BallerinaParser.TypeDescExprInvocationReferenceContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code typeDescExprInvocationReference}
+	 * labeled alternative in {@link BallerinaParser#variableReference}.
+	 * @param ctx the parse tree
+	 */
+	void exitTypeDescExprInvocationReference(BallerinaParser.TypeDescExprInvocationReferenceContext ctx);
 	/**
 	 * Enter a parse tree produced by the {@code simpleVariableReference}
 	 * labeled alternative in {@link BallerinaParser#variableReference}.
@@ -1454,17 +1502,17 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitFunctionInvocationReference(BallerinaParser.FunctionInvocationReferenceContext ctx);
 	/**
-	 * Enter a parse tree produced by the {@code typeDescExprInvocationReference}
+	 * Enter a parse tree produced by the {@code groupStringFunctionInvocationReference}
 	 * labeled alternative in {@link BallerinaParser#variableReference}.
 	 * @param ctx the parse tree
 	 */
-	void enterTypeDescExprInvocationReference(BallerinaParser.TypeDescExprInvocationReferenceContext ctx);
+	void enterGroupStringFunctionInvocationReference(BallerinaParser.GroupStringFunctionInvocationReferenceContext ctx);
 	/**
-	 * Exit a parse tree produced by the {@code typeDescExprInvocationReference}
+	 * Exit a parse tree produced by the {@code groupStringFunctionInvocationReference}
 	 * labeled alternative in {@link BallerinaParser#variableReference}.
 	 * @param ctx the parse tree
 	 */
-	void exitTypeDescExprInvocationReference(BallerinaParser.TypeDescExprInvocationReferenceContext ctx);
+	void exitGroupStringFunctionInvocationReference(BallerinaParser.GroupStringFunctionInvocationReferenceContext ctx);
 	/**
 	 * Enter a parse tree produced by the {@code fieldVariableReference}
 	 * labeled alternative in {@link BallerinaParser#variableReference}.
@@ -2417,6 +2465,16 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitRestParameter(BallerinaParser.RestParameterContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#restParameterTypeName}.
+	 * @param ctx the parse tree
+	 */
+	void enterRestParameterTypeName(BallerinaParser.RestParameterTypeNameContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#restParameterTypeName}.
+	 * @param ctx the parse tree
+	 */
+	void exitRestParameterTypeName(BallerinaParser.RestParameterTypeNameContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#formalParameterList}.
 	 * @param ctx the parse tree

@@ -78,6 +78,7 @@ public type Field record {|
     JType fType;
 |};
 
+
 public type InteropValidator object {
 
     public function __init(string[] jarUrls, boolean useSystemClassLoader) {
@@ -90,6 +91,7 @@ public type InteropValidator object {
 
     public function validateAndGetJField(FieldValidationRequest fieldValidationReq) returns Field | error = external;
 };
+
 
 public function getMethodKindFromAnnotTag(MethodAnnotTag annotTagRef) returns MethodKind {
     if annotTagRef is CONSTRUCTOR_ANNOT_TAG {

@@ -25,6 +25,7 @@ import org.ballerinalang.model.tree.WorkerNode;
  *
  * @since 0.94
  */
+@Deprecated
 public class BLangWorker extends BLangInvokableNode implements WorkerNode {
 
     @Override

@@ -121,6 +121,19 @@ public class WorkspaceDocumentManagerImpl implements WorkspaceDocumentManager {
      * {@inheritDoc}
      */
     @Override
+    public void resetPrunedContent(Path filePath) throws WorkspaceDocumentException {
+
+        if (isFileOpen(filePath)) {
+            documentList.get(filePath).getDocument().ifPresent(WorkspaceDocument::resetPrunedContent);
+        } else {
+            throw new WorkspaceDocumentException("File " + filePath.toString() + " is not opened in document manager.");
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public void closeFile(Path filePath) throws WorkspaceDocumentException {
         if (isFileOpen(filePath)) {
             Lock lock = documentList.get(filePath).getLock();

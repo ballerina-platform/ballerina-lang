@@ -14,6 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerinax/java;
 import ballerina/mime;
 import ballerina/io;
 
@@ -197,7 +198,15 @@ type HTTPError record {
 # + headerValue - The header value
 # + return - Returns a tuple containing the value and its parameter map
 //TODO: Make the error nillable
-public function parseHeader(string headerValue) returns [string, map<any>]|ClientError = external;
+public function parseHeader(string headerValue) returns [string, map<any>]|ClientError {
+    return externParseHeader(java:fromString(headerValue));
+}
+
+function externParseHeader(handle headerValue) returns [string, map<any>]|ClientError =
+@java:Method {
+    class: "org.ballerinalang.net.http.nativeimpl.ParseHeader",
+    name: "parseHeader"
+} external;
 
 function buildRequest(RequestMessage message) returns Request {
     Request request = new;
@@ -211,10 +220,10 @@ function buildRequest(RequestMessage message) returns Request {
         request.setTextPayload(message);
     } else if (message is xml) {
         request.setXmlPayload(message);
-    } else if (message is json) {
-        request.setJsonPayload(message);
     } else if (message is byte[]) {
         request.setBinaryPayload(message);
+    } else if (message is json) {
+        request.setJsonPayload(message);
     } else if (message is io:ReadableByteChannel) {
         request.setByteChannel(message);
     } else {
@@ -233,10 +242,10 @@ function buildResponse(ResponseMessage message) returns Response {
         response.setTextPayload(message);
     } else if (message is xml) {
         response.setXmlPayload(message);
-    } else if (message is json) {
-        response.setJsonPayload(message);
     } else if (message is byte[]) {
         response.setBinaryPayload(message);
+    } else if (message is json) {
+        response.setJsonPayload(message);
     } else if (message is io:ReadableByteChannel) {
         response.setByteChannel(message);
     } else {
@@ -399,4 +408,17 @@ function createErrorForNoPayload(mime:Error err) returns GenericClientError {
 }
 
 //Resolve a given path against a given URI.
-function resolve(string baseUrl, string path) returns string|ClientError = external;
+function resolve(string baseUrl, string path) returns string|ClientError {
+    var result = externResolve(java:fromString(baseUrl), java:fromString(path));
+    if (result is handle) {
+        return <string>java:toString(result);
+    } else {
+        return result;
+    }
+}
+
+function externResolve(handle baseUrl, handle path) returns handle|ClientError =
+@java:Method {
+    class: "org.ballerinalang.net.uri.nativeimpl.Resolve",
+    name: "resolve"
+} external;

@@ -85,14 +85,8 @@ public type HelloWorldClient client object {
 
     public function __init(string url, grpc:ClientConfiguration? config = ()) {
         // initialize client endpoint.
-        grpc:Client c = new(url, config);
-        grpc:Error? result = c.initStub(self, "non-blocking", ROOT_DESCRIPTOR, getDescriptorMap());
-        if (result is grpc:Error) {
-            error err = result;
-            panic err;
-        } else {
-            self.grpcClient = c;
-        }
+        self.grpcClient = new(url, config);
+        grpc:Error? result = self.grpcClient.initStub(self, "non-blocking", ROOT_DESCRIPTOR, getDescriptorMap());
     }
 
     public remote function lotsOfReplies(string req, service msgListener, grpc:Headers? headers = ()) returns (grpc:Error?) {

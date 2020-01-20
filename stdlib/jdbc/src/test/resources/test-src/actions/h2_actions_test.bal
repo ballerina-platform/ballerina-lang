@@ -44,10 +44,8 @@ function testSelect(string jdbcURL) returns @tainted int[] {
         int i = 0;
         while (val.hasNext()) {
             var rs = val.getNext();
-            if (rs is Customer) {
-                customerIds[i] = rs.customerId;
-                i += 1;
-            }
+            customerIds[i] = rs.customerId;
+            i += 1;
         }
     }
     checkpanic testDB.stop();
@@ -235,9 +233,7 @@ returns @tainted int {
     if (result is table<Result>) {
         while (result.hasNext()) {
             var rs = result.getNext();
-            if (rs is Result) {
-                count = rs.val;
-            }
+            count = rs.val;
         }
     }
     checkpanic testDB.stop();
@@ -252,10 +248,8 @@ function selectFunction(jdbc:Client testDB) returns int[] {
         int i = 0;
         while (val.hasNext()) {
             var rs = val.getNext();
-            if (rs is Customer) {
-                customerIds[i] = rs.customerId;
-                i += 1;
-            }
+            customerIds[i] = rs.customerId;
+            i += 1;
         }
     } else {
         customerIds = [];

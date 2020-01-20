@@ -94,7 +94,9 @@ public class TypeGuardTest {
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int', found 'string'", 131, 22);
         BAssertUtil.validateError(negativeResult, i++,
                 "incompatible types: expected '(int|string|boolean)', found 'float'", 133, 13);
-        BAssertUtil.validateError(negativeResult, i++, "invalid literal for type '(int|string|boolean)'", 137, 9);
+        BAssertUtil.validateError(negativeResult, i++,
+                                  "a type compatible with mapping constructor expressions not found in " +
+                                          "type '(int|string|boolean)'", 137, 9);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int', found '(int|string)'", 154,
                 17);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int', found '(int|string)'", 167,

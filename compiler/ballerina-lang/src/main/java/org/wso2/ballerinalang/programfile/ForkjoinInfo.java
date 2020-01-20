@@ -24,6 +24,7 @@ import java.util.Map;
  *
  * @since 0.90
  */
+@Deprecated
 public class ForkjoinInfo {
 
     private int index;

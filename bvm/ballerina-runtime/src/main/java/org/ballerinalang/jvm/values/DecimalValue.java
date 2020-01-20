@@ -38,7 +38,7 @@ import java.math.MathContext;
  * </p> 
  * @since 0.995.0
  */
-public class DecimalValue implements BDecimal {
+public class DecimalValue implements SimpleValue, BDecimal {
 
     private static final DecimalValue POSITIVE_INF =
             new DecimalValue("9.999999999999999999999999999999999E6144", DecimalValueKind.POSITIVE_INFINITY);

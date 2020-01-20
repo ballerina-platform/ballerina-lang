@@ -43,7 +43,7 @@ public class XSLTTest {
 
     @BeforeClass
     public void setup() {
-        compileResult = BCompileUtil.compile("test-src/read-from-file.bal");
+        compileResult = BCompileUtil.compileOffline("test-src/read-from-file.bal");
     }
 
     @Test()

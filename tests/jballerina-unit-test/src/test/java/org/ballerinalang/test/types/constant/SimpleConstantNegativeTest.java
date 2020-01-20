@@ -60,7 +60,9 @@ public class SimpleConstantNegativeTest {
         BAssertUtil.validateError(compileResult, index++, "cannot update constant value", 33, 9);
         BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'string', found 'int'",
                 40, 21);
-        BAssertUtil.validateError(compileResult, index++, "invalid literal for type 'string'", 42, 18);
+        BAssertUtil.validateError(compileResult, index++,
+                                  "a type compatible with mapping constructor expressions not found in type 'string'",
+                                  42, 18);
         BAssertUtil.validateError(compileResult, index++, "redeclared symbol 'abc'", 47, 7);
         BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'GET', found 'XYZ'",
                 64, 21);

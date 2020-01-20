@@ -73,7 +73,7 @@ public class JSONTest {
 
     @Test(description = "Get JSON string from a string")
     public void testParseString() {
-        BValue[] args = {new BString("\"hello\"")};
+        BValue[] args = { new BString("\"hello\"") };
         BValue[] returns = BRunUtil.invoke(compileResult, "testParse", args);
 
         Assert.assertTrue(returns[0] instanceof BString);

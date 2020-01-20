@@ -32,8 +32,6 @@ dependencies {
     shadow 'com.google.code.gson:gson'
     implementation 'io.opentracing:opentracing-mock'
     implementation project(':ballerina-runtime')
-    
-    baloImplementation project(path: ':ballerina-utils', configuration: 'baloImplementation')
 }
 
 description = 'Ballerina - Observability - Tracing Test Utils'

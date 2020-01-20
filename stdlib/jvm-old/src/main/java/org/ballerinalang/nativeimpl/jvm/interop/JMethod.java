@@ -20,6 +20,7 @@ package org.ballerinalang.nativeimpl.jvm.interop;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.ArrayValueImpl;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Executable;
@@ -116,7 +117,7 @@ class JMethod {
         }
 
 
-        ArrayValue arrayValue = new ArrayValue(new BArrayType(BTypes.typeString), checkedExceptions.size());
+        ArrayValue arrayValue = new ArrayValueImpl(new BArrayType(BTypes.typeString), checkedExceptions.size());
         int i = 0;
         for (Class<?> exceptionType : checkedExceptions) {
             arrayValue.add(i++, exceptionType.getName().replace(".", "/"));

@@ -18,34 +18,24 @@
 package org.ballerinalang.util;
 
 import org.ballerinalang.compiler.BLangCompilerException;
-import org.ballerinalang.model.elements.PackageID;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
-import org.wso2.ballerinalang.compiler.tree.BLangPackage;
-import org.wso2.ballerinalang.compiler.util.Name;
-import org.wso2.ballerinalang.programfile.PackageFileWriter;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.net.URL;
-import java.net.URLClassLoader;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
-import java.util.Optional;
 import java.util.StringJoiner;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 /**
  * Creates jars in file system using bootstrap pack and create class loader hierarchy for them.
@@ -54,54 +44,122 @@ public class BootstrapRunner {
 
     private static final PrintStream out = System.out;
     private static final PrintStream err = System.err;
+    private static final String CLASSPATH = "CLASSPATH";
+    private static final String TMP_OBJECT_FILE_NAME = "ballerina_native_objf.o";
+    private static final String COMPILER_BACKEND_JVM = "ballerina.compiler_backend_jvm.___init";
+    private static final String COMPILER_BACKEND_LLVM = "ballerina.compiler_backend_llvm.___init";
+    private static String javaCommand = System.getProperty("java.command");
 
     public static void loadTargetAndGenerateJarBinary(String entryBir, String jarOutputPath, boolean dumpBir,
                                                       HashSet<Path> moduleDependencySet, String... birCachePaths) {
         //Load all Jars from module dependency set.
         List<String> jarFilePaths = new ArrayList<>(moduleDependencySet.size());
-        moduleDependencySet.forEach(path -> jarFilePaths.add(path.toString()));
-        generateJarBinary(entryBir, jarOutputPath, dumpBir, false, jarFilePaths, birCachePaths);
+        for (Path path : moduleDependencySet) {
+            jarFilePaths.add(path.toString());
+        }
+        List<String> commands =
+                createArgsForJBalCompilerBackend(entryBir, jarOutputPath, dumpBir, jarFilePaths, birCachePaths);
+        generateJarBinaryInProc(commands);
     }
 
-    private static void generateJarBinary(String entryBir, String jarOutputPath, boolean dumpBir,
-                                          boolean useSystemClassLoader, List<String> jarFilePaths,
-                                          String... birCachePaths) {
+    public static void genNativeCode(String entryBir, Path targetDir, boolean dumpLLVM, boolean noOptimizeLLVM) {
+        Path nativeFolder = genNativeForlderInTarget(targetDir);
+        Path objectFilePath = nativeFolder.resolve(TMP_OBJECT_FILE_NAME);
+        genObjectFile(entryBir, objectFilePath.toString(), dumpLLVM, noOptimizeLLVM);
+        genExecutable(objectFilePath, "llvm");
+
+        Runtime.getRuntime().exit(0);
+    }
+
+    public static Path genNativeForlderInTarget(Path targetDir) {
+        Path nativeFolder = targetDir.resolve("native");
+        buildDirectoryFromPath(nativeFolder);
+        return nativeFolder;
+    }
+
+    public static void buildDirectoryFromPath(Path directory) {
         try {
-            Class<?> backendMain = Class.forName("ballerina.compiler_backend_jvm.___init");
-            Method backendMainMethod = backendMain.getMethod("main", String[].class);
-            List<String> params = createArgsForCompilerBackend(entryBir, jarOutputPath, dumpBir,
-                                                               useSystemClassLoader, birCachePaths, jarFilePaths);
-            backendMainMethod.invoke(null, new Object[]{params.toArray(new String[0])});
-        } catch (InvocationTargetException e) {
-            throw new BLangCompilerException(e.getTargetException().getMessage(), e);
-        } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException e) {
-            throw new BLangCompilerException("could not invoke compiler backend", e);
+            Files.createDirectories(directory);
+        } catch (IOException e) {
+            throw new BLangCompilerException("could not create native folder inside target folder", e);
         }
     }
 
-    private static void generateJarBinary(String entryBir, String jarOutputPath, boolean dumpBir,
-                                          String... birCachePaths) {
-        generateJarBinary(entryBir, jarOutputPath, dumpBir, true, Collections.emptyList(), birCachePaths);
+    private static void genObjectFile(String entryBir, String objFileOutputPath, boolean dumpLLVM,
+            boolean noOptimizeLLVM) {
+        List<String> commands = createArgsForNBalCompilerBackend(entryBir, objFileOutputPath, dumpLLVM, noOptimizeLLVM);
+        generateJarBinaryInProc(commands);
     }
 
-    private static void generateJarBinaryInProc(String entryBir, String jarOutputPath, boolean dumpBir,
-                                                String... birCachePaths) {
+    private static void genExecutable(Path objectFilePath, String execFilename) {
+        // Check whether gcc is installed
+        checkGCCAvailability();
+
+        // Create the os-specific gcc command
+        ProcessBuilder gccProcessBuilder = createOSSpecificGCCCommand(objectFilePath, execFilename);
+
         try {
-            List<String> commands = new ArrayList<>();
-            commands.add("java");
-            commands.add("-cp");
-            commands.add(System.getProperty("java.class.path"));
-            commands.add("ballerina.compiler_backend_jvm.___init");
-            commands.addAll(createArgsForCompilerBackend(entryBir, jarOutputPath, dumpBir, true,
-                                                         birCachePaths, Collections.emptyList()));
+            // Execute gcc
+            Process gccProcess = gccProcessBuilder.start();
+            int exitCode = gccProcess.waitFor();
+            if (exitCode != 0) {
+                throw new BLangCompilerException("linker failed: " + getProcessErrorOutput(gccProcess));
+            }
+        } catch (IOException | InterruptedException e) {
+            throw new BLangCompilerException("linker failed: " + e.getMessage(), e);
+        }
+    }
 
-            Process process = new ProcessBuilder(commands).start();
+    private static void checkGCCAvailability() {
+        Runtime rt = Runtime.getRuntime();
+        try {
+            Process gccCheckProc = rt.exec("gcc -v");
+            int exitVal = gccCheckProc.waitFor();
+            if (exitVal != 0) {
+                throw new BLangCompilerException("'gcc' is not installed in your environment");
+            }
+        } catch (IOException | InterruptedException e) {
+            throw new BLangCompilerException("probably, 'gcc' is not installed in your environment: " +
+                    e.getMessage(), e);
+        }
+    }
 
+    private static ProcessBuilder createOSSpecificGCCCommand(Path objectFilePath, String execFilename) {
+        String osName = System.getProperty("os.name").toLowerCase(Locale.ENGLISH);
+        ProcessBuilder gccProcessBuilder = new ProcessBuilder();
+        if (osName.startsWith("windows")) {
+            // TODO Window environment
+            gccProcessBuilder.command("cmd.exe", "/c", "dir");
+        } else if (osName.startsWith("mac os x")) {
+            // Mac OS X environment
+            gccProcessBuilder.command("gcc", objectFilePath.toString(), "-o", execFilename);
+        } else {
+            // TODO Is this assumption correct?
+            // Linux environment
+            gccProcessBuilder.command("gcc", objectFilePath.toString(), "-static", "-o", execFilename);
+        }
+        return gccProcessBuilder;
+    }
+
+    private static String getProcessErrorOutput(Process process) throws IOException {
+        //TODO: check win https://stackoverflow.com/questions/8398277/which-encoding-does-process-getinputstream-use
+        InputStreamReader in = new InputStreamReader(process.getErrorStream(), StandardCharsets.UTF_8);
+        try (BufferedReader errReader = new BufferedReader(in)) {
+            return errReader.lines().collect(Collectors.joining(", "));
+        }
+    }
+
+    public static void generateJarBinaryInProc(List<String> commands) {
+        try {
+            // pass the classpath for the sub-process
+            ProcessBuilder pb = new ProcessBuilder(commands);
+            Map<String, String> env = pb.environment();
+            env.put(CLASSPATH, System.getProperty("java.class.path"));
+
+            Process process = pb.start();
             getConsoleOutput(process.getInputStream(), out);
             String consoleError = getConsoleOutput(process.getErrorStream(), err);
-
             boolean processEnded = process.waitFor(120, TimeUnit.SECONDS);
-
             if (!processEnded) {
                 throw new BLangCompilerException("failed to generate jar file within 120s.");
             }
@@ -109,8 +167,18 @@ public class BootstrapRunner {
                 throw new BLangCompilerException(consoleError);
             }
         } catch (InterruptedException | IOException e) {
-            throw new BLangCompilerException("failed running jvm code gen phase.");
+            // these are un-handled errors at the jvm-codegen phase. Hence should not throw 
+            // compiler-exceptions. These should cause a bad-sad error.
+            throw new RuntimeException("failed running jvm code gen phase.", e);
         }
+    }
+
+    private static void setSystemProperty(List<String> commands, String propertName) {
+        String value = System.getProperty(propertName);
+        if (value == null || value.trim().isEmpty()) {
+            return;
+        }
+        commands.add("-D" + propertName + "=" + System.getProperty(propertName));
     }
 
     private static String getConsoleOutput(InputStream inputStream, PrintStream printStream) {
@@ -123,9 +191,23 @@ public class BootstrapRunner {
         return sj.toString();
     }
 
-    private static List<String> createArgsForCompilerBackend(String entryBir, String jarOutputPath, boolean dumpBir,
-                                                             boolean useSystemClassLoader, String[] birCachePaths,
-                                                             List<String> jarFilePaths) {
+    public static List<String> createArgsForJBalCompilerBackend(String entryBir, String jarOutputPath, boolean dumpBir,
+            List<String> jarFilePaths, String... birCachePaths) {
+        List<String> commands = new ArrayList<>();
+        // Below code only runs for test cases, for all other scenarios, this value should be there when we start
+        if (javaCommand == null) {
+            javaCommand = System.getProperty("java.command");
+        }
+        commands.add(javaCommand);
+        setSystemProperty(commands, "ballerina.bstring");
+        commands.add(COMPILER_BACKEND_JVM);
+        commands.addAll(createArgsForCompilerBackend(entryBir, jarOutputPath, dumpBir, true,
+                birCachePaths, jarFilePaths));
+        return commands;
+    }
+
+    public static List<String> createArgsForCompilerBackend(String entryBir, String jarOutputPath, boolean dumpBir,
+            boolean useSystemClassLoader, String[] birCachePaths, List<String> jarFilePaths) {
         List<String> commands = new ArrayList<>();
         commands.add(entryBir);
         commands.add(getMapPath());
@@ -138,150 +220,26 @@ public class BootstrapRunner {
         return commands;
     }
 
+    private static List<String> createArgsForNBalCompilerBackend(String entryBir, String objFileOutputPath,
+            boolean dumpLLVM, boolean noOptimizeLLVM) {
+        List<String> commands = new ArrayList<>();
+        // Below code only runs for test cases, for all other scenarios, this value should be there when we start
+        if (javaCommand == null) {
+            javaCommand = System.getProperty("java.command");
+        }
+        commands.add(javaCommand);
+        commands.add(COMPILER_BACKEND_LLVM);
+        commands.add(entryBir);
+        commands.add(objFileOutputPath);
+        commands.add(dumpLLVM ? "true" : "false"); // dump LLVM-IR
+        commands.add(noOptimizeLLVM ? "true" : "false"); // Don't optimize LLVM-IR
+        return commands;
+    }
+
 
     private static String getMapPath() {
         String ballerinaNativeMap = System.getenv("BALLERINA_NATIVE_MAP");
-        return ballerinaNativeMap == null ? "" : ballerinaNativeMap;
-    }
-
-    private static void writeNonEntryPkgs(List<BPackageSymbol> imports, Path birCache, Path importsBirCache,
-                                          Path jarTargetDir, boolean dumpBir)
-            throws IOException {
-        for (BPackageSymbol pkg : imports) {
-            PackageID id = pkg.pkgID;
-            //Todo: ballerinax check shouldn't be here. This should be fixed by having a proper package hierarchy.
-            //Todo: Remove ballerinax check after fixing it by the packerina team
-            if (!"ballerina".equals(id.orgName.value) && !"ballerinax".equals(id.orgName.value)) {
-                writeNonEntryPkgs(pkg.imports, birCache, importsBirCache, jarTargetDir, dumpBir);
-                Path pkgBir = getModuleBir(pkg, importsBirCache);
-                String jarOutputPath = jarTargetDir.resolve(id.name.value + ".jar").toString();
-                generateJarBinary(pkgBir.toString(), jarOutputPath, dumpBir, birCache.toString(),
-                                  importsBirCache.toString());
-            }
-        }
-    }
-
-    private static void writeNonEntryPkgs(List<BPackageSymbol> imports, Path birCache, Path importsBirCache,
-                                          Path jarTargetDir, Path runtimeJar,
-                                          Map<PackageID, HashSet<Path>> moduleDependencyPathMap,
-                                          boolean dumpBir) throws IOException {
-        for (BPackageSymbol pkg : imports) {
-            PackageID id = pkg.pkgID;
-            if (!"ballerina".equals(id.orgName.value) && !"ballerinax".equals(id.orgName.value)) {
-                writeNonEntryPkgs(pkg.imports, birCache, importsBirCache, jarTargetDir, runtimeJar,
-                                  moduleDependencyPathMap, dumpBir);
-                Path pkgBir = getModuleBir(pkg, importsBirCache);
-                String jarOutputPath = jarTargetDir.resolve(id.name.value + ".jar").toString();
-                HashSet<Path> jarPaths = moduleDependencyPathMap.get(id);
-                jarPaths.add(runtimeJar);
-                loadTargetAndGenerateJarBinary(pkgBir.toString(), jarOutputPath, dumpBir,
-                                               jarPaths, birCache.toString(),
-                                               importsBirCache.toString());
-            }
-        }
-    }
-
-    private static Path getModuleBir(BPackageSymbol pkg, Path importsBirCache) throws IOException {
-        PackageID id = pkg.pkgID;
-        byte[] bytes = PackageFileWriter.writePackage(pkg.birPackageFile);
-        Path pkgBirDir = importsBirCache.resolve(id.orgName.value)
-                .resolve(id.name.value)
-                .resolve(id.version.value.isEmpty() ? "0.0.0" : id.version.value);
-        Files.createDirectories(pkgBirDir);
-        Path pkgBir = pkgBirDir.resolve(id.name.value + ".bir");
-        Files.write(pkgBir, bytes);
-        return pkgBir;
-    }
-
-    public static URLClassLoader createClassLoaders(BLangPackage bLangPackage,
-                                                 Path systemBirCache,
-                                                 Path buildRoot,
-                                                 Optional<Path> jarTargetRoot,
-                                                 boolean dumpBir, boolean onProc) throws IOException {
-
-        byte[] bytes = PackageFileWriter.writePackage(bLangPackage.symbol.birPackageFile);
-        String fileName = calcFileNameForJar(bLangPackage);
-        Files.createDirectories(buildRoot);
-        Path intermediates = Files.createTempDirectory(buildRoot, fileName + "-");
-        Path entryBir = intermediates.resolve(fileName + ".bir");
-        Path jarTarget = jarTargetRoot.orElse(intermediates).resolve(fileName + ".jar");
-        Files.write(entryBir, bytes);
-
-        Path importsBirCache = intermediates.resolve("imports").resolve("bir-cache");
-        Path importsTarget = importsBirCache.getParent().resolve("generated-bir-jar");
-        Files.createDirectories(importsTarget);
-
-        writeNonEntryPkgs(bLangPackage.symbol.imports, systemBirCache, importsBirCache, importsTarget, dumpBir);
-        if (onProc) {
-            generateJarBinaryInProc(entryBir.toString(), jarTarget.toString(), dumpBir, systemBirCache.toString(),
-                    importsBirCache.toString());
-        } else {
-            generateJarBinary(entryBir.toString(), jarTarget.toString(), dumpBir, systemBirCache.toString(),
-                    importsBirCache.toString());
-        }
-
-        if (!Files.exists(jarTarget)) {
-            throw new RuntimeException("Compiled binary jar is not found: " + jarTarget);
-        }
-        int index = 0;
-        URL[] urls;
-        File importsCache = importsTarget.toFile();
-        if (importsCache.isDirectory()) {
-            String[] jarFIles = importsCache.list();
-            urls = new URL[jarFIles.length + 1];
-            for (String file : jarFIles) {
-                urls[index++] = Paths.get(importsCache.getPath(), file).toUri().toURL();
-            }
-        } else {
-            urls = new URL[1];
-        }
-        urls[index] = jarTarget.toFile().toURI().toURL();
-        return new URLClassLoader(urls);
-    }
-
-    public static URLClassLoader createClassLoaders(BLangPackage bLangPackage, Path systemBirCache, Path buildRoot,
-                                                    Optional<Path> jarTargetRoot, boolean dumpBir, Path runtimeJar,
-                                                    Map<PackageID, HashSet<Path>> moduleJarsMap) throws IOException {
-
-        byte[] bytes = PackageFileWriter.writePackage(bLangPackage.symbol.birPackageFile);
-        String fileName = calcFileNameForJar(bLangPackage);
-        Files.createDirectories(buildRoot);
-        Path intermediates = Files.createTempDirectory(buildRoot, fileName + "-");
-        Path entryBir = intermediates.resolve(fileName + ".bir");
-        Path jarTarget = jarTargetRoot.orElse(intermediates).resolve(fileName + ".jar");
-        Files.write(entryBir, bytes);
-
-        Path importsBirCache = intermediates.resolve("imports").resolve("bir-cache");
-        Path importsTarget = importsBirCache.getParent().resolve("generated-bir-jar");
-        Files.createDirectories(importsTarget);
-        writeNonEntryPkgs(bLangPackage.symbol.imports, systemBirCache, importsBirCache, importsTarget, runtimeJar,
-                          moduleJarsMap, dumpBir);
-        HashSet<Path> moduleDependencySet = moduleJarsMap.get(bLangPackage.packageID);
-        moduleDependencySet.add(runtimeJar);
-        URL[] urls = new URL[moduleDependencySet.size() + 1];
-        int i = 0;
-        List<String> jarFilePaths = new ArrayList<>(moduleDependencySet.size());
-        for (Path path : moduleDependencySet) {
-            urls[i] = path.toUri().toURL();
-            jarFilePaths.add(path.toString());
-            i++;
-        }
-        urls[urls.length - 1] = jarTarget.toUri().toURL();
-        generateJarBinary(entryBir.toString(), jarTarget.toString(), dumpBir, false, jarFilePaths,
-                          systemBirCache.toString(), importsBirCache.toString());
-        if (!Files.exists(jarTarget)) {
-            throw new RuntimeException("Compiled binary jar is not found: " + jarFilePaths);
-        }
-        return new URLClassLoader(urls);
-    }
-
-    private static String calcFileNameForJar(BLangPackage bLangPackage) {
-        PackageID pkgID = bLangPackage.pos.src.pkgID;
-        Name sourceFileName = pkgID.sourceFileName;
-        if (sourceFileName != null) {
-            return sourceFileName.value.replaceAll("\\.bal$", "");
-        }
-        return pkgID.name.value;
+        return ballerinaNativeMap == null ? " " : ballerinaNativeMap;
     }
 }
 

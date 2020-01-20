@@ -48,7 +48,7 @@ public class KeyParsingTest {
         resourceRoot = Paths.get("src", "test", "resources").toAbsolutePath().toString();
         sourceRoot = Paths.get(resourceRoot, "test-src");
         confRoot = Paths.get(resourceRoot, "datafiles");
-        compileResult = BCompileUtil.compile(sourceRoot.resolve("keyparsing-test.bal").toString());
+        compileResult = BCompileUtil.compileOffline(sourceRoot.resolve("keyparsing-test.bal").toString());
     }
 
     @Test(description = "Check parsing encrypted private-key from a p12 file.")

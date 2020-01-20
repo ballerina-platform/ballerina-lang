@@ -38,7 +38,11 @@ import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.services.ErrorHandlerUtils;
 import org.ballerinalang.jvm.transactions.TransactionConstants;
 import org.ballerinalang.jvm.types.AttachedFunction;
+import org.ballerinalang.jvm.types.BErrorType;
+import org.ballerinalang.jvm.types.BFiniteType;
 import org.ballerinalang.jvm.types.BPackage;
+import org.ballerinalang.jvm.types.BType;
+import org.ballerinalang.jvm.types.TypeFlags;
 import org.ballerinalang.jvm.util.exceptions.BallerinaConnectorException;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ErrorValue;
@@ -48,6 +52,7 @@ import org.ballerinalang.jvm.values.RefValue;
 import org.ballerinalang.jvm.values.StreamingJsonValue;
 import org.ballerinalang.jvm.values.XMLItem;
 import org.ballerinalang.jvm.values.XMLSequence;
+import org.ballerinalang.jvm.values.api.BValueCreator;
 import org.ballerinalang.mime.util.EntityBodyChannel;
 import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.mime.util.EntityWrapper;
@@ -92,9 +97,11 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static io.netty.handler.codec.http.HttpHeaderNames.CACHE_CONTROL;
@@ -138,13 +145,17 @@ import static org.ballerinalang.net.http.HttpConstants.FILE_PATH;
 import static org.ballerinalang.net.http.HttpConstants.HTTP_ERROR_CODE;
 import static org.ballerinalang.net.http.HttpConstants.HTTP_ERROR_DETAIL_RECORD;
 import static org.ballerinalang.net.http.HttpConstants.HTTP_ERROR_MESSAGE;
+import static org.ballerinalang.net.http.HttpConstants.HTTP_MODULE_VERSION;
 import static org.ballerinalang.net.http.HttpConstants.LISTENER_CONFIGURATION;
+import static org.ballerinalang.net.http.HttpConstants.MODULE;
 import static org.ballerinalang.net.http.HttpConstants.MUTUAL_SSL_HANDSHAKE_RECORD;
 import static org.ballerinalang.net.http.HttpConstants.NEVER;
+import static org.ballerinalang.net.http.HttpConstants.PACKAGE;
 import static org.ballerinalang.net.http.HttpConstants.PASSWORD;
 import static org.ballerinalang.net.http.HttpConstants.PKCS_STORE_TYPE;
 import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_HTTPS;
 import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_HTTP_PKG_ID;
+import static org.ballerinalang.net.http.HttpConstants.REASON_RECORD;
 import static org.ballerinalang.net.http.HttpConstants.REQUEST;
 import static org.ballerinalang.net.http.HttpConstants.REQUEST_CACHE_CONTROL_FIELD;
 import static org.ballerinalang.net.http.HttpConstants.REQUEST_MUTUAL_SSL_HANDSHAKE_FIELD;
@@ -710,9 +721,7 @@ public class HttpUtil {
         Object remoteSocketAddress = inboundMsg.getProperty(HttpConstants.REMOTE_ADDRESS);
         if (remoteSocketAddress instanceof InetSocketAddress) {
             InetSocketAddress inetSocketAddress = (InetSocketAddress) remoteSocketAddress;
-            String remoteHost = inetSocketAddress.getHostName();
             long remotePort = inetSocketAddress.getPort();
-            remote.put(HttpConstants.REMOTE_HOST_FIELD, remoteHost);
             remote.put(HttpConstants.REMOTE_PORT_FIELD, remotePort);
         }
         httpCaller.set(HttpConstants.REMOTE_STRUCT_FIELD, remote);
@@ -1677,6 +1686,18 @@ public class HttpUtil {
         String serviceTypeName = balService.getType().getName();
         int serviceIndex = serviceTypeName.lastIndexOf("$$service$");
         return serviceTypeName.substring(0, serviceIndex);
+    }
+
+    public static ErrorValue createHttpError(String reason, String errorName, String reasonType, String errorMsg) {
+        BType detailType = BValueCreator.createRecordValue(new BPackage(PACKAGE, MODULE), HTTP_ERROR_DETAIL_RECORD)
+                .getType();
+        int mask = TypeFlags.asMask(TypeFlags.ANYDATA, TypeFlags.PURETYPE);
+        Set<Object> valueSpace = new HashSet<>();
+        valueSpace.add(reason);
+        return BallerinaErrors.createError(
+                new BErrorType(errorName, new BPackage(PACKAGE, MODULE, HTTP_MODULE_VERSION),
+                               new BFiniteType(REASON_RECORD, valueSpace, mask), detailType),
+                reasonType, errorMsg);
     }
 
     private HttpUtil() {

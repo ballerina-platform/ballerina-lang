@@ -28,18 +28,18 @@ public type ChannelReader object {
     }
 
     public function readBoolean() returns boolean {
-        var [boolByte, _mustBe1] = check self.byteChannel.read(1);
+        byte[] boolByte = checkpanic self.byteChannel.read(1);
         byte one = 1;
         return <@untainted> (boolByte[0] == one);
     }
 
     public function readInt8() returns int {
-        var [byteValue, _mustBe1] = check self.byteChannel.read(1);
+        byte[] byteValue = checkpanic self.byteChannel.read(1);
         return <@untainted int> byteValue[0];
     }
 
     public function readInt32() returns int {
-        var [intBytes, _mustBe4] = check self.byteChannel.read(4);
+        byte[] intBytes = checkpanic self.byteChannel.read(4);
         return <@untainted> bytesToInt(intBytes);
     }
 
@@ -61,7 +61,7 @@ public type ChannelReader object {
     public function readString() returns string {
         var stringLen = <@untainted> self.readInt32();
         if (stringLen > 0){
-            var [strBytes, strLen] = check self.byteChannel.read(<@untainted> stringLen);
+            byte[] strBytes = checkpanic self.byteChannel.read(<@untainted> stringLen);
             return checkpanic <@untainted> strings:fromBytes(strBytes);
         } else {
             return "";
@@ -69,8 +69,8 @@ public type ChannelReader object {
     }
 
     public function readByteArray(int len) returns byte[] {
-        var [arr, arrLen] = check self.byteChannel.read(len);
-        if(arrLen != len){
+        byte[] arr = checkpanic self.byteChannel.read(len);
+        if(len != arr.length()) {
             error err = error("Unable to read " + len.toString() + " bytes");
             panic err;
         }

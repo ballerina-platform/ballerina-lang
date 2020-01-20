@@ -28,7 +28,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
-import org.wso2.ballerinalang.programfile.InstructionCodes;
 import org.wso2.ballerinalang.util.Flags;
 import org.wso2.ballerinalang.util.Lists;
 
@@ -143,7 +142,18 @@ public class Symbols {
                                                PackageID pkgID,
                                                BType type,
                                                BSymbol owner) {
+        if (type != null && type.tag == TypeTags.INVOKABLE) {
+            return createInvokableTypeSymbol(symTag, flags, pkgID, type, owner);
+        }
         return new BTypeSymbol(symTag, flags, name, pkgID, type, owner);
+    }
+
+    public static BInvokableTypeSymbol createInvokableTypeSymbol(int symTag,
+                                                                 int flags,
+                                                                 PackageID pkgID,
+                                                                 BType type,
+                                                                 BSymbol owner) {
+        return new BInvokableTypeSymbol(symTag, flags, pkgID, type, owner);
     }
 
     public static BInvokableSymbol createInvokableSymbol(int kind,
@@ -167,7 +177,6 @@ public class Symbols {
                                                                final BType errorType,
                                                                boolean implicit,
                                                                boolean safe,
-                                                               int opcode,
                                                                PackageID pkgID,
                                                                BSymbol owner) {
         List<BType> paramTypes = Lists.of(sourceType, targetType);
@@ -183,35 +192,14 @@ public class Symbols {
         }
 
         BInvokableType opType = new BInvokableType(paramTypes, retType, null);
-        return new BCastOperatorSymbol(pkgID, opType, sourceType, owner, implicit, safe, opcode);
+        return new BCastOperatorSymbol(pkgID, opType, sourceType, owner, implicit, safe);
     }
 
     public static BCastOperatorSymbol createUnboxValueTypeOpSymbol(BType sourceType, BType targetType) {
-        int opcode;
-        switch (targetType.tag) {
-            case TypeTags.INT:
-                opcode = InstructionCodes.ANY2I;
-                break;
-            case TypeTags.BYTE:
-                opcode = InstructionCodes.ANY2BI;
-                break;
-            case TypeTags.FLOAT:
-                opcode = InstructionCodes.ANY2F;
-                break;
-            case TypeTags.STRING:
-                opcode = InstructionCodes.ANY2S;
-                break;
-            case TypeTags.DECIMAL:
-                opcode = InstructionCodes.ANY2D;
-                break;
-            default:
-                opcode = InstructionCodes.ANY2B;
-                break;
-        }
 
         List<BType> paramTypes = Lists.of(sourceType, targetType);
         BInvokableType opType = new BInvokableType(paramTypes, targetType, null);
-        return new BCastOperatorSymbol(null, opType, sourceType, null, false, true, opcode);
+        return new BCastOperatorSymbol(null, opType, sourceType, null, false, true);
     }
 
     public static String getAttachedFuncSymbolName(String typeName, String funcName) {

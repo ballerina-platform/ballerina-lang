@@ -16,28 +16,27 @@
 
 package org.ballerinalang.nativeimpl.llvm.gen;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.types.BPackage;
+import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.nativeimpl.llvm.FFIUtil;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.bytedeco.javacpp.LLVM;
-import org.bytedeco.javacpp.LLVM.LLVMValueRef;
+import org.bytedeco.llvm.LLVM.LLVMBuilderRef;
+import org.bytedeco.llvm.LLVM.LLVMValueRef;
 
 import static org.ballerinalang.model.types.TypeKind.INT;
 import static org.ballerinalang.model.types.TypeKind.RECORD;
 import static org.ballerinalang.model.types.TypeKind.STRING;
-import static org.bytedeco.javacpp.LLVM.LLVMBuildStructGEP;
+import static org.bytedeco.llvm.global.LLVM.LLVMBuildStructGEP;
 
 /**
  * Auto generated class.
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "llvm",
-        functionName = "LLVMBuildStructGEP",
+        functionName = "llvmBuildStructGEP",
         args = {
                 @Argument(name = "b", type = RECORD, structType = "LLVMBuilderRef"),
                 @Argument(name = "pointer", type = RECORD, structType = "LLVMValueRef"),
@@ -48,17 +47,17 @@ import static org.bytedeco.javacpp.LLVM.LLVMBuildStructGEP;
                 @ReturnType(type = RECORD, structType = "LLVMValueRef", structPackage = "ballerina/llvm"),
         }
 )
-public class LLVMBuildStructGEP extends BlockingNativeCallableUnit {
+public class LLVMBuildStructGEP {
 
-    @Override
-    public void execute(Context context) {
-        LLVM.LLVMBuilderRef b = FFIUtil.getRecodeArgumentNative(context, 0);
-        LLVM.LLVMValueRef pointer = FFIUtil.getRecodeArgumentNative(context, 1);
-        int idx = (int) context.getIntArgument(0);
-        String name = context.getStringArgument(0);
-        LLVMValueRef returnValue = LLVMBuildStructGEP(b, pointer, idx, name);
-        BMap<String, BValue> rerunWrapperRecode = FFIUtil.newRecord(context, "LLVMValueRef");
-        FFIUtil.addNativeToRecode(returnValue, rerunWrapperRecode);
-        context.setReturnValues(rerunWrapperRecode);
+    public static MapValue<String, Object> llvmBuildStructGEP(Strand strand, MapValue<String, Object> b,
+            MapValue<String, Object> pointer, long idx, String name) {
+        LLVMBuilderRef bRef = (LLVMBuilderRef) FFIUtil.getRecodeArgumentNative(b);
+        LLVMValueRef pointerRef = (LLVMValueRef) FFIUtil.getRecodeArgumentNative(pointer);
+        int idxRef = (int) idx;
+        LLVMValueRef returnValue = LLVMBuildStructGEP(bRef, pointerRef, idxRef, name);
+        MapValue<String, Object> returnWrappedRecord = FFIUtil.newRecord(new BPackage("ballerina",
+                "llvm"), "LLVMValueRef");
+        FFIUtil.addNativeToRecode(returnValue, returnWrappedRecord);
+        return returnWrappedRecord;
     }
 }

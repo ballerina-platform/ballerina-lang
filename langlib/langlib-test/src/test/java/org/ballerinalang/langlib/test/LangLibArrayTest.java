@@ -288,6 +288,12 @@ public class LangLibArrayTest {
         assertEquals(returns[0].stringValue(), "[]");
     }
 
+    @Test
+    public void testBytePush() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testBytePush");
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.array\\}InherentTypeViolation " +
                     "message=cannot change the length of an array of fixed length '7' to '0'.*")

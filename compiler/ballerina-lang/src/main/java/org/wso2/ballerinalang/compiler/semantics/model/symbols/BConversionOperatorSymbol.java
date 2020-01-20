@@ -33,14 +33,14 @@ import org.wso2.ballerinalang.util.Lists;
 public class BConversionOperatorSymbol extends BOperatorSymbol {
 
     public boolean safe;
-    
+
     public BConversionOperatorSymbol(PackageID pkgID,
                                      BType type,
                                      BType sourceType,
                                      BSymbol owner,
-                                     int opcode,
                                      boolean safe) {
-        super(Names.CONVERSION_OP, pkgID, type, owner, opcode);
+
+        super(Names.CONVERSION_OP, pkgID, type, owner);
         this.kind = SymbolKind.CONVERSION_OPERATOR;
         this.params = Lists.of(new BVarSymbol(0, new Name("_"), pkgID, sourceType, this));
         this.safe = safe;

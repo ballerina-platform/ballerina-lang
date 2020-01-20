@@ -19,14 +19,13 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import org.ballerinalang.langserver.client.config.BallerinaClientConfig;
 import org.ballerinalang.langserver.client.config.BallerinaClientConfigHolder;
-import org.ballerinalang.langserver.command.ExecuteCommandKeys;
 import org.ballerinalang.langserver.command.LSCommandExecutor;
 import org.ballerinalang.langserver.command.LSCommandExecutorException;
 import org.ballerinalang.langserver.command.LSCommandExecutorProvider;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSCompilerUtil;
+import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.compiler.LSModuleCompiler;
-import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.compiler.common.LSCustomErrorStrategy;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.diagnostic.DiagnosticsHelper;
@@ -78,7 +77,9 @@ public class BallerinaWorkspaceService implements WorkspaceService {
     public CompletableFuture<List<? extends SymbolInformation>> symbol(WorkspaceSymbolParams params) {
         return CompletableFuture.supplyAsync(() -> {
             List<Either<SymbolInformation, DocumentSymbol>> symbols = new ArrayList<>();
-            LSServiceOperationContext symbolsContext = new LSServiceOperationContext(LSContextOperation.WS_SYMBOL);
+            LSContext symbolsContext = new WorkspaceServiceOperationContext
+                    .ServiceOperationContextBuilder(LSContextOperation.WS_SYMBOL)
+                    .build();
             Map<String, Object[]> compUnits = new HashMap<>();
             try {
                 for (Path path : this.workspaceDocumentManager.getAllFilePaths()) {
@@ -139,11 +140,11 @@ public class BallerinaWorkspaceService implements WorkspaceService {
     @Override
     public CompletableFuture<Object> executeCommand(ExecuteCommandParams params) {
         return CompletableFuture.supplyAsync(() -> {
-            LSServiceOperationContext executeCmdContext = new LSServiceOperationContext(LSContextOperation.WS_EXEC_CMD);
-            executeCmdContext.put(ExecuteCommandKeys.COMMAND_ARGUMENTS_KEY, params.getArguments());
-            executeCmdContext.put(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY, this.workspaceDocumentManager);
-            executeCmdContext.put(ExecuteCommandKeys.LANGUAGE_SERVER_KEY, this.languageServer);
-            executeCmdContext.put(ExecuteCommandKeys.DIAGNOSTICS_HELPER_KEY, this.diagnosticsHelper);
+            LSContext executeCmdContext = new WorkspaceServiceOperationContext
+                    .ServiceOperationContextBuilder(LSContextOperation.WS_EXEC_CMD)
+                    .withExecuteCommandParams(params.getArguments(), workspaceDocumentManager, languageServer,
+                            diagnosticsHelper)
+                    .build();
 
             try {
                 Optional<LSCommandExecutor> executor = LSCommandExecutorProvider.getInstance()

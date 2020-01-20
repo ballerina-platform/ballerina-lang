@@ -18,11 +18,11 @@
 
 package org.ballerinalang.net.http.actions.httpclient;
 
+import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.net.http.DataContext;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpUtil;
@@ -37,14 +37,11 @@ import static org.ballerinalang.net.http.HttpUtil.checkRequestBodySizeHeadersAva
 /**
  * {@code Forward} action can be used to invoke an http call with incoming request httpVerb.
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "http",
-        functionName = "nativeForward"
-)
 public class Forward extends AbstractHTTPAction {
     @SuppressWarnings("unchecked")
-    public static Object nativeForward(Strand strand, ObjectValue httpClient, String path, ObjectValue requestObj) {
+    public static Object forward(ObjectValue httpClient, String path, ObjectValue requestObj) {
         String url = httpClient.getStringValue(CLIENT_ENDPOINT_SERVICE_URI);
+        Strand strand = Scheduler.getStrand();
         HttpCarbonMessage outboundRequestMsg = createOutboundRequestMsg(strand, url, path, requestObj);
         HttpClientConnector clientConnector = (HttpClientConnector) httpClient.getNativeData(HttpConstants.CLIENT);
         DataContext dataContext = new DataContext(strand, clientConnector, new NonBlockingCallback(strand), requestObj,

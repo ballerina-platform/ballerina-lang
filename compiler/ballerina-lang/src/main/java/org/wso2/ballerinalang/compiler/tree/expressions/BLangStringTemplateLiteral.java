@@ -31,7 +31,6 @@ import java.util.List;
 public class BLangStringTemplateLiteral extends BLangExpression implements StringTemplateLiteralNode {
 
     public List<BLangExpression> exprs;
-    public BLangExpression concatExpr;
 
     public BLangStringTemplateLiteral() {
         exprs = new ArrayList<BLangExpression>();

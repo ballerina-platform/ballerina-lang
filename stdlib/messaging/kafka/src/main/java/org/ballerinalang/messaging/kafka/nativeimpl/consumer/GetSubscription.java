@@ -20,41 +20,23 @@ package org.ballerinalang.messaging.kafka.nativeimpl.consumer;
 
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.KafkaException;
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.messaging.kafka.utils.KafkaConstants;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.Receiver;
 
 import java.util.Set;
 
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.CONSUMER_ERROR;
-import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.KAFKA_PACKAGE_NAME;
-import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.KAFKA_PROTOCOL_PACKAGE;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.NATIVE_CONSUMER;
 import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.createKafkaError;
 
 /**
  * Native function returns topic array which consumer is subscribed to.
  */
-@BallerinaFunction(
-        orgName = KafkaConstants.ORG_NAME,
-        packageName = KAFKA_PACKAGE_NAME,
-        functionName = "getSubscription",
-        receiver = @Receiver(
-                type = TypeKind.OBJECT,
-                structType = KafkaConstants.CONSUMER_STRUCT_NAME,
-                structPackage = KAFKA_PROTOCOL_PACKAGE
-        ),
-        isPublic = true
-)
 public class GetSubscription {
 
-    public static Object getSubscription(Strand strand, ObjectValue consumerObject) {
+    public static Object getSubscription(ObjectValue consumerObject) {
         KafkaConsumer<byte[], byte[]> kafkaConsumer = (KafkaConsumer) consumerObject.getNativeData(NATIVE_CONSUMER);
 
         try {
