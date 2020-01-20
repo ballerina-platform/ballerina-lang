@@ -28,8 +28,8 @@ import org.ballerinalang.messaging.kafka.observability.KafkaObservabilityConstan
 import org.ballerinalang.messaging.kafka.observability.KafkaTracingUtil;
 
 import java.io.PrintStream;
-import java.util.Set;
 import java.util.List;
+import java.util.Set;
 
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.CONSUMER_ERROR;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.NATIVE_CONSUMER;

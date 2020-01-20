@@ -63,16 +63,13 @@ public class Poll {
         try {
             ConsumerRecords recordsRetrieved = kafkaConsumer.poll(duration);
             if (!recordsRetrieved.isEmpty()) {
-                recordsRetrieved.forEach(record -> {
-                    MapValue<String, Object> recordValue = populateConsumerRecord(
-                            (ConsumerRecord) record,
-                            keyType,
-                            valueType
-                    );
+                for (Object record : recordsRetrieved) {
+                    MapValue<String, Object> recordValue = populateConsumerRecord((ConsumerRecord) record, keyType,
+                                                                                  valueType);
                     consumerRecordsArray.append(recordValue);
                     KafkaMetricsUtil.reportConsume(consumerObject, recordValue.getStringValue("topic"),
                                                    recordValue.getArrayValue("value").size());
-                });
+                }
             }
             callback.setReturnValues(consumerRecordsArray);
         } catch (IllegalStateException | IllegalArgumentException | KafkaException e) {

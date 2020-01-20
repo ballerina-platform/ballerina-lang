@@ -106,11 +106,8 @@ public class SubscribeWithPartitionRebalance {
         private FPValue onPartitionsAssigned;
         private ObjectValue consumer;
 
-        KafkaRebalanceListener(Strand strand,
-                               Scheduler scheduler,
-                               FPValue onPartitionsRevoked,
-                               FPValue onPartitionsAssigned,
-                               ObjectValue consumer) {
+        KafkaRebalanceListener(Strand strand, Scheduler scheduler, FPValue onPartitionsRevoked,
+                               FPValue onPartitionsAssigned, ObjectValue consumer) {
             this.strand = strand;
             this.scheduler = scheduler;
             this.onPartitionsRevoked = onPartitionsRevoked;
@@ -139,13 +136,10 @@ public class SubscribeWithPartitionRebalance {
         private BArray getPartitionsArray(Collection<TopicPartition> partitions) {
             BArray topicPartitionArray = BValueCreator.createArrayValue(
                     new BArrayType(getTopicPartitionRecord().getType()));
-            partitions.forEach(partition -> {
+            for (TopicPartition partition : partitions) {
                 MapValue<String, Object> topicPartition = populateTopicPartitionRecord(partition.topic(),
-                        partition.partition());
-                topicPartitionArray.append(topicPartition);
-            });
                                                                                        partition.partition());
-                topicPartitionArray.add(i++, topicPartition);
+                topicPartitionArray.append(topicPartition);
             }
             return topicPartitionArray;
         }

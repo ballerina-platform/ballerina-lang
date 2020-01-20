@@ -73,18 +73,9 @@ public class GetTopicPartitions {
                 partitionInfoList = kafkaConsumer.partitionsFor(topic);
             }
             ArrayValue topicPartitionArray = new ArrayValueImpl(new BArrayType(getTopicPartitionRecord().getType()));
-//            if (!partitionInfoList.isEmpty()) {
-//                partitionInfoList.forEach(info -> {
-//                    MapValue<String, Object> partition = populateTopicPartitionRecord(info.topic(), info.partition());
-//                    topicPartitionArray.append(partition);
-//                });
-//            }
-
-            // TODO: Use the above commented code instead of the for loop once #17075 fixed.
-            int i = 0;
             for (PartitionInfo info : partitionInfoList) {
                 MapValue<String, Object> partition = populateTopicPartitionRecord(info.topic(), info.partition());
-                topicPartitionArray.add(i++, partition);
+                topicPartitionArray.append(partition);
             }
             return topicPartitionArray;
         } catch (KafkaException e) {

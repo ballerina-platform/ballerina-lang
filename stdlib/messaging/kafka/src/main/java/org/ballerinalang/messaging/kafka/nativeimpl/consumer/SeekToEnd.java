@@ -16,7 +16,6 @@
  * under the License.
  */
 
-
 package org.ballerinalang.messaging.kafka.nativeimpl.consumer;
 
 import org.apache.kafka.clients.consumer.KafkaConsumer;

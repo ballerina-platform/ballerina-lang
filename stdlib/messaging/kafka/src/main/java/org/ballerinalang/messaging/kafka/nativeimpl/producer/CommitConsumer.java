@@ -56,11 +56,11 @@ public class CommitConsumer {
         Map<TopicPartition, OffsetAndMetadata> partitionToMetadataMap = new HashMap<>();
         Set<TopicPartition> topicPartitions = kafkaConsumer.assignment();
 
-        topicPartitions.forEach(topicPartition -> {
+        for (TopicPartition topicPartition : topicPartitions) {
             long position = kafkaConsumer.position(topicPartition);
             partitionToMetadataMap.put(new TopicPartition(topicPartition.topic(), topicPartition.partition()),
-                    new OffsetAndMetadata(position));
-        });
+                                       new OffsetAndMetadata(position));
+        }
         MapValue<String, Object> consumerConfig = consumer.getMapValue(CONSUMER_CONFIG_FIELD_NAME);
         String groupId = consumerConfig.getStringValue(CONSUMER_GROUP_ID_CONFIG);
         try {

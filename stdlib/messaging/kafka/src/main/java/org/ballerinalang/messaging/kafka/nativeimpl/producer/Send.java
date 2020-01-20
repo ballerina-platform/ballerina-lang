@@ -326,18 +326,12 @@ public class Send {
     }
 
     @SuppressWarnings(UNCHECKED)
-    public static Object send(ObjectValue producerObject, ArrayValue value, String topic, Object key,
-                              Object partition, Object timestamp) {
+    private static Object sendKafkaRecord(ProducerRecord record, ObjectValue producerObject) {
         Strand strand = Scheduler.getStrand();
-        KafkaTracingUtil.traceResourceInvocation(strand, producerObject, topic);
-        KafkaTracingUtil.traceResourceInvocation(strand, producerObject, topic);
+        KafkaTracingUtil.traceResourceInvocation(strand, producerObject, record.topic());
+        KafkaTracingUtil.traceResourceInvocation(strand, producerObject, record.topic());
         final NonBlockingCallback callback = new NonBlockingCallback(strand);
-        Integer partitionValue = getIntValue(partition, ALIAS_PARTITION, logger);
-        Long timestampValue = getLongValue(timestamp);
-        byte[] keyValue = Objects.nonNull(key) ? ((ArrayValue) key).getBytes() : null;
-        ProducerRecord<byte[], byte[]> kafkaRecord = new ProducerRecord(topic, partitionValue, timestampValue,
-                                                                        keyValue, value.getBytes());
-        KafkaProducer<byte[], byte[]> producer = (KafkaProducer) producerObject.getNativeData(NATIVE_PRODUCER);
+        KafkaProducer producer = (KafkaProducer) producerObject.getNativeData(NATIVE_PRODUCER);
         try {
             if (strand.isInTransaction()) {
                 handleTransactions(strand, producerObject);
@@ -350,7 +344,7 @@ public class Send {
                     KafkaMetricsUtil.reportProducerError(producerObject,
                                                          KafkaObservabilityConstants.ERROR_TYPE_PUBLISH);
                 } else {
-                    KafkaMetricsUtil.reportPublish(producerObject, topic, value.size());
+                    KafkaMetricsUtil.reportPublish(producerObject, record.topic(), record.value());
                 }
                 callback.notifySuccess();
             });

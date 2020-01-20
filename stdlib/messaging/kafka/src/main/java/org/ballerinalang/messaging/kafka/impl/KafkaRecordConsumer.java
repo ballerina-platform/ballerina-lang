@@ -16,7 +16,6 @@
  * under the License.
  */
 
-
 package org.ballerinalang.messaging.kafka.impl;
 
 import org.apache.kafka.clients.consumer.ConsumerConfig;

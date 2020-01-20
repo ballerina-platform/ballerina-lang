@@ -105,7 +105,6 @@ public class KafkaListenerImpl implements KafkaListener {
         }
     }
 
-
     private void executeResource(ObjectValue listener, KafkaPollCycleFutureListener consumer, ConsumerRecords records,
                                  String groupId) {
         if (ObserveUtils.isTracingEnabled()) {

@@ -53,6 +53,7 @@ public class KafkaConstants {
     public static final String NATIVE_CONSUMER = "KafkaConsumer";
     public static final String NATIVE_PRODUCER = "KafkaProducer";
     public static final String NATIVE_CONSUMER_CONFIG = "KafkaConsumerConfig";
+    public static final String NATIVE_PRODUCER_CONFIG = "KafkaProducerConfig";
     public static final String CONNECTOR_ID = "connectorId";
 
     public static final String TRANSACTION_CONTEXT = "TransactionInitiated";

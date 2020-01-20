@@ -36,10 +36,10 @@ import org.ballerinalang.jvm.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.messaging.kafka.observability.KafkaMetricsUtil;
-import org.ballerinalang.messaging.kafka.observability.KafkaObservabilityConstants;
 import org.ballerinalang.jvm.values.api.BArray;
 import org.ballerinalang.jvm.values.api.BValueCreator;
+import org.ballerinalang.messaging.kafka.observability.KafkaMetricsUtil;
+import org.ballerinalang.messaging.kafka.observability.KafkaObservabilityConstants;
 import org.slf4j.Logger;
 
 import java.util.ArrayList;
@@ -58,24 +58,11 @@ import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.ALIAS_POLLI
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.ALIAS_POLLING_TIMEOUT;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.ALIAS_TOPIC;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.ALIAS_TOPICS;
-import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.CONSUMER_BOOTSTRAP_SERVERS_CONFIG;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.CONSUMER_CONFIG_FIELD_NAME;
-import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.CONSUMER_ERROR;
-import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.CONSUMER_KEY_DESERIALIZER_CONFIG;
-import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.CONSUMER_RECORD_STRUCT_NAME;
-import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.CONSUMER_VALUE_DESERIALIZER_CONFIG;
-import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.DETAIL_RECORD_NAME;
-import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.KAFKA_PROTOCOL_PACKAGE_ID;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.KEYSTORE_CONFIG;
-import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.OFFSET_STRUCT_NAME;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.PROPERTIES_ARRAY;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.PROTOCOL_CONFIG;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.SECURE_SOCKET;
-import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.SERDES_BYTE_ARRAY;
-import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.SERDES_FLOAT;
-import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.SERDES_INT;
-import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.SERDES_STRING;
-import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.TOPIC_PARTITION_STRUCT_NAME;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.TRUSTSTORE_CONFIG;
 
 /**
@@ -90,39 +77,28 @@ public class KafkaUtils {
                                                  ConsumerRecords records, String groupId) {
 
         BArray consumerRecordsArray = BValueCreator.createArrayValue(new BArrayType(getConsumerRecord().getType()));
-        String keyType = listener.getStringValue(CONSUMER_KEY_DESERIALIZER_CONFIG);
-        String valueType = listener.getStringValue(CONSUMER_VALUE_DESERIALIZER_CONFIG);
+        String keyType = listener.getStringValue(KafkaConstants.CONSUMER_KEY_DESERIALIZER_CONFIG);
+        String valueType = listener.getStringValue(KafkaConstants.CONSUMER_VALUE_DESERIALIZER_CONFIG);
 
         if (service.getType().getAttachedFunctions()[0].getParameterType().length == 2) {
-            records.forEach(record -> {
-                ConsumerRecord kafkaRecord = (ConsumerRecord) record;
-                MapValue<String, Object> consumerRecord = populateConsumerRecord(kafkaRecord, keyType, valueType);
+            for (Object record : records) {
+                MapValue<String, Object> consumerRecord = populateConsumerRecord((ConsumerRecord) record, keyType,
+                                                                                 valueType);
                 consumerRecordsArray.append(consumerRecord);
-            });
+            }
             return new Object[]{listener, true, consumerRecordsArray, true, null, false, null, false};
         } else {
-            ArrayValue partitionOffsetsArray = new ArrayValueImpl(new BArrayType(getPartitionOffsetRecord().getType()));
-//            records.forEach(record -> {
-//                MapValue<String, Object> consumerRecord = populateConsumerRecord(record);
-//                MapValue<String, Object> topicPartition = populateTopicPartitionRecord(record.topic(),
-//                        record.partition());
-//                MapValue<String, Object> partitionOffset = populatePartitionOffsetRecord(topicPartition,
-//                        record.offset());
-//
-//                consumerRecordsArray.append(consumerRecord);
-//                partitionOffsetsArray.append(partitionOffset);
-//            });
-            // TODO: Use the above commented code instead of the for loop once #17075 fixed.
-            int i = 0;
-            for (ConsumerRecord<byte[], byte[]> record : records) {
-                MapValue<String, Object> consumerRecord = populateConsumerRecord(record);
-                MapValue<String, Object> topicPartition = populateTopicPartitionRecord(record.topic(),
-                                                                                       record.partition());
+            BArray partitionOffsetsArray =
+                    BValueCreator.createArrayValue(new BArrayType(getPartitionOffsetRecord().getType()));
+            for (Object record : records) {
+                ConsumerRecord kafkaRecord = (ConsumerRecord) record;
+                MapValue<String, Object> consumerRecord = populateConsumerRecord(kafkaRecord, keyType, valueType);
+                MapValue<String, Object> topicPartition = populateTopicPartitionRecord(kafkaRecord.topic(),
+                                                                                       kafkaRecord.partition());
                 MapValue<String, Object> partitionOffset = populatePartitionOffsetRecord(topicPartition,
-                                                                                         record.offset());
-                consumerRecordsArray.add(i, consumerRecord);
-                partitionOffsetsArray.add(i, partitionOffset);
-                i++;
+                                                                                         kafkaRecord.offset());
+                consumerRecordsArray.append(consumerRecord);
+                partitionOffsetsArray.append(partitionOffset);
             }
             return new Object[]{listener, true, consumerRecordsArray, true, partitionOffsetsArray, true, groupId, true};
         }
@@ -132,7 +108,7 @@ public class KafkaUtils {
         Properties properties = new Properties();
 
         addStringParamIfPresent(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, configurations, properties,
-                                CONSUMER_BOOTSTRAP_SERVERS_CONFIG);
+                                KafkaConstants.CONSUMER_BOOTSTRAP_SERVERS_CONFIG);
         addStringParamIfPresent(ConsumerConfig.GROUP_ID_CONFIG, configurations, properties,
                 KafkaConstants.CONSUMER_GROUP_ID_CONFIG);
         addStringParamIfPresent(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, configurations, properties,
@@ -507,25 +483,25 @@ public class KafkaUtils {
     }
 
     private static Object getBValues(Object value, String type) {
-        if (SERDES_BYTE_ARRAY.equals(type)) {
+        if (KafkaConstants.SERDES_BYTE_ARRAY.equals(type)) {
             if (value instanceof byte[]) {
                 return BValueCreator.createArrayValue((byte[]) value);
             } else {
                 throw new BLangRuntimeException("Invalid type - expected: byte[]");
             }
-        } else if (SERDES_STRING.equals(type)) {
+        } else if (KafkaConstants.SERDES_STRING.equals(type)) {
             if (value instanceof String) {
                 return StringUtils.fromString((String) value);
             } else {
                 throw new BLangRuntimeException("Invalid type - expected: string");
             }
-        } else if (SERDES_INT.equals(type)) {
+        } else if (KafkaConstants.SERDES_INT.equals(type)) {
             if (value instanceof Long) {
                 return value;
             } else {
                 throw new BLangRuntimeException("Invalid type - expected: int");
             }
-        } else if (SERDES_FLOAT.equals(type)) {
+        } else if (KafkaConstants.SERDES_FLOAT.equals(type)) {
             if (value instanceof Double) {
                 return value;
             } else {
@@ -536,19 +512,19 @@ public class KafkaUtils {
     }
 
     public static MapValue<String, Object> getConsumerRecord() {
-        return createKafkaRecord(CONSUMER_RECORD_STRUCT_NAME);
+        return createKafkaRecord(KafkaConstants.CONSUMER_RECORD_STRUCT_NAME);
     }
 
     public static MapValue<String, Object> getPartitionOffsetRecord() {
-        return createKafkaRecord(OFFSET_STRUCT_NAME);
+        return createKafkaRecord(KafkaConstants.OFFSET_STRUCT_NAME);
     }
 
     public static MapValue<String, Object> getTopicPartitionRecord() {
-        return createKafkaRecord(TOPIC_PARTITION_STRUCT_NAME);
+        return createKafkaRecord(KafkaConstants.TOPIC_PARTITION_STRUCT_NAME);
     }
 
     public static ErrorValue createKafkaError(String message) {
-        return createKafkaError(message, CONSUMER_ERROR);
+        return createKafkaError(message, KafkaConstants.CONSUMER_ERROR);
     }
 
     public static ErrorValue createKafkaError(String message, String reason) {
@@ -561,12 +537,12 @@ public class KafkaUtils {
     }
 
     private static MapValue<String, Object> createKafkaDetailRecord(String message, ErrorValue cause) {
-        MapValue<String, Object> detail = createKafkaRecord(DETAIL_RECORD_NAME);
+        MapValue<String, Object> detail = createKafkaRecord(KafkaConstants.DETAIL_RECORD_NAME);
         return BallerinaValues.createRecord(detail, message, cause);
     }
 
     public static MapValue<String, Object> createKafkaRecord(String recordName) {
-        return BallerinaValues.createRecordValue(KAFKA_PROTOCOL_PACKAGE_ID, recordName);
+        return BallerinaValues.createRecordValue(KafkaConstants.KAFKA_PROTOCOL_PACKAGE_ID, recordName);
     }
 
     public static BArray getPartitionOffsetArrayFromOffsetMap(Map<TopicPartition, Long> offsetMap) {
@@ -690,7 +666,7 @@ public class KafkaUtils {
 
     public static String getBrokerNames(ObjectValue listener) {
         MapValue<String, Object> listenerConfigurations = listener.getMapValue(CONSUMER_CONFIG_FIELD_NAME);
-        return (String) listenerConfigurations.get(CONSUMER_BOOTSTRAP_SERVERS_CONFIG);
+        return (String) listenerConfigurations.get(KafkaConstants.CONSUMER_BOOTSTRAP_SERVERS_CONFIG);
     }
 
     public static String getTopicNamesString(List<String> topicsList) {
