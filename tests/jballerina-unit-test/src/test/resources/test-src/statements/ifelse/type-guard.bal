@@ -1032,3 +1032,27 @@ type Detail record {
 function errorReturningFunc(int? i) returns error<string, Detail> {
     return error("hello", message = "hello", code = i, f = 1.0);
 }
+
+const EXP_STR = "hello world";
+
+function testSameVarNameInDifferentScopes() {
+    string|int val = "hello ";
+
+    if (val is string) {
+        string str = val;
+        boolean bool = false;
+
+        if bool {
+            string s = "you";
+            str += s;
+            val = 1;
+        } else {
+            string s = "world";
+            str += s;
+        }
+
+        if str != EXP_STR {
+            panic error("expected '" + EXP_STR + "', found '" + str + "'");
+        }
+    }
+}

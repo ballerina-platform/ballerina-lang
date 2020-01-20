@@ -2882,15 +2882,16 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             }
 
             defineOriginalSymbol(lhsExpr, typeNarrower.getOriginalVarSymbol(varSymbol), env);
-            env = prevEnvs.peek();
+            env = prevEnvs.pop();
         }
     }
 
     private void defineOriginalSymbol(BLangExpression lhsExpr, BVarSymbol varSymbol, SymbolEnv env) {
         BSymbol foundSym = symResolver.lookupSymbol(env, varSymbol.name, varSymbol.tag);
 
-        // Terminate if we reach the env where the original symbol is available or the symbol is not available.
-        if (foundSym == varSymbol || foundSym == symTable.notFoundSymbol) {
+        // Terminate if we reach the env where the original symbol is available.
+        if (foundSym == varSymbol) {
+            prevEnvs.push(env);
             return;
         }
 

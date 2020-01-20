@@ -80,7 +80,7 @@ public class TypeGuardTest {
     public void testTypeGuardSemanticsNegative() {
         CompileResult negativeResult = BCompileUtil.compile("test-src/statements/ifelse/type-guard-semantics-negative" +
                 ".bal");
-        Assert.assertEquals(negativeResult.getErrorCount(), 42);
+        Assert.assertEquals(negativeResult.getErrorCount(), 43);
         int i = 0;
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int', found 'string'", 22, 17);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'string', found 'int'", 25, 20);
@@ -155,7 +155,8 @@ public class TypeGuardTest {
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'string', found 'string?'", 328,
                                   25);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int', found 'int?'", 343, 22);
-        BAssertUtil.validateError(negativeResult, i, "incompatible types: expected 'int', found 'int?'", 355, 22);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int', found 'int?'", 355, 22);
+        BAssertUtil.validateError(negativeResult, i, "undefined symbol 'j'", 377, 17);
     }
 
     @Test
@@ -581,5 +582,10 @@ public class TypeGuardTest {
     public void testTypeGuardForErrorDestructuringAssignmentNegative() {
         BValue[] returns = BRunUtil.invoke(result, "testTypeGuardForErrorDestructuringAssignmentNegative");
         Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test
+    public void testSameVarNameInDifferentScopes() {
+        BRunUtil.invoke(result, "testSameVarNameInDifferentScopes");
     }
 }
