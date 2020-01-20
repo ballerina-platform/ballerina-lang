@@ -52,8 +52,9 @@ public class ClientErrorsTest extends WebSocketTestCommons {
     public void testConnectionError() throws InterruptedException {
         sendTextAndAssertResponse(
                 "invalid-connection",
-                "error {ballerina/http}WsConnectionError message=IO Error cause=error {ballerina/io}GenericError " +
-                        "message=lmnop.ls: Name or service not known");
+                "error {ballerina/http}WsConnectionError message=IO Error " +
+                        "cause=error {ballerina/io}GenericError " +
+                        "message=lmnop.ls: nodename nor servname provided, or not known");
     }
 
     @Test(description = "SSL/TLS error")

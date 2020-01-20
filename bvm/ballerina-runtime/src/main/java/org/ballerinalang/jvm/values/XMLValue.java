@@ -16,12 +16,10 @@
 
 package org.ballerinalang.jvm.values;
 
-import org.ballerinalang.jvm.TypeConverter;
 import org.ballerinalang.jvm.XMLNodeType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
-import org.ballerinalang.jvm.values.api.BMap;
 import org.ballerinalang.jvm.values.api.BXML;
 import org.ballerinalang.jvm.values.api.BXMLQName;
 import org.ballerinalang.jvm.values.freeze.State;

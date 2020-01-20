@@ -71,7 +71,8 @@ public class TableDataStreamingTestCase extends BaseTest {
         insertDummyData(testDatabase.getJDBCUrl(), testDatabase.getUsername(), testDatabase.getPassword());
     }
 
-    @Test(groups = {"brokenOnXMLChange"}, description = "Tests streaming a large amount of data from a table, converted to XML")
+    @Test(groups = {"brokenOnXMLChange"},
+            description = "Tests streaming a large amount of data from a table, converted to XML")
     public void testStreamingLargeXml() throws Exception {
         HttpResponse response = HttpClientRequest
                 .doGet(serverInstance.getServiceURLHttp(servicePort, "dataService/getXmlData"), 60000, responseBuilder);

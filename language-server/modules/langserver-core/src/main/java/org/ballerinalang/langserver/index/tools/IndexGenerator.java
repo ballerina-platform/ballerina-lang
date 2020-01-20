@@ -64,7 +64,7 @@ public class IndexGenerator {
         List<String> packages = Arrays.asList("auth", "cache", "config", "crypto", "encoding", "file", "filepath",
                 "grpc", "http", "io", "jdbc", "jms", "jwt", "ldap", "log", "math", "artemis", "nats", "rabbitmq",
                 "mime", "oauth2", "observability", "openapi", "reflect", "socket", "streams", "system", "task", "test", 
-                "time", "transactions", "utils", "websub", "xslt");
+                "time", "transactions", "websub", "xslt");
         CompilerContext tempCompilerContext = LSContextManager.getInstance().getBuiltInPackagesCompilerContext();
         packages.forEach(pkg -> {
             try {
