@@ -22,9 +22,9 @@ import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.KafkaException;
 import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.types.BArrayType;
-import org.ballerinalang.jvm.values.ArrayValue;
-import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.api.BArray;
+import org.ballerinalang.jvm.values.api.BValueCreator;
 import org.ballerinalang.messaging.kafka.observability.KafkaMetricsUtil;
 import org.ballerinalang.messaging.kafka.observability.KafkaObservabilityConstants;
 import org.ballerinalang.messaging.kafka.observability.KafkaTracingUtil;
@@ -46,15 +46,16 @@ public class GetSubscription {
 
         try {
             Set<String> subscriptions = kafkaConsumer.subscription();
-            ArrayValue arrayValue = new ArrayValueImpl(new BArrayType(org.ballerinalang.jvm.types.BTypes.typeString));
+            BArray bArray =
+                    BValueCreator.createArrayValue(new BArrayType(org.ballerinalang.jvm.types.BTypes.typeString));
             if (!subscriptions.isEmpty()) {
                 // TODO: Remove this counter variable, and use append method in for loop once #17075 fixed.
                 int i = 0;
                 for (String subscription : subscriptions) {
-                    arrayValue.add(i++, subscription);
+                    bArray.add(i++, subscription);
                 }
             }
-            return arrayValue;
+            return bArray;
         } catch (KafkaException e) {
             KafkaMetricsUtil.reportConsumerError(consumerObject,
                                                  KafkaObservabilityConstants.ERROR_TYPE_GET_SUBSCRIPTION);

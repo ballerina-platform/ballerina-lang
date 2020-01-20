@@ -398,7 +398,6 @@ public type Consumer client object {
         return consumerSubscribeWithPartitionRebalance(self, topics, onPartitionsRevoked, onPartitionsAssigned);
     }
 
-
     # Unsubscribe the consumer from all the topic subscriptions.
     #
     # + return - `kafka:ConsumerError` if encounters an error, returns nil otherwise.

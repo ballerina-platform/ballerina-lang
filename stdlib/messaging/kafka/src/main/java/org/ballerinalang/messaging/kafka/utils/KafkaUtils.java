@@ -384,7 +384,7 @@ public class KafkaUtils {
                                                      Properties configParams,
                                                      String key) {
         BArray stringArray = (BArray) configs.get(key);
-        List<String> values = getStringListFromStringArrayValue(stringArray);
+        List<String> values = getStringListFromStringBArray(stringArray);
         configParams.put(paramName, values);
     }
 
@@ -430,7 +430,7 @@ public class KafkaUtils {
         return partitionList;
     }
 
-    public static List<String> getStringListFromStringArrayValue(BArray stringArray) {
+    public static List<String> getStringListFromStringBArray(BArray stringArray) {
         ArrayList<String> values = new ArrayList<>();
         if ((Objects.isNull(stringArray)) ||
                 (!((BArrayType) stringArray.getType()).getElementType().equals(BTypes.typeString))) {
@@ -565,7 +565,7 @@ public class KafkaUtils {
     /**
      * Get {@code Map<TopicPartition, OffsetAndMetadata>} map used in committing consumers.
      *
-     * @param offsets ArrayValue of Ballerina {@code PartitionOffset} records
+     * @param offsets {@code BArray} of Ballerina {@code PartitionOffset} records
      * @return {@code Map<TopicPartition, OffsetAndMetadata>} created using Ballerina {@code PartitionOffset}
      */
     public static Map<TopicPartition, OffsetAndMetadata> getPartitionToMetadataMap(BArray offsets) {

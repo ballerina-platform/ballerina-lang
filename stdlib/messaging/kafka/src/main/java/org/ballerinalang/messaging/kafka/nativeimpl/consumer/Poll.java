@@ -25,9 +25,9 @@ import org.apache.kafka.common.KafkaException;
 import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BArrayType;
-import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.api.BArray;
 import org.ballerinalang.jvm.values.api.BValueCreator;
 import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
 import org.ballerinalang.messaging.kafka.observability.KafkaMetricsUtil;
@@ -57,9 +57,7 @@ public class Poll {
         String keyType = consumerObject.getStringValue(CONSUMER_KEY_DESERIALIZER_CONFIG);
         String valueType = consumerObject.getStringValue(CONSUMER_VALUE_DESERIALIZER_CONFIG);
         Duration duration = Duration.ofMillis(timeout);
-
-        ArrayValue consumerRecordsArray =
-                (ArrayValue) BValueCreator.createArrayValue(new BArrayType(getConsumerRecord().getType()));
+        BArray consumerRecordsArray = BValueCreator.createArrayValue(new BArrayType(getConsumerRecord().getType()));
         try {
             ConsumerRecords recordsRetrieved = kafkaConsumer.poll(duration);
             if (!recordsRetrieved.isEmpty()) {

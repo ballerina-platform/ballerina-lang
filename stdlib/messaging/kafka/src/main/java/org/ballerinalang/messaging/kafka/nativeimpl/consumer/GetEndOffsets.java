@@ -22,8 +22,8 @@ import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.KafkaException;
 import org.apache.kafka.common.TopicPartition;
 import org.ballerinalang.jvm.scheduling.Scheduler;
-import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.api.BArray;
 import org.ballerinalang.messaging.kafka.observability.KafkaMetricsUtil;
 import org.ballerinalang.messaging.kafka.observability.KafkaObservabilityConstants;
 import org.ballerinalang.messaging.kafka.observability.KafkaTracingUtil;
@@ -53,8 +53,7 @@ public class GetEndOffsets {
 
     private static final Logger logger = LoggerFactory.getLogger(GetEndOffsets.class);
 
-    public static Object getEndOffsets(ObjectValue consumerObject, ArrayValue topicPartitions,
-                                       long duration) {
+    public static Object getEndOffsets(ObjectValue consumerObject, BArray topicPartitions, long duration) {
         KafkaTracingUtil.traceResourceInvocation(Scheduler.getStrand(), consumerObject);
         KafkaConsumer kafkaConsumer = (KafkaConsumer) consumerObject.getNativeData(NATIVE_CONSUMER);
         Properties consumerProperties = (Properties) consumerObject.getNativeData(NATIVE_CONSUMER_CONFIG);

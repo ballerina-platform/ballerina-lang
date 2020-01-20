@@ -21,8 +21,8 @@ package org.ballerinalang.messaging.kafka.nativeimpl.consumer;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.KafkaException;
 import org.ballerinalang.jvm.scheduling.Scheduler;
-import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.api.BArray;
 import org.ballerinalang.messaging.kafka.observability.KafkaMetricsUtil;
 import org.ballerinalang.messaging.kafka.observability.KafkaObservabilityConstants;
 import org.ballerinalang.messaging.kafka.observability.KafkaTracingUtil;
@@ -35,7 +35,7 @@ import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.CONSUMER_ER
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.NATIVE_CONSUMER;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.SUBSCRIBED_TOPICS;
 import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.createKafkaError;
-import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.getStringListFromStringArrayValue;
+import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.getStringListFromStringBArray;
 import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.getTopicNamesString;
 
 /**
@@ -44,10 +44,10 @@ import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.getTopicNamesSt
 public class Subscribe {
     private static final PrintStream console = System.out;
 
-    public static Object subscribe(ObjectValue consumerObject, ArrayValue topics) {
+    public static Object subscribe(ObjectValue consumerObject, BArray topics) {
         KafkaTracingUtil.traceResourceInvocation(Scheduler.getStrand(), consumerObject);
         KafkaConsumer kafkaConsumer = (KafkaConsumer) consumerObject.getNativeData(NATIVE_CONSUMER);
-        List<String> topicsList = getStringListFromStringArrayValue(topics);
+        List<String> topicsList = getStringListFromStringBArray(topics);
         try {
             kafkaConsumer.subscribe(topicsList);
             Set<String> subscribedTopics = kafkaConsumer.subscription();

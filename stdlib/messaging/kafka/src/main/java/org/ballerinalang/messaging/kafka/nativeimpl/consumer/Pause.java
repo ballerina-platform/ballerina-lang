@@ -22,8 +22,8 @@ import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.KafkaException;
 import org.apache.kafka.common.TopicPartition;
 import org.ballerinalang.jvm.scheduling.Scheduler;
-import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.api.BArray;
 import org.ballerinalang.messaging.kafka.observability.KafkaMetricsUtil;
 import org.ballerinalang.messaging.kafka.observability.KafkaObservabilityConstants;
 import org.ballerinalang.messaging.kafka.observability.KafkaTracingUtil;
@@ -44,7 +44,7 @@ public class Pause {
 
     private static final Logger logger = LoggerFactory.getLogger(Pause.class);
 
-    public static Object pause(ObjectValue consumerObject, ArrayValue topicPartitions) {
+    public static Object pause(ObjectValue consumerObject, BArray topicPartitions) {
         KafkaTracingUtil.traceResourceInvocation(Scheduler.getStrand(), consumerObject);
         KafkaConsumer kafkaConsumer = (KafkaConsumer) consumerObject.getNativeData(NATIVE_CONSUMER);
         ArrayList<TopicPartition> partitionList = getTopicPartitionList(topicPartitions, logger);
@@ -54,7 +54,7 @@ public class Pause {
         } catch (IllegalStateException | KafkaException e) {
             KafkaMetricsUtil.reportConsumerError(consumerObject, KafkaObservabilityConstants.ERROR_TYPE_PAUSE);
             return createKafkaError("Failed to pause topic partitions for the consumer: " + e.getMessage(),
-                    CONSUMER_ERROR);
+                                    CONSUMER_ERROR);
         }
         return null;
     }

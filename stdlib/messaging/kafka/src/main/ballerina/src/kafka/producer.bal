@@ -456,7 +456,6 @@ function producerSendStringByteArray(Producer producer, handle value, handle top
                 "org.ballerinalang.jvm.values.ArrayValue", "java.lang.Object", "java.lang.Object"]
 } external;
 
-
 // Send int values with different types of keys
 function producerSendInt(Producer producer, int value, handle topic, int? partition = (), int? timestamp = ())
                                 returns ProducerError? =
@@ -503,7 +502,6 @@ function producerSendIntByteArray(Producer producer, int value, handle topic, by
                 "org.ballerinalang.jvm.values.ArrayValue", "java.lang.Object", "java.lang.Object"]
 } external;
 
-
 // Send float values with different types of keys
 function producerSendFloat(Producer producer, float value, handle topic, int? partition = (), int? timestamp = ())
                                 returns ProducerError? =
@@ -549,8 +547,6 @@ function producerSendFloatByteArray(Producer producer, float value, handle topic
     paramTypes: ["org.ballerinalang.jvm.values.ObjectValue", "double", "java.lang.String",
                 "org.ballerinalang.jvm.values.ArrayValue", "java.lang.Object", "java.lang.Object"]
 } external;
-
-
 
 // Send byte[] values with different types of keys
 function producerSendByteArray(Producer producer, byte[] value, handle topic, int? partition = (), int? timestamp = ())

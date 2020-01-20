@@ -24,8 +24,8 @@ import org.apache.kafka.common.KafkaException;
 import org.apache.kafka.common.TopicPartition;
 import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.api.BArray;
 import org.ballerinalang.messaging.kafka.observability.KafkaMetricsUtil;
 import org.ballerinalang.messaging.kafka.observability.KafkaObservabilityConstants;
 import org.ballerinalang.messaging.kafka.observability.KafkaTracingUtil;
@@ -43,7 +43,7 @@ import static org.ballerinalang.messaging.kafka.utils.TransactionUtils.handleTra
  */
 public class CommitConsumerOffsets {
 
-    public static Object commitConsumerOffsets(ObjectValue producerObject, ArrayValue offsets,
+    public static Object commitConsumerOffsets(ObjectValue producerObject, BArray offsets,
                                                String groupId) {
         Strand strand = Scheduler.getStrand();
         KafkaTracingUtil.traceResourceInvocation(strand, producerObject);

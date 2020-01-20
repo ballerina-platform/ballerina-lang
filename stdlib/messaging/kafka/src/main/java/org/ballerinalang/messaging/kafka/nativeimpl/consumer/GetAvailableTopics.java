@@ -24,9 +24,9 @@ import org.apache.kafka.common.PartitionInfo;
 import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BTypes;
-import org.ballerinalang.jvm.values.ArrayValue;
-import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.api.BArray;
+import org.ballerinalang.jvm.values.api.BValueCreator;
 import org.ballerinalang.messaging.kafka.observability.KafkaMetricsUtil;
 import org.ballerinalang.messaging.kafka.observability.KafkaObservabilityConstants;
 import org.ballerinalang.messaging.kafka.observability.KafkaTracingUtil;
@@ -69,7 +69,7 @@ public class GetAvailableTopics {
             } else {
                 topics = kafkaConsumer.listTopics();
             }
-            return getArrayValueFromMap(topics);
+            return getBArrayFromMap(topics);
         } catch (KafkaException e) {
             KafkaMetricsUtil.reportConsumerError(consumerObject, KafkaObservabilityConstants.ERROR_TYPE_GET_TOPICS);
             return createKafkaError("Failed to retrieve available topics: " + e.getMessage(), CONSUMER_ERROR);
@@ -82,14 +82,14 @@ public class GetAvailableTopics {
         return kafkaConsumer.listTopics(duration);
     }
 
-    private static ArrayValue getArrayValueFromMap(Map<String, List<PartitionInfo>> map) {
-        ArrayValue arrayValue = new ArrayValueImpl(new BArrayType(BTypes.typeString));
+    private static BArray getBArrayFromMap(Map<String, List<PartitionInfo>> map) {
+        BArray bArray = BValueCreator.createArrayValue(new BArrayType(BTypes.typeString));
         if (!map.keySet().isEmpty()) {
             int i = 0;
             for (String topic : map.keySet()) {
-                arrayValue.add(i++, topic);
+                bArray.add(i++, topic);
             }
         }
-        return arrayValue;
+        return bArray;
     }
 }

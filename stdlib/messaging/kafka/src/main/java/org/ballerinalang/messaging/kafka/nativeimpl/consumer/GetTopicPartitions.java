@@ -23,10 +23,10 @@ import org.apache.kafka.common.KafkaException;
 import org.apache.kafka.common.PartitionInfo;
 import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.types.BArrayType;
-import org.ballerinalang.jvm.values.ArrayValue;
-import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.api.BArray;
+import org.ballerinalang.jvm.values.api.BValueCreator;
 import org.ballerinalang.messaging.kafka.observability.KafkaMetricsUtil;
 import org.ballerinalang.messaging.kafka.observability.KafkaObservabilityConstants;
 import org.ballerinalang.messaging.kafka.observability.KafkaTracingUtil;
@@ -72,7 +72,8 @@ public class GetTopicPartitions {
             } else {
                 partitionInfoList = kafkaConsumer.partitionsFor(topic);
             }
-            ArrayValue topicPartitionArray = new ArrayValueImpl(new BArrayType(getTopicPartitionRecord().getType()));
+            BArray topicPartitionArray =
+                    BValueCreator.createArrayValue(new BArrayType(getTopicPartitionRecord().getType()));
             for (PartitionInfo info : partitionInfoList) {
                 MapValue<String, Object> partition = populateTopicPartitionRecord(info.topic(), info.partition());
                 topicPartitionArray.append(partition);

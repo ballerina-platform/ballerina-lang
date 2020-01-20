@@ -49,7 +49,7 @@ import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.KAFKA_PROTO
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.NATIVE_CONSUMER;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.ORG_NAME;
 import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.createKafkaError;
-import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.getStringListFromStringArrayValue;
+import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.getStringListFromStringBArray;
 import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.getTopicPartitionRecord;
 import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.populateTopicPartitionRecord;
 
@@ -75,7 +75,7 @@ public class SubscribeWithPartitionRebalance {
         KafkaTracingUtil.traceResourceInvocation(strand, consumerObject);
         NonBlockingCallback callback = new NonBlockingCallback(strand);
         KafkaConsumer kafkaConsumer = (KafkaConsumer) consumerObject.getNativeData(NATIVE_CONSUMER);
-        List<String> topicsList = getStringListFromStringArrayValue(topics);
+        List<String> topicsList = getStringListFromStringBArray(topics);
         ConsumerRebalanceListener consumer = new KafkaRebalanceListener(strand, strand.scheduler, onPartitionsRevoked,
                                                                         onPartitionsAssigned, consumerObject);
         try {
