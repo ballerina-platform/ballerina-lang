@@ -679,6 +679,7 @@ public class Desugar extends BLangNodeVisitor {
         // Rewrite the object methods to ensure that any anonymous types defined in method params, return type etc.
         // gets defined before its first use.
         objectTypeNode.functions.forEach(fn -> rewrite(fn, this.env));
+        rewrite(objectTypeNode.generatedInitFunction, this.env);
         rewrite(objectTypeNode.initFunction, this.env);
 
         result = objectTypeNode;
@@ -3264,7 +3265,6 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     private BLangStatementExpression desugarRecordConstructor(BLangRecordLiteral mappingConstructorExpr) {
-        mappingConstructorExpr.desugared = true;
         BLangBlockStmt blockStmt = ASTBuilderUtil.createBlockStmt(mappingConstructorExpr.pos);
         BType recType = mappingConstructorExpr.type;
         BRecordTypeSymbol recTSymbol = (BRecordTypeSymbol) recType.tsymbol;
