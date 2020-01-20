@@ -166,11 +166,13 @@ public class SendingEntityBody implements ListenerState {
                               HttpCarbonMessage outboundResponseMsg, HttpContent httpContent, int streamId)
             throws Http2Exception {
         if (httpContent instanceof LastHttpContent) {
-            final LastHttpContent lastContent = (LastHttpContent) httpContent;
-            HttpHeaders trailers = lastContent.trailingHeaders();
             if (serverChannelInitializer.isHttpAccessLogEnabled()) {
                 logAccessInfo(outboundResponseMsg, streamId);
             }
+
+            final LastHttpContent lastContent = (LastHttpContent) httpContent;
+            HttpHeaders trailers = lastContent.trailingHeaders();
+            trailers.add(outboundResponseMsg.getTrailerHeaders());
             boolean endStream = trailers.isEmpty();
             writeData(lastContent, streamId, endStream);
             if (!trailers.isEmpty()) {

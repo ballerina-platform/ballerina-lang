@@ -209,6 +209,7 @@ public class ReceivingHeaders implements SenderState {
 
         try {
             HttpConversionUtil.addHttp2ToHttpHeaders(streamId, headers, trailers, version, true, false);
+            responseMessage.getTrailerHeaders().add(trailers);
         } catch (Http2Exception e) {
             outboundMsgHolder.getResponseFuture().
                     notifyHttpListener(new Exception("Error while setting http headers", e));

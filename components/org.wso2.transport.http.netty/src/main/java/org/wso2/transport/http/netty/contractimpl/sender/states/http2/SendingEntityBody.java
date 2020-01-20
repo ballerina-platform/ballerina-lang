@@ -148,6 +148,7 @@ public class SendingEntityBody implements SenderState {
                 // Convert any trailing headers.
                 final LastHttpContent lastContent = (LastHttpContent) msg;
                 trailers = lastContent.trailingHeaders();
+                trailers.add(outboundMsgHolder.getRequest().getTrailerHeaders());
                 http2Trailers = HttpConversionUtil.toHttp2Headers(trailers, true);
             }
 

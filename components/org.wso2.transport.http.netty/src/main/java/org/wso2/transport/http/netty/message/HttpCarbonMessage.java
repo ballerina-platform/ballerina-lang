@@ -59,6 +59,7 @@ public class HttpCarbonMessage {
     private final ServerConnectorFuture httpOutboundRespFuture = new HttpWsServerConnectorFuture();
     private final DefaultHttpResponseFuture httpOutboundRespStatusFuture = new DefaultHttpResponseFuture();
     private final Observable contentObservable = new DefaultObservable();
+    private HttpHeaders httpTrailerHeaders = new DefaultLastHttpContent().trailingHeaders();
     private IOException ioException;
     public ListenerReqRespStateManager listenerReqRespStateManager;
     private Http2MessageStateContext http2MessageStateContext;
@@ -256,6 +257,15 @@ public class HttpCarbonMessage {
      */
     public void removeHeader(String key) {
         httpMessage.headers().remove(key);
+    }
+
+    /**
+     * Returns the trailer header map of the message.
+     *
+     * @return all trailer headers.
+     */
+    public HttpHeaders getTrailerHeaders() {
+        return httpTrailerHeaders;
     }
 
     public Object getProperty(String key) {
