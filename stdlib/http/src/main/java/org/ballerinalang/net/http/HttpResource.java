@@ -194,7 +194,8 @@ public class HttpResource {
 
         setupTransactionAnnotations(resource, httpResource);
         if (checkConfigAnnotationAvailability(resourceConfigAnnotation)) {
-            httpResource.setPath(resourceConfigAnnotation.getStringValue(PATH_FIELD));
+            httpResource.setPath(resourceConfigAnnotation.getStringValue(PATH_FIELD).replaceAll(
+                    HttpConstants.REGEX, HttpConstants.SINGLE_SLASH));
             httpResource.setMethods(
                     getAsStringList(resourceConfigAnnotation.getArrayValue(METHODS_FIELD).getStringArray()));
             httpResource.setConsumes(

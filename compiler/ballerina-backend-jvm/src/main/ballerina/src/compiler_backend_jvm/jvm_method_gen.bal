@@ -101,7 +101,7 @@ function genJMethodForBFunc(bir:Function func,
     boolean isObserved = false;
     boolean isWorker = (func.flags & bir:WORKER) == bir:WORKER;
     boolean isRemote = (func.flags & bir:REMOTE) == bir:REMOTE;
-    if ((isService || isRemote || isWorker) && funcName != "__init") {
+    if ((isService || isRemote || isWorker) && funcName != "__init" && funcName != "$__init$") {
         // create try catch block to start and stop observability.
         isObserved = true;
         tryStart = labelGen.getLabel("try-start");
@@ -1849,7 +1849,7 @@ function addInitAndTypeInitInstructions(bir:Package pkg, bir:Function func) {
     nextBB.terminator = createTypesCallTerm;
 
     if (func.basicBlocks.length() == 0) {
-        bir:Return ret = {pos:{sLine:999}, kind:bir:TERMINATOR_RETURN};
+        bir:Return ret = {pos:func.pos, kind:bir:TERMINATOR_RETURN};
         typeOwnerCreateBB.terminator = ret;
         func.basicBlocks = basicBlocks;
         return;
@@ -1885,7 +1885,7 @@ function generateDepModInit(bir:ModuleID[] imprtMods, bir:Package pkg, string fu
     bir:VariableDcl retVar = {name: {value:"%ret"}, typeValue: errUnion};
     bir:VarRef retVarRef = {variableDcl:retVar, typeValue:errUnion};
 
-    bir:Function modInitFunc = {pos:{}, basicBlocks:[], localVars:[retVar],
+    bir:Function modInitFunc = {pos:{sLine: 0}, basicBlocks:[], localVars:[retVar],
                             name:{value:funcName}, typeValue:{retType:errUnion},
                             workerChannels:[], receiver:(), restParamExist:false};
     _ = addAndGetNextBasicBlock(modInitFunc);
@@ -2479,7 +2479,7 @@ function generateExecutionStopMethod(jvm:ClassWriter cw, string initClass, bir:P
     mv.visitEnd();
 
     //Adding this java method to the function map because this is getting called from a bir instruction.
-    bir:Function func = {pos:{}, basicBlocks:[], localVars:[],
+    bir:Function func = {pos:{sLine: 0}, basicBlocks:[], localVars:[],
                             name:{value:MODULE_STOP}, typeValue:{retType:"()"},
                             workerChannels:[], receiver:(), restParamExist:false};
     birFunctionMap[pkgName + MODULE_STOP] = getFunctionWrapper(func, orgName, moduleName,

@@ -245,6 +245,8 @@ const string ARRAY_VALUE_IMPL = "org/ballerinalang/jvm/values/ArrayValueImpl";
 const string TUPLE_VALUE_IMPL = "org/ballerinalang/jvm/values/TupleValueImpl";
 const string SIMPLE_VALUE = "org/ballerinalang/jvm/values/SimpleValue";
 
+const string BHANDLE = "org/ballerinalang/jvm/values/api/BHandle";
+
 // types related classes
 const string BTYPE = "org/ballerinalang/jvm/types/BType";
 const string BTYPES = "org/ballerinalang/jvm/types/BTypes";
