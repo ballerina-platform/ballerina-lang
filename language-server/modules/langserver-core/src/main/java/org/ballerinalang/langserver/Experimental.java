@@ -24,6 +24,7 @@ package org.ballerinalang.langserver;
 public enum Experimental {
     INTROSPECTION("introspection"),
     AST_PROVIDER("astProvider"),
+    SHOW_TEXT_DOCUMENT("showTextDocument"),
     EXAMPLES_PROVIDER("examplesProvider"),
     API_EDITOR_PROVIDER("apiEditorProvider"),
     SEMANTIC_SYNTAX_HIGHLIGHTER("semanticSyntaxHighlighter"),

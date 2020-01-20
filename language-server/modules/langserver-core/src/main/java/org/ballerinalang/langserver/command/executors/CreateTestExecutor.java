@@ -62,8 +62,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiConsumer;
 
-import static org.ballerinalang.langserver.BallerinaWorkspaceService.Experimental.SHOW_TEXT_DOCUMENT;
 import static org.ballerinalang.langserver.command.CommandUtil.getBLangNode;
+import static org.ballerinalang.langserver.Experimental.SHOW_TEXT_DOCUMENT;
 
 /**
  * Represents the create variable command executor.
