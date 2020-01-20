@@ -1038,8 +1038,9 @@ const EXP_STR = "hello world";
 function testSameVarNameInDifferentScopes() {
     string|int val = "hello ";
 
+    string str = "";
     if (val is string) {
-        string str = val;
+        str = val;
         boolean bool = false;
 
         if bool {
@@ -1051,8 +1052,48 @@ function testSameVarNameInDifferentScopes() {
             str += s;
         }
 
-        if str != EXP_STR {
-            panic error("expected '" + EXP_STR + "', found '" + str + "'");
+        if str == EXP_STR {
+            return;
         }
     }
+    panic error("expected '" + EXP_STR + "', found '" + str + "'");
+}
+
+public type XYZ record {
+    string x;
+    string y;
+    int z;
+};
+
+function testNarrowedTypeResetWithMultipleBranches() {
+
+    XYZ|string sampleValue = {x: "X", y :"Y", z: -1};
+
+    if sampleValue is XYZ {
+        if isZpositive(sampleValue) {
+            sampleValue = "one";
+        } else if isXNotEmpty(sampleValue) {
+            sampleValue = "two";
+        } else if isYEmpty(sampleValue) {
+            sampleValue = "three";
+        }
+    }
+
+    if sampleValue is string && sampleValue == "two" {
+        return;
+    }
+
+    panic error("expected 'two', found '" + sampleValue.toString() + "'");
+}
+
+function isXNotEmpty(XYZ xyz) returns boolean {
+    return xyz.x.length() > 0;
+}
+
+function isYEmpty(XYZ xyz) returns boolean {
+    return xyz.y.length() == 0;
+}
+
+function isZpositive(XYZ xyz) returns boolean {
+    return xyz.z > 0;
 }

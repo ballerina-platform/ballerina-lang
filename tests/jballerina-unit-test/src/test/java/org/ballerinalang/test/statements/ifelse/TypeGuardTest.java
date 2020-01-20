@@ -585,6 +585,11 @@ public class TypeGuardTest {
     }
 
     @Test
+    public void testNarrowedTypeResetWithMultipleBranches() {
+        BRunUtil.invoke(result, "testNarrowedTypeResetWithMultipleBranches");
+    }
+
+    @Test
     public void testSameVarNameInDifferentScopes() {
         BRunUtil.invoke(result, "testSameVarNameInDifferentScopes");
     }
