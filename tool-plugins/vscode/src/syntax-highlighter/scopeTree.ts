@@ -86,7 +86,16 @@ export function getScopeColor(scope: string) {
     return tree.traverse(scope);
 }
 
-export function getScopeName(scope: number) {
-    let scopeArray: { [key: number]: string } = { 0: "endpoint.ballerina", 1: "unused.ballerina" };
-    return scopeArray[scope];
+export function getScopeName(scopeId: number) : string {
+    let scopeArray: [string][] = [["endpoint.ballerina"],["unused.ballerina"]];
+    let selectedScope = scopeArray[scopeId];
+    let element;
+    let scope = "";
+    for(element of selectedScope){
+        if(element !== "") {
+            scope = element;
+            break;
+        }
+    }
+    return scope;
 }
