@@ -247,7 +247,6 @@ builtInReferenceTypeName
     |   TYPE_XML
     |   TYPE_JSON
     |   TYPE_TABLE LT typeName GT
-    |   TYPE_STREAM LT typeName GT
     |   TYPE_DESC LT typeName GT
     |   SERVICE
     |   errorTypeName
@@ -1122,7 +1121,6 @@ documentationIdentifier
     |   TYPE_JSON
     |   TYPE_XML
     |   TYPE_TABLE
-    |   TYPE_STREAM
     |   TYPE_ANY
     |   TYPE_DESC
     |   TYPE_FUTURE

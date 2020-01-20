@@ -21,7 +21,7 @@ type BTypeBasicType BTypeInt | BTypeBoolean | BTypeAny | BTypeNil | BTypeByte | 
 
 type BTypeComplexType BUnionType | BTupleType | BInvokableType | BArrayType | BRecordType | BObjectType 
                           | BMapType | BErrorType | BFutureType | Self | BTypeDesc | BServiceType | BPlatformType 
-			  | BFiniteType | BTableType | BStreamType | BTypeHandle;
+			  | BFiniteType | BTableType | BTypeHandle;
 
 
 function emitType(BType bType, int tabs = 0) returns string {
@@ -93,10 +93,8 @@ function emitComplexType(BTypeComplexType bType, int tabs) returns string {
         return emitBFiniteType(bType, tabs);
     } else if bType is BTableType {
         return emitBTableType(bType, tabs);
-    } else if bType is BTypeHandle {
+    } else { // if bType is BTypeHandle {
         return emitBTypeHandle(bType, tabs);
-    } else { //if bType is BStreamType {
-        return emitBStreamType(bType, tabs);
     }
 }
 
@@ -315,13 +313,6 @@ function emitBTypeHandle(BTypeHandle bType, int tabs) returns string {
     return str;
 }
 
-function emitBStreamType(BStreamType bType, int tabs) returns string {
-    string str = "table";
-    str += "<";
-    str += emitTypeRef(bType.sConstraint);
-    str += ">";
-    return str;
-}
 /////////////////////// Emitting type reference ///////////////////////////
 function emitTypeRef(BType bType, int tabs = 0) returns string {
     if bType is BTypeBasicType {

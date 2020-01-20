@@ -1064,11 +1064,10 @@ public class TaintAnalyzer extends BLangNodeVisitor {
             }
         }
 
-        // If this is an object init using the default constructor, or a stream or channel initialization then skip the
+        // If this is an object init using the default constructor, or a channel initialization then skip the
         // taint checking.
-        if (typeInit.type.tag != TypeTags.STREAM &&
-                (typeInit.type.tag != TypeTags.OBJECT ||
-                         ((BObjectTypeSymbol) typeInit.type.tsymbol).initializerFunc != null)) {
+        if (typeInit.type.tag != TypeTags.OBJECT ||
+                         ((BObjectTypeSymbol) typeInit.type.tsymbol).initializerFunc != null) {
             typeInit.initInvocation.accept(this);
         }
 
@@ -1477,11 +1476,6 @@ public class TaintAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangRecordLiteral.BLangStructLiteral structLiteral) {
-        /* ignore */
-    }
-
-    @Override
-    public void visit(BLangRecordLiteral.BLangStreamLiteral streamLiteral) {
         /* ignore */
     }
 

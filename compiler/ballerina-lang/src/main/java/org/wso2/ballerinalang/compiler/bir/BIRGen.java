@@ -107,7 +107,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLang
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangMapLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKey;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKeyValue;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangStreamLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangStructLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangFunctionVarRef;
@@ -1341,11 +1340,6 @@ public class BIRGen extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangStreamLiteral streamLiteral) {
-        generateStreamLiteral(streamLiteral);
-    }
-
-    @Override
     public void visit(BLangArrayLiteral astArrayLiteralExpr) {
         generateListConstructorExpr(astArrayLiteralExpr);
     }
@@ -2120,15 +2114,6 @@ public class BIRGen extends BLangNodeVisitor {
         emit(new BIRNonTerminator.NewTable(tableLiteral.pos, tableLiteral.type, toVarRef, columnsOp, dataOp,
                 keyColOp));
 
-        this.env.targetOperand = toVarRef;
-    }
-
-    private void generateStreamLiteral(BLangStreamLiteral streamLiteral) {
-        BIRVariableDcl tempVarDcl = new BIRVariableDcl(streamLiteral.type, this.env.nextLocalVarId(names),
-                                                       VarScope.FUNCTION, VarKind.TEMP);
-        this.env.enclFunc.localVars.add(tempVarDcl);
-        BIROperand toVarRef = new BIROperand(tempVarDcl);
-        emit(new BIRNonTerminator.NewStream(streamLiteral.pos, streamLiteral.type, toVarRef));
         this.env.targetOperand = toVarRef;
     }
 

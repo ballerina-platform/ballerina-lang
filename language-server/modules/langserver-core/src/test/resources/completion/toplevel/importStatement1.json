@@ -350,14 +350,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "ballerina/lang.stream",
-      "kind": "Module",
-      "detail": "Package",
-      "sortText": "140",
-      "insertText": "ballerina/lang.'stream;",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "ballerina/lang.error",
       "kind": "Module",
       "detail": "Package",
