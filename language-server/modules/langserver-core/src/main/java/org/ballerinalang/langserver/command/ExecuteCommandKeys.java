@@ -17,22 +17,31 @@ package org.ballerinalang.langserver.command;
 
 import org.ballerinalang.langserver.BallerinaLanguageServer;
 import org.ballerinalang.langserver.compiler.LSContext;
+import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.diagnostic.DiagnosticsHelper;
+import org.eclipse.lsp4j.Position;
 
 import java.util.List;
 
 /**
  * Keys associated to execute command operation.
+ *
  * @since v0.964.0
  */
 public class ExecuteCommandKeys {
 
+    public static final LSContext.Key<WorkspaceDocumentManager> DOCUMENT_MANAGER_KEY = new LSContext.Key<>();
+
+    public static final LSContext.Key<String> FILE_URI_KEY = new LSContext.Key<>();
+
+    public static final LSContext.Key<Position> POSITION_START_KEY = new LSContext.Key<>();
+
     public static final LSContext.Key<List<Object>> COMMAND_ARGUMENTS_KEY = new LSContext.Key<>();
-    
+
     public static final LSContext.Key<BallerinaLanguageServer> LANGUAGE_SERVER_KEY = new LSContext.Key<>();
-    
+
     public static final LSContext.Key<String> PKG_NAME_KEY = new LSContext.Key<>();
-    
+
     public static final LSContext.Key<DiagnosticsHelper> DIAGNOSTICS_HELPER_KEY = new LSContext.Key<>();
 
     private ExecuteCommandKeys() {
