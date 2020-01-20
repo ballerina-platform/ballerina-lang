@@ -18,7 +18,7 @@ jobs:
       with:
         java-version: 1.8
     - name: Build with Gradle
-      run: ./gradlew build -Dorg.gradle.parallel=false -x createJavadoc --stacktrace -scan --console=plain --no-daemon -x :jballerina-integration-test:test
+      run: ./gradlew build -Dorg.gradle.parallel=false -x createJavadoc --stacktrace -scan --console=plain --no-daemon -x test
 
   windows-build:
 
@@ -35,4 +35,4 @@ jobs:
         with:
           java-version: 1.8
       - name: Build with Gradle
-        run: ./gradlew.bat build -Dorg.gradle.parallel=false -x createJavadoc --stacktrace -scan --console=plain --no-daemon -x :jballerina-integration-test:test
+        run: ./gradlew.bat build -Dorg.gradle.parallel=false -x createJavadoc --stacktrace -scan --console=plain --no-daemon -x test
