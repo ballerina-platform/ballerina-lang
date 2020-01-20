@@ -292,14 +292,14 @@ public class DefinitionTest {
                 {"defWaitAction2.json", "action"},
                 {"defWaitAction3.json", "action"},
                 // Covers Worker Send Action
-//                {"defSyncSendAction1.json", "action"},
-//                {"defSyncSendAction2.json", "action"},
-//                {"defAsyncSendAction1.json", "action"},
-//                {"defAsyncSendAction2.json", "action"},
+                {"defSyncSendAction1.json", "action"},
+                {"defSyncSendAction2.json", "action"},
+                {"defAsyncSendAction1.json", "action"},
+                {"defAsyncSendAction2.json", "action"},
                 // Covers Worker Receive Action
-//                {"defReceiveAction1.json", "action"},
+                {"defReceiveAction1.json", "action"},
                 // Covers Flush Action
-//                {"defFlushAction1.json", "action"},
+                {"defFlushAction1.json", "action"},
                 // Covers Remote Action
                 {"defRemoteAction1.json", "action"},
                 {"defRemoteAction2.json", "action"},
