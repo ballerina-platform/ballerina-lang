@@ -25,7 +25,6 @@ import org.apache.kafka.common.TopicPartition;
 import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BArrayType;
-import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.FPValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
@@ -70,9 +69,10 @@ import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.populateTopicPa
 )
 public class SubscribeWithPartitionRebalance {
 
-    public static Object subscribeWithPartitionRebalance(Strand strand, ObjectValue consumerObject, ArrayValue topics,
+    public static Object subscribeWithPartitionRebalance(ObjectValue consumerObject, BArray topics,
                                                          FPValue onPartitionsRevoked, FPValue onPartitionsAssigned) {
-        KafkaTracingUtil.traceResourceInvocation(Scheduler.getStrand(), consumerObject);
+        Strand strand = Scheduler.getStrand();
+        KafkaTracingUtil.traceResourceInvocation(strand, consumerObject);
         NonBlockingCallback callback = new NonBlockingCallback(strand);
         KafkaConsumer kafkaConsumer = (KafkaConsumer) consumerObject.getNativeData(NATIVE_CONSUMER);
         List<String> topicsList = getStringListFromStringArrayValue(topics);
