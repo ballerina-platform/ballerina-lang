@@ -22,9 +22,13 @@ import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.clients.consumer.OffsetAndMetadata;
 import org.apache.kafka.common.KafkaException;
 import org.apache.kafka.common.TopicPartition;
+import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.messaging.kafka.observability.KafkaMetricsUtil;
+import org.ballerinalang.messaging.kafka.observability.KafkaObservabilityConstants;
+import org.ballerinalang.messaging.kafka.observability.KafkaTracingUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -54,7 +58,7 @@ public class GetCommittedOffset {
 
     public static Object getCommittedOffset(ObjectValue consumerObject, MapValue<String, Object> topicPartition,
                                             long duration) {
-
+        KafkaTracingUtil.traceResourceInvocation(Scheduler.getStrand(), consumerObject);
         KafkaConsumer kafkaConsumer = (KafkaConsumer) consumerObject.getNativeData(NATIVE_CONSUMER);
         Properties consumerProperties = (Properties) consumerObject.getNativeData(NATIVE_CONSUMER_CONFIG);
 
@@ -80,12 +84,14 @@ public class GetCommittedOffset {
             offset = populatePartitionOffsetRecord(topicPartition, offsetAndMetadata.offset());
             return offset;
         } catch (KafkaException e) {
+            KafkaMetricsUtil.reportConsumerError(consumerObject,
+                                                 KafkaObservabilityConstants.ERROR_TYPE_GET_COMMIT_OFFSET);
             return createKafkaError("Failed to retrieve committed offsets: " + e.getMessage(), CONSUMER_ERROR);
         }
     }
 
     private static OffsetAndMetadata getOffsetAndMetadataWithDuration(KafkaConsumer kafkaConsumer,
-                                                               TopicPartition topicPartition, long timeout) {
+                                                                      TopicPartition topicPartition, long timeout) {
         Duration duration = Duration.ofMillis(timeout);
         return kafkaConsumer.committed(topicPartition, duration);
     }

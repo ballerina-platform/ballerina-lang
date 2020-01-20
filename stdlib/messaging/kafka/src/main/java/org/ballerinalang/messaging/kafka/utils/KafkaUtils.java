@@ -36,6 +36,8 @@ import org.ballerinalang.jvm.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.messaging.kafka.observability.KafkaMetricsUtil;
+import org.ballerinalang.messaging.kafka.observability.KafkaObservabilityConstants;
 import org.ballerinalang.jvm.values.api.BArray;
 import org.ballerinalang.jvm.values.api.BValueCreator;
 import org.slf4j.Logger;
@@ -99,19 +101,29 @@ public class KafkaUtils {
             });
             return new Object[]{listener, true, consumerRecordsArray, true, null, false, null, false};
         } else {
-            BArray partitionOffsetsArray = BValueCreator.createArrayValue(new BArrayType(
-                    getPartitionOffsetRecord().getType()));
-            records.forEach(record -> {
-                ConsumerRecord kafkaRecord = (ConsumerRecord) record;
-                MapValue<String, Object> consumerRecord = populateConsumerRecord(kafkaRecord, keyType, valueType);
-                MapValue<String, Object> topicPartition = populateTopicPartitionRecord(kafkaRecord.topic(),
-                        kafkaRecord.partition());
+            ArrayValue partitionOffsetsArray = new ArrayValueImpl(new BArrayType(getPartitionOffsetRecord().getType()));
+//            records.forEach(record -> {
+//                MapValue<String, Object> consumerRecord = populateConsumerRecord(record);
+//                MapValue<String, Object> topicPartition = populateTopicPartitionRecord(record.topic(),
+//                        record.partition());
+//                MapValue<String, Object> partitionOffset = populatePartitionOffsetRecord(topicPartition,
+//                        record.offset());
+//
+//                consumerRecordsArray.append(consumerRecord);
+//                partitionOffsetsArray.append(partitionOffset);
+//            });
+            // TODO: Use the above commented code instead of the for loop once #17075 fixed.
+            int i = 0;
+            for (ConsumerRecord<byte[], byte[]> record : records) {
+                MapValue<String, Object> consumerRecord = populateConsumerRecord(record);
+                MapValue<String, Object> topicPartition = populateTopicPartitionRecord(record.topic(),
+                                                                                       record.partition());
                 MapValue<String, Object> partitionOffset = populatePartitionOffsetRecord(topicPartition,
-                        kafkaRecord.offset());
-
-                consumerRecordsArray.append(consumerRecord);
-                partitionOffsetsArray.append(partitionOffset);
-            });
+                                                                                         record.offset());
+                consumerRecordsArray.add(i, consumerRecord);
+                partitionOffsetsArray.add(i, partitionOffset);
+                i++;
+            }
             return new Object[]{listener, true, consumerRecordsArray, true, partitionOffsetsArray, true, groupId, true};
         }
     }
@@ -120,7 +132,7 @@ public class KafkaUtils {
         Properties properties = new Properties();
 
         addStringParamIfPresent(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, configurations, properties,
-                CONSUMER_BOOTSTRAP_SERVERS_CONFIG);
+                                CONSUMER_BOOTSTRAP_SERVERS_CONFIG);
         addStringParamIfPresent(ConsumerConfig.GROUP_ID_CONFIG, configurations, properties,
                 KafkaConstants.CONSUMER_GROUP_ID_CONFIG);
         addStringParamIfPresent(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, configurations, properties,
@@ -144,7 +156,7 @@ public class KafkaUtils {
                 KafkaConstants.CONSUMER_VALUE_DESERIALIZER_CONFIG);
 
         addStringArrayParamIfPresent(ALIAS_TOPICS, configurations, properties,
-                ALIAS_TOPICS);
+                                     ALIAS_TOPICS);
         addStringArrayParamIfPresent(PROPERTIES_ARRAY, configurations, properties, PROPERTIES_ARRAY);
 
         addIntParamIfPresent(ConsumerConfig.SESSION_TIMEOUT_MS_CONFIG, configurations, properties,
@@ -201,7 +213,7 @@ public class KafkaUtils {
                 KafkaConstants.CONSUMER_EXCLUDE_INTERNAL_TOPICS_CONFIG, true);
 
         addBooleanParamIfPresent(ALIAS_DECOUPLE_PROCESSING, configurations, properties,
-                ALIAS_DECOUPLE_PROCESSING, false);
+                                 ALIAS_DECOUPLE_PROCESSING, false);
         if (Objects.nonNull(configurations.get(SECURE_SOCKET))) {
             processSSLProperties(configurations, properties);
         }
@@ -635,7 +647,7 @@ public class KafkaUtils {
             return Math.toIntExact(longValue);
         } catch (ArithmeticException e) {
             logger.warn("The value set for {} needs to be less than {}. The {} value is set to {}", name,
-                    Integer.MAX_VALUE, name, Integer.MAX_VALUE);
+                        Integer.MAX_VALUE, name, Integer.MAX_VALUE);
             return Integer.MAX_VALUE;
         }
     }
@@ -669,6 +681,11 @@ public class KafkaUtils {
     public static void createKafkaProducer(Properties producerProperties, ObjectValue producerObject) {
         KafkaProducer kafkaProducer = new KafkaProducer<>(producerProperties);
         producerObject.addNativeData(KafkaConstants.NATIVE_PRODUCER, kafkaProducer);
+        producerObject.addNativeData(KafkaConstants.NATIVE_PRODUCER_CONFIG, producerProperties);
+        producerObject.addNativeData(KafkaConstants.BOOTSTRAP_SERVERS,
+                                     producerProperties.getProperty(KafkaConstants.BOOTSTRAP_SERVERS));
+        producerObject.addNativeData(KafkaConstants.CLIENT_ID, getClientIdFromProperties(producerProperties));
+        KafkaMetricsUtil.reportNewProducer(producerObject);
     }
 
     public static String getBrokerNames(ObjectValue listener) {
@@ -678,5 +695,38 @@ public class KafkaUtils {
 
     public static String getTopicNamesString(List<String> topicsList) {
         return String.join(", ", topicsList);
+    }
+
+    public static String getClientIdFromProperties(Properties properties) {
+        if (properties == null) {
+            return KafkaObservabilityConstants.UNKNOWN;
+        }
+        String clientId = properties.getProperty(KafkaConstants.CLIENT_ID);
+        if (clientId == null) {
+            return KafkaObservabilityConstants.UNKNOWN;
+        }
+        return  clientId;
+    }
+
+    public static String getBootstrapServers(ObjectValue object) {
+        if (object == null) {
+            return KafkaObservabilityConstants.UNKNOWN;
+        }
+        String bootstrapServers = (String) object.getNativeData(KafkaConstants.BOOTSTRAP_SERVERS);
+        if (bootstrapServers == null) {
+            return KafkaObservabilityConstants.UNKNOWN;
+        }
+        return bootstrapServers;
+    }
+
+    public static String getClientId(ObjectValue object) {
+        if (object == null) {
+            return KafkaObservabilityConstants.UNKNOWN;
+        }
+        String clientId = (String) object.getNativeData(KafkaConstants.CLIENT_ID);
+        if (clientId == null) {
+            return KafkaObservabilityConstants.UNKNOWN;
+        }
+        return clientId;
     }
 }

@@ -30,6 +30,9 @@ import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.api.BValueCreator;
 import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
+import org.ballerinalang.messaging.kafka.observability.KafkaMetricsUtil;
+import org.ballerinalang.messaging.kafka.observability.KafkaObservabilityConstants;
+import org.ballerinalang.messaging.kafka.observability.KafkaTracingUtil;
 
 import java.time.Duration;
 
@@ -48,6 +51,7 @@ public class Poll {
 
     public static Object poll(ObjectValue consumerObject, long timeout) {
         Strand strand = Scheduler.getStrand();
+        KafkaTracingUtil.traceResourceInvocation(strand, consumerObject);
         NonBlockingCallback callback = new NonBlockingCallback(strand);
         KafkaConsumer kafkaConsumer = (KafkaConsumer) consumerObject.getNativeData(NATIVE_CONSUMER);
         String keyType = consumerObject.getStringValue(CONSUMER_KEY_DESERIALIZER_CONFIG);
@@ -66,12 +70,15 @@ public class Poll {
                             valueType
                     );
                     consumerRecordsArray.append(recordValue);
+                    KafkaMetricsUtil.reportConsume(consumerObject, recordValue.getStringValue("topic"),
+                                                   recordValue.getArrayValue("value").size());
                 });
             }
             callback.setReturnValues(consumerRecordsArray);
         } catch (IllegalStateException | IllegalArgumentException | KafkaException e) {
+            KafkaMetricsUtil.reportConsumerError(consumerObject, KafkaObservabilityConstants.ERROR_TYPE_POLL);
             callback.setReturnValues(createKafkaError("Failed to poll from the Kafka server: " + e.getMessage(),
-                    CONSUMER_ERROR));
+                                                      CONSUMER_ERROR));
         }
         callback.notifySuccess();
         return null;

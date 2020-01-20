@@ -27,6 +27,9 @@ import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
+import org.ballerinalang.messaging.kafka.observability.KafkaMetricsUtil;
+import org.ballerinalang.messaging.kafka.observability.KafkaObservabilityConstants;
+import org.ballerinalang.messaging.kafka.observability.KafkaTracingUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -323,10 +326,18 @@ public class Send {
     }
 
     @SuppressWarnings(UNCHECKED)
-    private static Object sendKafkaRecord(ProducerRecord record, ObjectValue producerObject) {
+    public static Object send(ObjectValue producerObject, ArrayValue value, String topic, Object key,
+                              Object partition, Object timestamp) {
         Strand strand = Scheduler.getStrand();
-        KafkaProducer producer = (KafkaProducer) producerObject.getNativeData(NATIVE_PRODUCER);
+        KafkaTracingUtil.traceResourceInvocation(strand, producerObject, topic);
+        KafkaTracingUtil.traceResourceInvocation(strand, producerObject, topic);
         final NonBlockingCallback callback = new NonBlockingCallback(strand);
+        Integer partitionValue = getIntValue(partition, ALIAS_PARTITION, logger);
+        Long timestampValue = getLongValue(timestamp);
+        byte[] keyValue = Objects.nonNull(key) ? ((ArrayValue) key).getBytes() : null;
+        ProducerRecord<byte[], byte[]> kafkaRecord = new ProducerRecord(topic, partitionValue, timestampValue,
+                                                                        keyValue, value.getBytes());
+        KafkaProducer<byte[], byte[]> producer = (KafkaProducer) producerObject.getNativeData(NATIVE_PRODUCER);
         try {
             if (strand.isInTransaction()) {
                 handleTransactions(strand, producerObject);
@@ -334,14 +345,19 @@ public class Send {
             producer.send(record, (metadata, e) -> {
                 if (Objects.nonNull(e)) {
                     ErrorValue error = createKafkaError("Failed to send data to Kafka server: " + e.getMessage(),
-                            PRODUCER_ERROR);
+                                                        PRODUCER_ERROR);
                     callback.setReturnValues(error);
+                    KafkaMetricsUtil.reportProducerError(producerObject,
+                                                         KafkaObservabilityConstants.ERROR_TYPE_PUBLISH);
+                } else {
+                    KafkaMetricsUtil.reportPublish(producerObject, topic, value.size());
                 }
                 callback.notifySuccess();
             });
         } catch (IllegalStateException | KafkaException e) {
             callback.setReturnValues(createKafkaError("Failed to send data to Kafka server: "
-                    + e.getMessage(), PRODUCER_ERROR));
+                                                              + e.getMessage(), PRODUCER_ERROR));
+            KafkaMetricsUtil.reportProducerError(producerObject, KafkaObservabilityConstants.ERROR_TYPE_PUBLISH);
             callback.notifySuccess();
         }
         return null;

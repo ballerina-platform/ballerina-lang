@@ -205,4 +205,8 @@ public class KafkaConstants {
 
     // Warning suppression
     public static final String UNCHECKED = "unchecked";
+
+    //Properties constants
+    public static final String BOOTSTRAP_SERVERS = "bootstrap.servers";
+    public static final String CLIENT_ID = "client.id";
 }
