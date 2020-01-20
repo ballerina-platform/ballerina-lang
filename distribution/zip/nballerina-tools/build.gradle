@@ -65,7 +65,6 @@ configurations {
     staticFiles
     balx
     unzipped
-    langserverResources
 }
 
 dependencies {
@@ -204,12 +203,6 @@ def copyLangServerBinSpec = {
     }
 }
 
-def copyLangSeverIndexSpec = {
-    path -> copySpec {
-        from configurations.langserverResources
-        into(path + 'lib/tools/lang-server/resources')
-     }
-}
 def copyDebugAdapterLauncher = {
     path -> copySpec {
         from('resources/debug-adapter-launcher.sh')
@@ -341,7 +334,6 @@ task createZip(type: Zip) {
     with copyBalxSpec(basePath)
     with copyBinSpec(basePath)
     with copyLangServerLibsSpec(basePath)
-    with copyLangSeverIndexSpec(basePath)
     with copyLangServerBinSpec(basePath)
     with copyComposerDistributionSpec(basePath)
     with copyComposerFontsSpec(basePath)
@@ -364,7 +356,6 @@ task updateBalHome(type: Copy) {
     with copyBalxSpec(installDir)
     with copyBinSpec(installDir)
     with copyLangServerLibsSpec(installDir)
-    with copyLangSeverIndexSpec(installDir)
     with copyLangServerBinSpec(installDir)
     with copyComposerDistributionSpec(installDir)
     with copyComposerFontsSpec(installDir)
@@ -390,7 +381,6 @@ task createDistribution(type: Copy) {
     with copyBalxSpec("")
     with copyBinSpec("")
     with copyLangServerLibsSpec("")
-    with copyLangSeverIndexSpec("")
     with copyLangServerBinSpec("")
     with copyComposerDistributionSpec("")
     with copyComposerFontsSpec("")
