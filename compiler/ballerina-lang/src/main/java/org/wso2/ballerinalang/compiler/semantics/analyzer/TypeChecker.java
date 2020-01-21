@@ -1229,7 +1229,7 @@ public class TypeChecker extends BLangNodeVisitor {
                 varRefExpr.symbol = varSym;
                 actualType = varSym.type;
                 markAndRegisterClosureVariable(symbol, varRefExpr.pos);
-            } else if ((symbol.tag & SymTag.TYPE) == SymTag.TYPE) {
+            } else if ((symbol.tag & SymTag.TYPE_DEF) == SymTag.TYPE_DEF) {
                 actualType = new BTypedescType(symbol.type, null);
                 varRefExpr.symbol = symbol;
             } else if ((symbol.tag & SymTag.CONSTANT) == SymTag.CONSTANT) {

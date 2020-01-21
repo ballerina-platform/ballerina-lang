@@ -201,7 +201,7 @@ public class SymbolResolver extends BLangNodeVisitor {
         }
 
         // Type names should be unique and cannot be shadowed
-        if ((foundSym.tag & SymTag.TYPE) == SymTag.TYPE) {
+        if ((foundSym.tag & SymTag.TYPE) == SymTag.TYPE && !((foundSym.tag & SymTag.CONSTANT) == SymTag.CONSTANT)) {
             dlog.error(pos, DiagnosticCode.REDECLARED_SYMBOL, symbol.name);
             return false;
         }
@@ -234,7 +234,7 @@ public class SymbolResolver extends BLangNodeVisitor {
         }
 
         // Type names should be unique and cannot be shadowed
-        if ((foundSym.tag & SymTag.TYPE) == SymTag.TYPE) {
+        if ((foundSym.tag & SymTag.TYPE) == SymTag.TYPE && !((foundSym.tag & SymTag.CONSTANT) == SymTag.CONSTANT)) {
             return false;
         }
 
@@ -995,7 +995,7 @@ public class SymbolResolver extends BLangNodeVisitor {
         // 2) Resolve the package scope using the package alias.
         //    If the package alias is not empty or null, then find the package scope,
         if (symbol == symTable.notFoundSymbol) {
-            symbol = lookupSymbolInPackage(userDefinedTypeNode.pos, env, pkgAlias, typeName, SymTag.VARIABLE_NAME);
+            symbol = lookupSymbolInPackage(userDefinedTypeNode.pos, env, pkgAlias, typeName, SymTag.TYPE);
         }
 
         if (symbol == symTable.notFoundSymbol) {
