@@ -539,10 +539,9 @@ public class Types {
                     unresolvedTypes);
         }
 
-        // This doesn't compare constraints as there is a requirement to be able to return raw table type and assign
-        // it to a constrained table reference.
         if (targetTag == TypeTags.TABLE && sourceTag == TypeTags.TABLE) {
-            return true;
+            return isAssignable(((BTableType) source).constraint, (((BTableType) target).constraint),
+                                unresolvedTypes);
         }
 
         BSymbol symbol = symResolver.resolveImplicitCastOp(source, target);
