@@ -293,15 +293,14 @@ public class BuildCommandTest extends CommandTest {
         Path validBalFilePath = this.testResources.resolve("valid-bal-file");
         BuildCommand buildCommand = new BuildCommand(validBalFilePath, printStream, printStream, false, true);
         new CommandLine(buildCommand).parse(String.valueOf(validBalFilePath.resolve
-                ("valid-relative-path-bal-file/hello_world.bal")));
+                ("valid-relative-path-bal-file/hello_world_relative.bal")));
         buildCommand.execute();
         String buildLog = readOutput(true);
         readOutput(true);
         Assert.assertTrue(buildLog.contains("Compiling source\n" +
-                "\thello_world.bal\n" +
+                "\thello_world_relative.bal\n" +
                 "\n" +
-                "Generating executables\n" +
-                "\t"));
+                "Generating executables\n"));
     }
 
     @Test(description = "Build bal file with no entry")
