@@ -214,7 +214,7 @@ public class AssignStmtTest {
     public void testCastAndConversionWithVar() {
         CompileResult result = BCompileUtil.compile("test-src/statements/assign/var-negative.bal");
 
-        Assert.assertEquals(result.getErrorCount(), 25);
+        Assert.assertEquals(result.getErrorCount(), 26);
         int i = 0;
         BAssertUtil.validateError(result, i++, "unknown type 'Foo'", 4, 5);
         BAssertUtil.validateError(result, i++, "unknown type 'Foo'", 4, 20);
@@ -241,5 +241,6 @@ public class AssignStmtTest {
         BAssertUtil.validateError(result, i++, "undefined symbol 'fooo'", 60, 32);
         BAssertUtil.validateError(result, i++, "unknown type 'Foo'", 73, 14);
         BAssertUtil.validateError(result, i++, "undefined symbol 'bar'", 73, 19);
+        BAssertUtil.validateError(result, i++, "unknown type 'X'", 79, 5);
     }
 }
