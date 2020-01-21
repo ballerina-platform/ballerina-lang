@@ -3153,7 +3153,8 @@ public class Desugar extends BLangNodeVisitor {
         if ((varRefExpr.symbol.tag & SymTag.FUNCTION) == SymTag.FUNCTION &&
                 varRefExpr.symbol.type.tag == TypeTags.INVOKABLE) {
             genVarRefExpr = new BLangFunctionVarRef((BVarSymbol) varRefExpr.symbol);
-        } else if ((varRefExpr.symbol.tag & SymTag.TYPE) == SymTag.TYPE) {
+        } else if ((varRefExpr.symbol.tag & SymTag.TYPE) == SymTag.TYPE &&
+                !((varRefExpr.symbol.tag & SymTag.CONSTANT) == SymTag.CONSTANT)) {
             genVarRefExpr = new BLangTypeLoad(varRefExpr.symbol);
         } else if ((ownerSymbol.tag & SymTag.INVOKABLE) == SymTag.INVOKABLE) {
             // Local variable in a function/resource/action/worker

@@ -39,16 +39,16 @@ public class SymTag {
     public static final int XMLNS = 1 << 15 | IMPORT;
     public static final int SEMANTIC_ERROR = 1 << 16;
     public static final int ENDPOINT = 1 << 17 | VARIABLE;
-    public static final int OBJECT = 1 << 18 | TYPE | VARIABLE_NAME | STRUCT;
-    public static final int RECORD = 1 << 19 | TYPE | VARIABLE_NAME | STRUCT;
-    public static final int TYPE_DEF = 1 << 20 | TYPE | VARIABLE_NAME;
+    public static final int TYPE_DEF = 1 << 18 | TYPE | VARIABLE_NAME;
+    public static final int OBJECT = 1 << 19 | TYPE_DEF | STRUCT;
+    public static final int RECORD = 1 << 20 | TYPE_DEF | STRUCT;
     public static final int FINITE_TYPE = 1 << 21 | TYPE | VARIABLE_NAME;
     public static final int UNION_TYPE = 1 << 22 | TYPE | VARIABLE_NAME;
     public static final int TUPLE_TYPE = 1 << 23 | TYPE | VARIABLE_NAME;
     public static final int ARRAY_TYPE = 1 << 25 | TYPE | VARIABLE_NAME;
     public static final int SCOPE = 1 << 26;
     public static final int CHANNEL = 1 << 27;
-    public static final int CONSTANT = 1 << 28 | VARIABLE_NAME;
+    public static final int CONSTANT = 1 << 28 | VARIABLE_NAME | TYPE;
     public static final int FUNCTION_TYPE = 1 << 29 | TYPE | VARIABLE_NAME;
     public static final int CONSTRUCTOR = 1 << 30 | INVOKABLE;
 }
