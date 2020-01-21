@@ -80,7 +80,7 @@ public type Response object {
     # + return - Returns true if the specified header key exists
     public function hasHeader(string headerName, public mime:HeaderPosition position = mime:LEADING) returns boolean {
         mime:Entity entity = self.getEntityWithoutBody();
-        return entity.hasHeader(headerName, position = position);
+        return entity.hasHeader(headerName, position);
     }
 
     # Returns the value of the specified header. If the specified header key maps to multiple values, the first of
@@ -93,7 +93,7 @@ public type Response object {
     public function getHeader(string headerName, public mime:HeaderPosition position = mime:LEADING)
                                                                                             returns @tainted string {
         mime:Entity entity = self.getEntityWithoutBody();
-        return entity.getHeader(headerName, position = position);
+        return entity.getHeader(headerName, position);
     }
 
     # Adds the specified header to the response. Existing header values are not replaced.
@@ -103,7 +103,7 @@ public type Response object {
     # + position - Represents the position of the header as an optional parameter
     public function addHeader(string headerName, string headerValue, public mime:HeaderPosition position = mime:LEADING) {
         mime:Entity entity = self.getEntityWithoutBody();
-        entity.addHeader(headerName, headerValue, position = position);
+        entity.addHeader(headerName, headerValue, position);
     }
 
     # Gets all the header values to which the specified header key maps to.
@@ -115,7 +115,7 @@ public type Response object {
     public function getHeaders(string headerName, public mime:HeaderPosition position = mime:LEADING)
                                                                                             returns @tainted string[] {
         mime:Entity entity = self.getEntityWithoutBody();
-        return entity.getHeaders(headerName, position = position);
+        return entity.getHeaders(headerName, position);
     }
 
     # Sets the specified header to the response. If a mapping already exists for the specified header key, the
@@ -126,7 +126,7 @@ public type Response object {
     # + position - Represents the position of the header as an optional parameter
     public function setHeader(string headerName, string headerValue, public mime:HeaderPosition position = mime:LEADING) {
         mime:Entity entity = self.getEntityWithoutBody();
-        entity.setHeader(headerName, headerValue, position = position);
+        entity.setHeader(headerName, headerValue, position);
 
         // TODO: see if this can be handled in a better manner
         if (stringutils:equalsIgnoreCase(SERVER, headerName)) {
@@ -140,7 +140,7 @@ public type Response object {
     # + position - Represents the position of the header as an optional parameter
     public function removeHeader(string key, public mime:HeaderPosition position = mime:LEADING) {
         mime:Entity entity = self.getEntityWithoutBody();
-        entity.removeHeader(key, position = position);
+        entity.removeHeader(key, position);
     }
 
     # Removes all the headers from the response.
@@ -148,7 +148,7 @@ public type Response object {
     # + position - Represents the position of the header as an optional parameter
     public function removeAllHeaders(public mime:HeaderPosition position = mime:LEADING) {
         mime:Entity entity = self.getEntityWithoutBody();
-        entity.removeAllHeaders(position = position);
+        entity.removeAllHeaders(position);
     }
 
     # Gets all the names of the headers of the response.
@@ -157,7 +157,7 @@ public type Response object {
     # + return - An array of all the header names
     public function getHeaderNames(public mime:HeaderPosition position = mime:LEADING) returns @tainted string[] {
         mime:Entity entity = self.getEntityWithoutBody();
-        return entity.getHeaderNames(position = position);
+        return entity.getHeaderNames(position);
     }
 
     # Sets the `content-type` header to the response.

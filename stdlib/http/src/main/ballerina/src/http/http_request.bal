@@ -119,7 +119,7 @@ public type Request object {
     # + return - Returns true if the specified header key exists
     public function hasHeader(string headerName, public mime:HeaderPosition position = mime:LEADING) returns boolean {
         mime:Entity entity = self.getEntityWithoutBody();
-        return entity.hasHeader(headerName, position = position);
+        return entity.hasHeader(headerName, position);
     }
 
     # Returns the value of the specified header. If the specified header key maps to multiple values, the first of
@@ -132,7 +132,7 @@ public type Request object {
     public function getHeader(string headerName, public mime:HeaderPosition position = mime:LEADING)
                                                                                         returns @tainted string {
         mime:Entity entity = self.getEntityWithoutBody();
-        return entity.getHeader(headerName, position = position);
+        return entity.getHeader(headerName, position);
     }
 
     # Gets all the header values to which the specified header key maps to.
@@ -144,7 +144,7 @@ public type Request object {
     public function getHeaders(string headerName, public mime:HeaderPosition position = mime:LEADING)
                                                                                         returns @tainted string[] {
         mime:Entity entity = self.getEntityWithoutBody();
-        return entity.getHeaders(headerName, position = position);
+        return entity.getHeaders(headerName, position);
     }
 
     # Sets the specified header to the request. If a mapping already exists for the specified header key, the existing
@@ -155,7 +155,7 @@ public type Request object {
     # + position - Represents the position of the header as an optional parameter
     public function setHeader(string headerName, string headerValue, public mime:HeaderPosition position = mime:LEADING) {
         mime:Entity entity = self.getEntityWithoutBody();
-        entity.setHeader(headerName, headerValue, position = position);
+        entity.setHeader(headerName, headerValue, position);
     }
 
     # Adds the specified header to the request. Existing header values are not replaced.
@@ -165,7 +165,7 @@ public type Request object {
     # + position - Represents the position of the header as an optional parameter
     public function addHeader(string headerName, string headerValue, public mime:HeaderPosition position = mime:LEADING) {
         mime:Entity entity = self.getEntityWithoutBody();
-        entity.addHeader(headerName, headerValue, position = position);
+        entity.addHeader(headerName, headerValue, position);
     }
 
     # Removes the specified header from the request.
@@ -174,7 +174,7 @@ public type Request object {
     # + position - Represents the position of the header as an optional parameter
     public function removeHeader(string key, public mime:HeaderPosition position = mime:LEADING) {
         mime:Entity entity = self.getEntityWithoutBody();
-        entity.removeHeader(key, position = position);
+        entity.removeHeader(key, position);
     }
 
     # Removes all the headers from the request.
@@ -182,7 +182,7 @@ public type Request object {
     # + position - Represents the position of the header as an optional parameter
     public function removeAllHeaders(public mime:HeaderPosition position = mime:LEADING) {
         mime:Entity entity = self.getEntityWithoutBody();
-        entity.removeAllHeaders(position = position);
+        entity.removeAllHeaders(position);
     }
 
     # Gets all the names of the headers of the request.
@@ -191,7 +191,7 @@ public type Request object {
     # + return - An array of all the header names
     public function getHeaderNames(public mime:HeaderPosition position = mime:LEADING) returns @tainted string[] {
         mime:Entity entity = self.getEntityWithoutBody();
-        return entity.getHeaderNames(position = position);
+        return entity.getHeaderNames(position);
     }
 
     # Checks whether the client expects a `100-continue` response.

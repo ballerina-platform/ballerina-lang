@@ -835,7 +835,7 @@ public class HttpUtil {
 
         HttpHeaders transportTrailingHeaders = outboundMsg.getTrailerHeaders();
         HttpHeaders trailingHeaders = (HttpHeaders) entityObj.getNativeData(ENTITY_TRAILER_HEADERS);
-        if (trailingHeaders != null) {
+        if (trailingHeaders != null && trailingHeaders != transportTrailingHeaders) {
             transportTrailingHeaders.add(trailingHeaders);
         }
     }
