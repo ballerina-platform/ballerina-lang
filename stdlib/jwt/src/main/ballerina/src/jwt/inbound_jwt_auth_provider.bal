@@ -71,7 +71,7 @@ function authenticateFromCache(JwtValidatorConfig jwtValidatorConfig, string jwt
     var cachedJwt = trap <CachedJwt>jwtValidatorConfig.jwtCache.get(jwtToken);
     if (cachedJwt is CachedJwt) {
         // convert to current time and check the expiry time
-        if (cachedJwt.expiryTime > (time:currentTime().time / 1000)) {
+        if (cachedJwt.expiryTime <= 0 || cachedJwt.expiryTime > (time:currentTime().time / 1000)) {
             JwtPayload payload = cachedJwt.jwtPayload;
             string? sub = payload?.sub;
             if (sub is string) {
