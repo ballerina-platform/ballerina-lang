@@ -17,20 +17,11 @@
 function testFreezeOnValuesOfNonAnydataType() {
     PersonObj p = new;
     PersonObj q = p.cloneReadOnly();
-
-    stream<int> intSt = new;
-    _ = intSt.cloneReadOnly();
-
-    // future<boolean> boolFuture; moved to freeze-and-isfrozen-negative.bal
-    // _ = boolFuture.cloneReadOnly();
 }
 
 function testFreezeOnMapWithoutAnydata() {
     map<PersonObj> m1 = {};
     _ = m1.cloneReadOnly();
-
-    map<stream<int>|PersonObj> m2 = {};
-    _ = m2.cloneReadOnly();
 }
 
 function testFreezeOnArrayWithoutAnydata() {

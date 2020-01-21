@@ -49,7 +49,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BSemanticErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
@@ -544,10 +543,6 @@ public class Types {
         // it to a constrained table reference.
         if (targetTag == TypeTags.TABLE && sourceTag == TypeTags.TABLE) {
             return true;
-        }
-
-        if (targetTag == TypeTags.STREAM && sourceTag == TypeTags.STREAM) {
-            return isAssignable(((BStreamType) source).constraint, ((BStreamType) target).constraint, unresolvedTypes);
         }
 
         BSymbol symbol = symResolver.resolveImplicitCastOp(source, target);
@@ -1568,11 +1563,6 @@ public class Types {
                 }
             }
             return true;
-        }
-
-        @Override
-        public Boolean visit(BStreamType t, BType s) {
-            return t == s;
         }
 
         @Override

@@ -43,7 +43,6 @@ public class Names {
     public static final Name INT = new Name("int");
     public static final Name MAP = new Name("map");
     public static final Name OBJECT = new Name("object");
-    public static final Name STREAM = new Name("stream");
     public static final Name TABLE = new Name("table");
     public static final Name TYPEDESC = new Name("typedesc");
     public static final Name STRING = new Name("string");
@@ -52,8 +51,6 @@ public class Names {
     public static final Name UTILS_PACKAGE = new Name("utils");
     public static final Name BUILTIN_ORG = new Name("ballerina");
     public static final Name RUNTIME_PACKAGE = new Name("runtime");
-    public static final Name STREAMS_ORG = new Name("ballerina");
-    public static final Name STREAMS_MODULE = new Name("streams");
     public static final Name IGNORE = new Name("_");
     public static final Name INVALID = new Name("><");
     public static final Name GEN_VAR_PREFIX = new Name("_$$_");

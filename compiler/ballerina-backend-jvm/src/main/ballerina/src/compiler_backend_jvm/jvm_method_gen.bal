@@ -381,10 +381,6 @@ function geerateFrameClassFieldLoad(bir:VariableDcl?[] localVars, jvm:MethodVisi
             mv.visitFieldInsn(GETFIELD, frameName, stringutils:replace(localVar.name.value, "%","_"),
                     io:sprintf("L%s;", TABLE_VALUE));
             mv.visitVarInsn(ASTORE, index);
-        } else if (bType is bir:BStreamType) {
-            mv.visitFieldInsn(GETFIELD, frameName, stringutils:replace(localVar.name.value, "%","_"),
-                    io:sprintf("L%s;", STREAM_VALUE));
-            mv.visitVarInsn(ASTORE, index);
         } else if (bType is bir:BArrayType ||
                     bType is bir:BTupleType) {
             mv.visitFieldInsn(GETFIELD, frameName, stringutils:replace(localVar.name.value, "%","_"),
@@ -517,10 +513,6 @@ function geerateFrameClassFieldUpdate(bir:VariableDcl?[] localVars, jvm:MethodVi
             mv.visitVarInsn(ALOAD, index);
             mv.visitFieldInsn(PUTFIELD, frameName, stringutils:replace(localVar.name.value, "%","_"),
                     io:sprintf("L%s;", TABLE_VALUE));
-        } else if (bType is bir:BStreamType) {
-            mv.visitVarInsn(ALOAD, index);
-            mv.visitFieldInsn(PUTFIELD, frameName, stringutils:replace(localVar.name.value, "%","_"),
-                    io:sprintf("L%s;", STREAM_VALUE));
         } else if (bType is bir:BArrayType ||
                     bType is bir:BTupleType) {
             mv.visitVarInsn(ALOAD, index);
@@ -634,8 +626,6 @@ function getJVMTypeSign(bir:BType bType) returns string {
         jvmType = io:sprintf("L%s;", MAP_VALUE);
     } else if (bType is bir:BTableType) {
         jvmType = io:sprintf("L%s;", TABLE_VALUE);
-    } else if (bType is bir:BStreamType) {
-        jvmType = io:sprintf("L%s;", STREAM_VALUE);
     } else if (bType is bir:BArrayType ||
                 bType is bir:BTupleType) {
         jvmType = io:sprintf("L%s;", ARRAY_VALUE);
@@ -765,7 +755,7 @@ function generateBasicBlocks(jvm:MethodVisitor mv, bir:BasicBlock?[] basicBlocks
                 } else {
                     instGen.generateNewStringXMLQNameIns(<bir:NewStringXMLQName> inst);
                 } 
-            } else if (insKind <= bir:INS_KIND_NEW_STREAM) {
+            } else if (insKind <= bir:INS_KIND_NEW_TABLE) {
                 if (insKind == bir:INS_KIND_XML_SEQ_STORE) {
                     instGen.generateXMLStoreIns(<bir:XMLAccess> inst);
                 } else if (insKind == bir:INS_KIND_XML_SEQ_LOAD) {
@@ -782,10 +772,8 @@ function generateBasicBlocks(jvm:MethodVisitor mv, bir:BasicBlock?[] basicBlocks
                     instGen.generateFPLoadIns(<bir:FPLoad> inst);
                 } else if (insKind == bir:INS_KIND_STRING_LOAD) {
                     instGen.generateStringLoadIns(<bir:FieldAccess> inst);
-                } else if (insKind == bir:INS_KIND_NEW_TABLE) {
-                    instGen.generateTableNewIns(<bir:NewTable> inst);
                 } else {
-                    instGen.generateStreamNewIns(<bir:NewStream>inst);
+                    instGen.generateTableNewIns(<bir:NewTable> inst);
                 }
             } else if (insKind <= bir:INS_KIND_NEGATE) {
                 if (insKind == bir:INS_KIND_TYPEOF) {
@@ -1069,7 +1057,6 @@ function genDefaultValue(jvm:MethodVisitor mv, bir:BType bType, int index) {
     } else if (bType is bir:BMapType ||
                 bType is bir:BArrayType ||
                 bType is bir:BTableType ||
-                bType is bir:BStreamType ||
                 bType is bir:BErrorType ||
                 bType is bir:BTypeNil ||
                 bType is bir:BTypeAny ||
@@ -1145,7 +1132,6 @@ function loadDefaultValue(jvm:MethodVisitor mv, bir:BType bType) {
                 bType is bir:BMapType ||
                 bType is bir:BArrayType ||
                 bType is bir:BTableType ||
-                bType is bir:BStreamType ||
                 bType is bir:BErrorType ||
                 bType is bir:BTypeNil ||
                 bType is bir:BTypeAny ||
@@ -1269,8 +1255,6 @@ function getArgTypeSignature(bir:BType bType, boolean useBString = false) return
         return io:sprintf("L%s;", FUTURE_VALUE);
     } else if (bType is bir:BTableType) {
         return io:sprintf("L%s;", TABLE_VALUE);
-    } else if (bType is bir:BStreamType) {
-        return io:sprintf("L%s;", STREAM_VALUE);
     } else if (bType is bir:BInvokableType) {
         return io:sprintf("L%s;", FUNCTION_POINTER);
     } else if (bType is bir:BTypeDesc) {
@@ -1315,8 +1299,6 @@ function generateReturnType(bir:BType? bType, boolean isExtern = false) returns 
         return io:sprintf(")L%s;", ERROR_VALUE);
     } else if (bType is bir:BTableType) {
         return io:sprintf(")L%s;", TABLE_VALUE);
-    } else if (bType is bir:BStreamType) {
-        return io:sprintf(")L%s;", STREAM_VALUE);
     } else if (bType is bir:BFutureType) {
         return io:sprintf(")L%s;", FUTURE_VALUE);
     } else if (bType is bir:BTypeDesc) {
@@ -1763,8 +1745,6 @@ function castFromString(bir:BType targetType, jvm:MethodVisitor mv) {
         mv.visitTypeInsn(CHECKCAST, MAP_VALUE);
     } else if (targetType is bir:BTableType) {
         mv.visitTypeInsn(CHECKCAST, TABLE_VALUE);
-    } else if (targetType is bir:BStreamType) {
-        mv.visitTypeInsn(CHECKCAST, STREAM_VALUE);
     } else if (targetType is bir:BTypeAny ||
                 targetType is bir:BTypeAnyData ||
                 targetType is bir:BTypeNil ||
@@ -2140,8 +2120,6 @@ function generateField(jvm:ClassWriter cw, bir:BType bType, string fieldName, bo
         typeSig = io:sprintf("L%s;", MAP_VALUE);
     } else if (bType is bir:BTableType) {
         typeSig = io:sprintf("L%s;", TABLE_VALUE);
-    } else if (bType is bir:BStreamType) {
-        typeSig = io:sprintf("L%s;", STREAM_VALUE);
     } else if (bType is bir:BRecordType) {
         typeSig = io:sprintf("L%s;", MAP_VALUE);
     } else if (bType is bir:BArrayType ||

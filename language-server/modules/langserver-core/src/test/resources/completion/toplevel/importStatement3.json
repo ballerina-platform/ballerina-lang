@@ -126,14 +126,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "streams",
-      "kind": "Module",
-      "detail": "Package",
-      "sortText": "140",
-      "insertText": "streams",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "reflect",
       "kind": "Module",
       "detail": "Package",
@@ -323,14 +315,6 @@
       "detail": "Package",
       "sortText": "140",
       "insertText": "mime",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "lang.stream",
-      "kind": "Module",
-      "detail": "Package",
-      "sortText": "140",
-      "insertText": "lang.'stream;",
       "insertTextFormat": "Snippet"
     },
     {
