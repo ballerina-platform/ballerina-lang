@@ -239,9 +239,18 @@ public final class XMLSequence extends XMLValue {
     @Override
     public XMLValue children(String qname) {
         List<BXML> selected = new ArrayList<>();
+        if (this.children.size() == 1) {
+            BXML bxml = this.children.get(0);
+            return (XMLValue) bxml.children(qname);
+        }
+
         for (BXML elem : this.children) {
-            if (elem.getElementName().equals(qname)) {
-                selected.add(elem);
+            XMLSequence elements = (XMLSequence) elem.children().elements(qname);
+            List<BXML> childrenList = elements.getChildrenList();
+            if (childrenList.size() == 1) {
+                selected.add(childrenList.get(0));
+            } else if (childrenList.size() > 1) {
+                selected.addAll(childrenList);
             }
         }
 

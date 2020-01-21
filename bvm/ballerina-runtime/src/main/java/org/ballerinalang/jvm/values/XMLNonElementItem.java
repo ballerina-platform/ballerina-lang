@@ -101,7 +101,7 @@ public abstract class XMLNonElementItem extends XMLValue {
 
     @Override
     public XMLValue children(String qname) {
-        return null;
+        return new XMLSequence();
     }
 
     @Override

@@ -19,7 +19,6 @@ package org.ballerinalang.jvm.values;
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.OMException;
 import org.apache.axiom.om.OMNode;
-import org.apache.axiom.om.OMText;
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.BallerinaXMLSerializer;
 import org.ballerinalang.jvm.XMLFactory;
@@ -39,7 +38,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -296,7 +294,7 @@ public final class XMLItem extends XMLValue {
      */
     @Override
     public XMLValue children(String qname) {
-        return children.children(qname);
+        return children.elements(qname);
     }
 
     /**
@@ -588,26 +586,6 @@ public final class XMLItem extends XMLValue {
         this.attributes.freezeDirect();
     }
 
-    private String getTextValue(OMNode node) {
-        switch (node.getType()) {
-            case OMNode.ELEMENT_NODE:
-                StringBuilder sb = new StringBuilder();
-                Iterator<OMNode> children = ((OMElement) node).getChildren();
-                while (children.hasNext()) {
-                    sb.append(getTextValue(children.next()));
-                }
-                return sb.toString();
-            case OMNode.TEXT_NODE:
-                return ((OMText) node).getText();
-            case OMNode.COMMENT_NODE:
-                return STRING_NULL_VALUE;
-            case OMNode.PI_NODE:
-                return STRING_NULL_VALUE;
-            default:
-                return STRING_NULL_VALUE;
-        }
-    }
-
     private QName getQName(String localName, String namespaceUri, String prefix) {
         QName qname;
         if (prefix != null) {
@@ -624,6 +602,7 @@ public final class XMLItem extends XMLValue {
 
     @Override
     public IteratorValue getIterator() {
+        XMLItem that = this;
         return new IteratorValue() {
             boolean read = false;
 
@@ -638,7 +617,7 @@ public final class XMLItem extends XMLValue {
                     throw new NoSuchElementException();
                 }
                 read = true;
-                return this;
+                return that;
             }
         };
     }

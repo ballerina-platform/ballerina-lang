@@ -538,18 +538,22 @@ public class BRunUtil {
                 return jvmObject;
             case TypeTags.XML_TAG:
                 org.ballerinalang.model.values.BXML xml = (org.ballerinalang.model.values.BXML) value;
+                if (xml.getNodeType() == org.ballerinalang.model.util.XMLNodeType.TEXT) {
+                    return XMLFactory.createXMLText(xml.stringValue());
+                }
                 if (xml.getNodeType() != org.ballerinalang.model.util.XMLNodeType.SEQUENCE) {
                     return XMLFactory.parse(xml.stringValue());
-                }
-                BValueArray elements = ((BXMLSequence) xml).value();
-                ArrayValue arrayValue = (ArrayValue) getJVMValue(elements.getType(), elements);
+                } else {
+                    BValueArray elements = ((BXMLSequence) xml).value();
+                    ArrayValue arrayValue = (ArrayValue) getJVMValue(elements.getType(), elements);
 
-                List<BXML> list = new ArrayList<>();
-                for (Object arrayValueValue : arrayValue.getValues()) {
-                    list.add((BXML) arrayValueValue);
-                }
+                    List<BXML> list = new ArrayList<>();
+                    for (Object arrayValueValue : arrayValue.getValues()) {
+                        list.add((BXML) arrayValueValue);
+                    }
 
-                return new XMLSequence(list);
+                    return new XMLSequence(list);
+                }
             case TypeTags.HANDLE_TAG:
                 BHandleValue handleValue = (BHandleValue) value;
                 return new HandleValue(handleValue.getValue());
