@@ -131,6 +131,9 @@ function addToAuthenticationCache(cache:Cache oauth2Cache, string token, string?
 function authenticateFromCache(cache:Cache oauth2Cache, string token) returns InboundOAuth2CacheEntry? {
     InboundOAuth2CacheEntry oauth2CacheEntry = <InboundOAuth2CacheEntry>oauth2Cache.get(token);
     if (oauth2CacheEntry.expTime > (time:currentTime().time / 1000)) {
+        log:printDebug(function() returns string {
+            return "Get authenticated user: " + oauth2CacheEntry.username + " from the cache.";
+        });
         return oauth2CacheEntry;
     } else {
         oauth2Cache.remove(token);
