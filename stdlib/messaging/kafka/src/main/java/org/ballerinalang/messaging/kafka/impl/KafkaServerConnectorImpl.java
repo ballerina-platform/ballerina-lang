@@ -32,8 +32,8 @@ import java.util.List;
 import java.util.Properties;
 
 /**
- * {@code KafkaServerConnectorImpl} This is the implementation for the {@code KafkaServerConnector} API
- * which provides transport receiver implementation for Kafka.
+ * {@code KafkaServerConnectorImpl} This is the implementation for the {@code KafkaServerConnector} API which provides
+ * transport receiver implementation for Kafka.
  */
 public class KafkaServerConnectorImpl implements KafkaServerConnector {
 
@@ -54,8 +54,8 @@ public class KafkaServerConnectorImpl implements KafkaServerConnector {
             this.numOfConcurrentConsumers = (Integer) configParams.get(KafkaConstants.ALIAS_CONCURRENT_CONSUMERS);
         }
         if (this.numOfConcurrentConsumers <= 0) {
-            throw new KafkaConnectorException("Number of Concurrent consumers should be a positive " +
-                    "integer value greater than zero.");
+            throw new KafkaConnectorException(
+                    "Number of Concurrent consumers should be a positive integer value greater than zero.");
         }
         this.configParams = configParams;
         this.kafkaConsumer = kafkaConsumer;
@@ -70,7 +70,7 @@ public class KafkaServerConnectorImpl implements KafkaServerConnector {
             this.messageConsumers = new ArrayList<>();
             for (int counter = 0; counter < numOfConcurrentConsumers; counter++) {
                 KafkaRecordConsumer consumer = new KafkaRecordConsumer(this.kafkaListener, this.configParams,
-                        this.serviceId, counter, this.kafkaConsumer);
+                                                                       this.serviceId, counter, this.kafkaConsumer);
                 this.messageConsumers.add(consumer);
                 consumer.consume();
                 if (logger.isDebugEnabled()) {
@@ -78,8 +78,8 @@ public class KafkaServerConnectorImpl implements KafkaServerConnector {
                 }
             }
         } catch (KafkaException e) {
-            throw new KafkaConnectorException("Error creating Kafka consumer to remote " +
-                    "broker and subscribe to annotated topics", e);
+            throw new KafkaConnectorException(
+                    "Error creating Kafka consumer to remote broker and subscribe to annotated topics", e);
         }
     }
 
@@ -93,17 +93,15 @@ public class KafkaServerConnectorImpl implements KafkaServerConnector {
             try {
                 consumer.stopConsume();
                 if (logger.isDebugEnabled()) {
-                    logger.debug("Stopped Kafka consumer " + consumer.getConsumerId()
-                            + " on service : " + serviceId + ".");
+                    logger.debug(
+                            "Stopped Kafka consumer " + consumer.getConsumerId() + " on service : " + serviceId + ".");
                 }
             } catch (KafkaException e) {
                 if (ex == null) {
-                    ex = new KafkaConnectorException("Error closing the Kafka consumers for service "
-                            + serviceId, e);
+                    ex = new KafkaConnectorException("Error closing the Kafka consumers for service " + serviceId, e);
                 } else {
                     ex.addSuppressed(e);
                 }
-
             }
         }
         this.messageConsumers = null;
