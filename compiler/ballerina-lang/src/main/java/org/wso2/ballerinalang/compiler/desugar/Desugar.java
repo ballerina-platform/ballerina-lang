@@ -25,10 +25,8 @@ import org.ballerinalang.model.elements.TableColumnFlag;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
-import org.ballerinalang.model.tree.clauses.JoinStreamingInput;
 import org.ballerinalang.model.tree.expressions.NamedArgNode;
 import org.ballerinalang.model.tree.statements.BlockNode;
-import org.ballerinalang.model.tree.statements.StreamingQueryStatementNode;
 import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
 import org.ballerinalang.model.tree.types.TypeNode;
 import org.ballerinalang.model.types.TypeKind;
@@ -66,8 +64,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
@@ -132,7 +128,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangJSONLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangMapLiteral;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangStreamLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangStructLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordVarRef.BLangRecordVarRefKeyValue;
@@ -148,7 +143,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangT
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStatementExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableLiteral;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableQueryExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTrapExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTupleVarRef;
@@ -181,7 +175,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangErrorDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangErrorVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangForever;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
@@ -268,9 +261,7 @@ public class Desugar extends BLangNodeVisitor {
     private SymbolResolver symResolver;
     private final SymbolEnter symbolEnter;
     private ClosureDesugar closureDesugar;
-    private StreamingCodeDesugar streamingCodeDesugar;
     private AnnotationDesugar annotationDesugar;
-    private InMemoryTableQueryBuilder inMemoryTableQueryBuilder;
     private Types types;
     private Names names;
     private ServiceDesugar serviceDesugar;
@@ -314,9 +305,7 @@ public class Desugar extends BLangNodeVisitor {
         this.symResolver = SymbolResolver.getInstance(context);
         this.symbolEnter = SymbolEnter.getInstance(context);
         this.closureDesugar = ClosureDesugar.getInstance(context);
-        this.streamingCodeDesugar = StreamingCodeDesugar.getInstance(context);
         this.annotationDesugar = AnnotationDesugar.getInstance(context);
-        this.inMemoryTableQueryBuilder = InMemoryTableQueryBuilder.getInstance(context);
         this.types = Types.getInstance(context);
         this.names = Names.getInstance(context);
         this.names = Names.getInstance(context);
@@ -925,18 +914,6 @@ public class Desugar extends BLangNodeVisitor {
             return TRX_REMOTE_PARTICIPANT_BEGIN_FUNCTION;
         }
         return TRX_LOCAL_PARTICIPANT_BEGIN_FUNCTION;
-    }
-
-    public void visit(BLangForever foreverStatement) {
-        result = streamingCodeDesugar.desugar(foreverStatement);
-        result = rewrite(result, env);
-
-        // The result will be a block statement. All variable definitions in the block statement are defined in its
-        // scope.
-        ((BLangBlockStmt) result).stmts.stream().filter(stmt -> stmt.getKind() == NodeKind.VARIABLE_DEF)
-                .map(stmt -> (BLangSimpleVariableDef) stmt).forEach(varDef ->
-                ((BLangBlockStmt) result).scope.define(varDef.var.symbol.name, varDef.var.symbol));
-
     }
 
     @Override
@@ -3141,21 +3118,6 @@ public class Desugar extends BLangNodeVisitor {
         result = tableLiteral;
     }
 
-    private void addReferenceVariablesToArgs(List<BLangExpression> args, List<BLangExpression> varRefs) {
-        BLangArrayLiteral localRefs = createArrayLiteralExprNode();
-        varRefs.forEach(varRef -> localRefs.exprs.add(rewrite(varRef, env)));
-        args.add(localRefs);
-    }
-
-    private void addFunctionPointersToArgs(List<BLangExpression> args, List<StreamingQueryStatementNode>
-            streamingStmts) {
-        BLangArrayLiteral funcPointers = createArrayLiteralExprNode();
-        for (StreamingQueryStatementNode stmt : streamingStmts) {
-            funcPointers.exprs.add(rewrite((BLangExpression) stmt.getStreamingAction().getInvokableBody(), env));
-        }
-        args.add(funcPointers);
-    }
-
     @Override
     public void visit(BLangSimpleVarRef varRefExpr) {
         BLangSimpleVarRef genVarRefExpr = varRefExpr;
@@ -3481,13 +3443,9 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     public void visit(BLangTypeInit typeInitExpr) {
-        switch (typeInitExpr.type.tag) {
-            case TypeTags.STREAM:
-                result = new BLangStreamLiteral(typeInitExpr.pos, typeInitExpr.type);
-                break;
-            default:
-                result = rewrite(desugarObjectTypeInit(typeInitExpr), env);
-        }
+
+        result = rewrite(desugarObjectTypeInit(typeInitExpr), env);
+
     }
 
     private BLangStatementExpression desugarObjectTypeInit(BLangTypeInit typeInitExpr) {
@@ -4156,10 +4114,6 @@ public class Desugar extends BLangNodeVisitor {
         result = mapLiteral;
     }
 
-    public void visit(BLangStreamLiteral streamLiteral) {
-        result = streamLiteral;
-    }
-
     @Override
     public void visit(BLangStructLiteral structLiteral) {
         result = structLiteral;
@@ -4209,14 +4163,6 @@ public class Desugar extends BLangNodeVisitor {
     public void visit(BLangNamedArgsExpression bLangNamedArgsExpression) {
         bLangNamedArgsExpression.expr = rewriteExpr(bLangNamedArgsExpression.expr);
         result = bLangNamedArgsExpression.expr;
-    }
-
-    public void visit(BLangTableQueryExpression tableQueryExpression) {
-        inMemoryTableQueryBuilder.visit(tableQueryExpression);
-
-        /*replace the table expression with a function invocation,
-         so that we manually call a native function "queryTable". */
-        result = createInvocationFromTableExpr(tableQueryExpression);
     }
 
     @Override
@@ -4509,30 +4455,6 @@ public class Desugar extends BLangNodeVisitor {
         return blockNode;
     }
 
-    private BLangInvocation createInvocationFromTableExpr(BLangTableQueryExpression tableQueryExpression) {
-        List<BLangExpression> args = new ArrayList<>();
-        String functionName = QUERY_TABLE_WITHOUT_JOIN_CLAUSE;
-        //Order matters, because these are the args for a function invocation.
-        args.add(getSQLPreparedStatement(tableQueryExpression));
-        args.add(getFromTableVarRef(tableQueryExpression));
-        // BLangTypeofExpr
-        BType retType = tableQueryExpression.type;
-        BLangExpression joinTable = getJoinTableVarRef(tableQueryExpression);
-        if (joinTable != null) {
-            args.add(joinTable);
-            functionName = QUERY_TABLE_WITH_JOIN_CLAUSE;
-        }
-        args.add(getSQLStatementParameters(tableQueryExpression));
-        args.add(getReturnType(tableQueryExpression));
-        BInvokableSymbol symbol =
-                (BInvokableSymbol) symTable.langTableModuleSymbol.scope.lookup(names.fromString(functionName)).symbol;
-        BLangInvocation invocation =
-                ASTBuilderUtil.createInvocationExprForMethod(tableQueryExpression.pos, symbol, args, symResolver);
-        invocation.argExprs = args;
-        invocation.type = retType;
-        return invocation;
-    }
-
     private BLangInvocation createInvocationNode(String functionName, List<BLangExpression> args, BType retType) {
         BLangInvocation invocationNode = (BLangInvocation) TreeBuilder.createInvocationNode();
         BLangIdentifier name = (BLangIdentifier) TreeBuilder.createIdentifierNode();
@@ -4573,69 +4495,11 @@ public class Desugar extends BLangNodeVisitor {
         return invocationNode;
     }
 
-    private BLangLiteral getSQLPreparedStatement(BLangTableQueryExpression
-                                                         tableQueryExpression) {
-        //create a literal to represent the sql query.
-        BLangLiteral sqlQueryLiteral = (BLangLiteral) TreeBuilder.createLiteralExpression();
-
-        //assign the sql query from table expression to the literal.
-        sqlQueryLiteral.value = tableQueryExpression.getSqlQuery();
-        sqlQueryLiteral.type = symTable.stringType;
-        return sqlQueryLiteral;
-    }
-
-    private BLangStructLiteral getReturnType(BLangTableQueryExpression
-                                                     tableQueryExpression) {
-        //create a literal to represent the sql query.
-        BTableType tableType = (BTableType) tableQueryExpression.type;
-        BStructureType structType = (BStructureType) tableType.constraint;
-        return new BLangStructLiteral(tableQueryExpression.pos, new ArrayList<>(), structType);
-    }
-
-    private BLangArrayLiteral getSQLStatementParameters(BLangTableQueryExpression tableQueryExpression) {
-        BLangArrayLiteral expr = createArrayLiteralExprNode();
-        List<BLangExpression> params = tableQueryExpression.getParams();
-
-        params.stream().map(param -> (BLangLiteral) param).forEach(literal -> {
-            Object value = literal.getValue();
-            int type = TypeTags.STRING;
-            if (value instanceof Integer || value instanceof Long) {
-                type = TypeTags.INT;
-            } else if (value instanceof Double || value instanceof Float) {
-                type = TypeTags.FLOAT;
-            } else if (value instanceof Boolean) {
-                type = TypeTags.BOOLEAN;
-            } else if (value instanceof Object[]) {
-                type = TypeTags.ARRAY;
-            }
-            literal.type = symTable.getTypeFromTag(type);
-            types.setImplicitCastExpr(literal, new BType(type, null), symTable.anyType);
-            expr.exprs.add(literal.impConversionExpr);
-        });
-        return expr;
-    }
-
     private BLangArrayLiteral createArrayLiteralExprNode() {
         BLangArrayLiteral expr = (BLangArrayLiteral) TreeBuilder.createArrayLiteralExpressionNode();
         expr.exprs = new ArrayList<>();
         expr.type = new BArrayType(symTable.anyType);
         return expr;
-    }
-
-    private BLangExpression getJoinTableVarRef(BLangTableQueryExpression tableQueryExpression) {
-        JoinStreamingInput joinStreamingInput = tableQueryExpression.getTableQuery().getJoinStreamingInput();
-        BLangExpression joinTable = null;
-        if (joinStreamingInput != null) {
-            joinTable = (BLangExpression) joinStreamingInput.getStreamingInput().getStreamReference();
-            joinTable = rewrite(joinTable, env);
-        }
-        return joinTable;
-    }
-
-    private BLangExpression getFromTableVarRef(BLangTableQueryExpression tableQueryExpression) {
-        BLangExpression fromTable = (BLangExpression) tableQueryExpression.getTableQuery().getStreamingInput()
-                .getStreamReference();
-        return rewrite(fromTable, env);
     }
 
     private void visitFunctionPointerInvocation(BLangInvocation iExpr) {

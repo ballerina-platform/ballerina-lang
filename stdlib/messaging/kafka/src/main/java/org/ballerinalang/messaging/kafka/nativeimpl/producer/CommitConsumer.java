@@ -27,6 +27,9 @@ import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.messaging.kafka.observability.KafkaMetricsUtil;
+import org.ballerinalang.messaging.kafka.observability.KafkaObservabilityConstants;
+import org.ballerinalang.messaging.kafka.observability.KafkaTracingUtil;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -47,6 +50,7 @@ public class CommitConsumer {
 
     public static Object commitConsumer(ObjectValue producerObject, ObjectValue consumer) {
         Strand strand = Scheduler.getStrand();
+        KafkaTracingUtil.traceResourceInvocation(strand, producerObject);
         KafkaConsumer<byte[], byte[]> kafkaConsumer = (KafkaConsumer) consumer.getNativeData(NATIVE_CONSUMER);
         KafkaProducer<byte[], byte[]> kafkaProducer = (KafkaProducer) producerObject.getNativeData(NATIVE_PRODUCER);
         Map<TopicPartition, OffsetAndMetadata> partitionToMetadataMap = new HashMap<>();
@@ -65,6 +69,7 @@ public class CommitConsumer {
             }
             kafkaProducer.sendOffsetsToTransaction(partitionToMetadataMap, groupId);
         } catch (IllegalStateException | KafkaException e) {
+            KafkaMetricsUtil.reportProducerError(producerObject, KafkaObservabilityConstants.ERROR_TYPE_COMMIT);
             return createKafkaError("Failed to commit consumer: " + e.getMessage(), PRODUCER_ERROR);
         }
         return null;

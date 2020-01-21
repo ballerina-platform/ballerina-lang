@@ -19,6 +19,7 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.PackageCache;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
@@ -114,12 +115,13 @@ public class LSPackageCache {
     static class ExtendedPackageCache extends PackageCache {
 
         private static final long MAX_CACHE_COUNT = 100L;
+        protected Map<String, BPackageSymbol> pkgSymbolMap;
 
         private ExtendedPackageCache(CompilerContext context) {
             super(context);
             Cache<String, BLangPackage> cache = CacheBuilder.newBuilder().maximumSize(MAX_CACHE_COUNT).build();
             this.packageMap = cache.asMap();
-            this.packageSymbolMap = new ConcurrentHashMap<>();
+            this.pkgSymbolMap = new ConcurrentHashMap<>();
         }
 
         public Map<String, BLangPackage> getMap() {
@@ -139,7 +141,7 @@ public class LSPackageCache {
                         this.packageMap.remove(key);
                     }
                 });
-                this.packageSymbolMap.forEach((key, value) -> {
+                this.pkgSymbolMap.forEach((key, value) -> {
                     String[] split = key.split("/");
                     String alias = (split.length > 1) ? split[1] : key;
                     String orgName = (split.length > 1) ? split[0] : "";
@@ -147,7 +149,7 @@ public class LSPackageCache {
                     boolean isLangLib = Names.BALLERINA_ORG.value.equals(orgName) &&
                             alias.startsWith(Names.LANG.value + ".");
                     if (!isLangLib && (alias.contains(name + ":") || alias.contains(name))) {
-                        this.packageSymbolMap.remove(key);
+                        this.pkgSymbolMap.remove(key);
                     }
                 });
             }
@@ -165,19 +167,19 @@ public class LSPackageCache {
                     this.packageMap.remove(key);
                 }
             });
-            this.packageSymbolMap.forEach((key, value) -> {
+            this.pkgSymbolMap.forEach((key, value) -> {
                 String moduleName = value.pkgID.getNameComps().stream()
                         .map(Name::getValue)
                         .collect(Collectors.joining("."));
                 if (modules.contains(moduleName)) {
-                    this.packageSymbolMap.remove(key);
+                    this.pkgSymbolMap.remove(key);
                 }
             });
         }
         
         public void clearCache() {
             this.packageMap.clear();
-            this.packageSymbolMap.clear();
+            this.pkgSymbolMap.clear();
         }
     }
 }

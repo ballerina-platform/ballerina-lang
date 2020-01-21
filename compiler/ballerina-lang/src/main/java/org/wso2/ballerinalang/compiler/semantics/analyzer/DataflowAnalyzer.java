@@ -53,26 +53,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangFunctionClause;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangGroupBy;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangHaving;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangJoinStreamingInput;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangLimit;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangOrderBy;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangOrderByVariable;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangOutputRateLimit;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangPatternClause;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangPatternStreamingEdgeInput;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangPatternStreamingInput;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectExpression;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangSetAssignment;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangStreamAction;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangStreamingInput;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangTableQuery;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhere;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangWindow;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangWithinClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAccessExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
@@ -106,7 +86,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangServiceConstructorE
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableLiteral;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableQueryExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTrapExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTupleVarRef;
@@ -141,7 +120,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangErrorDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangErrorVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangForever;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
@@ -154,7 +132,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRetry;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangStreamingQueryStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangThrow;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTryCatchFinally;
@@ -515,15 +492,6 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangFunctionClause functionClause) {
-    }
-
-    @Override
-    public void visit(BLangSetAssignment setAssignmentClause) {
-        analyzeNode((BLangNode) setAssignmentClause.getExpressionNode(), env);
-    }
-
-    @Override
     public void visit(BLangWorkerSend workerSendNode) {
         analyzeNode(workerSendNode.expr, env);
     }
@@ -832,12 +800,6 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangTableQueryExpression tableQueryExpression) {
-        tableQueryExpression.getParams().forEach(param -> analyzeNode(param, env));
-        analyzeNode((BLangNode) tableQueryExpression.getTableQuery(), env);
-    }
-
-    @Override
     public void visit(BLangRestArgsExpression bLangVarArgsExpression) {
         analyzeNode(bLangVarArgsExpression.expr, env);
     }
@@ -845,10 +807,6 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangNamedArgsExpression bLangNamedArgsExpression) {
         analyzeNode(bLangNamedArgsExpression.expr, env);
-    }
-
-    @Override
-    public void visit(BLangPatternClause patternClause) {
     }
 
     @Override
@@ -912,73 +870,6 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangOrderBy orderBy) {
-    }
-
-    @Override
-    public void visit(BLangOrderByVariable orderByVariable) {
-    }
-
-    @Override
-    public void visit(BLangLimit limit) {
-    }
-
-    @Override
-    public void visit(BLangGroupBy groupBy) {
-    }
-
-    @Override
-    public void visit(BLangHaving having) {
-    }
-
-    @Override
-    public void visit(BLangSelectExpression selectExpression) {
-    }
-
-    @Override
-    public void visit(BLangSelectClause selectClause) {
-    }
-
-    @Override
-    public void visit(BLangWhere whereClause) {
-    }
-
-    @Override
-    public void visit(BLangStreamingInput streamingInput) {
-    }
-
-    @Override
-    public void visit(BLangJoinStreamingInput joinStreamingInput) {
-    }
-
-    @Override
-    public void visit(BLangTableQuery tableQuery) {
-    }
-
-    @Override
-    public void visit(BLangStreamAction streamAction) {
-    }
-
-    @Override
-    public void visit(BLangPatternStreamingEdgeInput patternStreamingEdgeInput) {
-    }
-
-    @Override
-    public void visit(BLangWindow windowClause) {
-    }
-
-    @Override
-    public void visit(BLangPatternStreamingInput patternStreamingInput) {
-    }
-
-    @Override
-    public void visit(BLangForever foreverStatement) {
-        // marks the injected transaction import as used
-        Name compUnitName = names.fromString(foreverStatement.pos.getSource().getCompilationUnitName());
-        this.symResolver.resolvePrefixSymbol(env, Names.STREAMS_MODULE, compUnitName);
-    }
-
-    @Override
     public void visit(BLangActionInvocation actionInvocationExpr) {
     }
 
@@ -998,18 +889,6 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
                         closureVarSymbol.bSymbol);
             }
         });
-    }
-
-    @Override
-    public void visit(BLangStreamingQueryStatement streamingQueryStatement) {
-    }
-
-    @Override
-    public void visit(BLangWithinClause withinClause) {
-    }
-
-    @Override
-    public void visit(BLangOutputRateLimit outputRateLimit) {
     }
 
     @Override
