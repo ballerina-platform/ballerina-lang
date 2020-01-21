@@ -51,8 +51,6 @@ public type InboundJwtAuthProvider object {
                 auth:setAuthenticationContext("jwt", credential);
                 setPrincipal(payload);
                 return true;
-            } else {
-                return false;
             }
         }
 
