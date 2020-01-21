@@ -51,16 +51,16 @@ public class CommitConsumer {
     public static Object commitConsumer(ObjectValue producerObject, ObjectValue consumer) {
         Strand strand = Scheduler.getStrand();
         KafkaTracingUtil.traceResourceInvocation(strand, producerObject);
-        KafkaConsumer<byte[], byte[]> kafkaConsumer = (KafkaConsumer) consumer.getNativeData(NATIVE_CONSUMER);
-        KafkaProducer<byte[], byte[]> kafkaProducer = (KafkaProducer) producerObject.getNativeData(NATIVE_PRODUCER);
+        KafkaConsumer kafkaConsumer = (KafkaConsumer) consumer.getNativeData(NATIVE_CONSUMER);
+        KafkaProducer kafkaProducer = (KafkaProducer) producerObject.getNativeData(NATIVE_PRODUCER);
         Map<TopicPartition, OffsetAndMetadata> partitionToMetadataMap = new HashMap<>();
         Set<TopicPartition> topicPartitions = kafkaConsumer.assignment();
 
-        topicPartitions.forEach(topicPartition -> {
+        for (TopicPartition topicPartition : topicPartitions) {
             long position = kafkaConsumer.position(topicPartition);
             partitionToMetadataMap.put(new TopicPartition(topicPartition.topic(), topicPartition.partition()),
-                    new OffsetAndMetadata(position));
-        });
+                                       new OffsetAndMetadata(position));
+        }
         MapValue<String, Object> consumerConfig = consumer.getMapValue(CONSUMER_CONFIG_FIELD_NAME);
         String groupId = consumerConfig.getStringValue(CONSUMER_GROUP_ID_CONFIG);
         try {

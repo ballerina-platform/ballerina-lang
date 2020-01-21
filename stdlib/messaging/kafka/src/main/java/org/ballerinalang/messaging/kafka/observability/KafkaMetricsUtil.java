@@ -27,6 +27,9 @@ import org.ballerinalang.jvm.observability.metrics.MetricRegistry;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.messaging.kafka.utils.KafkaUtils;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.util.Set;
 
 /**
@@ -107,11 +110,21 @@ public class KafkaMetricsUtil {
      *
      * @param producerObject  producer object.
      * @param topic Subject the message is published to.
-     * @param size  Size in bytes of the message.
+     * @param value  Message object.
      */
-    public static void reportPublish(ObjectValue producerObject, String topic, int size) {
+    public static void reportPublish(ObjectValue producerObject, String topic, Object value) {
         if (!ObserveUtils.isMetricsEnabled()) {
             return;
+        }
+        int size = 0;
+        try (ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
+            ObjectOutputStream oos = new ObjectOutputStream(bos);
+            oos.writeObject(value);
+            oos.flush();
+            byte[] data = bos.toByteArray();
+            size = data.length;
+        } catch (IOException e) {
+
         }
         KafkaObserverContext observerContext = new KafkaObserverContext(KafkaObservabilityConstants.CONTEXT_PRODUCER,
                                                                         KafkaUtils.getClientId(producerObject),
@@ -134,7 +147,6 @@ public class KafkaMetricsUtil {
             reportSubscription(consumerObject, topic);
         }
     }
-
 
     /**
      * Reports a consumer subscribing to a topic.
@@ -215,10 +227,10 @@ public class KafkaMetricsUtil {
         if (!ObserveUtils.isMetricsEnabled()) {
             return;
         }
-        records.forEach(record -> {
+        for (Object record : records) {
             KafkaMetricsUtil.reportConsume(consumerObject, ((ConsumerRecord) record).topic(),
                                            ((ConsumerRecord) record).serializedValueSize());
-        });
+        }
     }
 
     /**

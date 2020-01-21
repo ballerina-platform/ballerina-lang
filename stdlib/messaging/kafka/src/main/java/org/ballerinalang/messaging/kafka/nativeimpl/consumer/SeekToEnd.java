@@ -16,15 +16,14 @@
  * under the License.
  */
 
-
 package org.ballerinalang.messaging.kafka.nativeimpl.consumer;
 
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.KafkaException;
 import org.apache.kafka.common.TopicPartition;
 import org.ballerinalang.jvm.scheduling.Scheduler;
-import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.api.BArray;
 import org.ballerinalang.messaging.kafka.observability.KafkaMetricsUtil;
 import org.ballerinalang.messaging.kafka.observability.KafkaObservabilityConstants;
 import org.ballerinalang.messaging.kafka.observability.KafkaTracingUtil;
@@ -45,9 +44,9 @@ public class SeekToEnd {
 
     private static final Logger logger = LoggerFactory.getLogger(SeekToEnd.class);
 
-    public static Object seekToEnd(ObjectValue consumerObject, ArrayValue topicPartitions) {
+    public static Object seekToEnd(ObjectValue consumerObject, BArray topicPartitions) {
         KafkaTracingUtil.traceResourceInvocation(Scheduler.getStrand(), consumerObject);
-        KafkaConsumer<byte[], byte[]> kafkaConsumer = (KafkaConsumer) consumerObject.getNativeData(NATIVE_CONSUMER);
+        KafkaConsumer kafkaConsumer = (KafkaConsumer) consumerObject.getNativeData(NATIVE_CONSUMER);
         ArrayList<TopicPartition> partitionList = getTopicPartitionList(topicPartitions, logger);
         try {
             kafkaConsumer.seekToEnd(partitionList);

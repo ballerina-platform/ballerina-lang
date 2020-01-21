@@ -39,7 +39,7 @@ public class Unsubscribe {
 
     public static Object unsubscribe(ObjectValue consumerObject) {
         KafkaTracingUtil.traceResourceInvocation(Scheduler.getStrand(), consumerObject);
-        KafkaConsumer<byte[], byte[]> kafkaConsumer = (KafkaConsumer) consumerObject.getNativeData(NATIVE_CONSUMER);
+        KafkaConsumer kafkaConsumer = (KafkaConsumer) consumerObject.getNativeData(NATIVE_CONSUMER);
         try {
             Set<String> topics = kafkaConsumer.subscription();
             kafkaConsumer.unsubscribe();

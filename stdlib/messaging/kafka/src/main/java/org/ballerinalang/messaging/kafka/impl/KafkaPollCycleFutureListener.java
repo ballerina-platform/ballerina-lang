@@ -73,5 +73,4 @@ public class KafkaPollCycleFutureListener implements CallableUnitCallback {
                      ". Semaphore is released to continue next polling cycle.", error.stringValue());
     }
 
-
 }

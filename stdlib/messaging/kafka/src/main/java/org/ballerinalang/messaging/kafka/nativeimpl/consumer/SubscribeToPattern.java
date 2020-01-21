@@ -40,7 +40,7 @@ public class SubscribeToPattern {
 
     public static Object subscribeToPattern(ObjectValue consumerObject, String topicRegex) {
         KafkaTracingUtil.traceResourceInvocation(Scheduler.getStrand(), consumerObject);
-        KafkaConsumer<byte[], byte[]> kafkaConsumer = (KafkaConsumer) consumerObject.getNativeData(NATIVE_CONSUMER);
+        KafkaConsumer kafkaConsumer = (KafkaConsumer) consumerObject.getNativeData(NATIVE_CONSUMER);
         try {
             kafkaConsumer.subscribe(Pattern.compile(topicRegex));
             Set<String> topicsList = kafkaConsumer.subscription();
