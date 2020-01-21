@@ -31,12 +31,16 @@ import org.ballerinalang.jvm.values.FPValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
+import org.ballerinalang.messaging.kafka.observability.KafkaMetricsUtil;
+import org.ballerinalang.messaging.kafka.observability.KafkaObservabilityConstants;
+import org.ballerinalang.messaging.kafka.observability.KafkaTracingUtil;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Set;
 
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.CONSUMER_ERROR;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.CONSUMER_STRUCT_NAME;
@@ -50,8 +54,7 @@ import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.getTopicPartiti
 import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.populateTopicPartitionRecord;
 
 /**
- * Native function subscribes to given topic array
- * with given function pointers to on revoked / on assigned events.
+ * Native function subscribes to given topic array with given function pointers to on revoked / on assigned events.
  */
 @BallerinaFunction(
         orgName = ORG_NAME,
@@ -68,16 +71,19 @@ public class SubscribeWithPartitionRebalance {
 
     public static Object subscribeWithPartitionRebalance(Strand strand, ObjectValue consumerObject, ArrayValue topics,
                                                          FPValue onPartitionsRevoked, FPValue onPartitionsAssigned) {
-
+        KafkaTracingUtil.traceResourceInvocation(Scheduler.getStrand(), consumerObject);
         NonBlockingCallback callback = new NonBlockingCallback(strand);
         KafkaConsumer<byte[], byte[]> kafkaConsumer = (KafkaConsumer) consumerObject.getNativeData(NATIVE_CONSUMER);
         ArrayList<String> topicsList = getStringListFromStringArrayValue(topics);
         ConsumerRebalanceListener consumer = new KafkaRebalanceListener(strand, strand.scheduler, onPartitionsRevoked,
-                onPartitionsAssigned, consumerObject);
-
+                                                                        onPartitionsAssigned, consumerObject);
         try {
             kafkaConsumer.subscribe(topicsList, consumer);
+            Set<String> subscribedTopics = kafkaConsumer.subscription();
+            KafkaMetricsUtil.reportBulkSubscription(consumerObject, subscribedTopics);
         } catch (IllegalArgumentException | IllegalStateException | KafkaException e) {
+            KafkaMetricsUtil.reportConsumerError(consumerObject,
+                                                 KafkaObservabilityConstants.ERROR_TYPE_SUBSCRIBE_PARTITION_REBALANCE);
             callback.setReturnValues(
                     createKafkaError("Failed to subscribe the consumer: " + e.getMessage(), CONSUMER_ERROR));
         }
@@ -140,7 +146,7 @@ public class SubscribeWithPartitionRebalance {
             int i = 0;
             for (TopicPartition partition : partitions) {
                 MapValue<String, Object> topicPartition = populateTopicPartitionRecord(partition.topic(),
-                        partition.partition());
+                                                                                       partition.partition());
                 topicPartitionArray.add(i++, topicPartition);
             }
             return topicPartitionArray;

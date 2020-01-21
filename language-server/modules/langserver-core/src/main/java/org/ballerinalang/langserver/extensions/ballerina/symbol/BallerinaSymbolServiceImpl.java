@@ -15,21 +15,12 @@
  */
 package org.ballerinalang.langserver.extensions.ballerina.symbol;
 
-import org.ballerinalang.langserver.LSGlobalContext;
-import org.ballerinalang.langserver.LSGlobalContextKeys;
-import org.ballerinalang.langserver.index.LSIndexImpl;
-import org.ballerinalang.langserver.index.dao.BObjectTypeSymbolDAO;
-import org.ballerinalang.langserver.index.dao.BPackageSymbolDAO;
-import org.ballerinalang.langserver.index.dao.DAOType;
-import org.ballerinalang.langserver.index.dto.BObjectTypeSymbolDTO;
-import org.ballerinalang.langserver.index.dto.BPackageSymbolDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
-import java.util.stream.Collectors;
 
 /**
  * Ballerina Symbol Service LS Extension.
@@ -39,11 +30,6 @@ import java.util.stream.Collectors;
 public class BallerinaSymbolServiceImpl implements BallerinaSymbolService {
 
     private static final Logger logger = LoggerFactory.getLogger(BallerinaSymbolServiceImpl.class);
-    private final LSIndexImpl lsIndex;
-
-    public BallerinaSymbolServiceImpl(LSGlobalContext lsGlobalContext) {
-        this.lsIndex = lsGlobalContext.get(LSGlobalContextKeys.LS_INDEX_KEY);
-    }
 
     @Override
     public CompletableFuture<BallerinaEndpointsResponse> endpoints() {
@@ -56,24 +42,7 @@ public class BallerinaSymbolServiceImpl implements BallerinaSymbolService {
 
     private List<Endpoint> getClientEndpoints() {
         final List<Endpoint> endpoints = new ArrayList<>();
-        try {
-            BPackageSymbolDAO pkgDAO = ((BPackageSymbolDAO) lsIndex.getDaoFactory().get(DAOType.PACKAGE_SYMBOL));
-            BObjectTypeSymbolDAO objDAO = ((BObjectTypeSymbolDAO) lsIndex.getDaoFactory().get(DAOType.OBJECT_TYPE));
-
-            List<BPackageSymbolDTO> pkgDTOs = pkgDAO.getAll();
-            List<BObjectTypeSymbolDTO> allEndpoints = objDAO.getAllClientEndpoints();
-
-            pkgDTOs.forEach(pkgDTO -> {
-                List<Endpoint> endpointsList = allEndpoints.stream()
-                        .filter(endpoint -> endpoint.getPackageId() == pkgDTO.getId())
-                        .map(objDTO -> new Endpoint(objDTO.getName(), pkgDTO.getName(), pkgDTO.getOrgName()))
-                        .collect(Collectors.toList());
-                endpoints.addAll(endpointsList);
-            });
-        } catch (Exception e) {
-            // Above catch is to fail safe composer front end due to core errors.
-            logger.warn("Error while loading package: " + e.getMessage());
-        }
+        // TODO: Implementation Required
         return endpoints;
     }
 

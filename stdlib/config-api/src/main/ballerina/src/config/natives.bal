@@ -46,7 +46,7 @@ function externSetConfig(handle key, handle|int|float|boolean value) = @java:Met
     class: "org.ballerinalang.stdlib.config.SetConfig"
 } external;
 
-function get(@untainted string key, ValueType vType) returns string|int|float|boolean|map<any> {
+function get(@untainted string key, ValueType vType) returns string|int|float|boolean|map<any>|anydata[] {
     string valueType = "ARRAY";
     if (vType is STRING) {
         valueType = "STRING";
@@ -73,7 +73,7 @@ function get(@untainted string key, ValueType vType) returns string|int|float|bo
     }
 }
 
-function externGet(handle key, handle vType) returns handle|int|float|boolean|map<any> = @java:Method {
+function externGet(handle key, handle vType) returns handle|int|float|boolean|map<any>|anydata[] = @java:Method {
     name: "get",
     class: "org.ballerinalang.stdlib.config.GetConfig"
 } external;

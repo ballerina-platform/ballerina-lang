@@ -20,6 +20,8 @@ package org.ballerinalang.messaging.kafka.impl;
 
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
+import org.ballerinalang.jvm.observability.ObservabilityConstants;
+import org.ballerinalang.jvm.observability.ObserveUtils;
 import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ErrorValue;
@@ -27,8 +29,15 @@ import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.connector.CallableUnitCallback;
 import org.ballerinalang.jvm.values.connector.Executor;
 import org.ballerinalang.messaging.kafka.api.KafkaListener;
+import org.ballerinalang.messaging.kafka.observability.KafkaMetricsUtil;
+import org.ballerinalang.messaging.kafka.observability.KafkaObservabilityConstants;
+import org.ballerinalang.messaging.kafka.observability.KafkaObserverContext;
+import org.ballerinalang.messaging.kafka.utils.KafkaUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.KAFKA_RESOURCE_ON_MESSAGE;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.NATIVE_CONSUMER;
@@ -59,8 +68,8 @@ public class KafkaListenerImpl implements KafkaListener {
     @Override
     public void onRecordsReceived(ConsumerRecords records, KafkaConsumer kafkaConsumer, String groupId) {
         listener.addNativeData(NATIVE_CONSUMER, kafkaConsumer);
-        Executor.submit(this.scheduler, service, KAFKA_RESOURCE_ON_MESSAGE, callback,
-                null, getResourceParameters(service, this.listener, records, groupId));
+        executeResource(listener, records, groupId);
+        KafkaMetricsUtil.reportConsume(listener, records);
     }
 
     /**
@@ -69,12 +78,11 @@ public class KafkaListenerImpl implements KafkaListener {
     @Override
     public void onRecordsReceived(ConsumerRecords records,
                                   KafkaConsumer kafkaConsumer,
-                                  String groupID,
+                                  String groupId,
                                   KafkaPollCycleFutureListener consumer) {
         listener.addNativeData(NATIVE_CONSUMER, kafkaConsumer);
-        Executor.submit(this.scheduler, service, KAFKA_RESOURCE_ON_MESSAGE, consumer, null,
-                getResourceParameters(service, this.listener, records, groupID));
-
+        executeResource(listener, consumer, records, groupId);
+        KafkaMetricsUtil.reportConsume(listener, records);
     }
 
     /**
@@ -83,6 +91,40 @@ public class KafkaListenerImpl implements KafkaListener {
     @Override
     public void onError(Throwable throwable) {
         logger.error("Kafka Ballerina server connector retrieved exception: " + throwable.getMessage(), throwable);
+        KafkaMetricsUtil.reportConsumerError(listener, KafkaObservabilityConstants.ERROR_TYPE_MSG_RECEIVED);
+    }
+
+    private void executeResource(ObjectValue listener, ConsumerRecords records, String groupId) {
+        if (ObserveUtils.isTracingEnabled()) {
+            Map<String, Object> properties = getNewObserverContextInProperties(listener);
+            Executor.submit(this.scheduler, service, KAFKA_RESOURCE_ON_MESSAGE, callback,
+                            properties, getResourceParameters(service, this.listener, records, groupId));
+        } else {
+            Executor.submit(this.scheduler, service, KAFKA_RESOURCE_ON_MESSAGE, callback,
+                            null, getResourceParameters(service, this.listener, records, groupId));
+        }
+    }
+
+
+    private void executeResource(ObjectValue listener, KafkaPollCycleFutureListener consumer, ConsumerRecords records,
+                                 String groupId) {
+        if (ObserveUtils.isTracingEnabled()) {
+            Map<String, Object> properties = getNewObserverContextInProperties(listener);
+            Executor.submit(this.scheduler, service, KAFKA_RESOURCE_ON_MESSAGE, consumer, properties,
+                            getResourceParameters(service, this.listener, records, groupId));
+        } else {
+            Executor.submit(this.scheduler, service, KAFKA_RESOURCE_ON_MESSAGE, consumer, null,
+                            getResourceParameters(service, this.listener, records, groupId));
+        }
+    }
+
+    private Map<String, Object> getNewObserverContextInProperties(ObjectValue listener) {
+        Map<String, Object> properties = new HashMap<>();
+        KafkaObserverContext observerContext = new KafkaObserverContext(
+                KafkaObservabilityConstants.CONTEXT_CONSUMER, KafkaUtils.getClientId(listener),
+                KafkaUtils.getBootstrapServers(listener));
+        properties.put(ObservabilityConstants.KEY_OBSERVER_CONTEXT, observerContext);
+        return properties;
     }
 
     private static class ResponseCallback implements CallableUnitCallback {
