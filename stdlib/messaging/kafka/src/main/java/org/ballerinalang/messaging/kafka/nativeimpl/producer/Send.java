@@ -24,7 +24,6 @@ import org.apache.kafka.common.KafkaException;
 import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ArrayValue;
-import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
 import org.slf4j.Logger;
@@ -50,14 +49,14 @@ public class Send {
 
     @SuppressWarnings(UNCHECKED)
     public static Object send(ObjectValue producerObject, ArrayValue value, String topic, Object key,
-                                    Object partition, Object timestamp) {
+                              Object partition, Object timestamp) {
         Strand strand = Scheduler.getStrand();
         final NonBlockingCallback callback = new NonBlockingCallback(strand);
         Integer partitionValue = getIntValue(partition, ALIAS_PARTITION, logger);
         Long timestampValue = getLongValue(timestamp);
         byte[] keyValue = Objects.nonNull(key) ? ((ArrayValue) key).getBytes() : null;
         ProducerRecord<byte[], byte[]> kafkaRecord = new ProducerRecord(topic, partitionValue, timestampValue,
-                keyValue, value.getBytes());
+                                                                        keyValue, value.getBytes());
         KafkaProducer<byte[], byte[]> producer = (KafkaProducer) producerObject.getNativeData(NATIVE_PRODUCER);
         try {
             if (strand.isInTransaction()) {
@@ -65,16 +64,14 @@ public class Send {
             }
             producer.send(kafkaRecord, (metadata, e) -> {
                 if (Objects.nonNull(e)) {
-                    ErrorValue error = createKafkaError("Failed to send data to Kafka server: " + e.getMessage(),
-                            PRODUCER_ERROR);
-                    callback.setReturnValues(error);
+                    callback.notifyFailure(createKafkaError("Failed to send data to Kafka server: " + e.getMessage(),
+                                                            PRODUCER_ERROR));
                 }
                 callback.notifySuccess();
             });
         } catch (IllegalStateException | KafkaException e) {
-            callback.setReturnValues(createKafkaError("Failed to send data to Kafka server: "
-                    + e.getMessage(), PRODUCER_ERROR));
-            callback.notifySuccess();
+            callback.notifyFailure(createKafkaError("Failed to send data to Kafka server: " + e.getMessage(),
+                                                    PRODUCER_ERROR));
         }
         return null;
     }

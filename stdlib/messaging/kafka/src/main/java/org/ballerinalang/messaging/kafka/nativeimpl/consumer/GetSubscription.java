@@ -43,10 +43,8 @@ public class GetSubscription {
             Set<String> subscriptions = kafkaConsumer.subscription();
             ArrayValue arrayValue = new ArrayValueImpl(new BArrayType(org.ballerinalang.jvm.types.BTypes.typeString));
             if (!subscriptions.isEmpty()) {
-                // TODO: Remove this counter variable, and use append method in for loop once #17075 fixed.
-                int i = 0;
                 for (String subscription : subscriptions) {
-                    arrayValue.add(i++, subscription);
+                    arrayValue.append(subscription);
                 }
             }
             return arrayValue;

@@ -60,7 +60,7 @@ public class Poll {
             }
             callback.setReturnValues(consumerRecordsArray);
         } catch (IllegalStateException | IllegalArgumentException | KafkaException e) {
-            callback.setReturnValues(createKafkaError("Failed to poll from the Kafka server: " + e.getMessage(),
+            callback.notifyFailure(createKafkaError("Failed to poll from the Kafka server: " + e.getMessage(),
                     CONSUMER_ERROR));
         }
         callback.notifySuccess();
