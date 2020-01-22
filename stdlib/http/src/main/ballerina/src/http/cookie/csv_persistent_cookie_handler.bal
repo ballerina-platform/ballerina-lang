@@ -28,7 +28,7 @@ type myCookie record {
     int maxAge;
     boolean httpOnly;
     boolean secure;
-    string creationTime;
+    string createdTime;
     string lastAccessedTime;
     boolean hostOnly;
 };
@@ -48,25 +48,37 @@ public type CsvPersistentCookieHandler object {
     public function __init(string fileName) {
         self.fileName = checkpanic validateFileExtension(fileName);
     }
+
     # Adds a persistent cookie to the cookie store.
     #
     # + cookie - Cookie to be added
-    public function storeCookie(Cookie cookie) {
+    # + return - An error will be returned if there is any error occurred during storing the cookie or else nil is returned
+    public function storeCookie(Cookie cookie) returns @tainted error?{
         table<myCookie> cookiesTable = table{};
         if (file:exists(self.fileName)) {
-            cookiesTable = getFileDataIntoTable(self.fileName);
+            var tblResult = readFile(self.fileName);
+            if (tblResult is table<myCookie>) {
+                cookiesTable = tblResult;
+            } else {
+                 return tblResult;
+            }
         }
-        cookiesTable = addNewCookieToTable(cookiesTable, cookie);
+        var tableUpdateResult = addNewCookieToTable(cookiesTable, cookie);
+        if (tableUpdateResult is table<myCookie>) {
+            cookiesTable = tableUpdateResult;
+        } else {
+            return tableUpdateResult;
+        }
         var result = writeToFile(cookiesTable, self.fileName);
         if (result is error) {
-            log:printError("Error occurred while writing data to file: ", err = result);
+            return result;
         }
     }
 
     # Gets all persistent cookies.
     #
-    # + return - Array of persistent cookies stored in the cookie store
-    public function getCookies() returns Cookie[] {
+    # + return - Array of persistent cookies stored in the cookie store or else error is returned if occurred during getting the cookies
+    public function getAllCookies() returns @tainted Cookie[] | error {
         Cookie[] cookies = [];
         if (file:exists(self.fileName)) {
             var tblResult = readFile(self.fileName);
@@ -75,13 +87,13 @@ public type CsvPersistentCookieHandler object {
                     Cookie cookie = new(rec.name, rec.value);
                     cookie.domain = rec.domain;
                     cookie.path = rec.path;
-                    cookie.expires = rec.expires;
+                    cookie.expires = rec.expires == "-" ? () : rec.expires;
                     cookie.maxAge = rec.maxAge;
                     cookie.httpOnly = rec.httpOnly;
                     cookie.secure = rec.secure;
-                    time:Time | error t1 = time:parse(rec.creationTime, "yyyy-MM-dd'T'HH:mm:ss.SSSZ");
+                    time:Time | error t1 = time:parse(rec.createdTime, "yyyy-MM-dd'T'HH:mm:ss.SSSZ");
                     if (t1 is time:Time) {
-                        cookie.creationTime = t1;
+                        cookie.createdTime = t1;
                     }
                     time:Time | error t2 = time:parse(rec.lastAccessedTime, "yyyy-MM-dd'T'HH:mm:ss.SSSZ");
                     if (t2 is time:Time) {
@@ -90,8 +102,9 @@ public type CsvPersistentCookieHandler object {
                     cookie.hostOnly = rec.hostOnly;
                     cookies.push(cookie);
                 }
+                return cookies;
             } else {
-                log:printError("An error occurred while reading file: ", err = tblResult);
+                return tblResult;
             }
         }
        return cookies;
@@ -102,39 +115,43 @@ public type CsvPersistentCookieHandler object {
     # + name - Name of the persistent cookie to be removed
     # + domain - Domain of the persistent cookie to be removed
     # + path - Path of the persistent cookie to be removed
-    # + return - Return true if the relevant persistent cookie is removed, false otherwise
-    public function removeCookie(string name, string domain, string path) returns boolean {
+    # + return - An error will be returned if there is any error occurred during removing the cookie or else nil is returned
+    public function removeCookie(string name, string domain, string path) returns @tainted error? {
         cookieNameToRemove = name;
         cookieDomainToRemove = domain;
         cookiePathToRemove = path;
         if (file:exists(self.fileName)) {
-            table<myCookie> cookiesTable = getFileDataIntoTable(self.fileName);
+            table<myCookie> cookiesTable = table{};
+            var tblResult = readFile(self.fileName);
+            if (tblResult is table<myCookie>) {
+                cookiesTable = tblResult;
+            } else {
+                return tblResult;
+            }
             int | error count = cookiesTable.remove(checkRemoveCriteria);
             if (count is error || count <= 0) {
-                log:printError("No such cookie to remove");
-                return false;
+                return error("Error in removing cookie: No such cookie to remove");
             }
             error? removeResults = file:remove(self.fileName);
             if (removeResults is error) {
-                log:printError("Error occurred while removing the existing file");
-                return false;
+                return removeResults;
             }
-            var result = writeToFile(cookiesTable, self.fileName);
-            if (result is error) {
-                log:printError("Error occurred while writing updated table to file");
-                return false;
+            var writeResult = writeToFile(cookiesTable, self.fileName);
+            if (writeResult is error) {
+                return writeResult;
             }
-            return true;
+            return;
         }
-        log:printError("No persistent cookie store file to remove cookie");
-        return false;
+        return error("Error in removing cookie: No persistent cookie store file to remove");
     }
 
     # Removes all persistent cookies.
-    public function clearAllCookies() {
+    #
+    # + return - An error will be returned if there is any error occurred during removing all the cookies or else nil is returned
+    public function removeAllCookies() returns error? {
         error? removeResults = file:remove(self.fileName);
         if (removeResults is error) {
-            log:printError("Error occurred while removing the persistent cookie store file: ", err = removeResults);
+            return removeResults;
         }
     }
 };
@@ -145,18 +162,6 @@ function validateFileExtension(string fileName) returns string|error {
     }
     error invExtension = error("Invalid file format");
     return invExtension;
-}
-
-// Reads file and gets earlier data into a table.
-function getFileDataIntoTable(string fileName) returns @tainted table<myCookie> {
-    table<myCookie> cookiesTable = table{};
-    var tblResult = readFile(fileName);
-    if (tblResult is table<myCookie>) {
-        cookiesTable = tblResult;
-    } else {
-        log:printError("An error occurred while reading file: ", err = tblResult);
-    }
-    return cookiesTable;
 }
 
 function readFile(string fileName) returns @tainted error | table<myCookie> {
@@ -174,42 +179,44 @@ function closeReadableCSVChannel(io:ReadableCSVChannel csvChannel) {
 }
 
 // Updates the table with new cookie.
-function addNewCookieToTable(table<myCookie> cookiesTable, Cookie cookieToAdd) returns table<myCookie> {
+function addNewCookieToTable(table<myCookie> cookiesTable, Cookie cookieToAdd) returns table<myCookie> | error {
     table<myCookie> tableToReturn = cookiesTable;
     var name = cookieToAdd.name;
     var value = cookieToAdd.value;
     var domain = cookieToAdd.domain;
     var path = cookieToAdd.path;
     var expires = cookieToAdd.expires;
-    var creationTime = time:format(cookieToAdd.creationTime, "yyyy-MM-dd'T'HH:mm:ss.SSSZ");
+    var createdTime = time:format(cookieToAdd.createdTime, "yyyy-MM-dd'T'HH:mm:ss.SSSZ");
     var lastAccessedTime = time:format(cookieToAdd.lastAccessedTime, "yyyy-MM-dd'T'HH:mm:ss.SSSZ");
-    if (name is string && value is string && domain is string && path is string && expires is string && creationTime is string && lastAccessedTime is string) {
-        myCookie c1 = { name: name, value: value, domain: domain, path: path, expires: expires, maxAge: cookieToAdd.maxAge, httpOnly: cookieToAdd.httpOnly, secure: cookieToAdd.secure, creationTime: creationTime, lastAccessedTime: lastAccessedTime, hostOnly: cookieToAdd.hostOnly };
+    if (name is string && value is string && domain is string && path is string && createdTime is string && lastAccessedTime is string) {
+        myCookie c1 = { name: name, value: value, domain: domain, path: path, expires: expires is string ? expires : "-", maxAge: cookieToAdd.maxAge, httpOnly: cookieToAdd.httpOnly, secure: cookieToAdd.secure, createdTime: createdTime, lastAccessedTime: lastAccessedTime, hostOnly: cookieToAdd.hostOnly };
         var result = tableToReturn.add(c1);
         if (result is error) {
-            log:printError("Error occurred while adding data to table: ", err = result);
+            return result;
         }
-    } else {
-        log:printError("Error occurred while adding data to table");
+        return tableToReturn;
     }
-    return tableToReturn;
+    return error("Error occurred while adding data to table_2");
 }
 
 // Writes the updated table to file.
 function writeToFile(table<myCookie> cookiesTable, string fileName) returns @tainted error? {
     io:WritableCSVChannel wCsvChannel2 = check io:openWritableCsvFile(fileName);
     foreach var entry in cookiesTable {
-        string[] rec = [entry.name, entry.value, entry.domain, entry.path, entry.expires, entry.maxAge.toString(), entry.httpOnly.toString(), entry.secure.toString(), entry.creationTime, entry.lastAccessedTime, entry.hostOnly.toString()];
-        writeDataToCSVChannel(wCsvChannel2, rec);
+        string[] rec = [entry.name, entry.value, entry.domain, entry.path, entry.expires, entry.maxAge.toString(), entry.httpOnly.toString(), entry.secure.toString(), entry.createdTime, entry.lastAccessedTime, entry.hostOnly.toString()];
+        var writeResult = writeDataToCSVChannel(wCsvChannel2, rec);
+        if (writeResult is error) {
+            return writeResult;
+        }
     }
     closeWritableCSVChannel(wCsvChannel2);
 }
 
-function writeDataToCSVChannel(io:WritableCSVChannel csvChannel, string[]... data) {
+function writeDataToCSVChannel(io:WritableCSVChannel csvChannel, string[]... data) returns error?{
     foreach var rec in data {
         var returnedVal = csvChannel.write(rec);
         if (returnedVal is error) {
-            log:printError("Error occurred while writing to target file: ", err = returnedVal);
+            return returnedVal;
         }
     }
 }
