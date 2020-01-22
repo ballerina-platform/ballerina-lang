@@ -1864,18 +1864,6 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterXmlElementAccessFilter(BallerinaParser.XmlElementAccessFilterContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitXmlElementAccessFilter(BallerinaParser.XmlElementAccessFilterContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
 	@Override public void enterXmlNavigationAccess(BallerinaParser.XmlNavigationAccessContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -1883,6 +1871,18 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitXmlNavigationAccess(BallerinaParser.XmlNavigationAccessContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterXmlElementAccessFilter(BallerinaParser.XmlElementAccessFilterContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitXmlElementAccessFilter(BallerinaParser.XmlElementAccessFilterContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

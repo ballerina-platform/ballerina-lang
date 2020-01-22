@@ -244,7 +244,7 @@ valueTypeName
 builtInReferenceTypeName
     :   TYPE_MAP LT typeName GT
     |   TYPE_FUTURE LT typeName GT
-    |   TYPE_XML
+    |   TYPE_XML (LT typeName GT)?
     |   TYPE_JSON
     |   TYPE_TABLE LT typeName GT
     |   TYPE_STREAM LT typeName GT
@@ -660,12 +660,12 @@ xmlElementAccess
     :   DOT LT xmlElementAccessFilter (PIPE xmlElementAccessFilter)*  GT
     ;
 
-xmlElementAccessFilter
-    : (Identifier COLON)? (Identifier | MUL)
-    ;
-
 xmlNavigationAccess
     : DIV LT xmlElementAccessFilter (PIPE xmlElementAccessFilter)*  GT
+    ;
+
+xmlElementAccessFilter
+    : (Identifier COLON)? (Identifier | MUL)
     ;
 
 index

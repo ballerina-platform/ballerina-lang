@@ -1606,16 +1606,6 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitXmlElementAccess(BallerinaParser.XmlElementAccessContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link BallerinaParser#xmlElementAccessFilter}.
-	 * @param ctx the parse tree
-	 */
-	void enterXmlElementAccessFilter(BallerinaParser.XmlElementAccessFilterContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link BallerinaParser#xmlElementAccessFilter}.
-	 * @param ctx the parse tree
-	 */
-	void exitXmlElementAccessFilter(BallerinaParser.XmlElementAccessFilterContext ctx);
-	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#xmlNavigationAccess}.
 	 * @param ctx the parse tree
 	 */
@@ -1625,6 +1615,16 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitXmlNavigationAccess(BallerinaParser.XmlNavigationAccessContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#xmlElementAccessFilter}.
+	 * @param ctx the parse tree
+	 */
+	void enterXmlElementAccessFilter(BallerinaParser.XmlElementAccessFilterContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#xmlElementAccessFilter}.
+	 * @param ctx the parse tree
+	 */
+	void exitXmlElementAccessFilter(BallerinaParser.XmlElementAccessFilterContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#index}.
 	 * @param ctx the parse tree
