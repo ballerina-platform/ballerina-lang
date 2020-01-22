@@ -228,8 +228,8 @@ function testIssueJwtWithCustomClaims(string keyStorePath) returns string|jwt:Er
     return jwt:issueJwt(header, payload, config);
 }
 
-function testValidateJwtWithInvalidSignature(string jwtToken, string trustStorePath) returns @tainted
-(boolean|jwt:Error) {
+function testValidateJwtWithInvalidSignature(string jwtToken, string trustStorePath)
+                                            returns @tainted (boolean|jwt:Error) {
     crypto:TrustStore trustStore = { path: trustStorePath, password: "ballerina" };
     jwt:JwtValidatorConfig config = {
         trustStoreConfig: {
