@@ -19,6 +19,7 @@
 package org.ballerinalang.stdlib.services.nativeimpl.cookie;
 
 import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
@@ -225,9 +226,75 @@ public class CookieNativeFunctionSuccessTest {
                           "Cookie objects are in the Return Values");
     }
 
-    @Test(description = "Test remove all session cookies from cookie store")
+    @Test(description = "Test remove all cookies from cookie store")
     public void testClearCookieStore() {
         BValue[] returnVals = BRunUtil.invoke(result, "testClearAllCookiesInCookieStore");
+        Assert.assertTrue(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
+                          "Cookie objects are in the Return Values");
+    }
+
+    @Test(description = "Test add persistent cookie into cookie store")
+    public void testAddPersistentCookieToCookieStore() {
+        BValue[] returnVals = BRunUtil.invoke(result, "testAddPersistentCookieToCookieStore");
+        Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
+                           "No cookie objects in the return values");
+        Assert.assertTrue(returnVals.length == 1);
+        BMap<String, BValue> bvalue = (BMap) returnVals[0];
+        Assert.assertEquals(bvalue.get("name").stringValue(), "SID002");
+    }
+
+    @Test(description = "Test add persistent cookie with a value below 69 for the year in expires attribute")
+    public void testAddPersistentCookieToCookieStore_2() {
+        BValue[] returnVals = BRunUtil.invoke(result, "testAddPersistentCookieToCookieStore_2");
+        Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
+                           "No cookie objects in the return values");
+        Assert.assertTrue(returnVals.length == 1);
+        BMap<String, BValue> bvalue = (BMap) returnVals[0];
+        Assert.assertEquals(bvalue.get("name").stringValue(), "SID002");
+    }
+
+    @Test(description = "Test get the relevant persistent cookie from cookie store")
+    public void testGetPersistentCookieFromCookieStore() {
+        BValue[] returnVals = BRunUtil.invoke(result, "testGetPersistentCookieFromCookieStore");
+        Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
+                           "No cookie objects in the return values");
+        Assert.assertTrue(returnVals.length == 1);
+        BMap<String, BValue> bvalue = (BMap) returnVals[0];
+        Assert.assertEquals(bvalue.get("name").stringValue(), "SID002");
+    }
+
+    @Test(description = "Test remove a specific persistent cookie from cookie store")
+    public void testRemovePersistentCookieFromCookieStore() {
+        BValue[] returnVals = BRunUtil.invoke(result, "testRemovePersistentCookieFromCookieStore");
+        Assert.assertTrue(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
+                          "Cookie objects are in the Return Values");
+    }
+
+    @Test(description = "Test get all cookies from cookie store, which matched with the given name as the cookie name")
+    public void testGetCookiesByName() {
+        BValue[] returnVals = BRunUtil.invoke(result, "testGetCookiesByName");
+        Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
+                           "No cookie objects in the return values");
+        Assert.assertTrue(returnVals.length == 1);
+        BMap<String, BValue> bvalue = (BMap) returnVals[0];
+        Assert.assertEquals(bvalue.get("name").stringValue(), "SID002");
+    }
+
+    @Test(description = "Test get all cookies from cookie store, which matched with the given name as the cookie domain")
+    public void testGetCookiesByDomain() {
+        BValue[] returnVals = BRunUtil.invoke(result, "testGetCookiesByDomain");
+        Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
+                           "No cookie objects in the return values");
+        Assert.assertTrue(returnVals.length == 2);
+        BMap<String, BValue> bvalue1 = (BMap) returnVals[0];
+        BMap<String, BValue> bvalue2 = (BMap) returnVals[1];
+        Assert.assertEquals(bvalue1.get("name").stringValue(), "SID001");
+        Assert.assertEquals(bvalue2.get("name").stringValue(), "SID002");
+    }
+
+    @Test(description = "Test remove all cookies from cookie store, which matched with the given name as the cookie domain")
+    public void testRemoveCookiesByDomain() {
+        BValue[] returnVals = BRunUtil.invoke(result, "testRemoveCookiesByDomain");
         Assert.assertTrue(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                           "Cookie objects are in the Return Values");
     }
