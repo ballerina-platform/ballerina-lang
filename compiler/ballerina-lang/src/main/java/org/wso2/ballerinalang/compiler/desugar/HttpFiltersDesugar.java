@@ -26,6 +26,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
@@ -466,13 +467,24 @@ public class HttpFiltersDesugar {
                     for (BLangRecordLiteral.BLangRecordKeyValue upgradeField :
                             ((BLangRecordLiteral) keyValue.getValue()).getKeyValuePairs()) {
                         if (getAnnotationFieldKey(upgradeField).equals(ANN_RESOURCE_ATTR_WS_UPGRADE_PATH)) {
-                            addParamOrderConfigAnnotation(resourceNode, upgradeField.getValue(), env);
+                            addParamOrderConfigAnnotation(resourceNode, upgradeField.getValue().toString(), env);
                             break;
                         }
                     }
                     break;
                 case ANN_RESOURCE_ATTR_PATH:
-                    addParamOrderConfigAnnotation(resourceNode, keyValue.getValue(), env);
+                    String value = null;
+                    if ((keyValue.valueExpr) instanceof BLangSimpleVarRef) {
+                        BSymbol symbol = ((BLangSimpleVarRef) keyValue.valueExpr).symbol;
+                        if (symbol instanceof BConstantSymbol) {
+                            value = ((BConstantSymbol) symbol).value.value.toString();
+                        } else {
+                            value = keyValue.getValue().toString();
+                        }
+                    } else {
+                        value = keyValue.getValue().toString();
+                    }
+                    addParamOrderConfigAnnotation(resourceNode, value, env);
                     break;
             }
         }
@@ -482,11 +494,11 @@ public class HttpFiltersDesugar {
         return ((BLangSimpleVarRef) (keyValue.key).expr).variableName.getValue();
     }
 
-    private static boolean checkForPathParam(List<BLangSimpleVariable> parameters, BLangExpression value) {
-        return parameters.size() > 2 && value.toString().contains("{") && value.toString().contains("}");
+    private static boolean checkForPathParam(List<BLangSimpleVariable> parameters, String value) {
+        return parameters.size() > 2 && value.contains("{") && value.contains("}");
     }
 
-    private void addParamOrderConfigAnnotation(BLangFunction resourceNode, BLangExpression value, SymbolEnv env) {
+    private void addParamOrderConfigAnnotation(BLangFunction resourceNode, String value, SymbolEnv env) {
         if (!checkForPathParam(resourceNode.getParameters(), value)) {
             return;
         }

@@ -3,8 +3,11 @@ package org.ballerinalang.net.http.compiler;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.FunctionNode;
 import org.ballerinalang.model.tree.SimpleVariableNode;
+import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.ballerinalang.util.diagnostic.DiagnosticLog;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
@@ -12,6 +15,7 @@ import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import static org.ballerinalang.net.http.HttpConstants.ANN_CONFIG_ATTR_WEBSOCKET_UPGRADE;
 import static org.ballerinalang.net.http.HttpConstants.ANN_NAME_RESOURCE_CONFIG;
@@ -143,7 +147,18 @@ public class ResourceSignatureValidator {
     private static void validateResourcePath(DiagnosticLog dlog, List<String> paramSegments,
                                              BLangRecordLiteral.BLangRecordKeyValue keyValue) {
         DiagnosticPos position = keyValue.getValue().getPosition();
-        String[] segments = keyValue.getValue().toString().split("/");
+        String value = null;
+        if ((keyValue.valueExpr) instanceof BLangSimpleVarRef) {
+            BSymbol symbol = ((BLangSimpleVarRef) keyValue.valueExpr).symbol;
+            if (symbol instanceof BConstantSymbol) {
+                value = ((BConstantSymbol) symbol).value.value.toString();
+            } else {
+                value = keyValue.getValue().toString();
+            }
+        } else {
+            value = keyValue.getValue().toString();
+        }
+        String[] segments = Objects.requireNonNull(value).split(HttpConstants.DEFAULT_BASE_PATH);
         for (String segment : segments) {
             validatePathSegment(segment, position, dlog, paramSegments);
         }
