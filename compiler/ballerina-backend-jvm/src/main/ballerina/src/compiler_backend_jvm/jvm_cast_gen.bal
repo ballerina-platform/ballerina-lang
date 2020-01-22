@@ -33,7 +33,7 @@ function generatePlatformCheckCast(jvm:MethodVisitor mv, BalToJVMIndexMap indexM
 }
 
 function generateBToJCheckCast(jvm:MethodVisitor mv, bir:BType sourceType, jvm:JType targetType) {
-    if (targetType is jvm:JRefType && targetType.typeValue == "org/ballerinalang/jvm/values/StringValue") {
+    if (targetType is jvm:JRefType && targetType.typeValue == I_STRING_VALUE) {
         generateCheckCastBToJString(mv, sourceType);
         return;
     } else if (targetType is jvm:JByte) {
@@ -58,7 +58,7 @@ function generateBToJCheckCast(jvm:MethodVisitor mv, bir:BType sourceType, jvm:J
         generateCheckCastBToJDouble(mv, sourceType);
         return;
     } else if (targetType is jvm:JRefType) {
-        if (targetType.typeValue == "org/ballerinalang/jvm/values/StringValue") {
+        if (targetType.typeValue == I_STRING_VALUE) {
             generateCheckCastBToJString(mv, sourceType);
         } else {
             generateCheckCastBToJRef(mv, sourceType, targetType);
@@ -340,7 +340,7 @@ function generateCheckCastJToBFloat(jvm:MethodVisitor mv, jvm:JType sourceType) 
 }
 
 function generateCheckCastJToBString(jvm:MethodVisitor mv, jvm:JType sourceType) {
-    if (sourceType is jvm:JRefType && sourceType.typeValue == "org/ballerinalang/jvm/values/StringValue") {
+    if (sourceType is jvm:JRefType && sourceType.typeValue == I_STRING_VALUE) {
         mv.visitMethodInsn(INVOKEINTERFACE, I_STRING_VALUE, "getValue", io:sprintf("()L%s;", STRING_VALUE) , true);
     } else {
         error err = error(io:sprintf("Casting is not supported from '%s' to 'string'", sourceType));
