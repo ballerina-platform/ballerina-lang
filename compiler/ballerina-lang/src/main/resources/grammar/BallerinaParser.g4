@@ -661,7 +661,13 @@ xmlElementAccess
     ;
 
 xmlNavigationAccess
-    : DIV LT xmlElementAccessFilter (PIPE xmlElementAccessFilter)*  GT
+    : DIV xmlElementNames
+    | DIV MUL
+    | DIV MUL MUL DIV xmlElementNames
+    ;
+
+xmlElementNames
+    :  LT xmlElementAccessFilter (PIPE xmlElementAccessFilter)*  GT
     ;
 
 xmlElementAccessFilter

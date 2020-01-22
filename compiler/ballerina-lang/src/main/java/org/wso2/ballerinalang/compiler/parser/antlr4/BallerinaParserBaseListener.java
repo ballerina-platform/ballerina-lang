@@ -1876,6 +1876,18 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterXmlElementNames(BallerinaParser.XmlElementNamesContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitXmlElementNames(BallerinaParser.XmlElementNamesContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterXmlElementAccessFilter(BallerinaParser.XmlElementAccessFilterContext ctx) { }
 	/**
 	 * {@inheritDoc}

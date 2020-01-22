@@ -1616,6 +1616,16 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitXmlNavigationAccess(BallerinaParser.XmlNavigationAccessContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#xmlElementNames}.
+	 * @param ctx the parse tree
+	 */
+	void enterXmlElementNames(BallerinaParser.XmlElementNamesContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#xmlElementNames}.
+	 * @param ctx the parse tree
+	 */
+	void exitXmlElementNames(BallerinaParser.XmlElementNamesContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#xmlElementAccessFilter}.
 	 * @param ctx the parse tree
 	 */
