@@ -22,9 +22,11 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.DefaultHttpResponse;
 import io.netty.handler.codec.http.DefaultLastHttpContent;
 import io.netty.handler.codec.http.HttpContent;
+import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.codec.http.HttpResponseStatus;
+import io.netty.handler.codec.http.HttpUtil;
 import io.netty.handler.codec.http.HttpVersion;
 import io.netty.handler.codec.http.LastHttpContent;
 import io.netty.handler.codec.http2.Http2Exception;
@@ -45,6 +47,11 @@ import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import org.wso2.transport.http.netty.message.HttpCarbonResponse;
 import org.wso2.transport.http.netty.message.PooledDataStreamerFactory;
 
+import java.util.Map;
+
+import static io.netty.handler.codec.http.HttpHeaderNames.TRAILER;
+import static io.netty.handler.codec.http2.Http2Error.PROTOCOL_ERROR;
+import static io.netty.handler.codec.http2.Http2Exception.streamError;
 import static org.wso2.transport.http.netty.contract.Constants.DIRECTION;
 import static org.wso2.transport.http.netty.contract.Constants.DIRECTION_RESPONSE;
 import static org.wso2.transport.http.netty.contract.Constants.EXECUTOR_WORKER_POOL;
@@ -215,6 +222,7 @@ public class ReceivingHeaders implements SenderState {
                     notifyHttpListener(new Exception("Error while setting http headers", e));
         }
         responseMessage.addHttpContent(lastHttpContent);
+        responseMessage.setLastHttpContentArrived();
     }
 
     private HttpCarbonResponse setupResponseCarbonMessage(ChannelHandlerContext ctx, int streamId,
@@ -235,6 +243,10 @@ public class ReceivingHeaders implements SenderState {
         try {
             HttpConversionUtil.addHttp2ToHttpHeaders(
                     streamId, http2Headers, httpResponse.headers(), version, false, false);
+            CharSequence trailerHeaderValue = http2Headers.get(TRAILER.toString());
+            if (trailerHeaderValue != null) {
+                httpResponse.headers().add(TRAILER.toString(), trailerHeaderValue.toString());
+            }
         } catch (Http2Exception e) {
             outboundMsgHolder.getResponseFuture().
                     notifyHttpListener(new Exception("Error while setting http headers", e));
