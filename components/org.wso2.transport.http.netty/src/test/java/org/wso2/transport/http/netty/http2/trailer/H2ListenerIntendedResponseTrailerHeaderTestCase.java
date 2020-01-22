@@ -35,6 +35,7 @@ import org.wso2.transport.http.netty.contract.config.ListenerConfiguration;
 import org.wso2.transport.http.netty.contract.config.SenderConfiguration;
 import org.wso2.transport.http.netty.contract.config.TransportsConfiguration;
 import org.wso2.transport.http.netty.contract.exceptions.ServerConnectorException;
+import org.wso2.transport.http.netty.contractimpl.DefaultHttpWsConnectorFactory;
 import org.wso2.transport.http.netty.http2.listeners.Http2EchoServerWithTrailerHeader;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import org.wso2.transport.http.netty.message.HttpConnectorUtil;
@@ -62,6 +63,7 @@ public class H2ListenerIntendedResponseTrailerHeaderTestCase {
     @BeforeClass
     public void setup() {
         ListenerConfiguration listenerConfiguration = Http2Util.getH2CListenerConfiguration();
+        httpWsConnectorFactory = new DefaultHttpWsConnectorFactory();
         serverConnector = httpWsConnectorFactory
                 .createServerConnector(TestUtil.getDefaultServerBootstrapConfig(), listenerConfiguration);
         ServerConnectorFuture serverConnectorFuture = serverConnector.start();

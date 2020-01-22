@@ -46,8 +46,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 /**
- * {@code Http2ServerConnectorListener} is a HttpConnectorListener which receives messages and respond back with
- * different types of HTTP/2 messages along with trailing headers.
+ * {@code Http2EchoServerWithTrailerHeader} is a HttpConnectorListener which receives messages and respond back with
+ * trailing headers.
  *
  * @since 6.3.0
  */
@@ -86,8 +86,7 @@ public class Http2EchoServerWithTrailerHeader extends EchoMessageListener {
                             expectedTrailer = ((LastHttpContent) httpContent).trailingHeaders();
                             break;
                         }
-                    }
-                    while (true);
+                    } while (true);
                     httpResponse.setHeader("Request-trailer", trailerHeaderValue);
                     httpResponse.getHeaders().add(expectedTrailer);
                     try {
@@ -106,8 +105,7 @@ public class Http2EchoServerWithTrailerHeader extends EchoMessageListener {
                             ((LastHttpContent) httpContent).trailingHeaders().add(expectedTrailer);
                             break;
                         }
-                    }
-                    while (true);
+                    } while (true);
                     try {
                         httpRequest.respond(httpResponse);
                     } catch (ServerConnectorException e) {
@@ -120,7 +118,6 @@ public class Http2EchoServerWithTrailerHeader extends EchoMessageListener {
                     try {
                         responseFuture = httpRequest.pushPromise(promise);
                         responseFuture.sync();
-
                     } catch (ServerConnectorException | InterruptedException e) {
                         LOG.error("Error occurred while processing message: " + e.getMessage());
                     }
@@ -177,13 +174,11 @@ public class Http2EchoServerWithTrailerHeader extends EchoMessageListener {
         httpResponse.setHttpStatusCode(status.code());
         populateTrailerHeader(httpResponse);
 
-        DefaultLastHttpContent lastHttpContent;
+        DefaultLastHttpContent lastHttpContent = new DefaultLastHttpContent();
         if (response != null) {
             byte[] responseByteValues = response.getBytes(StandardCharsets.UTF_8);
             ByteBuffer responseValueByteBuffer = ByteBuffer.wrap(responseByteValues);
             lastHttpContent = new DefaultLastHttpContent(Unpooled.wrappedBuffer(responseValueByteBuffer));
-        } else {
-            lastHttpContent = new DefaultLastHttpContent();
         }
         lastHttpContent.trailingHeaders().add(expectedTrailer);
         httpResponse.addHttpContent(lastHttpContent);
