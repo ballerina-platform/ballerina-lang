@@ -66,9 +66,9 @@ import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.populateTopicPa
 )
 public class SubscribeWithPartitionRebalance {
 
-    public static Object subscribeWithPartitionRebalance(Strand strand, ObjectValue consumerObject, ArrayValue topics,
+    public static Object subscribeWithPartitionRebalance(ObjectValue consumerObject, ArrayValue topics,
                                                          FPValue onPartitionsRevoked, FPValue onPartitionsAssigned) {
-
+        Strand strand = Scheduler.getStrand();
         NonBlockingCallback callback = new NonBlockingCallback(strand);
         KafkaConsumer<byte[], byte[]> kafkaConsumer = (KafkaConsumer) consumerObject.getNativeData(NATIVE_CONSUMER);
         ArrayList<String> topicsList = getStringListFromStringArrayValue(topics);
