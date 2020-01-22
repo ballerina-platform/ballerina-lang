@@ -73,8 +73,8 @@ public class H2ListenerTrailerHeaderTestCase {
 
         Http2EchoServerWithTrailerHeader http2ConnectorListener = new Http2EchoServerWithTrailerHeader();
         HttpHeaders trailers = new DefaultLastHttpContent().trailingHeaders();
-        trailers.add("foo","bar");
-        trailers.add("baz","ballerina");
+        trailers.add("foo", "bar");
+        trailers.add("baz", "ballerina");
         http2ConnectorListener.setTrailer(trailers).setMessageType(false);
         serverConnectorFuture.setHttpConnectorListener(http2ConnectorListener);
 

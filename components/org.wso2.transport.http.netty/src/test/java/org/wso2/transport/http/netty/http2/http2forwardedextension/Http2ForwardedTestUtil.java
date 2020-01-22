@@ -19,8 +19,6 @@
 package org.wso2.transport.http.netty.http2.http2forwardedextension;
 
 import io.netty.handler.codec.http.HttpHeaders;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.testng.annotations.AfterClass;
 import org.wso2.transport.http.netty.contentaware.listeners.EchoMessageListener;
 import org.wso2.transport.http.netty.contract.Constants;

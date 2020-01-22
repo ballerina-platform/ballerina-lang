@@ -22,11 +22,9 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.DefaultHttpResponse;
 import io.netty.handler.codec.http.DefaultLastHttpContent;
 import io.netty.handler.codec.http.HttpContent;
-import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.codec.http.HttpResponseStatus;
-import io.netty.handler.codec.http.HttpUtil;
 import io.netty.handler.codec.http.HttpVersion;
 import io.netty.handler.codec.http.LastHttpContent;
 import io.netty.handler.codec.http2.Http2Exception;
@@ -47,11 +45,7 @@ import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import org.wso2.transport.http.netty.message.HttpCarbonResponse;
 import org.wso2.transport.http.netty.message.PooledDataStreamerFactory;
 
-import java.util.Map;
-
 import static io.netty.handler.codec.http.HttpHeaderNames.TRAILER;
-import static io.netty.handler.codec.http2.Http2Error.PROTOCOL_ERROR;
-import static io.netty.handler.codec.http2.Http2Exception.streamError;
 import static org.wso2.transport.http.netty.contract.Constants.DIRECTION;
 import static org.wso2.transport.http.netty.contract.Constants.DIRECTION_RESPONSE;
 import static org.wso2.transport.http.netty.contract.Constants.EXECUTOR_WORKER_POOL;

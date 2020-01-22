@@ -156,7 +156,7 @@ public class ReceivingHeaders implements ListenerState {
                                        REMOTE_CLIENT_CLOSED_WHILE_READING_INBOUND_REQUEST_HEADERS);
     }
 
-    private void readTrailerHeaders (int streamId, Http2Headers headers, HttpCarbonMessage requestMessage)
+    private void readTrailerHeaders(int streamId, Http2Headers headers, HttpCarbonMessage requestMessage)
             throws Http2Exception {
         HttpVersion version = new HttpVersion(HTTP_VERSION_2_0, true);
         LastHttpContent lastHttpContent = new DefaultLastHttpContent();
