@@ -142,21 +142,21 @@ public class AddOperationTest {
     @Test(description = "Test xml xml add expression")
     public void testXmlXmlAddExpr() {
         BValue[] returns = BRunUtil.invoke(result, "xmlXmlAdd");
-        Assert.assertEquals((returns[0]).size(), 6);
+        Assert.assertEquals((returns[0]).size(), 1);
         Assert.assertEquals((returns[0]).stringValue(), "abcdef");
     }
 
     @Test(description = "Test xml string add expression")
     public void testXmlStringAddExpr() {
         BValue[] returns = BRunUtil.invoke(result, "xmlStringAdd");
-        Assert.assertEquals((returns[0]).size(), 6);
+        Assert.assertEquals((returns[0]).size(), 1);
         Assert.assertEquals((returns[0]).stringValue(), "abcdef");
     }
 
     @Test(description = "Test string xml add expression")
     public void testStringXmlAddExpr() {
-BValue[] returns = BRunUtil.invoke(result, "stringXmlAdd");
-        Assert.assertEquals((returns[0]).size(), 6);
+        BValue[] returns = BRunUtil.invoke(result, "stringXmlAdd");
+        Assert.assertEquals((returns[0]).size(), 1);
         Assert.assertEquals((returns[0]).stringValue(), "defabc");
     }
 

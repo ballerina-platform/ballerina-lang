@@ -454,10 +454,10 @@ public class XMLNativeFunctionTest {
         BValue[] returns = BRunUtil.invoke(result, "testSelectChildrenWithDifferentNamespaces");
         Assert.assertEquals(returns.length, 6);
         Assert.assertTrue(returns[0] instanceof BXML);
-        Assert.assertEquals(((BXMLItem) returns[0]).size(), 1);
+        Assert.assertEquals((returns[0]).size(), 1);
 
         Assert.assertTrue(returns[1] instanceof BXML);
-        Assert.assertEquals(((BXMLItem) returns[1]).size(), 1);
+        Assert.assertEquals((returns[1]).size(), 1);
 
         // is children seq one is empty?
         Assert.assertSame(returns[2].getClass(), BBoolean.class);
