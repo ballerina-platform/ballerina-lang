@@ -38,6 +38,7 @@ public interface BObject extends BRefValue {
 
     BObjectType getType();
 
+    @Deprecated
     Object get(String fieldName);
 
     Object get(StringValue fieldName);
@@ -62,6 +63,7 @@ public interface BObject extends BRefValue {
 
     HashMap<String, Object> getNativeData();
 
+    @Deprecated
     void set(String fieldName, Object value);
 
     void set(StringValue fieldName, Object value);
