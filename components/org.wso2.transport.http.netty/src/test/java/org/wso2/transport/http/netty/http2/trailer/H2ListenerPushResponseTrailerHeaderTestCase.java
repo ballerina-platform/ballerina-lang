@@ -27,7 +27,6 @@ import org.slf4j.LoggerFactory;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import org.wso2.transport.http.netty.contract.Constants;
 import org.wso2.transport.http.netty.contract.HttpClientConnector;
 import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
 import org.wso2.transport.http.netty.contract.ServerConnector;
@@ -43,6 +42,7 @@ import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import org.wso2.transport.http.netty.message.HttpConnectorUtil;
 import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 import org.wso2.transport.http.netty.message.ResponseHandle;
+import org.wso2.transport.http.netty.util.Http2Util;
 import org.wso2.transport.http.netty.util.TestUtil;
 import org.wso2.transport.http.netty.util.client.http2.MessageGenerator;
 import org.wso2.transport.http.netty.util.client.http2.MessageSender;
@@ -65,10 +65,7 @@ public class H2ListenerPushResponseTrailerHeaderTestCase {
 
     @BeforeClass
     public void setup() {
-        ListenerConfiguration listenerConfiguration = new ListenerConfiguration();
-        listenerConfiguration.setPort(TestUtil.HTTP_SERVER_PORT);
-        listenerConfiguration.setScheme(Constants.HTTP_SCHEME);
-        listenerConfiguration.setVersion(Constants.HTTP_2_0);
+        ListenerConfiguration listenerConfiguration = Http2Util.getH2CListenerConfiguration();
         httpWsConnectorFactory = new DefaultHttpWsConnectorFactory();
         serverConnector = httpWsConnectorFactory
                 .createServerConnector(TestUtil.getDefaultServerBootstrapConfig(), listenerConfiguration);
@@ -89,17 +86,9 @@ public class H2ListenerPushResponseTrailerHeaderTestCase {
         }
 
         TransportsConfiguration transportsConfiguration = new TransportsConfiguration();
-        SenderConfiguration senderConfiguration1 = getSenderConfiguration();
-        senderConfiguration1.setForceHttp2(true);
+        SenderConfiguration senderConfiguration = Http2Util.getH2CSenderConfiguration();
         h2ClientWithPriorKnowledge = httpWsConnectorFactory.createHttpClientConnector(
-                HttpConnectorUtil.getTransportProperties(transportsConfiguration), senderConfiguration1);
-    }
-
-    private SenderConfiguration getSenderConfiguration() {
-        SenderConfiguration senderConfiguration = new SenderConfiguration();
-        senderConfiguration.setScheme(Constants.HTTP_SCHEME);
-        senderConfiguration.setHttpVersion(Constants.HTTP_2_0);
-        return senderConfiguration;
+                HttpConnectorUtil.getTransportProperties(transportsConfiguration), senderConfiguration);
     }
 
     @Test

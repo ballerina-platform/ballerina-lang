@@ -152,4 +152,20 @@ public class Http2Util {
         }
         return http2Headers;
     }
+
+    public static ListenerConfiguration getH2CListenerConfiguration() {
+        ListenerConfiguration listenerConfiguration = new ListenerConfiguration();
+        listenerConfiguration.setPort(TestUtil.HTTP_SERVER_PORT);
+        listenerConfiguration.setScheme(Constants.HTTP_SCHEME);
+        listenerConfiguration.setVersion(Constants.HTTP_2_0);
+        return listenerConfiguration;
+    }
+
+    public static SenderConfiguration getH2CSenderConfiguration() {
+        SenderConfiguration senderConfiguration = new SenderConfiguration();
+        senderConfiguration.setScheme(Constants.HTTP_SCHEME);
+        senderConfiguration.setHttpVersion(Constants.HTTP_2_0);
+        senderConfiguration.setForceHttp2(true);
+        return senderConfiguration;
+    }
 }

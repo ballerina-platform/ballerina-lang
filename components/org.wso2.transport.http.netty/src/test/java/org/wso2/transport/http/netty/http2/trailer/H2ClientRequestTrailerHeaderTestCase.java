@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  WSO2 Inc. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -46,6 +46,7 @@ import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import org.wso2.transport.http.netty.message.HttpCarbonRequest;
 import org.wso2.transport.http.netty.message.HttpConnectorUtil;
 import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
+import org.wso2.transport.http.netty.util.Http2Util;
 import org.wso2.transport.http.netty.util.TestUtil;
 import org.wso2.transport.http.netty.util.client.http2.MessageSender;
 
@@ -70,10 +71,7 @@ public class H2ClientRequestTrailerHeaderTestCase {
 
     @BeforeClass
     public void setup() {
-        ListenerConfiguration listenerConfiguration = new ListenerConfiguration();
-        listenerConfiguration.setPort(TestUtil.HTTP_SERVER_PORT);
-        listenerConfiguration.setScheme(Constants.HTTP_SCHEME);
-        listenerConfiguration.setVersion(Constants.HTTP_2_0);
+        ListenerConfiguration listenerConfiguration = Http2Util.getH2CListenerConfiguration();
         httpWsConnectorFactory = new DefaultHttpWsConnectorFactory();
         serverConnector = httpWsConnectorFactory
                 .createServerConnector(TestUtil.getDefaultServerBootstrapConfig(), listenerConfiguration);
@@ -90,18 +88,11 @@ public class H2ClientRequestTrailerHeaderTestCase {
         }
 
         TransportsConfiguration transportsConfiguration = new TransportsConfiguration();
-        SenderConfiguration senderConfiguration1 = getSenderConfiguration();
-        senderConfiguration1.setForceHttp2(true);
+        SenderConfiguration senderConfiguration = Http2Util.getH2CSenderConfiguration();
         h2ClientWithPriorKnowledge = httpWsConnectorFactory.createHttpClientConnector(
-                HttpConnectorUtil.getTransportProperties(transportsConfiguration), senderConfiguration1);
+                HttpConnectorUtil.getTransportProperties(transportsConfiguration), senderConfiguration);
     }
 
-    private SenderConfiguration getSenderConfiguration() {
-        SenderConfiguration senderConfiguration = new SenderConfiguration();
-        senderConfiguration.setScheme(Constants.HTTP_SCHEME);
-        senderConfiguration.setHttpVersion(Constants.HTTP_2_0);
-        return senderConfiguration;
-    }
 
     @Test
     public void testSmallPayload() {
