@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  WSO2 Inc. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -17,11 +17,15 @@
  *
  */
 
-package org.wso2.transport.http.netty.http2.trailerheader;
+package org.wso2.transport.http.netty.http2.trailer;
 
+import io.netty.buffer.Unpooled;
+import io.netty.handler.codec.http.DefaultHttpRequest;
 import io.netty.handler.codec.http.DefaultLastHttpContent;
+import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpMethod;
+import io.netty.handler.codec.http.HttpVersion;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.AfterClass;
@@ -39,22 +43,26 @@ import org.wso2.transport.http.netty.contract.exceptions.ServerConnectorExceptio
 import org.wso2.transport.http.netty.contractimpl.DefaultHttpWsConnectorFactory;
 import org.wso2.transport.http.netty.http2.listeners.Http2EchoServerWithTrailerHeader;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
+import org.wso2.transport.http.netty.message.HttpCarbonRequest;
 import org.wso2.transport.http.netty.message.HttpConnectorUtil;
 import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 import org.wso2.transport.http.netty.util.TestUtil;
-import org.wso2.transport.http.netty.util.client.http2.MessageGenerator;
 import org.wso2.transport.http.netty.util.client.http2.MessageSender;
+
+import java.nio.ByteBuffer;
+import java.nio.charset.Charset;
 
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotNull;
+import static org.wso2.transport.http.netty.util.TestUtil.HTTP_SCHEME;
 
 /**
- * Test case for H2 trailer headers.
+ * Test case for H2 trailer headers come along with inbound request.
  *
- * @since 6.2.35
+ * @since 6.3.0
  */
-public class H2ListenerTrailerHeaderTestCase {
-    private static final Logger LOG = LoggerFactory.getLogger(H2ListenerTrailerHeaderTestCase.class);
+public class H2ClientRequestTrailerHeaderTestCase {
+    private static final Logger LOG = LoggerFactory.getLogger(H2ClientRequestTrailerHeaderTestCase.class);
 
     private HttpWsConnectorFactory httpWsConnectorFactory;
     private HttpClientConnector h2ClientWithPriorKnowledge;
@@ -72,10 +80,7 @@ public class H2ListenerTrailerHeaderTestCase {
         ServerConnectorFuture serverConnectorFuture = serverConnector.start();
 
         Http2EchoServerWithTrailerHeader http2ConnectorListener = new Http2EchoServerWithTrailerHeader();
-        HttpHeaders trailers = new DefaultLastHttpContent().trailingHeaders();
-        trailers.add("foo", "bar");
-        trailers.add("baz", "ballerina");
-        http2ConnectorListener.setTrailer(trailers).setMessageType(false);
+        http2ConnectorListener.setMessageType(Http2EchoServerWithTrailerHeader.MessageType.REQUEST);
         serverConnectorFuture.setHttpConnectorListener(http2ConnectorListener);
 
         try {
@@ -99,34 +104,65 @@ public class H2ListenerTrailerHeaderTestCase {
     }
 
     @Test
-    public void testNoPayload() {
-        String testValue = "";
-        HttpCarbonMessage httpMsg = MessageGenerator.generateRequest(HttpMethod.GET, testValue);
-        verifyResult(httpMsg, h2ClientWithPriorKnowledge, testValue);
-    }
-
-    @Test
     public void testSmallPayload() {
         String testValue = "Test Http2 Message";
-        HttpCarbonMessage httpMsg = MessageGenerator.generateRequest(HttpMethod.POST, testValue);
-        verifyResult(httpMsg, h2ClientWithPriorKnowledge, testValue);
+        HttpHeaders trailers = new DefaultLastHttpContent().trailingHeaders();
+        trailers.add("foo", "xyz");
+        trailers.add("bar", "ballerina");
+
+        HttpCarbonMessage httpMsg = generateRequestWithTrailers(HttpMethod.POST, testValue, trailers);
+        HttpHeaders httpHeaders = verifyResult(httpMsg, h2ClientWithPriorKnowledge, testValue);
+        assertEquals(httpHeaders.get("Request-trailer"), "foo,bar");
+        assertEquals(httpHeaders.get("foo"), "xyz");
+        assertEquals(httpHeaders.get("bar"), "ballerina");
     }
 
     @Test
     public void testLargePayload() {
         String testValue = TestUtil.largeEntity;
-        HttpCarbonMessage httpMsg = MessageGenerator.generateRequest(HttpMethod.POST, testValue);
-        verifyResult(httpMsg, h2ClientWithPriorKnowledge, testValue);
+        HttpHeaders trailers = new DefaultLastHttpContent().trailingHeaders();
+        trailers.add("foo", "baz");
+        trailers.add("xyz", "ballerina");
+
+        HttpCarbonMessage httpMsg = generateRequestWithTrailers(HttpMethod.POST, testValue, trailers);
+        HttpHeaders httpHeaders = verifyResult(httpMsg, h2ClientWithPriorKnowledge, testValue);
+        assertEquals(httpHeaders.get("Request-trailer"), "foo,xyz");
+        assertEquals(httpHeaders.get("foo"), "baz");
+        assertEquals(httpHeaders.get("xyz"), "ballerina");
     }
 
-    private void verifyResult(HttpCarbonMessage httpCarbonMessage, HttpClientConnector http2ClientConnector,
-                              String expectedValue) {
+    private HttpCarbonMessage generateRequestWithTrailers(HttpMethod httpMethod, String payload,
+                                                          HttpHeaders trailers) {
+        HttpCarbonMessage httpCarbonMessage = new HttpCarbonRequest(new DefaultHttpRequest(
+                new HttpVersion(Constants.DEFAULT_VERSION_HTTP_1_1, true), httpMethod,
+                HTTP_SCHEME + TestUtil.TEST_HOST + ":" + TestUtil.HTTP_SERVER_PORT));
+        httpCarbonMessage.setHttpMethod(httpMethod.toString());
+        httpCarbonMessage.setProperty(Constants.HTTP_HOST, TestUtil.TEST_HOST);
+        httpCarbonMessage.setProperty(Constants.HTTP_PORT, TestUtil.HTTP_SERVER_PORT);
+        httpCarbonMessage.setHeader("Host", TestUtil.TEST_HOST + ":" + TestUtil.HTTP_SERVER_PORT);
+
+        String trailerHeaderValue = String.join(",", trailers.names());
+        httpCarbonMessage.setHeader(HttpHeaderNames.TRAILER.toString(), trailerHeaderValue);
+
+        DefaultLastHttpContent lastHttpContent;
+        if (payload != null) {
+            ByteBuffer byteBuffer = ByteBuffer.wrap(payload.getBytes(Charset.forName("UTF-8")));
+            lastHttpContent = new DefaultLastHttpContent(Unpooled.wrappedBuffer(byteBuffer));
+        } else {
+            lastHttpContent = new DefaultLastHttpContent();
+        }
+        lastHttpContent.trailingHeaders().add(trailers);
+        httpCarbonMessage.addHttpContent(lastHttpContent);
+        return httpCarbonMessage;
+    }
+
+    private HttpHeaders verifyResult(HttpCarbonMessage httpCarbonMessage, HttpClientConnector http2ClientConnector,
+                                     String expectedValue) {
         HttpCarbonMessage response = new MessageSender(http2ClientConnector).sendMessage(httpCarbonMessage);
         assertNotNull(response);
         String result = TestUtil.getStringFromInputStream(new HttpMessageDataStreamer(response).getInputStream());
         assertEquals(result, expectedValue, "Expected response not received");
-        assertEquals(response.getHeaders().get("Trailer"), "foo,baz");
-        assertEquals(response.getTrailerHeaders().get("foo"), "bar");
+        return response.getHeaders();
     }
 
     @AfterClass

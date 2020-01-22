@@ -19,7 +19,9 @@
 
 package org.wso2.transport.http.netty.http2.listeners;
 
+import io.netty.buffer.Unpooled;
 import io.netty.handler.codec.http.DefaultHttpResponse;
+import io.netty.handler.codec.http.DefaultLastHttpContent;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpHeaderValues;
@@ -31,59 +33,72 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contentaware.listeners.EchoMessageListener;
 import org.wso2.transport.http.netty.contract.Constants;
+import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.contract.exceptions.ServerConnectorException;
+import org.wso2.transport.http.netty.message.Http2PushPromise;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import org.wso2.transport.http.netty.message.HttpCarbonResponse;
 
+import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
+import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 /**
  * {@code Http2ServerConnectorListener} is a HttpConnectorListener which receives messages and respond back with
- * different types of HTTP/2 messages depending on the request.
+ * different types of HTTP/2 messages along with trailing headers.
+ *
+ * @since 6.3.0
  */
 public class Http2EchoServerWithTrailerHeader extends EchoMessageListener {
 
     private static final Logger LOG = LoggerFactory.getLogger(Http2EchoServerWithTrailerHeader.class);
-
     private ExecutorService executor = Executors.newSingleThreadExecutor();
-
     private HttpHeaders expectedTrailer;
-    private boolean request;
+    private MessageType messageType;
 
-    public void setMessageType(boolean request) {
-        this.request = request;
+    public enum MessageType {
+        REQUEST,
+        RESPONSE,
+        PUSH_RESPONSE
     }
 
-    public Http2EchoServerWithTrailerHeader setTrailer(HttpHeaders trailers) {
+    public void setMessageType(MessageType messageType) {
+        this.messageType = messageType;
+    }
+
+    public void setTrailer(HttpHeaders trailers) {
         this.expectedTrailer = trailers;
-        return this;
     }
 
     @Override
     public void onMessage(HttpCarbonMessage httpRequest) {
         executor.execute(() -> {
-            try {
-                if (request) {
+            switch (messageType) {
+                case REQUEST:
                     String trailerHeaderValue = httpRequest.getHeader(HttpHeaderNames.TRAILER.toString());
-                    HttpHeaders trailingHeaders;
+                    HttpCarbonMessage httpResponse = getHttpCarbonMessage();
                     do {
                         HttpContent httpContent = httpRequest.getHttpContent();
+                        httpResponse.addHttpContent(httpContent);
                         if (httpContent instanceof LastHttpContent) {
-                            trailingHeaders = ((LastHttpContent) httpContent).trailingHeaders();
+                            expectedTrailer = ((LastHttpContent) httpContent).trailingHeaders();
                             break;
                         }
                     }
                     while (true);
-
-                    HttpCarbonMessage httpResponse = getHttpCarbonMessage();
                     httpResponse.setHeader("Request-trailer", trailerHeaderValue);
-                    httpResponse.getHeaders().add(trailingHeaders);
-                    httpRequest.respond(httpResponse);
-                } else {
-                    HttpCarbonMessage httpResponse = getHttpCarbonMessage();
-                    String trailerHeaderValue = String.join(",", expectedTrailer.names());
-                    httpResponse.setHeader(HttpHeaderNames.TRAILER.toString(), trailerHeaderValue);
+                    httpResponse.getHeaders().add(expectedTrailer);
+                    try {
+                        httpRequest.respond(httpResponse);
+                    } catch (ServerConnectorException e) {
+                        LOG.error("Error occurred during message notification: " + e.getMessage());
+                    }
+                    break;
+                case RESPONSE:
+                    httpResponse = getHttpCarbonMessage();
+                    populateTrailerHeader(httpResponse);
                     do {
                         HttpContent httpContent = httpRequest.getHttpContent();
                         httpResponse.addHttpContent(httpContent);
@@ -93,10 +108,43 @@ public class Http2EchoServerWithTrailerHeader extends EchoMessageListener {
                         }
                     }
                     while (true);
-                    httpRequest.respond(httpResponse);
-                }
-            } catch (ServerConnectorException e) {
-                LOG.error("Error occurred during message notification: " + e.getMessage());
+                    try {
+                        httpRequest.respond(httpResponse);
+                    } catch (ServerConnectorException e) {
+                        LOG.error("Error occurred during message notification: " + e.getMessage());
+                    }
+                    break;
+                case PUSH_RESPONSE:
+                    Http2PushPromise promise = new Http2PushPromise(Constants.HTTP_GET_METHOD, "/resource1");
+                    HttpResponseFuture responseFuture = null;
+                    try {
+                        responseFuture = httpRequest.pushPromise(promise);
+                        responseFuture.sync();
+
+                    } catch (ServerConnectorException | InterruptedException e) {
+                        LOG.error("Error occurred while processing message: " + e.getMessage());
+                    }
+                    Throwable error = Objects.requireNonNull(responseFuture).getStatus().getCause();
+                    if (error != null) {
+                        responseFuture.resetStatus();
+                        LOG.error("Error occurred while sending push promises " + error.getMessage());
+                        break;
+                    }
+
+                    // Send Promised response message
+                    try {
+                        responseFuture = httpRequest.pushResponse(
+                                generateResponse("Resource for " + promise.getPath(), expectedTrailer), promise);
+                        responseFuture.sync();
+                    } catch (ServerConnectorException | InterruptedException e) {
+                        LOG.error("Error occurred while processing message: " + e.getMessage());
+                    }
+                    error = responseFuture.getStatus().getCause();
+                    if (error != null) {
+                        responseFuture.resetStatus();
+                        LOG.error("Error occurred while sending promised response " + error.getMessage());
+                    }
+                    break;
             }
         });
     }
@@ -113,6 +161,32 @@ public class Http2EchoServerWithTrailerHeader extends EchoMessageListener {
                                HttpHeaderValues.KEEP_ALIVE.toString());
         httpResponse.setHeader(HttpHeaderNames.CONTENT_TYPE.toString(), Constants.TEXT_PLAIN);
         httpResponse.setHttpStatusCode(HttpResponseStatus.OK.code());
+        return httpResponse;
+    }
+
+    private void populateTrailerHeader(HttpCarbonMessage httpResponse) {
+        String trailerHeaderValue = String.join(",", expectedTrailer.names());
+        httpResponse.setHeader(HttpHeaderNames.TRAILER.toString(), trailerHeaderValue);
+    }
+
+    private HttpCarbonMessage generateResponse(String response, HttpHeaders expectedTrailer) {
+        HttpResponseStatus status = HttpResponseStatus.OK;
+        HttpCarbonMessage httpResponse = new HttpCarbonResponse(new DefaultHttpResponse(HttpVersion.HTTP_1_1, status));
+        httpResponse.setHeader(HttpHeaderNames.CONNECTION.toString(), HttpHeaderValues.KEEP_ALIVE.toString());
+        httpResponse.setHeader(HttpHeaderNames.CONTENT_TYPE.toString(), Constants.TEXT_PLAIN);
+        httpResponse.setHttpStatusCode(status.code());
+        populateTrailerHeader(httpResponse);
+
+        DefaultLastHttpContent lastHttpContent;
+        if (response != null) {
+            byte[] responseByteValues = response.getBytes(StandardCharsets.UTF_8);
+            ByteBuffer responseValueByteBuffer = ByteBuffer.wrap(responseByteValues);
+            lastHttpContent = new DefaultLastHttpContent(Unpooled.wrappedBuffer(responseValueByteBuffer));
+        } else {
+            lastHttpContent = new DefaultLastHttpContent();
+        }
+        lastHttpContent.trailingHeaders().add(expectedTrailer);
+        httpResponse.addHttpContent(lastHttpContent);
         return httpResponse;
     }
 }
