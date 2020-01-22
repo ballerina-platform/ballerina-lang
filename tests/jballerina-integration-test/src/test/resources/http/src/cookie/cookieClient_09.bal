@@ -19,33 +19,19 @@ import ballerina/io;
 import ballerina/file;
 
 public function main() {
-    http:CsvPersistentCookieHandler myPersistentStore = new("./cookie-test-data/client-5.csv");
+    http:CsvPersistentCookieHandler myPersistentStore = new("./cookie-test-data/client-9.csv");
     http:Client cookieClientEndpoint = new ("http://localhost:9253", {
             cookieConfig: { enabled: true, persistentCookieHandler: myPersistentStore }
         });
-    worker w1 {
-        http:Request req = new;
-        var response = cookieClientEndpoint->get("/cookie/cookieBackend_1", req);
-    }
-    worker w2 {
-        http:Request req = new;
-        var response = cookieClientEndpoint->get("/cookie/cookieBackend_1", req);
-    }
-    worker w3 {
-        http:Request req = new;
-        var response = cookieClientEndpoint->get("/cookie/cookieBackend_1", req);
-    }
-    worker w4 {
-        http:Request req = new;
-        var response = cookieClientEndpoint->get("/cookie/cookieBackend_1", req);
-    }
-    _ = wait {w1, w2, w3, w4};
-    http:CookieStore? myCookieStore = cookieClientEndpoint.getCookieStore();
-    if (myCookieStore is http:CookieStore) {
-        http:Cookie[] cookies = myCookieStore.getAllCookies();
-        io:println(cookies.length());
-        foreach var item in cookies {
-            io:println(item.name);
+    http:Request req = new;
+    // Server sends a session cookie and a similar persistent cookie in the response for the first request.
+    var response = cookieClientEndpoint->get("/cookie/cookieBackend_5", req);
+    // Sends second request after replacing the session cookie with the new persistent cookie.
+    response = cookieClientEndpoint->get("/cookie/cookieBackend_5", req);
+    if (response is http:Response) {
+        var payload = response.getTextPayload();
+        if (payload is string) {
+            io:print(payload);
         }
     }
     error? removeResults = file:remove("./cookie-test-data", true);

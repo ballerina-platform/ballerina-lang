@@ -40,7 +40,7 @@ public class HTTPCookiesTestCase extends HttpBaseTest {
         BMainInstance bMainInstance = new BMainInstance(balServer);
         String output = bMainInstance.runMainAndReadStdOut("run", new String[]{
                 "cookieClient_01.bal"}, balFilepath);
-        Assert.assertTrue(output.contains("SID003=895gd4dmnmsddd34; SID002=178gd4dmnmsddd34; SID001=239d4dmnmsddd34"));
+        Assert.assertTrue(output.contains("SID001=239d4dmnmsddd34; SID003=895gd4dmnmsddd34; SID002=178gd4dmnmsddd34"));
     }
 
     @Test(description = "Test remove session cookie by client")
@@ -51,12 +51,12 @@ public class HTTPCookiesTestCase extends HttpBaseTest {
         BMainInstance bMainInstance = new BMainInstance(balServer);
         String output = bMainInstance.runMainAndReadStdOut("run", new String[]{
                 "cookieClient_02.bal"}, balFilepath);
-        Assert.assertTrue(output.contains("SID003=895gd4dmnmsddd34"));
+        Assert.assertTrue(output.contains("SID001=239d4dmnmsddd34"));
     }
 
     @Test(description = "Test sending similar session cookies in the response by server,old cookie is replaced by new" +
             " cookie in the cookie store")
-    public void testAddSimilarSessionCookie() throws BallerinaTestException {
+    public void testAddSimilarSessionCookies() throws BallerinaTestException {
         String balFilepath = (new File("src" + File.separator + "test" + File.separator + "resources" +
                                                File.separator + "http" + File.separator + "src" + File.separator +
                                                "cookie")).getAbsolutePath();
@@ -98,6 +98,64 @@ public class HTTPCookiesTestCase extends HttpBaseTest {
         BMainInstance bMainInstance = new BMainInstance(balServer);
         String output = bMainInstance.runMainAndReadStdOut("run", new String[]{
                 "cookieClient_06.bal"}, balFilepath);
-        Assert.assertTrue(output.contains("SID003=895gd4dmnmsddd34; SID002=178gd4dmnmsddd34; SID001=239d4dmnmsddd34"));
+        Assert.assertTrue(output.contains("SID001=239d4dmnmsddd34; SID003=895gd4dmnmsddd34; SID002=178gd4dmnmsddd34"));
+    }
+
+    @Test(description = "Test remove persistent cookie by client")
+    public void testRemovePersistentCookieByClient() throws BallerinaTestException {
+        String balFilepath = (new File("src" + File.separator + "test" + File.separator + "resources" +
+                                               File.separator + "http" + File.separator + "src" + File.separator +
+                                               "cookie")).getAbsolutePath();
+        BMainInstance bMainInstance = new BMainInstance(balServer);
+        String output = bMainInstance.runMainAndReadStdOut("run", new String[]{
+                "cookieClient_07.bal"}, balFilepath);
+        Assert.assertTrue(output.contains("SID003=895gd4dmnmsddd34"));
+    }
+
+    @Test(description = "Test send similar persistent cookies in the response by server, old cookie is replaced by " +
+            "new cookie in the cookie store")
+    public void testAddSimilarPersistentCookies() throws BallerinaTestException {
+        String balFilepath = (new File("src" + File.separator + "test" + File.separator + "resources" +
+                                               File.separator + "http" + File.separator + "src" + File.separator +
+                                               "cookie")).getAbsolutePath();
+        BMainInstance bMainInstance = new BMainInstance(balServer);
+        String output = bMainInstance.runMainAndReadStdOut("run", new String[]{
+                "cookieClient_08.bal"}, balFilepath);
+        Assert.assertTrue(output.contains("SID001=895gd4dmnmsddd34"));
+    }
+
+    @Test(description = "Test send a session cookie and a similar persistent cookie in the response by server, old " +
+            "session cookie is replaced by new persistent cookie in the cookie store")
+    public void testSendSimilarPersistentAndSessionCookies_1() throws BallerinaTestException {
+        String balFilepath = (new File("src" + File.separator + "test" + File.separator + "resources" +
+                                               File.separator + "http" + File.separator + "src" + File.separator +
+                                               "cookie")).getAbsolutePath();
+        BMainInstance bMainInstance = new BMainInstance(balServer);
+        String output = bMainInstance.runMainAndReadStdOut("run", new String[]{
+                "cookieClient_09.bal"}, balFilepath);
+        Assert.assertTrue(output.contains("SID003=aeaa895gd4dmnmsddd34"));
+    }
+
+    @Test(description = "Test send a persistent cookie and a similar session cookie in the response by server, old " +
+            "persistent cookie is replaced by new session cookie in the cookie store")
+    public void testSendSimilarPersistentAndSessionCookies_2() throws BallerinaTestException {
+        String balFilepath = (new File("src" + File.separator + "test" + File.separator + "resources" +
+                                               File.separator + "http" + File.separator + "src" + File.separator +
+                                               "cookie")).getAbsolutePath();
+        BMainInstance bMainInstance = new BMainInstance(balServer);
+        String output = bMainInstance.runMainAndReadStdOut("run", new String[]{
+                "cookieClient_10.bal"}, balFilepath);
+        Assert.assertTrue(output.contains("SID003=895gd4dmnmsddd34"));
+    }
+
+    @Test(description = "Test remove persistent cookie by server")
+    public void testRemovePersistentCookieByServer() throws BallerinaTestException {
+        String balFilepath = (new File("src" + File.separator + "test" + File.separator + "resources" +
+                                               File.separator + "http" + File.separator + "src" + File.separator +
+                                               "cookie")).getAbsolutePath();
+        BMainInstance bMainInstance = new BMainInstance(balServer);
+        String output = bMainInstance.runMainAndReadStdOut("run", new String[]{
+                "cookieClient_11.bal"}, balFilepath);
+        Assert.assertTrue(output.contains("SID002=178gd4dmnmsddd34"));
     }
 }
