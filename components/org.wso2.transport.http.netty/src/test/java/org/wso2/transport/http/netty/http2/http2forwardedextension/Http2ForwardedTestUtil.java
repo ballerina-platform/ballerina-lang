@@ -46,8 +46,6 @@ public class Http2ForwardedTestUtil {
     protected HttpClientConnector clientConnector;
     protected ServerConnector serverConnector;
     protected SenderConfiguration senderConfiguration;
-    private static final Logger LOG = LoggerFactory.getLogger(Http2ForwardedTestUtil.class);
-
 
     public void setUp(SenderConfiguration senderConfiguration) throws InterruptedException {
         this.senderConfiguration = senderConfiguration;

@@ -137,6 +137,7 @@
             <class name="org.wso2.transport.http.netty.http2.expect100continue.Expect100ContinueClientTestCase"/>
             <class name="org.wso2.transport.http.netty.http2.expect100continue.ClientContinue100TimeoutTestcase"/>
             <class name="org.wso2.transport.http.netty.http2.expect100continue.ClientContinueResponseTimeout"/>
+            <class name="org.wso2.transport.http.netty.http2.trailerheader.H2ListenerTrailerHeaderTestCase"/>
         </classes>
     </test>
     <test name="Transport Security Tests" parallel="false">
