@@ -48,7 +48,7 @@ public class SetName {
 
 
     public static void setName(Strand strand, XMLValue xmlVal, String newName) {
-        if (!IsElement.isElement(strand, xmlVal)) {
+        if (!(xmlVal.getNodeType() == XMLNodeType.ELEMENT)) {
             throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.XML_FUNC_TYPE_ERROR, "setName", "element");
         }
 

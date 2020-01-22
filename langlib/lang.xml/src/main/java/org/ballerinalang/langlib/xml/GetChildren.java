@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.langlib.xml;
 
+import org.ballerinalang.jvm.XMLNodeType;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.jvm.util.exceptions.RuntimeErrors;
@@ -41,7 +42,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 public class GetChildren {
 
     public static XMLValue getChildren(Strand strand, XMLValue xmlVal) {
-        if (!IsElement.isElement(strand, xmlVal)) {
+        if (!(xmlVal.getNodeType() == XMLNodeType.ELEMENT)) {
             throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.XML_FUNC_TYPE_ERROR, "getChildren", "element");
         }
 

@@ -22,32 +22,32 @@ import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.jvm.values.XMLValue;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
- * Get all the elements-type items in the given sequence, that matches a given qualified name.
+ * Get the text value of a XML.
  * 
  * @since 0.88
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "lang.xml",
-        functionName = "select",
-        args = {@Argument(name = "qname", type = TypeKind.STRING)},
-        returnType = {@ReturnType(type = TypeKind.XML)},
+        functionName = "stringValue",
+        returnType = {@ReturnType(type = TypeKind.STRING)},
         isPublic = true
 )
-public class Select {
+public class StringValue {
 
-    private static final String OPERATION = "select elements from xml";
-
-    public static XMLValue select(Strand strand, XMLValue xml, String qname) {
+    private static final String OPERATION = "get text from xml";
+    // TODO: This function was just renamed from "getTextValue" function
+    // TODO: Check the functionality
+    public static String getTextValue(Strand strand, XMLValue xml) {
         try {
-            return (XMLValue) xml.elements(qname);
+            return xml.getTextValue();
         } catch (Throwable e) {
             BLangExceptionHelper.handleXMLException(OPERATION, e);
         }
+
         return null;
     }
 }

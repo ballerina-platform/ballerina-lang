@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.langlib.xml;
 
+import org.ballerinalang.jvm.XMLNodeType;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.jvm.util.exceptions.RuntimeErrors;
@@ -43,7 +44,7 @@ public class GetName {
     private static final String OPERATION = "get element name in xml";
 
     public static String getName(Strand strand, XMLValue xmlVal) {
-        if (!IsElement.isElement(strand, xmlVal)) {
+        if (!(xmlVal.getNodeType() == XMLNodeType.ELEMENT)) {
             throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.XML_FUNC_TYPE_ERROR, "getName", "element");
         }
         try {

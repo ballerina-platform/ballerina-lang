@@ -70,62 +70,6 @@ public class LangLibXMLTest {
     }
 
     @Test
-    public void testFromXml() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testFromString");
-        assertEquals(returns[0].stringValue(),
-                "<TITLE>Empire Burlesque</TITLE><TITLE>Hide your heart</TITLE><TITLE>Greatest Hits</TITLE>");
-    }
-
-    @Test
-    public void testEmptyConcatCall() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "emptyConcatCall");
-        assertTrue(((BXML<?>) returns[0]).getNodeType() == XMLNodeType.SEQUENCE);
-        assertEquals(((BXML<?>) returns[0]).size(), 0);
-    }
-
-    @Test
-    public void testConcat() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testConcat");
-        assertTrue(((BXML<?>) returns[0]).getNodeType() == XMLNodeType.SEQUENCE);
-        assertEquals(returns[0].size(), 5);
-        assertEquals(returns[0].stringValue(),
-                "<hello>xml content</hello><TITLE>Empire Burlesque</TITLE><TITLE>Hide your heart</TITLE>" +
-                        "<TITLE>Greatest Hits</TITLE>hello from String");
-    }
-
-    @Test
-    public void testIsElement() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testIsElement");
-        assertFalse(((BBoolean) returns[0]).booleanValue());
-        assertTrue(((BBoolean) returns[1]).booleanValue());
-        assertFalse(((BBoolean) returns[2]).booleanValue());
-    }
-
-    @Test
-    public void testXmlPI() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testXmlPI");
-        assertTrue(((BBoolean) returns[0]).booleanValue());
-        assertTrue(((BBoolean) returns[1]).booleanValue());
-        assertFalse(((BBoolean) returns[2]).booleanValue());
-    }
-
-    @Test
-    public void testXmlIsComment() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testXmlIsComment");
-        assertTrue(((BBoolean) returns[0]).booleanValue());
-        assertTrue(((BBoolean) returns[1]).booleanValue());
-        assertFalse(((BBoolean) returns[2]).booleanValue());
-    }
-
-    @Test
-    public void testXmlIsText() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testXmlIsText");
-        assertTrue(((BBoolean) returns[0]).booleanValue());
-        assertTrue(((BBoolean) returns[1]).booleanValue());
-        assertFalse(((BBoolean) returns[2]).booleanValue());
-    }
-
-    @Test
     public void testGetNameOfElement() {
         BValue[] returns = BRunUtil.invoke(compileResult, "getNameOfElement");
         assertEquals(((BString) returns[0]).stringValue(), "elem");
@@ -152,7 +96,7 @@ public class LangLibXMLTest {
     @Test
     public void testGetChildren() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testGetChildren");
-        assertEquals((returns[0]).stringValue(), "<TITLE>Empire Burlesque</TITLE><ARTIST>Bob Dylan</ARTIST>");
+        assertEquals((returns[0]).stringValue(), "<TITLE>Empire Burlesque</TITLE>");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
@@ -187,19 +131,6 @@ public class LangLibXMLTest {
     }
 
     @Test
-    public void testGetTarget() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testGetTarget");
-        assertEquals((returns[0]).stringValue(), "xml-stylesheet");
-    }
-
-    @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: lang.xml function 'getTarget' only accept xml type " +
-                    "'processing instruction'.*")
-    public void testGetTargetNegative() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testGetTargetNegative");
-    }
-
-    @Test
     public void testGetContent() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testGetContent");
         assertEquals((returns[0]).stringValue(), "hello world");
@@ -215,36 +146,9 @@ public class LangLibXMLTest {
     }
 
     @Test
-    public void testCreateElement() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testCreateElement");
-        assertEquals((returns[0]).stringValue(), "<elem>hello world</elem>");
-        assertEquals((returns[1]).stringValue(), "hello world");
-        assertEquals((returns[2]).stringValue(), "");
-    }
-
-    @Test
-    public void testCreateProcessingInstruction() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testCreateProcessingInstruction");
-        assertEquals((returns[0]).stringValue(), "<?xml-stylesheet type=\"text/xsl\" href=\"style.xsl\"?>");
-    }
-
-    @Test
-    public void testCreateComment() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testCreateComment");
-        assertEquals((returns[0]).stringValue(), "<!--This text should be wraped in xml comment-->");
-    }
-
-    @Test
-    public void testCopyFuncOnComment() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testCopingComment");
-        Assert.assertEquals(((BXMLItem) returns[0]).getNodeType(),  XMLNodeType.COMMENT);
-        Assert.assertEquals((returns[0]).stringValue(), "<!--some comment-->");
-    }
-
-    @Test
     public void testForEach() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testForEach");
-        Assert.assertEquals((returns[0]).size(), 3);
+        Assert.assertEquals((returns[0]).size(), 7);
     }
 
     @Test

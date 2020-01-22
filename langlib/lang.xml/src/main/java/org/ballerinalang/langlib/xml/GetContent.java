@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.langlib.xml;
 
+import org.ballerinalang.jvm.XMLNodeType;
 import org.ballerinalang.jvm.XMLValueUtil;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
@@ -43,11 +44,11 @@ public class GetContent {
 
     public static String getContent(Strand strand, Object xmlVal) {
         XMLValue value = (XMLValue) xmlVal;
-        if (IsText.isText(strand, value)) {
+        if (value.getNodeType() == XMLNodeType.TEXT) {
             return value.getTextValue();
-        } else if (IsProcessingInstruction.isProcessingInstruction(strand, value)) {
+        } else if (value.getNodeType() == XMLNodeType.PI) {
             return XMLValueUtil.getPIContent(value);
-        } else  if (IsComment.isComment(strand, value)) {
+        } else  if (value.getNodeType() == XMLNodeType.COMMENT) {
             return XMLValueUtil.getCommentContent(value);
         }
         throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.XML_FUNC_TYPE_ERROR, "getContent",
