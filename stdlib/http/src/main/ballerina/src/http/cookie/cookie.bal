@@ -28,7 +28,7 @@ import ballerina/time;
 # + expires - Maximum lifetime of the cookie represented as the date and time at which the cookie expires
 # + httpOnly - Cookie is sent only to HTTP requests
 # + secure - Cookie is sent only to secure channels
-# + creationTime - Creation time of the cookie
+# + createdTime - Created time of the cookie
 # + lastAccessedTime - Last-accessed time of the cookie
 # + hostOnly - Cookie is sent only to the requested host
 public type Cookie object {
@@ -41,7 +41,7 @@ public type Cookie object {
     public int maxAge = 0;
     public boolean httpOnly = false;
     public boolean secure = false;
-    public time:Time creationTime = time:currentTime();
+    public time:Time createdTime = time:currentTime();
     public time:Time lastAccessedTime = time:currentTime();
     public boolean hostOnly = false;
 
@@ -238,18 +238,18 @@ function parseCookieHeader(string cookieStringValue) returns Cookie[] {
 // Returns a value to be used for sorting an array of cookies in order to create the "Cookie" header in the request.
 // This value is returned according to the rules in [RFC-6265](https://tools.ietf.org/html/rfc6265#section-5.4).
 function comparator(Cookie c1, Cookie c2) returns int {
-    var temp1 = c1.path;
-    var temp2 = c2.path;
+    var cookiePath1 = c1.path;
+    var cookiePath2 = c2.path;
     int l1 = 0;
     int l2 = 0;
-    if (temp1 is string) {
-        l1 = temp1.length();
+    if (cookiePath1 is string) {
+        l1 = cookiePath1.length();
     }
-    if (temp2 is string) {
-        l2 = temp2.length();
+    if (cookiePath2 is string) {
+        l2 = cookiePath2.length();
     }
     if (l1 != l2) {
         return l2 - l1;
     }
-    return c1.creationTime.time - c2.creationTime.time;
+    return c1.createdTime.time - c2.createdTime.time;
 }
