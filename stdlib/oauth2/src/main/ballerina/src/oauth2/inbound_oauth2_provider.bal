@@ -32,18 +32,14 @@ public type InboundOAuth2Provider object {
 
     public http:Client introspectionClient;
     public string? tokenTypeHint;
-    cache:Cache? inboundOAuth2Cache = ();
-    int? defaultTokenExpTimeInSeconds = ();
+    cache:Cache? oauth2Cache;
+    int defaultTokenExpTimeInSeconds;
 
     public function __init(IntrospectionServerConfig config) {
         self.tokenTypeHint = config?.tokenTypeHint;
         self.introspectionClient = new(config.url, config.clientConfig);
-        var oauth2CacheConfig = config?.oauth2CacheConfig;
-        if (oauth2CacheConfig is InboundOAuth2CacheConfig) {
-            self.inboundOAuth2Cache = new(oauth2CacheConfig.capacity, oauth2CacheConfig.expTimeInSeconds * 1000,
-                                          oauth2CacheConfig.evictionFactor);
-            self.defaultTokenExpTimeInSeconds = oauth2CacheConfig.defaultTokenExpTimeInSeconds;
-        }
+        self.oauth2Cache = config?.oauth2Cache;
+        self.defaultTokenExpTimeInSeconds = config.defaultTokenExpTimeInSeconds;
     }
 
     # Attempts to authenticate with credential.
@@ -55,7 +51,7 @@ public type InboundOAuth2Provider object {
             return false;
         }
 
-        var oauth2Cache = self.inboundOAuth2Cache;
+        var oauth2Cache = self.oauth2Cache;
         if (oauth2Cache is cache:Cache && oauth2Cache.hasKey(credential)) {
             var oauth2CacheEntry = authenticateFromCache(oauth2Cache, credential);
             if (oauth2CacheEntry is InboundOAuth2CacheEntry) {
@@ -97,10 +93,7 @@ public type InboundOAuth2Provider object {
                 if (payload.exp is int) {
                     exp = <@untainted> <int>payload.exp;
                 } else {
-                    int? defaultTokenExpTimeInSeconds = self.defaultTokenExpTimeInSeconds;
-                    if (defaultTokenExpTimeInSeconds is int) {
-                        exp = defaultTokenExpTimeInSeconds +  (time:currentTime().time / 1000);
-                    }
+                    exp = self.defaultTokenExpTimeInSeconds +  (time:currentTime().time / 1000);
                 }
 
                 if (oauth2Cache is cache:Cache) {
@@ -156,26 +149,15 @@ public function getScopes(string scopes) returns string[] {
 #
 # + url - URL of the introspection server
 # + tokenTypeHint - A hint about the type of the token submitted for introspection
-# + oauth2CacheConfig - Configurations for the OAuth2 cache
+# + oauth2Cache - Cache used to store OAuth2 information
+# + defaultTokenExpTimeInSeconds - Expiration time of the tokens if introspection response does not contain `exp` field
 # + clientConfig - HTTP client configurations which calls the introspection server
 public type IntrospectionServerConfig record {|
     string url;
     string tokenTypeHint?;
-    InboundOAuth2CacheConfig oauth2CacheConfig?;
-    http:ClientConfiguration clientConfig = {};
-|};
-
-# Represents inbound OAuth2 cache configurations.
-#
-# + capacity - Maximum number of entries allowed
-# + expTimeInSeconds - Time since its last access in which the cache will be expired
-# + evictionFactor - The factor which the entries will be evicted once the cache full
-# + defaultTokenExpTimeInSeconds - Expiration time of the tokens if introspection response does not contain `exp` field
-public type InboundOAuth2CacheConfig record {|
-    int capacity;
-    int expTimeInSeconds;
-    float evictionFactor;
+    cache:Cache oauth2Cache?;
     int defaultTokenExpTimeInSeconds = 3600;
+    http:ClientConfiguration clientConfig = {};
 |};
 
 # Represents cached OAuth2 information.
