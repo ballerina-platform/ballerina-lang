@@ -136,7 +136,7 @@ public class UpdateStatement extends AbstractSQLStatement {
         return populatedUpdateResultRecord;
     }
 
-    private enum isGenKeyStmt {
+    private enum GenKeyStmt {
         INSERT, DELETE, UPDATE, MERGE
     }
 
@@ -151,6 +151,6 @@ public class UpdateStatement extends AbstractSQLStatement {
             return false;
         }
         String query = this.query.trim().toUpperCase(Locale.ENGLISH);
-        return Arrays.stream(isGenKeyStmt.values()).anyMatch(stmt -> query.startsWith(stmt.name()));
+        return Arrays.stream(GenKeyStmt.values()).anyMatch(stmt -> query.startsWith(stmt.name()));
     }
 }
