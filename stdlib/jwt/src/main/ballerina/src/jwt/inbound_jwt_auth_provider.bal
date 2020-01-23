@@ -51,8 +51,6 @@ public type InboundJwtAuthProvider object {
                 auth:setAuthenticationContext("jwt", credential);
                 setPrincipal(payload);
                 return true;
-            } else {
-                return false;
             }
         }
 
@@ -72,8 +70,9 @@ public type InboundJwtAuthProvider object {
 function authenticateFromCache(JwtValidatorConfig jwtValidatorConfig, string jwtToken) returns JwtPayload? {
     var cachedJwt = trap <CachedJwt>jwtValidatorConfig.jwtCache.get(jwtToken);
     if (cachedJwt is CachedJwt) {
+        var expiryTime = cachedJwt.expiryTime;
         // convert to current time and check the expiry time
-        if (cachedJwt.expiryTime > (time:currentTime().time / 1000)) {
+        if (expiryTime is () || expiryTime > (time:currentTime().time / 1000)) {
             JwtPayload payload = cachedJwt.jwtPayload;
             string? sub = payload?.sub;
             if (sub is string) {
@@ -90,7 +89,7 @@ function authenticateFromCache(JwtValidatorConfig jwtValidatorConfig, string jwt
 }
 
 function addToAuthenticationCache(JwtValidatorConfig jwtValidatorConfig, string jwtToken, int? exp, JwtPayload payload) {
-    CachedJwt cachedJwt = {jwtPayload : payload, expiryTime : exp is () ? 0 : exp};
+    CachedJwt cachedJwt = {jwtPayload : payload, expiryTime : exp };
     jwtValidatorConfig.jwtCache.put(jwtToken, cachedJwt);
     string? sub = payload?.sub;
     if (sub is string) {

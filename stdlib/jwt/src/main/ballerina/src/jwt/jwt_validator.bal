@@ -53,7 +53,7 @@ public type JwtTrustStoreConfig record {|
 # + expiryTime - Expiry time (milliseconds since the Epoch) of the parsed JWT
 public type CachedJwt record {|
     JwtPayload jwtPayload;
-    int expiryTime;
+    int? expiryTime;
 |};
 
 # Validate the given JWT string.
@@ -234,6 +234,10 @@ function validateJwtRecords(string jwtToken, JwtHeader jwtHeader, JwtPayload jwt
         var signatureValidationResult = validateSignature(jwtToken, jwtHeader, trustStoreConfig);
         if (signatureValidationResult is Error) {
             return signatureValidationResult;
+        } else {
+            if (!signatureValidationResult) {
+                return prepareError("JWT signature validation has failed.");
+            }
         }
     }
     var iss = config?.issuer;
@@ -318,7 +322,7 @@ function validateSignature(string jwtToken, JwtHeader jwtHeader, JwtTrustStoreCo
             string assertion = encodedJwtComponents[0] + "." + encodedJwtComponents[1];
             var signPart = encoding:decodeBase64Url(encodedJwtComponents[2]);
             if (signPart is byte[]) {
-                var publicKey = crypto:decodePublicKey(trustStoreConfig.trustStore , trustStoreConfig.certificateAlias);
+                var publicKey = crypto:decodePublicKey(trustStoreConfig.trustStore, trustStoreConfig.certificateAlias);
                 if (publicKey is crypto:PublicKey) {
                     if (alg == RS256) {
                         var verification = crypto:verifyRsaSha256Signature(assertion.toBytes(), signPart, publicKey);
