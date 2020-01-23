@@ -133,6 +133,7 @@ dependencies {
     dist project(':ballerina-xmlutils')
     dist project(':ballerina-jsonutils')
     dist project(':ballerina-docker')
+    dist project(':ballerina-knative')
     dist project(':ballerina-kubernetes')
     dist project(':ballerina-istio')
     dist project(':ballerina-openshift')
