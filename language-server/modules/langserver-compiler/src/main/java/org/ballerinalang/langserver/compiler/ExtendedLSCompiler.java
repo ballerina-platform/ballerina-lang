@@ -106,7 +106,7 @@ public class ExtendedLSCompiler extends LSModuleCompiler {
         String phase = compilerPhase.toString().equals(CompilerPhase.COMPILER_PLUGIN.toString()) ? "annotationProcess"
                 : compilerPhase.toString();
         options.put(COMPILER_PHASE, phase);
-        options.put(PRESERVE_WHITESPACE, Boolean.valueOf(true).toString());
+        options.put(PRESERVE_WHITESPACE, Boolean.TRUE.toString());
         options.put(TEST_ENABLED, String.valueOf(true));
         options.put(SKIP_TESTS, String.valueOf(false));
         BLangDiagnosticLog.getInstance(context).errorCount = 0;
