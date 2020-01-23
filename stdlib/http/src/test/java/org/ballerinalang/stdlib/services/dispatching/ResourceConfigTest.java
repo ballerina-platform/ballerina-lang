@@ -35,16 +35,16 @@ import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 /**
  * Test case for path parameter in the Resource config.
  */
-public class ResourcePathConfigTest {
+public class ResourceConfigTest {
 
     private static final int SERVICE_EP_PORT = 9090;
     @BeforeClass
     public void setup() {
-        BCompileUtil.compile("test-src/services/dispatching/resource-path.bal");
+        BCompileUtil.compile("test-src/services/dispatching/defined_constant.bal");
     }
 
     @Test(description = "Test the path parameter in the Resource config which supports defined constant.")
-    public void testPathParameter() {
+    public void testConfigParameter() {
         String value = "Hi";
         String path = "/hello/id";
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, HttpConstants.HTTP_METHOD_GET);

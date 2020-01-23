@@ -82,11 +82,11 @@
         </classes>
     </test>
 
-<!--    <test name="ballerina-future-tests" parallel="false">-->
-<!--        <classes>-->
-<!--            <class name="org.ballerinalang.test.future.CancelledFuturesWithTrxTest"/>-->
-<!--        </classes>-->
-<!--    </test>-->
+    <test name="ballerina-future-tests" parallel="false">
+        <classes>
+            <class name="org.ballerinalang.test.future.CancelledFuturesWithTrxTest"/>
+        </classes>
+    </test>
 
     <test name="ballerina-http2-tests" parallel="false">
         <parameter name="enableJBallerinaTests" value="true"/>
@@ -158,7 +158,7 @@
         </groups>
         <classes>
             <class name="org.ballerinalang.test.service.websocket.WebSocketTestCommons"/>
-            <class name="org.ballerinalang.test.service.websocket.CancelWebSocketUpgradeTest"/>
+            <class name="org.ballerinalang.test.service.websocket.WebSocketUpgradeTest"/>
             <class name="org.ballerinalang.test.service.websocket.ClientInitializationFailureTest"/>
             <class name="org.ballerinalang.test.service.websocket.ClientServiceTest"/>
             <class name="org.ballerinalang.test.service.websocket.CustomHeaderClientSupportTest"/>

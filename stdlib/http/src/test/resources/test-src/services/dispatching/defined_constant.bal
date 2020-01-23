@@ -17,19 +17,25 @@
 import ballerina/http;
 
 listener http:MockListener pathEP = new(9090);
+
 const string RESOURCE_PATH = "/{id}";
+const string SERVICE_BASE_PATH = "/hello";
+const string SERVICE_HOST = "b7a.default";
+const string RESOURCE_BODY = "person";
 
 @http:ServiceConfig {
-    basePath:"/hello"
+    basePath: SERVICE_BASE_PATH,
+    host: SERVICE_HOST
 }
 service resourcePath on pathEP {
 
     @http:ResourceConfig {
-        path:RESOURCE_PATH,
-        methods:["GET"]
+        path: RESOURCE_PATH,
+        methods: ["GET"],
+        body: RESOURCE_BODY
     }
 
-    resource function hello(http:Caller caller, http:Request req, string id) {
+    resource function hello(http:Caller caller, http:Request req, string id, json person) {
         http:Response res = new;
         json message = {message:"Hi"};
         res.statusCode = 200;

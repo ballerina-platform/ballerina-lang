@@ -467,24 +467,13 @@ public class HttpFiltersDesugar {
                     for (BLangRecordLiteral.BLangRecordKeyValue upgradeField :
                             ((BLangRecordLiteral) keyValue.getValue()).getKeyValuePairs()) {
                         if (getAnnotationFieldKey(upgradeField).equals(ANN_RESOURCE_ATTR_WS_UPGRADE_PATH)) {
-                            addParamOrderConfigAnnotation(resourceNode, upgradeField.getValue().toString(), env);
+                            addParamOrderConfigAnnotation(resourceNode, getKeyValue(keyValue), env);
                             break;
                         }
                     }
                     break;
                 case ANN_RESOURCE_ATTR_PATH:
-                    String value = null;
-                    if ((keyValue.valueExpr) instanceof BLangSimpleVarRef) {
-                        BSymbol symbol = ((BLangSimpleVarRef) keyValue.valueExpr).symbol;
-                        if (symbol instanceof BConstantSymbol) {
-                            value = ((BConstantSymbol) symbol).value.value.toString();
-                        } else {
-                            value = keyValue.getValue().toString();
-                        }
-                    } else {
-                        value = keyValue.getValue().toString();
-                    }
-                    addParamOrderConfigAnnotation(resourceNode, value, env);
+                    addParamOrderConfigAnnotation(resourceNode, getKeyValue(keyValue), env);
                     break;
             }
         }
@@ -623,5 +612,20 @@ public class HttpFiltersDesugar {
             entry = entry.next;
         }
         return symTable.notFoundSymbol;
+    }
+
+    private static String getKeyValue(BLangRecordLiteral.BLangRecordKeyValue keyValue) {
+        String value = null;
+        if ((keyValue.valueExpr) instanceof BLangSimpleVarRef) {
+            BSymbol symbol = ((BLangSimpleVarRef) keyValue.valueExpr).symbol;
+            if (symbol instanceof BConstantSymbol) {
+                value = ((BConstantSymbol) symbol).value.value.toString();
+            } else {
+                value = keyValue.getValue().toString();
+            }
+        } else {
+            value = keyValue.getValue().toString();
+        }
+        return value;
     }
 }

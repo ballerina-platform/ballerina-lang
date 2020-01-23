@@ -87,11 +87,11 @@ public class ResourceSignatureValidator {
                     validateWebSocketUpgrade(resourceNode, dlog, annVals, paramSegments, keyValue);
                     break;
                 case ANN_RESOURCE_ATTR_PATH:
-                    validateResourcePath(dlog, paramSegments, keyValue);
+                    validateResourcePath(dlog, paramSegments, getKeyValue(keyValue), keyValue.getValue().getPosition());
                     break;
                 case ANN_RESOURCE_ATTR_BODY:
                     List<? extends SimpleVariableNode> parameters = resourceNode.getParameters();
-                    String bodyFieldValue = keyValue.getValue().toString();
+                    String bodyFieldValue = getKeyValue(keyValue);
                     // Data binding param should be placed as the last signature param
                     String signatureBodyParam = parameters.get(parameters.size() - 1).getName().getValue();
                     if (bodyFieldValue.isEmpty()) {
@@ -139,26 +139,15 @@ public class ResourceSignatureValidator {
         // WebSocket upgrade path validation
         for (BLangRecordLiteral.BLangRecordKeyValue upgradeField : upgradeFields) {
             if (getAnnotationFieldKey(upgradeField).equals(ANN_WEBSOCKET_ATTR_UPGRADE_PATH)) {
-                validateResourcePath(dlog, paramSegments, upgradeField);
+                validateResourcePath(dlog, paramSegments, getKeyValue(upgradeField), upgradeField.getValue().
+                        getPosition());
             }
         }
     }
 
-    private static void validateResourcePath(DiagnosticLog dlog, List<String> paramSegments,
-                                             BLangRecordLiteral.BLangRecordKeyValue keyValue) {
-        DiagnosticPos position = keyValue.getValue().getPosition();
-        String value = null;
-        if ((keyValue.valueExpr) instanceof BLangSimpleVarRef) {
-            BSymbol symbol = ((BLangSimpleVarRef) keyValue.valueExpr).symbol;
-            if (symbol instanceof BConstantSymbol) {
-                value = ((BConstantSymbol) symbol).value.value.toString();
-            } else {
-                value = keyValue.getValue().toString();
-            }
-        } else {
-            value = keyValue.getValue().toString();
-        }
-        String[] segments = Objects.requireNonNull(value).split(HttpConstants.DEFAULT_BASE_PATH);
+    private static void validateResourcePath(DiagnosticLog dlog, List<String> paramSegments, String keyValue,
+                                             DiagnosticPos position) {
+        String[] segments = Objects.requireNonNull(keyValue).split(HttpConstants.DEFAULT_BASE_PATH);
         for (String segment : segments) {
             validatePathSegment(segment, position, dlog, paramSegments);
         }
@@ -237,6 +226,21 @@ public class ResourceSignatureValidator {
 
     private static String getAnnotationFieldKey(BLangRecordLiteral.BLangRecordKeyValue keyValue) {
         return ((BLangSimpleVarRef) (keyValue.key).expr).variableName.getValue();
+    }
+
+    private static String getKeyValue(BLangRecordLiteral.BLangRecordKeyValue keyValue) {
+        String value;
+        if ((keyValue.valueExpr) instanceof BLangSimpleVarRef) {
+            BSymbol symbol = ((BLangSimpleVarRef) keyValue.valueExpr).symbol;
+            if (symbol instanceof BConstantSymbol) {
+                value = ((BConstantSymbol) symbol).value.value.toString();
+            } else {
+                value = keyValue.getValue().toString();
+            }
+        } else {
+            value = keyValue.getValue().toString();
+        }
+        return value;
     }
 }
 
