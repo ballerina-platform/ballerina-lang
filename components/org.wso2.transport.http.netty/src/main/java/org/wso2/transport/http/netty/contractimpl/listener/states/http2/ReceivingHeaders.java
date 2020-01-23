@@ -156,13 +156,15 @@ public class ReceivingHeaders implements ListenerState {
                                        REMOTE_CLIENT_CLOSED_WHILE_READING_INBOUND_REQUEST_HEADERS);
     }
 
-    private void readTrailerHeaders(int streamId, Http2Headers headers, HttpCarbonMessage responseMessage)
+    private void readTrailerHeaders(int streamId, Http2Headers headers, HttpCarbonMessage requestMessage)
             throws Http2Exception {
         HttpVersion version = new HttpVersion(HTTP_VERSION_2_0, true);
         LastHttpContent lastHttpContent = new DefaultLastHttpContent();
         HttpHeaders trailers = lastHttpContent.trailingHeaders();
-        HttpConversionUtil.addHttp2ToHttpHeaders(streamId, headers, trailers, version, true, false);
-        responseMessage.addHttpContent(lastHttpContent);
+        HttpConversionUtil.addHttp2ToHttpHeaders(streamId, headers, trailers, version, true, true);
+        requestMessage.getTrailerHeaders().add(trailers);
+        requestMessage.addHttpContent(lastHttpContent);
+        requestMessage.setLastHttpContentArrived();
     }
 
     private HttpCarbonMessage setupHttp2CarbonMsg(Http2Headers http2Headers, int streamId) throws Http2Exception {

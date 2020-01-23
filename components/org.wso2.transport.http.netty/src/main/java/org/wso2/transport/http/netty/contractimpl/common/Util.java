@@ -93,6 +93,7 @@ import javax.net.ssl.SSLEngine;
 import javax.net.ssl.SSLException;
 import javax.net.ssl.SSLParameters;
 
+import static io.netty.handler.codec.http.HttpHeaderNames.TRAILER;
 import static org.wso2.transport.http.netty.contract.Constants.COLON;
 import static org.wso2.transport.http.netty.contract.Constants.HEADER_VAL_100_CONTINUE;
 import static org.wso2.transport.http.netty.contract.Constants.HTTP_HOST;
@@ -281,6 +282,10 @@ public class Util {
         // Convert Http2Headers to HttpHeaders
         HttpConversionUtil.addHttp2ToHttpHeaders(
                 streamId, http2Headers, httpRequest.headers(), version, false, true);
+        CharSequence trailerHeaderValue = http2Headers.get(TRAILER.toString());
+        if (trailerHeaderValue != null) {
+            httpRequest.headers().add(TRAILER.toString(), trailerHeaderValue.toString());
+        }
         return httpRequest;
     }
 

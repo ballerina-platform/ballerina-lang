@@ -45,6 +45,7 @@ import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import org.wso2.transport.http.netty.message.HttpCarbonResponse;
 import org.wso2.transport.http.netty.message.PooledDataStreamerFactory;
 
+import static io.netty.handler.codec.http.HttpHeaderNames.TRAILER;
 import static org.wso2.transport.http.netty.contract.Constants.DIRECTION;
 import static org.wso2.transport.http.netty.contract.Constants.DIRECTION_RESPONSE;
 import static org.wso2.transport.http.netty.contract.Constants.EXECUTOR_WORKER_POOL;
@@ -209,11 +210,13 @@ public class ReceivingHeaders implements SenderState {
 
         try {
             HttpConversionUtil.addHttp2ToHttpHeaders(streamId, headers, trailers, version, true, false);
+            responseMessage.getTrailerHeaders().add(trailers);
         } catch (Http2Exception e) {
             outboundMsgHolder.getResponseFuture().
                     notifyHttpListener(new Exception("Error while setting http headers", e));
         }
         responseMessage.addHttpContent(lastHttpContent);
+        responseMessage.setLastHttpContentArrived();
     }
 
     private HttpCarbonResponse setupResponseCarbonMessage(ChannelHandlerContext ctx, int streamId,
@@ -234,6 +237,10 @@ public class ReceivingHeaders implements SenderState {
         try {
             HttpConversionUtil.addHttp2ToHttpHeaders(
                     streamId, http2Headers, httpResponse.headers(), version, false, false);
+            CharSequence trailerHeaderValue = http2Headers.get(TRAILER.toString());
+            if (trailerHeaderValue != null) {
+                httpResponse.headers().add(TRAILER.toString(), trailerHeaderValue.toString());
+            }
         } catch (Http2Exception e) {
             outboundMsgHolder.getResponseFuture().
                     notifyHttpListener(new Exception("Error while setting http headers", e));
