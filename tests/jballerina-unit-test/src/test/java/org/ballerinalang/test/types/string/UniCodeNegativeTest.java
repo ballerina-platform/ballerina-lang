@@ -23,6 +23,9 @@ import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.CompileResult;
 import org.testng.annotations.Test;
 
+/**
+ * Test class to check the Unicode patterns.
+ */
 public class UniCodeNegativeTest {
 
     @Test(description = "Test negative scenarios for unicode patterns.")

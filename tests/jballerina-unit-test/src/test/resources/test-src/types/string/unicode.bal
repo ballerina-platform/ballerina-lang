@@ -14,6 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+const ASSERTION_ERROR_REASON = "AssertionError";
+
 function testUniCode() {
     string s1 = "\u{0633}";
     string s2 = "ABC\u{0633}CDE";
@@ -23,6 +25,6 @@ function testUniCode() {
     if (s1 == "س" && s2 == "ABCسCDE" && s3 == "ABC س CDE" && s4 == "ABC س CDE ل DEF ل XYZ") {
         return;
     }
-    panic error("expected 'س', 'ABCسCDE', 'ABC س CDE', 'ABC س CDE ل DEF ل XYZ', "
+    panic error(ASSERTION_ERROR_REASON, message = "expected 'س', 'ABCسCDE', 'ABC س CDE', 'ABC س CDE ل DEF ل XYZ', "
                                             + "found " + s1 + "', '" + s2 + "', '" + s3 + "', '" + s4 + "'");
 }

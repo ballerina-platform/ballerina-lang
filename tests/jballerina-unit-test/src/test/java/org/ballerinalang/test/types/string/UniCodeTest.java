@@ -24,6 +24,9 @@ import org.ballerinalang.test.util.CompileResult;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+/**
+ * Negative test class to check the Unicode patterns.
+ */
 public class UniCodeTest {
 
     CompileResult result;
