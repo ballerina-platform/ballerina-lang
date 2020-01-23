@@ -22,7 +22,6 @@ import org.eclipse.lsp4j.Location;
 import org.eclipse.lsp4j.jsonrpc.services.JsonNotification;
 import org.eclipse.lsp4j.services.LanguageClient;
 
-
 /**
  * Extended Language Client interface.
  */

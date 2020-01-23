@@ -43,6 +43,7 @@ import org.ballerinalang.langserver.completions.exceptions.CompletionContextNotS
 import org.ballerinalang.langserver.completions.util.CompletionUtil;
 import org.ballerinalang.langserver.diagnostic.DiagnosticsHelper;
 import org.ballerinalang.langserver.exception.UserErrorException;
+import org.ballerinalang.langserver.extensions.ballerina.semantichighlighter.HighlightingFailedException;
 import org.ballerinalang.langserver.extensions.ballerina.semantichighlighter.SemanticHighlightProvider;
 import org.ballerinalang.langserver.implementation.GotoImplementationCustomErrorStrategy;
 import org.ballerinalang.langserver.implementation.GotoImplementationUtil;
@@ -610,6 +611,10 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 String msg = "Computing 'diagnostics' failed!";
                 TextDocumentIdentifier identifier = new TextDocumentIdentifier(params.getTextDocument().getUri());
                 logError(msg, e, identifier, (Position) null);
+            } catch (HighlightingFailedException e) {
+                String msg = "Semantic highlighting failed!";
+                TextDocumentIdentifier identifier = new TextDocumentIdentifier(params.getTextDocument().getUri());
+                logError(msg, e, identifier, (Position) null);
             } catch (Throwable e) {
                 String msg = "Operation 'text/didOpen' failed!";
                 TextDocumentIdentifier identifier = new TextDocumentIdentifier(params.getTextDocument().getUri());
@@ -659,6 +664,10 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 } catch (CompilationFailedException e) {
                     String msg = "Computing 'diagnostics' failed!";
                     logError(msg, e, params.getTextDocument(), (Position) null);
+                } catch (HighlightingFailedException e) {
+                    String msg = "Semantic highlighting failed!";
+                    TextDocumentIdentifier identifier = new TextDocumentIdentifier(params.getTextDocument().getUri());
+                    logError(msg, e, identifier, (Position) null);
                 } finally {
                     nLock.ifPresent(Lock::unlock);
                 }

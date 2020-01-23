@@ -22,10 +22,9 @@ import java.util.ArrayList;
 /**
  * Represents the data model for Semantic Highlighting params.
  *
- * @since 1.1.0
+ * @since 1.2.0
  */
 public class SemanticHighlightingParams {
-
     private final String textDocument;
     private ArrayList<SemanticHighlightingInformation> lines;
 
@@ -40,9 +39,5 @@ public class SemanticHighlightingParams {
 
     public ArrayList<SemanticHighlightingInformation> getLines() {
         return lines;
-    }
-
-    public void setLines(ArrayList<SemanticHighlightingInformation> lines) {
-        this.lines = lines;
     }
 }

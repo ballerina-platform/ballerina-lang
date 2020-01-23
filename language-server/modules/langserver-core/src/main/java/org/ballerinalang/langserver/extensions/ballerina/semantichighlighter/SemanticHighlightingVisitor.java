@@ -44,10 +44,9 @@ import java.util.List;
 /**
  * Finds the symbols for Semantic Syntax Highlighting.
  *
- * @since 1.1.0
+ * @since 1.2.0
  */
 class SemanticHighlightingVisitor extends LSNodeVisitor {
-
     private final List<SemanticHighlightProvider.HighlightInfo> highlights;
 
     SemanticHighlightingVisitor(LSContext context) {
@@ -172,7 +171,6 @@ class SemanticHighlightingVisitor extends LSNodeVisitor {
     public void visit(BLangReturn returnNode) {
         this.acceptNode(returnNode.expr);
     }
-
 
     private void acceptNode(BLangNode node) {
         if (node != null) {

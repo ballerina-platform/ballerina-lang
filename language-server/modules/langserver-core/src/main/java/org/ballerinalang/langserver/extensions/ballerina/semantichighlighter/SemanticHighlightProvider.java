@@ -38,26 +38,22 @@ import java.util.Map;
 /**
  * Highlight provider for Semantic Highlighting.
  *
- * @since 1.1.0
+ * @since 1.2.0
  */
-
 public class SemanticHighlightProvider {
-
-    private static Map<Integer, int[]> lineInfo;
-    private static ArrayList<SemanticHighlightingInformation> highlightsArr;
-    private static List<SemanticHighlightProvider.HighlightInfo> highlights;
-
+    // Publishes the highlighting information
     public static void sendHighlights(ExtendedLanguageClient client, LSContext context,
-                                      WorkspaceDocumentManager docManager) throws CompilationFailedException {
+                                      WorkspaceDocumentManager docManager)
+            throws CompilationFailedException, HighlightingFailedException {
         client.publishTextHighlighting(getHighlights(context, docManager));
     }
-
-    public static SemanticHighlightingParams getHighlights
-        (LSContext context, WorkspaceDocumentManager docManager) throws CompilationFailedException {
+    // Identifies the tokens to be highlighted
+    public static SemanticHighlightingParams getHighlights(LSContext context, WorkspaceDocumentManager docManager)
+            throws CompilationFailedException, HighlightingFailedException {
 
         LSModuleCompiler.getBLangPackages(context, docManager, null, true, true, true);
 
-        highlights = new ArrayList<SemanticHighlightProvider.HighlightInfo>();
+        List<SemanticHighlightProvider.HighlightInfo> highlights = new ArrayList<>();
         context.put(SemanticHighlightingKeys.SEMANTIC_HIGHLIGHTING_KEY, highlights);
 
         SemanticHighlightingVisitor semanticHighlightingVisitor = new SemanticHighlightingVisitor(context);
@@ -67,65 +63,65 @@ public class SemanticHighlightProvider {
             bLangPackage.accept(semanticHighlightingVisitor);
         }
 
-        SemanticHighlightingParams highlightingParams = new SemanticHighlightingParams
-            (context.get(DocumentServiceKeys.FILE_URI_KEY), highlightsArr);
-        if (SemanticHighlightingKeys.SEMANTIC_HIGHLIGHTING_KEY == null) {
-            return highlightingParams;
+        if (context.get(SemanticHighlightingKeys.SEMANTIC_HIGHLIGHTING_KEY) == null) {
+            throw new HighlightingFailedException("Couldn't find any highlight information!");
         }
 
-        lineInfo = new HashMap<>();
-        highlightsArr = new ArrayList<>();
+        Map<Integer, int[]> lineInfo = new HashMap<>();
+        ArrayList<SemanticHighlightingInformation> highlightsArr = new ArrayList<>();
         context.get(SemanticHighlightingKeys.SEMANTIC_HIGHLIGHTING_KEY).forEach(element-> {
-            getToken(element);
+            int line = element.identifier.pos.sLine - 1;
+            int[] token = getToken(element);
+
+            if (lineInfo.get(line) != null) {
+                int[] cur = lineInfo.get(line);
+                lineInfo.put(line, Ints.concat(cur, token));
+            } else {
+                lineInfo.put(line, token);
+            }
         });
         for (Map.Entry mapElement : lineInfo.entrySet()) {
-            encodeToken(mapElement);
+            highlightsArr.add(getEncodedToken(mapElement, lineInfo));
         }
-        highlightingParams.setLines(highlightsArr);
-        return highlightingParams;
+        return new SemanticHighlightingParams
+                (context.get(DocumentServiceKeys.FILE_URI_KEY), highlightsArr);
     }
 
-    public static void getToken(HighlightInfo element) {
+    private static int[] getToken(HighlightInfo element) {
         int character = element.identifier.pos.sCol - 1;
         int length = element.identifier.pos.eCol - element.identifier.pos.sCol;
         int scope = element.scopeEnum.getScopeId();
 
         SemanticHighlightingToken highlightingToken = new SemanticHighlightingToken(character, length, scope);
 
-        int line = element.identifier.pos.sLine - 1;
         int[] token = {highlightingToken.getCharacter(),
                 highlightingToken.getLength(), highlightingToken.getScope()};
-        if (lineInfo.get(line) != null) {
-            int[] cur = lineInfo.get(line);
-            lineInfo.put(line, Ints.concat(cur, token));
-        } else {
-            lineInfo.put(line, token);
-        }
+        return token;
+
     }
 
-    public static void encodeToken(Map.Entry mapElement) {
+    private static SemanticHighlightingInformation getEncodedToken(Map.Entry mapElement, Map<Integer, int[]> lineInfo) {
         Integer key = (Integer) mapElement.getKey();
         String tokenArr = Arrays.toString(lineInfo.get(key));
         String encodedToken = Base64.getEncoder()
                 .encodeToString(tokenArr.getBytes(StandardCharsets.UTF_8));
         SemanticHighlightingInformation highlightingInformation
                 = new SemanticHighlightingInformation(key, encodedToken);
-        highlightsArr.add(highlightingInformation);
+        return highlightingInformation;
     }
 
 /**
  * Highlight information for each token.
  *
- * @since 1.1.0
+ * @since 1.2.0
  */
-public static class HighlightInfo {
+    public static class HighlightInfo {
+        ScopeEnum scopeEnum;
+        BLangIdentifier identifier;
 
-    ScopeEnum scopeEnum;
-    BLangIdentifier identifier;
-
-    public HighlightInfo(ScopeEnum scopeEnum, BLangIdentifier identifier) {
-        this.scopeEnum = scopeEnum;
-        this.identifier = identifier;
+        public HighlightInfo(ScopeEnum scopeEnum, BLangIdentifier identifier) {
+            this.scopeEnum = scopeEnum;
+            this.identifier = identifier;
+        }
     }
-}
 }

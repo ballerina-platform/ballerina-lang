@@ -16,27 +16,18 @@
  *  under the License.
  */
 package org.ballerinalang.langserver.extensions.ballerina.semantichighlighter;
+
 /**
- * Enum for the scopes.
+ * Exception for the Semantic Highlighting feature.
  *
  * @since 1.2.0
  */
-public enum ScopeEnum {
-    ENDPOINT("endpoint.ballerina", 0), UNUSED("unused.ballerina", 1);
-
-    private final String scopeName;
-    private final int scopeId;
-
-    ScopeEnum(String scopeName, int scopeId) {
-        this.scopeName = scopeName;
-        this.scopeId = scopeId;
+public class HighlightingFailedException extends Exception {
+    public HighlightingFailedException(String message) {
+        super(message);
     }
 
-    public String getScopeName() {
-        return scopeName;
+    public HighlightingFailedException(String message, Throwable cause) {
+        super(message, cause);
     }
-
-    public int getScopeId() {
-        return scopeId;
-    }
-};
+}

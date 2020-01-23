@@ -24,9 +24,8 @@ import java.util.List;
 /**
  * Syntax Highlight Keys for semantic syntax highlighting.
  *
- * @since 1.1.0
+ * @since 1.2.0
  */
-
 class SemanticHighlightingKeys {
     static final LSContext.Key<List<SemanticHighlightProvider.HighlightInfo>> SEMANTIC_HIGHLIGHTING_KEY
             = new LSContext.Key<>();

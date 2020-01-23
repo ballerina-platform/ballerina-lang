@@ -29,6 +29,7 @@ import org.ballerinalang.langserver.compiler.exception.CompilationFailedExceptio
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManagerImpl;
+import org.ballerinalang.langserver.extensions.ballerina.semantichighlighter.HighlightingFailedException;
 import org.ballerinalang.langserver.extensions.ballerina.semantichighlighter.SemanticHighlightProvider;
 import org.ballerinalang.langserver.extensions.ballerina.semantichighlighter.SemanticHighlightingParams;
 import org.eclipse.lsp4j.ClientCapabilities;
@@ -175,6 +176,10 @@ public class TestUtil {
                 logError(msg, e, identifier, (Position) null);
             } catch (URISyntaxException e) {
                 String msg = "URI syntax error!";
+                TextDocumentIdentifier identifier = new TextDocumentIdentifier(docUri);
+                logError(msg, e, identifier, (Position) null);
+            } catch (HighlightingFailedException e) {
+                String msg = "Semantic highlighting failed!";
                 TextDocumentIdentifier identifier = new TextDocumentIdentifier(docUri);
                 logError(msg, e, identifier, (Position) null);
             } finally {

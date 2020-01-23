@@ -22,5 +22,5 @@ export interface SemanticHighlighting{
 
 export interface SemanticHighlightingParams{
     versionedTextDocumentIdentifier: VersionedTextDocumentIdentifier;
-    lines: SemanticHighlightingInformation[] 
+    lines: SemanticHighlightingInformation[];
 }
