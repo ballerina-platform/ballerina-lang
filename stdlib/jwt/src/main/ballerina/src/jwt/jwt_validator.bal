@@ -63,7 +63,7 @@ public type InboundJwtCacheConfig record {|
 # + expTime - Expiry time (milliseconds since the Epoch) of the parsed JWT
 public type InboundJwtCacheEntry record {|
     JwtPayload jwtPayload;
-    int expTime;
+    int? expTime;
 |};
 
 # Validate the given JWT string.
