@@ -58,15 +58,15 @@ public type Cookie object {
         return true;
     }
 
-    // Returns true if the attributes of the cookie are in the correct format; false otherwise.
+    // Returns true if the attributes of the cookie are in the correct format or else error is returned.
     public function isValid() returns boolean | error {
-        error invalidCookieError;
+        CookieHandlingError err;
         var temp = self.name;
         if (temp is string) {
             temp = temp.trim();
             if (temp == "") {
-                invalidCookieError = error("Invalid name");
-                return invalidCookieError;
+                err = error(COOKIE_HANDLING_ERROR, message = "Invalid name");
+                return err;
             }
             self.name = temp;
         }
@@ -74,8 +74,8 @@ public type Cookie object {
         if (temp is string) {
             temp = temp.trim();
             if (temp == "") {
-                invalidCookieError = error("Invalid value");
-                return invalidCookieError;
+                err = error(COOKIE_HANDLING_ERROR, message = "Invalid value");
+                return err;
             }
             self.value = temp;
         }
@@ -83,8 +83,8 @@ public type Cookie object {
         if (temp is string) {
             temp = temp.trim().toLowerAscii();
             if (temp == "") {
-                invalidCookieError = error("Invalid domain");
-                return invalidCookieError;
+                err = error(COOKIE_HANDLING_ERROR, message = "Invalid domain");
+                return err;
             }
             if (temp.startsWith(".")) {
                 temp = temp.substring(1, temp.length());
@@ -98,8 +98,8 @@ public type Cookie object {
         if (temp is string) {
             temp = temp.trim();
             if (temp == "" || !temp.startsWith("/") || stringutils:contains(temp, "?")) {
-                invalidCookieError = error("Path is not in correct format ");
-                return invalidCookieError;
+                err = error(COOKIE_HANDLING_ERROR, message = "Path is not in correct format");
+                return err;
             }
             self.path = temp;
         }
@@ -107,13 +107,13 @@ public type Cookie object {
         if (temp is string) {
             temp = temp.trim();
             if (!toGmtFormat(self, temp)) {
-                invalidCookieError = error("Time is not in correct format");
-                return invalidCookieError;
+                err = error(COOKIE_HANDLING_ERROR, message = "Time is not in correct format");
+                return err;
             }
         }
         if (self.maxAge < 0) {
-            invalidCookieError = error("Max Age is less than zero");
-            return invalidCookieError;
+            err = error(COOKIE_HANDLING_ERROR, message = "Max Age can not be less than zero");
+            return err;
         }
         return true;
     }

@@ -173,6 +173,11 @@ public const SSL_ERROR = "{ballerina/http}SslError";
 # Represents a client error that occurred due to SSL failure
 public type SslError error<SSL_ERROR, Detail>;
 
+# Represents the reason string for the `http:CookieHandlingError`
+public const COOKIE_HANDLING_ERROR = "{ballerina/http}CookieHandlingError";
+# Represents a cookie error that occurred when using cookies
+public type CookieHandlingError error<COOKIE_HANDLING_ERROR, Detail>;
+
 // Ballerina Http Union Errors
 # Defines the resiliency error types that returned from client
 public type ResiliencyError FailoverAllEndpointsFailedError | FailoverActionFailedError |
@@ -197,12 +202,12 @@ public type InboundRequestError InitializingInboundRequestError|ReadingInboundRe
 # Defines the listener error types that returned while sending outbound response
 public type OutboundResponseError InitializingOutboundResponseError|WritingOutboundResponseHeadersError|
                             WritingOutboundResponseBodyError|Initiating100ContinueResponseError|
-                            Writing100ContinueResponseError;
+                            Writing100ContinueResponseError|CookieHandlingError;
 
 # Defines the possible client error types
 public type ClientError ResiliencyError|ClientAuthError|OutboundRequestError|
                             InboundResponseError|UnsupportedActionError|Http2ClientError|
-                            MaximumWaitTimeExceededError|SslError|GenericClientError;
+                            MaximumWaitTimeExceededError|SslError|GenericClientError|CookieHandlingError;
 
 # Defines the possible listener error types
 public type ListenerError GenericListenerError|InboundRequestError|OutboundResponseError;

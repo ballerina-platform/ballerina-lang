@@ -38,12 +38,12 @@ public type CookieStore object {
     # + requestPath - Resource path
     public function addCookie(Cookie cookie, CookieConfig cookieConfig, string url, string requestPath) {
         if (self.getAllCookies().length() == cookieConfig.maxTotalCookieCount) {
-            log:printInfo("Number of total cookies in the cookie store can not exceed the maximum amount");
+            log:printWarn("Number of total cookies in the cookie store can not exceed the maximum amount");
             return;
         }
         string domain = getDomain(url);
         if (self.getCookiesByDomain(domain).length() == cookieConfig.maxCookiesPerDomain) {
-            log:printInfo("Number of total cookies for the domain: " + domain + " in the cookie store can not exceed the maximum amount per domain");
+            log:printWarn("Number of total cookies for the domain: " + domain + " in the cookie store can not exceed the maximum amount per domain");
             return;
         }
         string path  = requestPath;
@@ -213,7 +213,8 @@ public type CookieStore object {
             if (persistentCookieHandler is PersistentCookieHandler) {
                 return persistentCookieHandler.removeCookie(name, domain, path);
             } else {
-                return error("Error in removing cookie: No such cookie to remove");
+                CookieHandlingError err = error(COOKIE_HANDLING_ERROR, message = "Error in removing cookie: No such cookie to remove");
+                return err;
             }
         }
     }
@@ -279,10 +280,7 @@ public type CookieStore object {
         lock {
             self.allSessionCookies = [];
             if (persistentCookieHandler is PersistentCookieHandler) {
-                var removeResult = persistentCookieHandler.removeAllCookies();
-                if (removeResult is error) {
-                    return removeResult;
-                }
+                return persistentCookieHandler.removeAllCookies();
             }
         }
     }

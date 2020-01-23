@@ -53,25 +53,29 @@ public type CsvPersistentCookieHandler object {
     #
     # + cookie - Cookie to be added
     # + return - An error will be returned if there is any error occurred during storing the cookie or else nil is returned
-    public function storeCookie(Cookie cookie) returns @tainted error?{
+    public function storeCookie(Cookie cookie) returns @tainted error? {
         table<myCookie> cookiesTable = table{};
+        CookieHandlingError err;
         if (file:exists(self.fileName)) {
             var tblResult = readFile(self.fileName);
             if (tblResult is table<myCookie>) {
                 cookiesTable = tblResult;
             } else {
-                 return tblResult;
+                err = error(COOKIE_HANDLING_ERROR, message = "Error in reading the csv file", cause = tblResult);
+                return err;
             }
         }
         var tableUpdateResult = addNewCookieToTable(cookiesTable, cookie);
         if (tableUpdateResult is table<myCookie>) {
             cookiesTable = tableUpdateResult;
         } else {
-            return tableUpdateResult;
+            err = error(COOKIE_HANDLING_ERROR, message = "Error in updating the records in csv file", cause = tableUpdateResult);
+            return err;
         }
         var result = writeToFile(cookiesTable, self.fileName);
         if (result is error) {
-            return result;
+            err = error(COOKIE_HANDLING_ERROR, message = "Error in writing the csv file", cause = result);
+            return err;
         }
     }
 
@@ -104,7 +108,8 @@ public type CsvPersistentCookieHandler object {
                 }
                 return cookies;
             } else {
-                return tblResult;
+                CookieHandlingError err = error(COOKIE_HANDLING_ERROR, message = "Error in reading the csv file", cause = tblResult);
+                return err;
             }
         }
        return cookies;
@@ -120,29 +125,35 @@ public type CsvPersistentCookieHandler object {
         cookieNameToRemove = name;
         cookieDomainToRemove = domain;
         cookiePathToRemove = path;
+        CookieHandlingError err;
         if (file:exists(self.fileName)) {
             table<myCookie> cookiesTable = table{};
             var tblResult = readFile(self.fileName);
             if (tblResult is table<myCookie>) {
                 cookiesTable = tblResult;
             } else {
-                return tblResult;
+                err = error(COOKIE_HANDLING_ERROR, message = "Error in reading the csv file", cause = tblResult);
+                return err;
             }
             int | error count = cookiesTable.remove(checkRemoveCriteria);
             if (count is error || count <= 0) {
-                return error("Error in removing cookie: No such cookie to remove");
+                err = error(COOKIE_HANDLING_ERROR, message = "Error in removing cookie: No such cookie to remove");
+                return err;
             }
             error? removeResults = file:remove(self.fileName);
             if (removeResults is error) {
-                return removeResults;
+                err = error(COOKIE_HANDLING_ERROR, message = "Error in removing the csv file", cause = removeResults);
+                return err;
             }
             var writeResult = writeToFile(cookiesTable, self.fileName);
             if (writeResult is error) {
-                return writeResult;
+                err = error(COOKIE_HANDLING_ERROR, message = "Error in writing the csv file", cause = writeResult);
+                return err;
             }
             return;
         }
-        return error("Error in removing cookie: No persistent cookie store file to remove");
+        err = error(COOKIE_HANDLING_ERROR, message = "Error in removing cookie: No persistent cookie store file to remove");
+        return err;
     }
 
     # Removes all persistent cookies.
@@ -151,7 +162,8 @@ public type CsvPersistentCookieHandler object {
     public function removeAllCookies() returns error? {
         error? removeResults = file:remove(self.fileName);
         if (removeResults is error) {
-            return removeResults;
+            CookieHandlingError err = error(COOKIE_HANDLING_ERROR, message = "Error in removing the csv file", cause = removeResults);
+            return err;
         }
     }
 };
@@ -160,8 +172,8 @@ function validateFileExtension(string fileName) returns string|error {
     if (fileName.toLowerAscii().endsWith(".csv")) {
         return fileName;
     }
-    error invExtension = error("Invalid file format");
-    return invExtension;
+    CookieHandlingError err = error(COOKIE_HANDLING_ERROR, message = "Invalid file format");
+    return err;
 }
 
 function readFile(string fileName) returns @tainted error | table<myCookie> {
@@ -196,7 +208,8 @@ function addNewCookieToTable(table<myCookie> cookiesTable, Cookie cookieToAdd) r
         }
         return tableToReturn;
     }
-    return error("Error occurred while adding data to table_2");
+    CookieHandlingError err = error(COOKIE_HANDLING_ERROR, message = "Invalid data types for cookie attributes");
+    return err;
 }
 
 // Writes the updated table to file.
