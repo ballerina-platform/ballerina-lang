@@ -53,7 +53,7 @@ public type JwtTrustStoreConfig record {|
 # + expiryTime - Expiry time (milliseconds since the Epoch) of the parsed JWT
 public type CachedJwt record {|
     JwtPayload jwtPayload;
-    int expiryTime;
+    int? expiryTime;
 |};
 
 # Validate the given JWT string.
