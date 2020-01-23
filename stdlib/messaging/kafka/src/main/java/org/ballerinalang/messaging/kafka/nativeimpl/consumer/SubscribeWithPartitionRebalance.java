@@ -66,9 +66,9 @@ import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.populateTopicPa
 )
 public class SubscribeWithPartitionRebalance {
 
-    public static Object subscribeWithPartitionRebalance(Strand strand, ObjectValue consumerObject, ArrayValue topics,
+    public static Object subscribeWithPartitionRebalance(ObjectValue consumerObject, ArrayValue topics,
                                                          FPValue onPartitionsRevoked, FPValue onPartitionsAssigned) {
-
+        Strand strand = Scheduler.getStrand();
         NonBlockingCallback callback = new NonBlockingCallback(strand);
         KafkaConsumer<byte[], byte[]> kafkaConsumer = (KafkaConsumer) consumerObject.getNativeData(NATIVE_CONSUMER);
         ArrayList<String> topicsList = getStringListFromStringArrayValue(topics);
@@ -78,7 +78,7 @@ public class SubscribeWithPartitionRebalance {
         try {
             kafkaConsumer.subscribe(topicsList, consumer);
         } catch (IllegalArgumentException | IllegalStateException | KafkaException e) {
-            callback.setReturnValues(
+            callback.notifyFailure(
                     createKafkaError("Failed to subscribe the consumer: " + e.getMessage(), CONSUMER_ERROR));
         }
         callback.notifySuccess();
@@ -131,17 +131,10 @@ public class SubscribeWithPartitionRebalance {
 
         private ArrayValue getPartitionsArray(Collection<TopicPartition> partitions) {
             ArrayValue topicPartitionArray = new ArrayValueImpl(new BArrayType(getTopicPartitionRecord().getType()));
-//            partitions.forEach(partition -> {
-//                MapValue<String, Object> topicPartition = populateTopicPartitionRecord(partition.topic(),
-//                        partition.partition());
-//                topicPartitionArray.append(topicPartition);
-//            });
-            // TODO: Use the above commented code instead of the for loop once #17075 fixed.
-            int i = 0;
             for (TopicPartition partition : partitions) {
                 MapValue<String, Object> topicPartition = populateTopicPartitionRecord(partition.topic(),
                         partition.partition());
-                topicPartitionArray.add(i++, topicPartition);
+                topicPartitionArray.append(topicPartition);
             }
             return topicPartitionArray;
         }
