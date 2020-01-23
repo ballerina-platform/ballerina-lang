@@ -262,7 +262,7 @@ public type Consumer client object {
     # + duration - Timeout duration for the get beginning offsets execution.
     # + return - Starting offsets for the given partitions if executes successfully, returns `kafka:ConsumerError` if the operation fails.
     public remote function getBeginningOffsets(TopicPartition[] partitions, public int duration = -1)
-                                                returns PartitionOffset[]|ConsumerError {
+    returns PartitionOffset[]|ConsumerError {
         return consumerGetBeginningOffsets(self, partitions, duration);
     }
 
@@ -272,7 +272,7 @@ public type Consumer client object {
     # + duration - Timeout duration for the get committed offset operation to execute.
     # + return - Committed offset for the consumer for the given partition if executes successfully, returns `kafka:ConsumerError` if the operation fails.
     public remote function getCommittedOffset(TopicPartition partition, public int duration = -1)
-                                                returns PartitionOffset|ConsumerError {
+    returns PartitionOffset|ConsumerError {
         return consumerGetCommittedOffset(self, partition, duration);
     }
 
@@ -282,7 +282,7 @@ public type Consumer client object {
     # + duration - Timeout duration for the get end offsets operation to execute.
     # + return - End offsets for the given partitions if executes successfully, returns `kafka:ConsumerError` if the operation fails.
     public remote function getEndOffsets(TopicPartition[] partitions, public int duration = -1)
-                                        returns PartitionOffset[]|ConsumerError {
+    returns PartitionOffset[]|ConsumerError {
         return consumerGetEndOffsets(self, partitions, duration);
     }
 
@@ -299,7 +299,7 @@ public type Consumer client object {
     # + duration - Timeout duration for the get position offset operation to execute.
     # + return - Offset which will be fetched next (if a records exists in that offset), returns `kafka:ConsumerError` if the operation fails.
     public remote function getPositionOffset(TopicPartition partition, public int duration = -1)
-                                                returns int|ConsumerError {
+    returns int|ConsumerError {
         return consumerGetPositionOffset(self, partition, duration);
     }
 
@@ -316,7 +316,7 @@ public type Consumer client object {
     # + duration - Timeout duration for the get topic partitions operation to execute.
     # + return - Array of partitions for the given topic if executes successfully, returns `kafka:ConsumerError` if the operation fails.
     public remote function getTopicPartitions(string topic, public int duration = -1)
-                                                returns TopicPartition[]|ConsumerError {
+    returns TopicPartition[]|ConsumerError {
         return consumerGetTopicPartitions(self, java:fromString(topic), duration);
     }
 
@@ -393,9 +393,9 @@ public type Consumer client object {
     # + onPartitionsAssigned - Function which will be executed if partitions are assigned this consumer.
     # + return - `kafka:ConsumerError` if encounters an error, returns nil otherwise.
     public remote function subscribeWithPartitionRebalance(string[] topics,
-                           function(Consumer consumer, TopicPartition[] partitions) onPartitionsRevoked,
-                           function(Consumer consumer, TopicPartition[] partitions) onPartitionsAssigned)
-                           returns ConsumerError? {
+        function(Consumer consumer, TopicPartition[] partitions) onPartitionsRevoked,
+        function(Consumer consumer, TopicPartition[] partitions) onPartitionsAssigned)
+    returns ConsumerError? {
         return consumerSubscribeWithPartitionRebalance(self, topics, onPartitionsRevoked, onPartitionsAssigned);
     }
 
@@ -438,7 +438,7 @@ function consumerCommit(Consumer consumer) returns ConsumerError? =
 } external;
 
 function consumerCommitOffset(Consumer consumer, PartitionOffset[] offsets, public int duration = -1)
-                                returns ConsumerError? =
+returns ConsumerError? =
 @java:Method {
     name: "commitOffset",
     class: "org.ballerinalang.messaging.kafka.nativeimpl.consumer.Commit"
@@ -469,7 +469,7 @@ function consumerGetPausedPartitions(Consumer consumer) returns TopicPartition[]
 } external;
 
 function consumerGetTopicPartitions(Consumer consumer, handle topic, public int duration = -1)
-                                    returns TopicPartition[]|ConsumerError =
+returns TopicPartition[]|ConsumerError =
 @java:Method {
     name: "getTopicPartitions",
     class: "org.ballerinalang.messaging.kafka.nativeimpl.consumer.ConsumerInformationHandler"
@@ -482,28 +482,28 @@ function consumerGetSubscription(Consumer consumer) returns string[]|ConsumerErr
 } external;
 
 function consumerGetBeginningOffsets(Consumer consumer, TopicPartition[] partitions, int duration)
-                                    returns PartitionOffset[]|ConsumerError =
+returns PartitionOffset[]|ConsumerError =
 @java:Method {
     name: "getBeginningOffsets",
     class: "org.ballerinalang.messaging.kafka.nativeimpl.consumer.GetOffsets"
 } external;
 
 function consumerGetCommittedOffset(Consumer consumer, TopicPartition partition, int duration)
-                                    returns PartitionOffset|ConsumerError =
+returns PartitionOffset|ConsumerError =
 @java:Method {
     name: "getCommittedOffset",
     class: "org.ballerinalang.messaging.kafka.nativeimpl.consumer.GetOffsets"
 } external;
 
 function consumerGetEndOffsets(Consumer consumer, TopicPartition[] partitions, int duration)
-                                returns PartitionOffset[]|ConsumerError =
+returns PartitionOffset[]|ConsumerError =
 @java:Method {
     name: "getEndOffsets",
     class: "org.ballerinalang.messaging.kafka.nativeimpl.consumer.GetOffsets"
 } external;
 
 function consumerGetPositionOffset(Consumer consumer, TopicPartition partition, public int duration = -1)
-                                    returns int|ConsumerError =
+returns int|ConsumerError =
 @java:Method {
     name: "getPositionOffset",
     class: "org.ballerinalang.messaging.kafka.nativeimpl.consumer.GetOffsets"
@@ -546,9 +546,9 @@ function consumerSubscribeToPattern(Consumer consumer, handle regex) returns Con
 } external;
 
 function consumerSubscribeWithPartitionRebalance(Consumer consumer, string[] topics,
-                                function(Consumer consumer, TopicPartition[] partitions) onPartitionsRevoked,
-                                function(Consumer consumer, TopicPartition[] partitions) onPartitionsAssigned)
-                                returns ConsumerError? =
+    function(Consumer consumer, TopicPartition[] partitions) onPartitionsRevoked,
+    function(Consumer consumer, TopicPartition[] partitions) onPartitionsAssigned)
+returns ConsumerError? =
 @java:Method {
     name: "subscribeWithPartitionRebalance",
     class: "org.ballerinalang.messaging.kafka.nativeimpl.consumer.SubscriptionHandler"

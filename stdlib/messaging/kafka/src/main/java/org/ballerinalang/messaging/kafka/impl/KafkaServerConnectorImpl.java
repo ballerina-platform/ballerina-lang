@@ -79,7 +79,7 @@ public class KafkaServerConnectorImpl implements KafkaServerConnector {
             }
         } catch (KafkaException e) {
             throw new KafkaConnectorException(
-                    "Error creating Kafka consumer to remote broker and subscribe to annotated topics", e);
+                    "Error creating Kafka consumer to connect with remote broker and subscribe to provided topics", e);
         }
     }
 

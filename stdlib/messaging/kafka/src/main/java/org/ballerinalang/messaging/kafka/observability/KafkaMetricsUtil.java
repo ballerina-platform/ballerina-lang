@@ -26,10 +26,12 @@ import org.ballerinalang.jvm.observability.metrics.MetricId;
 import org.ballerinalang.jvm.observability.metrics.MetricRegistry;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.messaging.kafka.utils.KafkaUtils;
+import org.slf4j.LoggerFactory;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
+import java.io.UnsupportedEncodingException;
 import java.util.Set;
 
 /**
@@ -117,14 +119,27 @@ public class KafkaMetricsUtil {
             return;
         }
         int size = 0;
-        try (ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
-            ObjectOutputStream oos = new ObjectOutputStream(bos);
-            oos.writeObject(value);
-            oos.flush();
-            byte[] data = bos.toByteArray();
-            size = data.length;
-        } catch (IOException e) {
-
+        if (value instanceof String) {
+            try {
+                byte[] bytes = ((String) value).getBytes("UTF-8");
+                size = bytes.length;
+            } catch (UnsupportedEncodingException e) {
+                LoggerFactory.getLogger(KafkaMetricsUtil.class).error(e.getMessage());
+            }
+        } else if (value instanceof Long || value instanceof Double) {
+            size = 8;
+        } else if (value instanceof byte[]) {
+            size = ((byte[]) value).length;
+        } else {
+            try (ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
+                ObjectOutputStream oos = new ObjectOutputStream(bos);
+                oos.writeObject(value);
+                oos.flush();
+                byte[] data = bos.toByteArray();
+                size = data.length;
+            } catch (IOException e) {
+                LoggerFactory.getLogger(KafkaMetricsUtil.class).error(e.getMessage());
+            }
         }
         KafkaObserverContext observerContext = new KafkaObserverContext(KafkaObservabilityConstants.CONTEXT_PRODUCER,
                                                                         KafkaUtils.getClientId(producerObject),
