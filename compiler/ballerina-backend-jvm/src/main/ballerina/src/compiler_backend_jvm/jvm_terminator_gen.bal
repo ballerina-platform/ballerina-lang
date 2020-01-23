@@ -269,8 +269,12 @@ type TerminatorGenerator object {
     function genCallTerm(bir:Call callIns, string funcName, int localVarOffset) {
         string orgName = callIns.pkgID.org;
         string moduleName = callIns.pkgID.name;
+        var callInsCopy = callIns.clone();
+        if(isBStringFunc(funcName)) {
+            callInsCopy.name.value =  nameOfBStringFunc(callIns.name.value);
+        }
         // invoke the function
-        self.genCall(callIns, orgName, moduleName, localVarOffset);
+        self.genCall(callInsCopy, orgName, moduleName, localVarOffset);
 
         // store return
         self.storeReturnFromCallIns(callIns.lhsOp?.variableDcl);
@@ -326,7 +330,7 @@ type TerminatorGenerator object {
 
         string jClassName = callIns.jClassName;
         string jMethodName = callIns.name;
-        string jMethodVMSig = callIns.jMethodVMSig;
+        string jMethodVMSig = isBStringFunc(funcName) ? callIns.jMethodVMSigBString : callIns.jMethodVMSig;
         self.mv.visitMethodInsn(INVOKESTATIC, jClassName, jMethodName, jMethodVMSig, false);
 
         bir:VariableDcl? lhsOpVarDcl = callIns.lhsOp?.variableDcl;
@@ -533,8 +537,8 @@ type TerminatorGenerator object {
                                    string methodName, string methodLookupName) {
         // load strand
         self.mv.visitVarInsn(ALOAD, localVarOffset);
-        string lookupKey = getPackageName(orgName, moduleName) + methodLookupName;
-        boolean isExternFunction = isBIRFunctionExtern(lookupKey);
+        string lookupKey = nameOfNonBStringFunc(getPackageName(orgName, moduleName) + methodLookupName);
+
         int argsCount = callIns.args.length();
         int i = 0;
         while (i < argsCount) {
@@ -544,9 +548,15 @@ type TerminatorGenerator object {
             i += 1;
         }
 
-        string methodDesc = lookupJavaMethodDescription(lookupKey);
         string jvmClass = lookupFullQualifiedClassName(lookupKey);
-        self.mv.visitMethodInsn(INVOKESTATIC, jvmClass, cleanupFunctionName(methodName), methodDesc, false);
+        string cleanMethodName = cleanupFunctionName(methodName);
+        boolean useBString = IS_BSTRING && orgName == "ballerina" &&
+                             moduleName == "lang.string" && !cleanMethodName.endsWith("_");
+        if (useBString) {
+            cleanMethodName = nameOfBStringFunc(cleanMethodName);
+        }
+        string methodDesc = lookupJavaMethodDescription(lookupKey, useBString);
+        self.mv.visitMethodInsn(INVOKESTATIC, jvmClass, cleanMethodName, methodDesc, false);
     }
 
     private function genVirtualCall(bir:Call callIns, string orgName, string moduleName, int localVarOffset) {

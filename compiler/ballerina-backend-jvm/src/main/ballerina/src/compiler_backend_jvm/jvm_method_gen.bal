@@ -60,11 +60,11 @@ function genJMethodForBFunc(bir:Function func,
                            bir:Package module,
                            boolean isService,
                            string serviceName,
-                           bir:BType? attachedType = (),
-                           boolean useBString = false) {
+                           bir:BType? attachedType = ()) {
     string currentPackageName = getPackageName(module.org.value, module.name.value);
     BalToJVMIndexMap indexMap = new;
     string funcName = cleanupFunctionName(<@untainted> func.name.value);
+    boolean useBString = IS_BSTRING;
     int returnVarRefIndex = -1;
 
     bir:VariableDcl stranVar = { typeValue: "string", // should be record
@@ -202,7 +202,7 @@ function genJMethodForBFunc(bir:Function func,
     mv.visitLookupSwitchInsn(yieldLable, states, lables);
 
     generateBasicBlocks(mv, basicBlocks, labelGen, errorGen, instGen, termGen, func, returnVarRefIndex, stateVarIndex,
-                            localVarOffset, false, module, currentPackageName, attachedType, isObserved, isService, serviceName);
+                            localVarOffset, false, module, currentPackageName, attachedType, isObserved, isService, serviceName, useBString = useBString);
 
     string frameName = getFrameClassName(currentPackageName, funcName, attachedType);
     mv.visitLabel(resumeLable);
@@ -218,7 +218,7 @@ function genJMethodForBFunc(bir:Function func,
     mv.visitInsn(AALOAD);
     mv.visitTypeInsn(CHECKCAST, frameName);
 
-    geerateFrameClassFieldLoad(localVars, mv, indexMap, frameName);
+    geerateFrameClassFieldLoad(localVars, mv, indexMap, frameName, useBString);
     mv.visitFieldInsn(GETFIELD, frameName, "state", "I");
     mv.visitVarInsn(ISTORE, stateVarIndex);
     mv.visitJumpInsn(GOTO, varinitLable);
@@ -230,7 +230,7 @@ function genJMethodForBFunc(bir:Function func,
     mv.visitMethodInsn(INVOKESPECIAL, frameName, "<init>", "()V", false);
 
 
-    geerateFrameClassFieldUpdate(localVars, mv, indexMap, frameName);
+    geerateFrameClassFieldUpdate(localVars, mv, indexMap, frameName, useBString);
 
     mv.visitInsn(DUP);
     mv.visitVarInsn(ILOAD, stateVarIndex);
@@ -345,7 +345,7 @@ function genJMethodForBFunc(bir:Function func,
 }
 
 function geerateFrameClassFieldLoad(bir:VariableDcl?[] localVars, jvm:MethodVisitor mv,
-                                    BalToJVMIndexMap indexMap, string frameName) {
+                                    BalToJVMIndexMap indexMap, string frameName, boolean useBString) {
     int k = 0;
     while (k < localVars.length()) {
         bir:VariableDcl localVar = getVariableDcl(localVars[k]);
@@ -364,7 +364,7 @@ function geerateFrameClassFieldLoad(bir:VariableDcl?[] localVars, jvm:MethodVisi
             mv.visitVarInsn(DSTORE, index);
         } else if (bType is bir:BTypeString) {
             mv.visitFieldInsn(GETFIELD, frameName, stringutils:replace(localVar.name.value, "%","_"),
-                    io:sprintf("L%s;", BSTRING_VALUE));
+                    io:sprintf("L%s;", useBString ? I_STRING_VALUE : STRING_VALUE));
             mv.visitVarInsn(ASTORE, index);
         } else if (bType is bir:BTypeDecimal) {
             mv.visitFieldInsn(GETFIELD, frameName, stringutils:replace(localVar.name.value, "%","_"),
@@ -476,7 +476,7 @@ function generateFrameClassJFieldLoad(bir:VariableDcl localVar, jvm:MethodVisito
 }
 
 function geerateFrameClassFieldUpdate(bir:VariableDcl?[] localVars, jvm:MethodVisitor mv,
-                                      BalToJVMIndexMap indexMap, string frameName) {
+                                      BalToJVMIndexMap indexMap, string frameName, boolean useBString) {
     int k = 0;
     while (k < localVars.length()) {
         bir:VariableDcl localVar = getVariableDcl(localVars[k]);
@@ -496,7 +496,7 @@ function geerateFrameClassFieldUpdate(bir:VariableDcl?[] localVars, jvm:MethodVi
         } else if (bType is bir:BTypeString) {
             mv.visitVarInsn(ALOAD, index);
             mv.visitFieldInsn(PUTFIELD, frameName, stringutils:replace(localVar.name.value, "%","_"),
-                    io:sprintf("L%s;", BSTRING_VALUE));
+                    io:sprintf("L%s;", useBString ? I_STRING_VALUE : STRING_VALUE));
         } else if (bType is bir:BTypeDecimal) {
             mv.visitVarInsn(ALOAD, index);
             mv.visitFieldInsn(PUTFIELD, frameName, stringutils:replace(localVar.name.value, "%","_"),
@@ -660,7 +660,7 @@ function generateBasicBlocks(jvm:MethodVisitor mv, bir:BasicBlock?[] basicBlocks
             ErrorHandlerGenerator errorGen, InstructionGenerator instGen, TerminatorGenerator termGen,
             bir:Function func, int returnVarRefIndex, int stateVarIndex, int localVarOffset, boolean isArg,
             bir:Package module, string currentPackageName, bir:BType? attachedType, boolean isObserved = false,
-            boolean isService = false, string serviceName = "") {
+            boolean isService = false, string serviceName = "", boolean useBString = false) {
     int j = 0;
     string funcName = cleanupFunctionName(<@untainted> func.name.value);
 
@@ -713,7 +713,7 @@ function generateBasicBlocks(jvm:MethodVisitor mv, bir:BasicBlock?[] basicBlocks
                 if (insKind == bir:INS_KIND_MOVE) {
                     instGen.generateMoveIns(<bir:Move> inst);
                 } else if (insKind == bir:INS_KIND_CONST_LOAD) {
-                    instGen.generateConstantLoadIns(<bir:ConstantLoad> inst);
+                    instGen.generateConstantLoadIns(<bir:ConstantLoad> inst, useBString);
                 } else if (insKind == bir:INS_KIND_NEW_MAP) {
                     instGen.generateMapNewIns(<bir:NewMap> inst, localVarOffset);
                 } else if (insKind == bir:INS_KIND_NEW_INST) {
@@ -739,7 +739,7 @@ function generateBasicBlocks(jvm:MethodVisitor mv, bir:BasicBlock?[] basicBlocks
                 } else if (insKind == bir:INS_KIND_TYPE_TEST) {
                     instGen.generateTypeTestIns(<bir:TypeTest> inst);
                 } else if (insKind == bir:INS_KIND_OBJECT_STORE) {
-                    instGen.generateObjectStoreIns(<bir:FieldAccess> inst);
+                    instGen.generateObjectStoreIns(<bir:FieldAccess> inst, useBString);
                 } else if (insKind == bir:INS_KIND_OBJECT_LOAD) {
                     instGen.generateObjectLoadIns(<bir:FieldAccess> inst);
                 } else if (insKind == bir:INS_KIND_NEW_XML_ELEMENT) {
@@ -1198,7 +1198,7 @@ function getMethodDesc(bir:BType?[] paramTypes, bir:BType? retType, bir:BType? a
         desc = desc + getArgTypeSignature(paramType, useBString);
         i += 1;
     }
-    string returnType = generateReturnType(retType, isExtern);
+    string returnType = generateReturnType(retType, isExtern, useBString);
     desc =  desc + returnType;
 
     return desc;
@@ -1271,7 +1271,7 @@ function getArgTypeSignature(bir:BType bType, boolean useBString = false) return
     }
 }
 
-function generateReturnType(bir:BType? bType, boolean isExtern = false) returns string {
+function generateReturnType(bir:BType? bType, boolean isExtern = false, boolean useBString = false) returns string {
     if (bType is ()|bir:BTypeNil) {
         if (isExtern) {
             return ")V";
@@ -1284,7 +1284,7 @@ function generateReturnType(bir:BType? bType, boolean isExtern = false) returns 
     } else if (bType is bir:BTypeFloat) {
         return ")D";
     } else if (bType is bir:BTypeString) {
-        return io:sprintf(")L%s;", STRING_VALUE);
+        return io:sprintf(")L%s;", useBString ? I_STRING_VALUE : STRING_VALUE);
     } else if (bType is bir:BTypeDecimal) {
         return io:sprintf(")L%s;", DECIMAL_VALUE);
     } else if (bType is bir:BTypeBoolean) {
@@ -2528,6 +2528,21 @@ function getJavaVersion() returns string {
     } else {
         return "";
     }
+}
+
+function isBStringFunc(string funcName) returns boolean {
+    return funcName.endsWith("$bstring");
+}
+
+function nameOfBStringFunc(string nonBStringFuncName) returns string {
+    return nonBStringFuncName + "$bstring";
+}
+
+function nameOfNonBStringFunc(string funcName) returns string {
+    if(isBStringFunc(funcName)) {
+        return funcName.substring(0, funcName.length() - 8);
+    }
+    return funcName;
 }
 
 function getProperty(handle propertyName) returns handle = @java:Method {
