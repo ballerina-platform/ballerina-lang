@@ -32,23 +32,10 @@ service proxy on httpListener {
     }
     resource function websocketProxy(http:Caller caller, http:Request req) {
     }
-
-    @http:ResourceConfig {
-        methods: ["GET"],
-        path: RESOURCE_PATH
-    }
-
-    resource function sayHello(http:Caller caller, http:Request req) {
-        http:Response res = new;
-        res.setTextPayload("Successful");
-        checkpanic caller->respond(res);
-    }
-
 }
 
 service wsService = @http:WebSocketServiceConfig {} service {
 
     resource function onOpen(http:WebSocketCaller caller) {
     }
-
 };

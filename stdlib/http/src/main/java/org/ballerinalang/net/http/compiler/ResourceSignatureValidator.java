@@ -87,7 +87,8 @@ public class ResourceSignatureValidator {
                     validateWebSocketUpgrade(resourceNode, dlog, annVals, paramSegments, keyValue);
                     break;
                 case ANN_RESOURCE_ATTR_PATH:
-                    validateResourcePath(dlog, paramSegments, getKeyValue(keyValue), keyValue.getValue().getPosition());
+                    validateResourcePath(dlog, paramSegments, getKeyValue(keyValue), keyValue.getValue().
+                            getPosition());
                     break;
                 case ANN_RESOURCE_ATTR_BODY:
                     List<? extends SimpleVariableNode> parameters = resourceNode.getParameters();

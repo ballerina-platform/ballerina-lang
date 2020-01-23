@@ -82,11 +82,11 @@
         </classes>
     </test>
 
-    <test name="ballerina-future-tests" parallel="false">
-        <classes>
-            <class name="org.ballerinalang.test.future.CancelledFuturesWithTrxTest"/>
-        </classes>
-    </test>
+<!--    <test name="ballerina-future-tests" parallel="false">-->
+<!--        <classes>-->
+<!--            <class name="org.ballerinalang.test.future.CancelledFuturesWithTrxTest"/>-->
+<!--        </classes>-->
+<!--    </test>-->
 
     <test name="ballerina-http2-tests" parallel="false">
         <parameter name="enableJBallerinaTests" value="true"/>
