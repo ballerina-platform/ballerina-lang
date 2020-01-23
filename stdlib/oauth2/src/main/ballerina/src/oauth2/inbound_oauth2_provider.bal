@@ -56,7 +56,8 @@ public type InboundOAuth2Provider object {
             var oauth2CacheEntry = authenticateFromCache(oauth2Cache, credential);
             if (oauth2CacheEntry is InboundOAuth2CacheEntry) {
                 auth:setAuthenticationContext("oauth2", credential);
-                auth:setPrincipal(oauth2CacheEntry.username, oauth2CacheEntry.username, getScopes(oauth2CacheEntry.scopes));
+                auth:setPrincipal(oauth2CacheEntry.username, oauth2CacheEntry.username,
+                                  getScopes(oauth2CacheEntry.scopes));
                 return true;
             }
         }
