@@ -159,7 +159,7 @@
         </groups>
         <classes>
             <class name="org.ballerinalang.test.service.websocket.WebSocketTestCommons"/>
-            <class name="org.ballerinalang.test.service.websocket.CancelWebSocketUpgradeTest"/>
+            <class name="org.ballerinalang.test.service.websocket.WebSocketUpgradeTest"/>
             <class name="org.ballerinalang.test.service.websocket.ClientInitializationFailureTest"/>
             <class name="org.ballerinalang.test.service.websocket.ClientServiceTest"/>
             <class name="org.ballerinalang.test.service.websocket.CustomHeaderClientSupportTest"/>

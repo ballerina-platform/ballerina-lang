@@ -182,4 +182,11 @@ public class WebSocketCompilationTest {
     private void assertExpectedDiagnosticsLength(CompileResult compileResult, int expectedLength) {
         Assert.assertEquals(compileResult.getDiagnostics().length, expectedLength);
     }
+
+    @Test(description = "Successfully compiling WebSocket upgrade resource with defined constant in the config")
+    public void testSuccessWebSocketUpgradeWithDefinedConstant() {
+        CompileResult compileResult = BCompileUtil.compileOnly(TEST_PATH + "defined_constant_config.bal");
+
+        Assert.assertEquals(compileResult.toString(), "Compilation Successful");
+    }
 }

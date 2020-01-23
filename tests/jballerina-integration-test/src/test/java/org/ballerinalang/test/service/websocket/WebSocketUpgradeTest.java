@@ -20,15 +20,18 @@ package org.ballerinalang.test.service.websocket;
 
 import io.netty.handler.codec.http.websocketx.WebSocketHandshakeException;
 import org.ballerinalang.test.util.websocket.client.WebSocketTestClient;
+import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import java.net.URISyntaxException;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 /**
  * This Class tests the cancelWebSocketUpgrade method of the http connector.
  */
 @Test(groups = {"websocket-test"})
-public class CancelWebSocketUpgradeTest extends WebSocketTestCommons {
+public class WebSocketUpgradeTest extends WebSocketTestCommons {
 
     private WebSocketTestClient client;
 
@@ -47,6 +50,19 @@ public class CancelWebSocketUpgradeTest extends WebSocketTestCommons {
     public void testCancelUpgradeSuccessStatusCode() throws InterruptedException, URISyntaxException {
         client = new WebSocketTestClient("ws://localhost:21009/cannotcancel/cannot/cancel");
         client.handshake();
+        client.shutDown();
+    }
+
+    @Test(description = "Test the webSocketUpgradeConfig parameter that supports defined constant")
+    public void testUpgradeConfigWithDefinedConstant() throws URISyntaxException, InterruptedException {
+        WebSocketTestClient client = new WebSocketTestClient("ws://localhost:21030/hello/ws");
+        CountDownLatch countDownLatch = new CountDownLatch(1);
+        client.setCountDownLatch(countDownLatch);
+        client.handshake();
+        countDownLatch.await(TIMEOUT_IN_SECS, TimeUnit.SECONDS);
+        String text = client.getTextReceived();
+        Assert.assertNotNull(text);
+        Assert.assertEquals(text, "Hello");
         client.shutDown();
     }
 }
