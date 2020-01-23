@@ -36,6 +36,7 @@ import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser.StringTempl
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser.VariableReferenceContext;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParserBaseListener;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.Constants;
 import org.wso2.ballerinalang.compiler.util.FieldKind;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.NumericLiteralSupport;
@@ -51,6 +52,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.Stack;
 import java.util.StringJoiner;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static org.wso2.ballerinalang.compiler.parser.BLangPackageBuilder.escapeQuotedIdentifier;
 import static org.wso2.ballerinalang.compiler.util.Constants.OPEN_SEALED_ARRAY;
@@ -2699,6 +2702,23 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         } else if ((node = ctx.QuotedStringLiteral()) != null) {
             String text = node.getText();
             text = text.substring(1, text.length() - 1);
+            String originalText = text; // to log the errors
+            Pattern pattern = Pattern.compile(Constants.UNICODE_REGEX);
+            Matcher matcher = pattern.matcher(text);
+            while (matcher.find()) {
+                String hexStringVal = matcher.group(1);
+                int hexDecimalVal = Integer.parseInt(hexStringVal, 16);
+                if ((hexDecimalVal >= 0xD800 && hexDecimalVal <= 0xDFFF) || hexDecimalVal > 0x10FFFF) {
+                    String hexStringWithBraces = matcher.group(0);
+                    int offset = originalText.indexOf(hexStringWithBraces) + 1;
+                    dlog.error(new DiagnosticPos(diagnosticSrc, pos.sLine, pos.eLine, pos.sCol + offset,
+                                    pos.sCol + offset + hexStringWithBraces.length()),
+                            DiagnosticCode.UNSUPPORTED_UNICODE,
+                            hexStringWithBraces);
+                }
+                text = matcher.replaceFirst("\\\\u" + hexStringVal);
+                matcher = pattern.matcher(text);
+            }
             text = StringEscapeUtils.unescapeJava(text);
             this.pkgBuilder.addLiteralValue(pos, ws, TypeTags.STRING, text, node.getText());
         } else if (ctx.NullLiteral() != null) {
