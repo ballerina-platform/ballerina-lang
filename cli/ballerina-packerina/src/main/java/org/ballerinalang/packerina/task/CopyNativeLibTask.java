@@ -42,6 +42,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -217,14 +218,15 @@ public class CopyNativeLibTask implements Task {
             return;
         }
         try (JarFile jar = new JarFile(baloFilePath.toFile())) {
-            java.util.Enumeration enumEntries = jar.entries();
+            Enumeration<JarEntry> enumEntries = jar.entries();
             while (enumEntries.hasMoreElements()) {
-                JarEntry file = (JarEntry) enumEntries.nextElement();
-                if (!file.getName().endsWith(BLANG_COMPILED_JAR_EXT)) {
+                JarEntry file = enumEntries.nextElement();
+                String entryName = file.getName();
+                if (!entryName.endsWith(BLANG_COMPILED_JAR_EXT) || !entryName.contains(BALO_PLATFORM_LIB_DIR_NAME)) {
                     continue;
                 }
                 File f = Paths.get(baloFileUnzipDirectory.toString(),
-                                   file.getName().split(BALO_PLATFORM_LIB_DIR_NAME)[1]).toFile();
+                                   entryName.split(BALO_PLATFORM_LIB_DIR_NAME)[1]).toFile();
                 if (!f.exists()) { // if file already copied or its a directory, ignore
                     // get the input stream
                     try (InputStream is = jar.getInputStream(file)) {
