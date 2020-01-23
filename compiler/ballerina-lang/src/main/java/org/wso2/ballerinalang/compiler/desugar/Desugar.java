@@ -51,7 +51,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructureTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
@@ -360,9 +359,10 @@ public class Desugar extends BLangNodeVisitor {
                     pkgNode.topLevelNodes.add(objectTypeNode.initFunction);
                 }
             } else if (typeDef.symbol.tag == SymTag.RECORD) {
-                BLangRecordTypeNode recordTypeNod = (BLangRecordTypeNode) typeDef.typeNode;
-                pkgNode.functions.add(recordTypeNod.initFunction);
-                pkgNode.topLevelNodes.add(recordTypeNod.initFunction);
+                BLangRecordTypeNode recordTypeNode = (BLangRecordTypeNode) typeDef.typeNode;
+                recordTypeNode.initFunction = createInitFunctionForRecordType(recordTypeNode, env);
+                pkgNode.functions.add(recordTypeNode.initFunction);
+                pkgNode.topLevelNodes.add(recordTypeNode.initFunction);
             }
         }
     }
@@ -6092,38 +6092,41 @@ public class Desugar extends BLangNodeVisitor {
 
     private BLangFunction createInitFunctionForStructureType(BLangStructureTypeNode structureTypeNode, SymbolEnv env,
                                                              Name suffix) {
+        String structTypeName = structureTypeNode.type.tsymbol.name.value;
         BLangFunction initFunction = ASTBuilderUtil
-                .createInitFunctionWithNilReturn(structureTypeNode.pos, Names.EMPTY.value, suffix);
+                .createInitFunctionWithNilReturn(structureTypeNode.pos, structTypeName, suffix);
 
-        // Create the receiver
+        // Create the receiver and add receiver details to the node
         initFunction.receiver = ASTBuilderUtil.createReceiver(structureTypeNode.pos, structureTypeNode.type);
         BVarSymbol receiverSymbol = new BVarSymbol(Flags.asMask(EnumSet.noneOf(Flag.class)),
-                names.fromIdNode(initFunction.receiver.name),
-                env.enclPkg.symbol.pkgID, structureTypeNode.type, null);
+                                                   names.fromIdNode(initFunction.receiver.name),
+                                                   env.enclPkg.symbol.pkgID, structureTypeNode.type, null);
         initFunction.receiver.symbol = receiverSymbol;
-
-        initFunction.type = new BInvokableType(new ArrayList<>(), symTable.nilType, null);
         initFunction.attachedFunction = true;
         initFunction.flagSet.add(Flag.ATTACHED);
 
-        // Create function symbol
-        Name funcSymbolName = names.fromString(Symbols.getAttachedFuncSymbolName(
-                structureTypeNode.type.tsymbol.name.value, suffix.value));
+        // Create the function type
+        initFunction.type = new BInvokableType(new ArrayList<>(), symTable.nilType, null);
+
+        // Create the function symbol
+        Name funcSymbolName = names.fromString(Symbols.getAttachedFuncSymbolName(structTypeName, suffix.value));
         initFunction.symbol = Symbols
                 .createFunctionSymbol(Flags.asMask(initFunction.flagSet), funcSymbolName, env.enclPkg.symbol.pkgID,
-                        initFunction.type, structureTypeNode.symbol.scope.owner,
-                        initFunction.body != null);
+                                      initFunction.type, structureTypeNode.symbol, initFunction.body != null);
         initFunction.symbol.scope = new Scope(initFunction.symbol);
         initFunction.symbol.scope.define(receiverSymbol.name, receiverSymbol);
         initFunction.symbol.receiverSymbol = receiverSymbol;
+        initFunction.name = ASTBuilderUtil.createIdentifier(structureTypeNode.pos, funcSymbolName.value);
 
+        // Create the function type symbol
         BInvokableTypeSymbol tsymbol = Symbols.createInvokableTypeSymbol(SymTag.FUNCTION_TYPE,
-                initFunction.symbol.flags, env.enclPkg.packageID, null,
-                initFunction.symbol);
-        initFunction.type.tsymbol = tsymbol;
+                                                                         initFunction.symbol.flags,
+                                                                         env.enclPkg.packageID, initFunction.type,
+                                                                         initFunction.symbol);
         tsymbol.params = initFunction.symbol.params;
         tsymbol.restParam = initFunction.symbol.restParam;
         tsymbol.returnType = initFunction.symbol.retType;
+        initFunction.type.tsymbol = tsymbol;
 
         receiverSymbol.owner = initFunction.symbol;
 
@@ -6148,13 +6151,13 @@ public class Desugar extends BLangNodeVisitor {
         return rewrite(initFunction, env);
     }
 
-    private BLangFunction createInitFunctionForRecordType(BLangRecordTypeNode structureTypeNode, SymbolEnv env) {
-        BLangFunction initFunction = createInitFunctionForStructureType(structureTypeNode, env,
-                Names.INIT_FUNCTION_SUFFIX);
-        BStructureTypeSymbol typeSymbol = ((BStructureTypeSymbol) structureTypeNode.type.tsymbol);
-        typeSymbol.initializerFunc = new BAttachedFunction(Names.INIT_FUNCTION_SUFFIX, initFunction.symbol,
-                (BInvokableType) initFunction.type);
-        structureTypeNode.initFunction = initFunction;
+    private BLangFunction createInitFunctionForRecordType(BLangRecordTypeNode recordTypeNode, SymbolEnv env) {
+        BLangFunction initFunction = createInitFunctionForStructureType(recordTypeNode, env,
+                                                                        Names.INIT_FUNCTION_SUFFIX);
+        BRecordTypeSymbol typeSymbol = ((BRecordTypeSymbol) recordTypeNode.type.tsymbol);
+        typeSymbol.initializerFunc = new BAttachedFunction(initFunction.symbol.name, initFunction.symbol,
+                                                           (BInvokableType) initFunction.type);
+        recordTypeNode.initFunction = initFunction;
         return rewrite(initFunction, env);
     }
 
