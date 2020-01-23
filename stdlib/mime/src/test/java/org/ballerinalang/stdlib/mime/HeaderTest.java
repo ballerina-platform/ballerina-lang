@@ -170,4 +170,78 @@ public class HeaderTest {
         Assert.assertEquals(returns[1].stringValue(), "[]", "Header names for newly created entity" +
                 "should be empty");
     }
+//////////////////////////////////////////
+    @Test(description = "Test whether the correct trailing header value is returned when the header exist as requested")
+    public void testGetTrailingHeaderAsIs() {
+        BString headerName = new BString("Max-Forwards");
+        BString headerValue = new BString("eighty two");
+        BString headerNameToBeUsedForRetrieval = new BString("max-forwards");
+        BValue[] args = {headerName, headerValue, headerNameToBeUsedForRetrieval};
+        BValue[] returns = BRunUtil.invoke(compileResult, "testTrailingAddHeader", args);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].stringValue(), "eighty two");
+    }
+
+    @Test(description = "Test adding multiple values to same trailing header")
+    public void testAddingMultipleValuesToSameTrailingHeader() {
+        BValue[] args = {};
+        BValue[] returns = BRunUtil.invoke(compileResult, "testAddingMultipleValuesToSameTrailingHeader", args);
+        Assert.assertEquals(returns.length, 2);
+        Assert.assertEquals(returns[0].stringValue(), "[\"value1\", \"value2\"]");
+        Assert.assertEquals(returns[1].stringValue(), "value1");
+    }
+
+    @Test(description = "Test set trailing header after add trailing header")
+        public void testSetTrailingHeaderAfterAddHeader() {
+        BValue[] args = {};
+        BValue[] returns = BRunUtil.invoke(compileResult, "testSetTrailingHeaderAfterAddHeader", args);
+        Assert.assertEquals(returns.length, 2);
+        Assert.assertEquals(returns[0].stringValue(), "[\"value1\", \"value2\"]");
+        Assert.assertEquals(returns[1].stringValue(), "totally different value");
+    }
+
+    @Test(description = "Test remove trailing header function")
+    public void testRemoveTrailingHeader() {
+        BValue[] args = {};
+        BValue[] returns = BRunUtil.invoke(compileResult, "testRemoveTrailingHeader", args);
+        Assert.assertEquals(returns.length, 2);
+        Assert.assertEquals(returns[0].stringValue(), "[]");
+        Assert.assertEquals(returns[1].stringValue(), "totally different value");
+    }
+
+    @Test(description = "Test getting a value out of a non existence trailing header", expectedExceptions =
+            BLangRuntimeException.class,
+          expectedExceptionsMessageRegExp = ".*HeaderNotFound message=Http header does not " +
+                  "exist.*")
+    public void testNonExistenceTrailingHeader() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testNonExistenceTrailingHeader");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].stringValue(), "");
+    }
+
+    @Test(description = "Test getting all trailing header names")
+    public void testGetTrailingHeaderNames() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testGetTrailingHeaderNames");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].stringValue(), "[\"heAder1\", \"hEader2\", \"HEADER3\"]");
+    }
+
+    @Test(description = "Test trailing has header function")
+    public void testTrailingHasHeader() {
+        BValue[] args = {};
+        BValue[] returns = BRunUtil.invoke(compileResult, "testTrailingHasHeader", args);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertTrue(Boolean.parseBoolean(returns[0].stringValue()));
+    }
+
+    @Test(description = "Test trailing headers with a newly created entity")
+    public void testTrailingHeaderWithNewEntity() {
+        BValue[] args = {};
+        BValue[] returns = BRunUtil.invoke(compileResult, "testTrailingHeaderWithNewEntity", args);
+        Assert.assertEquals(returns.length, 2, "Two values should be returned from this test");
+        Assert.assertFalse(Boolean.parseBoolean(returns[0].stringValue()), "Newly created entity can't have" +
+                "any headers");
+        Assert.assertEquals(returns[1].stringValue(), "[]", "Header names for newly created entity" +
+                "should be empty");
+    }
 }
