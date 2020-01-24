@@ -25,15 +25,14 @@ import org.ballerinalang.nativeimpl.llvm.FFIUtil;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.bytedeco.javacpp.LLVM;
-import org.bytedeco.javacpp.LLVM.LLVMTypeRef;
 import org.bytedeco.javacpp.Pointer;
 import org.bytedeco.javacpp.PointerPointer;
+import org.bytedeco.llvm.LLVM.LLVMTypeRef;
 
 import static org.ballerinalang.model.types.TypeKind.ARRAY;
 import static org.ballerinalang.model.types.TypeKind.INT;
 import static org.ballerinalang.model.types.TypeKind.RECORD;
-import static org.bytedeco.javacpp.LLVM.LLVMFunctionType;
+import static org.bytedeco.llvm.global.LLVM.LLVMFunctionType;
 
 /**
  * Auto generated class.
@@ -59,7 +58,7 @@ public class LLVMFunctionType1 {
                                                              ArrayValue paramTypes, long paramCount,
                                                              long isVarArg) {
 
-        LLVM.LLVMTypeRef returnTypeRef = (LLVM.LLVMTypeRef) FFIUtil.getRecodeArgumentNative(returnType);
+        LLVMTypeRef returnTypeRef = (LLVMTypeRef) FFIUtil.getRecodeArgumentNative(returnType);
         Pointer[] paramTypesRef = FFIUtil.getRecodeArrayArgumentNative(paramTypes);
         PointerPointer paramTypesWrapped = new PointerPointer(paramTypesRef);
         int paramCountRef = (int) paramCount;

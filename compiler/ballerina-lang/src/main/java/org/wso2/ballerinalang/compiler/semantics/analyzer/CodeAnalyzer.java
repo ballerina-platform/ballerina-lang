@@ -41,7 +41,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
@@ -95,7 +94,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangServiceConstructorE
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableLiteral;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableQueryExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTrapExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTupleVarRef;
@@ -129,7 +127,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangErrorDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangErrorVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangForever;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
@@ -1211,13 +1208,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         throw new RuntimeException("Deprecated lang feature");
     }
 
-    public void visit(BLangForever foreverStatement) {
-
-        checkExperimentalFeatureValidity(ExperimentalFeatures.STREAMING_QUERIES, foreverStatement.pos);
-        this.checkStatementExecutionValidity(foreverStatement);
-        this.lastStatement = true;
-    }
-
     private void analyzeExportableTypeRef(BSymbol owner, BTypeSymbol symbol, boolean inFuncSignature,
                                           DiagnosticPos pos) {
 
@@ -1264,12 +1254,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                 BTableType tableType = (BTableType) symbol.type;
                 if (tableType.constraint != null) {
                     checkForExportableType(tableType.constraint.tsymbol, pos);
-                }
-                return;
-            case TypeTags.STREAM:
-                BStreamType streamType = (BStreamType) symbol.type;
-                if (streamType.constraint != null) {
-                    checkForExportableType(streamType.constraint.tsymbol, pos);
                 }
                 return;
             case TypeTags.INVOKABLE:
@@ -1799,7 +1783,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                 String fieldName = keyRef.variableName.value;
 
                 if (names.contains(fieldName)) {
-                    String assigneeType = recordLiteral.parent.type.getKind().typeName();
+                    String assigneeType = recordLiteral.expectedType.getKind().typeName();
                     this.dlog.error(key.pos, DiagnosticCode.DUPLICATE_KEY_IN_RECORD_LITERAL, assigneeType, keyRef);
                 }
 
@@ -2196,9 +2180,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     public void visit(BLangConstrainedType constrainedType) {
 
-        if (constrainedType.type.type.tag == TypeTags.STREAM) {
-            checkExperimentalFeatureValidity(ExperimentalFeatures.STREAMS, constrainedType.pos);
-        }
         analyzeTypeNode(constrainedType.constraint, env);
     }
 
@@ -2233,12 +2214,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     public void visit(BLangFiniteTypeNode finiteTypeNode) {
 
         /* Ignore */
-    }
-
-    @Override
-    public void visit(BLangTableQueryExpression tableQueryExpression) {
-
-        checkExperimentalFeatureValidity(ExperimentalFeatures.TABLE_QUERIES, tableQueryExpression.pos);
     }
 
     @Override
@@ -2736,9 +2711,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
      * @since JBallerina 1.0.0
      */
     private enum ExperimentalFeatures {
-        STREAMS("stream"),
-        TABLE_QUERIES("table queries"),
-        STREAMING_QUERIES("streaming queries"),
         TRANSACTIONS("transaction"),
         LOCK("lock"),
         XML_ACCESS("xml access expression"),

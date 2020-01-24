@@ -1,5 +1,6 @@
 import ballerina/llvm;
 import ballerina/bir;
+import ballerina/io;
 
 type BbBodyGenrator object {
 
@@ -37,19 +38,51 @@ type BbBodyGenrator object {
             self.genBinaryOpIns(instruction);
         } else if (instruction is bir:ConstantLoad) {
             self.genConstantLoadIns(instruction);
+        } else if (instruction is bir:TypeCast) {
+            self.genTypeCast(instruction);
+        } else if (instruction is bir:TypeTest) {
+            self.genTypeTest(instruction);
+        } else if (instruction is bir:NewArray) {
+            self.genNewArray(instruction);
+        } else if (instruction is bir:FieldAccess) {
+            self.genFieldAccess(instruction);
+        } else {
+            io:print("Other Instruction Found : ");
+            typedesc<any> T = typeof instruction;
+            io:println(T.toString());
         }
     }
 
-    function genMoveIns(bir:Move moveIns) {
-        llvm:LLVMValueRef lhsRef = self.parent.getLocalVarRefById(moveIns.lhsOp.variableDcl.name.value);
-        var rhsVarOp = moveIns.rhsOp;
-        llvm:LLVMValueRef rhsVarOpRef = self.parent.genLoadLocalToTempVar(rhsVarOp);
-        var loaded = <llvm:LLVMValueRef> llvm:llvmBuildStore(self.builder, rhsVarOpRef, lhsRef);
+    function genFieldAccess(bir:FieldAccess fieldAccessIns) {
+        FieldAccess fieldAccessInsObj = new(self.builder, self.parent, fieldAccessIns);
+        fieldAccessInsObj.genInstruction();
+    }
+
+    function genNewArray(bir:NewArray newArrayIns) {
+        NewArray newArrayInsObj = new(self.builder, self.parent, newArrayIns);
+        newArrayInsObj.genInstruction();
+    }
+
+    function genTypeTest(bir:TypeTest typeTestIns) {
+        bir:BType rhsOpType = typeTestIns.rhsOp.typeValue;
+        boolean isLhsUnionType = isUnionType(rhsOpType);
+        if (isLhsUnionType) {
+            llvm:LLVMValueRef unionTagValue =
+                        self.parent.loadElementFromStruct(typeTestIns.rhsOp, TAGGED_UNION_FLAG_INDEX);
+            llvm:LLVMValueRef valueOfType = getValueRefFromInt(getTag(typeTestIns.typeValue), 0);
+            llvm:LLVMValueRef isEq = llvm:llvmBuildICmp(self.builder, llvm:LLVMIntEQ, unionTagValue, valueOfType, "typeTest");
+            _ = llvm:llvmBuildStore(self.builder, isEq, self.parent.getLocalVarRef(typeTestIns.lhsOp));
+        } 
+    }
+
+    function genTypeCast(bir:TypeCast castIns) {
+        CastInsGenerator castGen = new(self.builder, self.parent, castIns);
+        castGen.genTypeCast();
     }
 
     function genBinaryOpIns(bir:BinaryOp binaryIns) {
-        var lhsTmpName = localVarName(binaryIns.lhsOp.variableDcl) + "_temp";
-        var lhsRef = self.parent.getLocalVarRefById(binaryIns.lhsOp.variableDcl.name.value);
+        var lhsTmpName = localVariableNameWithPrefix(binaryIns.lhsOp.variableDcl) + "_temp";
+        var lhsRef = self.parent.getLocalVarRef(binaryIns.lhsOp);
         var rhsOp1 = self.parent.genLoadLocalToTempVar(binaryIns.rhsOp1);
         var rhsOp2 = self.parent.genLoadLocalToTempVar(binaryIns.rhsOp2);
         var kind = binaryIns.kind;
@@ -79,13 +112,42 @@ type BbBodyGenrator object {
     }
 
     function genConstantLoadIns(bir:ConstantLoad constLoad) {
-        if !(constLoad.value is int) {
-            error err = error("NotIntErr", message = "invalid value in constLoad");
-            panic err;
+        if (constLoad.value is int) {
+            self.genIntConstLoadIns(constLoad);
+        } else if (constLoad.value is boolean) {
+            self.genBoolConstLoadIns(constLoad);
+        } else {
+            panic error("InvalidDataTypeForConstLoad", message = "Unsupported Data type provided for constant load");
         }
-        llvm:LLVMValueRef lhsRef = self.parent.getLocalVarRefById(constLoad.lhsOp.variableDcl.name.value);
+    }
+
+    function genIntConstLoadIns(bir:ConstantLoad constLoad) {
+        llvm:LLVMValueRef lhsRef = self.parent.getLocalVarRef(constLoad.lhsOp);
         var constRef = llvm:llvmConstInt(llvm:llvmInt64Type(), <int>constLoad.value, 0);
-        var loaded = llvm:llvmBuildStore(self.builder, constRef, <llvm:LLVMValueRef>lhsRef);
+        _ = llvm:llvmBuildStore(self.builder, constRef, <llvm:LLVMValueRef>lhsRef);
+    }
+
+    function genBoolConstLoadIns(bir:ConstantLoad constLoad) {
+        llvm:LLVMValueRef lhsRef = self.parent.getLocalVarRef(constLoad.lhsOp);
+        var constRef = llvm:llvmConstInt(llvm:llvmInt1Type(), <boolean>constLoad.value?1:0, 0);
+        _ = llvm:llvmBuildStore(self.builder, constRef, <llvm:LLVMValueRef>lhsRef);
+    }
+
+    function genMoveIns(bir:Move moveIns) {
+        if (moveIns.lhsOp.typeValue is bir:BUnionType) {
+            self.castLhsOpForMoveIns(moveIns);
+        }
+        llvm:LLVMValueRef lhsRef = self.parent.getLocalVarRef(moveIns.lhsOp);
+        var rhsVarOp = moveIns.rhsOp;
+        llvm:LLVMValueRef rhsVarOpRef = self.parent.genLoadLocalToTempVar(rhsVarOp);
+        _ = llvm:llvmBuildStore(self.builder, rhsVarOpRef, lhsRef);
+    }
+
+    function castLhsOpForMoveIns (bir:Move moveIns) {
+        llvm:LLVMTypeRef castTypePointer = llvm:llvmTypeOf(self.parent.getLocalVarRef(moveIns.rhsOp));
+        llvm:LLVMValueRef castedLhsValPointer =
+          llvm:llvmBuildBitCast(self.builder, self.parent.getLocalVarRef(moveIns.lhsOp), castTypePointer, "moveTempBitCast");
+        self.parent.storeValueRefForLocalVarRef(castedLhsValPointer, moveIns.lhsOp);
     }
 };
 
@@ -110,5 +172,3 @@ function findFuncRefByName(map<FuncGenrator> funcGenrators, bir:Name name) retur
     }
     return <llvm:LLVMValueRef>genrator.funcRef;
 }
-
-

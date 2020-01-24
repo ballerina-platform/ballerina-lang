@@ -26,7 +26,6 @@ import org.apache.commons.lang3.SystemUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.ballerinalang.jvm.util.BLangConstants;
-import org.ballerinalang.langserver.LSGlobalContextKeys;
 import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSContext;
@@ -34,11 +33,6 @@ import org.ballerinalang.langserver.compiler.common.modal.BallerinaPackage;
 import org.ballerinalang.langserver.completions.SymbolInfo;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.ballerinalang.langserver.completions.util.Priority;
-import org.ballerinalang.langserver.index.LSIndexException;
-import org.ballerinalang.langserver.index.LSIndexImpl;
-import org.ballerinalang.langserver.index.dao.BPackageSymbolDAO;
-import org.ballerinalang.langserver.index.dao.DAOType;
-import org.ballerinalang.langserver.index.dto.BPackageSymbolDTO;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
@@ -72,7 +66,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
@@ -104,7 +97,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -391,51 +383,6 @@ public class CommonUtil {
     }
 
     /**
-     * Fill the completion items extracted from LS Index db with the auto import text edits.
-     * Here the Completion Items are mapped against the respective package ID.
-     *
-     * @param completionsMap Completion Map to evaluate
-     * @param ctx            Lang Server Operation Context
-     * @return {@link List} List of modified completion items
-     */
-    public static List<CompletionItem> fillCompletionWithPkgImport(HashMap<Integer, ArrayList<CompletionItem>>
-                                                                           completionsMap, LSContext ctx) {
-        LSIndexImpl lsIndex = ctx.get(LSGlobalContextKeys.LS_INDEX_KEY);
-        List<CompletionItem> returnList = new ArrayList<>();
-        completionsMap.forEach((integer, completionItems) -> {
-            try {
-                BPackageSymbolDTO dto = ((BPackageSymbolDAO) lsIndex.getDaoFactory().get(DAOType.PACKAGE_SYMBOL))
-                        .get(integer);
-                completionItems.forEach(completionItem -> {
-                    List<TextEdit> textEdits = CommonUtil.getAutoImportTextEdits(dto.getOrgName(), dto.getName(), ctx);
-                    completionItem.setAdditionalTextEdits(textEdits);
-                    returnList.add(completionItem);
-                });
-            } catch (LSIndexException e) {
-                logger.error("Error While retrieving Package Symbol for text edits");
-            }
-        });
-
-        return returnList;
-    }
-
-    /**
-     * Populate the given map with the completion item.
-     *
-     * @param map            ID to completion item map
-     * @param id             pkg id in index
-     * @param completionItem completion item to populate
-     */
-    public static void populateIdCompletionMap(HashMap<Integer, ArrayList<CompletionItem>> map, int id,
-                                               CompletionItem completionItem) {
-        if (map.containsKey(id)) {
-            map.get(id).add(completionItem);
-        } else {
-            map.put(id, new ArrayList<>(Collections.singletonList(completionItem)));
-        }
-    }
-
-    /**
      * Get the annotation Insert text.
      *
      * @param aliasComponent   Package ID
@@ -538,7 +485,6 @@ public class CommonUtil {
                 List<BType> memberTypes = new ArrayList<>(((BUnionType) bType).getMemberTypes());
                 typeString = getDefaultValueForType(memberTypes.get(0));
                 break;
-            case STREAM:
             default:
                 typeString = "()";
                 break;
@@ -789,9 +735,6 @@ public class CommonUtil {
         }
         if (bType instanceof BMapType) {
             return ((BMapType) bType).constraint;
-        }
-        if (bType instanceof BStreamType) {
-            return ((BStreamType) bType).constraint;
         }
         if (bType instanceof BTypedescType) {
             return ((BTypedescType) bType).constraint;
@@ -1371,28 +1314,6 @@ public class CommonUtil {
         return ((symbol.flags & Flags.LANG_LIB) == Flags.LANG_LIB);
     }
 
-    public static BPackageSymbolDTO getPackageSymbolDTO(LSContext ctx, String pkgName) {
-        Optional bLangImport = getCurrentFileImports(ctx).stream()
-                .filter(importPkg -> importPkg.getAlias().getValue().equals(pkgName))
-                .findFirst();
-        String realPkgName;
-        String realOrgName;
-
-        if (bLangImport.isPresent()) {
-            // There is an added import statement.
-            realPkgName = CommonUtil.getPackageNameComponentsCombined(((BLangImportPackage) bLangImport.get()));
-            realOrgName = ((BLangImportPackage) bLangImport.get()).getOrgName().getValue();
-        } else {
-            realPkgName = pkgName;
-            realOrgName = "";
-        }
-
-        return new BPackageSymbolDTO.BPackageSymbolDTOBuilder()
-                .setName(realPkgName)
-                .setOrgName(realOrgName)
-                .build();
-    }
-
     /**
      * Get the path from given string URI.
      *
@@ -1401,7 +1322,7 @@ public class CommonUtil {
      */
     public static Optional<Path> getPathFromURI(String uri) {
         try {
-            return Optional.ofNullable(Paths.get(new URL(uri).toURI()));
+            return Optional.of(Paths.get(new URL(uri).toURI()));
         } catch (URISyntaxException | MalformedURLException e) {
             // ignore
         }

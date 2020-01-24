@@ -23,6 +23,7 @@ import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
@@ -30,6 +31,7 @@ import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -316,7 +318,7 @@ public class ConfigTest {
         inputArg = new BValue[]{new BString("trace.enabled")};
         returnVals = BRunUtil.invoke(compileResult, "testGetAsBoolean", inputArg);
         Assert.assertTrue(returnVals[0] instanceof BBoolean);
-        Assert.assertEquals(((BBoolean) returnVals[0]).booleanValue(), true);
+        Assert.assertTrue(((BBoolean) returnVals[0]).booleanValue());
 
         inputArg = new BValue[]{new BString("evic_factor")};
         returnVals = BRunUtil.invoke(compileResult, "testGetAsFloat", inputArg);
@@ -403,6 +405,29 @@ public class ConfigTest {
         registry.initRegistry(new HashMap<>(), null, ballerinaConfPath);
 
         BRunUtil.invoke(compileResult, "testGetAsBoolean", inputArg);
+    }
+
+    @Test(description = "Test retrieving a config value as an array")
+    public void testGetAsArray() throws IOException {
+        BString key = new BString("listenerConfig.keyStore.paths");
+        BValue[] inputArg = {key};
+        registry.initRegistry(new HashMap<>(), null, ballerinaConfPath);
+        BValue[] returnValues = BRunUtil.invoke(compileResult, "testGetAsArray", inputArg);
+        Assert.assertTrue(returnValues[0] instanceof BString);
+        Assert.assertEquals(returnValues[0].stringValue(), "/etc");
+        Assert.assertEquals(returnValues[1].stringValue(), "/tmp");
+        Assert.assertEquals(returnValues[2].stringValue(), "/usr/lib/");
+    }
+
+    @Test(description = "Test retrieving a config value as an int array")
+    public void testGetAsArray2() throws IOException {
+        BString key = new BString("listenerConfig.keyStore.ports");
+        BValue[] inputArg = {key};
+        registry.initRegistry(new HashMap<>(), null, ballerinaConfPath);
+        BValue[] returnValues = BRunUtil.invoke(compileResult, "testGetAsArray2", inputArg);
+        Assert.assertTrue(returnValues[0] instanceof BValueArray);
+        Assert.assertTrue((((BValueArray) returnValues[0]).elementType).getTag() == TypeTags.INT);
+        Assert.assertEquals((returnValues[0]).stringValue(), "[9090, 9091, 9092]");
     }
 
     private Map<String, String> getRuntimeProperties() {

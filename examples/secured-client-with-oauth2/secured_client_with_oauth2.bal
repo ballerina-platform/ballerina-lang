@@ -126,7 +126,7 @@ public function main() {
             log:printError("Failed to retrieve payload for clientEP1.");
         }
     } else {
-        log:printError("Failed to call the endpoint from clientEP1.", err = response1);
+        log:printError("Failed to call the endpoint from clientEP1.", response1);
     }
 
     // Send a `GET` request to the specified endpoint.
@@ -139,7 +139,7 @@ public function main() {
             log:printError("Failed to retrieve payload for clientEP2.");
         }
     } else {
-        log:printError("Failed to call the endpoint from clientEP2.", err = response2);
+        log:printError("Failed to call the endpoint from clientEP2.", response2);
     }
 
     // Send a `GET` request to the specified endpoint.
@@ -152,6 +152,6 @@ public function main() {
             log:printInfo(<string> result.kind);
         }
     } else {
-        log:printError("Failed to call the endpoint from clientEP3.", err = response3);
+        log:printError("Failed to call the endpoint from clientEP3.", response3);
     }
 }

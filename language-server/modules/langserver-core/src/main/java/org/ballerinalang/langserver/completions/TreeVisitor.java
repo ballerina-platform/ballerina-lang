@@ -23,6 +23,7 @@ import org.ballerinalang.langserver.common.LSNodeVisitor;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSContext;
+import org.ballerinalang.langserver.completions.exceptions.CompletionContextNotSupportedException;
 import org.ballerinalang.langserver.completions.util.CompletionVisitorUtil;
 import org.ballerinalang.langserver.completions.util.CursorPositionResolvers;
 import org.ballerinalang.langserver.completions.util.positioning.resolvers.BlockStatementScopeResolver;
@@ -88,7 +89,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangCompoundAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangForever;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
@@ -832,15 +832,8 @@ public class TreeVisitor extends LSNodeVisitor {
         int eCol = pos.eCol;
         
         if ((sLine < cLine && eLine > cLine) || (sLine == cLine && eLine == cLine && cCol >= sCol && cCol <= eCol)) {
-            this.terminateVisitor = true;
-            this.lsContext.put(DocumentServiceKeys.TERMINATE_OPERATION_KEY, true);
+            throw new CompletionContextNotSupportedException("Completion within Literals are not Supported");
         }
-    }
-
-    @Override
-    public void visit(BLangForever foreverStatement) {
-        CursorPositionResolvers.getResolverByClass(this.cursorPositionResolver)
-                .isCursorBeforeNode(foreverStatement.pos, this, this.lsContext, foreverStatement, null);
     }
 
     @Override

@@ -75,10 +75,9 @@ type BbTermGenrator object {
         var printLnIntPatten = llvm:llvmBuildGlobalStringPtr(self.builder, printfPatten, "");
         llvm:LLVMValueRef[] printArgs = [printLnIntPatten];
         appendAllTo(printArgs, args);
-        if (printfRef is llvm:LLVMValueRef) {
-            llvm:LLVMValueRef callReturn = llvm:llvmBuildCall(self.builder, <llvm:LLVMValueRef>printfRef, printArgs,
+        var printfRef = nativeFunctionBuilder.getFunctionValueRef("print");
+        llvm:LLVMValueRef callReturn = llvm:llvmBuildCall(self.builder, printfRef, printArgs,
                         printArgs.length(), "");
-        }
     }
 
     function genCallToSamePkgFunc(map<FuncGenrator> funcGenrators, bir:Call callIns, llvm:LLVMValueRef[] args) {
@@ -86,14 +85,14 @@ type BbTermGenrator object {
         llvm:LLVMValueRef callReturn = llvm:llvmBuildCall(self.builder, calleFuncRef, args, args.length(), "");
         if (callIns.lhsOp is bir:VarRef) {
             bir:VarRef lhsOpVar = <bir:VarRef>callIns.lhsOp;
-            var lhsRef = self.parent.getLocalVarRefById(lhsOpVar.variableDcl.name.value);
+            var lhsRef = self.parent.getLocalVarRef(lhsOpVar);
             var loaded = llvm:llvmBuildStore(self.builder, callReturn, <llvm:LLVMValueRef> lhsRef);
         }
     }
 
     function genReturnTerm() {
         if (self.parent.isVoidFunc()){
-            var lhsRef = self.parent.getLocalVarRefById("%0");
+            var lhsRef = self.parent.getLocalVarRefById("0");
             var retValueRef = llvm:llvmBuildLoad(self.builder, <llvm:LLVMValueRef> lhsRef, "retrun_temp");
             var ret = llvm:llvmBuildRet(self.builder, retValueRef);
         } else {

@@ -111,13 +111,11 @@ public class ReferencesUtil {
     public static SymbolReferencesModel.Reference getReferenceAtCursor(LSContext context, LSDocument document,
                                                                        Position position)
             throws WorkspaceDocumentException, CompilationFailedException {
-        WorkspaceDocumentManager documentManager = context.get(CommonKeys.DOC_MANAGER_KEY);
         TextDocumentIdentifier textDocIdentifier = new TextDocumentIdentifier(document.getURIString());
         TextDocumentPositionParams pos = new TextDocumentPositionParams(textDocIdentifier, position);
         context.put(DocumentServiceKeys.POSITION_KEY, pos);
         context.put(DocumentServiceKeys.FILE_URI_KEY, document.getURIString());
         context.put(DocumentServiceKeys.COMPILE_FULL_PROJECT, true);
-        context.put(CommonKeys.DOC_MANAGER_KEY, documentManager);
         List<BLangPackage> modules = ReferencesUtil.compileModulesAndFindReferences(context);
         prepareReferences(modules, context);
         SymbolReferencesModel referencesModel = context.get(NodeContextKeys.REFERENCES_KEY);
@@ -189,7 +187,7 @@ public class ReferencesUtil {
     private static List<BLangPackage> compileModulesAndFindReferences(LSContext context)
             throws WorkspaceDocumentException, CompilationFailedException {
         String fileUri = context.get(DocumentServiceKeys.FILE_URI_KEY);
-        WorkspaceDocumentManager docManager = context.get(CommonKeys.DOC_MANAGER_KEY);
+        WorkspaceDocumentManager docManager = context.get(DocumentServiceKeys.DOC_MANAGER_KEY);
         Position position = context.get(DocumentServiceKeys.POSITION_KEY).getPosition();
         Boolean compileProject = context.get(DocumentServiceKeys.COMPILE_FULL_PROJECT);
         Optional<Path> defFilePath = CommonUtil.getPathFromURI(fileUri);

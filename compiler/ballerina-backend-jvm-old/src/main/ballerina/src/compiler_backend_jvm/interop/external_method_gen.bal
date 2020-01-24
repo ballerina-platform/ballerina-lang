@@ -23,6 +23,7 @@ type OldStyleExternalFunctionWrapper record {|
     string jClassName;
     bir:BType?[] jMethodPramTypes;
     string jMethodVMSig;
+    string? jMethodVMSigBString = ();
 |};
 
 public type JavaMethodCall record  {|
@@ -32,6 +33,7 @@ public type JavaMethodCall record  {|
     bir:VarRef? lhsOp;
     string jClassName;
     string jMethodVMSig;
+    string jMethodVMSigBString;
     string name;
     bir:BasicBlock thenBB;
 |};
@@ -112,9 +114,11 @@ function desugarOldExternFuncs(bir:Package module, OldStyleExternalFunctionWrapp
         birFuncParamIndex += 1;
     }
 
-    string jMethodName = birFunc.name.value;
+    string jMethodName = nameOfNonBStringFunc(birFunc.name.value);
     JavaMethodCall jCall = {pos:birFunc.pos, args:args, kind:bir:TERMINATOR_PLATFORM, lhsOp:retRef,
-                                jClassName:extFuncWrapper.jClassName, name:jMethodName, jMethodVMSig:extFuncWrapper.jMethodVMSig, thenBB:retBB};
+                                jClassName:extFuncWrapper.jClassName, name:jMethodName,
+                                jMethodVMSigBString: extFuncWrapper.jMethodVMSigBString ?: "<error>",
+                                jMethodVMSig: extFuncWrapper.jMethodVMSig, thenBB:retBB};
     beginBB.terminator = jCall;
 
     bir:Return ret = {pos:birFunc.pos, kind:bir:TERMINATOR_RETURN};
@@ -137,7 +141,7 @@ function lookupBIRFunctionWrapper(bir:Package birModule, bir:Function birFunc,
                                     bir:BType? attachedType = ()) returns BIRFunctionWrapper {
     string lookupKey;
     var currentPackageName = getPackageName(birModule.org.value, birModule.name.value);
-    string birFuncName = birFunc.name.value;
+    string birFuncName = nameOfNonBStringFunc(birFunc.name.value);
 
     if attachedType is () {
         lookupKey = currentPackageName + birFuncName;
@@ -202,8 +206,12 @@ function createOldStyleExternalFunctionWrapper(bir:Function birFunc, string orgN
     bir:BType? attachedType = receiver is bir:VariableDcl ? receiver.typeValue : ();
     string jvmMethodDescription = getMethodDesc(functionTypeDesc.paramTypes, <bir:BType?> functionTypeDesc?.retType,
                                                 attachedType = attachedType);
+    string jvmMethodDescriptionBString = getMethodDesc(functionTypeDesc.paramTypes, <bir:BType?> functionTypeDesc?.retType,
+                                                attachedType = attachedType, useBString = true);
     string jMethodVMSig = getMethodDesc(jMethodPramTypes, <bir:BType?> functionTypeDesc?.retType,
                                         attachedType = attachedType, isExtern = true);
+    string jMethodVMSigBString = getMethodDesc(jMethodPramTypes, <bir:BType?> functionTypeDesc?.retType,
+                                        attachedType = attachedType, isExtern = true, useBString = true);
 
     return {
         orgName : orgName,
@@ -212,8 +220,10 @@ function createOldStyleExternalFunctionWrapper(bir:Function birFunc, string orgN
         func : birFunc,
         fullQualifiedClassName : birModuleClassName,
         jvmMethodDescription : jvmMethodDescription,
+        jvmMethodDescriptionBString : jvmMethodDescriptionBString,
         jClassName: jClassName,
         jMethodPramTypes: jMethodPramTypes,
+        jMethodVMSigBString: jMethodVMSigBString,
         jMethodVMSig: jMethodVMSig
     };
 }

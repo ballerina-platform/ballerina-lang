@@ -18,7 +18,6 @@ package org.ballerinax.jdbc.table;
 
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BDecimal;
-import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
@@ -767,22 +766,6 @@ public class TableTypeTest {
         Assert.assertTrue(returns[1] instanceof BInteger);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 2);
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 2);
-    }
-
-    @Test
-    public void testSelectQueryWithCursorTable() {
-        BValue[] retVal = BRunUtil.invoke(result, "testSelectQueryWithCursorTable", args);
-        Assert.assertTrue(retVal[0] instanceof BError);
-        Assert.assertTrue(((BError) retVal[0]).getDetails().stringValue()
-                .contains("Table query over a cursor table not supported"));
-    }
-
-    @Test
-    public void testJoinQueryWithCursorTable() {
-        BValue[] retVal = BRunUtil.invoke(result, "testJoinQueryWithCursorTable", args);
-        Assert.assertTrue(retVal[0] instanceof BError);
-        Assert.assertTrue(((BError) retVal[0]).getDetails().stringValue()
-                .contains("Table query over a cursor table not supported"));
     }
 
     @Test(groups = TABLE_TEST,

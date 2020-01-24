@@ -20,9 +20,14 @@ package org.ballerinalang.stdlib.config;
 
 import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.jvm.BallerinaErrors;
+import org.ballerinalang.jvm.types.BArrayType;
+import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
+import org.ballerinalang.jvm.values.api.BArray;
+import org.ballerinalang.jvm.values.api.BValueCreator;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -47,11 +52,13 @@ public class GetConfig {
                     return configRegistry.getAsBoolean(configKey);
                 case "MAP":
                     return buildMapValue(configRegistry.getAsMap(configKey));
+                case "ARRAY":
+                    return buildArrayValue(configRegistry.getAsArray(configKey));
                 default:
                     throw new IllegalStateException("invalid value type: " + type);
             }
         } catch (IllegalArgumentException e) {
-            throw BallerinaErrors.createError(LOOKUP_ERROR_REASON,  e.getMessage());
+            throw BallerinaErrors.createError(LOOKUP_ERROR_REASON, e.getMessage());
         }
     }
 
@@ -65,5 +72,9 @@ public class GetConfig {
             }
         });
         return map;
+    }
+
+    private static BArray buildArrayValue(List value) {
+        return BValueCreator.createArrayValue(value.toArray(), new BArrayType(BTypes.typeAnydata));
     }
 }

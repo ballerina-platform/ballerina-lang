@@ -94,7 +94,7 @@ public class LSCompilerCache {
      * @param context   {@link LSContext}
      * @param sourceRoot source root
      */
-    public static synchronized void clear(LSServiceOperationContext context, String sourceRoot) {
+    public static synchronized void clear(LSContext context, String sourceRoot) {
         // Remove matching entries in parallel #threadSafe
         AtomicInteger count = new AtomicInteger(0);
         packageMap.keySet().stream().filter(p -> p.sourceRoot.equals(sourceRoot)).forEach(k -> {

@@ -72,6 +72,7 @@
             <class name="org.ballerinalang.test.service.http.sample.SerializeComplexXmlTestCase"/>
             <class name="org.ballerinalang.test.service.http.sample.HTTPListenerMethodTestCase"/>
             <class name="org.ballerinalang.test.service.http.sample.HTTPCookiesTestCase"/>
+            <class name="org.ballerinalang.test.service.http.sample.HttpUrlTestCase"/>
         </classes>
     </test>
 
@@ -246,6 +247,7 @@
             <class name="org.ballerinalang.test.service.websub.basic.WebSubContentTypeSupportTestCase"/>
             <class name="org.ballerinalang.test.service.websub.basic.WebSubDiscoveryWithMultipleSubscribersTestCase"/>
             <class name="org.ballerinalang.test.service.websub.basic.WebSubRedirectionTestCase"/>
+            <class name="org.ballerinalang.test.service.websub.basic.WebSubStartupFunctionalityTestCase"/>
         </classes>
     </test>
 

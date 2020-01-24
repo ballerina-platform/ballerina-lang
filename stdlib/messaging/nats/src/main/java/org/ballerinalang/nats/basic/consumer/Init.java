@@ -20,7 +20,9 @@ package org.ballerinalang.nats.basic.consumer;
 
 import io.nats.client.Dispatcher;
 import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.nats.Constants;
 
+import java.util.ArrayList;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -40,5 +42,7 @@ public class Init {
         // Initialize dispatcher list to use in service register and listener close.
         ConcurrentHashMap<String, Dispatcher> dispatcherList = new ConcurrentHashMap<>();
         listenerObject.addNativeData(DISPATCHER_LIST, dispatcherList);
+        ArrayList<String> subscriptionsList = new ArrayList<>();
+        listenerObject.addNativeData(Constants.BASIC_SUBSCRIPTION_LIST, subscriptionsList);
     }
 }

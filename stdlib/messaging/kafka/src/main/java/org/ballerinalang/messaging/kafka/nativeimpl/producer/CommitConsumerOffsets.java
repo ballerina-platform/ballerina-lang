@@ -24,8 +24,11 @@ import org.apache.kafka.common.KafkaException;
 import org.apache.kafka.common.TopicPartition;
 import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.api.BArray;
+import org.ballerinalang.messaging.kafka.observability.KafkaMetricsUtil;
+import org.ballerinalang.messaging.kafka.observability.KafkaObservabilityConstants;
+import org.ballerinalang.messaging.kafka.observability.KafkaTracingUtil;
 
 import java.util.Map;
 
@@ -40,10 +43,11 @@ import static org.ballerinalang.messaging.kafka.utils.TransactionUtils.handleTra
  */
 public class CommitConsumerOffsets {
 
-    public static Object commitConsumerOffsets(ObjectValue producerObject, ArrayValue offsets,
+    public static Object commitConsumerOffsets(ObjectValue producerObject, BArray offsets,
                                                String groupId) {
         Strand strand = Scheduler.getStrand();
-        KafkaProducer<byte[], byte[]> kafkaProducer = (KafkaProducer) producerObject.getNativeData(NATIVE_PRODUCER);
+        KafkaTracingUtil.traceResourceInvocation(strand, producerObject);
+        KafkaProducer kafkaProducer = (KafkaProducer) producerObject.getNativeData(NATIVE_PRODUCER);
         Map<TopicPartition, OffsetAndMetadata> partitionToMetadataMap = getPartitionToMetadataMap(offsets);
         try {
             if (strand.isInTransaction()) {
@@ -51,6 +55,7 @@ public class CommitConsumerOffsets {
             }
             kafkaProducer.sendOffsetsToTransaction(partitionToMetadataMap, groupId);
         } catch (IllegalStateException | KafkaException e) {
+            KafkaMetricsUtil.reportProducerError(producerObject, KafkaObservabilityConstants.ERROR_TYPE_COMMIT);
             return createKafkaError("Failed to commit consumer offsets: " + e.getMessage(), PRODUCER_ERROR);
         }
         return null;

@@ -245,6 +245,10 @@
             {
                 "name": "Object Type Reference",
                 "url": "object-type-reference"
+            },
+            {
+                "name": "Iterable Objects",
+                "url": "iterable-objects"
             }
         ]
     },
@@ -1026,6 +1030,10 @@
                 "url": "secured-service-with-basic-auth"
             },
             {
+                "name": "Secured Service with OAuth2",
+                "url": "secured-service-with-oauth2"
+            },
+            {
                 "name": "Secured Client with Basic Auth",
                 "url": "secured-client-with-basic-auth"
             },
@@ -1050,36 +1058,6 @@
         ]
     },
     {
-        "title": "Streams",
-        "column": 1,
-        "category": "Experimental features",
-        "samples": [{
-                "name": "Streams",
-                "url": "streams"
-            },
-            {
-              "name": "Simple Filtering",
-              "url": "simple-filtering"
-            },
-            {
-              "name": "Projection",
-              "url": "projection"
-            },
-            {
-                "name": "Temporal Aggregations",
-                "url": "temporal-aggregations-and-windows"
-            },
-            {
-                "name": "Join Multiple Streams",
-                "url": "join-multiple-streams"
-            },
-            {
-              "name": "Join Tables and Streams",
-              "url": "join-tables-and-streams"
-            }
-        ]
-    },
-    {
         "title": "Transactions",
         "column": 2,
         "category": "Experimental features",
@@ -1098,40 +1076,6 @@
             {
                 "name": "Distributed Transactions",
                 "url": "transactions-distributed"
-            }
-        ]
-    },
-    {
-        "title": "Table Queries",
-        "column": 3,
-        "category": "Experimental features",
-        "samples": [{
-                "name": "Select all the fields",
-                "url": "table-queries"
-            },
-            {
-                "name": "Select a few field for the output",
-                "url": "table-queries-select-with-few-output-fields"
-            },
-            {
-                "name": "Select with filtering",
-                "url": "table-queries-select-with-filtering"
-            },
-            {
-                "name": "Select with order-by clause",
-                "url": "table-queries-select-with-order-by"
-            },
-            {
-                "name": "Select with group-by clause",
-                "url": "table-queries-select-with-group-by"
-            },
-            {
-                "name": "Join two tables",
-                "url": "table-queries-join"
-            },
-            {
-                "name": "Join two tables with filtering",
-                "url": "table-queries-join-with-filtering"
             }
         ]
     }

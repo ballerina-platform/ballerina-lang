@@ -61,7 +61,7 @@ type T2 record {|
 public type TX record {
     int x = 0;
     int y = 0;
-    byte[] b = [];
+    xml[] xmls = [xml `hello`];
 };
 
 type Manager record {

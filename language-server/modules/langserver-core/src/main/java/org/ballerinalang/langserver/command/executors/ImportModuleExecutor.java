@@ -67,7 +67,7 @@ public class ImportModuleExecutor implements LSCommandExecutor {
             }
         }
 
-        WorkspaceDocumentManager documentManager = context.get(CommonKeys.DOC_MANAGER_KEY);
+        WorkspaceDocumentManager documentManager = context.get(DocumentServiceKeys.DOC_MANAGER_KEY);
         if (documentUri != null && context.get(ExecuteCommandKeys.PKG_NAME_KEY) != null) {
             try {
                 LSModuleCompiler.getBLangPackage(context, documentManager, LSCustomErrorStrategy.class, false, false);

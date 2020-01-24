@@ -1556,44 +1556,6 @@ function getXMLConversionResult(table<record {}> | error tableOrError) returns x
     return retVal;
 }
 
-function testSelectQueryWithCursorTable(string jdbcURL) returns @tainted error? {
-    jdbc:Client testDB = new ({
-        url: jdbcURL,
-        username: "SA",
-        password: "",
-        poolOptions: {maximumPoolSize: 1}
-    });
-
-    table<IntData> t1 = check testDB->select("SELECT int_type from DataTable WHERE row_id = 1", IntData);
-    error? e = trap testSelectQueryWithCursorTableHelper(t1);
-    t1.close();
-    checkpanic testDB.stop();
-    return e;
-}
-
-function testSelectQueryWithCursorTableHelper(table<IntData> t1) {
-    table<IntData> t1Copy = from t1
-    select *;
-}
-
-function testJoinQueryWithCursorTable(string jdbcURL) returns @tainted error? {
-    jdbc:Client testDB = new ({
-        url: jdbcURL,
-        username: "SA",
-        password: "",
-        poolOptions: {maximumPoolSize: 2}
-    });
-
-    table<IntData> t1 = check testDB->select("SELECT int_type from DataTable WHERE row_id = 1", IntData);
-    table<IntData> t2 = check testDB->select("SELECT int_type from DataTable WHERE row_id = 1", IntData);
-
-    error? e = trap testJoinQueryWithCursorTableHelper(t1, t2);
-    t1.close();
-    t2.close();
-    checkpanic testDB.stop();
-    return e;
-}
-
 function testTypeCheckingConstrainedCursorTableWithClosedConstraint(string jdbcURL) returns @tainted [int, int, float,
     float, boolean, string] {
     jdbc:Client testDB = new ({
@@ -1624,13 +1586,6 @@ function testTypeCheckingConstrainedCursorTableWithClosedConstraint(string jdbcU
     }
     checkpanic testDB.stop();
     return [i, l, f, d, b, s];
-}
-
-function testJoinQueryWithCursorTableHelper(table<IntData> t1, table<IntData> t2) {
-    table<IntData> joinedTable = from t1 as table1
-    join t2 as table2 on
-    table1.int_type == table2.int_type
-    select table1.int_type as int_type;
 }
 
 function testAssignStringValueToJsonField(string jdbcURL) returns @tainted json {

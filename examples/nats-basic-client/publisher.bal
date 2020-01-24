@@ -10,7 +10,7 @@ public function main() {
     string message = "";
     string subject = io:readln("Subject : ");
     // Initializes a producer.
-    nats:Connection connection = new("nats://localhost:4222");
+    nats:Connection connection = new();
     nats:Producer producer = new(connection);
     while (message != ESCAPE) {
         message = io:readln("Message : ");

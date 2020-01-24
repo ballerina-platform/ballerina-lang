@@ -52,8 +52,8 @@ public class KafkaConstants {
 
     public static final String NATIVE_CONSUMER = "KafkaConsumer";
     public static final String NATIVE_PRODUCER = "KafkaProducer";
-    public static final String NATIVE_PRODUCER_CONFIG = "KafkaProducerConfig";
     public static final String NATIVE_CONSUMER_CONFIG = "KafkaConsumerConfig";
+    public static final String NATIVE_PRODUCER_CONFIG = "KafkaProducerConfig";
     public static final String CONNECTOR_ID = "connectorId";
 
     public static final String TRANSACTION_CONTEXT = "TransactionInitiated";
@@ -94,16 +94,6 @@ public class KafkaConstants {
     public static final String ALIAS_OFFSET = "offset";
     public static final String ALIAS_DURATION = "duration";
 
-    public static final String DEFAULT_KEY_DESERIALIZER
-            = "org.apache.kafka.common.serialization.ByteArrayDeserializer";
-    public static final String DEFAULT_VALUE_DESERIALIZER
-            = "org.apache.kafka.common.serialization.ByteArrayDeserializer";
-
-    public static final String DEFAULT_KEY_SERIALIZER
-            = "org.apache.kafka.common.serialization.ByteArraySerializer";
-    public static final String DEFAULT_VALUE_SERIALIZER
-            = "org.apache.kafka.common.serialization.ByteArraySerializer";
-
     // Consumer Configuration.
     public static final String CONSUMER_BOOTSTRAP_SERVERS_CONFIG = "bootstrapServers";
     public static final String CONSUMER_GROUP_ID_CONFIG = "groupId";
@@ -115,6 +105,8 @@ public class KafkaConstants {
     public static final String CONSUMER_INTERCEPTOR_CLASSES_CONFIG = "interceptorClasses";
     public static final String CONSUMER_ISOLATION_LEVEL_CONFIG = "isolationLevel";
     public static final String CONSUMER_TOPICS_CONFIG = "topics";
+    public static final String CONSUMER_KEY_DESERIALIZER_CONFIG = "keyDeserializer";
+    public static final String CONSUMER_VALUE_DESERIALIZER_CONFIG = "valueDeserializer";
 
     public static final String CONSUMER_SESSION_TIMEOUT_MS_CONFIG = "sessionTimeoutInMillis";
     public static final String CONSUMER_HEARTBEAT_INTERVAL_MS_CONFIG = "heartBeatIntervalInMillis";
@@ -150,6 +142,8 @@ public class KafkaConstants {
     public static final String PRODUCER_PARTITIONER_CLASS_CONFIG = "partitionerClass";
     public static final String PRODUCER_INTERCEPTOR_CLASSES_CONFIG = "interceptorClasses";
     public static final String PRODUCER_TRANSACTIONAL_ID_CONFIG = "transactionalId";
+    public static final String PRODUCER_KEY_SERIALIZER_CONFIG = "keySerializer";
+    public static final String PRODUCER_VALUE_SERIALIZER_CONFIG = "valueSerializer";
     public static final String PRODUCER_BUFFER_MEMORY_CONFIG = "bufferMemory";
     public static final String PRODUCER_RETRIES_CONFIG = "retryCount";
     public static final String PRODUCER_BATCH_SIZE_CONFIG = "batchSize";
@@ -190,6 +184,30 @@ public class KafkaConstants {
     public static final String SSL_ENDPOINT_IDENTIFICATION_ALGORITHM_CONFIG = "sslEndpointIdentificationAlgorithm";
     public static final String SSL_SECURE_RANDOM_IMPLEMENTATION_CONFIG = "sslSecureRandomImplementation";
 
+    // Serializer - Deserializer names
+    // Ballerina String Names
+    public static final String SERDES_BYTE_ARRAY = "BYTE_ARRAY";
+    public static final String SERDES_STRING = "STRING";
+    public static final String SERDES_INT = "INT";
+    public static final String SERDES_FLOAT = "FLOAT";
+
+    // Default class names
+    // Serializers
+    public static final String BYTE_ARRAY_SERIALIZER = "org.apache.kafka.common.serialization.ByteArraySerializer";
+    public static final String STRING_SERIALIZER = "org.apache.kafka.common.serialization.StringSerializer";
+    public static final String INT_SERIALIZER = "org.apache.kafka.common.serialization.LongSerializer";
+    public static final String FLOAT_SERIALIZER = "org.apache.kafka.common.serialization.DoubleSerializer";
+
+    // Deserializers
+    public static final String BYTE_ARRAY_DESERIALIZER = "org.apache.kafka.common.serialization.ByteArrayDeserializer";
+    public static final String STRING_DESERIALIZER = "org.apache.kafka.common.serialization.StringDeserializer";
+    public static final String INT_DESERIALIZER = "org.apache.kafka.common.serialization.LongDeserializer";
+    public static final String FLOAT_DESERIALIZER = "org.apache.kafka.common.serialization.DoubleDeserializer";
+
     // Warning suppression
     public static final String UNCHECKED = "unchecked";
+
+    //Properties constants
+    public static final String BOOTSTRAP_SERVERS = "bootstrap.servers";
+    public static final String CLIENT_ID = "client.id";
 }
