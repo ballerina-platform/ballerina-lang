@@ -15,9 +15,12 @@
 // under the License.
 
 import ballerina/auth;
+import ballerina/cache;
 import ballerina/http;
+import ballerina/log;
 import ballerina/mime;
 import ballerina/stringutils;
+import ballerina/time;
 
 # Represents inbound OAuth2 provider, which calls the introspection server and validate the received credentials.
 #
@@ -29,10 +32,14 @@ public type InboundOAuth2Provider object {
 
     public http:Client introspectionClient;
     public string? tokenTypeHint;
+    cache:Cache? oauth2Cache;
+    int defaultTokenExpTimeInSeconds;
 
     public function __init(IntrospectionServerConfig config) {
         self.tokenTypeHint = config?.tokenTypeHint;
         self.introspectionClient = new(config.url, config.clientConfig);
+        self.oauth2Cache = config?.oauth2Cache;
+        self.defaultTokenExpTimeInSeconds = config.defaultTokenExpTimeInSeconds;
     }
 
     # Attempts to authenticate with credential.
@@ -43,9 +50,17 @@ public type InboundOAuth2Provider object {
         if (credential == "") {
             return false;
         }
-        boolean authenticated = false;
-        string username = "";
-        string scopes = "";
+
+        var oauth2Cache = self.oauth2Cache;
+        if (oauth2Cache is cache:Cache && oauth2Cache.hasKey(credential)) {
+            var oauth2CacheEntry = authenticateFromCache(oauth2Cache, credential);
+            if (oauth2CacheEntry is InboundOAuth2CacheEntry) {
+                auth:setAuthenticationContext("oauth2", credential);
+                auth:setPrincipal(oauth2CacheEntry.username, oauth2CacheEntry.username,
+                                  getScopes(oauth2CacheEntry.scopes));
+                return true;
+            }
+        }
 
         // Build the request to be send to the introspection endpoint.
         // Refer: https://tools.ietf.org/html/rfc7662#section-2.1
@@ -63,28 +78,61 @@ public type InboundOAuth2Provider object {
                 return <@untainted> prepareAuthError(result.reason(), result);
             }
 
-            json payload = <json> result;
+            json payload = <json>result;
             boolean active = <boolean>payload.active;
             if (active) {
-                authenticated = true;
+                string? username = ();
+                string? scopes = ();
+                int? exp = ();
+
                 if (payload.username is string) {
-                    username = <string>payload.username;
+                    username = <@untainted> <string>payload.username;
                 }
                 if (payload.scope is string) {
-                    scopes = <string>payload.scope;
+                    scopes = <@untainted> <string>payload.scope;
                 }
+                if (payload.exp is int) {
+                    exp = <@untainted> <int>payload.exp;
+                } else {
+                    exp = self.defaultTokenExpTimeInSeconds +  (time:currentTime().time / 1000);
+                }
+
+                if (oauth2Cache is cache:Cache) {
+                    addToAuthenticationCache(oauth2Cache, credential, username, scopes, exp);
+                }
+                auth:setAuthenticationContext("oauth2", credential);
+                auth:setPrincipal(username, username, getScopes(scopes ?: ""));
+                return true;
             }
+            return false;
         } else {
             return prepareAuthError("Failed to call the introspection endpoint.", response);
         }
-
-        if (authenticated) {
-            auth:setAuthenticationContext("oauth2", credential);
-            auth:setPrincipal(username, username, getScopes(scopes));
-        }
-        return authenticated;
     }
 };
+
+function addToAuthenticationCache(cache:Cache oauth2Cache, string token, string? username, string? scopes, int? exp) {
+    InboundOAuth2CacheEntry oauth2CacheEntry = {username: username ?: "", scopes: scopes ?: "", expTime: exp ?: 0};
+    oauth2Cache.put(token, oauth2CacheEntry);
+    if (username is string) {
+        string user = username;
+        log:printDebug(function() returns string {
+            return "Add authenticated user: " + user + " to the cache.";
+        });
+    }
+}
+
+function authenticateFromCache(cache:Cache oauth2Cache, string token) returns InboundOAuth2CacheEntry? {
+    InboundOAuth2CacheEntry oauth2CacheEntry = <InboundOAuth2CacheEntry>oauth2Cache.get(token);
+    if (oauth2CacheEntry.expTime > (time:currentTime().time / 1000)) {
+        log:printDebug(function() returns string {
+            return "Get authenticated user: " + oauth2CacheEntry.username + " from the cache.";
+        });
+        return oauth2CacheEntry;
+    } else {
+        oauth2Cache.remove(token);
+    }
+}
 
 # Reads the scope(s) for the user with the given username.
 #
@@ -92,6 +140,9 @@ public type InboundOAuth2Provider object {
 # + return - Array of groups for the user denoted by the username
 public function getScopes(string scopes) returns string[] {
     string scopeVal = scopes.trim();
+    if (scopeVal == "") {
+        return [];
+    }
     return stringutils:split(scopeVal, " ");
 }
 
@@ -99,10 +150,24 @@ public function getScopes(string scopes) returns string[] {
 #
 # + url - URL of the introspection server
 # + tokenTypeHint - A hint about the type of the token submitted for introspection
+# + oauth2Cache - Cache used to store OAuth2 information
+# + defaultTokenExpTimeInSeconds - Expiration time of the tokens if introspection response does not contain `exp` field
 # + clientConfig - HTTP client configurations which calls the introspection server
 public type IntrospectionServerConfig record {|
     string url;
     string tokenTypeHint?;
+    cache:Cache oauth2Cache?;
+    int defaultTokenExpTimeInSeconds = 3600;
     http:ClientConfiguration clientConfig = {};
 |};
 
+# Represents cached OAuth2 information.
+#
+# + username - Username of the OAuth2 validated user
+# + scopes - Scopes of the OAuth2 validated user
+# + expTime - Expiration time, identifies the expiration time on or after which the OAuth2 token must not be accepted
+public type InboundOAuth2CacheEntry record {|
+    string username;
+    string scopes;
+    int expTime;
+|};
