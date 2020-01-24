@@ -122,6 +122,9 @@ public class TestCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--experimental", description = "Enable experimental language features.")
     private boolean experimentalFlag;
 
+    @CommandLine.Option(names = {"--code-coverage", "-cc"}, hidden = true)
+    private boolean coverage;
+
     // --debug flag is handled by ballerina.sh/ballerina.bat. It will launch ballerina with java debug options.
     @CommandLine.Option(names = "--debug", description = "start Ballerina in remote debugging mode")
     private String debugPort;
@@ -278,7 +281,7 @@ public class TestCommand implements BLauncherCmd {
                         this.noOptimizeLLVM))
                 .addTask(new CopyModuleJarTask(skipCopyLibsFromDist))
                 .addTask(new CreateJsonTask()) // // create the json to store test init data
-                .addTask(new RunTestsTask()) // run tests
+                .addTask(new RunTestsTask(this.coverage)) // run tests
                 .build();
 
         taskExecutor.executeTasks(buildContext);

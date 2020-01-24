@@ -154,6 +154,9 @@ public class BuildCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--experimental", description = "Enable experimental language features.")
     private boolean experimentalFlag;
 
+    @CommandLine.Option(names = {"--code-coverage", "-cc"}, hidden = true)
+    private boolean coverage;
+
     private static final String buildCmd = "ballerina build [-o <output>] [--sourceroot] [--offline] [--skip-tests]\n" +
             "                    [--skip-lock] {<ballerina-file | module-name> | -a | --all} [--] [(--key=value)...]";
 
@@ -383,8 +386,8 @@ public class BuildCommand implements BLauncherCmd {
                 .addTask(new CreateJarTask(this.dumpBIR, skipCopyLibsFromDist, this.nativeBinary, this.dumpLLVMIR,
                         this.noOptimizeLlvm))
                 .addTask(new CopyModuleJarTask(skipCopyLibsFromDist))
-                .addTask(new CreateJsonTask(), isSingleFileBuild) // create the json to store test init data
-                .addTask(new RunTestsTask(), this.skipTests || isSingleFileBuild) // run tests
+                .addTask(new CreateJsonTask(), this.skipTests || isSingleFileBuild) // create the json to store test init data
+                .addTask(new RunTestsTask(this.coverage), this.skipTests || isSingleFileBuild) // run tests
                                                                                                 // (projects only)
                 .addTask(new CreateExecutableTask(), this.compile)  // create the executable.jar
                                                                                         // file
