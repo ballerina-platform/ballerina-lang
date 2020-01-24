@@ -79,7 +79,7 @@ public function setAttributes(xml x, map<any> attributes) = external;
 # + x - The xml source
 # + qname - Qualified name of the element
 # + return - All the descendants that matches the given qualified name, as a sequence
-public function selectDescendants(xml x, string qname) returns xml = external;
+function selectDescendants(xml x, string qname) returns xml = external;
 
 # Remove an attribute from an XML.
 #

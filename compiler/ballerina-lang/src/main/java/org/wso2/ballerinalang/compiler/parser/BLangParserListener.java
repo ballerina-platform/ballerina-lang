@@ -25,6 +25,7 @@ import org.apache.commons.lang3.StringEscapeUtils;
 import org.ballerinalang.model.Whitespace;
 import org.ballerinalang.model.elements.AttachPoint;
 import org.ballerinalang.model.tree.CompilationUnitNode;
+import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser.FieldContext;
@@ -971,6 +972,35 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     }
 
     @Override
+    public void exitXmlElementAccessFilter(BallerinaParser.XmlElementAccessFilterContext ctx) {
+        if (isInErrorState) {
+            return;
+        }
+
+        List<TerminalNode> identifier = ctx.Identifier();
+        String ns = "";
+        String elementName = "*";
+        DiagnosticPos nsPos = null;
+        DiagnosticPos elemNamePos = null;
+        if (identifier.size() == 1) {
+            if (ctx.MUL() == null) {
+                TerminalNode nameNode = identifier.get(0);
+                elementName = nameNode.getText();
+                elemNamePos = getCurrentPos(nameNode);
+            }
+        } else {
+            TerminalNode nsNode = identifier.get(0);
+            ns = nsNode.getText();
+            nsPos = getCurrentPos(nsNode);
+
+            TerminalNode nameNode = identifier.get(1);
+            elementName = nameNode.getText();
+            elemNamePos = getCurrentPos(nameNode);
+        }
+        this.pkgBuilder.addXMLElementAccessFilter(getCurrentPos(ctx), getWS(ctx), ns, nsPos, elementName, elemNamePos);
+    }
+
+    @Override
     public void enterErrorMatchPattern(BallerinaParser.ErrorMatchPatternContext ctx) {
         if (isInErrorState) {
             return;
@@ -985,6 +1015,33 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         }
 
         this.pkgBuilder.endSimpleMatchPattern(getWS(ctx));
+    }
+
+
+    @Override
+    public void exitXmlElementAccess(BallerinaParser.XmlElementAccessContext ctx) {
+        if (isInErrorState) {
+            return;
+        }
+
+        int filterCount = ctx.xmlElementNames().xmlElementAccessFilter().size();
+        this.pkgBuilder.createXMLElementAccessNode(getCurrentPos(ctx), getWS(ctx), filterCount);
+    }
+
+    @Override
+    public void exitXmlNavigationAccessReference(BallerinaParser.XmlNavigationAccessReferenceContext ctx) {
+        if (isInErrorState) {
+            return;
+        }
+
+        boolean isIndexed = ctx.index() != null;
+
+        BallerinaParser.XmlNavigationAccessContext navAccess = ctx.xmlNavigationAccess();
+        BallerinaParser.XmlElementNamesContext filters = navAccess.xmlElementNames();
+        int filterCount = filters == null ? 0 : filters.xmlElementAccessFilter().size();
+        int starCount = navAccess.MUL().size();
+        this.pkgBuilder.createXMLNavigationAccessNode(getCurrentPos(ctx), getWS(ctx),
+                filterCount, starCount, isIndexed);
     }
 
     @Override

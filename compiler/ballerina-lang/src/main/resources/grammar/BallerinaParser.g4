@@ -640,7 +640,7 @@ variableReference
     |   variableReference ANNOTATION_ACCESS nameReference                       # annotAccessExpression
     |   variableReference xmlAttrib                                             # xmlAttribVariableReference
     |   variableReference xmlElementAccess                                      # xmlElementAccessReference
-    |   variableReference xmlNavigationAccess                                   # xmlNavigationAccessReference
+    |   variableReference xmlNavigationAccess index?                            # xmlNavigationAccessReference
     |   functionInvocation                                                      # functionInvocationReference
     |   LEFT_PARENTHESIS variableReference RIGHT_PARENTHESIS field              # groupFieldVariableReference
     |   LEFT_PARENTHESIS variableReference RIGHT_PARENTHESIS invocation         # groupInvocationReference
@@ -657,7 +657,7 @@ field
     ;
 
 xmlElementAccess
-    :   DOT LT xmlElementAccessFilter (PIPE xmlElementAccessFilter)*  GT
+    :   DOT xmlElementNames
     ;
 
 xmlNavigationAccess

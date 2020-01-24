@@ -120,7 +120,10 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerSyncSendExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttribute;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttributeAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLCommentLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementAccess;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementFilter;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLNavigationAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLProcInsLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQName;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQuotedString;
@@ -269,6 +272,37 @@ public class TypeChecker extends BLangNodeVisitor {
             return;
         }
         resultType = types.checkType(literalExpr, literalType, expType);
+    }
+
+    @Override
+    public void visit(BLangXMLElementAccess xmlElementAccess) {
+        // check for undeclared namespaces.
+        checkXMLNamespacePrefixes(xmlElementAccess.filters);
+        resultType = checkExpr(xmlElementAccess.expr, env, expType);
+        // todo: we may need to add some logic to constrain result type to xml @namedSubType type.
+    }
+
+    @Override
+    public void visit(BLangXMLNavigationAccess xmlNavigation) {
+        checkXMLNamespacePrefixes(xmlNavigation.filters);
+        if (xmlNavigation.childIndex != null) {
+            checkExpr(xmlNavigation.childIndex, env, symTable.intType);
+        }
+        resultType = checkExpr(xmlNavigation.expr, env, expType);
+        // todo: we may need to add some logic to constrain result type to  @namedSubType type.
+    }
+
+    private void checkXMLNamespacePrefixes(List<BLangXMLElementFilter> filters) {
+        for (BLangXMLElementFilter filter : filters) {
+            if (!filter.namespace.isEmpty()) {
+                Name nsName = names.fromString(filter.namespace);
+                BSymbol nsSymbol = symResolver.lookupSymbol(env, nsName, SymTag.XMLNS);
+                filter.namespaceSymbol = nsSymbol;
+                if (nsSymbol == symTable.notFoundSymbol) {
+                    dlog.error(filter.nsPos, DiagnosticCode.CANNOT_FIND_XML_NAMESPACE, nsName);
+                }
+            }
+        }
     }
 
     private BType setLiteralValueAndGetType(BLangLiteral literalExpr, BType expType) {

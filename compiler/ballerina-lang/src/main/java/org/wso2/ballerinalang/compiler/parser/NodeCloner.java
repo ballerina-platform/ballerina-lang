@@ -108,7 +108,10 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerSyncSendExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttribute;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttributeAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLCommentLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementAccess;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementFilter;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLNavigationAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLProcInsLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQName;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQuotedString;
@@ -1662,5 +1665,39 @@ class NodeCloner extends BLangNodeVisitor {
         clone.key = source.key;
         clone.valueExpr = clone(source.valueExpr);
         clone.keyExpr = clone(source.keyExpr);
+    }
+
+    @Override
+    public void visit(BLangXMLElementFilter source) {
+        BLangXMLElementFilter clone = new BLangXMLElementFilter(
+                source.pos,
+                source.getWS(),
+                source.namespace,
+                source.nsPos,
+                source.name,
+                source.elemNamePos);
+        source.cloneRef = clone;
+    }
+
+    @Override
+    public void visit(BLangXMLElementAccess source) {
+        BLangXMLElementAccess clone = new BLangXMLElementAccess(
+                source.pos,
+                source.getWS(),
+                clone(source.expr),
+                cloneList(source.filters));
+        source.cloneRef = clone;
+    }
+
+    @Override
+    public void visit(BLangXMLNavigationAccess source) {
+        BLangXMLNavigationAccess clone = new BLangXMLNavigationAccess(
+                source.pos,
+                source.getWS(),
+                source.expr,
+                source.filters,
+                source.navAccessType,
+                clone(source.childIndex));
+        source.cloneRef = clone;
     }
 }

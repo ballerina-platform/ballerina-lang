@@ -95,7 +95,10 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerSyncSendExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttribute;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttributeAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLCommentLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementAccess;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementFilter;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLNavigationAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLProcInsLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQName;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQuotedString;
@@ -777,6 +780,18 @@ public abstract class BLangNodeVisitor {
     }
 
     public void visit(BLangWaitForAllExpr.BLangWaitKeyValue waitKeyValue) {
+        throw new AssertionError();
+    }
+
+    public void visit(BLangXMLElementFilter xmlElementFilter) {
+        throw new AssertionError();
+    }
+
+    public void visit(BLangXMLElementAccess xmlElementAccess) {
+        throw new AssertionError();
+    }
+
+    public void visit(BLangXMLNavigationAccess xmlNavigation) {
         throw new AssertionError();
     }
 }
