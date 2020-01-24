@@ -114,7 +114,7 @@ include(':ballerina-llvm')
 // include(':composer-integration-test')
 // include(':ballerina-tools-integration-test')
 include(':ballerina-jsonutils')
-
+include(':testerina:testerina-launcher')
 // include(':examples-test')
 // TODO: enable at 'dependsOn' of tools-intergration-tests
 // and 'mustRunAfter' of vs-code-pluggin
@@ -254,6 +254,7 @@ project(':ballerina-openshift').projectDir = file('stdlib/openshift')
 project(':ballerina-istio').projectDir = file('stdlib/istio')
 project(':ballerina-xmlutils').projectDir = file('stdlib/xmlutils')
 project(':ballerina-llvm').projectDir = file('stdlib/llvm')
+project(':testerina:testerina-launcher').projectDir = file('misc/testerina/modules/testerina-launcher')
 
 project(':debug-adapter:debug-adapter-core').projectDir = file('misc/debug-adapter/modules/debug-adapter-core')
 project(':debug-adapter:debug-adapter-cli').projectDir = file('misc/debug-adapter/modules/debug-adapter-cli')
