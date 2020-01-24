@@ -22,8 +22,8 @@ type Manager record {
 
 public function main() {
     // `Employee` has all the fields of `Person`.
-    Employee john = { name: "John Doe", designation: "Software Engineer" };
-    Employee jane = { name: "Jane Doe", designation: "UX Engineer" };
+    Employee john = {name: "John Doe", designation: "Software Engineer"};
+    Employee jane = {name: "Jane Doe", designation: "UX Engineer"};
 
     // Type referencing copies the fields including their properties
     // (e.g., type, default value, optional status). As it can be seen
@@ -32,7 +32,7 @@ public function main() {
     io:println(john);
     io:println(jane);
 
-    Manager mgr = { name: "Mark", age: 35, designation: "Engineering Manager" };
+    Manager mgr = {name: "Mark", age: 35, designation: "Engineering Manager"};
     mgr.team = [john, jane];
     mgr.company = "XYZ Inc.";
 
