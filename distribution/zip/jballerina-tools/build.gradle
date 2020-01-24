@@ -107,6 +107,7 @@ dependencies {
     dist project(':openapi-ballerina:ballerina-client-generator')
     dist project(':docerina')
     dist project(':protobuf-ballerina')
+    dist project(':testerina:testerina-code-coverage')
     dist project(':testerina:testerina-launcher')
     docerina project(':docerina-gradle-plugin')
 
@@ -158,6 +159,13 @@ task configured {
 
 }
 
+def copyJaCoCoJar = {
+    path -> copySpec {
+        from('jacoco/jacocoagent.jar')
+        from('jacoco/jacococli.jar')
+        into("$path/bre/lib")
+    }
+}
 
 def copyJarSpec = {
     base -> copySpec {
@@ -361,6 +369,7 @@ task createApiDocsZip(type: Zip) {
 
 task createZip(type: Zip) {
     def basePath = '/' + project.name + '-' + project.version + '/'
+    with copyJaCoCoJar(basePath)
     with copyJarSpec(basePath)
     with copyBirSpec(basePath)
     with copyBirJarSpec(basePath)
@@ -384,6 +393,7 @@ task createZip(type: Zip) {
 
 task updateBalHome(type: Copy) {
     def installDir = ""
+    with copyJaCoCoJar(installDir)
     with copyJarSpec(installDir)
     with copyBirSpec(installDir)
     with copyBirJarSpec(installDir)
@@ -410,6 +420,7 @@ task createDistribution(type: Copy) {
     mustRunAfter(':language-server:language-server-core:createZip')
     def filePath = "$buildDir/extracted-distributions/${project.name}-${project.version}"
     file(filePath).mkdirs()
+    with copyJaCoCoJar("")
     with copyJarSpec("")
     with copyBirSpec("")
     with copyBirJarSpec("")
