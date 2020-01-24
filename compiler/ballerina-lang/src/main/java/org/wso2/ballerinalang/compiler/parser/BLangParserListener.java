@@ -1217,12 +1217,19 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     }
 
     @Override
-    public void exitRecordKeyValue(BallerinaParser.RecordKeyValueContext ctx) {
+    public void exitRecordField(BallerinaParser.RecordFieldContext ctx) {
         if (isInErrorState) {
             return;
         }
 
-        this.pkgBuilder.addKeyValueRecord(getWS(ctx), ctx.recordKey().LEFT_BRACKET() != null);
+        if (ctx.Identifier() == null) {
+            this.pkgBuilder.addKeyValueRecordField(getWS(ctx), ctx.recordKey().LEFT_BRACKET() != null);
+        } else {
+            DiagnosticPos pos = getCurrentPos(ctx);
+            this.pkgBuilder.addNameReference(pos, getWS(ctx), null, ctx.Identifier().getText());
+            this.pkgBuilder.createSimpleVariableReference(pos, getWS(ctx));
+            this.pkgBuilder.addIdentifierRecordField(getWS(ctx));
+        }
     }
 
     @Override

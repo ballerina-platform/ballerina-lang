@@ -1342,7 +1342,11 @@ public class BLangPackageBuilder {
         addExpressionNode(listConstructorExpr);
     }
 
-    void addKeyValueRecord(Set<Whitespace> ws, boolean computedKey) {
+    void addIdentifierRecordField(Set<Whitespace> ws) {
+
+    }
+
+    void addKeyValueRecordField(Set<Whitespace> ws, boolean computedKey) {
         BLangRecordKeyValue keyValue = (BLangRecordKeyValue) TreeBuilder.createRecordKeyValue();
         keyValue.addWS(ws);
         keyValue.valueExpr = (BLangExpression) exprNodeStack.pop();
