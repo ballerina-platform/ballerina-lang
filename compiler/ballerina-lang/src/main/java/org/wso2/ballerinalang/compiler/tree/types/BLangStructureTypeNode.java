@@ -38,6 +38,7 @@ public abstract class BLangStructureTypeNode extends BLangType implements Struct
     public List<BLangSimpleVariable> fields;
     public BLangFunction initFunction;
     public boolean isAnonymous;
+    public boolean isLocal;
     public boolean isFieldAnalyseRequired;
     public List<BLangType> typeRefs;
     public BSymbol symbol;

@@ -918,6 +918,14 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     }
 
     @Override
+    public void enterErrorTypeName(BallerinaParser.ErrorTypeNameContext ctx) {
+        if (isInErrorState) {
+            return;
+        }
+        this.pkgBuilder.startErrorType();
+    }
+
+    @Override
     public void exitErrorTypeName(BallerinaParser.ErrorTypeNameContext ctx) {
         if (isInErrorState) {
             return;

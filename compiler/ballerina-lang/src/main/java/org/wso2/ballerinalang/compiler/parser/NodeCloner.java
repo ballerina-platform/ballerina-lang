@@ -296,6 +296,7 @@ class NodeCloner extends BLangNodeVisitor {
         clone.fields = cloneList(source.fields);
         clone.initFunction = clone(source.initFunction);
         clone.isAnonymous = source.isAnonymous;
+        clone.isLocal = source.isLocal;
         clone.isFieldAnalyseRequired = source.isFieldAnalyseRequired;
         clone.typeRefs = cloneList(source.typeRefs);
     }
