@@ -70,8 +70,10 @@ public type CookieStore object {
                 if (persistentCookieHandler is PersistentCookieHandler) {
                     var result = addPersistentCookie(identicalCookie, cookie, url, persistentCookieHandler, self);
                     if (result is error) {
-                        log:printError("Error in adding persistent cookie: ", err = result);
+                        log:printError("Error in adding persistent cookies: ", err = result);
                     }
+                } else if (isFirstRequest(self.allSessionCookies, domain)) {
+                    log:printWarn("Client has not configured to use persistent cookies.Hence, persistent cookies from " + domain + " will be discarded.");
                 }
             } else {
                 var result = addSessionCookie(identicalCookie, cookie, url, self);
@@ -394,6 +396,17 @@ function isExpiresAttributeValid(Cookie cookie) returns boolean {
         }
         return false;
     }
+}
+
+// Checks whether the user has requested a particular domain or a sub-domain of it previously or not.
+function isFirstRequest(Cookie[] allSessionCookies, string domain) returns boolean {
+    foreach var cookie in allSessionCookies {
+       var cookieDomain = cookie.domain;
+       if (((cookieDomain is string && (domain.endsWith("." + cookieDomain) || cookieDomain.endsWith("." + domain))) || cookie.domain == domain )) {
+           return false;
+       }
+    }
+    return true;
 }
 
 // Adds a persistent cookie to the cookie store according to the rules in [RFC-6265](https://tools.ietf.org/html/rfc6265#section-5.3 , https://tools.ietf.org/html/rfc6265#section-4.1.2).
