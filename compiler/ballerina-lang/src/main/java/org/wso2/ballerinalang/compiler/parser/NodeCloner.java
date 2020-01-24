@@ -1389,6 +1389,11 @@ class NodeCloner extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangRecordLiteral.BLangStreamLiteral streamLiteral) {
+        // Ignore
+    }
+
+    @Override
     public void visit(BLangRecordLiteral.BLangChannelLiteral channelLiteral) {
         // Ignore
     }

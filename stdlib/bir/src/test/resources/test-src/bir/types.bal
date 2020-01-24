@@ -95,3 +95,5 @@ table<Employee> employeeTable = table {
         ]
     };
 
+// expected: stream<record {int id; string name; }>
+stream<Employee> employeeStream = new;

@@ -55,6 +55,8 @@ public enum DiagnosticCode {
     UNDEFINED_STRUCTURE_FIELD_WITH_TYPE("undefined.field.in.structure.with.type"), // TODO: remove Maryam
     UNDEFINED_STRUCTURE_FIELD("undefined.field.in.structure"),
     TYPE_NOT_ALLOWED_WITH_NEW("type.not.allowed.with.new"),
+    STREAM_INVALID_CONSTRAINT("stream.invalid.constraint"),
+    STREAM_INIT_NOT_ALLOWED_HERE("stream.initialization.not.allowed.here"),
     CANNOT_INFER_OBJECT_TYPE_FROM_LHS("cannot.infer.object.type.from.lhs"),
     OBJECT_UNINITIALIZED_FIELD("object.uninitialized.field"),
     CYCLIC_TYPE_REFERENCE("cyclic.type.reference"),
@@ -388,6 +390,24 @@ public enum DiagnosticCode {
     FAILED_PREDICATE("failed.predicate"),
     SYNTAX_ERROR("syntax.error"),
     INVALID_SHIFT_OPERATOR("invalid.shift.operator"),
+
+    // Streaming related codes
+    UNDEFINED_STREAM_REFERENCE("undefined.stream.reference"),
+    UNDEFINED_STREAM_ATTRIBUTE("undefined.stream.attribute"),
+    UNDEFINED_OUTPUT_STREAM_ATTRIBUTE("undefined.output.stream.attribute"),
+    UNDEFINED_SELECT_EXPR_ALIAS("alias.not.defined"),
+    SELECT_EXPR_ALIAS_NOT_FOUND("alias.not.found"),
+    OUTPUT_FIELD_VISIBLE_IN_HAVING_ORDER_BY("output.fields.allowed.in.having.and.orderby.only"),
+    STREAM_ATTR_NOT_ALLOWED_IN_HAVING_ORDER_BY("stream.attributes.not.allowed.in.having.and.orderby"),
+    INCOMPATIBLE_FIELDS_IN_SELECT_CLAUSE("incompatible.fields.in.select.clause"),
+    INCOMPATIBLE_STREAM_ACTION_ARGUMENT("incompatible.stream.action.argument"),
+    INVALID_STREAM_ACTION_ARGUMENT_COUNT("invalid.stream.action.argument.count"),
+    INVALID_STREAM_ACTION_ARGUMENT_TYPE("invalid.stream.action.argument.type"),
+    INVALID_STREAM_ATTRIBUTE_TYPE("invalid.stream.attribute.type"),
+    STREAMING_INCOMPATIBLE_TYPES("streaming.incompatible.types"),
+    UNDEFINED_INVOCATION_ALIAS("undefined.invocation.alias"),
+    INVALID_STREAMING_MODEL_TYPE("invalid.streaming.model.type"),
+    PATTERNS_NOT_SUPPORTED("patterns.not.supported"),
 
     // Taint checking related codes
     ENTRY_POINT_PARAMETERS_CANNOT_BE_UNTAINTED("entry.point.parameters.cannot.be.untainted"),

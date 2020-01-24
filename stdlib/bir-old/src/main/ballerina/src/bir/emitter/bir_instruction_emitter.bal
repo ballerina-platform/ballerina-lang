@@ -32,6 +32,8 @@ function emitInstruction(Instruction ins, int tabs) returns string {
         return emitInsNewMap(ins, tabs); 
     } else if ins is NewTable {
         return emitInsNewTable(ins, tabs); 
+    } else if ins is NewStream {
+        return emitInsNewStream(ins, tabs); 
     } else if ins is NewInstance {
         return emitInsNewInstance(ins, tabs); 
     } else if ins is NewArray {
@@ -121,6 +123,19 @@ function emitInsNewTable(NewTable ins, int tabs) returns string {
     str += emitVarRef(ins.keyColOp); 
     str += ")<";
     str += emitTypeRef(ins.typeValue); 
+    str += ">;";
+    return str;
+}
+ 
+function emitInsNewStream(NewStream ins, int tabs) returns string {
+    string str = "";
+    str += emitTabs(tabs);
+    str += emitVarRef(ins.lhsOp); 
+    str += emitSpaces(1);
+    str += "=";
+    str += emitSpaces(1);
+    str += "stream<";
+    str += emitTypeRef(ins.streamType); 
     str += ">;";
     return str;
 }

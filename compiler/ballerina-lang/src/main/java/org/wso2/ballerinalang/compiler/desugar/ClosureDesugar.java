@@ -1147,6 +1147,14 @@ public class ClosureDesugar extends BLangNodeVisitor {
         result = mapLiteral;
     }
 
+    public void visit(BLangRecordLiteral.BLangStreamLiteral streamLiteral) {
+        streamLiteral.keyValuePairs.forEach(bLangRecordKeyValue -> {
+            bLangRecordKeyValue.key.expr = rewriteExpr(bLangRecordKeyValue.key.expr);
+            bLangRecordKeyValue.valueExpr = rewriteExpr(bLangRecordKeyValue.valueExpr);
+        });
+        result = streamLiteral;
+    }
+
     @Override
     public void visit(BLangRecordLiteral.BLangStructLiteral structLiteral) {
         structLiteral.keyValuePairs.forEach(bLangRecordKeyValue -> {

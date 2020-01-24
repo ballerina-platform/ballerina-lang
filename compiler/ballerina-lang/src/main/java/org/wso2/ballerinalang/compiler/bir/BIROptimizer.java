@@ -456,6 +456,11 @@ public class BIROptimizer {
         }
 
         @Override
+        public void visit(BIRNonTerminator.NewStream newStream) {
+            this.optimizeNode(newStream.lhsOp, this.env);
+        }
+
+        @Override
         public void visit(BIRNonTerminator.NewTypeDesc newTypeDesc) {
             this.optimizeNode(newTypeDesc.lhsOp, this.env);
         }

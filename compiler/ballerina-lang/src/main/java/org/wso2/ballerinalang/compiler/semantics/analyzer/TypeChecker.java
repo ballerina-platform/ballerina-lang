@@ -1685,6 +1685,13 @@ public class TypeChecker extends BLangNodeVisitor {
                     }
                 }
                 break;
+            case TypeTags.STREAM:
+                if (!cIExpr.initInvocation.argExprs.isEmpty()) {
+                    dlog.error(cIExpr.pos, DiagnosticCode.TOO_MANY_ARGS_FUNC_CALL, cIExpr.initInvocation.name);
+                    resultType = symTable.semanticError;
+                    return;
+                }
+                break;
             case TypeTags.UNION:
                 List<BType> matchingMembers = findMembersWithMatchingInitFunc(cIExpr, (BUnionType) actualType);
                 BType matchedType = getMatchingType(matchingMembers, cIExpr, actualType);

@@ -82,6 +82,12 @@ public type FuncBodyParser object {
             var lhsOp = self.parseVarRef();
             NewMap newMap = {pos:pos, kind:kind, lhsOp:lhsOp, typeRef:typeRef, bType:bType};
             return newMap;
+        } else if (kindTag == INS_NEW_STREAM) {
+            var bType = self.reader.readTypeCpRef();
+            kind = INS_KIND_NEW_STREAM;
+            var lhsOp = self.parseVarRef();
+            NewStream newStream = { pos: pos, kind: kind, lhsOp: lhsOp, streamType: bType };
+            return newStream;
         } else if (kindTag == INS_NEW_TABLE) {
             return self.parseNewTableInstruction(pos);
         } else if (kindTag == INS_NEW_INST) {
