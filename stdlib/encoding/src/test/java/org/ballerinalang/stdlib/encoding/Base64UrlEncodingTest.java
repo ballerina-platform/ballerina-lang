@@ -46,7 +46,7 @@ public class Base64UrlEncodingTest {
     public void testEncodeBase64Url() {
         String input = "Ballerina Base64 URL encoding test";
         byte[] inputArray = input.getBytes(StandardCharsets.UTF_8);
-        String expectedValue = "QmFsbGVyaW5hIEJhc2U2NCBVUkwgZW5jb2RpbmcgdGVzdA==";
+        String expectedValue = "QmFsbGVyaW5hIEJhc2U2NCBVUkwgZW5jb2RpbmcgdGVzdA";
         BValue[] args = {new BValueArray(inputArray)};
         BValue[] returnValues = BRunUtil.invoke(compileResult, "testEncodeBase64Url", args);
         Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
@@ -55,7 +55,7 @@ public class Base64UrlEncodingTest {
 
     @Test(description = "Check Base64 URL decoding")
     public void testDecodeBase64Url() {
-        String input = "QmFsbGVyaW5hIEJhc2U2NCBVUkwgZW5jb2RpbmcgdGVzdA==";
+        String input = "QmFsbGVyaW5hIEJhc2U2NCBVUkwgZW5jb2RpbmcgdGVzdA";
         byte[] expectedValue = "Ballerina Base64 URL encoding test".getBytes(StandardCharsets.UTF_8);
         BValue[] args = {new BString(input)};
         BValue[] returnValues = BRunUtil.invoke(compileResult, "testDecodeBase64Url", args);

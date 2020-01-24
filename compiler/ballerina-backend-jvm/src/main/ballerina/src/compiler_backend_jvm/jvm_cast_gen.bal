@@ -33,7 +33,7 @@ function generatePlatformCheckCast(jvm:MethodVisitor mv, BalToJVMIndexMap indexM
 }
 
 function generateBToJCheckCast(jvm:MethodVisitor mv, bir:BType sourceType, jvm:JType targetType) {
-    if (targetType is jvm:JRefType && targetType.typeValue == "org/ballerinalang/jvm/values/StringValue") {
+    if (targetType is jvm:JRefType && targetType.typeValue == I_STRING_VALUE) {
         generateCheckCastBToJString(mv, sourceType);
         return;
     } else if (targetType is jvm:JByte) {
@@ -57,7 +57,14 @@ function generateBToJCheckCast(jvm:MethodVisitor mv, bir:BType sourceType, jvm:J
     } else if (targetType is jvm:JDouble) {
         generateCheckCastBToJDouble(mv, sourceType);
         return;
-    } else if (targetType is jvm:JRefType|jvm:JArrayType) {
+    } else if (targetType is jvm:JRefType) {
+        if (targetType.typeValue == I_STRING_VALUE) {
+            generateCheckCastBToJString(mv, sourceType);
+        } else {
+            generateCheckCastBToJRef(mv, sourceType, targetType);
+        }
+        return;
+    } else if (targetType is jvm:JArrayType) {
         generateCheckCastBToJRef(mv, sourceType, targetType);
         return;
     } else {
@@ -338,7 +345,7 @@ function generateCheckCastJToBFloat(jvm:MethodVisitor mv, jvm:JType sourceType) 
 }
 
 function generateCheckCastJToBString(jvm:MethodVisitor mv, jvm:JType sourceType) {
-    if (sourceType is jvm:JRefType && sourceType.typeValue == "org/ballerinalang/jvm/values/StringValue") {
+    if (sourceType is jvm:JRefType && sourceType.typeValue == I_STRING_VALUE) {
         mv.visitMethodInsn(INVOKEINTERFACE, I_STRING_VALUE, "getValue", io:sprintf("()L%s;", STRING_VALUE) , true);
     } else {
         error err = error(io:sprintf("Casting is not supported from '%s' to 'string'", sourceType));
@@ -755,8 +762,6 @@ function getTargetClass(bir:BType targetType) returns string? {
         targetTypeClass = MAP_VALUE;
     } else if (targetType is bir:BTableType) {
         targetTypeClass = TABLE_VALUE;
-    } else if (targetType is bir:BStreamType) {
-        targetTypeClass = STREAM_VALUE;
     } else if (targetType is bir:BObjectType || targetType is bir:BServiceType) {
         targetTypeClass = OBJECT_VALUE;
     } else if (targetType is bir:BErrorType) {
@@ -788,7 +793,7 @@ function generateCheckCastToFiniteType(jvm:MethodVisitor mv, bir:BType sourceTyp
 //   Generate Cast Methods - Performs cast without type checking
 // ------------------------------------------------------------------
 
-function generateCast(jvm:MethodVisitor mv, bir:BType sourceType, bir:BType targetType) {
+function generateCast(jvm:MethodVisitor mv, bir:BType sourceType, bir:BType targetType, boolean useBString = false) {
     if (targetType is bir:BTypeInt) {
         generateCastToInt(mv, sourceType);
         return;
@@ -796,7 +801,7 @@ function generateCast(jvm:MethodVisitor mv, bir:BType sourceType, bir:BType targ
         generateCastToFloat(mv, sourceType);
         return;
     } else if (targetType is bir:BTypeString) {
-        generateCastToString(mv, sourceType);
+        generateCastToString(mv, sourceType, useBString = useBString);
         return;
     } else if (targetType is bir:BTypeBoolean) {
         generateCastToBoolean(mv, sourceType);
@@ -860,7 +865,7 @@ function generateCastToFloat(jvm:MethodVisitor mv, bir:BType sourceType) {
     }
 }
 
-function generateCastToString(jvm:MethodVisitor mv, bir:BType sourceType) {
+function generateCastToString(jvm:MethodVisitor mv, bir:BType sourceType, boolean useBString = false) {
     if (sourceType is bir:BTypeString) {
         // do nothing
     } else if (sourceType is bir:BTypeInt) {
@@ -873,7 +878,11 @@ function generateCastToString(jvm:MethodVisitor mv, bir:BType sourceType) {
             sourceType is bir:BTypeAnyData ||
             sourceType is bir:BUnionType ||
             sourceType is bir:BJSONType) {
-        mv.visitTypeInsn(CHECKCAST, STRING_VALUE);
+        if(useBString) {
+            mv.visitTypeInsn(CHECKCAST, I_STRING_VALUE);
+        } else {
+            mv.visitTypeInsn(CHECKCAST, STRING_VALUE);
+        }
     } else {
         error err = error(io:sprintf("Casting is not supported from '%s' to 'string'", sourceType));
         panic err;

@@ -34,7 +34,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttribute;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementLiteral;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangStreamingQueryStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
@@ -257,10 +256,6 @@ public class SymbolEnv {
         symbolEnv.envCount = 0;
         env.copyTo(symbolEnv);
         return symbolEnv;
-    }
-
-    public static SymbolEnv createStreamingQueryEnv(BLangStreamingQueryStatement node, SymbolEnv env) {
-        return createEnv(node, env);
     }
 
     public static SymbolEnv createStreamingInputEnv(BLangNode node, SymbolEnv env) {

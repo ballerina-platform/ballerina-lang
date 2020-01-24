@@ -1,9 +1,0 @@
-// Projection involves selecting some of the attributes from the input
-// stream to be inserted into an output stream, renaming the attributes, adding
-// constant values to the output stream, and performing logical or mathematical operations.
-// In this example, events are related to the person being monitored and there will be a
-// children's day wish triggered when there is a person found whose age is less
-// than or equal to 16.
-// Ballerina Streams is an experimental feature. Therefore, use the `--experimental` flag when compiling Ballerina
-// files that have streaming constructs.
-

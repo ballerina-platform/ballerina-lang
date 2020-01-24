@@ -164,6 +164,9 @@ def getJarCreationCommand(it, generatedBirDir, mapPath, jarsToBeLoaded) {
         def classPath = fileTree(new File(it, '/bre/lib/')).filter{ it.isFile() }.files.path.join(':')
         commands = [ 'java', '-cp', classPath];
     }
+    if(project.name == 'string') {
+        commands.add('-Dballerina.bstring=true')
+    }
     commands.addAll(getCompilerBackendArgs(it, generatedBirDir, mapPath))
     commands.add("$buildDir/classpath/" + project.ext.moduleName + ".jar")
     return commands
