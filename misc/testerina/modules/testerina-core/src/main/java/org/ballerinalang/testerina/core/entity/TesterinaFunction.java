@@ -24,8 +24,6 @@ import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.FutureValue;
 import org.ballerinalang.util.exceptions.BallerinaException;
-import org.wso2.ballerinalang.compiler.tree.BLangFunction;
-import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -39,38 +37,36 @@ import java.util.function.Function;
  */
 public class TesterinaFunction {
 
-    private String name;
     public Scheduler scheduler;
 
-    public BLangFunction getbFunction() {
-        return bFunction;
-    }
+//    public BLangFunction getbFunction() {
+//        return bFunction;
+//    }
 
-    public BLangFunction bFunction;
+    private String bFunctionName;
     private Class<?> programFile;
     private boolean runTest = true;
 
     // Annotation info
     private List<String> groups = new ArrayList<>();
 
-    public TesterinaFunction(Class<?> programFile, BLangFunction bFunction) {
-        this.name = bFunction.getName().getValue();
-        this.bFunction = bFunction;
+    public TesterinaFunction(Class<?> programFile, String bFunctionName) {
+        this.bFunctionName = bFunctionName;
         this.programFile = programFile;
     }
 
     public Object invoke() throws BallerinaException {
         if (scheduler == null) {
-            throw new AssertionError("Scheduler is not initialized in " + bFunction.name);
+            throw new AssertionError("Scheduler is not initialized in " + bFunctionName);
         }
-        return runOnSchedule(programFile, bFunction.name, scheduler, new Class[]{Strand.class}, new Object[1]);
+        return runOnSchedule(programFile, bFunctionName, scheduler, new Class[]{Strand.class}, new Object[1]);
     }
 
     public Object invoke(Class[] types, Object[] args) {
         if (scheduler == null) {
-            throw new AssertionError("Scheduler is not initialized in " + bFunction.name);
+            throw new AssertionError("Scheduler is not initialized in " + bFunctionName);
         }
-        return runOnSchedule(programFile, bFunction.name, scheduler, types, args);
+        return runOnSchedule(programFile, bFunctionName, scheduler, types, args);
     }
 
     /**
@@ -80,15 +76,15 @@ public class TesterinaFunction {
      * @return output
      */
     public Object directInvoke(Class[] types) {
-        return run(programFile, bFunction.name, scheduler, types);
+        return run(programFile, bFunctionName, scheduler, types);
     }
 
     public String getName() {
-        return name;
+        return bFunctionName;
     }
 
     public void setName(String name) {
-        this.name = name;
+        this.bFunctionName = name;
     }
 
     public List<String> getGroups() {
@@ -107,7 +103,7 @@ public class TesterinaFunction {
         this.runTest = false;
     }
 
-    private static Object run(Class<?> initClazz, BLangIdentifier name, Scheduler scheduler,
+    private static Object run(Class<?> initClazz, String name, Scheduler scheduler,
                               Class[] paramTypes) {
         String funcName = cleanupFunctionName(name);
         try {
@@ -119,7 +115,7 @@ public class TesterinaFunction {
         }
     }
 
-    private static Object runOnSchedule(Class<?> initClazz, BLangIdentifier name, Scheduler scheduler,
+    private static Object runOnSchedule(Class<?> initClazz, String name, Scheduler scheduler,
                                         Class[] paramTypes, Object[] params) {
         String funcName = cleanupFunctionName(name);
         try {
@@ -156,8 +152,8 @@ public class TesterinaFunction {
         }
     }
 
-    private static String cleanupFunctionName(BLangIdentifier name) {
-        return name.value.replaceAll("[.:/<>]", "_");
+    private static String cleanupFunctionName(String name) {
+        return name.replaceAll("[.:/<>]", "_");
     }
 
 }

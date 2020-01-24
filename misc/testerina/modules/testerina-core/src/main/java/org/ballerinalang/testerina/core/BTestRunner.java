@@ -42,11 +42,11 @@ import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.XMLValue;
 import org.ballerinalang.testerina.core.entity.Test;
+import org.ballerinalang.testerina.core.entity.TestMetaData;
 import org.ballerinalang.testerina.core.entity.TestSuite;
 import org.ballerinalang.testerina.core.entity.TesterinaFunction;
 import org.ballerinalang.testerina.core.entity.TesterinaReport;
 import org.ballerinalang.testerina.core.entity.TesterinaResult;
-import org.ballerinalang.testerina.util.TestarinaClassLoader;
 import org.ballerinalang.testerina.util.TesterinaUtils;
 import org.ballerinalang.tool.BLauncherException;
 import org.ballerinalang.tool.LauncherUtils;
@@ -56,9 +56,6 @@ import org.ballerinalang.tool.util.CompileResult;
 import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.ballerinalang.util.diagnostic.DiagnosticListener;
 import org.ballerinalang.util.exceptions.BallerinaException;
-import org.wso2.ballerinalang.compiler.tree.BLangFunction;
-import org.wso2.ballerinalang.compiler.tree.BLangPackage;
-import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Names;
 
@@ -150,7 +147,7 @@ public class BTestRunner {
      *
      * @param packageList map containing bLangPackage nodes along with their compiled program files
      */
-    public void runTest(Map<BLangPackage, TestarinaClassLoader> packageList) {
+    public void runTest(Map<TestMetaData, String> packageList) {
         registry.setGroups(Collections.emptyList());
         registry.setShouldIncludeGroups(true);
         buildSuites(packageList);
@@ -269,20 +266,20 @@ public class BTestRunner {
      *
      * @param packageList map containing bLangPackage nodes along with their compiled program files
      */
-    private void buildSuites(Map<BLangPackage, TestarinaClassLoader> packageList) {
-        packageList.forEach((sourcePackage, classLoader) -> {
+    private void buildSuites(Map<TestMetaData, String> packageList) {
+        packageList.forEach((metaData, testName) -> {
             String packageName;
-            if (sourcePackage.packageID.getName().getValue().equals(".")) {
-                packageName = sourcePackage.packageID.getName().getValue();
+            if (metaData.getPackageID().getName().getValue().equals(".")) {
+                packageName = metaData.getPackageID().getName().getValue();
             } else {
-                packageName = TesterinaUtils.getFullModuleName(sourcePackage.packageID.getName().getValue());
+                packageName = TesterinaUtils.getFullModuleName(metaData.getPackageID().getName().getValue());
             }
             // Add a test suite to registry if not added. In this module there are no tests to be executed. But we need
             // to say that there are no tests found in the module to be executed
             addTestSuite(packageName);
             // Keeps a track of the sources that are being built
             sourcePackages.add(packageName);
-            processProgramFile(sourcePackage, classLoader);
+            processProgramFile(metaData, testName);
         });
 
         registry.setTestSuitesCompiled(true);
@@ -302,13 +299,13 @@ public class BTestRunner {
      *
      * @param programFile program file generated
      */
-    private void processProgramFile(BLangPackage programFile, TestarinaClassLoader classLoader) {
+    private void processProgramFile(TestMetaData programFile, String testName) {
         // process the compiled files
         ServiceLoader<CompilerPlugin> processorServiceLoader = ServiceLoader.load(CompilerPlugin.class);
         processorServiceLoader.forEach(plugin -> {
             if (plugin instanceof TestAnnotationProcessor) {
                 try {
-                    packageProcessed(programFile, classLoader);
+                    packageProcessed(programFile, testName);
                 } catch (BLauncherException e) {
                     throw e;
                 } catch (Exception e) {
@@ -323,21 +320,21 @@ public class BTestRunner {
     /**
      * This method will process BLangPackage and assign functions to test suite.
      *
-     * @param bLangPackage compiled package.
-     * @param classLoader  class loader to load and run package tests.
+     * @param testMetaData compiled package.
+     * @param testName  class loader to load and run package tests.
      */
-    public void packageProcessed(BLangPackage bLangPackage, TestarinaClassLoader classLoader) {
+    private void packageProcessed(TestMetaData testMetaData, String testName) {
         //packageInit = false;
         // TODO the below line is required since this method is currently getting explicitly called from BTestRunner
-        TestSuite suite = TesterinaRegistry.getInstance().getTestSuites().get(bLangPackage.packageID.toString());
+        TestSuite suite = TesterinaRegistry.getInstance().getTestSuites().get(testMetaData.getPackageID().toString());
 
-        if (!bLangPackage.hasTestablePackage()) {
+        if (!testMetaData.isHasTestablePackages()) {
             return;
         }
 
         if (suite == null) {
             throw LauncherUtils.createLauncherException("No test suite found for [module]: "
-                    + bLangPackage.packageID.getName());
+                    + testMetaData.getPackageID().getName());
         }
         // By default the test init function is set as the init function of the test suite
         // FunctionInfo initFunction = programFile.getEntryPackage().getTestInitFunctionInfo();
@@ -346,57 +343,59 @@ public class BTestRunner {
         //if (initFunction == null) {
         //    initFunction = programFile.getEntryPackage().getInitFunctionInfo();
         //}
-        String initClassName = BFileUtil.getQualifiedClassName(bLangPackage.packageID.orgName.value,
-                bLangPackage.packageID.name.value,
+        String initClassName = BFileUtil.getQualifiedClassName(testMetaData.getPackageID().orgName.value,
+                testMetaData.getPackageID().name.value,
                 MODULE_INIT_CLASS_NAME);
-        Class<?> initClazz = classLoader.loadClass(initClassName);
 
-        suite.setInitFunction(new TesterinaFunction(initClazz, bLangPackage.initFunction));
-        suite.setStartFunction(new TesterinaFunction(initClazz, bLangPackage.startFunction));
-        suite.setStopFunction(new TesterinaFunction(initClazz, bLangPackage.stopFunction));
-        // add all functions of the package as utility functions
-        addTestUtilityFunctions(bLangPackage, classLoader, suite, bLangPackage);
-        // Add all functions of the test function to test suite
-        if (bLangPackage.hasTestablePackage()) {
-            BLangPackage testablePackage = bLangPackage.getTestablePkg();
-            String testClassName = BFileUtil.getQualifiedClassName(bLangPackage.packageID.orgName.value,
-                    bLangPackage.packageID.name.value,
-                    bLangPackage.packageID.name.value);
+        try {
+            Class<?> initClazz = ClassLoader.getSystemClassLoader().loadClass(initClassName);
 
-            Class<?> testInitClazz = classLoader.loadClass(testClassName);
-            suite.setTestInitFunction(new TesterinaFunction(testInitClazz,
-                    testablePackage.initFunction));
-            suite.setTestStartFunction(new TesterinaFunction(testInitClazz,
-                    testablePackage.startFunction));
-            suite.setTestStopFunction(new TesterinaFunction(testInitClazz,
-                    testablePackage.stopFunction));
+            suite.setInitFunction(new TesterinaFunction(initClazz,
+                    testMetaData.getInitFunctionName()));
+            suite.setStartFunction(new TesterinaFunction(initClazz,
+                    testMetaData.getStartFunctionName()));
+            suite.setStopFunction(new TesterinaFunction(initClazz,
+                    testMetaData.getStopFunctionName()));
+            // add all functions of the package as utility functions
+            for (Map.Entry<String, String> entry : testMetaData.getNormalFunctionNames().entrySet()) {
+                String functionName = entry.getKey();
+                String functionClassName = entry.getValue();
+                Class<?> functionClass = ClassLoader.getSystemClassLoader().loadClass(functionClassName);
 
-            addTestUtilityFunctions(bLangPackage, classLoader, suite, testablePackage);
-        }
-
-        resolveFunctions(suite);
-        int[] testExecutionOrder = checkCyclicDependencies(suite.getTests());
-        List<Test> sortedTests = orderTests(suite.getTests(), testExecutionOrder);
-        suite.setTests(sortedTests);
-        suite.setProgramFile(classLoader);
-    }
-
-    private void addTestUtilityFunctions(BLangPackage bLangPackage, TestarinaClassLoader classLoader, TestSuite suite,
-                                         BLangPackage testablePackage) {
-        for (BLangFunction function : testablePackage.functions) {
-            try {
-                String functionClassName = BFileUtil.getQualifiedClassName(bLangPackage.packageID.orgName.value,
-                        bLangPackage.packageID.name.value, getClassName(function));
-                Class<?> functionClass = classLoader.loadClass(functionClassName);
-                suite.addTestUtilityFunction(new TesterinaFunction(functionClass, function));
-            } catch (RuntimeException e) {
-                // we do nothing here
+                suite.addTestUtilityFunction(new TesterinaFunction(functionClass, functionName));
             }
-        }
-    }
 
-    private String getClassName(BLangFunction function) {
-        return function.pos.src.cUnitName.replace(".bal", "").replace("/", ".");
+            // Add all functions of the test function to test suite
+            String testClassName = BFileUtil.getQualifiedClassName(testMetaData.getPackageID().orgName.value,
+                    testMetaData.getPackageID().name.value,
+                    testMetaData.getPackageID().name.value);
+
+            Class<?> testInitClazz = ClassLoader.getSystemClassLoader().loadClass(testClassName);
+            suite.setTestInitFunction(new TesterinaFunction(testInitClazz,
+                    testMetaData.getTestInitFunctionName()));
+            suite.setTestStartFunction(new TesterinaFunction(testInitClazz,
+                    testMetaData.getTestStartFunctionName()));
+            suite.setTestStopFunction(new TesterinaFunction(testInitClazz,
+                    testMetaData.getTestStopFunctionName()));
+
+            for (Map.Entry<String, String> entry : testMetaData.getTestFunctionNames().entrySet()) {
+                String functionName = entry.getKey();
+                String functionClassName = entry.getValue();
+                Class<?> functionClass = ClassLoader.getSystemClassLoader().loadClass(functionClassName);
+
+                suite.addTestUtilityFunction(new TesterinaFunction(functionClass, functionName));
+            }
+
+            resolveFunctions(suite);
+            int[] testExecutionOrder = checkCyclicDependencies(suite.getTests());
+            List<Test> sortedTests = orderTests(suite.getTests(), testExecutionOrder);
+            suite.setTests(sortedTests);
+            suite.setProgramFile(ClassLoader.getSystemClassLoader());
+        } catch (RuntimeException e) {
+            throw new RuntimeException(e);
+        } catch (Exception e) {
+            throw LauncherUtils.createLauncherException(e.toString());
+        }
     }
 
     private static List<Test> orderTests(List<Test> tests, int[] testExecutionOrder) {
@@ -452,26 +451,26 @@ public class BTestRunner {
                 test.setDataProviderFunction(functions.stream().filter(e -> e.getName().equals(test.getDataProvider()
                 )).findFirst().map(func -> {
                     // TODO these validations are not working properly with the latest refactoring
-                    if (func.getbFunction().getReturnTypeNode() != null) {
-                        BLangType bType = func.getbFunction().getReturnTypeNode();
-                        /*if (bType.getTag() == TypeTags.ARRAY_TAG) {
-                            BArrayType bArrayType = (BArrayType) bType;
-                            int tag = bArrayType.getElementType().getTag();
-                            if (!(tag == TypeTags.ARRAY_TAG || tag == TypeTags.TUPLE_TAG)) {
-                                String message = String.format("Data provider function [%s] should return an array of" +
-                                        " arrays or an array of tuples.", dataProvider);
-                                throw LauncherUtils.createLauncherException(message);
-                            }
-                        } else {
-                            String message = String.format("Data provider function [%s] should return an array of " +
-                                    "arrays or an array of tuples.", dataProvider);
-                            throw LauncherUtils.createLauncherException(message);
-                        }*/
-                    } else {
-                        String message = String.format("Data provider function [%s] should have only one return type" +
-                                ".", dataProvider);
-                        throw LauncherUtils.createLauncherException(message);
-                    }
+//                    if (func.getbFunction().getReturnTypeNode() != null) {
+//                        BLangType bType = func.getbFunction().getReturnTypeNode();
+//                        /*if (bType.getTag() == TypeTags.ARRAY_TAG) {
+//                            BArrayType bArrayType = (BArrayType) bType;
+//                            int tag = bArrayType.getElementType().getTag();
+//                            if (!(tag == TypeTags.ARRAY_TAG || tag == TypeTags.TUPLE_TAG)) {
+//                                String message = String.format("Data provider function [%s] should return an " +
+//                                        "array of arrays or an array of tuples.", dataProvider);
+//                                throw LauncherUtils.createLauncherException(message);
+//                            }
+//                        } else {
+//                            String message = String.format("Data provider function [%s] should return an array of " +
+//                                    "arrays or an array of tuples.", dataProvider);
+//                            throw LauncherUtils.createLauncherException(message);
+//                        }*/
+//                    } else {
+//                        String message = String.format("Data provider function [%s] should have only one " +
+//                                "return type.", dataProvider);
+//                        throw LauncherUtils.createLauncherException(message);
+//                    }
                     return func;
                 }).get());
 
