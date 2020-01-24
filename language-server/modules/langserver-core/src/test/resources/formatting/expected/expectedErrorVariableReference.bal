@@ -66,13 +66,13 @@ function testIndirectErrorVarRef2() {
     map<anydata | error> rest;
     SMS
     (
-    message = message
-    ,
-    other = other
-    ,
-    ...rest
+        message = message
+        ,
+        other = other
+        ,
+        ...rest
     )
     =
-    e
+        e
     ;
 }

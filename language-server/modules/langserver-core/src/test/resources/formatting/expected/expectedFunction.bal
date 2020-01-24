@@ -79,5 +79,5 @@ public function main2() {
     _
     =
     start
-    foo();
+        foo();
 }

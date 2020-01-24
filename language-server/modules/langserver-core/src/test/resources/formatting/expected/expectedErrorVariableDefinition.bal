@@ -159,16 +159,16 @@ function testIndirectErrorVariableDef1() {
 function testIndirectErrorVariableDef2() {
     SMS e = error("the reason", message = "msg");
     var
-    SMS
-    (
-    message = message
-    ,
-    other = other
-    ,
-    ...rest
-    )
+        SMS
+        (
+            message = message
+            ,
+            other = other
+            ,
+            ...rest
+        )
     =
-    e
+        e
     ;
 }
 

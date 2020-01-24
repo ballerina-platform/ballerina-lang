@@ -213,5 +213,5 @@ function printTable(string stmt, string tableName, table<anydata> returnedTable)
     }
 
     table<caa:ApplicationRequest> result = check connection->select("Select * from Application",
-    caa:ApplicationRequest);
+        caa:ApplicationRequest);
 }

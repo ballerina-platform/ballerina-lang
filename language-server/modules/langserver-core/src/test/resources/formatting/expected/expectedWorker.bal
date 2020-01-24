@@ -58,7 +58,7 @@ function test3() {
     worker
     w2
     returns
-    int
+        int
     {
         return 1;
     }
