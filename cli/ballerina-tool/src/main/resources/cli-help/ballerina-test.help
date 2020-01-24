@@ -36,6 +36,9 @@ OPTIONS
        --debug
            Start Ballerina in remote debugging mode.
 
+       -c, --coverage
+           Generate the coverage report for the test run.
+
 CONFIG PROPERTIES
        (--key=value)...
            Set Ballerina environment parameters as key/value pairs.
@@ -51,3 +54,6 @@ EXAMPLES
 
         Run tests in math module.
            $ ballerina test math
+
+        Generate coverage report for tests in math module.
+           $ ballerina test --coverage math

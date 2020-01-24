@@ -50,6 +50,9 @@ OPTIONS
        --experimental
            Enable experimental language features.
 
+       -cc, --coverage
+           Generate the coverage report for the test run.
+
 CONFIG PROPERTIES
        (--key=value)...
            Set Ballerina environment parameters as key/value pairs.
