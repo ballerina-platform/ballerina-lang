@@ -60,8 +60,6 @@ public class ServiceScopeProvider extends LSCompletionProvider {
         completionItems.addAll(this.getResourceSnippets(ctx));
         completionItems.add(Snippet.DEF_FUNCTION.get().build(ctx));
 
-        ctx.put(CompletionKeys.ITEM_SORTER_KEY, BLangService.class);
-
         return completionItems;
     }
 

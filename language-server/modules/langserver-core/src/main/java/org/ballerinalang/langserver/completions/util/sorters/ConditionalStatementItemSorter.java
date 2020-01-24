@@ -24,6 +24,8 @@ import org.eclipse.lsp4j.CompletionItem;
 
 import java.util.List;
 
+import javax.annotation.Nonnull;
+
 /**
  * Completion item sorter for conditional statements such as if statement and while statement conditions.
  * @since 0.965.0
@@ -59,5 +61,11 @@ public class ConditionalStatementItemSorter extends CompletionItemSorter {
                 completionItem.setSortText(Priority.PRIORITY110.toString());
             }
         });
+    }
+
+    @Nonnull
+    @Override
+    List<Class> getAttachedContexts() {
+        return null;
     }
 }

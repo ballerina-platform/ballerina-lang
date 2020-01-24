@@ -22,6 +22,8 @@ import org.eclipse.lsp4j.CompletionItem;
 
 import java.util.List;
 
+import javax.annotation.Nonnull;
+
 /**
  * Completion Item sorter to sort items inside a callable unit body. This is used by functions and resources.
  */
@@ -29,5 +31,11 @@ class CallableUnitBodyItemSorter extends CompletionItemSorter {
     @Override
     public void sortItems(LSContext ctx, List<CompletionItem> completionItems) {
         this.setPriorities(completionItems);
+    }
+
+    @Nonnull
+    @Override
+    List<Class> getAttachedContexts() {
+        return null;
     }
 }

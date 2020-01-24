@@ -27,6 +27,8 @@ import org.eclipse.lsp4j.CompletionItem;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import javax.annotation.Nonnull;
+
 /**
  * Item Sorter for the Variable Definition context.
  */
@@ -60,7 +62,13 @@ public class VariableDefContextItemSorter extends CompletionItemSorter {
             });
         }
     }
-    
+
+    @Override
+    @Nonnull
+    List<Class> getAttachedContexts() {
+        return null;
+    }
+
     private void increasePriority(CompletionItem completionItem) {
         int sortText = Integer.parseInt(completionItem.getSortText());
         completionItem.setSortText(Integer.toString(sortText - 1));

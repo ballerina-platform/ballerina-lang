@@ -28,7 +28,6 @@ import org.ballerinalang.langserver.completions.providers.contextproviders.Annot
 import org.ballerinalang.langserver.completions.spi.LSCompletionProvider;
 import org.ballerinalang.langserver.completions.util.filters.DelimiterBasedContentFilter;
 import org.ballerinalang.langserver.completions.util.filters.SymbolFilters;
-import org.ballerinalang.langserver.completions.util.sorters.TopLevelContextSorter;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
@@ -82,7 +81,6 @@ public class TopLevelScopeProvider extends LSCompletionProvider {
         completionItems.addAll(getBasicTypes(visibleSymbols));
         completionItems.addAll(this.getPackagesCompletionItems(ctx));
 
-        ctx.put(CompletionKeys.ITEM_SORTER_KEY, TopLevelContextSorter.class);
         return completionItems;
     }
 

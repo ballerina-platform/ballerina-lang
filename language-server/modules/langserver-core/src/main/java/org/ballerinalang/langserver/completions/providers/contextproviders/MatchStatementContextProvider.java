@@ -32,7 +32,6 @@ import org.ballerinalang.langserver.completions.builder.BVariableCompletionItemB
 import org.ballerinalang.langserver.completions.spi.LSCompletionProvider;
 import org.ballerinalang.langserver.completions.util.filters.DelimiterBasedContentFilter;
 import org.ballerinalang.langserver.completions.util.filters.SymbolFilters;
-import org.ballerinalang.langserver.completions.util.sorters.MatchContextItemSorter;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.InsertTextFormat;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
@@ -107,8 +106,6 @@ public class MatchStatementContextProvider extends LSCompletionProvider {
                 }
             });
         }
-        ctx.put(CompletionKeys.ITEM_SORTER_KEY, MatchContextItemSorter.class);
-
         return completionItems;
     }
 

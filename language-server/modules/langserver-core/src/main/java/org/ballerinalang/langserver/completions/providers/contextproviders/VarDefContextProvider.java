@@ -19,9 +19,7 @@ package org.ballerinalang.langserver.completions.providers.contextproviders;
 
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.compiler.LSContext;
-import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.spi.LSCompletionProvider;
-import org.ballerinalang.langserver.completions.util.sorters.ActionAndFieldAccessContextItemSorter;
 import org.eclipse.lsp4j.CompletionItem;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
 
@@ -40,15 +38,6 @@ public class VarDefContextProvider extends LSCompletionProvider {
     @Override
     @SuppressWarnings("unchecked")
     public List<CompletionItem> getCompletions(LSContext context) {
-        int invocationOrDelimiterTokenType = context.get(CompletionKeys.INVOCATION_TOKEN_TYPE_KEY);
-
-        Class sorterKey;
-        if (invocationOrDelimiterTokenType > -1) {
-            sorterKey = ActionAndFieldAccessContextItemSorter.class;
-        } else {
-            sorterKey = context.get(CompletionKeys.PARSER_RULE_CONTEXT_KEY).getClass();
-        }
-        context.put(CompletionKeys.ITEM_SORTER_KEY, sorterKey);
         return new ArrayList<>(this.getVarDefExpressionCompletions(context, false));
     }
 }

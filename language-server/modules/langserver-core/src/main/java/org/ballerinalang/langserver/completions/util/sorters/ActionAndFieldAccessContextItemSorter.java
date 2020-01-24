@@ -24,6 +24,8 @@ import org.eclipse.lsp4j.CompletionItem;
 
 import java.util.List;
 
+import javax.annotation.Nonnull;
+
 /**
  * Item Sorter for the actions and field access items.
  */
@@ -59,6 +61,12 @@ public class ActionAndFieldAccessContextItemSorter extends CompletionItemSorter 
                     break;
             }
         });
+    }
+
+    @Override
+    @Nonnull
+    List<Class> getAttachedContexts() {
+        return null;
     }
 
     private void decreasePriority(CompletionItem completionItem) {

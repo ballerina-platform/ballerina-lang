@@ -25,7 +25,6 @@ import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.SymbolInfo;
 import org.ballerinalang.langserver.completions.spi.LSCompletionProvider;
 import org.ballerinalang.langserver.completions.util.Snippet;
-import org.ballerinalang.langserver.completions.util.sorters.ActionAndFieldAccessContextItemSorter;
 import org.eclipse.lsp4j.CompletionItem;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
 
@@ -56,7 +55,6 @@ public class ObjectFieldDefinitionContextProvider extends LSCompletionProvider {
         if (invocationOrDelimiterTokenType == BallerinaParser.COLON) {
             String pkgName = lhsTokens.get(lhsTokenTypes.indexOf(invocationOrDelimiterTokenType) - 1).getText();
             completionItems.addAll(this.getTypesInPackage(visibleSymbols, pkgName, ctx));
-            ctx.put(CompletionKeys.ITEM_SORTER_KEY, ActionAndFieldAccessContextItemSorter.class);
             return completionItems;
         }
 

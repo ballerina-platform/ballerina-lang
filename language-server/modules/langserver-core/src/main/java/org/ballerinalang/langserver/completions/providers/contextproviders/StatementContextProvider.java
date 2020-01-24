@@ -113,7 +113,6 @@ public class StatementContextProvider extends LSCompletionProvider {
         // Now we need to sort the completion items and populate the completion items specific to the scope owner
         // as an example, resource, action, function scopes are different from the if-else, while, and etc
         Class itemSorter = context.get(CompletionKeys.BLOCK_OWNER_KEY).getClass();
-        context.put(CompletionKeys.ITEM_SORTER_KEY, itemSorter);
 
         return completionItems;
     }

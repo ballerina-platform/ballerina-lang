@@ -22,6 +22,8 @@ import org.eclipse.lsp4j.CompletionItem;
 
 import java.util.List;
 
+import javax.annotation.Nonnull;
+
 /**
  * Default Item Sorter.
  */
@@ -29,5 +31,11 @@ public class DefaultItemSorter extends CompletionItemSorter {
     @Override
     public void sortItems(LSContext ctx, List<CompletionItem> completionItems) {
         this.setPriorities(completionItems);
+    }
+
+    @Nonnull
+    @Override
+    List<Class> getAttachedContexts() {
+        return null;
     }
 }

@@ -23,6 +23,8 @@ import org.eclipse.lsp4j.CompletionItem;
 
 import java.util.List;
 
+import javax.annotation.Nonnull;
+
 /**
  * Item Sorter for the statement context.
  */
@@ -40,5 +42,11 @@ public class StatementContextItemSorter extends CompletionItemSorter {
         if (startTokenIndex > 0 && stopTokenIndex < 0) {
             completionItems.clear();
         }
+    }
+
+    @Nonnull
+    @Override
+    List<Class> getAttachedContexts() {
+        return null;
     }
 }

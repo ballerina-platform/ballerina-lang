@@ -23,6 +23,8 @@ import org.eclipse.lsp4j.CompletionItem;
 
 import java.util.List;
 
+import javax.annotation.Nonnull;
+
 /**
  * Abstract implementation for the completion Item Sorter.
  */
@@ -106,4 +108,6 @@ public abstract class CompletionItemSorter {
                 
         }
     }
+
+    abstract @Nonnull List<Class> getAttachedContexts();
 }

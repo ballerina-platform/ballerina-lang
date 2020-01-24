@@ -27,7 +27,6 @@ import org.ballerinalang.langserver.completions.LSCompletionProviderFactory;
 import org.ballerinalang.langserver.completions.TreeVisitor;
 import org.ballerinalang.langserver.completions.sourceprune.CompletionsTokenTraverserFactory;
 import org.ballerinalang.langserver.completions.spi.LSCompletionProvider;
-import org.ballerinalang.langserver.completions.util.sorters.ItemSorters;
 import org.ballerinalang.langserver.sourceprune.SourcePruner;
 import org.ballerinalang.langserver.sourceprune.TokenTraverserFactory;
 import org.eclipse.lsp4j.CompletionItem;
@@ -89,7 +88,6 @@ public class CompletionUtil {
 
         boolean isSnippetSupported = ctx.get(CompletionKeys.CLIENT_CAPABILITIES_KEY).getCompletionItem()
                 .getSnippetSupport();
-        ItemSorters.get(ctx.get(CompletionKeys.ITEM_SORTER_KEY)).sortItems(ctx, items);
         for (CompletionItem item : items) {
             if (!isSnippetSupported) {
                 item.setInsertText(CommonUtil.getPlainTextSnippet(item.getInsertText()));

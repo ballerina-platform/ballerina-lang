@@ -24,6 +24,8 @@ import org.eclipse.lsp4j.CompletionItem;
 
 import java.util.List;
 
+import javax.annotation.Nonnull;
+
 /**
  * Item sorter for the service context.
  */
@@ -56,5 +58,11 @@ public class ServiceContextItemSorter extends CompletionItemSorter {
                 completionItem.setSortText(Priority.PRIORITY160.toString());
                 break;
         }
+    }
+
+    @Nonnull
+    @Override
+    List<Class> getAttachedContexts() {
+        return null;
     }
 }

@@ -72,8 +72,6 @@ public class CompletionKeys {
             = new LSContext.Key<>();
     public static final LSContext.Key<Boolean> IN_INVOCATION_PARAM_CONTEXT_KEY
             = new LSContext.Key<>();
-    public static final LSContext.Key<Class> ITEM_SORTER_KEY
-            = new LSContext.Key<>();
     public static final LSContext.Key<Boolean> FORCE_REMOVED_STATEMENT_WITH_PARENTHESIS_KEY
             = new LSContext.Key<>();
     

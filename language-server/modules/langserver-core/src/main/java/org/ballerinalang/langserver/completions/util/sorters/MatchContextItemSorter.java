@@ -25,6 +25,8 @@ import org.eclipse.lsp4j.InsertTextFormat;
 
 import java.util.List;
 
+import javax.annotation.Nonnull;
+
 /**
  * Completion Item sorter for the match statement completions.
  */
@@ -53,5 +55,11 @@ public class MatchContextItemSorter extends CompletionItemSorter {
                 completionItem.setSortText(Priority.PRIORITY130.toString());
             }
         });
+    }
+
+    @Nonnull
+    @Override
+    List<Class> getAttachedContexts() {
+        return null;
     }
 }

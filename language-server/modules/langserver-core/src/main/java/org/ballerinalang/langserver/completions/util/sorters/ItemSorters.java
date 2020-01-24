@@ -17,10 +17,6 @@
 */
 package org.ballerinalang.langserver.completions.util.sorters;
 
-import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
-import org.wso2.ballerinalang.compiler.tree.BLangFunction;
-import org.wso2.ballerinalang.compiler.tree.BLangService;
-
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -29,41 +25,14 @@ import java.util.Map;
  * Item sorters to be used on sorting completion items, based on the scope.
  */
 public enum ItemSorters {
-    ASSIGNMENT_STMT_ITEM_SORTER(BallerinaParser.AssignmentStatementContext.class,
-            new AssignmentStmtContextSorter()),
-    FUNCTION_BODY_ITEM_SORTER(BLangFunction.class,
-            new CallableUnitBodyItemSorter()),
-    DEFAULT_ITEM_SORTER(DefaultItemSorter.class,
-            new DefaultItemSorter()),
-    SERVICE_BODY_ITEM_SORTER(BLangService.class,
-            new ServiceContextItemSorter()),
-    STATEMENT_CONTEXT_ITEM_SORTER(StatementContextItemSorter.class,
-            new StatementContextItemSorter()),
-    VAR_DEF_CONTEXT_ITEM_SORTER(BallerinaParser.VariableDefinitionStatementContext.class,
-            new VariableDefContextItemSorter()),
-    GLOBAL_VAR_DEF_CONTEXT_ITEM_SORTER(BallerinaParser.GlobalVariableDefinitionContext.class,
-            new VariableDefContextItemSorter()),
-    CONDITIONAL_STMT_CONTEXT_ITEM_SORTER(ConditionalStatementItemSorter.class,
-            new ConditionalStatementItemSorter()),
-    MATCH_STMT_CONTEXT_ITEM_SORTER(MatchContextItemSorter.class,
-            new MatchContextItemSorter()),
-    TOP_LEVEL_MATCH_STMT_CONTEXT_ITEM_SORTER(TopLevelContextSorter.class,
-            new TopLevelContextSorter()),
-    ACTION_AND_FIELD_ITEM_SORTER(ActionAndFieldAccessContextItemSorter.class,
-            new ActionAndFieldAccessContextItemSorter());
-    
-    private final Class context;
+    BLOCK_STMT_ITEM_SORTER(new BlockStatementItemSorter());
+
     private final CompletionItemSorter itemSorter;
     private static final Map<Class, CompletionItemSorter> resolverMap =
             Collections.unmodifiableMap(initializeMapping());
 
-    ItemSorters(Class context, CompletionItemSorter itemSorter) {
-        this.context = context;
+    ItemSorters(CompletionItemSorter itemSorter) {
         this.itemSorter = itemSorter;
-    }
-
-    private Class getContext() {
-        return context;
     }
 
     private CompletionItemSorter getItemSorter() {
@@ -85,7 +54,9 @@ public enum ItemSorters {
     private static Map<Class, CompletionItemSorter> initializeMapping() {
         Map<Class, CompletionItemSorter> map = new HashMap<>();
         for (ItemSorters resolver : ItemSorters.values()) {
-            map.put(resolver.getContext(), resolver.getItemSorter());
+            for (Class attachedContext : resolver.itemSorter.getAttachedContexts()) {
+                map.put(attachedContext, resolver.getItemSorter());
+            }
         }
         return map;
     }
