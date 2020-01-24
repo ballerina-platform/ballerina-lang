@@ -365,3 +365,15 @@ type Detail record {
 function errorReturningFunc(int? i) returns error<string, Detail> {
     return error("hello", message = "hello", code = i, f = 1.0);
 }
+
+function testInvalidAccessOfOutOfScopeVar() {
+    int? i = ();
+
+    if i is int {
+        int j = 100;
+        i = ();
+    } else {
+        () n = i;
+        int k = j; // undefined symbol 'j'
+    }
+}

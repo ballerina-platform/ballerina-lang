@@ -110,13 +110,13 @@ public class TypeNarrower extends BLangNodeVisitor {
      * @return target environment
      */
     public SymbolEnv evaluateFalsity(BLangExpression expr, BLangNode targetNode, SymbolEnv env) {
-        Map<BVarSymbol, NarrowedTypes> narroedTypes = getNarrowedTypes(expr, env);
-        if (narroedTypes.isEmpty()) {
+        Map<BVarSymbol, NarrowedTypes> narrowedTypes = getNarrowedTypes(expr, env);
+        if (narrowedTypes.isEmpty()) {
             return env;
         }
 
         SymbolEnv targetEnv = getTargetEnv(targetNode, env);
-        narroedTypes.forEach((symbol, typeInfo) -> {
+        narrowedTypes.forEach((symbol, typeInfo) -> {
             symbolEnter.defineTypeNarrowedSymbol(expr.pos, targetEnv, getOriginalVarSymbol(symbol), typeInfo.falseType);
         });
 
@@ -194,13 +194,15 @@ public class TypeNarrower extends BLangNodeVisitor {
             case UNARY_EXPR:
                 break;
             default:
-                expr.narrowedTypeInfo = new HashMap<>();
+                if (expr.narrowedTypeInfo == null) {
+                    expr.narrowedTypeInfo = new HashMap<>();
+                }
                 return;
         }
 
         SymbolEnv prevEnv = this.env;
         this.env = env;
-        if (expr != null && expr.narrowedTypeInfo == null) {
+        if (expr.narrowedTypeInfo == null) {
             expr.narrowedTypeInfo = new HashMap<>();
             expr.accept(this);
         }
@@ -298,7 +300,7 @@ public class TypeNarrower extends BLangNodeVisitor {
         return BUnionType.create(null, union);
     }
 
-    private BVarSymbol getOriginalVarSymbol(BVarSymbol varSymbol) {
+    BVarSymbol getOriginalVarSymbol(BVarSymbol varSymbol) {
         if (varSymbol.originalSymbol == null) {
             return varSymbol;
         }
