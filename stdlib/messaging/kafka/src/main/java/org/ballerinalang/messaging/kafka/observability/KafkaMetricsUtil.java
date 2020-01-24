@@ -32,6 +32,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.util.Set;
 
 /**
@@ -110,9 +111,9 @@ public class KafkaMetricsUtil {
     /**
      * Reports a message being published by a Kafka producer.
      *
-     * @param producerObject  producer object.
-     * @param topic Subject the message is published to.
-     * @param value  Message object.
+     * @param producerObject producer object.
+     * @param topic          Subject the message is published to.
+     * @param value          Message object.
      */
     public static void reportPublish(ObjectValue producerObject, String topic, Object value) {
         if (!ObserveUtils.isMetricsEnabled()) {
@@ -120,12 +121,8 @@ public class KafkaMetricsUtil {
         }
         int size = 0;
         if (value instanceof String) {
-            try {
-                byte[] bytes = ((String) value).getBytes("UTF-8");
-                size = bytes.length;
-            } catch (UnsupportedEncodingException e) {
-                LoggerFactory.getLogger(KafkaMetricsUtil.class).error(e.getMessage());
-            }
+            byte[] bytes = ((String) value).getBytes(StandardCharsets.UTF_8);
+            size = bytes.length;
         } else if (value instanceof Long || value instanceof Double) {
             size = 8;
         } else if (value instanceof byte[]) {
@@ -151,8 +148,8 @@ public class KafkaMetricsUtil {
     /**
      * Reports a consumer subscribing to a subject.
      *
-     * @param consumerObject    Consumer object.
-     * @param topicsList        List of topics that the consumer subscribes to.
+     * @param consumerObject Consumer object.
+     * @param topicsList     List of topics that the consumer subscribes to.
      */
     public static void reportBulkSubscription(ObjectValue consumerObject, Set<String> topicsList) {
         if (!ObserveUtils.isMetricsEnabled()) {
@@ -166,8 +163,8 @@ public class KafkaMetricsUtil {
     /**
      * Reports a consumer subscribing to a topic.
      *
-     * @param consumerObject    Consumer object.
-     * @param topic             Topic that the consumer subscribes to.
+     * @param consumerObject Consumer object.
+     * @param topic          Topic that the consumer subscribes to.
      */
     public static void reportSubscription(ObjectValue consumerObject, String topic) {
         if (!ObserveUtils.isMetricsEnabled()) {
@@ -178,14 +175,14 @@ public class KafkaMetricsUtil {
                                                                         KafkaUtils.getBootstrapServers(consumerObject),
                                                                         topic);
         setGauge(observerContext, KafkaObservabilityConstants.METRIC_SUBSCRIPTION[0],
-                       KafkaObservabilityConstants.METRIC_SUBSCRIPTION[1], 1);
+                 KafkaObservabilityConstants.METRIC_SUBSCRIPTION[1], 1);
     }
 
     /**
      * Reports a consumer unsubscribing from a subject.
      *
-     * @param consumerObject    Consumer object.
-     * @param topic             Subject that the consumer unsubscribes from.
+     * @param consumerObject Consumer object.
+     * @param topic          Subject that the consumer unsubscribes from.
      */
     public static void reportUnsubscription(ObjectValue consumerObject, String topic) {
         if (!ObserveUtils.isMetricsEnabled()) {
@@ -196,14 +193,14 @@ public class KafkaMetricsUtil {
                                                                         KafkaUtils.getBootstrapServers(consumerObject),
                                                                         topic);
         resetGauge(observerContext, KafkaObservabilityConstants.METRIC_SUBSCRIPTION[0],
-                       KafkaObservabilityConstants.METRIC_SUBSCRIPTION[1]);
+                   KafkaObservabilityConstants.METRIC_SUBSCRIPTION[1]);
     }
 
     /**
      * Reports a consumer unsubscribing from multiple topics.
      *
-     * @param consumerObject    Consumer object.
-     * @param topics            Subjects that the consumer unsubscribes from.
+     * @param consumerObject Consumer object.
+     * @param topics         Subjects that the consumer unsubscribes from.
      */
     public static void reportBulkUnsubscription(ObjectValue consumerObject, Set<String> topics) {
         if (!ObserveUtils.isMetricsEnabled()) {
@@ -217,9 +214,9 @@ public class KafkaMetricsUtil {
     /**
      * Reports a message consumption of a consumer.
      *
-     * @param consumerObject    Consumer object.
-     * @param topic             Subject that the consumer receives the message from.
-     * @param size              Size of the message in bytes.
+     * @param consumerObject Consumer object.
+     * @param topic          Subject that the consumer receives the message from.
+     * @param size           Size of the message in bytes.
      */
     public static void reportConsume(ObjectValue consumerObject, String topic, int size) {
         if (!ObserveUtils.isMetricsEnabled()) {
@@ -235,8 +232,8 @@ public class KafkaMetricsUtil {
     /**
      * Reports a consumer consuming a record of messages.
      *
-     * @param consumerObject    Consumer object.
-     * @param records           Records
+     * @param consumerObject Consumer object.
+     * @param records        Records
      */
     public static void reportConsume(ObjectValue consumerObject, ConsumerRecords records) {
         if (!ObserveUtils.isMetricsEnabled()) {
@@ -252,8 +249,8 @@ public class KafkaMetricsUtil {
      * Reports an error generated by a producer. This method is called when the URL/subject of the current producer is
      * unknown. e.g. when a Kafka connection doesn't exist for a producer.
      *
-     * @param producerObject    Producer object.
-     * @param errorType         Type of the error.
+     * @param producerObject Producer object.
+     * @param errorType      Type of the error.
      */
     public static void reportProducerError(ObjectValue producerObject, String errorType) {
         if (!ObserveUtils.isMetricsEnabled()) {
@@ -279,8 +276,8 @@ public class KafkaMetricsUtil {
      * Reports an error generated by a consumer. This method is called when the URL/subject of the current consumer is
      * unknown. e.g. when a Kafka connection doesn't exist for a consumer.
      *
-     * @param consumerObject    Consumer object.
-     * @param errorType         Type of the error.
+     * @param consumerObject Consumer object.
+     * @param errorType      Type of the error.
      */
     public static void reportConsumerError(ObjectValue consumerObject, String errorType) {
         if (!ObserveUtils.isMetricsEnabled()) {
@@ -292,9 +289,9 @@ public class KafkaMetricsUtil {
     /**
      * Reports an error generated by a consumer.
      *
-     * @param consumerObject    Consumer object.
-     * @param topic             Subject that the consumer is subscribed to.
-     * @param errorType         Type of the error.
+     * @param consumerObject Consumer object.
+     * @param topic          Subject that the consumer is subscribed to.
+     * @param errorType      Type of the error.
      */
     public static void reportConsumerError(ObjectValue consumerObject, String topic, String errorType) {
         if (!ObserveUtils.isMetricsEnabled()) {
