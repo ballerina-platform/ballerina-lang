@@ -230,6 +230,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.EnumSet;
@@ -241,7 +242,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.Stack;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static org.wso2.ballerinalang.compiler.util.Constants.INIT_METHOD_SPLIT_SIZE;
@@ -644,22 +644,21 @@ public class Desugar extends BLangNodeVisitor {
         }
 
         // Add object level variables to the init function.
-        Map<BSymbol, BLangStatement> initFunctionStmts = objectTypeNode.generatedInitFunction.initFunctionStmts;
-        objectTypeNode.fields.stream()
-                // skip if the field is already have an value set by the constructor.
-                .filter(field -> !initFunctionStmts.containsKey(field.symbol))
-                .filter(field -> field.expr != null)
-                .forEachOrdered(field -> {
-                    initFunctionStmts.put(field.symbol,
-                                          createStructFieldUpdate(objectTypeNode.generatedInitFunction, field,
-                                                                  objectTypeNode.generatedInitFunction.receiver.symbol));
-                });
+        Map<BSymbol, BLangStatement> initFuncStmts = objectTypeNode.generatedInitFunction.initFunctionStmts;
+        for (BLangSimpleVariable field : objectTypeNode.fields) {
+            // skip if the field is already have an value set by the constructor.
+            if (!initFuncStmts.containsKey(field.symbol) && field.expr != null) {
+                initFuncStmts.put(field.symbol,
+                                  createStructFieldUpdate(objectTypeNode.generatedInitFunction, field,
+                                                          objectTypeNode.generatedInitFunction.receiver.symbol));
+            }
+        }
 
         // Adding init statements to the init function.
-        BLangStatement[] initStmts = initFunctionStmts.values().toArray(new BLangStatement[0]);
-        int i;
-        for (i = 0; i < initFunctionStmts.size(); i++) {
-            objectTypeNode.generatedInitFunction.body.stmts.add(i, initStmts[i]);
+        Collection<BLangStatement> initStmts = initFuncStmts.values();
+        int i = 0;
+        for (BLangStatement stmt : initStmts) {
+            objectTypeNode.generatedInitFunction.body.stmts.add(i++, stmt);
         }
 
         if (objectTypeNode.initFunction != null) {
@@ -669,7 +668,9 @@ public class Desugar extends BLangNodeVisitor {
 
         // Rewrite the object methods to ensure that any anonymous types defined in method params, return type etc.
         // gets defined before its first use.
-        objectTypeNode.functions.forEach(fn -> rewrite(fn, this.env));
+        for (BLangFunction fn : objectTypeNode.functions) {
+            rewrite(fn, this.env);
+        }
         rewrite(objectTypeNode.generatedInitFunction, this.env);
         rewrite(objectTypeNode.initFunction, this.env);
 
@@ -716,27 +717,23 @@ public class Desugar extends BLangNodeVisitor {
             env.enclPkg.topLevelNodes.add(recordTypeNode.initFunction);
         }
 
-        Map<Name, BVarSymbol> params = recordTypeNode.initFunction.requiredParams.stream()
-                .map(param -> param.symbol).collect(Collectors.toMap(paramSym -> paramSym.name, Function.identity()));
-
         // Add struct level variables to the init function.
-        recordTypeNode.fields.stream()
-                // Only add a field if it is required. Checking if it's required is enough since non-defaultable
-                // required fields will have been caught in the type checking phase.
-                .filter(field -> !recordTypeNode.initFunction.initFunctionStmts.containsKey(field.symbol) &&
-                        !Symbols.isOptional(field.symbol))
-                .filter(field -> field.expr != null)
-                .forEachOrdered(field -> {
-                    recordTypeNode.initFunction.initFunctionStmts
-                            .put(field.symbol, createStructFieldUpdate(recordTypeNode.initFunction, field,
-                                                                       recordTypeNode.initFunction.receiver.symbol));
-                });
+        for (BLangSimpleVariable field : recordTypeNode.fields) {
+            // Only add a field if it is required. Checking if it's required is enough since non-defaultable
+            // required fields will have been caught in the type checking phase.
+            if (!recordTypeNode.initFunction.initFunctionStmts.containsKey(field.symbol) &&
+                    !Symbols.isOptional(field.symbol) && field.expr != null) {
+                recordTypeNode.initFunction.initFunctionStmts
+                        .put(field.symbol, createStructFieldUpdate(recordTypeNode.initFunction, field,
+                                                                   recordTypeNode.initFunction.receiver.symbol));
+            }
+        }
 
         //Adding init statements to the init function.
-        BLangStatement[] initStmts = recordTypeNode.initFunction.initFunctionStmts
-                .values().toArray(new BLangStatement[0]);
-        for (int i = 0; i < recordTypeNode.initFunction.initFunctionStmts.size(); i++) {
-            recordTypeNode.initFunction.body.stmts.add(i, initStmts[i]);
+        Collection<BLangStatement> initStmts = recordTypeNode.initFunction.initFunctionStmts.values();
+        int i = 0;
+        for (BLangStatement stmt : initStmts) {
+            recordTypeNode.initFunction.body.stmts.add(i++, stmt);
         }
 
         // TODO:
@@ -750,7 +747,6 @@ public class Desugar extends BLangNodeVisitor {
             result = userDefinedType;
             return;
         }
-
 
         result = recordTypeNode;
     }
