@@ -27,7 +27,7 @@ import org.testng.annotations.Test;
 /**
  * Negative test class to check the Unicode patterns.
  */
-public class UniCodeTest {
+public class UnicodeTest {
 
     CompileResult result;
 
@@ -37,7 +37,7 @@ public class UniCodeTest {
     }
 
     @Test(description = "Test the unicode code patterns.")
-    public void testUniCode() {
-        BRunUtil.invoke(result, "testUniCode");
+    public void testUnicode() {
+        BRunUtil.invoke(result, "testUnicode");
     }
 }

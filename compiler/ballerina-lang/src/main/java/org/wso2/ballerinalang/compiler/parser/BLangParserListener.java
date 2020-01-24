@@ -2713,8 +2713,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
                     int offset = originalText.indexOf(hexStringWithBraces) + 1;
                     dlog.error(new DiagnosticPos(diagnosticSrc, pos.sLine, pos.eLine, pos.sCol + offset,
                                     pos.sCol + offset + hexStringWithBraces.length()),
-                            DiagnosticCode.UNSUPPORTED_UNICODE,
-                            hexStringWithBraces);
+                            DiagnosticCode.INVALID_UNICODE, hexStringWithBraces);
                 }
                 text = matcher.replaceFirst("\\\\u" + hexStringVal);
                 matcher = pattern.matcher(text);

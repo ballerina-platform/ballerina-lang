@@ -16,7 +16,7 @@
 
 const ASSERTION_ERROR_REASON = "AssertionError";
 
-function testUniCode() {
+function testUnicode() {
     string s1 = "\u{0633}";
     string s2 = "ABC\u{0633}CDE";
     string s3 = "ABC \u{0633} CDE";

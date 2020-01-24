@@ -461,7 +461,7 @@ public enum DiagnosticCode {
     INVALID_INVOCATION_LVALUE_COMPOUND_ASSIGNMENT("invalid.lvalue.lhs.of.compound.assignment"),
 
     IDENTIFIER_LITERAL_ONLY_SUPPORTS_ALPHANUMERICS("identifier.literal.only.supports.alphanumerics"),
-    UNSUPPORTED_UNICODE("unsupported.unicode")
+    INVALID_UNICODE("invalid.unicode")
 
     ;
     private String value;

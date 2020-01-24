@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-function testUniCodeNegative() {
+function testUnicodeNegative() {
     string s1 = "\u{D800}";
     string s2 = "\u{D8FF}";
     string s3 = "\u{DFFF}";
