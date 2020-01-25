@@ -224,7 +224,8 @@ public type CookieStore object {
     # Removes cookies which match with the given domain.
     #
     # + domain - Domain of the cookie to be removed
-    public function removeCookiesByDomain(string domain) {
+    # + return - An error will be returned if there is any error occurred during removing cookies by domain or else nil is returned
+    public function removeCookiesByDomain(string domain) returns error? {
         Cookie[] allCookies = self.getAllCookies();
         lock {
             foreach var cookie in allCookies {
@@ -236,7 +237,8 @@ public type CookieStore object {
                 if (cookieName is string && cookiePath is string) {
                     var result = self.removeCookie(cookieName, domain, cookiePath);
                     if (result is error) {
-                        log:printError("An error occurred while removing cookie: ", err = result);
+                        CookieHandlingError err = error(COOKIE_HANDLING_ERROR, message = "Error in removing cookies", cause = result);
+                        return err;
                     }
                 }
             }
@@ -244,12 +246,16 @@ public type CookieStore object {
     }
 
     # Removes all expired cookies.
-    public function removeExpiredCookies() {
+    #
+    # + return - An error will be returned if there is any error occurred during removing expired cookies or else nil is returned
+    public function removeExpiredCookies() returns error? {
+        CookieHandlingError err;
         var persistentCookieHandler = self.persistentCookieHandler;
         if (persistentCookieHandler is PersistentCookieHandler) {
             var result = persistentCookieHandler.getAllCookies();
             if (result is error) {
-                log:printError("An error occurred while removing expired cookies: ", err = result);
+                err = error(COOKIE_HANDLING_ERROR, message = "Error in removing expired cookies", cause = result);
+                return err;
             } else {
                 lock {
                     foreach var cookie in result {
@@ -262,7 +268,8 @@ public type CookieStore object {
                         if (cookieName is string && cookieDomain is string && cookiePath is string) {
                             var removeResult = persistentCookieHandler.removeCookie(cookieName, cookieDomain, cookiePath);
                             if (removeResult is error) {
-                                log:printError("An error occurred while removing expired cookies: ", err = removeResult);
+                                err = error(COOKIE_HANDLING_ERROR, message = "Error in removing expired cookies", cause = removeResult);
+                                return err;
                             }
                         }
 
@@ -270,7 +277,8 @@ public type CookieStore object {
                 }
             }
         } else {
-            log:printError("No persistent cookie store to remove expired cookies");
+            err = error(COOKIE_HANDLING_ERROR, message = "No persistent cookie store to remove expired cookies");
+            return err;
         }
     }
 

@@ -85,38 +85,35 @@ public type CsvPersistentCookieHandler object {
     public function getAllCookies() returns @tainted Cookie[] | CookieHandlingError {
         Cookie[] cookies = [];
         if (file:exists(self.fileName)) {
-            if(!self.cookiesTable.hasNext()) {
-                var tblResult = readFile(self.fileName);
-                if (tblResult is table<myCookie>) {
-                    self.cookiesTable = tblResult;
-                } else {
-                    CookieHandlingError err = error(COOKIE_HANDLING_ERROR, message = "Error in reading the csv file", cause = tblResult);
-                    return err;
+            var tblResult = readFile(self.fileName);
+            if (tblResult is table<myCookie>) {
+                foreach var rec in tblResult {
+                    Cookie cookie = new(rec.name, rec.value);
+                    cookie.domain = rec.domain;
+                    cookie.path = rec.path;
+                    cookie.expires = rec.expires == "-" ? () : rec.expires;
+                    cookie.maxAge = rec.maxAge;
+                    cookie.httpOnly = rec.httpOnly;
+                    cookie.secure = rec.secure;
+                    time:Time | error t1 = time:parse(rec.createdTime, "yyyy-MM-dd'T'HH:mm:ss.SSSZ");
+                    if (t1 is time:Time) {
+                        cookie.createdTime = t1;
+                    }
+                    time:Time | error t2 = time:parse(rec.lastAccessedTime, "yyyy-MM-dd'T'HH:mm:ss.SSSZ");
+                    if (t2 is time:Time) {
+                        cookie.lastAccessedTime = t2;
+                    }
+                    cookie.hostOnly = rec.hostOnly;
+                    cookies.push(cookie);
                 }
+                return cookies;
+            } else {
+                CookieHandlingError err = error(COOKIE_HANDLING_ERROR, message = "Error in reading the csv file", cause = tblResult);
+                return err;
             }
-            foreach var rec in self.cookiesTable {
-                Cookie cookie = new(rec.name, rec.value);
-                cookie.domain = rec.domain;
-                cookie.path = rec.path;
-                cookie.expires = rec.expires == "-" ? () : rec.expires;
-                cookie.maxAge = rec.maxAge;
-                cookie.httpOnly = rec.httpOnly;
-                cookie.secure = rec.secure;
-                time:Time | error t1 = time:parse(rec.createdTime, "yyyy-MM-dd'T'HH:mm:ss.SSSZ");
-                if (t1 is time:Time) {
-                    cookie.createdTime = t1;
-                }
-                time:Time | error t2 = time:parse(rec.lastAccessedTime, "yyyy-MM-dd'T'HH:mm:ss.SSSZ");
-                if (t2 is time:Time) {
-                    cookie.lastAccessedTime = t2;
-                }
-                cookie.hostOnly = rec.hostOnly;
-                cookies.push(cookie);
-            }
-            return cookies;
         }
        return cookies;
-   }
+    }
 
     # Removes a specific persistent cookie.
     #
