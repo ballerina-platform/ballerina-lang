@@ -197,7 +197,7 @@ class NodeCloner extends BLangNodeVisitor {
         return clone;
     }
 
-    private <T extends BLangNode> List<T> cloneList(List<T> nodes) {
+    private <T extends Node> List<T> cloneList(List<T> nodes) {
 
         if (nodes == null) {
             return null;
@@ -767,7 +767,7 @@ class NodeCloner extends BLangNodeVisitor {
 
         BLangRecordLiteral clone = new BLangRecordLiteral();
         source.cloneRef = clone;
-        clone.keyValuePairs = cloneList(source.keyValuePairs);
+        clone.fields = cloneList(source.fields);
     }
 
     @Override

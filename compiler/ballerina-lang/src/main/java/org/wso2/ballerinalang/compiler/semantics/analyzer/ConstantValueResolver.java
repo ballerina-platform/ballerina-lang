@@ -20,6 +20,7 @@ package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
+import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
@@ -114,25 +115,35 @@ public class ConstantValueResolver extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangRecordLiteral recorLiteral) {
+    public void visit(BLangRecordLiteral recordLiteral) {
         Map<String, BLangConstantValue> mapConstVal = new HashMap<>();
-        for (BLangRecordLiteral.BLangRecordKeyValue keyValuePair : recorLiteral.keyValuePairs) {
-            NodeKind nodeKind = keyValuePair.key.expr.getKind();
-
+        for (RecordLiteralNode.RecordField field : recordLiteral.fields) {
             String key;
-            if (nodeKind == NodeKind.LITERAL || nodeKind == NodeKind.NUMERIC_LITERAL) {
-                key = (String) ((BLangLiteral) keyValuePair.key.expr).value;
-            } else if (nodeKind == NodeKind.SIMPLE_VARIABLE_REF) {
-                key = ((BLangSimpleVarRef) keyValuePair.key.expr).variableName.value;
+            BLangConstantValue value;
+
+            if (field.getKind() == NodeKind.RECORD_LITERAL_KEY_VALUE) {
+                BLangRecordLiteral.BLangRecordKeyValue keyValuePair = (BLangRecordLiteral.BLangRecordKeyValue) field;
+                NodeKind nodeKind = keyValuePair.key.expr.getKind();
+
+                if (nodeKind == NodeKind.LITERAL || nodeKind == NodeKind.NUMERIC_LITERAL) {
+                    key = (String) ((BLangLiteral) keyValuePair.key.expr).value;
+                } else if (nodeKind == NodeKind.SIMPLE_VARIABLE_REF) {
+                    key = ((BLangSimpleVarRef) keyValuePair.key.expr).variableName.value;
+                } else {
+                    continue;
+                }
+
+                value = visitExpr(keyValuePair.valueExpr);
             } else {
-                continue;
+                BLangSimpleVarRef varRef = (BLangSimpleVarRef) field;
+                key = varRef.variableName.value;
+                value = visitExpr(varRef);
             }
 
-            BLangConstantValue value = visitExpr(keyValuePair.valueExpr);
             mapConstVal.put(key, value);
         }
 
-        this.result = new BLangConstantValue(mapConstVal, recorLiteral.type);
+        this.result = new BLangConstantValue(mapConstVal, recordLiteral.type);
     }
 
     @Override

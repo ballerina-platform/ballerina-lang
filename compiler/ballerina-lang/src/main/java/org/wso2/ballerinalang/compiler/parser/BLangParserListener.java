@@ -1228,7 +1228,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             DiagnosticPos pos = getCurrentPos(ctx);
             this.pkgBuilder.addNameReference(pos, getWS(ctx), null, ctx.Identifier().getText());
             this.pkgBuilder.createSimpleVariableReference(pos, getWS(ctx));
-            this.pkgBuilder.addIdentifierRecordField(getWS(ctx));
+            this.pkgBuilder.addIdentifierRecordField();
         }
     }
 

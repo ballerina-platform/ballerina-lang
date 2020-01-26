@@ -24,6 +24,7 @@ import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.TopLevelNode;
+import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
@@ -897,15 +898,22 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangRecordLiteral recordLiteral) {
         TaintedStatus isTainted = TaintedStatus.UNTAINTED;
-        for (BLangRecordLiteral.BLangRecordKeyValue keyValuePair : recordLiteral.keyValuePairs) {
-            if (keyValuePair.key.computedKey) {
-                keyValuePair.key.expr.accept(this);
-                if (getCurrentAnalysisState().taintedStatus == TaintedStatus.TAINTED) {
-                    isTainted = TaintedStatus.TAINTED;
+        for (RecordLiteralNode.RecordField field : recordLiteral.fields) {
+
+            if (field.getKind() == NodeKind.RECORD_LITERAL_KEY_VALUE) {
+                BLangRecordLiteral.BLangRecordKeyValue keyValuePair = (BLangRecordLiteral.BLangRecordKeyValue) field;
+                if (keyValuePair.key.computedKey) {
+                    keyValuePair.key.expr.accept(this);
+                    if (getCurrentAnalysisState().taintedStatus == TaintedStatus.TAINTED) {
+                        isTainted = TaintedStatus.TAINTED;
+                    }
                 }
+
+                keyValuePair.valueExpr.accept(this);
+            } else {
+                ((BLangSimpleVarRef) field).accept(this);
             }
 
-            keyValuePair.valueExpr.accept(this);
             // Used to update the variable this literal is getting assigned to.
             if (getCurrentAnalysisState().taintedStatus == TaintedStatus.TAINTED) {
                 isTainted = TaintedStatus.TAINTED;

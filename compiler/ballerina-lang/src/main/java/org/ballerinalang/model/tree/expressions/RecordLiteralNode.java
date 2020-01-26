@@ -17,6 +17,8 @@
 */
 package org.ballerinalang.model.tree.expressions;
 
+import org.ballerinalang.model.tree.Node;
+
 import java.util.List;
 
 /**
@@ -26,12 +28,19 @@ import java.util.List;
  */
 public interface RecordLiteralNode extends ExpressionNode {
 
-    List<? extends RecordKeyValueNode> getKeyValuePairs();
+    List<? extends RecordField> getFields();
+
+    /**
+     * @since 1.2.0
+     */
+    interface RecordField extends Node {
+
+    }
 
     /**
      * @since 0.94
      */
-    interface RecordKeyValueNode {
+    interface RecordKeyValueNode extends RecordField {
 
         ExpressionNode getKey();
 

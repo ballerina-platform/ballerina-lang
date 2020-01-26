@@ -43,10 +43,10 @@ import static org.ballerinalang.model.tree.NodeKind.RECORD_LITERAL_KEY_VALUE;
  */
 public class BLangRecordLiteral extends BLangExpression implements RecordLiteralNode {
 
-    public List<BLangRecordKeyValue> keyValuePairs;
+    public List<RecordField> fields;
 
     public BLangRecordLiteral() {
-        keyValuePairs = new ArrayList<>();
+        fields = new ArrayList<>();
     }
 
     public BLangRecordLiteral(DiagnosticPos pos) {
@@ -56,7 +56,7 @@ public class BLangRecordLiteral extends BLangExpression implements RecordLiteral
 
     public BLangRecordLiteral(DiagnosticPos pos, BType type) {
         this.pos = pos;
-        keyValuePairs = new ArrayList<>();
+        fields = new ArrayList<>();
         this.type = type;
     }
 
@@ -71,14 +71,14 @@ public class BLangRecordLiteral extends BLangExpression implements RecordLiteral
     }
 
     @Override
-    public List<BLangRecordKeyValue> getKeyValuePairs() {
-        return keyValuePairs;
+    public List<RecordField> getFields() {
+        return fields;
     }
 
     @Override
     public String toString() {
-        return " {" + keyValuePairs.stream()
-                .map(BLangRecordKeyValue::toString)
+        return " {" + fields.stream()
+                .map(RecordField::toString)
                 .collect(Collectors.joining(",")) + "}";
     }
 
@@ -168,9 +168,9 @@ public class BLangRecordLiteral extends BLangExpression implements RecordLiteral
     public static class BLangStructLiteral extends BLangRecordLiteral {
         public BAttachedFunction initializer;
 
-        public BLangStructLiteral(DiagnosticPos pos, List<BLangRecordKeyValue> keyValuePairs, BType structType) {
+        public BLangStructLiteral(DiagnosticPos pos, List<RecordField> fields, BType structType) {
             super(pos);
-            this.keyValuePairs = keyValuePairs;
+            this.fields = fields;
             this.type = structType;
             this.initializer = ((BRecordTypeSymbol) structType.tsymbol).initializerFunc;
         }
@@ -188,9 +188,9 @@ public class BLangRecordLiteral extends BLangExpression implements RecordLiteral
      */
     public static class BLangMapLiteral extends BLangRecordLiteral {
 
-        public BLangMapLiteral(DiagnosticPos pos, List<BLangRecordKeyValue> keyValuePairs, BType mapType) {
+        public BLangMapLiteral(DiagnosticPos pos, List<RecordField> fields, BType mapType) {
             super(pos);
-            this.keyValuePairs = keyValuePairs;
+            this.fields = fields;
             this.type = mapType;
         }
 
@@ -207,9 +207,9 @@ public class BLangRecordLiteral extends BLangExpression implements RecordLiteral
      */
     public static class BLangJSONLiteral extends BLangRecordLiteral {
 
-        public BLangJSONLiteral(DiagnosticPos pos, List<BLangRecordKeyValue> keyValuePairs, BType jsonType) {
+        public BLangJSONLiteral(DiagnosticPos pos, List<RecordField> fields, BType jsonType) {
             super(pos);
-            this.keyValuePairs = keyValuePairs;
+            this.fields = fields;
             this.type = jsonType;
         }
 

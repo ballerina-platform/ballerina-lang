@@ -26,6 +26,7 @@ import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.tree.expressions.NamedArgNode;
+import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
 import org.ballerinalang.model.tree.statements.BlockNode;
 import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
 import org.ballerinalang.model.tree.types.TypeNode;
@@ -776,9 +777,8 @@ public class Desugar extends BLangNodeVisitor {
         BLangSimpleVarRef trxIdOnCommitRef = ASTBuilderUtil.createVariableRef(funcNode.pos, onCommitTrxVar.symbol);
 
         BLangSimpleVarRef trxIdOnAbortRef = ASTBuilderUtil.createVariableRef(funcNode.pos, onAbortTrxVar.symbol);
-        List<BLangRecordLiteral.BLangRecordKeyValue> valuePairs =
-                ((BLangRecordLiteral) annotation.expr).getKeyValuePairs();
-        for (BLangRecordLiteral.BLangRecordKeyValue keyValuePair : valuePairs) {
+        for (RecordLiteralNode.RecordField field : ((BLangRecordLiteral) annotation.expr).getFields()) {
+            BLangRecordLiteral.BLangRecordKeyValue keyValuePair = (BLangRecordLiteral.BLangRecordKeyValue) field;
             String func = (String) ((BLangLiteral) keyValuePair.getKey()).value;
             switch (func) {
                 case Transactions.TRX_ONCOMMIT_FUNC:
@@ -3059,10 +3059,13 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangRecordLiteral recordLiteral) {
-        recordLiteral.keyValuePairs.sort((v1, v2) -> Boolean.compare(v1.key.computedKey, v2.key.computedKey));
+        rewriteVarRefFields(recordLiteral);
+        List<RecordLiteralNode.RecordField> fields =  recordLiteral.fields;
+        fields.sort((v1, v2) -> Boolean.compare(isComputedKey(v1), isComputedKey(v2)));
 
         // Process the key-val pairs in the record literal
-        recordLiteral.keyValuePairs.forEach(keyValue -> {
+        for (RecordLiteralNode.RecordField field : fields) {
+            BLangRecordLiteral.BLangRecordKeyValue keyValue = (BLangRecordLiteral.BLangRecordKeyValue) field;
             BLangExpression keyExpr = keyValue.key.expr;
             if (!keyValue.key.computedKey && keyExpr.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
                 BLangSimpleVarRef varRef = (BLangSimpleVarRef) keyExpr;
@@ -3072,15 +3075,15 @@ public class Desugar extends BLangNodeVisitor {
             }
 
             keyValue.valueExpr = rewriteExpr(keyValue.valueExpr);
-        });
+        }
 
         BLangExpression expr;
         if (recordLiteral.type.tag == TypeTags.RECORD) {
-            expr = new BLangStructLiteral(recordLiteral.pos, recordLiteral.keyValuePairs, recordLiteral.type);
+            expr = new BLangStructLiteral(recordLiteral.pos, fields, recordLiteral.type);
         } else if (recordLiteral.type.tag == TypeTags.MAP) {
-            expr = new BLangMapLiteral(recordLiteral.pos, recordLiteral.keyValuePairs, recordLiteral.type);
+            expr = new BLangMapLiteral(recordLiteral.pos, fields, recordLiteral.type);
         } else {
-            expr = new BLangJSONLiteral(recordLiteral.pos, recordLiteral.keyValuePairs, recordLiteral.type);
+            expr = new BLangJSONLiteral(recordLiteral.pos, fields, recordLiteral.type);
         }
 
         result = rewriteExpr(expr);
@@ -3432,7 +3435,7 @@ public class Desugar extends BLangNodeVisitor {
                 } else {
                     member.valueExpr = addConversionExprIfRequired(namedArg.expr, namedArg.expr.type);
                 }
-                recordLiteral.keyValuePairs.add(member);
+                recordLiteral.fields.add(member);
                 iExpr.requiredArgs.remove(arg);
             }
             recordLiteral = rewriteExpr(recordLiteral);
@@ -6228,5 +6231,28 @@ public class Desugar extends BLangNodeVisitor {
             return function.restParam.symbol;
         }
         return null;
+    }
+
+    private boolean isComputedKey(RecordLiteralNode.RecordField field) {
+        if (field.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
+            return false;
+        }
+        return ((BLangRecordLiteral.BLangRecordKeyValue) field).key.computedKey;
+    }
+
+    private void rewriteVarRefFields(BLangRecordLiteral recordLiteral) {
+        List<RecordLiteralNode.RecordField> fields =  recordLiteral.fields;
+        List<RecordLiteralNode.RecordField> updatedFields = new ArrayList<>(fields.size());
+
+        for (RecordLiteralNode.RecordField field : fields) {
+            if (field.getKind() == NodeKind.RECORD_LITERAL_KEY_VALUE) {
+                updatedFields.add(field);
+                continue;
+            }
+
+            BLangSimpleVarRef varRef = (BLangSimpleVarRef) field;
+            updatedFields.add(ASTBuilderUtil.createBLangRecordKeyValue(varRef, varRef));
+        }
+        recordLiteral.fields = updatedFields;
     }
 }

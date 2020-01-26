@@ -1342,8 +1342,8 @@ public class BLangPackageBuilder {
         addExpressionNode(listConstructorExpr);
     }
 
-    void addIdentifierRecordField(Set<Whitespace> ws) {
-
+    void addIdentifierRecordField() {
+        recordLiteralNodes.peek().fields.add((BLangSimpleVarRef) exprNodeStack.pop());
     }
 
     void addKeyValueRecordField(Set<Whitespace> ws, boolean computedKey) {
@@ -1355,7 +1355,7 @@ public class BLangPackageBuilder {
             keyValue.addWS(this.recordKeyWS.pop());
         }
         keyValue.key.computedKey = computedKey;
-        recordLiteralNodes.peek().keyValuePairs.add(keyValue);
+        recordLiteralNodes.peek().fields.add(keyValue);
     }
 
     void addRecordKeyWS(Set<Whitespace> ws) {
@@ -1411,7 +1411,7 @@ public class BLangPackageBuilder {
             keyExpr.variableName = identifierNode;
             keyValue.key = new BLangRecordKey(keyExpr);
             //Key-Value pair
-            recordLiteral.keyValuePairs.add(keyValue);
+            recordLiteral.fields.add(keyValue);
             ++index;
         }
         recordLiteral.addWS(ws);
