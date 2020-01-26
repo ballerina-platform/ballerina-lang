@@ -59,7 +59,7 @@ public class KafkaTestUtils {
     }
 
     public static KafkaCluster createKafkaCluster(File dataDir, int zkPort, int brokerPort) {
-        String timeout = "20000";
+        String timeout = "30000";
         return new KafkaCluster()
                 .usingDirectory(dataDir)
                 .deleteDataPriorToStartup(true)

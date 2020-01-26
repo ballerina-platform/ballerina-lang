@@ -251,3 +251,34 @@ table<Teacher> t1 = table {
         { 1, 29 }
     ]
 };
+
+type Qux record {|
+    string s;
+    float f;
+|};
+
+type Baz record {|
+    int i;
+|};
+
+function testInvalidAssignment() {
+    table<Qux> t = table {
+        {key s, f},
+        [
+            {"a", 1.0},
+            {"b", 2.0}
+        ]
+    };
+    table<Baz> t2 = t;
+}
+
+function testInvalidTypeguard() {
+    table<record {}> t = table {};
+    table<record {}>|error t2 = t;
+
+    if t2 is table<Qux> {
+        // table<Qux>
+    } else {
+        error e = t2;
+    }
+}

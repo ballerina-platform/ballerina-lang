@@ -59,7 +59,7 @@ public class KafkaServiceTest {
     }
 
     @Test(description = "Test endpoint bind to a service")
-    public void testKafkaServiceEndpoint() {
+    public void testKafkaService() {
         compileResult = BCompileUtil.compileOffline(true,
                 getFilePath(Paths.get(TEST_SRC, TEST_SERVICES, "kafka_service.bal")));
         String topic = "service-test";

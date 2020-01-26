@@ -198,7 +198,6 @@ public class FunctionNilReturnTest {
         Assert.assertNull(BRunUtil.invoke(compileResult, "testNilableUnion")[0]);
         Assert.assertNull(BRunUtil.invoke(compileResult, "testNilableTuple")[0]);
         Assert.assertNull(BRunUtil.invoke(compileResult, "testNilableTypedesc")[0]);
-        Assert.assertNull(BRunUtil.invoke(compileResult, "testNilableStream")[0]);
 
         // Arrays
         Assert.assertNull(BRunUtil.invoke(compileResult, "testNilableOpenRecordArray")[0]);
@@ -207,6 +206,5 @@ public class FunctionNilReturnTest {
         Assert.assertNull(BRunUtil.invoke(compileResult, "testNilableUnionArray")[0]);
         Assert.assertNull(BRunUtil.invoke(compileResult, "testNilableTupleArray")[0]);
         Assert.assertNull(BRunUtil.invoke(compileResult, "testNilableTypedescArray")[0]);
-        Assert.assertNull(BRunUtil.invoke(compileResult, "testNilableStreamArray")[0]);
     }
 }

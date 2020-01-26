@@ -528,10 +528,10 @@ http:Request {
         request.setTextPayload(message);
     } else if (message is xml) {
         request.setXmlPayload(message);
-    } else if (message is json) {
-        request.setJsonPayload(message);
     } else if (message is byte[]) {
         request.setBinaryPayload(message);
+    } else if (message is json) {
+        request.setJsonPayload(message);
     } else if (message is io:ReadableByteChannel) {
         request.setByteChannel(message);
     } else {

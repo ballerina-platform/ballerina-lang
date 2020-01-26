@@ -17,7 +17,6 @@ package io.ballerina.plugins.idea.extensions;
 
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.event.DocumentListener;
-import com.intellij.openapi.editor.event.EditorMouseListener;
 import io.ballerina.plugins.idea.extensions.client.BallerinaEditorEventManager;
 import io.ballerina.plugins.idea.extensions.client.BallerinaLanguageClient;
 import io.ballerina.plugins.idea.extensions.client.BallerinaRequestManager;
@@ -32,7 +31,9 @@ import org.wso2.lsp4intellij.client.languageserver.requestmanager.RequestManager
 import org.wso2.lsp4intellij.client.languageserver.wrapper.LanguageServerWrapper;
 import org.wso2.lsp4intellij.editor.EditorEventManager;
 import org.wso2.lsp4intellij.extensions.LSPExtensionManager;
+import org.wso2.lsp4intellij.listeners.EditorMouseListenerImpl;
 import org.wso2.lsp4intellij.listeners.EditorMouseMotionListenerImpl;
+import org.wso2.lsp4intellij.listeners.LSPCaretListenerImpl;
 
 /**
  * Contains extended LSP components which serves  ballerina language server related specific capabilities.
@@ -47,11 +48,11 @@ public class BallerinaLSPExtensionManager implements LSPExtensionManager {
 
     @Override
     public <T extends EditorEventManager> T getExtendedEditorEventManagerFor(Editor editor,
-            DocumentListener documentListener, EditorMouseListener mouseListener,
-            EditorMouseMotionListenerImpl mouseMotionListener, RequestManager requestManager,
-            ServerOptions serverOptions, LanguageServerWrapper wrapper) {
+            DocumentListener documentListener, EditorMouseListenerImpl mouseListener,
+            EditorMouseMotionListenerImpl mouseMotionListener, LSPCaretListenerImpl caretListener,
+            RequestManager requestManager, ServerOptions serverOptions, LanguageServerWrapper wrapper) {
         return (T) new BallerinaEditorEventManager(editor, documentListener, mouseListener, mouseMotionListener,
-                requestManager, serverOptions, wrapper);
+                caretListener, requestManager, serverOptions, wrapper);
     }
 
     @Override

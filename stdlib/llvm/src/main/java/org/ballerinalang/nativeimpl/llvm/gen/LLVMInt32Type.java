@@ -21,10 +21,10 @@ import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.nativeimpl.llvm.FFIUtil;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.bytedeco.javacpp.LLVM;
+import org.bytedeco.llvm.LLVM.LLVMTypeRef;
 
 import static org.ballerinalang.model.types.TypeKind.RECORD;
-import static org.bytedeco.javacpp.LLVM.LLVMInt32Type;
+import static org.bytedeco.llvm.global.LLVM.LLVMInt32Type;
 
 /**
  * Auto generated class.
@@ -42,7 +42,7 @@ public class LLVMInt32Type {
 
     public static MapValue<String, Object> llvmInt32Type(Strand strand) {
 
-        LLVM.LLVMTypeRef returnValue = LLVMInt32Type();
+        LLVMTypeRef returnValue = LLVMInt32Type();
         MapValue<String, Object> rerunWrapperRecode = FFIUtil.newRecord();
         FFIUtil.addNativeToRecode(returnValue, rerunWrapperRecode);
         return rerunWrapperRecode;

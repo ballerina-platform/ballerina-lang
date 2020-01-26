@@ -55,6 +55,22 @@ service echo1 on testEP {
         res.setJsonPayload(responseJson);
         checkpanic caller->respond(res);
     }
+
+    @http:ResourceConfig {
+        methods:["PUT"],
+        path : "/test4",
+        cors:{
+            allowOrigins :["*"],
+            allowMethods: ["*"],
+            allowCredentials:true
+        }
+    }
+    resource function info4 (http:Caller caller, http:Request req) {
+        http:Response res = new;
+        json responseJson = {"echo":"moreOrigins"};
+        res.setJsonPayload(responseJson);
+        checkpanic caller->respond(res);
+    }
 }
 
 service hello2 on testEP {
@@ -131,6 +147,41 @@ service echo4 on testEP {
     resource function info2 (http:Caller caller, http:Request req) {
         http:Response res = new;
         json responseJson = {"echo":"noCorsOPTIONS"};
+        res.setJsonPayload(responseJson);
+        checkpanic caller->respond(res);
+    }
+
+    @http:ResourceConfig {
+        methods:["POST"],
+        cors:{
+            allowOrigins:["*"],
+            allowMethods: ["*"],
+            allowCredentials : true,
+            exposeHeaders:["X-Content-Type-Options", "X-PINGOTHER"]
+        }
+    }
+    resource function info3 (http:Caller caller, http:Request req) {
+        http:Response res = new;
+        json responseJson = {"echo":"resourceDefaults"};
+        res.setJsonPayload(responseJson);
+        checkpanic caller->respond(res);
+    }
+}
+
+@http:ServiceConfig {
+    basePath:"/hello5",
+    cors:{
+        allowOrigins:["*"],
+        allowMethods: ["*"]
+    }
+}
+service defaultValues on testEP {
+    @http:ResourceConfig {
+        methods:["POST"]
+    }
+    resource function info1 (http:Caller caller, http:Request req) {
+        http:Response res = new;
+        json responseJson = {"echo":"serviceDefaults"};
         res.setJsonPayload(responseJson);
         checkpanic caller->respond(res);
     }

@@ -430,13 +430,6 @@ public class BIRInstructionWriter extends BIRVisitor {
         newTable.keyColOp.accept(this);
     }
 
-    public void visit(BIRNonTerminator.NewStream newStream) {
-        writePosition(newStream.pos);
-        buf.writeByte(newStream.kind.getValue());
-        writeType(newStream.type);
-        newStream.lhsOp.accept(this);
-    }
-
     // Operands
     public void visit(BIROperand birOperand) {
         if (birOperand.variableDcl.ignoreVariable) {
