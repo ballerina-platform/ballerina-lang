@@ -147,7 +147,7 @@ public class BallerinaWorkspaceService implements WorkspaceService {
                     .build();
 
             try {
-                Optional<LSCommandExecutor> executor = LSCommandExecutorProvider.getInstance()
+                Optional<LSCommandExecutor> executor = LSCommandExecutorProvidersHolder.getInstance()
                         .getCommandExecutor(params.getCommand());
                 if (executor.isPresent()) {
                     return executor.get().execute(executeCmdContext);

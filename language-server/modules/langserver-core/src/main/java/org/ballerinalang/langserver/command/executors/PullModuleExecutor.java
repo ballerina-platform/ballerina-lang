@@ -45,7 +45,7 @@ import static org.ballerinalang.langserver.command.CommandUtil.notifyClient;
  *
  * @since 0.983.0
  */
-@JavaSPIService("org.ballerinalang.langserver.command.LSCommandExecutor")
+@JavaSPIService("org.ballerinalang.langserver.commons.command.spi.LSCommandExecutor")
 public class PullModuleExecutor implements LSCommandExecutor {
 
     // A newCachedThreadPool with a limited max-threads
