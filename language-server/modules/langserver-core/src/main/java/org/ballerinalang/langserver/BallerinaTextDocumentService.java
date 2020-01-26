@@ -18,8 +18,7 @@ package org.ballerinalang.langserver;
 import com.google.gson.JsonObject;
 import org.apache.commons.lang3.tuple.Pair;
 import org.ballerinalang.langserver.client.ExtendedLanguageClient;
-import org.ballerinalang.langserver.codeaction.BallerinaCodeActionRouter;
-import org.ballerinalang.langserver.codeaction.CodeActionNodeType;
+import org.ballerinalang.langserver.codeaction.CodeActionRouter;
 import org.ballerinalang.langserver.codeaction.CodeActionUtil;
 import org.ballerinalang.langserver.codelenses.CodeLensUtil;
 import org.ballerinalang.langserver.codelenses.LSCodeLensesProviderFactory;
@@ -402,8 +401,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 CodeActionNodeType nodeType = CodeActionUtil.topLevelNodeInLine(identifier, line, documentManager);
 
                 // add commands
-                BallerinaCodeActionRouter codeActionRouter = new BallerinaCodeActionRouter();
-                List<CodeAction> codeActions = codeActionRouter.getBallerinaCodeActions(nodeType, context, diagnostics);
+                List<CodeAction> codeActions = CodeActionRouter.getBallerinaCodeActions(nodeType, context, diagnostics);
                 if (codeActions != null) {
                     actions.addAll(codeActions);
                 }
