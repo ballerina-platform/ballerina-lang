@@ -16,10 +16,9 @@
 package org.ballerinalang.langserver.codeaction.providers;
 
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.codeaction.BallerinaCodeActionProvider;
-import org.ballerinalang.langserver.codeaction.CodeActionNodeType;
+import org.ballerinalang.langserver.commons.LSContext;
+import org.ballerinalang.langserver.commons.codeaction.CodeActionNodeType;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
-import org.ballerinalang.langserver.compiler.LSContext;
 import org.eclipse.lsp4j.CodeAction;
 
 import java.util.Arrays;

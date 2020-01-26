@@ -16,7 +16,7 @@
 package org.ballerinalang.langserver.command;
 
 import org.ballerinalang.langserver.BallerinaLanguageServer;
-import org.ballerinalang.langserver.compiler.LSContext;
+import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.diagnostic.DiagnosticsHelper;
 import org.eclipse.lsp4j.Position;

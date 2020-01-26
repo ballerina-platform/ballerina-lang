@@ -16,6 +16,7 @@
 package org.ballerinalang.langserver.compiler;
 
 import org.antlr.v4.runtime.ANTLRErrorStrategy;
+import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.compiler.common.LSDocument;
 import org.ballerinalang.langserver.compiler.exception.CompilationFailedException;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;

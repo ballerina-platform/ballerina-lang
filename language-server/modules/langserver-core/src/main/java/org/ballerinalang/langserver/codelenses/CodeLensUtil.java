@@ -17,9 +17,11 @@ package org.ballerinalang.langserver.codelenses;
 
 import org.ballerinalang.langserver.DocumentServiceOperationContext;
 import org.ballerinalang.langserver.LSContextOperation;
+import org.ballerinalang.langserver.commons.LSContext;
+import org.ballerinalang.langserver.commons.codelenses.LSCodeLensesProviderException;
+import org.ballerinalang.langserver.commons.codelenses.spi.LSCodeLensesProvider;
 import org.ballerinalang.langserver.compiler.CollectDiagnosticListener;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
-import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.compiler.LSModuleCompiler;
 import org.ballerinalang.langserver.compiler.common.LSCustomErrorStrategy;
 import org.ballerinalang.langserver.compiler.exception.CompilationFailedException;
