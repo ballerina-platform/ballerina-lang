@@ -17,9 +17,12 @@
 package org.ballerinalang.ballerina.openapi.convertor;
 
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
+import org.ballerinalang.model.tree.NodeKind;
+import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 
 import java.util.HashMap;
 import java.util.List;
@@ -36,10 +39,18 @@ public class ConverterUtils {
      * @param list The BLangRecord list.
      * @return A map of attributes.
      */
-    public static Map<String, BLangExpression> listToMap(List<BLangRecordLiteral.BLangRecordKeyValue> list) {
+    public static Map<String, BLangExpression> listToMap(List<RecordLiteralNode.RecordField> list) {
         Map<String, BLangExpression> attrMap = new HashMap<>();
 
-        list.forEach(attr -> attrMap.put(attr.getKey().toString(), attr.getValue()));
+        for (RecordLiteralNode.RecordField field : list) {
+            if (field.getKind() == NodeKind.RECORD_LITERAL_KEY_VALUE) {
+                BLangRecordLiteral.BLangRecordKeyValue attr = (BLangRecordLiteral.BLangRecordKeyValue) field;
+                attrMap.put(attr.getKey().toString(), attr.getValue());
+            } else {
+                BLangSimpleVarRef varRef = (BLangSimpleVarRef) field;
+                attrMap.put(varRef.variableName.value, varRef);
+            }
+        }
 
         return attrMap;
     }

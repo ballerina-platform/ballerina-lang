@@ -24,6 +24,7 @@ import io.swagger.v3.oas.models.media.Schema;
 import io.swagger.v3.parser.OpenAPIV3Parser;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.FunctionNode;
+import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.ServiceNode;
 import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.ballerinalang.util.diagnostic.DiagnosticLog;
@@ -162,22 +163,36 @@ class ValidatorUtil {
             if (annotation != null) {
                 if (annotation.getExpression() instanceof BLangRecordLiteral) {
                     BLangRecordLiteral recordLiteral = (BLangRecordLiteral) annotation.getExpression();
-                    for (BLangRecordLiteral.BLangRecordKeyValue keyValue : recordLiteral.getKeyValuePairs()) {
-                        if (keyValue.getKey() instanceof BLangSimpleVarRef) {
-                            BLangSimpleVarRef path = (BLangSimpleVarRef) keyValue.getKey();
+                    for (BLangRecordLiteral.RecordField field : recordLiteral.getFields()) {
+                        BLangExpression keyExpr;
+                        BLangExpression valueExpr;
+
+                        if (field.getKind() == NodeKind.RECORD_LITERAL_KEY_VALUE) {
+                            BLangRecordLiteral.BLangRecordKeyValue keyValue =
+                                    (BLangRecordLiteral.BLangRecordKeyValue) field;
+                            keyExpr = keyValue.getKey();
+                            valueExpr = keyValue.getValue();
+                        } else {
+                            BLangSimpleVarRef varRef = (BLangSimpleVarRef) field;
+                            keyExpr = varRef;
+                            valueExpr = varRef;
+                        }
+
+                        if (keyExpr instanceof BLangSimpleVarRef) {
+                            BLangSimpleVarRef path = (BLangSimpleVarRef) keyExpr;
                             String contractAttr = path.getVariableName().getValue();
                             // Extract the path and methods of the resource.
                             if (contractAttr.equals(Constants.PATH)) {
-                                if (keyValue.getValue() instanceof BLangLiteral) {
-                                    BLangLiteral value = (BLangLiteral) keyValue.getValue();
+                                if (valueExpr instanceof BLangLiteral) {
+                                    BLangLiteral value = (BLangLiteral) valueExpr;
                                     if (value.getValue() instanceof String) {
                                         resourceSummary.setPath((String) value.getValue());
                                         resourceSummary.setPathPosition(value.getPosition());
                                     }
                                 }
                             } else if (contractAttr.equals(Constants.METHODS)) {
-                                if (keyValue.getValue() instanceof BLangListConstructorExpr) {
-                                    BLangListConstructorExpr methodSet = (BLangListConstructorExpr) keyValue.getValue();
+                                if (valueExpr instanceof BLangListConstructorExpr) {
+                                    BLangListConstructorExpr methodSet = (BLangListConstructorExpr) valueExpr;
                                     for (BLangExpression methodExpr : methodSet.exprs) {
                                         if (methodExpr instanceof BLangLiteral) {
                                             BLangLiteral method = (BLangLiteral) methodExpr;
@@ -188,8 +203,8 @@ class ValidatorUtil {
                                     }
                                 }
                             } else if (contractAttr.equals(Constants.BODY)) {
-                                if (keyValue.getValue() instanceof BLangLiteral) {
-                                    BLangLiteral value = (BLangLiteral) keyValue.getValue();
+                                if (valueExpr instanceof BLangLiteral) {
+                                    BLangLiteral value = (BLangLiteral) valueExpr;
                                     if (value.getValue() instanceof String) {
                                         resourceSummary.setBody((String) value.getValue());
                                     }
