@@ -16,6 +16,7 @@
 package org.ballerinalang.langserver.codelenses;
 
 import org.ballerinalang.langserver.client.config.BallerinaClientConfigHolder;
+import org.ballerinalang.langserver.commons.codelenses.spi.LSCodeLensesProvider;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,21 +27,27 @@ import java.util.ServiceLoader;
  * 
  * @since 0.990.3
  */
-public class LSCodeLensesProviderFactory {
+public class LSCodeLensesProviderHolder {
 
-    private static final LSCodeLensesProviderFactory INSTANCE = new LSCodeLensesProviderFactory();
+    private static final List<LSCodeLensesProvider> providers = new ArrayList<>();
 
-    private List<LSCodeLensesProvider> providersList = new ArrayList<>();
+    private static final LSCodeLensesProviderHolder INSTANCE = new LSCodeLensesProviderHolder();
 
     private boolean isEnabled = true;
 
-    private boolean isInitialized = false;
-
-    private LSCodeLensesProviderFactory() {
-        initiate();
+    private LSCodeLensesProviderHolder() {
+        ServiceLoader<LSCodeLensesProvider> providers = ServiceLoader.load(LSCodeLensesProvider.class);
+        for (LSCodeLensesProvider executor : providers) {
+            if (executor != null && executor.isEnabled()) {
+                LSCodeLensesProviderHolder.providers.add(executor);
+            }
+        }
+        BallerinaClientConfigHolder.getInstance().register((oldConfig, newConfig) -> {
+            this.isEnabled = newConfig.getCodeLens().getAll().isEnabled();
+        });
     }
 
-    public static LSCodeLensesProviderFactory getInstance() {
+    public static LSCodeLensesProviderHolder getInstance() {
         return INSTANCE;
     }
 
@@ -54,54 +61,17 @@ public class LSCodeLensesProviderFactory {
     }
 
     /**
-     * Initializes the code lenses factory.
-     */
-    public void initiate() {
-        if (isInitialized) {
-            return;
-        }
-        ServiceLoader<LSCodeLensesProvider> providers = ServiceLoader.load(LSCodeLensesProvider.class);
-        for (LSCodeLensesProvider executor : providers) {
-            if (executor != null && executor.isEnabled()) {
-                providersList.add(executor);
-            }
-        }
-        BallerinaClientConfigHolder.getInstance().register((oldConfig, newConfig) -> {
-            isEnabled = newConfig.getCodeLens().getAll().isEnabled();
-        });
-        isInitialized = true;
-    }
-
-    /**
      * Get the list of all active providers.
      *
      * @return {@link List} Providers List
      */
     public List<LSCodeLensesProvider> getProviders() {
         List<LSCodeLensesProvider> activeProviders = new ArrayList<>();
-        for (LSCodeLensesProvider provider : providersList) {
+        for (LSCodeLensesProvider provider : providers) {
             if (provider != null && provider.isEnabled()) {
                 activeProviders.add(provider);
             }
         }
         return activeProviders;
-    }
-
-    /**
-     * Add a code lens provider.
-     *
-     * @param provider  code lens provider to register
-     */
-    public void register(LSCodeLensesProvider provider) {
-        this.providersList.add(provider);
-    }
-
-    /**
-     * Remove code lens provider.
-     *
-     * @param provider  code lens provider to unregister
-     */
-    public void unregister(LSCodeLensesProvider provider) {
-        this.providersList.remove(provider);
     }
 }
