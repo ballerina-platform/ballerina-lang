@@ -30,8 +30,8 @@ import java.util.List;
  *
  * @since 1.1.1
  */
-@JavaSPIService("org.ballerinalang.langserver.codeaction.BallerinaCodeActionProvider")
-public class ChangeAbstractTypeObjExecutorCodeAction extends BallerinaCodeActionProvider {
+@JavaSPIService("org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider")
+public class ChangeAbstractTypeObjExecutorCodeAction extends AbstractCodeActionProvider {
     private static final String NO_IMPL_FOUND_FOR_FUNCTION = "no implementation found for the function";
     private static final String ABSTRACT_OBJECT = "in abstract object";
 

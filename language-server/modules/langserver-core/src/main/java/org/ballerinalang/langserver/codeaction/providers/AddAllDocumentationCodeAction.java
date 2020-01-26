@@ -32,8 +32,8 @@ import static org.ballerinalang.langserver.command.CommandUtil.getAllDocGenerati
  *
  * @since 1.1.1
  */
-@JavaSPIService("org.ballerinalang.langserver.codeaction.BallerinaCodeActionProvider")
-public class AddAllDocumentationCodeAction extends BallerinaCodeActionProvider {
+@JavaSPIService("org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider")
+public class AddAllDocumentationCodeAction extends AbstractCodeActionProvider {
     public AddAllDocumentationCodeAction() {
         super(Arrays.asList(CodeActionNodeType.FUNCTION,
                             CodeActionNodeType.OBJECT,
@@ -41,7 +41,6 @@ public class AddAllDocumentationCodeAction extends BallerinaCodeActionProvider {
                             CodeActionNodeType.RESOURCE,
                             CodeActionNodeType.RECORD,
                             CodeActionNodeType.OBJECT_FUNCTION));
-
     }
 
     /**
