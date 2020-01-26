@@ -202,7 +202,8 @@ public class ProtoBuilderTestCase extends GrpcBaseTest {
 
     private static Descriptors.FileDescriptor getDescriptor(ExpressionNode node) {
         try {
-            BLangLiteral valueLiteral = (BLangLiteral) ((BLangRecordLiteral) node).keyValuePairs.get(0).valueExpr;
+            BLangLiteral valueLiteral = (BLangLiteral)
+                    ((BLangRecordLiteral.BLangRecordKeyValue) ((BLangRecordLiteral) node).fields.get(0)).valueExpr;
             if (valueLiteral == null) {
                 Assert.fail("Couldn't find the service descriptor.");
             }
