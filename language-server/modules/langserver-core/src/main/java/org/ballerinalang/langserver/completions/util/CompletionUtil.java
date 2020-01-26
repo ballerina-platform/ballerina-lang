@@ -24,10 +24,9 @@ import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.completions.CompletionKeys;
-import org.ballerinalang.langserver.completions.LSCompletionProviderFactory;
+import org.ballerinalang.langserver.completions.LSCompletionProviderHolder;
 import org.ballerinalang.langserver.completions.TreeVisitor;
 import org.ballerinalang.langserver.completions.sourceprune.CompletionsTokenTraverserFactory;
-import org.ballerinalang.langserver.completions.spi.LSCompletionProvider;
 import org.ballerinalang.langserver.completions.util.sorters.ItemSorters;
 import org.ballerinalang.langserver.sourceprune.SourcePruner;
 import org.ballerinalang.langserver.sourceprune.TokenTraverserFactory;
@@ -80,7 +79,7 @@ public class CompletionUtil {
         // Set the invocation or field access token type
         setInvocationOrInteractionOrFieldAccessToken(ctx);
         BLangNode scope = ctx.get(CompletionKeys.SCOPE_NODE_KEY);
-        Map<Class, LSCompletionProvider> scopeProviders = LSCompletionProviderFactory.getInstance().getProviders();
+        Map<Class, LSCompletionProvider> scopeProviders = LSCompletionProviderHolder.getInstance().getProviders();
         LSCompletionProvider completionProvider = scopeProviders.get(scope.getClass());
         try {
             items.addAll(completionProvider.getCompletions(ctx));

@@ -22,10 +22,10 @@ import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.AnnotationNodeKind;
 import org.ballerinalang.langserver.LSAnnotationCache;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
-import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
-import org.ballerinalang.langserver.completions.spi.LSCompletionProvider;
+import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.NodeKind;
 import org.eclipse.lsp4j.CompletionItem;
@@ -45,8 +45,8 @@ import java.util.stream.Collectors;
 /**
  * Annotation Attachment Resolver to resolve the corresponding annotation attachments.
  */
-@JavaSPIService("org.ballerinalang.langserver.completions.spi.LSCompletionProvider")
-public class AnnotationAttachmentContextProvider extends LSCompletionProvider {
+@JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.LSCompletionProvider")
+public class AnnotationAttachmentContextProvider extends AbstractCompletionProvider {
 
     public AnnotationAttachmentContextProvider() {
         this.attachmentPoints.add(AnnotationAttachmentContextProvider.class);
