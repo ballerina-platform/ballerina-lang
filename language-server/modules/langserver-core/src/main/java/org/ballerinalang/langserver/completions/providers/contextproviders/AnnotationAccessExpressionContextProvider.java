@@ -20,11 +20,13 @@ package org.ballerinalang.langserver.completions.providers.contextproviders;
 import org.antlr.v4.runtime.CommonToken;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.LSAnnotationCache;
+import org.ballerinalang.langserver.LSCompletionItem;
 import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
+import org.ballerinalang.langserver.completions.SymbolCompletionItem;
 import org.ballerinalang.langserver.completions.spi.LSCompletionProvider;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.ballerinalang.model.elements.PackageID;
@@ -57,17 +59,17 @@ public class AnnotationAccessExpressionContextProvider extends LSCompletionProvi
     }
 
     @Override
-    public List<CompletionItem> getCompletions(LSContext ctx) {
+    public List<LSCompletionItem> getCompletions(LSContext ctx) {
         return filterAnnotations(ctx);
     }
 
     /**
      * Filter the annotations.
      * 
-     * @return {@link List}
+     * @return {@link List} list of filtered completion items
      */
-    private List<CompletionItem> filterAnnotations(LSContext ctx) {
-        List<CompletionItem> completionItems = new ArrayList<>();
+    private List<LSCompletionItem> filterAnnotations(LSContext ctx) {
+        List<LSCompletionItem> completionItems = new ArrayList<>();
         List<Integer> defaultTokenTypes = ctx.get(CompletionKeys.LHS_DEFAULT_TOKEN_TYPES_KEY);
         List<CommonToken> defaultTokens = ctx.get(CompletionKeys.LHS_DEFAULT_TOKENS_KEY);
         int annotationAccessIndex = defaultTokenTypes.indexOf(BallerinaParser.ANNOTATION_ACCESS);
@@ -103,9 +105,9 @@ public class AnnotationAccessExpressionContextProvider extends LSCompletionProvi
         return completionItems;
     }
 
-    private List<CompletionItem> getAnnotationsInModule(LSContext ctx) {
+    private List<LSCompletionItem> getAnnotationsInModule(LSContext ctx) {
         BLangPackage bLangPackage = ctx.get(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY);
-        List<CompletionItem> completionItems = new ArrayList<>();
+        List<LSCompletionItem> completionItems = new ArrayList<>();
         List<BLangAnnotation> annotations = bLangPackage.topLevelNodes.stream()
                 .filter(topLevelNode -> topLevelNode instanceof BLangAnnotation)
                 .map(topLevelNode -> (BLangAnnotation) topLevelNode)
@@ -119,13 +121,13 @@ public class AnnotationAccessExpressionContextProvider extends LSCompletionProvi
             annotationItem.setInsertTextFormat(InsertTextFormat.Snippet);
             annotationItem.setDetail(ItemResolverConstants.ANNOTATION_TYPE);
             annotationItem.setKind(CompletionItemKind.Property);
-            completionItems.add(annotationItem);
+            completionItems.add(new SymbolCompletionItem(ctx, symbol, annotationItem));
         });
         
         return completionItems;
     }
 
-    private CompletionItem getAnnotationCompletionItem(PackageID packageID, BAnnotationSymbol annotationSymbol, 
+    private LSCompletionItem getAnnotationCompletionItem(PackageID packageID, BAnnotationSymbol annotationSymbol,
                                                        LSContext ctx, CommonToken pkgAlias, 
                                                        Map<String, String> pkgAliasMap) {
         PackageID currentPkgID = ctx.get(DocumentServiceKeys.CURRENT_PACKAGE_ID_KEY);
@@ -151,7 +153,7 @@ public class AnnotationAccessExpressionContextProvider extends LSCompletionProvi
         annotationItem.setKind(CompletionItemKind.Property);
         if (currentPkgID != null && currentPkgID.name.value.equals(packageID.name.value)) {
             // If the annotation resides within the current package, no need to set the additional text edits
-            return annotationItem;
+            return new SymbolCompletionItem(ctx, annotationSymbol, annotationItem);
         }
         List<BLangImportPackage> imports = ctx.get(DocumentServiceKeys.CURRENT_DOC_IMPORTS_KEY);
         Optional pkgImport = imports.stream()
@@ -172,7 +174,7 @@ public class AnnotationAccessExpressionContextProvider extends LSCompletionProvi
             annotationItem.setAdditionalTextEdits(CommonUtil.getAutoImportTextEdits(packageID.orgName.getValue(),
                     packageID.name.getValue(), ctx));
         }
-        return annotationItem;
+        return new SymbolCompletionItem(ctx, annotationSymbol, annotationItem);
     }
 
     private String getInsertText(String aliasComponent, BAnnotationSymbol annotationSymbol, boolean withAlias) {

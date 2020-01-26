@@ -867,13 +867,9 @@ public class TreeVisitor extends LSNodeVisitor {
      * @param symbolEnv         Symbol environment
      */
     public void populateSymbols(Map<Name, List<Scope.ScopeEntry>> symbolEntries, @Nonnull SymbolEnv symbolEnv) {
-        List<SymbolInfo> visibleSymbols = new ArrayList<>();
+        List<Scope.ScopeEntry> visibleSymbols = new ArrayList<>();
         this.populateSymbolEnvNode(symbolEnv.node);
-        symbolEntries.forEach((name, entryHolders) ->
-                visibleSymbols.addAll(
-                        entryHolders.stream()
-                                .map(scopeEntry -> new SymbolInfo(name.value, scopeEntry))
-                                .collect(Collectors.toList())));
+        symbolEntries.values().forEach(visibleSymbols::addAll);
         lsContext.put(CommonKeys.VISIBLE_SYMBOLS_KEY, visibleSymbols);
     }
 

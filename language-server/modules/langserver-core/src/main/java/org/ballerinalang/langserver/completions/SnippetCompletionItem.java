@@ -18,22 +18,23 @@
 package org.ballerinalang.langserver.completions;
 
 import org.ballerinalang.langserver.LSCompletionItem;
+import org.ballerinalang.langserver.SnippetBlock;
 import org.ballerinalang.langserver.compiler.LSContext;
 import org.eclipse.lsp4j.CompletionItem;
 
 /**
- * Represents a static Completion Item.
+ * Represents a snippet Completion Item.
  * Eg: Code Snippet
  *
  * @since 1.2.0
  */
-public class StaticCompletionItem implements LSCompletionItem {
+public class SnippetCompletionItem implements LSCompletionItem {
     LSContext lsContext;
-    CompletionItem completionItem;
+    SnippetBlock snippetBlock;
 
-    public StaticCompletionItem(LSContext lsContext, CompletionItem completionItem) {
+    public SnippetCompletionItem(LSContext lsContext, SnippetBlock snippetBlock) {
         this.lsContext = lsContext;
-        this.completionItem = completionItem;
+        this.snippetBlock = snippetBlock;
     }
 
     @Override
@@ -48,6 +49,6 @@ public class StaticCompletionItem implements LSCompletionItem {
 
     @Override
     public CompletionItem getCompletionItem() {
-        return this.completionItem;
+        return null;
     }
 }

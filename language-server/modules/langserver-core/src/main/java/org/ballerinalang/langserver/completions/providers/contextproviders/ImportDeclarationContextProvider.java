@@ -20,6 +20,7 @@ package org.ballerinalang.langserver.completions.providers.contextproviders;
 import org.antlr.v4.runtime.CommonToken;
 import org.antlr.v4.runtime.Token;
 import org.ballerinalang.annotation.JavaSPIService;
+import org.ballerinalang.langserver.LSCompletionItem;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSContext;
@@ -29,7 +30,7 @@ import org.ballerinalang.langserver.compiler.common.modal.BallerinaPackage;
 import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.spi.LSCompletionProvider;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
-import org.ballerinalang.langserver.completions.util.Priority;
+import org.ballerinalang.langserver.completions.StaticCompletionItem;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
@@ -50,8 +51,8 @@ public class ImportDeclarationContextProvider extends LSCompletionProvider {
     }
 
     @Override
-    public List<CompletionItem> getCompletions(LSContext ctx) {
-        ArrayList<CompletionItem> completionItems = new ArrayList<>();
+    public List<LSCompletionItem> getCompletions(LSContext ctx) {
+        ArrayList<LSCompletionItem> completionItems = new ArrayList<>();
         List<BallerinaPackage> packagesList = new ArrayList<>();
         Stream.of(LSPackageLoader.getSdkPackages(), LSPackageLoader.getHomeRepoPackages())
                 .forEach(packagesList::addAll);
@@ -65,22 +66,22 @@ public class ImportDeclarationContextProvider extends LSCompletionProvider {
         if (divIndex > -1 && (divIndex == lhsDefaultTokenTypes.size() - 1 
                 || divIndex == lhsDefaultTokenTypes.size() - 2)) {
             String orgName = lhsDefaultTokens.get(lhsDefaultTokenTypes.indexOf(BallerinaParser.DIV) - 1).getText();
-            completionItems.addAll(this.getPackageNameCompletions(orgName, packagesList));
+            completionItems.addAll(this.getPackageNameCompletions(ctx, orgName, packagesList));
         } else if (importTokenIndex > -1 && (importTokenIndex == lhsDefaultTokenTypes.size() - 1
                 || importTokenIndex == lhsDefaultTokenTypes.size() - 2)) {
             completionItems.addAll(this.getItemsIncludingOrgName(packagesList, ctx));
         } else if (importTokenIndex > -1 && lhsDefaultTokenTypes.size() >= 2
                 && (lastToken.getChannel() == Token.HIDDEN_CHANNEL
                 || lhsTokens.get(lhsTokens.size() - 2).getChannel() == Token.HIDDEN_CHANNEL)) {
-            completionItems.add(getAsKeyword());
+            completionItems.add(getAsKeyword(ctx));
         }
 
         return completionItems;
     }
 
-    private ArrayList<CompletionItem> getItemsIncludingOrgName(List<BallerinaPackage> packagesList, LSContext ctx) {
+    private ArrayList<LSCompletionItem> getItemsIncludingOrgName(List<BallerinaPackage> packagesList, LSContext ctx) {
         List<String> orgNames = new ArrayList<>();
-        ArrayList<CompletionItem> completionItems = new ArrayList<>();
+        ArrayList<LSCompletionItem> completionItems = new ArrayList<>();
 
         packagesList.forEach(pkg -> {
             String fullPkgNameLabel = pkg.getOrgName() + "/" + pkg.getPackageName();
@@ -92,12 +93,10 @@ public class ImportDeclarationContextProvider extends LSCompletionProvider {
                 insertText += pkg.getPackageName();
             }
             // Do not add the semicolon with the insert text since the user should be allowed to use the as keyword
-            CompletionItem fullPkgImport = getImportCompletion(fullPkgNameLabel, insertText);
-            fullPkgImport.setSortText(Priority.PRIORITY120.toString());
+            LSCompletionItem fullPkgImport = getImportCompletion(ctx, fullPkgNameLabel, insertText);
             completionItems.add(fullPkgImport);
             if (!orgNames.contains(pkg.getOrgName())) {
-                CompletionItem orgNameImport = getImportCompletion(pkg.getOrgName(), (pkg.getOrgName() + "/"));
-                orgNameImport.setSortText(Priority.PRIORITY110.toString());
+                LSCompletionItem orgNameImport = getImportCompletion(ctx, pkg.getOrgName(), (pkg.getOrgName() + "/"));
                 completionItems.add(orgNameImport);
                 orgNames.add(pkg.getOrgName());
             }
@@ -112,7 +111,7 @@ public class ImportDeclarationContextProvider extends LSCompletionProvider {
             List<String> projectModules = lsDocument.getProjectModules();
             projectModules.forEach(module -> {
                 if (!module.equals(ownerModule)) {
-                    completionItems.add(getImportCompletion(module, module));
+                    completionItems.add(getImportCompletion(ctx, module, module));
                 }
             });
         }
@@ -124,8 +123,9 @@ public class ImportDeclarationContextProvider extends LSCompletionProvider {
         return pkgName.replace(".", ".'") + ";";
     }
 
-    private ArrayList<CompletionItem> getPackageNameCompletions(String orgName, List<BallerinaPackage> packagesList) {
-        ArrayList<CompletionItem> completionItems = new ArrayList<>();
+    private ArrayList<LSCompletionItem> getPackageNameCompletions(LSContext context, String orgName,
+                                                                  List<BallerinaPackage> packagesList) {
+        ArrayList<LSCompletionItem> completionItems = new ArrayList<>();
         List<String> pkgNameLabels = new ArrayList<>();
 
         packagesList.forEach(ballerinaPackage -> {
@@ -140,30 +140,30 @@ public class ImportDeclarationContextProvider extends LSCompletionProvider {
                 }
                 pkgNameLabels.add(packageName);
                 // Do not add the semi colon at the end of the insert text since the user might type the as keyword
-                completionItems.add(getImportCompletion(packageName, insertText));
+                completionItems.add(getImportCompletion(context, packageName, insertText));
             }
         });
         
         return completionItems;
     }
     
-    private static CompletionItem getImportCompletion(String label, String insertText) {
+    private static LSCompletionItem getImportCompletion(LSContext context, String label, String insertText) {
         CompletionItem item = new CompletionItem();
         item.setLabel(label);
         item.setInsertText(insertText);
         item.setKind(CompletionItemKind.Module);
         item.setDetail(ItemResolverConstants.PACKAGE_TYPE);
         
-        return item;
+        return new StaticCompletionItem(context, item);
     }
     
-    private static CompletionItem getAsKeyword() {
+    private static LSCompletionItem getAsKeyword(LSContext context) {
         CompletionItem item = new CompletionItem();
         item.setLabel("as");
         item.setInsertText("as ");
         item.setKind(CompletionItemKind.Keyword);
         item.setDetail(ItemResolverConstants.KEYWORD_TYPE);
         
-        return item;
+        return new StaticCompletionItem(context, item);
     }
 }

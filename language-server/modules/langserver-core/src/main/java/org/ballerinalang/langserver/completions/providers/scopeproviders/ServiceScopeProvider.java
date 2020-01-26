@@ -18,14 +18,15 @@
 package org.ballerinalang.langserver.completions.providers.scopeproviders;
 
 import org.ballerinalang.annotation.JavaSPIService;
+import org.ballerinalang.langserver.LSCompletionItem;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
+import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.providers.contextproviders.AnnotationAttachmentContextProvider;
 import org.ballerinalang.langserver.completions.spi.LSCompletionProvider;
 import org.ballerinalang.langserver.completions.util.Snippet;
-import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.Position;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
@@ -46,8 +47,8 @@ public class ServiceScopeProvider extends LSCompletionProvider {
     }
 
     @Override
-    public List<CompletionItem> getCompletions(LSContext ctx) {
-        ArrayList<CompletionItem> completionItems = new ArrayList<>();
+    public List<LSCompletionItem> getCompletions(LSContext ctx) {
+        ArrayList<LSCompletionItem> completionItems = new ArrayList<>();
         if (this.isWithinAttachedExpressions(ctx)) {
             // suggest all the visible, defined listeners
             return this.getCompletionItemsAfterOnKeyword(ctx);
@@ -56,9 +57,9 @@ public class ServiceScopeProvider extends LSCompletionProvider {
             return this.getProvider(AnnotationAttachmentContextProvider.class).getCompletions(ctx);
         }
 
-        completionItems.add(Snippet.KW_PUBLIC.get().build(ctx));
+        completionItems.add(new SnippetCompletionItem(ctx, Snippet.KW_PUBLIC.get()));
         completionItems.addAll(this.getResourceSnippets(ctx));
-        completionItems.add(Snippet.DEF_FUNCTION.get().build(ctx));
+        completionItems.add(new SnippetCompletionItem(ctx, Snippet.DEF_FUNCTION.get()));
 
         return completionItems;
     }

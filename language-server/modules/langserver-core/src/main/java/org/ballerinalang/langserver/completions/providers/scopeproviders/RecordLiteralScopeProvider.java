@@ -20,16 +20,16 @@ package org.ballerinalang.langserver.completions.providers.scopeproviders;
 import org.antlr.v4.runtime.CommonToken;
 import org.antlr.v4.runtime.Token;
 import org.ballerinalang.annotation.JavaSPIService;
+import org.ballerinalang.langserver.LSCompletionItem;
 import org.ballerinalang.langserver.common.utils.completion.BLangRecordLiteralUtil;
 import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
-import org.ballerinalang.langserver.completions.SymbolInfo;
 import org.ballerinalang.langserver.completions.spi.LSCompletionProvider;
 import org.ballerinalang.langserver.completions.util.filters.DelimiterBasedContentFilter;
 import org.ballerinalang.langserver.completions.util.filters.SymbolFilters;
-import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
+import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 
@@ -47,7 +47,7 @@ public class RecordLiteralScopeProvider extends LSCompletionProvider {
     }
 
     @Override
-    public List<CompletionItem> getCompletions(LSContext ctx) {
+    public List<LSCompletionItem> getCompletions(LSContext ctx) {
         BLangNode scopeNode = ctx.get(CompletionKeys.SCOPE_NODE_KEY);
         List<CommonToken> lhsDefaultTokens = ctx.get(CompletionKeys.LHS_TOKENS_KEY).stream()
                 .filter(commonToken -> commonToken.getChannel() == Token.DEFAULT_CHANNEL)
@@ -67,7 +67,7 @@ public class RecordLiteralScopeProvider extends LSCompletionProvider {
                  }
              */
             BLangRecordLiteral recordLiteral = (BLangRecordLiteral) scopeNode;
-            return BLangRecordLiteralUtil.getFieldsForMatchingRecord(recordLiteral);
+            return BLangRecordLiteralUtil.getFieldsForMatchingRecord(ctx, recordLiteral);
         }
         if (firstColonIndex >= 0 && firstColonIndex == invocationTokenTypeIndex) {
             /*
@@ -88,7 +88,7 @@ public class RecordLiteralScopeProvider extends LSCompletionProvider {
                     f1: a:b<cursor>
                  }
              */
-            Either<List<CompletionItem>, List<SymbolInfo>> filteredItems =
+            Either<List<LSCompletionItem>, List<Scope.ScopeEntry>> filteredItems =
                     SymbolFilters.get(DelimiterBasedContentFilter.class).filterItems(ctx);
             return this.getCompletionItemList(filteredItems, ctx);
         }

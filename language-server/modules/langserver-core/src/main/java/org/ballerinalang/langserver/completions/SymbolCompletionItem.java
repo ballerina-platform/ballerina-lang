@@ -21,6 +21,9 @@ import org.ballerinalang.langserver.LSCompletionItem;
 import org.ballerinalang.langserver.compiler.LSContext;
 import org.eclipse.lsp4j.CompletionItem;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+
+import javax.annotation.Nullable;
 
 /**
  * Represents a Symbol Based Completion Item.
@@ -29,12 +32,18 @@ import org.wso2.ballerinalang.compiler.semantics.model.Scope;
  * @since 1.2.0
  */
 public class SymbolCompletionItem implements LSCompletionItem {
-    LSContext lsContext;
-    Scope.ScopeEntry scopeEntry;
+    private LSContext lsContext;
+    private BSymbol bSymbol;
+    private CompletionItem completionItem;
 
-    public SymbolCompletionItem(LSContext lsContext, Scope.ScopeEntry scopeEntry) {
+    public SymbolCompletionItem(LSContext lsContext, @Nullable BSymbol bSymbol, CompletionItem completionItem) {
         this.lsContext = lsContext;
-        this.scopeEntry = scopeEntry;
+        this.bSymbol = bSymbol;
+        this.completionItem = completionItem;
+    }
+
+    public BSymbol getSymbol() {
+        return bSymbol;
     }
 
     @Override
@@ -49,6 +58,6 @@ public class SymbolCompletionItem implements LSCompletionItem {
 
     @Override
     public CompletionItem getCompletionItem() {
-        return null;
+        return this.completionItem;
     }
 }

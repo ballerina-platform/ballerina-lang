@@ -18,6 +18,7 @@
 package org.ballerinalang.langserver.completions.providers.contextproviders;
 
 import org.ballerinalang.annotation.JavaSPIService;
+import org.ballerinalang.langserver.LSCompletionItem;
 import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.completions.spi.LSCompletionProvider;
 import org.eclipse.lsp4j.CompletionItem;
@@ -37,7 +38,7 @@ public class VarDefContextProvider extends LSCompletionProvider {
 
     @Override
     @SuppressWarnings("unchecked")
-    public List<CompletionItem> getCompletions(LSContext context) {
+    public List<LSCompletionItem> getCompletions(LSContext context) {
         return new ArrayList<>(this.getVarDefExpressionCompletions(context, false));
     }
 }

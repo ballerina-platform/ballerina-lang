@@ -20,7 +20,7 @@ package org.ballerinalang.langserver.completions.util.sorters;
 import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
-import org.ballerinalang.langserver.completions.SymbolInfo;
+import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 
@@ -40,15 +40,15 @@ class AssignmentStmtContextSorter extends VariableDefContextItemSorter {
     @Override
     String getVariableType(LSContext ctx) {
         String variableName = ctx.get(CompletionKeys.PARSER_RULE_CONTEXT_KEY).getStart().getText();
-        List<SymbolInfo> visibleSymbols = new ArrayList<>(ctx.get(CommonKeys.VISIBLE_SYMBOLS_KEY));
-        SymbolInfo filteredSymbol = visibleSymbols.stream().filter(symbolInfo -> {
-            BSymbol bSymbol = symbolInfo.getScopeEntry().symbol;
-            String symbolName = symbolInfo.getSymbolName();
+        List<Scope.ScopeEntry> visibleSymbols = new ArrayList<>(ctx.get(CommonKeys.VISIBLE_SYMBOLS_KEY));
+        Scope.ScopeEntry filteredSymbol = visibleSymbols.stream().filter(scopeEntry -> {
+            BSymbol bSymbol = scopeEntry.symbol;
+            String symbolName = scopeEntry.symbol.name.value;
             return bSymbol instanceof BVarSymbol && symbolName.equals(variableName);
         }).findFirst().orElse(null);
         
         if (filteredSymbol != null) {
-            return filteredSymbol.getScopeEntry().symbol.type.toString();
+            return filteredSymbol.symbol.type.toString();
         }
         
         return "";

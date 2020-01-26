@@ -19,18 +19,18 @@ package org.ballerinalang.langserver.completions.providers.scopeproviders;
 import org.antlr.v4.runtime.CommonToken;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.ballerinalang.annotation.JavaSPIService;
+import org.ballerinalang.langserver.LSCompletionItem;
 import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.CompletionSubRuleParser;
-import org.ballerinalang.langserver.completions.SymbolInfo;
 import org.ballerinalang.langserver.completions.providers.contextproviders.AnnotationAttachmentContextProvider;
 import org.ballerinalang.langserver.completions.spi.LSCompletionProvider;
 import org.ballerinalang.langserver.completions.util.filters.DelimiterBasedContentFilter;
 import org.ballerinalang.langserver.completions.util.filters.SymbolFilters;
-import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
+import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangTestablePackage;
 
@@ -51,8 +51,8 @@ public class TopLevelScopeProvider extends LSCompletionProvider {
     }
 
     @Override
-    public List<CompletionItem> getCompletions(LSContext ctx) {
-        ArrayList<CompletionItem> completionItems = new ArrayList<>();
+    public List<LSCompletionItem> getCompletions(LSContext ctx) {
+        ArrayList<LSCompletionItem> completionItems = new ArrayList<>();
         
         if (this.inFunctionReturnParameterContext(ctx)) {
             return this.getProvider(BallerinaParser.ReturnParameterContext.class).getCompletions(ctx);
@@ -77,22 +77,22 @@ public class TopLevelScopeProvider extends LSCompletionProvider {
                 && BallerinaParser.LT == lhsDefaultTokens.get(lhsDefaultTokens.size() - 1).getType())) {
             completionItems.addAll(addTopLevelItems(ctx));
         }
-        List<SymbolInfo> visibleSymbols = new ArrayList<>(ctx.get(CommonKeys.VISIBLE_SYMBOLS_KEY));
-        completionItems.addAll(getBasicTypes(visibleSymbols));
+        List<Scope.ScopeEntry> visibleSymbols = new ArrayList<>(ctx.get(CommonKeys.VISIBLE_SYMBOLS_KEY));
+        completionItems.addAll(getBasicTypesItems(ctx, visibleSymbols));
         completionItems.addAll(this.getPackagesCompletionItems(ctx));
 
         return completionItems;
     }
 
-    private List<CompletionItem> getCompletionOnParameterContext(LSContext lsContext) {
+    private List<LSCompletionItem> getCompletionOnParameterContext(LSContext lsContext) {
         List<Integer> defaultTokenTypes = lsContext.get(CompletionKeys.LHS_DEFAULT_TOKEN_TYPES_KEY);
         List<CommonToken> defaultTokens = lsContext.get(CompletionKeys.LHS_DEFAULT_TOKENS_KEY);
-        List<SymbolInfo> visibleSymbols = new ArrayList<>(lsContext.get(CommonKeys.VISIBLE_SYMBOLS_KEY));
+        List<Scope.ScopeEntry> visibleSymbols = new ArrayList<>(lsContext.get(CommonKeys.VISIBLE_SYMBOLS_KEY));
         Integer invocationType = lsContext.get(CompletionKeys.INVOCATION_TOKEN_TYPE_KEY);
         if (defaultTokenTypes.contains(BallerinaParser.FUNCTION)) {
             if (invocationType == BallerinaParser.COLON) {
                 String pkgAlias = defaultTokens.get(defaultTokenTypes.indexOf(invocationType) - 1).getText();
-                return this.getTypesInPackage(visibleSymbols, pkgAlias, lsContext);
+                return this.getTypeItemsInPackage(new ArrayList<>(visibleSymbols), pkgAlias, lsContext);
             }
             if (invocationType > -1) {
                 return new ArrayList<>();
@@ -100,22 +100,22 @@ public class TopLevelScopeProvider extends LSCompletionProvider {
             /*
             Within the function definition's parameter context and we only suggest the packages and types 
              */
-            List<CompletionItem> completionItems = new ArrayList<>();
-            completionItems.addAll(getBasicTypes(visibleSymbols));
+            List<LSCompletionItem> completionItems = new ArrayList<>();
+            completionItems.addAll(getBasicTypesItems(lsContext, visibleSymbols));
             completionItems.addAll(this.getPackagesCompletionItems(lsContext));
             
             return completionItems;
         }
         
         if (invocationType > -1) {
-            Either<List<CompletionItem>, List<SymbolInfo>> filteredSymbols =
+            Either<List<LSCompletionItem>, List<Scope.ScopeEntry>> filteredSymbols =
                     SymbolFilters.get(DelimiterBasedContentFilter.class).filterItems(lsContext);
             return this.getCompletionItemList(filteredSymbols, lsContext);
         }
 
-        List<CompletionItem> completionItems = new ArrayList<>();
+        List<LSCompletionItem> completionItems = new ArrayList<>();
         visibleSymbols.removeIf(this.attachedSymbolFilter());
-        completionItems.addAll(getBasicTypes(visibleSymbols));
+        completionItems.addAll(getBasicTypesItems(lsContext, visibleSymbols));
         completionItems.addAll(this.getPackagesCompletionItems(lsContext));
         return completionItems;
     }

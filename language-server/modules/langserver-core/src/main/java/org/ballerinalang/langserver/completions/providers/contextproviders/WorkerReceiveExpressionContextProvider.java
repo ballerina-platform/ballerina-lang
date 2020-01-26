@@ -18,6 +18,7 @@
 package org.ballerinalang.langserver.completions.providers.contextproviders;
 
 import org.ballerinalang.annotation.JavaSPIService;
+import org.ballerinalang.langserver.LSCompletionItem;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.completions.spi.LSCompletionProvider;
@@ -36,7 +37,7 @@ public class WorkerReceiveExpressionContextProvider extends LSCompletionProvider
         this.attachmentPoints.add(BallerinaParser.WorkerReceiveExpressionContext.class);
     }
     @Override
-    public List<CompletionItem> getCompletions(LSContext context) {
+    public List<LSCompletionItem> getCompletions(LSContext context) {
         return this.getCompletionItemList(CommonUtil.getWorkerSymbols(context), context);
     }
 }

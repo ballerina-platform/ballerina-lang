@@ -17,6 +17,7 @@ package org.ballerinalang.langserver.completions.util;
 
 import org.antlr.v4.runtime.CommonToken;
 import org.antlr.v4.runtime.Token;
+import org.ballerinalang.langserver.LSCompletionItem;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSContext;
@@ -71,9 +72,9 @@ public class CompletionUtil {
      * @return {@link List}         List of resolved completion Items
      */
     public static List<CompletionItem>  getCompletionItems(LSContext ctx) {
-        List<CompletionItem> items = new ArrayList<>();
+        List<LSCompletionItem> items = new ArrayList<>();
         if (ctx == null) {
-            return items;
+            return new ArrayList<>();
         }
         // Set the invocation or field access token type
         setInvocationOrInteractionOrFieldAccessToken(ctx);
@@ -88,15 +89,18 @@ public class CompletionUtil {
 
         boolean isSnippetSupported = ctx.get(CompletionKeys.CLIENT_CAPABILITIES_KEY).getCompletionItem()
                 .getSnippetSupport();
-        for (CompletionItem item : items) {
+        List<CompletionItem> completionItems = new ArrayList<>();
+        for (LSCompletionItem item : items) {
+            CompletionItem cItem = item.getCompletionItem();
             if (!isSnippetSupported) {
-                item.setInsertText(CommonUtil.getPlainTextSnippet(item.getInsertText()));
-                item.setInsertTextFormat(InsertTextFormat.PlainText);
+                cItem.setInsertText(CommonUtil.getPlainTextSnippet(cItem.getInsertText()));
+                cItem.setInsertTextFormat(InsertTextFormat.PlainText);
             } else {
-                item.setInsertTextFormat(InsertTextFormat.Snippet);
+                cItem.setInsertTextFormat(InsertTextFormat.Snippet);
             }
+            completionItems.add(cItem);
         }
-        return items;
+        return completionItems;
     }
 
     /**

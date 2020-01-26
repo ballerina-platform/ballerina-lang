@@ -19,6 +19,7 @@ package org.ballerinalang.langserver.completions.providers.scopeproviders;
 import org.antlr.v4.runtime.CommonToken;
 import org.antlr.v4.runtime.Token;
 import org.ballerinalang.annotation.JavaSPIService;
+import org.ballerinalang.langserver.LSCompletionItem;
 import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.providers.contextproviders.IfWhileConditionContextProvider;
@@ -43,7 +44,7 @@ public class BlockStatementScopeProvider extends LSCompletionProvider {
     }
 
     @Override
-    public List<CompletionItem> getCompletions(LSContext context) {
+    public List<LSCompletionItem> getCompletions(LSContext context) {
         Optional<LSCompletionProvider> contextProvider = getContextProvider(context);
         return contextProvider.map(lsCompletionProvider -> lsCompletionProvider.getCompletions(context)).orElse(null);
     }

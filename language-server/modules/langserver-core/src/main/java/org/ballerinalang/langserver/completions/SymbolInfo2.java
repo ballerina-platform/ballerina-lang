@@ -23,18 +23,18 @@ import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 /**
  * Represents the symbol information.
  */
-public class SymbolInfo {
+public class SymbolInfo2 {
     private String symbolName;
     private Scope.ScopeEntry scopeEntry;
     private boolean isCustomOperation;
     private CustomOperationSignature customOperationSignature;
 
-    public SymbolInfo(String symbolName, Scope.ScopeEntry scopeEntry) {
+    public SymbolInfo2(String symbolName, Scope.ScopeEntry scopeEntry) {
         this.symbolName = symbolName;
         this.scopeEntry = scopeEntry;
     }
     
-    public SymbolInfo() {
+    public SymbolInfo2() {
     }
 
     public String getSymbolName() {

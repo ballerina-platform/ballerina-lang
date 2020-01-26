@@ -38,7 +38,6 @@ import org.ballerinalang.langserver.compiler.format.FormattingVisitorEntry;
 import org.ballerinalang.langserver.compiler.format.TextDocumentFormatUtil;
 import org.ballerinalang.langserver.compiler.sourcegen.FormattingSourceGen;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
-import org.ballerinalang.langserver.completions.SymbolInfo;
 import org.ballerinalang.langserver.completions.exceptions.CompletionContextNotSupportedException;
 import org.ballerinalang.langserver.completions.util.CompletionUtil;
 import org.ballerinalang.langserver.diagnostic.DiagnosticsHelper;
@@ -86,6 +85,7 @@ import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lsp4j.WorkspaceEdit;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.eclipse.lsp4j.services.TextDocumentService;
+import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
@@ -110,7 +110,7 @@ import java.util.stream.Collectors;
 import static org.ballerinalang.langserver.compiler.LSClientLogger.logError;
 import static org.ballerinalang.langserver.compiler.LSClientLogger.notifyUser;
 import static org.ballerinalang.langserver.compiler.LSCompilerUtil.getUntitledFilePath;
-import static org.ballerinalang.langserver.signature.SignatureHelpUtil.getFuncSymbolInfo;
+import static org.ballerinalang.langserver.signature.SignatureHelpUtil.getFuncScopeEntry;
 import static org.ballerinalang.langserver.signature.SignatureHelpUtil.getFunctionInvocationDetails;
 
 /**
@@ -237,22 +237,21 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 SignatureTreeVisitor signatureTreeVisitor = new SignatureTreeVisitor(context);
                 bLangPackage.accept(signatureTreeVisitor);
                 int activeParamIndex = 0;
-                List<SymbolInfo> visibleSymbols = context.get(CommonKeys.VISIBLE_SYMBOLS_KEY);
+                List<Scope.ScopeEntry> visibleSymbols = context.get(CommonKeys.VISIBLE_SYMBOLS_KEY);
                 if (visibleSymbols == null) {
                     throw new Exception("Couldn't find the symbol, visible symbols are NULL!");
                 }
                 // Search function invocation symbol
                 List<SignatureInformation> signatures = new ArrayList<>();
-                List<SymbolInfo> symbols = new ArrayList<>(visibleSymbols);
+                List<Scope.ScopeEntry> symbols = new ArrayList<>(visibleSymbols);
                 Pair<Optional<String>, Integer> funcPathAndParamIndexPair = getFunctionInvocationDetails(context);
                 Optional<String> funcPath = funcPathAndParamIndexPair.getLeft();
                 activeParamIndex = funcPathAndParamIndexPair.getRight();
                 funcPath.ifPresent(pathStr -> {
-                    Optional<SymbolInfo> searchSymbol = getFuncSymbolInfo(context, pathStr,
-                                                                          symbols);
-                    searchSymbol.ifPresent(s -> {
-                        if (s.getScopeEntry().symbol instanceof BInvokableSymbol) {
-                            BInvokableSymbol symbol = (BInvokableSymbol) s.getScopeEntry().symbol;
+                    Optional<Scope.ScopeEntry> searchSymbol = getFuncScopeEntry(context, pathStr, symbols);
+                    searchSymbol.ifPresent(entry -> {
+                        if (entry.symbol instanceof BInvokableSymbol) {
+                            BInvokableSymbol symbol = (BInvokableSymbol) entry.symbol;
                             signatures.add(SignatureHelpUtil.getSignatureInformation(symbol, context));
                         }
                     });

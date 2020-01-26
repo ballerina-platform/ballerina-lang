@@ -20,20 +20,22 @@ package org.ballerinalang.langserver.completions;
 import org.ballerinalang.langserver.LSCompletionItem;
 import org.ballerinalang.langserver.compiler.LSContext;
 import org.eclipse.lsp4j.CompletionItem;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 
 /**
- * Represents a static Completion Item.
- * Eg: Code Snippet
+ * Represents a BField Completion Item.
  *
  * @since 1.2.0
  */
-public class StaticCompletionItem implements LSCompletionItem {
-    LSContext lsContext;
-    CompletionItem completionItem;
+public class FieldCompletionItem implements LSCompletionItem {
+    private LSContext lsContext;
+    private CompletionItem completionItem;
+    private BField bField;
 
-    public StaticCompletionItem(LSContext lsContext, CompletionItem completionItem) {
+    public FieldCompletionItem(LSContext lsContext, BField bField, CompletionItem completionItem) {
         this.lsContext = lsContext;
         this.completionItem = completionItem;
+        this.bField = bField;
     }
 
     @Override
