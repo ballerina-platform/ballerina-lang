@@ -47,7 +47,7 @@ public class CookieNativeFunctionNegativeTest {
                           "Cookie objects are in the Return Values");
     }
 
-    @Test(description = "add a cookie with unmatched path to cookie store")
+    @Test(description = "Test add a cookie with unmatched path to cookie store")
     public void testAddCookieWithUnmatchedPath() {
         BValue[] returnVals = BRunUtil.invoke(result, "testAddCookieWithUnmatchedPath");
         Assert.assertTrue(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
@@ -115,7 +115,8 @@ public class CookieNativeFunctionNegativeTest {
                           "Cookie objects are in the Return Values");
     }
 
-    @Test(description = "Test remove a specific cookie which is not in the cookie store")
+    @Test(description = "Test remove a specific cookie which is not in the cookie store when persistent cookie " +
+            "handler is not configured")
     public void testRemoveCookieFromCookieStore() {
         BValue[] returnVals = BRunUtil.invoke(result, "testRemoveCookieFromCookieStore");
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
@@ -124,7 +125,7 @@ public class CookieNativeFunctionNegativeTest {
         BMap<String, BValue> bvalue = (BMap) returnVals[0];
         Assert.assertEquals(bvalue.get("name").stringValue(), "SID002");
     }
-//////
+
     @Test(description = "Test add cookies more than the number in maxTotalCookieCount in cookie configuration")
     public void testCheckMaxTotalCookieCount() {
         BValue[] returnVals = BRunUtil.invoke(result, "testCheckMaxTotalCookieCount");
@@ -136,7 +137,7 @@ public class CookieNativeFunctionNegativeTest {
         Assert.assertEquals(bvalue1.get("name").stringValue(), "SID001");
         Assert.assertEquals(bvalue2.get("name").stringValue(), "SID002");
     }
- //////
+
     @Test(description = "Test add cookies more than the number in maxCookiesPerDomain in cookie configuration")
     public void testCheckMaxCookiesPerDomain() {
         BValue[] returnVals = BRunUtil.invoke(result, "testCheckMaxCookiesPerDomain");
@@ -148,16 +149,16 @@ public class CookieNativeFunctionNegativeTest {
         Assert.assertEquals(bvalue1.get("name").stringValue(), "SID001");
         Assert.assertEquals(bvalue2.get("name").stringValue(), "SID002");
     }
-//////
+
     @Test(description = "Test give invalid file extension when creating a CsvPersistentCookieHandler object")
     public void testAddPersistentCookieWithoutPersistentStore() {
         BValue[] returnVals = BRunUtil.invoke(result, "testAddPersistentCookieWithoutPersistentStore");
         Assert.assertTrue(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                           "Cookie objects are in the Return Values");
     }
-//////
+
     @Test(description = "Test remove a specific cookie which is not in the cookie store, when there is a persistent " +
-            "cookie handler")
+            "cookie store")
     public void testRemovePersistentCookieFromCookieStore_1() {
         BValue[] returnVals = BRunUtil.invoke(result, "testRemovePersistentCookieFromCookieStore_1");
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
@@ -166,17 +167,18 @@ public class CookieNativeFunctionNegativeTest {
         BMap<String, BValue> bvalue = (BMap) returnVals[0];
         Assert.assertEquals(bvalue.get("name").stringValue(), "SID002");
     }
-//////
-    @Test(description = "Test give invalid file extension when creating a CsvPersistentCookieHandler object")
+
+    @Test(description = "Test remove a specific cookie which is not in the cookie store, when there is no persistent " +
+            "cookie store")
     public void testRemovePersistentCookieFromCookieStore_2() {
         BValue[] returnVals = BRunUtil.invoke(result, "testRemovePersistentCookieFromCookieStore_2");
         Assert.assertTrue(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                           "Cookie objects are in the Return Values");
     }
- //////
-    @Test(description = "Test give invalid file extension when creating a CsvPersistentCookieHandler object")
-    public void testClearCookiesFromCookieStore() {
-        BValue[] returnVals = BRunUtil.invoke(result, "testClearCookiesFromCookieStore");
+
+    @Test(description = "Test remove all cookies when there is no persistent cookie store")
+    public void testRemoveAllCookiesFromCookieStore() {
+        BValue[] returnVals = BRunUtil.invoke(result, "testRemoveAllCookiesFromCookieStore");
         Assert.assertTrue(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                           "Cookie objects are in the Return Values");
     }

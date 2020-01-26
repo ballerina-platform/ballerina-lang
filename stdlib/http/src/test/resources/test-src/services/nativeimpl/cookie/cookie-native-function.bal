@@ -16,6 +16,7 @@
 
 import ballerina/http;
 import ballerina/file;
+import ballerina/io;
 
 string filePath = "src/test/resources/test-src/services/nativeimpl/cookie/cookie-test-data/";
 
@@ -274,11 +275,14 @@ function testRemoveCookieFromCookieStore() returns @tainted http:Cookie[] {
     if (cookieConfigVal is http:CookieConfig) {
         cookieStore.addCookie(cookie1, cookieConfigVal, "http://google.com", "/sample");
     }
-    boolean isRemoved = cookieStore.removeCookie("SID002", "google.com", "/sample");
+    var result = cookieStore.removeCookie("SID002", "google.com", "/sample");
+    if (result is error) {
+        io:println(result);
+    }
     return cookieStore.getAllCookies();
 }
 
-function testClearAllCookiesInCookieStore() returns @tainted http:Cookie[] {
+function testRemoveAllCookiesInCookieStore() returns @tainted http:Cookie[] {
     http:Cookie cookie1 = new("SID002", "239d4dmnmsddd34");
     cookie1.path = "/sample";
     cookie1.domain = "google.com";
@@ -294,7 +298,10 @@ function testClearAllCookiesInCookieStore() returns @tainted http:Cookie[] {
     if (cookieConfigVal is http:CookieConfig  && cookieStore is http:CookieStore && cookie1.isValid() == true && cookie2.isValid() == true) {
         cookieStore.addCookie(cookie1, cookieConfigVal, "http://google.com", "/sample");
         cookieStore.addCookie(cookie2, cookieConfigVal, "http://google.com", "/sample");
-        cookieStore.clear();
+        var result = cookieStore.removeAllCookies();
+        if (result is error) {
+            io:println(result);
+        }
         cookies = cookieStore.getAllCookies();
     }
     error? removeResults = file:remove(filePath, true);
@@ -367,7 +374,10 @@ function testRemovePersistentCookieFromCookieStore() returns @tainted http:Cooki
     http:Cookie[] cookies = [];
     if (cookieConfigVal is http:CookieConfig && cookieStore is http:CookieStore && cookie1.isValid() == true) {
         cookieStore.addCookie(cookie1, cookieConfigVal, "http://google.com", "/sample");
-        boolean isRemoved = cookieStore.removeCookie("SID002", "google.com", "/sample");
+        var result = cookieStore.removeCookie("SID002", "google.com", "/sample");
+        if (result is error) {
+            io:println(result);
+        }
         cookies = cookieStore.getAllCookies();
     }
     error? removeResults = file:remove(filePath, true);
@@ -422,6 +432,9 @@ function testRemoveCookiesByDomain() returns @tainted http:Cookie[] {
         cookieStore.addCookie(cookie1, cookieConfigVal, "http://google.com", "/sample");
         cookieStore.addCookie(cookie2, cookieConfigVal, "http://google.com", "/sample");
     }
-    cookieStore.removeCookiesByDomain("google.com");
+    var result = cookieStore.removeCookiesByDomain("google.com");
+    if (result is error) {
+        io:println(result);
+    }
     return cookieStore.getAllCookies();
 }

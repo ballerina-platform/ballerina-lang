@@ -227,8 +227,8 @@ public class CookieNativeFunctionSuccessTest {
     }
 
     @Test(description = "Test remove all cookies from cookie store")
-    public void testClearCookieStore() {
-        BValue[] returnVals = BRunUtil.invoke(result, "testClearAllCookiesInCookieStore");
+    public void testRemoveAllCookiesInCookieStore() {
+        BValue[] returnVals = BRunUtil.invoke(result, "testRemoveAllCookiesInCookieStore");
         Assert.assertTrue(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                           "Cookie objects are in the Return Values");
     }

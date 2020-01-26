@@ -16,6 +16,7 @@
 
 import ballerina/http;
 import ballerina/file;
+import ballerina/io;
 
 string filePath = "src/test/resources/test-src/services/nativeimpl/cookie/cookie-test-data/";
 
@@ -166,10 +167,13 @@ function testRemoveCookieFromCookieStore() returns @tainted http:Cookie[] {
     if (cookieConfigVal is http:CookieConfig) {
         cookieStore.addCookie(cookie1, cookieConfigVal, "http://google.com", "/sample" );
     }
-    boolean isRemoved = cookieStore.removeCookie("SID003", "google.com", "/sample");
+    var result = cookieStore.removeCookie("SID003", "google.com", "/sample");
+    if (result is error) {
+        io:println(result);
+    }
     return cookieStore.getAllCookies();
 }
-//////
+
 function testCheckMaxTotalCookieCount() returns @tainted http:Cookie[] {
     http:CookieStore cookieStore = new(());
     http:Cookie cookie1 = new("SID001", "239d4dmnmsddd34");
@@ -190,7 +194,7 @@ function testCheckMaxTotalCookieCount() returns @tainted http:Cookie[] {
     }
     return cookieStore.getAllCookies();
 }
-/////
+
 function testCheckMaxCookiesPerDomain() returns @tainted http:Cookie[] {
     http:CookieStore cookieStore = new(());
     http:Cookie cookie1 = new("SID001", "239d4dmnmsddd34");
@@ -211,7 +215,7 @@ function testCheckMaxCookiesPerDomain() returns @tainted http:Cookie[] {
     }
     return cookieStore.getAllCookies();
 }
-///////
+
 function testAddPersistentCookieWithoutPersistentStore() returns @tainted http:Cookie[] {
     http:Cookie cookie1 = new("SID002", "239d4dmnmsddd34");
     cookie1.path = "/sample";
@@ -227,7 +231,7 @@ function testAddPersistentCookieWithoutPersistentStore() returns @tainted http:C
     }
     return cookies;
 }
-//////
+
 function testRemovePersistentCookieFromCookieStore_1() returns @tainted http:Cookie[] {
     http:Cookie cookie1 = new("SID002", "239d4dmnmsddd34");
     cookie1.path = "/sample";
@@ -240,13 +244,16 @@ function testRemovePersistentCookieFromCookieStore_1() returns @tainted http:Coo
     http:Cookie[] cookies = [];
     if (cookieConfigVal is http:CookieConfig && cookieStore is http:CookieStore && cookie1.isValid() == true) {
         cookieStore.addCookie(cookie1, cookieConfigVal, "http://google.com", "/sample");
-        boolean isRemoved = cookieStore.removeCookie("SID003", "google.com", "/sample");
+        var result = cookieStore.removeCookie("SID003", "google.com", "/sample");
+        if (result is error) {
+            io:println(result);
+        }
         cookies = cookieStore.getAllCookies();
     }
     error? removeResults = file:remove(filePath, true);
     return cookies;
 }
-///////
+
 function testRemovePersistentCookieFromCookieStore_2() returns @tainted http:Cookie[] {
     http:CsvPersistentCookieHandler myPersistentStore = new(filePath + "client-7.csv");
     http:Client cookieClientEndpoint = new("http://google.com", { cookieConfig: { enabled: true, persistentCookieHandler: myPersistentStore } } );
@@ -254,20 +261,26 @@ function testRemovePersistentCookieFromCookieStore_2() returns @tainted http:Coo
     var cookieConfigVal = cookieClientEndpoint.config.cookieConfig;
     http:Cookie[] cookies = [];
     if (cookieConfigVal is http:CookieConfig && cookieStore is http:CookieStore) {
-        boolean isRemoved = cookieStore.removeCookie("SID003", "google.com", "/sample");
+        var result = cookieStore.removeCookie("SID003", "google.com", "/sample");
+        if (result is error) {
+            io:println(result);
+        }
         cookies = cookieStore.getAllCookies();
     }
     return cookies;
 }
-//////
-function testClearCookiesFromCookieStore() returns @tainted http:Cookie[] {
+
+function testRemoveAllCookiesFromCookieStore() returns @tainted http:Cookie[] {
     http:CsvPersistentCookieHandler myPersistentStore = new(filePath + "client-8.csv");
     http:Client cookieClientEndpoint = new("http://google.com", { cookieConfig: { enabled: true, persistentCookieHandler: myPersistentStore } } );
     http:CookieStore? cookieStore = cookieClientEndpoint.getCookieStore();
     var cookieConfigVal = cookieClientEndpoint.config.cookieConfig;
     http:Cookie[] cookies = [];
     if (cookieConfigVal is http:CookieConfig && cookieStore is http:CookieStore) {
-        cookieStore.clear();
+        var result = cookieStore.removeAllCookies();
+        if (result is error) {
+            io:println(result);
+        }
         cookies = cookieStore.getAllCookies();
     }
     return cookies;
