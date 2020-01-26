@@ -100,6 +100,7 @@ dependencies {
     dist project(':ballerina-backend-llvm')
     birJar project(path: ':ballerina-backend-llvm', configuration: 'birJar')
     dist project(':language-server:language-server-compiler')
+    dist project(':language-server:language-server-commons')
     dist project(':ballerina-packerina')
     dist project(':docerina')
     docerina project(':docerina-gradle-plugin')

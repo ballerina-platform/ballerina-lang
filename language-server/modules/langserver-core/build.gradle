@@ -37,6 +37,7 @@ configurations {
 dependencies {
     implementation project(':ballerina-lang')
     implementation project(':ballerina-runtime')
+    implementation project(':language-server:language-server-commons')
     implementation project(':language-server:language-server-compiler')
     implementation project(':openapi-ballerina:openapi-to-ballerina-generator')
     implementation project(':openapi-ballerina:ballerina-to-openapi-generator')
