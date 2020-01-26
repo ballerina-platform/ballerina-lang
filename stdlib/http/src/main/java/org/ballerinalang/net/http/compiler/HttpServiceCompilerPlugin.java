@@ -22,6 +22,7 @@ import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.ServiceNode;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
+import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
 import org.ballerinalang.net.http.websocket.WebSocketConstants;
 import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.ballerinalang.util.diagnostic.DiagnosticLog;
@@ -31,6 +32,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.ballerinalang.net.http.HttpConstants.ANN_CONFIG_ATTR_COMPRESSION;
@@ -93,8 +95,11 @@ public class HttpServiceCompilerPlugin extends AbstractCompilerPlugin {
         if (annotation.getExpression() == null) {
             return;
         }
-        List<BLangRecordLiteral.BLangRecordKeyValue> annotationValues =
-                ((BLangRecordLiteral) annotation.getExpression()).keyValuePairs;
+        List<BLangRecordLiteral.BLangRecordKeyValue> annotationValues = new ArrayList<>();
+        for (RecordLiteralNode.RecordField field : ((BLangRecordLiteral) annotation.getExpression()).fields) {
+            annotationValues.add((BLangRecordLiteral.BLangRecordKeyValue) field);
+        }
+
         int compressionConfigCount = 0;
 
         for (BLangRecordLiteral.BLangRecordKeyValue keyValue : annotationValues) {
@@ -105,8 +110,9 @@ public class HttpServiceCompilerPlugin extends AbstractCompilerPlugin {
                                        "Invalid multiple configurations for compression");
                     return;
                 }
-                for (BLangRecordLiteral.BLangRecordKeyValue compressionConfig
-                        : ((BLangRecordLiteral) keyValue.valueExpr).getKeyValuePairs()) {
+                for (RecordLiteralNode.RecordField field : ((BLangRecordLiteral) keyValue.valueExpr).getFields()) {
+                    BLangRecordLiteral.BLangRecordKeyValue compressionConfig =
+                            (BLangRecordLiteral.BLangRecordKeyValue) field;
                     if (checkMatchingConfigKey(compressionConfig, ANN_CONFIG_ATTR_COMPRESSION_CONTENT_TYPES)) {
                         BLangListConstructorExpr valueArray = (BLangListConstructorExpr) compressionConfig.valueExpr;
                         if (valueArray.getExpressions().isEmpty()) {

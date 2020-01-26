@@ -204,7 +204,7 @@ public class ServiceProtoBuilder extends AbstractCompilerPlugin {
         //Add Root Descriptor
         BLangRecordLiteral.BLangRecordKeyValue descriptorKeyValue = (BLangRecordLiteral.BLangRecordKeyValue)
                 TreeBuilder.createRecordKeyValue();
-        literalNode.keyValuePairs.add(descriptorKeyValue);
+        literalNode.fields.add(descriptorKeyValue);
 
         BLangLiteral keyLiteral = (BLangLiteral) TreeBuilder.createLiteralExpression();
         keyLiteral.value = ANN_FIELD_DESCRIPTOR;
@@ -255,7 +255,7 @@ public class ServiceProtoBuilder extends AbstractCompilerPlugin {
 
         BLangRecordLiteral.BLangRecordKeyValue mapKeyValue = (BLangRecordLiteral.BLangRecordKeyValue) TreeBuilder
                 .createRecordKeyValue();
-        literalNode.keyValuePairs.add(mapKeyValue);
+        literalNode.fields.add(mapKeyValue);
 
         BLangSimpleVarRef mapKeyLiteral = (BLangSimpleVarRef) TreeBuilder.createSimpleVariableReferenceNode();
         BLangIdentifier keyName = (BLangIdentifier) TreeBuilder.createIdentifierNode();

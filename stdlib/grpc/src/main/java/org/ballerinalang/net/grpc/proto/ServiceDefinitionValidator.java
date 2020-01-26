@@ -19,6 +19,7 @@ package org.ballerinalang.net.grpc.proto;
 
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.ServiceNode;
+import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
 import org.ballerinalang.net.grpc.config.ServiceConfiguration;
 import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.ballerinalang.util.diagnostic.DiagnosticLog;
@@ -70,7 +71,11 @@ public class ServiceDefinitionValidator {
         for (AnnotationAttachmentNode annotation : annotations) {
             if (annotation.getAnnotationName().getValue().equals(ANN_SERVICE_CONFIG)) {
                 if (annotation.getExpression() != null) {
-                    annVals = ((BLangRecordLiteral) annotation.getExpression()).keyValuePairs;
+                    for (RecordLiteralNode.RecordField field :
+                            ((BLangRecordLiteral) annotation.getExpression()).fields) {
+                        annVals.add((BLangRecordLiteral.BLangRecordKeyValue) field);
+                    }
+
                     count++;
                 }
             }

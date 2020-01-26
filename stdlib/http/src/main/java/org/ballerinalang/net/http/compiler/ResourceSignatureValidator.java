@@ -3,6 +3,7 @@ package org.ballerinalang.net.http.compiler;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.FunctionNode;
 import org.ballerinalang.model.tree.SimpleVariableNode;
+import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
 import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.ballerinalang.util.diagnostic.DiagnosticLog;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
@@ -68,7 +69,9 @@ public class ResourceSignatureValidator {
         for (AnnotationAttachmentNode annotation : annotations) {
             if (annotation.getAnnotationName().getValue().equals(ANN_NAME_RESOURCE_CONFIG) &&
                     annotation.getExpression() != null) {
-                annVals = ((BLangRecordLiteral) annotation.getExpression()).keyValuePairs;
+                for (RecordLiteralNode.RecordField field : ((BLangRecordLiteral) annotation.getExpression()).fields) {
+                    annVals.add((BLangRecordLiteral.BLangRecordKeyValue) field);
+                }
                 count++;
             }
         }
@@ -118,8 +121,11 @@ public class ResourceSignatureValidator {
                                "Invalid configurations for WebSocket upgrade resource");
             return;
         }
-        List<BLangRecordLiteral.BLangRecordKeyValue> upgradeFields =
-                ((BLangRecordLiteral) keyValue.valueExpr).keyValuePairs;
+        List<BLangRecordLiteral.BLangRecordKeyValue> upgradeFields = new ArrayList<>();
+        for (RecordLiteralNode.RecordField field : ((BLangRecordLiteral) keyValue.valueExpr).fields) {
+            upgradeFields.add((BLangRecordLiteral.BLangRecordKeyValue) field);
+        }
+
         if (upgradeFields.isEmpty()) {
             dlog.logDiagnostic(Diagnostic.Kind.ERROR, resourceNode.getPosition(),
                                "An upgradeService need to be specified for the WebSocket upgrade " +

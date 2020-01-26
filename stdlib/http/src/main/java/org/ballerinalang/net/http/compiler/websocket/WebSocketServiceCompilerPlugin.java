@@ -21,6 +21,7 @@ import org.ballerinalang.compiler.plugins.AbstractCompilerPlugin;
 import org.ballerinalang.compiler.plugins.SupportedResourceParamTypes;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.ServiceNode;
+import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.websocket.WebSocketConstants;
 import org.ballerinalang.util.diagnostic.Diagnostic;
@@ -29,6 +30,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -90,8 +92,11 @@ public class WebSocketServiceCompilerPlugin extends AbstractCompilerPlugin {
     }
 
     private void validatePathAnnotationForPathParam(AnnotationAttachmentNode annotation) {
-        List<BLangRecordLiteral.BLangRecordKeyValue> keyValues =
-                ((BLangRecordLiteral) annotation.getExpression()).keyValuePairs;
+        List<BLangRecordLiteral.BLangRecordKeyValue> keyValues = new ArrayList<>();
+        for (RecordLiteralNode.RecordField field : ((BLangRecordLiteral) annotation.getExpression()).fields) {
+            keyValues.add((BLangRecordLiteral.BLangRecordKeyValue) field);
+        }
+
         Optional<BLangRecordLiteral.BLangRecordKeyValue> pathPair = keyValues.stream().filter(
                 pair -> pair.key.toString().equals("path")).findAny();
         if (pathPair.isPresent()) {
