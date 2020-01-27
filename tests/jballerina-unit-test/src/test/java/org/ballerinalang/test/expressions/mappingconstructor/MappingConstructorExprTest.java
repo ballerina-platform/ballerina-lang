@@ -17,11 +17,12 @@
  */
 package org.ballerinalang.test.expressions.mappingconstructor;
 
-import org.ballerinalang.test.util.BAssertUtil;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.Test;
+
+import static org.ballerinalang.test.util.BAssertUtil.validateError;
 
 /**
  * Test cases for mapping constructor expressions.
@@ -33,11 +34,41 @@ public class MappingConstructorExprTest {
         CompileResult result = BCompileUtil.compile(
                 "test-src/expressions/mappingconstructor/mapping_constructor_negative.bal");
         Assert.assertEquals(result.getErrorCount(), 2);
-        BAssertUtil.validateError(result, 0, "incompatible mapping constructor expression for type '(string|Person)'",
-                                  22, 23);
-        BAssertUtil.validateError(result, 1,
-                                  "a type compatible with mapping constructor expressions not found in type '" +
-                                          "(int|float)'",
-                                  26, 19);
+        validateError(result, 0, "incompatible mapping constructor expression for type '(string|Person)'", 22, 23);
+        validateError(result, 1,
+                      "a type compatible with mapping constructor expressions not found in type '(int|float)'", 26, 19);
+    }
+
+    @Test
+    public void varNameFieldSemanticAnalysisNegativeTest() {
+        CompileResult result = BCompileUtil.compile(
+                "test-src/expressions/mappingconstructor/var_name_field_semantic_analysis_negative.bal");
+        Assert.assertEquals(result.getErrorCount(), 6);
+        validateError(result, 0, "incompatible types: expected 'string', found 'int'", 30, 14);
+        validateError(result, 1, "incompatible types: expected 'string', found 'int'", 31, 22);
+        validateError(result, 2, "undefined field 'b' in record 'Foo'", 37, 32);
+        validateError(result, 3, "undefined symbol 'i'", 41, 26);
+        validateError(result, 4, "undefined symbol 'c'", 42, 37);
+        validateError(result, 5, "undefined symbol 'PI'", 46, 36);
+    }
+
+    @Test
+    public void varNameFieldCodeAnalysisNegativeTest() {
+        CompileResult result = BCompileUtil.compile(
+                "test-src/expressions/mappingconstructor/var_name_field_code_analysis_negative.bal");
+        Assert.assertEquals(result.getErrorCount(), 4);
+        validateError(result, 0, "invalid usage of record literal: duplicate key 's'", 26, 17);
+        validateError(result, 1, "invalid usage of record literal: duplicate key 'i'", 26, 23);
+        validateError(result, 2, "invalid usage of map literal: duplicate key 'i'", 27, 34);
+        validateError(result, 3, "invalid usage of map literal: duplicate key 'i'", 27, 42);
+    }
+
+    @Test
+    public void varNameFieldTaintAnalysisNegativeTest() {
+        CompileResult result = BCompileUtil.compile(
+                "test-src/expressions/mappingconstructor/var_name_field_taint_analysis_negative.bal");
+        Assert.assertEquals(result.getErrorCount(), 2);
+        validateError(result, 0, "tainted value passed to global variable 'f'", 26, 5);
+        validateError(result, 1, "tainted value passed to global variable 'm'", 27, 5);
     }
 }
