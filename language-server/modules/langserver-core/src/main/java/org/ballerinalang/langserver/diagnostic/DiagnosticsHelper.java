@@ -16,9 +16,9 @@
 package org.ballerinalang.langserver.diagnostic;
 
 import org.ballerinalang.langserver.client.ExtendedLanguageClient;
+import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.compiler.CollectDiagnosticListener;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
-import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.compiler.LSModuleCompiler;
 import org.ballerinalang.langserver.compiler.common.LSDocument;
 import org.ballerinalang.langserver.compiler.exception.CompilationFailedException;

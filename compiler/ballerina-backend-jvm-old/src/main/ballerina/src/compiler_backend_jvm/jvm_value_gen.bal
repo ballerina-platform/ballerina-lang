@@ -72,7 +72,10 @@ public type ObjectGenerator object {
         self.createObjectInit(cw, fields, className);
         self.createCallMethod(cw, attachedFuncs, className, objectType.name.value, isService);
         self.createObjectGetMethod(cw, fields, className);
-        self.createObjectSetMethod(cw, fields, className);
+        self.createObjectSetMethod(cw, fields, className, false);
+        if (IS_BSTRING) {
+            self.createObjectSetMethod(cw, fields, className, true);
+        }
         self.createLambdas(cw);
 
         cw.visitEnd();
@@ -99,6 +102,10 @@ public type ObjectGenerator object {
             if (field is bir:BObjectField) {
                 jvm:FieldVisitor fv = cw.visitField(0, field.name.value, getTypeDesc(field.typeValue));
                 fv.visitEnd();
+                if(IS_BSTRING) {
+                    jvm:FieldVisitor fvb = cw.visitField(0, nameOfBStringFunc(field.name.value), getTypeDesc(field.typeValue, true));
+                    fvb.visitEnd();
+                }
                 string lockClass = "L" + LOCK_VALUE + ";";
                 fv = cw.visitField(ACC_PUBLIC + ACC_FINAL, computeLockNameFromString(field.name.value), lockClass);
                 fv.visitEnd();
@@ -179,7 +186,8 @@ public type ObjectGenerator object {
             string methodSig = "";
 
             // use index access, since retType can be nil.
-            methodSig = getMethodDesc(paramTypes, retType);
+            boolean useBString = isBStringFunc(methodName);
+            methodSig = getMethodDesc(paramTypes, retType, useBString = useBString);
 
             // load self
             mv.visitVarInsn(ALOAD, 0);
@@ -196,7 +204,7 @@ public type ObjectGenerator object {
                 mv.visitLdcInsn(j);
                 mv.visitInsn(L2I);
                 mv.visitInsn(AALOAD);
-                addUnboxInsn(mv, pType);
+                addUnboxInsn(mv, pType, useBString);
                 j += 1;
             }
 
@@ -253,9 +261,10 @@ public type ObjectGenerator object {
         mv.visitEnd();
     }
 
-    private function createObjectSetMethod(jvm:ClassWriter cw, bir:BObjectField?[] fields, string className) {
+    private function createObjectSetMethod(jvm:ClassWriter cw, bir:BObjectField?[] fields, string className,
+                                           boolean useBString) {
         jvm:MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "set",
-                io:sprintf("(L%s;L%s;)V", STRING_VALUE, OBJECT), (), ());
+                io:sprintf("(L%s;L%s;)V", useBString ? I_STRING_VALUE : STRING_VALUE, OBJECT), (), ());
         mv.visitCode();
         int fieldNameRegIndex = 1;
         int valueRegIndex = 2;
@@ -264,6 +273,12 @@ public type ObjectGenerator object {
         // code gen type checking for inserted value
         mv.visitVarInsn(ALOAD, 0);
         mv.visitVarInsn(ALOAD, fieldNameRegIndex);
+        if(useBString) {
+            mv.visitMethodInsn(INVOKEINTERFACE, I_STRING_VALUE, "getValue", io:sprintf("()L%s;", STRING_VALUE) , true);
+            mv.visitInsn(DUP);
+            fieldNameRegIndex = 3;
+            mv.visitVarInsn(ASTORE, fieldNameRegIndex);
+        }
         mv.visitVarInsn(ALOAD, valueRegIndex);
         mv.visitMethodInsn(INVOKEVIRTUAL, className, "checkFieldUpdate",
                 io:sprintf("(L%s;L%s;)V", STRING_VALUE, OBJECT), false);
@@ -285,8 +300,12 @@ public type ObjectGenerator object {
             mv.visitLabel(targetLabel);
             mv.visitVarInsn(ALOAD, 0);
             mv.visitVarInsn(ALOAD, valueRegIndex);
-            addUnboxInsn(mv, field.typeValue);
-            mv.visitFieldInsn(PUTFIELD, className, field.name.value, getTypeDesc(field.typeValue));
+            addUnboxInsn(mv, field.typeValue, useBString);
+            string filedName = field.name.value;
+            if(useBString) {
+                filedName = nameOfBStringFunc(filedName);
+            }
+            mv.visitFieldInsn(PUTFIELD, className, filedName, getTypeDesc(field.typeValue, useBString));
             mv.visitInsn(RETURN);
             i += 1;
         }
@@ -850,6 +869,7 @@ function injectDefaultParamInitsToAttachedFuncs(bir:Package module) {
 
 function desugarObjectMethods(bir:Package module, bir:BType bType, bir:Function?[]? attachedFuncs) {
     if (attachedFuncs is bir:Function?[]) {
+        bir:Function[] bStringFuncs = [];
         foreach var func in attachedFuncs {
             if (func is bir:Function) {
                 if isExternFunc(func) {
@@ -862,7 +882,15 @@ function desugarObjectMethods(bir:Package module, bir:BType bType, bir:Function?
                     addDefaultableBooleanVarsToSignature(func);
                 }
                 enrichWithDefaultableParamInits(getFunction(<@untainted> func));
+                if (IS_BSTRING) {
+                    var bStringFunc = func.clone();
+                    bStringFunc.name = {value: nameOfBStringFunc(func.name.value)};
+                    bStringFuncs.push(bStringFunc);
+                }
             }
+        }
+        foreach var func in bStringFuncs {
+            attachedFuncs.push(func);
         }
     }
 }

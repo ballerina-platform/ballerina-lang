@@ -15,6 +15,7 @@
  */
 package org.ballerinalang.langserver.compiler;
 
+import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.compiler.common.LSDocument;
 import org.ballerinalang.langserver.compiler.common.modal.BallerinaPackage;
 import org.ballerinalang.model.elements.PackageID;

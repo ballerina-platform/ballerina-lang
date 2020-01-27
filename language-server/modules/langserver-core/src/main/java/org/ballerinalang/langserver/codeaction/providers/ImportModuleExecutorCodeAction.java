@@ -16,12 +16,11 @@
 package org.ballerinalang.langserver.codeaction.providers;
 
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.codeaction.BallerinaCodeActionProvider;
-import org.ballerinalang.langserver.codeaction.CodeActionNodeType;
 import org.ballerinalang.langserver.command.CommandUtil;
 import org.ballerinalang.langserver.command.ExecuteCommandKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
-import org.ballerinalang.langserver.compiler.LSContext;
+import org.ballerinalang.langserver.commons.LSContext;
+import org.ballerinalang.langserver.commons.codeaction.CodeActionNodeType;
 import org.ballerinalang.langserver.compiler.common.LSDocument;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
@@ -38,8 +37,8 @@ import java.util.Optional;
  *
  * @since 1.1.1
  */
-@JavaSPIService("org.ballerinalang.langserver.codeaction.BallerinaCodeActionProvider")
-public class ImportModuleExecutorCodeAction extends BallerinaCodeActionProvider {
+@JavaSPIService("org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider")
+public class ImportModuleExecutorCodeAction extends AbstractCodeActionProvider {
     private static final String UNDEFINED_FUNCTION = "undefined function";
     private static final String UNDEFINED_MODULE = "undefined module";
     private static final String UNRESOLVED_MODULE = "cannot resolve module";

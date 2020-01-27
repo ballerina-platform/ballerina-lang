@@ -19,12 +19,12 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import org.ballerinalang.langserver.client.config.BallerinaClientConfig;
 import org.ballerinalang.langserver.client.config.BallerinaClientConfigHolder;
-import org.ballerinalang.langserver.command.LSCommandExecutor;
-import org.ballerinalang.langserver.command.LSCommandExecutorException;
-import org.ballerinalang.langserver.command.LSCommandExecutorProvider;
+import org.ballerinalang.langserver.command.LSCommandExecutorProvidersHolder;
+import org.ballerinalang.langserver.commons.LSContext;
+import org.ballerinalang.langserver.commons.command.LSCommandExecutorException;
+import org.ballerinalang.langserver.commons.command.spi.LSCommandExecutor;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSCompilerUtil;
-import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.compiler.LSModuleCompiler;
 import org.ballerinalang.langserver.compiler.common.LSCustomErrorStrategy;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
@@ -147,7 +147,7 @@ public class BallerinaWorkspaceService implements WorkspaceService {
                     .build();
 
             try {
-                Optional<LSCommandExecutor> executor = LSCommandExecutorProvider.getInstance()
+                Optional<LSCommandExecutor> executor = LSCommandExecutorProvidersHolder.getInstance()
                         .getCommandExecutor(params.getCommand());
                 if (executor.isPresent()) {
                     return executor.get().execute(executeCmdContext);

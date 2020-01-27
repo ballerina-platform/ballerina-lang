@@ -18,13 +18,11 @@ package org.ballerinalang.langserver;
 import com.google.gson.Gson;
 import org.ballerinalang.langserver.client.ExtendedLanguageClient;
 import org.ballerinalang.langserver.client.ExtendedLanguageClientAware;
-import org.ballerinalang.langserver.codelenses.LSCodeLensesProviderFactory;
-import org.ballerinalang.langserver.command.LSCommandExecutorProvider;
+import org.ballerinalang.langserver.command.LSCommandExecutorProvidersHolder;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.LSClientLogger;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManagerImpl;
-import org.ballerinalang.langserver.completions.LSCompletionProviderFactory;
 import org.ballerinalang.langserver.diagnostic.DiagnosticsHelper;
 import org.ballerinalang.langserver.extensions.ExtendedLanguageServer;
 import org.ballerinalang.langserver.extensions.ballerina.document.BallerinaDocumentService;
@@ -102,8 +100,6 @@ public class BallerinaLanguageServer implements ExtendedLanguageServer, Extended
         this.ballerinaFragmentService = new BallerinaFragmentServiceImpl();
 
         LSAnnotationCache.initiate();
-        LSCodeLensesProviderFactory.getInstance().initiate();
-        LSCompletionProviderFactory.getInstance().initiate();
     }
 
     public ExtendedLanguageClient getClient() {
@@ -113,7 +109,7 @@ public class BallerinaLanguageServer implements ExtendedLanguageServer, Extended
     public CompletableFuture<InitializeResult> initialize(InitializeParams params) {
         final InitializeResult res = new InitializeResult(new ServerCapabilities());
         final SignatureHelpOptions signatureHelpOptions = new SignatureHelpOptions(Arrays.asList("(", ","));
-        final List<String> commandList = LSCommandExecutorProvider.getInstance().getCommandsList();
+        final List<String> commandList = LSCommandExecutorProvidersHolder.getInstance().getCommandsList();
         final ExecuteCommandOptions executeCommandOptions = new ExecuteCommandOptions(commandList);
         final CompletionOptions completionOptions = new CompletionOptions();
         completionOptions.setTriggerCharacters(Arrays.asList(":", ".", ">", "@"));

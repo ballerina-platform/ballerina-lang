@@ -41,7 +41,7 @@ public class Seek {
 
     public static Object seek(ObjectValue consumerObject, MapValue<String, Object> partitionOffset) {
         KafkaTracingUtil.traceResourceInvocation(Scheduler.getStrand(), consumerObject);
-        KafkaConsumer<byte[], byte[]> kafkaConsumer = (KafkaConsumer) consumerObject.getNativeData(NATIVE_CONSUMER);
+        KafkaConsumer kafkaConsumer = (KafkaConsumer) consumerObject.getNativeData(NATIVE_CONSUMER);
         TopicPartition topicPartition = createTopicPartitionFromPartitionOffset(partitionOffset);
         Long offset = partitionOffset.getIntValue(ALIAS_OFFSET);
 

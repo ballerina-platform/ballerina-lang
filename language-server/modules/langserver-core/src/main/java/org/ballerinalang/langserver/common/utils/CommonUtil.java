@@ -27,8 +27,8 @@ import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.ballerinalang.jvm.util.BLangConstants;
 import org.ballerinalang.langserver.common.CommonKeys;
+import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
-import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.compiler.common.modal.BallerinaPackage;
 import org.ballerinalang.langserver.completions.SymbolInfo;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
@@ -66,7 +66,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
@@ -486,7 +485,6 @@ public class CommonUtil {
                 List<BType> memberTypes = new ArrayList<>(((BUnionType) bType).getMemberTypes());
                 typeString = getDefaultValueForType(memberTypes.get(0));
                 break;
-            case STREAM:
             default:
                 typeString = "()";
                 break;
@@ -737,9 +735,6 @@ public class CommonUtil {
         }
         if (bType instanceof BMapType) {
             return ((BMapType) bType).constraint;
-        }
-        if (bType instanceof BStreamType) {
-            return ((BStreamType) bType).constraint;
         }
         if (bType instanceof BTypedescType) {
             return ((BTypedescType) bType).constraint;

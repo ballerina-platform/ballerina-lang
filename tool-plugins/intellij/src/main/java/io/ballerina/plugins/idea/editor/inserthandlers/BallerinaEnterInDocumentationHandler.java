@@ -18,6 +18,7 @@ package io.ballerina.plugins.idea.editor.inserthandlers;
 
 import com.intellij.codeInsight.editorActions.enter.EnterHandlerDelegateAdapter;
 import com.intellij.openapi.actionSystem.DataContext;
+import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.EditorModificationUtil;
 import com.intellij.openapi.editor.LogicalPosition;
@@ -29,48 +30,53 @@ import io.ballerina.plugins.idea.BallerinaLanguage;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * Handles the enter key press in braces.
+ * Handles the enter key press events within ballerina documentation.
  */
 public class BallerinaEnterInDocumentationHandler extends EnterHandlerDelegateAdapter {
 
+    private static final String BAL_DOC_PREFIX = "#";
+
     @Override
     public Result postProcessEnter(@NotNull PsiFile file, @NotNull Editor editor, @NotNull DataContext dataContext) {
-        if (!file.getLanguage().is(BallerinaLanguage.INSTANCE)) {
+
+        if (!file.getLanguage().is(BallerinaLanguage.INSTANCE) || editor.isDisposed()) {
             return Result.Continue;
         }
+        Document doc = editor.getDocument();
+
         // We need to save the file before checking. Otherwise issues can occur when we press enter in a string.
         Project project = file.getProject();
-        PsiDocumentManager.getInstance(project).commitDocument(editor.getDocument());
+        PsiDocumentManager.getInstance(project).commitDocument(doc);
 
-        // Checks whether the previous line starts with "#".
         LogicalPosition caretPos = editor.getCaretModel().getLogicalPosition();
         int prevLine = caretPos.line - 1;
-        String lineString = editor.getDocument().getText(
-                new TextRange(editor.getDocument().getLineStartOffset(prevLine),
-                        editor.getDocument().getLineEndOffset(prevLine))).trim();
-        if (lineString.startsWith("#")) {
-            int newCol = lineString.replace("\t", "    ").indexOf("#");
-            String enteredText = editor.getDocument().getText(
-                    new TextRange(editor.getDocument().getLineStartOffset(caretPos.line),
-                            editor.getDocument().getLineEndOffset(caretPos.line))).trim();
-            editor.getDocument().deleteString(editor.getDocument().getLineStartOffset(caretPos.line),
-                    editor.getDocument().getLineEndOffset(caretPos.line));
-            editor.getCaretModel().moveToLogicalPosition(new LogicalPosition(caretPos.line, 1));
-            enterNewLine(editor, enteredText, newCol);
+        String lineString = doc.getText(new TextRange(doc.getLineStartOffset(prevLine),
+                doc.getLineEndOffset(prevLine)));
 
+        if (lineString.trim().startsWith(BAL_DOC_PREFIX)) {
+            addNewline(editor, doc, lineString, caretPos);
             // Commit the document.
-            PsiDocumentManager.getInstance(project).commitDocument(editor.getDocument());
+            PsiDocumentManager.getInstance(project).commitDocument(doc);
         }
         return Result.Continue;
     }
 
-    private void enterNewLine(Editor editor, String str, int col) {
-        StringBuilder strBuilder = new StringBuilder("# " + str);
-        // Left padding with whitespaces in order to be vertically aligned with the previous doc line.
-        for (int i = 0; i < col; i++) {
+    // Inserts the splitted documentation at the next line.
+    private void addNewline(Editor editor, Document doc, String string, LogicalPosition caretPos) {
+
+        int newCol = string.indexOf(BAL_DOC_PREFIX);
+        String enteredText = doc.getText(new TextRange(doc.getLineStartOffset(caretPos.line),
+                doc.getLineEndOffset(caretPos.line))).trim();
+        doc.deleteString(doc.getLineStartOffset(caretPos.line), doc.getLineEndOffset(caretPos.line));
+        editor.getCaretModel().moveToLogicalPosition(new LogicalPosition(caretPos.line, 1));
+
+        StringBuilder strBuilder = new StringBuilder(BAL_DOC_PREFIX + " " + enteredText);
+        // Left padding with whitespaces in order to be vertically aligned with the previous line.
+        for (int i = 0; i < newCol; i++) {
             strBuilder.insert(0, ' ');
         }
-        str = strBuilder.toString();
-        EditorModificationUtil.insertStringAtCaret(editor, str, false, str.indexOf('#') + 2);
+        String finalText = strBuilder.toString();
+        EditorModificationUtil.insertStringAtCaret(editor, finalText, false, finalText.indexOf(BAL_DOC_PREFIX) + 2);
+
     }
 }

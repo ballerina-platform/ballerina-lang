@@ -1,22 +1,3 @@
-stream<Employee> globalEmployeeStream = new;
-
-type Employee record {
-    int id = 0;
-    string name = "";
-};
-
-function testRecordPublishingToStreamArray() {
-    Employee origEmployee = {};
-    stream<Employee>[] s1 = [];
-    //Initialize 1st element in the array, so 0th element will be also filled with filler value.
-    s1[1] = new;
-    s1[0].subscribe(assignGlobalEmployee);
-}
-
-function assignGlobalEmployee(Employee e) {
-
-}
-
 function mapAccessTest(int x, int y) returns (int) {
     map<any> testMap = {last: "last"};
     int xx = 0;

@@ -37,7 +37,7 @@ public class Close {
 
     public static Object close(ObjectValue producerObject) {
         KafkaTracingUtil.traceResourceInvocation(Scheduler.getStrand(), producerObject);
-        KafkaProducer<byte[], byte[]> kafkaProducer = (KafkaProducer) producerObject.getNativeData(NATIVE_PRODUCER);
+        KafkaProducer kafkaProducer = (KafkaProducer) producerObject.getNativeData(NATIVE_PRODUCER);
         try {
             kafkaProducer.close();
             KafkaMetricsUtil.reportProducerClose(producerObject);

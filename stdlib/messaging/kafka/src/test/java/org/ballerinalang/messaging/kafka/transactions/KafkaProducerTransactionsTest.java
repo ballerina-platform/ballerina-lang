@@ -123,7 +123,6 @@ public class KafkaProducerTransactionsTest {
         }
     }
 
-
     // TODO: Enable after the issue #19893 is fixed
     @Test(description = "Test transactional producer with idempotence false", enabled = false)
     public void testKafkaTransactionalProducerWithoutIdempotenceTest() {

@@ -59,7 +59,7 @@ public class GetCommittedOffset {
     public static Object getCommittedOffset(ObjectValue consumerObject, MapValue<String, Object> topicPartition,
                                             long duration) {
         KafkaTracingUtil.traceResourceInvocation(Scheduler.getStrand(), consumerObject);
-        KafkaConsumer<byte[], byte[]> kafkaConsumer = (KafkaConsumer) consumerObject.getNativeData(NATIVE_CONSUMER);
+        KafkaConsumer kafkaConsumer = (KafkaConsumer) consumerObject.getNativeData(NATIVE_CONSUMER);
         Properties consumerProperties = (Properties) consumerObject.getNativeData(NATIVE_CONSUMER_CONFIG);
 
         int defaultApiTimeout = getDefaultApiTimeout(consumerProperties);
@@ -90,7 +90,7 @@ public class GetCommittedOffset {
         }
     }
 
-    private static OffsetAndMetadata getOffsetAndMetadataWithDuration(KafkaConsumer<byte[], byte[]> kafkaConsumer,
+    private static OffsetAndMetadata getOffsetAndMetadataWithDuration(KafkaConsumer kafkaConsumer,
                                                                       TopicPartition topicPartition, long timeout) {
         Duration duration = Duration.ofMillis(timeout);
         return kafkaConsumer.committed(topicPartition, duration);

@@ -16,10 +16,9 @@
 package org.ballerinalang.langserver.codeaction.providers;
 
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.codeaction.BallerinaCodeActionProvider;
-import org.ballerinalang.langserver.codeaction.CodeActionNodeType;
 import org.ballerinalang.langserver.command.ExecuteCommandKeys;
-import org.ballerinalang.langserver.compiler.LSContext;
+import org.ballerinalang.langserver.commons.LSContext;
+import org.ballerinalang.langserver.commons.codeaction.CodeActionNodeType;
 import org.eclipse.lsp4j.CodeAction;
 
 import java.util.Arrays;
@@ -33,8 +32,8 @@ import static org.ballerinalang.langserver.command.CommandUtil.getDocGenerationC
  *
  * @since 1.1.1
  */
-@JavaSPIService("org.ballerinalang.langserver.codeaction.BallerinaCodeActionProvider")
-public class AddDocumentationCodeAction extends BallerinaCodeActionProvider {
+@JavaSPIService("org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider")
+public class AddDocumentationCodeAction extends AbstractCodeActionProvider {
     public AddDocumentationCodeAction() {
         super(Arrays.asList(CodeActionNodeType.FUNCTION,
                             CodeActionNodeType.OBJECT,

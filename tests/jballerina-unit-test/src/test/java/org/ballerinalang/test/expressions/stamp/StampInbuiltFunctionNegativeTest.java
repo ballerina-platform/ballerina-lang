@@ -74,25 +74,20 @@ public class StampInbuiltFunctionNegativeTest {
     public void testStampNegativeTest() {
 
         int index = 0;
-        Assert.assertEquals(compileResult.getErrorCount(), 9);
+        Assert.assertEquals(compileResult.getErrorCount(), 7);
+        BAssertUtil.validateError(compileResult, index++, "too many arguments in call to 'constructFrom()'", 50, 24);
         BAssertUtil.validateError(compileResult, index++,
-                                  "incompatible types: expected 'typedesc<anydata>', found 'typedesc<stream<Person>>'",
-                                  53, 41);
-        BAssertUtil.validateError(compileResult, index++,
-                                  "incompatible types: expected 'anydata', found 'stream<Employee>'", 53, 70);
-        BAssertUtil.validateError(compileResult, index++, "too many arguments in call to 'constructFrom()'", 60, 24);
-        BAssertUtil.validateError(compileResult, index++,
-                                  "incompatible types: expected 'typedesc<anydata>', found 'typedesc'", 74, 26);
+                                  "incompatible types: expected 'typedesc<anydata>', found 'typedesc'", 64, 26);
         BAssertUtil
-                .validateError(compileResult, index++, "incompatible types: expected 'anydata', found 'any'", 81, 54);
-        BAssertUtil.validateError(compileResult, index++, "undefined symbol 'TestType'", 89, 30);
+                .validateError(compileResult, index++, "incompatible types: expected 'anydata', found 'any'", 71, 54);
+        BAssertUtil.validateError(compileResult, index++, "undefined symbol 'TestType'", 79, 30);
         BAssertUtil.validateError(compileResult, index++,
                                   "incompatible types: expected 'typedesc<anydata>', found 'typedesc<EmployeeObject>'",
-                                  97, 40);
+                                  87, 40);
         BAssertUtil.validateError(compileResult, index++,
-                                  "incompatible types: expected 'typedesc<anydata>', found 'typedesc<map>'", 105, 31);
+                                  "incompatible types: expected 'typedesc<anydata>', found 'typedesc<map>'", 95, 31);
         BAssertUtil.validateError(compileResult, index++,
-                                  "incompatible types: expected 'anydata', found 'ExtendedEmployee'", 113, 56);
+                                  "incompatible types: expected 'anydata', found 'ExtendedEmployee'", 103, 56);
     }
 
     //----------------------------- Object NegativeTest cases ------------------------------------------------------

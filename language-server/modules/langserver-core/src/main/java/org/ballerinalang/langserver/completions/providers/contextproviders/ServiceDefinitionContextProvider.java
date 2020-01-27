@@ -22,10 +22,10 @@ import org.antlr.v4.runtime.Token;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
-import org.ballerinalang.langserver.compiler.LSContext;
+import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.SymbolInfo;
-import org.ballerinalang.langserver.completions.spi.LSCompletionProvider;
+import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 import org.ballerinalang.langserver.completions.util.Snippet;
 import org.eclipse.lsp4j.CompletionItem;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
@@ -41,8 +41,8 @@ import java.util.stream.Collectors;
  *
  * @since v0.982.0
  */
-@JavaSPIService("org.ballerinalang.langserver.completions.spi.LSCompletionProvider")
-public class ServiceDefinitionContextProvider extends LSCompletionProvider {
+@JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.LSCompletionProvider")
+public class ServiceDefinitionContextProvider extends AbstractCompletionProvider {
 
     public ServiceDefinitionContextProvider() {
         this.attachmentPoints.add(BallerinaParser.ServiceDefinitionContext.class);

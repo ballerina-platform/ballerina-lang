@@ -18,11 +18,11 @@ package org.ballerinalang.langserver.command.executors;
 import com.google.gson.JsonObject;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.command.ExecuteCommandKeys;
-import org.ballerinalang.langserver.command.LSCommandExecutor;
-import org.ballerinalang.langserver.command.LSCommandExecutorException;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
+import org.ballerinalang.langserver.commons.LSContext;
+import org.ballerinalang.langserver.commons.command.LSCommandExecutorException;
+import org.ballerinalang.langserver.commons.command.spi.LSCommandExecutor;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
-import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.compiler.exception.CompilationFailedException;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.model.Whitespace;
@@ -49,7 +49,7 @@ import static org.ballerinalang.langserver.command.CommandUtil.getObjectNode;
  *
  * @since 1.0
  */
-@JavaSPIService("org.ballerinalang.langserver.command.LSCommandExecutor")
+@JavaSPIService("org.ballerinalang.langserver.commons.command.spi.LSCommandExecutor")
 public class ChangeAbstractTypeObjExecutor implements LSCommandExecutor {
 
     public static final String COMMAND = "CHANGE_ABSTRACT_TYPE_OBJ";
