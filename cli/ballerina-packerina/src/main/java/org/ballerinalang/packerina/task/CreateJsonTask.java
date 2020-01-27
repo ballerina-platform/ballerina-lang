@@ -63,11 +63,11 @@ public class CreateJsonTask implements Task {
                 .forEach(bLangPackage -> {
 
                     Map<BLangPackage, String> programFileMap = new HashMap<>();
-                    Path jarPath = buildContext.getTestJarPathFromTargetCache(bLangPackage.packageID);
+                    Path testJarPath = buildContext.getTestJarPathFromTargetCache(bLangPackage.packageID);
                     Path modulejarPath = buildContext.getJarPathFromTargetCache(bLangPackage.packageID).getFileName();
                     // subsitute test jar if module jar if tests not exists
-                    if (Files.notExists(jarPath)) {
-                        jarPath = modulejarPath;
+                    if (Files.notExists(testJarPath)) {
+                        testJarPath = modulejarPath;
                     }
                     HashSet<Path> moduleDependencies = buildContext.moduleDependencyPathMap
                             .get(bLangPackage.packageID).platformLibs;
@@ -79,17 +79,17 @@ public class CreateJsonTask implements Task {
                     }
                     String modulejarName = modulejarPath != null ? modulejarPath.toString() : "";
                     programFileMap.put(bLangPackage, modulejarName);
-                    Path jsonPath = targetPath
+                    Path jsonCachePath = targetPath
                             .resolve(ProjectDirConstants.CACHES_DIR_NAME)
                             .resolve(ProjectDirConstants.JSON_CACHE_DIR_NAME)
                             .resolve(modulejarName);
                     try {
-                        Files.createDirectories(jsonPath);
+                        Files.createDirectories(jsonCachePath);
                     } catch (Exception e) {
                         throw LauncherUtils.createLauncherException("Couldn't create the directories: " + e.toString());
                     }
-                    extractDataFromBLangPackage(programFileMap, sourceRootPath, jarPath, modulejarName, jsonPath,
-                            moduleDependencies);
+                    writeJsonDataFromBLangPackage(programFileMap, sourceRootPath, testJarPath, modulejarName,
+                            jsonCachePath, moduleDependencies);
                     buildContext.out().println("\t" + modulejarName + "/" + TesterinaConstants.TESTERINA_TEST_SUITE);
                 });
     }
@@ -99,7 +99,7 @@ public class CreateJsonTask implements Task {
      *
      * @param testMetaData Data that are parsed to the json
      */
-    private static void writeToJson(TestJsonData testMetaData, Path jsonPath) {
+    private static void writeDataToJsonFile(TestJsonData testMetaData, Path jsonPath) {
         Path tmpJsonPath = Paths.get(jsonPath.toString(), TesterinaConstants.TESTERINA_TEST_SUITE);
         File jsonFile = new File(tmpJsonPath.toString());
         try (Writer writer = new OutputStreamWriter(new FileOutputStream(jsonFile),  StandardCharsets.UTF_8)) {
@@ -119,9 +119,9 @@ public class CreateJsonTask implements Task {
      *
      * @param programFileMap map of the bLangPackage and TesterinaClassLoader
      */
-    private static void extractDataFromBLangPackage(Map<BLangPackage, String> programFileMap,
-                                                    Path sourceRootPath, Path jarPath, String moduleJarName,
-                                                    Path jsonPath, HashSet<Path> moduleDependencies) {
+    private static void writeJsonDataFromBLangPackage(Map<BLangPackage, String> programFileMap,
+                                                      Path sourceRootPath, Path jarPath, String moduleJarName,
+                                                      Path jsonPath, HashSet<Path> moduleDependencies) {
         programFileMap.forEach((source, jarName) -> {
             String initFunctionName = source.initFunction.name.value;
             String startFunctionName = source.startFunction.name.value;
@@ -188,7 +188,7 @@ public class CreateJsonTask implements Task {
             testJsonData.setPackageID(source.packageID);
             testJsonData.setDependencyJarPaths(pathList);
             // write to json
-            writeToJson(testJsonData, jsonPath);
+            writeDataToJsonFile(testJsonData, jsonPath);
         });
     }
 

@@ -47,6 +47,7 @@ public class ProjectDirConstants {
     public static final String TARGET_DIR_NAME = "target";
     public static final String TARGET_BALO_DIRECTORY = "balo";
     public static final String TARGET_API_DOC_DIRECTORY = "apidocs";
+    public static final String TARGET_COVERAGE_DIRECTORY = "coverage";
 
     public static final String RESOURCE_DIR_NAME = "resources";
     public static final String TEST_DIR_NAME = "tests";

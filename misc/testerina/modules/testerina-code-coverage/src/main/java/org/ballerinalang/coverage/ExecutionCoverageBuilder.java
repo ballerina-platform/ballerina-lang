@@ -77,19 +77,23 @@ public class ExecutionCoverageBuilder {
         if (!generateDirectories()) {
             throw LauncherUtils.createLauncherException("Couldn't create the directories -> Coverage, Extracted.");
         }
-        Path dependencyPaths = this.balHome.resolve(BALLERINA_HOME_BRE).resolve(BALLERINA_HOME_LIB);
-        Path jsonPath = this.targetPath.resolve(CACHES_DIR_NAME).resolve(JSON_CACHE_DIR_NAME).resolve(moduleJarName);
-        String mainClassName = CoverageConstants.TESTERINA_LAUNCHER_CLASS_NAME;
+        Path balDependencyPaths = this.balHome.resolve(BALLERINA_HOME_BRE).resolve(BALLERINA_HOME_LIB);
+        Path jsonCachePath = this.targetPath.resolve(CACHES_DIR_NAME).resolve(JSON_CACHE_DIR_NAME)
+                .resolve(moduleJarName);
+        String launcherClassName = CoverageConstants.TESTERINA_LAUNCHER_CLASS_NAME;
+        String filePathSeparator = System.getProperty("file.separator");
+        String classPathSeparator = System.getProperty("path.separator");
+        String classPaths = balDependencyPaths.toString() + filePathSeparator + "*" + classPathSeparator
+                + this.compiledSourceJarPath.toString();
         String execFileGenerationCommand = this.javaCommand + " -javaagent:"
-                + dependencyPaths.resolve(CoverageConstants.AGENT_FILE_NAME).toString()
+                + balDependencyPaths.resolve(CoverageConstants.AGENT_FILE_NAME).toString()
                 + "=destfile="
                 + this.targetPath
                 .resolve(TARGET_COVERAGE_DIRECTORY).resolve(this.moduleJarName)
                 .resolve(CoverageConstants.EXEC_FILE_NAME).toString()
-                + " -Djava.ext.dirs=" + dependencyPaths
-                + " -cp " + this.compiledSourceJarPath.toString()
-                + " " + mainClassName
-                + " " + jsonPath.toString();
+                + " -cp " + classPaths
+                + " " + launcherClassName
+                + " " + jsonCachePath.toString();
         try {
             Process proc = Runtime.getRuntime().exec(execFileGenerationCommand);
             proc.waitFor();
