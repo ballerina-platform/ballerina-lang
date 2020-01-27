@@ -461,17 +461,12 @@ public class BuildCommandTest extends CommandTest {
 
     @Test(description = "Build a valid ballerina file with toml")
     public void testBuildWithRelative() throws IOException {
-        System.out.println(System.getProperty("user.dir"));
-//        String buildPath = "relative" + File.separator +
-//                "testBal" + File.separator + "hello_world.bal";
         String buildPath = "relative" + File.separator + "testDir2" + File.separator + ".." + File.separator + "testBal"
                 + File.separator + "hello_world.bal";
         Path sourceRoot = this.testResources.resolve("valid-bal-file");
         BuildCommand buildCommand = new BuildCommand(sourceRoot, printStream, printStream, false, true, sourceRoot);
         new CommandLine(buildCommand).parse(buildPath);
         buildCommand.execute();
-        String buildLog = readOutput(true);
-        System.out.println(buildLog);
         Assert.assertTrue(Files.exists(sourceRoot.resolve("hello_world.jar")));
     }
 

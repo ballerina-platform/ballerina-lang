@@ -107,7 +107,8 @@ public class SingleBalFileTestCase extends BaseTest {
         // Run and see output
         String msg = "Hello, World!";
         LogLeecher fooRunLeecher = new LogLeecher(msg);
-        balClient.runMain("run", new String[]{"../testBal/hello_world.bal"}, new HashMap<>(), new String[0],
+        String runCommandPath =  ".." + File.separator + "testBal" + File.separator + "hello_world.bal";
+        balClient.runMain("run", new String[]{runCommandPath}, new HashMap<>(), new String[0],
                 new LogLeecher[]{fooRunLeecher}, testRelativeFilePath.toString());
         fooRunLeecher.waitForText(10000);
     }
