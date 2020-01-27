@@ -18,8 +18,11 @@
 package org.ballerinalang.test.expressions.mappingconstructor;
 
 import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import static org.ballerinalang.test.util.BAssertUtil.validateError;
@@ -28,6 +31,13 @@ import static org.ballerinalang.test.util.BAssertUtil.validateError;
  * Test cases for mapping constructor expressions.
  */
 public class MappingConstructorExprTest {
+
+    private CompileResult result;
+
+    @BeforeClass
+    public void setup() {
+         result = BCompileUtil.compile("test-src/expressions/mappingconstructor/var_name_field.bal");
+    }
 
     @Test
     public void diagnosticsTest() {
@@ -40,7 +50,7 @@ public class MappingConstructorExprTest {
     }
 
     @Test
-    public void varNameFieldSemanticAnalysisNegativeTest() {
+    public void testVarNameFieldSemanticAnalysisNegative() {
         CompileResult result = BCompileUtil.compile(
                 "test-src/expressions/mappingconstructor/var_name_field_semantic_analysis_negative.bal");
         Assert.assertEquals(result.getErrorCount(), 6);
@@ -53,7 +63,7 @@ public class MappingConstructorExprTest {
     }
 
     @Test
-    public void varNameFieldCodeAnalysisNegativeTest() {
+    public void testVarNameFieldCodeAnalysisNegative() {
         CompileResult result = BCompileUtil.compile(
                 "test-src/expressions/mappingconstructor/var_name_field_code_analysis_negative.bal");
         Assert.assertEquals(result.getErrorCount(), 4);
@@ -64,11 +74,26 @@ public class MappingConstructorExprTest {
     }
 
     @Test
-    public void varNameFieldTaintAnalysisNegativeTest() {
+    public void testVarNameFieldTaintAnalysisNegative() {
         CompileResult result = BCompileUtil.compile(
                 "test-src/expressions/mappingconstructor/var_name_field_taint_analysis_negative.bal");
         Assert.assertEquals(result.getErrorCount(), 2);
         validateError(result, 0, "tainted value passed to global variable 'f'", 26, 5);
         validateError(result, 1, "tainted value passed to global variable 'm'", 27, 5);
+    }
+
+    @Test(dataProvider = "varNameFieldTests")
+    public void testVarNameField(String test) {
+        BRunUtil.invoke(result, test);
+    }
+
+    @DataProvider(name = "varNameFieldTests")
+    public Object[][] varNameFieldTests() {
+        return new Object[][] {
+                { "testVarNameAsRecordField" },
+                { "testVarNameAsMapField" },
+                { "testVarNameAsJsonField" },
+                { "testLikeModuleQualifiedVarNameAsJsonField" },
+        };
     }
 }
