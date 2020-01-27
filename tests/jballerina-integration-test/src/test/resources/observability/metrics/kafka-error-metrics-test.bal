@@ -22,27 +22,21 @@ kafka:ProducerConfig producerConfigs1 = {
     bootstrapServers: "localhost:14110",
     clientId: "producer_1",
     acks: "all",
-    retryCount: 3
+    retryCount: 0,
+    requestTimeoutInMillis: 5000,
+    retryBackoffTimeInMillis: 1000,
+    metadataMaxAgeInMillis: 5000,
+    transactionTimeoutInMillis: 5000,
+    linger: 5000,
+    maxBlock: 5000
 };
 
-kafka:ProducerConfig producerConfigs2 = {
-    bootstrapServers: "localhost:14110",
-    clientId: "producer_2",
-    acks: "all",
-    retryCount: 3
-};
-
-public function main(){
-    producer1();
-    producer2();
-}
-
-public function producer1() {
+public function main() {
     kafka:Producer kafkaProducer = new (producerConfigs1);
     string msg = "Hello World, Ballerina";
     byte[] serializedMsg = msg.toBytes();
-    string topic = "t3";
-    int i = 5;
+    string topic = "t5";
+    int i = 0;
     while (i >= 0) {
         i = i - 1;
         var sendResult = kafkaProducer->send(serializedMsg, topic);
@@ -53,28 +47,6 @@ public function producer1() {
             log:printInfo("Published to " + topic);
         }
         var flushResult = kafkaProducer->flushRecords();
-        if (flushResult is error) {
-            log:printError("Kafka producer failed to flush the records", flushResult);
-        }
-    }
-}
-
-public function producer2() {
-    kafka:Producer kafkaProducer2 = new (producerConfigs2);
-    string msg = "Hello World, Ballerina";
-    byte[] serializedMsg = msg.toBytes();
-    string topic = "t4";
-    int i = 7;
-    while (i >= 0) {
-        i = i - 1;
-        var sendResult = kafkaProducer2->send(serializedMsg, topic);
-        if (sendResult is error) {
-            log:printError("Kafka producer failed to send data", sendResult);
-        }
-        else {
-            log:printInfo("Published to " + topic);
-        }
-        var flushResult = kafkaProducer2->flushRecords();
         if (flushResult is error) {
             log:printError("Kafka producer failed to flush the records", flushResult);
         }

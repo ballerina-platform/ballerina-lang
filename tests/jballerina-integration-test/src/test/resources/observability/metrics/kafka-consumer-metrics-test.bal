@@ -14,14 +14,14 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/http;
 import ballerina/io;
 import ballerina/kafka;
-import ballerina/lang. 'string as strings;
 import ballerina/log;
-import ballerina/http;
+import ballerina/lang.'string as strings;
 
 kafka:ConsumerConfig consumerConfigs = {
-    bootstrapServers: "localhost:14111",
+    bootstrapServers: "localhost:14110",
     groupId: "group-id",
     clientId: "consumer_2",
     topics: ["t1", "t2"],
@@ -31,15 +31,14 @@ kafka:ConsumerConfig consumerConfigs = {
 
 listener kafka:Consumer consumer = new (consumerConfigs);
 service kafkaService on consumer {
-    resource function onMessage(kafka:Consumer kafkaConsumer,
-            kafka:ConsumerRecord[] records) {
+    resource function onMessage(kafka:Consumer kafkaConsumer, kafka:ConsumerRecord[] records) {
         foreach var kafkaRecord in records {
             processKafkaRecord(kafkaRecord);
         }
         var commitResult = kafkaConsumer->commit();
         if (commitResult is error) {
             log:printError("Error occurred while committing the " +
-                    "offsets for the consumer ", commitResult);
+            "offsets for the consumer ", commitResult);
         }
     }
 }
@@ -47,13 +46,13 @@ service kafkaService on consumer {
 function processKafkaRecord(kafka:ConsumerRecord kafkaRecord) {
     var serializedMsg = kafkaRecord.value;
     if (serializedMsg is byte[]) {
-            string | error msg = strings:fromBytes(serializedMsg);
-            if (msg is string) {
-                io:println("Topic: ", kafkaRecord.topic, " Partition: ",
-                        kafkaRecord.partition.toString(), " Received Message: ", msg);
-            } else {
-                log:printError("Error occurred while converting message data", msg);
-            }
+        string | error msg = strings:fromBytes(serializedMsg);
+        if (msg is string) {
+            io:println("Topic: ", kafkaRecord.topic, " Partition: ",
+            kafkaRecord.partition.toString(), " Received Message: ", msg);
+        } else {
+            log:printError("Error occurred while converting message data", msg);
+        }
     }
 }
 
@@ -62,5 +61,6 @@ function processKafkaRecord(kafka:ConsumerRecord kafkaRecord) {
     subProtocols: ["xml", "json"],
     idleTimeoutInSeconds: 120
 }
-service basic on new http:Listener(9697) {
+
+service basic on new http:Listener(9898) {
 }

@@ -308,7 +308,6 @@ public class Send {
     private static Object sendKafkaRecord(ProducerRecord record, ObjectValue producerObject) {
         Strand strand = Scheduler.getStrand();
         KafkaTracingUtil.traceResourceInvocation(strand, producerObject, record.topic());
-        KafkaTracingUtil.traceResourceInvocation(strand, producerObject, record.topic());
         final NonBlockingCallback callback = new NonBlockingCallback(strand);
         KafkaProducer producer = (KafkaProducer) producerObject.getNativeData(NATIVE_PRODUCER);
         try {

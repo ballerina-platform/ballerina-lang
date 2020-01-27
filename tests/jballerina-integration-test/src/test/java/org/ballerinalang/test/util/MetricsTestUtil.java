@@ -21,6 +21,9 @@ package org.ballerinalang.test.util;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * Util class Observability Metrics.
+ */
 public class MetricsTestUtil {
 
     public static String getMetricName(String key) {

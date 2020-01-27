@@ -283,8 +283,7 @@
             <class name="org.ballerinalang.test.observability.tracing.TracingTestCase"/>
             <class name="org.ballerinalang.test.observability.metrics.MetricsTestCase"/>
             <class name="org.ballerinalang.test.observability.metrics.WebSocketMetricsTestCase"/>
-            <class name="org.ballerinalang.test.observability.metrics.KafkaProducerMetricsTestCase"/>
-            <class name="org.ballerinalang.test.observability.metrics.KafkaConsumerMetricsTestCase"/>
+            <class name="org.ballerinalang.test.observability.metrics.KafkaMetricsTestCase"/>
         </classes>
     </test>
 
