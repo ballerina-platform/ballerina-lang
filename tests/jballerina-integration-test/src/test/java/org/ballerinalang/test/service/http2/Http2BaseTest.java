@@ -41,8 +41,7 @@ public class Http2BaseTest extends BaseTest {
         String balFile = new File("src" + File.separator + "test" + File.separator + "resources" + File.separator +
                 "http2").getAbsolutePath();
         serverInstance = new BServerInstance(balServer);
-        String[] runtimeArgs = {"--b7a.http.tracelog.console=true"};
-        serverInstance.startServer(balFile, "http2services", new String[0], runtimeArgs, requiredPorts);
+        serverInstance.startServer(balFile, "http2services", requiredPorts);
     }
 
     @AfterGroups(value = "http2-test", alwaysRun = true)
