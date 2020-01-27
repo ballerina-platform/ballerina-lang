@@ -255,7 +255,7 @@ public class RunCommand implements BLauncherCmd {
         options.put(COMPILER_PHASE, CompilerPhase.BIR_GEN.toString());
         options.put(LOCK_ENABLED, Boolean.toString(true));
         options.put(SKIP_TESTS, Boolean.toString(true));
-        options.put(TEST_ENABLED, "true");
+        options.put(TEST_ENABLED, Boolean.toString(false));
         options.put(EXPERIMENTAL_FEATURES_ENABLED, Boolean.toString(this.experimentalFlag));
 
         // create builder context
