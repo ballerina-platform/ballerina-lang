@@ -19,8 +19,8 @@ import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.client.config.BallerinaClientConfigHolder;
 import org.ballerinalang.langserver.codelenses.CodeLensesProviderKeys;
 import org.ballerinalang.langserver.codelenses.EndpointFindVisitor;
-import org.ballerinalang.langserver.codelenses.LSCodeLensesProviderException;
-import org.ballerinalang.langserver.compiler.LSContext;
+import org.ballerinalang.langserver.commons.LSContext;
+import org.ballerinalang.langserver.commons.codelenses.LSCodeLensesProviderException;
 import org.eclipse.lsp4j.CodeLens;
 import org.eclipse.lsp4j.Command;
 import org.eclipse.lsp4j.Position;
@@ -37,7 +37,7 @@ import java.util.List;
  *
  * @since 0.990.3
  */
-@JavaSPIService("org.ballerinalang.langserver.codelenses.LSCodeLensesProvider")
+@JavaSPIService("org.ballerinalang.langserver.commons.codelenses.spi.LSCodeLensesProvider")
 public class EndpointsCodeLensesProvider extends AbstractCodeLensesProvider {
     public EndpointsCodeLensesProvider() {
         super("endpoints.CodeLenses");

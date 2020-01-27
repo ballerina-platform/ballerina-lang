@@ -19,13 +19,15 @@ package org.ballerinalang.langserver.completions.providers.scopeproviders;
 import org.antlr.v4.runtime.CommonToken;
 import org.antlr.v4.runtime.Token;
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.LSCompletionItem;
-import org.ballerinalang.langserver.compiler.LSContext;
+import org.ballerinalang.langserver.commons.LSContext;
+import org.ballerinalang.langserver.commons.completion.LSCompletionException;
+import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
+import org.ballerinalang.langserver.commons.completion.spi.LSCompletionProvider;
 import org.ballerinalang.langserver.completions.CompletionKeys;
+import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 import org.ballerinalang.langserver.completions.providers.contextproviders.IfWhileConditionContextProvider;
 import org.ballerinalang.langserver.completions.providers.contextproviders.InvocationArgsContextProvider;
 import org.ballerinalang.langserver.completions.providers.contextproviders.StatementContextProvider;
-import org.ballerinalang.langserver.completions.spi.LSCompletionProvider;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 
 import java.util.List;
@@ -35,17 +37,20 @@ import java.util.stream.Collectors;
 /**
  * Resolves all items that can appear within the block statement.
  */
-@JavaSPIService("org.ballerinalang.langserver.completions.spi.LSCompletionProvider")
-public class BlockStatementScopeProvider extends LSCompletionProvider {
+@JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.LSCompletionProvider")
+public class BlockStatementScopeProvider extends AbstractCompletionProvider {
 
     public BlockStatementScopeProvider() {
         this.attachmentPoints.add(BLangBlockStmt.class);
     }
 
     @Override
-    public List<LSCompletionItem> getCompletions(LSContext context) {
+    public List<LSCompletionItem> getCompletions(LSContext context) throws LSCompletionException {
         Optional<LSCompletionProvider> contextProvider = getContextProvider(context);
-        return contextProvider.map(lsCompletionProvider -> lsCompletionProvider.getCompletions(context)).orElse(null);
+        if (contextProvider.isPresent()) {
+            return contextProvider.get().getCompletions(context);
+        }
+        return null;
     }
 
     @Override

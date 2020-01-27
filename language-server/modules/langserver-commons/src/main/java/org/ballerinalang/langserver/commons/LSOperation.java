@@ -15,7 +15,7 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.langserver.compiler;
+package org.ballerinalang.langserver.commons;
 
 /**
  * Ballerina Language server operation.

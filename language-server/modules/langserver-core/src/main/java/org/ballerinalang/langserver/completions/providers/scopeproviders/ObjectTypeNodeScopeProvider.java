@@ -21,16 +21,17 @@ import org.antlr.v4.runtime.CommonToken;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.jvm.util.Flags;
-import org.ballerinalang.langserver.LSCompletionItem;
 import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.FilterUtils;
-import org.ballerinalang.langserver.compiler.LSContext;
+import org.ballerinalang.langserver.commons.LSContext;
+import org.ballerinalang.langserver.commons.completion.LSCompletionException;
+import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.CompletionSubRuleParser;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
+import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 import org.ballerinalang.langserver.completions.providers.contextproviders.AnnotationAttachmentContextProvider;
-import org.ballerinalang.langserver.completions.spi.LSCompletionProvider;
 import org.ballerinalang.langserver.completions.util.Snippet;
 import org.ballerinalang.model.tree.NodeKind;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
@@ -48,15 +49,15 @@ import java.util.stream.Collectors;
 /**
  * Completion item provider for the object type.
  */
-@JavaSPIService("org.ballerinalang.langserver.completions.spi.LSCompletionProvider")
-public class ObjectTypeNodeScopeProvider extends LSCompletionProvider {
+@JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.LSCompletionProvider")
+public class ObjectTypeNodeScopeProvider extends AbstractCompletionProvider {
 
     public ObjectTypeNodeScopeProvider() {
         this.attachmentPoints.add(BLangObjectTypeNode.class);
     }
 
     @Override
-    public List<LSCompletionItem> getCompletions(LSContext context) {
+    public List<LSCompletionItem> getCompletions(LSContext context) throws LSCompletionException {
         ArrayList<LSCompletionItem> completionItems = new ArrayList<>();
         BLangNode objectNode = context.get(CompletionKeys.SCOPE_NODE_KEY);
 

@@ -15,6 +15,7 @@
  */
 package org.ballerinalang.langserver.command;
 
+import org.ballerinalang.langserver.commons.command.spi.LSCommandExecutor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,29 +31,26 @@ import java.util.ServiceLoader;
  * 
  * @since 0.983.0
  */
-public class LSCommandExecutorProvider {
-    
-    private static final Logger logger = LoggerFactory.getLogger(LSCommandExecutorProvider.class);
-    
-    private static LSCommandExecutorProvider provider = new LSCommandExecutorProvider();
+public class LSCommandExecutorProvidersHolder {
 
-    private Map<String, LSCommandExecutor> executors;
-    
-    private LSCommandExecutorProvider() {
-        ServiceLoader<LSCommandExecutor> loader = ServiceLoader.load(LSCommandExecutor.class);
-        executors = new HashMap<>();
-        for (LSCommandExecutor executor : loader) {
-            Optional<LSCommandExecutor> optional = Optional.ofNullable(executor);
-            if (!optional.isPresent()) {
-                logger.error("No such Service loader found");
-            } else {
-                executors.put(optional.get().getCommand(), optional.get());
-            }
-        }
+    private static final Logger logger = LoggerFactory.getLogger(LSCommandExecutorProvidersHolder.class);
+
+    private static final Map<String, LSCommandExecutor> executors = new HashMap<>();
+
+    private static final LSCommandExecutorProvidersHolder INSTANCE = new LSCommandExecutorProvidersHolder();
+
+    public static LSCommandExecutorProvidersHolder getInstance() {
+        return INSTANCE;
     }
-    
-    public static LSCommandExecutorProvider getInstance() {
-        return provider;
+
+    private LSCommandExecutorProvidersHolder() {
+        ServiceLoader<LSCommandExecutor> loader = ServiceLoader.load(LSCommandExecutor.class);
+        for (LSCommandExecutor executor : loader) {
+            if (executor == null) {
+                continue;
+            }
+            executors.put(executor.getCommand(), executor);
+        }
     }
 
     /**
@@ -62,7 +60,7 @@ public class LSCommandExecutorProvider {
      * @return {@link Optional}     Mapped command executor
      */
     public Optional<LSCommandExecutor> getCommandExecutor(String command) {
-        return Optional.ofNullable(this.executors.get(command));
+        return Optional.ofNullable(executors.get(command));
     }
 
     /**
@@ -71,6 +69,6 @@ public class LSCommandExecutorProvider {
      * @return {@link List} Command List
      */
     public List<String> getCommandsList() {
-        return new ArrayList<>(this.executors.keySet());
+        return new ArrayList<>(executors.keySet());
     }
 }

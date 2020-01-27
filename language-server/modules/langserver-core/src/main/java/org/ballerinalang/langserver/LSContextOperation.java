@@ -15,12 +15,14 @@
  */
 package org.ballerinalang.langserver;
 
+import org.ballerinalang.langserver.commons.LSOperation;
+
 /**
  * Represents operations in language server.
  *
  * @since 1.0.0
  */
-public enum LSContextOperation implements org.ballerinalang.langserver.compiler.LSOperation {
+public enum LSContextOperation implements LSOperation {
     TXT_COMPLETION("text/completion"),
     TXT_DID_CHANGE("text/didChange"),
     DIAGNOSTICS("debouncer/diagnostics"),

@@ -17,9 +17,9 @@
 */
 package org.ballerinalang.langserver.common.utils.completion;
 
-import org.ballerinalang.langserver.LSCompletionItem;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
-import org.ballerinalang.langserver.compiler.LSContext;
+import org.ballerinalang.langserver.commons.LSContext;
+import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
@@ -47,7 +47,7 @@ public class BLangRecordLiteralUtil {
      * @return {@link LSCompletionItem}   List of Completion Items
      */
     public static List<LSCompletionItem> getFieldsForMatchingRecord(LSContext context,
-                                                                         BLangRecordLiteral recordLiteral) {
+                                                                    BLangRecordLiteral recordLiteral) {
         BType expectedType = recordLiteral.expectedType;
         Optional<BType> evalType = expectedType instanceof BUnionType ? getRecordTypeFromUnionType(expectedType)
                 : Optional.ofNullable(expectedType);

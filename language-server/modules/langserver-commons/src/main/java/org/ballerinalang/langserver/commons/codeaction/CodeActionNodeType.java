@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.ballerinalang.langserver.codeaction;
+package org.ballerinalang.langserver.commons.codeaction;
 
 /**
  * Represents the Code Action Node Type.
@@ -37,7 +37,7 @@ public enum CodeActionNodeType {
      */
     public static CodeActionNodeType getNodeTypeByName(String name) {
         for (CodeActionNodeType codeActionNodeType : CodeActionNodeType.values()) {
-            if (codeActionNodeType.name().equals(name)) {
+            if (name.equals(codeActionNodeType.name())) {
                 return codeActionNodeType;
             }
         }

@@ -15,7 +15,7 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerinalang.langserver;
+package org.ballerinalang.langserver.commons.completion;
 
 import org.eclipse.lsp4j.CompletionItem;
 

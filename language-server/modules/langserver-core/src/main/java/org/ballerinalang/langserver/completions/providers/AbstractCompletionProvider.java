@@ -15,25 +15,26 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerinalang.langserver.completions.spi;
+package org.ballerinalang.langserver.completions.providers;
 
 import org.antlr.v4.runtime.CommonToken;
 import org.apache.commons.lang3.tuple.Pair;
 import org.ballerinalang.compiler.CompilerPhase;
-import org.ballerinalang.langserver.LSCompletionItem;
 import org.ballerinalang.langserver.SnippetBlock;
 import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.FilterUtils;
+import org.ballerinalang.langserver.commons.LSContext;
+import org.ballerinalang.langserver.commons.completion.LSCompletionException;
+import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
+import org.ballerinalang.langserver.commons.completion.spi.LSCompletionProvider;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.ExtendedLSCompiler;
-import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.compiler.LSPackageLoader;
 import org.ballerinalang.langserver.compiler.common.modal.BallerinaPackage;
 import org.ballerinalang.langserver.compiler.exception.CompilationFailedException;
 import org.ballerinalang.langserver.completions.CompletionKeys;
-import org.ballerinalang.langserver.completions.LSCompletionException;
-import org.ballerinalang.langserver.completions.LSCompletionProviderFactory;
+import org.ballerinalang.langserver.completions.LSCompletionProviderHolder;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.StaticCompletionItem;
 import org.ballerinalang.langserver.completions.SymbolCompletionItem;
@@ -93,45 +94,38 @@ import static org.ballerinalang.langserver.common.utils.CommonUtil.getFunctionIn
  *
  * @since 0.995.0
  */
-public abstract class LSCompletionProvider {
+public abstract class AbstractCompletionProvider implements LSCompletionProvider {
 
     protected List<Class> attachmentPoints = new ArrayList<>();
-    
-    private Precedence precedence = Precedence.LOW;
+
+    protected Precedence precedence = Precedence.LOW;
 
     /**
-     * Get Completion items for the scope/ context.
-     *
-     * @param context Language Server Context
-     * @return {@link List}     List of calculated Completion Items
+     * {@inheritDoc}
      */
-    public abstract List<LSCompletionItem> getCompletions(LSContext context);
+    @Override
+    public abstract List<LSCompletionItem> getCompletions(LSContext context) throws LSCompletionException;
 
     /**
-     * Get the attachment points where the current provider attached to.
-     *
-     * @return {@link List}    List of attachment points
+     * {@inheritDoc}
      */
+    @Override
     public List<Class> getAttachmentPoints() {
         return this.attachmentPoints;
     }
 
     /**
-     * Get the precedence of the provider.
-     * 
-     * @return {@link Precedence} precedence of the provider
+     * {@inheritDoc}
      */
+    @Override
     public Precedence getPrecedence() {
         return precedence;
     }
 
     /**
-     * Get the Context Provider.
-     * Ex: When a given scope is resolved then the context can be resolved by parsing a sub rule or token analyzing
-     *
-     * @param ctx Language Server Context
-     * @return {@link Optional} Context Completion provider
+     * {@inheritDoc}
      */
+    @Override
     public Optional<LSCompletionProvider> getContextProvider(LSContext ctx) {
         return Optional.empty();
     }
@@ -375,10 +369,10 @@ public abstract class LSCompletionProvider {
      * Get the provider for the given key.
      *
      * @param providerKey key to get the provider
-     * @return {@link LSCompletionProvider} Completion Provider
+     * @return {@link AbstractCompletionProvider} Completion Provider
      */
     protected LSCompletionProvider getProvider(Class providerKey) {
-        return LSCompletionProviderFactory.getInstance().getProvider(providerKey);
+        return LSCompletionProviderHolder.getInstance().getProvider(providerKey);
     }
 
     protected List<LSCompletionItem> getCompletionItemsAfterOnKeyword(LSContext ctx) {
@@ -529,10 +523,12 @@ public abstract class LSCompletionProvider {
             completionItems.add(new SymbolCompletionItem(context, null, newCItem));
             completionItems.add(new SymbolCompletionItem(context, null, typeCItem));
         } else {
-            Pair<String, String> newSign = getFunctionInvocationSignature(initFunction.symbol,
-                                                                          CommonKeys.NEW_KEYWORD_KEY, context);
-            Pair<String, String> newWithTypeSign = getFunctionInvocationSignature(initFunction.symbol, typeName,
-                                                                                  context);
+            Pair<String, String> newSign = CommonUtil.getFunctionInvocationSignature(initFunction.symbol,
+                                                                                     CommonKeys.NEW_KEYWORD_KEY,
+                                                                                     context);
+            Pair<String, String> newWithTypeSign = CommonUtil.getFunctionInvocationSignature(initFunction.symbol,
+                                                                                             typeName,
+                                                                                             context);
             newCItem = BFunctionCompletionItemBuilder.build(initFunction.symbol,
                                                             newSign.getRight(),
                                                             newSign.getLeft(), context);
@@ -769,7 +765,7 @@ public abstract class LSCompletionProvider {
             bLangPackage = ExtendedLSCompiler.compileContent(subRule.toString(), CompilerPhase.CODE_ANALYZE)
                     .getBLangPackage();
         } catch (CompilationFailedException e) {
-            throw new LSCompletionException("Error while parsing the sub-rule");
+            throw new LSCompletionException("Error while parsing the sub-rule", e);
         }
 
         if (!bLangPackage.isPresent()) {
@@ -1055,13 +1051,4 @@ public abstract class LSCompletionProvider {
         }
     }
 
-    /**
-     * Precedence for a given provider.
-     * 
-     * @since 1.0
-     */
-    public enum Precedence {
-        LOW,
-        HIGH
-    }
 }

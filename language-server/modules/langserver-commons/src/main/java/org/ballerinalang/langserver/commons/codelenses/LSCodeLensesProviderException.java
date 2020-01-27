@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, WSO2 Inc. (http://wso2.com) All Rights Reserved.
+ * Copyright (c) 2020, WSO2 Inc. (http://wso2.com) All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,28 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.ballerinalang.langserver.command;
+package org.ballerinalang.langserver.commons.codelenses;
 
 /**
- * Exception for Language Server Command Execution.
+ * Exception for Language Server Code Lenses.
  * 
- * @since 0.983.0
+ * @since 0.990.3
  */
-public class LSCommandExecutorException extends Exception {
-    public LSCommandExecutorException(String message) {
+public class LSCodeLensesProviderException extends Exception {
+    public LSCodeLensesProviderException(String message) {
         super(message);
     }
 
-    public LSCommandExecutorException(String message, Throwable cause) {
+    public LSCodeLensesProviderException(String message, Throwable cause) {
         super(message, cause);
     }
 
-    public LSCommandExecutorException(Throwable cause) {
+    public LSCodeLensesProviderException(Throwable cause) {
         super(cause);
     }
 
-    public LSCommandExecutorException(String message, Throwable cause, boolean enableSuppression,
-                                      boolean writableStackTrace) {
+    public LSCodeLensesProviderException(String message, Throwable cause, boolean enableSuppression,
+                                         boolean writableStackTrace) {
         super(message, cause, enableSuppression, writableStackTrace);
     }
 }
