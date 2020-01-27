@@ -217,6 +217,7 @@ public type ServiceType "NodePort"|"ClusterIP"|"LoadBalancer";
 # + portName - Name for the port. Default value is the protocol of the listener.
 # + port - Service port. Default is the Ballerina service port.
 # + targetPort - Port of the pods. Default is the Ballerina service port.
+# + nodePort - NodePort for the pods. Default is not set.
 # + sessionAffinity - Session affinity for pods. Default is `"None"`.
 # + serviceType - Service type of the service. Default is `"ClusterIP"`.
 public type ServiceConfiguration record {|
@@ -224,6 +225,7 @@ public type ServiceConfiguration record {|
     string portName?;
     int port?;
     int targetPort?;
+    int nodePort?;
     SessionAffinity sessionAffinity = SESSION_AFFINITY_NONE;
     ServiceType serviceType = SERVICE_TYPE_CLUSTER_IP;
 |};
