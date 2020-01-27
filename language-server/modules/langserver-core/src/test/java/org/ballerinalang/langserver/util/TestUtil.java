@@ -23,7 +23,7 @@ import com.google.gson.JsonElement;
 import org.ballerinalang.langserver.BallerinaLanguageServer;
 import org.ballerinalang.langserver.DocumentServiceOperationContext;
 import org.ballerinalang.langserver.LSContextOperation;
-import org.ballerinalang.langserver.compiler.LSContext;
+import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.compiler.LSPackageLoader;
 import org.ballerinalang.langserver.compiler.exception.CompilationFailedException;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentException;

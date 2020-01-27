@@ -17,7 +17,7 @@
  */
 package org.ballerinalang.langserver.extensions.ballerina.semantichighlighter;
 
-import org.ballerinalang.langserver.compiler.LSContext;
+import org.ballerinalang.langserver.commons.LSContext;
 
 import java.util.List;
 
