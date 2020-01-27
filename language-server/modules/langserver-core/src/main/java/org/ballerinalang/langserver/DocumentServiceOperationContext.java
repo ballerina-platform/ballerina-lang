@@ -23,7 +23,6 @@ import org.ballerinalang.langserver.compiler.LSContextImpl;
 import org.ballerinalang.langserver.compiler.LSOperation;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.completions.CompletionKeys;
-import org.ballerinalang.langserver.index.LSIndexImpl;
 import org.ballerinalang.langserver.signature.SignatureKeys;
 import org.eclipse.lsp4j.CompletionCapabilities;
 import org.eclipse.lsp4j.SignatureHelpCapabilities;
@@ -48,9 +47,8 @@ public class DocumentServiceOperationContext extends LSContextImpl {
             super(operation);
         }
 
-        ServiceOperationContextBuilder withCompletionParams(CompletionCapabilities capabilities, LSIndexImpl index) {
+        ServiceOperationContextBuilder withCompletionParams(CompletionCapabilities capabilities) {
             this.lsContext.put(CompletionKeys.CLIENT_CAPABILITIES_KEY, capabilities);
-            this.lsContext.put(LSGlobalContextKeys.LS_INDEX_KEY, index);
             return this;
         }
 

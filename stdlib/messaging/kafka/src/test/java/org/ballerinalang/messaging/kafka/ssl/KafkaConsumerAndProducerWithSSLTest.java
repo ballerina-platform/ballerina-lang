@@ -90,7 +90,7 @@ public class KafkaConsumerAndProducerWithSSLTest {
             return ((BBoolean) returnBValues[0]).booleanValue();
         });
 
-        await().atMost(100000, TimeUnit.MILLISECONDS).until(() -> {
+        await().atMost(10000, TimeUnit.MILLISECONDS).until(() -> {
             BValue[] returnBValues = BRunUtil.invoke(result, "funcKafkaPollWithSSL");
             Assert.assertEquals(returnBValues.length, 1);
             Assert.assertTrue(returnBValues[0] instanceof BString);

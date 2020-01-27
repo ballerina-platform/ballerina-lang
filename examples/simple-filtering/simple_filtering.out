@@ -1,5 +1,0 @@
-# To run this sample, navigate to the directory that contains the
-# `.bal` file and execute the `ballerina run` command.
-$ ballerina run --experimental simple_filtering.bal
-Child detected. Child name : Raja, age : 12 and from : Mountain View
-Child detected. Child name : Shareek, age : 16 and from : Houston

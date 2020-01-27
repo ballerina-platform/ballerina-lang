@@ -21,8 +21,12 @@ package org.ballerinalang.messaging.kafka.nativeimpl.consumer;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.KafkaException;
 import org.apache.kafka.common.TopicPartition;
-import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.api.BArray;
+import org.ballerinalang.messaging.kafka.observability.KafkaMetricsUtil;
+import org.ballerinalang.messaging.kafka.observability.KafkaObservabilityConstants;
+import org.ballerinalang.messaging.kafka.observability.KafkaTracingUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,15 +44,17 @@ public class Resume {
 
     private static final Logger logger = LoggerFactory.getLogger(Resume.class);
 
-    public static Object resume(ObjectValue consumerObject, ArrayValue topicPartitions) {
-        KafkaConsumer<byte[], byte[]> kafkaConsumer = (KafkaConsumer) consumerObject.getNativeData(NATIVE_CONSUMER);
+    public static Object resume(ObjectValue consumerObject, BArray topicPartitions) {
+        KafkaTracingUtil.traceResourceInvocation(Scheduler.getStrand(), consumerObject);
+        KafkaConsumer kafkaConsumer = (KafkaConsumer) consumerObject.getNativeData(NATIVE_CONSUMER);
         ArrayList<TopicPartition> partitionList = getTopicPartitionList(topicPartitions, logger);
 
         try {
             kafkaConsumer.resume(partitionList);
         } catch (IllegalStateException | KafkaException e) {
+            KafkaMetricsUtil.reportConsumerError(consumerObject, KafkaObservabilityConstants.ERROR_TYPE_RESUME);
             return createKafkaError("Failed to resume topic partitions for the consumer: " + e.getMessage(),
-                    CONSUMER_ERROR);
+                                    CONSUMER_ERROR);
         }
         return null;
     }

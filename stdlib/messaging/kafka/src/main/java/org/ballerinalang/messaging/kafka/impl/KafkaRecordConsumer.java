@@ -16,7 +16,6 @@
  * under the License.
  */
 
-
 package org.ballerinalang.messaging.kafka.impl;
 
 import org.apache.kafka.clients.consumer.ConsumerConfig;
@@ -51,7 +50,7 @@ public class KafkaRecordConsumer {
 
     private static final Logger logger = LoggerFactory.getLogger(KafkaRecordConsumer.class);
 
-    private KafkaConsumer<byte[], byte[]> kafkaConsumer;
+    private KafkaConsumer kafkaConsumer;
     private Duration pollingTimeout = Duration.ofMillis(1000);
     private int pollingInterval = 1000;
     private boolean decoupleProcessing = true;
@@ -66,7 +65,7 @@ public class KafkaRecordConsumer {
                                Properties configParams,
                                String serviceId,
                                int consumerId,
-                               KafkaConsumer<byte[], byte[]> kafkaConsumer) {
+                               KafkaConsumer kafkaConsumer) {
         this.serviceId = serviceId;
         this.consumerId = consumerId;
         // Initialize Kafka Consumer.
@@ -97,7 +96,7 @@ public class KafkaRecordConsumer {
 
     private void poll() {
         try {
-            ConsumerRecords<byte[], byte[]> recordsRetrieved = null;
+            ConsumerRecords recordsRetrieved = null;
             try {
                 // Make thread-safe as kafka does not support multiple thread access
                 if (!closed.get()) {
@@ -122,7 +121,7 @@ public class KafkaRecordConsumer {
         }
     }
 
-    private void processRetrievedRecords(ConsumerRecords<byte[], byte[]> consumerRecords) {
+    private void processRetrievedRecords(ConsumerRecords consumerRecords) {
         if (Objects.nonNull(consumerRecords) && !consumerRecords.isEmpty()) {
             // When decoupleProcessing == 'true' Kafka records set will be dispatched and processed in
             // Parallel threads.

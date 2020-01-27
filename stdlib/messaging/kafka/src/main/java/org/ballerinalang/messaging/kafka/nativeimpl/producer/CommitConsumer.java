@@ -27,6 +27,9 @@ import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.messaging.kafka.observability.KafkaMetricsUtil;
+import org.ballerinalang.messaging.kafka.observability.KafkaObservabilityConstants;
+import org.ballerinalang.messaging.kafka.observability.KafkaTracingUtil;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -47,16 +50,17 @@ public class CommitConsumer {
 
     public static Object commitConsumer(ObjectValue producerObject, ObjectValue consumer) {
         Strand strand = Scheduler.getStrand();
-        KafkaConsumer<byte[], byte[]> kafkaConsumer = (KafkaConsumer) consumer.getNativeData(NATIVE_CONSUMER);
-        KafkaProducer<byte[], byte[]> kafkaProducer = (KafkaProducer) producerObject.getNativeData(NATIVE_PRODUCER);
+        KafkaTracingUtil.traceResourceInvocation(strand, producerObject);
+        KafkaConsumer kafkaConsumer = (KafkaConsumer) consumer.getNativeData(NATIVE_CONSUMER);
+        KafkaProducer kafkaProducer = (KafkaProducer) producerObject.getNativeData(NATIVE_PRODUCER);
         Map<TopicPartition, OffsetAndMetadata> partitionToMetadataMap = new HashMap<>();
         Set<TopicPartition> topicPartitions = kafkaConsumer.assignment();
 
-        topicPartitions.forEach(topicPartition -> {
+        for (TopicPartition topicPartition : topicPartitions) {
             long position = kafkaConsumer.position(topicPartition);
             partitionToMetadataMap.put(new TopicPartition(topicPartition.topic(), topicPartition.partition()),
-                    new OffsetAndMetadata(position));
-        });
+                                       new OffsetAndMetadata(position));
+        }
         MapValue<String, Object> consumerConfig = consumer.getMapValue(CONSUMER_CONFIG_FIELD_NAME);
         String groupId = consumerConfig.getStringValue(CONSUMER_GROUP_ID_CONFIG);
         try {
@@ -65,6 +69,7 @@ public class CommitConsumer {
             }
             kafkaProducer.sendOffsetsToTransaction(partitionToMetadataMap, groupId);
         } catch (IllegalStateException | KafkaException e) {
+            KafkaMetricsUtil.reportProducerError(producerObject, KafkaObservabilityConstants.ERROR_TYPE_COMMIT);
             return createKafkaError("Failed to commit consumer: " + e.getMessage(), PRODUCER_ERROR);
         }
         return null;

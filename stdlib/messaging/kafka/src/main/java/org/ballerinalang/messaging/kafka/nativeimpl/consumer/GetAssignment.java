@@ -21,11 +21,15 @@ package org.ballerinalang.messaging.kafka.nativeimpl.consumer;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.KafkaException;
 import org.apache.kafka.common.TopicPartition;
+import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.types.BArrayType;
-import org.ballerinalang.jvm.values.ArrayValue;
-import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.api.BArray;
+import org.ballerinalang.jvm.values.api.BValueCreator;
+import org.ballerinalang.messaging.kafka.observability.KafkaMetricsUtil;
+import org.ballerinalang.messaging.kafka.observability.KafkaObservabilityConstants;
+import org.ballerinalang.messaging.kafka.observability.KafkaTracingUtil;
 
 import java.util.Set;
 
@@ -41,24 +45,21 @@ import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.populateTopicPa
 public class GetAssignment {
 
     public static Object getAssignment(ObjectValue consumerObject) {
-        KafkaConsumer<byte[], byte[]> kafkaConsumer = (KafkaConsumer) consumerObject.getNativeData(NATIVE_CONSUMER);
-        ArrayValue topicPartitionArray = new ArrayValueImpl(new BArrayType(getTopicPartitionRecord().getType()));
+        KafkaTracingUtil.traceResourceInvocation(Scheduler.getStrand(), consumerObject);
+        KafkaConsumer kafkaConsumer = (KafkaConsumer) consumerObject.getNativeData(NATIVE_CONSUMER);
+        BArray topicPartitionArray =
+                BValueCreator.createArrayValue(new BArrayType(getTopicPartitionRecord().getType()));
         try {
             Set<TopicPartition> topicPartitions = kafkaConsumer.assignment();
-//            topicPartitions.forEach(partition -> {
-//                MapValue<String, Object> tp = populateTopicPartitionRecord(partition.topic(), partition.partition());
-//                topicPartitionArray.append(tp);
-//            });
-            // TODO: Use the above commented code instead of the for loop once #17075 fixed.
-            int i = 0;
             for (TopicPartition partition : topicPartitions) {
                 MapValue<String, Object> tp = populateTopicPartitionRecord(partition.topic(), partition.partition());
-                topicPartitionArray.add(i++, tp);
+                topicPartitionArray.append(tp);
             }
             return topicPartitionArray;
         } catch (KafkaException e) {
+            KafkaMetricsUtil.reportConsumerError(consumerObject, KafkaObservabilityConstants.ERROR_TYPE_GET_ASSIGNMENT);
             return createKafkaError("Failed to retrieve assignment for the consumer: " + e.getMessage(),
-                    CONSUMER_ERROR);
+                                    CONSUMER_ERROR);
         }
     }
 }

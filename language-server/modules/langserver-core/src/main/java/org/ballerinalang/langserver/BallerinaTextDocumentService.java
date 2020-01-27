@@ -18,11 +18,12 @@ package org.ballerinalang.langserver;
 import com.google.gson.JsonObject;
 import org.apache.commons.lang3.tuple.Pair;
 import org.ballerinalang.langserver.client.ExtendedLanguageClient;
+import org.ballerinalang.langserver.codeaction.BallerinaCodeActionRouter;
 import org.ballerinalang.langserver.codeaction.CodeActionNodeType;
 import org.ballerinalang.langserver.codeaction.CodeActionUtil;
 import org.ballerinalang.langserver.codelenses.CodeLensUtil;
 import org.ballerinalang.langserver.codelenses.LSCodeLensesProviderFactory;
-import org.ballerinalang.langserver.command.CommandUtil;
+import org.ballerinalang.langserver.command.ExecuteCommandKeys;
 import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
@@ -44,7 +45,6 @@ import org.ballerinalang.langserver.diagnostic.DiagnosticsHelper;
 import org.ballerinalang.langserver.exception.UserErrorException;
 import org.ballerinalang.langserver.implementation.GotoImplementationCustomErrorStrategy;
 import org.ballerinalang.langserver.implementation.GotoImplementationUtil;
-import org.ballerinalang.langserver.index.LSIndexImpl;
 import org.ballerinalang.langserver.signature.SignatureHelpUtil;
 import org.ballerinalang.langserver.signature.SignatureTreeVisitor;
 import org.ballerinalang.langserver.symbols.SymbolFindingVisitor;
@@ -107,7 +107,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import static org.ballerinalang.langserver.command.CommandUtil.getCommandForNodeType;
 import static org.ballerinalang.langserver.compiler.LSClientLogger.logError;
 import static org.ballerinalang.langserver.compiler.LSClientLogger.notifyUser;
 import static org.ballerinalang.langserver.compiler.LSCompilerUtil.getUntitledFilePath;
@@ -123,7 +122,6 @@ class BallerinaTextDocumentService implements TextDocumentService {
     private final BallerinaLanguageServer languageServer;
     private final WorkspaceDocumentManager documentManager;
     private final DiagnosticsHelper diagnosticsHelper;
-    private final LSIndexImpl lsIndex;
     private TextDocumentClientCapabilities clientCapabilities;
 
     private final Debouncer diagPushDebouncer;
@@ -132,7 +130,6 @@ class BallerinaTextDocumentService implements TextDocumentService {
         this.languageServer = globalContext.get(LSGlobalContextKeys.LANGUAGE_SERVER_KEY);
         this.documentManager = globalContext.get(LSGlobalContextKeys.DOCUMENT_MANAGER_KEY);
         this.diagnosticsHelper = globalContext.get(LSGlobalContextKeys.DIAGNOSTIC_HELPER_KEY);
-        this.lsIndex = globalContext.get(LSGlobalContextKeys.LS_INDEX_KEY);
         this.diagPushDebouncer = new Debouncer(DIAG_PUSH_DEBOUNCE_DELAY);
     }
 
@@ -160,7 +157,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
             LSContext context = new DocumentServiceOperationContext
                     .ServiceOperationContextBuilder(LSContextOperation.TXT_COMPLETION)
                     .withCommonParams(position, fileUri, documentManager)
-                    .withCompletionParams(this.clientCapabilities.getCompletion(), this.lsIndex)
+                    .withCompletionParams(this.clientCapabilities.getCompletion())
                     .build();
 
             try {
@@ -389,47 +386,25 @@ class BallerinaTextDocumentService implements TextDocumentService {
                     .ServiceOperationContextBuilder(LSContextOperation.TXT_CODE_ACTION)
                     .withCodeActionParams(documentManager)
                     .build();
+            context.put(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY, documentManager);
+            context.put(ExecuteCommandKeys.FILE_URI_KEY, fileUri);
+            context.put(DocumentServiceKeys.FILE_URI_KEY, fileUri);
+            context.put(ExecuteCommandKeys.POSITION_START_KEY, params.getRange().getStart());
+            context.put(DocumentServiceKeys.DOC_MANAGER_KEY, documentManager);
             try {
-                LSDocument document = documentManager.getLSDocument(filePath.get());
                 int line = params.getRange().getStart().getLine();
                 int col = params.getRange().getStart().getCharacter();
                 List<Diagnostic> diagnostics = params.getContext().getDiagnostics();
+                context.put(DocumentServiceKeys.POSITION_KEY,
+                            new TextDocumentPositionParams(params.getTextDocument(), new Position(line, col)));
 
                 CodeActionNodeType nodeType = CodeActionUtil.topLevelNodeInLine(identifier, line, documentManager);
 
-//                // Add create test commands
-//                Path modulePath = document.getOwnerModulePath() == null ? document.getProjectRootPath()
-//                        : document.getOwnerModulePath();
-//                String innerDirName = modulePath.relativize(document.getPath()).toString()
-//                        .split(Pattern.quote(File.separator))[0];
-//                String moduleName = document.getOwnerModule();
-//                if (topLevelNodeType != null && diagnostics.isEmpty() && document.isWithinProject() &&
-//                        !TEST_DIR_NAME.equals(innerDirName) && !moduleName.isEmpty() &&
-//                        !moduleName.endsWith(ProjectDirConstants.BLANG_SOURCE_EXT)) {
-//                    /*
-//                    Test generation suggested only when no code diagnosis exists, inside a bal project,
-//                    inside a module, not inside /tests folder
-//                     */
-//                    actions.addAll(CommandUtil.getTestGenerationCommand(topLevelNodeType, fileUri, params, context));
-//                }
-
-                // Add commands base on node diagnostics
-                if (!diagnostics.isEmpty()) {
-                    diagnostics.forEach(diagnostic -> {
-                        int sLine = diagnostic.getRange().getStart().getLine();
-                        int sCol = diagnostic.getRange().getStart().getCharacter();
-                        int eLine = diagnostic.getRange().getEnd().getLine();
-                        int eCol = diagnostic.getRange().getEnd().getCharacter();
-                        if ((line == sLine && col >= sCol) || (line == eLine && col <= eCol) ||
-                                (line > sLine && eLine < line)) {
-                            actions.addAll(CommandUtil.getCommandsByDiagnostic(document, diagnostic, params, context));
-                        }
-                    });
-                }
-
-                // Add commands base on node type
-                if (nodeType != null) {
-                    actions.addAll(getCommandForNodeType(nodeType, fileUri, line));
+                // add commands
+                BallerinaCodeActionRouter codeActionRouter = new BallerinaCodeActionRouter();
+                List<CodeAction> codeActions = codeActionRouter.getBallerinaCodeActions(nodeType, context, diagnostics);
+                if (codeActions != null) {
+                    actions.addAll(codeActions);
                 }
             } catch (UserErrorException e) {
                 notifyUser("Code Action", e);

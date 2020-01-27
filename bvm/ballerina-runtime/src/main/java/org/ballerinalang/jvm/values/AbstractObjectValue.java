@@ -61,7 +61,13 @@ public abstract class AbstractObjectValue implements ObjectValue {
     public abstract Object get(String fieldName);
 
     @Override
+    public abstract Object get(StringValue fieldName);
+
+    @Override
     public abstract void set(String fieldName, Object value);
+
+    @Override
+    public abstract void set(StringValue fieldName, Object value);
 
     @Override
     public void addNativeData(String key, Object data) {

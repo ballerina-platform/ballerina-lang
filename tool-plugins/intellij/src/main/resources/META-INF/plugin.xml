@@ -58,8 +58,8 @@
         <!-- <renamePsiElementProcessor implementation="org.wso2.lsp4intellij.contributors.rename.LSPRenameProcessor"-->
         <!--           id="LSPRenameProcessor" order="first"/>-->
 
-        <!-- <typedHandler implementation="org.wso2.lsp4intellij.listeners.LSPTypedHandler"-->
-        <!--          id="BallerinaLspTypedHandler"/>-->
+        <typedHandler implementation="org.wso2.lsp4intellij.listeners.LSPTypedHandler"
+                      id="BallerinaLspTypedHandler"/>
 
         <!--Ballerina plugin extensions-->
         <fileTypeFactory implementation="io.ballerina.plugins.idea.BallerinaFileTypeFactory"/>

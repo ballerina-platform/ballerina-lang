@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/lang.'object as lang;
+import ballerina/lang.'object;
 import ballerinax/java;
 
 # Configuration related to consumer endpoint.
@@ -30,6 +30,8 @@ import ballerinax/java;
 # + isolationLevel - Transactional message reading method. Use "read_committed" to read the committed messages
 #       only in transactional mode when poll() is called. Use "read_uncommitted" to read all the messages,
 #       even the aborted ones.
+# + keyDeserializer - Deserializer used for the Kafka record key. This should be a `kafka:DeserializerType`
+# + valueDeserializer - Deserializer used for the Kafka record value. This should be a `kafka:DeserializerType`
 # + topics - Topics to be subscribed by the consumer.
 # + properties - Additional properties if required.
 # + sessionTimeoutInMillis - Timeout used to detect consumer failures when heartbeat threshold is reached.
@@ -70,6 +72,8 @@ public type ConsumerConfig record {|
     string? clientId = ();
     string? interceptorClasses = ();
     string? isolationLevel = ();
+    DeserializerType keyDeserializer = DES_BYTE_ARRAY;
+    DeserializerType valueDeserializer = DES_BYTE_ARRAY;
 
     string[]? topics = ();
     string[]? properties = ();
@@ -115,27 +119,46 @@ public type ConsumerConfig record {|
 # + timestamp - Timestamp of the record, in milliseconds since epoch.
 # + topic - Topic to which the record belongs to.
 public type ConsumerRecord record {|
-    byte[] key;
-    byte[] value;
+    Data key;
+    Data value;
     int offset;
     int partition;
     int timestamp;
     string topic;
 |};
 
+# In-built Kafka byte array deserializer.
+public const DES_BYTE_ARRAY = "BYTE_ARRAY";
+
+# In-built Kafka string deserializer.
+public const DES_STRING = "STRING";
+
+# In-built Kafka int deserializer.
+public const DES_INT = "INT";
+
+# In-built Kafka float deserializer.
+public const DES_FLOAT = "FLOAT";
+
+# Kafka in-built deserializer type.
+public type DeserializerType DES_BYTE_ARRAY|DES_STRING|DES_INT|DES_FLOAT;
+
 # Represent a Kafka consumer endpoint.
 #
 # + consumerConfig - Used to store configurations related to a Kafka connection.
 public type Consumer client object {
-    *lang:Listener;
+    *'object:Listener;
 
     public ConsumerConfig? consumerConfig = ();
+    private string keyDeserializer;
+    private string valueDeserializer;
 
     # Creates a new Kafka `Consumer`.
     #
     # + config - Configurations related to consumer endpoint.
     public function __init (ConsumerConfig config) {
         self.consumerConfig = config;
+        self.keyDeserializer = config.keyDeserializer;
+        self.valueDeserializer = config.valueDeserializer;
         var initResult = self.init(config);
         if (initResult is error) {
             panic initResult;
@@ -360,7 +383,6 @@ public type Consumer client object {
         return consumerSubscribeToPattern(self, java:fromString(regex));
     }
 
-    // TODO: Fix when issue #20069 is fixed
     # Subscribes to consumer to the provided set of topics with rebalance listening is enabled.
     # This function can be used inside a service, to subscribe to a set of topics, while rebalancing the patition
     # assignment of the consumers.
@@ -372,8 +394,9 @@ public type Consumer client object {
     public remote function subscribeWithPartitionRebalance(string[] topics,
                            function(Consumer consumer, TopicPartition[] partitions) onPartitionsRevoked,
                            function(Consumer consumer, TopicPartition[] partitions) onPartitionsAssigned)
-                           returns ConsumerError? = external;
-
+                           returns ConsumerError? {
+        return consumerSubscribeWithPartitionRebalance(self, topics, onPartitionsRevoked, onPartitionsAssigned);
+    }
 
     # Unsubscribe the consumer from all the topic subscriptions.
     #
@@ -516,6 +539,15 @@ function consumerSubscribeToPattern(Consumer consumer, handle regex) returns Con
 @java:Method {
     name: "subscribeToPattern",
     class: "org.ballerinalang.messaging.kafka.nativeimpl.consumer.SubscribeToPattern"
+} external;
+
+function consumerSubscribeWithPartitionRebalance(Consumer consumer, string[] topics,
+                                function(Consumer consumer, TopicPartition[] partitions) onPartitionsRevoked,
+                                function(Consumer consumer, TopicPartition[] partitions) onPartitionsAssigned)
+                                returns ConsumerError? =
+@java:Method {
+    name: "subscribeWithPartitionRebalance",
+    class: "org.ballerinalang.messaging.kafka.nativeimpl.consumer.SubscribeWithPartitionRebalance"
 } external;
 
 function consumerUnsubscribe(Consumer consumer) returns ConsumerError? =

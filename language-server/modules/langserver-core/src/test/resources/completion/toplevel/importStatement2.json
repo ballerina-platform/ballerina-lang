@@ -158,14 +158,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "ballerina/streams",
-      "kind": "Module",
-      "detail": "Package",
-      "sortText": "140",
-      "insertText": "ballerina/streams",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "ballerina/reflect",
       "kind": "Module",
       "detail": "Package",
@@ -355,14 +347,6 @@
       "detail": "Package",
       "sortText": "140",
       "insertText": "ballerina/mime",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "ballerina/lang.stream",
-      "kind": "Module",
-      "detail": "Package",
-      "sortText": "140",
-      "insertText": "ballerina/lang.'stream;",
       "insertTextFormat": "Snippet"
     },
     {

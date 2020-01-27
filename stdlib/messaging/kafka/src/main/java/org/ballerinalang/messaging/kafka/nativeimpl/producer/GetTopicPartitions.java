@@ -24,10 +24,13 @@ import org.apache.kafka.common.PartitionInfo;
 import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BArrayType;
-import org.ballerinalang.jvm.values.ArrayValue;
-import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.api.BArray;
+import org.ballerinalang.jvm.values.api.BValueCreator;
+import org.ballerinalang.messaging.kafka.observability.KafkaMetricsUtil;
+import org.ballerinalang.messaging.kafka.observability.KafkaObservabilityConstants;
+import org.ballerinalang.messaging.kafka.observability.KafkaTracingUtil;
 
 import java.util.List;
 
@@ -45,29 +48,23 @@ public class GetTopicPartitions {
 
     public static Object getTopicPartitions(ObjectValue producerObject, String topic) {
         Strand strand = Scheduler.getStrand();
-        KafkaProducer<byte[], byte[]> kafkaProducer = (KafkaProducer) producerObject.getNativeData(NATIVE_PRODUCER);
+        KafkaTracingUtil.traceResourceInvocation(strand, producerObject, topic);
+        KafkaProducer kafkaProducer = (KafkaProducer) producerObject.getNativeData(NATIVE_PRODUCER);
         try {
             if (strand.isInTransaction()) {
                 handleTransactions(strand, producerObject);
             }
             List<PartitionInfo> partitionInfoList = kafkaProducer.partitionsFor(topic);
-            ArrayValue topicPartitionArray = new ArrayValueImpl(new BArrayType(getTopicPartitionRecord().getType()));
-//            if (!partitionInfoList.isEmpty()) {
-//                partitionInfoList.forEach(info -> {
-//                    MapValue<String, Object> partition = populateTopicPartitionRecord(info.topic(), info.partition());
-//                    topicPartitionArray.append(partition);
-//                });
-//            }
-
-            // TODO: Use the above commented code instead of the for loop once #17075 fixed.
-            int i = 0;
+            BArray topicPartitionArray =
+                    BValueCreator.createArrayValue(new BArrayType(getTopicPartitionRecord().getType()));
             for (PartitionInfo info : partitionInfoList) {
                 MapValue<String, Object> partition = populateTopicPartitionRecord(info.topic(), info.partition());
-                topicPartitionArray.add(i++, partition);
+                topicPartitionArray.append(partition);
             }
-
             return topicPartitionArray;
         } catch (KafkaException e) {
+            KafkaMetricsUtil.reportProducerError(producerObject,
+                                                 KafkaObservabilityConstants.ERROR_TYPE_TOPIC_PARTITIONS);
             return createKafkaError("Failed to fetch partitions from the producer " + e.getMessage(), PRODUCER_ERROR);
         }
     }

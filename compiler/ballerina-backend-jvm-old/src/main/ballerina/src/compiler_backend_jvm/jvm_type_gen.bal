@@ -816,9 +816,6 @@ function loadType(jvm:MethodVisitor mv, bir:BType? bType) {
     } else if (bType is bir:BTableType) {
         loadTableType(mv, bType);
         return;
-    } else if (bType is bir:BStreamType) {
-        loadStreamType(mv, bType);
-        return;
     } else if (bType is bir:BErrorType) {
         loadErrorType(mv, bType);
         return;
@@ -924,22 +921,6 @@ function loadTableType(jvm:MethodVisitor mv, bir:BTableType bType) {
 
     // invoke the constructor
     mv.visitMethodInsn(INVOKESPECIAL, TABLE_TYPE, "<init>", io:sprintf("(L%s;)V", BTYPE), false);
-}
-
-# Generate code to load an instance of the given stream type
-# to the top of the stack.
-#
-# + bType - stream type to load
-function loadStreamType(jvm:MethodVisitor mv, bir:BStreamType bType) {
-    // Create an new stream type
-    mv.visitTypeInsn(NEW, STREAM_TYPE);
-    mv.visitInsn(DUP);
-
-    // Load the constraint type
-    loadType(mv, bType.sConstraint);
-
-    // invoke the constructor
-    mv.visitMethodInsn(INVOKESPECIAL, STREAM_TYPE, "<init>", io:sprintf("(L%s;)V", BTYPE), false);
 }
 
 # Generate code to load an instance of the given error type
@@ -1109,7 +1090,7 @@ function loadInvokableType(jvm:MethodVisitor mv, bir:BInvokableType bType) {
      false);
 }
 
-function getTypeDesc(bir:BType bType) returns string {
+function getTypeDesc(bir:BType bType, boolean useBString = false) returns string {
     if (bType is bir:BTypeInt) {
         return "J";
     } else if (bType is bir:BTypeByte) {
@@ -1117,7 +1098,7 @@ function getTypeDesc(bir:BType bType) returns string {
     } else if (bType is bir:BTypeFloat) {
         return "D";
     } else if (bType is bir:BTypeString) {
-        return io:sprintf("L%s;", STRING_VALUE);
+        return io:sprintf("L%s;", useBString ? I_STRING_VALUE : STRING_VALUE);
     } else if (bType is bir:BTypeBoolean) {
         return "Z";
     } else if (bType is bir:BTypeNil) {
@@ -1134,8 +1115,6 @@ function getTypeDesc(bir:BType bType) returns string {
         return io:sprintf("L%s;", TYPEDESC_VALUE);
     } else if (bType is bir:BTableType) {
         return io:sprintf("L%s;", TABLE_VALUE);
-    } else if (bType is bir:BStreamType) {
-        return io:sprintf("L%s;", STREAM_VALUE);
     } else if (bType is bir:BTypeDecimal) {
         return io:sprintf("L%s;", DECIMAL_VALUE);
     } else if (bType is bir:BObjectType || bType is bir:BServiceType) {

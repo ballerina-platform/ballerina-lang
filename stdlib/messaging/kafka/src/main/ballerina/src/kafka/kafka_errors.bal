@@ -32,3 +32,17 @@ public const PRODUCER_ERROR = "{ballerina/kafka}ProducerError";
 
 # Kafka Producer related errors
 public type ProducerError error<PRODUCER_ERROR, Detail>;
+
+function getValueTypeMismatchError(string expectedType) returns ProducerError {
+    string message = "Invalid type found for Kafka value. Expected value type: '" + expectedType + "'.";
+    return createProducerError(message);
+}
+
+function getKeyTypeMismatchError(string expectedType) returns ProducerError {
+    string message = "Invalid type found for Kafka key. Expected key type: '" + expectedType + "'.";
+    return createProducerError(message);
+}
+
+function createProducerError(string message) returns ProducerError {
+    return error(PRODUCER_ERROR, message = message);
+}

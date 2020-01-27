@@ -527,9 +527,6 @@ public class FilterUtils {
             case TypeTags.OBJECT:
                 entries.putAll(symTable.langObjectModuleSymbol.scope.entries);
                 break;
-            case TypeTags.STREAM:
-                entries.putAll(symTable.langStreamModuleSymbol.scope.entries);
-                break;
             case TypeTags.STRING:
                 entries.putAll(symTable.langStringModuleSymbol.scope.entries);
                 break;

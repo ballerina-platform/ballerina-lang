@@ -24,7 +24,9 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -160,6 +162,24 @@ public class ConfigRegistryTest {
         Assert.assertEquals(configTable.get("http.port"), 8080);
         Assert.assertEquals(configTable.get("tracelog.enable"), true);
         Assert.assertEquals(configTable.get("accesslog.enable"), false);
+    }
+
+    @Test
+    public void testGetAsArray() throws IOException {
+        List<String> keyStorePaths = Arrays.asList("/etc", "/tmp", "/usr/lib/");
+        registry.initRegistry(new HashMap<>(), null, null);
+        registry.addConfiguration("keyStore.paths", keyStorePaths);
+        List values = registry.getAsArray("keyStore.paths");
+        Assert.assertEquals(values.size(), 3);
+        Assert.assertEquals(values.get(0), "/etc");
+        Assert.assertEquals(values.get(1), "/tmp");
+        Assert.assertEquals(values.get(2), "/usr/lib/");
+    }
+
+    @Test
+    public void testGetAsArray2() {
+        List values = registry.getAsArray("non_existent_key");
+        Assert.assertTrue(values.isEmpty());
     }
 
     @Test
