@@ -61,52 +61,52 @@ public type Cookie object {
     // Returns true if the attributes of the cookie are in the correct format or else error is returned.
     public function isValid() returns boolean | error {
         CookieHandlingError err;
-        var temp = self.name;
-        if (temp is string) {
-            temp = temp.trim();
-            if (temp == "") {
+        var name = self.name;
+        if (name is string) {
+            name = name.trim();
+            if (name == "") {
                 err = error(COOKIE_HANDLING_ERROR, message = "Invalid name");
                 return err;
             }
-            self.name = temp;
+            self.name = name;
         }
-        temp = self.value;
-        if (temp is string) {
-            temp = temp.trim();
-            if (temp == "") {
+        var value = self.value;
+        if (value is string) {
+            value = value.trim();
+            if (value == "") {
                 err = error(COOKIE_HANDLING_ERROR, message = "Invalid value");
                 return err;
             }
-            self.value = temp;
+            self.value = value;
         }
-        temp = self.domain;
-        if (temp is string) {
-            temp = temp.trim().toLowerAscii();
-            if (temp == "") {
+        var domain = self.domain;
+        if (domain is string) {
+            domain = domain.trim().toLowerAscii();
+            if (domain == "") {
                 err = error(COOKIE_HANDLING_ERROR, message = "Invalid domain");
                 return err;
             }
-            if (temp.startsWith(".")) {
-                temp = temp.substring(1, temp.length());
+            if (domain.startsWith(".")) {
+                domain = domain.substring(1, domain.length());
             }
-            if (temp.endsWith(".")) {
-                temp = temp.substring(0, temp.length() - 1);
+            if (domain.endsWith(".")) {
+                domain = domain.substring(0, domain.length() - 1);
             }
-            self.domain = temp;
+            self.domain = domain;
         }
-        temp = self.path;
-        if (temp is string) {
-            temp = temp.trim();
-            if (temp == "" || !temp.startsWith("/") || stringutils:contains(temp, "?")) {
+        var path = self.path;
+        if (path is string) {
+            path = path.trim();
+            if (path == "" || !path.startsWith("/") || stringutils:contains(path, "?")) {
                 err = error(COOKIE_HANDLING_ERROR, message = "Path is not in correct format");
                 return err;
             }
-            self.path = temp;
+            self.path = path;
         }
-        temp = self.expires;
-        if (temp is string) {
-            temp = temp.trim();
-            if (!toGmtFormat(self, temp)) {
+        var expires = self.expires;
+        if (expires is string) {
+            expires = expires.trim();
+            if (!toGmtFormat(self, expires)) {
                 err = error(COOKIE_HANDLING_ERROR, message = "Time is not in correct format");
                 return err;
             }
