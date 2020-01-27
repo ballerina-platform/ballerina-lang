@@ -378,6 +378,14 @@
             "insertTextFormat": "Snippet"
         },
         {
+            "label": "myCookie",
+            "kind": "Struct",
+            "detail": "Record",
+            "sortText": "221",
+            "insertText": "myCookie",
+            "insertTextFormat": "Snippet"
+        },
+        {
             "label": "CookieClient",
             "kind": "Interface",
             "detail": "Object",
@@ -386,6 +394,17 @@
             },
             "sortText": "221",
             "insertText": "CookieClient",
+            "insertTextFormat": "Snippet"
+        },
+        {
+            "label": "PersistentCookieHandler",
+            "kind": "Interface",
+            "detail": "Object",
+            "documentation": {
+                "left": "The representation of a persistent cookie handler for managing persistent cookies."
+            },
+            "sortText": "221",
+            "insertText": "PersistentCookieHandler",
             "insertTextFormat": "Snippet"
         },
         {
@@ -1151,6 +1170,17 @@
             },
             "sortText": "221",
             "insertText": "BearerAuthHandler",
+            "insertTextFormat": "Snippet"
+        },
+        {
+            "label": "CsvPersistentCookieHandler",
+            "kind": "Interface",
+            "detail": "Object",
+            "documentation": {
+                "left": "Represents a default persistent cookie handler which stores persistent cookies in a CSV file.\n"
+            },
+            "sortText": "221",
+            "insertText": "CsvPersistentCookieHandler",
             "insertTextFormat": "Snippet"
         },
         {
