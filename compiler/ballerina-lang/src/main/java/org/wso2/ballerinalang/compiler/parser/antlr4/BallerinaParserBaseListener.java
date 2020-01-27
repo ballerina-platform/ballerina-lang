@@ -136,6 +136,18 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterBlockFunctionBody(BallerinaParser.BlockFunctionBodyContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitBlockFunctionBody(BallerinaParser.BlockFunctionBodyContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterExternalFunctionBody(BallerinaParser.ExternalFunctionBodyContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -143,6 +155,18 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitExternalFunctionBody(BallerinaParser.ExternalFunctionBodyContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterFunctionDefinitionBody(BallerinaParser.FunctionDefinitionBodyContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitFunctionDefinitionBody(BallerinaParser.FunctionDefinitionBodyContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -191,6 +215,18 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitArrowParam(BallerinaParser.ArrowParamContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterFunctionSignature(BallerinaParser.FunctionSignatureContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitFunctionSignature(BallerinaParser.FunctionSignatureContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

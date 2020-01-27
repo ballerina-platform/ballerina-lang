@@ -273,7 +273,31 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      * {@inheritDoc}
      */
     @Override
+    public void enterBlockFunctionBody(BallerinaParser.BlockFunctionBodyContext ctx) {
+        if (isInErrorState) {
+            return;
+        }
+
+        this.pkgBuilder.startBlock();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public void exitCallableUnitBody(BallerinaParser.CallableUnitBodyContext ctx) {
+        if (isInErrorState) {
+            return;
+        }
+
+        this.pkgBuilder.endCallableUnitBody(getWS(ctx));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void exitBlockFunctionBody(BallerinaParser.BlockFunctionBodyContext ctx) {
         if (isInErrorState) {
             return;
         }
@@ -316,14 +340,16 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
+        String funcName = ctx.anyIdentifierName().getText();
         boolean publicFunc = ctx.PUBLIC() != null;
         boolean remoteFunc = ctx.REMOTE() != null;
-        boolean nativeFunc = ctx.externalFunctionBody() != null;
-        boolean bodyExists = ctx.callableUnitBody() != null;
+        boolean nativeFunc = ctx.functionDefinitionBody().externalFunctionBody() != null;
+        boolean bodyExists = ctx.functionDefinitionBody().blockFunctionBody() != null;
         boolean privateFunc = ctx.PRIVATE() != null;
 
-        this.pkgBuilder.endFunctionDef(getCurrentPos(ctx), getWS(ctx), publicFunc, remoteFunc, nativeFunc, privateFunc,
-                                       bodyExists, false);
+        this.pkgBuilder.endFunctionDefinition(getCurrentPos(ctx), getWS(ctx), funcName,
+                                              getCurrentPos(ctx.anyIdentifierName()), publicFunc, remoteFunc,
+                                              nativeFunc, privateFunc, bodyExists, false);
     }
 
     @Override
@@ -384,9 +410,24 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         }
 
         this.pkgBuilder.endCallableUnitSignature(getCurrentPos(ctx), getWS(ctx), ctx.anyIdentifierName().getText(),
-                getCurrentPos(ctx.anyIdentifierName()), ctx.formalParameterList() != null,
-                ctx.returnParameter() != null, ctx.formalParameterList() != null
-                        && ctx.formalParameterList().restParameter() != null);
+                                                 getCurrentPos(ctx.anyIdentifierName()),
+                                                 ctx.formalParameterList() != null,
+                                                 ctx.returnParameter() != null, ctx.formalParameterList() != null
+                                                         && ctx.formalParameterList().restParameter() != null);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void exitFunctionSignature(BallerinaParser.FunctionSignatureContext ctx) {
+        if (isInErrorState) {
+            return;
+        }
+
+        this.pkgBuilder.endFunctionSignature(getCurrentPos(ctx), getWS(ctx), ctx.formalParameterList() != null,
+                                             ctx.returnParameter() != null, ctx.formalParameterList() != null
+                                                     && ctx.formalParameterList().restParameter() != null);
     }
 
     /**
