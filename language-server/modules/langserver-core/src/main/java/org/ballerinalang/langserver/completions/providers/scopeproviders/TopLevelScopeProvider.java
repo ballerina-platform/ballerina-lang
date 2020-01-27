@@ -20,12 +20,14 @@ import org.antlr.v4.runtime.CommonToken;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.CommonKeys;
-import org.ballerinalang.langserver.compiler.LSContext;
+import org.ballerinalang.langserver.commons.LSContext;
+import org.ballerinalang.langserver.commons.completion.LSCompletionException;
+import org.ballerinalang.langserver.commons.completion.spi.LSCompletionProvider;
 import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.CompletionSubRuleParser;
 import org.ballerinalang.langserver.completions.SymbolInfo;
+import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 import org.ballerinalang.langserver.completions.providers.contextproviders.AnnotationAttachmentContextProvider;
-import org.ballerinalang.langserver.completions.spi.LSCompletionProvider;
 import org.ballerinalang.langserver.completions.util.filters.DelimiterBasedContentFilter;
 import org.ballerinalang.langserver.completions.util.filters.SymbolFilters;
 import org.ballerinalang.langserver.completions.util.sorters.TopLevelContextSorter;
@@ -44,15 +46,15 @@ import java.util.Optional;
  * 
  * @since 0.995.0
  */
-@JavaSPIService("org.ballerinalang.langserver.completions.spi.LSCompletionProvider")
-public class TopLevelScopeProvider extends LSCompletionProvider {
+@JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.LSCompletionProvider")
+public class TopLevelScopeProvider extends AbstractCompletionProvider {
     public TopLevelScopeProvider() {
         this.attachmentPoints.add(BLangPackage.class);
         this.attachmentPoints.add(BLangTestablePackage.class);
     }
 
     @Override
-    public List<CompletionItem> getCompletions(LSContext ctx) {
+    public List<CompletionItem> getCompletions(LSContext ctx) throws LSCompletionException {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
         
         if (this.inFunctionReturnParameterContext(ctx)) {

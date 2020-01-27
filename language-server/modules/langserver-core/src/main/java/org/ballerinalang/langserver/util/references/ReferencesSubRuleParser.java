@@ -18,7 +18,7 @@ package org.ballerinalang.langserver.util.references;
 import org.antlr.v4.runtime.Token;
 import org.ballerinalang.langserver.common.constants.NodeContextKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
-import org.ballerinalang.langserver.compiler.LSContext;
+import org.ballerinalang.langserver.commons.LSContext;
 import org.eclipse.lsp4j.Position;
 
 import java.util.List;

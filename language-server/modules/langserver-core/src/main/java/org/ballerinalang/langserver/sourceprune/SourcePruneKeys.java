@@ -18,7 +18,7 @@
 package org.ballerinalang.langserver.sourceprune;
 
 import org.antlr.v4.runtime.Token;
-import org.ballerinalang.langserver.compiler.LSContext;
+import org.ballerinalang.langserver.commons.LSContext;
 
 import java.util.List;
 
