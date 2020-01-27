@@ -26,7 +26,6 @@ import org.ballerinalang.langserver.completions.providers.contextproviders.IfWhi
 import org.ballerinalang.langserver.completions.providers.contextproviders.InvocationArgsContextProvider;
 import org.ballerinalang.langserver.completions.providers.contextproviders.StatementContextProvider;
 import org.ballerinalang.langserver.completions.spi.LSCompletionProvider;
-import org.eclipse.lsp4j.CompletionItem;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 
 import java.util.List;

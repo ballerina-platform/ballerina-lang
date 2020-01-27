@@ -29,12 +29,14 @@ import org.eclipse.lsp4j.CompletionItem;
  * @since 1.2.0
  */
 public class SnippetCompletionItem implements LSCompletionItem {
-    LSContext lsContext;
-    SnippetBlock snippetBlock;
+    private LSContext lsContext;
+    private SnippetBlock snippetBlock;
+    private CompletionItem completionItem;
 
     public SnippetCompletionItem(LSContext lsContext, SnippetBlock snippetBlock) {
         this.lsContext = lsContext;
         this.snippetBlock = snippetBlock;
+        this.completionItem = this.snippetBlock.build(this.lsContext);
     }
 
     @Override
@@ -49,6 +51,6 @@ public class SnippetCompletionItem implements LSCompletionItem {
 
     @Override
     public CompletionItem getCompletionItem() {
-        return null;
+        return this.completionItem;
     }
 }

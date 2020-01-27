@@ -24,7 +24,6 @@ import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.FilterUtils;
 import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
-import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
@@ -52,7 +51,7 @@ public class DelimiterBasedContentFilter extends AbstractSymbolFilter {
         if (BallerinaParser.DOT == delimiter || BallerinaParser.NOT == delimiter || BallerinaParser.COLON == delimiter
                 || BallerinaParser.OPTIONAL_FIELD_ACCESS == delimiter || isActionInvocation) {
             List<Scope.ScopeEntry> symbolCompletionItems = FilterUtils.filterVariableEntriesOnDelimiter(ctx,
-                    symbolToken, delimiter,defaultTokens, defaultTokenTypes.lastIndexOf(delimiter));
+                    symbolToken, delimiter, defaultTokens, defaultTokenTypes.lastIndexOf(delimiter));
             return Either.forRight(new ArrayList<>(symbolCompletionItems));
         }
         if (isWorkerSend) {

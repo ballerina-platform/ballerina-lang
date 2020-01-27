@@ -23,6 +23,7 @@ import org.ballerinalang.langserver.completions.util.Priority;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.InsertTextFormat;
 
+import java.util.Collections;
 import java.util.List;
 
 import javax.annotation.Nonnull;
@@ -60,6 +61,6 @@ public class MatchContextItemSorter extends CompletionItemSorter {
     @Nonnull
     @Override
     List<Class> getAttachedContexts() {
-        return null;
+        return Collections.singletonList(MatchContextItemSorter.class);
     }
 }

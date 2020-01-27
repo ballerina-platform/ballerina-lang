@@ -31,11 +31,11 @@ import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.compiler.common.modal.BallerinaPackage;
-import org.ballerinalang.langserver.completions.SymbolCompletionItem;
 import org.ballerinalang.langserver.completions.FieldCompletionItem;
+import org.ballerinalang.langserver.completions.StaticCompletionItem;
+import org.ballerinalang.langserver.completions.SymbolCompletionItem;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.ballerinalang.langserver.completions.util.Priority;
-import org.ballerinalang.langserver.completions.StaticCompletionItem;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
@@ -585,6 +585,18 @@ public class CommonUtil {
             return getRecordTypeName((BRecordType) bType, ctx, doSimplify);
         }
         return getShallowBTypeName(bType, ctx);
+    }
+
+    /**
+     * Get the Symbol Name.
+     *
+     * @param bSymbol BSymbol to evaluate
+     * @return captured symbol name
+     */
+    public static String getSymbolName(BSymbol bSymbol) {
+        String nameValue = bSymbol.name.getValue();
+        String[] split = nameValue.split("\\.");
+        return split[split.length - 1];
     }
 
     private static String getShallowBTypeName(BType bType, LSContext ctx) {

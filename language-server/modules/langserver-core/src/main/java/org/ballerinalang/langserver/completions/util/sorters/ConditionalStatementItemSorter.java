@@ -22,6 +22,7 @@ import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.ballerinalang.langserver.completions.util.Priority;
 import org.eclipse.lsp4j.CompletionItem;
 
+import java.util.Collections;
 import java.util.List;
 
 import javax.annotation.Nonnull;
@@ -66,6 +67,6 @@ public class ConditionalStatementItemSorter extends CompletionItemSorter {
     @Nonnull
     @Override
     List<Class> getAttachedContexts() {
-        return null;
+        return Collections.singletonList(ConditionalStatementItemSorter.class);
     }
 }

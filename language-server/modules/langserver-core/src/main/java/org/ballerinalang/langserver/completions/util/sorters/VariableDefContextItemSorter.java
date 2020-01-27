@@ -24,6 +24,7 @@ import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.eclipse.lsp4j.CompletionItem;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -66,7 +67,7 @@ public class VariableDefContextItemSorter extends CompletionItemSorter {
     @Override
     @Nonnull
     List<Class> getAttachedContexts() {
-        return null;
+        return Collections.singletonList(VariableDefContextItemSorter.class);
     }
 
     private void increasePriority(CompletionItem completionItem) {

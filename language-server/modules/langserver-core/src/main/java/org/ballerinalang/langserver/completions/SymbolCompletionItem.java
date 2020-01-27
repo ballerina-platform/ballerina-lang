@@ -20,7 +20,6 @@ package org.ballerinalang.langserver.completions;
 import org.ballerinalang.langserver.LSCompletionItem;
 import org.ballerinalang.langserver.compiler.LSContext;
 import org.eclipse.lsp4j.CompletionItem;
-import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 
 import javax.annotation.Nullable;
@@ -59,5 +58,9 @@ public class SymbolCompletionItem implements LSCompletionItem {
     @Override
     public CompletionItem getCompletionItem() {
         return this.completionItem;
+    }
+
+    public LSContext getLsContext() {
+        return lsContext;
     }
 }

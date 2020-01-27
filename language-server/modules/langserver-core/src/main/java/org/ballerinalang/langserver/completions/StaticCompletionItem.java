@@ -50,4 +50,8 @@ public class StaticCompletionItem implements LSCompletionItem {
     public CompletionItem getCompletionItem() {
         return this.completionItem;
     }
+
+    public LSContext getLsContext() {
+        return lsContext;
+    }
 }

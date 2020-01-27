@@ -35,6 +35,7 @@ import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.LSCompletionException;
 import org.ballerinalang.langserver.completions.LSCompletionProviderFactory;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
+import org.ballerinalang.langserver.completions.StaticCompletionItem;
 import org.ballerinalang.langserver.completions.SymbolCompletionItem;
 import org.ballerinalang.langserver.completions.builder.BConstantCompletionItemBuilder;
 import org.ballerinalang.langserver.completions.builder.BFunctionCompletionItemBuilder;
@@ -42,7 +43,6 @@ import org.ballerinalang.langserver.completions.builder.BTypeCompletionItemBuild
 import org.ballerinalang.langserver.completions.builder.BVariableCompletionItemBuilder;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.ballerinalang.langserver.completions.util.Snippet;
-import org.ballerinalang.langserver.completions.StaticCompletionItem;
 import org.ballerinalang.langserver.completions.util.filters.DelimiterBasedContentFilter;
 import org.ballerinalang.langserver.completions.util.filters.SymbolFilters;
 import org.ballerinalang.model.types.TypeKind;
@@ -236,10 +236,6 @@ public abstract class LSCompletionProvider {
                         && Names.ERROR.equals(scopeEntry.symbol.name))) {
                     filteredList.add(scopeEntry);
                 }
-//                else if (scopeEntry.symbol instanceof BConstructorSymbol && Names.ERROR.equals(
-//                        scopeEntry.symbol.name)) {
-//                    filteredList.add(scopeEntry);
-//                }
             });
         });
         
@@ -389,7 +385,7 @@ public abstract class LSCompletionProvider {
         List<Scope.ScopeEntry> visibleSymbols = new ArrayList<>(ctx.get(CommonKeys.VISIBLE_SYMBOLS_KEY));
         List<Scope.ScopeEntry> filtered = this.filterListenerVariables(visibleSymbols);
         List<LSCompletionItem> completionItems =
-                new ArrayList<>(this.getCompletionItemList(new ArrayList<>(filtered),ctx));
+                new ArrayList<>(this.getCompletionItemList(new ArrayList<>(filtered), ctx));
         completionItems.add(new SnippetCompletionItem(ctx, Snippet.KW_NEW.get()));
 
         return completionItems;
@@ -652,17 +648,20 @@ public abstract class LSCompletionProvider {
 
     protected Optional<Scope.ScopeEntry> getPackageSymbolFromAlias(LSContext context, String alias) {
         List<Scope.ScopeEntry> visibleSymbols = new ArrayList<>(context.get(CommonKeys.VISIBLE_SYMBOLS_KEY));
-        if (alias.isEmpty()) {
+        Optional<BLangImportPackage> pkgForAlias = context.get(DocumentServiceKeys.CURRENT_DOC_IMPORTS_KEY).stream()
+                .filter(pkg -> pkg.alias.value.equals(alias))
+                .findAny();
+        if (alias.isEmpty() || !pkgForAlias.isPresent()) {
             return Optional.empty();
         }
         return visibleSymbols.stream()
                 .filter(scopeEntry -> {
                     BSymbol symbol = scopeEntry.symbol;
-                    return symbol instanceof BPackageSymbol && alias.equals(scopeEntry.symbol.name.value);
+                    return symbol == pkgForAlias.get().symbol;
                 })
                 .findAny();
     }
-    
+
     protected List<Scope.ScopeEntry> getSymbolByName(String name, LSContext context) {
         List<Scope.ScopeEntry> visibleSymbols = new ArrayList<>(context.get(CommonKeys.VISIBLE_SYMBOLS_KEY));
         return visibleSymbols.parallelStream()

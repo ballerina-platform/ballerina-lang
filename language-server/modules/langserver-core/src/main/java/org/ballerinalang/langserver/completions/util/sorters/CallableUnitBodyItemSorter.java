@@ -20,6 +20,7 @@ package org.ballerinalang.langserver.completions.util.sorters;
 import org.ballerinalang.langserver.compiler.LSContext;
 import org.eclipse.lsp4j.CompletionItem;
 
+import java.util.Collections;
 import java.util.List;
 
 import javax.annotation.Nonnull;
@@ -36,6 +37,6 @@ class CallableUnitBodyItemSorter extends CompletionItemSorter {
     @Nonnull
     @Override
     List<Class> getAttachedContexts() {
-        return null;
+        return Collections.singletonList(CallableUnitBodyItemSorter.class);
     }
 }

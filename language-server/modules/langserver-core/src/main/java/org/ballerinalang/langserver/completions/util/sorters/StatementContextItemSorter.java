@@ -21,6 +21,7 @@ import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.eclipse.lsp4j.CompletionItem;
 
+import java.util.Collections;
 import java.util.List;
 
 import javax.annotation.Nonnull;
@@ -47,6 +48,6 @@ public class StatementContextItemSorter extends CompletionItemSorter {
     @Nonnull
     @Override
     List<Class> getAttachedContexts() {
-        return null;
+        return Collections.singletonList(StatementContextItemSorter.class);
     }
 }

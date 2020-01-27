@@ -23,7 +23,6 @@ import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
-import org.ballerinalang.langserver.completions.SymbolCompletionItem;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
@@ -104,7 +103,7 @@ public class FilterUtils {
         }
         if (BallerinaParser.COLON == delimiter) {
             Optional<Scope.ScopeEntry> pkgSymbol = visibleSymbols.stream()
-                    .filter(item -> item.symbol.name.getValue().equals(varName)
+                    .filter(item -> CommonUtil.getSymbolName(item.symbol).equals(varName)
                             && item.symbol instanceof BPackageSymbol)
                     .findFirst();
 

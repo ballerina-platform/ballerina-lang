@@ -52,4 +52,12 @@ public class FieldCompletionItem implements LSCompletionItem {
     public CompletionItem getCompletionItem() {
         return this.completionItem;
     }
+
+    public LSContext getLsContext() {
+        return lsContext;
+    }
+
+    public BField getBField() {
+        return bField;
+    }
 }
