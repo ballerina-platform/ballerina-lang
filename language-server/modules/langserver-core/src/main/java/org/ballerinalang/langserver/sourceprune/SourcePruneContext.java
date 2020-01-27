@@ -17,8 +17,8 @@
  */
 package org.ballerinalang.langserver.sourceprune;
 
+import org.ballerinalang.langserver.commons.LSOperation;
 import org.ballerinalang.langserver.compiler.LSContextImpl;
-import org.ballerinalang.langserver.compiler.LSOperation;
 
 import java.util.HashMap;
 import java.util.Map;

@@ -18,13 +18,14 @@ package org.ballerinalang.langserver.codelenses.providers;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.jvm.util.BLangConstants;
 import org.ballerinalang.langserver.client.config.BallerinaClientConfigHolder;
+import org.ballerinalang.langserver.codelenses.CodeLensUtil;
 import org.ballerinalang.langserver.codelenses.CodeLensesProviderKeys;
-import org.ballerinalang.langserver.codelenses.LSCodeLensesProviderException;
 import org.ballerinalang.langserver.command.CommandUtil.CommandArgument;
 import org.ballerinalang.langserver.command.docs.DocAttachmentInfo;
 import org.ballerinalang.langserver.command.executors.AddDocumentationExecutor;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
-import org.ballerinalang.langserver.compiler.LSContext;
+import org.ballerinalang.langserver.commons.LSContext;
+import org.ballerinalang.langserver.commons.codelenses.LSCodeLensesProviderException;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.AnnotatableNode;
 import org.ballerinalang.model.tree.TopLevelNode;
@@ -52,7 +53,7 @@ import static org.ballerinalang.langserver.command.docs.DocumentationGenerator.g
  *
  * @since 0.990.3
  */
-@JavaSPIService("org.ballerinalang.langserver.codelenses.LSCodeLensesProvider")
+@JavaSPIService("org.ballerinalang.langserver.commons.codelenses.spi.LSCodeLensesProvider")
 public class DocsCodeLensesProvider extends AbstractCodeLensesProvider {
     public DocsCodeLensesProvider() {
         super("docs.CodeLenses");
@@ -157,8 +158,8 @@ public class DocsCodeLensesProvider extends AbstractCodeLensesProvider {
                 return null;
             }
             int sLine = func.pos.sLine - 1;
-            sLine = getTopMostLocOfAnnotations(func.annAttachments, sLine);
-            sLine = getTopMostLocOfDocs(func.markdownDocumentationAttachment, sLine);
+            sLine = CodeLensUtil.getTopMostLocOfAnnotations(func.annAttachments, sLine);
+            sLine = CodeLensUtil.getTopMostLocOfDocs(func.markdownDocumentationAttachment, sLine);
             boolean hasDocs = (func.markdownDocumentationAttachment != null);
             Position pos = new Position(func.pos.sLine - 1, 0);
             Position topmostPos = new Position(sLine, 0);
@@ -167,8 +168,8 @@ public class DocsCodeLensesProvider extends AbstractCodeLensesProvider {
 
         static TopLevelNodeDetail fromService(BLangService service) {
             int sLine = service.pos.sLine - 1;
-            sLine = getTopMostLocOfAnnotations(service.annAttachments, sLine);
-            sLine = getTopMostLocOfDocs(service.markdownDocumentationAttachment, sLine);
+            sLine = CodeLensUtil.getTopMostLocOfAnnotations(service.annAttachments, sLine);
+            sLine = CodeLensUtil.getTopMostLocOfDocs(service.markdownDocumentationAttachment, sLine);
             boolean hasDocs = (service.markdownDocumentationAttachment != null);
             Position pos = new Position(service.pos.sLine - 1, 0);
             Position topmostPos = new Position(sLine, 0);
@@ -178,8 +179,8 @@ public class DocsCodeLensesProvider extends AbstractCodeLensesProvider {
         static TopLevelNodeDetail fromTypeDefinition(BLangTypeDefinition definition) {
             boolean hasDocs = (definition.markdownDocumentationAttachment != null);
             int sLine = definition.pos.sLine - 1;
-            sLine = getTopMostLocOfAnnotations(definition.annAttachments, sLine);
-            sLine = getTopMostLocOfDocs(definition.markdownDocumentationAttachment, sLine);
+            sLine = CodeLensUtil.getTopMostLocOfAnnotations(definition.annAttachments, sLine);
+            sLine = CodeLensUtil.getTopMostLocOfDocs(definition.markdownDocumentationAttachment, sLine);
             Position pos = new Position(definition.pos.sLine - 1, 0);
             Position topmostPos = new Position(sLine, 0);
             if (definition.typeNode instanceof BLangObjectTypeNode) {

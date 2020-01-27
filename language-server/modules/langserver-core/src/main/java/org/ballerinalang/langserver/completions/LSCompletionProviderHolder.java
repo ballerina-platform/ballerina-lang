@@ -15,7 +15,7 @@
  */
 package org.ballerinalang.langserver.completions;
 
-import org.ballerinalang.langserver.completions.spi.LSCompletionProvider;
+import org.ballerinalang.langserver.commons.completion.spi.LSCompletionProvider;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -26,44 +26,30 @@ import java.util.ServiceLoader;
  *
  * @since 0.990.4
  */
-public class LSCompletionProviderFactory {
+public class LSCompletionProviderHolder {
 
-    private static final LSCompletionProviderFactory INSTANCE = new LSCompletionProviderFactory();
-    
-    private Map<Class, LSCompletionProvider> providers;
+    private static final Map<Class, LSCompletionProvider> providers = new HashMap<>();
 
-    private boolean isInitialized = false;
+    private static final LSCompletionProviderHolder INSTANCE = new LSCompletionProviderHolder();
 
-    private LSCompletionProviderFactory() {
-        initiate();
-    }
-
-    public static LSCompletionProviderFactory getInstance() {
-        return INSTANCE;
-    }
-
-    /**
-     * Initializes the completions factory.
-     */
-    public void initiate() {
-        if (isInitialized) {
-            return;
-        }
-        this.providers = new HashMap<>();
+    private LSCompletionProviderHolder() {
         ServiceLoader<LSCompletionProvider> providerServices = ServiceLoader.load(LSCompletionProvider.class);
         for (LSCompletionProvider provider : providerServices) {
-            if (provider != null) {
-                for (Class attachmentPoint : provider.getAttachmentPoints()) {
-                    if (!this.providers.containsKey(attachmentPoint)
-                            || (this.providers.get(attachmentPoint).getPrecedence() == 
-                            LSCompletionProvider.Precedence.LOW
-                            && provider.getPrecedence() == LSCompletionProvider.Precedence.HIGH)) {
-                        this.providers.put(attachmentPoint, provider);
-                    }
+            if (provider == null) {
+                continue;
+            }
+            for (Class attachmentPoint : provider.getAttachmentPoints()) {
+                if (!providers.containsKey(attachmentPoint) ||
+                        (providers.get(attachmentPoint).getPrecedence() == LSCompletionProvider.Precedence.LOW
+                        && provider.getPrecedence() == LSCompletionProvider.Precedence.HIGH)) {
+                    providers.put(attachmentPoint, provider);
                 }
             }
         }
-        isInitialized = true;
+    }
+
+    public static LSCompletionProviderHolder getInstance() {
+        return INSTANCE;
     }
 
     /**
@@ -73,7 +59,7 @@ public class LSCompletionProviderFactory {
      */
     public void register(LSCompletionProvider provider) {
         for (Class attachmentPoint : provider.getAttachmentPoints()) {
-            this.providers.put(attachmentPoint, provider);
+            providers.put(attachmentPoint, provider);
         }
     }
 
@@ -84,12 +70,12 @@ public class LSCompletionProviderFactory {
      */
     public void unregister(LSCompletionProvider provider) {
         for (Class attachmentPoint : provider.getAttachmentPoints()) {
-            this.providers.remove(attachmentPoint, provider);
+            providers.remove(attachmentPoint, provider);
         }
     }
 
     public Map<Class, LSCompletionProvider> getProviders() {
-        return this.providers;
+        return providers;
     }
 
     /**
@@ -99,6 +85,6 @@ public class LSCompletionProviderFactory {
      * @return {@link LSCompletionProvider} Completion provider  
      */
     public LSCompletionProvider getProvider(Class key) {
-        return this.providers.get(key);
+        return providers.get(key);
     }
 }
