@@ -181,7 +181,11 @@ function readFile(string fileName) returns @tainted error | table<myCookie> {
     io:ReadableCSVChannel rCsvChannel2 = check io:openReadableCsvFile(fileName);
     var tblResult = rCsvChannel2.getTable(myCookie);
     closeReadableCSVChannel(rCsvChannel2);
-    return  tblResult;
+    if (tblResult is table<record {| anydata...; |}>) {
+        return <table<myCookie>>tblResult;
+    } else {
+        return  tblResult;
+    }
 }
 
 function closeReadableCSVChannel(io:ReadableCSVChannel csvChannel) {

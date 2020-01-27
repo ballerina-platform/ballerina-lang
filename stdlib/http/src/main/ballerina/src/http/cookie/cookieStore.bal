@@ -272,7 +272,6 @@ public type CookieStore object {
                                 return err;
                             }
                         }
-
                     }
                 }
             }
