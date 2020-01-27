@@ -997,6 +997,41 @@ public class BLangPackageBuilder {
         }
     }
 
+    void endFunctionSignature(DiagnosticPos pos,
+                              Set<Whitespace> ws,
+                              boolean paramsAvail,
+                              boolean retParamsAvail,
+                              boolean restParamAvail) {
+        InvokableNode invNode = this.invokableNodeStack.peek();
+        invNode.addWS(ws);
+        BLangType returnTypeNode;
+        if (retParamsAvail) {
+            BLangSimpleVariable varNode = (BLangSimpleVariable) this.varStack.pop();
+            returnTypeNode = varNode.getTypeNode();
+            // set returns keyword to invocation node.
+            invNode.addWS(varNode.getWS());
+            varNode.getAnnotationAttachments().forEach(invNode::addReturnTypeAnnotationAttachment);
+        } else {
+            BLangValueType nillTypeNode = (BLangValueType) TreeBuilder.createValueTypeNode();
+            nillTypeNode.pos = pos;
+            nillTypeNode.typeKind = TypeKind.NIL;
+            returnTypeNode = nillTypeNode;
+        }
+        invNode.setReturnTypeNode(returnTypeNode);
+
+        if (paramsAvail) {
+            this.varListStack.pop().forEach(variableNode -> {
+                invNode.addParameter((SimpleVariableNode) variableNode);
+            });
+
+            if (restParamAvail) {
+                invNode.setRestParameter(this.restParamStack.pop());
+            }
+
+            invNode.addWS(this.commaWsStack.pop());
+        }
+    }
+
     void startLambdaFunctionDef(PackageID pkgID) {
         // Passing zero for annotation count as Lambdas can't have annotations.
         startFunctionDef(0, true);
@@ -1777,6 +1812,39 @@ public class BLangPackageBuilder {
     void endFunctionDef(DiagnosticPos pos, Set<Whitespace> ws, boolean publicFunc, boolean remoteFunc,
                         boolean nativeFunc, boolean privateFunc, boolean bodyExists, boolean isLambda) {
         BLangFunction function = (BLangFunction) this.invokableNodeStack.pop();
+        function.pos = pos;
+        function.addWS(ws);
+        if (!isLambda) {
+            function.addWS(invocationWsStack.pop());
+        }
+        if (publicFunc) {
+            function.flagSet.add(Flag.PUBLIC);
+        } else if (privateFunc) {
+            function.flagSet.add(Flag.PRIVATE);
+        }
+
+        if (remoteFunc) {
+            function.flagSet.add(Flag.REMOTE);
+        }
+
+        if (nativeFunc) {
+            function.flagSet.add(Flag.NATIVE);
+        }
+
+        if (!bodyExists) {
+            function.body = null;
+        } else {
+            function.body.pos = function.pos;
+        }
+
+        this.compUnit.addTopLevelNode(function);
+    }
+
+    void endFunctionDefinition(DiagnosticPos pos, Set<Whitespace> ws, String funcName, DiagnosticPos funcNamePos,
+                               boolean publicFunc, boolean remoteFunc, boolean nativeFunc, boolean privateFunc,
+                               boolean bodyExists, boolean isLambda) {
+        BLangFunction function = (BLangFunction) this.invokableNodeStack.pop();
+        function.name = this.createIdentifier(funcNamePos, funcName);
         function.pos = pos;
         function.addWS(ws);
         if (!isLambda) {

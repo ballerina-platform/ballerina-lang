@@ -108,6 +108,16 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitCallableUnitBody(BallerinaParser.CallableUnitBodyContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#blockFunctionBody}.
+	 * @param ctx the parse tree
+	 */
+	void enterBlockFunctionBody(BallerinaParser.BlockFunctionBodyContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#blockFunctionBody}.
+	 * @param ctx the parse tree
+	 */
+	void exitBlockFunctionBody(BallerinaParser.BlockFunctionBodyContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#externalFunctionBody}.
 	 * @param ctx the parse tree
 	 */
@@ -117,6 +127,16 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitExternalFunctionBody(BallerinaParser.ExternalFunctionBodyContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#functionDefinitionBody}.
+	 * @param ctx the parse tree
+	 */
+	void enterFunctionDefinitionBody(BallerinaParser.FunctionDefinitionBodyContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#functionDefinitionBody}.
+	 * @param ctx the parse tree
+	 */
+	void exitFunctionDefinitionBody(BallerinaParser.FunctionDefinitionBodyContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#functionDefinition}.
 	 * @param ctx the parse tree
@@ -157,6 +177,16 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitArrowParam(BallerinaParser.ArrowParamContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#functionSignature}.
+	 * @param ctx the parse tree
+	 */
+	void enterFunctionSignature(BallerinaParser.FunctionSignatureContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#functionSignature}.
+	 * @param ctx the parse tree
+	 */
+	void exitFunctionSignature(BallerinaParser.FunctionSignatureContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#callableUnitSignature}.
 	 * @param ctx the parse tree

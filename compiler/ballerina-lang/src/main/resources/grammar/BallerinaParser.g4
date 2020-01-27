@@ -58,12 +58,21 @@ callableUnitBody
     :   LEFT_BRACE statement* (workerDeclaration+ statement*)? RIGHT_BRACE
     ;
 
+blockFunctionBody
+    :   LEFT_BRACE statement* (workerDeclaration+ statement*)? RIGHT_BRACE
+    ;
+
 externalFunctionBody
     :   ASSIGN annotationAttachment* EXTERNAL
     ;
 
+functionDefinitionBody
+    :   blockFunctionBody
+    |   externalFunctionBody SEMICOLON
+    ;
+
 functionDefinition
-    :   (PUBLIC | PRIVATE)? REMOTE? FUNCTION callableUnitSignature (callableUnitBody | externalFunctionBody SEMICOLON)
+    :   (PUBLIC | PRIVATE)? REMOTE? FUNCTION anyIdentifierName functionSignature functionDefinitionBody
     ;
 
 lambdaFunction
@@ -77,6 +86,10 @@ arrowFunction
 
 arrowParam
     :   Identifier
+    ;
+
+functionSignature
+    :   LEFT_PARENTHESIS formalParameterList? RIGHT_PARENTHESIS returnParameter?
     ;
 
 callableUnitSignature
