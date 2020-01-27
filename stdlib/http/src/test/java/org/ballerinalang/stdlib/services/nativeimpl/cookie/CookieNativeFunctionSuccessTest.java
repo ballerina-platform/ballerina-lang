@@ -19,7 +19,6 @@
 package org.ballerinalang.stdlib.services.nativeimpl.cookie;
 
 import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
@@ -280,7 +279,8 @@ public class CookieNativeFunctionSuccessTest {
         Assert.assertEquals(bvalue.get("name").stringValue(), "SID002");
     }
 
-    @Test(description = "Test get all cookies from cookie store, which matched with the given name as the cookie domain")
+    @Test(description = "Test get all cookies from cookie store, which matched with the given name as the cookie " +
+            "domain")
     public void testGetCookiesByDomain() {
         BValue[] returnVals = BRunUtil.invoke(result, "testGetCookiesByDomain");
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
@@ -292,7 +292,8 @@ public class CookieNativeFunctionSuccessTest {
         Assert.assertEquals(bvalue2.get("name").stringValue(), "SID002");
     }
 
-    @Test(description = "Test remove all cookies from cookie store, which matched with the given name as the cookie domain")
+    @Test(description = "Test remove all cookies from cookie store, which matched with the given name as the cookie " +
+            "domain")
     public void testRemoveCookiesByDomain() {
         BValue[] returnVals = BRunUtil.invoke(result, "testRemoveCookiesByDomain");
         Assert.assertTrue(returnVals == null || returnVals.length == 0 || returnVals[0] == null,

@@ -38,4 +38,3 @@ public function main() {
     }
     error? removeResults = file:remove("./cookie-test-data", true); // Removes persistent store file.
 }
-

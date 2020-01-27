@@ -159,8 +159,8 @@ public class HTTPCookiesTestCase extends HttpBaseTest {
         Assert.assertTrue(output.contains("SID002=178gd4dmnmsddd34"));
     }
 
-    @Test(description = "Test xxx")
-    public void xxx() throws BallerinaTestException {
+    @Test(description = "Test send persistent cookies when persistentCookieHandler is not configured")
+    public void testSendPersistentCookiesWithoutPersistentCookieHandler() throws BallerinaTestException {
         String balFilepath = (new File("src" + File.separator + "test" + File.separator + "resources" +
                                                File.separator + "http" + File.separator + "src" + File.separator +
                                                "cookie")).getAbsolutePath();
