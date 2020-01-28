@@ -460,7 +460,7 @@ public class BuildCommandTest extends CommandTest {
     }
 
     @Test(description = "Build a valid ballerina file with relative path")
-    public void testBuildWithRelative() {
+    public void testBuildWithRelativePath() throws IOException {
         String buildPath = "relative" + File.separator + "testDir" + File.separator + ".." + File.separator + "testBal"
                 + File.separator + "hello_world.bal";
         Path sourceRoot = this.testResources.resolve("valid-bal-file");
@@ -468,6 +468,7 @@ public class BuildCommandTest extends CommandTest {
         new CommandLine(buildCommand).parse(buildPath);
         buildCommand.execute();
         Assert.assertTrue(Files.exists(sourceRoot.resolve("hello_world.jar")));
+        readOutput(true);
     }
 
     private static void zipFile(File file, String contentFile) {
