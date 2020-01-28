@@ -765,7 +765,7 @@ function generateBasicBlocks(jvm:MethodVisitor mv, bir:BasicBlock?[] basicBlocks
                 } else {
                     instGen.generateNewStringXMLQNameIns(<bir:NewStringXMLQName> inst);
                 } 
-            } else if (insKind <= bir:INS_KIND_NEW_STREAM) {
+            } else if (insKind <= bir:INS_KIND_NEW_TABLE) {
                 if (insKind == bir:INS_KIND_XML_SEQ_STORE) {
                     instGen.generateXMLStoreIns(<bir:XMLAccess> inst);
                 } else if (insKind == bir:INS_KIND_XML_SEQ_LOAD) {
@@ -782,10 +782,8 @@ function generateBasicBlocks(jvm:MethodVisitor mv, bir:BasicBlock?[] basicBlocks
                     instGen.generateFPLoadIns(<bir:FPLoad> inst);
                 } else if (insKind == bir:INS_KIND_STRING_LOAD) {
                     instGen.generateStringLoadIns(<bir:FieldAccess> inst);
-                } else if (insKind == bir:INS_KIND_NEW_TABLE) {
-                    instGen.generateTableNewIns(<bir:NewTable> inst);
                 } else {
-                    instGen.generateStreamNewIns(<bir:NewStream>inst);
+                    instGen.generateTableNewIns(<bir:NewTable> inst);
                 }
             } else if (insKind <= bir:INS_KIND_NEGATE) {
                 if (insKind == bir:INS_KIND_TYPEOF) {

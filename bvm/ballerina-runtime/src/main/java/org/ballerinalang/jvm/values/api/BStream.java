@@ -18,7 +18,6 @@
 
 package org.ballerinalang.jvm.values.api;
 
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BType;
 
 /**
@@ -36,19 +35,4 @@ public interface BStream extends BRefValue {
      */
     BType getConstraintType();
 
-    /**
-     * Method to publish to a topic representing the stream in the broker.
-     *
-     * @param strand the strand in which the data being published
-     * @param data the data to publish to the stream
-     */
-    void publish(Strand strand, Object data);
-
-    /**
-     * Method to register a subscription to the underlying topic representing the stream in the broker.
-     *
-     * @param functionPointer represents the function pointer reference for the function to be invoked on receiving
-     *                        messages
-     */
-    void subscribe(BFunctionPointer<Object[], Object> functionPointer);
 }

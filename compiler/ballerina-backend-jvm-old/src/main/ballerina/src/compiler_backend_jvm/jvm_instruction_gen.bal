@@ -675,14 +675,6 @@ type InstructionGenerator object {
         self.storeToVar(tableNewIns.lhsOp.variableDcl);
     }
 
-    function generateStreamNewIns(bir:NewStream streamNewIns) {
-        self.mv.visitTypeInsn(NEW, STREAM_VALUE);
-        self.mv.visitInsn(DUP);
-        loadType(self.mv, streamNewIns.streamType);
-        self.mv.visitMethodInsn(INVOKESPECIAL, STREAM_VALUE, "<init>", io:sprintf("(L%s;)V", BTYPE), false);
-        self.storeToVar(streamNewIns.lhsOp.variableDcl);
-    }
-
     function generateMapStoreIns(bir:FieldAccess mapStoreIns) {
         // visit map_ref
         self.loadVar(mapStoreIns.lhsOp.variableDcl);
