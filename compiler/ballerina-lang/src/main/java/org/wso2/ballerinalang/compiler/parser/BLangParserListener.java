@@ -555,7 +555,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      * {@inheritDoc}
      */
     @Override
-    public void enterObjectFunctionDefinition(BallerinaParser.ObjectFunctionDefinitionContext ctx) {
+    public void enterMethodDeclaration(BallerinaParser.MethodDeclarationContext ctx) {
         if (isInErrorState) {
             return;
         }
@@ -567,21 +567,62 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      * {@inheritDoc}
      */
     @Override
-    public void exitObjectFunctionDefinition(BallerinaParser.ObjectFunctionDefinitionContext ctx) {
+    public void enterMethodDefinition(BallerinaParser.MethodDefinitionContext ctx) {
         if (isInErrorState) {
             return;
         }
+
+        this.pkgBuilder.startObjectFunctionDef();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void exitMethodDefinition(BallerinaParser.MethodDefinitionContext ctx) {
+        if (isInErrorState) {
+            return;
+        }
+
+        String funcName = ctx.anyIdentifierName().getText();
+        DiagnosticPos funcNamePos = getCurrentPos(ctx.anyIdentifierName());
+
+        BallerinaParser.FunctionDefinitionBodyContext funcDefBody = ctx.functionDefinitionBody();
+        boolean nativeFunc = funcDefBody.externalFunctionBody() != null;
+        boolean bodyExists = funcDefBody.blockFunctionBody() != null;
 
         boolean publicFunc = ctx.PUBLIC() != null;
         boolean isPrivate = ctx.PRIVATE() != null;
         boolean remoteFunc = ctx.REMOTE() != null;
         boolean resourceFunc = ctx.RESOURCE() != null;
-        boolean nativeFunc = ctx.externalFunctionBody() != null;
-        boolean bodyExists = ctx.callableUnitBody() != null;
         boolean markdownDocExists = ctx.documentationString() != null;
-        this.pkgBuilder.endObjectAttachedFunctionDef(getCurrentPos(ctx), getWS(ctx), publicFunc, isPrivate, remoteFunc,
-                                                     resourceFunc, nativeFunc, bodyExists, markdownDocExists,
-                                                     ctx.annotationAttachment().size());
+
+        this.pkgBuilder.endObjectAttachedFunctionDef(getCurrentPos(ctx), getWS(ctx), funcName, funcNamePos, publicFunc,
+                                                     isPrivate, remoteFunc, resourceFunc, nativeFunc,
+                                                     bodyExists, markdownDocExists, ctx.annotationAttachment().size());
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void exitMethodDeclaration(BallerinaParser.MethodDeclarationContext ctx) {
+        if (isInErrorState) {
+            return;
+        }
+
+        String funcName = ctx.anyIdentifierName().getText();
+        DiagnosticPos funcNamePos = getCurrentPos(ctx.anyIdentifierName());
+
+        boolean isPublic = ctx.PUBLIC() != null;
+        boolean isPrivate = ctx.PRIVATE() != null;
+        boolean remoteFunc = ctx.REMOTE() != null;
+        boolean resourceFunc = ctx.RESOURCE() != null;
+        boolean markdownDocExists = ctx.documentationString() != null;
+
+        this.pkgBuilder.endObjectAttachedFunctionDef(getCurrentPos(ctx), getWS(ctx), funcName, funcNamePos, isPublic,
+                                                     isPrivate, remoteFunc, resourceFunc, false, false,
+                                                     markdownDocExists, ctx.annotationAttachment().size());
     }
 
     /**
