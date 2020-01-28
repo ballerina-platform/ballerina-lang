@@ -147,7 +147,8 @@ public class IterableOperationsWithVarMutabilityTests {
         Assert.assertEquals(returns[0].stringValue(), "16");
     }
 
-    @Test
+    //TODO: Enable these test cases once #20666 is resolved
+    @Test(groups = { "brokenOnSpecDeviation" })
     public void testWithComplexJson() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testWithComplexJson");
         Assert.assertNotNull(returns);

@@ -149,7 +149,8 @@ public class VarMutabilityClosureTest {
                 "\"color\":\"red\", \"price\":5.36}");
     }
 
-    @Test(description = "Test variable mutability with xml")
+    //TODO: Enable these test cases once #20666 is resolved
+    @Test(description = "Test variable mutability with xml", groups = { "brokenOnSpecDeviation" })
     public void testVarMutabilityWithXML() {
         BValue[] returns = BRunUtil.invoke(compileResult, "test12");
         Assert.assertEquals(returns[0].size(), 3);

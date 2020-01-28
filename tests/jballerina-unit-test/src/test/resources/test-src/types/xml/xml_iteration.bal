@@ -41,7 +41,7 @@ function foreachTest() returns [int, string][] {
     int i = 0;
     foreach var x in bookstore["book"] {
         if x is xml {
-            titles[count] = [i, x["title"].getTextValue()];
+            titles[count] = [i, x["title"].stringValue()];
             count +=1;
             i +=1;
         }
@@ -59,7 +59,7 @@ function foreachOpTest() returns [int, string][] {
 
     bookstore["book"].forEach(function (xml|string entry) {
         if entry is xml {
-            titles[count] = [count, entry["title"].getTextValue()];
+            titles[count] = [count, entry["title"].stringValue()];
             count += 1;
         }
     });
@@ -80,7 +80,7 @@ function mapOpTest() returns xml {
 function filterOpTest() returns xml {
     xml books = bookstore["book"].filter(function (xml|string book) returns boolean {
                                                 if book is xml {
-                                                    var result = intlib:fromString(book["year"].getTextValue());
+                                                    var result = intlib:fromString(book["year"].stringValue());
                                                     if (result is int) {
                                                        return result > 2004;
                                                     } else {
@@ -100,7 +100,7 @@ function filterOpTest() returns xml {
 function chainedIterableOps() returns xml {
     xml authors = bookstore["book"].filter(function (xml|string book) returns boolean {
                                                 if book is xml {
-                                                    var result = intlib:fromString(book["year"].getTextValue());
+                                                    var result = intlib:fromString(book["year"].stringValue());
                                                     if (result is int) {
                                                        return result > 2004;
                                                     } else {

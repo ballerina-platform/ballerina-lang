@@ -39,9 +39,8 @@ import org.ballerinalang.natives.annotations.ReturnType;
 public class StringValue {
 
     private static final String OPERATION = "get text from xml";
-    // TODO: This function was just renamed from "getTextValue" function
-    // TODO: Check the functionality
-    public static String getTextValue(Strand strand, XMLValue xml) {
+
+    public static String stringValue(Strand strand, XMLValue xml) {
         try {
             return xml.getTextValue();
         } catch (Throwable e) {

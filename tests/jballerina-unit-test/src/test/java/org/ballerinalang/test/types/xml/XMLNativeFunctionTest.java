@@ -44,10 +44,11 @@ public class XMLNativeFunctionTest {
 
     @BeforeClass
     public void setup() {
+        //TODO: Enable these test cases once #20666 is resolved
         result = BCompileUtil.compile("test-src/types/xml/xml-native-functions.bal");
     }
 
-    @Test
+    @Test(groups = { "brokenOnSpecDeviation" })
     public void testIsSingleton() {
         BValue[] returns = BRunUtil.invoke(result, "testIsSingleton");
         Assert.assertEquals(returns.length, 2);
@@ -58,7 +59,7 @@ public class XMLNativeFunctionTest {
         Assert.assertTrue(((BBoolean) returns[1]).booleanValue());
     }
 
-    @Test
+    @Test(groups = { "brokenOnSpecDeviation" })
     public void testIsSingletonWithMultipleChildren() {
         BValue[] returns = BRunUtil.invoke(result, "testIsSingletonWithMultipleChildren");
         Assert.assertEquals(returns.length, 1);
@@ -67,7 +68,7 @@ public class XMLNativeFunctionTest {
 
     }
     
-    @Test
+    @Test(groups = { "brokenOnSpecDeviation" })
     public void testIsEmpty() {
         BValue[] returns = BRunUtil.invoke(result, "testIsEmpty");
         Assert.assertEquals(returns.length, 1);
@@ -75,7 +76,7 @@ public class XMLNativeFunctionTest {
         Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
     }
 
-    @Test
+    @Test(groups = { "brokenOnSpecDeviation" })
     public void testIsEmptyWithNoElementTextValue() {
         BValue[] returns = BRunUtil.invoke(result, "testIsEmptyWithNoElementTextValue");
         Assert.assertEquals(returns.length, 1);
@@ -83,7 +84,7 @@ public class XMLNativeFunctionTest {
         Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
     }
 
-    @Test
+    @Test(groups = { "brokenOnSpecDeviation" })
     public void testIsEmptyWithMultipleChildren() {
         BValue[] returns = BRunUtil.invoke(result, "testIsEmptyWithMultipleChildren");
         Assert.assertEquals(returns.length, 1);
@@ -91,7 +92,7 @@ public class XMLNativeFunctionTest {
         Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
     }
     
-    @Test
+    @Test(groups = { "brokenOnSpecDeviation" })
     public void testGetItemType() {
         BValue[] returns = BRunUtil.invoke(result, "testGetItemType");
         Assert.assertEquals(returns.length, 4);
@@ -108,7 +109,7 @@ public class XMLNativeFunctionTest {
         Assert.assertEquals(returns[3].stringValue(), "sequence");
     }
 
-    @Test
+    @Test(groups = { "brokenOnSpecDeviation" })
     public void testGetItemTypeForElementWithPrefix() {
         BValue[] returns = BRunUtil.invoke(result, "testGetItemTypeForElementWithPrefix");
         Assert.assertEquals(returns.length, 1);
@@ -116,7 +117,7 @@ public class XMLNativeFunctionTest {
         Assert.assertEquals(returns[0].stringValue(), "element");
     }
 
-    @Test
+    @Test(groups = { "brokenOnSpecDeviation" })
     public void testGetItemTypeForElementWithDefaultNamespace() {
         BValue[] returns = BRunUtil.invoke(result, "testGetItemTypeForElementWithDefaultNamespace");
         Assert.assertEquals(returns.length, 1);
@@ -124,7 +125,7 @@ public class XMLNativeFunctionTest {
         Assert.assertEquals(returns[0].stringValue(), "element");
     }
     
-    @Test
+    @Test(groups = { "brokenOnSpecDeviation" })
     public void testGetElementName() {
         BValue[] returns = BRunUtil.invoke(result, "testGetElementName");
         Assert.assertEquals(returns.length, 1);
@@ -132,7 +133,7 @@ public class XMLNativeFunctionTest {
         Assert.assertEquals(returns[0].stringValue(), "{http://sample.com/test}name");
     }
 
-    @Test
+    @Test(groups = { "brokenOnSpecDeviation" })
     public void testGetElementNameWithDefaultNamespace() {
         BValue[] returns = BRunUtil.invoke(result, "testGetElementNameForElementWithDefaultNamespace");
         Assert.assertEquals(returns.length, 1);
@@ -140,7 +141,7 @@ public class XMLNativeFunctionTest {
         Assert.assertEquals(returns[0].stringValue(), "{http://sample.com/test}name");
     }
 
-     @Test
+     @Test(groups = { "brokenOnSpecDeviation" })
     public void testGetElementNameWithoutNamespace() {
         BValue[] returns = BRunUtil.invoke(result, "testGetElementNameForElementWithoutNamespace");
         Assert.assertEquals(returns.length, 1);
@@ -148,7 +149,7 @@ public class XMLNativeFunctionTest {
         Assert.assertEquals(returns[0].stringValue(), "{http://sample.com/test/core}name");
     }
     
-    @Test
+    @Test(groups = { "brokenOnSpecDeviation" })
     public void testGetTextValue() {
         BValue[] returns = BRunUtil.invoke(result, "testGetTextValue");
         Assert.assertEquals(returns.length, 1);
@@ -156,7 +157,7 @@ public class XMLNativeFunctionTest {
         Assert.assertEquals(returns[0].stringValue(), "supun");
     }
 
-    @Test
+    @Test(groups = { "brokenOnSpecDeviation" })
     public void testGetTextValueDefaultNamespace() {
         BValue[] returns = BRunUtil.invoke(result, "testGetTextValueDefaultNamespace");
         Assert.assertEquals(returns.length, 1);
@@ -164,7 +165,7 @@ public class XMLNativeFunctionTest {
         Assert.assertEquals(returns[0].stringValue(), "supun");
     }
     
-    @Test
+    @Test(groups = { "brokenOnSpecDeviation" })
     public void testGetElements() {
         BValue[] returns = BRunUtil.invoke(result, "testGetElements");
         Assert.assertEquals(returns.length, 3);
@@ -179,7 +180,7 @@ public class XMLNativeFunctionTest {
         Assert.assertTrue(((BBoolean) returns[2]).booleanValue());
     }
 
-    @Test
+    @Test(groups = { "brokenOnSpecDeviation" })
     public void testGetElementsFromSequence() {
         BValue[] returns = BRunUtil.invoke(result, "testGetElementsFromSequence");
         Assert.assertEquals(returns.length, 3);
@@ -194,7 +195,7 @@ public class XMLNativeFunctionTest {
         Assert.assertFalse(((BBoolean) returns[2]).booleanValue());
     }
     
-    @Test
+    @Test(groups = { "brokenOnSpecDeviation" })
     public void testGetElementsByName() {
         BValue[] returns = BRunUtil.invoke(result, "testGetElementsByName");
         Assert.assertEquals(returns.length, 3);
@@ -211,7 +212,7 @@ public class XMLNativeFunctionTest {
         Assert.assertFalse(((BBoolean) returns[2]).booleanValue());
     }
 
-    @Test
+    @Test(groups = { "brokenOnSpecDeviation" })
     public void testGetElementsByNameWithDefaultNamespace() {
         BValue[] returns = BRunUtil.invoke(result, "testGetElementsByNameWithDefaultNamespace");
         Assert.assertEquals(returns.length, 3);
@@ -228,7 +229,7 @@ public class XMLNativeFunctionTest {
         Assert.assertFalse(((BBoolean) returns[2]).booleanValue());
     }
 
-    @Test
+    @Test(groups = { "brokenOnSpecDeviation" })
     public void testGetElementsByNameWithPrefix() {
         BValue[] returns = BRunUtil.invoke(result, "testGetElementsByNameByPrefix");
         Assert.assertEquals(returns.length, 3);
@@ -245,7 +246,7 @@ public class XMLNativeFunctionTest {
         Assert.assertFalse(((BBoolean) returns[2]).booleanValue());
     }
 
-    @Test
+    @Test(groups = { "brokenOnSpecDeviation" })
     public void testGetElementsByNameWithDifferentPrefix() {
         BValue[] returns = BRunUtil.invoke(result, "testGetElementsByNameByDifferentPrefix");
         Assert.assertEquals(returns.length, 3);
@@ -262,7 +263,7 @@ public class XMLNativeFunctionTest {
         Assert.assertFalse(((BBoolean) returns[2]).booleanValue());
     }
 
-    @Test
+    @Test(groups = { "brokenOnSpecDeviation" })
     public void testGetElementsByNameEmptyNamespace() {
         //related issue 3062
         BValue[] returns = BRunUtil.invoke(result, "testGetElementsByNameEmptyNamespace");
@@ -280,7 +281,7 @@ public class XMLNativeFunctionTest {
         Assert.assertFalse(((BBoolean) returns[2]).booleanValue());
     }
 
-    @Test
+    @Test(groups = { "brokenOnSpecDeviation" })
     public void testGetElementsByNameWithPrefixForDefaultNamespace() {
         BValue[] returns = BRunUtil.invoke(result, "testGetElementsByNamePrefixForDefaultNamespace");
         Assert.assertEquals(returns.length, 3);
@@ -297,7 +298,7 @@ public class XMLNativeFunctionTest {
         Assert.assertFalse(((BBoolean) returns[2]).booleanValue());
     }
 
-    @Test
+    @Test(groups = { "brokenOnSpecDeviation" })
     public void testGetElementsByNameWithDifferentNamespaces() {
         BValue[] returns = BRunUtil.invoke(result, "testGetElementsByNameDifferentNamespaces");
         Assert.assertEquals(returns.length, 6);
@@ -324,7 +325,7 @@ public class XMLNativeFunctionTest {
         Assert.assertTrue(((BBoolean) returns[5]).booleanValue());
     }
     
-    @Test
+    @Test(groups = { "brokenOnSpecDeviation" })
     public void testGetChildren() {
         BValue[] returns = BRunUtil.invoke(result, "testGetChildren");
         Assert.assertEquals(returns.length, 3);
@@ -339,7 +340,7 @@ public class XMLNativeFunctionTest {
         Assert.assertFalse(((BBoolean) returns[2]).booleanValue());
     }
 
-    @Test
+    @Test(groups = { "brokenOnSpecDeviation" })
     public void testGetChildrenFromComplexXml() {
         BValue[] returns = BRunUtil.invoke(result, "testGetChildrenFromComplexXml");
         Assert.assertEquals(returns.length, 3);
@@ -354,7 +355,7 @@ public class XMLNativeFunctionTest {
         Assert.assertFalse(((BBoolean) returns[2]).booleanValue());
     }
     
-    @Test
+    @Test(groups = { "brokenOnSpecDeviation" })
     public void testGetNonExistingChildren() {
         BValue[] returns = BRunUtil.invoke(result, "testGetNonExistingChildren");
         Assert.assertEquals(returns.length, 3);
@@ -369,7 +370,7 @@ public class XMLNativeFunctionTest {
         Assert.assertFalse(((BBoolean) returns[2]).booleanValue());
     }
     
-    @Test
+    @Test(groups = { "brokenOnSpecDeviation" })
     public void testSelectChildren() {
         BValue[] returns = BRunUtil.invoke(result, "testSelectChildren");
         Assert.assertEquals(returns.length, 3);
@@ -385,7 +386,7 @@ public class XMLNativeFunctionTest {
         Assert.assertFalse(((BBoolean) returns[2]).booleanValue());
     }
 
-    @Test
+    @Test(groups = { "brokenOnSpecDeviation" })
     public void testSelectChildrenWithDefaultNamespace() {
         BValue[] returns = BRunUtil.invoke(result, "testSelectChildrenWithDefaultNamespace");
         Assert.assertEquals(returns.length, 3);
@@ -401,7 +402,7 @@ public class XMLNativeFunctionTest {
         Assert.assertFalse(((BBoolean) returns[2]).booleanValue());
     }
 
-    @Test
+    @Test(groups = { "brokenOnSpecDeviation" })
     public void testSelectChildrenPrefixedDefaultNamespace() {
         BValue[] returns = BRunUtil.invoke(result, "testSelectChildrenPrefixedDefaultNamespace");
         Assert.assertEquals(returns.length, 3);
@@ -417,7 +418,7 @@ public class XMLNativeFunctionTest {
         Assert.assertFalse(((BBoolean) returns[2]).booleanValue());
     }
 
-    @Test
+    @Test(groups = { "brokenOnSpecDeviation" })
     public void testSelectChildrenWtihSamePrefix() {
         BValue[] returns = BRunUtil.invoke(result, "testSelectChildrenWithSamePrefix");
         Assert.assertEquals(returns.length, 3);
@@ -433,7 +434,7 @@ public class XMLNativeFunctionTest {
         Assert.assertFalse(((BBoolean) returns[2]).booleanValue());
     }
 
-    @Test
+    @Test(groups = { "brokenOnSpecDeviation" })
     public void testSelectChildrenWtihDifferentPrefix() {
         BValue[] returns = BRunUtil.invoke(result, "testSelectChildrenWithDifferentPrefix");
         Assert.assertEquals(returns.length, 3);
@@ -449,7 +450,7 @@ public class XMLNativeFunctionTest {
         Assert.assertFalse(((BBoolean) returns[2]).booleanValue());
     }
 
-    @Test
+    @Test(groups = { "brokenOnSpecDeviation" })
     public void testSelectChildrenWtihDifferentNamespaces() {
         BValue[] returns = BRunUtil.invoke(result, "testSelectChildrenWithDifferentNamespaces");
         Assert.assertEquals(returns.length, 6);
@@ -476,7 +477,7 @@ public class XMLNativeFunctionTest {
         Assert.assertTrue(((BBoolean) returns[5]).booleanValue());
     }
     
-    @Test
+    @Test(groups = { "brokenOnSpecDeviation" })
     public void testConcat() {
         BValue[] returns = BRunUtil.invoke(result, "testConcat");
         Assert.assertEquals(returns.length, 3);
@@ -496,7 +497,7 @@ public class XMLNativeFunctionTest {
         Assert.assertFalse(((BBoolean) returns[2]).booleanValue());
     }
     
-    @Test
+    @Test(groups = { "brokenOnSpecDeviation" })
     public void testSetChildren() {
         BValue[] returns = BRunUtil.invoke(result, "testSetChildren");
         Assert.assertEquals(returns.length, 4);
@@ -522,7 +523,7 @@ public class XMLNativeFunctionTest {
         Assert.assertEquals(children.getRefValue(2).stringValue(), "<newLname>setunga-new</newLname>");
     }
 
-    @Test
+    @Test(groups = { "brokenOnSpecDeviation" })
     public void testSetChildrenWithDefaultNamespace() {
         BValue[] returns = BRunUtil.invoke(result, "testSetChildrenDefaultNamespace");
         Assert.assertEquals(returns.length, 5);
@@ -555,7 +556,7 @@ public class XMLNativeFunctionTest {
         Assert.assertEquals(returns[4].stringValue(), "true");
     }
 
-    @Test
+    @Test(groups = { "brokenOnSpecDeviation" })
     public void testSetChildrenWithDifferentNamespaceForAttribute() {
         BValue[] returns = BRunUtil.invoke(result, "testSetChildrenWithDifferentNamespaceForAttribute");
         Assert.assertEquals(returns.length, 4);
@@ -577,7 +578,7 @@ public class XMLNativeFunctionTest {
         Assert.assertEquals(returns[3].stringValue(), "true");
     }
 
-    @Test
+    @Test(groups = { "brokenOnSpecDeviation" })
     public void testSetChildrenWithPrefixedAttribute() {
         BValue[] returns = BRunUtil.invoke(result, "testSetChildrenWithPrefixedAttribute");
         Assert.assertEquals(returns.length, 4);
@@ -600,7 +601,7 @@ public class XMLNativeFunctionTest {
         Assert.assertEquals(returns[3].stringValue(), "true");
     }
 
-    @Test
+    @Test(groups = { "brokenOnSpecDeviation" })
     public void testSetChildrenSameNamespace() {
         BValue[] returns = BRunUtil.invoke(result, "testSetChildrenWithSameNamespace");
         Assert.assertEquals(returns.length, 4);
@@ -623,7 +624,7 @@ public class XMLNativeFunctionTest {
         Assert.assertEquals(returns[3].stringValue(), "yes");
     }
 
-    @Test
+    @Test(groups = { "brokenOnSpecDeviation" })
     public void testSetChildrenDifferentNamespace() {
         BValue[] returns = BRunUtil.invoke(result, "testSetChildrenWithDifferentNamespace");
         Assert.assertEquals(returns.length, 4);
@@ -647,7 +648,7 @@ public class XMLNativeFunctionTest {
         Assert.assertEquals(returns[3].stringValue(), "yes");
     }
 
-    @Test
+    @Test(groups = { "brokenOnSpecDeviation" })
     public void testSetChildrenDiffNamespaceWithoutPrefix() {
         //related issue 3074
         BValue[] returns = BRunUtil.invoke(result, "testSetChildrenWithDiffNamespaceWithoutPrefix");
@@ -671,7 +672,7 @@ public class XMLNativeFunctionTest {
         Assert.assertEquals(returns[3].stringValue(), "yes");
     }
 
-    @Test
+    @Test(groups = { "brokenOnSpecDeviation" })
     public void testSetChildrenDiffAttribute() {
         BValue[] returns = BRunUtil.invoke(result, "testSetChildrenWithAttributeDiffNamespace");
         Assert.assertEquals(returns.length, 4);
@@ -695,7 +696,7 @@ public class XMLNativeFunctionTest {
         Assert.assertEquals(returns[3].stringValue(), "yes");
     }
 
-    @Test
+    @Test(groups = { "brokenOnSpecDeviation" })
     public void testSetChildrenDiffElement() {
         BValue[] returns = BRunUtil.invoke(result, "testSetChildrenWithElementDiffNamespace");
         Assert.assertEquals(returns.length, 4);
@@ -718,7 +719,7 @@ public class XMLNativeFunctionTest {
         Assert.assertEquals(returns[3].stringValue(), "yes");
     }
 
-    @Test
+    @Test(groups = { "brokenOnSpecDeviation" })
     public void testCopy() {
         BValue[] returns = BRunUtil.invoke(result, "testCopy");
         Assert.assertEquals(returns.length, 4);
@@ -753,7 +754,7 @@ public class XMLNativeFunctionTest {
                 "<lname xmlns:ns0=\"http://sample.com/test\">setunga</lname>");
     }
     
-    @Test
+    @Test(groups = { "brokenOnSpecDeviation" })
     public void testToString() {
         BValue[] returns = BRunUtil.invoke(result, "testToString");
         Assert.assertEquals(returns.length, 1);
@@ -763,7 +764,7 @@ public class XMLNativeFunctionTest {
                 "<bookId>001</bookId><bookAuthor>Author01</bookAuthor><?word document=\"book.doc\" ?>");
     }
     
-    @Test
+    @Test(groups = { "brokenOnSpecDeviation" })
     public void testStrip() {
         BValue[] returns = BRunUtil.invoke(result, "testStrip");
         Assert.assertTrue(returns[0] instanceof BXML);
@@ -777,7 +778,7 @@ public class XMLNativeFunctionTest {
         Assert.assertEquals(returns[1].stringValue(), "<bookId>001</bookId>");
     }
     
-    @Test
+    @Test(groups = { "brokenOnSpecDeviation" })
     public void testStripSingleton() {
         BValue[] returns = BRunUtil.invoke(result, "testStripSingleton");
         Assert.assertTrue(returns[0] instanceof BXML);
@@ -787,7 +788,7 @@ public class XMLNativeFunctionTest {
         Assert.assertEquals(returns[1].stringValue(), "<bookId>001</bookId>");
     }
     
-    @Test
+    @Test(groups = { "brokenOnSpecDeviation" })
     public void testStripEmptySingleton() {
         BValue[] returns = BRunUtil.invoke(result, "testStripEmptySingleton");
         Assert.assertTrue(returns[0] instanceof BXML);
@@ -797,7 +798,7 @@ public class XMLNativeFunctionTest {
         Assert.assertTrue(((BBoolean) returns[2]).booleanValue());
     }
     
-    @Test
+    @Test(groups = { "brokenOnSpecDeviation" })
     public void testSlice() {
         BValue[] returns = BRunUtil.invoke(result, "testSlice");
         Assert.assertTrue(returns[0] instanceof BXML);
@@ -807,7 +808,7 @@ public class XMLNativeFunctionTest {
                 "Author01</bookAuthor>");
     }
     
-    @Test
+    @Test(groups = { "brokenOnSpecDeviation" })
     public void testSliceAll() {
         BValue[] returns = BRunUtil.invoke(result, "testSliceAll");
         Assert.assertTrue(returns[0] instanceof BXML);
@@ -817,42 +818,42 @@ public class XMLNativeFunctionTest {
                 "<bookId>001</bookId><bookAuthor>Author01</bookAuthor><?word document=\"book.doc\" ?>");
     }
     
-    @Test(expectedExceptions = BLangRuntimeException.class,
+    @Test(groups = { "brokenOnSpecDeviation" }, expectedExceptions = BLangRuntimeException.class,
           expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.xml\\}XMLOperationError message=Failed to slice" +
                   " xml: invalid indices: 4 < 1.*")
     public void testSliceInvalidIndex() {
         BRunUtil.invoke(result, "testSliceInvalidIndex");
     }
     
-    @Test(expectedExceptions = BLangRuntimeException.class,
+    @Test(groups = { "brokenOnSpecDeviation" }, expectedExceptions = BLangRuntimeException.class,
           expectedExceptionsMessageRegExp = ERROR_FAILED_TO_SLICE_XML_INDEX_OUT_OF_RANGE + " \\[4,10\\].*")
     public void testSliceOutOfRangeIndex() {
         BValue[] params = new BValue[] { new BInteger(4), new BInteger(10) };
         BRunUtil.invoke(result, "testSliceOutOfRangeIndex", params);
     }
 
-    @Test(expectedExceptions = BLangRuntimeException.class,
+    @Test(groups = { "brokenOnSpecDeviation" }, expectedExceptions = BLangRuntimeException.class,
           expectedExceptionsMessageRegExp = ERROR_FAILED_TO_SLICE_XML_INDEX_OUT_OF_RANGE + " \\[-4,10\\].*")
     public void testSliceOutOfRangeNegativeStartIndex() {
         BValue[] params = new BValue[] { new BInteger(-4), new BInteger(10) };
         BRunUtil.invoke(result, "testSliceOutOfRangeIndex", params);
     }
 
-    @Test(expectedExceptions = BLangRuntimeException.class,
+    @Test(groups = { "brokenOnSpecDeviation" }, expectedExceptions = BLangRuntimeException.class,
           expectedExceptionsMessageRegExp = ERROR_FAILED_TO_SLICE_XML_INDEX_OUT_OF_RANGE + " \\[4,-10\\].*")
     public void testSliceOutOfRangeNegativeEndIndex() {
         BValue[] params = new BValue[] { new BInteger(4), new BInteger(-10) };
         BRunUtil.invoke(result, "testSliceOutOfRangeIndex", params);
     }
 
-    @Test
+    @Test(groups = { "brokenOnSpecDeviation" })
     public void testSliceSingleton() {
         BValue[] returns = BRunUtil.invoke(result, "testSliceSingleton");
         Assert.assertTrue(returns[0] instanceof BXML);
         Assert.assertEquals(returns[0].stringValue(), "<bookName>Book1</bookName>");
     }
     
-    @Test
+    @Test(groups = { "brokenOnSpecDeviation" })
     public void testSeqCopy() {
         BValue[] returns = BRunUtil.invoke(result, "testSeqCopy");
         Assert.assertTrue(returns[0] instanceof BXML);
@@ -863,7 +864,7 @@ public class XMLNativeFunctionTest {
                 "<bookId>001</bookId><bookAuthor>Author01</bookAuthor><?word document=\"book.doc\" ?>");
     }
 
-    @Test
+    @Test(groups = { "brokenOnSpecDeviation" })
     public void testSetChildrenToElemntInDefaultNameSpace() {
         BValue[] returns = BRunUtil.invoke(result, "testSetChildrenToElemntInDefaultNameSpace");
         Assert.assertTrue(returns[0] instanceof BXML);
@@ -872,7 +873,7 @@ public class XMLNativeFunctionTest {
                 "<name xmlns=\"http://sample.com/test\"><newFname xmlns=\"\">supun-new</newFname></name>");
     }
 
-    @Test
+    @Test(groups = { "brokenOnSpecDeviation" })
     public void testSelectChildrenWithEmptyNs() {
         BValue[] returns = BRunUtil.invoke(result, "testSelectChildrenWithEmptyNs");
         Assert.assertEquals(returns.length, 2);
@@ -882,7 +883,7 @@ public class XMLNativeFunctionTest {
         Assert.assertEquals(returns[0].stringValue(), "<fname>supun</fname><fname>thilina</fname>");
     }
 
-    @Test
+    @Test(groups = { "brokenOnSpecDeviation" })
     public void testSelectElementsWithEmptyNs() {
         BValue[] returns = BRunUtil.invoke(result, "testSelectElementsWithEmptyNs");
         Assert.assertEquals(returns.length, 2);
@@ -892,7 +893,7 @@ public class XMLNativeFunctionTest {
         Assert.assertEquals(returns[0].stringValue(), "<fname>supun</fname><fname>thilina</fname>");
     }
 
-    @Test
+    @Test(groups = { "brokenOnSpecDeviation" })
     public void testSelectDescendants() {
         BValue[] returns = BRunUtil.invoke(result, "testSelectDescendants");
         Assert.assertTrue(returns[0] instanceof BXML);
@@ -904,7 +905,7 @@ public class XMLNativeFunctionTest {
                 + "<name xmlns=\"http://ballerinalang.org/\" xmlns:ns0=\"http://ballerinalang.org/aaa\">John</name>");
     }
 
-    @Test
+    @Test(groups = { "brokenOnSpecDeviation" })
     public void testSelectDescendantsWithEmptyNs() {
         BValue[] returns = BRunUtil.invoke(result, "testSelectDescendantsWithEmptyNs");
         Assert.assertTrue(returns[0] instanceof BXML);
@@ -915,7 +916,7 @@ public class XMLNativeFunctionTest {
                 + "<lname>Setunga</lname></name><name xmlns:ns0=\"http://ballerinalang.org/aaa\">John</name>");
     }
 
-    @Test
+    @Test(groups = { "brokenOnSpecDeviation" })
     public void testSelectDescendantsFromSeq() {
         BValue[] returns = BRunUtil.invoke(result, "testSelectDescendantsFromSeq");
         Assert.assertTrue(returns[0] instanceof BXML);
@@ -928,7 +929,7 @@ public class XMLNativeFunctionTest {
                 + "<name xmlns=\"http://ballerinalang.org/\" xmlns:ns0=\"http://ballerinalang.org/aaa\">Doe</name>");
     }
 
-    @Test(expectedExceptions = { BLangRuntimeException.class },
+    @Test(groups = { "brokenOnSpecDeviation" }, expectedExceptions = { BLangRuntimeException.class },
             expectedExceptionsMessageRegExp = ".*failed to add attribute " +
                     "'a:text'. prefix 'a' is already bound to namespace 'yyy'.*")
     public void testUpdateAttributeWithDifferentUri() {
@@ -937,7 +938,7 @@ public class XMLNativeFunctionTest {
         Assert.assertEquals(returns[0].stringValue(), "<name xmlns:a=\"yyy\" a:text=\"hello\"/>");
     }
 
-    @Test
+    @Test(groups = { "brokenOnSpecDeviation" })
     public void testRemoveAttributeUsingStringName() {
         BValue[] returns = BRunUtil.invoke(result, "testRemoveAttributeUsingStringName");
         Assert.assertTrue(returns[0] instanceof BXML);
@@ -947,7 +948,7 @@ public class XMLNativeFunctionTest {
                         "foo1=\"bar1\" ns1:foo1=\"bar3\" ns0:foo2=\"bar4\"> hello world!</root>");
     }
 
-    @Test
+    @Test(groups = { "brokenOnSpecDeviation" })
     public void testRemoveAttributeUsinQName() {
         BValue[] returns = BRunUtil.invoke(result, "testRemoveAttributeUsinQName");
         Assert.assertTrue(returns[0] instanceof BXML);
@@ -956,7 +957,7 @@ public class XMLNativeFunctionTest {
                         "foo1=\"bar1\" ns1:foo1=\"bar3\" ns0:foo2=\"bar4\"> hello world!</root>");
     }
 
-    @Test
+    @Test(groups = { "brokenOnSpecDeviation" })
     public void testRemoveNonExistingAttribute() {
         BValue[] returns = BRunUtil.invoke(result, "testRemoveNonExistingAttribute");
         Assert.assertTrue(returns[0] instanceof BXML);
@@ -966,7 +967,7 @@ public class XMLNativeFunctionTest {
                         "ns0:foo1=\"bar2\" ns1:foo1=\"bar3\" ns0:foo2=\"bar4\"> hello world!</root>");
     }
 
-    @Test(enabled = false)
+    @Test(groups = { "brokenOnSpecDeviation" }, enabled = false)
     public void testGetChildrenOfSequence() {
         BValue[] returns = BRunUtil.invoke(result, "testGetChildrenOfSequence");
         Assert.assertEquals(returns.length, 2);
@@ -979,7 +980,7 @@ public class XMLNativeFunctionTest {
                 "<fname1>John</fname1><lname1>Doe</lname1><fname2>Jane</fname2><lname2>Doe</lname2>apple");
     }
 
-    @Test
+    @Test(groups = { "brokenOnSpecDeviation" })
     public void testAddChildren() {
         BValue[] returns = BRunUtil.invoke(result, "testAddChildren");
         Assert.assertEquals(returns.length, 2);
@@ -990,7 +991,7 @@ public class XMLNativeFunctionTest {
         Assert.assertEquals(returns[1].stringValue(), "<fname>John</fname><lname>Doe</lname>");
     }
 
-    @Test
+    @Test(groups = { "brokenOnSpecDeviation" })
     public void testRemoveSingleChild() {
         BValue[] returns = BRunUtil.invoke(result, "testRemoveSingleChild");
         Assert.assertEquals(returns.length, 2);
@@ -1000,7 +1001,7 @@ public class XMLNativeFunctionTest {
         Assert.assertEquals(returns[1].stringValue(), "<fname>John</fname><age>50</age>");
     }
 
-    @Test
+    @Test(groups = { "brokenOnSpecDeviation" })
     public void testRemoveChildren() {
         BValue[] returns = BRunUtil.invoke(result, "testRemoveChildren");
         Assert.assertEquals(returns.length, 2);
@@ -1011,7 +1012,7 @@ public class XMLNativeFunctionTest {
         Assert.assertEquals(returns[1].stringValue(), "<age>50</age>");
     }
 
-    @Test
+    @Test(groups = { "brokenOnSpecDeviation" })
     public void testRemoveChildrenWithNamesapces() {
         BValue[] returns = BRunUtil.invoke(result, "testRemoveChildrenWithNamesapces");
         Assert.assertEquals(returns.length, 2);
@@ -1024,7 +1025,7 @@ public class XMLNativeFunctionTest {
                 "<age xmlns:ns0=\"http://wso2.com\">50</age><name xmlns:ns0=\"http://wso2.com\">Doe</name>");
     }
     
-    @Test
+    @Test(groups = { "brokenOnSpecDeviation" })
     public void testRemoveComplexChildren() {
         BValue[] returns = BRunUtil.invoke(result, "testRemoveComplexChildren");
         Assert.assertEquals(returns.length, 2);
@@ -1035,7 +1036,7 @@ public class XMLNativeFunctionTest {
         Assert.assertEquals(returns[1].stringValue(), "<name>John</name><age>50</age>");
     }
     
-    @Test
+    @Test(groups = { "brokenOnSpecDeviation" })
     public void testRemoveInnerChildren() {
         BValue[] returns = BRunUtil.invoke(result, "testRemoveInnerChildren");
         Assert.assertEquals(returns.length, 2);
@@ -1047,7 +1048,7 @@ public class XMLNativeFunctionTest {
                 "Colombo 03</city><country><name>Sri Lanka</name></country></address><age>50</age>");
     }
 
-    @Test
+    @Test(groups = { "brokenOnSpecDeviation" })
     public void testXMLCharacterLiteralLength() {
         BValue[] returns = BRunUtil.invoke(result, "testXMLLength");
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 2);

@@ -232,33 +232,6 @@ function testRemovalFromFrozenInnerJson() {
     _ = j4.remove("name");
 }
 
-function testFrozenXmlAppendChildren() {
-    xml x1 = xml `<book>The Lost World</book>`;
-    xml x2 = xml `<author>Doyle</author>`;
-
-    xml x3 = x1.cloneReadOnly();
-    x3.appendChildren(x2);
-}
-
-function testFrozenXmlRemoveChildren() {
-    xml x1 = xml `<book>The Lost World<author>Doyle</author></book>`;
-    xml x2 = x1.cloneReadOnly();
-    x2.removeChildren("author");
-}
-
-function testFrozenXmlRemoveAttribute() {
-    xml x1 = xml `<book attr="one">The Lost World</book>`;
-    xml x2 = x1.cloneReadOnly();
-    x2.removeAttribute("attr");
-}
-
-function testFrozenXmlSetAttributes() {
-    map<anydata> m = { attr1: "one", attr2: "two"};
-    xml x1 = xml `<book>The Lost World</book>`;
-    xml x2 = x1.cloneReadOnly();
-    x2.setAttributes(m);
-}
-
 function testFrozenXmlSetChildren() {
     xml x1 = xml `<book>The Lost World</book>`;
     xml x2 = xml `<author>Doyle</author>`;

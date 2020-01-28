@@ -341,7 +341,7 @@ function testWithComplexXML() returns ([int, string][]) {
     bookstore["book"].forEach(function (xml|string ent) {
             // If the element is an xml.
             if (ent is xml) {
-                titles[count] = [count, ent["title"].getTextValue()];
+                titles[count] = [count, ent["title"].stringValue()];
                 count += 1;
             }
     });

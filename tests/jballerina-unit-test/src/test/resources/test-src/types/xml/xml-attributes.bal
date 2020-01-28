@@ -250,15 +250,15 @@ function testRuntimeNamespaceLookupPriority() returns (xml) {
     return x;
 }
 
-function testSetAttributes() returns (xml) {
-    map<any> attributesMap = {"foo1":"bar1", "{http://wso2.com}foo2":"bar2"};
-    attributesMap[ns0:foo3] = "bar3";
-    var x = xml `<root xmlns:p1="http://wso2.com" xmlns:p2="http://sample.com/wso2/a1"/>`;
-    
-    x.setAttributes(attributesMap);
-    
-    return x;
-}
+//function testSetAttributes() returns (xml) {
+//    map<any> attributesMap = {"foo1":"bar1", "{http://wso2.com}foo2":"bar2"};
+//    attributesMap[ns0:foo3] = "bar3";
+//    var x = xml `<root xmlns:p1="http://wso2.com" xmlns:p2="http://sample.com/wso2/a1"/>`;
+//
+//    x.setAttributes(attributesMap);
+//
+//    return x;
+//}
 
 function testGetAttributeFromSingletonSeq() returns (string?) {
     var x1 = xml `<root><child xmlns:p1="http://wso2.com/" xmlns:p2="http://sample.com/wso2/a1/" p1:foo="bar"/></root>`;

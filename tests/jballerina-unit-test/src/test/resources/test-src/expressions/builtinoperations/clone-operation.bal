@@ -94,15 +94,22 @@ public function cloneString() returns [string, string, string] {
 }
 
 public function cloneXML() returns [xml, xml, xml] {
-    xml a = xml `<root><name>Alex</name><id>123</id><age>21</age></root>`;
+    xml name = xml `<name>Alex</name>`;
+    xml id = xml `<id>123</id>`;
+    xml age = xml `<age>21</age>`;
+    xml x = xml `<root></root>`;
+    x.setChildren(name + id + age);
+
+    xml a = x.clone();
     xml newName = xml `<name>Charlos</name>`;
+    xml c1 = newName + id + age;
+    a.setChildren(c1);
+
+    xml y = x.clone();
     xml newId = xml `<id>5000</id>`;
-    xml x = a.clone();
-    xml y = a.clone();
-    a.removeChildren("name");
-    a.appendChildren(newName);
-    y.removeChildren("id");
-    y.appendChildren(newId);
+    xml c2 = name + newId + age;
+    y.setChildren(c2);
+
     return [a, x, y];
 }
 
