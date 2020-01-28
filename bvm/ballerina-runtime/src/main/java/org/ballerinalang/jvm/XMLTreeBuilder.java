@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -54,7 +54,7 @@ import static javax.xml.stream.XMLStreamConstants.START_ELEMENT;
 /**
  * XML tree builder for Ballerina xml node structure using {@code XMLStreamReader}.
  *
- * @since 1.1.0
+ * @since 1.2.0
  */
 public class XMLTreeBuilder {
 
@@ -69,7 +69,7 @@ public class XMLTreeBuilder {
     private XMLStreamReader xmlStreamReader;
     private Map<String, String> namespaces; // xml ns declarations from Bal source [xmlns "http://ns.com" as ns]
     private Deque<XMLSequence> seqDeque;
-    private Deque<List<BXML>> siblingDeque; // we can remove this by opening up children list in XMLSeq
+    private Deque<List<BXML>> siblingDeque;
 
     public XMLTreeBuilder(String str) {
         this(new StringReader(str));
@@ -79,6 +79,11 @@ public class XMLTreeBuilder {
         namespaces = new HashMap<>();
         seqDeque = new ArrayDeque<>();
         siblingDeque = new ArrayDeque<>();
+
+        ArrayList<BXML> siblings = new ArrayList<>();
+        siblingDeque.push(siblings);
+        seqDeque.push(new XMLSequence(siblings));
+
         try {
             xmlStreamReader = xmlInputFactory.createXMLStreamReader(stringReader);
         } catch (XMLStreamException e) {
@@ -133,20 +138,16 @@ public class XMLTreeBuilder {
     }
 
     private void readPI(XMLStreamReader xmlStreamReader) {
-        setupXmlDocument();
         XMLPi xmlItem = new XMLPi(
                 xmlStreamReader.getPIData(), xmlStreamReader.getPITarget());
         siblingDeque.peek().add(xmlItem);
     }
 
     private void readText(XMLStreamReader xmlStreamReader) {
-        setupXmlDocument();
         siblingDeque.peek().add(XMLFactory.createXMLText(xmlStreamReader.getText()));
     }
 
     private void readComment(XMLStreamReader xmlStreamReader) {
-        setupXmlDocument();
-
         siblingDeque.peek().add(new XMLComment(xmlStreamReader.getText()));
     }
 
@@ -161,33 +162,24 @@ public class XMLTreeBuilder {
     }
 
     private void readElement(XMLStreamReader xmlStreamReader) {
-        setupXmlDocument();
-
         QName elemName = xmlStreamReader.getName();
         ArrayList<BXML> children = new ArrayList<>();
+
         XMLSequence seq = new XMLSequence(children);
-        seqDeque.push(seq);
         XMLItem xmlItem = new XMLItem(elemName, seq);
+
+        seqDeque.push(seq);
+
         siblingDeque.peek().add(xmlItem);
-
-        addAttributesAndNamespaceDecl(xmlStreamReader, xmlItem, elemName);
-
+        populateAttributeMap(xmlStreamReader, xmlItem, elemName);
         siblingDeque.push(children);
     }
-
-    private void setupXmlDocument() {
-        if (seqDeque.isEmpty()) {
-            ArrayList<BXML> children = new ArrayList<>();
-            siblingDeque.push(children);
-            XMLSequence xmlSequence = new XMLSequence(children);
-            seqDeque.push(xmlSequence);
-        }
-    }
-
     // need to duplicate the same in xmlItem.setAttribute
-    private void addAttributesAndNamespaceDecl(XMLStreamReader xmlStreamReader, XMLItem xmlItem, QName elemName) {
+
+    // todo: need to write a comment explaining each step
+    private void populateAttributeMap(XMLStreamReader xmlStreamReader, XMLItem xmlItem, QName elemName) {
         MapValue<String, String> attributesMap = xmlItem.getAttributesMap();
-        Set<QName> usedNS = new HashSet<>();
+        Set<QName> usedNS = new HashSet<>(); // Track namespace prefixes found in this element.
 
         int count = xmlStreamReader.getAttributeCount();
         for (int i = 0; i < count; i++) {
@@ -197,6 +189,7 @@ public class XMLTreeBuilder {
                 usedNS.add(attributeName);
             }
         }
+
         if (!elemName.getPrefix().isEmpty()) {
             usedNS.add(elemName);
         }

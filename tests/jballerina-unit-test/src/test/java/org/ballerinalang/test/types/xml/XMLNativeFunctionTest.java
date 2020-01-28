@@ -942,8 +942,8 @@ public class XMLNativeFunctionTest {
         BValue[] returns = BRunUtil.invoke(result, "testRemoveAttributeUsingStringName");
         Assert.assertTrue(returns[0] instanceof BXML);
         Assert.assertEquals(returns[0].stringValue(),
-                "<root xmlns:ns0=\"http://ballerina.com/aaa\" " +
-                        "xmlns:ns1=\"http://ballerina.com/bbb\" " +
+                "<root xmlns:ns1=\"http://ballerina.com/bbb\" " +
+                        "xmlns:ns0=\"http://ballerina.com/aaa\" " +
                         "foo1=\"bar1\" ns1:foo1=\"bar3\" ns0:foo2=\"bar4\"> hello world!</root>");
     }
 
@@ -952,8 +952,7 @@ public class XMLNativeFunctionTest {
         BValue[] returns = BRunUtil.invoke(result, "testRemoveAttributeUsinQName");
         Assert.assertTrue(returns[0] instanceof BXML);
         Assert.assertEquals(returns[0].stringValue(),
-                "<root xmlns:ns0=\"http://ballerina.com/aaa\" " +
-                        "xmlns:ns1=\"http://ballerina.com/bbb\" " +
+                "<root xmlns:ns1=\"http://ballerina.com/bbb\" xmlns:ns0=\"http://ballerina.com/aaa\" " +
                         "foo1=\"bar1\" ns1:foo1=\"bar3\" ns0:foo2=\"bar4\"> hello world!</root>");
     }
 
@@ -962,8 +961,8 @@ public class XMLNativeFunctionTest {
         BValue[] returns = BRunUtil.invoke(result, "testRemoveNonExistingAttribute");
         Assert.assertTrue(returns[0] instanceof BXML);
         Assert.assertEquals(returns[0].stringValue(),
-                "<root xmlns:ns0=\"http://ballerina.com/aaa\" " +
-                        "xmlns:ns1=\"http://ballerina.com/bbb\" foo1=\"bar1\" " +
+                "<root xmlns:ns1=\"http://ballerina.com/bbb\" " +
+                        "xmlns:ns0=\"http://ballerina.com/aaa\" foo1=\"bar1\" " +
                         "ns0:foo1=\"bar2\" ns1:foo1=\"bar3\" ns0:foo2=\"bar4\"> hello world!</root>");
     }
 

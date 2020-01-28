@@ -61,7 +61,7 @@ public class XMLTest {
         Assert.assertEquals(result[2].stringValue(), "active");
         Assert.assertEquals(result[3].stringValue(),
                 "<ns1:bar1 xmlns:ns1=\"http://ballerinalang.org/\" xmlns:ns0=\"http://wso2.com/\">hello1</ns1:bar1>" +
-                        "<bar2 xmlns:ns0=\"http://wso2.com/\" xmlns:ns1=\"http://ballerinalang.org/\">hello2</bar2>");
+                        "<bar2 xmlns:ns1=\"http://ballerinalang.org/\" xmlns:ns0=\"http://wso2.com/\">hello2</bar2>");
         Assert.assertEquals(result[4].stringValue(), "<ns1:bar1 xmlns:ns1=\"http://ballerinalang.org/\" " +
                 "xmlns:ns0=\"http://wso2.com/\">hello1</ns1:bar1>");
         Assert.assertEquals(result[5].stringValue(), "<ns1:bar1 xmlns:ns1=\"http://ballerinalang.org/\" " +

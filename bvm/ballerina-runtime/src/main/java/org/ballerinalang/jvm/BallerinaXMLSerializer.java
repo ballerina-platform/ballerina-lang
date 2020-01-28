@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -31,8 +31,8 @@ import java.io.OutputStream;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
-import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -45,7 +45,7 @@ import javax.xml.stream.XMLStreamWriter;
 /**
  * XML Serializer for Ballerina XML value trees.
  *
- * @since 1.1.0
+ * @since 1.2.0
  */
 public class BallerinaXMLSerializer extends OutputStream {
     private static final XMLOutputFactory xmlOutputFactory = XMLOutputFactory.newInstance();
@@ -135,16 +135,19 @@ public class BallerinaXMLSerializer extends OutputStream {
         HashSet<String> currentNSLevel = prevNSSet == null ? new HashSet<>() : new HashSet<>(prevNSSet);
         this.parentNSSet.push(currentNSLevel);
 
-        Map<String, String> nsPrefixMap = prefixToNSUri(xmlValue);
+        Map<String, String> nsPrefixMap = new LinkedHashMap<>();
+        Map<String, String> attributeMap = new LinkedHashMap<>();
+        splitAttributesAndNSPrefixes(xmlValue, nsPrefixMap, attributeMap);
+
         QName qName = xmlValue.getQName();
         writeStartElement(qName, nsPrefixMap, currentNSLevel);
-        setMissingElementPrefix(currentNSLevel, nsPrefixMap, qName);
+        setMissingElementPrefix(nsPrefixMap, qName);
 
         // Write namespaces
         writeNamespaceAttributes(currentNSLevel, nsPrefixMap);
 
         // Write attributes
-        writeAttributes(xmlValue, currentNSLevel);
+        writeAttributes(currentNSLevel, attributeMap);
 
         xmlValue.getChildrenSeq().serialize(this);
         xmlStreamWriter.writeEndElement();
@@ -198,15 +201,15 @@ public class BallerinaXMLSerializer extends OutputStream {
         }
     }
 
-    private void writeAttributes(XMLItem xmlValue, HashSet<String> curNSSet) throws XMLStreamException {
+    private void writeAttributes(HashSet<String> curNSSet, Map<String, String> attributeMap) throws XMLStreamException {
         String defaultNS = xmlStreamWriter.getNamespaceContext().getNamespaceURI("xmlns");
-        for (Map.Entry<String, String> attributeEntry : xmlValue.getAttributesMap().entrySet()) {
+        for (Map.Entry<String, String> attributeEntry : attributeMap.entrySet()) {
             String key = attributeEntry.getKey();
             int closingCurlyPos = key.lastIndexOf('}');
             // Attribute on elements default namespace
             if (closingCurlyPos == -1) {
                 xmlStreamWriter.writeAttribute(key, attributeEntry.getValue());
-            } else if (!key.startsWith(XMLItem.XMLNS_URL_PREFIX)) {
+            } else {
                 String uri = key.substring(1, closingCurlyPos);
 
                 // Prefix for the namespace is not defined.
@@ -238,7 +241,7 @@ public class BallerinaXMLSerializer extends OutputStream {
         }
     }
 
-    private void setMissingElementPrefix(HashSet<String> curNSSet, Map<String, String> nsPrefixMap, QName qName)
+    private void setMissingElementPrefix(Map<String, String> nsPrefixMap, QName qName)
             throws XMLStreamException {
         if (!qName.getNamespaceURI().isEmpty() && qName.getPrefix().isEmpty()
                 && alreadyDefinedNSPrefixNotFound(qName)) {
@@ -288,8 +291,9 @@ public class BallerinaXMLSerializer extends OutputStream {
         return randStr + "<>" + nsUri;
     }
 
-    private Map<String, String> prefixToNSUri(XMLItem xmlValue) {
-        Map<String, String> nsPrefixMap = new HashMap<>();
+    private void splitAttributesAndNSPrefixes(XMLItem xmlValue,
+                                              Map<String, String> nsPrefixMap,
+                                              Map<String, String> attributeMap) {
         // Extract namespace entries
         for (Map.Entry<String, String> attributeEntry : xmlValue.getAttributesMap().entrySet()) {
             String key = attributeEntry.getKey();
@@ -297,6 +301,8 @@ public class BallerinaXMLSerializer extends OutputStream {
                 int closingCurly = key.indexOf('}');
                 String prefix = key.substring(closingCurly + 1);
                 nsPrefixMap.put(prefix, attributeEntry.getValue());
+            } else {
+                attributeMap.put(key, attributeEntry.getValue());
             }
         }
 
@@ -313,7 +319,6 @@ public class BallerinaXMLSerializer extends OutputStream {
                 nsPrefixMap.remove(prefix);
             }
         }
-        return nsPrefixMap;
     }
 
     private void writeSeq(XMLSequence xmlValue) {
