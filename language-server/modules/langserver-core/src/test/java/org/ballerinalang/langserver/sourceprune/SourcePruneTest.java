@@ -131,7 +131,7 @@ public class SourcePruneTest {
                 {"src_prune_config5.json"},
                 {"src_prune_config6.json"},
                 // Annotation attachments
-                {"src_prune_config7.json"},
+//                {"src_prune_config7.json"},
                 {"src_prune_config8.json"},
                 {"src_prune_config9.json"},
                 {"src_prune_config10.json"},
