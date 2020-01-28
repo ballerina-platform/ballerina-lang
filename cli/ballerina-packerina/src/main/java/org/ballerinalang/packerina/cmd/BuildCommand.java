@@ -210,7 +210,7 @@ public class BuildCommand implements BLauncherCmd {
                 Path findRoot = ProjectDirs.findProjectRoot(this.sourceRootPath);
                 if (null == findRoot) {
                     CommandUtil.printError(this.errStream,
-                                           "You are trying to build/compile a Ballerina project that does not have a " +
+                                           "you are trying to build/compile a Ballerina project that does not have a " +
                                                    "Ballerina.toml file.",
                                            null,
                                            false);
@@ -224,7 +224,7 @@ public class BuildCommand implements BLauncherCmd {
             targetPath = this.sourceRootPath.resolve(ProjectDirConstants.TARGET_DIR_NAME);
 
             if (args.length > 0) {
-                CommandUtil.printError(this.errStream, "Too many arguments.", buildCmd, false);
+                CommandUtil.printError(this.errStream, "too many arguments.", buildCmd, false);
                 CommandUtil.exitError(this.exitWhenFinish);
                 return;
             }
@@ -292,7 +292,7 @@ public class BuildCommand implements BLauncherCmd {
             //// check if command executed from project root.
             if (!RepoUtils.isBallerinaProject(this.sourceRootPath)) {
                 CommandUtil.printError(this.errStream,
-                        "You are trying to build/compile a module that is not inside a project.",
+                        "you are trying to build/compile a module that is not inside a project.",
                         null,
                         false);
                 CommandUtil.exitError(this.exitWhenFinish);
@@ -302,7 +302,7 @@ public class BuildCommand implements BLauncherCmd {
             //// check if module name given is not absolute.
             if (Paths.get(argList.get(0)).isAbsolute()) {
                 CommandUtil.printError(this.errStream,
-                                       "You are trying to build/compile a module by giving the absolute path. You " +
+                                       "you are trying to build/compile a module by giving the absolute path. You " +
                                                "only need to give the name of the module.",
                                        "ballerina build [-c] <module-name>",
                                        true);
@@ -332,7 +332,7 @@ public class BuildCommand implements BLauncherCmd {
             targetPath = this.sourceRootPath.resolve(ProjectDirConstants.TARGET_DIR_NAME);
         } else {
             CommandUtil.printError(this.errStream,
-                                   "Invalid Ballerina source path. It should either be a name of a module in a " +
+                                   "invalid Ballerina source path. It should either be a name of a module in a " +
                                    "Ballerina project or a file with a \'" + BLangConstants.BLANG_SRC_FILE_SUFFIX +
                                    "\' extension. Use -a or --all " +
                                    "to build or compile all modules.",
