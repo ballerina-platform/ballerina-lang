@@ -939,14 +939,11 @@ type TerminatorGenerator object {
         self.mv.visitVarInsn(ALOAD, localVarOffset);
         loadType(self.mv, returnType);
         if (concurrent) {
-            self.mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, "scheduleFunction",
+            self.mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, SCHEDULE_FUNCTION_METHOD,
                 io:sprintf("([L%s;L%s;L%s;L%s;)L%s;", OBJECT, FUNCTION_POINTER, STRAND, BTYPE, FUTURE_VALUE), false);
         } else {
-            self.mv.visitVarInsn(ALOAD, localVarOffset);
-            // load thread ID
-            self.mv.visitFieldInsn(GETFIELD, STRAND, "threadId", "I");
-            self.mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, "scheduleFunction",
-                io:sprintf("([L%s;L%s;L%s;L%s;I)L%s;", OBJECT, FUNCTION_POINTER, STRAND, BTYPE, FUTURE_VALUE), false);
+            self.mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, SCHEDULE_LOCAL_METHOD,
+                io:sprintf("([L%s;L%s;L%s;L%s;)L%s;", OBJECT, FUNCTION_POINTER, STRAND, BTYPE, FUTURE_VALUE), false);
         }
 
         // store return
