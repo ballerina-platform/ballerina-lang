@@ -15,24 +15,32 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerinalang.langserver.extensions.ballerina.syntaxhighlighter;
+package org.ballerinalang.langserver.extensions.ballerina.semantichighlighter;
 /**
- * Represents a request for Ballerina Syntax Highlighter.
+ * Represents the data model for a Semantic Highlighting Token.
  *
- * @since 1.0.2
+ * @since 1.2.0
  */
+class SemanticHighlightingToken {
+    private final int character;
+    private final  int length;
+    private final int scope;
 
-public class BallerinaHighlightingRequest {
-    private String params;
-
-    public BallerinaHighlightingRequest() {
+    public SemanticHighlightingToken(int character, int length, int scope) {
+        this.character = character;
+        this.length = length;
+        this.scope = scope;
     }
 
-    public BallerinaHighlightingRequest(String params) {
-        this.params = params;
+    public int getCharacter() {
+        return character;
     }
 
-    public String getParams() {
-        return params;
+    public int getLength() {
+        return length;
+    }
+
+    public int getScope() {
+        return scope;
     }
 }

@@ -15,22 +15,28 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerinalang.langserver.extensions.ballerina.syntaxhighlighter;
+package org.ballerinalang.langserver.extensions.ballerina.semantichighlighter;
 /**
- * Represents a response for Ballerina Syntax Highlighter.
+ * Enum for the scopes.
  *
- * @since 1.0.2
+ * @since 1.2.0
  */
+public enum ScopeEnum {
+    ENDPOINT("endpoint.ballerina", 0), UNUSED("unused.ballerina", 1);
 
-public class BallerinaHighlightingResponse {
-    private String params;
+    private final String scopeName;
+    private final int scopeId;
 
-    public String getParams() {
-        return params;
+    ScopeEnum(String scopeName, int scopeId) {
+        this.scopeName = scopeName;
+        this.scopeId = scopeId;
     }
 
-    public void setParams(String params) {
-        this.params = params;
+    public String getScopeName() {
+        return scopeName;
     }
 
-}
+    public int getScopeId() {
+        return scopeId;
+    }
+};

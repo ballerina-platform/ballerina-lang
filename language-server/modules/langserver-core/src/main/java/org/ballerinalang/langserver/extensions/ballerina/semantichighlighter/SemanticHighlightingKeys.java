@@ -15,22 +15,18 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerinalang.langserver.extensions.ballerina.syntaxhighlighter;
+package org.ballerinalang.langserver.extensions.ballerina.semantichighlighter;
 
-import org.eclipse.lsp4j.jsonrpc.services.JsonNotification;
-import org.eclipse.lsp4j.jsonrpc.services.JsonSegment;
+import org.ballerinalang.langserver.commons.LSContext;
 
-import java.util.concurrent.CompletableFuture;
+import java.util.List;
 
 /**
- * An extension interface for Language server to fetch information about ballerina syntax hightlighter.
+ * Syntax Highlight Keys for semantic syntax highlighting.
  *
- * @since 1.0.2
+ * @since 1.2.0
  */
-@JsonSegment("ballerinaSyntaxHighlighter")
-public interface BallerinaSyntaxHighlightService {
-
-    @JsonNotification
-    CompletableFuture<BallerinaHighlightingResponse> list(BallerinaHighlightingRequest request);
-
+class SemanticHighlightingKeys {
+    static final LSContext.Key<List<SemanticHighlightProvider.HighlightInfo>> SEMANTIC_HIGHLIGHTING_KEY
+            = new LSContext.Key<>();
 }

@@ -15,23 +15,19 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerinalang.langserver.extensions.ballerina.syntaxhighlighter;
-
-import java.util.concurrent.CompletableFuture;
+package org.ballerinalang.langserver.extensions.ballerina.semantichighlighter;
 
 /**
- * Implementation of Ballerina Syntax Highlighter extension for Language Server.
+ * Exception for the Semantic Highlighting feature.
  *
- * @since 1.0.2
+ * @since 1.2.0
  */
-public class BallerinaSyntaxHighlightServiceImpl implements BallerinaSyntaxHighlightService {
-
-    public CompletableFuture<BallerinaHighlightingResponse> list(BallerinaHighlightingRequest request) {
-
-//        request.getParams();
-        BallerinaHighlightingResponse reply = new BallerinaHighlightingResponse();
-        reply.setParams("Done");
-        return CompletableFuture.supplyAsync(() -> reply);
+public class HighlightingFailedException extends Exception {
+    public HighlightingFailedException(String message) {
+        super(message);
     }
 
+    public HighlightingFailedException(String message, Throwable cause) {
+        super(message, cause);
+    }
 }
