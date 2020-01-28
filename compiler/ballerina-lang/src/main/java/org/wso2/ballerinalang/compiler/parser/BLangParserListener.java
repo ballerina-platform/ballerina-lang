@@ -367,9 +367,12 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        this.pkgBuilder.addLambdaFunctionDef(getCurrentPos(ctx), getWS(ctx), ctx.formalParameterList() != null,
-                ctx.lambdaReturnParameter() != null,
-                ctx.formalParameterList() != null && ctx.formalParameterList().restParameter() != null);
+        BallerinaParser.FunctionSignatureContext funcSignature = ctx.functionSignature();
+        boolean hasParams = funcSignature.formalParameterList() != null;
+        boolean hasReturn = funcSignature.returnParameter() != null;
+        boolean hasRestParam = hasParams && funcSignature.formalParameterList().restParameter() != null;
+
+        this.pkgBuilder.addLambdaFunctionDef(getCurrentPos(ctx), getWS(ctx), hasParams, hasReturn, hasRestParam);
     }
 
     @Override
