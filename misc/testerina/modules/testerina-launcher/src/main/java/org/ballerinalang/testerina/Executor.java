@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.test.launcher;
+package org.ballerinalang.testerina;
 
 import com.google.gson.Gson;
 import org.ballerinalang.testerina.core.TesterinaConstants;
@@ -39,15 +39,17 @@ import java.util.Map;
 
 /**
  * Main class to init the test suit.
+ *
+ * @since 1.2.0
  */
-public class Launch {
+public class Executor {
 
     private static PrintStream outsStream = System.out;
     private static PrintStream errStream = System.err;
 
     public static void main(String[] args) {
-
-        Path jsonCachePath = Paths.get(args[0], TesterinaConstants.TESTERINA_TEST_SUITE);
+        String testSuitCachePath = System.getenv("testerina.tesetsuite.path"); // get the path from env
+        Path jsonCachePath = Paths.get(testSuitCachePath, TesterinaConstants.TESTERINA_TEST_SUITE);
         try {
             BufferedReader br = Files.newBufferedReader(jsonCachePath, StandardCharsets.UTF_8);
 

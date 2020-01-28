@@ -25,6 +25,8 @@ import java.util.HashMap;
 
 /**
  * Java class to hold the meta data of a specific module's test suit.
+ *
+ * @since 1.2.o
  */
 public class TestMetaData {
     private String initFunctionName;

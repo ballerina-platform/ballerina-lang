@@ -18,6 +18,7 @@
 package org.ballerinalang.coverage;
 
 import org.ballerinalang.tool.LauncherUtils;
+import org.wso2.ballerinalang.util.Lists;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -30,7 +31,9 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.List;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
@@ -58,17 +61,19 @@ public class ExecutionCoverageBuilder {
     private String packageName;
     private String moduleJarName;
     private String javaCommand;
+    private String [] programArgs;
     private transient PrintStream out = System.out;
     private transient PrintStream err = System.err;
 
-    public ExecutionCoverageBuilder(Path sourceRootPath, Path targetDirPath, Path testJarPath, String orgName,
-                                    String moduleJarName, String packageName) {
+    public ExecutionCoverageBuilder(Path sourceRootPath, Path targetDirPath, Path testJarPath, String [] programArgs,
+                                    String orgName, String moduleJarName, String packageName) {
         this.sourceRootPath = sourceRootPath;
         this.targetPath = targetDirPath;
         this.orgName = orgName;
         this.packageName = packageName;
         this.compiledSourceJarPath = testJarPath;
         this.moduleJarName = moduleJarName;
+        this.programArgs = programArgs.clone();
         this.balHome = Paths.get(System.getProperty(BALLERINA_HOME));
         this.javaCommand = System.getProperty("java.command");
     }
@@ -80,22 +85,31 @@ public class ExecutionCoverageBuilder {
         Path balDependencyPaths = this.balHome.resolve(BALLERINA_HOME_BRE).resolve(BALLERINA_HOME_LIB);
         Path jsonCachePath = this.targetPath.resolve(CACHES_DIR_NAME).resolve(JSON_CACHE_DIR_NAME)
                 .resolve(moduleJarName);
-        String launcherClassName = CoverageConstants.TESTERINA_LAUNCHER_CLASS_NAME;
+        String launcherClassName = CoverageConstants.TESTERINA_EXECUTOR_CLASS_NAME;
         String filePathSeparator = System.getProperty("file.separator");
         String classPathSeparator = System.getProperty("path.separator");
         String classPaths = balDependencyPaths.toString() + filePathSeparator + "*" + classPathSeparator
                 + this.compiledSourceJarPath.toString();
-        String execFileGenerationCommand = this.javaCommand + " -javaagent:"
+        // building the java command
+        List<String> commands = new ArrayList<>();
+        commands.add(javaCommand);
+        commands.add("-javaagent:"
                 + balDependencyPaths.resolve(CoverageConstants.AGENT_FILE_NAME).toString()
                 + "=destfile="
                 + this.targetPath
                 .resolve(TARGET_COVERAGE_DIRECTORY).resolve(this.moduleJarName)
-                .resolve(CoverageConstants.EXEC_FILE_NAME).toString()
-                + " -cp " + classPaths
-                + " " + launcherClassName
-                + " " + jsonCachePath.toString();
+                .resolve(CoverageConstants.EXEC_FILE_NAME).toString());
+        commands.add("-cp");
+        commands.add(classPaths);
+        commands.add(launcherClassName);
+        if (this.programArgs != null) {
+            commands.addAll(Lists.of(this.programArgs));
+        }
+
         try {
-            Process proc = Runtime.getRuntime().exec(execFileGenerationCommand);
+            ProcessBuilder processBuilder = new ProcessBuilder(commands);
+            processBuilder.environment().put("testerina.tesetsuite.path", jsonCachePath.toString());
+            Process proc = processBuilder.start();
             proc.waitFor();
             // Then retreive the process output
             InputStream in = proc.getInputStream();
@@ -228,15 +242,25 @@ public class ExecutionCoverageBuilder {
         String classFilesPath = this.targetPath.resolve(TARGET_COVERAGE_DIRECTORY).resolve(this.moduleJarName)
                 .resolve(CoverageConstants.EXTRACTED_DIRECTORY_NAME).resolve(this.orgName).toString();
         String commonDir = this.targetPath.resolve(TARGET_COVERAGE_DIRECTORY).resolve(this.moduleJarName).toString();
-        String cmd = this.javaCommand + " -jar " + this.balHome.resolve(BALLERINA_HOME_BRE).resolve(BALLERINA_HOME_LIB)
-                .resolve(CoverageConstants.CLI_FILE_NAME).toString()
-                + " report " + execFilePath
-                + " --classfiles " + classFilesPath
-                + " --sourcefiles " + commonDir
-                + " --html " + commonDir
-                + " --name " + CoverageConstants.COVERAGE_REPORT_NAME;
+        // building the java command
+        List<String> commands = new ArrayList<>();
+        commands.add(javaCommand);
+        commands.add("-jar");
+        commands.add(this.balHome.resolve(BALLERINA_HOME_BRE).resolve(BALLERINA_HOME_LIB)
+                .resolve(CoverageConstants.CLI_FILE_NAME).toString());
+        commands.add("report");
+        commands.add(execFilePath);
+        commands.add("--classfiles");
+        commands.add(classFilesPath);
+        commands.add("--sourcefiles");
+        commands.add(commonDir);
+        commands.add("--html");
+        commands.add(commonDir);
+        commands.add("--name");
+        commands.add(this.orgName);
         try {
-            Process proc = Runtime.getRuntime().exec(cmd);
+            ProcessBuilder processBuilder = new ProcessBuilder(commands);
+            Process proc = processBuilder.start();
             proc.waitFor();
         } catch (RuntimeException e) {
             throw new RuntimeException(e);

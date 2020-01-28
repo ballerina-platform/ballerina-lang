@@ -24,6 +24,8 @@ import java.util.HashMap;
 
 /**
  * Java class to store and get data from a json (for a test run).
+ *
+ * @since 1.2.o
  */
 public class TestJsonData {
     private String orgName;

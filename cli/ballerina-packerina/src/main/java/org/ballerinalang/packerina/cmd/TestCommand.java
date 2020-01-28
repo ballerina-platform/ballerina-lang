@@ -281,7 +281,7 @@ public class TestCommand implements BLauncherCmd {
                         this.noOptimizeLLVM))
                 .addTask(new CopyModuleJarTask(skipCopyLibsFromDist))
                 .addTask(new CreateJsonTask()) // // create the json to store test init data
-                .addTask(new RunTestsTask(this.coverage)) // run tests
+                .addTask(new RunTestsTask(this.coverage, args)) // run tests
                 .build();
 
         taskExecutor.executeTasks(buildContext);
@@ -310,4 +310,5 @@ public class TestCommand implements BLauncherCmd {
     @Override
     public void setParentCmdParser(CommandLine parentCmdParser) {
     }
+
 }
