@@ -50,7 +50,7 @@ OPTIONS
        --experimental
            Enable experimental language features.
 
-       -cc, --coverage
+       -cc, --code-coverage
            Generate the coverage report for the test run.
 
 CONFIG PROPERTIES

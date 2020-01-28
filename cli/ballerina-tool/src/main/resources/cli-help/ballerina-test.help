@@ -36,7 +36,7 @@ OPTIONS
        --debug
            Start Ballerina in remote debugging mode.
 
-       -c, --coverage
+       -c, --code-coverage
            Generate the coverage report for the test run.
 
 CONFIG PROPERTIES
@@ -56,4 +56,4 @@ EXAMPLES
            $ ballerina test math
 
         Generate coverage report for tests in math module.
-           $ ballerina test --coverage math
+           $ ballerina test -cc math
