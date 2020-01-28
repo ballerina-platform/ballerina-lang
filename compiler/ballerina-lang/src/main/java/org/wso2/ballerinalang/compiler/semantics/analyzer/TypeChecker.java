@@ -25,6 +25,7 @@ import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.tree.expressions.NamedArgNode;
+import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.parser.BLangAnonymousModelHelper;
@@ -66,6 +67,9 @@ import org.wso2.ballerinalang.compiler.tree.BLangInvokableNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
+import org.wso2.ballerinalang.compiler.tree.BLangVariable;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAccessExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
@@ -86,6 +90,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression.BLangMatchExprPatternClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKey;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKeyValue;
@@ -118,6 +123,8 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQName;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQuotedString;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLTextLiteral;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
 import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 import org.wso2.ballerinalang.compiler.util.BArrayState;
 import org.wso2.ballerinalang.compiler.util.ClosureVarSymbol;
@@ -167,6 +174,7 @@ public class TypeChecker extends BLangNodeVisitor {
     private TypeNarrower typeNarrower;
     private TypeParamAnalyzer typeParamAnalyzer;
     private BLangAnonymousModelHelper anonymousModelHelper;
+    private SemanticAnalyzer semanticAnalyzer;
 
     /**
      * Expected types or inherited types.
@@ -197,6 +205,7 @@ public class TypeChecker extends BLangNodeVisitor {
         this.typeNarrower = TypeNarrower.getInstance(context);
         this.typeParamAnalyzer = TypeParamAnalyzer.getInstance(context);
         this.anonymousModelHelper = BLangAnonymousModelHelper.getInstance(context);
+        this.semanticAnalyzer = SemanticAnalyzer.getInstance(context);
     }
 
     public BType checkExpr(BLangExpression expr, SymbolEnv env) {
@@ -2562,6 +2571,43 @@ public class TypeChecker extends BLangNodeVisitor {
     @Override
     public void visit(BLangCheckPanickedExpr checkedExpr) {
         visitCheckAndCheckPanicExpr(checkedExpr);
+    }
+
+    @Override
+    public void visit(BLangQueryExpr queryExpr) {
+        BLangFromClause fromClause = (BLangFromClause) queryExpr.getFromClauseNode();
+        checkExpr(fromClause.collection, env);
+
+        // Set the type of the foreach node's type node.
+        types.setFromClauseTypedBindingPatternType(fromClause);
+
+        SymbolEnv fromClauseEnv = SymbolEnv.createTypeNarrowedEnv(fromClause, env);
+        handleForeachVariables(fromClause, fromClauseEnv);
+
+        BLangSelectClause selectClause = (BLangSelectClause) queryExpr.getSelectClauseNode();
+        checkExpr(selectClause.expression, fromClauseEnv);
+
+    }
+
+    private void handleForeachVariables(BLangFromClause fromClause, SymbolEnv blockEnv) {
+        BLangVariable variableNode = (BLangVariable) fromClause.variableDefinitionNode.getVariable();
+        // Check whether the foreach node's variables are declared with var.
+        if (fromClause.isDeclaredWithVar) {
+            // If the foreach node's variables are declared with var, type is `varType`.
+            semanticAnalyzer.handleDeclaredVarInForeach(variableNode, fromClause.varType, blockEnv);
+            return;
+        }
+        // If the type node is available, we get the type from it.
+        BType typeNodeType = symResolver.resolveTypeNode(variableNode.typeNode, blockEnv);
+        // Then we need to check whether the RHS type is assignable to LHS type.
+        if (types.isAssignable(fromClause.varType, typeNodeType)) {
+            // If assignable, we set types to the variables.
+            semanticAnalyzer.handleDeclaredVarInForeach(variableNode, fromClause.varType, blockEnv);
+            return;
+        }
+        // Log an error and define a symbol with the node's type to avoid undeclared symbol errors.
+        dlog.error(variableNode.typeNode.pos, DiagnosticCode.INCOMPATIBLE_TYPES, fromClause.varType, typeNodeType);
+        semanticAnalyzer.handleDeclaredVarInForeach(variableNode, typeNodeType, blockEnv);
     }
 
     private void visitCheckAndCheckPanicExpr(BLangCheckedExpr checkedExpr) {

@@ -19,6 +19,8 @@ package org.wso2.ballerinalang.compiler.tree;
 
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS.BLangLocalXMLNS;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS.BLangPackageXMLNS;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
@@ -57,6 +59,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression.BLangMatchExprPatternClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNumericLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangChannelLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangJSONLiteral;
@@ -286,6 +289,14 @@ public abstract class BLangNodeVisitor {
     }
 
     public void visit(BLangForeach foreach) {
+        throw new AssertionError();
+    }
+
+    public void visit(BLangFromClause fromClause) {
+        throw new AssertionError();
+    }
+
+    public void visit(BLangSelectClause selectClause) {
         throw new AssertionError();
     }
 
@@ -528,6 +539,10 @@ public abstract class BLangNodeVisitor {
     }
 
     public void visit(BLangAnnotAccessExpr annotAccessExpr) {
+        throw new AssertionError();
+    }
+
+    public void visit(BLangQueryExpr queryExpr) {
         throw new AssertionError();
     }
 

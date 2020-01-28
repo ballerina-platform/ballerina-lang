@@ -49,6 +49,8 @@ import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAccessExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
@@ -75,6 +77,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownReturnParam
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNumericLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKey;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKeyValue;
@@ -1186,6 +1189,35 @@ class NodeCloner extends BLangNodeVisitor {
         clone.pkgAlias = source.pkgAlias;
         clone.annotationName = source.annotationName;
         cloneBLangAccessExpression(source, clone);
+    }
+
+    @Override
+    public void visit(BLangQueryExpr source) {
+
+        BLangQueryExpr clone = new BLangQueryExpr();
+        source.cloneRef = clone;
+        clone.fromClause = clone(source.fromClause);
+        clone.selectClause = clone(source.selectClause);
+    }
+
+    @Override
+    public void visit(BLangFromClause source) {
+
+        BLangFromClause clone = new BLangFromClause();
+        source.cloneRef = clone;
+        clone.variableDefinitionNode = clone(source.variableDefinitionNode);
+        clone.collection = clone(source.collection);
+        clone.isDeclaredWithVar = source.isDeclaredWithVar;
+        clone.varType = source.varType;
+        clone.resultType = source.resultType;
+    }
+
+    @Override
+    public void visit(BLangSelectClause source) {
+
+        BLangSelectClause clone = new BLangSelectClause();
+        source.cloneRef = clone;
+        clone.expression = clone(source.expression);
     }
 
     @Override

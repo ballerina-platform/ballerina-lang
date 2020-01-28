@@ -88,6 +88,8 @@ import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS.BLangLocalXMLNS;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS.BLangPackageXMLNS;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAccessExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
@@ -125,6 +127,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression.BLangMatchExprPatternClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangJSONLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangMapLiteral;
@@ -4322,6 +4325,50 @@ public class Desugar extends BLangNodeVisitor {
         bLangStatementExpression.expr = rewriteExpr(bLangStatementExpression.expr);
         bLangStatementExpression.stmt = rewrite(bLangStatementExpression.stmt, env);
         result = bLangStatementExpression;
+    }
+
+    @Override
+    public void visit(BLangQueryExpr queryExpr) {
+
+        BLangFromClause fromClause = queryExpr.fromClause;
+        BLangSelectClause selectClause = queryExpr.selectClause;
+        DiagnosticPos pos = fromClause.pos;
+
+        BLangForeach foreach = (BLangForeach) TreeBuilder.createForeachNode();
+        foreach.pos = queryExpr.pos;
+        foreach.collection = fromClause.collection;
+        types.setForeachTypedBindingPatternType(foreach);
+
+        final BLangSimpleVariable foreachVariable = ASTBuilderUtil.createVariable(pos,
+                "$foreach$i", foreach.varType);
+        foreachVariable.symbol = new BVarSymbol(0, names.fromIdNode(foreachVariable.name),
+                this.env.scope.owner.pkgID, foreachVariable.type, this.env.scope.owner);
+        BLangSimpleVarRef foreachVarRef = ASTBuilderUtil.createVariableRef(pos, foreachVariable.symbol);
+        foreach.variableDefinitionNode = ASTBuilderUtil.createVariableDef(pos, foreachVariable);
+        foreach.isDeclaredWithVar = true;
+        BLangBlockStmt foreachBody = ASTBuilderUtil.createBlockStmt(pos);
+
+        // t[t.length()] = <T> tupleLiteral[$foreach$i];
+//        BLangIndexBasedAccess indexAccessExpr = ASTBuilderUtil.createIndexAccessExpr(restParam,
+//                createLengthInvocation(pos, restParam));
+//        indexAccessExpr.type = restParamType.eType;
+//        createSimpleVarRefAssignmentStmt(indexAccessExpr, foreachBody, foreachVarRef, tupleVarSymbol, null);
+//
+//        foreach.body = foreachBody;
+//        blockStmt.addStatement(foreach)
+    }
+
+
+    private BLangInvocation createLengthInvocation(DiagnosticPos pos, BVarSymbol collectionSymbol) {
+        BInvokableSymbol lengthInvokableSymbol =
+                (BInvokableSymbol) symResolver.lookupLangLibMethod(collectionSymbol.type,
+                        names.fromString("length"));
+        BLangSimpleVarRef collection = ASTBuilderUtil.createVariableRef(pos, collectionSymbol);
+        BLangInvocation lengthInvocation = ASTBuilderUtil.createInvocationExprForMethod(pos, lengthInvokableSymbol,
+                Lists.of(collection), symResolver);
+        lengthInvocation.type = lengthInvokableSymbol.type.getReturnType();
+        // Note: No need to set lengthInvocation.expr for langLib functions as they are in requiredArgs
+        return lengthInvocation;
     }
 
     @Override
