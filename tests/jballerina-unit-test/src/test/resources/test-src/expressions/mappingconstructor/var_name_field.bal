@@ -82,6 +82,49 @@ function testLikeModuleQualifiedVarNameAsJsonField() {
     panic getFailureError(expectedM, m);
 }
 
+annotation Foo foo on service;
+
+service serv1 =
+@foo {
+    s,
+    i
+}
+service {
+
+};
+
+function testVarNameFieldInAnnotation() {
+    s = "new value";
+
+    service serv2 =
+    @foo {
+        s,
+        i: 100
+    }
+    service {
+
+    };
+
+    typedesc<any> t1 = typeof serv1;
+    Foo? fn1 = t1.@foo;
+    Foo expectedFn1 = {s: "global s", i: 1};
+
+    if fn1 != expectedFn1 {
+        panic getFailureError(expectedFn1, fn1);
+    }
+
+    typedesc<any> t2 = typeof serv2;
+    Foo? fn2 = t2.@foo;
+    Foo expectedFn2 = {s: "new value", i: 100};
+
+    if fn2 == expectedFn2 {
+        return;
+    }
+
+    panic getFailureError(expectedFn2, fn2);
+}
+
+
 function getFailureError(any|error expected, any|error actual) returns error {
     return  error(ASSERTION_ERROR_REASON,
                     message = "expected '" + expected.toString() + "', found '" + actual.toString () + "'");

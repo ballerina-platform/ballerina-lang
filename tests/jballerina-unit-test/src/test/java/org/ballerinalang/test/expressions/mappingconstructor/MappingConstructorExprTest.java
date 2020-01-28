@@ -94,6 +94,7 @@ public class MappingConstructorExprTest {
                 { "testVarNameAsMapField" },
                 { "testVarNameAsJsonField" },
                 { "testLikeModuleQualifiedVarNameAsJsonField" },
+                { "testVarNameFieldInAnnotation" } // final test using `s` since `s` is updated
         };
     }
 }
