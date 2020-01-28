@@ -278,15 +278,35 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitRestDescriptorPredicate(BallerinaParser.RestDescriptorPredicateContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link BallerinaParser#objectFunctionDefinition}.
+	 * Enter a parse tree produced by {@link BallerinaParser#objectMethod}.
 	 * @param ctx the parse tree
 	 */
-	void enterObjectFunctionDefinition(BallerinaParser.ObjectFunctionDefinitionContext ctx);
+	void enterObjectMethod(BallerinaParser.ObjectMethodContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link BallerinaParser#objectFunctionDefinition}.
+	 * Exit a parse tree produced by {@link BallerinaParser#objectMethod}.
 	 * @param ctx the parse tree
 	 */
-	void exitObjectFunctionDefinition(BallerinaParser.ObjectFunctionDefinitionContext ctx);
+	void exitObjectMethod(BallerinaParser.ObjectMethodContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#methodDeclaration}.
+	 * @param ctx the parse tree
+	 */
+	void enterMethodDeclaration(BallerinaParser.MethodDeclarationContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#methodDeclaration}.
+	 * @param ctx the parse tree
+	 */
+	void exitMethodDeclaration(BallerinaParser.MethodDeclarationContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#methodDefinition}.
+	 * @param ctx the parse tree
+	 */
+	void enterMethodDefinition(BallerinaParser.MethodDefinitionContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#methodDefinition}.
+	 * @param ctx the parse tree
+	 */
+	void exitMethodDefinition(BallerinaParser.MethodDefinitionContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#annotationDefinition}.
 	 * @param ctx the parse tree
