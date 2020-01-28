@@ -76,7 +76,7 @@ functionDefinition
     ;
 
 lambdaFunction
-    :   FUNCTION LEFT_PARENTHESIS formalParameterList? RIGHT_PARENTHESIS (RETURNS lambdaReturnParameter)? callableUnitBody
+    :   FUNCTION functionSignature blockFunctionBody
     ;
 
 arrowFunction
