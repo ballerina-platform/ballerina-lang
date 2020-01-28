@@ -92,7 +92,7 @@ public class ProjectDirConstants {
     public static final String BALO_CACHE_DIR_NAME = "balo_cache";
     public static final String BIR_CACHE_DIR_NAME = "bir_cache";
     public static final String JAR_CACHE_DIR_NAME = "jar_cache";
-    public static final String JSON_CACHE_DIR_NAME = "json_cache";
+    public static final String JSON_CACHE_DIR_NAME = "test_cache";
 
     public static final String BLANG_PKG_DEFAULT_VERSION = "0.0.0";
 }
