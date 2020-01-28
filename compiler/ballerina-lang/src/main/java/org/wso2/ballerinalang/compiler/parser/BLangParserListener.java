@@ -261,18 +261,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      * {@inheritDoc}
      */
     @Override
-    public void enterCallableUnitBody(BallerinaParser.CallableUnitBodyContext ctx) {
-        if (isInErrorState) {
-            return;
-        }
-
-        this.pkgBuilder.startBlock();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public void enterBlockFunctionBody(BallerinaParser.BlockFunctionBodyContext ctx) {
         if (isInErrorState) {
             return;
@@ -285,24 +273,12 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      * {@inheritDoc}
      */
     @Override
-    public void exitCallableUnitBody(BallerinaParser.CallableUnitBodyContext ctx) {
-        if (isInErrorState) {
-            return;
-        }
-
-        this.pkgBuilder.endCallableUnitBody(getWS(ctx));
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public void exitBlockFunctionBody(BallerinaParser.BlockFunctionBodyContext ctx) {
         if (isInErrorState) {
             return;
         }
 
-        this.pkgBuilder.endCallableUnitBody(getWS(ctx));
+        this.pkgBuilder.endBlockFunctionBody(getWS(ctx));
     }
 
     /**
@@ -367,12 +343,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        BallerinaParser.FunctionSignatureContext funcSignature = ctx.functionSignature();
-        boolean hasParams = funcSignature.formalParameterList() != null;
-        boolean hasReturn = funcSignature.returnParameter() != null;
-        boolean hasRestParam = hasParams && funcSignature.formalParameterList().restParameter() != null;
-
-        this.pkgBuilder.addLambdaFunctionDef(getCurrentPos(ctx), getWS(ctx), hasParams, hasReturn, hasRestParam);
+        this.pkgBuilder.addLambdaFunctionDef(getCurrentPos(ctx), getWS(ctx));
     }
 
     @Override
@@ -401,22 +372,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
         this.pkgBuilder.addVarWithoutType(getCurrentPos(ctx), getWS(ctx), ctx.Identifier().getText(),
                                           getCurrentPos(ctx.Identifier()), false, 0);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void exitCallableUnitSignature(BallerinaParser.CallableUnitSignatureContext ctx) {
-        if (isInErrorState) {
-            return;
-        }
-
-        this.pkgBuilder.endCallableUnitSignature(getCurrentPos(ctx), getWS(ctx), ctx.anyIdentifierName().getText(),
-                                                 getCurrentPos(ctx.anyIdentifierName()),
-                                                 ctx.formalParameterList() != null,
-                                                 ctx.returnParameter() != null, ctx.formalParameterList() != null
-                                                         && ctx.formalParameterList().restParameter() != null);
     }
 
     /**

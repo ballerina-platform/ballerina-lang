@@ -64,7 +64,7 @@ public class SubRuleParserErrorStrategy extends DefaultErrorStrategy {
         }
         if (isInvalidExpressionContext(parserRuleContext)
                 || parserRuleContext instanceof BallerinaParser.AnyIdentifierNameContext
-                || parserRuleContext instanceof BallerinaParser.CallableUnitSignatureContext
+                || parserRuleContext instanceof BallerinaParser.BlockFunctionBodyContext
                 || parserRuleContext instanceof BallerinaParser.PackageNameContext
                 || parserRuleContext instanceof BallerinaParser.TypeNameContext
                 || parserRuleContext instanceof BallerinaParser.TypeInitExprContext

@@ -98,16 +98,6 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitServiceBody(BallerinaParser.ServiceBodyContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link BallerinaParser#callableUnitBody}.
-	 * @param ctx the parse tree
-	 */
-	void enterCallableUnitBody(BallerinaParser.CallableUnitBodyContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link BallerinaParser#callableUnitBody}.
-	 * @param ctx the parse tree
-	 */
-	void exitCallableUnitBody(BallerinaParser.CallableUnitBodyContext ctx);
-	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#blockFunctionBody}.
 	 * @param ctx the parse tree
 	 */
@@ -187,16 +177,6 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitFunctionSignature(BallerinaParser.FunctionSignatureContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link BallerinaParser#callableUnitSignature}.
-	 * @param ctx the parse tree
-	 */
-	void enterCallableUnitSignature(BallerinaParser.CallableUnitSignatureContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link BallerinaParser#callableUnitSignature}.
-	 * @param ctx the parse tree
-	 */
-	void exitCallableUnitSignature(BallerinaParser.CallableUnitSignatureContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#typeDefinition}.
 	 * @param ctx the parse tree
