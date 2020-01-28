@@ -2671,6 +2671,13 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         }
     }
 
+    private String fillWithZeros(String str) {
+        while (str.length() < 4) {
+            str = "0".concat(str);
+        }
+        return str;
+    }
+
     /**
      * {@inheritDoc}
      */
@@ -2705,7 +2712,8 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             String originalText = text; // to log the errors
             Pattern pattern = Pattern.compile(Constants.UNICODE_REGEX);
             Matcher matcher = pattern.matcher(text);
-            while (matcher.find()) {
+            int position = 0;
+            while (matcher.find(position)) {
                 String hexStringVal = matcher.group(1);
                 int hexDecimalVal = Integer.parseInt(hexStringVal, 16);
                 if ((hexDecimalVal >= 0xD800 && hexDecimalVal <= 0xDFFF) || hexDecimalVal > 0x10FFFF) {
@@ -2715,7 +2723,8 @@ public class BLangParserListener extends BallerinaParserBaseListener {
                                     pos.sCol + offset + hexStringWithBraces.length()),
                             DiagnosticCode.INVALID_UNICODE, hexStringWithBraces);
                 }
-                text = matcher.replaceFirst("\\\\u" + hexStringVal);
+                text = matcher.replaceFirst("\\\\u" + fillWithZeros(hexStringVal));
+                position = matcher.end() - 2;
                 matcher = pattern.matcher(text);
             }
             text = StringEscapeUtils.unescapeJava(text);

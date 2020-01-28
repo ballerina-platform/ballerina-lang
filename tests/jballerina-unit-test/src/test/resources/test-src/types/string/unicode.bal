@@ -18,13 +18,17 @@ const ASSERTION_ERROR_REASON = "AssertionError";
 
 function testUnicode() {
     string s1 = "\u{0633}";
-    string s2 = "ABC\u{0633}CDE";
-    string s3 = "ABC \u{0633} CDE";
-    string s4 = "ABC \u{0633} CDE \u{0644} DEF \u{0644} XYZ";
+    string s2 = "\u{633}";
+    string s3 = "ABC\u{0644}\u{1048}CDE";
+    string s4 = "ABC\u{644}\u{1048}CDE";
+    string s5 = "ABC \u{0633} CDE";
+    string s6 = "ABC \u{0633} CDE \u{0644} DEF \u{0644} XYZ";
 
-    if (s1 == "س" && s2 == "ABCسCDE" && s3 == "ABC س CDE" && s4 == "ABC س CDE ل DEF ل XYZ") {
+    if (s1 == "س" && s2 == "س" && s3 == "ABCل၈CDE" && s4 == "ABCل၈CDE" && s5 == "ABC س CDE"
+            && s6 == "ABC س CDE ل DEF ل XYZ") {
         return;
     }
-    panic error(ASSERTION_ERROR_REASON, message = "expected 'س', 'ABCسCDE', 'ABC س CDE', 'ABC س CDE ل DEF ل XYZ', "
-                                            + "found " + s1 + "', '" + s2 + "', '" + s3 + "', '" + s4 + "'");
+    panic error(ASSERTION_ERROR_REASON, message = "expected 'س', 'س', 'ABCل၈CDE', 'ABCل၈CDE', 'ABC س CDE', "
+            + " 'ABC س CDE ل DEF ل XYZ', found " + s1 + "', '" + s2 + "', '" + s3 + "', '" + s4 + "', '"
+            + s5 + "', '" + s6 + "'");
 }
