@@ -47,11 +47,6 @@ include(':ballerina-websub')
 include(':ballerina-xslt')
 include(':ballerina-observability')
 include(':ballerina-jdbc')
-include(':ballerina-docker')
-include(':ballerina-knative')
-include(':ballerina-kubernetes')
-include(':ballerina-istio')
-include(':ballerina-openshift')
 include(':ballerina-test-common')
 include(':lib-creator')
 include(':lib-creator-milestone')
@@ -249,11 +244,6 @@ project(':ballerina-oauth2').projectDir = file('stdlib/oauth2')
 project(':ballerina-jsonutils').projectDir = file('stdlib/jsonutils')
 project(':ballerina-bootstrapper').projectDir = file('distribution/bootstrapper')
 project(':ballerina-libs').projectDir = file('distribution/libs')
-project(':ballerina-docker').projectDir = file('stdlib/docker')
-project(':ballerina-knative').projectDir = file('stdlib/knative')
-project(':ballerina-kubernetes').projectDir = file('stdlib/kubernetes')
-project(':ballerina-openshift').projectDir = file('stdlib/openshift')
-project(':ballerina-istio').projectDir = file('stdlib/istio')
 project(':ballerina-xmlutils').projectDir = file('stdlib/xmlutils')
 project(':ballerina-llvm').projectDir = file('stdlib/llvm')
 
@@ -266,5 +256,3 @@ buildCache {
         push = true
     }
 }
-include 'knative'
-
