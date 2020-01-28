@@ -54,10 +54,6 @@ serviceBody
     :   LEFT_BRACE objectMethod* RIGHT_BRACE
     ;
 
-callableUnitBody
-    :   LEFT_BRACE statement* (workerDeclaration+ statement*)? RIGHT_BRACE
-    ;
-
 blockFunctionBody
     :   LEFT_BRACE statement* (workerDeclaration+ statement*)? RIGHT_BRACE
     ;
@@ -90,10 +86,6 @@ arrowParam
 
 functionSignature
     :   LEFT_PARENTHESIS formalParameterList? RIGHT_PARENTHESIS returnParameter?
-    ;
-
-callableUnitSignature
-    :   anyIdentifierName LEFT_PARENTHESIS formalParameterList? RIGHT_PARENTHESIS returnParameter?
     ;
 
 typeDefinition
