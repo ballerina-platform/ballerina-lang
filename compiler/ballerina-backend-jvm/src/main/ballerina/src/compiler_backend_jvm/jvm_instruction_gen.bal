@@ -701,8 +701,8 @@ type InstructionGenerator object {
                     io:sprintf("(L%s;L%s;L%s;)V", OBJECT, STRING_VALUE, OBJECT), false);
         } else {
             self.mv.visitMethodInsn(INVOKESTATIC, MAP_UTILS, "handleMapStore",
-                                        io:sprintf("(L%s;L%s;L%s;)V", MAP_VALUE, STRING_VALUE, OBJECT),
-                                        false);
+                                        io:sprintf("(L%s;L%s;L%s;)V",
+                                        MAP_VALUE, IS_BSTRING ? I_STRING_VALUE : STRING_VALUE, OBJECT), false);
         }
     }
 
