@@ -38,14 +38,14 @@ function testFilter() returns boolean {
         return person.age > 100 && person.name != "James";
     });
 
-    var filteredPerson = <record {Person value;}>filteredPersonStream.next();
-    testPassed = testPassed && filteredPerson.value == mohan;
+    var filteredPerson = filteredPersonStream.next();
+    testPassed = testPassed && filteredPerson?.value == mohan;
 
-    filteredPerson = <record {Person value;}>filteredPersonStream.next();
-    testPassed = testPassed && filteredPerson.value == grainier;
+    filteredPerson = filteredPersonStream.next();
+    testPassed = testPassed && filteredPerson?.value == grainier;
 
-    filteredPerson = <record {Person value;}>filteredPersonStream.next();
-    testPassed = testPassed && filteredPerson.value == sinthuja;
+    filteredPerson = filteredPersonStream.next();
+    testPassed = testPassed && filteredPerson?.value == sinthuja;
 
     return testPassed;
 }
