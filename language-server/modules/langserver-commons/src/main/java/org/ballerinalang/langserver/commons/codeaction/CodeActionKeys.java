@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, WSO2 Inc. (http://wso2.com) All Rights Reserved.
+ * Copyright (c) 2020, WSO2 Inc. (http://wso2.com) All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,22 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.ballerinalang.langserver.command;
+package org.ballerinalang.langserver.commons.codeaction;
 
-import org.ballerinalang.langserver.BallerinaLanguageServer;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
-import org.ballerinalang.langserver.diagnostic.DiagnosticsHelper;
 import org.eclipse.lsp4j.Position;
 
 import java.util.List;
 
 /**
- * Keys associated to execute command operation.
+ * Keys associated to code action operation.
  *
- * @since v0.964.0
+ * @since 1.2.0
  */
-public class ExecuteCommandKeys {
+public class CodeActionKeys {
 
     public static final LSContext.Key<WorkspaceDocumentManager> DOCUMENT_MANAGER_KEY = new LSContext.Key<>();
 
@@ -38,12 +36,8 @@ public class ExecuteCommandKeys {
 
     public static final LSContext.Key<List<Object>> COMMAND_ARGUMENTS_KEY = new LSContext.Key<>();
 
-    public static final LSContext.Key<BallerinaLanguageServer> LANGUAGE_SERVER_KEY = new LSContext.Key<>();
-
     public static final LSContext.Key<String> PKG_NAME_KEY = new LSContext.Key<>();
 
-    public static final LSContext.Key<DiagnosticsHelper> DIAGNOSTICS_HELPER_KEY = new LSContext.Key<>();
-
-    private ExecuteCommandKeys() {
+    private CodeActionKeys() {
     }
 }

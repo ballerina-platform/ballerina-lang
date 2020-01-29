@@ -41,9 +41,12 @@
         </OR>
     </Match>
     <Match>
-        <Class name="org.ballerinalang.langserver.compiler.common.LSDocument" />
+        <Class name="org.ballerinalang.langserver.compiler.common.LSDocumentIdentifierImpl" />
         <OR>
             <Bug pattern="NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE" />
+        </OR>
+        <OR>
+            <Bug pattern="REC_CATCH_EXCEPTION" />
         </OR>
     </Match>
 </FindBugsFilter>

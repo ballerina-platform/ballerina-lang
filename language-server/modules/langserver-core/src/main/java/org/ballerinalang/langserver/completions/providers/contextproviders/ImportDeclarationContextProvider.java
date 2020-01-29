@@ -22,9 +22,9 @@ import org.antlr.v4.runtime.Token;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.LSContext;
+import org.ballerinalang.langserver.commons.workspace.LSDocumentIdentifier;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSPackageLoader;
-import org.ballerinalang.langserver.compiler.common.LSDocument;
 import org.ballerinalang.langserver.compiler.common.modal.BallerinaPackage;
 import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
@@ -106,7 +106,7 @@ public class ImportDeclarationContextProvider extends AbstractCompletionProvider
         /*
         If within a project, suggest the project modules except the owner module of the file which being processed
          */
-        LSDocument lsDocument = ctx.get(DocumentServiceKeys.LS_DOCUMENT_KEY);
+        LSDocumentIdentifier lsDocument = ctx.get(DocumentServiceKeys.LS_DOCUMENT_KEY);
         if (lsDocument != null && lsDocument.isWithinProject()) {
             String ownerModule = lsDocument.getOwnerModule();
             List<String> projectModules = lsDocument.getProjectModules();

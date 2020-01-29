@@ -15,9 +15,8 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.langserver.compiler.workspace;
+package org.ballerinalang.langserver.commons.workspace;
 
-import org.ballerinalang.langserver.compiler.common.LSDocument;
 import org.eclipse.lsp4j.CodeLens;
 
 import java.nio.file.Path;
@@ -131,7 +130,7 @@ public interface WorkspaceDocumentManager {
      * @return LSDocument of the file
      * @throws WorkspaceDocumentException when the LSDocument is not available
      */
-    LSDocument getLSDocument(Path filePath) throws WorkspaceDocumentException;
+    LSDocumentIdentifier getLSDocument(Path filePath) throws WorkspaceDocumentException;
 
     /**
      * Close the given file in document manager.

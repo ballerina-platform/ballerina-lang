@@ -19,9 +19,9 @@ package org.ballerinalang.langserver;
 
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.LSOperation;
+import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSContextImpl;
-import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.signature.SignatureKeys;
 import org.eclipse.lsp4j.CompletionCapabilities;

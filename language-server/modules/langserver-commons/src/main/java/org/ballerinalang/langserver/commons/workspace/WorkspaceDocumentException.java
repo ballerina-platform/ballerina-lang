@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.ballerinalang.langserver.compiler.workspace;
+package org.ballerinalang.langserver.commons.workspace;
 
 /**
  * This exception is thrown when Document Manager encounters an error.
