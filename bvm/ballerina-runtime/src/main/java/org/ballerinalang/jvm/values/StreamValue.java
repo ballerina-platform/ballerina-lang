@@ -126,7 +126,8 @@ public class StreamValue implements RefValue, BStream {
                 return null;
             }
         } while (!filter.execute(strand, next));
-        return next;
+
+        return mapper.execute(strand, next);
     }
 
 
