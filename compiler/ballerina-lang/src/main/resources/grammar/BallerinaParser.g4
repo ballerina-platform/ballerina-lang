@@ -62,6 +62,10 @@ externalFunctionBody
     :   ASSIGN annotationAttachment* EXTERNAL
     ;
 
+exprFunctionBody
+    :   EQUAL_GT expression
+    ;
+
 functionDefinitionBody
     :   blockFunctionBody
     |   externalFunctionBody SEMICOLON
@@ -71,16 +75,25 @@ functionDefinition
     :   (PUBLIC | PRIVATE)? REMOTE? FUNCTION anyIdentifierName functionSignature functionDefinitionBody
     ;
 
-lambdaFunction
+anonymousFunctionExpr
+    :   explicitAnonymousFunctionExpr
+    |   inferAnonymousFunctionExpr
+    ;
+
+explicitAnonymousFunctionExpr
     :   FUNCTION functionSignature blockFunctionBody
     ;
 
-arrowFunction
-    :   arrowParam EQUAL_GT expression
-    |   LEFT_PARENTHESIS (arrowParam (COMMA arrowParam)*)? RIGHT_PARENTHESIS EQUAL_GT expression
+inferAnonymousFunctionExpr
+    :   inferParamList exprFunctionBody
     ;
 
-arrowParam
+inferParamList
+    :   inferParam
+    |   LEFT_PARENTHESIS (inferParam (COMMA inferParam)*)? RIGHT_PARENTHESIS
+    ;
+
+inferParam
     :   Identifier
     ;
 
@@ -789,8 +802,8 @@ expression
     |   expression OR expression                                            # binaryOrExpression
     |   expression ELVIS expression                                         # elvisExpression
     |   expression QUESTION_MARK expression COLON expression                # ternaryExpression
-    |   lambdaFunction                                                      # lambdaFunctionExpression
-    |   arrowFunction                                                       # arrowFunctionExpression
+    |   explicitAnonymousFunctionExpr                                       # explicitAnonymousFunctionExpression
+    |   inferAnonymousFunctionExpr                                          # inferAnonymousFunctionExpression
     |   LEFT_PARENTHESIS expression RIGHT_PARENTHESIS                       # groupExpression
     |   expression SYNCRARROW peerWorker                                    # workerSendSyncExpression
     |   WAIT (waitForCollection | expression)                               # waitExpression
@@ -845,10 +858,6 @@ functionNameReference
 
 returnParameter
     :   RETURNS annotationAttachment* typeName
-    ;
-
-lambdaReturnParameter
-    :   annotationAttachment* typeName
     ;
 
 parameterTypeNameList
