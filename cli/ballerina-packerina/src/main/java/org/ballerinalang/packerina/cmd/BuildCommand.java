@@ -196,7 +196,7 @@ public class BuildCommand implements BLauncherCmd {
             //// Check if the output flag is set when building all the modules.
             if (null != this.output) {
                 CommandUtil.printError(this.errStream,
-                                       "'-o' and '--output' are only supported for building a single Ballerina " +
+                                       "'-o' and '--output' are only supported when building a single Ballerina " +
                                                "file.",
                                        "ballerina build -o <output-file> <ballerina-file> ",
                                        true);
