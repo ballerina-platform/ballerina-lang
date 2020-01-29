@@ -141,6 +141,11 @@ public const WRITING_100_CONTINUE_RESPONSE_FAILED = "{ballerina/http}Writing100C
 # Represents an error that occurred while writing 100 continue response
 public type Writing100ContinueResponseError error<WRITING_100_CONTINUE_RESPONSE_FAILED, Detail>;
 
+# Represents the reason string for the `http:InvalidCookieError`
+public const INVALID_COOKIE_ERROR = "{ballerina/http}InvalidCookieError";
+# Represents a cookie error that occurred when sending cookies in the response
+public type InvalidCookieError error<INVALID_COOKIE_ERROR, Detail>;
+
 // Generic errors (mostly to wrap errors from other modules)
 # Error reason for generic client error
 public const GENERIC_CLIENT_ERROR = "{ballerina/http}GenericClientError";
@@ -202,7 +207,7 @@ public type InboundRequestError InitializingInboundRequestError|ReadingInboundRe
 # Defines the listener error types that returned while sending outbound response
 public type OutboundResponseError InitializingOutboundResponseError|WritingOutboundResponseHeadersError|
                             WritingOutboundResponseBodyError|Initiating100ContinueResponseError|
-                            Writing100ContinueResponseError|CookieHandlingError;
+                            Writing100ContinueResponseError|InvalidCookieError;
 
 # Defines the possible client error types
 public type ClientError ResiliencyError|ClientAuthError|OutboundRequestError|
