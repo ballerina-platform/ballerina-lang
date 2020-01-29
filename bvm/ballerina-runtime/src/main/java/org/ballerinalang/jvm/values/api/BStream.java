@@ -18,7 +18,9 @@
 
 package org.ballerinalang.jvm.values.api;
 
+import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.types.BType;
+import org.ballerinalang.jvm.values.IteratorValue;
 
 /**
  * <p>
@@ -35,4 +37,26 @@ public interface BStream extends BRefValue {
      */
     BType getConstraintType();
 
+    /**
+     * Returns the internal iterator represented by this stream
+     *
+     * @return The internal iterator
+     */
+    IteratorValue getIterator();
+
+    /**
+     * Returns a stream which applies a filtering condition on the input stream.
+     *
+     * @param stream The input stream being filtered
+     * @param functionPointer The function pointer which represents the filtering condition
+     * @return The output stream
+     */
+    BStream filter(BStream stream, BFunctionPointer<Object, Boolean> functionPointer);
+
+    /**
+     * Returns the next element in the stream after applying filters, mapping and reductions
+     * @param scheduler The scheduler used to apply filtering, mapping , reducing ,,etc functions.
+     * @return The next element if the stream has or Nil if stream ends.
+     */
+    Object next(Scheduler scheduler);
 }

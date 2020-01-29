@@ -18,8 +18,10 @@
 
 package org.ballerinalang.jvm.values;
 
+import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.types.BStreamType;
 import org.ballerinalang.jvm.types.BType;
+import org.ballerinalang.jvm.values.api.BFunctionPointer;
 import org.ballerinalang.jvm.values.api.BStream;
 
 import java.util.Map;
@@ -39,6 +41,9 @@ public class StreamValue implements RefValue, BStream {
 
     private BType type;
     private BType constraintType;
+    private IteratorValue iterator;
+    public FunctionPointerWrapper<Boolean, Object> filter;
+    public FunctionPointerWrapper<Object, Object> mapper;
 
 
     /**
@@ -51,7 +56,28 @@ public class StreamValue implements RefValue, BStream {
         this.constraintType = ((BStreamType) type).getConstrainedType();
         this.type = new BStreamType(constraintType);
         this.streamId = UUID.randomUUID().toString();
+        this.iterator = null;
+        this.filter = new NoFilterFunctionPointerWrapper();
+        this.mapper = new NoMapFunctionPointerWrapper();
     }
+
+    public StreamValue(BType type, IteratorValue iterator, BFunctionPointer<Object, Boolean> filterFunc,
+                       BFunctionPointer<Object, Object> mapFunc) {
+        this.constraintType = ((BStreamType) type).getConstrainedType();
+        this.type = new BStreamType(constraintType);
+        this.streamId = UUID.randomUUID().toString();
+        this.iterator = iterator;
+
+        if (filterFunc != null) {
+            this.filter = new FilterFunctionPointerWrapper(filterFunc);
+        } else {
+            this.filter = new NoFilterFunctionPointerWrapper();
+        }
+
+        //TODO:
+        this.mapper = new NoMapFunctionPointerWrapper();
+    }
+
 
     public String getStreamId() {
         return streamId;
@@ -86,7 +112,64 @@ public class StreamValue implements RefValue, BStream {
     }
 
     @Override
+    public BStream filter(BStream stream, BFunctionPointer<Object, Boolean> filterFunc) {
+        return new StreamValue(stream.getType(), stream.getIterator(), filterFunc, null);
+    }
+
+    @Override
+    public Object next(Scheduler scheduler) {
+        Object next;
+        do {
+            next = iterator.next();
+
+            if (next == null) {
+                return null;
+            }
+        } while (!filter.execute(scheduler, next));
+        return next;
+    }
+
+
+    @Override
+    public IteratorValue getIterator() {
+        return iterator;
+    }
+
+    @Override
     public String toString() {
         return stringValue();
+    }
+
+    interface FunctionPointerWrapper<T, R> {
+        T execute(Scheduler scheduler, R element);
+    }
+
+    static class NoFilterFunctionPointerWrapper implements FunctionPointerWrapper<Boolean, Object> {
+
+        @Override
+        public Boolean  execute(Scheduler scheduler, Object element) {
+            return true;
+        }
+    }
+
+    static class NoMapFunctionPointerWrapper implements FunctionPointerWrapper<Object, Object> {
+
+        @Override
+        public Object  execute(Scheduler scheduler, Object element) {
+            return element;
+        }
+    }
+
+    static class FilterFunctionPointerWrapper implements FunctionPointerWrapper<Boolean, Object> {
+        private BFunctionPointer<Object, Boolean> filterFunc;
+
+        public FilterFunctionPointerWrapper(BFunctionPointer<Object, Boolean> filterFunc) {
+            this.filterFunc = filterFunc;
+        }
+
+        @Override
+        public Boolean execute(Scheduler scheduler, Object element) {
+            return filterFunc.call(element);
+        }
     }
 }
