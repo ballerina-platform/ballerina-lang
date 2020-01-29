@@ -379,8 +379,7 @@ public class BuildCommand implements BLauncherCmd {
                 .addTask(new CreateBirTask())   // create the bir
                 .addTask(new CopyNativeLibTask(skipCopyLibsFromDist))    // copy the native libs(projects only)
                 // create the jar.
-                .addTask(new CreateJarTask(this.dumpBIR, skipCopyLibsFromDist, this.nativeBinary, this.dumpLLVMIR,
-                        this.noOptimizeLlvm))
+                .addTask(new CreateJarTask(this.dumpBIR, skipCopyLibsFromDist))
                 .addTask(new CopyModuleJarTask(skipCopyLibsFromDist))
                 .addTask(new RunTestsTask(), this.skipTests || isSingleFileBuild) // run tests
                                                                                                 // (projects only)
