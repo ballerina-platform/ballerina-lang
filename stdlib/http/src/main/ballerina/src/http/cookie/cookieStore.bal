@@ -70,7 +70,7 @@ public type CookieStore object {
                 if (persistentCookieHandler is PersistentCookieHandler) {
                     var result = addPersistentCookie(identicalCookie, cookie, url, persistentCookieHandler, self);
                     if (result is error) {
-                        log:printError("Error in adding persistent cookies: ", err = result);
+                        log:printError("Error in adding persistent cookies: ", result);
                     }
                 } else if (isFirstRequest(self.allSessionCookies, domain)) {
                     log:printWarn("Client is not configured to use persistent cookies. Hence, persistent cookies from " + domain + " will be discarded.");
@@ -78,7 +78,7 @@ public type CookieStore object {
             } else {
                 var result = addSessionCookie(identicalCookie, cookie, url, self);
                 if (result is error) {
-                    log:printError("Error in adding session cookie: ", err = result);
+                    log:printError("Error in adding session cookie: ", result);
                 }
             }
         }
@@ -148,7 +148,7 @@ public type CookieStore object {
         if (persistentCookieHandler is PersistentCookieHandler) {
             var result = persistentCookieHandler.getAllCookies();
             if (result is error) {
-                log:printError("Error in getting persistent cookies: ", err = result);
+                log:printError("Error in getting persistent cookies: ", result);
             } else {
                 foreach var cookie in result {
                     allCookies.push(cookie);
@@ -194,7 +194,7 @@ public type CookieStore object {
     # + domain - Domain of the cookie to be removed
     # + path - Path of the cookie to be removed
     # + return - An error will be returned if there is any error occurred during the removal of the cookie or else nil is returned
-    public function removeCookie(string name, string domain, string path) returns error? {
+    public function removeCookie(string name, string domain, string path) returns CookieHandlingError? {
         lock {
             // Removes the session cookie if it is in the session cookies array, which is matched with the given name, domain, and path.
             int k = 0;
@@ -214,10 +214,8 @@ public type CookieStore object {
             var persistentCookieHandler = self.persistentCookieHandler;
             if (persistentCookieHandler is PersistentCookieHandler) {
                 return persistentCookieHandler.removeCookie(name, domain, path);
-            } else {
-                CookieHandlingError err = error(COOKIE_HANDLING_ERROR, message = "Error in removing cookie: No such cookie to remove");
-                return err;
             }
+            return error(COOKIE_HANDLING_ERROR, message = "Error in removing cookie: No such cookie to remove");
         }
     }
 
@@ -225,7 +223,7 @@ public type CookieStore object {
     #
     # + domain - Domain of the cookie to be removed
     # + return - An error will be returned if there is any error occurred during the removal of cookies by domain or else nil is returned
-    public function removeCookiesByDomain(string domain) returns error? {
+    public function removeCookiesByDomain(string domain) returns CookieHandlingError? {
         Cookie[] allCookies = self.getAllCookies();
         lock {
             foreach var cookie in allCookies {
@@ -237,8 +235,7 @@ public type CookieStore object {
                 if (cookieName is string && cookiePath is string) {
                     var result = self.removeCookie(cookieName, domain, cookiePath);
                     if (result is error) {
-                        CookieHandlingError err = error(COOKIE_HANDLING_ERROR, message = "Error in removing cookies", cause = result);
-                        return err;
+                        return error(COOKIE_HANDLING_ERROR, message = "Error in removing cookies", cause = result);
                     }
                 }
             }
@@ -248,14 +245,12 @@ public type CookieStore object {
     # Removes all expired cookies.
     #
     # + return - An error will be returned if there is any error occurred during the removal of expired cookies or else nil is returned
-    public function removeExpiredCookies() returns error? {
-        CookieHandlingError err;
+    public function removeExpiredCookies() returns CookieHandlingError? {
         var persistentCookieHandler = self.persistentCookieHandler;
         if (persistentCookieHandler is PersistentCookieHandler) {
             var result = persistentCookieHandler.getAllCookies();
             if (result is error) {
-                err = error(COOKIE_HANDLING_ERROR, message = "Error in removing expired cookies", cause = result);
-                return err;
+                return error(COOKIE_HANDLING_ERROR, message = "Error in removing expired cookies", cause = result);
             } else {
                 lock {
                     foreach var cookie in result {
@@ -268,23 +263,21 @@ public type CookieStore object {
                         if (cookieName is string && cookieDomain is string && cookiePath is string) {
                             var removeResult = persistentCookieHandler.removeCookie(cookieName, cookieDomain, cookiePath);
                             if (removeResult is error) {
-                                err = error(COOKIE_HANDLING_ERROR, message = "Error in removing expired cookies", cause = removeResult);
-                                return err;
+                                return error(COOKIE_HANDLING_ERROR, message = "Error in removing expired cookies", cause = removeResult);
                             }
                         }
                     }
                 }
             }
         } else {
-            err = error(COOKIE_HANDLING_ERROR, message = "No persistent cookie store to remove expired cookies");
-            return err;
+            return error(COOKIE_HANDLING_ERROR, message = "No persistent cookie store to remove expired cookies");
         }
     }
 
     # Removes all the cookies.
     #
     # + return - An error will be returned if there is any error occurred during the removal of all the cookies or else nil is returned
-    public function removeAllCookies() returns error? {
+    public function removeAllCookies() returns CookieHandlingError? {
         var persistentCookieHandler = self.persistentCookieHandler;
         lock {
             self.allSessionCookies = [];

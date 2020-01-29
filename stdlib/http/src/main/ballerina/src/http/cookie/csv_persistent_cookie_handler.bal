@@ -55,27 +55,23 @@ public type CsvPersistentCookieHandler object {
     # + cookie - Cookie to be added
     # + return - An error will be returned if there is any error occurred during the storing process of the cookie or else nil is returned
     public function storeCookie(Cookie cookie) returns @tainted CookieHandlingError? {
-        CookieHandlingError err;
         if (file:exists(self.fileName) && !self.cookiesTable.hasNext()) {
             var tblResult = readFile(self.fileName);
             if (tblResult is table<myCookie>) {
                 self.cookiesTable = tblResult;
             } else {
-                err = error(COOKIE_HANDLING_ERROR, message = "Error in reading the csv file", cause = tblResult);
-                return err;
+                return error(COOKIE_HANDLING_ERROR, message = "Error in reading the csv file", cause = tblResult);
             }
         }
         var tableUpdateResult = addNewCookieToTable(self.cookiesTable, cookie);
         if (tableUpdateResult is table<myCookie>) {
             self.cookiesTable = tableUpdateResult;
         } else {
-            err = error(COOKIE_HANDLING_ERROR, message = "Error in updating the records in csv file", cause = tableUpdateResult);
-            return err;
+            return error(COOKIE_HANDLING_ERROR, message = "Error in updating the records in csv file", cause = tableUpdateResult);
         }
         var result = writeToFile(self.cookiesTable, <@untainted> self.fileName);
         if (result is error) {
-            err = error(COOKIE_HANDLING_ERROR, message = "Error in writing the csv file", cause = result);
-            return err;
+            return error(COOKIE_HANDLING_ERROR, message = "Error in writing the csv file", cause = result);
         }
     }
 
@@ -108,8 +104,7 @@ public type CsvPersistentCookieHandler object {
                 }
                 return cookies;
             } else {
-                CookieHandlingError err = error(COOKIE_HANDLING_ERROR, message = "Error in reading the csv file", cause = tblResult);
-                return err;
+                return error(COOKIE_HANDLING_ERROR, message = "Error in reading the csv file", cause = tblResult);
             }
         }
        return cookies;
@@ -125,36 +120,30 @@ public type CsvPersistentCookieHandler object {
         cookieNameToRemove = name;
         cookieDomainToRemove = domain;
         cookiePathToRemove = path;
-        CookieHandlingError err;
         if (file:exists(self.fileName)) {
             if(!self.cookiesTable.hasNext()) {
                 var tblResult = readFile(self.fileName);
                 if (tblResult is table<myCookie>) {
                     self.cookiesTable = tblResult;
                 } else {
-                    err = error(COOKIE_HANDLING_ERROR, message = "Error in reading the csv file", cause = tblResult);
-                    return err;
+                    return error(COOKIE_HANDLING_ERROR, message = "Error in reading the csv file", cause = tblResult);
                 }
             }
             int|error count = self.cookiesTable.remove(checkRemoveCriteria);
             if (count is error || count <= 0) {
-                err = error(COOKIE_HANDLING_ERROR, message = "Error in removing cookie: No such cookie to remove");
-                return err;
+                return error(COOKIE_HANDLING_ERROR, message = "Error in removing cookie: No such cookie to remove");
             }
             error? removeResults = file:remove(<@untainted> self.fileName);
             if (removeResults is error) {
-                err = error(COOKIE_HANDLING_ERROR, message = "Error in removing the csv file", cause = removeResults);
-                return err;
+                return error(COOKIE_HANDLING_ERROR, message = "Error in removing the csv file", cause = removeResults);
             }
             var writeResult = writeToFile(self.cookiesTable, <@untainted> self.fileName);
             if (writeResult is error) {
-                err = error(COOKIE_HANDLING_ERROR, message = "Error in writing the csv file", cause = writeResult);
-                return err;
+                return error(COOKIE_HANDLING_ERROR, message = "Error in writing the csv file", cause = writeResult);
             }
             return;
         }
-        err = error(COOKIE_HANDLING_ERROR, message = "Error in removing cookie: No persistent cookie store file to remove");
-        return err;
+        return error(COOKIE_HANDLING_ERROR, message = "Error in removing cookie: No persistent cookie store file to remove");
     }
 
     # Removes all persistent cookies.
@@ -163,8 +152,7 @@ public type CsvPersistentCookieHandler object {
     public function removeAllCookies() returns CookieHandlingError? {
         error? removeResults = file:remove(self.fileName);
         if (removeResults is error) {
-            CookieHandlingError err = error(COOKIE_HANDLING_ERROR, message = "Error in removing the csv file", cause = removeResults);
-            return err;
+            return error(COOKIE_HANDLING_ERROR, message = "Error in removing the csv file", cause = removeResults);
         }
     }
 };
@@ -173,8 +161,7 @@ function validateFileExtension(string fileName) returns string|CookieHandlingErr
     if (fileName.toLowerAscii().endsWith(".csv")) {
         return fileName;
     }
-    CookieHandlingError err = error(COOKIE_HANDLING_ERROR, message = "Invalid file format");
-    return err;
+    return error(COOKIE_HANDLING_ERROR, message = "Invalid file format");
 }
 
 function readFile(string fileName) returns @tainted error|table<myCookie> {
@@ -191,7 +178,7 @@ function readFile(string fileName) returns @tainted error|table<myCookie> {
 function closeReadableCSVChannel(io:ReadableCSVChannel csvChannel) {
     var result = csvChannel.close();
     if (result is error) {
-        log:printError("Error occurred while closing the channel: ", err = result);
+        log:printError("Error occurred while closing the channel: ", result);
     }
 }
 
@@ -242,13 +229,10 @@ function writeDataToCSVChannel(io:WritableCSVChannel csvChannel, string[]... dat
 function closeWritableCSVChannel(io:WritableCSVChannel csvChannel) {
     var result = csvChannel.close();
     if (result is error) {
-        log:printError("Error occurred while closing the channel: ", err = result);
+        log:printError("Error occurred while closing the channel: ", result);
     }
 }
 
 function checkRemoveCriteria(myCookie rec) returns boolean {
-    if (rec.name == cookieNameToRemove && rec.domain == cookieDomainToRemove && rec.path == cookiePathToRemove) {
-        return true;
-    }
-    return false;
+    return rec.name == cookieNameToRemove && rec.domain == cookieDomainToRemove && rec.path == cookiePathToRemove;
 }
