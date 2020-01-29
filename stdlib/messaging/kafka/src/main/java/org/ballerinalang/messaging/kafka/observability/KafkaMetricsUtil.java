@@ -123,7 +123,7 @@ public class KafkaMetricsUtil {
             byte[] bytes = ((String) value).getBytes(StandardCharsets.UTF_8);
             size = bytes.length;
         } else if (value instanceof Long || value instanceof Double) {
-            size = 8;
+            size = Double.BYTES;
         } else if (value instanceof byte[]) {
             size = ((byte[]) value).length;
         } else {
