@@ -47,5 +47,8 @@ function testFilter() returns boolean {
     filteredPerson = filteredPersonStream.next();
     testPassed = testPassed && filteredPerson?.value == sinthuja;
 
+    filteredPerson = filteredPersonStream.next();
+    testPassed = testPassed && filteredPerson == ();
+
     return testPassed;
 }
