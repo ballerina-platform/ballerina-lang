@@ -267,7 +267,7 @@ public class BuildCommand implements BLauncherCmd {
                 try {
                     targetPath = Files.createTempDirectory("ballerina-build-" + System.nanoTime());
                 } catch (IOException e) {
-                    throw LauncherUtils.createLauncherException("Error occurred when creating executable.");
+                    throw LauncherUtils.createLauncherException("Error occurred when creating the executable.");
                 }
             }
         } else if (Files.exists(
