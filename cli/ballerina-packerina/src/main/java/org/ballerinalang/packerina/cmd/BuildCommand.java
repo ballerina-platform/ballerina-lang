@@ -403,7 +403,7 @@ public class BuildCommand implements BLauncherCmd {
 
     @Override
     public void printLongDesc(StringBuilder out) {
-        out.append("Build Ballerina module(s)/file and produce an executable JAR file(s). \n");
+        out.append("Build a Ballerina module(s)/file and produce an executable JAR file(s). \n");
         out.append("\n");
         out.append("Build a Ballerina project or a specific module in a project. The \n");
         out.append("executable \".jar\" files will be created in the <PROJECT-ROOT>/target/bin directory. \n");
