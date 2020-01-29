@@ -68,6 +68,7 @@ exprFunctionBody
 
 functionDefinitionBody
     :   blockFunctionBody
+    |   exprFunctionBody SEMICOLON
     |   externalFunctionBody SEMICOLON
     ;
 
