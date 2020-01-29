@@ -20,7 +20,13 @@ package org.ballerinalang.messaging.kafka.nativeimpl.consumer;
 
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.KafkaException;
+import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.messaging.kafka.observability.KafkaMetricsUtil;
+import org.ballerinalang.messaging.kafka.observability.KafkaObservabilityConstants;
+import org.ballerinalang.messaging.kafka.observability.KafkaTracingUtil;
+
+import java.util.Set;
 
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.CONSUMER_ERROR;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.NATIVE_CONSUMER;
@@ -32,10 +38,14 @@ import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.createKafkaErro
 public class Unsubscribe {
 
     public static Object unsubscribe(ObjectValue consumerObject) {
-        KafkaConsumer<byte[], byte[]> kafkaConsumer = (KafkaConsumer) consumerObject.getNativeData(NATIVE_CONSUMER);
+        KafkaTracingUtil.traceResourceInvocation(Scheduler.getStrand(), consumerObject);
+        KafkaConsumer kafkaConsumer = (KafkaConsumer) consumerObject.getNativeData(NATIVE_CONSUMER);
         try {
+            Set<String> topics = kafkaConsumer.subscription();
             kafkaConsumer.unsubscribe();
+            KafkaMetricsUtil.reportBulkUnsubscription(consumerObject, topics);
         } catch (KafkaException e) {
+            KafkaMetricsUtil.reportConsumerError(consumerObject, KafkaObservabilityConstants.ERROR_TYPE_UNSUBSCRIBE);
             return createKafkaError("Failed to unsubscribe the consumer: " + e.getMessage(), CONSUMER_ERROR);
         }
         return null;

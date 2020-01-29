@@ -39,8 +39,6 @@ public class BTypes {
     public static BType typeJSON = new BJSONType(TypeConstants.JSON_TNAME, new BPackage(null, null, null));
     public static BType typeAny = new BAnyType(TypeConstants.ANY_TNAME, new BPackage(null, null, null));
     public static BType typeAnydata = new BAnydataType(TypeConstants.ANYDATA_TNAME, new BPackage(null, null, null));
-    public static BType typeStream = new BStreamType(TypeConstants.STREAM_TNAME, typeAny, new BPackage(null,
-            null, null));
     public static BType typeTypedesc = new BTypedescType(TypeConstants.TYPEDESC_TNAME, new BPackage(null,
             null, null));
     public static BType typeMap = new BMapType(TypeConstants.MAP_TNAME, typeAny, new BPackage(null, null, null));
@@ -120,8 +118,6 @@ public class BTypes {
                 return typeMap;
             case TypeConstants.FUTURE_TNAME:
                 return typeFuture;
-             case TypeConstants.STREAM_TNAME:
-                return typeStream;
             // case TypeConstants.CHANNEL:
             // return typeChannel;
             case TypeConstants.ANY_TNAME:

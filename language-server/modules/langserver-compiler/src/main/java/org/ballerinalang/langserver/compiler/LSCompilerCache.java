@@ -18,6 +18,7 @@ package org.ballerinalang.langserver.compiler;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import org.antlr.v4.runtime.DefaultErrorStrategy;
+import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.compiler.common.modal.BallerinaFile;
 import org.wso2.ballerinalang.compiler.SourceDirectory;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;

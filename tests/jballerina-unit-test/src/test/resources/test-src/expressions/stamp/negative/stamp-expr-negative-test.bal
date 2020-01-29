@@ -44,16 +44,6 @@ type EmployeeObject object {
     string batch = "LK2014";
 };
 
-function stampStreamTypeVariable() returns stream<Person>|error {
-
-    stream<Employee> employeeStream = new;
-    Employee e1 = { name: "Raja", age: 25, salary: 20000 };
-    Employee e2 = { name: "Mohan", age: 45, salary: 10000 };
-
-    stream<Person>|error personStream = stream<Person>.constructFrom(employeeStream);
-    return personStream;
-}
-
 function seaWithInvalidNoOrParameters() returns json {
 
     json jsonValue = [1, false, null, "foo", { first: "John", last: "Pala" }];

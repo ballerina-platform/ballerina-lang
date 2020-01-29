@@ -92,14 +92,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "stream",
-      "kind": "Unit",
-      "detail": "Stream",
-      "sortText": "230",
-      "insertText": "stream",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "json",
       "kind": "Unit",
       "detail": "Json",

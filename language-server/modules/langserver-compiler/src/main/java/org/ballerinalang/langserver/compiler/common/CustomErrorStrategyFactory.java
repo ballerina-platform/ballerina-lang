@@ -17,7 +17,7 @@
 */
 package org.ballerinalang.langserver.compiler.common;
 
-import org.ballerinalang.langserver.compiler.LSContext;
+import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.compiler.format.FormatterCustomErrorStrategy;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParserErrorStrategy;
 

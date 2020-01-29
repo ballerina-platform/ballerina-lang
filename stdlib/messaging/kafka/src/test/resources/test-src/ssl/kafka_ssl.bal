@@ -99,8 +99,12 @@ function funcKafkaPollWithSSL() returns string|error {
     } else {
         if (results.length() == 1) {
             var kafkaRecord = results[0];
-            byte[] serializedMsg = kafkaRecord.value;
-            return strings:fromBytes(serializedMsg);
+            var serializedMsg = kafkaRecord.value;
+            if (serializedMsg is byte[]) {
+                return strings:fromBytes(serializedMsg);
+            } else {
+                panic error("Incorrect type");
+            }
         } else if (results.length() > 1) {
             return "More than one message received";
         } else {

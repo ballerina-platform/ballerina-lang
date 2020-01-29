@@ -397,19 +397,6 @@ function testObjectCastNegative() {
     LeadObject e2 = <LeadObject> p;
 }
 
-function testStreamCastPositive() returns boolean {
-    stream<int> s1 = new;
-    any a = s1;
-    stream<anydata> s2 = <stream<int|float>> a;
-    return s1 === s2;
-}
-
-function testStreamCastNegative() {
-    stream<int> s1 = new;
-    any a = s1;
-    stream<boolean> s2 = <stream<boolean>> a;
-}
-
 function testTypedescCastPositive() returns boolean {
     typedesc<int> t1 = int;
     any a = t1;
@@ -506,12 +493,6 @@ function testOutOfOrderUnionConstraintCastPositive() returns boolean {
     anydata a = m;
     map<string|int> m2 = <map<string|int>> a;
     return m === m2;
-}
-
-function testOutOfOrderUnionConstraintCastNegative() {
-    stream<int|float> s1 = new;
-    any a = s1;
-    stream<boolean|error> s2 = <stream<boolean|error>> a;
 }
 
 function testStringAsInvalidBasicType() {

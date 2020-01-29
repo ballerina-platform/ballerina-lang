@@ -25,18 +25,22 @@ import org.apache.kafka.common.TopicPartition;
 import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BArrayType;
-import org.ballerinalang.jvm.values.ArrayValue;
-import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.FPValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.api.BArray;
+import org.ballerinalang.jvm.values.api.BValueCreator;
 import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
+import org.ballerinalang.messaging.kafka.observability.KafkaMetricsUtil;
+import org.ballerinalang.messaging.kafka.observability.KafkaObservabilityConstants;
+import org.ballerinalang.messaging.kafka.observability.KafkaTracingUtil;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 
-import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
+import java.util.Set;
 
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.CONSUMER_ERROR;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.CONSUMER_STRUCT_NAME;
@@ -45,13 +49,12 @@ import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.KAFKA_PROTO
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.NATIVE_CONSUMER;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.ORG_NAME;
 import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.createKafkaError;
-import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.getStringListFromStringArrayValue;
+import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.getStringListFromStringBArray;
 import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.getTopicPartitionRecord;
 import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.populateTopicPartitionRecord;
 
 /**
- * Native function subscribes to given topic array
- * with given function pointers to on revoked / on assigned events.
+ * Native function subscribes to given topic array with given function pointers to on revoked / on assigned events.
  */
 @BallerinaFunction(
         orgName = ORG_NAME,
@@ -66,20 +69,24 @@ import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.populateTopicPa
 )
 public class SubscribeWithPartitionRebalance {
 
-    public static Object subscribeWithPartitionRebalance(Strand strand, ObjectValue consumerObject, ArrayValue topics,
+    public static Object subscribeWithPartitionRebalance(ObjectValue consumerObject, BArray topics,
                                                          FPValue onPartitionsRevoked, FPValue onPartitionsAssigned) {
-
+        Strand strand = Scheduler.getStrand();
+        KafkaTracingUtil.traceResourceInvocation(strand, consumerObject);
         NonBlockingCallback callback = new NonBlockingCallback(strand);
-        KafkaConsumer<byte[], byte[]> kafkaConsumer = (KafkaConsumer) consumerObject.getNativeData(NATIVE_CONSUMER);
-        ArrayList<String> topicsList = getStringListFromStringArrayValue(topics);
+        KafkaConsumer kafkaConsumer = (KafkaConsumer) consumerObject.getNativeData(NATIVE_CONSUMER);
+        List<String> topicsList = getStringListFromStringBArray(topics);
         ConsumerRebalanceListener consumer = new KafkaRebalanceListener(strand, strand.scheduler, onPartitionsRevoked,
-                onPartitionsAssigned, consumerObject);
-
+                                                                        onPartitionsAssigned, consumerObject);
         try {
             kafkaConsumer.subscribe(topicsList, consumer);
+            Set<String> subscribedTopics = kafkaConsumer.subscription();
+            KafkaMetricsUtil.reportBulkSubscription(consumerObject, subscribedTopics);
         } catch (IllegalArgumentException | IllegalStateException | KafkaException e) {
-            callback.setReturnValues(
-                    createKafkaError("Failed to subscribe the consumer: " + e.getMessage(), CONSUMER_ERROR));
+            KafkaMetricsUtil.reportConsumerError(consumerObject,
+                                                 KafkaObservabilityConstants.ERROR_TYPE_SUBSCRIBE_PARTITION_REBALANCE);
+            callback.notifyFailure(createKafkaError("Failed to subscribe the consumer: " + e.getMessage(),
+                                                    CONSUMER_ERROR));
         }
         callback.notifySuccess();
         return null;
@@ -99,11 +106,8 @@ public class SubscribeWithPartitionRebalance {
         private FPValue onPartitionsAssigned;
         private ObjectValue consumer;
 
-        KafkaRebalanceListener(Strand strand,
-                               Scheduler scheduler,
-                               FPValue onPartitionsRevoked,
-                               FPValue onPartitionsAssigned,
-                               ObjectValue consumer) {
+        KafkaRebalanceListener(Strand strand, Scheduler scheduler, FPValue onPartitionsRevoked,
+                               FPValue onPartitionsAssigned, ObjectValue consumer) {
             this.strand = strand;
             this.scheduler = scheduler;
             this.onPartitionsRevoked = onPartitionsRevoked;
@@ -129,19 +133,13 @@ public class SubscribeWithPartitionRebalance {
             this.scheduler.schedule(inputArgs, onPartitionsAssigned.getConsumer(), strand, null);
         }
 
-        private ArrayValue getPartitionsArray(Collection<TopicPartition> partitions) {
-            ArrayValue topicPartitionArray = new ArrayValueImpl(new BArrayType(getTopicPartitionRecord().getType()));
-//            partitions.forEach(partition -> {
-//                MapValue<String, Object> topicPartition = populateTopicPartitionRecord(partition.topic(),
-//                        partition.partition());
-//                topicPartitionArray.append(topicPartition);
-//            });
-            // TODO: Use the above commented code instead of the for loop once #17075 fixed.
-            int i = 0;
+        private BArray getPartitionsArray(Collection<TopicPartition> partitions) {
+            BArray topicPartitionArray = BValueCreator.createArrayValue(
+                    new BArrayType(getTopicPartitionRecord().getType()));
             for (TopicPartition partition : partitions) {
                 MapValue<String, Object> topicPartition = populateTopicPartitionRecord(partition.topic(),
-                        partition.partition());
-                topicPartitionArray.add(i++, topicPartition);
+                                                                                       partition.partition());
+                topicPartitionArray.append(topicPartition);
             }
             return topicPartitionArray;
         }

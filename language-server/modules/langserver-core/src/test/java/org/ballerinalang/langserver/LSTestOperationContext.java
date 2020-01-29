@@ -15,9 +15,9 @@
  */
 package org.ballerinalang.langserver;
 
-import org.ballerinalang.langserver.compiler.LSContext;
+import org.ballerinalang.langserver.commons.LSContext;
+import org.ballerinalang.langserver.commons.LSOperation;
 import org.ballerinalang.langserver.compiler.LSContextImpl;
-import org.ballerinalang.langserver.compiler.LSOperation;
 
 /**
  * Operation Context for Tests.

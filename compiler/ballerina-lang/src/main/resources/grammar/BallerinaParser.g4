@@ -247,7 +247,6 @@ builtInReferenceTypeName
     |   TYPE_XML
     |   TYPE_JSON
     |   TYPE_TABLE LT typeName GT
-    |   TYPE_STREAM LT typeName GT
     |   TYPE_DESC LT typeName GT
     |   SERVICE
     |   errorTypeName
@@ -302,8 +301,6 @@ statement
     |   retryStatement
     |   lockStatement
     |   namespaceDeclarationStatement
-    |   foreverStatement
-    |   streamingQueryStatement
     ;
 
 variableDefinitionStatement
@@ -674,7 +671,7 @@ invocation
 invocationArgList
     :   invocationArg (COMMA invocationArg)*
     ;
-    
+
 invocationArg
     :   expression  // required args
     |   namedArgs   // named args
@@ -760,7 +757,6 @@ expression
     |   actionInvocation                                                    # actionInvocationExpression
     |   typeInitExpr                                                        # typeInitExpression
     |   serviceConstructorExpr                                              # serviceConstructorExpression
-    |   tableQuery                                                          # tableQueryExpression
     |   CHECK expression                                                    # checkedExpression
     |   CHECKPANIC expression                                               # checkPanickedExpression
     |   (ADD | SUB | BIT_COMPLEMENT | NOT | TYPEOF) expression              # unaryExpression
@@ -1005,128 +1001,6 @@ reservedWord
     |   TYPE_ERROR
     ;
 
-
-//Streams and Tables related
-tableQuery
-    :   FROM streamingInput joinStreamingInput?
-        selectClause?
-        orderByClause?
-        limitClause?
-    ;
-
-foreverStatement
-    :   FOREVER LEFT_BRACE  streamingQueryStatement+ RIGHT_BRACE
-    ;
-
-streamingQueryStatement
-    :   FROM (streamingInput (joinStreamingInput)? | patternClause)
-        selectClause?
-        orderByClause?
-        outputRateLimit?
-        streamingAction
-    ;
-
-patternClause
-    :   EVERY? patternStreamingInput withinClause?
-    ;
-
-withinClause
-    :   WITHIN DecimalIntegerLiteral timeScale
-    ;
-
-orderByClause
-    :   ORDER BY orderByVariable (COMMA orderByVariable)*
-    ;
-
-orderByVariable
-    :   variableReference orderByType?
-    ;
-
-limitClause
-    :   LIMIT DecimalIntegerLiteral
-    ;
-
-selectClause
-    :   SELECT (MUL| selectExpressionList )
-        groupByClause?
-        havingClause?
-    ;
-
-selectExpressionList
-    :   selectExpression (COMMA selectExpression)*
-    ;
-
-selectExpression
-    :   expression (AS Identifier)?
-    ;
-
-groupByClause
-    :   GROUP BY variableReferenceList
-    ;
-
-havingClause
-    :   HAVING expression
-    ;
-
-streamingAction
-    :   EQUAL_GT LEFT_PARENTHESIS parameter RIGHT_PARENTHESIS LEFT_BRACE statement* RIGHT_BRACE
-    ;
-
-streamingInput
-    :   variableReference whereClause? functionInvocation* windowClause? functionInvocation*
-        whereClause? (AS alias=Identifier)?
-    ;
-
-joinStreamingInput
-    :   (UNIDIRECTIONAL joinType | joinType UNIDIRECTIONAL | joinType) streamingInput (ON expression)?
-    ;
-
-outputRateLimit
-    :   OUTPUT (ALL | LAST | FIRST) EVERY (DecimalIntegerLiteral timeScale | DecimalIntegerLiteral EVENTS)
-    |   OUTPUT SNAPSHOT EVERY DecimalIntegerLiteral timeScale
-    ;
-
-patternStreamingInput
-    :   patternStreamingEdgeInput ( FOLLOWED BY | COMMA ) patternStreamingInput
-    |   LEFT_PARENTHESIS patternStreamingInput RIGHT_PARENTHESIS
-    |   NOT patternStreamingEdgeInput (AND patternStreamingEdgeInput | FOR DecimalIntegerLiteral timeScale)
-    |   patternStreamingEdgeInput (AND | OR ) patternStreamingEdgeInput
-    |   patternStreamingEdgeInput
-    ;
-
-patternStreamingEdgeInput
-    :   variableReference whereClause? intRangeExpression? (AS alias=Identifier)?
-    ;
-
-whereClause
-    :   WHERE expression
-    ;
-
-windowClause
-    :   WINDOW functionInvocation
-    ;
-
-orderByType
-    :   ASCENDING | DESCENDING
-    ;
-
-joinType
-    :   LEFT OUTER JOIN
-    |   RIGHT OUTER JOIN
-    |   FULL OUTER JOIN
-    |   OUTER JOIN
-    |   INNER? JOIN
-    ;
-
-timeScale
-    :   SECOND | SECONDS
-    |   MINUTE | MINUTES
-    |   HOUR | HOURS
-    |   DAY | DAYS
-    |   MONTH | MONTHS
-    |   YEAR | YEARS
-    ;
-
 // Markdown documentation
 documentationString
     :   documentationLine+ parameterDocumentationLine* returnParameterDocumentationLine?
@@ -1247,7 +1121,6 @@ documentationIdentifier
     |   TYPE_JSON
     |   TYPE_XML
     |   TYPE_TABLE
-    |   TYPE_STREAM
     |   TYPE_ANY
     |   TYPE_DESC
     |   TYPE_FUTURE

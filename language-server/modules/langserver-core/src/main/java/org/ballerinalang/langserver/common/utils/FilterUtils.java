@@ -20,8 +20,8 @@ package org.ballerinalang.langserver.common.utils;
 import com.google.common.collect.Lists;
 import org.antlr.v4.runtime.CommonToken;
 import org.ballerinalang.langserver.common.CommonKeys;
+import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
-import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.SymbolInfo;
 import org.ballerinalang.model.symbols.SymbolKind;
@@ -526,9 +526,6 @@ public class FilterUtils {
                 return entries;
             case TypeTags.OBJECT:
                 entries.putAll(symTable.langObjectModuleSymbol.scope.entries);
-                break;
-            case TypeTags.STREAM:
-                entries.putAll(symTable.langStreamModuleSymbol.scope.entries);
                 break;
             case TypeTags.STRING:
                 entries.putAll(symTable.langStringModuleSymbol.scope.entries);

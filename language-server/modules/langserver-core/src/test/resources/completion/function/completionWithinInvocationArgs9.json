@@ -96,6 +96,24 @@
       }
     },
     {
+      "label": "getAsArray(string key)(anydata[])",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/config_  \n  \nRetrieves the specified configuration value as an array. If there is no mapping, an empty array will be returned.\n  \n**Params**  \n- `string` key: The configuration to be retrieved  \n  \n**Returns** `anydata[]`   \n- Configuration value mapped by the key  \n  \n"
+        }
+      },
+      "sortText": "120",
+      "insertText": "getAsArray(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
       "label": "contains(string key)(boolean)",
       "kind": "Function",
       "detail": "Function",

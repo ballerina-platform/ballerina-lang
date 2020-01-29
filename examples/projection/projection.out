@@ -1,6 +1,0 @@
-# To run this sample, navigate to the directory that contains the
-# `.bal` file, and execute the `ballerina run` command.
-$ ballerina run --experimental projection.bal
-Child name : Raja and message : Hi Raja!!! , wish you a happy children's day
-Child name : Shareek and message : Hi Shareek!!! , wish you a happy children's day
-

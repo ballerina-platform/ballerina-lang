@@ -106,7 +106,6 @@ public class KafkaConsumerTopicsTest {
         Assert.assertEquals(((BValueArray) returnBValues[0]).getString(1), TOPIC_TEST_1);
     }
 
-
     @Test(
             description = "Test functionality of getTopicPartitions() function",
             dependsOnMethods = "testKafkaGetAvailableTopicsWithDuration"

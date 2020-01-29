@@ -21,13 +21,17 @@ package org.ballerinalang.messaging.kafka.nativeimpl.consumer;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.KafkaException;
 import org.apache.kafka.common.TopicPartition;
-import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.api.BArray;
+import org.ballerinalang.messaging.kafka.observability.KafkaMetricsUtil;
+import org.ballerinalang.messaging.kafka.observability.KafkaObservabilityConstants;
+import org.ballerinalang.messaging.kafka.observability.KafkaTracingUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
-import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
@@ -49,15 +53,14 @@ public class GetBeginningOffsets {
 
     private static final Logger logger = LoggerFactory.getLogger(GetBeginningOffsets.class);
 
-    public static Object getBeginningOffsets(ObjectValue consumerObject, ArrayValue topicPartitions,
-                                             long duration) {
-
-        KafkaConsumer<byte[], byte[]> kafkaConsumer = (KafkaConsumer) consumerObject.getNativeData(NATIVE_CONSUMER);
+    public static Object getBeginningOffsets(ObjectValue consumerObject, BArray topicPartitions, long duration) {
+        KafkaTracingUtil.traceResourceInvocation(Scheduler.getStrand(), consumerObject);
+        KafkaConsumer kafkaConsumer = (KafkaConsumer) consumerObject.getNativeData(NATIVE_CONSUMER);
         Properties consumerProperties = (Properties) consumerObject.getNativeData(NATIVE_CONSUMER_CONFIG);
 
         int defaultApiTimeout = getDefaultApiTimeout(consumerProperties);
         int apiTimeout = getIntFromLong(duration, logger, ALIAS_DURATION);
-        ArrayList<TopicPartition> partitionList = getTopicPartitionList(topicPartitions, logger);
+        List<TopicPartition> partitionList = getTopicPartitionList(topicPartitions, logger);
         Map<TopicPartition, Long> offsetMap;
         try {
             if (apiTimeout > DURATION_UNDEFINED_VALUE) {
@@ -69,13 +72,15 @@ public class GetBeginningOffsets {
             }
             return getPartitionOffsetArrayFromOffsetMap(offsetMap);
         } catch (KafkaException e) {
+            KafkaMetricsUtil.reportConsumerError(consumerObject,
+                                                 KafkaObservabilityConstants.ERROR_TYPE_GET_BEG_OFFSETS);
             return createKafkaError("Failed to retrieve offsets for the topic partitions: " + e.getMessage(),
-                    CONSUMER_ERROR);
+                                    CONSUMER_ERROR);
         }
     }
 
-    private static Map<TopicPartition, Long> getBeginningOffsetsWithDuration(KafkaConsumer<byte[], byte[]> consumer,
-                                                                             ArrayList<TopicPartition> partitions,
+    private static Map<TopicPartition, Long> getBeginningOffsetsWithDuration(KafkaConsumer consumer,
+                                                                             List<TopicPartition> partitions,
                                                                              long timeout) {
         Duration duration = Duration.ofMillis(timeout);
         return consumer.beginningOffsets(partitions, duration);

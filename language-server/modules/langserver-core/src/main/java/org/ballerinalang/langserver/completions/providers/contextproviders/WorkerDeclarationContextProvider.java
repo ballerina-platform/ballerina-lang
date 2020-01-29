@@ -21,10 +21,10 @@ import org.antlr.v4.runtime.CommonToken;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.SnippetGenerator;
 import org.ballerinalang.langserver.common.CommonKeys;
-import org.ballerinalang.langserver.compiler.LSContext;
+import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.SymbolInfo;
-import org.ballerinalang.langserver.completions.spi.LSCompletionProvider;
+import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 import org.eclipse.lsp4j.CompletionItem;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
 
@@ -34,8 +34,8 @@ import java.util.List;
 /**
  * Parser rule based variable definition statement context resolver.
  */
-@JavaSPIService("org.ballerinalang.langserver.completions.spi.LSCompletionProvider")
-public class WorkerDeclarationContextProvider extends LSCompletionProvider {
+@JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.LSCompletionProvider")
+public class WorkerDeclarationContextProvider extends AbstractCompletionProvider {
     public WorkerDeclarationContextProvider() {
         this.attachmentPoints.add(BallerinaParser.WorkerDeclarationContext.class);
     }
