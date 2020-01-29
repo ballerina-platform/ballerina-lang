@@ -94,7 +94,7 @@ public final class XMLSequence extends XMLValue<ArrayValue> {
      */
     @Override
     public boolean isSingleton() {
-        return sequence.size() == 1;
+        return sequence.size() == 1 && ((XMLValue) sequence.get(0)).getNodeType() == XMLNodeType.ELEMENT;
     }
 
     /**

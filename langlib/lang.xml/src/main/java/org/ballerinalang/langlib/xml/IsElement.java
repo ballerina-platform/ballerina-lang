@@ -40,6 +40,12 @@ import org.ballerinalang.natives.annotations.ReturnType;
 public class IsElement {
 
     public static boolean isElement(Strand strand, XMLValue<?> xmlValue) {
-        return xmlValue.getNodeType() == XMLNodeType.ELEMENT;
+        if (xmlValue.getNodeType() == XMLNodeType.ELEMENT) {
+            return true;
+        }
+        if (xmlValue.getNodeType() == XMLNodeType.SEQUENCE) {
+            return xmlValue.isSingleton();
+        }
+        return false;
     }
 }
