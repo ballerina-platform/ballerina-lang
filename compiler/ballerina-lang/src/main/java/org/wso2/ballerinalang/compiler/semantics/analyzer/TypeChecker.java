@@ -716,34 +716,7 @@ public class TypeChecker extends BLangNodeVisitor {
             ((BTupleType) actualType).restType = restType;
         } else if (listConstructor.exprs.size() > 1) {
             // This is an array.
-            LinkedHashSet<BType> narrowTypes = new LinkedHashSet<>();
-            LinkedHashSet<BType> broadTypesSet = new LinkedHashSet<>();
-            BType[] inferredTypes = checkArrayExpr(listConstructor, env);
-            for (BType type : inferredTypes) {
-                if (narrowTypes.stream().noneMatch(nType -> types.isSameType(type, nType))) {
-                    narrowTypes.add(type);
-                }
-            }
-            BType broadType;
-            for (BType t1 : narrowTypes) {
-                broadType = t1;
-                for (BType t2 : narrowTypes) {
-                    if (types.isAssignable(t2, t1)) {
-                        broadType = t1;
-                    } else if (types.isAssignable(t1, t2)) {
-                        broadType = t2;
-                    }
-                }
-                broadTypesSet.add(broadType);
-            }
-            BType eType;
-            if (broadTypesSet.size() > 1) {
-                // union type
-                eType = BUnionType.create(null, broadTypesSet);
-            } else {
-                eType = broadTypesSet.toArray(new BType[0])[0];
-            }
-            BArrayType arrayType = new BArrayType(eType);
+            BArrayType arrayType = new BArrayType(getRepresentativeBroadType(listConstructor.exprs));
             checkExprs(listConstructor.exprs, this.env, arrayType.eType);
             actualType = arrayType;
         } else if (expTypeTag != TypeTags.SEMANTIC_ERROR) {
@@ -769,7 +742,7 @@ public class TypeChecker extends BLangNodeVisitor {
                     listCompatibleTypes.add(tupleType);
                 }
             } else {
-                BType[] uniqueExprTypes = checkArrayExpr(listConstructorExpr, this.env);
+                BType[] uniqueExprTypes = checkArrayExpr(listConstructorExpr.exprs, this.env);
                 BType arrayLiteralType;
                 if (uniqueExprTypes.length == 0) {
                     arrayLiteralType = symTable.anyType;
@@ -823,13 +796,13 @@ public class TypeChecker extends BLangNodeVisitor {
         return actualType;
     }
 
-    private BType[] checkArrayExpr(BLangListConstructorExpr expr, SymbolEnv env) {
+    private BType[] checkArrayExpr(List<BLangExpression> exprs, SymbolEnv env) {
         List<BType> types = new ArrayList<>();
         SymbolEnv prevEnv = this.env;
         BType preExpType = this.expType;
         this.env = env;
         this.expType = symTable.noType;
-        for (BLangExpression e : expr.exprs) {
+        for (BLangExpression e : exprs) {
             e.accept(this);
             types.add(resultType);
         }
@@ -4677,5 +4650,34 @@ public class TypeChecker extends BLangNodeVisitor {
 
     private Name getCurrentCompUnit(BLangNode node) {
         return names.fromString(node.pos.getSource().getCompilationUnitName());
+    }
+
+    private BType getRepresentativeBroadType(List<BLangExpression> exprs) {
+        LinkedHashSet<BType> narrowTypes = new LinkedHashSet<>();
+        LinkedHashSet<BType> broadTypesSet = new LinkedHashSet<>();
+        BType[] inferredTypes = checkArrayExpr(exprs, env);
+        for (BType type : inferredTypes) {
+            if (narrowTypes.stream().noneMatch(nType -> types.isSameType(type, nType))) {
+                narrowTypes.add(type);
+            }
+        }
+        BType broadType;
+        for (BType t1 : narrowTypes) {
+            broadType = t1;
+            for (BType t2 : narrowTypes) {
+                if (types.isAssignable(t2, t1)) {
+                    broadType = t1;
+                } else if (types.isAssignable(t1, t2)) {
+                    broadType = t2;
+                }
+            }
+            broadTypesSet.add(broadType);
+        }
+
+        if (broadTypesSet.size() == 1) {
+            return broadTypesSet.iterator().next();
+        }
+
+        return BUnionType.create(null, broadTypesSet);
     }
 }
