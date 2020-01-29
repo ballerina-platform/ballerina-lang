@@ -14,9 +14,9 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/file;
 import ballerina/io;
 import ballerina/log;
-import ballerina/file;
 import ballerina/time;
 
 type myCookie record {
@@ -37,7 +37,7 @@ string? cookieNameToRemove = ();
 string? cookieDomainToRemove = ();
 string? cookiePathToRemove = ();
 
-# Represents a default persistent cookie handler which stores persistent cookies in a CSV file.
+# Represents a default persistent cookie handler, which stores persistent cookies in a CSV file.
 #
 # + fileName - Name of the CSV file to store persistent cookies
 public type CsvPersistentCookieHandler object {
@@ -53,7 +53,7 @@ public type CsvPersistentCookieHandler object {
     # Adds a persistent cookie to the cookie store.
     #
     # + cookie - Cookie to be added
-    # + return - An error will be returned if there is any error occurred during storing the cookie or else nil is returned
+    # + return - An error will be returned if there is any error occurred during the storing process of the cookie or else nil is returned
     public function storeCookie(Cookie cookie) returns @tainted CookieHandlingError? {
         CookieHandlingError err;
         if (file:exists(self.fileName) && !self.cookiesTable.hasNext()) {
@@ -79,10 +79,10 @@ public type CsvPersistentCookieHandler object {
         }
     }
 
-    # Gets all persistent cookies.
+    # Gets all the persistent cookies.
     #
-    # + return - Array of persistent cookies stored in the cookie store or else error is returned if occurred during getting the cookies
-    public function getAllCookies() returns @tainted Cookie[] | CookieHandlingError {
+    # + return - Array of persistent cookies stored in the cookie store or else an error is returned if one occurred during the retrieval of the cookies
+    public function getAllCookies() returns @tainted Cookie[]|CookieHandlingError {
         Cookie[] cookies = [];
         if (file:exists(self.fileName)) {
             var tblResult = readFile(self.fileName);
@@ -95,11 +95,11 @@ public type CsvPersistentCookieHandler object {
                     cookie.maxAge = rec.maxAge;
                     cookie.httpOnly = rec.httpOnly;
                     cookie.secure = rec.secure;
-                    time:Time | error t1 = time:parse(rec.createdTime, "yyyy-MM-dd'T'HH:mm:ss.SSSZ");
+                    time:Time|error t1 = time:parse(rec.createdTime, "yyyy-MM-dd'T'HH:mm:ss.SSSZ");
                     if (t1 is time:Time) {
                         cookie.createdTime = t1;
                     }
-                    time:Time | error t2 = time:parse(rec.lastAccessedTime, "yyyy-MM-dd'T'HH:mm:ss.SSSZ");
+                    time:Time|error t2 = time:parse(rec.lastAccessedTime, "yyyy-MM-dd'T'HH:mm:ss.SSSZ");
                     if (t2 is time:Time) {
                         cookie.lastAccessedTime = t2;
                     }
@@ -120,7 +120,7 @@ public type CsvPersistentCookieHandler object {
     # + name - Name of the persistent cookie to be removed
     # + domain - Domain of the persistent cookie to be removed
     # + path - Path of the persistent cookie to be removed
-    # + return - An error will be returned if there is any error occurred during removing the cookie or else nil is returned
+    # + return - An error will be returned if there is any error occurred during the removal of the cookie or else nil is returned
     public function removeCookie(string name, string domain, string path) returns @tainted CookieHandlingError? {
         cookieNameToRemove = name;
         cookieDomainToRemove = domain;
@@ -136,7 +136,7 @@ public type CsvPersistentCookieHandler object {
                     return err;
                 }
             }
-            int | error count = self.cookiesTable.remove(checkRemoveCriteria);
+            int|error count = self.cookiesTable.remove(checkRemoveCriteria);
             if (count is error || count <= 0) {
                 err = error(COOKIE_HANDLING_ERROR, message = "Error in removing cookie: No such cookie to remove");
                 return err;
@@ -159,7 +159,7 @@ public type CsvPersistentCookieHandler object {
 
     # Removes all persistent cookies.
     #
-    # + return - An error will be returned if there is any error occurred during removing all the cookies or else nil is returned
+    # + return - An error will be returned if there is any error occurred during the removal of all the cookies or else nil is returned
     public function removeAllCookies() returns CookieHandlingError? {
         error? removeResults = file:remove(self.fileName);
         if (removeResults is error) {
@@ -177,14 +177,14 @@ function validateFileExtension(string fileName) returns string|CookieHandlingErr
     return err;
 }
 
-function readFile(string fileName) returns @tainted error | table<myCookie> {
+function readFile(string fileName) returns @tainted error|table<myCookie> {
     io:ReadableCSVChannel rCsvChannel2 = check io:openReadableCsvFile(fileName);
     var tblResult = rCsvChannel2.getTable(myCookie);
     closeReadableCSVChannel(rCsvChannel2);
-    if (tblResult is table<record {| anydata...; |}>) {
+    if (tblResult is table<record{| anydata...; |}>) {
         return <table<myCookie>>tblResult;
     } else {
-        return  tblResult;
+        return tblResult;
     }
 }
 
@@ -196,7 +196,7 @@ function closeReadableCSVChannel(io:ReadableCSVChannel csvChannel) {
 }
 
 // Updates the table with new cookie.
-function addNewCookieToTable(table<myCookie> cookiesTable, Cookie cookieToAdd) returns table<myCookie> | error {
+function addNewCookieToTable(table<myCookie> cookiesTable, Cookie cookieToAdd) returns table<myCookie>|error {
     table<myCookie> tableToReturn = cookiesTable;
     var name = cookieToAdd.name;
     var value = cookieToAdd.value;
@@ -217,7 +217,7 @@ function addNewCookieToTable(table<myCookie> cookiesTable, Cookie cookieToAdd) r
     return err;
 }
 
-// Writes the updated table to file.
+// Writes the updated table to the file.
 function writeToFile(table<myCookie> cookiesTable, string fileName) returns @tainted error? {
     io:WritableCSVChannel wCsvChannel2 = check io:openWritableCsvFile(fileName);
     foreach var entry in cookiesTable {
@@ -230,7 +230,7 @@ function writeToFile(table<myCookie> cookiesTable, string fileName) returns @tai
     closeWritableCSVChannel(wCsvChannel2);
 }
 
-function writeDataToCSVChannel(io:WritableCSVChannel csvChannel, string[]... data) returns error?{
+function writeDataToCSVChannel(io:WritableCSVChannel csvChannel, string[]... data) returns error? {
     foreach var rec in data {
         var returnedVal = csvChannel.write(rec);
         if (returnedVal is error) {

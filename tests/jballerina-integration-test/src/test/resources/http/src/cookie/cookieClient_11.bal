@@ -14,9 +14,9 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/file;
 import ballerina/http;
 import ballerina/io;
-import ballerina/file;
 
 public function main() {
     http:CsvPersistentCookieHandler myPersistentStore = new("./cookie-test-data/client-11.csv");
@@ -28,7 +28,7 @@ public function main() {
     var response = cookieClientEndpoint->get("/cookie/cookieBackend_7", req);
     // Server removes an existing persistent cookie in the cookie store by sending an expired cookie in the response.
     response = cookieClientEndpoint->get("/cookie/cookieBackend_7", req);
-    // Third request after removing the cookie.
+    // Third request is sent after removing the cookie.
     response = cookieClientEndpoint->get("/cookie/cookieBackend_7", req);
     if (response is http:Response) {
         var payload = response.getTextPayload();

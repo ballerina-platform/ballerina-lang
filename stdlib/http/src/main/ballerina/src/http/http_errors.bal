@@ -175,10 +175,10 @@ public type SslError error<SSL_ERROR, Detail>;
 
 # Represents the reason string for the `http:CookieHandlingError`
 public const COOKIE_HANDLING_ERROR = "{ballerina/http}CookieHandlingError";
-# Represents a cookie error that occurred when using cookies
+# Represents a cookie error that occurred when using the cookies
 public type CookieHandlingError error<COOKIE_HANDLING_ERROR, Detail>;
 
-// Ballerina Http Union Errors
+// Ballerina HTTP Union Errors
 # Defines the resiliency error types that returned from client
 public type ResiliencyError FailoverAllEndpointsFailedError | FailoverActionFailedError |
                             UpstreamServiceUnavailableError | AllLoadBalanceEndpointsFailedError |

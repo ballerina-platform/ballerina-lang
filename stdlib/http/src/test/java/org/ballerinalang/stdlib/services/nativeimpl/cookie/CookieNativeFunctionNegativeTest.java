@@ -40,22 +40,22 @@ public class CookieNativeFunctionNegativeTest {
         result = BCompileUtil.compile(basePath + "cookie-native-function-negative.bal");
     }
 
-    @Test(description = "Test add a cookie with unmatched domain to cookie store")
+    @Test(description = "Test to add a cookie with unmatched domain to the cookie store")
     public void testAddCookieWithUnmatchedDomain() {
         BValue[] returnVals = BRunUtil.invoke(result, "testAddCookieWithUnmatchedDomain");
         Assert.assertTrue(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                           "Cookie objects are in the Return Values");
     }
 
-    @Test(description = "Test add a cookie with unmatched path to cookie store")
+    @Test(description = "Test to add a cookie with unmatched path to the cookie store")
     public void testAddCookieWithUnmatchedPath() {
         BValue[] returnVals = BRunUtil.invoke(result, "testAddCookieWithUnmatchedPath");
         Assert.assertTrue(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                           "Cookie objects are in the Return Values");
     }
 
-    @Test(description = "Test add a similar cookie as in the store coming from a non-http request url, but existing " +
-            "old cookie is http only")
+    @Test(description = "Test to add a similar cookie as in the cookie store coming from a non-http request url, but " +
+            "existing old cookie is http only")
     public void testAddSimilarCookie() {
         BValue[] returnVals = BRunUtil.invoke(result, "testAddSimilarCookie");
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
@@ -66,56 +66,56 @@ public class CookieNativeFunctionNegativeTest {
         Assert.assertEquals(bvalue.get("value").stringValue(), "239d4dmnmsddd34");
     }
 
-    @Test(description = "Test add a http only cookie coming from a non-http url")
+    @Test(description = "Test to add a http only cookie coming from a non-http url")
     public void testAddHttpOnlyCookie() {
         BValue[] returnVals = BRunUtil.invoke(result, "testAddHttpOnlyCookie");
         Assert.assertTrue(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                           "Cookie objects are in the Return Values");
     }
 
-    @Test(description = "Test get a secure only cookie to unsecured request url")
+    @Test(description = "Test to get a secure only cookie to unsecured request url")
     public void testGetSecureCookieFromCookieStore() {
         BValue[] returnVals = BRunUtil.invoke(result, "testGetSecureCookieFromCookieStore");
         Assert.assertTrue(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                           "Cookie objects are in the Return Values");
     }
 
-    @Test(description = "Test get a http only cookie to non-http request url")
+    @Test(description = "Test to get a http only cookie to non-http request url")
     public void testGetHttpOnlyCookieFromCookieStore() {
         BValue[] returnVals = BRunUtil.invoke(result, "testGetHttpOnlyCookieFromCookieStore");
         Assert.assertTrue(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                           "Cookie objects are in the Return Values");
     }
 
-    @Test(description = "Test get a host only cookie for a subdomain from cookie store ")
+    @Test(description = "Test to get a host only cookie to a sub-domain from the cookie store ")
     public void testGetCookieToUnmatchedDomain1() {
         BValue[] returnVals = BRunUtil.invoke(result, "testGetCookieToUnmatchedDomain1");
         Assert.assertTrue(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                           "Cookie objects are in the Return Values");
     }
 
-    @Test(description = "Test get a cookie to unmatched request domain")
+    @Test(description = "Test to get a cookie to unmatched request domain")
     public void testGetCookieToUnmatchedDomain2() {
         BValue[] returnVals = BRunUtil.invoke(result, "testGetCookieToUnmatchedDomain2");
         Assert.assertTrue(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                           "Cookie objects are in the Return Values");
     }
 
-    @Test(description = "Test get a cookie to unmatched request path")
+    @Test(description = "Test to get a cookie to unmatched request path")
     public void testGetCookieToUnmatchedPath1() {
         BValue[] returnVals = BRunUtil.invoke(result, "testGetCookieToUnmatchedPath1");
         Assert.assertTrue(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                           "Cookie objects are in the Return Values");
     }
 
-    @Test(description = "Test get a cookie with unspecified path to unmatched request path")
+    @Test(description = "Test to get a cookie with unspecified path to unmatched request path")
     public void testGetCookieToUnmatchedPath2() {
         BValue[] returnVals = BRunUtil.invoke(result, "testGetCookieToUnmatchedPath2");
         Assert.assertTrue(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                           "Cookie objects are in the Return Values");
     }
 
-    @Test(description = "Test remove a specific cookie which is not in the cookie store when persistent cookie " +
+    @Test(description = "Test to remove a specific cookie which is not in the cookie store when persistent cookie " +
             "handler is not configured")
     public void testRemoveCookieFromCookieStore() {
         BValue[] returnVals = BRunUtil.invoke(result, "testRemoveCookieFromCookieStore");
@@ -126,7 +126,7 @@ public class CookieNativeFunctionNegativeTest {
         Assert.assertEquals(bvalue.get("name").stringValue(), "SID002");
     }
 
-    @Test(description = "Test add cookies more than the number in maxTotalCookieCount in cookie configuration")
+    @Test(description = "Test to add cookies more than the number in maxTotalCookieCount in cookie configuration")
     public void testCheckMaxTotalCookieCount() {
         BValue[] returnVals = BRunUtil.invoke(result, "testCheckMaxTotalCookieCount");
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
@@ -138,7 +138,7 @@ public class CookieNativeFunctionNegativeTest {
         Assert.assertEquals(bvalue2.get("name").stringValue(), "SID002");
     }
 
-    @Test(description = "Test add cookies more than the number in maxCookiesPerDomain in cookie configuration")
+    @Test(description = "Test to add cookies more than the number in maxCookiesPerDomain in cookie configuration")
     public void testCheckMaxCookiesPerDomain() {
         BValue[] returnVals = BRunUtil.invoke(result, "testCheckMaxCookiesPerDomain");
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
@@ -150,15 +150,15 @@ public class CookieNativeFunctionNegativeTest {
         Assert.assertEquals(bvalue2.get("name").stringValue(), "SID002");
     }
 
-    @Test(description = "Test give invalid file extension when creating a CsvPersistentCookieHandler object")
+    @Test(description = "Test to give invalid file extension when creating a CsvPersistentCookieHandler object")
     public void testAddPersistentCookieWithoutPersistentStore() {
         BValue[] returnVals = BRunUtil.invoke(result, "testAddPersistentCookieWithoutPersistentStore");
         Assert.assertTrue(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                           "Cookie objects are in the Return Values");
     }
 
-    @Test(description = "Test remove a specific cookie which is not in the cookie store, when there is a persistent " +
-            "cookie store")
+    @Test(description = "Test to remove a specific cookie which is not in the cookie store, when there is a " +
+            "persistent cookie store")
     public void testRemovePersistentCookieFromCookieStore_1() {
         BValue[] returnVals = BRunUtil.invoke(result, "testRemovePersistentCookieFromCookieStore_1");
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
@@ -168,15 +168,15 @@ public class CookieNativeFunctionNegativeTest {
         Assert.assertEquals(bvalue.get("name").stringValue(), "SID002");
     }
 
-    @Test(description = "Test remove a specific cookie which is not in the cookie store, when there is no persistent " +
-            "cookie store")
+    @Test(description = "Test to remove a specific cookie which is not in the cookie store, when there is no " +
+            "persistent cookie store")
     public void testRemovePersistentCookieFromCookieStore_2() {
         BValue[] returnVals = BRunUtil.invoke(result, "testRemovePersistentCookieFromCookieStore_2");
         Assert.assertTrue(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                           "Cookie objects are in the Return Values");
     }
 
-    @Test(description = "Test remove all cookies when there is no persistent cookie store")
+    @Test(description = "Test to remove all cookies when there is no persistent cookie store")
     public void testRemoveAllCookiesFromCookieStore() {
         BValue[] returnVals = BRunUtil.invoke(result, "testRemoveAllCookiesFromCookieStore");
         Assert.assertTrue(returnVals == null || returnVals.length == 0 || returnVals[0] == null,

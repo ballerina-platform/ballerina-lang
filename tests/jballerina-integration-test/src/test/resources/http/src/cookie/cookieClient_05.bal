@@ -14,9 +14,9 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/file;
 import ballerina/http;
 import ballerina/io;
-import ballerina/file;
 
 public function main() {
     http:CsvPersistentCookieHandler myPersistentStore = new("./cookie-test-data/client-5.csv");

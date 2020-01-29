@@ -14,9 +14,9 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/file;
 import ballerina/http;
 import ballerina/io;
-import ballerina/file;
 
 public function main() {
     http:CsvPersistentCookieHandler myPersistentStore = new("./cookie-test-data/client-8.csv");
@@ -26,7 +26,7 @@ public function main() {
     http:Request req = new;
     // Server sends similar persistent cookies in the response for the first request.
     var response = cookieClientEndpoint->get("/cookie/cookieBackend_4", req);
-    // Sends second request after replacing the old cookie with the new.
+    // Sends the second request after replacing the old cookie with the new.
     response = cookieClientEndpoint->get("/cookie/cookieBackend_4", req);
     if (response is http:Response) {
         var payload = response.getTextPayload();

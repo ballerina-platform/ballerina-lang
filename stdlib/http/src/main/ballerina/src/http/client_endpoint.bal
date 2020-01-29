@@ -373,8 +373,8 @@ public type OutboundAuthConfig record {|
 # + maxCookiesPerDomain - Maximum number of cookies per domain, which is 50
 # + maxTotalCookieCount - Maximum number of total cookies allowed to be stored in cookie store, which is 3000
 # + blockThirdPartyCookies - User can block cookies from third party responses and refuse to send cookies for third party requests, if needed
-# + persistentCookieHandler - To manage persistent cookies, users are provided with a mechanism for specifying a persistent cookie store with thier own mechanism
-#                     which references the persistent cookie handler or specifying the csv persistent cookie handler. If not specified any, only session cookies are used
+# + persistentCookieHandler - To manage persistent cookies, users are provided with a mechanism for specifying a persistent cookie store with their own mechanism
+#                             which references the persistent cookie handler or specifying the CSV persistent cookie handler. If not specified any, only the session cookies are used
 public type CookieConfig record {|
      boolean enabled = false;
      int maxCookiesPerDomain = 50;

@@ -20,24 +20,24 @@ public type PersistentCookieHandler abstract object {
     # Adds a persistent cookie to the cookie store.
     #
     # + cookie - Cookie to be added
-    # + return - An error will be returned if there is any error occurred during storing the cookie or else nil is returned
+    # + return - An error will be returned if there is any error occurred during the storing process of the cookie or else nil is returned
     public function storeCookie(Cookie cookie) returns CookieHandlingError?;
 
     # Gets all persistent cookies.
     #
-    # + return - Array of persistent cookies stored in the cookie store or else error is returned if occurred during getting the cookies
-    public function getAllCookies() returns Cookie[] | CookieHandlingError;
+    # + return - Array of persistent cookies stored in the cookie store or else error is returned if occurred during the retrieval of the cookies
+    public function getAllCookies() returns Cookie[]|CookieHandlingError;
 
     # Removes a specific persistent cookie.
     #
     # + name - Name of the persistent cookie to be removed
     # + domain - Domain of the persistent cookie to be removed
     # + path - Path of the persistent cookie to be removed
-    # + return - An error will be returned if there is any error occurred during removing the cookie or else nil is returned
+    # + return - An error will be returned if there is any error occurred during the removal of the cookie or else nil is returned
     public function removeCookie(string name, string domain, string path) returns CookieHandlingError?;
 
     # Removes all persistent cookies.
     #
-    # + return - An error will be returned if there is any error occurred during removing all the cookies or else nil is returned
+    # + return - An error will be returned if there is any error occurred during the removal of all the cookies or else nil is returned
     public function removeAllCookies() returns CookieHandlingError?;
 };

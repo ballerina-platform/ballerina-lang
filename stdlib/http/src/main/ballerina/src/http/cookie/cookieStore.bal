@@ -14,8 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/time;
 import ballerina/log;
+import ballerina/time;
 
 # Represents the cookie store.
 #
@@ -49,7 +49,7 @@ public type CookieStore object {
         string path  = requestPath;
         int? index = requestPath.indexOf("?");
         if (index is int) {
-            path = requestPath.substring(0,index);
+            path = requestPath.substring(0, index);
         }
         lock {
             Cookie? identicalCookie = getIdenticalCookie(cookie, self);
@@ -73,7 +73,7 @@ public type CookieStore object {
                         log:printError("Error in adding persistent cookies: ", err = result);
                     }
                 } else if (isFirstRequest(self.allSessionCookies, domain)) {
-                    log:printWarn("Client has not configured to use persistent cookies.Hence, persistent cookies from " + domain + " will be discarded.");
+                    log:printWarn("Client is not configured to use persistent cookies. Hence, persistent cookies from " + domain + " will be discarded.");
                 }
             } else {
                 var result = addSessionCookie(identicalCookie, cookie, url, self);
@@ -158,7 +158,7 @@ public type CookieStore object {
         return allCookies;
     }
 
-    # Gets all the cookies which have the given name as the name of the cookie.
+    # Gets all the cookies, which have the given name as the name of the cookie.
     #
     # + cookieName - Name of the cookie
     # + return - Array of all the matched cookie objects
@@ -173,9 +173,9 @@ public type CookieStore object {
         return cookiesToReturn;
     }
 
-    # Gets all the cookies which have the given name as the domain of the cookie.
+    # Gets all the cookies, which have the given name as the domain of the cookie.
     #
-    # + domain - name of the domain
+    # + domain - Name of the domain
     # + return - Array of all the matched cookie objects
     public function getCookiesByDomain(string domain) returns Cookie[] {
         Cookie[] cookiesToReturn = [];
@@ -193,15 +193,15 @@ public type CookieStore object {
     # + name - Name of the cookie to be removed
     # + domain - Domain of the cookie to be removed
     # + path - Path of the cookie to be removed
-    # + return - An error will be returned if there is any error occurred during removing the cookie or else nil is returned
+    # + return - An error will be returned if there is any error occurred during the removal of the cookie or else nil is returned
     public function removeCookie(string name, string domain, string path) returns error? {
         lock {
-            // Removes the session cookie if it is in the session cookies array, which is matched with the given name, domain and path.
+            // Removes the session cookie if it is in the session cookies array, which is matched with the given name, domain, and path.
             int k = 0;
             while (k < self.allSessionCookies.length()) {
                 if (name == self.allSessionCookies[k].name && domain == self.allSessionCookies[k].domain && path ==  self.allSessionCookies[k].path) {
                     int j = k;
-                    while (j < self.allSessionCookies.length()-1) {
+                    while (j < self.allSessionCookies.length() - 1) {
                         self.allSessionCookies[j] = self.allSessionCookies[j + 1];
                         j = j + 1;
                     }
@@ -210,7 +210,7 @@ public type CookieStore object {
                 }
                 k = k + 1;
             }
-            // Removes the persistent cookie if it is in the persistent cookie store, which is matched with the given name, domain and path.
+            // Removes the persistent cookie if it is in the persistent cookie store, which is matched with the given name, domain, and path.
             var persistentCookieHandler = self.persistentCookieHandler;
             if (persistentCookieHandler is PersistentCookieHandler) {
                 return persistentCookieHandler.removeCookie(name, domain, path);
@@ -221,10 +221,10 @@ public type CookieStore object {
         }
     }
 
-    # Removes cookies which match with the given domain.
+    # Removes cookies, which match with the given domain.
     #
     # + domain - Domain of the cookie to be removed
-    # + return - An error will be returned if there is any error occurred during removing cookies by domain or else nil is returned
+    # + return - An error will be returned if there is any error occurred during the removal of cookies by domain or else nil is returned
     public function removeCookiesByDomain(string domain) returns error? {
         Cookie[] allCookies = self.getAllCookies();
         lock {
@@ -247,7 +247,7 @@ public type CookieStore object {
 
     # Removes all expired cookies.
     #
-    # + return - An error will be returned if there is any error occurred during removing expired cookies or else nil is returned
+    # + return - An error will be returned if there is any error occurred during the removal of expired cookies or else nil is returned
     public function removeExpiredCookies() returns error? {
         CookieHandlingError err;
         var persistentCookieHandler = self.persistentCookieHandler;
@@ -283,7 +283,7 @@ public type CookieStore object {
 
     # Removes all the cookies.
     #
-    # + return - An error will be returned if there is any error occurred during removing all the cookies or else nil is returned
+    # + return - An error will be returned if there is any error occurred during the removal of all the cookies or else nil is returned
     public function removeAllCookies() returns error? {
         var persistentCookieHandler = self.persistentCookieHandler;
         lock {
@@ -437,7 +437,7 @@ function addPersistentCookie(Cookie? identicalCookie, Cookie cookie, string url,
             }
         }
     } else {
-        // If cookie is not expired adds that cookie.
+        // If cookie is not expired, adds that cookie.
         if (!isExpired(cookie)) {
             cookie.createdTime = time:currentTime();
             cookie.lastAccessedTime = time:currentTime();

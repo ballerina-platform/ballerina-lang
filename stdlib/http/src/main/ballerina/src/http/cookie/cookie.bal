@@ -28,7 +28,7 @@ import ballerina/time;
 # + expires - Maximum lifetime of the cookie represented as the date and time at which the cookie expires
 # + httpOnly - Cookie is sent only to HTTP requests
 # + secure - Cookie is sent only to secure channels
-# + createdTime - Created time of the cookie
+# + createdTime - At what time the cookie was created
 # + lastAccessedTime - Last-accessed time of the cookie
 # + hostOnly - Cookie is sent only to the requested host
 public type Cookie object {
@@ -59,7 +59,7 @@ public type Cookie object {
     }
 
     // Returns true if the attributes of the cookie are in the correct format or else error is returned.
-    public function isValid() returns boolean | error {
+    public function isValid() returns boolean|error {
         CookieHandlingError err;
         var name = self.name;
         if (name is string) {
@@ -154,9 +154,9 @@ public type Cookie object {
 
 // Converts the cookie's expiry time into the GMT format.
 function toGmtFormat(Cookie cookie, string expires) returns boolean {
-    time:Time | error t1 = time:parse(expires, "yyyy-MM-dd HH:mm:ss");
+    time:Time|error t1 = time:parse(expires, "yyyy-MM-dd HH:mm:ss");
     if (t1 is time:Time) {
-        string | error timeString = time:format(<time:Time>t1, "E, dd MMM yyyy HH:mm:ss ");
+        string|error timeString = time:format(<time:Time>t1, "E, dd MMM yyyy HH:mm:ss ");
         if (timeString is string) {
             cookie.expires = timeString + "GMT";
             return true;
@@ -203,7 +203,7 @@ function parseSetCookieHeader(string cookieStringValue) returns Cookie {
                 cookie.path = nameValuePair[1];
             }
             MAX_AGE_ATTRIBUTE => {
-                int | error age = ints:fromString(nameValuePair[1]);
+                int|error age = ints:fromString(nameValuePair[1]);
                 if (age is int) {
                     cookie.maxAge = age;
                 }
