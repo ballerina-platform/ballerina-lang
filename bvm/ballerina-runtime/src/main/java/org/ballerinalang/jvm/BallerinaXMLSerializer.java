@@ -17,8 +17,7 @@
  */
 package org.ballerinalang.jvm;
 
-import org.ballerinalang.jvm.util.exceptions.BallerinaException;
-import org.ballerinalang.jvm.values.ErrorValue;
+import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.jvm.values.XMLComment;
 import org.ballerinalang.jvm.values.XMLItem;
 import org.ballerinalang.jvm.values.XMLPi;
@@ -49,6 +48,9 @@ import javax.xml.stream.XMLStreamWriter;
  */
 public class BallerinaXMLSerializer extends OutputStream {
     private static final XMLOutputFactory xmlOutputFactory = XMLOutputFactory.newInstance();
+    private static final String XMLNS = "xmlns";
+    private static final String EMPTY_STR = "";
+    public static final String PARSE_XML_OP = "parse xml";
     private XMLStreamWriter xmlStreamWriter;
     private Deque<Set<String>> parentNSSet;
     private int nsNumber;
@@ -59,7 +61,7 @@ public class BallerinaXMLSerializer extends OutputStream {
             xmlStreamWriter = xmlOutputFactory.createXMLStreamWriter(outputStream);
             parentNSSet = new ArrayDeque<>();
         } catch (XMLStreamException e) {
-            throw new BallerinaException(e);
+            BLangExceptionHelper.handleXMLException(PARSE_XML_OP, e);
         }
     }
 
@@ -73,7 +75,7 @@ public class BallerinaXMLSerializer extends OutputStream {
         try {
             xmlStreamWriter.flush();
         } catch (XMLStreamException e) {
-            throw new BallerinaException(e);
+            BLangExceptionHelper.handleXMLException(PARSE_XML_OP, e);
         }
     }
 
@@ -82,7 +84,7 @@ public class BallerinaXMLSerializer extends OutputStream {
         try {
             xmlStreamWriter.close();
         } catch (XMLStreamException e) {
-            throw new BallerinaException(e);
+            BLangExceptionHelper.handleXMLException(PARSE_XML_OP, e);
         }
     }
 
@@ -111,8 +113,7 @@ public class BallerinaXMLSerializer extends OutputStream {
                     throw new IllegalStateException("Unexpected value: " + xmlValue.getNodeType());
             }
         } catch (XMLStreamException e) {
-            // todo: need to use these for all the errors that need to be panics
-            throw new ErrorValue(e.getMessage(), null);
+            BLangExceptionHelper.handleXMLException(PARSE_XML_OP, e);
         }
     }
 
@@ -122,7 +123,6 @@ public class BallerinaXMLSerializer extends OutputStream {
 
     private void writeXMLComment(XMLComment xmlValue) throws XMLStreamException {
         xmlStreamWriter.writeComment(xmlValue.getTextValue());
-
     }
 
     private void writeXMLText(XMLText xmlValue) throws XMLStreamException {
@@ -176,9 +176,9 @@ public class BallerinaXMLSerializer extends OutputStream {
         // element doesn't have NS URI in it's name.
         if ((qName.getNamespaceURI() == null || qName.getNamespaceURI().isEmpty())) {
             for (String s : currentNSLevel) {
-                if (s.startsWith("xmlns")) {
-                    xmlStreamWriter.setDefaultNamespace("");
-                    return "";
+                if (s.startsWith(XMLNS)) {
+                    xmlStreamWriter.setDefaultNamespace(EMPTY_STR);
+                    return EMPTY_STR;
                 }
             }
         }
@@ -202,7 +202,7 @@ public class BallerinaXMLSerializer extends OutputStream {
     }
 
     private void writeAttributes(HashSet<String> curNSSet, Map<String, String> attributeMap) throws XMLStreamException {
-        String defaultNS = xmlStreamWriter.getNamespaceContext().getNamespaceURI("xmlns");
+        String defaultNS = xmlStreamWriter.getNamespaceContext().getNamespaceURI(XMLNS);
         for (Map.Entry<String, String> attributeEntry : attributeMap.entrySet()) {
             String key = attributeEntry.getKey();
             int closingCurlyPos = key.lastIndexOf('}');
@@ -307,7 +307,7 @@ public class BallerinaXMLSerializer extends OutputStream {
         }
 
         // Remove NS prefixes which points to default NS URI
-        String defaultNs = nsPrefixMap.get("");
+        String defaultNs = nsPrefixMap.get(EMPTY_STR);
         if (defaultNs != null) {
             List<String> alternativePrefixes = new ArrayList<>();
             for (Map.Entry<String, String> entry : nsPrefixMap.entrySet()) {

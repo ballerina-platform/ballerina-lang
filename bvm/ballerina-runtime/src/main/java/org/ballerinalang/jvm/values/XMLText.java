@@ -73,9 +73,9 @@ public class XMLText extends XMLNonElementItem {
 
     @Override
     public OMNode value() {
-            CharacterDataImpl characterData = new CharacterDataImpl();
-            characterData.data = this.data;
-            return characterData;
+        CharacterDataImpl characterData = new CharacterDataImpl();
+        characterData.data = this.data;
+        return characterData;
     }
 
     @Override
