@@ -334,7 +334,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     }
 
     @Override
-    public void enterLambdaFunction(BallerinaParser.LambdaFunctionContext ctx) {
+    public void enterExplicitAnonymousFunctionExpr(BallerinaParser.ExplicitAnonymousFunctionExprContext ctx) {
         if (isInErrorState) {
             return;
         }
@@ -343,7 +343,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     }
 
     @Override
-    public void exitLambdaFunction(BallerinaParser.LambdaFunctionContext ctx) {
+    public void exitExplicitAnonymousFunctionExpr(BallerinaParser.ExplicitAnonymousFunctionExprContext ctx) {
         if (isInErrorState) {
             return;
         }
@@ -352,7 +352,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     }
 
     @Override
-    public void enterArrowFunction(BallerinaParser.ArrowFunctionContext ctx) {
+    public void enterInferAnonymousFunctionExpr(BallerinaParser.InferAnonymousFunctionExprContext ctx) {
         if (isInErrorState) {
             return;
         }
@@ -361,7 +361,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     }
 
     @Override
-    public void exitArrowFunctionExpression(BallerinaParser.ArrowFunctionExpressionContext ctx) {
+    public void exitInferAnonymousFunctionExpression(BallerinaParser.InferAnonymousFunctionExpressionContext ctx) {
         if (isInErrorState) {
             return;
         }
@@ -370,7 +370,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     }
 
     @Override
-    public void exitArrowParam(BallerinaParser.ArrowParamContext ctx) {
+    public void exitInferParam(BallerinaParser.InferParamContext ctx) {
         if (isInErrorState) {
             return;
         }
@@ -2654,15 +2654,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      */
     @Override
     public void exitReturnParameter(BallerinaParser.ReturnParameterContext ctx) {
-        if (isInErrorState) {
-            return;
-        }
-
-        this.pkgBuilder.addReturnParam(getCurrentPos(ctx), getWS(ctx), ctx.annotationAttachment().size());
-    }
-
-    @Override
-    public void exitLambdaReturnParameter(BallerinaParser.LambdaReturnParameterContext ctx) {
         if (isInErrorState) {
             return;
         }
