@@ -21,34 +21,31 @@ type Person record {
 
 function testFilter() returns boolean {
     boolean testPassed = true;
-    Person[] d = [];
+    Person[] personList = [];
     Person gima = {name: "Gima", age: 100};
     Person mohan = {name: "Mohan", age: 200};
     Person grainier = {name: "Grainier", age: 150};
     Person chiran = {name: "Chiran", age: 75};
     Person sinthuja = {name: "Sinthuja", age: 150};
-    d.push(gima);
-    d.push(mohan);
-    d.push(grainier);
-    d.push(chiran);
-    d.push(sinthuja);
-    Person[] r = d.clone();
-    foreach var s in r {
+    personList.push(gima);
+    personList.push(mohan);
+    personList.push(grainier);
+    personList.push(chiran);
+    personList.push(sinthuja);
 
-    }
-    stream<Person> sss =  d.toStream();
-    stream<Person> xxx = sss.filter(function (Person p) returns boolean {
-        return p.age > 100 && p.name != "Chiran";
+    stream<Person> personStream =  personList.toStream();
+    stream<Person> filteredPersonStream = personStream.filter(function (Person person) returns boolean {
+        return person.age > 100 && person.name != "James";
     });
 
-    var x = <record {Person value;}>xxx.next();
-    testPassed = testPassed && x.value == mohan;
+    var filteredPerson = <record {Person value;}>filteredPersonStream.next();
+    testPassed = testPassed && filteredPerson.value == mohan;
 
-    x = <record {Person value;}>xxx.next();
-    testPassed = testPassed && x.value == grainier;
+    filteredPerson = <record {Person value;}>filteredPersonStream.next();
+    testPassed = testPassed && filteredPerson.value == grainier;
 
-    x = <record {Person value;}>xxx.next();
-    testPassed = testPassed && x.value == sinthuja;
+    filteredPerson = <record {Person value;}>filteredPersonStream.next();
+    testPassed = testPassed && filteredPerson.value == sinthuja;
 
     return testPassed;
 }
