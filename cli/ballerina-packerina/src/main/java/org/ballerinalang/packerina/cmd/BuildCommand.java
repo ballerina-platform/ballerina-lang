@@ -193,8 +193,7 @@ public class BuildCommand implements BLauncherCmd {
         // When -a or --all is provided, check if the command is executed within a Ballerina project. Update source
         // root path if the command is executed inside a project.
         if (this.buildAll) {
-            // Check if the output flag is set
-            //// when building all the modules.
+            //// Check if the output flag is set when building all the modules.
             if (null != this.output) {
                 CommandUtil.printError(this.errStream,
                                        "'-o' and '--output' are only supported for building a single Ballerina " +
