@@ -24,6 +24,9 @@ dependencies {
     implementation 'org.wso2.orbit.org.antlr:antlr4-runtime'
     implementation 'org.apache.commons:commons-lang3'
     implementation 'io.netty:netty-buffer'
+    implementation 'org.ow2.asm:asm'
+    implementation 'org.ow2.asm:asm-util'
+    implementation 'org.ow2.asm:asm-tree'
     testCompile 'org.testng:testng'
 }
 
