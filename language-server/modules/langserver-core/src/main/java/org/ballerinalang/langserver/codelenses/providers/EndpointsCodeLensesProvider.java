@@ -17,9 +17,9 @@ package org.ballerinalang.langserver.codelenses.providers;
 
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.client.config.BallerinaClientConfigHolder;
-import org.ballerinalang.langserver.codelenses.CodeLensesProviderKeys;
 import org.ballerinalang.langserver.codelenses.EndpointFindVisitor;
 import org.ballerinalang.langserver.commons.LSContext;
+import org.ballerinalang.langserver.commons.codelenses.CodeLensesProviderKeys;
 import org.ballerinalang.langserver.commons.codelenses.LSCodeLensesProviderException;
 import org.eclipse.lsp4j.CodeLens;
 import org.eclipse.lsp4j.Command;

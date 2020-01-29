@@ -18,6 +18,7 @@ package org.ballerinalang.langserver.codelenses;
 import org.ballerinalang.langserver.DocumentServiceOperationContext;
 import org.ballerinalang.langserver.LSContextOperation;
 import org.ballerinalang.langserver.commons.LSContext;
+import org.ballerinalang.langserver.commons.codelenses.CodeLensesProviderKeys;
 import org.ballerinalang.langserver.commons.codelenses.LSCodeLensesProviderException;
 import org.ballerinalang.langserver.commons.codelenses.spi.LSCodeLensesProvider;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
