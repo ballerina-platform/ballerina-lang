@@ -26,6 +26,9 @@ import org.ballerinalang.jvm.XMLFactory;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.messaging.rabbitmq.RabbitMQConstants;
 import org.ballerinalang.messaging.rabbitmq.RabbitMQUtils;
+import org.ballerinalang.messaging.rabbitmq.observability.RabbitMQMetricsUtil;
+import org.ballerinalang.messaging.rabbitmq.observability.RabbitMQObservabilityConstants;
+import org.ballerinalang.messaging.rabbitmq.observability.RabbitMQTracingUtil;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -46,9 +49,13 @@ public class MessageUtils {
         } else {
             try {
                 channel.basicAck(deliveryTag, multiple);
+                RabbitMQMetricsUtil.reportAcknowledgement(channel, RabbitMQObservabilityConstants.ACK);
+                RabbitMQTracingUtil.traceResourceInvocation(channel);
             } catch (IOException exception) {
+                RabbitMQMetricsUtil.reportError(channel, RabbitMQObservabilityConstants.ERROR_TYPE_ACK);
                 return RabbitMQUtils.returnErrorValue(RabbitMQConstants.ACK_ERROR + exception.getMessage());
             } catch (AlreadyClosedException exception) {
+                RabbitMQMetricsUtil.reportError(channel, RabbitMQObservabilityConstants.ERROR_TYPE_ACK);
                 return RabbitMQUtils.returnErrorValue(RabbitMQConstants.CHANNEL_CLOSED_ERROR);
             }
         }
@@ -58,16 +65,22 @@ public class MessageUtils {
     public static Object basicNack(Channel channel, int deliveryTag, boolean ackMode,
                                    boolean ackStatus, boolean multiple, boolean requeue) {
         if (ackStatus) {
+            RabbitMQMetricsUtil.reportError(channel, RabbitMQObservabilityConstants.ERROR_TYPE_NACK);
             return RabbitMQUtils.returnErrorValue(RabbitMQConstants.MULTIPLE_ACK_ERROR);
         } else if (ackMode) {
+            RabbitMQMetricsUtil.reportError(channel, RabbitMQObservabilityConstants.ERROR_TYPE_NACK);
             return RabbitMQUtils.returnErrorValue(RabbitMQConstants.ACK_MODE_ERROR);
         } else {
             try {
                 channel.basicNack(deliveryTag, multiple, requeue);
+                RabbitMQMetricsUtil.reportAcknowledgement(channel, RabbitMQObservabilityConstants.NACK);
+                RabbitMQTracingUtil.traceResourceInvocation(channel);
             } catch (IOException exception) {
+                RabbitMQMetricsUtil.reportError(channel, RabbitMQObservabilityConstants.ERROR_TYPE_NACK);
                 return RabbitMQUtils.returnErrorValue(RabbitMQConstants.NACK_ERROR
                         + exception.getMessage());
             } catch (AlreadyClosedException exception) {
+                RabbitMQMetricsUtil.reportError(channel, RabbitMQObservabilityConstants.ERROR_TYPE_NACK);
                 return RabbitMQUtils.returnErrorValue(RabbitMQConstants.CHANNEL_CLOSED_ERROR);
             }
         }
@@ -79,6 +92,7 @@ public class MessageUtils {
         try {
             return new String(messageCont, StandardCharsets.UTF_8.name());
         } catch (UnsupportedEncodingException exception) {
+            RabbitMQMetricsUtil.reportError(RabbitMQObservabilityConstants.ERROR_TYPE_GET_MSG_CONTENT);
             return RabbitMQUtils.returnErrorValue(RabbitMQConstants.TEXT_CONTENT_ERROR
                     + exception.getMessage());
         }
@@ -88,6 +102,7 @@ public class MessageUtils {
         try {
             return Double.parseDouble(new String(messageContent.getBytes(), StandardCharsets.UTF_8.name()));
         } catch (UnsupportedEncodingException exception) {
+            RabbitMQMetricsUtil.reportError(RabbitMQObservabilityConstants.ERROR_TYPE_GET_MSG_CONTENT);
             return RabbitMQUtils.returnErrorValue(RabbitMQConstants.FLOAT_CONTENT_ERROR
                     + exception.getMessage());
         }
@@ -97,6 +112,7 @@ public class MessageUtils {
         try {
             return Integer.parseInt(new String(messageContent.getBytes(), StandardCharsets.UTF_8.name()));
         } catch (UnsupportedEncodingException exception) {
+            RabbitMQMetricsUtil.reportError(RabbitMQObservabilityConstants.ERROR_TYPE_GET_MSG_CONTENT);
             return RabbitMQUtils.returnErrorValue(RabbitMQConstants.INT_CONTENT_ERROR
                     + exception.getMessage());
         }
@@ -110,6 +126,7 @@ public class MessageUtils {
             }
             return json;
         } catch (UnsupportedEncodingException exception) {
+            RabbitMQMetricsUtil.reportError(RabbitMQObservabilityConstants.ERROR_TYPE_GET_MSG_CONTENT);
             return RabbitMQUtils.returnErrorValue
                     (RabbitMQConstants.JSON_CONTENT_ERROR + exception.getMessage());
         }
@@ -119,6 +136,7 @@ public class MessageUtils {
         try {
             return XMLFactory.parse(new String(messageContent.getBytes(), StandardCharsets.UTF_8.name()));
         } catch (UnsupportedEncodingException exception) {
+            RabbitMQMetricsUtil.reportError(RabbitMQObservabilityConstants.ERROR_TYPE_GET_MSG_CONTENT);
             return RabbitMQUtils.returnErrorValue(RabbitMQConstants.XML_CONTENT_ERROR
                     + exception.getMessage());
         }
