@@ -36,11 +36,11 @@ public class BackendDriver {
     private CodeGenerator codeGenerator;
 
     public static BackendDriver getInstance(CompilerContext context) {
-        BackendDriver codeGenDriver = context.get(BACKEND_DRIVER);
-        if (codeGenDriver == null) {
-            codeGenDriver = new BackendDriver(context);
+        BackendDriver backendDriver = context.get(BACKEND_DRIVER);
+        if (backendDriver == null) {
+            backendDriver = new BackendDriver(context);
         }
-        return codeGenDriver;
+        return backendDriver;
     }
 
     private BackendDriver(CompilerContext context) {
