@@ -331,8 +331,9 @@ type TerminatorGenerator object {
         string jClassName = callIns.jClassName;
         string jMethodName = callIns.name;
 
-        string jMethodVMSig = isBStringFunc(funcName) ? callIns.jMethodVMSigBString : callIns.jMethodVMSig;
-        self.mv.visitMethodInsn(INVOKESTATIC, jClassName, jMethodName, jMethodVMSig, false);
+        boolean useBString = isBStringFunc(funcName);
+        string jMethodVMSig = useBString ? callIns.jMethodVMSigBString : callIns.jMethodVMSig;
+        self.mv.visitMethodInsn(INVOKESTATIC, jClassName, jMethodName  + (useBString ? "_bstring" : ""), jMethodVMSig, false);
 
         bir:VariableDcl? lhsOpVarDcl = callIns.lhsOp?.variableDcl;
 
