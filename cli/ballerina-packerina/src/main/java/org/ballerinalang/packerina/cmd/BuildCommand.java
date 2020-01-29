@@ -301,7 +301,7 @@ public class BuildCommand implements BLauncherCmd {
             //// check if module name given is not absolute.
             if (Paths.get(argList.get(0)).isAbsolute()) {
                 CommandUtil.printError(this.errStream,
-                                       "you are trying to build/compile a module by giving the absolute path. You " +
+                                       "you are trying to build/compile a module giving the absolute path. You " +
                                                "only need to give the name of the module.",
                                        "ballerina build [-c] <module-name>",
                                        true);
