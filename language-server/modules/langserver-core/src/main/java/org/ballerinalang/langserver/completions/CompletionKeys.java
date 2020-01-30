@@ -20,7 +20,7 @@ package org.ballerinalang.langserver.completions;
 import org.antlr.v4.runtime.CommonToken;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.ballerinalang.langserver.AnnotationNodeKind;
-import org.ballerinalang.langserver.compiler.LSContext;
+import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.model.tree.Node;
 import org.eclipse.lsp4j.CompletionCapabilities;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;

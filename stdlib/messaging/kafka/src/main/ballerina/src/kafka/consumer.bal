@@ -303,7 +303,7 @@ public type Consumer client object {
         return consumerGetPositionOffset(self, partition, duration);
     }
 
-    # Returns set of topics wich are currently subscribed by the consumer.
+    # Returns set of topics which are currently subscribed by the consumer.
     #
     # + return - Array of subscribed topics for the consumer if executes successfully, returns `kafka:ConsumerError` if the operation fails.
     public remote function getSubscription() returns string[]|ConsumerError {

@@ -15,7 +15,7 @@
  */
 package org.ballerinalang.langserver.implementation;
 
-import org.ballerinalang.langserver.compiler.LSContext;
+import org.ballerinalang.langserver.commons.LSContext;
 
 /**
  * Text Document Service context keys for the goto implementation operation context.

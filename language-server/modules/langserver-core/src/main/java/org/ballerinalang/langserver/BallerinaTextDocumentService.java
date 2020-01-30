@@ -18,18 +18,18 @@ package org.ballerinalang.langserver;
 import com.google.gson.JsonObject;
 import org.apache.commons.lang3.tuple.Pair;
 import org.ballerinalang.langserver.client.ExtendedLanguageClient;
-import org.ballerinalang.langserver.codeaction.BallerinaCodeActionRouter;
-import org.ballerinalang.langserver.codeaction.CodeActionNodeType;
+import org.ballerinalang.langserver.codeaction.CodeActionRouter;
 import org.ballerinalang.langserver.codeaction.CodeActionUtil;
 import org.ballerinalang.langserver.codelenses.CodeLensUtil;
-import org.ballerinalang.langserver.codelenses.LSCodeLensesProviderFactory;
+import org.ballerinalang.langserver.codelenses.LSCodeLensesProviderHolder;
 import org.ballerinalang.langserver.command.ExecuteCommandKeys;
 import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.commons.LSContext;
+import org.ballerinalang.langserver.commons.codeaction.CodeActionNodeType;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSClientLogger;
 import org.ballerinalang.langserver.compiler.LSCompilerCache;
-import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.compiler.LSModuleCompiler;
 import org.ballerinalang.langserver.compiler.common.LSCustomErrorStrategy;
 import org.ballerinalang.langserver.compiler.common.LSDocument;
@@ -43,6 +43,8 @@ import org.ballerinalang.langserver.completions.exceptions.CompletionContextNotS
 import org.ballerinalang.langserver.completions.util.CompletionUtil;
 import org.ballerinalang.langserver.diagnostic.DiagnosticsHelper;
 import org.ballerinalang.langserver.exception.UserErrorException;
+import org.ballerinalang.langserver.extensions.ballerina.semantichighlighter.HighlightingFailedException;
+import org.ballerinalang.langserver.extensions.ballerina.semantichighlighter.SemanticHighlightProvider;
 import org.ballerinalang.langserver.implementation.GotoImplementationCustomErrorStrategy;
 import org.ballerinalang.langserver.implementation.GotoImplementationUtil;
 import org.ballerinalang.langserver.signature.SignatureHelpUtil;
@@ -401,8 +403,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 CodeActionNodeType nodeType = CodeActionUtil.topLevelNodeInLine(identifier, line, documentManager);
 
                 // add commands
-                BallerinaCodeActionRouter codeActionRouter = new BallerinaCodeActionRouter();
-                List<CodeAction> codeActions = codeActionRouter.getBallerinaCodeActions(nodeType, context, diagnostics);
+                List<CodeAction> codeActions = CodeActionRouter.getBallerinaCodeActions(nodeType, context, diagnostics);
                 if (codeActions != null) {
                     actions.addAll(codeActions);
                 }
@@ -424,7 +425,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
     public CompletableFuture<List<? extends CodeLens>> codeLens(CodeLensParams params) {
         return CompletableFuture.supplyAsync(() -> {
             List<CodeLens> lenses;
-            if (!LSCodeLensesProviderFactory.getInstance().isEnabled()) {
+            if (!LSCodeLensesProviderHolder.getInstance().isEnabled()) {
                 // Disabled ballerina codeLens feature
                 clientCapabilities.setCodeLens(null);
                 // Skip code lenses if codeLens disabled
@@ -604,8 +605,13 @@ class BallerinaTextDocumentService implements TextDocumentService {
 
                 LSDocument lsDocument = new LSDocument(context.get(DocumentServiceKeys.FILE_URI_KEY));
                 diagnosticsHelper.compileAndSendDiagnostics(client, context, lsDocument, documentManager);
+                SemanticHighlightProvider.sendHighlights(client, context, documentManager);
             } catch (CompilationFailedException e) {
                 String msg = "Computing 'diagnostics' failed!";
+                TextDocumentIdentifier identifier = new TextDocumentIdentifier(params.getTextDocument().getUri());
+                logError(msg, e, identifier, (Position) null);
+            } catch (HighlightingFailedException e) {
+                String msg = "Semantic highlighting failed!";
                 TextDocumentIdentifier identifier = new TextDocumentIdentifier(params.getTextDocument().getUri());
                 logError(msg, e, identifier, (Position) null);
             } catch (Throwable e) {
@@ -650,12 +656,17 @@ class BallerinaTextDocumentService implements TextDocumentService {
 
                     LSDocument lsDocument = new LSDocument(fileURI);
                     diagnosticsHelper.compileAndSendDiagnostics(client, context, lsDocument, documentManager);
+                    SemanticHighlightProvider.sendHighlights(client, context, documentManager);
                     // Clear current cache upon successfull compilation
                     // If the compiler fails, still we'll have the cached entry(marked as outdated)
                     LSCompilerCache.clear(context, lsDocument.getProjectRoot());
                 } catch (CompilationFailedException e) {
                     String msg = "Computing 'diagnostics' failed!";
                     logError(msg, e, params.getTextDocument(), (Position) null);
+                } catch (HighlightingFailedException e) {
+                    String msg = "Semantic highlighting failed!";
+                    TextDocumentIdentifier identifier = new TextDocumentIdentifier(params.getTextDocument().getUri());
+                    logError(msg, e, identifier, (Position) null);
                 } finally {
                     nLock.ifPresent(Lock::unlock);
                 }

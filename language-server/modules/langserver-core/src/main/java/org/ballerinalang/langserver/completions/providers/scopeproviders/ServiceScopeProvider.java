@@ -19,11 +19,12 @@ package org.ballerinalang.langserver.completions.providers.scopeproviders;
 
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.commons.LSContext;
+import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
-import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
+import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 import org.ballerinalang.langserver.completions.providers.contextproviders.AnnotationAttachmentContextProvider;
-import org.ballerinalang.langserver.completions.spi.LSCompletionProvider;
 import org.ballerinalang.langserver.completions.util.Snippet;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.Position;
@@ -38,15 +39,15 @@ import java.util.List;
 /**
  * ServiceContextResolver.
  */
-@JavaSPIService("org.ballerinalang.langserver.completions.spi.LSCompletionProvider")
-public class ServiceScopeProvider extends LSCompletionProvider {
+@JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.LSCompletionProvider")
+public class ServiceScopeProvider extends AbstractCompletionProvider {
 
     public ServiceScopeProvider() {
         this.attachmentPoints.add(BLangService.class);
     }
 
     @Override
-    public List<CompletionItem> getCompletions(LSContext ctx) {
+    public List<CompletionItem> getCompletions(LSContext ctx) throws LSCompletionException {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
         if (this.isWithinAttachedExpressions(ctx)) {
             // suggest all the visible, defined listeners

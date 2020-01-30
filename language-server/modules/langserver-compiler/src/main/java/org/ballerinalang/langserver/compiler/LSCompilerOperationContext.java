@@ -15,6 +15,8 @@
  */
 package org.ballerinalang.langserver.compiler;
 
+import org.ballerinalang.langserver.commons.LSContext;
+import org.ballerinalang.langserver.commons.LSOperation;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 /**
