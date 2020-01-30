@@ -24,9 +24,9 @@ import ballerina/time;
 public type CookieStore object {
 
     Cookie[] allSessionCookies = [];
-    PersistentCookieHandler? persistentCookieHandler = ();
+    PersistentCookieHandler? persistentCookieHandler;
 
-    public function __init(PersistentCookieHandler? persistentCookieHandler) {
+    public function __init(PersistentCookieHandler? persistentCookieHandler = ()) {
         self.persistentCookieHandler = persistentCookieHandler;
     }
 
@@ -36,15 +36,14 @@ public type CookieStore object {
     # + cookieConfig - Configurations associated with the cookies
     # + url - Target service URL
     # + requestPath - Resource path
-    public function addCookie(Cookie cookie, CookieConfig cookieConfig, string url, string requestPath) {
+    # + return - An error will be returned if there is any error occurred when adding a cookie or else nil is returned
+    public function addCookie(Cookie cookie, CookieConfig cookieConfig, string url, string requestPath) returns CookieHandlingError? {
         if (self.getAllCookies().length() == cookieConfig.maxTotalCookieCount) {
-            log:printWarn("Number of total cookies in the cookie store can not exceed the maximum amount");
-            return;
+            return error(COOKIE_HANDLING_ERROR, message = "Number of total cookies in the cookie store can not exceed the maximum amount");
         }
         string domain = getDomain(url);
         if (self.getCookiesByDomain(domain).length() == cookieConfig.maxCookiesPerDomain) {
-            log:printWarn("Number of total cookies for the domain: " + domain + " in the cookie store can not exceed the maximum amount per domain");
-            return;
+            return error(COOKIE_HANDLING_ERROR, message = "Number of total cookies for the domain: " + domain + " in the cookie store can not exceed the maximum amount per domain");
         }
         string path  = requestPath;
         int? index = requestPath.indexOf("?");
@@ -70,7 +69,7 @@ public type CookieStore object {
                 if (persistentCookieHandler is PersistentCookieHandler) {
                     var result = addPersistentCookie(identicalCookie, cookie, url, persistentCookieHandler, self);
                     if (result is error) {
-                        log:printError("Error in adding persistent cookies: ", result);
+                        return error(COOKIE_HANDLING_ERROR, message = "Error in adding persistent cookies", cause = result);
                     }
                 } else if (isFirstRequest(self.allSessionCookies, domain)) {
                     log:printWarn("Client is not configured to use persistent cookies. Hence, persistent cookies from " + domain + " will be discarded.");
@@ -78,7 +77,7 @@ public type CookieStore object {
             } else {
                 var result = addSessionCookie(identicalCookie, cookie, url, self);
                 if (result is error) {
-                    log:printError("Error in adding session cookie: ", result);
+                    return error(COOKIE_HANDLING_ERROR, message = "Error in adding session cookie", cause = result);
                 }
             }
         }
@@ -92,7 +91,10 @@ public type CookieStore object {
     # + requestPath - Resource path
     public function addCookies(Cookie[] cookiesInResponse, CookieConfig cookieConfig, string url, string requestPath) {
         foreach var cookie in cookiesInResponse {
-            self.addCookie(cookie, cookieConfig, url, requestPath);
+            var result = self.addCookie(cookie, cookieConfig, url, requestPath);
+            if (result is error) {
+                log:printError("Error in adding cookies to cookie store: ", result);
+            }
         }
     }
 
@@ -320,7 +322,8 @@ function getIdenticalCookie(Cookie cookieToCompare, CookieStore cookieStore) ret
     Cookie[] allCookies = cookieStore.getAllCookies();
     int k = 0 ;
     while (k < allCookies.length()) {
-        if (cookieToCompare.name == allCookies[k].name && cookieToCompare.domain == allCookies[k].domain  && cookieToCompare.path ==  allCookies[k].path) {
+        if (cookieToCompare.name == allCookies[k].name && cookieToCompare.domain == allCookies[k].domain
+            && cookieToCompare.path ==  allCookies[k].path) {
             return allCookies[k];
         }
         k = k + 1;
@@ -419,7 +422,8 @@ function addPersistentCookie(Cookie? identicalCookie, Cookie cookie, string url,
             return cookieStore.removeCookie(identicalCookieName, identicalCookieDomain, identicalCookiePath);
         } else {
             // Removes the old cookie and adds the new persistent cookie.
-            if (((identicalCookie.httpOnly && url.startsWith(HTTP)) || identicalCookie.httpOnly == false) && identicalCookieName is string && identicalCookieDomain is string && identicalCookiePath is string) {
+            if (((identicalCookie.httpOnly && url.startsWith(HTTP)) || identicalCookie.httpOnly == false)
+                && identicalCookieName is string && identicalCookieDomain is string && identicalCookiePath is string) {
                 var removeResult = cookieStore.removeCookie(identicalCookieName, identicalCookieDomain, identicalCookiePath);
                 if (removeResult is error) {
                     return removeResult;
@@ -442,12 +446,9 @@ function addPersistentCookie(Cookie? identicalCookie, Cookie cookie, string url,
 // Returns true if the cookie is expired according to the rules in [RFC-6265](https://tools.ietf.org/html/rfc6265#section-4.1.2.2).
 function isExpired(Cookie cookie) returns boolean {
     if (cookie.maxAge > 0) {
-        time:Time exptime = time:addDuration(cookie.createdTime, 0, 0, 0, 0, 0, cookie.maxAge, 0);
+        time:Time expTime = time:addDuration(cookie.createdTime, 0, 0, 0, 0, 0, cookie.maxAge, 0);
         time:Time curTime = time:currentTime();
-        if (exptime.time < curTime.time) {
-            return true;
-        }
-        return false;
+        return (expTime.time < curTime.time);
     }
     var expiryTime = cookie.expires;
     if (expiryTime is string) {
@@ -468,7 +469,8 @@ function addSessionCookie(Cookie? identicalCookie, Cookie cookie, string url, Co
         var identicalCookieDomain = identicalCookie.domain;
         var identicalCookiePath = identicalCookie.path;
         // Removes the old cookie and adds the new session cookie.
-        if (((identicalCookie.httpOnly && url.startsWith(HTTP)) || identicalCookie.httpOnly == false) && identicalCookieName is string && identicalCookieDomain is string && identicalCookiePath is string) {
+        if (((identicalCookie.httpOnly && url.startsWith(HTTP)) || identicalCookie.httpOnly == false)
+            && identicalCookieName is string && identicalCookieDomain is string && identicalCookiePath is string) {
             var removeResult = cookieStore.removeCookie(identicalCookieName, identicalCookieDomain, identicalCookiePath);
             if (removeResult is error) {
                 return removeResult;
