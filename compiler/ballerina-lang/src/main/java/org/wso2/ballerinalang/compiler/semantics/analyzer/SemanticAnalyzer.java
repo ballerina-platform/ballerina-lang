@@ -2641,12 +2641,9 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     }
 
     private boolean validateVariableDefinition(BLangExpression expr) {
-        // following cases are invalid.
-        // var a = { x : y };
+        // Following is invalid:
         // var a = new ;
-        final NodeKind kind = expr.getKind();
-        if (kind == RECORD_LITERAL_EXPR || (kind == NodeKind.TYPE_INIT_EXPR
-                && ((BLangTypeInit) expr).userDefinedType == null)) {
+        if (expr.getKind() == NodeKind.TYPE_INIT_EXPR && ((BLangTypeInit) expr).userDefinedType == null) {
             dlog.error(expr.pos, DiagnosticCode.INVALID_ANY_VAR_DEF);
             return false;
         }

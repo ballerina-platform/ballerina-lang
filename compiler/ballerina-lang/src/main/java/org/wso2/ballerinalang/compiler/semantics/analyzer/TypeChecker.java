@@ -872,9 +872,18 @@ public class TypeChecker extends BLangNodeVisitor {
         int expTypeTag = expType.tag;
         BType originalExpType = expType;
         if (expTypeTag == TypeTags.NONE) {
-            // Change the expected type to map, TODO
-            expType = symTable.mapType;
+            List<BLangExpression> expressions = new ArrayList<>();
+            for (RecordLiteralNode.RecordField field : recordLiteral.fields) {
+                if (field.getKind() == NodeKind.RECORD_LITERAL_KEY_VALUE) {
+                    expressions.add(((BLangRecordKeyValue) field).valueExpr);
+                    continue;
+                }
+                expressions.add((BLangSimpleVarRef) field);
+            }
+
+            expType = new BMapType(TypeTags.MAP, getRepresentativeBroadType(expressions), null);
         }
+
         if (expTypeTag == TypeTags.OBJECT) {
             dlog.error(recordLiteral.pos, DiagnosticCode.INVALID_RECORD_LITERAL, originalExpType);
             resultType = symTable.semanticError;
@@ -996,15 +1005,7 @@ public class TypeChecker extends BLangNodeVisitor {
                         continue;
                 }
 
-                boolean uniqueType = true;
-                for (BType type : possibleTypes) {
-                    if (types.isSameType(currentType, type)) {
-                        uniqueType = false;
-                        break;
-                    }
-                }
-
-                if (uniqueType) {
+                if (!possibleTypes.contains(currentType)) {
                     possibleTypes.add(currentType);
                 }
             }
