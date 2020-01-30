@@ -4386,6 +4386,7 @@ public class Desugar extends BLangNodeVisitor {
         // Set the indexed based access expression statement as foreach body
         foreachBody.addStatement(outputVarAssignment);
         if (whereClause != null) {
+            // Create If Statement with Where expression and foreach body
             BLangBlockStmt bLangBlockStmt = ASTBuilderUtil.createBlockStmt(pos);
             BLangIf bLangIf = (BLangIf) TreeBuilder.createIfElseStatementNode();
             bLangIf.expr = whereClause.expression;
