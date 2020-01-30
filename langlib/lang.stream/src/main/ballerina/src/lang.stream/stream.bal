@@ -33,3 +33,10 @@ public function filter(stream<PureType> strm, function(PureType val) returns boo
 # + return - If the stream has elements, return the element wrapped in a record with single field called `value`,
 #            otherwise returns ()
 public function next(stream<PureType> strm) returns record {PureType value;}? = external;
+
+# Applies a function to each member of a stream and returns a new stream of the results.
+#
+# + strm - The stream
+# + func - A function to apply to each member
+# + return - New stream containing result of applying `func` to each member of `strm` in order
+public function 'map(stream<PureType> strm, function(PureType val) returns PureType func) returns stream<PureType> = external;

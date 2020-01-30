@@ -54,6 +54,15 @@ public interface BStream extends BRefValue {
     BStream filter(BStream stream, BFunctionPointer<Object, Boolean> functionPointer);
 
     /**
+     * Returns a new stream which applies a mapping condition on the input stream.
+     *
+     * @param stream The input stream being mapped
+     * @param functionPointer The function pointer which represents the mapping condition
+     * @return The output stream
+     */
+    BStream map(BStream stream, BFunctionPointer<Object, Object> functionPointer);
+
+    /**
      * Returns the next element in the stream after applying filters, mapping and reductions
      * @param scheduler The scheduler used to apply filtering, mapping , reducing ,,etc functions.
      * @return The next element if the stream has or Nil if stream ends.

@@ -117,6 +117,11 @@ public class StreamValue implements RefValue, BStream {
     }
 
     @Override
+    public BStream map(BStream stream, BFunctionPointer<Object, Object> mapFunc) {
+        return new StreamValue(stream.getType(), stream.getIterator(), null, mapFunc);
+    }
+
+    @Override
     public Object next(Scheduler scheduler) {
         Object next;
         do {
