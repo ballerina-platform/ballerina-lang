@@ -2588,8 +2588,10 @@ public class TypeChecker extends BLangNodeVisitor {
 
         BLangSelectClause selectClause = (BLangSelectClause) queryExpr.getSelectClauseNode();
         checkExpr(selectClause.expression, fromClauseEnv);
-        checkExpr(whereClause.expression, fromClauseEnv);
 
+        if (whereClause != null) {
+            checkExpr(whereClause.expression, fromClauseEnv);
+        }
     }
 
     private void handleForeachVariables(BLangFromClause fromClause, SymbolEnv blockEnv) {

@@ -1682,7 +1682,9 @@ public class BLangPackageBuilder {
         queryExpr.addWS(ws);
         queryExpr.setFromClauseNode(fromClauseNodeStack.pop());
         queryExpr.setSelectClauseNode(selectClauseNodeStack.pop());
-        queryExpr.setWhereClauseNode(whereClauseNodeStack.peek());
+        if(whereClauseNodeStack.size() > 0) {
+            queryExpr.setWhereClauseNode(whereClauseNodeStack.pop());
+        }
         addExpressionNode(queryExpr);
     }
 
