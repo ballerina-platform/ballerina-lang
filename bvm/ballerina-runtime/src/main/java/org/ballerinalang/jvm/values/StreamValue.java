@@ -18,7 +18,7 @@
 
 package org.ballerinalang.jvm.values;
 
-import org.ballerinalang.jvm.scheduling.Scheduler;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BStreamType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.values.api.BFunctionPointer;
@@ -34,7 +34,7 @@ import java.util.UUID;
  * <p>
  * <i>Note: This is an internal API and may change in future versions.</i>
  * </p>
- * 
+ *
  * @since 0.995.0
  */
 public class StreamValue implements RefValue, BStream {
@@ -104,7 +104,7 @@ public class StreamValue implements RefValue, BStream {
      * {@inheritDoc}
      */
     public Object frozenCopy(Map<Object, Object> refs) {
-            throw new UnsupportedOperationException();
+        throw new UnsupportedOperationException();
     }
 
     public BType getConstraintType() {
@@ -117,7 +117,7 @@ public class StreamValue implements RefValue, BStream {
     }
 
     @Override
-    public Object next(Scheduler scheduler) {
+    public Object next(Strand strand) {
         Object next;
         do {
             next = iterator.next();
@@ -125,8 +125,9 @@ public class StreamValue implements RefValue, BStream {
             if (next == null) {
                 return null;
             }
-        } while (!filter.execute(scheduler, next));
-        return next;
+        } while (!filter.execute(strand, next));
+
+        return mapper.execute(strand, next);
     }
 
 
@@ -141,13 +142,13 @@ public class StreamValue implements RefValue, BStream {
     }
 
     interface FunctionPointerWrapper<T, R> {
-        T execute(Scheduler scheduler, R element);
+        T execute(Strand strand, R element);
     }
 
     static class NoFilterFunctionPointerWrapper implements FunctionPointerWrapper<Boolean, Object> {
 
         @Override
-        public Boolean  execute(Scheduler scheduler, Object element) {
+        public Boolean execute(Strand strand, Object element) {
             return true;
         }
     }
@@ -155,7 +156,7 @@ public class StreamValue implements RefValue, BStream {
     static class NoMapFunctionPointerWrapper implements FunctionPointerWrapper<Object, Object> {
 
         @Override
-        public Object  execute(Scheduler scheduler, Object element) {
+        public Object execute(Strand strand, Object element) {
             return element;
         }
     }
@@ -168,8 +169,9 @@ public class StreamValue implements RefValue, BStream {
         }
 
         @Override
-        public Boolean execute(Scheduler scheduler, Object element) {
-            return filterFunc.call(element);
+        public Boolean execute(Strand strand, Object element) {
+            //TODO: use scheduler to invoke the filterFunc
+            return filterFunc.call(new Object[]{strand, element, true});
         }
     }
 }
