@@ -19,14 +19,15 @@ import com.google.gson.JsonObject;
 import org.apache.commons.io.IOUtils;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.client.ExtendedLanguageClient;
-import org.ballerinalang.langserver.command.ExecuteCommandKeys;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.LSContext;
+import org.ballerinalang.langserver.commons.command.ExecuteCommandKeys;
 import org.ballerinalang.langserver.commons.command.LSCommandExecutorException;
 import org.ballerinalang.langserver.commons.command.spi.LSCommandExecutor;
 import org.ballerinalang.langserver.diagnostic.DiagnosticsHelper;
 import org.eclipse.lsp4j.MessageType;
+import org.eclipse.lsp4j.services.LanguageClient;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -79,8 +80,8 @@ public class PullModuleExecutor implements LSCommandExecutor {
             // Execute `ballerina pull` command
             String ballerinaCmd = Paths.get(CommonUtil.BALLERINA_CMD).toString();
             ProcessBuilder processBuilder = new ProcessBuilder(ballerinaCmd, "pull", moduleName);
-            ExtendedLanguageClient client = context.get(ExecuteCommandKeys.LANGUAGE_SERVER_KEY).getClient();
-            DiagnosticsHelper diagnosticsHelper = context.get(ExecuteCommandKeys.DIAGNOSTICS_HELPER_KEY);
+            LanguageClient client = context.get(ExecuteCommandKeys.LANGUAGE_CLIENT_KEY);
+            DiagnosticsHelper diagnosticsHelper = DiagnosticsHelper.getInstance();
             try {
                 notifyClient(client, MessageType.Info, "Pulling '" + moduleName + "' from the Ballerina Central...");
                 Process process = processBuilder.start();
@@ -96,7 +97,9 @@ public class PullModuleExecutor implements LSCommandExecutor {
 
                 if (error == null || error.isEmpty()) {
                     notifyClient(client, MessageType.Info, "Pulling success for the '" + moduleName + "' module!");
-                    clearDiagnostics(client, diagnosticsHelper, documentUri, context);
+                    if (client instanceof ExtendedLanguageClient) {
+                        clearDiagnostics((ExtendedLanguageClient) client, diagnosticsHelper, documentUri, context);
+                    }
                 } else {
                     notifyClient(client, MessageType.Error,
                             "Pulling failed for the '" + moduleName + "' module!\n" + error);

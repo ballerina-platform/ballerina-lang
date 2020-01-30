@@ -20,11 +20,11 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.command.ExecuteCommandKeys;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.FunctionGenerator;
 import org.ballerinalang.langserver.commons.LSContext;
+import org.ballerinalang.langserver.commons.command.ExecuteCommandKeys;
 import org.ballerinalang.langserver.commons.command.LSCommandExecutorException;
 import org.ballerinalang.langserver.commons.command.spi.LSCommandExecutor;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
@@ -162,7 +162,7 @@ public class CreateFunctionExecutor implements LSCommandExecutor {
         } else {
             throw new LSCommandExecutorException("Error occurred when retrieving function node!");
         }
-        LanguageClient client = context.get(ExecuteCommandKeys.LANGUAGE_SERVER_KEY).getClient();
+        LanguageClient client = context.get(ExecuteCommandKeys.LANGUAGE_CLIENT_KEY);
         String modifiers = "";
         boolean prependLineFeed = true;
         String padding = "";

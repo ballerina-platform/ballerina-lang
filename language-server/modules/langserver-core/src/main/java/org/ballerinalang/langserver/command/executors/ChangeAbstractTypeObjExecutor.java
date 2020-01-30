@@ -17,9 +17,9 @@ package org.ballerinalang.langserver.command.executors;
 
 import com.google.gson.JsonObject;
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.command.ExecuteCommandKeys;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.commons.LSContext;
+import org.ballerinalang.langserver.commons.command.ExecuteCommandKeys;
 import org.ballerinalang.langserver.commons.command.LSCommandExecutorException;
 import org.ballerinalang.langserver.commons.command.spi.LSCommandExecutor;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
@@ -163,7 +163,7 @@ public class ChangeAbstractTypeObjExecutor implements LSCommandExecutor {
             textEdit = new TextEdit(new Range(start, end), editText);
         }
 
-        LanguageClient client = context.get(ExecuteCommandKeys.LANGUAGE_SERVER_KEY).getClient();
+        LanguageClient client = context.get(ExecuteCommandKeys.LANGUAGE_CLIENT_KEY);
         List<TextEdit> edits = new ArrayList<>();
         edits.add(textEdit);
         TextDocumentEdit textDocumentEdit = new TextDocumentEdit(textDocumentIdentifier, edits);
