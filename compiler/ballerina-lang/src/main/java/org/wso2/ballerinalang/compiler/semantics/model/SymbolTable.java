@@ -105,6 +105,7 @@ public class SymbolTable {
     public final BType mapType = new BMapType(TypeTags.MAP, anyType, null);
     public final BType mapStringType = new BMapType(TypeTags.MAP, stringType, null);
     public final BType mapAnydataType = new BMapType(TypeTags.MAP, anydataType, null);
+    public final BType mapJsonType = new BMapType(TypeTags.MAP, jsonType, null);
     public final BType futureType = new BFutureType(TypeTags.FUTURE, nilType, null);
     public final BType arrayType = new BArrayType(noType);
     public final BType tupleType = new BTupleType(Lists.of(noType));

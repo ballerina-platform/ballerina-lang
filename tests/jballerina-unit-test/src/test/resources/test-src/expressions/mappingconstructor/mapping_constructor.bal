@@ -124,6 +124,71 @@ function testVarNameFieldInAnnotation() {
     panic getFailureError(expectedFn2, fn2);
 }
 
+const TYPEDESC_MAP_ANY = "typedesc map";
+
+function testMappingConstuctorWithAnyCET() {
+    any a = {a: 1, b: 2};
+    typedesc<any> ta = typeof a;
+    string typedescString = ta.toString();
+
+    if typedescString != TYPEDESC_MAP_ANY {
+        panic getFailureError(TYPEDESC_MAP_ANY, typedescString);
+    }
+
+    any|map<any> b = {a: "hello", b: 1};
+    ta = typeof b;
+    typedescString = ta.toString();
+
+    if typedescString == TYPEDESC_MAP_ANY {
+        return;
+    }
+
+    panic getFailureError(TYPEDESC_MAP_ANY, typedescString);
+}
+
+const TYPEDESC_MAP_ANYDATA = "typedesc map<anydata>";
+
+function testMappingConstuctorWithAnydataCET() {
+    anydata a = {a: "a", b: "b"};
+    typedesc<any> ta = typeof a;
+    string typedescString = ta.toString();
+
+    if typedescString != TYPEDESC_MAP_ANYDATA {
+        panic getFailureError(TYPEDESC_MAP_ANYDATA, typedescString);
+    }
+
+    anydata|string|map<anydata> b = {a: "hello", b: 1};
+    ta = typeof b;
+    typedescString = ta.toString();
+
+    if typedescString == TYPEDESC_MAP_ANYDATA {
+        return;
+    }
+
+    panic getFailureError(TYPEDESC_MAP_ANYDATA, typedescString);
+}
+
+const TYPEDESC_MAP_JSON = "typedesc map<json>";
+
+function testMappingConstuctorWithJsonCET() {
+    json a = {a: "a", b: true};
+    typedesc<any> ta = typeof a;
+    string typedescString = ta.toString();
+
+    if typedescString != TYPEDESC_MAP_JSON {
+        panic getFailureError(TYPEDESC_MAP_JSON, typedescString);
+    }
+
+    json|string b = {a: "hello", b: 1};
+    ta = typeof b;
+    typedescString = ta.toString();
+
+    if typedescString == TYPEDESC_MAP_JSON {
+        return;
+    }
+
+    panic getFailureError(TYPEDESC_MAP_JSON, typedescString);
+}
 
 function getFailureError(any|error expected, any|error actual) returns error {
     return  error(ASSERTION_ERROR_REASON,

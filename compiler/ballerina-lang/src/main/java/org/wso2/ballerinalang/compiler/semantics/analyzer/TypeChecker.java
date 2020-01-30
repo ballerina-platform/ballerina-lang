@@ -871,11 +871,11 @@ public class TypeChecker extends BLangNodeVisitor {
         BType actualType = symTable.semanticError;
         int expTypeTag = expType.tag;
         BType originalExpType = expType;
-        if (expTypeTag == TypeTags.NONE || expTypeTag == TypeTags.ANY) {
-            // Change the expected type to map,
+        if (expTypeTag == TypeTags.NONE) {
+            // Change the expected type to map, TODO
             expType = symTable.mapType;
         }
-        if (expTypeTag == TypeTags.ANY || expTypeTag == TypeTags.ANYDATA || expTypeTag == TypeTags.OBJECT) {
+        if (expTypeTag == TypeTags.OBJECT) {
             dlog.error(recordLiteral.pos, DiagnosticCode.INVALID_RECORD_LITERAL, originalExpType);
             resultType = symTable.semanticError;
             return;
@@ -968,19 +968,45 @@ public class TypeChecker extends BLangNodeVisitor {
         if (bType.tag == TypeTags.UNION) {
             Set<BType> expTypes = ((BUnionType) bType).getMemberTypes();
 
-            List<BType> possibleTypes =
-                    expTypes.stream()
-                            .filter(type -> type.tag == TypeTags.MAP ||
-                                    (type.tag == TypeTags.RECORD &&
-                                            (!((BRecordType) type).sealed ||
-                                                    isCompatibleClosedRecordLiteral((BRecordType) type,
-                                                            recordLiteral))))
-                            .collect(Collectors.toList());
+            List<BType> possibleTypes = new ArrayList<>();
 
-            if (expTypes.stream().anyMatch(type -> type.tag == TypeTags.JSON) &&
-                    expTypes.stream().noneMatch(type -> type.tag == TypeTags.MAP &&
-                            ((BMapType) type).constraint.tag == TypeTags.JSON)) {
-                possibleTypes.add(new BMapType(TypeTags.MAP, symTable.jsonType, null));
+            for (BType possibleType : expTypes) {
+                BType currentType;
+                switch (possibleType.tag) {
+                    case TypeTags.MAP:
+                        currentType = possibleType;
+                        break;
+                    case TypeTags.RECORD:
+                        if (!((BRecordType) possibleType).sealed ||
+                                isCompatibleClosedRecordLiteral((BRecordType) possibleType, recordLiteral)) {
+                            currentType = possibleType;
+                            break;
+                        }
+                        continue;
+                    case TypeTags.JSON:
+                        currentType = symTable.mapJsonType;
+                        break;
+                    case TypeTags.ANYDATA:
+                        currentType = symTable.mapAnydataType;
+                        break;
+                    case TypeTags.ANY:
+                        currentType = symTable.mapType;
+                        break;
+                    default:
+                        continue;
+                }
+
+                boolean uniqueType = true;
+                for (BType type : possibleTypes) {
+                    if (types.isSameType(currentType, type)) {
+                        uniqueType = false;
+                        break;
+                    }
+                }
+
+                if (uniqueType) {
+                    possibleTypes.add(currentType);
+                }
             }
 
             return possibleTypes;
@@ -988,11 +1014,15 @@ public class TypeChecker extends BLangNodeVisitor {
 
 
         switch (expType.tag) {
-            case TypeTags.JSON:
-                return Collections.singletonList(new BMapType(TypeTags.MAP, symTable.jsonType, null));
             case TypeTags.MAP:
             case TypeTags.RECORD:
                 return Collections.singletonList(bType);
+            case TypeTags.JSON:
+                return Collections.singletonList(symTable.mapJsonType);
+            case TypeTags.ANY:
+                return Collections.singletonList(symTable.mapType);
+            case TypeTags.ANYDATA:
+                return Collections.singletonList(symTable.mapAnydataType);
             default:
                 return Collections.emptyList();
         }

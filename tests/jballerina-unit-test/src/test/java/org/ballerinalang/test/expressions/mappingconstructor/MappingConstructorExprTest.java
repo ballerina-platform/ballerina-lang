@@ -36,7 +36,7 @@ public class MappingConstructorExprTest {
 
     @BeforeClass
     public void setup() {
-         result = BCompileUtil.compile("test-src/expressions/mappingconstructor/var_name_field.bal");
+         result = BCompileUtil.compile("test-src/expressions/mappingconstructor/mapping_constructor.bal");
     }
 
     @Test
@@ -94,7 +94,10 @@ public class MappingConstructorExprTest {
                 { "testVarNameAsMapField" },
                 { "testVarNameAsJsonField" },
                 { "testLikeModuleQualifiedVarNameAsJsonField" },
-                { "testVarNameFieldInAnnotation" } // final test using `s` since `s` is updated
+                { "testVarNameFieldInAnnotation" }, // final test using `s` since `s` is updated
+                { "testMappingConstuctorWithAnyCET" },
+                { "testMappingConstuctorWithAnydataCET" },
+                { "testMappingConstuctorWithJsonCET" }
         };
     }
 }
