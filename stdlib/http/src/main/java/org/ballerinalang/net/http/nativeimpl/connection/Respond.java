@@ -29,6 +29,7 @@ import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
 import org.ballerinalang.net.http.DataContext;
+import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpErrorType;
 import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.net.http.caching.ResponseCacheControlObj;
@@ -61,8 +62,17 @@ public class Respond extends ConnectionAction {
         HttpCarbonMessage inboundRequestMsg = HttpUtil.getCarbonMsg(connectionObj, null);
         Strand strand = Scheduler.getStrand();
         DataContext dataContext = new DataContext(strand, new NonBlockingCallback(strand), inboundRequestMsg);
-        HttpCarbonMessage outboundResponseMsg = HttpUtil
-                .getCarbonMsg(outboundResponseObj, HttpUtil.createHttpCarbonMessage(false));
+        HttpCarbonMessage outboundResponseMsg;
+        if (outboundResponseObj.getNativeData(HttpConstants.IS_RESPONSE_PROCESSED) != null) {
+            String errorMessage = "Couldn't complete the outbound response which has been already processed.";
+            HttpUtil.sendOutboundResponse(inboundRequestMsg, HttpUtil.createErrorMessage(errorMessage, 500));
+            unBlockStrand(strand);
+            log.debug(errorMessage);
+            return HttpUtil.createHttpError(errorMessage, HttpErrorType.GENERIC_LISTENER_ERROR);
+        }
+        outboundResponseObj.addNativeData(HttpConstants.IS_RESPONSE_PROCESSED, true);
+        outboundResponseMsg = HttpUtil.getCarbonMsg(outboundResponseObj, HttpUtil.
+                    createHttpCarbonMessage(false));
         outboundResponseMsg.setPipeliningEnabled(inboundRequestMsg.isPipeliningEnabled());
         outboundResponseMsg.setSequenceId(inboundRequestMsg.getSequenceId());
         setCacheControlHeader(outboundResponseObj, outboundResponseMsg);
