@@ -34,41 +34,82 @@ import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
 import org.ballerinalang.messaging.kafka.observability.KafkaMetricsUtil;
 import org.ballerinalang.messaging.kafka.observability.KafkaObservabilityConstants;
 import org.ballerinalang.messaging.kafka.observability.KafkaTracingUtil;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.Receiver;
+import org.ballerinalang.messaging.kafka.utils.KafkaConstants;
 
+import java.io.PrintStream;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.CONSUMER_ERROR;
-import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.CONSUMER_STRUCT_NAME;
-import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.KAFKA_PACKAGE_NAME;
-import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.KAFKA_PROTOCOL_PACKAGE;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.NATIVE_CONSUMER;
-import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.ORG_NAME;
 import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.createKafkaError;
 import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.getStringListFromStringBArray;
+import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.getTopicNamesString;
 import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.getTopicPartitionRecord;
 import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.populateTopicPartitionRecord;
 
 /**
- * Native function subscribes to given topic array with given function pointers to on revoked / on assigned events.
+ * Native methods to handle subscription of the ballerina kafka consumer.
  */
-@BallerinaFunction(
-        orgName = ORG_NAME,
-        packageName = KAFKA_PACKAGE_NAME,
-        functionName = "subscribeWithPartitionRebalance",
-        receiver = @Receiver(
-                type = TypeKind.OBJECT,
-                structType = CONSUMER_STRUCT_NAME,
-                structPackage = KAFKA_PROTOCOL_PACKAGE
-        ),
-        isPublic = true
-)
-public class SubscribeWithPartitionRebalance {
+public class SubscriptionHandler {
+    private static final PrintStream console = System.out;
 
+    /**
+     * Subscribe the ballerina kafka consumer to the given array of topics.
+     *
+     * @param consumerObject Kafka consumer object from ballerina.
+     * @param topics         Ballerina {@code string[]} of topics.
+     * @return {@code ErrorValue}, if there's any error, null otherwise.
+     */
+    public static Object subscribe(ObjectValue consumerObject, BArray topics) {
+        KafkaTracingUtil.traceResourceInvocation(Scheduler.getStrand(), consumerObject);
+        KafkaConsumer kafkaConsumer = (KafkaConsumer) consumerObject.getNativeData(NATIVE_CONSUMER);
+        List<String> topicsList = getStringListFromStringBArray(topics);
+        try {
+            kafkaConsumer.subscribe(topicsList);
+            Set<String> subscribedTopics = kafkaConsumer.subscription();
+            KafkaMetricsUtil.reportBulkSubscription(consumerObject, subscribedTopics);
+        } catch (IllegalArgumentException | IllegalStateException | KafkaException e) {
+            KafkaMetricsUtil.reportConsumerError(consumerObject, KafkaObservabilityConstants.ERROR_TYPE_SUBSCRIBE);
+            return createKafkaError("Failed to subscribe to the provided topics: " + e.getMessage(), CONSUMER_ERROR);
+        }
+        console.println(KafkaConstants.SUBSCRIBED_TOPICS + getTopicNamesString(topicsList));
+        return null;
+    }
+
+    /**
+     * Subscribes the ballerina kafka consumer to the topics matching the given regex.
+     *
+     * @param consumerObject Kafka consumer object from ballerina.
+     * @param topicRegex     Regex to match topics to subscribe.
+     * @return {@code ErrorValue}, if there's any error, null otherwise.
+     */
+    public static Object subscribeToPattern(ObjectValue consumerObject, String topicRegex) {
+        KafkaTracingUtil.traceResourceInvocation(Scheduler.getStrand(), consumerObject);
+        KafkaConsumer kafkaConsumer = (KafkaConsumer) consumerObject.getNativeData(NATIVE_CONSUMER);
+        try {
+            kafkaConsumer.subscribe(Pattern.compile(topicRegex));
+            Set<String> topicsList = kafkaConsumer.subscription();
+            KafkaMetricsUtil.reportBulkSubscription(consumerObject, topicsList);
+        } catch (IllegalArgumentException | IllegalStateException | KafkaException e) {
+            KafkaMetricsUtil.reportConsumerError(consumerObject,
+                                                 KafkaObservabilityConstants.ERROR_TYPE_SUBSCRIBE_PATTERN);
+            return createKafkaError("Failed to unsubscribe from the topics: " + e.getMessage(), CONSUMER_ERROR);
+        }
+        return null;
+    }
+
+    /**
+     * Subscribes the ballerina kafka consumer and re-balances the assignments.
+     *
+     * @param consumerObject       Kafka consumer object from ballerina.
+     * @param topics               Ballerina {@code string[]} of topics.
+     * @param onPartitionsRevoked  Function pointer to invoke if partitions are revoked.
+     * @param onPartitionsAssigned Function pointer to invoke if partitions are assigned.
+     * @return {@code ErrorValue}, if there's any error, null otherwise.
+     */
     public static Object subscribeWithPartitionRebalance(ObjectValue consumerObject, BArray topics,
                                                          FPValue onPartitionsRevoked, FPValue onPartitionsAssigned) {
         Strand strand = Scheduler.getStrand();
@@ -76,8 +117,10 @@ public class SubscribeWithPartitionRebalance {
         NonBlockingCallback callback = new NonBlockingCallback(strand);
         KafkaConsumer kafkaConsumer = (KafkaConsumer) consumerObject.getNativeData(NATIVE_CONSUMER);
         List<String> topicsList = getStringListFromStringBArray(topics);
-        ConsumerRebalanceListener consumer = new KafkaRebalanceListener(strand, strand.scheduler, onPartitionsRevoked,
-                                                                        onPartitionsAssigned, consumerObject);
+        ConsumerRebalanceListener consumer = new SubscriptionHandler.KafkaRebalanceListener(strand, strand.scheduler,
+                                                                                            onPartitionsRevoked,
+                                                                                            onPartitionsAssigned,
+                                                                                            consumerObject);
         try {
             kafkaConsumer.subscribe(topicsList, consumer);
             Set<String> subscribedTopics = kafkaConsumer.subscription();
@@ -93,8 +136,28 @@ public class SubscribeWithPartitionRebalance {
     }
 
     /**
-     * Implementation for {@link ConsumerRebalanceListener} interface from connector side.
-     * We register this listener at subscription.
+     * Unsubscribe the ballerina kafka consumer from all the topics.
+     *
+     * @param consumerObject Kafka consumer object from ballerina.
+     * @return {@code ErrorValue}, if there's any error, null otherwise.
+     */
+    public static Object unsubscribe(ObjectValue consumerObject) {
+        KafkaTracingUtil.traceResourceInvocation(Scheduler.getStrand(), consumerObject);
+        KafkaConsumer kafkaConsumer = (KafkaConsumer) consumerObject.getNativeData(NATIVE_CONSUMER);
+        try {
+            Set<String> topics = kafkaConsumer.subscription();
+            kafkaConsumer.unsubscribe();
+            KafkaMetricsUtil.reportBulkUnsubscription(consumerObject, topics);
+        } catch (KafkaException e) {
+            KafkaMetricsUtil.reportConsumerError(consumerObject, KafkaObservabilityConstants.ERROR_TYPE_UNSUBSCRIBE);
+            return createKafkaError("Failed to unsubscribe the consumer: " + e.getMessage(), CONSUMER_ERROR);
+        }
+        return null;
+    }
+
+    /**
+     * Implementation for {@link ConsumerRebalanceListener} interface from connector side. We register this listener at
+     * subscription.
      * <p>
      * {@inheritDoc}
      */

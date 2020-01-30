@@ -230,8 +230,7 @@ public type Consumer client object {
     # + duration - Timeout duration for the commit operation execution.
     # + offsets - Offsets to be commited.
     # + return - `kafka:ConsumerError` if encounters an error, returns nil otherwise.
-    public remote function commitOffset(PartitionOffset[] offsets, public int duration = -1)
-                                                                        returns ConsumerError? {
+    public remote function commitOffset(PartitionOffset[] offsets, public int duration = -1) returns ConsumerError? {
         return consumerCommitOffset(self, offsets, duration);
     }
 
@@ -263,7 +262,7 @@ public type Consumer client object {
     # + duration - Timeout duration for the get beginning offsets execution.
     # + return - Starting offsets for the given partitions if executes successfully, returns `kafka:ConsumerError` if the operation fails.
     public remote function getBeginningOffsets(TopicPartition[] partitions, public int duration = -1)
-                               returns PartitionOffset[]|ConsumerError {
+    returns PartitionOffset[]|ConsumerError {
         return consumerGetBeginningOffsets(self, partitions, duration);
     }
 
@@ -273,7 +272,7 @@ public type Consumer client object {
     # + duration - Timeout duration for the get committed offset operation to execute.
     # + return - Committed offset for the consumer for the given partition if executes successfully, returns `kafka:ConsumerError` if the operation fails.
     public remote function getCommittedOffset(TopicPartition partition, public int duration = -1)
-                               returns PartitionOffset|ConsumerError {
+    returns PartitionOffset|ConsumerError {
         return consumerGetCommittedOffset(self, partition, duration);
     }
 
@@ -283,7 +282,7 @@ public type Consumer client object {
     # + duration - Timeout duration for the get end offsets operation to execute.
     # + return - End offsets for the given partitions if executes successfully, returns `kafka:ConsumerError` if the operation fails.
     public remote function getEndOffsets(TopicPartition[] partitions, public int duration = -1)
-                               returns PartitionOffset[]|ConsumerError {
+    returns PartitionOffset[]|ConsumerError {
         return consumerGetEndOffsets(self, partitions, duration);
     }
 
@@ -299,7 +298,8 @@ public type Consumer client object {
     # + partition - Topic partition in which the position is required.
     # + duration - Timeout duration for the get position offset operation to execute.
     # + return - Offset which will be fetched next (if a records exists in that offset), returns `kafka:ConsumerError` if the operation fails.
-    public remote function getPositionOffset(TopicPartition partition, public int duration = -1) returns int|ConsumerError {
+    public remote function getPositionOffset(TopicPartition partition, public int duration = -1)
+    returns int|ConsumerError {
         return consumerGetPositionOffset(self, partition, duration);
     }
 
@@ -315,7 +315,8 @@ public type Consumer client object {
     # + topic - Given topic for partition information is needed.
     # + duration - Timeout duration for the get topic partitions operation to execute.
     # + return - Array of partitions for the given topic if executes successfully, returns `kafka:ConsumerError` if the operation fails.
-    public remote function getTopicPartitions(string topic, public int duration = -1) returns TopicPartition[]|ConsumerError {
+    public remote function getTopicPartitions(string topic, public int duration = -1)
+    returns TopicPartition[]|ConsumerError {
         return consumerGetTopicPartitions(self, java:fromString(topic), duration);
     }
 
@@ -392,9 +393,9 @@ public type Consumer client object {
     # + onPartitionsAssigned - Function which will be executed if partitions are assigned this consumer.
     # + return - `kafka:ConsumerError` if encounters an error, returns nil otherwise.
     public remote function subscribeWithPartitionRebalance(string[] topics,
-                           function(Consumer consumer, TopicPartition[] partitions) onPartitionsRevoked,
-                           function(Consumer consumer, TopicPartition[] partitions) onPartitionsAssigned)
-                           returns ConsumerError? {
+        function(Consumer consumer, TopicPartition[] partitions) onPartitionsRevoked,
+        function(Consumer consumer, TopicPartition[] partitions) onPartitionsAssigned)
+    returns ConsumerError? {
         return consumerSubscribeWithPartitionRebalance(self, topics, onPartitionsRevoked, onPartitionsAssigned);
     }
 
@@ -406,16 +407,28 @@ public type Consumer client object {
     }
 };
 
-function consumerAssign(Consumer consumer, TopicPartition[] partitions) returns ConsumerError? =
-@java:Method {
-    name: "assign",
-    class: "org.ballerinalang.messaging.kafka.nativeimpl.consumer.Assign"
-} external;
-
 function consumerClose(Consumer consumer, int duration) returns ConsumerError? =
 @java:Method {
     name: "close",
-    class: "org.ballerinalang.messaging.kafka.nativeimpl.consumer.Close"
+    class: "org.ballerinalang.messaging.kafka.nativeimpl.consumer.BrokerConnection"
+} external;
+
+function consumerConnect(Consumer consumer) returns ConsumerError? =
+@java:Method {
+    name: "connect",
+    class: "org.ballerinalang.messaging.kafka.nativeimpl.consumer.BrokerConnection"
+} external;
+
+function consumerPause(Consumer consumer, TopicPartition[] partitions) returns ConsumerError? =
+@java:Method {
+    name: "pause",
+    class: "org.ballerinalang.messaging.kafka.nativeimpl.consumer.BrokerConnection"
+} external;
+
+function consumerResume(Consumer consumer, TopicPartition[] partitions) returns ConsumerError? =
+@java:Method {
+    name: "resume",
+    class: "org.ballerinalang.messaging.kafka.nativeimpl.consumer.BrokerConnection"
 } external;
 
 function consumerCommit(Consumer consumer) returns ConsumerError? =
@@ -424,91 +437,82 @@ function consumerCommit(Consumer consumer) returns ConsumerError? =
     class: "org.ballerinalang.messaging.kafka.nativeimpl.consumer.Commit"
 } external;
 
-function consumerCommitOffset(Consumer consumer, PartitionOffset[] offsets, public int duration = -1) returns ConsumerError? =
+function consumerCommitOffset(Consumer consumer, PartitionOffset[] offsets, public int duration = -1)
+returns ConsumerError? =
 @java:Method {
     name: "commitOffset",
-    class: "org.ballerinalang.messaging.kafka.nativeimpl.consumer.CommitOffset"
+    class: "org.ballerinalang.messaging.kafka.nativeimpl.consumer.Commit"
 } external;
 
-function consumerConnect(Consumer consumer) returns ConsumerError? =
+function consumerAssign(Consumer consumer, TopicPartition[] partitions) returns ConsumerError? =
 @java:Method {
-    name: "connect",
-    class: "org.ballerinalang.messaging.kafka.nativeimpl.consumer.Connect"
+    name: "assign",
+    class: "org.ballerinalang.messaging.kafka.nativeimpl.consumer.ConsumerInformationHandler"
 } external;
 
 function consumerGetAssignment(Consumer consumer) returns TopicPartition[]|ConsumerError =
 @java:Method {
     name: "getAssignment",
-    class: "org.ballerinalang.messaging.kafka.nativeimpl.consumer.GetAssignment"
+    class: "org.ballerinalang.messaging.kafka.nativeimpl.consumer.ConsumerInformationHandler"
 } external;
 
 function consumerGetAvailableTopics(Consumer consumer, int duration) returns string[]|ConsumerError =
 @java:Method {
     name: "getAvailableTopics",
-    class: "org.ballerinalang.messaging.kafka.nativeimpl.consumer.GetAvailableTopics"
+    class: "org.ballerinalang.messaging.kafka.nativeimpl.consumer.ConsumerInformationHandler"
+} external;
+
+function consumerGetPausedPartitions(Consumer consumer) returns TopicPartition[]|ConsumerError =
+@java:Method {
+    name: "getPausedPartitions",
+    class: "org.ballerinalang.messaging.kafka.nativeimpl.consumer.ConsumerInformationHandler"
+} external;
+
+function consumerGetTopicPartitions(Consumer consumer, handle topic, public int duration = -1)
+returns TopicPartition[]|ConsumerError =
+@java:Method {
+    name: "getTopicPartitions",
+    class: "org.ballerinalang.messaging.kafka.nativeimpl.consumer.ConsumerInformationHandler"
+} external;
+
+function consumerGetSubscription(Consumer consumer) returns string[]|ConsumerError =
+@java:Method {
+    name: "getSubscription",
+    class: "org.ballerinalang.messaging.kafka.nativeimpl.consumer.ConsumerInformationHandler"
 } external;
 
 function consumerGetBeginningOffsets(Consumer consumer, TopicPartition[] partitions, int duration)
 returns PartitionOffset[]|ConsumerError =
 @java:Method {
     name: "getBeginningOffsets",
-    class: "org.ballerinalang.messaging.kafka.nativeimpl.consumer.GetBeginningOffsets"
+    class: "org.ballerinalang.messaging.kafka.nativeimpl.consumer.GetOffsets"
 } external;
 
 function consumerGetCommittedOffset(Consumer consumer, TopicPartition partition, int duration)
-                               returns PartitionOffset|ConsumerError =
+returns PartitionOffset|ConsumerError =
 @java:Method {
     name: "getCommittedOffset",
-    class: "org.ballerinalang.messaging.kafka.nativeimpl.consumer.GetCommittedOffset"
+    class: "org.ballerinalang.messaging.kafka.nativeimpl.consumer.GetOffsets"
 } external;
 
 function consumerGetEndOffsets(Consumer consumer, TopicPartition[] partitions, int duration)
 returns PartitionOffset[]|ConsumerError =
 @java:Method {
     name: "getEndOffsets",
-    class: "org.ballerinalang.messaging.kafka.nativeimpl.consumer.GetEndOffsets"
+    class: "org.ballerinalang.messaging.kafka.nativeimpl.consumer.GetOffsets"
 } external;
 
-function consumerGetPausedPartitions(Consumer consumer) returns TopicPartition[]|ConsumerError =
-@java:Method {
-    name: "getPausedPartitions",
-    class: "org.ballerinalang.messaging.kafka.nativeimpl.consumer.GetPausedPartitions"
-} external;
-
-function consumerGetPositionOffset(Consumer consumer, TopicPartition partition, public int duration = -1) returns int|ConsumerError =
+function consumerGetPositionOffset(Consumer consumer, TopicPartition partition, public int duration = -1)
+returns int|ConsumerError =
 @java:Method {
     name: "getPositionOffset",
-    class: "org.ballerinalang.messaging.kafka.nativeimpl.consumer.GetPositionOffset"
-} external;
-
-function consumerGetSubscription(Consumer consumer) returns string[]|ConsumerError =
-@java:Method {
-    name: "getSubscription",
-    class: "org.ballerinalang.messaging.kafka.nativeimpl.consumer.GetSubscription"
-} external;
-
-function consumerGetTopicPartitions(Consumer consumer, handle topic, public int duration = -1) returns TopicPartition[]|ConsumerError =
-@java:Method {
-    name: "getTopicPartitions",
-    class: "org.ballerinalang.messaging.kafka.nativeimpl.consumer.GetTopicPartitions"
-} external;
-
-function consumerPause(Consumer consumer, TopicPartition[] partitions) returns ConsumerError? =
-@java:Method {
-    name: "pause",
-    class: "org.ballerinalang.messaging.kafka.nativeimpl.consumer.Pause"
+    class: "org.ballerinalang.messaging.kafka.nativeimpl.consumer.GetOffsets"
 } external;
 
 function consumerPoll(Consumer consumer, int timeoutValue) returns ConsumerRecord[]|ConsumerError =
 @java:Method {
     name: "poll",
     class: "org.ballerinalang.messaging.kafka.nativeimpl.consumer.Poll"
-} external;
-
-function consumerResume(Consumer consumer, TopicPartition[] partitions) returns ConsumerError? =
-@java:Method {
-    name: "resume",
-    class: "org.ballerinalang.messaging.kafka.nativeimpl.consumer.Resume"
 } external;
 
 function consumerSeek(Consumer consumer, PartitionOffset offset) returns ConsumerError? =
@@ -520,40 +524,40 @@ function consumerSeek(Consumer consumer, PartitionOffset offset) returns Consume
 function consumerSeekToBeginning(Consumer consumer, TopicPartition[] partitions) returns ConsumerError? =
 @java:Method {
     name: "seekToBeginning",
-    class: "org.ballerinalang.messaging.kafka.nativeimpl.consumer.SeekToBeginning"
+    class: "org.ballerinalang.messaging.kafka.nativeimpl.consumer.Seek"
 } external;
 
 function consumerSeekToEnd(Consumer consumer, TopicPartition[] partitions) returns ConsumerError? =
 @java:Method {
     name: "seekToEnd",
-    class: "org.ballerinalang.messaging.kafka.nativeimpl.consumer.SeekToEnd"
+    class: "org.ballerinalang.messaging.kafka.nativeimpl.consumer.Seek"
 } external;
 
 function consumerSubscribe(Consumer consumer, string[] topics) returns ConsumerError? =
 @java:Method {
     name: "subscribe",
-    class: "org.ballerinalang.messaging.kafka.nativeimpl.consumer.Subscribe"
+    class: "org.ballerinalang.messaging.kafka.nativeimpl.consumer.SubscriptionHandler"
 } external;
 
 function consumerSubscribeToPattern(Consumer consumer, handle regex) returns ConsumerError? =
 @java:Method {
     name: "subscribeToPattern",
-    class: "org.ballerinalang.messaging.kafka.nativeimpl.consumer.SubscribeToPattern"
+    class: "org.ballerinalang.messaging.kafka.nativeimpl.consumer.SubscriptionHandler"
 } external;
 
 function consumerSubscribeWithPartitionRebalance(Consumer consumer, string[] topics,
-                                function(Consumer consumer, TopicPartition[] partitions) onPartitionsRevoked,
-                                function(Consumer consumer, TopicPartition[] partitions) onPartitionsAssigned)
-                                returns ConsumerError? =
+    function(Consumer consumer, TopicPartition[] partitions) onPartitionsRevoked,
+    function(Consumer consumer, TopicPartition[] partitions) onPartitionsAssigned)
+returns ConsumerError? =
 @java:Method {
     name: "subscribeWithPartitionRebalance",
-    class: "org.ballerinalang.messaging.kafka.nativeimpl.consumer.SubscribeWithPartitionRebalance"
+    class: "org.ballerinalang.messaging.kafka.nativeimpl.consumer.SubscriptionHandler"
 } external;
 
 function consumerUnsubscribe(Consumer consumer) returns ConsumerError? =
 @java:Method {
     name: "unsubscribe",
-    class: "org.ballerinalang.messaging.kafka.nativeimpl.consumer.Unsubscribe"
+    class: "org.ballerinalang.messaging.kafka.nativeimpl.consumer.SubscriptionHandler"
 } external;
 
 function register(Consumer consumer, service serviceType, string? name) returns ConsumerError? =

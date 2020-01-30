@@ -48,7 +48,7 @@ import static org.ballerinalang.messaging.kafka.utils.KafkaTestUtils.produceToKa
 /**
  * Test cases for ballerina.net.kafka consumer ( with Pause ) native functions.
  */
-public class KafkaConsumerPauseTest {
+public class KafkaConsumerPauseResumeTest {
     private CompileResult result;
     private static File dataDir;
     private static KafkaCluster kafkaCluster;
