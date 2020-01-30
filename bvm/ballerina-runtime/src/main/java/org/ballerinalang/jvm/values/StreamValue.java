@@ -18,7 +18,9 @@
 
 package org.ballerinalang.jvm.values;
 
+import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BStreamType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.values.api.BFunctionPointer;
@@ -81,6 +83,37 @@ public class StreamValue implements RefValue, BStream {
         }
     }
 
+    public StreamValue(BStream stream, BFunctionPointer<Object, Boolean> filterFunc,
+                       BFunctionPointer<Object, Object> mapFunc) {
+        this.constraintType = ((BStreamType) stream.getType()).getConstrainedType();
+        this.type = new BStreamType(constraintType);
+        this.streamId = UUID.randomUUID().toString();
+        this.iterator = consumeAndGet(Scheduler.getStrand(), stream);
+
+        if (filterFunc != null) {
+            this.filter = new FilterFunctionPointerWrapper(filterFunc);
+        } else {
+            this.filter = new NoFilterFunctionPointerWrapper();
+        }
+
+        if (mapFunc != null) {
+            this.mapper = new MapFunctionPointerWrapper(mapFunc);
+        } else {
+            this.mapper = new NoMapFunctionPointerWrapper();
+        }
+    }
+
+    // TODO: this is just a workaround
+    public IteratorValue consumeAndGet(Strand strand, BStream stream) {
+        ArrayValueImpl elems = new ArrayValueImpl(new BArrayType(constraintType));
+        Object elem = stream.next(strand);
+        while (elem != null) {
+            elems.append(elem);
+            elem = stream.next(strand);
+        }
+        return new AbstractArrayValue.ArrayIterator(elems);
+    }
+
 
     public String getStreamId() {
         return streamId;
@@ -116,12 +149,12 @@ public class StreamValue implements RefValue, BStream {
 
     @Override
     public BStream filter(BStream stream, BFunctionPointer<Object, Boolean> filterFunc) {
-        return new StreamValue(stream.getType(), stream.getIterator(), filterFunc, null);
+        return new StreamValue(stream, filterFunc, null);
     }
 
     @Override
     public BStream map(BStream stream, BFunctionPointer<Object, Object> mapFunc) {
-        return new StreamValue(stream.getType(), stream.getIterator(), null, mapFunc);
+        return new StreamValue(stream, null, mapFunc);
     }
 
     @Override

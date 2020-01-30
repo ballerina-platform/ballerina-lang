@@ -55,7 +55,7 @@ public class LangLibStreamTest {
         Assert.assertTrue(((BBoolean)values[0]).booleanValue());
     }
 
-    @Test(enabled = false)
+    @Test
     public void testFilterAndMapFunc() {
         BValue[] values = BRunUtil.invoke(result, "testFilterAndMapFunc", new BValue[] {});
         Assert.assertTrue(((BBoolean)values[0]).booleanValue());

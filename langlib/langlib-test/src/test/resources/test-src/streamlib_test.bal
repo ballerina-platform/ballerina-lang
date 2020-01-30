@@ -117,16 +117,16 @@ function testFilterAndMapFunc() returns boolean {
         );
 
     var employee = employeeStream.next();
-    testPassed = testPassed && employee?.value?.name == "Gima" && employee?.value?.company == "WSO2" ;
+    testPassed = testPassed && employee?.value?.name == "Mohan" && employee?.value?.company == "WSO2" ;
 
-    //employee = employeeStream.next();
-    //testPassed = testPassed && employee?.value?.name == "Grainier" && employee?.value?.company == "WSO2" ;
-    //
-    //employee = employeeStream.next();
-    //testPassed = testPassed && employee?.value?.name == "Sinthuja" && employee?.value?.company == "WSO2" ;
-    //
-    //employee = employeeStream.next();
-    //testPassed = testPassed && employee == ();
+    employee = employeeStream.next();
+    testPassed = testPassed && employee?.value?.name == "Grainier" && employee?.value?.company == "WSO2" ;
+
+    employee = employeeStream.next();
+    testPassed = testPassed && employee?.value?.name == "Sinthuja" && employee?.value?.company == "WSO2" ;
+
+    employee = employeeStream.next();
+    testPassed = testPassed && employee == ();
 
     return testPassed;
 }
