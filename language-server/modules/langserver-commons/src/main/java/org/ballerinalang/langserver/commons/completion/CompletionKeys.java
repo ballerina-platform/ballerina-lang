@@ -15,17 +15,13 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.langserver.completions;
+package org.ballerinalang.langserver.commons.completion;
 
-import org.antlr.v4.runtime.CommonToken;
 import org.antlr.v4.runtime.ParserRuleContext;
-import org.ballerinalang.langserver.AnnotationNodeKind;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.model.tree.Node;
 import org.eclipse.lsp4j.CompletionCapabilities;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
-
-import java.util.List;
 
 /**
  * Text Document Service context keys for the completion operation context.
@@ -54,18 +50,6 @@ public class CompletionKeys {
             = new LSContext.Key<>();
     public static final LSContext.Key<CompletionCapabilities> CLIENT_CAPABILITIES_KEY
             = new LSContext.Key<>();
-    public static final LSContext.Key<List<CommonToken>> LHS_TOKENS_KEY
-            = new LSContext.Key<>();
-    public static final LSContext.Key<List<CommonToken>> LHS_DEFAULT_TOKENS_KEY
-            = new LSContext.Key<>();
-    public static final LSContext.Key<List<Integer>> LHS_DEFAULT_TOKEN_TYPES_KEY
-            = new LSContext.Key<>();
-    public static final LSContext.Key<List<CommonToken>> RHS_TOKENS_KEY
-            = new LSContext.Key<>();
-    public static final LSContext.Key<List<CommonToken>> RHS_DEFAULT_TOKENS_KEY
-            = new LSContext.Key<>();
-    public static final LSContext.Key<List<Integer>> RHS_DEFAULT_TOKEN_TYPES_KEY
-            = new LSContext.Key<>();
     public static final LSContext.Key<Integer> INVOCATION_TOKEN_TYPE_KEY
             = new LSContext.Key<>();
     public static final LSContext.Key<Boolean> IN_WORKER_RETURN_CONTEXT_KEY
@@ -73,8 +57,6 @@ public class CompletionKeys {
     public static final LSContext.Key<Boolean> IN_INVOCATION_PARAM_CONTEXT_KEY
             = new LSContext.Key<>();
     public static final LSContext.Key<Class> ITEM_SORTER_KEY
-            = new LSContext.Key<>();
-    public static final LSContext.Key<Boolean> FORCE_REMOVED_STATEMENT_WITH_PARENTHESIS_KEY
             = new LSContext.Key<>();
     
     // Following key is used for the completion within the if else/ while condition context

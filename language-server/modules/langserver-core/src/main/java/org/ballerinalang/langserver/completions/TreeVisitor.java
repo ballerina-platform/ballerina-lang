@@ -17,11 +17,12 @@
 */
 package org.ballerinalang.langserver.completions;
 
-import org.ballerinalang.langserver.AnnotationNodeKind;
 import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.common.LSNodeVisitor;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.LSContext;
+import org.ballerinalang.langserver.commons.completion.AnnotationNodeKind;
+import org.ballerinalang.langserver.commons.completion.CompletionKeys;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.completions.exceptions.CompletionContextNotSupportedException;
 import org.ballerinalang.langserver.completions.util.CompletionVisitorUtil;

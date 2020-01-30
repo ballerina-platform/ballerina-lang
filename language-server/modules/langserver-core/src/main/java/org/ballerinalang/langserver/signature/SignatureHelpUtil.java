@@ -27,10 +27,10 @@ import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.ExtendedLSCompiler;
 import org.ballerinalang.langserver.compiler.exception.CompilationFailedException;
-import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.SymbolInfo;
 import org.ballerinalang.langserver.completions.util.SourcePruneException;
 import org.ballerinalang.langserver.signature.sourceprune.SignatureTokenTraverserFactory;
+import org.ballerinalang.langserver.sourceprune.SourcePruneKeys;
 import org.ballerinalang.langserver.sourceprune.SourcePruner;
 import org.ballerinalang.langserver.sourceprune.TokenTraverserFactory;
 import org.ballerinalang.model.elements.MarkdownDocAttachment;
@@ -146,7 +146,7 @@ public class SignatureHelpUtil {
         };
 
         // Visit Left-Hand side tokens before cursor
-        List<CommonToken> lhsTokens = context.get(CompletionKeys.LHS_TOKENS_KEY);
+        List<CommonToken> lhsTokens = context.get(SourcePruneKeys.LHS_TOKENS_KEY);
         if (lhsTokens != null) {
             while (lhsTokens.get(0).getType() == BallerinaParser.COMMA) {
                 lhsTokens.remove(0);
@@ -180,7 +180,7 @@ public class SignatureHelpUtil {
         Collections.reverse(tokenTexts);
 
         // Visit Right-Hand side tokens after cursor
-        List<CommonToken> rhsTokens = context.get(CompletionKeys.RHS_TOKENS_KEY);
+        List<CommonToken> rhsTokens = context.get(SourcePruneKeys.RHS_TOKENS_KEY);
         if (rhsTokens != null && !rhsTokens.isEmpty()) {
             // Remove if any comma[,] when RHS next immediate token is right parenthesis
             int lastIndex = tokenTexts.size() - 1;

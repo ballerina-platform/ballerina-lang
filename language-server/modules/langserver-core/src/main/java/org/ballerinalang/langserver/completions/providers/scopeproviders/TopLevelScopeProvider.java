@@ -21,9 +21,9 @@ import org.antlr.v4.runtime.ParserRuleContext;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.commons.LSContext;
+import org.ballerinalang.langserver.commons.completion.CompletionKeys;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.spi.LSCompletionProvider;
-import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.CompletionSubRuleParser;
 import org.ballerinalang.langserver.completions.SymbolInfo;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
@@ -31,6 +31,7 @@ import org.ballerinalang.langserver.completions.providers.contextproviders.Annot
 import org.ballerinalang.langserver.completions.util.filters.DelimiterBasedContentFilter;
 import org.ballerinalang.langserver.completions.util.filters.SymbolFilters;
 import org.ballerinalang.langserver.completions.util.sorters.TopLevelContextSorter;
+import org.ballerinalang.langserver.sourceprune.SourcePruneKeys;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
@@ -62,9 +63,9 @@ public class TopLevelScopeProvider extends AbstractCompletionProvider {
         }
 
         Optional<LSCompletionProvider> contextProvider = this.getContextProvider(ctx);
-        List<CommonToken> lhsDefaultTokens = ctx.get(CompletionKeys.LHS_DEFAULT_TOKENS_KEY);
+        List<CommonToken> lhsDefaultTokens = ctx.get(SourcePruneKeys.LHS_DEFAULT_TOKENS_KEY);
         ParserRuleContext parserRuleContext = ctx.get(CompletionKeys.PARSER_RULE_CONTEXT_KEY);
-        Boolean forcedRemoved = ctx.get(CompletionKeys.FORCE_REMOVED_STATEMENT_WITH_PARENTHESIS_KEY);
+        Boolean forcedRemoved = ctx.get(SourcePruneKeys.FORCE_REMOVED_STATEMENT_WITH_PARENTHESIS_KEY);
 
         if (forcedRemoved != null && forcedRemoved) {
             return this.getCompletionOnParameterContext(ctx);
@@ -89,8 +90,8 @@ public class TopLevelScopeProvider extends AbstractCompletionProvider {
     }
 
     private List<CompletionItem> getCompletionOnParameterContext(LSContext lsContext) {
-        List<Integer> defaultTokenTypes = lsContext.get(CompletionKeys.LHS_DEFAULT_TOKEN_TYPES_KEY);
-        List<CommonToken> defaultTokens = lsContext.get(CompletionKeys.LHS_DEFAULT_TOKENS_KEY);
+        List<Integer> defaultTokenTypes = lsContext.get(SourcePruneKeys.LHS_DEFAULT_TOKEN_TYPES_KEY);
+        List<CommonToken> defaultTokens = lsContext.get(SourcePruneKeys.LHS_DEFAULT_TOKENS_KEY);
         List<SymbolInfo> visibleSymbols = new ArrayList<>(lsContext.get(CommonKeys.VISIBLE_SYMBOLS_KEY));
         Integer invocationType = lsContext.get(CompletionKeys.INVOCATION_TOKEN_TYPE_KEY);
         if (defaultTokenTypes.contains(BallerinaParser.FUNCTION)) {
@@ -126,9 +127,9 @@ public class TopLevelScopeProvider extends AbstractCompletionProvider {
 
     @Override
     public Optional<LSCompletionProvider> getContextProvider(LSContext ctx) {
-        List<Integer> lhsTokensTypes = ctx.get(CompletionKeys.LHS_DEFAULT_TOKEN_TYPES_KEY);
-        List<CommonToken> lhsTokens = ctx.get(CompletionKeys.LHS_TOKENS_KEY);
-        Boolean forcedRemoved = ctx.get(CompletionKeys.FORCE_REMOVED_STATEMENT_WITH_PARENTHESIS_KEY);
+        List<Integer> lhsTokensTypes = ctx.get(SourcePruneKeys.LHS_DEFAULT_TOKEN_TYPES_KEY);
+        List<CommonToken> lhsTokens = ctx.get(SourcePruneKeys.LHS_TOKENS_KEY);
+        Boolean forcedRemoved = ctx.get(SourcePruneKeys.FORCE_REMOVED_STATEMENT_WITH_PARENTHESIS_KEY);
         if (lhsTokensTypes == null || lhsTokensTypes.isEmpty() || (forcedRemoved != null && forcedRemoved)) {
             return Optional.empty();
         }

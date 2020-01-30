@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.ballerinalang.langserver;
+package org.ballerinalang.langserver.commons.completion;
 
 /**
  * Annotation node kind represents a flag for a symbol node to suggest annotations for the particular node.

@@ -26,10 +26,10 @@ import org.ballerinalang.langserver.commons.workspace.LSDocumentIdentifier;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSPackageLoader;
 import org.ballerinalang.langserver.compiler.common.modal.BallerinaPackage;
-import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.ballerinalang.langserver.completions.util.Priority;
+import org.ballerinalang.langserver.sourceprune.SourcePruneKeys;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
@@ -55,9 +55,9 @@ public class ImportDeclarationContextProvider extends AbstractCompletionProvider
         List<BallerinaPackage> packagesList = new ArrayList<>();
         Stream.of(LSPackageLoader.getSdkPackages(), LSPackageLoader.getHomeRepoPackages())
                 .forEach(packagesList::addAll);
-        List<CommonToken> lhsTokens = ctx.get(CompletionKeys.LHS_TOKENS_KEY);
-        List<CommonToken> lhsDefaultTokens = ctx.get(CompletionKeys.LHS_DEFAULT_TOKENS_KEY);
-        List<Integer> lhsDefaultTokenTypes = ctx.get(CompletionKeys.LHS_DEFAULT_TOKEN_TYPES_KEY);
+        List<CommonToken> lhsTokens = ctx.get(SourcePruneKeys.LHS_TOKENS_KEY);
+        List<CommonToken> lhsDefaultTokens = ctx.get(SourcePruneKeys.LHS_DEFAULT_TOKENS_KEY);
+        List<Integer> lhsDefaultTokenTypes = ctx.get(SourcePruneKeys.LHS_DEFAULT_TOKEN_TYPES_KEY);
         int divIndex = lhsDefaultTokenTypes.indexOf(BallerinaParser.DIV);
         int importTokenIndex = lhsDefaultTokenTypes.indexOf(BallerinaParser.IMPORT);
         CommonToken lastToken = CommonUtil.getLastItem(lhsTokens);
