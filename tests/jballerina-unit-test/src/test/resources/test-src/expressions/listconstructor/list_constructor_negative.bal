@@ -14,48 +14,11 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/io;
+function testIncompatibleListConstructorExprs1() {
+    var [v1, v2, v3] = ["hello", 123, 34.56];
+}
 
-type Teacher record {|
-   string firstName;
-   string lastName;
-|};
-
-type Person record {|
-   string firstName;
-   string lastName;
-   string country;
-|};
-
-
-function startFilterQuery() {
-
-    Person p = {firstName:"Mohan", lastName: "Darshan", country: "LK"};
-    Person[] personList = [];
-    personList[0] = p;
-
-    Teacher[] x = [];
-    foreach var person in personList {
-        //if(person.firstName == "ABC"){
-        //    x[x.length()] = {
-        //              firstName: person.firstName,
-        //                lastName: person.lastName
-        //           };
-        //}
-               x[x.length()] = {
-                              firstName: person.firstName,
-                                lastName: person.lastName
-                           };
-    }
-
-    Teacher[] y =
-            from var person in personList
-            where person.firstName == "abc"
-            select {
-                   firstName: person.firstName,
-                   lastName: person.lastName
-                   };
-
-
-    io:println(x);
+function testIncompatibleListConstructorExprs2() {
+    [int, int] a = [];
+    [[int, int], [int, int]] b = [];
 }

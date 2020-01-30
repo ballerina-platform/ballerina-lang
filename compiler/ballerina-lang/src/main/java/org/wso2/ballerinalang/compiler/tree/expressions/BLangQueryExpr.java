@@ -43,7 +43,6 @@ public class BLangQueryExpr extends BLangExpression implements QueryExpressionNo
 
     @Override
     public void setFromClauseNode(FromClauseNode fromClauseNode) {
-
         this.fromClause = (BLangFromClause) fromClauseNode;
     }
 
