@@ -21,6 +21,7 @@ import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.EndpointNode;
+import org.ballerinalang.model.tree.FunctionBodyNode;
 import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.InvokableNode;
 import org.ballerinalang.model.tree.MarkdownDocumentationNode;
@@ -53,6 +54,7 @@ public abstract class BLangInvokableNode extends BLangNode implements InvokableN
     public List<BLangAnnotationAttachment> returnTypeAnnAttachments;
     public List<BLangAnnotationAttachment> externalAnnAttachments;
     public BLangBlockStmt body;
+    public BLangFunctionBody funcBody;
     public Set<Flag> flagSet;
     public List<BLangAnnotationAttachment> annAttachments;
     public BLangMarkdownDocumentation markdownDocumentationAttachment;
@@ -141,6 +143,11 @@ public abstract class BLangInvokableNode extends BLangNode implements InvokableN
     @Override
     public void setBody(BlockNode body) {
         this.body = (BLangBlockStmt) body;
+    }
+
+    @Override
+    public void setBody(FunctionBodyNode body) {
+        this.funcBody = (BLangFunctionBody) body;
     }
 
     @Override

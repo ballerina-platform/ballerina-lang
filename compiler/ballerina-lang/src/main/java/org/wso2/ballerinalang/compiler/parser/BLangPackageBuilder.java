@@ -31,6 +31,7 @@ import org.ballerinalang.model.tree.AnnotationNode;
 import org.ballerinalang.model.tree.CompilationUnitNode;
 import org.ballerinalang.model.tree.DocumentableNode;
 import org.ballerinalang.model.tree.DocumentationReferenceType;
+import org.ballerinalang.model.tree.FunctionBodyNode;
 import org.ballerinalang.model.tree.FunctionNode;
 import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.InvokableNode;
@@ -55,7 +56,9 @@ import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
+import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangErrorVariable;
+import org.wso2.ballerinalang.compiler.tree.BLangExprFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
@@ -223,6 +226,8 @@ public class BLangPackageBuilder {
     private Stack<List<BLangRecordVarRefKeyValue>> recordVarRefListStack = new Stack<>();
 
     private Stack<InvokableNode> invokableNodeStack = new Stack<>();
+
+    private Stack<FunctionBodyNode> funcBodyNodeStack = new Stack<>();
 
     private Stack<ExpressionNode> exprNodeStack = new Stack<>();
 
@@ -579,6 +584,18 @@ public class BLangPackageBuilder {
 
     void startBlock() {
         this.blockNodeStack.push(TreeBuilder.createBlockNode());
+    }
+
+    void startBlockFunctionBody() {
+        this.funcBodyNodeStack.push(TreeBuilder.createBlockFunctionBodyNode());
+    }
+
+    void startExprFunctionBody() {
+        this.funcBodyNodeStack.push(TreeBuilder.createExprFunctionBodyNode());
+    }
+
+    void startExternFunctionBody() {
+        this.funcBodyNodeStack.push(TreeBuilder.createExternFunctionBodyNode());
     }
 
     private BLangIdentifier createIdentifier(DiagnosticPos pos, String value) {
@@ -1240,7 +1257,8 @@ public class BLangPackageBuilder {
     }
 
     private void addStmtToCurrentBlock(StatementNode statement) {
-        this.blockNodeStack.peek().addStatement(statement);
+        BLangBlockFunctionBody body = (BLangBlockFunctionBody) this.funcBodyNodeStack.peek();
+        body.addStatement(statement);
     }
 
     void startTryCatchFinallyStmt() {
@@ -1798,9 +1816,9 @@ public class BLangPackageBuilder {
         }
 
         if (!bodyExists) {
-            function.body = null;
+            function.funcBody = null;
         } else {
-            function.body.pos = function.pos;
+            function.funcBody.pos = function.pos;
         }
 
         this.compUnit.addTopLevelNode(function);
@@ -1810,7 +1828,7 @@ public class BLangPackageBuilder {
         this.startLambdaFunctionDef(pkgID);
         BLangFunction lambdaFunction = (BLangFunction) this.invokableNodeStack.peek();
         lambdaFunction.addFlag(Flag.WORKER);
-        this.startBlock();
+        this.startBlockFunctionBody();
     }
 
     void addWorker(DiagnosticPos pos, Set<Whitespace> ws, String workerName, DiagnosticPos workerNamePos,
@@ -1820,7 +1838,7 @@ public class BLangPackageBuilder {
             ws.addAll(this.workerDefinitionWSStack.pop());
         }
 
-        endBlockFunctionBody(ws);
+        endBlockFunctionBody(pos, ws);
 
         BLangFunction bLangFunction = (BLangFunction) this.invokableNodeStack.peek();
         // change default worker name
@@ -1872,8 +1890,9 @@ public class BLangPackageBuilder {
 
     private BLangSimpleVariableDef getLastVarDefStmtFromBlock() {
         BLangSimpleVariableDef variableDef = null;
-        if (!this.blockNodeStack.isEmpty()) {
-            List<? extends StatementNode> stmtsAdded = this.blockNodeStack.peek().getStatements();
+        if (!this.funcBodyNodeStack.isEmpty()) {
+            List<? extends StatementNode> stmtsAdded =
+                    ((BLangBlockFunctionBody) this.funcBodyNodeStack.peek()).getStatements();
             if (stmtsAdded.get(stmtsAdded.size() - 1) instanceof BLangSimpleVariableDef) {
                 variableDef = (BLangSimpleVariableDef) stmtsAdded.get(stmtsAdded.size() - 1);
             }
@@ -1902,11 +1921,23 @@ public class BLangPackageBuilder {
         }
     }
 
-    void endBlockFunctionBody(Set<Whitespace> ws) {
-        BlockNode block = this.blockNodeStack.pop();
+    void endBlockFunctionBody(DiagnosticPos pos, Set<Whitespace> ws) {
+        BLangBlockFunctionBody body = (BLangBlockFunctionBody) this.funcBodyNodeStack.pop();
+        body.addWS(ws);
+        body.pos = pos;
+
         InvokableNode invokableNode = this.invokableNodeStack.peek();
-        invokableNode.addWS(ws);
-        invokableNode.setBody(block);
+        invokableNode.setBody(body);
+    }
+
+    void endExprFunctionBody(DiagnosticPos pos, Set<Whitespace> ws) {
+        BLangExprFunctionBody body = (BLangExprFunctionBody) this.funcBodyNodeStack.pop();
+        body.expr = (BLangExpression) this.exprNodeStack.pop();
+        body.pos = pos;
+        body.addWS(ws);
+
+        InvokableNode invokableNode = this.invokableNodeStack.peek();
+        invokableNode.setBody(body);
     }
 
     void endExternalFunctionBody(int annotCount) {
@@ -1926,6 +1957,9 @@ public class BLangPackageBuilder {
         // reversing the collected annotations to preserve the original order
         Collections.reverse(tempAnnotAttachments);
         tempAnnotAttachments.forEach(invokableNode::addExternalAnnotationAttachment);
+
+        FunctionBodyNode body = this.funcBodyNodeStack.pop();
+        invokableNode.setBody(body);
     }
 
     void addImportPackageDeclaration(DiagnosticPos pos,
@@ -2280,13 +2314,13 @@ public class BLangPackageBuilder {
         }
 
         if (!bodyExists) {
-            function.body = null;
+            function.funcBody = null;
             if (!nativeFunc) {
                 function.flagSet.add(Flag.INTERFACE);
                 function.interfaceFunction = true;
             }
         } else {
-            function.body.pos = pos;
+            function.funcBody.pos = pos;
         }
 
         function.attachedFunction = true;

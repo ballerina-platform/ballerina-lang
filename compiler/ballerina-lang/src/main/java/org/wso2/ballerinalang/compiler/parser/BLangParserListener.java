@@ -271,7 +271,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        this.pkgBuilder.startBlock();
+        this.pkgBuilder.startBlockFunctionBody();
     }
 
     /**
@@ -283,7 +283,44 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        this.pkgBuilder.endBlockFunctionBody(getWS(ctx));
+        this.pkgBuilder.endBlockFunctionBody(getCurrentPos(ctx), getWS(ctx));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void enterExprFunctionBody(BallerinaParser.ExprFunctionBodyContext ctx) {
+        if (isInErrorState) {
+            return;
+        }
+
+        this.pkgBuilder.startExprFunctionBody();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void exitExprFunctionBody(BallerinaParser.ExprFunctionBodyContext ctx) {
+        if (isInErrorState) {
+            return;
+        }
+
+        // TODO: Check if we need to take pos and ws of expr or the whole body
+        this.pkgBuilder.endExprFunctionBody(getCurrentPos(ctx), getWS(ctx));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void enterExternalFunctionBody(BallerinaParser.ExternalFunctionBodyContext ctx) {
+        if (isInErrorState) {
+            return;
+        }
+
+        this.pkgBuilder.startExternFunctionBody();
     }
 
     /**
@@ -323,10 +360,11 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
         String funcName = ctx.anyIdentifierName().getText();
         boolean publicFunc = ctx.PUBLIC() != null;
+        boolean privateFunc = ctx.PRIVATE() != null;
         boolean remoteFunc = ctx.REMOTE() != null;
         boolean nativeFunc = ctx.functionDefinitionBody().externalFunctionBody() != null;
-        boolean bodyExists = ctx.functionDefinitionBody().blockFunctionBody() != null;
-        boolean privateFunc = ctx.PRIVATE() != null;
+        boolean bodyExists = ctx.functionDefinitionBody().blockFunctionBody() != null ||
+                ctx.functionDefinitionBody().exprFunctionBody() != null;
 
         this.pkgBuilder.endFunctionDefinition(getCurrentPos(ctx), getWS(ctx), funcName,
                                               getCurrentPos(ctx.anyIdentifierName()), publicFunc, remoteFunc,

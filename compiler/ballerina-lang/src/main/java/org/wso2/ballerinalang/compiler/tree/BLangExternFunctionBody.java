@@ -20,14 +20,13 @@ package org.wso2.ballerinalang.compiler.tree;
 
 import org.ballerinalang.model.tree.FunctionBodyNode;
 import org.ballerinalang.model.tree.NodeKind;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 
 /**
  * Represents an expression bodied function/method.
  *
  * @since 1.2.0
  */
-public class BLangExternFunctionBody extends BLangNode implements FunctionBodyNode {
+public class BLangExternFunctionBody extends BLangFunctionBody implements FunctionBodyNode {
 
     @Override
     public void accept(BLangNodeVisitor visitor) {

@@ -51,6 +51,8 @@ public interface InvokableNode extends AnnotatableNode, DocumentableNode {
     
     void setBody(BlockNode body);
 
+    void setBody(FunctionBodyNode body);
+
     void addWorker(WorkerNode worker);
 
     List<? extends WorkerNode> getWorkers();
