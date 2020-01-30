@@ -832,7 +832,7 @@ fromClause
     ;
 
 queryPipeline
-    :   fromClause  whereClause?
+    :   fromClause (fromClause | whereClause)*
     ;
 
 queryExpr

@@ -18,6 +18,7 @@
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import org.ballerinalang.model.TreeBuilder;
+import org.ballerinalang.model.clauses.FromClauseNode;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.elements.TableColumnFlag;
@@ -25,7 +26,6 @@ import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.tree.expressions.NamedArgNode;
-import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.parser.BLangAnonymousModelHelper;
@@ -2576,22 +2576,31 @@ public class TypeChecker extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangQueryExpr queryExpr) {
-        BLangFromClause fromClause = (BLangFromClause) queryExpr.getFromClauseNode();
+        List<? extends FromClauseNode> fromClauseList = queryExpr.getFromClauseNodes();
+        SymbolEnv parentEnv = env;
+        for(FromClauseNode fromClause : fromClauseList) {
+            parentEnv = typeCheckFromClause((BLangFromClause) fromClause, parentEnv);
+        }
+
+        BLangSelectClause selectClause = (BLangSelectClause) queryExpr.getSelectClauseNode();
+        checkExpr(selectClause.expression, parentEnv);
+
         BLangWhereClause whereClause = (BLangWhereClause) queryExpr.getWhereClauseNode();
+        if (whereClause != null) {
+            checkExpr(whereClause.expression, parentEnv);
+        }
+    }
+
+    private SymbolEnv typeCheckFromClause(BLangFromClause fromClause, SymbolEnv parentEnv) {
         checkExpr(fromClause.collection, env);
 
         // Set the type of the foreach node's type node.
         types.setFromClauseTypedBindingPatternType(fromClause);
 
-        SymbolEnv fromClauseEnv = SymbolEnv.createTypeNarrowedEnv(fromClause, env);
+        SymbolEnv fromClauseEnv = SymbolEnv.createTypeNarrowedEnv(fromClause, parentEnv);
         handleForeachVariables(fromClause, fromClauseEnv);
 
-        BLangSelectClause selectClause = (BLangSelectClause) queryExpr.getSelectClauseNode();
-        checkExpr(selectClause.expression, fromClauseEnv);
-
-        if (whereClause != null) {
-            checkExpr(whereClause.expression, fromClauseEnv);
-        }
+        return fromClauseEnv;
     }
 
     private void handleForeachVariables(BLangFromClause fromClause, SymbolEnv blockEnv) {

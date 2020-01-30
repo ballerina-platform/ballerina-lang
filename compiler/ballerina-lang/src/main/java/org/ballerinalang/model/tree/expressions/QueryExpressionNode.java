@@ -20,14 +20,16 @@ import org.ballerinalang.model.clauses.FromClauseNode;
 import org.ballerinalang.model.clauses.SelectClauseNode;
 import org.ballerinalang.model.clauses.WhereClauseNode;
 
+import java.util.List;
+
 /**
  * Expression of (expression).
  */
 public interface QueryExpressionNode extends ExpressionNode {
 
-    FromClauseNode getFromClauseNode();
+    List<? extends FromClauseNode> getFromClauseNodes();
 
-    void setFromClauseNode(FromClauseNode fromClauseNode);
+    void addFromClauseNode(FromClauseNode fromClauseNode);
 
     SelectClauseNode getSelectClauseNode();
 
@@ -35,5 +37,5 @@ public interface QueryExpressionNode extends ExpressionNode {
 
     WhereClauseNode getWhereClauseNode();
 
-    void setWhereClauseNode (WhereClauseNode whereClauseNode);
+    void setWhereClauseNode(WhereClauseNode whereClauseNode);
 }

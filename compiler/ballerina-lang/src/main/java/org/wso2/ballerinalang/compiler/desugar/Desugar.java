@@ -4330,8 +4330,8 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangQueryExpr queryExpr) {
-
-        BLangFromClause fromClause = queryExpr.fromClause;
+        List<BLangFromClause> fromClauseList = queryExpr.fromClauseList;
+        BLangFromClause fromClause = fromClauseList.get(0);
         BLangSelectClause selectClause = queryExpr.selectClause;
         BLangWhereClause whereClause = queryExpr.whereClause;
         DiagnosticPos pos = fromClause.pos;
@@ -4346,15 +4346,30 @@ public class Desugar extends BLangNodeVisitor {
         //          ....
         //      }
 
-        BLangForeach foreach = (BLangForeach) TreeBuilder.createForeachNode();
-        foreach.pos = queryExpr.pos;
-        foreach.collection = fromClause.collection;
-        types.setForeachTypedBindingPatternType(foreach);
+        BLangForeach leafForEach = null;
+        BLangForeach parentForEach = null;
 
-        foreach.variableDefinitionNode = fromClause.variableDefinitionNode;
-        foreach.isDeclaredWithVar = true;
+        for (BLangFromClause bLangFromClause : fromClauseList) {
+            BLangForeach foreach = (BLangForeach) TreeBuilder.createForeachNode();
+            foreach.pos = queryExpr.pos;
+            foreach.collection = bLangFromClause.collection;
+            types.setForeachTypedBindingPatternType(foreach);
+
+            foreach.variableDefinitionNode = bLangFromClause.variableDefinitionNode;
+            foreach.isDeclaredWithVar = true;
+
+            if (leafForEach != null) {
+                BLangBlockStmt foreachBody = ASTBuilderUtil.createBlockStmt(pos);
+                foreachBody.addStatement(foreach);
+                leafForEach.setBody(foreachBody);
+            } else {
+                parentForEach = foreach;
+            }
+
+            leafForEach = foreach;
+        }
+
         BLangBlockStmt foreachBody = ASTBuilderUtil.createBlockStmt(pos);
-
         BLangListConstructorExpr emptyArrayExpr = ASTBuilderUtil.createEmptyArrayLiteral(pos,
                 (BArrayType) fromClause.collection.type);
         BVarSymbol emptyArrayVarSymbol = new BVarSymbol(0, new Name("outputvar"),
@@ -4380,7 +4395,7 @@ public class Desugar extends BLangNodeVisitor {
         BLangIndexBasedAccess indexAccessExpr = ASTBuilderUtil.createIndexAccessExpr(outputVarRef, lengthInvocation);
         indexAccessExpr.type = ((BArrayType) fromClause.collection.type).eType;
         selectClause.expression.type = ((BArrayType) fromClause.collection.type).eType;
-        BLangAssignment outputVarAssignment =  ASTBuilderUtil.createAssignmentStmt(pos, indexAccessExpr,
+        BLangAssignment outputVarAssignment = ASTBuilderUtil.createAssignmentStmt(pos, indexAccessExpr,
                 selectClause.expression);
 
         // Set the indexed based access expression statement as foreach body
@@ -4392,15 +4407,15 @@ public class Desugar extends BLangNodeVisitor {
             bLangIf.expr = whereClause.expression;
             bLangIf.setBody(foreachBody);
             bLangBlockStmt.addStatement(bLangIf);
-            foreach.setBody(bLangBlockStmt);
+            leafForEach.setBody(bLangBlockStmt);
         } else {
-            foreach.setBody(foreachBody);
+            leafForEach.setBody(foreachBody);
         }
 
         // Create block statement with temp variable definition statement & foreach statement
-        BLangBlockStmt blockStmt  = ASTBuilderUtil.createBlockStmt(pos);
+        BLangBlockStmt blockStmt = ASTBuilderUtil.createBlockStmt(pos);
         blockStmt.addStatement(outputVariableDef);
-        blockStmt.addStatement(foreach);
+        blockStmt.addStatement(parentForEach);
         BLangStatementExpression stmtExpr = ASTBuilderUtil.createStatementExpression(blockStmt, outputVarRef);
 
         stmtExpr.type = fromClause.collection.type;
