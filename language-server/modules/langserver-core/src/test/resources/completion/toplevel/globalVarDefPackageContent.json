@@ -958,6 +958,20 @@
             "insertTextFormat": "Snippet"
         },
         {
+            "label": "INVALID_COOKIE_ERROR",
+            "kind": "Variable",
+            "detail": "string",
+            "documentation": {
+                "right": {
+                    "kind": "markdown",
+                    "value": "Represents the reason string for the `http:InvalidCookieError`"
+                }
+            },
+            "sortText": "130",
+            "insertText": "INVALID_COOKIE_ERROR",
+            "insertTextFormat": "Snippet"
+        },
+        {
             "label": "GENERIC_CLIENT_ERROR",
             "kind": "Variable",
             "detail": "string",
@@ -3014,6 +3028,17 @@
             "insertTextFormat": "Snippet"
         },
         {
+            "label": "InvalidCookieError",
+            "kind": "Event",
+            "detail": "Error",
+            "documentation": {
+                "left": "Represents a cookie error that occurred when sending cookies in the response"
+            },
+            "sortText": "200",
+            "insertText": "InvalidCookieError",
+            "insertTextFormat": "Snippet"
+        },
+        {
             "label": "GenericClientError",
             "kind": "Event",
             "detail": "Error",
@@ -3084,7 +3109,7 @@
             "kind": "Event",
             "detail": "Error",
             "documentation": {
-                "left": "Represents a cookie error that occurred when using cookies"
+                "left": "Represents a cookie error that occurred when using the cookies"
             },
             "sortText": "200",
             "insertText": "CookieHandlingError",
@@ -3739,7 +3764,7 @@
             "kind": "Interface",
             "detail": "Object",
             "documentation": {
-                "left": "Represents a default persistent cookie handler which stores persistent cookies in a CSV file.\n"
+                "left": "Represents a default persistent cookie handler, which stores persistent cookies in a CSV file.\n"
             },
             "sortText": "190",
             "insertText": "CsvPersistentCookieHandler",

@@ -1177,7 +1177,7 @@
             "kind": "Interface",
             "detail": "Object",
             "documentation": {
-                "left": "Represents a default persistent cookie handler which stores persistent cookies in a CSV file.\n"
+                "left": "Represents a default persistent cookie handler, which stores persistent cookies in a CSV file.\n"
             },
             "sortText": "190",
             "insertText": "CsvPersistentCookieHandler",
