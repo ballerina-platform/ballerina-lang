@@ -116,13 +116,13 @@
           "insertTextFormat": "Snippet"
       },
       {
-          "label": "getHeader(string headerName)(string)",
+          "label": "getHeader(string headerName, (leading|trailing) position)(string)",
           "kind": "Function",
           "detail": "Function",
           "documentation": {
               "right": {
                   "kind": "markdown",
-                  "value": "**Package:** _ballerina/http_  \n  \nReturns the value of the specified header. If the specified header key maps to multiple values, the first of\nthese values is returned.\n  \n**Params**  \n- `string` headerName: The header name  \n  \n**Returns** `string`   \n- The first header value for the specified header name. An exception is thrown if no header is found. Use  \n           `Request.hasHeader()` beforehand to check the existence of header.  \n  \n"
+                  "value": "**Package:** _ballerina/http_  \n  \nReturns the value of the specified header. If the specified header key maps to multiple values, the first of\nthese values is returned.\n  \n**Params**  \n- `string` headerName: The header name  \n- `(leading|trailing)` position: Represents the position of the header as an optional parameter(Defaultable)  \n  \n**Returns** `string`   \n- The first header value for the specified header name. An exception is thrown if no header is found. Use  \n           `Request.hasHeader()` beforehand to check the existence of header.  \n  \n"
               }
           },
           "sortText": "120",
@@ -254,13 +254,13 @@
           "insertTextFormat": "Snippet"
       },
       {
-          "label": "addHeader(string headerName, string headerValue)",
+          "label": "addHeader(string headerName, string headerValue, (leading|trailing) position)",
           "kind": "Function",
           "detail": "Function",
           "documentation": {
               "right": {
                   "kind": "markdown",
-                  "value": "**Package:** _ballerina/http_  \n  \nAdds the specified header to the request. Existing header values are not replaced.\n  \n**Params**  \n- `string` headerName: The header name  \n- `string` headerValue: The header value"
+                  "value": "**Package:** _ballerina/http_  \n  \nAdds the specified header to the request. Existing header values are not replaced.\n  \n**Params**  \n- `string` headerName: The header name  \n- `string` headerValue: The header value  \n- `(leading|trailing)` position: Represents the position of the header as an optional parameter(Defaultable)"
               }
           },
           "sortText": "120",
@@ -294,13 +294,13 @@
           "insertTextFormat": "Snippet"
       },
       {
-          "label": "hasHeader(string headerName)(boolean)",
+          "label": "hasHeader(string headerName, (leading|trailing) position)(boolean)",
           "kind": "Function",
           "detail": "Function",
           "documentation": {
               "right": {
                   "kind": "markdown",
-                  "value": "**Package:** _ballerina/http_  \n  \nChecks whether the requested header key exists in the header map.\n  \n**Params**  \n- `string` headerName: The header name  \n  \n**Returns** `boolean`   \n- Returns true if the specified header key exists  \n  \n"
+                  "value": "**Package:** _ballerina/http_  \n  \nChecks whether the requested header key exists in the header map.\n  \n**Params**  \n- `string` headerName: The header name  \n- `(leading|trailing)` position: Represents the position of the header as an optional parameter(Defaultable)  \n  \n**Returns** `boolean`   \n- Returns true if the specified header key exists  \n  \n"
               }
           },
           "sortText": "120",
@@ -352,18 +352,22 @@
           "insertTextFormat": "Snippet"
       },
       {
-          "label": "getHeaderNames()(string[])",
+          "label": "getHeaderNames((leading|trailing) position)(string[])",
           "kind": "Function",
           "detail": "Function",
           "documentation": {
               "right": {
                   "kind": "markdown",
-                  "value": "**Package:** _ballerina/http_  \n  \nGets all the names of the headers of the request.\n  \n  \n  \n**Returns** `string[]`   \n- An array of all the header names  \n  \n"
+                  "value": "**Package:** _ballerina/http_  \n  \nGets all the names of the headers of the request.\n  \n**Params**  \n- `(leading|trailing)` position: Represents the position of the header as an optional parameter(Defaultable)  \n  \n**Returns** `string[]`   \n- An array of all the header names  \n  \n"
               }
           },
           "sortText": "120",
-          "insertText": "getHeaderNames()",
-          "insertTextFormat": "Snippet"
+          "insertText": "getHeaderNames(${1})",
+          "insertTextFormat": "Snippet",
+          "command": {
+              "title": "editor.action.triggerParameterHints",
+              "command": "editor.action.triggerParameterHints"
+          }
       },
       {
           "label": "getBodyParts()((mime:Entity[]|http:FailoverAllEndpointsFailedError|http:FailoverActionFailedError|http:UpstreamServiceUnavailableError|http:AllLoadBalanceEndpointsFailedError|http:AllRetryAttemptsFailed|http:IdleTimeoutError|http:AuthenticationError|http:AuthorizationError|http:InitializingOutboundRequestError|http:WritingOutboundRequestHeadersError|http:WritingOutboundRequestBodyError|http:InitializingInboundResponseError|http:ReadingInboundResponseHeadersError|http:ReadingInboundResponseBodyError|http:UnsupportedActionError|http:Http2ClientError|http:MaximumWaitTimeExceededError|http:SslError|http:GenericClientError))",
@@ -394,13 +398,13 @@
           "insertTextFormat": "Snippet"
       },
       {
-          "label": "getHeaders(string headerName)(string[])",
+          "label": "getHeaders(string headerName, (leading|trailing) position)(string[])",
           "kind": "Function",
           "detail": "Function",
           "documentation": {
               "right": {
                   "kind": "markdown",
-                  "value": "**Package:** _ballerina/http_  \n  \nGets all the header values to which the specified header key maps to.\n  \n**Params**  \n- `string` headerName: The header name  \n  \n**Returns** `string[]`   \n- The header values the specified header key maps to. An exception is thrown if no header is found. Use  \n           `Request.hasHeader()` beforehand to check the existence of header.  \n  \n"
+                  "value": "**Package:** _ballerina/http_  \n  \nGets all the header values to which the specified header key maps to.\n  \n**Params**  \n- `string` headerName: The header name  \n- `(leading|trailing)` position: Represents the position of the header as an optional parameter(Defaultable)  \n  \n**Returns** `string[]`   \n- The header values the specified header key maps to. An exception is thrown if no header is found. Use  \n           `Request.hasHeader()` beforehand to check the existence of header.  \n  \n"
               }
           },
           "sortText": "120",
@@ -494,13 +498,13 @@
           }
       },
       {
-          "label": "setHeader(string headerName, string headerValue)",
+          "label": "setHeader(string headerName, string headerValue, (leading|trailing) position)",
           "kind": "Function",
           "detail": "Function",
           "documentation": {
               "right": {
                   "kind": "markdown",
-                  "value": "**Package:** _ballerina/http_  \n  \nSets the specified header to the request. If a mapping already exists for the specified header key, the existing\nheader value is replaced with the specified header value.\n  \n**Params**  \n- `string` headerName: The header name  \n- `string` headerValue: The header value"
+                  "value": "**Package:** _ballerina/http_  \n  \nSets the specified header to the request. If a mapping already exists for the specified header key, the existing\nheader value is replaced with the specified header value.\n  \n**Params**  \n- `string` headerName: The header name  \n- `string` headerValue: The header value  \n- `(leading|trailing)` position: Represents the position of the header as an optional parameter(Defaultable)"
               }
           },
           "sortText": "120",
@@ -560,18 +564,22 @@
           }
       },
       {
-          "label": "removeAllHeaders()",
+          "label": "removeAllHeaders((leading|trailing) position)",
           "kind": "Function",
           "detail": "Function",
           "documentation": {
               "right": {
                   "kind": "markdown",
-                  "value": "**Package:** _ballerina/http_  \n  \nRemoves all the headers from the request.  \n"
+                  "value": "**Package:** _ballerina/http_  \n  \nRemoves all the headers from the request.\n  \n**Params**  \n- `(leading|trailing)` position: Represents the position of the header as an optional parameter(Defaultable)"
               }
           },
           "sortText": "120",
-          "insertText": "removeAllHeaders();",
-          "insertTextFormat": "Snippet"
+          "insertText": "removeAllHeaders(${1});",
+          "insertTextFormat": "Snippet",
+          "command": {
+              "title": "editor.action.triggerParameterHints",
+              "command": "editor.action.triggerParameterHints"
+          }
       },
       {
           "label": "setBodyParts(mime:Entity[] bodyParts, string contentType)",
@@ -618,13 +626,13 @@
           }
       },
       {
-          "label": "removeHeader(string key)",
+          "label": "removeHeader(string key, (leading|trailing) position)",
           "kind": "Function",
           "detail": "Function",
           "documentation": {
               "right": {
                   "kind": "markdown",
-                  "value": "**Package:** _ballerina/http_  \n  \nRemoves the specified header from the request.\n  \n**Params**  \n- `string` key: The header name"
+                  "value": "**Package:** _ballerina/http_  \n  \nRemoves the specified header from the request.\n  \n**Params**  \n- `string` key: The header name  \n- `(leading|trailing)` position: Represents the position of the header as an optional parameter(Defaultable)"
               }
           },
           "sortText": "120",
