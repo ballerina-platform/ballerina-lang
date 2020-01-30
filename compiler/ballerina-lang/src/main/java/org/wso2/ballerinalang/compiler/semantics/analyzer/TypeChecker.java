@@ -70,6 +70,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhereClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAccessExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
@@ -2576,6 +2577,7 @@ public class TypeChecker extends BLangNodeVisitor {
     @Override
     public void visit(BLangQueryExpr queryExpr) {
         BLangFromClause fromClause = (BLangFromClause) queryExpr.getFromClauseNode();
+        BLangWhereClause whereClause = (BLangWhereClause) queryExpr.getWhereClauseNode();
         checkExpr(fromClause.collection, env);
 
         // Set the type of the foreach node's type node.
@@ -2586,6 +2588,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
         BLangSelectClause selectClause = (BLangSelectClause) queryExpr.getSelectClauseNode();
         checkExpr(selectClause.expression, fromClauseEnv);
+        checkExpr(whereClause.expression, fromClauseEnv);
 
     }
 

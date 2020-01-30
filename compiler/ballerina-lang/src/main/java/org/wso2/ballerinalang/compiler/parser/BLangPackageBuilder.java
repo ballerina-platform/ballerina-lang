@@ -72,6 +72,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhereClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAccessExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
@@ -250,6 +251,8 @@ public class BLangPackageBuilder {
     private Stack<BLangFromClause> fromClauseNodeStack = new Stack<>();
 
     private Stack<BLangSelectClause> selectClauseNodeStack = new Stack<>();
+
+    private Stack<BLangWhereClause> whereClauseNodeStack = new Stack<>();
 
     private Stack<TransactionNode> transactionNodeStack = new Stack<>();
 
@@ -1679,6 +1682,7 @@ public class BLangPackageBuilder {
         queryExpr.addWS(ws);
         queryExpr.setFromClauseNode(fromClauseNodeStack.pop());
         queryExpr.setSelectClauseNode(selectClauseNodeStack.pop());
+        queryExpr.setWhereClauseNode(whereClauseNodeStack.peek());
         addExpressionNode(queryExpr);
     }
 
@@ -1744,6 +1748,15 @@ public class BLangPackageBuilder {
         selectClause.expression = (BLangExpression) this.exprNodeStack.pop();
         selectClauseNodeStack.push(selectClause);
     }
+
+    void createWhereClause(DiagnosticPos pos, Set<Whitespace> ws) {
+        BLangWhereClause whereClause = (BLangWhereClause)  TreeBuilder.createWhereClauseNode();
+        whereClause.addWS(ws);
+        whereClause.pos = pos;
+        whereClause.expression = (BLangExpression) this.exprNodeStack.pop();
+        whereClauseNodeStack.push(whereClause);
+    }
+
 
     void endFunctionDef(DiagnosticPos pos, Set<Whitespace> ws, boolean publicFunc, boolean remoteFunc,
                         boolean nativeFunc, boolean privateFunc, boolean bodyExists, boolean isLambda) {

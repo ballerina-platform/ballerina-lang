@@ -90,6 +90,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangXMLNS.BLangLocalXMLNS;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS.BLangPackageXMLNS;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhereClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAccessExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
@@ -4332,6 +4333,7 @@ public class Desugar extends BLangNodeVisitor {
 
         BLangFromClause fromClause = queryExpr.fromClause;
         BLangSelectClause selectClause = queryExpr.selectClause;
+        BLangWhereClause whereClause = queryExpr.whereClause;
         DiagnosticPos pos = fromClause.pos;
 
         // Create Foreach statement
