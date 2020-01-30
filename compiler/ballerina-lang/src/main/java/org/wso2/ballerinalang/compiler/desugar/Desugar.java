@@ -4339,23 +4339,61 @@ public class Desugar extends BLangNodeVisitor {
         foreach.collection = fromClause.collection;
         types.setForeachTypedBindingPatternType(foreach);
 
-        final BLangSimpleVariable foreachVariable = ASTBuilderUtil.createVariable(pos,
-                "$foreach$i", foreach.varType);
-        foreachVariable.symbol = new BVarSymbol(0, names.fromIdNode(foreachVariable.name),
-                this.env.scope.owner.pkgID, foreachVariable.type, this.env.scope.owner);
-        BLangSimpleVarRef foreachVarRef = ASTBuilderUtil.createVariableRef(pos, foreachVariable.symbol);
-        foreach.variableDefinitionNode = ASTBuilderUtil.createVariableDef(pos, foreachVariable);
+        foreach.variableDefinitionNode = fromClause.variableDefinitionNode;
         foreach.isDeclaredWithVar = true;
         BLangBlockStmt foreachBody = ASTBuilderUtil.createBlockStmt(pos);
 
+        BLangListConstructorExpr emptyArrayExpr = ASTBuilderUtil.createEmptyArrayLiteral(pos,
+                (BArrayType) fromClause.collection.type);
+        BVarSymbol emptyArrayVarSymbol = new BVarSymbol(0, new Name("outputvar"),
+                fromClause.collection.type.tsymbol.pkgID, fromClause.collection.type, env.scope.owner);
+        BLangSimpleVariable outputArrayVariable =
+                ASTBuilderUtil.createVariable(pos, "outputvar", fromClause.collection.type, emptyArrayExpr,
+                        emptyArrayVarSymbol);
+
+        // Empty array statement
+        BLangSimpleVariableDef outputVariableDef =
+                ASTBuilderUtil.createVariableDef(pos, outputArrayVariable);
+        BLangSimpleVarRef outputVarRef = ASTBuilderUtil.createVariableRef(pos, outputArrayVariable.symbol);
+
+        BLangInvocation lengthInvocation = createLengthInvocation(pos, outputArrayVariable.symbol);
+        lengthInvocation.expr = outputVarRef;
+        BLangIndexBasedAccess indexAccessExpr = ASTBuilderUtil.createIndexAccessExpr(outputVarRef, lengthInvocation);
+        indexAccessExpr.type = ((BArrayType) fromClause.collection.type).eType;
+
+        selectClause.expression.type = ((BArrayType) fromClause.collection.type).eType;
+
+        BLangAssignment outputVarAssignment =  ASTBuilderUtil.createAssignmentStmt(pos, indexAccessExpr,
+                selectClause.expression);
+
+        foreachBody.addStatement(outputVarAssignment);
+        foreach.setBody(foreachBody);
+
+        BLangBlockStmt blockStmt  = ASTBuilderUtil.createBlockStmt(pos);
+        blockStmt.addStatement(outputVariableDef);
+        blockStmt.addStatement(foreach);
+        BLangStatementExpression stmtExpr = ASTBuilderUtil.createStatementExpression(blockStmt, outputVarRef);
+
+        //BLangStatementExpression stmtExpr = ASTBuilderUtil.createStatementExpression(foreach, outputVarRef);
+        stmtExpr.type = fromClause.collection.type;
+        result = rewrite(stmtExpr, env);
+
+
+        //        final BLangSimpleVariable foreachVariable = ASTBuilderUtil.createVariable(pos,
+        //                "$foreach$i", foreach.varType);
+        //        foreachVariable.symbol = new BVarSymbol(0, names.fromIdNode(foreachVariable.name),
+        //                this.env.scope.owner.pkgID, foreachVariable.type, this.env.scope.owner);
+        //        BLangSimpleVarRef foreachVarRef = ASTBuilderUtil.createVariableRef(pos, foreachVariable.symbol);
+
+
         // t[t.length()] = <T> tupleLiteral[$foreach$i];
-//        BLangIndexBasedAccess indexAccessExpr = ASTBuilderUtil.createIndexAccessExpr(restParam,
-//                createLengthInvocation(pos, restParam));
-//        indexAccessExpr.type = restParamType.eType;
-//        createSimpleVarRefAssignmentStmt(indexAccessExpr, foreachBody, foreachVarRef, tupleVarSymbol, null);
-//
-//        foreach.body = foreachBody;
-//        blockStmt.addStatement(foreach)
+        //        BLangIndexBasedAccess indexAccessExpr = ASTBuilderUtil.createIndexAccessExpr(restParam,
+        //                createLengthInvocation(pos, restParam));
+        //        indexAccessExpr.type = restParamType.eType;
+        //        createSimpleVarRefAssignmentStmt(indexAccessExpr, foreachBody, foreachVarRef, tupleVarSymbol, null);
+        //
+        //        foreach.body = foreachBody;
+        //        blockStmt.addStatement(foreach)
     }
 
 
