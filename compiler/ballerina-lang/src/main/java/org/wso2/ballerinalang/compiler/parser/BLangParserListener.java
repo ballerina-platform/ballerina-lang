@@ -2519,19 +2519,16 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             this.pkgBuilder.createFromClauseWithSimpleVariableDefStatement(getCurrentPos(ctx), getWS(ctx),
                     identifier, identifierPos,
                     isDeclaredWithVar);
+        } else if (ctx.bindingPattern().structuredBindingPattern().recordBindingPattern() != null) {
+            this.pkgBuilder.createFromClauseWithRecordVariableDefStatement(getCurrentPos(ctx), getWS(ctx),
+                    isDeclaredWithVar);
+        } else if (ctx.bindingPattern().structuredBindingPattern().errorBindingPattern() != null) {
+            this.pkgBuilder.createFromClauseWithErrorVariableDefStatement(getCurrentPos(ctx), getWS(ctx),
+                    isDeclaredWithVar);
+        } else {
+            this.pkgBuilder.createFromClauseWithTupleVariableDefStatement(getCurrentPos(ctx), getWS(ctx),
+                    isDeclaredWithVar);
         }
-
-        //TODO Need to revisit below combinations
-//        else if (ctx.bindingPattern().structuredBindingPattern().recordBindingPattern() != null) {
-//            this.pkgBuilder.addForeachStatementWithRecordVariableDefStatement(getCurrentPos(ctx), getWS(ctx),
-//                    isDeclaredWithVar);
-//        }  else if (ctx.bindingPattern().structuredBindingPattern().errorBindingPattern() != null) {
-//            this.pkgBuilder.addForeachStatementWithErrorVariableDefStatement(getCurrentPos(ctx), getWS(ctx),
-//                    isDeclaredWithVar);
-//        } else {
-//            this.pkgBuilder.addForeachStatementWithTupleVariableDefStatement(getCurrentPos(ctx), getWS(ctx),
-//                    isDeclaredWithVar);
-//        }
     }
 
     @Override

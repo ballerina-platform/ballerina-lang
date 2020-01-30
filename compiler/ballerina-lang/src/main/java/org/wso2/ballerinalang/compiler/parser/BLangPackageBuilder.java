@@ -1693,6 +1693,39 @@ public class BLangPackageBuilder {
         addFromClause(pos, ws, variableDefinitionNode, isDeclaredWithVar);
     }
 
+    void createFromClauseWithRecordVariableDefStatement(DiagnosticPos pos, Set<Whitespace> ws,
+                                                        boolean isDeclaredWithVar) {
+        BLangRecordVariableDef variableDefinitionNode = createRecordVariableDef(pos, ws, false, false,
+                isDeclaredWithVar);
+        if (!this.bindingPatternIdentifierWS.isEmpty()) {
+            variableDefinitionNode.addWS(this.bindingPatternIdentifierWS.pop());
+        }
+
+        addFromClause(pos, ws, variableDefinitionNode, isDeclaredWithVar);
+    }
+
+    void createFromClauseWithErrorVariableDefStatement(DiagnosticPos pos, Set<Whitespace> ws,
+                                                       boolean isDeclaredWithVar) {
+        BLangErrorVariableDef variableDefinitionNode = createErrorVariableDef(pos, ws, false,
+                false, isDeclaredWithVar);
+        if (!this.bindingPatternIdentifierWS.isEmpty()) {
+            variableDefinitionNode.addWS(this.bindingPatternIdentifierWS.pop());
+        }
+
+        addFromClause(pos, ws, variableDefinitionNode, isDeclaredWithVar);
+    }
+
+    void createFromClauseWithTupleVariableDefStatement(DiagnosticPos pos, Set<Whitespace> ws,
+                                                       boolean isDeclaredWithVar) {
+        BLangTupleVariableDef variableDefinitionNode = createTupleVariableDef(pos, ws, false,
+                false, isDeclaredWithVar);
+        if (!this.bindingPatternIdentifierWS.isEmpty()) {
+            variableDefinitionNode.addWS(this.bindingPatternIdentifierWS.pop());
+        }
+
+        addFromClause(pos, ws, variableDefinitionNode, isDeclaredWithVar);
+    }
+
     private void addFromClause(DiagnosticPos pos, Set<Whitespace> ws,
                                VariableDefinitionNode variableDefinitionNode, boolean isDeclaredWithVar) {
         BLangFromClause fromClause = (BLangFromClause) TreeBuilder.createFromClauseNode();
@@ -1706,6 +1739,8 @@ public class BLangPackageBuilder {
 
     void createSelectClause(DiagnosticPos pos, Set<Whitespace> ws) {
         BLangSelectClause selectClause = (BLangSelectClause)  TreeBuilder.createSelectClauseNode();
+        selectClause.addWS(ws);
+        selectClause.pos = pos;
         selectClause.expression = (BLangExpression) this.exprNodeStack.pop();
         selectClauseNodeStack.push(selectClause);
     }

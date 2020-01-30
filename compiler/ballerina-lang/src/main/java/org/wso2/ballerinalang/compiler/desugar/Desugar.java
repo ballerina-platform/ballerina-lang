@@ -4334,6 +4334,16 @@ public class Desugar extends BLangNodeVisitor {
         BLangSelectClause selectClause = queryExpr.selectClause;
         DiagnosticPos pos = fromClause.pos;
 
+        // Create Foreach statement
+        //
+        // Below query expression :
+        //      from var person in personList
+        //
+        // changes as,
+        //      foreach var person in personList {
+        //          ....
+        //      }
+
         BLangForeach foreach = (BLangForeach) TreeBuilder.createForeachNode();
         foreach.pos = queryExpr.pos;
         foreach.collection = fromClause.collection;
@@ -4351,49 +4361,38 @@ public class Desugar extends BLangNodeVisitor {
                 ASTBuilderUtil.createVariable(pos, "outputvar", fromClause.collection.type, emptyArrayExpr,
                         emptyArrayVarSymbol);
 
-        // Empty array statement
+        // Create temp array variable
+        //      Person[] x = [];
+
         BLangSimpleVariableDef outputVariableDef =
                 ASTBuilderUtil.createVariableDef(pos, outputArrayVariable);
         BLangSimpleVarRef outputVarRef = ASTBuilderUtil.createVariableRef(pos, outputArrayVariable.symbol);
 
+        // Create indexed based access expression statement
+        //      x[x.length()] = {
+        //    		firstName: person.firstName,
+        //            lastName: person.lastName
+        //    	};
         BLangInvocation lengthInvocation = createLengthInvocation(pos, outputArrayVariable.symbol);
         lengthInvocation.expr = outputVarRef;
         BLangIndexBasedAccess indexAccessExpr = ASTBuilderUtil.createIndexAccessExpr(outputVarRef, lengthInvocation);
         indexAccessExpr.type = ((BArrayType) fromClause.collection.type).eType;
-
         selectClause.expression.type = ((BArrayType) fromClause.collection.type).eType;
-
         BLangAssignment outputVarAssignment =  ASTBuilderUtil.createAssignmentStmt(pos, indexAccessExpr,
                 selectClause.expression);
 
+        // Set the indexed based access expression statement as foreach body
         foreachBody.addStatement(outputVarAssignment);
         foreach.setBody(foreachBody);
 
+        // Create block statement with temp variable definition statement & foreach statement
         BLangBlockStmt blockStmt  = ASTBuilderUtil.createBlockStmt(pos);
         blockStmt.addStatement(outputVariableDef);
         blockStmt.addStatement(foreach);
         BLangStatementExpression stmtExpr = ASTBuilderUtil.createStatementExpression(blockStmt, outputVarRef);
 
-        //BLangStatementExpression stmtExpr = ASTBuilderUtil.createStatementExpression(foreach, outputVarRef);
         stmtExpr.type = fromClause.collection.type;
         result = rewrite(stmtExpr, env);
-
-
-        //        final BLangSimpleVariable foreachVariable = ASTBuilderUtil.createVariable(pos,
-        //                "$foreach$i", foreach.varType);
-        //        foreachVariable.symbol = new BVarSymbol(0, names.fromIdNode(foreachVariable.name),
-        //                this.env.scope.owner.pkgID, foreachVariable.type, this.env.scope.owner);
-        //        BLangSimpleVarRef foreachVarRef = ASTBuilderUtil.createVariableRef(pos, foreachVariable.symbol);
-
-
-        // t[t.length()] = <T> tupleLiteral[$foreach$i];
-        //        BLangIndexBasedAccess indexAccessExpr = ASTBuilderUtil.createIndexAccessExpr(restParam,
-        //                createLengthInvocation(pos, restParam));
-        //        indexAccessExpr.type = restParamType.eType;
-        //        createSimpleVarRefAssignmentStmt(indexAccessExpr, foreachBody, foreachVarRef, tupleVarSymbol, null);
-        //
-        //        foreach.body = foreachBody;
-        //        blockStmt.addStatement(foreach)
     }
 
 
