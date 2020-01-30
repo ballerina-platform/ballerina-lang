@@ -20,8 +20,7 @@ package org.ballerinalang.langlib.array;
 
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BStreamType;
-import org.ballerinalang.jvm.values.ArrayValue;
-import org.ballerinalang.jvm.values.StreamValue;
+import org.ballerinalang.jvm.values.*;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -41,6 +40,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 public class ToStream {
 
     public static StreamValue toStream(Strand strand, ArrayValue arr) {
-        return new StreamValue(new BStreamType(arr.getElementType()), arr.getIterator(), null, null);
+        return new StreamValue(new BStreamType(arr.getElementType()), new BStreamIteratorImpl(arr.getIterator()),
+                null, null);
     }
 }
