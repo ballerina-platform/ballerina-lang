@@ -16,9 +16,9 @@
 package org.ballerinalang.langserver.diagnostic;
 
 import org.ballerinalang.langserver.client.ExtendedLanguageClient;
+import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.compiler.CollectDiagnosticListener;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
-import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.compiler.LSModuleCompiler;
 import org.ballerinalang.langserver.compiler.common.LSDocument;
 import org.ballerinalang.langserver.compiler.exception.CompilationFailedException;
@@ -84,10 +84,7 @@ public class DiagnosticsHelper {
 
         // Publish diagnostics
         diagnosticMap.forEach((key, value) -> client.publishDiagnostics(new PublishDiagnosticsParams(key, value)));
-
-        // Publish text highlighting
-        // diagnosticMap.forEach((key, value) -> client.publishTextHighlighting());
-
+      
         // Replace old map
         lastDiagnosticMap = diagnosticMap;
     }

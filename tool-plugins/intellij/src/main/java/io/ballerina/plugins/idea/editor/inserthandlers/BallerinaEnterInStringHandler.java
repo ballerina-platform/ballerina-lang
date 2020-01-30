@@ -18,6 +18,7 @@ package io.ballerina.plugins.idea.editor.inserthandlers;
 
 import com.intellij.codeInsight.editorActions.enter.EnterHandlerDelegateAdapter;
 import com.intellij.openapi.actionSystem.DataContext;
+import com.intellij.openapi.editor.CaretModel;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.EditorModificationUtil;
@@ -31,7 +32,7 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import io.ballerina.plugins.idea.BallerinaLanguage;
 import io.ballerina.plugins.idea.psi.BallerinaTypes;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang.StringUtils;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -43,16 +44,17 @@ public class BallerinaEnterInStringHandler extends EnterHandlerDelegateAdapter {
                                   @NotNull Ref<Integer> caretAdvance, @NotNull DataContext dataContext,
                                   EditorActionHandler originalHandler) {
 
-        if (!file.getLanguage().is(BallerinaLanguage.INSTANCE)) {
+        if (!file.getLanguage().is(BallerinaLanguage.INSTANCE) || editor.isDisposed()) {
             return Result.Continue;
         }
 
         // We need to save the file before checking. Otherwise issues can occur when we press enter in a string.
         Project project = file.getProject();
         PsiDocumentManager.getInstance(project).commitDocument(editor.getDocument());
+        CaretModel caretModel = editor.getCaretModel();
 
-        // Checks whether the cursor is placed inside the double quotes.
-        int caretOff = editor.getCaretModel().getOffset();
+        // Checks whether the cursor is placed within the double quotes.
+        int caretOff = caretModel.getOffset();
         if (!isInStringLiteral(file, caretOff)) {
             return Result.Continue;
         }
@@ -64,7 +66,7 @@ public class BallerinaEnterInStringHandler extends EnterHandlerDelegateAdapter {
         Document doc = editor.getDocument();
         int startOffset = element.getTextRange().getStartOffset();
         int endOffset = element.getTextRange().getEndOffset();
-        int lineEndOffset = doc.getLineEndOffset(editor.getCaretModel().getLogicalPosition().line);
+        int lineEndOffset = doc.getLineEndOffset(doc.getLineNumber(endOffset));
 
         // Adds the missing double quotes and + operator to the splitted text.
         // Note - Don't replace the "\n" with the "System.lineSeparator()" as Docuemnt.insertString() method only
@@ -73,16 +75,32 @@ public class BallerinaEnterInStringHandler extends EnterHandlerDelegateAdapter {
         String rText = "\"" + doc.getText(new TextRange(caretOff, endOffset)) + doc.getText(new TextRange(endOffset,
                 lineEndOffset));
 
-        editor.getCaretModel().moveToOffset(startOffset);
-        LogicalPosition caretPos = editor.getCaretModel().getLogicalPosition();
-
-        // Replaces the current single string with the splitted strings.
+        caretModel.moveToOffset(startOffset);
+        // Replaces the current single string with the left part of the split strings.
         doc.deleteString(startOffset, lineEndOffset);
         doc.insertString(startOffset, lText);
-        navigateToNextLine(editor, caretPos);
+
+        // This is to update the PsiTree of document with the changes we added above.
+        PsiDocumentManager.getInstance(project).commitDocument(doc);
+
+        // Moves the cursor to the end of the first string.
+        caretOff = caretModel.getOffset();
+        element = file.findElementAt(caretOff);
+        if (!isStringLiteral(element)) {
+            return Result.Continue;
+        }
+        caretModel.moveToOffset(element.getTextRange().getEndOffset());
+
+        String lineText = doc.getText(new TextRange(doc.getLineStartOffset(caretModel.getLogicalPosition().line),
+                doc.getLineEndOffset(caretModel.getLogicalPosition().line)));
+        int column = lineText.replace("\t", "    ").indexOf(lineText.trim());
+        // Moves the cursor to the beginning of the line.
+        caretModel.moveToLogicalPosition(new LogicalPosition(caretModel.getLogicalPosition().line, column));
+        // Moves the caret to the next immediate line with proper indentation.
+        navigateToNextLine(editor, caretModel.getLogicalPosition());
         EditorModificationUtil.insertStringAtCaret(editor, rText, false, 1);
 
-        PsiDocumentManager.getInstance(project).commitDocument(editor.getDocument());
+        PsiDocumentManager.getInstance(project).commitDocument(doc);
         return Result.Stop;
     }
 
@@ -111,4 +129,3 @@ public class BallerinaEnterInStringHandler extends EnterHandlerDelegateAdapter {
         }
     }
 }
-

@@ -63,13 +63,14 @@ function enrichWithDefaultableParamInits(bir:Function currentFunc) {
 
     int paramCounter = 0;
     int paramBBCounter = 0;
+    var pos = currentFunc.pos;
     while (paramCounter < functionParams.length()) {
         var funcParam = functionParams[paramCounter];
         if (funcParam is bir:FunctionParam && funcParam.hasDefaultExpr) {
             int boolParam = paramCounter + 1;
             bir:FunctionParam funcBooleanParam = getFunctionParam(functionParams[boolParam]);
             bir:VarRef boolRef = {variableDcl:funcBooleanParam, typeValue:bir:TYPE_BOOLEAN};
-            bir:UnaryOp notOp = {pos:{}, kind:bir:INS_KIND_NOT, lhsOp:boolRef, rhsOp:boolRef};
+            bir:UnaryOp notOp = {pos:pos, kind:bir:INS_KIND_NOT, lhsOp:boolRef, rhsOp:boolRef};
             nextBB.instructions[nextBB.instructions.length()] = notOp;
             bir:BasicBlock?[] bbArray = currentFunc.paramDefaultBBs[paramBBCounter];
             bir:BasicBlock trueBB = getBasicBlock(bbArray[0]);
@@ -77,11 +78,11 @@ function enrichWithDefaultableParamInits(bir:Function currentFunc) {
                 basicBlocks[basicBlocks.length()] = getBasicBlock(defaultBB);
             }
             bir:BasicBlock falseBB = insertAndGetNextBasicBlock(basicBlocks);
-            bir:Branch branch = {pos:{}, falseBB:falseBB, kind:bir:TERMINATOR_BRANCH, op:boolRef, trueBB:trueBB};
+            bir:Branch branch = {pos:pos, falseBB:falseBB, kind:bir:TERMINATOR_BRANCH, op:boolRef, trueBB:trueBB};
             nextBB.terminator = branch;
 
             bir:BasicBlock lastBB = getBasicBlock(bbArray[bbArray.length() - 1]);
-            bir:GOTO gotoRet = {pos:{}, kind:bir:TERMINATOR_GOTO, targetBB:falseBB};
+            bir:GOTO gotoRet = {pos:pos, kind:bir:TERMINATOR_GOTO, targetBB:falseBB};
             lastBB.terminator = gotoRet;
 
             nextBB = falseBB;
@@ -103,7 +104,7 @@ function enrichWithDefaultableParamInits(bir:Function currentFunc) {
     int pl = currentFunc.basicBlocks.length();
     bir:BasicBlock firstBB = getBasicBlock(currentFunc.basicBlocks[0]);
 
-    bir:GOTO gotoRet = {pos:{}, kind:bir:TERMINATOR_GOTO, targetBB:firstBB};
+    bir:GOTO gotoRet = {pos:pos, kind:bir:TERMINATOR_GOTO, targetBB:firstBB};
     nextBB.terminator = gotoRet;
     foreach var bb in currentFunc.basicBlocks {
      	basicBlocks[basicBlocks.length()] = bb;

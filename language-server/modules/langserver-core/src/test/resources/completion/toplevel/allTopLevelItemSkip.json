@@ -296,14 +296,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "stream",
-      "kind": "Unit",
-      "detail": "Stream",
-      "sortText": "230",
-      "insertText": "stream",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "num1",
       "kind": "Variable",
       "detail": "int",
@@ -325,6 +317,17 @@
       "detail": "Json",
       "sortText": "230",
       "insertText": "json",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "StrandData",
+      "kind": "Struct",
+      "detail": "Record",
+      "documentation": {
+        "left": "Describes Strand execution details for the runtime.\n"
+      },
+      "sortText": "180",
+      "insertText": "StrandData",
       "insertTextFormat": "Snippet"
     },
     {
@@ -389,6 +392,14 @@
       "detail": "int",
       "sortText": "130",
       "insertText": "testBinary",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Thread",
+      "kind": "TypeParameter",
+      "detail": "Finite",
+      "sortText": "170",
+      "insertText": "Thread",
       "insertTextFormat": "Snippet"
     },
     {
@@ -819,29 +830,6 @@
             }
           },
           "newText": "import ballerina/ldap;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/streams",
-      "kind": "Module",
-      "detail": "Package",
-      "sortText": "140",
-      "insertText": "streams",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 1,
-              "character": 0
-            },
-            "end": {
-              "line": 1,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/streams;\n"
         }
       ]
     },
@@ -1371,29 +1359,6 @@
             }
           },
           "newText": "import ballerina/mime;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/lang.stream",
-      "kind": "Module",
-      "detail": "Package",
-      "sortText": "140",
-      "insertText": "'stream",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 1,
-              "character": 0
-            },
-            "end": {
-              "line": 1,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/lang.'stream;\n"
         }
       ]
     },

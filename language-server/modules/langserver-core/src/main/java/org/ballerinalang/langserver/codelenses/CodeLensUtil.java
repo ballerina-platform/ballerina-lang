@@ -15,11 +15,14 @@
  */
 package org.ballerinalang.langserver.codelenses;
 
+import org.ballerinalang.langserver.DocumentServiceOperationContext;
 import org.ballerinalang.langserver.LSContextOperation;
+import org.ballerinalang.langserver.commons.LSContext;
+import org.ballerinalang.langserver.commons.codelenses.LSCodeLensesProviderException;
+import org.ballerinalang.langserver.commons.codelenses.spi.LSCodeLensesProvider;
 import org.ballerinalang.langserver.compiler.CollectDiagnosticListener;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSModuleCompiler;
-import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.compiler.common.LSCustomErrorStrategy;
 import org.ballerinalang.langserver.compiler.exception.CompilationFailedException;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
@@ -27,8 +30,11 @@ import org.ballerinalang.util.diagnostic.DiagnosticListener;
 import org.eclipse.lsp4j.CodeLens;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
+import org.wso2.ballerinalang.compiler.tree.BLangMarkdownDocumentation;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownDocumentationLine;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.util.ArrayList;
@@ -55,8 +61,10 @@ public class CodeLensUtil {
     public static List<CodeLens> compileAndGetCodeLenses(String fileUri, WorkspaceDocumentManager documentManager)
             throws CompilationFailedException {
         List<CodeLens> lenses = new ArrayList<>();
-        LSServiceOperationContext codeLensContext = new LSServiceOperationContext(LSContextOperation.TXT_CODE_LENS);
-        codeLensContext.put(DocumentServiceKeys.FILE_URI_KEY, fileUri);
+        LSContext codeLensContext = new DocumentServiceOperationContext
+                .ServiceOperationContextBuilder(LSContextOperation.TXT_CODE_LENS)
+                .withCommonParams(null, fileUri, documentManager)
+                .build();
         BLangPackage bLangPackage = LSModuleCompiler.getBLangPackage(codeLensContext, documentManager,
                                                                LSCustomErrorStrategy.class, false, false);
         // Source compilation has no errors, continue
@@ -80,7 +88,7 @@ public class CodeLensUtil {
         documentCUnit.ifPresent(cUnit -> {
             codeLensContext.put(CodeLensesProviderKeys.COMPILATION_UNIT_KEY, cUnit);
 
-            List<LSCodeLensesProvider> providers = LSCodeLensesProviderFactory.getInstance().getProviders();
+            List<LSCodeLensesProvider> providers = LSCodeLensesProviderHolder.getInstance().getProviders();
             for (LSCodeLensesProvider provider : providers) {
                 try {
                     lenses.addAll(provider.getLenses(codeLensContext));
@@ -90,5 +98,41 @@ public class CodeLensUtil {
             }
         });
         return lenses;
+    }
+
+
+    /**
+     * Calculate and returns topmost position of the annotations.
+     *
+     * @param annotationAttachments a list of {@link BLangAnnotationAttachment}
+     * @param initialValue          initial position
+     * @return calculated topmost position for the node
+     */
+    public static int getTopMostLocOfAnnotations(List<BLangAnnotationAttachment> annotationAttachments,
+                                                 int initialValue) {
+        int topMost = initialValue;
+        if (annotationAttachments != null) {
+            for (BLangAnnotationAttachment attachment : annotationAttachments) {
+                topMost = Math.min(attachment.pos.sLine - 1, topMost);
+            }
+        }
+        return topMost;
+    }
+
+    /**
+     * Calculate and returns topmost position of the documentations.
+     *
+     * @param docs         {@link BLangMarkdownDocumentation} markdown docs
+     * @param initialValue initial position
+     * @return calculated topmost position for the node
+     */
+    public static int getTopMostLocOfDocs(BLangMarkdownDocumentation docs, int initialValue) {
+        int topMost = initialValue;
+        if (docs != null) {
+            for (BLangMarkdownDocumentationLine line : docs.documentationLines) {
+                topMost = Math.min(line.pos.sLine - 1, topMost);
+            }
+        }
+        return topMost;
     }
 }

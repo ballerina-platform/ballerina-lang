@@ -171,7 +171,6 @@ public const INS_KIND_XML_ATTRIBUTE_LOAD = 51;
 public const INS_KIND_FP_LOAD = 52;
 public const INS_KIND_STRING_LOAD = 53;
 public const INS_KIND_NEW_TABLE = 54;
-public const INS_KIND_NEW_STREAM = 55;
 public const INS_KIND_TYPEOF = 56;
 public const INS_KIND_NOT = 57;
 public const INS_KIND_NEW_TYPEDESC = 58;
@@ -188,7 +187,7 @@ public type InstructionKind INS_KIND_MOVE | INS_KIND_CONST_LOAD | INS_KIND_NEW_M
                                 INS_KIND_NEW_XML_COMMENT | INS_KIND_NEW_XML_PI | INS_KIND_XML_ATTRIBUTE_STORE |
                                 INS_KIND_XML_ATTRIBUTE_LOAD | INS_KIND_XML_LOAD_ALL | INS_KIND_XML_LOAD |
                                 INS_KIND_XML_SEQ_LOAD | INS_KIND_FP_LOAD | INS_KIND_STRING_LOAD | INS_KIND_NEW_TABLE |
-                                INS_KIND_TYPEOF | INS_KIND_NOT | INS_KIND_NEW_TYPEDESC | INS_KIND_NEW_STREAM |
+                                INS_KIND_TYPEOF | INS_KIND_NOT | INS_KIND_NEW_TYPEDESC |
                                 INS_KIND_NEGATE | INS_KIND_PLATFORM;
 
 public const TERMINATOR_GOTO = "GOTO";
@@ -338,7 +337,6 @@ const SERVICE_TYPE_NAME = "service";
 public const PLATFORM_TYPE_NAME = "platform";
 const RECORD_TYPE_NAME = "record";
 const MAP_TYPE_NAME = "map";
-const STREAM_TYPE_NAME = "stream";
 const ARRAY_TYPE_NAME = "array";
 const TABLE_TYPE_NAME = "table";
 const ERROR_TYPE_NAME = "error";
@@ -383,12 +381,6 @@ public type BTableType record {|
     BType tConstraint;
 |};
 
-public type BStreamType record {|
-    STREAM_TYPE_NAME typeName = STREAM_TYPE_NAME;
-    BType sConstraint;
-|};
-
-
 public type BErrorType record {|
     ERROR_TYPE_NAME typeName = ERROR_TYPE_NAME;
     ModuleID moduleId = {};
@@ -416,6 +408,7 @@ public type BObjectType record {|
     BObjectField?[] fields = [];
     BAttachedFunction?[] attachedFunctions = [];
     BAttachedFunction? constructor;
+    BAttachedFunction? generatedConstructor;
 |};
 
 public type BTypeHandle record {
@@ -476,7 +469,7 @@ public type BFiniteType record {|
 public type BType BTypeInt | BTypeBoolean | BTypeAny | BTypeNil | BTypeByte | BTypeFloat | BTypeString | BUnionType |
                   BTupleType | BInvokableType | BArrayType | BRecordType | BObjectType | BMapType | BErrorType |
                   BTypeAnyData | BTypeNone | BFutureType | BJSONType | Self | BTypeDesc | BXMLType | BServiceType |
-                  BPlatformType | BFiniteType | BTableType | BStreamType | BTypeDecimal | BTypeHandle;
+                  BPlatformType | BFiniteType | BTableType | BTypeDecimal | BTypeHandle;
 
 public type ModuleID record {|
     string org = "";
@@ -539,13 +532,6 @@ public type NewTable record {|
     VarRef dataOp;
     VarRef keyColOp;
     BType typeValue;
-|};
-
-public type NewStream record {|
-    DiagnosticPos pos;
-    InstructionKind kind;
-    VarRef lhsOp;
-    BType streamType;
 |};
 
 public type NewInstance record {|

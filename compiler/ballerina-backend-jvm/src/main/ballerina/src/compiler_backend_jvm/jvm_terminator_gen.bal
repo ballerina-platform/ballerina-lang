@@ -189,7 +189,6 @@ type TerminatorGenerator object {
                 bType is bir:BArrayType ||
                 bType is bir:BTypeAny ||
                 bType is bir:BTableType ||
-                bType is bir:BStreamType ||
                 bType is bir:BTypeAnyData ||
                 bType is bir:BObjectType ||
                 bType is bir:BServiceType ||
@@ -552,7 +551,7 @@ type TerminatorGenerator object {
         string jvmClass = lookupFullQualifiedClassName(lookupKey);
         string cleanMethodName = cleanupFunctionName(methodName);
         boolean useBString = IS_BSTRING && orgName == "ballerina" &&
-                             moduleName == "lang.string" && !cleanMethodName.endsWith("_");
+                             (moduleName == "lang.string" || moduleName == "lang.error" ) && !cleanMethodName.endsWith("_");
         if (useBString) {
             cleanMethodName = nameOfBStringFunc(cleanMethodName);
         }
@@ -688,7 +687,34 @@ type TerminatorGenerator object {
         lambdas[lambdaName] = callIns;
         lambdaIndex += 1;
 
-        self.submitToScheduler(callIns.lhsOp, localVarOffset);
+        boolean concurrent = false;
+        // check for concurrent annotation
+        if (callIns.annotAttachments.length() > 0 ) {
+            foreach var v in callIns.annotAttachments {                
+                if (v is bir:AnnotationAttachment && 
+                    v.annotTagRef.value == "strand" && 
+                    v.moduleId.org == "ballerina" && 
+                    v.moduleId.name == "lang.annotations") {
+                        if (v.annotValues.length() > 0) {
+                            bir:AnnotationValue val = <bir:AnnotationValue> v.annotValues[0];
+                            if (val is bir:AnnotationRecordValue) {
+                                if (val.annotValueMap.hasKey("thread") && 
+                                    val.annotValueMap.get("thread")["literalValue"] == "any") {
+                                        concurrent = true;
+                                }
+
+                                if (val.annotValueMap.hasKey("name") &&
+                                    val.annotValueMap.get("name")["literalValue"] != "DEFAULT") {
+                                        panic error("Unsupported policy. Only 'DEFAULT' policy is supported by jballerina runtime.");
+                                }
+                            }
+                        }
+                    break;
+                } 
+            }
+        }
+
+        self.submitToScheduler(callIns.lhsOp, localVarOffset, concurrent);
     }
 
     function generateWaitIns(bir:Wait waitInst, string funcName, int localVarOffset) {
@@ -796,7 +822,20 @@ type TerminatorGenerator object {
         if (fpCall.isAsync) {
             // load function ref now
             self.loadVar(fpCall.fp.variableDcl);
-            self.submitToScheduler(fpCall.lhsOp, localVarOffset);
+            self.mv.visitMethodInsn(INVOKESTATIC, ANNOTATION_UTILS, "isConcurrent", io:sprintf("(L%s;)Z", FUNCTION_POINTER), false);
+            jvm:Label notConcurrent = new;
+            self.mv.visitJumpInsn(IFEQ, notConcurrent);
+            jvm:Label concurrent = new;
+            self.mv.visitLabel(concurrent);
+            self.loadVar(fpCall.fp.variableDcl);
+            self.submitToScheduler(fpCall.lhsOp, localVarOffset, true);
+            jvm:Label afterSubmit = new;
+            self.mv.visitJumpInsn(GOTO, afterSubmit);
+            self.mv.visitLabel(notConcurrent);
+            self.loadVar(fpCall.fp.variableDcl);
+            self.submitToScheduler(fpCall.lhsOp, localVarOffset, false);
+            self.mv.visitLabel(afterSubmit);
+
         } else {
             self.mv.visitMethodInsn(INVOKEVIRTUAL, FUNCTION_POINTER, "call", io:sprintf("(L%s;)L%s;", OBJECT, OBJECT), false);
             // store reult
@@ -888,7 +927,7 @@ type TerminatorGenerator object {
         self.storeToVar(ins.lhsOp.variableDcl);
     }
 
-    function submitToScheduler(bir:VarRef? lhsOp, int localVarOffset) {
+    function submitToScheduler(bir:VarRef? lhsOp, int localVarOffset, boolean concurrent) {
         bir:BType? futureType = lhsOp?.typeValue;
         bir:BType returnType = "any";
         if (futureType is bir:BFutureType) {
@@ -898,8 +937,13 @@ type TerminatorGenerator object {
         // load strand
         self.mv.visitVarInsn(ALOAD, localVarOffset);
         loadType(self.mv, returnType);
-        self.mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, "scheduleFunction",
+        if (concurrent) {
+            self.mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, SCHEDULE_FUNCTION_METHOD,
                 io:sprintf("([L%s;L%s;L%s;L%s;)L%s;", OBJECT, FUNCTION_POINTER, STRAND, BTYPE, FUTURE_VALUE), false);
+        } else {
+            self.mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, SCHEDULE_LOCAL_METHOD,
+                io:sprintf("([L%s;L%s;L%s;L%s;)L%s;", OBJECT, FUNCTION_POINTER, STRAND, BTYPE, FUTURE_VALUE), false);
+        }
 
         // store return
         if (lhsOp is bir:VarRef) {

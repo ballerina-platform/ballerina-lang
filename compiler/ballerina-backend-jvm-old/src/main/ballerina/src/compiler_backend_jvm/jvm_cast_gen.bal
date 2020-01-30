@@ -217,6 +217,11 @@ function generateCheckCastBToJDouble(jvm:MethodVisitor mv, bir:BType sourceType)
 
 function generateCheckCastBToJRef(jvm:MethodVisitor mv, bir:BType sourceType, jvm:JRefType | jvm:JArrayType targetType) {
     if (sourceType is bir:BTypeHandle) {
+        if (targetType is jvm:JRefType &&
+                (targetType.typeValue == HANDLE_VALUE || targetType.typeValue == BHANDLE)) {
+            // do nothing
+            return;
+        }
         mv.visitMethodInsn(INVOKEVIRTUAL, HANDLE_VALUE, "getValue", "()Ljava/lang/Object;", false);
         string sig = getSignatureForJType(targetType);
         mv.visitTypeInsn(CHECKCAST, sig);
@@ -421,8 +426,19 @@ function generateJCastToBHandle(jvm:MethodVisitor mv, jvm:JType sourceType) {
     //} else if (sourceType is jvm:JDouble) {
     //    mv.visitMethodInsn(INVOKESTATIC, HANDLE_VALUE, "valueOfJ", io:sprintf("(D)L%s;", HANDLE_VALUE), false);
     //} else if (sourceType is jvm:JRefType || sourceType is jvm:JArrayType) {
+
     // Here the corresponding Java method parameter type is 'jvm:JRefType'. This has been verified before
-        mv.visitMethodInsn(INVOKESTATIC, HANDLE_VALUE, "valueOfJ", io:sprintf("(L%s;)L%s;", OBJECT, HANDLE_VALUE), false);
+    // If the returned value is a HandleValue, do nothing
+    LabelGenerator labelGen = new();
+    jvm:Label afterHandle = labelGen.getLabel("after_handle");
+    mv.visitInsn(DUP);
+    mv.visitTypeInsn(INSTANCEOF, BHANDLE);
+    mv.visitJumpInsn(IFNE, afterHandle);
+
+    // Otherwise wrap it with a HandleValue
+    mv.visitMethodInsn(INVOKESTATIC, HANDLE_VALUE, "valueOfJ", io:sprintf("(L%s;)L%s;", OBJECT, HANDLE_VALUE), false);
+    mv.visitLabel(afterHandle);
+
     //} else {
     //    error err = error(io:sprintf("Casting is not supported from '%s' to 'int'", sourceType));
     //    panic err;
@@ -746,8 +762,6 @@ function getTargetClass(bir:BType targetType) returns string? {
         targetTypeClass = MAP_VALUE;
     } else if (targetType is bir:BTableType) {
         targetTypeClass = TABLE_VALUE;
-    } else if (targetType is bir:BStreamType) {
-        targetTypeClass = STREAM_VALUE;
     } else if (targetType is bir:BObjectType || targetType is bir:BServiceType) {
         targetTypeClass = OBJECT_VALUE;
     } else if (targetType is bir:BErrorType) {

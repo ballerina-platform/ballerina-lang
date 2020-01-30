@@ -76,13 +76,13 @@ function testBytesInIntArray() returns boolean {
 
     int[] arr = [-1, b0, 120, b178, b255, 340];
 
-    foreach [int, int][index, val] in arr.enumerate() {
-		match index {
-		    1 => {
-		        if val != b0 {
-		            return false;
-		        }
-		    }
+    foreach [int, int] [index, val] in arr.enumerate() {
+        match index {
+            1 => {
+                if val != b0 {
+                    return false;
+                }
+            }
             3 => {
                 if val != 178 {
                     return false;
@@ -98,9 +98,9 @@ function testBytesInIntArray() returns boolean {
                     return false;
                 }
             }
-		}
-	}
-	return true;
+        }
+    }
+    return true;
 }
 
 function testBytesInIntMap() returns boolean {

@@ -62,6 +62,13 @@ public class StringValueBasicsTest {
         //TODO assert return value has BString
     }
 
+    @Test
+    public void testError() {
+        BValue[] returns = BRunUtil.invoke(result, "testError");
+        Assert.assertEquals(returns[0].getClass(), BInteger.class);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 5);
+    }
+
     @AfterClass
     public void down() {
         System.clearProperty(IS_STRING_VALUE_PROP);

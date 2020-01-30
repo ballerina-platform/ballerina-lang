@@ -27,3 +27,16 @@ function testGetAsFloat(string key) returns float {
 function testGetAsBoolean(string key) returns boolean {
     return config:getAsBoolean(key);
 }
+
+function testGetAsArray(string key) returns any[] {
+    return config:getAsArray(key);
+}
+
+function testGetAsArray2(string key) returns int[] {
+    int[]|error ports = int[].constructFrom(config:getAsArray(key));
+    if (ports is int[]) {
+        return ports;
+    } else {
+        panic ports;
+    }
+}

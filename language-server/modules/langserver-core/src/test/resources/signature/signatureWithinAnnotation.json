@@ -10,26 +10,35 @@
                     "label": "getMethods(int i, boolean b, int y)",
                     "parameters": [
                         {
-                            "label": "i",
+                            "label": {
+                                "left": "int i"
+                            },
                             "documentation": {
                                 "right": {
-                                    "kind": "markdown"
+                                    "kind": "markdown",
+                                    "value": "**Parameter**  \n**`int`i**: "
                                 }
                             }
                         },
                         {
-                            "label": "b",
+                            "label": {
+                                "left": "boolean b"
+                            },
                             "documentation": {
                                 "right": {
-                                    "kind": "markdown"
+                                    "kind": "markdown",
+                                    "value": "**Parameter**  \n**`boolean`b**: "
                                 }
                             }
                         },
                         {
-                            "label": "y",
+                            "label": {
+                                "left": "int y"
+                            },
                             "documentation": {
                                 "right": {
-                                    "kind": "markdown"
+                                    "kind": "markdown",
+                                    "value": "**Parameter**  \n**`int`y**: "
                                 }
                             }
                         }

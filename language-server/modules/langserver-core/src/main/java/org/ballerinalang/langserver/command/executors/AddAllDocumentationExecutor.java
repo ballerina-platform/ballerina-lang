@@ -18,14 +18,13 @@ package org.ballerinalang.langserver.command.executors;
 import com.google.gson.JsonObject;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.command.ExecuteCommandKeys;
-import org.ballerinalang.langserver.command.LSCommandExecutor;
-import org.ballerinalang.langserver.command.LSCommandExecutorException;
 import org.ballerinalang.langserver.command.docs.DocAttachmentInfo;
-import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.commons.LSContext;
+import org.ballerinalang.langserver.commons.command.LSCommandExecutorException;
+import org.ballerinalang.langserver.commons.command.spi.LSCommandExecutor;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
-import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.compiler.LSModuleCompiler;
 import org.ballerinalang.langserver.compiler.common.LSCustomErrorStrategy;
 import org.ballerinalang.langserver.compiler.exception.CompilationFailedException;
@@ -55,7 +54,7 @@ import static org.ballerinalang.langserver.command.docs.DocumentationGenerator.g
  *
  * @since 0.983.0
  */
-@JavaSPIService("org.ballerinalang.langserver.command.LSCommandExecutor")
+@JavaSPIService("org.ballerinalang.langserver.commons.command.spi.LSCommandExecutor")
 public class AddAllDocumentationExecutor implements LSCommandExecutor {
 
     public static final String COMMAND = "ADD_ALL_DOC";
@@ -78,7 +77,7 @@ public class AddAllDocumentationExecutor implements LSCommandExecutor {
 
         BLangPackage bLangPackage;
         try {
-            WorkspaceDocumentManager docManager = context.get(CommonKeys.DOC_MANAGER_KEY);
+            WorkspaceDocumentManager docManager = context.get(DocumentServiceKeys.DOC_MANAGER_KEY);
             bLangPackage = LSModuleCompiler.getBLangPackage(context, docManager, LSCustomErrorStrategy.class, false,
                     false);
         } catch (CompilationFailedException e) {

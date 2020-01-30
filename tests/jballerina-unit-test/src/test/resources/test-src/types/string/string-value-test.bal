@@ -1,4 +1,4 @@
-function concatBMP() returns (any) {
+function concatBMP() returns string {
     string prefix = "red ";
     string s = "apple";
     return prefix + s;
@@ -15,3 +15,8 @@ function recordStringValuePut() returns () {
     //TODO: return r
 }
 
+function testError() returns int {
+    string smiley = "h🤷llo";
+    error err = error(smiley);
+    return err.reason().length();
+}

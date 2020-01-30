@@ -1,5 +1,0 @@
-//Tables and streams can be joined using streaming query logic.
-//In this example, orders coming from the customers for a certain item are checked against the stock table to verify
-//whether there is enough stock to deliver the order. An alert is triggered if the stock is not sufficient.
-//Ballerina Streams is an experimental feature. Use the `--experimental` flag when compiling Ballerina files
-//that have streaming constructs.

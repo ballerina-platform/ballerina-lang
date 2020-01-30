@@ -46,7 +46,7 @@ public class Length {
         return value.length();
     }
 
-    public static long length(Strand strand, StringValue value) {
+    public static long length_bstring(Strand strand, StringValue value) {
         if (value == null) {
             throw BallerinaErrors.createNullReferenceError();
         }

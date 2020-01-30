@@ -17,8 +17,7 @@
 */
 package org.ballerinalang.langserver.common;
 
-import org.ballerinalang.langserver.compiler.LSContext;
-import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
+import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.completions.SymbolInfo;
 
 import java.util.List;
@@ -63,7 +62,4 @@ public class CommonKeys {
     public static final String SLASH_KEYWORD_KEY = "/";
     
     public static final LSContext.Key<List<SymbolInfo>> VISIBLE_SYMBOLS_KEY = new LSContext.Key<>();
-
-    public static final LSContext.Key<WorkspaceDocumentManager> DOC_MANAGER_KEY
-            = new LSContext.Key<>();
 }

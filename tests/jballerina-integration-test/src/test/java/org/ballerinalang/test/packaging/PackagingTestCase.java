@@ -18,6 +18,8 @@
 package org.ballerinalang.test.packaging;
 
 import org.awaitility.Duration;
+import org.ballerinalang.jvm.JSONParser;
+import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.test.BaseTest;
 import org.ballerinalang.test.context.BMainInstance;
 import org.ballerinalang.test.context.BallerinaTestException;
@@ -31,8 +33,13 @@ import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 import org.wso2.ballerinalang.programfile.ProgramFileConstants;
 import org.wso2.ballerinalang.util.RepoUtils;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URI;
+import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -57,6 +64,7 @@ public class PackagingTestCase extends BaseTest {
     private String orgName = "bcintegrationtest";
     private Map<String, String> envVariables;
     private BMainInstance balClient;
+    private int totalPullCount = 0;
     
     @BeforeClass()
     public void setUp() throws IOException, BallerinaTestException {
@@ -144,26 +152,54 @@ public class PackagingTestCase extends BaseTest {
             String[] clientArgs = {orgName + "/" + moduleName + ":0.1.0"};
             balClient.runMain("pull", clientArgs, envVariables, new String[]{},
                     new LogLeecher[]{}, balServer.getServerHome());
+            totalPullCount += 1;
             return Files.exists(tempHomeDirectory.resolve(baloPath).resolve(baloFileName));
         });
 
         Assert.assertTrue(Files.exists(tempHomeDirectory.resolve(baloPath).resolve(baloFileName)));
     }
 
-//    @Test(description = "Test searching a package from central", dependsOnMethods = "testPush")
-//    public void testSearch() throws BallerinaTestException {
-//        String actualMsg = balClient.runMainAndReadStdOut("search", new String[]{moduleName}, envVariables,
-//                balServer.getServerHome(), false);
-//
-//        // Check if the search results contains the following.
-//        Assert.assertTrue(actualMsg.contains("Ballerina Central"));
-//        Assert.assertTrue(actualMsg.contains("NAME"));
-//        Assert.assertTrue(actualMsg.contains("DESCRIPTION"));
-//        Assert.assertTrue(actualMsg.contains("DATE"));
-//        Assert.assertTrue(actualMsg.contains("VERSION"));
-//        Assert.assertTrue(actualMsg.contains(datePushed));
-//        Assert.assertTrue(actualMsg.contains("0.1.0"));
-//    }
+    @Test(description = "Test searching a package from central", dependsOnMethods = "testPush")
+    public void testSearch() throws BallerinaTestException {
+        String actualMsg = balClient.runMainAndReadStdOut("search", new String[]{moduleName}, envVariables,
+                balServer.getServerHome(), false);
+
+        // Check if the search results contains the following.
+        Assert.assertTrue(actualMsg.contains("Ballerina Central"));
+        Assert.assertTrue(actualMsg.contains("NAME"));
+        Assert.assertTrue(actualMsg.contains("DESCRIPTION"));
+        Assert.assertTrue(actualMsg.contains("DATE"));
+        Assert.assertTrue(actualMsg.contains("VERSION"));
+        Assert.assertTrue(actualMsg.contains(datePushed));
+        Assert.assertTrue(actualMsg.contains("0.1.0"));
+    }
+
+    @Test(description = "Test pullCount of a package from central", dependsOnMethods = "testPull")
+    public void testPullCount() throws IOException {
+        URI remoteUri = URI.create(RepoUtils.getStagingURL() + "/modules/info/" + orgName + "/" + moduleName + "/*/");
+        HttpURLConnection conn;
+        conn = (HttpURLConnection) remoteUri.toURL().openConnection();
+        int statusCode = conn.getResponseCode();
+        if (statusCode == 200) {
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(conn.getInputStream(),
+                    Charset.defaultCharset()))) {
+                StringBuilder result = new StringBuilder();
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    result.append(line);
+                }
+                Object payload = JSONParser.parse(result.toString());
+                if (payload instanceof MapValue) {
+                    long pullCount = ((MapValue) payload).getIntValue("totalPullCount");
+                    Assert.assertEquals(pullCount, totalPullCount);
+                } else {
+                    Assert.fail("error: invalid response received");
+                }
+            }
+        } else {
+            Assert.fail("error: could not connect to remote repository to find the latest version of module");
+        }
+    }
 
     @Test(description = "Test push all packages in project to central")
     public void testPushAllPackages() throws Exception {

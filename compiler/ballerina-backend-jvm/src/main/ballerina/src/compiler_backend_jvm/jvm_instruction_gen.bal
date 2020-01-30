@@ -675,14 +675,6 @@ type InstructionGenerator object {
         self.storeToVar(tableNewIns.lhsOp.variableDcl);
     }
 
-    function generateStreamNewIns(bir:NewStream streamNewIns) {
-        self.mv.visitTypeInsn(NEW, STREAM_VALUE);
-        self.mv.visitInsn(DUP);
-        loadType(self.mv, streamNewIns.streamType);
-        self.mv.visitMethodInsn(INVOKESPECIAL, STREAM_VALUE, "<init>", io:sprintf("(L%s;)V", BTYPE), false);
-        self.storeToVar(streamNewIns.lhsOp.variableDcl);
-    }
-
     function generateMapStoreIns(bir:FieldAccess mapStoreIns) {
         // visit map_ref
         self.loadVar(mapStoreIns.lhsOp.variableDcl);
@@ -884,7 +876,7 @@ type InstructionGenerator object {
         self.storeToVar(inst.lhsOp.variableDcl);
     }
 
-    function generateNewErrorIns(bir:NewError newErrorIns) {
+    function generateNewErrorIns(bir:NewError newErrorIns, boolean useBString) {
         self.mv.visitTypeInsn(NEW, ERROR_VALUE);
         self.mv.visitInsn(DUP);
         // load errorType
@@ -892,7 +884,7 @@ type InstructionGenerator object {
         self.loadVar(newErrorIns.reasonOp.variableDcl);
         self.loadVar(newErrorIns.detailsOp.variableDcl);
         self.mv.visitMethodInsn(INVOKESPECIAL, ERROR_VALUE, "<init>",
-                           io:sprintf("(L%s;L%s;L%s;)V", BTYPE, STRING_VALUE, OBJECT), false);
+                           io:sprintf("(L%s;L%s;L%s;)V", BTYPE, useBString ? I_STRING_VALUE : STRING_VALUE, OBJECT), false);
         self.storeToVar(newErrorIns.lhsOp.variableDcl);
     }
 
@@ -1266,7 +1258,6 @@ function generateVarLoad(jvm:MethodVisitor mv, bir:VariableDcl varDcl, string cu
                 bType is bir:BTypeString ||
                 bType is bir:BMapType ||
                 bType is bir:BTableType ||
-                bType is bir:BStreamType ||
                 bType is bir:BTypeAny ||
                 bType is bir:BTypeAnyData ||
                 bType is bir:BTypeNil ||
@@ -1351,7 +1342,6 @@ function generateVarStore(jvm:MethodVisitor mv, bir:VariableDcl varDcl, string c
                     bType is bir:BTypeString ||
                     bType is bir:BMapType ||
                     bType is bir:BTableType ||
-                    bType is bir:BStreamType ||
                     bType is bir:BTypeAny ||
                     bType is bir:BTypeAnyData ||
                     bType is bir:BTypeNil ||

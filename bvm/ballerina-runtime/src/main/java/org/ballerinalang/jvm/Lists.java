@@ -37,7 +37,7 @@ public class Lists {
 
         switch (((BArrayType) array.getType()).getElementType().getTag()) {
             case TypeTags.BOOLEAN_TAG:
-                return new Boolean(array.getBoolean(index));
+                return Boolean.valueOf(array.getBoolean(index));
             case TypeTags.BYTE_TAG:
                 return new Long(array.getByte(index));
             case TypeTags.FLOAT_TAG:

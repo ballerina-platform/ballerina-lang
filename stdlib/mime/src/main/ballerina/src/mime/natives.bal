@@ -226,10 +226,10 @@ public type Entity object {
             self.setText(entityBody);
         } else if (entityBody is xml) {
             self.setXml(entityBody);
+        }  else if (entityBody is byte[]) {
+            self.setByteArray(entityBody);
         } else if (entityBody is json) {
             self.setJson(entityBody);
-        } else if (entityBody is byte[]) {
-            self.setByteArray(entityBody);
         } else if(entityBody is io:ReadableByteChannel) {
             self.setByteChannel(entityBody);
         } else {

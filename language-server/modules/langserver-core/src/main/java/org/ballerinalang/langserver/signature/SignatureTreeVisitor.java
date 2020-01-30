@@ -20,8 +20,8 @@ package org.ballerinalang.langserver.signature;
 import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.common.LSNodeVisitor;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
-import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.completions.SymbolInfo;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
@@ -69,14 +69,14 @@ public class SignatureTreeVisitor extends LSNodeVisitor {
     private boolean terminateVisitor = false;
     private SymbolTable symTable;
     private Position cursorPosition;
-    private LSServiceOperationContext lsContext;
+    private LSContext lsContext;
     private Deque<DiagnosticPos> blockPositionStack;
 
     /**
      * Public constructor.
      * @param context    Document service context for the signature operation
      */
-    public SignatureTreeVisitor(LSServiceOperationContext context) {
+    public SignatureTreeVisitor(LSContext context) {
         blockPositionStack = new ArrayDeque<>();
         lsContext = context;
         cursorPosition = context.get(DocumentServiceKeys.POSITION_KEY).getPosition();
@@ -107,6 +107,9 @@ public class SignatureTreeVisitor extends LSNodeVisitor {
 
     @Override
     public void visit(BLangTypeDefinition typeDefinition) {
+        if (typeDefinition.annAttachments != null) {
+            typeDefinition.annAttachments.forEach(s -> acceptNode(s, symbolEnv));
+        }
         acceptNode(typeDefinition.typeNode, symbolEnv);
     }
 
