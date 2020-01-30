@@ -18,7 +18,7 @@
 
 package org.ballerinalang.jvm.values.api;
 
-import org.ballerinalang.jvm.scheduling.Scheduler;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.values.IteratorValue;
 
@@ -64,8 +64,8 @@ public interface BStream extends BRefValue {
 
     /**
      * Returns the next element in the stream after applying filters, mapping and reductions
-     * @param scheduler The scheduler used to apply filtering, mapping , reducing ,,etc functions.
+     * @param strand The strand in which the filtering, mapping reduction... etc functions are invoked
      * @return The next element if the stream has or Nil if stream ends.
      */
-    Object next(Scheduler scheduler);
+    Object next(Strand strand);
 }

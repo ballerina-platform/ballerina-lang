@@ -19,11 +19,20 @@
 package org.ballerinalang.langlib.stream;
 
 import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.types.BField;
+import org.ballerinalang.jvm.types.BRecordType;
+import org.ballerinalang.jvm.types.TypeFlags;
+import org.ballerinalang.jvm.util.Flags;
+import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.StreamValue;
+import org.ballerinalang.jvm.values.api.BValueCreator;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
+
+import java.util.HashMap;
+import java.util.Map;
 
 
 /**
@@ -39,6 +48,15 @@ import org.ballerinalang.natives.annotations.ReturnType;
 )
 public class Next {
     public static Object next(Strand strand, StreamValue strm) {
-        return strm.next(strand.scheduler);
+        Object next = strm.next(strand);
+        if (next == null) {
+            return null;
+        }
+
+        Map<String, BField> fields = new HashMap<>();
+        fields.put("value", new BField(strm.getConstraintType(), "value", Flags.PUBLIC + Flags.REQUIRED));
+        BRecordType recordType = new BRecordType("$$returnType$$", strm.getType().getPackage(), 0, fields,
+                null, true, TypeFlags.asMask(TypeFlags.ANYDATA, TypeFlags.PURETYPE));
+        return BValueCreator.createRecord(new MapValueImpl<>(recordType), next);
     }
 }
