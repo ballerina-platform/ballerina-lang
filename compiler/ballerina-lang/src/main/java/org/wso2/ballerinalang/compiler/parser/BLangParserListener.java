@@ -2532,6 +2532,14 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     }
 
     @Override
+    public void exitWhereClause(BallerinaParser.WhereClauseContext ctx) {
+        if (isInErrorState) {
+            return;
+        }
+        this.pkgBuilder.createWhereClause(getCurrentPos(ctx), getWS(ctx));
+    }
+
+    @Override
     public void exitSelectClause(BallerinaParser.SelectClauseContext ctx) {
         if (isInErrorState) {
             return;

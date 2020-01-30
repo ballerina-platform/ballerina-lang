@@ -19,11 +19,13 @@ package org.wso2.ballerinalang.compiler.tree.expressions;
 
 import org.ballerinalang.model.clauses.FromClauseNode;
 import org.ballerinalang.model.clauses.SelectClauseNode;
+import org.ballerinalang.model.clauses.WhereClauseNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.QueryExpressionNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhereClause;
 
 /**
  * Implementation of {@link QueryExpressionNode}.
@@ -32,6 +34,7 @@ public class BLangQueryExpr extends BLangExpression implements QueryExpressionNo
 
     public BLangFromClause fromClause;
     public BLangSelectClause selectClause;
+    public BLangWhereClause whereClause;
 
     @Override
     public FromClauseNode getFromClauseNode() {
@@ -51,6 +54,16 @@ public class BLangQueryExpr extends BLangExpression implements QueryExpressionNo
     @Override
     public void setSelectClauseNode(SelectClauseNode selectClauseNode) {
         this.selectClause = (BLangSelectClause) selectClauseNode;
+    }
+
+    @Override
+    public WhereClauseNode getWhereClauseNode() {
+        return whereClause;
+    }
+
+    @Override
+    public void setWhereClauseNode(WhereClauseNode whereClauseNode) {
+        this.whereClause = (BLangWhereClause) whereClauseNode;
     }
 
     @Override

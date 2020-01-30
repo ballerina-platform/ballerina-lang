@@ -90,6 +90,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangXMLNS.BLangLocalXMLNS;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS.BLangPackageXMLNS;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhereClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAccessExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
@@ -4332,6 +4333,7 @@ public class Desugar extends BLangNodeVisitor {
 
         BLangFromClause fromClause = queryExpr.fromClause;
         BLangSelectClause selectClause = queryExpr.selectClause;
+        BLangWhereClause whereClause = queryExpr.whereClause;
         DiagnosticPos pos = fromClause.pos;
 
         // Create Foreach statement
@@ -4383,7 +4385,17 @@ public class Desugar extends BLangNodeVisitor {
 
         // Set the indexed based access expression statement as foreach body
         foreachBody.addStatement(outputVarAssignment);
-        foreach.setBody(foreachBody);
+        if (whereClause != null) {
+            // Create If Statement with Where expression and foreach body
+            BLangBlockStmt bLangBlockStmt = ASTBuilderUtil.createBlockStmt(pos);
+            BLangIf bLangIf = (BLangIf) TreeBuilder.createIfElseStatementNode();
+            bLangIf.expr = whereClause.expression;
+            bLangIf.setBody(foreachBody);
+            bLangBlockStmt.addStatement(bLangIf);
+            foreach.setBody(bLangBlockStmt);
+        } else {
+            foreach.setBody(foreachBody);
+        }
 
         // Create block statement with temp variable definition statement & foreach statement
         BLangBlockStmt blockStmt  = ASTBuilderUtil.createBlockStmt(pos);
