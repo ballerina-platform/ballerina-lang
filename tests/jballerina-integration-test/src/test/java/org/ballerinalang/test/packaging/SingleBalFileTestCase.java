@@ -94,6 +94,20 @@ public class SingleBalFileTestCase extends BaseTest {
         fooRunLeecher.waitForText(10000);
     }
 
+    @Test(description = "Test running bal with relative path")
+    public void testRunWithRelativePath() throws BallerinaTestException {
+        String testBalFile = "hello_world.bal";
+        Path testRelativeFilePath = Paths.get("src", "test", "resources", "packaging", "singleBalFile",
+                "relative", "testDir");
+        // Run and see output
+        String msg = "Hello, World!";
+        LogLeecher fooRunLeecher = new LogLeecher(msg);
+        String runCommandPath =  ".." + File.separator + "testBal" + File.separator + "hello_world.bal";
+        balClient.runMain("run", new String[]{runCommandPath}, new HashMap<>(), new String[0],
+                new LogLeecher[]{fooRunLeecher}, testRelativeFilePath.toString());
+        fooRunLeecher.waitForText(10000);
+    }
+
     @AfterClass
     private void cleanup() throws Exception {
         if (testDatabase != null) {
