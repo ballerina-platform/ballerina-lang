@@ -38,7 +38,7 @@ import java.util.UUID;
  *
  * @since 0.995.0
  */
-public class StreamValue implements RefValue, BStream , BStreamIterator {
+public class StreamValue implements RefValue, BStream {
 
     private BType type;
     private BType constraintType;
