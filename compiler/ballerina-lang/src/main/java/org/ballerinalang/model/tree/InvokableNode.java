@@ -48,8 +48,6 @@ public interface InvokableNode extends AnnotatableNode, DocumentableNode {
     void addExternalAnnotationAttachment(AnnotationAttachmentNode annAttachment);
 
     BlockNode getBody();
-    
-    void setBody(BlockNode body);
 
     void setBody(FunctionBodyNode body);
 
