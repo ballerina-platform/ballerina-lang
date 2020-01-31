@@ -30,8 +30,8 @@ import ballerinax/java;
 # + isolationLevel - Transactional message reading method. Use "read_committed" to read the committed messages
 #       only in transactional mode when poll() is called. Use "read_uncommitted" to read all the messages,
 #       even the aborted ones.
-# + keyDeserializer - Deserializer used for the Kafka record key. This should be a `kafka:DeserializerType`
-# + valueDeserializer - Deserializer used for the Kafka record value. This should be a `kafka:DeserializerType`
+# + keyDeserializerType - Deserializer used for the Kafka record key. This should be a `kafka:DeserializerType`
+# + valueDeserializerType - Deserializer used for the Kafka record value. This should be a `kafka:DeserializerType`
 # + topics - Topics to be subscribed by the consumer.
 # + properties - Additional properties if required.
 # + sessionTimeoutInMillis - Timeout used to detect consumer failures when heartbeat threshold is reached.
@@ -72,8 +72,8 @@ public type ConsumerConfig record {|
     string? clientId = ();
     string? interceptorClasses = ();
     string? isolationLevel = ();
-    DeserializerType keyDeserializer = DES_BYTE_ARRAY;
-    DeserializerType valueDeserializer = DES_BYTE_ARRAY;
+    DeserializerType keyDeserializerType = DES_BYTE_ARRAY;
+    DeserializerType valueDeserializerType = DES_BYTE_ARRAY;
 
     string[]? topics = ();
     string[]? properties = ();
@@ -149,16 +149,16 @@ public type Consumer client object {
     *'object:Listener;
 
     public ConsumerConfig? consumerConfig = ();
-    private string keyDeserializer;
-    private string valueDeserializer;
+    private string keyDeserializerType;
+    private string valueDeserializerType;
 
     # Creates a new Kafka `Consumer`.
     #
     # + config - Configurations related to consumer endpoint.
     public function __init (ConsumerConfig config) {
         self.consumerConfig = config;
-        self.keyDeserializer = config.keyDeserializer;
-        self.valueDeserializer = config.valueDeserializer;
+        self.keyDeserializerType = config.keyDeserializerType;
+        self.valueDeserializerType = config.valueDeserializerType;
         var initResult = self.init(config);
         if (initResult is error) {
             panic initResult;

@@ -28,9 +28,9 @@ import ballerinax/java;
 # + partitionerClass - Partitioner class to be used to select partition to which the message is sent.
 # + interceptorClasses - Interceptor classes to be used before sending records.
 # + transactionalId - Transactional ID to be used in transactional delivery.
-# + keySerializer - Serializer used for the Kafka record key. This can be either `kafka:SerializerType` or an
+# + keySerializerType - Serializer used for the Kafka record key. This can be either `kafka:SerializerType` or an
 #       user-defined serializer.
-# + valueSerializer - Serializer used for the Kafka record value. This can be either `kafka:SerializerType` or an
+# + valueSerializerType - Serializer used for the Kafka record value. This can be either `kafka:SerializerType` or an
 #       user-defined serializer.
 # + bufferMemory - Total bytes of memory the producer can use to buffer records.
 # + retryCount - Number of retries to resend a record.
@@ -62,8 +62,8 @@ public type ProducerConfig record {|
     string? partitionerClass = ();
     string? interceptorClasses = ();
     string? transactionalId = ();
-    SerializerType valueSerializer = SER_BYTE_ARRAY;
-    SerializerType keySerializer = SER_BYTE_ARRAY;
+    SerializerType valueSerializerType = SER_BYTE_ARRAY;
+    SerializerType keySerializerType = SER_BYTE_ARRAY;
 
     int bufferMemory = -1;
     int retryCount = -1;
@@ -116,8 +116,11 @@ public const SER_INT = "INT";
 # In-built Kafka float serializer.
 public const SER_FLOAT = "FLOAT";
 
+# User-defined serializer.
+public const SER_CUSTOM = "CUSTOM";
+
 # Kafka in-built serializer type.
-public type SerializerType SER_BYTE_ARRAY|SER_STRING|SER_INT|SER_FLOAT;
+public type SerializerType SER_BYTE_ARRAY|SER_STRING|SER_INT|SER_FLOAT|SER_CUSTOM;
 
 # Represent a Kafka producer endpoint.
 #
@@ -126,16 +129,16 @@ public type SerializerType SER_BYTE_ARRAY|SER_STRING|SER_INT|SER_FLOAT;
 public type Producer client object {
 
     public ProducerConfig? producerConfig = ();
-    private string keySerializer;
-    private string valueSerializer;
+    private string keySerializerType;
+    private string valueSerializerType;
 
     # Creates a new Kafka `Producer`.
     #
     # + config - Configurations related to initializing a Kafka `Producer`.
     public function __init(ProducerConfig config) {
         self.producerConfig = config;
-        self.keySerializer = config.keySerializer;
-        self.valueSerializer = config.valueSerializer;
+        self.keySerializerType = config.keySerializerType;
+        self.valueSerializerType = config.valueSerializerType;
         var result = self.init(config);
         if (result is error) {
             panic result;
@@ -203,32 +206,32 @@ public type Producer client object {
         public int? timestamp = ()) returns ProducerError? {
         handle topicHandle = java:fromString(topic);
         // Handle string values
-        if (self.valueSerializer == SER_STRING) {
+        if (self.valueSerializerType == SER_STRING) {
             if (value is string) {
                 handle valueHandle = java:fromString(value);
-                return sendStringValues(self, valueHandle, topicHandle, key, partition, timestamp, self.keySerializer);
+                return sendStringValues(self, valueHandle, topicHandle, key, partition, timestamp, self.keySerializerType);
             } else {
                 panic getValueTypeMismatchError("string");
             }
         }
         // Handle int values
-        if (self.valueSerializer == SER_INT) {
+        if (self.valueSerializerType == SER_INT) {
             if (value is int) {
-                return sendIntValues(self, value, topicHandle, key, partition, timestamp, self.keySerializer);
+                return sendIntValues(self, value, topicHandle, key, partition, timestamp, self.keySerializerType);
             }
             panic getValueTypeMismatchError("int");
         }
         // Handle float values
-        if (self.valueSerializer == SER_FLOAT) {
+        if (self.valueSerializerType == SER_FLOAT) {
             if (value is float) {
-                return sendFloatValues(self, value, topicHandle, key, partition, timestamp, self.keySerializer);
+                return sendFloatValues(self, value, topicHandle, key, partition, timestamp, self.keySerializerType);
             }
             panic getValueTypeMismatchError("float");
         }
         // Handle byte[] values
-        if (self.valueSerializer == SER_BYTE_ARRAY) {
+        if (self.valueSerializerType == SER_BYTE_ARRAY) {
             if (value is byte[]) {
-                return sendByteArrayValues(self, value, topicHandle, key, partition, timestamp, self.keySerializer);
+                return sendByteArrayValues(self, value, topicHandle, key, partition, timestamp, self.keySerializerType);
             }
             panic getValueTypeMismatchError("byte[]");
         }
@@ -237,30 +240,30 @@ public type Producer client object {
 };
 
 function sendStringValues(Producer producer, handle value, handle topic, Data? key, int? partition, int? timestamp,
-    string keySerializer) returns ProducerError? {
+    string keySerializerType) returns ProducerError? {
     if (key is ()) {
         return producerSendString(producer, value, topic, partition, timestamp);
     }
-    if (keySerializer == SER_STRING) {
+    if (keySerializerType == SER_STRING) {
         if (key is string) {
             handle keyHandle = java:fromString(key);
             return producerSendStringString(producer, value, topic, keyHandle, partition, timestamp);
         }
         panic getKeyTypeMismatchError("string");
     }
-    if (keySerializer == SER_INT) {
+    if (keySerializerType == SER_INT) {
         if (key is int) {
             return producerSendStringInt(producer, value, topic, key, partition, timestamp);
         }
         panic getKeyTypeMismatchError("int");
     }
-    if (keySerializer == SER_FLOAT) {
+    if (keySerializerType == SER_FLOAT) {
         if (key is float) {
             return producerSendStringFloat(producer, value, topic, key, partition, timestamp);
         }
         panic getKeyTypeMismatchError("float");
     }
-    if (keySerializer == SER_BYTE_ARRAY) {
+    if (keySerializerType == SER_BYTE_ARRAY) {
         if (key is byte[]) {
             return producerSendStringByteArray(producer, value, topic, key, partition, timestamp);
         }
@@ -269,30 +272,30 @@ function sendStringValues(Producer producer, handle value, handle topic, Data? k
 }
 
 function sendIntValues(Producer producer, int value, handle topic, Data? key, int? partition, int? timestamp,
-    string keySerializer) returns ProducerError? {
+    string keySerializerType) returns ProducerError? {
     if (key is ()) {
         return producerSendInt(producer, value, topic, partition, timestamp);
     }
-    if (keySerializer == SER_STRING) {
+    if (keySerializerType == SER_STRING) {
         if (key is string) {
             handle keyHandle = java:fromString(key);
             return producerSendIntString(producer, value, topic, keyHandle, partition, timestamp);
         }
         panic getKeyTypeMismatchError("string");
     }
-    if (keySerializer == SER_INT) {
+    if (keySerializerType == SER_INT) {
         if (key is int) {
             return producerSendIntInt(producer, value, topic, key, partition, timestamp);
         }
         panic getKeyTypeMismatchError("int");
     }
-    if (keySerializer == SER_FLOAT) {
+    if (keySerializerType == SER_FLOAT) {
         if (key is float) {
             return producerSendIntFloat(producer, value, topic, key, partition, timestamp);
         }
         panic getKeyTypeMismatchError("float");
     }
-    if (keySerializer == SER_BYTE_ARRAY) {
+    if (keySerializerType == SER_BYTE_ARRAY) {
         if (key is byte[]) {
             return producerSendIntByteArray(producer, value, topic, key, partition, timestamp);
         }
@@ -301,30 +304,30 @@ function sendIntValues(Producer producer, int value, handle topic, Data? key, in
 }
 
 function sendFloatValues(Producer producer, float value, handle topic, Data? key, int? partition, int? timestamp,
-    string keySerializer) returns ProducerError? {
+    string keySerializerType) returns ProducerError? {
     if (key is ()) {
         return producerSendFloat(producer, value, topic, partition, timestamp);
     }
-    if (keySerializer == SER_STRING) {
+    if (keySerializerType == SER_STRING) {
         if (key is string) {
             handle keyHandle = java:fromString(key);
             return producerSendFloatString(producer, value, topic, keyHandle, partition, timestamp);
         }
         panic getKeyTypeMismatchError("string");
     }
-    if (keySerializer == SER_INT) {
+    if (keySerializerType == SER_INT) {
         if (key is int) {
             return producerSendFloatInt(producer, value, topic, key, partition, timestamp);
         }
         panic getKeyTypeMismatchError("int");
     }
-    if (keySerializer == SER_FLOAT) {
+    if (keySerializerType == SER_FLOAT) {
         if (key is float) {
             return producerSendFloatFloat(producer, value, topic, key, partition, timestamp);
         }
         panic getKeyTypeMismatchError("float");
     }
-    if (keySerializer == SER_BYTE_ARRAY) {
+    if (keySerializerType == SER_BYTE_ARRAY) {
         if (key is byte[]) {
             return producerSendFloatByteArray(producer, value, topic, key, partition, timestamp);
         }
@@ -333,30 +336,30 @@ function sendFloatValues(Producer producer, float value, handle topic, Data? key
 }
 
 function sendByteArrayValues(Producer producer, byte[] value, handle topic, Data? key, int? partition, int? timestamp,
-    string keySerializer) returns ProducerError? {
+    string keySerializerType) returns ProducerError? {
     if (key is ()) {
         return producerSendByteArray(producer, value, topic, partition, timestamp);
     }
-    if (keySerializer == SER_STRING) {
+    if (keySerializerType == SER_STRING) {
         if (key is string) {
             handle keyHandle = java:fromString(key);
             return producerSendByteArrayString(producer, value, topic, keyHandle, partition, timestamp);
         }
         panic getKeyTypeMismatchError("string");
     }
-    if (keySerializer == SER_INT) {
+    if (keySerializerType == SER_INT) {
         if (key is int) {
             return producerSendByteArrayInt(producer, value, topic, key, partition, timestamp);
         }
         panic getKeyTypeMismatchError("int");
     }
-    if (keySerializer == SER_FLOAT) {
+    if (keySerializerType == SER_FLOAT) {
         if (key is float) {
             return producerSendByteArrayFloat(producer, value, topic, key, partition, timestamp);
         }
         panic getKeyTypeMismatchError("float");
     }
-    if (keySerializer == SER_BYTE_ARRAY) {
+    if (keySerializerType == SER_BYTE_ARRAY) {
         if (key is byte[]) {
             return producerSendByteArrayByteArray(producer, value, topic, key, partition, timestamp);
         }

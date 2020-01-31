@@ -218,9 +218,9 @@ public class KafkaUtils {
                                 properties, KafkaConstants.PRODUCER_TRANSACTIONAL_ID_CONFIG);
 
         addSerializerConfigs(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, configurations,
-                             properties, KafkaConstants.PRODUCER_KEY_SERIALIZER_CONFIG);
+                             properties, KafkaConstants.PRODUCER_KEY_SERIALIZER_TYPE_CONFIG);
         addSerializerConfigs(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, configurations,
-                             properties, KafkaConstants.PRODUCER_VALUE_SERIALIZER_CONFIG);
+                             properties, KafkaConstants.PRODUCER_VALUE_SERIALIZER_TYPE_CONFIG);
 
         addIntParamIfPresent(ProducerConfig.BUFFER_MEMORY_CONFIG, configurations,
                              properties, KafkaConstants.PRODUCER_BUFFER_MEMORY_CONFIG);

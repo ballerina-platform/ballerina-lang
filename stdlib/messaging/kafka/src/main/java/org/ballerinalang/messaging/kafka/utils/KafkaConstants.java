@@ -102,8 +102,8 @@ public class KafkaConstants {
     public static final String CONSUMER_CLIENT_ID_CONFIG = "clientId";
     public static final String CONSUMER_INTERCEPTOR_CLASSES_CONFIG = "interceptorClasses";
     public static final String CONSUMER_ISOLATION_LEVEL_CONFIG = "isolationLevel";
-    public static final String CONSUMER_KEY_DESERIALIZER_CONFIG = "keyDeserializer";
-    public static final String CONSUMER_VALUE_DESERIALIZER_CONFIG = "valueDeserializer";
+    public static final String CONSUMER_KEY_DESERIALIZER_CONFIG = "keyDeserializerType";
+    public static final String CONSUMER_VALUE_DESERIALIZER_CONFIG = "valueDeserializerType";
 
     public static final String CONSUMER_SESSION_TIMEOUT_MS_CONFIG = "sessionTimeoutInMillis";
     public static final String CONSUMER_HEARTBEAT_INTERVAL_MS_CONFIG = "heartBeatIntervalInMillis";
@@ -139,8 +139,8 @@ public class KafkaConstants {
     public static final String PRODUCER_PARTITIONER_CLASS_CONFIG = "partitionerClass";
     public static final String PRODUCER_INTERCEPTOR_CLASSES_CONFIG = "interceptorClasses";
     public static final String PRODUCER_TRANSACTIONAL_ID_CONFIG = "transactionalId";
-    public static final String PRODUCER_KEY_SERIALIZER_CONFIG = "keySerializer";
-    public static final String PRODUCER_VALUE_SERIALIZER_CONFIG = "valueSerializer";
+    public static final String PRODUCER_KEY_SERIALIZER_TYPE_CONFIG = "keySerializerType";
+    public static final String PRODUCER_VALUE_SERIALIZER_TYPE_CONFIG = "valueSerializerType";
     public static final String PRODUCER_BUFFER_MEMORY_CONFIG = "bufferMemory";
     public static final String PRODUCER_RETRIES_CONFIG = "retryCount";
     public static final String PRODUCER_BATCH_SIZE_CONFIG = "batchSize";
