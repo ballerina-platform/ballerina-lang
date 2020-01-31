@@ -20,7 +20,6 @@ package org.ballerinalang.jvm.values.api;
 
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BType;
-import org.ballerinalang.jvm.values.IteratorValue;
 
 /**
  * <p>
@@ -29,20 +28,13 @@ import org.ballerinalang.jvm.values.IteratorValue;
  *
  * @since 1.1.0
  */
-public interface BStream extends BRefValue {
+public interface BStream extends BStreamIterator, BRefValue {
     /**
      * Returns the constrained {@code BType} of the stream.
      *
      * @return constrained type
      */
     BType getConstraintType();
-
-    /**
-     * Returns the internal iterator represented by this stream
-     *
-     * @return The internal iterator
-     */
-    IteratorValue getIterator();
 
     /**
      * Returns a stream which applies a filtering condition on the input stream.

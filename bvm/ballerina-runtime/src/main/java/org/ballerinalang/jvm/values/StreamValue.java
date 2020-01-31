@@ -18,13 +18,12 @@
 
 package org.ballerinalang.jvm.values;
 
-import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BStreamType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.values.api.BFunctionPointer;
 import org.ballerinalang.jvm.values.api.BStream;
+import org.ballerinalang.jvm.values.api.BStreamIterator;
 
 import java.util.Map;
 import java.util.UUID;
@@ -43,7 +42,7 @@ public class StreamValue implements RefValue, BStream {
 
     private BType type;
     private BType constraintType;
-    private IteratorValue iterator;
+    private BStreamIterator iterator;
     public FunctionPointerWrapper<Boolean, Object> filter;
     public FunctionPointerWrapper<Object, Object> mapper;
 
@@ -63,7 +62,7 @@ public class StreamValue implements RefValue, BStream {
         this.mapper = new NoMapFunctionPointerWrapper();
     }
 
-    public StreamValue(BType type, IteratorValue iterator, BFunctionPointer<Object, Boolean> filterFunc,
+    public StreamValue(BType type, BStreamIterator iterator, BFunctionPointer<Object, Boolean> filterFunc,
                        BFunctionPointer<Object, Object> mapFunc) {
         this.constraintType = ((BStreamType) type).getConstrainedType();
         this.type = new BStreamType(constraintType);
@@ -83,37 +82,10 @@ public class StreamValue implements RefValue, BStream {
         }
     }
 
-    public StreamValue(BStream stream, BFunctionPointer<Object, Boolean> filterFunc,
+    public StreamValue(BStream sourceStream, BFunctionPointer<Object, Boolean> filterFunc,
                        BFunctionPointer<Object, Object> mapFunc) {
-        this.constraintType = ((BStreamType) stream.getType()).getConstrainedType();
-        this.type = new BStreamType(constraintType);
-        this.streamId = UUID.randomUUID().toString();
-        this.iterator = consumeAndGet(Scheduler.getStrand(), stream);
-
-        if (filterFunc != null) {
-            this.filter = new FilterFunctionPointerWrapper(filterFunc);
-        } else {
-            this.filter = new NoFilterFunctionPointerWrapper();
-        }
-
-        if (mapFunc != null) {
-            this.mapper = new MapFunctionPointerWrapper(mapFunc);
-        } else {
-            this.mapper = new NoMapFunctionPointerWrapper();
-        }
+        this(sourceStream.getType(), sourceStream, filterFunc, mapFunc);
     }
-
-    // TODO: this is just a workaround
-    public IteratorValue consumeAndGet(Strand strand, BStream stream) {
-        ArrayValueImpl elems = new ArrayValueImpl(new BArrayType(constraintType));
-        Object elem = stream.next(strand);
-        while (elem != null) {
-            elems.append(elem);
-            elem = stream.next(strand);
-        }
-        return new AbstractArrayValue.ArrayIterator(elems);
-    }
-
 
     public String getStreamId() {
         return streamId;
@@ -161,20 +133,13 @@ public class StreamValue implements RefValue, BStream {
     public Object next(Strand strand) {
         Object next;
         do {
-            next = iterator.next();
-
+            next = iterator.next(strand);
             if (next == null) {
                 return null;
             }
         } while (!filter.execute(strand, next));
 
         return mapper.execute(strand, next);
-    }
-
-
-    @Override
-    public IteratorValue getIterator() {
-        return iterator;
     }
 
     @Override
