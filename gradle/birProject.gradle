@@ -164,7 +164,7 @@ def getJarCreationCommand(it, generatedBirDir, mapPath, jarsToBeLoaded) {
         def classPath = fileTree(new File(it, '/bre/lib/')).filter{ it.isFile() }.files.path.join(':')
         commands = [ 'java', '-cp', classPath];
     }
-    if(project.name == 'string') {
+    if(project.name == 'string' || project.name=="error") {
         commands.add('-Dballerina.bstring=true')
     }
     commands.addAll(getCompilerBackendArgs(it, generatedBirDir, mapPath))

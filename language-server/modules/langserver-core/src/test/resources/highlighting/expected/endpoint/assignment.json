@@ -1,0 +1,19 @@
+{
+  "source": {
+    "file": "assignment.bal"
+  },
+  "result": [
+    {
+      "line":3,
+      "token":"WzE2LCA4LCAwXQ=="
+    },
+    {
+      "line": 4,
+      "token": "WzE2LCA5LCAwXQ=="
+    },
+    {
+      "line": 6,
+      "token": "WzQsIDksIDAsIDE2LCA4LCAwXQ=="
+    }
+  ]
+}

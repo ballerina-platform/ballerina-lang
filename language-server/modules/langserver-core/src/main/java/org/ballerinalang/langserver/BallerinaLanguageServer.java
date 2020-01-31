@@ -33,10 +33,9 @@ import org.ballerinalang.langserver.extensions.ballerina.fragment.BallerinaFragm
 import org.ballerinalang.langserver.extensions.ballerina.fragment.BallerinaFragmentServiceImpl;
 import org.ballerinalang.langserver.extensions.ballerina.project.BallerinaProjectService;
 import org.ballerinalang.langserver.extensions.ballerina.project.BallerinaProjectServiceImpl;
+import org.ballerinalang.langserver.extensions.ballerina.semantichighlighter.ScopeEnum;
 import org.ballerinalang.langserver.extensions.ballerina.symbol.BallerinaSymbolService;
 import org.ballerinalang.langserver.extensions.ballerina.symbol.BallerinaSymbolServiceImpl;
-import org.ballerinalang.langserver.extensions.ballerina.syntaxhighlighter.BallerinaSyntaxHighlightService;
-import org.ballerinalang.langserver.extensions.ballerina.syntaxhighlighter.BallerinaSyntaxHighlightServiceImpl;
 import org.ballerinalang.langserver.extensions.ballerina.traces.BallerinaTraceService;
 import org.ballerinalang.langserver.extensions.ballerina.traces.BallerinaTraceServiceImpl;
 import org.ballerinalang.langserver.extensions.ballerina.traces.Listener;
@@ -55,10 +54,14 @@ import org.eclipse.lsp4j.services.WorkspaceService;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
-import static org.ballerinalang.langserver.BallerinaWorkspaceService.Experimental.INTROSPECTION;
+import static org.ballerinalang.langserver.Experimental.API_EDITOR_PROVIDER;
+import static org.ballerinalang.langserver.Experimental.AST_PROVIDER;
+import static org.ballerinalang.langserver.Experimental.EXAMPLES_PROVIDER;
+import static org.ballerinalang.langserver.Experimental.INTROSPECTION;
+import static org.ballerinalang.langserver.Experimental.SEMANTIC_SCOPES;
+import static org.ballerinalang.langserver.Experimental.SEMANTIC_SYNTAX_HIGHLIGHTER;
 
 /**
  * Language server implementation for Ballerina.
@@ -74,7 +77,6 @@ public class BallerinaLanguageServer implements ExtendedLanguageServer, Extended
     private Listener ballerinaTraceListener;
     private BallerinaSymbolService ballerinaSymbolService;
     private BallerinaFragmentService ballerinaFragmentService;
-    private BallerinaSyntaxHighlightService ballerinaSyntaxHighlightService;
     private int shutdown = 1;
 
     public BallerinaLanguageServer() {
@@ -96,7 +98,6 @@ public class BallerinaLanguageServer implements ExtendedLanguageServer, Extended
         this.ballerinaTraceListener = new Listener(this.ballerinaTraceService);
         this.ballerinaSymbolService = new BallerinaSymbolServiceImpl();
         this.ballerinaFragmentService = new BallerinaFragmentServiceImpl();
-        this.ballerinaSyntaxHighlightService = new BallerinaSyntaxHighlightServiceImpl();
 
         LSAnnotationCache.initiate();
     }
@@ -131,7 +132,7 @@ public class BallerinaLanguageServer implements ExtendedLanguageServer, Extended
         TextDocumentClientCapabilities textDocCapabilities = params.getCapabilities().getTextDocument();
         ((BallerinaTextDocumentService) this.textService).setClientCapabilities(textDocCapabilities);
 
-        Map<String, Boolean> experimentalClientCapabilities = null;
+        HashMap experimentalClientCapabilities = null;
         if (params.getCapabilities().getExperimental() != null) {
             experimentalClientCapabilities =
                     new Gson().fromJson(params.getCapabilities().getExperimental().toString(), HashMap.class);
@@ -142,12 +143,19 @@ public class BallerinaLanguageServer implements ExtendedLanguageServer, Extended
 
         // Set AST provider and examples provider capabilities
         HashMap<String, Object> experimentalServerCapabilities = new HashMap<>();
-        experimentalServerCapabilities.put("astProvider", true);
-        experimentalServerCapabilities.put("examplesProvider", true);
-        experimentalServerCapabilities.put("apiEditorProvider", true);
-        if (experimentalClientCapabilities != null && experimentalClientCapabilities.get(INTROSPECTION.getValue())) {
+        experimentalServerCapabilities.put(AST_PROVIDER.getValue(), true);
+        experimentalServerCapabilities.put(EXAMPLES_PROVIDER.getValue(), true);
+        experimentalServerCapabilities.put(API_EDITOR_PROVIDER.getValue(), true);
+        if (experimentalClientCapabilities != null &&
+                experimentalClientCapabilities.get(INTROSPECTION.getValue()) != null) {
             int port = ballerinaTraceListener.startListener();
-            experimentalServerCapabilities.put("introspection", new ProviderOptions(port));
+            experimentalServerCapabilities.put(INTROSPECTION.getValue(), new ProviderOptions(port));
+        }
+        if (experimentalClientCapabilities != null &&
+                experimentalClientCapabilities.get(SEMANTIC_SYNTAX_HIGHLIGHTER.getValue()) != null) {
+            experimentalServerCapabilities.put(SEMANTIC_SYNTAX_HIGHLIGHTER.getValue(), true);
+            String[][] scopes = getScopes();
+            experimentalServerCapabilities.put(SEMANTIC_SCOPES.getValue(), scopes);
         }
         res.getCapabilities().setExperimental(experimentalServerCapabilities);
 
@@ -191,11 +199,6 @@ public class BallerinaLanguageServer implements ExtendedLanguageServer, Extended
     }
 
     @Override
-    public  BallerinaSyntaxHighlightService getBallerinaSyntaxHighlightService() {
-        return this.ballerinaSyntaxHighlightService;
-    }
-
-    @Override
     public void connect(ExtendedLanguageClient languageClient) {
         this.client = languageClient;
         LSClientLogger.init(this.client, CommonUtil.LS_DEBUG_ENABLED, CommonUtil.LS_TRACE_ENABLED);
@@ -208,5 +211,13 @@ public class BallerinaLanguageServer implements ExtendedLanguageServer, Extended
     @Override
     public BallerinaFragmentService getBallerinaFragmentService() {
         return ballerinaFragmentService;
+    }
+    // Private Methods
+
+    private String[][] getScopes() {
+        String[][] scopes = new String[2][1];
+        scopes[0][0] = ScopeEnum.ENDPOINT.getScopeName();
+        scopes[1][0] = ScopeEnum.UNUSED.getScopeName();
+        return scopes;
     }
 }

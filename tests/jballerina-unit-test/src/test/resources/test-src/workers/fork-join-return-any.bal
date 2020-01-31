@@ -6,11 +6,13 @@ function testForkReturnAnyType() returns [int, string]|error {
     float t;
 
     fork {
+        @strand{thread:"any"}
         worker W1 returns [int, string] {
             int x = 23;
             string a = "aaaaa";
             return [x, a];
         }
+        @strand{thread:"any"}
         worker W2 returns [string, float] {
             string s = "test";
             float u = 10.23;

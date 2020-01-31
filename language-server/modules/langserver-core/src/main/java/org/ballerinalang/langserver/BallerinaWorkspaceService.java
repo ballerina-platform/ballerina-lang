@@ -182,26 +182,4 @@ public class BallerinaWorkspaceService implements WorkspaceService {
     public Map<String, Boolean> getExperimentalClientCapabilities() {
         return this.experimentalClientCapabilities;
     }
-
-    /**
-     * Experimental capabilities.
-     */
-    public enum Experimental {
-        INTROSPECTION("introspection"), SHOW_TEXT_DOCUMENT("showTextDocument");
-
-        private final String value;
-
-        Experimental(String value) {
-            this.value = value;
-        }
-
-        /**
-         * Returns value.
-         *
-         * @return value
-         */
-        public String getValue() {
-            return value;
-        }
-    }
 }
