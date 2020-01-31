@@ -57,8 +57,11 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
+import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
 import org.wso2.ballerinalang.compiler.tree.BLangErrorVariable;
+import org.wso2.ballerinalang.compiler.tree.BLangExprFunctionBody;
+import org.wso2.ballerinalang.compiler.tree.BLangExternFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangInvokableNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
@@ -316,14 +319,15 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
         // Check for native functions
         if (Symbols.isNative(funcNode.symbol) || funcNode.interfaceFunction) {
-            if (funcNode.body != null) {
+            // TODO: double check this. Only applies for interfaces now IINM.
+            if (funcNode.funcBody != null) {
                 dlog.error(funcNode.pos, DiagnosticCode.EXTERN_FUNCTION_CANNOT_HAVE_BODY, funcNode.name);
             }
             return;
         }
 
-        if (funcNode.body != null) {
-            analyzeStmt(funcNode.body, funcEnv);
+        if (funcNode.funcBody != null) {
+            analyzeNode(funcNode.funcBody, funcEnv);
         }
 
         if (funcNode.anonForkName != null) {
@@ -335,10 +339,33 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     private void processWorkers(BLangInvokableNode invNode, SymbolEnv invEnv) {
         if (invNode.workers.size() > 0) {
-            invEnv.scope.entries.putAll(invNode.body.scope.entries);
-            invNode.workers.forEach(e -> this.symbolEnter.defineNode(e, invEnv));
-            invNode.workers.forEach(e -> analyzeNode(e, invEnv));
+            invEnv.scope.entries.putAll(invNode.funcBody.scope.entries);
+            for (BLangWorker worker : invNode.workers) {
+                this.symbolEnter.defineNode(worker, invEnv);
+            }
+            for (BLangWorker e : invNode.workers) {
+                analyzeNode(e, invEnv);
+            }
         }
+    }
+
+    @Override
+    public void visit(BLangBlockFunctionBody body) {
+        env = SymbolEnv.createFuncBodyEnv(body, env);
+        for (BLangStatement stmt : body.stmts) {
+            analyzeStmt(stmt, env);
+        }
+    }
+
+    @Override
+    public void visit(BLangExprFunctionBody body) {
+        env = SymbolEnv.createFuncBodyEnv(body, env);
+        typeChecker.checkExpr(body.expr, env);
+    }
+
+    @Override
+    public void visit(BLangExternFunctionBody body) {
+        // do nothing
     }
 
     @Override
@@ -2425,7 +2452,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangWorker workerNode) {
         SymbolEnv workerEnv = SymbolEnv.createWorkerEnv(workerNode, this.env);
-        this.analyzeNode(workerNode.body, workerEnv);
+        this.analyzeNode(workerNode.funcBody, workerEnv);
     }
 
     @Override
@@ -2822,7 +2849,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
         // If the function is attached to an abstract object, it don't need to have an implementation.
         if (Symbols.isFlagOn(funcNode.receiver.type.tsymbol.flags, Flags.ABSTRACT)) {
-            if (funcNode.body != null) {
+            if (funcNode.funcBody != null) {
                 dlog.error(funcNode.pos, DiagnosticCode.ABSTRACT_OBJECT_FUNCTION_CANNOT_HAVE_BODY, funcNode.name,
                         funcNode.receiver.type);
             }

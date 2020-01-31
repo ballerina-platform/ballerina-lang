@@ -34,9 +34,12 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
+import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
 import org.wso2.ballerinalang.compiler.tree.BLangErrorVariable;
+import org.wso2.ballerinalang.compiler.tree.BLangExprFunctionBody;
+import org.wso2.ballerinalang.compiler.tree.BLangExternFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
@@ -134,6 +137,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRetry;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangThrow;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTryCatchFinally;
@@ -261,8 +265,27 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         funcNode.annAttachments.forEach(bLangAnnotationAttachment -> analyzeNode(bLangAnnotationAttachment.expr, env));
         funcNode.requiredParams.forEach(param -> analyzeNode(param, funcEnv));
         analyzeNode(funcNode.restParam, funcEnv);
-        analyzeBranch(funcNode.body, funcEnv);
+        analyzeBranch(funcNode.funcBody, funcEnv);
         this.currDependentSymbol.pop();
+    }
+
+    @Override
+    public void visit(BLangBlockFunctionBody body) {
+        SymbolEnv bodyEnv = SymbolEnv.createFuncBodyEnv(body, env);
+        for (BLangStatement statement : body.stmts) {
+            analyzeNode(statement, bodyEnv);
+        }
+    }
+
+    @Override
+    public void visit(BLangExprFunctionBody body) {
+        SymbolEnv bodyEnv = SymbolEnv.createFuncBodyEnv(body, env);
+        analyzeNode(body.expr, bodyEnv);
+    }
+
+    @Override
+    public void visit(BLangExternFunctionBody body) {
+        // do nothing
     }
 
     @Override
@@ -344,7 +367,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangWorker worker) {
         SymbolEnv workerEnv = SymbolEnv.createWorkerEnv(worker, this.env);
-        analyzeBranch(worker.body, workerEnv);
+        analyzeBranch(worker.funcBody, workerEnv);
     }
 
     @Override
@@ -794,7 +817,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         this.uninitializedVars = copyUninitializedVars();
         this.flowTerminated = false;
 
-        analyzeNode(funcNode.body, funcEnv);
+        analyzeNode(funcNode.funcBody, funcEnv);
 
         // Restore the original set of uninitialized vars
         this.uninitializedVars = prevUninitializedVars;
@@ -962,7 +985,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
         // Visit the constructor with the same scope as the object
         if (objectTypeNode.initFunction != null) {
-            if (objectTypeNode.initFunction.body == null) {
+            if (objectTypeNode.initFunction.funcBody == null) {
                 // if the __init() function is defined as an outside function definition
                 Optional<BLangFunction> outerFuncDef =
                         objectEnv.enclPkg.functions.stream()
@@ -971,8 +994,15 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
                 outerFuncDef.ifPresent(bLangFunction -> objectTypeNode.initFunction = bLangFunction);
             }
 
-            if (objectTypeNode.initFunction.body != null) {
-                objectTypeNode.initFunction.body.stmts.forEach(statement -> analyzeNode(statement, objectEnv));
+            if (objectTypeNode.initFunction.funcBody != null) {
+                if (objectTypeNode.initFunction.funcBody.getKind() == NodeKind.BLOCK_FUNCTION_BODY) {
+                    for (BLangStatement statement :
+                            ((BLangBlockFunctionBody) objectTypeNode.initFunction.funcBody).stmts) {
+                        analyzeNode(statement, objectEnv);
+                    }
+                } else if (objectTypeNode.initFunction.funcBody.getKind() == NodeKind.EXPR_FUNCTION_BODY) {
+                    analyzeNode(((BLangExprFunctionBody)objectTypeNode.initFunction.funcBody).expr, objectEnv);
+                }
             }
         }
 

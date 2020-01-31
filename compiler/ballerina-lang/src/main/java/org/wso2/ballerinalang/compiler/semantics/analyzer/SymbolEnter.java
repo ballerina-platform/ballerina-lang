@@ -830,7 +830,9 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
 
         BInvokableSymbol funcSymbol = Symbols.createFunctionSymbol(Flags.asMask(funcNode.flagSet),
-                getFuncSymbolName(funcNode), env.enclPkg.symbol.pkgID, null, env.scope.owner, funcNode.body != null);
+                                                                   getFuncSymbolName(funcNode),
+                                                                   env.enclPkg.symbol.pkgID, null, env.scope.owner,
+                                                                   funcNode.hasBody());
         funcSymbol.markdownDocumentation = getMarkdownDocAttachment(funcNode.markdownDocumentationAttachment);
         SymbolEnv invokableEnv = SymbolEnv.createFunctionEnv(funcNode, funcSymbol.scope, env);
         defineInvokableSymbol(funcNode, funcSymbol, invokableEnv);

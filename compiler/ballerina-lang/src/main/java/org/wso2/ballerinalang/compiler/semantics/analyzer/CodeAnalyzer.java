@@ -49,9 +49,12 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
+import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
 import org.wso2.ballerinalang.compiler.tree.BLangErrorVariable;
+import org.wso2.ballerinalang.compiler.tree.BLangExprFunctionBody;
+import org.wso2.ballerinalang.compiler.tree.BLangExternFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
@@ -379,8 +382,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             analyzeNode(funcNode.returnTypeNode, invokableEnv);
         }
         /* the body can be null in the case of Object type function declarations */
-        if (funcNode.body != null) {
-            analyzeNode(funcNode.body, invokableEnv);
+        if (funcNode.funcBody != null) {
+            analyzeNode(funcNode.funcBody, invokableEnv);
 
             boolean isNilableReturn = funcNode.symbol.type.getReturnType().isNullable();
             // If the return signature is nil-able, an implicit return will be added in Desugar.
@@ -398,6 +401,26 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     private boolean isPublicInvokableNode(BLangInvokableNode invNode) {
         return Symbols.isPublic(invNode.symbol) && (SymbolKind.PACKAGE.equals(invNode.symbol.owner.getKind()) ||
                 Symbols.isPublic(invNode.symbol.owner));
+    }
+
+    @Override
+    public void visit(BLangBlockFunctionBody body) {
+        final SymbolEnv blockEnv = SymbolEnv.createFuncBodyEnv(body, env);
+        for (BLangStatement e : body.stmts) {
+            analyzeNode(e, blockEnv);
+        }
+        this.resetLastStatement();
+    }
+
+    @Override
+    public void visit(BLangExprFunctionBody body) {
+        analyzeExpr(body.expr);
+        this.resetLastStatement();
+    }
+
+    @Override
+    public void visit(BLangExternFunctionBody body) {
+        // do nothing
     }
 
     @Override
@@ -1566,7 +1589,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     private boolean isTopLevel() {
         SymbolEnv env = this.env;
-        return env.enclInvokable.body == env.node;
+        return env.enclInvokable.funcBody == env.node;
     }
 
     private boolean isInWorker() {
