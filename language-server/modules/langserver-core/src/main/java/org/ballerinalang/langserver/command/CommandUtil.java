@@ -945,6 +945,9 @@ public class CommandUtil {
     private static Position offsetInvocation(String diagnosedContent, Position position) {
         // Diagnosed message only contains the erroneous part of the line
         // Thus we offset into last
+        int leftParenthesisIndex = diagnosedContent.indexOf("(");
+        diagnosedContent = (leftParenthesisIndex == -1) ? diagnosedContent
+                : diagnosedContent.substring(0, leftParenthesisIndex);
         String quotesRemoved = diagnosedContent
                 .replaceAll(".*:", "") // package invocation
                 .replaceAll(".*->", "") // action invocation
