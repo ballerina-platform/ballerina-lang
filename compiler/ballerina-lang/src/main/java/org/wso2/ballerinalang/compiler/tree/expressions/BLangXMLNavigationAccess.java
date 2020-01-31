@@ -33,7 +33,7 @@ public class BLangXMLNavigationAccess extends BLangAccessExpression implements X
 
     public final NavAccessType navAccessType;
     public final List<BLangXMLElementFilter> filters;
-    public final BLangExpression childIndex;
+    public BLangExpression childIndex;
 
     public BLangXMLNavigationAccess(DiagnosticPos pos, Set<Whitespace> ws, BLangExpression expr,
                                     List<BLangXMLElementFilter> filters,

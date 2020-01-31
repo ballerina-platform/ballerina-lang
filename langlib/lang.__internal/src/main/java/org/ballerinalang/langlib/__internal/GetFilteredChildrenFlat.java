@@ -1,5 +1,5 @@
 /*
- *   Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *   Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  WSO2 Inc. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -15,9 +15,10 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.langlib.xml;
+package org.ballerinalang.langlib.__internal;
 
 import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.XMLValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
@@ -25,20 +26,24 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
- * Test xml to be single xml element.
+ * Return elements matching at least one of `elemNames`
  *
- * @since 1.0
+ * @since 1.2.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.xml",
-        functionName = "isElement",
-        args = {@Argument(name = "xmlValue", type = TypeKind.XML)},
-        returnType = {@ReturnType(type = TypeKind.BOOLEAN)},
+        orgName = "ballerina", packageName = "lang.__internal",
+        functionName = "getFilteredChildrenFlat",
+        args = {@Argument(name = "xmlValue", type = TypeKind.XML),
+                @Argument(name = "index", type = TypeKind.INT),
+                @Argument(name= "elemNames", type = TypeKind.ARRAY)},
+        returnType = {@ReturnType(type = TypeKind.XML)},
         isPublic = true
 )
-public class IsElement {
+public class GetFilteredChildrenFlat {
 
-    public static boolean isElement(Strand strand, XMLValue xmlValue) {
-        return org.ballerinalang.langlib.__internal.IsElement.isElement(xmlValue);
+
+    public static String getName(Strand strand, XMLValue xmlVal, int index, ArrayValue elemNames) {
+
+        return null;
     }
 }

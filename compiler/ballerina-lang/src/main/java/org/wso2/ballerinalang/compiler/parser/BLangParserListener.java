@@ -983,12 +983,19 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         DiagnosticPos nsPos = null;
         DiagnosticPos elemNamePos = null;
         if (identifier.size() == 1) {
+            // <foo>
             if (ctx.MUL() == null) {
                 TerminalNode nameNode = identifier.get(0);
                 elementName = nameNode.getText();
                 elemNamePos = getCurrentPos(nameNode);
+            } else {
+                // <ns:*>
+                elemNamePos = getCurrentPos(ctx.MUL());
+                ns = ctx.Identifier(0).getText();
+                nsPos = getCurrentPos(ctx.Identifier(0));
             }
-        } else {
+        } else if (identifier.size() > 1) {
+            // <ns:foo>
             TerminalNode nsNode = identifier.get(0);
             ns = nsNode.getText();
             nsPos = getCurrentPos(nsNode);
@@ -996,6 +1003,9 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             TerminalNode nameNode = identifier.get(1);
             elementName = nameNode.getText();
             elemNamePos = getCurrentPos(nameNode);
+        } else {
+            // <*>
+            elemNamePos = getCurrentPos(ctx.MUL());
         }
         this.pkgBuilder.addXMLElementAccessFilter(getCurrentPos(ctx), getWS(ctx), ns, nsPos, elementName, elemNamePos);
     }

@@ -128,7 +128,7 @@ public abstract class XMLNonElementItem extends XMLValue {
 
     @Override
     public BXML descendants(String qname) {
-        return null;
+        return new XMLSequence();
     }
 
     @Override

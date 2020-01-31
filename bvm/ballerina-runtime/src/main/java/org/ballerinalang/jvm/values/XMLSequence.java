@@ -375,11 +375,9 @@ public final class XMLSequence extends XMLValue {
         List<BXML> descendants = new ArrayList<>();
         for (BXML x : children) {
             XMLItem element = (XMLItem) x;
-        if (element.getQName().toString().equals(getQname(qname).toString())) {
+            if (element.getQName().toString().equals(getQname(qname).toString())) {
                 descendants.add(element);
-                continue;
-            }
-            if (element.getNodeType() == XMLNodeType.ELEMENT) {
+            } else if (element.getNodeType() == XMLNodeType.ELEMENT) {
                 addDescendants(descendants, element, getQname(qname).toString());
             }
         }

@@ -277,6 +277,7 @@ public class TypeChecker extends BLangNodeVisitor {
     @Override
     public void visit(BLangXMLElementAccess xmlElementAccess) {
         // check for undeclared namespaces.
+        // todo: xmlelem._ is xmlElementName; so should be a string
         checkXMLNamespacePrefixes(xmlElementAccess.filters);
         resultType = checkExpr(xmlElementAccess.expr, env, expType);
         // todo: we may need to add some logic to constrain result type to xml @namedSubType type.

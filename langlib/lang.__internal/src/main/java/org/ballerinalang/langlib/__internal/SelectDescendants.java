@@ -15,8 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  **/
-
-package org.ballerinalang.langlib.xml;
+package org.ballerinalang.langlib.__internal;
 
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
@@ -34,7 +33,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
  * @since 0.92
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.xml",
+        orgName = "ballerina", packageName = "lang.__internal",
         functionName = "selectDescendants",
         args = {@Argument(name = "qname", type = TypeKind.ARRAY)},
         returnType = {@ReturnType(type = TypeKind.XML)},

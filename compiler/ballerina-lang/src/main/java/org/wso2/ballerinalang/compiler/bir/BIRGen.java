@@ -2325,6 +2325,7 @@ public class BIRGen extends BLangNodeVisitor {
         return qnameVarRef;
     }
 
+    // todo: remove/move this, we no longer support xml access like this
     private void generateXMLAccess(BLangXMLAccessExpr xmlAccessExpr, BIROperand tempVarRef,
                                    BIROperand varRefRegIndex, BIROperand keyRegIndex) {
         this.env.targetOperand = tempVarRef;

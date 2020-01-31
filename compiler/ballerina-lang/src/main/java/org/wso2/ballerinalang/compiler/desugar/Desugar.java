@@ -164,7 +164,10 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerSyncSendExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttribute;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttributeAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLCommentLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementAccess;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementFilter;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLNavigationAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLProcInsLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQName;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQuotedString;
@@ -4131,6 +4134,68 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangXMLElementAccess xmlElementAccess) {
+        //todo: _ = short hand for getElementName;
+        // todo: we need to handle multiple elements x.<a|b|c>
+        xmlElementAccess.expr = rewriteExpr(xmlElementAccess.expr);
+
+        ArrayList<BLangExpression> args = new ArrayList<>();
+        for (BLangXMLElementFilter filter : xmlElementAccess.filters) {
+            BSymbol nsSymbol = symResolver.lookupSymbol(env, names.fromString(filter.namespace), SymTag.XMLNS);
+            if (nsSymbol == symTable.notFoundSymbol) {
+                args.add(createStringLiteral(filter.elemNamePos, filter.name));
+            } else {
+                BXMLNSSymbol bxmlnsSymbol = (BXMLNSSymbol) nsSymbol;
+                String expandedName = "{" + bxmlnsSymbol.namespaceURI + "}" + filter.name;
+                BLangLiteral stringLiteral = createStringLiteral(filter.elemNamePos, expandedName);
+                args.add(stringLiteral);
+            }
+        }
+
+        BLangInvocation invocationNode = createLanglibXMLInvocation(xmlElementAccess.pos, "getElements",
+                xmlElementAccess.expr, new ArrayList<>(), args);
+        result = rewriteExpr(invocationNode);
+    }
+
+    private BLangInvocation createLanglibXMLInvocation(DiagnosticPos pos, String functionName,
+                                                       BLangExpression invokeOnExpr,
+                                                       ArrayList<BLangExpression> args,
+                                                       ArrayList<BLangExpression> restArgs) {
+        invokeOnExpr = rewriteExpr(invokeOnExpr);
+
+        BLangInvocation invocationNode = (BLangInvocation) TreeBuilder.createInvocationNode();
+        invocationNode.pos = pos;
+        BLangIdentifier name = (BLangIdentifier) TreeBuilder.createIdentifierNode();
+        name.setLiteral(false);
+        name.setValue(functionName);
+        name.pos = pos;
+        invocationNode.name = name;
+        invocationNode.pkgAlias = (BLangIdentifier) TreeBuilder.createIdentifierNode();
+
+        invocationNode.expr = invokeOnExpr;
+
+        invocationNode.symbol = symResolver.lookupLangLibMethod(symTable.xmlType, names.fromString(functionName));
+
+        ArrayList<BLangExpression> requiredArgs = new ArrayList<>();
+        requiredArgs.add(invokeOnExpr);
+        requiredArgs.addAll(args);
+        invocationNode.requiredArgs = requiredArgs;
+        invocationNode.restArgs = rewriteExprs(restArgs);
+
+        invocationNode.type = ((BInvokableType) invocationNode.symbol.type).getReturnType();
+        invocationNode.langLibInvocation = true;
+        return invocationNode;
+    }
+
+    @Override
+    public void visit(BLangXMLNavigationAccess xmlNavigation) {
+        xmlNavigation.expr = rewriteExpr(xmlNavigation.expr);
+        xmlNavigation.childIndex = rewriteExpr(xmlNavigation.childIndex);
+
+        result = xmlNavigation;
+    }
+
+    @Override
     public void visit(BLangIsAssignableExpr assignableExpr) {
         assignableExpr.lhsExpr = rewriteExpr(assignableExpr.lhsExpr);
         result = assignableExpr;
@@ -4624,11 +4689,16 @@ public class Desugar extends BLangNodeVisitor {
         invocationNode.pkgAlias = (BLangIdentifier) TreeBuilder.createIdentifierNode();
 
         invocationNode.expr = onExpr;
+
+
+
         invocationNode.symbol = symResolver.lookupLangLibMethod(onExpr.type, names.fromString(functionName));
+
         ArrayList<BLangExpression> requiredArgs = new ArrayList<>();
         requiredArgs.add(onExpr);
         requiredArgs.addAll(args);
         invocationNode.requiredArgs = requiredArgs;
+
         invocationNode.type = retType != null ? retType : ((BInvokableSymbol) invocationNode.symbol).retType;
         invocationNode.langLibInvocation = true;
         return invocationNode;

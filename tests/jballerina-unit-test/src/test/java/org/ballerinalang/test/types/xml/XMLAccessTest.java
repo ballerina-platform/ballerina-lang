@@ -46,9 +46,57 @@ public class XMLAccessTest {
     }
 
     @Test
+    public void testXMLElementAccessOnSingleElementXML() {
+        BValue[] returns = BRunUtil.invoke(result, "testXMLElementAccessOnSingleElementXML");
+        Assert.assertEquals(returns[0].stringValue(), "<ns:root xmlns:ns=\"foo\" xmlns:k=\"bar\"></ns:root>");
+        Assert.assertEquals(returns[1].stringValue(), "<ns:root xmlns:ns=\"foo\" xmlns:k=\"bar\"></ns:root>");
+        Assert.assertEquals(returns[2].stringValue(), "<ns:root xmlns:ns=\"foo\" xmlns:k=\"bar\"></ns:root>");
+        Assert.assertEquals(returns[3].stringValue(), "");
+        Assert.assertEquals(returns[4].stringValue(), "");
+        Assert.assertEquals(returns[5].stringValue(), "");
+    }
+
+    @Test
+    public void testXMLElementAccessOnXMLSequence() {
+        BValue[] returns = BRunUtil.invoke(result, "testXMLElementAccessOnXMLSequence");
+        Assert.assertEquals(returns[0].stringValue(),
+                "<ns:root xmlns:ns=\"foo\" xmlns:k=\"bar\"></ns:root>" +
+                        "<k:root xmlns:k=\"bar\" xmlns:ns=\"foo\"></k:root>" +
+                        "<k:item xmlns:k=\"bar\" xmlns:ns=\"foo\"></k:item>");
+        Assert.assertEquals(returns[1].stringValue(), "<ns:root xmlns:ns=\"foo\" xmlns:k=\"bar\"></ns:root>");
+        Assert.assertEquals(returns[2].stringValue(), "<ns:root xmlns:ns=\"foo\" xmlns:k=\"bar\"></ns:root>");
+        Assert.assertEquals(returns[3].stringValue(), "");
+        Assert.assertEquals(returns[4].stringValue(), "");
+        Assert.assertEquals(returns[5].stringValue(),
+                "<k:root xmlns:k=\"bar\" xmlns:ns=\"foo\"></k:root>" +
+                "<k:item xmlns:k=\"bar\" xmlns:ns=\"foo\"></k:item>");
+    }
+
+    @Test
+    public void testXMLElementAccessMultipleFilters() {
+        BValue[] returns = BRunUtil.invoke(result, "testXMLElementAccessMultipleFilters");
+        Assert.assertEquals(returns[0].stringValue(),
+                "<ns:root xmlns:ns=\"foo\" xmlns:k=\"bar\"></ns:root>" +
+                        "<k:root xmlns:k=\"bar\" xmlns:ns=\"foo\"></k:root>" +
+                        "<k:item xmlns:k=\"bar\" xmlns:ns=\"foo\"></k:item>");
+
+        Assert.assertEquals(returns[1].stringValue(),
+                "<ns:root xmlns:ns=\"foo\" xmlns:k=\"bar\"></ns:root>" +
+                        "<k:root xmlns:k=\"bar\" xmlns:ns=\"foo\"></k:root>" +
+                        "<k:item xmlns:k=\"bar\" xmlns:ns=\"foo\"></k:item>");
+
+        Assert.assertEquals(returns[2].stringValue(),
+                "<ns:root xmlns:ns=\"foo\" xmlns:k=\"bar\"></ns:root>" +
+                        "<k:root xmlns:k=\"bar\" xmlns:ns=\"foo\"></k:root>");
+
+        Assert.assertEquals(returns[3].stringValue(),
+                "<k:item xmlns:k=\"bar\" xmlns:ns=\"foo\"></k:item>");
+    }
+
+    @Test
     public void testInvalidXMLAccessWithIndex() {
         BAssertUtil.validateError(negativeResult, 0, "cannot update an xml sequence", 5, 5);
-        
+
         BAssertUtil.validateError(negativeResult, 1, "cannot update an xml sequence", 13, 5);
     }
 
