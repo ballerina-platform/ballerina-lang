@@ -15,6 +15,7 @@
  */
 package org.ballerinalang.langserver.compiler.workspace;
 
+import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
 import org.eclipse.lsp4j.CodeLens;
 
 import java.io.IOException;

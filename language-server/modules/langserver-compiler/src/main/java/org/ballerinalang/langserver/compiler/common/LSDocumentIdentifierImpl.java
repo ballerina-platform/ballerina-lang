@@ -15,6 +15,7 @@
  */
 package org.ballerinalang.langserver.compiler.common;
 
+import org.ballerinalang.langserver.commons.workspace.LSDocumentIdentifier;
 import org.ballerinalang.langserver.compiler.LSCompilerUtil;
 
 import java.io.File;
@@ -35,7 +36,7 @@ import java.util.stream.Collectors;
 /**
  * Document class to hold the file path used in the LS.
  */
-public class LSDocument {
+public class LSDocumentIdentifierImpl implements LSDocumentIdentifier {
     private Path path;
     private String uri;
     private String projectRoot;
@@ -44,7 +45,7 @@ public class LSDocument {
     private String ownerModule = "";
     private Path ownerModulePath = null;
 
-    public LSDocument(String uri) {
+    public LSDocumentIdentifierImpl(String uri) {
         try {
             this.uri = uri;
             this.path = Paths.get(new URL(uri).toURI());
@@ -68,7 +69,7 @@ public class LSDocument {
         }
     }
 
-    public LSDocument(Path path, String projectRoot) {
+    public LSDocumentIdentifierImpl(Path path, String projectRoot) {
         this.uri = path.toUri().toString();
         this.projectRoot = projectRoot;
         this.path = path;
@@ -80,6 +81,7 @@ public class LSDocument {
      *
      * @return {@link Path} get the path
      */
+    @Override
     public Path getPath() {
         return this.path;
     }
@@ -100,6 +102,7 @@ public class LSDocument {
      * @throws MalformedURLException can throw malformed url exception
      * @throws URISyntaxException    can throw URI syntax exception
      */
+    @Override
     public URI getURI() throws MalformedURLException, URISyntaxException {
         return new URL(uri).toURI();
     }
@@ -109,6 +112,7 @@ public class LSDocument {
      *
      * @return {@link String} get the string uri
      */
+    @Override
     public String getURIString() {
         return this.uri;
     }
@@ -118,6 +122,7 @@ public class LSDocument {
      *
      * @return {@link String} source root
      */
+    @Override
     public String getProjectRoot() {
         return this.projectRoot;
     }
@@ -127,6 +132,7 @@ public class LSDocument {
      *
      * @param uri string URI
      */
+    @Override
     public void setUri(String uri) {
         this.uri = uri;
     }
@@ -136,6 +142,7 @@ public class LSDocument {
      *
      * @param sourceRoot source root
      */
+    @Override
     public void setProjectRootRoot(String sourceRoot) {
         this.projectRoot = sourceRoot;
     }
@@ -145,18 +152,22 @@ public class LSDocument {
      *
      * @return {@link List} list of project modules
      */
+    @Override
     public List<String> getProjectModules() {
         return projectModules;
     }
 
+    @Override
     public boolean isWithinProject() {
         return withinProject;
     }
 
+    @Override
     public String getOwnerModule() {
         return ownerModule;
     }
 
+    @Override
     public Path getOwnerModulePath() {
         return ownerModulePath;
     }
