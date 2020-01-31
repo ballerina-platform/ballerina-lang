@@ -19,7 +19,7 @@ package org.ballerinalang.langserver.commons.completion.spi;
 
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
-import org.eclipse.lsp4j.CompletionItem;
+import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 
 import java.util.List;
 import java.util.Optional;
@@ -48,7 +48,7 @@ public interface LSCompletionProvider {
      * @return {@link List}     List of calculated Completion Items
      * @throws LSCompletionException when completion fails
      */
-    List<CompletionItem> getCompletions(LSContext context) throws LSCompletionException;
+    List<LSCompletionItem> getCompletions(LSContext context) throws LSCompletionException;
 
     /**
      * Get the attachment points where the current provider attached to.

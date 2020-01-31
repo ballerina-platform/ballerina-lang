@@ -18,46 +18,31 @@
 package org.ballerinalang.langserver.completions.util.sorters;
 
 import org.ballerinalang.langserver.commons.LSContext;
-import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
-import org.ballerinalang.langserver.completions.util.Priority;
+import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.eclipse.lsp4j.CompletionItem;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+
+import javax.annotation.Nonnull;
 
 /**
  * Completion item sorter for conditional statements such as if statement and while statement conditions.
  * @since 0.965.0
  */
 public class ConditionalStatementItemSorter extends CompletionItemSorter {
-
-    private static final String OPEN_BRACKET = "(";
-    
-    private static final String CLOSE_BRACKET = ")";
     /**
-     * Sort Completion Items based on a particular criteria.
-     *
-     * @param ctx             Completion context
-     * @param completionItems List of initial completion items
+     * {@inheritDoc}
      */
     @Override
-    public void sortItems(LSContext ctx, List<CompletionItem> completionItems) {
-        this.setPriorities(completionItems);
-        completionItems.forEach(completionItem -> {
-            String detail = completionItem.getDetail();
-            String label = completionItem.getLabel();
-            if (detail.equals(ItemResolverConstants.FUNCTION_TYPE)) {
-                String signature = completionItem.getLabel();
-                String returnType = signature
-                        .substring(signature.lastIndexOf(OPEN_BRACKET), signature.lastIndexOf(CLOSE_BRACKET)).trim();
-                if (returnType.endsWith(ItemResolverConstants.BOOLEAN_TYPE)) {
-                    completionItem.setSortText(Priority.shiftPriority(completionItem.getSortText(), -1));
-                }
-            } else if (detail.equals(ItemResolverConstants.BOOLEAN_TYPE)) {
-                completionItem.setSortText(Priority.shiftPriority(completionItem.getSortText(), -1));
-            } else if (ItemResolverConstants.TRUE_KEYWORD.equals(label) 
-                    || ItemResolverConstants.FALSE_KEYWORD.equals(label)) {
-                completionItem.setSortText(Priority.PRIORITY110.toString());
-            }
-        });
+    public List<CompletionItem> sortItems(LSContext ctx, List<LSCompletionItem> completionItems) {
+        return new ArrayList<>();
+    }
+
+    @Nonnull
+    @Override
+    protected List<Class> getAttachedContexts() {
+        return Collections.singletonList(ConditionalStatementItemSorter.class);
     }
 }

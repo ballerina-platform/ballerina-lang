@@ -18,16 +18,27 @@
 package org.ballerinalang.langserver.completions.util.sorters;
 
 import org.ballerinalang.langserver.commons.LSContext;
+import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.eclipse.lsp4j.CompletionItem;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+
+import javax.annotation.Nonnull;
 
 /**
  * Completion Item sorter to sort items inside a callable unit body. This is used by functions and resources.
  */
 class CallableUnitBodyItemSorter extends CompletionItemSorter {
     @Override
-    public void sortItems(LSContext ctx, List<CompletionItem> completionItems) {
-        this.setPriorities(completionItems);
+    public List<CompletionItem> sortItems(LSContext ctx, List<LSCompletionItem> completionItems) {
+        return new ArrayList<>();
+    }
+
+    @Nonnull
+    @Override
+    protected List<Class> getAttachedContexts() {
+        return Collections.singletonList(CallableUnitBodyItemSorter.class);
     }
 }

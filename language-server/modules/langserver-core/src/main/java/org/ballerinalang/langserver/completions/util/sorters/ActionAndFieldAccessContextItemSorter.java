@@ -18,11 +18,14 @@
 package org.ballerinalang.langserver.completions.util.sorters;
 
 import org.ballerinalang.langserver.commons.LSContext;
-import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
-import org.ballerinalang.langserver.completions.util.Priority;
+import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.eclipse.lsp4j.CompletionItem;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+
+import javax.annotation.Nonnull;
 
 /**
  * Item Sorter for the actions and field access items.
@@ -31,38 +34,18 @@ public class ActionAndFieldAccessContextItemSorter extends CompletionItemSorter 
     /**
      * Sort Completion Items based on a particular criteria.
      *
-     * @param ctx             Completion context
+     *  @param ctx             Completion context
      * @param completionItems List of initial completion items
+     * @return {@link List} list of completion items calculated
      */
     @Override
-    public void sortItems(LSContext ctx, List<CompletionItem> completionItems) {
-        this.setPriorities(completionItems);
-        completionItems.forEach(this::decreasePriority);
+    public List<CompletionItem> sortItems(LSContext ctx, List<LSCompletionItem> completionItems) {
+        return new ArrayList<>();
     }
 
     @Override
-    void setPriorities(List<CompletionItem> completionItems) {
-        completionItems.forEach(completionItem -> {
-            switch (completionItem.getDetail()) {
-                case ItemResolverConstants.NONE:
-                case ItemResolverConstants.KEYWORD_TYPE:
-                case ItemResolverConstants.STATEMENT_TYPE:
-                case ItemResolverConstants.SNIPPET_TYPE:
-                case ItemResolverConstants.FIELD_TYPE:
-                case ItemResolverConstants.B_TYPE:
-                case ItemResolverConstants.PACKAGE_TYPE:
-                case ItemResolverConstants.FUNCTION_TYPE:
-                    super.setPriority(completionItem);
-                    break;
-                default:
-                    completionItem.setSortText(Priority.PRIORITY220.toString());
-                    break;
-            }
-        });
-    }
-
-    private void decreasePriority(CompletionItem completionItem) {
-        int sortText = Integer.parseInt(completionItem.getSortText());
-        completionItem.setSortText(Integer.toString(sortText + 1));
+    @Nonnull
+    protected List<Class> getAttachedContexts() {
+        return Collections.singletonList(ActionAndFieldAccessContextItemSorter.class);
     }
 }

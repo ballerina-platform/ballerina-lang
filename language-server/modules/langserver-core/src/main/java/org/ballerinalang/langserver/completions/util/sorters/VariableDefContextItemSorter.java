@@ -17,63 +17,31 @@
 */
 package org.ballerinalang.langserver.completions.util.sorters;
 
-import org.antlr.v4.runtime.CommonToken;
-import org.antlr.v4.runtime.Token;
 import org.ballerinalang.langserver.commons.LSContext;
-import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
-import org.ballerinalang.langserver.sourceprune.SourcePruneKeys;
+import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.eclipse.lsp4j.CompletionItem;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
+
+import javax.annotation.Nonnull;
 
 /**
  * Item Sorter for the Variable Definition context.
  */
 public class VariableDefContextItemSorter extends CompletionItemSorter {
     /**
-     * Sort Completion Items based on a particular criteria.
-     *
-     * @param ctx             Completion context
-     * @param completionItems List of initial completion items
+     * {@inheritDoc}
      */
     @Override
-    public void sortItems(LSContext ctx, List<CompletionItem> completionItems) {
-        this.setPriorities(completionItems);
-        String variableType = this.getVariableType(ctx);
-        // TODO: Revamp with the latest token analyzing
-        List<String> poppedTokens = ctx.get(SourcePruneKeys.LHS_TOKENS_KEY).stream()
-                .filter(commonToken -> commonToken.getChannel() == Token.DEFAULT_CHANNEL)
-                .map(CommonToken::getText)
-                .collect(Collectors.toList());
-
-        if (poppedTokens.contains("=")) {
-            completionItems.forEach(completionItem -> {
-                if (completionItem.getDetail().equals(ItemResolverConstants.FUNCTION_TYPE)) {
-                    String label = completionItem.getLabel();
-                    String functionReturnType = label.substring(label.lastIndexOf("(") + 1, label.lastIndexOf(")"));
-
-                    if (variableType.equals(functionReturnType)) {
-                        this.increasePriority(completionItem);
-                    }
-                }
-            });
-        }
-    }
-    
-    private void increasePriority(CompletionItem completionItem) {
-        int sortText = Integer.parseInt(completionItem.getSortText());
-        completionItem.setSortText(Integer.toString(sortText - 1));
+    public List<CompletionItem> sortItems(LSContext ctx, List<LSCompletionItem> completionItems) {
+        return new ArrayList<>();
     }
 
-    /**
-     * Get the variable type.
-     * @param ctx   Document Service context (Completion context)
-     * @return      {@link String} type of the variable
-     */
-    String getVariableType(LSContext ctx) {
-        // TODO: Use the content parsing to determine the rule
-        List<CommonToken> lhsTokens = ctx.get(SourcePruneKeys.LHS_TOKENS_KEY);
-        return lhsTokens.get(0).getText();
+    @Override
+    @Nonnull
+    protected List<Class> getAttachedContexts() {
+        return Collections.singletonList(VariableDefContextItemSorter.class);
     }
 }
