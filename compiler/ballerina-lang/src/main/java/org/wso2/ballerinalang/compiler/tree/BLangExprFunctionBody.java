@@ -18,7 +18,7 @@
 
 package org.wso2.ballerinalang.compiler.tree;
 
-import org.ballerinalang.model.tree.FunctionBodyNode;
+import org.ballerinalang.model.tree.ExprFunctionBodyNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 
@@ -27,7 +27,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
  *
  * @since 1.2.0
  */
-public class BLangExprFunctionBody extends BLangFunctionBody implements FunctionBodyNode {
+public class BLangExprFunctionBody extends BLangFunctionBody implements ExprFunctionBodyNode {
 
     public BLangExpression expr;
 

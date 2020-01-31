@@ -18,7 +18,7 @@
 
 package org.wso2.ballerinalang.compiler.tree;
 
-import org.ballerinalang.model.tree.FunctionBodyNode;
+import org.ballerinalang.model.tree.BlockFunctionBodyNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.statements.StatementNode;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
@@ -31,7 +31,7 @@ import java.util.List;
  *
  * @since 1.2.0
  */
-public class BLangBlockFunctionBody extends BLangFunctionBody implements FunctionBodyNode {
+public class BLangBlockFunctionBody extends BLangFunctionBody implements BlockFunctionBodyNode {
 
     public List<BLangStatement> stmts;
 
@@ -39,10 +39,12 @@ public class BLangBlockFunctionBody extends BLangFunctionBody implements Functio
         this.stmts = new ArrayList<>();
     }
 
+    @Override
     public void addStatement(StatementNode stmt) {
         this.stmts.add((BLangStatement) stmt);
     }
 
+    @Override
     public List<BLangStatement> getStatements() {
         return stmts;
     }

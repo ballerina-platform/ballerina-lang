@@ -16,25 +16,22 @@
  * under the License.
  */
 
-package org.wso2.ballerinalang.compiler.tree;
+package org.ballerinalang.model.tree;
 
-import org.ballerinalang.model.tree.ExternFunctionBodyNode;
-import org.ballerinalang.model.tree.NodeKind;
+import org.ballerinalang.model.tree.statements.StatementNode;
+
+import java.util.List;
 
 /**
- * Represents an expression bodied function/method.
+ * Represents a sequence of statements (i.e., zero or more statements). A sequence statement executes its statements
+ * sequentially.
  *
  * @since 1.2.0
  */
-public class BLangExternFunctionBody extends BLangFunctionBody implements ExternFunctionBodyNode {
+public interface SequenceStatementNode extends Node {
 
-    @Override
-    public void accept(BLangNodeVisitor visitor) {
-        visitor.visit(this);
-    }
+    void addStatement(StatementNode statement);
 
-    @Override
-    public NodeKind getKind() {
-        return NodeKind.EXTERN_FUNCTION_BODY;
-    }
+    List<? extends StatementNode> getStatements();
+
 }

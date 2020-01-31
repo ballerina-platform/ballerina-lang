@@ -16,25 +16,12 @@
  * under the License.
  */
 
-package org.wso2.ballerinalang.compiler.tree;
-
-import org.ballerinalang.model.tree.ExternFunctionBodyNode;
-import org.ballerinalang.model.tree.NodeKind;
+package org.ballerinalang.model.tree;
 
 /**
- * Represents an expression bodied function/method.
+ * Represents a function body which can only contain a single expression as its body.
  *
  * @since 1.2.0
  */
-public class BLangExternFunctionBody extends BLangFunctionBody implements ExternFunctionBodyNode {
-
-    @Override
-    public void accept(BLangNodeVisitor visitor) {
-        visitor.visit(this);
-    }
-
-    @Override
-    public NodeKind getKind() {
-        return NodeKind.EXTERN_FUNCTION_BODY;
-    }
+public interface ExprFunctionBodyNode extends FunctionBodyNode {
 }

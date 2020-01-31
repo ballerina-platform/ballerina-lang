@@ -22,6 +22,7 @@ import org.ballerinalang.model.clauses.SelectClauseNode;
 import org.ballerinalang.model.clauses.WhereClauseNode;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.AnnotationNode;
+import org.ballerinalang.model.tree.BlockFunctionBodyNode;
 import org.ballerinalang.model.tree.CompilationUnitNode;
 import org.ballerinalang.model.tree.EndpointNode;
 import org.ballerinalang.model.tree.ErrorVariableNode;
@@ -311,7 +312,7 @@ public class TreeBuilder {
         return new BLangFunction();
     }
 
-    public static FunctionBodyNode createBlockFunctionBodyNode() {
+    public static BlockFunctionBodyNode createBlockFunctionBodyNode() {
         return new BLangBlockFunctionBody();
     }
 
