@@ -25,6 +25,7 @@ import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.DefaultLastHttpContent;
 import io.netty.handler.codec.http.HttpContent;
+import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.codec.http.LastHttpContent;
@@ -48,10 +49,8 @@ import java.util.List;
 import java.util.Queue;
 
 import static org.wso2.transport.http.netty.contract.Constants.HTTP_HEAD_METHOD;
-import static org.wso2.transport.http.netty.contract.Constants
-        .IDLE_TIMEOUT_TRIGGERED_WHILE_WRITING_OUTBOUND_RESPONSE_BODY;
-import static org.wso2.transport.http.netty.contract.Constants
-        .REMOTE_CLIENT_CLOSED_WHILE_WRITING_OUTBOUND_RESPONSE_BODY;
+import static org.wso2.transport.http.netty.contract.Constants.IDLE_TIMEOUT_TRIGGERED_WHILE_WRITING_OUTBOUND_RESPONSE_BODY;
+import static org.wso2.transport.http.netty.contract.Constants.REMOTE_CLIENT_CLOSED_WHILE_WRITING_OUTBOUND_RESPONSE_BODY;
 import static org.wso2.transport.http.netty.contract.Constants.REMOTE_CLIENT_TO_HOST_CONNECTION_CLOSED;
 import static org.wso2.transport.http.netty.contractimpl.common.Util.createFullHttpResponse;
 import static org.wso2.transport.http.netty.contractimpl.common.Util.setupContentLengthRequest;
@@ -112,6 +111,7 @@ public class SendingEntityBody implements ListenerState {
         ChannelFuture outboundChannelFuture;
         if (httpContent instanceof LastHttpContent) {
             if (headersWritten) {
+                writeTrailerHeaders((LastHttpContent) httpContent);
                 outboundChannelFuture = checkHeadRequestAndWriteOutboundResponseBody(httpContent);
             } else {
                 contentLength += httpContent.content().readableBytes();
@@ -122,7 +122,7 @@ public class SendingEntityBody implements ListenerState {
 
             if (!outboundRespListener.isKeepAlive()) {
                 outboundChannelFuture.addListener(ChannelFutureListener.CLOSE);
-            }  else {
+            } else {
                 triggerPipeliningLogic(outboundResponseMsg);
             }
 
@@ -273,5 +273,13 @@ public class SendingEntityBody implements ListenerState {
         contentList.clear();
         contentLength = 0;
         headersWritten = false;
+    }
+
+    private void writeTrailerHeaders(LastHttpContent lastContent) {
+        if (lastContent == LastHttpContent.EMPTY_LAST_CONTENT) {
+            return;
+        }
+        HttpHeaders trailers = lastContent.trailingHeaders();
+        trailers.add(outboundResponseMsg.getTrailerHeaders());
     }
 }
