@@ -23,11 +23,11 @@ import org.ballerinalang.langserver.command.LSCommandExecutorProvidersHolder;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.command.LSCommandExecutorException;
 import org.ballerinalang.langserver.commons.command.spi.LSCommandExecutor;
+import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSCompilerUtil;
 import org.ballerinalang.langserver.compiler.LSModuleCompiler;
 import org.ballerinalang.langserver.compiler.common.LSCustomErrorStrategy;
-import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.diagnostic.DiagnosticsHelper;
 import org.ballerinalang.langserver.exception.UserErrorException;
 import org.ballerinalang.langserver.symbols.SymbolFindingVisitor;
@@ -181,27 +181,5 @@ public class BallerinaWorkspaceService implements WorkspaceService {
      */
     public Map<String, Boolean> getExperimentalClientCapabilities() {
         return this.experimentalClientCapabilities;
-    }
-
-    /**
-     * Experimental capabilities.
-     */
-    public enum Experimental {
-        INTROSPECTION("introspection"), SHOW_TEXT_DOCUMENT("showTextDocument");
-
-        private final String value;
-
-        Experimental(String value) {
-            this.value = value;
-        }
-
-        /**
-         * Returns value.
-         *
-         * @return value
-         */
-        public String getValue() {
-            return value;
-        }
     }
 }

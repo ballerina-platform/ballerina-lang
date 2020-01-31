@@ -20,8 +20,8 @@ package org.ballerinalang.langserver.completions.util.sorters;
 import org.antlr.v4.runtime.CommonToken;
 import org.antlr.v4.runtime.Token;
 import org.ballerinalang.langserver.commons.LSContext;
-import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
+import org.ballerinalang.langserver.sourceprune.SourcePruneKeys;
 import org.eclipse.lsp4j.CompletionItem;
 
 import java.util.List;
@@ -42,7 +42,7 @@ public class VariableDefContextItemSorter extends CompletionItemSorter {
         this.setPriorities(completionItems);
         String variableType = this.getVariableType(ctx);
         // TODO: Revamp with the latest token analyzing
-        List<String> poppedTokens = ctx.get(CompletionKeys.LHS_TOKENS_KEY).stream()
+        List<String> poppedTokens = ctx.get(SourcePruneKeys.LHS_TOKENS_KEY).stream()
                 .filter(commonToken -> commonToken.getChannel() == Token.DEFAULT_CHANNEL)
                 .map(CommonToken::getText)
                 .collect(Collectors.toList());
@@ -73,7 +73,7 @@ public class VariableDefContextItemSorter extends CompletionItemSorter {
      */
     String getVariableType(LSContext ctx) {
         // TODO: Use the content parsing to determine the rule
-        List<CommonToken> lhsTokens = ctx.get(CompletionKeys.LHS_TOKENS_KEY);
+        List<CommonToken> lhsTokens = ctx.get(SourcePruneKeys.LHS_TOKENS_KEY);
         return lhsTokens.get(0).getText();
     }
 }

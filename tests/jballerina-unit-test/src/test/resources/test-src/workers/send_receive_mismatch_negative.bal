@@ -15,10 +15,12 @@
 // under the License.
 
 public function main() {
+    @strand{thread:"any"}
     worker w1 {
         5 ->> w2;
     }
 
+    @strand{thread:"any"}
     worker w2 {
         string lw = <- w1;
     }

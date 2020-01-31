@@ -22,27 +22,30 @@ import org.ballerinalang.langserver.codeaction.CodeActionRouter;
 import org.ballerinalang.langserver.codeaction.CodeActionUtil;
 import org.ballerinalang.langserver.codelenses.CodeLensUtil;
 import org.ballerinalang.langserver.codelenses.LSCodeLensesProviderHolder;
-import org.ballerinalang.langserver.command.ExecuteCommandKeys;
 import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.LSContext;
+import org.ballerinalang.langserver.commons.codeaction.CodeActionKeys;
 import org.ballerinalang.langserver.commons.codeaction.CodeActionNodeType;
+import org.ballerinalang.langserver.commons.workspace.LSDocumentIdentifier;
+import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSClientLogger;
 import org.ballerinalang.langserver.compiler.LSCompilerCache;
 import org.ballerinalang.langserver.compiler.LSModuleCompiler;
 import org.ballerinalang.langserver.compiler.common.LSCustomErrorStrategy;
-import org.ballerinalang.langserver.compiler.common.LSDocument;
+import org.ballerinalang.langserver.compiler.common.LSDocumentIdentifierImpl;
 import org.ballerinalang.langserver.compiler.exception.CompilationFailedException;
 import org.ballerinalang.langserver.compiler.format.FormattingVisitorEntry;
 import org.ballerinalang.langserver.compiler.format.TextDocumentFormatUtil;
 import org.ballerinalang.langserver.compiler.sourcegen.FormattingSourceGen;
-import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.completions.SymbolInfo;
 import org.ballerinalang.langserver.completions.exceptions.CompletionContextNotSupportedException;
 import org.ballerinalang.langserver.completions.util.CompletionUtil;
 import org.ballerinalang.langserver.diagnostic.DiagnosticsHelper;
 import org.ballerinalang.langserver.exception.UserErrorException;
+import org.ballerinalang.langserver.extensions.ballerina.semantichighlighter.HighlightingFailedException;
+import org.ballerinalang.langserver.extensions.ballerina.semantichighlighter.SemanticHighlightProvider;
 import org.ballerinalang.langserver.implementation.GotoImplementationCustomErrorStrategy;
 import org.ballerinalang.langserver.implementation.GotoImplementationUtil;
 import org.ballerinalang.langserver.signature.SignatureHelpUtil;
@@ -386,10 +389,10 @@ class BallerinaTextDocumentService implements TextDocumentService {
                     .ServiceOperationContextBuilder(LSContextOperation.TXT_CODE_ACTION)
                     .withCodeActionParams(documentManager)
                     .build();
-            context.put(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY, documentManager);
-            context.put(ExecuteCommandKeys.FILE_URI_KEY, fileUri);
+            context.put(CodeActionKeys.DOCUMENT_MANAGER_KEY, documentManager);
+            context.put(CodeActionKeys.FILE_URI_KEY, fileUri);
             context.put(DocumentServiceKeys.FILE_URI_KEY, fileUri);
-            context.put(ExecuteCommandKeys.POSITION_START_KEY, params.getRange().getStart());
+            context.put(CodeActionKeys.POSITION_START_KEY, params.getRange().getStart());
             context.put(DocumentServiceKeys.DOC_MANAGER_KEY, documentManager);
             try {
                 int line = params.getRange().getStart().getLine();
@@ -553,7 +556,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
                     .ServiceOperationContextBuilder(LSContextOperation.TXT_IMPL)
                     .withCommonParams(position, fileUri, documentManager)
                     .build();
-            LSDocument lsDocument = new LSDocument(fileUri);
+            LSDocumentIdentifier lsDocument = new LSDocumentIdentifierImpl(fileUri);
             Path implementationPath = lsDocument.getPath();
             Path compilationPath = getUntitledFilePath(implementationPath.toString()).orElse(implementationPath);
             Optional<Lock> lock = documentManager.lockFile(compilationPath);
@@ -601,10 +604,16 @@ class BallerinaTextDocumentService implements TextDocumentService {
                         .withCommonParams(null, docUri, documentManager)
                         .build();
 
-                LSDocument lsDocument = new LSDocument(context.get(DocumentServiceKeys.FILE_URI_KEY));
+                String fileUri = context.get(DocumentServiceKeys.FILE_URI_KEY);
+                LSDocumentIdentifier lsDocument = new LSDocumentIdentifierImpl(fileUri);
                 diagnosticsHelper.compileAndSendDiagnostics(client, context, lsDocument, documentManager);
+                SemanticHighlightProvider.sendHighlights(client, context, documentManager);
             } catch (CompilationFailedException e) {
                 String msg = "Computing 'diagnostics' failed!";
+                TextDocumentIdentifier identifier = new TextDocumentIdentifier(params.getTextDocument().getUri());
+                logError(msg, e, identifier, (Position) null);
+            } catch (HighlightingFailedException e) {
+                String msg = "Semantic highlighting failed!";
                 TextDocumentIdentifier identifier = new TextDocumentIdentifier(params.getTextDocument().getUri());
                 logError(msg, e, identifier, (Position) null);
             } catch (Throwable e) {
@@ -647,14 +656,19 @@ class BallerinaTextDocumentService implements TextDocumentService {
                             .build();
                     String fileURI = params.getTextDocument().getUri();
 
-                    LSDocument lsDocument = new LSDocument(fileURI);
+                    LSDocumentIdentifier lsDocument = new LSDocumentIdentifierImpl(fileURI);
                     diagnosticsHelper.compileAndSendDiagnostics(client, context, lsDocument, documentManager);
+                    SemanticHighlightProvider.sendHighlights(client, context, documentManager);
                     // Clear current cache upon successfull compilation
                     // If the compiler fails, still we'll have the cached entry(marked as outdated)
                     LSCompilerCache.clear(context, lsDocument.getProjectRoot());
                 } catch (CompilationFailedException e) {
                     String msg = "Computing 'diagnostics' failed!";
                     logError(msg, e, params.getTextDocument(), (Position) null);
+                } catch (HighlightingFailedException e) {
+                    String msg = "Semantic highlighting failed!";
+                    TextDocumentIdentifier identifier = new TextDocumentIdentifier(params.getTextDocument().getUri());
+                    logError(msg, e, identifier, (Position) null);
                 } finally {
                     nLock.ifPresent(Lock::unlock);
                 }
