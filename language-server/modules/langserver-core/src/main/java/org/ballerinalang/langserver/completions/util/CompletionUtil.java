@@ -28,6 +28,7 @@ import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.LSCompletionProviderHolder;
 import org.ballerinalang.langserver.completions.TreeVisitor;
 import org.ballerinalang.langserver.completions.sourceprune.CompletionsTokenTraverserFactory;
+import org.ballerinalang.langserver.completions.util.sorters.ItemSorters;
 import org.ballerinalang.langserver.sourceprune.SourcePruner;
 import org.ballerinalang.langserver.sourceprune.TokenTraverserFactory;
 import org.eclipse.lsp4j.CompletionItem;
@@ -87,19 +88,27 @@ public class CompletionUtil {
             LOGGER.error("Error while retrieving completions from: " + completionProvider.getClass());
         }
 
-        boolean isSnippetSupported = ctx.get(CompletionKeys.CLIENT_CAPABILITIES_KEY).getCompletionItem()
-                .getSnippetSupport();
+        return getPreparedCompletionItems(ctx, items);
+    }
+
+    private static List<CompletionItem> getPreparedCompletionItems(LSContext context, List<LSCompletionItem> items) {
         List<CompletionItem> completionItems = new ArrayList<>();
-        for (LSCompletionItem item : items) {
-            CompletionItem cItem = item.getCompletionItem();
+        boolean isSnippetSupported = context.get(CompletionKeys.CLIENT_CAPABILITIES_KEY).getCompletionItem()
+                .getSnippetSupport();
+        List<CompletionItem> sortedItems = ItemSorters.get(context.get(CompletionKeys.SCOPE_NODE_KEY).getClass())
+                .sortItems(context, items);
+
+        // TODO: Remove this
+        for (CompletionItem item : sortedItems) {
             if (!isSnippetSupported) {
-                cItem.setInsertText(CommonUtil.getPlainTextSnippet(cItem.getInsertText()));
-                cItem.setInsertTextFormat(InsertTextFormat.PlainText);
+                item.setInsertText(CommonUtil.getPlainTextSnippet(item.getInsertText()));
+                item.setInsertTextFormat(InsertTextFormat.PlainText);
             } else {
-                cItem.setInsertTextFormat(InsertTextFormat.Snippet);
+                item.setInsertTextFormat(InsertTextFormat.Snippet);
             }
-            completionItems.add(cItem);
+            completionItems.add(item);
         }
+
         return completionItems;
     }
 

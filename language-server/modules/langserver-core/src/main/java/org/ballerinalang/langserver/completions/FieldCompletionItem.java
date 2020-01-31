@@ -39,16 +39,6 @@ public class FieldCompletionItem implements LSCompletionItem {
     }
 
     @Override
-    public String getSortText() {
-        return null;
-    }
-
-    @Override
-    public String setSortText() {
-        return null;
-    }
-
-    @Override
     public CompletionItem getCompletionItem() {
         return this.completionItem;
     }

@@ -18,6 +18,7 @@
 package org.ballerinalang.langserver.completions.util.sorters;
 
 import org.ballerinalang.langserver.commons.LSContext;
+import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.util.Priority;
 import org.eclipse.lsp4j.CompletionItem;
 
@@ -32,18 +33,18 @@ public abstract class CompletionItemSorter {
 
     /**
      * Sort Completion Items based on a particular criteria.
-     *
-     * @param ctx             Completion context
+     *  @param ctx             Completion context
      * @param completionItems List of initial completion items
+     * @return
      */
-    public abstract void sortItems(LSContext ctx, List<CompletionItem> completionItems);
+    public abstract List<CompletionItem> sortItems(LSContext ctx, List<LSCompletionItem> completionItems);
 
     /**
      * Set the priorities in the default order.
      *
      * @param completionItems list of completion items
      */
-    void setPriorities(List<CompletionItem> completionItems) {
+    protected void setPriorities(List<CompletionItem> completionItems) {
         completionItems.forEach(this::setPriority);
     }
 
@@ -57,7 +58,7 @@ public abstract class CompletionItemSorter {
         completionItems.removeIf(completionItem -> types.contains(completionItem.getDetail()));
     }
 
-    void setPriority(CompletionItem completionItem) {
+    protected final void setPriority(CompletionItem completionItem) {
         if (completionItem.getKind() == null) {
             completionItem.setSortText(Priority.PRIORITY110.toString());
             return;
@@ -105,9 +106,8 @@ public abstract class CompletionItemSorter {
             default:
                 completionItem.setSortText(Priority.PRIORITY110.toString());
                 break;
-                
         }
     }
 
-    abstract @Nonnull List<Class> getAttachedContexts();
+    protected abstract @Nonnull List<Class> getAttachedContexts();
 }

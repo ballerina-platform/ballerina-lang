@@ -1,5 +1,5 @@
 /*
-*  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+*  Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 *
 *  WSO2 Inc. licenses this file to you under the Apache License,
 *  Version 2.0 (the "License"); you may not use this file except
@@ -15,11 +15,14 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.langserver.completions.util.sorters;
+package org.ballerinalang.langserver.completions.util.sorters.context;
 
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
+import org.ballerinalang.langserver.completions.util.Priority;
+import org.ballerinalang.langserver.completions.util.sorters.CompletionItemSorter;
 import org.eclipse.lsp4j.CompletionItem;
+import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -28,26 +31,35 @@ import java.util.List;
 import javax.annotation.Nonnull;
 
 /**
- * Default Item Sorter.
+ * Item sorter for Import Declaration Context.
+ *
+ * @since 1.2.0
  */
-public class DefaultItemSorter extends CompletionItemSorter {
-    /**
-     * {@inheritDoc}
-     */
+public class ImportDeclarationContext extends CompletionItemSorter {
     @Override
     public List<CompletionItem> sortItems(LSContext ctx, List<LSCompletionItem> completionItems) {
         List<CompletionItem> cItems = new ArrayList<>();
-        for (LSCompletionItem lsCItem : completionItems) {
+        completionItems.forEach(lsCItem -> {
             CompletionItem completionItem = lsCItem.getCompletionItem();
-            this.setPriority(completionItem);
+            if (completionItem.getLabel().contains("/")) {
+                // Ex: import a<cursor>
+                completionItem.setSortText(Priority.PRIORITY120.toString());
+            } else {
+                /*
+                Address both of the following usecases
+                import o<cursor> - Priority is given to the org names
+                import orgName/<cursor>
+                 */
+                completionItem.setSortText(Priority.PRIORITY110.toString());
+            }
             cItems.add(completionItem);
-        }
+        });
         return cItems;
     }
 
     @Nonnull
     @Override
     protected List<Class> getAttachedContexts() {
-        return Collections.singletonList(DefaultItemSorter.class);
+        return Collections.singletonList(BallerinaParser.ImportDeclarationContext.class);
     }
 }

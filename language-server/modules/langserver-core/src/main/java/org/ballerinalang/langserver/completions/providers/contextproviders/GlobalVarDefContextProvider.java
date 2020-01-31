@@ -64,14 +64,26 @@ public class GlobalVarDefContextProvider extends AbstractCompletionProvider {
 
         int firstToken = lhsDefaultTokens.get(0).getType();
         int invocationOrDelimiterTokenType = ctx.get(CompletionKeys.INVOCATION_TOKEN_TYPE_KEY);
-        Optional<CommonToken> listenerKWToken = lhsDefaultTokens.stream()
-                .filter(commonToken -> commonToken.getType() == BallerinaParser.LISTENER)
-                .findAny();
+
+        // Consider the Listener keyword and suggest the listener type completions
+        if (this.suggestListeners(lhsDefaultTokens)) {
+            if (invocationOrDelimiterTokenType > -1) {
+                int pkgDelimiterIndex = lhsDefaultTokens.stream()
+                        .map(CommonToken::getType)
+                        .collect(Collectors.toList())
+                        .indexOf(BallerinaParser.COLON);
+                String pkgAlias = lhsDefaultTokens.get(pkgDelimiterIndex - 1).getText();
+                completionItems.addAll(this.getListenersFromPackage(ctx, pkgAlias));
+
+                return completionItems;
+            }
+            completionItems.addAll(this.getListenersAndPackagesItems(ctx));
+
+            return completionItems;
+        }
 
         if (lhsDefaultTokens.size() <= 2) {
-            if (listenerKWToken.isPresent()) {
-                completionItems.addAll(this.getListenersAndPackagesItems(ctx));
-            } else if (firstToken == BallerinaParser.FINAL) {
+            if (firstToken == BallerinaParser.FINAL) {
                 completionItems.addAll(this.getBasicTypesItems(ctx, visibleSymbols));
                 completionItems.addAll(this.getPackagesCompletionItems(ctx));
             } else if (BallerinaParser.COLON == invocationOrDelimiterTokenType) {
@@ -83,19 +95,9 @@ public class GlobalVarDefContextProvider extends AbstractCompletionProvider {
                 completionItems.addAll(this.getPackagesCompletionItems(ctx));
             }
         } else if (invocationOrDelimiterTokenType > -1) {
-            if (listenerKWToken.isPresent()) {
-                int pkgDelimiterIndex = lhsDefaultTokens.stream()
-                        .map(CommonToken::getType)
-                        .collect(Collectors.toList())
-                        .indexOf(BallerinaParser.COLON);
-                String pkgAlias = lhsDefaultTokens.get(pkgDelimiterIndex - 1).getText();
-                completionItems.addAll(this.getListenersFromPackage(ctx, pkgAlias));
-            } else {
-                Either<List<LSCompletionItem>, List<Scope.ScopeEntry>> filteredList =
-                        SymbolFilters.get(DelimiterBasedContentFilter.class).filterItems(ctx);
-                completionItems.addAll(this.getCompletionItemList(filteredList, ctx));  
-            }
-            // TODO: usage of index
+            Either<List<LSCompletionItem>, List<Scope.ScopeEntry>> filteredList =
+                    SymbolFilters.get(DelimiterBasedContentFilter.class).filterItems(ctx);
+            completionItems.addAll(this.getCompletionItemList(filteredList, ctx));
         } else if (assignToken.isPresent()) {
             completionItems.addAll(this.getVarDefExpressionCompletions(ctx, true));
         } else {
@@ -104,7 +106,7 @@ public class GlobalVarDefContextProvider extends AbstractCompletionProvider {
         }
         return completionItems;
     }
-    
+
     private List<LSCompletionItem> getListenersAndPackagesItems(LSContext context) {
         List<LSCompletionItem> completionItems = new ArrayList<>(this.getPackagesCompletionItems(context));
         List<Scope.ScopeEntry> visibleSymbols = new ArrayList<>(context.get(CommonKeys.VISIBLE_SYMBOLS_KEY));
@@ -141,5 +143,15 @@ public class GlobalVarDefContextProvider extends AbstractCompletionProvider {
         completionItems.addAll(this.getBasicTypesItems(ctx, visibleSymbols));
         
         return completionItems;
+    }
+
+    private boolean suggestListeners(List<CommonToken> lhsDefaultTokens) {
+        List<Integer> tokenTypes = lhsDefaultTokens.stream()
+                .map(CommonToken::getType)
+                .collect(Collectors.toList());
+        int assignToken = tokenTypes.indexOf(BallerinaParser.ASSIGN);
+        int listenerToken = tokenTypes.indexOf(BallerinaParser.LISTENER);
+
+        return assignToken == -1 && listenerToken > -1;
     }
 }

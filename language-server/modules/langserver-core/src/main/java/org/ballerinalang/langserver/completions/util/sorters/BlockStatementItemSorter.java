@@ -18,9 +18,11 @@
 package org.ballerinalang.langserver.completions.util.sorters;
 
 import org.ballerinalang.langserver.commons.LSContext;
+import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.eclipse.lsp4j.CompletionItem;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -33,11 +35,13 @@ import javax.annotation.Nonnull;
  */
 public class BlockStatementItemSorter extends CompletionItemSorter {
     @Override
-    public void sortItems(LSContext ctx, List<CompletionItem> completionItems) {
+    public List<CompletionItem> sortItems(LSContext ctx, List<LSCompletionItem> completionItems) {
+        return new ArrayList<>();
     }
 
     @Override
-    @Nonnull List<Class> getAttachedContexts() {
+    @Nonnull
+    protected List<Class> getAttachedContexts() {
         return Collections.singletonList(BLangBlockStmt.class);
     }
 }

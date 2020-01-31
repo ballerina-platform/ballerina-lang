@@ -25,9 +25,5 @@ import org.eclipse.lsp4j.CompletionItem;
  * @since 1.2.0
  */
 public interface LSCompletionItem {
-    String getSortText();
-
-    String setSortText();
-
     CompletionItem getCompletionItem();
 }

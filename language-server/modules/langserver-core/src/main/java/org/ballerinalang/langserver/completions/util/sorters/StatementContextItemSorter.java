@@ -18,9 +18,10 @@
 package org.ballerinalang.langserver.completions.util.sorters;
 
 import org.ballerinalang.langserver.commons.LSContext;
-import org.ballerinalang.langserver.completions.CompletionKeys;
+import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.eclipse.lsp4j.CompletionItem;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -31,23 +32,16 @@ import javax.annotation.Nonnull;
  */
 public class StatementContextItemSorter extends CompletionItemSorter {
     /**
-     * Sort Completion Items based on a particular criteria.
-     *
-     * @param ctx             Completion context
-     * @param completionItems List of initial completion items
+     * {@inheritDoc}
      */
     @Override
-    public void sortItems(LSContext ctx, List<CompletionItem> completionItems) {
-        int startTokenIndex = ctx.get(CompletionKeys.PARSER_RULE_CONTEXT_KEY).getStart().getTokenIndex();
-        int stopTokenIndex = ctx.get(CompletionKeys.PARSER_RULE_CONTEXT_KEY).getStop().getTokenIndex();
-        if (startTokenIndex > 0 && stopTokenIndex < 0) {
-            completionItems.clear();
-        }
+    public List<CompletionItem> sortItems(LSContext ctx, List<LSCompletionItem> completionItems) {
+        return new ArrayList<>();
     }
 
     @Nonnull
     @Override
-    List<Class> getAttachedContexts() {
+    protected List<Class> getAttachedContexts() {
         return Collections.singletonList(StatementContextItemSorter.class);
     }
 }

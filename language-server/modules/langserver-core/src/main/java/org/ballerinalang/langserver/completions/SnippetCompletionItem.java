@@ -29,28 +29,20 @@ import org.eclipse.lsp4j.CompletionItem;
  * @since 1.2.0
  */
 public class SnippetCompletionItem implements LSCompletionItem {
-    private LSContext lsContext;
-    private SnippetBlock snippetBlock;
     private CompletionItem completionItem;
+    private SnippetBlock.SnippetType snippetType;
 
     public SnippetCompletionItem(LSContext lsContext, SnippetBlock snippetBlock) {
-        this.lsContext = lsContext;
-        this.snippetBlock = snippetBlock;
-        this.completionItem = this.snippetBlock.build(this.lsContext);
-    }
-
-    @Override
-    public String getSortText() {
-        return null;
-    }
-
-    @Override
-    public String setSortText() {
-        return null;
+        this.completionItem = snippetBlock.build(lsContext);
+        this.snippetType = snippetBlock.getSnippetType();
     }
 
     @Override
     public CompletionItem getCompletionItem() {
         return this.completionItem;
+    }
+
+    public SnippetBlock.SnippetType getSnippetType() {
+        return snippetType;
     }
 }

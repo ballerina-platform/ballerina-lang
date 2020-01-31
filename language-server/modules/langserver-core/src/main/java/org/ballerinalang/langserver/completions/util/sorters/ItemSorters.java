@@ -17,6 +17,10 @@
 */
 package org.ballerinalang.langserver.completions.util.sorters;
 
+import org.ballerinalang.langserver.completions.util.sorters.context.DefinitionContext;
+import org.ballerinalang.langserver.completions.util.sorters.context.ImportDeclarationContext;
+import org.ballerinalang.langserver.completions.util.sorters.scope.PackageScope;
+
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -25,7 +29,10 @@ import java.util.Map;
  * Item sorters to be used on sorting completion items, based on the scope.
  */
 public enum ItemSorters {
-    BLOCK_STMT_ITEM_SORTER(new BlockStatementItemSorter());
+    DEFAULT_ITEM_SORTER(new DefaultItemSorter()),
+    DEFINITION_CTX_ITEM_SORTER(new DefinitionContext()),
+    PACKAGE_SCOPE_ITEM_SORTER(new PackageScope()),
+    IMPORT_DECL_CTX_ITEM_SORTER(new ImportDeclarationContext());
 
     private final CompletionItemSorter itemSorter;
     private static final Map<Class, CompletionItemSorter> resolverMap =

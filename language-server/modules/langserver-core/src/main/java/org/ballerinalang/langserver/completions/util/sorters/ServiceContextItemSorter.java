@@ -18,10 +18,10 @@
 package org.ballerinalang.langserver.completions.util.sorters;
 
 import org.ballerinalang.langserver.commons.LSContext;
-import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
-import org.ballerinalang.langserver.completions.util.Priority;
+import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.eclipse.lsp4j.CompletionItem;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -31,39 +31,17 @@ import javax.annotation.Nonnull;
  * Item sorter for the service context.
  */
 public class ServiceContextItemSorter extends CompletionItemSorter {
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public void sortItems(LSContext ctx, List<CompletionItem> completionItems) {
-        this.setPriorities(completionItems);
-    }
-    
-    @Override
-    void setPriority(CompletionItem completionItem) {
-        String detail = completionItem.getDetail();
-        switch (detail) {
-            case ItemResolverConstants.B_TYPE:
-                completionItem.setSortText(Priority.PRIORITY150.toString());
-                break;
-            case ItemResolverConstants.PACKAGE_TYPE:
-                completionItem.setSortText(Priority.PRIORITY140.toString());
-                break;
-            case ItemResolverConstants.KEYWORD_TYPE:
-                completionItem.setSortText(Priority.PRIORITY120.toString());
-                break;
-            case ItemResolverConstants.FUNCTION_TYPE:
-                completionItem.setSortText(Priority.PRIORITY130.toString());
-                break;
-            case ItemResolverConstants.SNIPPET_TYPE:
-                completionItem.setSortText(Priority.PRIORITY110.toString());
-                break;
-            default:
-                completionItem.setSortText(Priority.PRIORITY160.toString());
-                break;
-        }
+    public List<CompletionItem> sortItems(LSContext ctx, List<LSCompletionItem> completionItems) {
+        return new ArrayList<>();
     }
 
     @Nonnull
     @Override
-    List<Class> getAttachedContexts() {
+    protected List<Class> getAttachedContexts() {
         return Collections.singletonList(ServiceContextItemSorter.class);
     }
 }
