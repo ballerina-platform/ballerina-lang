@@ -29,16 +29,16 @@ import java.util.ArrayDeque;
  */
 public class BLock {
 
-    private ArrayDeque<Strand> current;
+    private static ArrayDeque<Strand> current;
 
-    private ArrayDeque<Strand> waitingForLock;
+    private static ArrayDeque<Strand> waitingForLock;
 
-    public BLock() {
-        this.current = new ArrayDeque<>();
-        this.waitingForLock = new ArrayDeque<>();
+    static {
+        current = new ArrayDeque<>();
+        waitingForLock = new ArrayDeque<>();
     }
 
-    public synchronized boolean lock(Strand strand) {
+    public static synchronized boolean lock(Strand strand) {
         if (isLockFree() || lockedBySameContext(strand)) {
             current.offerLast(strand);
             return true;
@@ -52,7 +52,7 @@ public class BLock {
         return false;
     }
 
-    public synchronized void unlock() {
+    public static synchronized void unlock() {
         //current cannot be empty as unlock cannot be called without lock being called first.
         current.removeLast();
         if (!waitingForLock.isEmpty()) {
@@ -61,11 +61,11 @@ public class BLock {
         }
     }
 
-    private boolean isLockFree() {
+    private static boolean isLockFree() {
         return current.isEmpty();
     }
 
-    private boolean lockedBySameContext(Strand ctx) {
+    private static boolean lockedBySameContext(Strand ctx) {
         return current.getLast() == ctx;
     }
 }

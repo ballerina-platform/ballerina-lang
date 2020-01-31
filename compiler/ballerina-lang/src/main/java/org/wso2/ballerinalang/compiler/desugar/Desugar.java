@@ -2772,11 +2772,6 @@ public class Desugar extends BLangNodeVisitor {
         blockStmt.addStatement(ifelse);
         result = rewrite(blockStmt, env);
         enclLocks.pop();
-
-        //check both a field and parent are in locked variables
-        if (!lockStmt.lockVariables.isEmpty()) {
-            lockStmt.fieldVariables.entrySet().removeIf(entry -> lockStmt.lockVariables.contains(entry.getKey()));
-        }
     }
 
     @Override
@@ -3180,10 +3175,6 @@ public class Desugar extends BLangNodeVisitor {
             // Package variable | service variable.
             // We consider both of them as package level variables.
             genVarRefExpr = new BLangPackageVarRef((BVarSymbol) varRefExpr.symbol);
-
-            if (!enclLocks.isEmpty()) {
-                enclLocks.peek().addLockVariable((BVarSymbol) varRefExpr.symbol);
-            }
         }
 
         genVarRefExpr.type = varRefExpr.type;
@@ -3235,7 +3226,6 @@ public class Desugar extends BLangNodeVisitor {
                 targetVarRef = new BLangStructFieldAccessExpr(fieldAccessExpr.pos, fieldAccessExpr.expr, stringLit,
                         (BVarSymbol) fieldAccessExpr.symbol, false);
                 // Only supporting object field lock at the moment
-                addToLocks((BLangStructFieldAccessExpr) targetVarRef);
             }
         } else if (varRefTypeTag == TypeTags.RECORD ||
                 (varRefTypeTag == TypeTags.UNION &&
@@ -3263,24 +3253,6 @@ public class Desugar extends BLangNodeVisitor {
         targetVarRef.type = fieldAccessExpr.type;
         targetVarRef.optionalFieldAccess = fieldAccessExpr.optionalFieldAccess;
         result = targetVarRef;
-    }
-
-    private void addToLocks(BLangStructFieldAccessExpr targetVarRef) {
-        if (enclLocks.isEmpty()) {
-            return;
-        }
-
-        if (targetVarRef.expr.getKind() != NodeKind.SIMPLE_VARIABLE_REF
-                || ((BLangSimpleVarRef) targetVarRef.expr).symbol.owner.getKind() == SymbolKind.PACKAGE
-                || !Names.SELF.equals(((BLangLocalVarRef) targetVarRef.expr).symbol.name)) {
-            return;
-        }
-
-        // expr symbol is null when their is a array as the field
-        if (targetVarRef.indexExpr.getKind() == NodeKind.LITERAL) {
-            String field = (String) ((BLangLiteral) targetVarRef.indexExpr).value;
-            enclLocks.peek().addFieldVariable((BVarSymbol) ((BLangLocalVarRef) targetVarRef.expr).varSymbol, field);
-        }
     }
 
     @Override

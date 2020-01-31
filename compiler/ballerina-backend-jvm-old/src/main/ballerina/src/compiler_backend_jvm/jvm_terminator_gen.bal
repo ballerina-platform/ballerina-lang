@@ -90,11 +90,8 @@ type TerminatorGenerator object {
     function genLockTerm(bir:Lock lockIns, string funcName, int localVarOffset) {
         jvm:Label gotoLabel = self.labelGen.getLabel(funcName + lockIns.lockBB.id.value);
         string lockClass = "L" + LOCK_VALUE + ";";
-        var varClassName = lookupGlobalVarClassName(self.currentPackageName + lockIns.globleVar.name.value);
-        var lockName = computeLockNameFromString(lockIns.globleVar.name.value);
-        self.mv.visitFieldInsn(GETSTATIC, varClassName, lockName, lockClass);
         self.mv.visitVarInsn(ALOAD, localVarOffset);
-        self.mv.visitMethodInsn(INVOKEVIRTUAL, LOCK_VALUE, "lock", io:sprintf("(L%s;)Z", STRAND), false);
+        self.mv.visitMethodInsn(INVOKESTATIC, LOCK_VALUE, "lock", io:sprintf("(L%s;)Z", STRAND), false);
         self.mv.visitInsn(POP);
         genYieldCheckForLock(self.mv, self.labelGen, funcName, localVarOffset);
 
@@ -126,36 +123,10 @@ type TerminatorGenerator object {
     function genUnlockTerm(bir:Unlock unlockIns, string funcName, bir:BType? attachedType) {
         jvm:Label gotoLabel = self.labelGen.getLabel(funcName + unlockIns.unlockBB.id.value);
 
-        string currentPackageName = getPackageName(self.module.org.value, self.module.name.value);
-
         string lockClass = "L" + LOCK_VALUE + ";";
         // unlocked in the same order https://yarchive.net/comp/linux/lock_ordering.html
-        foreach var globalVariable in unlockIns.globleVars {
-            bir:VariableDcl globleVar = self.cleanupVariableDecl(globalVariable);
-            var varClassName = lookupGlobalVarClassName(self.currentPackageName + globleVar.name.value);
-            var lockName = computeLockNameFromString(globleVar.name.value);
-            self.mv.visitFieldInsn(GETSTATIC, varClassName, lockName, lockClass);
-            self.mv.visitMethodInsn(INVOKEVIRTUAL, LOCK_VALUE, "unlock", "()V", false);
-        }
 
-        foreach var lockDetail in unlockIns.localLocks {
-            bir:LocalLocks localLock = self.cleanupLocalLock(lockDetail);
-
-            if (attachedType is bir:BObjectType) {
-                string className = getTypeValueClassName(self.module, attachedType.name.value);
-                foreach var fieldName in localLock.fields {
-                    var lockName = computeLockNameFromString(fieldName);
-                    self.loadVar(localLock.localVar);
-                    self.mv.visitFieldInsn(GETFIELD, className, lockName, lockClass);
-                    self.mv.visitMethodInsn(INVOKEVIRTUAL, LOCK_VALUE, "unlock", "()V", false);
-                }
-            } else {
-                error err = error( "JVM field unlock generation is not supported for type " +
-                                io:sprintf("%s", attachedType));
-                panic err;
-            }
-
-        }
+        self.mv.visitMethodInsn(INVOKESTATIC, LOCK_VALUE, "unlock", "()V", false);
 
         self.mv.visitJumpInsn(GOTO, gotoLabel);
     }
