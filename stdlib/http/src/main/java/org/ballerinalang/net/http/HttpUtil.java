@@ -116,6 +116,7 @@ import static org.ballerinalang.mime.util.EntityBodyHandler.checkEntityBodyAvail
 import static org.ballerinalang.mime.util.MimeConstants.BOUNDARY;
 import static org.ballerinalang.mime.util.MimeConstants.ENTITY_BYTE_CHANNEL;
 import static org.ballerinalang.mime.util.MimeConstants.ENTITY_HEADERS;
+import static org.ballerinalang.mime.util.MimeConstants.ENTITY_TRAILER_HEADERS;
 import static org.ballerinalang.mime.util.MimeConstants.IS_BODY_BYTE_CHANNEL_ALREADY_SET;
 import static org.ballerinalang.mime.util.MimeConstants.MULTIPART_AS_PRIMARY_TYPE;
 import static org.ballerinalang.mime.util.MimeConstants.OCTET_STREAM;
@@ -219,6 +220,7 @@ public class HttpUtil {
         HttpCarbonMessage httpCarbonMessage = HttpUtil.getCarbonMsg(httpMessageStruct,
                 HttpUtil.createHttpCarbonMessage(isRequest(httpMessageStruct)));
         entity.addNativeData(ENTITY_HEADERS, httpCarbonMessage.getHeaders());
+        entity.addNativeData(ENTITY_TRAILER_HEADERS, httpCarbonMessage.getTrailerHeaders());
         entity.addNativeData(ENTITY_BYTE_CHANNEL, null);
         httpMessageStruct.set(isRequest(httpMessageStruct) ? REQUEST_ENTITY_FIELD : RESPONSE_ENTITY_FIELD
                 , entity);
@@ -794,6 +796,7 @@ public class HttpUtil {
             throw createHttpError("Invalid content length", HttpErrorType.INVALID_CONTENT_LENGTH);
         }
         entity.addNativeData(ENTITY_HEADERS, cMsg.getHeaders());
+        entity.addNativeData(ENTITY_TRAILER_HEADERS, cMsg.getTrailerHeaders());
     }
 
     /**
@@ -828,6 +831,12 @@ public class HttpUtil {
             //Once the headers are synced, set the entity headers to transport message headers so that they
             //both refer the same header map for future operations
             entityObj.addNativeData(ENTITY_HEADERS, outboundMsg.getHeaders());
+        }
+
+        HttpHeaders transportTrailingHeaders = outboundMsg.getTrailerHeaders();
+        HttpHeaders trailingHeaders = (HttpHeaders) entityObj.getNativeData(ENTITY_TRAILER_HEADERS);
+        if (trailingHeaders != null && trailingHeaders != transportTrailingHeaders) {
+            transportTrailingHeaders.add(trailingHeaders);
         }
     }
 
