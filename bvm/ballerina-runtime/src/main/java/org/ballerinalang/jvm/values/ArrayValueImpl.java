@@ -530,6 +530,46 @@ public class ArrayValueImpl extends AbstractArrayValue {
         return copy;
     }
 
+    /**
+     * Return a subarray starting from `startIndex` (inclusive) to `endIndex` (exclusive).
+     *
+     * @param startIndex index of first member to include in the slice
+     * @param endIndex index of first member not to include in the slice
+     * @return array slice within specified range
+     */
+    @Deprecated
+    public ArrayValueImpl slice(long startIndex, long endIndex) {
+        ArrayValueImpl slicedArray;
+        int slicedSize = (int) (endIndex - startIndex);
+        switch (this.elementType.getTag()) {
+            case TypeTags.INT_TAG:
+                slicedArray = new ArrayValueImpl(new long[slicedSize]);
+                System.arraycopy(intValues, (int) startIndex, slicedArray.intValues, 0, slicedSize);
+                break;
+            case TypeTags.BOOLEAN_TAG:
+                slicedArray = new ArrayValueImpl(new boolean[slicedSize]);
+                System.arraycopy(booleanValues, (int) startIndex, slicedArray.booleanValues, 0, slicedSize);
+                break;
+            case TypeTags.BYTE_TAG:
+                slicedArray = new ArrayValueImpl(new byte[slicedSize]);
+                System.arraycopy(byteValues, (int) startIndex, slicedArray.byteValues, 0, slicedSize);
+                break;
+            case TypeTags.FLOAT_TAG:
+                slicedArray = new ArrayValueImpl(new double[slicedSize]);
+                System.arraycopy(floatValues, (int) startIndex, slicedArray.floatValues, 0, slicedSize);
+                break;
+            case TypeTags.STRING_TAG:
+                slicedArray = new ArrayValueImpl(new String[slicedSize]);
+                System.arraycopy(stringValues, (int) startIndex, slicedArray.stringValues, 0, slicedSize);
+                break;
+            default:
+                slicedArray = new ArrayValueImpl(new Object[slicedSize], new BArrayType(this.elementType));
+                System.arraycopy(refValues, (int) startIndex, slicedArray.refValues, 0, slicedSize);
+                break;
+        }
+        return slicedArray;
+    }
+
     @Override
     public String toString() {
         return stringValue();

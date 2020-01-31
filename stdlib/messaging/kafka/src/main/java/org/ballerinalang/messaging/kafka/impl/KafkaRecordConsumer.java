@@ -61,10 +61,7 @@ public class KafkaRecordConsumer {
     private ScheduledExecutorService executorService = Executors.newScheduledThreadPool(1);
     private ScheduledFuture pollTaskFuture;
 
-    public KafkaRecordConsumer(KafkaListener kafkaListener,
-                               Properties configParams,
-                               String serviceId,
-                               int consumerId,
+    public KafkaRecordConsumer(KafkaListener kafkaListener, Properties configParams, String serviceId, int consumerId,
                                KafkaConsumer kafkaConsumer) {
         this.serviceId = serviceId;
         this.consumerId = consumerId;
@@ -110,7 +107,7 @@ public class KafkaRecordConsumer {
             }
             if (logger.isDebugEnabled()) {
                 logger.debug("Kafka service " + this.serviceId + " attached to consumer "
-                        + this.consumerId + " has received " + recordsRetrieved.count() + " records.");
+                                     + this.consumerId + " has received " + recordsRetrieved.count() + " records.");
             }
             processRetrievedRecords(recordsRetrieved);
         } catch (KafkaException | IllegalStateException | IllegalArgumentException e) {
@@ -150,8 +147,8 @@ public class KafkaRecordConsumer {
      */
     public void consume() {
         final Runnable pollingFunction = () -> poll();
-        this.pollTaskFuture = this.executorService.scheduleAtFixedRate(pollingFunction, 0,
-                this.pollingInterval, TimeUnit.MILLISECONDS);
+        this.pollTaskFuture = this.executorService.scheduleAtFixedRate(pollingFunction, 0, this.pollingInterval,
+                                                                       TimeUnit.MILLISECONDS);
     }
 
     /**

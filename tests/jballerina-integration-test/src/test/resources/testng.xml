@@ -104,6 +104,7 @@
             <class name="org.ballerinalang.test.service.http2.Http2MutualSslTestCase"/>
             <class name="org.ballerinalang.test.service.http2.Http2ForwardHeaderTest"/>
             <class name="org.ballerinalang.test.service.http2.Http2100ContinueTestCase"/>
+            <class name="org.ballerinalang.test.service.http2.Http2TrailingHeadersTestCase"/>
         </classes>
     </test>
 

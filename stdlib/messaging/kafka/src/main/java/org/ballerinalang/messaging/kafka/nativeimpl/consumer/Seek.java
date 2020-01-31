@@ -24,21 +24,36 @@ import org.apache.kafka.common.TopicPartition;
 import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.api.BArray;
 import org.ballerinalang.messaging.kafka.observability.KafkaMetricsUtil;
 import org.ballerinalang.messaging.kafka.observability.KafkaObservabilityConstants;
 import org.ballerinalang.messaging.kafka.observability.KafkaTracingUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
 
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.ALIAS_OFFSET;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.CONSUMER_ERROR;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.NATIVE_CONSUMER;
 import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.createKafkaError;
 import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.createTopicPartitionFromPartitionOffset;
+import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.getTopicPartitionList;
 
 /**
- * Native function seeks given consumer to given offset reside in partition.
+ * Native methods to handle ballerina kafka consumer seek operations.
  */
 public class Seek {
 
+    private static final Logger logger = LoggerFactory.getLogger(Seek.class);
+
+    /**
+     * Seek ballerina kafka consumer to a given partition offset.
+     *
+     * @param consumerObject  Kafka consumer object from ballerina.
+     * @param partitionOffset Partition offset record to seek.
+     * @return {@code ErrorValue}, if there's any error, null otherwise.
+     */
     public static Object seek(ObjectValue consumerObject, MapValue<String, Object> partitionOffset) {
         KafkaTracingUtil.traceResourceInvocation(Scheduler.getStrand(), consumerObject);
         KafkaConsumer kafkaConsumer = (KafkaConsumer) consumerObject.getNativeData(NATIVE_CONSUMER);
@@ -50,6 +65,46 @@ public class Seek {
         } catch (IllegalStateException | IllegalArgumentException | KafkaException e) {
             KafkaMetricsUtil.reportConsumerError(consumerObject, KafkaObservabilityConstants.ERROR_TYPE_SEEK);
             return createKafkaError("Failed to seek the consumer: " + e.getMessage(), CONSUMER_ERROR);
+        }
+        return null;
+    }
+
+    /**
+     * Seek ballerina kafka consumer to the beginning.
+     *
+     * @param consumerObject  Kafka consumer object from ballerina.
+     * @param topicPartitions Topic partitions to seek to the beginning.
+     * @return {@code ErrorValue}, if there's any error, null otherwise.
+     */
+    public static Object seekToBeginning(ObjectValue consumerObject, BArray topicPartitions) {
+        KafkaTracingUtil.traceResourceInvocation(Scheduler.getStrand(), consumerObject);
+        KafkaConsumer kafkaConsumer = (KafkaConsumer) consumerObject.getNativeData(NATIVE_CONSUMER);
+        ArrayList<TopicPartition> partitionList = getTopicPartitionList(topicPartitions, logger);
+        try {
+            kafkaConsumer.seekToBeginning(partitionList);
+        } catch (IllegalStateException | IllegalArgumentException | KafkaException e) {
+            KafkaMetricsUtil.reportConsumerError(consumerObject, KafkaObservabilityConstants.ERROR_TYPE_SEEK_BEG);
+            return createKafkaError("Failed to seek the consumer to the beginning: " + e.getMessage(), CONSUMER_ERROR);
+        }
+        return null;
+    }
+
+    /**
+     * Seek ballerina kafka consumer to the end.
+     *
+     * @param consumerObject  Kafka consumer object from ballerina.
+     * @param topicPartitions Topic partitions to seek to the end.
+     * @return {@code ErrorValue}, if there's any error, null otherwise.
+     */
+    public static Object seekToEnd(ObjectValue consumerObject, BArray topicPartitions) {
+        KafkaTracingUtil.traceResourceInvocation(Scheduler.getStrand(), consumerObject);
+        KafkaConsumer kafkaConsumer = (KafkaConsumer) consumerObject.getNativeData(NATIVE_CONSUMER);
+        ArrayList<TopicPartition> partitionList = getTopicPartitionList(topicPartitions, logger);
+        try {
+            kafkaConsumer.seekToEnd(partitionList);
+        } catch (IllegalStateException | IllegalArgumentException | KafkaException e) {
+            KafkaMetricsUtil.reportConsumerError(consumerObject, KafkaObservabilityConstants.ERROR_TYPE_SEEK_END);
+            return createKafkaError("Failed to seek the consumer to the end: " + e.getMessage(), CONSUMER_ERROR);
         }
         return null;
     }

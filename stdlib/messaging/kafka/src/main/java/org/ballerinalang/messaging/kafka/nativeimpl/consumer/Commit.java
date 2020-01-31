@@ -19,22 +19,45 @@
 package org.ballerinalang.messaging.kafka.nativeimpl.consumer;
 
 import org.apache.kafka.clients.consumer.KafkaConsumer;
+import org.apache.kafka.clients.consumer.OffsetAndMetadata;
 import org.apache.kafka.common.KafkaException;
+import org.apache.kafka.common.TopicPartition;
 import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.api.BArray;
 import org.ballerinalang.messaging.kafka.observability.KafkaMetricsUtil;
 import org.ballerinalang.messaging.kafka.observability.KafkaObservabilityConstants;
 import org.ballerinalang.messaging.kafka.observability.KafkaTracingUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.time.Duration;
+import java.util.Map;
+import java.util.Properties;
+
+import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.ALIAS_DURATION;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.CONSUMER_ERROR;
+import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.DURATION_UNDEFINED_VALUE;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.NATIVE_CONSUMER;
+import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.NATIVE_CONSUMER_CONFIG;
 import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.createKafkaError;
+import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.getDefaultApiTimeout;
+import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.getIntFromLong;
+import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.getPartitionToMetadataMap;
 
 /**
- * Native function commits a given consumer offsets to offset topic.
+ * Native methods to handle ballerina kafka consumer commits.
  */
 public class Commit {
 
+    private static final Logger logger = LoggerFactory.getLogger(Commit.class);
+
+    /**
+     * Commit messages for the consumer.
+     *
+     * @param consumerObject Kafka consumer object from ballerina.
+     * @return {@code ErrorValue}, if there's any error, null otherwise.
+     */
     public static Object commit(ObjectValue consumerObject) {
         KafkaTracingUtil.traceResourceInvocation(Scheduler.getStrand(), consumerObject);
         KafkaConsumer kafkaConsumer = (KafkaConsumer) consumerObject.getNativeData(NATIVE_CONSUMER);
@@ -45,5 +68,44 @@ public class Commit {
             return createKafkaError("Failed to commit offsets: " + e.getMessage(), CONSUMER_ERROR);
         }
         return null;
+    }
+
+    /**
+     * Commit given offsets for the ballerina kafka consumer.
+     *
+     * @param consumerObject Kafka consumer object from ballerina.
+     * @param offsets        Array of Partition offsets to commit.
+     * @param duration       Duration in milliseconds to try the operation.
+     * @return {@code ErrorValue}, if there's any error, null otherwise.
+     */
+    public static Object commitOffset(ObjectValue consumerObject, BArray offsets, long duration) {
+        KafkaTracingUtil.traceResourceInvocation(Scheduler.getStrand(), consumerObject);
+        KafkaConsumer kafkaConsumer = (KafkaConsumer) consumerObject.getNativeData(NATIVE_CONSUMER);
+
+        Properties consumerProperties = (Properties) consumerObject.getNativeData(NATIVE_CONSUMER_CONFIG);
+        int defaultApiTimeout = getDefaultApiTimeout(consumerProperties);
+        int apiTimeout = getIntFromLong(duration, logger, ALIAS_DURATION);
+        Map<TopicPartition, OffsetAndMetadata> partitionToMetadataMap = getPartitionToMetadataMap(offsets);
+        try {
+            if (apiTimeout > DURATION_UNDEFINED_VALUE) { // API timeout should given the priority over the default value
+                consumerCommitSyncWithDuration(kafkaConsumer, partitionToMetadataMap, apiTimeout);
+            } else if (defaultApiTimeout > DURATION_UNDEFINED_VALUE) {
+                consumerCommitSyncWithDuration(kafkaConsumer, partitionToMetadataMap, defaultApiTimeout);
+            } else {
+                kafkaConsumer.commitSync(partitionToMetadataMap);
+            }
+        } catch (KafkaException e) {
+            KafkaMetricsUtil.reportConsumerError(consumerObject, KafkaObservabilityConstants.ERROR_TYPE_COMMIT);
+            return createKafkaError("Failed to commit the offset: " + e.getMessage(), CONSUMER_ERROR);
+        }
+        return null;
+    }
+
+    private static void consumerCommitSyncWithDuration(KafkaConsumer consumer,
+                                                       Map<TopicPartition, OffsetAndMetadata> metadataMap,
+                                                       long timeout) {
+
+        Duration duration = Duration.ofMillis(timeout);
+        consumer.commitSync(metadataMap, duration);
     }
 }

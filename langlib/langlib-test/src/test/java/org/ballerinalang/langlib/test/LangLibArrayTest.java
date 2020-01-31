@@ -120,19 +120,55 @@ public class LangLibArrayTest {
         assertEquals(arr.getFloat(0), 23.45);
         assertEquals(arr.getFloat(1), 34.56);
         assertEquals(arr.getFloat(2), 45.67);
+        assertEquals(((BInteger) result.getRefValue(1)).intValue(), 3);
 
-        arr = (BValueArray) result.getRefValue(1);
+        arr = (BValueArray) result.getRefValue(2);
         assertEquals(arr.elementType.getTag(), TypeTags.FLOAT_TAG);
         assertEquals(arr.size(), 3);
         assertEquals(arr.getFloat(0), 34.56);
         assertEquals(arr.getFloat(1), 45.67);
         assertEquals(arr.getFloat(2), 56.78);
+        assertEquals(((BInteger) result.getRefValue(3)).intValue(), 3);
 
-        arr = (BValueArray) result.getRefValue(2);
+        arr = (BValueArray) result.getRefValue(4);
         assertEquals(arr.elementType.getTag(), TypeTags.FLOAT_TAG);
         assertEquals(arr.size(), 2);
         assertEquals(arr.getFloat(0), 45.67);
         assertEquals(arr.getFloat(1), 56.78);
+        assertEquals(((BInteger) result.getRefValue(5)).intValue(), 2);
+    }
+
+    @Test
+    public void testPushAfterSlice() {
+        BValue[] returns = BRunUtil.invokeFunction(compileResult, "testPushAfterSlice");
+        BValueArray result = (BValueArray) returns[0];
+
+        assertEquals(((BInteger) result.getRefValue(0)).intValue(), 3);
+        assertEquals(((BInteger) result.getRefValue(1)).intValue(), 4);
+
+        BValueArray arr = (BValueArray) result.getRefValue(2);
+        assertEquals(arr.elementType.getTag(), TypeTags.FLOAT_TAG);
+        assertEquals(arr.size(), 4);
+        assertEquals(arr.getFloat(0), 23.45);
+        assertEquals(arr.getFloat(1), 34.56);
+        assertEquals(arr.getFloat(2), 45.67);
+        assertEquals(arr.getFloat(3), 20.1);
+    }
+
+    @Test
+    public void testPushAfterSliceFixed() {
+        BValue[] returns = BRunUtil.invokeFunction(compileResult, "testPushAfterSliceFixed");
+        BValueArray result = (BValueArray) returns[0];
+
+        assertEquals(((BInteger) result.getRefValue(0)).intValue(), 2);
+        assertEquals(((BInteger) result.getRefValue(1)).intValue(), 3);
+
+        BValueArray arr = (BValueArray) result.getRefValue(2);
+        assertEquals(arr.elementType.getTag(), TypeTags.INT_TAG);
+        assertEquals(arr.size(), 3);
+        assertEquals(arr.getInt(0), 4);
+        assertEquals(arr.getInt(1), 5);
+        assertEquals(arr.getInt(2), 88);
     }
 
     @Test
