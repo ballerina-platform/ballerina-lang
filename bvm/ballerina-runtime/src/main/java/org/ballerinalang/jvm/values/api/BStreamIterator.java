@@ -28,7 +28,7 @@ import org.ballerinalang.jvm.scheduling.Strand;
  * <i>Note: This is an internal API and may change in future versions.</i>
  * </p>
  *
- * @since 1.2
+ * @since 1.2.0
  */
 public interface BStreamIterator {
 

@@ -36,7 +36,7 @@ import java.util.UUID;
  * <i>Note: This is an internal API and may change in future versions.</i>
  * </p>
  *
- * @since 0.995.0
+ * @since 1.2.0
  */
 public class StreamValue implements RefValue, BStream {
 
