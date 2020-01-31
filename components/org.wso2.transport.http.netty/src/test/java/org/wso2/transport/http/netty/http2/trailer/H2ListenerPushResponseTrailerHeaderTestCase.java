@@ -27,6 +27,7 @@ import org.slf4j.LoggerFactory;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+import org.wso2.transport.http.netty.contentaware.listeners.TrailerHeaderListener;
 import org.wso2.transport.http.netty.contract.HttpClientConnector;
 import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
 import org.wso2.transport.http.netty.contract.ServerConnector;
@@ -36,7 +37,6 @@ import org.wso2.transport.http.netty.contract.config.SenderConfiguration;
 import org.wso2.transport.http.netty.contract.config.TransportsConfiguration;
 import org.wso2.transport.http.netty.contract.exceptions.ServerConnectorException;
 import org.wso2.transport.http.netty.contractimpl.DefaultHttpWsConnectorFactory;
-import org.wso2.transport.http.netty.http2.listeners.Http2EchoServerWithTrailerHeader;
 import org.wso2.transport.http.netty.message.Http2PushPromise;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import org.wso2.transport.http.netty.message.HttpConnectorUtil;
@@ -71,12 +71,12 @@ public class H2ListenerPushResponseTrailerHeaderTestCase {
                 .createServerConnector(TestUtil.getDefaultServerBootstrapConfig(), listenerConfiguration);
         ServerConnectorFuture serverConnectorFuture = serverConnector.start();
 
-        Http2EchoServerWithTrailerHeader http2ConnectorListener = new Http2EchoServerWithTrailerHeader();
+        TrailerHeaderListener http2ConnectorListener = new TrailerHeaderListener();
         HttpHeaders trailers = new DefaultLastHttpContent().trailingHeaders();
         trailers.add("foo", "bar;q=0.8");
         trailers.add("jkl", "ballerina");
         http2ConnectorListener.setTrailer(trailers);
-        http2ConnectorListener.setMessageType(Http2EchoServerWithTrailerHeader.MessageType.PUSH_RESPONSE);
+        http2ConnectorListener.setMessageType(TrailerHeaderListener.MessageType.PUSH_RESPONSE);
         serverConnectorFuture.setHttpConnectorListener(http2ConnectorListener);
 
         try {

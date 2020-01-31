@@ -27,6 +27,7 @@ import org.slf4j.LoggerFactory;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+import org.wso2.transport.http.netty.contentaware.listeners.TrailerHeaderListener;
 import org.wso2.transport.http.netty.contract.HttpClientConnector;
 import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
 import org.wso2.transport.http.netty.contract.ServerConnector;
@@ -36,7 +37,6 @@ import org.wso2.transport.http.netty.contract.config.SenderConfiguration;
 import org.wso2.transport.http.netty.contract.config.TransportsConfiguration;
 import org.wso2.transport.http.netty.contract.exceptions.ServerConnectorException;
 import org.wso2.transport.http.netty.contractimpl.DefaultHttpWsConnectorFactory;
-import org.wso2.transport.http.netty.http2.listeners.Http2EchoServerWithTrailerHeader;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import org.wso2.transport.http.netty.message.HttpConnectorUtil;
 import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
@@ -68,12 +68,12 @@ public class H2ListenerIntendedResponseTrailerHeaderTestCase {
                 .createServerConnector(TestUtil.getDefaultServerBootstrapConfig(), listenerConfiguration);
         ServerConnectorFuture serverConnectorFuture = serverConnector.start();
 
-        Http2EchoServerWithTrailerHeader http2ConnectorListener = new Http2EchoServerWithTrailerHeader();
+        TrailerHeaderListener http2ConnectorListener = new TrailerHeaderListener();
         HttpHeaders trailers = new DefaultLastHttpContent().trailingHeaders();
         trailers.add("foo", "bar");
         trailers.add("baz", "ballerina");
         http2ConnectorListener.setTrailer(trailers);
-        http2ConnectorListener.setMessageType(Http2EchoServerWithTrailerHeader.MessageType.RESPONSE);
+        http2ConnectorListener.setMessageType(TrailerHeaderListener.MessageType.RESPONSE);
         serverConnectorFuture.setHttpConnectorListener(http2ConnectorListener);
 
         try {
@@ -115,8 +115,10 @@ public class H2ListenerIntendedResponseTrailerHeaderTestCase {
         assertNotNull(response);
         String result = TestUtil.getStringFromInputStream(new HttpMessageDataStreamer(response).getInputStream());
         assertEquals(result, expectedValue, "Expected response not received");
-        assertEquals(response.getHeaders().get("Trailer"), "foo,baz");
+        assertEquals(response.getHeaders().get("Trailer"), "foo,baz,Max-forwards");
         assertEquals(response.getTrailerHeaders().get("foo"), "bar");
+        assertEquals(response.getTrailerHeaders().get("baz"), "ballerina");
+        assertEquals(response.getTrailerHeaders().get("Max-forwards"), "five");
     }
 
     @AfterClass

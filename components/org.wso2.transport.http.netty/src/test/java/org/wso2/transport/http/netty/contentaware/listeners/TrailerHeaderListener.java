@@ -17,9 +17,10 @@
  *
  */
 
-package org.wso2.transport.http.netty.http2.listeners;
+package org.wso2.transport.http.netty.contentaware.listeners;
 
 import io.netty.buffer.Unpooled;
+import io.netty.handler.codec.http.DefaultHttpHeaders;
 import io.netty.handler.codec.http.DefaultHttpResponse;
 import io.netty.handler.codec.http.DefaultLastHttpContent;
 import io.netty.handler.codec.http.HttpContent;
@@ -31,7 +32,6 @@ import io.netty.handler.codec.http.HttpVersion;
 import io.netty.handler.codec.http.LastHttpContent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.transport.http.netty.contentaware.listeners.EchoMessageListener;
 import org.wso2.transport.http.netty.contract.Constants;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.contract.exceptions.ServerConnectorException;
@@ -45,21 +45,22 @@ import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import static io.netty.handler.codec.http.LastHttpContent.EMPTY_LAST_CONTENT;
+
 /**
  * {@code Http2EchoServerWithTrailerHeader} is a HttpConnectorListener which receives messages and respond back with
  * trailing headers.
  *
  * @since 6.3.0
  */
-public class Http2EchoServerWithTrailerHeader extends EchoMessageListener {
+public class TrailerHeaderListener extends EchoMessageListener {
 
-    private static final Logger LOG = LoggerFactory.getLogger(Http2EchoServerWithTrailerHeader.class);
+    private static final Logger LOG = LoggerFactory.getLogger(TrailerHeaderListener.class);
     private ExecutorService executor = Executors.newSingleThreadExecutor();
     private HttpHeaders expectedTrailer;
     private MessageType messageType;
 
     public enum MessageType {
-        REQUEST,
         RESPONSE,
         PUSH_RESPONSE
     }
@@ -76,36 +77,26 @@ public class Http2EchoServerWithTrailerHeader extends EchoMessageListener {
     public void onMessage(HttpCarbonMessage httpRequest) {
         executor.execute(() -> {
             switch (messageType) {
-                case REQUEST:
-                    String trailerHeaderValue = httpRequest.getHeader(HttpHeaderNames.TRAILER.toString());
+                case RESPONSE:
                     HttpCarbonMessage httpResponse = getHttpCarbonMessage();
                     do {
                         HttpContent httpContent = httpRequest.getHttpContent();
                         httpResponse.addHttpContent(httpContent);
-                        if (httpContent instanceof LastHttpContent) {
-                            expectedTrailer = ((LastHttpContent) httpContent).trailingHeaders();
-                            break;
-                        }
-                    } while (true);
-                    httpResponse.setHeader("Request-trailer", trailerHeaderValue);
-                    httpResponse.getHeaders().add(expectedTrailer);
-                    try {
-                        httpRequest.respond(httpResponse);
-                    } catch (ServerConnectorException e) {
-                        LOG.error("Error occurred during message notification: " + e.getMessage());
-                    }
-                    break;
-                case RESPONSE:
-                    httpResponse = getHttpCarbonMessage();
-                    populateTrailerHeader(httpResponse);
-                    do {
-                        HttpContent httpContent = httpRequest.getHttpContent();
-                        httpResponse.addHttpContent(httpContent);
-                        if (httpContent instanceof LastHttpContent) {
+                        if (httpContent instanceof LastHttpContent && httpContent != EMPTY_LAST_CONTENT) {
+                            // test trailer headers lies in the lastHttpContent
                             ((LastHttpContent) httpContent).trailingHeaders().add(expectedTrailer);
                             break;
                         }
-                    } while (true);
+                    }
+                    while (true);
+
+                    // test trailer headers lies in the carbon message
+                    HttpHeaders injectTempHeader = new DefaultHttpHeaders();
+                    injectTempHeader.add("Max-forwards", "five");
+                    expectedTrailer.add(injectTempHeader);
+                    populateTrailerHeader(httpResponse);
+                    httpResponse.getTrailerHeaders().add(injectTempHeader);
+
                     try {
                         httpRequest.respond(httpResponse);
                     } catch (ServerConnectorException e) {

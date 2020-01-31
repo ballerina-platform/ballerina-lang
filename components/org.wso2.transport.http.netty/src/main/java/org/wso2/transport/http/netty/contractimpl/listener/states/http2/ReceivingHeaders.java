@@ -22,12 +22,8 @@ import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.DefaultLastHttpContent;
 import io.netty.handler.codec.http.HttpContent;
-import io.netty.handler.codec.http.HttpHeaders;
-import io.netty.handler.codec.http.HttpVersion;
-import io.netty.handler.codec.http.LastHttpContent;
 import io.netty.handler.codec.http2.Http2Exception;
 import io.netty.handler.codec.http2.Http2Headers;
-import io.netty.handler.codec.http2.HttpConversionUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
@@ -44,7 +40,6 @@ import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 import static io.netty.handler.codec.http.HttpResponseStatus.REQUEST_TIMEOUT;
 import static org.wso2.transport.http.netty.contract.Constants.HTTP2_METHOD;
-import static org.wso2.transport.http.netty.contract.Constants.HTTP_VERSION_2_0;
 import static org.wso2.transport.http.netty.contract.Constants.REMOTE_CLIENT_CLOSED_WHILE_READING_INBOUND_REQUEST_HEADERS;
 import static org.wso2.transport.http.netty.contractimpl.common.Util.is100ContinueRequest;
 import static org.wso2.transport.http.netty.contractimpl.common.states.Http2StateUtil.notifyRequestListener;
@@ -73,13 +68,12 @@ public class ReceivingHeaders implements ListenerState {
             throws Http2Exception {
         int streamId = headersFrame.getStreamId();
         if (headersFrame.isEndOfStream()) {
-            // Retrieve HTTP request and add last http content with trailer headers.
+            // Retrieve HTTP request and add last http content.
             InboundMessageHolder inboundMessageHolder = http2SourceHandler.getStreamIdRequestMap().get(streamId);
             HttpCarbonMessage sourceReqCMsg =
                     inboundMessageHolder != null ? inboundMessageHolder.getInboundMsg() : null;
-            if (sourceReqCMsg != null) {
-                readTrailerHeaders(streamId, headersFrame.getHeaders(), sourceReqCMsg);
-            } else if (headersFrame.getHeaders().contains(HTTP2_METHOD)) {
+
+            if (headersFrame.getHeaders().contains(HTTP2_METHOD)) {
                 // if the header frame is an initial header frame and also it has endOfStream
                 sourceReqCMsg = setupHttp2CarbonMsg(headersFrame.getHeaders(), streamId);
 
@@ -154,17 +148,6 @@ public class ReceivingHeaders implements ListenerState {
                                            Http2OutboundRespListener http2OutboundRespListener, int streamId) {
         handleIncompleteInboundMessage(http2OutboundRespListener.getInboundRequestMsg(),
                                        REMOTE_CLIENT_CLOSED_WHILE_READING_INBOUND_REQUEST_HEADERS);
-    }
-
-    private void readTrailerHeaders(int streamId, Http2Headers headers, HttpCarbonMessage requestMessage)
-            throws Http2Exception {
-        HttpVersion version = new HttpVersion(HTTP_VERSION_2_0, true);
-        LastHttpContent lastHttpContent = new DefaultLastHttpContent();
-        HttpHeaders trailers = lastHttpContent.trailingHeaders();
-        HttpConversionUtil.addHttp2ToHttpHeaders(streamId, headers, trailers, version, true, true);
-        requestMessage.getTrailerHeaders().add(trailers);
-        requestMessage.addHttpContent(lastHttpContent);
-        requestMessage.setLastHttpContentArrived();
     }
 
     private HttpCarbonMessage setupHttp2CarbonMsg(Http2Headers http2Headers, int streamId) throws Http2Exception {
