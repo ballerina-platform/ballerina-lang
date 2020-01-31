@@ -95,9 +95,10 @@ public class MappingConstructorExprTest {
                 { "testVarNameAsJsonField" },
                 { "testLikeModuleQualifiedVarNameAsJsonField" },
                 { "testVarNameFieldInAnnotation" }, // final test using `s` since `s` is updated
-                { "testMappingConstuctorWithAnyCET" },
-                { "testMappingConstuctorWithAnydataCET" },
-                { "testMappingConstuctorWithJsonCET" }
+                { "testMappingConstuctorWithAnyACET" },
+                { "testMappingConstuctorWithAnydataACET" },
+                { "testMappingConstuctorWithJsonACET" },
+                { "testMappingConstrExprWithNoACET" }
         };
     }
 }

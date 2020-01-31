@@ -1005,7 +1005,20 @@ public class TypeChecker extends BLangNodeVisitor {
                         continue;
                 }
 
-                if (!possibleTypes.contains(currentType)) {
+                if (currentType.tag == TypeTags.MAP) {
+                    boolean uniqueMapType = true;
+
+                    for (BType type : possibleTypes) {
+                        if (types.isSameType(type, currentType)) {
+                            uniqueMapType = false;
+                            break;
+                        }
+                    }
+
+                    if (uniqueMapType) {
+                        possibleTypes.add(currentType);
+                    }
+                } else if (!possibleTypes.contains(currentType)) {
                     possibleTypes.add(currentType);
                 }
             }

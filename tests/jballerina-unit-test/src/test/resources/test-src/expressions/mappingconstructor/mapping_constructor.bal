@@ -126,7 +126,7 @@ function testVarNameFieldInAnnotation() {
 
 const TYPEDESC_MAP_ANY = "typedesc map";
 
-function testMappingConstuctorWithAnyCET() {
+function testMappingConstuctorWithAnyACET() {
     any a = {a: 1, b: 2};
     typedesc<any> ta = typeof a;
     string typedescString = ta.toString();
@@ -148,7 +148,7 @@ function testMappingConstuctorWithAnyCET() {
 
 const TYPEDESC_MAP_ANYDATA = "typedesc map<anydata>";
 
-function testMappingConstuctorWithAnydataCET() {
+function testMappingConstuctorWithAnydataACET() {
     anydata a = {a: "a", b: "b"};
     typedesc<any> ta = typeof a;
     string typedescString = ta.toString();
@@ -170,7 +170,7 @@ function testMappingConstuctorWithAnydataCET() {
 
 const TYPEDESC_MAP_JSON = "typedesc map<json>";
 
-function testMappingConstuctorWithJsonCET() {
+function testMappingConstuctorWithJsonACET() {
     json a = {a: "a", b: true};
     typedesc<any> ta = typeof a;
     string typedescString = ta.toString();
@@ -189,6 +189,44 @@ function testMappingConstuctorWithJsonCET() {
 
     panic getFailureError(TYPEDESC_MAP_JSON, typedescString);
 }
+
+var v1 = {
+    a: 1,
+    b: "hello world",
+    c: new Bar("bar")
+};
+
+function testMappingConstrExprWithNoACET() {
+    string expectedTypedescString = "typedesc map<int|string|Bar>";
+    typedesc<any> ta = typeof v1;
+    string typedescString = ta.toString();
+
+    if typedescString != expectedTypedescString {
+        panic getFailureError(expectedTypedescString, typedescString);
+    }
+
+    var v2 = {
+        s,
+        i,
+        s2: s,
+        t: typeof s
+    };
+
+    expectedTypedescString = "typedesc map<string|int|typedesc>";
+    ta = typeof v2;
+    typedescString = ta.toString();
+
+    if typedescString == expectedTypedescString {
+        return;
+    }
+    panic getFailureError(expectedTypedescString, typedescString);
+}
+
+type Bar object {
+    public function __init(any arg) {
+
+    }
+};
 
 function getFailureError(any|error expected, any|error actual) returns error {
     return  error(ASSERTION_ERROR_REASON,
