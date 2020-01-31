@@ -94,18 +94,10 @@
 
             <class name="org.wso2.transport.http.netty.method.head.HeadRequestTestCase"/>
             <class name="org.wso2.transport.http.netty.message.GetFullMessageTestCase" />
-        </classes>
-    </test>
-    <test name="WebSocket Tests" parallel="false">
-        <classes>
-            <class name="org.wso2.transport.http.netty.websocket.server.WebSocketServerHandshakeFunctionalityTestCase"/>
-            <class name="org.wso2.transport.http.netty.websocket.server.WebSocketServerFunctionalityTestCase"/>
-            <class name="org.wso2.transport.http.netty.websocket.client.WebSocketClientHandshakeFunctionalityTestCase"/>
-            <class name="org.wso2.transport.http.netty.websocket.client.WebSocketClientFunctionalityTestCase"/>
-            <class name="org.wso2.transport.http.netty.websocket.passthrough.WebSocketPassThroughTestCase"/>
-            <class name="org.wso2.transport.http.netty.websocket.ssl.WebSocketSSLHandshakeSuccessfulTestCase"/>
-            <class name="org.wso2.transport.http.netty.websocket.ssl.WebSocketSSLHandshakeFailureTestCase"/>
-            <class name="org.wso2.transport.http.netty.websocket.WebSocketUnitTestCase"/>
+
+            <class name="org.wso2.transport.http.netty.trailer.ListenerResponseTrailerHeaderTestCase"/>
+            <class name="org.wso2.transport.http.netty.trailer.NegativeListenerResponseTrailerHeaderTestCase"/>
+            <class name="org.wso2.transport.http.netty.trailer.ClientReadTrailerHeaderTestCase"/>
         </classes>
     </test>
     <test name="HTTP2 Tests" parallel="false">
@@ -137,7 +129,6 @@
             <class name="org.wso2.transport.http.netty.http2.expect100continue.Expect100ContinueClientTestCase"/>
             <class name="org.wso2.transport.http.netty.http2.expect100continue.ClientContinue100TimeoutTestcase"/>
             <class name="org.wso2.transport.http.netty.http2.expect100continue.ClientContinueResponseTimeout"/>
-            <class name="org.wso2.transport.http.netty.http2.trailer.H2ClientRequestTrailerHeaderTestCase"/>
             <class name="org.wso2.transport.http.netty.http2.trailer.H2ListenerIntendedResponseTrailerHeaderTestCase"/>
             <class name="org.wso2.transport.http.netty.http2.trailer.H2ListenerPushResponseTrailerHeaderTestCase"/>
         </classes>
