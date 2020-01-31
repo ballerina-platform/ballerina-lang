@@ -15,7 +15,7 @@
         "env": {
             "LS_EXTENSIONS_PATH":  "",
             "LS_CUSTOM_CLASSPATH": "",
-            "LSDEBUG": "true",
+            "LSDEBUG": "false",
             "COMPOSER_DEBUG": "false",
             "COMPOSER_DEV_HOST": "http://localhost:9000"
         },
