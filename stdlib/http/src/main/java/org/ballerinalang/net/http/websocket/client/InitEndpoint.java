@@ -155,7 +155,7 @@ public class InitEndpoint {
      * Validate and create the webSocket service.
      *
      * @param clientEndpointConfig - a client endpoint config.
-     * @param strand - which holds the observer context being started
+     * @param strand - which holds the observer context being started.
      * @return webSocketService
      */
     private static WebSocketService validateAndCreateWebSocketService(MapValue<String, Object> clientEndpointConfig,
