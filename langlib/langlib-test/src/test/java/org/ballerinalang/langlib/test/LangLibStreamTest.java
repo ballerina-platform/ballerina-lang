@@ -43,18 +43,18 @@ public class LangLibStreamTest {
     @Test
     public void testFilterFunc() {
         BValue[] values = BRunUtil.invoke(result, "testFilterFunc", new BValue[] {});
-        Assert.assertTrue(((BBoolean)values[0]).booleanValue());
+        Assert.assertTrue(((BBoolean) values[0]).booleanValue());
     }
 
     @Test
     public void testMapFunc() {
         BValue[] values = BRunUtil.invoke(result, "testMapFunc", new BValue[] {});
-        Assert.assertTrue(((BBoolean)values[0]).booleanValue());
+        Assert.assertTrue(((BBoolean) values[0]).booleanValue());
     }
 
     @Test
     public void testFilterAndMapFunc() {
         BValue[] values = BRunUtil.invoke(result, "testFilterAndMapFunc", new BValue[] {});
-        Assert.assertTrue(((BBoolean)values[0]).booleanValue());
+        Assert.assertTrue(((BBoolean) values[0]).booleanValue());
     }
 }
