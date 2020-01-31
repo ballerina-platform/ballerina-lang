@@ -28,6 +28,13 @@ export function getServerOptions(ballerinaCmd: string, experimental: boolean, de
   
     let opt: ExecutableOptions = {};
     opt.env = Object.assign({}, process.env);
+    if (process.env.LS_EXTENSIONS_PATH !== "") {
+        if (opt.env.BALLERINA_CLASSPATH_EXT) {
+            opt.env.BALLERINA_CLASSPATH_EXT += path.delimiter + process.env.LS_EXTENSIONS_PATH;
+        } else {
+            opt.env.BALLERINA_CLASSPATH_EXT = process.env.LS_EXTENSIONS_PATH;
+        }
+    }
     if (process.env.LSDEBUG === "true") {
         debug('Language Server is starting in debug mode.');
         let debugPort = 5005;

@@ -21,14 +21,15 @@ import org.antlr.v4.runtime.CommonToken;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.ballerinalang.langserver.SnippetBlock;
 import org.ballerinalang.langserver.commons.LSContext;
+import org.ballerinalang.langserver.commons.completion.CompletionKeys;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
-import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.StaticCompletionItem;
 import org.ballerinalang.langserver.completions.SymbolCompletionItem;
 import org.ballerinalang.langserver.completions.util.Priority;
 import org.ballerinalang.langserver.completions.util.sorters.CompletionItemSorter;
 import org.ballerinalang.langserver.completions.util.sorters.ItemSorters;
+import org.ballerinalang.langserver.sourceprune.SourcePruneKeys;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
@@ -93,7 +94,7 @@ public class PackageScope extends CompletionItemSorter {
     }
 
     private List<CompletionItem> getGlobalVarDefCompletions(LSContext context, List<LSCompletionItem> completionItems) {
-        List<Integer> defaultTokenTypes = context.get(CompletionKeys.LHS_DEFAULT_TOKENS_KEY).stream()
+        List<Integer> defaultTokenTypes = context.get(SourcePruneKeys.LHS_DEFAULT_TOKENS_KEY).stream()
                 .map(CommonToken::getType)
                 .collect(Collectors.toList());
         List<CompletionItem> cItems = new ArrayList<>();
@@ -121,7 +122,7 @@ public class PackageScope extends CompletionItemSorter {
     }
 
     private boolean isTopLevel(LSContext context,  ParserRuleContext parserRuleCtx) {
-        List<CommonToken> commonTokens = context.get(CompletionKeys.LHS_DEFAULT_TOKENS_KEY);
+        List<CommonToken> commonTokens = context.get(SourcePruneKeys.LHS_DEFAULT_TOKENS_KEY);
         return parserRuleCtx == null || (parserRuleCtx instanceof BallerinaParser.GlobalVariableDefinitionContext
                 && commonTokens.size() < 2);
     }

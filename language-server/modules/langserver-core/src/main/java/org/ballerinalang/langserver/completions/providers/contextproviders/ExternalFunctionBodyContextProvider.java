@@ -23,10 +23,10 @@ import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
-import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 import org.ballerinalang.langserver.completions.util.Snippet;
+import org.ballerinalang.langserver.sourceprune.SourcePruneKeys;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
 
 import java.util.ArrayList;
@@ -49,7 +49,7 @@ public class ExternalFunctionBodyContextProvider extends AbstractCompletionProvi
     @Override
     public List<LSCompletionItem> getCompletions(LSContext context) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
-        List<CommonToken> lhsDefaultTokens = context.get(CompletionKeys.LHS_TOKENS_KEY).stream()
+        List<CommonToken> lhsDefaultTokens = context.get(SourcePruneKeys.LHS_TOKENS_KEY).stream()
                 .filter(commonToken -> commonToken.getChannel() == Token.DEFAULT_CHANNEL)
                 .collect(Collectors.toList());
         

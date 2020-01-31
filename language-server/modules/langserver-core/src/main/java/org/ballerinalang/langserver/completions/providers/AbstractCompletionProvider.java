@@ -25,6 +25,7 @@ import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.FilterUtils;
 import org.ballerinalang.langserver.commons.LSContext;
+import org.ballerinalang.langserver.commons.completion.CompletionKeys;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.commons.completion.spi.LSCompletionProvider;
@@ -33,7 +34,6 @@ import org.ballerinalang.langserver.compiler.ExtendedLSCompiler;
 import org.ballerinalang.langserver.compiler.LSPackageLoader;
 import org.ballerinalang.langserver.compiler.common.modal.BallerinaPackage;
 import org.ballerinalang.langserver.compiler.exception.CompilationFailedException;
-import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.LSCompletionProviderHolder;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.StaticCompletionItem;
@@ -46,6 +46,7 @@ import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.ballerinalang.langserver.completions.util.Snippet;
 import org.ballerinalang.langserver.completions.util.filters.DelimiterBasedContentFilter;
 import org.ballerinalang.langserver.completions.util.filters.SymbolFilters;
+import org.ballerinalang.langserver.sourceprune.SourcePruneKeys;
 import org.ballerinalang.model.types.TypeKind;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
@@ -440,7 +441,7 @@ public abstract class AbstractCompletionProvider implements LSCompletionProvider
     }
 
     protected List<LSCompletionItem> getUserDefinedTypeCompletions(LSContext context, BLangUserDefinedType type) {
-        List<Integer> defaultTokenTypes = context.get(CompletionKeys.LHS_DEFAULT_TOKEN_TYPES_KEY);
+        List<Integer> defaultTokenTypes = context.get(SourcePruneKeys.LHS_DEFAULT_TOKEN_TYPES_KEY);
         Integer invocationType = context.get(CompletionKeys.INVOCATION_TOKEN_TYPE_KEY);
         List<LSCompletionItem> completionItems = new ArrayList<>();
         int newTokenIndex = defaultTokenTypes.indexOf(BallerinaParser.NEW);
@@ -666,10 +667,10 @@ public abstract class AbstractCompletionProvider implements LSCompletionProvider
     }
 
     protected boolean inFunctionReturnParameterContext(LSContext context) {
-        if (context.get(CompletionKeys.LHS_DEFAULT_TOKEN_TYPES_KEY) == null) {
+        if (context.get(SourcePruneKeys.LHS_DEFAULT_TOKEN_TYPES_KEY) == null) {
             return false;
         }
-        List<Integer> defaultTokens = new ArrayList<>(context.get(CompletionKeys.LHS_DEFAULT_TOKEN_TYPES_KEY));
+        List<Integer> defaultTokens = new ArrayList<>(context.get(SourcePruneKeys.LHS_DEFAULT_TOKEN_TYPES_KEY));
         if (defaultTokens.isEmpty()) {
             return false;
         }
@@ -702,7 +703,7 @@ public abstract class AbstractCompletionProvider implements LSCompletionProvider
     }
 
     protected boolean isAnnotationAccessExpression(LSContext context) {
-        List<Integer> defaultTokenTypes = context.get(CompletionKeys.LHS_DEFAULT_TOKEN_TYPES_KEY);
+        List<Integer> defaultTokenTypes = context.get(SourcePruneKeys.LHS_DEFAULT_TOKEN_TYPES_KEY);
         int annotationAccessIndex = defaultTokenTypes.indexOf(BallerinaParser.ANNOTATION_ACCESS);
 
         return annotationAccessIndex > -1;
@@ -736,7 +737,7 @@ public abstract class AbstractCompletionProvider implements LSCompletionProvider
     public static Optional<BLangType> getAssignmentType(LSContext context, boolean onGlobal)
             throws LSCompletionException {
 
-        List<CommonToken> lhsTokens = context.get(CompletionKeys.LHS_TOKENS_KEY);
+        List<CommonToken> lhsTokens = context.get(SourcePruneKeys.LHS_TOKENS_KEY);
         int counter = 0;
         StringBuilder subRule = new StringBuilder();
         if (!onGlobal) {
@@ -959,7 +960,7 @@ public abstract class AbstractCompletionProvider implements LSCompletionProvider
      * @return {@link Boolean} whether the cursor is in the annotation context
      */
     protected boolean isAnnotationAttachmentContext(LSContext context) {
-        List<Integer> lhsDefaultTokenTypes = context.get(CompletionKeys.LHS_DEFAULT_TOKEN_TYPES_KEY);
+        List<Integer> lhsDefaultTokenTypes = context.get(SourcePruneKeys.LHS_DEFAULT_TOKEN_TYPES_KEY);
         /*
         Max token bactrack count is set to 4 in order to support the following
         @moduleName:Rec
@@ -1029,7 +1030,7 @@ public abstract class AbstractCompletionProvider implements LSCompletionProvider
     }
     
     private boolean appendSingleQuoteForPackageInsertText(LSContext context) {
-        List<CommonToken> defaultTokens = context.get(CompletionKeys.LHS_DEFAULT_TOKENS_KEY);
+        List<CommonToken> defaultTokens = context.get(SourcePruneKeys.LHS_DEFAULT_TOKENS_KEY);
         if (defaultTokens == null || defaultTokens.isEmpty()) {
             return false;
         }

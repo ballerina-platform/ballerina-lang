@@ -22,10 +22,10 @@ import org.antlr.v4.runtime.Token;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
-import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 import org.ballerinalang.langserver.completions.util.Snippet;
+import org.ballerinalang.langserver.sourceprune.SourcePruneKeys;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
 
 import java.util.ArrayList;
@@ -63,7 +63,7 @@ public class TypeDefinitionContextProvider extends AbstractCompletionProvider {
      * @return {@link Boolean} whether the cursor is within the object context
      */
     private boolean isObjectTypeDefinition(LSContext ctx) {
-        List<CommonToken> rhsTokens = ctx.get(CompletionKeys.RHS_TOKENS_KEY);
+        List<CommonToken> rhsTokens = ctx.get(SourcePruneKeys.RHS_TOKENS_KEY);
         List<CommonToken> defaultRHSTokens = rhsTokens.stream()
                 .filter(commonToken -> commonToken.getChannel() == Token.DEFAULT_CHANNEL)
                 .collect(Collectors.toList());
