@@ -57,6 +57,7 @@ public class ListenerResponseTrailerHeaderTestCase extends TrailerHeaderTestTemp
         HttpHeaders trailers = new DefaultLastHttpContent().trailingHeaders();
         trailers.add("foo", "bar");
         trailers.add("baz", "ballerina");
+        trailers.add("Max-forwards", "five");
 
         super.setup(listenerConfiguration, trailers, TrailerHeaderListener.MessageType.RESPONSE);
     }
@@ -87,7 +88,7 @@ public class ListenerResponseTrailerHeaderTestCase extends TrailerHeaderTestTemp
         assertEquals(payload, TestUtil.getEntityBodyFrom(httpResponse));
         assertNull(httpResponse.headers().get(HttpHeaderNames.CONTENT_LENGTH));
         assertEquals(httpResponse.headers().get(HttpHeaderNames.TRANSFER_ENCODING), "chunked");
-        assertEquals(httpResponse.headers().get("Trailer"), "foo,baz,Max-forwards");
+        assertEquals(httpResponse.headers().get("Trailer"), "foo, baz, Max-forwards");
         assertEquals(httpResponse.trailingHeaders().get("foo"), "bar");
         assertEquals(httpResponse.trailingHeaders().get("baz"), "ballerina");
         assertEquals(httpResponse.trailingHeaders().get("Max-forwards"), "five");

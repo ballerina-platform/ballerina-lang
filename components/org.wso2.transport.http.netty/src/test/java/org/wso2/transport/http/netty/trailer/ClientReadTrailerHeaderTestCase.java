@@ -19,6 +19,7 @@
 
 package org.wso2.transport.http.netty.trailer;
 
+import io.netty.buffer.Unpooled;
 import io.netty.handler.codec.http.DefaultHttpRequest;
 import io.netty.handler.codec.http.DefaultLastHttpContent;
 import io.netty.handler.codec.http.HttpHeaders;
@@ -26,6 +27,7 @@ import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpVersion;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 import org.wso2.transport.http.netty.contentaware.listeners.TrailerHeaderListener;
 import org.wso2.transport.http.netty.contract.Constants;
@@ -42,6 +44,8 @@ import org.wso2.transport.http.netty.util.DefaultHttpConnectorListener;
 import org.wso2.transport.http.netty.util.TestUtil;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -65,15 +69,20 @@ public class ClientReadTrailerHeaderTestCase extends TrailerHeaderTestTemplate {
         HttpHeaders trailers = new DefaultLastHttpContent().trailingHeaders();
         trailers.add("foo", "xyz");
         trailers.add("bar", "ballerina");
-
+        trailers.add("Max-forwards", "five");
         super.setup(listenerConfiguration, trailers, TrailerHeaderListener.MessageType.RESPONSE);
 
         HttpWsConnectorFactory httpWsConnectorFactory = new DefaultHttpWsConnectorFactory();
         clientConnector = httpWsConnectorFactory.createHttpClientConnector(new HashMap<>(), new SenderConfiguration());
     }
 
-    @Test
-    public void testReadTrailers() throws IOException, InterruptedException {
+    @DataProvider(name = "payload")
+    private Object[][] payloadDataProvider() {
+        return new Object[][]{{TestUtil.smallEntity}, {TestUtil.largeEntity}};
+    }
+
+    @Test(dataProvider = "payload")
+    public void testReadTrailers(String payload) throws IOException, InterruptedException {
 
         HttpCarbonMessage requestMsg = new HttpCarbonMessage(new DefaultHttpRequest(HttpVersion.HTTP_1_1,
                                                                                     HttpMethod.POST, ""));
@@ -82,23 +91,22 @@ public class ClientReadTrailerHeaderTestCase extends TrailerHeaderTestTemplate {
         requestMsg.setProperty(Constants.HTTP_HOST, TestUtil.TEST_HOST);
         requestMsg.setHttpMethod(Constants.HTTP_POST_METHOD);
 
+        ByteBuffer byteBuffer = ByteBuffer.wrap(payload.getBytes(Charset.forName("UTF-8")));
+        requestMsg.addHttpContent(new DefaultLastHttpContent(Unpooled.wrappedBuffer(byteBuffer)));
+
         CountDownLatch latch = new CountDownLatch(1);
         DefaultHttpConnectorListener listener = new DefaultHttpConnectorListener(latch);
         clientConnector.send(requestMsg).setHttpConnectorListener(listener);
-        HttpMessageDataStreamer httpMessageDataStreamer = new HttpMessageDataStreamer(requestMsg);
-        httpMessageDataStreamer.getOutputStream().write(TestUtil.smallEntity.getBytes());
-        httpMessageDataStreamer.getOutputStream().close();
 
         latch.await(5, TimeUnit.SECONDS);
 
         HttpCarbonMessage response = listener.getHttpResponseMessage();
         TestUtil.getStringFromInputStream(new HttpMessageDataStreamer(response).getInputStream());
 
-        assertEquals(response.getHeader("Trailer"), "foo,bar,Max-forwards");
+        assertEquals(response.getHeader("Trailer"), "foo, bar, Max-forwards");
         assertEquals(response.getTrailerHeaders().get("foo"), "xyz");
         assertEquals(response.getTrailerHeaders().get("bar"), "ballerina");
         assertEquals(response.getTrailerHeaders().get("Max-forwards"), "five");
-
     }
 
     @AfterClass

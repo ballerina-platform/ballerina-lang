@@ -22,16 +22,11 @@ package org.wso2.transport.http.netty.http2.trailer;
 import io.netty.handler.codec.http.DefaultLastHttpContent;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpMethod;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.transport.http.netty.contentaware.listeners.TrailerHeaderListener;
 import org.wso2.transport.http.netty.contract.HttpClientConnector;
-import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
-import org.wso2.transport.http.netty.contract.ServerConnector;
-import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.transport.http.netty.contract.config.ListenerConfiguration;
 import org.wso2.transport.http.netty.contract.config.SenderConfiguration;
 import org.wso2.transport.http.netty.contract.config.TransportsConfiguration;
@@ -42,6 +37,7 @@ import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import org.wso2.transport.http.netty.message.HttpConnectorUtil;
 import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 import org.wso2.transport.http.netty.message.ResponseHandle;
+import org.wso2.transport.http.netty.trailer.TrailerHeaderTestTemplate;
 import org.wso2.transport.http.netty.util.Http2Util;
 import org.wso2.transport.http.netty.util.TestUtil;
 import org.wso2.transport.http.netty.util.client.http2.MessageGenerator;
@@ -56,38 +52,20 @@ import static org.testng.Assert.assertTrue;
  *
  * @since 6.3.0
  */
-public class H2ListenerPushResponseTrailerHeaderTestCase {
-    private static final Logger LOG = LoggerFactory.getLogger(H2ListenerPushResponseTrailerHeaderTestCase.class);
-
-    private HttpWsConnectorFactory httpWsConnectorFactory;
+public class H2ListenerPushResponseTrailerHeaderTestCase extends TrailerHeaderTestTemplate {
     private HttpClientConnector h2ClientWithPriorKnowledge;
-    private ServerConnector serverConnector;
 
     @BeforeClass
     public void setup() {
         ListenerConfiguration listenerConfiguration = Http2Util.getH2CListenerConfiguration();
-        httpWsConnectorFactory = new DefaultHttpWsConnectorFactory();
-        serverConnector = httpWsConnectorFactory
-                .createServerConnector(TestUtil.getDefaultServerBootstrapConfig(), listenerConfiguration);
-        ServerConnectorFuture serverConnectorFuture = serverConnector.start();
-
-        TrailerHeaderListener http2ConnectorListener = new TrailerHeaderListener();
         HttpHeaders trailers = new DefaultLastHttpContent().trailingHeaders();
         trailers.add("foo", "bar;q=0.8");
         trailers.add("jkl", "ballerina");
-        http2ConnectorListener.setTrailer(trailers);
-        http2ConnectorListener.setMessageType(TrailerHeaderListener.MessageType.PUSH_RESPONSE);
-        serverConnectorFuture.setHttpConnectorListener(http2ConnectorListener);
-
-        try {
-            serverConnectorFuture.sync();
-        } catch (InterruptedException e) {
-            LOG.warn("Interrupted while waiting for server connector to start");
-        }
+        super.setup(listenerConfiguration, trailers, TrailerHeaderListener.MessageType.PUSH_RESPONSE);
 
         TransportsConfiguration transportsConfiguration = new TransportsConfiguration();
         SenderConfiguration senderConfiguration = Http2Util.getH2CSenderConfiguration();
-        h2ClientWithPriorKnowledge = httpWsConnectorFactory.createHttpClientConnector(
+        h2ClientWithPriorKnowledge = new DefaultHttpWsConnectorFactory().createHttpClientConnector(
                 HttpConnectorUtil.getTransportProperties(transportsConfiguration), senderConfiguration);
     }
 
@@ -115,18 +93,13 @@ public class H2ListenerPushResponseTrailerHeaderTestCase {
         String result = TestUtil.getStringFromInputStream(
                 new HttpMessageDataStreamer(promisedResponse).getInputStream());
         assertTrue(result.contains(promisedPath), "Promised response not received");
-        assertEquals(promisedResponse.getHeaders().get("Trailer"), "foo,jkl");
+        assertEquals(promisedResponse.getHeaders().get("Trailer"), "foo, jkl");
         assertEquals(promisedResponse.getTrailerHeaders().get("foo"), "bar;q=0.8");
         assertEquals(promisedResponse.getTrailerHeaders().get("jkl"), "ballerina");
     }
 
     @AfterClass
     public void cleanUp() throws ServerConnectorException {
-        try {
-            serverConnector.stop();
-            httpWsConnectorFactory.shutdown();
-        } catch (Exception e) {
-            LOG.warn("Resource clean up is interrupted", e);
-        }
+        super.cleanUp();
     }
 }

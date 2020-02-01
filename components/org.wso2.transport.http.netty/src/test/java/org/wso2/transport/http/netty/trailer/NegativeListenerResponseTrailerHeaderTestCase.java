@@ -55,7 +55,6 @@ public class NegativeListenerResponseTrailerHeaderTestCase extends TrailerHeader
         HttpHeaders trailers = new DefaultLastHttpContent().trailingHeaders();
         trailers.add("foo", "bar");
         trailers.add("baz", "ballerina");
-
         super.setup(listenerConfiguration, trailers, TrailerHeaderListener.MessageType.RESPONSE);
     }
 
@@ -72,7 +71,6 @@ public class NegativeListenerResponseTrailerHeaderTestCase extends TrailerHeader
         AssertJUnit.assertNull(httpResponse.headers().get(HttpHeaderNames.TRANSFER_ENCODING));
         AssertJUnit.assertNull(httpResponse.trailingHeaders().get("foo"));
         AssertJUnit.assertNull(httpResponse.trailingHeaders().get("baz"));
-        AssertJUnit.assertNull(httpResponse.trailingHeaders().get("Max-forwards"));
     }
 
     @AfterClass

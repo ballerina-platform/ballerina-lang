@@ -32,7 +32,7 @@ import org.wso2.transport.http.netty.contractimpl.DefaultHttpWsConnectorFactory;
 import org.wso2.transport.http.netty.util.TestUtil;
 
 /**
- * Test template for HTTP/1.1 trailer headers server setup.
+ * Test template for HTTP response trailer headers server setup.
  *
  * @since 6.3.1
  */

@@ -100,6 +100,18 @@
             <class name="org.wso2.transport.http.netty.trailer.ClientReadTrailerHeaderTestCase"/>
         </classes>
     </test>
+    <test name="WebSocket Tests" parallel="false">
+        <classes>
+            <class name="org.wso2.transport.http.netty.websocket.server.WebSocketServerHandshakeFunctionalityTestCase"/>
+            <class name="org.wso2.transport.http.netty.websocket.server.WebSocketServerFunctionalityTestCase"/>
+            <class name="org.wso2.transport.http.netty.websocket.client.WebSocketClientHandshakeFunctionalityTestCase"/>
+            <class name="org.wso2.transport.http.netty.websocket.client.WebSocketClientFunctionalityTestCase"/>
+            <class name="org.wso2.transport.http.netty.websocket.passthrough.WebSocketPassThroughTestCase"/>
+            <class name="org.wso2.transport.http.netty.websocket.ssl.WebSocketSSLHandshakeSuccessfulTestCase"/>
+            <class name="org.wso2.transport.http.netty.websocket.ssl.WebSocketSSLHandshakeFailureTestCase"/>
+            <class name="org.wso2.transport.http.netty.websocket.WebSocketUnitTestCase"/>
+        </classes>
+    </test>
     <test name="HTTP2 Tests" parallel="false">
         <classes>
             <class name="org.wso2.transport.http.netty.http2.Http2ClientConnectorBasicTestCase"/>

@@ -20,7 +20,6 @@
 package org.wso2.transport.http.netty.contentaware.listeners;
 
 import io.netty.buffer.Unpooled;
-import io.netty.handler.codec.http.DefaultHttpHeaders;
 import io.netty.handler.codec.http.DefaultHttpResponse;
 import io.netty.handler.codec.http.DefaultLastHttpContent;
 import io.netty.handler.codec.http.HttpContent;
@@ -45,10 +44,8 @@ import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import static io.netty.handler.codec.http.LastHttpContent.EMPTY_LAST_CONTENT;
-
 /**
- * {@code Http2EchoServerWithTrailerHeader} is a HttpConnectorListener which receives messages and respond back with
+ * {@code TrailerHeaderListener} is a HttpConnectorListener which receives messages and respond back with
  * trailing headers.
  *
  * @since 6.3.0
@@ -82,21 +79,13 @@ public class TrailerHeaderListener extends EchoMessageListener {
                     do {
                         HttpContent httpContent = httpRequest.getHttpContent();
                         httpResponse.addHttpContent(httpContent);
-                        if (httpContent instanceof LastHttpContent && httpContent != EMPTY_LAST_CONTENT) {
-                            // test trailer headers lies in the lastHttpContent
-                            ((LastHttpContent) httpContent).trailingHeaders().add(expectedTrailer);
+                        if (httpContent instanceof LastHttpContent) {
                             break;
                         }
                     }
                     while (true);
-
                     // test trailer headers lies in the carbon message
-                    HttpHeaders injectTempHeader = new DefaultHttpHeaders();
-                    injectTempHeader.add("Max-forwards", "five");
-                    expectedTrailer.add(injectTempHeader);
-                    populateTrailerHeader(httpResponse);
-                    httpResponse.getTrailerHeaders().add(injectTempHeader);
-
+                    httpResponse.getTrailerHeaders().add(expectedTrailer);
                     try {
                         httpRequest.respond(httpResponse);
                     } catch (ServerConnectorException e) {
@@ -152,18 +141,12 @@ public class TrailerHeaderListener extends EchoMessageListener {
         return httpResponse;
     }
 
-    private void populateTrailerHeader(HttpCarbonMessage httpResponse) {
-        String trailerHeaderValue = String.join(",", expectedTrailer.names());
-        httpResponse.setHeader(HttpHeaderNames.TRAILER.toString(), trailerHeaderValue);
-    }
-
     private HttpCarbonMessage generateResponse(String response, HttpHeaders expectedTrailer) {
         HttpResponseStatus status = HttpResponseStatus.OK;
         HttpCarbonMessage httpResponse = new HttpCarbonResponse(new DefaultHttpResponse(HttpVersion.HTTP_1_1, status));
         httpResponse.setHeader(HttpHeaderNames.CONNECTION.toString(), HttpHeaderValues.KEEP_ALIVE.toString());
         httpResponse.setHeader(HttpHeaderNames.CONTENT_TYPE.toString(), Constants.TEXT_PLAIN);
         httpResponse.setHttpStatusCode(status.code());
-        populateTrailerHeader(httpResponse);
 
         DefaultLastHttpContent lastHttpContent = new DefaultLastHttpContent();
         if (response != null) {
@@ -171,8 +154,8 @@ public class TrailerHeaderListener extends EchoMessageListener {
             ByteBuffer responseValueByteBuffer = ByteBuffer.wrap(responseByteValues);
             lastHttpContent = new DefaultLastHttpContent(Unpooled.wrappedBuffer(responseValueByteBuffer));
         }
-        lastHttpContent.trailingHeaders().add(expectedTrailer);
         httpResponse.addHttpContent(lastHttpContent);
+        httpResponse.getTrailerHeaders().add(expectedTrailer);
         return httpResponse;
     }
 }
