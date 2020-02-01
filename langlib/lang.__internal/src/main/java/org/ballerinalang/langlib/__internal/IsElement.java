@@ -18,6 +18,7 @@
 package org.ballerinalang.langlib.__internal;
 
 import org.ballerinalang.jvm.XMLNodeType;
+import org.ballerinalang.jvm.values.XMLSequence;
 import org.ballerinalang.jvm.values.XMLValue;
 
 public class IsElement {
@@ -27,7 +28,8 @@ public class IsElement {
             return true;
         }
         if (xmlValue.getNodeType() == XMLNodeType.SEQUENCE) {
-            return xmlValue.size() == 1;
+            return xmlValue.size() == 1
+                    && ((XMLSequence) xmlValue).getChildrenList().get(0).getNodeType() == XMLNodeType.ELEMENT;
         }
         return false;
     }

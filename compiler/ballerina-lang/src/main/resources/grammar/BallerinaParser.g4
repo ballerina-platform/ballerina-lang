@@ -640,7 +640,7 @@ variableReference
     |   variableReference ANNOTATION_ACCESS nameReference                       # annotAccessExpression
     |   variableReference xmlAttrib                                             # xmlAttribVariableReference
     |   variableReference xmlElementAccess                                      # xmlElementAccessReference
-    |   variableReference xmlNavigationAccess index?                            # xmlNavigationAccessReference
+    |   variableReference xmlNavigationAccess                                   # xmlNavigationAccessReference
     |   functionInvocation                                                      # functionInvocationReference
     |   LEFT_PARENTHESIS variableReference RIGHT_PARENTHESIS field              # groupFieldVariableReference
     |   LEFT_PARENTHESIS variableReference RIGHT_PARENTHESIS invocation         # groupInvocationReference
@@ -661,7 +661,7 @@ xmlElementAccess
     ;
 
 xmlNavigationAccess
-    : DIV xmlElementNames
+    : DIV xmlElementNames index?
     | DIV MUL
     | DIV MUL MUL DIV xmlElementNames
     ;

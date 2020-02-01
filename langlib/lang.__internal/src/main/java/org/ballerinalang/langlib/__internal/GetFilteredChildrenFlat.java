@@ -17,13 +17,21 @@
  */
 package org.ballerinalang.langlib.__internal;
 
+import org.ballerinalang.jvm.XMLNodeType;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.XMLItem;
+import org.ballerinalang.jvm.values.XMLSequence;
 import org.ballerinalang.jvm.values.XMLValue;
+import org.ballerinalang.jvm.values.api.BXML;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Return elements matching at least one of `elemNames`
@@ -42,8 +50,35 @@ import org.ballerinalang.natives.annotations.ReturnType;
 public class GetFilteredChildrenFlat {
 
 
-    public static String getName(Strand strand, XMLValue xmlVal, int index, ArrayValue elemNames) {
+    public static XMLValue getFilteredChildrenFlat(Strand strand, XMLValue xmlVal, long index, ArrayValue elemNames) {
+        if (xmlVal.getNodeType() == XMLNodeType.ELEMENT) {
+            XMLItem element = (XMLItem) xmlVal;
+            return new XMLSequence(filterElementChildren(strand, index, elemNames, element));
+        } else if (xmlVal.getNodeType() == XMLNodeType.SEQUENCE) {
+            XMLSequence sequence = (XMLSequence) xmlVal;
+            ArrayList<BXML> liftedFilteredChildren = new ArrayList<>();
+            for (BXML child : sequence.getChildrenList()) {
+                if (child.getNodeType() == XMLNodeType.ELEMENT) {
+                    liftedFilteredChildren.addAll(filterElementChildren(strand, index, elemNames, (XMLItem) child));
+                }
+            }
+            return new XMLSequence(liftedFilteredChildren);
 
-        return null;
+        }
+        return new XMLSequence();
+    }
+
+    private static List<BXML> filterElementChildren(Strand strand, long index, ArrayValue elemNames, XMLItem element) {
+        XMLSequence elements = (XMLSequence) GetElements.getElements(strand, element.getChildrenSeq(), elemNames);
+        if (index < 0) {
+            // Return all elements
+            return elements.getChildrenList();
+        } else if (elements.getChildrenList().size() > index) {
+            // Valid index; return requested element
+            return Collections.singletonList((elements.getChildrenList().get((int) index)));
+        } else {
+            // OutOfRange return empty list
+            return new ArrayList<>();
+        }
     }
 }

@@ -1044,7 +1044,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        boolean isIndexed = ctx.index() != null;
+        boolean isIndexed = ctx.xmlNavigationAccess().index() != null;
 
         BallerinaParser.XmlNavigationAccessContext navAccess = ctx.xmlNavigationAccess();
         BallerinaParser.XmlElementNamesContext filters = navAccess.xmlElementNames();

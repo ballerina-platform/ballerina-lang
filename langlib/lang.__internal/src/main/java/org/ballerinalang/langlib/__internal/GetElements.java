@@ -56,22 +56,11 @@ public class GetElements {
 
         ArrayList<String> nsList = new ArrayList<>();
         ArrayList<String> localNameList = new ArrayList<>();
-        int filterCount = elemNames.size();
-        for(int i = 0; i < filterCount; i++) {
-            String fullName = elemNames.getString(i);
-            int lastIndexOf = fullName.lastIndexOf('}');
-            if (lastIndexOf < 0) {
-                nsList.add(EMPTY);
-                localNameList.add(fullName);
-            } else {
-                nsList.add(fullName.substring(1, lastIndexOf));
-                localNameList.add(fullName.substring(lastIndexOf+1));
-            }
-        }
+        destructureFilters(elemNames, nsList, localNameList);
 
         // If this is a element; return this as soon as some filter match this elem. Else return empty sequence.
         if (IsElement.isElement(xmlVal)) {
-            if (matchFilters(elemNames, nsList, localNameList, ((XMLItem) xmlVal).getElementName())) {
+            if (matchFilters(elemNames, nsList, localNameList, xmlVal.getElementName())) {
                 return xmlVal;
             }
             return new XMLSequence();
@@ -93,7 +82,23 @@ public class GetElements {
         return new XMLSequence(selectedElements);
     }
 
-    private static boolean matchFilters(ArrayValue elemNames,
+    public static void destructureFilters(ArrayValue elemNames,
+                                          ArrayList<String> nsList, ArrayList<String> localNameList) {
+        int filterCount = elemNames.size();
+        for(int i = 0; i < filterCount; i++) {
+            String fullName = elemNames.getString(i);
+            int lastIndexOf = fullName.lastIndexOf('}');
+            if (lastIndexOf < 0) {
+                nsList.add(EMPTY);
+                localNameList.add(fullName);
+            } else {
+                nsList.add(fullName.substring(1, lastIndexOf));
+                localNameList.add(fullName.substring(lastIndexOf+1));
+            }
+        }
+    }
+
+    public static boolean matchFilters(ArrayValue elemNames,
                                         ArrayList<String> nsList, ArrayList<String> elemList, String elementName) {
         int filterCount = elemNames.size();
         for (int i = 0; i < filterCount; i++) {

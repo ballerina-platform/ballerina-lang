@@ -37,17 +37,21 @@ import org.testng.annotations.Test;
 public class XMLAccessTest {
 
     CompileResult result;
+    CompileResult elementAccess;
+    CompileResult navigation;
     CompileResult negativeResult;
 
     @BeforeClass
     public void setup() {
         result = BCompileUtil.compile("test-src/types/xml/xml-indexed-access.bal");
+        elementAccess = BCompileUtil.compile("test-src/types/xml/xml-element-access.bal");
+        navigation = BCompileUtil.compile("test-src/types/xml/xml-navigation-access.bal");
         negativeResult = BCompileUtil.compile("test-src/types/xml/xml-indexed-access-negative.bal");
     }
 
     @Test
     public void testXMLElementAccessOnSingleElementXML() {
-        BValue[] returns = BRunUtil.invoke(result, "testXMLElementAccessOnSingleElementXML");
+        BValue[] returns = BRunUtil.invoke(elementAccess, "testXMLElementAccessOnSingleElementXML");
         Assert.assertEquals(returns[0].stringValue(), "<ns:root xmlns:ns=\"foo\" xmlns:k=\"bar\"></ns:root>");
         Assert.assertEquals(returns[1].stringValue(), "<ns:root xmlns:ns=\"foo\" xmlns:k=\"bar\"></ns:root>");
         Assert.assertEquals(returns[2].stringValue(), "<ns:root xmlns:ns=\"foo\" xmlns:k=\"bar\"></ns:root>");
@@ -58,7 +62,7 @@ public class XMLAccessTest {
 
     @Test
     public void testXMLElementAccessOnXMLSequence() {
-        BValue[] returns = BRunUtil.invoke(result, "testXMLElementAccessOnXMLSequence");
+        BValue[] returns = BRunUtil.invoke(elementAccess, "testXMLElementAccessOnXMLSequence");
         Assert.assertEquals(returns[0].stringValue(),
                 "<ns:root xmlns:ns=\"foo\" xmlns:k=\"bar\"></ns:root>" +
                         "<k:root xmlns:k=\"bar\" xmlns:ns=\"foo\"></k:root>" +
@@ -74,7 +78,7 @@ public class XMLAccessTest {
 
     @Test
     public void testXMLElementAccessMultipleFilters() {
-        BValue[] returns = BRunUtil.invoke(result, "testXMLElementAccessMultipleFilters");
+        BValue[] returns = BRunUtil.invoke(elementAccess, "testXMLElementAccessMultipleFilters");
         Assert.assertEquals(returns[0].stringValue(),
                 "<ns:root xmlns:ns=\"foo\" xmlns:k=\"bar\"></ns:root>" +
                         "<k:root xmlns:k=\"bar\" xmlns:ns=\"foo\"></k:root>" +
@@ -91,6 +95,102 @@ public class XMLAccessTest {
 
         Assert.assertEquals(returns[3].stringValue(),
                 "<k:item xmlns:k=\"bar\" xmlns:ns=\"foo\"></k:item>");
+    }
+
+    @Test
+    public void testXMLNavigationOnSingleElement() {
+        BValue[] returns = BRunUtil.invoke(navigation, "testXMLNavigationOnSingleElement");
+        Assert.assertEquals(returns[0].stringValue(), "<child attr=\"attr-val\"></child>");
+        Assert.assertEquals(returns[1].stringValue(), "<child attr=\"attr-val\"></child>");
+        Assert.assertEquals(returns[2].stringValue(), "<child attr=\"attr-val\"></child>");
+        Assert.assertEquals(returns[3].stringValue(), "<child attr=\"attr-val\"></child>");
+        Assert.assertEquals(returns[4].stringValue(), "<child attr=\"attr-val\"></child>");
+    }
+
+    @Test
+    public void testXMLNavigationOnSingleElementWithNamespaces() {
+        BValue[] returns = BRunUtil.invoke(navigation, "testXMLNavigationOnSingleElementWithNamespaces");
+        Assert.assertEquals(returns[0].stringValue(), "<ns:child xmlns:ns=\"foo\" xmlns:k=\"bar\"></ns:child>");
+        Assert.assertEquals(returns[1].stringValue(), "<ns:child xmlns:ns=\"foo\" xmlns:k=\"bar\"></ns:child>");
+        Assert.assertEquals(returns[2].stringValue(), "<ns:child xmlns:ns=\"foo\" xmlns:k=\"bar\"></ns:child>");
+        Assert.assertEquals(returns[3].stringValue(), "<ns:child xmlns:ns=\"foo\" xmlns:k=\"bar\"></ns:child>");
+        Assert.assertEquals(returns[4].stringValue(), "<ns:child xmlns:ns=\"foo\" xmlns:k=\"bar\"></ns:child>");
+    }
+
+    @Test
+    public void testXMLNavigationOnSingleElementReferToDefaultNS() {
+        BValue[] returns = BRunUtil.invoke(navigation, "testXMLNavigationOnSingleElementReferToDefaultNS");
+        Assert.assertEquals(returns[0].stringValue(), "<child xmlns=\"foo\" xmlns:k=\"bar\"></child>");
+        Assert.assertEquals(returns[1].stringValue(), "<child xmlns=\"foo\" xmlns:k=\"bar\"></child>");
+        Assert.assertEquals(returns[2].stringValue(), "<child xmlns=\"foo\" xmlns:k=\"bar\"></child>");
+        Assert.assertEquals(returns[3].stringValue(), "<child xmlns=\"foo\" xmlns:k=\"bar\"></child>");
+        Assert.assertEquals(returns[4].stringValue(), "<child xmlns=\"foo\" xmlns:k=\"bar\"></child>");
+    }
+
+    @Test
+    public void testXMLNavigationOnSingleElementReferToDefaultNSViaPrefix() {
+        BValue[] returns = BRunUtil.invoke(navigation, "testXMLNavigationOnSingleElementReferToDefaultNSViaPrefix");
+        Assert.assertEquals(returns[0].stringValue(), "<child xmlns=\"foo\" xmlns:k=\"bar\" xmlns:ns=\"foo\"></child>");
+        Assert.assertEquals(returns[1].stringValue(), "<child xmlns=\"foo\" xmlns:k=\"bar\" xmlns:ns=\"foo\"></child>");
+        Assert.assertEquals(returns[2].stringValue(), "<child xmlns=\"foo\" xmlns:k=\"bar\" xmlns:ns=\"foo\"></child>");
+        Assert.assertEquals(returns[3].stringValue(), "<child xmlns=\"foo\" xmlns:k=\"bar\" xmlns:ns=\"foo\"></child>");
+        Assert.assertEquals(returns[4].stringValue(), "<child xmlns=\"foo\" xmlns:k=\"bar\" xmlns:ns=\"foo\"></child>");
+    }
+
+    @Test
+    public void testXMLNavigationOnSequence() {
+        BValue[] returns = BRunUtil.invoke(navigation, "testXMLNavigationOnSequence");
+        Assert.assertEquals(returns[0].stringValue(), "<child>A</child><child>B</child><child>C</child>");
+        Assert.assertEquals(returns[1].stringValue(), "<child>A</child><child>B</child>" +
+                "<child>C</child><it-child>D</it-child>TEXT");
+        Assert.assertEquals(returns[2].stringValue(), "<child>A</child><child>B</child>" +
+                "<child>C</child><it-child>D</it-child>");
+        Assert.assertEquals(returns[3].stringValue(), "<child>A</child><child>B</child><child>C</child>");
+        Assert.assertEquals(returns[4].stringValue(), "<child>A</child><child>B</child><child>C</child>");
+    }
+
+    @Test
+    public void testXMLNavigationOnSequenceWithNamespaces() {
+        BValue[] returns = BRunUtil.invoke(navigation, "testXMLNavigationOnSequenceWithNamespaces");
+        Assert.assertEquals(returns[0].stringValue(),
+                "<child xmlns=\"foo\" xmlns:k=\"bar\" xmlns:ns=\"foo\">A</child>" +
+                "<ns:child xmlns:ns=\"foo\" xmlns=\"foo\" xmlns:k=\"bar\">B</ns:child>");
+        Assert.assertEquals(returns[1].stringValue(),
+                "<child xmlns=\"foo\" xmlns:k=\"bar\" xmlns:ns=\"foo\">A</child>" +
+                        "<ns:child xmlns:ns=\"foo\" xmlns=\"foo\" xmlns:k=\"bar\">B</ns:child>" +
+                        "<k:child xmlns:k=\"bar\" xmlns=\"foo\" xmlns:ns=\"foo\">C</k:child>" +
+                        "<it-child xmlns=\"foo\" xmlns:k=\"bar\" xmlns:ns=\"foo\">D</it-child>TEXT");
+        Assert.assertEquals(returns[2].stringValue(),
+                "<child xmlns=\"foo\" xmlns:k=\"bar\" xmlns:ns=\"foo\">A</child>" +
+                        "<ns:child xmlns:ns=\"foo\" xmlns=\"foo\" xmlns:k=\"bar\">B</ns:child>" +
+                        "<it-child xmlns=\"foo\" xmlns:k=\"bar\" xmlns:ns=\"foo\">D</it-child>");
+        Assert.assertEquals(returns[3].stringValue(),
+                "<child xmlns=\"foo\" xmlns:k=\"bar\" xmlns:ns=\"foo\">A</child>" +
+                        "<ns:child xmlns:ns=\"foo\" xmlns=\"foo\" xmlns:k=\"bar\">B</ns:child>");
+        Assert.assertEquals(returns[4].stringValue(),
+                "<child xmlns=\"foo\" xmlns:k=\"bar\" xmlns:ns=\"foo\">A</child>" +
+                        "<ns:child xmlns:ns=\"foo\" xmlns=\"foo\" xmlns:k=\"bar\">B</ns:child>");
+    }
+
+    @Test
+    public void testXMLNavigationOnSequenceWithNamespacesAndMultipleFilters() {
+        BValue[] returns = BRunUtil.invoke(navigation, "testXMLNavigationOnSequenceWithNamespacesAndMultipleFilters");
+        Assert.assertEquals(returns[0].stringValue(),
+                "<child xmlns=\"foo\" xmlns:k=\"bar\" xmlns:ns=\"foo\">A</child>" +
+                        "<ns:child xmlns:ns=\"foo\" xmlns=\"foo\" xmlns:k=\"bar\">B</ns:child>" +
+                        "<child2 xmlns=\"foo\" xmlns:k=\"bar\" xmlns:ns=\"foo\">D</child2>");
+        Assert.assertEquals(returns[2].stringValue(),
+                "<child xmlns=\"foo\" xmlns:k=\"bar\" xmlns:ns=\"foo\">A</child>" +
+                        "<ns:child xmlns:ns=\"foo\" xmlns=\"foo\" xmlns:k=\"bar\">B</ns:child>" +
+                        "<child2 xmlns=\"foo\" xmlns:k=\"bar\" xmlns:ns=\"foo\">D</child2>");
+        // todo: uncomment after fixing descendents navigation
+//        Assert.assertEquals(returns[3].stringValue(),
+//                "<child xmlns=\"foo\" xmlns:k=\"bar\" xmlns:ns=\"foo\">A</child>" +
+//                        "<ns:child xmlns:ns=\"foo\" xmlns=\"foo\" xmlns:k=\"bar\">B</ns:child>");
+        Assert.assertEquals(returns[4].stringValue(),
+                "<child xmlns=\"foo\" xmlns:k=\"bar\" xmlns:ns=\"foo\">A</child>" +
+                        "<ns:child xmlns:ns=\"foo\" xmlns=\"foo\" xmlns:k=\"bar\">B</ns:child>" +
+                        "<child2 xmlns=\"foo\" xmlns:k=\"bar\" xmlns:ns=\"foo\">D</child2>");
     }
 
     @Test

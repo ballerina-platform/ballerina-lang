@@ -26,6 +26,7 @@ import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.tree.expressions.NamedArgNode;
+import org.ballerinalang.model.tree.expressions.XMLNavigationAccess;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
 import org.ballerinalang.model.tree.statements.BlockNode;
 import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
@@ -223,6 +224,7 @@ import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.util.Flags;
 import org.wso2.ballerinalang.util.Lists;
 
+import javax.xml.XMLConstants;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -4139,11 +4141,28 @@ public class Desugar extends BLangNodeVisitor {
         // todo: we need to handle multiple elements x.<a|b|c>
         xmlElementAccess.expr = rewriteExpr(xmlElementAccess.expr);
 
+        ArrayList<BLangExpression> filters = expandFilters(xmlElementAccess.filters);
+
+        BLangInvocation invocationNode = createLanglibXMLInvocation(xmlElementAccess.pos, "getElements",
+                xmlElementAccess.expr, new ArrayList<>(), filters);
+        result = rewriteExpr(invocationNode);
+    }
+
+    private ArrayList<BLangExpression> expandFilters(List<BLangXMLElementFilter> filters) {
+        Map<Name, BXMLNSSymbol> nameBXMLNSSymbolMap = symResolver.resolveAllNamespaces(env);
+        BXMLNSSymbol defaultNSSymbol = nameBXMLNSSymbolMap.get(XMLConstants.DEFAULT_NS_PREFIX);
+        String defaultNS = defaultNSSymbol != null ? defaultNSSymbol.namespaceURI : null;
+
         ArrayList<BLangExpression> args = new ArrayList<>();
-        for (BLangXMLElementFilter filter : xmlElementAccess.filters) {
+        for (BLangXMLElementFilter filter : filters) {
             BSymbol nsSymbol = symResolver.lookupSymbol(env, names.fromString(filter.namespace), SymTag.XMLNS);
             if (nsSymbol == symTable.notFoundSymbol) {
-                args.add(createStringLiteral(filter.elemNamePos, filter.name));
+                if (defaultNS != null && !filter.name.equals("*")) {
+                    String expandedName = "{" + defaultNS + "}" + filter.name;
+                    args.add(createStringLiteral(filter.elemNamePos, expandedName));
+                } else {
+                    args.add(createStringLiteral(filter.elemNamePos, filter.name));
+                }
             } else {
                 BXMLNSSymbol bxmlnsSymbol = (BXMLNSSymbol) nsSymbol;
                 String expandedName = "{" + bxmlnsSymbol.namespaceURI + "}" + filter.name;
@@ -4151,10 +4170,7 @@ public class Desugar extends BLangNodeVisitor {
                 args.add(stringLiteral);
             }
         }
-
-        BLangInvocation invocationNode = createLanglibXMLInvocation(xmlElementAccess.pos, "getElements",
-                xmlElementAccess.expr, new ArrayList<>(), args);
-        result = rewriteExpr(invocationNode);
+        return args;
     }
 
     private BLangInvocation createLanglibXMLInvocation(DiagnosticPos pos, String functionName,
@@ -4192,7 +4208,34 @@ public class Desugar extends BLangNodeVisitor {
         xmlNavigation.expr = rewriteExpr(xmlNavigation.expr);
         xmlNavigation.childIndex = rewriteExpr(xmlNavigation.childIndex);
 
-        result = xmlNavigation;
+        ArrayList<BLangExpression> filters = expandFilters(xmlNavigation.filters);
+
+        // xml/**/<elemName>
+        if (xmlNavigation.navAccessType == XMLNavigationAccess.NavAccessType.DESCENDANTS) {
+            BLangInvocation invocationNode = createLanglibXMLInvocation(xmlNavigation.pos, "selectDescendants",
+                    xmlNavigation.expr, new ArrayList<>(), filters);
+            result = rewriteExpr(invocationNode);
+        } else if (xmlNavigation.navAccessType == XMLNavigationAccess.NavAccessType.CHILDREN) {
+            // xml/*
+            BLangInvocation invocationNode = createLanglibXMLInvocation(xmlNavigation.pos, "children",
+                    xmlNavigation.expr, new ArrayList<>(), new ArrayList<>());
+            result = rewriteExpr(invocationNode);
+        } else {
+            BLangExpression childIndexExpr;
+            // xml/<elem>
+            if (xmlNavigation.childIndex == null) {
+                childIndexExpr = new BLangLiteral(Long.valueOf(-1), symTable.intType);
+            } else {
+                // xml/<elem>[index]
+                childIndexExpr = xmlNavigation.childIndex;
+            }
+            ArrayList<BLangExpression> args = new ArrayList<>();
+            args.add(rewriteExpr(childIndexExpr));
+
+            BLangInvocation invocationNode = createLanglibXMLInvocation(xmlNavigation.pos, "getFilteredChildrenFlat",
+                    xmlNavigation.expr, args, filters);
+            result = rewriteExpr(invocationNode);
+        }
     }
 
     @Override

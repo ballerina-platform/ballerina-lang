@@ -277,7 +277,6 @@ public class TypeChecker extends BLangNodeVisitor {
     @Override
     public void visit(BLangXMLElementAccess xmlElementAccess) {
         // check for undeclared namespaces.
-        // todo: xmlelem._ is xmlElementName; so should be a string
         checkXMLNamespacePrefixes(xmlElementAccess.filters);
         resultType = checkExpr(xmlElementAccess.expr, env, expType);
         // todo: we may need to add some logic to constrain result type to xml @namedSubType type.
@@ -1600,6 +1599,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
         BType actualType;
         // Accessing all fields using * is only supported for XML.
+        // todo: remove this, this is no longer supported, this is moved to xml.<*>
         if (fieldAccessExpr.fieldKind == FieldKind.ALL && varRefType.tag != TypeTags.XML) {
             dlog.error(fieldAccessExpr.pos, DiagnosticCode.CANNOT_GET_ALL_FIELDS, varRefType);
             actualType = symTable.semanticError;
@@ -4074,6 +4074,8 @@ public class TypeChecker extends BLangNodeVisitor {
             if (fieldAccessExpr.lhsVar) {
                 dlog.error(fieldAccessExpr.pos, DiagnosticCode.CANNOT_UPDATE_XML_SEQUENCE);
             }
+            // todo: field access on a xml value is not attribute access, return type should be string?
+            // `_` is a special field that refer to the element name.
             actualType = symTable.xmlType;
             fieldAccessExpr.originalType = actualType;
         } else if (varRefType.tag != TypeTags.SEMANTIC_ERROR) {
