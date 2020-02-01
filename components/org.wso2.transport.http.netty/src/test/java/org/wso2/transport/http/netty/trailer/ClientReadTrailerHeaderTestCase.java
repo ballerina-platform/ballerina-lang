@@ -93,6 +93,7 @@ public class ClientReadTrailerHeaderTestCase extends TrailerHeaderTestTemplate {
 
         ByteBuffer byteBuffer = ByteBuffer.wrap(payload.getBytes(Charset.forName("UTF-8")));
         requestMsg.addHttpContent(new DefaultLastHttpContent(Unpooled.wrappedBuffer(byteBuffer)));
+        requestMsg.completeMessage();
 
         CountDownLatch latch = new CountDownLatch(1);
         DefaultHttpConnectorListener listener = new DefaultHttpConnectorListener(latch);
