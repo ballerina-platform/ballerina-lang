@@ -59,6 +59,8 @@ public class ServiceScopeProvider extends AbstractCompletionProvider {
         }
 
         completionItems.add(new SnippetCompletionItem(ctx, Snippet.KW_PUBLIC.get()));
+        completionItems.add(new SnippetCompletionItem(ctx, Snippet.KW_FUNCTION.get()));
+        completionItems.add(new SnippetCompletionItem(ctx, Snippet.KW_RESOURCE.get()));
         completionItems.addAll(this.getResourceSnippets(ctx));
         completionItems.add(new SnippetCompletionItem(ctx, Snippet.DEF_FUNCTION.get()));
 

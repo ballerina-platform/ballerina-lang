@@ -56,7 +56,10 @@ public class TopLevelScopeProvider extends AbstractCompletionProvider {
     @Override
     public List<LSCompletionItem> getCompletions(LSContext ctx) throws LSCompletionException {
         ArrayList<LSCompletionItem> completionItems = new ArrayList<>();
-        
+        List<CommonToken> lhsTokens = ctx.get(SourcePruneKeys.LHS_TOKENS_KEY);
+        Optional<String> subRule = this.getSubRule(lhsTokens);
+        subRule.ifPresent(rule -> CompletionSubRuleParser.parseWithinCompilationUnit(rule, ctx));
+
         if (this.inFunctionReturnParameterContext(ctx)) {
             return this.getProvider(BallerinaParser.ReturnParameterContext.class).getCompletions(ctx);
         }
@@ -126,7 +129,6 @@ public class TopLevelScopeProvider extends AbstractCompletionProvider {
     @Override
     public Optional<LSCompletionProvider> getContextProvider(LSContext ctx) {
         List<Integer> lhsTokensTypes = ctx.get(SourcePruneKeys.LHS_DEFAULT_TOKEN_TYPES_KEY);
-        List<CommonToken> lhsTokens = ctx.get(SourcePruneKeys.LHS_TOKENS_KEY);
         Boolean forcedRemoved = ctx.get(SourcePruneKeys.FORCE_REMOVED_STATEMENT_WITH_PARENTHESIS_KEY);
         if (lhsTokensTypes == null || lhsTokensTypes.isEmpty() || (forcedRemoved != null && forcedRemoved)) {
             return Optional.empty();
@@ -137,13 +139,11 @@ public class TopLevelScopeProvider extends AbstractCompletionProvider {
         // Handle with the parser rule context
         int serviceTokenIndex = lhsTokensTypes.indexOf(BallerinaParser.SERVICE);
         int assignTokenIndex = lhsTokensTypes.indexOf(BallerinaParser.ASSIGN);
+        ParserRuleContext parserRuleContext = ctx.get(CompletionKeys.PARSER_RULE_CONTEXT_KEY);
 
         if (serviceTokenIndex > -1 && assignTokenIndex == -1) {
             return Optional.ofNullable(this.getProvider(BallerinaParser.ServiceDefinitionContext.class));
         }
-        Optional<String> subRule = this.getSubRule(lhsTokens);
-        subRule.ifPresent(rule -> CompletionSubRuleParser.parseWithinCompilationUnit(rule, ctx));
-        ParserRuleContext parserRuleContext = ctx.get(CompletionKeys.PARSER_RULE_CONTEXT_KEY);
 
         if (parserRuleContext != null) {
             return Optional.ofNullable(this.getProvider(parserRuleContext.getClass()));
