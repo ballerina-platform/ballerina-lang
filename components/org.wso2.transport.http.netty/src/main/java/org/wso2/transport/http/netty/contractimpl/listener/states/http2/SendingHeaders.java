@@ -36,6 +36,7 @@ import org.wso2.transport.http.netty.contractimpl.Http2OutboundRespListener;
 import org.wso2.transport.http.netty.contractimpl.common.Util;
 import org.wso2.transport.http.netty.contractimpl.common.states.Http2MessageStateContext;
 import org.wso2.transport.http.netty.contractimpl.common.states.Http2StateUtil;
+import org.wso2.transport.http.netty.contractimpl.common.states.StateUtil;
 import org.wso2.transport.http.netty.contractimpl.listener.http2.Http2SourceHandler;
 import org.wso2.transport.http.netty.message.Http2DataFrame;
 import org.wso2.transport.http.netty.message.Http2HeadersFrame;
@@ -149,6 +150,7 @@ public class SendingHeaders implements ListenerState {
     private void writeHeaders(HttpCarbonMessage outboundResponseMsg, int streamId) throws Http2Exception {
         outboundResponseMsg.getHeaders().
                 add(HttpConversionUtil.ExtensionHeaderNames.SCHEME.text(), HTTP_SCHEME);
+        StateUtil.addTrailerHeaderIfPresent(outboundResponseMsg);
         HttpMessage httpMessage =
                 Util.createHttpResponse(outboundResponseMsg, HTTP2_VERSION, serverName, true);
         // Construct Http2 headers
