@@ -57,6 +57,12 @@ public class StringValueBasicsTest {
     }
 
     @Test
+    public void testRecordStringValuePut() {
+        BValue[] returns = BRunUtil.invoke(result, "recordStringValuePut");
+        //TODO assert return value has BString
+    }
+
+    @Test
     public void testError() {
         BValue[] returns = BRunUtil.invoke(result, "testError");
         Assert.assertEquals(returns[0].getClass(), BInteger.class);
