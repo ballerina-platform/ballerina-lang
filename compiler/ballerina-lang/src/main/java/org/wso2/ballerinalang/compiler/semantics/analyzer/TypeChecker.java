@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.clauses.FromClauseNode;
+import org.ballerinalang.model.clauses.WhereClauseNode;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.elements.TableColumnFlag;
@@ -124,8 +125,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQName;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQuotedString;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLTextLiteral;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
 import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 import org.wso2.ballerinalang.compiler.util.BArrayState;
 import org.wso2.ballerinalang.compiler.util.ClosureVarSymbol;
@@ -149,7 +148,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-
 import javax.xml.XMLConstants;
 
 import static org.wso2.ballerinalang.compiler.tree.BLangInvokableNode.DEFAULT_WORKER_NAME;
@@ -2577,6 +2575,7 @@ public class TypeChecker extends BLangNodeVisitor {
     @Override
     public void visit(BLangQueryExpr queryExpr) {
         List<? extends FromClauseNode> fromClauseList = queryExpr.getFromClauseNodes();
+        List<? extends WhereClauseNode> whereClauseList = queryExpr.getWhereClauseNode();
         SymbolEnv parentEnv = env;
         for(FromClauseNode fromClause : fromClauseList) {
             parentEnv = typeCheckFromClause((BLangFromClause) fromClause, parentEnv);
@@ -2585,8 +2584,8 @@ public class TypeChecker extends BLangNodeVisitor {
         BLangSelectClause selectClause = (BLangSelectClause) queryExpr.getSelectClauseNode();
         checkExpr(selectClause.expression, parentEnv);
 
-        BLangWhereClause whereClause = (BLangWhereClause) queryExpr.getWhereClauseNode();
-        if (whereClause != null) {
+        for (WhereClauseNode whereClauseNode : whereClauseList) {
+            BLangWhereClause whereClause = (BLangWhereClause) whereClauseNode;
             checkExpr(whereClause.expression, parentEnv);
         }
     }

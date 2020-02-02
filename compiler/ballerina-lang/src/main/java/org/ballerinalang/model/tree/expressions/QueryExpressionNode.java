@@ -35,7 +35,7 @@ public interface QueryExpressionNode extends ExpressionNode {
 
     void setSelectClauseNode(SelectClauseNode selectClauseNode);
 
-    WhereClauseNode getWhereClauseNode();
+    List<? extends WhereClauseNode> getWhereClauseNode();
 
-    void setWhereClauseNode(WhereClauseNode whereClauseNode);
+    void addWhereClauseNode(WhereClauseNode whereClauseNode);
 }

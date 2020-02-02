@@ -1199,7 +1199,7 @@ class NodeCloner extends BLangNodeVisitor {
         source.cloneRef = clone;
         clone.fromClauseList = cloneList(source.fromClauseList);
         clone.selectClause = clone(source.selectClause);
-        clone.whereClause = clone(source.whereClause);
+        clone.whereClauseList = cloneList(source.whereClauseList);
     }
 
     @Override

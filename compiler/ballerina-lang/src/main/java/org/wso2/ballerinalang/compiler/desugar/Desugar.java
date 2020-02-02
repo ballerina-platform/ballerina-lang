@@ -4333,7 +4333,7 @@ public class Desugar extends BLangNodeVisitor {
         List<BLangFromClause> fromClauseList = queryExpr.fromClauseList;
         BLangFromClause fromClause = fromClauseList.get(0);
         BLangSelectClause selectClause = queryExpr.selectClause;
-        BLangWhereClause whereClause = queryExpr.whereClause;
+        List<BLangWhereClause> whereClauseList = queryExpr.whereClauseList;
         DiagnosticPos pos = fromClause.pos;
 
         // Create Foreach statement
@@ -4397,16 +4397,29 @@ public class Desugar extends BLangNodeVisitor {
         selectClause.expression.type = ((BArrayType) fromClause.collection.type).eType;
         BLangAssignment outputVarAssignment = ASTBuilderUtil.createAssignmentStmt(pos, indexAccessExpr,
                 selectClause.expression);
-
         // Set the indexed based access expression statement as foreach body
         foreachBody.addStatement(outputVarAssignment);
-        if (whereClause != null) {
+
+        if (whereClauseList.size() > 0) {
             // Create If Statement with Where expression and foreach body
+            BLangIf outerIf = null;
+            BLangIf innerIf = null;
+            for (BLangWhereClause whereClause : whereClauseList) {
+                BLangIf bLangIf = (BLangIf) TreeBuilder.createIfElseStatementNode();
+                bLangIf.pos = queryExpr.pos;
+                bLangIf.expr = whereClause.expression;
+                if (innerIf != null) {
+                    BLangBlockStmt bLangBlockStmt = ASTBuilderUtil.createBlockStmt(pos);
+                    bLangBlockStmt.addStatement(bLangIf);
+                    innerIf.setBody(bLangBlockStmt);
+                } else {
+                    outerIf = bLangIf;
+                }
+                innerIf = bLangIf;
+            }
+            innerIf.setBody(foreachBody);
             BLangBlockStmt bLangBlockStmt = ASTBuilderUtil.createBlockStmt(pos);
-            BLangIf bLangIf = (BLangIf) TreeBuilder.createIfElseStatementNode();
-            bLangIf.expr = whereClause.expression;
-            bLangIf.setBody(foreachBody);
-            bLangBlockStmt.addStatement(bLangIf);
+            bLangBlockStmt.addStatement(outerIf);
             leafForEach.setBody(bLangBlockStmt);
         } else {
             leafForEach.setBody(foreachBody);

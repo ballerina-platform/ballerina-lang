@@ -1686,8 +1686,9 @@ public class BLangPackageBuilder {
             queryExpr.addFromClauseNode(fromClauseNodeStack.pop());
         }
         queryExpr.setSelectClauseNode(selectClauseNodeStack.pop());
-        if(whereClauseNodeStack.size() > 0) {
-            queryExpr.setWhereClauseNode(whereClauseNodeStack.pop());
+        Collections.reverse(whereClauseNodeStack);
+        while (whereClauseNodeStack.size() > 0) {
+            queryExpr.addWhereClauseNode(whereClauseNodeStack.pop());
         }
         addExpressionNode(queryExpr);
     }

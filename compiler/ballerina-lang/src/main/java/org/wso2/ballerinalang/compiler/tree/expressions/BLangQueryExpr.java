@@ -37,7 +37,7 @@ public class BLangQueryExpr extends BLangExpression implements QueryExpressionNo
 
     public List<BLangFromClause> fromClauseList = new ArrayList<>();
     public BLangSelectClause selectClause;
-    public BLangWhereClause whereClause;
+    public List<BLangWhereClause> whereClauseList = new ArrayList<>();
 
     @Override
     public List<? extends FromClauseNode> getFromClauseNodes() {
@@ -60,13 +60,13 @@ public class BLangQueryExpr extends BLangExpression implements QueryExpressionNo
     }
 
     @Override
-    public WhereClauseNode getWhereClauseNode() {
-        return whereClause;
+    public List<? extends BLangWhereClause> getWhereClauseNode() {
+        return whereClauseList;
     }
 
     @Override
-    public void setWhereClauseNode(WhereClauseNode whereClauseNode) {
-        this.whereClause = (BLangWhereClause) whereClauseNode;
+    public void addWhereClauseNode(WhereClauseNode whereClauseNode) {
+        this.whereClauseList.add((BLangWhereClause) whereClauseNode);
     }
 
     @Override
