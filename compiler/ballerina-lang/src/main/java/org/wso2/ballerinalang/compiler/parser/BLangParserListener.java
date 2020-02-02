@@ -75,6 +75,8 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     private String pkgVersion;
     private boolean isInErrorState = false;
 
+    private Pattern pattern = Pattern.compile(Constants.UNICODE_REGEX);
+
     BLangParserListener(CompilerContext context, CompilationUnitNode compUnit, BDiagnosticSource diagnosticSource) {
         this.pkgBuilder = new BLangPackageBuilder(context, compUnit);
         this.diagnosticSrc = diagnosticSource;
@@ -2710,13 +2712,13 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             String text = node.getText();
             text = text.substring(1, text.length() - 1);
             String originalText = text; // to log the errors
-            Pattern pattern = Pattern.compile(Constants.UNICODE_REGEX);
             Matcher matcher = pattern.matcher(text);
             int position = 0;
             while (matcher.find(position)) {
                 String hexStringVal = matcher.group(1);
                 int hexDecimalVal = Integer.parseInt(hexStringVal, 16);
-                if ((hexDecimalVal >= 0xD800 && hexDecimalVal <= 0xDFFF) || hexDecimalVal > 0x10FFFF) {
+                if ((hexDecimalVal >= Constants.MIN_UNICODE && hexDecimalVal <= Constants.MIDDLE_LIMIT_UNICODE)
+                        || hexDecimalVal > Constants.MAX_UNICODE) {
                     String hexStringWithBraces = matcher.group(0);
                     int offset = originalText.indexOf(hexStringWithBraces) + 1;
                     dlog.error(new DiagnosticPos(diagnosticSrc, pos.sLine, pos.eLine, pos.sCol + offset,

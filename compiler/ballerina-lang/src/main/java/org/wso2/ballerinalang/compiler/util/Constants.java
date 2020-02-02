@@ -40,5 +40,10 @@ public class Constants {
 
     public static final int INIT_METHOD_SPLIT_SIZE = 50;
 
-    public static final String UNICODE_REGEX = "\\\\u\\{([a-fA-F0-9]*)\\}";
+    public static final String UNICODE_REGEX = "\\\\u\\{([a-fA-F0-9]+)\\}";
+
+    public static final int MIN_UNICODE = 0xD800;
+    public static final int MIDDLE_LIMIT_UNICODE = 0xDFFF;
+    public static final int MAX_UNICODE = 0x10FFFF;
+
 }
