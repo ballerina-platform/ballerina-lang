@@ -53,7 +53,7 @@ import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.JAVA_MAIN
 public class RunExecutableTask implements Task {
 
     private final String[] args;
-    private Path executablePath;
+    private Path executableJarPath;
     private boolean isInDebugMode = false;
     private static final String DEBUG_ARGS_JAVA8 = "-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=";
 
@@ -64,71 +64,59 @@ public class RunExecutableTask implements Task {
      * @param isInDebugMode Flag to notify whether the executable jar should be run in the debug mode.
      */
     public RunExecutableTask(String[] args, boolean isInDebugMode) {
-        this(null, args);
+        this(args);
         this.isInDebugMode = isInDebugMode;
     }
 
     /**
      * Create a task to run an executable from a given path.
      *
-     * @param executablePath The path to the executable.
-     * @param args           Arguments for the executable.
+     * @param args Arguments for the executable.
      */
-    public RunExecutableTask(Path executablePath, String[] args) {
-        this.executablePath = executablePath;
+    public RunExecutableTask(String[] args) {
         this.args = args;
     }
 
     @Override
     public void execute(BuildContext buildContext) {
         Path sourceRootPath = buildContext.get(BuildContextField.SOURCE_ROOT);
+
         BLangPackage executableModule = null;
-        // set executable path from an executable built on the go
-        if (null == this.executablePath) {
-            for (BLangPackage module : buildContext.getModules()) {
-                if (module.symbol.entryPointExists) {
-                    this.executablePath = buildContext.getExecutablePathFromTarget(module.packageID);
-                    executableModule = module;
-                    break;
-                }
-            }
-
-            // check if executable found with entry points.
-            if (null == this.executablePath) {
-                switch (buildContext.getSourceType()) {
-                    case SINGLE_BAL_FILE:
-                        SingleFileContext singleFileContext = buildContext.get(BuildContextField.SOURCE_CONTEXT);
-                        throw createLauncherException("no entry points found in '" + singleFileContext.getBalFile() +
-                                "'.");
-                    case SINGLE_MODULE:
-                        SingleModuleContext singleModuleContext = buildContext.get(BuildContextField.SOURCE_CONTEXT);
-                        throw createLauncherException("no entry points found in '" +
-                                singleModuleContext.getModuleName() + "'.");
-                    default:
-                        throw createLauncherException("unknown source type found when running executable.");
-                }
+        for (BLangPackage module : buildContext.getModules()) {
+            if (module.symbol.entryPointExists) {
+                executableModule = module;
+                this.executableJarPath = buildContext.getJarPathFromTargetCache(executableModule.packageID);
+                break;
             }
         }
 
-        if (!this.executablePath.isAbsolute()) {
-            this.executablePath = sourceRootPath.resolve(executablePath);
+        // check if any entry points are found.
+        if (executableModule == null) {
+            switch (buildContext.getSourceType()) {
+                case SINGLE_BAL_FILE:
+                    SingleFileContext singleFileContext = buildContext.get(BuildContextField.SOURCE_CONTEXT);
+                    throw createLauncherException(String.format("no entry points found in '%s'.",
+                            singleFileContext.getBalFile()));
+                case SINGLE_MODULE:
+                    SingleModuleContext singleModuleContext = buildContext.get(BuildContextField.SOURCE_CONTEXT);
+                    throw createLauncherException(String.format("no entry points found in '%s'.",
+                            singleModuleContext.getModuleName()));
+                default:
+                    throw createLauncherException("unknown source type found when running executable.");
+            }
         }
 
-        // clean up the path and get absolute path
-        this.executablePath = this.executablePath.toAbsolutePath().normalize();
-
-        // if the executable does not exist
-        if (Files.notExists(this.executablePath)) {
-            throw createLauncherException("cannot run '" + this.executablePath.toAbsolutePath().toString() +
-                    "' as it does not exist.");
+        // if the executable does not exist.
+        if (Files.notExists(this.executableJarPath)) {
+            throw createLauncherException(String.format("cannot run '%s' as it does not exist.",
+                    executableJarPath.toAbsolutePath().toString()));
         }
 
-        // if the executable is not a file and not an extension with .jar
-        if (!(Files.isRegularFile(this.executablePath) &&
-                this.executablePath.toString().endsWith(BLANG_COMPILED_JAR_EXT))) {
-
-            throw createLauncherException("cannot run '" + this.executablePath.toAbsolutePath().toString() +
-                    "' as it is not an executable with .jar extension.");
+        // if the executable is not a file and not an extension with .jar.
+        if (!(Files.isRegularFile(this.executableJarPath) &&
+                this.executableJarPath.toString().endsWith(BLANG_COMPILED_JAR_EXT))) {
+            throw createLauncherException(String.format("cannot run '%s' as it is not an executable with .jar " +
+                    "extension.", this.executableJarPath.toAbsolutePath().toString()));
         }
 
         // set the source root path relative to the source path i.e. set the parent directory of the source path
@@ -147,14 +135,14 @@ public class RunExecutableTask implements Task {
      */
     private void runGeneratedExecutable(BLangPackage executableModule, BuildContext buildContext) {
 
-        ExecutableJar executableJar = buildContext.moduleDependencyPathMap.get(executableModule.packageID);
         String initClassName = BFileUtil.getQualifiedClassName(executableModule.packageID.orgName.value,
                 executableModule.packageID.name.value, MODULE_INIT_CLASS_NAME);
         try {
             List<String> commands = new ArrayList<>();
             commands.add("java");
+            // Sets classpath with executable thin jar and all dependency jar paths.
             commands.add("-cp");
-            commands.add(getClassPath(executableJar));
+            commands.add(getAllClassPaths(executableModule, buildContext));
             if (isInDebugMode) {
                 commands.add(String.format("%s,address=%s", DEBUG_ARGS_JAVA8,
                         System.getProperty(SYSTEM_PROP_BAL_DEBUG)));
@@ -178,8 +166,8 @@ public class RunExecutableTask implements Task {
 
         ExecutableJar executableJar = buildContext.moduleDependencyPathMap.get(executableModule.packageID);
         String initClassName = BFileUtil.getQualifiedClassName(executableModule.packageID.orgName.value,
-                                                               executableModule.packageID.name.value,
-                                                               MODULE_INIT_CLASS_NAME);
+                executableModule.packageID.name.value,
+                MODULE_INIT_CLASS_NAME);
         try {
             URL[] urls = new URL[executableJar.platformLibs.size() + 1];
             urls[0] = executableJar.moduleJar.toUri().toURL();
@@ -195,7 +183,7 @@ public class RunExecutableTask implements Task {
                 Runtime.getRuntime().exit(0);
             }
         } catch (MalformedURLException e) {
-            throw createLauncherException("loading jar file failed with given source path " + this.executablePath);
+            throw createLauncherException("loading jar file failed with given source path " + this.executableJarPath);
         } catch (ClassNotFoundException e) {
             throw createLauncherException("module init class with name " + initClassName + " cannot be found ");
         } catch (NoSuchMethodException e) {
@@ -207,15 +195,16 @@ public class RunExecutableTask implements Task {
         }
     }
 
-    private static String getClassPath(ExecutableJar jar) {
-        String seperator = ":";
-        if (OsUtils.isWindows()) {
-            seperator = ";";
-        }
-        StringBuilder classPath = new StringBuilder(jar.moduleJar.toString());
-        for (Path path : jar.platformLibs) {
-            classPath.append(seperator).append(path);
-        }
-        return classPath.toString();
+    private String getAllClassPaths(BLangPackage executableModule, BuildContext buildContext) {
+        // Since classpath separator depends on the OS type
+        String separator = OsUtils.isWindows() ? ";" : ":";
+        StringBuilder cp = new StringBuilder();
+        // Adds executable thin jar path.
+        cp.append(this.executableJarPath.toString()).append(separator);
+        // Adds all the dependency paths.
+        buildContext.moduleDependencyPathMap.get(executableModule.packageID).platformLibs.forEach(
+                path -> cp.append(path.toString()).append(separator));
+        // Returns the classpath string after removing last separator added.
+        return cp.toString().substring(0, cp.toString().length() - 1);
     }
 }
