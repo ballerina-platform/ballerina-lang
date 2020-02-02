@@ -325,9 +325,9 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
         if (typeName == Names.EMPTY) {
             if ((tag & SymTag.IMPORT) == SymTag.IMPORT) {
                 return symResolver.lookupPrefixSpaceSymbolInPackage(pos, env, pkgName, identifierName);
-            }else if ((tag & SymTag.ANNOTATION) == SymTag.ANNOTATION) {
+            } else if ((tag & SymTag.ANNOTATION) == SymTag.ANNOTATION) {
                 return symResolver.lookupAnnotationSpaceSymbolInPackage(pos, env, pkgName, identifierName);
-            }else if ((tag & SymTag.MAIN) == SymTag.MAIN) {
+            } else if ((tag & SymTag.MAIN) == SymTag.MAIN) {
                 return symResolver.lookupMainSpaceSymbolInPackage(pos, env, pkgName, identifierName);
             }
         }
