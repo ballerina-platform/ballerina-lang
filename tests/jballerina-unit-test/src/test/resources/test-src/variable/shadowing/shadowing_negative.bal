@@ -133,3 +133,8 @@ function testTypeNameAsVariableInDifferentScope1() {
     string Vehicle = "Van";
     Vehicle vehicle = new;
 }
+
+string returnVal = "Return value";
+
+function testVarAsReturnType() returns returnVal {
+}
