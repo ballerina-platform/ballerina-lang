@@ -25,6 +25,7 @@ import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
+import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
 import org.ballerinalang.model.tree.statements.StatementNode;
 import org.ballerinalang.model.tree.types.BuiltInReferenceTypeNode;
@@ -233,10 +234,16 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 .forEach(constant -> analyzeDef((BLangNode) constant, pkgEnv));
         this.constantValueResolver.resolve(pkgNode.constants);
 
-        pkgNode.topLevelNodes.stream().filter(pkgLevelNode -> pkgLevelNode.getKind() != NodeKind.CONSTANT)
-                .filter(pkgLevelNode -> !(pkgLevelNode.getKind() == NodeKind.FUNCTION
-                        && ((BLangFunction) pkgLevelNode).flagSet.contains(Flag.LAMBDA)))
-                .forEach(topLevelNode -> analyzeDef((BLangNode) topLevelNode, pkgEnv));
+        for (int i = 0; i < pkgNode.topLevelNodes.size(); i++) {
+            TopLevelNode pkgLevelNode = pkgNode.topLevelNodes.get(i);
+            NodeKind kind = pkgLevelNode.getKind();
+            if (kind == NodeKind.CONSTANT ||
+                    ((kind == NodeKind.FUNCTION && ((BLangFunction) pkgLevelNode).flagSet.contains(Flag.LAMBDA)))) {
+                continue;
+            }
+
+            analyzeDef((BLangNode) pkgLevelNode, pkgEnv);
+        }
 
         while (pkgNode.lambdaFunctions.peek() != null) {
             BLangLambdaFunction lambdaFunction = pkgNode.lambdaFunctions.poll();
