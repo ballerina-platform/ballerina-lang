@@ -1119,8 +1119,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangWorkerSyncSendExpr syncSendExpr) {
-        BSymbol symbol = symResolver.lookupSymbol(env, names.fromIdNode(syncSendExpr.workerIdentifier),
-                                                  SymTag.VARIABLE);
+        BSymbol symbol = symResolver.lookupMainSpaceSymbol(env, names.fromIdNode(syncSendExpr.workerIdentifier));
 
         if (symTable.notFoundSymbol.equals(symbol)) {
             syncSendExpr.workerType = symTable.semanticError;
@@ -1151,8 +1150,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangWorkerReceive workerReceiveExpr) {
-        BSymbol symbol = symResolver.lookupSymbol(env, names.fromIdNode(workerReceiveExpr.workerIdentifier),
-                                                  SymTag.VARIABLE);
+        BSymbol symbol = symResolver.lookupMainSpaceSymbol(env, names.fromIdNode(workerReceiveExpr.workerIdentifier));
 
         if (workerReceiveExpr.isChannel) {
             this.dlog.error(workerReceiveExpr.pos, DiagnosticCode.UNDEFINED_ACTION);
@@ -1181,7 +1179,7 @@ public class TypeChecker extends BLangNodeVisitor {
         if (workerName.equals(DEFAULT_WORKER_NAME)) {
            return true;
         }
-        BSymbol symbol = this.symResolver.lookupSymbol(env, new Name(workerName), SymTag.VARIABLE);
+        BSymbol symbol = this.symResolver.lookupMainSpaceSymbol(env, new Name(workerName));
         return symbol != this.symTable.notFoundSymbol &&
                symbol.type.tag == TypeTags.FUTURE &&
                ((BFutureType) symbol.type).workerDerivative;
@@ -1214,8 +1212,8 @@ public class TypeChecker extends BLangNodeVisitor {
         if (varRefExpr.pkgSymbol.tag == SymTag.XMLNS) {
             actualType = symTable.stringType;
         } else if (varRefExpr.pkgSymbol != symTable.notFoundSymbol) {
-            BSymbol symbol = symResolver.lookupSymbolInPackage(varRefExpr.pos, env,
-                    names.fromIdNode(varRefExpr.pkgAlias), varName, SymTag.VARIABLE_NAME);
+            BSymbol symbol = symResolver.lookupMainSpaceSymbolInPackage(varRefExpr.pos, env,
+                    names.fromIdNode(varRefExpr.pkgAlias), varName);
             // if no symbol, check same for object attached function
             if (symbol == symTable.notFoundSymbol && env.enclType != null) {
                 Name objFuncName = names.fromString(Symbols
@@ -1440,7 +1438,7 @@ public class TypeChecker extends BLangNodeVisitor {
     private boolean checkErrorRestParamVarRef(BLangErrorVarRef varRefExpr, boolean unresolvedReference) {
         BLangAccessExpression accessExpression = (BLangAccessExpression) varRefExpr.restVar;
         Name exprName = names.fromIdNode(((BLangSimpleVarRef) accessExpression.expr).variableName);
-        BSymbol fSym = symResolver.lookupSymbol(env, exprName, SymTag.VARIABLE);
+        BSymbol fSym = symResolver.lookupMainSpaceSymbol(env, exprName);
         if (fSym != null) {
             if (fSym.type.getKind() == TypeKind.MAP) {
                 BType constraint = ((BMapType) fSym.type).constraint;
@@ -1932,7 +1930,7 @@ public class TypeChecker extends BLangNodeVisitor {
                 fieldName = ((BLangSimpleVarRef) keyVal.valueExpr).variableName;
             }
 
-            BSymbol symbol = symResolver.lookupSymbol(env, names.fromIdNode(fieldName), SymTag.VARIABLE);
+            BSymbol symbol = symResolver.lookupMainSpaceSymbol(env, names.fromIdNode(fieldName));
             BType fieldType = symbol.type.tag == TypeTags.FUTURE ? ((BFutureType) symbol.type).constraint : symbol.type;
             BField field = new BField(names.fromIdNode(keyVal.key), null,
                                       new BVarSymbol(0, names.fromIdNode(keyVal.key), env.enclPkg.packageID,
@@ -2018,8 +2016,8 @@ public class TypeChecker extends BLangNodeVisitor {
     private void checkWaitKeyValExpr(BLangWaitForAllExpr.BLangWaitKeyValue keyVal, BType type) {
         BLangExpression expr;
         if (keyVal.keyExpr != null) {
-            BSymbol symbol = symResolver.lookupSymbol(env, names.fromIdNode
-                            (((BLangSimpleVarRef) keyVal.keyExpr).variableName), SymTag.VARIABLE);
+            BSymbol symbol = symResolver.lookupMainSpaceSymbol(env, names.fromIdNode
+                    (((BLangSimpleVarRef) keyVal.keyExpr).variableName));
             keyVal.keyExpr.type = symbol.type;
             expr = keyVal.keyExpr;
         } else {
@@ -2380,7 +2378,7 @@ public class TypeChecker extends BLangNodeVisitor {
             return;
         }
 
-        BSymbol xmlnsSymbol = symResolver.lookupSymbol(env, names.fromIdNode(bLangXMLQName.prefix), SymTag.XMLNS);
+        BSymbol xmlnsSymbol = symResolver.lookupPrefixSpaceSymbol(env, names.fromIdNode(bLangXMLQName.prefix));
         if (prefix.isEmpty() && xmlnsSymbol == symTable.notFoundSymbol) {
             return;
         }
@@ -2736,11 +2734,18 @@ public class TypeChecker extends BLangNodeVisitor {
             dlog.error(iExpr.pos, DiagnosticCode.UNDEFINED_MODULE, pkgAlias);
         } else {
             if (funcSymbol == symTable.notFoundSymbol) {
-                funcSymbol =
-                        symResolver.lookupSymbolInPackage(iExpr.pos, env, pkgAlias, funcName, SymTag.VARIABLE);
+                BSymbol symbol = symResolver.lookupMainSpaceSymbolInPackage(iExpr.pos, env, pkgAlias, funcName);
+                if ((symbol.tag & SymTag.VARIABLE) == SymTag.VARIABLE) {
+                    funcSymbol = symbol;
+                }
+                if (symTable.rootPkgSymbol.pkgID.equals(symbol.pkgID) &&
+                        (symbol.tag & SymTag.VARIABLE_NAME) == SymTag.VARIABLE_NAME) {
+                    funcSymbol = symbol;
+                }
             }
             if (funcSymbol == symTable.notFoundSymbol) {
-                funcSymbol = symResolver.lookupSymbolInPackage(iExpr.pos, env, pkgAlias, funcName, SymTag.CONSTRUCTOR);
+                funcSymbol = symResolver.lookupMainSpaceSymbolInPackage(iExpr.pos, env, pkgAlias, new Name(
+                        funcName + "$error_constructor$"));
             }
         }
 

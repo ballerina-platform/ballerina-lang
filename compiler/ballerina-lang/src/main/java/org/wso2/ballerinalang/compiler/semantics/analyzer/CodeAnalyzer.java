@@ -1579,8 +1579,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     // Asynchronous Send Statement
     public void visit(BLangWorkerSend workerSendNode) {
-        BSymbol receiver = symResolver.lookupSymbol(env,
-                names.fromIdNode(workerSendNode.workerIdentifier), SymTag.VARIABLE);
+        BSymbol receiver = symResolver.lookupMainSpaceSymbol(env, names.fromIdNode(workerSendNode.workerIdentifier));
         verifyPeerCommunication(workerSendNode.pos, receiver, workerSendNode.workerIdentifier.value);
 
         this.checkStatementExecutionValidity(workerSendNode);
@@ -1644,8 +1643,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangWorkerSyncSendExpr syncSendExpr) {
-        BSymbol receiver = symResolver.lookupSymbol(env,
-                names.fromIdNode(syncSendExpr.workerIdentifier), SymTag.VARIABLE);
+        BSymbol receiver = symResolver.lookupMainSpaceSymbol(env, names.fromIdNode(syncSendExpr.workerIdentifier));
         verifyPeerCommunication(syncSendExpr.pos, receiver, syncSendExpr.workerIdentifier.value);
 
         // Validate worker synchronous send
@@ -1672,8 +1670,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     public void visit(BLangWorkerReceive workerReceiveNode) {
         // Validate worker receive
         validateActionParentNode(workerReceiveNode.pos, workerReceiveNode);
-        BSymbol sender = symResolver.lookupSymbol(env,
-                names.fromIdNode(workerReceiveNode.workerIdentifier), SymTag.VARIABLE);
+        BSymbol sender = symResolver.lookupMainSpaceSymbol(env, names.fromIdNode(workerReceiveNode.workerIdentifier));
         verifyPeerCommunication(workerReceiveNode.pos, sender, workerReceiveNode.workerIdentifier.value);
 
         if (workerReceiveNode.isChannel) {

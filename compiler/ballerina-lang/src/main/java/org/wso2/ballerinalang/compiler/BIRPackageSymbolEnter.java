@@ -489,7 +489,8 @@ public class BIRPackageSymbolEnter {
 
     private void defineErrorConstructor(Scope scope, BTypeSymbol typeDefSymbol) {
         BConstructorSymbol symbol = new BConstructorSymbol(SymTag.CONSTRUCTOR,
-                typeDefSymbol.flags, typeDefSymbol.name, typeDefSymbol.pkgID, typeDefSymbol.type, typeDefSymbol.owner);
+                typeDefSymbol.flags, new Name(typeDefSymbol.name.value + "$error_constructor$"), typeDefSymbol.pkgID,
+                typeDefSymbol.type, typeDefSymbol.owner);
         symbol.kind = SymbolKind.ERROR_CONSTRUCTOR;
         symbol.scope = new Scope(symbol);
         symbol.retType = typeDefSymbol.type;
@@ -898,7 +899,7 @@ public class BIRPackageSymbolEnter {
 
                     BPackageSymbol pkgSymbol = packageLoader.loadPackageSymbol(pkgId, null, null);
                     SymbolEnv pkgEnv = symTable.pkgEnvMap.get(pkgSymbol);
-                    return symbolResolver.lookupSymbol(pkgEnv, names.fromString(recordName), SymTag.TYPE).type;
+                    return symbolResolver.lookupMainSpaceSymbol(pkgEnv, names.fromString(recordName)).type;
                 case TypeTags.TYPEDESC:
                     BTypedescType typedescType = new BTypedescType(null, symTable.typeDesc.tsymbol);
                     typedescType.constraint = readTypeFromCp();
@@ -1083,7 +1084,7 @@ public class BIRPackageSymbolEnter {
 
                     pkgSymbol = packageLoader.loadPackageSymbol(pkgId, null, null);
                     pkgEnv = symTable.pkgEnvMap.get(pkgSymbol);
-                    return symbolResolver.lookupSymbol(pkgEnv, names.fromString(objName), SymTag.TYPE).type;
+                    return symbolResolver.lookupMainSpaceSymbol(pkgEnv, names.fromString(objName)).type;
                 case TypeTags.BYTE_ARRAY:
                     // TODO fix
                     break;

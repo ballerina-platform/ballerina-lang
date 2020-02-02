@@ -176,8 +176,8 @@ public class ServiceProtoBuilder extends AbstractCompilerPlugin {
         BLangAnnotationAttachment annoAttachment = (BLangAnnotationAttachment) TreeBuilder.createAnnotAttachmentNode();
         serviceNode.addAnnotationAttachment(annoAttachment);
         final SymbolEnv pkgEnv = symTable.pkgEnvMap.get(service.symbol.getEnclosingSymbol());
-        BSymbol annSymbol = symResolver.lookupSymbolInPackage(service.pos, pkgEnv, names.fromString
-                (PROTOCOL_PACKAGE_GRPC), names.fromString(ANN_SERVICE_DESCRIPTOR), SymTag.ANNOTATION);
+        BSymbol annSymbol = symResolver.lookupAnnotationSpaceSymbolInPackage(service.pos, pkgEnv, names.fromString
+                (PROTOCOL_PACKAGE_GRPC), names.fromString(ANN_SERVICE_DESCRIPTOR));
         if (annSymbol instanceof BAnnotationSymbol) {
             annoAttachment.annotationSymbol = (BAnnotationSymbol) annSymbol;
         }
@@ -194,8 +194,8 @@ public class ServiceProtoBuilder extends AbstractCompilerPlugin {
         annoAttachment.attachPoints.add(AttachPoint.Point.SERVICE);
         literalNode.pos = pos;
         BStructureTypeSymbol bStructSymbol = null;
-        BSymbol annTypeSymbol = symResolver.lookupSymbolInPackage(service.pos, pkgEnv, names.fromString
-                (PROTOCOL_PACKAGE_GRPC), names.fromString(ANN_RECORD_DESCRIPTOR_DATA), SymTag.STRUCT);
+        BSymbol annTypeSymbol = symResolver.lookupMainSpaceSymbolInPackage(service.pos, pkgEnv, names.fromString
+                (PROTOCOL_PACKAGE_GRPC), names.fromString(ANN_RECORD_DESCRIPTOR_DATA));
         if (annTypeSymbol instanceof BStructureTypeSymbol) {
             bStructSymbol = (BStructureTypeSymbol) annTypeSymbol;
             literalNode.type = bStructSymbol.type;
@@ -232,7 +232,7 @@ public class ServiceProtoBuilder extends AbstractCompilerPlugin {
         }
 
         //Add Descriptor Map
-        BSymbol mapVarSymbol = symResolver.lookupSymbol(pkgEnv, names.fromString(DESCRIPTOR_MAP), SymTag.FUNCTION);
+        BSymbol mapVarSymbol = symResolver.lookupMainSpaceSymbol(pkgEnv, names.fromString(DESCRIPTOR_MAP));
         if (mapVarSymbol == null || mapVarSymbol.type.tag == TypeTags.NONE) {
             return;
         }

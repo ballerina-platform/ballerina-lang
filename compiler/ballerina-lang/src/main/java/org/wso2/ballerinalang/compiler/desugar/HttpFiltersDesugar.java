@@ -493,8 +493,8 @@ public class HttpFiltersDesugar {
         DiagnosticPos pos = resourceNode.pos;
         BLangAnnotationAttachment annoAttachment = (BLangAnnotationAttachment) TreeBuilder.createAnnotAttachmentNode();
         resourceNode.addAnnotationAttachment(annoAttachment);
-        BSymbol annSymbol = lookupSymbolInPackage(symResolver, resourceNode.pos, env, names.fromString
-                (PACKAGE_NAME), names.fromString(ANN_RESOURCE_PARAM_ORDER_CONFIG), SymTag.ANNOTATION);
+        BSymbol annSymbol = lookupAnnotationSpaceSymbolInPackage(symResolver, resourceNode.pos, env, names.fromString
+                (PACKAGE_NAME), names.fromString(ANN_RESOURCE_PARAM_ORDER_CONFIG));
 
         if (annSymbol == symTable.notFoundSymbol) {
             return;
@@ -513,8 +513,8 @@ public class HttpFiltersDesugar {
         annoAttachment.attachPoints.add(AttachPoint.Point.RESOURCE);
         literalNode.pos = pos;
         BStructureTypeSymbol bStructSymbol;
-        BSymbol annTypeSymbol = lookupSymbolInPackage(symResolver, resourceNode.pos, env, names.fromString
-                (PACKAGE_NAME), names.fromString(ANN_RECORD_PARAM_ORDER_CONFIG), SymTag.STRUCT);
+        BSymbol annTypeSymbol = lookupMainSpaceSymbolInPackage(symResolver, resourceNode.pos, env, names.fromString
+                (PACKAGE_NAME), names.fromString(ANN_RECORD_PARAM_ORDER_CONFIG));
         if (annTypeSymbol == symTable.notFoundSymbol) {
             return;
         }
@@ -578,22 +578,11 @@ public class HttpFiltersDesugar {
         return mapper;
     }
 
-    /**
-     * Return the symbol associated with the given name in the give package regardless of its package visibility.
-     *
-     * @param symResolver symbol resolver
-     * @param pos         symbol position
-     * @param env         current symbol environment
-     * @param pkgAlias    package alias
-     * @param name        symbol name
-     * @param expSymTag   expected symbol type/tag
-     * @return resolved symbol
-     */
-    private BSymbol lookupSymbolInPackage(SymbolResolver symResolver, DiagnosticPos pos, SymbolEnv env,
-                                          Name pkgAlias, Name name, int expSymTag) {
+    private BSymbol lookupMainSpaceSymbolInPackage(SymbolResolver symResolver, DiagnosticPos pos, SymbolEnv env,
+                                                   Name pkgAlias, Name name) {
         // 1) Look up the current package if the package alias is empty.
         if (pkgAlias == Names.EMPTY) {
-            return symResolver.lookupSymbol(env, name, expSymTag);
+            return symResolver.lookupMainSpaceSymbol(env, name);
         }
 
         // 2) Retrieve the package symbol first
@@ -605,7 +594,31 @@ public class HttpFiltersDesugar {
         // 3) Look up the package scope without considering the access modifier.
         Scope.ScopeEntry entry = pkgSymbol.scope.lookup(name);
         while (entry != NOT_FOUND_ENTRY) {
-            if ((entry.symbol.tag & expSymTag) == expSymTag) {
+            if ((entry.symbol.tag & SymTag.MAIN) == SymTag.MAIN) {
+                return entry.symbol;
+            }
+            entry = entry.next;
+        }
+        return symTable.notFoundSymbol;
+    }
+
+    private BSymbol lookupAnnotationSpaceSymbolInPackage(SymbolResolver symResolver, DiagnosticPos pos, SymbolEnv env,
+                                                   Name pkgAlias, Name name) {
+        // 1) Look up the current package if the package alias is empty.
+        if (pkgAlias == Names.EMPTY) {
+            return symResolver.lookupAnnotationSpaceSymbol(env, name);
+        }
+
+        // 2) Retrieve the package symbol first
+        BSymbol pkgSymbol = symResolver.resolvePkgSymbol(pos, env, pkgAlias);
+        if (pkgSymbol == symTable.notFoundSymbol) {
+            return pkgSymbol;
+        }
+
+        // 3) Look up the package scope without considering the access modifier.
+        Scope.ScopeEntry entry = pkgSymbol.scope.lookup(name);
+        while (entry != NOT_FOUND_ENTRY) {
+            if ((entry.symbol.tag & SymTag.ANNOTATION) == SymTag.ANNOTATION) {
                 return entry.symbol;
             }
             entry = entry.next;
