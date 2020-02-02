@@ -27,10 +27,11 @@ import org.ballerinalang.langserver.completions.util.sorters.CompletionItemSorte
 import org.eclipse.lsp4j.CompletionItem;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
 
-import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
+import javax.annotation.Nonnull;
 
 /**
  * Item sorter for expression List context.

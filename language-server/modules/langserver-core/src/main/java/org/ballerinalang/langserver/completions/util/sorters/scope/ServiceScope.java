@@ -26,10 +26,11 @@ import org.ballerinalang.langserver.completions.util.sorters.CompletionItemSorte
 import org.eclipse.lsp4j.CompletionItem;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 
-import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
+import javax.annotation.Nonnull;
 
 /**
  * Item Sorter for service scope.
@@ -43,9 +44,11 @@ public class ServiceScope extends CompletionItemSorter {
 
         for (LSCompletionItem lsCItem : lsCItems) {
             CompletionItem cItem = lsCItem.getCompletionItem();
-            if (lsCItem instanceof SnippetCompletionItem && ((SnippetCompletionItem) lsCItem).getSnippetType().equals(SnippetBlock.SnippetType.SNIPPET)) {
+            if (lsCItem instanceof SnippetCompletionItem && ((SnippetCompletionItem) lsCItem)
+                    .getSnippetType().equals(SnippetBlock.SnippetType.SNIPPET)) {
                 cItem.setSortText(Priority.PRIORITY110.toString());
-            } else if (lsCItem instanceof SnippetCompletionItem && ((SnippetCompletionItem) lsCItem).getSnippetType().equals(SnippetBlock.SnippetType.KEYWORD)) {
+            } else if (lsCItem instanceof SnippetCompletionItem && ((SnippetCompletionItem) lsCItem)
+                    .getSnippetType().equals(SnippetBlock.SnippetType.KEYWORD)) {
                 cItem.setSortText(Priority.PRIORITY120.toString());
             } else {
                 cItem.setSortText(Priority.PRIORITY130.toString());
