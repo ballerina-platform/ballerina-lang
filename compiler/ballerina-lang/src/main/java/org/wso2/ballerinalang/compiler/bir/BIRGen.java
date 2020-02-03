@@ -23,6 +23,7 @@ import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
+import org.ballerinalang.model.tree.SequenceStatementNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRAnnotation;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRAnnotationAttachment;
@@ -70,6 +71,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
+import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangConstantValue;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
@@ -199,8 +201,8 @@ public class BIRGen extends BLangNodeVisitor {
     // Required variables to generate code for assignment statements
     private boolean varAssignment = false;
     private Map<BTypeSymbol, BIRTypeDefinition> typeDefs = new LinkedHashMap<>();
-    private BLangBlockStmt currentBlock;
-    private Map<BLangBlockStmt, List<BIRVariableDcl>> varDclsByBlock = new HashMap<>();
+    private SequenceStatementNode currentBlock;
+    private Map<SequenceStatementNode, List<BIRVariableDcl>> varDclsByBlock = new HashMap<>();
     // This is a global variable cache
     public Map<BSymbol, BIRGlobalVariableDcl> globalVarMap = new HashMap<>();
 
@@ -481,7 +483,7 @@ public class BIRGen extends BLangNodeVisitor {
         this.env.enclBB = entryBB;
         addToTrapStack(entryBB);
 
-        astFunc.body.accept(this);
+        astFunc.funcBody.accept(this);
         birFunc.basicBlocks.add(this.env.returnBB);
 
         // Due to the current algorithm, some basic blocks will not contain any instructions or a terminator.
@@ -501,6 +503,24 @@ public class BIRGen extends BLangNodeVisitor {
         // Rearrange error entries.
         birFunc.errorTable.sort(Comparator.comparingInt(o -> Integer.parseInt(o.trapBB.id.value.replace("bb", ""))));
         this.env.clear();
+    }
+
+    @Override
+    public void visit(BLangBlockFunctionBody astBody) {
+        SequenceStatementNode prevBlock = this.currentBlock;
+        this.currentBlock = astBody;
+        this.varDclsByBlock.computeIfAbsent(astBody, k -> new ArrayList<>());
+
+        for (BLangStatement astStmt : astBody.stmts) {
+            astStmt.accept(this);
+        }
+
+        List<BIRVariableDcl> varDecls = this.varDclsByBlock.get(astBody);
+        for (BIRVariableDcl birVariableDcl : varDecls) {
+            birVariableDcl.endBB = this.env.enclBasicBlocks.get(this.env.enclBasicBlocks.size() - 1);
+        }
+
+        this.currentBlock = prevBlock;
     }
 
     @Override
@@ -776,7 +796,7 @@ public class BIRGen extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangBlockStmt astBlockStmt) {
-        BLangBlockStmt prevBlock = this.currentBlock;
+        SequenceStatementNode prevBlock = this.currentBlock;
         this.currentBlock = astBlockStmt;
         this.varDclsByBlock.computeIfAbsent(astBlockStmt, k -> new ArrayList<>());
         for (BLangStatement astStmt : astBlockStmt.stmts) {
