@@ -8,7 +8,7 @@ $ ballerina run webSocket_service.bal
 # To stop the running service, press Ctrl + C.
 [ballerina/http] stopped HTTP/WS listener 0.0.0.0:9095
 
-# Restarts the service.
+# Restart the service.
 $ ballerina run webSocket_service.bal
 
 [ballerina/http] started HTTP/WS listener 0.0.0.0:9095
