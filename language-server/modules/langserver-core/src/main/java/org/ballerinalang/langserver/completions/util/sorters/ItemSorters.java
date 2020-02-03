@@ -20,6 +20,7 @@ package org.ballerinalang.langserver.completions.util.sorters;
 import org.ballerinalang.langserver.completions.util.sorters.context.DefinitionContext;
 import org.ballerinalang.langserver.completions.util.sorters.context.ImportDeclarationContext;
 import org.ballerinalang.langserver.completions.util.sorters.scope.PackageScope;
+import org.ballerinalang.langserver.completions.util.sorters.scope.ServiceScope;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -30,6 +31,7 @@ import java.util.Map;
  */
 public enum ItemSorters {
     DEFAULT_ITEM_SORTER(new DefaultItemSorter()),
+    SERVICE_SCOPE_ITEM_SORTER(new ServiceScope()),
     DEFINITION_CTX_ITEM_SORTER(new DefinitionContext()),
     PACKAGE_SCOPE_ITEM_SORTER(new PackageScope()),
     IMPORT_DECL_CTX_ITEM_SORTER(new ImportDeclarationContext());
