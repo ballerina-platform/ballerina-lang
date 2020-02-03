@@ -217,10 +217,10 @@ public class KafkaUtils {
         addStringParamIfPresent(ProducerConfig.TRANSACTIONAL_ID_CONFIG, configurations,
                                 properties, KafkaConstants.PRODUCER_TRANSACTIONAL_ID_CONFIG);
 
-        addSerializerConfigs(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, configurations,
-                             properties, KafkaConstants.PRODUCER_KEY_SERIALIZER_TYPE_CONFIG);
-        addSerializerConfigs(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, configurations,
-                             properties, KafkaConstants.PRODUCER_VALUE_SERIALIZER_TYPE_CONFIG);
+        addSerializerTypeConfigs(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, configurations,
+                                 properties, KafkaConstants.PRODUCER_KEY_SERIALIZER_TYPE_CONFIG);
+        addSerializerTypeConfigs(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, configurations,
+                                 properties, KafkaConstants.PRODUCER_VALUE_SERIALIZER_TYPE_CONFIG);
 
         addIntParamIfPresent(ProducerConfig.BUFFER_MEMORY_CONFIG, configurations,
                              properties, KafkaConstants.PRODUCER_BUFFER_MEMORY_CONFIG);
@@ -315,12 +315,12 @@ public class KafkaUtils {
                                 KafkaConstants.SSL_SECURE_RANDOM_IMPLEMENTATION_CONFIG);
     }
 
-    private static void addSerializerConfigs(String paramName,
-                                             MapValue<String, Object> configs,
-                                             Properties configParams,
-                                             String key) {
+    private static void addSerializerTypeConfigs(String paramName,
+                                                 MapValue<String, Object> configs,
+                                                 Properties configParams,
+                                                 String key) {
         if (Objects.nonNull(configs.get(key))) {
-            String value = getSerializerValue(configs, key);
+            String value = getSerializerType(configs, key);
             configParams.put(paramName, value);
         }
     }
@@ -335,7 +335,7 @@ public class KafkaUtils {
         }
     }
 
-    private static String getSerializerValue(MapValue<String, Object> configs, String key) {
+    private static String getSerializerType(MapValue<String, Object> configs, String key) {
         String value = (String) configs.get(key);
         switch (value) {
             case KafkaConstants.SERDES_BYTE_ARRAY:
@@ -346,6 +346,8 @@ public class KafkaUtils {
                 return KafkaConstants.INT_SERIALIZER;
             case KafkaConstants.SERDES_FLOAT:
                 return KafkaConstants.FLOAT_SERIALIZER;
+            case KafkaConstants.SERDES_CUSTOM:
+                return KafkaConstants.CUSTOM_SERIALIZER;
             default:
                 return value;
         }

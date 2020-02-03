@@ -32,6 +32,10 @@ import ballerinax/java;
 #       user-defined serializer.
 # + valueSerializerType - Serializer used for the Kafka record value. This can be either `kafka:SerializerType` or an
 #       user-defined serializer.
+# + keySerializer - Custom serializer object to serialize kafka keys. This should be implement the `kafka:Serializer`
+#       object.
+# + valueSerializer - Custom serializer object to serialize kafka values. This should be implement the
+#       `kafka:Serializer` object.
 # + bufferMemory - Total bytes of memory the producer can use to buffer records.
 # + retryCount - Number of retries to resend a record.
 # + batchSize - Number of records to be batched for a single request. Use 0 for no batching.
@@ -62,8 +66,11 @@ public type ProducerConfig record {|
     string? partitionerClass = ();
     string? interceptorClasses = ();
     string? transactionalId = ();
+
     SerializerType valueSerializerType = SER_BYTE_ARRAY;
     SerializerType keySerializerType = SER_BYTE_ARRAY;
+    Serializer? valueSerializer = ();
+    Serializer? keySerializer = ();
 
     int bufferMemory = -1;
     int retryCount = -1;
@@ -131,6 +138,8 @@ public type Producer client object {
     public ProducerConfig? producerConfig = ();
     private string keySerializerType;
     private string valueSerializerType;
+    private Serializer? keySerializer = ();
+    private Serializer? valueSerializer = ();
 
     # Creates a new Kafka `Producer`.
     #
@@ -139,6 +148,29 @@ public type Producer client object {
         self.producerConfig = config;
         self.keySerializerType = config.keySerializerType;
         self.valueSerializerType = config.valueSerializerType;
+
+        if (self.keySerializerType == SER_CUSTOM) {
+            var keySerializerObject = config.keySerializer;
+            if (keySerializerObject is ()) {
+                ProducerError e = error(PRODUCER_ERROR, message = "Invalid keySerializer config: Please Provide a " +
+                                                                 "valid custom serializer for the keySerializer");
+                panic e;
+            } else {
+                self.keySerializer = keySerializerObject;
+            }
+        }
+
+        if (self.valueSerializerType == SER_CUSTOM) {
+            var valueSerializerObject = config.keySerializer;
+            if (valueSerializerObject is ()) {
+                ProducerError e = error(PRODUCER_ERROR, message = "Invalid valueSerializer config: Please Provide a " +
+                                                                  "valid custom serializer for the valueSerializer");
+                panic e;
+            } else {
+                self.valueSerializer = valueSerializerObject;
+            }
+        }
+
         var result = self.init(config);
         if (result is error) {
             panic result;

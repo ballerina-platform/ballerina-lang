@@ -24,6 +24,7 @@ import org.ballerinalang.jvm.scheduling.State;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.values.ErrorValue;
+import org.ballerinalang.jvm.values.FutureValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.connector.CallableUnitCallback;
 
@@ -64,10 +65,21 @@ public class BRuntime {
         scheduler.schedule(new Object[1], func, null, null);
     }
 
+    public FutureValue getAsyncMethodInvokeResult(ObjectValue object, String methodName, Object... args) {
+        Function<?, ?> func = o -> object.call((Strand) (((Object[]) o)[0]), methodName, args);
+        return scheduler.schedule(new Object[1], func, null, null);
+    }
+
     public void invokeMethodAsync(ObjectValue object, String methodName,
-                                       CallableUnitCallback callback, Object... args) {
+                                  CallableUnitCallback callback, Object... args) {
         Function<?, ?> func = o -> object.call((Strand) (((Object[]) o)[0]), methodName, args);
         scheduler.schedule(new Object[1], func, null, callback);
+    }
+
+    public FutureValue getAsyncMethodInvokeResult(ObjectValue object, String methodName,
+                                                  CallableUnitCallback callback, Object... args) {
+        Function<?, ?> func = o -> object.call((Strand) (((Object[]) o)[0]), methodName, args);
+        return scheduler.schedule(new Object[1], func, null, callback);
     }
 
     public void invokeMethodAsync(ObjectValue object, String methodName,
@@ -108,6 +120,33 @@ public class BRuntime {
         if (errorValue[0] != null) {
             throw errorValue[0];
         }
+    }
+
+    public Object getSyncMethodInvokeResult(ObjectValue object, String methodName, Object... args) {
+        Function<?, ?> func = o -> object.call((Strand) (((Object[]) o)[0]), methodName, args);
+        Semaphore semaphore = new Semaphore(0);
+        final ErrorValue[] errorValue = new ErrorValue[1];
+        FutureValue futureValue = scheduler.schedule(new Object[1], func, null, new CallableUnitCallback() {
+            @Override
+            public void notifySuccess() {
+                semaphore.release();
+            }
+
+            @Override
+            public void notifyFailure(ErrorValue error) {
+                errorValue[0] = error;
+                semaphore.release();
+            }
+        });
+        try {
+            semaphore.acquire();
+        } catch (InterruptedException e) {
+            // Ignore
+        }
+        if (errorValue[0] != null) {
+            throw errorValue[0];
+        }
+        return futureValue.result;
     }
 
     private static class Unblocker implements java.util.function.BiConsumer<Object, Throwable> {
