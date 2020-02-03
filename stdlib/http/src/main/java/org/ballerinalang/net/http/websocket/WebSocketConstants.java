@@ -51,7 +51,6 @@ public class WebSocketConstants {
     public static final String ANNOTATION_ATTR_IDLE_TIMEOUT = "idleTimeoutInSeconds";
     public static final String ANNOTATION_ATTR_MAX_FRAME_SIZE = "maxFrameSize";
 
-
     public static final String RESOURCE_NAME_ON_OPEN = "onOpen";
     public static final String RESOURCE_NAME_ON_TEXT = "onText";
     public static final String RESOURCE_NAME_ON_BINARY = "onBinary";
@@ -85,6 +84,15 @@ public class WebSocketConstants {
     public static final String CLIENT_CONNECTOR = "clientConnector";
     public static final String LOG_MESSAGE = "{} {}";
     public static final String ERROR_MESSAGE = "Error occurred: ";
+
+    public static final String CLIENT_ENDPOINT_CONFIG = "config";
+    public static final String TARGET_URLS = "targetUrls";
+    public static final String FAILOVER_CONFIG = "failoverConfig";
+    public static final String CONNECTOR_FACTORY = "connectorFactory";
+    public static final String FAILOVER_WEBSOCKET_CLIENT = "WebSocketFailoverClient";
+    public static final String CONNECTED_TO = "Connected to ";
+    public static final String FULL_FAILOVER_WEBSOCKET_CLIENT_NAME = BLangConstants.BALLERINA_PACKAGE_PREFIX +
+    PACKAGE_HTTP + SEPARATOR + FAILOVER_WEBSOCKET_CLIENT;
 
     public static final String COMPRESSION_ENABLED_CONFIG = "webSocketCompressionEnabled";
 

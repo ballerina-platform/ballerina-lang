@@ -36,8 +36,6 @@ import org.wso2.transport.http.netty.contract.websocket.WebSocketClientConnector
 import org.wso2.transport.http.netty.contract.websocket.WebSocketClientConnectorConfig;
 
 import java.net.URI;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 
 /**
@@ -63,14 +61,12 @@ public class InitEndpoint {
         HttpWsConnectorFactory connectorFactory = HttpUtil.createHttpWsConnectionFactory();
         WebSocketClientConnectorConfig clientConnectorConfig = new WebSocketClientConnectorConfig(remoteUrl);
         String scheme = URI.create(remoteUrl).getScheme();
-        populateClientConnectorConfig(clientEndpointConfig, clientConnectorConfig, scheme);
+        WebSocketUtil.populateClientConnectorConfig(clientEndpointConfig, clientConnectorConfig, scheme);
         // Create the client connector.
         WebSocketClientConnector clientConnector = connectorFactory.createWsClientConnector(clientConnectorConfig);
-        WebSocketClientConnectorListener clientConnectorListener = new WebSocketClientConnectorListener();
-        // Add the client connector as a native data when the client is not a failover client
+        // Add the client connector as a native data
         // because when using one URL, there is no need to create the client connector again.
         webSocketClient.addNativeData(WebSocketConstants.CLIENT_CONNECTOR, clientConnector);
-        webSocketClient.addNativeData(WebSocketConstants.CLIENT_LISTENER, clientConnectorListener);
         if (WebSocketUtil.hasRetryConfig(webSocketClient)) {
             @SuppressWarnings(WebSocketConstants.UNCHECKED)
             MapValue<String, Object> retryConfig = (MapValue<String, Object>) clientEndpointConfig.getMapValue(
@@ -78,63 +74,20 @@ public class InitEndpoint {
             RetryContext retryConnectorConfig = new RetryContext();
             populateRetryConnectorConfig(retryConfig, retryConnectorConfig);
             webSocketClient.addNativeData(WebSocketConstants.RETRY_CONFIG, retryConnectorConfig);
+            WebSocketClientConnectorListenerForRetry clientConnectorListener = new
+                    WebSocketClientConnectorListenerForRetry();
+            webSocketClient.addNativeData(WebSocketConstants.CLIENT_LISTENER, clientConnectorListener);
             CountDownLatch countDownLatch = new CountDownLatch(1);
             webSocketClient.addNativeData(WebSocketConstants.COUNT_DOWN_LATCH, countDownLatch);
             WebSocketUtil.establishWebSocketConnection(webSocketClient, wsService);
             // Set the count Down latch for initial connection
-            waitForHandshake(countDownLatch);
+            WebSocketUtil.waitForHandshake(countDownLatch);
         } else {
+            WebSocketClientConnectorListener clientConnectorListener = new WebSocketClientConnectorListener();
+            webSocketClient.addNativeData(WebSocketConstants.CLIENT_LISTENER, clientConnectorListener);
             WebSocketUtil.establishWebSocketConnection(webSocketClient, wsService);
         }
 
-    }
-
-    private static void waitForHandshake(CountDownLatch countDownLatch) {
-        try {
-            // Wait to call countDown()
-            countDownLatch.await();
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            throw new WebSocketException(WebSocketConstants.ERROR_MESSAGE + e.getMessage());
-        }
-    }
-
-    private static void populateClientConnectorConfig(MapValue<String, Object> clientEndpointConfig,
-                                                      WebSocketClientConnectorConfig clientConnectorConfig,
-                                                      String scheme) {
-        clientConnectorConfig.setAutoRead(false); // Frames are read sequentially in ballerina.
-        clientConnectorConfig.setSubProtocols(WebSocketUtil.findNegotiableSubProtocols(clientEndpointConfig));
-        @SuppressWarnings(WebSocketConstants.UNCHECKED)
-        MapValue<String, Object> headerValues = (MapValue<String, Object>) clientEndpointConfig.getMapValue(
-                WebSocketConstants.CLIENT_CUSTOM_HEADERS_CONFIG);
-        if (headerValues != null) {
-            clientConnectorConfig.addHeaders(getCustomHeaders(headerValues));
-        }
-
-        long idleTimeoutInSeconds = WebSocketUtil.findTimeoutInSeconds(clientEndpointConfig,
-                WebSocketConstants.ANNOTATION_ATTR_IDLE_TIMEOUT, 0);
-        if (idleTimeoutInSeconds > 0) {
-            clientConnectorConfig.setIdleTimeoutInMillis((int) (idleTimeoutInSeconds * 1000));
-        }
-
-        clientConnectorConfig.setMaxFrameSize(WebSocketUtil.findMaxFrameSize(clientEndpointConfig));
-
-        MapValue secureSocket = clientEndpointConfig.getMapValue(HttpConstants.ENDPOINT_CONFIG_SECURE_SOCKET);
-        if (secureSocket != null) {
-            HttpUtil.populateSSLConfiguration(clientConnectorConfig, secureSocket);
-        } else if (scheme.equals(WebSocketConstants.WSS_SCHEME)) {
-            clientConnectorConfig.useJavaDefaults();
-        }
-        clientConnectorConfig.setWebSocketCompressionEnabled(
-                clientEndpointConfig.getBooleanValue(WebSocketConstants.COMPRESSION_ENABLED_CONFIG));
-    }
-
-    private static Map<String, String> getCustomHeaders(MapValue<String, Object> headers) {
-        Map<String, String> customHeaders = new HashMap<>();
-        headers.entrySet().forEach(
-                entry -> customHeaders.put(entry.getKey(), headers.get(entry.getKey()).toString())
-        );
-        return customHeaders;
     }
 
     /**
@@ -145,10 +98,10 @@ public class InitEndpoint {
      */
     private static void populateRetryConnectorConfig(MapValue<String, Object> retryConfig,
                                                      RetryContext retryConnectorConfig) {
-        retryConnectorConfig.setInterval(getIntValue(retryConfig, INTERVAL_IN_MILLIS, 1000));
+        retryConnectorConfig.setInterval(WebSocketUtil.getIntValue(retryConfig, INTERVAL_IN_MILLIS, 1000));
         retryConnectorConfig.setBackOfFactor(getDoubleValue(retryConfig));
-        retryConnectorConfig.setMaxInterval(getIntValue(retryConfig, MAX_WAIT_INTERVAL, 30000));
-        retryConnectorConfig.setMaxAttempts(getIntValue(retryConfig, MAX_COUNT, 0));
+        retryConnectorConfig.setMaxInterval(WebSocketUtil.getIntValue(retryConfig, MAX_WAIT_INTERVAL, 30000));
+        retryConnectorConfig.setMaxAttempts(WebSocketUtil.getIntValue(retryConfig, MAX_COUNT, 0));
     }
 
     /**
@@ -172,16 +125,6 @@ public class InitEndpoint {
         }
     }
 
-    private static int getIntValue(MapValue<String, Object> configs, String key, int defaultValue) {
-        int value = Math.toIntExact(configs.getIntValue(key));
-        if (value < 0) {
-            logger.warn("The value set for `{}` needs to be great than than -1. The `{}` value is set to {}", key, key,
-                    defaultValue);
-            value = defaultValue;
-        }
-        return value;
-    }
-
     private static Double getDoubleValue(MapValue<String, Object> configs) {
         double value = Math.toRadians(configs.getFloatValue(BACK_OF_FACTOR));
         if (value < 1) {
@@ -191,7 +134,6 @@ public class InitEndpoint {
         }
         return value;
     }
-
 
     private InitEndpoint() {
     }

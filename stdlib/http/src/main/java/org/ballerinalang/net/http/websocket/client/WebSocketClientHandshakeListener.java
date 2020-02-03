@@ -69,7 +69,7 @@ public class WebSocketClientHandshakeListener implements ClientHandshakeListener
         WebSocketUtil.populateWebSocketEndpoint(webSocketConnection, webSocketClient);
         clientConnectorListener.setConnectionInfo(connectionInfo);
         if (readyOnConnect) {
-            WebSocketUtil.readFirstFrame(webSocketConnection, webSocketClient);
+            WebSocketUtil.readFirstFrame(webSocketConnection, webSocketConnector);
         }
         countDownLatch.countDown();
         WebSocketObservabilityUtil.observeConnection(connectionInfo);
@@ -77,14 +77,8 @@ public class WebSocketClientHandshakeListener implements ClientHandshakeListener
 
     @Override
     public void onError(Throwable throwable, HttpCarbonResponse response) {
-        if (response != null) {
-            webSocketClient.set(WebSocketConstants.CLIENT_RESPONSE_FIELD, HttpUtil.createResponseStruct(response));
-        }
-        ObjectValue webSocketConnector = BallerinaValues.createObjectValue(WebSocketConstants.PROTOCOL_HTTP_PKG_ID,
-                                                                           WebSocketConstants.WEBSOCKET_CONNECTOR);
-        WebSocketConnectionInfo connectionInfo = WebSocketUtil.getWebSocketOpenConnectionInfo(null,
-                webSocketConnector, webSocketClient, wsService);
-        countDownLatch.countDown();
+        WebSocketConnectionInfo connectionInfo = WebSocketUtil.getConnectionInfoForOnError(response, webSocketClient,
+                wsService, countDownLatch);
         WebSocketResourceDispatcher.dispatchOnError(connectionInfo, throwable);
     }
 }

@@ -21,7 +21,6 @@ package org.ballerinalang.net.http.websocket.client;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.net.http.websocket.WebSocketConstants;
-import org.ballerinalang.net.http.websocket.WebSocketResourceDispatcher;
 import org.ballerinalang.net.http.websocket.WebSocketService;
 import org.ballerinalang.net.http.websocket.WebSocketUtil;
 import org.ballerinalang.net.http.websocket.observability.WebSocketObservabilityUtil;
@@ -36,93 +35,82 @@ import java.io.IOException;
 import java.util.concurrent.CountDownLatch;
 
 /**
- * The retry handshake listener for the client.
+ * The handshake listener of the failover client.
  *
  * @since 1.2.0
  */
-public class WebSocketClientHandshakeListenerForRetry implements ClientHandshakeListener {
+public class WebSocketFailoverClientHandshakeListener implements ClientHandshakeListener {
 
     private final WebSocketService wsService;
-    private final WebSocketClientConnectorListenerForRetry clientConnectorListener;
+    private final WebSocketFailoverClientListener clientConnectorListener;
     private final boolean readyOnConnect;
     private final ObjectValue webSocketClient;
-    private CountDownLatch countDownLatch;
-    private RetryContext retryConfig;
-    private static final Logger logger = LoggerFactory.getLogger(WebSocketClientHandshakeListenerForRetry.class);
+    private final CountDownLatch countDownLatch;
+    private final FailoverContext failoverConfig;
 
-    public WebSocketClientHandshakeListenerForRetry(ObjectValue webSocketClient,
-                                                    WebSocketService wsService,
-                                                    WebSocketClientConnectorListenerForRetry clientConnectorListener,
+    private static final Logger logger = LoggerFactory.getLogger(WebSocketFailoverClientHandshakeListener.class);
+
+    public WebSocketFailoverClientHandshakeListener(ObjectValue webSocketClient, WebSocketService wsService,
+                                                    WebSocketFailoverClientListener clientConnectorListener,
                                                     boolean readyOnConnect, CountDownLatch countDownLatch,
-                                                    RetryContext retryConfig) {
+                                                    FailoverContext failoverConfig) {
         this.webSocketClient = webSocketClient;
         this.wsService = wsService;
         this.clientConnectorListener = clientConnectorListener;
         this.readyOnConnect = readyOnConnect;
         this.countDownLatch = countDownLatch;
-        this.retryConfig = retryConfig;
+        this.failoverConfig = failoverConfig;
     }
 
     @Override
     public void onSuccess(WebSocketConnection webSocketConnection, HttpCarbonResponse carbonResponse) {
         ObjectValue webSocketConnector;
-        if (!retryConfig.isFirstConnectionMadeSuccessfully()) {
+        if (!failoverConfig.isFirstConnectionMadeSuccessfully()) {
             webSocketConnector = WebSocketUtil.createWebSocketConnector(readyOnConnect);
         } else {
             webSocketConnector = (ObjectValue) webSocketClient.get(WebSocketConstants.CLIENT_CONNECTOR_FIELD);
 
         }
-        setWebSocketClient(webSocketClient, carbonResponse, webSocketConnection, retryConfig);
+        setFailoverWebSocketEndpoint(carbonResponse, webSocketClient, webSocketConnection, failoverConfig);
         WebSocketConnectionInfo connectionInfo = WebSocketUtil.getWebSocketOpenConnectionInfo(webSocketConnection,
-                webSocketConnector, webSocketClient, wsService);
+                webSocketConnector,
+                webSocketClient, wsService);
         clientConnectorListener.setConnectionInfo(connectionInfo);
-        // Reads the next frame when `readyOnConnect` is true or `isReady` is true.
+        // Read the next frame when readyOnConnect is true or isReady is true
         WebSocketUtil.readNextFrame(readyOnConnect, webSocketClient, webSocketConnection);
         countDownLatch.countDown();
         // Calls the countDown() to initial connection's countDown latch
         WebSocketUtil.countDownForHandshake(webSocketClient);
         WebSocketObservabilityUtil.observeConnection(connectionInfo);
-        logger.debug(WebSocketConstants.LOG_MESSAGE, "Connected to ", webSocketClient.getStringValue(
-                WebSocketConstants.CLIENT_URL_CONFIG));
-        // The following are created for future connections.
-        // Checks whether the config has a retry config or not.
-        // If it has a retry config, set these variables to the default variable.
-        adjustContextOnSuccess(retryConfig);
+        // Following these are created for future connection
+        int currentIndex = failoverConfig.getCurrentIndex();
+        logger.debug(WebSocketConstants.LOG_MESSAGE, WebSocketConstants.CONNECTED_TO,
+                failoverConfig.getTargetUrls().get(currentIndex));
+        // Set failover context variable's value
+        failoverConfig.setInitialIndex(currentIndex);
+        if (!failoverConfig.isFirstConnectionMadeSuccessfully()) {
+            failoverConfig.setFirstConnectionMadeSuccessfully();
+        }
     }
 
     @Override
     public void onError(Throwable throwable, HttpCarbonResponse response) {
         WebSocketConnectionInfo connectionInfo = WebSocketUtil.getConnectionInfoForOnError(response, webSocketClient,
                 wsService, countDownLatch);
-        if (throwable instanceof IOException && WebSocketUtil.reconnect(connectionInfo)) {
-            return;
+        // When connection lost, do the failover to the remaining server urls.
+        if (!(throwable instanceof IOException && WebSocketUtil.failover(connectionInfo))) {
+            WebSocketUtil.dispatchOnError(connectionInfo, throwable);
         }
-        dispatchOnError(connectionInfo, throwable);
     }
 
-    private void setWebSocketClient(ObjectValue webSocketClient, HttpCarbonResponse carbonResponse,
-                                    WebSocketConnection webSocketConnection, RetryContext retryConfig) {
-        //Using only one service endpoint in the client as there can be only one connection.
+    private void setFailoverWebSocketEndpoint(HttpCarbonResponse carbonResponse, ObjectValue webSocketClient,
+                                              WebSocketConnection webSocketConnection,
+                                              FailoverContext failoverConfig) {
         webSocketClient.set(WebSocketConstants.CLIENT_RESPONSE_FIELD, HttpUtil.createResponseStruct(carbonResponse));
-        if (retryConfig.isFirstConnectionMadeSuccessfully()) {
+        if (failoverConfig.isFirstConnectionMadeSuccessfully()) {
             webSocketClient.set(WebSocketConstants.LISTENER_ID_FIELD, webSocketConnection.getChannelId());
         } else {
             WebSocketUtil.populateWebSocketEndpoint(webSocketConnection, webSocketClient);
         }
-    }
-
-    /**
-     * Sets the value into the `retryContext`.
-     *
-     * @param retryConfig - the retry context that represents a retry config
-     */
-    private void adjustContextOnSuccess(RetryContext retryConfig) {
-        retryConfig.setFirstConnectionMadeSuccessfully();
-        retryConfig.setReconnectAttempts(0);
-    }
-
-    private void dispatchOnError(WebSocketConnectionInfo connectionInfo, Throwable throwable) {
-        WebSocketUtil.countDownForHandshake(webSocketClient);
-        WebSocketResourceDispatcher.dispatchOnError(connectionInfo, throwable);
     }
 }
