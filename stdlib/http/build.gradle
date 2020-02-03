@@ -103,6 +103,7 @@ dependencies {
     testCompile project(':ballerina-core')
     testCompile 'org.apache.ws.commons.axiom:axiom-api'
     testCompile 'org.testng:testng'
+    testCompile 'com.h2database:h2'
 
     interopImports project(':ballerina-crypto')
 }

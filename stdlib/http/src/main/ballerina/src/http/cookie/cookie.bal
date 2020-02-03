@@ -28,7 +28,7 @@ import ballerina/time;
 # + expires - Maximum lifetime of the cookie represented as the date and time at which the cookie expires
 # + httpOnly - Cookie is sent only to HTTP requests
 # + secure - Cookie is sent only to secure channels
-# + creationTime - Creation time of the cookie
+# + createdTime - At what time the cookie was created
 # + lastAccessedTime - Last-accessed time of the cookie
 # + hostOnly - Cookie is sent only to the requested host
 public type Cookie object {
@@ -41,7 +41,7 @@ public type Cookie object {
     public int maxAge = 0;
     public boolean httpOnly = false;
     public boolean secure = false;
-    public time:Time creationTime = time:currentTime();
+    public time:Time createdTime = time:currentTime();
     public time:Time lastAccessedTime = time:currentTime();
     public boolean hostOnly = false;
 
@@ -58,62 +58,55 @@ public type Cookie object {
         return true;
     }
 
-    // Returns true if the attributes of the cookie are in the correct format; false otherwise.
-    public function isValid() returns boolean | error {
-        error invalidCookieError;
-        var temp = self.name;
-        if (temp is string) {
-            temp = temp.trim();
-            if (temp == "") {
-                invalidCookieError = error("Invalid name");
-                return invalidCookieError;
+    // Returns true if the attributes of the cookie are in the correct format or else error is returned.
+    public function isValid() returns boolean|InvalidCookieError {
+        var name = self.name;
+        if (name is string) {
+            name = name.trim();
+            if (name == "") {
+                return error(INVALID_COOKIE_ERROR, message = "Invalid name: Name cannot be empty");
             }
-            self.name = temp;
+            self.name = name;
         }
-        temp = self.value;
-        if (temp is string) {
-            temp = temp.trim();
-            if (temp == "") {
-                invalidCookieError = error("Invalid value");
-                return invalidCookieError;
+        var value = self.value;
+        if (value is string) {
+            value = value.trim();
+            if (value == "") {
+                return error(INVALID_COOKIE_ERROR, message = "Invalid value: Value cannot be empty");
             }
-            self.value = temp;
+            self.value = value;
         }
-        temp = self.domain;
-        if (temp is string) {
-            temp = temp.trim().toLowerAscii();
-            if (temp == "") {
-                invalidCookieError = error("Invalid domain");
-                return invalidCookieError;
+        var domain = self.domain;
+        if (domain is string) {
+            domain = domain.trim().toLowerAscii();
+            if (domain == "") {
+                return error(INVALID_COOKIE_ERROR, message = "Invalid domain: Domain cannot be empty");
             }
-            if (temp.startsWith(".")) {
-                temp = temp.substring(1, temp.length());
+            if (domain.startsWith(".")) {
+                domain = domain.substring(1, domain.length());
             }
-            if (temp.endsWith(".")) {
-                temp = temp.substring(0, temp.length() - 1);
+            if (domain.endsWith(".")) {
+                domain = domain.substring(0, domain.length() - 1);
             }
-            self.domain = temp;
+            self.domain = domain;
         }
-        temp = self.path;
-        if (temp is string) {
-            temp = temp.trim();
-            if (temp == "" || !temp.startsWith("/") || stringutils:contains(temp, "?")) {
-                invalidCookieError = error("Path is not in correct format ");
-                return invalidCookieError;
+        var path = self.path;
+        if (path is string) {
+            path = path.trim();
+            if (path == "" || !path.startsWith("/") || stringutils:contains(path, "?")) {
+                return error(INVALID_COOKIE_ERROR, message = "Invalid path: Path is not in correct format");
             }
-            self.path = temp;
+            self.path = path;
         }
-        temp = self.expires;
-        if (temp is string) {
-            temp = temp.trim();
-            if (!toGmtFormat(self, temp)) {
-                invalidCookieError = error("Time is not in correct format");
-                return invalidCookieError;
+        var expires = self.expires;
+        if (expires is string) {
+            expires = expires.trim();
+            if (!toGmtFormat(self, expires)) {
+                return error(INVALID_COOKIE_ERROR, message = "Invalid time: Expiry-time is not in yyyy-mm-dd hh:mm:ss format");
             }
         }
         if (self.maxAge < 0) {
-            invalidCookieError = error("Max Age is less than zero");
-            return invalidCookieError;
+            return error(INVALID_COOKIE_ERROR, message = "Invalid max-age: Max Age can not be less than zero");
         }
         return true;
     }
@@ -154,9 +147,9 @@ public type Cookie object {
 
 // Converts the cookie's expiry time into the GMT format.
 function toGmtFormat(Cookie cookie, string expires) returns boolean {
-    time:Time | error t1 = time:parse(expires, "yyyy-MM-dd HH:mm:ss");
+    time:Time|error t1 = time:parse(expires, "yyyy-MM-dd HH:mm:ss");
     if (t1 is time:Time) {
-        string | error timeString = time:format(<time:Time>t1, "E, dd MMM yyyy HH:mm:ss ");
+        string|error timeString = time:format(<time:Time>t1, "E, dd MMM yyyy HH:mm:ss ");
         if (timeString is string) {
             cookie.expires = timeString + "GMT";
             return true;
@@ -203,7 +196,7 @@ function parseSetCookieHeader(string cookieStringValue) returns Cookie {
                 cookie.path = nameValuePair[1];
             }
             MAX_AGE_ATTRIBUTE => {
-                int | error age = ints:fromString(nameValuePair[1]);
+                int|error age = ints:fromString(nameValuePair[1]);
                 if (age is int) {
                     cookie.maxAge = age;
                 }
@@ -238,18 +231,18 @@ function parseCookieHeader(string cookieStringValue) returns Cookie[] {
 // Returns a value to be used for sorting an array of cookies in order to create the "Cookie" header in the request.
 // This value is returned according to the rules in [RFC-6265](https://tools.ietf.org/html/rfc6265#section-5.4).
 function comparator(Cookie c1, Cookie c2) returns int {
-    var temp1 = c1.path;
-    var temp2 = c2.path;
+    var cookiePath1 = c1.path;
+    var cookiePath2 = c2.path;
     int l1 = 0;
     int l2 = 0;
-    if (temp1 is string) {
-        l1 = temp1.length();
+    if (cookiePath1 is string) {
+        l1 = cookiePath1.length();
     }
-    if (temp2 is string) {
-        l2 = temp2.length();
+    if (cookiePath2 is string) {
+        l2 = cookiePath2.length();
     }
     if (l1 != l2) {
         return l2 - l1;
     }
-    return c1.creationTime.time - c2.creationTime.time;
+    return c1.createdTime.time - c2.createdTime.time;
 }

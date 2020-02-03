@@ -1,4 +1,4 @@
-// Copyright (c) 2019 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+// Copyright (c) 2020 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 //
 // WSO2 Inc. licenses this file to you under the Apache License,
 // Version 2.0 (the "License"); you may not use this file except
@@ -14,28 +14,30 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/file;
 import ballerina/http;
 import ballerina/io;
 
 public function main() {
+    http:CsvPersistentCookieHandler myPersistentStore = new("./cookie-test-data/client-5.csv");
     http:Client cookieClientEndpoint = new ("http://localhost:9253", {
-            cookieConfig: { enabled: true }
+            cookieConfig: { enabled: true, persistentCookieHandler: myPersistentStore }
         });
     worker w1 {
         http:Request req = new;
-        var response = cookieClientEndpoint->get("/cookie/cookieBackend", req);
+        var response = cookieClientEndpoint->get("/cookie/cookieBackend_1", req);
     }
     worker w2 {
         http:Request req = new;
-        var response = cookieClientEndpoint->get("/cookie/cookieBackend", req);
+        var response = cookieClientEndpoint->get("/cookie/cookieBackend_1", req);
     }
     worker w3 {
         http:Request req = new;
-        var response = cookieClientEndpoint->get("/cookie/cookieBackend", req);
+        var response = cookieClientEndpoint->get("/cookie/cookieBackend_1", req);
     }
     worker w4 {
         http:Request req = new;
-        var response = cookieClientEndpoint->get("/cookie/cookieBackend", req);
+        var response = cookieClientEndpoint->get("/cookie/cookieBackend_1", req);
     }
     _ = wait {w1, w2, w3, w4};
     http:CookieStore? myCookieStore = cookieClientEndpoint.getCookieStore();
@@ -46,4 +48,5 @@ public function main() {
             io:println(item.name);
         }
     }
+    error? removeResults = file:remove("./cookie-test-data", true);
 }
