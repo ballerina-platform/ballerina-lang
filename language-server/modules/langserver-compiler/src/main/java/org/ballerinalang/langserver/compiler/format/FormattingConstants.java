@@ -58,4 +58,5 @@ public class FormattingConstants {
     public static final String WORKERS = "workers";
     public static final String IS_VAR_EXISTS = "isVarExists";
     public static final String ANNOTATION_ATTACHMENTS = "annotationAttachments";
+    public static final String INITIAL_EXPRESSION = "initialExpression";
 }
