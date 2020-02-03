@@ -24,7 +24,6 @@ function testSimpleSelectQueryWithSimpleVariable() returns Person[]{
     return  outputPersonList;
 }
 
-
 function testSimpleSelectQueryWithRecordVariable() returns Person[]{
 
     Person p1 = {firstName:"Alex", lastName: "George", age: 23};
@@ -43,7 +42,6 @@ function testSimpleSelectQueryWithRecordVariable() returns Person[]{
 
     return  outputPersonList;
 }
-
 
 function testSimpleSelectQueryWithRecordVariableV2() returns Person[]{
 
@@ -81,4 +79,17 @@ function testSimpleSelectQueryWithWhereClause() returns Person[]{
                    age: person.age
             };
     return  outputPersonList;
+}
+
+
+function testQueryExpressionForPrimitiveType() returns int[]{
+
+    int[] intList = [12, 13, 14, 15, 20, 21, 25];
+
+    int[] outputIntList =
+            from var value in intList
+            where value > 20
+            select value;
+
+    return  outputIntList;
 }

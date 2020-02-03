@@ -21,6 +21,7 @@ package org.ballerinalang.test.query;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
@@ -102,5 +103,17 @@ public class SimpleQueryExpressionWithDefinedTypeTest {
         Assert.assertEquals(person2.get("firstName").stringValue(), "John");
         Assert.assertEquals(((BInteger) person1.get("age")).intValue(), 30);
         Assert.assertEquals(((BInteger) person2.get("age")).intValue(), 33);
+    }
+
+    @Test(description = "Test Query expression for primitive types ")
+    public void testQueryExpressionForPrimitiveType() {
+        BValue[] returnValues = BRunUtil.invoke(result, "testQueryExpressionForPrimitiveType");
+        Assert.assertNotNull(returnValues);
+
+        Assert.assertEquals(returnValues.length, 1, "Expected events are not received");
+        Assert.assertTrue(returnValues[0] instanceof BValueArray, "Expected BValueArray type value");
+
+        Assert.assertEquals(((BValueArray) returnValues[0]).getInt(0), 21);
+        Assert.assertEquals(((BValueArray) returnValues[0]).getInt(1), 25);
     }
 }
