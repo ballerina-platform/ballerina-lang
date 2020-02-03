@@ -1,4 +1,4 @@
-// Copyright (c) 2020 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+// Copyright (c) 2019 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 //
 // WSO2 Inc. licenses this file to you under the Apache License,
 // Version 2.0 (the "License"); you may not use this file except
@@ -18,14 +18,13 @@ import ballerina/http;
 import ballerina/io;
 
 public function main() {
-    http:CsvPersistentCookieHandler myPersistentStore = new("./cookies-test-data/client-4.csv");
     http:Client cookieClientEndpoint = new ("http://localhost:9253", {
-            cookieConfig: { enabled: true, persistentCookieHandler: myPersistentStore }
+            cookieConfig: { enabled: true, enablePersistence: true }
         });
     http:Request req = new;
     // Server sends the session cookies in the response for the first request.
     var response = cookieClientEndpoint->get("/cookie/cookieBackend_3", req);
-    // Server removes an existing session cookie in the cookie store by sending an expired cookie in the response.
+    // Server sends an expired cookie in the response in order to remove the existing cookie in the cookie store.
     response = cookieClientEndpoint->get("/cookie/cookieBackend_3", req);
     // Third request after removing the cookie.
     response = cookieClientEndpoint->get("/cookie/cookieBackend_3", req);

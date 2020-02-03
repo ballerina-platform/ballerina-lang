@@ -27,6 +27,7 @@ import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.ExtendedLSCompiler;
 import org.ballerinalang.langserver.compiler.exception.CompilationFailedException;
+import org.ballerinalang.langserver.completions.SymbolInfo;
 import org.ballerinalang.langserver.completions.util.SourcePruneException;
 import org.ballerinalang.langserver.signature.sourceprune.SignatureTokenTraverserFactory;
 import org.ballerinalang.langserver.sourceprune.SourcePruneKeys;
@@ -43,7 +44,6 @@ import org.eclipse.lsp4j.SignatureInformationCapabilities;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
-import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
@@ -323,34 +323,37 @@ public class SignatureHelpUtil {
         }
     }
 
-    public static Optional<Scope.ScopeEntry> getFuncScopeEntry(LSContext context, String funcName,
-                                                               List<Scope.ScopeEntry> visibleSymbols) {
+    public static Optional<SymbolInfo> getFuncSymbolInfo(LSContext context, String funcName,
+                                                         List<SymbolInfo> visibleSymbols) {
         CompilerContext compilerContext = context.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY);
         SymbolTable symbolTable = SymbolTable.getInstance(compilerContext);
         Types types = Types.getInstance(compilerContext);
 
         String[] nameComps = funcName.split("\\.");
         int index = 0;
-        Optional<Scope.ScopeEntry> searchSymbol = Optional.empty();
+        Optional<SymbolInfo> searchSymbol = Optional.empty();
         while (index < nameComps.length) {
             String name = nameComps[index];
             int pkgPrefix = name.indexOf(":");
             boolean hasPkgPrefix = pkgPrefix > -1;
             if (!hasPkgPrefix) {
                 searchSymbol = visibleSymbols.stream()
-                        .filter(symbol ->
-                                name.equals(getLastItem(symbol.symbol.name.getValue().split("\\."))))
+                        .filter(s -> name.equals(getLastItem(s.getSymbolName().split("\\."))))
                         .findFirst();
             } else {
                 String[] moduleComps = name.substring(0, pkgPrefix).split("/");
                 String alias = moduleComps[1].split(" ")[0];
-                Optional<Scope.ScopeEntry> moduleSymbol = visibleSymbols.stream()
-                        .filter(entry -> entry.symbol.name.getValue().equals(alias))
+
+                Optional<SymbolInfo> moduleSymbol = visibleSymbols.stream()
+                        .filter(s -> s.getSymbolName().equals(alias))
                         .findFirst();
-                visibleSymbols = new ArrayList<>(moduleSymbol.get().symbol.scope.entries.values());
+
+                visibleSymbols = moduleSymbol.get().getScopeEntry().symbol.scope.entries.entrySet().stream()
+                        .map(e -> new SymbolInfo(e.getKey().value, e.getValue()))
+                        .collect(Collectors.toList());
+
                 searchSymbol = visibleSymbols.stream()
-                        .filter(entry -> name.substring(pkgPrefix + 1)
-                                .equals(getLastItem(entry.symbol.name.getValue().split("\\."))))
+                        .filter(s -> name.substring(pkgPrefix + 1).equals(getLastItem(s.getSymbolName().split("\\."))))
                         .findFirst();
             }
             // If search symbol not found, return
@@ -358,26 +361,30 @@ public class SignatureHelpUtil {
                 break;
             }
             // The `searchSymbol` found, resolve further
-            boolean isInvocation = searchSymbol.get().symbol instanceof BInvokableSymbol;
-            boolean isObject = searchSymbol.get().symbol instanceof BObjectTypeSymbol;
-            boolean isVariable = searchSymbol.get().symbol instanceof BVarSymbol;
+            boolean isInvocation = searchSymbol.get().getScopeEntry().symbol instanceof BInvokableSymbol;
+            boolean isObject = searchSymbol.get().getScopeEntry().symbol instanceof BObjectTypeSymbol;
+            boolean isVariable = searchSymbol.get().getScopeEntry().symbol instanceof BVarSymbol;
             boolean hasNextNameComp = index + 1 < nameComps.length;
             if (isInvocation && hasNextNameComp) {
-                BInvokableSymbol invokableSymbol = (BInvokableSymbol) searchSymbol.get().symbol;
+                BInvokableSymbol invokableSymbol = (BInvokableSymbol) searchSymbol.get().getScopeEntry().symbol;
                 BTypeSymbol returnTypeSymbol = invokableSymbol.getReturnType().tsymbol;
                 if (returnTypeSymbol instanceof BObjectTypeSymbol) {
                     BObjectTypeSymbol objectTypeSymbol = (BObjectTypeSymbol) returnTypeSymbol;
-                    visibleSymbols = new ArrayList<>(objectTypeSymbol.methodScope.entries.values());
+                    visibleSymbols = objectTypeSymbol.methodScope.entries.entrySet().stream()
+                            .map(e -> new SymbolInfo(e.getKey().value, e.getValue()))
+                            .collect(Collectors.toList());
                 }
             } else if (isObject && hasNextNameComp) {
-                BObjectTypeSymbol bObjectTypeSymbol = (BObjectTypeSymbol) searchSymbol.get().symbol;
+                BObjectTypeSymbol bObjectTypeSymbol = (BObjectTypeSymbol) searchSymbol.get().getScopeEntry().symbol;
                 BTypeSymbol typeSymbol = bObjectTypeSymbol.type.tsymbol;
                 if (typeSymbol instanceof BObjectTypeSymbol) {
                     BObjectTypeSymbol objectTypeSymbol = (BObjectTypeSymbol) typeSymbol;
-                    visibleSymbols = new ArrayList<>(objectTypeSymbol.methodScope.entries.values());
+                    visibleSymbols = objectTypeSymbol.methodScope.entries.entrySet().stream()
+                            .map(e -> new SymbolInfo(e.getKey().value, e.getValue()))
+                            .collect(Collectors.toList());
                 }
             } else if (isVariable && hasNextNameComp) {
-                BVarSymbol bVarSymbol = (BVarSymbol) searchSymbol.get().symbol;
+                BVarSymbol bVarSymbol = (BVarSymbol) searchSymbol.get().getScopeEntry().symbol;
                 BTypeSymbol typeSymbol = bVarSymbol.type.tsymbol;
                 if (typeSymbol.type instanceof BUnionType) {
                     // Check for optional field accesses.
@@ -394,14 +401,21 @@ public class SignatureHelpUtil {
                 }
                 if (typeSymbol instanceof BObjectTypeSymbol) {
                     BObjectTypeSymbol objectTypeSymbol = (BObjectTypeSymbol) typeSymbol;
-                    visibleSymbols = new ArrayList<>(objectTypeSymbol.methodScope.entries.values());
-                    visibleSymbols.addAll(objectTypeSymbol.scope.entries.values());
+                    visibleSymbols = objectTypeSymbol.methodScope.entries.entrySet().stream()
+                            .map(e -> new SymbolInfo(e.getKey().value, e.getValue()))
+                            .collect(Collectors.toList());
+                    visibleSymbols.addAll(objectTypeSymbol.scope.entries.entrySet().stream()
+                                                  .map(e -> new SymbolInfo(e.getKey().value, e.getValue()))
+                                                  .collect(Collectors.toList()));
                 } else if (typeSymbol instanceof BRecordTypeSymbol) {
                     BRecordTypeSymbol bRecordTypeSymbol = (BRecordTypeSymbol) typeSymbol;
-                    visibleSymbols = new ArrayList<>(bRecordTypeSymbol.scope.entries.values());
+                    visibleSymbols = bRecordTypeSymbol.scope.entries.entrySet().stream()
+                            .map(e -> new SymbolInfo(e.getKey().value, e.getValue()))
+                            .collect(Collectors.toList());
                 } else {
-                    visibleSymbols = new ArrayList<>(getLangLibScopeEntries(typeSymbol.type, symbolTable, types)
-                            .values());
+                    visibleSymbols = getLangLibScopeEntries(typeSymbol.type, symbolTable, types).entrySet().stream()
+                            .map(e -> new SymbolInfo(e.getKey().value, e.getValue()))
+                            .collect(Collectors.toList());
                 }
             }
             index++;

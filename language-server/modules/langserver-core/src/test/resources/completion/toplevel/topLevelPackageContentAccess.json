@@ -1367,32 +1367,6 @@
             ]
         },
         {
-            "label": "WebSocketRetryConfig",
-            "kind": "Struct",
-            "detail": "Record",
-            "documentation": {
-                "left": "Configurations for reconnecting to the WebSocket.\n"
-            },
-            "sortText": "180",
-            "insertText": "WebSocketRetryConfig",
-            "insertTextFormat": "Snippet",
-            "additionalTextEdits": [
-                {
-                    "range": {
-                        "start": {
-                            "line": 0,
-                            "character": 0
-                        },
-                        "end": {
-                            "line": 0,
-                            "character": 0
-                        }
-                    },
-                    "newText": "import ballerina/http;\n"
-                }
-            ]
-        },
-        {
             "label": "AuthnFilter",
             "kind": "Interface",
             "detail": "Object",

@@ -25,11 +25,11 @@ import org.ballerinalang.langserver.common.utils.FilterUtils;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.completion.CompletionKeys;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
-import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.CompletionSubRuleParser;
+import org.ballerinalang.langserver.completions.SymbolInfo;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 import org.ballerinalang.langserver.sourceprune.SourcePruneKeys;
-import org.wso2.ballerinalang.compiler.semantics.model.Scope;
+import org.eclipse.lsp4j.CompletionItem;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
 
 import java.util.ArrayList;
@@ -48,8 +48,8 @@ public class RecordTypeNodeScopeProvider extends AbstractCompletionProvider {
     }
 
     @Override
-    public List<LSCompletionItem> getCompletions(LSContext context) throws LSCompletionException {
-        ArrayList<LSCompletionItem> completionItems = new ArrayList<>();
+    public List<CompletionItem> getCompletions(LSContext context) throws LSCompletionException {
+        ArrayList<CompletionItem> completionItems = new ArrayList<>();
         List<CommonToken> lhsTokens = context.get(SourcePruneKeys.LHS_TOKENS_KEY);
         Optional<String> subRule = this.getSubRule(lhsTokens);
         subRule.ifPresent(rule -> CompletionSubRuleParser.parseWithinFunctionDefinition(rule, context));
@@ -59,11 +59,11 @@ public class RecordTypeNodeScopeProvider extends AbstractCompletionProvider {
             return this.getProvider(parserRuleContext.getClass()).getCompletions(context);
         }
 
-        List<Scope.ScopeEntry> visibleSymbols = new ArrayList<>(context.get(CommonKeys.VISIBLE_SYMBOLS_KEY));
-        List<Scope.ScopeEntry> filteredTypes = visibleSymbols.stream()
-                .filter(FilterUtils::isBTypeEntry)
+        List<SymbolInfo> visibleSymbols = new ArrayList<>(context.get(CommonKeys.VISIBLE_SYMBOLS_KEY));
+        List<SymbolInfo> filteredTypes = visibleSymbols.stream()
+                .filter(symbolInfo -> FilterUtils.isBTypeEntry(symbolInfo.getScopeEntry()))
                 .collect(Collectors.toList());
-        completionItems.addAll(this.getCompletionItemList(new ArrayList<>(filteredTypes), context));
+        completionItems.addAll(this.getCompletionItemList(filteredTypes, context));
         completionItems.addAll(this.getPackagesCompletionItems(context));
         
         return completionItems;

@@ -44,8 +44,6 @@ dependencies {
     implementation project(':docerina')
     implementation 'com.moandjiezana.toml:toml4j'
     implementation 'info.picocli:picocli'
-    implementation 'org.apache.commons:commons-compress:1.18'
-
     testCompile 'org.testng:testng'
     testCompile 'com.moandjiezana.toml:toml4j'
 

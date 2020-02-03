@@ -18,8 +18,7 @@
 package org.ballerinalang.langserver.common.utils.completion;
 
 import org.ballerinalang.langserver.common.utils.CommonUtil;
-import org.ballerinalang.langserver.commons.LSContext;
-import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
+import org.eclipse.lsp4j.CompletionItem;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
@@ -40,14 +39,12 @@ public class BLangRecordLiteralUtil {
     }
 
     /**
-     * Get the record field completion items.
+     * Get the record field completion itmes.
      * 
-     * @param context Language server operation Context
      * @param recordLiteral             Record Literal
-     * @return {@link LSCompletionItem}   List of Completion Items
+     * @return {@link CompletionItem}   List of Completion Items
      */
-    public static List<LSCompletionItem> getFieldsForMatchingRecord(LSContext context,
-                                                                    BLangRecordLiteral recordLiteral) {
+    public static ArrayList<CompletionItem> getFieldsForMatchingRecord(BLangRecordLiteral recordLiteral) {
         BType expectedType = recordLiteral.expectedType;
         Optional<BType> evalType = expectedType instanceof BUnionType ? getRecordTypeFromUnionType(expectedType)
                 : Optional.ofNullable(expectedType);
@@ -55,8 +52,8 @@ public class BLangRecordLiteralUtil {
             return new ArrayList<>();
         }
         List<BField> fields = ((BRecordType) evalType.get()).fields;
-        List<LSCompletionItem> completionItems = CommonUtil.getRecordFieldCompletionItems(context, fields);
-        completionItems.add(CommonUtil.getFillAllStructFieldsItem(context, fields));
+        ArrayList<CompletionItem> completionItems = new ArrayList<>(CommonUtil.getRecordFieldCompletionItems(fields));
+        completionItems.add(CommonUtil.getFillAllStructFieldsItem(fields));
 
         return completionItems;
     }

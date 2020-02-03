@@ -20,7 +20,6 @@ import org.antlr.v4.runtime.Token;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.completion.CompletionKeys;
-import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.commons.completion.spi.LSCompletionProvider;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
@@ -74,9 +73,9 @@ public class CompletionUtil {
      * @return {@link List}         List of resolved completion Items
      */
     public static List<CompletionItem>  getCompletionItems(LSContext ctx) {
-        List<LSCompletionItem> items = new ArrayList<>();
+        List<CompletionItem> items = new ArrayList<>();
         if (ctx == null) {
-            return new ArrayList<>();
+            return items;
         }
         // Set the invocation or field access token type
         setInvocationOrInteractionOrFieldAccessToken(ctx);
@@ -89,28 +88,18 @@ public class CompletionUtil {
             LOGGER.error("Error while retrieving completions from: " + completionProvider.getClass());
         }
 
-        return getPreparedCompletionItems(ctx, items);
-    }
-
-    private static List<CompletionItem> getPreparedCompletionItems(LSContext context, List<LSCompletionItem> items) {
-        List<CompletionItem> completionItems = new ArrayList<>();
-        boolean isSnippetSupported = context.get(CompletionKeys.CLIENT_CAPABILITIES_KEY).getCompletionItem()
+        boolean isSnippetSupported = ctx.get(CompletionKeys.CLIENT_CAPABILITIES_KEY).getCompletionItem()
                 .getSnippetSupport();
-        List<CompletionItem> sortedItems = ItemSorters.get(context.get(CompletionKeys.SCOPE_NODE_KEY).getClass())
-                .sortItems(context, items);
-
-        // TODO: Remove this
-        for (CompletionItem item : sortedItems) {
+        ItemSorters.get(ctx.get(CompletionKeys.ITEM_SORTER_KEY)).sortItems(ctx, items);
+        for (CompletionItem item : items) {
             if (!isSnippetSupported) {
                 item.setInsertText(CommonUtil.getPlainTextSnippet(item.getInsertText()));
                 item.setInsertTextFormat(InsertTextFormat.PlainText);
             } else {
                 item.setInsertTextFormat(InsertTextFormat.Snippet);
             }
-            completionItems.add(item);
         }
-
-        return completionItems;
+        return items;
     }
 
     /**

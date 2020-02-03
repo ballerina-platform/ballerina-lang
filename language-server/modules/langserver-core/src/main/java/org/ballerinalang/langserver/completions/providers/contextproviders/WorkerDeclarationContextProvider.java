@@ -23,12 +23,11 @@ import org.ballerinalang.langserver.SnippetGenerator;
 import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.completion.CompletionKeys;
-import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
-import org.ballerinalang.langserver.completions.SnippetCompletionItem;
+import org.ballerinalang.langserver.completions.SymbolInfo;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 import org.ballerinalang.langserver.sourceprune.SourcePruneKeys;
+import org.eclipse.lsp4j.CompletionItem;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
-import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -44,9 +43,9 @@ public class WorkerDeclarationContextProvider extends AbstractCompletionProvider
 
     @Override
     @SuppressWarnings("unchecked")
-    public List<LSCompletionItem> getCompletions(LSContext context) {
-        ArrayList<LSCompletionItem> completionItems = new ArrayList<>();
-        List<Scope.ScopeEntry> visibleSymbols = new ArrayList<>(context.get(CommonKeys.VISIBLE_SYMBOLS_KEY));
+    public List<CompletionItem> getCompletions(LSContext context) {
+        ArrayList<CompletionItem> completionItems = new ArrayList<>();
+        List<SymbolInfo> visibleSymbols = new ArrayList<>(context.get(CommonKeys.VISIBLE_SYMBOLS_KEY));
         Boolean inWorkerReturnCtx = context.get(CompletionKeys.IN_WORKER_RETURN_CONTEXT_KEY);
         int invocationOrDelimiterTokenType = context.get(CompletionKeys.INVOCATION_TOKEN_TYPE_KEY);
         if (invocationOrDelimiterTokenType == BallerinaParser.COLON) {
@@ -54,12 +53,12 @@ public class WorkerDeclarationContextProvider extends AbstractCompletionProvider
             List<Integer> defaultTokenTypes = context.get(SourcePruneKeys.LHS_DEFAULT_TOKEN_TYPES_KEY);
             int pkgDelimIndex = defaultTokenTypes.indexOf(BallerinaParser.COLON);
             String pkgName = defaultTokens.get(pkgDelimIndex - 1).getText();
-            completionItems.addAll(this.getTypeItemsInPackage(visibleSymbols, pkgName, context));
+            completionItems.addAll(this.getTypesInPackage(visibleSymbols, pkgName, context));
         } else if (inWorkerReturnCtx != null && inWorkerReturnCtx) {
-            completionItems.addAll(this.getBasicTypesItems(context, visibleSymbols));
+            completionItems.addAll(this.getBasicTypes(visibleSymbols));
             completionItems.addAll(this.getPackagesCompletionItems(context));
         } else {
-            completionItems.add(new SnippetCompletionItem(context, SnippetGenerator.getReturnsKeywordSnippet()));
+            completionItems.add(SnippetGenerator.getReturnsKeywordSnippet().build(context));
         }
 
         return completionItems;

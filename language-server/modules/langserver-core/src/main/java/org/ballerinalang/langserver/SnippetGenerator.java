@@ -212,16 +212,6 @@ public class SnippetGenerator {
     }
 
     /**
-     * Get resource Keyword Snippet Block.
-     *
-     * @return {@link SnippetBlock}     Generated Snippet Block
-     */
-    public static SnippetBlock getResourceKeywordSnippet() {
-        return new SnippetBlock(ItemResolverConstants.RESOURCE, "resource ", ItemResolverConstants.KEYWORD_TYPE,
-                SnippetType.KEYWORD);
-    }
-
-    /**
      * Get Continue Statement Snippet Block.
      *
      * @return {@link SnippetBlock}     Generated Snippet Block

@@ -185,8 +185,6 @@
             <class name="org.ballerinalang.test.service.websocket.ClientErrorsTest"/>
             <class name="org.ballerinalang.test.service.websocket.ServerErrorsTest"/>
             <class name="org.ballerinalang.test.service.websocket.AttachDetachTest"/>
-            <class name="org.ballerinalang.test.service.websocket.RetryClientTest"/>
-            <class name="org.ballerinalang.test.service.websocket.FailoverClientTest"/>
         </classes>
     </test>
 

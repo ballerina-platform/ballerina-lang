@@ -18,13 +18,10 @@
 package org.ballerinalang.langserver.completions.util.sorters;
 
 import org.ballerinalang.langserver.commons.LSContext;
-import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.util.Priority;
 import org.eclipse.lsp4j.CompletionItem;
 
 import java.util.List;
-
-import javax.annotation.Nonnull;
 
 /**
  * Abstract implementation for the completion Item Sorter.
@@ -33,18 +30,18 @@ public abstract class CompletionItemSorter {
 
     /**
      * Sort Completion Items based on a particular criteria.
-     *  @param ctx             Completion context
+     *
+     * @param ctx             Completion context
      * @param completionItems List of initial completion items
-     * @return
      */
-    public abstract List<CompletionItem> sortItems(LSContext ctx, List<LSCompletionItem> completionItems);
+    public abstract void sortItems(LSContext ctx, List<CompletionItem> completionItems);
 
     /**
      * Set the priorities in the default order.
      *
      * @param completionItems list of completion items
      */
-    protected void setPriorities(List<CompletionItem> completionItems) {
+    void setPriorities(List<CompletionItem> completionItems) {
         completionItems.forEach(this::setPriority);
     }
 
@@ -58,7 +55,7 @@ public abstract class CompletionItemSorter {
         completionItems.removeIf(completionItem -> types.contains(completionItem.getDetail()));
     }
 
-    protected final void setPriority(CompletionItem completionItem) {
+    void setPriority(CompletionItem completionItem) {
         if (completionItem.getKind() == null) {
             completionItem.setSortText(Priority.PRIORITY110.toString());
             return;
@@ -106,8 +103,7 @@ public abstract class CompletionItemSorter {
             default:
                 completionItem.setSortText(Priority.PRIORITY110.toString());
                 break;
+                
         }
     }
-
-    protected abstract @Nonnull List<Class> getAttachedContexts();
 }

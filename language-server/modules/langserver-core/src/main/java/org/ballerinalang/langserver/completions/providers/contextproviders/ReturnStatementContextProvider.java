@@ -22,15 +22,14 @@ import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.completion.CompletionKeys;
-import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
-import org.ballerinalang.langserver.completions.SnippetCompletionItem;
+import org.ballerinalang.langserver.completions.SymbolInfo;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 import org.ballerinalang.langserver.completions.util.Snippet;
 import org.ballerinalang.langserver.completions.util.filters.DelimiterBasedContentFilter;
 import org.ballerinalang.langserver.completions.util.filters.SymbolFilters;
+import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
-import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
@@ -54,19 +53,19 @@ public class ReturnStatementContextProvider extends AbstractCompletionProvider {
     }
 
     @Override
-    public List<LSCompletionItem> getCompletions(LSContext ctx) {
-        ArrayList<LSCompletionItem> completionItems = new ArrayList<>();
-        List<Scope.ScopeEntry> visibleSymbols = new ArrayList<>(ctx.get(CommonKeys.VISIBLE_SYMBOLS_KEY));
+    public List<CompletionItem> getCompletions(LSContext ctx) {
+        ArrayList<CompletionItem> completionItems = new ArrayList<>();
+        List<SymbolInfo> visibleSymbols = new ArrayList<>(ctx.get(CommonKeys.VISIBLE_SYMBOLS_KEY));
         Integer invocationType = ctx.get(CompletionKeys.INVOCATION_TOKEN_TYPE_KEY);
         
         if (invocationType > -1) {
-            Either<List<LSCompletionItem>, List<Scope.ScopeEntry>> filteredItems =
+            Either<List<CompletionItem>, List<SymbolInfo>> filteredItems =
                     SymbolFilters.get(DelimiterBasedContentFilter.class).filterItems(ctx);
             return this.getCompletionItemList(filteredItems, ctx);
         }
         // Remove the functions without a receiver symbol, bTypes not being packages and attached functions
-        List<Scope.ScopeEntry> filteredList = visibleSymbols.stream().filter(scopeEntry -> {
-            BSymbol bSymbol = scopeEntry.symbol;
+        List<SymbolInfo> filteredList = visibleSymbols.stream().filter(symbolInfo -> {
+            BSymbol bSymbol = symbolInfo.getScopeEntry().symbol;
             return !((bSymbol instanceof BInvokableSymbol
                     && ((BInvokableSymbol) bSymbol).receiverSymbol != null
                     && CommonUtil.isValidInvokableSymbol(bSymbol))
@@ -76,8 +75,8 @@ public class ReturnStatementContextProvider extends AbstractCompletionProvider {
                     && ((bSymbol.flags & Flags.ATTACHED) == Flags.ATTACHED)));
         }).collect(Collectors.toList());
 
-        completionItems.add(new SnippetCompletionItem(ctx, Snippet.KW_CHECK_PANIC.get()));
-        completionItems.add(new SnippetCompletionItem(ctx, Snippet.KW_CHECK.get()));
+        completionItems.add(Snippet.KW_CHECK_PANIC.get().build(ctx));
+        completionItems.add(Snippet.KW_CHECK.get().build(ctx));
         completionItems.addAll(getCompletionItemList(filteredList, ctx));
         completionItems.addAll(this.getPackagesCompletionItems(ctx));
         

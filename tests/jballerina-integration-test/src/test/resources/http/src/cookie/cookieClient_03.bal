@@ -1,4 +1,4 @@
-// Copyright (c) 2020 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+// Copyright (c) 2019 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 //
 // WSO2 Inc. licenses this file to you under the Apache License,
 // Version 2.0 (the "License"); you may not use this file except
@@ -22,7 +22,7 @@ public function main() {
             cookieConfig: { enabled: true }
         });
     http:Request req = new;
-    // Server sends similar session cookies in the response for the first request.
+    // Server sends similar session cookies in the response for the first request..
     var response = cookieClientEndpoint->get("/cookie/cookieBackend_2", req);
     // Sends second request after replacing the old cookie with the new.
     response = cookieClientEndpoint->get("/cookie/cookieBackend_2", req);

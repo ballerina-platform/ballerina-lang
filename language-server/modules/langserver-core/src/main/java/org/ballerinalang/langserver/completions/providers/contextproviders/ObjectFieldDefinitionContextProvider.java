@@ -23,13 +23,13 @@ import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.completion.CompletionKeys;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
-import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
-import org.ballerinalang.langserver.completions.SnippetCompletionItem;
+import org.ballerinalang.langserver.completions.SymbolInfo;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 import org.ballerinalang.langserver.completions.util.Snippet;
+import org.ballerinalang.langserver.completions.util.sorters.ActionAndFieldAccessContextItemSorter;
 import org.ballerinalang.langserver.sourceprune.SourcePruneKeys;
+import org.eclipse.lsp4j.CompletionItem;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
-import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -44,11 +44,11 @@ public class ObjectFieldDefinitionContextProvider extends AbstractCompletionProv
     }
 
     @Override
-    public List<LSCompletionItem> getCompletions(LSContext ctx) throws LSCompletionException {
-        ArrayList<LSCompletionItem> completionItems = new ArrayList<>();
+    public List<CompletionItem> getCompletions(LSContext ctx) throws LSCompletionException {
+        ArrayList<CompletionItem> completionItems = new ArrayList<>();
         List<CommonToken> lhsTokens = ctx.get(SourcePruneKeys.LHS_DEFAULT_TOKENS_KEY);
         List<Integer> lhsTokenTypes = ctx.get(SourcePruneKeys.LHS_DEFAULT_TOKEN_TYPES_KEY);
-        List<Scope.ScopeEntry> visibleSymbols = new ArrayList<>(ctx.get(CommonKeys.VISIBLE_SYMBOLS_KEY));
+        List<SymbolInfo> visibleSymbols = new ArrayList<>(ctx.get(CommonKeys.VISIBLE_SYMBOLS_KEY));
         int invocationOrDelimiterTokenType = ctx.get(CompletionKeys.INVOCATION_TOKEN_TYPE_KEY);
 
         if (lhsTokenTypes.contains(BallerinaParser.ASSIGN)) {
@@ -57,24 +57,25 @@ public class ObjectFieldDefinitionContextProvider extends AbstractCompletionProv
 
         if (invocationOrDelimiterTokenType == BallerinaParser.COLON) {
             String pkgName = lhsTokens.get(lhsTokenTypes.indexOf(invocationOrDelimiterTokenType) - 1).getText();
-            completionItems.addAll(this.getTypeItemsInPackage(visibleSymbols, pkgName, ctx));
+            completionItems.addAll(this.getTypesInPackage(visibleSymbols, pkgName, ctx));
+            ctx.put(CompletionKeys.ITEM_SORTER_KEY, ActionAndFieldAccessContextItemSorter.class);
             return completionItems;
         }
 
-        completionItems.addAll(this.getBasicTypesItems(ctx, visibleSymbols));
+        completionItems.addAll(this.getBasicTypes(visibleSymbols));
         completionItems.addAll(this.getPackagesCompletionItems(ctx));
 
-        completionItems.add(new SnippetCompletionItem(ctx, Snippet.DEF_FUNCTION_SIGNATURE.get()));
-        completionItems.add(new SnippetCompletionItem(ctx, Snippet.DEF_FUNCTION.get()));
-        completionItems.add(new SnippetCompletionItem(ctx, Snippet.DEF_REMOTE_FUNCTION.get()));
-        completionItems.add(new SnippetCompletionItem(ctx, Snippet.DEF_INIT_FUNCTION.get()));
-        completionItems.add(new SnippetCompletionItem(ctx, Snippet.DEF_ATTACH_FUNCTION.get()));
-        completionItems.add(new SnippetCompletionItem(ctx, Snippet.DEF_DETACH_FUNCTION.get()));
-        completionItems.add(new SnippetCompletionItem(ctx, Snippet.DEF_START_FUNCTION.get()));
-        completionItems.add(new SnippetCompletionItem(ctx, Snippet.DEF_GRACEFUL_STOP_FUNCTION.get()));
-        completionItems.add(new SnippetCompletionItem(ctx, Snippet.DEF_IMMEDIATE_STOP_FUNCTION.get()));
-        completionItems.add(new SnippetCompletionItem(ctx, Snippet.KW_PUBLIC.get()));
-        completionItems.add(new SnippetCompletionItem(ctx, Snippet.KW_PRIVATE.get()));
+        completionItems.add(Snippet.DEF_FUNCTION_SIGNATURE.get().build(ctx));
+        completionItems.add(Snippet.DEF_FUNCTION.get().build(ctx));
+        completionItems.add(Snippet.DEF_REMOTE_FUNCTION.get().build(ctx));
+        completionItems.add(Snippet.DEF_INIT_FUNCTION.get().build(ctx));
+        completionItems.add(Snippet.DEF_ATTACH_FUNCTION.get().build(ctx));
+        completionItems.add(Snippet.DEF_DETACH_FUNCTION.get().build(ctx));
+        completionItems.add(Snippet.DEF_START_FUNCTION.get().build(ctx));
+        completionItems.add(Snippet.DEF_GRACEFUL_STOP_FUNCTION.get().build(ctx));
+        completionItems.add(Snippet.DEF_IMMEDIATE_STOP_FUNCTION.get().build(ctx));
+        completionItems.add(Snippet.KW_PUBLIC.get().build(ctx));
+        completionItems.add(Snippet.KW_PRIVATE.get().build(ctx));
 
         return completionItems;
     }

@@ -126,10 +126,6 @@ public class SnippetBlock {
         return label;
     }
 
-    public SnippetType getSnippetType() {
-        return snippetType;
-    }
-
     /**
      * Represents Snippet Types in B7a LS.
      */

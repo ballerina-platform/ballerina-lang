@@ -133,8 +133,6 @@ public enum Snippet {
 
     KW_FUNCTION(SnippetGenerator.getFunctionKeywordSnippet()),
 
-    KW_RESOURCE(SnippetGenerator.getResourceKeywordSnippet()),
-
     KW_PUBLIC(SnippetGenerator.getPublicKeywordSnippet()),
 
     KW_PRIVATE(SnippetGenerator.getPrivateKeywordSnippet()),

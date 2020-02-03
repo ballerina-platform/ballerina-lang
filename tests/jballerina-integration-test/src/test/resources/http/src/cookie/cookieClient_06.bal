@@ -1,4 +1,4 @@
-// Copyright (c) 2020 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+// Copyright (c) 2019 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 //
 // WSO2 Inc. licenses this file to you under the Apache License,
 // Version 2.0 (the "License"); you may not use this file except
@@ -14,12 +14,10 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/file;
 import ballerina/http;
 import ballerina/io;
 
 public function main() {
-    http:CsvPersistentCookieHandler myPersistentStore = new("./cookie-test-data/client-6.csv");
     http:Client cookieClientEndpoint = new ("http://localhost:9253", {
             retryConfig: {
                 intervalInMillis: 3000,
@@ -38,22 +36,20 @@ public function main() {
                 statusCodes: [400, 404, 500]
             },
             cookieConfig: {
-                enabled: true,
-                persistentCookieHandler: myPersistentStore
+                enabled: true
             }
         });
     http:Request req = new;
-    // Server sends cookies in the response for the first request.
-    var response = cookieClientEndpoint->get("/cookie/cookieBackend_1", req);
-    // Second request is with a cookie header and server sends more cookies in the response.
-    response = cookieClientEndpoint->get("/cookie/cookieBackend_1", req);
-     // Third request is with the cookie header including all relevant cookies.
-    response = cookieClientEndpoint->get("/cookie/cookieBackend_1", req);
+    // Server sends the session cookies in the response for the first request.
+    var response = cookieClientEndpoint->get("/cookie/cookieBackend", req);
+    // Second request is with cookie header and server sends more cookies in the response.
+    response = cookieClientEndpoint->get("/cookie/cookieBackend", req);
+    // Third request is with cookie header including all relevant session cookies.
+    response = cookieClientEndpoint->get("/cookie/cookieBackend", req);
     if (response is http:Response) {
         var payload = response.getTextPayload();
         if (payload is string) {
             io:print(payload);
         }
     }
-    error? removeResults = file:remove("./cookie-test-data", true);
 }

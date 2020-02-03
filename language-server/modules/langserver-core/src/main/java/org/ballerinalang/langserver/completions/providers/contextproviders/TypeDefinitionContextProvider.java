@@ -21,11 +21,10 @@ import org.antlr.v4.runtime.CommonToken;
 import org.antlr.v4.runtime.Token;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.commons.LSContext;
-import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
-import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 import org.ballerinalang.langserver.completions.util.Snippet;
 import org.ballerinalang.langserver.sourceprune.SourcePruneKeys;
+import org.eclipse.lsp4j.CompletionItem;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
 
 import java.util.ArrayList;
@@ -46,10 +45,9 @@ public class TypeDefinitionContextProvider extends AbstractCompletionProvider {
     }
 
     @Override
-    public List<LSCompletionItem> getCompletions(LSContext ctx) {
+    public List<CompletionItem> getCompletions(LSContext ctx) {
         if (this.isObjectTypeDefinition(ctx)) {
-            return Arrays.asList(new SnippetCompletionItem(ctx, Snippet.KW_ABSTRACT.get()),
-                    new SnippetCompletionItem(ctx, Snippet.KW_CLIENT.get()));
+            return Arrays.asList(Snippet.KW_ABSTRACT.get().build(ctx), Snippet.KW_CLIENT.get().build(ctx));
         }
 
         return new ArrayList<>();

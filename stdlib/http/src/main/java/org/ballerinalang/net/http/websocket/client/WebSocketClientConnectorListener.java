@@ -36,7 +36,7 @@ import org.wso2.transport.http.netty.contract.websocket.WebSocketTextMessage;
  * @since 0.93
  */
 public class WebSocketClientConnectorListener implements WebSocketConnectorListener {
-    private WebSocketConnectionInfo connectionInfo = null;
+    private WebSocketConnectionInfo connectionInfo;
 
     public void setConnectionInfo(WebSocketConnectionInfo connectionInfo) {
         this.connectionInfo = connectionInfo;

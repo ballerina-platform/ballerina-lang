@@ -19,7 +19,6 @@ import ballerinax/java;
 
 # Represents a WebSocket connection in Ballerina. This includes all connection-oriented operations.
 type WebSocketConnector object {
-    private boolean isReady = false;
 
     # Push text to the connection.
     #
@@ -67,14 +66,6 @@ type WebSocketConnector object {
     # + return - `error` if an error occurs when sending
     public function pong(byte[] data) returns WebSocketError? {
         return externPong(self, data);
-    }
-
-    # Calls when the endpoint is ready to receive messages. It can be called only once per endpoint. The
-    # WebSocketListener can be called only in `upgrade` or `onOpen` resources.
-    #
-    # + return - Returns `error` if an error occurs when sending.
-    public function ready() returns WebSocketError? {
-        return externReady(self);
     }
 
     # Close the connection.
@@ -129,9 +120,4 @@ function externPong(WebSocketConnector wsConnector, byte[] data) returns WebSock
 function externClose(WebSocketConnector wsConnector, int statusCode, handle reason, int timeoutInSecs) returns WebSocketError? =
 @java:Method {
     class: "org.ballerinalang.net.http.actions.websocketconnector.Close"
-} external;
-
-function externReady(WebSocketConnector wsConnector) returns WebSocketError? = @java:Method {
-    class: "org.ballerinalang.net.http.actions.websocketconnector.Ready",
-    name: "ready"
 } external;
