@@ -36,7 +36,7 @@ import java.util.Map;
 
 
 /**
- * Native implementation of lang.stream:next(stream<type>).
+ * Native implementation of lang.stream:next(stream&lt;Type&gt;).
  *
  * @since 1.2
  */

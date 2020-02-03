@@ -27,7 +27,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
- * Native implementation of lang.stream:map(stream<Type>, function).
+ * Native implementation of lang.stream:map(stream&lt;Type&gt;, function).
  *
  * @since 1.2
  */

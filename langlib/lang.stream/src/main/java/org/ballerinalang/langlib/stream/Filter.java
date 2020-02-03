@@ -27,7 +27,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
- * Native implementation of lang.stream:filter(stream<Type>, function).
+ * Native implementation of lang.stream:filter(stream&lt;Type&gt;, function).
  *
  * @since 1.2
  */
