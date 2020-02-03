@@ -136,9 +136,10 @@ public class SymbolResolver extends BLangNodeVisitor {
     }
 
     // TODO : Remove the 'expSymTag'
-    public boolean checkForUniqueSymbol(DiagnosticPos pos, SymbolEnv env, BSymbol symbol, int expSymTag) {
+    public boolean checkForUniqueSymbol(DiagnosticPos pos, SymbolEnv env, BSymbol symbol) {
         //lookup symbol
         BSymbol foundSym = symTable.notFoundSymbol;
+        int expSymTag = symbol.tag;
         if ((expSymTag & SymTag.IMPORT) == SymTag.IMPORT) {
             foundSym = lookupPrefixSpaceSymbol(env, symbol.name);
         } else if ((expSymTag & SymTag.ANNOTATION) == SymTag.ANNOTATION) {

@@ -776,7 +776,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         symbol.kind = SymbolKind.ERROR_CONSTRUCTOR;
         symbol.scope = new Scope(symbol);
         symbol.retType = errorType;
-        if (symResolver.checkForUniqueSymbol(pos, env, symbol, symbol.tag)) {
+        if (symResolver.checkForUniqueSymbol(pos, env, symbol)) {
             env.scope.define(symbol.name, symbol);
         }
 
@@ -900,7 +900,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         constantSymbol.markdownDocumentation = getMarkdownDocAttachment(constant.markdownDocumentationAttachment);
 
         // Add the symbol to the enclosing scope.
-        if (!symResolver.checkForUniqueSymbol(constant.name.pos, env, constantSymbol, constantSymbol.tag)) {
+        if (!symResolver.checkForUniqueSymbol(constant.name.pos, env, constantSymbol)) {
             return;
         }
 
@@ -1374,14 +1374,14 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     private void defineSymbol(DiagnosticPos pos, BSymbol symbol) {
         symbol.scope = new Scope(symbol);
-        if (symResolver.checkForUniqueSymbol(pos, env, symbol, symbol.tag)) {
+        if (symResolver.checkForUniqueSymbol(pos, env, symbol)) {
             env.scope.define(symbol.name, symbol);
         }
     }
 
     public void defineSymbol(DiagnosticPos pos, BSymbol symbol, SymbolEnv env) {
         symbol.scope = new Scope(symbol);
-        if (symResolver.checkForUniqueSymbol(pos, env, symbol, symbol.tag)) {
+        if (symResolver.checkForUniqueSymbol(pos, env, symbol)) {
             env.scope.define(symbol.name, symbol);
         }
     }
@@ -1422,7 +1422,7 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     private void defineSymbolWithCurrentEnvOwner(DiagnosticPos pos, BSymbol symbol) {
         symbol.scope = new Scope(env.scope.owner);
-        if (symResolver.checkForUniqueSymbol(pos, env, symbol, symbol.tag)) {
+        if (symResolver.checkForUniqueSymbol(pos, env, symbol)) {
             env.scope.define(symbol.name, symbol);
         }
     }
@@ -1434,7 +1434,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         BVarSymbol varSymbol = createVarSymbol(flagSet, varType, varName, env);
 
         // Add it to the enclosing scope
-        if (!symResolver.checkForUniqueSymbol(pos, env, varSymbol, SymTag.VARIABLE_NAME)) {
+        if (!symResolver.checkForUniqueSymbol(pos, env, varSymbol)) {
             varSymbol.type = symTable.semanticError;
         }
         enclScope.define(varSymbol.name, varSymbol);

@@ -2744,7 +2744,7 @@ public class TypeChecker extends BLangNodeVisitor {
                 }
             }
             if (funcSymbol == symTable.notFoundSymbol) {
-                funcSymbol = symResolver.lookupConstructorSpaceSymbolInPackage(iExpr.pos, env, pkgAlias,funcName);
+                funcSymbol = symResolver.lookupConstructorSpaceSymbolInPackage(iExpr.pos, env, pkgAlias, funcName);
             }
         }
 
