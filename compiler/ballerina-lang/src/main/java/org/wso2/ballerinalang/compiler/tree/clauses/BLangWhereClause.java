@@ -25,6 +25,9 @@ import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 
+/**
+ * Implementation of "where" clause statement.
+ */
 public class BLangWhereClause extends BLangNode implements WhereClauseNode {
 
     public BLangExpression expression;

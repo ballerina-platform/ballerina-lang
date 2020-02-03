@@ -4396,9 +4396,9 @@ public class Desugar extends BLangNodeVisitor {
 
         // Create indexed based access expression statement
         //      x[x.length()] = {
-        //    		firstName: person.firstName,
-        //            lastName: person.lastName
-        //    	};
+        //         firstName: person.firstName,
+        //         lastName: person.lastName
+        //      };
 
         if (selectClause.expression.type == null) {
             selectClause.expression.type = ((BArrayType) fromClause.collection.type).eType;

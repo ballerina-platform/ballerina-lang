@@ -25,10 +25,9 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 
 /**
- * Implementation of From Clause Statement.
+ * Implementation of "from" clause statement.
  */
 public class BLangFromClause extends BLangNode implements FromClauseNode {
 

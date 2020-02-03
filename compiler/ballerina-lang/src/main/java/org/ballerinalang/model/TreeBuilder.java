@@ -17,7 +17,6 @@
  */
 package org.ballerinalang.model;
 
-import jdk.nashorn.internal.objects.annotations.Where;
 import org.ballerinalang.model.clauses.FromClauseNode;
 import org.ballerinalang.model.clauses.SelectClauseNode;
 import org.ballerinalang.model.clauses.WhereClauseNode;

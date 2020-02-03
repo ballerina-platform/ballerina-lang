@@ -148,6 +148,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+
 import javax.xml.XMLConstants;
 
 import static org.wso2.ballerinalang.compiler.tree.BLangInvokableNode.DEFAULT_WORKER_NAME;
@@ -2577,7 +2578,7 @@ public class TypeChecker extends BLangNodeVisitor {
         List<? extends FromClauseNode> fromClauseList = queryExpr.getFromClauseNodes();
         List<? extends WhereClauseNode> whereClauseList = queryExpr.getWhereClauseNode();
         SymbolEnv parentEnv = env;
-        for(FromClauseNode fromClause : fromClauseList) {
+        for (FromClauseNode fromClause : fromClauseList) {
             parentEnv = typeCheckFromClause((BLangFromClause) fromClause, parentEnv);
         }
         BLangSelectClause selectClause = (BLangSelectClause) queryExpr.getSelectClauseNode();

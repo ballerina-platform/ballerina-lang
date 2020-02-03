@@ -22,6 +22,9 @@ import org.ballerinalang.model.tree.Node;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
 
+/**
+ * The interface with the APIs to implement the "from" clause.
+ */
 public interface FromClauseNode extends Node {
 
     ExpressionNode getCollection();
