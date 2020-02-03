@@ -75,15 +75,16 @@ public class OpenAPIValidatorPlugin extends AbstractCompilerPlugin {
                     BLangExpression keyExpr;
                     BLangExpression valueExpr;
 
-                    if (field.getKind() == NodeKind.RECORD_LITERAL_KEY_VALUE) {
-                        BLangRecordLiteral.BLangRecordKeyValue keyValue =
-                                (BLangRecordLiteral.BLangRecordKeyValue) field;
+                    if (field.isKeyValueField()) {
+                        BLangRecordLiteral.BLangRecordKeyValueField keyValue =
+                                (BLangRecordLiteral.BLangRecordKeyValueField) field;
                         keyExpr = keyValue.getKey();
                         valueExpr = keyValue.getValue();
                     } else {
-                        BLangSimpleVarRef varRef = (BLangSimpleVarRef) field;
-                        keyExpr = varRef;
-                        valueExpr = varRef;
+                        BLangRecordLiteral.BLangRecordVarNameField varNameField =
+                                (BLangRecordLiteral.BLangRecordVarNameField) field;
+                        keyExpr = varNameField;
+                        valueExpr = varNameField;
                     }
 
                     if (keyExpr instanceof BLangSimpleVarRef) {

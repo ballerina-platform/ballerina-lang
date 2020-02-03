@@ -2168,8 +2168,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 BLangRecordLiteral recordLiteral = (BLangRecordLiteral) expression;
                 recordLiteral.type = new BMapType(TypeTags.MAP, symTable.anydataType, null);
                 for (RecordLiteralNode.RecordField field : recordLiteral.fields) {
-                    BLangRecordLiteral.BLangRecordKeyValue recLiteralKeyValue =
-                            (BLangRecordLiteral.BLangRecordKeyValue) field;
+                    BLangRecordLiteral.BLangRecordKeyValueField recLiteralKeyValue =
+                            (BLangRecordLiteral.BLangRecordKeyValueField) field;
                     if (isValidRecordLiteralKey(recLiteralKeyValue)) {
                         BType fieldType = checkStaticMatchPatternLiteralType(recLiteralKeyValue.valueExpr);
                         if (fieldType.tag == TypeTags.NONE) {
@@ -2232,7 +2232,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
     }
 
-    private boolean isValidRecordLiteralKey(BLangRecordLiteral.BLangRecordKeyValue recLiteralKeyValue) {
+    private boolean isValidRecordLiteralKey(BLangRecordLiteral.BLangRecordKeyValueField recLiteralKeyValue) {
         NodeKind kind = recLiteralKeyValue.key.expr.getKind();
         return kind == NodeKind.SIMPLE_VARIABLE_REF ||
                 ((kind == NodeKind.LITERAL || kind == NodeKind.NUMERIC_LITERAL) &&
@@ -2548,12 +2548,12 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 break;
             case RECORD_LITERAL_EXPR:
                 ((BLangRecordLiteral) expression).fields.forEach(field -> {
-                    if (field.getKind() == NodeKind.RECORD_LITERAL_KEY_VALUE) {
-                        BLangRecordLiteral.BLangRecordKeyValue pair = (BLangRecordLiteral.BLangRecordKeyValue) field;
+                    if (field.isKeyValueField()) {
+                        BLangRecordLiteral.BLangRecordKeyValueField pair = (BLangRecordLiteral.BLangRecordKeyValueField) field;
                         checkAnnotConstantExpression(pair.key.expr);
                         checkAnnotConstantExpression(pair.valueExpr);
                     } else {
-                        checkAnnotConstantExpression((BLangSimpleVarRef) field);
+                        checkAnnotConstantExpression((BLangRecordLiteral.BLangRecordVarNameField) field);
                     }
                 });
                 break;

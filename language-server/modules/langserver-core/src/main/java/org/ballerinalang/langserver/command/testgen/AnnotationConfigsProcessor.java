@@ -24,7 +24,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr.BLangArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKeyValue;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKeyValueField;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 
 import java.util.ArrayList;
@@ -45,12 +45,12 @@ public class AnnotationConfigsProcessor {
      * @param acceptor   {@link BiConsumer} annotations acceptor
      */
     public static void visitAnnotation(BLangAnnotationAttachment annotation,
-                                       BiConsumer<BLangRecordKeyValue, BLangSimpleVarRef> acceptor) {
+                                       BiConsumer<BLangRecordKeyValueField, BLangSimpleVarRef> acceptor) {
         if (annotation.expr instanceof BLangRecordLiteral) {
             BLangRecordLiteral record = (BLangRecordLiteral) annotation.expr;
             for (RecordLiteralNode.RecordField field : record.fields) {
-                if (field.getKind() == NodeKind.RECORD_LITERAL_KEY_VALUE) {
-                    BLangRecordKeyValue keyValue = (BLangRecordKeyValue) field;
+                if (field.isKeyValueField()) {
+                    BLangRecordKeyValueField keyValue = (BLangRecordKeyValueField) field;
                     BLangRecordLiteral.BLangRecordKey key = keyValue.key;
                     if (key.expr instanceof BLangSimpleVarRef) {
                         acceptor.accept(keyValue, (BLangSimpleVarRef) key.expr);
@@ -69,16 +69,17 @@ public class AnnotationConfigsProcessor {
     public static void visitRecords(List<RecordLiteralNode.RecordField> fields,
                                     BiConsumer<BLangExpression, BLangSimpleVarRef> acceptor) {
         for (RecordLiteralNode.RecordField field : fields) {
-            if (field.getKind() == NodeKind.RECORD_LITERAL_KEY_VALUE) {
-                BLangRecordKeyValue keyValue = (BLangRecordKeyValue) field;
+            if (field.isKeyValueField()) {
+                BLangRecordKeyValueField keyValue = (BLangRecordKeyValueField) field;
                 BLangRecordLiteral.BLangRecordKey key = keyValue.key;
                 if (key.expr instanceof BLangSimpleVarRef) {
                     BLangSimpleVarRef varRef = (BLangSimpleVarRef) key.expr;
                     acceptor.accept(keyValue.valueExpr, varRef);
                 }
             } else {
-                BLangSimpleVarRef varRef = (BLangSimpleVarRef) field;
-                acceptor.accept(varRef, varRef);
+                BLangRecordLiteral.BLangRecordVarNameField varNameField =
+                        (BLangRecordLiteral.BLangRecordVarNameField) field;
+                acceptor.accept(varNameField, varNameField);
             }
         }
     }

@@ -27,7 +27,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKeyValue;
+import static org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKeyValueField;
 
 /**
  * Utilities used by ballerina code generator.
@@ -69,11 +69,11 @@ public class GeneratorUtils {
         Map<String, String[]> attrMap = new HashMap<>();
 
         for (RecordLiteralNode.RecordField field : list) {
-            if (field.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
+            if (!field.isKeyValueField()) {
                 continue;
             }
 
-            BLangRecordKeyValue attr = (BLangRecordKeyValue) field;
+            BLangRecordKeyValueField attr = (BLangRecordKeyValueField) field;
 
             // We don't accept struct type values for annotation attribute
             if (attr.getValue() instanceof BLangLiteral) {

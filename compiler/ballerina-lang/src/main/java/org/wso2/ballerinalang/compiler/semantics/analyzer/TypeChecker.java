@@ -89,7 +89,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression.BLa
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKey;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKeyValue;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKeyValueField;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRestArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangServiceConstructorExpr;
@@ -983,8 +983,8 @@ public class TypeChecker extends BLangNodeVisitor {
             }
 
             if (!expFieldNames.contains(fieldName)) {
-                dlog.error(field.getKind() == NodeKind.RECORD_LITERAL_KEY_VALUE ?
-                                   ((BLangRecordKeyValue) field).key.expr.pos : ((BLangSimpleVarRef) field).pos,
+                dlog.error(field.isKeyValueField() ? ((BLangRecordKeyValueField) field).key.expr.pos :
+                                   ((BLangRecordLiteral.BLangRecordVarNameField) field).pos,
                            DiagnosticCode.UNDEFINED_STRUCTURE_FIELD_WITH_TYPE, fieldName,
                            "record", recType);
             }
@@ -1060,8 +1060,8 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     private String getFieldName(RecordLiteralNode.RecordField field) {
-        if (field.getKind() == NodeKind.RECORD_LITERAL_KEY_VALUE) {
-            BLangRecordKey key = ((BLangRecordKeyValue) field).key;
+        if (field.isKeyValueField()) {
+            BLangRecordKey key = ((BLangRecordKeyValueField) field).key;
             BLangExpression keyExpression = key.expr;
 
             if (key.computedKey) {
@@ -1078,7 +1078,7 @@ public class TypeChecker extends BLangNodeVisitor {
                 return (String) literal.value;
             }
         } else {
-            return ((BLangSimpleVarRef) field).variableName.value;
+            return ((BLangRecordLiteral.BLangRecordVarNameField) field).variableName.value;
         }
 
         return null;
@@ -1091,8 +1091,8 @@ public class TypeChecker extends BLangNodeVisitor {
 
             for (RecordLiteralNode.RecordField specifiedField : specifiedFields) {
                 BLangSimpleVarRef varRef;
-                if (specifiedField.getKind() == NodeKind.RECORD_LITERAL_KEY_VALUE) {
-                    BLangExpression keyExpr = ((BLangRecordKeyValue) specifiedField).key.expr;
+                if (specifiedField.isKeyValueField()) {
+                    BLangExpression keyExpr = ((BLangRecordKeyValueField) specifiedField).key.expr;
                     if (keyExpr.getKind() != NodeKind.SIMPLE_VARIABLE_REF) {
                         continue;
                     }
@@ -3419,24 +3419,27 @@ public class TypeChecker extends BLangNodeVisitor {
 
     private void checkRecLiteralField(RecordLiteralNode.RecordField field, BType recType) {
         BType fieldType = symTable.semanticError;
-        boolean keyValueField = field.getKind() == NodeKind.RECORD_LITERAL_KEY_VALUE;
-        BLangExpression valueExpr = keyValueField ? ((BLangRecordKeyValue) field).valueExpr : (BLangSimpleVarRef) field;
+        boolean keyValueField = field.isKeyValueField();
+        BLangExpression valueExpr = keyValueField ? ((BLangRecordKeyValueField) field).valueExpr :
+                (BLangRecordLiteral.BLangRecordVarNameField) field;
         switch (recType.tag) {
             case TypeTags.RECORD:
                 if (keyValueField) {
-                    BLangRecordKey key = ((BLangRecordKeyValue) field).key;
+                    BLangRecordKey key = ((BLangRecordKeyValueField) field).key;
                     fieldType = checkRecordLiteralKeyExpr(key.expr, key.computedKey, (BRecordType) recType);
                 } else {
-                    fieldType = checkRecordLiteralKeyExpr((BLangSimpleVarRef) field, false, (BRecordType) recType);
+                    fieldType = checkRecordLiteralKeyExpr((BLangRecordLiteral.BLangRecordVarNameField) field, false,
+                                                          (BRecordType) recType);
                 }
                 break;
             case TypeTags.MAP:
                 boolean validMapKey;
                 if (keyValueField) {
-                    BLangRecordKey key = ((BLangRecordKeyValue) field).key;
+                    BLangRecordKey key = ((BLangRecordKeyValueField) field).key;
                     validMapKey = checkValidJsonOrMapLiteralKeyExpr(key.expr, key.computedKey);
                 } else {
-                    validMapKey = checkValidJsonOrMapLiteralKeyExpr((BLangSimpleVarRef) field, false);
+                    validMapKey = checkValidJsonOrMapLiteralKeyExpr((BLangRecordLiteral.BLangRecordVarNameField) field,
+                                                                    false);
                 }
 
                 fieldType = validMapKey ? ((BMapType) recType).constraint : symTable.semanticError;
@@ -3444,10 +3447,11 @@ public class TypeChecker extends BLangNodeVisitor {
             case TypeTags.JSON:
                 boolean validJsonKey;
                 if (keyValueField) {
-                    BLangRecordKey key = ((BLangRecordKeyValue) field).key;
+                    BLangRecordKey key = ((BLangRecordKeyValueField) field).key;
                     validJsonKey = checkValidJsonOrMapLiteralKeyExpr(key.expr, key.computedKey);
                 } else {
-                    validJsonKey = checkValidJsonOrMapLiteralKeyExpr((BLangSimpleVarRef) field, false);
+                    validJsonKey = checkValidJsonOrMapLiteralKeyExpr((BLangRecordLiteral.BLangRecordVarNameField) field,
+                                                                     false);
                 }
 
                 fieldType = validJsonKey ? symTable.jsonType : symTable.semanticError;
@@ -3491,7 +3495,8 @@ public class TypeChecker extends BLangNodeVisitor {
             }
 
             return BUnionType.create(null, fieldTypes);
-        } else if (keyExpr.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
+        } else if (keyExpr.getKind() == NodeKind.SIMPLE_VARIABLE_REF ||
+                keyExpr.getKind() == NodeKind.RECORD_LITERAL_VAR_NAME) {
             BLangSimpleVarRef varRef = (BLangSimpleVarRef) keyExpr;
             fieldName = names.fromIdNode(varRef.variableName);
         } else if (keyExpr.getKind() == NodeKind.LITERAL && ((BLangLiteral) keyExpr).type.tag == TypeTags.STRING) {
@@ -3526,6 +3531,7 @@ public class TypeChecker extends BLangNodeVisitor {
             }
             return true;
         } else if (keyExpr.getKind() == NodeKind.SIMPLE_VARIABLE_REF ||
+                keyExpr.getKind() == NodeKind.RECORD_LITERAL_VAR_NAME ||
                 (keyExpr.getKind() == NodeKind.LITERAL && ((BLangLiteral) keyExpr).type.tag == TypeTags.STRING)) {
             return true;
         }

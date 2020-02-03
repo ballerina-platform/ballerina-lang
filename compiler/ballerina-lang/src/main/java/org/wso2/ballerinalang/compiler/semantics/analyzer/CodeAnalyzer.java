@@ -88,7 +88,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKeyValue;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKeyValueField;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRestArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangServiceConstructorExpr;
@@ -780,16 +780,16 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                     Map<String, BLangExpression> recordLiteral = ((BLangRecordLiteral) pattern).fields
                             .stream()
                             // Unchecked cast since BPs are always added as key-value.
-                            .map(field -> (BLangRecordKeyValue) field)
+                            .map(field -> (BLangRecordKeyValueField) field)
                             .collect(Collectors.toMap(
                                     keyValuePair -> ((BLangSimpleVarRef) keyValuePair.key.expr).variableName.value,
-                                    BLangRecordKeyValue::getValue
+                                    BLangRecordKeyValueField::getValue
                             ));
 
                     for (int i = 0; i < precedingRecordLiteral.fields.size(); i++) {
                         // Unchecked cast since BPs are always added as key-value.
-                        BLangRecordKeyValue bLangRecordKeyValue =
-                                (BLangRecordKeyValue) precedingRecordLiteral.fields.get(i);
+                        BLangRecordKeyValueField bLangRecordKeyValue =
+                                (BLangRecordKeyValueField) precedingRecordLiteral.fields.get(i);
                         String key = ((BLangSimpleVarRef) bLangRecordKeyValue.key.expr).variableName.value;
                         if (!recordLiteral.containsKey(key)) {
                             return false;
@@ -1083,7 +1083,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                     BLangRecordLiteral mapLiteral = (BLangRecordLiteral) literal;
                     return IntStream.range(0, mapLiteral.fields.size())
                             .allMatch(i -> isValidStaticMatchPattern(((BMapType) matchType).constraint,
-                                                                     ((BLangRecordKeyValue) mapLiteral.fields.get(i))
+                                                                     ((BLangRecordKeyValueField) mapLiteral.fields.get(i))
                                                                              .valueExpr));
                 }
                 break;
@@ -1100,7 +1100,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                             ));
 
                     for (RecordLiteralNode.RecordField field : mapLiteral.fields) {
-                        BLangRecordKeyValue literalKeyValue = (BLangRecordKeyValue) field;
+                        BLangRecordKeyValueField literalKeyValue = (BLangRecordKeyValueField) field;
                         String literalKeyName;
                         NodeKind nodeKind = literalKeyValue.key.expr.getKind();
                         if (nodeKind == NodeKind.SIMPLE_VARIABLE_REF) {
@@ -1776,10 +1776,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         List<RecordLiteralNode.RecordField> fields = recordLiteral.fields;
 
         for (RecordLiteralNode.RecordField field : fields) {
-            if (field.getKind() == NodeKind.RECORD_LITERAL_KEY_VALUE) {
-                analyzeExpr(((BLangRecordKeyValue) field).valueExpr);
+            if (field.isKeyValueField()) {
+                analyzeExpr(((BLangRecordKeyValueField) field).valueExpr);
             } else {
-                analyzeExpr((BLangSimpleVarRef) field);
+                analyzeExpr((BLangRecordLiteral.BLangRecordVarNameField) field);
             }
         }
 
@@ -1789,18 +1789,19 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         for (RecordLiteralNode.RecordField field : fields) {
 
             BLangExpression keyExpr;
-            if (field.getKind() == NodeKind.RECORD_LITERAL_KEY_VALUE) {
-                BLangRecordLiteral.BLangRecordKey key = ((BLangRecordKeyValue) field).key;
+            if (field.isKeyValueField()) {
+                BLangRecordLiteral.BLangRecordKey key = ((BLangRecordKeyValueField) field).key;
                 keyExpr = key.expr;
                 if (key.computedKey) {
                     analyzeExpr(keyExpr);
                     continue;
                 }
             } else {
-                keyExpr = (BLangSimpleVarRef) field;
+                keyExpr = (BLangRecordLiteral.BLangRecordVarNameField) field;
             }
 
-            if (keyExpr.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
+            if (keyExpr.getKind() == NodeKind.SIMPLE_VARIABLE_REF ||
+                    keyExpr.getKind() == NodeKind.RECORD_LITERAL_VAR_NAME) {
                 BLangSimpleVarRef keyRef = (BLangSimpleVarRef) keyExpr;
                 String fieldName = keyRef.variableName.value;
 

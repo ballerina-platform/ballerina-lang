@@ -202,7 +202,7 @@ public class ServiceProtoBuilder extends AbstractCompilerPlugin {
         }
 
         //Add Root Descriptor
-        BLangRecordLiteral.BLangRecordKeyValue descriptorKeyValue = (BLangRecordLiteral.BLangRecordKeyValue)
+        BLangRecordLiteral.BLangRecordKeyValueField descriptorKeyValue = (BLangRecordLiteral.BLangRecordKeyValueField)
                 TreeBuilder.createRecordKeyValue();
         literalNode.fields.add(descriptorKeyValue);
 
@@ -253,7 +253,7 @@ public class ServiceProtoBuilder extends AbstractCompilerPlugin {
             functionRef.pkgAlias = funcPkgAlias;
         }
 
-        BLangRecordLiteral.BLangRecordKeyValue mapKeyValue = (BLangRecordLiteral.BLangRecordKeyValue) TreeBuilder
+        BLangRecordLiteral.BLangRecordKeyValueField mapKeyValue = (BLangRecordLiteral.BLangRecordKeyValueField) TreeBuilder
                 .createRecordKeyValue();
         literalNode.fields.add(mapKeyValue);
 

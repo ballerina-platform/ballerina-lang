@@ -43,12 +43,13 @@ public class ConverterUtils {
         Map<String, BLangExpression> attrMap = new HashMap<>();
 
         for (RecordLiteralNode.RecordField field : list) {
-            if (field.getKind() == NodeKind.RECORD_LITERAL_KEY_VALUE) {
-                BLangRecordLiteral.BLangRecordKeyValue attr = (BLangRecordLiteral.BLangRecordKeyValue) field;
+            if (field.isKeyValueField()) {
+                BLangRecordLiteral.BLangRecordKeyValueField attr = (BLangRecordLiteral.BLangRecordKeyValueField) field;
                 attrMap.put(attr.getKey().toString(), attr.getValue());
             } else {
-                BLangSimpleVarRef varRef = (BLangSimpleVarRef) field;
-                attrMap.put(varRef.variableName.value, varRef);
+                BLangRecordLiteral.BLangRecordVarNameField varNameField =
+                        (BLangRecordLiteral.BLangRecordVarNameField) field;
+                attrMap.put(varNameField.variableName.value, varNameField);
             }
         }
 

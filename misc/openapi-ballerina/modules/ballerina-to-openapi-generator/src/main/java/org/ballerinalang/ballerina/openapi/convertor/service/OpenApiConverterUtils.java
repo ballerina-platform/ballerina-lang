@@ -195,8 +195,8 @@ public class OpenApiConverterUtils {
                         BLangRecordLiteral expression = (BLangRecordLiteral) annotation.getExpression();
                         Iterator<RecordLiteralNode.RecordField> keyValueIterator = expression.getFields().iterator();
                         while (keyValueIterator.hasNext()) {
-                            BLangRecordLiteral.BLangRecordKeyValue keyValuePair =
-                                    (BLangRecordLiteral.BLangRecordKeyValue) keyValueIterator.next();
+                            BLangRecordLiteral.BLangRecordKeyValueField keyValuePair =
+                                    (BLangRecordLiteral.BLangRecordKeyValueField) keyValueIterator.next();
                             BLangExpression key = keyValuePair.getKey();
                             if (key instanceof BLangSimpleVarRef) {
                                 BLangSimpleVarRef varRef = (BLangSimpleVarRef) key;

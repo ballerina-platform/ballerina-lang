@@ -606,14 +606,14 @@ public class PositionTreeVisitor extends LSNodeVisitor {
 
         if (recordLiteral.fields != null) {
             recordLiteral.fields.forEach((field -> {
-                if (field.getKind() == NodeKind.RECORD_LITERAL_KEY_VALUE) {
-                    BLangRecordLiteral.BLangRecordKeyValue bLangRecordKeyValue =
-                            (BLangRecordLiteral.BLangRecordKeyValue) field;
+                if (field.isKeyValueField()) {
+                    BLangRecordLiteral.BLangRecordKeyValueField bLangRecordKeyValue =
+                            (BLangRecordLiteral.BLangRecordKeyValueField) field;
                     if (bLangRecordKeyValue.valueExpr != null) {
                         this.acceptNode(bLangRecordKeyValue.valueExpr);
                     }
                 } else {
-                    this.acceptNode((BLangSimpleVarRef) field);
+                    this.acceptNode((BLangRecordLiteral.BLangRecordVarNameField) field);
                 }
             }));
         }

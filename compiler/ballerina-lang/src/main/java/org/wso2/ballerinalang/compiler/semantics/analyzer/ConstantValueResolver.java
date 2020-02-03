@@ -121,8 +121,9 @@ public class ConstantValueResolver extends BLangNodeVisitor {
             String key;
             BLangConstantValue value;
 
-            if (field.getKind() == NodeKind.RECORD_LITERAL_KEY_VALUE) {
-                BLangRecordLiteral.BLangRecordKeyValue keyValuePair = (BLangRecordLiteral.BLangRecordKeyValue) field;
+            if (field.isKeyValueField()) {
+                BLangRecordLiteral.BLangRecordKeyValueField keyValuePair =
+                        (BLangRecordLiteral.BLangRecordKeyValueField) field;
                 NodeKind nodeKind = keyValuePair.key.expr.getKind();
 
                 if (nodeKind == NodeKind.LITERAL || nodeKind == NodeKind.NUMERIC_LITERAL) {
@@ -135,9 +136,10 @@ public class ConstantValueResolver extends BLangNodeVisitor {
 
                 value = visitExpr(keyValuePair.valueExpr);
             } else {
-                BLangSimpleVarRef varRef = (BLangSimpleVarRef) field;
-                key = varRef.variableName.value;
-                value = visitExpr(varRef);
+                BLangRecordLiteral.BLangRecordVarNameField varNameField =
+                        (BLangRecordLiteral.BLangRecordVarNameField) field;
+                key = varNameField.variableName.value;
+                value = visitExpr(varNameField);
             }
 
             mapConstVal.put(key, value);

@@ -463,18 +463,17 @@ public class HttpFiltersDesugar {
             return;
         }
         for (RecordLiteralNode.RecordField field : annotationValues) {
-            BLangExpression expression = field.getKind() == NodeKind.SIMPLE_VARIABLE_REF ?
-                    (BLangSimpleVarRef) field : ((BLangRecordLiteral.BLangRecordKeyValue) field).valueExpr;
+            BLangExpression expression = field.isKeyValueField() ?
+                    ((BLangRecordLiteral.BLangRecordKeyValueField) field).valueExpr :
+                    (BLangRecordLiteral.BLangRecordVarNameField) field;
 
             switch (getAnnotationFieldKey(field)) {
                 case ANN_RESOURCE_ATTR_WS_UPGRADE:
                     for (RecordLiteralNode.RecordField upgradeField : ((BLangRecordLiteral) expression).getFields()) {
                         if (getAnnotationFieldKey(upgradeField).equals(ANN_RESOURCE_ATTR_WS_UPGRADE_PATH)) {
-                            addParamOrderConfigAnnotation(resourceNode,
-                                                          upgradeField.getKind() == NodeKind.SIMPLE_VARIABLE_REF ?
-                                                                  (BLangSimpleVarRef) upgradeField :
-                                                                  ((BLangRecordLiteral.BLangRecordKeyValue)
-                                                                           upgradeField).valueExpr, env);
+                            addParamOrderConfigAnnotation(resourceNode, upgradeField.isKeyValueField() ?
+                                    ((BLangRecordLiteral.BLangRecordKeyValueField) upgradeField).valueExpr :
+                                    (BLangRecordLiteral.BLangRecordVarNameField) upgradeField, env);
                             break;
                         }
                     }
@@ -487,11 +486,11 @@ public class HttpFiltersDesugar {
     }
 
     private static String getAnnotationFieldKey(RecordLiteralNode.RecordField field) {
-        if (field.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
+        if (!field.isKeyValueField()) {
             return ((BLangSimpleVarRef) field).variableName.getValue();
         }
 
-        return ((BLangSimpleVarRef) (((BLangRecordLiteral.BLangRecordKeyValue) field).key).expr)
+        return ((BLangSimpleVarRef) (((BLangRecordLiteral.BLangRecordKeyValueField) field).key).expr)
                 .variableName.getValue();
     }
 
@@ -537,7 +536,7 @@ public class HttpFiltersDesugar {
         }
 
         // Create pathParamOrder record literal
-        BLangRecordLiteral.BLangRecordKeyValue pathParamOrderKeyValue = (BLangRecordLiteral.BLangRecordKeyValue)
+        BLangRecordLiteral.BLangRecordKeyValueField pathParamOrderKeyValue = (BLangRecordLiteral.BLangRecordKeyValueField)
                 TreeBuilder.createRecordKeyValue();
         literalNode.fields.add(pathParamOrderKeyValue);
 
@@ -563,7 +562,7 @@ public class HttpFiltersDesugar {
             paramValueLiteral.type = symTable.intType;
 
             // Create a new key-value.
-            BLangRecordLiteral.BLangRecordKeyValue pathParamOrderEntry = new BLangRecordLiteral.BLangRecordKeyValue();
+            BLangRecordLiteral.BLangRecordKeyValueField pathParamOrderEntry = new BLangRecordLiteral.BLangRecordKeyValueField();
             pathParamOrderEntry.key = new BLangRecordLiteral.BLangRecordKey(paramKeyLiteral);
             pathParamOrderEntry.valueExpr = paramValueLiteral;
             paramOrderLiteralNode.fields.add(pathParamOrderEntry);
