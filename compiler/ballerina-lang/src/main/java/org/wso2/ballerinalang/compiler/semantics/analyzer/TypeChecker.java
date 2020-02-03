@@ -2580,14 +2580,12 @@ public class TypeChecker extends BLangNodeVisitor {
         for(FromClauseNode fromClause : fromClauseList) {
             parentEnv = typeCheckFromClause((BLangFromClause) fromClause, parentEnv);
         }
-
         BLangSelectClause selectClause = (BLangSelectClause) queryExpr.getSelectClauseNode();
-        checkExpr(selectClause.expression, parentEnv);
-
+        SymbolEnv whereEnv = parentEnv;
         for (WhereClauseNode whereClauseNode : whereClauseList) {
-            BLangWhereClause whereClause = (BLangWhereClause) whereClauseNode;
-            checkExpr(whereClause.expression, parentEnv);
+            whereEnv = typeCheckWhereClause((BLangWhereClause) whereClauseNode, selectClause, parentEnv);
         }
+        checkExpr(selectClause.expression, whereEnv);
     }
 
     private SymbolEnv typeCheckFromClause(BLangFromClause fromClause, SymbolEnv parentEnv) {
@@ -2600,6 +2598,13 @@ public class TypeChecker extends BLangNodeVisitor {
         handleForeachVariables(fromClause, fromClauseEnv);
 
         return fromClauseEnv;
+    }
+
+    private SymbolEnv typeCheckWhereClause(BLangWhereClause whereClause, BLangSelectClause selectClause,
+                                           SymbolEnv parentEnv) {
+        checkExpr(whereClause.expression, parentEnv);
+        SymbolEnv whereClauseEnv = typeNarrower.evaluateTruth(whereClause.expression, selectClause, parentEnv);
+        return whereClauseEnv;
     }
 
     private void handleForeachVariables(BLangFromClause fromClause, SymbolEnv blockEnv) {

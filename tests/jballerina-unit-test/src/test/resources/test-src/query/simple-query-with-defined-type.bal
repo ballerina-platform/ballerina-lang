@@ -103,3 +103,22 @@ function testQueryExpressionWithSelectExpression() returns string[]{
 
     return  stringOutput;
 }
+
+function testFilteringNullElements() returns Person[] {
+
+    Person p1 = {firstName:"Alex", lastName: "George", age: 23};
+    Person p2 = {firstName:"Ranjan", lastName: "Fonseka", age: 30};
+
+    Person?[] personList = [p1,  (), p2];
+
+    Person[] outputPersonList =
+                     from var person in personList
+                     where (person is Person)
+                     select {
+                         firstName: person.firstName,
+                         lastName: person.lastName,
+                         age: person.age
+                         };
+    return outputPersonList;
+}
+

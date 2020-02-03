@@ -129,4 +129,20 @@ public class SimpleQueryExpressionWithDefinedTypeTest {
         Assert.assertEquals(((BValueArray) returnValues[0]).getString(1), "2");
         Assert.assertEquals(((BValueArray) returnValues[0]).getString(2), "3");
     }
+
+    @Test(description = "Test filtering null values from query expression")
+    public void testFilteringNullElements() {
+        BValue[] returnValues = BRunUtil.invoke(result, "testFilteringNullElements");
+        Assert.assertNotNull(returnValues);
+
+        Assert.assertEquals(returnValues.length, 2, "Expected events are not received");
+
+        BMap<String, BValue> person1 = (BMap<String, BValue>) returnValues[0];
+        BMap<String, BValue> person2 = (BMap<String, BValue>) returnValues[1];
+
+        Assert.assertEquals(person1.get("firstName").stringValue(), "Alex");
+        Assert.assertEquals(((BInteger) person1.get("age")).intValue(), 23);
+        Assert.assertEquals(person2.get("firstName").stringValue(), "Ranjan");
+        Assert.assertEquals(((BInteger) person2.get("age")).intValue(), 30);
+    }
 }
