@@ -210,7 +210,7 @@ public abstract class BLangInvokableNode extends BLangNode implements InvokableN
     @Override
     public String toString() {
         return this.flagSet + " " + this.getName() + " (" + this.requiredParams +
-                ") (" + this.returnTypeNode + ") Body: {" + this.body + "}"
+                ") (" + this.returnTypeNode + ") Body: {" + this.funcBody + "}"
                 + (!workers.isEmpty() ? " Workers: {" + Arrays.toString(workers.toArray()) + "}" : "");
     }
 

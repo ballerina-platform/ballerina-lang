@@ -251,7 +251,6 @@ class NodeCloner extends BLangNodeVisitor {
         clone.returnTypeNode = clone(source.returnTypeNode);
         clone.returnTypeAnnAttachments = cloneList(source.returnTypeAnnAttachments);
         clone.externalAnnAttachments = cloneList(source.externalAnnAttachments);
-        clone.body = clone(source.body);
         clone.funcBody = clone(source.funcBody);
         clone.flagSet = cloneSet(source.flagSet, Flag.class);
         clone.markdownDocumentationAttachment = clone(source.markdownDocumentationAttachment);

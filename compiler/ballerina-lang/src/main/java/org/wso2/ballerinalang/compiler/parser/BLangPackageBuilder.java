@@ -1927,6 +1927,7 @@ public class BLangPackageBuilder {
 
     void endBlockFunctionBody(DiagnosticPos pos, Set<Whitespace> ws) {
         BLangBlockFunctionBody body = (BLangBlockFunctionBody) this.funcBodyNodeStack.pop();
+        this.sequenceStmtStack.pop(); // Ignored since this is the same body as above
         body.addWS(ws);
         body.pos = pos;
 

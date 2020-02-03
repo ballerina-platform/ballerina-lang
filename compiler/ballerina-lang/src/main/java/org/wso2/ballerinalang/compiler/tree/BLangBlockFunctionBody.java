@@ -25,6 +25,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.StringJoiner;
 
 /**
  * Represents a function/method body with zero or more statements.
@@ -57,5 +58,12 @@ public class BLangBlockFunctionBody extends BLangFunctionBody implements BlockFu
     @Override
     public NodeKind getKind() {
         return NodeKind.BLOCK_FUNCTION_BODY;
+    }
+
+    @Override
+    public String toString() {
+        StringJoiner sj = new StringJoiner("; ");
+        this.stmts.forEach(stmt -> sj.add(stmt.toString()));
+        return sj.toString();
     }
 }

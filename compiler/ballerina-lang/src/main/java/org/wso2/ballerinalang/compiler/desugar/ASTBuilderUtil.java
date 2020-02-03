@@ -250,7 +250,7 @@ public class ASTBuilderUtil {
         return variableDef;
     }
 
-    static BLangAssignment createAssignmentStmt(DiagnosticPos pos, BLangBlockStmt target) {
+    static BLangAssignment createAssignmentStmt(DiagnosticPos pos, SequenceStatementNode target) {
         final BLangAssignment assignment = (BLangAssignment) TreeBuilder.createAssignmentNode();
         assignment.pos = pos;
         target.addStatement(assignment);
