@@ -3650,6 +3650,17 @@
             "insertTextFormat": "Snippet"
         },
         {
+            "label": "WebSocketRetryConfig",
+            "kind": "Struct",
+            "detail": "Record",
+            "documentation": {
+                "left": "Retry configurations for WebSocket.\n"
+            },
+            "sortText": "180",
+            "insertText": "WebSocketRetryConfig",
+            "insertTextFormat": "Snippet"
+        },
+        {
             "label": "WsConnectionClosureError",
             "kind": "Event",
             "detail": "Error",
