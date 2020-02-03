@@ -3757,7 +3757,7 @@
             },
             "sortText": "190",
             "insertText": "WebSocketFailoverClient",
-            "insertTextFormat": "Snippet",
+            "insertTextFormat": "Snippet"
         },
         {
             "label": "WebSocketFailoverClientConfiguration",

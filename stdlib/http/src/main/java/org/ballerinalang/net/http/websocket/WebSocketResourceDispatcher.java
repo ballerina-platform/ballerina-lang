@@ -97,7 +97,7 @@ public class WebSocketResourceDispatcher {
     }
 
     public static void dispatchOnOpen(WebSocketConnection webSocketConnection, ObjectValue webSocketCaller,
-                                      WebSocketServerService wsService) {
+                                       WebSocketServerService wsService) {
         AttachedFunction onOpenResource = wsService.getResourceByName(WebSocketConstants.RESOURCE_NAME_ON_OPEN);
         if (onOpenResource != null) {
             executeOnOpenResource(wsService, onOpenResource, webSocketCaller, webSocketConnection);
