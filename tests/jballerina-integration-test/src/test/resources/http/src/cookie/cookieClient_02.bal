@@ -1,4 +1,4 @@
-// Copyright (c) 2019 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+// Copyright (c) 2020 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 //
 // WSO2 Inc. licenses this file to you under the Apache License,
 // Version 2.0 (the "License"); you may not use this file except
@@ -14,27 +14,33 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/file;
 import ballerina/http;
 import ballerina/io;
 
 public function main() {
+    http:CsvPersistentCookieHandler myPersistentStore = new("./cookie-test-data/client-2.csv");
     http:Client cookieClientEndpoint = new ("http://localhost:9253", {
-            cookieConfig: { enabled: true }
+            cookieConfig: { enabled: true, persistentCookieHandler: myPersistentStore }
         });
     http:Request req = new;
-    // Server sends the session cookies in the response for the first request.
-    var response = cookieClientEndpoint->get("/cookie/cookieBackend", req);
+    // Server sends cookies in the response for the first request.
+    var response = cookieClientEndpoint->get("/cookie/cookieBackend_1", req);
     // Removes a session cookie.
     http:CookieStore? myCookieStore = cookieClientEndpoint.getCookieStore();
     if (myCookieStore is http:CookieStore) {
-        boolean isRemoved = myCookieStore.removeCookie("SID001", "localhost:9253", "/cookie");
+        var removeResult = myCookieStore.removeCookie("SID003", "localhost:9253", "/cookie/cookieBackend_1");
+        if (removeResult is error) {
+            io:println(removeResult);
+        }
     }
     // Sends a request again after one session cookie is removed.
-    response = cookieClientEndpoint->get("/cookie/cookieBackend", req);
+    response = cookieClientEndpoint->get("/cookie/cookieBackend_1", req);
     if (response is http:Response) {
         var payload = response.getTextPayload();
         if (payload is string) {
             io:print(payload);
         }
     }
+    error? removeResults = file:remove("./cookie-test-data", true);
 }
