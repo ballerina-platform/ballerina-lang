@@ -22,11 +22,12 @@ import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.FilterUtils;
 import org.ballerinalang.langserver.commons.LSContext;
-import org.ballerinalang.langserver.completions.CompletionKeys;
-import org.ballerinalang.langserver.completions.SymbolInfo;
-import org.eclipse.lsp4j.CompletionItem;
+import org.ballerinalang.langserver.commons.completion.CompletionKeys;
+import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
+import org.ballerinalang.langserver.sourceprune.SourcePruneKeys;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
+import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,25 +38,25 @@ import java.util.List;
 public class DelimiterBasedContentFilter extends AbstractSymbolFilter {
 
     @Override
-    public Either<List<CompletionItem>, List<SymbolInfo>> filterItems(LSContext ctx) {
-        List<CommonToken> defaultTokens = ctx.get(CompletionKeys.LHS_DEFAULT_TOKENS_KEY);
-        List<Integer> defaultTokenTypes = ctx.get(CompletionKeys.LHS_DEFAULT_TOKEN_TYPES_KEY);
+    public Either<List<LSCompletionItem>, List<Scope.ScopeEntry>> filterItems(LSContext ctx) {
+        List<CommonToken> defaultTokens = ctx.get(SourcePruneKeys.LHS_DEFAULT_TOKENS_KEY);
+        List<Integer> defaultTokenTypes = ctx.get(SourcePruneKeys.LHS_DEFAULT_TOKEN_TYPES_KEY);
         int delimiter = ctx.get(CompletionKeys.INVOCATION_TOKEN_TYPE_KEY);
         String symbolToken = defaultTokens.get(defaultTokenTypes.lastIndexOf(delimiter) - 1).getText().replace("'", "");
-        List<SymbolInfo> visibleSymbols = new ArrayList<>(ctx.get(CommonKeys.VISIBLE_SYMBOLS_KEY));
-        SymbolInfo symbol = FilterUtils.getVariableByName(symbolToken, visibleSymbols);
+        List<Scope.ScopeEntry> visibleSymbols = new ArrayList<>(ctx.get(CommonKeys.VISIBLE_SYMBOLS_KEY));
+        Scope.ScopeEntry scopeEntry = FilterUtils.getVariableByName(symbolToken, visibleSymbols);
         boolean isActionInvocation = BallerinaParser.RARROW == delimiter
-                && CommonUtil.isClientObject(symbol.getScopeEntry().symbol);
+                && CommonUtil.isClientObject(scopeEntry.symbol);
         boolean isWorkerSend = !isActionInvocation && BallerinaParser.RARROW == delimiter;
 
         if (BallerinaParser.DOT == delimiter || BallerinaParser.NOT == delimiter || BallerinaParser.COLON == delimiter
                 || BallerinaParser.OPTIONAL_FIELD_ACCESS == delimiter || isActionInvocation) {
-            List<SymbolInfo> symbolInfos = FilterUtils.filterVariableEntriesOnDelimiter(ctx, symbolToken, delimiter,
-                    defaultTokens, defaultTokenTypes.lastIndexOf(delimiter));
-            return Either.forRight(symbolInfos);
+            List<Scope.ScopeEntry> symbolCompletionItems = FilterUtils.filterVariableEntriesOnDelimiter(ctx,
+                    symbolToken, delimiter, defaultTokens, defaultTokenTypes.lastIndexOf(delimiter));
+            return Either.forRight(new ArrayList<>(symbolCompletionItems));
         }
         if (isWorkerSend) {
-            List<SymbolInfo> workerSymbols = CommonUtil.getWorkerSymbols(ctx);
+            List<Scope.ScopeEntry> workerSymbols = new ArrayList<>(CommonUtil.getWorkerSymbols(ctx));
             return Either.forRight(workerSymbols);
         }
 

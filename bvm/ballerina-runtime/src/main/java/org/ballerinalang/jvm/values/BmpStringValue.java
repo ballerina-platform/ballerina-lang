@@ -60,4 +60,9 @@ public class BmpStringValue implements StringValue {
     public String stringValue() {
         return value;
     }
+
+    @Override
+    public int hashCode() {
+        return value.hashCode();
+    }
 }

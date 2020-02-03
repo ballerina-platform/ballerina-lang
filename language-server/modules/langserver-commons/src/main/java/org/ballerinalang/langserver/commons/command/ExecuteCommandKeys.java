@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.ballerinalang.langserver.command;
+package org.ballerinalang.langserver.commons.command;
 
-import org.ballerinalang.langserver.BallerinaLanguageServer;
 import org.ballerinalang.langserver.commons.LSContext;
-import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
-import org.ballerinalang.langserver.diagnostic.DiagnosticsHelper;
+import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
 import org.eclipse.lsp4j.Position;
+import org.eclipse.lsp4j.services.LanguageClient;
+import org.eclipse.lsp4j.services.LanguageServer;
 
 import java.util.List;
 
@@ -38,11 +38,11 @@ public class ExecuteCommandKeys {
 
     public static final LSContext.Key<List<Object>> COMMAND_ARGUMENTS_KEY = new LSContext.Key<>();
 
-    public static final LSContext.Key<BallerinaLanguageServer> LANGUAGE_SERVER_KEY = new LSContext.Key<>();
+    public static final LSContext.Key<LanguageServer> LANGUAGE_SERVER_KEY = new LSContext.Key<>();
+
+    public static final LSContext.Key<LanguageClient> LANGUAGE_CLIENT_KEY = new LSContext.Key<>();
 
     public static final LSContext.Key<String> PKG_NAME_KEY = new LSContext.Key<>();
-
-    public static final LSContext.Key<DiagnosticsHelper> DIAGNOSTICS_HELPER_KEY = new LSContext.Key<>();
 
     private ExecuteCommandKeys() {
     }
