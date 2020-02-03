@@ -63,3 +63,22 @@ function testSimpleSelectQueryWithRecordVariableV2() returns Person[]{
 
     return  outputPersonList;
 }
+
+function testSimpleSelectQueryWithWhereClause() returns Person[]{
+
+    Person p1 = {firstName:"Alex", lastName: "George", age: 23};
+    Person p2 = {firstName:"Ranjan", lastName: "Fonseka", age: 30};
+    Person p3 = {firstName:"John", lastName: "David", age: 33};
+
+    Person[] personList = [p1, p2, p3];
+
+    Person[] outputPersonList =
+            from var person in personList
+            where person.age >= 30
+            select {
+                   firstName: person.firstName,
+                   lastName: person.lastName,
+                   age: person.age
+            };
+    return  outputPersonList;
+}

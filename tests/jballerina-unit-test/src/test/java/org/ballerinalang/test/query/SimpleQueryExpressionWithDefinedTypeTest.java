@@ -29,7 +29,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 /**
- * This contains methods to test simple query expression with from and select clauses
+ * This contains methods to test simple query expression with from, where and select clauses
  */
 public class SimpleQueryExpressionWithDefinedTypeTest {
 
@@ -86,5 +86,21 @@ public class SimpleQueryExpressionWithDefinedTypeTest {
         Assert.assertEquals(person1.get("firstName").stringValue(), "Alex");
         Assert.assertEquals(person2.get("lastName").stringValue(), "Fonseka");
         Assert.assertEquals(((BInteger) person3.get("age")).intValue(), 33);
+    }
+
+    @Test(description = "Test simple select clause with a where clause")
+    public void testSimpleSelectQueryWithWhereClause() {
+        BValue[] returnValues = BRunUtil.invoke(result, "testSimpleSelectQueryWithWhereClause");
+        Assert.assertNotNull(returnValues);
+
+        Assert.assertEquals(returnValues.length, 2, "Expected events are not received");
+
+        BMap<String, BValue> person1 = (BMap<String, BValue>) returnValues[0];
+        BMap<String, BValue> person2 = (BMap<String, BValue>) returnValues[1];
+
+        Assert.assertEquals(person1.get("firstName").stringValue(), "Ranjan");
+        Assert.assertEquals(person2.get("firstName").stringValue(), "John");
+        Assert.assertEquals(((BInteger) person1.get("age")).intValue(), 30);
+        Assert.assertEquals(((BInteger) person2.get("age")).intValue(), 33);
     }
 }
