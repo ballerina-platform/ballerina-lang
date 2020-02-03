@@ -143,7 +143,9 @@ public class SymbolResolver extends BLangNodeVisitor {
             foundSym = lookupPrefixSpaceSymbol(env, symbol.name);
         } else if ((expSymTag & SymTag.ANNOTATION) == SymTag.ANNOTATION) {
             foundSym = lookupAnnotationSpaceSymbol(env, symbol.name);
-        } else if ((expSymTag & SymTag.MAIN) == SymTag.MAIN) {
+        } else if ((expSymTag & SymTag.CONSTRUCTOR) == SymTag.CONSTRUCTOR) {
+            foundSym = lookupConstructorSpaceSymbol(env, symbol.name);
+        }  else if ((expSymTag & SymTag.MAIN) == SymTag.MAIN) {
             foundSym = lookupMainSpaceSymbol(env, symbol.name);
         }
 
@@ -547,6 +549,10 @@ public class SymbolResolver extends BLangNodeVisitor {
         return lookupSymbol(env, name, SymTag.IMPORT);
     }
 
+    public BSymbol lookupConstructorSpaceSymbol(SymbolEnv env, Name name) {
+        return lookupSymbol(env, name, SymTag.CONSTRUCTOR);
+    }
+
     public BSymbol lookupLangLibMethod(BType type, Name name) {
 
         if (symTable.langAnnotationModuleSymbol == null) {
@@ -706,6 +712,27 @@ public class SymbolResolver extends BLangNodeVisitor {
 
         // 3) Look up the package scope.
         return lookupMemberSymbol(pos, pkgSymbol.scope, env, name, SymTag.ANNOTATION);
+    }
+
+    public BSymbol lookupConstructorSpaceSymbolInPackage(DiagnosticPos pos,
+                                                        SymbolEnv env,
+                                                        Name pkgAlias,
+                                                        Name name) {
+        // 1) Look up the current package if the package alias is empty.
+        if (pkgAlias == Names.EMPTY) {
+            return lookupConstructorSpaceSymbol(env, name);
+        }
+
+        // 2) Retrieve the package symbol first
+        BSymbol pkgSymbol =
+                resolvePrefixSymbol(env, pkgAlias, names.fromString(pos.getSource().getCompilationUnitName()));
+        if (pkgSymbol == symTable.notFoundSymbol) {
+            dlog.error(pos, DiagnosticCode.UNDEFINED_MODULE, pkgAlias.value);
+            return pkgSymbol;
+        }
+
+        // 3) Look up the package scope.
+        return lookupMemberSymbol(pos, pkgSymbol.scope, env, name, SymTag.CONSTRUCTOR);
     }
 
     public BSymbol lookupLangLibMethodInModule(BPackageSymbol moduleSymbol, Name name) {

@@ -32,7 +32,7 @@ public class SymTag {
     public static final int STRUCT = 1 << 6 | TYPE | VARIABLE_NAME | MAIN;
     public static final int ERROR = 1 << 7 | TYPE | VARIABLE_NAME | MAIN;
     public static final int SERVICE = 1 << 8 | MAIN;
-    public static final int INVOKABLE = 1 << 9 | MAIN;
+    public static final int INVOKABLE = 1 << 9;
     public static final int FUNCTION = 1 << 10 | INVOKABLE | VARIABLE | MAIN;
     public static final int WORKER = 1 << 11 | INVOKABLE | MAIN;
     public static final int LISTENER = 1 << 12 | MAIN;
@@ -49,5 +49,5 @@ public class SymTag {
     public static final int ARRAY_TYPE = 1 << 23 | TYPE | VARIABLE_NAME | MAIN;
     public static final int CONSTANT = 1 << 24 | VARIABLE_NAME | TYPE | MAIN;
     public static final int FUNCTION_TYPE = 1 << 25 | TYPE | VARIABLE_NAME | MAIN;
-    public static final int CONSTRUCTOR = 1 << 26 | INVOKABLE | MAIN;
+    public static final int CONSTRUCTOR = 1 << 26 | INVOKABLE;
 }
