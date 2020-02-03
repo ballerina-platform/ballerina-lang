@@ -358,39 +358,21 @@ public class FilterUtils {
          */
         if (symbolType.tsymbol instanceof BObjectTypeSymbol) {
             BObjectTypeSymbol objectTypeSymbol = (BObjectTypeSymbol) symbolType.tsymbol;
-            Map<Name, Scope.ScopeEntry> methodEntries = objectTypeSymbol.methodScope.entries.entrySet().stream()
-                    .filter(entry -> {
-                        BSymbol entrySymbol = entry.getValue().symbol;
-                        boolean isPrivate = (entrySymbol.flags & Flags.PRIVATE) == Flags.PRIVATE;
-                        return !(entrySymbol.getName().getValue().contains(".__init")
-                                && !"self".equals(symbolName)) && !(isPrivate && !"self".equals(symbolName));
-                    })
-                    .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-            Map<Name, Scope.ScopeEntry> fieldEntries = objectTypeSymbol.scope.entries.entrySet().stream()
-                    .filter(entry -> {
-                        BSymbol entrySymbol = entry.getValue().symbol;
-                        boolean isPrivate = (entrySymbol.flags & Flags.PRIVATE) == Flags.PRIVATE;
-                        return !(isPrivate && !"self".equals(symbolName));
-                    })
-                    .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-            entries.putAll(methodEntries);
-            entries.putAll(fieldEntries);
+            entries.putAll(getObjectMethodsAndFields(context, objectTypeSymbol, symbolName));
             entries.putAll(getLangLibScopeEntries(symbolType, symbolTable, types));
             return entries.entrySet().stream().filter(entry -> (!(entry.getValue().symbol instanceof BInvokableSymbol))
                     || ((entry.getValue().symbol.flags & Flags.REMOTE) != Flags.REMOTE))
                     .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+        } else if (symbolType instanceof BUnionType) {
+            entries.putAll(getInvocationsAndFieldsForUnionType((BUnionType) symbolType, context));
+        } else if (symbolType.tsymbol != null && symbolType.tsymbol.scope != null) {
+            entries.putAll(getLangLibScopeEntries(symbolType, symbolTable, types));
+            Map<Name, Scope.ScopeEntry> filteredEntries = symbolType.tsymbol.scope.entries.entrySet().stream()
+                    .filter(optionalFieldFilter(symbolType, invocationToken))
+                    .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+            entries.putAll(filteredEntries);
         } else {
-            if (symbolType instanceof BUnionType) {
-                entries.putAll(getInvocationsAndFieldsForUnionType((BUnionType) symbolType, context));
-            } else if (symbolType.tsymbol != null && symbolType.tsymbol.scope != null) {
-                entries.putAll(getLangLibScopeEntries(symbolType, symbolTable, types));
-                Map<Name, Scope.ScopeEntry> filteredEntries = symbolType.tsymbol.scope.entries.entrySet().stream()
-                        .filter(optionalFieldFilter(symbolType, invocationToken))
-                        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-                entries.putAll(filteredEntries);
-            } else {
-                entries.putAll(getLangLibScopeEntries(symbolType, symbolTable, types));
-            }
+            entries.putAll(getLangLibScopeEntries(symbolType, symbolTable, types));
         }
         /*
         Here we add the BTypeSymbol check to skip the anyData and similar types suggested from lang lib scope entries
@@ -399,6 +381,42 @@ public class FilterUtils {
                 && ((!(entry.getValue().symbol instanceof BInvokableSymbol))
                 || ((entry.getValue().symbol.flags & Flags.REMOTE) != Flags.REMOTE)))
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+    }
+
+    private static Map<Name, Scope.ScopeEntry> getObjectMethodsAndFields(LSContext context,
+                                                                         BObjectTypeSymbol objectSymbol,
+                                                                         String symbolName) {
+        String currentModule = context.get(DocumentServiceKeys.CURRENT_PKG_NAME_KEY);
+        String objectOwnerModule = objectSymbol.pkgID.getName().getValue();
+        boolean symbolInCurrentModule = currentModule.equals(objectOwnerModule);
+
+        // Extract the method entries
+        Map<Name, Scope.ScopeEntry> entries = objectSymbol.methodScope.entries.entrySet().stream()
+                .filter(entry -> {
+                    BSymbol entrySymbol = entry.getValue().symbol;
+                    boolean isPrivate = (entrySymbol.flags & Flags.PRIVATE) == Flags.PRIVATE;
+                    boolean isPublic = (entrySymbol.flags & Flags.PUBLIC) == Flags.PUBLIC;
+
+                    return !((entrySymbol.getName().getValue().contains(".__init") && !"self".equals(symbolName))
+                            || (isPrivate && !"self".equals(symbolName))
+                            || (!isPrivate && !isPublic && !symbolInCurrentModule));
+                })
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+
+        // Extract Field Entries
+        Map<Name, Scope.ScopeEntry> fieldEntries = objectSymbol.scope.entries.entrySet().stream()
+                .filter(entry -> {
+                    BSymbol entrySymbol = entry.getValue().symbol;
+                    boolean isPrivate = (entrySymbol.flags & Flags.PRIVATE) == Flags.PRIVATE;
+                    boolean isPublic = (entrySymbol.flags & Flags.PUBLIC) == Flags.PUBLIC;
+                    return !((isPrivate && !"self".equals(symbolName))
+                            || (!isPrivate && !isPublic && !symbolInCurrentModule));
+                })
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+
+        entries.putAll(fieldEntries);
+
+        return entries;
     }
 
     /**
