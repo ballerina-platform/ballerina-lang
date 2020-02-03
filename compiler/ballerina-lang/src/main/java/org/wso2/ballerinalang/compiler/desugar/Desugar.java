@@ -74,6 +74,8 @@ import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangErrorVariable;
+import org.wso2.ballerinalang.compiler.tree.BLangExprFunctionBody;
+import org.wso2.ballerinalang.compiler.tree.BLangExternFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
@@ -720,6 +722,25 @@ public class Desugar extends BLangNodeVisitor {
         // referenced types are invoked on the current record type.
 
         result = recordTypeNode;
+    }
+
+    @Override
+    public void visit(BLangBlockFunctionBody body) {
+        SymbolEnv bodyEnv = SymbolEnv.createFuncBodyEnv(body, env);
+        body.stmts = rewriteStmt(body.stmts, bodyEnv);
+        result = body;
+    }
+
+    @Override
+    public void visit(BLangExprFunctionBody body) {
+        body.expr = rewriteExpr(body.expr);
+        result = body;
+    }
+
+    @Override
+    public void visit(BLangExternFunctionBody body) {
+        // do nothing
+        result = body;
     }
 
     @Override
@@ -1500,14 +1521,10 @@ public class Desugar extends BLangNodeVisitor {
         BLangBlockFunctionBody functionBlock = ASTBuilderUtil.createBlockFunctionBody(pos, new ArrayList<>());
         function.funcBody = functionBlock;
 
-        BLangIndexBasedAccess indexBasesAccessExpr = ASTBuilderUtil.createIndexBasesAccessExpr(pos,
-                                                                                               symTable.anyType,
-                                                                                               keyValSymbol,
-                                                                                               ASTBuilderUtil
-                                                                                                       .createLiteral(
-                                                                                                               pos,
-                                                                                                               symTable.intType,
-                                                                                                               (long) 1));
+        BLangIndexBasedAccess indexBasesAccessExpr =
+                ASTBuilderUtil.createIndexBasesAccessExpr(pos, symTable.anyType, keyValSymbol,
+                                                          ASTBuilderUtil
+                                                                  .createLiteral(pos, symTable.intType, (long) 1));
         BLangSimpleVariableDef tupSecondElem = createVarDef("val", indexBasesAccessExpr.type,
                                                             indexBasesAccessExpr, pos);
         functionBlock.addStatement(tupSecondElem);

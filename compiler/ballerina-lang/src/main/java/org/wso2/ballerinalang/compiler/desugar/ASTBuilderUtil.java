@@ -23,6 +23,7 @@ import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.tree.SequenceStatementNode;
+import org.ballerinalang.model.tree.statements.StatementNode;
 import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
@@ -122,14 +123,16 @@ public class ASTBuilderUtil {
      * @param generatedCode generated code.
      * @param target        prepend target
      */
-    static void appendStatements(BLangBlockStmt generatedCode, BLangBlockStmt target) {
+    static void appendStatements(SequenceStatementNode generatedCode, SequenceStatementNode target) {
         int index = 0;
-        if (target.stmts.get(target.stmts.size() - 1).getKind() == NodeKind.RETURN) {
-            index = target.stmts.size() - 1;
+        List<StatementNode> generatedCodeStmts = (List<StatementNode>) generatedCode.getStatements();
+        List<StatementNode> targetStmts = (List<StatementNode>) target.getStatements();
+
+        if (targetStmts.get(targetStmts.size() - 1).getKind() == NodeKind.RETURN) {
+            index = targetStmts.size() - 1;
         }
-        for (BLangStatement stmt : generatedCode.stmts) {
-            target.stmts.add(index++, stmt);
-        }
+
+        targetStmts.addAll(index, generatedCodeStmts);
     }
 
     static void appendStatement(BLangStatement stmt, BLangBlockStmt target) {
