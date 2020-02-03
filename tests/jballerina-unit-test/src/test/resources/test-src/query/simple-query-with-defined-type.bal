@@ -81,7 +81,6 @@ function testSimpleSelectQueryWithWhereClause() returns Person[]{
     return  outputPersonList;
 }
 
-
 function testQueryExpressionForPrimitiveType() returns int[]{
 
     int[] intList = [12, 13, 14, 15, 20, 21, 25];
@@ -92,4 +91,15 @@ function testQueryExpressionForPrimitiveType() returns int[]{
             select value;
 
     return  outputIntList;
+}
+
+function testQueryExpressionWithSelectExpression() returns string[]{
+
+    int[] intList = [1, 2, 3];
+
+    string[] stringOutput =
+            from var value in intList
+            select value.toString();
+
+    return  stringOutput;
 }

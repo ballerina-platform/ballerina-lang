@@ -116,4 +116,17 @@ public class SimpleQueryExpressionWithDefinedTypeTest {
         Assert.assertEquals(((BValueArray) returnValues[0]).getInt(0), 21);
         Assert.assertEquals(((BValueArray) returnValues[0]).getInt(1), 25);
     }
+
+    @Test(description = "Test Query expression with select expression ")
+    public void testQueryExpressionWithSelectExpression() {
+        BValue[] returnValues = BRunUtil.invoke(result, "testQueryExpressionWithSelectExpression");
+        Assert.assertNotNull(returnValues);
+
+        Assert.assertEquals(returnValues.length, 1, "Expected events are not received");
+        Assert.assertTrue(returnValues[0] instanceof BValueArray, "Expected BValueArray type value");
+
+        Assert.assertEquals(((BValueArray) returnValues[0]).getString(0), "1");
+        Assert.assertEquals(((BValueArray) returnValues[0]).getString(1), "2");
+        Assert.assertEquals(((BValueArray) returnValues[0]).getString(2), "3");
+    }
 }

@@ -4370,12 +4370,21 @@ public class Desugar extends BLangNodeVisitor {
         }
 
         BLangBlockStmt foreachBody = ASTBuilderUtil.createBlockStmt(pos);
+
+        BType selectExpressionType = selectClause.expression.type;
+        BType outputArrayType;
+        if (selectExpressionType != null) {
+            outputArrayType = new BArrayType(selectExpressionType);
+        } else {
+            outputArrayType = fromClause.collection.type;
+        }
+
         BLangListConstructorExpr emptyArrayExpr = ASTBuilderUtil.createEmptyArrayLiteral(pos,
-                (BArrayType) fromClause.collection.type);
+                (BArrayType) outputArrayType);
         BVarSymbol emptyArrayVarSymbol = new BVarSymbol(0, new Name("$outputDataArray$"),
-                fromClause.collection.type.tsymbol.pkgID, fromClause.collection.type, env.scope.owner);
+                fromClause.collection.type.tsymbol.pkgID, outputArrayType, env.scope.owner);
         BLangSimpleVariable outputArrayVariable =
-                ASTBuilderUtil.createVariable(pos, "$outputDataArray$", fromClause.collection.type,
+                ASTBuilderUtil.createVariable(pos, "$outputDataArray$", outputArrayType,
                         emptyArrayExpr, emptyArrayVarSymbol);
 
         // Create temp array variable
@@ -4390,11 +4399,16 @@ public class Desugar extends BLangNodeVisitor {
         //    		firstName: person.firstName,
         //            lastName: person.lastName
         //    	};
+
+        if (selectClause.expression.type == null) {
+            selectClause.expression.type = ((BArrayType) fromClause.collection.type).eType;
+        }
+
         BLangInvocation lengthInvocation = createLengthInvocation(pos, outputArrayVariable.symbol);
         lengthInvocation.expr = outputVarRef;
         BLangIndexBasedAccess indexAccessExpr = ASTBuilderUtil.createIndexAccessExpr(outputVarRef, lengthInvocation);
-        indexAccessExpr.type = ((BArrayType) fromClause.collection.type).eType;
-        selectClause.expression.type = ((BArrayType) fromClause.collection.type).eType;
+        indexAccessExpr.type = selectClause.expression.type;
+
         BLangAssignment outputVarAssignment = ASTBuilderUtil.createAssignmentStmt(pos, indexAccessExpr,
                 selectClause.expression);
         // Set the indexed based access expression statement as foreach body
@@ -4431,7 +4445,7 @@ public class Desugar extends BLangNodeVisitor {
         blockStmt.addStatement(parentForEach);
         BLangStatementExpression stmtExpr = ASTBuilderUtil.createStatementExpression(blockStmt, outputVarRef);
 
-        stmtExpr.type = fromClause.collection.type;
+        stmtExpr.type = outputArrayType;
         result = rewrite(stmtExpr, env);
     }
 
