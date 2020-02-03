@@ -2558,6 +2558,13 @@ function nameOfBStringFunc(string nonBStringFuncName) returns string {
     return nonBStringFuncName + "$bstring";
 }
 
+function conditionalBStringName(string nonBStringName, boolean useBString) returns string {
+    if(useBString) {
+        return nameOfBStringFunc(nonBStringName);
+    }
+    return nonBStringName;
+}
+
 function nameOfNonBStringFunc(string funcName) returns string {
     if(isBStringFunc(funcName)) {
         return funcName.substring(0, funcName.length() - 8);

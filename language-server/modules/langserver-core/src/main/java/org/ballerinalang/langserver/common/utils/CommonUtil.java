@@ -28,9 +28,12 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.ballerinalang.jvm.util.BLangConstants;
 import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.commons.LSContext;
+import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.common.modal.BallerinaPackage;
-import org.ballerinalang.langserver.completions.SymbolInfo;
+import org.ballerinalang.langserver.completions.FieldCompletionItem;
+import org.ballerinalang.langserver.completions.StaticCompletionItem;
+import org.ballerinalang.langserver.completions.SymbolCompletionItem;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.ballerinalang.langserver.completions.util.Priority;
 import org.ballerinalang.model.elements.Flag;
@@ -149,37 +152,6 @@ public class CommonUtil {
     }
 
     /**
-     * Get the package URI to the given package name.
-     *
-     * @param pkgName        Name of the package that need the URI for
-     * @param pkgPath        String URI of the current package
-     * @param currentPkgName Name of the current package
-     * @return String URI for the given path.
-     */
-    public static String getPackageURI(String pkgName, String pkgPath, String currentPkgName) {
-        String newPackagePath;
-        // If current package path is not null and current package is not default package continue,
-        // else new package path is same as the current package path.
-        if (pkgPath != null && !currentPkgName.equals(".")) {
-            int indexOfCurrentPkgName = pkgPath.lastIndexOf(currentPkgName);
-            if (indexOfCurrentPkgName >= 0) {
-                newPackagePath = pkgPath.substring(0, indexOfCurrentPkgName);
-            } else {
-                newPackagePath = pkgPath;
-            }
-
-            if (pkgName.equals(".")) {
-                newPackagePath = Paths.get(newPackagePath).toString();
-            } else {
-                newPackagePath = Paths.get(newPackagePath, pkgName).toString();
-            }
-        } else {
-            newPackagePath = pkgPath;
-        }
-        return newPackagePath;
-    }
-
-    /**
      * Calculate the user defined type position.
      *
      * @param position position of the node
@@ -287,11 +259,11 @@ public class CommonUtil {
      * @param annotationSymbol BLang annotation to extract the completion Item
      * @param ctx              LS Service operation context, in this case completion context
      * @param pkgAlias         LS Service operation context, in this case completion context
-     * @return {@link CompletionItem} Completion item for the annotation
+     * @return {@link LSCompletionItem} Completion item for the annotation
      */
-    public static CompletionItem getAnnotationCompletionItem(PackageID packageID, BAnnotationSymbol annotationSymbol,
-                                                             LSContext ctx, CommonToken pkgAlias,
-                                                             Map<String, String> pkgAliasMap) {
+    public static LSCompletionItem getAnnotationCompletionItem(PackageID packageID, BAnnotationSymbol annotationSymbol,
+                                                               LSContext ctx, CommonToken pkgAlias,
+                                                               Map<String, String> pkgAliasMap) {
         PackageID currentPkgID = ctx.get(DocumentServiceKeys.CURRENT_PACKAGE_ID_KEY);
         String currentProjectOrgName = currentPkgID == null ? "" : currentPkgID.orgName.value;
 
@@ -315,10 +287,10 @@ public class CommonUtil {
         annotationItem.setKind(CompletionItemKind.Property);
         if (currentPkgID != null && currentPkgID.name.value.equals(packageID.name.value)) {
             // If the annotation resides within the current package, no need to set the additional text edits
-            return annotationItem;
+            return new SymbolCompletionItem(ctx, annotationSymbol, annotationItem);
         }
         List<BLangImportPackage> imports = ctx.get(DocumentServiceKeys.CURRENT_DOC_IMPORTS_KEY);
-        Optional pkgImport = imports.stream()
+        Optional<BLangImportPackage> pkgImport = imports.stream()
                 .filter(bLangImportPackage -> {
                     String orgName = bLangImportPackage.orgName.value;
                     String importPkgName = (orgName.equals("") ? currentProjectOrgName : orgName) + "/"
@@ -336,7 +308,7 @@ public class CommonUtil {
             annotationItem.setAdditionalTextEdits(getAutoImportTextEdits(packageID.orgName.getValue(),
                     packageID.name.getValue(), ctx));
         }
-        return annotationItem;
+        return new SymbolCompletionItem(ctx, annotationSymbol, annotationItem);
     }
 
     /**
@@ -348,7 +320,7 @@ public class CommonUtil {
      * @param pkgAliasMap      Package alias map for the file
      * @return {@link CompletionItem} Completion item for the annotation
      */
-    public static CompletionItem getAnnotationCompletionItem(PackageID packageID, BAnnotationSymbol annotationSymbol,
+    public static LSCompletionItem getAnnotationCompletionItem(PackageID packageID, BAnnotationSymbol annotationSymbol,
                                                              LSContext ctx, Map<String, String> pkgAliasMap) {
         return getAnnotationCompletionItem(packageID, annotationSymbol, ctx, null, pkgAliasMap);
     }
@@ -537,11 +509,12 @@ public class CommonUtil {
     /**
      * Get completion items list for struct fields.
      *
+     * @param context Language server operation context
      * @param fields List of struct fields
      * @return {@link List}     List of completion items for the struct fields
      */
-    public static List<CompletionItem> getRecordFieldCompletionItems(List<BField> fields) {
-        List<CompletionItem> completionItems = new ArrayList<>();
+    public static List<LSCompletionItem> getRecordFieldCompletionItems(LSContext context, List<BField> fields) {
+        List<LSCompletionItem> completionItems = new ArrayList<>();
         fields.forEach(field -> {
             String insertText = getRecordFieldCompletionInsertText(field, 0);
             CompletionItem fieldItem = new CompletionItem();
@@ -551,7 +524,7 @@ public class CommonUtil {
             fieldItem.setDetail(ItemResolverConstants.FIELD_TYPE);
             fieldItem.setKind(CompletionItemKind.Field);
             fieldItem.setSortText(Priority.PRIORITY120.toString());
-            completionItems.add(fieldItem);
+            completionItems.add(new FieldCompletionItem(context, field, fieldItem));
         });
 
         return completionItems;
@@ -560,10 +533,11 @@ public class CommonUtil {
     /**
      * Get the completion item to fill all the struct fields.
      *
+     * @param context Language Server Operation Context
      * @param fields List of struct fields
-     * @return {@link CompletionItem}   Completion Item to fill all the options
+     * @return {@link LSCompletionItem}   Completion Item to fill all the options
      */
-    public static CompletionItem getFillAllStructFieldsItem(List<BField> fields) {
+    public static LSCompletionItem getFillAllStructFieldsItem(LSContext context, List<BField> fields) {
         List<String> fieldEntries = new ArrayList<>();
 
         for (BField bStructField : fields) {
@@ -582,7 +556,7 @@ public class CommonUtil {
         completionItem.setKind(CompletionItemKind.Property);
         completionItem.setSortText(Priority.PRIORITY110.toString());
 
-        return completionItem;
+        return new StaticCompletionItem(context, completionItem);
     }
 
     /**
@@ -613,6 +587,18 @@ public class CommonUtil {
             return getRecordTypeName((BRecordType) bType, ctx, doSimplify);
         }
         return getShallowBTypeName(bType, ctx);
+    }
+
+    /**
+     * Get the Symbol Name.
+     *
+     * @param bSymbol BSymbol to evaluate
+     * @return captured symbol name
+     */
+    public static String getSymbolName(BSymbol bSymbol) {
+        String nameValue = bSymbol.name.getValue();
+        String[] split = nameValue.split("\\.");
+        return split[split.length - 1];
     }
 
     private static String getShallowBTypeName(BType bType, LSContext ctx) {
@@ -988,10 +974,10 @@ public class CommonUtil {
      * @param context Language Server operation conext
      * @return {@link List} filtered visible symbols
      */
-    public static List<SymbolInfo> getWorkerSymbols(LSContext context) {
-        List<SymbolInfo> visibleSymbols = new ArrayList<>(context.get(CommonKeys.VISIBLE_SYMBOLS_KEY));
-        return visibleSymbols.stream().filter(symbolInfo -> {
-            BType bType = symbolInfo.getScopeEntry().symbol.type;
+    public static List<Scope.ScopeEntry> getWorkerSymbols(LSContext context) {
+        List<Scope.ScopeEntry> visibleSymbols = new ArrayList<>(context.get(CommonKeys.VISIBLE_SYMBOLS_KEY));
+        return visibleSymbols.stream().filter(scopeEntry -> {
+            BType bType = scopeEntry.symbol.type;
             return bType instanceof BFutureType && ((BFutureType) bType).workerDerivative;
         }).collect(Collectors.toList());
     }
@@ -1064,10 +1050,8 @@ public class CommonUtil {
      *
      * @return {@link Predicate}    Predicate for the check
      */
-    public static Predicate<SymbolInfo> invalidSymbolsPredicate() {
-        return symbolInfo -> !symbolInfo.isCustomOperation()
-                && symbolInfo.getScopeEntry() != null
-                && isInvalidSymbol(symbolInfo.getScopeEntry().symbol);
+    public static Predicate<Scope.ScopeEntry> invalidSymbolsPredicate() {
+        return scopeEntry -> scopeEntry != null && isInvalidSymbol(scopeEntry.symbol);
     }
 
     /**

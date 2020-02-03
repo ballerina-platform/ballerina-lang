@@ -22,13 +22,13 @@ import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.completion.CompletionKeys;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
+import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.commons.completion.spi.LSCompletionProvider;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 import org.ballerinalang.langserver.completions.providers.contextproviders.IfWhileConditionContextProvider;
 import org.ballerinalang.langserver.completions.providers.contextproviders.InvocationArgsContextProvider;
 import org.ballerinalang.langserver.completions.providers.contextproviders.StatementContextProvider;
 import org.ballerinalang.langserver.sourceprune.SourcePruneKeys;
-import org.eclipse.lsp4j.CompletionItem;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 
 import java.util.List;
@@ -46,7 +46,7 @@ public class BlockStatementScopeProvider extends AbstractCompletionProvider {
     }
 
     @Override
-    public List<CompletionItem> getCompletions(LSContext context) throws LSCompletionException {
+    public List<LSCompletionItem> getCompletions(LSContext context) throws LSCompletionException {
         Optional<LSCompletionProvider> contextProvider = getContextProvider(context);
         if (contextProvider.isPresent()) {
             return contextProvider.get().getCompletions(context);
