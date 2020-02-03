@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -21,7 +21,6 @@ package org.ballerinalang.packerina.task;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.packerina.buildcontext.BuildContext;
 import org.ballerinalang.packerina.buildcontext.BuildContextField;
-import org.ballerinalang.testerina.core.TesterinaRegistry;
 import org.ballerinalang.testerina.util.TestarinaClassLoader;
 import org.ballerinalang.testerina.util.TesterinaUtils;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
@@ -37,29 +36,9 @@ import java.util.Map;
 import static org.ballerinalang.packerina.utils.TestFileUtils.updateDependencyJarPaths;
 
 /**
- * Task for executing tests.
+ * Task for listing groups defined in tests.
  */
-public class RunTestsTask implements Task {
-
-    private List<String> groupList;
-    private List<String> disableGroupList;
-    private TesterinaRegistry testerinaRegistry = TesterinaRegistry.getInstance();
-
-    public RunTestsTask(List<String> groupList, List<String> disableGroupList) {
-        this.groupList = groupList;
-        this.disableGroupList = disableGroupList;
-        if (disableGroupList != null) {
-            testerinaRegistry.setGroups(this.disableGroupList);
-            testerinaRegistry.setShouldIncludeGroups(false);
-        } else if (groupList != null) {
-            testerinaRegistry.setGroups(this.groupList);
-            testerinaRegistry.setShouldIncludeGroups(true);
-        }
-    }
-
-    public RunTestsTask(){
-
-    }
+public class ListTestGroupsTask implements Task {
 
     @Override
     public void execute(BuildContext buildContext) {
@@ -109,7 +88,7 @@ public class RunTestsTask implements Task {
             programFileMap.put(bLangPackage, classLoader);
         }
         if (programFileMap.size() > 0) {
-            TesterinaUtils.executeTests(sourceRootPath, programFileMap, buildContext.out(), buildContext.err());
+            TesterinaUtils.listTestGroups(sourceRootPath, programFileMap, buildContext.out(), buildContext.err());
         }
     }
 }
