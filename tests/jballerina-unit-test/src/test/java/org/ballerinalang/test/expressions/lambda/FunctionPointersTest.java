@@ -115,6 +115,15 @@ public class FunctionPointersTest {
         invokeFunctionPointerProgram(privateFPProgram, "test2", 3);
     }
 
+    @Test
+    public void testInvokingLambdasWithSameName() {
+        BValue[] returns = BRunUtil.invoke(privateFPProgram, "getCombinedString");
+        Assert.assertNotNull(returns);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertNotNull(returns[0]);
+        Assert.assertEquals(returns[0].stringValue(), "foo bar");
+    }
+
     private void invokeFunctionPointerProgram(CompileResult programToRun, String functionName, int valueToAssert) {
         BValue[] returns = BRunUtil.invoke(programToRun, functionName);
         Assert.assertNotNull(returns);

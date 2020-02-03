@@ -293,6 +293,7 @@
             <class name="org.ballerinalang.test.packaging.PathDependencyTestCase"/>
             <class name="org.ballerinalang.test.packaging.DirectoryTestCase"/>
             <class name="org.ballerinalang.test.packaging.SpiServicesTestCase"/>
+            <class name="org.ballerinalang.test.packaging.SingleBalFileTestCase"/>
         </classes>
     </test>
 
