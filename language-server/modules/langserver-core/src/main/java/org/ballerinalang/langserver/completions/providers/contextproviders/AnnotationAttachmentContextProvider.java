@@ -24,12 +24,12 @@ import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.completion.AnnotationNodeKind;
 import org.ballerinalang.langserver.commons.completion.CompletionKeys;
+import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 import org.ballerinalang.langserver.sourceprune.SourcePruneKeys;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.NodeKind;
-import org.eclipse.lsp4j.CompletionItem;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
@@ -54,7 +54,7 @@ public class AnnotationAttachmentContextProvider extends AbstractCompletionProvi
     }
 
     @Override
-    public List<CompletionItem> getCompletions(LSContext ctx) {
+    public List<LSCompletionItem> getCompletions(LSContext ctx) {
         List<Integer> rhsTokenTypes = ctx.get(SourcePruneKeys.RHS_DEFAULT_TOKEN_TYPES_KEY);
         AnnotationNodeKind annotationNodeKind = ctx.get(CompletionKeys.NEXT_NODE_KEY);
         if (annotationNodeKind == null && rhsTokenTypes.contains(BallerinaParser.EXTERNAL)) {
@@ -70,8 +70,8 @@ public class AnnotationAttachmentContextProvider extends AbstractCompletionProvi
      * 
      * @return {@link List}
      */
-    private ArrayList<CompletionItem> filterAnnotations(AnnotationNodeKind attachmentPoint, LSContext ctx) {
-        ArrayList<CompletionItem> completionItems = new ArrayList<>();
+    private List<LSCompletionItem> filterAnnotations(AnnotationNodeKind attachmentPoint, LSContext ctx) {
+        List<LSCompletionItem> completionItems = new ArrayList<>();
         List<Integer> lhsTokenTypes = ctx.get(SourcePruneKeys.LHS_DEFAULT_TOKEN_TYPES_KEY);
         List<CommonToken> lhsDefaultTokens = ctx.get(SourcePruneKeys.LHS_DEFAULT_TOKENS_KEY);
         Map<String, String> pkgAliasMap = ctx.get(DocumentServiceKeys.CURRENT_DOC_IMPORTS_KEY).stream()
@@ -108,10 +108,10 @@ public class AnnotationAttachmentContextProvider extends AbstractCompletionProvi
         return completionItems;
     }
     
-    private List<CompletionItem> getAnnotationsInModule(LSContext ctx, AnnotationNodeKind kind,
+    private List<LSCompletionItem> getAnnotationsInModule(LSContext ctx, AnnotationNodeKind kind,
                                                         Map<String, String> pkgAliasMap) {
         BLangPackage bLangPackage = ctx.get(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY);
-        List<CompletionItem> completionItems = new ArrayList<>();
+        List<LSCompletionItem> completionItems = new ArrayList<>();
         List<BLangAnnotation> annotations = bLangPackage.topLevelNodes.stream()
                 .filter(topLevelNode -> topLevelNode instanceof BLangAnnotation)
                 .map(topLevelNode -> (BLangAnnotation) topLevelNode)

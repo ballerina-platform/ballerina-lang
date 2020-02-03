@@ -33,8 +33,6 @@ import org.wso2.transport.http.netty.message.HttpCarbonResponse;
 
 import java.util.concurrent.CountDownLatch;
 
-import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_HTTP_PKG_ID;
-
 /**
  * The handshake listener for the client.
  *
@@ -64,14 +62,14 @@ public class WebSocketClientHandshakeListener implements ClientHandshakeListener
         //using only one service endpoint in the client as there can be only one connection.
         webSocketClient.set(WebSocketConstants.CLIENT_RESPONSE_FIELD,
                             HttpUtil.createResponseStruct(carbonResponse));
-        ObjectValue webSocketConnector = BallerinaValues.createObjectValue(PROTOCOL_HTTP_PKG_ID,
+        ObjectValue webSocketConnector = BallerinaValues.createObjectValue(WebSocketConstants.PROTOCOL_HTTP_PKG_ID,
                                                                            WebSocketConstants.WEBSOCKET_CONNECTOR);
-        WebSocketConnectionInfo connectionInfo = getWebSocketOpenConnectionInfo(webSocketConnection,
-                                                                                webSocketConnector);
+        WebSocketConnectionInfo connectionInfo = WebSocketUtil.getWebSocketOpenConnectionInfo(webSocketConnection,
+                webSocketConnector, webSocketClient, wsService);
         WebSocketUtil.populateWebSocketEndpoint(webSocketConnection, webSocketClient);
         clientConnectorListener.setConnectionInfo(connectionInfo);
         if (readyOnConnect) {
-            WebSocketUtil.readFirstFrame(webSocketConnection, webSocketClient);
+            WebSocketUtil.readFirstFrame(webSocketConnection, webSocketConnector);
         }
         countDownLatch.countDown();
         WebSocketObservabilityUtil.observeConnection(connectionInfo);
@@ -79,22 +77,8 @@ public class WebSocketClientHandshakeListener implements ClientHandshakeListener
 
     @Override
     public void onError(Throwable throwable, HttpCarbonResponse response) {
-        if (response != null) {
-            webSocketClient.set(WebSocketConstants.CLIENT_RESPONSE_FIELD, HttpUtil.createResponseStruct(response));
-        }
-        ObjectValue webSocketConnector = BallerinaValues.createObjectValue(PROTOCOL_HTTP_PKG_ID,
-                                                                           WebSocketConstants.WEBSOCKET_CONNECTOR);
-        WebSocketConnectionInfo connectionInfo = getWebSocketOpenConnectionInfo(null, webSocketConnector);
-        countDownLatch.countDown();
+        WebSocketConnectionInfo connectionInfo = WebSocketUtil.getConnectionInfoForOnError(response, webSocketClient,
+                wsService, countDownLatch);
         WebSocketResourceDispatcher.dispatchOnError(connectionInfo, throwable);
-    }
-
-    private WebSocketConnectionInfo getWebSocketOpenConnectionInfo(WebSocketConnection webSocketConnection,
-                                                                   ObjectValue webSocketConnector) {
-        WebSocketConnectionInfo connectionInfo = new WebSocketConnectionInfo(
-                wsService, webSocketConnection, webSocketClient);
-        webSocketConnector.addNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_CONNECTION_INFO, connectionInfo);
-        webSocketClient.set(WebSocketConstants.CLIENT_CONNECTOR_FIELD, webSocketConnector);
-        return connectionInfo;
     }
 }

@@ -35,23 +35,23 @@ import org.slf4j.LoggerFactory;
 public class Ready {
     private static final Logger log = LoggerFactory.getLogger(Ready.class);
 
-    public static Object ready(ObjectValue wsClient) {
-        ObjectValue wsConnection = (ObjectValue) wsClient.get(WebSocketConstants.CLIENT_CONNECTOR_FIELD);
-        WebSocketConnectionInfo connectionInfo = (WebSocketConnectionInfo) wsConnection
-                .getNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_CONNECTION_INFO);
+    public static Object ready(ObjectValue wsConnector) {
+        WebSocketConnectionInfo connectionInfo = (WebSocketConnectionInfo) wsConnector
+                    .getNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_CONNECTION_INFO);
         WebSocketObservabilityUtil.observeResourceInvocation(Scheduler.getStrand(), connectionInfo,
-                                                             WebSocketConstants.RESOURCE_NAME_READY);
+        WebSocketConstants.RESOURCE_NAME_READY);
         try {
-            boolean isReady = wsClient.getBooleanValue(WebSocketConstants.CONNECTOR_IS_READY_FIELD);
+            boolean isReady = wsConnector.getBooleanValue(WebSocketConstants.CONNECTOR_IS_READY_FIELD);
             if (!isReady) {
-                WebSocketUtil.readFirstFrame(connectionInfo.getWebSocketConnection(), wsClient);
+                WebSocketUtil.readFirstFrame(connectionInfo.getWebSocketConnection(), wsConnector);
+                connectionInfo.getWebSocketEndpoint().getMapValue(WebSocketConstants.CLIENT_ENDPOINT_CONFIG).
+                        put(WebSocketConstants.CLIENT_READY_ON_CONNECT, true);
             } else {
                 return new WebSocketException("Already started reading frames");
             }
         } catch (Exception e) {
             log.error("Error occurred when calling ready", e);
-            WebSocketObservabilityUtil.observeError(WebSocketObservabilityUtil.getConnectionInfo(wsConnection),
-                                                    WebSocketObservabilityConstants.ERROR_TYPE_READY,
+            WebSocketObservabilityUtil.observeError(connectionInfo, WebSocketObservabilityConstants.ERROR_TYPE_READY,
                                                     e.getMessage());
             return WebSocketUtil.createErrorByType(e);
         }
