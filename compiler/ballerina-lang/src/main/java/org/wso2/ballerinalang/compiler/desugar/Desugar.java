@@ -4372,11 +4372,11 @@ public class Desugar extends BLangNodeVisitor {
         BLangBlockStmt foreachBody = ASTBuilderUtil.createBlockStmt(pos);
         BLangListConstructorExpr emptyArrayExpr = ASTBuilderUtil.createEmptyArrayLiteral(pos,
                 (BArrayType) fromClause.collection.type);
-        BVarSymbol emptyArrayVarSymbol = new BVarSymbol(0, new Name("outputvar"),
+        BVarSymbol emptyArrayVarSymbol = new BVarSymbol(0, new Name("$outputDataArray$"),
                 fromClause.collection.type.tsymbol.pkgID, fromClause.collection.type, env.scope.owner);
         BLangSimpleVariable outputArrayVariable =
-                ASTBuilderUtil.createVariable(pos, "outputvar", fromClause.collection.type, emptyArrayExpr,
-                        emptyArrayVarSymbol);
+                ASTBuilderUtil.createVariable(pos, "$outputDataArray$", fromClause.collection.type,
+                        emptyArrayExpr, emptyArrayVarSymbol);
 
         // Create temp array variable
         //      Person[] x = [];
