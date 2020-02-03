@@ -43,8 +43,8 @@ dependencies {
     dist 'org.bouncycastle:bcpkix-jdk15on:1.61'
 
     dist 'info.picocli:picocli:4.0.1'
-    dist 'org.apache.kafka:kafka-clients:2.0.1'
-    dist 'org.apache.kafka:kafka_2.11:2.0.1'
+    dist 'org.apache.kafka:kafka-clients:2.3.1'
+    dist 'org.apache.kafka:kafka_2.12:2.3.1'
     dist 'io.ballerina.messaging:broker-auth:0.970.0'
     dist 'io.ballerina.messaging:broker-common:0.970.0'
     dist 'io.ballerina.messaging:broker-coordination:0.970.0'
