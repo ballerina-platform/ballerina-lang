@@ -85,7 +85,7 @@ public class Field {
                 fieldDefaultValue = fieldLabel;
             }
             String fieldName = fieldDescriptor.getName();
-            if (Arrays.stream(BallerinaLexer.ruleNames).anyMatch(fieldName::equalsIgnoreCase) || Names.ERROR.value
+            if (Arrays.stream(RESERVED_LITERAL_NAMES).anyMatch(fieldName::equalsIgnoreCase) || Names.ERROR.value
                     .equalsIgnoreCase(fieldName)) {
                 fieldName = "'" + fieldName;
             }
@@ -141,4 +141,17 @@ public class Field {
         FIELD_LABEL_MAP.put(DescriptorProtos.FieldDescriptorProto.Label.LABEL_REQUIRED, null);
         FIELD_LABEL_MAP.put(DescriptorProtos.FieldDescriptorProto.Label.LABEL_REPEATED, "[]");
     }
+
+    private static final String[] RESERVED_LITERAL_NAMES = {
+            "import", "as", "public", "private", "external", "final", "service", "resource", "function", "object",
+            "record", "annotation", "parameter", "transformer", "worker", "listener", "remote", "xmlns", "returns",
+            "version", "channel", "abstract", "client", "const", "typeof", "source", "from", "on", "group", "by",
+            "having", "order", "where", "followed", "for", "window","every", "within", "snapshot", "inner", "outer",
+            "right", "left", "full", "unidirectional", "forever", "limit", "ascending", "descending", "int", "byte",
+            "float", "decimal", "boolean", "string", "error", "map", "json", "xml", "table", "stream", "any",
+            "typedesc", "type", "future", "anydata", "handle", "var", "new", "__init", "if", "match", "else",
+            "foreach", "while", "continue", "break", "fork", "join", "some", "all", "try", "catch", "finally", "throw",
+            "panic", "trap", "return", "transaction", "abort", "retry", "onretry", "retries", "committed", "aborted",
+            "with", "in", "lock", "untaint", "start", "but", "check", "checkpanic", "primarykey", "is", "flush",
+            "wait", "default"};
 }
