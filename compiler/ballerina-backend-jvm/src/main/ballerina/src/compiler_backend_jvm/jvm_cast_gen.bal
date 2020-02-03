@@ -33,7 +33,7 @@ function generatePlatformCheckCast(jvm:MethodVisitor mv, BalToJVMIndexMap indexM
 }
 
 function generateBToJCheckCast(jvm:MethodVisitor mv, bir:BType sourceType, jvm:JType targetType) {
-    if (targetType is jvm:JRefType && targetType.typeValue == I_STRING_VALUE) {
+    if (targetType is jvm:JRefType && targetType.typeValue == B_STRING_VALUE) {
         generateCheckCastBToJString(mv, sourceType);
         return;
     } else if (targetType is jvm:JByte) {
@@ -58,7 +58,7 @@ function generateBToJCheckCast(jvm:MethodVisitor mv, bir:BType sourceType, jvm:J
         generateCheckCastBToJDouble(mv, sourceType);
         return;
     } else if (targetType is jvm:JRefType) {
-        if (targetType.typeValue == I_STRING_VALUE) {
+        if (targetType.typeValue == B_STRING_VALUE) {
             generateCheckCastBToJString(mv, sourceType);
         } else {
             generateCheckCastBToJRef(mv, sourceType, targetType);
@@ -76,7 +76,7 @@ function generateBToJCheckCast(jvm:MethodVisitor mv, bir:BType sourceType, jvm:J
 function generateCheckCastBToJString(jvm:MethodVisitor mv, bir:BType sourceType) {
     if (sourceType is bir:BTypeString) {
         mv.visitMethodInsn(INVOKESTATIC, STRING_UTILS, "fromString",
-                                io:sprintf("(L%s;)L%s;", STRING_VALUE, I_STRING_VALUE), false);
+                                io:sprintf("(L%s;)L%s;", STRING_VALUE, B_STRING_VALUE), false);
     } else {
         error err = error(io:sprintf("Casting is not supported from '%s' to 'java byte'", sourceType));
         panic err;
@@ -345,7 +345,9 @@ function generateCheckCastJToBFloat(jvm:MethodVisitor mv, jvm:JType sourceType) 
 }
 
 function generateCheckCastJToBString(jvm:MethodVisitor mv, jvm:JType sourceType) {
-    if (sourceType is jvm:JRefType && sourceType.typeValue == I_STRING_VALUE) {
+    if (sourceType is jvm:JRefType && sourceType.typeValue == B_STRING_VALUE) {
+        mv.visitMethodInsn(INVOKEINTERFACE, B_STRING_VALUE, "getValue", io:sprintf("()L%s;", STRING_VALUE) , true);
+    } else if (sourceType is jvm:JRefType && sourceType.typeValue == I_STRING_VALUE) {
         mv.visitMethodInsn(INVOKEINTERFACE, I_STRING_VALUE, "getValue", io:sprintf("()L%s;", STRING_VALUE) , true);
     } else {
         error err = error(io:sprintf("Casting is not supported from '%s' to 'string'", sourceType));
@@ -879,7 +881,7 @@ function generateCastToString(jvm:MethodVisitor mv, bir:BType sourceType, boolea
             sourceType is bir:BUnionType ||
             sourceType is bir:BJSONType) {
         if(useBString) {
-            mv.visitTypeInsn(CHECKCAST, I_STRING_VALUE);
+            mv.visitTypeInsn(CHECKCAST, B_STRING_VALUE);
         } else {
             mv.visitTypeInsn(CHECKCAST, STRING_VALUE);
         }

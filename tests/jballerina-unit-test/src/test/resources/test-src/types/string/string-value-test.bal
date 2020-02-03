@@ -14,3 +14,9 @@ function testError() returns int {
     error err = error(smiley);
     return err.reason().length();
 }
+
+function testArrayStore() returns string[] {
+    string[] arr = [];
+    arr[0] = "h😀llo";
+    return arr;
+}

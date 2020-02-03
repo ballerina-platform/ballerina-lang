@@ -388,7 +388,7 @@ public class RefTypeTests {
         return new HandleValue(m);
     }
 
-    public static StringValue useHandle(HandleValue h) {
+    public static org.ballerinalang.jvm.values.api.BString useHandle(HandleValue h) {
         Map<String, String> m = (Map<String, String>) h.getValue();
         return StringUtils.fromString(m.get("name"));
     }

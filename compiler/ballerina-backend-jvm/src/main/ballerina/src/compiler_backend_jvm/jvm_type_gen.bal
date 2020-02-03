@@ -1098,7 +1098,7 @@ function getTypeDesc(bir:BType bType, boolean useBString = false) returns string
     } else if (bType is bir:BTypeFloat) {
         return "D";
     } else if (bType is bir:BTypeString) {
-        return io:sprintf("L%s;", useBString ? I_STRING_VALUE : STRING_VALUE);
+        return io:sprintf("L%s;", useBString ? B_STRING_VALUE : STRING_VALUE);
     } else if (bType is bir:BTypeBoolean) {
         return "Z";
     } else if (bType is bir:BTypeNil) {

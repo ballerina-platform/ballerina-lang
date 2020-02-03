@@ -37,7 +37,7 @@ public abstract class BError extends RuntimeException implements BRefValue {
         super(reason);
     }
 
-    public BError(StringValue reason) {
+    public BError(BString reason) {
         super(reason.getValue());
     }
     /**

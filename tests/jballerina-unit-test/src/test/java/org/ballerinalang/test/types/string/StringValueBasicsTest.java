@@ -17,9 +17,11 @@
  */
 package org.ballerinalang.test.types.string;
 
+import org.ballerinalang.jvm.values.api.BArray;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
@@ -61,6 +63,13 @@ public class StringValueBasicsTest {
         BValue[] returns = BRunUtil.invoke(result, "testError");
         Assert.assertEquals(returns[0].getClass(), BInteger.class);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 5);
+    }
+
+    @Test
+    public void testArrayStore() {
+        BValue[] returns = BRunUtil.invoke(result, "testArrayStore");
+        Assert.assertEquals(returns[0].getClass(), BValueArray.class);
+        Assert.assertEquals(((BValueArray) returns[0]).getStringArray()[0], "h😀llo");
     }
 
     @AfterClass

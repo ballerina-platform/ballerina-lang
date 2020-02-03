@@ -20,6 +20,7 @@ import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.BmpStringValue;
 import org.ballerinalang.jvm.values.NonBmpStringValue;
 import org.ballerinalang.jvm.values.StringValue;
+import org.ballerinalang.jvm.values.api.BString;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
@@ -109,7 +110,7 @@ public class StringUtils {
         return String.valueOf(s.charAt((int) index));
     }
 
-    public static StringValue fromString(String s) {
+    public static BString fromString(String s) {
         List<Integer> highSurrogates = null;
         for (int i = 0; i < s.length(); i++) {
             char c = s.charAt(i);
