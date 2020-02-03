@@ -3,7 +3,7 @@ import ballerina/log;
 
 final string ASSOCIATED_CONNECTION = "ASSOCIATED_CONNECTION";
 
-// The Url of the remote backend.
+// The URL of the remote backend.
 final string REMOTE_BACKEND = "ws://localhost:9095/retry/ws";
 
 @http:WebSocketServiceConfig {
@@ -13,7 +13,7 @@ service RetryProxyService on new http:Listener(9090) {
 
     // This resource gets invoked when a new client connects.
     // Since messages to the server are not read by the service until the execution of the `onOpen` resource finishes,
-    // operations which should happen before reading messages should be done in the `onOpen` resource.
+    // operations, which should happen before reading messages should be done in the `onOpen` resource.
     resource function onOpen(http:WebSocketCaller caller) {
 
         // Defines the webSocket client endpoint.
@@ -25,7 +25,7 @@ service RetryProxyService on new http:Listener(9090) {
             readyOnConnect: false,
             // Retry configuration options.
             retryConfig: {
-                // The number of milliseconds to delay before attempting to reconnect
+                // The number of milliseconds to delay before attempting to reconnect.
                 intervalInMillis: 3000,
                 // The maximum number of retry attempts.
                 // If the count is zero, the client will retry indefinitely.
@@ -34,7 +34,7 @@ service RetryProxyService on new http:Listener(9090) {
                 backOffFactor: 2.0,
                 // Upper limit of the retry interval in milliseconds. If
                 // `intervalInMillis` into `backOffFactor` value exceeded
-                // `maxWaitIntervalInMillis` interval value.
+                // `maxWaitIntervalInMillis` interval value, then
                 // `maxWaitIntervalInMillis` will be considered as the retry interval.
                 maxWaitIntervalInMillis: 20000
             }
@@ -44,8 +44,8 @@ service RetryProxyService on new http:Listener(9090) {
         wsClientEp.setAttribute(ASSOCIATED_CONNECTION, caller);
         caller.setAttribute(ASSOCIATED_CONNECTION, wsClientEp);
 
-        // Once the client is ready to receive frames the remote function `ready`
-        // of the client need to be called separately.
+        // Once the client is ready to receive frames, the remote function `ready`
+        // of the client needs to be called separately.
         var err = wsClientEp->ready();
         if (err is http:WebSocketError) {
             log:printError("Error calling ready on client", err);
@@ -129,13 +129,13 @@ service RetryClientService = @http:WebSocketServiceConfig {} service {
     }
 };
 
-// Function to retrieve associated client for a particular caller.
+// Function to retrieve the associated client of a particular caller.
 function getAssociatedClientEndpoint(http:WebSocketCaller ep) returns (http:WebSocketClient) {
     http:WebSocketClient wsClient = <http:WebSocketClient>ep.getAttribute(ASSOCIATED_CONNECTION);
     return wsClient;
 }
 
-// Function to retrieve the associated caller for a client.
+// Function to retrieve the associated caller of a client.
 function getAssociatedServerEndpoint(http:WebSocketClient ep) returns (http:WebSocketCaller) {
     http:WebSocketCaller wsEndpoint = <http:WebSocketCaller>ep.getAttribute(ASSOCIATED_CONNECTION);
     return wsEndpoint;
