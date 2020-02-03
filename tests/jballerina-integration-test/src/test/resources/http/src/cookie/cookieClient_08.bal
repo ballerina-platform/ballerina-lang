@@ -14,22 +14,25 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/file;
 import ballerina/http;
 import ballerina/io;
 
 public function main() {
+    http:CsvPersistentCookieHandler myPersistentStore = new("./cookie-test-data/client-8.csv");
     http:Client cookieClientEndpoint = new ("http://localhost:9253", {
-            cookieConfig: { enabled: true }
+            cookieConfig: { enabled: true, persistentCookieHandler: myPersistentStore }
         });
     http:Request req = new;
-    // Server sends similar session cookies in the response for the first request.
-    var response = cookieClientEndpoint->get("/cookie/cookieBackend_2", req);
-    // Sends second request after replacing the old cookie with the new.
-    response = cookieClientEndpoint->get("/cookie/cookieBackend_2", req);
+    // Server sends similar persistent cookies in the response for the first request.
+    var response = cookieClientEndpoint->get("/cookie/cookieBackend_4", req);
+    // Sends the second request after replacing the old cookie with the new.
+    response = cookieClientEndpoint->get("/cookie/cookieBackend_4", req);
     if (response is http:Response) {
         var payload = response.getTextPayload();
         if (payload is string) {
             io:print(payload);
         }
     }
+    error? removeResults = file:remove("./cookie-test-data", true);
 }

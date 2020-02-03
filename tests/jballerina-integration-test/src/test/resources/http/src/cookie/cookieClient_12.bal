@@ -19,35 +19,16 @@ import ballerina/http;
 import ballerina/io;
 
 public function main() {
-    http:CsvPersistentCookieHandler myPersistentStore = new("./cookie-test-data/client-6.csv");
+    http:CsvPersistentCookieHandler myPersistentStore = new("./cookie-test-data/client-12.csv");
     http:Client cookieClientEndpoint = new ("http://localhost:9253", {
-            retryConfig: {
-                intervalInMillis: 3000,
-                count: 3,
-                backOffFactor: 2.0,
-                maxWaitIntervalInMillis: 20000
-            },
-            circuitBreaker: {
-                rollingWindow: {
-                    timeWindowInMillis: 10000,
-                    bucketSizeInMillis: 2000,
-                    requestVolumeThreshold: 0
-                },
-                failureThreshold: 0.2,
-                resetTimeInMillis: 10000,
-                statusCodes: [400, 404, 500]
-            },
-            cookieConfig: {
-                enabled: true,
-                persistentCookieHandler: myPersistentStore
-            }
+            cookieConfig: { enabled: true }
         });
     http:Request req = new;
-    // Server sends cookies in the response for the first request.
+    // Server sends the cookies in the response for the first request.
     var response = cookieClientEndpoint->get("/cookie/cookieBackend_1", req);
     // Second request is with a cookie header and server sends more cookies in the response.
     response = cookieClientEndpoint->get("/cookie/cookieBackend_1", req);
-     // Third request is with the cookie header including all relevant cookies.
+    // Third request is sent with the cookie header including all relevant cookies.
     response = cookieClientEndpoint->get("/cookie/cookieBackend_1", req);
     if (response is http:Response) {
         var payload = response.getTextPayload();
@@ -55,5 +36,5 @@ public function main() {
             io:print(payload);
         }
     }
-    error? removeResults = file:remove("./cookie-test-data", true);
+    error? removeResults = file:remove("./cookie-test-data", true); // Removes persistent store file.
 }
