@@ -18,7 +18,6 @@
 package org.ballerinalang.net.grpc.builder.components;
 
 import com.google.protobuf.DescriptorProtos;
-import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaLexer;
 import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.util.Arrays;
@@ -146,7 +145,7 @@ public class Field {
             "import", "as", "public", "private", "external", "final", "service", "resource", "function", "object",
             "record", "annotation", "parameter", "transformer", "worker", "listener", "remote", "xmlns", "returns",
             "version", "channel", "abstract", "client", "const", "typeof", "source", "from", "on", "group", "by",
-            "having", "order", "where", "followed", "for", "window","every", "within", "snapshot", "inner", "outer",
+            "having", "order", "where", "followed", "for", "window", "every", "within", "snapshot", "inner", "outer",
             "right", "left", "full", "unidirectional", "forever", "limit", "ascending", "descending", "int", "byte",
             "float", "decimal", "boolean", "string", "error", "map", "json", "xml", "table", "stream", "any",
             "typedesc", "type", "future", "anydata", "handle", "var", "new", "__init", "if", "match", "else",
