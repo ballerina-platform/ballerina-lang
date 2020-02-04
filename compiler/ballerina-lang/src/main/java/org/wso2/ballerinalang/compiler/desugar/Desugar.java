@@ -778,7 +778,8 @@ public class Desugar extends BLangNodeVisitor {
 
         BLangSimpleVarRef trxIdOnAbortRef = ASTBuilderUtil.createVariableRef(funcNode.pos, onAbortTrxVar.symbol);
         for (RecordLiteralNode.RecordField field : ((BLangRecordLiteral) annotation.expr).getFields()) {
-            BLangRecordLiteral.BLangRecordKeyValueField keyValuePair = (BLangRecordLiteral.BLangRecordKeyValueField) field;
+            BLangRecordLiteral.BLangRecordKeyValueField keyValuePair =
+                    (BLangRecordLiteral.BLangRecordKeyValueField) field;
             String func = (String) ((BLangLiteral) keyValuePair.getKey()).value;
             switch (func) {
                 case Transactions.TRX_ONCOMMIT_FUNC:
@@ -3067,9 +3068,7 @@ public class Desugar extends BLangNodeVisitor {
         for (RecordLiteralNode.RecordField field : fields) {
             BLangRecordLiteral.BLangRecordKeyValueField keyValue = (BLangRecordLiteral.BLangRecordKeyValueField) field;
             BLangExpression keyExpr = keyValue.key.expr;
-            if (!keyValue.key.computedKey &&
-                    (keyExpr.getKind() == NodeKind.SIMPLE_VARIABLE_REF ||
-                             keyExpr.getKind() == NodeKind.RECORD_LITERAL_VAR_NAME)) {
+            if (!keyValue.key.computedKey && keyExpr.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
                 BLangSimpleVarRef varRef = (BLangSimpleVarRef) keyExpr;
                 keyValue.key.expr = createStringLiteral(varRef.pos, varRef.variableName.value);
             } else {

@@ -811,7 +811,7 @@ class NodeCloner extends BLangNodeVisitor {
     @Override
     public void visit(BLangSimpleVarRef source) {
 
-        BLangSimpleVarRef clone = source.getKind() == NodeKind.RECORD_LITERAL_VAR_NAME ?
+        BLangSimpleVarRef clone = source instanceof BLangRecordVarNameField ?
                 new BLangRecordVarNameField() : new BLangSimpleVarRef();
         source.cloneRef = clone;
         clone.pkgAlias = source.pkgAlias;

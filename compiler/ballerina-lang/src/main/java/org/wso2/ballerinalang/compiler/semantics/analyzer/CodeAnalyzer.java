@@ -1083,8 +1083,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                     BLangRecordLiteral mapLiteral = (BLangRecordLiteral) literal;
                     return IntStream.range(0, mapLiteral.fields.size())
                             .allMatch(i -> isValidStaticMatchPattern(((BMapType) matchType).constraint,
-                                                                     ((BLangRecordKeyValueField) mapLiteral.fields.get(i))
-                                                                             .valueExpr));
+                                                                     ((BLangRecordKeyValueField)
+                                                                              mapLiteral.fields.get(i)).valueExpr));
                 }
                 break;
             case TypeTags.RECORD:
@@ -1800,8 +1800,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                 keyExpr = (BLangRecordLiteral.BLangRecordVarNameField) field;
             }
 
-            if (keyExpr.getKind() == NodeKind.SIMPLE_VARIABLE_REF ||
-                    keyExpr.getKind() == NodeKind.RECORD_LITERAL_VAR_NAME) {
+            if (keyExpr.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
                 BLangSimpleVarRef keyRef = (BLangSimpleVarRef) keyExpr;
                 String fieldName = keyRef.variableName.value;
 

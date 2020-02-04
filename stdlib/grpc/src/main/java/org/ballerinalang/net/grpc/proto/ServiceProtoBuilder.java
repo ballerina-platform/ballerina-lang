@@ -253,8 +253,8 @@ public class ServiceProtoBuilder extends AbstractCompilerPlugin {
             functionRef.pkgAlias = funcPkgAlias;
         }
 
-        BLangRecordLiteral.BLangRecordKeyValueField mapKeyValue = (BLangRecordLiteral.BLangRecordKeyValueField) TreeBuilder
-                .createRecordKeyValue();
+        BLangRecordLiteral.BLangRecordKeyValueField mapKeyValue =
+                (BLangRecordLiteral.BLangRecordKeyValueField) TreeBuilder.createRecordKeyValue();
         literalNode.fields.add(mapKeyValue);
 
         BLangSimpleVarRef mapKeyLiteral = (BLangSimpleVarRef) TreeBuilder.createSimpleVariableReferenceNode();

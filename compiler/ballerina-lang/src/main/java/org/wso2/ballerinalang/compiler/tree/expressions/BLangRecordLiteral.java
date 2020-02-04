@@ -32,7 +32,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static org.ballerinalang.model.tree.NodeKind.RECORD_LITERAL_KEY_VALUE;
-import static org.ballerinalang.model.tree.NodeKind.RECORD_LITERAL_VAR_NAME;
 
 /**
  * The super class of all the record literal expressions.
@@ -138,11 +137,6 @@ public class BLangRecordLiteral extends BLangExpression implements RecordLiteral
      * @since 1.2.0
      */
     public static class BLangRecordVarNameField extends BLangSimpleVarRef implements RecordVarNameFieldNode {
-
-        @Override
-        public NodeKind getKind() {
-            return RECORD_LITERAL_VAR_NAME;
-        }
 
         @Override
         public boolean isKeyValueField() {

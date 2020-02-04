@@ -3495,8 +3495,7 @@ public class TypeChecker extends BLangNodeVisitor {
             }
 
             return BUnionType.create(null, fieldTypes);
-        } else if (keyExpr.getKind() == NodeKind.SIMPLE_VARIABLE_REF ||
-                keyExpr.getKind() == NodeKind.RECORD_LITERAL_VAR_NAME) {
+        } else if (keyExpr.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
             BLangSimpleVarRef varRef = (BLangSimpleVarRef) keyExpr;
             fieldName = names.fromIdNode(varRef.variableName);
         } else if (keyExpr.getKind() == NodeKind.LITERAL && ((BLangLiteral) keyExpr).type.tag == TypeTags.STRING) {
@@ -3531,7 +3530,6 @@ public class TypeChecker extends BLangNodeVisitor {
             }
             return true;
         } else if (keyExpr.getKind() == NodeKind.SIMPLE_VARIABLE_REF ||
-                keyExpr.getKind() == NodeKind.RECORD_LITERAL_VAR_NAME ||
                 (keyExpr.getKind() == NodeKind.LITERAL && ((BLangLiteral) keyExpr).type.tag == TypeTags.STRING)) {
             return true;
         }

@@ -94,7 +94,8 @@ public class ConstantAnalyzer extends BLangNodeVisitor {
 
         for (RecordLiteralNode.RecordField field : recordLiteral.fields) {
             if (field.isKeyValueField()) {
-                BLangRecordLiteral.BLangRecordKeyValueField keyValuePair = (BLangRecordLiteral.BLangRecordKeyValueField) field;
+                BLangRecordLiteral.BLangRecordKeyValueField keyValuePair =
+                        (BLangRecordLiteral.BLangRecordKeyValueField) field;
                 analyzeExpr(keyValuePair.key.expr);
                 analyzeExpr(keyValuePair.valueExpr);
             } else {

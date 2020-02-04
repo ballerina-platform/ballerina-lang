@@ -19,7 +19,6 @@ package org.wso2.ballerinalang.compiler.desugar;
 
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.AttachPoint;
-import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
@@ -536,8 +535,8 @@ public class HttpFiltersDesugar {
         }
 
         // Create pathParamOrder record literal
-        BLangRecordLiteral.BLangRecordKeyValueField pathParamOrderKeyValue = (BLangRecordLiteral.BLangRecordKeyValueField)
-                TreeBuilder.createRecordKeyValue();
+        BLangRecordLiteral.BLangRecordKeyValueField pathParamOrderKeyValue =
+                (BLangRecordLiteral.BLangRecordKeyValueField) TreeBuilder.createRecordKeyValue();
         literalNode.fields.add(pathParamOrderKeyValue);
 
         BLangLiteral keyLiteral = (BLangLiteral) TreeBuilder.createLiteralExpression();
@@ -562,7 +561,8 @@ public class HttpFiltersDesugar {
             paramValueLiteral.type = symTable.intType;
 
             // Create a new key-value.
-            BLangRecordLiteral.BLangRecordKeyValueField pathParamOrderEntry = new BLangRecordLiteral.BLangRecordKeyValueField();
+            BLangRecordLiteral.BLangRecordKeyValueField pathParamOrderEntry =
+                    new BLangRecordLiteral.BLangRecordKeyValueField();
             pathParamOrderEntry.key = new BLangRecordLiteral.BLangRecordKey(paramKeyLiteral);
             pathParamOrderEntry.valueExpr = paramValueLiteral;
             paramOrderLiteralNode.fields.add(pathParamOrderEntry);

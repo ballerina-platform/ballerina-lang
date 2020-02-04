@@ -2549,7 +2549,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             case RECORD_LITERAL_EXPR:
                 ((BLangRecordLiteral) expression).fields.forEach(field -> {
                     if (field.isKeyValueField()) {
-                        BLangRecordLiteral.BLangRecordKeyValueField pair = (BLangRecordLiteral.BLangRecordKeyValueField) field;
+                        BLangRecordLiteral.BLangRecordKeyValueField pair =
+                                (BLangRecordLiteral.BLangRecordKeyValueField) field;
                         checkAnnotConstantExpression(pair.key.expr);
                         checkAnnotConstantExpression(pair.valueExpr);
                     } else {

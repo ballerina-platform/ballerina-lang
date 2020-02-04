@@ -1133,7 +1133,8 @@ public class ClosureDesugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangRecordLiteral.BLangJSONLiteral jsonLiteral) {
         jsonLiteral.fields.forEach(field -> {
-            BLangRecordLiteral.BLangRecordKeyValueField bLangRecordKeyValue = (BLangRecordLiteral.BLangRecordKeyValueField) field;
+            BLangRecordLiteral.BLangRecordKeyValueField bLangRecordKeyValue =
+                    (BLangRecordLiteral.BLangRecordKeyValueField) field;
             bLangRecordKeyValue.key.expr = rewriteExpr(bLangRecordKeyValue.key.expr);
             bLangRecordKeyValue.valueExpr = rewriteExpr(bLangRecordKeyValue.valueExpr);
         });
@@ -1143,7 +1144,8 @@ public class ClosureDesugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangRecordLiteral.BLangMapLiteral mapLiteral) {
         mapLiteral.fields.forEach(field -> {
-            BLangRecordLiteral.BLangRecordKeyValueField bLangRecordKeyValue = (BLangRecordLiteral.BLangRecordKeyValueField) field;
+            BLangRecordLiteral.BLangRecordKeyValueField bLangRecordKeyValue =
+                    (BLangRecordLiteral.BLangRecordKeyValueField) field;
             bLangRecordKeyValue.key.expr = rewriteExpr(bLangRecordKeyValue.key.expr);
             bLangRecordKeyValue.valueExpr = rewriteExpr(bLangRecordKeyValue.valueExpr);
         });
@@ -1153,7 +1155,8 @@ public class ClosureDesugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangRecordLiteral.BLangStructLiteral structLiteral) {
         structLiteral.fields.forEach(field -> {
-            BLangRecordLiteral.BLangRecordKeyValueField bLangRecordKeyValue = (BLangRecordLiteral.BLangRecordKeyValueField) field;
+            BLangRecordLiteral.BLangRecordKeyValueField bLangRecordKeyValue =
+                    (BLangRecordLiteral.BLangRecordKeyValueField) field;
             bLangRecordKeyValue.key.expr = rewriteExpr(bLangRecordKeyValue.key.expr);
             bLangRecordKeyValue.valueExpr = rewriteExpr(bLangRecordKeyValue.valueExpr);
         });
