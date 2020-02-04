@@ -482,20 +482,6 @@ public class CommandUtil {
         return actions;
     }
 
-    private static Position offsetInvocation(String diagnosedContent, Position position) {
-        // Diagnosed message only contains the erroneous part of the line
-        // Thus we offset into last
-        String quotesRemoved = diagnosedContent
-                .replaceAll(".*:", "") // package invocation
-                .replaceAll(".*->", "") // action invocation
-                .replaceAll(".*\\.", ""); // object access invocation
-        int bal = diagnosedContent.length() - quotesRemoved.length();
-        if (bal > 0) {
-            position.setCharacter(position.getCharacter() + bal + 1);
-        }
-        return position;
-    }
-
     private static String getDiagnosedContent(Diagnostic diagnostic, LSContext context, LSDocument document) {
         WorkspaceDocumentManager docManager = context.get(CommonKeys.DOC_MANAGER_KEY);
         StringBuilder content = new StringBuilder();
@@ -527,6 +513,23 @@ public class CommandUtil {
             // ignore error
         }
         return content.toString();
+    }
+
+    private static Position offsetInvocation(String diagnosedContent, Position position) {
+        // Diagnosed message only contains the erroneous part of the line
+        // Thus we offset into last
+        int leftParenthesisIndex = diagnosedContent.indexOf("(");
+        diagnosedContent = (leftParenthesisIndex == -1) ? diagnosedContent
+                : diagnosedContent.substring(0, leftParenthesisIndex);
+        String quotesRemoved = diagnosedContent
+                .replaceAll(".*:", "") // package invocation
+                .replaceAll(".*->", "") // action invocation
+                .replaceAll(".*\\.", ""); // object access invocation
+        int bal = diagnosedContent.length() - quotesRemoved.length();
+        if (bal > 0) {
+            position.setCharacter(position.getCharacter() + bal + 1);
+        }
+        return position;
     }
 
     private static List<TextEdit> getCreateVariableCodeActionEdits(LSContext context, String uri,
