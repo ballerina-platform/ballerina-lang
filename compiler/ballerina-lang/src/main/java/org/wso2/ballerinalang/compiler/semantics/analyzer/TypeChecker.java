@@ -2596,7 +2596,7 @@ public class TypeChecker extends BLangNodeVisitor {
         types.setFromClauseTypedBindingPatternType(fromClause);
 
         SymbolEnv fromClauseEnv = SymbolEnv.createTypeNarrowedEnv(fromClause, parentEnv);
-        handleForeachVariables(fromClause, fromClauseEnv);
+        handleFromClauseVariables(fromClause, fromClauseEnv);
 
         return fromClauseEnv;
     }
@@ -2604,11 +2604,15 @@ public class TypeChecker extends BLangNodeVisitor {
     private SymbolEnv typeCheckWhereClause(BLangWhereClause whereClause, BLangSelectClause selectClause,
                                            SymbolEnv parentEnv) {
         checkExpr(whereClause.expression, parentEnv);
-        SymbolEnv whereClauseEnv = typeNarrower.evaluateTruth(whereClause.expression, selectClause, parentEnv);
-        return whereClauseEnv;
+        return typeNarrower.evaluateTruth(whereClause.expression, selectClause, parentEnv);
     }
 
-    private void handleForeachVariables(BLangFromClause fromClause, SymbolEnv blockEnv) {
+    private void handleFromClauseVariables(BLangFromClause fromClause, SymbolEnv blockEnv) {
+        if (fromClause.variableDefinitionNode == null) {
+            //not-possible
+            return;
+        }
+
         BLangVariable variableNode = (BLangVariable) fromClause.variableDefinitionNode.getVariable();
         // Check whether the foreach node's variables are declared with var.
         if (fromClause.isDeclaredWithVar) {

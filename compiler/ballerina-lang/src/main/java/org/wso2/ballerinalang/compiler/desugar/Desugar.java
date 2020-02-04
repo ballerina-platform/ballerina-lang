@@ -4371,18 +4371,17 @@ public class Desugar extends BLangNodeVisitor {
 
         BLangBlockStmt foreachBody = ASTBuilderUtil.createBlockStmt(pos);
 
-        BType selectExpressionType = selectClause.expression.type;
         BType outputArrayType;
-        if (selectExpressionType != null) {
-            outputArrayType = new BArrayType(selectExpressionType);
+        if (selectClause.expression  != null && selectClause.expression.type != null) {
+            outputArrayType = new BArrayType(selectClause.expression.type);
         } else {
-            outputArrayType = fromClause.collection.type;
+            outputArrayType = fromClause.varType;
         }
 
         BLangListConstructorExpr emptyArrayExpr = ASTBuilderUtil.createEmptyArrayLiteral(pos,
                 (BArrayType) outputArrayType);
         BVarSymbol emptyArrayVarSymbol = new BVarSymbol(0, new Name("$outputDataArray$"),
-                fromClause.collection.type.tsymbol.pkgID, outputArrayType, env.scope.owner);
+                this.env.scope.owner.pkgID, outputArrayType, env.scope.owner);
         BLangSimpleVariable outputArrayVariable =
                 ASTBuilderUtil.createVariable(pos, "$outputDataArray$", outputArrayType,
                         emptyArrayExpr, emptyArrayVarSymbol);
@@ -4401,7 +4400,7 @@ public class Desugar extends BLangNodeVisitor {
         //      };
 
         if (selectClause.expression.type == null) {
-            selectClause.expression.type = ((BArrayType) fromClause.collection.type).eType;
+            selectClause.expression.type = fromClause.varType;
         }
 
         BLangInvocation lengthInvocation = createLengthInvocation(pos, outputArrayVariable.symbol);

@@ -1207,11 +1207,12 @@ class NodeCloner extends BLangNodeVisitor {
 
         BLangFromClause clone = new BLangFromClause();
         source.cloneRef = clone;
-        clone.variableDefinitionNode = clone(source.variableDefinitionNode);
+        clone.variableDefinitionNode = (VariableDefinitionNode) clone((BLangNode) source.variableDefinitionNode);
         clone.collection = clone(source.collection);
         clone.isDeclaredWithVar = source.isDeclaredWithVar;
         clone.varType = source.varType;
         clone.resultType = source.resultType;
+        clone.nillableResultType = source.nillableResultType;
     }
 
     @Override

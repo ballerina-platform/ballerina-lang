@@ -1054,6 +1054,11 @@ public class Types {
     }
 
     public void setFromClauseTypedBindingPatternType(BLangFromClause fromClause) {
+        if (fromClause.collection == null) {
+            //not-possible
+            return;
+        }
+
         BType collectionType = fromClause.collection.type;
         BType varType;
         switch (collectionType.tag) {

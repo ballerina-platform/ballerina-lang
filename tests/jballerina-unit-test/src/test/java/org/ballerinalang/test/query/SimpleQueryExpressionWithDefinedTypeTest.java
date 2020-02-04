@@ -30,7 +30,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 /**
- * This contains methods to test simple query expression with from, where and select clauses
+ * This contains methods to test simple query expression with from, where and select clauses.
  */
 public class SimpleQueryExpressionWithDefinedTypeTest {
 
