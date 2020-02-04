@@ -34,16 +34,23 @@ public interface RecordLiteralNode extends ExpressionNode {
      * @since 1.2.0
      */
     interface RecordField extends Node {
-
+        boolean isKeyValueField();
     }
 
     /**
      * @since 0.94
      */
-    interface RecordKeyValueNode extends RecordField {
+    interface RecordKeyValueFieldNode extends RecordField {
 
         ExpressionNode getKey();
 
         ExpressionNode getValue();
+    }
+
+    /**
+     * @since 1.2.0
+     */
+    interface RecordVarNameFieldNode extends RecordField, SimpleVariableReferenceNode {
+
     }
 }

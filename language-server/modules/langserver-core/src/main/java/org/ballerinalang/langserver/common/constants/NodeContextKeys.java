@@ -15,7 +15,7 @@
  */
 package org.ballerinalang.langserver.common.constants;
 
-import org.ballerinalang.langserver.compiler.LSContext;
+import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.util.references.SymbolReferencesModel;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 

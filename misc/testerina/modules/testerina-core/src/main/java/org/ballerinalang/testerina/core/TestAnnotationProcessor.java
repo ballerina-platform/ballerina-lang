@@ -21,7 +21,6 @@ import org.ballerinalang.compiler.plugins.AbstractCompilerPlugin;
 import org.ballerinalang.compiler.plugins.SupportedAnnotationPackages;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.FunctionNode;
-import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.PackageNode;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
 import org.ballerinalang.testerina.core.entity.Test;
@@ -32,7 +31,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -119,15 +117,16 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
                         String name;
                         BLangExpression valueExpr;
 
-                        if (field.getKind() == NodeKind.RECORD_LITERAL_KEY_VALUE) {
-                            BLangRecordLiteral.BLangRecordKeyValue attributeNode =
-                                    (BLangRecordLiteral.BLangRecordKeyValue) field;
+                        if (field.isKeyValueField()) {
+                            BLangRecordLiteral.BLangRecordKeyValueField attributeNode =
+                                    (BLangRecordLiteral.BLangRecordKeyValueField) field;
                             name = attributeNode.getKey().toString();
                             valueExpr = attributeNode.getValue();
                         } else {
-                            BLangSimpleVarRef varRef = (BLangSimpleVarRef) field;
-                            name = varRef.variableName.value;
-                            valueExpr = varRef;
+                            BLangRecordLiteral.BLangRecordVarNameField varNameField =
+                                    (BLangRecordLiteral.BLangRecordVarNameField) field;
+                            name = varNameField.variableName.value;
+                            valueExpr = varNameField;
                         }
 
                         String value = valueExpr.toString();
@@ -156,15 +155,16 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
                         String name;
                         BLangExpression valueExpr;
 
-                        if (field.getKind() == NodeKind.RECORD_LITERAL_KEY_VALUE) {
-                            BLangRecordLiteral.BLangRecordKeyValue attributeNode =
-                                    (BLangRecordLiteral.BLangRecordKeyValue) field;
+                        if (field.isKeyValueField()) {
+                            BLangRecordLiteral.BLangRecordKeyValueField attributeNode =
+                                    (BLangRecordLiteral.BLangRecordKeyValueField) field;
                             name = attributeNode.getKey().toString();
                             valueExpr = attributeNode.getValue();
                         } else {
-                            BLangSimpleVarRef varRef = (BLangSimpleVarRef) field;
-                            name = varRef.variableName.value;
-                            valueExpr = varRef;
+                            BLangRecordLiteral.BLangRecordVarNameField varNameField =
+                                    (BLangRecordLiteral.BLangRecordVarNameField) field;
+                            name = varNameField.variableName.value;
+                            valueExpr = varNameField;
                         }
 
                         // Check if enable property is present in the annotation

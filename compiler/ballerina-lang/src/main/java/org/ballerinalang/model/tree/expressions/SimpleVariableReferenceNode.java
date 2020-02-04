@@ -24,7 +24,7 @@ import org.ballerinalang.model.tree.IdentifierNode;
  *
  * @since 0.94
  */
-public interface SimpleVariableReferenceNode extends VariableReferenceNode, RecordLiteralNode.RecordField {
+public interface SimpleVariableReferenceNode extends VariableReferenceNode {
 
     IdentifierNode getPackageAlias();
 

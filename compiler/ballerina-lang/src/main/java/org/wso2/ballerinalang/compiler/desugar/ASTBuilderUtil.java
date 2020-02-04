@@ -590,10 +590,10 @@ public class ASTBuilderUtil {
         return recordLiteralNode;
     }
 
-    static BLangRecordLiteral.BLangRecordKeyValue createBLangRecordKeyValue(BLangExpression key,
-                                                                            BLangExpression value) {
-        final BLangRecordLiteral.BLangRecordKeyValue recordKeyValue =
-                (BLangRecordLiteral.BLangRecordKeyValue) TreeBuilder.createRecordKeyValue();
+    static BLangRecordLiteral.BLangRecordKeyValueField createBLangRecordKeyValue(BLangExpression key,
+                                                                                 BLangExpression value) {
+        final BLangRecordLiteral.BLangRecordKeyValueField recordKeyValue =
+                (BLangRecordLiteral.BLangRecordKeyValueField) TreeBuilder.createRecordKeyValue();
         recordKeyValue.key = new BLangRecordLiteral.BLangRecordKey(key);
         recordKeyValue.valueExpr = value;
         return recordKeyValue;

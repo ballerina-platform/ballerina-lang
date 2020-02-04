@@ -526,14 +526,15 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangRecordLiteral recordLiteral) {
         for (RecordLiteralNode.RecordField field : recordLiteral.fields) {
-            if (field.getKind() == NodeKind.RECORD_LITERAL_KEY_VALUE) {
-                BLangRecordLiteral.BLangRecordKeyValue keyValuePair = (BLangRecordLiteral.BLangRecordKeyValue) field;
+            if (field.isKeyValueField()) {
+                BLangRecordLiteral.BLangRecordKeyValueField keyValuePair =
+                        (BLangRecordLiteral.BLangRecordKeyValueField) field;
                 if (keyValuePair.key.computedKey) {
                     analyzeNode(keyValuePair.key.expr, env);
                 }
                 analyzeNode(keyValuePair.valueExpr, env);
             } else {
-                analyzeNode((BLangSimpleVarRef) field, env);
+                analyzeNode((BLangRecordLiteral.BLangRecordVarNameField) field, env);
             }
         }
     }

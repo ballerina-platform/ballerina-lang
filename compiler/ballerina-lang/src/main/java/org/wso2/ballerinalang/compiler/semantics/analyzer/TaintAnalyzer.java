@@ -420,7 +420,6 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         BSymbol objectSymbol = recordNode.symbol;
         SymbolEnv objectEnv = SymbolEnv.createPkgLevelSymbolEnv(recordNode, objectSymbol.scope, env);
         recordNode.fields.forEach(field -> analyzeNode(field, objectEnv));
-        analyzeNode(recordNode.initFunction, objectEnv);
     }
 
     @Override
@@ -900,8 +899,9 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         TaintedStatus isTainted = TaintedStatus.UNTAINTED;
         for (RecordLiteralNode.RecordField field : recordLiteral.fields) {
 
-            if (field.getKind() == NodeKind.RECORD_LITERAL_KEY_VALUE) {
-                BLangRecordLiteral.BLangRecordKeyValue keyValuePair = (BLangRecordLiteral.BLangRecordKeyValue) field;
+            if (field.isKeyValueField()) {
+                BLangRecordLiteral.BLangRecordKeyValueField keyValuePair =
+                        (BLangRecordLiteral.BLangRecordKeyValueField) field;
                 if (keyValuePair.key.computedKey) {
                     keyValuePair.key.expr.accept(this);
                     if (getCurrentAnalysisState().taintedStatus == TaintedStatus.TAINTED) {
@@ -911,7 +911,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
 
                 keyValuePair.valueExpr.accept(this);
             } else {
-                ((BLangSimpleVarRef) field).accept(this);
+                ((BLangRecordLiteral.BLangRecordVarNameField) field).accept(this);
             }
 
             // Used to update the variable this literal is getting assigned to.

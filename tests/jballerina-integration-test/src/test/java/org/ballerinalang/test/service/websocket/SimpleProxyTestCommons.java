@@ -83,7 +83,7 @@ public class SimpleProxyTestCommons extends WebSocketTestCommons {
     }
 
     @AfterClass(description = "Stops Ballerina")
-    public void cleanup() {
+    public void cleanup() throws InterruptedException {
         remoteServer.stop();
     }
 }

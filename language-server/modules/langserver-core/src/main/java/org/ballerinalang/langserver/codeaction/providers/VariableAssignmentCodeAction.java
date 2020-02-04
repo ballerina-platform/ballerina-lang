@@ -16,16 +16,15 @@
 package org.ballerinalang.langserver.codeaction.providers;
 
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.codeaction.BallerinaCodeActionProvider;
-import org.ballerinalang.langserver.codeaction.CodeActionNodeType;
 import org.ballerinalang.langserver.command.CommandUtil;
-import org.ballerinalang.langserver.command.ExecuteCommandKeys;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
-import org.ballerinalang.langserver.compiler.LSContext;
-import org.ballerinalang.langserver.compiler.common.LSDocument;
-import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentException;
-import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
+import org.ballerinalang.langserver.commons.LSContext;
+import org.ballerinalang.langserver.commons.codeaction.CodeActionKeys;
+import org.ballerinalang.langserver.commons.codeaction.CodeActionNodeType;
+import org.ballerinalang.langserver.commons.workspace.LSDocumentIdentifier;
+import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
+import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.Diagnostic;
 
@@ -40,8 +39,8 @@ import java.util.Optional;
  *
  * @since 1.1.1
  */
-@JavaSPIService("org.ballerinalang.langserver.codeaction.BallerinaCodeActionProvider")
-public class VariableAssignmentCodeAction extends BallerinaCodeActionProvider {
+@JavaSPIService("org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider")
+public class VariableAssignmentCodeAction extends AbstractCodeActionProvider {
 
     /**
      * {@inheritDoc}
@@ -50,9 +49,9 @@ public class VariableAssignmentCodeAction extends BallerinaCodeActionProvider {
     public List<CodeAction> getCodeActions(CodeActionNodeType nodeType, LSContext lsContext,
                                            List<Diagnostic> diagnostics) {
         List<CodeAction> actions = new ArrayList<>();
-        WorkspaceDocumentManager documentManager = lsContext.get(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY);
-        Optional<Path> filePath = CommonUtil.getPathFromURI(lsContext.get(ExecuteCommandKeys.FILE_URI_KEY));
-        LSDocument document = null;
+        WorkspaceDocumentManager documentManager = lsContext.get(CodeActionKeys.DOCUMENT_MANAGER_KEY);
+        Optional<Path> filePath = CommonUtil.getPathFromURI(lsContext.get(CodeActionKeys.FILE_URI_KEY));
+        LSDocumentIdentifier document = null;
         try {
             document = documentManager.getLSDocument(filePath.get());
         } catch (WorkspaceDocumentException e) {

@@ -693,8 +693,8 @@ type InstructionGenerator object {
                     io:sprintf("(L%s;L%s;L%s;)V", OBJECT, STRING_VALUE, OBJECT), false);
         } else {
             self.mv.visitMethodInsn(INVOKESTATIC, MAP_UTILS, "handleMapStore",
-                                        io:sprintf("(L%s;L%s;L%s;)V", MAP_VALUE, STRING_VALUE, OBJECT),
-                                        false);
+                                        io:sprintf("(L%s;L%s;L%s;)V",
+                                        MAP_VALUE, IS_BSTRING ? I_STRING_VALUE : STRING_VALUE, OBJECT), false);
         }
     }
 
@@ -876,7 +876,7 @@ type InstructionGenerator object {
         self.storeToVar(inst.lhsOp.variableDcl);
     }
 
-    function generateNewErrorIns(bir:NewError newErrorIns) {
+    function generateNewErrorIns(bir:NewError newErrorIns, boolean useBString) {
         self.mv.visitTypeInsn(NEW, ERROR_VALUE);
         self.mv.visitInsn(DUP);
         // load errorType
@@ -884,7 +884,7 @@ type InstructionGenerator object {
         self.loadVar(newErrorIns.reasonOp.variableDcl);
         self.loadVar(newErrorIns.detailsOp.variableDcl);
         self.mv.visitMethodInsn(INVOKESPECIAL, ERROR_VALUE, "<init>",
-                           io:sprintf("(L%s;L%s;L%s;)V", BTYPE, STRING_VALUE, OBJECT), false);
+                           io:sprintf("(L%s;L%s;L%s;)V", BTYPE, useBString ? I_STRING_VALUE : STRING_VALUE, OBJECT), false);
         self.storeToVar(newErrorIns.lhsOp.variableDcl);
     }
 

@@ -93,12 +93,13 @@ public class ConstantAnalyzer extends BLangNodeVisitor {
     public void visit(BLangRecordLiteral recordLiteral) {
 
         for (RecordLiteralNode.RecordField field : recordLiteral.fields) {
-            if (field.getKind() == NodeKind.RECORD_LITERAL_KEY_VALUE) {
-                BLangRecordLiteral.BLangRecordKeyValue keyValuePair = (BLangRecordLiteral.BLangRecordKeyValue) field;
+            if (field.isKeyValueField()) {
+                BLangRecordLiteral.BLangRecordKeyValueField keyValuePair =
+                        (BLangRecordLiteral.BLangRecordKeyValueField) field;
                 analyzeExpr(keyValuePair.key.expr);
                 analyzeExpr(keyValuePair.valueExpr);
             } else {
-                analyzeExpr((BLangSimpleVarRef) field);
+                analyzeExpr((BLangRecordLiteral.BLangRecordVarNameField) field);
             }
         }
     }

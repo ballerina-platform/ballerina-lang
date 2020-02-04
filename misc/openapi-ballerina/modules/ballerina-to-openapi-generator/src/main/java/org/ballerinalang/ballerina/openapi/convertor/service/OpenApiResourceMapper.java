@@ -62,7 +62,7 @@ import java.util.Set;
 
 import javax.ws.rs.core.MediaType;
 
-import static org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKeyValue;
+import static org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKeyValueField;
 
 /**
  * This class will do resource mapping from ballerina to openApi.
@@ -434,13 +434,13 @@ public class OpenApiResourceMapper {
             BLangRecordLiteral bLiteral = (BLangRecordLiteral) ((BLangAnnotationAttachment) multiResourceInfoAnnotation)
                     .getExpression();
             // In multi resource information there is only one key exist that is `resource information`.
-            BLangRecordKeyValue resourceInformationAttr = bLiteral.fields.size() == 1
-                    ? (BLangRecordKeyValue) bLiteral.fields.get(0)
+            BLangRecordKeyValueField resourceInformationAttr = bLiteral.fields.size() == 1
+                    ? (BLangRecordKeyValueField) bLiteral.fields.get(0)
                     : null;
             if (resourceInformationAttr != null) {
                 for (RecordLiteralNode.RecordField resourceInfo :
                         ((BLangRecordLiteral) resourceInformationAttr.valueExpr).getFields()) {
-                    BLangRecordKeyValue resourceInfoKeyValue = (BLangRecordKeyValue) resourceInfo;
+                    BLangRecordKeyValueField resourceInfoKeyValue = (BLangRecordKeyValueField) resourceInfo;
                     if (((BLangLiteral) resourceInfoKeyValue.key.expr).value.equals(httpMethod)) {
                         addResourceInfoToOperation(((BLangRecordLiteral) resourceInfoKeyValue.valueExpr), operation);
                     }

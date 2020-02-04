@@ -248,13 +248,13 @@ public class AnnotationAttachmentTest {
         BLangRecordLiteral recordLiteral = (BLangRecordLiteral) attachment.expr;
         Assert.assertEquals(recordLiteral.getFields().size(), 1);
 
-        BLangRecordLiteral.BLangRecordKeyValue keyValuePair =
-                (BLangRecordLiteral.BLangRecordKeyValue) recordLiteral.getFields().get(0);
+        BLangRecordLiteral.BLangRecordKeyValueField keyValuePair =
+                (BLangRecordLiteral.BLangRecordKeyValueField) recordLiteral.getFields().get(0);
         Assert.assertEquals(getKeyString(keyValuePair), fieldName);
         Assert.assertEquals(((BLangLiteral) keyValuePair.getValue()).value, value);
     }
 
-    private String getKeyString(BLangRecordLiteral.BLangRecordKeyValue keyValuePair) {
+    private String getKeyString(BLangRecordLiteral.BLangRecordKeyValueField keyValuePair) {
         return keyValuePair.getKey() instanceof BLangSimpleVarRef ?
                     ((BLangSimpleVarRef) keyValuePair.key.expr).variableName.value :
                     ((BLangLiteral) keyValuePair.getKey()).value.toString();
@@ -283,8 +283,8 @@ public class AnnotationAttachmentTest {
         BLangRecordLiteral recordLiteral = (BLangRecordLiteral) attachment.expr;
         Assert.assertEquals(recordLiteral.getFields().size(), 2);
 
-        BLangRecordLiteral.BLangRecordKeyValue keyValuePair =
-                (BLangRecordLiteral.BLangRecordKeyValue) recordLiteral.getFields().get(0);
+        BLangRecordLiteral.BLangRecordKeyValueField keyValuePair =
+                (BLangRecordLiteral.BLangRecordKeyValueField) recordLiteral.getFields().get(0);
         Assert.assertEquals(getKeyString(keyValuePair), "f1");
         BLangExpression expression = keyValuePair.valueExpr;
         Assert.assertEquals(expression.getKind(), NodeKind.ARRAY_LITERAL_EXPR);
@@ -295,10 +295,10 @@ public class AnnotationAttachmentTest {
         Assert.assertEquals(element.getKind(), NodeKind.RECORD_LITERAL_EXPR);
         BLangRecordLiteral elementRecordLiteral = (BLangRecordLiteral) element;
         Assert.assertEquals(elementRecordLiteral.getFields().size(), 2);
-        keyValuePair = (BLangRecordLiteral.BLangRecordKeyValue) elementRecordLiteral.getFields().get(0);
+        keyValuePair = (BLangRecordLiteral.BLangRecordKeyValueField) elementRecordLiteral.getFields().get(0);
         Assert.assertEquals(getKeyString(keyValuePair), "s");
         Assert.assertEquals(((BLangLiteral) keyValuePair.getValue()).value, "s");
-        keyValuePair = (BLangRecordLiteral.BLangRecordKeyValue) elementRecordLiteral.getFields().get(1);
+        keyValuePair = (BLangRecordLiteral.BLangRecordKeyValueField) elementRecordLiteral.getFields().get(1);
         Assert.assertEquals(getKeyString(keyValuePair), "t");
         Assert.assertEquals(((BLangLiteral) keyValuePair.getValue()).value, "t");
 
@@ -306,14 +306,14 @@ public class AnnotationAttachmentTest {
         Assert.assertEquals(element.getKind(), NodeKind.RECORD_LITERAL_EXPR);
         elementRecordLiteral = (BLangRecordLiteral) element;
         Assert.assertEquals(elementRecordLiteral.getFields().size(), 2);
-        keyValuePair = (BLangRecordLiteral.BLangRecordKeyValue) elementRecordLiteral.getFields().get(0);
+        keyValuePair = (BLangRecordLiteral.BLangRecordKeyValueField) elementRecordLiteral.getFields().get(0);
         Assert.assertEquals(getKeyString(keyValuePair), "s");
         Assert.assertEquals(((BLangLiteral) keyValuePair.getValue()).value, "s2");
-        keyValuePair = (BLangRecordLiteral.BLangRecordKeyValue) elementRecordLiteral.getFields().get(1);
+        keyValuePair = (BLangRecordLiteral.BLangRecordKeyValueField) elementRecordLiteral.getFields().get(1);
         Assert.assertEquals(getKeyString(keyValuePair), "t");
         Assert.assertEquals(((BLangLiteral) keyValuePair.getValue()).value, "t2");
 
-        keyValuePair = (BLangRecordLiteral.BLangRecordKeyValue) recordLiteral.getFields().get(1);
+        keyValuePair = (BLangRecordLiteral.BLangRecordKeyValueField) recordLiteral.getFields().get(1);
         Assert.assertEquals(getKeyString(keyValuePair), "f2");
         expression = keyValuePair.valueExpr;
         Assert.assertEquals(expression.getKind(), NodeKind.TUPLE_LITERAL_EXPR);
@@ -324,10 +324,10 @@ public class AnnotationAttachmentTest {
         Assert.assertEquals(element.getKind(), NodeKind.RECORD_LITERAL_EXPR);
         elementRecordLiteral = (BLangRecordLiteral) element;
         Assert.assertEquals(elementRecordLiteral.getFields().size(), 2);
-        keyValuePair = (BLangRecordLiteral.BLangRecordKeyValue) elementRecordLiteral.getFields().get(0);
+        keyValuePair = (BLangRecordLiteral.BLangRecordKeyValueField) elementRecordLiteral.getFields().get(0);
         Assert.assertEquals(getKeyString(keyValuePair), "s");
         Assert.assertEquals(((BLangLiteral) keyValuePair.getValue()).value, "s3");
-        keyValuePair = (BLangRecordLiteral.BLangRecordKeyValue) elementRecordLiteral.getFields().get(1);
+        keyValuePair = (BLangRecordLiteral.BLangRecordKeyValueField) elementRecordLiteral.getFields().get(1);
         Assert.assertEquals(getKeyString(keyValuePair), "t");
         Assert.assertEquals(((BLangLiteral) keyValuePair.getValue()).value, "t3");
 

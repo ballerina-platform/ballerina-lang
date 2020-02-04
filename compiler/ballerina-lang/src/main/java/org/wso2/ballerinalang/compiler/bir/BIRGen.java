@@ -107,7 +107,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangJSONLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangMapLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKey;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKeyValue;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKeyValueField;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangStructLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangFunctionVarRef;
@@ -538,7 +538,7 @@ public class BIRGen extends BLangNodeVisitor {
             case RECORD_LITERAL_EXPR:
                 BLangRecordLiteral recordLiteral = (BLangRecordLiteral) expr;
                 for (RecordLiteralNode.RecordField field : recordLiteral.fields) {
-                    if (!isCompileTimeAnnotationValue(((BLangRecordKeyValue) field).valueExpr)) {
+                    if (!isCompileTimeAnnotationValue(((BLangRecordKeyValueField) field).valueExpr)) {
                         return false;
                     }
                 }
@@ -579,7 +579,7 @@ public class BIRGen extends BLangNodeVisitor {
     private BIRNode.BIRAnnotationRecordValue createAnnotationRecordValue(BLangRecordLiteral recordLiteral) {
         Map<String, BIRAnnotationValue> annotValueEntryMap = new HashMap<>();
         for (RecordLiteralNode.RecordField field : recordLiteral.fields) {
-            BLangRecordKeyValue keyValuePair = (BLangRecordKeyValue) field;
+            BLangRecordKeyValueField keyValuePair = (BLangRecordKeyValueField) field;
 
             BLangLiteral keyLiteral = (BLangLiteral) keyValuePair.key.expr;
             String entryKey = (String) keyLiteral.value;
@@ -1287,7 +1287,7 @@ public class BIRGen extends BLangNodeVisitor {
 
         // Generate code the struct literal.
         for (RecordLiteralNode.RecordField field : astStructLiteralExpr.fields) {
-            BLangRecordKeyValue keyValue = (BLangRecordKeyValue) field;
+            BLangRecordKeyValueField keyValue = (BLangRecordKeyValueField) field;
             BLangRecordKey key = keyValue.key;
             key.expr.accept(this);
             BIROperand keyRegIndex = this.env.targetOperand;
@@ -2025,7 +2025,7 @@ public class BIRGen extends BLangNodeVisitor {
 
         // Handle Map init stuff
         for (RecordLiteralNode.RecordField field : mappingLiteralExpr.fields) {
-            BLangRecordKeyValue keyValue = (BLangRecordKeyValue) field;
+            BLangRecordKeyValueField keyValue = (BLangRecordKeyValueField) field;
             BLangExpression keyExpr = keyValue.key.expr;
             keyExpr.accept(this);
             BIROperand keyRegIndex = this.env.targetOperand;

@@ -60,10 +60,12 @@ public class Strand {
     public Set<SchedulerItem> dependants;
     public ObserverContext observerContext;
     public boolean cancel;
+    public int threadId;
 
     SchedulerItem schedulerItem;
     List<WaitContext> waitingContexts;
     WaitContext waitContext;
+    ItemGroup strandGroup;
 
     private Map<String, Object> globalProps;
     public TransactionLocalContext transactionLocalContext;

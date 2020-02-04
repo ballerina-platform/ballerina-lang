@@ -187,6 +187,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     private DiagnosticCode diagCode;
     private BType resType;
 
+    private Map<BVarSymbol, BType.NarrowedTypes> narrowedTypeInfo;
     // Stack holding the fall-back environments. fall-back env is the env to go back
     // after visiting the current env.
     private Stack<SymbolEnv> prevEnvs = new Stack<>();
@@ -453,7 +454,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     public void visit(BLangRecordTypeNode recordTypeNode) {
         SymbolEnv recordEnv = SymbolEnv.createTypeEnv(recordTypeNode, recordTypeNode.symbol.scope, env);
         recordTypeNode.fields.forEach(field -> analyzeDef(field, recordEnv));
-        analyzeDef(recordTypeNode.initFunction, recordEnv);
         validateDefaultable(recordTypeNode);
     }
 
@@ -2105,13 +2105,27 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             dlog.error(ifNode.expr.pos, DiagnosticCode.INCOMPATIBLE_TYPES, symTable.booleanType, actualType);
         }
 
+        Map<BVarSymbol, BType.NarrowedTypes> prevNarrowedTypeInfo = this.narrowedTypeInfo;
+
         SymbolEnv ifEnv = typeNarrower.evaluateTruth(ifNode.expr, ifNode.body, env);
+
+        this.narrowedTypeInfo = new HashMap<>();
+
         analyzeStmt(ifNode.body, ifEnv);
+
+        if (ifNode.expr.narrowedTypeInfo == null || ifNode.expr.narrowedTypeInfo.isEmpty()) {
+            ifNode.expr.narrowedTypeInfo = this.narrowedTypeInfo;
+        }
+
+        if (prevNarrowedTypeInfo != null) {
+            prevNarrowedTypeInfo.putAll(this.narrowedTypeInfo);
+        }
 
         if (ifNode.elseStmt != null) {
             SymbolEnv elseEnv = typeNarrower.evaluateFalsity(ifNode.expr, ifNode.elseStmt, env);
             analyzeStmt(ifNode.elseStmt, elseEnv);
         }
+        this.narrowedTypeInfo = prevNarrowedTypeInfo;
     }
 
     @Override
@@ -2161,8 +2175,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 BLangRecordLiteral recordLiteral = (BLangRecordLiteral) expression;
                 recordLiteral.type = new BMapType(TypeTags.MAP, symTable.anydataType, null);
                 for (RecordLiteralNode.RecordField field : recordLiteral.fields) {
-                    BLangRecordLiteral.BLangRecordKeyValue recLiteralKeyValue =
-                            (BLangRecordLiteral.BLangRecordKeyValue) field;
+                    BLangRecordLiteral.BLangRecordKeyValueField recLiteralKeyValue =
+                            (BLangRecordLiteral.BLangRecordKeyValueField) field;
                     if (isValidRecordLiteralKey(recLiteralKeyValue)) {
                         BType fieldType = checkStaticMatchPatternLiteralType(recLiteralKeyValue.valueExpr);
                         if (fieldType.tag == TypeTags.NONE) {
@@ -2225,7 +2239,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
     }
 
-    private boolean isValidRecordLiteralKey(BLangRecordLiteral.BLangRecordKeyValue recLiteralKeyValue) {
+    private boolean isValidRecordLiteralKey(BLangRecordLiteral.BLangRecordKeyValueField recLiteralKeyValue) {
         NodeKind kind = recLiteralKeyValue.key.expr.getKind();
         return kind == NodeKind.SIMPLE_VARIABLE_REF ||
                 ((kind == NodeKind.LITERAL || kind == NodeKind.NUMERIC_LITERAL) &&
@@ -2541,12 +2555,13 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 break;
             case RECORD_LITERAL_EXPR:
                 ((BLangRecordLiteral) expression).fields.forEach(field -> {
-                    if (field.getKind() == NodeKind.RECORD_LITERAL_KEY_VALUE) {
-                        BLangRecordLiteral.BLangRecordKeyValue pair = (BLangRecordLiteral.BLangRecordKeyValue) field;
+                    if (field.isKeyValueField()) {
+                        BLangRecordLiteral.BLangRecordKeyValueField pair =
+                                (BLangRecordLiteral.BLangRecordKeyValueField) field;
                         checkAnnotConstantExpression(pair.key.expr);
                         checkAnnotConstantExpression(pair.valueExpr);
                     } else {
-                        checkAnnotConstantExpression((BLangSimpleVarRef) field);
+                        checkAnnotConstantExpression((BLangRecordLiteral.BLangRecordVarNameField) field);
                     }
                 });
                 break;
@@ -2863,16 +2878,24 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         // then the type narrowing will no longer hold. Thus define the original
         // symbol in all the scopes that are affected by this assignment.
         if (!types.isAssignable(rhsType, varSymbol.type)) {
-            defineOriginalSymbol(lhsExpr, varSymbol.originalSymbol, env);
-            env = prevEnvs.peek();
+            if (this.narrowedTypeInfo != null) {
+                // Record the vars for which type narrowing was unset, to define relevant shadowed symbols in branches.
+                BType currentType = ((BLangSimpleVarRef) lhsExpr).symbol.type;
+                this.narrowedTypeInfo.put(typeNarrower.getOriginalVarSymbol(varSymbol),
+                                          new BType.NarrowedTypes(currentType, currentType));
+            }
+
+            defineOriginalSymbol(lhsExpr, typeNarrower.getOriginalVarSymbol(varSymbol), env);
+            env = prevEnvs.pop();
         }
     }
 
     private void defineOriginalSymbol(BLangExpression lhsExpr, BVarSymbol varSymbol, SymbolEnv env) {
         BSymbol foundSym = symResolver.lookupSymbol(env, varSymbol.name, varSymbol.tag);
 
-        // Terminate if we reach the env where the original symbol available
+        // Terminate if we reach the env where the original symbol is available.
         if (foundSym == varSymbol) {
+            prevEnvs.push(env);
             return;
         }
 

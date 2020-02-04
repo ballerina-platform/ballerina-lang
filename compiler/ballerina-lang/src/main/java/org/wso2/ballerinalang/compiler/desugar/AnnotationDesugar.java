@@ -332,7 +332,7 @@ public class AnnotationDesugar {
         }
 
         //Add Root Descriptor
-        BLangRecordLiteral.BLangRecordKeyValue descriptorKeyValue = (BLangRecordLiteral.BLangRecordKeyValue)
+        BLangRecordLiteral.BLangRecordKeyValueField descriptorKeyValue = (BLangRecordLiteral.BLangRecordKeyValueField)
                 TreeBuilder.createRecordKeyValue();
         literalNode.fields.add(descriptorKeyValue);
 

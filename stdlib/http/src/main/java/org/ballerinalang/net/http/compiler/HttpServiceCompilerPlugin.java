@@ -95,14 +95,14 @@ public class HttpServiceCompilerPlugin extends AbstractCompilerPlugin {
         if (annotation.getExpression() == null) {
             return;
         }
-        List<BLangRecordLiteral.BLangRecordKeyValue> annotationValues = new ArrayList<>();
+        List<BLangRecordLiteral.BLangRecordKeyValueField> annotationValues = new ArrayList<>();
         for (RecordLiteralNode.RecordField field : ((BLangRecordLiteral) annotation.getExpression()).fields) {
-            annotationValues.add((BLangRecordLiteral.BLangRecordKeyValue) field);
+            annotationValues.add((BLangRecordLiteral.BLangRecordKeyValueField) field);
         }
 
         int compressionConfigCount = 0;
 
-        for (BLangRecordLiteral.BLangRecordKeyValue keyValue : annotationValues) {
+        for (BLangRecordLiteral.BLangRecordKeyValueField keyValue : annotationValues) {
             // Validate compression configuration
             if (checkMatchingConfigKey(keyValue, ANN_CONFIG_ATTR_COMPRESSION)) {
                 if (compressionConfigCount++ == 1) {
@@ -111,8 +111,8 @@ public class HttpServiceCompilerPlugin extends AbstractCompilerPlugin {
                     return;
                 }
                 for (RecordLiteralNode.RecordField field : ((BLangRecordLiteral) keyValue.valueExpr).getFields()) {
-                    BLangRecordLiteral.BLangRecordKeyValue compressionConfig =
-                            (BLangRecordLiteral.BLangRecordKeyValue) field;
+                    BLangRecordLiteral.BLangRecordKeyValueField compressionConfig =
+                            (BLangRecordLiteral.BLangRecordKeyValueField) field;
                     if (checkMatchingConfigKey(compressionConfig, ANN_CONFIG_ATTR_COMPRESSION_CONTENT_TYPES)) {
                         BLangListConstructorExpr valueArray = (BLangListConstructorExpr) compressionConfig.valueExpr;
                         if (valueArray.getExpressions().isEmpty()) {
@@ -132,7 +132,7 @@ public class HttpServiceCompilerPlugin extends AbstractCompilerPlugin {
         }
     }
 
-    private boolean checkMatchingConfigKey(BLangRecordLiteral.BLangRecordKeyValue keyValue, String key) {
+    private boolean checkMatchingConfigKey(BLangRecordLiteral.BLangRecordKeyValueField keyValue, String key) {
         return ((BLangSimpleVarRef) (keyValue.key).expr).variableName.getValue().equals(key);
     }
 }

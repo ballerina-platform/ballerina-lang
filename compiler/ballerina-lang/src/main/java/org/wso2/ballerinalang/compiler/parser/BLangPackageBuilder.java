@@ -95,7 +95,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNumericLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKey;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKeyValue;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKeyValueField;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordVarRef.BLangRecordVarRefKeyValue;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRestArgsExpression;
@@ -1343,11 +1343,11 @@ public class BLangPackageBuilder {
     }
 
     void addIdentifierRecordField() {
-        recordLiteralNodes.peek().fields.add((BLangSimpleVarRef) exprNodeStack.pop());
+        recordLiteralNodes.peek().fields.add((BLangRecordLiteral.BLangRecordVarNameField) exprNodeStack.pop());
     }
 
     void addKeyValueRecordField(Set<Whitespace> ws, boolean computedKey) {
-        BLangRecordKeyValue keyValue = (BLangRecordKeyValue) TreeBuilder.createRecordKeyValue();
+        BLangRecordKeyValueField keyValue = (BLangRecordKeyValueField) TreeBuilder.createRecordKeyValue();
         keyValue.addWS(ws);
         keyValue.valueExpr = (BLangExpression) exprNodeStack.pop();
         keyValue.key = new BLangRecordKey((BLangExpression) exprNodeStack.pop());
@@ -1400,7 +1400,7 @@ public class BLangPackageBuilder {
         List<ExpressionNode> recordValues = exprNodeListStack.pop();
         int index = 0;
         for (ExpressionNode expr : recordValues) {
-            BLangRecordKeyValue keyValue = (BLangRecordKeyValue) TreeBuilder.createRecordKeyValue();
+            BLangRecordKeyValueField keyValue = (BLangRecordKeyValueField) TreeBuilder.createRecordKeyValue();
             //Value
             keyValue.valueExpr = (BLangExpression) expr;
             //key
@@ -1470,11 +1470,16 @@ public class BLangPackageBuilder {
         Collections.reverse(exprList);
     }
 
-
     void createSimpleVariableReference(DiagnosticPos pos, Set<Whitespace> ws) {
+        createSimpleVariableReference(pos, ws, (BLangSimpleVarRef) TreeBuilder.createSimpleVariableReferenceNode());
+    }
+
+    void createBLangRecordVarRefNameField(DiagnosticPos pos, Set<Whitespace> ws) {
+        createSimpleVariableReference(pos, ws, (BLangSimpleVarRef) TreeBuilder.createRecordVarRefNameFieldNode());
+    }
+
+    private void createSimpleVariableReference(DiagnosticPos pos, Set<Whitespace> ws, BLangSimpleVarRef varRef) {
         BLangNameReference nameReference = nameReferenceStack.pop();
-        BLangSimpleVarRef varRef = (BLangSimpleVarRef) TreeBuilder
-                .createSimpleVariableReferenceNode();
         varRef.pos = pos;
         varRef.addWS(ws);
         varRef.addWS(nameReference.ws);

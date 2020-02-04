@@ -66,14 +66,14 @@ public class ServiceDefinitionValidator {
     private static boolean validateAnnotation(ServiceNode serviceNode, DiagnosticLog dlog) {
         List<AnnotationAttachmentNode> annotations =
                 (List<AnnotationAttachmentNode>) serviceNode.getAnnotationAttachments();
-        List<BLangRecordLiteral.BLangRecordKeyValue> annVals = new ArrayList<>();
+        List<BLangRecordLiteral.BLangRecordKeyValueField> annVals = new ArrayList<>();
         int count = 0;
         for (AnnotationAttachmentNode annotation : annotations) {
             if (annotation.getAnnotationName().getValue().equals(ANN_SERVICE_CONFIG)) {
                 if (annotation.getExpression() != null) {
                     for (RecordLiteralNode.RecordField field :
                             ((BLangRecordLiteral) annotation.getExpression()).fields) {
-                        annVals.add((BLangRecordLiteral.BLangRecordKeyValue) field);
+                        annVals.add((BLangRecordLiteral.BLangRecordKeyValueField) field);
                     }
 
                     count++;
@@ -87,7 +87,7 @@ public class ServiceDefinitionValidator {
         } else if (count == 1) {
             boolean isNameExists = false;
             boolean clientStreaming = false;
-            for (BLangRecordLiteral.BLangRecordKeyValue keyValue : annVals) {
+            for (BLangRecordLiteral.BLangRecordKeyValueField keyValue : annVals) {
                 switch (((BLangSimpleVarRef) (keyValue.key).expr).variableName.getValue()) {
                     case "name":
                         isNameExists = true;

@@ -19,13 +19,15 @@ package org.ballerinalang.langserver.completions.providers.scopeproviders;
 
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.commons.LSContext;
+import org.ballerinalang.langserver.commons.completion.CompletionKeys;
+import org.ballerinalang.langserver.commons.completion.LSCompletionException;
+import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
-import org.ballerinalang.langserver.compiler.LSContext;
-import org.ballerinalang.langserver.completions.CompletionKeys;
+import org.ballerinalang.langserver.completions.SnippetCompletionItem;
+import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 import org.ballerinalang.langserver.completions.providers.contextproviders.AnnotationAttachmentContextProvider;
-import org.ballerinalang.langserver.completions.spi.LSCompletionProvider;
 import org.ballerinalang.langserver.completions.util.Snippet;
-import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.Position;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
@@ -38,16 +40,16 @@ import java.util.List;
 /**
  * ServiceContextResolver.
  */
-@JavaSPIService("org.ballerinalang.langserver.completions.spi.LSCompletionProvider")
-public class ServiceScopeProvider extends LSCompletionProvider {
+@JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.LSCompletionProvider")
+public class ServiceScopeProvider extends AbstractCompletionProvider {
 
     public ServiceScopeProvider() {
         this.attachmentPoints.add(BLangService.class);
     }
 
     @Override
-    public List<CompletionItem> getCompletions(LSContext ctx) {
-        ArrayList<CompletionItem> completionItems = new ArrayList<>();
+    public List<LSCompletionItem> getCompletions(LSContext ctx) throws LSCompletionException {
+        ArrayList<LSCompletionItem> completionItems = new ArrayList<>();
         if (this.isWithinAttachedExpressions(ctx)) {
             // suggest all the visible, defined listeners
             return this.getCompletionItemsAfterOnKeyword(ctx);
@@ -56,11 +58,11 @@ public class ServiceScopeProvider extends LSCompletionProvider {
             return this.getProvider(AnnotationAttachmentContextProvider.class).getCompletions(ctx);
         }
 
-        completionItems.add(Snippet.KW_PUBLIC.get().build(ctx));
+        completionItems.add(new SnippetCompletionItem(ctx, Snippet.KW_PUBLIC.get()));
+        completionItems.add(new SnippetCompletionItem(ctx, Snippet.KW_FUNCTION.get()));
+        completionItems.add(new SnippetCompletionItem(ctx, Snippet.KW_RESOURCE.get()));
         completionItems.addAll(this.getResourceSnippets(ctx));
-        completionItems.add(Snippet.DEF_FUNCTION.get().build(ctx));
-
-        ctx.put(CompletionKeys.ITEM_SORTER_KEY, BLangService.class);
+        completionItems.add(new SnippetCompletionItem(ctx, Snippet.DEF_FUNCTION.get()));
 
         return completionItems;
     }

@@ -16,18 +16,34 @@
 *  under the License.
 */
 import { BallerinaExtension } from '../core';
-import { commands, ExtensionContext } from 'vscode';
-import { setEditorDecorations } from './highlighter';
+import { Highlighter } from './highlighter';
+import { ExtendedLangClient } from '../core/extended-language-client';
+import { window, workspace } from 'vscode';
+import { SemanticHighlightingParams } from './model';
 
 export function activate(ballerinaExtInstance: BallerinaExtension) {
-    const context = <ExtensionContext>ballerinaExtInstance.context;
-    const highlightingInfo: { line: number, token: string }[] =
-        [{ line: 0, token: "WzAsIDMsIDAsIDUsMiwgMSwgMTAsIDUsIDBd" }, //[0, 3, 0, 5,2, 1, 10, 5, 0]
-        { line: 1, token: "WzE2LCAyLCAxLCAyMCwgMywgMCwgMjUsIDIsIDFd" }]; //[16, 2, 1, 20, 3, 0, 25, 2, 1]
 
-    let disposable = commands.registerCommand('ballerina.highlightSyntax', () => {
-        setEditorDecorations(highlightingInfo);
+    const langClient = <ExtendedLangClient>ballerinaExtInstance.langClient;
+    const highlighter: Highlighter = new Highlighter();
+
+    workspace.onDidChangeTextDocument(change => {
+        if (change.contentChanges.length > 0) {
+            change.contentChanges.forEach(each => {
+                highlighter.dispose(each.range.start.line, each.range.end.line);
+            });
+        }
     });
-    
-    context.subscriptions.push(disposable);
+
+    workspace.onDidOpenTextDocument(open=>{
+        highlighter.remove();
+    });
+
+    ballerinaExtInstance.onReady().then(() => {
+        langClient.onNotification('window/highlighting',(semanticHighlightingParams:SemanticHighlightingParams)=>{
+            highlighter.setEditorDecorations(semanticHighlightingParams.lines);
+        });
+    })
+        .catch((e) => {
+            window.showErrorMessage('Could not start semantic highlighting feature', e.message);
+        });
 }

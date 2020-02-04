@@ -20,10 +20,9 @@ import org.ballerinalang.langserver.common.LSNodeVisitor;
 import org.ballerinalang.langserver.common.constants.ContextConstants;
 import org.ballerinalang.langserver.common.constants.NodeContextKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
-import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.hover.util.HoverUtil;
-import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.eclipse.lsp4j.Position;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
@@ -606,14 +605,14 @@ public class PositionTreeVisitor extends LSNodeVisitor {
 
         if (recordLiteral.fields != null) {
             recordLiteral.fields.forEach((field -> {
-                if (field.getKind() == NodeKind.RECORD_LITERAL_KEY_VALUE) {
-                    BLangRecordLiteral.BLangRecordKeyValue bLangRecordKeyValue =
-                            (BLangRecordLiteral.BLangRecordKeyValue) field;
+                if (field.isKeyValueField()) {
+                    BLangRecordLiteral.BLangRecordKeyValueField bLangRecordKeyValue =
+                            (BLangRecordLiteral.BLangRecordKeyValueField) field;
                     if (bLangRecordKeyValue.valueExpr != null) {
                         this.acceptNode(bLangRecordKeyValue.valueExpr);
                     }
                 } else {
-                    this.acceptNode((BLangSimpleVarRef) field);
+                    this.acceptNode((BLangRecordLiteral.BLangRecordVarNameField) field);
                 }
             }));
         }

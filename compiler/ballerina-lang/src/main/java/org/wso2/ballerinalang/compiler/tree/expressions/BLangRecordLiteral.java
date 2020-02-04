@@ -87,15 +87,15 @@ public class BLangRecordLiteral extends BLangExpression implements RecordLiteral
      *
      * @since 0.94
      */
-    public static class BLangRecordKeyValue extends BLangNode implements RecordKeyValueNode {
+    public static class BLangRecordKeyValueField extends BLangNode implements RecordKeyValueFieldNode {
 
         public BLangRecordKey key;
         public BLangExpression valueExpr;
 
-        public BLangRecordKeyValue() {
+        public BLangRecordKeyValueField() {
         }
 
-        public BLangRecordKeyValue(BLangRecordKey key, BLangExpression valueExpr) {
+        public BLangRecordKeyValueField(BLangRecordKey key, BLangExpression valueExpr) {
             this.key = key;
             this.valueExpr = valueExpr;
         }
@@ -123,6 +123,24 @@ public class BLangRecordLiteral extends BLangExpression implements RecordLiteral
         @Override
         public String toString() {
             return key + ((valueExpr != null) ? ": " + valueExpr : "");
+        }
+
+        @Override
+        public boolean isKeyValueField() {
+            return true;
+        }
+    }
+
+    /**
+     * This static inner class represents a variable name as a field in a mapping constructor.
+     *
+     * @since 1.2.0
+     */
+    public static class BLangRecordVarNameField extends BLangSimpleVarRef implements RecordVarNameFieldNode {
+
+        @Override
+        public boolean isKeyValueField() {
+            return false;
         }
     }
 

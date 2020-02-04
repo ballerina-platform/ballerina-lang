@@ -23,17 +23,20 @@ import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.SnippetBlock;
 import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
-import org.ballerinalang.langserver.compiler.LSContext;
-import org.ballerinalang.langserver.completions.CompletionKeys;
+import org.ballerinalang.langserver.commons.LSContext;
+import org.ballerinalang.langserver.commons.completion.CompletionKeys;
+import org.ballerinalang.langserver.commons.completion.LSCompletionException;
+import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.CompletionSubRuleParser;
-import org.ballerinalang.langserver.completions.SymbolInfo;
-import org.ballerinalang.langserver.completions.spi.LSCompletionProvider;
+import org.ballerinalang.langserver.completions.SnippetCompletionItem;
+import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 import org.ballerinalang.langserver.completions.util.Snippet;
 import org.ballerinalang.langserver.completions.util.filters.StatementTemplateFilter;
 import org.ballerinalang.langserver.completions.util.filters.SymbolFilters;
-import org.eclipse.lsp4j.CompletionItem;
+import org.ballerinalang.langserver.sourceprune.SourcePruneKeys;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
+import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
@@ -47,16 +50,16 @@ import java.util.stream.IntStream;
 /**
  * Parser rule based statement context provider.
  */
-@JavaSPIService("org.ballerinalang.langserver.completions.spi.LSCompletionProvider")
-public class StatementContextProvider extends LSCompletionProvider {
+@JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.LSCompletionProvider")
+public class StatementContextProvider extends AbstractCompletionProvider {
 
     public StatementContextProvider() {
         this.attachmentPoints.add(StatementContextProvider.class);
     }
 
     @Override
-    public List<CompletionItem> getCompletions(LSContext context) {
-        List<CommonToken> lhsTokens = context.get(CompletionKeys.LHS_TOKENS_KEY);
+    public List<LSCompletionItem> getCompletions(LSContext context) throws LSCompletionException {
+        List<CommonToken> lhsTokens = context.get(SourcePruneKeys.LHS_TOKENS_KEY);
         Boolean inWorkerReturn = context.get(CompletionKeys.IN_WORKER_RETURN_CONTEXT_KEY);
         int invocationOrDelimiterTokenType = context.get(CompletionKeys.INVOCATION_TOKEN_TYPE_KEY);
 
@@ -92,70 +95,68 @@ public class StatementContextProvider extends LSCompletionProvider {
             return this.getProvider(InvocationOrFieldAccessContextProvider.class).getCompletions(context);
         }
 
-        Boolean forceRemovedStmt = context.get(CompletionKeys.FORCE_REMOVED_STATEMENT_WITH_PARENTHESIS_KEY);
-        ArrayList<CompletionItem> completionItems = new ArrayList<>();
-        List<SymbolInfo> filteredList = new ArrayList<>(context.get(CommonKeys.VISIBLE_SYMBOLS_KEY));
+        Boolean forceRemovedStmt = context.get(SourcePruneKeys.FORCE_REMOVED_STATEMENT_WITH_PARENTHESIS_KEY);
+        ArrayList<LSCompletionItem> completionItems;
+        List<Scope.ScopeEntry> filteredList = new ArrayList<>(context.get(CommonKeys.VISIBLE_SYMBOLS_KEY));
         if (forceRemovedStmt == null || !forceRemovedStmt) {
             // Add the visible static completion items
-            completionItems.addAll(getStaticCompletionItems(context));
+            completionItems = new ArrayList<>(getStaticCompletionItems(context));
             // Add the statement templates
-            Either<List<CompletionItem>, List<SymbolInfo>> itemList = SymbolFilters.get(StatementTemplateFilter.class)
-                    .filterItems(context);
+            Either<List<LSCompletionItem>, List<Scope.ScopeEntry>> itemList =
+                    SymbolFilters.get(StatementTemplateFilter.class).filterItems(context);
             completionItems.addAll(this.getCompletionItemList(itemList, context));
-            completionItems.addAll(this.getTypeguardDestructuredItems(filteredList, context));
+            completionItems.addAll(this.getTypeguardDestructedItems(filteredList, context));
         } else {
             return this.getProvider(InvocationArgsContextProvider.class).getCompletions(context);
         }
 
         filteredList.removeIf(this.attachedSymbolFilter());
-        completionItems.addAll(this.getCompletionItemList(filteredList, context));
+        completionItems.addAll(this.getCompletionItemList(new ArrayList<>(filteredList), context));
         completionItems.addAll(this.getPackagesCompletionItems(context));
         // Now we need to sort the completion items and populate the completion items specific to the scope owner
         // as an example, resource, action, function scopes are different from the if-else, while, and etc
-        Class itemSorter = context.get(CompletionKeys.BLOCK_OWNER_KEY).getClass();
-        context.put(CompletionKeys.ITEM_SORTER_KEY, itemSorter);
 
         return completionItems;
     }
 
-    private List<CompletionItem> getStaticCompletionItems(LSContext context) {
+    private List<LSCompletionItem> getStaticCompletionItems(LSContext context) {
 
-        ArrayList<CompletionItem> completionItems = new ArrayList<>();
+        ArrayList<LSCompletionItem> completionItems = new ArrayList<>();
 
         // Add the xmlns snippet
-        completionItems.add(Snippet.STMT_NAMESPACE_DECLARATION.get().build(context));
+        completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_NAMESPACE_DECLARATION.get()));
         // Add the var keyword
-        completionItems.add(Snippet.KW_VAR.get().build(context));
+        completionItems.add(new SnippetCompletionItem(context, Snippet.KW_VAR.get()));
         // Add the wait keyword
-        completionItems.add(Snippet.KW_WAIT.get().build(context));
+        completionItems.add(new SnippetCompletionItem(context, Snippet.KW_WAIT.get()));
         // Add the start keyword
-        completionItems.add(Snippet.KW_START.get().build(context));
+        completionItems.add(new SnippetCompletionItem(context, Snippet.KW_START.get()));
         // Add the flush keyword
-        completionItems.add(Snippet.KW_FLUSH.get().build(context));
+        completionItems.add(new SnippetCompletionItem(context, Snippet.KW_FLUSH.get()));
         // Add the function keyword
-        completionItems.add(Snippet.KW_FUNCTION.get().build(context));
+        completionItems.add(new SnippetCompletionItem(context, Snippet.KW_FUNCTION.get()));
         // Add the error snippet
-        completionItems.add(Snippet.DEF_ERROR.get().build(context));
+        completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_ERROR.get()));
         // Add the checkpanic keyword
-        completionItems.add(Snippet.KW_CHECK_PANIC.get().build(context));
+        completionItems.add(new SnippetCompletionItem(context, Snippet.KW_CHECK_PANIC.get()));
         // Add the final keyword
-        completionItems.add(Snippet.KW_FINAL.get().build(context));
+        completionItems.add(new SnippetCompletionItem(context, Snippet.KW_FINAL.get()));
 
         return completionItems;
     }
 
-    private List<CompletionItem> getTypeguardDestructuredItems(List<SymbolInfo> symbolInfoList, LSContext ctx) {
+    private List<LSCompletionItem> getTypeguardDestructedItems(List<Scope.ScopeEntry> scopeEntries,
+                                                             LSContext ctx) {
         List<String> capturedSymbols = new ArrayList<>();
         // In the case of type guarded variables multiple symbols with the same symbol name and we ignore those
-        return symbolInfoList.stream()
-                .filter(symbolInfo -> (symbolInfo.getScopeEntry().symbol.type instanceof BUnionType)
-                        && !capturedSymbols.contains(symbolInfo.getScopeEntry().symbol.name.value))
-                .map(symbolInfo -> {
-                    capturedSymbols.add(symbolInfo.getSymbolName());
+        return scopeEntries.stream()
+                .filter(scopeEntry -> (scopeEntry.symbol.type instanceof BUnionType)
+                        && !capturedSymbols.contains(scopeEntry.symbol.name.value))
+                .map(entry -> {
+                    capturedSymbols.add(entry.symbol.name.getValue());
                     List<BType> errorTypes = new ArrayList<>();
                     List<BType> resultTypes = new ArrayList<>();
-                    List<BType> members =
-                            new ArrayList<>(((BUnionType) symbolInfo.getScopeEntry().symbol.type).getMemberTypes());
+                    List<BType> members = new ArrayList<>(((BUnionType) entry.symbol.type).getMemberTypes());
                     members.forEach(bType -> {
                         if (bType.tag == TypeTags.ERROR) {
                             errorTypes.add(bType);
@@ -166,7 +167,7 @@ public class StatementContextProvider extends LSCompletionProvider {
                     if (errorTypes.size() == 1) {
                         resultTypes.addAll(errorTypes);
                     }
-                    String symbolName = symbolInfo.getScopeEntry().symbol.name.getValue();
+                    String symbolName = entry.symbol.name.getValue();
                     String label = symbolName + " - typeguard " + symbolName;
                     String detail = "Destructure the variable " + symbolName + " with typeguard";
                     StringBuilder snippet = new StringBuilder();
@@ -195,8 +196,9 @@ public class StatementContextProvider extends LSCompletionProvider {
                     
                     snippet.append(restSnippet);
 
-                    return new SnippetBlock(label, snippet.toString(), detail,
-                            SnippetBlock.SnippetType.SNIPPET).build(ctx);
+                    SnippetBlock cItemSnippet = new SnippetBlock(label, snippet.toString(), detail,
+                            SnippetBlock.SnippetType.SNIPPET);
+                    return new SnippetCompletionItem(ctx, cItemSnippet);
                 }).collect(Collectors.toList());
     }
 }

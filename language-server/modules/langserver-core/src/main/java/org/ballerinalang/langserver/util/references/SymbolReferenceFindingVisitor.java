@@ -18,10 +18,9 @@ package org.ballerinalang.langserver.util.references;
 import org.ballerinalang.langserver.common.LSNodeVisitor;
 import org.ballerinalang.langserver.common.constants.NodeContextKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
-import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.model.elements.Flag;
-import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.eclipse.lsp4j.TextDocumentPositionParams;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
@@ -659,13 +658,13 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
     @Override
     public void visit(BLangRecordLiteral recordLiteral) {
         recordLiteral.fields.forEach(field -> {
-            if (field.getKind() == NodeKind.RECORD_LITERAL_KEY_VALUE) {
-                BLangRecordLiteral.BLangRecordKeyValue bLangRecordKeyValue =
-                        (BLangRecordLiteral.BLangRecordKeyValue) field;
+            if (field.isKeyValueField()) {
+                BLangRecordLiteral.BLangRecordKeyValueField bLangRecordKeyValue =
+                        (BLangRecordLiteral.BLangRecordKeyValueField) field;
                 this.acceptNode(bLangRecordKeyValue.key.expr);
                 this.acceptNode(bLangRecordKeyValue.valueExpr);
             } else {
-                this.acceptNode((BLangSimpleVarRef) field);
+                this.acceptNode((BLangRecordLiteral.BLangRecordVarNameField) field);
             }
         });
     }

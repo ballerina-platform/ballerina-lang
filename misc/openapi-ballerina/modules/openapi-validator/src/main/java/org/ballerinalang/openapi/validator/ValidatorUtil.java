@@ -24,7 +24,6 @@ import io.swagger.v3.oas.models.media.Schema;
 import io.swagger.v3.parser.OpenAPIV3Parser;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.FunctionNode;
-import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.ServiceNode;
 import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.ballerinalang.util.diagnostic.DiagnosticLog;
@@ -167,15 +166,16 @@ class ValidatorUtil {
                         BLangExpression keyExpr;
                         BLangExpression valueExpr;
 
-                        if (field.getKind() == NodeKind.RECORD_LITERAL_KEY_VALUE) {
-                            BLangRecordLiteral.BLangRecordKeyValue keyValue =
-                                    (BLangRecordLiteral.BLangRecordKeyValue) field;
+                        if (field.isKeyValueField()) {
+                            BLangRecordLiteral.BLangRecordKeyValueField keyValue =
+                                    (BLangRecordLiteral.BLangRecordKeyValueField) field;
                             keyExpr = keyValue.getKey();
                             valueExpr = keyValue.getValue();
                         } else {
-                            BLangSimpleVarRef varRef = (BLangSimpleVarRef) field;
-                            keyExpr = varRef;
-                            valueExpr = varRef;
+                            BLangRecordLiteral.BLangRecordVarNameField varNameField =
+                                    (BLangRecordLiteral.BLangRecordVarNameField) field;
+                            keyExpr = varNameField;
+                            valueExpr = varNameField;
                         }
 
                         if (keyExpr instanceof BLangSimpleVarRef) {

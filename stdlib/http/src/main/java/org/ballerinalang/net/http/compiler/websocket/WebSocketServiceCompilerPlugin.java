@@ -92,12 +92,12 @@ public class WebSocketServiceCompilerPlugin extends AbstractCompilerPlugin {
     }
 
     private void validatePathAnnotationForPathParam(AnnotationAttachmentNode annotation) {
-        List<BLangRecordLiteral.BLangRecordKeyValue> keyValues = new ArrayList<>();
+        List<BLangRecordLiteral.BLangRecordKeyValueField> keyValues = new ArrayList<>();
         for (RecordLiteralNode.RecordField field : ((BLangRecordLiteral) annotation.getExpression()).fields) {
-            keyValues.add((BLangRecordLiteral.BLangRecordKeyValue) field);
+            keyValues.add((BLangRecordLiteral.BLangRecordKeyValueField) field);
         }
 
-        Optional<BLangRecordLiteral.BLangRecordKeyValue> pathPair = keyValues.stream().filter(
+        Optional<BLangRecordLiteral.BLangRecordKeyValueField> pathPair = keyValues.stream().filter(
                 pair -> pair.key.toString().equals("path")).findAny();
         if (pathPair.isPresent()) {
             BLangExpression valueExpr = pathPair.get().valueExpr;
