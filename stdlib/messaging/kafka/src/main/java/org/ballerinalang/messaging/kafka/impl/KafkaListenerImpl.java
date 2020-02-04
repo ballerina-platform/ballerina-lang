@@ -76,9 +76,7 @@ public class KafkaListenerImpl implements KafkaListener {
      * {@inheritDoc}
      */
     @Override
-    public void onRecordsReceived(ConsumerRecords records,
-                                  KafkaConsumer kafkaConsumer,
-                                  String groupId,
+    public void onRecordsReceived(ConsumerRecords records, KafkaConsumer kafkaConsumer, String groupId,
                                   KafkaPollCycleFutureListener consumer) {
         listener.addNativeData(NATIVE_CONSUMER, kafkaConsumer);
         executeResource(listener, consumer, records, groupId);
@@ -97,11 +95,11 @@ public class KafkaListenerImpl implements KafkaListener {
     private void executeResource(ObjectValue listener, ConsumerRecords records, String groupId) {
         if (ObserveUtils.isTracingEnabled()) {
             Map<String, Object> properties = getNewObserverContextInProperties(listener);
-            Executor.submit(this.scheduler, service, KAFKA_RESOURCE_ON_MESSAGE, callback,
-                            properties, getResourceParameters(service, this.listener, records, groupId));
+            Executor.submit(this.scheduler, service, KAFKA_RESOURCE_ON_MESSAGE, callback, properties,
+                            getResourceParameters(service, this.listener, records, groupId));
         } else {
-            Executor.submit(this.scheduler, service, KAFKA_RESOURCE_ON_MESSAGE, callback,
-                            null, getResourceParameters(service, this.listener, records, groupId));
+            Executor.submit(this.scheduler, service, KAFKA_RESOURCE_ON_MESSAGE, callback, null,
+                            getResourceParameters(service, this.listener, records, groupId));
         }
     }
 
@@ -119,9 +117,9 @@ public class KafkaListenerImpl implements KafkaListener {
 
     private Map<String, Object> getNewObserverContextInProperties(ObjectValue listener) {
         Map<String, Object> properties = new HashMap<>();
-        KafkaObserverContext observerContext = new KafkaObserverContext(
-                KafkaObservabilityConstants.CONTEXT_CONSUMER, KafkaUtils.getClientId(listener),
-                KafkaUtils.getBootstrapServers(listener));
+        KafkaObserverContext observerContext = new KafkaObserverContext(KafkaObservabilityConstants.CONTEXT_CONSUMER,
+                                                                        KafkaUtils.getClientId(listener),
+                                                                        KafkaUtils.getBootstrapServers(listener));
         properties.put(ObservabilityConstants.KEY_OBSERVER_CONTEXT, observerContext);
         return properties;
     }

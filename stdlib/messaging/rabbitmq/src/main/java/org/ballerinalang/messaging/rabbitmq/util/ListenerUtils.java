@@ -29,6 +29,9 @@ import org.ballerinalang.messaging.rabbitmq.MessageDispatcher;
 import org.ballerinalang.messaging.rabbitmq.RabbitMQConnectorException;
 import org.ballerinalang.messaging.rabbitmq.RabbitMQConstants;
 import org.ballerinalang.messaging.rabbitmq.RabbitMQUtils;
+import org.ballerinalang.messaging.rabbitmq.observability.RabbitMQMetricsUtil;
+import org.ballerinalang.messaging.rabbitmq.observability.RabbitMQObservabilityConstants;
+import org.ballerinalang.messaging.rabbitmq.observability.RabbitMQTracingUtil;
 
 import java.io.IOException;
 import java.io.PrintStream;
@@ -51,6 +54,7 @@ public class ListenerUtils {
         listenerObjectValue.addNativeData(RabbitMQConstants.CHANNEL_NATIVE_OBJECT, channel);
         listenerObjectValue.addNativeData(RabbitMQConstants.CONSUMER_SERVICES, services);
         listenerObjectValue.addNativeData(RabbitMQConstants.STARTED_SERVICES, startedServices);
+        RabbitMQMetricsUtil.reportNewConsumer(channel);
     }
 
     public static Object registerListener(ObjectValue listenerObjectValue, ObjectValue service) {
@@ -62,6 +66,7 @@ public class ListenerUtils {
         try {
             declareQueueIfNotExists(service, channel);
         } catch (IOException e) {
+            RabbitMQMetricsUtil.reportError(channel, RabbitMQObservabilityConstants.ERROR_TYPE_REGISTER);
             return RabbitMQUtils.returnErrorValue("I/O Error occurred while declaring the queue: " +
                     e.getMessage());
         }
@@ -102,12 +107,14 @@ public class ListenerUtils {
                     try {
                         handleBasicQos(channel, queueConfig);
                     } catch (RabbitMQConnectorException exception) {
+                        RabbitMQMetricsUtil.reportError(channel, RabbitMQObservabilityConstants.ERROR_TYPE_START);
                         return RabbitMQUtils.returnErrorValue("Error occurred while setting the QoS settings."
                                 + exception.getDetail());
                     }
                 }
                 MessageDispatcher messageDispatcher = new MessageDispatcher(service, channel, autoAck, runtime);
                 messageDispatcher.receiveMessages(listenerObjectValue);
+                RabbitMQMetricsUtil.reportSubscription(channel, service);
             }
         }
         started = true;
@@ -128,12 +135,15 @@ public class ListenerUtils {
             channel.basicCancel(serviceName);
             console.println("[ballerina/rabbitmq] Consumer service unsubscribed from the queue " + queueName);
         } catch (IOException e) {
+            RabbitMQMetricsUtil.reportError(channel, RabbitMQObservabilityConstants.ERROR_TYPE_DETACH);
             return RabbitMQUtils.returnErrorValue("Error occurred while detaching the service");
         }
         listenerObjectValue.addNativeData(RabbitMQConstants.CONSUMER_SERVICES,
                 RabbitMQUtils.removeFromList(services, service));
         listenerObjectValue.addNativeData(RabbitMQConstants.STARTED_SERVICES,
                 RabbitMQUtils.removeFromList(startedServices, service));
+        RabbitMQMetricsUtil.reportUnsubscription(channel, service);
+        RabbitMQTracingUtil.traceQueueResourceInvocation(channel, queueName);
         return null;
     }
 
@@ -142,6 +152,7 @@ public class ListenerUtils {
         if (channel != null) {
             return channel;
         } else {
+            RabbitMQMetricsUtil.reportError(RabbitMQObservabilityConstants.ERROR_TYPE_GET_CHANNEL);
             return RabbitMQUtils.returnErrorValue("Error occurred while retrieving the Channel," +
                     " Channel is not properly initialized");
         }
@@ -158,6 +169,7 @@ public class ListenerUtils {
         boolean exclusive = queueConfig.getBooleanValue(RabbitMQConstants.QUEUE_EXCLUSIVE);
         boolean autoDelete = queueConfig.getBooleanValue(RabbitMQConstants.QUEUE_AUTO_DELETE);
         channel.queueDeclare(queueName, durable, exclusive, autoDelete, null);
+        RabbitMQMetricsUtil.reportNewQueue(channel, queueName);
     }
 
     public static Object setQosSettings(Object prefetchCount, Object prefetchSize,
@@ -181,6 +193,7 @@ public class ListenerUtils {
                 }
             }
         } catch (IOException exception) {
+            RabbitMQMetricsUtil.reportError(channel, RabbitMQObservabilityConstants.ERROR_TYPE_SET_QOS);
             return BallerinaErrors.createError("An I/O error occurred while setting the global " +
                     "quality of service settings for the listener");
         }
@@ -231,6 +244,7 @@ public class ListenerUtils {
                 autoAck = false;
                 break;
             default:
+                RabbitMQMetricsUtil.reportError(RabbitMQObservabilityConstants.ERROR_TYPE_START);
                 throw RabbitMQUtils.returnErrorValue("Unsupported acknowledgement mode");
         }
         return autoAck;
@@ -239,10 +253,15 @@ public class ListenerUtils {
     public static Object stop(ObjectValue listenerObjectValue) {
         Channel channel = (Channel) listenerObjectValue.getNativeData(RabbitMQConstants.CHANNEL_NATIVE_OBJECT);
         if (channel == null) {
+            RabbitMQMetricsUtil.reportError(RabbitMQObservabilityConstants.ERROR_TYPE_STOP);
             return RabbitMQUtils.returnErrorValue("ChannelListener is not properly initialised.");
         } else {
             try {
                 Connection connection = channel.getConnection();
+                RabbitMQMetricsUtil.reportBulkUnsubscription(channel, listenerObjectValue);
+                RabbitMQMetricsUtil.reportConsumerClose(channel);
+                RabbitMQMetricsUtil.reportChannelClose(channel);
+                RabbitMQMetricsUtil.reportConnectionClose(connection);
                 channel.close();
                 connection.close();
             } catch (IOException | TimeoutException exception) {
@@ -256,9 +275,14 @@ public class ListenerUtils {
     public static Object abortConnection(ObjectValue listenerObjectValue) {
         Channel channel = (Channel) listenerObjectValue.getNativeData(RabbitMQConstants.CHANNEL_NATIVE_OBJECT);
         if (channel == null) {
+            RabbitMQMetricsUtil.reportError(RabbitMQObservabilityConstants.ERROR_TYPE_CONNECTION_ABORT);
             return RabbitMQUtils.returnErrorValue("ChannelListener is not properly initialised.");
         } else {
             Connection connection = channel.getConnection();
+            RabbitMQMetricsUtil.reportBulkUnsubscription(channel, listenerObjectValue);
+            RabbitMQMetricsUtil.reportConsumerClose(channel);
+            RabbitMQMetricsUtil.reportChannelClose(channel);
+            RabbitMQMetricsUtil.reportConnectionClose(connection);
             connection.abort();
         }
         return null;

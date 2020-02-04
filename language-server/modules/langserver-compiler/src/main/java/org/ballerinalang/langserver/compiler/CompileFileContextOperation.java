@@ -15,6 +15,8 @@
  */
 package org.ballerinalang.langserver.compiler;
 
+import org.ballerinalang.langserver.commons.LSOperation;
+
 /**
  * Represents Compile File operations in language server.
  *

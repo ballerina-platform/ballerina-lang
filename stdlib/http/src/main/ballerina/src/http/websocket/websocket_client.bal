@@ -177,8 +177,12 @@ public type WebSocketClient client object {
 #                    `WebSocketClient`needs to be called once to start receiving messages.
 # + secureSocket - SSL/TLS related options
 # + maxFrameSize - The maximum payload size of a WebSocket frame in bytes.
-#                  If this is not set or is negative  or zero the default frame size of 65536 will be used.
-# + webSocketCompressionEnabled - Enable support for compression in WebSocket
+#                  If this is not set, is negative, or is zero, the default frame size of 65536 will be used.
+# + webSocketCompressionEnabled - Enable support for compression in the WebSocket.
+# + handShakeTimeoutInSeconds - Time (in seconds) that a connection waits to get the response of
+#                               the webSocket handshake. If the timeout exceeds, then the connection is terminated with
+#                               an error.If the value < 0, then the value sets to the default value(300).
+# + retryConfig - Retry related configurations.
 public type WebSocketClientConfiguration record {|
     service? callbackService = ();
     string[] subProtocols = [];
@@ -188,6 +192,22 @@ public type WebSocketClientConfiguration record {|
     ClientSecureSocket? secureSocket = ();
     int maxFrameSize = 0;
     boolean webSocketCompressionEnabled = true;
+    int handShakeTimeoutInSeconds = 300;
+    WebSocketRetryConfig retryConfig?;
+|};
+
+# Retry configurations for WebSocket.
+#
+# + maxCount - The maximum number of retry attempts. If the count is zero, the client will retry indefinitely.
+# + intervalInMillis - The number of milliseconds to delay before attempting to reconnect.
+# + backOffFactor - The rate of increase of the reconnect delay. Allows reconnect attempts to back off when problems
+#                persist.
+# + maxWaitIntervalInMillis - Maximum time of the retry interval in milliseconds.
+public type WebSocketRetryConfig record {|
+    int maxCount = 0;
+    int intervalInMillis = 1000;
+    float backOffFactor = 1.0;
+    int maxWaitIntervalInMillis = 30000;
 |};
 
 function externWSInitEndpoint(WebSocketClient wsClient) = @java:Method {

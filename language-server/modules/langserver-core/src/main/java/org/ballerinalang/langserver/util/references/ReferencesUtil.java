@@ -18,14 +18,14 @@ package org.ballerinalang.langserver.util.references;
 import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.common.constants.NodeContextKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.commons.LSContext;
+import org.ballerinalang.langserver.commons.workspace.LSDocumentIdentifier;
+import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
+import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
-import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.compiler.LSModuleCompiler;
 import org.ballerinalang.langserver.compiler.common.LSCustomErrorStrategy;
-import org.ballerinalang.langserver.compiler.common.LSDocument;
 import org.ballerinalang.langserver.compiler.exception.CompilationFailedException;
-import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentException;
-import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.exception.UserErrorException;
 import org.ballerinalang.langserver.hover.util.HoverUtil;
 import org.eclipse.lsp4j.Hover;
@@ -108,7 +108,7 @@ public class ReferencesUtil {
      * @throws WorkspaceDocumentException when couldn't find file for uri
      * @throws CompilationFailedException when compilation failed
      */
-    public static SymbolReferencesModel.Reference getReferenceAtCursor(LSContext context, LSDocument document,
+    public static SymbolReferencesModel.Reference getReferenceAtCursor(LSContext context, LSDocumentIdentifier document,
                                                                        Position position)
             throws WorkspaceDocumentException, CompilationFailedException {
         TextDocumentIdentifier textDocIdentifier = new TextDocumentIdentifier(document.getURIString());
@@ -304,7 +304,7 @@ public class ReferencesUtil {
             references.addAll(referencesModel.getDefinitions());
         }
         references.addAll(referencesModel.getReferences());
-        LSDocument sourceDoc = context.get(DocumentServiceKeys.LS_DOCUMENT_KEY);
+        LSDocumentIdentifier sourceDoc = context.get(DocumentServiceKeys.LS_DOCUMENT_KEY);
 
         references.forEach(reference -> {
             DiagnosticPos referencePos = reference.getPosition();

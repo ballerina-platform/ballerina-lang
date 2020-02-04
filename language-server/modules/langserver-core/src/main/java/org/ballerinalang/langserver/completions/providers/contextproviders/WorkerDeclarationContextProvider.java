@@ -21,12 +21,14 @@ import org.antlr.v4.runtime.CommonToken;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.SnippetGenerator;
 import org.ballerinalang.langserver.common.CommonKeys;
-import org.ballerinalang.langserver.compiler.LSContext;
-import org.ballerinalang.langserver.completions.CompletionKeys;
-import org.ballerinalang.langserver.completions.SymbolInfo;
-import org.ballerinalang.langserver.completions.spi.LSCompletionProvider;
-import org.eclipse.lsp4j.CompletionItem;
+import org.ballerinalang.langserver.commons.LSContext;
+import org.ballerinalang.langserver.commons.completion.CompletionKeys;
+import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
+import org.ballerinalang.langserver.completions.SnippetCompletionItem;
+import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
+import org.ballerinalang.langserver.sourceprune.SourcePruneKeys;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
+import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,30 +36,30 @@ import java.util.List;
 /**
  * Parser rule based variable definition statement context resolver.
  */
-@JavaSPIService("org.ballerinalang.langserver.completions.spi.LSCompletionProvider")
-public class WorkerDeclarationContextProvider extends LSCompletionProvider {
+@JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.LSCompletionProvider")
+public class WorkerDeclarationContextProvider extends AbstractCompletionProvider {
     public WorkerDeclarationContextProvider() {
         this.attachmentPoints.add(BallerinaParser.WorkerDeclarationContext.class);
     }
 
     @Override
     @SuppressWarnings("unchecked")
-    public List<CompletionItem> getCompletions(LSContext context) {
-        ArrayList<CompletionItem> completionItems = new ArrayList<>();
-        List<SymbolInfo> visibleSymbols = new ArrayList<>(context.get(CommonKeys.VISIBLE_SYMBOLS_KEY));
+    public List<LSCompletionItem> getCompletions(LSContext context) {
+        ArrayList<LSCompletionItem> completionItems = new ArrayList<>();
+        List<Scope.ScopeEntry> visibleSymbols = new ArrayList<>(context.get(CommonKeys.VISIBLE_SYMBOLS_KEY));
         Boolean inWorkerReturnCtx = context.get(CompletionKeys.IN_WORKER_RETURN_CONTEXT_KEY);
         int invocationOrDelimiterTokenType = context.get(CompletionKeys.INVOCATION_TOKEN_TYPE_KEY);
         if (invocationOrDelimiterTokenType == BallerinaParser.COLON) {
-            List<CommonToken> defaultTokens = context.get(CompletionKeys.LHS_DEFAULT_TOKENS_KEY);
-            List<Integer> defaultTokenTypes = context.get(CompletionKeys.LHS_DEFAULT_TOKEN_TYPES_KEY);
+            List<CommonToken> defaultTokens = context.get(SourcePruneKeys.LHS_DEFAULT_TOKENS_KEY);
+            List<Integer> defaultTokenTypes = context.get(SourcePruneKeys.LHS_DEFAULT_TOKEN_TYPES_KEY);
             int pkgDelimIndex = defaultTokenTypes.indexOf(BallerinaParser.COLON);
             String pkgName = defaultTokens.get(pkgDelimIndex - 1).getText();
-            completionItems.addAll(this.getTypesInPackage(visibleSymbols, pkgName, context));
+            completionItems.addAll(this.getTypeItemsInPackage(visibleSymbols, pkgName, context));
         } else if (inWorkerReturnCtx != null && inWorkerReturnCtx) {
-            completionItems.addAll(this.getBasicTypes(visibleSymbols));
+            completionItems.addAll(this.getBasicTypesItems(context, visibleSymbols));
             completionItems.addAll(this.getPackagesCompletionItems(context));
         } else {
-            completionItems.add(SnippetGenerator.getReturnsKeywordSnippet().build(context));
+            completionItems.add(new SnippetCompletionItem(context, SnippetGenerator.getReturnsKeywordSnippet()));
         }
 
         return completionItems;

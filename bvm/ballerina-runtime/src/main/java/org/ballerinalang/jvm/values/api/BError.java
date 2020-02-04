@@ -17,6 +17,8 @@
  */
 package org.ballerinalang.jvm.values.api;
 
+import org.ballerinalang.jvm.values.StringValue;
+
 import java.io.PrintWriter;
 
 import static org.ballerinalang.jvm.BallerinaErrors.ERROR_PRINT_PREFIX;
@@ -30,10 +32,14 @@ import static org.ballerinalang.jvm.BallerinaErrors.ERROR_PRINT_PREFIX;
  */
 public abstract class BError extends RuntimeException implements BRefValue {
 
+    @Deprecated
     public BError(String reason) {
         super(reason);
     }
 
+    public BError(StringValue reason) {
+        super(reason.getValue());
+    }
     /**
      * Returns error reason.
      *

@@ -53,8 +53,18 @@ function onBeforeInit(langClient: ExtendedLangClient) {
         }
     }
 
+    class SyntaxHighlightingFeature implements StaticFeature {
+        fillClientCapabilities(capabilities: ClientCapabilities): void {
+            capabilities.experimental = capabilities.experimental || {};
+            capabilities.experimental.semanticSyntaxHighlighter = true;
+        }
+        initialize(capabilities: ServerCapabilities, documentSelector: DocumentSelector | undefined): void {
+        }
+    }
+
     langClient.registerFeature(new TraceLogsFeature());
     langClient.registerFeature(new ShowFileFeature());
+    langClient.registerFeature(new SyntaxHighlightingFeature());
 }
 
 export function activate(context: ExtensionContext): Promise<any> {

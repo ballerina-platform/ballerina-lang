@@ -729,7 +729,7 @@ function generateBasicBlocks(jvm:MethodVisitor mv, bir:BasicBlock?[] basicBlocks
                 } else if (insKind == bir:INS_KIND_ARRAY_LOAD) {
                     instGen.generateArrayValueLoad(<bir:FieldAccess> inst);
                 } else if (insKind == bir:INS_KIND_NEW_ERROR) {
-                    instGen.generateNewErrorIns(<bir:NewError> inst);
+                    instGen.generateNewErrorIns(<bir:NewError> inst, useBString);
                 } else {
                     instGen.generateCastIns(<bir:TypeCast> inst);
                 }
@@ -2537,6 +2537,14 @@ function isBStringFunc(string funcName) returns boolean {
 function nameOfBStringFunc(string nonBStringFuncName) returns string {
     return nonBStringFuncName + "$bstring";
 }
+
+function conditionalBStringName(string nonBStringName, boolean useBString) returns string {
+    if(useBString) {
+        return nameOfBStringFunc(nonBStringName);
+    }
+    return nonBStringName;
+}
+
 
 function nameOfNonBStringFunc(string funcName) returns string {
     if(isBStringFunc(funcName)) {
