@@ -41,6 +41,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
@@ -1256,6 +1257,12 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                     checkForExportableType(tableType.constraint.tsymbol, pos);
                 }
                 return;
+            case TypeTags.STREAM:
+                BStreamType streamType = (BStreamType) symbol.type;
+                if (streamType.constraint != null) {
+                    checkForExportableType(streamType.constraint.tsymbol, pos);
+                }
+                return;
             case TypeTags.INVOKABLE:
                 BInvokableType invokableType = (BInvokableType) symbol.type;
                 if (invokableType.paramTypes != null) {
@@ -2180,6 +2187,9 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     public void visit(BLangConstrainedType constrainedType) {
 
+        if (constrainedType.type.type.tag == TypeTags.STREAM) {
+            checkExperimentalFeatureValidity(ExperimentalFeatures.STREAMS, constrainedType.pos);
+        }
         analyzeTypeNode(constrainedType.constraint, env);
     }
 
@@ -2711,6 +2721,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
      * @since JBallerina 1.0.0
      */
     private enum ExperimentalFeatures {
+        STREAMS("stream"),
         TRANSACTIONS("transaction"),
         LOCK("lock"),
         XML_ACCESS("xml access expression"),

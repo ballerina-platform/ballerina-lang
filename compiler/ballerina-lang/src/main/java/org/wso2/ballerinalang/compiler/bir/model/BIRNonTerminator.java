@@ -648,4 +648,5 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
             visitor.visit(this);
         }
     }
+
 }
