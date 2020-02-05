@@ -18,6 +18,8 @@
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import org.ballerinalang.model.TreeBuilder;
+import org.ballerinalang.model.clauses.FromClauseNode;
+import org.ballerinalang.model.clauses.WhereClauseNode;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.elements.TableColumnFlag;
@@ -67,6 +69,10 @@ import org.wso2.ballerinalang.compiler.tree.BLangInvokableNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
+import org.wso2.ballerinalang.compiler.tree.BLangVariable;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhereClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAccessExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
@@ -87,6 +93,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression.BLangMatchExprPatternClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKey;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKeyValueField;
@@ -168,6 +175,7 @@ public class TypeChecker extends BLangNodeVisitor {
     private TypeNarrower typeNarrower;
     private TypeParamAnalyzer typeParamAnalyzer;
     private BLangAnonymousModelHelper anonymousModelHelper;
+    private SemanticAnalyzer semanticAnalyzer;
 
     /**
      * Expected types or inherited types.
@@ -198,6 +206,7 @@ public class TypeChecker extends BLangNodeVisitor {
         this.typeNarrower = TypeNarrower.getInstance(context);
         this.typeParamAnalyzer = TypeParamAnalyzer.getInstance(context);
         this.anonymousModelHelper = BLangAnonymousModelHelper.getInstance(context);
+        this.semanticAnalyzer = SemanticAnalyzer.getInstance(context);
     }
 
     public BType checkExpr(BLangExpression expr, SymbolEnv env) {
@@ -2590,6 +2599,66 @@ public class TypeChecker extends BLangNodeVisitor {
     @Override
     public void visit(BLangCheckPanickedExpr checkedExpr) {
         visitCheckAndCheckPanicExpr(checkedExpr);
+    }
+
+    @Override
+    public void visit(BLangQueryExpr queryExpr) {
+        List<? extends FromClauseNode> fromClauseList = queryExpr.getFromClauseNodes();
+        List<? extends WhereClauseNode> whereClauseList = queryExpr.getWhereClauseNode();
+        SymbolEnv parentEnv = env;
+        for (FromClauseNode fromClause : fromClauseList) {
+            parentEnv = typeCheckFromClause((BLangFromClause) fromClause, parentEnv);
+        }
+        BLangSelectClause selectClause = (BLangSelectClause) queryExpr.getSelectClauseNode();
+        SymbolEnv whereEnv = parentEnv;
+        for (WhereClauseNode whereClauseNode : whereClauseList) {
+            whereEnv = typeCheckWhereClause((BLangWhereClause) whereClauseNode, selectClause, parentEnv);
+        }
+        checkExpr(selectClause.expression, whereEnv);
+    }
+
+    private SymbolEnv typeCheckFromClause(BLangFromClause fromClause, SymbolEnv parentEnv) {
+        checkExpr(fromClause.collection, env);
+
+        // Set the type of the foreach node's type node.
+        types.setFromClauseTypedBindingPatternType(fromClause);
+
+        SymbolEnv fromClauseEnv = SymbolEnv.createTypeNarrowedEnv(fromClause, parentEnv);
+        handleFromClauseVariables(fromClause, fromClauseEnv);
+
+        return fromClauseEnv;
+    }
+
+    private SymbolEnv typeCheckWhereClause(BLangWhereClause whereClause, BLangSelectClause selectClause,
+                                           SymbolEnv parentEnv) {
+        checkExpr(whereClause.expression, parentEnv);
+        return typeNarrower.evaluateTruth(whereClause.expression, selectClause, parentEnv);
+    }
+
+    private void handleFromClauseVariables(BLangFromClause fromClause, SymbolEnv blockEnv) {
+        if (fromClause.variableDefinitionNode == null) {
+            //not-possible
+            return;
+        }
+
+        BLangVariable variableNode = (BLangVariable) fromClause.variableDefinitionNode.getVariable();
+        // Check whether the foreach node's variables are declared with var.
+        if (fromClause.isDeclaredWithVar) {
+            // If the foreach node's variables are declared with var, type is `varType`.
+            semanticAnalyzer.handleDeclaredVarInForeach(variableNode, fromClause.varType, blockEnv);
+            return;
+        }
+        // If the type node is available, we get the type from it.
+        BType typeNodeType = symResolver.resolveTypeNode(variableNode.typeNode, blockEnv);
+        // Then we need to check whether the RHS type is assignable to LHS type.
+        if (types.isAssignable(fromClause.varType, typeNodeType)) {
+            // If assignable, we set types to the variables.
+            semanticAnalyzer.handleDeclaredVarInForeach(variableNode, fromClause.varType, blockEnv);
+            return;
+        }
+        // Log an error and define a symbol with the node's type to avoid undeclared symbol errors.
+        dlog.error(variableNode.typeNode.pos, DiagnosticCode.INCOMPATIBLE_TYPES, fromClause.varType, typeNodeType);
+        semanticAnalyzer.handleDeclaredVarInForeach(variableNode, typeNodeType, blockEnv);
     }
 
     private void visitCheckAndCheckPanicExpr(BLangCheckedExpr checkedExpr) {

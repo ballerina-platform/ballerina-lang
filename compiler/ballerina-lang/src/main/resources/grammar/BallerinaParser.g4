@@ -785,6 +785,7 @@ expression
     |   LARROW peerWorker (COMMA expression)?                               # workerReceiveExpression
     |   flushWorker                                                         # flushWorkerExpression
     |   typeDescExpr                                                        # typeAccessExpression
+    |   queryExpr                                                           # queryExpression
     ;
 
 constantExpression
@@ -819,6 +820,26 @@ shiftExpression
     ;
 
 shiftExprPredicate : {_input.get(_input.index() -1).getType() != WS}? ;
+
+selectClause
+    :   SELECT expression
+    ;
+
+whereClause
+    :   WHERE expression
+    ;
+
+fromClause
+    :   FROM (typeName | VAR) bindingPattern IN expression
+    ;
+
+queryPipeline
+    :   fromClause (fromClause | whereClause)*
+    ;
+
+queryExpr
+    :   queryPipeline selectClause
+    ;
 
 //reusable productions
 
