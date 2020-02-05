@@ -26,6 +26,8 @@ import org.testng.annotations.Test;
 
 /**
  * Negative test cases for query expressions.
+ *
+ * @since 1.2.0
  */
 public class QueryNativeTests {
 

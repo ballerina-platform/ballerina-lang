@@ -32,6 +32,8 @@ import java.util.List;
 
 /**
  * Implementation of {@link QueryExpressionNode}.
+ *
+ * @since 1.2.0
  */
 public class BLangQueryExpr extends BLangExpression implements QueryExpressionNode {
 

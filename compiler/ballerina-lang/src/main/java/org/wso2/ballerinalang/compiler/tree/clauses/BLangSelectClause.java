@@ -26,6 +26,8 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 
 /**
  * Implementation of "select" clause statement.
+ *
+ * @since 1.2.0
  */
 public class BLangSelectClause extends BLangNode implements SelectClauseNode {
 

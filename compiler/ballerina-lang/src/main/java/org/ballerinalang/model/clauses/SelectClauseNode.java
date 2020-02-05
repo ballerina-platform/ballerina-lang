@@ -23,6 +23,8 @@ import org.ballerinalang.model.tree.expressions.ExpressionNode;
 
 /**
  * The interface with the APIs to implement the "select" clause.
+ *
+ * @since 1.2.0
  */
 public interface SelectClauseNode extends Node {
 

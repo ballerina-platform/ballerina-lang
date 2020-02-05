@@ -4356,7 +4356,7 @@ public class Desugar extends BLangNodeVisitor {
             types.setForeachTypedBindingPatternType(foreach);
 
             foreach.variableDefinitionNode = bLangFromClause.variableDefinitionNode;
-            foreach.isDeclaredWithVar = true;
+            foreach.isDeclaredWithVar = fromClause.isDeclaredWithVar;
 
             if (leafForEach != null) {
                 BLangBlockStmt foreachBody = ASTBuilderUtil.createBlockStmt(pos);

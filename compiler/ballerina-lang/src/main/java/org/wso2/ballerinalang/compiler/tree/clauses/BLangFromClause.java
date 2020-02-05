@@ -28,6 +28,8 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 
 /**
  * Implementation of "from" clause statement.
+ *
+ * @since 1.2.0
  */
 public class BLangFromClause extends BLangNode implements FromClauseNode {
 

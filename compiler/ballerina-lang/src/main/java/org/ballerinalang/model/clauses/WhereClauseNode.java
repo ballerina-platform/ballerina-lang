@@ -23,6 +23,8 @@ import org.ballerinalang.model.tree.expressions.ExpressionNode;
 
 /**
  * The interface with the APIs to implement the "where" clause.
+ *
+ * @since 1.2.0
  */
 public interface WhereClauseNode extends Node {
 

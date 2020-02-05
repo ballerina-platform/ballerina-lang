@@ -29,6 +29,8 @@ import org.testng.annotations.Test;
 
 /**
  * This contains methods to test simple query expression with from and select clauses.
+ *
+ * @since 1.2.0
  */
 public class MultipleWhereClauseTest {
 

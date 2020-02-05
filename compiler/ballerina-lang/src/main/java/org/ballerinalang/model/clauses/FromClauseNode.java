@@ -24,6 +24,8 @@ import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
 
 /**
  * The interface with the APIs to implement the "from" clause.
+ *
+ * @since 1.2.0
  */
 public interface FromClauseNode extends Node {
 

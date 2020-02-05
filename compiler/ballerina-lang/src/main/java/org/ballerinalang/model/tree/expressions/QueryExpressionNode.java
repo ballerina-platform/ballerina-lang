@@ -23,7 +23,9 @@ import org.ballerinalang.model.clauses.WhereClauseNode;
 import java.util.List;
 
 /**
- * Expression of (expression).
+ * Represents the Query expression node.
+ *
+ * @since 1.2.0
  */
 public interface QueryExpressionNode extends ExpressionNode {
 

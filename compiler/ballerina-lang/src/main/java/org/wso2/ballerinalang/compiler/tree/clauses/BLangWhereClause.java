@@ -27,6 +27,8 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 
 /**
  * Implementation of "where" clause statement.
+ *
+ * @since 1.2.0
  */
 public class BLangWhereClause extends BLangNode implements WhereClauseNode {
 
