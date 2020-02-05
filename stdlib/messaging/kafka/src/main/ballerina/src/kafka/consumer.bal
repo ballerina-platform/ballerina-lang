@@ -32,6 +32,10 @@ import ballerinax/java;
 #       even the aborted ones.
 # + keyDeserializerType - Deserializer used for the Kafka record key. This should be a `kafka:DeserializerType`
 # + valueDeserializerType - Deserializer used for the Kafka record value. This should be a `kafka:DeserializerType`
+# + keyDeserializer - Custom deserializer object to deserialize kafka keys. This should be implement the
+#       `kafka:Deserializer` object.
+# + valueDeserializer - Custom deserializer object to deserialize kafka values. This should implement the
+#       `kafka:Deserializer` object.
 # + topics - Topics to be subscribed by the consumer.
 # + properties - Additional properties if required.
 # + sessionTimeoutInMillis - Timeout used to detect consumer failures when heartbeat threshold is reached.
@@ -63,7 +67,7 @@ import ballerinax/java;
 # + decoupleProcessing - Decouples processing.
 # + secureSocket - Configurations related to SSL/TLS.
 public type ConsumerConfig record {|
-    string? bootstrapServers = ();
+    string bootstrapServers;
     string? groupId = ();
     string? offsetReset = ();
     string? partitionAssignmentStrategy = ();
@@ -72,8 +76,11 @@ public type ConsumerConfig record {|
     string? clientId = ();
     string? interceptorClasses = ();
     string? isolationLevel = ();
+
     DeserializerType keyDeserializerType = DES_BYTE_ARRAY;
     DeserializerType valueDeserializerType = DES_BYTE_ARRAY;
+    Deserializer? keyDeserializer = ();
+    Deserializer? valueDeserializer = ();
 
     string[]? topics = ();
     string[]? properties = ();
@@ -139,8 +146,11 @@ public const DES_INT = "INT";
 # In-built Kafka float deserializer.
 public const DES_FLOAT = "FLOAT";
 
+# User-defined deserializer.
+public const DES_CUSTOM = "CUSTOM";
+
 # Kafka in-built deserializer type.
-public type DeserializerType DES_BYTE_ARRAY|DES_STRING|DES_INT|DES_FLOAT;
+public type DeserializerType DES_BYTE_ARRAY|DES_STRING|DES_INT|DES_FLOAT|DES_CUSTOM;
 
 # Represent a Kafka consumer endpoint.
 #
@@ -151,6 +161,8 @@ public type Consumer client object {
     public ConsumerConfig? consumerConfig = ();
     private string keyDeserializerType;
     private string valueDeserializerType;
+    private Deserializer? keyDeserializer = ();
+    private Deserializer? valueDeserializer = ();
 
     # Creates a new Kafka `Consumer`.
     #
@@ -159,6 +171,29 @@ public type Consumer client object {
         self.consumerConfig = config;
         self.keyDeserializerType = config.keyDeserializerType;
         self.valueDeserializerType = config.valueDeserializerType;
+
+        if (self.keyDeserializerType == DES_CUSTOM) {
+            var keyDeserializerObject = config.keyDeserializer;
+            if (keyDeserializerObject is ()) {
+                ConsumerError e = error(CONSUMER_ERROR, message = "Invalid keyDeserializer config: Please Provide a " +
+                                        "valid custom deserializer for the keyDeserializer");
+                panic e;
+            } else {
+                self.keyDeserializer = keyDeserializerObject;
+            }
+        }
+
+        if (self.valueDeserializerType == DES_CUSTOM) {
+            var valueDeserializerObject = config.valueDeserializer;
+            if (valueDeserializerObject is ()) {
+                ConsumerError e = error(CONSUMER_ERROR, message = "Invalid valueDeserializer config: Please Provide a" +
+                                        " valid custom deserializer for the valueDeserializer");
+                panic e;
+            } else {
+                self.valueDeserializer = valueDeserializerObject;
+            }
+        }
+
         var initResult = self.init(config);
         if (initResult is error) {
             panic initResult;
@@ -185,11 +220,9 @@ public type Consumer client object {
     }
 
     function init(ConsumerConfig config) returns ConsumerError? {
-        if (config.bootstrapServers is string) {
-            var result = self->connect();
-            if (result is error) {
-                panic result;
-            }
+        var connectResult = self->connect();
+        if (connectResult is error) {
+            panic connectResult;
         }
 
         string[]? topics = config.topics;

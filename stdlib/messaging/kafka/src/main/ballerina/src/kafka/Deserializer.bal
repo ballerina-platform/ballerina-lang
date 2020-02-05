@@ -14,8 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
-public type Serializer abstract object {
+public type Deserializer abstract object {
     public function close();
 
-    public function serialize(string topic, any data) returns byte[];
+    public function deserialize(string topic, byte[] data) returns any;
 };

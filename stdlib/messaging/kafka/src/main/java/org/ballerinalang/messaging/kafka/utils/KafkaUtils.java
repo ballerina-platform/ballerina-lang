@@ -315,20 +315,16 @@ public class KafkaUtils {
                                 KafkaConstants.SSL_SECURE_RANDOM_IMPLEMENTATION_CONFIG);
     }
 
-    private static void addSerializerTypeConfigs(String paramName,
-                                                 MapValue<String, Object> configs,
-                                                 Properties configParams,
-                                                 String key) {
+    private static void addSerializerTypeConfigs(String paramName, MapValue<String, Object> configs,
+                                                 Properties configParams, String key) {
         if (Objects.nonNull(configs.get(key))) {
             String value = getSerializerType(configs, key);
             configParams.put(paramName, value);
         }
     }
 
-    private static void addDeserializerConfigs(String paramName,
-                                               MapValue<String, Object> configs,
-                                               Properties configParams,
-                                               String key) {
+    private static void addDeserializerConfigs(String paramName, MapValue<String, Object> configs,
+                                               Properties configParams, String key) {
         if (Objects.nonNull(configs.get(key))) {
             String value = getDeserializerValue(configs, key);
             configParams.put(paramName, value);
@@ -364,6 +360,8 @@ public class KafkaUtils {
                 return KafkaConstants.INT_DESERIALIZER;
             case KafkaConstants.SERDES_FLOAT:
                 return KafkaConstants.FLOAT_DESERIALIZER;
+            case KafkaConstants.SERDES_CUSTOM:
+                return KafkaConstants.CUSTOM_DESERIALIZER;
             default:
                 return value;
         }

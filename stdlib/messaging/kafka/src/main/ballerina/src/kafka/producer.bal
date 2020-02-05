@@ -153,7 +153,7 @@ public type Producer client object {
             var keySerializerObject = config.keySerializer;
             if (keySerializerObject is ()) {
                 ProducerError e = error(PRODUCER_ERROR, message = "Invalid keySerializer config: Please Provide a " +
-                                                                 "valid custom serializer for the keySerializer");
+                                        "valid custom serializer for the keySerializer");
                 panic e;
             } else {
                 self.keySerializer = keySerializerObject;
@@ -164,7 +164,7 @@ public type Producer client object {
             var valueSerializerObject = config.keySerializer;
             if (valueSerializerObject is ()) {
                 ProducerError e = error(PRODUCER_ERROR, message = "Invalid valueSerializer config: Please Provide a " +
-                                                                  "valid custom serializer for the valueSerializer");
+                                        "valid custom serializer for the valueSerializer");
                 panic e;
             } else {
                 self.valueSerializer = valueSerializerObject;

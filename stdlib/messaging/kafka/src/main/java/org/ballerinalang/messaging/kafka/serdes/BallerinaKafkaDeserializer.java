@@ -18,7 +18,7 @@
 
 package org.ballerinalang.messaging.kafka.serdes;
 
-import org.apache.kafka.common.serialization.Serializer;
+import org.apache.kafka.common.serialization.Deserializer;
 import org.ballerinalang.jvm.BRuntime;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.messaging.kafka.utils.KafkaConstants;
@@ -26,29 +26,29 @@ import org.ballerinalang.messaging.kafka.utils.KafkaConstants;
 import java.util.Map;
 
 /**
- * Represents a serializer class for ballerina kafka module.
+ * Represents a deserializer class for ballerina kafka module.
  */
-public class BallerinaKafkaSerializer implements Serializer {
+public class BallerinaKafkaDeserializer implements Deserializer {
 
-    private ObjectValue serializerObject = null;
+    private ObjectValue deserializerObject = null;
 
     @Override
     public void configure(Map configs, boolean isKey) {
         if (isKey) {
-            this.serializerObject = (ObjectValue) configs.get(KafkaConstants.PRODUCER_KEY_SERIALIZER_CONFIG);
+            this.deserializerObject = (ObjectValue) configs.get(KafkaConstants.CONSUMER_KEY_DESERIALIZER_CONFIG);
         } else {
-            this.serializerObject = (ObjectValue) configs.get(KafkaConstants.PRODUCER_VALUE_SERIALIZER_CONFIG);
+            this.deserializerObject = (ObjectValue) configs.get(KafkaConstants.CONSUMER_VALUE_DESERIALIZER_CONFIG);
         }
     }
 
     @Override
-    public byte[] serialize(String topic, Object data) {
-        return (byte[]) BRuntime.getCurrentRuntime().getSyncMethodInvokeResult(this.serializerObject,
-                                                                               KafkaConstants.FUNCTION_SERIALIZE, data);
+    public Object deserialize(String topic, byte[] data) {
+        return BRuntime.getCurrentRuntime().getSyncMethodInvokeResult(this.deserializerObject,
+                                                                      KafkaConstants.FUNCTION_DESERIALIZE, data);
     }
 
     @Override
     public void close() {
-        BRuntime.getCurrentRuntime().getSyncMethodInvokeResult(this.serializerObject, KafkaConstants.FUNCTION_CLOSE);
+        BRuntime.getCurrentRuntime().getSyncMethodInvokeResult(this.deserializerObject, KafkaConstants.FUNCTION_CLOSE);
     }
 }
