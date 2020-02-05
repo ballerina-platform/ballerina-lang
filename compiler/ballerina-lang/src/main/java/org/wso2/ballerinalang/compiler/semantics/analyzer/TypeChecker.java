@@ -1694,6 +1694,10 @@ public class TypeChecker extends BLangNodeVisitor {
                     }
                 }
                 break;
+            case TypeTags.STREAM:
+                dlog.error(cIExpr.pos, DiagnosticCode.INVALID_STREAM_CONSTRUCTOR, cIExpr.initInvocation.name);
+                resultType = symTable.semanticError;
+                return;
             case TypeTags.UNION:
                 List<BType> matchingMembers = findMembersWithMatchingInitFunc(cIExpr, (BUnionType) actualType);
                 BType matchedType = getMatchingType(matchingMembers, cIExpr, actualType);

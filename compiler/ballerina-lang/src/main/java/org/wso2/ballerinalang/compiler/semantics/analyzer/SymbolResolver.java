@@ -49,6 +49,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
@@ -579,6 +580,9 @@ public class SymbolResolver extends BLangNodeVisitor {
             case TypeTags.OBJECT:
                 bSymbol = lookupLangLibMethodInModule(symTable.langObjectModuleSymbol, name);
                 break;
+            case TypeTags.STREAM:
+                bSymbol = lookupLangLibMethodInModule(symTable.langStreamModuleSymbol, name);
+                break;
             case TypeTags.STRING:
                 bSymbol = lookupLangLibMethodInModule(symTable.langStringModuleSymbol, name);
                 break;
@@ -752,6 +756,7 @@ public class SymbolResolver extends BLangNodeVisitor {
             symTable.errorConstructor = ((BErrorTypeSymbol) symTable.errorType.tsymbol).ctorSymbol;
             symTable.pureType = BUnionType.create(null, symTable.anydataType, this.symTable.errorType);
             symTable.detailType.restFieldType = symTable.pureType;
+            symTable.streamType = new BStreamType(TypeTags.STREAM, symTable.pureType, null);
             symTable.defineOperators(); // Define all operators e.g. binary, unary, cast and conversion
             symTable.pureType = BUnionType.create(null, symTable.anydataType, symTable.errorType);
             symTable.errorOrNilType = BUnionType.create(null, symTable.errorType, symTable.nilType);
@@ -959,6 +964,14 @@ public class SymbolResolver extends BLangNodeVisitor {
             // TODO: Fix to set type symbol with specified constraint, as with other constrained types.
             resultType = new BTableType(TypeTags.TABLE, constraintType, type.tsymbol);
             return;
+        } else if (type.tag == TypeTags.STREAM) {
+            if (!constraintType.isPureType()) {
+                dlog.error(constrainedTypeNode.constraint.pos, DiagnosticCode.STREAM_INVALID_CONSTRAINT,
+                           constraintType);
+                resultType = symTable.semanticError;
+                return;
+            }
+            constrainedType = new BStreamType(TypeTags.STREAM, constraintType, null);
         } else if (type.tag == TypeTags.FUTURE) {
             constrainedType = new BFutureType(TypeTags.FUTURE, constraintType, null);
         } else if (type.tag == TypeTags.MAP) {
