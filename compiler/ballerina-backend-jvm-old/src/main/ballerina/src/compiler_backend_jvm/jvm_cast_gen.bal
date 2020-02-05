@@ -762,6 +762,8 @@ function getTargetClass(bir:BType targetType) returns string? {
         targetTypeClass = MAP_VALUE;
     } else if (targetType is bir:BTableType) {
         targetTypeClass = TABLE_VALUE;
+    } else if (targetType is bir:BStreamType) {
+        targetTypeClass = STREAM_VALUE;
     } else if (targetType is bir:BObjectType || targetType is bir:BServiceType) {
         targetTypeClass = OBJECT_VALUE;
     } else if (targetType is bir:BErrorType) {

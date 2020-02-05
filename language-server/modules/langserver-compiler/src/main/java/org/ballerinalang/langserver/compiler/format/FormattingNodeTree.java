@@ -3489,6 +3489,7 @@ public class FormattingNodeTree {
             JsonObject formatConfig = node.getAsJsonObject(FormattingConstants.FORMATTING_CONFIG);
             JsonArray ws = node.getAsJsonArray(FormattingConstants.WS);
             String indentation = this.getIndentation(formatConfig, false);
+            String indentationOfParent = this.getParentIndentation(formatConfig);
             String indentWithParentIndentation = this.getParentIndentation(formatConfig);
             boolean useParentIndentation = formatConfig.get(FormattingConstants.USE_PARENT_INDENTATION).getAsBoolean();
 
@@ -3549,6 +3550,16 @@ public class FormattingNodeTree {
                         }
                     } else if (text.equals(Tokens.COMMA)) {
                         currentWS.addProperty(FormattingConstants.WS, FormattingConstants.EMPTY_SPACE);
+                    } else if (text.equals(Tokens.EQUAL)) {
+                        if (!currentWS.get(FormattingConstants.WS).getAsString().equals(
+                                FormattingConstants.SINGLE_SPACE)) {
+                            currentWS.addProperty(FormattingConstants.WS, FormattingConstants.SINGLE_SPACE);
+                        }
+                    } else if (text.equals(Tokens.SEMICOLON)) {
+                        if (!currentWS.get(FormattingConstants.WS).getAsString().equals(
+                                FormattingConstants.EMPTY_SPACE)) {
+                            currentWS.addProperty(FormattingConstants.WS, FormattingConstants.EMPTY_SPACE);
+                        }
                     }
                 }
             }
@@ -3595,6 +3606,16 @@ public class FormattingNodeTree {
                         variable.add(FormattingConstants.FORMATTING_CONFIG, variableFormatConfig);
                     }
                 }
+            }
+            // Update whitespaces for initial expression.
+            if (node.has(FormattingConstants.INITIAL_EXPRESSION)) {
+                node.getAsJsonObject(FormattingConstants.INITIAL_EXPRESSION).add(FormattingConstants.FORMATTING_CONFIG,
+                                                         this.getFormattingConfig(0, 1, 0, false,
+                                                                                  this.getWhiteSpaceCount(
+                                                                                          useParentIndentation ?
+                                                                                                  indentationOfParent :
+                                                                                                  indentation),
+                                                                                  true));
             }
         }
     }

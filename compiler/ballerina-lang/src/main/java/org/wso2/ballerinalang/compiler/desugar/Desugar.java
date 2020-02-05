@@ -3431,9 +3431,7 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     public void visit(BLangTypeInit typeInitExpr) {
-
         result = rewrite(desugarObjectTypeInit(typeInitExpr), env);
-
     }
 
     private BLangStatementExpression desugarObjectTypeInit(BLangTypeInit typeInitExpr) {

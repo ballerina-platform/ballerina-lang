@@ -272,6 +272,9 @@ public enum DiagnosticCode {
     SYNTAX_ERROR("syntax.error"),
     INVALID_SHIFT_OPERATOR("invalid.shift.operator"),
 
+    // Streaming related codes
+    INVALID_STREAM_CONSTRUCTOR("invalid.stream.constructor"),
+
     // Taint checking related codes
     ENTRY_POINT_PARAMETERS_CANNOT_BE_SENSITIVE("entry.point.parameters.cannot.be.sensitive"),
     TAINTED_VALUE_PASSED_TO_SENSITIVE_PARAMETER("tainted.value.passed.to.sensitive.parameter"),
