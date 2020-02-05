@@ -28,7 +28,6 @@ import org.ballerinalang.model.tree.expressions.NamedArgNode;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
-import org.wso2.ballerinalang.compiler.desugar.ASTBuilderUtil;
 import org.wso2.ballerinalang.compiler.parser.BLangAnonymousModelHelper;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
@@ -68,7 +67,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangInvokableNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
-import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAccessExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
@@ -130,6 +128,7 @@ import org.wso2.ballerinalang.compiler.util.FieldKind;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.NumericLiteralSupport;
+import org.wso2.ballerinalang.compiler.util.TypeDefBuilderHelper;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
@@ -138,7 +137,6 @@ import org.wso2.ballerinalang.util.Lists;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -883,7 +881,7 @@ public class TypeChecker extends BLangNodeVisitor {
             List<BLangExpression> expressions = new ArrayList<>();
             for (RecordLiteralNode.RecordField field : recordLiteral.fields) {
                 if (field.getKind() == NodeKind.RECORD_LITERAL_KEY_VALUE) {
-                    expressions.add(((BLangRecordKeyValue) field).valueExpr);
+                    expressions.add(((BLangRecordKeyValueField) field).valueExpr);
                     continue;
                 }
                 expressions.add((BLangSimpleVarRef) field);
@@ -4760,7 +4758,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
         for (RecordLiteralNode.RecordField field : recordLiteral.fields) {
             if (field.getKind() == NodeKind.RECORD_LITERAL_KEY_VALUE) {
-                BLangRecordKeyValue keyValue = (BLangRecordKeyValue) field;
+                BLangRecordKeyValueField keyValue = (BLangRecordKeyValueField) field;
                 BLangRecordKey key = keyValue.key;
                 BLangExpression expression = keyValue.valueExpr;
                 BLangExpression keyExpr = key.expr;
@@ -4780,7 +4778,6 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         List<BField> fields = new ArrayList<>();
-        List<BLangSimpleVariable> typeDefFields = new ArrayList<>();
 
         for (Map.Entry<String, List<BType>> entry : nonRestFieldTypes.entrySet()) {
             List<BType> types = entry.getValue();
@@ -4790,7 +4787,6 @@ public class TypeChecker extends BLangNodeVisitor {
             BType type = types.size() == 1 ? types.get(0) : BUnionType.create(null, types.toArray(new BType[0]));
             BVarSymbol fieldSymbol = new BVarSymbol(Flags.REQUIRED, fieldName, pkgID, type, recordSymbol);
             fields.add(new BField(fieldName, null, fieldSymbol));
-            typeDefFields.add(ASTBuilderUtil.createVariable(null, key, type, null, fieldSymbol));
             recordSymbol.scope.define(fieldName, fieldSymbol);
         }
 
@@ -4805,44 +4801,14 @@ public class TypeChecker extends BLangNodeVisitor {
         } else {
             recordType.restFieldType = BUnionType.create(null, restFieldTypes.toArray(new BType[0]));
         }
-
-        BLangRecordTypeNode recordTypeNode = (BLangRecordTypeNode) TreeBuilder.createRecordTypeNode();
-        recordTypeNode.type = recordType;
-        recordTypeNode.fields = typeDefFields;
-        recordTypeNode.pos = recordLiteral.pos;
         recordSymbol.type = recordType;
         recordType.tsymbol = recordSymbol;
-        recordTypeNode.symbol = recordSymbol;
 
-        BLangFunction initFunction = ASTBuilderUtil.createInitFunctionWithNilReturn(recordLiteral.pos, "",
-                                                                                    Names.INIT_FUNCTION_SUFFIX);
-        recordTypeNode.initFunction = initFunction;
-        recordTypeNode.initFunction.receiver = ASTBuilderUtil.createReceiver(recordLiteral.pos, recordType);
-        BVarSymbol receiverSymbol = new BVarSymbol(Flags.asMask(EnumSet.noneOf(Flag.class)),
-                                                   names.fromIdNode(initFunction.receiver.name),
-                                                   env.enclPkg.symbol.pkgID, recordTypeNode.type, null);
-        initFunction.receiver.symbol = receiverSymbol;
-        initFunction.symbol = Symbols
-                .createFunctionSymbol(Flags.asMask(initFunction.flagSet),
-                                      names.fromString(Symbols.getAttachedFuncSymbolName(
-                                              recordTypeNode.type.tsymbol.name.value,
-                                              Names.INIT_FUNCTION_SUFFIX.value)), env.enclPkg.symbol.pkgID,
-                                      initFunction.type, recordTypeNode.symbol.scope.owner,
-                                      initFunction.body != null);
-        initFunction.symbol.scope = new Scope(initFunction.symbol);
-        initFunction.symbol.scope.define(receiverSymbol.name, receiverSymbol);
-        initFunction.symbol.receiverSymbol = receiverSymbol;
-        initFunction.symbol.type = initFunction.type;
-        initFunction.symbol.type = new BInvokableType(new ArrayList<>(0), symTable.nilType, null);
-        recordTypeNode.initFunction.attachedFunction = true;
-        recordTypeNode.initFunction.flagSet.add(Flag.ATTACHED);
-        recordSymbol.scope.define(recordSymbol.initializerFunc.symbol.name, recordSymbol.initializerFunc.symbol);
-
-        BLangTypeDefinition typeDefinition = (BLangTypeDefinition) TreeBuilder.createTypeDefinition();
-        env.enclPkg.addTypeDefinition(typeDefinition);
-        typeDefinition.typeNode = recordTypeNode;
-        typeDefinition.type = recordType;
-        typeDefinition.symbol = recordSymbol;
+        BLangRecordTypeNode recordTypeNode = TypeDefBuilderHelper.createRecordTypeNode(recordType, pkgID, symTable,
+                                                                                       recordLiteral.pos);
+        recordTypeNode.initFunction = TypeDefBuilderHelper.createInitFunctionForRecordType(recordTypeNode, env, names,
+                                                                                           symTable);
+        TypeDefBuilderHelper.createTypeDefinition(recordType, recordSymbol, recordTypeNode, env);
 
         return recordType;
     }
