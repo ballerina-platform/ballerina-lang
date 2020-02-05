@@ -77,4 +77,6 @@ function test10 () {
 function test11 () {
     int X = 10;
     X x = 4;
+    var V = 1 | 2 | 3 | 4 ;
+    V v = 7;
 }

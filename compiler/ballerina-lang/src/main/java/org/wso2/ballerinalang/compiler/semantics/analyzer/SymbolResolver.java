@@ -135,7 +135,6 @@ public class SymbolResolver extends BLangNodeVisitor {
         this.types = Types.getInstance(context);
     }
 
-    // TODO : Remove the 'expSymTag'
     public boolean checkForUniqueSymbol(DiagnosticPos pos, SymbolEnv env, BSymbol symbol) {
         //lookup symbol
         BSymbol foundSym = symTable.notFoundSymbol;

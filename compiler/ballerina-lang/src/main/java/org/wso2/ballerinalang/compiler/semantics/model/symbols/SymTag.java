@@ -21,7 +21,6 @@ package org.wso2.ballerinalang.compiler.semantics.model.symbols;
  * @since 0.94
  */
 public class SymTag {
-    // TODO : Simplify SymTags
     public static final int NIL = 0;
     public static final int IMPORT = 1;
     public static final int ANNOTATION = 1 << 1;

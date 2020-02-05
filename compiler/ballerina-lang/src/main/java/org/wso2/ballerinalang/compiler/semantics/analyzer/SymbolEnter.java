@@ -801,7 +801,6 @@ public class SymbolEnter extends BLangNodeVisitor {
         BType serviceObjectType = serviceNode.serviceTypeDefinition.symbol.type;
         serviceNode.symbol = serviceSymbol;
         serviceNode.symbol.type = new BServiceType(serviceObjectType.tsymbol);
-        // TODO : check this new scope creation and assignment
         serviceSymbol.scope = new Scope(serviceSymbol);
 
         // Caching values future validation.
