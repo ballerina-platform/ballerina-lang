@@ -70,6 +70,9 @@ import org.wso2.ballerinalang.compiler.tree.BLangTupleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhereClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAccessExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
@@ -93,6 +96,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownParameterDo
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownReturnParameterDocumentation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNumericLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKey;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKeyValue;
@@ -243,6 +247,12 @@ public class BLangPackageBuilder {
     private Stack<AnnotationAttachmentNode> annotAttachmentStack = new Stack<>();
 
     private Stack<IfNode> ifElseStatementStack = new Stack<>();
+
+    private Stack<BLangFromClause> fromClauseNodeStack = new Stack<>();
+
+    private Stack<BLangSelectClause> selectClauseNodeStack = new Stack<>();
+
+    private Stack<BLangWhereClause> whereClauseNodeStack = new Stack<>();
 
     private Stack<TransactionNode> transactionNodeStack = new Stack<>();
 
@@ -1665,6 +1675,95 @@ public class BLangPackageBuilder {
         trapExpr.expr = (BLangExpression) exprNodeStack.pop();
         addExpressionNode(trapExpr);
     }
+
+    void createQueryExpr(DiagnosticPos pos, Set<Whitespace> ws) {
+        BLangQueryExpr queryExpr = (BLangQueryExpr) TreeBuilder.createQueryExpressionNode();
+        queryExpr.pos = pos;
+        queryExpr.addWS(ws);
+
+        Collections.reverse(fromClauseNodeStack);
+        while (fromClauseNodeStack.size() > 0) {
+            queryExpr.addFromClauseNode(fromClauseNodeStack.pop());
+        }
+        queryExpr.setSelectClauseNode(selectClauseNodeStack.pop());
+        Collections.reverse(whereClauseNodeStack);
+        while (whereClauseNodeStack.size() > 0) {
+            queryExpr.addWhereClauseNode(whereClauseNodeStack.pop());
+        }
+        addExpressionNode(queryExpr);
+    }
+
+    void createFromClauseWithSimpleVariableDefStatement(DiagnosticPos pos, Set<Whitespace> ws, String identifier,
+                                                        DiagnosticPos identifierPos, boolean isDeclaredWithVar) {
+        BLangSimpleVariableDef variableDefinitionNode = createSimpleVariableDef(pos, ws, identifier, identifierPos,
+                false, false, isDeclaredWithVar);
+        if (!this.bindingPatternIdentifierWS.isEmpty()) {
+            variableDefinitionNode.addWS(this.bindingPatternIdentifierWS.pop());
+        }
+
+        addFromClause(pos, ws, variableDefinitionNode, isDeclaredWithVar);
+    }
+
+    void createFromClauseWithRecordVariableDefStatement(DiagnosticPos pos, Set<Whitespace> ws,
+                                                        boolean isDeclaredWithVar) {
+        BLangRecordVariableDef variableDefinitionNode = createRecordVariableDef(pos, ws, false, false,
+                isDeclaredWithVar);
+        if (!this.bindingPatternIdentifierWS.isEmpty()) {
+            variableDefinitionNode.addWS(this.bindingPatternIdentifierWS.pop());
+        }
+
+        addFromClause(pos, ws, variableDefinitionNode, isDeclaredWithVar);
+    }
+
+    void createFromClauseWithErrorVariableDefStatement(DiagnosticPos pos, Set<Whitespace> ws,
+                                                       boolean isDeclaredWithVar) {
+        BLangErrorVariableDef variableDefinitionNode = createErrorVariableDef(pos, ws, false,
+                false, isDeclaredWithVar);
+        if (!this.bindingPatternIdentifierWS.isEmpty()) {
+            variableDefinitionNode.addWS(this.bindingPatternIdentifierWS.pop());
+        }
+
+        addFromClause(pos, ws, variableDefinitionNode, isDeclaredWithVar);
+    }
+
+    void createFromClauseWithTupleVariableDefStatement(DiagnosticPos pos, Set<Whitespace> ws,
+                                                       boolean isDeclaredWithVar) {
+        BLangTupleVariableDef variableDefinitionNode = createTupleVariableDef(pos, ws, false,
+                false, isDeclaredWithVar);
+        if (!this.bindingPatternIdentifierWS.isEmpty()) {
+            variableDefinitionNode.addWS(this.bindingPatternIdentifierWS.pop());
+        }
+
+        addFromClause(pos, ws, variableDefinitionNode, isDeclaredWithVar);
+    }
+
+    private void addFromClause(DiagnosticPos pos, Set<Whitespace> ws,
+                               VariableDefinitionNode variableDefinitionNode, boolean isDeclaredWithVar) {
+        BLangFromClause fromClause = (BLangFromClause) TreeBuilder.createFromClauseNode();
+        fromClause.addWS(ws);
+        fromClause.pos = pos;
+        fromClause.setVariableDefinitionNode(variableDefinitionNode);
+        fromClause.setCollection(this.exprNodeStack.pop());
+        fromClause.isDeclaredWithVar = isDeclaredWithVar;
+        fromClauseNodeStack.push(fromClause);
+    }
+
+    void createSelectClause(DiagnosticPos pos, Set<Whitespace> ws) {
+        BLangSelectClause selectClause = (BLangSelectClause)  TreeBuilder.createSelectClauseNode();
+        selectClause.addWS(ws);
+        selectClause.pos = pos;
+        selectClause.expression = (BLangExpression) this.exprNodeStack.pop();
+        selectClauseNodeStack.push(selectClause);
+    }
+
+    void createWhereClause(DiagnosticPos pos, Set<Whitespace> ws) {
+        BLangWhereClause whereClause = (BLangWhereClause)  TreeBuilder.createWhereClauseNode();
+        whereClause.addWS(ws);
+        whereClause.pos = pos;
+        whereClause.expression = (BLangExpression) this.exprNodeStack.pop();
+        whereClauseNodeStack.push(whereClause);
+    }
+
 
     void endFunctionDef(DiagnosticPos pos, Set<Whitespace> ws, boolean publicFunc, boolean remoteFunc,
                         boolean nativeFunc, boolean privateFunc, boolean bodyExists, boolean isLambda) {
