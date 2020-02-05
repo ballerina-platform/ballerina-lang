@@ -1970,6 +1970,18 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitBinaryAddSubExpression(BallerinaParser.BinaryAddSubExpressionContext ctx);
 	/**
+	 * Enter a parse tree produced by the {@code letExpression}
+	 * labeled alternative in {@link BallerinaParser#expression}.
+	 * @param ctx the parse tree
+	 */
+	void enterLetExpression(BallerinaParser.LetExpressionContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code letExpression}
+	 * labeled alternative in {@link BallerinaParser#expression}.
+	 * @param ctx the parse tree
+	 */
+	void exitLetExpression(BallerinaParser.LetExpressionContext ctx);
+	/**
 	 * Enter a parse tree produced by the {@code checkedExpression}
 	 * labeled alternative in {@link BallerinaParser#expression}.
 	 * @param ctx the parse tree
@@ -2305,6 +2317,26 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitConstAddSubExpression(BallerinaParser.ConstAddSubExpressionContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#letExpr}.
+	 * @param ctx the parse tree
+	 */
+	void enterLetExpr(BallerinaParser.LetExprContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#letExpr}.
+	 * @param ctx the parse tree
+	 */
+	void exitLetExpr(BallerinaParser.LetExprContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#letVarDecl}.
+	 * @param ctx the parse tree
+	 */
+	void enterLetVarDecl(BallerinaParser.LetVarDeclContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#letVarDecl}.
+	 * @param ctx the parse tree
+	 */
+	void exitLetVarDecl(BallerinaParser.LetVarDeclContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#typeDescExpr}.
 	 * @param ctx the parse tree

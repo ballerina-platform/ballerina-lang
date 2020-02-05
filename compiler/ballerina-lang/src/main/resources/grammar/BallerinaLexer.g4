@@ -98,6 +98,7 @@ DEFAULT     : 'default' ;
 FROM        : 'from' { inQueryExpression = true; } ;
 SELECT      : {inQueryExpression}? 'select' { inQueryExpression = false; } ;
 WHERE       : {inQueryExpression}? 'where' ;
+LET         : 'let' ;
 
 // Separators
 

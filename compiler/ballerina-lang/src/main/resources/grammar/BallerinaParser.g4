@@ -786,6 +786,7 @@ expression
     |   flushWorker                                                         # flushWorkerExpression
     |   typeDescExpr                                                        # typeAccessExpression
     |   queryExpr                                                           # queryExpression
+    |   letExpr                                                             # letExpression
     ;
 
 constantExpression
@@ -794,6 +795,14 @@ constantExpression
     |   constantExpression (DIV | MUL) constantExpression                   # constDivMulModExpression
     |   constantExpression (ADD | SUB) constantExpression                   # constAddSubExpression
     |   LEFT_PARENTHESIS constantExpression RIGHT_PARENTHESIS               # constGroupExpression
+    ;
+
+letExpr
+    : LET letVarDecl (COMMA letVarDecl)* IN expression
+    ;
+
+letVarDecl
+    : annotationAttachment* (typeName | VAR) bindingPattern ASSIGN expression
     ;
 
 typeDescExpr
