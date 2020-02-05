@@ -1109,32 +1109,39 @@ public class TypeChecker extends BLangNodeVisitor {
 
     private boolean hasRequiredRecordFields(List<RecordLiteralNode.RecordField> specifiedFields,
                                             BRecordType targetRecType) {
+        List<String> fieldNames = getFieldNames(specifiedFields);
+
         for (BField field : targetRecType.fields) {
-            boolean hasField = false;
-
-            for (RecordLiteralNode.RecordField specifiedField : specifiedFields) {
-                BLangSimpleVarRef varRef;
-                if (specifiedField.isKeyValueField()) {
-                    BLangExpression keyExpr = ((BLangRecordKeyValueField) specifiedField).key.expr;
-                    if (keyExpr.getKind() != NodeKind.SIMPLE_VARIABLE_REF) {
-                        continue;
-                    }
-                    varRef = (BLangSimpleVarRef) keyExpr;
-                } else {
-                    varRef = (BLangSimpleVarRef) specifiedField;
-                }
-
-                if (field.name.value.equals(varRef.variableName.value)) {
-                    hasField = true;
-                    break;
-                }
-            }
-
-            if (!hasField && Symbols.isFlagOn(field.symbol.flags, Flags.REQUIRED)) {
+            if (!fieldNames.contains(field.name.value) && Symbols.isFlagOn(field.symbol.flags, Flags.REQUIRED)) {
                 return false;
             }
         }
         return true;
+    }
+
+    private List<String> getFieldNames(List<RecordLiteralNode.RecordField> specifiedFields) {
+        List<String> fieldNames = new ArrayList<>(specifiedFields.size());
+
+        for (RecordLiteralNode.RecordField specifiedField : specifiedFields) {
+            if (specifiedField.isKeyValueField()) {
+                BLangRecordKey key = ((BLangRecordKeyValueField) specifiedField).key;
+                if (key.computedKey) {
+                    continue;
+                }
+
+                BLangExpression keyExpr = key.expr;
+
+                if (keyExpr.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
+                    fieldNames.add(((BLangSimpleVarRef) keyExpr).variableName.value);
+                } else {
+                    fieldNames.add((String) ((BLangLiteral) keyExpr).value);
+                }
+            } else {
+                fieldNames.add(((BLangSimpleVarRef) specifiedField).variableName.value);
+            }
+        }
+
+        return fieldNames;
     }
 
     private List<BType> getListCompatibleTypes(BType expType, BType actualType) {

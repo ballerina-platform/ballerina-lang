@@ -43,10 +43,11 @@ public class MappingConstructorExprTest {
     public void diagnosticsTest() {
         CompileResult result = BCompileUtil.compile(
                 "test-src/expressions/mappingconstructor/mapping_constructor_negative.bal");
-        Assert.assertEquals(result.getErrorCount(), 2);
-        validateError(result, 0, "incompatible mapping constructor expression for type '(string|Person)'", 22, 23);
-        validateError(result, 1,
-                      "a type compatible with mapping constructor expressions not found in type '(int|float)'", 26, 19);
+        Assert.assertEquals(result.getErrorCount(), 3);
+        validateError(result, 0, "incompatible mapping constructor expression for type '(string|Person)'", 33, 23);
+        validateError(result, 1, "ambiguous type '(PersonTwo|PersonThree)'", 37, 31);
+        validateError(result, 2,
+                      "a type compatible with mapping constructor expressions not found in type '(int|float)'", 41, 19);
     }
 
     @Test
