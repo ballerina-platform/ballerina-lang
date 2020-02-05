@@ -25,9 +25,9 @@ public class ProgramFileConstants {
 
     public static final int MAGIC_NUMBER = 0xBA1DA4CE;
     public static final short VERSION_NUMBER = 50;
-    public static final int BIR_VERSION_NUMBER = 52;
-    public static final short MIN_SUPPORTED_VERSION = 52;
-    public static final short MAX_SUPPORTED_VERSION = 52;
+    public static final int BIR_VERSION_NUMBER = 51;
+    public static final short MIN_SUPPORTED_VERSION = 51;
+    public static final short MAX_SUPPORTED_VERSION = 51;
 
     // int, float, string, boolean, reference type
     public static final int NO_OF_VAR_TYPE_CATEGORIES = 5;

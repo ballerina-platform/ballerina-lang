@@ -1258,6 +1258,7 @@ function generateVarLoad(jvm:MethodVisitor mv, bir:VariableDcl varDcl, string cu
                 bType is bir:BTypeString ||
                 bType is bir:BMapType ||
                 bType is bir:BTableType ||
+                bType is bir:BStreamType ||
                 bType is bir:BTypeAny ||
                 bType is bir:BTypeAnyData ||
                 bType is bir:BTypeNil ||
@@ -1342,6 +1343,7 @@ function generateVarStore(jvm:MethodVisitor mv, bir:VariableDcl varDcl, string c
                     bType is bir:BTypeString ||
                     bType is bir:BMapType ||
                     bType is bir:BTableType ||
+                    bType is bir:BStreamType ||
                     bType is bir:BTypeAny ||
                     bType is bir:BTypeAnyData ||
                     bType is bir:BTypeNil ||

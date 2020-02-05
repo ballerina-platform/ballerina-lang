@@ -32,6 +32,7 @@ import org.ballerinalang.jvm.types.BMapType;
 import org.ballerinalang.jvm.types.BObjectType;
 import org.ballerinalang.jvm.types.BPackage;
 import org.ballerinalang.jvm.types.BRecordType;
+import org.ballerinalang.jvm.types.BStreamType;
 import org.ballerinalang.jvm.types.BTableType;
 import org.ballerinalang.jvm.types.BTupleType;
 import org.ballerinalang.jvm.types.BType;
@@ -45,6 +46,7 @@ import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.HandleValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.RefValue;
+import org.ballerinalang.jvm.values.StreamValue;
 import org.ballerinalang.jvm.values.TableValue;
 import org.ballerinalang.jvm.values.TypedescValue;
 import org.ballerinalang.jvm.values.XMLValue;
@@ -241,6 +243,10 @@ public class TypeChecker {
         }
 
         if (sourceType.getTag() == TypeTags.TABLE_TAG && targetType.getTag() == TypeTags.TABLE_TAG) {
+            return targetType.equals(sourceType);
+        }
+
+        if (sourceType.getTag() == TypeTags.STREAM_TAG && targetType.getTag() == TypeTags.STREAM_TAG) {
             return targetType.equals(sourceType);
         }
 
@@ -510,6 +516,8 @@ public class TypeChecker {
                 return checkIsMapType(sourceType, (BMapType) targetType, unresolvedTypes);
             case TypeTags.TABLE_TAG:
                 return checkIsTableType(sourceType, (BTableType) targetType, unresolvedTypes);
+            case TypeTags.STREAM_TAG:
+                return checkIsStreamType(sourceType, (BStreamType) targetType, unresolvedTypes);
             case TypeTags.JSON_TAG:
                 return checkIsJSONType(sourceType, unresolvedTypes);
             case TypeTags.RECORD_TYPE_TAG:
@@ -602,6 +610,14 @@ public class TypeChecker {
             return false;
         }
         return checkContraints(((BTableType) sourceType).getConstrainedType(), targetType.getConstrainedType(),
+                               unresolvedTypes);
+    }
+
+    private static boolean checkIsStreamType(BType sourceType, BStreamType targetType, List<TypePair> unresolvedTypes) {
+        if (sourceType.getTag() != TypeTags.STREAM_TAG) {
+            return false;
+        }
+        return checkContraints(((BStreamType) sourceType).getConstrainedType(), targetType.getConstrainedType(),
                                unresolvedTypes);
     }
 
@@ -980,6 +996,7 @@ public class TypeChecker {
      * if fails then falls back to checking the value.
      * 
      * @param sourceValue Value to check
+     * @param sourceType Type of the value
      * @param targetType Target type
      * @param unresolvedValues Values that are unresolved so far
      * @param allowNumericConversion Flag indicating whether to perform numeric conversions
@@ -1031,6 +1048,8 @@ public class TypeChecker {
                 return checkIsLikeMapType(sourceValue, (BMapType) targetType, unresolvedValues, allowNumericConversion);
             case TypeTags.TABLE_TAG:
                 return checkIsLikeTableType(sourceValue, (BTableType) targetType, unresolvedValues);
+            case TypeTags.STREAM_TAG:
+                return checkIsLikeStreamType(sourceValue, (BStreamType) targetType);
             case TypeTags.ARRAY_TAG:
                 return checkIsLikeArrayType(sourceValue, (BArrayType) targetType, unresolvedValues,
                                             allowNumericConversion);
@@ -1243,6 +1262,16 @@ public class TypeChecker {
         BTableType tableType = (BTableType) ((TableValue) sourceValue).getType();
 
         return tableType.getConstrainedType() == targetType.getConstrainedType();
+    }
+
+    private static boolean checkIsLikeStreamType(Object sourceValue, BStreamType targetType) {
+        if (!(sourceValue instanceof StreamValue)) {
+            return false;
+        }
+
+        BStreamType streamType = (BStreamType) ((StreamValue) sourceValue).getType();
+
+        return streamType.getConstrainedType() == targetType.getConstrainedType();
     }
 
     private static boolean checkIsLikeJSONType(Object sourceValue, BType sourceType, BJSONType targetType,
@@ -1658,6 +1687,7 @@ public class TypeChecker {
             return true;
         }
         switch (type.getTag()) {
+            case TypeTags.STREAM_TAG:
             case TypeTags.MAP_TAG:
             case TypeTags.ANY_TAG:
                 return true;

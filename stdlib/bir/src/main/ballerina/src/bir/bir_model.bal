@@ -337,6 +337,7 @@ const SERVICE_TYPE_NAME = "service";
 public const PLATFORM_TYPE_NAME = "platform";
 const RECORD_TYPE_NAME = "record";
 const MAP_TYPE_NAME = "map";
+const STREAM_TYPE_NAME = "stream";
 const ARRAY_TYPE_NAME = "array";
 const TABLE_TYPE_NAME = "table";
 const ERROR_TYPE_NAME = "error";
@@ -380,6 +381,12 @@ public type BTableType record {|
     TABLE_TYPE_NAME typeName = TABLE_TYPE_NAME;
     BType tConstraint;
 |};
+
+public type BStreamType record {|
+    STREAM_TYPE_NAME typeName = STREAM_TYPE_NAME;
+    BType sConstraint;
+|};
+
 
 public type BErrorType record {|
     ERROR_TYPE_NAME typeName = ERROR_TYPE_NAME;
@@ -469,7 +476,7 @@ public type BFiniteType record {|
 public type BType BTypeInt | BTypeBoolean | BTypeAny | BTypeNil | BTypeByte | BTypeFloat | BTypeString | BUnionType |
                   BTupleType | BInvokableType | BArrayType | BRecordType | BObjectType | BMapType | BErrorType |
                   BTypeAnyData | BTypeNone | BFutureType | BJSONType | Self | BTypeDesc | BXMLType | BServiceType |
-                  BPlatformType | BFiniteType | BTableType | BTypeDecimal | BTypeHandle;
+                  BPlatformType | BFiniteType | BTableType | BStreamType | BTypeDecimal | BTypeHandle;
 
 public type ModuleID record {|
     string org = "";

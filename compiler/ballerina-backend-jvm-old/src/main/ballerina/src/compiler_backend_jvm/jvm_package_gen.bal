@@ -655,6 +655,10 @@ function addBuiltinImports(bir:ModuleID moduleId, bir:Package module) {
                                          modName : {value:"lang.object"},
                                          modVersion : {value:""}};
 
+    bir:ImportModule langStreamModule = {modOrg : {value:"ballerina"},
+                                         modName : {value:"lang.stream"},
+                                         modVersion : {value:""}};
+
     bir:ImportModule langStringModule = {modOrg : {value:"ballerina"},
                                          modName : {value:"lang.string"},
                                          modVersion : {value:""}};
@@ -682,6 +686,7 @@ function addBuiltinImports(bir:ModuleID moduleId, bir:Package module) {
     module.importModules[module.importModules.length()] = langIntModule;
     module.importModules[module.importModules.length()] = langMapModule;
     module.importModules[module.importModules.length()] = langObjectModule;
+    module.importModules[module.importModules.length()] = langStreamModule;
     module.importModules[module.importModules.length()] = langStringModule;
     module.importModules[module.importModules.length()] = langTableModule;
     module.importModules[module.importModules.length()] = langValueModule;
