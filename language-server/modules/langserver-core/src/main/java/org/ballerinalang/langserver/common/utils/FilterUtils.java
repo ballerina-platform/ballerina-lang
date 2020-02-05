@@ -19,6 +19,7 @@ package org.ballerinalang.langserver.common.utils;
 
 import com.google.common.collect.Lists;
 import org.antlr.v4.runtime.CommonToken;
+import org.apache.commons.lang3.tuple.Pair;
 import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.completion.CompletionKeys;
@@ -143,7 +144,7 @@ public class FilterUtils {
     private static List<Scope.ScopeEntry> getInvocationsAndFields(LSContext ctx, List<CommonToken> defaultTokens,
                                                                   int delimIndex) {
         List<Scope.ScopeEntry> resultList = new ArrayList<>();
-        List<ChainedFieldModel> invocationFieldList = getInvocationFieldList(defaultTokens, delimIndex);
+        List<ChainedFieldModel> invocationFieldList = getInvocationFieldList(defaultTokens, delimIndex, false);
         SymbolTable symbolTable = SymbolTable.getInstance(ctx.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY));
 
         ChainedFieldModel startField = invocationFieldList.get(0);
@@ -266,25 +267,30 @@ public class FilterUtils {
                 getBTypeForUnionType((BUnionType) actualType) : actualType;
     }
 
-    private static List<ChainedFieldModel> getInvocationFieldList(List<CommonToken> defaultTokens, int startIndex) {
+    private static List<ChainedFieldModel> getInvocationFieldList(List<CommonToken> defaultTokens, int startIndex,
+                                                                  boolean captureValidField) {
         int traverser = startIndex;
-        int rightParenthesisCount = 0;
         int rightBracketCount = 0;
         boolean invocation = false;
         boolean arrayAccess = false;
         List<ChainedFieldModel> fieldList = new ArrayList<>();
         Pattern pattern = Pattern.compile("^\\w+$");
-        boolean captureNextValidField = false;
+        boolean captureNextValidField = captureValidField;
         while (traverser >= 0) {
             CommonToken token = defaultTokens.get(traverser);
             int type = token.getType();
             Matcher matcher = pattern.matcher(token.getText());
             if (type == BallerinaParser.RIGHT_PARENTHESIS) {
-                if (!invocation) {
+                Pair<Boolean, Integer> isGroupedExpr = isGroupedExpression(defaultTokens, traverser - 1);
+                if (isGroupedExpr.getLeft()) {
+                    List<CommonToken> subList = defaultTokens.subList(isGroupedExpr.getRight() + 1, traverser);
+                    List<ChainedFieldModel> groupedFields = getInvocationFieldList(subList, subList.size() - 1,
+                            captureNextValidField);
+                    fieldList.addAll(Lists.reverse(groupedFields));
+                } else {
                     invocation = true;
                 }
-                rightParenthesisCount++;
-                traverser--;
+                traverser = isGroupedExpr.getRight() - 1;
             } else if (type == BallerinaParser.RIGHT_BRACKET) {
                 // Mapped to both xml and array variables
                 if (!arrayAccess) {
@@ -292,19 +298,17 @@ public class FilterUtils {
                 }
                 rightBracketCount++;
                 traverser--;
-            } else if (type == BallerinaParser.LEFT_PARENTHESIS && rightParenthesisCount > 0) {
-                rightParenthesisCount--;
+            } else if (type == BallerinaParser.LEFT_PARENTHESIS) {
                 traverser--;
             } else if (type == BallerinaParser.LEFT_BRACKET && rightBracketCount > 0) {
                 // Mapped to both xml and array variables
                 rightBracketCount--;
                 traverser--;
             } else if (type == BallerinaParser.DOT || type == BallerinaParser.NOT
-                    || type == BallerinaParser.OPTIONAL_FIELD_ACCESS || rightParenthesisCount > 0
-                    || rightBracketCount > 0) {
+                    || type == BallerinaParser.OPTIONAL_FIELD_ACCESS || rightBracketCount > 0) {
                 captureNextValidField = true;
                 traverser--;
-            } else if (matcher.find() && rightParenthesisCount == 0 && rightBracketCount == 0
+            } else if (matcher.find() && rightBracketCount == 0
                     && captureNextValidField) {
                 InvocationFieldType fieldType;
                 CommonToken packageAlias = null;
@@ -333,6 +337,31 @@ public class FilterUtils {
         }
 
         return Lists.reverse(fieldList);
+    }
+
+    private static Pair<Boolean, Integer> isGroupedExpression(List<CommonToken> defaultTokens, int startIndex) {
+        int traverser = startIndex;
+        int rightParenCount = 0;
+        Pattern pattern = Pattern.compile("^\\w+$");
+        while (true) {
+            int type = defaultTokens.get(traverser).getType();
+            if (type == BallerinaParser.RIGHT_PARENTHESIS) {
+                rightParenCount++;
+            } else if (type == BallerinaParser.LEFT_PARENTHESIS) {
+                if (rightParenCount == 0) {
+                    if (traverser <= 0) {
+                        return Pair.of(true, traverser);
+                    } else {
+                        CommonToken tokenBefore = defaultTokens.get(traverser - 1);
+                        Matcher matcher = pattern.matcher(tokenBefore.getText());
+                        return Pair.of(!matcher.find(), traverser);
+                    }
+                } else {
+                    rightParenCount--;
+                }
+            }
+            traverser--;
+        }
     }
 
     /**
