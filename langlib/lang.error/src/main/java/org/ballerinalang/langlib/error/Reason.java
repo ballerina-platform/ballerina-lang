@@ -19,7 +19,6 @@ package org.ballerinalang.langlib.error;
 
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ErrorValue;
-import org.ballerinalang.jvm.values.StringValue;
 import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;

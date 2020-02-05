@@ -19,7 +19,6 @@ package org.ballerinalang.jvm;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.BmpStringValue;
 import org.ballerinalang.jvm.values.NonBmpStringValue;
-import org.ballerinalang.jvm.values.StringValue;
 import org.ballerinalang.jvm.values.api.BString;
 
 import java.io.BufferedInputStream;

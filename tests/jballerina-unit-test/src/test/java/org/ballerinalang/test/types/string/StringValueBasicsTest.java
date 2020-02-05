@@ -17,7 +17,6 @@
  */
 package org.ballerinalang.test.types.string;
 
-import org.ballerinalang.jvm.values.api.BArray;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;

@@ -17,7 +17,6 @@
  */
 package org.ballerinalang.jvm.values.api;
 
-import org.ballerinalang.jvm.values.StringValue;
 
 import java.io.PrintWriter;
 
