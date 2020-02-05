@@ -147,4 +147,30 @@ public class SimpleQueryExpressionWithDefinedTypeTest {
         Assert.assertEquals(person2.get("firstName").stringValue(), "Ranjan");
         Assert.assertEquals(((BInteger) person2.get("age")).intValue(), 30);
     }
+
+    @Test(description = "Test filtering map with from query expression")
+    public void testMapWithArity() {
+        BValue[] returnValues = BRunUtil.invoke(result, "testMapWithArity");
+        Assert.assertNotNull(returnValues);
+        Assert.assertEquals(returnValues.length, 1);
+        Assert.assertEquals(returnValues[0].stringValue(),"1A");
+    }
+
+
+    @Test(description = "Test selecting values in a JSON array from query expression")
+    public void testJSONArrayWithArity() {
+        BValue[] returnValues = BRunUtil.invoke(result, "testJSONArrayWithArity");
+        Assert.assertNotNull(returnValues);
+        Assert.assertEquals(returnValues.length, 2);
+        Assert.assertEquals(returnValues[0].stringValue(),"bob");
+        Assert.assertEquals(returnValues[1].stringValue(),"tom");
+    }
+
+    @Test(description = "Test filtering values in a tuple from query expression")
+    public void testArrayWithTuple() {
+        BValue[] returnValues = BRunUtil.invoke(result, "testArrayWithTuple");
+        Assert.assertNotNull(returnValues);
+        Assert.assertEquals(returnValues.length, 1);
+        Assert.assertEquals(returnValues[0].stringValue(),"[\"C\"]");
+    }
 }

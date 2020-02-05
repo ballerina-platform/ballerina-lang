@@ -122,3 +122,25 @@ function testFilteringNullElements() returns Person[] {
     return outputPersonList;
 }
 
+function testMapWithArity () returns string[] {
+    map<any> m = {a:"1A", b:"2B", c:"3C", d:"4D"};
+    string[] val = from var v in m
+                   where <string> v == "1A"
+                   select v;
+    return val;
+}
+
+function testJSONArrayWithArity() returns string[] {
+    json[] jdata = [{ name : "bob", age : 10}, { name : "tom", age : 16}];
+    string[] val = from var v in jdata
+                   select v.name;
+    return val;
+}
+
+function testArrayWithTuple() returns string[] {
+    [int, string][] arr = [[1, "A"], [2, "B"], [3, "C"]];
+    string[] val = from var [i, v] in arr
+                   where i == 3
+                   select v;
+    return val;
+}
