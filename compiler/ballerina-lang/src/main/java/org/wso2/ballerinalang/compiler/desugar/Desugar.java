@@ -127,7 +127,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangJSONLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangMapLiteral;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangStreamLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangStructLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordVarRef.BLangRecordVarRefKeyValue;
@@ -3444,13 +3443,7 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     public void visit(BLangTypeInit typeInitExpr) {
-        switch (typeInitExpr.type.tag) {
-            case TypeTags.STREAM:
-                result = new BLangStreamLiteral(typeInitExpr.pos, typeInitExpr.type);
-                break;
-            default:
-                result = rewrite(desugarObjectTypeInit(typeInitExpr), env);
-        }
+        result = rewrite(desugarObjectTypeInit(typeInitExpr), env);
     }
 
     private BLangStatementExpression desugarObjectTypeInit(BLangTypeInit typeInitExpr) {
@@ -4117,10 +4110,6 @@ public class Desugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangMapLiteral mapLiteral) {
         result = mapLiteral;
-    }
-
-    public void visit(BLangStreamLiteral streamLiteral) {
-        result = streamLiteral;
     }
 
     @Override

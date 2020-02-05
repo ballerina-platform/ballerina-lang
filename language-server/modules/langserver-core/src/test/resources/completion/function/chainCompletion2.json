@@ -1,7 +1,7 @@
 {
   "position": {
-    "line": 13,
-    "character": 23
+    "line": 7,
+    "character": 16
   },
   "source": "function/source/chainCompletion2.bal",
   "items": [
@@ -94,14 +94,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "zone",
-      "kind": "Variable",
-      "detail": "time:TimeZone",
-      "sortText": "130",
-      "insertText": "zone",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "get(string k)((any|error))",
       "kind": "Function",
       "detail": "Function",
@@ -188,6 +180,14 @@
       }
     },
     {
+      "label": "recField1",
+      "kind": "Variable",
+      "detail": "int",
+      "sortText": "130",
+      "insertText": "recField1",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "forEach(function ((any|error)) returns () func)",
       "kind": "Function",
       "detail": "Function",
@@ -231,6 +231,14 @@
       },
       "sortText": "120",
       "insertText": "cloneReadOnly()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "recField2",
+      "kind": "Variable",
+      "detail": "string",
+      "sortText": "130",
+      "insertText": "recField2",
       "insertTextFormat": "Snippet"
     },
     {
@@ -309,14 +317,6 @@
       },
       "sortText": "120",
       "insertText": "toString()",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "time",
-      "kind": "Variable",
-      "detail": "int",
-      "sortText": "130",
-      "insertText": "time",
       "insertTextFormat": "Snippet"
     }
   ]
