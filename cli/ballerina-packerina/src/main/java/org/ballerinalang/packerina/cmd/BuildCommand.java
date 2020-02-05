@@ -196,7 +196,7 @@ public class BuildCommand implements BLauncherCmd {
             //// Check if the output flag is set when building all the modules.
             if (null != this.output) {
                 CommandUtil.printError(this.errStream,
-                                       "'-o' and '--output' are only supported for building a single Ballerina " +
+                                       "'-o' and '--output' are only supported when building a single Ballerina " +
                                                "file.",
                                        "ballerina build -o <output-file> <ballerina-file> ",
                                        true);
@@ -267,7 +267,7 @@ public class BuildCommand implements BLauncherCmd {
                 try {
                     targetPath = Files.createTempDirectory("ballerina-build-" + System.nanoTime());
                 } catch (IOException e) {
-                    throw LauncherUtils.createLauncherException("Error occurred when creating executable.");
+                    throw LauncherUtils.createLauncherException("Error occurred when creating the executable.");
                 }
             }
         } else if (Files.exists(
@@ -301,7 +301,7 @@ public class BuildCommand implements BLauncherCmd {
             //// check if module name given is not absolute.
             if (Paths.get(argList.get(0)).isAbsolute()) {
                 CommandUtil.printError(this.errStream,
-                                       "you are trying to build/compile a module by giving the absolute path. You " +
+                                       "you are trying to build/compile a module giving the absolute path. You " +
                                                "only need to give the name of the module.",
                                        "ballerina build [-c] <module-name>",
                                        true);
@@ -403,7 +403,7 @@ public class BuildCommand implements BLauncherCmd {
 
     @Override
     public void printLongDesc(StringBuilder out) {
-        out.append("Build Ballerina module(s)/file and produce an executable JAR file(s). \n");
+        out.append("Build a Ballerina module(s)/file and produce an executable JAR file(s). \n");
         out.append("\n");
         out.append("Build a Ballerina project or a specific module in a project. The \n");
         out.append("executable \".jar\" files will be created in the <PROJECT-ROOT>/target/bin directory. \n");
