@@ -26,6 +26,9 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Searches in children recursively for elements matching the name and returns a sequence containing them all.
  * Does not search within a matched result.
@@ -45,9 +48,17 @@ public class SelectDescendants {
 
     public static XMLValue selectDescendants(Strand strand, XMLValue xml, ArrayValue qnames) {
         try {
-            // todo: this need to support list of qnames.
-            String qname = qnames.getString(0);
-            return (XMLValue) xml.descendants(qname);
+            List<String> qnameList = new ArrayList<>();
+            int size = qnames.size();
+            for (int i = 0; i < size; i++) {
+                String strQname = qnames.getString(i);
+                // remove empty namespace in expanded form i.e `{}local => local`
+                if (strQname.lastIndexOf('}') == 1) {
+                    strQname = strQname.substring(2);
+                }
+                qnameList.add(strQname);
+            }
+            return (XMLValue) xml.descendants(qnameList);
         } catch (Throwable e) {
             BLangExceptionHelper.handleXMLException(OPERATION, e);
         }

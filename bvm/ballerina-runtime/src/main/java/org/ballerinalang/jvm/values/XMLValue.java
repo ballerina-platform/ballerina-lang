@@ -124,17 +124,16 @@ public abstract class XMLValue implements RefValue, BXML, CollectionValue {
      * Recursively traverse and add the descendant with the given name to the descendants list.
      * @param descendants List to add descendants
      * @param currentElement Current node
-     * @param qname Qualified name of the descendants to search
+     * @param qnames Qualified names of the descendants to search
      */
-    protected void addDescendants(List<BXML> descendants, XMLItem currentElement, String qname) {
+    protected void addDescendants(List<BXML> descendants, XMLItem currentElement, List<String> qnames) {
         for (BXML child : currentElement.getChildrenSeq().children) {
             if (child.getNodeType() == XMLNodeType.ELEMENT) {
-                if (((XMLItem) child).getQName().toString().equals(qname)) {
+                String elemName = ((XMLItem) child).getQName().toString();
+                if (qnames.contains(elemName)) {
                     descendants.add(child);
-                    continue;
-                } else {
-                    addDescendants(descendants, (XMLItem) child, qname);
                 }
+                addDescendants(descendants, (XMLItem) child, qnames);
             }
         }
     }

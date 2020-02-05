@@ -183,10 +183,11 @@ public class XMLAccessTest {
                 "<child xmlns=\"foo\" xmlns:k=\"bar\" xmlns:ns=\"foo\">A</child>" +
                         "<ns:child xmlns:ns=\"foo\" xmlns=\"foo\" xmlns:k=\"bar\">B</ns:child>" +
                         "<child2 xmlns=\"foo\" xmlns:k=\"bar\" xmlns:ns=\"foo\">D</child2>");
-        // todo: uncomment after fixing descendents navigation
-//        Assert.assertEquals(returns[3].stringValue(),
-//                "<child xmlns=\"foo\" xmlns:k=\"bar\" xmlns:ns=\"foo\">A</child>" +
-//                        "<ns:child xmlns:ns=\"foo\" xmlns=\"foo\" xmlns:k=\"bar\">B</ns:child>");
+        Assert.assertEquals(returns[3].stringValue(),
+                "<child xmlns=\"foo\" xmlns:k=\"bar\" xmlns:ns=\"foo\">A</child>" +
+                        "<ns:child xmlns:ns=\"foo\" xmlns=\"foo\" xmlns:k=\"bar\">B</ns:child>" +
+                        "<k:child xmlns:k=\"bar\" xmlns=\"foo\" xmlns:ns=\"foo\">C</k:child>" +
+                        "<child2 xmlns=\"foo\" xmlns:k=\"bar\" xmlns:ns=\"foo\">D</child2>");
         Assert.assertEquals(returns[4].stringValue(),
                 "<child xmlns=\"foo\" xmlns:k=\"bar\" xmlns:ns=\"foo\">A</child>" +
                         "<ns:child xmlns:ns=\"foo\" xmlns=\"foo\" xmlns:k=\"bar\">B</ns:child>" +

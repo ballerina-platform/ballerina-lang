@@ -90,8 +90,7 @@ function testXMLNavigationOnSequenceWithNamespacesAndMultipleFilters() returns [
     xml x2 = x1/<child|child2>;
     xml x3 = x1/*;
     xml x4 = x1/<*>;
-    // todo: improve descendents navigation
-    xml x5 = x1/**/<ns:child|child2>;
+    xml x5 = x1/**/<ns:child|k:child|child2>;
     xml x6 = x1/<child|child2>[0];
     return [x2, x3, x4, x5, x6];
 }

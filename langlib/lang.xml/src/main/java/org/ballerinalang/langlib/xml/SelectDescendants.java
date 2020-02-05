@@ -26,6 +26,7 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
+import org.wso2.ballerinalang.util.Lists;
 
 /**
  * Searches in children recursively for elements matching the name and returns a sequence containing them all.
@@ -48,7 +49,7 @@ public class SelectDescendants {
         try {
             // todo: this need to support list of qnames.
             String qname = qnames.getString(0);
-            return (XMLValue) xml.descendants(qname);
+            return (XMLValue) xml.descendants(Lists.of(qname));
         } catch (Throwable e) {
             BLangExceptionHelper.handleXMLException(OPERATION, e);
         }

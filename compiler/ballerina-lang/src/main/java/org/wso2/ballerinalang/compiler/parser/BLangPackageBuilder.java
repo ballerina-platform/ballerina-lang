@@ -3411,6 +3411,8 @@ public class BLangPackageBuilder {
         for(int i = 0; i < filterCount; i++) {
             filters.add((BLangXMLElementFilter) elementFilterStack.pop());
         }
+        // Filters were collected from right to left, hence need to reverse the order.
+        Collections.reverse(filters);
         return filters;
     }
 }

@@ -371,14 +371,16 @@ public final class XMLSequence extends XMLValue {
      * {@inheritDoc}
      */
     @Override
-    public XMLValue descendants(String qname) {
+    public XMLValue descendants(List<String> qnames) {
         List<BXML> descendants = new ArrayList<>();
-        for (BXML x : children) {
-            XMLItem element = (XMLItem) x;
-            if (element.getQName().toString().equals(getQname(qname).toString())) {
-                descendants.add(element);
-            } else if (element.getNodeType() == XMLNodeType.ELEMENT) {
-                addDescendants(descendants, element, getQname(qname).toString());
+        for (BXML child : children) {
+            if (child.getNodeType() == XMLNodeType.ELEMENT) {
+                XMLItem element = (XMLItem) child;
+                String name = element.getQName().toString();
+                if (qnames.contains(name)) {
+                    descendants.add(element);
+                }
+                addDescendants(descendants, element, qnames);
             }
         }
 

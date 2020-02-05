@@ -27,6 +27,7 @@ import org.ballerinalang.jvm.values.freeze.Status;
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
@@ -127,7 +128,7 @@ public abstract class XMLNonElementItem extends XMLValue {
     }
 
     @Override
-    public BXML descendants(String qname) {
+    public BXML descendants(List<String> qnames) {
         return new XMLSequence();
     }
 
