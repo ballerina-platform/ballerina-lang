@@ -1049,7 +1049,7 @@ public class BLangPackageBuilder {
         arrowFunctionNode.functionName = createIdentifier(pos, anonymousModelHelper.getNextAnonymousFunctionKey(pkgID),
                 null);
         varListStack.pop().forEach(var -> arrowFunctionNode.params.add((BLangSimpleVariable) var));
-        arrowFunctionNode.expression = (BLangExpression) this.exprNodeStack.pop();
+        arrowFunctionNode.body = (BLangExprFunctionBody) this.funcBodyNodeStack.pop();
         addExpressionNode(arrowFunctionNode);
     }
 
@@ -1936,13 +1936,10 @@ public class BLangPackageBuilder {
     }
 
     void endExprFunctionBody(DiagnosticPos pos, Set<Whitespace> ws) {
-        BLangExprFunctionBody body = (BLangExprFunctionBody) this.funcBodyNodeStack.pop();
+        BLangExprFunctionBody body = (BLangExprFunctionBody) this.funcBodyNodeStack.peek();
         body.expr = (BLangExpression) this.exprNodeStack.pop();
         body.pos = pos;
         body.addWS(ws);
-
-        InvokableNode invokableNode = this.invokableNodeStack.peek();
-        invokableNode.setBody(body);
     }
 
     void endExternalFunctionBody(int annotCount) {

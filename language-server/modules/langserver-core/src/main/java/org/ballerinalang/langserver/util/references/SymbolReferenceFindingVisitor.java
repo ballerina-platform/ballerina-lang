@@ -793,7 +793,7 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
     @Override
     public void visit(BLangArrowFunction bLangArrowFunction) {
         bLangArrowFunction.params.forEach(this::acceptNode);
-        this.acceptNode(bLangArrowFunction.expression);
+        this.acceptNode(bLangArrowFunction.body.expr);
     }
 
     @Override

@@ -31,6 +31,6 @@ public interface ArrowFunctionNode extends ExpressionNode {
 
     List<? extends VariableNode> getParameters();
 
-    ExpressionNode getExpression();
+    ExpressionNode getExprBody();
 
 }
