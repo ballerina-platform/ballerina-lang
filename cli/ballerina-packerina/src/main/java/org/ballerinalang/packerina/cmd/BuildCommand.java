@@ -117,8 +117,8 @@ public class BuildCommand implements BLauncherCmd {
     private boolean buildAll;
     
     @CommandLine.Option(names = {"--output", "-o"}, description = "Write the output to the given file. The provided " +
-                                                                  "output file name may or may not contain the '.jar' " +
-                                                                  "extension.")
+                                                                  "output file name may or may not contain the " +
+                                                                  "'.jar' extension.")
     private String output;
 
     @CommandLine.Option(names = {"--offline"}, description = "Build/Compile offline without downloading " +
@@ -371,7 +371,7 @@ public class BuildCommand implements BLauncherCmd {
                 .addTask(new CreateTargetDirTask()) // create target directory
                 .addTask(new CompileTask()) // compile the modules
                 .addTask(new CreateLockFileTask(), this.skipLock || isSingleFileBuild)  // create a lock file if
-                                                                    // the given skipLock flag does not exist(projects only)
+                                                            // the given skipLock flag does not exist(projects only)
                 .addTask(new CreateBaloTask(), isSingleFileBuild)   // create the BALOs for modules (projects only)
                 .addTask(new CreateBirTask())   // create the bir
                 .addTask(new CopyNativeLibTask(skipCopyLibsFromDist))    // copy the native libs(projects only)
