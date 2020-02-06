@@ -67,10 +67,13 @@ public class PullModuleExecutor implements LSCommandExecutor {
             for (Object arg : context.get(ExecuteCommandKeys.COMMAND_ARGUMENTS_KEY)) {
                 String argKey = ((JsonObject) arg).get(ARG_KEY).getAsString();
                 String argVal = ((JsonObject) arg).get(ARG_VALUE).getAsString();
-                if (argKey.equals(CommandConstants.ARG_KEY_MODULE_NAME)) {
-                    moduleName = argVal;
-                } else if (argKey.equals(CommandConstants.ARG_KEY_DOC_URI)) {
-                    documentUri = argVal;
+                switch (argKey) {
+                    case CommandConstants.ARG_KEY_MODULE_NAME:
+                        moduleName = argVal;
+                        break;
+                    case CommandConstants.ARG_KEY_DOC_URI:
+                        documentUri = argVal;
+                        break;
                 }
             }
             // If no package, or no doc uri; then just skip
