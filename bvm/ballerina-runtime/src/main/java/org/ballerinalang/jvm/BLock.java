@@ -29,22 +29,22 @@ import java.util.ArrayDeque;
  */
 public class BLock {
 
-    private static ArrayDeque<Strand> current;
+    private ArrayDeque<Strand> current;
 
-    private static ArrayDeque<Strand> waitingForLock;
+    private ArrayDeque<Strand> waitingForLock;
 
-    static {
-        current = new ArrayDeque<>();
-        waitingForLock = new ArrayDeque<>();
+    public BLock() {
+        this.current = new ArrayDeque<>();
+        this.waitingForLock = new ArrayDeque<>();
     }
 
-    public static synchronized boolean lock(Strand strand) {
+    public synchronized boolean lock(Strand strand) {
         if (isLockFree() || lockedBySameContext(strand)) {
-            current.offerLast(strand);
+            this.current.offerLast(strand);
             return true;
         }
 
-        waitingForLock.offerLast(strand);
+        this.waitingForLock.offerLast(strand);
 
         // Strand state change
         strand.setState(State.BLOCK_AND_YIELD);
@@ -52,20 +52,20 @@ public class BLock {
         return false;
     }
 
-    public static synchronized void unlock() {
+    public synchronized void unlock() {
         //current cannot be empty as unlock cannot be called without lock being called first.
-        current.removeLast();
+        this.current.removeLast();
         if (!waitingForLock.isEmpty()) {
-            Strand strand = waitingForLock.removeFirst();
+            Strand strand = this.waitingForLock.removeFirst();
             strand.scheduler.unblockStrand(strand);
         }
     }
 
-    private static boolean isLockFree() {
-        return current.isEmpty();
+    private boolean isLockFree() {
+        return this.current.isEmpty();
     }
 
-    private static boolean lockedBySameContext(Strand ctx) {
-        return current.getLast() == ctx;
+    private boolean lockedBySameContext(Strand ctx) {
+        return this.current.getLast() == ctx;
     }
 }

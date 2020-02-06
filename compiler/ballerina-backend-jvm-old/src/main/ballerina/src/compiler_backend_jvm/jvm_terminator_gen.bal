@@ -89,9 +89,11 @@ type TerminatorGenerator object {
 
     function genLockTerm(bir:Lock lockIns, string funcName, int localVarOffset) {
         jvm:Label gotoLabel = self.labelGen.getLabel(funcName + lockIns.lockBB.id.value);
-        string lockClass = "L" + LOCK_VALUE + ";";
+        self.mv.visitLdcInsn("global");
+        self.mv.visitMethodInsn(INVOKESTATIC, LOCK_MANAGER, "getLockFromMap", io:sprintf("(L%s;)L%s", STRING_VALUE,
+            LOCK_VALUE), false);
         self.mv.visitVarInsn(ALOAD, localVarOffset);
-        self.mv.visitMethodInsn(INVOKESTATIC, LOCK_VALUE, "lock", io:sprintf("(L%s;)Z", STRAND), false);
+        self.mv.visitMethodInsn(INVOKEVIRTUAL, LOCK_VALUE, "lock", io:sprintf("(L%s;)Z", STRAND), false);
         self.mv.visitInsn(POP);
         genYieldCheckForLock(self.mv, self.labelGen, funcName, localVarOffset);
 
@@ -123,10 +125,11 @@ type TerminatorGenerator object {
     function genUnlockTerm(bir:Unlock unlockIns, string funcName, bir:BType? attachedType) {
         jvm:Label gotoLabel = self.labelGen.getLabel(funcName + unlockIns.unlockBB.id.value);
 
-        string lockClass = "L" + LOCK_VALUE + ";";
         // unlocked in the same order https://yarchive.net/comp/linux/lock_ordering.html
-
-        self.mv.visitMethodInsn(INVOKESTATIC, LOCK_VALUE, "unlock", "()V", false);
+        self.mv.visitLdcInsn("global");
+        self.mv.visitMethodInsn(INVOKESTATIC, LOCK_MANAGER, "getLockFromMap", io:sprintf("(L%s;)L%s", STRING_VALUE,
+            LOCK_VALUE), false);
+        self.mv.visitMethodInsn(INVOKEVIRTUAL, LOCK_VALUE, "unlock", "()V", false);
 
         self.mv.visitJumpInsn(GOTO, gotoLabel);
     }

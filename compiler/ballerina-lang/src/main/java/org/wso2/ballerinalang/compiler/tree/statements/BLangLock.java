@@ -20,7 +20,6 @@ package org.wso2.ballerinalang.compiler.tree.statements;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.statements.BlockStatementNode;
 import org.ballerinalang.model.tree.statements.LockNode;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
