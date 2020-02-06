@@ -27,7 +27,6 @@ import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpVersion;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
-import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 import org.wso2.transport.http.netty.contentaware.listeners.TrailerHeaderListener;
 import org.wso2.transport.http.netty.contract.Constants;
@@ -43,7 +42,6 @@ import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 import org.wso2.transport.http.netty.util.DefaultHttpConnectorListener;
 import org.wso2.transport.http.netty.util.TestUtil;
 
-import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.util.HashMap;
@@ -76,13 +74,17 @@ public class ClientReadTrailerHeaderTestCase extends TrailerHeaderTestTemplate {
         clientConnector = httpWsConnectorFactory.createHttpClientConnector(new HashMap<>(), new SenderConfiguration());
     }
 
-    @DataProvider(name = "payload")
-    private Object[][] payloadDataProvider() {
-        return new Object[][]{{TestUtil.smallEntity}, {TestUtil.largeEntity}};
+    @Test
+    public void testSmallPayload() throws InterruptedException {
+        testReadTrailers(TestUtil.smallEntity);
     }
 
-    @Test(dataProvider = "payload")
-    public void testReadTrailers(String payload) throws IOException, InterruptedException {
+    @Test
+    public void testLargePayload() throws InterruptedException {
+        testReadTrailers(TestUtil.largeEntity);
+    }
+
+    private void testReadTrailers(String payload) throws InterruptedException {
 
         HttpCarbonMessage requestMsg = new HttpCarbonMessage(new DefaultHttpRequest(HttpVersion.HTTP_1_1,
                                                                                     HttpMethod.POST, ""));

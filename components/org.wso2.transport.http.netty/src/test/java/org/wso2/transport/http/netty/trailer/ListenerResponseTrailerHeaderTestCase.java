@@ -63,6 +63,16 @@ public class ListenerResponseTrailerHeaderTestCase extends TrailerHeaderTestTemp
     }
 
     @Test
+    public void testNoPayload() {
+        HttpClient httpClient = new HttpClient(TestUtil.TEST_HOST, TestUtil.SERVER_CONNECTOR_PORT);
+        FullHttpRequest httpRequest = new
+                DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.GET, "/");
+        FullHttpResponse httpResponse = httpClient.sendRequest(httpRequest);
+
+        assertResponse(httpResponse, "");
+    }
+
+    @Test
     public void testSmallPayload() {
         HttpClient httpClient = new HttpClient(TestUtil.TEST_HOST, TestUtil.SERVER_CONNECTOR_PORT);
         FullHttpRequest httpRequest = new

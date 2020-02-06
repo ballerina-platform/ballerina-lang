@@ -25,7 +25,6 @@ import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.DefaultLastHttpContent;
 import io.netty.handler.codec.http.HttpContent;
-import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.codec.http.LastHttpContent;
@@ -111,7 +110,7 @@ public class SendingEntityBody implements ListenerState {
         ChannelFuture outboundChannelFuture;
         if (httpContent instanceof LastHttpContent) {
             if (headersWritten) {
-                writeTrailerHeaders((LastHttpContent) httpContent);
+                ((LastHttpContent) httpContent).trailingHeaders().add(outboundResponseMsg.getTrailerHeaders());
                 outboundChannelFuture = checkHeadRequestAndWriteOutboundResponseBody(httpContent);
             } else {
                 contentLength += httpContent.content().readableBytes();
@@ -273,13 +272,5 @@ public class SendingEntityBody implements ListenerState {
         contentList.clear();
         contentLength = 0;
         headersWritten = false;
-    }
-
-    private void writeTrailerHeaders(LastHttpContent lastContent) {
-        if (lastContent == LastHttpContent.EMPTY_LAST_CONTENT) {
-            return;
-        }
-        HttpHeaders trailers = lastContent.trailingHeaders();
-        trailers.add(outboundResponseMsg.getTrailerHeaders());
     }
 }

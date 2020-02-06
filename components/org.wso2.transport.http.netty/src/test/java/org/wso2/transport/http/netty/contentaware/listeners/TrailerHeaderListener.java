@@ -78,6 +78,10 @@ public class TrailerHeaderListener extends EchoMessageListener {
                     HttpCarbonMessage httpResponse = getHttpCarbonMessage();
                     do {
                         HttpContent httpContent = httpRequest.getHttpContent();
+                        if (httpContent == LastHttpContent.EMPTY_LAST_CONTENT) {
+                            httpResponse.addHttpContent(new DefaultLastHttpContent());
+                            break;
+                        }
                         httpResponse.addHttpContent(httpContent);
                         if (httpContent instanceof LastHttpContent) {
                             break;
