@@ -18,7 +18,6 @@
 
 package org.ballerinalang.packerina.task;
 
-import org.ballerinalang.packerina.OsUtils;
 import org.ballerinalang.packerina.buildcontext.BuildContext;
 import org.ballerinalang.packerina.buildcontext.BuildContextField;
 import org.ballerinalang.packerina.buildcontext.sourcecontext.SingleFileContext;
@@ -29,6 +28,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 import org.wso2.ballerinalang.util.Lists;
 
+import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -39,6 +39,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.StringJoiner;
 
 import static org.ballerinalang.jvm.runtime.RuntimeConstants.SYSTEM_PROP_BAL_DEBUG;
 import static org.ballerinalang.jvm.util.BLangConstants.MODULE_INIT_CLASS_NAME;
@@ -196,15 +197,12 @@ public class RunExecutableTask implements Task {
     }
 
     private String getAllClassPaths(BLangPackage executableModule, BuildContext buildContext) {
-        // Since classpath separator depends on the OS type
-        String separator = OsUtils.isWindows() ? ";" : ":";
-        StringBuilder cp = new StringBuilder();
+        StringJoiner cp = new StringJoiner(File.pathSeparator);
         // Adds executable thin jar path.
-        cp.append(this.executableJarPath.toString()).append(separator);
+        cp.add(this.executableJarPath.toString());
         // Adds all the dependency paths.
-        buildContext.moduleDependencyPathMap.get(executableModule.packageID).platformLibs.forEach(
-                path -> cp.append(path.toString()).append(separator));
-        // Returns the classpath string after removing last separator added.
-        return cp.toString().substring(0, cp.toString().length() - 1);
+        buildContext.moduleDependencyPathMap.get(executableModule.packageID).platformLibs.forEach(path ->
+                cp.add(path.toString()));
+        return cp.toString();
     }
 }
