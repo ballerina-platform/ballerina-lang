@@ -1122,7 +1122,7 @@
             "kind": "Struct",
             "detail": "Record",
             "documentation": {
-                "left": "Configuration for the WebSocket client endpoint.\n"
+                "left": "Configurations for the WebSocket client endpoint.\n"
             },
             "sortText": "221",
             "insertText": "WebSocketClientConfiguration",
