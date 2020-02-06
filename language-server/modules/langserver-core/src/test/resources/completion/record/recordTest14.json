@@ -1,9 +1,9 @@
 {
   "position": {
     "line": 9,
-    "character": 8
+    "character": 22
   },
-  "source": "record/source/recordTest2.bal",
+  "source": "record/source/recordTest14.bal",
   "items": [
     {
       "label": "fromJsonString()((json|error))",
@@ -110,14 +110,6 @@
         "title": "editor.action.triggerParameterHints",
         "command": "editor.action.triggerParameterHints"
       }
-    },
-    {
-      "label": "employer",
-      "kind": "Variable",
-      "detail": "Person",
-      "sortText": "130",
-      "insertText": "employer",
-      "insertTextFormat": "Snippet"
     },
     {
       "label": "map(function ((any|error)) returns ((any|error)) func)(map<(any|error)>)",

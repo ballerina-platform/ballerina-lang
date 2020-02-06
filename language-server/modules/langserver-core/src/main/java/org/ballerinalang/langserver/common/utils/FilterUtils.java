@@ -45,6 +45,8 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
+import org.wso2.ballerinalang.compiler.tree.BLangNode;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
@@ -403,7 +405,7 @@ public class FilterUtils {
         } else if (symbolType.tsymbol != null && symbolType.tsymbol.scope != null) {
             entries.putAll(getLangLibScopeEntries(symbolType, symbolTable, types));
             Map<Name, Scope.ScopeEntry> filteredEntries = symbolType.tsymbol.scope.entries.entrySet().stream()
-                    .filter(optionalFieldFilter(symbolType, invocationToken))
+                    .filter(optionalFieldFilter(symbolType, invocationToken, context))
                     .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
             entries.putAll(filteredEntries);
         } else {
@@ -606,10 +608,17 @@ public class FilterUtils {
     }
 
     private static Predicate<Map.Entry<Name, Scope.ScopeEntry>> optionalFieldFilter(BType symbolType,
-                                                                                    Integer invocationTkn) {
+                                                                                    Integer invocationTkn,
+                                                                                    LSContext context) {
+        BLangNode scope = context.get(CompletionKeys.SCOPE_NODE_KEY);
+        List<Integer> defaultTokenTypes = context.get(CompletionKeys.LHS_DEFAULT_TOKENS_KEY)
+                .stream()
+                .map(CommonToken::getType).collect(Collectors.toList());
+
         return entry -> {
             if (symbolType.tag == TypeTags.RECORD && (invocationTkn == BallerinaParser.DOT
-                    || invocationTkn == BallerinaParser.NOT)) {
+                    || invocationTkn == BallerinaParser.NOT) && scope instanceof BLangBlockStmt
+                    && defaultTokenTypes.contains(BallerinaParser.ASSIGN)) {
                 return !org.ballerinalang.jvm.util.Flags.isFlagOn(entry.getValue().symbol.flags,
                         Flags.OPTIONAL);
             }
