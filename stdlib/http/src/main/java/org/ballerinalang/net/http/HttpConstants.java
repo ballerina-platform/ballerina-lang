@@ -138,7 +138,7 @@ public class HttpConstants {
     public static final String ANNOTATION_METHOD_OPTIONS = HTTP_METHOD_OPTIONS;
     public static final String ANN_NAME_PARAM_ORDER_CONFIG = "ParamOrderConfig";
     public static final String ANN_FIELD_PATH_PARAM_ORDER = "pathParamOrder";
-    public static final String IS_RESPONSE_PROCESSED = "isResponseProcessed";
+    public static final String IS_DIRTY_RESPONSE = "isDirtyProcessed";
 
     public static final String VALUE_ATTRIBUTE = "value";
 

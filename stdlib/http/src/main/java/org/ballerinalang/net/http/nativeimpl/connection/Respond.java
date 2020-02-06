@@ -62,17 +62,15 @@ public class Respond extends ConnectionAction {
         HttpCarbonMessage inboundRequestMsg = HttpUtil.getCarbonMsg(connectionObj, null);
         Strand strand = Scheduler.getStrand();
         DataContext dataContext = new DataContext(strand, new NonBlockingCallback(strand), inboundRequestMsg);
-        HttpCarbonMessage outboundResponseMsg;
-        if (outboundResponseObj.get(RESPONSE_CACHE_CONTROL_FIELD) == null && outboundResponseObj.
-                getNativeData(HttpConstants.IS_RESPONSE_PROCESSED) != null) {
-            String errorMessage = "Couldn't complete the outbound response which has been already processed.";
+        if (isDirtyResponse(outboundResponseObj)) {
+            String errorMessage = "Couldn't complete the respond operation as the response has been already used.";
             HttpUtil.sendOutboundResponse(inboundRequestMsg, HttpUtil.createErrorMessage(errorMessage, 500));
             unBlockStrand(strand);
             log.debug(errorMessage);
             return HttpUtil.createHttpError(errorMessage, HttpErrorType.GENERIC_LISTENER_ERROR);
         }
-        outboundResponseObj.addNativeData(HttpConstants.IS_RESPONSE_PROCESSED, true);
-        outboundResponseMsg = HttpUtil.getCarbonMsg(outboundResponseObj, HttpUtil.
+        outboundResponseObj.addNativeData(HttpConstants.IS_DIRTY_RESPONSE, true);
+        HttpCarbonMessage outboundResponseMsg = HttpUtil.getCarbonMsg(outboundResponseObj, HttpUtil.
                     createHttpCarbonMessage(false));
         outboundResponseMsg.setPipeliningEnabled(inboundRequestMsg.isPipeliningEnabled());
         outboundResponseMsg.setSequenceId(inboundRequestMsg.getSequenceId());
@@ -133,5 +131,10 @@ public class Respond extends ConnectionAction {
             ResponseCacheControlObj respCC = new ResponseCacheControlObj(cacheControl);
             outboundResponse.setHeader(HttpHeaderNames.CACHE_CONTROL.toString(), respCC.buildCacheControlDirectives());
         }
+    }
+
+    private static boolean isDirtyResponse(ObjectValue outboundResponseObj) {
+        return outboundResponseObj.get(RESPONSE_CACHE_CONTROL_FIELD) == null && outboundResponseObj.
+                getNativeData(HttpConstants.IS_DIRTY_RESPONSE) != null;
     }
 }

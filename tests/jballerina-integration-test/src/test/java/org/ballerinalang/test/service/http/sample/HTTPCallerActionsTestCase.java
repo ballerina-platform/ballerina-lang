@@ -73,13 +73,12 @@ public class HTTPCallerActionsTestCase extends HttpBaseTest {
     }
 
     @Test
-    public void testSameResponseSendAgain() throws IOException {
-        HttpResponse response = HttpClientRequest.doGet(serverInstance.getServiceURLHttp(9256,
-                "hello"));
+    public void testDirtyResponse() throws IOException {
+        HttpResponse response = HttpClientRequest.doGet(serverInstance.getServiceURLHttp(9256, "hello"));
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
         response = HttpClientRequest.doGet(serverInstance.getServiceURLHttp(9256, "hello"));
-        Assert.assertEquals(response.getData(), "couldn't complete the outbound response which has " +
-                "been already processed.", "Message content mismatched");
+        Assert.assertEquals(response.getData(), "couldn't complete the respond operation as the response has " +
+                "been already used.", "Message content mismatched");
         Assert.assertEquals(response.getResponseCode(), 500, "Response code mismatched");
     }
 }
