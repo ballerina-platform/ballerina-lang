@@ -37,6 +37,7 @@ public class WebSocketConstants {
     public static final String WEBSOCKET_SERVICE = "WebSocketService";
     public static final String WEBSOCKET_CLIENT_SERVICE = "WebSocketClientService";
     public static final String WSS_SCHEME = "wss";
+    public static final String WS_SCHEME = "ws";
     public static final String WEBSOCKET_CALLER_NAME = PACKAGE_HTTP + SEPARATOR + WEBSOCKET_CALLER;
     public static final String FULL_WEBSOCKET_CALLER_NAME = BLangConstants.BALLERINA_PACKAGE_PREFIX +
             WEBSOCKET_CALLER_NAME;

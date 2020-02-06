@@ -48,8 +48,8 @@ public type WebSocketClient client object {
     #
     # + data - Data to be sent. If it is a byte[], it is converted to a UTF-8 string for sending
     # + finalFrame - Set to `true` if this is a final frame of a (long) message
-    # + return  - Returns a`error` if an error occurs while sending the text message to the server.
-    #   The message will be lost if an error occurs
+    # + return  - Returns an `error` if an error occurs while sending the text message to the server and that message
+    #             will be lost
     public remote function pushText(string|json|xml|boolean|int|float|byte|byte[] data,
     public boolean finalFrame = true) returns WebSocketError? {
         return self.conn.pushText(data, finalFrame);
@@ -59,8 +59,8 @@ public type WebSocketClient client object {
     #
     # + data - Binary data to be sent
     # + finalFrame - Set to `true` if this is a final frame of a (long) message
-    # + return - Returns a `error` if an error occurs while sending the binary message to the server.
-    #   The message will be lost if an error occurs
+    # + return - Returns an `error` if an error occurs while sending the binary message to the server and that message
+    #           will be lost
     public remote function pushBinary(byte[] data, public boolean finalFrame = true) returns WebSocketError? {
         return self.conn.pushBinary(data, finalFrame);
     }
@@ -68,8 +68,8 @@ public type WebSocketClient client object {
     # Pings the connection.
     #
     # + data - Binary data to be sent
-    # + return - Returns a`error` if an error occurs while sending the ping frame to the server.
-    #   The frame will be lost if an error occurs
+    # + return - Returns an `error` if an error occurs while sending the ping frame to the server and that frame
+    #            will be lost
     public remote function ping(byte[] data) returns WebSocketError? {
         return self.conn.ping(data);
     }
@@ -77,8 +77,8 @@ public type WebSocketClient client object {
     # Sends a pong message to the connection.
     #
     # + data - Binary data to be sent
-    # + return - Returns a `error` if an error occurs while sending the pong frame to the server.
-    #   The frame will be lost if an error occurs
+    # + return - Returns an `error` if an error occurs while sending the pong frame to the server and that frame
+    #            will be lost
     public remote function pong(byte[] data) returns WebSocketError? {
         return self.conn.pong(data);
     }
@@ -92,7 +92,7 @@ public type WebSocketClient client object {
     #                   is not received from the remote endpoint. If the value is < 0 (e.g., -1), then the connection
     #                   waits until a close frame is received. If the WebSocket frame is received from the remote
     #                   endpoint within the waiting period, the connection is terminated immediately
-    # + return - Returns a `error` if an error occurs while closing the webSocket connection
+    # + return - Returns an `error` if an error occurs while closing the webSocket connection
     public remote function close(public int? statusCode = 1000, public string? reason = (),
         public int timeoutInSeconds = 60) returns WebSocketError? {
         return self.conn.close(statusCode, reason, timeoutInSeconds);
@@ -101,7 +101,7 @@ public type WebSocketClient client object {
     # Called when the endpoint is ready to receive messages. Can be called only once per endpoint. For the
     # WebSocketListener, it can be called only in the `upgrade` or `onOpen` resources.
     #
-    # + return - Returns a`error` if an error occurs while checking the connection state
+    # + return - Returns an `error` if an error occurs while checking the connection state
     public remote function ready() returns WebSocketError? {
         return self.conn.ready();
     }

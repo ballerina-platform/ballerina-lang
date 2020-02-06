@@ -45,7 +45,6 @@ public class FailoverInitEndpoint {
 
     private static final Logger logger = LoggerFactory.getLogger(FailoverInitEndpoint.class);
     private static final String FAILOVER_INTERVAL = "failoverIntervalInMillis";
-    private static final String WSS_SCHEME = "ws";
 
     public static void init(ObjectValue webSocketClient) {
         @SuppressWarnings(WebSocketConstants.UNCHECKED)
@@ -62,7 +61,8 @@ public class FailoverInitEndpoint {
             try {
                 URI uri = new URI(url);
                 String scheme = uri.getScheme();
-                if (!WSS_SCHEME.equalsIgnoreCase(scheme) && !WebSocketConstants.WSS_SCHEME.equalsIgnoreCase(scheme)) {
+                if (!WebSocketConstants.WS_SCHEME.equalsIgnoreCase(scheme) && !WebSocketConstants.WSS_SCHEME.
+                        equalsIgnoreCase(scheme)) {
                     String name = targets.get(i).toString();
                     logger.error("{} drop from the targets url because webSocket client supports only WS(S) scheme.",
                             name);
