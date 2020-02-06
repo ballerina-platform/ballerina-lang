@@ -242,8 +242,8 @@ public class WebSocketUtil {
     /**
      * Reconnect when the WebSocket connection is lost.
      *
-     * @param connectionInfo - information about the connection.
-     * @return If attempts reconnection, then return true.
+     * @param connectionInfo - information about the connection
+     * @return If attempts reconnection, then return true
      */
     public static boolean reconnect(WebSocketConnectionInfo connectionInfo) {
         ObjectValue webSocketClient = connectionInfo.getWebSocketEndpoint();
@@ -284,13 +284,13 @@ public class WebSocketUtil {
         List targets = failoverConfig.getTargetUrls();
         int failoverInterval = failoverConfig.getFailoverInterval();
         WebSocketService wsService = connectionInfo.getService();
-        // Set next url index
+        // Sets next url index
         currentIndex++;
-        // Check current url index equals to target size or not. if equal, set the currentIndex = 0
+        // Checks current url index equals to target size or not. if equal, set the currentIndex = 0
         if (currentIndex == targets.size()) {
             currentIndex = 0;
         }
-        // Check the current url index equals with previous connected url index or not.
+        // Checks the current url index equals with previous connected url index or not
         // If it isn't equal, call the initialiseWebSocketConnection()
         // if it equals, return false
         if (currentIndex != failoverConfig.getInitialIndex()) {
@@ -308,8 +308,8 @@ public class WebSocketUtil {
     /**
      * Establish connection with the endpoint.
      *
-     * @param webSocketClient - the WebSocket client.
-     * @param wsService - the WebSocket service.
+     * @param webSocketClient - the WebSocket client
+     * @param wsService - the WebSocket service
      */
     public static void establishWebSocketConnection(ObjectValue webSocketClient, WebSocketService wsService) {
         WebSocketClientConnector clientConnector = (WebSocketClientConnector) webSocketClient.
@@ -334,7 +334,7 @@ public class WebSocketUtil {
             handshakeFuture.setClientHandshakeListener(new WebSocketClientHandshakeListener(webSocketClient, wsService,
                     clientConnectorListener, readyOnConnect, countDownLatch));
         }
-        // Set the countDown latch for every handshake
+        // Sets the countDown latch for every handshake
         waitForHandshake(webSocketClient, countDownLatch);
     }
 
@@ -363,10 +363,10 @@ public class WebSocketUtil {
     }
 
     /**
-     * Check whether the client's config has the retryConfig property.
+     * Checks whether the client's config has the retryConfig property.
      *
-     * @param webSocketClient - the WebSocket client.
-     * @return If the client's config has the retry config, then return true.
+     * @param webSocketClient - the WebSocket client
+     * @return If the client's config has the retry config, then return true
      */
     public static boolean hasRetryConfig(ObjectValue webSocketClient) {
         return webSocketClient.getMapValue(CLIENT_ENDPOINT_CONFIG).
@@ -391,9 +391,9 @@ public class WebSocketUtil {
     }
 
     /**
-     * Set the time to wait before attempting to reconnect.
+     * Sets the time to wait before attempting to reconnect.
      *
-     * @param interval - interval to wait before trying to reconnect.
+     * @param interval - interval to wait before trying to reconnect
      */
     private static void createDelay(int interval) {
         CountDownLatch countDownLatch = new CountDownLatch(1);
@@ -410,11 +410,11 @@ public class WebSocketUtil {
     /**
      * Calculate the waiting time.
      *
-     * @param interval- interval to wait before trying to reconnect.
-     * @param maxInterval - maximum interval to wait before trying to reconnect.
-     * @param backOfFactor - the rate of increase of the reconnect delay.
-     * @param reconnectAttempts - the number of reconnecting attempts.
-     * @return The time to wait before attempting to reconnect.
+     * @param interval- interval to wait before trying to reconnect
+     * @param maxInterval - maximum interval to wait before trying to reconnect
+     * @param backOfFactor - the rate of increase of the reconnect delay
+     * @param reconnectAttempts - the number of reconnecting attempts
+     * @return The time to wait before attempting to reconnect
      */
     private static int calculateWaitingTime(int interval, int maxInterval, double backOfFactor,
                                             int reconnectAttempts) {
@@ -449,7 +449,7 @@ public class WebSocketUtil {
     public static void populateClientConnectorConfig(MapValue<String, Object> clientEndpointConfig,
                                                      WebSocketClientConnectorConfig clientConnectorConfig,
                                                      String scheme) {
-        clientConnectorConfig.setAutoRead(false); // Frames are read sequentially in ballerina.
+        clientConnectorConfig.setAutoRead(false); // Frames are read sequentially in ballerina
         clientConnectorConfig.setSubProtocols(WebSocketUtil.findNegotiableSubProtocols(clientEndpointConfig));
         @SuppressWarnings(WebSocketConstants.UNCHECKED)
         MapValue<String, Object> headerValues = (MapValue<String, Object>) clientEndpointConfig.getMapValue(
@@ -491,7 +491,7 @@ public class WebSocketUtil {
      */
     public static void waitForHandshake(CountDownLatch countDownLatch) {
         try {
-            // Wait to call countDown()
+            // Waits to call countDown()
             countDownLatch.await();
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
@@ -506,18 +506,18 @@ public class WebSocketUtil {
                 HttpConstants.CLIENT_ENDPOINT_CONFIG);
         WebSocketClientConnectorConfig clientConnectorConfig = new WebSocketClientConnectorConfig(remoteUrl);
         populateClientConnectorConfig(clientEndpointConfig, clientConnectorConfig, remoteUrl);
-        // Get the connector factory from the native data
+        // Gets the connector factory from the native data
         HttpWsConnectorFactory connectorFactory = ((HttpWsConnectorFactory) webSocketClient.
                 getNativeData(WebSocketConstants.CONNECTOR_FACTORY));
-        // Create the client connector
+        // Creates the client connector
         return connectorFactory.createWsClientConnector(clientConnectorConfig);
     }
 
     /**
      * Validate and create the webSocket service.
      *
-     * @param clientEndpointConfig - a client endpoint config.
-     * @param strand - a strand.
+     * @param clientEndpointConfig - a client endpoint config
+     * @param strand - a strand
      * @return webSocketService
      */
     public static WebSocketService validateAndCreateWebSocketService(Strand strand,
@@ -567,9 +567,9 @@ public class WebSocketUtil {
     /**
      * Calls the `readNextFrame()` function.
      *
-     * @param readyOnConnect - the ready on connect.
-     * @param webSocketClient - the WebSocket client.
-     * @param webSocketConnection - the WebSocket connection.
+     * @param readyOnConnect - the ready on connect
+     * @param webSocketClient - the WebSocket client
+     * @param webSocketConnection - the WebSocket connection
      */
     public static void readNextFrame(boolean readyOnConnect, ObjectValue webSocketClient,
                                      WebSocketConnection webSocketConnection) {
@@ -589,7 +589,7 @@ public class WebSocketUtil {
     /**
      * Counts the initialized `countDownLatch`.
      *
-     * @param webSocketClient - the WebSocket client.
+     * @param webSocketClient - the WebSocket client
      */
     public static void countDownForHandshake(ObjectValue webSocketClient) {
         if (webSocketClient.getNativeData(WebSocketConstants.COUNT_DOWN_LATCH) != null) {

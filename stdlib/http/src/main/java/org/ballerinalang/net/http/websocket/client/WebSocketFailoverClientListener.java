@@ -56,7 +56,7 @@ public class WebSocketFailoverClientListener extends WebSocketClientConnectorLis
 
     @Override
     public void onError(WebSocketConnection webSocketConnection, Throwable throwable) {
-        // When connection lost, do the failover to the remaining server urls.
+        // When the connection is lost, do the failover to the remaining server URLs
         if (!(throwable instanceof IOException && WebSocketUtil.failover(connectionInfo))) {
             logger.error(WebSocketConstants.ERROR_MESSAGE, throwable);
             WebSocketResourceDispatcher.dispatchOnError(connectionInfo, throwable);

@@ -27,7 +27,6 @@ import java.util.List;
  */
 public class FailoverContext {
 
-    private boolean finishedFailover = false;
     private int currentIndex = 0;
     private int failoverInterval = 0;
     private boolean firstConnectionMadeSuccessfully = false;
@@ -35,25 +34,7 @@ public class FailoverContext {
     private int initialIndex = 0;
 
     /**
-     * Get the value of completed failover.
-     *
-     * @return finishedFailover
-     */
-    public boolean isFailoverFinished() {
-        return finishedFailover;
-    }
-
-    /**
-     * Assign the finishedFailover of the FailoverContext to the variable finishedFailover.
-     *
-     * @param finishedFailover - if it is true, do reconnect in the target URL.
-     */
-    public void setFailoverFinished(boolean finishedFailover) {
-        this.finishedFailover = finishedFailover;
-    }
-
-    /**
-     * Get the index.
+     * Gets the index.
      *
      * @return currentIndex
      */
@@ -62,9 +43,9 @@ public class FailoverContext {
     }
 
     /**
-     * Assigns the index of the FailoverContext to the variable index.
+     * Assigns the index of the `FailoverContext` to the variable index.
      *
-     * @param currentIndex - a current index.
+     * @param currentIndex - a current index
      */
     public void setCurrentIndex(int currentIndex) {
         this.currentIndex = currentIndex;
@@ -82,17 +63,16 @@ public class FailoverContext {
     /**
      * Assigns the target URLs of the `FailoverContext` to the `targetUrls` variable.
      *
-     * @param targetUrls - a target urls.
+     * @param targetUrls - target URLs
      */
     void setTargetUrls(List<String> targetUrls) {
         this.targetUrls = targetUrls;
     }
 
     /**
-     * Assign the failover interval of the FailoverContext to
-     * the `failoverInterval` variable.
+     * Assigns the failover interval of the `FailoverContext` to the `failoverInterval` variable.
      *
-     * @param failoverInterval - a failover interval.
+     * @param failoverInterval - a failover interval
      */
     void setFailoverInterval(int failoverInterval) {
         this.failoverInterval = failoverInterval;
@@ -116,7 +96,7 @@ public class FailoverContext {
     }
 
     /**
-     * Assigns the connection state of the FailoverContext to the `firstConnectionMadeSuccessfully` variable.
+     * Assigns the connection state of the `FailoverContext` to the `firstConnectionMadeSuccessfully` variable.
      */
     void setFirstConnectionMadeSuccessfully() {
         this.firstConnectionMadeSuccessfully = true;
@@ -134,7 +114,7 @@ public class FailoverContext {
     /**
      * Assigns the `initialIndex` of the FailoverContext to the `initialIndex` variable.
      *
-     * @param initialIndex - a initial index.
+     * @param initialIndex - the initial index
      */
     void setInitialIndex(int initialIndex) {
         this.initialIndex = initialIndex;

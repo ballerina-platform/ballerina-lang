@@ -76,7 +76,7 @@ public class WebSocketFailoverClientHandshakeListener implements ClientHandshake
                 webSocketConnector,
                 webSocketClient, wsService);
         clientConnectorListener.setConnectionInfo(connectionInfo);
-        // Read the next frame when readyOnConnect is true or isReady is true
+        // Reads the next frame when readyOnConnect is true or isReady is true
         WebSocketUtil.readNextFrame(readyOnConnect, webSocketClient, webSocketConnection);
         countDownLatch.countDown();
         // Calls the countDown() to initial connection's countDown latch
@@ -86,7 +86,7 @@ public class WebSocketFailoverClientHandshakeListener implements ClientHandshake
         int currentIndex = failoverConfig.getCurrentIndex();
         logger.debug(WebSocketConstants.LOG_MESSAGE, WebSocketConstants.CONNECTED_TO,
                 failoverConfig.getTargetUrls().get(currentIndex));
-        // Set failover context variable's value
+        // Sets failover context variable's value
         failoverConfig.setInitialIndex(currentIndex);
         if (!failoverConfig.isFirstConnectionMadeSuccessfully()) {
             failoverConfig.setFirstConnectionMadeSuccessfully();
@@ -97,7 +97,7 @@ public class WebSocketFailoverClientHandshakeListener implements ClientHandshake
     public void onError(Throwable throwable, HttpCarbonResponse response) {
         WebSocketConnectionInfo connectionInfo = WebSocketUtil.getConnectionInfoForOnError(response, webSocketClient,
                 wsService, countDownLatch);
-        // When connection lost, do the failover to the remaining server urls.
+        // When the connection is lost, do the failover to the remaining server URLs
         if (!(throwable instanceof IOException && WebSocketUtil.failover(connectionInfo))) {
             WebSocketUtil.dispatchOnError(connectionInfo, throwable);
         }

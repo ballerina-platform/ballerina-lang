@@ -50,7 +50,7 @@ public type WebSocketCaller client object {
 
     # Ping the connection.
     #
-    # + data - Binary data to be sent.
+    # + data - Binary data to be sent
     # + return - `error` if an error occurs when sending
     public remote function ping(byte[] data) returns WebSocketError? {
         return self.conn.ping(data);
@@ -72,7 +72,7 @@ public type WebSocketCaller client object {
     #                   connection. If the timeout exceeds, then the connection is terminated even though a close frame
     #                   is not received from the remote endpoint. If the value < 0 (e.g., -1), then the connection waits
     #                   until a close frame is received. If WebSocket frame is received from the remote endpoint,
-    #                   within waiting period the connection is terminated immediately.
+    #                   within waiting period the connection is terminated immediately
     # + return - `error` if an error occurs when sending
     public remote function close(public int? statusCode = 1000, public string? reason = (),
         public int timeoutInSeconds = 60) returns WebSocketError? {
@@ -89,7 +89,7 @@ public type WebSocketCaller client object {
 
     # Gets connection related attribute if any.
     #
-    # + key - the key to identify the attribute.
+    # + key - the key to identify the attribute
     # + return - the attribute related to the given key or `nil`
     public function getAttribute(string key) returns any {
         return self.attributes[key];
@@ -97,7 +97,7 @@ public type WebSocketCaller client object {
 
     # Removes connection related attribute if any.
     #
-    # + key - the key to identify the attribute.
+    # + key - the key to identify the attribute
     # + return - the attribute related to the given key or `nil`
     public function removeAttribute(string key) returns any {
         return self.attributes.remove(key);
@@ -119,7 +119,7 @@ public type WebSocketCaller client object {
 
     # Gives the secured status of the connection.
     #
-    # + return - `true` if the connection is secure.
+    # + return - `true` if the connection is secure
     public function isSecure() returns boolean {
         return self.secure;
     }

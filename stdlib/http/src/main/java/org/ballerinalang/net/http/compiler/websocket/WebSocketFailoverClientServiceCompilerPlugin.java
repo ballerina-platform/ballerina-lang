@@ -30,7 +30,7 @@ import java.util.List;
 import static org.ballerinalang.net.http.websocket.WebSocketConstants.FAILOVER_WEBSOCKET_CLIENT;
 
 /**
- * Compiler plugin for validating failover WebSocket service.
+ * Compiler plugin for validating the failover WebSocket service.
  *
  * @since 1.2.0
  */

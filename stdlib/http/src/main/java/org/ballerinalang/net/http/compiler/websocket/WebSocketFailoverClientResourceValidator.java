@@ -23,7 +23,7 @@ import org.ballerinalang.util.diagnostic.DiagnosticLog;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 
 /**
- * Service validator for failover WebSocket.
+ * Service validator for the failover WebSocket.
  *
  * @since 1.2.0
  */

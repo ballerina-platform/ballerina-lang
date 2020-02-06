@@ -21,9 +21,9 @@ import ballerina/http;
 service on new http:Listener(21034) {
 
     resource function onOpen(http:WebSocketCaller wsEp) {
-         http:WebSocketFailoverClient wsClientEp = new({ callbackService:countDownService,
-                readyOnConnect: false, targetUrls:["ws://localhost:15300/websocket",
-                "ws://localhost:21033/basic/ws"], handShakeTimeoutInSeconds:7 });
+        http:WebSocketFailoverClient wsClientEp = new({callbackService: countDownService,
+            readyOnConnect: false, targetUrls: ["ws://localhost:15300/websocket",
+            "ws://localhost:21033/basic/ws"], handShakeTimeoutInSeconds: 7});
 
         wsEp.setAttribute(ASSOCIATED_CONNECTION, wsClientEp);
         wsClientEp.setAttribute(ASSOCIATED_CONNECTION, wsEp);

@@ -45,6 +45,7 @@ public class FailoverInitEndpoint {
 
     private static final Logger logger = LoggerFactory.getLogger(FailoverInitEndpoint.class);
     private static final String FAILOVER_INTERVAL = "failoverIntervalInMillis";
+    private static final String WSS_SCHEME = "ws";
 
     public static void init(ObjectValue webSocketClient) {
         @SuppressWarnings(WebSocketConstants.UNCHECKED)
@@ -54,17 +55,17 @@ public class FailoverInitEndpoint {
         ArrayValue targets = clientEndpointConfig.getArrayValue(WebSocketConstants.TARGET_URLS);
         List<String> newTargetUrls = new ArrayList<>();
         int index = 0;
-        // Checks whether the URL has a valid format or not.
-        // If It isn't in the valid format, remove that from the URL set.
+        // Checks whether the URL has a valid format or not
+        // If it isn't in the valid format, removes that from the URL set
         for (int i = 0; i < targets.size(); i++) {
             String url = targets.get(i).toString();
             try {
                 URI uri = new URI(url);
                 String scheme = uri.getScheme();
-                if (!"ws".equalsIgnoreCase(scheme) && !"wss".equalsIgnoreCase(scheme)) {
+                if (!WSS_SCHEME.equalsIgnoreCase(scheme) && !WebSocketConstants.WSS_SCHEME.equalsIgnoreCase(scheme)) {
                     String name = targets.get(i).toString();
-                    logger.error("{} drop from the targets url" +
-                            "because webSocket client supports only WS(S) scheme.", name);
+                    logger.error("{} drop from the targets url because webSocket client supports only WS(S) scheme.",
+                            name);
                 } else {
                     newTargetUrls.add(index, url);
                     index++;
@@ -76,7 +77,7 @@ public class FailoverInitEndpoint {
         }
         logger.debug("New targetUrls: {}", newTargetUrls);
         if (newTargetUrls.isEmpty()) {
-            throw new WebSocketException("TargetUrls should have atleast one valid URL.");
+            throw new WebSocketException("TargetUrls should have at least one valid URL.");
         }
         // Creates the connector factory and sets it as the native data.
         webSocketClient.addNativeData(WebSocketConstants.CONNECTOR_FACTORY, HttpUtil.createHttpWsConnectionFactory());
@@ -90,16 +91,16 @@ public class FailoverInitEndpoint {
         WebSocketUtil.establishFailoverConnection(WebSocketUtil.createWebSocketClientConnector(newTargetUrls.get(0),
                 webSocketClient), webSocketClient, WebSocketUtil.validateAndCreateWebSocketService(strand,
                 clientEndpointConfig));
-        // Set the count Down latch for initial connection
+        // Sets the count down latch for the initial connection
         WebSocketUtil.waitForHandshake(countDownLatch);
     }
 
     /**
-     * Populate the failover config.
+     * Populates the failover config.
      *
-     * @param failoverConfig - a failover config.
-     * @param failoverClientConnectorConfig - a failover client connector config.
-     * @param targetUrls - target urls.
+     * @param failoverConfig - a failover config
+     * @param failoverClientConnectorConfig - a failover client connector config
+     * @param targetUrls - target URLs
      */
     private static void populateFailoverConnectorConfig(MapValue<String, Object> failoverConfig,
                                                         FailoverContext failoverClientConnectorConfig,

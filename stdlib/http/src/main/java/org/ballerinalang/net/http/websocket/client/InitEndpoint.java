@@ -62,10 +62,10 @@ public class InitEndpoint {
         WebSocketClientConnectorConfig clientConnectorConfig = new WebSocketClientConnectorConfig(remoteUrl);
         String scheme = URI.create(remoteUrl).getScheme();
         WebSocketUtil.populateClientConnectorConfig(clientEndpointConfig, clientConnectorConfig, scheme);
-        // Create the client connector.
+        // Creates the client connector
         WebSocketClientConnector clientConnector = connectorFactory.createWsClientConnector(clientConnectorConfig);
         // Add the client connector as a native data
-        // because when using one URL, there is no need to create the client connector again.
+        // because there is no need to create the client connector again when using one URL
         webSocketClient.addNativeData(WebSocketConstants.CLIENT_CONNECTOR, clientConnector);
         if (WebSocketUtil.hasRetryConfig(webSocketClient)) {
             @SuppressWarnings(WebSocketConstants.UNCHECKED)
@@ -80,7 +80,7 @@ public class InitEndpoint {
             CountDownLatch countDownLatch = new CountDownLatch(1);
             webSocketClient.addNativeData(WebSocketConstants.COUNT_DOWN_LATCH, countDownLatch);
             WebSocketUtil.establishWebSocketConnection(webSocketClient, wsService);
-            // Set the count Down latch for initial connection
+            // Sets the count Down latch for initial connection
             WebSocketUtil.waitForHandshake(countDownLatch);
         } else {
             WebSocketClientConnectorListener clientConnectorListener = new WebSocketClientConnectorListener();
@@ -93,8 +93,8 @@ public class InitEndpoint {
     /**
      * Populate the retry config.
      *
-     * @param retryConfig - the retry config.
-     * @param retryConnectorConfig - the retry connector config.
+     * @param retryConfig - the retry config
+     * @param retryConnectorConfig - the retry connector config
      */
     private static void populateRetryConnectorConfig(MapValue<String, Object> retryConfig,
                                                      RetryContext retryConnectorConfig) {
@@ -107,8 +107,8 @@ public class InitEndpoint {
     /**
      * Validate and create the webSocket service.
      *
-     * @param clientEndpointConfig - a client endpoint config.
-     * @param strand - which holds the observer context being started.
+     * @param clientEndpointConfig - a client endpoint config
+     * @param strand - which holds the observer context being started
      * @return webSocketService
      */
     private static WebSocketService validateAndCreateWebSocketService(MapValue<String, Object> clientEndpointConfig,
