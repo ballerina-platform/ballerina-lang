@@ -78,6 +78,16 @@ public abstract class BLangStructureTypeNode extends BLangType implements Struct
     }
 
     @Override
+    public boolean getIsAnonymous() {
+        return this.isAnonymous;
+    }
+
+    @Override
+    public boolean getIsLocal() {
+        return this.isLocal;
+    }
+
+    @Override
     public String toString() {
         return "record { " + this.fields + " }";
     }
