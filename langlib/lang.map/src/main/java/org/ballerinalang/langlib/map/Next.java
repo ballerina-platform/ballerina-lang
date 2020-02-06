@@ -20,9 +20,8 @@ package org.ballerinalang.langlib.map;
 
 import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.types.BFunctionType;
-import org.ballerinalang.jvm.types.BRecordType;
-import org.ballerinalang.jvm.types.BUnionType;
+import org.ballerinalang.jvm.types.*;
+import org.ballerinalang.jvm.util.Flags;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.IteratorValue;
 import org.ballerinalang.jvm.values.MapValue;
@@ -32,6 +31,9 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
+
+import java.util.HashMap;
+import java.util.Map;
 
 
 /**
@@ -57,8 +59,11 @@ public class Next {
 
         if (mapIterator.hasNext()) {
             ArrayValue keyValueTuple = (ArrayValue) mapIterator.next();
-            BFunctionType nextFuncType = m.getType().getAttachedFunctions()[0].type;
-            BRecordType recordType = (BRecordType) ((BUnionType) nextFuncType.retType).getMemberTypes().get(0);
+            BType valueType = ((BTupleType) keyValueTuple.getType()).getTupleTypes().get(1);
+            Map<String, BField> fields = new HashMap<>();
+            fields.put("value", new BField(valueType, "value", Flags.PUBLIC + Flags.REQUIRED));
+            BRecordType recordType = new BRecordType("$$returnType$$", null, 0, fields,
+                    null, true, TypeFlags.PURETYPE);
             return BallerinaValues.createRecord(new MapValueImpl<>(recordType), keyValueTuple.get(1));
         }
 
