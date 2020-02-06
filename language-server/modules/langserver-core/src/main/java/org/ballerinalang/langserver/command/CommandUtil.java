@@ -50,6 +50,7 @@ import org.ballerinalang.langserver.util.references.SymbolReferencesModel;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.TopLevelNode;
+import org.ballerinalang.model.tree.expressions.IndexBasedAccessNode;
 import org.ballerinalang.model.types.TypeKind;
 import org.eclipse.lsp4j.ApplyWorkspaceEditParams;
 import org.eclipse.lsp4j.CodeAction;
@@ -562,6 +563,10 @@ public class CommandUtil {
             variableType = FunctionGenerator.generateTypeDefinition(importsAcceptor, currentPkgId, bType);
             variableName = CommonUtil.generateVariableName(bType, nameEntries);
         } else {
+            // Recursively find parent, when it is an indexBasedAccessNode
+            while (bLangNode.parent instanceof IndexBasedAccessNode) {
+                bLangNode = bLangNode.parent;
+            }
             variableType = FunctionGenerator.generateTypeDefinition(importsAcceptor, currentPkgId, bLangNode.type);
         }
         // Remove brackets of the unions
