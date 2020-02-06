@@ -26,11 +26,7 @@ import org.ballerinalang.jvm.types.BTupleType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.TypeFlags;
 import org.ballerinalang.jvm.util.Flags;
-import org.ballerinalang.jvm.values.ArrayValue;
-import org.ballerinalang.jvm.values.IteratorValue;
-import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.jvm.values.MapValueImpl;
-import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.*;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -57,17 +53,17 @@ public class Next {
         IteratorValue mapIterator = (IteratorValue) m.getNativeData("&iterator&");
 
         if (mapIterator == null) {
-            mapIterator = ((MapValue) m.get("m")).getIterator();
+            mapIterator = ((MapValue) m.get(new BmpStringValue("m"))).getIterator();
             m.addNativeData("&iterator&", mapIterator);
         }
 
         if (mapIterator.hasNext()) {
             ArrayValue keyValueTuple = (ArrayValue) mapIterator.next();
-            BType valueType = ((BTupleType) keyValueTuple.getType()).getTupleTypes().get(1);
+            BType type = ((BTupleType) keyValueTuple.getType()).getTupleTypes().get(1);
             Map<String, BField> fields = new HashMap<>();
-            fields.put("value", new BField(valueType, "value", Flags.PUBLIC + Flags.REQUIRED));
-            BRecordType recordType = new BRecordType("$$returnType$$", null, 0, fields,
-                    null, true, TypeFlags.PURETYPE);
+            fields.put("value", new BField(type, "value", Flags.PUBLIC + Flags.REQUIRED));
+            BRecordType recordType = new BRecordType("$$returnType$$", null, 0, fields, null, true,
+                    TypeFlags.asMask(TypeFlags.getAnydataTypeFlag(type), TypeFlags.getPuretypeTypeFlag(type)));
             return BallerinaValues.createRecord(new MapValueImpl<>(recordType), keyValueTuple.get(1));
         }
 

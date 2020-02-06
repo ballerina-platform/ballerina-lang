@@ -25,10 +25,7 @@ import org.ballerinalang.jvm.types.BRecordType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.TypeFlags;
 import org.ballerinalang.jvm.util.Flags;
-import org.ballerinalang.jvm.values.IteratorValue;
-import org.ballerinalang.jvm.values.MapValueImpl;
-import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.jvm.values.TableValue;
+import org.ballerinalang.jvm.values.*;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -54,7 +51,7 @@ public class Next {
     //TODO: refactor hard coded values
     public static Object next(Strand strand, ObjectValue m) {
         IteratorValue tableIterator = (IteratorValue) m.getNativeData("&iterator&");
-        TableValue tableValue = (TableValue) m.get("m");
+        TableValue tableValue = (TableValue) m.get(new BmpStringValue("m"));
         if (tableIterator == null) {
             tableIterator = tableValue.getIterator();
             m.addNativeData("&iterator&", tableIterator);
@@ -62,11 +59,11 @@ public class Next {
 
         if (tableIterator.hasNext()) {
             Object tableRow =  tableIterator.next();
-            BType structType = tableValue.getStructType();
+            BType type = tableValue.getStructType();
             Map<String, BField> fields = new HashMap<>();
-            fields.put("value", new BField(structType, "value", Flags.PUBLIC + Flags.REQUIRED));
-            BRecordType recordType = new BRecordType("$$returnType$$", null, 0, fields,
-                    null, true, TypeFlags.PURETYPE);
+            fields.put("value", new BField(type, "value", Flags.PUBLIC + Flags.REQUIRED));
+            BRecordType recordType = new BRecordType("$$returnType$$", null, 0, fields, null, true,
+                    TypeFlags.asMask(TypeFlags.getAnydataTypeFlag(type), TypeFlags.getPuretypeTypeFlag(type)));
             return BallerinaValues.createRecord(new MapValueImpl<>(recordType), tableRow);
         }
 

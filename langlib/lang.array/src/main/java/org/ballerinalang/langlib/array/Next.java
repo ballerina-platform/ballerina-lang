@@ -28,10 +28,7 @@ import org.ballerinalang.jvm.types.BUnionType;
 import org.ballerinalang.jvm.types.TypeFlags;
 import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.util.Flags;
-import org.ballerinalang.jvm.values.ArrayValue;
-import org.ballerinalang.jvm.values.IteratorValue;
-import org.ballerinalang.jvm.values.MapValueImpl;
-import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.*;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -59,7 +56,7 @@ public class Next {
     //TODO: refactor hard coded values
     public static Object next(Strand strand, ObjectValue m) {
         IteratorValue arrIterator = (IteratorValue) m.getNativeData("&iterator&");
-        ArrayValue arr = (ArrayValue) m.get("m");
+        ArrayValue arr = (ArrayValue) m.get(new BmpStringValue("m"));
         if (arrIterator == null) {
             arrIterator = arr.getIterator();
             m.addNativeData("&iterator&", arrIterator);
@@ -68,25 +65,26 @@ public class Next {
         if (arrIterator.hasNext()) {
             Object element =  arrIterator.next();
             Map<String, BField> fields = new HashMap<>();
+            BType type;
+            int typeFlags = 0;
             if (arr.getType().getTag() == TypeTags.ARRAY_TAG) {
-                fields.put("value", new BField(arr.getElementType(), "value", Flags.PUBLIC + Flags.REQUIRED));
+                type = arr.getElementType();
             } else {
                 BTupleType tupleType = (BTupleType) arr.getType();
                 LinkedHashSet<BType> types = new LinkedHashSet<>(tupleType.getTupleTypes());
                 if (tupleType.getRestType() != null) {
                     types.add(tupleType.getRestType());
                 }
-                BType unionType;
                 if (types.size() == 1) {
-                    unionType = types.iterator().next();
+                    type = types.iterator().next();
                 } else {
-                    unionType = new BUnionType(new ArrayList<>(types));
+                    type = new BUnionType(new ArrayList<>(types));
                 }
-                fields.put("value", new BField(unionType, "value", Flags.PUBLIC + Flags.REQUIRED));
             }
 
-            BRecordType recordType = new BRecordType("$$returnType$$", null, 0, fields,
-                    null, true, TypeFlags.PURETYPE);
+            fields.put("value", new BField(type, "value", Flags.PUBLIC + Flags.REQUIRED));
+            BRecordType recordType = new BRecordType("$$returnType$$", null, 0, fields, null, true,
+                    TypeFlags.asMask(TypeFlags.getAnydataTypeFlag(type), TypeFlags.getPuretypeTypeFlag(type)));
             return BallerinaValues.createRecord(new MapValueImpl<>(recordType), element);
         }
 

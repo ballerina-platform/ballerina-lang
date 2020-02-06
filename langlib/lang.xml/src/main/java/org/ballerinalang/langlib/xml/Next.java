@@ -26,6 +26,7 @@ import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.types.BUnionType;
 import org.ballerinalang.jvm.types.TypeFlags;
 import org.ballerinalang.jvm.util.Flags;
+import org.ballerinalang.jvm.values.BmpStringValue;
 import org.ballerinalang.jvm.values.IteratorValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.ObjectValue;
@@ -57,7 +58,7 @@ public class Next {
         IteratorValue xmlIterator = (IteratorValue) m.getNativeData("&iterator&");
 
         if (xmlIterator == null) {
-            xmlIterator = ((XMLValue) m.get("m")).getIterator();
+            xmlIterator = ((XMLValue) m.get(new BmpStringValue("m"))).getIterator();
             m.addNativeData("&iterator&", xmlIterator);
         }
 
@@ -67,7 +68,7 @@ public class Next {
             BUnionType type = new BUnionType(Arrays.asList(BTypes.typeString, BTypes.typeXML));
             fields.put("value", new BField(type, "value", Flags.PUBLIC + Flags.REQUIRED));
             BRecordType recordType = new BRecordType("$$returnType$$", null, 0, fields,
-                    null, true, TypeFlags.PURETYPE);
+                    null, true, 0);
             return BallerinaValues.createRecord(new MapValueImpl<>(recordType), xmlValue);
         }
 
