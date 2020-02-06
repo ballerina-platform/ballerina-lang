@@ -13,3 +13,19 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
+
+# Represent the iterator type returned when `iterator` method is invoked.
+type StreamIterator object {
+
+    private stream<PureType1> strm;
+
+    public function __init(stream<PureType1> strm) {
+        self.strm = strm;
+    }
+
+    # Return the next member in stream iterator, nil if end of iterator is reached.
+    # + return - iterator result
+    public function next() returns record {|
+        PureType1 value;
+    |}? = external;
+};

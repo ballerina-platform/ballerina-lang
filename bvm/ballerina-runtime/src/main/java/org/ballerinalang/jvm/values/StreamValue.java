@@ -130,6 +130,32 @@ public class StreamValue implements RefValue, BStream {
     }
 
     @Override
+    public Object reduce(Strand strand, BFunctionPointer<Object, Object> reduceFunc,
+                         Object initialValue) {
+        Object reducedValue = initialValue;
+        Object next;
+        do {
+            next = next(strand);
+            if (next == null) {
+                return reducedValue;
+            }
+            reducedValue = reduceFunc.call(new Object[] {strand, reducedValue, true, next, true});
+        } while (true);
+    }
+
+    @Override
+    public void forEach(Strand strand, BFunctionPointer<Object, Object> foreachFunc) {
+        Object next;
+        do {
+            next = next(strand);
+            if (next == null) {
+                break;
+            }
+            foreachFunc.call(new Object[] {strand, next, true});
+        } while (true);
+    }
+
+    @Override
     public Object next(Strand strand) {
         Object next;
         do {

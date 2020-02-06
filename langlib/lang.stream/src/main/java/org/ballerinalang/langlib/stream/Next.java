@@ -56,7 +56,7 @@ public class Next {
         Map<String, BField> fields = new HashMap<>();
         fields.put("value", new BField(strm.getConstraintType(), "value", Flags.PUBLIC + Flags.REQUIRED));
         BRecordType recordType = new BRecordType("$$returnType$$", strm.getType().getPackage(), 0, fields,
-                null, true, TypeFlags.asMask(TypeFlags.ANYDATA, TypeFlags.PURETYPE));
+                null, true, TypeFlags.PURETYPE);
         return BValueCreator.createRecord(new MapValueImpl<>(recordType), next);
     }
 }

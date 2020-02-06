@@ -40,19 +40,38 @@ public interface BStream extends BStreamIterator, BRefValue {
      * Returns a stream which applies a filtering condition on the input stream.
      *
      * @param stream The input stream being filtered
-     * @param functionPointer The function pointer which represents the filtering condition
+     * @param filterFunc The function pointer which represents the filtering condition
      * @return The output stream
      */
-    BStream filter(BStream stream, BFunctionPointer<Object, Boolean> functionPointer);
+    BStream filter(BStream stream, BFunctionPointer<Object, Boolean> filterFunc);
 
     /**
      * Returns a new stream which applies a mapping condition on the input stream.
      *
      * @param stream The input stream being mapped
-     * @param functionPointer The function pointer which represents the mapping condition
+     * @param mapFunc The function pointer which represents the mapping condition
      * @return The output stream
      */
-    BStream map(BStream stream, BFunctionPointer<Object, Object> functionPointer);
+    BStream map(BStream stream, BFunctionPointer<Object, Object> mapFunc);
+
+    /**
+     * Combines the members of an stream using a combining function. The combining function takes the combined value so
+     * far and a member of the stream, and returns a new combined value.
+     *
+     * @param reduceFunc The function pointer representing the user provided reduce function
+     * @param initialValue The initial value of reduce function
+     * @return The reduced value
+     */
+    Object reduce(Strand strand, BFunctionPointer<Object, Object> reduceFunc, Object initialValue);
+
+    /**
+     * Applies a function to each member of a stream.
+     * The parameter 'func' is applied to each member of stream 'strm' in order.
+     *
+     * @param strand The strand
+     * @param foreachFunc The function which is applied to each member in stream 'strm'
+     */
+    void forEach(Strand strand, BFunctionPointer<Object, Object> foreachFunc);
 
     /**
      * Returns the next element in the stream after applying filters, mapping and reductions.
