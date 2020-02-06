@@ -111,6 +111,6 @@ public class BMapType extends BType {
 
     @Override
     public boolean isAnydata() {
-        return this.constraint.isPureType();
+        return this.constraint.isAnydata();
     }
 }

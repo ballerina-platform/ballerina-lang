@@ -26,7 +26,7 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 
 /**
- * Native implementation of lang.stream:forEach(stream<PureType, function(PureType)).
+ * Native implementation of lang.stream:forEach(stream, function(PureType)).
  *
  * @since 1.2
  */
