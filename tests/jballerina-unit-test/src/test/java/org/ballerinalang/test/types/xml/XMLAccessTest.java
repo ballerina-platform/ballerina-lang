@@ -195,6 +195,19 @@ public class XMLAccessTest {
     }
 
     @Test
+    public void testXMLElementAccessNavigationAccessComposition() {
+        BValue[] returns = BRunUtil.invoke(navigation, "testXMLElementAccessNavigationAccessComposition");
+        Assert.assertEquals(returns[0].stringValue(), "<lname>Gunae</lname><lname>Jayee</lname><lname>Kumarae</lname>");
+        Assert.assertEquals(returns[1].stringValue(), "<fname>Kamal</fname><lname>Gunae</lname><fname>Nimal</fname>" +
+                "<lname>Jayee</lname><fname>Sunil</fname><lname>Kumarae</lname>");
+        Assert.assertEquals(returns[2].stringValue(), "<lname>Gunae</lname><lname>Jayee</lname><lname>Kumarae</lname>");
+        Assert.assertEquals(returns[3].stringValue(), "<fname>Kamal</fname><fname>Nimal</fname><fname>Sunil</fname>");
+        Assert.assertEquals(returns[4].stringValue(), "KamalGunaeNimalJayeeSunilKumarae");
+        Assert.assertEquals(returns[5].stringValue(), "<fname>Kamal</fname><fname>Nimal</fname><fname>Sunil</fname>");
+        Assert.assertEquals(returns[6].stringValue(), "<fname>Kamal</fname><fname>Nimal</fname><fname>Sunil</fname>");
+    }
+
+    @Test
     public void testInvalidXMLAccessWithIndex() {
         BAssertUtil.validateError(negativeResult, 0, "cannot update an xml sequence", 5, 5);
 
