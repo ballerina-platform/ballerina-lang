@@ -57,7 +57,7 @@ dependencies {
         implementation 'org.apache.directory.server:apacheds-all:2.0.0-M24'
         implementation 'org.apache.geronimo.specs:geronimo-stax-api_1.0_spec:1.0.1'
         implementation 'org.apache.kafka:kafka-clients:2.3.1'
-        implementation 'org.apache.kafka:kafka_2.12:2.3.1'
+        implementation 'org.apache.kafka:kafka_2.11:2.3.1'
         implementation 'org.apache.mina:mina-core:2.0.16'
         implementation 'org.apache.maven:maven-plugin-api:3.6.0'
         implementation 'org.apache.maven.plugin-tools:maven-plugin-annotations:3.6.0'

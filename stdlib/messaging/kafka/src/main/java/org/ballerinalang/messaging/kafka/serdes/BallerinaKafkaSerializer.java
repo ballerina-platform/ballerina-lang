@@ -21,6 +21,7 @@ package org.ballerinalang.messaging.kafka.serdes;
 import org.apache.kafka.common.serialization.Serializer;
 import org.ballerinalang.jvm.BRuntime;
 import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.api.BArray;
 import org.ballerinalang.messaging.kafka.utils.KafkaConstants;
 
 import java.util.Map;
@@ -43,8 +44,10 @@ public class BallerinaKafkaSerializer implements Serializer {
 
     @Override
     public byte[] serialize(String topic, Object data) {
-        return (byte[]) BRuntime.getCurrentRuntime().getSyncMethodInvokeResult(this.serializerObject,
-                                                                               KafkaConstants.FUNCTION_SERIALIZE, data);
+        Object[] args = new Object[]{data, false};
+        BArray result = (BArray) BRuntime.getCurrentRuntime().getSyncMethodInvokeResult(this.serializerObject,
+                                                                      KafkaConstants.FUNCTION_SERIALIZE, args);
+        return result.getBytes();
     }
 
     @Override

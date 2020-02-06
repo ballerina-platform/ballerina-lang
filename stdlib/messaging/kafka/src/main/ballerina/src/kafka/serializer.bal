@@ -17,5 +17,5 @@
 public type Serializer abstract object {
     public function close();
 
-    public function serialize(string topic, any data) returns byte[];
+    public function serialize(any data) returns byte[];
 };

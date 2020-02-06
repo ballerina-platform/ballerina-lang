@@ -40,10 +40,6 @@ kafka:ProducerConfig producerConfigs = {
 public type PersonSerializer object {
     *kafka:Serializer;
 
-    public function configure(map<any> properties, boolean isKey) {
-
-    }
-
     public function close() {
 
     }

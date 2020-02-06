@@ -126,8 +126,8 @@ public type ConsumerConfig record {|
 # + timestamp - Timestamp of the record, in milliseconds since epoch.
 # + topic - Topic to which the record belongs to.
 public type ConsumerRecord record {|
-    Data key;
-    Data value;
+    any key;
+    any value;
     int offset;
     int partition;
     int timestamp;

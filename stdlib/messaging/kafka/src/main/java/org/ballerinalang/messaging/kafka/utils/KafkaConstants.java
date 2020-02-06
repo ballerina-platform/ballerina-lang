@@ -69,6 +69,7 @@ public class KafkaConstants {
     public static final String SERVER_CONNECTOR = "serverConnector";
 
     public static final String CONSUMER_CONFIG_FIELD_NAME = "consumerConfig";
+    public static final String PRODUCER_CONFIG_FIELD_NAME = "producerConfig";
 
     public static final String PARAMETER_CONSUMER_NAME = KAFKA_PROTOCOL_PACKAGE + BLOCK_SEPARATOR
             + CONSUMER_STRUCT_NAME;
@@ -101,8 +102,11 @@ public class KafkaConstants {
     public static final String CONSUMER_CLIENT_ID_CONFIG = "clientId";
     public static final String CONSUMER_INTERCEPTOR_CLASSES_CONFIG = "interceptorClasses";
     public static final String CONSUMER_ISOLATION_LEVEL_CONFIG = "isolationLevel";
-    public static final String CONSUMER_KEY_DESERIALIZER_CONFIG = "keyDeserializerType";
-    public static final String CONSUMER_VALUE_DESERIALIZER_CONFIG = "valueDeserializerType";
+    public static final String CONSUMER_KEY_DESERIALIZER_TYPE_CONFIG = "keyDeserializerType";
+    public static final String CONSUMER_VALUE_DESERIALIZER_TYPE_CONFIG = "valueDeserializerType";
+    public static final String CONSUMER_KEY_DESERIALIZER_CONFIG = "keyDeserializer";
+    public static final String CONSUMER_VALUE_DESERIALIZER_CONFIG = "valueDeserializer";
+    public static final String BALLERINA_STRAND = "ballerina.strand";
 
     public static final String CONSUMER_SESSION_TIMEOUT_MS_CONFIG = "sessionTimeoutInMillis";
     public static final String CONSUMER_HEARTBEAT_INTERVAL_MS_CONFIG = "heartBeatIntervalInMillis";

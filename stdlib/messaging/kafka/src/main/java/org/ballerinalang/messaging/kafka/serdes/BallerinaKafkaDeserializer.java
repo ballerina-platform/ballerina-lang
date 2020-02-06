@@ -21,9 +21,13 @@ package org.ballerinalang.messaging.kafka.serdes;
 import org.apache.kafka.common.serialization.Deserializer;
 import org.ballerinalang.jvm.BRuntime;
 import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.api.BArray;
+import org.ballerinalang.jvm.values.api.BValueCreator;
 import org.ballerinalang.messaging.kafka.utils.KafkaConstants;
 
 import java.util.Map;
+
+import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.BALLERINA_STRAND;
 
 /**
  * Represents a deserializer class for ballerina kafka module.
@@ -31,20 +35,23 @@ import java.util.Map;
 public class BallerinaKafkaDeserializer implements Deserializer {
 
     private ObjectValue deserializerObject = null;
+    private BRuntime runtime = null;
 
     @Override
     public void configure(Map configs, boolean isKey) {
+        this.runtime = (BRuntime) configs.get(BALLERINA_STRAND);
         if (isKey) {
-            this.deserializerObject = (ObjectValue) configs.get(KafkaConstants.CONSUMER_KEY_DESERIALIZER_CONFIG);
+            this.deserializerObject = (ObjectValue) configs.get(KafkaConstants.CONSUMER_KEY_DESERIALIZER_TYPE_CONFIG);
         } else {
-            this.deserializerObject = (ObjectValue) configs.get(KafkaConstants.CONSUMER_VALUE_DESERIALIZER_CONFIG);
+            this.deserializerObject = (ObjectValue) configs.get(KafkaConstants.CONSUMER_VALUE_DESERIALIZER_TYPE_CONFIG);
         }
     }
 
     @Override
     public Object deserialize(String topic, byte[] data) {
-        return BRuntime.getCurrentRuntime().getSyncMethodInvokeResult(this.deserializerObject,
-                                                                      KafkaConstants.FUNCTION_DESERIALIZE, data);
+        BArray bData = BValueCreator.createArrayValue(data);
+        return this.runtime.getSyncMethodInvokeResult(this.deserializerObject,
+                                                      KafkaConstants.FUNCTION_DESERIALIZE, bData, false);
     }
 
     @Override

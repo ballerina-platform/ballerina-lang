@@ -17,5 +17,5 @@
 public type Deserializer abstract object {
     public function close();
 
-    public function deserialize(string topic, byte[] data) returns any;
+    public function deserialize(byte[] data) returns any;
 };
