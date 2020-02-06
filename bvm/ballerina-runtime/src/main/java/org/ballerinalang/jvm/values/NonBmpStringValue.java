@@ -73,6 +73,9 @@ public class NonBmpStringValue implements StringValue {
             int[] both = Arrays.copyOf(surrogates, surrogates.length + other.surrogates.length);
             System.arraycopy(other.surrogates, 0, both, surrogates.length, other.surrogates.length);
             return new NonBmpStringValue(this.value + other.value, both);
+        } else if (str instanceof BmpStringValue) {
+            BmpStringValue other = (BmpStringValue) str;
+            return new NonBmpStringValue(this.value + other.getValue(), surrogates);
         } else {
             throw new RuntimeException("not impl yet");
         }
@@ -81,6 +84,11 @@ public class NonBmpStringValue implements StringValue {
     @Override
     public String stringValue() {
         return value;
+    }
+
+    @Override
+    public BString bStringValue() {
+        return null;
     }
 
     @Override
