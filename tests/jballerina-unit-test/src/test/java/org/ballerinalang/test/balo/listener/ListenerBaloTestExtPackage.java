@@ -39,7 +39,7 @@ public class ListenerBaloTestExtPackage {
     }
 
     @Test(description = "Test access listener in different package")
-    public void testObjectAsListernerDefinedInDifferentPackage() {
+    public void testListenerObjectDefinedInDifferentPackage() {
         BRunUtil.invoke(compileResult, "getStartAndAttachCount");
     }
 
