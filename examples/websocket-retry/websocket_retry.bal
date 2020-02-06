@@ -4,22 +4,23 @@ import ballerina/log;
 final string ASSOCIATED_CONNECTION = "ASSOCIATED_CONNECTION";
 
 // The URL of the remote backend.
-final string REMOTE_BACKEND = "ws://localhost:9095/retry/ws";
+const string REMOTE_BACKEND = "ws://localhost:9095/retry/ws";
 
 @http:WebSocketServiceConfig {
     path: "/retry/ws"
 }
-service RetryProxyService on new http:Listener(9090) {
+service retryProxyService on new http:Listener(9090) {
 
     // This resource gets invoked when a new client connects.
     // Since messages to the server are not read by the service until the execution of the `onOpen` resource finishes,
     // operations, which should happen before reading messages should be done in the `onOpen` resource.
     resource function onOpen(http:WebSocketCaller caller) {
 
-        // Defines the webSocket client endpoint.
+        // Defines the webSocket client.
         http:WebSocketClient wsClientEp = new(
-            REMOTE_BACKEND,
-            {callbackService: RetryClientService,
+        REMOTE_BACKEND,
+        {
+            callbackService: retryClientService,
             // When creating client endpoint, if `readyOnConnect` flag is set to
             // `false`, client endpoint does not start reading frames automatically.
             readyOnConnect: false,
@@ -53,11 +54,9 @@ service RetryProxyService on new http:Listener(9090) {
     }
 
     //This resource gets invoked upon receiving a new text frame from a client.
-    resource function onText(http:WebSocketCaller caller, string text,
-    boolean finalFrame) {
+    resource function onText(http:WebSocketCaller caller, string text, boolean finalFrame) {
 
-        http:WebSocketClient clientEp =
-        getAssociatedClientEndpoint(caller);
+        http:WebSocketClient clientEp = getAssociatedClientEndpoint(caller);
         var err = clientEp->pushText(text, finalFrame);
         if (err is http:WebSocketError) {
             log:printError("Error occurred when sending text message", err);
@@ -67,13 +66,11 @@ service RetryProxyService on new http:Listener(9090) {
     //This resource gets invoked when an error occurs in the connection.
     resource function onError(http:WebSocketCaller caller, error err) {
 
-        http:WebSocketClient clientEp =
-        getAssociatedClientEndpoint(caller);
+        http:WebSocketClient clientEp = getAssociatedClientEndpoint(caller);
         var e = clientEp->close(statusCode = 1011, reason = "Unexpected condition");
         if (e is http:WebSocketError) {
             log:printError("Error occurred when closing the connection", e);
         }
-        _ = caller.removeAttribute(ASSOCIATED_CONNECTION);
         log:printError("Unexpected error hence closing the connection", err);
     }
 
@@ -86,12 +83,11 @@ service RetryProxyService on new http:Listener(9090) {
         if (err is http:WebSocketError) {
             log:printError("Error occurred when closing the connection", err);
         }
-        _ = caller.removeAttribute(ASSOCIATED_CONNECTION);
     }
 }
 
 //Client service to receive frames from the remote server.
-service RetryClientService = @http:WebSocketServiceConfig {} service {
+service retryClientService = @http:WebSocketServiceConfig {} service {
 
     //This resource gets invoked upon receiving a new text frame from the remote backend.
     resource function onText(http:WebSocketClient caller, string text, boolean finalFrame) {
