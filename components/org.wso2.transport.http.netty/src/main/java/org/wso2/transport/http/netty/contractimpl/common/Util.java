@@ -144,7 +144,7 @@ public class Util {
 
         HttpVersion httpVersion = new HttpVersion(Constants.HTTP_VERSION_PREFIX + inboundReqHttpVersion, true);
         HttpResponseStatus httpResponseStatus = getHttpResponseStatus(outboundResponseMsg);
-        HttpResponse outboundNettyResponse = new DefaultHttpResponse(httpVersion, httpResponseStatus, false);
+        HttpResponse outboundNettyResponse = new DefaultHttpResponse(httpVersion, httpResponseStatus);
 
         setOutboundRespHeaders(outboundResponseMsg, inboundReqHttpVersion, serverName, keepAlive,
                 outboundNettyResponse);
@@ -158,7 +158,7 @@ public class Util {
         HttpVersion httpVersion = new HttpVersion(Constants.HTTP_VERSION_PREFIX + inboundReqHttpVersion, true);
         HttpResponseStatus httpResponseStatus = getHttpResponseStatus(outboundResponseMsg);
         HttpResponse outboundNettyResponse =
-                new DefaultFullHttpResponse(httpVersion, httpResponseStatus, fullContent, false);
+                new DefaultFullHttpResponse(httpVersion, httpResponseStatus, fullContent);
 
         setOutboundRespHeaders(outboundResponseMsg, inboundReqHttpVersion, serverName, keepAlive,
                 outboundNettyResponse);
@@ -202,7 +202,7 @@ public class Util {
         HttpVersion httpVersion = getHttpVersion(outboundRequestMsg);
         String requestPath = getRequestPath(outboundRequestMsg);
         HttpRequest outboundNettyRequest = new DefaultHttpRequest(httpVersion, httpMethod,
-                (String) outboundRequestMsg.getProperty(TO), false);
+                (String) outboundRequestMsg.getProperty(TO));
         outboundNettyRequest.setMethod(httpMethod);
         outboundNettyRequest.setProtocolVersion(httpVersion);
         outboundNettyRequest.setUri(requestPath);
