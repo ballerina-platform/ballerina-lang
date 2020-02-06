@@ -63,7 +63,8 @@ public class Respond extends ConnectionAction {
         Strand strand = Scheduler.getStrand();
         DataContext dataContext = new DataContext(strand, new NonBlockingCallback(strand), inboundRequestMsg);
         HttpCarbonMessage outboundResponseMsg;
-        if (outboundResponseObj.getNativeData(HttpConstants.IS_RESPONSE_PROCESSED) != null) {
+        if (outboundResponseObj.get(RESPONSE_CACHE_CONTROL_FIELD) == null && outboundResponseObj.
+                getNativeData(HttpConstants.IS_RESPONSE_PROCESSED) != null) {
             String errorMessage = "Couldn't complete the outbound response which has been already processed.";
             HttpUtil.sendOutboundResponse(inboundRequestMsg, HttpUtil.createErrorMessage(errorMessage, 500));
             unBlockStrand(strand);
