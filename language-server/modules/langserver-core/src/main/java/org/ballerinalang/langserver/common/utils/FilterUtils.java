@@ -1,20 +1,20 @@
 /*
-*  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*  WSO2 Inc. licenses this file to you under the Apache License,
-*  Version 2.0 (the "License"); you may not use this file except
-*  in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-*  Unless required by applicable law or agreed to in writing,
-*  software distributed under the License is distributed on an
-*  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-*  KIND, either express or implied.  See the License for the
-*  specific language governing permissions and limitations
-*  under the License.
-*/
+ *  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing,
+ *  software distributed under the License is distributed on an
+ *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *  KIND, either express or implied.  See the License for the
+ *  specific language governing permissions and limitations
+ *  under the License.
+ */
 package org.ballerinalang.langserver.common.utils;
 
 import com.google.common.collect.Lists;
@@ -70,11 +70,11 @@ public class FilterUtils {
     /**
      * Get the invocations and fields against an identifier (functions, actions and fields).
      *
-     * @param context Text Document Service context (Completion Context)
-     * @param varName Variable name to evaluate against (Can be package alias or defined variable)
-     * @param delimiter    delimiter type either dot or action invocation symbol
-     * @param defaultTokens         List of Default tokens
-     * @param delimIndex            Delimiter index
+     * @param context       Text Document Service context (Completion Context)
+     * @param varName       Variable name to evaluate against (Can be package alias or defined variable)
+     * @param delimiter     delimiter type either dot or action invocation symbol
+     * @param defaultTokens List of Default tokens
+     * @param delimIndex    Delimiter index
      * @return {@link ArrayList}    List of filtered symbol info
      */
     public static List<SymbolInfo> filterVariableEntriesOnDelimiter(LSContext context, String varName, int delimiter,
@@ -119,7 +119,8 @@ public class FilterUtils {
 
     /**
      * Get the actions defined over and endpoint.
-     * @param bObjectTypeSymbol    Endpoint variable symbol to evaluate
+     *
+     * @param bObjectTypeSymbol Endpoint variable symbol to evaluate
      * @return {@link List}         List of extracted actions as Symbol Info
      */
     public static List<SymbolInfo> getClientActions(BObjectTypeSymbol bObjectTypeSymbol) {
@@ -138,9 +139,9 @@ public class FilterUtils {
      * Get the invocations and fields for a dot separated chained statement
      * Eg: int x = var1.field1.testFunction()
      *
-     * @param context Language server operation context
+     * @param context       Language server operation context
      * @param defaultTokens List of default tokens removed (LHS Tokens)
-     * @param delimIndex Delimiter index
+     * @param delimIndex    Delimiter index
      * @return {@link List} List of extracted symbols
      */
     private static List<SymbolInfo> getInvocationsAndFields(LSContext context, List<CommonToken> defaultTokens,
@@ -223,11 +224,11 @@ public class FilterUtils {
     public static boolean isBTypeEntry(Scope.ScopeEntry entry) {
         return getBTypeEntry(entry).isPresent();
     }
-    
+
     ///////////////////////////
     ///// Private Methods /////
     ///////////////////////////
-    
+
     private static BType getBTypeForUnionType(BUnionType bType) {
         List<BType> memberTypeList = new ArrayList<>(bType.getMemberTypes());
         memberTypeList.removeIf(type -> type.tsymbol instanceof BErrorTypeSymbol || type instanceof BNilType);
@@ -235,7 +236,7 @@ public class FilterUtils {
         if (memberTypeList.size() == 1) {
             return memberTypeList.get(0);
         }
-        
+
         return bType;
     }
 
@@ -254,14 +255,14 @@ public class FilterUtils {
 
         return actionFunctionList;
     }
-    
+
     private static BType getModifiedBType(BSymbol bSymbol, LSContext context, InvocationFieldType fieldType) {
         Integer invocationType = context.get(CompletionKeys.INVOCATION_TOKEN_TYPE_KEY);
         BType actualType;
         if ((bSymbol.tag & SymTag.TYPE) == SymTag.TYPE) {
             actualType = new BTypedescType(bSymbol.type, null);
         } else if (bSymbol instanceof BInvokableSymbol) {
-             actualType = ((BInvokableSymbol) bSymbol).retType;
+            actualType = ((BInvokableSymbol) bSymbol).retType;
         } else if (bSymbol.type instanceof BArrayType && fieldType == InvocationFieldType.ARRAY_ACCESS) {
             return ((BArrayType) bSymbol.type).eType;
         } else {
@@ -346,7 +347,7 @@ public class FilterUtils {
      *
      * @param symbolName symbol name to evaluate
      * @param symbolType BType to evaluate
-     * @param context Language Server Operation Context
+     * @param context    Language Server Operation Context
      * @return {@link Map} Scope Entry Map
      */
     private static Map<Name, Scope.ScopeEntry> getInvocationsAndFieldsForSymbol(String symbolName, BType symbolType,
@@ -363,39 +364,21 @@ public class FilterUtils {
          */
         if (symbolType.tsymbol instanceof BObjectTypeSymbol) {
             BObjectTypeSymbol objectTypeSymbol = (BObjectTypeSymbol) symbolType.tsymbol;
-            Map<Name, Scope.ScopeEntry> methodEntries = objectTypeSymbol.methodScope.entries.entrySet().stream()
-                    .filter(entry -> {
-                        BSymbol entrySymbol = entry.getValue().symbol;
-                        boolean isPrivate = (entrySymbol.flags & Flags.PRIVATE) == Flags.PRIVATE;
-                        return !(entrySymbol.getName().getValue().contains(".__init")
-                            && !"self".equals(symbolName)) && !(isPrivate && !"self".equals(symbolName));
-                    })
-                    .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-            Map<Name, Scope.ScopeEntry> fieldEntries = objectTypeSymbol.scope.entries.entrySet().stream()
-                    .filter(entry -> {
-                        BSymbol entrySymbol = entry.getValue().symbol;
-                        boolean isPrivate = (entrySymbol.flags & Flags.PRIVATE) == Flags.PRIVATE;
-                        return !(isPrivate && !"self".equals(symbolName));
-                    })
-                    .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-            entries.putAll(methodEntries);
-            entries.putAll(fieldEntries);
+            entries.putAll(getObjectMethodsAndFields(context, objectTypeSymbol, symbolName));
             entries.putAll(getLangLibScopeEntries(symbolType, symbolTable, types));
             return entries.entrySet().stream().filter(entry -> (!(entry.getValue().symbol instanceof BInvokableSymbol))
                     || ((entry.getValue().symbol.flags & Flags.REMOTE) != Flags.REMOTE))
                     .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+        } else if (symbolType instanceof BUnionType) {
+            entries.putAll(getInvocationsAndFieldsForUnionType((BUnionType) symbolType, context));
+        } else if (symbolType.tsymbol != null && symbolType.tsymbol.scope != null) {
+            entries.putAll(getLangLibScopeEntries(symbolType, symbolTable, types));
+            Map<Name, Scope.ScopeEntry> filteredEntries = symbolType.tsymbol.scope.entries.entrySet().stream()
+                    .filter(optionalFieldFilter(symbolType, invocationToken))
+                    .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+            entries.putAll(filteredEntries);
         } else {
-            if (symbolType instanceof BUnionType) {
-                entries.putAll(getInvocationsAndFieldsForUnionType((BUnionType) symbolType, context));
-            } else if (symbolType.tsymbol != null && symbolType.tsymbol.scope != null) {
-                entries.putAll(getLangLibScopeEntries(symbolType, symbolTable, types));
-                Map<Name, Scope.ScopeEntry> filteredEntries = symbolType.tsymbol.scope.entries.entrySet().stream()
-                        .filter(optionalFieldFilter(symbolType, invocationToken))
-                        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-                entries.putAll(filteredEntries);
-            } else {
-                entries.putAll(getLangLibScopeEntries(symbolType, symbolTable, types));
-            }
+            entries.putAll(getLangLibScopeEntries(symbolType, symbolTable, types));
         }
         /*
         Here we add the BTypeSymbol check to skip the anyData and similar types suggested from lang lib scope entries
@@ -406,12 +389,48 @@ public class FilterUtils {
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 
+    private static Map<Name, Scope.ScopeEntry> getObjectMethodsAndFields(LSContext context,
+                                                                         BObjectTypeSymbol objectSymbol,
+                                                                         String symbolName) {
+        String currentModule = context.get(DocumentServiceKeys.CURRENT_PKG_NAME_KEY);
+        String objectOwnerModule = objectSymbol.pkgID.getName().getValue();
+        boolean symbolInCurrentModule = currentModule.equals(objectOwnerModule);
+
+        // Extract the method entries
+        Map<Name, Scope.ScopeEntry> entries = objectSymbol.methodScope.entries.entrySet().stream()
+                .filter(entry -> {
+                    BSymbol entrySymbol = entry.getValue().symbol;
+                    boolean isPrivate = (entrySymbol.flags & Flags.PRIVATE) == Flags.PRIVATE;
+                    boolean isPublic = (entrySymbol.flags & Flags.PUBLIC) == Flags.PUBLIC;
+
+                    return !((entrySymbol.getName().getValue().contains(".__init") && !"self".equals(symbolName))
+                            || (isPrivate && !"self".equals(symbolName))
+                            || (!isPrivate && !isPublic && !symbolInCurrentModule));
+                })
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+
+        // Extract Field Entries
+        Map<Name, Scope.ScopeEntry> fieldEntries = objectSymbol.scope.entries.entrySet().stream()
+                .filter(entry -> {
+                    BSymbol entrySymbol = entry.getValue().symbol;
+                    boolean isPrivate = (entrySymbol.flags & Flags.PRIVATE) == Flags.PRIVATE;
+                    boolean isPublic = (entrySymbol.flags & Flags.PUBLIC) == Flags.PUBLIC;
+                    return !((isPrivate && !"self".equals(symbolName))
+                            || (!isPrivate && !isPublic && !symbolInCurrentModule));
+                })
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+
+        entries.putAll(fieldEntries);
+
+        return entries;
+    }
+
     /**
      * When given a union of record types, iterate over the member types to extract the fields with the same name.
      * If a certain field with the same name contains in all records we extract the field entries
-     * 
+     *
      * @param unionType union type to evaluate
-     * @param context Language server operation context
+     * @param context   Language server operation context
      * @return {@link Map} map of scope entries
      */
     private static Map<Name, Scope.ScopeEntry> getInvocationsAndFieldsForUnionType(BUnionType unionType,
@@ -493,10 +512,10 @@ public class FilterUtils {
     /**
      * Retrieve lang-lib scope entries for this typeTag.
      *
-     * @param bType   {@link BType}
-     * @param symTable  {@link SymbolTable}
-     * @param types {@link Types} analyzer
-     * @return  map of scope entries
+     * @param bType    {@link BType}
+     * @param symTable {@link SymbolTable}
+     * @param types    {@link Types} analyzer
+     * @return map of scope entries
      */
     public static Map<Name, Scope.ScopeEntry> getLangLibScopeEntries(BType bType, SymbolTable symTable, Types types) {
         Map<Name, Scope.ScopeEntry> entries = new HashMap<>(symTable.langValueModuleSymbol.scope.entries);
@@ -556,7 +575,7 @@ public class FilterUtils {
             return symbol.kind != null && symbol.kind != SymbolKind.OBJECT;
         }).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
-    
+
     private static Predicate<Map.Entry<Name, Scope.ScopeEntry>> optionalFieldFilter(BType symbolType,
                                                                                     Integer invocationTkn) {
         return entry -> {
