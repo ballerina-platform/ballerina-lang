@@ -499,7 +499,8 @@ public abstract class LSCompletionProvider {
         
         BObjectTypeSymbol objectTypeSymbol = (BObjectTypeSymbol) bSymbol;
         BAttachedFunction initFunction = objectTypeSymbol.initializerFunc;
-        
+        BInvokableSymbol initFunctionSymbol = initFunction == null ? null : initFunction.symbol;
+
         if (newTokenIndex > -1 && firstColonIndex > -1 && lastColonIndex == firstColonIndex) {
             /*
             ex: modName:ObjectName = new <cursor>
@@ -511,9 +512,9 @@ public abstract class LSCompletionProvider {
             ex: modName:ObjectName = new modName:
                 ObjectName = new 
              */
-            Pair<String, String> newWithTypeSign = getFunctionInvocationSignature(initFunction.symbol, typeName,
+            Pair<String, String> newWithTypeSign = getFunctionInvocationSignature(initFunctionSymbol, typeName,
                     context);
-            completionItems.add(BFunctionCompletionItemBuilder.build(initFunction.symbol, newWithTypeSign.getRight(),
+            completionItems.add(BFunctionCompletionItemBuilder.build(initFunctionSymbol, newWithTypeSign.getRight(),
                     newWithTypeSign.getLeft(), context));
             return completionItems;
         } else if (invocationType > -1) {
