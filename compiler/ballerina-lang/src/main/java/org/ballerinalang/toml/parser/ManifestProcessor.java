@@ -42,6 +42,8 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static org.wso2.ballerinalang.util.RepoUtils.COMPILE_BALLERINA_ORG;
+
 /**
  * Manifest Processor which processes the toml file parsed and populate the Manifest POJO.
  *
@@ -170,15 +172,21 @@ public class ManifestProcessor {
      * @throws TomlException When the project block is invalid.
      */
     private static void validateManifestProject(Manifest manifest) throws TomlException {
-        if (null == manifest.getProject().getOrgName() || "".equals(manifest.getProject().getOrgName())) {
+        String orgName = manifest.getProject().getOrgName();
+        String version = manifest.getProject().getVersion();
+        if (null == orgName || "".equals(orgName)) {
             throw new TomlException("invalid Ballerina.toml file: cannot find 'org-name' under [project]");
         }
-        
-        if (null == manifest.getProject().getVersion() || "".equals(manifest.getProject().getVersion())) {
+
+        if (!COMPILE_BALLERINA_ORG && ("ballerina".equals(orgName))) {
+            throw new TomlException("invalid Ballerina.toml file: 'org-name' under [project] cannot be 'ballerina'");
+        }
+
+        if (null == version || "".equals(version)) {
             throw new TomlException("invalid Ballerina.toml file: cannot find 'version' under [project]");
         }
     
-        Matcher semverMatcher = semVerPattern.matcher(manifest.getProject().getVersion());
+        Matcher semverMatcher = semVerPattern.matcher(version);
         if (!semverMatcher.matches()) {
             throw new TomlException("invalid Ballerina.toml file: 'version' under [project] is not semver");
         }
