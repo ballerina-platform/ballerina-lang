@@ -17,6 +17,8 @@
 */
 package org.ballerinalang.jvm.values.api;
 
+import org.ballerinalang.jvm.values.StringValue;
+
 /**
  * Interface representing ballerina strings.
  *
@@ -30,6 +32,6 @@ public interface BString {
 
     int length();
 
-    BString concat(BString str);
+    StringValue concat(StringValue str);
 
 }

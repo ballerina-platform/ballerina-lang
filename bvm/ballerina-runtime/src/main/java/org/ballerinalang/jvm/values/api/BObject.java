@@ -41,10 +41,7 @@ public interface BObject extends BRefValue {
     @Deprecated
     Object get(String fieldName);
 
-    @Deprecated
     Object get(StringValue fieldName);
-
-    Object get(BString fieldName);
 
     long getIntValue(String fieldName);
 

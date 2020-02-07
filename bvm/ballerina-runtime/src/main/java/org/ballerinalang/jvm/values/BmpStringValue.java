@@ -17,9 +17,7 @@
   */
 package org.ballerinalang.jvm.values;
 
- import org.ballerinalang.jvm.values.api.BString;
-
- /**
+/**
   * Represent ballerina strings containing only unicode basic multilingual plane characters.
   *
   * @since 1.0.5
@@ -48,7 +46,7 @@ public class BmpStringValue implements StringValue {
      }
 
      @Override
-     public BString concat(BString str) {
+     public StringValue concat(StringValue str) {
          if (str instanceof BmpStringValue) {
              return new BmpStringValue(this.value + ((BmpStringValue) str).value);
          } else {

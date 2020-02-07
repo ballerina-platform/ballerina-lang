@@ -24,6 +24,7 @@ import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.FPValue;
 import org.ballerinalang.jvm.values.FutureValue;
 import org.ballerinalang.jvm.values.HandleValue;
+import org.ballerinalang.jvm.values.StringValue;
 import org.ballerinalang.jvm.values.TypedescValue;
 import org.ballerinalang.jvm.values.XMLItem;
 import org.ballerinalang.jvm.values.XMLValue;
@@ -387,7 +388,7 @@ public class RefTypeTests {
         return new HandleValue(m);
     }
 
-    public static org.ballerinalang.jvm.values.api.BString useHandle(HandleValue h) {
+    public static StringValue useHandle(HandleValue h) {
         Map<String, String> m = (Map<String, String>) h.getValue();
         return StringUtils.fromString(m.get("name"));
     }

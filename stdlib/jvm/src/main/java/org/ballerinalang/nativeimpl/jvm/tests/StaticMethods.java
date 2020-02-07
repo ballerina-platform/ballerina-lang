@@ -36,7 +36,6 @@ import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.StringValue;
 import org.ballerinalang.jvm.values.TupleValueImpl;
 import org.ballerinalang.jvm.values.api.BDecimal;
-import org.ballerinalang.jvm.values.api.BString;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -66,7 +65,7 @@ public class StaticMethods {
         return new BmpStringValue("hello world");
     }
 
-    public static BString stringParamAndReturn(BString a1) {
+    public static StringValue stringParamAndReturn(StringValue a1) {
         return a1.concat(new BmpStringValue(" and Hadrian"));
     }
 

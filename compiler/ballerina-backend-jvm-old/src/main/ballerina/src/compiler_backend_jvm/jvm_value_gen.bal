@@ -231,13 +231,13 @@ public type ObjectGenerator object {
     private function createObjectGetMethod(jvm:ClassWriter cw, bir:BObjectField?[] fields, string className,
                                            boolean useBString) {
         jvm:MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "get",
-                io:sprintf("(L%s;)L%s;", useBString ? B_STRING_VALUE : STRING_VALUE, OBJECT), (), ());
+                io:sprintf("(L%s;)L%s;", useBString ? I_STRING_VALUE : STRING_VALUE, OBJECT), (), ());
         mv.visitCode();
 
         int fieldNameRegIndex = 1;
         if(useBString) {
             mv.visitVarInsn(ALOAD, 0);
-             mv.visitMethodInsn(INVOKEINTERFACE, B_STRING_VALUE, "getValue", io:sprintf("()L%s;", STRING_VALUE) , true);
+             mv.visitMethodInsn(INVOKEINTERFACE, I_STRING_VALUE, "getValue", io:sprintf("()L%s;", STRING_VALUE) , true);
              fieldNameRegIndex = 2;
              mv.visitVarInsn(ASTORE, fieldNameRegIndex);
          }
@@ -274,7 +274,7 @@ public type ObjectGenerator object {
     private function createObjectSetMethod(jvm:ClassWriter cw, bir:BObjectField?[] fields, string className,
                                            boolean useBString) {
         jvm:MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "set",
-                io:sprintf("(L%s;L%s;)V", useBString ? B_STRING_VALUE : STRING_VALUE, OBJECT), (), ());
+                io:sprintf("(L%s;L%s;)V", useBString ? I_STRING_VALUE : STRING_VALUE, OBJECT), (), ());
         mv.visitCode();
         int fieldNameRegIndex = 1;
         int valueRegIndex = 2;
@@ -284,7 +284,7 @@ public type ObjectGenerator object {
         mv.visitVarInsn(ALOAD, 0);
         mv.visitVarInsn(ALOAD, fieldNameRegIndex);
         if(useBString) {
-            mv.visitMethodInsn(INVOKEINTERFACE, B_STRING_VALUE, "getValue", io:sprintf("()L%s;", STRING_VALUE) , true);
+            mv.visitMethodInsn(INVOKEINTERFACE, I_STRING_VALUE, "getValue", io:sprintf("()L%s;", STRING_VALUE) , true);
             mv.visitInsn(DUP);
             fieldNameRegIndex = 3;
             mv.visitVarInsn(ASTORE, fieldNameRegIndex);

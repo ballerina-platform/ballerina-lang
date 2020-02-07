@@ -69,13 +69,6 @@ public class StringValueBasicsTest {
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 5);
     }
 
-    @Test
-    public void testArrayStore() {
-        BValue[] returns = BRunUtil.invoke(result, "testArrayStore");
-        Assert.assertEquals(returns[0].getClass(), BInteger.class);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 10);
-    }
-
     @AfterClass
     public void down() {
         System.clearProperty(IS_STRING_VALUE_PROP);

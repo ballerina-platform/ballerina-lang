@@ -30,7 +30,6 @@ import org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.util.exceptions.RuntimeErrors;
 import org.ballerinalang.jvm.values.api.BArray;
-import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.jvm.values.freeze.FreezeUtils;
 import org.ballerinalang.jvm.values.freeze.Status;
 import org.ballerinalang.jvm.values.utils.StringUtils;
@@ -69,7 +68,6 @@ public class ArrayValueImpl extends AbstractArrayValue {
     private byte[] byteValues;
     private double[] floatValues;
     private String[] stringValues;
-    private BString[] bStringValues;
 
     // ------------------------ Constructors -------------------------------------------------------------------
 
@@ -119,13 +117,6 @@ public class ArrayValueImpl extends AbstractArrayValue {
     }
 
     @Deprecated
-    public ArrayValueImpl(BString[] values) {
-        this.bStringValues = values;
-        this.size = values.length;
-        setArrayType(BTypes.typeString);
-    }
-
-    @Deprecated
     public ArrayValueImpl(BArrayType type) {
         this.arrayType = type;
         BArrayType arrayType = (BArrayType) type;
@@ -133,10 +124,10 @@ public class ArrayValueImpl extends AbstractArrayValue {
         if (arrayType.getState() == ArrayState.CLOSED_SEALED) {
             this.size = maxSize = arrayType.getSize();
         }
-        initArrayValues(this.elementType, false);
+        initArrayValues(this.elementType);
     }
 
-    private void initArrayValues(BType elementType, boolean useBString) {
+    private void initArrayValues(BType elementType) {
         switch (elementType.getTag()) {
             case TypeTags.INT_TAG:
                 this.intValues = new long[DEFAULT_ARRAY_SIZE];
@@ -145,11 +136,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
                 this.floatValues = new double[DEFAULT_ARRAY_SIZE];
                 break;
             case TypeTags.STRING_TAG:
-                if (useBString) {
-                    this.bStringValues = new BString[DEFAULT_ARRAY_SIZE];
-                } else {
-                    this.stringValues = new String[DEFAULT_ARRAY_SIZE];
-                }
+                this.stringValues = new String[DEFAULT_ARRAY_SIZE];
                 break;
             case TypeTags.BOOLEAN_TAG:
                 this.booleanValues = new boolean[DEFAULT_ARRAY_SIZE];
@@ -169,17 +156,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
         if (size != -1) {
             this.size = this.maxSize = (int) size;
         }
-        initArrayValues(this.elementType, false);
-    }
-
-    @Deprecated
-    public ArrayValueImpl(BArrayType type, long size, boolean useBString) {
-        this.arrayType = type;
-        this.elementType = type.getElementType();
-        if (size != -1) {
-            this.size = this.maxSize = (int) size;
-        }
-        initArrayValues(this.elementType, useBString);
+        initArrayValues(this.elementType);
     }
 
     // ----------------------- get methods ----------------------------------------------------
@@ -293,32 +270,12 @@ public class ArrayValueImpl extends AbstractArrayValue {
      * @return array element
      */
     @Override
-    @Deprecated
     public String getString(long index) {
         rangeCheckForGet(index, size);
         if (stringValues != null) {
             return stringValues[(int) index];
         }
-
-        if (bStringValues != null) {
-            return bStringValues[(int) index].getValue();
-        }
         return (String) refValues[(int) index];
-    }
-
-    /**
-     * Get string value in the given index.
-     *
-     * @param index array index
-     * @return array element
-     */
-    @Override
-    public BString getBString(long index) {
-        rangeCheckForGet(index, size);
-        if (bStringValues != null) {
-            return bStringValues[(int) index];
-        }
-        return (BString) refValues[(int) index];
     }
 
     // ---------------------------- add methods --------------------------------------------------
@@ -425,25 +382,11 @@ public class ArrayValueImpl extends AbstractArrayValue {
      * @param index array index
      * @param value value to be added
      */
-    @Deprecated
     @Override
     public void add(long index, String value) {
         handleFrozenArrayValue();
         prepareForAdd(index, value, BTypes.typeString, stringValues.length);
         stringValues[(int) index] = value;
-    }
-
-    /**
-     * Add string value to the given array index.
-     *
-     * @param index array index
-     * @param value value to be added
-     */
-    @Override
-    public void add(long index, BString value) {
-        handleFrozenArrayValue();
-        prepareForAdd(index, value, BTypes.typeString, bStringValues.length);
-        bStringValues[(int) index] = value;
     }
 
     // -------------------------------------------------------------------------------------------------------------

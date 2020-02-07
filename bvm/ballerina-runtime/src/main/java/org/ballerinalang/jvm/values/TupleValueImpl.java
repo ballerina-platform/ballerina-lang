@@ -26,7 +26,6 @@ import org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.util.exceptions.RuntimeErrors;
 import org.ballerinalang.jvm.values.api.BArray;
-import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.jvm.values.freeze.FreezeUtils;
 import org.ballerinalang.jvm.values.freeze.Status;
 import org.ballerinalang.jvm.values.utils.StringUtils;
@@ -166,20 +165,8 @@ public class TupleValueImpl extends AbstractArrayValue {
      * @return array element
      */
     @Override
-    @Deprecated
     public String getString(long index) {
         return (String) get(index);
-    }
-
-    /**
-     * Get string value in the given index.
-     *
-     * @param index array index
-     * @return array element
-     */
-    @Override
-    public BString getBString(long index) {
-        return (BString) get(index);
     }
 
     // ---------------------------- add methods --------------------------------------------------
@@ -248,19 +235,7 @@ public class TupleValueImpl extends AbstractArrayValue {
      * @param value value to be added
      */
     @Override
-    @Deprecated
     public void add(long index, String value) {
-        add(index, (Object) value);
-    }
-
-    /**
-     * Add string value to the given array index.
-     *
-     * @param index array index
-     * @param value value to be added
-     */
-    @Override
-    public void add(long index, BString value) {
         add(index, (Object) value);
     }
 

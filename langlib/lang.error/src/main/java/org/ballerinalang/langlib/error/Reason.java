@@ -19,7 +19,7 @@ package org.ballerinalang.langlib.error;
 
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ErrorValue;
-import org.ballerinalang.jvm.values.api.BString;
+import org.ballerinalang.jvm.values.StringValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -43,7 +43,7 @@ public class Reason {
         return value.getReason();
     }
 
-    public static BString reason_bstring(Strand strand, ErrorValue value) {
-        return value.getErrorReason();
+    public static StringValue reason_bstring(Strand strand, ErrorValue value) {
+        return (StringValue) value.getErrorReason();
     }
 }

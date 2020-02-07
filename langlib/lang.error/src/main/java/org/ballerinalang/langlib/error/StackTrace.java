@@ -35,7 +35,6 @@ import org.ballerinalang.jvm.values.FutureValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.StringValue;
-import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -120,11 +119,6 @@ public class StackTrace {
 
         @Override
         public Object get(StringValue fieldName) {
-            return get(fieldName.getValue());
-        }
-
-        @Override
-        public Object get(BString fieldName) {
             return get(fieldName.getValue());
         }
 
