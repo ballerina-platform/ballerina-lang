@@ -21,43 +21,31 @@ import ballerina/http;
 service on new http:Listener(21034) {
 
     resource function onOpen(http:WebSocketCaller wsEp) {
-        http:WebSocketFailoverClient wsClientEp = new({callbackService: countDownService,
+        http:WebSocketFailoverClient wsClientEp = new({callbackService: callbackService,
             readyOnConnect: false, targetUrls: ["ws://localhost:15300/websocket",
             "ws://localhost:21033/basic/ws"], handShakeTimeoutInSeconds: 7});
 
         wsEp.setAttribute(ASSOCIATED_CONNECTION, wsClientEp);
         wsClientEp.setAttribute(ASSOCIATED_CONNECTION, wsEp);
-        var returnVal = wsClientEp->ready();
-        if (returnVal is http:WebSocketError) {
-            panic returnVal;
-        }
+        checkpanic wsClientEp->ready();
     }
 
     resource function onText(http:WebSocketCaller wsEp, string text) {
         http:WebSocketFailoverClient clientEp = getAssociatedFailoverClientEndpoint(wsEp);
-        var returnVal = clientEp->pushText(text);
-        if (returnVal is http:WebSocketError) {
-            panic returnVal;
-        }
+        checkpanic clientEp->pushText(text);
     }
 }
 
-service countDownService = @http:WebSocketServiceConfig {} service {
+service callbackService = @http:WebSocketServiceConfig {} service {
 
     resource function onText(http:WebSocketFailoverClient wsEp, string text) {
         http:WebSocketCaller serviceEp = getAssociatedFailoverListener(wsEp);
-        var returnVal = serviceEp->pushText(text);
-        if (returnVal is http:WebSocketError) {
-            panic returnVal;
-        }
+        checkpanic serviceEp->pushText(text);
     }
 
     //This resource gets invoked when an error occurs in the connection.
     resource function onError(http:WebSocketFailoverClient wsEp, error err) {
         http:WebSocketCaller serviceEp = getAssociatedFailoverListener(wsEp);
-        var returnVal = serviceEp->pushText(err.toString());
-        if (returnVal is http:WebSocketError) {
-            panic returnVal;
-        }
+        checkpanic serviceEp->pushText(err.toString());
     }
 };

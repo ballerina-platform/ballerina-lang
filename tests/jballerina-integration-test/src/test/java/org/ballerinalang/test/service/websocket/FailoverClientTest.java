@@ -38,24 +38,25 @@ public class FailoverClientTest extends WebSocketTestCommons {
 
     private WebSocketRemoteServer remoteServer15300;
     private WebSocketRemoteServer remoteServer15200;
-    private String url = "ws://localhost:21032";
-    private int port = 15300;
-    private String message = "hi all";
-    private String text = "hi";
+    private static final String URL = "ws://localhost:21032";
+    private static final int PORT = 15300;
+    private static final int SEVER_PORT = 15200;
+    private static final String MESSAGE = "hi all";
+    private static final String text = "hi";
 
-    @Test(description = "Tests the failover webSocket client by starts the second server in the target URLs.")
+    @Test(description = "Tests the failover webSocket client by starting the second server in the target URLs.")
     public void testTextFrameWithSecondServer() throws URISyntaxException, InterruptedException,
             BallerinaTestException {
-        remoteServer15200 = initiateServer(15200);
-        WebSocketTestClient client = initiateClient(url);
-        sendTextDataAndAssert(client, message);
+        remoteServer15200 = initiateServer(SEVER_PORT);
+        WebSocketTestClient client = initiateClient(URL);
+        sendTextDataAndAssert(client, MESSAGE);
         closeConnection(client, remoteServer15200);
     }
 
-    @Test(description = "Tests the failover webSocket client by starts the first server in the target URLs.")
+    @Test(description = "Tests the failover webSocket client by starting the first server in the target URLs.")
     public void testBinaryFrameForFailover() throws URISyntaxException, InterruptedException, BallerinaTestException {
-        remoteServer15300 = initiateServer(port);
-        WebSocketTestClient client = initiateClient(url);
+        remoteServer15300 = initiateServer(PORT);
+        WebSocketTestClient client = initiateClient(URL);
         sendBinaryDataAndAssert(client);
         closeConnection(client, remoteServer15300);
     }
@@ -63,7 +64,7 @@ public class FailoverClientTest extends WebSocketTestCommons {
     @Test(description = "Tests the failover webSocket client by doesn't start the any server in the targets URLs")
     public void testFailingFailover() throws URISyntaxException, InterruptedException {
         CountDownLatch countDownLatch = new CountDownLatch(1);
-        WebSocketTestClient client = initiateClient(url);
+        WebSocketTestClient client = initiateClient(URL);
         client.setCountDownLatch(countDownLatch);
         countDownLatch.await(TIMEOUT_IN_SECS, TimeUnit.SECONDS);
         CloseWebSocketFrame closeWebSocketFrame = client.getReceivedCloseFrame();
@@ -73,26 +74,26 @@ public class FailoverClientTest extends WebSocketTestCommons {
         closeWebSocketFrame.release();
     }
 
-    @Test(description = "Tests the failover webSocket client by starts the both server in the target URLs.")
+    @Test(description = "Tests the failover webSocket client by starting the both server in the target URLs.")
     public void testFailoverWithBothServer() throws URISyntaxException, InterruptedException,
             BallerinaTestException {
-        remoteServer15200 = initiateServer(15200);
-        remoteServer15300 = initiateServer(port);
-        WebSocketTestClient client = initiateClient(url);
-        sendTextDataAndAssert(client, message);
+        remoteServer15200 = initiateServer(SEVER_PORT);
+        remoteServer15300 = initiateServer(PORT);
+        WebSocketTestClient client = initiateClient(URL);
+        sendTextDataAndAssert(client, MESSAGE);
         remoteServer15300.stop();
         sendTextDataAndAssert(client, text);
         sendBinaryDataAndAssert(client);
         closeConnection(client, remoteServer15200);
     }
 
-    @Test(description = "Tests the failover webSocket client by starts the both server in the target URLs.")
+    @Test(description = "Tests the failover webSocket client by starting the both server in the target URLs.")
     public void testFailoverWithBothServerFirstStartSecondServer() throws URISyntaxException, InterruptedException,
             BallerinaTestException {
-        remoteServer15200 = initiateServer(15200);
-        WebSocketTestClient client = initiateClient(url);
-        sendTextDataAndAssert(client, message);
-        remoteServer15300 = initiateServer(port);
+        remoteServer15200 = initiateServer(SEVER_PORT);
+        WebSocketTestClient client = initiateClient(URL);
+        sendTextDataAndAssert(client, MESSAGE);
+        remoteServer15300 = initiateServer(PORT);
         remoteServer15200.stop();
         sendTextDataAndAssert(client, text);
         closeConnection(client, remoteServer15300);
@@ -100,19 +101,17 @@ public class FailoverClientTest extends WebSocketTestCommons {
 
     @Test(description = "Tests handshake's waiting time exception")
     public void testCountDownLatch() throws URISyntaxException, InterruptedException, BallerinaTestException {
-        WebSocketTestClient serverClient = initiateClient("ws://localhost:21033/basic/ws");
-        remoteServer15300 = initiateServer(port);
+        remoteServer15300 = initiateServer(PORT);
         WebSocketTestClient client = initiateClient("ws://localhost:21034");
-        CountDownLatch countDownLatch1 = new CountDownLatch(1);
-        countDownLatch1.await(8, TimeUnit.SECONDS);
-        sendTextDataAndAssert(client, message);
+        CountDownLatch latch = new CountDownLatch(1);
+        latch.await(TIMEOUT_IN_SECS, TimeUnit.SECONDS);
+        sendTextDataAndAssert(client, MESSAGE);
         remoteServer15300.stop();
         CountDownLatch countDownLatch = new CountDownLatch(1);
-        countDownLatch.await(8, TimeUnit.SECONDS);
+        countDownLatch.await(TIMEOUT_IN_SECS, TimeUnit.SECONDS);
         Assert.assertEquals(client.getTextReceived(), "error {ballerina/http}WsGenericError " +
                 "message={ballerina/http}WsGenericError");
         client.shutDown();
-        serverClient.shutDown();
     }
 
     private WebSocketRemoteServer initiateServer(int port) throws InterruptedException, BallerinaTestException {

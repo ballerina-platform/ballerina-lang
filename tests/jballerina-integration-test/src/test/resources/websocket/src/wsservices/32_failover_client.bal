@@ -27,34 +27,22 @@ service on new http:Listener(21032) {
 
         wsEp.setAttribute(ASSOCIATED_CONNECTION, wsClientEp);
         wsClientEp.setAttribute(ASSOCIATED_CONNECTION, wsEp);
-        var returnVal = wsClientEp->ready();
-        if (returnVal is http:WebSocketError) {
-            panic returnVal;
-        }
+        checkpanic wsClientEp->ready();
     }
 
     resource function onText(http:WebSocketCaller wsEp, string text) {
         http:WebSocketFailoverClient clientEp = getAssociatedFailoverClientEndpoint(wsEp);
-        var returnVal = clientEp->pushText(text);
-        if (returnVal is http:WebSocketError) {
-            panic returnVal;
-        }
+        checkpanic clientEp->pushText(text);
     }
 
     resource function onBinary(http:WebSocketCaller wsEp, byte[] data) {
         http:WebSocketFailoverClient clientEp = getAssociatedFailoverClientEndpoint(wsEp);
-        var returnVal = clientEp->pushBinary(data);
-        if (returnVal is http:WebSocketError) {
-            panic returnVal;
-        }
+        checkpanic clientEp->pushBinary(data);
     }
 
     resource function onClose(http:WebSocketCaller wsEp, int statusCode, string reason) {
         http:WebSocketFailoverClient clientEp = getAssociatedFailoverClientEndpoint(wsEp);
-        var returnVal = clientEp->close(statusCode = statusCode, reason = reason);
-        if (returnVal is http:WebSocketError) {
-            panic returnVal;
-        }
+        checkpanic clientEp->close(statusCode = statusCode, reason = reason);
     }
 }
 
@@ -62,26 +50,17 @@ service failoverClientCallbackService = @http:WebSocketServiceConfig {} service 
 
     resource function onText(http:WebSocketFailoverClient wsEp, string text) {
         http:WebSocketCaller serviceEp = getAssociatedFailoverListener(wsEp);
-        var returnVal = serviceEp->pushText(text);
-        if (returnVal is http:WebSocketError) {
-            panic returnVal;
-        }
+        checkpanic serviceEp->pushText(text);
     }
 
     resource function onBinary(http:WebSocketFailoverClient wsEp, byte[] data) {
         http:WebSocketCaller serviceEp = getAssociatedFailoverListener(wsEp);
-        var returnVal = serviceEp->pushBinary(data);
-        if (returnVal is http:WebSocketError) {
-            panic returnVal;
-        }
+        checkpanic serviceEp->pushBinary(data);
     }
 
     resource function onClose(http:WebSocketFailoverClient wsEp, int statusCode, string reason) {
         http:WebSocketCaller serviceEp = getAssociatedFailoverListener(wsEp);
-        var returnVal = serviceEp->close(statusCode = statusCode, reason = reason);
-        if (returnVal is http:WebSocketError) {
-            panic returnVal;
-        }
+        checkpanic serviceEp->close(statusCode = statusCode, reason = reason);
     }
  };
 

@@ -51,34 +51,7 @@ public class FailoverInitEndpoint {
         MapValue<String, Object> clientEndpointConfig = (MapValue<String, Object>) webSocketClient.getMapValue(
                 WebSocketConstants.CLIENT_ENDPOINT_CONFIG);
         Strand strand = Scheduler.getStrand();
-        ArrayValue targets = clientEndpointConfig.getArrayValue(WebSocketConstants.TARGET_URLS);
-        List<String> newTargetUrls = new ArrayList<>();
-        int index = 0;
-        // Checks whether the URL has a valid format or not
-        // If it isn't in the valid format, removes that from the URL set
-        for (int i = 0; i < targets.size(); i++) {
-            String url = targets.get(i).toString();
-            try {
-                URI uri = new URI(url);
-                String scheme = uri.getScheme();
-                if (!WebSocketConstants.WS_SCHEME.equalsIgnoreCase(scheme) && !WebSocketConstants.WSS_SCHEME.
-                        equalsIgnoreCase(scheme)) {
-                    String name = targets.get(i).toString();
-                    logger.error("{} drop from the targets url because webSocket client supports only WS(S) scheme.",
-                            name);
-                } else {
-                    newTargetUrls.add(index, url);
-                    index++;
-                }
-            } catch (URISyntaxException e) {
-                throw new WebSocketException("Error occurred when constructing a hierarchical URI from the " +
-                        "given url[" + url + "].");
-            }
-        }
-        logger.debug("New targetUrls: {}", newTargetUrls);
-        if (newTargetUrls.isEmpty()) {
-            throw new WebSocketException("TargetUrls should have at least one valid URL.");
-        }
+        List<String> newTargetUrls = getValidUrls(clientEndpointConfig.getArrayValue(WebSocketConstants.TARGET_URLS));
         // Creates the connector factory and sets it as the native data.
         webSocketClient.addNativeData(WebSocketConstants.CONNECTOR_FACTORY, HttpUtil.createHttpWsConnectionFactory());
         // Sets the failover config values.
@@ -108,6 +81,41 @@ public class FailoverInitEndpoint {
         failoverClientConnectorConfig.setFailoverInterval(WebSocketUtil.getIntValue(failoverConfig, FAILOVER_INTERVAL,
                 1000));
         failoverClientConnectorConfig.setTargetUrls(targetUrls);
+    }
+
+    /**
+     * Checks whether the URL has a valid format or not. If it isn't in the valid format, removes that from the URL set.
+     *
+     * @param targets - target URLs array
+     * @return validated target URLs array
+     */
+    private static List<String> getValidUrls(ArrayValue targets) {
+        List<String> newTargetUrls = new ArrayList<>();
+        int index = 0;
+        for (int i = 0; i < targets.size(); i++) {
+            String url = targets.get(i).toString();
+            try {
+                URI uri = new URI(url);
+                String scheme = uri.getScheme();
+                if (!WebSocketConstants.WS_SCHEME.equalsIgnoreCase(scheme) && !WebSocketConstants.WSS_SCHEME.
+                        equalsIgnoreCase(scheme)) {
+                    String name = targets.get(i).toString();
+                    logger.error("{} drop from the targets url because webSocket client supports only WS(S) scheme.",
+                            name);
+                } else {
+                    newTargetUrls.add(index, url);
+                    index++;
+                }
+            } catch (URISyntaxException e) {
+                throw new WebSocketException("Error occurred when constructing a hierarchical URI from the " +
+                        "given url[" + url + "].");
+            }
+        }
+        if (newTargetUrls.isEmpty()) {
+            throw new WebSocketException("TargetUrls should have at least one valid URL.");
+        }
+        logger.debug("New targetUrls: {}", newTargetUrls);
+        return newTargetUrls;
     }
 
     private FailoverInitEndpoint() {

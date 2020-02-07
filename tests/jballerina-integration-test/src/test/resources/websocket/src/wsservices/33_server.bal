@@ -15,10 +15,8 @@
 // under the License.
 
 import ballerina/http;
-import ballerina/io;
 import ballerina/runtime;
 
-int counter = 1;
 @http:ServiceConfig {
     basePath: "/basic"
 }
@@ -49,15 +47,8 @@ service httpService on new http:Listener(21033) {
         }
     }
     resource function upgrader(http:Caller caller, http:Request req) {
-        if (counter > 1) {
-            runtime:sleep(500000);
-        }
-        counter = counter + 1;
+        runtime:sleep(30000);
     }
 }
-service wsService = @http:WebSocketServiceConfig {subProtocols: ["xml, json"]} service {
-
-    resource function onOpen(http:WebSocketCaller caller) {
-        io:println("New WebSocket connection: " + caller.getConnectionId());
-    }
+service wsService = @http:WebSocketServiceConfig {} service {
 };
