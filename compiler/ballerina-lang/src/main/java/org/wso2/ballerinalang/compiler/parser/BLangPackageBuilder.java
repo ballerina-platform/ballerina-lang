@@ -485,7 +485,7 @@ public class BLangPackageBuilder {
         this.isInErrorType++;
     }
 
-    void endErrorType() {
+    private void endErrorType() {
         this.isInErrorType--;
     }
 
