@@ -103,7 +103,7 @@ public class CreateJarTask implements Task {
 //                    BootstrapRunner.loadTargetAndGenerateJarBinary(entryBir.toString(), jarOutput.toString(),
 //                            this.dumpBir, moduleDependencySet, projectBIRCache.toString(), homeBIRCache.toString(),
 //                            systemBIRCache.toString());
-                backendDriver.execute(birPackage);
+                backendDriver.execute(birPackage, dumpBir);
             }
 
             // If there is a testable package we will create testable jar.
@@ -122,7 +122,7 @@ public class CreateJarTask implements Task {
 //                        BootstrapRunner.loadTargetAndGenerateJarBinary(testBir.toString(), testJarOutput.toString(),
 //                                this.dumpBir, moduleDependencySet, projectBIRCache.toString(), homeBIRCache.toString(),
 //                                systemBIRCache.toString());
-                        backendDriver.execute(birPackage);
+                        backendDriver.execute(birPackage, dumpBir);
                     }
                 }
             }
@@ -157,7 +157,7 @@ public class CreateJarTask implements Task {
                 }
 //                BootstrapRunner.loadTargetAndGenerateJarBinary(birFilePath.toString(), jarFilePath.toString(),
 //                        this.dumpBir, moduleDependencySet, reps);
-                backendDriver.execute(bimport.bir);
+                backendDriver.execute(bimport.bir, dumpBir);
             }
             writeImportJar(bimport.imports, sourceRoot, buildContext, runtimeJar, reps);
         }
