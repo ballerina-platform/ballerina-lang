@@ -53,18 +53,4 @@ public class TypeFlags {
         }
         return mask;
     }
-
-    public static int getAnydataTypeFlag(BType type) {
-        if (type.isAnydata()) {
-            return ANYDATA;
-        }
-        return 0;
-    }
-
-    public static int getPuretypeTypeFlag(BType type) {
-        if (type.isPureType()) {
-            return PURETYPE;
-        }
-        return 0;
-    }
 }

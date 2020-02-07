@@ -19,6 +19,7 @@
 package org.ballerinalang.langlib.map;
 
 import org.ballerinalang.jvm.BallerinaValues;
+import org.ballerinalang.jvm.IteratorUtils;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BField;
 import org.ballerinalang.jvm.types.BRecordType;
@@ -68,7 +69,7 @@ public class Next {
             Map<String, BField> fields = new HashMap<>();
             fields.put("value", new BField(type, "value", Flags.PUBLIC + Flags.REQUIRED));
             BRecordType recordType = new BRecordType("$$returnType$$", null, 0, fields, null, true,
-                    TypeFlags.asMask(TypeFlags.getAnydataTypeFlag(type), TypeFlags.getPuretypeTypeFlag(type)));
+                    TypeFlags.asMask(IteratorUtils.getAnydataTypeFlag(type), IteratorUtils.getPuretypeTypeFlag(type)));
             return BallerinaValues.createRecord(new MapValueImpl<>(recordType), keyValueTuple.get(1));
         }
 
