@@ -21,8 +21,9 @@ package org.ballerinalang.test.parser;
 import org.ballerinalang.test.util.BAssertUtil;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.CompileResult;
-import org.testng.Assert;
 import org.testng.annotations.Test;
+
+import static org.testng.Assert.assertEquals;
 
 /**
  * Syntax Errors test class for ballerina filers.
@@ -88,18 +89,15 @@ public class InvalidSyntaxParserTest {
         int index = 0;
         BAssertUtil.validateError(result, index++, "extraneous input '{'", 5, 26);
         BAssertUtil.validateError(result, index++, "mismatched input ':'. expecting '='", 6, 16);
-        BAssertUtil.validateError(result, index++,
-                                  "mismatched input '\"GET\"'. expecting {'service', 'function', 'object'," +
-                                          " 'record', 'abstract', 'client', 'int', 'byte', 'float', 'decimal', " +
-                                          "'boolean', 'string', 'error', " +
-                                          "'map', 'json', 'xml', 'table', 'stream', 'any', 'typedesc', 'future', " +
-                                          "'anydata', 'handle', '(', '['," +
-                                          " Identifier}", 6, 18);
+        BAssertUtil.validateError(result, index++, "mismatched input '\"GET\"'. expecting {'service', 'function', " +
+                "'object', 'record', 'abstract', 'client', 'int', 'byte', 'float', 'decimal', 'boolean', 'string', " +
+                "'error', 'map', 'json', 'xml', 'table', 'any', 'typedesc', 'future', 'anydata', 'handle', '(', '[', " +
+                "Identifier}", 6, 18);
         BAssertUtil.validateError(result, index++, "mismatched input ':'. expecting '='", 7, 13);
         BAssertUtil.validateError(result, index++, "invalid token '{'", 9, 29);
         BAssertUtil.validateError(result, index++, "mismatched input '{'. expecting '('", 9, 29);
         BAssertUtil.validateError(result, index++, "extraneous input '}'", 12, 1);
-        Assert.assertEquals(result.getErrorCount(), index);
+        assertEquals(result.getErrorCount(), index);
     }
 
     @Test
@@ -112,6 +110,11 @@ public class InvalidSyntaxParserTest {
     public void testObjectAttachedFunctionWithInvalidSyntax() {
         CompileResult result = BCompileUtil.compile("test-src/parser/object-attached-func-with-invalid-syntax.bal");
         BAssertUtil.validateError(result, 0, "mismatched input '.'. expecting '('", 6, 17);
+        BAssertUtil.validateError(result, 1, "mismatched input '('. expecting {'[', '?', '|', Identifier}", 6, 21);
+        BAssertUtil.validateError(result, 2, "extraneous input 'a'", 6, 26);
+        BAssertUtil.validateError(result, 3, "mismatched input 'returns'. expecting {'[', '?', '|', Identifier}",
+                                  6, 29);
+        BAssertUtil.validateError(result, 4, "mismatched input ';'. expecting '='", 7, 21);
     }
 
     @Test
