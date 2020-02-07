@@ -109,6 +109,7 @@ public enum NodeKind {
     DOCUMENTATION_PARAMETER,
     DOCUMENTATION_REFERENCE,
     SERVICE_CONSTRUCTOR,
+    LET_EXPR,
 
     /* Statements */
     ABORT,

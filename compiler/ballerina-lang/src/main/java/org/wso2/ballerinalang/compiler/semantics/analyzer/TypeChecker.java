@@ -88,6 +88,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIntRangeExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangLetExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression;
@@ -1650,6 +1651,12 @@ public class TypeChecker extends BLangNodeVisitor {
                 break;
             default:
                 checkInLangLib(iExpr, varRefType);
+        }
+    }
+
+    public void visit(BLangLetExpression letExpression) {
+        for(BLangVariable varDef : letExpression.letVarDeclarations) {
+
         }
     }
 

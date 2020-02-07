@@ -89,6 +89,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIntRangeExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangLetExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownDocumentationLine;
@@ -1058,6 +1059,29 @@ public class BLangPackageBuilder {
         addStmtToCurrentBlock(varDefNode);
     }
 
+    void addSimpleVariable(DiagnosticPos pos, Set<Whitespace> ws, String identifier,
+                           DiagnosticPos identifierPos, boolean isExpressionAvailable,
+                           boolean isDeclaredWithVar) {
+        BLangSimpleVariable var = (BLangSimpleVariable) TreeBuilder.createSimpleVariableNode();
+        var.pos = pos;
+        var.addWS(ws);
+        var.setName(this.createIdentifier(identifierPos, identifier, ws));
+        var.name.pos = identifierPos;
+
+        if (isDeclaredWithVar) {
+            var.isDeclaredWithVar = true;
+        } else {
+            var.setTypeNode(this.typeNodeStack.pop());
+        }
+        if (isExpressionAvailable) {
+            var.setInitialExpression(this.exprNodeStack.pop());
+        }
+
+        if (!this.varListStack.isEmpty()) {
+            this.varListStack.peek().add(var);
+        }
+    }
+
     void addBindingPatternNameWhitespace(Set<Whitespace> ws) {
         this.bindingPatternIdentifierWS.push(ws);
     }
@@ -1366,6 +1390,14 @@ public class BLangPackageBuilder {
         }
         keyValue.key.computedKey = computedKey;
         recordLiteralNodes.peek().fields.add(keyValue);
+    }
+
+    void addLetExpression() {
+        BLangLetExpression letExpression = (BLangLetExpression) TreeBuilder.createLetExpressionNode();
+        letExpression.expr = (BLangExpression) exprNodeStack.pop();
+        letExpression.letVarDeclarations = varListStack.pop();
+
+        addExpressionNode(letExpression);
     }
 
     void addRecordKeyWS(Set<Whitespace> ws) {
