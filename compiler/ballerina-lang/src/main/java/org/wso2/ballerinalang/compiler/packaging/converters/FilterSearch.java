@@ -43,9 +43,8 @@ class FilterSearch extends SimpleFileVisitor {
      *
      * @param path directory path to be traversed
      * @return if the directory is to be excluded or not
-     * @throws IOException exception
      */
-    private boolean isExcluded(Path path) throws IOException {
+    private boolean isExcluded(Path path) {
         Path name = path.getFileName();
         return (name != null) && excludeDir.contains(name);
     }
