@@ -25,6 +25,7 @@ import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
+import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
 import org.ballerinalang.model.tree.statements.StatementNode;
 import org.ballerinalang.model.tree.types.BuiltInReferenceTypeNode;
 import org.ballerinalang.model.types.TypeKind;
@@ -2166,7 +2167,9 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             case RECORD_LITERAL_EXPR:
                 BLangRecordLiteral recordLiteral = (BLangRecordLiteral) expression;
                 recordLiteral.type = new BMapType(TypeTags.MAP, symTable.anydataType, null);
-                for (BLangRecordLiteral.BLangRecordKeyValue recLiteralKeyValue : recordLiteral.keyValuePairs) {
+                for (RecordLiteralNode.RecordField field : recordLiteral.fields) {
+                    BLangRecordLiteral.BLangRecordKeyValueField recLiteralKeyValue =
+                            (BLangRecordLiteral.BLangRecordKeyValueField) field;
                     if (isValidRecordLiteralKey(recLiteralKeyValue)) {
                         BType fieldType = checkStaticMatchPatternLiteralType(recLiteralKeyValue.valueExpr);
                         if (fieldType.tag == TypeTags.NONE) {
@@ -2229,7 +2232,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
     }
 
-    private boolean isValidRecordLiteralKey(BLangRecordLiteral.BLangRecordKeyValue recLiteralKeyValue) {
+    private boolean isValidRecordLiteralKey(BLangRecordLiteral.BLangRecordKeyValueField recLiteralKeyValue) {
         NodeKind kind = recLiteralKeyValue.key.expr.getKind();
         return kind == NodeKind.SIMPLE_VARIABLE_REF ||
                 ((kind == NodeKind.LITERAL || kind == NodeKind.NUMERIC_LITERAL) &&
@@ -2544,9 +2547,15 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 }
                 break;
             case RECORD_LITERAL_EXPR:
-                ((BLangRecordLiteral) expression).keyValuePairs.forEach(pair -> {
-                    checkAnnotConstantExpression(pair.key.expr);
-                    checkAnnotConstantExpression(pair.valueExpr);
+                ((BLangRecordLiteral) expression).fields.forEach(field -> {
+                    if (field.isKeyValueField()) {
+                        BLangRecordLiteral.BLangRecordKeyValueField pair =
+                                (BLangRecordLiteral.BLangRecordKeyValueField) field;
+                        checkAnnotConstantExpression(pair.key.expr);
+                        checkAnnotConstantExpression(pair.valueExpr);
+                    } else {
+                        checkAnnotConstantExpression((BLangRecordLiteral.BLangRecordVarNameField) field);
+                    }
                 });
                 break;
             case LIST_CONSTRUCTOR_EXPR:

@@ -726,15 +726,15 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitStaticMatchSimpleLiteral(BallerinaParser.StaticMatchSimpleLiteralContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link BallerinaParser#recordKeyValue}.
+	 * Enter a parse tree produced by {@link BallerinaParser#recordField}.
 	 * @param ctx the parse tree
 	 */
-	void enterRecordKeyValue(BallerinaParser.RecordKeyValueContext ctx);
+	void enterRecordField(BallerinaParser.RecordFieldContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link BallerinaParser#recordKeyValue}.
+	 * Exit a parse tree produced by {@link BallerinaParser#recordField}.
 	 * @param ctx the parse tree
 	 */
-	void exitRecordKeyValue(BallerinaParser.RecordKeyValueContext ctx);
+	void exitRecordField(BallerinaParser.RecordFieldContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#recordKey}.
 	 * @param ctx the parse tree

@@ -81,7 +81,8 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangNumericLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKey;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKeyValue;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKeyValueField;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordVarNameField;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordVarRef.BLangRecordVarRefKeyValue;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRestArgsExpression;
@@ -201,7 +202,7 @@ class NodeCloner extends BLangNodeVisitor {
         return clone;
     }
 
-    private <T extends BLangNode> List<T> cloneList(List<T> nodes) {
+    private <T extends Node> List<T> cloneList(List<T> nodes) {
 
         if (nodes == null) {
             return null;
@@ -771,7 +772,7 @@ class NodeCloner extends BLangNodeVisitor {
 
         BLangRecordLiteral clone = new BLangRecordLiteral();
         source.cloneRef = clone;
-        clone.keyValuePairs = cloneList(source.keyValuePairs);
+        clone.fields = cloneList(source.fields);
     }
 
     @Override
@@ -814,7 +815,8 @@ class NodeCloner extends BLangNodeVisitor {
     @Override
     public void visit(BLangSimpleVarRef source) {
 
-        BLangSimpleVarRef clone = new BLangSimpleVarRef();
+        BLangSimpleVarRef clone = source instanceof BLangRecordVarNameField ?
+                new BLangRecordVarNameField() : new BLangSimpleVarRef();
         source.cloneRef = clone;
         clone.pkgAlias = source.pkgAlias;
         clone.variableName = source.variableName;
@@ -1636,9 +1638,9 @@ class NodeCloner extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangRecordKeyValue source) {
+    public void visit(BLangRecordKeyValueField source) {
 
-        BLangRecordKeyValue clone = new BLangRecordKeyValue();
+        BLangRecordKeyValueField clone = new BLangRecordKeyValueField();
         source.cloneRef = clone;
         clone.pos = source.pos;
         clone.addWS(source.getWS());

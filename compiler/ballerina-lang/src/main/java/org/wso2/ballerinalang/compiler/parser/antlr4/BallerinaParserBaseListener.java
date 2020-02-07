@@ -844,13 +844,13 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterRecordKeyValue(BallerinaParser.RecordKeyValueContext ctx) { }
+	@Override public void enterRecordField(BallerinaParser.RecordFieldContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitRecordKeyValue(BallerinaParser.RecordKeyValueContext ctx) { }
+	@Override public void exitRecordField(BallerinaParser.RecordFieldContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
