@@ -51,11 +51,15 @@ goto checkJava
 
 :checkJava
 if "%JAVA_HOME%" == "" goto noJavaHome
-if not exist "%JAVA_HOME%\bin\java.exe" goto noJavaHome
+if not exist "%JAVA_HOME%\bin\java.exe" goto invalidJavaHome
 goto updateClasspath
 
 :noJavaHome
 echo "You must set the JAVA_HOME variable before running Ballerina." 1>&2
+goto end
+
+:invalidJavaHome
+echo "Invalid JAVA_HOME." 1>&2
 goto end
 
 rem ----- update classpath -----------------------------------------------------

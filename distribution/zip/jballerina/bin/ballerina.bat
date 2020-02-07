@@ -39,11 +39,15 @@ if exist %BALLERINA_HOME%\..\..\dependencies\jdk8u202-b08-jre (
 )
 
 if "%JAVA_HOME%" == "" goto noJavaHome
-if not exist "%JAVA_HOME%\bin\java.exe" goto noJavaHome
+if not exist "%JAVA_HOME%\bin\java.exe" goto invalidJavaHome
 goto checkServer
 
 :noJavaHome
 echo "You must set the JAVA_HOME variable before running Ballerina."
+goto end
+
+:invalidJavaHome
+echo "Invalid JAVA_HOME." 1>&2
 goto end
 
 rem ----- set BALLERINA_HOME ----------------------------
