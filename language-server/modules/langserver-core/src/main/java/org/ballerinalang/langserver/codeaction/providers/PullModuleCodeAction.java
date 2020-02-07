@@ -70,7 +70,7 @@ public class PullModuleCodeAction extends AbstractCodeActionProvider {
         if (matcher.find() && matcher.groupCount() > 0) {
             List<Object> args = new ArrayList<>();
             String pkgName = matcher.group(1).trim();
-            String version = matcher.groupCount() > 1 ? ":" + matcher.group(2) : "";
+            String version = matcher.groupCount() > 1 && matcher.group(2) != null ? ":" + matcher.group(2) : "";
             args.add(new CommandArgument(CommandConstants.ARG_KEY_MODULE_NAME, pkgName + version));
             args.add(uriArg);
             String commandTitle = CommandConstants.PULL_MOD_TITLE;
