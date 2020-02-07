@@ -64,6 +64,16 @@ Alternatively, you can install Ballerina from the source using the following ins
 
 3. Extract the Ballerina distribution created at `distribution/zip/jballerina-tools/build/extracted-distributions/ballerina-<version>-SNAPSHOT.zip`.
 
+## Reporting issues and security flaws
+
+Report an issue in the relevant repo out of the GitHub repos listed below. 
+
+  >**Tip:** If you are unsure whether you have found a bug, search existing issues in the corresponding repo on GitHub and raise it in the [Ballerina-Dev Google Group](#https://groups.google.com/forum/#!forum/ballerina-dev).
+  - Compiler, runtime, standard library, or tooling: <a href="https://github.com/ballerina-platform/ballerina-lang/issues">ballerina-lang</a> repo
+  - Language specification: <a href="https://github.com/ballerina-platform/ballerina-spec/issues">ballerina-spec</a> repo
+  - Website: <a href="https://github.com/ballerina-platform/ballerina-dev-website/issues">ballerina-dev-website</a> repo
+  - Security flaw: send an email to security@ballerina.io. For details, see the <a href="https://ballerina.io/security/">security policy</a>.
+
 ## Contributing to Ballerina
 
 As an open source project, Ballerina welcomes contributions from the community. To start contributing, read these [contribution guidelines](https://github.com/ballerina-platform/ballerina-lang/blob/master/CONTRIBUTING.md) for information on how you should go about contributing to our project.
