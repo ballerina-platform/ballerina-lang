@@ -112,4 +112,19 @@ public class InvalidSyntaxParserTest {
         BAssertUtil.validateError(result, 0, "token recognition error at: '\\'", 3, 5);
         BAssertUtil.validateError(result, 0, "token recognition error at: '*'", 4, 15);
     }
+
+    @Test
+    public void testListenerDeclarationWithDefinedDifferentType() {
+        CompileResult result = BCompileUtil.compile("test-src/parser/listener_declaration_type_reuse_negative.bal");
+        BAssertUtil.validateError(result, 0, "incompatible types: expected 'ballerina/http:MockListener', found " +
+                "'int'", 22, 9);
+        BAssertUtil.validateError(result, 1, "incompatible types: expected 'int', found " +
+                "'ballerina/http:MockListener'", 23, 9);
+        BAssertUtil.validateError(result, 2, "incompatible types: expected 'lang.object:Listener', found 'int'", 26,
+                                  14);
+        BAssertUtil.validateError(result, 3, "incompatible types: expected 'lang.object:Listener', found 'Person'",
+                                  29, 24);
+        BAssertUtil.validateError(result, 4, "incompatible types: expected 'lang.object:Listener', found 'other'", 31
+                , 23);
+    }
 }

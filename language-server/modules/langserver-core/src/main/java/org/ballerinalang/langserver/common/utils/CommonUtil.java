@@ -69,6 +69,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
@@ -457,6 +458,7 @@ public class CommonUtil {
                 List<BType> memberTypes = new ArrayList<>(((BUnionType) bType).getMemberTypes());
                 typeString = getDefaultValueForType(memberTypes.get(0));
                 break;
+            case STREAM:
             default:
                 typeString = "()";
                 break;
@@ -722,6 +724,9 @@ public class CommonUtil {
         if (bType instanceof BMapType) {
             return ((BMapType) bType).constraint;
         }
+        if (bType instanceof BStreamType) {
+            return ((BStreamType) bType).constraint;
+        }
         if (bType instanceof BTypedescType) {
             return ((BTypedescType) bType).constraint;
         }
@@ -939,6 +944,10 @@ public class CommonUtil {
      */
     public static Pair<String, String> getFunctionInvocationSignature(BInvokableSymbol symbol, String functionName,
                                                                       LSContext ctx) {
+        if (symbol == null) {
+            // Symbol can be null for object init functions without an explicit __init
+            return ImmutablePair.of(functionName + "();", functionName + "()");
+        }
         StringBuilder signature = new StringBuilder(functionName + "(");
         StringBuilder insertText = new StringBuilder(functionName + "(");
         List<String> funcArguments = FunctionGenerator.getFuncArguments(symbol, ctx);

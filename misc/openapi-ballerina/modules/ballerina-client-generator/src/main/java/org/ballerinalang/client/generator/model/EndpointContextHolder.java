@@ -86,7 +86,7 @@ public class EndpointContextHolder {
         List<BLangExpression> list = bTypeInit.argsExpr;
         String httpsPort = null;
 
-//        List<BLangRecordLiteral.BLangRecordKeyValue> list = bLiteral.getKeyValuePairs();
+//        List<BLangRecordLiteral.BLangRecordKeyValue> list = bLiteral.getFields();
 //        Map<String, String[]> configs = GeneratorUtils.getKeyValuePairAsMap(list);
 
         if (list.size() == 1 && list.get(0) instanceof BLangLiteral) {
@@ -98,7 +98,7 @@ public class EndpointContextHolder {
                 && ((BLangNamedArgsExpression) list.get(1)).getExpression() instanceof BLangRecordLiteral) {
             BLangRecordLiteral bLangRecordLiteral = (BLangRecordLiteral) ((BLangNamedArgsExpression) list.get(1))
                     .getExpression();
-            Map<String, String[]> configs = GeneratorUtils.getKeyValuePairAsMap(bLangRecordLiteral.keyValuePairs);
+            Map<String, String[]> configs = GeneratorUtils.getKeyValuePairAsMap(bLangRecordLiteral.fields);
 
             httpsPort = configs.get(GeneratorConstants.ATTR_HTTPS_PORT) != null ?
                     configs.get(GeneratorConstants.ATTR_HTTPS_PORT)[0] :
@@ -113,8 +113,7 @@ public class EndpointContextHolder {
         }
 
         BLangRecordLiteral bLiteral = ((BLangRecordLiteral) ((BLangAnnotationAttachment) ann).getExpression());
-        List<BLangRecordLiteral.BLangRecordKeyValue> attrList = bLiteral.getKeyValuePairs();
-        Map<String, String[]> attrs = GeneratorUtils.getKeyValuePairAsMap(attrList);
+        Map<String, String[]> attrs = GeneratorUtils.getKeyValuePairAsMap(bLiteral.getFields());
 
         this.basePath = attrs.get(GeneratorConstants.ATTR_BASE_PATH) != null ?
                 attrs.get(GeneratorConstants.ATTR_BASE_PATH)[0] :

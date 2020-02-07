@@ -49,6 +49,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BSemanticErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
@@ -58,6 +59,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
@@ -542,6 +544,10 @@ public class Types {
         if (targetTag == TypeTags.TABLE && sourceTag == TypeTags.TABLE) {
             return isAssignable(((BTableType) source).constraint, (((BTableType) target).constraint),
                                 unresolvedTypes);
+        }
+
+        if (targetTag == TypeTags.STREAM && sourceTag == TypeTags.STREAM) {
+            return isAssignable(((BStreamType) source).constraint, ((BStreamType) target).constraint, unresolvedTypes);
         }
 
         BSymbol symbol = symResolver.resolveImplicitCastOp(source, target);
@@ -1050,6 +1056,85 @@ public class Types {
         foreachNode.varType = varType;
         foreachNode.resultType = getRecordType(nextMethodReturnType);
         foreachNode.nillableResultType = nextMethodReturnType;
+    }
+
+    public void setFromClauseTypedBindingPatternType(BLangFromClause fromClause) {
+        if (fromClause.collection == null) {
+            //not-possible
+            return;
+        }
+
+        BType collectionType = fromClause.collection.type;
+        BType varType;
+        switch (collectionType.tag) {
+            case TypeTags.STRING:
+                varType = symTable.stringType;
+                break;
+            case TypeTags.ARRAY:
+                BArrayType arrayType = (BArrayType) collectionType;
+                varType = arrayType.eType;
+                break;
+            case TypeTags.TUPLE:
+                BTupleType tupleType = (BTupleType) collectionType;
+                LinkedHashSet<BType> tupleTypes = new LinkedHashSet<>(tupleType.tupleTypes);
+                if (tupleType.restType != null) {
+                    tupleTypes.add(tupleType.restType);
+                }
+                varType = tupleTypes.size() == 1 ?
+                        tupleTypes.iterator().next() : BUnionType.create(null, tupleTypes);
+                break;
+            case TypeTags.MAP:
+                BMapType bMapType = (BMapType) collectionType;
+                varType = bMapType.constraint;
+
+                break;
+            case TypeTags.RECORD:
+                BRecordType recordType = (BRecordType) collectionType;
+                varType = inferRecordFieldType(recordType);
+                break;
+            case TypeTags.XML:
+                varType = BUnionType.create(null, symTable.xmlType, symTable.stringType);
+                break;
+            case TypeTags.TABLE:
+                BTableType tableType = (BTableType) collectionType;
+                if (tableType.constraint.tag == TypeTags.NONE) {
+                    varType = symTable.anydataType;
+                    break;
+                }
+                varType = tableType.constraint;
+                break;
+            case TypeTags.OBJECT:
+                // check for iterable objects
+                BUnionType nextMethodReturnType = getVarTypeFromIterableObject((BObjectType) collectionType);
+                if (nextMethodReturnType != null) {
+                    fromClause.resultType = getRecordType(nextMethodReturnType);
+                    fromClause.nillableResultType = nextMethodReturnType;
+                    fromClause.varType = ((BRecordType) fromClause.resultType).fields.get(0).type;
+                    return;
+                }
+                dlog.error(fromClause.collection.pos, DiagnosticCode.INCOMPATIBLE_ITERATOR_FUNCTION_SIGNATURE);
+                // fallthrough
+            case TypeTags.SEMANTIC_ERROR:
+                fromClause.varType = symTable.semanticError;
+                fromClause.resultType = symTable.semanticError;
+                fromClause.nillableResultType = symTable.semanticError;
+                return;
+            default:
+                fromClause.varType = symTable.semanticError;
+                fromClause.resultType = symTable.semanticError;
+                fromClause.nillableResultType = symTable.semanticError;
+                dlog.error(fromClause.collection.pos, DiagnosticCode.ITERABLE_NOT_SUPPORTED_COLLECTION,
+                        collectionType);
+                return;
+        }
+
+        BInvokableSymbol iteratorSymbol = (BInvokableSymbol) symResolver.lookupLangLibMethod(collectionType,
+                names.fromString(BLangCompilerConstants.ITERABLE_COLLECTION_ITERATOR_FUNC));
+        BUnionType nextMethodReturnType =
+                (BUnionType) getResultTypeOfNextInvocation((BObjectType) iteratorSymbol.retType);
+        fromClause.varType = varType;
+        fromClause.resultType = getRecordType(nextMethodReturnType);
+        fromClause.nillableResultType = nextMethodReturnType;
     }
 
     private BUnionType getVarTypeFromIterableObject(BObjectType collectionType) {
@@ -1562,6 +1647,11 @@ public class Types {
                 }
             }
             return true;
+        }
+
+        @Override
+        public Boolean visit(BStreamType t, BType s) {
+            return t == s;
         }
 
         @Override

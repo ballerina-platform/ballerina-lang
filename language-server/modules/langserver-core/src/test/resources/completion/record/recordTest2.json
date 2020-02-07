@@ -112,6 +112,14 @@
       }
     },
     {
+      "label": "employer",
+      "kind": "Variable",
+      "detail": "Person",
+      "sortText": "130",
+      "insertText": "employer",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "map(function ((any|error)) returns ((any|error)) func)(map<(any|error)>)",
       "kind": "Function",
       "detail": "Function",

@@ -318,6 +318,14 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "lang.stream",
+      "kind": "Module",
+      "detail": "Package",
+      "sortText": "140",
+      "insertText": "lang.'stream;",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "lang.error",
       "kind": "Module",
       "detail": "Package",

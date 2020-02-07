@@ -60,7 +60,7 @@ public class OpenApiEndpointMapper {
                     && ((BLangNamedArgsExpression) list.get(1)).getExpression() instanceof BLangRecordLiteral) {
                 BLangRecordLiteral bLangRecordLiteral = (BLangRecordLiteral) ((BLangNamedArgsExpression) list.get(1))
                         .getExpression();
-                Map<String, BLangExpression> configs = ConverterUtils.listToMap(bLangRecordLiteral.keyValuePairs);
+                Map<String, BLangExpression> configs = ConverterUtils.listToMap(bLangRecordLiteral.fields);
 
                 host = configs.get(Constants.ATTR_HOST) != null ?
                         ConverterUtils.getStringLiteralValue(configs.get(Constants.ATTR_HOST)) :
@@ -110,7 +110,7 @@ public class OpenApiEndpointMapper {
                 && ((BLangNamedArgsExpression) list.get(1)).getExpression() instanceof BLangRecordLiteral) {
             BLangRecordLiteral bLangRecordLiteral = (BLangRecordLiteral) ((BLangNamedArgsExpression) list.get(1))
                     .getExpression();
-            Map<String, BLangExpression> configs = ConverterUtils.listToMap(bLangRecordLiteral.keyValuePairs);
+            Map<String, BLangExpression> configs = ConverterUtils.listToMap(bLangRecordLiteral.fields);
 
             host = configs.get(Constants.ATTR_HOST) != null ?
                     ConverterUtils.getStringLiteralValue(configs.get(Constants.ATTR_HOST)) :
