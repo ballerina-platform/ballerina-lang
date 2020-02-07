@@ -29,7 +29,7 @@ import ballerina/log;
 // optional configurations are the default values of the return types of
 // the functions.
 listener http:Listener helloWorldEP
-    = new(config:getAsInt("hello.http.port", 9095), config = {
+    = new (config:getAsInt("hello.http.port", 9095), config = {
         secureSocket: {
             keyStore: {
                 path: "${ballerina.home}/bre/security/ballerinaKeystore.p12",
@@ -50,7 +50,7 @@ service helloWorld on helloWorldEP {
     resource function sayHello(http:Caller caller, http:Request req) {
         var result = caller->respond("Hello World!");
         if (result is error) {
-           log:printError("Failed to respond to the caller", err = result);
+            log:printError("Failed to respond to the caller", err = result);
         }
     }
 }

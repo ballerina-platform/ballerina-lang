@@ -3,29 +3,29 @@ import ballerina/log;
 import ballerina/runtime;
 
 // Define the endpoint to the call the `mockHelloService`.
-http:Client backendClientEP = new("http://localhost:8080", {
-        // Retry configuration options.
-        retryConfig: {
+http:Client backendClientEP = new ("http://localhost:8080", {
+    // Retry configuration options.
+    retryConfig: {
 
-            // Initial retry interval in milliseconds.
-            intervalInMillis: 3000,
+        // Initial retry interval in milliseconds.
+        intervalInMillis: 3000,
 
-            // Number of retry attempts before giving up.
-            count: 3,
+        // Number of retry attempts before giving up.
+        count: 3,
 
-            // Multiplier of the retry interval to exponentially increase the
-            // retry interval.
-            backOffFactor: 2.0,
+        // Multiplier of the retry interval to exponentially increase the
+        // retry interval.
+        backOffFactor: 2.0,
 
-            // Upper limit of the retry interval in milliseconds. If
-            // `intervalInMillis` into `backOffFactor` value exceeded
-            // `maxWaitIntervalInMillis` interval value.
-            // `maxWaitIntervalInMillis` will be considered as the retry
-            // interval.
-            maxWaitIntervalInMillis: 20000
-        },
-        timeoutInMillis: 2000
-    });
+        // Upper limit of the retry interval in milliseconds. If
+        // `intervalInMillis` into `backOffFactor` value exceeded
+        // `maxWaitIntervalInMillis` interval value.
+        // `maxWaitIntervalInMillis` will be considered as the retry
+        // interval.
+        maxWaitIntervalInMillis: 20000
+    },
+    timeoutInMillis: 2000
+});
 
 @http:ServiceConfig {
     basePath: "/retry"
@@ -52,7 +52,7 @@ service retryDemoService on new http:Listener(9090) {
         } else {
             http:Response response = new;
             response.statusCode = http:STATUS_INTERNAL_SERVER_ERROR;
-            string errCause = <string> backendResponse.detail()?.message;
+            string errCause = <string>backendResponse.detail()?.message;
             response.setPayload(errCause);
             var responseToCaller = caller->respond(response);
             if (responseToCaller is error) {

@@ -4,7 +4,7 @@ import ballerina/log;
 import ballerina/mime;
 
 //Client endpoint.
-http:Client clientEP = new("http://localhost:9091/backEndService");
+http:Client clientEP = new ("http://localhost:9091/backEndService");
 
 //Service to test HTTP client remote functions with different payload types.
 service actionService on new http:Listener(9090) {
@@ -33,7 +33,7 @@ service actionService on new http:Listener(9090) {
         handleResponse(response);
 
         //POST remote function with `json` as payload.
-        response = clientEP->post("/echo", { name: "apple", color: "red" });
+        response = clientEP->post("/echo", {name: "apple", color: "red"});
         handleResponse(response);
 
         //POST remote function with `byte[]` as payload.
@@ -48,12 +48,12 @@ service actionService on new http:Listener(9090) {
         if (bChannel is io:ReadableByteChannel) {
             //POST remote function with byte channel as payload. Since the file path is static
             //`untaint` is used to denote that the byte channel is trusted .
-            response = clientEP->post("/image", <@untainted> bChannel);
+            response = clientEP->post("/image", <@untainted>bChannel);
             handleResponse(response);
 
             //Create a JSON body part.
             mime:Entity part1 = new;
-            part1.setJson({ "name": "Jane" });
+            part1.setJson({"name": "Jane"});
 
             //Create a text body part.
             mime:Entity part2 = new;
@@ -69,7 +69,7 @@ service actionService on new http:Listener(9090) {
         } else {
             http:Response res = new;
             res.statusCode = 500;
-            res.setPayload(<@untainted> <string> bChannel.detail()?.message);
+            res.setPayload(<@untainted><string>bChannel.detail()?.message);
             var result = caller->respond(res);
             handleError(result);
         }
@@ -103,14 +103,14 @@ service backEndService on new http:Listener(9091) {
                 if (returnValue is string) {
                     textValue = returnValue;
                 } else {
-                    textValue = <string> returnValue.detail()?.message;
+                    textValue = <string>returnValue.detail()?.message;
                 }
-                var result = caller->respond(<@untainted> textValue);
+                var result = caller->respond(<@untainted>textValue);
                 handleError(result);
             } else if (mime:APPLICATION_XML == baseType) {
                 var xmlValue = req.getXmlPayload();
                 if (xmlValue is xml) {
-                    var result = caller->respond(<@untainted> xmlValue);
+                    var result = caller->respond(<@untainted>xmlValue);
                     handleError(result);
                 } else {
                     sendErrorMsg(caller, xmlValue);
@@ -118,7 +118,7 @@ service backEndService on new http:Listener(9091) {
             } else if (mime:APPLICATION_JSON == baseType) {
                 var jsonValue = req.getJsonPayload();
                 if (jsonValue is json) {
-                    var result = caller->respond(<@untainted> jsonValue);
+                    var result = caller->respond(<@untainted>jsonValue);
                     handleError(result);
                 } else {
                     sendErrorMsg(caller, jsonValue);
@@ -126,7 +126,7 @@ service backEndService on new http:Listener(9091) {
             } else if (mime:APPLICATION_OCTET_STREAM == baseType) {
                 var blobValue = req.getBinaryPayload();
                 if (blobValue is byte[]) {
-                    var result = caller->respond(<@untainted> blobValue);
+                    var result = caller->respond(<@untainted>blobValue);
                     handleError(result);
                 } else {
                     sendErrorMsg(caller, blobValue);
@@ -134,7 +134,7 @@ service backEndService on new http:Listener(9091) {
             } else if (mime:MULTIPART_FORM_DATA == baseType) {
                 var bodyParts = req.getBodyParts();
                 if (bodyParts is mime:Entity[]) {
-                    var result = caller->respond(<@untainted> bodyParts);
+                    var result = caller->respond(<@untainted>bodyParts);
                     handleError(result);
                 } else {
                     sendErrorMsg(caller, bodyParts);
@@ -154,7 +154,7 @@ service backEndService on new http:Listener(9091) {
         var bytes = req.getBinaryPayload();
         if (bytes is byte[]) {
             http:Response response = new;
-            response.setBinaryPayload(<@untainted> bytes,
+            response.setBinaryPayload(<@untainted>bytes,
                                         contentType = mime:IMAGE_PNG);
             var result = caller->respond(response);
             handleError(result);
@@ -222,7 +222,7 @@ function handleResponse(http:Response|error response) {
 function sendErrorMsg(http:Caller caller, error err) {
     http:Response res = new;
     res.statusCode = 500;
-    res.setPayload(<@untainted> <string> err.detail()?.message);
+    res.setPayload(<@untainted><string>err.detail()?.message);
     var result = caller->respond(res);
     handleError(result);
 }

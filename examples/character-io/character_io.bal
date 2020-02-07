@@ -39,7 +39,7 @@ public function main() returns @tainted error? {
     io:ReadableByteChannel readableFieldResult =
                                 check io:openReadableFile("./files/sample.txt");
     io:ReadableCharacterChannel sourceChannel =
-                                new(readableFieldResult, "UTF-8");
+                                new (readableFieldResult, "UTF-8");
 
     // This example creates the <BALLERINA_LANG>/examples/character-io/files/sampleResponse.txt
     // destination file and writes the text "Hello my name is Ballerina!!"".  
@@ -47,7 +47,7 @@ public function main() returns @tainted error? {
     io:WritableByteChannel writableFileResult =
                 check io:openWritableFile("./files/sampleResponse.txt");
     io:WritableCharacterChannel destinationChannel =
-                                new(writableFileResult, "UTF-8");
+                                new (writableFileResult, "UTF-8");
     io:println("Started to process the file.");
     // Processes the given `string`.
     var result = process(sourceChannel, destinationChannel);

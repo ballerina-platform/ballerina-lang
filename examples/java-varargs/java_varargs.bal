@@ -1,11 +1,11 @@
-import ballerinax/java;
 import ballerina/io;
+import ballerinax/java;
 
 // Define a Ballerina function with an external function body whose implementation is provided by a Java method.
 // When a vararg is used in the Ballerina function signature, corresponding values are wrapped in
 // a Java array before the invocation.
 public function asList(int... values) returns handle = @java:Method {
-    name:"asList",
+    name: "asList",
     class: "java.util.Arrays"
 } external;
 

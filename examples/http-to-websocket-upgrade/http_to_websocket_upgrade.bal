@@ -21,7 +21,7 @@ service httpService on new http:Listener(9090) {
             resp.statusCode = 500;
         } else {
             io:println(payload);
-            resp.setPayload(string `HTTP POST received: ${<@untainted> payload}`);
+            resp.setPayload(string `HTTP POST received: ${<@untainted>payload}`);
         }
 
         var err = caller->respond(resp);
@@ -34,8 +34,8 @@ service httpService on new http:Listener(9090) {
     // Here you have access to the `http:Request` and to the query and path params where applicable.
     @http:ResourceConfig {
         webSocketUpgrade: {
-                upgradePath: "/ws",
-                upgradeService: wsService
+            upgradePath: "/ws",
+            upgradeService: wsService
         }
     }
     resource function upgrader(http:Caller caller, http:Request req) {

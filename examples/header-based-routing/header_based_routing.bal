@@ -2,7 +2,7 @@ import ballerina/http;
 import ballerina/log;
 
 http:ClientConfiguration weatherEPConfig = {
-    followRedirects: { enabled: true, maxCount: 5 },
+    followRedirects: {enabled: true, maxCount: 5},
     secureSocket: {
         trustStore: {
             path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
@@ -25,21 +25,21 @@ service headerBasedRouting on new http:Listener(9090) {
     }
 
     resource function hbrResource(http:Caller caller, http:Request req) {
-        http:Client weatherEP = new("http://samples.openweathermap.org",
+        http:Client weatherEP = new ("http://samples.openweathermap.org",
                                     weatherEPConfig);
-        http:Client locationEP = new("http://www.mocky.io");
+        http:Client locationEP = new ("http://www.mocky.io");
         // Create a new outbound request to handle client call.
         http:Request newRequest = new;
         // Check whether `x-type` header exists in the request.
         if (!req.hasHeader("x-type")) {
             http:Response errorResponse = new;
             errorResponse.statusCode = 500;
-            json errMsg = { "error": "'x-type' header is not found" };
+            json errMsg = {"error": "'x-type' header is not found"};
             errorResponse.setPayload(errMsg);
 
             var result = caller->respond(errorResponse);
 
-            if (result is error){
+            if (result is error) {
                 log:printError("Error sending response", err = result);
             }
             return;
@@ -69,17 +69,17 @@ service headerBasedRouting on new http:Listener(9090) {
 
             var result = caller->respond(response);
 
-            if (result is error){
+            if (result is error) {
                 log:printError("Error sending response", err = result);
             }
 
         } else {
             http:Response errorResponse = new;
             errorResponse.statusCode = 500;
-            errorResponse.setPayload(<string> response.detail()?.message);
+            errorResponse.setPayload(<string>response.detail()?.message);
             var result = caller->respond(errorResponse);
 
-            if (result is error){
+            if (result is error) {
                 log:printError("Error sending response", err = result);
             }
         }

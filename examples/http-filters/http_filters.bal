@@ -42,7 +42,7 @@ ResponseFilter responseFilter = new;
 
 // Create an HTTP listener and assign the filters as a config parameter.
 listener http:Listener echoListener = new http:Listener(9090,
-                                            config = { filters: [requestFilter, responseFilter]});
+                    config = {filters: [requestFilter, responseFilter]});
 
 @http:ServiceConfig {
     basePath: "/hello"
@@ -58,9 +58,9 @@ service echo on echoListener {
         // Set the `filter_name_header` from the request to the response.
         res.setHeader(filter_name_header, req.getHeader(filter_name_header));
         res.setPayload("Hello, World!");
-        var result = caller->respond(<@untainted> res);
+        var result = caller->respond(<@untainted>res);
         if (result is error) {
-           log:printError("Error sending response", err = result);
+            log:printError("Error sending response", err = result);
         }
     }
 }

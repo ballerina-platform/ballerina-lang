@@ -83,8 +83,12 @@ function readRecordFromFile(string path) returns @tainted Person | error {
 }
 
 public function main() returns error? {
-    Person wPerson = { name: "Ballerina", age: 21,
-                       income: 1543.12, isMarried: true };
+    Person wPerson = {
+        name: "Ballerina",
+        age: 21,
+        income: 1543.12,
+        isMarried: true
+    };
     //Writes the record to a file.
     check writeRecordToFile(wPerson, "./files/person.bin");
     io:println("Person record successfully written to file");

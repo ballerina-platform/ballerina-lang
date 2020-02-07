@@ -4,7 +4,7 @@ import ballerina/openapi;
 
 // Add the `@openapi:ClientEndpoint` annotation to the listener that is to be used for client generation.
 @openapi:ClientEndpoint
-listener http:Listener helloEp = new(9090);
+listener http:Listener helloEp = new (9090);
 
 // Add the `@openapi:ClientConfig {generate: true}` annotation to the service to enable client generation for it.
 @openapi:ClientConfig {

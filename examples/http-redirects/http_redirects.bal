@@ -2,15 +2,15 @@ import ballerina/http;
 import ballerina/log;
 
 // Creates an HTTP client to interact with a remote endpoint.
-http:Client clientEndpoint = new("http://localhost:9092", {
-        followRedirects: { enabled: true, maxCount: 5 }
-    });
+http:Client clientEndpoint = new ("http://localhost:9092", {
+    followRedirects: {enabled: true, maxCount: 5}
+});
 
 service hello on new http:Listener(9090) {
 
     @http:ResourceConfig {
-        methods:["GET"],
-        path:"/"
+        methods: ["GET"],
+        path: "/"
     }
     resource function myResource(http:Caller caller, http:Request req) {
         // Sends a `GET` request to the specified endpoint.
@@ -20,35 +20,35 @@ service hello on new http:Listener(9090) {
             var payload = returnResult.getTextPayload();
             if (payload is string) {
                 var result = caller->respond("Response received : " 
-                                                + <@untained> payload);
+                                                + <@untained>payload);
                 if (result is error) {
-                   log:printError("Error in responding", err = result);
+                    log:printError("Error in responding", err = result);
                 }
             } else {
                 var result = caller->respond("Error in payload : " 
-                        + <@untained> payload.detail()?.message.toString());
+                        + <@untained>payload.detail()?.message.toString());
                 if (result is error) {
-                   log:printError("Error in responding", err = result);
+                    log:printError("Error in responding", err = result);
                 }
             }
         } else {
             var result = caller->respond("Error in connection : " 
                                 + returnResult.detail()?.message.toString());
             if (result is error) {
-               log:printError("Error in responding", err = result);
+                log:printError("Error in responding", err = result);
             }
         }
     }
 }
 
 @http:ServiceConfig {
-    basePath:"/redirect1"
+    basePath: "/redirect1"
 }
 service redirect1 on new http:Listener(9092) {
 
     @http:ResourceConfig {
-        methods:["GET"],
-        path:"/"
+        methods: ["GET"],
+        path: "/"
     }
     resource function redirect1(http:Caller caller, http:Request req) {
         http:Response res = new;
@@ -64,19 +64,19 @@ service redirect1 on new http:Listener(9092) {
 }
 
 @http:ServiceConfig {
-    basePath:"/redirect2"
+    basePath: "/redirect2"
 }
 service redirect2 on new http:Listener(9093) {
 
     @http:ResourceConfig {
-        methods:["GET"],
-        path:"/"
+        methods: ["GET"],
+        path: "/"
     }
     resource function redirect2(http:Caller caller, http:Request req) {
-         // Sends a response to the caller.
+        // Sends a response to the caller.
         var result = caller->respond("Hello World!");
         if (result is error) {
-           log:printError("Error in responding", err = result);
+            log:printError("Error in responding", err = result);
         }
     }
 }

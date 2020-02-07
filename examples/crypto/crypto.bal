@@ -1,7 +1,7 @@
 import ballerina/crypto;
 import ballerina/io;
-import ballerina/math;
 import ballerina/lang.'string as strings;
+import ballerina/math;
 
 public function main() returns error? {
 
@@ -64,7 +64,7 @@ public function main() returns error? {
 
 
     // Obtaining reference to a RSA private key stored within a PKCS#12 or PFX format archive file.
-    crypto:KeyStore keyStore = { path: "./sampleKeystore.p12", password: "ballerina" };
+    crypto:KeyStore keyStore = {path: "./sampleKeystore.p12", password: "ballerina"};
     var privateKey = crypto:decodePrivateKey(keyStore, "ballerina", "ballerina");
 
     if (privateKey is crypto:PrivateKey) {
@@ -93,13 +93,13 @@ public function main() returns error? {
 
      // Randomly generate a 128 bit key for AES encryption.
      byte[16] rsaKeyArr = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
-     foreach var i in 0...15 {
+     foreach var i in 0 ... 15 {
         rsaKeyArr[i] = <byte>(math:randomInRange(0, 255));
      }
 
      // Randomly generate a 128 bit IV for AES encryption.
      byte[16] ivArr = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
-     foreach var i in 0...15 {
+     foreach var i in 0 ... 15 {
         ivArr[i] = <byte>(math:randomInRange(0, 255));
      }
 

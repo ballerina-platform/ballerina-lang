@@ -17,7 +17,7 @@ public function main() {
     // and assign the values to the relevant variable references.
     // The value of the reason string in the `SampleError` will be assigned to the variable `reason`.
     // The values in the detail mapping will be assigned to the relevant variables.
-    error(reason, info = info, fatal = fatal) = getSampleError();
+    error (reason, info = info, fatal = fatal) = getSampleError();
     io:println("Reason String: " + reason);
     io:println("Info: ", info);
     io:println("Fatal: ", fatal);
@@ -25,13 +25,13 @@ public function main() {
     string reasonTwo;
     map<anydata|error> params;
     // The detail mapping can be destructured into an existing `map<anydata|error>`-typed variable by using a rest parameter.
-    error(reasonTwo, ...params) = getSampleError();
+    error (reasonTwo, ...params) = getSampleError();
     io:println("Reason String: ", reasonTwo);
     io:println("Detail Map: ", params);
     
     // The underscore '_' sign can be used to ignore either the reason string or the detail mapping.
     string? detailMsg;
-    error(_, detailMsg = detailMsg) = getRecordConstrainedError();
+    error (_, detailMsg = detailMsg) = getRecordConstrainedError();
     io:println("Detail Message: ", detailMsg);
 }
 

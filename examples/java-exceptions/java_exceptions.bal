@@ -1,5 +1,5 @@
-import ballerinax/java;
 import ballerina/io;
+import ballerinax/java;
 
 // Let's create a Ballerina function to load Java classes by linking with the `forName` method of
 // the `java.lang.Class`. It throws a checked exception `java.lang.ClassNotFoundException`.

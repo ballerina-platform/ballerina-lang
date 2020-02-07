@@ -4,14 +4,14 @@ public function main() {
     io:println("Iterating a string array :");
     string[] fruits = ["apple", "banana", "cherry"];
 
-    // The `foreach` statement can be used to iterate an array. Each iteration returns an element in the array. 
+    // The `foreach` statement can be used to iterate an array. Each iteration returns an element in the array.
     // The index of the corresponding element is not returned.
     foreach var v in fruits {
         io:println("fruit: ", v);
     }
 
     io:println("\nIterating a map :");
-    map<string> words = { a: "apple", b: "banana", c: "cherry" };
+    map<string> words = {a: "apple", b: "banana", c: "cherry"};
     // Iterating a map will return the values in the map.
     foreach var fruit in words {
         io:println(fruit);
@@ -23,10 +23,10 @@ public function main() {
     }
 
     io:println("\nIterating a JSON object :");
-    json apple = { name: "apple", colors: ["red", "green"], price: 5 };
+    json apple = {name: "apple", colors: ["red", "green"], price: 5};
     // Iterating a JSON is only supported with `map<json>` or `json[]`.
     // To iterate a JSON, first cast it to the relevant iterable type.
-    map<json> mapValue = <map<json>> apple;
+    map<json> mapValue = <map<json>>apple;
     foreach var value in mapValue {
         if (value is string) {
             io:println("string value: ", value);
@@ -57,7 +57,7 @@ public function main() {
                     </book>`;
     // Iterating an XML will return each element in each iteration.
     counter = 0;
-    foreach var x in book.getChildren().elements(){
+    foreach var x in book.getChildren().elements() {
         io:println("xml at ", counter, ": ", x);
         counter += 1;
     }
@@ -67,7 +67,7 @@ public function main() {
     int sum = 0;
     // A closed integer range in the `foreach` statement represents an incremental integer value range from the start
     // expression (`1`) to the end expression (`endValue`) inclusively.
-    foreach var i in 1...endValue {
+    foreach var i in 1 ... endValue {
         sum = sum + i;
     }
     io:println("summation from 1 to ", endValue, " is ", sum);
@@ -76,7 +76,7 @@ public function main() {
     sum = 0;
     // A half-open integer range in the `foreach` statement represents an incremental integer value range from the start
     // expression (`1`) inclusively, to the end expression (`endValue`) exclusively.
-    foreach var i in 1..<endValue {
+    foreach var i in 1 ..< endValue {
         sum = sum + i;
     }
     io:println("summation from 1 to ", endValue,

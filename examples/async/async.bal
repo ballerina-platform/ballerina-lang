@@ -27,7 +27,7 @@ public function main() {
     // Asynchronously invokes the action call `get()`.
     // By default this async call runs on the same physical thread of the caller.
     // `@strand` annotation allows the invocation to run parallel.
-    future<http:Response | error> f3 = @strand {thread:"any"} start clientEndpoint-> get("/get?test=123");
+    future<http:Response|error> f3 = @strand {thread: "any"} start clientEndpoint-> get("/get?test=123");
 
     // Waits for action call `f3` to finish.
     http:Response | error response = wait f3;
@@ -69,7 +69,7 @@ public function main() {
     // If the result is a record, it will contain the returned values from each
     // future with the field name as the name of the future (if a field name is
     // not provided).
-    record { int first_field; int second_field; string third_field; } rec =
+    record {int first_field; int second_field; string third_field;} rec =
                     wait {first_field: f6, second_field: f7, third_field: f8};
     io:println("first field of record --> ", rec.first_field);
     io:println("second field of record --> ", rec.second_field);

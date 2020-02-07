@@ -4,7 +4,7 @@ import ballerina/log;
 import ballerina/observe;
 
 //Create a counter as a global variable in the service with optional field description.
-observe:Counter globalCounter = new("total_orders",
+observe:Counter globalCounter = new ("total_orders",
                                     desc = "Total quantity required");
 
 // Make sure you start the service with '--b7a.observability.enabled=true', or metrics enabled.
@@ -21,15 +21,15 @@ service onlineStoreService on new http:Listener(9090) {
         globalCounter.increment();
 
         //Create a counter with simply a name.
-        observe:Counter localCounter = new("local_operations");
+        observe:Counter localCounter = new ("local_operations");
         localCounter.increment();
         //Increment the value of the counter by 20.
         localCounter.increment(20);
 
         //Create a counter with optional fields description, and tags.
-        observe:Counter registeredCounter = new("total_product_order_quantity",
+        observe:Counter registeredCounter = new ("total_product_order_quantity",
             desc = "Total quantity required",
-            tags = {prodName:"HeadPhone", prodType:"Electronics"});
+            tags = {prodName: "HeadPhone", prodType: "Electronics"});
 
         //Register the counter instance, therefore it is stored in the global registry and can be reported to the
         //metrics server such as Prometheus. Additionally, this operation will register to the global registry for the
