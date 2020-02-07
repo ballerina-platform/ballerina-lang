@@ -166,8 +166,20 @@ public class TupleValueImpl extends AbstractArrayValue {
      * @return array element
      */
     @Override
+    @Deprecated
     public String getString(long index) {
         return (String) get(index);
+    }
+
+    /**
+     * Get string value in the given index.
+     *
+     * @param index array index
+     * @return array element
+     */
+    @Override
+    public BString getBString(long index) {
+        return (BString) get(index);
     }
 
     // ---------------------------- add methods --------------------------------------------------

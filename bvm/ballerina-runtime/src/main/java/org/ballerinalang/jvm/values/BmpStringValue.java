@@ -50,7 +50,7 @@ public class BmpStringValue implements StringValue {
      @Override
      public BString concat(BString str) {
          if (str instanceof BmpStringValue) {
-             return new BmpStringValue((this.value + ((BmpStringValue) str).value));
+             return new BmpStringValue(this.value + ((BmpStringValue) str).value);
          } else {
              throw new RuntimeException("not impl yet");
          }

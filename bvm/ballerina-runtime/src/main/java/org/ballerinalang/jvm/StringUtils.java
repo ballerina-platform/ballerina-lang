@@ -132,9 +132,4 @@ public class StringUtils {
         }
         return new NonBmpStringValue(s, highSurrogatesArr);
     }
-
-    public static BString fromString(BString s) {
-        return fromString(s.getValue());
-    }
-
 }

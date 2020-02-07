@@ -73,8 +73,8 @@ public class StringValueBasicsTest {
     @Test
     public void testArrayStore() {
         BValue[] returns = BRunUtil.invoke(result, "testArrayStore");
-        Assert.assertEquals(returns[0].getClass(), BValueArray.class);
-        Assert.assertEquals(((BValueArray) returns[0]).getStringArray()[0], "h😀llo");
+        Assert.assertEquals(returns[0].getClass(), BInteger.class);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 10);
     }
 
     @AfterClass

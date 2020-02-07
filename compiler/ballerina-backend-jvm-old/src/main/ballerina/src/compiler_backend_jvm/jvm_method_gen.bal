@@ -727,7 +727,7 @@ function generateBasicBlocks(jvm:MethodVisitor mv, bir:BasicBlock?[] basicBlocks
                 } else if (insKind == bir:INS_KIND_MAP_LOAD) {
                     instGen.generateMapLoadIns(<bir:FieldAccess> inst);
                 } else if (insKind == bir:INS_KIND_ARRAY_LOAD) {
-                    instGen.generateArrayValueLoad(<bir:FieldAccess> inst);
+                    instGen.generateArrayValueLoad(<bir:FieldAccess> inst, useBString);
                 } else if (insKind == bir:INS_KIND_NEW_ERROR) {
                     instGen.generateNewErrorIns(<bir:NewError> inst);
                 } else {

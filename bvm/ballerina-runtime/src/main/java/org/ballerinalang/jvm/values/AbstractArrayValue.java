@@ -122,7 +122,17 @@ public abstract class AbstractArrayValue implements ArrayValue {
      * @return array element
      */
     @Override
+    @Deprecated
     public abstract String getString(long index);
+
+    /**
+     * Get string value in the given index.
+     *
+     * @param index array index
+     * @return array element
+     */
+    @Override
+    public abstract BString getBString(long index);
 
     // ---------------------------- add methods --------------------------------------------------
 

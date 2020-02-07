@@ -293,6 +293,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
      * @return array element
      */
     @Override
+    @Deprecated
     public String getString(long index) {
         rangeCheckForGet(index, size);
         if (stringValues != null) {
@@ -303,6 +304,21 @@ public class ArrayValueImpl extends AbstractArrayValue {
             return bStringValues[(int) index].getValue();
         }
         return (String) refValues[(int) index];
+    }
+
+    /**
+     * Get string value in the given index.
+     *
+     * @param index array index
+     * @return array element
+     */
+    @Override
+    public BString getBString(long index) {
+        rangeCheckForGet(index, size);
+        if (bStringValues != null) {
+            return bStringValues[(int) index];
+        }
+        return (BString) refValues[(int) index];
     }
 
     // ---------------------------- add methods --------------------------------------------------
