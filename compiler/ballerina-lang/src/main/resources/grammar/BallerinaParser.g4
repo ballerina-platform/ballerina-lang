@@ -127,7 +127,7 @@ constantDefinition
     ;
 
 globalVariableDefinition
-    :   PUBLIC? LISTENER typeName Identifier ASSIGN expression SEMICOLON
+    :   PUBLIC? LISTENER typeName? Identifier ASSIGN expression SEMICOLON
     |   FINAL? (typeName | VAR) Identifier ASSIGN expression SEMICOLON
     ;
 
@@ -310,7 +310,7 @@ variableDefinitionStatement
     ;
 
 recordLiteral
-    :   LEFT_BRACE (recordKeyValue (COMMA recordKeyValue)*)? RIGHT_BRACE
+    :   LEFT_BRACE (recordField (COMMA recordField)*)? RIGHT_BRACE
     ;
 
 staticMatchLiterals
@@ -321,8 +321,9 @@ staticMatchLiterals
     |   staticMatchLiterals PIPE staticMatchLiterals                        # staticMatchOrExpression
     ;
 
-recordKeyValue
-    :   recordKey COLON expression
+recordField
+    :   Identifier
+    |   recordKey COLON expression
     ;
 
 recordKey

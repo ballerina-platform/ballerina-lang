@@ -99,7 +99,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangNumericLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKey;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKeyValue;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKeyValueField;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordVarRef.BLangRecordVarRefKeyValue;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRestArgsExpression;
@@ -1352,8 +1352,12 @@ public class BLangPackageBuilder {
         addExpressionNode(listConstructorExpr);
     }
 
-    void addKeyValueRecord(Set<Whitespace> ws, boolean computedKey) {
-        BLangRecordKeyValue keyValue = (BLangRecordKeyValue) TreeBuilder.createRecordKeyValue();
+    void addIdentifierRecordField() {
+        recordLiteralNodes.peek().fields.add((BLangRecordLiteral.BLangRecordVarNameField) exprNodeStack.pop());
+    }
+
+    void addKeyValueRecordField(Set<Whitespace> ws, boolean computedKey) {
+        BLangRecordKeyValueField keyValue = (BLangRecordKeyValueField) TreeBuilder.createRecordKeyValue();
         keyValue.addWS(ws);
         keyValue.valueExpr = (BLangExpression) exprNodeStack.pop();
         keyValue.key = new BLangRecordKey((BLangExpression) exprNodeStack.pop());
@@ -1361,7 +1365,7 @@ public class BLangPackageBuilder {
             keyValue.addWS(this.recordKeyWS.pop());
         }
         keyValue.key.computedKey = computedKey;
-        recordLiteralNodes.peek().keyValuePairs.add(keyValue);
+        recordLiteralNodes.peek().fields.add(keyValue);
     }
 
     void addRecordKeyWS(Set<Whitespace> ws) {
@@ -1406,7 +1410,7 @@ public class BLangPackageBuilder {
         List<ExpressionNode> recordValues = exprNodeListStack.pop();
         int index = 0;
         for (ExpressionNode expr : recordValues) {
-            BLangRecordKeyValue keyValue = (BLangRecordKeyValue) TreeBuilder.createRecordKeyValue();
+            BLangRecordKeyValueField keyValue = (BLangRecordKeyValueField) TreeBuilder.createRecordKeyValue();
             //Value
             keyValue.valueExpr = (BLangExpression) expr;
             //key
@@ -1417,7 +1421,7 @@ public class BLangPackageBuilder {
             keyExpr.variableName = identifierNode;
             keyValue.key = new BLangRecordKey(keyExpr);
             //Key-Value pair
-            recordLiteral.keyValuePairs.add(keyValue);
+            recordLiteral.fields.add(keyValue);
             ++index;
         }
         recordLiteral.addWS(ws);
@@ -1476,11 +1480,16 @@ public class BLangPackageBuilder {
         Collections.reverse(exprList);
     }
 
-
     void createSimpleVariableReference(DiagnosticPos pos, Set<Whitespace> ws) {
+        createSimpleVariableReference(pos, ws, (BLangSimpleVarRef) TreeBuilder.createSimpleVariableReferenceNode());
+    }
+
+    void createBLangRecordVarRefNameField(DiagnosticPos pos, Set<Whitespace> ws) {
+        createSimpleVariableReference(pos, ws, (BLangSimpleVarRef) TreeBuilder.createRecordVarRefNameFieldNode());
+    }
+
+    private void createSimpleVariableReference(DiagnosticPos pos, Set<Whitespace> ws, BLangSimpleVarRef varRef) {
         BLangNameReference nameReference = nameReferenceStack.pop();
-        BLangSimpleVarRef varRef = (BLangSimpleVarRef) TreeBuilder
-                .createSimpleVariableReferenceNode();
         varRef.pos = pos;
         varRef.addWS(ws);
         varRef.addWS(nameReference.ws);
@@ -1981,12 +1990,12 @@ public class BLangPackageBuilder {
 
     private VariableNode generateBasicVarNode(DiagnosticPos pos, Set<Whitespace> ws, String identifier,
                                               DiagnosticPos identifierPos, boolean isExpressionAvailable) {
-        return generateBasicVarNode(pos, ws, identifier, identifierPos, false, isExpressionAvailable);
+        return generateBasicVarNode(pos, ws, identifier, identifierPos, false, isExpressionAvailable, true);
     }
 
     private VariableNode generateBasicVarNode(DiagnosticPos pos, Set<Whitespace> ws, String identifier,
                                               DiagnosticPos identifierPos, boolean isDeclaredWithVar,
-                                              boolean isExpressionAvailable) {
+                                              boolean isExpressionAvailable, boolean isTypeNameProvided) {
         BLangSimpleVariable var = (BLangSimpleVariable) TreeBuilder.createSimpleVariableNode();
         var.pos = pos;
         IdentifierNode name = this.createIdentifier(identifierPos, identifier, ws);
@@ -1995,7 +2004,8 @@ public class BLangPackageBuilder {
         var.addWS(ws);
         if (isDeclaredWithVar) {
             var.isDeclaredWithVar = true;
-        } else {
+        }
+        if (isTypeNameProvided) {
             var.setTypeNode(this.typeNodeStack.pop());
         }
         if (isExpressionAvailable) {
@@ -2064,9 +2074,9 @@ public class BLangPackageBuilder {
 
     void addGlobalVariable(DiagnosticPos pos, Set<Whitespace> ws, String identifier, DiagnosticPos identifierPos,
                            boolean isPublic, boolean isFinal, boolean isDeclaredWithVar, boolean isExpressionAvailable,
-                           boolean isListenerVar) {
+                           boolean isListenerVar, boolean isTypeNameProvided) {
         BLangVariable var = (BLangVariable) this.generateBasicVarNode(pos, ws, identifier, identifierPos,
-                isDeclaredWithVar, isExpressionAvailable);
+                isDeclaredWithVar, isExpressionAvailable, isTypeNameProvided);
 
         if (isPublic) {
             var.flagSet.add(Flag.PUBLIC);
@@ -2076,6 +2086,9 @@ public class BLangPackageBuilder {
         }
         if (isListenerVar) {
             var.flagSet.add(Flag.LISTENER);
+            if (!isTypeNameProvided) {
+                var.isDeclaredWithVar = true;
+            }
         }
 
         attachAnnotations(var);
