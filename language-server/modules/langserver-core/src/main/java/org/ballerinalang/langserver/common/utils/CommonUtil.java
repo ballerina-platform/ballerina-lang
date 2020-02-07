@@ -944,6 +944,10 @@ public class CommonUtil {
      */
     public static Pair<String, String> getFunctionInvocationSignature(BInvokableSymbol symbol, String functionName,
                                                                       LSContext ctx) {
+        if (symbol == null) {
+            // Symbol can be null for object init functions without an explicit __init
+            return ImmutablePair.of(functionName + "();", functionName + "()");
+        }
         StringBuilder signature = new StringBuilder(functionName + "(");
         StringBuilder insertText = new StringBuilder(functionName + "(");
         List<String> funcArguments = FunctionGenerator.getFuncArguments(symbol, ctx);
