@@ -20,13 +20,13 @@ package org.ballerinalang.langserver.sourceprune;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import org.ballerinalang.langserver.LSContextOperation;
+import org.ballerinalang.langserver.LSTestOperationContext;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.commons.LSContext;
+import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
-import org.ballerinalang.langserver.compiler.LSContext;
-import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
-import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManagerImpl;
-import org.ballerinalang.langserver.completions.CompletionKeys;
+import org.ballerinalang.langserver.completions.sourceprune.CompletionsTokenTraverserFactory;
 import org.ballerinalang.langserver.completions.util.SourcePruneException;
 import org.ballerinalang.langserver.util.FileUtils;
 import org.eclipse.lsp4j.Position;
@@ -80,8 +80,11 @@ public class SourcePruneTest {
 
         this.documentManager.openFile(filePath.get(), documentContent);
         try {
-            SourcePruner.pruneSource(lsContext);
-            String prunedSource = documentManager.getFileContent(filePath.get());
+            TokenTraverserFactory traverserFactory = new CompletionsTokenTraverserFactory(filePath.get(),
+                                                                                          documentManager,
+                                                                                          SourcePruner.newContext());
+            SourcePruner.pruneSource(lsContext, traverserFactory);
+            String prunedSource = traverserFactory.getTokenStream().getText();
             Path expectedPath = expectedRoot.resolve(configObject.getAsJsonPrimitive("expected").getAsString());
             String expected = new String(Files.readAllBytes(expectedPath)).replaceAll("\r?\n", LINE_SEPARATOR);
             boolean sourceMatch = prunedSource.equals(expected);
@@ -106,15 +109,14 @@ public class SourcePruneTest {
     }
     
     private LSContext getLSContext(String source, Position position) {
-        LSContext lsContext = new LSServiceOperationContext(LSContextOperation.SOURCE_PRUNER);
         URI fileUri = sourceRoot.resolve(source).toUri();
         TextDocumentPositionParams positionParams = new TextDocumentPositionParams();
         positionParams.setPosition(position);
-        lsContext.put(CompletionKeys.DOC_MANAGER_KEY, documentManager);
-        lsContext.put(DocumentServiceKeys.POSITION_KEY, positionParams);
-        lsContext.put(DocumentServiceKeys.FILE_URI_KEY, fileUri.toString());
-        
-        return lsContext;
+
+        return new LSTestOperationContext
+                .LSTestOperationContextBuilder(LSContextOperation.SOURCE_PRUNER)
+                .withCommonParams(positionParams, fileUri.toString(), documentManager)
+                .build();
     }
 
     @DataProvider

@@ -273,3 +273,34 @@ public function testNoErrorReasonGiven() returns string? {
     error(message = message) = e; // no simple-binding-pattern here
     return message;
 }
+
+public function testErrorDestructuringInATuppleDestructuring() returns [string, string?] {
+    string r;
+    string? message;
+    int i;
+
+    error e = error("r2", message = "msg");
+    [i, error(r, message = message)] = [1, e];
+
+    return [r, message];
+}
+
+function testIndirectErrorVarRefInTuppleRef() returns [string?, string?, int] {
+    SMS err1 = error("Error One", message = "Msg One", detail = "Detail Msg");
+
+    string? message;
+    string? detail;
+    int i;
+
+    [i, SMS(message = message, detail = detail)] = [1, err1];
+    return [message, detail, i];
+}
+
+public function testErrorRefAndCtorInSameStatement() returns [string, string?, int] {
+    string r;
+    string? message;
+    int i;
+
+    [i, error(r, message = message)] = [1, error("r2", message = "Detail Msg")];
+    return [r, message, i];
+}

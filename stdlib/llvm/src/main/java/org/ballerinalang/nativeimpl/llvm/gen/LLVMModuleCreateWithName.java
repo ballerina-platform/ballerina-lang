@@ -1,4 +1,4 @@
-// Copyright (c) 2018 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+// Copyright (c) 2019 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 //
 // WSO2 Inc. licenses this file to you under the Apache License,
 // Version 2.0 (the "License"); you may not use this file except
@@ -16,26 +16,28 @@
 
 package org.ballerinalang.nativeimpl.llvm.gen;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.jvm.BallerinaValues;
+import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.types.BPackage;
+import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.nativeimpl.llvm.FFIUtil;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.bytedeco.javacpp.LLVM.LLVMModuleRef;
+import org.bytedeco.llvm.LLVM.LLVMModuleRef;
 
 import static org.ballerinalang.model.types.TypeKind.RECORD;
 import static org.ballerinalang.model.types.TypeKind.STRING;
-import static org.bytedeco.javacpp.LLVM.LLVMModuleCreateWithName;
+import static org.bytedeco.llvm.global.LLVM.LLVMModuleCreateWithName;
 
 /**
  * Auto generated class.
+ *
+ * @since 1.0.3
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "llvm",
-        functionName = "LLVMModuleCreateWithName",
+        functionName = "llvmModuleCreateWithName",
         args = {
                 @Argument(name = "moduleID", type = STRING),
         },
@@ -43,14 +45,15 @@ import static org.bytedeco.javacpp.LLVM.LLVMModuleCreateWithName;
                 @ReturnType(type = RECORD, structType = "LLVMModuleRef", structPackage = "ballerina/llvm"),
         }
 )
-public class LLVMModuleCreateWithName extends BlockingNativeCallableUnit {
 
-    @Override
-    public void execute(Context context) {
-        String moduleID = context.getStringArgument(0);
+public class LLVMModuleCreateWithName {
+
+    public static MapValue<String, Object> llvmModuleCreateWithName(Strand strand, String moduleID) {
+
         LLVMModuleRef returnValue = LLVMModuleCreateWithName(moduleID);
-        BMap<String, BValue> rerunWrapperRecode = FFIUtil.newRecord(context, "LLVMModuleRef");
-        FFIUtil.addNativeToRecode(returnValue, rerunWrapperRecode);
-        context.setReturnValues(rerunWrapperRecode);
+        MapValue<String, Object> returnWrappedRecord = BallerinaValues.createRecordValue(new BPackage("ballerina",
+                "llvm"), "LLVMModuleRef");
+        FFIUtil.addNativeToRecode(returnValue, returnWrappedRecord);
+        return returnWrappedRecord;
     }
 }

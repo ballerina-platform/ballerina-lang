@@ -15,9 +15,9 @@
  */
 package org.ballerinalang.langserver.command.docs;
 
-import org.ballerinalang.langserver.codeaction.CodeActionNodeType;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
-import org.ballerinalang.langserver.compiler.LSContext;
+import org.ballerinalang.langserver.commons.LSContext;
+import org.ballerinalang.langserver.commons.codeaction.CodeActionNodeType;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.Node;

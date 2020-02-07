@@ -98,6 +98,7 @@ public type JCast record {|
 
 public type JErrorEntry record {|
     bir:BasicBlock trapBB;
+    bir:BasicBlock endBB;
     bir:VarRef errorOp;
     bir:BasicBlock targetBB;
     CatchIns[] catchIns;
@@ -311,7 +312,7 @@ function genJFieldForInteropField(JFieldFunctionWrapper jFieldFuncWrapper,
     jvm:Label retLabel = labelGen.getLabel("return_lable");
     mv.visitLabel(retLabel);
     mv.visitLineNumber(birFunc.pos.sLine, retLabel);
-    termGen.genReturnTerm({pos:{}, kind:"RETURN"}, returnVarRefIndex, birFunc);
+    termGen.genReturnTerm({pos:birFunc.pos, kind:"RETURN"}, returnVarRefIndex, birFunc);
     mv.visitMaxs(200, 400);
     mv.visitEnd();
 }
@@ -396,7 +397,7 @@ function desugarInteropFuncs(bir:Package module, JMethodFunctionWrapper extFuncW
     bir:VarRef? jRetVarRef = ();
 
     bir:BasicBlock thenBB = insertAndGetNextBasicBlock(birFunc.basicBlocks, prefix = bbPrefix);
-    bir:GOTO gotoRet = {pos:{}, kind:bir:TERMINATOR_GOTO, targetBB:retBB};
+    bir:GOTO gotoRet = {pos:birFunc.pos, kind:bir:TERMINATOR_GOTO, targetBB:retBB};
     thenBB.terminator = gotoRet;
 
     if (!(retType is bir:BTypeNil)) {
@@ -411,9 +412,9 @@ function desugarInteropFuncs(bir:Package module, JMethodFunctionWrapper extFuncW
         }
 
         bir:BasicBlock catchBB = {id: getNextDesugarBBId(bbPrefix), instructions: []};
-        JErrorEntry ee = { trapBB:beginBB, errorOp:retRef, targetBB:catchBB, catchIns:[] };
+        JErrorEntry ee = { trapBB:beginBB, endBB:thenBB, errorOp:retRef, targetBB:catchBB, catchIns:[] };
         foreach var exception in extFuncWrapper.jMethod.throws {
-            bir:Return exceptionRet = {pos:{}, kind:bir:TERMINATOR_RETURN};
+            bir:Return exceptionRet = {pos:birFunc.pos, kind:bir:TERMINATOR_RETURN};
             CatchIns catchIns = { errorClass:exception, term:exceptionRet };
             ee.catchIns[ee.catchIns.length()] = catchIns;
         }

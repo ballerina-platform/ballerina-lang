@@ -33,7 +33,6 @@ dependencies {
     implementation project(':ballerina-lang:typedesc')
     implementation project(':ballerina-lang:value')
     implementation project(':ballerina-lang:xml')
-    implementation project(':ballerina-utils')
     implementation project(':ballerina-lang:internal')
     baloImplementation project(path: ':ballerina-lang:annotations', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-lang:array', configuration: 'baloImplementation')
@@ -50,6 +49,5 @@ dependencies {
     baloImplementation project(path: ':ballerina-lang:typedesc', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-lang:value', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-lang:xml', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-utils', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-lang:internal', configuration: 'baloImplementation')
 }

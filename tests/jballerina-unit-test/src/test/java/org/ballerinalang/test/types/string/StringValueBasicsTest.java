@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.test.types.string;
 
+import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.util.BCompileUtil;
@@ -46,6 +47,33 @@ public class StringValueBasicsTest {
         BValue[] returns = BRunUtil.invoke(result, "concatBMP");
         Assert.assertTrue(returns[0] instanceof BString);
         Assert.assertEquals(returns[0].stringValue(), "red apple");
+    }
+
+    @Test
+    public void testNonBMPStringLength() {
+        BValue[] returns = BRunUtil.invoke(result, "nonBMPLength");
+        Assert.assertEquals(returns[0].getClass(), BInteger.class);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 5);
+    }
+
+    @Test
+    public void testRecordStringValuePut() {
+        BValue[] returns = BRunUtil.invoke(result, "recordStringValuePut");
+        //TODO assert return value has BString
+    }
+
+    @Test
+    public void testError() {
+        BValue[] returns = BRunUtil.invoke(result, "testError");
+        Assert.assertEquals(returns[0].getClass(), BInteger.class);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 5);
+    }
+
+    @Test
+    public void testArrayStore() {
+        BValue[] returns = BRunUtil.invoke(result, "testArrayStore");
+        Assert.assertEquals(returns[0].getClass(), BInteger.class);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 10);
     }
 
     @AfterClass

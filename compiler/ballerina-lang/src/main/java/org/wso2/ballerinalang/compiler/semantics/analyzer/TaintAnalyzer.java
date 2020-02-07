@@ -25,7 +25,6 @@ import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
-import org.wso2.ballerinalang.compiler.semantics.model.BLangBuiltInMethod;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
@@ -58,24 +57,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangFunctionClause;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangGroupBy;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangHaving;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangJoinStreamingInput;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangLimit;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangOrderBy;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangPatternClause;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangPatternStreamingEdgeInput;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangPatternStreamingInput;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectExpression;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangSetAssignment;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangStreamAction;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangStreamingInput;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangTableQuery;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhere;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangWindow;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangWithinClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAccessExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
@@ -96,6 +77,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRestArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangServiceConstructorExpr;
@@ -103,7 +85,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStatementExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableLiteral;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableQueryExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTrapExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
@@ -137,7 +118,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangErrorDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangErrorVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangForever;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
@@ -149,7 +129,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangRetry;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangStreamingQueryStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTryCatchFinally;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTupleDestructure;
@@ -441,7 +420,6 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         BSymbol objectSymbol = recordNode.symbol;
         SymbolEnv objectEnv = SymbolEnv.createPkgLevelSymbolEnv(recordNode, objectSymbol.scope, env);
         recordNode.fields.forEach(field -> analyzeNode(field, objectEnv));
-        analyzeNode(recordNode.initFunction, objectEnv);
     }
 
     @Override
@@ -866,86 +844,6 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangOrderBy orderBy) {
-        /* ignore */
-    }
-
-    @Override
-    public void visit(BLangLimit limit) {
-        /* ignore */
-    }
-
-    @Override
-    public void visit(BLangGroupBy groupBy) {
-        /* ignore */
-    }
-
-    @Override
-    public void visit(BLangHaving having) {
-        /* ignore */
-    }
-
-    @Override
-    public void visit(BLangSelectExpression selectExpression) {
-        /* ignore */
-    }
-
-    @Override
-    public void visit(BLangSelectClause selectClause) {
-        /* ignore */
-    }
-
-    @Override
-    public void visit(BLangWhere whereClause) {
-        /* ignore */
-    }
-
-    @Override
-    public void visit(BLangStreamingInput streamingInput) {
-        /* ignore */
-    }
-
-    @Override
-    public void visit(BLangJoinStreamingInput joinStreamingInput) {
-        /* ignore */
-    }
-
-    @Override
-    public void visit(BLangTableQuery tableQuery) {
-        /* ignore */
-    }
-
-    @Override
-    public void visit(BLangStreamAction streamAction) {
-        /* ignore */
-    }
-
-    @Override
-    public void visit(BLangFunctionClause functionClause) {
-        /* ignore */
-    }
-
-    @Override
-    public void visit(BLangSetAssignment setAssignmentClause) {
-        /* ignore */
-    }
-
-    @Override
-    public void visit(BLangPatternStreamingEdgeInput patternStreamingEdgeInput) {
-        /* ignore */
-    }
-
-    @Override
-    public void visit(BLangWindow windowClause) {
-        /* ignore */
-    }
-
-    @Override
-    public void visit(BLangPatternStreamingInput patternStreamingInput) {
-        /* ignore */
-    }
-
-    @Override
     public void visit(BLangTableLiteral tableLiteral) {
         // TODO: Improve to include tainted status identification for table literals
         getCurrentAnalysisState().taintedStatus = TaintedStatus.UNTAINTED;
@@ -1092,16 +990,6 @@ public class TaintAnalyzer extends BLangNodeVisitor {
                     analyzerPhase = AnalyzerPhase.LOOP_ANALYSIS_COMPLETE;
                     ignoredInvokableSymbol.add(invokableSymbol);
                     blocked = false;
-                } else if (analyzerPhase == AnalyzerPhase.LOOP_ANALYSIS_COMPLETE
-                        && invocationExpr.builtinMethodInvocation
-                        && invocationExpr.builtInMethod == BLangBuiltInMethod.CALL) {
-                    // When "call" is use to invoke function pointers, taint-table of the actual function to be invoked
-                    // is not known. Therefore, if the analyzer is blocked on such function pointer invocation, skip
-                    // taint analysis and consider the outcome of the invocation as untainted.
-                    // TODO: Resolving function pointers and perform analysis.
-                    getCurrentAnalysisState().taintedStatus = TaintedStatus.IGNORED;
-                    ignoredInvokableSymbol.add(invokableSymbol);
-                    blocked = false;
                 }
                 if (blocked) {
                     // If taint-table of invoked function is not generated yet, add it to the blocked list for latter
@@ -1140,12 +1028,16 @@ public class TaintAnalyzer extends BLangNodeVisitor {
                 && Symbols.isNative(invocationExpr.symbol);
     }
 
+    private int receiverIfAttachedFunction(BLangInvocation invocationExpr) {
+        return isTaintAnalyzableAttachedFunction(invocationExpr) ? 1 : 0;
+    }
+
     private Map<Integer, TaintRecord> createIdentityTaintTable(BLangInvocation invocationExpr) {
         Map<Integer, TaintRecord> taintTable = new HashMap<>();
 
         int requiredParamCount = invocationExpr.requiredArgs.size();
         int restCount = invocationExpr.restArgs == null || invocationExpr.restArgs.isEmpty() ? 0 : 1;
-        int totalParamCount = requiredParamCount + restCount;
+        int totalParamCount = requiredParamCount + restCount + receiverIfAttachedFunction(invocationExpr);
 
         for (int i = ALL_UNTAINTED_TABLE_ENTRY_INDEX; i < totalParamCount; i++) {
             TaintRecord record = new TaintRecord(
@@ -1159,35 +1051,6 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         }
 
         return taintTable;
-    }
-
-    private void analyzeBuiltInMethodInvocation(BLangInvocation invocationExpr) {
-        BLangBuiltInMethod builtInMethod = invocationExpr.builtInMethod;
-        switch (builtInMethod) {
-            case IS_NAN:
-            case IS_INFINITE:
-            case IS_FINITE:
-            case LENGTH:
-            case IS_FROZEN:
-                getCurrentAnalysisState().taintedStatus = TaintedStatus.UNTAINTED;
-                break;
-            case FREEZE:
-            case CLONE:
-                invocationExpr.expr.accept(this);
-                break;
-            case STAMP:
-            case CONVERT:
-            case CALL:
-                invocationExpr.argExprs.forEach(expression -> expression.accept(this));
-                break;
-            case REASON:
-            case DETAIL:
-            case STACKTRACE:
-                invocationExpr.expr.accept(this);
-                break;
-            default:
-                throw new AssertionError("Taint checking failed for built-in method: " + builtInMethod);
-        }
     }
 
     @Override
@@ -1442,11 +1305,6 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangTableQueryExpression tableQueryExpression) {
-        /* ignore */
-    }
-
-    @Override
     public void visit(BLangRestArgsExpression varArgsExpression) {
         varArgsExpression.expr.accept(this);
     }
@@ -1454,26 +1312,6 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangNamedArgsExpression namedArgsExpression) {
         namedArgsExpression.expr.accept(this);
-    }
-
-    @Override
-    public void visit(BLangStreamingQueryStatement streamingQueryStatement) {
-        /* ignore */
-    }
-
-    @Override
-    public void visit(BLangWithinClause withinClause) {
-        /* ignore */
-    }
-
-    @Override
-    public void visit(BLangPatternClause patternClause) {
-        /* ignore */
-    }
-
-    @Override
-    public void visit(BLangForever foreverStatement) {
-        /* ignore */
     }
 
     @Override
@@ -1499,9 +1337,17 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         // Taintedness of a service variable depends on taintedness of listeners attached to this service.
         // If any listener is tainted then the service variable is tainted.
 
-        boolean anyListenerstainted = serviceConstructorExpr.serviceNode.attachedExprs.stream()
-                .filter(expr -> expr.getKind() == NodeKind.SIMPLE_VARIABLE_REF)
-                .anyMatch(attached -> ((BLangSimpleVarRef) attached).symbol.tainted);
+        boolean anyListenerstainted = false;
+        for (BLangExpression expr : serviceConstructorExpr.serviceNode.attachedExprs) {
+            if (expr.getKind() == NodeKind.SIMPLE_VARIABLE_REF && ((BLangSimpleVarRef) expr).symbol.tainted) {
+                anyListenerstainted = true;
+                break;
+            }
+            if (expr.getKind() == NodeKind.TYPE_INIT_EXPR) {
+                anyListenerstainted = true;
+                break;
+            }
+        }
 
         if (anyListenerstainted || serviceConstructorExpr.type.tsymbol.tainted) {
             // Service type tainted due to listeners being tainted.
@@ -1635,11 +1481,6 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangRecordLiteral.BLangStreamLiteral streamLiteral) {
-        /* ignore */
-    }
-
-    @Override
     public void visit(BLangInvocation.BFunctionPointerInvocation bFunctionPointerInvocation) {
         /* ignore */
     }
@@ -1664,6 +1505,10 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         /* ignore */
     }
 
+    @Override
+    public void visit(BLangQueryExpr queryExpr) {
+        /* ignore */
+    }
 
     @Override
     public void visit(BLangXMLNS.BLangLocalXMLNS xmlnsNode) {
@@ -2471,7 +2316,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         }
         // When an invocation like stringValue.trim() happens, if stringValue is tainted, the result should also be
         // tainted.
-        if (!invocationExpr.builtinMethodInvocation && invocationExpr.expr != null) {
+        if (invocationExpr.expr != null) {
             //TODO: TaintedIf annotation, so that it's possible to define what can taint or untaint the return.
             invocationExpr.expr.accept(this);
             if (getCurrentAnalysisState().taintedStatus == TaintedStatus.IGNORED) {
@@ -2573,10 +2418,6 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     }
 
     private boolean isTaintAnalyzableAttachedFunction(BLangInvocation invocationExpr) {
-        if (invocationExpr.builtinMethodInvocation) {
-            return false;
-        }
-
         boolean isAttachedFunction = (invocationExpr.symbol.flags & Flags.ATTACHED) == Flags.ATTACHED;
         boolean hasExpr = invocationExpr.expr != null;
         boolean isTypeInit = invocationExpr.parent != null

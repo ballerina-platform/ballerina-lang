@@ -73,6 +73,7 @@ public type BasicBlock record {|
 
 public type ErrorEntry record {|
     BasicBlock trapBB;
+    BasicBlock endBB;
     VarRef errorOp;
     BasicBlock targetBB;
     anydata...; // This is to type match with platform specific error entries
@@ -170,7 +171,6 @@ public const INS_KIND_XML_ATTRIBUTE_LOAD = 51;
 public const INS_KIND_FP_LOAD = 52;
 public const INS_KIND_STRING_LOAD = 53;
 public const INS_KIND_NEW_TABLE = 54;
-public const INS_KIND_NEW_STREAM = 55;
 public const INS_KIND_TYPEOF = 56;
 public const INS_KIND_NOT = 57;
 public const INS_KIND_NEW_TYPEDESC = 58;
@@ -187,7 +187,7 @@ public type InstructionKind INS_KIND_MOVE | INS_KIND_CONST_LOAD | INS_KIND_NEW_M
                                 INS_KIND_NEW_XML_COMMENT | INS_KIND_NEW_XML_PI | INS_KIND_XML_ATTRIBUTE_STORE |
                                 INS_KIND_XML_ATTRIBUTE_LOAD | INS_KIND_XML_LOAD_ALL | INS_KIND_XML_LOAD |
                                 INS_KIND_XML_SEQ_LOAD | INS_KIND_FP_LOAD | INS_KIND_STRING_LOAD | INS_KIND_NEW_TABLE |
-                                INS_KIND_TYPEOF | INS_KIND_NOT | INS_KIND_NEW_TYPEDESC | INS_KIND_NEW_STREAM |
+                                INS_KIND_TYPEOF | INS_KIND_NOT | INS_KIND_NEW_TYPEDESC |
                                 INS_KIND_NEGATE | INS_KIND_PLATFORM;
 
 public const TERMINATOR_GOTO = "GOTO";
@@ -347,6 +347,7 @@ const TUPLE_TYPE_NAME = "tuple";
 const FUTURE_TYPE_NAME = "future";
 const FINITE_TYPE_NAME = "finite";
 const TYPEDESC_TYPE_NAME = "typedesc";
+const FUNCTION_TYPE_NAME = "function";
 
 public type BPlatformType record {|
     PLATFORM_TYPE_NAME typeName = PLATFORM_TYPE_NAME;
@@ -414,6 +415,7 @@ public type BObjectType record {|
     BObjectField?[] fields = [];
     BAttachedFunction?[] attachedFunctions = [];
     BAttachedFunction? constructor;
+    BAttachedFunction? generatedConstructor;
 |};
 
 public type BTypeHandle record {
@@ -485,7 +487,9 @@ public type ModuleID record {|
 |};
 
 public type BInvokableType record {
+    FUNCTION_TYPE_NAME typeName = FUNCTION_TYPE_NAME;
     BType?[] paramTypes = [];
+    BType? restType = ();
     BType retType?;
 };
 
@@ -535,13 +539,6 @@ public type NewTable record {|
     VarRef dataOp;
     VarRef keyColOp;
     BType typeValue;
-|};
-
-public type NewStream record {|
-    DiagnosticPos pos;
-    InstructionKind kind;
-    VarRef lhsOp;
-    BType streamType;
 |};
 
 public type NewInstance record {|

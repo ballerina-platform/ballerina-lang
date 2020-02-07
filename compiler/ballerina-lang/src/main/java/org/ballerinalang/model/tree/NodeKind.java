@@ -57,6 +57,7 @@ public enum NodeKind {
     TUPLE_LITERAL_EXPR,
     LIST_CONSTRUCTOR_EXPR,
     BINARY_EXPR,
+    QUERY_EXPR,
     ELVIS_EXPR,
     GROUP_EXPR,
     TYPE_INIT_EXPR,
@@ -109,10 +110,6 @@ public enum NodeKind {
     DOCUMENTATION_REFERENCE,
     SERVICE_CONSTRUCTOR,
 
-    /* streams/tables expressions */
-    SELECT_EXPRESSION,
-    TABLE_QUERY_EXPRESSION,
-
     /* Statements */
     ABORT,
     DONE,
@@ -154,6 +151,11 @@ public enum NodeKind {
     CHANNEL_RECEIVE,
     CHANNEL_SEND,
 
+    /* Clauses */
+    SELECT,
+    FROM,
+    WHERE,
+
     /* Types */
     ARRAY_TYPE,
     UNION_TYPE_NODE,
@@ -168,29 +170,4 @@ public enum NodeKind {
     OBJECT_TYPE,
     ERROR_TYPE,
 
-    /* Clauses */
-    ORDER_BY,
-    ORDER_BY_VARIABLE,
-    LIMIT,
-    GROUP_BY,
-    HAVING,
-    SELECT_CLAUSE,
-    WHERE,
-    FUNCTION_CLAUSE,
-    WINDOW_CLAUSE,
-    STREAMING_INPUT,
-    JOIN_STREAMING_INPUT,
-    TABLE_QUERY,
-    SET_ASSIGNMENT_CLAUSE,
-    SET,
-    STREAM_ACTION,
-    PATTERN_STREAMING_EDGE_INPUT,
-    PATTERN_STREAMING_INPUT,
-    STREAMING_QUERY,
-    QUERY,
-    STREAMING_QUERY_DECLARATION,
-    WITHIN,
-    PATTERN_CLAUSE,
-    OUTPUT_RATE_LIMIT,
-    FOREVER,
 }

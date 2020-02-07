@@ -32,9 +32,10 @@ dependencies {
     implementation project(':ballerina-bir')
     implementation project(':ballerina-io')
 
-    baloImplementation project(path: ':ballerina-utils', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-bir', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-io', configuration: 'baloImplementation')
+
+    interopImports project(':ballerina-io')
 
     baloCreat project(':lib-creator')
 }

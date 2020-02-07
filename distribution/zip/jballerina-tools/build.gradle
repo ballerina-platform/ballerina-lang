@@ -65,7 +65,6 @@ configurations {
     staticFiles
     balx
     unzipped
-    langserverResources
 }
 
 dependencies {
@@ -77,6 +76,7 @@ dependencies {
     // dist 'org.ow2.asm:asm:6.2.1'
     dist 'org.codehaus.woodstox:woodstox-core-asl:4.2.0'
     dist 'org.codehaus.woodstox:stax2-api:3.1.1'
+    dist 'org.apache.commons:commons-compress:1.18'
 
     // Following dependencies are required for kraal library
     dist 'org.jetbrains.kotlin:kotlin-stdlib:1.3.31'
@@ -94,7 +94,6 @@ dependencies {
     dist project(':ballerina-encoding')
     dist project(':ballerina-bir')
     birJar project(path: ':ballerina-bir', configuration: 'birJar')
-    dist project(':ballerina-utils')
     dist project(':ballerina-rt')
 
     dist project(':testerina:testerina-core')
@@ -102,6 +101,7 @@ dependencies {
     dist project(':ballerina-backend-jvm')
     birJar project(path: ':ballerina-backend-jvm', configuration: 'birJar')
     dist project(':language-server:language-server-compiler')
+    dist project(':language-server:language-server-commons')
     dist project(':ballerina-packerina')
     dist project(':openapi-ballerina:ballerina-to-openapi-generator')
     dist project(':openapi-ballerina:openapi-to-ballerina-generator')
@@ -113,10 +113,11 @@ dependencies {
 
     langserverLib project(path: ':language-server:language-server-core', configuration: 'libs')
     langserverLib project(':language-server:language-server-stdio-launcher')
+    langserverLib project(':language-server:language-server-cli')
     langserverLib project(':language-server:language-server-core')
-    langserverResources project(path: ':language-server:language-server-core', configuration: 'langserverResources')
-    debugAdapterDistribution project(':debug-adapter')
-    
+    debugAdapterDistribution project(':debug-adapter:debug-adapter-core')
+    debugAdapterDistribution project(':debug-adapter:debug-adapter-cli')
+
     balSource project(path: ':jballerina', configuration: 'source')
     balxSource project(path: ':jballerina', configuration: 'sourceBalx')
     distBal project(path: ':jballerina', configuration: 'balo')
@@ -132,11 +133,9 @@ dependencies {
 
     distBal project(path: ':testerina:testerina-core', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-encoding', configuration: 'baloImplementation')
-    distBal project(path: ':ballerina-utils', configuration: 'baloImplementation')
 
     balSource project(path: ':ballerina-bir', configuration: 'balSource')
     balSource project(path: ':ballerina-jvm', configuration: 'balSource')
-    balSource project(path: ':ballerina-llvm', configuration: 'balSource')
     birJar project(path: ':ballerina-cli-module-pull', configuration: 'cliModulePullJar')
     birJar project(path: ':ballerina-cli-module-push', configuration: 'cliModulePushJar')
     birJar project(path: ':ballerina-cli-module-search', configuration: 'cliModuleSearchJar')
@@ -238,13 +237,6 @@ def copyLangServerBinSpec = {
         from('resources/language-server-launcher.bat')
         into(path + 'lib/tools/lang-server/launcher')
     }
-}
-
-def copyLangSeverIndexSpec = {
-    path -> copySpec {
-        from configurations.langserverResources
-        into(path + 'lib/tools/lang-server/resources')
-     }
 }
 def copyDebugAdapterLauncher = {
     path -> copySpec {
@@ -360,7 +352,7 @@ task generateDocs(type: JavaExec) {
     classpath = files(pathingJar.archivePath)
     main = 'org.ballerinalang.plugin.gradle.doc.DocerinaGen'
     def libs = "$buildDir/ballerina/"
-    args("$libs", "$buildDir/api-docs", "lang.__internal,lang.annotations,llvm,bir,jvm,utils,ldap")
+    args("$libs", "$buildDir/api-docs", "lang.__internal,lang.annotations,bir,jvm,utils,ldap")
 }
 
 task createApiDocsZip(type: Zip) {
@@ -377,7 +369,6 @@ task createZip(type: Zip) {
     with copyBalxSpec(basePath)
     with copyBinSpec(basePath)
     with copyLangServerLibsSpec(basePath)
-    with copyLangSeverIndexSpec(basePath)
     with copyLangServerBinSpec(basePath)
     with copyComposerDistributionSpec(basePath)
     with copyComposerFontsSpec(basePath)
@@ -401,7 +392,6 @@ task updateBalHome(type: Copy) {
     with copyBalxSpec(installDir)
     with copyBinSpec(installDir)
     with copyLangServerLibsSpec(installDir)
-    with copyLangSeverIndexSpec(installDir)
     with copyLangServerBinSpec(installDir)
     with copyComposerDistributionSpec(installDir)
     with copyComposerFontsSpec(installDir)
@@ -428,7 +418,6 @@ task createDistribution(type: Copy) {
     with copyBalxSpec("")
     with copyBinSpec("")
     with copyLangServerLibsSpec("")
-    with copyLangSeverIndexSpec("")
     with copyLangServerBinSpec("")
     with copyComposerDistributionSpec("")
     with copyComposerFontsSpec("")

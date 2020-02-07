@@ -17,7 +17,7 @@
 */
 package org.ballerinalang.langserver.completion.definitions;
 
-import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentException;
+import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.completion.CompletionTest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,7 +33,7 @@ public class FunctionDefinitionCompletionTest extends CompletionTest {
 
     private static final Logger log = LoggerFactory.getLogger(FunctionDefinitionCompletionTest.class);
 
-    @Test(dataProvider = "completion-data-provider", enabled = false)
+    @Test(dataProvider = "completion-data-provider")
     public void test(String config, String configPath) throws WorkspaceDocumentException, IOException {
         super.test(config, configPath);
     }
@@ -83,7 +83,7 @@ public class FunctionDefinitionCompletionTest extends CompletionTest {
                 {"completionWithinTransaction.json", "function"},
                 {"completionWithinTransactionOnRetry.json", "function"},
                 {"completionAfterReturn.json", "function"},
-                {"functionCompletionWithMissingImport.json", "function"},
+//                {"functionCompletionWithMissingImport.json", "function"},
                 {"completionWithinRecord1.json", "function"},
                 {"completionWithinRecord2.json", "function"},
                 {"completionWithinRecord3.json", "function"},
@@ -174,6 +174,9 @@ public class FunctionDefinitionCompletionTest extends CompletionTest {
                 {"typeDescSuggestions2.json", "function"},
                 {"delimiterBasedCompletionOverArrays.json", "function"},
                 {"delimiterBasedCompletionOverXML.json", "function"},
+                {"langLibPackageSuggestion1.json", "function"},
+                {"langLibPackageSuggestion2.json", "function"},
+                {"groupedExpressionSuggestion1.json", "function"},
 //                {"statementWithMissingSemiColon1.json", "function"},
 //                {"statementWithMissingSemiColon2.json", "function"},
 //                {"statementWithMissingSemiColon3.json", "function"},

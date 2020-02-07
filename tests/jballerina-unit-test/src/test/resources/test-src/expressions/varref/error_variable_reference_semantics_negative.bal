@@ -40,7 +40,7 @@ function testBasicErrorVariableWithMapDetails() {
 
     error (reason21, ...detail21) = err2;
     error (reason22, message = message22, detail = detail22, extra = extra22) = err2;
-    error (reason22, message = message22, detail = detail22, extra = extra22) = error("reason", a = detail11["a"]); // error constructor expression is not supported for error binding pattern
+    error (reason22, message = message22, detail = detail22, extra = extra22) = error("reason", a = detail11["a"]);
 }
 
 type Foo record {

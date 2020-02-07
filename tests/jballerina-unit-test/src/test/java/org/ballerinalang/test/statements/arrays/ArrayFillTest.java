@@ -481,13 +481,6 @@ public class ArrayFillTest {
     }
 
     @Test
-    public void testArrayFillWithStreams() {
-        BValue[] returns = BRunUtil.invokeFunction(compileResult, "testArrayFillWithStreams");
-        BValueArray resultArray = (BValueArray) returns[0];
-        assertEquals(resultArray.size(), 2);
-    }
-
-    @Test
     public void testFiniteTypesInUnionArrayFill() {
         BValue[] returns = BRunUtil.invokeFunction(compileResult, "testFiniteTypeArrayFill");
         Assert.assertEquals(returns[0].getType().getTag(), TypeTags.ARRAY_TAG);

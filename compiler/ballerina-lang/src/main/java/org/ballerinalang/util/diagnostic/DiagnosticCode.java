@@ -88,7 +88,6 @@ public enum DiagnosticCode {
     MISSING_REQUIRED_PARAMETER("missing.required.parameter"),
 
     INCOMPATIBLE_TYPES("incompatible.types"),
-    INCOMPATIBLE_TYPES_EXP_TUPLE("incompatible.types.exp.tuple"),
     UNKNOWN_TYPE("unknown.type"),
     BINARY_OP_INCOMPATIBLE_TYPES("binary.op.incompatible.types"),
     UNARY_OP_INCOMPATIBLE_TYPES("unary.op.incompatible.types"),
@@ -139,6 +138,7 @@ public enum DiagnosticCode {
     RETRY_CANNOT_BE_OUTSIDE_TRANSACTION_BLOCK("retry.cannot.be.outside.transaction.block"),
     BREAK_CANNOT_BE_USED_TO_EXIT_TRANSACTION("break.statement.cannot.be.used.to.exit.from.a.transaction"),
     CONTINUE_CANNOT_BE_USED_TO_EXIT_TRANSACTION("continue.statement.cannot.be.used.to.exit.from.a.transaction"),
+    CHECK_EXPRESSION_INVALID_USAGE_WITHIN_TRANSACTION_BLOCK("check.expression.invalid.usage.within.transaction.block"),
     RETURN_CANNOT_BE_USED_TO_EXIT_TRANSACTION("return.statement.cannot.be.used.to.exit.from.a.transaction"),
     DONE_CANNOT_BE_USED_TO_EXIT_TRANSACTION("done.statement.cannot.be.used.to.exit.from.a.transaction"),
     INVALID_RETRY_COUNT("invalid.retry.count"),
@@ -189,6 +189,9 @@ public enum DiagnosticCode {
     UNSAFE_CONVERSION_ATTEMPT("unsafe.conversion.attempt"),
 
     INVALID_LITERAL_FOR_TYPE("invalid.literal.for.type"),
+    INCOMPATIBLE_MAPPING_CONSTRUCTOR("incompatible.mapping.constructor.expression"),
+    MAPPING_CONSTRUCTOR_COMPATIBLE_TYPE_NOT_FOUND("mapping.constructor.compatible.type.not.found"),
+    CANNOT_INFER_TYPES_FOR_TUPLE_BINDING("cannot.infer.types.for.tuple.binding"),
     INVALID_LITERAL_FOR_MATCH_PATTERN("invalid.literal.for.match.pattern"),
     INVALID_EXPR_WITH_TYPE_GUARD_FOR_MATCH_PATTERN("invalid.expr.with.type.guard.for.match"),
     ARRAY_LITERAL_NOT_ALLOWED("array.literal.not.allowed"),
@@ -254,6 +257,7 @@ public enum DiagnosticCode {
     INVALID_PATTERN_CLAUSES_IN_MATCH_STMT("invalid.pattern.clauses.in.match.stmt"),
     STATIC_MATCH_ONLY_SUPPORTS_ANYDATA("static.value.match.only.supports.anydata"),
     UNINITIALIZED_VARIABLE("uninitialized.variable"),
+    CONTAINS_UNINITIALIZED_FIELDS("uninitialized.object.fields"),
     INVALID_ANY_VAR_DEF("invalid.any.var.def"),
     INVALID_RECORD_LITERAL("invalid.record.literal"),
     INVALID_FIELD_IN_RECORD_BINDING_PATTERN("invalid.field.in.record.binding.pattern"),
@@ -265,7 +269,8 @@ public enum DiagnosticCode {
     INVALID_ARRAY_ELEMENT_TYPE("invalid.array.element.type"),
     INVALID_TUPLE_BINDING_PATTERN("invalid.tuple.binding.pattern"),
     INVALID_TYPE_FOR_TUPLE_VAR_EXPRESSION("invalid.type.for.tuple.var.expr"),
-    INVALID_TYPE_DEFINITION_FOR_TUPLE_VAR("invalid.type.definition.for.tuple.var"),
+    INVALID_TUPLE_BINDING_PATTERN_DECL("invalid.tuple.binding.pattern.decl"),
+    INVALID_TUPLE_BINDING_PATTERN_INFERENCE("invalid.tuple.binding.pattern.inference"),
     MISMATCHING_ARRAY_LITERAL_VALUES("mismatching.array.literal.values"),
     SEALED_ARRAY_TYPE_NOT_INITIALIZED("sealed.array.type.not.initialized"),
     INVALID_LIST_INDEX_EXPR("invalid.list.index.expr"),
@@ -290,7 +295,6 @@ public enum DiagnosticCode {
     INVALID_ERROR_REASON_BINDING_PATTERN("invalid.error.reason.binding.pattern"),
     INVALID_ERROR_REST_BINDING_PATTERN("invalid.error.rest.binding.pattern"),
     INVALID_TYPE_DEFINITION_FOR_ERROR_VAR("invalid.type.definition.for.error.var"),
-    INVALID_ERROR_LITERAL_BINDING_PATTERN("invalid.error.literal.in.binding.pattern"),
     INVALID_ERROR_DESTRUCTURING_NO_REASON_GIVEN("invalid.error.destructuring.reason"),
     INVALID_ERROR_MATCH_PATTERN("invalid.error.match.pattern"),
     DUPLICATE_VARIABLE_IN_BINDING_PATTERN("duplicate.variable.in.binding.pattern"),
@@ -340,6 +344,7 @@ public enum DiagnosticCode {
 
     // Error codes related to iteration.
     ITERABLE_NOT_SUPPORTED_COLLECTION("iterable.not.supported.collection"),
+    INCOMPATIBLE_ITERATOR_FUNCTION_SIGNATURE("incompatible.iterator.function.signature"),
     ITERABLE_NOT_SUPPORTED_OPERATION("iterable.not.supported.operation"),
     ITERABLE_TOO_MANY_VARIABLES("iterable.too.many.variables"),
     ITERABLE_NOT_ENOUGH_VARIABLES("iterable.not.enough.variables"),
@@ -371,7 +376,6 @@ public enum DiagnosticCode {
     // Checked expression related errors
     CHECKED_EXPR_INVALID_USAGE_NO_ERROR_TYPE_IN_RHS("checked.expr.invalid.usage.no.error.type.rhs"),
     CHECKED_EXPR_INVALID_USAGE_ALL_ERROR_TYPES_IN_RHS("checked.expr.invalid.usage.only.error.types.rhs"),
-    CHECKED_EXPR_NO_ERROR_RETURN_IN_ENCL_INVOKABLE("checked.expr.no.error.return.in.encl.invokable"),
     CHECKED_EXPR_NO_MATCHING_ERROR_RETURN_IN_ENCL_INVOKABLE("checked.expr.no.matching.error.return.in.encl.invokable"),
 
     START_REQUIRE_INVOCATION("start.require.invocation"),
@@ -388,22 +392,7 @@ public enum DiagnosticCode {
     INVALID_SHIFT_OPERATOR("invalid.shift.operator"),
 
     // Streaming related codes
-    UNDEFINED_STREAM_REFERENCE("undefined.stream.reference"),
-    UNDEFINED_STREAM_ATTRIBUTE("undefined.stream.attribute"),
-    UNDEFINED_OUTPUT_STREAM_ATTRIBUTE("undefined.output.stream.attribute"),
-    UNDEFINED_SELECT_EXPR_ALIAS("alias.not.defined"),
-    SELECT_EXPR_ALIAS_NOT_FOUND("alias.not.found"),
-    OUTPUT_FIELD_VISIBLE_IN_HAVING_ORDER_BY("output.fields.allowed.in.having.and.orderby.only"),
-    STREAM_ATTR_NOT_ALLOWED_IN_HAVING_ORDER_BY("stream.attributes.not.allowed.in.having.and.orderby"),
-    INCOMPATIBLE_FIELDS_IN_SELECT_CLAUSE("incompatible.fields.in.select.clause"),
-    INCOMPATIBLE_STREAM_ACTION_ARGUMENT("incompatible.stream.action.argument"),
-    INVALID_STREAM_ACTION_ARGUMENT_COUNT("invalid.stream.action.argument.count"),
-    INVALID_STREAM_ACTION_ARGUMENT_TYPE("invalid.stream.action.argument.type"),
-    INVALID_STREAM_ATTRIBUTE_TYPE("invalid.stream.attribute.type"),
-    STREAMING_INCOMPATIBLE_TYPES("streaming.incompatible.types"),
-    UNDEFINED_INVOCATION_ALIAS("undefined.invocation.alias"),
-    INVALID_STREAMING_MODEL_TYPE("invalid.streaming.model.type"),
-    PATTERNS_NOT_SUPPORTED("patterns.not.supported"),
+    INVALID_STREAM_CONSTRUCTOR("invalid.stream.constructor"),
 
     // Taint checking related codes
     ENTRY_POINT_PARAMETERS_CANNOT_BE_UNTAINTED("entry.point.parameters.cannot.be.untainted"),

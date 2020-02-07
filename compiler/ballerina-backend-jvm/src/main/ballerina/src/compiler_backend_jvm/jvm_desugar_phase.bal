@@ -19,7 +19,8 @@ import ballerina/bir;
 function addDefaultableBooleanVarsToSignature(bir:Function? func) {
     bir:Function currentFunc = getFunction(<@untainted> func);
     currentFunc.typeValue = currentFunc.typeValue.clone();
-    currentFunc.typeValue.paramTypes = updateParamTypesWithDefaultableBooleanVar(currentFunc.typeValue.paramTypes);
+    currentFunc.typeValue.paramTypes = updateParamTypesWithDefaultableBooleanVar(currentFunc.typeValue.paramTypes,
+    currentFunc.typeValue?.restType);
     int index = 0;
     bir:VariableDcl?[] updatedVars = [];
     bir:VariableDcl?[] localVars = currentFunc.localVars;
@@ -62,13 +63,14 @@ function enrichWithDefaultableParamInits(bir:Function currentFunc) {
 
     int paramCounter = 0;
     int paramBBCounter = 0;
+    var pos = currentFunc.pos;
     while (paramCounter < functionParams.length()) {
         var funcParam = functionParams[paramCounter];
         if (funcParam is bir:FunctionParam && funcParam.hasDefaultExpr) {
             int boolParam = paramCounter + 1;
             bir:FunctionParam funcBooleanParam = getFunctionParam(functionParams[boolParam]);
             bir:VarRef boolRef = {variableDcl:funcBooleanParam, typeValue:bir:TYPE_BOOLEAN};
-            bir:UnaryOp notOp = {pos:{}, kind:bir:INS_KIND_NOT, lhsOp:boolRef, rhsOp:boolRef};
+            bir:UnaryOp notOp = {pos:pos, kind:bir:INS_KIND_NOT, lhsOp:boolRef, rhsOp:boolRef};
             nextBB.instructions[nextBB.instructions.length()] = notOp;
             bir:BasicBlock?[] bbArray = currentFunc.paramDefaultBBs[paramBBCounter];
             bir:BasicBlock trueBB = getBasicBlock(bbArray[0]);
@@ -76,11 +78,11 @@ function enrichWithDefaultableParamInits(bir:Function currentFunc) {
                 basicBlocks[basicBlocks.length()] = getBasicBlock(defaultBB);
             }
             bir:BasicBlock falseBB = insertAndGetNextBasicBlock(basicBlocks);
-            bir:Branch branch = {pos:{}, falseBB:falseBB, kind:bir:TERMINATOR_BRANCH, op:boolRef, trueBB:trueBB};
+            bir:Branch branch = {pos:pos, falseBB:falseBB, kind:bir:TERMINATOR_BRANCH, op:boolRef, trueBB:trueBB};
             nextBB.terminator = branch;
 
             bir:BasicBlock lastBB = getBasicBlock(bbArray[bbArray.length() - 1]);
-            bir:GOTO gotoRet = {pos:{}, kind:bir:TERMINATOR_GOTO, targetBB:falseBB};
+            bir:GOTO gotoRet = {pos:pos, kind:bir:TERMINATOR_GOTO, targetBB:falseBB};
             lastBB.terminator = gotoRet;
 
             nextBB = falseBB;
@@ -102,7 +104,7 @@ function enrichWithDefaultableParamInits(bir:Function currentFunc) {
     int pl = currentFunc.basicBlocks.length();
     bir:BasicBlock firstBB = getBasicBlock(currentFunc.basicBlocks[0]);
 
-    bir:GOTO gotoRet = {pos:{}, kind:bir:TERMINATOR_GOTO, targetBB:firstBB};
+    bir:GOTO gotoRet = {pos:pos, kind:bir:TERMINATOR_GOTO, targetBB:firstBB};
     nextBB.terminator = gotoRet;
     foreach var bb in currentFunc.basicBlocks {
      	basicBlocks[basicBlocks.length()] = bb;
@@ -124,7 +126,7 @@ function getNextDesugarBBId(string prefix) returns bir:Name {
     return {value:bbIdPrefix + nextId.toString()};
 }
 
-function updateParamTypesWithDefaultableBooleanVar(bir:BType?[] funcParams) returns bir:BType?[] {
+function updateParamTypesWithDefaultableBooleanVar(bir:BType?[] funcParams, bir:BType? restType) returns bir:BType?[] {
     bir:BType?[] paramTypes = [];
 
     int counter = 0;
@@ -135,6 +137,10 @@ function updateParamTypesWithDefaultableBooleanVar(bir:BType?[] funcParams) retu
         paramTypes[index+1] = "boolean";
         index += 2;
         counter += 1;
+    }
+    if (!(restType is ())) {
+        paramTypes[index] = restType;
+        paramTypes[index+1] = "boolean";
     }
     return paramTypes;
 }

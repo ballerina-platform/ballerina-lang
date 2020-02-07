@@ -14,6 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerinax/java;
+
 # Represents the message a NATS Streaming Server sends to a subscription service.
 public type StreamingMessage client object {
    private byte[] content;
@@ -41,5 +43,12 @@ public type StreamingMessage client object {
    # Acknowledge the NATS Streaming server upon the receipt of the message.
    #
    # + return - Returns () if the acknowledgment completes successfully or an error.
-   public remote function ack() returns Error? = external;
+   public remote function ack() returns Error? {
+       return externAck(self);
+   }
 };
+
+function externAck(StreamingMessage message) returns Error? =
+@java:Method {
+    class: "org.ballerinalang.nats.streaming.message.Ack"
+} external;

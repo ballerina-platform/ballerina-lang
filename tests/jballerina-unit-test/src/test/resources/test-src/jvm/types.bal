@@ -128,11 +128,6 @@ function tableFunc() returns table<Grades> {
 
 }
 
-function streamFunc() returns stream<Grades> {
-    stream<Grades> gradesStream = new;
-    return gradesStream;
-}
-
 function arrayFunc(string[] strs) returns Grades[] {
     Grades g = {name: strs[0], physics: 75, chemistry: 65};
     Grades g1 = {name: strs[1], physics: 75, chemistry: 65};

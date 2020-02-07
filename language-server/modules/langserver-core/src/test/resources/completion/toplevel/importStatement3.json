@@ -86,6 +86,14 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "bir",
+      "kind": "Module",
+      "detail": "Package",
+      "sortText": "140",
+      "insertText": "bir",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "config",
       "kind": "Module",
       "detail": "Package",
@@ -115,14 +123,6 @@
       "detail": "Package",
       "sortText": "140",
       "insertText": "ldap",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "streams",
-      "kind": "Module",
-      "detail": "Package",
-      "sortText": "140",
-      "insertText": "streams",
       "insertTextFormat": "Snippet"
     },
     {
@@ -179,14 +179,6 @@
       "detail": "Package",
       "sortText": "140",
       "insertText": "encoding",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "utils",
-      "kind": "Module",
-      "detail": "Package",
-      "sortText": "140",
-      "insertText": "utils",
       "insertTextFormat": "Snippet"
     },
     {

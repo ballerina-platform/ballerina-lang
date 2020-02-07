@@ -227,3 +227,21 @@ function testIssueJwtWithCustomClaims(string keyStorePath) returns string|jwt:Er
 
     return jwt:issueJwt(header, payload, config);
 }
+
+function testValidateJwtWithInvalidSignature(string jwtToken, string trustStorePath)
+                                            returns @tainted (boolean|jwt:Error) {
+    crypto:TrustStore trustStore = { path: trustStorePath, password: "ballerina" };
+    jwt:JwtValidatorConfig config = {
+        trustStoreConfig: {
+            trustStore: trustStore,
+            certificateAlias: "ballerina"
+        }
+    };
+
+    var result = jwt:validateJwt(jwtToken, config);
+    if (result is jwt:JwtPayload) {
+        return true;
+    } else {
+        return result;
+    }
+}

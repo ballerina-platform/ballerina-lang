@@ -25,6 +25,7 @@ import java.util.Map;
 /**
  * Contains metadata relevant to taint-analysis.
  */
+@Deprecated
 public class TaintTableAttributeInfo implements AttributeInfo {
 
     // Index to a UTF8CPEntry

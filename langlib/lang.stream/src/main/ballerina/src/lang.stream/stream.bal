@@ -1,4 +1,4 @@
-// Copyright (c) 2019 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+// Copyright (c) 2020 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 //
 // WSO2 Inc. licenses this file to you under the Apache License,
 // Version 2.0 (the "License"); you may not use this file except
@@ -13,23 +13,33 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
-
+//TODO: stream<Type, E>, supporting E is not implemented yet.
 # A type parameter that is a subtype of `anydata|error`.
 # Has the special semantic that when used in a declaration
 # all uses in the declaration must refer to same type.
 @typeParam
-type PureType anydata|error;
+type PureType1 anydata | error;
 
-# Publishes data to the stream.
-#
-# + strm - the stream to publish to
-# + data - data to be published to the stream
-#
-# Each subscriber receives a separate clone of the data.
-public function publish(stream<PureType> strm, PureType data) = external;
+@typeParam
+type PureType2 anydata | error;
 
-# Subscribes to data from the stream.
+# Selects the members from an array for which a function returns true.
 #
-# + strm - the stream to subscribe to
-# + func - the function pointer for the subscription, which will be invoked with data published to the stream
-public function subscribe(stream<PureType> strm, function (PureType) func) = external;
+# + strm - The stream
+# + func - a predicate to apply to each member to test whether it should be selected
+# + return - new stream only containing members of `strm` for which `func` evaluates to true
+public function filter(stream<PureType1> strm, function(PureType1 val) returns boolean func) returns stream<PureType1> = external;
+
+# Returns the next element in the stream wrapped in a record or () if the stream ends.
+#
+# + strm - The stream
+# + return - If the stream has elements, return the element wrapped in a record with single field called `value`,
+#            otherwise returns ()
+public function next(stream<PureType1> strm) returns record {PureType1 value;}? = external;
+
+# Applies a function to each member of a stream and returns a new stream of the results.
+#
+# + strm - The stream
+# + func - A function to apply to each member
+# + return - New stream containing result of applying `func` to each member of `strm` in order
+public function 'map(stream<PureType1> strm, function(PureType1 val) returns PureType2 func) returns stream<PureType2> = external;

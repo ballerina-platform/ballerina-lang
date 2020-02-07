@@ -17,7 +17,8 @@
 */
 package org.ballerinalang.langserver.compiler.workspace;
 
-import org.ballerinalang.langserver.compiler.common.LSDocument;
+import org.ballerinalang.langserver.commons.workspace.LSDocumentIdentifier;
+import org.ballerinalang.langserver.compiler.common.LSDocumentIdentifierImpl;
 import org.eclipse.lsp4j.CodeLens;
 
 import java.nio.file.Path;
@@ -34,14 +35,14 @@ public class WorkspaceDocument {
     private String content;
     private String prunedContent;
     private boolean usePrunedSource;
-    private LSDocument lsDocument;
+    private LSDocumentIdentifier lsDocument;
 
     public WorkspaceDocument(Path path, String content, boolean isTempFile) {
         this.path = path;
         this.content = content;
         this.codeLenses = new ArrayList<>();
         this.usePrunedSource = false;
-        lsDocument = isTempFile ? null : new LSDocument(path.toUri().toString());
+        lsDocument = isTempFile ? null : new LSDocumentIdentifierImpl(path.toUri().toString());
     }
 
     public WorkspaceDocument(Path path, String content) {
@@ -71,10 +72,7 @@ public class WorkspaceDocument {
         pruned source within the operation as well as rhe flag
          */
         if (this.usePrunedSource) {
-            this.usePrunedSource = false;
-            String prunedSourceCopy = this.prunedContent;
-            this.prunedContent = null;
-            return prunedSourceCopy;
+            return this.prunedContent;
         }
         return content;
     }
@@ -88,7 +86,13 @@ public class WorkspaceDocument {
         this.usePrunedSource = true;
     }
 
-    public LSDocument getLSDocument() {
+    public void resetPrunedContent() {
+
+        this.prunedContent = null;
+        this.usePrunedSource = false;
+    }
+
+    public LSDocumentIdentifier getLSDocument() {
         return lsDocument;
     }
 

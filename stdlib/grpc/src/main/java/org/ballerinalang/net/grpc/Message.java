@@ -25,15 +25,18 @@ import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BRecordType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
+import org.ballerinalang.jvm.types.BUnionType;
 import org.ballerinalang.jvm.types.TypeFlags;
 import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
+import org.ballerinalang.jvm.values.api.BValueCreator;
 import org.ballerinalang.jvm.values.utils.StringUtils;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 
 import static org.ballerinalang.net.grpc.builder.utils.BalGenerationUtils.toCamelCase;
@@ -95,10 +98,75 @@ public class Message {
             Map<Integer, Descriptors.FieldDescriptor> fieldDescriptors)
             throws IOException {
         this(messageName);
+
+        if (bType instanceof BUnionType && ((BUnionType) bType).isNullable()) {
+            List<BType> memberTypes = ((BUnionType) bType).getMemberTypes();
+            if (memberTypes.size() != 2) {
+                throw Status.Code.INTERNAL.toStatus().withDescription("Error while decoding request " +
+                        "message. Field type is not a valid optional field type : " +
+                        bType.getName()).asRuntimeException();
+            }
+            for (BType memberType : memberTypes) {
+                if (memberType.getTag() != TypeTags.NULL_TAG) {
+                    bType = memberType;
+                    break;
+                }
+            }
+        }
+
         MapValue<String, Object> bMapValue = null;
         if (bType.getTag() == TypeTags.RECORD_TYPE_TAG) {
             bMapValue = new MapValueImpl<>(bType);
             bMessage = bMapValue;
+        }
+
+        if (input == null) {
+            if (bMapValue != null) {
+                for (Map.Entry<Integer, Descriptors.FieldDescriptor> entry : fieldDescriptors.entrySet()) {
+                    if (entry.getValue().getType().toProto().getNumber() ==
+                            DescriptorProtos.FieldDescriptorProto.Type.TYPE_MESSAGE_VALUE &&
+                            !entry.getValue().isRepeated()) {
+                        bMapValue.put(entry.getValue().getName(), null);
+                    } else if (entry.getValue().getType().toProto().getNumber() ==
+                            DescriptorProtos.FieldDescriptorProto.Type.TYPE_ENUM_VALUE) {
+                        bMapValue.put(entry.getValue().getName(),
+                                entry.getValue().getEnumType().findValueByNumber(0).toString());
+                    }
+                }
+            } else {
+                // Here fieldDescriptors map size should be one. Because the value can assign to one scalar field.
+                for (Map.Entry<Integer, Descriptors.FieldDescriptor> entry : fieldDescriptors.entrySet()) {
+                    switch (entry.getValue().getType().toProto().getNumber()) {
+                        case DescriptorProtos.FieldDescriptorProto.Type.TYPE_DOUBLE_VALUE:
+                        case DescriptorProtos.FieldDescriptorProto.Type.TYPE_FLOAT_VALUE: {
+                            bMessage = (double) 0;
+                            break;
+                        }
+                        case DescriptorProtos.FieldDescriptorProto.Type.TYPE_INT64_VALUE:
+                        case DescriptorProtos.FieldDescriptorProto.Type.TYPE_UINT64_VALUE:
+                        case DescriptorProtos.FieldDescriptorProto.Type.TYPE_INT32_VALUE:
+                        case DescriptorProtos.FieldDescriptorProto.Type.TYPE_FIXED64_VALUE:
+                        case DescriptorProtos.FieldDescriptorProto.Type.TYPE_FIXED32_VALUE: {
+                            bMessage = (long) 0;
+                            break;
+                        }
+                        case DescriptorProtos.FieldDescriptorProto.Type.TYPE_STRING_VALUE: {
+                            bMessage = "";
+                            break;
+                        }
+                        case DescriptorProtos.FieldDescriptorProto.Type.TYPE_BOOL_VALUE: {
+                            bMessage = Boolean.FALSE;
+                            break;
+                        }
+                        default: {
+                            throw Status.Code.INTERNAL.toStatus().withDescription("Error while decoding request " +
+                                    "message. Field type is not supported : " +
+                                    entry.getValue().getType()).asRuntimeException();
+                        }
+                    }
+                }
+            }
+            return;
         }
         boolean done = false;
         while (!done) {
@@ -320,7 +388,7 @@ public class Message {
                     case DescriptorProtos.FieldDescriptorProto.Type.TYPE_BYTES_VALUE: {
                         if (bMapValue != null) {
                              if (fieldDescriptor.getContainingOneof() != null) {
-                                Object bValue = new ArrayValueImpl(input.readByteArray());
+                                Object bValue = BValueCreator.createArrayValue(input.readByteArray());
                                 updateBMapValue(bType, bMapValue, fieldDescriptor, bValue);
                              } else {
                                  bMapValue.put(name, new ArrayValueImpl(input.readByteArray()));

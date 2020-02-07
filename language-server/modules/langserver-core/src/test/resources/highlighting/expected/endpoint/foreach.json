@@ -1,0 +1,11 @@
+{
+  "source": {
+    "file": "foreach.bal"
+  },
+  "result": [
+    {
+      "line":7,
+      "token":"WzIwLCAyLCAwXQ=="
+    }
+  ]
+}

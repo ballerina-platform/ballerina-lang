@@ -38,6 +38,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
@@ -86,6 +87,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKeyValue;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordVarRef;
@@ -94,7 +96,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangServiceConstructorE
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableLiteral;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableQueryExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTrapExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTupleVarRef;
@@ -128,7 +129,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangErrorDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangErrorVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangForever;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
@@ -1210,13 +1210,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         throw new RuntimeException("Deprecated lang feature");
     }
 
-    public void visit(BLangForever foreverStatement) {
-
-        checkExperimentalFeatureValidity(ExperimentalFeatures.STREAMING_QUERIES, foreverStatement.pos);
-        this.checkStatementExecutionValidity(foreverStatement);
-        this.lastStatement = true;
-    }
-
     private void analyzeExportableTypeRef(BSymbol owner, BTypeSymbol symbol, boolean inFuncSignature,
                                           DiagnosticPos pos) {
 
@@ -1270,6 +1263,18 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                 if (streamType.constraint != null) {
                     checkForExportableType(streamType.constraint.tsymbol, pos);
                 }
+                return;
+            case TypeTags.INVOKABLE:
+                BInvokableType invokableType = (BInvokableType) symbol.type;
+                if (invokableType.paramTypes != null) {
+                    for (BType paramType : invokableType.paramTypes) {
+                        checkForExportableType(paramType.tsymbol, pos);
+                    }
+                }
+                if (invokableType.restType != null) {
+                    checkForExportableType(invokableType.restType.tsymbol, pos);
+                }
+                checkForExportableType(invokableType.retType.tsymbol, pos);
                 return;
             // TODO : Add support for other types. such as union and objects
         }
@@ -1786,7 +1791,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                 String fieldName = keyRef.variableName.value;
 
                 if (names.contains(fieldName)) {
-                    String assigneeType = recordLiteral.parent.type.getKind().typeName();
+                    String assigneeType = recordLiteral.expectedType.getKind().typeName();
                     this.dlog.error(key.pos, DiagnosticCode.DUPLICATE_KEY_IN_RECORD_LITERAL, assigneeType, keyRef);
                 }
 
@@ -2223,12 +2228,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangTableQueryExpression tableQueryExpression) {
-
-        checkExperimentalFeatureValidity(ExperimentalFeatures.TABLE_QUERIES, tableQueryExpression.pos);
-    }
-
-    @Override
     public void visit(BLangRestArgsExpression bLangVarArgsExpression) {
 
         analyzeExpr(bLangVarArgsExpression.expr);
@@ -2255,10 +2254,13 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
         BType exprType = env.enclInvokable.getReturnTypeNode().type;
 
-        if (!hasError(exprType)) {
-            dlog.error(checkedExpr.pos, DiagnosticCode.CHECKED_EXPR_NO_ERROR_RETURN_IN_ENCL_INVOKABLE);
-        } else if (!types.isAssignable(getErrorTypes(checkedExpr.expr.type), exprType)) {
-            dlog.warning(checkedExpr.pos, DiagnosticCode.CHECKED_EXPR_NO_MATCHING_ERROR_RETURN_IN_ENCL_INVOKABLE);
+        if (!types.isAssignable(getErrorTypes(checkedExpr.expr.type), exprType)) {
+            dlog.error(checkedExpr.pos, DiagnosticCode.CHECKED_EXPR_NO_MATCHING_ERROR_RETURN_IN_ENCL_INVOKABLE);
+        }
+
+        if (checkReturnValidityInTransaction()) {
+            this.dlog.error(checkedExpr.pos, DiagnosticCode.CHECK_EXPRESSION_INVALID_USAGE_WITHIN_TRANSACTION_BLOCK);
+            return;
         }
 
         returnTypes.peek().add(exprType);
@@ -2271,6 +2273,11 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangServiceConstructorExpr serviceConstructorExpr) {
+    }
+
+    @Override
+    public void visit(BLangQueryExpr queryExpr) {
+        /* ignore */
     }
 
     @Override
@@ -2351,17 +2358,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         analyzeTypeNode(constant.typeNode, env);
         analyzeNode(constant.expr, env);
         analyzeExportableTypeRef(constant.symbol, constant.symbol.type.tsymbol, false, constant.pos);
-    }
-
-    private boolean hasError(BType type) {
-        switch (type.tag) {
-            case TypeTags.ERROR:
-                return true;
-            case TypeTags.UNION:
-                return ((BUnionType) type).getMemberTypes().stream().anyMatch(memType -> memType.tag == TypeTags.ERROR);
-            default:
-                return false;
-        }
     }
 
     /**
@@ -2732,8 +2728,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
      */
     private enum ExperimentalFeatures {
         STREAMS("stream"),
-        TABLE_QUERIES("table queries"),
-        STREAMING_QUERIES("streaming queries"),
         TRANSACTIONS("transaction"),
         LOCK("lock"),
         XML_ACCESS("xml access expression"),

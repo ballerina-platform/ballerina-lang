@@ -22,6 +22,7 @@ package org.wso2.ballerinalang.programfile;
  *
  * @since 0.88
  */
+@Deprecated
 public class LocalVariableInfo {
 
     public int varNameCPIndex;

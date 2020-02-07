@@ -17,7 +17,9 @@
 */
 package org.ballerinalang.langserver.compiler;
 
-import org.ballerinalang.langserver.compiler.common.LSDocument;
+import org.ballerinalang.langserver.commons.LSContext;
+import org.ballerinalang.langserver.commons.workspace.LSDocumentIdentifier;
+import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.model.elements.PackageID;
 import org.eclipse.lsp4j.DocumentSymbol;
 import org.eclipse.lsp4j.SymbolInformation;
@@ -57,14 +59,16 @@ public class DocumentServiceKeys {
             = new LSContext.Key<>();
     public static final LSContext.Key<String> SYMBOL_QUERY
             = new LSContext.Key<>();
-    public static final LSContext.Key<LSDocument> LS_DOCUMENT_KEY
+    public static final LSContext.Key<LSDocumentIdentifier> LS_DOCUMENT_KEY
             = new LSContext.Key<>();
     public static final LSContext.Key<List<BLangImportPackage>> CURRENT_DOC_IMPORTS_KEY
-            = new LSContext.Key<>();
-    public static final LSContext.Key<Boolean> TERMINATE_OPERATION_KEY
             = new LSContext.Key<>();
     public static final LSContext.Key<Boolean> IS_CACHE_SUPPORTED
             = new LSContext.Key<>();
     public static final LSContext.Key<Boolean> IS_CACHE_OUTDATED_SUPPORTED
+            = new LSContext.Key<>();
+    public static final LSContext.Key<Boolean> COMPILE_FULL_PROJECT
+            = new LSContext.Key<>();
+    public static final LSContext.Key<WorkspaceDocumentManager> DOC_MANAGER_KEY
             = new LSContext.Key<>();
 }

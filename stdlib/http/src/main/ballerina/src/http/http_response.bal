@@ -19,6 +19,8 @@ import ballerina/mime;
 import ballerina/crypto;
 import ballerina/time;
 import ballerina/stringutils;
+import ballerinax/java;
+import ballerina/log;
 
 # Represents an HTTP response.
 #
@@ -39,7 +41,7 @@ public type Response object {
 
     int receivedTime = 0;
     int requestTime = 0;
-    private mime:Entity entity;
+    private mime:Entity? entity = ();
 
     public function __init() {
         self.entity = self.createNewEntity();
@@ -48,58 +50,72 @@ public type Response object {
     # Create a new `Entity` and link it with the response.
     #
     # + return - Newly created `Entity` that has been set to the response
-    function createNewEntity() returns mime:Entity = external;
+    function createNewEntity() returns mime:Entity {
+        return externCreateNewResEntity(self);
+    }
 
     # Gets the `Entity` associated with the response.
     #
     # + return - The `Entity` of the response. An `http:ClientError` is returned, if entity construction fails
-    public function getEntity() returns mime:Entity|ClientError = external;
+    public function getEntity() returns mime:Entity|ClientError {
+        return externGetResEntity(self);
+    }
 
     //Gets the `Entity` from the response without the entity body. This function is exposed only to be used internally.
-    function getEntityWithoutBody() returns mime:Entity = external;
+    function getEntityWithoutBody() returns mime:Entity {
+        return externGetResEntityWithoutBody(self);
+    }
 
     # Sets the provided `Entity` to the response.
     #
     # + e - The `Entity` to be set to the response
-    public function setEntity(mime:Entity e) = external;
+    public function setEntity(mime:Entity e) {
+        return externSetResEntity(self, e);
+    }
 
     # Checks whether the requested header key exists in the header map.
     #
     # + headerName - The header name
+    # + position - Represents the position of the header as an optional parameter
     # + return - Returns true if the specified header key exists
-    public function hasHeader(string headerName) returns boolean {
+    public function hasHeader(string headerName, public mime:HeaderPosition position = mime:LEADING) returns boolean {
         mime:Entity entity = self.getEntityWithoutBody();
-        return entity.hasHeader(headerName);
+        return entity.hasHeader(headerName, position);
     }
 
     # Returns the value of the specified header. If the specified header key maps to multiple values, the first of
     # these values is returned.
     #
     # + headerName - The header name
+    # + position - Represents the position of the header as an optional parameter
     # + return - The first header value for the specified header name. An exception is thrown if no header is found. Use
     #            `Response.hasHeader()` beforehand to check the existence of header.
-    public function getHeader(string headerName) returns @tainted string {
+    public function getHeader(string headerName, public mime:HeaderPosition position = mime:LEADING)
+                                                                                            returns @tainted string {
         mime:Entity entity = self.getEntityWithoutBody();
-        return entity.getHeader(headerName);
+        return entity.getHeader(headerName, position);
     }
 
     # Adds the specified header to the response. Existing header values are not replaced.
     #
     # + headerName - The header name
     # + headerValue - The header value
-    public function addHeader(string headerName, string headerValue) {
+    # + position - Represents the position of the header as an optional parameter
+    public function addHeader(string headerName, string headerValue, public mime:HeaderPosition position = mime:LEADING) {
         mime:Entity entity = self.getEntityWithoutBody();
-        entity.addHeader(headerName, headerValue);
+        entity.addHeader(headerName, headerValue, position);
     }
 
     # Gets all the header values to which the specified header key maps to.
     #
     # + headerName - The header name
+    # + position - Represents the position of the header as an optional parameter
     # + return - The header values the specified header key maps to. An exception is thrown if no header is found. Use
     #            `Response.hasHeader()` beforehand to check the existence of header.
-    public function getHeaders(string headerName) returns @tainted string[] {
+    public function getHeaders(string headerName, public mime:HeaderPosition position = mime:LEADING)
+                                                                                            returns @tainted string[] {
         mime:Entity entity = self.getEntityWithoutBody();
-        return entity.getHeaders(headerName);
+        return entity.getHeaders(headerName, position);
     }
 
     # Sets the specified header to the response. If a mapping already exists for the specified header key, the
@@ -107,9 +123,10 @@ public type Response object {
     #
     # + headerName - The header name
     # + headerValue - The header value
-    public function setHeader(string headerName, string headerValue) {
+    # + position - Represents the position of the header as an optional parameter
+    public function setHeader(string headerName, string headerValue, public mime:HeaderPosition position = mime:LEADING) {
         mime:Entity entity = self.getEntityWithoutBody();
-        entity.setHeader(headerName, headerValue);
+        entity.setHeader(headerName, headerValue, position);
 
         // TODO: see if this can be handled in a better manner
         if (stringutils:equalsIgnoreCase(SERVER, headerName)) {
@@ -120,23 +137,27 @@ public type Response object {
     # Removes the specified header from the response.
     #
     # + key - The header name
-    public function removeHeader(string key) {
+    # + position - Represents the position of the header as an optional parameter
+    public function removeHeader(string key, public mime:HeaderPosition position = mime:LEADING) {
         mime:Entity entity = self.getEntityWithoutBody();
-        entity.removeHeader(key);
+        entity.removeHeader(key, position);
     }
 
     # Removes all the headers from the response.
-    public function removeAllHeaders() {
+    #
+    # + position - Represents the position of the header as an optional parameter
+    public function removeAllHeaders(public mime:HeaderPosition position = mime:LEADING) {
         mime:Entity entity = self.getEntityWithoutBody();
-        entity.removeAllHeaders();
+        entity.removeAllHeaders(position);
     }
 
     # Gets all the names of the headers of the response.
     #
+    # + position - Represents the position of the header as an optional parameter
     # + return - An array of all the header names
-    public function getHeaderNames() returns @tainted string[] {
+    public function getHeaderNames(public mime:HeaderPosition position = mime:LEADING) returns @tainted string[] {
         mime:Entity entity = self.getEntityWithoutBody();
-        return entity.getHeaderNames();
+        return entity.getHeaderNames(position);
     }
 
     # Sets the `content-type` header to the response.
@@ -385,14 +406,73 @@ public type Response object {
             self.setTextPayload(payload);
         } else if (payload is xml) {
             self.setXmlPayload(payload);
-        } else if (payload is json) {
-            self.setJsonPayload(payload);
         } else if (payload is byte[]) {
             self.setBinaryPayload(payload);
+        } else if (payload is json) {
+            self.setJsonPayload(payload);
         } else if (payload is io:ReadableByteChannel) {
             self.setByteChannel(payload);
         } else {
             self.setBodyParts(payload);
         }
     }
+
+    # Adds the cookie to response.
+    #
+    # + cookie - The cookie, which is added to response
+    public function addCookie(Cookie cookie) {
+        var result = cookie.isValid();
+        if (result is boolean) {
+            self.addHeader("Set-Cookie", cookie.toStringValue());
+        } else {
+            log:printError("Invalid Cookie", result);
+        }
+    }
+
+    # Deletes the cookies in the client's cookie store.
+    #
+    # + cookiesToRemove - Cookies to be deleted
+    public function removeCookiesFromRemoteStore(Cookie...cookiesToRemove) {
+        foreach var cookie in cookiesToRemove {
+            cookie.expires = "1994-03-12 08:12:22";
+            cookie.maxAge = 0;
+            self.addCookie(cookie);
+        }
+    }
+
+    # Gets cookies from the response.
+    #
+    # + return - An array of cookie objects, which are included in the response
+    public function getCookies() returns @tainted Cookie[] {
+        Cookie[] cookiesInResponse = [];
+        string[] cookiesStringValues = self.getHeaders("Set-Cookie");
+        foreach string cookiesStringValue in cookiesStringValues {
+            cookiesInResponse.push(parseSetCookieHeader(cookiesStringValue));
+        }
+        return cookiesInResponse;
+    }
 };
+
+function externCreateNewResEntity(Response response) returns mime:Entity =
+@java:Method {
+    class: "org.ballerinalang.net.http.nativeimpl.ExternResponse",
+    name: "createNewEntity"
+} external;
+
+function externSetResEntity(Response response, mime:Entity entity) =
+@java:Method {
+    class: "org.ballerinalang.net.http.nativeimpl.ExternResponse",
+    name: "setEntity"
+} external;
+
+function externGetResEntity(Response response) returns mime:Entity|ClientError =
+@java:Method {
+    class: "org.ballerinalang.net.http.nativeimpl.ExternResponse",
+    name: "getEntity"
+} external;
+
+function externGetResEntityWithoutBody(Response response) returns mime:Entity =
+@java:Method {
+    class: "org.ballerinalang.net.http.nativeimpl.ExternResponse",
+    name: "getEntityWithoutBody"
+} external;

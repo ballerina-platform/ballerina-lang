@@ -14,6 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerinax/java;
+
 # NATS `StreamingProducer` would act as a client allowing to publish messages to the
 # NATS streaming server. `StreamingProducer` needs the NATS `Connection` to be initialized.
 public type StreamingProducer client object {
@@ -28,7 +30,7 @@ public type StreamingProducer client object {
     public function __init(Connection connection, public string? clientId = (), public string clusterId = "test-cluster",
     public StreamingConfig? streamingConfig = ()) {
         self.conn = connection;
-        createStreamingConnection(self, connection, clusterId, clientId, streamingConfig);
+        streamingProducerInit(self, connection, java:fromString(clusterId), clientId, streamingConfig);
     }
 
     # Publishes data to a given subject.
@@ -49,11 +51,19 @@ public type StreamingProducer client object {
         if (converted is error) {
             return prepareError("Error in data conversion", err = converted);
         } else {
-            return self.externPublish(subject, converted);
+            handle | Error result = externStreamingPublish(self, java:fromString(subject), converted);
+            if (result is handle) {
+                var stringResult = java:toString(result);
+                if (stringResult is string) {
+                    return stringResult;
+                } else {
+                    return prepareError("Error in value returned while publishing.");
+                }
+            } else {
+                return result;
+            }
         }
     }
-
-    function externPublish(string subject, string | byte[] data) returns string | Error = external;
 
     # Close the producer.
     #
@@ -62,13 +72,24 @@ public type StreamingProducer client object {
         if (self.conn is Connection) {
             Connection? natsConnection = self.conn;
             self.conn = ();
-            return detachFromNatsConnection(self, natsConnection);
+            return streamingProducerClose(self, natsConnection);
         }
     }
 };
 
-function detachFromNatsConnection(StreamingProducer|StreamingListener streamingClient, Connection? natsConnection)
-returns error? = external;
+function streamingProducerInit(StreamingProducer streamingClient, Connection? conn,
+handle clusterId, string? clientId, StreamingConfig? streamingConfig) =
+@java:Method {
+    class: "org.ballerinalang.nats.streaming.producer.Init"
+} external;
 
-function createStreamingConnection(StreamingProducer|StreamingListener streamingClient, Connection? conn,
-string clusterId, string? clientId, StreamingConfig? streamingConfig) = external;
+function streamingProducerClose(StreamingProducer streamingClient, Connection? natsConnection)
+returns error? =
+@java:Method {
+    class: "org.ballerinalang.nats.streaming.producer.Close"
+} external;
+
+function externStreamingPublish(StreamingProducer producer, handle subject, string | byte[] data) returns handle | Error =
+@java:Method {
+    class: "org.ballerinalang.nats.streaming.producer.Publish"
+} external;

@@ -33,7 +33,6 @@ dependencies {
     baloImplementation project(path: ':ballerina-http', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-observability', configuration: 'baloImplementation')
     baloImplementation project(path: ":ballerina-config-api", configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-utils', configuration: 'baloImplementation')
 
     // transitive
     baloImplementation project(path: ":ballerina-system", configuration: 'baloImplementation')
@@ -53,6 +52,19 @@ dependencies {
     baloImplementation project(path: ':ballerina-auth', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-lang:annotations', configuration: 'baloImplementation')
 
+    interopImports project(':ballerina-config-api')
+    interopImports project(':ballerina-http')
+    interopImports project(':ballerina-io')
+    interopImports project(':ballerina-log-api')
+    interopImports project(':ballerina-math')
+    interopImports project(':ballerina-system')
+    interopImports project(':ballerina-task')
+    interopImports project(':ballerina-time')
+    interopImports project(':ballerina-reflect')
+    interopImports project(':ballerina-crypto')
+    interopImports project(':ballerina-runtime-api')
+    interopImports project(':ballerina-mime')
+
     implementation project(':ballerina-system')
     implementation project(':ballerina-tool')
     implementation project(':ballerina-lang')
@@ -63,7 +75,6 @@ dependencies {
     implementation project(':ballerina-observability')
     implementation project(":ballerina-config-api")
     implementation project(':ballerina-math')
-    implementation project(":ballerina-crypto")
     implementation project(':ballerina-time')
     implementation project(':ballerina-mime')
     implementation project(':ballerina-io')
@@ -73,7 +84,6 @@ dependencies {
     implementation project(':ballerina-log-api')
     implementation project(':ballerina-reflect')
     implementation project(':ballerina-auth')
-    implementation project(':ballerina-utils')
     implementation project(':ballerina-config')
     implementation project(':ballerina-runtime')
 }

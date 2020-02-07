@@ -78,7 +78,7 @@ public class WorkspaceTest {
     public Object[][] workspaceSymbolDataProvider() {
         log.info("Test workspace/symbol");
         return new Object[][] {
-//                {"workspaceSymbolWithQuery.json", "test"},
+                {"workspaceSymbolWithQuery.json", "test"},
                 {"workspaceSymbol.json", ""},
         };
     }

@@ -29,6 +29,8 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
@@ -51,26 +53,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangFunctionClause;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangGroupBy;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangHaving;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangJoinStreamingInput;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangLimit;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangOrderBy;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangOrderByVariable;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangOutputRateLimit;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangPatternClause;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangPatternStreamingEdgeInput;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangPatternStreamingInput;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectExpression;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangSetAssignment;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangStreamAction;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangStreamingInput;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangTableQuery;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhere;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangWindow;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangWithinClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAccessExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
@@ -87,7 +69,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIntRangeExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation.BLangActionInvocation;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation.BLangBuiltInMethodInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIsAssignableExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
@@ -98,6 +79,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownReturnParam
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression.BLangMatchExprPatternClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRestArgsExpression;
@@ -105,7 +87,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangServiceConstructorE
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableLiteral;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableQueryExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTrapExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTupleVarRef;
@@ -140,7 +121,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangErrorDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangErrorVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangForever;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
@@ -153,7 +133,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRetry;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangStreamingQueryStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangThrow;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTryCatchFinally;
@@ -471,8 +450,14 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangWhile whileNode) {
+        Map<BSymbol, InitStatus> prevUninitializedVars = this.uninitializedVars;
         analyzeNode(whileNode.expr, env);
         analyzeNode(whileNode.body, env);
+        for (BSymbol symbol : prevUninitializedVars.keySet()) {
+            if (!this.uninitializedVars.containsKey(symbol)) {
+                this.uninitializedVars.put(symbol, InitStatus.PARTIAL_INIT);
+            }
+        }
     }
 
     @Override
@@ -505,15 +490,6 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangForkJoin forkJoin) {
          /* ignore */
-    }
-
-    @Override
-    public void visit(BLangFunctionClause functionClause) {
-    }
-
-    @Override
-    public void visit(BLangSetAssignment setAssignmentClause) {
-        analyzeNode((BLangNode) setAssignmentClause.getExpressionNode(), env);
     }
 
     @Override
@@ -579,6 +555,16 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangInvocation invocationExpr) {
         analyzeNode(invocationExpr.expr, env);
+        if (!isFieldsInitializedForSelfArgument(invocationExpr)) {
+            return;
+        }
+        if (!isFieldsInitializedForSelfInvocation(invocationExpr.requiredArgs, invocationExpr.pos)) {
+            return;
+        }
+        if (!isFieldsInitializedForSelfInvocation(invocationExpr.restArgs, invocationExpr.pos)) {
+            return;
+        }
+
         invocationExpr.requiredArgs.forEach(expr -> analyzeNode(expr, env));
         invocationExpr.restArgs.forEach(expr -> analyzeNode(expr, env));
         BSymbol owner = this.env.scope.owner;
@@ -602,6 +588,66 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
                 addDependency(curDependent, invokableProviderSymbol);
             }
         }
+    }
+
+    @Override
+    public void visit(BLangQueryExpr queryExpr) {
+        /* ignore */
+    }
+
+    private boolean isFieldsInitializedForSelfArgument(BLangInvocation invocationExpr) {
+
+        if (invocationExpr.expr == null || !isSelfKeyWordExpr(invocationExpr.expr)) {
+            return true;
+        }
+        StringBuilder uninitializedFields =
+                getUninitializedFieldsForSelfKeyword((BObjectType) ((BLangSimpleVarRef)
+                        invocationExpr.expr).symbol.type);
+        if (uninitializedFields.length() != 0) {
+            this.dlog.error(invocationExpr.pos, DiagnosticCode.CONTAINS_UNINITIALIZED_FIELDS,
+                    uninitializedFields.toString());
+            return false;
+        }
+        return true;
+    }
+
+    private boolean isFieldsInitializedForSelfInvocation(List<BLangExpression> argExpressions, DiagnosticPos pos) {
+
+        for (BLangExpression expr : argExpressions) {
+            if (isSelfKeyWordExpr(expr)) {
+                StringBuilder uninitializedFields =
+                        getUninitializedFieldsForSelfKeyword((BObjectType) ((BLangSimpleVarRef) expr).symbol.type);
+                if (uninitializedFields.length() != 0) {
+                    this.dlog.error(pos, DiagnosticCode.CONTAINS_UNINITIALIZED_FIELDS,
+                            uninitializedFields.toString());
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    private boolean isSelfKeyWordExpr(BLangExpression expr) {
+
+        return expr.getKind() == NodeKind.SIMPLE_VARIABLE_REF &&
+                Names.SELF.value.equals(((BLangSimpleVarRef) expr).getVariableName().getValue());
+    }
+
+    private StringBuilder getUninitializedFieldsForSelfKeyword(BObjectType objType) {
+
+        boolean isFirstUninitializedField = true;
+        StringBuilder uninitializedFields = new StringBuilder();
+        for (BField field : objType.fields) {
+            if (this.uninitializedVars.containsKey(field.symbol)) {
+                if (isFirstUninitializedField) {
+                    uninitializedFields = new StringBuilder(field.symbol.getName().value);
+                    isFirstUninitializedField = false;
+                } else {
+                    uninitializedFields.append(", ").append(field.symbol.getName().value);
+                }
+            }
+        }
+        return uninitializedFields;
     }
 
     private boolean isGlobalVarSymbol(BSymbol symbol) {
@@ -760,12 +806,6 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangTableQueryExpression tableQueryExpression) {
-        tableQueryExpression.getParams().forEach(param -> analyzeNode(param, env));
-        analyzeNode((BLangNode) tableQueryExpression.getTableQuery(), env);
-    }
-
-    @Override
     public void visit(BLangRestArgsExpression bLangVarArgsExpression) {
         analyzeNode(bLangVarArgsExpression.expr, env);
     }
@@ -773,10 +813,6 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangNamedArgsExpression bLangNamedArgsExpression) {
         analyzeNode(bLangNamedArgsExpression.expr, env);
-    }
-
-    @Override
-    public void visit(BLangPatternClause patternClause) {
     }
 
     @Override
@@ -840,73 +876,6 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangOrderBy orderBy) {
-    }
-
-    @Override
-    public void visit(BLangOrderByVariable orderByVariable) {
-    }
-
-    @Override
-    public void visit(BLangLimit limit) {
-    }
-
-    @Override
-    public void visit(BLangGroupBy groupBy) {
-    }
-
-    @Override
-    public void visit(BLangHaving having) {
-    }
-
-    @Override
-    public void visit(BLangSelectExpression selectExpression) {
-    }
-
-    @Override
-    public void visit(BLangSelectClause selectClause) {
-    }
-
-    @Override
-    public void visit(BLangWhere whereClause) {
-    }
-
-    @Override
-    public void visit(BLangStreamingInput streamingInput) {
-    }
-
-    @Override
-    public void visit(BLangJoinStreamingInput joinStreamingInput) {
-    }
-
-    @Override
-    public void visit(BLangTableQuery tableQuery) {
-    }
-
-    @Override
-    public void visit(BLangStreamAction streamAction) {
-    }
-
-    @Override
-    public void visit(BLangPatternStreamingEdgeInput patternStreamingEdgeInput) {
-    }
-
-    @Override
-    public void visit(BLangWindow windowClause) {
-    }
-
-    @Override
-    public void visit(BLangPatternStreamingInput patternStreamingInput) {
-    }
-
-    @Override
-    public void visit(BLangForever foreverStatement) {
-        // marks the injected transaction import as used
-        Name compUnitName = names.fromString(foreverStatement.pos.getSource().getCompilationUnitName());
-        this.symResolver.resolvePrefixSymbol(env, Names.STREAMS_MODULE, compUnitName);
-    }
-
-    @Override
     public void visit(BLangActionInvocation actionInvocationExpr) {
     }
 
@@ -926,18 +895,6 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
                         closureVarSymbol.bSymbol);
             }
         });
-    }
-
-    @Override
-    public void visit(BLangStreamingQueryStatement streamingQueryStatement) {
-    }
-
-    @Override
-    public void visit(BLangWithinClause withinClause) {
-    }
-
-    @Override
-    public void visit(BLangOutputRateLimit outputRateLimit) {
     }
 
     @Override
@@ -1078,12 +1035,6 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         // panic statement will terminate the flow. There will be no uninitialized
         // variables left after the panic statement.
         terminateFlow();
-    }
-
-    @Override
-    public void visit(BLangBuiltInMethodInvocation builtInMethodInvocation) {
-        analyzeNode(builtInMethodInvocation.expr, env);
-        builtInMethodInvocation.argExprs.forEach(argExpr -> analyzeNode(argExpr, env));
     }
 
     @Override

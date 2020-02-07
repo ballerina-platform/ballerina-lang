@@ -122,8 +122,6 @@ public abstract class AbstractStub {
     private void setOutboundReqProperties(HttpCarbonMessage outboundRequest, URL url, int port, String host) {
         outboundRequest.setProperty(Constants.HTTP_HOST, host);
         outboundRequest.setProperty(Constants.HTTP_PORT, port);
-        String outboundReqPath = url.getPath();
-        outboundRequest.setProperty(HttpConstants.TO, outboundReqPath);
         outboundRequest.setProperty(HttpConstants.PROTOCOL, url.getProtocol());
     }
 

@@ -63,9 +63,9 @@ public type JwtHeader record {|
 # + sub - Subject, identifies the principal that is the subject of the JWT
 # + aud - Audience, identifies the recipients that the JWT is intended for
 # + jti - JWT ID, unique identifier for the JWT
-# + exp - Expiration time,  identifies the expiration time on or after which the JWT must not be accepted
-# + nbf - Not before, identifies the time before which the JWT must not be accepted
-# + iat - Issued at, identifies the time at which the JWT was issued
+# + exp - Expiration time, identifies the expiration time (seconds since the Epoch) on or after which the JWT must not be accepted
+# + nbf - Not before, identifies the time (seconds since the Epoch) before which the JWT must not be accepted
+# + iat - Issued at, identifies the time (seconds since the Epoch) at which the JWT was issued
 # + customClaims - Map of custom claims
 public type JwtPayload record {|
     string iss?;

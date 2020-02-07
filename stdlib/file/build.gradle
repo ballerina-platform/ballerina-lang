@@ -38,7 +38,10 @@ dependencies {
     baloImplementation project(path: ':ballerina-runtime-api', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-time', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-lang:internal', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-java', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-io', configuration: 'baloImplementation')
+
+    interopImports project(':ballerina-time')
 
     testCompile project(':ballerina-test-utils')
     testCompile project(':ballerina-reflect')

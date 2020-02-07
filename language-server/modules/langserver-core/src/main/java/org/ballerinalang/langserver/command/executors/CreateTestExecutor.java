@@ -23,18 +23,18 @@ import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.BallerinaLanguageServer;
 import org.ballerinalang.langserver.BallerinaWorkspaceService;
 import org.ballerinalang.langserver.client.ExtendedLanguageClient;
-import org.ballerinalang.langserver.command.ExecuteCommandKeys;
-import org.ballerinalang.langserver.command.LSCommandExecutor;
-import org.ballerinalang.langserver.command.LSCommandExecutorException;
 import org.ballerinalang.langserver.command.testgen.TestGenerator;
 import org.ballerinalang.langserver.command.testgen.TestGeneratorException;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
+import org.ballerinalang.langserver.commons.LSContext;
+import org.ballerinalang.langserver.commons.command.ExecuteCommandKeys;
+import org.ballerinalang.langserver.commons.command.LSCommandExecutorException;
+import org.ballerinalang.langserver.commons.command.spi.LSCommandExecutor;
+import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSCompilerUtil;
-import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.compiler.LSModuleCompiler;
 import org.ballerinalang.langserver.compiler.exception.CompilationFailedException;
-import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
 import org.eclipse.lsp4j.ApplyWorkspaceEditParams;
 import org.eclipse.lsp4j.CreateFile;
 import org.eclipse.lsp4j.Location;
@@ -48,6 +48,8 @@ import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lsp4j.VersionedTextDocumentIdentifier;
 import org.eclipse.lsp4j.WorkspaceEdit;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
+import org.eclipse.lsp4j.services.LanguageClient;
+import org.eclipse.lsp4j.services.LanguageServer;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
@@ -62,7 +64,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiConsumer;
 
-import static org.ballerinalang.langserver.BallerinaWorkspaceService.Experimental.SHOW_TEXT_DOCUMENT;
+import static org.ballerinalang.langserver.Experimental.SHOW_TEXT_DOCUMENT;
 import static org.ballerinalang.langserver.command.CommandUtil.getBLangNode;
 
 /**
@@ -70,7 +72,7 @@ import static org.ballerinalang.langserver.command.CommandUtil.getBLangNode;
  *
  * @since 0.985.0
  */
-@JavaSPIService("org.ballerinalang.langserver.command.LSCommandExecutor")
+@JavaSPIService("org.ballerinalang.langserver.commons.command.spi.LSCommandExecutor")
 public class CreateTestExecutor implements LSCommandExecutor {
 
     public static final String COMMAND = "CREATE_TEST";
@@ -161,7 +163,7 @@ public class CreateTestExecutor implements LSCommandExecutor {
             throw new LSCommandExecutorException("Invalid parameters received for the create test command!");
         }
 
-        WorkspaceDocumentManager docManager = context.get(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY);
+        WorkspaceDocumentManager docManager = context.get(DocumentServiceKeys.DOC_MANAGER_KEY);
 
         // Compile the source file
         BLangPackage builtSourceFile;
@@ -172,9 +174,13 @@ public class CreateTestExecutor implements LSCommandExecutor {
         }
 
         // Generate test file and notify Client
-        BallerinaLanguageServer ballerinaLanguageServer = context.get(ExecuteCommandKeys.LANGUAGE_SERVER_KEY);
-        ExtendedLanguageClient client = ballerinaLanguageServer.getClient();
-        BallerinaWorkspaceService workspace = (BallerinaWorkspaceService) ballerinaLanguageServer.getWorkspaceService();
+        LanguageServer languageServer = context.get(ExecuteCommandKeys.LANGUAGE_SERVER_KEY);
+        BallerinaWorkspaceService workspace = null;
+        if (languageServer instanceof BallerinaLanguageServer) {
+            BallerinaLanguageServer ballerinaLanguageServer = (BallerinaLanguageServer) languageServer;
+            workspace = (BallerinaWorkspaceService) ballerinaLanguageServer.getWorkspaceService();
+        }
+        LanguageClient client = context.get(ExecuteCommandKeys.LANGUAGE_CLIENT_KEY);
         try {
             if (builtSourceFile == null || builtSourceFile.diagCollector.hasErrors()) {
                 String message = "Test generation failed due to compilation errors!";
@@ -226,10 +232,7 @@ public class CreateTestExecutor implements LSCommandExecutor {
                 client.applyEdit(editParams);
                 String message = "Tests generated into the file:" + testFile.toString();
                 client.showMessage(new MessageParams(MessageType.Info, message));
-                if (workspace.getExperimentalClientCapabilities().get(SHOW_TEXT_DOCUMENT.getValue())) {
-                    Location location = new Location(identifier.getUri(), focus);
-                    client.showTextDocument(location);
-                }
+                showTextDocument(workspace, client, focus, identifier);
             }
             return editParams;
         } catch (TestGeneratorException | CompilationFailedException e) {
@@ -238,6 +241,15 @@ public class CreateTestExecutor implements LSCommandExecutor {
                 client.showMessage(new MessageParams(MessageType.Error, message));
             }
             throw new LSCommandExecutorException(message, e);
+        }
+    }
+
+    private void showTextDocument(BallerinaWorkspaceService workspace, LanguageClient client, Range focus,
+                                  VersionedTextDocumentIdentifier identifier) {
+        if (workspace != null && workspace.getExperimentalClientCapabilities().get(SHOW_TEXT_DOCUMENT.getValue()) &&
+                client instanceof ExtendedLanguageClient) {
+            Location location = new Location(identifier.getUri(), focus);
+            ((ExtendedLanguageClient) client).showTextDocument(location);
         }
     }
 

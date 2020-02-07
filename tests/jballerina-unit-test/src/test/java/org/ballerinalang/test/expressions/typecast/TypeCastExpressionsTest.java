@@ -151,13 +151,6 @@ public class TypeCastExpressionsTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-        expectedExceptionsMessageRegExp = "error: \\{ballerina\\}TypeCastError message=incompatible types:" +
-                " 'stream<int>' cannot be cast to 'stream<boolean>'.*")
-    public void testStreamCastNegative() {
-        BRunUtil.invoke(result, "testStreamCastNegative");
-    }
-
-    @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = ".*incompatible types: 'typedesc' cannot be cast to 'int'.*")
     public void testTypedescCastNegative() {
         BRunUtil.invoke(result, "testTypedescCastNegative");
@@ -173,13 +166,6 @@ public class TypeCastExpressionsTest {
             expectedExceptionsMessageRegExp = ".*incompatible types: 'string' cannot be cast to 'int'.*")
     public void testListElementCastNegative() {
         BRunUtil.invoke(result, "testListElementCastNegative");
-    }
-
-    @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}TypeCastError message=incompatible " +
-                    "types: 'stream<int\\|float>' cannot be cast to 'stream<boolean\\|error>'.*")
-    public void testOutOfOrderUnionConstraintCastNegative() {
-        BRunUtil.invoke(result, "testOutOfOrderUnionConstraintCastNegative");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
@@ -312,7 +298,6 @@ public class TypeCastExpressionsTest {
                 {"testFunctionCastPositive"},
                 {"testFutureCastPositive"},
                 {"testObjectCastPositive"},
-                {"testStreamCastPositive"},
                 {"testTypedescCastPositive"},
                 {"testMapElementCastPositive"},
                 {"testListElementCastPositive"},

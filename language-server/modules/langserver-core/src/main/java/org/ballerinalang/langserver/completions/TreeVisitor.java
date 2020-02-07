@@ -17,12 +17,14 @@
 */
 package org.ballerinalang.langserver.completions;
 
-import org.ballerinalang.langserver.AnnotationNodeKind;
 import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.common.LSNodeVisitor;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.commons.LSContext;
+import org.ballerinalang.langserver.commons.completion.AnnotationNodeKind;
+import org.ballerinalang.langserver.commons.completion.CompletionKeys;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
-import org.ballerinalang.langserver.compiler.LSContext;
+import org.ballerinalang.langserver.completions.exceptions.CompletionContextNotSupportedException;
 import org.ballerinalang.langserver.completions.util.CompletionVisitorUtil;
 import org.ballerinalang.langserver.completions.util.CursorPositionResolvers;
 import org.ballerinalang.langserver.completions.util.positioning.resolvers.BlockStatementScopeResolver;
@@ -88,7 +90,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangCompoundAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangForever;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
@@ -832,15 +833,8 @@ public class TreeVisitor extends LSNodeVisitor {
         int eCol = pos.eCol;
         
         if ((sLine < cLine && eLine > cLine) || (sLine == cLine && eLine == cLine && cCol >= sCol && cCol <= eCol)) {
-            this.terminateVisitor = true;
-            this.lsContext.put(DocumentServiceKeys.TERMINATE_OPERATION_KEY, true);
+            throw new CompletionContextNotSupportedException("Completion within Literals are not Supported");
         }
-    }
-
-    @Override
-    public void visit(BLangForever foreverStatement) {
-        CursorPositionResolvers.getResolverByClass(this.cursorPositionResolver)
-                .isCursorBeforeNode(foreverStatement.pos, this, this.lsContext, foreverStatement, null);
     }
 
     @Override
@@ -874,13 +868,9 @@ public class TreeVisitor extends LSNodeVisitor {
      * @param symbolEnv         Symbol environment
      */
     public void populateSymbols(Map<Name, List<Scope.ScopeEntry>> symbolEntries, @Nonnull SymbolEnv symbolEnv) {
-        List<SymbolInfo> visibleSymbols = new ArrayList<>();
+        List<Scope.ScopeEntry> visibleSymbols = new ArrayList<>();
         this.populateSymbolEnvNode(symbolEnv.node);
-        symbolEntries.forEach((name, entryHolders) ->
-                visibleSymbols.addAll(
-                        entryHolders.stream()
-                                .map(scopeEntry -> new SymbolInfo(name.value, scopeEntry))
-                                .collect(Collectors.toList())));
+        symbolEntries.values().forEach(visibleSymbols::addAll);
         lsContext.put(CommonKeys.VISIBLE_SYMBOLS_KEY, visibleSymbols);
     }
 

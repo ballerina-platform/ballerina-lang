@@ -44,14 +44,8 @@ public type testEnumServiceBlockingClient client object {
 
     public function __init(string url, grpc:ClientConfiguration? config = ()) {
         // initialize client endpoint.
-        grpc:Client c = new(url, config);
-        grpc:Error? result = c.initStub(self, "blocking", ROOT_DESCRIPTOR, getDescriptorMap());
-        if (result is grpc:Error) {
-            error err = result;
-            panic err;
-        } else {
-            self.grpcClient = c;
-        }
+        self.grpcClient = new(url, config);
+        checkpanic self.grpcClient.initStub(self, "blocking", ROOT_DESCRIPTOR, getDescriptorMap());
     }
 
     public remote function testEnum (orderInfo req, grpc:Headers? headers = ()) returns ([string, grpc:Headers]|grpc:Error) {
@@ -71,14 +65,8 @@ public type testEnumServiceClient client object {
 
     public function __init(string url, grpc:ClientConfiguration? config = ()) {
         // initialize client endpoint.
-        grpc:Client c = new(url, config);
-        grpc:Error? result = c.initStub(self, "non-blocking", ROOT_DESCRIPTOR, getDescriptorMap());
-        if (result is grpc:Error) {
-            error err = result;
-            panic err;
-        } else {
-            self.grpcClient = c;
-        }
+        self.grpcClient = new(url, config);
+        checkpanic self.grpcClient.initStub(self, "non-blocking", ROOT_DESCRIPTOR, getDescriptorMap());
     }
 
     public remote function testEnum (orderInfo req, service msgListener, grpc:Headers? headers = ()) returns (grpc:Error?) {

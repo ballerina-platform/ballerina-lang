@@ -327,7 +327,14 @@ function redirect(Response response, HttpOperation httpVerb, Request request,
 
 function performRedirection(string location, RedirectClient redirectClient, HttpOperation redirectMethod,
                             Request request, Response response) returns @untainted HttpResponse|ClientError {
-    var retryClient = createRetryClient(location, createNewEndpointConfig(redirectClient.config));
+    CookieStore? cookieStore = ();
+    var cookieConfigVal = redirectClient.config.cookieConfig;
+    if (cookieConfigVal is CookieConfig) {
+        if (cookieConfigVal.enabled) {
+            cookieStore = new(cookieConfigVal?.persistentCookieHandler);
+        }
+    }
+    var retryClient = createRetryClient(location, createNewEndpointConfig(redirectClient.config), cookieStore);
     if (retryClient is HttpClient) {
         log:printDebug(function() returns string {
                 return "Redirect using new clientEP : " + location;

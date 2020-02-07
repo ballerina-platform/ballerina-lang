@@ -17,6 +17,8 @@
 import ballerina/io;
 import ballerina/mime;
 import ballerina/stringutils;
+import ballerinax/java;
+import ballerina/time;
 
 # Represents an HTTP request.
 #
@@ -38,7 +40,7 @@ public type Request object {
     public RequestCacheControl? cacheControl = ();
     public MutualSslHandshake? mutualSslHandshake = ();
 
-    private mime:Entity entity;
+    private mime:Entity? entity = ();
     private boolean dirtyRequest;
     boolean noEntityBody;
 
@@ -51,17 +53,23 @@ public type Request object {
     # Create a new `Entity` and link it with the request.
     #
     # + return - Newly created `Entity` that has been set to the request
-    function createNewEntity() returns mime:Entity = external;
+    function createNewEntity() returns mime:Entity {
+        return externCreateNewReqEntity(self);
+    }
 
     # Sets the provided `Entity` to the request.
     #
     # + e - The `Entity` to be set to the request
-    public function setEntity(mime:Entity e) = external;
+    public function setEntity(mime:Entity e) {
+        return externSetReqEntity(self, e);
+    }
 
     # Gets the query parameters of the request as a map consisting of a string array.
     #
     # + return - String array map of the query params
-    public function getQueryParams() returns map<string[]> = external;
+    public function getQueryParams() returns map<string[]> {
+        return externGetQueryParams(self);
+    }
 
     # Gets the query param value associated with the given key.
     #
@@ -88,44 +96,55 @@ public type Request object {
     #
     # + path - Path to the location of matrix parameters
     # + return - A map of matrix parameters which can be found for the given path
-    public function getMatrixParams(string path) returns map<any> = external;
+    public function getMatrixParams(string path) returns map<any> {
+        return externGetMatrixParams(self, java:fromString(path));
+    }
 
     # Gets the `Entity` associated with the request.
     #
     # + return - The `Entity` of the request. An `http:ClientError` is returned, if entity construction fails
-    public function getEntity() returns mime:Entity|ClientError = external;
+    public function getEntity() returns mime:Entity|ClientError {
+        return externGetReqEntity(self);
+    }
 
     //Gets the `Entity` from the request without the body. This function is exposed only to be used internally.
-    function getEntityWithoutBody() returns mime:Entity = external;
+    function getEntityWithoutBody() returns mime:Entity {
+        return externGetReqEntityWithoutBody(self);
+    }
 
     # Checks whether the requested header key exists in the header map.
     #
     # + headerName - The header name
+    # + position - Represents the position of the header as an optional parameter
     # + return - Returns true if the specified header key exists
-    public function hasHeader(string headerName) returns boolean {
+    public function hasHeader(string headerName, public mime:HeaderPosition position = mime:LEADING) returns boolean {
         mime:Entity entity = self.getEntityWithoutBody();
-        return entity.hasHeader(headerName);
+        return entity.hasHeader(headerName, position);
     }
 
     # Returns the value of the specified header. If the specified header key maps to multiple values, the first of
     # these values is returned.
     #
     # + headerName - The header name
+    # + position - Represents the position of the header as an optional parameter
     # + return - The first header value for the specified header name. An exception is thrown if no header is found. Use
     #            `Request.hasHeader()` beforehand to check the existence of header.
-    public function getHeader(string headerName) returns @tainted string {
+    public function getHeader(string headerName, public mime:HeaderPosition position = mime:LEADING)
+                                                                                        returns @tainted string {
         mime:Entity entity = self.getEntityWithoutBody();
-        return entity.getHeader(headerName);
+        return entity.getHeader(headerName, position);
     }
 
     # Gets all the header values to which the specified header key maps to.
     #
     # + headerName - The header name
+    # + position - Represents the position of the header as an optional parameter
     # + return - The header values the specified header key maps to. An exception is thrown if no header is found. Use
     #            `Request.hasHeader()` beforehand to check the existence of header.
-    public function getHeaders(string headerName) returns @tainted string[] {
+    public function getHeaders(string headerName, public mime:HeaderPosition position = mime:LEADING)
+                                                                                        returns @tainted string[] {
         mime:Entity entity = self.getEntityWithoutBody();
-        return entity.getHeaders(headerName);
+        return entity.getHeaders(headerName, position);
     }
 
     # Sets the specified header to the request. If a mapping already exists for the specified header key, the existing
@@ -133,40 +152,46 @@ public type Request object {
     #
     # + headerName - The header name
     # + headerValue - The header value
-    public function setHeader(string headerName, string headerValue) {
+    # + position - Represents the position of the header as an optional parameter
+    public function setHeader(string headerName, string headerValue, public mime:HeaderPosition position = mime:LEADING) {
         mime:Entity entity = self.getEntityWithoutBody();
-        entity.setHeader(headerName, headerValue);
+        entity.setHeader(headerName, headerValue, position);
     }
 
     # Adds the specified header to the request. Existing header values are not replaced.
     #
     # + headerName - The header name
     # + headerValue - The header value
-    public function addHeader(string headerName, string headerValue) {
+    # + position - Represents the position of the header as an optional parameter
+    public function addHeader(string headerName, string headerValue, public mime:HeaderPosition position = mime:LEADING) {
         mime:Entity entity = self.getEntityWithoutBody();
-        entity.addHeader(headerName, headerValue);
+        entity.addHeader(headerName, headerValue, position);
     }
 
     # Removes the specified header from the request.
     #
     # + key - The header name
-    public function removeHeader(string key) {
+    # + position - Represents the position of the header as an optional parameter
+    public function removeHeader(string key, public mime:HeaderPosition position = mime:LEADING) {
         mime:Entity entity = self.getEntityWithoutBody();
-        entity.removeHeader(key);
+        entity.removeHeader(key, position);
     }
 
     # Removes all the headers from the request.
-    public function removeAllHeaders() {
+    #
+    # + position - Represents the position of the header as an optional parameter
+    public function removeAllHeaders(public mime:HeaderPosition position = mime:LEADING) {
         mime:Entity entity = self.getEntityWithoutBody();
-        entity.removeAllHeaders();
+        entity.removeAllHeaders(position);
     }
 
     # Gets all the names of the headers of the request.
     #
+    # + position - Represents the position of the header as an optional parameter
     # + return - An array of all the header names
-    public function getHeaderNames() returns @tainted string[] {
+    public function getHeaderNames(public mime:HeaderPosition position = mime:LEADING) returns @tainted string[] {
         mime:Entity entity = self.getEntityWithoutBody();
-        return entity.getHeaderNames();
+        return entity.getHeaderNames(position);
     }
 
     # Checks whether the client expects a `100-continue` response.
@@ -465,10 +490,10 @@ public type Request object {
             self.setTextPayload(payload);
         } else if (payload is xml) {
             self.setXmlPayload(payload);
-        } else if (payload is json) {
-            self.setJsonPayload(payload);
         } else if (payload is byte[]) {
             self.setBinaryPayload(payload);
+        } else if (payload is json) {
+            self.setJsonPayload(payload);
         } else if (payload is io:ReadableByteChannel) {
             self.setByteChannel(payload);
         } else {
@@ -515,10 +540,90 @@ public type Request object {
     # Check whether the entity body is present.
     #
     # + return - a boolean indicating entity body availability
-    function checkEntityBodyAvailability() returns boolean = external;
+    function checkEntityBodyAvailability() returns boolean {
+        return externCheckReqEntityBodyAvailability(self);
+    }
+
+    # Adds cookies to the request.
+    #
+    # + cookiesToAdd - Represents the cookies to be added
+    public function addCookies(Cookie[] cookiesToAdd) {
+        string cookieheader = "";
+        Cookie[] sortedCookies = cookiesToAdd.sort(comparator);
+        foreach var cookie in sortedCookies {
+            var cookieName = cookie.name;
+            var cookieValue = cookie.value;
+            if (cookieName is string && cookieValue is string) {
+                cookieheader = cookieheader + cookieName + EQUALS + cookieValue + SEMICOLON + SPACE;
+            }
+            cookie.lastAccessedTime = time:currentTime();
+        }
+        if (cookieheader != "") {
+            cookieheader = cookieheader.substring(0, cookieheader.length() - 2);
+            if (self.hasHeader("Cookie")) {
+                self.setHeader("Cookie", cookieheader);
+            } else {
+                self.addHeader("Cookie", cookieheader);
+            }
+        }
+    }
+
+    # Gets cookies from the request.
+    #
+    # + return - An array of cookie objects, which are included in the request
+    public function getCookies() returns Cookie[] {
+        string cookiesStringValue = "";
+        Cookie[] cookiesInRequest = [];
+        if (self.hasHeader("Cookie")) {
+            cookiesInRequest = parseCookieHeader(self.getHeader("Cookie"));
+        }
+        return cookiesInRequest;
+    }
 };
 
-# A record for providing mutual ssl handshake results.
+function externCreateNewReqEntity(Request request) returns mime:Entity =
+@java:Method {
+    class: "org.ballerinalang.net.http.nativeimpl.ExternRequest",
+    name: "createNewEntity"
+} external;
+
+function externSetReqEntity(Request request, mime:Entity entity) =
+@java:Method {
+    class: "org.ballerinalang.net.http.nativeimpl.ExternRequest",
+    name: "setEntity"
+} external;
+
+function externGetQueryParams(Request request) returns map<string[]> =
+@java:Method {
+    class: "org.ballerinalang.net.http.nativeimpl.ExternRequest",
+    name: "getQueryParams"
+} external;
+
+function externGetMatrixParams(Request request, handle path) returns map<any> =
+@java:Method {
+    class: "org.ballerinalang.net.http.nativeimpl.ExternRequest",
+    name: "getMatrixParams"
+} external;
+
+function externGetReqEntity(Request request) returns mime:Entity|ClientError =
+@java:Method {
+    class: "org.ballerinalang.net.http.nativeimpl.ExternRequest",
+    name: "getEntity"
+} external;
+
+function externGetReqEntityWithoutBody(Request request) returns mime:Entity =
+@java:Method {
+    class: "org.ballerinalang.net.http.nativeimpl.ExternRequest",
+    name: "getEntityWithoutBody"
+} external;
+
+function externCheckReqEntityBodyAvailability(Request request) returns boolean =
+@java:Method {
+    class: "org.ballerinalang.net.http.nativeimpl.ExternRequest",
+    name: "checkEntityBodyAvailability"
+} external;
+
+# A record for providing mutual SSL handshake results.
 #
 # + status - Status of the handshake.
 public type MutualSslHandshake record {|

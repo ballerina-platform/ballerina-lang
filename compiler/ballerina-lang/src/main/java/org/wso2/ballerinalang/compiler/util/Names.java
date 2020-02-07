@@ -18,7 +18,6 @@
 package org.wso2.ballerinalang.compiler.util;
 
 import org.ballerinalang.model.types.TypeKind;
-import org.wso2.ballerinalang.compiler.semantics.model.BLangBuiltInMethod;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 
 /**
@@ -53,8 +52,6 @@ public class Names {
     public static final Name UTILS_PACKAGE = new Name("utils");
     public static final Name BUILTIN_ORG = new Name("ballerina");
     public static final Name RUNTIME_PACKAGE = new Name("runtime");
-    public static final Name STREAMS_ORG = new Name("ballerina");
-    public static final Name STREAMS_MODULE = new Name("streams");
     public static final Name IGNORE = new Name("_");
     public static final Name INVALID = new Name("><");
     public static final Name GEN_VAR_PREFIX = new Name("_$$_");
@@ -68,6 +65,7 @@ public class Names {
     public static final Name STOP_FUNCTION_SUFFIX = new Name(".<stop>");
     public static final Name SELF = new Name("self");
     public static final Name USER_DEFINED_INIT_SUFFIX = new Name("__init");
+    public static final Name GENERATED_INIT_SUFFIX = new Name("$__init$");
     // TODO remove when current project name is read from manifest
     public static final Name ANON_ORG = new Name("$anon");
     public static final Name NIL_VALUE = new Name("()");
@@ -124,10 +122,6 @@ public class Names {
 
     public Name fromTypeKind(TypeKind typeKind) {
         return fromString(typeKind.typeName());
-    }
-
-    public Name fromBuiltInMethod(BLangBuiltInMethod builtInMethod) {
-        return fromString(builtInMethod.getName());
     }
 
     public Name merge(Name... names) {

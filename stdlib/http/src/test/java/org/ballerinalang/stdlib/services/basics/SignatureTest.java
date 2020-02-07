@@ -37,7 +37,7 @@ public class SignatureTest {
 
     @Test()
     public void testSignatureWithSingleParam() {
-        CompileResult compileResult = BCompileUtil.compile(new File(getClass().getClassLoader().getResource(
+        CompileResult compileResult = BCompileUtil.compileOffline(new File(getClass().getClassLoader().getResource(
                 "test-src/services/signature/no-request-param.bal").getPath()).getAbsolutePath());
 
         Assert.assertEquals(compileResult.getErrorCount(), 1);
@@ -85,7 +85,7 @@ public class SignatureTest {
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = ".*incompatible entity-body type : int.*")
     public void testSignatureWithInvalidBodyIntParam() {
-        CompileResult compileResult = BCompileUtil.compile(new File(getClass().getClassLoader().getResource(
+        CompileResult compileResult = BCompileUtil.compileOffline(new File(getClass().getClassLoader().getResource(
                 "test-src/services/signature/invalid-body-param.bal").getPath()).getAbsolutePath());
     }
 

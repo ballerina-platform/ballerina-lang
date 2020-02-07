@@ -1,4 +1,4 @@
-// Copyright (c) 2018 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+// Copyright (c) 2019 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 //
 // WSO2 Inc. licenses this file to you under the Apache License,
 // Version 2.0 (the "License"); you may not use this file except
@@ -16,25 +16,27 @@
 
 package org.ballerinalang.nativeimpl.llvm.gen;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
-import org.ballerinalang.model.values.BInteger;
+import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.nativeimpl.llvm.FFIUtil;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.bytedeco.javacpp.LLVM;
+import org.bytedeco.llvm.LLVM.LLVMModuleRef;
+import org.bytedeco.llvm.LLVM.LLVMPassManagerRef;
 
 import static org.ballerinalang.model.types.TypeKind.INT;
 import static org.ballerinalang.model.types.TypeKind.RECORD;
-import static org.bytedeco.javacpp.LLVM.LLVMRunPassManager;
+import static org.bytedeco.llvm.global.LLVM.LLVMRunPassManager;
 
 /**
  * Auto generated class.
+ *
+ * @since 1.0.3
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "llvm",
-        functionName = "LLVMRunPassManager",
+        functionName = "llvmRunPassManager",
         args = {
                 @Argument(name = "pm", type = RECORD, structType = "LLVMPassManagerRef"),
                 @Argument(name = "m", type = RECORD, structType = "LLVMModuleRef"),
@@ -43,13 +45,12 @@ import static org.bytedeco.javacpp.LLVM.LLVMRunPassManager;
                 @ReturnType(type = INT, structPackage = "ballerina/llvm"),
         }
 )
-public class LLVMRunPassManager extends BlockingNativeCallableUnit {
+public class LLVMRunPassManager {
 
-    @Override
-    public void execute(Context context) {
-        LLVM.LLVMPassManagerRef pm = FFIUtil.getRecodeArgumentNative(context, 0);
-        LLVM.LLVMModuleRef m = FFIUtil.getRecodeArgumentNative(context, 1);
-        int returnValue = LLVMRunPassManager(pm, m);
-        context.setReturnValues(new BInteger(returnValue));
+    public static long llvmRunPassManager(Strand strand, MapValue<String, Object> arg0, MapValue<String, Object> arg1) {
+
+        LLVMPassManagerRef pm = (LLVMPassManagerRef) FFIUtil.getRecodeArgumentNative(arg0);
+        LLVMModuleRef m = (LLVMModuleRef) FFIUtil.getRecodeArgumentNative(arg1);
+        return LLVMRunPassManager(pm, m);
     }
 }

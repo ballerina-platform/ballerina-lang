@@ -22,6 +22,7 @@ package org.wso2.ballerinalang.programfile;
  *
  * @since 0.87
  */
+@Deprecated
 public interface InstructionCodes {
 
     int NOP = 0;

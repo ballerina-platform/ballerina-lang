@@ -60,11 +60,11 @@ function genJMethodForBFunc(bir:Function func,
                            bir:Package module,
                            boolean isService,
                            string serviceName,
-                           bir:BType? attachedType = (),
-                           boolean useBString = false) {
+                           bir:BType? attachedType = ()) {
     string currentPackageName = getPackageName(module.org.value, module.name.value);
     BalToJVMIndexMap indexMap = new;
     string funcName = cleanupFunctionName(<@untainted> func.name.value);
+    boolean useBString = IS_BSTRING;
     int returnVarRefIndex = -1;
 
     bir:VariableDcl stranVar = { typeValue: "string", // should be record
@@ -101,7 +101,7 @@ function genJMethodForBFunc(bir:Function func,
     boolean isObserved = false;
     boolean isWorker = (func.flags & bir:WORKER) == bir:WORKER;
     boolean isRemote = (func.flags & bir:REMOTE) == bir:REMOTE;
-    if ((isService || isRemote || isWorker) && funcName != "__init") {
+    if ((isService || isRemote || isWorker) && funcName != "__init" && funcName != "$__init$") {
         // create try catch block to start and stop observability.
         isObserved = true;
         tryStart = labelGen.getLabel("try-start");
@@ -117,9 +117,11 @@ function genJMethodForBFunc(bir:Function func,
     // set channel details to strand.
     // these channel info is required to notify datachannels, when there is a panic
     // we cannot set this during strand creation, because function call do not have this info.
-    mv.visitVarInsn(ALOAD, localVarOffset);
-    loadChannelDetails(mv, func.workerChannels);
-    mv.visitMethodInsn(INVOKEVIRTUAL, STRAND, "updateChannelDetails", io:sprintf("([L%s;)V", CHANNEL_DETAILS), false);
+    if (func.workerChannels.length() > 0) {
+        mv.visitVarInsn(ALOAD, localVarOffset);
+        loadChannelDetails(mv, func.workerChannels);
+        mv.visitMethodInsn(INVOKEVIRTUAL, STRAND, "updateChannelDetails", io:sprintf("([L%s;)V", CHANNEL_DETAILS), false);
+    }
 
     // panic if this strand is cancelled
     checkStrandCancelled(mv, localVarOffset);
@@ -134,6 +136,11 @@ function genJMethodForBFunc(bir:Function func,
         }
         k += 1;
     }
+
+    bir:VariableDcl varDcl = getVariableDcl(localVars[0]);
+    returnVarRefIndex = indexMap.getIndex(varDcl);
+    bir:BType returnType = <bir:BType> func.typeValue?.retType;
+    genDefaultValue(mv, returnType, returnVarRefIndex);
 
     bir:VariableDcl stateVar = { typeValue: "string", //should  be javaInt
                                  name: { value: "state" },
@@ -150,11 +157,6 @@ function genJMethodForBFunc(bir:Function func,
     jvm:Label varinitLable = labelGen.getLabel(funcName + "varinit");
     mv.visitLabel(varinitLable);
 
-    bir:VariableDcl varDcl = getVariableDcl(localVars[0]);
-    returnVarRefIndex = indexMap.getIndex(varDcl);
-    bir:BType returnType = <bir:BType> func.typeValue?.retType;
-    genDefaultValue(mv, returnType, returnVarRefIndex);
-
     // uncomment to test yield
     // mv.visitFieldInsn(GETSTATIC, className, "i", "I");
     // mv.visitInsn(ICONST_1);
@@ -168,14 +170,17 @@ function genJMethodForBFunc(bir:Function func,
     int[] states = [];
 
     int i = 0;
+    int caseIndex = 0;
     while (i < basicBlocks.length()) {
         bir:BasicBlock bb = getBasicBlock(basicBlocks[i]);
         if(i == 0){
-            lables[i] = labelGen.getLabel(funcName + bb.id.value);
-        } else {
-            lables[i] = labelGen.getLabel(funcName + bb.id.value + "beforeTerm");
+            lables[caseIndex] = labelGen.getLabel(funcName + bb.id.value);
+            states[caseIndex] = caseIndex;
+            caseIndex += 1;
         }
-        states[i] = i;
+        lables[caseIndex] = labelGen.getLabel(funcName + bb.id.value + "beforeTerm");
+        states[caseIndex] = caseIndex;
+        caseIndex += 1;
         i = i + 1;
     }
 
@@ -197,7 +202,7 @@ function genJMethodForBFunc(bir:Function func,
     mv.visitLookupSwitchInsn(yieldLable, states, lables);
 
     generateBasicBlocks(mv, basicBlocks, labelGen, errorGen, instGen, termGen, func, returnVarRefIndex, stateVarIndex,
-                            localVarOffset, false, module, currentPackageName, attachedType, isObserved, isService, serviceName);
+                            localVarOffset, false, module, currentPackageName, attachedType, isObserved, isService, serviceName, useBString = useBString);
 
     string frameName = getFrameClassName(currentPackageName, funcName, attachedType);
     mv.visitLabel(resumeLable);
@@ -213,7 +218,7 @@ function genJMethodForBFunc(bir:Function func,
     mv.visitInsn(AALOAD);
     mv.visitTypeInsn(CHECKCAST, frameName);
 
-    geerateFrameClassFieldLoad(localVarOffset, localVars, mv, indexMap, frameName);
+    geerateFrameClassFieldLoad(localVars, mv, indexMap, frameName, useBString);
     mv.visitFieldInsn(GETFIELD, frameName, "state", "I");
     mv.visitVarInsn(ISTORE, stateVarIndex);
     mv.visitJumpInsn(GOTO, varinitLable);
@@ -225,7 +230,7 @@ function genJMethodForBFunc(bir:Function func,
     mv.visitMethodInsn(INVOKESPECIAL, frameName, "<init>", "()V", false);
 
 
-    geerateFrameClassFieldUpdate(localVarOffset, localVars, mv, indexMap, frameName);
+    geerateFrameClassFieldUpdate(localVars, mv, indexMap, frameName, useBString);
 
     mv.visitInsn(DUP);
     mv.visitVarInsn(ILOAD, stateVarIndex);
@@ -339,9 +344,9 @@ function genJMethodForBFunc(bir:Function func,
     mv.visitEnd();
 }
 
-function geerateFrameClassFieldLoad(int localVarOffset, bir:VariableDcl?[] localVars, jvm:MethodVisitor mv,
-                                    BalToJVMIndexMap indexMap, string frameName) {
-    int k = localVarOffset;
+function geerateFrameClassFieldLoad(bir:VariableDcl?[] localVars, jvm:MethodVisitor mv,
+                                    BalToJVMIndexMap indexMap, string frameName, boolean useBString) {
+    int k = 0;
     while (k < localVars.length()) {
         bir:VariableDcl localVar = getVariableDcl(localVars[k]);
         var index = indexMap.getIndex(localVar);
@@ -359,7 +364,7 @@ function geerateFrameClassFieldLoad(int localVarOffset, bir:VariableDcl?[] local
             mv.visitVarInsn(DSTORE, index);
         } else if (bType is bir:BTypeString) {
             mv.visitFieldInsn(GETFIELD, frameName, stringutils:replace(localVar.name.value, "%","_"),
-                    io:sprintf("L%s;", BSTRING_VALUE));
+                    io:sprintf("L%s;", useBString ? B_STRING_VALUE : STRING_VALUE));
             mv.visitVarInsn(ASTORE, index);
         } else if (bType is bir:BTypeDecimal) {
             mv.visitFieldInsn(GETFIELD, frameName, stringutils:replace(localVar.name.value, "%","_"),
@@ -474,9 +479,9 @@ function generateFrameClassJFieldLoad(bir:VariableDcl localVar, jvm:MethodVisito
 
 }
 
-function geerateFrameClassFieldUpdate(int localVarOffset, bir:VariableDcl?[] localVars, jvm:MethodVisitor mv,
-                                      BalToJVMIndexMap indexMap, string frameName) {
-    int k = localVarOffset;
+function geerateFrameClassFieldUpdate(bir:VariableDcl?[] localVars, jvm:MethodVisitor mv,
+                                      BalToJVMIndexMap indexMap, string frameName, boolean useBString) {
+    int k = 0;
     while (k < localVars.length()) {
         bir:VariableDcl localVar = getVariableDcl(localVars[k]);
         var index = indexMap.getIndex(localVar);
@@ -495,7 +500,7 @@ function geerateFrameClassFieldUpdate(int localVarOffset, bir:VariableDcl?[] loc
         } else if (bType is bir:BTypeString) {
             mv.visitVarInsn(ALOAD, index);
             mv.visitFieldInsn(PUTFIELD, frameName, stringutils:replace(localVar.name.value, "%","_"),
-                    io:sprintf("L%s;", BSTRING_VALUE));
+                    io:sprintf("L%s;", useBString ? B_STRING_VALUE : STRING_VALUE));
         } else if (bType is bir:BTypeDecimal) {
             mv.visitVarInsn(ALOAD, index);
             mv.visitFieldInsn(PUTFIELD, frameName, stringutils:replace(localVar.name.value, "%","_"),
@@ -665,21 +670,11 @@ function generateBasicBlocks(jvm:MethodVisitor mv, bir:BasicBlock?[] basicBlocks
             ErrorHandlerGenerator errorGen, InstructionGenerator instGen, TerminatorGenerator termGen,
             bir:Function func, int returnVarRefIndex, int stateVarIndex, int localVarOffset, boolean isArg,
             bir:Package module, string currentPackageName, bir:BType? attachedType, boolean isObserved = false,
-            boolean isService = false, string serviceName = "") {
+            boolean isService = false, string serviceName = "", boolean useBString = false) {
     int j = 0;
     string funcName = cleanupFunctionName(<@untainted> func.name.value);
 
-    // process error entries
-    bir:ErrorEntry?[] errorEntries = func.errorEntries;
-    bir:ErrorEntry? currentEE = ();
-    string previousTargetBB = "";
-    jvm:Label startLabel = new;
-    jvm:Label endLabel = new;
-    jvm:Label jumpLabel = new;
-    int errorEntryCnt = 0;
-    if (errorEntries.length() > errorEntryCnt) {
-        currentEE = errorEntries[errorEntryCnt];
-    }
+    int caseIndex = 0;
 
     while (j < basicBlocks.length()) {
         bir:BasicBlock bb = getBasicBlock(basicBlocks[j]);
@@ -688,6 +683,12 @@ function generateBasicBlocks(jvm:MethodVisitor mv, bir:BasicBlock?[] basicBlocks
         // create jvm label
         jvm:Label bbLabel = labelGen.getLabel(funcName + bb.id.value);
         mv.visitLabel(bbLabel);
+        if (j == 0 && !isArg) {
+            // SIPUSH range is (-32768 to 32767) so if the state index goes beyond that, need to use visitLdcInsn
+            mv.visitIntInsn(SIPUSH, caseIndex);
+            mv.visitVarInsn(ISTORE, stateVarIndex);
+            caseIndex += 1;
+        }
 
         string serviceOrConnectorName = serviceName;
         if (isObserved && j == 0) {
@@ -703,17 +704,6 @@ function generateBasicBlocks(jvm:MethodVisitor mv, bir:BasicBlock?[] basicBlocks
         // generate instructions
         int m = 0;
         int insCount = bb.instructions.length();
-        boolean isTrapped = currentEE is bir:ErrorEntry  && currentEE.trapBB.id.value == currentBBName;
-
-        // Cases will be generate between instructions and terminator of the basic block. So if basic block is
-        // trapped we need to generate two try catches as for instructions and terminator.
-        if (isTrapped && insCount > 0) {
-            startLabel = new;
-            endLabel = new;
-            jumpLabel = new;
-            // start try for instructions.
-            errorGen.generateTryInsForTrap(<bir:ErrorEntry>currentEE, previousTargetBB, startLabel, jumpLabel);
-        }
 
         int insKind;
         while (m < insCount) {
@@ -733,7 +723,7 @@ function generateBasicBlocks(jvm:MethodVisitor mv, bir:BasicBlock?[] basicBlocks
                 if (insKind == bir:INS_KIND_MOVE) {
                     instGen.generateMoveIns(<bir:Move> inst);
                 } else if (insKind == bir:INS_KIND_CONST_LOAD) {
-                    instGen.generateConstantLoadIns(<bir:ConstantLoad> inst);
+                    instGen.generateConstantLoadIns(<bir:ConstantLoad> inst, useBString);
                 } else if (insKind == bir:INS_KIND_NEW_MAP) {
                     instGen.generateMapNewIns(<bir:NewMap> inst, localVarOffset);
                 } else if (insKind == bir:INS_KIND_NEW_INST) {
@@ -741,15 +731,15 @@ function generateBasicBlocks(jvm:MethodVisitor mv, bir:BasicBlock?[] basicBlocks
                 } else if (insKind == bir:INS_KIND_MAP_STORE) {
                     instGen.generateMapStoreIns(<bir:FieldAccess> inst);
                 } else if (insKind == bir:INS_KIND_NEW_ARRAY) {
-                    instGen.generateArrayNewIns(<bir:NewArray> inst);
+                    instGen.generateArrayNewIns(<bir:NewArray> inst, useBString);
                 } else if (insKind == bir:INS_KIND_ARRAY_STORE) {
-                    instGen.generateArrayStoreIns(<bir:FieldAccess> inst);
+                    instGen.generateArrayStoreIns(<bir:FieldAccess> inst, useBString);
                 } else if (insKind == bir:INS_KIND_MAP_LOAD) {
                     instGen.generateMapLoadIns(<bir:FieldAccess> inst);
                 } else if (insKind == bir:INS_KIND_ARRAY_LOAD) {
-                    instGen.generateArrayValueLoad(<bir:FieldAccess> inst);
+                    instGen.generateArrayValueLoad(<bir:FieldAccess> inst, useBString);
                 } else if (insKind == bir:INS_KIND_NEW_ERROR) {
-                    instGen.generateNewErrorIns(<bir:NewError> inst);
+                    instGen.generateNewErrorIns(<bir:NewError> inst, useBString);
                 } else {
                     instGen.generateCastIns(<bir:TypeCast> inst);
                 }
@@ -759,7 +749,7 @@ function generateBasicBlocks(jvm:MethodVisitor mv, bir:BasicBlock?[] basicBlocks
                 } else if (insKind == bir:INS_KIND_TYPE_TEST) {
                     instGen.generateTypeTestIns(<bir:TypeTest> inst);
                 } else if (insKind == bir:INS_KIND_OBJECT_STORE) {
-                    instGen.generateObjectStoreIns(<bir:FieldAccess> inst);
+                    instGen.generateObjectStoreIns(<bir:FieldAccess> inst, useBString);
                 } else if (insKind == bir:INS_KIND_OBJECT_LOAD) {
                     instGen.generateObjectLoadIns(<bir:FieldAccess> inst);
                 } else if (insKind == bir:INS_KIND_NEW_XML_ELEMENT) {
@@ -775,7 +765,7 @@ function generateBasicBlocks(jvm:MethodVisitor mv, bir:BasicBlock?[] basicBlocks
                 } else {
                     instGen.generateNewStringXMLQNameIns(<bir:NewStringXMLQName> inst);
                 } 
-            } else if (insKind <= bir:INS_KIND_NEW_STREAM) {
+            } else if (insKind <= bir:INS_KIND_NEW_TABLE) {
                 if (insKind == bir:INS_KIND_XML_SEQ_STORE) {
                     instGen.generateXMLStoreIns(<bir:XMLAccess> inst);
                 } else if (insKind == bir:INS_KIND_XML_SEQ_LOAD) {
@@ -792,10 +782,8 @@ function generateBasicBlocks(jvm:MethodVisitor mv, bir:BasicBlock?[] basicBlocks
                     instGen.generateFPLoadIns(<bir:FPLoad> inst);
                 } else if (insKind == bir:INS_KIND_STRING_LOAD) {
                     instGen.generateStringLoadIns(<bir:FieldAccess> inst);
-                } else if (insKind == bir:INS_KIND_NEW_TABLE) {
-                    instGen.generateTableNewIns(<bir:NewTable> inst);
                 } else {
-                    instGen.generateStreamNewIns(<bir:NewStream>inst);
+                    instGen.generateTableNewIns(<bir:NewTable> inst);
                 }
             } else if (insKind <= bir:INS_KIND_NEGATE) {
                 if (insKind == bir:INS_KIND_TYPEOF) {
@@ -816,50 +804,28 @@ function generateBasicBlocks(jvm:MethodVisitor mv, bir:BasicBlock?[] basicBlocks
             m += 1;
         }
 
-        // close the started try block with a catch statement for instructions.
-        if (isTrapped && insCount > 0) {
-            errorGen.generateCatchInsForTrap(func, <bir:ErrorEntry>currentEE, startLabel, endLabel, jumpLabel, instGen, termGen);
-        }
         jvm:Label bbEndLable = labelGen.getLabel(funcName + bb.id.value + "beforeTerm");
         mv.visitLabel(bbEndLable);
 
         bir:Terminator terminator = bb.terminator;
         if (!isArg) {
             // SIPUSH range is (-32768 to 32767) so if the state index goes beyond that, need to use visitLdcInsn
-            mv.visitIntInsn(SIPUSH, j);
+            mv.visitIntInsn(SIPUSH, caseIndex);
             mv.visitVarInsn(ISTORE, stateVarIndex);
+            caseIndex += 1;
         }
 
         // process terminator
         boolean isTerminatorTrapped = false;
         if (!isArg || (isArg && !(terminator is bir:Return))) {
-            if (isTrapped && !(terminator is bir:GOTO)) {
-                isTerminatorTrapped = true;
-                startLabel = new;
-                endLabel = new;
-                jumpLabel = new;
-                // start try for terminator if current block is trapped.
-                errorGen.generateTryInsForTrap(<bir:ErrorEntry>currentEE, previousTargetBB, startLabel, jumpLabel);
-            }
             generateDiagnosticPos(terminator.pos, mv);
             if (isModuleInitFunction(module, func) && terminator is bir:Return) {
                 generateAnnotLoad(mv, module.typeDefs, getPackageName(module.org.value, module.name.value));
             }
             termGen.genTerminator(terminator, func, funcName, localVarOffset, returnVarRefIndex, attachedType, isObserved);
-            if (isTerminatorTrapped) {
-                // close the started try block with a catch statement for terminator.
-                errorGen.generateCatchInsForTrap(func, <bir:ErrorEntry>currentEE, startLabel, endLabel, jumpLabel, instGen, termGen);
-            }
         }
 
-        // set next error entry after visiting current error entry.
-        if (isTrapped) {
-            errorEntryCnt = errorEntryCnt + 1;
-            if (errorEntries.length() > errorEntryCnt && currentEE is bir:ErrorEntry) {
-                previousTargetBB = currentEE.targetBB.id.value;
-                currentEE = errorEntries[errorEntryCnt];
-            }
-        }
+        errorGen.generateTryCatch(func, funcName, bb, instGen, termGen, labelGen);
 
         var thenBB = terminator["thenBB"];
         if (thenBB is bir:BasicBlock) {
@@ -1244,7 +1210,7 @@ function getMethodDesc(bir:BType?[] paramTypes, bir:BType? retType, bir:BType? a
         desc = desc + getArgTypeSignature(paramType, useBString);
         i += 1;
     }
-    string returnType = generateReturnType(retType, isExtern);
+    string returnType = generateReturnType(retType, isExtern, useBString);
     desc =  desc + returnType;
 
     return desc;
@@ -1278,7 +1244,7 @@ function getArgTypeSignature(bir:BType bType, boolean useBString = false) return
     } else if (bType is bir:BTypeFloat) {
         return "D";
     } else if (bType is bir:BTypeString) {
-        return io:sprintf("L%s;", useBString ? I_STRING_VALUE : STRING_VALUE);
+        return io:sprintf("L%s;", useBString ? B_STRING_VALUE : STRING_VALUE);
     } else if (bType is bir:BTypeDecimal) {
         return io:sprintf("L%s;", DECIMAL_VALUE);
     } else if (bType is bir:BTypeBoolean) {
@@ -1319,7 +1285,7 @@ function getArgTypeSignature(bir:BType bType, boolean useBString = false) return
     }
 }
 
-function generateReturnType(bir:BType? bType, boolean isExtern = false) returns string {
+function generateReturnType(bir:BType? bType, boolean isExtern = false, boolean useBString = false) returns string {
     if (bType is ()|bir:BTypeNil) {
         if (isExtern) {
             return ")V";
@@ -1332,7 +1298,7 @@ function generateReturnType(bir:BType? bType, boolean isExtern = false) returns 
     } else if (bType is bir:BTypeFloat) {
         return ")D";
     } else if (bType is bir:BTypeString) {
-        return io:sprintf(")L%s;", STRING_VALUE);
+        return io:sprintf(")L%s;", useBString ? B_STRING_VALUE : STRING_VALUE);
     } else if (bType is bir:BTypeDecimal) {
         return io:sprintf(")L%s;", DECIMAL_VALUE);
     } else if (bType is bir:BTypeBoolean) {
@@ -1881,7 +1847,7 @@ function addInitAndTypeInitInstructions(bir:Package pkg, bir:Function func) {
     nextBB.terminator = createTypesCallTerm;
 
     if (func.basicBlocks.length() == 0) {
-        bir:Return ret = {pos:{sLine:999}, kind:bir:TERMINATOR_RETURN};
+        bir:Return ret = {pos:func.pos, kind:bir:TERMINATOR_RETURN};
         typeOwnerCreateBB.terminator = ret;
         func.basicBlocks = basicBlocks;
         return;
@@ -1917,7 +1883,7 @@ function generateDepModInit(bir:ModuleID[] imprtMods, bir:Package pkg, string fu
     bir:VariableDcl retVar = {name: {value:"%ret"}, typeValue: errUnion};
     bir:VarRef retVarRef = {variableDcl:retVar, typeValue:errUnion};
 
-    bir:Function modInitFunc = {pos:{}, basicBlocks:[], localVars:[retVar],
+    bir:Function modInitFunc = {pos:{sLine: 0}, basicBlocks:[], localVars:[retVar],
                             name:{value:funcName}, typeValue:{retType:errUnion},
                             workerChannels:[], receiver:(), restParamExist:false};
     _ = addAndGetNextBasicBlock(modInitFunc);
@@ -2511,7 +2477,7 @@ function generateExecutionStopMethod(jvm:ClassWriter cw, string initClass, bir:P
     mv.visitEnd();
 
     //Adding this java method to the function map because this is getting called from a bir instruction.
-    bir:Function func = {pos:{}, basicBlocks:[], localVars:[],
+    bir:Function func = {pos:{sLine: 0}, basicBlocks:[], localVars:[],
                             name:{value:MODULE_STOP}, typeValue:{retType:"()"},
                             workerChannels:[], receiver:(), restParamExist:false};
     birFunctionMap[pkgName + MODULE_STOP] = getFunctionWrapper(func, orgName, moduleName,
@@ -2582,6 +2548,29 @@ function getJavaVersion() returns string {
     } else {
         return "";
     }
+}
+
+function isBStringFunc(string funcName) returns boolean {
+    return funcName.endsWith("$bstring");
+}
+
+function nameOfBStringFunc(string nonBStringFuncName) returns string {
+    return nonBStringFuncName + "$bstring";
+}
+
+function conditionalBStringName(string nonBStringName, boolean useBString) returns string {
+    if(useBString) {
+        return nameOfBStringFunc(nonBStringName);
+    }
+    return nonBStringName;
+}
+
+
+function nameOfNonBStringFunc(string funcName) returns string {
+    if(isBStringFunc(funcName)) {
+        return funcName.substring(0, funcName.length() - 8);
+    }
+    return funcName;
 }
 
 function getProperty(handle propertyName) returns handle = @java:Method {

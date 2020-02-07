@@ -18,8 +18,7 @@
 
 package org.ballerinalang.stdlib.task.objects;
 
-import org.ballerinalang.jvm.scheduling.Scheduler;
-import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.BRuntime;
 import org.ballerinalang.jvm.types.AttachedFunction;
 import org.ballerinalang.jvm.values.ObjectValue;
 
@@ -31,21 +30,18 @@ import static org.ballerinalang.stdlib.task.utils.TaskConstants.RESOURCE_ON_TRIG
  * @since 0.995.0
  */
 public class ServiceInformation {
-    private Scheduler scheduler;
-    private Strand strand;
+    private BRuntime runtime;
     private ObjectValue service;
     private Object attachment;
 
-    public ServiceInformation(Strand strand, ObjectValue service, Object attachment) {
-        this.scheduler = strand.scheduler;
-        this.strand = strand;
+    public ServiceInformation(BRuntime runtime, ObjectValue service, Object attachment) {
+        this.runtime = runtime;
         this.service = service;
         this.attachment = attachment;
     }
 
-    public ServiceInformation(Strand strand, ObjectValue service) {
-        this.scheduler = strand.scheduler;
-        this.strand = strand;
+    public ServiceInformation(BRuntime runtime, ObjectValue service) {
+        this.runtime = runtime;
         this.service = service;
         this.attachment = null;
     }
@@ -71,11 +67,7 @@ public class ServiceInformation {
         return attachment;
     }
 
-    public Strand getStrand() {
-        return strand;
-    }
-
-    public Scheduler getScheduler() {
-        return this.scheduler;
+    public BRuntime getRuntime() {
+        return this.runtime;
     }
 }

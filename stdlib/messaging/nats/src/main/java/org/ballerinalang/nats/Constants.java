@@ -70,18 +70,25 @@ public class Constants {
     // Represents the object which holds the connection.
     public static final String CONNECTION_OBJ = "conn";
 
+    // Represents the connection url
+    public static final String URL = "url";
+
     // Represents the NATS Streaming message.
     public static final String NATS_STREAMING_MSG = "nats_streaming_message";
 
     public static final String NATS_BASIC_CONSUMER_ANNOTATION = "SubscriptionConfig";
 
     public static final String NATS_STREAMING_SUBSCRIPTION_ANNOTATION = "StreamingSubscriptionConfig";
+    public static final String NATS_STREAMING_MANUAL_ACK = "manualAck";
 
     public static final String NATS_STREAMING_MESSAGE_OBJ_NAME = "StreamingMessage";
 
     public static final String NATS_STREAMING_LISTENER = "StreamingListener";
 
+    public static final String BASIC_SUBSCRIPTION_LIST = "BasicSubscriptionList";
+
     public static final String STREAMING_DISPATCHER_LIST = "StreamingDispatcherList";
+    public static final String STREAMING_SUBSCRIPTION_LIST = "StreamingSubscriptionsList";
 
     public static final String ON_MESSAGE_RESOURCE = "onMessage";
 
@@ -90,6 +97,7 @@ public class Constants {
     public static final String COUNTDOWN_LATCH = "count_down_latch";
 
     public static final String NATS_CLIENT_SUBSCRIBED = "[ballerina/nats] Client subscribed for ";
+    public static final String NATS_CLIENT_UNSUBSCRIBED = "[ballerina/nats] Client unsubscribed from subject ";
 
     public static final String CONNECTION_CONFIG_SECURE_SOCKET = "secureSocket";
     public static final String CONNECTION_KEYSTORE = "keyStore";

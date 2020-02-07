@@ -17,11 +17,9 @@
  */
 package org.ballerinalang.nats.streaming.consumer;
 
-import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.BRuntime;
+import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.nats.Constants;
 
 import java.util.List;
@@ -34,23 +32,25 @@ import static org.ballerinalang.nats.Constants.STREAMING_DISPATCHER_LIST;
  *
  * @since 1.0.0
  */
-@BallerinaFunction(orgName = Constants.ORG_NAME,
-        packageName = Constants.NATS,
-        functionName = "attach",
-        receiver = @Receiver(type = TypeKind.OBJECT,
-                structType = "StreamingListener",
-                structPackage = Constants.NATS_PACKAGE),
-        isPublic = true)
 public class Attach {
 
-    public static void attach(Strand strand, ObjectValue streamingListener, ObjectValue service,
-                              Object connection) {
+    public static void streamingAttach(ObjectValue streamingListener, ObjectValue service,
+                                       Object connection) {
         List<ObjectValue> serviceList = (List<ObjectValue>) ((ObjectValue) connection)
                 .getNativeData(Constants.SERVICE_LIST);
         serviceList.add(service);
         ConcurrentHashMap<ObjectValue, StreamingListener> serviceListenerMap =
                 (ConcurrentHashMap<ObjectValue, StreamingListener>) streamingListener
                         .getNativeData(STREAMING_DISPATCHER_LIST);
-        serviceListenerMap.put(service, new StreamingListener(service, strand.scheduler));
+        boolean manualAck = getAckMode(service);
+        serviceListenerMap.put(service, new StreamingListener(service, manualAck, BRuntime.getCurrentRuntime(),
+                                                              streamingListener.getObjectValue("connection")
+                                                                      .getStringValue(Constants.URL)));
+    }
+
+    private static boolean getAckMode(ObjectValue service) {
+        MapValue serviceConfig = (MapValue) service.getType().getAnnotation(Constants.NATS_PACKAGE,
+                Constants.NATS_STREAMING_SUBSCRIPTION_ANNOTATION);
+        return serviceConfig.getBooleanValue(Constants.NATS_STREAMING_MANUAL_ACK);
     }
 }

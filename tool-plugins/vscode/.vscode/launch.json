@@ -13,6 +13,7 @@
             "--extensionDevelopmentPath=${workspaceFolder}"
         ],
         "env": {
+            "LS_EXTENSIONS_PATH":  "",
             "LS_CUSTOM_CLASSPATH": "",
             "LSDEBUG": "false",
             "COMPOSER_DEBUG": "false",

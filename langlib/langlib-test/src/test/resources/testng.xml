@@ -43,6 +43,8 @@
             <class name="org.ballerinalang.langlib.test.LangLibTypedescTest" />
             <class name="org.ballerinalang.langlib.test.LangLibXMLTest" />
             <class name="org.ballerinalang.langlib.test.LangLibErrorTest" />
+            <class name="org.ballerinalang.langlib.test.LangLibNegativeTest" />
+            <class name="org.ballerinalang.langlib.test.LangLibStreamTest" />
 
             <class name="org.ballerinalang.langlib.test.statements.foreach.ForeachErrorBindingPatternsTests"/>
             <class name="org.ballerinalang.langlib.test.statements.foreach.ForeachJSONTests"/>
@@ -60,6 +62,7 @@
             <class name="org.ballerinalang.langlib.test.statements.foreach.ForeachArrayTypedBindingPatternsTests"/>
             <class name="org.ballerinalang.langlib.test.statements.foreach.ForeachTupleTests"/>
             <class name="org.ballerinalang.langlib.test.statements.foreach.ForeachRecordTypedBindingPatternsTests"/>
+            <class name="org.ballerinalang.langlib.test.statements.foreach.ForeachIterableObjectTest"/>
         </classes>
     </test>
 </suite>

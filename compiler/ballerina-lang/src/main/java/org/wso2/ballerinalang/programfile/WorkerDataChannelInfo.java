@@ -24,6 +24,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
  *
  * @since 0.90
  */
+@Deprecated
 public class WorkerDataChannelInfo {
 
     private int sourceCPIndex;

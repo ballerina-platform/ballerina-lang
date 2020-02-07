@@ -240,9 +240,7 @@ function testBlobArrayOfQueryParameter(string jdbcURL) returns string {
     if (dt1 is table<ResultBlob>) {
         while (dt1.hasNext()) {
             var rs = dt1.getNext();
-            if (rs is ResultBlob) {
-                blobData = rs.BLOB_TYPE;
-            }
+            blobData = rs.BLOB_TYPE;
         }
     }
     byte[][] blobDataArray = [blobData, blobData];
@@ -274,7 +272,7 @@ function testCloseConnectionPool(string jdbcURL) returns @tainted (int) {
     return count;
 }
 
-function getTableCountValColumn(table<ResultCount> | error result) returns int {
+function getTableCountValColumn(table<record {}> | error result) returns int {
     int count = -1;
     if (result is table<ResultCount>) {
         foreach var x in result {

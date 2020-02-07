@@ -14,6 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/auth;
 import ballerina/log;
 
 # Log and prepare `error` as a `Error`.
@@ -30,4 +31,20 @@ function prepareError(string message, error? err = ()) returns Error {
         oauth2Error = error(OAUTH2_ERROR, message = message);
     }
     return oauth2Error;
+}
+
+# Log and prepare `error` as a `auth:Error`.
+#
+# + message - Error message
+# + err - `error` instance
+# + return - Prepared `auth:Error` instance
+function prepareAuthError(string message, error? err = ()) returns auth:Error {
+    log:printError(message, err);
+    auth:Error authError;
+    if (err is error) {
+        authError = error(auth:AUTH_ERROR, message = message, cause = err);
+    } else {
+        authError = error(auth:AUTH_ERROR, message = message);
+    }
+    return authError;
 }

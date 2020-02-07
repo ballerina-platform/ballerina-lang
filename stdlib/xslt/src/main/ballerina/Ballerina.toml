@@ -11,3 +11,24 @@ target = "java8"
     path = "./lib/ballerina-xslt-@project.version@.jar"
     groupId = "ballerina"
     modules = ["xslt"]
+
+    [[platform.libraries]]
+    artifactId = "axiom-api"
+    version = "1.2.22"
+    path = "./lib/axiom-api-1.2.22.jar"
+    groupId = "org.apache.ws.commons.axiom"
+    modules = ["xslt"]
+
+    [[platform.libraries]]
+    artifactId = "axiom-impl"
+    version = "1.2.22"
+    path = "./lib/axiom-impl-1.2.22.jar"
+    groupId = "org.apache.ws.commons.axiom"
+    modules = ["xslt"]
+
+    [[platform.libraries]]
+    artifactId = "axiom-dom"
+    version = "1.2.22"
+    path = "./lib/axiom-dom-1.2.22.jar"
+    groupId = "org.apache.ws.commons.axiom"
+    modules = ["xslt"]

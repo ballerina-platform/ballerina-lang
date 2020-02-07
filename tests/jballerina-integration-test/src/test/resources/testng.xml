@@ -71,6 +71,8 @@
             <class name="org.ballerinalang.test.service.http.sample.SslProtocolTest"/>
             <class name="org.ballerinalang.test.service.http.sample.SerializeComplexXmlTestCase"/>
             <class name="org.ballerinalang.test.service.http.sample.HTTPListenerMethodTestCase"/>
+            <class name="org.ballerinalang.test.service.http.sample.HTTPCookiesTestCase"/>
+            <class name="org.ballerinalang.test.service.http.sample.HttpUrlTestCase"/>
         </classes>
     </test>
 
@@ -102,6 +104,7 @@
             <class name="org.ballerinalang.test.service.http2.Http2MutualSslTestCase"/>
             <class name="org.ballerinalang.test.service.http2.Http2ForwardHeaderTest"/>
             <class name="org.ballerinalang.test.service.http2.Http2100ContinueTestCase"/>
+            <class name="org.ballerinalang.test.service.http2.Http2TrailingHeadersTestCase"/>
         </classes>
     </test>
 
@@ -182,6 +185,7 @@
             <class name="org.ballerinalang.test.service.websocket.ClientErrorsTest"/>
             <class name="org.ballerinalang.test.service.websocket.ServerErrorsTest"/>
             <class name="org.ballerinalang.test.service.websocket.AttachDetachTest"/>
+            <class name="org.ballerinalang.test.service.websocket.RetryClientTest"/>
         </classes>
     </test>
 
@@ -245,6 +249,7 @@
             <class name="org.ballerinalang.test.service.websub.basic.WebSubContentTypeSupportTestCase"/>
             <class name="org.ballerinalang.test.service.websub.basic.WebSubDiscoveryWithMultipleSubscribersTestCase"/>
             <class name="org.ballerinalang.test.service.websub.basic.WebSubRedirectionTestCase"/>
+            <class name="org.ballerinalang.test.service.websub.basic.WebSubStartupFunctionalityTestCase"/>
         </classes>
     </test>
 
@@ -294,6 +299,7 @@
             <class name="org.ballerinalang.test.packaging.PathDependencyTestCase"/>
             <class name="org.ballerinalang.test.packaging.DirectoryTestCase"/>
             <class name="org.ballerinalang.test.packaging.SpiServicesTestCase"/>
+            <class name="org.ballerinalang.test.packaging.SingleBalFileTestCase"/>
         </classes>
     </test>
 

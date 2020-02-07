@@ -1,0 +1,13 @@
+# To run this sample, navigate to the directory that contains the
+# `.bal` file, and execute the `ballerina run` command.
+$ ballerina run iterable_objects.bal
+Element 1: 0
+Element 2: 1
+Element 3: 1
+Element 4: 2
+Element 5: 3
+Element 6: 5
+Element 7: 8
+Element 8: 13
+Element 9: 21
+Element 10: 34

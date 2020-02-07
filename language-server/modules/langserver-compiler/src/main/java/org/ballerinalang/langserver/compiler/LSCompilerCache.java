@@ -18,6 +18,7 @@ package org.ballerinalang.langserver.compiler;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import org.antlr.v4.runtime.DefaultErrorStrategy;
+import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.compiler.common.modal.BallerinaFile;
 import org.wso2.ballerinalang.compiler.SourceDirectory;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
@@ -94,7 +95,7 @@ public class LSCompilerCache {
      * @param context   {@link LSContext}
      * @param sourceRoot source root
      */
-    public static synchronized void clear(LSServiceOperationContext context, String sourceRoot) {
+    public static synchronized void clear(LSContext context, String sourceRoot) {
         // Remove matching entries in parallel #threadSafe
         AtomicInteger count = new AtomicInteger(0);
         packageMap.keySet().stream().filter(p -> p.sourceRoot.equals(sourceRoot)).forEach(k -> {

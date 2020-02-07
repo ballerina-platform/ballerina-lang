@@ -28,6 +28,8 @@ import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
+import org.ballerinalang.jvm.values.StringValue;
+import org.ballerinalang.jvm.values.api.BString;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -60,10 +62,16 @@ public class BallerinaErrors {
     public static final String GENERATE_PKG_STOP = "___stop_";
     public static final String GENERATE_OBJECT_CLASS_PREFIX = ".$value$";
 
+    @Deprecated
     public static ErrorValue createError(String reason) {
         return new ErrorValue(reason, new MapValueImpl<>(BTypes.typeErrorDetail));
     }
 
+    public static ErrorValue createError(BString reason) {
+        return new ErrorValue((StringValue) reason, new MapValueImpl<>(BTypes.typeErrorDetail));
+    }
+
+    @Deprecated
     public static ErrorValue createError(String reason, String detail) {
         MapValueImpl<String, Object> detailMap = new MapValueImpl<>(BTypes.typeErrorDetail);
         if (detail != null) {
@@ -72,8 +80,38 @@ public class BallerinaErrors {
         return new ErrorValue(reason, detailMap);
     }
 
+    public static ErrorValue createError(BString reason, String detail) {
+        MapValueImpl<String, Object> detailMap = new MapValueImpl<>(BTypes.typeErrorDetail);
+        if (detail != null) {
+            detailMap.put(ERROR_MESSAGE_FIELD, detail);
+        }
+        return new ErrorValue((StringValue) reason, detailMap);
+    }
+
+    @Deprecated
+    public static ErrorValue createError(BType type, String reason, String detail) {
+        MapValueImpl<String, Object> detailMap = new MapValueImpl<>(BTypes.typeErrorDetail);
+        if (detail != null) {
+            detailMap.put(ERROR_MESSAGE_FIELD, detail);
+        }
+        return new ErrorValue(type, reason, detailMap);
+    }
+
+    public static ErrorValue createError(BType type, BString reason, String detail) {
+        MapValueImpl<String, Object> detailMap = new MapValueImpl<>(BTypes.typeErrorDetail);
+        if (detail != null) {
+            detailMap.put(ERROR_MESSAGE_FIELD, detail);
+        }
+        return new ErrorValue(type, (StringValue) reason, detailMap);
+    }
+
+    @Deprecated
     public static ErrorValue createError(String reason, MapValue detailMap) {
         return new ErrorValue(reason, detailMap);
+    }
+
+    public static ErrorValue createError(BString reason, MapValue detailMap) {
+        return new ErrorValue((StringValue) reason, detailMap);
     }
 
     public static ErrorValue createError(Throwable error) {

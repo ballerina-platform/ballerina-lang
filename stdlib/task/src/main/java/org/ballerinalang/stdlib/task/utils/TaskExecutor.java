@@ -17,10 +17,8 @@
 */
 package org.ballerinalang.stdlib.task.utils;
 
+import org.ballerinalang.jvm.BRuntime;
 import org.ballerinalang.jvm.types.AttachedFunction;
-import org.ballerinalang.jvm.values.ErrorValue;
-import org.ballerinalang.jvm.values.connector.CallableUnitCallback;
-import org.ballerinalang.jvm.values.connector.Executor;
 import org.ballerinalang.stdlib.task.objects.ServiceInformation;
 
 import java.util.Objects;
@@ -37,13 +35,8 @@ public class TaskExecutor {
         AttachedFunction onTriggerFunction = serviceInformation.getOnTriggerFunction();
         Object[] onTriggerFunctionArgs = getParameterList(onTriggerFunction, serviceInformation);
 
-        TaskNonBlockingCallback nonBlockingCallback = new TaskNonBlockingCallback();
-        Executor.submit(serviceInformation.getScheduler(),
-                serviceInformation.getService(),
-                RESOURCE_ON_TRIGGER,
-                nonBlockingCallback,
-                null,
-                onTriggerFunctionArgs);
+        BRuntime runtime = serviceInformation.getRuntime();
+        runtime.invokeMethodAsync(serviceInformation.getService(), RESOURCE_ON_TRIGGER, onTriggerFunctionArgs);
     }
 
     private static Object[] getParameterList(AttachedFunction function, ServiceInformation serviceInformation) {
@@ -51,18 +44,5 @@ public class TaskExecutor {
             return new Object[]{serviceInformation.getAttachment(), Boolean.TRUE};
         }
         return new Object[]{};
-    }
-
-    private static class TaskNonBlockingCallback implements CallableUnitCallback {
-
-        @Override
-        public void notifySuccess() {
-            // Do nothing
-        }
-
-        @Override
-        public void notifyFailure(ErrorValue error) {
-            // Do nothing
-        }
     }
 }

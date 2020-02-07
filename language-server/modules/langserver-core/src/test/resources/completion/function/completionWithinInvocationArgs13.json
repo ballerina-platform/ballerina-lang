@@ -118,6 +118,17 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "StrandData",
+      "kind": "Struct",
+      "detail": "Record",
+      "documentation": {
+        "left": "Describes Strand execution details for the runtime.\n"
+      },
+      "sortText": "180",
+      "insertText": "StrandData",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "map",
       "kind": "Unit",
       "detail": "Map",
@@ -197,6 +208,14 @@
       "detail": "Int",
       "sortText": "230",
       "insertText": "int",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Thread",
+      "kind": "TypeParameter",
+      "detail": "Finite",
+      "sortText": "170",
+      "insertText": "Thread",
       "insertTextFormat": "Snippet"
     },
     {
@@ -631,29 +650,6 @@
       ]
     },
     {
-      "label": "ballerina/streams",
-      "kind": "Module",
-      "detail": "Package",
-      "sortText": "140",
-      "insertText": "streams",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 1,
-              "character": 0
-            },
-            "end": {
-              "line": 1,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/streams;\n"
-        }
-      ]
-    },
-    {
       "label": "ballerina/reflect",
       "kind": "Module",
       "detail": "Package",
@@ -811,29 +807,6 @@
             }
           },
           "newText": "import ballerina/encoding;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/utils",
-      "kind": "Module",
-      "detail": "Package",
-      "sortText": "140",
-      "insertText": "utils",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 1,
-              "character": 0
-            },
-            "end": {
-              "line": 1,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/utils;\n"
         }
       ]
     },

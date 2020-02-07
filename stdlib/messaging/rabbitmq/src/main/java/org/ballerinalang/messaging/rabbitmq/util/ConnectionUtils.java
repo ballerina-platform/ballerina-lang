@@ -24,6 +24,8 @@ import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.messaging.rabbitmq.RabbitMQConnectorException;
 import org.ballerinalang.messaging.rabbitmq.RabbitMQConstants;
 import org.ballerinalang.messaging.rabbitmq.RabbitMQUtils;
+import org.ballerinalang.messaging.rabbitmq.observability.RabbitMQMetricsUtil;
+import org.ballerinalang.messaging.rabbitmq.observability.RabbitMQObservabilityConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,7 +50,7 @@ import javax.net.ssl.TrustManagerFactory;
  * @since 0.995.0
  */
 public class ConnectionUtils {
-    private static final Logger logger = LoggerFactory.getLogger(ConnectionUtils.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ConnectionUtils.class);
 
     /**
      * Creates a RabbitMQ Connection using the given connection parameters.
@@ -68,7 +70,7 @@ public class ConnectionUtils {
                 if (secureSocket.getBooleanValue(RabbitMQConstants.RABBITMQ_CONNECTION_VERIFY_HOST)) {
                     connectionFactory.enableHostnameVerification();
                 }
-                logger.info("TLS enabled for the connection.");
+                LOGGER.info("TLS enabled for the connection.");
             }
 
             String host = connectionConfig.getStringValue(RabbitMQConstants.RABBITMQ_CONNECTION_HOST);
@@ -101,19 +103,16 @@ public class ConnectionUtils {
             if (connectionHeartBeat != null) {
                 connectionFactory.setRequestedHeartbeat(Integer.parseInt(connectionHeartBeat.toString()));
             }
-            return connectionFactory.newConnection();
+            Connection connection = connectionFactory.newConnection();
+            RabbitMQMetricsUtil.reportNewConnection(connection);
+            return connection;
         } catch (IOException | TimeoutException exception) {
+            RabbitMQMetricsUtil.reportError(RabbitMQObservabilityConstants.ERROR_TYPE_CONNECTION);
             throw new RabbitMQConnectorException(RabbitMQConstants.CREATE_CONNECTION_ERROR
                     + exception.getMessage(), exception);
         }
     }
 
-    /**
-     * Creates and retrieves the initialized SSLContext.
-     *
-     * @param secureSocket secureSocket record.
-     * @return Initialized SSLContext.
-     */
     private static SSLContext getSSLContext(MapValue secureSocket) {
         try {
             MapValue cryptoKeyStore = secureSocket.getMapValue(RabbitMQConstants.RABBITMQ_CONNECTION_KEYSTORE);
@@ -130,6 +129,7 @@ public class ConnectionUtils {
                     keyStore.load(keyFileInputStream, keyPassphrase);
                 }
             } else {
+                RabbitMQMetricsUtil.reportError(RabbitMQObservabilityConstants.ERROR_TYPE_CONNECTION);
                 throw new RabbitMQConnectorException(RabbitMQConstants.CREATE_SECURE_CONNECTION_ERROR +
                         "Path for the keystore is not found.");
             }
@@ -143,6 +143,7 @@ public class ConnectionUtils {
                     trustStore.load(trustFileInputStream, trustPassphrase);
                 }
             } else {
+                RabbitMQMetricsUtil.reportError(RabbitMQObservabilityConstants.ERROR_TYPE_CONNECTION);
                 throw new RabbitMQConnectorException("Path for the truststore is not found.");
             }
             TrustManagerFactory trustManagerFactory =
@@ -156,39 +157,40 @@ public class ConnectionUtils {
             throw new RabbitMQConnectorException(RabbitMQConstants.CREATE_SECURE_CONNECTION_ERROR +
                     exception.getLocalizedMessage());
         } catch (IOException exception) {
+            RabbitMQMetricsUtil.reportError(RabbitMQObservabilityConstants.ERROR_TYPE_CONNECTION);
             throw new RabbitMQConnectorException(RabbitMQConstants.CREATE_SECURE_CONNECTION_ERROR +
                     "I/O error occurred.");
         } catch (CertificateException exception) {
+            RabbitMQMetricsUtil.reportError(RabbitMQObservabilityConstants.ERROR_TYPE_CONNECTION);
             throw new RabbitMQConnectorException(RabbitMQConstants.CREATE_SECURE_CONNECTION_ERROR +
                     "Certification error occurred.");
         } catch (UnrecoverableKeyException exception) {
+            RabbitMQMetricsUtil.reportError(RabbitMQObservabilityConstants.ERROR_TYPE_CONNECTION);
             throw new RabbitMQConnectorException(RabbitMQConstants.CREATE_SECURE_CONNECTION_ERROR +
                     "A key in the keystore cannot be recovered.");
         } catch (NoSuchAlgorithmException exception) {
+            RabbitMQMetricsUtil.reportError(RabbitMQObservabilityConstants.ERROR_TYPE_CONNECTION);
             throw new RabbitMQConnectorException(RabbitMQConstants.CREATE_SECURE_CONNECTION_ERROR +
                     "The particular cryptographic algorithm requested is not available in the environment.");
         } catch (KeyStoreException exception) {
+            RabbitMQMetricsUtil.reportError(RabbitMQObservabilityConstants.ERROR_TYPE_CONNECTION);
             throw new RabbitMQConnectorException(RabbitMQConstants.CREATE_SECURE_CONNECTION_ERROR +
                     "No provider supports a KeyStoreSpi implementation for this keystore type." +
                     exception.getLocalizedMessage());
         } catch (KeyManagementException exception) {
+            RabbitMQMetricsUtil.reportError(RabbitMQObservabilityConstants.ERROR_TYPE_CONNECTION);
             throw new RabbitMQConnectorException(RabbitMQConstants.CREATE_SECURE_CONNECTION_ERROR +
                     "Error occurred in an operation with key management." +
                     exception.getLocalizedMessage());
         }
     }
 
-    /**
-     * Handles closing the given connection.
-     *
-     * @param connection   RabbitMQ Connection object.
-     * @param timeout      Timeout (in milliseconds) for completing all the close-related
-     *                     operations, use -1 for infinity.
-     * @param closeCode    The close code (See under "Reply Codes" in the AMQP specification).
-     * @param closeMessage A message indicating the reason for closing the connection.
-     */
-    public static void handleCloseConnection(Connection connection, Object closeCode, Object closeMessage,
-                                             Object timeout) {
+    public static boolean isClosed(Connection connection) {
+        return connection == null || !connection.isOpen();
+    }
+
+    public static Object handleCloseConnection(Object closeCode, Object closeMessage, Object timeout,
+                                               Connection connection) {
         boolean validTimeout = timeout != null && RabbitMQUtils.checkIfInt(timeout);
         boolean validCloseCode = (closeCode != null && RabbitMQUtils.checkIfInt(closeCode)) &&
                 (closeMessage != null && RabbitMQUtils.checkIfString(closeMessage));
@@ -203,23 +205,17 @@ public class ConnectionUtils {
             } else {
                 connection.close();
             }
+            RabbitMQMetricsUtil.reportConnectionClose(connection);
         } catch (IOException | ArithmeticException exception) {
-            throw new RabbitMQConnectorException(RabbitMQConstants.CLOSE_CONNECTION_ERROR + exception.getMessage(),
-                    exception);
+            RabbitMQMetricsUtil.reportError(RabbitMQObservabilityConstants.ERROR_TYPE_CONNECTION_CLOSE);
+            return RabbitMQUtils.returnErrorValue("Error occurred while closing the connection: "
+                    + exception.getMessage());
         }
+        return null;
     }
 
-    /**
-     * Handles aborting the given connection.
-     *
-     * @param connection   RabbitMQ Connection object.
-     * @param timeout      Timeout (in milliseconds) for completing all the close-related
-     *                     operations, use -1 for infinity.
-     * @param closeCode    The close code (See under "Reply Codes" in the AMQP specification).
-     * @param closeMessage A message indicating the reason for closing the connection.
-     */
-    public static void handleAbortConnection(Connection connection, Object closeCode, Object closeMessage,
-                                             Object timeout) {
+    public static void handleAbortConnection(Object closeCode, Object closeMessage, Object timeout,
+                                             Connection connection) {
         boolean validTimeout = timeout != null && RabbitMQUtils.checkIfInt(timeout);
         boolean validCloseCode = (closeCode != null && RabbitMQUtils.checkIfInt(closeCode)) &&
                 (closeMessage != null && RabbitMQUtils.checkIfString(closeMessage));
@@ -233,20 +229,7 @@ public class ConnectionUtils {
         } else {
             connection.abort();
         }
-    }
-
-    /**
-     * Checks if close was already called on the connection.
-     *
-     * @param connection RabbitMQ Connection object.
-     * @return True if the connection is already closed and false otherwise.
-     */
-    public static boolean isClosed(Connection connection) {
-        boolean flag = false;
-        if (connection == null || !connection.isOpen()) {
-            flag = true;
-        }
-        return flag;
+        RabbitMQMetricsUtil.reportConnectionClose(connection);
     }
 
     private ConnectionUtils() {

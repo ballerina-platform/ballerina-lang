@@ -29,12 +29,5 @@ public class BallerinaCliCommands {
     public static final String VERSION = "version";
     public static final String RUN = "run";
     public static final String ENCRYPT = "encrypt";
-    public static final String UPDATE = "update";
-    public static final String DIST = "dist";
-    public static final String LIST = "list";
-    public static final String PULL = "pull";
-    public static final String USE = "use";
-    public static final String REMOVE = "remove";
     public static final String HOME = "home";
-    public static final String SELF_UPDATE = "self-update";
 }

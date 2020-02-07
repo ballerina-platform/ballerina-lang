@@ -20,17 +20,17 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.command.ExecuteCommandKeys;
-import org.ballerinalang.langserver.command.LSCommandExecutor;
-import org.ballerinalang.langserver.command.LSCommandExecutorException;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.FunctionGenerator;
+import org.ballerinalang.langserver.commons.LSContext;
+import org.ballerinalang.langserver.commons.command.ExecuteCommandKeys;
+import org.ballerinalang.langserver.commons.command.LSCommandExecutorException;
+import org.ballerinalang.langserver.commons.command.spi.LSCommandExecutor;
+import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
+import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
-import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.compiler.exception.CompilationFailedException;
-import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentException;
-import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.eclipse.lsp4j.Position;
@@ -68,7 +68,7 @@ import static org.ballerinalang.langserver.compiler.LSCompilerUtil.getUntitledFi
  *
  * @since 0.983.0
  */
-@JavaSPIService("org.ballerinalang.langserver.command.LSCommandExecutor")
+@JavaSPIService("org.ballerinalang.langserver.commons.command.spi.LSCommandExecutor")
 public class CreateFunctionExecutor implements LSCommandExecutor {
 
     public static final String COMMAND = "CREATE_FUNC";
@@ -110,7 +110,7 @@ public class CreateFunctionExecutor implements LSCommandExecutor {
             throw new LSCommandExecutorException("Invalid parameters received for the create function command!");
         }
 
-        WorkspaceDocumentManager documentManager = context.get(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY);
+        WorkspaceDocumentManager documentManager = context.get(DocumentServiceKeys.DOC_MANAGER_KEY);
 
         BLangInvocation functionNode;
         try {
@@ -162,7 +162,7 @@ public class CreateFunctionExecutor implements LSCommandExecutor {
         } else {
             throw new LSCommandExecutorException("Error occurred when retrieving function node!");
         }
-        LanguageClient client = context.get(ExecuteCommandKeys.LANGUAGE_SERVER_KEY).getClient();
+        LanguageClient client = context.get(ExecuteCommandKeys.LANGUAGE_CLIENT_KEY);
         String modifiers = "";
         boolean prependLineFeed = true;
         String padding = "";

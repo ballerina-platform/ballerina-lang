@@ -68,6 +68,7 @@ import org.wso2.lsp4intellij.client.languageserver.requestmanager.RequestManager
 import org.wso2.lsp4intellij.client.languageserver.wrapper.LanguageServerWrapper;
 import org.wso2.lsp4intellij.contributors.icon.LSPIconProvider;
 import org.wso2.lsp4intellij.editor.EditorEventManager;
+import org.wso2.lsp4intellij.listeners.LSPCaretListenerImpl;
 import org.wso2.lsp4intellij.requests.Timeouts;
 import org.wso2.lsp4intellij.utils.ApplicationUtils;
 import org.wso2.lsp4intellij.utils.DocumentUtils;
@@ -107,9 +108,10 @@ public class BallerinaEditorEventManager extends EditorEventManager {
 
     public BallerinaEditorEventManager(Editor editor, DocumentListener documentListener,
                                        EditorMouseListener mouseListener, EditorMouseMotionListener mouseMotionListener,
-                                       RequestManager requestManager, ServerOptions serverOptions,
-                                       LanguageServerWrapper wrapper) {
-        super(editor, documentListener, mouseListener, mouseMotionListener, requestManager, serverOptions, wrapper);
+                                       LSPCaretListenerImpl caretListener, RequestManager requestManager,
+                                       ServerOptions serverOptions, LanguageServerWrapper wrapper) {
+        super(editor, documentListener, mouseListener, mouseMotionListener, caretListener, requestManager,
+                serverOptions, wrapper);
     }
 
     @Nullable
@@ -280,9 +282,7 @@ public class BallerinaEditorEventManager extends EditorEventManager {
 
         // Fixes IDEA internal assertion failure in windows.
         lookupString = lookupString.replace(DocumentUtils.WIN_SEPARATOR, DocumentUtils.LINUX_SEPARATOR);
-        if (lookupString.contains(DocumentUtils.LINUX_SEPARATOR)) {
-            lookupString = insertIndents(lookupString, position);
-        }
+
         if (shouldRunInSnippetMode(item, lookupString)) {
             lookupElementBuilder = LookupElementBuilder.create(convertPlaceHolders(lookupString));
         } else {
@@ -298,8 +298,9 @@ public class BallerinaEditorEventManager extends EditorEventManager {
                 withIcon(icon).withAutoCompletionPolicy(AutoCompletionPolicy.SETTINGS_DEPENDENT);
     }
 
-    private LookupElementBuilder addCompletionInsertHandlers(CompletionItem item, LookupElementBuilder builder,
-                                                             String lookupString) {
+    @Override
+    public LookupElementBuilder addCompletionInsertHandlers(CompletionItem item, LookupElementBuilder builder,
+                                                            String lookupString) {
         String label = item.getLabel();
         Command command = item.getCommand();
         List<TextEdit> addTextEdits = item.getAdditionalTextEdits();
@@ -357,7 +358,8 @@ public class BallerinaEditorEventManager extends EditorEventManager {
         return insertText.replaceAll(LSP_SNIPPET_VAR_REGEX, "");
     }
 
-    private void prepareAndRunSnippet(String insertText) {
+    @Override
+    public void prepareAndRunSnippet(String insertText) {
         // Holds variable text (including the snippet syntax) against the starting index.
         List<SnippetVariable> variables = new ArrayList<>();
         // Fetches variables with place holders.

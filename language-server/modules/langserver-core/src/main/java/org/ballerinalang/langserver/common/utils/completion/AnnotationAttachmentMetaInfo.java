@@ -17,7 +17,7 @@
 */
 package org.ballerinalang.langserver.common.utils.completion;
 
-import org.ballerinalang.langserver.AnnotationNodeKind;
+import org.ballerinalang.langserver.commons.completion.AnnotationNodeKind;
 
 import java.util.Queue;
 

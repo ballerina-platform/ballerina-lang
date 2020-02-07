@@ -13,6 +13,12 @@ function testFloatAsJsonVal () returns (json) {
     return j;
 }
 
+function testByteAsJsonVal() returns json {
+    byte b = 5;
+    json j = b;
+    return j;
+}
+
 function testDecimalAsJsonVal() returns (json) {
     decimal d = 7.65;
     json j = d;

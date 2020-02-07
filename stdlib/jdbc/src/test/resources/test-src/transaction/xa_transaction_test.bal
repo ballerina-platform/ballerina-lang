@@ -243,14 +243,12 @@ function testXATransactionRetryHelper(jdbc:Client testDB1, jdbc:Client testDB2) 
     }
 }
 
-function getTableCountValColumn(table<ResultCount> | error result) returns int {
+function getTableCountValColumn(table<record {}> | error result) returns int {
     int count = -1;
     if (result is table<ResultCount>) {
         while (result.hasNext()) {
             var rs = result.getNext();
-            if (rs is ResultCount) {
-                count = rs.COUNTVAL;
-            }
+            count = rs.COUNTVAL;
         }
         return count;
     }

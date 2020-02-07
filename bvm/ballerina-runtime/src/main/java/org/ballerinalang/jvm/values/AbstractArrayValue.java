@@ -19,11 +19,11 @@ package org.ballerinalang.jvm.values;
 
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.JSONGenerator;
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.util.exceptions.BLangFreezeException;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.api.BArray;
+import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.jvm.values.freeze.FreezeUtils;
 import org.ballerinalang.jvm.values.freeze.State;
 import org.ballerinalang.jvm.values.freeze.Status;
@@ -122,7 +122,17 @@ public abstract class AbstractArrayValue implements ArrayValue {
      * @return array element
      */
     @Override
+    @Deprecated
     public abstract String getString(long index);
+
+    /**
+     * Get string value in the given index.
+     *
+     * @param index array index
+     * @return array element
+     */
+    @Override
+    public abstract BString getBString(long index);
 
     // ---------------------------- add methods --------------------------------------------------
 
@@ -178,7 +188,17 @@ public abstract class AbstractArrayValue implements ArrayValue {
      * @param value value to be added
      */
     @Override
+    @Deprecated
     public abstract void add(long index, String value);
+
+    /**
+     * Add BString value to the given array index.
+     *
+     * @param index array index
+     * @param value value to be added
+     */
+    @Override
+    public abstract void add(long index, BString value);
 
     // -------------------------------------------------------------------------------------------------------------
 
@@ -220,12 +240,7 @@ public abstract class AbstractArrayValue implements ArrayValue {
     }
 
     @Override
-    public String stringValue() {
-        return stringValue(null);
-    }
-
-    @Override
-    public abstract String stringValue(Strand strand);
+    public abstract String stringValue();
 
     @Override
     public abstract BType getType();
@@ -343,8 +358,6 @@ public abstract class AbstractArrayValue implements ArrayValue {
             }
         }
     }
-
-    protected abstract void prepareForAdd(long index, Object value, int currentArraySize);
 
     /**
      * Same as {@code prepareForAdd}, except fillerValueCheck is not performed as we are guaranteed to add

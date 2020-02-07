@@ -78,7 +78,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStatementExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableLiteral;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableQueryExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTrapExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTupleVarRef;
@@ -110,7 +109,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangErrorDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangErrorVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangForever;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
@@ -356,6 +354,13 @@ public class ClosureDesugar extends BLangNodeVisitor {
             BLangAssignment stmt = createAssignment(varDefNode);
             result = rewrite(stmt, env);
         } else {
+            // Note: Although it's illegal to use a closure variable without initializing it in it's declared scope,
+            // when we access (initialize) a variable from outer scope, since we desugar transaction block into a
+            // lambda invocation, we need to create the `mapSymbol` in the outer node.
+            BLangBlockStmt blockStmt = (BLangBlockStmt) env.node;
+            if (blockStmt.mapSymbol == null) {
+                blockStmt.mapSymbol = createMapSymbol("$map$block$" + blockClosureMapCount, env);
+            }
             result = varDefNode;
         }
     }
@@ -425,10 +430,6 @@ public class ClosureDesugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangRecordTypeNode recordTypeNode) {
         result = recordTypeNode;
-    }
-
-    public void visit(BLangForever foreverStatement) {
-        result = rewrite(foreverStatement, env);
     }
 
     @Override
@@ -767,8 +768,10 @@ public class ClosureDesugar extends BLangNodeVisitor {
                     // Create mapSymbol in outer function node when it contain workers and it's not already created.
                     // We need this to allow worker identifier to be used as a future.
                     if (bLangLambdaFunction.function.flagSet.contains(Flag.WORKER)) {
-                        ((BLangBlockStmt) env.node).mapSymbol =
-                                createMapSymbol("$map$block$" + blockClosureMapCount, env);
+                        if (((BLangBlockStmt) env.node).mapSymbol == null) {
+                            ((BLangBlockStmt) env.node).mapSymbol =
+                                    createMapSymbol("$map$block$" + blockClosureMapCount, env);
+                        }
                         enclMapSymbols.putIfAbsent(symbolEnv.envCount, ((BLangBlockStmt) symbolEnv.node).mapSymbol);
                     }
                 }
@@ -1144,14 +1147,6 @@ public class ClosureDesugar extends BLangNodeVisitor {
         result = mapLiteral;
     }
 
-    public void visit(BLangRecordLiteral.BLangStreamLiteral streamLiteral) {
-        streamLiteral.keyValuePairs.forEach(bLangRecordKeyValue -> {
-            bLangRecordKeyValue.key.expr = rewriteExpr(bLangRecordKeyValue.key.expr);
-            bLangRecordKeyValue.valueExpr = rewriteExpr(bLangRecordKeyValue.valueExpr);
-        });
-        result = streamLiteral;
-    }
-
     @Override
     public void visit(BLangRecordLiteral.BLangStructLiteral structLiteral) {
         structLiteral.keyValuePairs.forEach(bLangRecordKeyValue -> {
@@ -1211,11 +1206,6 @@ public class ClosureDesugar extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangTableQueryExpression tableQueryExpression) {
-        /* Ignore */
-    }
-
-    @Override
     public void visit(BLangMatchExpression bLangMatchExpression) {
         result = bLangMatchExpression;
     }
@@ -1258,14 +1248,6 @@ public class ClosureDesugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangInvocation.BLangActionInvocation aIExpr) {
         result = aIExpr;
-    }
-
-    @Override
-    public void visit(BLangInvocation.BLangBuiltInMethodInvocation iExpr) {
-        iExpr.expr = rewriteExpr(iExpr.expr);
-        iExpr.requiredArgs = rewriteExprs(iExpr.requiredArgs);
-        iExpr.restArgs = rewriteExprs(iExpr.restArgs);
-        result = iExpr;
     }
 
     @Override

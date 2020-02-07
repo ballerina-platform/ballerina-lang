@@ -25,6 +25,7 @@ import org.ballerinalang.jvm.types.BObjectType;
 import org.ballerinalang.jvm.types.BStructureType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.util.Flags;
+import org.ballerinalang.jvm.values.api.BString;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -61,7 +62,16 @@ public abstract class AbstractObjectValue implements ObjectValue {
     public abstract Object get(String fieldName);
 
     @Override
+    public abstract Object get(StringValue fieldName);
+
+    @Override
+    public abstract Object get(BString fieldName);
+
+    @Override
     public abstract void set(String fieldName, Object value);
+
+    @Override
+    public abstract void set(StringValue fieldName, Object value);
 
     @Override
     public void addNativeData(String key, Object data) {

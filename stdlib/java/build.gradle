@@ -28,19 +28,6 @@ dependencies {
     baloCreat project(':lib-creator')
     implementation project(':ballerina-lang')
     implementation project(':ballerina-runtime')
-    implementation project(':ballerina-logging')
-    implementation project(':ballerina-runtime-api')
-
-    baloImplementation project(path: ':ballerina-utils', configuration: 'baloImplementation')
-
-    testCompile project(path: ':ballerina-test-common', configuration: 'tests')
-    testCompile 'org.testng:testng'
-    testCompile 'org.slf4j:slf4j-jdk14'
-
-    testCompile project(path: ':ballerina-test-utils', configuration: 'shadow')
-    testCompile project(':ballerina-test-utils')
-    testCompile project(':ballerina-reflect')
-    testCompile project(':ballerina-jvm')
 }
 
 createBalo {

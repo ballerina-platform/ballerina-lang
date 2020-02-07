@@ -41,6 +41,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
@@ -114,12 +115,6 @@ public class TypeParamAnalyzer {
 
     void checkForTypeParamsInArg(BType actualType, SymbolEnv env, BType expType) {
 
-        if (actualType == null) {
-            // This is added to prevent compiler panic. Ideally every invocation node should have a type. But,
-            // StreamTypeChecker skips some validation, which leads to actualType == null.
-            // TODO: Fix this properly. issue #18363
-            return;
-        }
         // Not a langlib module invocation
         if (notRequireTypeParams(env)) {
             return;
@@ -183,6 +178,8 @@ public class TypeParamAnalyzer {
                     }
                 }
                 return false;
+            case TypeTags.TABLE:
+                return containsTypeParam(((BTableType) type).constraint, resolvedTypes);
             case TypeTags.MAP:
                 return containsTypeParam(((BMapType) type).constraint, resolvedTypes);
             case TypeTags.STREAM:
@@ -298,6 +295,12 @@ public class TypeParamAnalyzer {
                 if (actualType.tag == TypeTags.TUPLE) {
                     findTypeParamInTupleForArray((BArrayType) expType, (BTupleType) actualType, env, resolvedTypes,
                                                  result);
+                }
+                return;
+            case TypeTags.TABLE:
+                if (actualType.tag == TypeTags.TABLE) {
+                    findTypeParam(((BTableType) expType).constraint, ((BTableType) actualType).constraint, env,
+                            resolvedTypes, result);
                 }
                 return;
             case TypeTags.MAP:
@@ -518,6 +521,9 @@ public class TypeParamAnalyzer {
             case TypeTags.ARRAY:
                 BType elementType = ((BArrayType) expType).eType;
                 return new BArrayType(getMatchingBoundType(elementType, env, resolvedTypes));
+            case TypeTags.TABLE:
+                return new BTableType(TypeTags.TABLE, getMatchingBoundType((((BTableType) expType)).constraint, env,
+                        resolvedTypes), symTable.tableType.tsymbol);
             case TypeTags.MAP:
                 BType constraint = ((BMapType) expType).constraint;
                 return new BMapType(TypeTags.MAP, getMatchingBoundType(constraint, env, resolvedTypes),
@@ -592,9 +598,10 @@ public class TypeParamAnalyzer {
         List<BType> paramTypes = expType.paramTypes.stream()
                 .map(type -> getMatchingBoundType(type, env, resolvedTypes))
                 .collect(Collectors.toList());
-        // TODO: 7/4/19 Set a type symbol for the below type. Otherwise it'll cause problems for functions returning
-        //  a function pointer.
-        return new BInvokableType(paramTypes, getMatchingBoundType(expType.retType, env, resolvedTypes), null);
+        BType restType = expType.restType;
+        return new BInvokableType(paramTypes, restType, getMatchingBoundType(expType.retType, env, resolvedTypes),
+                Symbols.createInvokableTypeSymbol(SymTag.FUNCTION_TYPE, expType.flags,
+                        env.enclPkg.symbol.pkgID, expType, env.scope.owner));
     }
 
     private BType getMatchingObjectBoundType(BObjectType expType, SymbolEnv env, HashSet<BType> resolvedTypes) {

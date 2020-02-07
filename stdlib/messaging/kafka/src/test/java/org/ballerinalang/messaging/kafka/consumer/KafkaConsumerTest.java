@@ -64,7 +64,7 @@ public class KafkaConsumerTest {
         dataDir = Testing.Files.createTestingDirectory("cluster-kafka-consumer-test");
         kafkaCluster = createKafkaCluster(dataDir, 14007, 14107).addBrokers(1).startup();
         kafkaCluster.createTopic(TOPIC, 1, 1);
-        result = BCompileUtil.compile(getFilePath(Paths.get(TEST_SRC, TEST_CONSUMER, "kafka_consumer.bal")));
+        result = BCompileUtil.compileOffline(getFilePath(Paths.get(TEST_SRC, TEST_CONSUMER, "kafka_consumer.bal")));
     }
 
     @Test(description = "Checks Kafka consumer creation")

@@ -95,6 +95,10 @@ public class NegativeValidationTest {
             "\\{ballerinax/java\\}METHOD_SIGNATURE_DOES_NOT_MATCH message=Incompatible param type for method " +
             "'getIntFromJsonInt' in class 'org.ballerinalang.nativeimpl.jvm.tests.StaticMethods': Java type 'int' " +
             "will not be matched to ballerina type 'int\\|string'";
+    private final String expectedMsg20 = "error: .:method_sig_not_match14.bal:3:1: " +
+            "\\{ballerinax/java\\}METHOD_SIGNATURE_DOES_NOT_MATCH message=Incompatible param type for method " +
+            "'decimalParamAndWithBigDecimal' in class 'org.ballerinalang.nativeimpl.jvm.tests.StaticMethods':" +
+            " Java type 'java.math.BigDecimal' will not be matched to ballerina type 'decimal'";
 
     @Test(expectedExceptions = BLangCompilerException.class)
     public void testAcceptNothing() {
@@ -213,6 +217,12 @@ public class NegativeValidationTest {
     @Test(expectedExceptions = BLangCompilerException.class, expectedExceptionsMessageRegExp = expectedMsg19)
     public void testJavaPrimitiveForBUnionParam() {
         String path = "test-src/javainterop/negative/method_sig_not_match13.bal";
+        BCompileUtil.compileInProc(path);
+    }
+    
+    @Test(expectedExceptions = BLangCompilerException.class, expectedExceptionsMessageRegExp = expectedMsg20)
+    public void testMethodSignatureNotMatch14() {
+        String path = "test-src/javainterop/negative/method_sig_not_match14.bal";
         BCompileUtil.compileInProc(path);
     }
 }

@@ -32,4 +32,4 @@ DEFAULT BEHAVIOUR
 
 EXAMPLES
        Encrypt sensitive data.
-          → ballerina encrypt
+          $ ballerina encrypt

@@ -17,16 +17,16 @@ package org.ballerinalang.langserver.command.executors;
 
 import com.google.gson.JsonObject;
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.command.ExecuteCommandKeys;
-import org.ballerinalang.langserver.command.LSCommandExecutor;
-import org.ballerinalang.langserver.command.LSCommandExecutorException;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.FunctionGenerator;
+import org.ballerinalang.langserver.commons.LSContext;
+import org.ballerinalang.langserver.commons.command.ExecuteCommandKeys;
+import org.ballerinalang.langserver.commons.command.LSCommandExecutorException;
+import org.ballerinalang.langserver.commons.command.spi.LSCommandExecutor;
+import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
-import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.compiler.exception.CompilationFailedException;
-import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.model.elements.PackageID;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
@@ -56,7 +56,7 @@ import static org.ballerinalang.langserver.common.utils.CommonUtil.createVariabl
  *
  * @since 0.983.0
  */
-@JavaSPIService("org.ballerinalang.langserver.command.LSCommandExecutor")
+@JavaSPIService("org.ballerinalang.langserver.commons.command.spi.LSCommandExecutor")
 public class CreateVariableExecutor implements LSCommandExecutor {
 
     public static final String COMMAND = "CREATE_VAR";
@@ -94,7 +94,7 @@ public class CreateVariableExecutor implements LSCommandExecutor {
             throw new LSCommandExecutorException("Invalid parameters received for the create variable command!");
         }
 
-        WorkspaceDocumentManager documentManager = context.get(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY);
+        WorkspaceDocumentManager documentManager = context.get(DocumentServiceKeys.DOC_MANAGER_KEY);
         BLangInvocation functionNode;
         try {
             functionNode = getFunctionInvocationNode(sLine, sCol, documentUri, documentManager, context);
@@ -130,7 +130,7 @@ public class CreateVariableExecutor implements LSCommandExecutor {
         String editText = createVariableDeclaration(variableName, variableType);
         Position position = new Position(functionNode.pos.sLine - 1, functionNode.pos.sCol - 1);
 
-        LanguageClient client = context.get(ExecuteCommandKeys.LANGUAGE_SERVER_KEY).getClient();
+        LanguageClient client = context.get(ExecuteCommandKeys.LANGUAGE_CLIENT_KEY);
         edits.add(new TextEdit(new Range(position, position), editText));
         TextDocumentEdit textDocumentEdit = new TextDocumentEdit(textDocumentIdentifier, edits);
         return applyWorkspaceEdit(Collections.singletonList(Either.forLeft(textDocumentEdit)), client);

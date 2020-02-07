@@ -1,7 +1,7 @@
 {
   "position": {
-    "line": 13,
-    "character": 23
+    "line": 7,
+    "character": 16
   },
   "source": "function/source/chainCompletion2.bal",
   "items": [
@@ -94,14 +94,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "zone",
-      "kind": "Variable",
-      "detail": "time:TimeZone",
-      "sortText": "130",
-      "insertText": "zone",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "get(string k)((any|error))",
       "kind": "Function",
       "detail": "Function",
@@ -158,7 +150,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.map_  \n  \nCombines the members of a map using a combining function.\nThe combining function takes the combined value so far and a member of the map,\nand returns a new combined value.\n  \n**Params**  \n- `function ((any|error),(any|error)) returns ((any|error))` func: combining function  \n- `(any|error)` initial: initial value for the first argument of combining function 'func'  \n  \n**Returns** `(any|error)`   \n- result of combining the members of `m` using `func`  \n  \n"
+          "value": "**Package:** _ballerina/lang.map_  \n  \nCombines the members of a map using a combining function.\nThe combining function takes the combined value so far and a member of the map,\nand returns a new combined value.\n  \n**Params**  \n- `function ((any|error),(any|error)) returns ((any|error))` func: combining function  \n- `(any|error)` initial: initial value for the first argument of combining parameter `func`  \n  \n**Returns** `(any|error)`   \n- result of combining the members of `m` using `func`  \n  \n"
         }
       },
       "sortText": "120",
@@ -186,6 +178,14 @@
         "title": "editor.action.triggerParameterHints",
         "command": "editor.action.triggerParameterHints"
       }
+    },
+    {
+      "label": "recField1",
+      "kind": "Variable",
+      "detail": "int",
+      "sortText": "130",
+      "insertText": "recField1",
+      "insertTextFormat": "Snippet"
     },
     {
       "label": "forEach(function ((any|error)) returns () func)",
@@ -231,6 +231,14 @@
       },
       "sortText": "120",
       "insertText": "cloneReadOnly()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "recField2",
+      "kind": "Variable",
+      "detail": "string",
+      "sortText": "130",
+      "insertText": "recField2",
       "insertTextFormat": "Snippet"
     },
     {
@@ -309,14 +317,6 @@
       },
       "sortText": "120",
       "insertText": "toString()",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "time",
-      "kind": "Variable",
-      "detail": "int",
-      "sortText": "130",
-      "insertText": "time",
       "insertTextFormat": "Snippet"
     }
   ]
