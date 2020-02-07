@@ -1,9 +1,9 @@
 {
   "position": {
-    "line": 9,
-    "character": 8
+    "line": 5,
+    "character": 12
   },
-  "source": "record/source/recordTest2.bal",
+  "source": "function/source/groupedExpressionSuggestion1.bal",
   "items": [
     {
       "label": "fromJsonString()((json|error))",
@@ -110,14 +110,6 @@
         "title": "editor.action.triggerParameterHints",
         "command": "editor.action.triggerParameterHints"
       }
-    },
-    {
-      "label": "employer",
-      "kind": "Variable",
-      "detail": "Person",
-      "sortText": "130",
-      "insertText": "employer",
-      "insertTextFormat": "Snippet"
     },
     {
       "label": "map(function ((any|error)) returns ((any|error)) func)(map<(any|error)>)",
@@ -317,6 +309,14 @@
       },
       "sortText": "120",
       "insertText": "toString()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "age",
+      "kind": "Variable",
+      "detail": "int",
+      "sortText": "130",
+      "insertText": "age",
       "insertTextFormat": "Snippet"
     }
   ]

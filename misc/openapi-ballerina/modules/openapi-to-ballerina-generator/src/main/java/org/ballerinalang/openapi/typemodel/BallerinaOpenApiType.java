@@ -10,56 +10,27 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Java representation for OpenApi object.
+ * This class contains the OpenApi Type Object.
  */
-public class OpenApiType {
-
-    private String moduleName;
-    private String serviceName;
-    private String definitionPath;
+public class BallerinaOpenApiType {
+    private String balModule;
+    private String balServiceName;
+    private String defPath;
     private List<BallerinaServer> servers = new ArrayList<>();
-    private List<OpenApiPathType> paths;
-    private OpenApiComponentType component;
     private List<Tag> tags;
+    private List<BallerinaOpenApiPath> pathList;
+    private BallerinaOpenApiComponent component;
 
-    public List<OpenApiPathType> getPaths() {
-        return paths;
-    }
-
-    public void setPaths(List<OpenApiPathType> paths) {
-        this.paths = paths;
-    }
-
-    public OpenApiComponentType getComponent() {
+    public BallerinaOpenApiComponent getComponent() {
         return component;
     }
 
-    public void setComponent(OpenApiComponentType component) {
+    public void setComponent(BallerinaOpenApiComponent component) {
         this.component = component;
     }
 
-    public String getModuleName() {
-        return moduleName;
-    }
-
-    public void setModuleName(String moduleName) {
-        this.moduleName = moduleName;
-    }
-
-    public String getServiceName() {
-        return serviceName;
-    }
-
-    public void setServiceName(String serviceName) {
-        this.serviceName = serviceName;
-    }
-
-    public String getDefinitionPath() {
-        return definitionPath;
-    }
-
-    public void setDefinitionPath(String definitionPath) {
-        this.definitionPath = definitionPath;
+    public List<BallerinaServer> getServers() {
+        return servers;
     }
 
     public List<Tag> getTags() {
@@ -70,7 +41,37 @@ public class OpenApiType {
         this.tags = tags;
     }
 
+    public String getBalModule() {
+        return balModule;
+    }
 
+    public void setBalModule(String balModule) {
+        this.balModule = balModule;
+    }
+
+    public String getBalServiceName() {
+        return balServiceName;
+    }
+
+    public void setBalServiceName(String balServiceName) {
+        this.balServiceName = balServiceName;
+    }
+
+    public String getDefPath() {
+        return defPath;
+    }
+
+    public void setDefPath(String defPath) {
+        this.defPath = defPath;
+    }
+
+    public List<BallerinaOpenApiPath> getPathList() {
+        return pathList;
+    }
+
+    public void setPathList(List<BallerinaOpenApiPath> pathList) {
+        this.pathList = pathList;
+    }
 
     /**
      * Extract endpoint information from OpenAPI server list.
@@ -100,5 +101,4 @@ public class OpenApiType {
             }
         });
     }
-
 }

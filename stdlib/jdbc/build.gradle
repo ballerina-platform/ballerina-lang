@@ -53,6 +53,8 @@ dependencies {
     interopImports project(':ballerina-system')
     interopImports project(':ballerina-reflect')
 
+    interopImports project(':ballerina-jsonutils')
+
     baloCreat project(':lib-creator')
     implementation project(':ballerina-lang')
     implementation project(':ballerina-lang:annotations')
