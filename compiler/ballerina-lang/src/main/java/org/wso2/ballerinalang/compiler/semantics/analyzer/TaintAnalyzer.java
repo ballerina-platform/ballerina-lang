@@ -57,24 +57,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangFunctionClause;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangGroupBy;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangHaving;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangJoinStreamingInput;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangLimit;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangOrderBy;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangPatternClause;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangPatternStreamingEdgeInput;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangPatternStreamingInput;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectExpression;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangSetAssignment;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangStreamAction;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangStreamingInput;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangTableQuery;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhere;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangWindow;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangWithinClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAccessExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
@@ -95,6 +77,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRestArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangServiceConstructorExpr;
@@ -102,7 +85,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStatementExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableLiteral;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableQueryExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTrapExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
@@ -136,7 +118,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangErrorDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangErrorVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangForever;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
@@ -148,7 +129,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangRetry;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangStreamingQueryStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTryCatchFinally;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTupleDestructure;
@@ -440,7 +420,6 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         BSymbol objectSymbol = recordNode.symbol;
         SymbolEnv objectEnv = SymbolEnv.createPkgLevelSymbolEnv(recordNode, objectSymbol.scope, env);
         recordNode.fields.forEach(field -> analyzeNode(field, objectEnv));
-        analyzeNode(recordNode.initFunction, objectEnv);
     }
 
     @Override
@@ -861,86 +840,6 @@ public class TaintAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangForkJoin forkJoin) {
-        /* ignore */
-    }
-
-    @Override
-    public void visit(BLangOrderBy orderBy) {
-        /* ignore */
-    }
-
-    @Override
-    public void visit(BLangLimit limit) {
-        /* ignore */
-    }
-
-    @Override
-    public void visit(BLangGroupBy groupBy) {
-        /* ignore */
-    }
-
-    @Override
-    public void visit(BLangHaving having) {
-        /* ignore */
-    }
-
-    @Override
-    public void visit(BLangSelectExpression selectExpression) {
-        /* ignore */
-    }
-
-    @Override
-    public void visit(BLangSelectClause selectClause) {
-        /* ignore */
-    }
-
-    @Override
-    public void visit(BLangWhere whereClause) {
-        /* ignore */
-    }
-
-    @Override
-    public void visit(BLangStreamingInput streamingInput) {
-        /* ignore */
-    }
-
-    @Override
-    public void visit(BLangJoinStreamingInput joinStreamingInput) {
-        /* ignore */
-    }
-
-    @Override
-    public void visit(BLangTableQuery tableQuery) {
-        /* ignore */
-    }
-
-    @Override
-    public void visit(BLangStreamAction streamAction) {
-        /* ignore */
-    }
-
-    @Override
-    public void visit(BLangFunctionClause functionClause) {
-        /* ignore */
-    }
-
-    @Override
-    public void visit(BLangSetAssignment setAssignmentClause) {
-        /* ignore */
-    }
-
-    @Override
-    public void visit(BLangPatternStreamingEdgeInput patternStreamingEdgeInput) {
-        /* ignore */
-    }
-
-    @Override
-    public void visit(BLangWindow windowClause) {
-        /* ignore */
-    }
-
-    @Override
-    public void visit(BLangPatternStreamingInput patternStreamingInput) {
         /* ignore */
     }
 
@@ -1406,11 +1305,6 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangTableQueryExpression tableQueryExpression) {
-        /* ignore */
-    }
-
-    @Override
     public void visit(BLangRestArgsExpression varArgsExpression) {
         varArgsExpression.expr.accept(this);
     }
@@ -1418,26 +1312,6 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangNamedArgsExpression namedArgsExpression) {
         namedArgsExpression.expr.accept(this);
-    }
-
-    @Override
-    public void visit(BLangStreamingQueryStatement streamingQueryStatement) {
-        /* ignore */
-    }
-
-    @Override
-    public void visit(BLangWithinClause withinClause) {
-        /* ignore */
-    }
-
-    @Override
-    public void visit(BLangPatternClause patternClause) {
-        /* ignore */
-    }
-
-    @Override
-    public void visit(BLangForever foreverStatement) {
-        /* ignore */
     }
 
     @Override
@@ -1607,11 +1481,6 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangRecordLiteral.BLangStreamLiteral streamLiteral) {
-        /* ignore */
-    }
-
-    @Override
     public void visit(BLangInvocation.BFunctionPointerInvocation bFunctionPointerInvocation) {
         /* ignore */
     }
@@ -1636,6 +1505,10 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         /* ignore */
     }
 
+    @Override
+    public void visit(BLangQueryExpr queryExpr) {
+        /* ignore */
+    }
 
     @Override
     public void visit(BLangXMLNS.BLangLocalXMLNS xmlnsNode) {

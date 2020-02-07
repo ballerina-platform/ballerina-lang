@@ -33,22 +33,25 @@ import org.ballerinalang.langserver.common.constants.NodeContextKeys;
 import org.ballerinalang.langserver.common.position.PositionTreeVisitor;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.FunctionGenerator;
+import org.ballerinalang.langserver.commons.LSContext;
+import org.ballerinalang.langserver.commons.codeaction.CodeActionKeys;
+import org.ballerinalang.langserver.commons.workspace.LSDocumentIdentifier;
+import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
+import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSCompilerUtil;
-import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.compiler.LSModuleCompiler;
 import org.ballerinalang.langserver.compiler.LSPackageLoader;
 import org.ballerinalang.langserver.compiler.common.LSCustomErrorStrategy;
-import org.ballerinalang.langserver.compiler.common.LSDocument;
+import org.ballerinalang.langserver.compiler.common.LSDocumentIdentifierImpl;
 import org.ballerinalang.langserver.compiler.common.modal.BallerinaPackage;
 import org.ballerinalang.langserver.compiler.exception.CompilationFailedException;
-import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentException;
-import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.diagnostic.DiagnosticsHelper;
 import org.ballerinalang.langserver.util.references.SymbolReferencesModel;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.TopLevelNode;
+import org.ballerinalang.model.tree.expressions.IndexBasedAccessNode;
 import org.ballerinalang.model.types.TypeKind;
 import org.eclipse.lsp4j.ApplyWorkspaceEditParams;
 import org.eclipse.lsp4j.CodeAction;
@@ -227,9 +230,9 @@ public class CommandUtil {
     public static void clearDiagnostics(ExtendedLanguageClient client, DiagnosticsHelper diagHelper, String documentUri,
                                         LSContext context) {
         context.put(DocumentServiceKeys.FILE_URI_KEY, documentUri);
-        WorkspaceDocumentManager docManager = context.get(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY);
+        WorkspaceDocumentManager docManager = context.get(DocumentServiceKeys.DOC_MANAGER_KEY);
         try {
-            LSDocument lsDocument = new LSDocument(documentUri);
+            LSDocumentIdentifier lsDocument = new LSDocumentIdentifierImpl(documentUri);
             diagHelper.compileAndSendDiagnostics(client, context, lsDocument, docManager);
         } catch (CompilationFailedException e) {
             String msg = "Computing 'diagnostics' failed!";
@@ -321,13 +324,13 @@ public class CommandUtil {
         return action;
     }
 
-    public static CodeAction getFunctionImportCommand(LSDocument document, Diagnostic diagnostic,
+    public static CodeAction getFunctionImportCommand(LSDocumentIdentifier document, Diagnostic diagnostic,
                                                       LSContext context) {
         String diagnosticMessage = diagnostic.getMessage();
         Position position = diagnostic.getRange().getStart();
         int line = position.getLine();
         int column = position.getCharacter();
-        String uri = context.get(ExecuteCommandKeys.FILE_URI_KEY);
+        String uri = context.get(CodeActionKeys.FILE_URI_KEY);
         CommandArgument lineArg = new CommandArgument(CommandConstants.ARG_KEY_NODE_LINE, "" + line);
         CommandArgument colArg = new CommandArgument(CommandConstants.ARG_KEY_NODE_COLUMN, "" + column);
         CommandArgument uriArg = new CommandArgument(CommandConstants.ARG_KEY_DOC_URI, uri);
@@ -336,7 +339,7 @@ public class CommandUtil {
         List<Object> args = Arrays.asList(lineArg, colArg, uriArg);
         Matcher matcher = CommandConstants.UNDEFINED_FUNCTION_PATTERN.matcher(diagnosticMessage);
         String functionName = (matcher.find() && matcher.groupCount() > 0) ? matcher.group(1) + "(...)" : "";
-        WorkspaceDocumentManager docManager = context.get(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY);
+        WorkspaceDocumentManager docManager = context.get(CodeActionKeys.DOCUMENT_MANAGER_KEY);
         try {
             BLangInvocation node = getFunctionInvocationNode(line, column, document.getURIString(), docManager,
                                                              context);
@@ -394,7 +397,7 @@ public class CommandUtil {
 
         String packageAlias = diagnosticMessage.substring(diagnosticMessage.indexOf("'") + 1,
                                                           diagnosticMessage.lastIndexOf("'"));
-        LSDocument sourceDocument = new LSDocument(uri);
+        LSDocumentIdentifier sourceDocument = new LSDocumentIdentifierImpl(uri);
         String sourceRoot = LSCompilerUtil.getProjectRoot(sourceDocument.getPath());
         sourceDocument.setProjectRootRoot(sourceRoot);
         List<BallerinaPackage> packagesList = new ArrayList<>();
@@ -449,7 +452,7 @@ public class CommandUtil {
         Position position = diagnostic.getRange().getStart();
         int line = position.getLine();
         int column = position.getCharacter();
-        String uri = context.get(ExecuteCommandKeys.FILE_URI_KEY);
+        String uri = context.get(CodeActionKeys.FILE_URI_KEY);
         CommandArgument lineArg = new CommandArgument(CommandConstants.ARG_KEY_NODE_LINE, "" + line);
         CommandArgument colArg = new CommandArgument(CommandConstants.ARG_KEY_NODE_COLUMN, "" + column);
         CommandArgument uriArg = new CommandArgument(CommandConstants.ARG_KEY_DOC_URI, uri);
@@ -477,7 +480,7 @@ public class CommandUtil {
         Position position = diagnostic.getRange().getStart();
         int line = position.getLine();
         int column = position.getCharacter();
-        String uri = context.get(ExecuteCommandKeys.FILE_URI_KEY);
+        String uri = context.get(CodeActionKeys.FILE_URI_KEY);
         CommandArgument lineArg = new CommandArgument(CommandConstants.ARG_KEY_NODE_LINE, "" + line);
         CommandArgument colArg = new CommandArgument(CommandConstants.ARG_KEY_NODE_COLUMN, "" + column);
         CommandArgument uriArg = new CommandArgument(CommandConstants.ARG_KEY_DOC_URI, uri);
@@ -502,7 +505,7 @@ public class CommandUtil {
 
     public static CodeAction getUnresolvedPackageCommand(Diagnostic diagnostic, LSContext context) {
         String diagnosticMessage = diagnostic.getMessage();
-        String uri = context.get(ExecuteCommandKeys.FILE_URI_KEY);
+        String uri = context.get(CodeActionKeys.FILE_URI_KEY);
         CommandArgument uriArg = new CommandArgument(CommandConstants.ARG_KEY_DOC_URI, uri);
         List<Diagnostic> diagnostics = new ArrayList<>();
 
@@ -524,13 +527,13 @@ public class CommandUtil {
         return null;
     }
 
-    public static CodeAction getIncompatibleTypesCommand(LSDocument document, Diagnostic diagnostic,
+    public static CodeAction getIncompatibleTypesCommand(LSDocumentIdentifier document, Diagnostic diagnostic,
                                                          LSContext context) {
         String diagnosticMessage = diagnostic.getMessage();
         Position position = diagnostic.getRange().getStart();
         int line = position.getLine();
         int column = position.getCharacter();
-        String uri = context.get(ExecuteCommandKeys.FILE_URI_KEY);
+        String uri = context.get(CodeActionKeys.FILE_URI_KEY);
         List<Diagnostic> diagnostics = new ArrayList<>();
 
         Matcher matcher = CommandConstants.INCOMPATIBLE_TYPE_PATTERN.matcher(diagnosticMessage);
@@ -587,7 +590,7 @@ public class CommandUtil {
         return null;
     }
 
-    private static BLangFunction getFunctionNode(int line, int column, LSDocument document,
+    private static BLangFunction getFunctionNode(int line, int column, LSDocumentIdentifier document,
                                                  WorkspaceDocumentManager docManager, LSContext context)
             throws CompilationFailedException {
         String uri = document.getURIString();
@@ -829,7 +832,7 @@ public class CommandUtil {
         return capture.toString();
     }
 
-    public static List<CodeAction> getVariableAssignmentCommand(LSDocument document, Diagnostic diagnostic,
+    public static List<CodeAction> getVariableAssignmentCommand(LSDocumentIdentifier document, Diagnostic diagnostic,
                                                                 LSContext context) {
         List<CodeAction> actions = new ArrayList<>();
         String uri = context.get(DocumentServiceKeys.FILE_URI_KEY);
@@ -909,8 +912,8 @@ public class CommandUtil {
         return actions;
     }
 
-    private static String getDiagnosedContent(Diagnostic diagnostic, LSContext context, LSDocument document) {
-        WorkspaceDocumentManager docManager = context.get(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY);
+    private static String getDiagnosedContent(Diagnostic diagnostic, LSContext context, LSDocumentIdentifier document) {
+        WorkspaceDocumentManager docManager = context.get(CodeActionKeys.DOCUMENT_MANAGER_KEY);
         StringBuilder content = new StringBuilder();
         Position start = diagnostic.getRange().getStart();
         Position end = diagnostic.getRange().getEnd();
@@ -945,6 +948,9 @@ public class CommandUtil {
     private static Position offsetInvocation(String diagnosedContent, Position position) {
         // Diagnosed message only contains the erroneous part of the line
         // Thus we offset into last
+        int leftParenthesisIndex = diagnosedContent.indexOf("(");
+        diagnosedContent = (leftParenthesisIndex == -1) ? diagnosedContent
+                : diagnosedContent.substring(0, leftParenthesisIndex);
         String quotesRemoved = diagnosedContent
                 .replaceAll(".*:", "") // package invocation
                 .replaceAll(".*->", "") // action invocation
@@ -986,6 +992,10 @@ public class CommandUtil {
             variableType = FunctionGenerator.generateTypeDefinition(importsAcceptor, currentPkgId, bType);
             variableName = CommonUtil.generateVariableName(bType, nameEntries);
         } else {
+            // Recursively find parent, when it is an indexBasedAccessNode
+            while (bLangNode.parent instanceof IndexBasedAccessNode) {
+                bLangNode = bLangNode.parent;
+            }
             variableType = FunctionGenerator.generateTypeDefinition(importsAcceptor, currentPkgId, bLangNode.type);
         }
         // Remove brackets of the unions
@@ -1019,7 +1029,7 @@ public class CommandUtil {
                                                               SymbolReferencesModel.Reference referenceAtCursor,
                                                               BUnionType unionType)
             throws WorkspaceDocumentException, IOException {
-        WorkspaceDocumentManager docManager = context.get(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY);
+        WorkspaceDocumentManager docManager = context.get(CodeActionKeys.DOCUMENT_MANAGER_KEY);
         BLangNode bLangNode = referenceAtCursor.getbLangNode();
         Position startPos = new Position(bLangNode.pos.sLine - 1, bLangNode.pos.sCol - 1);
         Position endPosWithSemiColon = new Position(bLangNode.pos.eLine - 1, bLangNode.pos.eCol);

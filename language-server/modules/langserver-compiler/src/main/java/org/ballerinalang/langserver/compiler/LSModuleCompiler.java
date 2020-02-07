@@ -16,9 +16,11 @@
 package org.ballerinalang.langserver.compiler;
 
 import org.antlr.v4.runtime.ANTLRErrorStrategy;
-import org.ballerinalang.langserver.compiler.common.LSDocument;
+import org.ballerinalang.langserver.commons.LSContext;
+import org.ballerinalang.langserver.commons.workspace.LSDocumentIdentifier;
+import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
+import org.ballerinalang.langserver.compiler.common.LSDocumentIdentifierImpl;
 import org.ballerinalang.langserver.compiler.exception.CompilationFailedException;
-import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.compiler.workspace.repository.WorkspacePackageRepository;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.repository.PackageRepository;
@@ -119,7 +121,7 @@ public class LSModuleCompiler {
             uri = LSCompilerUtil.createTempFile(unsavedFileId.get()).toUri().toString();
             context.put(DocumentServiceKeys.FILE_URI_KEY, uri);
         }
-        LSDocument sourceDoc = new LSDocument(uri);
+        LSDocumentIdentifier sourceDoc = new LSDocumentIdentifierImpl(uri);
         context.put(DocumentServiceKeys.LS_DOCUMENT_KEY, sourceDoc);
         String projectRoot = sourceDoc.getProjectRoot();
         PackageRepository pkgRepo = new WorkspacePackageRepository(projectRoot, docManager);

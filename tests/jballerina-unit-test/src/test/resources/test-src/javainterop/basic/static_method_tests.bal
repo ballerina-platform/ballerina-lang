@@ -1,5 +1,4 @@
 import ballerina/runtime;
-import ballerina/io;
 import ballerinax/java;
 import ballerina/lang.'value;
 
@@ -16,8 +15,6 @@ function testAcceptNothingButReturnDate() returns handle {
 }
 
 function testAcceptNothingButReturnString() returns string {
-    io:println("lolo");
-    io:println(acceptNothingButReturnString());
     return acceptNothingButReturnString();
 }
 

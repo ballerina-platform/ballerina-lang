@@ -87,6 +87,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKeyValue;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordVarRef;
@@ -95,7 +96,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangServiceConstructorE
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableLiteral;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableQueryExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTrapExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTupleVarRef;
@@ -129,7 +129,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangErrorDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangErrorVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangForever;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
@@ -1218,13 +1217,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         throw new RuntimeException("Deprecated lang feature");
     }
 
-    public void visit(BLangForever foreverStatement) {
-
-        checkExperimentalFeatureValidity(ExperimentalFeatures.STREAMING_QUERIES, foreverStatement.pos);
-        this.checkStatementExecutionValidity(foreverStatement);
-        this.lastStatement = true;
-    }
-
     private void analyzeExportableTypeRef(BSymbol owner, BTypeSymbol symbol, boolean inFuncSignature,
                                           DiagnosticPos pos) {
 
@@ -2250,12 +2242,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangTableQueryExpression tableQueryExpression) {
-
-        checkExperimentalFeatureValidity(ExperimentalFeatures.TABLE_QUERIES, tableQueryExpression.pos);
-    }
-
-    @Override
     public void visit(BLangRestArgsExpression bLangVarArgsExpression) {
 
         analyzeExpr(bLangVarArgsExpression.expr);
@@ -2301,6 +2287,11 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangServiceConstructorExpr serviceConstructorExpr) {
+    }
+
+    @Override
+    public void visit(BLangQueryExpr queryExpr) {
+        /* ignore */
     }
 
     @Override
@@ -2751,8 +2742,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
      */
     private enum ExperimentalFeatures {
         STREAMS("stream"),
-        TABLE_QUERIES("table queries"),
-        STREAMING_QUERIES("streaming queries"),
         TRANSACTIONS("transaction"),
         LOCK("lock"),
         XML_ACCESS("xml access expression"),

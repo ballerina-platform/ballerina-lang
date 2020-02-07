@@ -115,12 +115,6 @@ public class TypeParamAnalyzer {
 
     void checkForTypeParamsInArg(BType actualType, SymbolEnv env, BType expType) {
 
-        if (actualType == null) {
-            // This is added to prevent compiler panic. Ideally every invocation node should have a type. But,
-            // StreamTypeChecker skips some validation, which leads to actualType == null.
-            // TODO: Fix this properly. issue #18363
-            return;
-        }
         // Not a langlib module invocation
         if (notRequireTypeParams(env)) {
             return;

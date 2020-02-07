@@ -20,9 +20,8 @@ import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.TokenStream;
 import org.ballerinalang.langserver.LSContextOperation;
+import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
-import org.ballerinalang.langserver.compiler.LSContext;
-import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.exceptions.CompletionContextNotSupportedException;
 import org.ballerinalang.langserver.completions.util.SourcePruneException;
 import org.eclipse.lsp4j.Position;
@@ -92,13 +91,13 @@ public class SourcePruner {
         List<Integer> rhsDefaultTokenTypes = rhsDefaultTokens.stream()
                 .map(CommonToken::getType)
                 .collect(Collectors.toList());
-        lsContext.put(CompletionKeys.LHS_TOKENS_KEY, lhsTokens);
-        lsContext.put(CompletionKeys.LHS_DEFAULT_TOKENS_KEY, lhsDefaultTokens);
-        lsContext.put(CompletionKeys.LHS_DEFAULT_TOKEN_TYPES_KEY, lhsDefaultTokenTypes);
-        lsContext.put(CompletionKeys.RHS_TOKENS_KEY, rhsTokens);
-        lsContext.put(CompletionKeys.RHS_DEFAULT_TOKENS_KEY, rhsDefaultTokens);
-        lsContext.put(CompletionKeys.RHS_DEFAULT_TOKEN_TYPES_KEY, rhsDefaultTokenTypes);
-        lsContext.put(CompletionKeys.FORCE_REMOVED_STATEMENT_WITH_PARENTHESIS_KEY,
+        lsContext.put(SourcePruneKeys.LHS_TOKENS_KEY, lhsTokens);
+        lsContext.put(SourcePruneKeys.LHS_DEFAULT_TOKENS_KEY, lhsDefaultTokens);
+        lsContext.put(SourcePruneKeys.LHS_DEFAULT_TOKEN_TYPES_KEY, lhsDefaultTokenTypes);
+        lsContext.put(SourcePruneKeys.RHS_TOKENS_KEY, rhsTokens);
+        lsContext.put(SourcePruneKeys.RHS_DEFAULT_TOKENS_KEY, rhsDefaultTokens);
+        lsContext.put(SourcePruneKeys.RHS_DEFAULT_TOKEN_TYPES_KEY, rhsDefaultTokenTypes);
+        lsContext.put(SourcePruneKeys.FORCE_REMOVED_STATEMENT_WITH_PARENTHESIS_KEY,
                       sourcePruneCtx.get(SourcePruneKeys.FORCE_CAPTURED_STATEMENT_WITH_PARENTHESIS_KEY));
     }
 

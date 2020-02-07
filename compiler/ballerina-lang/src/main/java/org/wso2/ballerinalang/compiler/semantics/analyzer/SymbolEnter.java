@@ -1311,11 +1311,6 @@ public class SymbolEnter extends BLangNodeVisitor {
                         defineReferencedFunction(typeDef, objMethodsEnv, typeRef, function, referencedFunctions);
                     }
                 }
-            } else if (typeDef.symbol.kind == SymbolKind.RECORD) {
-                // Create typeDef type
-                BLangRecordTypeNode recordTypeNode = (BLangRecordTypeNode) typeDef.typeNode;
-                SymbolEnv typeDefEnv = SymbolEnv.createPkgLevelSymbolEnv(recordTypeNode, typeDef.symbol.scope, pkgEnv);
-                defineRecordInitFunction(typeDef, typeDefEnv);
             }
         }
     }
@@ -1491,20 +1486,6 @@ public class SymbolEnter extends BLangNodeVisitor {
         defineNode(initFunction, conEnv);
     }
 
-    private void defineRecordInitFunction(BLangTypeDefinition typeDef, SymbolEnv conEnv) {
-        BLangRecordTypeNode recordTypeNode = (BLangRecordTypeNode) typeDef.typeNode;
-        recordTypeNode.initFunction = ASTBuilderUtil.createInitFunctionWithNilReturn(typeDef.pos, "",
-                                                                                     Names.INIT_FUNCTION_SUFFIX);
-
-        recordTypeNode.initFunction.receiver = createReceiver(typeDef.pos, typeDef.name);
-        recordTypeNode.initFunction.attachedFunction = true;
-        recordTypeNode.initFunction.flagSet.add(Flag.ATTACHED);
-
-        // Adding record level variables to the init function is done at desugar phase
-
-        defineNode(recordTypeNode.initFunction, conEnv);
-    }
-
     private void defineAttachedFunctions(BLangFunction funcNode, BInvokableSymbol funcSymbol,
                                          SymbolEnv invokableEnv, boolean isValidAttachedFunc) {
         BTypeSymbol typeSymbol = funcNode.receiver.type.tsymbol;
@@ -1602,19 +1583,6 @@ public class SymbolEnter extends BLangNodeVisitor {
         assignmentStmt.pos = variable.pos;
         assignmentStmt.setVariable(varRef);
         return assignmentStmt;
-    }
-
-    private BLangSimpleVariable createReceiver(DiagnosticPos pos, BLangIdentifier name) {
-        BLangSimpleVariable receiver = (BLangSimpleVariable) TreeBuilder.createSimpleVariableNode();
-        receiver.pos = pos;
-        BLangIdentifier identifier = (BLangIdentifier) createIdentifier(Names.SELF.getValue());
-        identifier.pos = pos;
-        receiver.setName(identifier);
-        BLangUserDefinedType structTypeNode = (BLangUserDefinedType) TreeBuilder.createUserDefinedTypeNode();
-        structTypeNode.pkgAlias = new BLangIdentifier();
-        structTypeNode.typeName = name;
-        receiver.setTypeNode(structTypeNode);
-        return receiver;
     }
 
     private IdentifierNode createIdentifier(String value) {

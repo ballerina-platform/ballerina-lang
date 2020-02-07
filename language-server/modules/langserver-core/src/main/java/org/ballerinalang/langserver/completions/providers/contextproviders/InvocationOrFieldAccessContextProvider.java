@@ -18,30 +18,30 @@
 package org.ballerinalang.langserver.completions.providers.contextproviders;
 
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.compiler.LSContext;
-import org.ballerinalang.langserver.completions.SymbolInfo;
-import org.ballerinalang.langserver.completions.spi.LSCompletionProvider;
+import org.ballerinalang.langserver.commons.LSContext;
+import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
+import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 import org.ballerinalang.langserver.completions.util.filters.DelimiterBasedContentFilter;
 import org.ballerinalang.langserver.completions.util.filters.SymbolFilters;
-import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
+import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 
 import java.util.List;
 
 /**
  * Parser rule based statement context provider.
  */
-@JavaSPIService("org.ballerinalang.langserver.completions.spi.LSCompletionProvider")
-public class InvocationOrFieldAccessContextProvider extends LSCompletionProvider {
+@JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.LSCompletionProvider")
+public class InvocationOrFieldAccessContextProvider extends AbstractCompletionProvider {
 
     public InvocationOrFieldAccessContextProvider() {
         this.attachmentPoints.add(InvocationOrFieldAccessContextProvider.class);
     }
 
     @Override
-    public List<CompletionItem> getCompletions(LSContext context) {
-        Either<List<CompletionItem>, List<SymbolInfo>> content = SymbolFilters.get(DelimiterBasedContentFilter.class)
-                .filterItems(context);
+    public List<LSCompletionItem> getCompletions(LSContext context) {
+        Either<List<LSCompletionItem>, List<Scope.ScopeEntry>> content =
+                SymbolFilters.get(DelimiterBasedContentFilter.class).filterItems(context);
         return this.getCompletionItemList(content, context);
     }
 }

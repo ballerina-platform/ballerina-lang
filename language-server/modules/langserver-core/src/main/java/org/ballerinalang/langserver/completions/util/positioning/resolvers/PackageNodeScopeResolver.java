@@ -16,7 +16,7 @@
 
 package org.ballerinalang.langserver.completions.util.positioning.resolvers;
 
-import org.ballerinalang.langserver.compiler.LSContext;
+import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.completions.TreeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;

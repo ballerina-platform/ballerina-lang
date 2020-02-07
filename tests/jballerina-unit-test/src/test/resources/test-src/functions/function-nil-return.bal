@@ -245,8 +245,3 @@ function testNilableTypedesc() returns typedesc<any>? {
 function testNilableTypedescArray() returns typedesc<any>[]? {
 }
 
-function testNilableStream() returns stream<ClosedPerson>? {
-}
-
-function testNilableStreamArray() returns stream<ClosedPerson>?[]? {
-}

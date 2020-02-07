@@ -71,8 +71,12 @@ public type ObjectGenerator object {
 
         self.createObjectInit(cw, fields, className);
         self.createCallMethod(cw, attachedFuncs, className, objectType.name.value, isService);
-        self.createObjectGetMethod(cw, fields, className);
-        self.createObjectSetMethod(cw, fields, className);
+        if (IS_BSTRING) {
+            self.createObjectGetMethod(cw, fields, className, true);
+            self.createObjectSetMethod(cw, fields, className, true);
+        }
+        self.createObjectGetMethod(cw, fields, className, false);
+        self.createObjectSetMethod(cw, fields, className, false);
         self.createLambdas(cw);
 
         cw.visitEnd();
@@ -99,6 +103,10 @@ public type ObjectGenerator object {
             if (field is bir:BObjectField) {
                 jvm:FieldVisitor fv = cw.visitField(0, field.name.value, getTypeDesc(field.typeValue));
                 fv.visitEnd();
+                if(IS_BSTRING) {
+                    jvm:FieldVisitor fvb = cw.visitField(0, nameOfBStringFunc(field.name.value), getTypeDesc(field.typeValue, true));
+                    fvb.visitEnd();
+                }
                 string lockClass = "L" + LOCK_VALUE + ";";
                 fv = cw.visitField(ACC_PUBLIC + ACC_FINAL, computeLockNameFromString(field.name.value), lockClass);
                 fv.visitEnd();
@@ -179,7 +187,8 @@ public type ObjectGenerator object {
             string methodSig = "";
 
             // use index access, since retType can be nil.
-            methodSig = getMethodDesc(paramTypes, retType);
+            boolean useBString = isBStringFunc(methodName);
+            methodSig = getMethodDesc(paramTypes, retType, useBString = useBString);
 
             // load self
             mv.visitVarInsn(ALOAD, 0);
@@ -196,7 +205,7 @@ public type ObjectGenerator object {
                 mv.visitLdcInsn(j);
                 mv.visitInsn(L2I);
                 mv.visitInsn(AALOAD);
-                addUnboxInsn(mv, pType);
+                addUnboxInsn(mv, pType, useBString);
                 j += 1;
             }
 
@@ -219,12 +228,20 @@ public type ObjectGenerator object {
         mv.visitEnd();
     }
 
-    private function createObjectGetMethod(jvm:ClassWriter cw, bir:BObjectField?[] fields, string className) {
+    private function createObjectGetMethod(jvm:ClassWriter cw, bir:BObjectField?[] fields, string className,
+                                           boolean useBString) {
         jvm:MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "get",
-                io:sprintf("(L%s;)L%s;", STRING_VALUE, OBJECT), (), ());
+                io:sprintf("(L%s;)L%s;", useBString ? I_STRING_VALUE : STRING_VALUE, OBJECT), (), ());
         mv.visitCode();
 
         int fieldNameRegIndex = 1;
+        if(useBString) {
+            mv.visitVarInsn(ALOAD, 0);
+             mv.visitMethodInsn(INVOKEINTERFACE, I_STRING_VALUE, "getValue", io:sprintf("()L%s;", STRING_VALUE) , true);
+             fieldNameRegIndex = 2;
+             mv.visitVarInsn(ASTORE, fieldNameRegIndex);
+         }
+
         jvm:Label defaultCaseLabel = new jvm:Label();
 
         // sort the fields before generating switch case
@@ -242,7 +259,8 @@ public type ObjectGenerator object {
             jvm:Label targetLabel = targetLabels[i];
             mv.visitLabel(targetLabel);
             mv.visitVarInsn(ALOAD, 0);
-            mv.visitFieldInsn(GETFIELD, className, field.name.value, getTypeDesc(field.typeValue));
+            mv.visitFieldInsn(GETFIELD, className, conditionalBStringName(field.name.value, useBString),
+                              getTypeDesc(field.typeValue, useBString));
             addBoxInsn(mv, field.typeValue);
             mv.visitInsn(ARETURN);
             i += 1;
@@ -253,9 +271,10 @@ public type ObjectGenerator object {
         mv.visitEnd();
     }
 
-    private function createObjectSetMethod(jvm:ClassWriter cw, bir:BObjectField?[] fields, string className) {
+    private function createObjectSetMethod(jvm:ClassWriter cw, bir:BObjectField?[] fields, string className,
+                                           boolean useBString) {
         jvm:MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "set",
-                io:sprintf("(L%s;L%s;)V", STRING_VALUE, OBJECT), (), ());
+                io:sprintf("(L%s;L%s;)V", useBString ? I_STRING_VALUE : STRING_VALUE, OBJECT), (), ());
         mv.visitCode();
         int fieldNameRegIndex = 1;
         int valueRegIndex = 2;
@@ -264,6 +283,12 @@ public type ObjectGenerator object {
         // code gen type checking for inserted value
         mv.visitVarInsn(ALOAD, 0);
         mv.visitVarInsn(ALOAD, fieldNameRegIndex);
+        if(useBString) {
+            mv.visitMethodInsn(INVOKEINTERFACE, I_STRING_VALUE, "getValue", io:sprintf("()L%s;", STRING_VALUE) , true);
+            mv.visitInsn(DUP);
+            fieldNameRegIndex = 3;
+            mv.visitVarInsn(ASTORE, fieldNameRegIndex);
+        }
         mv.visitVarInsn(ALOAD, valueRegIndex);
         mv.visitMethodInsn(INVOKEVIRTUAL, className, "checkFieldUpdate",
                 io:sprintf("(L%s;L%s;)V", STRING_VALUE, OBJECT), false);
@@ -285,8 +310,12 @@ public type ObjectGenerator object {
             mv.visitLabel(targetLabel);
             mv.visitVarInsn(ALOAD, 0);
             mv.visitVarInsn(ALOAD, valueRegIndex);
-            addUnboxInsn(mv, field.typeValue);
-            mv.visitFieldInsn(PUTFIELD, className, field.name.value, getTypeDesc(field.typeValue));
+            addUnboxInsn(mv, field.typeValue, useBString);
+            string filedName = field.name.value;
+            if(useBString) {
+                filedName = nameOfBStringFunc(filedName);
+            }
+            mv.visitFieldInsn(PUTFIELD, className, filedName, getTypeDesc(field.typeValue, useBString));
             mv.visitInsn(RETURN);
             i += 1;
         }
@@ -415,7 +444,12 @@ public type ObjectGenerator object {
     private function createRecordFields(jvm:ClassWriter cw, bir:BRecordField?[] fields) {
         foreach var field in fields {
             if (field is bir:BRecordField) {
-                jvm:FieldVisitor fv = cw.visitField(0, field.name.value, getTypeDesc(field.typeValue));
+                jvm:FieldVisitor fv;
+                if(IS_BSTRING) {
+                    fv = cw.visitField(0, nameOfBStringFunc(field.name.value), getTypeDesc(field.typeValue, true));
+                    fv.visitEnd();
+                }
+                fv = cw.visitField(0, field.name.value, getTypeDesc(field.typeValue));
                 fv.visitEnd();
 
                 if (self.isOptionalRecordField(field)) {
@@ -850,6 +884,7 @@ function injectDefaultParamInitsToAttachedFuncs(bir:Package module) {
 
 function desugarObjectMethods(bir:Package module, bir:BType bType, bir:Function?[]? attachedFuncs) {
     if (attachedFuncs is bir:Function?[]) {
+        bir:Function[] bStringFuncs = [];
         foreach var func in attachedFuncs {
             if (func is bir:Function) {
                 if isExternFunc(func) {
@@ -862,7 +897,15 @@ function desugarObjectMethods(bir:Package module, bir:BType bType, bir:Function?
                     addDefaultableBooleanVarsToSignature(func);
                 }
                 enrichWithDefaultableParamInits(getFunction(<@untainted> func));
+                if (IS_BSTRING) {
+                    var bStringFunc = func.clone();
+                    bStringFunc.name = {value: nameOfBStringFunc(func.name.value)};
+                    bStringFuncs.push(bStringFunc);
+                }
             }
+        }
+        foreach var func in bStringFuncs {
+            attachedFuncs.push(func);
         }
     }
 }

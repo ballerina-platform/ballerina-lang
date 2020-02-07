@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  WSO2 Inc. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -26,9 +26,9 @@ import org.ballerinalang.jvm.types.BType;
  * The {@link BStream} represents a stream in Ballerina.
  * </p>
  *
- * @since 1.1.0
+ * @since 1.2.0
  */
-public interface BStream extends BRefValue {
+public interface BStream extends BStreamIterator, BRefValue {
     /**
      * Returns the constrained {@code BType} of the stream.
      *
@@ -37,18 +37,28 @@ public interface BStream extends BRefValue {
     BType getConstraintType();
 
     /**
-     * Method to publish to a topic representing the stream in the broker.
+     * Returns a stream which applies a filtering condition on the input stream.
      *
-     * @param strand the strand in which the data being published
-     * @param data the data to publish to the stream
+     * @param stream The input stream being filtered
+     * @param functionPointer The function pointer which represents the filtering condition
+     * @return The output stream
      */
-    void publish(Strand strand, Object data);
+    BStream filter(BStream stream, BFunctionPointer<Object, Boolean> functionPointer);
 
     /**
-     * Method to register a subscription to the underlying topic representing the stream in the broker.
+     * Returns a new stream which applies a mapping condition on the input stream.
      *
-     * @param functionPointer represents the function pointer reference for the function to be invoked on receiving
-     *                        messages
+     * @param stream The input stream being mapped
+     * @param functionPointer The function pointer which represents the mapping condition
+     * @return The output stream
      */
-    void subscribe(BFunctionPointer<Object[], Object> functionPointer);
+    BStream map(BStream stream, BFunctionPointer<Object, Object> functionPointer);
+
+    /**
+     * Returns the next element in the stream after applying filters, mapping and reductions.
+     *
+     * @param strand The strand in which the filtering, mapping reduction... etc functions are invoked
+     * @return The next element if the stream has or Nil if stream ends.
+     */
+    Object next(Strand strand);
 }

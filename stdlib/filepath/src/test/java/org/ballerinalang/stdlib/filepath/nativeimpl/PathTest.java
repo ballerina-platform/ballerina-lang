@@ -681,7 +681,7 @@ public class PathTest {
                 {"path.pb.bal", "bal", "bal"},
                 {"a.pb.bal/b", "", ""},
                 {"a.toml/b.bal", "bal", "bal"},
-                {"a.pb.bal/", "bal", "bal"},
+                {"a.pb.bal/", "", ""},
                 {"\\..\\A\\B.foo", "foo", "foo"},
                 {"C:\\foo\\..\\bar", "\\bar", ""}
         };

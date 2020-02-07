@@ -14,6 +14,22 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "function",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "120",
+      "insertText": "function ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "resource",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "120",
+      "insertText": "resource ",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "resource",
       "kind": "Snippet",
       "detail": "Snippet",

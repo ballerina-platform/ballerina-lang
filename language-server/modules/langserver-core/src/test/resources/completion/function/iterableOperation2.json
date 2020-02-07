@@ -20,6 +20,20 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "toStream()(stream<(anydata|error)><(anydata|error)>)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.array_  \n  \nReturns a stream from the given array.  \n"
+        }
+      },
+      "sortText": "120",
+      "insertText": "toStream()",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "remove(int index)((any|error))",
       "kind": "Function",
       "detail": "Function",

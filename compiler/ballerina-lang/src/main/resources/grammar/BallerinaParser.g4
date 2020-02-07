@@ -302,8 +302,6 @@ statement
     |   retryStatement
     |   lockStatement
     |   namespaceDeclarationStatement
-    |   foreverStatement
-    |   streamingQueryStatement
     ;
 
 variableDefinitionStatement
@@ -674,7 +672,7 @@ invocation
 invocationArgList
     :   invocationArg (COMMA invocationArg)*
     ;
-    
+
 invocationArg
     :   expression  // required args
     |   namedArgs   // named args
@@ -760,7 +758,6 @@ expression
     |   actionInvocation                                                    # actionInvocationExpression
     |   typeInitExpr                                                        # typeInitExpression
     |   serviceConstructorExpr                                              # serviceConstructorExpression
-    |   tableQuery                                                          # tableQueryExpression
     |   CHECK expression                                                    # checkedExpression
     |   CHECKPANIC expression                                               # checkPanickedExpression
     |   (ADD | SUB | BIT_COMPLEMENT | NOT | TYPEOF) expression              # unaryExpression
@@ -787,6 +784,7 @@ expression
     |   LARROW peerWorker (COMMA expression)?                               # workerReceiveExpression
     |   flushWorker                                                         # flushWorkerExpression
     |   typeDescExpr                                                        # typeAccessExpression
+    |   queryExpr                                                           # queryExpression
     ;
 
 constantExpression
@@ -821,6 +819,26 @@ shiftExpression
     ;
 
 shiftExprPredicate : {_input.get(_input.index() -1).getType() != WS}? ;
+
+selectClause
+    :   SELECT expression
+    ;
+
+whereClause
+    :   WHERE expression
+    ;
+
+fromClause
+    :   FROM (typeName | VAR) bindingPattern IN expression
+    ;
+
+queryPipeline
+    :   fromClause (fromClause | whereClause)*
+    ;
+
+queryExpr
+    :   queryPipeline selectClause
+    ;
 
 //reusable productions
 
@@ -1003,128 +1021,6 @@ reservedWord
     |   CONTINUE
     |   OBJECT_INIT
     |   TYPE_ERROR
-    ;
-
-
-//Streams and Tables related
-tableQuery
-    :   FROM streamingInput joinStreamingInput?
-        selectClause?
-        orderByClause?
-        limitClause?
-    ;
-
-foreverStatement
-    :   FOREVER LEFT_BRACE  streamingQueryStatement+ RIGHT_BRACE
-    ;
-
-streamingQueryStatement
-    :   FROM (streamingInput (joinStreamingInput)? | patternClause)
-        selectClause?
-        orderByClause?
-        outputRateLimit?
-        streamingAction
-    ;
-
-patternClause
-    :   EVERY? patternStreamingInput withinClause?
-    ;
-
-withinClause
-    :   WITHIN DecimalIntegerLiteral timeScale
-    ;
-
-orderByClause
-    :   ORDER BY orderByVariable (COMMA orderByVariable)*
-    ;
-
-orderByVariable
-    :   variableReference orderByType?
-    ;
-
-limitClause
-    :   LIMIT DecimalIntegerLiteral
-    ;
-
-selectClause
-    :   SELECT (MUL| selectExpressionList )
-        groupByClause?
-        havingClause?
-    ;
-
-selectExpressionList
-    :   selectExpression (COMMA selectExpression)*
-    ;
-
-selectExpression
-    :   expression (AS Identifier)?
-    ;
-
-groupByClause
-    :   GROUP BY variableReferenceList
-    ;
-
-havingClause
-    :   HAVING expression
-    ;
-
-streamingAction
-    :   EQUAL_GT LEFT_PARENTHESIS parameter RIGHT_PARENTHESIS LEFT_BRACE statement* RIGHT_BRACE
-    ;
-
-streamingInput
-    :   variableReference whereClause? functionInvocation* windowClause? functionInvocation*
-        whereClause? (AS alias=Identifier)?
-    ;
-
-joinStreamingInput
-    :   (UNIDIRECTIONAL joinType | joinType UNIDIRECTIONAL | joinType) streamingInput (ON expression)?
-    ;
-
-outputRateLimit
-    :   OUTPUT (ALL | LAST | FIRST) EVERY (DecimalIntegerLiteral timeScale | DecimalIntegerLiteral EVENTS)
-    |   OUTPUT SNAPSHOT EVERY DecimalIntegerLiteral timeScale
-    ;
-
-patternStreamingInput
-    :   patternStreamingEdgeInput ( FOLLOWED BY | COMMA ) patternStreamingInput
-    |   LEFT_PARENTHESIS patternStreamingInput RIGHT_PARENTHESIS
-    |   NOT patternStreamingEdgeInput (AND patternStreamingEdgeInput | FOR DecimalIntegerLiteral timeScale)
-    |   patternStreamingEdgeInput (AND | OR ) patternStreamingEdgeInput
-    |   patternStreamingEdgeInput
-    ;
-
-patternStreamingEdgeInput
-    :   variableReference whereClause? intRangeExpression? (AS alias=Identifier)?
-    ;
-
-whereClause
-    :   WHERE expression
-    ;
-
-windowClause
-    :   WINDOW functionInvocation
-    ;
-
-orderByType
-    :   ASCENDING | DESCENDING
-    ;
-
-joinType
-    :   LEFT OUTER JOIN
-    |   RIGHT OUTER JOIN
-    |   FULL OUTER JOIN
-    |   OUTER JOIN
-    |   INNER? JOIN
-    ;
-
-timeScale
-    :   SECOND | SECONDS
-    |   MINUTE | MINUTES
-    |   HOUR | HOURS
-    |   DAY | DAYS
-    |   MONTH | MONTHS
-    |   YEAR | YEARS
     ;
 
 // Markdown documentation

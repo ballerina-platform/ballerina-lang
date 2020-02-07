@@ -124,6 +124,7 @@
             <package name="org.ballerinalang.test.functions.*"/>
             <package name="org.ballerinalang.test.javainterop.*"/>
             <package name="org.ballerinalang.test.execution.*" />
+            <package name="org.ballerinalang.test.query.*" />
         </packages>
 
         <classes>
@@ -147,10 +148,8 @@
                     <exclude name="testLockInRecords"/>
                 </methods>
             </class>
-            <class name="org.ballerinalang.test.types.table.TableSqlQueryTest"/>
             <class name="org.ballerinalang.test.types.table.TableLiteralSyntaxTest"/>
             <!--<class name="org.ballerinalang.test.types.table.TableLiteralIterableTest"/>-->
-            <class name="org.ballerinalang.test.types.stream.BStreamValueTest"/>
             <!--<class name="org.ballerinalang.test.types.TypeUnificationTest"/>-->
             <!--<class name="org.ballerinalang.test.error.ErrorTest" />-->
             <class name="org.ballerinalang.test.expressions.async.BasicAsyncOperationsTest">

@@ -16,7 +16,6 @@
  * under the License.
  */
 
-
 package org.ballerinalang.messaging.kafka.impl;
 
 import org.apache.kafka.clients.consumer.ConsumerConfig;
@@ -51,7 +50,7 @@ public class KafkaRecordConsumer {
 
     private static final Logger logger = LoggerFactory.getLogger(KafkaRecordConsumer.class);
 
-    private KafkaConsumer<byte[], byte[]> kafkaConsumer;
+    private KafkaConsumer kafkaConsumer;
     private Duration pollingTimeout = Duration.ofMillis(1000);
     private int pollingInterval = 1000;
     private boolean decoupleProcessing = true;
@@ -62,11 +61,8 @@ public class KafkaRecordConsumer {
     private ScheduledExecutorService executorService = Executors.newScheduledThreadPool(1);
     private ScheduledFuture pollTaskFuture;
 
-    public KafkaRecordConsumer(KafkaListener kafkaListener,
-                               Properties configParams,
-                               String serviceId,
-                               int consumerId,
-                               KafkaConsumer<byte[], byte[]> kafkaConsumer) {
+    public KafkaRecordConsumer(KafkaListener kafkaListener, Properties configParams, String serviceId, int consumerId,
+                               KafkaConsumer kafkaConsumer) {
         this.serviceId = serviceId;
         this.consumerId = consumerId;
         // Initialize Kafka Consumer.
@@ -97,7 +93,7 @@ public class KafkaRecordConsumer {
 
     private void poll() {
         try {
-            ConsumerRecords<byte[], byte[]> recordsRetrieved = null;
+            ConsumerRecords recordsRetrieved = null;
             try {
                 // Make thread-safe as kafka does not support multiple thread access
                 if (!closed.get()) {
@@ -111,7 +107,7 @@ public class KafkaRecordConsumer {
             }
             if (logger.isDebugEnabled()) {
                 logger.debug("Kafka service " + this.serviceId + " attached to consumer "
-                        + this.consumerId + " has received " + recordsRetrieved.count() + " records.");
+                                     + this.consumerId + " has received " + recordsRetrieved.count() + " records.");
             }
             processRetrievedRecords(recordsRetrieved);
         } catch (KafkaException | IllegalStateException | IllegalArgumentException e) {
@@ -122,7 +118,7 @@ public class KafkaRecordConsumer {
         }
     }
 
-    private void processRetrievedRecords(ConsumerRecords<byte[], byte[]> consumerRecords) {
+    private void processRetrievedRecords(ConsumerRecords consumerRecords) {
         if (Objects.nonNull(consumerRecords) && !consumerRecords.isEmpty()) {
             // When decoupleProcessing == 'true' Kafka records set will be dispatched and processed in
             // Parallel threads.
@@ -151,8 +147,8 @@ public class KafkaRecordConsumer {
      */
     public void consume() {
         final Runnable pollingFunction = () -> poll();
-        this.pollTaskFuture = this.executorService.scheduleAtFixedRate(pollingFunction, 0,
-                this.pollingInterval, TimeUnit.MILLISECONDS);
+        this.pollTaskFuture = this.executorService.scheduleAtFixedRate(pollingFunction, 0, this.pollingInterval,
+                                                                       TimeUnit.MILLISECONDS);
     }
 
     /**

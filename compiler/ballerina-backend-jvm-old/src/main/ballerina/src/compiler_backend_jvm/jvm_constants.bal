@@ -360,6 +360,7 @@ const string BUILT_IN_PACKAGE_NAME = "lang.annotations";
 
 // scheduler related constants
 const string SCHEDULE_FUNCTION_METHOD =  "scheduleFunction";
+const string SCHEDULE_LOCAL_METHOD = "scheduleLocal";
 const string SCHEDULER_START_METHOD =  "start";
 
 // observability related constants

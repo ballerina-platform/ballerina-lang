@@ -201,4 +201,19 @@ public class JwtIssuerAndValidatorTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "testValidateJwtWithNoIssOrSub", inputBValues);
         Assert.assertTrue((returns[0]) instanceof BBoolean);
     }
+
+    @Test(priority = 1, description = "Test case for validating JWT token using a validator configured to different " +
+            "truststore which is not used to issue JWT")
+    public void testPartialValidatorWithInvalidSignature() {
+        String jwtToken = "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwi" +
+                "YWRtaW4iOnRydWUsImlhdCI6MTUxNjIzOTAyMn0.POstGetfAytaZS82wHcjoTyoqhMyxXiWdR7Nn7A29DNSl0EiXLdwJ6xC6Af" +
+                "gZWF1bOsS_TuYI3OG85AmiExREkrS6tDfTQ2B3WXlrr-wp5AokiRbz3_oB4OxG-W9KcEEbDRcZc0nH3L7LzYptiy1PtAylQGxHT" +
+                "WZXtGz4ht0bAecBgmpdgXMguEIcoqPJ1n3pIWk_dUZegpqx0Lka21H6XxUTxiy8OcaarA8zdnPUnV6AmNP3ecFawIFYdvJB_cm-" +
+                "GvpCSbr8G8y_Mllj8f4x9nBH8pQux89_6gUY618iYv7tuPWBFfEbLxtF2pZS6YC1aSfLQxeNe8djT9YjpvRZA";
+        BValue[] inputBValues = {new BString(jwtToken), new BString(trustStorePath)};
+        BValue[] returns = BRunUtil.invoke(compileResult, "testValidateJwtWithInvalidSignature", inputBValues);
+        Assert.assertTrue((returns[0]) instanceof BError);
+        Assert.assertEquals(((BMap) ((BError) returns[0]).getDetails()).get(Constants.MESSAGE).stringValue(),
+                            "JWT signature validation has failed.");
+    }
 }

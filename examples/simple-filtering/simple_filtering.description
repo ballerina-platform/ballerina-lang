@@ -1,6 +1,0 @@
-// Simple filtering can be performed for the events of a stream.
-// In this example, events are related to the person being monitored and there
-// will be an alert triggered when there is a person whose age is less than or equal to 16.
-// This example can be extended to make simple filtering based on some condition.
-// Ballerina Streams is an experimental feature. Therefore, use the `--experimental` flag when
-// compiling Ballerina files that have streaming constructs.

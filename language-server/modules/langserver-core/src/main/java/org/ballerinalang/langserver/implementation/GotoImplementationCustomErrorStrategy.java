@@ -17,8 +17,8 @@ package org.ballerinalang.langserver.implementation;
 
 import org.antlr.v4.runtime.Parser;
 import org.antlr.v4.runtime.Token;
+import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
-import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.compiler.common.LSCustomErrorStrategy;
 import org.eclipse.lsp4j.Position;
 

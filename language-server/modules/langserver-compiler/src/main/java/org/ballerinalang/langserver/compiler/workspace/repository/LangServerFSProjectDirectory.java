@@ -17,7 +17,7 @@
 */
 package org.ballerinalang.langserver.compiler.workspace.repository;
 
-import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
+import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
 import org.wso2.ballerinalang.compiler.FileSystemProjectDirectory;
 import org.wso2.ballerinalang.compiler.packaging.converters.Converter;
 

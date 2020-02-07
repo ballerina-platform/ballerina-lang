@@ -52,8 +52,6 @@ public class Names {
     public static final Name UTILS_PACKAGE = new Name("utils");
     public static final Name BUILTIN_ORG = new Name("ballerina");
     public static final Name RUNTIME_PACKAGE = new Name("runtime");
-    public static final Name STREAMS_ORG = new Name("ballerina");
-    public static final Name STREAMS_MODULE = new Name("streams");
     public static final Name IGNORE = new Name("_");
     public static final Name INVALID = new Name("><");
     public static final Name GEN_VAR_PREFIX = new Name("_$$_");

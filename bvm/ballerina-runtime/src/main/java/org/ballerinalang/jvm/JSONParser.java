@@ -818,14 +818,14 @@ public class JSONParser {
                 if (ch == 't' && TRUE.equals(str)) {
                     switch (type) {
                         case ARRAY_ELEMENT:
-                            ((ArrayValue) this.currentJsonNode).append(new Boolean(true));
+                            ((ArrayValue) this.currentJsonNode).append(Boolean.TRUE);
                             break;
                         case FIELD:
                             ((MapValueImpl<String, Object>) this.currentJsonNode).put(this.fieldNames.pop(),
-                                    new Boolean(true));
+                                    Boolean.TRUE);
                             break;
                         case VALUE:
-                            currentJsonNode = new Boolean(true);
+                            currentJsonNode = Boolean.TRUE;
                             break;
                         default:
                             break;
@@ -833,14 +833,14 @@ public class JSONParser {
                 } else if (ch == 'f' && FALSE.equals(str)) {
                     switch (type) {
                         case ARRAY_ELEMENT:
-                            ((ArrayValue) this.currentJsonNode).append(new Boolean(false));
+                            ((ArrayValue) this.currentJsonNode).append(Boolean.FALSE);
                             break;
                         case FIELD:
                             ((MapValueImpl<String, Object>) this.currentJsonNode).put(this.fieldNames.pop(),
-                                    new Boolean(false));
+                                    Boolean.FALSE);
                             break;
                         case VALUE:
-                            currentJsonNode = new Boolean(false);
+                            currentJsonNode = Boolean.FALSE;
                             break;
                         default:
                             break;
