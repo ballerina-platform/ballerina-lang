@@ -178,7 +178,7 @@ public class FunctionGenerator {
                                                 BType bType) {
         if ((bType.tsymbol == null || bType.tsymbol.name.value.isEmpty()) && bType instanceof BArrayType) {
             // Check for array assignment eg.  int[]
-            return generateTypeDefinition(importsAcceptor, currentPkgId, ((BArrayType) bType).eType.tsymbol) + "[]";
+            return generateTypeDefinition(importsAcceptor, currentPkgId, ((BArrayType) bType).eType) + "[]";
         } else if (bType instanceof BMapType && ((BMapType) bType).constraint != null) {
             // Check for constrained map assignment eg. map<Student>
             BTypeSymbol tSymbol = ((BMapType) bType).constraint.tsymbol;
@@ -366,6 +366,7 @@ public class FunctionGenerator {
     private static String lookupVariableReturnType(BiConsumer<String, String> importsAcceptor,
                                                    PackageID currentPkgId,
                                                    String variableName, BLangNode parent) {
+        // Recursively find BLangBlockStmt to get scope-entries
         if (parent instanceof BLangBlockStmt) {
             BLangBlockStmt blockStmt = (BLangBlockStmt) parent;
             Scope scope = blockStmt.scope;
@@ -401,9 +402,10 @@ public class FunctionGenerator {
     private static String generateReturnValue(BiConsumer<String, String> importsAcceptor, PackageID currentPkgId,
                                               BType bType,
                                               String template) {
-        if (bType.tsymbol == null && bType instanceof BArrayType) {
-            return template.replace("{%1}", "[" +
-                    generateReturnValue(((BArrayType) bType).eType.tsymbol, "") + "]");
+        if (bType instanceof BArrayType) {
+            String arrDef = "[" + generateReturnValue(importsAcceptor, currentPkgId, ((BArrayType) bType).eType,
+                                                      "{%1}") + "]";
+            return template.replace("{%1}", arrDef);
         } else if (bType instanceof BFiniteType) {
             // Check for finite set assignment
             BFiniteType bFiniteType = (BFiniteType) bType;
