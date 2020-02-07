@@ -29,6 +29,7 @@ import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhereClause;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Implementation of {@link QueryExpressionNode}.
@@ -79,5 +80,12 @@ public class BLangQueryExpr extends BLangExpression implements QueryExpressionNo
     @Override
     public void accept(BLangNodeVisitor visitor) {
         visitor.visit(this);
+    }
+
+    @Override
+    public String toString() {
+        return fromClauseList.stream().map(BLangFromClause::toString).collect(Collectors.joining("\n")) + "\n" +
+                whereClauseList.stream().map(BLangWhereClause::toString).collect(Collectors.joining("\n")) + "\n" +
+                selectClause.toString();
     }
 }

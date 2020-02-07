@@ -18,6 +18,8 @@
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import org.ballerinalang.compiler.CompilerPhase;
+import org.ballerinalang.model.clauses.FromClauseNode;
+import org.ballerinalang.model.clauses.WhereClauseNode;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.TopLevelNode;
@@ -53,6 +55,10 @@ import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangDoClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhereClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAccessExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
@@ -451,7 +457,15 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangQueryAction queryAction) {
-        /* ignore */
+        for (FromClauseNode fromClauseNode : queryAction.fromClauseList) {
+            ((BLangFromClause) fromClauseNode).accept(this);
+        }
+
+        for (WhereClauseNode whereClauseNode : queryAction.whereClauseList) {
+            ((BLangWhereClause) whereClauseNode).accept(this);
+        }
+
+        queryAction.doClause.accept(this);
     }
 
     @Override
@@ -598,7 +612,35 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangQueryExpr queryExpr) {
-        /* ignore */
+        for (FromClauseNode fromClauseNode : queryExpr.fromClauseList) {
+            ((BLangFromClause) fromClauseNode).accept(this);
+        }
+
+        for (WhereClauseNode whereClauseNode : queryExpr.whereClauseList) {
+            ((BLangWhereClause) whereClauseNode).accept(this);
+        }
+
+        queryExpr.selectClause.accept(this);
+    }
+
+    @Override
+    public void visit(BLangFromClause fromClause) {
+        analyzeNode(fromClause.collection, env);
+    }
+
+    @Override
+    public void visit(BLangWhereClause whereClause) {
+        analyzeNode(whereClause.expression, env);
+    }
+
+    @Override
+    public void visit(BLangSelectClause selectClause) {
+        analyzeNode(selectClause.expression, env);
+    }
+
+    @Override
+    public void visit(BLangDoClause doClause) {
+        analyzeNode(doClause.body, env);
     }
 
     private boolean isFieldsInitializedForSelfArgument(BLangInvocation invocationExpr) {

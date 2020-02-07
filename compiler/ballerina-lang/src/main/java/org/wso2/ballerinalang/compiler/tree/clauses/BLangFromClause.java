@@ -80,4 +80,9 @@ public class BLangFromClause extends BLangNode implements FromClauseNode {
     public void accept(BLangNodeVisitor visitor) {
         visitor.visit(this);
     }
+
+    @Override
+    public String toString() {
+        return "from " + variableDefinitionNode + " in " + collection;
+    }
 }

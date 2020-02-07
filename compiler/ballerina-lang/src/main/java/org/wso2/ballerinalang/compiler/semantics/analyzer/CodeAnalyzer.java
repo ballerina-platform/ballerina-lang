@@ -19,6 +19,8 @@ package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import org.ballerinalang.compiler.CompilerOptionName;
 import org.ballerinalang.compiler.CompilerPhase;
+import org.ballerinalang.model.clauses.FromClauseNode;
+import org.ballerinalang.model.clauses.WhereClauseNode;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.NodeKind;
@@ -68,6 +70,10 @@ import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangDoClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhereClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
@@ -1156,7 +1162,23 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangQueryAction queryAction) {
-        /* ignore */
+        this.loopWithintransactionCheckStack.push(true);
+        boolean statementReturns = this.statementReturns;
+        this.checkStatementExecutionValidity(queryAction);
+        this.loopCount++;
+        queryAction.doClause.accept(this);
+        this.loopCount--;
+        this.statementReturns = statementReturns;
+        this.resetLastStatement();
+        this.loopWithintransactionCheckStack.pop();
+
+        for (FromClauseNode fromClauseNode : queryAction.fromClauseList) {
+            ((BLangFromClause) fromClauseNode).accept(this);
+        }
+
+        for (WhereClauseNode whereClauseNode : queryAction.whereClauseList) {
+            ((BLangWhereClause) whereClauseNode).accept(this);
+        }
     }
 
     @Override
@@ -2283,7 +2305,35 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangQueryExpr queryExpr) {
-        /* ignore */
+        for (FromClauseNode fromClauseNode : queryExpr.fromClauseList) {
+            ((BLangFromClause) fromClauseNode).accept(this);
+        }
+
+        for (WhereClauseNode whereClauseNode : queryExpr.whereClauseList) {
+            ((BLangWhereClause) whereClauseNode).accept(this);
+        }
+
+        queryExpr.selectClause.accept(this);
+    }
+
+    @Override
+    public void visit(BLangFromClause fromClause) {
+        analyzeExpr(fromClause.collection);
+    }
+
+    @Override
+    public void visit(BLangWhereClause whereClause) {
+        analyzeExpr(whereClause.expression);
+    }
+
+    @Override
+    public void visit(BLangSelectClause selectClause) {
+        analyzeExpr(selectClause.expression);
+    }
+
+    @Override
+    public void visit(BLangDoClause doClause) {
+        analyzeNode(doClause.body, env);
     }
 
     @Override
