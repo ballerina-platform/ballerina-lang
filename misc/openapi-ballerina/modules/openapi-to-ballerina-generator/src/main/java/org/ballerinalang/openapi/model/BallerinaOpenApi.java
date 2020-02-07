@@ -37,7 +37,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static org.ballerinalang.openapi.utils.TypeMatchingUtil.delimeterizeUnescapedIdentifires;
+import static org.ballerinalang.openapi.utils.TypeExtractorUtil.escapeIdentifier;
 
 /**
  * Wrapper for {@link OpenAPI}.
@@ -111,17 +111,17 @@ public class BallerinaOpenApi implements BallerinaOpenApiObject<BallerinaOpenApi
         for (Map.Entry<String, PathItem> path : pathList.entrySet()) {
             BallerinaPath balPath = new BallerinaPath().buildContext(path.getValue(), openAPI);
             if (balPath.isNoOperationsForPath()) {
-                balPath.setResourceName(delimeterizeUnescapedIdentifires(path.getKey(), false));
+                balPath.setResourceName(escapeIdentifier(path.getKey()));
             } else {
                 balPath.getOperations().forEach(operation -> {
                     if (operation.getValue().getOperationId() == null) {
                         String pathName = path.getKey().substring(1); //need to drop '/' prefix from the key, ex:'/path'
                         String operationId = operation.getKey() + StringUtils.capitalize(pathName);
-                        operation.getValue().setOperationId(delimeterizeUnescapedIdentifires(
-                                CodegenUtils.normalizeForBIdentifier(operationId), false));
+                        operation.getValue().setOperationId(escapeIdentifier(CodegenUtils.normalizeForBIdentifier(
+                                operationId)));
                     } else {
                         String opId = operation.getValue().getOperationId();
-                        operation.getValue().setOperationId(delimeterizeUnescapedIdentifires(opId, false));
+                        operation.getValue().setOperationId(escapeIdentifier(opId));
                     }
                 });
             }

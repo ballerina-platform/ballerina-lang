@@ -75,7 +75,7 @@ public class ErrorValue extends BError implements RefValue {
     }
 
     @Deprecated
-    public ErrorValue(StringValue reason, Object details) {
+    public ErrorValue(BString reason, Object details) {
         super(reason);
         this.type = new BErrorType(TypeConstants.ERROR, BTypes.typeError.getPackage(),
                                    BTypes.typeString, TypeChecker.getType(details));
@@ -84,7 +84,7 @@ public class ErrorValue extends BError implements RefValue {
     }
 
     @Deprecated
-    public ErrorValue(BType type, StringValue reason, Object details) {
+    public ErrorValue(BType type, BString reason, Object details) {
         super(reason);
         this.type = type;
         this.reason = reason.getValue();

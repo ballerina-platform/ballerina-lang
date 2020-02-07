@@ -491,6 +491,7 @@ public abstract class AbstractCompletionProvider implements LSCompletionProvider
         
         BObjectTypeSymbol objectTypeSymbol = (BObjectTypeSymbol) bSymbol;
         BAttachedFunction initFunction = objectTypeSymbol.initializerFunc;
+        BInvokableSymbol initFuncSymbol = initFunction == null ? null : initFunction.symbol;
         
         if (newTokenIndex > -1 && firstColonIndex > -1 && lastColonIndex == firstColonIndex) {
             /*
@@ -503,11 +504,11 @@ public abstract class AbstractCompletionProvider implements LSCompletionProvider
             ex: modName:ObjectName = new modName:
                 ObjectName = new 
              */
-            Pair<String, String> newWithTypeSign = getFunctionInvocationSignature(initFunction.symbol, typeName,
+            Pair<String, String> newWithTypeSign = getFunctionInvocationSignature(initFuncSymbol, typeName,
                     context);
-            CompletionItem cItem = BFunctionCompletionItemBuilder.build(initFunction.symbol, newWithTypeSign.getRight(),
+            CompletionItem cItem = BFunctionCompletionItemBuilder.build(initFuncSymbol, newWithTypeSign.getRight(),
                     newWithTypeSign.getLeft(), context);
-            completionItems.add(new SymbolCompletionItem(context, initFunction.symbol, cItem));
+            completionItems.add(new SymbolCompletionItem(context, initFuncSymbol, cItem));
             return completionItems;
         } else if (invocationType > -1) {
             Either<List<LSCompletionItem>, List<Scope.ScopeEntry>> filteredList =
