@@ -31,6 +31,7 @@ import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.exception.CompilationFailedException;
 import org.ballerinalang.langserver.util.references.SymbolReferencesModel;
 import org.ballerinalang.model.elements.PackageID;
+import org.ballerinalang.model.tree.expressions.IndexBasedAccessNode;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionKind;
 import org.eclipse.lsp4j.Diagnostic;
@@ -268,6 +269,10 @@ public class VariableAssignmentCodeAction extends AbstractCodeActionProvider {
             variableType = FunctionGenerator.generateTypeDefinition(importsAcceptor, currentPkgId, bType);
             variableName = CommonUtil.generateVariableName(bType, nameEntries);
         } else {
+            // Recursively find parent, when it is an indexBasedAccessNode
+            while (bLangNode.parent instanceof IndexBasedAccessNode) {
+                bLangNode = bLangNode.parent;
+            }
             variableType = FunctionGenerator.generateTypeDefinition(importsAcceptor, currentPkgId, bLangNode.type);
         }
         // Remove brackets of the unions
