@@ -19,12 +19,17 @@
 package org.ballerinalang.jvm.values;
 
 import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.types.BField;
+import org.ballerinalang.jvm.types.BRecordType;
 import org.ballerinalang.jvm.types.BStreamType;
 import org.ballerinalang.jvm.types.BType;
+import org.ballerinalang.jvm.types.TypeFlags;
+import org.ballerinalang.jvm.util.Flags;
 import org.ballerinalang.jvm.values.api.BFunctionPointer;
 import org.ballerinalang.jvm.values.api.BStream;
 import org.ballerinalang.jvm.values.api.BStreamIterator;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
@@ -43,6 +48,7 @@ public class StreamValue implements RefValue, BStream {
     private BType type;
     private BType constraintType;
     private BStreamIterator iterator;
+    private BType iteratorNextReturnType;
     public FunctionPointerWrapper<Boolean, Object> filter;
     public FunctionPointerWrapper<Object, Object> mapper;
 
@@ -60,6 +66,7 @@ public class StreamValue implements RefValue, BStream {
         this.iterator = null;
         this.filter = new NoFilterFunctionPointerWrapper();
         this.mapper = new NoMapFunctionPointerWrapper();
+        initializeIteratorNextReturnType();
     }
 
     public StreamValue(BType type, BStreamIterator iterator, BFunctionPointer<Object, Boolean> filterFunc,
@@ -80,6 +87,8 @@ public class StreamValue implements RefValue, BStream {
         } else {
             this.mapper = new NoMapFunctionPointerWrapper();
         }
+
+        initializeIteratorNextReturnType();
     }
 
     public StreamValue(BStream sourceStream, BFunctionPointer<Object, Boolean> filterFunc,
@@ -87,8 +96,19 @@ public class StreamValue implements RefValue, BStream {
         this(sourceStream.getType(), sourceStream, filterFunc, mapFunc);
     }
 
+    public void initializeIteratorNextReturnType() {
+        Map<String, BField> fields = new HashMap<>();
+        fields.put("value", new BField(constraintType, "value", Flags.PUBLIC + Flags.REQUIRED));
+        this.iteratorNextReturnType = new BRecordType("$$returnType$$", type.getPackage(), 0, fields,
+                null, true, TypeFlags.asMask(TypeFlags.ANYDATA, TypeFlags.PURETYPE));
+    }
+
     public String getStreamId() {
         return streamId;
+    }
+
+    public BType getIteratorNextReturnType() {
+        return iteratorNextReturnType;
     }
 
     /**

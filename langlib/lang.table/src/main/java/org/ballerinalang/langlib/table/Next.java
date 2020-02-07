@@ -56,7 +56,7 @@ public class Next {
     //TODO: refactor hard coded values
     public static Object next(Strand strand, ObjectValue m) {
         IteratorValue tableIterator = (IteratorValue) m.getNativeData("&iterator&");
-        TableValue tableValue = (TableValue) m.get(new BmpStringValue("m"));
+        TableValue tableValue = (TableValue) m.get("m");
         if (tableIterator == null) {
             tableIterator = tableValue.getIterator();
             m.addNativeData("&iterator&", tableIterator);

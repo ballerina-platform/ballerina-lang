@@ -28,9 +28,7 @@ import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.TypeFlags;
 import org.ballerinalang.jvm.util.Flags;
 import org.ballerinalang.jvm.values.ArrayValue;
-import org.ballerinalang.jvm.values.BmpStringValue;
 import org.ballerinalang.jvm.values.IteratorValue;
-import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
@@ -59,17 +57,21 @@ public class Next {
         IteratorValue mapIterator = (IteratorValue) m.getNativeData("&iterator&");
 
         if (mapIterator == null) {
-            mapIterator = ((MapValue) m.get(new BmpStringValue("m"))).getIterator();
+            mapIterator = m.getMapValue("m").getIterator();
             m.addNativeData("&iterator&", mapIterator);
         }
 
         if (mapIterator.hasNext()) {
             ArrayValue keyValueTuple = (ArrayValue) mapIterator.next();
-            BType type = ((BTupleType) keyValueTuple.getType()).getTupleTypes().get(1);
-            Map<String, BField> fields = new HashMap<>();
-            fields.put("value", new BField(type, "value", Flags.PUBLIC + Flags.REQUIRED));
-            BRecordType recordType = new BRecordType("$$returnType$$", null, 0, fields, null, true,
-                    TypeFlags.asMask(IteratorUtils.getAnydataTypeFlag(type), IteratorUtils.getPuretypeTypeFlag(type)));
+            BRecordType recordType = (BRecordType) m.getNativeData("&recordType&");
+            if (recordType == null) {
+                BType type = ((BTupleType) keyValueTuple.getType()).getTupleTypes().get(1);
+                Map<String, BField> fields = new HashMap<>();
+                fields.put("value", new BField(type, "value", Flags.PUBLIC + Flags.REQUIRED));
+                recordType = new BRecordType("$$returnType$$", null, 0, fields, null, true,
+                        TypeFlags.asMask(IteratorUtils.getAnydataTypeFlag(type), IteratorUtils.getPuretypeTypeFlag(type)));
+                m.addNativeData("&recordType&", recordType);
+            }
             return BallerinaValues.createRecord(new MapValueImpl<>(recordType), keyValueTuple.get(1));
         }
 

@@ -21,10 +21,7 @@ package org.ballerinalang.langlib.xml;
 import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.types.BField;
-import org.ballerinalang.jvm.types.BRecordType;
-import org.ballerinalang.jvm.types.BTypes;
-import org.ballerinalang.jvm.types.BUnionType;
+import org.ballerinalang.jvm.types.*;
 import org.ballerinalang.jvm.util.Flags;
 import org.ballerinalang.jvm.values.BmpStringValue;
 import org.ballerinalang.jvm.values.IteratorValue;
@@ -58,17 +55,20 @@ public class Next {
         IteratorValue xmlIterator = (IteratorValue) m.getNativeData("&iterator&");
 
         if (xmlIterator == null) {
-            xmlIterator = ((XMLValue) m.get(StringUtils.fromString("m"))).getIterator();
+            xmlIterator = ((XMLValue) m.get("m")).getIterator();
             m.addNativeData("&iterator&", xmlIterator);
         }
 
         if (xmlIterator.hasNext()) {
             Object xmlValue = xmlIterator.next();
-            Map<String, BField> fields = new HashMap<>();
-            BUnionType type = new BUnionType(Arrays.asList(BTypes.typeString, BTypes.typeXML));
-            fields.put("value", new BField(type, "value", Flags.PUBLIC + Flags.REQUIRED));
-            BRecordType recordType = new BRecordType("$$returnType$$", null, 0, fields,
-                    null, true, 0);
+            BRecordType recordType = (BRecordType) m.getNativeData("&recordType&");
+            if (recordType == null) {
+                Map<String, BField> fields = new HashMap<>();
+                BUnionType type = new BUnionType(Arrays.asList(BTypes.typeString, BTypes.typeXML));
+                fields.put("value", new BField(type, "value", Flags.PUBLIC + Flags.REQUIRED));
+                recordType = new BRecordType("$$returnType$$", null, 0, fields, null, true, 0);
+                m.addNativeData("&recordType&", recordType);
+            }
             return BallerinaValues.createRecord(new MapValueImpl<>(recordType), xmlValue);
         }
 

@@ -26,7 +26,6 @@ import org.ballerinalang.jvm.types.BRecordType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.types.TypeFlags;
 import org.ballerinalang.jvm.util.Flags;
-import org.ballerinalang.jvm.values.BmpStringValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.api.BString;
@@ -62,18 +61,22 @@ public class Next {
         StringCharacterIterator stringCharacterIterator = (StringCharacterIterator) m.getNativeData("&iterator&");
         if (stringCharacterIterator == null) {
             String s = USE_BSTRING ? ((BString) m.get(StringUtils.fromString("m"))).getValue() :
-                    (String) m.get(new BmpStringValue("m"));
+                    m.getStringValue("m");
             stringCharacterIterator = new StringCharacterIterator(s);
             m.addNativeData("&iterator&", stringCharacterIterator);
         }
 
         if (stringCharacterIterator.current() != CharacterIterator.DONE) {
+            BRecordType recordType = (BRecordType) m.getNativeData("&recordType&");
+            if (recordType == null) {
+                Map<String, BField> fields = new HashMap<>();
+                fields.put("value", new BField(BTypes.typeString, "value", Flags.PUBLIC + Flags.REQUIRED));
+                recordType = new BRecordType("$$returnType$$", null, 0, fields,
+                        null, true, TypeFlags.asMask(TypeFlags.PURETYPE, TypeFlags.ANYDATA));
+                m.addNativeData("&recordType&", recordType);
+            }
             char character = stringCharacterIterator.current();
             stringCharacterIterator.next();
-            Map<String, BField> fields = new HashMap<>();
-            fields.put("value", new BField(BTypes.typeString, "value", Flags.PUBLIC + Flags.REQUIRED));
-            BRecordType recordType = new BRecordType("$$returnType$$", null, 0, fields,
-                    null, true, TypeFlags.asMask(TypeFlags.PURETYPE, TypeFlags.ANYDATA));
             Object charAsStr = USE_BSTRING ? StringUtils.fromString(String.valueOf(character)) :
                                String.valueOf(character);
             return BallerinaValues.createRecord(new MapValueImpl<>(recordType), charAsStr);

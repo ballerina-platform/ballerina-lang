@@ -30,7 +30,6 @@ import org.ballerinalang.jvm.types.TypeFlags;
 import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.util.Flags;
 import org.ballerinalang.jvm.values.ArrayValue;
-import org.ballerinalang.jvm.values.BmpStringValue;
 import org.ballerinalang.jvm.values.IteratorValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.ObjectValue;
@@ -61,7 +60,7 @@ public class Next {
     //TODO: refactor hard coded values
     public static Object next(Strand strand, ObjectValue m) {
         IteratorValue arrIterator = (IteratorValue) m.getNativeData("&iterator&");
-        ArrayValue arr = (ArrayValue) m.get(new BmpStringValue("m"));
+        ArrayValue arr = m.getArrayValue("m");
         if (arrIterator == null) {
             arrIterator = arr.getIterator();
             m.addNativeData("&iterator&", arrIterator);
@@ -69,27 +68,30 @@ public class Next {
 
         if (arrIterator.hasNext()) {
             Object element =  arrIterator.next();
-            Map<String, BField> fields = new HashMap<>();
-            BType type;
-            int typeFlags = 0;
-            if (arr.getType().getTag() == TypeTags.ARRAY_TAG) {
-                type = arr.getElementType();
-            } else {
-                BTupleType tupleType = (BTupleType) arr.getType();
-                LinkedHashSet<BType> types = new LinkedHashSet<>(tupleType.getTupleTypes());
-                if (tupleType.getRestType() != null) {
-                    types.add(tupleType.getRestType());
-                }
-                if (types.size() == 1) {
-                    type = types.iterator().next();
+            BRecordType recordType = (BRecordType) m.getNativeData("&recordType&");
+            if (recordType == null) {
+                Map<String, BField> fields = new HashMap<>();
+                BType type;
+                if (arr.getType().getTag() == TypeTags.ARRAY_TAG) {
+                    type = arr.getElementType();
                 } else {
-                    type = new BUnionType(new ArrayList<>(types));
+                    BTupleType tupleType = (BTupleType) arr.getType();
+                    LinkedHashSet<BType> types = new LinkedHashSet<>(tupleType.getTupleTypes());
+                    if (tupleType.getRestType() != null) {
+                        types.add(tupleType.getRestType());
+                    }
+                    if (types.size() == 1) {
+                        type = types.iterator().next();
+                    } else {
+                        type = new BUnionType(new ArrayList<>(types));
+                    }
                 }
-            }
 
-            fields.put("value", new BField(type, "value", Flags.PUBLIC + Flags.REQUIRED));
-            BRecordType recordType = new BRecordType("$$returnType$$", null, 0, fields, null, true,
-                    TypeFlags.asMask(IteratorUtils.getAnydataTypeFlag(type), IteratorUtils.getPuretypeTypeFlag(type)));
+                fields.put("value", new BField(type, "value", Flags.PUBLIC + Flags.REQUIRED));
+                recordType = new BRecordType("$$returnType$$", null, 0, fields, null, true,
+                        TypeFlags.asMask(IteratorUtils.getAnydataTypeFlag(type), IteratorUtils.getPuretypeTypeFlag(type)));
+                m.addNativeData("&recordType&", recordType);
+            }
             return BallerinaValues.createRecord(new MapValueImpl<>(recordType), element);
         }
 
