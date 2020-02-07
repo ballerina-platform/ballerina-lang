@@ -82,7 +82,7 @@ public class Decode {
             return CryptoUtils.createError("Algorithm for key recovery is not found: " + e.getMessage());
         } catch (NullPointerException e) {
             return CryptoUtils.createError("Key cannot be recovered by using given key alias: [" + keyAlias +
-                         "] and key password: [" + keyPassword + "]");
+                         "] and key password");
         } catch (UnrecoverableKeyException e) {
             return CryptoUtils.createError("Key cannot be recovered: " + e.getMessage());
         }
