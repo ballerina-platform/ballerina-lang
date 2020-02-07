@@ -18,7 +18,7 @@
 package org.wso2.ballerinalang.compiler.bir;
 
 import org.wso2.ballerinalang.compiler.bir.codegen.CodeGenerator;
-import org.wso2.ballerinalang.compiler.bir.desuger.BIRDesuger;
+import org.wso2.ballerinalang.compiler.bir.emit.BIREmitter;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
@@ -32,8 +32,8 @@ public class BackendDriver {
 
     private static final CompilerContext.Key<BackendDriver> BACKEND_DRIVER = new CompilerContext.Key<>();
 
-    private BIRDesuger birDesuger;
     private CodeGenerator codeGenerator;
+    private BIREmitter birEmitter;
 
     public static BackendDriver getInstance(CompilerContext context) {
         BackendDriver backendDriver = context.get(BACKEND_DRIVER);
@@ -46,21 +46,18 @@ public class BackendDriver {
     private BackendDriver(CompilerContext context) {
         context.put(BACKEND_DRIVER, this);
 
-        this.birDesuger = BIRDesuger.getInstance(context);
         this.codeGenerator = CodeGenerator.getInstance(context);
+        this.birEmitter = BIREmitter.getInstance(context);
     }
 
-    public void execute(BIRNode.BIRPackage birPackage) {
-        // Desuger phase on BIR
-        desugar(birPackage);
+    public void execute(BIRNode.BIRPackage birPackage, boolean dumpBIR) {
+        // Emit BIR to console if dump-bir flag is set
+        if (dumpBIR) {
+            birEmitter.emit(birPackage);
+        }
 
         // Generate JVM bytecode from BIR
         codeGen(birPackage);
-    }
-
-
-    private BIRNode.BIRPackage desugar(BIRNode.BIRPackage birPackage) {
-        return this.birDesuger.perform(birPackage);
     }
 
     private void codeGen(BIRNode.BIRPackage birPackage) {
