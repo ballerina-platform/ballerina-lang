@@ -1,0 +1,45 @@
+/*
+ *  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing,
+ *  software distributed under the License is distributed on an
+ *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *  KIND, either express or implied.  See the License for the
+ *  specific language governing permissions and limitations
+ *  under the License.
+ */
+
+syntax = "proto3";
+
+message Test1 {
+    string name = 1;
+}
+
+message Test2 {
+    string a = 1;
+    double b = 2;
+    float c = 3;
+    int32 d = 4;
+    int64 e = 5;
+    uint64 f = 6;
+    fixed32 g = 7;
+    fixed64 h = 8;
+}
+
+message Test3 {
+    repeated string a = 1;
+    repeated double b = 2;
+    repeated float c = 3;
+    repeated int32 d = 4;
+    repeated int64 e = 5;
+    repeated uint64 f = 6;
+    repeated fixed32 g = 7;
+    repeated fixed64 h = 8;
+}

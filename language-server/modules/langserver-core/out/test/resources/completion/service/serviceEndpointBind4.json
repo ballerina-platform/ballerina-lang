@@ -1,0 +1,31 @@
+{
+  "position": {
+    "line": 8,
+    "character": 31
+  },
+  "source": "service/source/serviceEndpointBind4.bal",
+  "items": [
+    {
+      "label": "MockListener",
+      "kind": "Class",
+      "detail": "Object",
+      "documentation": {
+        "left": "Mock server endpoint which does not open a listening port."
+      },
+      "sortText": "120",
+      "insertText": "MockListener",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Listener",
+      "kind": "Class",
+      "detail": "Object",
+      "documentation": {
+        "left": "This is used for creating HTTP server endpoints. An HTTP server endpoint is capable of responding to\nremote callers. The `Listener` is responsible for initializing the endpoint using the provided configurations."
+      },
+      "sortText": "120",
+      "insertText": "Listener",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

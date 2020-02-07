@@ -1,0 +1,73 @@
+{
+  "position": {
+    "line": 3,
+    "character": 5
+  },
+  "source": "annotation/source/annotationBodyCompletion2.bal",
+  "items": [
+    {
+      "label": "host",
+      "kind": "Field",
+      "detail": "Field",
+      "sortText": "210",
+      "insertText": "host: \"${1}\"",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "basePath",
+      "kind": "Field",
+      "detail": "Field",
+      "sortText": "210",
+      "insertText": "basePath: \"${1}\"",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "compression",
+      "kind": "Field",
+      "detail": "Field",
+      "sortText": "210",
+      "insertText": "compression: {${1}}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "chunking",
+      "kind": "Field",
+      "detail": "Field",
+      "sortText": "210",
+      "insertText": "chunking: ${1:\"AUTO\"}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "cors",
+      "kind": "Field",
+      "detail": "Field",
+      "sortText": "210",
+      "insertText": "cors: {${1}}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "versioning",
+      "kind": "Field",
+      "detail": "Field",
+      "sortText": "210",
+      "insertText": "versioning: {${1}}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "auth",
+      "kind": "Field",
+      "detail": "Field",
+      "sortText": "210",
+      "insertText": "auth: {${1}}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Add All Attributes",
+      "kind": "Property",
+      "detail": "none",
+      "sortText": "110",
+      "insertText": "host: \"\",\nbasePath: \"\",\ncompression: {},\nchunking: \"AUTO\",\ncors: {},\nversioning: {},\nauth: {}",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

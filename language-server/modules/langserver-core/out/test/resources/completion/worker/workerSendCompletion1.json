@@ -1,0 +1,23 @@
+{
+  "position": {
+    "line": 8,
+    "character": 10
+  },
+  "source": "worker/source/workerSendCompletion1.bal",
+  "items": [
+    {
+      "label": "w1",
+      "kind": "Unit",
+      "detail": "future\u003c()\u003e",
+      "insertText": "w1",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "w2",
+      "kind": "Unit",
+      "detail": "future\u003c()\u003e",
+      "insertText": "w2",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

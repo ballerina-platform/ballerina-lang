@@ -1,0 +1,89 @@
+{
+  "position": {
+    "line": 0,
+    "character": 8
+  },
+  "source": "toplevel/source/topLevelFirstLineWithPublicDefStart.bal",
+  "items": [
+    {
+      "label": "function",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "240",
+      "insertText": "function ${1:name}(${2}) {\n\t${3}\n}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "annotation",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "240",
+      "insertText": "annotation ${1:typeName} ${2:name} on ${3:attachmentPoint};",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "type <ObjectName> object",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "240",
+      "insertText": "type ${1:ObjectName} object {\n\t${2}\n};",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "type <RecordName> record",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "240",
+      "insertText": "type ${1:RecordName} record {\n\t${2}\n};",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "type <RecordName> closed record",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "240",
+      "insertText": "type ${1:RecordName} record {|\n\t${2}\n|};",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "listener",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "220",
+      "insertText": "listener ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "type",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "220",
+      "insertText": "type ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "const",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "220",
+      "insertText": "const ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Annotation",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "220",
+      "insertText": "annotation ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "function",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "220",
+      "insertText": "function ",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

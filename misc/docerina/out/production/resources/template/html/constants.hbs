@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+
+{{> head }}
+
+<body class="cBallerina-io">
+    {{> bioBody }}
+    <div class="navi-wrapper">
+        <div class="navi-wrapper-content">
+            {{> logo }}
+            
+            {{> currentModule }}
+            {{> allModules }}
+        </div>
+    </div>
+
+    <div class="ui vertical sidebar menu">
+        <div class="navi-wrapper-sidebar">
+            <div class="navi-wrapper-content">
+                {{> logo }}
+                
+                {{> currentModule }}
+                {{> allModules }}
+            </div>
+        </div>
+    </div>
+
+    <div class="content-wrapper pusher">
+        {{> mobMenu }}
+        <div class="main-wrapper">
+            <h1>
+                {{> breadcrumb }}
+                <span class="title-type">Constants - </span> 
+                <a href="{{ rootPath }}{{module.id}}/index.html">{{module.id}}</a> 
+            </h1>
+            <div class="constants">
+                <div class="data-wrapper">
+                    {{#each constants}}
+                        <div class="params-listing">
+                            <ul>
+                                <li id="{{ name }}"> <b>{{ name }}</b><span class="type">  {{{ typeName type }}}</span> {{ value }}</li>
+                                <li>
+                                    {{{ description }}}
+                                </li>
+                            </ul>
+                        </div>
+                    {{/each}}
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+{{> footer }}

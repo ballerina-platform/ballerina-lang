@@ -1,0 +1,41 @@
+{
+  "source": {
+    "file": "renameFl1.bal"
+  },
+  "position": {
+    "line": 50,
+    "character": 16
+  },
+  "result": {
+    "changes": {
+      "renameFl1.bal": [
+        {
+          "range": {
+            "start": {
+              "line": 50,
+              "character": 14
+            },
+            "end": {
+              "line": 50,
+              "character": 18
+            }
+          },
+          "newText": "renamedVal"
+        },
+        {
+          "range": {
+            "start": {
+              "line": 44,
+              "character": 11
+            },
+            "end": {
+              "line": 44,
+              "character": 15
+            }
+          },
+          "newText": "renamedVal"
+        }
+      ]
+    }
+  }
+}

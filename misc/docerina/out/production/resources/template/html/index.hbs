@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+
+{{> head }}
+
+<body class="cBallerina-io">
+    {{> bioBody }}
+    <div class="navi-wrapper" > 
+      <div class="navi-wrapper-content">
+          {{> logo }}
+      </div>
+    </div>
+     <div class="ui vertical sidebar menu">
+        <div class="navi-wrapper-sidebar">
+            <div class="navi-wrapper-content">
+                {{> logo }}
+            </div>
+        </div>
+    </div>
+    <div class="content-wrapper pusher">
+        {{> mobMenu }}
+      <div class="main-wrapper">
+        <h1> {{> breadcrumb }} Modules</h1>
+        <div>
+          <table class="ui table">
+             {{#if project.modules}}
+            <tbody>
+             {{#each project.modules}}
+              <tr>
+                <td class="module-title modules"><a href="{{id}}/index.html">{{id}}</a></td>
+                <td class="module-desc">{{{ summary }}}</td>
+              </tr>
+              {{/each}}
+            </tbody>
+            {{/if}}
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+
+{{> footer }}

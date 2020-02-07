@@ -1,0 +1,22 @@
+{
+  "range": {
+    "start": {
+      "line": 1,
+      "character": 4
+    },
+    "end": {
+      "line": 1,
+      "character": 30
+    }
+  },
+  "expected": {
+    "title":"Import Module  ballerina/io",
+    "command":"IMPORT_MODULE",
+    "arguments":[
+      {
+        "argumentK":"module",
+        "argumentV":"ballerina/io"
+      }
+    ]
+  }
+}

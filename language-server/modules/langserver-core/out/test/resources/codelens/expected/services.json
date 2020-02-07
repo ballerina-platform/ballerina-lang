@@ -1,0 +1,52 @@
+{
+    "result": [
+        {
+            "range": {
+                "start": {
+                    "line": 6,
+                    "character": 1
+                },
+                "end": {
+                    "line": 6,
+                    "character": 1
+                }
+            },
+            "command": {
+                "title": "Show API Design",
+                "command": "ballerina.showAPIEditor",
+                "arguments": [
+                    {
+                        "argumentK": "service.name",
+                        "argumentV": "httpService"
+                    }
+                ]
+            }
+        },
+        {
+            "range": {
+                "start": {
+                    "line": 26,
+                    "character": 1
+                },
+                "end": {
+                    "line": 26,
+                    "character": 1
+                }
+            },
+            "command": {
+                "title": "Show API Design",
+                "command": "ballerina.showAPIEditor",
+                "arguments": [
+                    {
+                        "argumentK": "service.name",
+                        "argumentV": "httpsService"
+                    }
+                ]
+            }
+        }
+    ],
+    "id": {
+        "left": "324"
+    },
+    "jsonrpc": "2.0"
+}

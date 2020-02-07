@@ -1,0 +1,30 @@
+{
+  "nodeType": "FUNCTION",
+  "nodeLine": "3",
+  "expected": {
+    "result":{
+      "edit":{
+        "documentChanges":[
+          {
+            "edits":[
+              {
+                "range":{
+                  "start":{
+                    "line":3,
+                    "character":0
+                  },
+                  "end":{
+                    "line":3,
+                    "character":0
+                  }
+                },
+                "newText":"# Description\n"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "jsonrpc":"2.0"
+  }
+}

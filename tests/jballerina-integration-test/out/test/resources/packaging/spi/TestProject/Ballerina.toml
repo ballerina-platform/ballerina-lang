@@ -1,0 +1,13 @@
+[project]
+org-name = "spintegrationtest"
+version = "0.7.2"
+
+[platform]
+target = "java8"
+
+  [[platform.libraries]]
+  path = "./libs/serviceA.jar"
+
+  [[platform.libraries]]
+  path = "./libs/serviceB.jar"
+

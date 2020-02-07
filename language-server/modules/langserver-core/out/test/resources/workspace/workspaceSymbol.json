@@ -1,0 +1,376 @@
+{
+  "query": "",
+  "expected": {
+    "result": [
+      {
+        "name": "ns0",
+        "kind": "Namespace",
+        "location": {
+          "range": {
+            "start": {
+              "line": 2,
+              "character": 0
+            },
+            "end": {
+              "line": 2,
+              "character": 39
+            }
+          }
+        }
+      },
+      {
+        "name": "testPackageFunction",
+        "kind": "Function",
+        "location": {
+          "range": {
+            "start": {
+              "line": 5,
+              "character": 0
+            },
+            "end": {
+              "line": 12,
+              "character": 1
+            }
+          }
+        }
+      },
+      {
+        "name": "localVar1",
+        "kind": "Number",
+        "location": {
+          "range": {
+            "start": {
+              "line": 6,
+              "character": 4
+            },
+            "end": {
+              "line": 6,
+              "character": 23
+            }
+          }
+        }
+      },
+      {
+        "name": "localVar2",
+        "kind": "String",
+        "location": {
+          "range": {
+            "start": {
+              "line": 7,
+              "character": 4
+            },
+            "end": {
+              "line": 7,
+              "character": 31
+            }
+          }
+        }
+      },
+      {
+        "name": "localVar3",
+        "kind": "Boolean",
+        "location": {
+          "range": {
+            "start": {
+              "line": 8,
+              "character": 4
+            },
+            "end": {
+              "line": 8,
+              "character": 30
+            }
+          }
+        }
+      },
+      {
+        "name": "localVar5",
+        "kind": "Number",
+        "location": {
+          "range": {
+            "start": {
+              "line": 9,
+              "character": 4
+            },
+            "end": {
+              "line": 9,
+              "character": 27
+            }
+          }
+        }
+      },
+      {
+        "name": "localVar4",
+        "kind": "Array",
+        "location": {
+          "range": {
+            "start": {
+              "line": 10,
+              "character": 4
+            },
+            "end": {
+              "line": 10,
+              "character": 20
+            }
+          }
+        }
+      },
+      {
+        "name": "workerLocal1",
+        "kind": "Number",
+        "location": {
+          "range": {
+            "start": {
+              "line": 16,
+              "character": 8
+            },
+            "end": {
+              "line": 16,
+              "character": 30
+            }
+          }
+        }
+      },
+      {
+        "name": "workerLocal2",
+        "kind": "Number",
+        "location": {
+          "range": {
+            "start": {
+              "line": 20,
+              "character": 8
+            },
+            "end": {
+              "line": 20,
+              "character": 30
+            }
+          }
+        }
+      },
+      {
+        "name": "testFunctionWithWorker",
+        "kind": "Function",
+        "location": {
+          "range": {
+            "start": {
+              "line": 14,
+              "character": 0
+            },
+            "end": {
+              "line": 22,
+              "character": 1
+            }
+          }
+        }
+      },
+      {
+        "name": "wr1",
+        "kind": "Variable",
+        "location": {
+          "range": {
+            "start": {
+              "line": 15,
+              "character": 4
+            },
+            "end": {
+              "line": 17,
+              "character": 5
+            }
+          }
+        }
+      },
+      {
+        "name": "wr2",
+        "kind": "Variable",
+        "location": {
+          "range": {
+            "start": {
+              "line": 19,
+              "character": 4
+            },
+            "end": {
+              "line": 21,
+              "character": 5
+            }
+          }
+        }
+      },
+      {
+        "name": "testObject",
+        "kind": "Class",
+        "location": {
+          "range": {
+            "start": {
+              "line": 2,
+              "character": 0
+            },
+            "end": {
+              "line": 9,
+              "character": 2
+            }
+          }
+        }
+      },
+      {
+        "name": "val1",
+        "kind": "Field",
+        "location": {
+          "range": {
+            "start": {
+              "line": 3,
+              "character": 4
+            },
+            "end": {
+              "line": 3,
+              "character": 18
+            }
+          }
+        }
+      },
+      {
+        "name": "val2",
+        "kind": "Field",
+        "location": {
+          "range": {
+            "start": {
+              "line": 4,
+              "character": 4
+            },
+            "end": {
+              "line": 4,
+              "character": 39
+            }
+          }
+        }
+      },
+      {
+        "name": "printHelloFuncion",
+        "kind": "Function",
+        "location": {
+          "range": {
+            "start": {
+              "line": 5,
+              "character": 4
+            },
+            "end": {
+              "line": 7,
+              "character": 5
+            }
+          }
+        }
+      },
+      {
+        "name": "printValue",
+        "kind": "String",
+        "location": {
+          "range": {
+            "start": {
+              "line": 6,
+              "character": 8
+            },
+            "end": {
+              "line": 6,
+              "character": 40
+            }
+          }
+        }
+      },
+      {
+        "name": "testRecord",
+        "kind": "Class",
+        "location": {
+          "range": {
+            "start": {
+              "line": 11,
+              "character": 0
+            },
+            "end": {
+              "line": 15,
+              "character": 2
+            }
+          }
+        }
+      },
+      {
+        "name": "listenerEp",
+        "kind": "Variable",
+        "location": {
+          "range": {
+            "start": {
+              "line": 4,
+              "character": 0
+            },
+            "end": {
+              "line": 4,
+              "character": 46
+            }
+          }
+        }
+      },
+      {
+        "name": "testDocService",
+        "kind": "Class",
+        "location": {
+          "range": {
+            "start": {
+              "line": 8,
+              "character": 0
+            },
+            "end": {
+              "line": 29,
+              "character": 1
+            }
+          }
+        }
+      },
+      {
+        "name": "sayHello",
+        "kind": "Function",
+        "location": {
+          "range": {
+            "start": {
+              "line": 10,
+              "character": 4
+            },
+            "end": {
+              "line": 28,
+              "character": 5
+            }
+          }
+        }
+      },
+      {
+        "name": "response",
+        "kind": "Variable",
+        "location": {
+          "range": {
+            "start": {
+              "line": 19,
+              "character": 8
+            },
+            "end": {
+              "line": 19,
+              "character": 37
+            }
+          }
+        }
+      },
+      {
+        "name": "testDocService",
+        "kind": "Variable",
+        "location": {
+          "range": {
+            "start": {
+              "line": 8,
+              "character": 8
+            },
+            "end": {
+              "line": 8,
+              "character": 22
+            }
+          }
+        }
+      }
+    ],
+    "jsonrpc": "2.0"
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "position": {
+    "line": 21,
+    "character": 26
+  },
+  "source": "function/source/functionParamAnnotationBodyCompletion.bal",
+  "items": [
+    {
+      "label": "val1",
+      "kind": "Field",
+      "detail": "Field",
+      "sortText": "120",
+      "insertText": "val1: \"${1}\"",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Add All Attributes",
+      "kind": "Property",
+      "detail": "none",
+      "sortText": "110",
+      "insertText": "val1: \"\"",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

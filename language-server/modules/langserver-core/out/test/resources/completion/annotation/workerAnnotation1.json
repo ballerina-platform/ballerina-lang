@@ -1,0 +1,17 @@
+{
+  "position": {
+    "line": 3,
+    "character": 5
+  },
+  "source": "annotation/source/workerAnnotation1.bal",
+  "items": [
+    {
+      "label": "v1",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "110",
+      "insertText": "v1",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

@@ -1,0 +1,279 @@
+{
+    "position": {
+        "line": 15,
+        "character": 16
+    },
+    "source": "function/source/actionInvocationSuggestion1.bal",
+    "items": [
+        {
+            "label": "post(string path, (http:Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]) message)((http:Response|http:FailoverAllEndpointsFailedError|http:FailoverActionFailedError|http:UpstreamServiceUnavailableError|http:AllLoadBalanceEndpointsFailedError|http:AllRetryAttemptsFailed|http:IdleTimeoutError|http:AuthenticationError|http:AuthorizationError|http:InitializingOutboundRequestError|http:WritingOutboundRequestHeadersError|http:WritingOutboundRequestBodyError|http:InitializingInboundResponseError|http:ReadingInboundResponseHeadersError|http:ReadingInboundResponseBodyError|http:UnsupportedActionError|http:Http2ClientError|http:MaximumWaitTimeExceededError|http:SslError|http:GenericClientError))",
+            "kind": "Function",
+            "detail": "Function",
+            "documentation": {
+                "right": {
+                    "kind": "markdown",
+                    "value": "**Package:** _ballerina/http_  \n  \nThe `Client.post()` function can be used to send HTTP POST requests to HTTP endpoints.\n  \n**Params**  \n- `string` path: Resource path  \n- `(http:Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[])` message: An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,\n            `io:ReadableByteChannel` or `mime:Entity[]`  \n  \n**Returns** `(http:Response|http:FailoverAllEndpointsFailedError|http:FailoverActionFailedError|http:UpstreamServiceUnavailableError|http:AllLoadBalanceEndpointsFailedError|http:AllRetryAttemptsFailed|http:IdleTimeoutError|http:AuthenticationError|http:AuthorizationError|http:InitializingOutboundRequestError|http:WritingOutboundRequestHeadersError|http:WritingOutboundRequestBodyError|http:InitializingInboundResponseError|http:ReadingInboundResponseHeadersError|http:ReadingInboundResponseBodyError|http:UnsupportedActionError|http:Http2ClientError|http:MaximumWaitTimeExceededError|http:SslError|http:GenericClientError)`   \n- The response for the request or an `http:ClientError` if failed to establish communication with the upstream server  \n  \n"
+                }
+            },
+            "sortText": "120",
+            "insertText": "post(${1})",
+            "insertTextFormat": "Snippet",
+            "command": {
+                "title": "editor.action.triggerParameterHints",
+                "command": "editor.action.triggerParameterHints"
+            }
+        },
+        {
+            "label": "head(string path, (http:Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]) message)((http:Response|http:FailoverAllEndpointsFailedError|http:FailoverActionFailedError|http:UpstreamServiceUnavailableError|http:AllLoadBalanceEndpointsFailedError|http:AllRetryAttemptsFailed|http:IdleTimeoutError|http:AuthenticationError|http:AuthorizationError|http:InitializingOutboundRequestError|http:WritingOutboundRequestHeadersError|http:WritingOutboundRequestBodyError|http:InitializingInboundResponseError|http:ReadingInboundResponseHeadersError|http:ReadingInboundResponseBodyError|http:UnsupportedActionError|http:Http2ClientError|http:MaximumWaitTimeExceededError|http:SslError|http:GenericClientError))",
+            "kind": "Function",
+            "detail": "Function",
+            "documentation": {
+                "right": {
+                    "kind": "markdown",
+                    "value": "**Package:** _ballerina/http_  \n  \nThe `Client.head()` function can be used to send HTTP HEAD requests to HTTP endpoints.\n  \n**Params**  \n- `string` path: Resource path  \n- `(http:Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[])` message: An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,\n            `io:ReadableByteChannel` or `mime:Entity[]`(Defaultable)  \n  \n**Returns** `(http:Response|http:FailoverAllEndpointsFailedError|http:FailoverActionFailedError|http:UpstreamServiceUnavailableError|http:AllLoadBalanceEndpointsFailedError|http:AllRetryAttemptsFailed|http:IdleTimeoutError|http:AuthenticationError|http:AuthorizationError|http:InitializingOutboundRequestError|http:WritingOutboundRequestHeadersError|http:WritingOutboundRequestBodyError|http:InitializingInboundResponseError|http:ReadingInboundResponseHeadersError|http:ReadingInboundResponseBodyError|http:UnsupportedActionError|http:Http2ClientError|http:MaximumWaitTimeExceededError|http:SslError|http:GenericClientError)`   \n- The response for the request or an `http:ClientError` if failed to establish communication with the upstream server  \n  \n"
+                }
+            },
+            "sortText": "120",
+            "insertText": "head(${1})",
+            "insertTextFormat": "Snippet",
+            "command": {
+                "title": "editor.action.triggerParameterHints",
+                "command": "editor.action.triggerParameterHints"
+            }
+        },
+        {
+            "label": "put(string path, (http:Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]) message)((http:Response|http:FailoverAllEndpointsFailedError|http:FailoverActionFailedError|http:UpstreamServiceUnavailableError|http:AllLoadBalanceEndpointsFailedError|http:AllRetryAttemptsFailed|http:IdleTimeoutError|http:AuthenticationError|http:AuthorizationError|http:InitializingOutboundRequestError|http:WritingOutboundRequestHeadersError|http:WritingOutboundRequestBodyError|http:InitializingInboundResponseError|http:ReadingInboundResponseHeadersError|http:ReadingInboundResponseBodyError|http:UnsupportedActionError|http:Http2ClientError|http:MaximumWaitTimeExceededError|http:SslError|http:GenericClientError))",
+            "kind": "Function",
+            "detail": "Function",
+            "documentation": {
+                "right": {
+                    "kind": "markdown",
+                    "value": "**Package:** _ballerina/http_  \n  \nThe `Client.put()` function can be used to send HTTP PUT requests to HTTP endpoints.\n  \n**Params**  \n- `string` path: Resource path  \n- `(http:Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[])` message: An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,\n            `io:ReadableByteChannel` or `mime:Entity[]`  \n  \n**Returns** `(http:Response|http:FailoverAllEndpointsFailedError|http:FailoverActionFailedError|http:UpstreamServiceUnavailableError|http:AllLoadBalanceEndpointsFailedError|http:AllRetryAttemptsFailed|http:IdleTimeoutError|http:AuthenticationError|http:AuthorizationError|http:InitializingOutboundRequestError|http:WritingOutboundRequestHeadersError|http:WritingOutboundRequestBodyError|http:InitializingInboundResponseError|http:ReadingInboundResponseHeadersError|http:ReadingInboundResponseBodyError|http:UnsupportedActionError|http:Http2ClientError|http:MaximumWaitTimeExceededError|http:SslError|http:GenericClientError)`   \n- The response for the request or an `http:ClientError` if failed to establish communication with the upstream server  \n  \n"
+                }
+            },
+            "sortText": "120",
+            "insertText": "put(${1})",
+            "insertTextFormat": "Snippet",
+            "command": {
+                "title": "editor.action.triggerParameterHints",
+                "command": "editor.action.triggerParameterHints"
+            }
+        },
+        {
+            "label": "execute(string httpVerb, string path, (http:Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]) message)((http:Response|http:FailoverAllEndpointsFailedError|http:FailoverActionFailedError|http:UpstreamServiceUnavailableError|http:AllLoadBalanceEndpointsFailedError|http:AllRetryAttemptsFailed|http:IdleTimeoutError|http:AuthenticationError|http:AuthorizationError|http:InitializingOutboundRequestError|http:WritingOutboundRequestHeadersError|http:WritingOutboundRequestBodyError|http:InitializingInboundResponseError|http:ReadingInboundResponseHeadersError|http:ReadingInboundResponseBodyError|http:UnsupportedActionError|http:Http2ClientError|http:MaximumWaitTimeExceededError|http:SslError|http:GenericClientError))",
+            "kind": "Function",
+            "detail": "Function",
+            "documentation": {
+                "right": {
+                    "kind": "markdown",
+                    "value": "**Package:** _ballerina/http_  \n  \nInvokes an HTTP call with the specified HTTP verb.\n  \n**Params**  \n- `string` httpVerb: HTTP verb value  \n- `string` path: Resource path  \n- `(http:Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[])` message: An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,\n            `io:ReadableByteChannel` or `mime:Entity[]`  \n  \n**Returns** `(http:Response|http:FailoverAllEndpointsFailedError|http:FailoverActionFailedError|http:UpstreamServiceUnavailableError|http:AllLoadBalanceEndpointsFailedError|http:AllRetryAttemptsFailed|http:IdleTimeoutError|http:AuthenticationError|http:AuthorizationError|http:InitializingOutboundRequestError|http:WritingOutboundRequestHeadersError|http:WritingOutboundRequestBodyError|http:InitializingInboundResponseError|http:ReadingInboundResponseHeadersError|http:ReadingInboundResponseBodyError|http:UnsupportedActionError|http:Http2ClientError|http:MaximumWaitTimeExceededError|http:SslError|http:GenericClientError)`   \n- The response for the request or an `http:ClientError` if failed to establish communication with the upstream server  \n  \n"
+                }
+            },
+            "sortText": "120",
+            "insertText": "execute(${1})",
+            "insertTextFormat": "Snippet",
+            "command": {
+                "title": "editor.action.triggerParameterHints",
+                "command": "editor.action.triggerParameterHints"
+            }
+        },
+        {
+            "label": "patch(string path, (http:Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]) message)((http:Response|http:FailoverAllEndpointsFailedError|http:FailoverActionFailedError|http:UpstreamServiceUnavailableError|http:AllLoadBalanceEndpointsFailedError|http:AllRetryAttemptsFailed|http:IdleTimeoutError|http:AuthenticationError|http:AuthorizationError|http:InitializingOutboundRequestError|http:WritingOutboundRequestHeadersError|http:WritingOutboundRequestBodyError|http:InitializingInboundResponseError|http:ReadingInboundResponseHeadersError|http:ReadingInboundResponseBodyError|http:UnsupportedActionError|http:Http2ClientError|http:MaximumWaitTimeExceededError|http:SslError|http:GenericClientError))",
+            "kind": "Function",
+            "detail": "Function",
+            "documentation": {
+                "right": {
+                    "kind": "markdown",
+                    "value": "**Package:** _ballerina/http_  \n  \nThe `Client.patch()` function can be used to send HTTP PATCH requests to HTTP endpoints.\n  \n**Params**  \n- `string` path: Resource path  \n- `(http:Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[])` message: An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,\n            `io:ReadableByteChannel` or `mime:Entity[]`  \n  \n**Returns** `(http:Response|http:FailoverAllEndpointsFailedError|http:FailoverActionFailedError|http:UpstreamServiceUnavailableError|http:AllLoadBalanceEndpointsFailedError|http:AllRetryAttemptsFailed|http:IdleTimeoutError|http:AuthenticationError|http:AuthorizationError|http:InitializingOutboundRequestError|http:WritingOutboundRequestHeadersError|http:WritingOutboundRequestBodyError|http:InitializingInboundResponseError|http:ReadingInboundResponseHeadersError|http:ReadingInboundResponseBodyError|http:UnsupportedActionError|http:Http2ClientError|http:MaximumWaitTimeExceededError|http:SslError|http:GenericClientError)`   \n- The response for the request or an `http:ClientError` if failed to establish communication with the upstream server  \n  \n"
+                }
+            },
+            "sortText": "120",
+            "insertText": "patch(${1})",
+            "insertTextFormat": "Snippet",
+            "command": {
+                "title": "editor.action.triggerParameterHints",
+                "command": "editor.action.triggerParameterHints"
+            }
+        },
+        {
+            "label": "delete(string path, (http:Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]) message)((http:Response|http:FailoverAllEndpointsFailedError|http:FailoverActionFailedError|http:UpstreamServiceUnavailableError|http:AllLoadBalanceEndpointsFailedError|http:AllRetryAttemptsFailed|http:IdleTimeoutError|http:AuthenticationError|http:AuthorizationError|http:InitializingOutboundRequestError|http:WritingOutboundRequestHeadersError|http:WritingOutboundRequestBodyError|http:InitializingInboundResponseError|http:ReadingInboundResponseHeadersError|http:ReadingInboundResponseBodyError|http:UnsupportedActionError|http:Http2ClientError|http:MaximumWaitTimeExceededError|http:SslError|http:GenericClientError))",
+            "kind": "Function",
+            "detail": "Function",
+            "documentation": {
+                "right": {
+                    "kind": "markdown",
+                    "value": "**Package:** _ballerina/http_  \n  \nThe `Client.delete()` function can be used to send HTTP DELETE requests to HTTP endpoints.\n  \n**Params**  \n- `string` path: Resource path  \n- `(http:Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[])` message: An optional HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,\n            `io:ReadableByteChannel` or `mime:Entity[]`(Defaultable)  \n  \n**Returns** `(http:Response|http:FailoverAllEndpointsFailedError|http:FailoverActionFailedError|http:UpstreamServiceUnavailableError|http:AllLoadBalanceEndpointsFailedError|http:AllRetryAttemptsFailed|http:IdleTimeoutError|http:AuthenticationError|http:AuthorizationError|http:InitializingOutboundRequestError|http:WritingOutboundRequestHeadersError|http:WritingOutboundRequestBodyError|http:InitializingInboundResponseError|http:ReadingInboundResponseHeadersError|http:ReadingInboundResponseBodyError|http:UnsupportedActionError|http:Http2ClientError|http:MaximumWaitTimeExceededError|http:SslError|http:GenericClientError)`   \n- The response for the request or an `http:ClientError` if failed to establish communication with the upstream server  \n  \n"
+                }
+            },
+            "sortText": "120",
+            "insertText": "delete(${1})",
+            "insertTextFormat": "Snippet",
+            "command": {
+                "title": "editor.action.triggerParameterHints",
+                "command": "editor.action.triggerParameterHints"
+            }
+        },
+        {
+            "label": "get(string path, (http:Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]) message)((http:Response|http:FailoverAllEndpointsFailedError|http:FailoverActionFailedError|http:UpstreamServiceUnavailableError|http:AllLoadBalanceEndpointsFailedError|http:AllRetryAttemptsFailed|http:IdleTimeoutError|http:AuthenticationError|http:AuthorizationError|http:InitializingOutboundRequestError|http:WritingOutboundRequestHeadersError|http:WritingOutboundRequestBodyError|http:InitializingInboundResponseError|http:ReadingInboundResponseHeadersError|http:ReadingInboundResponseBodyError|http:UnsupportedActionError|http:Http2ClientError|http:MaximumWaitTimeExceededError|http:SslError|http:GenericClientError))",
+            "kind": "Function",
+            "detail": "Function",
+            "documentation": {
+                "right": {
+                    "kind": "markdown",
+                    "value": "**Package:** _ballerina/http_  \n  \nThe `Client.get()` function can be used to send HTTP GET requests to HTTP endpoints.\n  \n**Params**  \n- `string` path: Request path  \n- `(http:Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[])` message: An optional HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,\n            `io:ReadableByteChannel` or `mime:Entity[]`(Defaultable)  \n  \n**Returns** `(http:Response|http:FailoverAllEndpointsFailedError|http:FailoverActionFailedError|http:UpstreamServiceUnavailableError|http:AllLoadBalanceEndpointsFailedError|http:AllRetryAttemptsFailed|http:IdleTimeoutError|http:AuthenticationError|http:AuthorizationError|http:InitializingOutboundRequestError|http:WritingOutboundRequestHeadersError|http:WritingOutboundRequestBodyError|http:InitializingInboundResponseError|http:ReadingInboundResponseHeadersError|http:ReadingInboundResponseBodyError|http:UnsupportedActionError|http:Http2ClientError|http:MaximumWaitTimeExceededError|http:SslError|http:GenericClientError)`   \n- The response for the request or an `http:ClientError` if failed to establish communication with the upstream server  \n  \n"
+                }
+            },
+            "sortText": "120",
+            "insertText": "get(${1})",
+            "insertTextFormat": "Snippet",
+            "command": {
+                "title": "editor.action.triggerParameterHints",
+                "command": "editor.action.triggerParameterHints"
+            }
+        },
+        {
+            "label": "options(string path, (http:Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]) message)((http:Response|http:FailoverAllEndpointsFailedError|http:FailoverActionFailedError|http:UpstreamServiceUnavailableError|http:AllLoadBalanceEndpointsFailedError|http:AllRetryAttemptsFailed|http:IdleTimeoutError|http:AuthenticationError|http:AuthorizationError|http:InitializingOutboundRequestError|http:WritingOutboundRequestHeadersError|http:WritingOutboundRequestBodyError|http:InitializingInboundResponseError|http:ReadingInboundResponseHeadersError|http:ReadingInboundResponseBodyError|http:UnsupportedActionError|http:Http2ClientError|http:MaximumWaitTimeExceededError|http:SslError|http:GenericClientError))",
+            "kind": "Function",
+            "detail": "Function",
+            "documentation": {
+                "right": {
+                    "kind": "markdown",
+                    "value": "**Package:** _ballerina/http_  \n  \nThe `Client.options()` function can be used to send HTTP OPTIONS requests to HTTP endpoints.\n  \n**Params**  \n- `string` path: Request path  \n- `(http:Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[])` message: An optional HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,\n            `io:ReadableByteChannel` or `mime:Entity[]`(Defaultable)  \n  \n**Returns** `(http:Response|http:FailoverAllEndpointsFailedError|http:FailoverActionFailedError|http:UpstreamServiceUnavailableError|http:AllLoadBalanceEndpointsFailedError|http:AllRetryAttemptsFailed|http:IdleTimeoutError|http:AuthenticationError|http:AuthorizationError|http:InitializingOutboundRequestError|http:WritingOutboundRequestHeadersError|http:WritingOutboundRequestBodyError|http:InitializingInboundResponseError|http:ReadingInboundResponseHeadersError|http:ReadingInboundResponseBodyError|http:UnsupportedActionError|http:Http2ClientError|http:MaximumWaitTimeExceededError|http:SslError|http:GenericClientError)`   \n- The response for the request or an `http:ClientError` if failed to establish communication with the upstream server  \n  \n"
+                }
+            },
+            "sortText": "120",
+            "insertText": "options(${1})",
+            "insertTextFormat": "Snippet",
+            "command": {
+                "title": "editor.action.triggerParameterHints",
+                "command": "editor.action.triggerParameterHints"
+            }
+        },
+        {
+            "label": "forward(string path, http:Request request)((http:Response|http:FailoverAllEndpointsFailedError|http:FailoverActionFailedError|http:UpstreamServiceUnavailableError|http:AllLoadBalanceEndpointsFailedError|http:AllRetryAttemptsFailed|http:IdleTimeoutError|http:AuthenticationError|http:AuthorizationError|http:InitializingOutboundRequestError|http:WritingOutboundRequestHeadersError|http:WritingOutboundRequestBodyError|http:InitializingInboundResponseError|http:ReadingInboundResponseHeadersError|http:ReadingInboundResponseBodyError|http:UnsupportedActionError|http:Http2ClientError|http:MaximumWaitTimeExceededError|http:SslError|http:GenericClientError))",
+            "kind": "Function",
+            "detail": "Function",
+            "documentation": {
+                "right": {
+                    "kind": "markdown",
+                    "value": "**Package:** _ballerina/http_  \n  \nThe `Client.forward()` function can be used to invoke an HTTP call with inbound request's HTTP verb\n  \n**Params**  \n- `string` path: Request path  \n- `http:Request` request: An HTTP inbound request message  \n  \n**Returns** `(http:Response|http:FailoverAllEndpointsFailedError|http:FailoverActionFailedError|http:UpstreamServiceUnavailableError|http:AllLoadBalanceEndpointsFailedError|http:AllRetryAttemptsFailed|http:IdleTimeoutError|http:AuthenticationError|http:AuthorizationError|http:InitializingOutboundRequestError|http:WritingOutboundRequestHeadersError|http:WritingOutboundRequestBodyError|http:InitializingInboundResponseError|http:ReadingInboundResponseHeadersError|http:ReadingInboundResponseBodyError|http:UnsupportedActionError|http:Http2ClientError|http:MaximumWaitTimeExceededError|http:SslError|http:GenericClientError)`   \n- The response for the request or an `http:ClientError` if failed to establish communication with the upstream server  \n  \n"
+                }
+            },
+            "sortText": "120",
+            "insertText": "forward(${1})",
+            "insertTextFormat": "Snippet",
+            "command": {
+                "title": "editor.action.triggerParameterHints",
+                "command": "editor.action.triggerParameterHints"
+            }
+        },
+        {
+            "label": "submit(string httpVerb, string path, (http:Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]) message)((http:HttpFuture|http:FailoverAllEndpointsFailedError|http:FailoverActionFailedError|http:UpstreamServiceUnavailableError|http:AllLoadBalanceEndpointsFailedError|http:AllRetryAttemptsFailed|http:IdleTimeoutError|http:AuthenticationError|http:AuthorizationError|http:InitializingOutboundRequestError|http:WritingOutboundRequestHeadersError|http:WritingOutboundRequestBodyError|http:InitializingInboundResponseError|http:ReadingInboundResponseHeadersError|http:ReadingInboundResponseBodyError|http:UnsupportedActionError|http:Http2ClientError|http:MaximumWaitTimeExceededError|http:SslError|http:GenericClientError))",
+            "kind": "Function",
+            "detail": "Function",
+            "documentation": {
+                "right": {
+                    "kind": "markdown",
+                    "value": "**Package:** _ballerina/http_  \n  \nSubmits an HTTP request to a service with the specified HTTP verb.\nThe `Client.submit()` function does not give out a `Response` as the result,\nrather it returns an `HttpFuture` which can be used to do further interactions with the endpoint.\n  \n**Params**  \n- `string` httpVerb: The HTTP verb value  \n- `string` path: The resource path  \n- `(http:Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[])` message: An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,\n            `io:ReadableByteChannel` or `mime:Entity[]`  \n  \n**Returns** `(http:HttpFuture|http:FailoverAllEndpointsFailedError|http:FailoverActionFailedError|http:UpstreamServiceUnavailableError|http:AllLoadBalanceEndpointsFailedError|http:AllRetryAttemptsFailed|http:IdleTimeoutError|http:AuthenticationError|http:AuthorizationError|http:InitializingOutboundRequestError|http:WritingOutboundRequestHeadersError|http:WritingOutboundRequestBodyError|http:InitializingInboundResponseError|http:ReadingInboundResponseHeadersError|http:ReadingInboundResponseBodyError|http:UnsupportedActionError|http:Http2ClientError|http:MaximumWaitTimeExceededError|http:SslError|http:GenericClientError)`   \n- An `HttpFuture` that represents an asynchronous service invocation, or an `http:ClientError` if the submission fails  \n  \n"
+                }
+            },
+            "sortText": "120",
+            "insertText": "submit(${1})",
+            "insertTextFormat": "Snippet",
+            "command": {
+                "title": "editor.action.triggerParameterHints",
+                "command": "editor.action.triggerParameterHints"
+            }
+        },
+        {
+            "label": "getResponse(http:HttpFuture httpFuture)((http:Response|http:FailoverAllEndpointsFailedError|http:FailoverActionFailedError|http:UpstreamServiceUnavailableError|http:AllLoadBalanceEndpointsFailedError|http:AllRetryAttemptsFailed|http:IdleTimeoutError|http:AuthenticationError|http:AuthorizationError|http:InitializingOutboundRequestError|http:WritingOutboundRequestHeadersError|http:WritingOutboundRequestBodyError|http:InitializingInboundResponseError|http:ReadingInboundResponseHeadersError|http:ReadingInboundResponseBodyError|http:UnsupportedActionError|http:Http2ClientError|http:MaximumWaitTimeExceededError|http:SslError|http:GenericClientError))",
+            "kind": "Function",
+            "detail": "Function",
+            "documentation": {
+                "right": {
+                    "kind": "markdown",
+                    "value": "**Package:** _ballerina/http_  \n  \nThis just pass the request to actual network call.\n  \n**Params**  \n- `http:HttpFuture` httpFuture: The `HttpFuture` relates to a previous asynchronous invocation  \n  \n**Returns** `(http:Response|http:FailoverAllEndpointsFailedError|http:FailoverActionFailedError|http:UpstreamServiceUnavailableError|http:AllLoadBalanceEndpointsFailedError|http:AllRetryAttemptsFailed|http:IdleTimeoutError|http:AuthenticationError|http:AuthorizationError|http:InitializingOutboundRequestError|http:WritingOutboundRequestHeadersError|http:WritingOutboundRequestBodyError|http:InitializingInboundResponseError|http:ReadingInboundResponseHeadersError|http:ReadingInboundResponseBodyError|http:UnsupportedActionError|http:Http2ClientError|http:MaximumWaitTimeExceededError|http:SslError|http:GenericClientError)`   \n- An HTTP response message, or an error if the invocation fails  \n  \n"
+                }
+            },
+            "sortText": "120",
+            "insertText": "getResponse(${1})",
+            "insertTextFormat": "Snippet",
+            "command": {
+                "title": "editor.action.triggerParameterHints",
+                "command": "editor.action.triggerParameterHints"
+            }
+        },
+        {
+            "label": "hasPromise(http:HttpFuture httpFuture)(boolean)",
+            "kind": "Function",
+            "detail": "Function",
+            "documentation": {
+                "right": {
+                    "kind": "markdown",
+                    "value": "**Package:** _ballerina/http_  \n  \nThis just pass the request to actual network call.\n  \n**Params**  \n- `http:HttpFuture` httpFuture: The `HttpFuture` relates to a previous asynchronous invocation  \n  \n**Returns** `boolean`   \n- A `boolean` that represents whether a `PushPromise` exists  \n  \n"
+                }
+            },
+            "sortText": "120",
+            "insertText": "hasPromise(${1})",
+            "insertTextFormat": "Snippet",
+            "command": {
+                "title": "editor.action.triggerParameterHints",
+                "command": "editor.action.triggerParameterHints"
+            }
+        },
+        {
+            "label": "getNextPromise(http:HttpFuture httpFuture)((http:PushPromise|http:FailoverAllEndpointsFailedError|http:FailoverActionFailedError|http:UpstreamServiceUnavailableError|http:AllLoadBalanceEndpointsFailedError|http:AllRetryAttemptsFailed|http:IdleTimeoutError|http:AuthenticationError|http:AuthorizationError|http:InitializingOutboundRequestError|http:WritingOutboundRequestHeadersError|http:WritingOutboundRequestBodyError|http:InitializingInboundResponseError|http:ReadingInboundResponseHeadersError|http:ReadingInboundResponseBodyError|http:UnsupportedActionError|http:Http2ClientError|http:MaximumWaitTimeExceededError|http:SslError|http:GenericClientError))",
+            "kind": "Function",
+            "detail": "Function",
+            "documentation": {
+                "right": {
+                    "kind": "markdown",
+                    "value": "**Package:** _ballerina/http_  \n  \nThis just pass the request to actual network call.\n  \n**Params**  \n- `http:HttpFuture` httpFuture: The `HttpFuture` relates to a previous asynchronous invocation  \n  \n**Returns** `(http:PushPromise|http:FailoverAllEndpointsFailedError|http:FailoverActionFailedError|http:UpstreamServiceUnavailableError|http:AllLoadBalanceEndpointsFailedError|http:AllRetryAttemptsFailed|http:IdleTimeoutError|http:AuthenticationError|http:AuthorizationError|http:InitializingOutboundRequestError|http:WritingOutboundRequestHeadersError|http:WritingOutboundRequestBodyError|http:InitializingInboundResponseError|http:ReadingInboundResponseHeadersError|http:ReadingInboundResponseBodyError|http:UnsupportedActionError|http:Http2ClientError|http:MaximumWaitTimeExceededError|http:SslError|http:GenericClientError)`   \n- An HTTP Push Promise message, or an error if the invocation fails  \n  \n"
+                }
+            },
+            "sortText": "120",
+            "insertText": "getNextPromise(${1})",
+            "insertTextFormat": "Snippet",
+            "command": {
+                "title": "editor.action.triggerParameterHints",
+                "command": "editor.action.triggerParameterHints"
+            }
+        },
+        {
+            "label": "getPromisedResponse(http:PushPromise promise)((http:Response|http:FailoverAllEndpointsFailedError|http:FailoverActionFailedError|http:UpstreamServiceUnavailableError|http:AllLoadBalanceEndpointsFailedError|http:AllRetryAttemptsFailed|http:IdleTimeoutError|http:AuthenticationError|http:AuthorizationError|http:InitializingOutboundRequestError|http:WritingOutboundRequestHeadersError|http:WritingOutboundRequestBodyError|http:InitializingInboundResponseError|http:ReadingInboundResponseHeadersError|http:ReadingInboundResponseBodyError|http:UnsupportedActionError|http:Http2ClientError|http:MaximumWaitTimeExceededError|http:SslError|http:GenericClientError))",
+            "kind": "Function",
+            "detail": "Function",
+            "documentation": {
+                "right": {
+                    "kind": "markdown",
+                    "value": "**Package:** _ballerina/http_  \n  \nThis just pass the request to actual network call.\n  \n**Params**  \n- `http:PushPromise` promise: The related `PushPromise`  \n  \n**Returns** `(http:Response|http:FailoverAllEndpointsFailedError|http:FailoverActionFailedError|http:UpstreamServiceUnavailableError|http:AllLoadBalanceEndpointsFailedError|http:AllRetryAttemptsFailed|http:IdleTimeoutError|http:AuthenticationError|http:AuthorizationError|http:InitializingOutboundRequestError|http:WritingOutboundRequestHeadersError|http:WritingOutboundRequestBodyError|http:InitializingInboundResponseError|http:ReadingInboundResponseHeadersError|http:ReadingInboundResponseBodyError|http:UnsupportedActionError|http:Http2ClientError|http:MaximumWaitTimeExceededError|http:SslError|http:GenericClientError)`   \n- A promised HTTP `Response` message, or an error if the invocation fails  \n  \n"
+                }
+            },
+            "sortText": "120",
+            "insertText": "getPromisedResponse(${1})",
+            "insertTextFormat": "Snippet",
+            "command": {
+                "title": "editor.action.triggerParameterHints",
+                "command": "editor.action.triggerParameterHints"
+            }
+        },
+        {
+            "label": "rejectPromise(http:PushPromise promise)",
+            "kind": "Function",
+            "detail": "Function",
+            "documentation": {
+                "right": {
+                    "kind": "markdown",
+                    "value": "**Package:** _ballerina/http_  \n  \nThis just pass the request to actual network call.\n  \n**Params**  \n- `http:PushPromise` promise: The Push Promise to be rejected"
+                }
+            },
+            "sortText": "120",
+            "insertText": "rejectPromise(${1});",
+            "insertTextFormat": "Snippet",
+            "command": {
+                "title": "editor.action.triggerParameterHints",
+                "command": "editor.action.triggerParameterHints"
+            }
+        }
+    ]
+}

@@ -1,0 +1,32 @@
+{
+  "arguments": {
+    "node.line": 5,
+    "node.column": 34
+  },
+  "expected": {
+    "result": {
+      "edit": {
+        "documentChanges": [
+          {
+            "edits": [
+              {
+                "range": {
+                  "start": {
+                    "line": 7,
+                    "character": 0
+                  },
+                  "end": {
+                    "line": 7,
+                    "character": 0
+                  }
+                },
+                "newText": "\n\nfunction getResponse(int a, int b) returns http:Response {\n    return new http:Response();\n}\n"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "jsonrpc": "2.0"
+  }
+}

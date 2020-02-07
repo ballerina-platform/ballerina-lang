@@ -1,0 +1,33 @@
+{
+  "position": {
+    "line": 9,
+    "character": 9
+  },
+  "source": "annotation/source/annotationBodyCompletion5.bal",
+  "items": [
+    {
+      "label": "enable",
+      "kind": "Field",
+      "detail": "Field",
+      "sortText": "210",
+      "insertText": "enable: ${1:\"AUTO\"}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "contentTypes",
+      "kind": "Field",
+      "detail": "Field",
+      "sortText": "210",
+      "insertText": "contentTypes: [${1}]",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Add All Attributes",
+      "kind": "Property",
+      "detail": "none",
+      "sortText": "110",
+      "insertText": "enable: \"AUTO\",\ncontentTypes: []",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

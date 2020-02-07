@@ -1,0 +1,30 @@
+{
+  "position": {
+    "line": 8,
+    "character": 23
+  },
+  "source": "service/source/serviceEndpointBind2.bal",
+  "items": [
+    {
+      "label": "ep2",
+      "kind": "Variable",
+      "detail": "http:Listener",
+      "insertText": "ep2",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ep1",
+      "kind": "Variable",
+      "detail": "http:Listener",
+      "insertText": "ep1",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "new",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "insertText": "new ",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

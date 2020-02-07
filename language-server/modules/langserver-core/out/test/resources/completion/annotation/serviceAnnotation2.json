@@ -1,0 +1,186 @@
+{
+  "position": {
+    "line": 5,
+    "character": 1
+  },
+  "source": "annotation/source/serviceAnnotation2.bal",
+  "items": [
+    {
+      "label": "grpc:ServiceConfig",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "120",
+      "insertText": "grpc:ServiceConfig {\n\t${1}\n}",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 1,
+              "character": 0
+            },
+            "end": {
+              "line": 1,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/grpc;\n"
+        }
+      ]
+    },
+    {
+      "label": "grpc:ServiceDescriptor",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "120",
+      "insertText": "grpc:ServiceDescriptor {\n\t${1}\n}",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 1,
+              "character": 0
+            },
+            "end": {
+              "line": 1,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/grpc;\n"
+        }
+      ]
+    },
+    {
+      "label": "openapi:ClientConfig",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "120",
+      "insertText": "openapi:ClientConfig {\n\t${1}\n}",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 1,
+              "character": 0
+            },
+            "end": {
+              "line": 1,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/openapi;\n"
+        }
+      ]
+    },
+    {
+      "label": "openapi:ServiceInfo",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "120",
+      "insertText": "openapi:ServiceInfo {\n\t${1}\n}",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 1,
+              "character": 0
+            },
+            "end": {
+              "line": 1,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/openapi;\n"
+        }
+      ]
+    },
+    {
+      "label": "nats:SubscriptionConfig",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "120",
+      "insertText": "nats:SubscriptionConfig {\n\tsubject: \"${1}\"\n}",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 1,
+              "character": 0
+            },
+            "end": {
+              "line": 1,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/nats;\n"
+        }
+      ]
+    },
+    {
+      "label": "nats:StreamingSubscriptionConfig",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "120",
+      "insertText": "nats:StreamingSubscriptionConfig {\n\tsubject: \"${1}\"\n}",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 1,
+              "character": 0
+            },
+            "end": {
+              "line": 1,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/nats;\n"
+        }
+      ]
+    },
+    {
+      "label": "rabbitmq:ServiceConfig",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "120",
+      "insertText": "rabbitmq:ServiceConfig {\n\tqueueConfig: {\n\t\tqueueName: \"${1}\"\t\n\t}\n}",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 1,
+              "character": 0
+            },
+            "end": {
+              "line": 1,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/rabbitmq;\n"
+        }
+      ]
+    },
+    {
+      "label": "http:ServiceConfig",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "120",
+      "insertText": "http:ServiceConfig {\n\t${1}\n}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "http:WebSocketServiceConfig",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "120",
+      "insertText": "http:WebSocketServiceConfig {\n\t${1}\n}",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

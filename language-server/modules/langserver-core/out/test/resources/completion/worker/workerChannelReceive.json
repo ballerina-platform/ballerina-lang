@@ -1,0 +1,16 @@
+{
+    "position": {
+        "line": 7,
+        "character": 19
+    },
+    "source": "worker/source/workerChannelInteraction.bal",
+    "items": [
+        {
+            "label": "chn",
+            "kind": "Unit",
+            "detail": "channel\u003cjson\u003e",
+            "sortText": "221",
+            "insertText": "chn"
+        }
+    ]
+}

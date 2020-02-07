@@ -1,0 +1,5 @@
+{{#component}}{{#schemaTypes}}public type {{{schemaName}}} record { {{#if isArray}}
+    {{{itemType}}}[] {{itemName}};{{/if}}{{#if schemaProperties}}{{#schemaProperties}}
+    {{{propertyType}}}{{#if isArray}}[]{{/if}} {{{propertyName}}};{{/schemaProperties}}{{/if}}
+};
+{{/schemaTypes}}{{/component}}

@@ -1,0 +1,43 @@
+{
+  "position": {
+    "line": 15,
+    "character": 16
+  },
+  "source": "function/source/objectAttachFunctionImpl3.bal",
+  "items": [
+    {
+      "label": "getFullName() returns string",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \nstring"
+        }
+      },
+      "insertText": "getFullName() returns string {\n\t${1}\n}",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "checkAndModifyAge(int condition, int a)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n  \n---    \n**Parameters**  \n"
+        }
+      },
+      "insertText": "checkAndModifyAge(int condition, int a) {\n\t${1}\n}",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    }
+  ]
+}

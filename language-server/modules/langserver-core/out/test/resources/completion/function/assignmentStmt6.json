@@ -1,0 +1,23 @@
+{
+  "position": {
+    "line": 4,
+    "character": 19
+  },
+  "source": "function/source/assignmentStmt6.bal",
+  "items": [
+    {
+      "label": "Response()",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/http_  \n  \n  \n"
+        }
+      },
+      "sortText": "130",
+      "insertText": "Response();",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

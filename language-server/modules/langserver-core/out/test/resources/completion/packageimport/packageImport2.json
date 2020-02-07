@@ -1,0 +1,1196 @@
+{
+  "position": {
+    "line": 2,
+    "character": 4
+  },
+  "source": "packageimport/source/module2/packageImport.bal",
+    "items": [
+        {
+            "label": "ballerina/module1",
+            "kind": "Module",
+            "detail": "Package",
+            "insertText": "io",
+            "insertTextFormat": "Snippet",
+            "additionalTextEdits": [
+                {
+                    "range": {
+                        "start": {
+                            "line": 1,
+                            "character": 0
+                        },
+                        "end": {
+                            "line": 1,
+                            "character": 0
+                        }
+                    },
+                    "newText": "import ballerina/module1;\n"
+                }
+            ]
+        },
+        {
+            "label": "extractAuthorizationHeaderValue(http:Request req)(string)",
+            "kind": "Function",
+            "detail": "Function",
+            "documentation": {
+                "right": {
+                    "kind": "markdown",
+                    "value": "**Package:** _ballerina/http_  \n  \nExtracts the Authorization header value from the request.\n  \n  \n---    \n**Parameters**  \n- _req_  \n    Request instance  \n  \n  \n**Return**  \nstring"
+                }
+            },
+            "sortText": "121",
+            "insertText": "extractAuthorizationHeaderValue(${1:req})",
+            "insertTextFormat": "Snippet"
+        },
+        {
+            "label": "createHttpCachingClient(string url, http:ClientConfiguration config, http:CacheConfig cacheConfig)(ballerina/http:Client|error)",
+            "kind": "Function",
+            "detail": "Function",
+            "documentation": {
+                "right": {
+                    "kind": "markdown",
+                    "value": "**Package:** _ballerina/http_  \n  \nCreates an HTTP client capable of caching HTTP responses.\n  \n  \n---    \n**Parameters**  \n- _url_  \n    The URL of the HTTP endpoint to connect to  \n  \n- _config_  \n    The configurations for the client endpoint associated with the caching client  \n  \n- _cacheConfig_  \n    The configurations for the HTTP cache to be used with the caching client  \n  \n  \n**Return**  \nballerina/http:Client|error"
+                }
+            },
+            "sortText": "121",
+            "insertText": "createHttpCachingClient(${1:url}, ${2:config}, ${3:cacheConfig})",
+            "insertTextFormat": "Snippet"
+        },
+        {
+            "label": "parseHeader(string headerValue)((string,map)|error)",
+            "kind": "Function",
+            "detail": "Function",
+            "documentation": {
+                "right": {
+                    "kind": "markdown",
+                    "value": "**Package:** _ballerina/http_  \n  \nParses the given header value to extract its value and parameter map.\n  \n  \n---    \n**Parameters**  \n- _headerValue_  \n    The header value  \n  \n  \n**Return**  \n(string,map)|error"
+                }
+            },
+            "sortText": "121",
+            "insertText": "parseHeader(${1:headerValue})",
+            "insertTextFormat": "Snippet"
+        },
+        {
+            "label": "invokeEndpoint(string path, http:Request outRequest, FORWARD|GET|POST|DELETE|OPTIONS|PUT|PATCH|HEAD|SUBMIT|NONE requestAction, http:Client httpClient, string verb = )(ballerina/http:Response|ballerina/http:HttpFuture|error)",
+            "kind": "Function",
+            "detail": "Function",
+            "documentation": {
+                "right": {
+                    "kind": "markdown",
+                    "value": "**Package:** _ballerina/http_  \n  \nThe HEAD remote function implementation of the Circuit Breaker. This wraps the `head()` function of the underlying\nHTTP remote function provider.  \n  \n---    \n**Parameters**  \n- _path_  \n    Resource path  \n  \n- _outRequest_  \n    A Request struct  \n  \n- _requestAction_  \n    `HttpOperation` related to the request  \n  \n- _httpClient_  \n    HTTP client which uses to call the relavant functions  \n  \n- _verb_  \n    HTTP verb used for submit method  \nDefault Value:   \n  \n**Return**  \nballerina/http:Response|ballerina/http:HttpFuture|error"
+                }
+            },
+            "sortText": "121",
+            "insertText": "invokeEndpoint(${1:path}, ${2:outRequest}, ${3:requestAction}, ${4:httpClient}, verb = ${5:\"\"})",
+            "insertTextFormat": "Snippet"
+        },
+        {
+            "label": "createHttpSecureClient(string url, http:ClientConfiguration config)(ballerina/http:Client|error)",
+            "kind": "Function",
+            "detail": "Function",
+            "documentation": {
+                "right": {
+                    "kind": "markdown",
+                    "value": "**Package:** _ballerina/http_  \n  \nCreates an HTTP client capable of securing HTTP requests with authentication.\n  \n  \n---    \n**Parameters**  \n- _url_  \n    Base URL  \n  \n- _config_  \n    Client endpoint configurations  \n  \n  \n**Return**  \nballerina/http:Client|error"
+                }
+            },
+            "sortText": "121",
+            "insertText": "createHttpSecureClient(${1:url}, ${2:config})",
+            "insertTextFormat": "Snippet"
+        },
+        {
+            "label": "encode(string url, string charset)(string|error)",
+            "kind": "Function",
+            "detail": "Function",
+            "documentation": {
+                "right": {
+                    "kind": "markdown",
+                    "value": "**Package:** _ballerina/http_  \n  \nEncodes the given URL.\n  \n  \n---    \n**Parameters**  \n- _url_  \n    URL to be encoded  \n  \n- _charset_  \n    Charactor set that URL to be encoded in  \n  \n  \n**Return**  \nstring|error"
+                }
+            },
+            "sortText": "121",
+            "insertText": "encode(${1:url}, ${2:charset})",
+            "insertTextFormat": "Snippet"
+        },
+        {
+            "label": "decode(string url, string charset)(string|error)",
+            "kind": "Function",
+            "detail": "Function",
+            "documentation": {
+                "right": {
+                    "kind": "markdown",
+                    "value": "**Package:** _ballerina/http_  \n  \nDecodes the given URL.\n  \n  \n---    \n**Parameters**  \n- _url_  \n    URL to be decoded  \n  \n- _charset_  \n    Charactor set that URL to be decoded from  \n  \n  \n**Return**  \nstring|error"
+                }
+            },
+            "sortText": "121",
+            "insertText": "decode(${1:url}, ${2:charset})",
+            "insertTextFormat": "Snippet"
+        },
+        {
+            "label": "HttpServiceConfig",
+            "kind": "Class",
+            "detail": "Record",
+            "documentation": {
+                "left": "Contains the configurations for an HTTP service.\n"
+            },
+            "sortText": "221",
+            "insertText": "HttpServiceConfig",
+            "insertTextFormat": "Snippet"
+        },
+        {
+            "label": "CorsConfig",
+            "kind": "Class",
+            "detail": "Record",
+            "documentation": {
+                "left": "Configurations for CORS support.\n"
+            },
+            "sortText": "221",
+            "insertText": "CorsConfig",
+            "insertTextFormat": "Snippet"
+        },
+        {
+            "label": "Versioning",
+            "kind": "Class",
+            "detail": "Record",
+            "documentation": {
+                "left": "Configurations for service versioning.\n"
+            },
+            "sortText": "221",
+            "insertText": "Versioning",
+            "insertTextFormat": "Snippet"
+        },
+        {
+            "label": "WSServiceConfig",
+            "kind": "Class",
+            "detail": "Record",
+            "documentation": {
+                "left": "Configurations for a WebSocket service.\n"
+            },
+            "sortText": "221",
+            "insertText": "WSServiceConfig",
+            "insertTextFormat": "Snippet"
+        },
+        {
+            "label": "HttpResourceConfig",
+            "kind": "Class",
+            "detail": "Record",
+            "documentation": {
+                "left": "Configuration for an HTTP resource.\n"
+            },
+            "sortText": "221",
+            "insertText": "HttpResourceConfig",
+            "insertTextFormat": "Snippet"
+        },
+        {
+            "label": "WebSocketUpgradeConfig",
+            "kind": "Class",
+            "detail": "Record",
+            "documentation": {
+                "left": "Resource configuration to upgrade from HTTP to WebSocket.\n"
+            },
+            "sortText": "221",
+            "insertText": "WebSocketUpgradeConfig",
+            "insertTextFormat": "Snippet"
+        },
+        {
+            "label": "ServiceResourceAuth",
+            "kind": "Class",
+            "detail": "Record",
+            "documentation": {
+                "left": "Configures the authentication scheme for a service or a resource.\n"
+            },
+            "sortText": "221",
+            "insertText": "ServiceResourceAuth",
+            "insertTextFormat": "Snippet"
+        },
+        {
+            "label": "CacheConfig",
+            "kind": "Class",
+            "detail": "Record",
+            "documentation": {
+                "left": "Provides a set of configurations for controlling the caching behaviour of the endpoint.\n"
+            },
+            "sortText": "221",
+            "insertText": "CacheConfig",
+            "insertTextFormat": "Snippet"
+        },
+        {
+            "label": "TargetService",
+            "kind": "Class",
+            "detail": "Record",
+            "documentation": {
+                "left": "Represents a single service and its related configurations.\n"
+            },
+            "sortText": "221",
+            "insertText": "TargetService",
+            "insertTextFormat": "Snippet"
+        },
+        {
+            "label": "ClientConfiguration",
+            "kind": "Class",
+            "detail": "Record",
+            "documentation": {
+                "left": "Provides a set of configurations for controlling the behaviours when communicating with a remote HTTP endpoint.\n"
+            },
+            "sortText": "221",
+            "insertText": "ClientConfiguration",
+            "insertTextFormat": "Snippet"
+        },
+        {
+            "label": "RetryConfig",
+            "kind": "Class",
+            "detail": "Record",
+            "documentation": {
+                "left": "Provides configurations for controlling the retrying behavior in failure scenarios.\n"
+            },
+            "sortText": "221",
+            "insertText": "RetryConfig",
+            "insertTextFormat": "Snippet"
+        },
+        {
+            "label": "SecureSocket",
+            "kind": "Class",
+            "detail": "Record",
+            "documentation": {
+                "left": "Provides configurations for facilitating secure communication with a remote HTTP endpoint.\n"
+            },
+            "sortText": "221",
+            "insertText": "SecureSocket",
+            "insertTextFormat": "Snippet"
+        },
+        {
+            "label": "FollowRedirects",
+            "kind": "Class",
+            "detail": "Record",
+            "documentation": {
+                "left": "Provides configurations for controlling the endpoint's behaviour in response to HTTP redirect related responses.\n"
+            },
+            "sortText": "221",
+            "insertText": "FollowRedirects",
+            "insertTextFormat": "Snippet"
+        },
+        {
+            "label": "ProxyConfig",
+            "kind": "Class",
+            "detail": "Record",
+            "documentation": {
+                "left": "Proxy server configurations to be used with the HTTP client endpoint.\n"
+            },
+            "sortText": "221",
+            "insertText": "ProxyConfig",
+            "insertTextFormat": "Snippet"
+        },
+        {
+            "label": "OutboundAuthConfig",
+            "kind": "Class",
+            "detail": "Record",
+            "documentation": {
+                "left": "The `OutboundAuthConfig` record can be used to configure the authentication mechanism used by the HTTP endpoint.\n"
+            },
+            "sortText": "221",
+            "insertText": "OutboundAuthConfig",
+            "insertTextFormat": "Snippet"
+        },
+        {
+            "label": "BasicAuthConfig",
+            "kind": "Class",
+            "detail": "Record",
+            "documentation": {
+                "left": "The `BasicAuthConfig` record can be used to configure Basic Authentication used by the HTTP endpoint.\n"
+            },
+            "sortText": "221",
+            "insertText": "BasicAuthConfig",
+            "insertTextFormat": "Snippet"
+        },
+        {
+            "label": "OAuth2AuthConfig",
+            "kind": "Class",
+            "detail": "Record",
+            "documentation": {
+                "left": "The `OAuth2AuthConfig` record can be used to configure OAuth2 based authentication used by the HTTP endpoint.\n"
+            },
+            "sortText": "221",
+            "insertText": "OAuth2AuthConfig",
+            "insertTextFormat": "Snippet"
+        },
+        {
+            "label": "ClientCredentialsGrantConfig",
+            "kind": "Class",
+            "detail": "Record",
+            "documentation": {
+                "left": "The `ClientCredentialsGrantConfig` record can be used to configue OAuth2 client credentials grant type.\n"
+            },
+            "sortText": "221",
+            "insertText": "ClientCredentialsGrantConfig",
+            "insertTextFormat": "Snippet"
+        },
+        {
+            "label": "PasswordGrantConfig",
+            "kind": "Class",
+            "detail": "Record",
+            "documentation": {
+                "left": "The `PasswordGrantConfig` record can be used to configue OAuth2 password grant type\n"
+            },
+            "sortText": "221",
+            "insertText": "PasswordGrantConfig",
+            "insertTextFormat": "Snippet"
+        },
+        {
+            "label": "DirectTokenConfig",
+            "kind": "Class",
+            "detail": "Record",
+            "documentation": {
+                "left": "The `DirectTokenConfig` record configures the access token directly.\n"
+            },
+            "sortText": "221",
+            "insertText": "DirectTokenConfig",
+            "insertTextFormat": "Snippet"
+        },
+        {
+            "label": "RefreshConfig",
+            "kind": "Class",
+            "detail": "Record",
+            "documentation": {
+                "left": "The `RefreshConfig` record can be used to pass the configurations for refreshing the access token of password grant type.\n"
+            },
+            "sortText": "221",
+            "insertText": "RefreshConfig",
+            "insertTextFormat": "Snippet"
+        },
+        {
+            "label": "DirectTokenRefreshConfig",
+            "kind": "Class",
+            "detail": "Record",
+            "documentation": {
+                "left": "The `DirectTokenRefreshConfig` record passes the configurations for refreshing the access token for \nthe grant type of the direct token grant type.\n"
+            },
+            "sortText": "221",
+            "insertText": "DirectTokenRefreshConfig",
+            "insertTextFormat": "Snippet"
+        },
+        {
+            "label": "JwtAuthConfig",
+            "kind": "Class",
+            "detail": "Record",
+            "documentation": {
+                "left": "The `JwtAuthConfig` record can be used to configure JWT based authentication used by the HTTP endpoint.\n"
+            },
+            "sortText": "221",
+            "insertText": "JwtAuthConfig",
+            "insertTextFormat": "Snippet"
+        },
+        {
+            "label": "HttpTimeoutError",
+            "kind": "Class",
+            "detail": "Record",
+            "documentation": {
+                "left": "Defines a timeout error occurred during service invocation.\n"
+            },
+            "sortText": "221",
+            "insertText": "HttpTimeoutError",
+            "insertTextFormat": "Snippet"
+        },
+        {
+            "label": "PoolConfiguration",
+            "kind": "Class",
+            "detail": "Record",
+            "documentation": {
+                "left": "Configurations for managing HTTP client connection pool.\n"
+            },
+            "sortText": "221",
+            "insertText": "PoolConfiguration",
+            "insertTextFormat": "Snippet"
+        },
+        {
+            "label": "Protocols",
+            "kind": "Class",
+            "detail": "Record",
+            "documentation": {
+                "left": "A record for configuring SSL/TLS protocol and version to be used.\n"
+            },
+            "sortText": "221",
+            "insertText": "Protocols",
+            "insertTextFormat": "Snippet"
+        },
+        {
+            "label": "ValidateCert",
+            "kind": "Class",
+            "detail": "Record",
+            "documentation": {
+                "left": "A record for providing configurations for certificate revocation status checks.\n"
+            },
+            "sortText": "221",
+            "insertText": "ValidateCert",
+            "insertTextFormat": "Snippet"
+        },
+        {
+            "label": "ServiceOcspStapling",
+            "kind": "Class",
+            "detail": "Record",
+            "documentation": {
+                "left": "A record for providing configurations for certificate revocation status checks.\n"
+            },
+            "sortText": "221",
+            "insertText": "ServiceOcspStapling",
+            "insertTextFormat": "Snippet"
+        },
+        {
+            "label": "CompressionConfig",
+            "kind": "Class",
+            "detail": "Record",
+            "documentation": {
+                "left": "A record for providing configurations for content compression.\n"
+            },
+            "sortText": "221",
+            "insertText": "CompressionConfig",
+            "insertTextFormat": "Snippet"
+        },
+        {
+            "label": "MutualSslHandshake",
+            "kind": "Class",
+            "detail": "Record",
+            "documentation": {
+                "left": "A record for providing mutual ssl handshake results.\n"
+            },
+            "sortText": "221",
+            "insertText": "MutualSslHandshake",
+            "insertTextFormat": "Snippet"
+        },
+        {
+            "label": "CachedToken",
+            "kind": "Class",
+            "detail": "Record",
+            "documentation": {
+                "left": "The `CachedToken` stores the values received from the authorization/token server to use them\nfor the latter requests without requesting tokens again.\n"
+            },
+            "sortText": "221",
+            "insertText": "CachedToken",
+            "insertTextFormat": "Snippet"
+        },
+        {
+            "label": "FailoverConfig",
+            "kind": "Class",
+            "detail": "Record",
+            "documentation": {
+                "left": "Provides a set of configurations for controlling the failover behaviour of the endpoint.\n"
+            },
+            "sortText": "221",
+            "insertText": "FailoverConfig",
+            "insertTextFormat": "Snippet"
+        },
+        {
+            "label": "FailoverInferredConfig",
+            "kind": "Class",
+            "detail": "Record",
+            "documentation": {
+                "left": "Inferred failover configurations passed into the failover client.\n"
+            },
+            "sortText": "221",
+            "insertText": "FailoverInferredConfig",
+            "insertTextFormat": "Snippet"
+        },
+        {
+            "label": "FailoverClientConfiguration",
+            "kind": "Class",
+            "detail": "Record",
+            "documentation": {
+                "left": "Provides a set of HTTP related configurations and failover related configurations.\n"
+            },
+            "sortText": "221",
+            "insertText": "FailoverClientConfiguration",
+            "insertTextFormat": "Snippet"
+        },
+        {
+            "label": "CircuitHealth",
+            "kind": "Class",
+            "detail": "Record",
+            "documentation": {
+                "left": "Maintains the health of the Circuit Breaker.\n"
+            },
+            "sortText": "221",
+            "insertText": "CircuitHealth",
+            "insertTextFormat": "Snippet"
+        },
+        {
+            "label": "CircuitBreakerConfig",
+            "kind": "Class",
+            "detail": "Record",
+            "documentation": {
+                "left": "Provides a set of configurations for controlling the behaviour of the Circuit Breaker.\n"
+            },
+            "sortText": "221",
+            "insertText": "CircuitBreakerConfig",
+            "insertTextFormat": "Snippet"
+        },
+        {
+            "label": "RollingWindow",
+            "kind": "Class",
+            "detail": "Record",
+            "documentation": {
+                "left": "Represents a rolling window in the Circuit Breaker.\n"
+            },
+            "sortText": "221",
+            "insertText": "RollingWindow",
+            "insertTextFormat": "Snippet"
+        },
+        {
+            "label": "Bucket",
+            "kind": "Class",
+            "detail": "Record",
+            "documentation": {
+                "left": "Represents a discrete sub-part of the time window (Bucket).\n"
+            },
+            "sortText": "221",
+            "insertText": "Bucket",
+            "insertTextFormat": "Snippet"
+        },
+        {
+            "label": "CircuitBreakerInferredConfig",
+            "kind": "Class",
+            "detail": "Record",
+            "documentation": {
+                "left": "Derived set of configurations from the `CircuitBreakerConfig`.\n"
+            },
+            "sortText": "221",
+            "insertText": "CircuitBreakerInferredConfig",
+            "insertTextFormat": "Snippet"
+        },
+        {
+            "label": "RetryInferredConfig",
+            "kind": "Class",
+            "detail": "Record",
+            "documentation": {
+                "left": "Derived set of configurations from the `RetryConfig`.\n"
+            },
+            "sortText": "221",
+            "insertText": "RetryInferredConfig",
+            "insertTextFormat": "Snippet"
+        },
+        {
+            "label": "LoadBalanceActionErrorData",
+            "kind": "Class",
+            "detail": "Record",
+            "documentation": {
+                "left": "Represents an error occurred in an remote function of the Load Balance connector.\n"
+            },
+            "sortText": "221",
+            "insertText": "LoadBalanceActionErrorData",
+            "insertTextFormat": "Snippet"
+        },
+        {
+            "label": "LoadBalanceClientConfiguration",
+            "kind": "Class",
+            "detail": "Record",
+            "documentation": {
+                "left": "The configurations related to the load balance client endpoint.\n"
+            },
+            "sortText": "221",
+            "insertText": "LoadBalanceClientConfiguration",
+            "insertTextFormat": "Snippet"
+        },
+        {
+            "label": "Remote",
+            "kind": "Class",
+            "detail": "Record",
+            "documentation": {
+                "left": "Presents a read-only view of the remote address.\n"
+            },
+            "sortText": "221",
+            "insertText": "Remote",
+            "insertTextFormat": "Snippet"
+        },
+        {
+            "label": "Local",
+            "kind": "Class",
+            "detail": "Record",
+            "documentation": {
+                "left": "Presents a read-only view of the local address.\n"
+            },
+            "sortText": "221",
+            "insertText": "Local",
+            "insertTextFormat": "Snippet"
+        },
+        {
+            "label": "RequestLimits",
+            "kind": "Class",
+            "detail": "Record",
+            "documentation": {
+                "left": "Configures limits for requests. If these limits are violated, the request is rejected.\n"
+            },
+            "sortText": "221",
+            "insertText": "RequestLimits",
+            "insertTextFormat": "Snippet"
+        },
+        {
+            "label": "ServiceEndpointConfiguration",
+            "kind": "Class",
+            "detail": "Record",
+            "documentation": {
+                "left": "Provides a set of configurations for HTTP service endpoints.\n"
+            },
+            "sortText": "221",
+            "insertText": "ServiceEndpointConfiguration",
+            "insertTextFormat": "Snippet"
+        },
+        {
+            "label": "ListenerAuth",
+            "kind": "Class",
+            "detail": "Record",
+            "documentation": {
+                "left": "Authentication configurations for the listener.\n"
+            },
+            "sortText": "221",
+            "insertText": "ListenerAuth",
+            "insertTextFormat": "Snippet"
+        },
+        {
+            "label": "ServiceSecureSocket",
+            "kind": "Class",
+            "detail": "Record",
+            "documentation": {
+                "left": "Configures the SSL/TLS options to be used for HTTP service.\n"
+            },
+            "sortText": "221",
+            "insertText": "ServiceSecureSocket",
+            "insertTextFormat": "Snippet"
+        },
+        {
+            "label": "AuthzCacheConfig",
+            "kind": "Class",
+            "detail": "Record",
+            "documentation": {
+                "left": "Provides a set of configurations for controlling the authorization caching behaviour of the endpoint.\n"
+            },
+            "sortText": "221",
+            "insertText": "AuthzCacheConfig",
+            "insertTextFormat": "Snippet"
+        },
+        {
+            "label": "WebSocketClientEndpointConfig",
+            "kind": "Class",
+            "detail": "Record",
+            "documentation": {
+                "left": "Configuration for the WebSocket client endpoint.\n"
+            },
+            "sortText": "221",
+            "insertText": "WebSocketClientEndpointConfig",
+            "insertTextFormat": "Snippet"
+        },
+        {
+            "label": "AuthnFilter",
+            "kind": "Class",
+            "detail": "Object",
+            "documentation": {
+                "left": "Representation of the Authentication filter.\n"
+            },
+            "sortText": "221",
+            "insertText": "AuthnFilter",
+            "insertTextFormat": "Snippet"
+        },
+        {
+            "label": "AuthnHandler",
+            "kind": "Class",
+            "detail": "Object",
+            "documentation": {
+                "left": "Representation of Authentication handler for HTTP traffic."
+            },
+            "sortText": "221",
+            "insertText": "AuthnHandler",
+            "insertTextFormat": "Snippet"
+        },
+        {
+            "label": "AuthzFilter",
+            "kind": "Class",
+            "detail": "Object",
+            "documentation": {
+                "left": "Representation of the Authorization filter\n"
+            },
+            "sortText": "221",
+            "insertText": "AuthzFilter",
+            "insertTextFormat": "Snippet"
+        },
+        {
+            "label": "AuthzHandler",
+            "kind": "Class",
+            "detail": "Object",
+            "documentation": {
+                "left": "Representation of Authorization Handler for HTTP\n"
+            },
+            "sortText": "221",
+            "insertText": "AuthzHandler",
+            "insertTextFormat": "Snippet"
+        },
+        {
+            "label": "BasicAuthHeaderAuthnHandler",
+            "kind": "Class",
+            "detail": "Object",
+            "documentation": {
+                "left": "Defines Basic auth header authn handler for HTTP traffic.\n"
+            },
+            "sortText": "221",
+            "insertText": "BasicAuthHeaderAuthnHandler",
+            "insertTextFormat": "Snippet"
+        },
+        {
+            "label": "BearerAuthHeaderAuthnHandler",
+            "kind": "Class",
+            "detail": "Object",
+            "documentation": {
+                "left": "Representation of Bearer auth header authn handler for HTTP traffic.\n"
+            },
+            "sortText": "221",
+            "insertText": "BearerAuthHeaderAuthnHandler",
+            "insertTextFormat": "Snippet"
+        },
+        {
+            "label": "RequestCacheControl",
+            "kind": "Class",
+            "detail": "Object",
+            "documentation": {
+                "left": "Configures cache control directives for a `Request`.\n"
+            },
+            "sortText": "221",
+            "insertText": "RequestCacheControl",
+            "insertTextFormat": "Snippet"
+        },
+        {
+            "label": "ResponseCacheControl",
+            "kind": "Class",
+            "detail": "Object",
+            "documentation": {
+                "left": "Configures cache control directives for a `Response`.\n"
+            },
+            "sortText": "221",
+            "insertText": "ResponseCacheControl",
+            "insertTextFormat": "Snippet"
+        },
+        {
+            "label": "HttpCache",
+            "kind": "Class",
+            "detail": "Object",
+            "documentation": {
+                "left": "Implements a cache for storing HTTP responses. This cache complies with the caching policy set when configuring\nHTTP caching in the HTTP client endpoint.\n"
+            },
+            "sortText": "221",
+            "insertText": "HttpCache",
+            "insertTextFormat": "Snippet"
+        },
+        {
+            "label": "HttpFuture",
+            "kind": "Class",
+            "detail": "Object",
+            "documentation": {
+                "left": "Represents a 'future' that returns as a result of an asynchronous HTTP request submission.\nThis can be used as a reference to fetch the results of the submission."
+            },
+            "sortText": "221",
+            "insertText": "HttpFuture",
+            "insertTextFormat": "Snippet"
+        },
+        {
+            "label": "PushPromise",
+            "kind": "Class",
+            "detail": "Object",
+            "documentation": {
+                "left": "Represents an HTTP/2 `PUSH_PROMISE` frame.\n"
+            },
+            "sortText": "221",
+            "insertText": "PushPromise",
+            "insertTextFormat": "Snippet"
+        },
+        {
+            "label": "Filter",
+            "kind": "Class",
+            "detail": "Object",
+            "documentation": {
+                "left": "Representation of a HTTP Request Filter. This filter will be applied before the request is dispatched to the relevant resource. Any Filter implementation should be structurally similar to the Filter object."
+            },
+            "sortText": "221",
+            "insertText": "Filter",
+            "insertTextFormat": "Snippet"
+        },
+        {
+            "label": "FilterContext",
+            "kind": "Class",
+            "detail": "Object",
+            "documentation": {
+                "left": "Representation of request filter Context.\n"
+            },
+            "sortText": "221",
+            "insertText": "FilterContext",
+            "insertTextFormat": "Snippet"
+        },
+        {
+            "label": "Request",
+            "kind": "Class",
+            "detail": "Object",
+            "documentation": {
+                "left": "Represents an HTTP request.\n"
+            },
+            "sortText": "221",
+            "insertText": "Request",
+            "insertTextFormat": "Snippet"
+        },
+        {
+            "label": "Response",
+            "kind": "Class",
+            "detail": "Object",
+            "documentation": {
+                "left": "Represents an HTTP response.\n"
+            },
+            "sortText": "221",
+            "insertText": "Response",
+            "insertTextFormat": "Snippet"
+        },
+        {
+            "label": "MockListener",
+            "kind": "Class",
+            "detail": "Object",
+            "documentation": {
+                "left": "Mock server endpoint which does not open a listening port."
+            },
+            "sortText": "221",
+            "insertText": "MockListener",
+            "insertTextFormat": "Snippet"
+        },
+        {
+            "label": "CircuitBreakerClient",
+            "kind": "Class",
+            "detail": "Object",
+            "documentation": {
+                "left": "A Circuit Breaker implementation which can be used to gracefully handle network failures.\n"
+            },
+            "sortText": "221",
+            "insertText": "CircuitBreakerClient",
+            "insertTextFormat": "Snippet"
+        },
+        {
+            "label": "LoadBalancerRule",
+            "kind": "Class",
+            "detail": "Object",
+            "documentation": {
+                "left": "\nLoadBalancerRule provides a required interfaces to implement different algorithms.\n"
+            },
+            "sortText": "221",
+            "insertText": "LoadBalancerRule",
+            "insertTextFormat": "Snippet"
+        },
+        {
+            "label": "LoadBalancerRoundRobinRule",
+            "kind": "Class",
+            "detail": "Object",
+            "documentation": {
+                "left": "Implementation of round robin load balancing strategy.\n"
+            },
+            "sortText": "221",
+            "insertText": "LoadBalancerRoundRobinRule",
+            "insertTextFormat": "Snippet"
+        },
+        {
+            "label": "Listener",
+            "kind": "Class",
+            "detail": "Object",
+            "documentation": {
+                "left": "This is used for creating HTTP server endpoints. An HTTP server endpoint is capable of responding to\nremote callers. The `Listener` is responsible for initializing the endpoint using the provided configurations."
+            },
+            "sortText": "221",
+            "insertText": "Listener",
+            "insertTextFormat": "Snippet"
+        },
+        {
+            "label": "WebSocketListener",
+            "kind": "Class",
+            "detail": "Object",
+            "documentation": {
+                "left": "Represents a WebSocket service endpoint."
+            },
+            "sortText": "221",
+            "insertText": "WebSocketListener",
+            "insertTextFormat": "Snippet"
+        },
+        {
+            "label": "HttpCachingClient",
+            "kind": "Class",
+            "detail": "Object",
+            "documentation": {
+                "left": "An HTTP caching client implementation which takes an `HttpActions` instance and wraps it with an HTTP caching layer.\n"
+            },
+            "sortText": "221",
+            "insertText": "HttpCachingClient",
+            "insertTextFormat": "Snippet"
+        },
+        {
+            "label": "Client",
+            "kind": "Class",
+            "detail": "Object",
+            "documentation": {
+                "left": "The HTTP client provides the capability for initiating contact with a remote HTTP service. The API it\nprovides includes functions for the standard HTTP methods, forwarding a received request and sending requests\nusing custom HTTP verbs."
+            },
+            "sortText": "221",
+            "insertText": "Client",
+            "insertTextFormat": "Snippet"
+        },
+        {
+            "label": "HttpCaller",
+            "kind": "Class",
+            "detail": "Object",
+            "documentation": {
+                "left": "Provides the HTTP actions for interacting with an HTTP server. Apart from the standard HTTP methods, `forward()`\nand `execute()` functions are provided. More complex and specific endpoint types can be created by wrapping this\ngeneric HTTP actions implementation.\n"
+            },
+            "sortText": "221",
+            "insertText": "HttpCaller",
+            "insertTextFormat": "Snippet"
+        },
+        {
+            "label": "Caller",
+            "kind": "Class",
+            "detail": "Object",
+            "documentation": {
+                "left": "The caller actions for responding to client requests.\n"
+            },
+            "sortText": "221",
+            "insertText": "Caller",
+            "insertTextFormat": "Snippet"
+        },
+        {
+            "label": "HttpSecureClient",
+            "kind": "Class",
+            "detail": "Object",
+            "documentation": {
+                "left": "Provides secure HTTP remote functions for interacting with HTTP endpoints. This will make use of the authentication\nschemes configured in the HTTP client endpoint to secure the HTTP requests.\n"
+            },
+            "sortText": "221",
+            "insertText": "HttpSecureClient",
+            "insertTextFormat": "Snippet"
+        },
+        {
+            "label": "HttpClient",
+            "kind": "Class",
+            "detail": "Object",
+            "documentation": {
+                "left": "Provides the HTTP remote functions for interacting with an HTTP server. Apart from the standard HTTP methods, `forward()`\nand `execute()` functions are provided. More complex and specific endpoint types can be created by wrapping this\ngeneric HTTP remote functions implementation.\n"
+            },
+            "sortText": "221",
+            "insertText": "HttpClient",
+            "insertTextFormat": "Snippet"
+        },
+        {
+            "label": "RedirectClient",
+            "kind": "Class",
+            "detail": "Object",
+            "documentation": {
+                "left": "Provides redirect functionality for HTTP client remote functions.\n"
+            },
+            "sortText": "221",
+            "insertText": "RedirectClient",
+            "insertTextFormat": "Snippet"
+        },
+        {
+            "label": "FailoverClient",
+            "kind": "Class",
+            "detail": "Object",
+            "documentation": {
+                "left": "An HTTP client endpoint which provides failover support over multiple HTTP clients.\n"
+            },
+            "sortText": "221",
+            "insertText": "FailoverClient",
+            "insertTextFormat": "Snippet"
+        },
+        {
+            "label": "RetryClient",
+            "kind": "Class",
+            "detail": "Object",
+            "documentation": {
+                "left": "Provides the HTTP remote functions for interacting with an HTTP endpoint. This is created by wrapping the HTTP client\nto provide retrying over HTTP requests.\n"
+            },
+            "sortText": "221",
+            "insertText": "RetryClient",
+            "insertTextFormat": "Snippet"
+        },
+        {
+            "label": "LoadBalanceClient",
+            "kind": "Class",
+            "detail": "Object",
+            "documentation": {
+                "left": "LoadBalanceClient endpoint provides load balancing functionality over multiple HTTP clients.\n"
+            },
+            "sortText": "221",
+            "insertText": "LoadBalanceClient",
+            "insertTextFormat": "Snippet"
+        },
+        {
+            "label": "WebSocketCaller",
+            "kind": "Class",
+            "detail": "Object",
+            "documentation": {
+                "left": "Represents a WebSocket caller.\n"
+            },
+            "sortText": "221",
+            "insertText": "WebSocketCaller",
+            "insertTextFormat": "Snippet"
+        },
+        {
+            "label": "WebSocketClient",
+            "kind": "Class",
+            "detail": "Object",
+            "documentation": {
+                "left": "Represents a WebSocket client endpoint.\n"
+            },
+            "sortText": "221",
+            "insertText": "WebSocketClient",
+            "insertTextFormat": "Snippet"
+        },
+        {
+            "label": "InboundAuthScheme",
+            "kind": "Enum",
+            "detail": "Union",
+            "documentation": {
+                "left": "Inbound authentication schemes."
+            },
+            "sortText": "221",
+            "insertText": "InboundAuthScheme",
+            "insertTextFormat": "Snippet"
+        },
+        {
+            "label": "OutboundAuthScheme",
+            "kind": "Enum",
+            "detail": "Union",
+            "documentation": {
+                "left": "Outbound authentication schemes."
+            },
+            "sortText": "221",
+            "insertText": "OutboundAuthScheme",
+            "insertTextFormat": "Snippet"
+        },
+        {
+            "label": "CachingPolicy",
+            "kind": "Enum",
+            "detail": "Union",
+            "documentation": {
+                "left": "Used for configuring the caching behaviour. Setting the `policy` field in the `CacheConfig` record allows\nthe user to control the caching behaviour."
+            },
+            "sortText": "221",
+            "insertText": "CachingPolicy",
+            "insertTextFormat": "Snippet"
+        },
+        {
+            "label": "Chunking",
+            "kind": "Enum",
+            "detail": "Union",
+            "documentation": {
+                "left": "Defines the possible values for the chunking configuration in HTTP services and clients.\n\n`AUTO`: If the payload is less than 8KB, content-length header is set in the outbound request/response,\n        otherwise chunking header is set in the outbound request/response\n`ALWAYS`: Always set chunking header in the response\n`NEVER`: Never set the chunking header even if the payload is larger than 8KB in the outbound request/response"
+            },
+            "sortText": "221",
+            "insertText": "Chunking",
+            "insertTextFormat": "Snippet"
+        },
+        {
+            "label": "Compression",
+            "kind": "Enum",
+            "detail": "Union",
+            "documentation": {
+                "left": "Options to compress using gzip or deflate.\n\n`AUTO`: When service behaves as a HTTP gateway inbound request/response accept-encoding option is set as the\n        outbound request/response accept-encoding/content-encoding option\n`ALWAYS`: Always set accept-encoding/content-encoding in outbound request/response\n`NEVER`: Never set accept-encoding/content-encoding header in outbound request/response"
+            },
+            "sortText": "221",
+            "insertText": "Compression",
+            "insertTextFormat": "Snippet"
+        },
+        {
+            "label": "HttpOperation",
+            "kind": "Enum",
+            "detail": "Union",
+            "documentation": {
+                "left": "Defines the HTTP operations related to circuit breaker, failover and load balancer.\n\n`FORWARD`: Forward the specified payload\n`GET`: Request a resource\n`POST`: Create a new resource\n`DELETE`: Deletes the specified resource\n`OPTIONS`: Request communication options available\n`PUT`: Replace the target resource\n`PATCH`: Apply partial modification to the resource\n`HEAD`: Identical to `GET` but no resource body should be returned\n`NONE`: No operation should be performed"
+            },
+            "sortText": "221",
+            "insertText": "HttpOperation",
+            "insertTextFormat": "Snippet"
+        },
+        {
+            "label": "RedirectCode",
+            "kind": "Enum",
+            "detail": "Union",
+            "documentation": {
+                "left": "Defines the HTTP redirect codes as a type."
+            },
+            "sortText": "221",
+            "insertText": "RedirectCode",
+            "insertTextFormat": "Snippet"
+        },
+        {
+            "label": "MutualSslStatus",
+            "kind": "Enum",
+            "detail": "Union",
+            "documentation": {
+                "left": "Defines the possible values for the mutual ssl status.\n\n`passed`: Mutual SSL handshake is succesful.\n`failed`: Mutual SSL handshake has failed."
+            },
+            "sortText": "221",
+            "insertText": "MutualSslStatus",
+            "insertTextFormat": "Snippet"
+        },
+        {
+            "label": "CredentialBearer",
+            "kind": "Enum",
+            "detail": "Union",
+            "documentation": {
+                "left": "Specifies how to send the authentication credentials when exchanging tokens."
+            },
+            "sortText": "221",
+            "insertText": "CredentialBearer",
+            "insertTextFormat": "Snippet"
+        },
+        {
+            "label": "OAuth2GrantType",
+            "kind": "Enum",
+            "detail": "Union",
+            "documentation": {
+                "left": "Specifies the type of the OAuth2 grant type"
+            },
+            "sortText": "221",
+            "insertText": "OAuth2GrantType",
+            "insertTextFormat": "Snippet"
+        },
+        {
+            "label": "CircuitState",
+            "kind": "Enum",
+            "detail": "Union",
+            "documentation": {
+                "left": "A finite type for modeling the states of the Circuit Breaker. The Circuit Breaker starts in the `CLOSED` state.\nIf any failure thresholds are exceeded during execution, the circuit trips and goes to the `OPEN` state. After\nthe specified timeout period expires, the circuit goes to the `HALF_OPEN` state. If the trial request sent while\nin the `HALF_OPEN` state succeeds, the circuit goes back to the `CLOSED` state."
+            },
+            "sortText": "221",
+            "insertText": "CircuitState",
+            "insertTextFormat": "Snippet"
+        },
+        {
+            "label": "KeepAlive",
+            "kind": "Enum",
+            "detail": "Union",
+            "documentation": {
+                "left": "Defines the possible values for the keep-alive configuration in service and client endpoints."
+            },
+            "sortText": "221",
+            "insertText": "KeepAlive",
+            "insertTextFormat": "Snippet"
+        },
+        {
+            "label": "RequestMessage",
+            "kind": "Enum",
+            "detail": "Union",
+            "documentation": {
+                "left": "The types of messages that are accepted by HTTP `client` when sending out the outbound request."
+            },
+            "sortText": "221",
+            "insertText": "RequestMessage",
+            "insertTextFormat": "Snippet"
+        },
+        {
+            "label": "ResponseMessage",
+            "kind": "Enum",
+            "detail": "Union",
+            "documentation": {
+                "left": "The types of messages that are accepted by HTTP `listener` when sending out the outbound response."
+            },
+            "sortText": "221",
+            "insertText": "ResponseMessage",
+            "insertTextFormat": "Snippet"
+        }
+    ]
+}

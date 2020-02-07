@@ -1,0 +1,30 @@
+{
+  "nodeType": "OBJECT",
+  "nodeLine": "19",
+  "expected": {
+    "result": {
+      "edit": {
+        "documentChanges": [
+          {
+            "edits": [
+              {
+                "range": {
+                  "start": {
+                    "line": 19,
+                    "character": 0
+                  },
+                  "end": {
+                    "line": 19,
+                    "character": 0
+                  }
+                },
+                "newText": "# Description\n#\n# + testString - testString Parameter Description\n"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "jsonrpc": "2.0"
+  }
+}

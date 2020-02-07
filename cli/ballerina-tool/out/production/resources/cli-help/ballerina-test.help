@@ -1,0 +1,53 @@
+NAME
+       ballerina-test - Run module tests
+
+SYNOPSIS
+       ballerina test [<options>] <module-name> [<config properties>]
+       ballerina test -a | --all [<options>] [--] [<config properties>]
+
+
+DESCRIPTION
+       Test compiles and executes Ballerina test sources and print a summary of
+       test results. You can execute tests in a module,
+       or an entire Ballerina project.
+    
+       Use 'ballerina test <module-name>' to execute tests in the
+       specified module, or '-a' or '-all' to execute tests in all modules.
+
+
+OPTIONS
+       --offline
+           When building a module, the remote repository (Ballerina Central) is
+           always checked for latest artifacts of the dependencies. If the
+           '--offline' option is specified, this remote check is not done and
+           the local artifacts will be used instead.
+
+       --sourceroot <path>
+           Location of the remote project root with source files. All
+           executions will be relative to the path provided for
+           sourceroot.
+
+       --experimental
+           Enable experimental language features.
+
+       --skip-lock
+           Build/Compile offline without downloading dependencies.
+
+       --debug
+           Start Ballerina in remote debugging mode.
+
+CONFIG PROPERTIES
+       (--key=value)...
+           Set Ballerina environment parameters as key/value pairs.
+           If multiple parameters need to be provided, each parameter
+           has to be prefixed with '--'. Details of the environment parameters
+           supported by the Ballerina standard library modules are specified
+           in the relevant API documentation.
+
+
+EXAMPLES
+        Run all tests in the current project.
+           → ballerina test --all
+
+        Run tests in math module.
+           → ballerina test math

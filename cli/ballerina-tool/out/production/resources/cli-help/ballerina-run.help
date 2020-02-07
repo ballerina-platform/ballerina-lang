@@ -1,0 +1,85 @@
+NAME
+       ballerina-run - Build and execute a Ballerina program
+
+SYNOPSIS
+       ballerina run [<options>] <ballerina-file-path> | <module-name>
+                        | <executable-jar> [<config properties>] [--] [<arguments>]
+
+
+DESCRIPTION
+       Run builds and executes the given .bal file, module, or program.
+
+       If a Ballerina source file (.bal file) or a module is given, the run
+       command builds and runs it. Compilation is done internally and the
+       executable will not be created.
+
+       You may use the 'ballerina build' command to compile a source and
+       provide the generated binary file (.jar file) to the run command.
+       The binary runs much faster than a source file, because running a source
+       file requires a compilation phase.
+
+       You must have either a public 'main' function or a service(s) or both
+       in order to run a program or a module.
+
+       When both a 'main' function and a service(s) are present, run executes
+       the 'main' function first and then starts the services.
+
+
+OPTIONS
+       --offline
+           When building a module, the remote repository (Ballerina Central) is
+           always checked for latest artifacts of the dependencies. If the
+           '--offline' option is specified, this remote check is not done and
+           the local artifacts will be used instead.
+
+       --sourceroot <path>
+           Provide the path to be taken as the root of the source.
+           The source will be looked up relative to the given source root
+           path.
+
+       --experimental
+           Enable experimental language features.
+
+CONFIG PROPERTIES
+       (--key=value)...
+           Set Ballerina environment parameters as key/value pairs.
+           If multiple parameters need to be provided, each parameter
+           has to be prefixed with '--'. Details of the environment parameters
+           supported by the Ballerina standard library modules are specified
+           in the relevant API documentation.
+
+ARGUMENTS
+       --
+           The argument '--' signals the end of Ballerina environment
+           parameters. Any and all arguments following '--' are treated as
+           arguments to the program even if they start with '--'.
+
+       args...
+           The list of command line arguments for the Ballerina program
+           being run. The semantics of these arguments are defined by
+           the program design.
+
+
+DEFAULT BEHAVIOR
+       Run command runs the 'main' function in the given program or module, if present.
+       Then looks for a service, and starts the relevant listeners if services
+       are present. If no 'main' function or service is present, the run
+       command will fail.
+
+
+EXAMPLES
+       Run the 'main' function and/or services in the hello .bal file.
+          → ballerina run hello.bal
+
+       Run the 'main' function and/or services in the hello executable jar.
+          → ballerina run hello.jar
+
+       Run the 'main' function and/or services in the hello module.
+          → ballerina run hello
+
+       Run the 'main' function in the math module with three program args:
+       add, 10 and 5. If the second and third parameters of the 'main'
+       function are of types int and int, the second and third arguments
+       would be passed as integer values 10 and 5.
+          → ballerina run math add 10 5
+

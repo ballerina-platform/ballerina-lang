@@ -1,0 +1,41 @@
+{
+  "position": {
+    "line": 4,
+    "character": 9
+  },
+  "source": "function/source/completionWithinInvocationArgs6.bal",
+  "items": [
+    {
+      "label": "outerRecField1",
+      "kind": "Field",
+      "detail": "Field",
+      "sortText": "180",
+      "insertText": "outerRecField1: ${1:0}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "outerRecField2",
+      "kind": "Field",
+      "detail": "Field",
+      "sortText": "180",
+      "insertText": "outerRecField2: \"${1}\"",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "innerRec",
+      "kind": "Field",
+      "detail": "Field",
+      "sortText": "180",
+      "insertText": "innerRec: {\n\tinner2Rec: {${1}}\n}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Add All Attributes",
+      "kind": "Property",
+      "detail": "none",
+      "sortText": "220",
+      "insertText": "outerRecField1: 0,\nouterRecField2: \"\",\ninnerRec: {}",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

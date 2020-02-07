@@ -1,0 +1,14 @@
+<div class="data-wrapper">
+    {{#each fields}}    
+    <div class="params-listing">
+        <ul>
+            <li> {{ name }}<span class="type">  {{{ typeName type }}}</span> {{ defaultValue }}</li>
+            <li>
+                <p>{{{ description }}}</p>
+            </li>
+        </ul>
+    </div>
+    {{/each}}
+</div>
+
+{{> footer }}

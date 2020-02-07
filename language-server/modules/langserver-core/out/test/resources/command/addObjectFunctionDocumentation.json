@@ -1,0 +1,30 @@
+{
+  "nodeType": "OBJECT_FUNCTION",
+  "nodeLine": "31",
+  "expected": {
+    "result": {
+      "edit": {
+        "documentChanges": [
+          {
+            "edits": [
+              {
+                "range": {
+                  "start": {
+                    "line": 31,
+                    "character": 4
+                  },
+                  "end": {
+                    "line": 31,
+                    "character": 4
+                  }
+                },
+                "newText": "# Description\n    #\n    # + param1 - param1 Parameter Description \n    # + param2 - param2 Parameter Description \n    # + return - Return Value Description\n    "
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "jsonrpc": "2.0"
+  }
+}

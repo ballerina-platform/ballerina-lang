@@ -1,0 +1,28 @@
+[project]
+# Name of the module
+org-name = "foo"
+
+#The current version, obeying semver
+version = "1.0.0"
+
+authors = ["tyler@wso2.com","manu@wso2.com"]
+
+repository = "https://github.com/ballerinalang/ballerina"
+
+# This is a list of up to five keywords that describe this ballerina module. Keywords
+# are searchable on Ballerina Central, and you may choose any words that would
+# help someone find this ballerina module.
+keywords = ["ballerina", "security", "crypto"]
+
+# This is a string description of the license for this module. Currently
+# string-utils will validate the license provided against a whitelist of known
+# license identifiers from http://spdx.org/licenses/. Multiple licenses can be
+# separated with a `/`.
+license = ["MIT", "Apache-2.0"]
+
+# Dependencies are searched in local repository and then Ballerina Central.
+# <module-name> is fully qualified module name with org name.
+# The <module-name> in the table specifier must be fully qualified.
+[dependencies]
+"wso2/twitter" = "2.3.4"
+"wso2/github" = { path = "path/to/github.balo", version = "1.2.3"}

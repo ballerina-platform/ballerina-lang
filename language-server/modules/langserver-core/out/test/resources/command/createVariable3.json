@@ -1,0 +1,32 @@
+{
+    "arguments": {
+        "node.line": 5,
+        "node.column": 4
+    },
+    "expected": {
+        "result": {
+            "edit": {
+                "documentChanges": [
+                    {
+                        "edits": [
+                            {
+                                "range": {
+                                    "start": {
+                                        "line": 5,
+                                        "character": 3
+                                    },
+                                    "end": {
+                                        "line": 5,
+                                        "character": 3
+                                    }
+                                },
+                                "newText": "int[] twoIntegers3 = "
+                            }
+                        ]
+                    }
+                ]
+            }
+        },
+        "jsonrpc": "2.0"
+    }
+}

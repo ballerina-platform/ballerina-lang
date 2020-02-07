@@ -1,0 +1,54 @@
+NAME
+       The Ballerina build tool
+
+SYNOPSIS
+       ballerina [-v | --version] [-h | --help]
+                 <command> [<args>]
+
+
+DESCRIPTION
+       Ballerina is a statically typed, concurrent programming language, focusing on network interaction and structured
+       data. It is intended to be the core of a language-centric middleware platform. It has all the general-purpose
+       functionality expected of a modern programming language, but it also has several unusual aspects that make it
+       particularly suitable for its intended purpose.
+
+       Find more information at: https://ballerina.io/
+
+
+OPTIONS
+       -v, --version
+           Print the Ballerina version information.
+
+       -h, --help
+           Print usage details of a command.
+
+
+BALLERINA COMMANDS
+        Here is a list of available subcommands:
+
+   Core Commands:
+        build           Compile Ballerina program into an executable
+        run             Build and run Ballerina program
+        test            Run module tests
+        doc             Generate API documentation
+        clean           Clean artifacts generated during the build
+        format          Format Ballerina sources
+
+   Module Commands:
+        pull            Pull a module from Ballerina Central
+        push            Upload module to the Ballerina Central
+        search          Search Ballerina Central for modules
+
+   Project Commands:
+        new             Create a new Ballerina project
+        add             Create a new Ballerina module in a project
+
+   Other Commands:
+        encrypt         Encrypt sensitive data
+        grpc            Generate Ballerina sources for the given protobuf definition
+        openapi         Generate Ballerina sources for the given OpenAPI definition and vice versa.
+        version         Print Ballerina version
+
+
+See 'ballerina help <command>' for more information on a specific command.
+

@@ -1,0 +1,77 @@
+NAME
+       The Ballerina OpenAPI Tool - Set of tools to generate a Ballerina service or a client from
+       an OpenAPI contract and to generate an OpenAPI contract for a given Ballerina service
+
+
+SYNOPSIS
+       ballerina openapi gen-service <module-name>:<service-name>
+                                     <openapi-contract>
+                                     [-o <dir-path> | --output <dir-path>]
+                                     [-c| --skip-bind]
+
+       ballerina openapi gen-client [<module-name>:]<client-name>
+                                    <openapi-contract> [-o <dir-path> | --output <dir-path>]
+    
+       ballerina openapi gen-contract [<module-name>:]<service-name>
+                                      [-i <ballerina-file> | --ballerina-file <ballerina-file>]
+                                      [-o <openapi-contract> | --contract-location <openapi-contract>]
+                                      [-s | --skip-bind]
+
+
+DESCRIPTION
+       The Ballerina OpenAPI Tool generates a Ballerina source (either a mock
+       service or a client stub) from the given OpenAPI definition file.
+       An OpenAPI definition can also be exported from a Ballerina service.
+    
+       Generated Ballerina sources will be written into a module with the provided name.
+
+       Note: This is an experimental tool, which only supports a limited
+       set of functionality.
+
+
+SUB COMMANDS
+       gen-service
+           Generate a Ballerina service from the OpenAPI file. This
+           generated service can be used as a code template to start the
+           service implementation. Generated sources contain a service
+           definition, schema definition and  a copy of the OpenAPI contract
+           which is used for the template generation.
+
+       gen-client
+           Generate a Ballerina client stub for the service defined
+           in the OpenAPI file. Generated client stub is used to start the
+           client application implementation to call the service defined in
+           the OpenAPI file.
+
+       gen-contract
+           Generate a Ballerina service from an OpenAPI Specification 3.0
+           definition. For export to work properly, the input Ballerina
+           service must contain basic service and resource level HTTP
+           annotations defining the service.
+
+
+DEFAULT BEHAVIOR
+       If no options or sub commands are provided, the help text for the 
+       OpenAPI Tool is shown.
+
+
+EXAMPLES
+       Print usage details for the OpenAPI command.
+          → ballerina openapi
+          → ballerina openapi -h
+
+       Print usage details of the OpenAPI sub commands.
+          → ballerina openapi gen-service -h
+          → ballerina openapi gen-client -h
+          → ballerina openapi gen-contract -h
+
+       Generate a Ballerina mock service with module name hellomock
+       and service name hello using hello.yaml OpenAPI contract.
+          → ballerina openapi gen-service hellomock:hello hello.yaml
+
+       Generate a Ballerina client with client name helloclient
+       and write the output to the client_project folder.
+          → ballerina openapi gen-client helloclient hello.yaml -o client_project
+
+       Export an OpenAPI definition for hello_service.bal for the hello service.
+          → ballerina openapi gen-contract hello -i hello_service.bal

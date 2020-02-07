@@ -1,0 +1,25 @@
+import ballerina/http;
+import ballerina/openapi;
+{{#servers}}
+listener http:Listener ep{{@index}} = new({{port}}{{#host}}, config = {host: "{{host}}"}{{/host}});
+{{/servers}}
+@openapi:ServiceInfo {{=<% %>=}}{<%={{ }}=%>
+    contract: "{{definitionPath}}"{{#if tags}},
+    tags: [ ]{{/if}}{{#if operations}},
+    operations: [ {{#operations}}{{name}}{{/operations}} ]{{/if}}
+}
+@http:ServiceConfig {
+    basePath: "{{servers.0.basePath}}"{{!-- {{only one base path is allowed for all endpoints}} --}}
+}
+service {{cut serviceName " "}} on {{#servers}}ep{{@index}}{{#unless @last}}, {{/unless}}{{/servers}} {{=<% %>=}}{<%={{ }}=%>
+{{#paths}}{{#operations}}
+    @http:ResourceConfig {
+        methods:["{{operationType}}"],
+        path:"{{pathName}}"{{#requestBody}}{{#contentList}},{{#requestBody}} {{/requestBody}}
+        body:"{{unescapedItemName}}"{{/contentList}}{{/requestBody}}
+    }
+    resource function {{{operationName}}}(http:Caller caller, http:Request req{{#parameters}}{{#isPathParam}}, {{#paramType}}{{schemaType}}{{/paramType}} {{{paramName}}}{{/isPathParam}}{{/parameters}}{{#if requestBody}},{{/if}}{{#requestBody}}{{#contentList}} {{{reference}}} {{{itemName}}}{{/contentList}}{{/requestBody}}) returns error? {{=<% %>=}}{<%={{ }}=%>
+
+    }
+{{/operations}}{{/paths}}
+}

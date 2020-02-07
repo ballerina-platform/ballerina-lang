@@ -1,0 +1,187 @@
+{
+  "position": {
+    "line": 2,
+    "character": 12
+  },
+  "source": "function/source/iterableOperation5.bal",
+  "items": [
+    {
+      "label": "getKeys()(string[])",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/builtin_  \n  \nReturns an array of keys contained in the specified JSON.\n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \nstring[]"
+        }
+      },
+      "insertText": "getKeys(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "toString()(string)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/builtin_  \n  \nConverts a JSON object to a string representation.\n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \nstring"
+        }
+      },
+      "insertText": "toString(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "remove(string key)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/builtin_  \n  \nRemoves each element that matches the given key.\n  \n  \n---    \n**Parameters**  \n- _key_  \n    Key of the field to remove  \n"
+        }
+      },
+      "insertText": "remove(${1});",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "toXML(record {\nstring attributePrefix;\nstring arrayEntryTag;\n} options)((xml|error))",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/builtin_  \n  \nConverts a JSON object to a XML representation.\n  \n  \n---    \n**Parameters**  \n- _options_  \n    jsonOptions struct for JSON to XML conversion properties  \n  \n  \n**Return**  \n(xml|error)"
+        }
+      },
+      "insertText": "toXML(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "foreach(\u003c@lambda:function\u003e)",
+      "kind": "Function",
+      "detail": "Function",
+      "insertText": "foreach(function(json v) {\n\t${1}\n});",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "map(\u003c@lambda:function\u003e)",
+      "kind": "Function",
+      "detail": "Function",
+      "insertText": "map(function (json v) returns any {\n\t${1}\n})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "filter(\u003c@lambda:function\u003e)",
+      "kind": "Function",
+      "detail": "Function",
+      "insertText": "filter(function(json v) returns (boolean) {\n\t${1}\n})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "count()",
+      "kind": "Function",
+      "detail": "Function",
+      "insertText": "count()",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "length()",
+      "kind": "Function",
+      "detail": "Function",
+      "insertText": "length()",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "freeze()",
+      "kind": "Function",
+      "detail": "Function",
+      "insertText": "freeze()",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "isFrozen()",
+      "kind": "Function",
+      "detail": "Function",
+      "insertText": "isFrozen()",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "stamp(anydata a)",
+      "kind": "Function",
+      "detail": "Function",
+      "insertText": "stamp(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "clone()",
+      "kind": "Function",
+      "detail": "Function",
+      "insertText": "clone()",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "convert(anydata a)",
+      "kind": "Function",
+      "detail": "Function",
+      "insertText": "convert(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    }
+  ]
+}

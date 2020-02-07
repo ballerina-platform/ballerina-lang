@@ -1,0 +1,13 @@
+[project]
+org-name = "ballerina-test"
+version = "0.0.1"
+
+
+[platform]
+target = "java8"
+
+  [[platform.libraries]]
+  path = "../../../../../../observability-test-utils/build/generated-bir-jar/testobserve.jar"
+
+  [[platform.libraries]]
+  path = "../../../../../../observability-test-utils/build/libs/observability-test-natives.jar"

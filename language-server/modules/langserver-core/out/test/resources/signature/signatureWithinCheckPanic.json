@@ -1,0 +1,35 @@
+{
+  "position": {
+    "line": 3,
+    "character": 35
+  },
+  "expected": {
+    "result": {
+      "signatures": [
+        {
+          "label": "Caller.respond((ballerina/http:Response|string|xml|json|byte[]|ballerina/io:ReadableByteChannel|ballerina/mime:Entity[]) message)",
+          "documentation": {
+            "right": {
+              "kind": "markdown",
+              "value": "Sends the outbound response to the caller."
+            }
+          },
+          "parameters": [
+            {
+              "label": "message",
+              "documentation": {
+                "right": {
+                  "kind": "markdown",
+                  "value": "The outbound response or any payload of type `string`, `xml`, `json`, `byte[]`,\n            `io:ReadableByteChannel` or `mime:Entity[]`"
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "activeSignature": 0,
+      "activeParameter": 0
+    },
+    "jsonrpc": "2.0"
+  }
+}

@@ -1,0 +1,44 @@
+{
+    "position": {
+        "line": 8,
+        "character": 35
+    },
+    "expected": {
+        "result": {
+            "signatures": [
+                {
+                    "label": "getMethods(int i, boolean b, int y)",
+                    "parameters": [
+                        {
+                            "label": "i",
+                            "documentation": {
+                                "right": {
+                                    "kind": "markdown"
+                                }
+                            }
+                        },
+                        {
+                            "label": "b",
+                            "documentation": {
+                                "right": {
+                                    "kind": "markdown"
+                                }
+                            }
+                        },
+                        {
+                            "label": "y",
+                            "documentation": {
+                                "right": {
+                                    "kind": "markdown"
+                                }
+                            }
+                        }
+                    ]
+                }
+            ],
+            "activeSignature": 0,
+            "activeParameter": 2
+        },
+        "jsonrpc": "2.0"
+    }
+}

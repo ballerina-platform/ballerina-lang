@@ -1,0 +1,27 @@
+{
+  "position": {
+    "line": 13,
+    "character": 25
+  },
+  "source": "object/source/objectTest11.bal",
+  "items": [
+    {
+      "label": "testObject(int field1, int field2)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `int` field1  \n- `int` field2"
+        }
+      },
+      "sortText": "120",
+      "insertText": "testObject(${1});",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    }
+  ]
+}

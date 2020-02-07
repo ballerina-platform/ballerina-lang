@@ -1,0 +1,35 @@
+{
+  "range": {
+    "start": {
+      "line": 10,
+      "character": 13
+    },
+    "end": {
+      "line": 10,
+      "character": 13
+    }
+  },
+  "expected": {
+    "size": 2,
+    "actions": {
+      "documentThis": {
+        "title": "Document This",
+        "command": "ADD_DOC",
+        "arguments": [
+          {
+            "argumentK": "node.type",
+            "argumentV": "SERVICE"
+          },
+          {
+            "argumentK": "node.line",
+            "argumentV": "10"
+          }
+        ]
+      },
+      "documentAll": {
+        "title": "Document All",
+        "command": "ADD_ALL_DOC"
+      }
+    }
+  }
+}

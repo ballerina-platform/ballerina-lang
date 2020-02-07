@@ -1,0 +1,80 @@
+{
+  "source": {
+    "file": "renameFl1.bal"
+  },
+  "position": {
+    "line": 0,
+    "character": 31
+  },
+  "result": {
+    "changes": {
+      "renameFl1.bal": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 31
+            },
+            "end": {
+              "line": 0,
+              "character": 32
+            }
+          },
+          "newText": "renamedVal"
+        },
+        {
+          "range": {
+            "start": {
+              "line": 3,
+              "character": 8
+            },
+            "end": {
+              "line": 3,
+              "character": 9
+            }
+          },
+          "newText": "renamedVal"
+        },
+        {
+          "range": {
+            "start": {
+              "line": 7,
+              "character": 13
+            },
+            "end": {
+              "line": 7,
+              "character": 14
+            }
+          },
+          "newText": "renamedVal"
+        },
+        {
+          "range": {
+            "start": {
+              "line": 14,
+              "character": 31
+            },
+            "end": {
+              "line": 14,
+              "character": 32
+            }
+          },
+          "newText": "renamedVal"
+        },
+        {
+          "range": {
+            "start": {
+              "line": 18,
+              "character": 15
+            },
+            "end": {
+              "line": 18,
+              "character": 16
+            }
+          },
+          "newText": "renamedVal"
+        }
+      ]
+    }
+  }
+}

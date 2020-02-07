@@ -1,0 +1,31 @@
+{
+  "position": {
+    "line": 4,
+    "character": 12
+  },
+  "source": "function/source/structBoundFunctionsAndFields.bal",
+  "items": [
+    {
+      "label":"a",
+      "kind":"Unit",
+      "detail":"int",
+      "sortText":"110",
+      "insertText":"a"
+    },
+    {
+      "label":"b",
+      "kind":"Unit",
+      "detail":"string",
+      "sortText":"110",
+      "insertText":"b"
+    },
+    {
+      "label":"testFunction()",
+      "kind":"Function",
+      "detail":"Function",
+      "sortText":"120",
+      "insertText":"testFunction()",
+      "insertTextFormat":"Snippet"
+    }
+  ]
+}

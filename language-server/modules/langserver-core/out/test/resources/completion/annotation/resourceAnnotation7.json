@@ -1,0 +1,23 @@
+{
+  "position": {
+    "line": 3,
+    "character": 15
+  },
+  "source": "annotation/source/resourceAnnotation7.bal",
+  "items": [
+    {
+      "label": "ParamOrderConfig",
+      "kind": "Property",
+      "detail": "Annotation",
+      "insertText": "ParamOrderConfig {\n\t${1}\n}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ResourceConfig",
+      "kind": "Property",
+      "detail": "Annotation",
+      "insertText": "ResourceConfig {\n\t${1}\n}",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+    "result": {
+        "contents": {
+            "kind": "markdown",
+            "value": "**Description**  \n  \nHTTP header key `expect`. Specifies expectations to be fulfilled by the server.  \n  \n"
+        }
+    },
+    "id": {
+        "left": "324"
+    },
+    "jsonrpc": "2.0"
+}

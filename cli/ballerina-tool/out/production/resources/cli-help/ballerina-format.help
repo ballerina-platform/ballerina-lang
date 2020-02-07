@@ -1,0 +1,39 @@
+NAME
+       ballerina-format - Format the Ballerina source files
+
+SYNOPSIS
+       ballerina format [-d | --dry-run] [<ballerina-file-path> | <module-name>]
+
+
+DESCRIPTION
+       Format Ballerina source files according to the Ballerina style guide
+       defined at https://github.com/ballerina-platform/ballerina-lang/tree/master/docs/style_guide
+
+       Formatting can be performed on a Ballerina project, on a Ballerina module, or
+       on a Ballerina source file.
+
+       The formatted content will be written to the original files. By using the dry run
+       option, you will be able to check which files will be formatted after the execution.
+
+       If Ballerina sources contain syntax errors, they will be notified and
+       formatting will not be proceeded until they are fixed.
+
+
+OPTIONS
+       -d, --dry-run
+           Dry-run the formatter and see which files will
+           be formatted after the execution.
+
+
+EXAMPLES
+       Format the Ballerina project.
+          → ballerina format
+
+       Format a Ballerina module.
+          → ballerina format hello
+
+       Format a Ballerina file.
+          → ballerina format helloworld.bal
+
+       Perform a dry run to see which files will be formatted.
+          → ballerina format -d

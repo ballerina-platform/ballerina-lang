@@ -1,0 +1,16 @@
+{
+  "position": {
+    "line": 1,
+    "character": 20
+  },
+  "source": "service/source/serviceDefinitionContextSuggestion1.bal",
+  "items": [
+    {
+      "label": "on",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "insertText": "on ",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

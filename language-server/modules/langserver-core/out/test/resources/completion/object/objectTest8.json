@@ -1,0 +1,23 @@
+{
+  "position": {
+    "line": 13,
+    "character": 33
+  },
+  "source": "object/source/objectTest8.bal",
+  "items": [
+    {
+      "label": "Response()",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/http_  \n  \n  \n"
+        }
+      },
+      "sortText": "131",
+      "insertText": "Response();",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

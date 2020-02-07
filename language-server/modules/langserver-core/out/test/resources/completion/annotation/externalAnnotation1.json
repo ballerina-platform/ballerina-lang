@@ -1,0 +1,101 @@
+{
+  "position": {
+    "line": 1,
+    "character": 36
+  },
+  "source": "annotation/source/externalAnnotation1.bal",
+  "items": [
+    {
+      "label": "java:Constructor",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "110",
+      "insertText": "java:Constructor {\n\tclass: \"${1}\"\n}",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerinax/java;\n"
+        }
+      ]
+    },
+    {
+      "label": "java:Method",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "110",
+      "insertText": "java:Method {\n\tclass: \"${1}\"\n}",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerinax/java;\n"
+        }
+      ]
+    },
+    {
+      "label": "java:FieldGet",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "110",
+      "insertText": "java:FieldGet {\n\tname: \"${1}\",\n\tclass: \"${1}\"\n}",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerinax/java;\n"
+        }
+      ]
+    },
+    {
+      "label": "java:FieldSet",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "110",
+      "insertText": "java:FieldSet {\n\tname: \"${1}\",\n\tclass: \"${1}\"\n}",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerinax/java;\n"
+        }
+      ]
+    }
+  ]
+}

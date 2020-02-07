@@ -1,0 +1,11 @@
+[project]
+org-name= "testOrg"
+version= "0.1.0"
+
+license= ["Apache 2.0"]
+authors= ["<auther-name>"]
+keywords= ["toml", "ballerina"]
+repository= "https://github.com/ballerina-platform/ballerina-lang"
+
+
+[dependencies]

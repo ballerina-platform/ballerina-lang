@@ -1,0 +1,16 @@
+{
+  "position": {
+    "line": 2,
+    "character": 20
+  },
+  "source": "toplevel/source/namespaceDeclarationStatement1.bal",
+  "items": [
+    {
+      "label": "as",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "insertText": "as ",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

@@ -1,0 +1,33 @@
+{
+  "position": {
+    "line": 3,
+    "character": 8
+  },
+  "source": "function/source/recordVarDef2.bal",
+  "items": [
+    {
+      "label": "age",
+      "kind": "Field",
+      "detail": "Field",
+      "sortText": "120",
+      "insertText": "age: ${1:0}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "name",
+      "kind": "Field",
+      "detail": "Field",
+      "sortText": "120",
+      "insertText": "name: \"${1}\"",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Add All Attributes",
+      "kind": "Property",
+      "detail": "none",
+      "sortText": "110",
+      "insertText": "age: 0,\nname: \"\"",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

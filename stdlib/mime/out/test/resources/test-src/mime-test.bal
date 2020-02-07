@@ -1,0 +1,503 @@
+import ballerina/mime;
+import ballerina/log;
+import ballerina/io;
+
+function getMediaTypeTestObj() returns mime:MediaType {
+    mime:MediaType mediaType = new;
+    mediaType.primaryType = "application";
+    mediaType.subType = "my-custom-type+json";
+    return mediaType;
+}
+
+function getDispositionTestObj() returns mime:ContentDisposition {
+    mime:ContentDisposition disposition = new;
+    disposition.fileName = "test_file.xml";
+    disposition.disposition = "inline";
+    disposition.name = "test";
+    return disposition;
+}
+
+//Media type tests
+function testGetMediaType(string contentType) returns mime:MediaType|error {
+    return mime:getMediaType(contentType);
+}
+
+function testGetBaseTypeOnMediaType(mime:MediaType mediaType) returns (string) {
+    return mediaType.getBaseType();
+}
+
+function testToStringOnMediaType(mime:MediaType mediaType) returns (string) {
+    return mediaType.toString();
+}
+
+function testGetContentDispositionObject(string contentDisposition) returns mime:ContentDisposition {
+    return mime:getContentDispositionObject(contentDisposition);
+}
+
+function testToStringOnContentDisposition(mime:ContentDisposition contentDisposition) returns (string) {
+    return contentDisposition.toString();
+}
+
+function testSetMediaTypeToEntity() returns @tainted string? {
+    mime:Entity entity = new;
+    mime:MediaType mediaType = getMediaTypeTestObj();
+    checkpanic entity.setContentType(mediaType.toString());
+    return entity.getContentType();
+}
+
+function testSetMediaTypeAndGetValueAsHeader() returns @tainted string {
+    mime:Entity entity = new;
+    mime:MediaType mediaType = getMediaTypeTestObj();
+    checkpanic entity.setContentType(mediaType.toString());
+    return entity.getHeader(mime:CONTENT_TYPE);
+}
+
+function testSetHeaderAndGetMediaType() returns @tainted string {
+    mime:Entity entity = new;
+    entity.setHeader(mime:CONTENT_TYPE, "text/plain; charset=UTF-8");
+    return entity.getContentType();
+}
+
+//Content-disposition tests
+function testSetContentDispositionToEntity() returns string {
+    mime:Entity entity = new;
+    entity.setContentDisposition(getDispositionTestObj());
+    mime:ContentDisposition disposition = entity.getContentDisposition();
+    return disposition.toString();
+}
+
+function testSetContentDispositionAndGetValueAsHeader() returns @tainted string {
+    mime:Entity entity = new;
+    entity.setContentDisposition(getDispositionTestObj());
+    return entity.getHeader(mime:CONTENT_DISPOSITION);
+}
+
+function testSetHeaderAndGetContentDisposition() returns string {
+    mime:Entity entity = new;
+    entity.setHeader(mime:CONTENT_DISPOSITION, "inline;name=\"test\";filename=\"test_file.xml\"");
+    mime:ContentDisposition receivedDisposition = entity.getContentDisposition();
+    return receivedDisposition.toString();
+}
+
+//Content-length tests
+function testSetContentLengthToEntity() returns @tainted int|error {
+    mime:Entity entity = new;
+    entity.setContentLength(45555);
+    return entity.getContentLength();
+}
+
+function testSetContentLengthAndGetValueAsHeader() returns @tainted string {
+    mime:Entity entity = new;
+    entity.setContentLength(45555);
+    return entity.getHeader(mime:CONTENT_LENGTH);
+}
+
+//Content-id tests
+function testSetContentIdToEntity() returns @tainted string {
+    mime:Entity entity = new;
+    entity.setContentId("test-id");
+    return entity.getContentId();
+}
+
+function testSetContentIdAndGetValueAsHeader() returns @tainted string {
+    mime:Entity entity = new;
+    entity.setContentId("test-id");
+    return entity.getHeader(mime:CONTENT_ID);
+}
+
+//function testMimeBase64EncodeBlob(byte[] contentToBeEncoded) returns (byte[]|error) {
+//    return mime:base64EncodeBlob(contentToBeEncoded);
+//}
+
+//function testMimeBase64DecodeBlob(byte[] contentToBeDecoded) returns (byte[]|error) {
+//    return mime:base64DecodeBlob(contentToBeDecoded);
+//}
+
+function testSetAndGetJson(json jsonContent) returns @tainted json|error {
+    mime:Entity entity = new;
+    entity.setJson(jsonContent);
+    return entity.getJson();
+}
+
+function testGetJsonMultipleTimes(json jsonContent) returns @tainted json {
+    mime:Entity entity = new;
+    entity.setJson(jsonContent);
+    json|error returnContent1 = entity.getJson();
+    json|error returnContent2 = entity.getJson();
+    json|error returnContent3 = entity.getJson();
+
+    json content1 = {};
+    json content2 = {};
+    json content3 = {};
+
+    if (returnContent1 is json) {
+        content1 = returnContent1;
+    } else {
+        log:printError("error in returnContent1", returnContent1);
+    }
+
+    if (returnContent2 is json) {
+        content2 = returnContent2;
+    } else {
+        log:printError("error in returnContent2", returnContent2);
+    }
+
+    if (returnContent3 is json) {
+        content3 = returnContent3;
+    } else {
+        log:printError("error in returnContent3", returnContent3);
+    }
+
+    json returnContent = { concatContent: [content1, content2, content3] };
+    return returnContent;
+}
+
+function testSetAndGetXml(xml xmlContent) returns @tainted xml|error {
+    mime:Entity entity = new;
+    entity.setXml(xmlContent);
+    return entity.getXml();
+}
+
+function testGetXmlMultipleTimes(xml xmlContent) returns @tainted xml {
+    mime:Entity entity = new;
+    entity.setXml(xmlContent);
+    xml|error returnContent1 = entity.getXml();
+    xml|error returnContent2 = entity.getXml();
+    xml|error returnContent3 = entity.getXml();
+
+    xml content1;
+    xml content2;
+    xml content3;
+
+    if (returnContent1 is xml) {
+        content1 = returnContent1;
+    } else {
+        panic returnContent1;
+    }
+
+    if (returnContent2 is xml) {
+        content2 = returnContent2;
+    } else {
+        panic returnContent2;
+    }
+
+    if (returnContent3 is xml) {
+        content3 = returnContent3;
+    } else {
+        panic returnContent3;
+    }
+
+    xml returnContent = content1 + content2 + content3;
+    return returnContent;
+}
+
+function testSetAndGetText(string textContent) returns @tainted string|error {
+    mime:Entity entity = new;
+    entity.setText(textContent);
+    return entity.getText();
+}
+
+function testGetTextMultipleTimes(string textContent) returns @tainted string {
+    mime:Entity entity = new;
+    entity.setText(textContent);
+    string|error returnContent1 = entity.getText();
+    string|error returnContent2 = entity.getText();
+    string|error returnContent3 = entity.getText();
+
+    string content1 = "";
+    string content2 = "";
+    string content3 = "";
+
+    if (returnContent1 is string) {
+        content1 = returnContent1;
+    } else {
+        log:printError("error in returnContent1", returnContent1);
+    }
+
+    if (returnContent2 is string) {
+        content2 = returnContent2;
+    } else {
+        log:printError("error in returnContent2", returnContent2);
+    }
+
+    if (returnContent3 is string) {
+        content3 = returnContent3;
+    } else {
+        log:printError("error in returnContent3", returnContent3);
+    }
+
+    string returnContent = content1 + content2 + content3;
+    return returnContent;
+}
+
+function testSetAndGetByteArray(byte[] blobContent) returns @tainted byte[]|error {
+    mime:Entity entity = new;
+    entity.setByteArray(blobContent);
+    return entity.getByteArray();
+}
+
+function testGetByteArrayMultipleTimes(byte[] blobContent) returns @tainted [byte[], byte[], byte[]] {
+    mime:Entity entity = new;
+    entity.setByteArray(blobContent);
+    byte[]|error returnContent1 = entity.getByteArray();
+    byte[]|error returnContent2 = entity.getByteArray();
+    byte[]|error returnContent3 = entity.getByteArray();
+
+    byte[] content1 = [];
+    byte[] content2 = [];
+    byte[] content3 = [];
+
+    if (returnContent1 is byte[]) {
+        content1 = returnContent1;
+    } else {
+        log:printError("error in returnContent1", returnContent1);
+    }
+
+    if (returnContent2 is byte[]) {
+        content2 = returnContent2;
+    } else {
+        log:printError("error in returnContent2", returnContent2);
+    }
+
+    if (returnContent3 is byte[]) {
+        content3 = returnContent3;
+    } else {
+        log:printError("error in returnContent3", returnContent3);
+    }
+
+    return [content1, content2, content3];
+}
+
+function testSetFileAsEntityBody(string fileLocation) returns @tainted byte[]|error {
+    mime:Entity entity = new;
+    entity.setFileAsEntityBody(fileLocation);
+    return entity.getByteArray();
+}
+
+function testSetByteChannel(io:ReadableByteChannel byteChannel) returns @tainted byte[]|error {
+    mime:Entity entity = new;
+    entity.setByteChannel(byteChannel);
+    return entity.getByteArray();
+}
+
+function testGetByteChannel(io:ReadableByteChannel byteChannel) returns @tainted io:ReadableByteChannel|error {
+    mime:Entity entity = new;
+    entity.setByteChannel(byteChannel);
+    return entity.getByteChannel();
+}
+
+function testSetEntityBodyMultipleTimes(io:ReadableByteChannel byteChannel, string textdata) returns @tainted string {
+    mime:Entity entity = new;
+    entity.setText(textdata);
+    entity.setByteChannel(byteChannel);
+    var result = entity.getByteChannel();
+    if (result is io:ReadableByteChannel) {
+        io:ReadableCharacterChannel characterChannel = new io:ReadableCharacterChannel(result, "utf-8");
+        var returnValue = characterChannel.read(30);
+        if (returnValue is string) {
+            return returnValue;
+        } else {
+            error e = <error>returnValue;
+            return e.reason();
+        }
+    } else {
+        return result.reason();
+    }
+}
+
+function testSetJsonAndGetByteChannel(json jsonContent) returns @tainted io:ReadableByteChannel|error {
+    mime:Entity entity = new;
+    entity.setJson(jsonContent);
+    return entity.getByteChannel();
+}
+
+function testGetTextDataSource(io:ReadableByteChannel byteChannel) returns @tainted string|error {
+    mime:Entity entity = new;
+    entity.setByteChannel(byteChannel);
+    entity.setHeader("content-type", "text/plain");
+    //Consume byte channel externally
+    var result = entity.getByteChannel();
+
+    if (result is io:ReadableByteChannel) {
+        consumeChannel(result);
+    } else {
+        log:printError("error in reading byte channel");
+    }
+
+    return entity.getText();
+}
+
+function testGetJsonDataSource(io:ReadableByteChannel byteChannel) returns @tainted json|error {
+    mime:Entity entity = new;
+    entity.setByteChannel(byteChannel);
+    entity.setHeader("content-type", "application/json");
+    //Consume byte channel externally
+    var result = entity.getByteChannel();
+
+    if (result is io:ReadableByteChannel) {
+        consumeChannel(result);
+    } else {
+        log:printError("error in reading byte channel");
+    }
+
+    return entity.getJson();
+}
+
+function consumeChannel(io:ReadableByteChannel byteChannel) {
+    var result = byteChannel.read(1000000);
+}
+
+function testGetXmlWithSuffix(xml xmlContent) returns @tainted xml|error {
+    mime:Entity entity = new;
+    entity.setHeader("content-type", "application/3gpdash-qoe-report+xml");
+    entity.setXml(xmlContent);
+    return entity.getXml();
+}
+
+function testGetXmlWithNonCompatibleMediaType(xml xmlContent) returns @tainted xml|error {
+    mime:Entity entity = new;
+    entity.setXml(xmlContent);
+    entity.setHeader("content-type", "application/3gpdash-qoe-report");
+    return entity.getXml();
+}
+
+function testGetJsonWithSuffix(json jsonContent) returns @tainted json|error {
+    mime:Entity entity = new;
+    entity.setHeader("content-type", "application/yang-patch+json");
+    entity.setJson(jsonContent);
+    return entity.getJson();
+}
+
+function testGetJsonWithNonCompatibleMediaType(json jsonContent) returns @tainted json|error {
+    mime:Entity entity = new;
+    entity.setJson(jsonContent);
+    entity.setHeader("content-type", "application/whoispp-query");
+    return entity.getJson();
+}
+
+function testGetTextWithNonCompatibleMediaType(string textContent) returns @tainted string|error {
+    mime:Entity entity = new;
+    entity.setText(textContent);
+    entity.setHeader("content-type", "model/vnd.parasolid.transmit");
+    return entity.getText();
+}
+
+function testSetBodyAndGetText((string|xml|json|byte[]|io:ReadableByteChannel) entityBody) returns @tainted string|error {
+    mime:Entity entity = new;
+    entity.setBody(entityBody);
+    return entity.getText();
+}
+
+function testSetBodyAndGetXml((string|xml|json|byte[]|io:ReadableByteChannel) entityBody) returns @tainted xml|error {
+    mime:Entity entity = new;
+    entity.setBody(entityBody);
+    return entity.getXml();
+}
+
+function testSetBodyAndGetJson((string|xml|json|byte[]|io:ReadableByteChannel) entityBody) returns @tainted json|error {
+    mime:Entity entity = new;
+    entity.setBody(entityBody);
+    return entity.getJson();
+}
+
+function testSetBodyAndGetByteArray((string|xml|json|byte[]|io:ReadableByteChannel) entityBody) returns @tainted byte[]|error {
+    mime:Entity entity = new;
+    entity.setBody(entityBody);
+    return entity.getByteArray();
+}
+
+function testSetBodyAndGetByteChannel((string|xml|json|byte[]|io:ReadableByteChannel) entityBody) returns @tainted io:ReadableByteChannel|error {
+    mime:Entity entity = new;
+    entity.setBody(entityBody);
+    return entity.getByteChannel();
+}
+
+function testGetAnyStreamAsString(io:ReadableByteChannel byteChannel, string contentType) returns @tainted string|error {
+    mime:Entity entity = new;
+    entity.setByteChannel(byteChannel, contentType);
+    return entity.getText();
+}
+
+function testByteArrayWithContentType(io:ReadableByteChannel byteChannel, string contentTypeValue) returns @tainted byte[]|error {
+    mime:Entity entity = new;
+    entity.setByteChannel(byteChannel, contentTypeValue);
+    //First time the json will be constructed from the byte channel
+    json firstTime = check entity.getJson();
+    //Then get the body as byte[]
+    return entity.getByteArray();
+}
+
+function testGetBodyPartsAsChannel() returns @tainted io:ReadableByteChannel|error {
+    //Create a body part with json content.
+    mime:Entity bodyPart1 = new;
+    bodyPart1.setJson({ "bodyPart": "jsonPart" });
+
+    //Create another body part with a xml file.
+    mime:Entity bodyPart2 = new;
+    bodyPart2.setFileAsEntityBody("src/test/resources/datafiles/file.xml", mime:TEXT_XML);
+
+    //Create a text body part.
+    mime:Entity bodyPart3 = new;
+    bodyPart3.setText("Ballerina text body part");
+
+    //Create another body part with a text file.
+    mime:Entity bodyPart4 = new;
+    bodyPart4.setFileAsEntityBody("src/test/resources/datafiles/test.tmp");
+
+    //Create an array to hold all the body parts.
+    mime:Entity[] bodyParts = [bodyPart1, bodyPart2, bodyPart3, bodyPart4];
+    mime:Entity multipartEntity = new;
+    string contentType = mime:MULTIPART_MIXED + "; boundary=e3a0b9ad7b4e7cdt";
+    multipartEntity.setBodyParts(bodyParts, contentType);
+
+    return multipartEntity.getBodyPartsAsChannel();
+}
+
+function getBodyPartsFromDiscreteTypeEntity() returns mime:Entity[]|error {
+    mime:Entity entity = new;
+    entity.setJson({ "bodyPart": "jsonPart" });
+    return entity.getBodyParts();
+}
+
+function getChannelFromParts() returns @tainted io:ReadableByteChannel|error {
+    mime:Entity entity = new;
+    entity.setJson({ "bodyPart": "jsonPart" });
+    return entity.getBodyPartsAsChannel();
+}
+
+function getChannelFromMultipartEntity() returns @tainted io:ReadableByteChannel|error {
+    mime:Entity bodyPart1 = new;
+    bodyPart1.setJson({ "bodyPart": "jsonPart" });
+
+    mime:Entity bodyPart2 = new;
+    bodyPart2.setText("Ballerina text body part");
+
+    mime:Entity[] bodyParts = [bodyPart1, bodyPart2];
+    mime:Entity multipartEntity = new;
+    multipartEntity.setBodyParts(bodyParts);
+
+    return multipartEntity.getByteChannel();
+}
+
+function getAnyStreamAsStringFromCache(io:ReadableByteChannel byteChannel, string contentType) returns @tainted string|error {
+    mime:Entity entity = new;
+    entity.setByteChannel(byteChannel, contentType);
+    string returnContent;
+    returnContent = check entity.getText();
+    //String body should be retrieved from the cache the second time this is called
+    returnContent = returnContent + check entity.getText();
+    return returnContent;
+}
+
+function testXmlWithByteArrayContent(io:ReadableByteChannel byteChannel, string contentTypeValue) returns @tainted xml|error {
+    mime:Entity entity = new;
+    entity.setByteChannel(byteChannel, contentTypeValue);
+    byte[] binaryPayload = check entity.getByteArray();
+    return entity.getXml();
+}
+
+function getPartsFromInvalidChannel(io:ReadableByteChannel byteChannel, string contentType) returns mime:Entity[]|error {
+    mime:Entity entity = new;
+    entity.setByteChannel(byteChannel, contentType);
+    return entity.getBodyParts();
+}

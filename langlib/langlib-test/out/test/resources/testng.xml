@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+  ~
+  ~ WSO2 Inc. licenses this file to you under the Apache License,
+  ~ Version 2.0 (the "License"); you may not use this file except
+  ~ in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing,
+  ~ software distributed under the License is distributed on an
+  ~ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  ~ KIND, either express or implied. See the License for the
+  ~ specific language governing permissions and limitations
+  ~ under the License.
+  -->
+
+<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
+
+<suite name="ballerina-langlib-test-suite">
+
+    <listeners>
+        <listener class-name="org.ballerinalang.langlib.test.utils.BLogInitializer" />
+        <!--<listener class-name="org.ballerinalang.langlib.test.utils.TestEventListener"/>-->
+    </listeners>
+
+    <test name="lang-lib-test" parallel="false">
+        <parameter name="enableJBallerinaTests" value="true" />
+
+        <classes>
+            <class name="org.ballerinalang.langlib.test.TypeParamTest" />
+            <class name="org.ballerinalang.langlib.test.LangLibStringTest" />
+            <class name="org.ballerinalang.langlib.test.LangLibIntTest" />
+            <class name="org.ballerinalang.langlib.test.LangLibFloatTest" />
+            <class name="org.ballerinalang.langlib.test.LangLibArrayTest" />
+            <class name="org.ballerinalang.langlib.test.LangLibTupleTest" />
+            <class name="org.ballerinalang.langlib.test.LangLibValueTest" />
+            <class name="org.ballerinalang.langlib.test.LangLibDecimalTest" />
+            <class name="org.ballerinalang.langlib.test.LangLibMapTest" />
+            <class name="org.ballerinalang.langlib.test.LangLibRecordTest" />
+            <class name="org.ballerinalang.langlib.test.LangLibTypedescTest" />
+            <class name="org.ballerinalang.langlib.test.LangLibXMLTest" />
+            <class name="org.ballerinalang.langlib.test.LangLibErrorTest" />
+
+            <class name="org.ballerinalang.langlib.test.statements.foreach.ForeachErrorBindingPatternsTests"/>
+            <class name="org.ballerinalang.langlib.test.statements.foreach.ForeachJSONTests"/>
+            <class name="org.ballerinalang.langlib.test.statements.foreach.ForeachNegativeTests"/>
+            <class name="org.ballerinalang.langlib.test.statements.foreach.ForeachJSONTypedBindingPatternsTests"/>
+            <class name="org.ballerinalang.langlib.test.statements.foreach.ForeachArrayTests"/>
+            <class name="org.ballerinalang.langlib.test.statements.foreach.NestedForeachTest"/>
+            <class name="org.ballerinalang.langlib.test.statements.foreach.ForeachXMLTypedBindingPatternsTests"/>
+            <class name="org.ballerinalang.langlib.test.statements.foreach.ForeachXMLTest"/>
+            <class name="org.ballerinalang.langlib.test.statements.foreach.ForeachTableTypedBindingPatternsTests"/>
+            <class name="org.ballerinalang.langlib.test.statements.foreach.ForeachStringTypedBindingPatternsTests"/>
+            <class name="org.ballerinalang.langlib.test.statements.foreach.ForeachMapTypedBindingPatternsTests"/>
+            <class name="org.ballerinalang.langlib.test.statements.foreach.ForeachMapTests"/>
+            <class name="org.ballerinalang.langlib.test.statements.foreach.ForeachComplexTests"/>
+            <class name="org.ballerinalang.langlib.test.statements.foreach.ForeachArrayTypedBindingPatternsTests"/>
+            <class name="org.ballerinalang.langlib.test.statements.foreach.ForeachTupleTests"/>
+            <class name="org.ballerinalang.langlib.test.statements.foreach.ForeachRecordTypedBindingPatternsTests"/>
+        </classes>
+    </test>
+</suite>

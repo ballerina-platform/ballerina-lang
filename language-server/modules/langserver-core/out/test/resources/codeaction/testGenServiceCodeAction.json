@@ -1,0 +1,24 @@
+{
+    "cursor": [
+        {
+            "line": 4,
+            "character": 23
+        },
+        {
+            "line": 9,
+            "character": 20
+        },
+        {
+            "line": 14,
+            "character": 20
+        },
+        {
+            "line": 24,
+            "character": 20
+        }
+    ],
+    "expected": {
+        "title": "Create Test For Service",
+        "command": "CREATE_TEST"
+    }
+}

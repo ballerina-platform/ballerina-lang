@@ -1,0 +1,4 @@
+[project]
+org-name = "successcase1"
+# Name of the package
+version = "1.5.2"

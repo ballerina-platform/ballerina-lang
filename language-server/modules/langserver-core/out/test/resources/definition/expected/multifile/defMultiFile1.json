@@ -1,0 +1,25 @@
+{
+  "source": {
+    "dir": "src/module1/dir2",
+    "file": "dir2Fl2.bal"
+  },
+  "position": {
+    "line": 3,
+    "character": 16
+  },
+  "result": [
+    {
+      "range": {
+        "start": {
+          "line": 0,
+          "character": 9
+        },
+        "end": {
+          "line": 0,
+          "character": 32
+        }
+      },
+      "uri": "src/module1/dir2/dir4/dir4fl1.bal"
+    }
+  ]
+}

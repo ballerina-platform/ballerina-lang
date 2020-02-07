@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+
+{{> head }}
+
+<body class="cBallerina-io">
+    {{> bioBody }}
+    <div class="navi-wrapper">
+        <div class="navi-wrapper-content">
+            {{> logo }}
+            <div class="primary-list">
+                <h3>Types</h3>
+                <ul>
+                    {{#each module.unionTypes}}
+                        <li {{#equals unionTypes.name name}}class="active"{{/equals}}>
+                            <a href="#{{name}}">{{name}}</a>
+                        </li>
+                    {{/each}}
+                </ul>
+            </div>
+            <div class="ui divider"></div>
+            {{> currentModule }}
+            {{> allModules }}
+        </div>
+    </div>
+
+    <div class="ui vertical sidebar menu">
+        <div class="navi-wrapper-sidebar">
+            <div class="navi-wrapper-content">
+                {{> logo }}
+                <div class="primary-list">
+                    <h3>Types</h3>
+                    <ul>
+                        {{#each module.unionTypes}}
+                            <li {{#equals unionTypes.name name}}class="active"{{/equals}}>
+                                <a href="#{{name}}">{{name}}</a>
+                            </li>
+                        {{/each}}
+                    </ul>
+                </div>
+                <div class="ui divider"></div>
+                {{> currentModule }}
+                {{> allModules }}
+            </div>
+        </div>
+    </div>
+    
+    <div class="content-wrapper pusher">
+        {{> mobMenu }}
+        <div class="main-wrapper">
+             <h1>
+                 {{> breadcrumb }}
+                 <span class="title-type">Types - </span>
+                 {{#if project.isSingleFile}}
+                     {{project.sourceFileName}}
+                 {{else}}
+                     <a href="{{ rootPath }}{{module.id}}/index.html">{{module.id}}</a>
+                 {{/if}}
+            </h1>
+            <div class="types">
+                <div class="data-wrapper">
+                    {{#each types}}
+                        <div class="params-listing">
+                            <ul>
+                                <li id="{{ name }}"><b>{{ name }}</b><span class="type">  {{{ unionTypeSummary
+                                        memberTypes }}}</span></li>
+                                <li>
+                                    {{{ description }}}
+                                </li>
+                            </ul>
+                        </div>
+                    {{/each}}
+                    {{#each module.finiteTypes }}
+                        <div class="params-listing">
+                            <ul>
+                                <li id="{{ name }}"><b>{{ name }}</b><span class="type">  {{{ pipeJoin valueSpace }}}</span></li>
+                                <li>
+                                    {{{ description }}}
+                                </li>
+                            </ul>
+                        </div>
+                    {{/each}}
+                </div>
+            </div>
+        </div>
+    </div>
+
+</body>
+
+{{> footer }}

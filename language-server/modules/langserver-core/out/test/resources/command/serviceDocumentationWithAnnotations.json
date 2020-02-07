@@ -1,0 +1,30 @@
+{
+  "nodeType": "SERVICE",
+  "nodeLine": "5",
+  "expected": {
+    "result":{
+      "edit":{
+        "documentChanges":[
+          {
+            "edits":[
+              {
+                "range":{
+                  "start":{
+                    "line":2,
+                    "character":0
+                  },
+                  "end":{
+                    "line":2,
+                    "character":0
+                  }
+                },
+                "newText":"# Description\n"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "jsonrpc":"2.0"
+  }
+}

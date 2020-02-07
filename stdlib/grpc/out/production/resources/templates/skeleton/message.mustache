@@ -1,0 +1,10 @@
+public type {{messageName}} record {|
+    {{#fieldList}}{{fieldType}}{{fieldLabel}} {{{fieldName}}}{{#if defaultValue}} = {{defaultValue}}{{/if}};
+    {{/fieldList}}{{#each oneofFieldMap as |value key|}}{{camelcase @key}} {{@key}};
+    {{/each}}
+|};
+{{#each oneofFieldMap}}
+{{> oneoffield}}{{/each}}
+{{#enumList}}
+{{> enum}}{{/enumList}}{{#if this.nestedMessageList}}{{#each this.nestedMessageList}}
+{{> message}}{{/each}}{{/if}}

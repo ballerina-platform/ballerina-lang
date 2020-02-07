@@ -1,0 +1,16 @@
+{
+  "position": {
+    "line": 1,
+    "character": 30
+  },
+  "source": "function/source/externalKeywordSuggestion1.bal",
+  "items": [
+    {
+      "label": "external",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "insertText": "external;",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

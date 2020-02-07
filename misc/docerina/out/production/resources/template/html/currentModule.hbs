@@ -1,0 +1,57 @@
+<div class="primary-list module">
+    {{#if project.isSingleFile}}
+        <h3>{{project.sourceFileName}}</h3>
+    {{else}}
+        <a href="{{ rootPath }}{{ module.id }}/index.html">
+            <h3>{{module.id}}</h3>
+        </a>
+    {{/if}}
+    <ul>
+        {{#if module.records}}
+        <li>
+            <a data="records" href="{{ ../rootPath }}{{ ../module.id }}/index.html#records">Records</a>
+        </li>
+        {{/if}}
+        {{#if module.objects}}
+            <li>
+                <a  data="objects" href="{{ ../rootPath }}{{ ../module.id }}/index.html#objects">Objects</a>
+            </li>
+        {{/if}}
+        {{#if module.clients}}
+            <li>
+                <a data="clients" href="{{ ../rootPath }}{{ ../module.id }}/index.html#clients">Clients</a>
+            </li>
+        {{/if}}
+        {{#if module.listeners}}
+            <li>
+                <a data="listeners" href="{{ ../rootPath }}{{ ../module.id }}/index.html#listeners">Listeners</a>
+            </li>
+        {{/if}}
+        {{#if module.functions}}
+            <li>
+                <a data="functions" href="{{ ../rootPath }}{{ ../module.id }}/index.html#functions">Functions</a>
+            </li>
+        {{/if}}
+        {{#if module.constants}}
+            <li>
+                <a data="constants" href="{{ ../rootPath }}{{ ../module.id }}/index.html#constants">Constants</a>
+            </li>
+        {{/if}}
+        {{#if module.annotations}}
+            <li>
+                <a data="annotations" href="{{ ../rootPath }}{{ ../module.id }}/index.html#annotations">Annotations</a>
+            </li>
+        {{/if}}
+        {{#if module.unionTypes}}
+            <li>
+                <a data="types" href="{{ ../rootPath }}{{ ../module.id }}/index.html#types">Types</a>
+            </li>
+        {{/if}}
+        {{#if module.errors}}
+            <li>
+                <a data="errors" href="{{ ../rootPath }}{{ ../module.id }}/index.html#errors">Errors</a>
+            </li>
+        {{/if}}
+    </ul>
+    <div class="ui divider"></div>
+</div>

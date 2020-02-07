@@ -1,0 +1,14 @@
+<div class="primary-list module-list">
+    {{#if project.isSingleFile}}
+    {{else}}
+        <h3>All Modules</h3>
+        <ul>
+            {{#each project.modules}}
+                <li>
+                    <a href="{{ ../rootPath }}{{id}}/index.html">{{id}}</a>
+                </li>
+            {{/each}}
+        </ul>
+        <div class="ui divider"></div>
+    {{/if}}
+</div>

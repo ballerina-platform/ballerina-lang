@@ -1,0 +1,17 @@
+{
+  "position": {
+    "line": 1,
+    "character": 25
+  },
+  "source": "function/source/returnParameterContextSuggestion4.bal",
+  "items": [
+    {
+      "label": "returns",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "220",
+      "insertText": "returns ",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "position": {
+    "line": 15,
+    "character": 10
+  },
+  "source": "function/source/objectAttachFunctionImpl2.bal",
+  "items": [
+    {
+      "label": "Person",
+      "kind": "Class",
+      "detail": "Object",
+      "insertText": "Person.",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

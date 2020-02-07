@@ -1,0 +1,25 @@
+{
+  "position": {
+    "line": 9,
+    "character": 23
+  },
+  "source": "worker/source/workerSendSyncCompletion1.bal",
+  "items": [
+    {
+      "label": "w1",
+      "kind": "Variable",
+      "detail": "future<()>",
+      "sortText": "130",
+      "insertText": "w1",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "w2",
+      "kind": "Variable",
+      "detail": "future<()>",
+      "sortText": "130",
+      "insertText": "w2",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}
