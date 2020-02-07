@@ -41,17 +41,18 @@ public class BallerinaKafkaDeserializer implements Deserializer {
     public void configure(Map configs, boolean isKey) {
         this.runtime = (BRuntime) configs.get(BALLERINA_STRAND);
         if (isKey) {
-            this.deserializerObject = (ObjectValue) configs.get(KafkaConstants.CONSUMER_KEY_DESERIALIZER_TYPE_CONFIG);
+            this.deserializerObject = (ObjectValue) configs.get(KafkaConstants.CONSUMER_KEY_DESERIALIZER_CONFIG);
         } else {
-            this.deserializerObject = (ObjectValue) configs.get(KafkaConstants.CONSUMER_VALUE_DESERIALIZER_TYPE_CONFIG);
+            this.deserializerObject = (ObjectValue) configs.get(KafkaConstants.CONSUMER_VALUE_DESERIALIZER_CONFIG);
         }
     }
 
     @Override
     public Object deserialize(String topic, byte[] data) {
         BArray bData = BValueCreator.createArrayValue(data);
-        return this.runtime.getSyncMethodInvokeResult(this.deserializerObject,
-                                                      KafkaConstants.FUNCTION_DESERIALIZE, bData, false);
+        Object[] args = new Object[]{bData, false};
+        return this.runtime.getSyncMethodInvokeResult(this.deserializerObject, KafkaConstants.FUNCTION_DESERIALIZE,
+                                                      args);
     }
 
     @Override

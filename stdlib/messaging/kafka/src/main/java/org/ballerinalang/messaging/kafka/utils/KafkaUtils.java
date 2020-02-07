@@ -550,8 +550,10 @@ public class KafkaUtils {
             } else {
                 throw new BLangRuntimeException("Invalid type - expected: float");
             }
+        } else if (SERDES_CUSTOM.equals(type)) {
+            return value;
         }
-        throw new BLangRuntimeException("Unexpected type");
+        throw createKafkaError("Unexpected type found for consumer record");
     }
 
     public static MapValue<String, Object> getConsumerRecord() {
