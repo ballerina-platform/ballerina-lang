@@ -23,6 +23,7 @@ import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
@@ -357,8 +358,12 @@ public class FunctionGenerator {
     private static String generateTypeDefinition(BiConsumer<String, String> importsAcceptor,
                                                  PackageID currentPkgId, BTypeSymbol tSymbol) {
         if (tSymbol != null) {
-            String pkgPrefix = CommonUtil.getPackagePrefix(importsAcceptor, currentPkgId, tSymbol.pkgID);
-            return pkgPrefix + tSymbol.name.getValue();
+            if (tSymbol instanceof BInvokableTypeSymbol) {
+                return tSymbol.type.toString();
+            } else {
+                String pkgPrefix = CommonUtil.getPackagePrefix(importsAcceptor, currentPkgId, tSymbol.pkgID);
+                return pkgPrefix + tSymbol.name.getValue();
+            }
         }
         return "any";
     }
