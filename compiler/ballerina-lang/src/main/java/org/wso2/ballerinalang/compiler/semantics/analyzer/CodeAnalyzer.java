@@ -1968,7 +1968,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                     || kind == NodeKind.WORKER_SEND || kind == NodeKind.WAIT_EXPR
                     || kind == NodeKind.GROUP_EXPR || kind == NodeKind.TRAP_EXPR) {
                 parent = parent.parent;
-                if (parent.getKind() == NodeKind.BLOCK) {
+                if (parent.getKind() == NodeKind.BLOCK || parent.getKind() == NodeKind.BLOCK_FUNCTION_BODY) {
                     return;
                 }
                 continue;

@@ -1894,9 +1894,9 @@ public class BLangPackageBuilder {
 
     private BLangSimpleVariableDef getLastVarDefStmtFromBlock() {
         BLangSimpleVariableDef variableDef = null;
-        if (!this.funcBodyNodeStack.isEmpty()) {
+        if (!this.sequenceStmtStack.isEmpty()) {
             List<? extends StatementNode> stmtsAdded =
-                    ((BLangBlockFunctionBody) this.funcBodyNodeStack.peek()).getStatements();
+                    this.sequenceStmtStack.peek().getStatements();
             if (stmtsAdded.get(stmtsAdded.size() - 1) instanceof BLangSimpleVariableDef) {
                 variableDef = (BLangSimpleVariableDef) stmtsAdded.get(stmtsAdded.size() - 1);
             }
