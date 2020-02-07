@@ -114,6 +114,7 @@ public enum NodeKind {
     DOCUMENTATION_REFERENCE,
     SERVICE_CONSTRUCTOR,
     STREAM_CONSTRUCTOR,
+    LET_EXPR,
 
     /* Statements */
     ABORT,

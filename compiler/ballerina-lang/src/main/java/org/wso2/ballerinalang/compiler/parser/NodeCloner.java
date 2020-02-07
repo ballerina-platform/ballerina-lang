@@ -75,6 +75,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIsAssignableExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIsLikeExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangLetExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownDocumentationLine;
@@ -968,6 +969,14 @@ class NodeCloner extends BLangNodeVisitor {
         clone.expression = clone(source.expression);
         clone.isTypedescExpr = source.isTypedescExpr;
         clone.typedescType = source.typedescType;
+    }
+
+    @Override
+    public void visit(BLangLetExpression source) {
+        BLangLetExpression clone = new BLangLetExpression();
+        source.cloneRef = clone;
+        clone.letVarDeclarations = source.letVarDeclarations;
+        clone.expr = source.expr;
     }
 
     @Override

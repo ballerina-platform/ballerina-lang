@@ -1479,6 +1479,51 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     }
 
     @Override
+    public void enterLetExpression(BallerinaParser.LetExpressionContext ctx) {
+        if (isInErrorState) {
+            return;
+        }
+
+        this.pkgBuilder.startVarList();
+    }
+
+    @Override
+    public void enterLetExpr(BallerinaParser.LetExprContext ctx) {
+        if (isInErrorState) {
+            return;
+        }
+
+        this.pkgBuilder.startVarList();
+    }
+
+    @Override
+    public void exitLetExpression(BallerinaParser.LetExpressionContext ctx) {
+        if (isInErrorState) {
+            return;
+        }
+
+        this.pkgBuilder.addLetExpression();
+    }
+
+    @Override
+    public void exitLetVarDecl(BallerinaParser.LetVarDeclContext ctx) {
+        if (isInErrorState) {
+            return;
+        }
+
+        boolean isDeclaredWithVar = ctx.VAR() != null;
+        boolean isExpressionAvailable = ctx.expression() != null;
+
+        // TODO : extend this for other binding patterns
+        if (ctx.bindingPattern().Identifier() != null) {
+            this.pkgBuilder.addSimpleVariable(getCurrentPos(ctx), getWS(ctx),
+                    ctx.bindingPattern().Identifier().getText(),
+                    getCurrentPos(ctx.bindingPattern().Identifier()),
+                    isExpressionAvailable, isDeclaredWithVar);
+        }
+    }
+
+    @Override
     public void exitTypeInitExpr(BallerinaParser.TypeInitExprContext ctx) {
         if (isInErrorState) {
             return;
