@@ -52,4 +52,9 @@ public class BLangSelectClause extends BLangNode implements SelectClauseNode {
     public void setExpression(ExpressionNode expression) {
         this.expression = (BLangExpression) expression;
     }
+
+    @Override
+    public String toString() {
+        return "select " + expression;
+    }
 }

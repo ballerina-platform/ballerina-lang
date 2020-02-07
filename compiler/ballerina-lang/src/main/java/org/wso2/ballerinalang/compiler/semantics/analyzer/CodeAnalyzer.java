@@ -137,6 +137,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchBind
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStaticBindingPatternClause;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStructuredBindingPatternClause;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangPanic;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangQueryAction;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRetry;
@@ -1151,6 +1152,11 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         this.resetLastStatement();
         this.loopWithintransactionCheckStack.pop();
         analyzeExpr(foreach.collection);
+    }
+
+    @Override
+    public void visit(BLangQueryAction queryAction) {
+        /* ignore */
     }
 
     @Override

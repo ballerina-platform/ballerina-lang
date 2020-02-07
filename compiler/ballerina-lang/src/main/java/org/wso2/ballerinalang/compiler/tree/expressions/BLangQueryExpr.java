@@ -80,9 +80,4 @@ public class BLangQueryExpr extends BLangExpression implements QueryExpressionNo
     public void accept(BLangNodeVisitor visitor) {
         visitor.visit(this);
     }
-
-/*    @Override
-    public String toString() {
-        return String.valueOf(lhsExpr) + " " + String.valueOf(opKind) + " " + String.valueOf(rhsExpr);
-    }*/
 }

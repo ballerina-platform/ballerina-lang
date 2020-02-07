@@ -2579,13 +2579,13 @@ public class TypeChecker extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangQueryExpr queryExpr) {
-        List<? extends FromClauseNode> fromClauseList = queryExpr.getFromClauseNodes();
-        List<? extends WhereClauseNode> whereClauseList = queryExpr.getWhereClauseNode();
+        List<? extends FromClauseNode> fromClauseList = queryExpr.fromClauseList;
+        List<? extends WhereClauseNode> whereClauseList = queryExpr.whereClauseList;
         SymbolEnv parentEnv = env;
         for (FromClauseNode fromClause : fromClauseList) {
             parentEnv = typeCheckFromClause((BLangFromClause) fromClause, parentEnv);
         }
-        BLangSelectClause selectClause = (BLangSelectClause) queryExpr.getSelectClauseNode();
+        BLangSelectClause selectClause = queryExpr.selectClause;
         SymbolEnv whereEnv = parentEnv;
         for (WhereClauseNode whereClauseNode : whereClauseList) {
             whereEnv = typeCheckWhereClause((BLangWhereClause) whereClauseNode, selectClause, parentEnv);
@@ -2593,8 +2593,8 @@ public class TypeChecker extends BLangNodeVisitor {
         checkExpr(selectClause.expression, whereEnv);
     }
 
-    private SymbolEnv typeCheckFromClause(BLangFromClause fromClause, SymbolEnv parentEnv) {
-        checkExpr(fromClause.collection, env);
+    SymbolEnv typeCheckFromClause(BLangFromClause fromClause, SymbolEnv parentEnv) {
+        checkExpr(fromClause.collection, parentEnv);
 
         // Set the type of the foreach node's type node.
         types.setFromClauseTypedBindingPatternType(fromClause);
@@ -2605,7 +2605,7 @@ public class TypeChecker extends BLangNodeVisitor {
         return fromClauseEnv;
     }
 
-    private SymbolEnv typeCheckWhereClause(BLangWhereClause whereClause, BLangSelectClause selectClause,
+    SymbolEnv typeCheckWhereClause(BLangWhereClause whereClause, BLangSelectClause selectClause,
                                            SymbolEnv parentEnv) {
         checkExpr(whereClause.expression, parentEnv);
         return typeNarrower.evaluateTruth(whereClause.expression, selectClause, parentEnv);

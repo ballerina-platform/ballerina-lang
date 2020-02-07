@@ -70,6 +70,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangTupleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangDoClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhereClause;
@@ -147,6 +148,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStaticBindingPatternClause;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStructuredBindingPatternClause;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangPanic;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangQueryAction;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRetry;
@@ -253,6 +255,8 @@ public class BLangPackageBuilder {
     private Stack<BLangSelectClause> selectClauseNodeStack = new Stack<>();
 
     private Stack<BLangWhereClause> whereClauseNodeStack = new Stack<>();
+
+    private Stack<BLangDoClause> doClauseNodeStack = new Stack<>();
 
     private Stack<TransactionNode> transactionNodeStack = new Stack<>();
 
@@ -1764,6 +1768,39 @@ public class BLangPackageBuilder {
         whereClauseNodeStack.push(whereClause);
     }
 
+    void startDoActionStatement() {
+        startBlock();
+    }
+
+    void createDoClause(DiagnosticPos pos, Set<Whitespace> ws) {
+        BLangDoClause doClause = (BLangDoClause) TreeBuilder.createDoClauseNode();
+        doClause.addWS(ws);
+        doClause.pos = pos;
+        BlockNode blockNode = blockNodeStack.pop();
+        ((BLangBlockStmt) blockNode).pos = pos;
+        doClause.setBody(blockNode);
+        doClause.addWS(ws);
+        doClauseNodeStack.push(doClause);
+    }
+
+    void createQueryActionStatement(DiagnosticPos pos, Set<Whitespace> ws) {
+        BLangQueryAction queryAction = (BLangQueryAction) TreeBuilder.createQueryActionStatementNode();
+        queryAction.pos = pos;
+        queryAction.addWS(ws);
+
+        Collections.reverse(fromClauseNodeStack);
+        while (fromClauseNodeStack.size() > 0) {
+            queryAction.addFromClauseNode(fromClauseNodeStack.pop());
+        }
+
+        Collections.reverse(whereClauseNodeStack);
+        while (whereClauseNodeStack.size() > 0) {
+            queryAction.addWhereClauseNode(whereClauseNodeStack.pop());
+        }
+
+        queryAction.setDoClauseNode(doClauseNodeStack.pop());
+        addStmtToCurrentBlock(queryAction);
+    }
 
     void endFunctionDef(DiagnosticPos pos, Set<Whitespace> ws, boolean publicFunc, boolean remoteFunc,
                         boolean nativeFunc, boolean privateFunc, boolean bodyExists, boolean isLambda) {
