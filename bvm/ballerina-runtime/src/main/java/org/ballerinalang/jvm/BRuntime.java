@@ -65,21 +65,10 @@ public class BRuntime {
         scheduler.schedule(new Object[1], func, null, null);
     }
 
-    public FutureValue getAsyncMethodInvokeResult(ObjectValue object, String methodName, Object... args) {
-        Function<?, ?> func = o -> object.call((Strand) (((Object[]) o)[0]), methodName, args);
-        return scheduler.schedule(new Object[1], func, null, null);
-    }
-
     public void invokeMethodAsync(ObjectValue object, String methodName,
                                   CallableUnitCallback callback, Object... args) {
         Function<?, ?> func = o -> object.call((Strand) (((Object[]) o)[0]), methodName, args);
         scheduler.schedule(new Object[1], func, null, callback);
-    }
-
-    public FutureValue getAsyncMethodInvokeResult(ObjectValue object, String methodName,
-                                                  CallableUnitCallback callback, Object... args) {
-        Function<?, ?> func = o -> object.call((Strand) (((Object[]) o)[0]), methodName, args);
-        return scheduler.schedule(new Object[1], func, null, callback);
     }
 
     public void invokeMethodAsync(ObjectValue object, String methodName,

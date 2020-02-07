@@ -304,6 +304,9 @@ function sendStringValues(Producer producer, handle value, handle topic, any? ke
         }
         panic getKeyTypeMismatchError(BYTE_ARRAY);
     }
+    if (keySerializerType == SER_CUSTOM) {
+        return producerSendStringAny(producer, value, topic, key, partition, timestamp);
+    }
 }
 
 function sendIntValues(Producer producer, int value, handle topic, any? key, int? partition, int? timestamp,
@@ -335,6 +338,9 @@ function sendIntValues(Producer producer, int value, handle topic, any? key, int
             return producerSendIntByteArray(producer, value, topic, key, partition, timestamp);
         }
         panic getKeyTypeMismatchError(BYTE_ARRAY);
+    }
+    if (keySerializerType == SER_CUSTOM) {
+        return producerSendIntAny(producer, value, topic, key, partition, timestamp);
     }
 }
 
@@ -368,6 +374,9 @@ function sendFloatValues(Producer producer, float value, handle topic, any? key,
         }
         panic getKeyTypeMismatchError(BYTE_ARRAY);
     }
+    if (keySerializerType == SER_CUSTOM) {
+        return producerSendFloatAny(producer, value, topic, key, partition, timestamp);
+    }
 }
 
 function sendByteArrayValues(Producer producer, byte[] value, handle topic, any? key, int? partition, int? timestamp,
@@ -400,6 +409,9 @@ function sendByteArrayValues(Producer producer, byte[] value, handle topic, any?
         }
         panic getKeyTypeMismatchError(BYTE_ARRAY);
     }
+    if (keySerializerType == SER_CUSTOM) {
+        return producerSendByteArrayAny(producer, value, topic, key, partition, timestamp);
+    }
 }
 
 function sendCustomValues(Producer producer, any value, handle topic, any? key, int? partition, int? timestamp,
@@ -431,6 +443,9 @@ function sendCustomValues(Producer producer, any value, handle topic, any? key, 
             return producerSendAnyByteArray(producer, value, topic, key, partition, timestamp);
         }
         panic getKeyTypeMismatchError(BYTE_ARRAY);
+    }
+    if (keySerializerType == SER_CUSTOM) {
+        return producerSendAnyAny(producer, value, topic, key, partition, timestamp);
     }
 }
 
@@ -523,6 +538,15 @@ function producerSendStringByteArray(Producer producer, handle value, handle top
                 "org.ballerinalang.jvm.values.ArrayValue", "java.lang.Object", "java.lang.Object"]
 } external;
 
+function producerSendStringAny(Producer producer, handle value, handle topic, any key, int? partition = (),
+    int? timestamp = ()) returns ProducerError? =
+@java:Method {
+    name: "send",
+    class: "org.ballerinalang.messaging.kafka.nativeimpl.producer.SendAnyKeys",
+    paramTypes: ["org.ballerinalang.jvm.values.ObjectValue", "java.lang.String", "java.lang.String", "java.lang.Object",
+                 "java.lang.Object", "java.lang.Object"]
+} external;
+
 // Send int values with different types of keys
 function producerSendInt(Producer producer, int value, handle topic, int? partition = (), int? timestamp = ())
 returns ProducerError? =
@@ -567,6 +591,15 @@ function producerSendIntByteArray(Producer producer, int value, handle topic, by
     class: "org.ballerinalang.messaging.kafka.nativeimpl.producer.Send",
     paramTypes: ["org.ballerinalang.jvm.values.ObjectValue", "long", "java.lang.String",
                 "org.ballerinalang.jvm.values.ArrayValue", "java.lang.Object", "java.lang.Object"]
+} external;
+
+function producerSendIntAny(Producer producer, int value, handle topic, any key, int? partition = (),
+    int? timestamp = ()) returns ProducerError? =
+@java:Method {
+    name: "send",
+    class: "org.ballerinalang.messaging.kafka.nativeimpl.producer.SendAnyKeys",
+    paramTypes: ["org.ballerinalang.jvm.values.ObjectValue", "long", "java.lang.String", "java.lang.Object",
+                 "java.lang.Object", "java.lang.Object"]
 } external;
 
 // Send float values with different types of keys
@@ -615,6 +648,15 @@ function producerSendFloatByteArray(Producer producer, float value, handle topic
                 "org.ballerinalang.jvm.values.ArrayValue", "java.lang.Object", "java.lang.Object"]
 } external;
 
+function producerSendFloatAny(Producer producer, float value, handle topic, any key, int? partition = (),
+    int? timestamp = ()) returns ProducerError? =
+@java:Method {
+    name: "send",
+    class: "org.ballerinalang.messaging.kafka.nativeimpl.producer.SendAnyKeys",
+    paramTypes: ["org.ballerinalang.jvm.values.ObjectValue", "double", "java.lang.String", "java.lang.Object",
+                 "java.lang.Object", "java.lang.Object"]
+} external;
+
 // Send byte[] values with different types of keys
 function producerSendByteArray(Producer producer, byte[] value, handle topic, int? partition = (), int? timestamp = ())
 returns ProducerError? =
@@ -661,12 +703,21 @@ function producerSendByteArrayByteArray(Producer producer, byte[] value, handle 
                 "java.lang.String", "org.ballerinalang.jvm.values.ArrayValue", "java.lang.Object", "java.lang.Object"]
 } external;
 
+function producerSendByteArrayAny(Producer producer, byte[] value, handle topic, any key, int? partition = (),
+    int? timestamp = ()) returns ProducerError? =
+@java:Method {
+    name: "send",
+    class: "org.ballerinalang.messaging.kafka.nativeimpl.producer.SendAnyKeys",
+    paramTypes: ["org.ballerinalang.jvm.values.ObjectValue", "org.ballerinalang.jvm.values.ArrayValue",
+                "java.lang.String", "java.lang.Object", "java.lang.Object", "java.lang.Object"]
+} external;
+
 // Send custom type values with different types of keys
 function producerSendAny(Producer producer, any value, handle topic, int? partition = (), int? timestamp = ())
 returns ProducerError? =
 @java:Method {
     name: "send",
-    class: "org.ballerinalang.messaging.kafka.nativeimpl.producer.SendAny",
+    class: "org.ballerinalang.messaging.kafka.nativeimpl.producer.SendAnyValues",
     paramTypes: ["org.ballerinalang.jvm.values.ObjectValue", "java.lang.Object", "java.lang.String", "java.lang.Object",
                  "java.lang.Object"]
 } external;
@@ -675,7 +726,7 @@ function producerSendAnyString(Producer producer, any value, handle topic, handl
     int? timestamp = ()) returns ProducerError? =
 @java:Method {
     name: "send",
-    class: "org.ballerinalang.messaging.kafka.nativeimpl.producer.SendAny",
+    class: "org.ballerinalang.messaging.kafka.nativeimpl.producer.SendAnyValues",
     paramTypes: ["org.ballerinalang.jvm.values.ObjectValue", "java.lang.Object", "java.lang.String", "java.lang.String",
                  "java.lang.Object", "java.lang.Object"]
 } external;
@@ -684,7 +735,7 @@ function producerSendAnyInt(Producer producer, any value, handle topic, int key,
     int? timestamp = ()) returns ProducerError? =
 @java:Method {
     name: "send",
-    class: "org.ballerinalang.messaging.kafka.nativeimpl.producer.SendAny",
+    class: "org.ballerinalang.messaging.kafka.nativeimpl.producer.SendAnyValues",
     paramTypes: ["org.ballerinalang.jvm.values.ObjectValue", "java.lang.Object", "java.lang.String", "long",
                  "java.lang.Object", "java.lang.Object"]
 } external;
@@ -693,7 +744,7 @@ function producerSendAnyFloat(Producer producer, any value, handle topic, float 
     int? timestamp = ()) returns ProducerError? =
 @java:Method {
     name: "send",
-    class: "org.ballerinalang.messaging.kafka.nativeimpl.producer.SendAny",
+    class: "org.ballerinalang.messaging.kafka.nativeimpl.producer.SendAnyValues",
     paramTypes: ["org.ballerinalang.jvm.values.ObjectValue", "java.lang.Object", "java.lang.String", "double",
                  "java.lang.Object", "java.lang.Object"]
 } external;
@@ -702,7 +753,16 @@ function producerSendAnyByteArray(Producer producer, any value, handle topic, by
     int? timestamp = ()) returns ProducerError? =
 @java:Method {
     name: "send",
-    class: "org.ballerinalang.messaging.kafka.nativeimpl.producer.SendAny",
+    class: "org.ballerinalang.messaging.kafka.nativeimpl.producer.SendAnyValues",
     paramTypes: ["org.ballerinalang.jvm.values.ObjectValue", "java.lang.Object", "java.lang.String",
                  "org.ballerinalang.jvm.values.ArrayValue", "java.lang.Object", "java.lang.Object"]
+} external;
+
+function producerSendAnyAny(Producer producer, any value, handle topic, any key, int? partition = (),
+    int? timestamp = ()) returns ProducerError? =
+@java:Method {
+    name: "sendAnyAny",
+    class: "org.ballerinalang.messaging.kafka.nativeimpl.producer.SendAnyKeys",
+    paramTypes: ["org.ballerinalang.jvm.values.ObjectValue", "java.lang.Object", "java.lang.String", "java.lang.Object",
+                 "java.lang.Object", "java.lang.Object"]
 } external;

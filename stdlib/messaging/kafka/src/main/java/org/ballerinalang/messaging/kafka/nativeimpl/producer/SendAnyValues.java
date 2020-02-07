@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -30,12 +30,12 @@ import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.getIntValue;
 import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.getLongValue;
 
 /**
- * Native methods to send {@code anydata} values and with different types ofkeys to Kafka broker from ballerina kafka
+ * Native methods to send {@code any} values and with different types of keys to Kafka broker from ballerina kafka
  * producer.
  */
-public class SendAny {
-
-    private static final Logger logger = LoggerFactory.getLogger(SendAny.class);
+public class SendAnyValues {
+    // TODO: This class should be merged with "Send" when #20918 is fixed.
+    private static final Logger logger = LoggerFactory.getLogger(SendAnyValues.class);
 
     /* *********************************************************************** *
      *          Send records with value of type any (custom)                   *
