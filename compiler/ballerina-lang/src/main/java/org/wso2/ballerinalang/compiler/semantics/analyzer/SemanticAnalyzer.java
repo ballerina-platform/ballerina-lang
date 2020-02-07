@@ -92,6 +92,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangLetExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
@@ -1619,6 +1620,10 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
 
         analyzeDef(varDefNode.var, env);
+    }
+
+    public void visit(BLangLetExpression letExpression) {
+        analyzeDef(letExpression, env);
     }
 
     public void visit(BLangRecordVariableDef varDefNode) {
