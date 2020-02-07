@@ -2858,22 +2858,19 @@ public class Desugar extends BLangNodeVisitor {
         }
 
         // Desugar transaction code, on retry and on abort code to separate functions.
-        BLangLambdaFunction trxMainFunc = createLambdaFunction(pos, "$anonTrxMainFunc$",
-                                                               Collections.emptyList(),
-                                                               trxReturnNode,
-                                                               rewrite(transactionNode.transactionBody.stmts, env));
-        BLangLambdaFunction trxOnRetryFunc = createLambdaFunction(pos, "$anonTrxOnRetryFunc$",
-                                                                  Collections.emptyList(),
-                                                                  otherReturnNode,
-                                                                  rewrite(transactionNode.onRetryBody.stmts, env));
+        BLangLambdaFunction trxMainFunc = createLambdaFunction(pos, "$anonTrxMainFunc$", Collections.emptyList(),
+                                                               trxReturnNode, transactionNode.transactionBody.stmts,
+                                                               env, transactionNode.transactionBody.scope);
+        BLangLambdaFunction trxOnRetryFunc = createLambdaFunction(pos, "$anonTrxOnRetryFunc$", Collections.emptyList(),
+                                                                  otherReturnNode, transactionNode.onRetryBody.stmts,
+                                                                  env, transactionNode.onRetryBody.scope);
         BLangLambdaFunction trxCommittedFunc = createLambdaFunction(pos, "$anonTrxCommittedFunc$",
-                                                                    Collections.emptyList(),
-                                                                    otherReturnNode,
-                                                                    rewrite(transactionNode.committedBody.stmts, env));
-        BLangLambdaFunction trxAbortedFunc = createLambdaFunction(pos, "$anonTrxAbortedFunc$",
-                                                                  Collections.emptyList(),
-                                                                  otherReturnNode,
-                                                                  rewrite(transactionNode.abortedBody.stmts, env));
+                                                                    Collections.emptyList(), otherReturnNode,
+                                                                    transactionNode.committedBody.stmts, env,
+                                                                    transactionNode.committedBody.scope);
+        BLangLambdaFunction trxAbortedFunc = createLambdaFunction(pos, "$anonTrxAbortedFunc$", Collections.emptyList(),
+                                                                  otherReturnNode, transactionNode.abortedBody.stmts,
+                                                                  env, transactionNode.abortedBody.scope);
         trxMainFunc.cachedEnv = env.createClone();
         trxOnRetryFunc.cachedEnv = env.createClone();
         trxCommittedFunc.cachedEnv = env.createClone();
@@ -2928,9 +2925,12 @@ public class Desugar extends BLangNodeVisitor {
 
     private BLangLambdaFunction createLambdaFunction(DiagnosticPos pos, String functionNamePrefix,
                                                      List<BLangSimpleVariable> lambdaFunctionVariable,
-                                                     TypeNode returnType, List<BLangStatement> fnBodyStmts) {
+                                                     TypeNode returnType, List<BLangStatement> fnBodyStmts,
+                                                     SymbolEnv env, Scope trxScope) {
         BLangBlockFunctionBody body = (BLangBlockFunctionBody) TreeBuilder.createBlockFunctionBodyNode();
-        body.stmts = fnBodyStmts;
+        body.scope = trxScope;
+        SymbolEnv bodyEnv = SymbolEnv.createFuncBodyEnv(body, env);
+        body.stmts = rewriteStmt(fnBodyStmts, bodyEnv);
         return createLambdaFunction(pos, functionNamePrefix, lambdaFunctionVariable, returnType, body);
     }
 
@@ -6270,7 +6270,8 @@ public class Desugar extends BLangNodeVisitor {
             if (i > 0 && i % methodSize == 0) {
                 generatedFunctions.add(newFunc);
                 newFunc = createIntermediateInitFunction(packageNode, env);
-                symTable.rootScope.define(names.fromIdNode(newFunc.name) , newFunc.symbol);
+                newFuncBody = (BLangBlockFunctionBody) newFunc.funcBody;
+                symTable.rootScope.define(names.fromIdNode(newFunc.name), newFunc.symbol);
             }
 
             newFuncBody.stmts.add(stmts.get(i));
@@ -6289,6 +6290,7 @@ public class Desugar extends BLangNodeVisitor {
                 if (newFuncBody.stmts.size() + chunkStmts.size() > methodSize) {
                     generatedFunctions.add(newFunc);
                     newFunc = createIntermediateInitFunction(packageNode, env);
+                    newFuncBody = (BLangBlockFunctionBody) newFunc.funcBody;
                     symTable.rootScope.define(names.fromIdNode(newFunc.name), newFunc.symbol);
                 }
                 newFuncBody.stmts.addAll(chunkStmts);

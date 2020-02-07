@@ -382,11 +382,7 @@ public class ClosureDesugar extends BLangNodeVisitor {
             // Note: Although it's illegal to use a closure variable without initializing it in it's declared scope,
             // when we access (initialize) a variable from outer scope, since we desugar transaction block into a
             // lambda invocation, we need to create the `mapSymbol` in the outer node.
-            if (env.node.getKind() == NodeKind.BLOCK) {
-                addMapSymbol((BLangBlockStmt) env.node, blockClosureMapCount);
-            } else if (env.node.getKind() == NodeKind.BLOCK_FUNCTION_BODY) {
-                addMapSymbol((BLangBlockFunctionBody) env.node, blockClosureMapCount);
-            }
+            addMapSymbol(env.node, blockClosureMapCount);
             result = varDefNode;
         }
     }
@@ -398,12 +394,7 @@ public class ClosureDesugar extends BLangNodeVisitor {
      * @return assignment statement created
      */
     private BLangAssignment createAssignment(BLangSimpleVariableDef varDefNode) {
-        BVarSymbol mapSymbol;
-        if (env.node.getKind() == NodeKind.BLOCK_FUNCTION_BODY) {
-            mapSymbol = addMapSymbol((BLangBlockFunctionBody) env.node, blockClosureMapCount);
-        } else {
-            mapSymbol = addMapSymbol((BLangBlockStmt) env.node, blockClosureMapCount);
-        }
+        BVarSymbol mapSymbol = addMapSymbol(env.node, blockClosureMapCount);
 
         // Add the variable to the created map.
         BLangIndexBasedAccess accessExpr =
@@ -415,6 +406,15 @@ public class ClosureDesugar extends BLangNodeVisitor {
         accessExpr.lhsVar = true;
         // Written to: 'map["x"] = 8'.
         return ASTBuilderUtil.createAssignmentStmt(varDefNode.pos, accessExpr, varDefNode.var.expr);
+    }
+
+    private BVarSymbol addMapSymbol(BLangNode node, int closureMapCount) {
+        if (node.getKind() == NodeKind.BLOCK_FUNCTION_BODY) {
+            return addMapSymbol((BLangBlockFunctionBody) node, closureMapCount);
+        } else if (node.getKind() == NodeKind.BLOCK) {
+            return addMapSymbol((BLangBlockStmt) node, closureMapCount);
+        }
+        throw new IllegalArgumentException("Expected a sequence statement, but found: " + node.getKind().toString());
     }
 
     private BVarSymbol addMapSymbol(BLangBlockFunctionBody body, int closureMapCount) {
@@ -811,7 +811,7 @@ public class ClosureDesugar extends BLangNodeVisitor {
                     // Create mapSymbol in outer function node when it contain workers and it's not already created.
                     // We need this to allow worker identifier to be used as a future.
                     if (bLangLambdaFunction.function.flagSet.contains(Flag.WORKER)) {
-                        addMapSymbol((BLangBlockStmt) env.node, blockClosureMapCount);
+                        addMapSymbol(env.node, blockClosureMapCount);
                         enclMapSymbols.putIfAbsent(symbolEnv.envCount, ((BLangBlockStmt) symbolEnv.node).mapSymbol);
                     }
                 }
@@ -822,7 +822,7 @@ public class ClosureDesugar extends BLangNodeVisitor {
                     // Create mapSymbol in outer function node when it contain workers and it's not already created.
                     // We need this to allow worker identifier to be used as a future.
                     if (bLangLambdaFunction.function.flagSet.contains(Flag.WORKER)) {
-                        addMapSymbol((BLangBlockFunctionBody) env.node, blockClosureMapCount);
+                        addMapSymbol(env.node, blockClosureMapCount);
                         enclMapSymbols.putIfAbsent(symbolEnv.envCount,
                                                    ((BLangBlockFunctionBody) symbolEnv.node).mapSymbol);
                     }
