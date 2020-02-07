@@ -28,7 +28,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 
 
 /**
- * Native implementation of lang.stream:reduce(stream<PureType>, function).
+ * Native implementation of lang.stream:reduce(stream&lt;PureType&gt;, function).
  *
  * @since 1.2
  */

@@ -58,6 +58,7 @@ public interface BStream extends BStreamIterator, BRefValue {
      * Combines the members of an stream using a combining function. The combining function takes the combined value so
      * far and a member of the stream, and returns a new combined value.
      *
+     * @param strand The strand
      * @param reduceFunc The function pointer representing the user provided reduce function
      * @param initialValue The initial value of reduce function
      * @return The reduced value
