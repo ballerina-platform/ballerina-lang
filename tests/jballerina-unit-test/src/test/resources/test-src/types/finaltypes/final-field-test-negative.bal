@@ -71,3 +71,9 @@ function testLocalFinalValueWithoutTypeInitializedFromFunction() {
 function getName() returns string {
     return "Ballerina";
 }
+
+listener http:MockListener ml = new http:MockListener(8080);
+
+public function testListenerVariable() {
+    ml = new http:MockListener(8081);
+}
