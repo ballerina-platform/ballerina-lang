@@ -169,6 +169,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     private static final String RIGHT_BRACE = "}";
     private static final String SPACE = " ";
     public static final String COLON = ":";
+    private static final String LISTENER_TYPE_NAME = "lang.object:Listener";
+    private static final String LISTENER_NAME = "listener";
 
     private SymbolTable symTable;
     private SymbolEnter symbolEnter;
@@ -780,6 +782,11 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             case VARIABLE:
                 if (!validateVariableDefinition(varRefExpr)) {
                     rhsType = symTable.semanticError;
+                }
+
+                if (variable.flagSet.contains(Flag.LISTENER) && !types.checkListenerCompatibility(rhsType)) {
+                    dlog.error(varRefExpr.pos, DiagnosticCode.INCOMPATIBLE_TYPES, LISTENER_TYPE_NAME, rhsType);
+                    return;
                 }
 
                 BLangSimpleVariable simpleVariable = (BLangSimpleVariable) variable;
@@ -2305,7 +2312,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         for (BLangExpression attachExpr : serviceNode.attachedExprs) {
             final BType exprType = typeChecker.checkExpr(attachExpr, env);
             if (exprType != symTable.semanticError && !types.checkListenerCompatibility(exprType)) {
-                dlog.error(attachExpr.pos, DiagnosticCode.INCOMPATIBLE_TYPES, Names.LISTENER, exprType);
+                dlog.error(attachExpr.pos, DiagnosticCode.INCOMPATIBLE_TYPES, LISTENER_NAME, exprType);
             } else if (exprType != symTable.semanticError && serviceNode.listenerType == null) {
                 serviceNode.listenerType = exprType;
             } else if (exprType != symTable.semanticError) {
