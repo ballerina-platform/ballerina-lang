@@ -283,6 +283,7 @@ public class BLangPackageBuilder {
     private Stack<Set<Whitespace>> errorMatchPatternWS = new Stack<>();
     private Stack<Set<Whitespace>> simpleMatchPatternWS = new Stack<>();
     private Stack<Set<Whitespace>> recordKeyWS = new Stack<>();
+    private Stack<Set<Whitespace>> inferParamListWSStack = new Stack<>();
 
     private BLangAnonymousModelHelper anonymousModelHelper;
     private CompilerOptions compilerOptions;
@@ -1019,11 +1020,20 @@ public class BLangPackageBuilder {
         BLangArrowFunction arrowFunctionNode = (BLangArrowFunction) TreeBuilder.createArrowFunctionNode();
         arrowFunctionNode.pos = pos;
         arrowFunctionNode.addWS(ws);
+
+        if (!this.inferParamListWSStack.isEmpty()) {
+            arrowFunctionNode.addWS(this.inferParamListWSStack.pop());
+        }
+
         arrowFunctionNode.functionName = createIdentifier(pos, anonymousModelHelper.getNextAnonymousFunctionKey(pkgID),
                 null);
         varListStack.pop().forEach(var -> arrowFunctionNode.params.add((BLangSimpleVariable) var));
         arrowFunctionNode.expression = (BLangExpression) this.exprNodeStack.pop();
         addExpressionNode(arrowFunctionNode);
+    }
+
+    void addWSForInferParamList(Set<Whitespace> ws) {
+        this.inferParamListWSStack.push(ws);
     }
 
     void markLastInvocationAsAsync(DiagnosticPos pos, int numAnnotations) {

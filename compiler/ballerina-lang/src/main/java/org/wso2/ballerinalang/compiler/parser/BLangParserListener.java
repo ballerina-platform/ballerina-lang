@@ -364,6 +364,14 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         this.pkgBuilder.addArrowFunctionDef(getCurrentPos(ctx), getWS(ctx), diagnosticSrc.pkgID);
     }
 
+    @Override public void exitInferParamList(BallerinaParser.InferParamListContext ctx) {
+        if (isInErrorState) {
+            return;
+        }
+
+        this.pkgBuilder.addWSForInferParamList(getWS(ctx));
+    }
+
     @Override
     public void exitInferParam(BallerinaParser.InferParamContext ctx) {
         if (isInErrorState) {
