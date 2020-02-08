@@ -62,6 +62,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangErrorVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangExprFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
+import org.wso2.ballerinalang.compiler.tree.BLangFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangMarkdownDocumentation;
@@ -1822,7 +1823,11 @@ public class BLangPackageBuilder {
         if (!bodyExists) {
             function.funcBody = null;
         } else {
-            function.funcBody.pos = function.pos;
+            function.funcBody = (BLangFunctionBody) this.funcBodyNodeStack.pop();
+
+            if (function.funcBody.getKind() == NodeKind.BLOCK_FUNCTION_BODY) {
+                this.sequenceStmtStack.pop();
+            }
         }
 
         this.compUnit.addTopLevelNode(function);
@@ -1926,13 +1931,9 @@ public class BLangPackageBuilder {
     }
 
     void endBlockFunctionBody(DiagnosticPos pos, Set<Whitespace> ws) {
-        BLangBlockFunctionBody body = (BLangBlockFunctionBody) this.funcBodyNodeStack.pop();
-        this.sequenceStmtStack.pop(); // Ignored since this is the same body as above
+        BLangBlockFunctionBody body = (BLangBlockFunctionBody) this.funcBodyNodeStack.peek();
         body.addWS(ws);
         body.pos = pos;
-
-        InvokableNode invokableNode = this.invokableNodeStack.peek();
-        invokableNode.setBody(body);
     }
 
     void endExprFunctionBody(DiagnosticPos pos, Set<Whitespace> ws) {
@@ -2322,7 +2323,11 @@ public class BLangPackageBuilder {
                 function.interfaceFunction = true;
             }
         } else {
-            function.funcBody.pos = pos;
+            function.funcBody = (BLangFunctionBody) this.funcBodyNodeStack.pop();
+
+            if (function.funcBody.getKind() == NodeKind.BLOCK_FUNCTION_BODY) {
+                this.sequenceStmtStack.pop();
+            }
         }
 
         function.attachedFunction = true;

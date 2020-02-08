@@ -732,8 +732,10 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangExprFunctionBody body) {
-        body.expr = rewriteExpr(body.expr);
+    public void visit(BLangExprFunctionBody exprBody) {
+        BLangBlockFunctionBody body = ASTBuilderUtil.createBlockFunctionBody(exprBody.pos, new ArrayList<>());
+        BLangReturn returnStmt = ASTBuilderUtil.createReturnStmt(exprBody.pos, body);
+        returnStmt.expr = rewriteExpr(exprBody.expr);
         result = body;
     }
 

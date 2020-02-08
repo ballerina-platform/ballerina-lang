@@ -415,6 +415,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangExprFunctionBody body) {
         analyzeExpr(body.expr);
+        this.statementReturns = true;
         this.resetLastStatement();
     }
 
