@@ -120,6 +120,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation.BLangAtt
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIsAssignableExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIsLikeExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangLetExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr.BLangArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr.BLangJSONArrayLiteral;
@@ -952,6 +953,23 @@ public class Desugar extends BLangNodeVisitor {
         varNode.annAttachments.forEach(attachment ->  rewrite(attachment, env));
 
         result = varNode;
+    }
+
+    @Override
+    public void visit(BLangLetExpression letExpression) {
+        BLangExpression expr = letExpression.expr;
+        BLangBlockStmt blockStmt = ASTBuilderUtil.createBlockStmt(letExpression.pos);
+        for (BLangVariable var : letExpression.letVarDeclarations) {
+            BLangSimpleVariableDef varDef = createVarDef(((BLangSimpleVariable) var).name.getValue(), var.type,
+                    var.expr, var.pos);
+            blockStmt.addStatement(varDef);
+        }
+        BLangSimpleVariableDef tempVarDef = createVarDef("$temp_var_0$", expr.type, expr, expr.pos);
+        BLangSimpleVarRef tempVarRef = ASTBuilderUtil.createVariableRef(expr.pos, tempVarDef.var.symbol);
+        blockStmt.addStatement(tempVarDef);
+        BLangStatementExpression stmtExpr = ASTBuilderUtil.createStatementExpression(blockStmt, tempVarRef);
+        stmtExpr.type = ((BLangSimpleVariable) letExpression.parent).symbol.type;
+        result = rewrite(stmtExpr, env);
     }
 
     @Override

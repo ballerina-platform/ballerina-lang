@@ -45,6 +45,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangLetExpression;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
@@ -198,6 +199,10 @@ public class CompilerPluginRunner extends BLangNodeVisitor {
 
     public void visit(BLangConstant constant) {
         /* ignore */
+    }
+
+    public void visit(BLangLetExpression letExpression) {
+
     }
 
     // private methods
