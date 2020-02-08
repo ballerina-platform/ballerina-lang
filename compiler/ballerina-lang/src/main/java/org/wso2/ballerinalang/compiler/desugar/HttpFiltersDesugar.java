@@ -44,6 +44,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
+import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
@@ -233,7 +234,8 @@ public class HttpFiltersDesugar {
                 new BVarSymbol(0, names.fromString(filterContextVarName), resourceNode.symbol.pkgID, filterContextType,
                                resourceNode.symbol));
         filterContextVar.typeNode = filterContextUserDefinedType;
-        resourceNode.body.stmts.add(0, ASTBuilderUtil.createVariableDef(resourceNode.pos, filterContextVar));
+        ((BLangBlockFunctionBody) resourceNode.funcBody).stmts.add(0, ASTBuilderUtil
+                .createVariableDef(resourceNode.pos, filterContextVar));
         return filterContextVar;
     }
 
@@ -304,7 +306,7 @@ public class HttpFiltersDesugar {
         BLangAssignment filterContextAssignment = ASTBuilderUtil.createAssignmentStmt(
                 resourceNode.pos, filterContextField, filterContextRef, false);
 
-        resourceNode.body.stmts.add(1, filterContextAssignment);
+        ((BLangBlockFunctionBody) resourceNode.funcBody).stmts.add(1, filterContextAssignment);
         //Assignment statement END
 
         //forEach statement START
@@ -421,7 +423,7 @@ public class HttpFiltersDesugar {
         this.types.setForeachTypedBindingPatternType(foreach);
         foreach.variableDefinitionNode = variableDefinition;
 
-        resourceNode.body.stmts.add(2, foreach);
+        ((BLangBlockFunctionBody) resourceNode.funcBody).stmts.add(2, foreach);
         //forEach statement END
     }
 
