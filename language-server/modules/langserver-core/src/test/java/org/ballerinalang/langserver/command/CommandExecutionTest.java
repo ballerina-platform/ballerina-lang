@@ -31,6 +31,7 @@ import org.ballerinalang.langserver.command.executors.CreateTestExecutor;
 import org.ballerinalang.langserver.command.executors.CreateVariableExecutor;
 import org.ballerinalang.langserver.command.executors.ImportModuleExecutor;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
+import org.ballerinalang.langserver.commons.command.CommandArgument;
 import org.ballerinalang.langserver.compiler.ExtendedLSCompiler;
 import org.ballerinalang.langserver.compiler.LSCompilerUtil;
 import org.ballerinalang.langserver.compiler.LSContextManager;
@@ -64,8 +65,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-
-import static org.ballerinalang.langserver.command.CommandUtil.CommandArgument;
 
 /**
  * Command Execution Test Cases.
