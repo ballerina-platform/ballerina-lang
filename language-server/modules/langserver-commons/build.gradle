@@ -20,7 +20,9 @@ apply from: "$rootDir/gradle/javaProject.gradle"
 dependencies {
     // NOTE: This module intended to be used by extension providers with minimum peer dependencies
     // Thus, refrain from adding extra dependencies.
+    implementation project(':ballerina-lang')
     implementation 'org.eclipse.lsp4j:org.eclipse.lsp4j'
+    implementation 'org.wso2.orbit.org.antlr:antlr4-runtime'
     testCompile 'org.testng:testng'
 }
 

@@ -17,11 +17,12 @@
 */
 package org.ballerinalang.langserver.completions;
 
-import org.ballerinalang.langserver.AnnotationNodeKind;
 import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.common.LSNodeVisitor;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.LSContext;
+import org.ballerinalang.langserver.commons.completion.AnnotationNodeKind;
+import org.ballerinalang.langserver.commons.completion.CompletionKeys;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.completions.exceptions.CompletionContextNotSupportedException;
 import org.ballerinalang.langserver.completions.util.CompletionVisitorUtil;
@@ -43,6 +44,7 @@ import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.AnnotationSymbol;
 import org.ballerinalang.model.tree.Node;
 import org.ballerinalang.model.tree.TopLevelNode;
+import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
 import org.eclipse.lsp4j.Position;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
@@ -755,13 +757,13 @@ public class TreeVisitor extends LSNodeVisitor {
         SymbolEnv recordLiteralEnv = new SymbolEnv(recordLiteral, symbolEnv.scope);
         symbolEnv.copyTo(recordLiteralEnv);
         this.blockOwnerStack.push(recordLiteral);
-        List<BLangRecordLiteral.BLangRecordKeyValue> keyValuePairs = recordLiteral.keyValuePairs;
-        if (keyValuePairs.isEmpty() && CompletionVisitorUtil.isCursorWithinBlock(recordLiteral.pos, recordLiteralEnv,
+        List<RecordLiteralNode.RecordField> fields = recordLiteral.fields;
+        if (fields.isEmpty() && CompletionVisitorUtil.isCursorWithinBlock(recordLiteral.pos, recordLiteralEnv,
                 lsContext, this)) {
             return;
         }
         Class backUpResolver = this.cursorPositionResolver;
-        keyValuePairs.forEach(keyValue -> {
+        fields.forEach(keyValue -> {
             this.cursorPositionResolver = RecordLiteralScopeResolver.class;
             this.acceptNode(keyValue, recordLiteralEnv);
         });
@@ -786,7 +788,7 @@ public class TreeVisitor extends LSNodeVisitor {
     }
 
     @Override
-    public void visit(BLangRecordLiteral.BLangRecordKeyValue recordKeyValue) {
+    public void visit(BLangRecordLiteral.BLangRecordKeyValueField recordKeyValue) {
         if (CursorPositionResolvers.getResolverByClass(this.cursorPositionResolver)
                 .isCursorBeforeNode(recordKeyValue.valueExpr.getPosition(), this, this.lsContext, recordKeyValue)) {
             return;
@@ -867,13 +869,9 @@ public class TreeVisitor extends LSNodeVisitor {
      * @param symbolEnv         Symbol environment
      */
     public void populateSymbols(Map<Name, List<Scope.ScopeEntry>> symbolEntries, @Nonnull SymbolEnv symbolEnv) {
-        List<SymbolInfo> visibleSymbols = new ArrayList<>();
+        List<Scope.ScopeEntry> visibleSymbols = new ArrayList<>();
         this.populateSymbolEnvNode(symbolEnv.node);
-        symbolEntries.forEach((name, entryHolders) ->
-                visibleSymbols.addAll(
-                        entryHolders.stream()
-                                .map(scopeEntry -> new SymbolInfo(name.value, scopeEntry))
-                                .collect(Collectors.toList())));
+        symbolEntries.values().forEach(visibleSymbols::addAll);
         lsContext.put(CommonKeys.VISIBLE_SYMBOLS_KEY, visibleSymbols);
     }
 
@@ -937,6 +935,10 @@ public class TreeVisitor extends LSNodeVisitor {
     ///////////////////////////////////
     /////     Private Methods     /////
     ///////////////////////////////////
+    private void acceptNode(Node node, SymbolEnv env) {
+        acceptNode((BLangNode) node, env);
+    }
+
     private void acceptNode(BLangNode node, SymbolEnv env) {
         if (this.terminateVisitor || node == null) {
             return;

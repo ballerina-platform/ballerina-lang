@@ -42,7 +42,7 @@ public class KafkaConstants {
     public static final String FULL_PACKAGE_NAME = KAFKA_PACKAGE_NAME + BLOCK_SEPARATOR + VERSION;
     public static final String KAFKA_PROTOCOL_PACKAGE = BALLERINA_PACKAGE_PREFIX + KAFKA_PACKAGE_NAME;
     public static final BPackage KAFKA_PROTOCOL_PACKAGE_ID = new BPackage(BALLERINA_BUILTIN_PKG_PREFIX,
-            KAFKA_PACKAGE_NAME);
+                                                                          KAFKA_PACKAGE_NAME);
 
     // Kafka log messages
     public static final String SERVICE_STARTED = "[ballerina/kafka] started kafka listener ";
@@ -80,8 +80,6 @@ public class KafkaConstants {
 
     public static final String KAFKA_RESOURCE_ON_MESSAGE = "onMessage";
 
-    public static final String PRODUCER_STRUCT_NAME = "Producer";
-
     public static final String PROPERTIES_ARRAY = "properties";
 
     public static final String ALIAS_CONCURRENT_CONSUMERS = "concurrentConsumers";
@@ -104,7 +102,6 @@ public class KafkaConstants {
     public static final String CONSUMER_CLIENT_ID_CONFIG = "clientId";
     public static final String CONSUMER_INTERCEPTOR_CLASSES_CONFIG = "interceptorClasses";
     public static final String CONSUMER_ISOLATION_LEVEL_CONFIG = "isolationLevel";
-    public static final String CONSUMER_TOPICS_CONFIG = "topics";
     public static final String CONSUMER_KEY_DESERIALIZER_CONFIG = "keyDeserializer";
     public static final String CONSUMER_VALUE_DESERIALIZER_CONFIG = "valueDeserializer";
 

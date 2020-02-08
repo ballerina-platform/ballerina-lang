@@ -18,7 +18,10 @@
 
 package org.ballerinalang.net.http.websocket;
 
+import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.values.ErrorValue;
+import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinalang.net.http.HttpConstants;
 
 import static org.ballerinalang.net.http.websocket.WebSocketConstants.ErrorCode;
 
@@ -39,16 +42,26 @@ public class WebSocketException extends ErrorValue {
     }
 
     public WebSocketException(ErrorCode errorCode, String message) {
-        super(errorCode.errorCode(), WebSocketUtil.createDetailRecord(message));
+        super(errorCode.errorCode(), createDetailRecord(message));
         this.message = message;
     }
 
     public WebSocketException(ErrorCode errorCode, String message, ErrorValue cause) {
-        super(errorCode.errorCode(), WebSocketUtil.createDetailRecord(message, cause));
+        super(errorCode.errorCode(), createDetailRecord(message, cause));
         this.message = message;
     }
 
     public String detailMessage() {
         return message;
+    }
+
+    private static MapValue<String, Object> createDetailRecord(String errMsg) {
+        return createDetailRecord(errMsg, null);
+    }
+
+    private static MapValue<String, Object> createDetailRecord(String errMsg, ErrorValue cause) {
+        MapValue<String, Object> detail = BallerinaValues.createRecordValue(HttpConstants.PROTOCOL_HTTP_PKG_ID,
+                WebSocketConstants.WEBSOCKET_ERROR_DETAILS);
+        return BallerinaValues.createRecord(detail, errMsg, cause);
     }
 }

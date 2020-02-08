@@ -17,9 +17,9 @@ package org.ballerinalang.langserver.extensions.ballerina.project;
 
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.LSOperation;
+import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSContextImpl;
-import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
 
 /**
  * Operation Context for Project Service.

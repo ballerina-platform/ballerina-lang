@@ -40,6 +40,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
@@ -181,6 +182,8 @@ public class TypeParamAnalyzer {
                 return containsTypeParam(((BTableType) type).constraint, resolvedTypes);
             case TypeTags.MAP:
                 return containsTypeParam(((BMapType) type).constraint, resolvedTypes);
+            case TypeTags.STREAM:
+                return containsTypeParam(((BStreamType) type).constraint, resolvedTypes);
             case TypeTags.RECORD:
                 BRecordType recordType = (BRecordType) type;
                 for (BField field : recordType.fields) {
@@ -308,6 +311,12 @@ public class TypeParamAnalyzer {
                 if (actualType.tag == TypeTags.RECORD) {
                     findTypeParamInMapForRecord((BMapType) expType, (BRecordType) actualType, env, resolvedTypes,
                                                 result);
+                }
+                return;
+            case TypeTags.STREAM:
+                if (actualType.tag == TypeTags.STREAM) {
+                    findTypeParam(((BStreamType) expType).constraint, ((BStreamType) actualType).constraint, env,
+                                  resolvedTypes, result);
                 }
                 return;
             case TypeTags.TUPLE:
@@ -519,6 +528,10 @@ public class TypeParamAnalyzer {
                 BType constraint = ((BMapType) expType).constraint;
                 return new BMapType(TypeTags.MAP, getMatchingBoundType(constraint, env, resolvedTypes),
                         symTable.mapType.tsymbol);
+            case TypeTags.STREAM:
+                BType streamConstraint = ((BStreamType) expType).constraint;
+                return new BStreamType(TypeTags.STREAM, getMatchingBoundType(streamConstraint, env, resolvedTypes),
+                                       symTable.streamType.tsymbol);
             case TypeTags.TUPLE:
                 return getMatchingTupleBoundType((BTupleType) expType, env, resolvedTypes);
             case TypeTags.RECORD:

@@ -49,6 +49,13 @@ import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.populateConsume
  */
 public class Poll {
 
+    /**
+     * Polls from kafka broker using the ballerina kafka consumer.
+     *
+     * @param consumerObject Kafka consumer object from ballerina.
+     * @param timeout        Duration in milliseconds to try the operation.
+     * @return Ballerina {@code ConsumerRecords[]} after the polling.
+     */
     public static Object poll(ObjectValue consumerObject, long timeout) {
         Strand strand = Scheduler.getStrand();
         KafkaTracingUtil.traceResourceInvocation(strand, consumerObject);
@@ -73,7 +80,7 @@ public class Poll {
         } catch (IllegalStateException | IllegalArgumentException | KafkaException e) {
             KafkaMetricsUtil.reportConsumerError(consumerObject, KafkaObservabilityConstants.ERROR_TYPE_POLL);
             callback.notifyFailure(createKafkaError("Failed to poll from the Kafka server: " + e.getMessage(),
-                                                      CONSUMER_ERROR));
+                                                    CONSUMER_ERROR));
         }
         callback.notifySuccess();
         return null;

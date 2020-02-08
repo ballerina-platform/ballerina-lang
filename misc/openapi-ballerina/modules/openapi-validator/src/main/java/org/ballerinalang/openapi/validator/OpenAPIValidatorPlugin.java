@@ -70,13 +70,28 @@ public class OpenAPIValidatorPlugin extends AbstractCompilerPlugin {
         if (annotation != null) {
             if (annotation.getExpression() instanceof BLangRecordLiteral) {
                 BLangRecordLiteral recordLiteral = (BLangRecordLiteral) annotation.getExpression();
-                for (BLangRecordLiteral.BLangRecordKeyValue keyValue : recordLiteral.getKeyValuePairs()) {
-                    if (keyValue.getKey() instanceof BLangSimpleVarRef) {
-                        BLangSimpleVarRef contract = (BLangSimpleVarRef) keyValue.getKey();
+                for (BLangRecordLiteral.RecordField field : recordLiteral.getFields()) {
+                    BLangExpression keyExpr;
+                    BLangExpression valueExpr;
+
+                    if (field.isKeyValueField()) {
+                        BLangRecordLiteral.BLangRecordKeyValueField keyValue =
+                                (BLangRecordLiteral.BLangRecordKeyValueField) field;
+                        keyExpr = keyValue.getKey();
+                        valueExpr = keyValue.getValue();
+                    } else {
+                        BLangRecordLiteral.BLangRecordVarNameField varNameField =
+                                (BLangRecordLiteral.BLangRecordVarNameField) field;
+                        keyExpr = varNameField;
+                        valueExpr = varNameField;
+                    }
+
+                    if (keyExpr instanceof BLangSimpleVarRef) {
+                        BLangSimpleVarRef contract = (BLangSimpleVarRef) keyExpr;
                         String key = contract.getVariableName().getValue();
                         if (key.equals(Constants.CONTRACT)) {
-                            if (keyValue.getValue() instanceof BLangLiteral) {
-                                BLangLiteral value = (BLangLiteral) keyValue.getValue();
+                            if (valueExpr instanceof BLangLiteral) {
+                                BLangLiteral value = (BLangLiteral) valueExpr;
                                 if (value.getValue() instanceof String) {
                                     contractURI = (String) value.getValue();
                                 } else {
@@ -85,9 +100,9 @@ public class OpenAPIValidatorPlugin extends AbstractCompilerPlugin {
                                 }
                             }
                         } else if (key.equals(Constants.TAGS)) {
-                            if (keyValue.getValue() instanceof BLangListConstructorExpr) {
+                            if (valueExpr instanceof BLangListConstructorExpr) {
                                 BLangListConstructorExpr bLangListConstructorExpr =
-                                        (BLangListConstructorExpr) keyValue.getValue();
+                                        (BLangListConstructorExpr) valueExpr;
                                 for (BLangExpression bLangExpression : bLangListConstructorExpr.getExpressions()) {
                                     if (bLangExpression instanceof BLangLiteral) {
                                         BLangLiteral expression = (BLangLiteral) bLangExpression;
@@ -101,9 +116,9 @@ public class OpenAPIValidatorPlugin extends AbstractCompilerPlugin {
                                 }
                             }
                         } else if (key.equals(Constants.OPERATIONS)) {
-                            if (keyValue.getValue() instanceof BLangListConstructorExpr) {
+                            if (valueExpr instanceof BLangListConstructorExpr) {
                                 BLangListConstructorExpr bLangListConstructorExpr =
-                                        (BLangListConstructorExpr) keyValue.getValue();
+                                        (BLangListConstructorExpr) valueExpr;
                                 for (BLangExpression bLangExpression : bLangListConstructorExpr.getExpressions()) {
                                     if (bLangExpression instanceof BLangLiteral) {
                                         BLangLiteral expression = (BLangLiteral) bLangExpression;

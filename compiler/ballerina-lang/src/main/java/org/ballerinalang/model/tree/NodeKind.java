@@ -57,6 +57,7 @@ public enum NodeKind {
     TUPLE_LITERAL_EXPR,
     LIST_CONSTRUCTOR_EXPR,
     BINARY_EXPR,
+    QUERY_EXPR,
     ELVIS_EXPR,
     GROUP_EXPR,
     TYPE_INIT_EXPR,
@@ -144,10 +145,16 @@ public enum NodeKind {
     WORKER_SEND,
     WORKER_SYNC_SEND,
     WORKER_FLUSH,
+    STREAM,
     SCOPE,
     COMPENSATE,
     CHANNEL_RECEIVE,
     CHANNEL_SEND,
+
+    /* Clauses */
+    SELECT,
+    FROM,
+    WHERE,
 
     /* Types */
     ARRAY_TYPE,

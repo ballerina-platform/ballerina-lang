@@ -31,6 +31,9 @@ import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.messaging.rabbitmq.RabbitMQConnectorException;
 import org.ballerinalang.messaging.rabbitmq.RabbitMQConstants;
 import org.ballerinalang.messaging.rabbitmq.RabbitMQUtils;
+import org.ballerinalang.messaging.rabbitmq.observability.RabbitMQMetricsUtil;
+import org.ballerinalang.messaging.rabbitmq.observability.RabbitMQObservabilityConstants;
+import org.ballerinalang.messaging.rabbitmq.observability.RabbitMQTracingUtil;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -46,16 +49,20 @@ import java.util.concurrent.TimeoutException;
 public class ChannelUtils {
     public static Channel createChannel(Connection connection) {
         try {
-            return connection.createChannel();
+            Channel channel = connection.createChannel();
+            RabbitMQMetricsUtil.reportNewChannel(channel);
+            return channel;
         } catch (IOException exception) {
+            RabbitMQMetricsUtil.reportError(connection, RabbitMQObservabilityConstants.ERROR_TYPE_CHANNEL_CREATE);
             throw RabbitMQUtils.returnErrorValue("Error occurred while initializing the channel: "
-                    + exception.getMessage());
+                                                         + exception.getMessage());
         }
     }
 
     public static Object queueDeclare(Object queueConfig, Channel channel) {
         try {
             if (queueConfig == null) {
+                RabbitMQMetricsUtil.reportNewQueue(channel, RabbitMQObservabilityConstants.UNKNOWN);
                 return channel.queueDeclare().getQueue();
             }
             @SuppressWarnings(RabbitMQConstants.UNCHECKED)
@@ -69,14 +76,18 @@ public class ChannelUtils {
                 argumentsMap = (HashMap<String, Object>) config.getMapValue(RabbitMQConstants.QUEUE_ARGUMENTS);
             }
             channel.queueDeclare(queueName, durable, exclusive, autoDelete, argumentsMap);
+            RabbitMQMetricsUtil.reportNewQueue(channel, queueName);
+            RabbitMQTracingUtil.traceQueueResourceInvocation(channel, queueName);
         } catch (IOException exception) {
+            RabbitMQMetricsUtil.reportError(channel, RabbitMQObservabilityConstants.ERROR_TYPE_QUEUE_DECLARE);
             return RabbitMQUtils.returnErrorValue("Error occurred while declaring the queue: "
-                    + exception.getMessage());
+                                                          + exception.getMessage());
         }
         return null;
     }
 
     public static Object exchangeDeclare(MapValue<String, Object> exchangeConfig, Channel channel) {
+        RabbitMQTracingUtil.traceResourceInvocation(channel);
         try {
             String exchangeName = exchangeConfig.getStringValue(RabbitMQConstants.EXCHANGE_NAME);
             String exchangeType = exchangeConfig.getStringValue(RabbitMQConstants.EXCHANGE_TYPE);
@@ -88,9 +99,12 @@ public class ChannelUtils {
                         (HashMap<String, Object>) exchangeConfig.getMapValue(RabbitMQConstants.EXCHANGE_ARGUMENTS);
             }
             channel.exchangeDeclare(exchangeName, exchangeType, durable, autoDelete, argumentsMap);
+            RabbitMQMetricsUtil.reportNewExchange(channel, exchangeName);
+            RabbitMQTracingUtil.traceExchangeResourceInvocation(channel, exchangeName);
         } catch (RabbitMQConnectorException | IOException exception) {
+            RabbitMQMetricsUtil.reportError(channel, RabbitMQObservabilityConstants.ERROR_TYPE_EXCHANGE_DECLARE);
             return RabbitMQUtils.returnErrorValue("Error occurred while declaring the exchange: "
-                    + exception.getMessage());
+                                                          + exception.getMessage());
         }
         return null;
     }
@@ -98,9 +112,12 @@ public class ChannelUtils {
     public static Object queueBind(String queueName, String exchangeName, String bindingKey, Channel channel) {
         try {
             channel.queueBind(queueName, exchangeName, bindingKey, null);
+            RabbitMQTracingUtil.traceResourceInvocation(channel);
+            RabbitMQTracingUtil.traceQueueBindResourceInvocation(channel, queueName, exchangeName, bindingKey);
         } catch (IOException exception) {
+            RabbitMQMetricsUtil.reportError(channel, RabbitMQObservabilityConstants.ERROR_TYPE_QUEUE_BIND);
             return RabbitMQUtils.returnErrorValue("Error occurred while binding the queue: "
-                    + exception.getMessage());
+                                                          + exception.getMessage());
         }
         return null;
     }
@@ -134,11 +151,14 @@ public class ChannelUtils {
                 }
             }
             AMQP.BasicProperties basicProps = builder.build();
-            channel.basicPublish(defaultExchangeName, routingKey, basicProps,
-                    messageContent.toString().getBytes(StandardCharsets.UTF_8));
+            byte[] messageContentBytes = messageContent.toString().getBytes(StandardCharsets.UTF_8);
+            channel.basicPublish(defaultExchangeName, routingKey, basicProps, messageContentBytes);
+            RabbitMQMetricsUtil.reportPublish(channel, defaultExchangeName, routingKey, messageContentBytes.length);
+            RabbitMQTracingUtil.tracePublishResourceInvocation(channel, defaultExchangeName, routingKey);
         } catch (IOException | RabbitMQConnectorException exception) {
+            RabbitMQMetricsUtil.reportError(channel, RabbitMQObservabilityConstants.ERROR_TYPE_PUBLISH);
             return RabbitMQUtils.returnErrorValue("Error occurred while publishing the message: "
-                    + exception.getMessage());
+                                                          + exception.getMessage());
         }
         return null;
     }
@@ -146,9 +166,12 @@ public class ChannelUtils {
     public static Object queueDelete(String queueName, boolean ifUnused, boolean ifEmpty, Channel channel) {
         try {
             channel.queueDelete(queueName, ifUnused, ifEmpty);
+            RabbitMQMetricsUtil.reportQueueDeletion(channel, queueName);
+            RabbitMQTracingUtil.traceQueueResourceInvocation(channel, queueName);
         } catch (IOException | RabbitMQConnectorException exception) {
+            RabbitMQMetricsUtil.reportError(channel, RabbitMQObservabilityConstants.ERROR_TYPE_QUEUE_DELETE);
             return RabbitMQUtils.returnErrorValue("Error occurred while deleting the queue: "
-                    + exception.getMessage());
+                                                          + exception.getMessage());
         }
         return null;
     }
@@ -156,9 +179,12 @@ public class ChannelUtils {
     public static Object exchangeDelete(String exchangeName, Channel channel) {
         try {
             channel.exchangeDelete(exchangeName);
+            RabbitMQMetricsUtil.reportExchangeDeletion(channel, exchangeName);
+            RabbitMQTracingUtil.traceExchangeResourceInvocation(channel, exchangeName);
         } catch (IOException | BallerinaException exception) {
+            RabbitMQMetricsUtil.reportError(channel, RabbitMQObservabilityConstants.ERROR_TYPE_EXCHANGE_DELETE);
             return RabbitMQUtils.returnErrorValue("Error occurred while deleting the exchange: "
-                    + exception.getMessage());
+                                                          + exception.getMessage());
         }
         return null;
     }
@@ -166,9 +192,12 @@ public class ChannelUtils {
     public static Object queuePurge(String queueName, Channel channel) {
         try {
             channel.queuePurge(queueName);
+            //TODO: what to do
+            RabbitMQTracingUtil.traceQueueResourceInvocation(channel, queueName);
         } catch (IOException | RabbitMQConnectorException exception) {
+            RabbitMQMetricsUtil.reportError(channel, RabbitMQObservabilityConstants.ERROR_TYPE_QUEUE_PURGE);
             return RabbitMQUtils.returnErrorValue("Error occurred while purging the queue: "
-                    + exception.getMessage());
+                                                          + exception.getMessage());
         }
         return null;
     }
@@ -182,9 +211,12 @@ public class ChannelUtils {
             } else {
                 channel.close();
             }
+            RabbitMQMetricsUtil.reportChannelClose(channel);
+            RabbitMQTracingUtil.traceResourceInvocation(channel);
         } catch (RabbitMQConnectorException | IOException | ArithmeticException | TimeoutException exception) {
+            RabbitMQMetricsUtil.reportError(channel, RabbitMQObservabilityConstants.ERROR_TYPE_CHANNEL_CLOSE);
             return RabbitMQUtils.returnErrorValue("Error occurred while closing the channel: "
-                    + exception.getMessage());
+                                                          + exception.getMessage());
         }
         return null;
     }
@@ -198,8 +230,11 @@ public class ChannelUtils {
             } else {
                 channel.abort();
             }
+            RabbitMQMetricsUtil.reportChannelClose(channel);
+            RabbitMQTracingUtil.traceResourceInvocation(channel);
             return null;
         } catch (RabbitMQConnectorException | IOException | ArithmeticException exception) {
+            RabbitMQMetricsUtil.reportError(channel, RabbitMQObservabilityConstants.ERROR_TYPE_ABORT);
             return RabbitMQUtils.
                     returnErrorValue("Error occurred while aborting the channel: " + exception.getMessage());
         }
@@ -209,29 +244,37 @@ public class ChannelUtils {
         try {
             Connection connection = channel.getConnection();
             ObjectValue connectionObject = BallerinaValues.createObjectValue(RabbitMQConstants.PACKAGE_ID_RABBITMQ,
-                    RabbitMQConstants.CONNECTION_OBJECT);
+                                                                             RabbitMQConstants.CONNECTION_OBJECT);
             connectionObject.addNativeData(RabbitMQConstants.CONNECTION_NATIVE_OBJECT, connection);
+            RabbitMQTracingUtil.traceResourceInvocation(channel);
             return connectionObject;
         } catch (AlreadyClosedException exception) {
+            RabbitMQMetricsUtil.reportError(channel, RabbitMQObservabilityConstants.ERROR_TYPE_GET_CONNECTION);
             return RabbitMQUtils.returnErrorValue("Error occurred while retrieving the connection: "
-                    + exception.getMessage());
+                                                          + exception.getMessage());
         }
     }
 
     public static Object basicGet(String queueName, boolean ackMode, Channel channel) {
         try {
             GetResponse response = channel.basicGet(queueName, ackMode);
-            return createAndPopulateMessageObjectValue(response, channel, ackMode);
+            ObjectValue messageObjectValue = createAndPopulateMessageObjectValue(response, channel, ackMode);
+            RabbitMQMetricsUtil.reportConsume(channel, queueName, ((byte[]) messageObjectValue
+                                                      .getNativeData(RabbitMQConstants.MESSAGE_CONTENT)).length,
+                                              RabbitMQObservabilityConstants.CONSUME_TYPE_CHANNEL);
+            RabbitMQTracingUtil.traceQueueResourceInvocation(channel, queueName);
+            return messageObjectValue;
         } catch (IOException e) {
+            RabbitMQMetricsUtil.reportError(channel, RabbitMQObservabilityConstants.ERROR_TYPE_BASIC_GET);
             return RabbitMQUtils.returnErrorValue("Error occurred while retrieving the message: " +
-                    e.getMessage());
+                                                          e.getMessage());
         }
     }
 
     private static ObjectValue createAndPopulateMessageObjectValue(GetResponse response, Channel channel,
                                                                    boolean autoAck) {
         ObjectValue messageObjectValue = BallerinaValues.createObjectValue(RabbitMQConstants.PACKAGE_ID_RABBITMQ,
-                RabbitMQConstants.MESSAGE_OBJECT);
+                                                                           RabbitMQConstants.MESSAGE_OBJECT);
         messageObjectValue.addNativeData(RabbitMQConstants.DELIVERY_TAG, response.getEnvelope().getDeliveryTag());
         messageObjectValue.addNativeData(RabbitMQConstants.CHANNEL_NATIVE_OBJECT, new HandleValue(channel));
         messageObjectValue.addNativeData(RabbitMQConstants.MESSAGE_CONTENT, response.getBody());

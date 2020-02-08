@@ -92,6 +92,15 @@ public class ClientErrorsTest extends WebSocketTestCommons {
 
     }
 
+    @Test(description = "Tests the ready function using the WebSocket client. When `readyOnConnect` is true," +
+            " calls the `ready()` function.")
+    public void testReadyOnConnect() throws InterruptedException {
+        sendTextAndAssertResponse(
+                "ready",
+                "error {ballerina/http}WsGenericError message=Already started reading frames");
+
+    }
+
     private void sendTextAndAssertResponse(String msg, String expected) throws InterruptedException {
         CountDownLatch countDownLatch = new CountDownLatch(1);
         client.setCountDownLatch(countDownLatch);

@@ -304,11 +304,30 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "stream",
+      "kind": "Unit",
+      "detail": "Stream",
+      "sortText": "160",
+      "insertText": "stream",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "json",
       "kind": "Unit",
       "detail": "Json",
       "sortText": "160",
       "insertText": "json",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "StrandData",
+      "kind": "Struct",
+      "detail": "Record",
+      "documentation": {
+        "left": "Describes Strand execution details for the runtime.\n"
+      },
+      "sortText": "160",
+      "insertText": "StrandData",
       "insertTextFormat": "Snippet"
     },
     {
@@ -349,6 +368,14 @@
       "detail": "Int",
       "sortText": "160",
       "insertText": "int",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Thread",
+      "kind": "TypeParameter",
+      "detail": "Finite",
+      "sortText": "160",
+      "insertText": "Thread",
       "insertTextFormat": "Snippet"
     },
     {
@@ -1323,6 +1350,29 @@
             }
           },
           "newText": "import ballerina/mime;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/lang.stream",
+      "kind": "Module",
+      "detail": "Package",
+      "sortText": "140",
+      "insertText": "'stream",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/lang.'stream;\n"
         }
       ]
     },

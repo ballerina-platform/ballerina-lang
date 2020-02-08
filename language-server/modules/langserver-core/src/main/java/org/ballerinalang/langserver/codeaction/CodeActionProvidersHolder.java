@@ -46,36 +46,37 @@ public class CodeActionProvidersHolder {
     private CodeActionProvidersHolder() {
         ServiceLoader<LSCodeActionProvider> serviceLoader = ServiceLoader.load(LSCodeActionProvider.class);
         for (CodeActionNodeType nodeType : CodeActionNodeType.values()) {
-            CodeActionProvidersHolder.getNodeBasedProviders().put(nodeType, new ArrayList<>());
+            nodeBasedProviders.put(nodeType, new ArrayList<>());
         }
-        for (LSCodeActionProvider codeAction : serviceLoader) {
-            if (codeAction.isNodeBasedSupported()) {
-                for (CodeActionNodeType nodeType : codeAction.getCodeActionNodeTypes()) {
+        for (LSCodeActionProvider provider : serviceLoader) {
+            if (provider.isNodeBasedSupported()) {
+                for (CodeActionNodeType nodeType : provider.getCodeActionNodeTypes()) {
                     switch (nodeType) {
                         case FUNCTION:
-                            nodeBasedProviders.get(CodeActionNodeType.FUNCTION).add(codeAction);
+                            nodeBasedProviders.get(CodeActionNodeType.FUNCTION).add(provider);
                             break;
                         case OBJECT:
-                            nodeBasedProviders.get(CodeActionNodeType.OBJECT).add(codeAction);
+                            nodeBasedProviders.get(CodeActionNodeType.OBJECT).add(provider);
                             break;
                         case SERVICE:
-                            nodeBasedProviders.get(CodeActionNodeType.SERVICE).add(codeAction);
+                            nodeBasedProviders.get(CodeActionNodeType.SERVICE).add(provider);
                             break;
                         case RECORD:
-                            nodeBasedProviders.get(CodeActionNodeType.RECORD).add(codeAction);
+                            nodeBasedProviders.get(CodeActionNodeType.RECORD).add(provider);
                             break;
                         case RESOURCE:
-                            nodeBasedProviders.get(CodeActionNodeType.RESOURCE).add(codeAction);
+                            nodeBasedProviders.get(CodeActionNodeType.RESOURCE).add(provider);
                             break;
                         case OBJECT_FUNCTION:
-                            nodeBasedProviders.get(CodeActionNodeType.OBJECT_FUNCTION).add(codeAction);
+                            nodeBasedProviders.get(CodeActionNodeType.OBJECT_FUNCTION).add(provider);
                             break;
                         default:
                             break;
                     }
                 }
-            } else if (codeAction.isDiagBasedSupported()) {
-                CodeActionProvidersHolder.getDiagnosticsBasedProviders().add(codeAction);
+            }
+            if (provider.isDiagBasedSupported()) {
+                diagnosticsBasedProviders.add(provider);
             }
         }
     }
@@ -85,7 +86,7 @@ public class CodeActionProvidersHolder {
      *
      * @return node based providers
      */
-    static Map<CodeActionNodeType, List<LSCodeActionProvider>> getNodeBasedProviders() {
+    Map<CodeActionNodeType, List<LSCodeActionProvider>> getNodeBasedProviders() {
         return nodeBasedProviders;
     }
 
@@ -94,7 +95,7 @@ public class CodeActionProvidersHolder {
      *
      * @return diagnostic based providers
      */
-    static List<LSCodeActionProvider> getDiagnosticsBasedProviders() {
+    List<LSCodeActionProvider> getDiagnosticsBasedProviders() {
         return diagnosticsBasedProviders;
     }
 }

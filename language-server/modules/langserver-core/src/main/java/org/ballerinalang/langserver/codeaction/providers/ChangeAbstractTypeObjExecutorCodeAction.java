@@ -39,7 +39,7 @@ public class ChangeAbstractTypeObjExecutorCodeAction extends AbstractCodeActionP
      * {@inheritDoc}
      */
     @Override
-    public List<org.eclipse.lsp4j.CodeAction> getCodeActions(CodeActionNodeType nodeType, LSContext lsContext,
+    public List<CodeAction> getCodeActions(CodeActionNodeType nodeType, LSContext lsContext,
                                                              List<org.eclipse.lsp4j.Diagnostic> diagnostics) {
         List<CodeAction> actions = new ArrayList<>();
 

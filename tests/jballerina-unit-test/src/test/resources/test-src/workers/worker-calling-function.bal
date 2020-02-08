@@ -6,6 +6,7 @@ function testWorkerInVM () returns int {
 
 function testWorker () returns int {
 
+    @strand{thread:"any"}
     worker w1 returns int {
         int result = 0;
         int i = 10;
@@ -14,6 +15,7 @@ function testWorker () returns int {
         return result;
     }
 
+    @strand{thread:"any"}
     worker sampleWorker {
         int r = 120;
         int i = 0;
