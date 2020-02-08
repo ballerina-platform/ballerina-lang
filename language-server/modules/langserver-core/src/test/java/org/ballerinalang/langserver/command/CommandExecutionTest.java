@@ -359,6 +359,7 @@ public class CommandExecutionTest {
                 {"createUndefinedFunction4.json", "createUndefinedFunction2.bal"},
                 {"createUndefinedFunction5.json", "createUndefinedFunction3.bal"},
                 {"createUndefinedFunction6.json", "createUndefinedFunction4.bal"},
+                {"createUndefinedFunction7.json", "createUndefinedFunction5.bal"},
         };
     }
 
