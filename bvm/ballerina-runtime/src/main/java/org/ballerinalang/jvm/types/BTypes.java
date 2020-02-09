@@ -22,6 +22,7 @@ import org.ballerinalang.jvm.util.Flags;
 
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  * This class contains various methods manipulate {@link BType}s in Ballerina.
@@ -80,17 +81,12 @@ public class BTypes {
         restFieldType[1] = BTypes.typeError;
         typeErrorDetail.restFieldType = new BUnionType(Arrays.asList(restFieldType));
 
-        HashMap<String, BField> stringItrNextReturnTypeFields = new HashMap<>();
-        stringItrNextReturnTypeFields.put("value", new BField(BTypes.typeString, "value",
-                Flags.PUBLIC + Flags.REQUIRED));
-        stringItrNextReturnType.setFields(stringItrNextReturnTypeFields);
+        stringItrNextReturnType.setFields(createIteratorValueField(BTypes.typeString));
 
-        HashMap<String, BField> xmlItrNextReturnTypeFields = new HashMap<>();
         BUnionType type = new BUnionType(Arrays.asList(BTypes.typeString, BTypes.typeXML));
-        xmlItrNextReturnTypeFields.put("value", new BField(type, "value", Flags.PUBLIC + Flags.REQUIRED));
-        xmlItrNextReturnType.setFields(xmlItrNextReturnTypeFields);
+        xmlItrNextReturnType.setFields(createIteratorValueField(type));
     }
-    
+
     private BTypes() {
     }
 
@@ -163,5 +159,12 @@ public class BTypes {
             return new BArrayType(elemType);
         }
         return getTypeFromName(typeName);
+    }
+
+    private static Map<String, BField> createIteratorValueField(BType fieldType) {
+        HashMap<String, BField> valueFields = new HashMap<>();
+        valueFields.put("value", new BField(fieldType, "value",
+                Flags.PUBLIC + Flags.REQUIRED));
+        return valueFields;
     }
 }
