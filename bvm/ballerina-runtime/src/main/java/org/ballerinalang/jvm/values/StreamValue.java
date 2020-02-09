@@ -66,7 +66,6 @@ public class StreamValue implements RefValue, BStream {
         this.iterator = null;
         this.filter = new NoFilterFunctionPointerWrapper();
         this.mapper = new NoMapFunctionPointerWrapper();
-        initializeIteratorNextReturnType();
     }
 
     public StreamValue(BType type, BStreamIterator iterator, BFunctionPointer<Object, Boolean> filterFunc,
@@ -87,8 +86,6 @@ public class StreamValue implements RefValue, BStream {
         } else {
             this.mapper = new NoMapFunctionPointerWrapper();
         }
-
-        initializeIteratorNextReturnType();
     }
 
     public StreamValue(BStream sourceStream, BFunctionPointer<Object, Boolean> filterFunc,
@@ -108,6 +105,10 @@ public class StreamValue implements RefValue, BStream {
     }
 
     public BType getIteratorNextReturnType() {
+        if (iteratorNextReturnType == null) {
+            initializeIteratorNextReturnType();
+        }
+
         return iteratorNextReturnType;
     }
 

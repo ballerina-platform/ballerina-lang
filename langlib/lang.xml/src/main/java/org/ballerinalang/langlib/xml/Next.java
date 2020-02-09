@@ -19,11 +19,8 @@
 package org.ballerinalang.langlib.xml;
 
 import org.ballerinalang.jvm.BallerinaValues;
-import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.types.*;
-import org.ballerinalang.jvm.util.Flags;
-import org.ballerinalang.jvm.values.BmpStringValue;
+import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.values.IteratorValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.ObjectValue;
@@ -32,11 +29,6 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
-
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-
 
 /**
  * Native implementation of lang.xml.XMLIterator:next().
