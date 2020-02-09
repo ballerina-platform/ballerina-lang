@@ -1,6 +1,6 @@
 import ballerina/io;
 import ballerina/kafka;
-import ballerina/lang. 'string as strings;
+import ballerina/lang.'string as strings;
 import ballerina/log;
 
 // `bootstrapServers` is the list of remote server endpoints of the Kafka brokers.

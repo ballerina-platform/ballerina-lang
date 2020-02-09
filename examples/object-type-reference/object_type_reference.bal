@@ -17,7 +17,7 @@ type Person abstract object {
 type Employee abstract object {
     // Add a reference to the `Person` object type. Only abstract objects can be referred.
     // All the member fields and member methods will be copied from the `Person` object.
-    *Person;    
+    *Person;
     public float salary;
 
     function getSalary() returns float;
@@ -53,7 +53,7 @@ type Manager object {
         return self.firstName + " " + self.lastName;
     }
 
-    function getSalary() returns float{
+    function getSalary() returns float {
         return self.salary;
     }
 };

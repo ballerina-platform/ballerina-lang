@@ -24,7 +24,7 @@ function write(json content, string path) returns @tainted error? {
     // Creates a writable byte channel from the given path.
     io:WritableByteChannel wbc = check io:openWritableFile(path);
     // Derives the character channel from the byte channel.
-    io:WritableCharacterChannel wch = new(wbc, "UTF8");
+    io:WritableCharacterChannel wch = new (wbc, "UTF8");
     var result = wch.writeJson(content);
     closeWc(wch);
     return result;
@@ -35,7 +35,7 @@ function read(string path) returns @tainted json | error {
     // Creates a readable byte channel from the given path.
     io:ReadableByteChannel rbc = check io:openReadableFile(path);
     // Derives the character channel from the byte channel.
-    io:ReadableCharacterChannel rch = new(rbc, "UTF8");
+    io:ReadableCharacterChannel rch = new (rbc, "UTF8");
     var result = rch.readJson();
     closeRc(rch);
     return result;

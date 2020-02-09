@@ -35,7 +35,7 @@ public function main() {
     io:println("Concat: ", s4);
 
     // Join strings with a separator.
-    string s5 = ",".'join(hello, ballerina);
+    string s5 = ",". 'join(hello, ballerina);
     io:println("Join: ", s5);
 
     // Convert `hello` to a `byte` array.

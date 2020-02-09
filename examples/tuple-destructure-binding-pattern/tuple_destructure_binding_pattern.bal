@@ -4,13 +4,13 @@ public function main() {
 
     // Tuple variables can be destructured with new values when used as a tuple variable
     // reference based binding pattern.
-    [string, [int, boolean]] [a1, [a2, a3]] = ["Hello", [123, true]];
+    [string, [int, boolean]][a1, [a2, a3]] = ["Hello", [123, true]];
     [a1, [a2, a3]] = ["Ballerina", [453, false]];
     io:println("Tuple variable : ", a1, " ", a2, " ", a3);
 
     // The variable can also be updated individually because once they are defined they are treated as individual
     // variables at runtime.
-    [string, [int, boolean]] [b1, [b2, b3]] = ["Hello", [123, true]];
+    [string, [int, boolean]][b1, [b2, b3]] = ["Hello", [123, true]];
     b1 = "Ballerina";
     b2 = 453;
     b3 = false;
@@ -18,7 +18,7 @@ public function main() {
 
     // The binding patterns are recursive in nature. These examples show how to write complex recursive
     // variable references for destructuring.
-    [string, [int, [boolean, float]]] [c1, [c2, [c3, c4]]] =
+    [string, [int, [boolean, float]]][c1, [c2, [c3, c4]]] =
                                         ["Test", [123, [true, 5.6]]];
     [[c1, c2], c3] = [["Ballerina", 453], false];
     [c2, c3, c4] = [657, true, 76.8];

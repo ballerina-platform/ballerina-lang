@@ -1,6 +1,6 @@
 import ballerina/io;
 import ballerina/kafka;
-import ballerina/lang. 'string as strings;
+import ballerina/lang.'string as strings;
 import ballerina/log;
 
 // `bootstrapServers` is the list of remote server endpoints of the Kafka brokers.
@@ -37,7 +37,7 @@ function processKafkaRecord(kafka:ConsumerRecord kafkaRecord) {
     if (msg is string) {
         // Print the retrieved Kafka record.
         io:println("Topic: ", kafkaRecord.topic, " Partition: ",
-                kafkaRecord.partition.toString(), " Received Message: ", msg);
+        kafkaRecord.partition.toString(), " Received Message: ", msg);
     } else {
         log:printError("Error occurred while converting message data", msg);
     }

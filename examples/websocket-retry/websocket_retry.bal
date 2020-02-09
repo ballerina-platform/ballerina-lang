@@ -17,28 +17,30 @@ service RetryProxyService on new http:Listener(9090) {
     resource function onOpen(http:WebSocketCaller caller) {
 
         // Defines the webSocket client endpoint.
-        http:WebSocketClient wsClientEp = new(
+        http:WebSocketClient wsClientEp = new (
             REMOTE_BACKEND,
-            {callbackService: RetryClientService,
-            // When creating client endpoint, if `readyOnConnect` flag is set to
-            // `false`, client endpoint does not start reading frames automatically.
-            readyOnConnect: false,
-            // Retry configuration options.
-            retryConfig: {
-                // The number of milliseconds to delay before attempting to reconnect.
-                intervalInMillis: 3000,
-                // The maximum number of retry attempts.
-                // If the count is zero, the client will retry indefinitely.
-                maxCount: 20,
-                // The rate of increase of the reconnect delay.
-                backOffFactor: 2.0,
-                // Upper limit of the retry interval in milliseconds. If
-                // `intervalInMillis` into `backOffFactor` value exceeded
-                // `maxWaitIntervalInMillis` interval value, then
-                // `maxWaitIntervalInMillis` will be considered as the retry interval.
-                maxWaitIntervalInMillis: 20000
+            {
+                callbackService: RetryClientService,
+                // When creating client endpoint, if `readyOnConnect` flag is set to
+                // `false`, client endpoint does not start reading frames automatically.
+                readyOnConnect: false,
+                // Retry configuration options.
+                retryConfig: {
+                    // The number of milliseconds to delay before attempting to reconnect.
+                    intervalInMillis: 3000,
+                    // The maximum number of retry attempts.
+                    // If the count is zero, the client will retry indefinitely.
+                    maxCount: 20,
+                    // The rate of increase of the reconnect delay.
+                    backOffFactor: 2.0,
+                    // Upper limit of the retry interval in milliseconds. If
+                    // `intervalInMillis` into `backOffFactor` value exceeded
+                    // `maxWaitIntervalInMillis` interval value, then
+                    // `maxWaitIntervalInMillis` will be considered as the retry interval.
+                    maxWaitIntervalInMillis: 20000
+                }
             }
-        });
+        );
 
         //Associate connections before starting to read messages.
         wsClientEp.setAttribute(ASSOCIATED_CONNECTION, caller);

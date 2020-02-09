@@ -14,7 +14,7 @@ public function main() {
     // Send data to remote host.
     // Second parameter is the address of the remote host.
     var sendResult =
-        socketClient->sendTo(c1, { host: "localhost", port: 48826 });
+    socketClient->sendTo(c1, {host: "localhost", port: 48826});
     if (sendResult is int) {
         io:println("Number of bytes written: ", sendResult);
     } else {
@@ -30,13 +30,13 @@ public function main() {
     if (result is [byte[], int, socket:Address]) {
         var [content, length, address] = result;
         var byteChannel =
-            io:createReadableChannel(content);
+        io:createReadableChannel(content);
         if (byteChannel is io:ReadableByteChannel) {
             io:ReadableCharacterChannel characterChannel =
-                new io:ReadableCharacterChannel(byteChannel, "UTF-8");
+            new io:ReadableCharacterChannel(byteChannel, "UTF-8");
             var str = characterChannel.read(60);
             if (str is string) {
-                io:println("Received: ", <@untainted> str);
+                io:println("Received: ", <@untainted>str);
             } else {
                 io:println("Error: ", str.detail()?.message);
             }

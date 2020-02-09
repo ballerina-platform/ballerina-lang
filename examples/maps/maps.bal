@@ -5,8 +5,12 @@ public function main() {
     map<string> m;
 
     // You can also declare and initialize a `map` with a map literal.
-    map<string> addrMap = { line1: "No. 20", line2: "Palm Grove",
-        city: "Colombo 03", country: "Sri Lanka" };
+    map<string> addrMap = {
+        line1: "No. 20",
+        line2: "Palm Grove",
+        city: "Colombo 03",
+        country: "Sri Lanka"
+    };
     io:println(addrMap);
 
     // Retrieves a value using member access.
@@ -41,7 +45,7 @@ public function main() {
         io:println(value);
     });
 
-    map<int> marks = { sam: 50, jon: 60 };
+    map<int> marks = {sam: 50, jon: 60};
     // Calling the `.entries()` method on a map will return the key (`string`) and the value as a tuple variable.
     map<int> modifiedMarks = marks.entries().map(function ([string, int] pair) returns int {
         var [name, score] = pair;

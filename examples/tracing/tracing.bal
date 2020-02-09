@@ -51,7 +51,7 @@ service hello on new http:Listener(9234) {
         result = caller->respond(res);
 
         if (result is error) {
-           log:printError("Error sending response", err = result);
+            log:printError("Error sending response", err = result);
         }
 
         return ();

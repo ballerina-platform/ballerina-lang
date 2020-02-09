@@ -8,11 +8,11 @@ import ballerina/log;
 // If the JWT issuer configurations are not passed, a JWT will be searched
 // in `runtime:AuthenticationContext` and it will be used for the outbound
 // authentication.
-jwt:OutboundJwtAuthProvider outboundJwtAuthProvider = new({
+jwt:OutboundJwtAuthProvider outboundJwtAuthProvider = new ({
     username: "ballerina",
     issuer: "ballerina",
     audience: ["ballerina", "ballerina.org", "ballerina.io"],
-    customClaims: { "scope": "hello" },
+    customClaims: {"scope": "hello"},
     keyStoreConfig: {
         keyAlias: "ballerina",
         keyPassword: "ballerina",
@@ -24,9 +24,9 @@ jwt:OutboundJwtAuthProvider outboundJwtAuthProvider = new({
 });
 
 // Create a Bearer Auth handler with the created JWT Auth provider.
-http:BearerAuthHandler outboundJwtAuthHandler = new(outboundJwtAuthProvider);
+http:BearerAuthHandler outboundJwtAuthHandler = new (outboundJwtAuthProvider);
 
-http:Client httpEndpoint = new("https://localhost:9090", {
+http:Client httpEndpoint = new ("https://localhost:9090", {
     auth: {
         authHandler: outboundJwtAuthHandler
     },
@@ -44,7 +44,7 @@ public function main() {
     if (response is http:Response) {
         var result = response.getTextPayload();
         log:printInfo((result is error) ? "Failed to retrieve payload."
-                                        : result);
+        : result);
     } else {
         log:printError("Failed to call the endpoint.", response);
     }

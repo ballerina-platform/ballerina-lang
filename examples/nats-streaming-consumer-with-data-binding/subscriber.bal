@@ -2,10 +2,10 @@ import ballerina/log;
 import ballerina/nats;
 
 // Creates a NATS connection.
-nats:Connection conn = new("localhost:4222");
+nats:Connection conn = new ("localhost:4222");
 
 // Initializes the NATS Streaming listener.
-listener nats:StreamingListener lis = new(conn);
+listener nats:StreamingListener lis = new (conn);
 
 // Binds the consumer to listen to the messages published to the 'demo' subject.
 @nats:StreamingSubscriptionConfig {

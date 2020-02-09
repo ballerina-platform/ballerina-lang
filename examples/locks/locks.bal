@@ -64,5 +64,5 @@ function process() {
         }
     }
     // Waits for all workers to complete.
-    var result = wait {w1,w2,w3,w4};
+    var result = wait {w1, w2, w3, w4};
 }

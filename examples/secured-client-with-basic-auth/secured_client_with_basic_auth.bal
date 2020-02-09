@@ -6,16 +6,16 @@ import ballerina/log;
 // Basic Authentication is enabled by creating an
 // `auth:OutboundBasicAuthProvider` with the `username` and `password`
 // passed as a record.
-auth:OutboundBasicAuthProvider outboundBasicAuthProvider = new({
+auth:OutboundBasicAuthProvider outboundBasicAuthProvider = new ({
     username: "tom",
     password: "1234"
 });
 
 // Creates a Basic Auth handler with the created Basic Auth provider.
 http:BasicAuthHandler outboundBasicAuthHandler =
-                                            new(outboundBasicAuthProvider);
+new (outboundBasicAuthProvider);
 
-http:Client httpEndpoint = new("https://localhost:9090", {
+http:Client httpEndpoint = new ("https://localhost:9090", {
     auth: {
         authHandler: outboundBasicAuthHandler
     },
@@ -33,7 +33,7 @@ public function main() {
     if (response is http:Response) {
         var result = response.getTextPayload();
         log:printInfo((result is error) ? "Failed to retrieve payload."
-                                        : result);
+        : result);
     } else {
         log:printError("Failed to call the endpoint.", response);
     }

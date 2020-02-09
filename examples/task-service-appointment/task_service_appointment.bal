@@ -13,7 +13,7 @@ task:AppointmentConfiguration appointmentConfiguration = {
 };
 
 // Initialize the listener using pre defined configurations.
-listener task:Listener appointment = new(appointmentConfiguration);
+listener task:Listener appointment = new (appointmentConfiguration);
 
 int count = 0;
 

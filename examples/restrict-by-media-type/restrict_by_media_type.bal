@@ -22,15 +22,15 @@ service infoService on new http:Listener(9092) {
             string nameString = <string>msg.name;
             // Create the XML payload and send back a response.
             xml name = xml `<name>${nameString}</name>`;
-            res.setXmlPayload(<@untained> name);
+            res.setXmlPayload(<@untained>name);
         } else {
             res.statusCode = 500;
-            res.setPayload(<@untainted> <string>msg.detail()?.message);
+            res.setPayload(<@untainted><string>msg.detail()?.message);
         }
 
         var result = caller->respond(res);
         if (result is error) {
-           log:printError("Error in responding", err = result);
+            log:printError("Error in responding", err = result);
         }
     }
 }
