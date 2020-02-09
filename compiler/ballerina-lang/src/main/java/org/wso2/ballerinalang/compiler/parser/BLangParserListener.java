@@ -266,7 +266,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      * {@inheritDoc}
      */
     @Override
-    public void enterCallableUnitBody(BallerinaParser.CallableUnitBodyContext ctx) {
+    public void enterBlockFunctionBody(BallerinaParser.BlockFunctionBodyContext ctx) {
         if (isInErrorState) {
             return;
         }
@@ -278,12 +278,12 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      * {@inheritDoc}
      */
     @Override
-    public void exitCallableUnitBody(BallerinaParser.CallableUnitBodyContext ctx) {
+    public void exitBlockFunctionBody(BallerinaParser.BlockFunctionBodyContext ctx) {
         if (isInErrorState) {
             return;
         }
 
-        this.pkgBuilder.endCallableUnitBody(getWS(ctx));
+        this.pkgBuilder.endBlockFunctionBody(getWS(ctx));
     }
 
     /**
@@ -321,18 +321,20 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
+        String funcName = ctx.anyIdentifierName().getText();
         boolean publicFunc = ctx.PUBLIC() != null;
         boolean remoteFunc = ctx.REMOTE() != null;
-        boolean nativeFunc = ctx.externalFunctionBody() != null;
-        boolean bodyExists = ctx.callableUnitBody() != null;
+        boolean nativeFunc = ctx.functionDefinitionBody().externalFunctionBody() != null;
+        boolean bodyExists = ctx.functionDefinitionBody().blockFunctionBody() != null;
         boolean privateFunc = ctx.PRIVATE() != null;
 
-        this.pkgBuilder.endFunctionDef(getCurrentPos(ctx), getWS(ctx), publicFunc, remoteFunc, nativeFunc, privateFunc,
-                                       bodyExists, false);
+        this.pkgBuilder.endFunctionDefinition(getCurrentPos(ctx), getWS(ctx), funcName,
+                                              getCurrentPos(ctx.anyIdentifierName()), publicFunc, remoteFunc,
+                                              nativeFunc, privateFunc, bodyExists, false);
     }
 
     @Override
-    public void enterLambdaFunction(BallerinaParser.LambdaFunctionContext ctx) {
+    public void enterExplicitAnonymousFunctionExpr(BallerinaParser.ExplicitAnonymousFunctionExprContext ctx) {
         if (isInErrorState) {
             return;
         }
@@ -341,18 +343,16 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     }
 
     @Override
-    public void exitLambdaFunction(BallerinaParser.LambdaFunctionContext ctx) {
+    public void exitExplicitAnonymousFunctionExpr(BallerinaParser.ExplicitAnonymousFunctionExprContext ctx) {
         if (isInErrorState) {
             return;
         }
 
-        this.pkgBuilder.addLambdaFunctionDef(getCurrentPos(ctx), getWS(ctx), ctx.formalParameterList() != null,
-                ctx.lambdaReturnParameter() != null,
-                ctx.formalParameterList() != null && ctx.formalParameterList().restParameter() != null);
+        this.pkgBuilder.addLambdaFunctionDef(getCurrentPos(ctx), getWS(ctx));
     }
 
     @Override
-    public void enterArrowFunction(BallerinaParser.ArrowFunctionContext ctx) {
+    public void enterInferAnonymousFunctionExpr(BallerinaParser.InferAnonymousFunctionExprContext ctx) {
         if (isInErrorState) {
             return;
         }
@@ -361,7 +361,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     }
 
     @Override
-    public void exitArrowFunctionExpression(BallerinaParser.ArrowFunctionExpressionContext ctx) {
+    public void exitInferAnonymousFunctionExpression(BallerinaParser.InferAnonymousFunctionExpressionContext ctx) {
         if (isInErrorState) {
             return;
         }
@@ -369,8 +369,16 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         this.pkgBuilder.addArrowFunctionDef(getCurrentPos(ctx), getWS(ctx), diagnosticSrc.pkgID);
     }
 
+    @Override public void exitInferParamList(BallerinaParser.InferParamListContext ctx) {
+        if (isInErrorState) {
+            return;
+        }
+
+        this.pkgBuilder.addWSForInferParamList(getWS(ctx));
+    }
+
     @Override
-    public void exitArrowParam(BallerinaParser.ArrowParamContext ctx) {
+    public void exitInferParam(BallerinaParser.InferParamContext ctx) {
         if (isInErrorState) {
             return;
         }
@@ -383,15 +391,14 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      * {@inheritDoc}
      */
     @Override
-    public void exitCallableUnitSignature(BallerinaParser.CallableUnitSignatureContext ctx) {
+    public void exitFunctionSignature(BallerinaParser.FunctionSignatureContext ctx) {
         if (isInErrorState) {
             return;
         }
 
-        this.pkgBuilder.endCallableUnitSignature(getCurrentPos(ctx), getWS(ctx), ctx.anyIdentifierName().getText(),
-                getCurrentPos(ctx.anyIdentifierName()), ctx.formalParameterList() != null,
-                ctx.returnParameter() != null, ctx.formalParameterList() != null
-                        && ctx.formalParameterList().restParameter() != null);
+        this.pkgBuilder.endFunctionSignature(getCurrentPos(ctx), getWS(ctx), ctx.formalParameterList() != null,
+                                             ctx.returnParameter() != null, ctx.formalParameterList() != null
+                                                     && ctx.formalParameterList().restParameter() != null);
     }
 
     /**
@@ -516,7 +523,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      * {@inheritDoc}
      */
     @Override
-    public void enterObjectFunctionDefinition(BallerinaParser.ObjectFunctionDefinitionContext ctx) {
+    public void enterMethodDeclaration(BallerinaParser.MethodDeclarationContext ctx) {
         if (isInErrorState) {
             return;
         }
@@ -528,21 +535,62 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      * {@inheritDoc}
      */
     @Override
-    public void exitObjectFunctionDefinition(BallerinaParser.ObjectFunctionDefinitionContext ctx) {
+    public void enterMethodDefinition(BallerinaParser.MethodDefinitionContext ctx) {
         if (isInErrorState) {
             return;
         }
+
+        this.pkgBuilder.startObjectFunctionDef();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void exitMethodDefinition(BallerinaParser.MethodDefinitionContext ctx) {
+        if (isInErrorState) {
+            return;
+        }
+
+        String funcName = ctx.anyIdentifierName().getText();
+        DiagnosticPos funcNamePos = getCurrentPos(ctx.anyIdentifierName());
+
+        BallerinaParser.FunctionDefinitionBodyContext funcDefBody = ctx.functionDefinitionBody();
+        boolean nativeFunc = funcDefBody.externalFunctionBody() != null;
+        boolean bodyExists = funcDefBody.blockFunctionBody() != null;
 
         boolean publicFunc = ctx.PUBLIC() != null;
         boolean isPrivate = ctx.PRIVATE() != null;
         boolean remoteFunc = ctx.REMOTE() != null;
         boolean resourceFunc = ctx.RESOURCE() != null;
-        boolean nativeFunc = ctx.externalFunctionBody() != null;
-        boolean bodyExists = ctx.callableUnitBody() != null;
         boolean markdownDocExists = ctx.documentationString() != null;
-        this.pkgBuilder.endObjectAttachedFunctionDef(getCurrentPos(ctx), getWS(ctx), publicFunc, isPrivate, remoteFunc,
-                                                     resourceFunc, nativeFunc, bodyExists, markdownDocExists,
-                                                     ctx.annotationAttachment().size());
+
+        this.pkgBuilder.endObjectAttachedFunctionDef(getCurrentPos(ctx), getWS(ctx), funcName, funcNamePos, publicFunc,
+                                                     isPrivate, remoteFunc, resourceFunc, nativeFunc,
+                                                     bodyExists, markdownDocExists, ctx.annotationAttachment().size());
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void exitMethodDeclaration(BallerinaParser.MethodDeclarationContext ctx) {
+        if (isInErrorState) {
+            return;
+        }
+
+        String funcName = ctx.anyIdentifierName().getText();
+        DiagnosticPos funcNamePos = getCurrentPos(ctx.anyIdentifierName());
+
+        boolean isPublic = ctx.PUBLIC() != null;
+        boolean isPrivate = ctx.PRIVATE() != null;
+        boolean remoteFunc = ctx.REMOTE() != null;
+        boolean resourceFunc = ctx.RESOURCE() != null;
+        boolean markdownDocExists = ctx.documentationString() != null;
+
+        this.pkgBuilder.endObjectAttachedFunctionDef(getCurrentPos(ctx), getWS(ctx), funcName, funcNamePos, isPublic,
+                                                     isPrivate, remoteFunc, resourceFunc, false, false,
+                                                     markdownDocExists, ctx.annotationAttachment().size());
     }
 
     /**
@@ -2614,15 +2662,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      */
     @Override
     public void exitReturnParameter(BallerinaParser.ReturnParameterContext ctx) {
-        if (isInErrorState) {
-            return;
-        }
-
-        this.pkgBuilder.addReturnParam(getCurrentPos(ctx), getWS(ctx), ctx.annotationAttachment().size());
-    }
-
-    @Override
-    public void exitLambdaReturnParameter(BallerinaParser.LambdaReturnParameterContext ctx) {
         if (isInErrorState) {
             return;
         }

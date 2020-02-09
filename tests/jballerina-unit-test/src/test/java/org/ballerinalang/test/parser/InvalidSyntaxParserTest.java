@@ -21,6 +21,7 @@ package org.ballerinalang.test.parser;
 import org.ballerinalang.test.util.BAssertUtil;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.CompileResult;
+import org.testng.Assert;
 import org.testng.annotations.Test;
 
 /**
@@ -84,7 +85,21 @@ public class InvalidSyntaxParserTest {
     @Test
     public void testServiceWithoutResourceParams() {
         CompileResult result = BCompileUtil.compile("test-src/parser/service-without-resource-params-negative.bal");
-        BAssertUtil.validateError(result, 0, "mismatched input '{'. expecting '('", 9, 29);
+        int index = 0;
+        BAssertUtil.validateError(result, index++, "extraneous input '{'", 5, 26);
+        BAssertUtil.validateError(result, index++, "mismatched input ':'. expecting '='", 6, 16);
+        BAssertUtil.validateError(result, index++,
+                                  "mismatched input '\"GET\"'. expecting {'service', 'function', 'object'," +
+                                          " 'record', 'abstract', 'client', 'int', 'byte', 'float', 'decimal', " +
+                                          "'boolean', 'string', 'error', " +
+                                          "'map', 'json', 'xml', 'table', 'stream', 'any', 'typedesc', 'future', " +
+                                          "'anydata', 'handle', '(', '['," +
+                                          " Identifier}", 6, 18);
+        BAssertUtil.validateError(result, index++, "mismatched input ':'. expecting '='", 7, 13);
+        BAssertUtil.validateError(result, index++, "invalid token '{'", 9, 29);
+        BAssertUtil.validateError(result, index++, "mismatched input '{'. expecting '('", 9, 29);
+        BAssertUtil.validateError(result, index++, "extraneous input '}'", 12, 1);
+        Assert.assertEquals(result.getErrorCount(), index);
     }
 
     @Test
