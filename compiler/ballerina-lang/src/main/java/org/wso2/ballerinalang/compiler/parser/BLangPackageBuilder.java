@@ -287,8 +287,6 @@ public class BLangPackageBuilder {
 
     private long isInErrorType = 0;
 
-    private long isInErrorType = 0;
-
     private BLangAnonymousModelHelper anonymousModelHelper;
     private CompilerOptions compilerOptions;
     private SymbolTable symTable;
