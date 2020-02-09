@@ -22,7 +22,7 @@ import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.TypeFlags;
 
 /**
- * This class contains all the utility methods related to iterators
+ * This class contains all the utility methods related to iterators.
  *
  * @since 1.2
  */
@@ -34,7 +34,7 @@ public class IteratorUtils {
         return 0;
     }
 
-    public static int getPuretypeTypeFlag(BType type) {
+    public static int getPureTypeTypeFlag(BType type) {
         if (type.isPureType()) {
             return TypeFlags.PURETYPE;
         }

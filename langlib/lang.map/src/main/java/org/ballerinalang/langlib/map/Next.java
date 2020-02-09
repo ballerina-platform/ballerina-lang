@@ -44,24 +44,16 @@ public class Next {
     //TODO: refactor hard coded values
     public static Object next(Strand strand, ObjectValue m) {
         IteratorValue mapIterator = (IteratorValue) m.getNativeData("&iterator&");
-
+        MapValueImpl mapValue = (MapValueImpl) m.getMapValue("m");
         if (mapIterator == null) {
-            mapIterator = m.getMapValue("m").getIterator();
+            mapIterator = mapValue.getIterator();
             m.addNativeData("&iterator&", mapIterator);
         }
 
         if (mapIterator.hasNext()) {
             ArrayValue keyValueTuple = (ArrayValue) mapIterator.next();
-            BRecordType recordType = (BRecordType) m.getNativeData("&recordType&");
-            if (recordType == null) {
-                BType type = ((BTupleType) keyValueTuple.getType()).getTupleTypes().get(1);
-                Map<String, BField> fields = new HashMap<>();
-                fields.put("value", new BField(type, "value", Flags.PUBLIC + Flags.REQUIRED));
-                recordType = new BRecordType("$$returnType$$", null, 0, fields, null, true,
-                        TypeFlags.asMask(IteratorUtils.getAnydataTypeFlag(type), IteratorUtils.getPuretypeTypeFlag(type)));
-                m.addNativeData("&recordType&", recordType);
-            }
-            return BallerinaValues.createRecord(new MapValueImpl<>(recordType), keyValueTuple.get(1));
+            return BallerinaValues.createRecord(new MapValueImpl<>(mapValue.getIteratorNextReturnType()),
+                    keyValueTuple.get(1));
         }
 
         return null;

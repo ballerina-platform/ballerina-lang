@@ -62,6 +62,11 @@ public class BTypes {
     public static BType typePureType = new BUnionType(Arrays.asList(typeAnydata, typeError));
     public static BType typeAllType = new BUnionType(Arrays.asList(typeAny, typeError));
     public static BType typeHandle = new BHandleType(TypeConstants.HANDLE_TNAME, new BPackage(null, null, null));
+    public static BRecordType stringItrNextReturnType = new BRecordType(TypeConstants.ITERATOR_NEXT_RETURN_TYPE,
+            new BPackage(null, null, null), 0, true, TypeFlags.asMask(TypeFlags.ANYDATA,
+            TypeFlags.PURETYPE));
+    public static BRecordType xmlItrNextReturnType = new BRecordType(TypeConstants.ITERATOR_NEXT_RETURN_TYPE,
+            new BPackage(null, null, null), 0, true, 0);
 
     static {
         HashMap<String, BField> fields = new HashMap<>();
@@ -74,6 +79,16 @@ public class BTypes {
         restFieldType[0] = BTypes.typeAnydata;
         restFieldType[1] = BTypes.typeError;
         typeErrorDetail.restFieldType = new BUnionType(Arrays.asList(restFieldType));
+
+        HashMap<String, BField> stringItrNextReturnTypeFields = new HashMap<>();
+        stringItrNextReturnTypeFields.put("value", new BField(BTypes.typeString, "value",
+                Flags.PUBLIC + Flags.REQUIRED));
+        stringItrNextReturnType.setFields(stringItrNextReturnTypeFields);
+
+        HashMap<String, BField> xmlItrNextReturnTypeFields = new HashMap<>();
+        BUnionType type = new BUnionType(Arrays.asList(BTypes.typeString, BTypes.typeXML));
+        xmlItrNextReturnTypeFields.put("value", new BField(type, "value", Flags.PUBLIC + Flags.REQUIRED));
+        xmlItrNextReturnType.setFields(xmlItrNextReturnTypeFields);
     }
     
     private BTypes() {

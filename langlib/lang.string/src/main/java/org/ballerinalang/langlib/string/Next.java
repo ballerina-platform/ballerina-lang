@@ -21,11 +21,7 @@ package org.ballerinalang.langlib.string;
 import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.types.BField;
-import org.ballerinalang.jvm.types.BRecordType;
 import org.ballerinalang.jvm.types.BTypes;
-import org.ballerinalang.jvm.types.TypeFlags;
-import org.ballerinalang.jvm.util.Flags;
 import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.api.BString;
@@ -36,8 +32,6 @@ import org.ballerinalang.natives.annotations.ReturnType;
 
 import java.text.CharacterIterator;
 import java.text.StringCharacterIterator;
-import java.util.HashMap;
-import java.util.Map;
 
 
 /**
@@ -67,19 +61,11 @@ public class Next {
         }
 
         if (stringCharacterIterator.current() != CharacterIterator.DONE) {
-            BRecordType recordType = (BRecordType) m.getNativeData("&recordType&");
-            if (recordType == null) {
-                Map<String, BField> fields = new HashMap<>();
-                fields.put("value", new BField(BTypes.typeString, "value", Flags.PUBLIC + Flags.REQUIRED));
-                recordType = new BRecordType("$$returnType$$", null, 0, fields,
-                        null, true, TypeFlags.asMask(TypeFlags.PURETYPE, TypeFlags.ANYDATA));
-                m.addNativeData("&recordType&", recordType);
-            }
             char character = stringCharacterIterator.current();
             stringCharacterIterator.next();
             Object charAsStr = USE_BSTRING ? StringUtils.fromString(String.valueOf(character)) :
                                String.valueOf(character);
-            return BallerinaValues.createRecord(new MapValueImpl<>(recordType), charAsStr);
+            return BallerinaValues.createRecord(new MapValueImpl<>(BTypes.stringItrNextReturnType), charAsStr);
         }
 
         return null;

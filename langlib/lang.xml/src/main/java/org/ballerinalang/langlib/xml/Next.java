@@ -53,15 +53,7 @@ public class Next {
 
         if (xmlIterator.hasNext()) {
             Object xmlValue = xmlIterator.next();
-            BRecordType recordType = (BRecordType) m.getNativeData("&recordType&");
-            if (recordType == null) {
-                Map<String, BField> fields = new HashMap<>();
-                BUnionType type = new BUnionType(Arrays.asList(BTypes.typeString, BTypes.typeXML));
-                fields.put("value", new BField(type, "value", Flags.PUBLIC + Flags.REQUIRED));
-                recordType = new BRecordType("$$returnType$$", null, 0, fields, null, true, 0);
-                m.addNativeData("&recordType&", recordType);
-            }
-            return BallerinaValues.createRecord(new MapValueImpl<>(recordType), xmlValue);
+            return BallerinaValues.createRecord(new MapValueImpl<>(BTypes.xmlItrNextReturnType), xmlValue);
         }
 
         return null;

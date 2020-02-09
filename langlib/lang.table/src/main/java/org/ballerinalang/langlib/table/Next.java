@@ -53,12 +53,7 @@ public class Next {
 
         if (tableIterator.hasNext()) {
             Object tableRow =  tableIterator.next();
-            BType type = tableValue.getStructType();
-            Map<String, BField> fields = new HashMap<>();
-            fields.put("value", new BField(type, "value", Flags.PUBLIC + Flags.REQUIRED));
-            BRecordType recordType = new BRecordType("$$returnType$$", null, 0, fields, null, true,
-                    TypeFlags.asMask(IteratorUtils.getAnydataTypeFlag(type), IteratorUtils.getPuretypeTypeFlag(type)));
-            return BallerinaValues.createRecord(new MapValueImpl<>(recordType), tableRow);
+            return BallerinaValues.createRecord(new MapValueImpl<>(tableValue.getIteratorNextReturnType()), tableRow);
         }
 
         return null;

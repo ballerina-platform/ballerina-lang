@@ -20,15 +20,20 @@ package org.ballerinalang.jvm.values;
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.ColumnDefinition;
 import org.ballerinalang.jvm.DataIterator;
+import org.ballerinalang.jvm.IteratorUtils;
 import org.ballerinalang.jvm.TableProvider;
 import org.ballerinalang.jvm.TableUtils;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BArrayType;
+import org.ballerinalang.jvm.types.BField;
 import org.ballerinalang.jvm.types.BFunctionType;
+import org.ballerinalang.jvm.types.BRecordType;
 import org.ballerinalang.jvm.types.BStructureType;
 import org.ballerinalang.jvm.types.BTableType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
+import org.ballerinalang.jvm.types.TypeFlags;
+import org.ballerinalang.jvm.util.Flags;
 import org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons;
 import org.ballerinalang.jvm.values.api.BFunctionPointer;
 import org.ballerinalang.jvm.values.api.BMap;
@@ -37,6 +42,7 @@ import org.ballerinalang.jvm.values.freeze.FreezeUtils;
 import org.ballerinalang.jvm.values.freeze.State;
 import org.ballerinalang.jvm.values.freeze.Status;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.StringJoiner;
@@ -65,6 +71,7 @@ public class TableValue implements RefValue, BTable {
     private boolean tableClosed;
     private volatile Status freezeStatus = new Status(State.UNFROZEN);
     private BType type;
+    private BType iteratorNextReturnType;
 
     @Deprecated
     public TableValue() {
@@ -541,5 +548,20 @@ public class TableValue implements RefValue, BTable {
     @Override
     public void freezeDirect() {
         this.freezeStatus.setFrozen();
+    }
+
+    private void initIteratorNextReturnType() {
+        Map<String, BField> fields = new HashMap<>();
+        fields.put("value", new BField(constraintType, "value", Flags.PUBLIC + Flags.REQUIRED));
+        iteratorNextReturnType = new BRecordType("$$returnType$$", null, 0, fields, null, true,
+                TypeFlags.asMask(IteratorUtils.getAnydataTypeFlag(type), IteratorUtils.getPureTypeTypeFlag(type)));
+    }
+
+    public BType getIteratorNextReturnType() {
+        if (iteratorNextReturnType == null) {
+            initIteratorNextReturnType();
+        }
+
+        return iteratorNextReturnType;
     }
 }
