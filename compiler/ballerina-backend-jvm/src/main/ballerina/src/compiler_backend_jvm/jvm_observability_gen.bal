@@ -45,6 +45,13 @@ function cleanUpServiceName(string serviceName) returns string {
     if (stringutils:contains(serviceName, "$$service$")) {
         finalString = stringutils:replace(serviceName, "$$service$", "_");
     }
+
+    if (stringutils:contains(serviceName, "$anonService$")) {
+        return finalString;
+    }
+
+    int lastIndex = stringutils:lastIndexOf(finalString, "_");
+    finalString = finalString.substring(0, lastIndex);
     return finalString;
 }
 
