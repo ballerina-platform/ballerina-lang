@@ -3165,8 +3165,9 @@ public class Desugar extends BLangNodeVisitor {
             genVarRefExpr = new BLangFieldVarRef((BVarSymbol) varRefExpr.symbol);
         } else if ((ownerSymbol.tag & SymTag.PACKAGE) == SymTag.PACKAGE ||
                 (ownerSymbol.tag & SymTag.SERVICE) == SymTag.SERVICE) {
-            // If the var ref is a const-ref of value type, then replace the ref
-            // from a simple literal
+
+            // TODO: The following condition can be removed once constant propagation for mapping constructor
+            // TODO: is resolved #issue-21127
             if ((varRefExpr.symbol.tag & SymTag.CONSTANT) == SymTag.CONSTANT) {
                 BConstantSymbol constSymbol = (BConstantSymbol) varRefExpr.symbol;
                 if (constSymbol.literalType.tag <= TypeTags.BOOLEAN || constSymbol.literalType.tag == TypeTags.NIL) {
