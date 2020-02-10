@@ -17,7 +17,6 @@
  */
 package org.wso2.ballerinalang.compiler.bir.codegen;
 
-import com.sun.codemodel.internal.JType;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;

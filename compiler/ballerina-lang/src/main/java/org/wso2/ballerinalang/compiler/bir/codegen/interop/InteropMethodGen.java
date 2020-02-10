@@ -18,12 +18,12 @@
 package org.wso2.ballerinalang.compiler.bir.codegen.interop;
 
 import com.sun.codemodel.internal.JPrimitiveType;
-import com.sun.codemodel.internal.JType;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.wso2.ballerinalang.compiler.bir.codegen.CodeGenerator;
+import org.wso2.ballerinalang.compiler.bir.codegen.JType;
 import org.wso2.ballerinalang.compiler.bir.codegen.JTypeTags;
 import org.wso2.ballerinalang.compiler.bir.codegen.Nilable;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRBasicBlock;
@@ -512,10 +512,10 @@ public class InteropMethodGen {
         }
     }
 
-    static String getSignatureForJType(JRefType|JArrayType jType) {
+    public static String getSignatureForJType(JType jType) {
         if (jType.tag == JTypeTags.JREF) {
             return jType.type;
-        } else {
+        } else if (jType.tag == JTypeTags.JARRAY) { //must be JArrayType
             JType eType = jType.elementType;
             String sig = "[";
             while (eType.tag == JTypeTags.JARRAY) {

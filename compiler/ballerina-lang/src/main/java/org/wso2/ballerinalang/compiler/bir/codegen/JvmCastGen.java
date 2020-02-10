@@ -17,12 +17,19 @@
  */
 package org.wso2.ballerinalang.compiler.bir.codegen;
 
-import com.sun.codemodel.internal.JType;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRVariableDcl;
+import org.wso2.ballerinalang.compiler.bir.model.VarKind;
+import org.wso2.ballerinalang.compiler.bir.model.VarScope;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BAnyType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
+import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 import static org.objectweb.asm.Opcodes.ALOAD;
@@ -74,7 +81,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TABLE_VAL
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPEDESC_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPE_CHECKER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPE_CONVERTER;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPE_FLAG_NILABLE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.XML_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmInstructionGen.I_STRING_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmInstructionGen.addBoxInsn;
@@ -96,7 +102,7 @@ public class JvmCastGen {
     static void generatePlatformCheckCast(MethodVisitor mv, BalToJVMIndexMap indexMap, BType sourceType, BType targetType) {
         if (sourceType.tag == JTypeTags.JTYPE) {
             // If a target type is bir type, then we can guarantee source type is a jvm type, hence the cast
-            generateJToBCheckCast(mv, indexMap, sourceType, targetType);
+            generateJToBCheckCast(mv, indexMap, (JType) sourceType, targetType);
         } else {
             // else target type is jvm and source type is bir
             generateBToJCheckCast(mv, sourceType, (JType) targetType);
@@ -286,10 +292,10 @@ public class JvmCastGen {
         }
     }
 
-    static void generateCheckCastBToJRef(MethodVisitor mv, BType sourceType, JRefType |JArrayType targetType) {
+    static void generateCheckCastBToJRef(MethodVisitor mv, BType sourceType, JType targetType) {
         if (sourceType.tag == TypeTags.HANDLE) {
             if (targetType.tag == JTypeTags.JREF &&
-                    (targetType.type == HANDLE_VALUE || targetType.type == BHANDLE)) {
+                    (targetType.type.equals(HANDLE_VALUE) || targetType.type.equals(BHANDLE))) {
                 // do nothing
                 return;
             }
@@ -334,7 +340,7 @@ public class JvmCastGen {
             return;
         } else {
             if (targetType.tag == TypeTags.UNION) {
-                generateCheckCastJToBUnionType(mv, indexMap, sourceType, targetType);
+                generateCheckCastJToBUnionType(mv, indexMap, sourceType, (BUnionType) targetType);
             } else if (targetType.tag == TypeTags.ANYDATA) {
                 generateCheckCastJToBAnyData(mv, indexMap, sourceType);
             } else if (targetType.tag == TypeTags.HANDLE) {
@@ -469,14 +475,14 @@ public class JvmCastGen {
         }
     }
 
-    static void generateCheckCastJToBUnionType(MethodVisitor mv, BalToJVMIndexMap indexMap, JType sourceType, BIRBUnionType targetType) {
+    static void generateCheckCastJToBUnionType(MethodVisitor mv, BalToJVMIndexMap indexMap, JType sourceType, BUnionType targetType) {
         generateJCastToBAny(mv, indexMap, sourceType, targetType);
     }
 
     static void generateCheckCastJToBAnyData(MethodVisitor mv, BalToJVMIndexMap indexMap, JType sourceType) {
-        if !(sourceType.tag == JTypeTags.JREF || sourceType.tag == JTypeTags.JARRAY) {
+        if (!(sourceType.tag == JTypeTags.JREF || sourceType.tag == JTypeTags.JARRAY)) {
             // if value types, then ad box instruction
-            generateJCastToBAny(mv, indexMap, sourceType, BIRTYPE_ANYDATA);
+            generateJCastToBAny(mv, indexMap, sourceType, new BAnyType(TypeTags.ANY, null));
         }
     }
 
@@ -538,7 +544,7 @@ public class JvmCastGen {
         } else if (sourceType.tag == JTypeTags.JDOUBLE) {
             mv.visitMethodInsn(INVOKESTATIC, DOUBLE_VALUE, "valueOf", String.format("(D)L%s;", DOUBLE_VALUE), false);
         } else if (sourceType.tag == JTypeTags.JREF) {
-            Label afterHandle = new;
+            Label afterHandle = new Label();
             if (sourceType.type == OBJECT) {
                 mv.visitInsn(DUP);
                 mv.visitTypeInsn(INSTANCEOF, ERROR_VALUE);
@@ -566,9 +572,8 @@ public class JvmCastGen {
             mv.visitTypeInsn(INSTANCEOF, REF_VALUE);
             mv.visitJumpInsn(IFNE, afterHandle);
 
-            BIRVariableDcl retJObjectVarDcl = new BIRVariableDcl(type:"any", name:new (value:"$_ret_jobject_val_$" ),
-            kind:
-            "LOCAL" );
+            BIRVariableDcl retJObjectVarDcl = new BIRVariableDcl(null, new BAnyType(TypeTags.ANY, null),
+                    new Name("$_ret_jobject_val_$"), VarScope.FUNCTION, VarKind.LOCAL, "");
             int returnJObjectVarRefIndex = indexMap.getIndex(retJObjectVarDcl);
             mv.visitVarInsn(ASTORE, returnJObjectVarRefIndex);
             mv.visitTypeInsn(NEW, HANDLE_VALUE);
@@ -585,12 +590,15 @@ public class JvmCastGen {
     }
 
     static boolean isNillable(BType targetType) {
-        if (targetType.tag == TypeTags.NIL | BIRBJSONType | BTypeAny | BTypeAnyData) {
+        if (targetType.tag == TypeTags.NIL ||
+                targetType.tag == TypeTags.JSON ||
+                targetType.tag == TypeTags.ANY ||
+                targetType.tag == TypeTags.ANYDATA) {
             return true;
         } else if (targetType.tag == TypeTags.UNION) {
-            return (targetType.typeFlags & TYPE_FLAG_NILABLE) == TYPE_FLAG_NILABLE;
+            return targetType.isNullable();
         } else if (targetType.tag == TypeTags.FINITE) {
-            return (targetType.typeFlags & TYPE_FLAG_NILABLE) == TYPE_FLAG_NILABLE;
+            return targetType.isNullable();
         }
 
         return false;
@@ -602,7 +610,7 @@ public class JvmCastGen {
             //checkCast(mv, bir:TYPE_JSON);
         } else {
             // if value types, then ad box instruction
-            generateJCastToBAny(mv, indexMap, sourceType, BIRTYPE_JSON);
+            generateJCastToBAny(mv, indexMap, sourceType, new BJSONType(TypeTags.JSON, null));
         }
     }
 
@@ -610,7 +618,7 @@ public class JvmCastGen {
                                                 BType targetType) {
         // Finite types are stored in ref registry at ballerina side. Therefore if the return
         // type if a primitive, then add a box instruction.
-        if !(sourceType.tag == JTypeTags.JREF || sourceType.tag == JTypeTags.JARRAY) {
+        if (!(sourceType.tag == JTypeTags.JREF || sourceType.tag == JTypeTags.JARRAY)) {
             generateJCastToBAny(mv, indexMap, sourceType, targetType);
         }
     }
@@ -638,7 +646,7 @@ public class JvmCastGen {
             checkCast(mv, targetType);
             return;
         } else if (targetType.tag == TypeTags.UNION) {
-            generateCheckCastToUnionType(mv, sourceType, targetType);
+            generateCheckCastToUnionType(mv, sourceType, (BUnionType) targetType);
             return;
         } else if (targetType.tag == TypeTags.ANYDATA) {
             generateCheckCastToAnyData(mv, sourceType);
@@ -653,9 +661,10 @@ public class JvmCastGen {
             generateXMLToAttributesMap(mv, sourceType);
             return;
         } else if (targetType.tag == TypeTags.FINITE) {
-            generateCheckCastToFiniteType(mv, sourceType, targetType);
+            generateCheckCastToFiniteType(mv, sourceType, (BFiniteType) targetType);
             return;
-        } else if (sourceType.tag == TypeTags.RECORD && (targetType.tag == TypeTags.MAP && targetType.constraint.tag == TypeTags.ANY)) {
+        } else if (sourceType.tag == TypeTags.RECORD && (targetType.tag == TypeTags.MAP
+                && ((BMapType) targetType).constraint.tag == TypeTags.ANY)) {
             // do nothing
         } else {
             // do the ballerina checkcast
@@ -741,7 +750,7 @@ public class JvmCastGen {
                 sourceType.tag == TypeTags.UNION ||
                 sourceType.tag == TypeTags.JSON ||
                 sourceType.tag == TypeTags.FINITE) {
-            checkCast(mv, BIRTYPE_STRING);
+            checkCast(mv, new BType(TypeTags.STRING, null));
             mv.visitTypeInsn(CHECKCAST, STRING_VALUE);
         } else if (sourceType.tag == TypeTags.INT) {
             mv.visitMethodInsn(INVOKESTATIC, LONG_VALUE, "toString", String.format("(J)L%s;", STRING_VALUE), false);
@@ -796,7 +805,7 @@ public class JvmCastGen {
 
     static void generateCheckCastToAnyData(MethodVisitor mv, BType sourceType) {
         if (sourceType.tag == TypeTags.ANY || sourceType.tag == TypeTags.UNION) {
-            checkCast(mv, BIRTYPE_ANYDATA);
+            checkCast(mv, new BAnyType(TypeTags.ANY, null));
         } else {
             // if value types, then ad box instruction
             generateCastToAny(mv, sourceType);
@@ -807,14 +816,14 @@ public class JvmCastGen {
         if (sourceType.tag == TypeTags.ANY ||
                 sourceType.tag == TypeTags.UNION ||
                 sourceType.tag == TypeTags.MAP) {
-            checkCast(mv, BIRTYPE_JSON);
+            checkCast(mv, new BAnyType(TypeTags.ANY, null));
         } else {
             // if value types, then ad box instruction
             generateCastToAny(mv, sourceType);
         }
     }
 
-    static void generateCheckCastToUnionType(MethodVisitor mv, BType sourceType, BIRBUnionType targetType) {
+    static void generateCheckCastToUnionType(MethodVisitor mv, BType sourceType, BUnionType targetType) {
         generateCastToAny(mv, sourceType);
         checkCast(mv, targetType);
     }
@@ -851,13 +860,13 @@ public class JvmCastGen {
         } else if (targetType.tag == TypeTags.HANDLE) {
             targetTypeClass = HANDLE_VALUE;
         } else {
-            return;
+            return null;
         }
 
         return targetTypeClass;
     }
 
-    static void generateCheckCastToFiniteType(MethodVisitor mv, BType sourceType, BIRBFiniteType targetType) {
+    static void generateCheckCastToFiniteType(MethodVisitor mv, BType sourceType, BFiniteType targetType) {
         generateCastToAny(mv, sourceType);
         checkCast(mv, targetType);
     }
