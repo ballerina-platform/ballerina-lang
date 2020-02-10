@@ -35,22 +35,20 @@ import java.util.Map;
  */
 public class IteratorUtils {
 
+    /**
+     * Returns the pure type and anydata type flags if they are available, otherwise 0. This is only used to check if
+     * the record type returned fro the next function of an iterator, is a pure type or anydata.
+     * @param type The type being checked.
+     * @return The type flags
+     */
     public static int getTypeFlags(BType type) {
-        boolean isPureType = type.isPureType();
-        boolean isAnydata = type.isAnydata();
-
-        if (isPureType && isAnydata) {
+        if (type.isAnydata()) {
             return TypeFlags.asMask(TypeFlags.PURETYPE, TypeFlags.ANYDATA);
         }
 
-        if (isAnydata) {
-            return TypeFlags.ANYDATA;
-        }
-
-        if (isPureType) {
+        if (type.isPureType()) {
             return TypeFlags.PURETYPE;
         }
-
         return 0;
     }
 
