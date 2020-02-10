@@ -36,32 +36,32 @@ import java.util.concurrent.TimeUnit;
 @Test(groups = {"websocket-test"})
 public class FailoverClientTest extends WebSocketTestCommons {
 
-    private WebSocketRemoteServer remoteServer15300;
-    private WebSocketRemoteServer remoteServer15200;
+    private WebSocketRemoteServer firstRemoteServer;
+    private WebSocketRemoteServer secondRemoteServer;
     private static final String URL = "ws://localhost:21032";
-    private static final int PORT = 15300;
-    private static final int SEVER_PORT = 15200;
+    private static final int FIRST_SERVER_PORT = 15300;
+    private static final int SECOND_SERVER_PORT = 15200;
     private static final String MESSAGE = "hi all";
     private static final String text = "hi";
 
     @Test(description = "Tests the failover webSocket client by starting the second server in the target URLs.")
     public void testTextFrameWithSecondServer() throws URISyntaxException, InterruptedException,
             BallerinaTestException {
-        remoteServer15200 = initiateServer(SEVER_PORT);
+        secondRemoteServer = initiateServer(SECOND_SERVER_PORT);
         WebSocketTestClient client = initiateClient(URL);
         sendTextDataAndAssert(client, MESSAGE);
-        closeConnection(client, remoteServer15200);
+        closeConnection(client, secondRemoteServer);
     }
 
     @Test(description = "Tests the failover webSocket client by starting the first server in the target URLs.")
     public void testBinaryFrameForFailover() throws URISyntaxException, InterruptedException, BallerinaTestException {
-        remoteServer15300 = initiateServer(PORT);
+        firstRemoteServer = initiateServer(FIRST_SERVER_PORT);
         WebSocketTestClient client = initiateClient(URL);
         sendBinaryDataAndAssert(client);
-        closeConnection(client, remoteServer15300);
+        closeConnection(client, firstRemoteServer);
     }
 
-    @Test(description = "Tests the failover webSocket client by doesn't start the any server in the targets URLs")
+    @Test(description = "Tests the failover webSocket client by not starting any of the servers in the targets URLs")
     public void testFailingFailover() throws URISyntaxException, InterruptedException {
         CountDownLatch countDownLatch = new CountDownLatch(1);
         WebSocketTestClient client = initiateClient(URL);
@@ -77,36 +77,36 @@ public class FailoverClientTest extends WebSocketTestCommons {
     @Test(description = "Tests the failover webSocket client by starting the both server in the target URLs.")
     public void testFailoverWithBothServer() throws URISyntaxException, InterruptedException,
             BallerinaTestException {
-        remoteServer15200 = initiateServer(SEVER_PORT);
-        remoteServer15300 = initiateServer(PORT);
+        secondRemoteServer = initiateServer(SECOND_SERVER_PORT);
+        firstRemoteServer = initiateServer(FIRST_SERVER_PORT);
         WebSocketTestClient client = initiateClient(URL);
         sendTextDataAndAssert(client, MESSAGE);
-        remoteServer15300.stop();
+        firstRemoteServer.stop();
         sendTextDataAndAssert(client, text);
         sendBinaryDataAndAssert(client);
-        closeConnection(client, remoteServer15200);
+        closeConnection(client, secondRemoteServer);
     }
 
     @Test(description = "Tests the failover webSocket client by starting the both server in the target URLs.")
     public void testFailoverWithBothServerFirstStartSecondServer() throws URISyntaxException, InterruptedException,
             BallerinaTestException {
-        remoteServer15200 = initiateServer(SEVER_PORT);
+        secondRemoteServer = initiateServer(SECOND_SERVER_PORT);
         WebSocketTestClient client = initiateClient(URL);
         sendTextDataAndAssert(client, MESSAGE);
-        remoteServer15300 = initiateServer(PORT);
-        remoteServer15200.stop();
+        firstRemoteServer = initiateServer(FIRST_SERVER_PORT);
+        secondRemoteServer.stop();
         sendTextDataAndAssert(client, text);
-        closeConnection(client, remoteServer15300);
+        closeConnection(client, firstRemoteServer);
     }
 
     @Test(description = "Tests handshake's waiting time exception")
-    public void testCountDownLatch() throws URISyntaxException, InterruptedException, BallerinaTestException {
-        remoteServer15300 = initiateServer(PORT);
+    public void testHandshakeTimout() throws URISyntaxException, InterruptedException, BallerinaTestException {
+        firstRemoteServer = initiateServer(FIRST_SERVER_PORT);
         WebSocketTestClient client = initiateClient("ws://localhost:21034");
         CountDownLatch latch = new CountDownLatch(1);
         latch.await(TIMEOUT_IN_SECS, TimeUnit.SECONDS);
         sendTextDataAndAssert(client, MESSAGE);
-        remoteServer15300.stop();
+        firstRemoteServer.stop();
         CountDownLatch countDownLatch = new CountDownLatch(1);
         countDownLatch.await(TIMEOUT_IN_SECS, TimeUnit.SECONDS);
         Assert.assertEquals(client.getTextReceived(), "error {ballerina/http}WsInvalidHandshakeError " +
