@@ -357,10 +357,9 @@ public class WebSocketClientFunctionalityTestCase {
         sendTextMessageAndReceiveResponse("close-without-frame", connectorListener, webSocketConnection);
         WebSocketCloseMessage closeMessage = connectorListener.getCloseMessage();
 
-        Assert.assertEquals(closeMessage.getCloseCode(), 1006);
-        Assert.assertNull(closeMessage.getCloseReason());
         Assert.assertTrue(connectorListener.isClosed());
-        Assert.assertFalse(closeMessage.getWebSocketConnection().isOpen());
+        Assert.assertEquals(closeMessage.getCloseCode(), 1000);
+        Assert.assertEquals(closeMessage.getCloseReason(), "Bye");
     }
 
     @Test(description = "Test connection termination using WebSocketConnection without sending a close frame.")
