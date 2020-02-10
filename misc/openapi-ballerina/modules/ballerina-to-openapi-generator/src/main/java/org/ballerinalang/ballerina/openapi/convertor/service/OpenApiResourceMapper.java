@@ -41,6 +41,7 @@ import io.swagger.models.properties.StringProperty;
 import org.ballerinalang.ballerina.openapi.convertor.ConverterUtils;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
+import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
 import org.ballerinalang.net.http.HttpConstants;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
@@ -61,7 +62,7 @@ import java.util.Set;
 
 import javax.ws.rs.core.MediaType;
 
-import static org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKeyValue;
+import static org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKeyValueField;
 
 /**
  * This class will do resource mapping from ballerina to openApi.
@@ -224,7 +225,7 @@ public class OpenApiResourceMapper {
         if (annotation != null) {
             BLangRecordLiteral bLiteral = ((BLangRecordLiteral) ((BLangAnnotationAttachment) annotation)
                     .getExpression());
-            Map<String, BLangExpression> attrs = ConverterUtils.listToMap(bLiteral.getKeyValuePairs());
+            Map<String, BLangExpression> attrs = ConverterUtils.listToMap(bLiteral.getFields());
 
             if (attrs.containsKey(ConverterConstants.ATTR_VALUE)) {
                 BLangListConstructorExpr valueArr = (BLangListConstructorExpr) attrs.get(ConverterConstants.ATTR_VALUE);
@@ -233,8 +234,8 @@ public class OpenApiResourceMapper {
                     Map<String, Response> responses = new HashMap<>();
 
                     for (ExpressionNode expr : valueArr.getExpressions()) {
-                        List<BLangRecordKeyValue> resList = ((BLangRecordLiteral) expr).getKeyValuePairs();
-                        Map<String, BLangExpression> attributes = ConverterUtils.listToMap(resList);
+                        Map<String, BLangExpression> attributes =
+                                ConverterUtils.listToMap(((BLangRecordLiteral) expr).getFields());
 
                         if (attributes.containsKey(ConverterConstants.ATTR_CODE)) {
                             String code = ConverterUtils
@@ -266,8 +267,8 @@ public class OpenApiResourceMapper {
             BLangListConstructorExpr headerArray = (BLangListConstructorExpr) annotationExpression;
 
             for (ExpressionNode headersValue : headerArray.getExpressions()) {
-                List<BLangRecordKeyValue> headerList = ((BLangRecordLiteral) headersValue).getKeyValuePairs();
-                Map<String, BLangExpression> headersAttributes = ConverterUtils.listToMap(headerList);
+                Map<String, BLangExpression> headersAttributes =
+                        ConverterUtils.listToMap(((BLangRecordLiteral) headersValue).getFields());
                 Map<String, Property> headers = new HashMap<>();
 
                 if (headersAttributes.containsKey(ConverterConstants.ATTR_NAME) && headersAttributes
@@ -302,10 +303,9 @@ public class OpenApiResourceMapper {
                         resource.getAnnotationAttachments());
 
         if (annotation != null) {
-            BLangRecordLiteral bLiteral = ((BLangRecordLiteral) ((BLangAnnotationAttachment) annotation)
-                    .getExpression());
-            List<BLangRecordLiteral.BLangRecordKeyValue> list = bLiteral.getKeyValuePairs();
-            Map<String, BLangExpression> recordsMap = ConverterUtils.listToMap(list);
+            Map<String, BLangExpression> recordsMap =
+                    ConverterUtils.listToMap(((BLangRecordLiteral) ((BLangAnnotationAttachment) annotation)
+                            .getExpression()).getFields());
 
             if (recordsMap.containsKey(HttpConstants.ANN_RESOURCE_ATTR_PATH)
                     && recordsMap.get(HttpConstants.ANN_RESOURCE_ATTR_PATH) != null) {
@@ -369,8 +369,8 @@ public class OpenApiResourceMapper {
                     .getExpressions();
 
             for (ExpressionNode expr : paramExprs) {
-                List<BLangRecordKeyValue> paramList = ((BLangRecordLiteral) expr).getKeyValuePairs();
-                Map<String, BLangExpression> paramAttributes = ConverterUtils.listToMap(paramList);
+                Map<String, BLangExpression> paramAttributes =
+                        ConverterUtils.listToMap(((BLangRecordLiteral) expr).getFields());
                 String in;
 
                 if (paramAttributes.containsKey(ConverterConstants.ATTR_IN)) {
@@ -434,15 +434,15 @@ public class OpenApiResourceMapper {
             BLangRecordLiteral bLiteral = (BLangRecordLiteral) ((BLangAnnotationAttachment) multiResourceInfoAnnotation)
                     .getExpression();
             // In multi resource information there is only one key exist that is `resource information`.
-            BLangRecordKeyValue resourceInformationAttr = bLiteral.keyValuePairs.size() == 1
-                    ? bLiteral.keyValuePairs.get(0)
+            BLangRecordKeyValueField resourceInformationAttr = bLiteral.fields.size() == 1
+                    ? (BLangRecordKeyValueField) bLiteral.fields.get(0)
                     : null;
             if (resourceInformationAttr != null) {
-                List<BLangRecordLiteral.BLangRecordKeyValue> resourceInformations =
-                        ((BLangRecordLiteral) resourceInformationAttr.valueExpr).getKeyValuePairs();
-                for (BLangRecordKeyValue resourceInfo : resourceInformations) {
-                    if (((BLangLiteral) resourceInfo.key.expr).value.equals(httpMethod)) {
-                        addResourceInfoToOperation(((BLangRecordLiteral) resourceInfo.valueExpr), operation);
+                for (RecordLiteralNode.RecordField resourceInfo :
+                        ((BLangRecordLiteral) resourceInformationAttr.valueExpr).getFields()) {
+                    BLangRecordKeyValueField resourceInfoKeyValue = (BLangRecordKeyValueField) resourceInfo;
+                    if (((BLangLiteral) resourceInfoKeyValue.key.expr).value.equals(httpMethod)) {
+                        addResourceInfoToOperation(((BLangRecordLiteral) resourceInfoKeyValue.valueExpr), operation);
                     }
                 }
             }
@@ -450,8 +450,7 @@ public class OpenApiResourceMapper {
     }
 
     private void addResourceInfoToOperation(BLangRecordLiteral bLiteral, Operation operation) {
-        List<BLangRecordLiteral.BLangRecordKeyValue> list = bLiteral.getKeyValuePairs();
-        Map<String, BLangExpression> attributes = ConverterUtils.listToMap(list);
+        Map<String, BLangExpression> attributes = ConverterUtils.listToMap(bLiteral.getFields());
         this.createTagModel(attributes.get(ConverterConstants.ATTR_TAGS), operation);
 
         if (attributes.containsKey(ConverterConstants.ATTR_SUMMARY)) {
@@ -479,7 +478,7 @@ public class OpenApiResourceMapper {
         if (null != annotationExpression) {
             if (annotationExpression instanceof BLangRecordLiteral) {
                 BLangRecordLiteral docAnnotation = (BLangRecordLiteral) annotationExpression;
-                Map<String, BLangExpression> docAttrs = ConverterUtils.listToMap(docAnnotation.getKeyValuePairs());
+                Map<String, BLangExpression> docAttrs = ConverterUtils.listToMap(docAnnotation.getFields());
                 ExternalDocs externalDocs = new ExternalDocs();
 
                 if (docAttrs.containsKey(ConverterConstants.ATTR_DESCRIPTION)) {
@@ -532,8 +531,7 @@ public class OpenApiResourceMapper {
         if (annotation != null) {
             BLangRecordLiteral bLiteral = ((BLangRecordLiteral) ((BLangAnnotationAttachment) annotation)
                     .getExpression());
-            List<BLangRecordLiteral.BLangRecordKeyValue> list = bLiteral.getKeyValuePairs();
-            Map<String, BLangExpression> attributes = ConverterUtils.listToMap(list);
+            Map<String, BLangExpression> attributes = ConverterUtils.listToMap(bLiteral.getFields());
 
             if (attributes.containsKey(HttpConstants.ANN_RESOURCE_ATTR_PATH)) {
                 operation.setPath(
@@ -599,8 +597,7 @@ public class OpenApiResourceMapper {
         if (annotation != null) {
             BLangRecordLiteral bLiteral = ((BLangRecordLiteral) ((BLangAnnotationAttachment) annotation)
                     .getExpression());
-            List<BLangRecordLiteral.BLangRecordKeyValue> list = bLiteral.getKeyValuePairs();
-            Map<String, BLangExpression> recordsMap = ConverterUtils.listToMap(list);
+            Map<String, BLangExpression> recordsMap = ConverterUtils.listToMap(bLiteral.getFields());
             if (recordsMap.containsKey(HttpConstants.ANN_RESOURCE_ATTR_METHODS)
                     && recordsMap.get(HttpConstants.ANN_RESOURCE_ATTR_METHODS) != null) {
                 List<? extends ExpressionNode> methodsValue = ((BLangListConstructorExpr) recordsMap
@@ -638,8 +635,7 @@ public class OpenApiResourceMapper {
         if (annotation != null) {
             BLangRecordLiteral bLiteral = ((BLangRecordLiteral) ((BLangAnnotationAttachment) annotation)
                     .getExpression());
-            List<BLangRecordLiteral.BLangRecordKeyValue> list = bLiteral.getKeyValuePairs();
-            Map<String, BLangExpression> attributes = ConverterUtils.listToMap(list);
+            Map<String, BLangExpression> attributes = ConverterUtils.listToMap(bLiteral.getFields());
 
             if (attributes.containsKey(HttpConstants.ANN_RESOURCE_ATTR_PATH)) {
                 path = ConverterUtils.getStringLiteralValue(attributes.get(HttpConstants.ANN_RESOURCE_ATTR_PATH));

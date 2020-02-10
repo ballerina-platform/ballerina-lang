@@ -40,7 +40,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 )
 public class Next {
     public static Object next(Strand strand, StreamValue strm) {
-        Object next = strm.next(strand);
+        Object next = strm.next();
         if (next == null) {
             return null;
         }

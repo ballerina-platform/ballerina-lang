@@ -379,17 +379,11 @@ public class FormattingNodeTree {
                     if (text.equals(Tokens.OPENING_PARENTHESES)) {
                         arrowExprWS.addProperty(FormattingConstants.WS,
                                 this.getWhiteSpaces(formatConfig.get(FormattingConstants.SPACE_COUNT).getAsInt()));
-                    }
-
-                    if (text.equals(Tokens.COMMA)) {
+                    } else if (text.equals(Tokens.COMMA)) {
                         arrowExprWS.addProperty(FormattingConstants.WS, FormattingConstants.EMPTY_SPACE);
-                    }
-
-                    if (text.equals(Tokens.CLOSING_PARENTHESES)) {
+                    } else if (text.equals(Tokens.CLOSING_PARENTHESES)) {
                         arrowExprWS.addProperty(FormattingConstants.WS, FormattingConstants.EMPTY_SPACE);
-                    }
-
-                    if (text.equals(Tokens.EQUAL_GT)) {
+                    } else if (text.equals(Tokens.EQUAL_GT)) {
                         arrowExprWS.addProperty(FormattingConstants.WS, FormattingConstants.SINGLE_SPACE);
                     }
                 }
@@ -430,7 +424,7 @@ public class FormattingNodeTree {
             if (node.has(FormattingConstants.EXPRESSION)) {
                 JsonObject expression = node.getAsJsonObject(FormattingConstants.EXPRESSION);
                 JsonObject expressionFormatConfig = this.getFormattingConfig(0, 1, 0, false,
-                        this.getWhiteSpaceCount(indentWithParentIndentation), false);
+                        this.getWhiteSpaceCount(indentWithParentIndentation), true);
                 expression.add(FormattingConstants.FORMATTING_CONFIG, expressionFormatConfig);
             }
         }
@@ -3159,8 +3153,8 @@ public class FormattingNodeTree {
 
             // Has at least one line separation in records.
             boolean lineSeparationAvailable = false;
-            if (node.has("keyValuePairs")) {
-                lineSeparationAvailable = this.isMemberOnNewLine(node.getAsJsonArray("keyValuePairs"));
+            if (node.has("fields")) {
+                lineSeparationAvailable = this.isMemberOnNewLine(node.getAsJsonArray("fields"));
             }
 
             // Iterate and update Whitespaces for the node.
@@ -3210,8 +3204,8 @@ public class FormattingNodeTree {
             }
 
             // Update the key value pair of a record.
-            if (node.has("keyValuePairs")) {
-                JsonArray keyValuePairs = node.getAsJsonArray("keyValuePairs");
+            if (node.has("fields")) {
+                JsonArray keyValuePairs = node.getAsJsonArray("fields");
                 for (int i = 0; i < keyValuePairs.size(); i++) {
                     JsonObject keyValue = keyValuePairs.get(i).getAsJsonObject();
                     JsonObject keyValueFormatting;

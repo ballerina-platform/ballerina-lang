@@ -359,8 +359,8 @@ public class TreeBuilder {
         return new BLangRecordLiteral();
     }
 
-    public static RecordLiteralNode.RecordKeyValueNode createRecordKeyValue() {
-        return new BLangRecordLiteral.BLangRecordKeyValue();
+    public static RecordLiteralNode.RecordKeyValueFieldNode createRecordKeyValue() {
+        return new BLangRecordLiteral.BLangRecordKeyValueField();
     }
 
     public static TableLiteralNode createTableLiteralNode() {
@@ -441,6 +441,10 @@ public class TreeBuilder {
 
     public static SimpleVariableReferenceNode createSimpleVariableReferenceNode() {
         return new BLangSimpleVarRef();
+    }
+
+    public static RecordLiteralNode.RecordVarNameFieldNode createRecordVarRefNameFieldNode() {
+        return new BLangRecordLiteral.BLangRecordVarNameField();
     }
 
     public static InvocationNode createInvocationNode() {

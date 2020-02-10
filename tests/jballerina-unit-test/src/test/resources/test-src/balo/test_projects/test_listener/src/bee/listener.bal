@@ -35,3 +35,5 @@ public type ABC object {
 };
 
 public listener ABC ep = new ABC();
+public listener ep1 = new ABC();
+listener ep3 = new ABC();

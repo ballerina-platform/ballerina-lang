@@ -31,6 +31,7 @@ import org.ballerinalang.jvm.util.Flags;
 import org.ballerinalang.jvm.util.exceptions.BLangFreezeException;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.api.BArray;
+import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.jvm.values.freeze.FreezeUtils;
 import org.ballerinalang.jvm.values.freeze.State;
 import org.ballerinalang.jvm.values.freeze.Status;
@@ -133,7 +134,17 @@ public abstract class AbstractArrayValue implements ArrayValue {
      * @return array element
      */
     @Override
+    @Deprecated
     public abstract String getString(long index);
+
+    /**
+     * Get string value in the given index.
+     *
+     * @param index array index
+     * @return array element
+     */
+    @Override
+    public abstract BString getBString(long index);
 
     // ---------------------------- add methods --------------------------------------------------
 
@@ -189,7 +200,17 @@ public abstract class AbstractArrayValue implements ArrayValue {
      * @param value value to be added
      */
     @Override
+    @Deprecated
     public abstract void add(long index, String value);
+
+    /**
+     * Add BString value to the given array index.
+     *
+     * @param index array index
+     * @param value value to be added
+     */
+    @Override
+    public abstract void add(long index, BString value);
 
     // -------------------------------------------------------------------------------------------------------------
 
