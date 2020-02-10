@@ -133,10 +133,6 @@ dependencies {
     dist project(':ballerina-oauth2')
     dist project(':ballerina-xmlutils')
     dist project(':ballerina-jsonutils')
-    dist project(':ballerina-docker')
-    dist project(':ballerina-kubernetes')
-    dist project(':ballerina-istio')
-    dist project(':ballerina-openshift')
 
     // Lang libs
     dist project(':ballerina-lang:internal')

@@ -86,10 +86,6 @@ dependencies {
     distBal project(path: ':ballerina-xmlutils', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-llvm', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-jsonutils', configuration: 'baloImplementation')
-    distBal project(path: ':ballerina-docker', configuration: 'baloImplementation')
-    distBal project(path: ':ballerina-kubernetes', configuration: 'baloImplementation')
-    distBal project(path: ':ballerina-istio', configuration: 'baloImplementation')
-    distBal project(path: ':ballerina-openshift', configuration: 'baloImplementation')
 
     // Lang libs
     distBal project(path: ':ballerina-lang:internal', configuration: 'baloImplementation')
@@ -144,10 +140,6 @@ dependencies {
     balSource project(path: ':ballerina-xmlutils', configuration: 'balSource')
     balSource project(path: ':ballerina-llvm', configuration: 'balSource')
     balSource project(path: ':ballerina-jsonutils', configuration: 'balSource')
-    balSource project(path: ':ballerina-docker', configuration: 'balSource')
-    balSource project(path: ':ballerina-kubernetes', configuration: 'balSource')
-    balSource project(path: ':ballerina-istio', configuration: 'balSource')
-    balSource project(path: ':ballerina-openshift', configuration: 'balSource')
 
     // Lang Libs
     balSource project(path: ':ballerina-lang:internal', configuration: 'balSource')
