@@ -896,7 +896,14 @@ public class TypeChecker extends BLangNodeVisitor {
                 expressions.add((BLangSimpleVarRef) field);
             }
 
-            expType = new BMapType(TypeTags.MAP, getRepresentativeBroadType(expressions), null);
+            BType constraintType = getRepresentativeBroadType(expressions);
+
+            if (constraintType.tag == TypeTags.SEMANTIC_ERROR) {
+                resultType = symTable.semanticError;
+                return;
+            }
+
+            expType = new BMapType(TypeTags.MAP, constraintType, null);
         }
 
         if (expTypeTag == TypeTags.OBJECT) {
@@ -4791,6 +4798,10 @@ public class TypeChecker extends BLangNodeVisitor {
         LinkedHashSet<BType> broadTypesSet = new LinkedHashSet<>();
         BType[] inferredTypes = checkExprList(exprs, env);
         for (BType type : inferredTypes) {
+            if (type.tag == TypeTags.SEMANTIC_ERROR) {
+                return type;
+            }
+
             if (narrowTypes.stream().noneMatch(nType -> types.isSameType(type, nType))) {
                 narrowTypes.add(type);
             }
