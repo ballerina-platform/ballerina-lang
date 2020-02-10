@@ -123,6 +123,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.nameOfBSt
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.computeLockNameFromString;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.currentClass;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.getPackageName;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.symbolTable;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen.getTypeDesc;
 import static org.wso2.ballerinalang.compiler.bir.codegen.interop.ExternalMethodGen.OldStyleExternalFunctionWrapper;
 import static org.wso2.ballerinalang.compiler.bir.codegen.interop.ExternalMethodGen.desugarOldExternFuncs;
@@ -135,7 +136,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.interop.ExternalMethod
  */
 class JvmValueGen {
 
-    private static final BType booleanType = new BType(TypeTags.BOOLEAN, null);
     static void injectDefaultParamInitsToAttachedFuncs(BIRPackage module) {
         @Nilable List<BIRNode.BIRTypeDefinition> typeDefs = module.typeDefs;
         for (BIRNode.BIRTypeDefinition optionalTypeDef : typeDefs) {
@@ -637,7 +637,7 @@ class JvmValueGen {
 
                     if (this.isOptionalRecordField(field)) {
                         fv = cw.visitField(0, this.getFieldIsPresentFlagName(field.name.value),
-                                getTypeDesc(booleanType, false), null, null);
+                                getTypeDesc(symbolTable.booleanType, false), null, null);
                         fv.visitEnd();
                     }
                 }
@@ -694,7 +694,7 @@ class JvmValueGen {
                 if (this.isOptionalRecordField(field)) {
                     mv.visitVarInsn(ALOAD, 0);
                     mv.visitFieldInsn(GETFIELD, className, this.getFieldIsPresentFlagName(fieldName),
-                            getTypeDesc(booleanType, false));
+                            getTypeDesc(symbolTable.booleanType, false));
                     mv.visitJumpInsn(IFNE, ifPresentLabel);
                     mv.visitInsn(ACONST_NULL);
                     mv.visitInsn(ARETURN);
@@ -768,7 +768,7 @@ class JvmValueGen {
                     mv.visitVarInsn(ALOAD, 0);
                     mv.visitInsn(ICONST_1);
                     mv.visitFieldInsn(PUTFIELD, className, this.getFieldIsPresentFlagName(fieldName),
-                            getTypeDesc(booleanType, false));
+                            getTypeDesc(symbolTable.booleanType, false));
                 }
 
                 mv.visitInsn(ARETURN);
@@ -822,7 +822,7 @@ class JvmValueGen {
                 if (this.isOptionalRecordField(field)) {
                     mv.visitVarInsn(ALOAD, 0);
                     mv.visitFieldInsn(GETFIELD, className, this.getFieldIsPresentFlagName(fieldName),
-                            getTypeDesc(booleanType, false));
+                            getTypeDesc(symbolTable.booleanType, false));
                     mv.visitJumpInsn(IFEQ, ifNotPresent);
                 }
 
@@ -899,7 +899,7 @@ class JvmValueGen {
                     // if the field is optional, then return the value is the 'isPresent' flag.
                     mv.visitVarInsn(ALOAD, 0);
                     mv.visitFieldInsn(GETFIELD, className, this.getFieldIsPresentFlagName(fieldName),
-                            getTypeDesc(booleanType, false));
+                            getTypeDesc(symbolTable.booleanType, false));
                 } else {
                     // else always return true.
                     mv.visitLdcInsn(true);
@@ -940,7 +940,7 @@ class JvmValueGen {
                 if (this.isOptionalRecordField(field)) {
                     mv.visitVarInsn(ALOAD, 0); // this
                     mv.visitFieldInsn(GETFIELD, className, this.getFieldIsPresentFlagName(fieldName),
-                            getTypeDesc(booleanType, false));
+                            getTypeDesc(symbolTable.booleanType, false));
                     mv.visitJumpInsn(IFEQ, ifNotPresent);
                 }
 
@@ -981,7 +981,7 @@ class JvmValueGen {
                 if (this.isOptionalRecordField(field)) {
                     mv.visitVarInsn(ALOAD, 0);
                     mv.visitFieldInsn(GETFIELD, className, this.getFieldIsPresentFlagName(fieldName),
-                            getTypeDesc(booleanType, false));
+                            getTypeDesc(symbolTable.booleanType, false));
                     Label l3 = new Label();
                     mv.visitJumpInsn(IFEQ, l3);
                     mv.visitIincInsn(sizeVarIndex, 1);
@@ -1043,7 +1043,7 @@ class JvmValueGen {
                 if (this.isOptionalRecordField(field)) {
                     mv.visitVarInsn(ALOAD, 0); // this
                     mv.visitFieldInsn(GETFIELD, className, this.getFieldIsPresentFlagName(fieldName),
-                            getTypeDesc(booleanType, false));
+                            getTypeDesc(symbolTable.booleanType, false));
                     mv.visitJumpInsn(IFEQ, ifNotPresent);
                 }
 
