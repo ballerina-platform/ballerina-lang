@@ -50,6 +50,7 @@ import org.ballerinalang.langserver.util.references.SymbolReferencesModel;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.TopLevelNode;
+import org.ballerinalang.model.tree.expressions.IndexBasedAccessNode;
 import org.ballerinalang.model.types.TypeKind;
 import org.eclipse.lsp4j.ApplyWorkspaceEditParams;
 import org.eclipse.lsp4j.CodeAction;
@@ -359,8 +360,9 @@ public class CommandUtil {
             );
             if (matcher.find() && matcher.groupCount() > 0) {
                 List<Object> args = new ArrayList<>();
-                String pkgName = matcher.group(1);
-                args.add(new CommandArgument(CommandConstants.ARG_KEY_MODULE_NAME, pkgName));
+                String pkgName = matcher.group(1).trim();
+                String version = matcher.groupCount() > 1 && matcher.group(2) != null ? ":" + matcher.group(2) : "";
+                args.add(new CommandArgument(CommandConstants.ARG_KEY_MODULE_NAME, pkgName + version));
                 args.add(uriArg);
                 String commandTitle = CommandConstants.PULL_MOD_TITLE;
                 CodeAction action = new CodeAction(commandTitle);
@@ -482,20 +484,6 @@ public class CommandUtil {
         return actions;
     }
 
-    private static Position offsetInvocation(String diagnosedContent, Position position) {
-        // Diagnosed message only contains the erroneous part of the line
-        // Thus we offset into last
-        String quotesRemoved = diagnosedContent
-                .replaceAll(".*:", "") // package invocation
-                .replaceAll(".*->", "") // action invocation
-                .replaceAll(".*\\.", ""); // object access invocation
-        int bal = diagnosedContent.length() - quotesRemoved.length();
-        if (bal > 0) {
-            position.setCharacter(position.getCharacter() + bal + 1);
-        }
-        return position;
-    }
-
     private static String getDiagnosedContent(Diagnostic diagnostic, LSContext context, LSDocument document) {
         WorkspaceDocumentManager docManager = context.get(CommonKeys.DOC_MANAGER_KEY);
         StringBuilder content = new StringBuilder();
@@ -529,6 +517,23 @@ public class CommandUtil {
         return content.toString();
     }
 
+    private static Position offsetInvocation(String diagnosedContent, Position position) {
+        // Diagnosed message only contains the erroneous part of the line
+        // Thus we offset into last
+        int leftParenthesisIndex = diagnosedContent.indexOf("(");
+        diagnosedContent = (leftParenthesisIndex == -1) ? diagnosedContent
+                : diagnosedContent.substring(0, leftParenthesisIndex);
+        String quotesRemoved = diagnosedContent
+                .replaceAll(".*:", "") // package invocation
+                .replaceAll(".*->", "") // action invocation
+                .replaceAll(".*\\.", ""); // object access invocation
+        int bal = diagnosedContent.length() - quotesRemoved.length();
+        if (bal > 0) {
+            position.setCharacter(position.getCharacter() + bal + 1);
+        }
+        return position;
+    }
+
     private static List<TextEdit> getCreateVariableCodeActionEdits(LSContext context, String uri,
                                                                    SymbolReferencesModel.Reference referenceAtCursor,
                                                                    boolean hasDefaultInitFunction,
@@ -559,6 +564,10 @@ public class CommandUtil {
             variableType = FunctionGenerator.generateTypeDefinition(importsAcceptor, currentPkgId, bType);
             variableName = CommonUtil.generateVariableName(bType, nameEntries);
         } else {
+            // Recursively find parent, when it is an indexBasedAccessNode
+            while (bLangNode.parent instanceof IndexBasedAccessNode) {
+                bLangNode = bLangNode.parent;
+            }
             variableType = FunctionGenerator.generateTypeDefinition(importsAcceptor, currentPkgId, bLangNode.type);
         }
         // Remove brackets of the unions

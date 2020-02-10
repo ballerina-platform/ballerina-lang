@@ -320,7 +320,19 @@ public class BuildCommandTest extends CommandTest {
     
         readOutput(true);
     }
-    
+
+    @Test(description = "Build a valid ballerina file with relative path")
+    public void testBuildWithRelativePath() throws IOException {
+        String buildPath = "relative" + File.separator + "testDir" + File.separator + ".." + File.separator + "testBal"
+                + File.separator + "hello_world.bal";
+        Path sourceRoot = this.testResources.resolve("valid-bal-file");
+        BuildCommand buildCommand = new BuildCommand(sourceRoot, printStream, printStream, false, true, sourceRoot);
+        new CommandLine(buildCommand).parse(buildPath);
+        buildCommand.execute();
+        Assert.assertTrue(Files.exists(sourceRoot.resolve("hello_world.jar")));
+        readOutput(true);
+    }
+
     @Test(description = "Build a ballerina project with no modules.")
     public void testBuildBalProjWithNoModules() throws IOException {
         Path sourceRoot = this.testResources.resolve("project-with-no-modules");

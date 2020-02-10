@@ -61,8 +61,8 @@ function testConcat() returns xml {
     return xmllib:concat(x, <xml> testFromString(), "hello from String");
 }
 
-function testIsElement() returns [boolean, boolean, boolean] {
-    return [xmllib:concat().isElement(), catalog.isElement(), testConcat().isElement()];
+function testIsElement() returns [boolean, boolean, boolean, boolean] {
+    return [xmllib:concat().isElement(), catalog.isElement(), testConcat().isElement(), xmllib:concat(catalog).isElement()];
 }
 
 function testXmlPI() returns [boolean, boolean, boolean] {
@@ -122,6 +122,13 @@ function testSetChildren() returns xml {
     xml child = xml `<e>child</e>`;
     catalog.getChildren().strip()[0].setChildren(child);
     return catalog.getChildren().strip()[0];
+}
+
+function testSetChildrenAfterNavigationAccess() returns xml {
+    xml child = xml `<e>child</e>`;
+    xml node = xml `<a><b>c</b></a>`;
+    node["b"].setChildren(child);
+    return node;
 }
 
 function testSetChildrenNegative() {

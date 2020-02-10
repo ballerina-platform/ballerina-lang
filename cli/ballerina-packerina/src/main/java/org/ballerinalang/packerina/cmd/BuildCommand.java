@@ -241,10 +241,10 @@ public class BuildCommand implements BLauncherCmd {
                 //// check if path given is an absolute path. update source root accordingly.
                 if (Paths.get(this.argList.get(0)).isAbsolute()) {
                     sourcePath = Paths.get(this.argList.get(0));
-                    this.sourceRootPath = sourcePath.getParent();
                 } else {
                     sourcePath = this.sourceRootPath.resolve(this.argList.get(0));
                 }
+                this.sourceRootPath = sourcePath.getParent();
                 
                 //// check if the given file exists.
                 if (Files.notExists(sourcePath)) {

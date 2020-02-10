@@ -19,6 +19,7 @@ package org.ballerinalang.langlib.xml;
 
 import org.ballerinalang.jvm.XMLNodeType;
 import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.values.XMLSequence;
 import org.ballerinalang.jvm.values.XMLValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
@@ -40,6 +41,13 @@ import org.ballerinalang.natives.annotations.ReturnType;
 public class IsElement {
 
     public static boolean isElement(Strand strand, XMLValue<?> xmlValue) {
-        return xmlValue.getNodeType() == XMLNodeType.ELEMENT;
+        if (xmlValue.getNodeType() == XMLNodeType.ELEMENT) {
+            return true;
+        }
+        if (xmlValue.getNodeType() == XMLNodeType.SEQUENCE) {
+            XMLSequence sequence = (XMLSequence) xmlValue;
+            return sequence.size() == 1 && sequence.getItem(0).getNodeType() == XMLNodeType.ELEMENT;
+        }
+        return false;
     }
 }

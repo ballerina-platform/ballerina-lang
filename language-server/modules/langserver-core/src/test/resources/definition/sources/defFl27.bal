@@ -147,3 +147,11 @@ function getError() returns error|int {
 function divide(int a, int b) returns int {
     return a / b;
 }
+
+type TestObject3 object {
+
+};
+
+function testGotoDefObjectWithDefaultInit( ) {
+     TestObject3 test3 = new();
+}
