@@ -90,7 +90,7 @@ type TerminatorGenerator object {
     function genLockTerm(bir:Lock lockIns, string funcName, int localVarOffset) {
         jvm:Label gotoLabel = self.labelGen.getLabel(funcName + lockIns.lockBB.id.value);
         self.mv.visitLdcInsn("global");
-        self.mv.visitMethodInsn(INVOKESTATIC, LOCK_MANAGER, "getLockFromMap", io:sprintf("(L%s;)L%s", STRING_VALUE,
+        self.mv.visitMethodInsn(INVOKESTATIC, LOCK_MANAGER, "getLockFromMap", io:sprintf("(L%s;)L%s;", STRING_VALUE,
             LOCK_VALUE), false);
         self.mv.visitVarInsn(ALOAD, localVarOffset);
         self.mv.visitMethodInsn(INVOKEVIRTUAL, LOCK_VALUE, "lock", io:sprintf("(L%s;)Z", STRAND), false);
@@ -127,7 +127,7 @@ type TerminatorGenerator object {
 
         // unlocked in the same order https://yarchive.net/comp/linux/lock_ordering.html
         self.mv.visitLdcInsn("global");
-        self.mv.visitMethodInsn(INVOKESTATIC, LOCK_MANAGER, "getLockFromMap", io:sprintf("(L%s;)L%s", STRING_VALUE,
+        self.mv.visitMethodInsn(INVOKESTATIC, LOCK_MANAGER, "getLockFromMap", io:sprintf("(L%s;)L%s;", STRING_VALUE,
             LOCK_VALUE), false);
         self.mv.visitMethodInsn(INVOKEVIRTUAL, LOCK_VALUE, "unlock", "()V", false);
 
