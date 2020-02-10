@@ -95,7 +95,11 @@ public class PullCommand implements BLauncherCmd {
                         + " are included in the runtime.");
             }
         } else {
-            throw LauncherUtils.createLauncherException("To pull a module, provide the format as org-name/module-name");
+            CommandUtil.printError(outStream,
+                    "Pull command requires the names of the organization and module.",
+                    "ballerina pull {<org-name>/<module-name> | <org-name>/<module-name>:<version>}",
+                    false);
+            return;
         }
 
         // Get module name
