@@ -19,7 +19,9 @@
 package org.ballerinalang.jvm;
 
 import org.ballerinalang.jvm.types.BField;
+import org.ballerinalang.jvm.types.BRecordType;
 import org.ballerinalang.jvm.types.BType;
+import org.ballerinalang.jvm.types.TypeConstants;
 import org.ballerinalang.jvm.types.TypeFlags;
 import org.ballerinalang.jvm.util.Flags;
 
@@ -56,5 +58,12 @@ public class IteratorUtils {
         HashMap<String, BField> valueFields = new HashMap<>();
         valueFields.put("value", new BField(fieldType, "value", Flags.PUBLIC + Flags.REQUIRED));
         return valueFields;
+    }
+
+    public static BRecordType createIteratorReturnNextType(BType type) {
+        Map<String, BField> fields = new HashMap<>();
+        fields.put("value", new BField(type, "value", Flags.PUBLIC + Flags.REQUIRED));
+        return new BRecordType(TypeConstants.ITERATOR_NEXT_RETURN_TYPE, null, 0, fields, null, true,
+                getTypeFlags(type));
     }
 }

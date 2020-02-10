@@ -29,9 +29,7 @@ import org.ballerinalang.jvm.types.BTupleType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.types.BUnionType;
-import org.ballerinalang.jvm.types.TypeConstants;
 import org.ballerinalang.jvm.types.TypeTags;
-import org.ballerinalang.jvm.util.Flags;
 import org.ballerinalang.jvm.util.exceptions.BLangFreezeException;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.api.BMap;
@@ -506,7 +504,6 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
     }
 
     private void initializeIteratorNextReturnType() {
-        Map<String, BField> fields = new HashMap<>();
         BType type;
         if (this.type.getTag() == BTypes.typeMap.getTag()) {
             BMapType mapType = (BMapType) this.type;
@@ -524,9 +521,7 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
                 type = new BUnionType(new ArrayList<>(types));
             }
         }
-        fields.put("value", new BField(type, "value", Flags.PUBLIC + Flags.REQUIRED));
-        iteratorNextReturnType = new BRecordType(TypeConstants.ITERATOR_NEXT_RETURN_TYPE, null, 0, fields, null, true,
-                IteratorUtils.getTypeFlags(type));
+        iteratorNextReturnType = IteratorUtils.createIteratorReturnNextType(type);
     }
 
     public BType getIteratorNextReturnType() {

@@ -25,15 +25,11 @@ import org.ballerinalang.jvm.TableProvider;
 import org.ballerinalang.jvm.TableUtils;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BArrayType;
-import org.ballerinalang.jvm.types.BField;
 import org.ballerinalang.jvm.types.BFunctionType;
-import org.ballerinalang.jvm.types.BRecordType;
 import org.ballerinalang.jvm.types.BStructureType;
 import org.ballerinalang.jvm.types.BTableType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
-import org.ballerinalang.jvm.types.TypeConstants;
-import org.ballerinalang.jvm.util.Flags;
 import org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons;
 import org.ballerinalang.jvm.values.api.BFunctionPointer;
 import org.ballerinalang.jvm.values.api.BMap;
@@ -42,7 +38,6 @@ import org.ballerinalang.jvm.values.freeze.FreezeUtils;
 import org.ballerinalang.jvm.values.freeze.State;
 import org.ballerinalang.jvm.values.freeze.Status;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.StringJoiner;
@@ -550,16 +545,9 @@ public class TableValue implements RefValue, BTable {
         this.freezeStatus.setFrozen();
     }
 
-    private void initIteratorNextReturnType() {
-        Map<String, BField> fields = new HashMap<>();
-        fields.put("value", new BField(constraintType, "value", Flags.PUBLIC + Flags.REQUIRED));
-        iteratorNextReturnType = new BRecordType(TypeConstants.ITERATOR_NEXT_RETURN_TYPE, null, 0, fields, null, true,
-                IteratorUtils.getTypeFlags(type));
-    }
-
     public BType getIteratorNextReturnType() {
         if (iteratorNextReturnType == null) {
-            initIteratorNextReturnType();
+            iteratorNextReturnType = IteratorUtils.createIteratorReturnNextType(constraintType);
         }
 
         return iteratorNextReturnType;

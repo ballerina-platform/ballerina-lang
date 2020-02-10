@@ -18,20 +18,14 @@
 
 package org.ballerinalang.jvm.values;
 
+import org.ballerinalang.jvm.IteratorUtils;
 import org.ballerinalang.jvm.scheduling.Scheduler;
-import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.types.BField;
-import org.ballerinalang.jvm.types.BRecordType;
 import org.ballerinalang.jvm.types.BStreamType;
 import org.ballerinalang.jvm.types.BType;
-import org.ballerinalang.jvm.types.TypeConstants;
-import org.ballerinalang.jvm.types.TypeFlags;
-import org.ballerinalang.jvm.util.Flags;
 import org.ballerinalang.jvm.values.api.BFunctionPointer;
 import org.ballerinalang.jvm.values.api.BIterator;
 import org.ballerinalang.jvm.values.api.BStream;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
@@ -95,20 +89,13 @@ public class StreamValue implements RefValue, BStream {
         this(sourceStream.getType(), sourceStream, filterFunc, mapFunc);
     }
 
-    public void initializeIteratorNextReturnType() {
-        Map<String, BField> fields = new HashMap<>();
-        fields.put("value", new BField(constraintType, "value", Flags.PUBLIC + Flags.REQUIRED));
-        this.iteratorNextReturnType = new BRecordType(TypeConstants.ITERATOR_NEXT_RETURN_TYPE, type.getPackage(), 0,
-                fields, null, true, TypeFlags.asMask(TypeFlags.ANYDATA, TypeFlags.PURETYPE));
-    }
-
     public String getStreamId() {
         return streamId;
     }
 
     public BType getIteratorNextReturnType() {
         if (iteratorNextReturnType == null) {
-            initializeIteratorNextReturnType();
+            iteratorNextReturnType = IteratorUtils.createIteratorReturnNextType(constraintType);
         }
 
         return iteratorNextReturnType;
