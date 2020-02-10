@@ -36,6 +36,7 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRPackage;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRTypeDefinition;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRVariableDcl;
 import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
@@ -2419,8 +2420,8 @@ public class JvmMethodGen {
         }
     }
 
-    static BIRBRecordField getRecordField(@Nilable BIRBRecordField recordField) {
-        if (recordField instanceof BIRBRecordField) {
+    static BField getRecordField(@Nilable BField recordField) {
+        if (recordField != null) {
             return recordField;
         } else {
             BLangCompilerException err = new BLangCompilerException("Invalid record field");
@@ -2472,10 +2473,9 @@ public class JvmMethodGen {
     }
 
     static @Nilable
-    List<BIRFunction> getFunctions(@Nilable List<BIRFunction>?functions) {
+    List<BIRFunction> getFunctions(@Nilable List<BIRFunction> functions) {
         if (functions == null) {
-            BLangCompilerException err = new BLangCompilerException(String.format("Invalid functions: %s", functions));
-            throw err;
+            throw new BLangCompilerException(String.format("Invalid functions: %s", functions));
         } else {
             return functions;
         }
@@ -2501,8 +2501,8 @@ public class JvmMethodGen {
         return false;
     }
 
-    static void logCompileError(BLangCompilerException compileError, BIRPackage|BIRTypeDefinition|BIRFunction src, BIRPackage currentModule) {
-        String reason = compileError.reason();
+    static void logCompileError(BLangCompilerException compileError, Object src, BIRPackage currentModule) {
+        String reason = compileError.getMessage();
         Map<String, anydata|BLangCompilerException > detail = compileError.detail();
         BLangCompilerException err;
         DiagnosticPos pos;
@@ -2527,27 +2527,27 @@ public class JvmMethodGen {
         dlogger.logError(err, pos, currentModule);
     }
 
-    static @Nilable
-    BIRFunction findBIRFunction(BIRPackage|BIRTypeDefinition|BIRFunction src, String name) {
+    private static @Nilable
+    BIRFunction findBIRFunction(Object src, String name) {
+
         if (src instanceof BIRFunction) {
-            return src;
+            return (BIRFunction) src;
         } else if (src instanceof BIRPackage) {
-            for (T func : src.functions) {
-                if (func instanceof BIRFunction && cleanupFunctionName(func.name.value) == name) {
+            for (BIRFunction func : ((BIRPackage) src).functions) {
+                if (func != null && cleanupFunctionName(func.name.value).equals(name)) {
                     return func;
                 }
             }
         } else {
-            @Nilable List<BIRFunction>?attachedFuncs = src.attachedFuncs;
-            if (attachedFuncs instanceof @Nilable List<BIRFunction>) {
+            @Nilable List<BIRFunction> attachedFuncs = ((BIRTypeDefinition) src).attachedFuncs;
+            if (attachedFuncs != null) {
                 for (BIRFunction func : attachedFuncs) {
-                    if (func instanceof BIRFunction && cleanupFunctionName(func.name.value) == name) {
+                    if (func != null && cleanupFunctionName(func.name.value).equals(name)) {
                         return func;
                     }
                 }
             }
         }
-
         return null;
     }
 

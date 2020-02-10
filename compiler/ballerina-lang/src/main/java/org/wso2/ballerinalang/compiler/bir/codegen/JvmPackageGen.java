@@ -37,8 +37,10 @@ import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 import java.util.AbstractMap;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import static org.objectweb.asm.ClassWriter.COMPUTE_FRAMES;
 import static org.objectweb.asm.Opcodes.ACC_FINAL;
@@ -123,7 +125,7 @@ public class JvmPackageGen {
     public static Map<String, BIRFunctionWrapper> birFunctionMap = null;
     public static Map<String, BIRTypeDefinition> typeDefMap = null;
     public static Map<String, String> globalVarClassNames = null;
-    public static Map<String, AbstractMap.SimpleEntry<AsyncCall, FPLoad>> lambdas = null;
+    public static Map<String, AbstractMap.SimpleEntry<AsyncCall, FPLoad>> lambdas = new HashMap<>();
     public static Map<String, BIRPackage> compiledPkgCache = null;
     public static Map<String, String> externalMapCache = null;
     public static Map<String, PackageID> dependentModules = null;
@@ -131,11 +133,11 @@ public class JvmPackageGen {
     public static String currentClass = "";
     public static int lambdaIndex = 0;
 
-    splitPkgName(String key) {
+    String[] splitPkgName(String key) {
         int index = key.lastIndexOf("/");
         String pkgName = key.substring(0, index);
-        String functionName = key.substring(index + 1, key.size());
-        return [pkgName, functionName];
+        String functionName = key.substring(index + 1, key.length());
+        return new String[]{pkgName, functionName};
     }
 
     static String lookupFullQualifiedClassName(String key) {
@@ -221,18 +223,17 @@ public class JvmPackageGen {
 
             List<BIRFunction> bStringFuncs = new ArrayList<>();
             while (count < funcSize) {
-                BIRFunction birFunc = (BIRFunction) functions.get(count);
+                BIRFunction birFunc = functions.get(count);
                 count = count + 1;
                 if (IS_BSTRING) {
-                    BIRFunction bStringFunc = birFunc.duplicate();
+                    BIRFunction bStringFunc = new BIRFunction(birFunc.pos, birFunc.name, birFunc.flags, birFunc.type,
+                            birFunc.workerName, birFunc.workerChannels.length, birFunc.taintTable);
                     bStringFunc.name = new Name(nameOfBStringFunc(birFunc.name.value));
                     bStringFuncs.add(bStringFunc);
                 }
             }
 
-            for (BIRFunction func : bStringFuncs) {
-                functions.add(func);
-            }
+            functions.addAll(bStringFuncs);
         }
 
     }
@@ -293,7 +294,7 @@ public class JvmPackageGen {
             JavaClass v = entry.getValue();
             ClassWriter cw = new ClassWriter(COMPUTE_FRAMES);
             currentClass = moduleClass;
-            if (moduleClass == typeOwnerClass) {
+            if (Objects.equals(moduleClass, typeOwnerClass)) {
                 cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, moduleClass, null, VALUE_CREATOR, null);
                 generateDefaultConstructor(cw, VALUE_CREATOR);
                 generateUserDefinedTypeFields(cw, module.typeDefs);
@@ -348,8 +349,9 @@ public class JvmPackageGen {
             cw.visitEnd();
 
             byte[] result = cw.toByteArray();
-            if (result instanceof BLangCompilerException) {
-                logCompileError(result, module, module);
+            if (result == null) {
+//                logCompileError(result, module, module);
+                // TODO log error
                 jarFile.pkgEntries.put(moduleClass + ".class", new byte[0]);
             } else {
                 jarFile.pkgEntries.put(moduleClass + ".class", result);
@@ -401,7 +403,7 @@ public class JvmPackageGen {
 
     static void setServiceEPAvailableField(ClassWriter cw, MethodVisitor mv, boolean serviceEPAvailable,
                                            String initClass) {
-        FieldVisitor fv = cw.visitField(ACC_PUBLIC + ACC_STATIC, "serviceEPAvailable", "Z");
+        FieldVisitor fv = cw.visitField(ACC_PUBLIC + ACC_STATIC, "serviceEPAvailable", "Z", null, null);
         fv.visitEnd();
 
         if (serviceEPAvailable) {
@@ -423,13 +425,13 @@ public class JvmPackageGen {
     }
 
     static Map.Entry<BIRPackage, Boolean> lookupModule(PackageID modId) {
-        String orgName = modId.org;
-        String moduleName = modId.name;
-        String versionName = modId.modVersion;
+        String orgName = modId.orgName.value;
+        String moduleName = modId.name.value;
+        String versionName = modId.version.value;
 
-        var pkgFromCache = compiledPkgCache[orgName + moduleName];
+        BIRPackage pkgFromCache = compiledPkgCache.get(orgName + moduleName);
         if (pkgFromCache instanceof BIRPackage) {
-            return [pkgFromCache, true];
+            return new pkgFromCache, true];
         }
 
         var cacheDir = findCacheDirFor(modId);
