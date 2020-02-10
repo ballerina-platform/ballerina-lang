@@ -45,7 +45,7 @@ public class FinalAccessTest {
     public void testFinalFailCase() {
         CompileResult compileResultNegative = BCompileUtil.compile(
                 "test-src/types/finaltypes/final-field-test-negative.bal");
-        Assert.assertEquals(compileResultNegative.getErrorCount(), 13);
+        Assert.assertEquals(compileResultNegative.getErrorCount(), 14);
         BAssertUtil.validateError(compileResultNegative, 0, "cannot assign a value to final 'globalFinalInt'", 8, 5);
         BAssertUtil.validateError(compileResultNegative, 1, "cannot assign a value to function argument 'a'", 19, 5);
         BAssertUtil.validateError(compileResultNegative, 2, "cannot assign a value to function argument 'a'", 25, 5);
@@ -58,7 +58,10 @@ public class FinalAccessTest {
         BAssertUtil.validateError(compileResultNegative, 9, "cannot assign a value to final 'name'", 58, 5);
         BAssertUtil.validateError(compileResultNegative, 10, "cannot assign a value to final 'name'", 63, 5);
         BAssertUtil.validateError(compileResultNegative, 11, "cannot assign a value to final 'name'", 68, 5);
-        BAssertUtil.validateError(compileResultNegative, 12, "cannot assign a value to final 'ml'", 78, 5);
+        BAssertUtil.validateError(compileResultNegative, 12, "invalid assignment: 'listener' variable 'ml' is final",
+                                  78, 5);
+        BAssertUtil.validateError(compileResultNegative, 13, "invalid assignment: 'service' variable 's' is final",
+                                  84, 5);
     }
 
     @Test(description = "Test final global variable")

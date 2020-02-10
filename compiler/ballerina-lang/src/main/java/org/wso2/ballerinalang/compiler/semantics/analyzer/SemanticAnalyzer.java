@@ -2062,7 +2062,13 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         Name varName = names.fromIdNode(simpleVarRef.variableName);
         if (!Names.IGNORE.equals(varName) && env.enclInvokable != env.enclPkg.initFunction) {
             if ((simpleVarRef.symbol.flags & Flags.FINAL) == Flags.FINAL) {
-                dlog.error(varRef.pos, DiagnosticCode.CANNOT_ASSIGN_VALUE_FINAL, varRef);
+                if ((simpleVarRef.symbol.flags & Flags.SERVICE) == Flags.SERVICE) {
+                    dlog.error(varRef.pos, DiagnosticCode.INVALID_VARIABLE_ASSIGNMENT_FINAL, "service", varRef);
+                } else if ((simpleVarRef.symbol.flags & Flags.LISTENER) == Flags.LISTENER) {
+                    dlog.error(varRef.pos, DiagnosticCode.INVALID_VARIABLE_ASSIGNMENT_FINAL, "listener", varRef);
+                } else {
+                    dlog.error(varRef.pos, DiagnosticCode.CANNOT_ASSIGN_VALUE_FINAL, varRef);
+                }
             } else if ((simpleVarRef.symbol.flags & Flags.CONSTANT) == Flags.CONSTANT) {
                 dlog.error(varRef.pos, DiagnosticCode.CANNOT_ASSIGN_VALUE_TO_CONSTANT);
             } else if ((simpleVarRef.symbol.flags & Flags.FUNCTION_FINAL) == Flags.FUNCTION_FINAL) {
@@ -2071,6 +2077,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
     }
 
+    // TODO : check if READONLY is used now
     private void checkReadonlyAssignment(BLangExpression varRef) {
         if (varRef.type == symTable.semanticError) {
             return;

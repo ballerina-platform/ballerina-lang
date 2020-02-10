@@ -74,6 +74,12 @@ function getName() returns string {
 
 listener http:MockListener ml = new http:MockListener(8080);
 
-public function testListenerVariable() {
+public function testChangingListenerVariableAfterDefining() {
     ml = new http:MockListener(8081);
+}
+
+service s on ml {}
+
+public function testChangingServiceVariableAfterDefining() {
+    s = service {};
 }
