@@ -18,12 +18,12 @@
 
 package org.ballerinalang.jvm.values;
 
-import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.types.BStreamType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.values.api.BFunctionPointer;
+import org.ballerinalang.jvm.values.api.BIterator;
 import org.ballerinalang.jvm.values.api.BStream;
-import org.ballerinalang.jvm.values.api.BStreamIterator;
 
 import java.util.Map;
 import java.util.UUID;
@@ -42,7 +42,7 @@ public class StreamValue implements RefValue, BStream {
 
     private BType type;
     private BType constraintType;
-    private BStreamIterator iterator;
+    private BIterator<Object> iterator;
     public FunctionPointerWrapper<Boolean, Object> filter;
     public FunctionPointerWrapper<Object, Object> mapper;
 
@@ -62,7 +62,7 @@ public class StreamValue implements RefValue, BStream {
         this.mapper = new NoMapFunctionPointerWrapper();
     }
 
-    public StreamValue(BType type, BStreamIterator iterator, BFunctionPointer<Object, Boolean> filterFunc,
+    public StreamValue(BType type, BIterator iterator, BFunctionPointer<Object, Boolean> filterFunc,
                        BFunctionPointer<Object, Object> mapFunc) {
         this.constraintType = ((BStreamType) type).getConstrainedType();
         this.type = new BStreamType(constraintType);
@@ -130,16 +130,21 @@ public class StreamValue implements RefValue, BStream {
     }
 
     @Override
-    public Object next(Strand strand) {
+    public boolean hasNext() {
+        return true;
+    }
+
+    @Override
+    public Object next() {
         Object next;
         do {
-            next = iterator.next(strand);
+            next = iterator.next();
             if (next == null) {
                 return null;
             }
-        } while (!filter.execute(strand, next));
+        } while (!filter.execute(next));
 
-        return mapper.execute(strand, next);
+        return mapper.execute(next);
     }
 
     @Override
@@ -148,13 +153,13 @@ public class StreamValue implements RefValue, BStream {
     }
 
     interface FunctionPointerWrapper<T, R> {
-        T execute(Strand strand, R element);
+        T execute(R element);
     }
 
     static class NoFilterFunctionPointerWrapper implements FunctionPointerWrapper<Boolean, Object> {
 
         @Override
-        public Boolean execute(Strand strand, Object element) {
+        public Boolean execute(Object element) {
             return true;
         }
     }
@@ -167,16 +172,16 @@ public class StreamValue implements RefValue, BStream {
         }
 
         @Override
-        public Boolean execute(Strand strand, Object element) {
+        public Boolean execute(Object element) {
             //TODO: use scheduler to invoke the filterFunc
-            return filterFunc.call(new Object[]{strand, element, true});
+            return filterFunc.call(new Object[]{Scheduler.getStrand(), element, true});
         }
     }
 
     static class NoMapFunctionPointerWrapper implements FunctionPointerWrapper<Object, Object> {
 
         @Override
-        public Object execute(Strand strand, Object element) {
+        public Object execute(Object element) {
             return element;
         }
     }
@@ -189,9 +194,9 @@ public class StreamValue implements RefValue, BStream {
         }
 
         @Override
-        public Object execute(Strand strand, Object element) {
+        public Object execute(Object element) {
             //TODO: use scheduler to invoke the mapFunc
-            return mapFunc.call(new Object[]{strand, element, true});
+            return mapFunc.call(new Object[]{Scheduler.getStrand(), element, true});
         }
     }
 }

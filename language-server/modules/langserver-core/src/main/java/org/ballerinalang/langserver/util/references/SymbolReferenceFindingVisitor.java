@@ -668,9 +668,15 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
 
     @Override
     public void visit(BLangRecordLiteral recordLiteral) {
-        recordLiteral.keyValuePairs.forEach(bLangRecordKeyValue -> {
-            this.acceptNode(bLangRecordKeyValue.key.expr);
-            this.acceptNode(bLangRecordKeyValue.valueExpr);
+        recordLiteral.fields.forEach(field -> {
+            if (field.isKeyValueField()) {
+                BLangRecordLiteral.BLangRecordKeyValueField bLangRecordKeyValue =
+                        (BLangRecordLiteral.BLangRecordKeyValueField) field;
+                this.acceptNode(bLangRecordKeyValue.key.expr);
+                this.acceptNode(bLangRecordKeyValue.valueExpr);
+            } else {
+                this.acceptNode((BLangRecordLiteral.BLangRecordVarNameField) field);
+            }
         });
     }
 

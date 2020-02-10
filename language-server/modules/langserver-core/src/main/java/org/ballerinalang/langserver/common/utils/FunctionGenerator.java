@@ -23,6 +23,7 @@ import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
@@ -178,7 +179,7 @@ public class FunctionGenerator {
                                                 BType bType) {
         if ((bType.tsymbol == null || bType.tsymbol.name.value.isEmpty()) && bType instanceof BArrayType) {
             // Check for array assignment eg.  int[]
-            return generateTypeDefinition(importsAcceptor, currentPkgId, ((BArrayType) bType).eType.tsymbol) + "[]";
+            return generateTypeDefinition(importsAcceptor, currentPkgId, ((BArrayType) bType).eType) + "[]";
         } else if (bType instanceof BMapType && ((BMapType) bType).constraint != null) {
             // Check for constrained map assignment eg. map<Student>
             BTypeSymbol tSymbol = ((BMapType) bType).constraint.tsymbol;
@@ -357,8 +358,12 @@ public class FunctionGenerator {
     private static String generateTypeDefinition(BiConsumer<String, String> importsAcceptor,
                                                  PackageID currentPkgId, BTypeSymbol tSymbol) {
         if (tSymbol != null) {
-            String pkgPrefix = CommonUtil.getPackagePrefix(importsAcceptor, currentPkgId, tSymbol.pkgID);
-            return pkgPrefix + tSymbol.name.getValue();
+            if (tSymbol instanceof BInvokableTypeSymbol) {
+                return tSymbol.type.toString();
+            } else {
+                String pkgPrefix = CommonUtil.getPackagePrefix(importsAcceptor, currentPkgId, tSymbol.pkgID);
+                return pkgPrefix + tSymbol.name.getValue();
+            }
         }
         return "any";
     }
@@ -366,6 +371,7 @@ public class FunctionGenerator {
     private static String lookupVariableReturnType(BiConsumer<String, String> importsAcceptor,
                                                    PackageID currentPkgId,
                                                    String variableName, BLangNode parent) {
+        // Recursively find BLangBlockStmt to get scope-entries
         if (parent instanceof BLangBlockStmt) {
             BLangBlockStmt blockStmt = (BLangBlockStmt) parent;
             Scope scope = blockStmt.scope;
@@ -401,9 +407,10 @@ public class FunctionGenerator {
     private static String generateReturnValue(BiConsumer<String, String> importsAcceptor, PackageID currentPkgId,
                                               BType bType,
                                               String template) {
-        if (bType.tsymbol == null && bType instanceof BArrayType) {
-            return template.replace("{%1}", "[" +
-                    generateReturnValue(((BArrayType) bType).eType.tsymbol, "") + "]");
+        if (bType instanceof BArrayType) {
+            String arrDef = "[" + generateReturnValue(importsAcceptor, currentPkgId, ((BArrayType) bType).eType,
+                                                      "{%1}") + "]";
+            return template.replace("{%1}", arrDef);
         } else if (bType instanceof BFiniteType) {
             // Check for finite set assignment
             BFiniteType bFiniteType = (BFiniteType) bType;
