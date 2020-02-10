@@ -1941,81 +1941,49 @@ public class FormattingNodeTree {
                     && node.get(FormattingConstants.GROUPED).getAsBoolean();
             boolean returnKeywordExists = node.has("returnKeywordExists") &&
                     node.get("returnKeywordExists").getAsBoolean();
-            String indentation = this.getIndentation(formatConfig, true);
+            String indentation = this.getIndentation(formatConfig, false);
             String indentWithParentIndentation = this.getParentIndentation(formatConfig);
+            boolean useParentIndentation = formatConfig.get(FormattingConstants.USE_PARENT_INDENTATION).getAsBoolean();
 
-            this.preserveHeight(ws, formatConfig.get(FormattingConstants.USE_PARENT_INDENTATION).getAsBoolean()
-                    ? indentWithParentIndentation : indentation);
+            // Preserve line breaks provided by users.
+            this.preserveHeight(ws, useParentIndentation ? indentWithParentIndentation : indentation);
 
-            // Update whitespace for function keyword or parentheses.
-            JsonObject firstKeywordWS = ws.get(0).getAsJsonObject();
-            if (this.noHeightAvailable(firstKeywordWS.get(FormattingConstants.WS).getAsString())) {
-                firstKeywordWS.addProperty(FormattingConstants.WS,
-                        this.getNewLines(formatConfig.get(FormattingConstants.NEW_LINE_COUNT).getAsInt()) +
-                                indentation);
-            }
-
-            JsonObject openingParenthesesWS;
-            JsonObject closingParenthesesWS;
-
-            if (isGrouped) {
-                // Update function keyword.
-                JsonObject functionKeywordWS = ws.get(1).getAsJsonObject();
-                if (this.noHeightAvailable(functionKeywordWS.get(FormattingConstants.WS).getAsString())) {
-                    functionKeywordWS.addProperty(FormattingConstants.WS, FormattingConstants.EMPTY_SPACE);
-                }
-
-                // Set opening parentheses whitespaces.
-                openingParenthesesWS = ws.get(2).getAsJsonObject();
-
-                // Set closing parentheses whitespaces.
-                if (returnKeywordExists) {
-                    closingParenthesesWS = ws.get(ws.size() - 3).getAsJsonObject();
-                } else {
-                    closingParenthesesWS = ws.get(ws.size() - 2).getAsJsonObject();
-                }
-
-                // Update group closing parentheses whitespace.
-                JsonObject closeGroupParenWS = ws.get(ws.size() - 1).getAsJsonObject();
-                if (this.noHeightAvailable(closingParenthesesWS.get(FormattingConstants.WS).getAsString())) {
-                    closeGroupParenWS.addProperty(FormattingConstants.WS, FormattingConstants.EMPTY_SPACE);
-                }
-            } else {
-                // Set opening parentheses whitespaces.
-                openingParenthesesWS = ws.get(1).getAsJsonObject();
-
-                // Set closing parentheses whitespace.
-                if (returnKeywordExists) {
-                    closingParenthesesWS = ws.get(ws.size() - 2).getAsJsonObject();
-                } else {
-                    closingParenthesesWS = ws.get(ws.size() - 1).getAsJsonObject();
-                }
-            }
-
-            // Update opening parentheses whitespaces.
-            if (this.noHeightAvailable(openingParenthesesWS.get(FormattingConstants.WS).getAsString())) {
-                openingParenthesesWS.addProperty(FormattingConstants.WS, FormattingConstants.SINGLE_SPACE);
-            }
-
-            // Update closing parentheses whitespaces.
-            if (this.noHeightAvailable(closingParenthesesWS.get(FormattingConstants.WS).getAsString())) {
-                closingParenthesesWS.addProperty(FormattingConstants.WS, FormattingConstants.EMPTY_SPACE);
-            }
-
-            // Update whitespaces for the function type.
-            for (int i = 0; i < ws.size(); i++) {
-                JsonObject functionTypeWS = ws.get(i).getAsJsonObject();
-                if (this.noHeightAvailable(functionTypeWS.get(FormattingConstants.WS).getAsString())) {
-                    String text = functionTypeWS.get(FormattingConstants.TEXT).getAsString();
-
-                    // Update whitespace for parameter separator and closing parentheses.
-                    if (text.equals(Tokens.COMMA)) {
-                        functionTypeWS.addProperty(FormattingConstants.WS, FormattingConstants.EMPTY_SPACE);
-                    }
-
-                    // Update whitespace for returns keyword.
-                    if (text.equals(Tokens.RETURNS)) {
-                        functionTypeWS.addProperty(FormattingConstants.WS, FormattingConstants.SINGLE_SPACE);
+            boolean groupOpenParanthesesFound = false;
+            for (JsonElement wsItem : ws) {
+                JsonObject currentWS = wsItem.getAsJsonObject();
+                String text = currentWS.get(FormattingConstants.TEXT).getAsString();
+                if (this.noHeightAvailable(currentWS.get(FormattingConstants.WS).getAsString())) {
+                    if (text.equals(Tokens.FUNCTION)) {
+                        if (isGrouped && groupOpenParanthesesFound) {
+                            currentWS.addProperty(FormattingConstants.WS, FormattingConstants.EMPTY_SPACE);
+                        } else {
+                            if (formatConfig.get(FormattingConstants.SPACE_COUNT).getAsInt() > 0) {
+                                currentWS.addProperty(FormattingConstants.WS, this.getWhiteSpaces(formatConfig
+                                        .get(FormattingConstants.SPACE_COUNT).getAsInt()));
+                            } else {
+                                currentWS.addProperty(FormattingConstants.WS, this.getNewLines(formatConfig
+                                        .get(FormattingConstants.NEW_LINE_COUNT).getAsInt()) + indentation);
+                            }
+                        }
+                    } else if (text.equals(Tokens.OPENING_PARENTHESES)) {
+                        if (isGrouped && groupOpenParanthesesFound) {
+                            currentWS.addProperty(FormattingConstants.WS, FormattingConstants.SINGLE_SPACE);
+                        } else if (isGrouped) {
+                            groupOpenParanthesesFound = true;
+                            if (formatConfig.get(FormattingConstants.SPACE_COUNT).getAsInt() > 0) {
+                                currentWS.addProperty(FormattingConstants.WS, this.getWhiteSpaces(formatConfig
+                                        .get(FormattingConstants.SPACE_COUNT).getAsInt()));
+                            } else {
+                                currentWS.addProperty(FormattingConstants.WS, this.getNewLines(formatConfig
+                                        .get(FormattingConstants.NEW_LINE_COUNT).getAsInt()) + indentation);
+                            }
+                        } else {
+                            currentWS.addProperty(FormattingConstants.WS, FormattingConstants.SINGLE_SPACE);
+                        }
+                    } else if (text.equals(Tokens.CLOSING_PARENTHESES) || text.equals(Tokens.COMMA)) {
+                        currentWS.addProperty(FormattingConstants.WS, FormattingConstants.EMPTY_SPACE);
+                    } else if (text.equals(Tokens.RETURNS)) {
+                        currentWS.addProperty(FormattingConstants.WS, FormattingConstants.SINGLE_SPACE);
                     }
                 }
             }
@@ -2024,6 +1992,21 @@ public class FormattingNodeTree {
             if (node.has("params")) {
                 JsonArray parameters = node.getAsJsonArray("params");
                 iterateAndFormatMembers(indentation, parameters);
+            }
+
+            // Update the whitespaces for the rest param.
+            if (node.has("restParam")) {
+                JsonObject restParam = node.getAsJsonObject("restParam");
+                JsonObject restParamFormatConfig;
+                if (node.has("params") && node.getAsJsonArray("params").size() > 0) {
+                    restParamFormatConfig = this.getFormattingConfig(0, 1, 0,
+                            false, this.getWhiteSpaceCount(indentation), true);
+                } else {
+                    restParamFormatConfig = this.getFormattingConfig(0, 0, 0,
+                            false, this.getWhiteSpaceCount(indentation), true);
+                }
+
+                restParam.add(FormattingConstants.FORMATTING_CONFIG, restParamFormatConfig);
             }
 
             if (returnKeywordExists) {
