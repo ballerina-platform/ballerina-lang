@@ -30,7 +30,7 @@ import java.util.HashMap;
 /**
  * Test HTTP listener/client with trailing headers.
  *
- * @since 1.1.1
+ * @since 1.1.2
  */
 @Test(groups = "http-test")
 public class TrailingHeadersTestCase extends HttpBaseTest {

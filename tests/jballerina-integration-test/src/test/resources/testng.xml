@@ -75,7 +75,7 @@
             <class name="org.ballerinalang.test.service.http.sample.HttpUrlTestCase"/>
             <class name="org.ballerinalang.test.service.http.sample.TrailingHeadersTestCase"/>
         </classes>
-     </test>
+    </test>
 
     <test name="ballerina-resiliency-tests" parallel="methods" thread-count="17">
         <parameter name="enableJBallerinaTests" value="true"/>
