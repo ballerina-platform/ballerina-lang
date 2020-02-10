@@ -47,7 +47,7 @@ echo "You must set the JAVA_HOME variable before running Ballerina."
 goto end
 
 :invalidJavaHome
-echo "Invalid JAVA_HOME." 1>&2
+echo "Invalid JAVA_HOME. The system cannot find the path specified" 1>&2
 goto end
 
 rem ----- set BALLERINA_HOME ----------------------------
