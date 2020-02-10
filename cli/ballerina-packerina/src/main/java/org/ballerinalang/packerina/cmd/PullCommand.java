@@ -81,28 +81,29 @@ public class PullCommand implements BLauncherCmd {
 
         String resourceName = argList.get(0);
         String orgName;
+        String packageName;
         String moduleName;
         String version;
 
         // Get org-name
-        int orgNameIndex = resourceName.indexOf("/");
-        if (orgNameIndex != -1) {
-            orgName = resourceName.substring(0, orgNameIndex);
+        String[] module = resourceName.split("/");
+        if (module.length == 2) {
+            orgName = module[0];
+            packageName = module[1];
             if (orgName.equals("ballerina")) {
                 throw LauncherUtils.createLauncherException("`Ballerina` is the builtin organization and its modules"
-                                                                    + " are included in the runtime.");
+                        + " are included in the runtime.");
             }
         } else {
-            throw LauncherUtils.createLauncherException("no module-name provided");
+            throw LauncherUtils.createLauncherException("To pull a module, provide the format as org-name/module-name");
         }
 
         // Get module name
-        int packageNameIndex = resourceName.indexOf(":");
-        if (packageNameIndex != -1) { // version is provided
-            moduleName = resourceName.substring(orgNameIndex + 1, packageNameIndex);
-            version = resourceName.substring(packageNameIndex + 1, resourceName.length());
+        if (packageName.contains(":")) { // version is provided
+            moduleName = packageName.split(":")[0];
+            version = packageName.split(":")[1];
         } else {
-            moduleName = resourceName.substring(orgNameIndex + 1, resourceName.length());
+            moduleName = packageName;
             version = Names.EMPTY.getValue();
         }
 
