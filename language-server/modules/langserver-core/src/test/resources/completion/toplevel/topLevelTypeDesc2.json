@@ -1,0 +1,184 @@
+{
+  "position": {
+    "line": 2,
+    "character": 19
+  },
+  "source": "toplevel/source/topLevelTypeDesc2.bal",
+  "items": [
+    {
+      "label": "Format",
+      "detail": "Union",
+      "documentation": {
+        "left": "Format which will be used to represent the CSV.\n\nDEFAULT - Would default to the format specified by CSVChannel. Precedence will be given to field\n          separator and record separator.\n\nCSV - Field separator would be \",\" and the record separator would be new line.\n\nTDF - Field separator will be tab and record separator will be new line."
+      },
+      "sortText": "110",
+      "insertText": "Format",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Separator",
+      "kind": "Enum",
+      "detail": "Union",
+      "documentation": {
+        "left": "Field separators which are supported by DelimitedTextRecordChannel.\n\nCOMMA - Delimited text records would be separated using a comma.\n\nTAB - Delimited text records would be separated using a tab.\n\nCOLON - Delimited text records would be separated using a colon(:)."
+      },
+      "sortText": "160",
+      "insertText": "Separator",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Detail",
+      "kind": "Struct",
+      "detail": "Record",
+      "documentation": {
+        "left": "Record type to hold the details of an error.\n"
+      },
+      "sortText": "180",
+      "insertText": "Detail",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Error",
+      "kind": "Event",
+      "detail": "Union",
+      "documentation": {
+        "left": "Represents IO module related errors."
+      },
+      "sortText": "200",
+      "insertText": "Error",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ReadableByteChannel",
+      "kind": "Interface",
+      "detail": "Object",
+      "documentation": {
+        "left": "ReadableByteChannel represents an input resource (i.e file). which could be used to source bytes."
+      },
+      "sortText": "190",
+      "insertText": "ReadableByteChannel",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ReadableCharacterChannel",
+      "kind": "Interface",
+      "detail": "Object",
+      "documentation": {
+        "left": "Represents a channel which could be used to read characters through a given ReadableByteChannel."
+      },
+      "sortText": "190",
+      "insertText": "ReadableCharacterChannel",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ReadableCSVChannel",
+      "kind": "Interface",
+      "detail": "Object",
+      "documentation": {
+        "left": "Represents a ReadableCSVChannel which could be used to read records from CSV file."
+      },
+      "sortText": "190",
+      "insertText": "ReadableCSVChannel",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ReadableDataChannel",
+      "kind": "Interface",
+      "detail": "Object",
+      "documentation": {
+        "left": "Represents a data channel for reading data."
+      },
+      "sortText": "190",
+      "insertText": "ReadableDataChannel",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ReadableTextRecordChannel",
+      "kind": "Interface",
+      "detail": "Object",
+      "documentation": {
+        "left": "Represents a channel which will allow to read"
+      },
+      "sortText": "190",
+      "insertText": "ReadableTextRecordChannel",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "StringReader",
+      "kind": "Interface",
+      "detail": "Object",
+      "documentation": {
+        "left": "Represents a reader which will wrap string content as a channel."
+      },
+      "sortText": "190",
+      "insertText": "StringReader",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "WritableByteChannel",
+      "kind": "Interface",
+      "detail": "Object",
+      "documentation": {
+        "left": "WritableByteChannel represents an output resource (i.e file). which could be used to sink bytes."
+      },
+      "sortText": "190",
+      "insertText": "WritableByteChannel",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "WritableCharacterChannel",
+      "kind": "Interface",
+      "detail": "Object",
+      "documentation": {
+        "left": "Represents a channel which could be used to write characters through a given WritableCharacterChannel."
+      },
+      "sortText": "190",
+      "insertText": "WritableCharacterChannel",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "WritableCSVChannel",
+      "kind": "Interface",
+      "detail": "Object",
+      "documentation": {
+        "left": "Represents a WritableCSVChannel which could be used to write records from CSV file."
+      },
+      "sortText": "190",
+      "insertText": "WritableCSVChannel",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ByteOrder",
+      "kind": "TypeParameter",
+      "detail": "Finite",
+      "documentation": {
+        "left": "Represents network byte order.\n\nBIG_ENDIAN - specifies the bytes to be in the order of most significant byte first\n\nLITTLE_ENDIAN - specifies the byte order to be the least significant byte first"
+      },
+      "sortText": "170",
+      "insertText": "ByteOrder",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "WritableDataChannel",
+      "kind": "Interface",
+      "detail": "Object",
+      "documentation": {
+        "left": "Represents a WritableDataChannel for writing data."
+      },
+      "sortText": "190",
+      "insertText": "WritableDataChannel",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "WritableTextRecordChannel",
+      "kind": "Interface",
+      "detail": "Object",
+      "documentation": {
+        "left": "Represents a channel which will allow to write records through a given WritableCharacterChannel."
+      },
+      "sortText": "190",
+      "insertText": "WritableTextRecordChannel",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}
