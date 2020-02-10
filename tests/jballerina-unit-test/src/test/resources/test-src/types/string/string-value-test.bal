@@ -27,3 +27,23 @@ function testArrayStore() returns int {
     arr[0] = "h🤷llo";
     return arr[0].length() + arr2[0][1].length();
 }
+
+type Person object {
+    string helloField = "h🤷llo";
+    string lastName;
+
+    function __init(string last) {
+        self.lastName = last;
+    }
+
+    function appendName(string append) returns string {
+        return self.helloField + append;
+    }
+};
+
+
+function testObjects() returns int {
+    Person p = new("h😀llo");
+    string s = p.appendName("h😀llo") + p.lastName;
+    return s.length();
+}

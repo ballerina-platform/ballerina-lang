@@ -741,7 +741,7 @@ function generateBasicBlocks(jvm:MethodVisitor mv, bir:BasicBlock?[] basicBlocks
                 } else if (insKind == bir:INS_KIND_OBJECT_STORE) {
                     instGen.generateObjectStoreIns(<bir:FieldAccess> inst, useBString);
                 } else if (insKind == bir:INS_KIND_OBJECT_LOAD) {
-                    instGen.generateObjectLoadIns(<bir:FieldAccess> inst);
+                    instGen.generateObjectLoadIns(<bir:FieldAccess> inst, useBString);
                 } else if (insKind == bir:INS_KIND_NEW_XML_ELEMENT) {
                     instGen.generateNewXMLElementIns(<bir:NewXMLElement> inst);
                 } else if (insKind == bir:INS_KIND_NEW_XML_TEXT) {
