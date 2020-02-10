@@ -10,14 +10,19 @@ import ballerina/log;
 service server on new http:Listener(9095) {
 
     // This resource gets invoked when a new client connects.
-    // Since messages to the server are not read by the service until the execution of the `onOpen` resource finishes,
-    // operations which should happen before reading messages should be done in the `onOpen` resource.
+    // Since messages to the server are not read by the service
+    // until the execution of the `onOpen` resource finishes,
+    // operations which should happen before reading messages should be
+    // done in the `onOpen` resource.
     resource function onOpen(http:WebSocketCaller caller) {
-        log:printInfo("WebSocket client connected wih the server. The Connection ID: " + caller.getConnectionId());
+        log:printInfo("WebSocket client connected wih the server. " +
+        "The Connection ID: " + caller.getConnectionId());
     }
 
-    // This resource gets invoked when a server is receiving a text message from the client.
-    resource function onText(http:WebSocketCaller caller, string text, boolean finalFrame) {
+    // This resource gets invoked when a server is receiving
+    // a text message from the client.
+    resource function onText(http:WebSocketCaller caller, string text,
+                                boolean finalFrame) {
         var err = caller->pushText(text, finalFrame);
         if (err is http:WebSocketError) {
             log:printError("Error occurred when sending text message", err);

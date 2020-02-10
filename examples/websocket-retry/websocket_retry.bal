@@ -12,8 +12,10 @@ const string REMOTE_BACKEND = "ws://localhost:9095/retry/ws";
 service retryProxyService on new http:Listener(9090) {
 
     // This resource gets invoked when a new client connects.
-    // Since messages to the server are not read by the service until the execution of the `onOpen` resource finishes,
-    // operations, which should happen before reading messages should be done in the `onOpen` resource.
+    // Since messages to the server are not read by the service until
+    // the execution of the `onOpen` resource finishes,
+    // operations, which should happen before reading messages should be done
+    // in the `onOpen` resource.
     resource function onOpen(http:WebSocketCaller caller) {
 
         // Defines the webSocket client.
@@ -41,7 +43,7 @@ service retryProxyService on new http:Listener(9090) {
             }
         });
 
-        //Associate connections before starting to read messages.
+        // Associate connections before starting to read messages.
         wsClientEp.setAttribute(ASSOCIATED_CONNECTION, caller);
         caller.setAttribute(ASSOCIATED_CONNECTION, wsClientEp);
 
@@ -53,8 +55,9 @@ service retryProxyService on new http:Listener(9090) {
         }
     }
 
-    //This resource gets invoked upon receiving a new text frame from a client.
-    resource function onText(http:WebSocketCaller caller, string text, boolean finalFrame) {
+    // This resource gets invoked upon receiving a new text frame from a client.
+    resource function onText(http:WebSocketCaller caller, string text,
+                                boolean finalFrame) {
 
         http:WebSocketClient clientEp = getAssociatedClientEndpoint(caller);
         var err = clientEp->pushText(text, finalFrame);
@@ -63,7 +66,7 @@ service retryProxyService on new http:Listener(9090) {
         }
     }
 
-    //This resource gets invoked when an error occurs in the connection.
+    // This resource gets invoked when an error occurs in the connection.
     resource function onError(http:WebSocketCaller caller, error err) {
 
         http:WebSocketClient clientEp = getAssociatedClientEndpoint(caller);
@@ -71,12 +74,12 @@ service retryProxyService on new http:Listener(9090) {
         if (e is http:WebSocketError) {
             log:printError("Error occurred when closing the connection", e);
         }
-        log:printError("Unexpected error hence closing the connection", err);
+        log:printError("Unexpected error hence closing the connection", e);
     }
 
-    //This resource gets invoked when a client connection is closed from the client side.
+    // This resource gets invoked when a client connection is closed from the client side.
     resource function onClose(http:WebSocketCaller caller, int statusCode,
-    string reason) {
+                                 string reason) {
 
         http:WebSocketClient clientEp = getAssociatedClientEndpoint(caller);
         var err = clientEp->close(statusCode = statusCode, reason = reason);
@@ -86,11 +89,13 @@ service retryProxyService on new http:Listener(9090) {
     }
 }
 
-//Client service to receive frames from the remote server.
+// Client service to receive frames from the remote server.
 service retryClientService = @http:WebSocketServiceConfig {} service {
 
-    //This resource gets invoked upon receiving a new text frame from the remote backend.
-    resource function onText(http:WebSocketClient caller, string text, boolean finalFrame) {
+    // This resource gets invoked upon receiving a new text frame from
+    // the remote backend.
+    resource function onText(http:WebSocketClient caller, string text,
+                                boolean finalFrame) {
 
         http:WebSocketCaller serverEp = getAssociatedServerEndpoint(caller);
         var err = serverEp->pushText(text, finalFrame);
@@ -99,7 +104,7 @@ service retryClientService = @http:WebSocketServiceConfig {} service {
         }
     }
 
-    //This resource gets invoked when an error occurs in the connection.
+    // This resource gets invoked when an error occurs in the connection.
     resource function onError(http:WebSocketClient caller, error err) {
 
         http:WebSocketCaller serverEp = getAssociatedServerEndpoint(caller);
@@ -108,31 +113,34 @@ service retryClientService = @http:WebSocketServiceConfig {} service {
             log:printError("Error occurred when closing the connection",
             err = e);
         }
-        _ = caller.removeAttribute(ASSOCIATED_CONNECTION);
         log:printError("Unexpected error hense closing the connection", err);
     }
 
-    //This resource gets invoked when a client connection is closed by the remote backend.
+    // This resource gets invoked when a client connection is closed by
+    // the remote backend.
     resource function onClose(http:WebSocketClient caller, int statusCode,
-    string reason) {
+                                 string reason) {
 
         http:WebSocketCaller serverEp = getAssociatedServerEndpoint(caller);
         var err = serverEp->close(statusCode = statusCode, reason = reason);
         if (err is http:WebSocketError) {
             log:printError("Error occurred when closing the connection", err);
         }
-        _ = caller.removeAttribute(ASSOCIATED_CONNECTION);
     }
 };
 
 // Function to retrieve the associated client of a particular caller.
-function getAssociatedClientEndpoint(http:WebSocketCaller ep) returns (http:WebSocketClient) {
-    http:WebSocketClient wsClient = <http:WebSocketClient>ep.getAttribute(ASSOCIATED_CONNECTION);
+function getAssociatedClientEndpoint(http:WebSocketCaller ep)
+                returns (http:WebSocketClient) {
+    http:WebSocketClient wsClient = <http:WebSocketClient>ep.
+    getAttribute(ASSOCIATED_CONNECTION);
     return wsClient;
 }
 
 // Function to retrieve the associated caller of a client.
-function getAssociatedServerEndpoint(http:WebSocketClient ep) returns (http:WebSocketCaller) {
-    http:WebSocketCaller wsEndpoint = <http:WebSocketCaller>ep.getAttribute(ASSOCIATED_CONNECTION);
+function getAssociatedServerEndpoint(http:WebSocketClient ep)
+                returns (http:WebSocketCaller) {
+    http:WebSocketCaller wsEndpoint = <http:WebSocketCaller>ep.
+    getAttribute(ASSOCIATED_CONNECTION);
     return wsEndpoint;
 }
