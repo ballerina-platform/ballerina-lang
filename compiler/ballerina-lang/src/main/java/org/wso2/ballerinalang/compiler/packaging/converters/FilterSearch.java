@@ -14,10 +14,10 @@ import java.util.List;
  */
 class FilterSearch extends SimpleFileVisitor {
 
-    private final Path excludeDir;
+    private final List<Path> excludeDir;
     private List<Path> pathList = new ArrayList<>();
 
-    FilterSearch(Path exclude) {
+    FilterSearch(List<Path> exclude) {
         this.excludeDir = exclude;
     }
 
@@ -47,7 +47,7 @@ class FilterSearch extends SimpleFileVisitor {
      */
     private boolean isExcluded(Path path) throws IOException {
         Path name = path.getFileName();
-        return (name != null) && name.equals(excludeDir);
+        return (name != null) && excludeDir.contains(name);
     }
 
     /**
