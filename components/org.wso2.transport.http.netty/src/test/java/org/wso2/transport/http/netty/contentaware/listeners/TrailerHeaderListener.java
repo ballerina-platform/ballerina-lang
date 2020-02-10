@@ -17,7 +17,7 @@
  *
  */
 
-package org.wso2.transport.http.netty.http2.listeners;
+package org.wso2.transport.http.netty.contentaware.listeners;
 
 import io.netty.buffer.Unpooled;
 import io.netty.handler.codec.http.DefaultHttpResponse;
@@ -31,7 +31,6 @@ import io.netty.handler.codec.http.HttpVersion;
 import io.netty.handler.codec.http.LastHttpContent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.transport.http.netty.contentaware.listeners.EchoMessageListener;
 import org.wso2.transport.http.netty.contract.Constants;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.contract.exceptions.ServerConnectorException;
@@ -46,20 +45,19 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 /**
- * {@code Http2EchoServerWithTrailerHeader} is a HttpConnectorListener which receives messages and respond back with
+ * {@code TrailerHeaderListener} is a HttpConnectorListener which receives messages and respond back with
  * trailing headers.
  *
  * @since 6.3.0
  */
-public class Http2EchoServerWithTrailerHeader extends EchoMessageListener {
+public class TrailerHeaderListener extends EchoMessageListener {
 
-    private static final Logger LOG = LoggerFactory.getLogger(Http2EchoServerWithTrailerHeader.class);
+    private static final Logger LOG = LoggerFactory.getLogger(TrailerHeaderListener.class);
     private ExecutorService executor = Executors.newSingleThreadExecutor();
     private HttpHeaders expectedTrailer;
     private MessageType messageType;
 
     public enum MessageType {
-        REQUEST,
         RESPONSE,
         PUSH_RESPONSE
     }
@@ -76,36 +74,22 @@ public class Http2EchoServerWithTrailerHeader extends EchoMessageListener {
     public void onMessage(HttpCarbonMessage httpRequest) {
         executor.execute(() -> {
             switch (messageType) {
-                case REQUEST:
-                    String trailerHeaderValue = httpRequest.getHeader(HttpHeaderNames.TRAILER.toString());
+                case RESPONSE:
                     HttpCarbonMessage httpResponse = getHttpCarbonMessage();
                     do {
                         HttpContent httpContent = httpRequest.getHttpContent();
-                        httpResponse.addHttpContent(httpContent);
-                        if (httpContent instanceof LastHttpContent) {
-                            expectedTrailer = ((LastHttpContent) httpContent).trailingHeaders();
+                        if (httpContent == LastHttpContent.EMPTY_LAST_CONTENT) {
+                            httpResponse.addHttpContent(new DefaultLastHttpContent());
                             break;
                         }
-                    } while (true);
-                    httpResponse.setHeader("Request-trailer", trailerHeaderValue);
-                    httpResponse.getHeaders().add(expectedTrailer);
-                    try {
-                        httpRequest.respond(httpResponse);
-                    } catch (ServerConnectorException e) {
-                        LOG.error("Error occurred during message notification: " + e.getMessage());
+                        httpResponse.addHttpContent(httpContent);
+                        if (httpContent instanceof LastHttpContent) {
+                            break;
+                        }
                     }
-                    break;
-                case RESPONSE:
-                    httpResponse = getHttpCarbonMessage();
-                    populateTrailerHeader(httpResponse);
-                    do {
-                        HttpContent httpContent = httpRequest.getHttpContent();
-                        httpResponse.addHttpContent(httpContent);
-                        if (httpContent instanceof LastHttpContent) {
-                            ((LastHttpContent) httpContent).trailingHeaders().add(expectedTrailer);
-                            break;
-                        }
-                    } while (true);
+                    while (true);
+                    // test trailer headers lies in the carbon message
+                    httpResponse.getTrailerHeaders().add(expectedTrailer);
                     try {
                         httpRequest.respond(httpResponse);
                     } catch (ServerConnectorException e) {
@@ -161,18 +145,12 @@ public class Http2EchoServerWithTrailerHeader extends EchoMessageListener {
         return httpResponse;
     }
 
-    private void populateTrailerHeader(HttpCarbonMessage httpResponse) {
-        String trailerHeaderValue = String.join(",", expectedTrailer.names());
-        httpResponse.setHeader(HttpHeaderNames.TRAILER.toString(), trailerHeaderValue);
-    }
-
     private HttpCarbonMessage generateResponse(String response, HttpHeaders expectedTrailer) {
         HttpResponseStatus status = HttpResponseStatus.OK;
         HttpCarbonMessage httpResponse = new HttpCarbonResponse(new DefaultHttpResponse(HttpVersion.HTTP_1_1, status));
         httpResponse.setHeader(HttpHeaderNames.CONNECTION.toString(), HttpHeaderValues.KEEP_ALIVE.toString());
         httpResponse.setHeader(HttpHeaderNames.CONTENT_TYPE.toString(), Constants.TEXT_PLAIN);
         httpResponse.setHttpStatusCode(status.code());
-        populateTrailerHeader(httpResponse);
 
         DefaultLastHttpContent lastHttpContent = new DefaultLastHttpContent();
         if (response != null) {
@@ -180,8 +158,8 @@ public class Http2EchoServerWithTrailerHeader extends EchoMessageListener {
             ByteBuffer responseValueByteBuffer = ByteBuffer.wrap(responseByteValues);
             lastHttpContent = new DefaultLastHttpContent(Unpooled.wrappedBuffer(responseValueByteBuffer));
         }
-        lastHttpContent.trailingHeaders().add(expectedTrailer);
         httpResponse.addHttpContent(lastHttpContent);
+        httpResponse.getTrailerHeaders().add(expectedTrailer);
         return httpResponse;
     }
 }

@@ -126,4 +126,17 @@ public class StateUtil {
                 = new SendingHeaders(listenerReqRespStateManager, outboundResponseListener);
         listenerReqRespStateManager.writeOutboundResponseHeaders(outboundResponseMsg, httpContent);
     }
+
+    // This method will create and add the trailer header by looking at the trailers lies in HttpCarbonMessage
+    // httpTrailerHeaders attribute. It does not consider seperately injected trailers to the LastHttpContent through
+    // netty's API. Dev should use HttpCarbonMessage.getTrailerHeaders() API to manipulate trailer. Otherwise header
+    // should be manually added to avoid any trailer miss.
+    public static void addTrailerHeaderIfPresent(HttpCarbonMessage outboundResponseMsg) {
+        if (outboundResponseMsg.getTrailerHeaders().isEmpty() || outboundResponseMsg.getHeader(
+                HttpHeaderNames.TRAILER.toString()) != null) {
+            return;
+        }
+        String trailerHeaderValue = String.join(", ", outboundResponseMsg.getTrailerHeaders().names());
+        outboundResponseMsg.setHeader(HttpHeaderNames.TRAILER.toString(), trailerHeaderValue);
+    }
 }

@@ -260,7 +260,8 @@ public class HttpCarbonMessage {
     }
 
     /**
-     * Returns the trailer header map of the message.
+     * Returns the trailer header map of the message. Dev should use this API to set/get trailer headers rather
+     * dealing with LastHttpContent.
      *
      * @return all trailer headers.
      */

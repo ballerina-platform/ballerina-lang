@@ -20,16 +20,11 @@ package org.wso2.transport.http.netty.contractimpl.sender.states.http2;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.handler.codec.http.EmptyHttpHeaders;
 import io.netty.handler.codec.http.HttpContent;
-import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.LastHttpContent;
-import io.netty.handler.codec.http2.EmptyHttp2Headers;
 import io.netty.handler.codec.http2.Http2ConnectionEncoder;
 import io.netty.handler.codec.http2.Http2Exception;
-import io.netty.handler.codec.http2.Http2Headers;
-import io.netty.handler.codec.http2.HttpConversionUtil;
 import io.netty.util.ReferenceCountUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,7 +44,6 @@ import java.io.IOException;
 import static org.wso2.transport.http.netty.contract.Constants.IDLE_TIMEOUT_TRIGGERED_WHILE_WRITING_OUTBOUND_REQUEST_BODY;
 import static org.wso2.transport.http.netty.contract.Constants.REMOTE_SERVER_CLOSED_WHILE_WRITING_OUTBOUND_REQUEST_BODY;
 import static org.wso2.transport.http.netty.contractimpl.common.states.Http2StateUtil.onPushPromiseRead;
-import static org.wso2.transport.http.netty.contractimpl.common.states.Http2StateUtil.writeHttp2Headers;
 
 /**
  * State between start and end of outbound request entity body write.
@@ -139,22 +133,9 @@ public class SendingEntityBody implements SenderState {
     private void writeContent(ChannelHandlerContext ctx, HttpContent msg) throws Http2Exception {
         boolean release = true;
         try {
-            boolean endStream;
-            boolean isLastContent = false;
-            HttpHeaders trailers = EmptyHttpHeaders.INSTANCE;
-            Http2Headers http2Trailers = EmptyHttp2Headers.INSTANCE;
-            if (msg instanceof LastHttpContent) {
-                isLastContent = true;
-                // Convert any trailing headers.
-                final LastHttpContent lastContent = (LastHttpContent) msg;
-                trailers = lastContent.trailingHeaders();
-                trailers.add(outboundMsgHolder.getRequest().getTrailerHeaders());
-                http2Trailers = HttpConversionUtil.toHttp2Headers(trailers, true);
-            }
-
+            boolean endStream = msg instanceof LastHttpContent;
             // Write the data
             final ByteBuf content = msg.content();
-            endStream = isLastContent && trailers.isEmpty();
             release = false;
             for (Http2DataEventListener dataEventListener : http2ClientChannel.getDataEventListeners()) {
                 if (!dataEventListener.onDataWrite(ctx, streamId, content, endStream)) {
@@ -164,11 +145,6 @@ public class SendingEntityBody implements SenderState {
             encoder.writeData(ctx, streamId, content, 0, endStream, ctx.newPromise());
             encoder.flowController().writePendingBytes();
             ctx.flush();
-            if (!trailers.isEmpty()) {
-                // Write trailing headers.
-                writeHttp2Headers(ctx, outboundMsgHolder, http2ClientChannel, encoder, streamId, trailers,
-                        http2Trailers, true);
-            }
             if (endStream) {
                 outboundMsgHolder.setRequestWritten(true);
                 http2MessageStateContext.setSenderState(new RequestCompleted(http2TargetHandler, http2RequestWriter));
