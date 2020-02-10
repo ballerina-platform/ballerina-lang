@@ -124,11 +124,13 @@ public class SymbolTable {
     public BErrorType errorType;
     public BRecordType detailType;
     public BConstructorSymbol errorConstructor;
+    public BUnionType anyOrErrorType;
     public BUnionType pureType;
     public BUnionType errorOrNilType;
     public BType streamType = new BStreamType(TypeTags.STREAM, pureType, null);
     public BFiniteType trueType;
     public BObjectType intRangeType;
+    public BMapType mapAllType;
 
     public BPackageSymbol langInternalModuleSymbol;
     public BPackageSymbol langAnnotationModuleSymbol;

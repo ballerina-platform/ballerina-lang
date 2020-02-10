@@ -29,7 +29,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
  */
 public abstract class BLangFunctionBody extends BLangNode implements FunctionBodyNode {
 
-    public BVarSymbol mapSymbol;
+    public BVarSymbol mapSymbol; // TODO: Do we need closure map for non-block bodied functions?
 
     /**
      * We need to keep a reference to the block statements scope here. This is the only place where we have a link from
