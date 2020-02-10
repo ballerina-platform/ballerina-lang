@@ -54,12 +54,6 @@ public class IteratorUtils {
         return 0;
     }
 
-    public static Map<String, BField> createIteratorValueField(BType fieldType) {
-        HashMap<String, BField> valueFields = new HashMap<>();
-        valueFields.put("value", new BField(fieldType, "value", Flags.PUBLIC + Flags.REQUIRED));
-        return valueFields;
-    }
-
     public static BRecordType createIteratorReturnNextType(BType type) {
         Map<String, BField> fields = new HashMap<>();
         fields.put("value", new BField(type, "value", Flags.PUBLIC + Flags.REQUIRED));
