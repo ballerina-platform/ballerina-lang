@@ -717,6 +717,24 @@ public class BuildCommandTest extends CommandTest {
         // check if each module has a bit in cache directory
     }
 
+    @Test(description = "Test the cleaning of target resources in the build command.",
+            dependsOnMethods = {"testBuildCommand"})
+    public void testTargetClean() {
+        // If a single module is built only the relevant module's resources should be cleaned,
+        // else the entire target will be deleted.
+        String[] compileArgs = {"mymodule", "--skip-tests"};
+        Path target = this.testResources.resolve("valid-project").resolve(ProjectDirConstants.TARGET_DIR_NAME);
+
+        BuildCommand buildCommand = new BuildCommand(this.testResources.resolve("valid-project"),
+                printStream, printStream, false, true);
+        new CommandLine(buildCommand).parse(compileArgs);
+        buildCommand.execute();
+
+        // Executable of a module that is not built.
+        Path executablePath = target.resolve(ProjectDirConstants.BIN_DIR_NAME).resolve("mytemplate.jar");
+        Assert.assertTrue(Files.exists(executablePath),
+                "Check if executables of other modules are not deleted during a single module build");
+    }
 
     @Test(description = "Test Build Command for a single file.",
             dependsOnMethods = "testBuildCommandWithoutArgs",
