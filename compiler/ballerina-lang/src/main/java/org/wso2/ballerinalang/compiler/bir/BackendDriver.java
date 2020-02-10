@@ -22,6 +22,8 @@ import org.wso2.ballerinalang.compiler.bir.emit.BIREmitter;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
+import java.nio.file.Path;
+
 /**
  * Similar to CompilerDriver, this class drives the backend code generation of BIR packages through various phases
  * such as desugar and code generation.
@@ -50,17 +52,18 @@ public class BackendDriver {
         this.birEmitter = BIREmitter.getInstance(context);
     }
 
-    public void execute(BIRNode.BIRPackage birPackage, boolean dumpBIR) {
+    public void execute(BIRNode.BIRPackage birPackage, boolean dumpBIR, Path target) {
         // Emit BIR to console if dump-bir flag is set
         if (dumpBIR) {
             birEmitter.emit(birPackage);
         }
 
         // Generate JVM bytecode from BIR
-        codeGen(birPackage);
+        codeGen(birPackage, target);
     }
 
-    private void codeGen(BIRNode.BIRPackage birPackage) {
-        this.codeGenerator.generate(birPackage);
+    private void codeGen(BIRNode.BIRPackage birPackage, Path target) {
+        this.codeGenerator.generate(birPackage, target);
+
     }
 }
