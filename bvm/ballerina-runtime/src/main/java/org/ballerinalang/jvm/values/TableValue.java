@@ -32,7 +32,7 @@ import org.ballerinalang.jvm.types.BStructureType;
 import org.ballerinalang.jvm.types.BTableType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
-import org.ballerinalang.jvm.types.TypeFlags;
+import org.ballerinalang.jvm.types.TypeConstants;
 import org.ballerinalang.jvm.util.Flags;
 import org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons;
 import org.ballerinalang.jvm.values.api.BFunctionPointer;
@@ -553,8 +553,8 @@ public class TableValue implements RefValue, BTable {
     private void initIteratorNextReturnType() {
         Map<String, BField> fields = new HashMap<>();
         fields.put("value", new BField(constraintType, "value", Flags.PUBLIC + Flags.REQUIRED));
-        iteratorNextReturnType = new BRecordType("$$returnType$$", null, 0, fields, null, true,
-                TypeFlags.asMask(IteratorUtils.getAnydataTypeFlag(type), IteratorUtils.getPureTypeTypeFlag(type)));
+        iteratorNextReturnType = new BRecordType(TypeConstants.ITERATOR_NEXT_RETURN_TYPE, null, 0, fields, null, true,
+                IteratorUtils.getTypeFlags(type));
     }
 
     public BType getIteratorNextReturnType() {

@@ -18,8 +18,13 @@
 
 package org.ballerinalang.jvm;
 
+import org.ballerinalang.jvm.types.BField;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.TypeFlags;
+import org.ballerinalang.jvm.util.Flags;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * This class contains all the utility methods related to iterators.
@@ -27,17 +32,29 @@ import org.ballerinalang.jvm.types.TypeFlags;
  * @since 1.2
  */
 public class IteratorUtils {
-    public static int getAnydataTypeFlag(BType type) {
-        if (type.isAnydata()) {
+
+    public static int getTypeFlags(BType type) {
+        boolean isPureType = type.isPureType();
+        boolean isAnydata = type.isAnydata();
+
+        if (isPureType && isAnydata) {
+            return TypeFlags.asMask(TypeFlags.PURETYPE, TypeFlags.ANYDATA);
+        }
+
+        if (isAnydata) {
             return TypeFlags.ANYDATA;
         }
+
+        if (isPureType) {
+            return TypeFlags.PURETYPE;
+        }
+
         return 0;
     }
 
-    public static int getPureTypeTypeFlag(BType type) {
-        if (type.isPureType()) {
-            return TypeFlags.PURETYPE;
-        }
-        return 0;
+    public static Map<String, BField> createIteratorValueField(BType fieldType) {
+        HashMap<String, BField> valueFields = new HashMap<>();
+        valueFields.put("value", new BField(fieldType, "value", Flags.PUBLIC + Flags.REQUIRED));
+        return valueFields;
     }
 }

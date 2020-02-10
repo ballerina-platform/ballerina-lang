@@ -25,7 +25,7 @@ import org.ballerinalang.jvm.types.BRecordType;
 import org.ballerinalang.jvm.types.BTupleType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BUnionType;
-import org.ballerinalang.jvm.types.TypeFlags;
+import org.ballerinalang.jvm.types.TypeConstants;
 import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.util.Flags;
 import org.ballerinalang.jvm.util.exceptions.BLangFreezeException;
@@ -340,8 +340,8 @@ public abstract class AbstractArrayValue implements ArrayValue {
         }
 
         fields.put("value", new BField(type, "value", Flags.PUBLIC + Flags.REQUIRED));
-        iteratorNextReturnType = new BRecordType("$$returnType$$", null, 0, fields, null, true,
-                TypeFlags.asMask(IteratorUtils.getAnydataTypeFlag(type), IteratorUtils.getPureTypeTypeFlag(type)));
+        iteratorNextReturnType = new BRecordType(TypeConstants.ITERATOR_NEXT_RETURN_TYPE, null, 0, fields, null, true,
+                IteratorUtils.getTypeFlags(type));
     }
 
     public BType getIteratorNextReturnType() {

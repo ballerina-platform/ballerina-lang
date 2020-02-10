@@ -17,12 +17,12 @@
  */
 package org.ballerinalang.jvm.types;
 
+import org.ballerinalang.jvm.IteratorUtils;
 import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.util.Flags;
 
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Map;
 
 /**
  * This class contains various methods manipulate {@link BType}s in Ballerina.
@@ -67,7 +67,8 @@ public class BTypes {
             new BPackage(null, null, null), 0, true, TypeFlags.asMask(TypeFlags.ANYDATA,
             TypeFlags.PURETYPE));
     public static BRecordType xmlItrNextReturnType = new BRecordType(TypeConstants.ITERATOR_NEXT_RETURN_TYPE,
-            new BPackage(null, null, null), 0, true, 0);
+            new BPackage(null, null, null), 0, true, TypeFlags.asMask(TypeFlags.ANYDATA,
+            TypeFlags.PURETYPE));
 
     static {
         HashMap<String, BField> fields = new HashMap<>();
@@ -81,10 +82,10 @@ public class BTypes {
         restFieldType[1] = BTypes.typeError;
         typeErrorDetail.restFieldType = new BUnionType(Arrays.asList(restFieldType));
 
-        stringItrNextReturnType.setFields(createIteratorValueField(BTypes.typeString));
+        stringItrNextReturnType.setFields(IteratorUtils.createIteratorValueField(BTypes.typeString));
 
         BUnionType type = new BUnionType(Arrays.asList(BTypes.typeString, BTypes.typeXML));
-        xmlItrNextReturnType.setFields(createIteratorValueField(type));
+        xmlItrNextReturnType.setFields(IteratorUtils.createIteratorValueField(type));
     }
 
     private BTypes() {
@@ -161,10 +162,4 @@ public class BTypes {
         return getTypeFromName(typeName);
     }
 
-    private static Map<String, BField> createIteratorValueField(BType fieldType) {
-        HashMap<String, BField> valueFields = new HashMap<>();
-        valueFields.put("value", new BField(fieldType, "value",
-                Flags.PUBLIC + Flags.REQUIRED));
-        return valueFields;
-    }
 }

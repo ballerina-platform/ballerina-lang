@@ -23,6 +23,7 @@ import org.ballerinalang.jvm.types.BField;
 import org.ballerinalang.jvm.types.BRecordType;
 import org.ballerinalang.jvm.types.BStreamType;
 import org.ballerinalang.jvm.types.BType;
+import org.ballerinalang.jvm.types.TypeConstants;
 import org.ballerinalang.jvm.types.TypeFlags;
 import org.ballerinalang.jvm.util.Flags;
 import org.ballerinalang.jvm.values.api.BFunctionPointer;
@@ -96,8 +97,8 @@ public class StreamValue implements RefValue, BStream {
     public void initializeIteratorNextReturnType() {
         Map<String, BField> fields = new HashMap<>();
         fields.put("value", new BField(constraintType, "value", Flags.PUBLIC + Flags.REQUIRED));
-        this.iteratorNextReturnType = new BRecordType("$$returnType$$", type.getPackage(), 0, fields,
-                null, true, TypeFlags.asMask(TypeFlags.ANYDATA, TypeFlags.PURETYPE));
+        this.iteratorNextReturnType = new BRecordType(TypeConstants.ITERATOR_NEXT_RETURN_TYPE, type.getPackage(), 0,
+                fields, null, true, TypeFlags.asMask(TypeFlags.ANYDATA, TypeFlags.PURETYPE));
     }
 
     public String getStreamId() {
