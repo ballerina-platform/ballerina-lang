@@ -2617,8 +2617,12 @@ public class TypeChecker extends BLangNodeVisitor {
 
         if (expType.tag != TypeTags.NONE) {
             BType expectedType = ((BArrayType) queryExpr.expectedType).eType;
-            checkExpr(selectClause.expression, whereEnv, expectedType);
-            resultType = queryExpr.expectedType;
+            BType type = checkExpr(selectClause.expression, whereEnv, expectedType);
+            if (type == symTable.semanticError) {
+                resultType = type;
+            } else {
+                resultType = new BArrayType(expectedType);
+            }
         } else {
             checkExpr(selectClause.expression, whereEnv);
         }
