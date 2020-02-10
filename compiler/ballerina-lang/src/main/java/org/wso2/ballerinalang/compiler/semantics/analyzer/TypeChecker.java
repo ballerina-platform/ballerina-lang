@@ -2614,7 +2614,14 @@ public class TypeChecker extends BLangNodeVisitor {
         for (WhereClauseNode whereClauseNode : whereClauseList) {
             whereEnv = typeCheckWhereClause((BLangWhereClause) whereClauseNode, selectClause, parentEnv);
         }
-        checkExpr(selectClause.expression, whereEnv);
+
+        if (queryExpr.expectedType.tag != symTable.noType.tag) {
+            BType expectedType = ((BArrayType) queryExpr.expectedType).eType;
+            checkExpr(selectClause.expression, whereEnv, expectedType);
+            resultType = queryExpr.expectedType;
+        } else {
+            checkExpr(selectClause.expression, whereEnv);
+        }
     }
 
     private SymbolEnv typeCheckFromClause(BLangFromClause fromClause, SymbolEnv parentEnv) {
