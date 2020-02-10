@@ -17,7 +17,6 @@
  */
 package org.wso2.ballerinalang.compiler.bir.codegen.interop;
 
-import com.sun.codemodel.internal.JType;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.wso2.ballerinalang.compiler.bir.codegen.Nilable;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRAnnotationArrayValue;

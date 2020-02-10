@@ -17,7 +17,6 @@
  */
 package org.wso2.ballerinalang.compiler.bir.codegen;
 
-import com.sun.codemodel.internal.JType;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.model.elements.PackageID;
 import org.objectweb.asm.ClassWriter;
@@ -32,6 +31,7 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRAnnotationLiteralVal
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRAnnotationRecordValue;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRBasicBlock;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRFunction;
+import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRFunctionParameter;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRPackage;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRTypeDefinition;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRVariableDcl;
@@ -2375,8 +2375,8 @@ public class JvmMethodGen {
         }
     }
 
-    static BIRFunctionParam getFunctionParam(@Nilable BIRFunctionParam localVar) {
-        if (localVar instanceof BIRFunctionParam) {
+    static BIRFunctionParameter getFunctionParam(@Nilable BIRFunctionParameter localVar) {
+        if (localVar instanceof BIRFunctionParameter) {
             return localVar;
         } else {
             BLangCompilerException err = new BLangCompilerException("Invalid function parameter");

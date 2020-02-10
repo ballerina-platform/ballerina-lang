@@ -24,6 +24,7 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRBasicBlock;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRFunction;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRPackage;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRVariableDcl;
+import org.wso2.ballerinalang.compiler.bir.model.BIROperand;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
@@ -31,6 +32,7 @@ import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.apache.commons.lang3.ClassUtils.getPackageName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmDesugarPhase.addDefaultableBooleanVarsToSignature;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmDesugarPhase.enrichWithDefaultableParamInits;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmDesugarPhase.insertAndGetNextBasicBlock;
@@ -254,11 +256,15 @@ public class ExternalMethodGen {
         return birFuncWrapper;
     }
 
-    static BIRFunctionWrapper |
+//    static BIRFunctionWrapper |
 
-    public static class BIRVarRef {
+    public static class BIRVarRef extends BIROperand {
         BType typeValue;
-        BIRVariableDcl variableDcl;
+
+        public BIRVarRef(BType typeValue, BIRVariableDcl variableDcl) {
+            super(variableDcl);
+            this.typeValue = typeValue;
+        }
     }
 
     public static class OldStyleExternalFunctionWrapper extends BIRFunctionWrapper implements ExternalFunctionWrapper {
