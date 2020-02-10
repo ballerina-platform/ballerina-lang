@@ -747,6 +747,10 @@
             {
                 "name": "Chat Application",
                 "url": "websocket-chat-application"
+            },
+            {
+                "name": "Retry",
+                "url": "websocket-retry"
             }
         ]
     },
