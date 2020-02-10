@@ -29,7 +29,7 @@ import java.util.Map;
 /**
  * This class contains all the utility methods related to iterators.
  *
- * @since 1.2
+ * @since 1.2.0
  */
 public class IteratorUtils {
 
