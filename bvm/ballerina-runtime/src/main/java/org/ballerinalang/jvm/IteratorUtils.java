@@ -54,7 +54,7 @@ public class IteratorUtils {
         return 0;
     }
 
-    public static BRecordType createIteratorReturnNextType(BType type) {
+    public static BRecordType createIteratorNextReturnType(BType type) {
         Map<String, BField> fields = new HashMap<>();
         fields.put("value", new BField(type, "value", Flags.PUBLIC + Flags.REQUIRED));
         return new BRecordType(TypeConstants.ITERATOR_NEXT_RETURN_TYPE, null, 0, fields, null, true,

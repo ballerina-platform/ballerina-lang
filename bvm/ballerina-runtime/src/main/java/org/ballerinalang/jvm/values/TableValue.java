@@ -547,7 +547,7 @@ public class TableValue implements RefValue, BTable {
 
     public BType getIteratorNextReturnType() {
         if (iteratorNextReturnType == null) {
-            iteratorNextReturnType = IteratorUtils.createIteratorReturnNextType(constraintType);
+            iteratorNextReturnType = IteratorUtils.createIteratorNextReturnType(constraintType);
         }
 
         return iteratorNextReturnType;

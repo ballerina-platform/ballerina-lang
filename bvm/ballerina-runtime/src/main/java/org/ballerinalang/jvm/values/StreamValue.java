@@ -95,7 +95,7 @@ public class StreamValue implements RefValue, BStream {
 
     public BType getIteratorNextReturnType() {
         if (iteratorNextReturnType == null) {
-            iteratorNextReturnType = IteratorUtils.createIteratorReturnNextType(constraintType);
+            iteratorNextReturnType = IteratorUtils.createIteratorNextReturnType(constraintType);
         }
 
         return iteratorNextReturnType;

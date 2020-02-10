@@ -353,7 +353,7 @@ public abstract class AbstractArrayValue implements ArrayValue {
                 type = new BUnionType(new ArrayList<>(types));
             }
         }
-        iteratorNextReturnType = IteratorUtils.createIteratorReturnNextType(type);
+        iteratorNextReturnType = IteratorUtils.createIteratorNextReturnType(type);
     }
 
     public BType getIteratorNextReturnType() {

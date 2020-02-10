@@ -521,7 +521,7 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
                 type = new BUnionType(new ArrayList<>(types));
             }
         }
-        iteratorNextReturnType = IteratorUtils.createIteratorReturnNextType(type);
+        iteratorNextReturnType = IteratorUtils.createIteratorNextReturnType(type);
     }
 
     public BType getIteratorNextReturnType() {
