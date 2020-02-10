@@ -179,7 +179,7 @@ public class ManifestProcessor {
         }
 
         if (!COMPILE_BALLERINA_ORG && ("ballerina".equals(orgName))) {
-            throw new TomlException("invalid Ballerina.toml file: 'org-name' under [project] cannot be 'ballerina'");
+            throw new TomlException("invalid Ballerina.toml file: 'ballerina' is a reserved organization name");
         }
 
         if (null == version || "".equals(version)) {
