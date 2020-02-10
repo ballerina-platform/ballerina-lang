@@ -110,7 +110,8 @@ public class FailoverClientTest extends WebSocketTestCommons {
         CountDownLatch countDownLatch = new CountDownLatch(1);
         countDownLatch.await(TIMEOUT_IN_SECS, TimeUnit.SECONDS);
         Assert.assertEquals(client.getTextReceived(), "error {ballerina/http}WsGenericError " +
-                "message={ballerina/http}WsGenericError");
+                "message=Waiting for WebSocket handshake has not been successful cause=error " +
+                "{ballerina/io}ConnectionTimedOut message=Connection timeout");
         client.shutDown();
     }
 

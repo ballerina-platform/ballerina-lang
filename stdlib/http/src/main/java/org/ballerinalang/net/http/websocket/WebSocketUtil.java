@@ -193,6 +193,9 @@ public class WebSocketUtil {
      * @return the relevant WebSocketException with proper error code.
      */
     public static WebSocketException createErrorByType(Throwable throwable) {
+        if (throwable instanceof WebSocketException) {
+            return (WebSocketException) throwable;
+        }
         WebSocketConstants.ErrorCode errorCode = WebSocketConstants.ErrorCode.WsGenericError;
         ErrorValue cause = null;
         String message = getErrorMessage(throwable);
@@ -379,7 +382,7 @@ public class WebSocketUtil {
                 CLIENT_ENDPOINT_CONFIG), "handShakeTimeoutInSeconds", 300);
         try {
             if (!countDownLatch.await(timeout, TimeUnit.SECONDS)) {
-                throw new WebSocketException(WebSocketConstants.ErrorCode.WsGenericError,
+                throw new WebSocketException(WebSocketConstants.ErrorCode.WsInvalidHandshakeError,
                         "Waiting for WebSocket handshake has not been successful", WebSocketUtil.createErrorCause(
                         "Connection timeout", IOConstants.ErrorCode.ConnectionTimedOut.errorCode(),
                         IOConstants.IO_PACKAGE_ID));

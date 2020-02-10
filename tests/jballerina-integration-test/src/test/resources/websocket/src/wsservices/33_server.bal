@@ -22,25 +22,6 @@ import ballerina/runtime;
 }
 service httpService on new http:Listener(21033) {
     @http:ResourceConfig {
-        path: "/world",
-        methods: ["POST"]
-    }
-    resource function httpResource(http:Caller caller, http:Request req) {
-        http:Response resp = new;
-        var payload = req.getTextPayload();
-        if (payload is error) {
-            resp.setPayload("Error in payload");
-            resp.statusCode = 500;
-        } else {
-            resp.setPayload(string `HTTP POST received: {payload}`);
-        }
-
-        var err = caller->respond(resp);
-        if (err is error) {
-            panic err;
-        }
-    }
-    @http:ResourceConfig {
         webSocketUpgrade: {
                 upgradePath: "/ws",
                 upgradeService: wsService
