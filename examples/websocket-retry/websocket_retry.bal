@@ -20,7 +20,7 @@ service retryProxyService on new http:Listener(9090) {
         http:WebSocketClient wsClientEp = new (
         REMOTE_BACKEND,
         {
-            callbackService: RetryClientService,
+            callbackService: retryClientService,
             // When creating client endpoint, if `readyOnConnect` flag is set to
             // `false`, client endpoint does not start reading frames automatically.
             readyOnConnect: false,
