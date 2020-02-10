@@ -117,7 +117,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.lookupGl
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmValueGen.NodeSorter;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmValueGen.createDefaultCase;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmValueGen.createLabelsForEqualCheck;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmValueGen.createLabelsforSwitch;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmValueGen.createLabelsForSwitch;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmValueGen.getTypeValueClassName;
 
 
@@ -311,7 +311,7 @@ public class JvmTypeGen {
         NodeSorter sorter = new NodeSorter();
         sorter.sortByHash(recordTypeDefs);
 
-        List<Label> labels = createLabelsforSwitch(mv, fieldNameRegIndex, recordTypeDefs, defaultCaseLabel);
+        List<Label> labels = createLabelsForSwitch(mv, fieldNameRegIndex, recordTypeDefs, defaultCaseLabel);
         List<Label> targetLabels = createLabelsForEqualCheck(mv, fieldNameRegIndex, recordTypeDefs, labels,
                 defaultCaseLabel);
 
@@ -391,7 +391,7 @@ public class JvmTypeGen {
         NodeSorter sorter = new NodeSorter();
         sorter.sortByHash(objectTypeDefs);
 
-        List<Label> labels = createLabelsforSwitch(mv, var1Index, objectTypeDefs, defaultCaseLabel);
+        List<Label> labels = createLabelsForSwitch(mv, var1Index, objectTypeDefs, defaultCaseLabel);
         List<Label> targetLabels = createLabelsForEqualCheck(mv, var1Index, objectTypeDefs, labels,
                 defaultCaseLabel);
 

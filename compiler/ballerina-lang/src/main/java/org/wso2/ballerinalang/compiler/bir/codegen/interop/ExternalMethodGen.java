@@ -72,7 +72,7 @@ public class ExternalMethodGen {
         }
     }
 
-    static void injectDefaultParamInits(BIRPackage module) {
+    public static void injectDefaultParamInits(BIRPackage module) {
 
         // filter out functions.
         @Nilable List<BIRFunction> functions = module.functions;
@@ -99,7 +99,7 @@ public class ExternalMethodGen {
 
     }
 
-    static void desugarOldExternFuncs(BIRPackage module, OldStyleExternalFunctionWrapper extFuncWrapper,
+    public static void desugarOldExternFuncs(BIRPackage module, OldStyleExternalFunctionWrapper extFuncWrapper,
                                       BIRFunction birFunc) {
         BType retType = (BType) birFunc.type["retType"];
 
@@ -156,7 +156,7 @@ public class ExternalMethodGen {
         }
     }
 
-    static BIRFunctionWrapper lookupBIRFunctionWrapper(BIRPackage birModule, BIRFunction birFunc,
+    public static BIRFunctionWrapper lookupBIRFunctionWrapper(BIRPackage birModule, BIRFunction birFunc,
                                                        @Nilable BType attachedType /* = () */) {
         String lookupKey;
         var currentPackageName = getPackageName(birModule.org.value, birModule.name.value);
@@ -261,7 +261,7 @@ public class ExternalMethodGen {
         BIRVariableDcl variableDcl;
     }
 
-    static class OldStyleExternalFunctionWrapper extends BIRFunctionWrapper implements ExternalFunctionWrapper {
+    public static class OldStyleExternalFunctionWrapper extends BIRFunctionWrapper implements ExternalFunctionWrapper {
         String jClassName;
         @Nilable
         List<BType> jMethodPramTypes;
