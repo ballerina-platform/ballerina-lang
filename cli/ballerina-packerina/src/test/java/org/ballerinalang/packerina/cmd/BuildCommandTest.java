@@ -756,6 +756,23 @@ public class BuildCommandTest extends CommandTest {
         Path execJar = tmpDir.resolve("sample.jar");
         Assert.assertTrue(Files.exists(execJar), "Check if jar gets created");
     }
+
+    @Test(description = "Test the --skip-tests flag in the build command to ensure it avoids compiling tests")
+    public void testBuildWithSkipTests() throws IOException {
+        // valid source root path where the project contains test bal files with compilation errors
+        Path projectWithTestErrors = this.testResources.resolve("project-with-test-errors");
+        BuildCommand buildCommand = new BuildCommand(projectWithTestErrors, printStream, printStream, false, true);
+        new CommandLine(buildCommand).parse("--skip-tests", "-a");
+        buildCommand.execute();
+
+        String buildLog = readOutput(true);
+        Assert.assertEquals(buildLog.replaceAll("\r", ""), "Compiling source\n" +
+                "\ttestOrg/module1:0.1.0\n" +
+                "\nCreating balos\n" +
+                "\ttarget/balo/module1-2019r3-any-0.1.0.balo\n" +
+                "\nGenerating executables\n" +
+                "\ttarget/bin/module1.jar\n");
+    }
     
     // Check compile command inside a module directory
 
