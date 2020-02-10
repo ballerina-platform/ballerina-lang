@@ -24,6 +24,7 @@ import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.values.api.BFunctionPointer;
 import org.ballerinalang.jvm.values.api.BIterator;
 import org.ballerinalang.jvm.values.api.BStream;
+import org.ballerinalang.jvm.values.api.BString;
 
 import java.util.Map;
 import java.util.UUID;
@@ -96,6 +97,11 @@ public class StreamValue implements RefValue, BStream {
      */
     public String stringValue() {
         return "stream <" + getType().toString() + ">";
+    }
+
+    @Override
+    public BString bStringValue() {
+        return null;
     }
 
     @Override
