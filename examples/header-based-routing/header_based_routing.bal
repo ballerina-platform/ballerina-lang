@@ -40,7 +40,7 @@ service headerBasedRouting on new http:Listener(9090) {
             var result = caller->respond(errorResponse);
 
             if (result is error) {
-                log:printError("Error sending response", err = result);
+                log:printError("Error sending response", result);
             }
             return;
         }
