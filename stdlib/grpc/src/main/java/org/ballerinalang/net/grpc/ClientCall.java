@@ -182,13 +182,17 @@ public final class ClientCall {
         cancelCalled = true;
         if (outboundMessage != null) {
             Status status = Status.Code.CANCELLED.toStatus();
-            if (message != null) {
-                status = status.withDescription(message);
+            if (cause instanceof StatusRuntimeException) {
+                status = ((StatusRuntimeException) cause).getStatus();
             } else {
-                status = status.withDescription("Call cancelled without message");
-            }
-            if (cause != null) {
-                status = status.withCause(cause);
+                if (message != null) {
+                    status = status.withDescription(message);
+                } else {
+                    status = status.withDescription("Call cancelled without message");
+                }
+                if (cause != null) {
+                    status = status.withCause(cause);
+                }
             }
             outboundMessage.complete(status, new DefaultHttpHeaders());
         }
