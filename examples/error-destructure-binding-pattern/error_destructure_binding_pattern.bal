@@ -25,7 +25,7 @@ public function main() {
     string reasonTwo;
     map<anydata|error> params;
     // The detail mapping can be destructured into an existing `map<anydata|error>`-typed variable by using a rest parameter.
-    error (reasonTwo, ...params) = getSampleError();
+    error(reasonTwo, ...params) = getSampleError();
     io:println("Reason String: ", reasonTwo);
     io:println("Detail Map: ", params);
     
