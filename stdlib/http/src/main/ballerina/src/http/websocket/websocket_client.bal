@@ -96,7 +96,7 @@ public type WebSocketClient client object {
         return self.conn.close(statusCode, reason, timeoutInSeconds);
     }
 
-    # Called when the endpoint is ready to receive messages. Can be called only once per endpoint. For the
+    # Calls when the endpoint is ready to receive messages. It can be called only once per endpoint. For the
     # WebSocketListener, it can be called only in the `upgrade` or `onOpen` resources.
     #
     # + return - an `error` if an error occurs while checking the connection state
