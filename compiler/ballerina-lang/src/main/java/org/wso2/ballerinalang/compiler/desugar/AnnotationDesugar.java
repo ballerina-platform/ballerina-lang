@@ -307,7 +307,7 @@ public class AnnotationDesugar {
         BLangAnnotationAttachment annoAttachment = (BLangAnnotationAttachment) TreeBuilder.createAnnotAttachmentNode();
         mainFunc.addAnnotationAttachment(annoAttachment);
         final SymbolEnv pkgEnv = symTable.pkgEnvMap.get(mainFunc.symbol.getEnclosingSymbol());
-        BSymbol annSymbol = symResolver.lookupAnnotationSpaceSymbol(pkgEnv, names.fromString(DEFAULTABLE_ANN));
+        BSymbol annSymbol = symResolver.lookupSymbolInAnnotationSpace(pkgEnv, names.fromString(DEFAULTABLE_ANN));
         if (annSymbol instanceof BAnnotationSymbol) {
             annoAttachment.annotationSymbol = (BAnnotationSymbol) annSymbol;
         }
@@ -325,7 +325,7 @@ public class AnnotationDesugar {
         annoAttachment.attachPoints.add(AttachPoint.Point.FUNCTION);
         literalNode.pos = pos;
         BStructureTypeSymbol bStructSymbol = null;
-        BSymbol annTypeSymbol = symResolver.lookupMainSpaceSymbol(pkgEnv, names.fromString(DEFAULTABLE_REC));
+        BSymbol annTypeSymbol = symResolver.lookupSymbolInMainSpace(pkgEnv, names.fromString(DEFAULTABLE_REC));
         if (annTypeSymbol instanceof BStructureTypeSymbol) {
             bStructSymbol = (BStructureTypeSymbol) annTypeSymbol;
             literalNode.type = bStructSymbol.type;

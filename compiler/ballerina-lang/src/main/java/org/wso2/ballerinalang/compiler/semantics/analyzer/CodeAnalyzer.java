@@ -1579,10 +1579,9 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     // Asynchronous Send Statement
     public void visit(BLangWorkerSend workerSendNode) {
-        BSymbol receiver = symTable.notFoundSymbol;
-        BSymbol tempSymbol = symResolver.lookupMainSpaceSymbol(env, names.fromIdNode(workerSendNode.workerIdentifier));
-        if ((tempSymbol.tag & SymTag.VARIABLE) == SymTag.VARIABLE) {
-            receiver = tempSymbol;
+        BSymbol receiver = symResolver.lookupSymbolInMainSpace(env, names.fromIdNode(workerSendNode.workerIdentifier));
+        if ((receiver.tag & SymTag.VARIABLE) != SymTag.VARIABLE) {
+            receiver = symTable.notFoundSymbol;
         }
         verifyPeerCommunication(workerSendNode.pos, receiver, workerSendNode.workerIdentifier.value);
 
@@ -1647,7 +1646,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangWorkerSyncSendExpr syncSendExpr) {
-        BSymbol receiver = symResolver.lookupMainSpaceSymbol(env, names.fromIdNode(syncSendExpr.workerIdentifier));
+        BSymbol receiver = symResolver.lookupSymbolInMainSpace(env, names.fromIdNode(syncSendExpr.workerIdentifier));
+        if ((receiver.tag & SymTag.VARIABLE) != SymTag.VARIABLE) {
+            receiver = symTable.notFoundSymbol;
+        }
         verifyPeerCommunication(syncSendExpr.pos, receiver, syncSendExpr.workerIdentifier.value);
 
         // Validate worker synchronous send
@@ -1674,7 +1676,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     public void visit(BLangWorkerReceive workerReceiveNode) {
         // Validate worker receive
         validateActionParentNode(workerReceiveNode.pos, workerReceiveNode);
-        BSymbol sender = symResolver.lookupMainSpaceSymbol(env, names.fromIdNode(workerReceiveNode.workerIdentifier));
+        BSymbol sender = symResolver.lookupSymbolInMainSpace(env, names.fromIdNode(workerReceiveNode.workerIdentifier));
         verifyPeerCommunication(workerReceiveNode.pos, sender, workerReceiveNode.workerIdentifier.value);
 
         if (workerReceiveNode.isChannel) {

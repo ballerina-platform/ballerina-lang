@@ -582,7 +582,7 @@ public class HttpFiltersDesugar {
                                                    Name pkgAlias, Name name) {
         // 1) Look up the current package if the package alias is empty.
         if (pkgAlias == Names.EMPTY) {
-            return symResolver.lookupMainSpaceSymbol(env, name);
+            return symResolver.lookupSymbolInMainSpace(env, name);
         }
 
         // 2) Retrieve the package symbol first
@@ -606,7 +606,7 @@ public class HttpFiltersDesugar {
                                                    Name pkgAlias, Name name) {
         // 1) Look up the current package if the package alias is empty.
         if (pkgAlias == Names.EMPTY) {
-            return symResolver.lookupAnnotationSpaceSymbol(env, name);
+            return symResolver.lookupSymbolInAnnotationSpace(env, name);
         }
 
         // 2) Retrieve the package symbol first

@@ -898,7 +898,7 @@ public class BIRPackageSymbolEnter {
 
                     BPackageSymbol pkgSymbol = packageLoader.loadPackageSymbol(pkgId, null, null);
                     SymbolEnv pkgEnv = symTable.pkgEnvMap.get(pkgSymbol);
-                    return symbolResolver.lookupMainSpaceSymbol(pkgEnv, names.fromString(recordName)).type;
+                    return symbolResolver.lookupSymbolInMainSpace(pkgEnv, names.fromString(recordName)).type;
                 case TypeTags.TYPEDESC:
                     BTypedescType typedescType = new BTypedescType(null, symTable.typeDesc.tsymbol);
                     typedescType.constraint = readTypeFromCp();
@@ -1083,7 +1083,7 @@ public class BIRPackageSymbolEnter {
 
                     pkgSymbol = packageLoader.loadPackageSymbol(pkgId, null, null);
                     pkgEnv = symTable.pkgEnvMap.get(pkgSymbol);
-                    return symbolResolver.lookupMainSpaceSymbol(pkgEnv, names.fromString(objName)).type;
+                    return symbolResolver.lookupSymbolInMainSpace(pkgEnv, names.fromString(objName)).type;
                 case TypeTags.BYTE_ARRAY:
                     // TODO fix
                     break;

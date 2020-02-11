@@ -834,7 +834,7 @@ public class Desugar extends BLangNodeVisitor {
                 .findAny().get().symbol;
         // Retrieve the symbol from main symbol space assuming at this level symbols are resolved properly
         BInvokableSymbol invokableSymbol =
-                (BInvokableSymbol) symResolver.lookupMainSpaceSymbol(symTable.pkgEnvMap.get(trxModSym),
+                (BInvokableSymbol) symResolver.lookupSymbolInMainSpace(symTable.pkgEnvMap.get(trxModSym),
                         getParticipantFunctionName(funcNode));
         BLangLiteral transactionBlockId = ASTBuilderUtil.createLiteral(funcNode.pos, symTable.stringType,
                 getTransactionBlockId());
@@ -2873,7 +2873,7 @@ public class Desugar extends BLangNodeVisitor {
         PackageID packageID = new PackageID(Names.BALLERINA_ORG, Names.TRANSACTION_PACKAGE, Names.EMPTY);
         BPackageSymbol transactionPkgSymbol = new BPackageSymbol(packageID, null, 0);
         BInvokableSymbol invokableSymbol =
-                (BInvokableSymbol) symResolver.lookupMainSpaceSymbol(symTable.pkgEnvMap.get(transactionPkgSymbol),
+                (BInvokableSymbol) symResolver.lookupSymbolInMainSpace(symTable.pkgEnvMap.get(transactionPkgSymbol),
                         TRX_INITIATOR_BEGIN_FUNCTION);
         BLangLiteral transactionBlockId = ASTBuilderUtil.createLiteral(pos, symTable.stringType,
                                                                        getTransactionBlockId());
@@ -3522,7 +3522,7 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     private BLangSimpleVariableDef createVarDef(String name, BType type, BLangExpression expr, DiagnosticPos pos) {
-        BSymbol objSym = symResolver.lookupMainSpaceSymbol(env, names.fromString(name));
+        BSymbol objSym = symResolver.lookupSymbolInMainSpace(env, names.fromString(name));
         if (objSym == null || objSym == symTable.notFoundSymbol) {
             objSym = new BVarSymbol(0, names.fromString(name), this.env.scope.owner.pkgID, type, this.env.scope.owner);
         }

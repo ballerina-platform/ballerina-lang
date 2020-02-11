@@ -231,7 +231,7 @@ public class ServiceProtoBuilder extends AbstractCompilerPlugin {
         }
 
         //Add Descriptor Map
-        BSymbol mapVarSymbol = symResolver.lookupMainSpaceSymbol(pkgEnv, names.fromString(DESCRIPTOR_MAP));
+        BSymbol mapVarSymbol = symResolver.lookupSymbolInMainSpace(pkgEnv, names.fromString(DESCRIPTOR_MAP));
         if (mapVarSymbol == null || mapVarSymbol.type.tag == TypeTags.NONE) {
             return;
         }

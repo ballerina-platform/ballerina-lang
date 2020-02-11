@@ -1119,7 +1119,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangWorkerSyncSendExpr syncSendExpr) {
-        BSymbol symbol = symResolver.lookupMainSpaceSymbol(env, names.fromIdNode(syncSendExpr.workerIdentifier));
+        BSymbol symbol = symResolver.lookupSymbolInMainSpace(env, names.fromIdNode(syncSendExpr.workerIdentifier));
 
         if (symTable.notFoundSymbol.equals(symbol)) {
             syncSendExpr.workerType = symTable.semanticError;
@@ -1150,7 +1150,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangWorkerReceive workerReceiveExpr) {
-        BSymbol symbol = symResolver.lookupMainSpaceSymbol(env, names.fromIdNode(workerReceiveExpr.workerIdentifier));
+        BSymbol symbol = symResolver.lookupSymbolInMainSpace(env, names.fromIdNode(workerReceiveExpr.workerIdentifier));
 
         if (workerReceiveExpr.isChannel) {
             this.dlog.error(workerReceiveExpr.pos, DiagnosticCode.UNDEFINED_ACTION);
@@ -1179,7 +1179,7 @@ public class TypeChecker extends BLangNodeVisitor {
         if (workerName.equals(DEFAULT_WORKER_NAME)) {
            return true;
         }
-        BSymbol symbol = this.symResolver.lookupMainSpaceSymbol(env, new Name(workerName));
+        BSymbol symbol = this.symResolver.lookupSymbolInMainSpace(env, new Name(workerName));
         return symbol != this.symTable.notFoundSymbol &&
                symbol.type.tag == TypeTags.FUTURE &&
                ((BFutureType) symbol.type).workerDerivative;
@@ -1438,7 +1438,7 @@ public class TypeChecker extends BLangNodeVisitor {
     private boolean checkErrorRestParamVarRef(BLangErrorVarRef varRefExpr, boolean unresolvedReference) {
         BLangAccessExpression accessExpression = (BLangAccessExpression) varRefExpr.restVar;
         Name exprName = names.fromIdNode(((BLangSimpleVarRef) accessExpression.expr).variableName);
-        BSymbol fSym = symResolver.lookupMainSpaceSymbol(env, exprName);
+        BSymbol fSym = symResolver.lookupSymbolInMainSpace(env, exprName);
         if (fSym != null) {
             if (fSym.type.getKind() == TypeKind.MAP) {
                 BType constraint = ((BMapType) fSym.type).constraint;
@@ -1930,7 +1930,7 @@ public class TypeChecker extends BLangNodeVisitor {
                 fieldName = ((BLangSimpleVarRef) keyVal.valueExpr).variableName;
             }
 
-            BSymbol symbol = symResolver.lookupMainSpaceSymbol(env, names.fromIdNode(fieldName));
+            BSymbol symbol = symResolver.lookupSymbolInMainSpace(env, names.fromIdNode(fieldName));
             BType fieldType = symbol.type.tag == TypeTags.FUTURE ? ((BFutureType) symbol.type).constraint : symbol.type;
             BField field = new BField(names.fromIdNode(keyVal.key), null,
                                       new BVarSymbol(0, names.fromIdNode(keyVal.key), env.enclPkg.packageID,
@@ -2016,7 +2016,7 @@ public class TypeChecker extends BLangNodeVisitor {
     private void checkWaitKeyValExpr(BLangWaitForAllExpr.BLangWaitKeyValue keyVal, BType type) {
         BLangExpression expr;
         if (keyVal.keyExpr != null) {
-            BSymbol symbol = symResolver.lookupMainSpaceSymbol(env, names.fromIdNode
+            BSymbol symbol = symResolver.lookupSymbolInMainSpace(env, names.fromIdNode
                     (((BLangSimpleVarRef) keyVal.keyExpr).variableName));
             keyVal.keyExpr.type = symbol.type;
             expr = keyVal.keyExpr;
@@ -2378,7 +2378,7 @@ public class TypeChecker extends BLangNodeVisitor {
             return;
         }
 
-        BSymbol xmlnsSymbol = symResolver.lookupPrefixSpaceSymbol(env, names.fromIdNode(bLangXMLQName.prefix));
+        BSymbol xmlnsSymbol = symResolver.lookupSymbolInPrefixSpace(env, names.fromIdNode(bLangXMLQName.prefix));
         if (prefix.isEmpty() && xmlnsSymbol == symTable.notFoundSymbol) {
             return;
         }

@@ -140,13 +140,13 @@ public class SymbolResolver extends BLangNodeVisitor {
         BSymbol foundSym = symTable.notFoundSymbol;
         int expSymTag = symbol.tag;
         if ((expSymTag & SymTag.IMPORT) == SymTag.IMPORT) {
-            foundSym = lookupPrefixSpaceSymbol(env, symbol.name);
+            foundSym = lookupSymbolInPrefixSpace(env, symbol.name);
         } else if ((expSymTag & SymTag.ANNOTATION) == SymTag.ANNOTATION) {
-            foundSym = lookupAnnotationSpaceSymbol(env, symbol.name);
+            foundSym = lookupSymbolInAnnotationSpace(env, symbol.name);
         } else if ((expSymTag & SymTag.CONSTRUCTOR) == SymTag.CONSTRUCTOR) {
-            foundSym = lookupConstructorSpaceSymbol(env, symbol.name);
+            foundSym = lookupSymbolInConstructorSpace(env, symbol.name);
         }  else if ((expSymTag & SymTag.MAIN) == SymTag.MAIN) {
-            foundSym = lookupMainSpaceSymbol(env, symbol.name);
+            foundSym = lookupSymbolInMainSpace(env, symbol.name);
         }
 
         //if symbol is not found then it is unique for the current scope
@@ -169,7 +169,7 @@ public class SymbolResolver extends BLangNodeVisitor {
     }
 
     public boolean checkForUniqueSymbol(SymbolEnv env, BSymbol symbol) {
-        BSymbol foundSym = lookupMainSpaceSymbol(env, symbol.name);
+        BSymbol foundSym = lookupSymbolInMainSpace(env, symbol.name);
         if (foundSym == symTable.notFoundSymbol) {
             return true;
         }
@@ -428,7 +428,7 @@ public class SymbolResolver extends BLangNodeVisitor {
         }
 
         // Lookup for an imported package
-        BSymbol pkgSymbol = lookupPrefixSpaceSymbol(env, pkgAlias);
+        BSymbol pkgSymbol = lookupSymbolInPrefixSpace(env, pkgAlias);
         if (pkgSymbol == symTable.notFoundSymbol) {
             dlog.error(pos, DiagnosticCode.UNDEFINED_MODULE, pkgAlias.value);
         }
@@ -537,19 +537,19 @@ public class SymbolResolver extends BLangNodeVisitor {
         return symTable.notFoundSymbol;
     }
 
-    public BSymbol lookupMainSpaceSymbol(SymbolEnv env, Name name) {
+    public BSymbol lookupSymbolInMainSpace(SymbolEnv env, Name name) {
         return lookupSymbol(env, name, SymTag.MAIN);
     }
 
-    public BSymbol lookupAnnotationSpaceSymbol(SymbolEnv env, Name name) {
+    public BSymbol lookupSymbolInAnnotationSpace(SymbolEnv env, Name name) {
         return lookupSymbol(env, name, SymTag.ANNOTATION);
     }
 
-    public BSymbol lookupPrefixSpaceSymbol(SymbolEnv env, Name name) {
+    public BSymbol lookupSymbolInPrefixSpace(SymbolEnv env, Name name) {
         return lookupSymbol(env, name, SymTag.IMPORT);
     }
 
-    public BSymbol lookupConstructorSpaceSymbol(SymbolEnv env, Name name) {
+    public BSymbol lookupSymbolInConstructorSpace(SymbolEnv env, Name name) {
         return lookupSymbol(env, name, SymTag.CONSTRUCTOR);
     }
 
@@ -657,7 +657,7 @@ public class SymbolResolver extends BLangNodeVisitor {
                                          Name name) {
         // 1) Look up the current package if the package alias is empty.
         if (pkgAlias == Names.EMPTY) {
-            return lookupMainSpaceSymbol(env, name);
+            return lookupSymbolInMainSpace(env, name);
         }
 
         // 2) Retrieve the package symbol first
@@ -678,7 +678,7 @@ public class SymbolResolver extends BLangNodeVisitor {
                                          Name name) {
         // 1) Look up the current package if the package alias is empty.
         if (pkgAlias == Names.EMPTY) {
-            return lookupPrefixSpaceSymbol(env, name);
+            return lookupSymbolInPrefixSpace(env, name);
         }
 
         // 2) Retrieve the package symbol first
@@ -699,7 +699,7 @@ public class SymbolResolver extends BLangNodeVisitor {
                                          Name name) {
         // 1) Look up the current package if the package alias is empty.
         if (pkgAlias == Names.EMPTY) {
-            return lookupAnnotationSpaceSymbol(env, name);
+            return lookupSymbolInAnnotationSpace(env, name);
         }
 
         // 2) Retrieve the package symbol first
@@ -720,7 +720,7 @@ public class SymbolResolver extends BLangNodeVisitor {
                                                         Name name) {
         // 1) Look up the current package if the package alias is empty.
         if (pkgAlias == Names.EMPTY) {
-            return lookupConstructorSpaceSymbol(env, name);
+            return lookupSymbolInConstructorSpace(env, name);
         }
 
         // 2) Retrieve the package symbol first
@@ -977,7 +977,7 @@ public class SymbolResolver extends BLangNodeVisitor {
         // TODO: 7/12/19 FIX ME!!! This is a temporary hack to ensure the detail type is set to the error type when
         //  compiling the annotations module which contains the error def
         if (detailType == null && PackageID.ANNOTATIONS.equals(env.enclPkg.packageID)) {
-            BSymbol symbol = this.lookupMainSpaceSymbol(env, Names.ERROR);
+            BSymbol symbol = this.lookupSymbolInMainSpace(env, Names.ERROR);
             resultType = symbol.type;
             symTable.errorType = (BErrorType) resultType;
             symTable.detailType = (BRecordType) symTable.errorType.detailType;

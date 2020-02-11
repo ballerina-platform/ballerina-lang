@@ -527,7 +527,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         // First check for package-imports with the same alias.
         // Here we do not check for owner equality, since package import is always at the package
         // level, but the namespace declaration can be at any level.
-        BSymbol foundSym = symResolver.lookupPrefixSpaceSymbol(env, xmlnsSymbol.name);
+        BSymbol foundSym = symResolver.lookupSymbolInPrefixSpace(env, xmlnsSymbol.name);
         if ((foundSym.tag & SymTag.PACKAGE) != SymTag.PACKAGE) {
             foundSym = symTable.notFoundSymbol;
         }
@@ -1722,7 +1722,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         String referencedFuncName = referencedFunc.funcName.value;
         Name funcName = names.fromString(
                 Symbols.getAttachedFuncSymbolName(typeDef.symbol.name.value, referencedFuncName));
-        BSymbol matchingObjFuncSym = symResolver.lookupMainSpaceSymbol(objEnv, funcName);
+        BSymbol matchingObjFuncSym = symResolver.lookupSymbolInMainSpace(objEnv, funcName);
 
         if (matchingObjFuncSym != symTable.notFoundSymbol) {
             if (referencedFunctions.contains(referencedFuncName)) {
