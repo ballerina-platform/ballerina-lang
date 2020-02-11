@@ -22,6 +22,7 @@ import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.FunctionNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.ServiceNode;
+import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
 import org.ballerinalang.model.tree.statements.BlockNode;
 import org.ballerinalang.model.tree.statements.StatementNode;
 import org.ballerinalang.model.types.FiniteType;
@@ -68,6 +69,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.ballerinalang.net.grpc.GrpcConstants.ANN_ATTR_RESOURCE_SERVER_STREAM;
@@ -130,9 +132,14 @@ public class ServiceProtoUtils {
                 continue;
             }
             if (annotationNode.getExpression() instanceof BLangRecordLiteral) {
-                List<BLangRecordLiteral.BLangRecordKeyValue> attributes = ((BLangRecordLiteral) annotationNode
-                        .getExpression()).getKeyValuePairs();
-                for (BLangRecordLiteral.BLangRecordKeyValue attributeNode : attributes) {
+                List<BLangRecordLiteral.BLangRecordKeyValueField> attributes = new ArrayList<>();
+
+                for (RecordLiteralNode.RecordField attribute :
+                        ((BLangRecordLiteral) annotationNode.getExpression()).getFields()) {
+                    attributes.add((BLangRecordLiteral.BLangRecordKeyValueField) attribute);
+                }
+
+                for (BLangRecordLiteral.BLangRecordKeyValueField attributeNode : attributes) {
                     String attributeName = attributeNode.getKey().toString();
                     BLangExpression attributeValue = attributeNode.getValue();
                     
@@ -187,9 +194,14 @@ public class ServiceProtoUtils {
                 continue;
             }
             if (annotationNode.getExpression() instanceof BLangRecordLiteral) {
-                List<BLangRecordLiteral.BLangRecordKeyValue> attributes = ((BLangRecordLiteral) annotationNode
-                        .getExpression()).getKeyValuePairs();
-                for (BLangRecordLiteral.BLangRecordKeyValue attributeNode : attributes) {
+                List<BLangRecordLiteral.BLangRecordKeyValueField> attributes = new ArrayList<>();
+
+                for (RecordLiteralNode.RecordField attribute :
+                        ((BLangRecordLiteral) annotationNode.getExpression()).getFields()) {
+                    attributes.add((BLangRecordLiteral.BLangRecordKeyValueField) attribute);
+                }
+
+                for (BLangRecordLiteral.BLangRecordKeyValueField attributeNode : attributes) {
                     String attributeName = attributeNode.getKey().toString();
                     BLangExpression attributeValue = attributeNode.getValue();
 
@@ -380,9 +392,13 @@ public class ServiceProtoUtils {
             }
             
             if (annotationNode.getExpression() instanceof BLangRecordLiteral) {
-                List<BLangRecordLiteral.BLangRecordKeyValue> attributes = ((BLangRecordLiteral) annotationNode
-                        .getExpression()).getKeyValuePairs();
-                for (BLangRecordLiteral.BLangRecordKeyValue attributeNode : attributes) {
+                List<BLangRecordLiteral.BLangRecordKeyValueField> attributes = new ArrayList<>();
+
+                for (RecordLiteralNode.RecordField attribute :
+                        ((BLangRecordLiteral) annotationNode.getExpression()).getFields()) {
+                    attributes.add((BLangRecordLiteral.BLangRecordKeyValueField) attribute);
+                }
+                for (BLangRecordLiteral.BLangRecordKeyValueField attributeNode : attributes) {
                     String attributeName = attributeNode.getKey().toString();
                     String attributeValue = attributeNode.getValue() != null ? attributeNode.getValue().toString() :
                             null;

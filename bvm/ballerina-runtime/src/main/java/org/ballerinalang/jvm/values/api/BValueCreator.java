@@ -127,6 +127,16 @@ import java.util.function.Function;
      }
 
      /**
+      * Creates a new string array.
+      *
+      * @param values initial array values
+      * @return string array
+      */
+     public static BArray createArrayValue(BString[] values) {
+         return new ArrayValueImpl(values);
+     }
+
+     /**
       * Create a new Ref value array.
       *
       * @param values initial array values

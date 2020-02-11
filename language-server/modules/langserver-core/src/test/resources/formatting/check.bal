@@ -80,3 +80,25 @@ public function test2() returns error? {
     string sd = check name();
     io:println("Response from organization count query from DB: " +check test1());
 }
+
+public function test3() {
+
+    json Items = [1, false, null, "foo", {first: "John", last: "Pala"}];
+    json[] | error ItemArr = trap <json[]>Items;
+    foreach var    item  in      check      ItemArr {
+
+    }
+}
+
+public function test4() {
+
+    json Items = [1, false, null, "foo", {first: "John", last: "Pala"}];
+    json[] | error ItemArr = trap <json[]>Items;
+    foreach var
+       item
+        in
+         check
+          ItemArr {
+
+    }
+}

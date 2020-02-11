@@ -778,7 +778,7 @@ public abstract class BLangNodeVisitor {
         throw new AssertionError();
     }
 
-    public void visit(BLangRecordLiteral.BLangRecordKeyValue recordKeyValue) {
+    public void visit(BLangRecordLiteral.BLangRecordKeyValueField recordKeyValue) {
         throw new AssertionError();
     }
 
