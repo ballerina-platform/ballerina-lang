@@ -14,7 +14,7 @@ listener nats:StreamingListener lis = new (conn);
 service demoService on lis {
     resource function onMessage(nats:StreamingMessage message, json data) {
         // Converts JSON data to string.
-        string | error val = data.toJsonString();
+        string|error val = data.toJsonString();
         if (val is string) {
             // Prints the incoming message in the console.
             log:printInfo("Message Received: " + val);

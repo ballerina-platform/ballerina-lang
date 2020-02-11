@@ -77,7 +77,7 @@ function writeRecordToFile(Person p, string path) returns error? {
 }
 
 //Reads the serialized record from the file.
-function readRecordFromFile(string path) returns @tainted Person | error {
+function readRecordFromFile(string path) returns @tainted Person|error {
     io:ReadableByteChannel rc = check io:openReadableFile(path);
     return deserialize(rc);
 }

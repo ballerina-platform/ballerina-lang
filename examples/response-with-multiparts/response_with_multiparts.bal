@@ -164,7 +164,7 @@ function copy(io:ReadableByteChannel src, io:WritableByteChannel dst)
                 returns error? {
     while (true) {
         //Operation attempts to read a maximum of 1000 bytes.
-        byte[] | io:Error result = src.read(1000);
+        byte[]|io:Error result = src.read(1000);
         if (result is io:EofError) {
             break;
         } else if (result is error) {

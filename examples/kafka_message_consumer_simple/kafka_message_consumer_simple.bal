@@ -22,7 +22,7 @@ public function main() {
         foreach var kafkaRecord in results {
             // Convert byte[] to string.
             byte[] serializedMsg = kafkaRecord.value;
-            string | error msg = strings:fromBytes(serializedMsg);
+            string|error msg = strings:fromBytes(serializedMsg);
             if (msg is string) {
                 // Print the retrieved Kafka record.
                 io:println("Topic: ", kafkaRecord.topic, " Received Message: ", msg);

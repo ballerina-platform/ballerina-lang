@@ -35,7 +35,7 @@ public function main() {
         } else if (value is json[]) {
             io:println("json array value: ", value);
         } else {
-            // JSON is a union type for `()` or `null` | `int` | `float` | `decimal` | `string` | `json[]` | `map<json>`.
+            // JSON is a union type for `()` or `null`|`int`|`float`|`decimal`|`string`|`json[]`|`map<json>`.
             // The else block will be reached if `j` is neither `string`, `int`, or `json[]`.
             io:println("non-string value: ", value);
         }

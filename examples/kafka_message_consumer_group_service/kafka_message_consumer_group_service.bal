@@ -26,7 +26,7 @@ service kafkaService on consumer {
 
 function processKafkaRecord(kafka:ConsumerRecord kafkaRecord) {
     byte[] serializedMsg = kafkaRecord.value;
-    string | error msg = strings:fromBytes(serializedMsg);
+    string|error msg = strings:fromBytes(serializedMsg);
     if (msg is string) {
         // Print the retrieved Kafka record.
         io:println("Topic: ", kafkaRecord.topic, " Partition: ",

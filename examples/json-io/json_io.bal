@@ -31,7 +31,7 @@ function write(json content, string path) returns @tainted error? {
 }
 
 // Reads a `json` value from the specified path.
-function read(string path) returns @tainted json | error {
+function read(string path) returns @tainted json|error {
     // Creates a readable byte channel from the given path.
     io:ReadableByteChannel rbc = check io:openReadableFile(path);
     // Derives the character channel from the byte channel.
