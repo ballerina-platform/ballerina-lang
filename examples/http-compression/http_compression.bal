@@ -19,7 +19,7 @@ service autoCompress on listenerEndpoint {
         var result = caller->respond({"Type": "Auto compression"});
 
         if (result is error) {
-            log:printError("Error sending response", err = result);
+            log:printError("Error sending response", result);
         }
     }
 }
