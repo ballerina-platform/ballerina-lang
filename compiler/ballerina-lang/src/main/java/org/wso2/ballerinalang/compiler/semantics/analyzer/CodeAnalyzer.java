@@ -1677,6 +1677,9 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         // Validate worker receive
         validateActionParentNode(workerReceiveNode.pos, workerReceiveNode);
         BSymbol sender = symResolver.lookupSymbolInMainSpace(env, names.fromIdNode(workerReceiveNode.workerIdentifier));
+        if ((sender.tag & SymTag.VARIABLE) != SymTag.VARIABLE) {
+            sender = symTable.notFoundSymbol;
+        }
         verifyPeerCommunication(workerReceiveNode.pos, sender, workerReceiveNode.workerIdentifier.value);
 
         if (workerReceiveNode.isChannel) {
