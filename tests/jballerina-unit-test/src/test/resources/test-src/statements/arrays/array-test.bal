@@ -153,3 +153,23 @@ function testGetFromFrozenArray() returns int {
 
     return -1;
 }
+
+type Age object {
+    public int age;
+    public function __init(int age) {
+    	 self.age = age;
+    }
+};
+
+function testObjectDynamicArrayFilling() {
+    Age[] y = [];
+    y[0] = new(5);
+    y[1] = new(5);
+}
+
+function assertArrayLengthPanic(int expected, any[] arr, string message = "Array length did not match") {
+    int actual = arr.length();
+    if (expected != actual) {
+        panic error(message + " Expected : " + expected.toString() + " Actual : " + actual.toString());
+    }
+}

@@ -70,6 +70,13 @@ function testTupleArrayFill(int index) returns [string, int][] {
     return ar;
 }
 
+function testTupleSealedArrayFill(int index) returns [string, int][] {
+    [string, int] tup = ["Hello World!", 100];
+    [string, int][251] ar = []; // 251 == index + 1
+    ar[index] = tup;
+    return ar;
+}
+
 function testMapArrayFill(int index, map<any> value) returns map<any>[] {
     map<any>[] ar = [];
     ar[index] = value;
@@ -150,10 +157,26 @@ function testAnyArrayFill(int index) returns any[] {
     return ar;
 }
 
+function testAnySealedArrayFill(int index) returns any[] {
+    Person p = {name:"John", age:25};
+    any value = p;
+    any[251] ar = []; // 251 == index + 1
+    ar[index] = value;
+    return ar;
+}
+
 function testAnydataArrayFill(int index) returns anydata[] {
     Person p = {name:"John", age:25};
     anydata value = p;
     anydata[] ar = [];
+    ar[index] = value;
+    return ar;
+}
+
+function testAnydataSealedArrayFill(int index) returns anydata[] {
+    Person p = {name:"John", age:25};
+    anydata value = p;
+    anydata[251] ar = []; // 251 == index + 1
     ar[index] = value;
     return ar;
 }
@@ -236,6 +259,12 @@ function testSingletonTypeArrayFill1() returns bTrue[] {
     return bTrueAr1;
 }
 
+function testSingletonTypeArrayStaticFill() returns bTrue[] {
+    bTrue[2] bTrueAr1 = [];
+    bTrueAr1[1] = true;
+    return bTrueAr1;
+}
+
 type Student object {
     public string name;
     public int age;
@@ -279,17 +308,6 @@ function testArrayFillWithObjs() returns Obj[][] {
     multiDimObjArray[0] = objArray;
     multiDimObjArray[2] = objArray;
     return multiDimObjArray;
-}
-
-type Rec record {
-    int i?;
-    int j = 10;
-};
-
-function testRecordTypeWithOptionalFieldsArrayFill() returns Rec[] {
-    Rec[] x = [];
-    x[1] = {i: 1, j: 2};
-    return x;
 }
 
 const decimal ZERO = 0.0;

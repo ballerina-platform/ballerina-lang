@@ -36,177 +36,115 @@ import org.testng.annotations.Test;
  */
 public class SealedArrayTest {
 
-    private CompileResult compileResult, resultNegative, semanticsNegative;
+    private CompileResult compileResult, resultNegative, semanticsNegative, listExprNegative;
 
     @BeforeClass
     public void setup() {
         compileResult = BCompileUtil.compile("test-src/statements/arrays/sealed-array.bal");
         resultNegative = BCompileUtil.compile("test-src/statements/arrays/sealed-array-negative.bal");
+        listExprNegative = BCompileUtil.compile("test-src/statements/arrays/sealed_array_listexpr_negative.bal");
         semanticsNegative = BCompileUtil.compile("test-src/statements/arrays/sealed-array-semantics-negative" +
                 ".bal");
     }
 
     @Test
     public void testCreateIntegerSealedArray() {
-        BValue[] returnValues = BRunUtil.invoke(compileResult, "createIntSealedArray");
-        Assert.assertFalse(
-                returnValues == null || returnValues.length == 0 || returnValues[0] == null, "Invalid Return Values.");
-        Assert.assertEquals(((BInteger) returnValues[0]).intValue(), 5, "Length didn't match");
+        BRunUtil.invoke(compileResult, "createIntSealedArray");
 
-        returnValues = BRunUtil.invoke(compileResult, "createIntSealedArrayWithLabel");
-        Assert.assertFalse(
-                returnValues == null || returnValues.length == 0 || returnValues[0] == null, "Invalid Return Values.");
-        Assert.assertEquals(((BInteger) returnValues[0]).intValue(), 5, "Length didn't match");
+        BRunUtil.invoke(compileResult, "createIntAutoFilledSealedArray");
 
-        returnValues = BRunUtil.invoke(compileResult, "createIntDefaultSealedArray");
-        Assert.assertFalse(
-                returnValues == null || returnValues.length == 0 || returnValues[0] == null, "Invalid Return Values.");
-        Assert.assertEquals(returnValues[0].stringValue(), "[0, 0, 0, 0, 0]", "Length didn't match");
-        Assert.assertEquals(((BInteger) returnValues[1]).intValue(), 5, "Length didn't match");
+        BRunUtil.invoke(compileResult, "createIntSealedArrayWithLabel");
+
+        BRunUtil.invoke(compileResult, "createIntDefaultSealedArray");
     }
 
     @Test
     public void testCreateBooleanSealedArray() {
-        BValue[] returnValues = BRunUtil.invoke(compileResult, "createBoolSealedArray");
-        Assert.assertFalse(
-                returnValues == null || returnValues.length == 0 || returnValues[0] == null, "Invalid Return Values.");
-        Assert.assertEquals(((BInteger) returnValues[0]).intValue(), 5, "Length didn't match");
+        BRunUtil.invoke(compileResult, "createBoolSealedArray");
 
-        returnValues = BRunUtil.invoke(compileResult, "createBoolSealedArrayWithLabel");
-        Assert.assertFalse(
-                returnValues == null || returnValues.length == 0 || returnValues[0] == null, "Invalid Return Values.");
-        Assert.assertEquals(((BInteger) returnValues[0]).intValue(), 5, "Length didn't match");
+        BRunUtil.invoke(compileResult, "createBoolAutoFilledSealedArray");
 
-        returnValues = BRunUtil.invoke(compileResult, "createBoolDefaultSealedArray");
-        Assert.assertFalse(
-                returnValues == null || returnValues.length == 0 || returnValues[0] == null, "Invalid Return Values.");
-        Assert.assertEquals(returnValues[0].stringValue(),
-                "[false, false, false, false, false]", "Length didn't match");
-        Assert.assertEquals(((BInteger) returnValues[1]).intValue(), 5, "Length didn't match");
+        BRunUtil.invoke(compileResult, "createBoolSealedArrayWithLabel");
+
+        BRunUtil.invoke(compileResult, "createBoolDefaultSealedArray");
     }
 
     @Test
     public void testCreateFloatSealedArray() {
-        BValue[] returnValues = BRunUtil.invoke(compileResult, "createFloatSealedArray");
-        Assert.assertFalse(
-                returnValues == null || returnValues.length == 0 || returnValues[0] == null, "Invalid Return Values.");
-        Assert.assertEquals(((BInteger) returnValues[0]).intValue(), 5, "Length didn't match");
+        BRunUtil.invoke(compileResult, "createFloatSealedArray");
 
-        returnValues = BRunUtil.invoke(compileResult, "createFloatSealedArrayWithLabel");
-        Assert.assertFalse(
-                returnValues == null || returnValues.length == 0 || returnValues[0] == null, "Invalid Return Values.");
-        Assert.assertEquals(((BInteger) returnValues[0]).intValue(), 5, "Length didn't match");
+        BRunUtil.invoke(compileResult, "createFloatAutoFilledSealedArray");
 
-        returnValues = BRunUtil.invoke(compileResult, "createFloatDefaultSealedArray");
-        Assert.assertFalse(
-                returnValues == null || returnValues.length == 0 || returnValues[0] == null, "Invalid Return Values.");
-        Assert.assertEquals(returnValues[0].stringValue(), "[0.0, 0.0, 0.0, 0.0, 0.0]", "Length didn't match");
-        Assert.assertEquals(((BInteger) returnValues[1]).intValue(), 5, "Length didn't match");
+        BRunUtil.invoke(compileResult, "createFloatSealedArrayWithLabel");
+
+        BRunUtil.invoke(compileResult, "createFloatDefaultSealedArray");
     }
 
     @Test
     public void testCreateStringSealedArray() {
-        BValue[] returnValues = BRunUtil.invoke(compileResult, "createStringSealedArray");
-        Assert.assertFalse(
-                returnValues == null || returnValues.length == 0 || returnValues[0] == null, "Invalid Return Values.");
-        Assert.assertEquals(((BInteger) returnValues[0]).intValue(), 5, "Length didn't match");
+        BRunUtil.invoke(compileResult, "createStringSealedArray");
 
-        returnValues = BRunUtil.invoke(compileResult, "createStringSealedArrayWithLabel");
-        Assert.assertFalse(
-                returnValues == null || returnValues.length == 0 || returnValues[0] == null, "Invalid Return Values.");
-        Assert.assertEquals(((BInteger) returnValues[0]).intValue(), 5, "Length didn't match");
+        BRunUtil.invoke(compileResult, "createStringAutoFilledSealedArray");
 
-        returnValues = BRunUtil.invoke(compileResult, "createStringDefaultSealedArray");
-        Assert.assertFalse(
-                returnValues == null || returnValues.length == 0 || returnValues[0] == null, "Invalid Return Values.");
-        Assert.assertEquals(returnValues[0].stringValue(), "[\"\", \"\", \"\", \"\", \"\"]", "Length didn't match");
-        Assert.assertEquals(((BInteger) returnValues[1]).intValue(), 5, "Length didn't match");
+        BRunUtil.invoke(compileResult, "createStringSealedArrayWithLabel");
+
+        BRunUtil.invoke(compileResult, "createStringDefaultSealedArray");
     }
 
     @Test
     public void testCreateJSONSealedArray() {
-        BValue[] returnValues = BRunUtil.invoke(compileResult, "createJSONSealedArray");
-        Assert.assertFalse(
-                returnValues == null || returnValues.length == 0 || returnValues[0] == null, "Invalid Return Values.");
-        Assert.assertEquals(((BInteger) returnValues[0]).intValue(), 5, "Length didn't match");
+        BRunUtil.invoke(compileResult, "createJSONSealedArray");
 
-        returnValues = BRunUtil.invoke(compileResult, "createJSONSealedArrayWithLabel");
-        Assert.assertFalse(
-                returnValues == null || returnValues.length == 0 || returnValues[0] == null, "Invalid Return Values.");
-        Assert.assertEquals(((BInteger) returnValues[0]).intValue(), 5, "Length didn't match");
+        BRunUtil.invoke(compileResult, "createJSONSealedArrayWithLabel");
 
-        returnValues = BRunUtil.invoke(compileResult, "createJSONDefaultSealedArray");
-        Assert.assertFalse(
-                returnValues == null || returnValues.length == 0 || returnValues[0] == null, "Invalid Return Values.");
-        Assert.assertEquals(returnValues[0].stringValue(), "[null, null, null, null, null]", "Length didn't match");
-        Assert.assertEquals(((BInteger) returnValues[1]).intValue(), 5, "Length didn't match");
+        BRunUtil.invoke(compileResult, "createJSONDefaultSealedArray");
+
+        BRunUtil.invoke(compileResult, "createJSONAutoFilledSealedArray");
     }
 
     @Test
     public void testCreateAnySealedArray() {
-        BValue[] returnValues = BRunUtil.invoke(compileResult, "createAnySealedArray");
-        Assert.assertFalse(
-                returnValues == null || returnValues.length == 0 || returnValues[0] == null, "Invalid Return Values.");
-        Assert.assertEquals(((BInteger) returnValues[0]).intValue(), 5, "Length didn't match");
+        BRunUtil.invoke(compileResult, "createAnySealedArray");
 
-        returnValues = BRunUtil.invoke(compileResult, "createAnySealedArrayWithLabel");
-        Assert.assertFalse(
-                returnValues == null || returnValues.length == 0 || returnValues[0] == null, "Invalid Return Values.");
-        Assert.assertEquals(((BInteger) returnValues[0]).intValue(), 5, "Length didn't match");
+        BRunUtil.invoke(compileResult, "createAnyAutoFilledSealedArray");
+
+        BRunUtil.invoke(compileResult, "createAnySealedArrayWithLabel");
     }
 
     @Test
     public void testCreateRecordSealedArray() {
-        BValue[] returnValues = BRunUtil.invoke(compileResult, "createRecordSealedArray");
-        Assert.assertFalse(
-                returnValues == null || returnValues.length == 0 || returnValues[0] == null, "Invalid Return Values.");
-        Assert.assertEquals(((BInteger) returnValues[0]).intValue(), 5, "Length didn't match");
+        BRunUtil.invoke(compileResult, "createRecordSealedArray");
 
-        returnValues = BRunUtil.invoke(compileResult, "createRecordSealedArrayWithLabel");
-        Assert.assertFalse(
-                returnValues == null || returnValues.length == 0 || returnValues[0] == null, "Invalid Return Values.");
-        Assert.assertEquals(((BInteger) returnValues[0]).intValue(), 5, "Length didn't match");
+        BRunUtil.invoke(compileResult, "createRecordAutoFilledSealedArray");
+
+        BRunUtil.invoke(compileResult, "createRecordSealedArrayWithLabel");
     }
 
     @Test
     public void testCreateByteSealedArray() {
-        BValue[] returnValues = BRunUtil.invoke(compileResult, "createByteSealedArray");
-        Assert.assertFalse(
-                returnValues == null || returnValues.length == 0 || returnValues[0] == null, "Invalid Return Values.");
-        Assert.assertEquals(((BInteger) returnValues[0]).intValue(), 5, "Length didn't match");
+        BRunUtil.invoke(compileResult, "createByteSealedArray");
 
-        returnValues = BRunUtil.invoke(compileResult, "createByteSealedArrayWithLabel");
-        Assert.assertFalse(
-                returnValues == null || returnValues.length == 0 || returnValues[0] == null, "Invalid Return Values.");
-        Assert.assertEquals(((BInteger) returnValues[0]).intValue(), 5, "Length didn't match");
+        BRunUtil.invoke(compileResult, "createByteAutoFilledSealedArray");
 
-        returnValues = BRunUtil.invoke(compileResult, "createByteDefaultSealedArray");
-        Assert.assertFalse(
-                returnValues == null || returnValues.length == 0 || returnValues[0] == null, "Invalid Return Values.");
-        Assert.assertEquals(returnValues[0].stringValue(), "[0, 0, 0, 0, 0]", "Length didn't match");
-        Assert.assertEquals(((BInteger) returnValues[1]).intValue(), 5, "Length didn't match");
+        BRunUtil.invoke(compileResult, "createByteSealedArrayWithLabel");
+
+        BRunUtil.invoke(compileResult, "createByteDefaultSealedArray");
     }
 
     @Test
     public void testCreateTupleSealedArray() {
-        BValue[] returnValues = BRunUtil.invoke(compileResult, "createTupleSealedArray");
-        Assert.assertFalse(
-                returnValues == null || returnValues.length == 0 || returnValues[0] == null, "Invalid Return Values.");
-        Assert.assertEquals(((BInteger) returnValues[0]).intValue(), 3, "Length didn't match");
+        BRunUtil.invoke(compileResult, "createTupleSealedArray");
 
-        returnValues = BRunUtil.invoke(compileResult, "createTupleSealedArrayWithLabel");
-        Assert.assertFalse(
-                returnValues == null || returnValues.length == 0 || returnValues[0] == null, "Invalid Return Values.");
-        Assert.assertEquals(((BInteger) returnValues[0]).intValue(), 3, "Length didn't match");
+        BRunUtil.invoke(compileResult, "createTupleAutoFilledSealedArray");
+
+        BRunUtil.invoke(compileResult, "createTupleSealedArrayWithLabel");
     }
 
     @Test
     public void testFunctionParametersAndReturnValues() {
-        BValue[] returnValues = BRunUtil.invoke(compileResult, "functionParametersAndReturns");
-        Assert.assertFalse(
-                returnValues == null || returnValues.length == 0 || returnValues[0] == null, "Invalid Return Values.");
-        Assert.assertEquals(((BInteger) returnValues[0]).intValue(), 3, "Length didn't match");
-        Assert.assertEquals(((BInteger) returnValues[1]).intValue(), 2, "Length didn't match");
+        BRunUtil.invoke(compileResult, "functionParametersAndReturns");
+
+        BRunUtil.invoke(compileResult, "functionParametersAndReturnsAutoFilling");
     }
 
     @Test
@@ -282,51 +220,67 @@ public class SealedArrayTest {
         BAssertUtil.validateError(resultNegative, 0, "variable 'sealedArray1' is not initialized", 19, 5);
     }
 
+    // TODO : uncomment
+    @Test()
+    public void testNegativeAutoFillSealedArray() {
+        Assert.assertEquals(listExprNegative.getErrorCount(), 7);
+        BAssertUtil.validateError(listExprNegative, 0, "invalid usage of list constructor with type 'Person[5]'", 24,
+                                  19);
+        BAssertUtil.validateError(listExprNegative, 1, "invalid usage of list constructor with type 'Person[5][]'", 31,
+                                  21);
+        BAssertUtil.validateError(listExprNegative, 2, "invalid usage of list constructor with type 'Person[5][1]'", 32,
+                                  22);
+        BAssertUtil.validateError(listExprNegative, 3, "invalid usage of list constructor with type 'Age[5][]'", 44,
+                                  18);
+        BAssertUtil.validateError(listExprNegative, 4, "invalid usage of list constructor with type 'Age[5][1]'", 45,
+                                  19);
+        BAssertUtil.validateError(listExprNegative, 5, "invalid usage of list constructor with type '1|2|3|4[3]'", 66,
+                                  18);
+        BAssertUtil.validateError(listExprNegative, 6, "invalid usage of list constructor with type '0|0.0f|[3]'", 72,
+                                  34);
+    }
+
     @Test()
     public void testSemanticsNegativeSealedArrays() {
-        Assert.assertEquals(semanticsNegative.getErrorCount(), 24);
+        Assert.assertEquals(semanticsNegative.getErrorCount(), 22);
         int i = 0;
         BAssertUtil.validateError(semanticsNegative, i++, "list index out of range: index: '5'", 19, 30);
         BAssertUtil.validateError(semanticsNegative, i++, "list index out of range: index: '5'", 25, 33);
-        BAssertUtil.validateError(semanticsNegative, i++, "size mismatch in sealed array. expected '4', but found '3'",
+        BAssertUtil.validateError(semanticsNegative, i++, "size mismatch in sealed array. expected '4', but found '5'",
                 30, 31);
-        BAssertUtil.validateError(semanticsNegative, i++, "size mismatch in sealed array. expected '4', but found '5'",
-                31, 31);
+        BAssertUtil.validateError(semanticsNegative, i++, "list index out of range: index: '5'", 36, 18);
         BAssertUtil.validateError(semanticsNegative, i++, "list index out of range: index: '5'", 37, 18);
-        BAssertUtil.validateError(semanticsNegative, i++, "list index out of range: index: '5'", 38, 18);
         BAssertUtil.validateError(semanticsNegative, i++, "invalid usage of sealed type: array not initialized",
-                39, 5);
+                38, 5);
         BAssertUtil.validateError(semanticsNegative, i++, "incompatible types: expected 'int[3]', found 'int[]'",
-                46, 17);
+                45, 17);
         BAssertUtil.validateError(semanticsNegative, i++, "incompatible types: expected 'string[2]', found 'string[]'",
-                52, 34);
+                51, 34);
         BAssertUtil.validateError(semanticsNegative, i++, "incompatible types: expected 'boolean[4]', found " +
-                "'boolean[3]'", 52, 47);
-        BAssertUtil.validateError(semanticsNegative, i++, "ambiguous type '(int|int[]|int[4])'", 63, 30);
-        BAssertUtil.validateError(semanticsNegative, i++, "ambiguous type '(int|int[]|int[4]|int[5])'", 65, 40);
-        BAssertUtil.validateError(semanticsNegative, i++, "size mismatch in sealed array. expected '4', but found '2'",
-                79, 18);
+                "'boolean[3]'", 51, 47);
+        BAssertUtil.validateError(semanticsNegative, i++, "ambiguous type '(int|int[]|int[4])'", 62, 30);
+        BAssertUtil.validateError(semanticsNegative, i++, "ambiguous type '(int|int[]|int[4]|int[5])'", 64, 40);
         BAssertUtil.validateError(semanticsNegative, i++, "size mismatch in sealed array. expected '4', but found '5'",
-                80, 18);
-        BAssertUtil.validateError(semanticsNegative, i++, "list index out of range: index: '4'", 83, 8);
-        BAssertUtil.validateError(semanticsNegative, i++, "invalid usage of sealed type: can not infer array size", 85,
+                78, 18);
+        BAssertUtil.validateError(semanticsNegative, i++, "list index out of range: index: '4'", 81, 8);
+        BAssertUtil.validateError(semanticsNegative, i++, "invalid usage of sealed type: can not infer array size", 83,
                 18);
-        BAssertUtil.validateError(semanticsNegative, i++, "incompatible types: expected 'json[3]', found 'json[]'", 87,
+        BAssertUtil.validateError(semanticsNegative, i++, "incompatible types: expected 'json[3]', found 'json[]'", 85,
                 18);
         BAssertUtil.validateError(semanticsNegative, i++, "incompatible types: expected 'int', found 'S1|S2'",
-                106, 20);
+                104, 20);
         BAssertUtil.validateError(semanticsNegative, i++, "invalid list index expression: value space '3|4|5' " +
-                "out of range", 107, 20);
+                "out of range", 105, 20);
         BAssertUtil.validateError(semanticsNegative, i++, "invalid list index expression: value space '3|4|5' " +
-                "out of range", 108, 23);
+                "out of range", 106, 23);
         BAssertUtil.validateError(semanticsNegative, i++, "incompatible types: expected 'int', found " +
-                "'0|1|2|S1'", 109, 20);
+                "'0|1|2|S1'", 107, 20);
         BAssertUtil.validateError(semanticsNegative, i++, "incompatible types: expected 'int', found " +
-                        "'(0|1|2|S1|S3)'", 110, 20);
+                        "'(0|1|2|S1|S3)'", 108, 20);
         BAssertUtil.validateError(semanticsNegative, i++, "invalid list index expression: value space " +
-                "'(3|4|5|7)' out of range", 111, 23);
+                "'(3|4|5|7)' out of range", 109, 23);
         BAssertUtil.validateError(semanticsNegative, i, "incompatible types: expected 'int[*]', found " +
-                        "'int[]'", 116, 22);
+                        "'int[]'", 114, 22);
     }
 
     @Test(description = "Test accessing invalid index of sealed array",
@@ -342,6 +296,28 @@ public class SealedArrayTest {
             expectedExceptionsMessageRegExp = ".*error:.*array index out of range: index: 4, size: 3.*")
     public void assignedArrayInvalidIndexAccess() {
         BRunUtil.invoke(compileResult, "assignedArrayInvalidIndexAccess");
+    }
+
+    @Test(description = "Test accessing invalid index of sealed auto filled array when assigned to unsealed array",
+          expectedExceptions = {BLangRuntimeException.class},
+          expectedExceptionsMessageRegExp = ".*error:.*array index out of range: index: 4, size: 3.*")
+    public void assignedAutoFilledArrayInvalidIndexAccess() {
+        BRunUtil.invoke(compileResult, "assignedAutoFilledArrayInvalidIndexAccess");
+    }
+
+    @Test(description = "Union array fill with an union which has default fill value as a member value.")
+    public void createUnionAutoFillArray() {
+        BRunUtil.invoke(compileResult, "createUnionAutoFillArray");
+    }
+
+    @Test(description = "Test union array fill with list-expr with an union with nil")
+    public void createNullableUnionAutoFillArray() {
+        BRunUtil.invoke(compileResult, "createNullableUnionAutoFillArray");
+    }
+
+    @Test(description = "Test non homogeneous union array fill with list-expr with an union with nil")
+    public void createNullableNonHomogeneousUnionAutoFillArray() {
+        BRunUtil.invoke(compileResult, "createNullableNonHomogeneousUnionAutoFillArray");
     }
 
     @Test(description = "Test accessing invalid index of sealed array matched union type",
@@ -414,5 +390,10 @@ public class SealedArrayTest {
         bIntArray.add(2, 5);
         BValue[] args = {bIntArray, new BInteger(3)};
         BRunUtil.invoke(compileResult, "testSealedArrayConstrainedMapInvalidIndex", args);
+    }
+
+    @Test
+    public void testCreateXMLSealedArray() {
+        BRunUtil.invoke(compileResult, "createXMLAutoFilledSealedArray");
     }
 }
