@@ -17,7 +17,7 @@ public function main() {
     // and assign the values to the relevant variable references.
     // The value of the reason string in the `SampleError` will be assigned to the variable `reason`.
     // The values in the detail mapping will be assigned to the relevant variables.
-    error (reason, info = info, fatal = fatal) = getSampleError();
+    error(reason, info = info, fatal = fatal) = getSampleError();
     io:println("Reason String: " + reason);
     io:println("Info: ", info);
     io:println("Fatal: ", fatal);
