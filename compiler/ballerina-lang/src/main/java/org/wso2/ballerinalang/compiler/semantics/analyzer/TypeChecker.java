@@ -613,13 +613,13 @@ public class TypeChecker extends BLangNodeVisitor {
         BType actualType = symTable.semanticError;
         resultType = symTable.semanticError;
 
-        if ((expType.tag == TypeTags.ANY || expType.tag == TypeTags.ANYDATA || expType.tag == TypeTags.NONE)
+        int expTypeTag = expType.tag;
+        if ((expTypeTag == TypeTags.ANY || expTypeTag == TypeTags.ANYDATA || expTypeTag == TypeTags.NONE)
                 && listConstructor.exprs.isEmpty()) {
             dlog.error(listConstructor.pos, DiagnosticCode.INVALID_LIST_CONSTRUCTOR, expType);
             return;
         }
 
-        int expTypeTag = expType.tag;
         if (expTypeTag == TypeTags.JSON) {
             checkExprs(listConstructor.exprs, this.env, expType);
             actualType = expType;
@@ -628,10 +628,17 @@ public class TypeChecker extends BLangNodeVisitor {
             if (arrayType.state == BArrayState.OPEN_SEALED) {
                 arrayType.size = listConstructor.exprs.size();
                 arrayType.state = BArrayState.CLOSED_SEALED;
-            } else if (arrayType.state != BArrayState.UNSEALED && arrayType.size != listConstructor.exprs.size()) {
-                dlog.error(listConstructor.pos,
-                        DiagnosticCode.MISMATCHING_ARRAY_LITERAL_VALUES, arrayType.size, listConstructor.exprs.size());
-                return;
+            } else if ((arrayType.state != BArrayState.UNSEALED) && (arrayType.size != listConstructor.exprs.size())) {
+                if (arrayType.size < listConstructor.exprs.size()) {
+                    dlog.error(listConstructor.pos,
+                               DiagnosticCode.MISMATCHING_ARRAY_LITERAL_VALUES, arrayType.size,
+                               listConstructor.exprs.size());
+                    return;
+                }
+                if (!types.hasFillerValue(arrayType.eType)) {
+                    dlog.error(listConstructor.pos, DiagnosticCode.INVALID_LIST_CONSTRUCTOR, expType);
+                    return;
+                }
             }
             checkExprs(listConstructor.exprs, this.env, arrayType.eType);
             actualType = arrayType;

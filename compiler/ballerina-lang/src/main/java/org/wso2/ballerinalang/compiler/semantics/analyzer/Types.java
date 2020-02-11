@@ -79,6 +79,7 @@ import java.math.MathContext;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -108,6 +109,31 @@ public class Types {
     private BLangDiagnosticLog dlog;
     private Names names;
     private int finiteTypeCount = 0;
+
+    /**
+     * Keep default values for basic types in String format.
+     *
+     */
+    public enum DefaultValues {
+        STRING(""),
+        INTEGER("0"),
+        BYTE("0"),
+        FLOAT("0.0"),
+        BIGDECIMAL("0.0"),
+        BOOLEAN("false"),
+        NIL("()"),
+        UNKNOWN("UNKNOWN");
+
+        private String value;
+
+        DefaultValues(String value) {
+            this.value = value;
+        }
+
+        public String getValue() {
+            return value;
+        }
+    }
 
     public static Types getInstance(CompilerContext context) {
         Types types = context.get(TYPES_KEY);
@@ -2552,5 +2578,197 @@ public class Types {
      */
     private interface TypeEqualityPredicate {
         boolean test(BType source, BType target, Set<TypePair> unresolvedTypes);
+    }
+
+    public boolean hasFillerValue(BType type) {
+        if (type == null) {
+            return true;
+        }
+        if (type.tag < TypeTags.RECORD) {
+            return true;
+        }
+        switch (type.tag) {
+            case TypeTags.MAP:
+            case TypeTags.ANY:
+                return true;
+            case TypeTags.ARRAY:
+                return checkFillerValue((BArrayType) type);
+            case TypeTags.FINITE:
+                return checkFillerValue((BFiniteType) type);
+            case TypeTags.UNION:
+                return checkFillerValue((BUnionType) type);
+            case TypeTags.OBJECT:
+                return checkFillerValue((BObjectType) type);
+            case TypeTags.RECORD:
+                return checkFillerValue((BRecordType) type);
+            case TypeTags.TUPLE:
+                BTupleType tupleType = (BTupleType) type;
+                return tupleType.getTupleTypes().stream().allMatch(eleType -> hasFillerValue(eleType));
+            default:
+                return false;
+        }
+    }
+
+    private boolean checkFillerValue(BObjectType type) {
+        BAttachedFunction initFunction = ((BObjectTypeSymbol) type.tsymbol).initializerFunc;
+        if (initFunction == null) {
+            if ((type.tsymbol.flags & Flags.ABSTRACT) == Flags.ABSTRACT) {
+                return false;
+            }
+        } else {
+            if (initFunction.symbol.getReturnType().getKind() == TypeKind.ERROR) {
+                return false;
+            }
+            if (!hasFillerValue(initFunction.symbol.getReturnType())) {
+                return false;
+            }
+            if (!initFunction.symbol.getParameters().stream()
+                    .allMatch(bVarSymbol -> bVarSymbol.defaultableParam == true)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * This will handle two types
+     *  Singleton : As singleton can have one value that value should it self be a valid fill value
+     *  Union :
+     *          1. if nil is a member it is the fill valus
+     *          2. else all the values should belong to same type and the default value for that type
+     *              should be a member of the union
+     * @param type BFiniteType union or finite
+     * @return
+     */
+    private boolean checkFillerValue(BFiniteType type) {
+        // For singleton types, that value is the implicit initial value
+        if (type.valueSpace.size() == 1) {
+            return true;
+        }
+
+        // is first value null
+        Iterator iterator = type.valueSpace.iterator();
+        BLangExpression firstElement = (BLangExpression) iterator.next();
+        if ((firstElement == null) || (firstElement.type.getKind() == TypeKind.NIL)) {
+            return true;
+        }
+
+        boolean allMembersHaveSameType = true;
+        boolean defaultFillValuePresent = false;
+
+        // is first value is a valid fill value
+        String defaultFillValue = getDefaultFillValue(firstElement);
+        if (firstElement.toString().equals(defaultFillValue)) {
+            defaultFillValuePresent = true;
+        }
+
+        while (iterator.hasNext()) {
+            Object value =  iterator.next();
+            if (value == null) {
+                return true;
+            }
+
+            BType valueType = ((BLangExpression) value).type;
+            if (valueType.getKind() == TypeKind.NIL) {
+                return true;
+            }
+
+            if (allMembersHaveSameType && !isSameType(valueType, firstElement.type)) {
+                allMembersHaveSameType = false;
+            }
+
+            if (!defaultFillValuePresent && value.toString().equals(defaultFillValue)) {
+                defaultFillValuePresent = true;
+            }
+        }
+
+        if (!allMembersHaveSameType) {
+            return false;
+        }
+
+        return defaultFillValuePresent;
+    }
+
+    private boolean checkFillerValue(BUnionType type) {
+        if (type.isNullable()) {
+            return true;
+        }
+
+        Iterator<BType> iterator = type.getMemberTypes().iterator();
+        BType firstMember = iterator.next();
+        // is first value is a valid fill value
+        if (firstMember.getKind() == TypeKind.NIL) {
+            return true;
+        }
+
+        boolean allMembersHaveSameType = true;
+        boolean defaultFillValuePresent = false;
+
+        // is first value is a valid fill value
+        String defaultFillValue = getDefaultFillValue(firstMember);
+        if (firstMember.toString().equals(defaultFillValue)) {
+            defaultFillValuePresent = true;
+        }
+
+        while (iterator.hasNext()) {
+
+            Object value =  iterator.next();
+            if (value == null) {
+                return true;
+            }
+
+            if (allMembersHaveSameType && !isSameType(firstMember, iterator.next())) {
+                allMembersHaveSameType = false;
+            }
+
+            if (!defaultFillValuePresent && value.toString().equals(defaultFillValue)) {
+                defaultFillValuePresent = true;
+            }
+        }
+
+        if (!allMembersHaveSameType) {
+            return false;
+        }
+        return defaultFillValuePresent;
+    }
+
+    private boolean checkFillerValue(BRecordType type) {
+        for (BField field : type.fields) {
+            if (field.symbol.defaultableParam) {
+                continue;
+            }
+            if (!hasFillerValue(field.type)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private boolean checkFillerValue(BArrayType type) {
+        return hasFillerValue(type.eType);
+    }
+
+    private String getDefaultFillValue(BLangExpression expr) {
+        BType type = expr.type;
+        return getDefaultFillValue(type);
+    }
+
+    private String getDefaultFillValue(BType type) {
+        switch(type.getKind()) {
+            case INT:
+            case BYTE:
+                return DefaultValues.INTEGER.getValue();
+            case STRING:
+                return DefaultValues.STRING.getValue();
+            case DECIMAL:
+            case FLOAT:
+                return DefaultValues.FLOAT.getValue();
+            case BOOLEAN:
+                return DefaultValues.BOOLEAN.getValue();
+            case NIL:
+                return DefaultValues.NIL.getValue();
+            default:
+                return DefaultValues.UNKNOWN.getValue();
+        }
     }
 }
