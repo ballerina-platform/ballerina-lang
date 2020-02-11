@@ -16,15 +16,16 @@ function name1() returns [int, [string, int, float]] {
 
 function name2() returns [int, [string, int, float]] {
     return
-    [1
-    ,
     [
-    "ABC"
-    ,
-    42
-    ,
-    0.023
-    ]
+        1
+        ,
+        [
+            "ABC"
+            ,
+            42
+            ,
+            0.023
+        ]
     ]
     ;
 }
