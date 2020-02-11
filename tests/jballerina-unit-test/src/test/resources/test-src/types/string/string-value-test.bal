@@ -43,3 +43,15 @@ function testArrayStore() returns int {
     arr[0] = "h🤷llo";
     return arr[0].length() + arr2[0][1].length();
 }
+
+function testStringIndexAccess() returns int {
+    string hello = "hello👋";
+    string val = hello[5];
+    return val.length();
+}
+
+function testStringIndexAccessException() {
+    string hello = "hello👋";
+    string val = hello[6];
+}
+
