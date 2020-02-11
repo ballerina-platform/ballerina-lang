@@ -55,7 +55,7 @@ function basicMatch(any|error v) {
 
         // If a rest binding pattern is used, the error details that are not
         // matched will be recorded in a map.
-        var error (reason, message = message, ...rest) => {
+        var error(reason, message = message, ...rest) => {
             io:println("Matched an error value : ",
             io:sprintf("reason: %s, rest detail: %s", reason, rest));
         }
