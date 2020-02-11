@@ -82,7 +82,7 @@ anonymousFunctionExpr
     ;
 
 explicitAnonymousFunctionExpr
-    :   FUNCTION functionSignature blockFunctionBody
+    :   FUNCTION functionSignature (blockFunctionBody | exprFunctionBody)
     ;
 
 inferAnonymousFunctionExpr
