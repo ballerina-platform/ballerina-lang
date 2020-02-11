@@ -24,6 +24,8 @@ import io.netty.handler.codec.TooLongFrameException;
 import io.netty.handler.codec.http.websocketx.CorruptedWebSocketFrameException;
 import io.netty.handler.codec.http.websocketx.WebSocketCloseStatus;
 import io.netty.handler.codec.http.websocketx.WebSocketHandshakeException;
+import jdk.nashorn.internal.runtime.Debug;
+import jdk.nashorn.internal.runtime.logging.DebugLogger;
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.scheduling.Strand;
@@ -78,6 +80,7 @@ public class WebSocketUtil {
 
     private static final Logger logger = LoggerFactory.getLogger(WebSocketUtil.class);
     private static final String CLIENT_ENDPOINT_CONFIG = "config";
+    private static final String HANDSHAKE_TIME_OUT = "handShakeTimeoutInSeconds";
     private static final String WEBSOCKET_FAILOVER_CLIENT_NAME = WebSocketConstants.PACKAGE_HTTP +
             WebSocketConstants.SEPARATOR + WebSocketConstants.FAILOVER_WEBSOCKET_CLIENT;
 
@@ -258,18 +261,20 @@ public class WebSocketUtil {
         int noOfReconnectAttempts = retryConnectorConfig.getReconnectAttempts();
         double backOfFactor = retryConnectorConfig.getBackOfFactor();
         WebSocketService wsService = connectionInfo.getService();
-        Date date = new Date();
-        SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
         if (noOfReconnectAttempts < maxAttempts || maxAttempts == 0) {
             retryConnectorConfig.setReconnectAttempts(noOfReconnectAttempts + 1);
-            String time = formatter.format(date.getTime());
-            logger.debug(WebSocketConstants.LOG_MESSAGE, time, "reconnecting...");
+            if (logger.isDebugEnabled()) {
+                Date date = new Date();
+                SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
+                String time = formatter.format(date.getTime());
+                logger.debug(WebSocketConstants.LOG_MESSAGE, time, "reconnecting...");
+            }
             createDelay(calculateWaitingTime(interval, maxInterval, backOfFactor, noOfReconnectAttempts));
             establishWebSocketConnection(webSocketClient, wsService);
             return true;
         }
         logger.debug(WebSocketConstants.LOG_MESSAGE, "Maximum retry attempts but couldn't connect to the server: ",
-                webSocketClient.getStringValue(WebSocketConstants.CLIENT_URL_CONFIG));
+                    webSocketClient.getStringValue(WebSocketConstants.CLIENT_URL_CONFIG));
         return false;
     }
 
@@ -309,7 +314,7 @@ public class WebSocketUtil {
     }
 
     /**
-     * Establish connection with the endpoint.
+     * Establishes connection with the endpoint.
      *
      * @param webSocketClient - the WebSocket client
      * @param wsService - the WebSocket service
@@ -342,7 +347,7 @@ public class WebSocketUtil {
     }
 
     /**
-     * Establish the connection with the endpoint.
+     * Establishes the connection with the endpoint.
      *
      * @param clientConnector - a client connector
      * @param webSocketClient - a webSocket client
@@ -379,7 +384,7 @@ public class WebSocketUtil {
     private static void waitForHandshake(ObjectValue webSocketClient, CountDownLatch countDownLatch) {
         @SuppressWarnings(WebSocketConstants.UNCHECKED)
         long timeout = WebSocketUtil.findTimeoutInSeconds((MapValue<String, Object>) webSocketClient.getMapValue(
-                CLIENT_ENDPOINT_CONFIG), "handShakeTimeoutInSeconds", 300);
+                CLIENT_ENDPOINT_CONFIG), HANDSHAKE_TIME_OUT, 300);
         try {
             if (!countDownLatch.await(timeout, TimeUnit.SECONDS)) {
                 throw new WebSocketException(WebSocketConstants.ErrorCode.WsInvalidHandshakeError,
