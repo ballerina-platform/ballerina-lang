@@ -146,6 +146,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -2652,17 +2653,20 @@ public class TypeChecker extends BLangNodeVisitor {
             whereEnv = typeCheckWhereClause((BLangWhereClause) whereClauseNode, selectClause, parentEnv);
         }
 
-        if (expType.tag != TypeTags.NONE) {
-            BType expectedType = ((BArrayType) queryExpr.expectedType).eType;
-            BType type = checkExpr(selectClause.expression, whereEnv, expectedType);
-            if (type == symTable.semanticError) {
-                resultType = type;
-            } else {
-                resultType = new BArrayType(expectedType);
-            }
+        boolean prevInferRecordContext = this.inferRecordContext;
+
+        BType expSelectType = expType;
+        if (expType.tag == TypeTags.ARRAY) {
+            expSelectType = ((BArrayType) expType).eType;
         } else {
-            checkExpr(selectClause.expression, whereEnv);
+            this.inferRecordContext = true;
         }
+
+        BType selectType = checkExpr(selectClause.expression, whereEnv, expSelectType);
+
+        resultType = selectType == symTable.semanticError ? selectType : new BArrayType(selectType);
+
+        this.inferRecordContext = prevInferRecordContext;
     }
 
     private SymbolEnv typeCheckFromClause(BLangFromClause fromClause, SymbolEnv parentEnv) {
@@ -4855,7 +4859,7 @@ public class TypeChecker extends BLangNodeVisitor {
                 names.fromString(recordSymbol.name.value + "." + recordSymbol.initializerFunc.funcName.value),
                 recordSymbol.initializerFunc.symbol);
 
-        Map<String, List<BType>> nonRestFieldTypes = new HashMap<>();
+        Map<String, List<BType>> nonRestFieldTypes = new LinkedHashMap<>();
         List<BType> restFieldTypes = new ArrayList<>();
 
         for (RecordLiteralNode.RecordField field : recordLiteral.fields) {

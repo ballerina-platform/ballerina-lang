@@ -33,10 +33,13 @@ import static org.ballerinalang.test.util.BAssertUtil.validateError;
 public class MappingConstructorExprTest {
 
     private CompileResult result;
+    private CompileResult inferRecordResult;
 
     @BeforeClass
     public void setup() {
          result = BCompileUtil.compile("test-src/expressions/mappingconstructor/mapping_constructor.bal");
+         inferRecordResult = BCompileUtil.compile(
+                 "test-src/expressions/mappingconstructor/mapping_constructor_infer_record.bal");
     }
 
     @Test
@@ -100,6 +103,39 @@ public class MappingConstructorExprTest {
                 { "testMappingConstuctorWithAnydataACET" },
                 { "testMappingConstuctorWithJsonACET" },
                 { "testMappingConstrExprWithNoACET" }
+        };
+    }
+
+    @Test
+    public void testRecordInferringInSelectNegative() {
+        CompileResult compileResult = BCompileUtil.compile(
+                "test-src/expressions/mappingconstructor/mapping_constructor_infer_record_negative.bal");
+        Assert.assertEquals(compileResult.getErrorCount(), 6);
+        int index = 0;
+
+        validateError(compileResult, index++, "incompatible types: expected 'string[]', found 'record {| string fn; " +
+                              "string ln; |}[]'", 37, 20);
+        validateError(compileResult, index++, "undefined field 'x' in 'record {| string fn; string ln; |}'", 38, 5);
+        validateError(compileResult, index++, "incompatible types: expected 'record {| anydata...; |}[]', found " +
+                "'record {| int i; any...; |}[]'", 53, 12);
+        validateError(compileResult, index++, "incompatible types: expected 'string', found 'int'", 70, 16);
+        validateError(compileResult, index++, "invalid operation: type 'record {| int i; boolean b; int...; |}' does " +
+                "not support field access for non-required field 'key'", 71, 13);
+        validateError(compileResult, index, "incompatible types: expected 'float', found '(int|boolean)?'", 72, 15);
+    }
+
+    @Test(dataProvider = "inferRecordTypeTests")
+    public void testInferRecordTypeTests(String test) {
+        BRunUtil.invoke(inferRecordResult, test);
+    }
+
+    @DataProvider(name = "inferRecordTypeTests")
+    public Object[][] inferRecordTypeTests() {
+        return new Object[][] {
+                { "testRecordInferringForMappingConstructorWithoutRestField" },
+                { "testRecordInferringForMappingConstructorWithRestField1" },
+                { "testRecordInferringForMappingConstructorWithRestField2" },
+                { "testRecordInferringForMappingConstructorWithRestField3" }
         };
     }
 }
