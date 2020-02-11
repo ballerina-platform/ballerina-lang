@@ -1,7 +1,7 @@
 {
   "arguments": {
-    "node.line": 1,
-    "node.column": 11
+    "node.line": 3,
+    "node.column": 21
   },
   "expected": {
     "result": {
@@ -12,15 +12,15 @@
               {
                 "range": {
                   "start": {
-                    "line": 7,
+                    "line": 5,
                     "character": 0
                   },
                   "end": {
-                    "line": 7,
+                    "line": 5,
                     "character": 0
                   }
                 },
-                "newText": "\n\nfunction processResponse(http:Response response){\n\n}\n"
+                "newText": "\n\nfunction partition(string recs, string a, function (string) returns (boolean) spliter) returns string[][][] {\n    return [[[\"\"]]];\n}\n"
               }
             ]
           }

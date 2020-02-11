@@ -57,10 +57,23 @@ public class StringValueBasicsTest {
     }
 
     @Test
+    public void testRecordStringValuePut() {
+        BValue[] returns = BRunUtil.invoke(result, "recordStringValuePut");
+        //TODO assert return value has BString
+    }
+
+    @Test
     public void testError() {
         BValue[] returns = BRunUtil.invoke(result, "testError");
         Assert.assertEquals(returns[0].getClass(), BInteger.class);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 5);
+    }
+
+    @Test
+    public void testArrayStore() {
+        BValue[] returns = BRunUtil.invoke(result, "testArrayStore");
+        Assert.assertEquals(returns[0].getClass(), BInteger.class);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 10);
     }
 
     @AfterClass

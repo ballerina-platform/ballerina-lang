@@ -49,7 +49,14 @@ service clientError on new http:Listener(21027) {
                 checkpanic wsEp->pushText(err.toString());
             }
         } else if (text == "handshake") {
-            http:WebSocketClient wsClientEp = new (REMOTE_BACKEND_URL, {callbackService: errorResourceService, subProtocols: ["abc"]});
+            http:WebSocketClient wsClientEp = new (REMOTE_BACKEND_URL, {callbackService: errorResourceService,
+             subProtocols: ["abc"]});
+        } else if (text == "ready") {
+            http:WebSocketClient wsClientEp = new (REMOTE_BACKEND_URL, {callbackService: errorResourceService});
+            var returnVal = wsClientEp->ready();
+            if (returnVal is error) {
+                checkpanic wsEp->pushText(returnVal.toString());
+            }
         } else {
             checkpanic wsEp->pushText(text);
         }

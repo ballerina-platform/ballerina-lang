@@ -31,6 +31,7 @@ import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.util.exceptions.BLangFreezeException;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.api.BMap;
+import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.jvm.values.freeze.FreezeUtils;
 import org.ballerinalang.jvm.values.freeze.State;
 import org.ballerinalang.jvm.values.freeze.Status;
@@ -371,6 +372,11 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
     }
 
     @Override
+    public StringValue bStringValue() {
+        return null;
+    }
+
+    @Override
     public BType getType() {
         return type;
     }
@@ -468,6 +474,11 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
         @Override
         public boolean hasNext() {
             return iterator.hasNext();
+        }
+
+        @Override
+        public BString bStringValue() {
+            return null;
         }
     }
 

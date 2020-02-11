@@ -25,6 +25,7 @@ import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BErrorType;
 import org.ballerinalang.jvm.types.BFunctionType;
 import org.ballerinalang.jvm.types.BPackage;
+import org.ballerinalang.jvm.types.BStreamType;
 import org.ballerinalang.jvm.types.BStructureType;
 import org.ballerinalang.jvm.types.BTupleType;
 import org.ballerinalang.jvm.types.BType;
@@ -34,6 +35,7 @@ import org.ballerinalang.jvm.values.DecimalValue;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.FPValue;
 import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinalang.jvm.values.StreamValue;
 import org.ballerinalang.jvm.values.StreamingJsonValue;
 import org.ballerinalang.jvm.values.StringValue;
 import org.ballerinalang.jvm.values.TableValue;
@@ -121,6 +123,16 @@ import java.util.function.Function;
       * @return string array
       */
      public static BArray createArrayValue(String[] values) {
+         return new ArrayValueImpl(values);
+     }
+
+     /**
+      * Creates a new string array.
+      *
+      * @param values initial array values
+      * @return string array
+      */
+     public static BArray createArrayValue(BString[] values) {
          return new ArrayValueImpl(values);
      }
 
@@ -220,6 +232,16 @@ import java.util.function.Function;
       */
      public static BStreamingJson createStreamingJsonValue(JSONDataSource datasource) {
          return new StreamingJsonValue(datasource);
+     }
+
+     /**
+      * Create a stream with given constraint type.
+      *
+      * @param type constraint type
+      * @return stream value
+      */
+     public static BStream createStreamValue(BStreamType type) {
+         return new StreamValue(type);
      }
 
      /**

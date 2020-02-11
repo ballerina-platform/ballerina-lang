@@ -51,10 +51,10 @@ serviceDefinition
     ;
 
 serviceBody
-    :   LEFT_BRACE objectFunctionDefinition* RIGHT_BRACE
+    :   LEFT_BRACE objectMethod* RIGHT_BRACE
     ;
 
-callableUnitBody
+blockFunctionBody
     :   LEFT_BRACE statement* (workerDeclaration+ statement*)? RIGHT_BRACE
     ;
 
@@ -62,25 +62,43 @@ externalFunctionBody
     :   ASSIGN annotationAttachment* EXTERNAL
     ;
 
+exprFunctionBody
+    :   EQUAL_GT expression
+    ;
+
+functionDefinitionBody
+    :   blockFunctionBody
+    |   externalFunctionBody SEMICOLON
+    ;
+
 functionDefinition
-    :   (PUBLIC | PRIVATE)? REMOTE? FUNCTION callableUnitSignature (callableUnitBody | externalFunctionBody SEMICOLON)
+    :   (PUBLIC | PRIVATE)? REMOTE? FUNCTION anyIdentifierName functionSignature functionDefinitionBody
     ;
 
-lambdaFunction
-    :   FUNCTION LEFT_PARENTHESIS formalParameterList? RIGHT_PARENTHESIS (RETURNS lambdaReturnParameter)? callableUnitBody
+anonymousFunctionExpr
+    :   explicitAnonymousFunctionExpr
+    |   inferAnonymousFunctionExpr
     ;
 
-arrowFunction
-    :   arrowParam EQUAL_GT expression
-    |   LEFT_PARENTHESIS (arrowParam (COMMA arrowParam)*)? RIGHT_PARENTHESIS EQUAL_GT expression
+explicitAnonymousFunctionExpr
+    :   FUNCTION functionSignature blockFunctionBody
     ;
 
-arrowParam
+inferAnonymousFunctionExpr
+    :   inferParamList exprFunctionBody
+    ;
+
+inferParamList
+    :   inferParam
+    |   LEFT_PARENTHESIS (inferParam (COMMA inferParam)*)? RIGHT_PARENTHESIS
+    ;
+
+inferParam
     :   Identifier
     ;
 
-callableUnitSignature
-    :   anyIdentifierName LEFT_PARENTHESIS formalParameterList? RIGHT_PARENTHESIS returnParameter?
+functionSignature
+    :   LEFT_PARENTHESIS formalParameterList? RIGHT_PARENTHESIS returnParameter?
     ;
 
 typeDefinition
@@ -88,7 +106,7 @@ typeDefinition
     ;
 
 objectBody
-    :   (objectFieldDefinition | objectFunctionDefinition | typeReference)*
+    :   (objectFieldDefinition | objectMethod | typeReference)*
     ;
 
 typeReference
@@ -113,9 +131,19 @@ sealedLiteral
 
 restDescriptorPredicate : {_input.get(_input.index() -1).getType() != WS}? ;
 
-objectFunctionDefinition
+objectMethod
+    :   methodDeclaration
+    |   methodDefinition
+    ;
+
+methodDeclaration
     :   documentationString? annotationAttachment* (PUBLIC | PRIVATE)? (REMOTE | RESOURCE)? FUNCTION
-    callableUnitSignature (callableUnitBody | externalFunctionBody? SEMICOLON)
+            anyIdentifierName functionSignature SEMICOLON
+    ;
+
+methodDefinition
+    :   documentationString? annotationAttachment* (PUBLIC | PRIVATE)? (REMOTE | RESOURCE)? FUNCTION
+            anyIdentifierName functionSignature functionDefinitionBody
     ;
 
 annotationDefinition
@@ -127,7 +155,7 @@ constantDefinition
     ;
 
 globalVariableDefinition
-    :   PUBLIC? LISTENER typeName Identifier ASSIGN expression SEMICOLON
+    :   PUBLIC? LISTENER typeName? Identifier ASSIGN expression SEMICOLON
     |   FINAL? (typeName | VAR) Identifier ASSIGN expression SEMICOLON
     ;
 
@@ -247,6 +275,7 @@ builtInReferenceTypeName
     |   TYPE_XML
     |   TYPE_JSON
     |   TYPE_TABLE LT typeName GT
+    |   TYPE_STREAM LT typeName GT
     |   TYPE_DESC LT typeName GT
     |   SERVICE
     |   errorTypeName
@@ -309,7 +338,7 @@ variableDefinitionStatement
     ;
 
 recordLiteral
-    :   LEFT_BRACE (recordKeyValue (COMMA recordKeyValue)*)? RIGHT_BRACE
+    :   LEFT_BRACE (recordField (COMMA recordField)*)? RIGHT_BRACE
     ;
 
 staticMatchLiterals
@@ -320,8 +349,9 @@ staticMatchLiterals
     |   staticMatchLiterals PIPE staticMatchLiterals                        # staticMatchOrExpression
     ;
 
-recordKeyValue
-    :   recordKey COLON expression
+recordField
+    :   Identifier
+    |   recordKey COLON expression
     ;
 
 recordKey
@@ -774,8 +804,8 @@ expression
     |   expression OR expression                                            # binaryOrExpression
     |   expression ELVIS expression                                         # elvisExpression
     |   expression QUESTION_MARK expression COLON expression                # ternaryExpression
-    |   lambdaFunction                                                      # lambdaFunctionExpression
-    |   arrowFunction                                                       # arrowFunctionExpression
+    |   explicitAnonymousFunctionExpr                                       # explicitAnonymousFunctionExpression
+    |   inferAnonymousFunctionExpr                                          # inferAnonymousFunctionExpression
     |   LEFT_PARENTHESIS expression RIGHT_PARENTHESIS                       # groupExpression
     |   expression SYNCRARROW peerWorker                                    # workerSendSyncExpression
     |   WAIT (waitForCollection | expression)                               # waitExpression
@@ -783,6 +813,7 @@ expression
     |   LARROW peerWorker (COMMA expression)?                               # workerReceiveExpression
     |   flushWorker                                                         # flushWorkerExpression
     |   typeDescExpr                                                        # typeAccessExpression
+    |   queryExpr                                                           # queryExpression
     ;
 
 constantExpression
@@ -818,6 +849,26 @@ shiftExpression
 
 shiftExprPredicate : {_input.get(_input.index() -1).getType() != WS}? ;
 
+selectClause
+    :   SELECT expression
+    ;
+
+whereClause
+    :   WHERE expression
+    ;
+
+fromClause
+    :   FROM (typeName | VAR) bindingPattern IN expression
+    ;
+
+queryPipeline
+    :   fromClause (fromClause | whereClause)*
+    ;
+
+queryExpr
+    :   queryPipeline selectClause
+    ;
+
 //reusable productions
 
 nameReference
@@ -830,10 +881,6 @@ functionNameReference
 
 returnParameter
     :   RETURNS annotationAttachment* typeName
-    ;
-
-lambdaReturnParameter
-    :   annotationAttachment* typeName
     ;
 
 parameterTypeNameList
@@ -1121,6 +1168,7 @@ documentationIdentifier
     |   TYPE_JSON
     |   TYPE_XML
     |   TYPE_TABLE
+    |   TYPE_STREAM
     |   TYPE_ANY
     |   TYPE_DESC
     |   TYPE_FUTURE

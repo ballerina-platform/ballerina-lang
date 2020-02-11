@@ -36,6 +36,7 @@ public type TypeParser object {
     public int TYPE_TAG_ANYDATA =11;
     public int TYPE_TAG_RECORD =12;
     public int TYPE_TAG_TYPEDESC =13;
+    public int TYPE_TAG_STREAM =14;
     public int TYPE_TAG_MAP =15;
     public int TYPE_TAG_INVOKABLE =16;
     // All the above types are branded types
@@ -138,6 +139,8 @@ public type TypeParser object {
             return self.parseMapType();
         } else if (typeTag == self.TYPE_TAG_TABLE){
             return self.parseTableType();
+        } else if (typeTag == self.TYPE_TAG_STREAM){
+            return self.parseStreamType();
         } else if (typeTag == self.TYPE_TAG_INVOKABLE){
             return self.parseInvokableType();
         } else if (typeTag == self.TYPE_TAG_RECORD){
@@ -183,6 +186,12 @@ public type TypeParser object {
     function parseTableType() returns BTableType {
         BTableType obj = { tConstraint:TYPE_NIL }; // Dummy constraint until actual constraint is read
         obj.tConstraint = self.parseTypeCpRef();
+        return obj;
+    }
+
+    function parseStreamType() returns BStreamType {
+        BStreamType obj = { sConstraint:TYPE_NIL }; // Dummy constraint until actual constraint is read
+        obj.sConstraint = self.parseTypeCpRef();
         return obj;
     }
 

@@ -20,8 +20,9 @@ import ballerina/jvm;
 import ballerina/runtime;
 
 boolean IS_BSTRING = runtime:getProperty("ballerina.bstring") != "";
-string BSTRING_VALUE = runtime:getProperty("ballerina.bstring") == "" ? STRING_VALUE : I_STRING_VALUE;
+string BSTRING_VALUE = runtime:getProperty("ballerina.bstring") == "" ? STRING_VALUE : B_STRING_VALUE;
 
+const string B_STRING_VALUE = "org/ballerinalang/jvm/values/api/BString";
 const string I_STRING_VALUE = "org/ballerinalang/jvm/values/StringValue";
 const string BMP_STRING_VALUE = "org/ballerinalang/jvm/values/BmpStringValue";
 const string NON_BMP_STRING_VALUE = "org/ballerinalang/jvm/values/NonBmpStringValue";
@@ -426,8 +427,8 @@ type InstructionGenerator object {
             self.mv.visitInsn(IADD);
         } else if (bType is bir:BTypeString) {
             if(IS_BSTRING){
-                self.mv.visitMethodInsn(INVOKEINTERFACE, BSTRING_VALUE, "concat",
-                                        io:sprintf("(L%s;)L%s;", BSTRING_VALUE, BSTRING_VALUE) , true);
+                self.mv.visitMethodInsn(INVOKEINTERFACE, B_STRING_VALUE, "concat",
+                                        io:sprintf("(L%s;)L%s;", B_STRING_VALUE, B_STRING_VALUE) , true);
             } else {
                 self.mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/String", "concat",
                                         io:sprintf("(L%s;)L%s;", STRING_VALUE, STRING_VALUE) , false);
@@ -693,8 +694,8 @@ type InstructionGenerator object {
                     io:sprintf("(L%s;L%s;L%s;)V", OBJECT, STRING_VALUE, OBJECT), false);
         } else {
             self.mv.visitMethodInsn(INVOKESTATIC, MAP_UTILS, "handleMapStore",
-                                        io:sprintf("(L%s;L%s;L%s;)V", MAP_VALUE, STRING_VALUE, OBJECT),
-                                        false);
+                                        io:sprintf("(L%s;L%s;L%s;)V",
+                                        MAP_VALUE, IS_BSTRING ? I_STRING_VALUE : STRING_VALUE, OBJECT), false);
         }
     }
 
@@ -766,7 +767,7 @@ type InstructionGenerator object {
 
         // invoke set() method
         self.mv.visitMethodInsn(INVOKEINTERFACE, OBJECT_VALUE, "set",
-                io:sprintf("(L%s;L%s;)V", useBString ? I_STRING_VALUE : STRING_VALUE, OBJECT), true);
+                io:sprintf("(L%s;L%s;)V", useBString ? B_STRING_VALUE : STRING_VALUE, OBJECT), true);
     }
 
     function generateStringLoadIns(bir:FieldAccess stringLoadIns) {
@@ -787,13 +788,18 @@ type InstructionGenerator object {
     # Generate a new instance of an array value
     # 
     # + inst - the new array instruction
-    function generateArrayNewIns(bir:NewArray inst) {
+    function generateArrayNewIns(bir:NewArray inst, boolean useBString) {
         if (inst.typeValue is bir:BArrayType) {
             self.mv.visitTypeInsn(NEW, ARRAY_VALUE_IMPL);
             self.mv.visitInsn(DUP);
             loadType(self.mv, inst.typeValue);
             self.loadVar(inst.sizeOp.variableDcl);
-            self.mv.visitMethodInsn(INVOKESPECIAL, ARRAY_VALUE_IMPL, "<init>", io:sprintf("(L%s;J)V", ARRAY_TYPE), false);
+            if (useBString) {
+                self.mv.visitInsn(ICONST_1);
+                self.mv.visitMethodInsn(INVOKESPECIAL, ARRAY_VALUE_IMPL, "<init>", io:sprintf("(L%s;JZ)V", ARRAY_TYPE), false);
+            } else {
+                self.mv.visitMethodInsn(INVOKESPECIAL, ARRAY_VALUE_IMPL, "<init>", io:sprintf("(L%s;J)V", ARRAY_TYPE), false);
+            }
             self.storeToVar(inst.lhsOp.variableDcl);
         } else {
             self.mv.visitTypeInsn(NEW, TUPLE_VALUE_IMPL);
@@ -808,7 +814,7 @@ type InstructionGenerator object {
     # Generate adding a new value to an array
     # 
     # + inst - array store instruction
-    function generateArrayStoreIns(bir:FieldAccess inst) {
+    function generateArrayStoreIns(bir:FieldAccess inst, boolean useBString) {
         self.loadVar(inst.lhsOp.variableDcl);
         self.loadVar(inst.keyOp.variableDcl);
         self.loadVar(inst.rhsOp.variableDcl);
@@ -828,7 +834,8 @@ type InstructionGenerator object {
         } else if (valueType is bir:BTypeFloat) {
             self.mv.visitMethodInsn(INVOKEINTERFACE, ARRAY_VALUE, "add", "(JD)V", true);
         } else if (valueType is bir:BTypeString) {
-            self.mv.visitMethodInsn(INVOKEINTERFACE, ARRAY_VALUE, "add", io:sprintf("(JL%s;)V", STRING_VALUE), true);
+            self.mv.visitMethodInsn(INVOKEINTERFACE, ARRAY_VALUE, "add", io:sprintf("(JL%s;)V", useBString ? 
+            B_STRING_VALUE : STRING_VALUE), true);
         } else if (valueType is bir:BTypeBoolean) {
             self.mv.visitMethodInsn(INVOKEINTERFACE, ARRAY_VALUE, "add", "(JZ)V", true);
         } else if (valueType is bir:BTypeByte) {
@@ -842,7 +849,7 @@ type InstructionGenerator object {
     # Generating loading a new value from an array to the top of the stack
     # 
     # + inst - field access instruction
-    function generateArrayValueLoad(bir:FieldAccess inst) {
+    function generateArrayValueLoad(bir:FieldAccess inst, boolean useBString) {
         self.loadVar(inst.rhsOp.variableDcl);
         self.mv.visitTypeInsn(CHECKCAST, ARRAY_VALUE);
         self.loadVar(inst.keyOp.variableDcl);
@@ -855,8 +862,13 @@ type InstructionGenerator object {
         } else if (bType is bir:BTypeInt) {
             self.mv.visitMethodInsn(INVOKEINTERFACE, ARRAY_VALUE, "getInt", "(J)J", true);
         } else if (bType is bir:BTypeString) {
-            self.mv.visitMethodInsn(INVOKEINTERFACE, ARRAY_VALUE, "getString", io:sprintf("(J)L%s;", STRING_VALUE),
+            if (useBString) {
+                self.mv.visitMethodInsn(INVOKEINTERFACE, ARRAY_VALUE, "getBString", io:sprintf("(J)L%s;", B_STRING_VALUE),
                                         true);
+            } else {
+                self.mv.visitMethodInsn(INVOKEINTERFACE, ARRAY_VALUE, "getString", io:sprintf("(J)L%s;", STRING_VALUE),
+                                        true);   
+            }
         } else if (bType is bir:BTypeBoolean) {
             self.mv.visitMethodInsn(INVOKEINTERFACE, ARRAY_VALUE, "getBoolean", "(J)Z", true);
         } else if (bType is bir:BTypeByte) {
@@ -884,7 +896,7 @@ type InstructionGenerator object {
         self.loadVar(newErrorIns.reasonOp.variableDcl);
         self.loadVar(newErrorIns.detailsOp.variableDcl);
         self.mv.visitMethodInsn(INVOKESPECIAL, ERROR_VALUE, "<init>",
-                           io:sprintf("(L%s;L%s;L%s;)V", BTYPE, useBString ? I_STRING_VALUE : STRING_VALUE, OBJECT), false);
+                           io:sprintf("(L%s;L%s;L%s;)V", BTYPE, useBString ? B_STRING_VALUE : STRING_VALUE, OBJECT), false);
         self.storeToVar(newErrorIns.lhsOp.variableDcl);
     }
 
@@ -988,25 +1000,27 @@ type InstructionGenerator object {
         lambdas[lambdaName] = inst;
     }
 
-    function generateNewXMLElementIns(bir:NewXMLElement newXMLElement) {
+    function generateNewXMLElementIns(bir:NewXMLElement newXMLElement, boolean useBString) {
         self.loadVar(newXMLElement.startTagOp.variableDcl);
         self.mv.visitTypeInsn(CHECKCAST, XML_QNAME);
         self.loadVar(newXMLElement.endTagOp.variableDcl);
         self.mv.visitTypeInsn(CHECKCAST, XML_QNAME);
         self.loadVar(newXMLElement.defaultNsURIOp.variableDcl);
         self.mv.visitMethodInsn(INVOKESTATIC, XML_FACTORY, "createXMLElement",
-                io:sprintf("(L%s;L%s;L%s;)L%s;", XML_QNAME, XML_QNAME, STRING_VALUE, XML_VALUE), false);
+                io:sprintf("(L%s;L%s;L%s;)L%s;", XML_QNAME, XML_QNAME, useBString ? B_STRING_VALUE : STRING_VALUE,
+                XML_VALUE), false);
         self.storeToVar(newXMLElement.lhsOp.variableDcl);
     }
 
-    function generateNewXMLQNameIns(bir:NewXMLQName newXMLQName) {
+    function generateNewXMLQNameIns(bir:NewXMLQName newXMLQName, boolean useBString) {
         self.mv.visitTypeInsn(NEW, XML_QNAME);
         self.mv.visitInsn(DUP);
         self.loadVar(newXMLQName.localnameOp.variableDcl);
         self.loadVar(newXMLQName.nsURIOp.variableDcl);
         self.loadVar(newXMLQName.prefixOp.variableDcl);
+        string consVal = useBString ? B_STRING_VALUE : STRING_VALUE;
         self.mv.visitMethodInsn(INVOKESPECIAL, XML_QNAME, "<init>",
-                io:sprintf("(L%s;L%s;L%s;)V", STRING_VALUE, STRING_VALUE, STRING_VALUE), false);
+                io:sprintf("(L%s;L%s;L%s;)V", consVal, consVal, consVal), false);
         self.storeToVar(newXMLQName.lhsOp.variableDcl);
     }
 
@@ -1019,25 +1033,26 @@ type InstructionGenerator object {
         self.storeToVar(newStringXMLQName.lhsOp.variableDcl);
     }
 
-    function generateNewXMLTextIns(bir:NewXMLText newXMLText) {
+    function generateNewXMLTextIns(bir:NewXMLText newXMLText, boolean useBString) {
         self.loadVar(newXMLText.textOp.variableDcl);
         self.mv.visitMethodInsn(INVOKESTATIC, XML_FACTORY, "createXMLText",
-                io:sprintf("(L%s;)L%s;", STRING_VALUE, XML_VALUE), false);
+                io:sprintf("(L%s;)L%s;", useBString ? B_STRING_VALUE : STRING_VALUE, XML_VALUE), false);
         self.storeToVar(newXMLText.lhsOp.variableDcl);
     }
 
-    function generateNewXMLCommentIns(bir:NewXMLComment newXMLComment) {
+    function generateNewXMLCommentIns(bir:NewXMLComment newXMLComment, boolean useBString) {
         self.loadVar(newXMLComment.textOp.variableDcl);
         self.mv.visitMethodInsn(INVOKESTATIC, XML_FACTORY, "createXMLComment",
-                io:sprintf("(L%s;)L%s;", STRING_VALUE, XML_VALUE), false);
+                io:sprintf("(L%s;)L%s;", useBString ? B_STRING_VALUE : STRING_VALUE, XML_VALUE), false);
         self.storeToVar(newXMLComment.lhsOp.variableDcl);
     }
 
-    function generateNewXMLProcIns(bir:NewXMLPI newXMLPI) {
+    function generateNewXMLProcIns(bir:NewXMLPI newXMLPI, boolean useBString) {
         self.loadVar(newXMLPI.targetOp.variableDcl);
         self.loadVar(newXMLPI.dataOp.variableDcl);
-        self.mv.visitMethodInsn(INVOKESTATIC, XML_FACTORY, "createXMLProcessingInstruction",
-                io:sprintf("(L%s;L%s;)L%s;", STRING_VALUE, STRING_VALUE, XML_VALUE), false);
+          string consVal = useBString ? B_STRING_VALUE : STRING_VALUE;
+      self.mv.visitMethodInsn(INVOKESTATIC, XML_FACTORY, "createXMLProcessingInstruction",
+                io:sprintf("(L%s;L%s;)L%s;", consVal, consVal, XML_VALUE), false);
         self.storeToVar(newXMLPI.lhsOp.variableDcl);
     }
 
@@ -1072,7 +1087,7 @@ type InstructionGenerator object {
         self.storeToVar(xmlAttrStoreIns.lhsOp.variableDcl);
     }
 
-    function generateXMLAttrStoreIns(bir:FieldAccess xmlAttrStoreIns) {
+    function generateXMLAttrStoreIns(bir:FieldAccess xmlAttrStoreIns, boolean useBString) {
         // visit xml_ref
         self.loadVar(xmlAttrStoreIns.lhsOp.variableDcl);
 
@@ -1085,7 +1100,7 @@ type InstructionGenerator object {
 
         // invoke setAttribute() method
         self.mv.visitMethodInsn(INVOKEVIRTUAL, XML_VALUE, "setAttribute",
-                io:sprintf("(L%s;L%s;)V", BXML_QNAME, STRING_VALUE), false);
+                io:sprintf("(L%s;L%s;)V", BXML_QNAME, useBString ? B_STRING_VALUE : STRING_VALUE), false);
     }
 
     function generateXMLLoadIns(bir:FieldAccess xmlLoadIns) {
@@ -1258,6 +1273,7 @@ function generateVarLoad(jvm:MethodVisitor mv, bir:VariableDcl varDcl, string cu
                 bType is bir:BTypeString ||
                 bType is bir:BMapType ||
                 bType is bir:BTableType ||
+                bType is bir:BStreamType ||
                 bType is bir:BTypeAny ||
                 bType is bir:BTypeAnyData ||
                 bType is bir:BTypeNil ||
@@ -1342,6 +1358,7 @@ function generateVarStore(jvm:MethodVisitor mv, bir:VariableDcl varDcl, string c
                     bType is bir:BTypeString ||
                     bType is bir:BMapType ||
                     bType is bir:BTableType ||
+                    bType is bir:BStreamType ||
                     bType is bir:BTypeAny ||
                     bType is bir:BTypeAnyData ||
                     bType is bir:BTypeNil ||

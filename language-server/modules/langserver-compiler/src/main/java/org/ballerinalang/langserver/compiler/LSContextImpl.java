@@ -19,7 +19,7 @@ package org.ballerinalang.langserver.compiler;
 
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.LSOperation;
-import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
+import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
 import org.eclipse.lsp4j.TextDocumentPositionParams;
 
 import java.util.HashMap;

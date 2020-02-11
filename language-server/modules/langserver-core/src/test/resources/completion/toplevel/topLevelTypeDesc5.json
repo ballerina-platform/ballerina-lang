@@ -1,0 +1,25 @@
+{
+  "position": {
+    "line": 0,
+    "character": 25
+  },
+  "source": "toplevel/source/topLevelTypeDesc5.bal",
+  "items": [
+    {
+      "label": "client",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "220",
+      "insertText": "client ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "object",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "220",
+      "insertText": "object ",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

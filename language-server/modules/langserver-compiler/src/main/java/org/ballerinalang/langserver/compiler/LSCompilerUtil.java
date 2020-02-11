@@ -19,9 +19,9 @@ import org.antlr.v4.runtime.DefaultErrorStrategy;
 import org.ballerinalang.compiler.CompilerOptionName;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.langserver.commons.LSContext;
+import org.ballerinalang.langserver.commons.workspace.LSDocumentIdentifier;
+import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.compiler.common.CustomErrorStrategyFactory;
-import org.ballerinalang.langserver.compiler.common.LSDocument;
-import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.compiler.workspace.repository.LangServerFSProgramDirectory;
 import org.ballerinalang.langserver.compiler.workspace.repository.LangServerFSProjectDirectory;
 import org.ballerinalang.model.elements.PackageID;
@@ -180,7 +180,7 @@ public class LSCompilerUtil {
      * @return {@link CompilerContext}     Compiler context
      */
     public static CompilerContext prepareCompilerContext(PackageID pkgID, PackageRepository pkgRepo,
-                                                         LSDocument lsDocument,
+                                                         LSDocumentIdentifier lsDocument,
                                                          WorkspaceDocumentManager docManager,
                                                          CompilerPhase compilerPhase, boolean stopOnSemanticErrors) {
         CompilerContext context = prepareCompilerContext(pkgID, pkgRepo, lsDocument.getProjectRoot(), docManager,
@@ -210,7 +210,7 @@ public class LSCompilerUtil {
      * @return {@link CompilerContext}     Compiler context
      */
     public static CompilerContext prepareCompilerContext(PackageID packageID, PackageRepository packageRepository,
-                                                         LSDocument sourceRoot,
+                                                         LSDocumentIdentifier sourceRoot,
                                                          WorkspaceDocumentManager documentManager,
                                                          boolean stopOnSemanticErrors) {
         return prepareCompilerContext(packageID, packageRepository, sourceRoot, documentManager,

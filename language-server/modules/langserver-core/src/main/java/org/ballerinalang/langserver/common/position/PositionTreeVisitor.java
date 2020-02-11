@@ -603,10 +603,16 @@ public class PositionTreeVisitor extends LSNodeVisitor {
     public void visit(BLangRecordLiteral recordLiteral) {
         setPreviousNode(recordLiteral);
 
-        if (recordLiteral.keyValuePairs != null) {
-            recordLiteral.keyValuePairs.forEach((bLangRecordKeyValue -> {
-                if (bLangRecordKeyValue.valueExpr != null) {
-                    this.acceptNode(bLangRecordKeyValue.valueExpr);
+        if (recordLiteral.fields != null) {
+            recordLiteral.fields.forEach((field -> {
+                if (field.isKeyValueField()) {
+                    BLangRecordLiteral.BLangRecordKeyValueField bLangRecordKeyValue =
+                            (BLangRecordLiteral.BLangRecordKeyValueField) field;
+                    if (bLangRecordKeyValue.valueExpr != null) {
+                        this.acceptNode(bLangRecordKeyValue.valueExpr);
+                    }
+                } else {
+                    this.acceptNode((BLangRecordLiteral.BLangRecordVarNameField) field);
                 }
             }));
         }

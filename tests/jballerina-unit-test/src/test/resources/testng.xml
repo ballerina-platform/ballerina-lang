@@ -124,6 +124,7 @@
             <package name="org.ballerinalang.test.functions.*"/>
             <package name="org.ballerinalang.test.javainterop.*"/>
             <package name="org.ballerinalang.test.execution.*" />
+            <package name="org.ballerinalang.test.query.*" />
         </packages>
 
         <classes>

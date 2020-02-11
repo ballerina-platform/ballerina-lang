@@ -55,6 +55,8 @@ public enum DiagnosticCode {
     UNDEFINED_STRUCTURE_FIELD_WITH_TYPE("undefined.field.in.structure.with.type"), // TODO: remove Maryam
     UNDEFINED_STRUCTURE_FIELD("undefined.field.in.structure"),
     TYPE_NOT_ALLOWED_WITH_NEW("type.not.allowed.with.new"),
+    STREAM_INVALID_CONSTRAINT("stream.invalid.constraint"),
+    STREAM_INIT_NOT_ALLOWED_HERE("stream.initialization.not.allowed.here"),
     CANNOT_INFER_OBJECT_TYPE_FROM_LHS("cannot.infer.object.type.from.lhs"),
     OBJECT_UNINITIALIZED_FIELD("object.uninitialized.field"),
     CYCLIC_TYPE_REFERENCE("cyclic.type.reference"),
@@ -389,6 +391,9 @@ public enum DiagnosticCode {
     SYNTAX_ERROR("syntax.error"),
     INVALID_SHIFT_OPERATOR("invalid.shift.operator"),
 
+    // Streaming related codes
+    INVALID_STREAM_CONSTRUCTOR("invalid.stream.constructor"),
+
     // Taint checking related codes
     ENTRY_POINT_PARAMETERS_CANNOT_BE_UNTAINTED("entry.point.parameters.cannot.be.untainted"),
     TAINTED_VALUE_PASSED_TO_UNTAINTED_PARAMETER("tainted.value.passed.to.untainted.parameter"),
@@ -455,7 +460,8 @@ public enum DiagnosticCode {
     INVALID_INVOCATION_LVALUE_ASSIGNMENT("invalid.lvalue.lhs.of.assignment"),
     INVALID_INVOCATION_LVALUE_COMPOUND_ASSIGNMENT("invalid.lvalue.lhs.of.compound.assignment"),
 
-    IDENTIFIER_LITERAL_ONLY_SUPPORTS_ALPHANUMERICS("identifier.literal.only.supports.alphanumerics")
+    IDENTIFIER_LITERAL_ONLY_SUPPORTS_ALPHANUMERICS("identifier.literal.only.supports.alphanumerics"),
+    INVALID_UNICODE("invalid.unicode")
 
     ;
     private String value;

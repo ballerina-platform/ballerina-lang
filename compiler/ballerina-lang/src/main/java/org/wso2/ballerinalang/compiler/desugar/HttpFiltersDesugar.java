@@ -20,6 +20,7 @@ package org.wso2.ballerinalang.compiler.desugar;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.AttachPoint;
 import org.ballerinalang.model.tree.OperatorKind;
+import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
@@ -449,37 +450,47 @@ public class HttpFiltersDesugar {
     }
 
     private void addOrderParamConfig(BLangFunction resourceNode, SymbolEnv env) {
-        List<BLangRecordLiteral.BLangRecordKeyValue> annotationValues = null;
+        List<RecordLiteralNode.RecordField> annotationValues = null;
         for (BLangAnnotationAttachment annotationAttachment : resourceNode.getAnnotationAttachments()) {
             if (ANN_RESOURCE_CONFIG.equals(annotationAttachment.getAnnotationName().getValue()) &&
                     annotationAttachment.getExpression() != null) {
-                annotationValues = ((BLangRecordLiteral) annotationAttachment.getExpression()).keyValuePairs;
+                annotationValues = ((BLangRecordLiteral) annotationAttachment.getExpression()).fields;
                 break;
             }
         }
         if (annotationValues == null) {
             return;
         }
-        for (BLangRecordLiteral.BLangRecordKeyValue keyValue : annotationValues) {
-            switch (getAnnotationFieldKey(keyValue)) {
+        for (RecordLiteralNode.RecordField field : annotationValues) {
+            BLangExpression expression = field.isKeyValueField() ?
+                    ((BLangRecordLiteral.BLangRecordKeyValueField) field).valueExpr :
+                    (BLangRecordLiteral.BLangRecordVarNameField) field;
+
+            switch (getAnnotationFieldKey(field)) {
                 case ANN_RESOURCE_ATTR_WS_UPGRADE:
-                    for (BLangRecordLiteral.BLangRecordKeyValue upgradeField :
-                            ((BLangRecordLiteral) keyValue.getValue()).getKeyValuePairs()) {
+                    for (RecordLiteralNode.RecordField upgradeField : ((BLangRecordLiteral) expression).getFields()) {
                         if (getAnnotationFieldKey(upgradeField).equals(ANN_RESOURCE_ATTR_WS_UPGRADE_PATH)) {
-                            addParamOrderConfigAnnotation(resourceNode, upgradeField.getValue(), env);
+                            addParamOrderConfigAnnotation(resourceNode, upgradeField.isKeyValueField() ?
+                                    ((BLangRecordLiteral.BLangRecordKeyValueField) upgradeField).valueExpr :
+                                    (BLangRecordLiteral.BLangRecordVarNameField) upgradeField, env);
                             break;
                         }
                     }
                     break;
                 case ANN_RESOURCE_ATTR_PATH:
-                    addParamOrderConfigAnnotation(resourceNode, keyValue.getValue(), env);
+                    addParamOrderConfigAnnotation(resourceNode, expression, env);
                     break;
             }
         }
     }
 
-    private static String getAnnotationFieldKey(BLangRecordLiteral.BLangRecordKeyValue keyValue) {
-        return ((BLangSimpleVarRef) (keyValue.key).expr).variableName.getValue();
+    private static String getAnnotationFieldKey(RecordLiteralNode.RecordField field) {
+        if (!field.isKeyValueField()) {
+            return ((BLangSimpleVarRef) field).variableName.getValue();
+        }
+
+        return ((BLangSimpleVarRef) (((BLangRecordLiteral.BLangRecordKeyValueField) field).key).expr)
+                .variableName.getValue();
     }
 
     private static boolean checkForPathParam(List<BLangSimpleVariable> parameters, BLangExpression value) {
@@ -524,9 +535,9 @@ public class HttpFiltersDesugar {
         }
 
         // Create pathParamOrder record literal
-        BLangRecordLiteral.BLangRecordKeyValue pathParamOrderKeyValue = (BLangRecordLiteral.BLangRecordKeyValue)
-                TreeBuilder.createRecordKeyValue();
-        literalNode.keyValuePairs.add(pathParamOrderKeyValue);
+        BLangRecordLiteral.BLangRecordKeyValueField pathParamOrderKeyValue =
+                (BLangRecordLiteral.BLangRecordKeyValueField) TreeBuilder.createRecordKeyValue();
+        literalNode.fields.add(pathParamOrderKeyValue);
 
         BLangLiteral keyLiteral = (BLangLiteral) TreeBuilder.createLiteralExpression();
         keyLiteral.value = ANN_FIELD_PATH_PARAM_ORDER;
@@ -550,10 +561,11 @@ public class HttpFiltersDesugar {
             paramValueLiteral.type = symTable.intType;
 
             // Create a new key-value.
-            BLangRecordLiteral.BLangRecordKeyValue pathParamOrderEntry = new BLangRecordLiteral.BLangRecordKeyValue();
+            BLangRecordLiteral.BLangRecordKeyValueField pathParamOrderEntry =
+                    new BLangRecordLiteral.BLangRecordKeyValueField();
             pathParamOrderEntry.key = new BLangRecordLiteral.BLangRecordKey(paramKeyLiteral);
             pathParamOrderEntry.valueExpr = paramValueLiteral;
-            paramOrderLiteralNode.keyValuePairs.add(pathParamOrderEntry);
+            paramOrderLiteralNode.fields.add(pathParamOrderEntry);
         });
     }
 

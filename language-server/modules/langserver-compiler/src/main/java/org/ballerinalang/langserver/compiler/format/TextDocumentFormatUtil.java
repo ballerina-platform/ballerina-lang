@@ -26,11 +26,12 @@ import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.langserver.commons.LSContext;
+import org.ballerinalang.langserver.commons.workspace.LSDocumentIdentifier;
+import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.compiler.LSModuleCompiler;
-import org.ballerinalang.langserver.compiler.common.LSDocument;
+import org.ballerinalang.langserver.compiler.common.LSDocumentIdentifierImpl;
 import org.ballerinalang.langserver.compiler.common.modal.SymbolMetaInfo;
 import org.ballerinalang.langserver.compiler.exception.CompilationFailedException;
-import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.model.Whitespace;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.symbols.SymbolKind;
@@ -95,7 +96,7 @@ public class TextDocumentFormatUtil {
     public static JsonObject getAST(Path file, WorkspaceDocumentManager documentManager, LSContext context)
             throws JSONGenerationException, CompilationFailedException {
         String path = file.toAbsolutePath().toString();
-        LSDocument lsDocument = new LSDocument(file.toUri().toString());
+        LSDocumentIdentifier lsDocument = new LSDocumentIdentifierImpl(file.toUri().toString());
         String packageName = lsDocument.getOwnerModule();
         String[] breakFromPackage = path.split(Pattern.quote(packageName + File.separator));
         String relativePath = breakFromPackage[breakFromPackage.length - 1];

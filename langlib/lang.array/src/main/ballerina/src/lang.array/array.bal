@@ -221,3 +221,8 @@ public function toBase16(byte[] arr) returns string = external;
 # + str - Base16 string representation
 # + return - the byte array or error
 public function fromBase16(string str) returns byte[]|error = external;
+
+# Returns a stream from the given array.
+# + arr - The array from which the stream is created
+# + return - The stream representation of the array `arr`
+public function toStream(PureType[] arr) returns stream<PureType> = external;

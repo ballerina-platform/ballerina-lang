@@ -634,7 +634,8 @@ public class ClosureDesugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangRecordLiteral recordLiteral) {
         // Process the key-val pairs in the record literal.
-        recordLiteral.keyValuePairs.forEach(keyValue -> {
+        recordLiteral.fields.forEach(field -> {
+            BLangRecordLiteral.BLangRecordKeyValueField keyValue = (BLangRecordLiteral.BLangRecordKeyValueField) field;
             keyValue.key.expr = rewriteExpr(keyValue.key.expr);
             keyValue.valueExpr = rewriteExpr(keyValue.valueExpr);
         });
@@ -1131,7 +1132,9 @@ public class ClosureDesugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangRecordLiteral.BLangJSONLiteral jsonLiteral) {
-        jsonLiteral.keyValuePairs.forEach(bLangRecordKeyValue -> {
+        jsonLiteral.fields.forEach(field -> {
+            BLangRecordLiteral.BLangRecordKeyValueField bLangRecordKeyValue =
+                    (BLangRecordLiteral.BLangRecordKeyValueField) field;
             bLangRecordKeyValue.key.expr = rewriteExpr(bLangRecordKeyValue.key.expr);
             bLangRecordKeyValue.valueExpr = rewriteExpr(bLangRecordKeyValue.valueExpr);
         });
@@ -1140,7 +1143,9 @@ public class ClosureDesugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangRecordLiteral.BLangMapLiteral mapLiteral) {
-        mapLiteral.keyValuePairs.forEach(bLangRecordKeyValue -> {
+        mapLiteral.fields.forEach(field -> {
+            BLangRecordLiteral.BLangRecordKeyValueField bLangRecordKeyValue =
+                    (BLangRecordLiteral.BLangRecordKeyValueField) field;
             bLangRecordKeyValue.key.expr = rewriteExpr(bLangRecordKeyValue.key.expr);
             bLangRecordKeyValue.valueExpr = rewriteExpr(bLangRecordKeyValue.valueExpr);
         });
@@ -1149,7 +1154,9 @@ public class ClosureDesugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangRecordLiteral.BLangStructLiteral structLiteral) {
-        structLiteral.keyValuePairs.forEach(bLangRecordKeyValue -> {
+        structLiteral.fields.forEach(field -> {
+            BLangRecordLiteral.BLangRecordKeyValueField bLangRecordKeyValue =
+                    (BLangRecordLiteral.BLangRecordKeyValueField) field;
             bLangRecordKeyValue.key.expr = rewriteExpr(bLangRecordKeyValue.key.expr);
             bLangRecordKeyValue.valueExpr = rewriteExpr(bLangRecordKeyValue.valueExpr);
         });
@@ -1307,9 +1314,10 @@ public class ClosureDesugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangRecordLiteral.BLangChannelLiteral channelLiteral) {
-        channelLiteral.keyValuePairs.forEach(bLangRecordKeyValue -> {
-            bLangRecordKeyValue.key.expr = rewriteExpr(bLangRecordKeyValue.key.expr);
-            bLangRecordKeyValue.valueExpr = rewriteExpr(bLangRecordKeyValue.valueExpr);
+        channelLiteral.fields.forEach(field -> {
+            BLangRecordLiteral.BLangRecordKeyValueField keyValue = (BLangRecordLiteral.BLangRecordKeyValueField) field;
+            keyValue.key.expr = rewriteExpr(keyValue.key.expr);
+            keyValue.valueExpr = rewriteExpr(keyValue.valueExpr);
         });
         result = channelLiteral;
     }
