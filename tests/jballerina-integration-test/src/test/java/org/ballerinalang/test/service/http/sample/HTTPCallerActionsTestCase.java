@@ -78,9 +78,9 @@ public class HTTPCallerActionsTestCase extends HttpBaseTest {
 
     @Test
     public void testDirtyResponse() throws IOException, BallerinaTestException {
-        HttpResponse response = HttpClientRequest.doGet(serverInstance.getServiceURLHttp(9256, "hello"));
+        HttpResponse response = HttpClientRequest.doGet(serverInstance.getServiceURLHttp(9258, "hello"));
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
-        response = HttpClientRequest.doGet(serverInstance.getServiceURLHttp(9256, "hello"));
+        response = HttpClientRequest.doGet(serverInstance.getServiceURLHttp(9258, "hello"));
         dirtyResponseLogLeecher.waitForText(LOG_LEECHER_TIMEOUT);
         Assert.assertEquals(response.getData(), "couldn't complete the respond operation as the response has" +
                         " been already used.", "Message content mismatched");
