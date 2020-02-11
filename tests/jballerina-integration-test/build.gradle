@@ -84,8 +84,8 @@ dependencies {
     implementation project(':ballerina-xmlutils')
     implementation project(':observability-test-utils')
     implementation project(path: ':ballerina-test-utils', configuration: 'shadow')
-
-
+    implementation 'org.apache.kafka:kafka-clients'
+    implementation 'org.apache.kafka:kafka_2.11'
     implementation 'io.netty:netty-tcnative-boringssl-static'
     implementation 'org.slf4j:slf4j-api'
     implementation 'com.google.protobuf:protobuf-java'
@@ -143,6 +143,9 @@ dependencies {
     testCompile 'org.apache.directory.server:apacheds-all'
     testCompile 'org.apache.commons:commons-text'
     testCompile 'org.testng:testng'
+    testCompile 'io.debezium:debezium-core'
+    testCompile group: 'io.debezium', name: 'debezium-core', classifier: 'tests'
+
 
     testUtils project(path: ':ballerina-test-utils', configuration: 'shadow')
     jballerinaTools project(path: ':jballerina-tools', configuration: 'zip')
