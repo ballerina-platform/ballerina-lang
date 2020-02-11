@@ -21,6 +21,7 @@ import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
+import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueArray;
@@ -428,6 +429,16 @@ public class ConfigTest {
         Assert.assertTrue(returnValues[0] instanceof BValueArray);
         Assert.assertTrue((((BValueArray) returnValues[0]).elementType).getTag() == TypeTags.INT);
         Assert.assertEquals((returnValues[0]).stringValue(), "[9090, 9091, 9092]");
+    }
+
+    @Test(description = "Test retrieving a config value as an array of maps")
+    public void testGetAsArray3() throws IOException {
+        BValue[] inputArg = {new BString("foo")};
+        registry.initRegistry(new HashMap<>(), null, ballerinaConfPath);
+        BValue[] returnValues = BRunUtil.invoke(compileResult, "testGetAsArray3", inputArg);
+        Assert.assertTrue(returnValues[0] instanceof BMap);
+        Assert.assertEquals((returnValues[0]).stringValue(), "{\"a\":1, \"b\":2}");
+        Assert.assertEquals((returnValues[1]).stringValue(), "{\"a\":3, \"b\":4}");
     }
 
     private Map<String, String> getRuntimeProperties() {
