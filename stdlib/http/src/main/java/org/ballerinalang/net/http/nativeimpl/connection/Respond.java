@@ -69,7 +69,7 @@ public class Respond extends ConnectionAction {
             log.debug(errorMessage);
             return HttpUtil.createHttpError(errorMessage, HttpErrorType.GENERIC_LISTENER_ERROR);
         }
-        outboundResponseObj.addNativeData(HttpConstants.IS_DIRTY_RESPONSE, true);
+        outboundResponseObj.addNativeData(HttpConstants.DIRTY_RESPONSE, true);
         HttpCarbonMessage outboundResponseMsg = HttpUtil.getCarbonMsg(outboundResponseObj, HttpUtil.
                     createHttpCarbonMessage(false));
         outboundResponseMsg.setPipeliningEnabled(inboundRequestMsg.isPipeliningEnabled());
@@ -135,6 +135,6 @@ public class Respond extends ConnectionAction {
 
     private static boolean isDirtyResponse(ObjectValue outboundResponseObj) {
         return outboundResponseObj.get(RESPONSE_CACHE_CONTROL_FIELD) == null && outboundResponseObj.
-                getNativeData(HttpConstants.IS_DIRTY_RESPONSE) != null;
+                getNativeData(HttpConstants.DIRTY_RESPONSE) != null;
     }
 }

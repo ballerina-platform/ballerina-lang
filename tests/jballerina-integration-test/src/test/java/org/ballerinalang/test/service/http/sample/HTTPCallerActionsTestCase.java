@@ -38,13 +38,17 @@ public class HTTPCallerActionsTestCase extends HttpBaseTest {
     private final int servicePort = 9229;
     private static final String POST_RESPOND_LOG = "Service Level Variable : respond";
     private static final String POST_REDIRECT_LOG = "Service Level Variable : respond";
+    private static final String DIRTY_RESPONSE_LOG = "Couldn't complete the respond operation as the response " +
+            "has been already used.";
     private LogLeecher postRespondLogLeecher = new LogLeecher(POST_RESPOND_LOG);
     private LogLeecher postRedirectLogLeecher = new LogLeecher(POST_REDIRECT_LOG);
+    private LogLeecher dirtyResponseLogLeecher = new LogLeecher(DIRTY_RESPONSE_LOG);
 
     @BeforeMethod
     public void setup() {
         serverInstance.addLogLeecher(postRespondLogLeecher);
         serverInstance.addLogLeecher(postRedirectLogLeecher);
+        serverInstance.addLogLeecher(dirtyResponseLogLeecher);
     }
 
     @Test
@@ -73,12 +77,13 @@ public class HTTPCallerActionsTestCase extends HttpBaseTest {
     }
 
     @Test
-    public void testDirtyResponse() throws IOException {
+    public void testDirtyResponse() throws IOException, BallerinaTestException {
         HttpResponse response = HttpClientRequest.doGet(serverInstance.getServiceURLHttp(9256, "hello"));
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
         response = HttpClientRequest.doGet(serverInstance.getServiceURLHttp(9256, "hello"));
-        Assert.assertEquals(response.getData(), "couldn't complete the respond operation as the response has " +
-                "been already used.", "Message content mismatched");
+        dirtyResponseLogLeecher.waitForText(LOG_LEECHER_TIMEOUT);
+        Assert.assertEquals(response.getData(), "couldn't complete the respond operation as the response has" +
+                        " been already used.", "Message content mismatched");
         Assert.assertEquals(response.getResponseCode(), 500, "Response code mismatched");
     }
 }

@@ -15,6 +15,7 @@
 // under the License.
 
 import ballerina/http;
+import ballerina/io;
 
 http:Response response = getResponse();
 
@@ -26,7 +27,10 @@ service sameResponse on new http:Listener(9256) {
         path: "/"
     }
     resource function sayHello(http:Caller caller, http:Request req) {
-        checkpanic caller->respond(response);
+        var responseError = caller->respond(response);
+        if (responseError is error) {
+            io:println(<string>responseError.detail()["message"]);
+        }
     }
 }
 
