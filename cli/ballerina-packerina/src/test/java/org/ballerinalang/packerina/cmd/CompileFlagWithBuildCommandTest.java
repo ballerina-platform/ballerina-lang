@@ -96,7 +96,7 @@ public class CompileFlagWithBuildCommandTest extends CommandTest {
         buildCommand.execute();
     
         String buildLog = readOutput(true);
-        Assert.assertEquals(buildLog, "'-c' or '--compile' can only be used with modules.\n");
+        Assert.assertEquals(buildLog, "ballerina: '-c' or '--compile' can only be used with modules.\n");
     }
     
     @Test(description = "Compile a valid ballerina file by passing invalid source root path and absolute bal file path")
@@ -110,7 +110,7 @@ public class CompileFlagWithBuildCommandTest extends CommandTest {
         buildCommand.execute();
     
         String buildLog = readOutput(true);
-        Assert.assertEquals(buildLog, "'-c' or '--compile' can only be used with modules.\n");
+        Assert.assertEquals(buildLog, "ballerina: '-c' or '--compile' can only be used with modules.\n");
     }
     
     @Test(description = "Compile a valid ballerina file with toml")
@@ -121,7 +121,7 @@ public class CompileFlagWithBuildCommandTest extends CommandTest {
         buildCommand.execute();
     
         String buildLog = readOutput(true);
-        Assert.assertEquals(buildLog, "'-c' or '--compile' can only be used with modules.\n");
+        Assert.assertEquals(buildLog, "ballerina: '-c' or '--compile' can only be used with modules.\n");
     }
     
     @Test(description = "Compile a ballerina project with no modules.")
