@@ -8,6 +8,21 @@ Creating balos
 
 Running tests
     ballerinatest/test_module:0.1.0
+
+        [pass] testAssertFail
+        [pass] testAssertFalse
+        [pass] testAssertTrue
+        [pass] testAssertNotEqualsJson
+        [pass] testAssertNotEqualsString
+        [pass] testAssertFloatArrayEquals
+        [pass] testAssertIntArrayEquals
+        [pass] testAssertStringArrayEquals
+        [pass] testAssertBooleanEquals
+        [pass] testAssertJsonEquals
+        [pass] testAssertStringEquals
+        [pass] testAssertFloatEquals
+        [pass] testAssertIntEquals
+
         13 passing
         0 failing
         0 skipped
