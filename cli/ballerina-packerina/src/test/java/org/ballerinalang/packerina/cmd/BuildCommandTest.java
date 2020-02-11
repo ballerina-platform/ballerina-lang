@@ -515,11 +515,16 @@ public class BuildCommandTest extends CommandTest {
     }
 
     @Test(dependsOnMethods = {"testBuildCommand"})
-    public void testBuildOutput() {
+    public void testBuildOutput() throws IOException {
         Path bin = this.testResources.resolve("valid-project").resolve(ProjectDirConstants.TARGET_DIR_NAME)
                 .resolve(ProjectDirConstants.BIN_DIR_NAME);
         Assert.assertTrue(Files.exists(bin));
-        Assert.assertTrue(Files.exists(bin.resolve("mymodule" + BLANG_COMPILED_JAR_EXT)));
+        Path myModuleJar = bin.resolve("mymodule" + BLANG_COMPILED_JAR_EXT);
+        Assert.assertTrue(Files.exists(myModuleJar));
+        JarFile jar = new JarFile(myModuleJar.toFile());
+        // check resources
+        Assert.assertNotNull(jar.getJarEntry("resources/testOrg/mymodule/0.1.0/resource.txt"));
+        Assert.assertNotNull(jar.getJarEntry("resources/testOrg/mymodule/0.1.0/myresource/insideDirectory.txt"));
     }
     
     @Test(dependsOnMethods = {"testBuildOutput"})
