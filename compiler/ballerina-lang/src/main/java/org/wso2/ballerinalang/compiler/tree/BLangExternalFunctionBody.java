@@ -18,8 +18,12 @@
 
 package org.wso2.ballerinalang.compiler.tree;
 
+import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.ExternalFunctionBodyNode;
 import org.ballerinalang.model.tree.NodeKind;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Represents an expression bodied function/method.
@@ -27,6 +31,12 @@ import org.ballerinalang.model.tree.NodeKind;
  * @since 1.2.0
  */
 public class BLangExternalFunctionBody extends BLangFunctionBody implements ExternalFunctionBodyNode {
+
+    public List<BLangAnnotationAttachment> annAttachments;
+
+    public BLangExternalFunctionBody() {
+        this.annAttachments = new ArrayList<>();
+    }
 
     @Override
     public void accept(BLangNodeVisitor visitor) {
@@ -36,5 +46,15 @@ public class BLangExternalFunctionBody extends BLangFunctionBody implements Exte
     @Override
     public NodeKind getKind() {
         return NodeKind.EXTERN_FUNCTION_BODY;
+    }
+
+    @Override
+    public List<? extends AnnotationAttachmentNode> getAnnotationAttachments() {
+        return this.annAttachments;
+    }
+
+    @Override
+    public void addAnnotationAttachment(AnnotationAttachmentNode annAttachment) {
+        this.annAttachments.add((BLangAnnotationAttachment) annAttachment);
     }
 }

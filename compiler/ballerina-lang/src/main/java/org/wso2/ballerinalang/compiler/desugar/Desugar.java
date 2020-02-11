@@ -24,9 +24,9 @@ import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.elements.TableColumnFlag;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.BlockFunctionBodyNode;
+import org.ballerinalang.model.tree.BlockNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
-import org.ballerinalang.model.tree.BlockNode;
 import org.ballerinalang.model.tree.expressions.NamedArgNode;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
 import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
@@ -740,7 +740,9 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangExternalFunctionBody body) {
-        // do nothing
+        for (BLangAnnotationAttachment attachment : body.annAttachments) {
+            rewrite(attachment, env);
+        }
         result = body;
     }
 
@@ -767,9 +769,7 @@ public class Desugar extends BLangNodeVisitor {
         if (funcNode.returnTypeNode != null) {
             funcNode.returnTypeAnnAttachments.forEach(attachment -> rewrite(attachment, env));
         }
-        if (Symbols.isNative(funcNode.symbol)) {
-            funcNode.externalAnnAttachments.forEach(attachment -> rewrite(attachment, env));
-        }
+
         if (participantAnnotation.isEmpty()) {
             // function not annotated for transaction participation.
             result = funcNode;

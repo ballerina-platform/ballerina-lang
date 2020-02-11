@@ -363,12 +363,10 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         boolean privateFunc = ctx.PRIVATE() != null;
         boolean remoteFunc = ctx.REMOTE() != null;
         boolean nativeFunc = ctx.functionDefinitionBody().externalFunctionBody() != null;
-        boolean bodyExists = ctx.functionDefinitionBody().blockFunctionBody() != null ||
-                ctx.functionDefinitionBody().exprFunctionBody() != null;
 
         this.pkgBuilder.endFunctionDefinition(getCurrentPos(ctx), getWS(ctx), funcName,
                                               getCurrentPos(ctx.anyIdentifierName()), publicFunc, remoteFunc,
-                                              nativeFunc, privateFunc, bodyExists, false);
+                                              nativeFunc, privateFunc, false);
     }
 
     @Override
@@ -594,10 +592,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         String funcName = ctx.anyIdentifierName().getText();
         DiagnosticPos funcNamePos = getCurrentPos(ctx.anyIdentifierName());
 
-        BallerinaParser.FunctionDefinitionBodyContext funcDefBody = ctx.functionDefinitionBody();
-        boolean nativeFunc = funcDefBody.externalFunctionBody() != null;
-        boolean bodyExists = funcDefBody.blockFunctionBody() != null;
-
         boolean publicFunc = ctx.PUBLIC() != null;
         boolean isPrivate = ctx.PRIVATE() != null;
         boolean remoteFunc = ctx.REMOTE() != null;
@@ -605,8 +599,8 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         boolean markdownDocExists = ctx.documentationString() != null;
 
         this.pkgBuilder.endObjectAttachedFunctionDef(getCurrentPos(ctx), getWS(ctx), funcName, funcNamePos, publicFunc,
-                                                     isPrivate, remoteFunc, resourceFunc, nativeFunc,
-                                                     bodyExists, markdownDocExists, ctx.annotationAttachment().size());
+                                                     isPrivate, remoteFunc, resourceFunc, false, markdownDocExists,
+                                                     ctx.annotationAttachment().size());
     }
 
     /**
@@ -628,8 +622,8 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         boolean markdownDocExists = ctx.documentationString() != null;
 
         this.pkgBuilder.endObjectAttachedFunctionDef(getCurrentPos(ctx), getWS(ctx), funcName, funcNamePos, isPublic,
-                                                     isPrivate, remoteFunc, resourceFunc, false, false,
-                                                     markdownDocExists, ctx.annotationAttachment().size());
+                                                     isPrivate, remoteFunc, resourceFunc, true, markdownDocExists,
+                                                     ctx.annotationAttachment().size());
     }
 
     /**

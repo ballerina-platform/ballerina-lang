@@ -29,9 +29,11 @@ import org.ballerinalang.model.tree.AnnotatableNode;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.AnnotationNode;
 import org.ballerinalang.model.tree.BlockFunctionBodyNode;
+import org.ballerinalang.model.tree.BlockNode;
 import org.ballerinalang.model.tree.CompilationUnitNode;
 import org.ballerinalang.model.tree.DocumentableNode;
 import org.ballerinalang.model.tree.DocumentationReferenceType;
+import org.ballerinalang.model.tree.ExternalFunctionBodyNode;
 import org.ballerinalang.model.tree.FunctionBodyNode;
 import org.ballerinalang.model.tree.FunctionNode;
 import org.ballerinalang.model.tree.IdentifierNode;
@@ -39,7 +41,6 @@ import org.ballerinalang.model.tree.InvokableNode;
 import org.ballerinalang.model.tree.MarkdownDocumentationNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
-import org.ballerinalang.model.tree.BlockNode;
 import org.ballerinalang.model.tree.ServiceNode;
 import org.ballerinalang.model.tree.SimpleVariableNode;
 import org.ballerinalang.model.tree.VariableNode;
@@ -1035,7 +1036,7 @@ public class BLangPackageBuilder {
         lambdaExpr.pos = pos;
         addExpressionNode(lambdaExpr);
         // TODO: is null correct here
-        endFunctionDefinition(pos, ws, lambdaFunction.getName().value, pos, false, false, false, false, true, true);
+        endFunctionDefinition(pos, ws, lambdaFunction.getName().value, pos, false, false, false, false, true);
     }
 
     void addArrowFunctionDef(DiagnosticPos pos, Set<Whitespace> ws, PackageID pkgID) {
@@ -1798,7 +1799,7 @@ public class BLangPackageBuilder {
 
     void endFunctionDefinition(DiagnosticPos pos, Set<Whitespace> ws, String funcName, DiagnosticPos funcNamePos,
                                boolean publicFunc, boolean remoteFunc, boolean nativeFunc, boolean privateFunc,
-                               boolean bodyExists, boolean isLambda) {
+                               boolean isLambda) {
         BLangFunction function = (BLangFunction) this.invokableNodeStack.pop();
         function.name = this.createIdentifier(funcNamePos, funcName);
         function.pos = pos;
@@ -1820,14 +1821,10 @@ public class BLangPackageBuilder {
             function.flagSet.add(Flag.NATIVE);
         }
 
-        if (!bodyExists) {
-            function.funcBody = null;
-        } else {
-            function.funcBody = (BLangFunctionBody) this.funcBodyNodeStack.pop();
+        function.funcBody = (BLangFunctionBody) this.funcBodyNodeStack.pop();
 
-            if (function.funcBody.getKind() == NodeKind.BLOCK_FUNCTION_BODY) {
-                this.blockNodeStack.pop();
-            }
+        if (function.funcBody.getKind() == NodeKind.BLOCK_FUNCTION_BODY) {
+            this.blockNodeStack.pop();
         }
 
         this.compUnit.addTopLevelNode(function);
@@ -1944,25 +1941,23 @@ public class BLangPackageBuilder {
     }
 
     void endExternalFunctionBody(int annotCount) {
-        InvokableNode invokableNode = this.invokableNodeStack.peek();
-
-        if (annotCount == 0 || annotAttachmentStack.empty()) {
+        if (annotCount == 0) {
             return;
         }
 
-        List<AnnotationAttachmentNode> tempAnnotAttachments = new ArrayList<>(annotCount);
+        ExternalFunctionBodyNode externBody = (ExternalFunctionBodyNode) this.funcBodyNodeStack.peek();
+        List<AnnotationAttachmentNode> annotAttachments =
+                (List<AnnotationAttachmentNode>) externBody.getAnnotationAttachments();
+
         for (int i = 0; i < annotCount; i++) {
             if (annotAttachmentStack.empty()) {
                 break;
             }
-            tempAnnotAttachments.add(annotAttachmentStack.pop());
+            annotAttachments.add(annotAttachmentStack.pop());
         }
-        // reversing the collected annotations to preserve the original order
-        Collections.reverse(tempAnnotAttachments);
-        tempAnnotAttachments.forEach(invokableNode::addExternalAnnotationAttachment);
 
-        FunctionBodyNode body = this.funcBodyNodeStack.pop();
-        invokableNode.setBody(body);
+        // reversing the collected annotations to preserve the original order
+        Collections.reverse(annotAttachments);
     }
 
     void addImportPackageDeclaration(DiagnosticPos pos,
@@ -2291,8 +2286,7 @@ public class BLangPackageBuilder {
 
     void endObjectAttachedFunctionDef(DiagnosticPos pos, Set<Whitespace> ws, String funcName, DiagnosticPos funcNamePos,
                                       boolean publicFunc, boolean privateFunc, boolean remoteFunc, boolean resourceFunc,
-                                      boolean nativeFunc, boolean bodyExists, boolean markdownDocPresent,
-                                      int annCount) {
+                                      boolean isDeclaration, boolean markdownDocPresent, int annCount) {
         BLangFunction function = (BLangFunction) this.invokableNodeStack.pop();
         function.name = this.createIdentifier(funcNamePos, funcName);
         function.pos = pos;
@@ -2312,21 +2306,19 @@ public class BLangPackageBuilder {
         if (resourceFunc) {
             function.flagSet.add(Flag.RESOURCE);
         }
-        if (nativeFunc) {
-            function.flagSet.add(Flag.NATIVE);
-        }
 
-        if (!bodyExists) {
+        if (isDeclaration) {
             function.funcBody = null;
-            if (!nativeFunc) {
-                function.flagSet.add(Flag.INTERFACE);
-                function.interfaceFunction = true;
-            }
+            function.flagSet.add(Flag.INTERFACE);
+            function.interfaceFunction = true;
         } else {
             function.funcBody = (BLangFunctionBody) this.funcBodyNodeStack.pop();
 
-            if (function.funcBody.getKind() == NodeKind.BLOCK_FUNCTION_BODY) {
+            NodeKind bodyKind = function.funcBody.getKind();
+            if (bodyKind == NodeKind.BLOCK_FUNCTION_BODY) {
                 this.blockNodeStack.pop();
+            } else if (bodyKind == NodeKind.EXTERN_FUNCTION_BODY) {
+                function.flagSet.add(Flag.NATIVE);
             }
         }
 

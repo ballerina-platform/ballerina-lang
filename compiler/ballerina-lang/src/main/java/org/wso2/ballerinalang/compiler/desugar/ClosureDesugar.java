@@ -33,6 +33,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangErrorVariable;
+import org.wso2.ballerinalang.compiler.tree.BLangExternalFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
@@ -268,6 +269,11 @@ public class ClosureDesugar extends BLangNodeVisitor {
             addClosureMap(body.stmts, body.pos, body.mapSymbol, blockEnv);
         }
 
+        result = body;
+    }
+
+    @Override
+    public void visit(BLangExternalFunctionBody body) {
         result = body;
     }
 

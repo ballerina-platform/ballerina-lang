@@ -25,7 +25,6 @@ import org.ballerinalang.model.tree.FunctionBodyNode;
 import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.InvokableNode;
 import org.ballerinalang.model.tree.MarkdownDocumentationNode;
-import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.SimpleVariableNode;
 import org.ballerinalang.model.tree.WorkerNode;
 import org.ballerinalang.model.tree.types.TypeNode;
@@ -147,8 +146,7 @@ public abstract class BLangInvokableNode extends BLangNode implements InvokableN
 
     @Override
     public boolean hasBody() {
-        return this.funcBody != null && (this.funcBody.getKind() == NodeKind.BLOCK_FUNCTION_BODY ||
-                this.funcBody.getKind() == NodeKind.EXPR_FUNCTION_BODY);
+        return this.funcBody != null;
     }
 
     @Override

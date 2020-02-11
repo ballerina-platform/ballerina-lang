@@ -298,14 +298,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             validateAnnotationAttachmentCount(funcNode.returnTypeAnnAttachments);
         }
 
-        if (Symbols.isNative(funcNode.symbol)) {
-            funcNode.externalAnnAttachments.forEach(annotationAttachment -> {
-                annotationAttachment.attachPoints.add(AttachPoint.Point.EXTERNAL);
-                this.analyzeDef(annotationAttachment, funcEnv);
-            });
-            validateAnnotationAttachmentCount(funcNode.externalAnnAttachments);
-        }
-
         for (BLangSimpleVariable param : funcNode.requiredParams) {
             symbolEnter.defineExistingVarSymbolInEnv(param.symbol, funcNode.clonedEnv);
             this.analyzeDef(param, funcNode.clonedEnv);
@@ -316,15 +308,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
 
         validateObjectAttachedFunction(funcNode);
-
-        // Check for native functions
-        if (Symbols.isNative(funcNode.symbol) || funcNode.interfaceFunction) {
-            // TODO: double check this. Only applies for interfaces now IINM.
-            if (funcNode.funcBody != null) {
-                dlog.error(funcNode.pos, DiagnosticCode.EXTERN_FUNCTION_CANNOT_HAVE_BODY, funcNode.name);
-            }
-            return;
-        }
 
         if (funcNode.funcBody != null) {
             analyzeNode(funcNode.funcBody, funcEnv);
@@ -365,7 +348,12 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangExternalFunctionBody body) {
-        // do nothing
+        // TODO: Check if a func body env is needed
+        for (BLangAnnotationAttachment annotationAttachment : body.annAttachments) {
+            annotationAttachment.attachPoints.add(AttachPoint.Point.EXTERNAL);
+            this.analyzeDef(annotationAttachment, env);
+        }
+        validateAnnotationAttachmentCount(body.annAttachments);
     }
 
     @Override
@@ -2837,6 +2825,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         });
     }
 
+    // TODO: Check if the below method can be removed. This doesn't seem necessary.
+    //  https://github.com/ballerina-platform/ballerina-lang/issues/20997
     /**
      * Validate functions attached to objects.
      *

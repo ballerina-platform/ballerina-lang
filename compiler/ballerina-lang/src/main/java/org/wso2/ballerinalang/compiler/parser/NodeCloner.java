@@ -404,6 +404,7 @@ class NodeCloner extends BLangNodeVisitor {
     public void visit(BLangExternalFunctionBody source) {
         BLangExternalFunctionBody clone = new BLangExternalFunctionBody();
         source.cloneRef = clone;
+        clone.annAttachments = cloneList(source.annAttachments);
         clone.pos = source.pos;
     }
 

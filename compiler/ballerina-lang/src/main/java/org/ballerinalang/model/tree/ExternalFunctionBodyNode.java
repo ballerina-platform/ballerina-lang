@@ -18,10 +18,17 @@
 
 package org.ballerinalang.model.tree;
 
+import java.util.List;
+
 /**
  * Represents the body of a function whose implementation is native.
  *
  * @since 1.2.0
  */
 public interface ExternalFunctionBodyNode extends FunctionBodyNode {
+
+    List<? extends AnnotationAttachmentNode> getAnnotationAttachments();
+
+    void addAnnotationAttachment(AnnotationAttachmentNode annAttachment);
+
 }
