@@ -99,6 +99,7 @@ public class PullCommand implements BLauncherCmd {
                     "Pull command requires the names of the organization and module.",
                     "ballerina pull {<org-name>/<module-name> | <org-name>/<module-name>:<version>}",
                     false);
+            Runtime.getRuntime().exit(1);
             return;
         }
 
