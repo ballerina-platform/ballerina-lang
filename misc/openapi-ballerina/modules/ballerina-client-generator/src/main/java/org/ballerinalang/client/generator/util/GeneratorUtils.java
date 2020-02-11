@@ -18,6 +18,7 @@ package org.ballerinalang.client.generator.util;
 
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
+import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 
@@ -25,7 +26,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKeyValue;
+import static org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKeyValueField;
 
 /**
  * Utilities used by ballerina code generator.
@@ -63,10 +64,16 @@ public class GeneratorUtils {
      * @param list list of key value pairs
      * @return Map of key value pairs. Empty Map will be returned if list is empty.
      */
-    public static Map<String, String[]> getKeyValuePairAsMap(List<BLangRecordKeyValue> list) {
+    public static Map<String, String[]> getKeyValuePairAsMap(List<RecordLiteralNode.RecordField> list) {
         Map<String, String[]> attrMap = new HashMap<>();
 
-        list.forEach(attr -> {
+        for (RecordLiteralNode.RecordField field : list) {
+            if (!field.isKeyValueField()) {
+                continue;
+            }
+
+            BLangRecordKeyValueField attr = (BLangRecordKeyValueField) field;
+
             // We don't accept struct type values for annotation attribute
             if (attr.getValue() instanceof BLangLiteral) {
                 attrMap.put(attr.getKey().toString(), new String[]{attr.getValue().toString()});
@@ -82,7 +89,7 @@ public class GeneratorUtils {
 
                 attrMap.put(attr.getKey().toString(), values);
             }
-        });
+        }
 
         return attrMap;
     }

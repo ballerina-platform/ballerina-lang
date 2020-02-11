@@ -895,7 +895,7 @@ public class LSNodeVisitor extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangRecordLiteral.BLangRecordKeyValue recordKeyValue) {
+    public void visit(BLangRecordLiteral.BLangRecordKeyValueField recordKeyValue) {
         // no implementation
     }
 

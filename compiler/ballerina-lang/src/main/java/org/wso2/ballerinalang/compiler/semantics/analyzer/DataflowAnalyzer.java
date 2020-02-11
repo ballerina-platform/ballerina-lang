@@ -21,6 +21,7 @@ import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.TopLevelNode;
+import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.cyclefind.GlobalVariableRefAnalyzer;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
@@ -525,12 +526,18 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangRecordLiteral recordLiteral) {
-        recordLiteral.keyValuePairs.forEach(keyValPar -> {
-            if (keyValPar.key.computedKey) {
-                analyzeNode(keyValPar.key.expr, env);
+        for (RecordLiteralNode.RecordField field : recordLiteral.fields) {
+            if (field.isKeyValueField()) {
+                BLangRecordLiteral.BLangRecordKeyValueField keyValuePair =
+                        (BLangRecordLiteral.BLangRecordKeyValueField) field;
+                if (keyValuePair.key.computedKey) {
+                    analyzeNode(keyValuePair.key.expr, env);
+                }
+                analyzeNode(keyValuePair.valueExpr, env);
+            } else {
+                analyzeNode((BLangRecordLiteral.BLangRecordVarNameField) field, env);
             }
-            analyzeNode(keyValPar.valueExpr, env);
-        });
+        }
     }
 
     @Override

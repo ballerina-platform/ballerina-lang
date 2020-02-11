@@ -4,6 +4,7 @@ NAME
 SYNOPSIS
        ballerina test [<options>] <module-name> [<config properties>]
        ballerina test -a | --all [<options>] [--] [<config properties>]
+       ballerina test <balfile> [<config properties>]
 
 
 DESCRIPTION
@@ -13,6 +14,11 @@ DESCRIPTION
     
        Use 'ballerina test <module-name>' to execute tests in the
        specified module, or '-a' or '-all' to execute tests in all modules.
+
+       Use 'ballerina test <balfile>' to execute the given Ballerina test file.
+       Note that testing single bal files will not work within a Ballerina project.
+       Also, imports from other modules will not work for file executions.
+       File path can be relative or absolute.
 
 
 OPTIONS
@@ -51,3 +57,6 @@ EXAMPLES
 
         Run tests in math module.
            $ ballerina test math
+
+        Run tests in single bal file
+           $ ballerina test main_test.bal
