@@ -39,3 +39,11 @@ public function getFilteredChildrenFlat(xml x, int index, string... elemNames) r
 # + qname - Qualified name of the element
 # + return - All the descendants that matches the given qualified name, as a sequence
 public function selectDescendants(xml x, string... qname) returns xml = external;
+
+
+# Return attribute matching expanded attribute name
+#
+# + x - The xml value
+# + attributeName - Attribute name in expanded from
+# + return - Attribute value
+public function getAttribute(xml x, string attributeName) returns string|error? = external;

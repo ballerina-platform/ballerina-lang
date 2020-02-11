@@ -187,6 +187,7 @@ public class Types {
     public boolean isLax(BType type) {
         switch (type.tag) {
             case TypeTags.JSON:
+            case TypeTags.XML:
                 return true;
             case TypeTags.MAP:
                 return isLax(((BMapType) type).constraint);

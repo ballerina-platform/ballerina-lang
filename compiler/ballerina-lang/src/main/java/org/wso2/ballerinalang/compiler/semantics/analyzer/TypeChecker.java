@@ -4093,6 +4093,8 @@ public class TypeChecker extends BLangNodeVisitor {
         switch (exprType.tag) {
             case TypeTags.JSON:
                 return symTable.jsonType;
+            case TypeTags.XML: // XML attribute access and element name access is lax typed.
+                return symTable.stringType;
             case TypeTags.MAP:
                 return ((BMapType) exprType).constraint;
             case TypeTags.UNION:
