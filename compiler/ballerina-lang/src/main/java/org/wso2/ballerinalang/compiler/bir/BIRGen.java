@@ -1875,12 +1875,14 @@ public class BIRGen extends BLangNodeVisitor {
             this.env.enclBB.terminator = new BIRTerminator.GOTO(breakStmt.pos, goToBB);
             this.env.enclBB = goToBB;
         }
-        while (toUnlock.numLocks > 0) {
+
+        long numLocks = toUnlock.numLocks;
+        while (numLocks > 0) {
             BIRBasicBlock unlockBB = new BIRBasicBlock(this.env.nextBBId(names));
             this.env.enclBasicBlocks.add(unlockBB);
             this.env.enclBB.terminator = new BIRTerminator.Unlock(null, unlockBB);
             this.env.enclBB = unlockBB;
-            toUnlock.numLocks--;
+            numLocks--;
         }
         this.env.enclBB.terminator = new BIRTerminator.GOTO(breakStmt.pos, this.env.enclLoopEndBB);
     }
@@ -1894,12 +1896,13 @@ public class BIRGen extends BLangNodeVisitor {
             this.env.enclBB.terminator = new BIRTerminator.GOTO(continueStmt.pos, goToBB);
             this.env.enclBB = goToBB;
         }
-        while (toUnlock.numLocks > 0) {
+        long numLocks = toUnlock.numLocks;
+        while (numLocks > 0) {
             BIRBasicBlock unlockBB = new BIRBasicBlock(this.env.nextBBId(names));
             this.env.enclBasicBlocks.add(unlockBB);
             this.env.enclBB.terminator = new BIRTerminator.Unlock(null,  unlockBB);
             this.env.enclBB = unlockBB;
-            toUnlock.numLocks--;
+            numLocks--;
         }
 
         this.env.enclBB.terminator = new BIRTerminator.GOTO(continueStmt.pos, this.env.enclLoopBB);
