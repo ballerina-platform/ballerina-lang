@@ -2634,7 +2634,7 @@ public class Types {
      * This will handle two types.
      *  Singleton : As singleton can have one value that value should it self be a valid fill value
      *  Union :
-     *          1. if nil is a member it is the fill valus
+     *          1. if nil is a member it is the fill values
      *          2. else all the values should belong to same type and the default value for that type
      *              should be a member of the union
      * @param type BFiniteType union or finite
