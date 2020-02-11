@@ -39,8 +39,9 @@ function basicMatch(any|error v) {
         var {message, fatal} => {
             io:println("Matched a value with a record shape");
         }
-        // If the variable 'v' contains an `error` values of shape that matches `InvalidIdError`
-        // it will be matched to `InvalidIdError` indirect error match pattern.
+        // If the variable 'v' contains an `error` values of shape that matches
+        // `InvalidIdError` it will be matched to `InvalidIdError` indirect
+        // error match pattern.
         var InvalidIdError (id = id) => {
             io:println("Matched `InvalidError` id=", id);
         }
@@ -52,7 +53,8 @@ function basicMatch(any|error v) {
             io:sprintf("reason: %s, message: %s", reason, message));
         }
 
-        // If a rest binding pattern is used, the error details that are not matched will be recorded in a map.
+        // If a rest binding pattern is used, the error details that are not
+        // matched will be recorded in a map.
         var error (reason, message = message, ...rest) => {
             io:println("Matched an error value : ",
             io:sprintf("reason: %s, rest detail: %s", reason, rest));

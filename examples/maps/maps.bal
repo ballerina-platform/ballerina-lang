@@ -46,12 +46,15 @@ public function main() {
     });
 
     map<int> marks = {sam: 50, jon: 60};
-    // Calling the `.entries()` method on a map will return the key (`string`) and the value as a tuple variable.
-    map<int> modifiedMarks = marks.entries().map(function ([string, int] pair) returns int {
-        var [name, score] = pair;
-        io:println(io:sprintf("%s scored: %d", name, score));
-        return score + 10;
-    });
+    // Calling the `.entries()` method on a map will return the key (`string`)
+    // and the value as a tuple variable.
+    map<int> modifiedMarks = marks.entries().map(function ([string, int] pair)
+        returns int {
+            var [name, score] = pair;
+            io:println(io:sprintf("%s scored: %d", name, score));
+            return score + 10;
+        }
+    );
     io:println(modifiedMarks);
     
     // Maps can only contain values of the type specified by the constraint type descriptor.
