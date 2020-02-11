@@ -48,7 +48,7 @@ function basicMatch(any|error v) {
         // If the variable `v` contains an `error` value, it will be matched
         // to this pattern and the reason string and the detail record will be
         // destructed within the pattern block.
-        var error (reason, message = message) => {
+        var error(reason, message = message) => {
             io:println("Matched an error value : ",
             io:sprintf("reason: %s, message: %s", reason, message));
         }
