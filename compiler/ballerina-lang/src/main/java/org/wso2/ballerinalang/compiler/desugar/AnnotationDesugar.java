@@ -23,7 +23,7 @@ import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.AnnotatableNode;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.NodeKind;
-import org.ballerinalang.model.tree.SequenceStatementNode;
+import org.ballerinalang.model.tree.BlockNode;
 import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
@@ -597,7 +597,7 @@ public class AnnotationDesugar {
     }
 
     private void addAnnotValueAssignmentToMap(BLangSimpleVariable mapVar, String identifier,
-                                              SequenceStatementNode target, DiagnosticPos targetPos,
+                                              BlockNode target, DiagnosticPos targetPos,
                                               BLangExpression expression) {
         BLangAssignment assignmentStmt = ASTBuilderUtil.createAssignmentStmt(targetPos, target);
         assignmentStmt.expr = expression;

@@ -17,10 +17,10 @@
 */
 package org.ballerinalang.model.tree.statements;
 
-import org.ballerinalang.model.tree.SequenceStatementNode;
+import org.ballerinalang.model.tree.BlockNode;
 
 /**
  * @since 0.94
  */
-public interface BlockStatementNode extends SequenceStatementNode, StatementNode {
+public interface BlockStatementNode extends BlockNode, StatementNode {
 }

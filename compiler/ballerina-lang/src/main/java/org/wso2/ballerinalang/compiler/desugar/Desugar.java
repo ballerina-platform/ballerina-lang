@@ -26,7 +26,7 @@ import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.BlockFunctionBodyNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
-import org.ballerinalang.model.tree.SequenceStatementNode;
+import org.ballerinalang.model.tree.BlockNode;
 import org.ballerinalang.model.tree.expressions.NamedArgNode;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
 import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
@@ -516,7 +516,7 @@ public class Desugar extends BLangNodeVisitor {
      *
      * @param bLangBlockStmt block statement node
      */
-    private void addNilReturnStatement(SequenceStatementNode bLangBlockStmt) {
+    private void addNilReturnStatement(BlockNode bLangBlockStmt) {
         BLangReturn returnStmt = ASTBuilderUtil.createNilReturnStmt(((BLangNode) bLangBlockStmt).pos, symTable.nilType);
         bLangBlockStmt.addStatement(returnStmt);
     }

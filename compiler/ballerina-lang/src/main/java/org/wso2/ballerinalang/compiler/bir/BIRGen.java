@@ -23,7 +23,7 @@ import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
-import org.ballerinalang.model.tree.SequenceStatementNode;
+import org.ballerinalang.model.tree.BlockNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRAnnotation;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRAnnotationAttachment;
@@ -201,8 +201,8 @@ public class BIRGen extends BLangNodeVisitor {
     // Required variables to generate code for assignment statements
     private boolean varAssignment = false;
     private Map<BTypeSymbol, BIRTypeDefinition> typeDefs = new LinkedHashMap<>();
-    private SequenceStatementNode currentBlock;
-    private Map<SequenceStatementNode, List<BIRVariableDcl>> varDclsByBlock = new HashMap<>();
+    private BlockNode currentBlock;
+    private Map<BlockNode, List<BIRVariableDcl>> varDclsByBlock = new HashMap<>();
     // This is a global variable cache
     public Map<BSymbol, BIRGlobalVariableDcl> globalVarMap = new HashMap<>();
 
@@ -507,7 +507,7 @@ public class BIRGen extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangBlockFunctionBody astBody) {
-        SequenceStatementNode prevBlock = this.currentBlock;
+        BlockNode prevBlock = this.currentBlock;
         this.currentBlock = astBody;
         this.varDclsByBlock.computeIfAbsent(astBody, k -> new ArrayList<>());
 
@@ -796,7 +796,7 @@ public class BIRGen extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangBlockStmt astBlockStmt) {
-        SequenceStatementNode prevBlock = this.currentBlock;
+        BlockNode prevBlock = this.currentBlock;
         this.currentBlock = astBlockStmt;
         this.varDclsByBlock.computeIfAbsent(astBlockStmt, k -> new ArrayList<>());
         for (BLangStatement astStmt : astBlockStmt.stmts) {

@@ -23,12 +23,12 @@ import org.ballerinalang.model.tree.statements.StatementNode;
 import java.util.List;
 
 /**
- * Represents a sequence of statements (i.e., zero or more statements). A sequence statement executes its statements
+ * Holds a sequence of statements (i.e., zero or more statements). A sequence statement executes its statements
  * sequentially.
  *
  * @since 1.2.0
  */
-public interface SequenceStatementNode extends Node {
+public interface BlockNode extends Node {
 
     void addStatement(StatementNode statement);
 

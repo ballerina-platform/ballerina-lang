@@ -19,7 +19,7 @@ package org.wso2.ballerinalang.compiler.desugar;
 
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.tree.NodeKind;
-import org.ballerinalang.model.tree.SequenceStatementNode;
+import org.ballerinalang.model.tree.BlockNode;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
@@ -29,7 +29,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
-import org.wso2.ballerinalang.compiler.tree.BLangFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
@@ -181,7 +180,7 @@ public class ServiceDesugar {
 
     private void addMethodInvocation(DiagnosticPos pos, BLangSimpleVarRef varRef, BInvokableSymbol methodRefSymbol,
                                      List<BLangExpression> args, List<BLangNamedArgsExpression> namedArgs,
-                                     SequenceStatementNode body) {
+                                     BlockNode body) {
         // Create method invocation
         final BLangInvocation methodInvocation =
                 ASTBuilderUtil.createInvocationExprForMethod(pos, methodRefSymbol, args, symResolver);

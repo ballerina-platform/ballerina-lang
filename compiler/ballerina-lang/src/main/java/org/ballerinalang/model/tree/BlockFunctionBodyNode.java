@@ -23,5 +23,5 @@ package org.ballerinalang.model.tree;
  *
  * @since 1.2.0
  */
-public interface BlockFunctionBodyNode extends FunctionBodyNode, SequenceStatementNode {
+public interface BlockFunctionBodyNode extends FunctionBodyNode, BlockNode {
 }

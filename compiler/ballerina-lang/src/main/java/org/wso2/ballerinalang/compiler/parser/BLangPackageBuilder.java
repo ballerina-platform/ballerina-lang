@@ -39,7 +39,7 @@ import org.ballerinalang.model.tree.InvokableNode;
 import org.ballerinalang.model.tree.MarkdownDocumentationNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
-import org.ballerinalang.model.tree.SequenceStatementNode;
+import org.ballerinalang.model.tree.BlockNode;
 import org.ballerinalang.model.tree.ServiceNode;
 import org.ballerinalang.model.tree.SimpleVariableNode;
 import org.ballerinalang.model.tree.VariableNode;
@@ -218,7 +218,7 @@ public class BLangPackageBuilder {
 
     private Stack<TypeNode> typeNodeStack = new Stack<>();
 
-    private Stack<SequenceStatementNode> sequenceStmtStack = new Stack<>();
+    private Stack<BlockNode> blockNodeStack = new Stack<>();
 
     private Stack<BLangVariable> varStack = new Stack<>();
 
@@ -586,12 +586,12 @@ public class BLangPackageBuilder {
     }
 
     void startBlock() {
-        this.sequenceStmtStack.push(TreeBuilder.createBlockNode());
+        this.blockNodeStack.push(TreeBuilder.createBlockNode());
     }
 
     void startBlockFunctionBody() {
         BlockFunctionBodyNode body = TreeBuilder.createBlockFunctionBodyNode();
-        this.sequenceStmtStack.push(body);
+        this.blockNodeStack.push(body);
         this.funcBodyNodeStack.push(body);
     }
 
@@ -1262,7 +1262,7 @@ public class BLangPackageBuilder {
     }
 
     private void addStmtToCurrentBlock(StatementNode statement) {
-        SequenceStatementNode body = this.sequenceStmtStack.peek();
+        BlockNode body = this.blockNodeStack.peek();
         body.addStatement(statement);
     }
 
@@ -1272,7 +1272,7 @@ public class BLangPackageBuilder {
     }
 
     void addTryClause(DiagnosticPos pos) {
-        BLangBlockStmt tryBlock = (BLangBlockStmt) this.sequenceStmtStack.pop();
+        BLangBlockStmt tryBlock = (BLangBlockStmt) this.blockNodeStack.pop();
         tryBlock.pos = pos;
         tryCatchFinallyNodesStack.peek().tryBody = tryBlock;
     }
@@ -1291,7 +1291,7 @@ public class BLangPackageBuilder {
         BLangCatch catchNode = (BLangCatch) TreeBuilder.createCatchNode();
         catchNode.pos = poc;
         catchNode.addWS(ws);
-        catchNode.body = (BLangBlockStmt) this.sequenceStmtStack.pop();
+        catchNode.body = (BLangBlockStmt) this.blockNodeStack.pop();
         catchNode.param = variableNode;
         tryCatchFinallyNodesStack.peek().catchBlocks.add(catchNode);
     }
@@ -1301,7 +1301,7 @@ public class BLangPackageBuilder {
     }
 
     void addFinallyBlock(DiagnosticPos poc, Set<Whitespace> ws) {
-        BLangBlockStmt blockNode = (BLangBlockStmt) this.sequenceStmtStack.pop();
+        BLangBlockStmt blockNode = (BLangBlockStmt) this.blockNodeStack.pop();
         BLangTryCatchFinally rootTry = tryCatchFinallyNodesStack.peek();
         rootTry.finallyBody = blockNode;
         rootTry.addWS(ws);
@@ -1826,7 +1826,7 @@ public class BLangPackageBuilder {
             function.funcBody = (BLangFunctionBody) this.funcBodyNodeStack.pop();
 
             if (function.funcBody.getKind() == NodeKind.BLOCK_FUNCTION_BODY) {
-                this.sequenceStmtStack.pop();
+                this.blockNodeStack.pop();
             }
         }
 
@@ -1899,9 +1899,9 @@ public class BLangPackageBuilder {
 
     private BLangSimpleVariableDef getLastVarDefStmtFromBlock() {
         BLangSimpleVariableDef variableDef = null;
-        if (!this.sequenceStmtStack.isEmpty()) {
+        if (!this.blockNodeStack.isEmpty()) {
             List<? extends StatementNode> stmtsAdded =
-                    this.sequenceStmtStack.peek().getStatements();
+                    this.blockNodeStack.peek().getStatements();
             if (stmtsAdded.get(stmtsAdded.size() - 1) instanceof BLangSimpleVariableDef) {
                 variableDef = (BLangSimpleVariableDef) stmtsAdded.get(stmtsAdded.size() - 1);
             }
@@ -2326,7 +2326,7 @@ public class BLangPackageBuilder {
             function.funcBody = (BLangFunctionBody) this.funcBodyNodeStack.pop();
 
             if (function.funcBody.getKind() == NodeKind.BLOCK_FUNCTION_BODY) {
-                this.sequenceStmtStack.pop();
+                this.blockNodeStack.pop();
             }
         }
 
@@ -2649,7 +2649,7 @@ public class BLangPackageBuilder {
         foreach.setCollection(this.exprNodeStack.pop());
         foreach.isDeclaredWithVar = isDeclaredWithVar;
 
-        BLangBlockStmt foreachBlock = (BLangBlockStmt) this.sequenceStmtStack.pop();
+        BLangBlockStmt foreachBlock = (BLangBlockStmt) this.blockNodeStack.pop();
         foreachBlock.pos = pos;
         foreach.setBody(foreachBlock);
         addStmtToCurrentBlock(foreach);
@@ -2664,7 +2664,7 @@ public class BLangPackageBuilder {
         whileNode.setCondition(exprNodeStack.pop());
         whileNode.pos = pos;
         whileNode.addWS(ws);
-        BLangBlockStmt whileBlock = (BLangBlockStmt) this.sequenceStmtStack.pop();
+        BLangBlockStmt whileBlock = (BLangBlockStmt) this.blockNodeStack.pop();
         whileBlock.pos = pos;
         whileNode.setBody(whileBlock);
         addStmtToCurrentBlock(whileNode);
@@ -2678,7 +2678,7 @@ public class BLangPackageBuilder {
         BLangLock lockNode = (BLangLock) TreeBuilder.createLockNode();
         lockNode.pos = pos;
         lockNode.addWS(ws);
-        BLangBlockStmt lockBlock = (BLangBlockStmt) this.sequenceStmtStack.pop();
+        BLangBlockStmt lockBlock = (BLangBlockStmt) this.blockNodeStack.pop();
         lockBlock.pos = pos;
         lockNode.setBody(lockBlock);
         addStmtToCurrentBlock(lockNode);
@@ -2721,7 +2721,7 @@ public class BLangPackageBuilder {
 
     void addTransactionBlock(DiagnosticPos pos, Set<Whitespace> ws) {
         TransactionNode transactionNode = transactionNodeStack.peek();
-        BLangBlockStmt transactionBlock = (BLangBlockStmt) this.sequenceStmtStack.pop();
+        BLangBlockStmt transactionBlock = (BLangBlockStmt) this.blockNodeStack.pop();
         transactionBlock.pos = pos;
         transactionNode.addWS(ws);
         transactionNode.setTransactionBody(transactionBlock);
@@ -2738,7 +2738,7 @@ public class BLangPackageBuilder {
 
     void addOnretryBlock(DiagnosticPos pos, Set<Whitespace> ws) {
         TransactionNode transactionNode = transactionNodeStack.peek();
-        BLangBlockStmt onretryBlock = (BLangBlockStmt) this.sequenceStmtStack.pop();
+        BLangBlockStmt onretryBlock = (BLangBlockStmt) this.blockNodeStack.pop();
         onretryBlock.pos = pos;
         transactionNode.addWS(ws);
         transactionNode.setOnRetryBody(onretryBlock);
@@ -2750,7 +2750,7 @@ public class BLangPackageBuilder {
 
     public void endCommittedBlock(DiagnosticPos currentPos, Set<Whitespace> ws) {
         TransactionNode transactionNode = transactionNodeStack.peek();
-        BLangBlockStmt committedBlock = (BLangBlockStmt) this.sequenceStmtStack.pop();
+        BLangBlockStmt committedBlock = (BLangBlockStmt) this.blockNodeStack.pop();
         committedBlock.pos = currentPos;
         transactionNode.addWS(ws);
         transactionNode.setCommittedBody(committedBlock);
@@ -2762,7 +2762,7 @@ public class BLangPackageBuilder {
 
     public void endAbortedBlock(DiagnosticPos currentPos, Set<Whitespace> ws) {
         TransactionNode transactionNode = transactionNodeStack.peek();
-        BLangBlockStmt abortedBlock = (BLangBlockStmt) this.sequenceStmtStack.pop();
+        BLangBlockStmt abortedBlock = (BLangBlockStmt) this.blockNodeStack.pop();
         abortedBlock.pos = currentPos;
         transactionNode.addWS(ws);
         transactionNode.setAbortedBody(abortedBlock);
@@ -2818,7 +2818,7 @@ public class BLangPackageBuilder {
         ((BLangIf) ifNode).pos = pos;
         ifNode.addWS(ws);
         ifNode.setCondition(exprNodeStack.pop());
-        BlockStatementNode blockNode = (BlockStatementNode) sequenceStmtStack.pop();
+        BlockStatementNode blockNode = (BlockStatementNode) blockNodeStack.pop();
         ((BLangBlockStmt) blockNode).pos = pos;
         ifNode.setBody(blockNode);
     }
@@ -2827,7 +2827,7 @@ public class BLangPackageBuilder {
         IfNode elseIfNode = ifElseStatementStack.pop();
         ((BLangIf) elseIfNode).pos = pos;
         elseIfNode.setCondition(exprNodeStack.pop());
-        BlockStatementNode blockNode = (BlockStatementNode) sequenceStmtStack.pop();
+        BlockStatementNode blockNode = (BlockStatementNode) blockNodeStack.pop();
         ((BLangBlockStmt) blockNode).pos = pos;
         elseIfNode.setBody(blockNode);
         elseIfNode.addWS(ws);
@@ -2844,7 +2844,7 @@ public class BLangPackageBuilder {
         while (ifNode.getElseStatement() != null) {
             ifNode = (IfNode) ifNode.getElseStatement();
         }
-        BlockStatementNode elseBlock = (BlockStatementNode) sequenceStmtStack.pop();
+        BlockStatementNode elseBlock = (BlockStatementNode) blockNodeStack.pop();
         elseBlock.addWS(ws);
         ((BLangBlockStmt) elseBlock).pos = pos;
         ifNode.setElseStatement(elseBlock);
@@ -2886,7 +2886,7 @@ public class BLangPackageBuilder {
         patternClause.addWS(ws);
 
         patternClause.literal = (BLangExpression) this.exprNodeStack.pop();
-        patternClause.body = (BLangBlockStmt) sequenceStmtStack.pop();
+        patternClause.body = (BLangBlockStmt) blockNodeStack.pop();
         patternClause.body.pos = pos;
         this.matchStmtStack.peekFirst().patternClauses.add(patternClause);
     }
@@ -2904,7 +2904,7 @@ public class BLangPackageBuilder {
         if (this.errorMatchPatternWS.size() > 0) {
             patternClause.bindingPatternVariable.addWS(this.errorMatchPatternWS.pop());
         }
-        patternClause.body = (BLangBlockStmt) sequenceStmtStack.pop();
+        patternClause.body = (BLangBlockStmt) blockNodeStack.pop();
         patternClause.body.pos = pos;
 
         if (isTypeGuardPresent) {

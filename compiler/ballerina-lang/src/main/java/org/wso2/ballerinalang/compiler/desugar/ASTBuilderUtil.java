@@ -22,7 +22,7 @@ import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
-import org.ballerinalang.model.tree.SequenceStatementNode;
+import org.ballerinalang.model.tree.BlockNode;
 import org.ballerinalang.model.tree.statements.StatementNode;
 import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
@@ -123,7 +123,7 @@ public class ASTBuilderUtil {
      * @param generatedCode generated code.
      * @param target        prepend target
      */
-    static void appendStatements(SequenceStatementNode generatedCode, SequenceStatementNode target) {
+    static void appendStatements(BlockNode generatedCode, BlockNode target) {
         int index = 0;
         List<StatementNode> generatedCodeStmts = (List<StatementNode>) generatedCode.getStatements();
         List<StatementNode> targetStmts = (List<StatementNode>) target.getStatements();
@@ -199,7 +199,7 @@ public class ASTBuilderUtil {
         return bLangType;
     }
 
-    static BLangIf createIfStmt(DiagnosticPos pos, SequenceStatementNode target) {
+    static BLangIf createIfStmt(DiagnosticPos pos, BlockNode target) {
         final BLangIf ifNode = (BLangIf) TreeBuilder.createIfElseStatementNode();
         ifNode.pos = pos;
         target.addStatement(ifNode);
@@ -237,7 +237,7 @@ public class ASTBuilderUtil {
         return foreach;
     }
 
-    static BLangSimpleVariableDef createVariableDefStmt(DiagnosticPos pos, SequenceStatementNode target) {
+    static BLangSimpleVariableDef createVariableDefStmt(DiagnosticPos pos, BlockNode target) {
         final BLangSimpleVariableDef variableDef = createVariableDef(pos);
         target.addStatement(variableDef);
         return variableDef;
@@ -250,7 +250,7 @@ public class ASTBuilderUtil {
         return variableDef;
     }
 
-    static BLangAssignment createAssignmentStmt(DiagnosticPos pos, SequenceStatementNode target) {
+    static BLangAssignment createAssignmentStmt(DiagnosticPos pos, BlockNode target) {
         final BLangAssignment assignment = (BLangAssignment) TreeBuilder.createAssignmentNode();
         assignment.pos = pos;
         target.addStatement(assignment);
@@ -271,14 +271,14 @@ public class ASTBuilderUtil {
         return assignment;
     }
 
-    static BLangExpressionStmt createExpressionStmt(DiagnosticPos pos, SequenceStatementNode target) {
+    static BLangExpressionStmt createExpressionStmt(DiagnosticPos pos, BlockNode target) {
         final BLangExpressionStmt exprStmt = (BLangExpressionStmt) TreeBuilder.createExpressionStatementNode();
         exprStmt.pos = pos;
         target.addStatement(exprStmt);
         return exprStmt;
     }
 
-    static BLangReturn createReturnStmt(DiagnosticPos pos, SequenceStatementNode target) {
+    static BLangReturn createReturnStmt(DiagnosticPos pos, BlockNode target) {
         final BLangReturn returnStmt = (BLangReturn) TreeBuilder.createReturnNode();
         returnStmt.pos = pos;
         target.addStatement(returnStmt);
