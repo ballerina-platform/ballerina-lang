@@ -31,7 +31,7 @@ public function main() {
     
     // The underscore '_' sign can be used to ignore either the reason string or the detail mapping.
     string? detailMsg;
-    error (_, detailMsg = detailMsg) = getRecordConstrainedError();
+    error(_, detailMsg = detailMsg) = getRecordConstrainedError();
     io:println("Detail Message: ", detailMsg);
 }
 
