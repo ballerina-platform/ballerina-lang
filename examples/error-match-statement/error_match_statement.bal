@@ -42,7 +42,7 @@ function basicMatch(any|error v) {
         // If the variable 'v' contains an `error` values of shape that matches
         // `InvalidIdError` it will be matched to `InvalidIdError` indirect
         // error match pattern.
-        var InvalidIdError (id = id) => {
+        var InvalidIdError(id = id) => {
             io:println("Matched `InvalidError` id=", id);
         }
         // If the variable `v` contains an `error` value, it will be matched
