@@ -49,7 +49,7 @@ service contentBasedRouting on new http:Listener(9090) {
                     res.setPayload(<string>clientResponse.detail()?.message);
                     var result = outboundEP->respond(res);
                     if (result is error) {
-                        log:printError("Error sending response", err = result);
+                        log:printError("Error sending response", result);
                     }
                 }
             } else {
