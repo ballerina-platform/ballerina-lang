@@ -2631,7 +2631,7 @@ public class Types {
     }
 
     /**
-     * This will handle two types
+     * This will handle two types.
      *  Singleton : As singleton can have one value that value should it self be a valid fill value
      *  Union :
      *          1. if nil is a member it is the fill valus
