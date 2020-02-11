@@ -22,7 +22,7 @@ service websubSubscriber on websubEP {
         if (payload is string) {
             log:printInfo("WebSub Notification Received: " + payload);
         } else {
-            log:printError("Error retrieving payload as string", err = payload);
+            log:printError("Error retrieving payload as string", payload);
         }
     }
 }

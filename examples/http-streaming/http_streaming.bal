@@ -84,7 +84,7 @@ service HTTPStreamingService on new http:Listener(9090) {
 //Sets the error to the response.
 function setError(http:Response res, error err) {
     res.statusCode = 500;
-    res.setPayload(<@untainted><string>err.detail()?.message);
+    res.setPayload(<@untainted string>err.detail()?.message);
 }
 
 // Copies the content from the source channel to a destination channel.
@@ -123,6 +123,6 @@ function close(io:ReadableByteChannel|io:WritableByteChannel ch) {
     } channelResult = ch;
     var cr = channelResult.close();
     if (cr is error) {
-        log:printError("Error occurred while closing the channel: ", err = cr);
+        log:printError("Error occurred while closing the channel: ", cr);
     }
 }

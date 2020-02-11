@@ -33,7 +33,7 @@ service cachingProxy on new http:Listener(9090) {
             // forwarded to the client through the outbound endpoint.
             var result = caller->respond(response);
             if (result is error) {
-                log:printError("Failed to respond to the caller", err = result);
+                log:printError("Failed to respond to the caller", result);
             }
         } else {
             // For failed requests, a `500` response is sent back to the
@@ -43,7 +43,7 @@ service cachingProxy on new http:Listener(9090) {
             res.setPayload(response.reason());
             var result = caller->respond(res);
             if (result is error) {
-                log:printError("Failed to respond to the caller", err = result);
+                log:printError("Failed to respond to the caller", result);
             }
         }
     }
@@ -94,7 +94,7 @@ service helloWorld on new http:Listener(8080) {
 
         var result = caller->respond(res);
         if (result is error) {
-            log:printError("Failed to respond to the caller", err = result);
+            log:printError("Failed to respond to the caller", result);
         }
     }
 }

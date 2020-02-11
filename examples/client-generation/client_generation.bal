@@ -22,7 +22,7 @@ service Hello on helloEp {
     resource function hello(http:Caller caller, http:Request req) {
         var result = caller->respond("Hello");
         if (result is error) {
-            log:printError("Error when responding", err = result);
+            log:printError("Error when responding", result);
         }
     }
 }

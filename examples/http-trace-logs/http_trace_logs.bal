@@ -19,10 +19,10 @@ service helloWorld on new http:Listener(9090) {
             var result = caller->respond(resp);
             // Log the error in case of a failure.
             if (result is error) {
-                log:printError("Failed to respond to caller", err = result);
+                log:printError("Failed to respond to caller", result);
             }
         } else {
-            log:printError("Failed to fulfill request", err = resp);
+            log:printError("Failed to fulfill request", resp);
         }
     }
 }

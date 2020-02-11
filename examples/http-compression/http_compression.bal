@@ -74,13 +74,13 @@ service passthrough on new http:Listener(9092) {
         if (response is http:Response) {
             var result = caller->respond(response);
             if (result is error) {
-                log:printError("Error sending response", err = result);
+                log:printError("Error sending response", result);
             }
         } else {
             json err = {"error": "error occurred while invoking service"};
             var result = caller->respond(err);
             if (result is error) {
-                log:printError("Error sending response", err = result);
+                log:printError("Error sending response", result);
             }
         }
     }
@@ -100,7 +100,7 @@ service backend on listenerEndpoint {
 
         var result = caller->respond(res);
         if (result is error) {
-            log:printError("Error sending response", err = result);
+            log:printError("Error sending response", result);
         }
     }
 }

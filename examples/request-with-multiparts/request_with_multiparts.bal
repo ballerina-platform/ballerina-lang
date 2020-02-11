@@ -31,7 +31,7 @@ service multipartDemoService on new http:Listener(9090) {
         }
         var result = caller->respond(response);
         if (result is error) {
-            log:printError("Error sending response", err = result);
+            log:printError("Error sending response", result);
         }
     }
 
@@ -67,7 +67,7 @@ service multipartDemoService on new http:Listener(9090) {
         if (returnResponse is http:Response) {
             var result = caller->respond(returnResponse);
             if (result is error) {
-                log:printError("Error sending response", err = result);
+                log:printError("Error sending response", result);
             }
         } else {
             http:Response response = new;
@@ -76,7 +76,7 @@ service multipartDemoService on new http:Listener(9090) {
             response.statusCode = 500;
             var result = caller->respond(response);
             if (result is error) {
-                log:printError("Error sending response", err = result);
+                log:printError("Error sending response", result);
             }
         }
     }

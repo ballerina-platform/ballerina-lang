@@ -59,7 +59,7 @@ public function main() {
     // Writes the `json` content.
     var wResult = write(j1, filePath);
     if (wResult is error) {
-        log:printError("Error occurred while writing json: ", err = wResult);
+        log:printError("Error occurred while writing json: ", wResult);
     } else {
         io:println("Preparing to read the content written");
         // Reads the `json` content.

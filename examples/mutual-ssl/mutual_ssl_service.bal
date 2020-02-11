@@ -42,7 +42,7 @@ service helloWorld on helloWorldEP {
         // Send the response to the caller.
         var result = caller->respond("Successful");
         if (result is error) {
-            log:printError("Error in responding", err = result);
+            log:printError("Error in responding", result);
         }
     }
 }

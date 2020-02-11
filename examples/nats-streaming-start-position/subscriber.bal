@@ -27,7 +27,7 @@ service receiveNewOnly on lis {
 
     resource function onError(nats:StreamingMessage message, nats:Error errorVal) {
         error e = errorVal;
-        log:printError("Error occurred: ", err = e);
+        log:printError("Error occurred: ", e);
     }
 }
 
@@ -51,7 +51,7 @@ service receiveFromBegining on lis {
 
     resource function onError(nats:StreamingMessage message, nats:Error errorVal) {
         error e = errorVal;
-        log:printError("Error occurred: ", err = e);
+        log:printError("Error occurred: ", e);
     }
 }
 
@@ -75,7 +75,7 @@ service receiveFromLastReceived on lis {
 
     resource function onError(nats:StreamingMessage message, nats:Error errorVal) {
         error e = errorVal;
-        log:printError("Error occurred: ", err = e);
+        log:printError("Error occurred: ", e);
     }
 }
 
@@ -100,7 +100,7 @@ service receiveFromGivenIndex on lis {
 
     resource function onError(nats:StreamingMessage message, nats:Error errorVal) {
         error e = errorVal;
-        log:printError("Error occurred: ", err = e);
+        log:printError("Error occurred: ", e);
     }
 }
 
@@ -125,6 +125,6 @@ service receiveSinceTimeDelta on lis {
 
     resource function onError(nats:StreamingMessage message, nats:Error errorVal) {
         error e = errorVal;
-        log:printError("Error occurred: ", err = e);
+        log:printError("Error occurred: ", e);
     }
 }

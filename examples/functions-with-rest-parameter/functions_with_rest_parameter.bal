@@ -5,8 +5,8 @@ import ballerina/io;
 // parameter. The rest parameter can take any number of values and is
 // equivalent to a list of the same type.
 function printDetails(string name,
-int age = 18,
-string... modules) {
+                      int age = 18,
+                      string... modules) {
     string detailString = "Name: " + name + ", Age: " + age.toString();
 
     if (modules.length() == 0) {

@@ -39,7 +39,7 @@ function deserialize(io:ReadableByteChannel byteChannel) returns Person {
     if (strResult is string) {
         person.name = strResult;
     } else {
-        log:printError("Error occurred while reading name", err = strResult);
+        log:printError("Error occurred while reading name", strResult);
     }
     //Reads a 16-bit-signed integer.
     var int16Result = dc.readInt16();

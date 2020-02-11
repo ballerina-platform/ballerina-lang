@@ -86,7 +86,7 @@ service backEndService on new http:Listener(9091) {
     resource function replyText(http:Caller caller, http:Request req) {
         error? result = caller->respond("Hello");
         if (result is error) {
-            log:printError("Error in responding to caller", err = result);
+            log:printError("Error in responding to caller", result);
         }
     }
 
@@ -175,7 +175,7 @@ function handleResponse(http:Response|error response) {
                 if (payload is string) {
                     log:printInfo("Text data: " + payload);
                 } else {
-                    log:printError("Error in parsing text data", err = payload);
+                    log:printError("Error in parsing text data", payload);
                 }
             } else if (mime:APPLICATION_XML == baseType) {
                 var payload = response.getXmlPayload();
@@ -183,21 +183,21 @@ function handleResponse(http:Response|error response) {
                     string strValue = io:sprintf("%s", payload);
                     log:printInfo("Xml data: " + strValue);
                 } else {
-                    log:printError("Error in parsing xml data", err = payload);
+                    log:printError("Error in parsing xml data", payload);
                 }
             } else if (mime:APPLICATION_JSON == baseType) {
                 var payload = response.getJsonPayload();
                 if (payload is json) {
                     log:printInfo("Json data: " + payload.toJsonString());
                 } else {
-                    log:printError("Error in parsing json data", err = payload);
+                    log:printError("Error in parsing json data", payload);
                 }
             } else if (mime:APPLICATION_OCTET_STREAM == baseType) {
                 var payload = response.getTextPayload();
                 if (payload is string) {
                     log:printInfo("Response contains binary data: " + payload);
                 } else {
-                    log:printError("Error in parsing binary data", err = payload);
+                    log:printError("Error in parsing binary data", payload);
                 }
             } else if (mime:MULTIPART_FORM_DATA == baseType) {
                 log:printInfo("Response contains body parts: ");
@@ -205,8 +205,7 @@ function handleResponse(http:Response|error response) {
                 if (payload is mime:Entity[]) {
                     handleBodyParts(payload);
                 } else {
-                    log:printError("Error in parsing multipart data",
-                                    err = payload);
+                    log:printError("Error in parsing multipart data", payload);
                 }
             } else if (mime:IMAGE_PNG == baseType) {
                 log:printInfo("Response contains an image");
@@ -215,7 +214,7 @@ function handleResponse(http:Response|error response) {
             log:printInfo("Entity body is not available");
         }
     } else {
-        log:printError(response.reason(), err = response);
+        log:printError(response.reason(), response);
     }
 }
 
@@ -229,7 +228,7 @@ function sendErrorMsg(http:Caller caller, error err) {
 
 function handleError(error? result) {
     if (result is error) {
-        log:printError(result.reason(), err = result);
+        log:printError(result.reason(), result);
     }
 }
 
@@ -252,7 +251,7 @@ function handleBodyParts(mime:Entity[] bodyParts) {
             if (payload is json) {
                 log:printInfo("Json Part: " + payload.toJsonString());
             } else {
-                log:printError(payload.reason(), err = payload);
+                log:printError(payload.reason(), payload);
             }
         }
         if (mime:TEXT_PLAIN == baseType) {
@@ -260,7 +259,7 @@ function handleBodyParts(mime:Entity[] bodyParts) {
             if (payload is string) {
                 log:printInfo("Text Part: " + payload);
             } else {
-                log:printError(payload.reason(), err = payload);
+                log:printError(payload.reason(), payload);
             }
         }
     }

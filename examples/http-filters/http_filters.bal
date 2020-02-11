@@ -60,7 +60,7 @@ service echo on echoListener {
         res.setPayload("Hello, World!");
         var result = caller->respond(<@untainted>res);
         if (result is error) {
-            log:printError("Error sending response", err = result);
+            log:printError("Error sending response", result);
         }
     }
 }

@@ -20,7 +20,7 @@ function process(io:ReadableCharacterChannel sc,
 function closeRc(io:ReadableCharacterChannel ch) {
     var cr = ch.close();
     if (cr is error) {
-        log:printError("Error occurred while closing the channel: ", err = cr);
+        log:printError("Error occurred while closing the channel: ", cr);
     }
 }
 
@@ -28,7 +28,7 @@ function closeRc(io:ReadableCharacterChannel ch) {
 function closeWc(io:WritableCharacterChannel ch) {
     var cr = ch.close();
     if (cr is error) {
-        log:printError("Error occurred while closing the channel: ", err = cr);
+        log:printError("Error occurred while closing the channel: ", cr);
     }
 }
 
@@ -52,7 +52,7 @@ public function main() returns @tainted error? {
     // Processes the given `string`.
     var result = process(sourceChannel, destinationChannel);
     if (result is error) {
-        log:printError("error occurred while processing chars ", err = result);
+        log:printError("error occurred while processing chars ", result);
     } else {
         io:println("File processing complete.");
     }

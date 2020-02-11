@@ -38,7 +38,7 @@ service failoverDemoService on new http:Listener(9090) {
         if (backendResponse is http:Response) {
             var responseToCaller = caller->respond(backendResponse);
             if (responseToCaller is error) {
-                log:printError("Error sending response", err = responseToCaller);
+                log:printError("Error sending response", responseToCaller);
             }
         } else {
             http:Response response = new;
@@ -46,7 +46,7 @@ service failoverDemoService on new http:Listener(9090) {
             response.setPayload(<string>backendResponse.detail()?.message);
             var responseToCaller = caller->respond(response);
             if (responseToCaller is error) {
-                log:printError("Error sending response", err = responseToCaller);
+                log:printError("Error sending response", responseToCaller);
             }
         }
     }

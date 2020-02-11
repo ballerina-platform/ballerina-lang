@@ -22,20 +22,20 @@ service hello on new http:Listener(9090) {
                 var result = caller->respond("Response received : " 
                                                 + <@untained>payload);
                 if (result is error) {
-                    log:printError("Error in responding", err = result);
+                    log:printError("Error in responding", result);
                 }
             } else {
                 var result = caller->respond("Error in payload : " 
                         + <@untained>payload.detail()?.message.toString());
                 if (result is error) {
-                    log:printError("Error in responding", err = result);
+                    log:printError("Error in responding", result);
                 }
             }
         } else {
             var result = caller->respond("Error in connection : " 
                                 + returnResult.detail()?.message.toString());
             if (result is error) {
-                log:printError("Error in responding", err = result);
+                log:printError("Error in responding", result);
             }
         }
     }
@@ -76,7 +76,7 @@ service redirect2 on new http:Listener(9093) {
         // Sends a response to the caller.
         var result = caller->respond("Hello World!");
         if (result is error) {
-            log:printError("Error in responding", err = result);
+            log:printError("Error in responding", result);
         }
     }
 }

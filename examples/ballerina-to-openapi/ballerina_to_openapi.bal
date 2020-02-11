@@ -10,7 +10,7 @@ service hello on helloEp {
 
         var result = caller->respond(res);
         if (result is error) {
-           log:printError("Error when responding", err = result);
+           log:printError("Error when responding", result);
         }
     }
 }

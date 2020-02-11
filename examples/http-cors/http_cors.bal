@@ -29,7 +29,7 @@ service crossOriginService on new http:Listener(9092) {
         res.setJsonPayload(responseJson);
         var result = caller->respond(res);
         if (result is error) {
-            log:printError(result.reason(), err = result);
+            log:printError(result.reason(), result);
         }
     }
 
@@ -45,7 +45,7 @@ service crossOriginService on new http:Listener(9092) {
         res.setJsonPayload(responseJson);
         var result = caller->respond(res);
         if (result is error) {
-            log:printError(result.reason(), err = result);
+            log:printError(result.reason(), result);
         }
     }
 }

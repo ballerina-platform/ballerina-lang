@@ -21,7 +21,7 @@ service chunkingSample on new http:Listener(9092) {
         if (clientResponse is http:Response) {
             var result = caller->respond(clientResponse);
             if (result is error) {
-                log:printError("Error sending response", err = result);
+                log:printError("Error sending response", result);
             }
         } else {
             http:Response errorResponse = new;
@@ -29,7 +29,7 @@ service chunkingSample on new http:Listener(9092) {
             errorResponse.setPayload(msg);
             var response = caller->respond(errorResponse);
             if (response is error) {
-                log:printError("Error sending response", err = response);
+                log:printError("Error sending response", response);
             }
         }
     }

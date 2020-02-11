@@ -39,7 +39,7 @@ service onlineStoreService on new http:Listener(9090) {
         //counter instance.
         error? result = registeredCounter.register();
         if (result is error) {
-            log:printError("Error in registering counter", err = result);
+            log:printError("Error in registering counter", result);
         }
 
         //Increase the amount of the registered counter instance by amount 10.
@@ -60,7 +60,7 @@ service onlineStoreService on new http:Listener(9090) {
         // Send the response back to the caller.
         result = caller->respond(res);
         if (result is error) {
-            log:printError("Error sending response", err = result);
+            log:printError("Error sending response", result);
         }
     }
 }

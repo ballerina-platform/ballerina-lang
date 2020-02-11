@@ -28,7 +28,7 @@ service hello on new http:Listener(9090) {
         }
         var result = caller->respond(res);
         if (result is error) {
-            log:printError(result.reason(), err = result);
+            log:printError(result.reason(), result);
         }
     }
 
@@ -46,7 +46,7 @@ service hello on new http:Listener(9090) {
 
         var result = caller->respond(res);
         if (result is error) {
-            log:printError(result.reason(), err = result);
+            log:printError(result.reason(), result);
         }
     }
 
@@ -68,7 +68,7 @@ service hello on new http:Listener(9090) {
 
         var result = caller->respond(res);
         if (result is error) {
-            log:printError(result.reason(), err = result);
+            log:printError(result.reason(), result);
         }
     }
 }
