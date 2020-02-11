@@ -222,7 +222,7 @@ function handleResponse(http:Response|error response) {
 function sendErrorMsg(http:Caller caller, error err) {
     http:Response res = new;
     res.statusCode = 500;
-    res.setPayload(<@untainted><string>err.detail()?.message);
+    res.setPayload(<@untainted string>err.detail()?.message);
     var result = caller->respond(res);
     handleError(result);
 }
