@@ -28,7 +28,6 @@ import org.ballerinalang.model.tree.MarkdownDocumentationNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.SimpleVariableNode;
 import org.ballerinalang.model.tree.WorkerNode;
-import org.ballerinalang.model.tree.statements.BlockNode;
 import org.ballerinalang.model.tree.types.TypeNode;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;

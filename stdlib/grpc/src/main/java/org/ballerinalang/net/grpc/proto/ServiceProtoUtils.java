@@ -23,7 +23,7 @@ import org.ballerinalang.model.tree.FunctionNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.ServiceNode;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
-import org.ballerinalang.model.tree.statements.BlockNode;
+import org.ballerinalang.model.tree.statements.BlockStatementNode;
 import org.ballerinalang.model.tree.statements.StatementNode;
 import org.ballerinalang.model.types.FiniteType;
 import org.ballerinalang.model.types.TypeKind;
@@ -558,7 +558,7 @@ public class ServiceProtoUtils {
         return messageBuilder.build();
     }
 
-    private static BLangInvocation getInvocationExpression(BlockNode body) {
+    private static BLangInvocation getInvocationExpression(BlockStatementNode body) {
         if (body == null) {
             return null;
         }

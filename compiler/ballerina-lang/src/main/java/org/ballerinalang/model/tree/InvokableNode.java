@@ -17,7 +17,7 @@
 */
 package org.ballerinalang.model.tree;
 
-import org.ballerinalang.model.tree.statements.BlockNode;
+import org.ballerinalang.model.tree.statements.BlockStatementNode;
 import org.ballerinalang.model.tree.types.TypeNode;
 
 import java.util.List;
@@ -47,7 +47,7 @@ public interface InvokableNode extends AnnotatableNode, DocumentableNode {
 
     void addExternalAnnotationAttachment(AnnotationAttachmentNode annAttachment);
 
-    BlockNode getBody();
+    BlockStatementNode getBody();
 
     void setBody(FunctionBodyNode body);
 

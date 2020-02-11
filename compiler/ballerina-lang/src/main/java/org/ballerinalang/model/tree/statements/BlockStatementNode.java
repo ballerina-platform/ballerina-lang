@@ -22,5 +22,5 @@ import org.ballerinalang.model.tree.SequenceStatementNode;
 /**
  * @since 0.94
  */
-public interface BlockNode extends SequenceStatementNode, StatementNode {
+public interface BlockStatementNode extends SequenceStatementNode, StatementNode {
 }

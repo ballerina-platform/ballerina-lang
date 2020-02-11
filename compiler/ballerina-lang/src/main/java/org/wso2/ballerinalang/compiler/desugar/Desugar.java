@@ -29,7 +29,6 @@ import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.tree.SequenceStatementNode;
 import org.ballerinalang.model.tree.expressions.NamedArgNode;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
-import org.ballerinalang.model.tree.statements.BlockNode;
 import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
 import org.ballerinalang.model.tree.types.TypeNode;
 import org.ballerinalang.model.types.TypeKind;

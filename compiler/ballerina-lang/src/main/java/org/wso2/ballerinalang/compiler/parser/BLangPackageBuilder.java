@@ -46,7 +46,7 @@ import org.ballerinalang.model.tree.VariableNode;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.expressions.XMLAttributeNode;
 import org.ballerinalang.model.tree.expressions.XMLLiteralNode;
-import org.ballerinalang.model.tree.statements.BlockNode;
+import org.ballerinalang.model.tree.statements.BlockStatementNode;
 import org.ballerinalang.model.tree.statements.ForkJoinNode;
 import org.ballerinalang.model.tree.statements.IfNode;
 import org.ballerinalang.model.tree.statements.StatementNode;
@@ -2818,7 +2818,7 @@ public class BLangPackageBuilder {
         ((BLangIf) ifNode).pos = pos;
         ifNode.addWS(ws);
         ifNode.setCondition(exprNodeStack.pop());
-        BlockNode blockNode = (BlockNode) sequenceStmtStack.pop();
+        BlockStatementNode blockNode = (BlockStatementNode) sequenceStmtStack.pop();
         ((BLangBlockStmt) blockNode).pos = pos;
         ifNode.setBody(blockNode);
     }
@@ -2827,7 +2827,7 @@ public class BLangPackageBuilder {
         IfNode elseIfNode = ifElseStatementStack.pop();
         ((BLangIf) elseIfNode).pos = pos;
         elseIfNode.setCondition(exprNodeStack.pop());
-        BlockNode blockNode = (BlockNode) sequenceStmtStack.pop();
+        BlockStatementNode blockNode = (BlockStatementNode) sequenceStmtStack.pop();
         ((BLangBlockStmt) blockNode).pos = pos;
         elseIfNode.setBody(blockNode);
         elseIfNode.addWS(ws);
@@ -2844,7 +2844,7 @@ public class BLangPackageBuilder {
         while (ifNode.getElseStatement() != null) {
             ifNode = (IfNode) ifNode.getElseStatement();
         }
-        BlockNode elseBlock = (BlockNode) sequenceStmtStack.pop();
+        BlockStatementNode elseBlock = (BlockStatementNode) sequenceStmtStack.pop();
         elseBlock.addWS(ws);
         ((BLangBlockStmt) elseBlock).pos = pos;
         ifNode.setElseStatement(elseBlock);

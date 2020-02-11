@@ -26,7 +26,7 @@ package org.ballerinalang.model.tree.statements;
  */
 public interface LockNode extends StatementNode {
 
-    BlockNode getBody();
+    BlockStatementNode getBody();
 
-    void setBody(BlockNode body);
+    void setBody(BlockStatementNode body);
 }

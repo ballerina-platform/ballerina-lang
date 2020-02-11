@@ -88,7 +88,7 @@ import org.ballerinalang.model.tree.expressions.XMLQuotedStringNode;
 import org.ballerinalang.model.tree.expressions.XMLTextLiteralNode;
 import org.ballerinalang.model.tree.statements.AbortNode;
 import org.ballerinalang.model.tree.statements.AssignmentNode;
-import org.ballerinalang.model.tree.statements.BlockNode;
+import org.ballerinalang.model.tree.statements.BlockStatementNode;
 import org.ballerinalang.model.tree.statements.BreakNode;
 import org.ballerinalang.model.tree.statements.CatchNode;
 import org.ballerinalang.model.tree.statements.CompoundAssignmentNode;
@@ -324,7 +324,7 @@ public class TreeBuilder {
         return new BLangExternFunctionBody();
     }
 
-    public static BlockNode createBlockNode() {
+    public static BlockStatementNode createBlockNode() {
         return new BLangBlockStmt();
     }
 
