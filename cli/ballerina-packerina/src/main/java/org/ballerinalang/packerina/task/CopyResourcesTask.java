@@ -63,8 +63,8 @@ public class CopyResourcesTask implements Task {
         }
         // Get the module jar
         Path moduleJarPath = buildContext.getJarPathFromTargetCache(module.packageID);
-        URI uberJarUri = URI.create("jar:" + moduleJarPath.toUri().toString());
-        try (FileSystem toFs = FileSystems.newFileSystem(uberJarUri, Collections.emptyMap())) {
+        URI moduleJarUri = URI.create("jar:" + moduleJarPath.toUri().toString());
+        try (FileSystem toFs = FileSystems.newFileSystem(moduleJarUri, Collections.emptyMap())) {
             Path to = toFs.getRootDirectories().iterator().next().resolve("resources")
                     .resolve(module.packageID.orgName.value)
                     .resolve(module.packageID.name.value)
