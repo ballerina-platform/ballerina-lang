@@ -73,7 +73,7 @@ public class Poll {
                                                                                   valueType);
                     consumerRecordsArray.append(recordValue);
                     KafkaMetricsUtil.reportConsume(consumerObject, recordValue.getStringValue("topic"),
-                                                   recordValue.getArrayValue("value").size());
+                                                   recordValue.get("value"));
                 }
             }
             callback.setReturnValues(consumerRecordsArray);

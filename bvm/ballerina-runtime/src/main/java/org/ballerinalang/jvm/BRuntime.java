@@ -115,8 +115,7 @@ public class BRuntime {
         Function<?, ?> func = o -> object.call((Strand) (((Object[]) o)[0]), methodName, args);
         Semaphore semaphore = new Semaphore(0);
         final ErrorValue[] errorValue = new ErrorValue[1];
-        // We need to add additional boolean variable since we don't use code generation here, but directly call
-        // this method. Add 1 more element to keep null for add the strand later.
+        // Add 1 more element to keep null for add the strand later.
         Object[] params = new Object[]{null, args};
         FutureValue futureValue = scheduler.schedule(params, func, null, new CallableUnitCallback() {
             @Override
