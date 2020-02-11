@@ -69,7 +69,7 @@ service actionService on new http:Listener(9090) {
         } else {
             http:Response res = new;
             res.statusCode = 500;
-            res.setPayload(<@untainted><string>bChannel.detail()?.message);
+            res.setPayload(<@untainted string>bChannel.detail()?.message);
             var result = caller->respond(res);
             handleError(result);
         }
