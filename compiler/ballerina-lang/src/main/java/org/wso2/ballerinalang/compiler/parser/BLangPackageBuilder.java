@@ -283,6 +283,7 @@ public class BLangPackageBuilder {
     private Stack<Set<Whitespace>> errorMatchPatternWS = new Stack<>();
     private Stack<Set<Whitespace>> simpleMatchPatternWS = new Stack<>();
     private Stack<Set<Whitespace>> recordKeyWS = new Stack<>();
+    private Stack<Set<Whitespace>> inferParamListWSStack = new Stack<>();
 
     private BLangAnonymousModelHelper anonymousModelHelper;
     private CompilerOptions compilerOptions;
@@ -957,17 +958,12 @@ public class BLangPackageBuilder {
         this.varStack.push(var);
     }
 
-    void endCallableUnitSignature(DiagnosticPos pos,
-                                  Set<Whitespace> ws,
-                                  String identifier,
-                                  DiagnosticPos identifierPos,
-                                  boolean paramsAvail,
-                                  boolean retParamsAvail,
-                                  boolean restParamAvail) {
+    void endFunctionSignature(DiagnosticPos pos,
+                              Set<Whitespace> ws,
+                              boolean paramsAvail,
+                              boolean retParamsAvail,
+                              boolean restParamAvail) {
         InvokableNode invNode = this.invokableNodeStack.peek();
-        BLangIdentifier identifierNode = this.createIdentifier(identifierPos, identifier, ws);
-        identifierNode.pos = identifierPos;
-        invNode.setName(identifierNode);
         invNode.addWS(ws);
         BLangType returnTypeNode;
         if (retParamsAvail) {
@@ -985,9 +981,10 @@ public class BLangPackageBuilder {
         invNode.setReturnTypeNode(returnTypeNode);
 
         if (paramsAvail) {
-            this.varListStack.pop().forEach(variableNode -> {
+            List<BLangVariable> varList = this.varListStack.pop();
+            for (BLangVariable variableNode : varList) {
                 invNode.addParameter((SimpleVariableNode) variableNode);
-            });
+            }
 
             if (restParamAvail) {
                 invNode.setRestParameter(this.restParamStack.pop());
@@ -1007,33 +1004,36 @@ public class BLangPackageBuilder {
         lambdaFunction.addFlag(Flag.ANONYMOUS);
     }
 
-    void addLambdaFunctionDef(DiagnosticPos pos,
-                              Set<Whitespace> ws,
-                              boolean paramsAvail,
-                              boolean retParamsAvail,
-                              boolean restParamAvail) {
+    void addLambdaFunctionDef(DiagnosticPos pos, Set<Whitespace> ws) {
         BLangFunction lambdaFunction = (BLangFunction) this.invokableNodeStack.peek();
         lambdaFunction.pos = pos;
         // todo: verify are passing all correct positions and WS
-        endCallableUnitSignature(pos, ws, lambdaFunction.getName().value, pos, paramsAvail, retParamsAvail,
-                restParamAvail);
         BLangLambdaFunction lambdaExpr = (BLangLambdaFunction) TreeBuilder.createLambdaFunctionNode();
         lambdaExpr.function = lambdaFunction;
         lambdaExpr.pos = pos;
         addExpressionNode(lambdaExpr);
         // TODO: is null correct here
-        endFunctionDef(pos, null, false, false, false, false, true, true);
+        endFunctionDefinition(pos, ws, lambdaFunction.getName().value, pos, false, false, false, false, true, true);
     }
 
     void addArrowFunctionDef(DiagnosticPos pos, Set<Whitespace> ws, PackageID pkgID) {
         BLangArrowFunction arrowFunctionNode = (BLangArrowFunction) TreeBuilder.createArrowFunctionNode();
         arrowFunctionNode.pos = pos;
         arrowFunctionNode.addWS(ws);
+
+        if (!this.inferParamListWSStack.isEmpty()) {
+            arrowFunctionNode.addWS(this.inferParamListWSStack.pop());
+        }
+
         arrowFunctionNode.functionName = createIdentifier(pos, anonymousModelHelper.getNextAnonymousFunctionKey(pkgID),
                 null);
         varListStack.pop().forEach(var -> arrowFunctionNode.params.add((BLangSimpleVariable) var));
         arrowFunctionNode.expression = (BLangExpression) this.exprNodeStack.pop();
         addExpressionNode(arrowFunctionNode);
+    }
+
+    void addWSForInferParamList(Set<Whitespace> ws) {
+        this.inferParamListWSStack.push(ws);
     }
 
     void markLastInvocationAsAsync(DiagnosticPos pos, int numAnnotations) {
@@ -1773,10 +1773,11 @@ public class BLangPackageBuilder {
         whereClauseNodeStack.push(whereClause);
     }
 
-
-    void endFunctionDef(DiagnosticPos pos, Set<Whitespace> ws, boolean publicFunc, boolean remoteFunc,
-                        boolean nativeFunc, boolean privateFunc, boolean bodyExists, boolean isLambda) {
+    void endFunctionDefinition(DiagnosticPos pos, Set<Whitespace> ws, String funcName, DiagnosticPos funcNamePos,
+                               boolean publicFunc, boolean remoteFunc, boolean nativeFunc, boolean privateFunc,
+                               boolean bodyExists, boolean isLambda) {
         BLangFunction function = (BLangFunction) this.invokableNodeStack.pop();
+        function.name = this.createIdentifier(funcNamePos, funcName);
         function.pos = pos;
         function.addWS(ws);
         if (!isLambda) {
@@ -1819,7 +1820,7 @@ public class BLangPackageBuilder {
             ws.addAll(this.workerDefinitionWSStack.pop());
         }
 
-        endCallableUnitBody(ws);
+        endBlockFunctionBody(ws);
 
         BLangFunction bLangFunction = (BLangFunction) this.invokableNodeStack.peek();
         // change default worker name
@@ -1831,7 +1832,8 @@ public class BLangPackageBuilder {
         // Attach worker annotation to the function node.
         attachAnnotations(bLangFunction, numAnnotations, true);
 
-        addLambdaFunctionDef(pos, ws, false, retParamsAvail, false);
+        endFunctionSignature(pos, ws, false, retParamsAvail, false);
+        addLambdaFunctionDef(pos, ws);
         String workerLambdaName = WORKER_LAMBDA_VAR_PREFIX + workerName;
         addSimpleVariableDefStatement(pos, null, workerLambdaName, null, true, true, true);
 
@@ -1900,7 +1902,7 @@ public class BLangPackageBuilder {
         }
     }
 
-    void endCallableUnitBody(Set<Whitespace> ws) {
+    void endBlockFunctionBody(Set<Whitespace> ws) {
         BlockNode block = this.blockNodeStack.pop();
         InvokableNode invokableNode = this.invokableNodeStack.peek();
         invokableNode.addWS(ws);
@@ -2250,10 +2252,12 @@ public class BLangPackageBuilder {
         this.compUnit.addTopLevelNode(typeDefinition);
     }
 
-    void endObjectAttachedFunctionDef(DiagnosticPos pos, Set<Whitespace> ws, boolean publicFunc, boolean privateFunc,
-                                      boolean remoteFunc, boolean resourceFunc, boolean nativeFunc, boolean bodyExists,
-                                      boolean markdownDocPresent, int annCount) {
+    void endObjectAttachedFunctionDef(DiagnosticPos pos, Set<Whitespace> ws, String funcName, DiagnosticPos funcNamePos,
+                                      boolean publicFunc, boolean privateFunc, boolean remoteFunc, boolean resourceFunc,
+                                      boolean nativeFunc, boolean bodyExists, boolean markdownDocPresent,
+                                      int annCount) {
         BLangFunction function = (BLangFunction) this.invokableNodeStack.pop();
+        function.name = this.createIdentifier(funcNamePos, funcName);
         function.pos = pos;
         function.addWS(ws);
         function.addWS(this.invocationWsStack.pop());

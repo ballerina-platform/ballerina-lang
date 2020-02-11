@@ -753,15 +753,15 @@ function generateBasicBlocks(jvm:MethodVisitor mv, bir:BasicBlock?[] basicBlocks
                 } else if (insKind == bir:INS_KIND_OBJECT_LOAD) {
                     instGen.generateObjectLoadIns(<bir:FieldAccess> inst);
                 } else if (insKind == bir:INS_KIND_NEW_XML_ELEMENT) {
-                    instGen.generateNewXMLElementIns(<bir:NewXMLElement> inst);
+                    instGen.generateNewXMLElementIns(<bir:NewXMLElement> inst, useBString);
                 } else if (insKind == bir:INS_KIND_NEW_XML_TEXT) {
-                    instGen.generateNewXMLTextIns(<bir:NewXMLText> inst);
+                    instGen.generateNewXMLTextIns(<bir:NewXMLText> inst, useBString);
                 } else if (insKind == bir:INS_KIND_NEW_XML_COMMENT) {
-                    instGen.generateNewXMLCommentIns(<bir:NewXMLComment> inst);
+                    instGen.generateNewXMLCommentIns(<bir:NewXMLComment> inst, useBString);
                 } else if (insKind == bir:INS_KIND_NEW_XML_PI) {
-                    instGen.generateNewXMLProcIns(<bir:NewXMLPI> inst);
+                    instGen.generateNewXMLProcIns(<bir:NewXMLPI> inst, useBString);
                 } else if (insKind == bir:INS_KIND_NEW_XML_QNAME) {
-                    instGen.generateNewXMLQNameIns(<bir:NewXMLQName> inst);
+                    instGen.generateNewXMLQNameIns(<bir:NewXMLQName> inst, useBString);
                 } else {
                     instGen.generateNewStringXMLQNameIns(<bir:NewStringXMLQName> inst);
                 } 
@@ -775,7 +775,7 @@ function generateBasicBlocks(jvm:MethodVisitor mv, bir:BasicBlock?[] basicBlocks
                 } else if (insKind == bir:INS_KIND_XML_LOAD_ALL) {
                     instGen.generateXMLLoadAllIns(<bir:XMLAccess> inst);
                 } else if (insKind == bir:INS_KIND_XML_ATTRIBUTE_STORE) {
-                    instGen.generateXMLAttrStoreIns(<bir:FieldAccess> inst);
+                    instGen.generateXMLAttrStoreIns(<bir:FieldAccess> inst, useBString);
                 } else if (insKind == bir:INS_KIND_XML_ATTRIBUTE_LOAD) {
                     instGen.generateXMLAttrLoadIns(<bir:FieldAccess> inst);
                 } else if (insKind == bir:INS_KIND_FP_LOAD) {

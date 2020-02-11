@@ -274,7 +274,8 @@ public class CodeActionTest {
                 {"undefinedPackageWithinFunction.json", "codeActionCommon.bal"},
                 {"undefinedFunctionCodeAction.json", "createUndefinedFunction.bal"},
                 {"undefinedFunctionCodeAction2.json", "createUndefinedFunction2.bal"},
-                {"packagePull.json", "packagePull.bal"},
+                {"packagePull1.json", "packagePull.bal"},
+                {"packagePull2.json", "packagePull.bal"},
                 {"changeAbstractTypeObj1.json", "changeAbstractType.bal"},
                 {"changeAbstractTypeObj2.json", "changeAbstractType.bal"}
         };
