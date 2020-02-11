@@ -23,7 +23,7 @@ service echo on new http:Listener(9090) {
             res.setJsonPayload(<@untainted>payload);
         } else {
             res.statusCode = 500;
-            res.setPayload(<@untainted><string>payload.detail()?.message);
+            res.setPayload(<@untainted string>payload.detail()?.message);
         }
         // Reply to the client with the response.
         var result = caller->respond(res);
