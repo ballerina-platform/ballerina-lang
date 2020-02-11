@@ -153,16 +153,16 @@ public class SimpleQueryExpressionWithDefinedTypeTest {
         BValue[] returnValues = BRunUtil.invoke(result, "testMapWithArity");
         Assert.assertNotNull(returnValues);
         Assert.assertEquals(returnValues.length, 1);
-        Assert.assertEquals(returnValues[0].stringValue(), "1A");
+        Assert.assertEquals(((BValueArray) returnValues[0]).getString(0), "1A");
     }
 
     @Test(description = "Test selecting values in a JSON array from query expression")
     public void testJSONArrayWithArity() {
         BValue[] returnValues = BRunUtil.invoke(result, "testJSONArrayWithArity");
         Assert.assertNotNull(returnValues);
-        Assert.assertEquals(returnValues.length, 2);
-        Assert.assertEquals(returnValues[0].stringValue(), "bob");
-        Assert.assertEquals(returnValues[1].stringValue(), "tom");
+        Assert.assertEquals((returnValues[0]).size(), 2);
+        Assert.assertEquals(((BValueArray) returnValues[0]).getString(0), "bob");
+        Assert.assertEquals(((BValueArray) returnValues[0]).getString(1), "tom");
     }
 
     @Test(description = "Test filtering values in a tuple from query expression")
@@ -173,3 +173,4 @@ public class SimpleQueryExpressionWithDefinedTypeTest {
         Assert.assertEquals(returnValues[0].stringValue(), "[\"C\"]");
     }
 }
+

@@ -32,6 +32,7 @@ import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons;
 import org.ballerinalang.jvm.values.api.BFunctionPointer;
 import org.ballerinalang.jvm.values.api.BMap;
+import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.jvm.values.api.BTable;
 import org.ballerinalang.jvm.values.freeze.FreezeUtils;
 import org.ballerinalang.jvm.values.freeze.State;
@@ -139,6 +140,11 @@ public class TableValue implements RefValue, BTable {
      */
     public String stringValue() {
         return createStringValueDataEntry();
+    }
+
+    @Override
+    public BString bStringValue() {
+        return null;
     }
 
     private String createStringValueDataEntry() {
@@ -516,6 +522,11 @@ public class TableValue implements RefValue, BTable {
             if (hasNext()) {
                 return table.getNext();
             }
+            return null;
+        }
+
+        @Override
+        public StringValue bStringValue() {
             return null;
         }
     }

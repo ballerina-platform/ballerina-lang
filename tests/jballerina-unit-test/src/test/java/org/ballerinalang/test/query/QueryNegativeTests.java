@@ -29,7 +29,7 @@ import org.testng.annotations.Test;
  *
  * @since 1.2.0
  */
-public class QueryNativeTests {
+public class QueryNegativeTests {
 
     @Test
     public void testFromClauseWithInvalidType() {
