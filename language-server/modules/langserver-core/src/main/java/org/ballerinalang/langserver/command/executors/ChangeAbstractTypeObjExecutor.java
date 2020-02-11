@@ -18,13 +18,19 @@ package org.ballerinalang.langserver.command.executors;
 import com.google.gson.JsonObject;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
+import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.command.ExecuteCommandKeys;
 import org.ballerinalang.langserver.commons.command.LSCommandExecutorException;
 import org.ballerinalang.langserver.commons.command.spi.LSCommandExecutor;
+import org.ballerinalang.langserver.commons.workspace.LSDocumentIdentifier;
+import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.exception.CompilationFailedException;
+import org.ballerinalang.langserver.util.references.ReferencesKeys;
+import org.ballerinalang.langserver.util.references.ReferencesUtil;
+import org.ballerinalang.langserver.util.references.SymbolReferencesModel;
 import org.ballerinalang.model.Whitespace;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
@@ -33,6 +39,7 @@ import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lsp4j.VersionedTextDocumentIdentifier;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.eclipse.lsp4j.services.LanguageClient;
+import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 
@@ -42,7 +49,6 @@ import java.util.Iterator;
 import java.util.List;
 
 import static org.ballerinalang.langserver.command.CommandUtil.applyWorkspaceEdit;
-import static org.ballerinalang.langserver.command.CommandUtil.getObjectNode;
 
 /**
  * Represents the change abstract type command executor.
@@ -87,12 +93,23 @@ public class ChangeAbstractTypeObjExecutor implements LSCommandExecutor {
             throw new LSCommandExecutorException("Invalid parameters received for the change abstract type command!");
         }
 
-        WorkspaceDocumentManager documentManager = context.get(DocumentServiceKeys.DOC_MANAGER_KEY);
+        WorkspaceDocumentManager docManager = context.get(DocumentServiceKeys.DOC_MANAGER_KEY);
 
-        BLangObjectTypeNode objectNode;
+        BLangObjectTypeNode objectNode = null;
         try {
-            objectNode = getObjectNode(sLine, sCol, documentUri, documentManager, context);
-        } catch (CompilationFailedException e) {
+            LSDocumentIdentifier lsDocument = docManager.getLSDocument(CommonUtil.getPathFromURI(documentUri).get());
+            Position pos = new Position(sLine, sCol + 1);
+            context.put(ReferencesKeys.OFFSET_CURSOR_N_TRY_NEXT_BEST, true);
+
+            SymbolReferencesModel.Reference refAtCursor = ReferencesUtil.getReferenceAtCursor(context, lsDocument, pos);
+            BLangNode bLangNode = refAtCursor.getbLangNode();
+            if (bLangNode instanceof BLangObjectTypeNode) {
+                objectNode = (BLangObjectTypeNode) bLangNode;
+            } else if (bLangNode instanceof BLangFunction) {
+                BLangFunction func = (BLangFunction) bLangNode;
+                objectNode = (func.parent instanceof BLangObjectTypeNode) ? (BLangObjectTypeNode) func.parent : null;
+            }
+        } catch (CompilationFailedException | WorkspaceDocumentException e) {
             throw new LSCommandExecutorException("Error while compiling the source!");
         }
         if (objectNode == null) {

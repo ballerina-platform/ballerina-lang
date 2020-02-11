@@ -16,11 +16,20 @@
 package org.ballerinalang.langserver.codeaction.providers;
 
 import org.ballerinalang.langserver.commons.LSContext;
+import org.ballerinalang.langserver.commons.codeaction.CodeActionKeys;
 import org.ballerinalang.langserver.commons.codeaction.CodeActionNodeType;
 import org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider;
+import org.ballerinalang.langserver.commons.workspace.LSDocumentIdentifier;
+import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
+import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.Diagnostic;
+import org.eclipse.lsp4j.Position;
+import org.eclipse.lsp4j.TextEdit;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.StringReader;
 import java.util.List;
 
 /**
@@ -54,7 +63,7 @@ public abstract class AbstractCodeActionProvider implements LSCodeActionProvider
      */
     @Override
     public abstract List<CodeAction> getCodeActions(CodeActionNodeType nodeType, LSContext lsContext,
-                                                       List<Diagnostic> diagnostics);
+                                                    List<Diagnostic> diagnostics);
 
     /**
      * {@inheritDoc}
@@ -78,5 +87,47 @@ public abstract class AbstractCodeActionProvider implements LSCodeActionProvider
     @Override
     public final List<CodeActionNodeType> getCodeActionNodeTypes() {
         return this.codeActionNodeTypes;
+    }
+
+    /**
+     * Returns diagnostic message highlighted content.
+     *
+     * @param diagnostic {@link Diagnostic}
+     * @param context    {@link LSContext}
+     * @param document   {@link LSDocumentIdentifier}
+     * @return diagnostic highlighted content
+     */
+    protected static String getDiagnosedContent(Diagnostic diagnostic, LSContext context,
+                                                LSDocumentIdentifier document) {
+        WorkspaceDocumentManager docManager = context.get(CodeActionKeys.DOCUMENT_MANAGER_KEY);
+        StringBuilder content = new StringBuilder();
+        Position start = diagnostic.getRange().getStart();
+        Position end = diagnostic.getRange().getEnd();
+        try (BufferedReader reader = new BufferedReader(
+                new StringReader(docManager.getFileContent(document.getPath())))) {
+            String strLine;
+            int count = 0;
+            while ((strLine = reader.readLine()) != null) {
+                if (count >= start.getLine() && count <= end.getLine()) {
+                    if (count == start.getLine()) {
+                        content.append(strLine.substring(start.getCharacter()));
+                        if (start.getLine() != end.getLine()) {
+                            content.append(System.lineSeparator());
+                        }
+                    } else if (count == end.getLine()) {
+                        content.append(strLine.substring(0, end.getCharacter()));
+                    } else {
+                        content.append(strLine).append(System.lineSeparator());
+                    }
+                }
+                if (count == end.getLine()) {
+                    break;
+                }
+                count++;
+            }
+        } catch (WorkspaceDocumentException | IOException e) {
+            // ignore error
+        }
+        return content.toString();
     }
 }

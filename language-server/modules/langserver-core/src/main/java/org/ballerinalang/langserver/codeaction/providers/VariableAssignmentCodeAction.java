@@ -29,6 +29,7 @@ import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.exception.CompilationFailedException;
+import org.ballerinalang.langserver.util.references.ReferencesKeys;
 import org.ballerinalang.langserver.util.references.SymbolReferencesModel;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.expressions.IndexBasedAccessNode;
@@ -56,9 +57,7 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.util.Flags;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.StringReader;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -118,6 +117,7 @@ public class VariableAssignmentCodeAction extends AbstractCodeActionProvider {
         Position position = diagnostic.getRange().getStart();
 
         try {
+            context.put(ReferencesKeys.OFFSET_CURSOR_N_TRY_NEXT_BEST, true);
             Position afterAliasPos = offsetInvocation(diagnosedContent, position);
             SymbolReferencesModel.Reference refAtCursor = getReferenceAtCursor(context, document, afterAliasPos);
             BSymbol symbolAtCursor = refAtCursor.getSymbol();
@@ -136,7 +136,7 @@ public class VariableAssignmentCodeAction extends AbstractCodeActionProvider {
 
             String commandTitle = CommandConstants.CREATE_VARIABLE_TITLE;
             CodeAction action = new CodeAction(commandTitle);
-            List<TextEdit> edits = getCreateVariableCodeActionEdits(context, uri, refAtCursor,
+            List<TextEdit> edits = getCreateVariableCodeActionEdits(context, uri, refAtCursor, position,
                                                                     hasDefaultInitFunction, hasCustomInitFunction);
             action.setKind(CodeActionKind.QuickFix);
             action.setEdit(new WorkspaceEdit(Collections.singletonList(Either.forLeft(
@@ -189,99 +189,9 @@ public class VariableAssignmentCodeAction extends AbstractCodeActionProvider {
         return actions;
     }
 
-    private static String getDiagnosedContent(Diagnostic diagnostic, LSContext context, LSDocumentIdentifier document) {
-        WorkspaceDocumentManager docManager = context.get(CodeActionKeys.DOCUMENT_MANAGER_KEY);
-        StringBuilder content = new StringBuilder();
-        Position start = diagnostic.getRange().getStart();
-        Position end = diagnostic.getRange().getEnd();
-        try (BufferedReader reader = new BufferedReader(
-                new StringReader(docManager.getFileContent(document.getPath())))) {
-            String strLine;
-            int count = 0;
-            while ((strLine = reader.readLine()) != null) {
-                if (count >= start.getLine() && count <= end.getLine()) {
-                    if (count == start.getLine()) {
-                        content.append(strLine.substring(start.getCharacter()));
-                        if (start.getLine() != end.getLine()) {
-                            content.append(System.lineSeparator());
-                        }
-                    } else if (count == end.getLine()) {
-                        content.append(strLine.substring(0, end.getCharacter()));
-                    } else {
-                        content.append(strLine).append(System.lineSeparator());
-                    }
-                }
-                if (count == end.getLine()) {
-                    break;
-                }
-                count++;
-            }
-        } catch (WorkspaceDocumentException | IOException e) {
-            // ignore error
-        }
-        return content.toString();
-    }
-
-    private static Position offsetInvocation(String diagnosedContent, Position position) {
-//        Need to capture the correct function invocation position in chain & nested invocations
-//        eg. General Invocations: lorry.get_color()
-//            Chain invocations: lorry.get_color().print(10),
-//            Package Prefixes: http:lorry.get_color()
-//            Action invocations: http:lorry->action()
-//            Nested invocations: crypto:hashMd5(str.toBytes())
-//            Field accesses: http:lorry.get_color
-//            String Params: lorry.get_color("test.invoke(\"")
-        String content = diagnosedContent;
-        int pendingLParenthesis = 0;
-        boolean loop = true;
-        boolean insideString = false;
-        int count = 0;
-        int pointer = content.length();
-        while (loop) {
-            pointer--;
-            if (content.length() == 2) {
-                break;
-            }
-            // Check for stop-conditions
-            char tailChar = content.charAt(pointer);
-            char tailPrevChar = content.charAt(pointer - 1);
-            if (tailChar == '"' && tailPrevChar != '\\') {
-                insideString = !insideString;
-            }
-            if (!insideString) {
-                if (pendingLParenthesis <= 0) {
-                    if (tailChar == '.' || tailChar == ':') {
-                        // Break on field-access or package-prefix
-                        count++;
-                        break;
-                    } else if ((tailPrevChar == '-' && tailChar == '>')) {
-                        // Break on arrow-function invocations
-                        count += 2;
-                        break;
-                    }
-                }
-                // Remove chars Right-to-Left
-                if (tailChar == '(') {
-                    pendingLParenthesis--;
-                } else if (tailChar == ')') {
-                    pendingLParenthesis++;
-                }
-            }
-            content = content.substring(0, pointer);
-            count++;
-        }
-
-        // Diagnosed message only contains the erroneous part of the line
-        // Thus we offset into last
-        int bal = diagnosedContent.length() - count;
-        if (bal > 0) {
-            position.setCharacter(position.getCharacter() + bal + 1);
-        }
-        return position;
-    }
-
     private static List<TextEdit> getCreateVariableCodeActionEdits(LSContext context, String uri,
                                                                    SymbolReferencesModel.Reference referenceAtCursor,
+                                                                   Position position,
                                                                    boolean hasDefaultInitFunction,
                                                                    boolean hasCustomInitFunction) {
         BLangNode bLangNode = referenceAtCursor.getbLangNode();
@@ -319,8 +229,8 @@ public class VariableAssignmentCodeAction extends AbstractCodeActionProvider {
         // Remove brackets of the unions
         variableType = variableType.replaceAll("^\\((.*)\\)$", "$1");
         String editText = createVariableDeclaration(variableName, variableType);
-        Position position = new Position(bLangNode.pos.sLine - 1, bLangNode.pos.sCol - 1);
-        edits.add(new TextEdit(new Range(position, position), editText));
+        Position insertPos = new Position(position.getLine(), position.getCharacter());
+        edits.add(new TextEdit(new Range(insertPos, insertPos), editText));
         return edits;
     }
 
