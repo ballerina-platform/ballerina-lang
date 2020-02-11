@@ -43,7 +43,7 @@ service alwaysCompress on listenerEndpoint {
         json msg = {"Type": "Always but constrained by content-type"};
         var result = caller->respond(msg);
         if (result is error) {
-            log:printError("Error sending response", err = result);
+            log:printError("Error sending response", result);
         }
     }
     // The response entity body is always compressed since MIME type has matched.
