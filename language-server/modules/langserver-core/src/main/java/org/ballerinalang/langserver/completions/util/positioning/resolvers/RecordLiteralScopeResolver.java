@@ -61,7 +61,8 @@ public class RecordLiteralScopeResolver extends CursorPositionResolver {
         boolean isLastField = fields.indexOf(node) == fields.size() - 1;
         boolean isCursorBefore = ((nodeStartLine > line) || (nodeStartLine == line && col < nodeStartCol)) ||
                 (isLastField && ((line < ownerEndLine && (line > nodeEndLine
-                        || (line == nodeEndLine && col > nodeEndCol))) || (line == ownerEndLine && col < ownerEndCol)));
+                        || (line == nodeEndLine && col >= nodeEndCol)))
+                        || (line == ownerEndLine && col < ownerEndCol)));
         
         if (isCursorBefore) {
             treeVisitor.forceTerminateVisitor();
