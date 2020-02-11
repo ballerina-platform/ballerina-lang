@@ -41,7 +41,7 @@ service contentBasedRouting on new http:Listener(9090) {
                 if (clientResponse is http:Response) {
                     var result = outboundEP->respond(clientResponse);
                     if (result is error) {
-                        log:printError("Error sending response", err = result);
+                        log:printError("Error sending response", result);
                     }
                 } else {
                     http:Response res = new;
